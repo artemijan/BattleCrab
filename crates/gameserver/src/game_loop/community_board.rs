@@ -47,7 +47,9 @@ const MAX_SCHEMES: usize = 5;
 /// Entry point for `RequestShowBoard` and every `_bbs*` bypass — port of
 /// `CommunityBoardHandler.handleParseCommand` + `HomeBoard.parseCommunityBoardCommand`.
 pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &str) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
 
     if !world.cfg.community_board.enabled {
@@ -79,13 +81,21 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
     // / dead. TODO(G30): duel, olympiad, SIEGE/PVP zones and event state once
     // those exist (Java also checks `isInDuel`/`isInOlympiadMode`/`isOnEvent`).
     if is_custom_action(command) && is_busy(world, object_id) {
-        send_message(world, client_id, "You can't use the Community Board right now.");
+        send_message(
+            world,
+            client_id,
+            "You can't use the Community Board right now.",
+        );
         return;
     }
 
     // `HomeBoard.KARMA_CHECK`.
     if world.cfg.community_board.karma_disabled && reputation(world, object_id) < 0 {
-        send_message(world, client_id, "Players with Karma cannot use the Community Board.");
+        send_message(
+            world,
+            client_id,
+            "Players with Karma cannot use the Community Board.",
+        );
         return;
     }
 
@@ -133,11 +143,15 @@ fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {
 
     // `_bbstop;<page>.html` serves a Custom sub-page (the nav buttons post
     // back through this); bare `_bbshome`/`_bbstop` is the landing page.
-    let page = command.strip_prefix("_bbstop;").filter(|p| p.ends_with(".html"));
+    let page = command
+        .strip_prefix("_bbstop;")
+        .filter(|p| p.ends_with(".html"));
     // Java only `addBypass(player, "Home", command)`s on the bare landing page,
     // so `bbs_add_fav` (client toolbar) bookmarks the board home.
     if page.is_none() {
-        world.cb_last_bypass.insert(object_id, ("Home".to_string(), command.to_string()));
+        world
+            .cb_last_bypass
+            .insert(object_id, ("Home".to_string(), command.to_string()));
     }
     let root = &world.data.root;
     let rel = match page {
@@ -179,7 +193,13 @@ fn do_heal(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     // TODO(G30): Java also restores the player's pet/servitors (not summonable
     // until G29).
     send_message(world, client_id, "You used heal!");
-    serve_page(world, client_id, object_id, command.strip_prefix("_bbsheal;"), "");
+    serve_page(
+        world,
+        client_id,
+        object_id,
+        command.strip_prefix("_bbsheal;"),
+        "",
+    );
 }
 
 /// `HomeBoard`'s `_bbsteleport;<x> <y> <z>` branch: charge, hide the board and
@@ -189,8 +209,15 @@ fn do_teleport(world: &mut World, client_id: u32, object_id: i32, command: &str)
     if !world.cfg.community_board.enable_teleports {
         return;
     }
-    let Some(key) = command.strip_prefix("_bbsteleport;") else { return };
-    let Some(&(x, y, z)) = world.cfg.community_board.available_teleports.get(key.trim()) else {
+    let Some(key) = command.strip_prefix("_bbsteleport;") else {
+        return;
+    };
+    let Some(&(x, y, z)) = world
+        .cfg
+        .community_board
+        .available_teleports
+        .get(key.trim())
+    else {
         warn!("CommunityBoard: teleport [{key}] not in the gatekeeper whitelist.");
         return;
     };
@@ -222,7 +249,10 @@ fn do_buff(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     let body = command.strip_prefix("_bbsbuff;").unwrap_or("");
     let parts: Vec<&str> = body.split(';').collect();
     // Last token is the return page; the rest are `id,level` pairs.
-    let (page, buffs) = parts.split_last().map(|(p, b)| (Some(*p), b)).unwrap_or((None, &[]));
+    let (page, buffs) = parts
+        .split_last()
+        .map(|(p, b)| (Some(*p), b))
+        .unwrap_or((None, &[]));
 
     let price = world.cfg.community_board.buff_price * buffs.len() as i64;
     if !charge(world, client_id, object_id, price) {
@@ -259,7 +289,9 @@ fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) 
     use super::admin::premium;
     // `HomeBoard.CUSTOM_COMMANDS` only registers `_bbspremium` when both the
     // global premium system and the community premium option are on.
-    if !premium::premium_system_enabled(world) || !world.cfg.community_board.community_premium_system {
+    if !premium::premium_system_enabled(world)
+        || !world.cfg.community_board.community_premium_system
+    {
         return;
     }
     // `_bbspremium;<days>` → Java splits the tail on `,` and takes the first field.
@@ -268,7 +300,11 @@ fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) 
         .and_then(|t| t.split(',').next())
         .and_then(|d| d.trim().parse().ok())
         .unwrap_or(0);
-    let price = world.cfg.community_board.premium_price_per_day.saturating_mul(days);
+    let price = world
+        .cfg
+        .community_board
+        .premium_price_per_day
+        .saturating_mul(days);
     // Java folds the range check into the "Not enough currency!" guard.
     if !(1..=30).contains(&days) {
         send_message(world, client_id, "Not enough currency!");
@@ -279,7 +315,9 @@ fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) 
         return;
     }
 
-    let Some(account) = account_of(world, client_id) else { return };
+    let Some(account) = account_of(world, client_id) else {
+        return;
+    };
     let enddate = premium::add_premium_time(world, &account, days * premium::DAY_MILLIS);
     send_message(
         world,
@@ -291,7 +329,13 @@ fn do_premium(world: &mut World, client_id: u32, object_id: i32, command: &str) 
     );
     // TODO(G16): Java also runs `PcCafePointsManager.run(player)` here when
     // `Config.PC_CAFE_RETAIL_LIKE` (that manager is unported).
-    serve_page(world, client_id, object_id, Some("premium/thankyou.html"), "");
+    serve_page(
+        world,
+        client_id,
+        object_id,
+        Some("premium/thankyou.html"),
+        "",
+    );
 }
 
 /// `HomeBoard`'s `_bbs_buff_scheme_*` branch: create a scheme from the player's
@@ -302,13 +346,19 @@ fn do_scheme(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     let parts: Vec<&str> = command.split_whitespace().collect();
     // Return page: `parts[2]` when present, else `parts[1]` (Java `parts.length
     // < 3`); only if it names an html.
-    let return_path = if parts.len() < 3 { parts.get(1) } else { parts.get(2) }
-        .copied()
-        .filter(|p| p.ends_with(".html"));
+    let return_path = if parts.len() < 3 {
+        parts.get(1)
+    } else {
+        parts.get(2)
+    }
+    .copied()
+    .filter(|p| p.ends_with(".html"));
 
     // Java loads the return html first, runs the command (which may set an error
     // message), then re-renders — so we always serve the return page.
-    let error = run_scheme_command(world, client_id, object_id, &parts).err().unwrap_or_default();
+    let error = run_scheme_command(world, client_id, object_id, &parts)
+        .err()
+        .unwrap_or_default();
     serve_page(world, client_id, object_id, return_path, &error);
 }
 
@@ -336,7 +386,10 @@ fn run_scheme_command(
             if schemes.len() >= MAX_SCHEMES {
                 return Err("Maximum schemes amount is already reached.".to_string());
             }
-            if schemes.iter().any(|(n, _)| n.eq_ignore_ascii_case(scheme_name)) {
+            if schemes
+                .iter()
+                .any(|(n, _)| n.eq_ignore_ascii_case(scheme_name))
+            {
                 return Err("The scheme name already exists.".to_string());
             }
         }
@@ -372,8 +425,16 @@ fn scheme_create(world: &mut World, object_id: i32, scheme_name: &str) -> Result
     if buffs.is_empty() {
         return Err("You don't have any buffs applied.".to_string());
     }
-    let skills = buffs.iter().map(|id| id.to_string()).collect::<Vec<_>>().join(",");
-    world.buffer_schemes.entry(object_id).or_default().push((scheme_name.to_string(), buffs));
+    let skills = buffs
+        .iter()
+        .map(|id| id.to_string())
+        .collect::<Vec<_>>()
+        .join(",");
+    world
+        .buffer_schemes
+        .entry(object_id)
+        .or_default()
+        .push((scheme_name.to_string(), buffs));
     let _ = world.db.send(crate::db::DbCommand::StoreBufferScheme {
         object_id,
         scheme_name: scheme_name.to_string(),
@@ -417,7 +478,11 @@ fn apply_scheme(
     }
 
     let buff_price = world.cfg.community_board.buff_price;
-    let cost = if buff_price > 0 { buff_price * scheme.len() as i64 } else { 0 };
+    let cost = if buff_price > 0 {
+        buff_price * scheme.len() as i64
+    } else {
+        0
+    };
     // NOTE: Java's guard is `(cost == 0) || inventoryCount < cost` — an inverted
     // check that applies the scheme for free (dist `BuffPrice = 0`) and, were the
     // price ever positive, would refuse only when the player CAN pay. Ported
@@ -442,7 +507,9 @@ fn apply_scheme(
         if !world.cfg.community_board.available_buffs.contains(skill_id) {
             continue;
         }
-        let Some(level) = world.data.scheme_buffer.level_of(*skill_id) else { continue };
+        let Some(level) = world.data.scheme_buffer.level_of(*skill_id) else {
+            continue;
+        };
         let Some(skill) = world.data.skill_data.get(*skill_id, level).cloned() else {
             warn!("CommunityBoard: scheme buff {skill_id}/{level} missing from skill data.");
             continue;
@@ -464,8 +531,14 @@ fn is_alphanumeric(s: &str) -> bool {
 /// nav pages pass `_bbstop`, whose file is absent → no re-render, exactly like
 /// Java's null `returnHtml`).
 fn do_multisell(world: &mut World, client_id: u32, object_id: i32, command: &str, exchange: bool) {
-    let prefix = if exchange { "_bbsexcmultisell;" } else { "_bbsmultisell;" };
-    let Some(rest) = command.strip_prefix(prefix) else { return };
+    let prefix = if exchange {
+        "_bbsexcmultisell;"
+    } else {
+        "_bbsmultisell;"
+    };
+    let Some(rest) = command.strip_prefix(prefix) else {
+        return;
+    };
     let mut opts = rest.split(',');
     let Some(list_id) = opts.next().and_then(|s| s.trim().parse::<i32>().ok()) else {
         warn!("CommunityBoard: bad multisell command [{command}].");
@@ -490,10 +563,17 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         return;
     };
     let list = list.clone();
-    if let Some(inv) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) {
+    if let Some(inv) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
-            cs.send(crate::network::trade::ex_buy_sell_list_sell(inv, &world.data, false));
+            cs.send(crate::network::trade::ex_buy_sell_list_sell(
+                inv,
+                &world.data,
+                false,
+            ));
         }
     }
 }
@@ -502,10 +582,18 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
 /// but silent when the file is missing (the `_bbstop` sentinel names no file
 /// and is hit on every purchase — Java just leaves the board unchanged).
 fn render_merchant_page(world: &mut World, client_id: u32, object_id: i32, page: Option<&str>) {
-    let Some(page) = page.filter(|p| !p.is_empty()) else { return };
-    let file = if page.ends_with(".html") { page.to_string() } else { format!("{page}.html") };
+    let Some(page) = page.filter(|p| !p.is_empty()) else {
+        return;
+    };
+    let file = if page.ends_with(".html") {
+        page.to_string()
+    } else {
+        format!("{page}.html")
+    };
     let rel = format!("data/html/CommunityBoard/Custom/{file}");
-    let Some(html) = read_html(&world.data.root, &rel) else { return };
+    let Some(html) = read_html(&world.data.root, &rel) else {
+        return;
+    };
     let html = finalize_custom(world, object_id, html, "");
     send_cb_html(world, client_id, &html);
 }
@@ -561,7 +649,12 @@ fn add_favorite(world: &mut World, client_id: u32, object_id: i32) {
     let add_date = format_fav_date(commons::util::now_millis());
     world.bbs_favorites.entry(object_id).or_default().insert(
         0,
-        crate::world::Favorite { fav_id, title: title.clone(), bypass: bypass.clone(), add_date: add_date.clone() },
+        crate::world::Favorite {
+            fav_id,
+            title: title.clone(),
+            bypass: bypass.clone(),
+            add_date: add_date.clone(),
+        },
     );
     let _ = world.db.send(crate::db::DbCommand::StoreFavorite {
         fav_id,
@@ -576,14 +669,20 @@ fn add_favorite(world: &mut World, client_id: u32, object_id: i32) {
 /// Port of `FavoriteBoard`'s `_bbsdelfav_<id>` branch: drop the favorite by id
 /// (Java validates `Util.isDigit`), then re-render the list.
 fn del_favorite(world: &mut World, client_id: u32, object_id: i32, command: &str) {
-    let Some(fav_id) = command.strip_prefix("_bbsdelfav_").and_then(|s| s.parse::<i32>().ok()) else {
+    let Some(fav_id) = command
+        .strip_prefix("_bbsdelfav_")
+        .and_then(|s| s.parse::<i32>().ok())
+    else {
         warn!("CommunityBoard: [{command}] is not a valid favorite id.");
         return;
     };
     if let Some(favs) = world.bbs_favorites.get_mut(&object_id) {
         favs.retain(|f| f.fav_id != fav_id);
     }
-    let _ = world.db.send(crate::db::DbCommand::DeleteFavorite { player_id: object_id, fav_id });
+    let _ = world.db.send(crate::db::DbCommand::DeleteFavorite {
+        player_id: object_id,
+        fav_id,
+    });
     show_favorites(world, client_id, object_id);
 }
 
@@ -622,7 +721,9 @@ fn do_drop_search(world: &mut World, client_id: u32, command: &str) {
             // `buildItemName` joins params[1..] with spaces (empty = match all).
             let item_name = params[1..].join(" ");
             let result = build_item_search_result(world, &item_name);
-            render_drop_search(world, client_id, |html| html.replace("%searchResult%", &result));
+            render_drop_search(world, client_id, |html| {
+                html.replace("%searchResult%", &result)
+            });
         }
         "_bbs_search_drop" => do_search_drop(world, client_id, &params),
         "_bbs_npc_trace" => {
@@ -644,7 +745,8 @@ fn render_drop_search(world: &World, client_id: u32, f: impl FnOnce(String) -> S
         warn!("CommunityBoard: missing dropsearch/main.html.");
         return;
     };
-    let navigation = read_html(root, "data/html/CommunityBoard/Custom/navigation.html").unwrap_or_default();
+    let navigation =
+        read_html(root, "data/html/CommunityBoard/Custom/navigation.html").unwrap_or_default();
     let html = f(html).replace("%navigation%", &navigation);
     send_cb_html(world, client_id, &html);
 }
@@ -710,7 +812,13 @@ fn do_search_drop(world: &World, client_id: u32, params: &[&str]) {
     ) else {
         return;
     };
-    let list = world.data.npc_data.drop_index().get(&item_id).cloned().unwrap_or_default();
+    let list = world
+        .data
+        .npc_data
+        .drop_index()
+        .get(&item_id)
+        .cloned()
+        .unwrap_or_default();
     let rates = &world.cfg.rates;
 
     let mut pages = list.len() / 14;
@@ -724,10 +832,36 @@ fn do_search_drop(world: &World, client_id: u32, params: &[&str]) {
     if !list.is_empty() {
         let end = (list.len() - 1).min(start + 14);
         for d in list.iter().take(end + 1).skip(start) {
-            let rate_chance = drop_rate(rates.spoil_drop_chance_multiplier, rates.raid_drop_chance_multiplier, rates.death_drop_chance_multiplier, d.is_spoil, d.is_raid)
-                * if d.is_spoil { 1.0 } else { rates.drop_chance_by_id.get(&d.item_id).copied().unwrap_or(1.0) };
-            let rate_amount = drop_rate(rates.spoil_drop_amount_multiplier, rates.raid_drop_amount_multiplier, rates.death_drop_amount_multiplier, d.is_spoil, d.is_raid)
-                * if d.is_spoil { 1.0 } else { rates.drop_amount_by_id.get(&d.item_id).copied().unwrap_or(1.0) };
+            let rate_chance = drop_rate(
+                rates.spoil_drop_chance_multiplier,
+                rates.raid_drop_chance_multiplier,
+                rates.death_drop_chance_multiplier,
+                d.is_spoil,
+                d.is_raid,
+            ) * if d.is_spoil {
+                1.0
+            } else {
+                rates
+                    .drop_chance_by_id
+                    .get(&d.item_id)
+                    .copied()
+                    .unwrap_or(1.0)
+            };
+            let rate_amount = drop_rate(
+                rates.spoil_drop_amount_multiplier,
+                rates.raid_drop_amount_multiplier,
+                rates.death_drop_amount_multiplier,
+                d.is_spoil,
+                d.is_raid,
+            ) * if d.is_spoil {
+                1.0
+            } else {
+                rates
+                    .drop_amount_by_id
+                    .get(&d.item_id)
+                    .copied()
+                    .unwrap_or(1.0)
+            };
             let min = fmt_amount(d.min as f64 * rate_amount);
             let max = fmt_amount(d.max as f64 * rate_amount);
             result.push_str(&format!(
@@ -753,7 +887,8 @@ fn do_search_drop(world: &World, client_id: u32, params: &[&str]) {
     pages_html.push_str("</tr>");
 
     render_drop_search(world, client_id, |html| {
-        html.replace("%searchResult%", &result).replace("%pages%", &pages_html)
+        html.replace("%searchResult%", &result)
+            .replace("%pages%", &pages_html)
     });
 }
 
@@ -784,15 +919,23 @@ fn fmt_amount(v: f64) -> String {
 /// of the NPC and drop a world-map marker on it (Java `Radar.addMarker`), or
 /// message the player when none is spawned (bosses / instance mobs).
 fn do_npc_trace(world: &mut World, client_id: u32, params: &[&str]) {
-    let Some(npc_id) = params.get(1).and_then(|s| s.parse::<i32>().ok()) else { return };
+    let Some(npc_id) = params.get(1).and_then(|s| s.parse::<i32>().ok()) else {
+        return;
+    };
     let mut locs: Vec<(i32, i32, i32)> = Vec::new();
-    world.objects.for_each_mut::<&crate::model::npc::Npc>(|npc| {
-        if npc.npc_id == npc_id {
-            locs.push(npc.spawn_loc);
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<&crate::model::npc::Npc>(|npc| {
+            if npc.npc_id == npc_id {
+                locs.push(npc.spawn_loc);
+            }
+        });
     if locs.is_empty() {
-        send_message(world, client_id, "Cannot find any spawn. Maybe dropped by a boss or instance monster.");
+        send_message(
+            world,
+            client_id,
+            "Cannot find any spawn. Maybe dropped by a boss or instance monster.",
+        );
         return;
     }
     let (x, y, z) = locs[world.roll(locs.len() as i32) as usize];
@@ -806,11 +949,23 @@ fn do_npc_trace(world: &mut World, client_id: u32, params: &[&str]) {
 /// Re-render a Custom sub-page after an action (the `page` tail the action
 /// bypasses carry, e.g. `buffer/main` or `buffer/schemes.html`), with an
 /// optional error banner. No-op if the tail is missing.
-fn serve_page(world: &mut World, client_id: u32, object_id: i32, page: Option<&str>, error_message: &str) {
-    let Some(page) = page.filter(|p| !p.is_empty()) else { return };
+fn serve_page(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    page: Option<&str>,
+    error_message: &str,
+) {
+    let Some(page) = page.filter(|p| !p.is_empty()) else {
+        return;
+    };
     // Java's `_bbsbuff`/`_bbsheal` pass a bare tail (`buffer/main`) and append
     // ".html" unconditionally; the scheme/premium paths already carry it.
-    let file = if page.ends_with(".html") { page.to_string() } else { format!("{page}.html") };
+    let file = if page.ends_with(".html") {
+        page.to_string()
+    } else {
+        format!("{page}.html")
+    };
     let rel = format!("data/html/CommunityBoard/Custom/{file}");
     let Some(html) = read_html(&world.data.root, &rel) else {
         warn!("CommunityBoard: missing sub-page [{rel}].");
@@ -823,9 +978,14 @@ fn serve_page(world: &mut World, client_id: u32, object_id: i32, page: Option<&s
 /// Port of `HomeBoard`'s post-build custom substitution: inject the navigation
 /// panel, the `%errorMessage%` banner, and the `%schemenames%` scheme buttons.
 fn finalize_custom(world: &World, object_id: i32, html: String, error_message: &str) -> String {
-    let navigation =
-        read_html(&world.data.root, "data/html/CommunityBoard/Custom/navigation.html").unwrap_or_default();
-    let mut html = html.replace("%navigation%", &navigation).replace("%errorMessage%", error_message);
+    let navigation = read_html(
+        &world.data.root,
+        "data/html/CommunityBoard/Custom/navigation.html",
+    )
+    .unwrap_or_default();
+    let mut html = html
+        .replace("%navigation%", &navigation)
+        .replace("%errorMessage%", error_message);
     if html.contains("%schemenames%") {
         html = html.replace("%schemenames%", &render_scheme_names(world, object_id));
     }
@@ -838,7 +998,8 @@ fn render_scheme_names(world: &World, object_id: i32) -> String {
     match world.buffer_schemes.get(&object_id) {
         Some(schemes) => build_scheme_html(schemes),
         None => {
-            "No buffer schemes yet, please make sure you have buffs and then click Create Scheme.".to_string()
+            "No buffer schemes yet, please make sure you have buffs and then click Create Scheme."
+                .to_string()
         }
     }
 }
@@ -904,7 +1065,11 @@ fn is_busy(world: &World, object_id: i32) -> bool {
 }
 
 fn reputation(world: &World, object_id: i32) -> i32 {
-    world.objects.get_component::<Player>(&object_id).map(|p| p.reputation).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.reputation)
+        .unwrap_or(0)
 }
 
 /// The account name behind a client (Java `player.getAccountName()`), for the
@@ -926,7 +1091,13 @@ fn charge(world: &mut World, client_id: u32, object_id: i32, price: i64) -> bool
 /// `player.destroyItemByItemId(item_id, price)` with the "not enough" guard.
 /// A zero/negative price is free (no inventory touch). Returns whether the
 /// action may proceed.
-fn charge_item(world: &mut World, client_id: u32, object_id: i32, item_id: i32, price: i64) -> bool {
+fn charge_item(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    item_id: i32,
+    price: i64,
+) -> bool {
     if price <= 0 {
         return true;
     }
@@ -959,7 +1130,9 @@ fn send_message(world: &World, client_id: u32, text: &str) {
 /// and send each as a `ShowBoard`. Split by char boundaries (htmls are ASCII,
 /// so this matches Java's UTF-16-length branches for the content we serve).
 fn send_cb_html(world: &World, client_id: u32, html: &str) {
-    let Some(cs) = world.clients.get(&client_id) else { return };
+    let Some(cs) = world.clients.get(&client_id) else {
+        return;
+    };
     for packet in build_cb_packets(html) {
         cs.send(packet);
     }
@@ -1019,8 +1192,14 @@ mod tests {
     fn short_html_is_one_content_packet_plus_two_empty() {
         let pkts = build_cb_packets("<html><body>hi</body></html>");
         assert_eq!(pkts.len(), 3);
-        assert!(cb_content(&pkts[0]).starts_with("101\u{0008}"), "first chunk tagged 101");
-        assert!(cb_content(&pkts[0]).contains("hi"), "html lands in the first chunk");
+        assert!(
+            cb_content(&pkts[0]).starts_with("101\u{0008}"),
+            "first chunk tagged 101"
+        );
+        assert!(
+            cb_content(&pkts[0]).contains("hi"),
+            "html lands in the first chunk"
+        );
         // Empty continuation chunks reproduce Java's literal `null`.
         assert_eq!(cb_content(&pkts[1]), "102\u{0008}null");
         assert_eq!(cb_content(&pkts[2]), "103\u{0008}null");
@@ -1033,8 +1212,16 @@ mod tests {
         assert_eq!(pkts.len(), 3);
         let c0 = cb_content(&pkts[0]);
         let c1 = cb_content(&pkts[1]);
-        assert_eq!(c0.chars().count(), "101\u{0008}".chars().count() + CHUNK, "first chunk is full");
-        assert_eq!(c1.chars().count(), "102\u{0008}".chars().count() + 500, "remainder in the second");
+        assert_eq!(
+            c0.chars().count(),
+            "101\u{0008}".chars().count() + CHUNK,
+            "first chunk is full"
+        );
+        assert_eq!(
+            c1.chars().count(),
+            "102\u{0008}".chars().count() + 500,
+            "remainder in the second"
+        );
         assert_eq!(cb_content(&pkts[2]), "103\u{0008}null", "third chunk empty");
     }
 }

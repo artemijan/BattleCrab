@@ -27,7 +27,9 @@ pub const DEAD: i32 = 1;
 /// dead boss's lair. Latent until the entry flows landed, because nothing
 /// ever set WAITING before.
 pub(crate) fn dead_status(boss_id: i32) -> i32 {
-    if boss_id == crate::game_loop::antharas::ANTHARAS || boss_id == crate::game_loop::valakas::VALAKAS {
+    if boss_id == crate::game_loop::antharas::ANTHARAS
+        || boss_id == crate::game_loop::valakas::VALAKAS
+    {
         3
     } else {
         DEAD
@@ -48,7 +50,9 @@ pub(crate) fn status(world: &World, boss_id: i32) -> Option<i32> {
 /// The window is Java's `(interval + getRandom(-random, random)) * 3600000`, so
 /// a boss is never up at a predictable hour — the whole point of the spread.
 pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
-    let Some(window) = world.cfg.grand_boss.window_for(boss_id) else { return };
+    let Some(window) = world.cfg.grand_boss.window_for(boss_id) else {
+        return;
+    };
     // `getRandom(-r, r)` is inclusive on both ends.
     let spread = if window.random_hours > 0 {
         world.roll(window.random_hours * 2 + 1) - window.random_hours
@@ -130,8 +134,12 @@ pub(crate) fn resolve_at_boot(world: &mut World) {
 
 /// Place the boss at its stored location with its stored vitals.
 fn spawn_from_record(world: &mut World, boss_id: i32) {
-    let Some(b) = world.grand_bosses.get(&boss_id).cloned() else { return };
-    let Some(oid) = crate::model::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading) else {
+    let Some(b) = world.grand_bosses.get(&boss_id).cloned() else {
+        return;
+    };
+    let Some(oid) =
+        crate::model::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading)
+    else {
         return;
     };
     // Per-boss script hooks. Queen Ant brings out her larva and starts the
@@ -156,7 +164,10 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a
     // positive value overrides the template's full vitals.
     if b.current_hp > 0.0 {
-        if let Some(v) = world.objects.get_component_mut::<crate::model::components::Vitals>(&oid) {
+        if let Some(v) = world
+            .objects
+            .get_component_mut::<crate::model::components::Vitals>(&oid)
+        {
             v.cur_hp = b.current_hp.min(v.max_hp as f64);
             v.cur_mp = b.current_mp.min(v.max_mp as f64);
         }

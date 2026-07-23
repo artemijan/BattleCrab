@@ -87,7 +87,10 @@ mod tests {
         let key = crate::util::generate_hex(40); // non-zero bytes, like Java
         let block = pubmod.encrypt_raw(&key);
         let decrypted = pair.decrypt_raw(&block);
-        let first = decrypted.iter().position(|&b| b != 0).unwrap_or(decrypted.len());
+        let first = decrypted
+            .iter()
+            .position(|&b| b != 0)
+            .unwrap_or(decrypted.len());
         assert_eq!(&decrypted[first..], &key[..]);
     }
 }

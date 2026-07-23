@@ -4,24 +4,31 @@
 use super::*;
 
 use crate::game_loop::vitality;
-use crate::network::server_packets::sm_ids;
 use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
+use crate::network::server_packets::sm_ids;
 
 const CID: u32 = 1;
 const OID: i32 = 268_500_001;
 
 fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
-    out.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
+    out.iter()
+        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
 }
 
 /// A world with vitality switched on, matching this dist's `Character.ini`.
-fn vitality_world() -> (World, db::CmdTx, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>)
-{
+fn vitality_world() -> (
+    World,
+    db::CmdTx,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, tx, rx, link) = test_world();
     // `for_test` ships an empty experience table, which caps exp at -1; give
     // the world a real ladder so the reward assertions mean something.
     world.data.experience = crate::data::ExperienceData::from_table(
-        vec![0, 0, 1000, 5000, 20_000, 100_000, 500_000, 2_000_000, 10_000_000],
+        vec![
+            0, 0, 1000, 5000, 20_000, 100_000, 500_000, 2_000_000, 10_000_000,
+        ],
         8,
     );
     world.cfg.character.enable_vitality = true;
@@ -32,11 +39,19 @@ fn vitality_world() -> (World, db::CmdTx, db::CmdRx, tokio::sync::mpsc::Unbounde
 }
 
 fn set_points(world: &mut World, oid: i32, points: i32) {
-    world.objects.get_component_mut::<Player>(&oid).unwrap().vitality_points = points;
+    world
+        .objects
+        .get_component_mut::<Player>(&oid)
+        .unwrap()
+        .vitality_points = points;
 }
 
 fn points(world: &World, oid: i32) -> i32 {
-    world.objects.get_component::<Player>(&oid).unwrap().vitality_points
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .vitality_points
 }
 
 // ---------------------------------------------------------------------------
@@ -53,7 +68,9 @@ fn set_clamps_and_announces() {
     drain(&mut out);
 
     // Way over the cap: clamped, and the "at maximum" line fires.
-    assert!(vitality::set_vitality_points(&mut world, OID, 999_999, false));
+    assert!(vitality::set_vitality_points(
+        &mut world, OID, 999_999, false
+    ));
     assert_eq!(points(&world, OID), MAX_VITALITY_POINTS);
     let packets = drain(&mut out);
     assert!(has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_INCREASED));
@@ -82,7 +99,9 @@ fn quiet_set_skips_messages_but_updates_gauge() {
     assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_INCREASED));
     // 0xFE extended packet 0xA1 = ExVitalityPointInfo.
     assert!(
-        packets.iter().any(|p| p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0xA1),
+        packets
+            .iter()
+            .any(|p| p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0xA1),
         "expected ExVitalityPointInfo"
     );
 }
@@ -125,7 +144,9 @@ fn update_is_inert_when_the_system_is_off() {
     let _out = ingame_player(&mut world, CID, OID, 0, 0, 0);
     set_points(&mut world, OID, 500);
 
-    assert!(!vitality::update_vitality_points(&mut world, OID, -200, true, true));
+    assert!(!vitality::update_vitality_points(
+        &mut world, OID, -200, true, true
+    ));
     assert_eq!(points(&world, OID), 500);
 }
 
@@ -139,10 +160,18 @@ fn gain_and_lost_rates_scale_the_delta() {
     set_points(&mut world, OID, 1000);
 
     vitality::update_vitality_points(&mut world, OID, -100, true, true);
-    assert_eq!(points(&world, OID), 700, "-100 at RateVitalityLost=3 spends 300");
+    assert_eq!(
+        points(&world, OID),
+        700,
+        "-100 at RateVitalityLost=3 spends 300"
+    );
 
     vitality::update_vitality_points(&mut world, OID, 30, true, true);
-    assert_eq!(points(&world, OID), 1000, "+30 at RateVitalityGain=10 restores 300");
+    assert_eq!(
+        points(&world, OID),
+        1000,
+        "+30 at RateVitalityGain=10 restores 300"
+    );
 
     // `useRates = false` bypasses both.
     vitality::update_vitality_points(&mut world, OID, -100, false, true);
@@ -186,7 +215,10 @@ fn vitality_doubles_awarded_exp_and_reports_the_bonus() {
     // SM params: [finalExp, expBonus, finalSp, spBonus] — the bonus half is
     // the surplus over base, i.e. 1000 exp / 100 sp.
     let packets = drain(&mut out);
-    assert!(has_sm(&packets, sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4));
+    assert!(has_sm(
+        &packets,
+        sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4
+    ));
 
     // Drained pool: the same call now pays base only.
     set_points(&mut world, OID, 0);
@@ -207,7 +239,10 @@ fn quest_rewards_skip_the_vitality_bonus() {
 
     let before = world.objects.get_component::<Player>(&OID).unwrap().exp;
     crate::game_loop::death::add_exp_and_sp(&mut world, OID, 1000.0, 0.0, false);
-    assert_eq!(world.objects.get_component::<Player>(&OID).unwrap().exp - before, 1000);
+    assert_eq!(
+        world.objects.get_component::<Player>(&OID).unwrap().exp - before,
+        1000
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -221,11 +256,20 @@ fn kill_cost_uses_the_sub_85_formula() {
     let (world, _tx, _rx, _l) = vitality_world();
 
     // exp 5000, same level → gap floors to 1 → -(5000/1000 * 1) = -5.
-    assert_eq!(vitality::kill_vitality_delta(&world, 20, 100.0, 20, 5000.0, false), -5);
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 20, 100.0, 20, 5000.0, false),
+        -5
+    );
     // Killer 5 levels above → gap 5 → -25.
-    assert_eq!(vitality::kill_vitality_delta(&world, 20, 100.0, 25, 5000.0, false), -25);
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 20, 100.0, 25, 5000.0, false),
+        -25
+    );
     // Killer *below* the mob still floors the gap at 1.
-    assert_eq!(vitality::kill_vitality_delta(&world, 40, 100.0, 20, 5000.0, false), -5);
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 40, 100.0, 20, 5000.0, false),
+        -5
+    );
 }
 
 /// Any positive-exp kill costs at least one point (Java's `Math.max(…, 1)`),
@@ -235,10 +279,19 @@ fn kill_cost_floors_at_one_and_skips_worthless_mobs() {
     let (world, _tx, _rx, _l) = vitality_world();
 
     // Tiny exp truncates to 0 → floored to 1 point.
-    assert_eq!(vitality::kill_vitality_delta(&world, 10, 100.0, 10, 1.0, false), -1);
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 10, 100.0, 10, 1.0, false),
+        -1
+    );
     // No exp reward on the template, or a level-less NPC: no change at all.
-    assert_eq!(vitality::kill_vitality_delta(&world, 10, 0.0, 10, 500.0, false), 0);
-    assert_eq!(vitality::kill_vitality_delta(&world, 0, 100.0, 10, 500.0, false), 0);
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 10, 0.0, 10, 500.0, false),
+        0
+    );
+    assert_eq!(
+        vitality::kill_vitality_delta(&world, 0, 100.0, 10, 500.0, false),
+        0
+    );
 }
 
 /// A real kill drains the killer's pool through the full `calculate_rewards`
@@ -269,9 +322,22 @@ fn killing_a_monster_drains_vitality() {
         .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
         .unwrap()
         .0
-        .insert(OID, crate::model::npc::AggroInfo { hate: 100.0, damage: 100.0 });
-    world.objects.get_component_mut::<crate::model::components::Vitals>(&NPC_OID).unwrap().cur_hp = 1.0;
+        .insert(
+            OID,
+            crate::model::npc::AggroInfo {
+                hate: 100.0,
+                damage: 100.0,
+            },
+        );
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&NPC_OID)
+        .unwrap()
+        .cur_hp = 1.0;
     crate::game_loop::death::npc_do_die(&mut world, NPC_OID, OID);
 
-    assert!(points(&world, OID) < 10_000, "the kill should have spent vitality");
+    assert!(
+        points(&world, OID) < 10_000,
+        "the kill should have spent vitality"
+    );
 }

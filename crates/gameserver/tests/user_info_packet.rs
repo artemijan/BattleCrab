@@ -1,6 +1,8 @@
 use gameserver::config::CharacterConfig;
 use gameserver::data::GameData;
-use gameserver::model::components::{BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, StatModifiers, Vitals};
+use gameserver::model::components::{
+    BaseStats, Collision, CombatStats, PlayerVitals, Position, Speeds, StatModifiers, Vitals,
+};
 use gameserver::model::Player;
 use gameserver::model::PlayerView;
 use gameserver::network::user_info::user_info;
@@ -32,7 +34,6 @@ async fn user_info_test() {
         team: 0,
         hennas_by_index: Default::default(),
         shortcuts_by_index: Default::default(),
-
 
         base_level: 1,
 
@@ -95,10 +96,31 @@ async fn user_info_test() {
         revive_request: None,
         pending_pet_collar: None,
     };
-    let position = Position { x: -90939, y: 248_138, z: -3563, heading: 0 };
-    let vitals = Vitals { max_hp: 98, cur_hp: 98.0, max_mp: 59, cur_mp: 59.0, dead: false };
-    let pvitals = PlayerVitals { max_cp: 49, cur_cp: 49.0 };
-    let base = BaseStats { str_: 22, dex: 21, con: 27, int_: 41, wit: 20, men: 39 };
+    let position = Position {
+        x: -90939,
+        y: 248_138,
+        z: -3563,
+        heading: 0,
+    };
+    let vitals = Vitals {
+        max_hp: 98,
+        cur_hp: 98.0,
+        max_mp: 59,
+        cur_mp: 59.0,
+        dead: false,
+    };
+    let pvitals = PlayerVitals {
+        max_cp: 49,
+        cur_cp: 49.0,
+    };
+    let base = BaseStats {
+        str_: 22,
+        dex: 21,
+        con: 27,
+        int_: 41,
+        wit: 20,
+        men: 39,
+    };
     let speeds = Speeds {
         run_spd: 0.0,
         walk_spd: 0.0,
@@ -110,8 +132,15 @@ async fn user_info_test() {
         swimming: false,
         swamp_multiplier: 1.0,
     };
-    let collision = Collision { radius: 0.0, height: 0.0 };
-    let combat = CombatStats { accuracy: 31, magic_accuracy: 31, ..Default::default() };
+    let collision = Collision {
+        radius: 0.0,
+        height: 0.0,
+    };
+    let combat = CombatStats {
+        accuracy: 31,
+        magic_accuracy: 31,
+        ..Default::default()
+    };
     let inventory = gameserver::model::inventory::Inventory::default();
     let mods = StatModifiers::default();
     let view = PlayerView {
@@ -144,10 +173,10 @@ async fn user_info_test() {
             0, 0, 0, 0, 0, 0, 31, 0, 0, 0, 0, 0, 0, 0, 14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             18, 0, 197, 156, 254, 255, 74, 201, 3, 0, 21, 242, 255, 255, 0, 0, 0, 0, 18, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 240, 63, 0, 0, 0, 0,
-            0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0,
-            32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1, 10, 0, 255,
+            0, 0, 0, 0, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 32,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 1, 10, 0, 255,
             255, 255, 0, 119, 255, 255, 0, 9, 0, 0, 0, 0, 0, 80, 0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 0
         ],
         packet

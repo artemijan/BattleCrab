@@ -72,8 +72,16 @@ impl BossThreat {
 }
 
 /// The shared `onAttack` weighting ladder. `is_melee` is Java's `skill == null`.
-pub(crate) fn weighted_damage(world: &World, boss_oid: i32, damage: i32, is_melee: bool) -> Option<i32> {
-    let (cur, max) = match world.objects.get_component::<crate::model::components::Vitals>(&boss_oid) {
+pub(crate) fn weighted_damage(
+    world: &World,
+    boss_oid: i32,
+    damage: i32,
+    is_melee: bool,
+) -> Option<i32> {
+    let (cur, max) = match world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&boss_oid)
+    {
         Some(v) => (v.cur_hp, v.max_hp as f64),
         None => return None,
     };
@@ -99,14 +107,28 @@ pub(crate) fn weighted_damage(world: &World, boss_oid: i32, damage: i32, is_mele
 ///   repeated small hits do not ratchet a threat upward indefinitely.
 /// - An attacker **not** on the table replaces the **weakest** entry outright,
 ///   value and identity together.
-pub(crate) fn refresh_threat(world: &mut World, boss_oid: i32, attacker_oid: i32, damage: i32, aggro: i32) {
+pub(crate) fn refresh_threat(
+    world: &mut World,
+    boss_oid: i32,
+    attacker_oid: i32,
+    damage: i32,
+    aggro: i32,
+) {
     let new_val = damage + world.roll(THREAT_JITTER);
     let floor = aggro + THREAT_FLOOR_BONUS;
 
-    if world.objects.get_component::<BossThreat>(&boss_oid).is_none() {
-        world.objects.add_components(&boss_oid, BossThreat::default());
+    if world
+        .objects
+        .get_component::<BossThreat>(&boss_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&boss_oid, BossThreat::default());
     }
-    let Some(t) = world.objects.get_component_mut::<BossThreat>(&boss_oid) else { return };
+    let Some(t) = world.objects.get_component_mut::<BossThreat>(&boss_oid) else {
+        return;
+    };
 
     for slot in t.slots.iter_mut() {
         if slot.0 == attacker_oid {
@@ -121,8 +143,16 @@ pub(crate) fn refresh_threat(world: &mut World, boss_oid: i32, attacker_oid: i32
 }
 
 /// Apply the weighting and record it — the whole `onAttack` threat half.
-pub(crate) fn on_boss_damage(world: &mut World, boss_oid: i32, attacker_oid: i32, damage: i32, is_melee: bool) {
-    let Some(weighted) = weighted_damage(world, boss_oid, damage, is_melee) else { return };
+pub(crate) fn on_boss_damage(
+    world: &mut World,
+    boss_oid: i32,
+    attacker_oid: i32,
+    damage: i32,
+    is_melee: bool,
+) {
+    let Some(weighted) = weighted_damage(world, boss_oid, damage, is_melee) else {
+        return;
+    };
     refresh_threat(world, boss_oid, attacker_oid, weighted, weighted);
 }
 
@@ -159,8 +189,17 @@ pub(crate) fn take_top_threat(world: &mut World, boss_oid: i32) -> Option<i32> {
 /// Clear the entry for any attacker that has died or run beyond 9000 units —
 /// so a fled or dead player stops holding a slot the living could use.
 fn prune_threat(world: &mut World, boss_oid: i32) {
-    let Some(t) = world.objects.get_component::<BossThreat>(&boss_oid).copied() else { return };
-    let boss_pos = world.objects.get_component::<crate::model::components::Position>(&boss_oid).copied();
+    let Some(t) = world
+        .objects
+        .get_component::<BossThreat>(&boss_oid)
+        .copied()
+    else {
+        return;
+    };
+    let boss_pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&boss_oid)
+        .copied();
     let mut cleared = [false; 3];
     for (i, (oid, _)) in t.slots.iter().enumerate() {
         if *oid == 0 {
@@ -170,7 +209,12 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
             .objects
             .get_component::<crate::model::components::Vitals>(oid)
             .is_none_or(|v| v.dead);
-        let far = match (boss_pos, world.objects.get_component::<crate::model::components::Position>(oid)) {
+        let far = match (
+            boss_pos,
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(oid),
+        ) {
             (Some(a), Some(b)) => {
                 let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
                 (dx * dx + dy * dy + dz * dz).sqrt() > THREAT_RANGE
@@ -191,8 +235,16 @@ fn prune_threat(world: &mut World, boss_oid: i32) {
 /// Fire the chosen skill. `on_self` is Java's `castOnTarget == false`, which
 /// casts with the **boss itself** as the target — the AoE skills are centred on
 /// him, not on the player who drew them.
-pub(crate) fn cast_boss_skill(world: &mut World, boss_oid: i32, target_oid: i32, skill_id: i32, on_self: bool) -> bool {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else { return false };
+pub(crate) fn cast_boss_skill(
+    world: &mut World,
+    boss_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    on_self: bool,
+) -> bool {
+    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+        return false;
+    };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, boss_oid, &skill) {
         return false;
     }

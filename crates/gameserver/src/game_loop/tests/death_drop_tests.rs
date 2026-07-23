@@ -13,7 +13,11 @@ const KILLER_CID: u32 = 2;
 const LOOT_ITEM: i32 = 8400;
 
 /// Certain drops: every rate at 100 so the rolls can't hide a wiring bug.
-fn drop_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn drop_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
     {
         let r = &mut world.cfg.rates;
@@ -34,7 +38,10 @@ fn drop_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Login
 
 fn give(world: &mut World, oid: i32, item_id: i32, count: i64, obj_id: i32) {
     let World { objects, data, .. } = world;
-    objects.get_component_mut::<Inventory>(&oid).unwrap().add_item(&data.item_data, obj_id, item_id, count);
+    objects
+        .get_component_mut::<Inventory>(&oid)
+        .unwrap()
+        .add_item(&data.item_data, obj_id, item_id, count);
 }
 
 /// A PK with `pk_kills` past the limit, holding `n` distinct loot stacks.
@@ -50,7 +57,11 @@ fn pk_victim(world: &mut World, stacks: i32) {
 }
 
 fn inventory_len(world: &World, oid: i32) -> usize {
-    world.objects.get_component::<Inventory>(&oid).map(|i| i.items().len()).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map(|i| i.items().len())
+        .unwrap_or(0)
 }
 
 fn ground_item_count(world: &World) -> usize {
@@ -122,7 +133,11 @@ fn pk_killed_by_player_drops_items() {
 
     kill_by_player(&mut world);
 
-    assert_eq!(inventory_len(&world, VICTIM), 0, "the PK dropped their loot");
+    assert_eq!(
+        inventory_len(&world, VICTIM),
+        0,
+        "the PK dropped their loot"
+    );
     assert_eq!(ground_item_count(&world), 2, "and it is on the ground");
 }
 
@@ -138,7 +153,11 @@ fn clean_player_killed_by_player_drops_nothing() {
 
     kill_by_player(&mut world);
 
-    assert_eq!(inventory_len(&world, VICTIM), 1, "a clean victim keeps everything");
+    assert_eq!(
+        inventory_len(&world, VICTIM),
+        1,
+        "a clean victim keeps everything"
+    );
     assert_eq!(ground_item_count(&world), 0);
 }
 
@@ -150,11 +169,19 @@ fn pk_below_the_limit_drops_nothing() {
     let _k = ingame_caster(&mut world, KILLER_CID, KILLER, 50, 0);
     register_loot(&mut world, 1);
     pk_victim(&mut world, 1);
-    world.objects.get_component_mut::<Player>(&VICTIM).unwrap().pk_kills = 1; // < 4
+    world
+        .objects
+        .get_component_mut::<Player>(&VICTIM)
+        .unwrap()
+        .pk_kills = 1; // < 4
 
     kill_by_player(&mut world);
 
-    assert_eq!(inventory_len(&world, VICTIM), 1, "not enough PKs to be punished");
+    assert_eq!(
+        inventory_len(&world, VICTIM),
+        1,
+        "not enough PKs to be punished"
+    );
 }
 
 /// Dying to a **monster** uses the player rates — a clean player can still
@@ -169,7 +196,11 @@ fn monster_kill_uses_the_player_rates() {
 
     crate::game_loop::death::player_do_die(&mut world, VICTIM, NPC_OID);
 
-    assert_eq!(inventory_len(&world, VICTIM), 0, "a monster kill can cost items");
+    assert_eq!(
+        inventory_len(&world, VICTIM),
+        0,
+        "a monster kill can cost items"
+    );
     assert_eq!(ground_item_count(&world), 1);
 }
 
@@ -212,12 +243,22 @@ fn adena_and_quest_items_never_drop() {
         p.reputation = -1000;
         p.pk_kills = 10;
     }
-    give(&mut world, VICTIM, crate::data::item_data::ADENA_ID, 5000, 0x6100_0000);
+    give(
+        &mut world,
+        VICTIM,
+        crate::data::item_data::ADENA_ID,
+        5000,
+        0x6100_0000,
+    );
     give(&mut world, VICTIM, LOOT_ITEM, 1, 0x6100_0001);
 
     kill_by_player(&mut world);
 
-    assert_eq!(ground_item_count(&world), 0, "neither adena nor quest items fall");
+    assert_eq!(
+        ground_item_count(&world),
+        0,
+        "neither adena nor quest items fall"
+    );
     assert_eq!(inventory_len(&world, VICTIM), 2);
 }
 
@@ -229,8 +270,11 @@ fn pvp_zone_death_drops_nothing() {
     let _k = ingame_caster(&mut world, KILLER_CID, KILLER, 50, 0);
     register_loot(&mut world, 1);
     pk_victim(&mut world, 1);
-    world.objects.get_component_mut::<crate::model::components::ZoneFlags>(&VICTIM).unwrap().mask =
-        crate::data::zone_data::ZoneKind::Pvp.bit();
+    world
+        .objects
+        .get_component_mut::<crate::model::components::ZoneFlags>(&VICTIM)
+        .unwrap()
+        .mask = crate::data::zone_data::ZoneKind::Pvp.bit();
 
     kill_by_player(&mut world);
 

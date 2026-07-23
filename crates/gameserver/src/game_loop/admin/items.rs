@@ -35,7 +35,11 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
     };
     let name = template.name.clone();
     if num > 10 && !template.is_stackable {
-        send_message(world, gm_client, "This item does not stack - Creation aborted.");
+        send_message(
+            world,
+            gm_client,
+            "This item does not stack - Creation aborted.",
+        );
         return;
     }
     if crate::game_loop::items::add_inventory_item(world, target, id, num).is_none() {
@@ -44,7 +48,11 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
     // target.sendMessage(...) only when the target is another player.
     if target != gm_oid {
         if let Some(tcid) = super::helpers::client_for_player(world, target) {
-            send_message(world, tcid, &format!("Admin spawned {num} {name} in your inventory."));
+            send_message(
+                world,
+                tcid,
+                &format!("Admin spawned {num} {name} in your inventory."),
+            );
         }
     }
     // target.sendItemList(false) + ExAdenaInvenCount.
@@ -58,8 +66,16 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
             }
         }
     }
-    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
-    send_message(world, gm_client, &format!("You have spawned {num} {name}({id}) in {target_name} inventory."));
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    send_message(
+        world,
+        gm_client,
+        &format!("You have spawned {num} {name}({id}) in {target_name} inventory."),
+    );
 }
 
 /// Parse Java's `<id> [num]` tokens (1 or 2). `None` on any non-numeric token
@@ -75,19 +91,30 @@ fn parse_id_count(args: &[&str]) -> Option<(i32, i64)> {
 
 /// `AdminCreateItem`'s `//give_item_target <id> [count]` — give to the targeted
 /// player (or the GM if none is selected).
-pub(super) fn admin_give_item_target(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(super) fn admin_give_item_target(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
     let (Some(item_id), count) = parse_item_args(args) else {
         send_message(world, client_id, "Usage: //give_item_target <id> [count]");
         return;
     };
     if world.data.item_data.get(item_id).is_none() {
-        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Item id {item_id} does not exist."),
+        );
         return;
     }
     let target = current_target(world, object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id);
-    let Some(tcid) = super::helpers::client_for_player(world, target) else { return };
+    let Some(tcid) = super::helpers::client_for_player(world, target) else {
+        return;
+    };
     super::quests::give_item_with_earned_message(world, tcid, target, item_id, count);
 }
 
@@ -99,7 +126,11 @@ pub(super) fn admin_give_item_to_all(world: &mut World, client_id: u32, args: &[
         return;
     };
     if world.data.item_data.get(item_id).is_none() {
-        send_message(world, client_id, &format!("Item id {item_id} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Item id {item_id} does not exist."),
+        );
         return;
     }
     let recipients: Vec<(u32, i32)> = world
@@ -114,7 +145,11 @@ pub(super) fn admin_give_item_to_all(world: &mut World, client_id: u32, args: &[
     for (cid, oid) in recipients {
         super::quests::give_item_with_earned_message(world, cid, oid, item_id, count);
     }
-    send_message(world, client_id, &format!("Gave item {item_id} to {count_given} player(s)."));
+    send_message(
+        world,
+        client_id,
+        &format!("Gave item {item_id} to {count_given} player(s)."),
+    );
 }
 
 /// `AdminCreateItem`'s `//create_coin <name> [amount]` — create a named coin
@@ -128,7 +163,11 @@ pub(super) fn admin_create_coin(world: &mut World, client_id: u32, object_id: i3
         send_message(world, client_id, "Unknown coin name.");
         return;
     };
-    let count = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1).max(1);
+    let count = args
+        .get(1)
+        .and_then(|s| s.parse::<i64>().ok())
+        .unwrap_or(1)
+        .max(1);
     super::quests::give_item_with_earned_message(world, client_id, object_id, item_id, count);
 }
 
@@ -156,9 +195,16 @@ pub(super) fn admin_item_menu(world: &mut World, client_id: u32, page: &str) {
 /// `AdminDestroyItems` — wipe the GM's own inventory. The `all` variants
 /// (`//destroy_all_items`, `//destroyallitems`) also destroy equipped items;
 /// the plain variants skip equipped gear (Java `command.contains("all")`).
-pub(super) fn admin_destroy_items(world: &mut World, client_id: u32, object_id: i32, include_equipped: bool) {
+pub(super) fn admin_destroy_items(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    include_equipped: bool,
+) {
     let changes: Vec<ItemChange> = {
-        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return };
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
         // Snapshot the targets first (object_id + count), so we don't mutate the
         // list while borrowing it.
         let targets: Vec<(i32, i64)> = inv
@@ -167,7 +213,9 @@ pub(super) fn admin_destroy_items(world: &mut World, client_id: u32, object_id: 
             .filter(|it| include_equipped || inv.paperdoll_slot_of(it.object_id).is_none())
             .map(|it| (it.object_id, it.count))
             .collect();
-        let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) else { return };
+        let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) else {
+            return;
+        };
         targets
             .into_iter()
             .filter_map(|(oid, count)| inv.remove_by_object_id(oid, count))
@@ -183,12 +231,20 @@ pub(super) fn admin_destroy_items(world: &mut World, client_id: u32, object_id: 
     }
     // Equipment/appearance may have changed (equipped gear destroyed).
     super::party::broadcast_user_info(world, object_id);
-    send_message(world, client_id, &format!("Destroyed {} item(s).", changes.len()));
+    send_message(
+        world,
+        client_id,
+        &format!("Destroyed {} item(s).", changes.len()),
+    );
 }
 
 /// Parse `<id> [count]` — item id (required) and count (default 1, min 1).
 fn parse_item_args(args: &[&str]) -> (Option<i32>, i64) {
     let item_id = args.first().and_then(|s| s.parse::<i32>().ok());
-    let count = args.get(1).and_then(|s| s.parse::<i64>().ok()).unwrap_or(1).max(1);
+    let count = args
+        .get(1)
+        .and_then(|s| s.parse::<i64>().ok())
+        .unwrap_or(1)
+        .max(1);
     (item_id, count)
 }

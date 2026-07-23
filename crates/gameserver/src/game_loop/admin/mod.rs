@@ -24,18 +24,18 @@ mod character;
 pub(crate) mod cursed_weapons;
 mod editchar;
 mod effects;
-mod gm_util;
 mod flags;
+mod gm_util;
 mod grand_boss;
 pub(crate) mod hero;
 mod items;
 mod menu;
 mod mobgroup;
 mod moderation;
+mod mounts;
 mod pledge;
 mod points;
 pub(crate) mod premium;
-mod mounts;
 mod skills;
 mod spawn;
 mod teleport;
@@ -50,8 +50,8 @@ use character::*;
 use cursed_weapons::*;
 use editchar::*;
 use effects::*;
-use gm_util::*;
 use flags::*;
+use gm_util::*;
 use grand_boss::*;
 use hero::*;
 use menu::*;
@@ -62,10 +62,10 @@ pub(crate) use flags::apply_gm_startup;
 use items::*;
 use mobgroup::*;
 use moderation::*;
+use mounts::*;
 use pledge::*;
 use points::*;
 use premium::*;
-use mounts::*;
 use skills::*;
 use spawn::*;
 use teleport::*;
@@ -85,9 +85,13 @@ use crate::game_loop::{death, helpers, net, party, quests, target, visibility};
 /// Java runs the body on a threadpool task (server-freeze protection); the game
 /// loop is single-threaded here, so it runs inline.
 pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, use_confirm: bool) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    let Some(player) = world.objects.get_component::<Player>(&object_id) else { return };
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
+        return;
+    };
 
     // Java `if (!player.isGM()) return;` — silent, no message.
     if !player.is_gm(&world.data) {
@@ -100,8 +104,15 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     // the access table and the dispatch below are case-insensitive, matching
     // L2J's `switch (actualCommand.toLowerCase())` (camelCase commands like
     // `admin_deleteNpcByObjectId` otherwise miss the lowercase dispatch arms).
-    let command = full.split_whitespace().next().unwrap_or(full).to_ascii_lowercase();
-    let display = command.strip_prefix("admin_").unwrap_or(&command).to_string();
+    let command = full
+        .split_whitespace()
+        .next()
+        .unwrap_or(full)
+        .to_ascii_lowercase();
+    let display = command
+        .strip_prefix("admin_")
+        .unwrap_or(&command)
+        .to_string();
 
     // Handler existence (Java `getHandler(command) == null`). The "known" set
     // is the AdminCommands.xml command table — but Java's `AdminData.hasAccess`
@@ -109,15 +120,25 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
     // xml genuinely lacks e.g. `admin_settargetable`, which AdminEffects
     // registers), so a top-level GM's unlisted command falls through to the
     // dispatch instead of "does not exist".
-    if !world.data.admin.has_command(&command) && !world.data.admin.has_access(&command, access_level) {
-        send_message(world, client_id, &format!("The command '{display}' does not exist!"));
+    if !world.data.admin.has_command(&command)
+        && !world.data.admin.has_access(&command, access_level)
+    {
+        send_message(
+            world,
+            client_id,
+            &format!("The command '{display}' does not exist!"),
+        );
         warn!("No handler registered for admin command '{command}'.");
         return;
     }
 
     // Access rights (Java `AdminData.hasAccess`).
     if !world.data.admin.has_access(&command, access_level) {
-        send_message(world, client_id, "You don't have the access rights to use this command!");
+        send_message(
+            world,
+            client_id,
+            "You don't have the access rights to use this command!",
+        );
         warn!("Object {object_id} tried admin command '{command}' without proper access level.");
         return;
     }
@@ -144,7 +165,11 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
 
     // A gated-but-unimplemented command (G13.C) lands on the `false` arm.
     if !dispatch(world, client_id, object_id, &command, full) {
-        send_message(world, client_id, &format!("Admin command '{display}' is not implemented yet."));
+        send_message(
+            world,
+            client_id,
+            &format!("Admin command '{display}' is not implemented yet."),
+        );
     }
 }
 
@@ -153,7 +178,11 @@ pub(crate) fn use_admin_command(world: &mut World, client_id: u32, full: &str, u
 /// dialogs are unported). On the echoed `S1_3` id, the pending command is
 /// consumed and — on "yes" — re-run with confirmation disabled (Java
 /// `useAdminCommand(player, cmd, false)`).
-pub(crate) fn handle_dlg_answer(world: &mut World, client_id: u32, answer: crate::network::client_packets::DlgAnswer) {
+pub(crate) fn handle_dlg_answer(
+    world: &mut World,
+    client_id: u32,
+    answer: crate::network::client_packets::DlgAnswer,
+) {
     if answer.message_id != server_packets::S1_3_MESSAGE_ID {
         return;
     }
@@ -176,7 +205,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // The `//admin` GM menu (`AdminAdmin.showMainPage`): main + the six
         // sub-panels. Their buttons route back through the `admin_` bypass.
         "admin_admin" | "admin_admin1" | "admin_admin2" | "admin_admin3" | "admin_admin4"
-        | "admin_admin5" | "admin_admin6" | "admin_admin7" => admin_admin(world, client_id, command),
+        | "admin_admin5" | "admin_admin6" | "admin_admin7" => {
+            admin_admin(world, client_id, command)
+        }
         "admin_serverinfo" => admin_serverinfo(world, client_id),
         "admin_heal" => admin_heal(world, client_id, object_id, &args),
         "admin_kill" => admin_kill(world, client_id, object_id, &args, false),
@@ -186,7 +217,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_gmspeed" => admin_gmspeed(world, client_id, object_id, &args),
         // Super-haste movement buff (self).
         "admin_superhaste" | "admin_speed" => admin_superhaste(world, client_id, object_id, &args),
-        "admin_superhaste_menu" | "admin_speed_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
+        "admin_superhaste_menu" | "admin_speed_menu" => {
+            menu::show_admin_html(world, client_id, "gm_menu.htm")
+        }
         // Directional self-nudge.
         "admin_gonorth" => admin_go(world, client_id, object_id, "north", &args),
         "admin_gosouth" => admin_go(world, client_id, object_id, "south", &args),
@@ -236,8 +269,12 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_itemcreate" => admin_item_menu(world, client_id, "itemcreation.htm"),
         "admin_enchant" => admin_item_menu(world, client_id, "enchant.htm"),
         // Wipe the GM's own inventory (equipped included only for the `all` forms).
-        "admin_destroy_all_items" | "admin_destroyallitems" => admin_destroy_items(world, client_id, object_id, true),
-        "admin_destroy_items" | "admin_destroyitems" => admin_destroy_items(world, client_id, object_id, false),
+        "admin_destroy_all_items" | "admin_destroyallitems" => {
+            admin_destroy_items(world, client_id, object_id, true)
+        }
+        "admin_destroy_items" | "admin_destroyitems" => {
+            admin_destroy_items(world, client_id, object_id, false)
+        }
         // Give an item to the targeted player.
         "admin_give_item_target" => admin_give_item_target(world, client_id, object_id, &args),
         // Give an item to every online player.
@@ -262,7 +299,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).
-        "admin_spawn" | "admin_spawn_monster" | "admin_spawn_once" => admin_spawn(world, client_id, object_id, &args),
+        "admin_spawn" | "admin_spawn_monster" | "admin_spawn_once" => {
+            admin_spawn(world, client_id, object_id, &args)
+        }
         // Spawn one NPC at explicit coordinates.
         "admin_spawnat" => admin_spawnat(world, client_id, object_id, &args),
         // Spawn/NPC HTML menus.
@@ -278,17 +317,27 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Prime (NCoin) points — account-scoped — + the primepoints.htm menu.
         "admin_primepoints" => admin_primepoints(world, client_id, object_id, &args),
         // Premium account management (menu + add/info/remove by account name).
-        "admin_premium_menu" | "admin_premium_add1" | "admin_premium_add2" | "admin_premium_add3"
-        | "admin_premium_info" | "admin_premium_remove" => admin_premium(world, client_id, command, &args),
+        "admin_premium_menu"
+        | "admin_premium_add1"
+        | "admin_premium_add2"
+        | "admin_premium_add3"
+        | "admin_premium_info"
+        | "admin_premium_remove" => admin_premium(world, client_id, command, &args),
         // Spawn-line inspection + teleport-to-index (`goSpawn`/`goPosition`).
         "admin_list_spawns" => admin_list_spawns(world, client_id, object_id, &args, false),
         "admin_list_positions" => admin_list_spawns(world, client_id, object_id, &args, true),
-        "admin_top_spawn_count" | "admin_topspawncount" => admin_top_spawn_count(world, client_id, &args),
-        "admin_spawn_debug_print" | "admin_spawn_debug_print_menu" => admin_spawn_debug_print(world, client_id, object_id),
+        "admin_top_spawn_count" | "admin_topspawncount" => {
+            admin_top_spawn_count(world, client_id, &args)
+        }
+        "admin_spawn_debug_print" | "admin_spawn_debug_print_menu" => {
+            admin_spawn_debug_print(world, client_id, object_id)
+        }
         // List NPCs visible from the GM.
         "admin_scan" => admin_scan(world, client_id, object_id),
         // Delete an NPC by object id (the scan list's Delete links).
-        "admin_deletenpcbyobjectid" => admin_delete_npc_by_object_id(world, client_id, object_id, &args),
+        "admin_deletenpcbyobjectid" => {
+            admin_delete_npc_by_object_id(world, client_id, object_id, &args)
+        }
         // Create item / one-off spawn by combined id.
         "admin_summon" => admin_summon(world, client_id, object_id, &args),
         // Despawn the targeted NPC.
@@ -312,7 +361,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Add a skill to the GM themselves.
         "admin_setskill" => admin_setskill(world, client_id, object_id, &args),
         // Grant / strip / reset / copy a player's whole skill set.
-        "admin_give_all_skills" | "admin_give_all_skills_fs" => admin_give_all_skills(world, client_id, object_id),
+        "admin_give_all_skills" | "admin_give_all_skills_fs" => {
+            admin_give_all_skills(world, client_id, object_id)
+        }
         "admin_give_clan_skills" => admin_give_clan_skills(world, client_id, object_id, false),
         "admin_give_all_clan_skills" => admin_give_clan_skills(world, client_id, object_id, true),
         "admin_remove_all_skills" => admin_remove_all_skills(world, client_id, object_id),
@@ -334,19 +385,35 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
         // Per-slot enchant (`AdminEnchant`): //set<slot> <0..127>.
         "admin_seteh" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Head, &args),
-        "admin_setec" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Chest, &args),
-        "admin_seteg" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Gloves, &args),
+        "admin_setec" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::Chest, &args)
+        }
+        "admin_seteg" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::Gloves, &args)
+        }
         "admin_setel" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Legs, &args),
         "admin_seteb" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Feet, &args),
-        "admin_setew" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::RHand, &args),
-        "admin_setes" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LHand, &args),
+        "admin_setew" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::RHand, &args)
+        }
+        "admin_setes" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::LHand, &args)
+        }
         "admin_setle" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LEar, &args),
         "admin_setre" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::REar, &args),
-        "admin_setlf" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::LFinger, &args),
-        "admin_setrf" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::RFinger, &args),
+        "admin_setlf" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::LFinger, &args)
+        }
+        "admin_setrf" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::RFinger, &args)
+        }
         "admin_seten" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Neck, &args),
-        "admin_setun" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Under, &args),
-        "admin_setba" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Cloak, &args),
+        "admin_setun" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::Under, &args)
+        }
+        "admin_setba" => {
+            admin_set_enchant(world, client_id, object_id, PaperdollSlot::Cloak, &args)
+        }
         "admin_setbe" => admin_set_enchant(world, client_id, object_id, PaperdollSlot::Belt, &args),
         // Apply a skill's effects (buff) to the target.
         "admin_buff" => admin_buff(world, client_id, object_id, &args),
@@ -360,7 +427,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_stopbuff" => admin_stopbuff(world, client_id, object_id, &args),
         "admin_stopallbuffs" => admin_stopallbuffs(world, client_id, object_id),
         // EditChar field setters (target player or self).
-        "admin_setreputation" => set_int_field(world, client_id, object_id, IntField::Reputation, &args),
+        "admin_setreputation" => {
+            set_int_field(world, client_id, object_id, IntField::Reputation, &args)
+        }
         "admin_nokarma" => set_field_value(world, client_id, object_id, IntField::Reputation, 0),
         "admin_setfame" => set_int_field(world, client_id, object_id, IntField::Fame, &args),
         "admin_setpk" => set_int_field(world, client_id, object_id, IntField::Pk, &args),
@@ -376,12 +445,16 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_cp" => set_vital(world, client_id, object_id, Vital::Cp, &args),
         "admin_setclass" => admin_setclass(world, client_id, object_id, &args),
         "admin_setsubclass" => character::admin_setsubclass(world, client_id, object_id, &args),
-        "admin_changesubclass" => character::admin_changesubclass(world, client_id, object_id, &args),
+        "admin_changesubclass" => {
+            character::admin_changesubclass(world, client_id, object_id, &args)
+        }
 
         // AdminEditChar breadth — info/search, rename, party, pvp-flag, clan penalty.
         "admin_current_player" => admin_character_info(world, client_id, object_id, &args, true),
         "admin_character_info" => admin_character_info(world, client_id, object_id, &args, false),
-        "admin_character_list" | "admin_show_characters" => admin_character_list(world, client_id, &args),
+        "admin_character_list" | "admin_show_characters" => {
+            admin_character_list(world, client_id, &args)
+        }
         "admin_find_character" => admin_find_character(world, client_id, &args),
         "admin_find_account" => admin_find_account(world, client_id, &args),
         "admin_edit_character" => admin_edit_character(world, client_id, object_id),
@@ -403,7 +476,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_targetsay" => admin_targetsay(world, client_id, object_id, &args),
         "admin_msg" => admin_msg(world, client_id, &args),
         "admin_announce_screen" => admin_announce_variant(world, client_id, &args, true),
-        "admin_announce_crit" | "admin_announces" => admin_announce_variant(world, client_id, &args, false),
+        "admin_announce_crit" | "admin_announces" => {
+            admin_announce_variant(world, client_id, &args, false)
+        }
         "admin_html" | "admin_loadhtml" => admin_html(world, client_id, &args),
         "admin_showdoors" => admin_showdoors(world, client_id, object_id),
         "admin_debug" => admin_debug(world, client_id, object_id),
@@ -418,7 +493,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_recall_clan_menu" => admin_recall_clan(world, client_id, object_id),
         "admin_kick_menu" => admin_kick(world, client_id, object_id, &args),
         "admin_kill_menu" => admin_kill(world, client_id, object_id, &args, false),
-        "admin_teleport_character_to_menu" => menu::show_admin_html(world, client_id, "teleports.htm"),
+        "admin_teleport_character_to_menu" => {
+            menu::show_admin_html(world, client_id, "teleports.htm")
+        }
 
         // --- AdminDoorControl / AdminZone / AdminShop / AdminClan (B6) ---
         "admin_open" => admin_door(world, client_id, object_id, true, false, &args),
@@ -437,7 +514,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // display is live; the skip/respawn/minions/abort actions await the
         // grand-boss AI (G21).
         "admin_grandboss" => admin_grandboss(world, client_id, &args),
-        "admin_grandboss_skip" | "admin_grandboss_respawn" | "admin_grandboss_minions"
+        "admin_grandboss_skip"
+        | "admin_grandboss_respawn"
+        | "admin_grandboss_minions"
         | "admin_grandboss_abort" => admin_grandboss_action(world, client_id, command, &args),
         // AdminCursedWeapons — the Game panel's "Cursed Weapons" buttons.
         "admin_cw_info" => admin_cw_info(world, client_id),
@@ -461,18 +540,36 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // AdminGeodata read-only queries (geo-editor commands stay deferred).
         "admin_geo_pos" => admin_geo_pos(world, client_id, object_id, false),
         "admin_geo_spawn_pos" => admin_geo_pos(world, client_id, object_id, true),
-        "admin_geo_can_move" | "admin_geo_can_see" => admin_geo_can_see(world, client_id, object_id),
+        "admin_geo_can_move" | "admin_geo_can_see" => {
+            admin_geo_can_see(world, client_id, object_id)
+        }
         // AdminGeodata editor: tile/cell info, NSWE editing, save/mode stubs.
         "admin_geomap" => admin_geomap(world, client_id, object_id),
         "admin_geocell" => admin_geocell(world, client_id, object_id),
-        "admin_geoenablenorth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, true),
-        "admin_geoenablesouth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, true),
-        "admin_geoenableeast" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, true),
-        "admin_geoenablewest" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, true),
-        "admin_geodisablenorth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, false),
-        "admin_geodisablesouth" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, false),
-        "admin_geodisableeast" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, false),
-        "admin_geodisablewest" => admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, false),
+        "admin_geoenablenorth" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, true)
+        }
+        "admin_geoenablesouth" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, true)
+        }
+        "admin_geoenableeast" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, true)
+        }
+        "admin_geoenablewest" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, true)
+        }
+        "admin_geodisablenorth" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, false)
+        }
+        "admin_geodisablesouth" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, false)
+        }
+        "admin_geodisableeast" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, false)
+        }
+        "admin_geodisablewest" => {
+            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, false)
+        }
         "admin_geosave" | "admin_geosaveall" => admin_geosave(world, client_id),
         "admin_geoedit" | "admin_geogrid" => admin_geo_clientviz(world, client_id),
 
@@ -480,7 +577,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_mobmenu" => admin_mobmenu(world, client_id),
         "admin_mobgroup_list" => admin_mobgroup_list(world, client_id),
         "admin_mobgroup_create" => admin_mobgroup_create(world, client_id, &args),
-        "admin_mobgroup_remove" | "admin_mobgroup_delete" => admin_mobgroup_remove(world, client_id, object_id, &args),
+        "admin_mobgroup_remove" | "admin_mobgroup_delete" => {
+            admin_mobgroup_remove(world, client_id, object_id, &args)
+        }
         "admin_mobgroup_spawn" => admin_mobgroup_spawn(world, client_id, object_id, &args),
         "admin_mobgroup_unspawn" => admin_mobgroup_unspawn(world, client_id, &args),
         "admin_mobgroup_kill" => admin_mobgroup_kill(world, client_id, object_id, &args),
@@ -488,16 +587,30 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_mobgroup_invul" => admin_mobgroup_invul(world, client_id, &args),
         "admin_mobgroup_idle" => admin_mobgroup_state(world, client_id, object_id, "idle", &args),
         "admin_mobgroup_rnd" => admin_mobgroup_state(world, client_id, object_id, "rnd", &args),
-        "admin_mobgroup_nomove" => admin_mobgroup_state(world, client_id, object_id, "nomove", &args),
-        "admin_mobgroup_attack" => admin_mobgroup_state(world, client_id, object_id, "attack", &args),
-        "admin_mobgroup_attackgrp" => admin_mobgroup_state(world, client_id, object_id, "attackgrp", &args),
-        "admin_mobgroup_follow" => admin_mobgroup_state(world, client_id, object_id, "follow", &args),
-        "admin_mobgroup_return" => admin_mobgroup_state(world, client_id, object_id, "return", &args),
-        "admin_mobgroup_casting" => admin_mobgroup_state(world, client_id, object_id, "casting", &args),
+        "admin_mobgroup_nomove" => {
+            admin_mobgroup_state(world, client_id, object_id, "nomove", &args)
+        }
+        "admin_mobgroup_attack" => {
+            admin_mobgroup_state(world, client_id, object_id, "attack", &args)
+        }
+        "admin_mobgroup_attackgrp" => {
+            admin_mobgroup_state(world, client_id, object_id, "attackgrp", &args)
+        }
+        "admin_mobgroup_follow" => {
+            admin_mobgroup_state(world, client_id, object_id, "follow", &args)
+        }
+        "admin_mobgroup_return" => {
+            admin_mobgroup_state(world, client_id, object_id, "return", &args)
+        }
+        "admin_mobgroup_casting" => {
+            admin_mobgroup_state(world, client_id, object_id, "casting", &args)
+        }
 
         "admin_social" | "admin_social_menu" => admin_social(world, client_id, object_id, &args),
         "admin_effect" | "admin_npc_use_skill" => admin_effect(world, client_id, object_id, &args),
-        "admin_earthquake" | "admin_earthquake_menu" => admin_earthquake(world, client_id, object_id, &args),
+        "admin_earthquake" | "admin_earthquake_menu" => {
+            admin_earthquake(world, client_id, object_id, &args)
+        }
         "admin_atmosphere" | "admin_atmosphere_menu" => admin_atmosphere(world, client_id, &args),
         "admin_play_sound" => admin_play_sound(world, client_id, object_id, &args),
         // AdminEffects' G19 tail (see effects.rs).
@@ -505,9 +618,15 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setteam_close" => effects::admin_setteam(world, client_id, object_id, &args, true),
         "admin_clearteams" => effects::admin_clearteams(world, client_id, object_id),
         "admin_settargetable" => effects::admin_settargetable(world, client_id, object_id),
-        "admin_para" | "admin_para_menu" => effects::admin_para(world, client_id, object_id, &args, true, false),
-        "admin_unpara" | "admin_unpara_menu" => effects::admin_para(world, client_id, object_id, &args, false, false),
-        "admin_para_all" | "admin_para_all_menu" => effects::admin_para(world, client_id, object_id, &args, true, true),
+        "admin_para" | "admin_para_menu" => {
+            effects::admin_para(world, client_id, object_id, &args, true, false)
+        }
+        "admin_unpara" | "admin_unpara_menu" => {
+            effects::admin_para(world, client_id, object_id, &args, false, false)
+        }
+        "admin_para_all" | "admin_para_all_menu" => {
+            effects::admin_para(world, client_id, object_id, &args, true, true)
+        }
         "admin_unpara_all" | "admin_unpara_all_menu" => {
             effects::admin_para(world, client_id, object_id, &args, false, true)
         }
@@ -538,7 +657,10 @@ pub(super) fn target_player(world: &World, object_id: i32) -> i32 {
 
 /// The GM's current target object id, or `None` if nothing is selected.
 pub(super) fn current_target(world: &World, object_id: i32) -> Option<i32> {
-    world.objects.get_component::<TargetRef>(&object_id).and_then(|t| t.0)
+    world
+        .objects
+        .get_component::<TargetRef>(&object_id)
+        .and_then(|t| t.0)
 }
 
 /// `World.getPlayer(name)` — case-insensitive scan over in-game players.
@@ -569,7 +691,9 @@ pub(super) fn creatures_in_range(
     include_npcs: bool,
 ) -> Vec<i32> {
     use crate::model::components::{Position, RegionCell};
-    let Some(&center) = world.objects.get_component::<Position>(&center_oid) else { return Vec::new() };
+    let Some(&center) = world.objects.get_component::<Position>(&center_oid) else {
+        return Vec::new();
+    };
     let r = radius as f64;
     let mut out = Vec::new();
     if include_players {
@@ -579,16 +703,28 @@ pub(super) fn creatures_in_range(
                 if oid == center_oid {
                     continue;
                 }
-                if world.objects.get_component::<Position>(&oid).is_some_and(|p| p.distance_2d(&center) <= r) {
+                if world
+                    .objects
+                    .get_component::<Position>(&oid)
+                    .is_some_and(|p| p.distance_2d(&center) <= r)
+                {
                     out.push(oid);
                 }
             }
         }
     }
     if include_npcs {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&center_oid).map(|c| c.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&center_oid)
+            .map(|c| c.0)
+        {
             for oid in world.npcs_visible_from(region) {
-                if world.objects.get_component::<Position>(&oid).is_some_and(|p| p.distance_2d(&center) <= r) {
+                if world
+                    .objects
+                    .get_component::<Position>(&oid)
+                    .is_some_and(|p| p.distance_2d(&center) <= r)
+                {
                     out.push(oid);
                 }
             }

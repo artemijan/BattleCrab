@@ -23,10 +23,10 @@
 
 use crate::model::components::{SkillBook, SkillEnchants};
 use crate::model::Player;
-use commons::network::PacketReader;
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
+use commons::network::PacketReader;
 
 use super::helpers::send_sm_and_action_failed;
 
@@ -52,11 +52,17 @@ fn may_enchant(world: &World, object_id: i32) -> bool {
     let Some(p) = world.objects.get_component::<Player>(&object_id) else {
         return false;
     };
-    if !world.data.categories.contains("FOURTH_CLASS_GROUP", p.class_id) {
+    if !world
+        .data
+        .categories
+        .contains("FOURTH_CLASS_GROUP", p.class_id)
+    {
         return false;
     }
     // `getPrivateStoreType() != NONE` refusal.
-    !world.objects.has_component::<crate::model::components::PrivateStore>(&object_id)
+    !world
+        .objects
+        .has_component::<crate::model::components::PrivateStore>(&object_id)
 }
 
 fn player_oid(world: &World, client_id: u32) -> Option<i32> {
@@ -70,16 +76,24 @@ fn player_oid(world: &World, client_id: u32) -> Option<i32> {
 /// window asking which routes a known skill can take → `ExEnchantSkillInfo`.
 pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u32, ex_body: &[u8]) {
     let mut r = PacketReader::new(ex_body);
-    let (Some(skill_id), Some(level), Some(sub)) = (r.read_i32(), r.read_i16(), r.read_i16()) else {
+    let (Some(skill_id), Some(level), Some(sub)) = (r.read_i32(), r.read_i16(), r.read_i16())
+    else {
         return;
     };
     let (level, sub) = (level as i32, sub as i32);
-    let Some(object_id) = player_oid(world, client_id) else { return };
+    let Some(object_id) = player_oid(world, client_id) else {
+        return;
+    };
     if skill_id <= 0 || level <= 0 || sub < 0 || !may_enchant(world, object_id) {
         return;
     }
     // The queried instance must exist and match the player's known skill.
-    if world.data.skill_data.get_enchanted(skill_id, level, sub).is_none() {
+    if world
+        .data
+        .skill_data
+        .get_enchanted(skill_id, level, sub)
+        .is_none()
+    {
         return;
     }
     let routes = world.data.skill_data.enchant_routes(skill_id, level);
@@ -92,7 +106,14 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
     }
     let route_starts: Vec<i32> = routes.iter().map(|&(first, _)| first).collect();
     let max_enchant = world.data.enchant_skill_groups.len() as i32;
-    let pkt = crate::network::enter_world::ex_enchant_skill_info(skill_id, level, sub, sub, &route_starts, max_enchant);
+    let pkt = crate::network::enter_world::ex_enchant_skill_info(
+        skill_id,
+        level,
+        sub,
+        sub,
+        &route_starts,
+        max_enchant,
+    );
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(pkt);
     }
@@ -100,7 +121,11 @@ pub(crate) fn handle_request_enchant_skill_info(world: &mut World, client_id: u3
 
 /// `RequestExEnchantSkillInfoDetail` (ex 0x43: `d type, d skillId, h level,
 /// h sub`) — the cost preview for one step → `ExEnchantSkillInfoDetail`.
-pub(crate) fn handle_request_enchant_skill_info_detail(world: &mut World, client_id: u32, ex_body: &[u8]) {
+pub(crate) fn handle_request_enchant_skill_info_detail(
+    world: &mut World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
     let mut r = PacketReader::new(ex_body);
     let (Some(ty), Some(skill_id), Some(level), Some(sub)) =
         (r.read_i32(), r.read_i32(), r.read_i16(), r.read_i16())
@@ -118,7 +143,9 @@ pub(crate) fn handle_request_enchant_skill_info_detail(world: &mut World, client
     let sp = cost.sp.get(name).copied().unwrap_or(0);
     let chance = cost.chance.get(name).copied().unwrap_or(100);
     let items: Vec<(i32, i64)> = cost.items.get(name).cloned().unwrap_or_default();
-    let pkt = crate::network::enter_world::ex_enchant_skill_info_detail(ty, skill_id, level, sub, sp, chance, &items);
+    let pkt = crate::network::enter_world::ex_enchant_skill_info_detail(
+        ty, skill_id, level, sub, sp, chance, &items,
+    );
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(pkt);
     }
@@ -152,7 +179,9 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         return;
     };
     let (level, target_sub) = (level as i32, target_sub as i32);
-    let Some(object_id) = player_oid(world, client_id) else { return };
+    let Some(object_id) = player_oid(world, client_id) else {
+        return;
+    };
     if skill_id <= 0 || level <= 0 || target_sub < 0 || type_name(ty).is_none() {
         return;
     }
@@ -162,7 +191,13 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
     let Some((known_level, cur_sub)) = known_skill(world, object_id, skill_id) else {
         return;
     };
-    if known_level != level || world.data.skill_data.enchant_routes(skill_id, level).is_empty() {
+    if known_level != level
+        || world
+            .data
+            .skill_data
+            .enchant_routes(skill_id, level)
+            .is_empty()
+    {
         return;
     }
     // Step validation (`RequestExEnchantSkill.runImpl`): CHANGE must stay on
@@ -177,11 +212,21 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         }
     }
     // The target instance must exist in the data.
-    if world.data.skill_data.get_enchanted(skill_id, level, target_sub).is_none() {
+    if world
+        .data
+        .skill_data
+        .get_enchanted(skill_id, level, target_sub)
+        .is_none()
+    {
         return;
     }
     let type_key = type_name(ty).expect("checked");
-    let Some(cost) = world.data.enchant_skill_groups.cost_for(target_sub % 1000).cloned() else {
+    let Some(cost) = world
+        .data
+        .enchant_skill_groups
+        .cost_for(target_sub % 1000)
+        .cloned()
+    else {
         return;
     };
     let required: Vec<(i32, i64)> = cost.items.get(type_key).cloned().unwrap_or_default();
@@ -221,7 +266,12 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
         .get_component::<Player>(&object_id)
         .is_some_and(|p| p.sp >= sp_cost);
     if !enough_sp {
-        send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_ENCHANT_THAT_SKILL, &[]);
+        send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SP_TO_ENCHANT_THAT_SKILL,
+            &[],
+        );
         return;
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
@@ -268,12 +318,18 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
             };
             cs.send(server_packets::system_message_with(
                 sm,
-                &[SmParam::SkillName { id: skill_id, level }],
+                &[SmParam::SkillName {
+                    id: skill_id,
+                    level,
+                }],
             ));
         } else if ty == BLESSED || ty == IMMORTAL {
             cs.send(server_packets::system_message_with(
                 sm_ids::SKILL_ENCHANT_FAILED_CURRENT_LEVEL_WILL_REMAIN_UNCHANGED,
-                &[SmParam::SkillName { id: skill_id, level }],
+                &[SmParam::SkillName {
+                    id: skill_id,
+                    level,
+                }],
             ));
         } else {
             cs.send(server_packets::system_message_with(
@@ -281,7 +337,9 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
                 &[],
             ));
         }
-        cs.send(crate::network::enter_world::ex_enchant_skill_result(success));
+        cs.send(crate::network::enter_world::ex_enchant_skill_result(
+            success,
+        ));
     }
 
     // `broadcastUserInfo()` + `sendSkillList()`.

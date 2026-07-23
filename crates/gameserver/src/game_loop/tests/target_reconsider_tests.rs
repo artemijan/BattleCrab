@@ -48,7 +48,11 @@ fn support_skill(id: i32, effects: Vec<SkillEffect>, continuous: bool) -> Skill 
         hp_consume: 0,
         abnormal_time: if continuous { 100 } else { 0 },
         abnormal_level: 1,
-        abnormal_type: if continuous { "MIGHT".into() } else { "NONE".into() },
+        abnormal_type: if continuous {
+            "MIGHT".into()
+        } else {
+            "NONE".into()
+        },
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
@@ -83,27 +87,49 @@ fn template(id: i32, clans: &[&str], skills: &[(i32, i32)]) -> crate::data::npc_
     t
 }
 
-fn support_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn support_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    world.data.skill_data.insert_for_test(support_skill(HEAL_SKILL, vec![SkillEffect::Heal { power: 300.0 }], false));
+    world.data.skill_data.insert_for_test(support_skill(
+        HEAL_SKILL,
+        vec![SkillEffect::Heal { power: 300.0 }],
+        false,
+    ));
     world.data.skill_data.insert_for_test(support_skill(
         BUFF_SKILL,
-        vec![SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
-            stat: crate::model::stats::Stat::PhysicalAttack,
-            mode: crate::model::stats::StatModifierType::Per,
-            amount: 1.2,
-            armor_condition: 0,
-            weapon_condition: 0,
-            qualifier: None,
-            two_handed: false,
-        })],
+        vec![SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::PhysicalAttack,
+                mode: crate::model::stats::StatModifierType::Per,
+                amount: 1.2,
+                armor_condition: 0,
+                weapon_condition: 0,
+                qualifier: None,
+                two_handed: false,
+            },
+        )],
         true,
     ));
-    world.data.npc_data.insert_for_test(template(HEALER_ID, &["ORC"], &[(HEAL_SKILL, 1), (BUFF_SKILL, 1)]));
-    world.data.npc_data.insert_for_test(template(ALLY_ID, &["ORC"], &[]));
-    world.data.npc_data.insert_for_test(template(STRANGER_ID, &["LIZARDMAN"], &[]));
-    world.data.npc_ai_skills =
-        crate::data::npc_ai_skills::NpcAiSkillIndex::build(&world.data.npc_data, &world.data.skill_data);
+    world.data.npc_data.insert_for_test(template(
+        HEALER_ID,
+        &["ORC"],
+        &[(HEAL_SKILL, 1), (BUFF_SKILL, 1)],
+    ));
+    world
+        .data
+        .npc_data
+        .insert_for_test(template(ALLY_ID, &["ORC"], &[]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(template(STRANGER_ID, &["LIZARDMAN"], &[]));
+    world.data.npc_ai_skills = crate::data::npc_ai_skills::NpcAiSkillIndex::build(
+        &world.data.npc_data,
+        &world.data.skill_data,
+    );
     world.next_npc_object_id = STRANGER + 1;
     (world, db, l)
 }
@@ -114,7 +140,10 @@ fn scene(world: &mut World, companion_id: Option<i32>, companion_oid: i32, compa
     add_test_npc(world, HEALER, HEALER_ID, "Monster", 20, 0, 0, 0);
     if let Some(cid) = companion_id {
         add_test_npc(world, companion_oid, cid, "Monster", 20, companion_x, 0, 0);
-        let v = world.objects.get_component_mut::<Vitals>(&companion_oid).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&companion_oid)
+            .unwrap();
         v.max_hp = 1000;
         v.cur_hp = 1000.0;
     }
@@ -130,7 +159,13 @@ fn scene(world: &mut World, companion_id: Option<i32>, companion_oid: i32, compa
         .get_component_mut::<AggroList>(&HEALER)
         .unwrap()
         .0
-        .insert(PLAYER, AggroInfo { hate: 100.0, damage: 50.0 });
+        .insert(
+            PLAYER,
+            AggroInfo {
+                hate: 100.0,
+                damage: 50.0,
+            },
+        );
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&HEALER) {
         ai.intention = NpcIntention::Attack;
         ai.global_aggro = 0;
@@ -146,7 +181,10 @@ fn wound(world: &mut World, oid: i32, cur_hp: f64) {
 
 /// Who is the healer currently casting at?
 fn cast_target(world: &World) -> Option<i32> {
-    world.objects.get_component::<Casting>(&HEALER).map(|c| c.0.target_object_id)
+    world
+        .objects
+        .get_component::<Casting>(&HEALER)
+        .map(|c| c.0.target_object_id)
 }
 
 // ---------------------------------------------------------------------------
@@ -159,9 +197,16 @@ fn a_healer_heals_its_wounded_faction_mate_not_itself() {
     scene(&mut world, Some(ALLY_ID), ALLY, 200);
     wound(&mut world, ALLY, 50.0); // 5 % — heal chance 142 %, certain
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER), "a cast starts");
+    assert!(
+        crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER),
+        "a cast starts"
+    );
 
-    assert_eq!(cast_target(&world), Some(ALLY), "the wounded ally is the target");
+    assert_eq!(
+        cast_target(&world),
+        Some(ALLY),
+        "the wounded ally is the target"
+    );
 }
 
 #[test]
@@ -173,9 +218,15 @@ fn a_healer_picks_the_worst_off_of_several_allies() {
     wound(&mut world, ALLY, 400.0); // 40 %
     wound(&mut world, STRANGER, 60.0); // 6 % — worse
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(STRANGER), "heal goes to the lowest HP percentage");
+    assert_eq!(
+        cast_target(&world),
+        Some(STRANGER),
+        "heal goes to the lowest HP percentage"
+    );
 }
 
 #[test]
@@ -186,9 +237,15 @@ fn a_healer_still_heals_itself_when_it_is_the_worst_off() {
     wound(&mut world, ALLY, 900.0); // 90 %
     wound(&mut world, HEALER, 40.0); // 4 %
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(HEALER), "Java adds self to the candidate list");
+    assert_eq!(
+        cast_target(&world),
+        Some(HEALER),
+        "Java adds self to the candidate list"
+    );
 }
 
 #[test]
@@ -199,9 +256,15 @@ fn a_different_faction_is_not_healed() {
     wound(&mut world, ALLY, 50.0); // badly hurt, but LIZARDMAN
     wound(&mut world, HEALER, 500.0); // 50 %
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(HEALER), "an ORC healer ignores a wounded LIZARDMAN");
+    assert_eq!(
+        cast_target(&world),
+        Some(HEALER),
+        "an ORC healer ignores a wounded LIZARDMAN"
+    );
 }
 
 #[test]
@@ -219,9 +282,15 @@ fn a_wounded_player_is_never_healed() {
         v.cur_hp = 1.0; // far worse off than the healer
     }
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(HEALER), "the mob must never heal the player attacking it");
+    assert_eq!(
+        cast_target(&world),
+        Some(HEALER),
+        "the mob must never heal the player attacking it"
+    );
 }
 
 #[test]
@@ -234,9 +303,15 @@ fn an_ally_out_of_range_is_not_considered() {
     wound(&mut world, ALLY, 50.0);
     wound(&mut world, HEALER, 500.0);
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(HEALER), "a distant ally is out of the reconsider range");
+    assert_eq!(
+        cast_target(&world),
+        Some(HEALER),
+        "a distant ally is out of the reconsider range"
+    );
 }
 
 #[test]
@@ -250,8 +325,16 @@ fn a_healthy_pack_casts_no_heal() {
 
     if cast {
         let target = cast_target(&world).expect("a target");
-        let skill_id = world.objects.get_component::<Casting>(&HEALER).unwrap().0.skill_id;
-        assert_eq!(skill_id, BUFF_SKILL, "a full-HP pack gets the buff, never the heal");
+        let skill_id = world
+            .objects
+            .get_component::<Casting>(&HEALER)
+            .unwrap()
+            .0
+            .skill_id;
+        assert_eq!(
+            skill_id, BUFF_SKILL,
+            "a full-HP pack gets the buff, never the heal"
+        );
         assert!(target == HEALER || target == ALLY, "buff lands on the pack");
     }
 }
@@ -281,9 +364,15 @@ fn a_buff_goes_to_a_faction_mate_that_lacks_it() {
         }]),
     );
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
-    assert_eq!(cast_target(&world), Some(ALLY), "the buff goes to the mate who lacks it");
+    assert_eq!(
+        cast_target(&world),
+        Some(ALLY),
+        "the buff goes to the mate who lacks it"
+    );
 }
 
 #[test]
@@ -300,7 +389,9 @@ fn a_clanless_mob_only_ever_targets_itself() {
     wound(&mut world, ALLY, 50.0);
     wound(&mut world, HEALER, 500.0);
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, HEALER, PLAYER));
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, HEALER, PLAYER
+    ));
 
     assert_eq!(cast_target(&world), Some(HEALER), "no faction → self only");
 }

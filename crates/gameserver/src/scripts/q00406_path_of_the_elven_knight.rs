@@ -44,7 +44,13 @@ const OL_MAHUM_NOVICE: i32 = 20782;
 const TOPAZ_MOBS: [i32; 6] = [20035, 20042, 20045, 20051, 20054, 20060];
 const KILL_NPCS: [i32; 7] = [20035, 20042, 20045, 20051, 20054, 20060, OL_MAHUM_NOVICE];
 
-const QUEST_ITEMS: [i32; 5] = [SORIUS_LETTER, KLUTO_BOX, TOPAZ_PIECE, EMERALD_PIECE, KLUTO_MEMO];
+const QUEST_ITEMS: [i32; 5] = [
+    SORIUS_LETTER,
+    KLUTO_BOX,
+    TOPAZ_PIECE,
+    EMERALD_PIECE,
+    KLUTO_MEMO,
+];
 
 pub struct Q00406PathOfTheElvenKnight;
 
@@ -80,7 +86,9 @@ impl QuestScript for Q00406PathOfTheElvenKnight {
                 match ctx.player_class_id() {
                     ELVEN_FIGHTER if ctx.player_level() < MIN_LEVEL => "30327-03.htm",
                     // Already holding the brooch — nothing to earn.
-                    ELVEN_FIGHTER if ctx.quest_items_count(ELVEN_KNIGHT_BROOCH) > 0 => "30327-04.htm",
+                    ELVEN_FIGHTER if ctx.quest_items_count(ELVEN_KNIGHT_BROOCH) > 0 => {
+                        "30327-04.htm"
+                    }
                     ELVEN_FIGHTER => "30327-05.htm",
                     ELVEN_KNIGHT => "30327-02a.htm",
                     _ => "30327-02.htm",

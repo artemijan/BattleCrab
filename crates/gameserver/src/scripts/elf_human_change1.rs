@@ -133,15 +133,19 @@ impl ElfHumanChange1 {
 
         // Only the matching (target, current class) pair does anything —
         // asking a fighter master for a mage class falls through to `None`.
-        let (_, _, proof, first_page) =
-            *self.targets().iter().find(|(to, from, _, _)| {
-                *to == class_id && *from == ctx.player_class_id()
-            })?;
+        let (_, _, proof, first_page) = *self
+            .targets()
+            .iter()
+            .find(|(to, from, _, _)| *to == class_id && *from == ctx.player_class_id())?;
 
         let has_proof = ctx.quest_items_count(proof) > 0;
         if ctx.player_level() < 20 {
             // low, then lowNoProof.
-            let page = if has_proof { first_page } else { first_page + 1 };
+            let page = if has_proof {
+                first_page
+            } else {
+                first_page + 1
+            };
             return Some(format!("{npc}-{page}.htm"));
         }
         if !has_proof {
@@ -184,7 +188,12 @@ impl QuestScript for ElfHumanChange1 {
             }
         }
         // The dialog pages echo back.
-        if event.ends_with(".htm") && self.npcs().iter().any(|id| event.starts_with(&id.to_string())) {
+        if event.ends_with(".htm")
+            && self
+                .npcs()
+                .iter()
+                .any(|id| event.starts_with(&id.to_string()))
+        {
             return Some(event.to_string());
         }
         None
@@ -195,7 +204,11 @@ impl QuestScript for ElfHumanChange1 {
         let (category, human_page, elf_page) = self.talk_pages();
         let race = ctx.player_race();
         if ctx.is_in_category(category) && (race == RACE_HUMAN || race == RACE_ELF) {
-            let page = if race == RACE_HUMAN { human_page } else { elf_page };
+            let page = if race == RACE_HUMAN {
+                human_page
+            } else {
+                elf_page
+            };
             // Java pads these as `-01`/`-08`/`-11`.
             return Some(format!("{npc}-{page:02}.htm"));
         }

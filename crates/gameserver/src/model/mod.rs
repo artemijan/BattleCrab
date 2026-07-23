@@ -15,14 +15,13 @@ pub mod inventory;
 pub mod mob_group;
 pub mod movement;
 pub mod npc;
-pub mod siege;
 pub mod party;
 pub mod quest;
 pub mod shortcut;
+pub mod siege;
 pub mod skill;
 pub mod static_object;
 pub mod stats;
-
 
 use crate::character::CharData;
 use crate::data::admin_data::AccessLevel;
@@ -40,7 +39,10 @@ pub const DEFAULT_TITLE_COLOR: i32 = 0x00FF_FF77;
 /// them.
 pub const MAX_VITALITY_POINTS: i32 = 140_000;
 pub const MIN_VITALITY_POINTS: i32 = 0;
-use components::{AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals, Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals};
+use components::{
+    AttackState, BaseStats, Buffs, ClientPos, Collision, CombatStats, Macros, PlayerVitals,
+    Position, RegionCell, Reuses, Shortcuts, SkillBook, Speeds, StatModifiers, TargetRef, Vitals,
+};
 use inventory::Inventory;
 use skill::{ActiveBuff, BuffSlot, StatModifierEffect};
 use stats::{BaseStat, Stat, StatModifierType};
@@ -83,9 +85,18 @@ pub struct CastState {
 /// cancel paths.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlayerIntent {
-    Attack { target_object_id: i32 },
-    Cast { skill_id: i32, ctrl: bool, shift: bool, target_object_id: i32 },
-    Interact { target_object_id: i32 },
+    Attack {
+        target_object_id: i32,
+    },
+    Cast {
+        skill_id: i32,
+        ctrl: bool,
+        shift: bool,
+        target_object_id: i32,
+    },
+    Interact {
+        target_object_id: i32,
+    },
 }
 
 /// One live cooldown (Java `TimeStamp`, trimmed): `SkillCoolTime` reports the
@@ -176,8 +187,7 @@ pub struct Player {
     /// Inactive indices' worn hennas — dyes are per-subclass.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
-    pub shortcuts_by_index:
-        std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
+    pub shortcuts_by_index: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
     pub base_level: i32,
     pub base_exp: i64,
     pub base_sp: i64,
@@ -195,7 +205,6 @@ pub struct Player {
     // Extracted components on the same entity (stage 2 —
     // `model/components.rs`): Position/RegionCell (phase 1); Vitals (+ CP in
     // PlayerVitals), BaseStats, Speeds, Collision (phase 2).
-
     pub exp: i64,
     pub sp: i64,
     pub reputation: i32,
@@ -287,7 +296,6 @@ pub struct Player {
     // ClientPos are components on the same entity (stage 2 phase 5); the
     // in-flight move / cast / attack intention are the presence-based
     // `Movement`/`Casting`/`Intent` components (phase 3).
-
     /// Monotonic cast-generation counter, bumped every `startCasting` — the
     /// in-flight cast itself is the presence-based `Casting` component
     /// (stage 2 phase 3); this counter must survive across casts for the
@@ -461,7 +469,6 @@ pub struct PlayerData {
     /// `skills::effects::restore_persisted_buffs` once the entity exists.
     pub pending_buffs: Vec<crate::db::SkillBuffRow>,
 }
-
 
 impl PlayerData {
     /// Java `restoreEffects` (skill-reuse half): rebuild the live cooldown map
@@ -637,7 +644,11 @@ struct EquippedBonuses {
 }
 
 impl EquippedBonuses {
-    fn from_inventory(inventory: &Inventory, data: &GameData, t: &crate::data::player_template::PlayerTemplate) -> Self {
+    fn from_inventory(
+        inventory: &Inventory,
+        data: &GameData,
+        t: &crate::data::player_template::PlayerTemplate,
+    ) -> Self {
         use crate::model::inventory::PaperdollSlot;
         let mut eq = EquippedBonuses::default();
 
@@ -702,7 +713,9 @@ impl EquippedBonuses {
         // finalizer paperdoll loop / `calcWeaponPlusBaseValue`). `accCombat`
         // lives on weapons too, so this deliberately includes the weapon.
         for item in inventory.equipped_items() {
-            let Some(stats) = data.item_data.item_stats(item.item_id) else { continue };
+            let Some(stats) = data.item_data.item_stats(item.item_id) else {
+                continue;
+            };
             for &(stat, val) in &stats.bonuses {
                 match stat {
                     Stat::PhysicalDefence => eq.p_def += val,
@@ -738,12 +751,15 @@ impl Player {
 
         // Split stored items by location: warehouse / freight rows go to their
         // own containers, everything else (inventory + paperdoll) to inventory.
-        let (wh_rows, rest): (Vec<_>, Vec<_>) = c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
-        let (freight_rows, rest): (Vec<_>, Vec<_>) = rest.into_iter().partition(|r| r.loc == "FREIGHT");
+        let (wh_rows, rest): (Vec<_>, Vec<_>) =
+            c.items.iter().cloned().partition(|r| r.loc == "WAREHOUSE");
+        let (freight_rows, rest): (Vec<_>, Vec<_>) =
+            rest.into_iter().partition(|r| r.loc == "FREIGHT");
         // Pet-held items (Java `ItemLocation.PET`) are stored against the
         // *player's* owner id, so they arrive in the same batch.
-        let (pet_rows, inv_rows): (Vec<_>, Vec<_>) =
-            rest.into_iter().partition(|r| r.loc == "PET" || r.loc == "PET_EQUIP");
+        let (pet_rows, inv_rows): (Vec<_>, Vec<_>) = rest
+            .into_iter()
+            .partition(|r| r.loc == "PET" || r.loc == "PET_EQUIP");
         let warehouse = inventory::Warehouse::from_rows(&wh_rows);
         let freight = inventory::Freight::from_rows(&freight_rows);
         let pet_inventory = inventory::PetInventory::from_rows(&pet_rows);
@@ -785,7 +801,10 @@ impl Player {
             cur_mp: c.cur_mp.min(max_mp),
             dead: c.cur_hp < 0.5,
         };
-        let mut player_vitals = PlayerVitals { max_cp: max_cp as i32, cur_cp: 0.0 };
+        let mut player_vitals = PlayerVitals {
+            max_cp: max_cp as i32,
+            cur_cp: 0.0,
+        };
         let mut speeds = Speeds {
             run_spd: t.base_run_spd as f64,
             walk_spd: t.base_walk_spd as f64,
@@ -797,7 +816,10 @@ impl Player {
             swimming: false,
             swamp_multiplier: 1.0,
         };
-        let collision = Collision { radius: t.collision_radius, height: t.collision_height };
+        let collision = Collision {
+            radius: t.collision_radius,
+            height: t.collision_height,
+        };
         // Java `setAccessLevel` folds the tier's name/title color into the
         // appearance; a level-0 player keeps the client defaults (see
         // `Player::name_color`).
@@ -897,7 +919,14 @@ impl Player {
         let mut combat = CombatStats::default();
         let mut mods = StatModifiers::default();
         let mut buffs = Buffs::default();
-        p.recalculate_stats(data, &base_stats, &mods, &inventory, &mut speeds, &mut combat);
+        p.recalculate_stats(
+            data,
+            &base_stats,
+            &mods,
+            &inventory,
+            &mut speeds,
+            &mut combat,
+        );
         // Java `restoreCharData` → `addSkill`: fold the character's known
         // armor-conditioned passives (Spellcraft/Magician's Movement) into the
         // stat maps now, so the enter-world `UserInfo` burst already carries them
@@ -905,7 +934,11 @@ impl Player {
         let skills = SkillBook(c.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect());
         // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
         let skill_enchants = components::SkillEnchants(
-            c.skills.iter().filter(|&&(_, _, sub)| sub > 0).map(|&(id, _, sub)| (id, sub)).collect(),
+            c.skills
+                .iter()
+                .filter(|&&(_, _, sub)| sub > 0)
+                .map(|&(id, _, sub)| (id, sub))
+                .collect(),
         );
         // Java `restoreRecipeBook`: classify each stored recipe-list id into the
         // dwarven/common book by its `RecipeList.isDwarvenRecipe()`; ids with no
@@ -919,7 +952,16 @@ impl Player {
             }
         }
         for buff in conditioned_passive_buffs(data, &skills, &inventory) {
-            p.apply_buff(data, &base_stats, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+            p.apply_buff(
+                data,
+                &base_stats,
+                &mut mods,
+                &inventory,
+                &mut buffs,
+                &mut speeds,
+                &mut combat,
+                buff,
+            );
         }
         // Those passive skills can carry MaxHp/MaxMp/MaxCp modifiers (e.g. a
         // mystic's MP passives, which drive most of an Archmage's MP pool). They
@@ -951,7 +993,12 @@ impl Player {
             .map(|sc| {
                 let mut sc = *sc;
                 if sc.kind == shortcut::ShortcutType::Item {
-                    let is_etc = c.items.iter().find(|i| i.object_id == sc.id).and_then(|i| data.item_data.get(i.item_id)).is_some_and(|t| t.kind == crate::data::item_data::ItemKind::Etc);
+                    let is_etc = c
+                        .items
+                        .iter()
+                        .find(|i| i.object_id == sc.id)
+                        .and_then(|i| data.item_data.get(i.item_id))
+                        .is_some_and(|t| t.kind == crate::data::item_data::ItemKind::Etc);
                     if is_etc {
                         // `shared_reuse_group` template default (never set in
                         // this dist's item XMLs).
@@ -964,7 +1011,12 @@ impl Player {
 
         PlayerData {
             player: p,
-            position: Position { x: c.x, y: c.y, z: c.z, heading: 0 },
+            position: Position {
+                x: c.x,
+                y: c.y,
+                z: c.z,
+                heading: 0,
+            },
             region: RegionCell(crate::world::region_of(c.x, c.y)),
             vitals,
             player_vitals,
@@ -983,7 +1035,10 @@ impl Player {
             recipe_book,
             variables: components::PlayerVariables(c.variables.iter().cloned().collect()),
             pets: components::PlayerPets(
-                c.pets.iter().map(|p| (p.collar_object_id, p.clone())).collect(),
+                c.pets
+                    .iter()
+                    .map(|p| (p.collar_object_id, p.clone()))
+                    .collect(),
             ),
             summons: components::PlayerSummons(c.summons.clone()),
             pet_inventory,
@@ -1060,34 +1115,66 @@ impl Player {
         // the ceiling for creatures with the MAX_STATS_VALUE cond override —
         // granted to GMs on login (Player.restore). Floors still apply.
         let cap = |max: f64| if self.is_gm(data) { f64::MAX } else { max };
-        combat.p_atk = finalize(mods, Stat::PhysicalAttack, p_atk_base * str_bonus * level_mod)
-            .clamp(0.0, cap(caps.max_p_atk));
-        combat.m_atk = finalize(mods, Stat::MagicalAttack, m_atk_base * (int_bonus * level_mod).powf(2.2072))
-            .clamp(0.0, cap(caps.max_m_atk));
+        combat.p_atk = finalize(
+            mods,
+            Stat::PhysicalAttack,
+            p_atk_base * str_bonus * level_mod,
+        )
+        .clamp(0.0, cap(caps.max_p_atk));
+        combat.m_atk = finalize(
+            mods,
+            Stat::MagicalAttack,
+            m_atk_base * (int_bonus * level_mod).powf(2.2072),
+        )
+        .clamp(0.0, cap(caps.max_m_atk));
 
         // P/MDefenseFinalizer: (naked base + summed gear def − the naked defense
         // of every occupied slot) × levelMod (mDef also × MEN bonus), then the
         // `defaultValue` mul(≥0.5)/add and the `base × 0.2` floor.
         let p_def_pre = (t.base_p_def as f64 + eq.p_def - eq.p_def_slot_sub) * level_mod;
-        combat.p_def = finalize_def(mods, Stat::PhysicalDefence, p_def_pre, t.base_p_def as f64 * 0.2);
-        let men_bonus = if base.men > 0 { sb.bonus(BaseStat::Men, base.men) } else { 1.0 };
-        let m_def_pre = (t.base_m_def as f64 + eq.m_def - eq.m_def_slot_sub) * men_bonus * level_mod;
-        combat.m_def = finalize_def(mods, Stat::MagicalDefence, m_def_pre, t.base_m_def as f64 * 0.2);
+        combat.p_def = finalize_def(
+            mods,
+            Stat::PhysicalDefence,
+            p_def_pre,
+            t.base_p_def as f64 * 0.2,
+        );
+        let men_bonus = if base.men > 0 {
+            sb.bonus(BaseStat::Men, base.men)
+        } else {
+            1.0
+        };
+        let m_def_pre =
+            (t.base_m_def as f64 + eq.m_def - eq.m_def_slot_sub) * men_bonus * level_mod;
+        combat.m_def = finalize_def(
+            mods,
+            Stat::MagicalDefence,
+            m_def_pre,
+            t.base_m_def as f64 * 0.2,
+        );
 
         // P/MAttackSpeedFinalizer: weapon replaces base; `mul` floors at 0.7.
         let p_atk_spd_base = eq.weapon_p_atk_spd.unwrap_or(t.base_p_atk_spd as f64);
-        combat.p_atk_spd = finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
-            .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
-        combat.m_atk_spd = finalize_speed(mods, Stat::MagicAttackSpeed, t.base_m_atk_spd as f64 * wit_bonus)
-            .clamp(1.0, cap(caps.max_m_atk_speed)) as i32;
+        combat.p_atk_spd =
+            finalize_speed(mods, Stat::PhysicalAttackSpeed, p_atk_spd_base * dex_bonus)
+                .clamp(1.0, cap(caps.max_p_atk_speed)) as i32;
+        combat.m_atk_spd = finalize_speed(
+            mods,
+            Stat::MagicAttackSpeed,
+            t.base_m_atk_spd as f64 * wit_bonus,
+        )
+        .clamp(1.0, cap(caps.max_m_atk_speed)) as i32;
 
         // P/MCritRateFinalizer (in per-mille, ×10): weapon replaces base crit.
         let crit_base = eq.weapon_crit.unwrap_or(t.base_crit_rate as f64);
         let m_crit_base = eq.weapon_m_crit.unwrap_or(t.base_m_crit_rate as f64);
-        combat.crit_hit =
-            finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0).clamp(0.0, cap(caps.max_p_crit_rate));
-        combat.m_crit_hit =
-            finalize(mods, Stat::MagicCriticalRate, m_crit_base * wit_bonus * 10.0).clamp(0.0, cap(caps.max_m_crit_rate));
+        combat.crit_hit = finalize(mods, Stat::CriticalRate, crit_base * dex_bonus * 10.0)
+            .clamp(0.0, cap(caps.max_p_crit_rate));
+        combat.m_crit_hit = finalize(
+            mods,
+            Stat::MagicCriticalRate,
+            m_crit_base * wit_bonus * 10.0,
+        )
+        .clamp(0.0, cap(caps.max_m_crit_rate));
 
         // P/MAccuracyFinalizer, P/MEvasionRateFinalizer. Gear accuracy/evasion
         // sums add on top (`calcWeaponPlusBaseValue`). `as i32` truncates toward
@@ -1120,12 +1207,27 @@ impl Player {
             b
         };
         let acc_ev_step = hi_level_step(self.level as i32);
-        combat.accuracy =
-            finalize(mods, Stat::AccuracyCombat, (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.accuracy) as i32;
-        combat.magic_accuracy = finalize(mods, Stat::AccuracyMagic, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy) as i32;
-        combat.evasion = finalize(mods, Stat::EvasionRate, (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion)
-            .clamp(0.0, cap(caps.max_evasion)) as i32;
-        combat.magic_evasion = finalize(mods, Stat::MagicEvasionRate, (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion) as i32;
+        combat.accuracy = finalize(
+            mods,
+            Stat::AccuracyCombat,
+            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.accuracy,
+        ) as i32;
+        combat.magic_accuracy = finalize(
+            mods,
+            Stat::AccuracyMagic,
+            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_accuracy,
+        ) as i32;
+        combat.evasion = finalize(
+            mods,
+            Stat::EvasionRate,
+            (base.dex as f64).sqrt() * 5.0 + level + acc_ev_step + eq.evasion,
+        )
+        .clamp(0.0, cap(caps.max_evasion)) as i32;
+        combat.magic_evasion = finalize(
+            mods,
+            Stat::MagicEvasionRate,
+            (base.wit as f64).sqrt() * 3.0 + level * 2.0 + eq.magic_evasion,
+        ) as i32;
 
         // Weapon range / damage spread replace the class template constants
         // while a weapon is equipped (`PRangeFinalizer` / `RandomDamageFinalizer`).
@@ -1133,7 +1235,11 @@ impl Player {
         // Archery 431/Long Shot 113/Rapid Fire 413/Snipe 972 (`PhysicalAttackRange`,
         // all `<weaponType>BOW</weaponType>`-conditioned) previously had no stat
         // to land on here at all.
-        combat.atk_range = finalize(mods, Stat::PhysicalAttackRange, (eq.weapon_atk_range.unwrap_or(t.base_atk_range)) as f64) as i32;
+        combat.atk_range = finalize(
+            mods,
+            Stat::PhysicalAttackRange,
+            (eq.weapon_atk_range.unwrap_or(t.base_atk_range)) as f64,
+        ) as i32;
         combat.random_dmg = eq.weapon_random_dmg.unwrap_or(10);
 
         // SpeedFinalizer: every player speed stat gets `Config.RUN_SPD_BOOST`
@@ -1142,10 +1248,26 @@ impl Player {
         // stats above; stored as f64 (Speeds is shared with NPCs, whose
         // templates don't take the player boost). The `as i16` in `user_info`
         // truncates for display, matching Java's `(int)` getter.
-        speeds.run_spd = finalize(mods, Stat::RunSpeed, t.base_run_spd as f64 + caps.run_spd_boost);
-        speeds.walk_spd = finalize(mods, Stat::WalkSpeed, t.base_walk_spd as f64 + caps.run_spd_boost);
-        speeds.swim_run_spd = finalize(mods, Stat::SwimRunSpeed, t.base_swim_run_spd as f64 + caps.run_spd_boost);
-        speeds.swim_walk_spd = finalize(mods, Stat::SwimWalkSpeed, t.base_swim_walk_spd as f64 + caps.run_spd_boost);
+        speeds.run_spd = finalize(
+            mods,
+            Stat::RunSpeed,
+            t.base_run_spd as f64 + caps.run_spd_boost,
+        );
+        speeds.walk_spd = finalize(
+            mods,
+            Stat::WalkSpeed,
+            t.base_walk_spd as f64 + caps.run_spd_boost,
+        );
+        speeds.swim_run_spd = finalize(
+            mods,
+            Stat::SwimRunSpeed,
+            t.base_swim_run_spd as f64 + caps.run_spd_boost,
+        );
+        speeds.swim_walk_spd = finalize(
+            mods,
+            Stat::SwimWalkSpeed,
+            t.base_swim_walk_spd as f64 + caps.run_spd_boost,
+        );
 
         // A transform replaces the class base run/walk with the template's
         // `<moving>` values (Java's transform move-speed override), still folding
@@ -1176,7 +1298,12 @@ impl Player {
         // SpeedFinalizer's `validateValue`: players clamp to [1, MaxRunSpeed]
         // (300 on this dist).
         let speed_cap = cap(caps.max_run_speed);
-        for spd in [&mut speeds.run_spd, &mut speeds.walk_spd, &mut speeds.swim_run_spd, &mut speeds.swim_walk_spd] {
+        for spd in [
+            &mut speeds.run_spd,
+            &mut speeds.walk_spd,
+            &mut speeds.swim_run_spd,
+            &mut speeds.swim_walk_spd,
+        ] {
             *spd = spd.clamp(1.0, speed_cap);
         }
     }
@@ -1237,7 +1364,9 @@ impl Player {
         };
         if let Some(cap) = cap.filter(|c| *c > 0) {
             while buffs.0.iter().filter(|b| b.slot == buff.slot).count() as i32 >= cap {
-                let Some(oldest) = buffs.0.iter().position(|b| b.slot == buff.slot) else { break };
+                let Some(oldest) = buffs.0.iter().position(|b| b.slot == buff.slot) else {
+                    break;
+                };
                 buffs.0.remove(oldest);
             }
         }
@@ -1355,7 +1484,9 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
     use crate::model::skill::{OperateType, SkillEffect};
     let mut mods = StatModifiers::default();
     for &(skill_id, level) in &t.skill_list {
-        let Some(skill) = data.skill_data.get(skill_id, level) else { continue };
+        let Some(skill) = data.skill_data.get(skill_id, level) else {
+            continue;
+        };
         if skill.operate_type != OperateType::Passive {
             continue;
         }
@@ -1403,10 +1534,12 @@ pub(crate) fn npc_finalized_stats(
             .clamp(1.0, caps.max_p_atk_speed) as i32,
         m_atk_spd: finalize_speed(&mods, Stat::MagicAttackSpeed, base.m_atk_spd as f64)
             .clamp(1.0, caps.max_m_atk_speed) as i32,
-        crit_hit: finalize(&mods, Stat::CriticalRate, base.crit_hit).clamp(0.0, caps.max_p_crit_rate),
+        crit_hit: finalize(&mods, Stat::CriticalRate, base.crit_hit)
+            .clamp(0.0, caps.max_p_crit_rate),
         m_crit_hit: base.m_crit_hit,
         accuracy: finalize(&mods, Stat::AccuracyCombat, base.accuracy as f64) as i32,
-        evasion: finalize(&mods, Stat::EvasionRate, base.evasion as f64).clamp(0.0, caps.max_evasion) as i32,
+        evasion: finalize(&mods, Stat::EvasionRate, base.evasion as f64)
+            .clamp(0.0, caps.max_evasion) as i32,
         magic_evasion: base.magic_evasion,
         magic_accuracy: base.magic_accuracy,
         // Range / random-damage aren't buffable here — keep the template values.
@@ -1427,8 +1560,16 @@ pub(crate) fn npc_finalized_stats(
     };
     // `Max{Hp,Mp}Finalizer`: `mul × (baseMax × {CON,MEN} bonus) + add`; the
     // bonus is skipped when the stat is 0 (`getX() > 0 ? bonus : 1`).
-    let con_bonus = if t.base_con > 0 { sb.con_bonus(t.base_con) } else { 1.0 };
-    let men_bonus = if t.base_men > 0 { sb.men_bonus(t.base_men) } else { 1.0 };
+    let con_bonus = if t.base_con > 0 {
+        sb.con_bonus(t.base_con)
+    } else {
+        1.0
+    };
+    let men_bonus = if t.base_men > 0 {
+        sb.men_bonus(t.base_men)
+    } else {
+        1.0
+    };
     let hp_mul = mods.mul.get(&Stat::MaxHp).copied().unwrap_or(1.0);
     let hp_add = mods.add.get(&Stat::MaxHp).copied().unwrap_or(0.0);
     let mp_mul = mods.mul.get(&Stat::MaxMp).copied().unwrap_or(1.0);
@@ -1468,7 +1609,11 @@ pub(crate) fn recompute_npc_stats_from_buffs(
 /// robe passive's `<armorType>` mask reaches): the condition passes when the
 /// worn chest — and, unless the chest is full-armor, the worn legs — matches the
 /// mask, treating a bare slot as `ArmorType::NONE`.
-pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+pub(crate) fn armor_condition_passes(
+    mask: u8,
+    inventory: &Inventory,
+    items: &crate::data::item_data::ItemData,
+) -> bool {
     use crate::data::item_data::{ArmorType, SLOT_FULL_ARMOR};
     use crate::model::inventory::PaperdollSlot;
     const NONE_BIT: u8 = ArmorType::None.mask_bit();
@@ -1478,7 +1623,11 @@ pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &cr
     if mask & items.armor_type(chest.item_id).mask_bit() == 0 {
         return false;
     }
-    if items.get(chest.item_id).map(|t| t.body_part == SLOT_FULL_ARMOR).unwrap_or(false) {
+    if items
+        .get(chest.item_id)
+        .map(|t| t.body_part == SLOT_FULL_ARMOR)
+        .unwrap_or(false)
+    {
         return true;
     }
     let Some(legs) = inventory.paperdoll_item(PaperdollSlot::Legs) else {
@@ -1497,7 +1646,10 @@ pub(crate) fn armor_condition_passes(mask: u8, inventory: &Inventory, items: &cr
 /// Read off the weapon template's `bodypart`, which is how the datapack marks
 /// a two-hander, rather than by inferring it from the left hand being empty
 /// (that would also match an unarmed or shield-less one-hander).
-pub(crate) fn two_handed_weapon_equipped(inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+pub(crate) fn two_handed_weapon_equipped(
+    inventory: &Inventory,
+    items: &crate::data::item_data::ItemData,
+) -> bool {
     use crate::model::inventory::PaperdollSlot;
     inventory
         .paperdoll_item(PaperdollSlot::RHand)
@@ -1505,7 +1657,11 @@ pub(crate) fn two_handed_weapon_equipped(inventory: &Inventory, items: &crate::d
         .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
 }
 
-pub(crate) fn weapon_condition_passes(mask: u32, inventory: &Inventory, items: &crate::data::item_data::ItemData) -> bool {
+pub(crate) fn weapon_condition_passes(
+    mask: u32,
+    inventory: &Inventory,
+    items: &crate::data::item_data::ItemData,
+) -> bool {
     use crate::model::inventory::PaperdollSlot;
     let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) else {
         return false;
@@ -1519,11 +1675,17 @@ pub(crate) fn weapon_condition_passes(mask: u32, inventory: &Inventory, items: &
 /// `ActiveBuff` (Java's `Player.addSkill` passive effects, re-evaluated at pump
 /// time). Skills whose effects are all gated out contribute nothing. Shared by
 /// `from_char` (enter-world) and `game_loop::passive_skills` (equip changes).
-pub(crate) fn conditioned_passive_buffs(data: &GameData, skills: &SkillBook, inventory: &Inventory) -> Vec<ActiveBuff> {
+pub(crate) fn conditioned_passive_buffs(
+    data: &GameData,
+    skills: &SkillBook,
+    inventory: &Inventory,
+) -> Vec<ActiveBuff> {
     use crate::model::skill::{OperateType, SkillEffect};
     let mut out = Vec::new();
     for (&skill_id, &level) in &skills.0 {
-        let Some(skill) = data.skill_data.get(skill_id, level) else { continue };
+        let Some(skill) = data.skill_data.get(skill_id, level) else {
+            continue;
+        };
         if skill.operate_type != OperateType::Passive {
             continue;
         }
@@ -1578,14 +1740,20 @@ pub(crate) fn apply_modifier(mods: &mut StatModifiers, effect: &StatModifierEffe
     use crate::model::stats::StatQualifier;
     match effect.qualifier {
         Some(StatQualifier::MoveType(move_type)) => {
-            *mods.by_move_type.entry((effect.stat, move_type)).or_insert(0.0) += effect.amount;
+            *mods
+                .by_move_type
+                .entry((effect.stat, move_type))
+                .or_insert(0.0) += effect.amount;
             return;
         }
         Some(StatQualifier::Position(position)) => {
             // `mergePositionTypeValue(stat, position, (amount/100)+1, MathUtil::mul)`
             // — the percentage is turned into a multiplier by the *handler*,
             // not the merge, and stacking positions multiply.
-            *mods.by_position.entry((effect.stat, position)).or_insert(1.0) *= (effect.amount / 100.0) + 1.0;
+            *mods
+                .by_position
+                .entry((effect.stat, position))
+                .or_insert(1.0) *= (effect.amount / 100.0) + 1.0;
             return;
         }
         None => {}
@@ -1620,20 +1788,36 @@ fn equipped_stat_sum(inventory: &Inventory, data: &GameData, stat: Stat) -> f64 
 /// items aren't scaled by the buff). `inventory = None` for the pre-equip
 /// char-creation preview. The `mul`/`add` come from the buff modifier maps —
 /// HP-boosting clan skills / buffs move the stat through here.
-pub fn calc_max_hp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>, mods: &StatModifiers) -> f64 {
+pub fn calc_max_hp(
+    data: &GameData,
+    t: &PlayerTemplate,
+    level: i32,
+    inventory: Option<&Inventory>,
+    mods: &StatModifiers,
+) -> f64 {
     let base = t.base_hp_max(level) * data.stat_bonus.con_bonus(t.base_con);
     let mul = mods.mul.get(&Stat::MaxHp).copied().unwrap_or(1.0);
     let add = mods.add.get(&Stat::MaxHp).copied().unwrap_or(0.0);
-    let item = inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp)).unwrap_or(0.0);
+    let item = inventory
+        .map(|inv| equipped_stat_sum(inv, data, Stat::MaxHp))
+        .unwrap_or(0.0);
     mul * base + add + item
 }
 
 /// `MaxMpFinalizer`: `mul·(baseMpMax(level)·MEN bonus) + add` + equipped `maxMp`.
-pub fn calc_max_mp(data: &GameData, t: &PlayerTemplate, level: i32, inventory: Option<&Inventory>, mods: &StatModifiers) -> f64 {
+pub fn calc_max_mp(
+    data: &GameData,
+    t: &PlayerTemplate,
+    level: i32,
+    inventory: Option<&Inventory>,
+    mods: &StatModifiers,
+) -> f64 {
     let base = t.base_mp_max(level) * data.stat_bonus.men_bonus(t.base_men);
     let mul = mods.mul.get(&Stat::MaxMp).copied().unwrap_or(1.0);
     let add = mods.add.get(&Stat::MaxMp).copied().unwrap_or(0.0);
-    let item = inventory.map(|inv| equipped_stat_sum(inv, data, Stat::MaxMp)).unwrap_or(0.0);
+    let item = inventory
+        .map(|inv| equipped_stat_sum(inv, data, Stat::MaxMp))
+        .unwrap_or(0.0);
     mul * base + add + item
 }
 

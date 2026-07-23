@@ -3,8 +3,8 @@
 
 use commons::network::PacketWriter;
 
-use crate::model::Player;
 use super::opcodes;
+use crate::model::Player;
 
 /// Port of `serverpackets/MagicSkillUse` (no ground-targeted skills, no
 /// `RequestActionUse` action id yet). `casting_bar_id` is
@@ -48,7 +48,12 @@ pub fn magic_skill_use(
 
 /// Port of `serverpackets/MagicSkillLaunched`: the launch flourish, broadcast
 /// with the resolved target list (`SkillCaster._targets`).
-pub fn magic_skill_launched(caster_object_id: i32, skill_id: i32, skill_level: i32, targets: &[i32]) -> Vec<u8> {
+pub fn magic_skill_launched(
+    caster_object_id: i32,
+    skill_id: i32,
+    skill_level: i32,
+    targets: &[i32],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MAGIC_SKILL_LAUNCHED);
     w.write_i32(0); // casting bar: NORMAL
@@ -98,7 +103,12 @@ pub fn skill_cool_time(reuses: &crate::model::components::Reuses, now_tick: u64)
             if remaining_ticks == 0 {
                 return None;
             }
-            Some((reuse_key, r.skill_level, r.total_ms / 1000, (remaining_ticks / 10) as i32))
+            Some((
+                reuse_key,
+                r.skill_level,
+                r.total_ms / 1000,
+                (remaining_ticks / 10) as i32,
+            ))
         })
         .collect();
     let mut w = PacketWriter::new();

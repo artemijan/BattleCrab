@@ -111,9 +111,27 @@ const LAST_ATTACKER: &str = "Q00415_last_attacker";
 /// needs four trophies, and the *fifth* kill converts.
 type Pouch = (i32, i32, i32, i32, i32);
 const POUCHES: [Pouch; 3] = [
-    (LEATHER_POUCH_1ST, LEATHER_POUCH_1ST_FULL, KASHA_BEAR_CLAW, KASHA_BEAR, 3),
-    (LEATHER_POUCH_2ND, LEATHER_POUCH_2ND_FULL, KASHA_BLADE_SPIDER_TALON, KASHA_BLADE_SPIDER, 5),
-    (LEATHER_POUCH_3RD, LEATHER_POUCH_3RD_FULL, SCARLET_SALAMANDER_SCALE, SCARLET_SALAMANDER, 7),
+    (
+        LEATHER_POUCH_1ST,
+        LEATHER_POUCH_1ST_FULL,
+        KASHA_BEAR_CLAW,
+        KASHA_BEAR,
+        3,
+    ),
+    (
+        LEATHER_POUCH_2ND,
+        LEATHER_POUCH_2ND_FULL,
+        KASHA_BLADE_SPIDER_TALON,
+        KASHA_BLADE_SPIDER,
+        5,
+    ),
+    (
+        LEATHER_POUCH_3RD,
+        LEATHER_POUCH_3RD_FULL,
+        SCARLET_SALAMANDER_SCALE,
+        SCARLET_SALAMANDER,
+        7,
+    ),
 ];
 
 /// One rung of Rosheek's pouch ladder: `(carried, full, next pouch, cond,
@@ -128,20 +146,49 @@ const FOURTH: [(i32, i32); 4] = [
     (LANGK_LIZARDMAN_WARRIOR, LANGK_LIZARDMAN_TOOTH),
     (RATMAN_WARRIOR, RATMAN_FANG),
 ];
-const FOURTH_TROPHIES: [i32; 4] =
-    [VUKU_ORC_TUSK, RATMAN_FANG, LANGK_LIZARDMAN_TOOTH, FELIM_LIZARDMAN_TOOTH];
+const FOURTH_TROPHIES: [i32; 4] = [
+    VUKU_ORC_TUSK,
+    RATMAN_FANG,
+    LANGK_LIZARDMAN_TOOTH,
+    FELIM_LIZARDMAN_TOOTH,
+];
 
 const TAGGED_MOBS: [i32; 9] = [
-    FELIM_LIZARDMAN_WARRIOR, VUKU_ORC_FIGHTER, LANGK_LIZARDMAN_WARRIOR, RATMAN_WARRIOR,
-    SCARLET_SALAMANDER, KASHA_FANG_SPIDER, KASHA_BLADE_SPIDER, KASHA_BEAR, BAAR_DRE_VANUL,
+    FELIM_LIZARDMAN_WARRIOR,
+    VUKU_ORC_FIGHTER,
+    LANGK_LIZARDMAN_WARRIOR,
+    RATMAN_WARRIOR,
+    SCARLET_SALAMANDER,
+    KASHA_FANG_SPIDER,
+    KASHA_BLADE_SPIDER,
+    KASHA_BEAR,
+    BAAR_DRE_VANUL,
 ];
 
 const QUEST_ITEMS: [i32; 24] = [
-    POMEGRANATE, LEATHER_POUCH_1ST, LEATHER_POUCH_2ND, LEATHER_POUCH_3RD, LEATHER_POUCH_1ST_FULL,
-    LEATHER_POUCH_2ND_FULL, LEATHER_POUCH_3RD_FULL, KASHA_BEAR_CLAW, KASHA_BLADE_SPIDER_TALON,
-    SCARLET_SALAMANDER_SCALE, FIERY_SPIRIT_SCROLL, ROSHEEKS_LETTER, GANTAKIS_RECOMMENDATION, FIG,
-    LEATHER_POUCH_4TH, LEATHER_POUCH_4TH_FULL, VUKU_ORC_TUSK, RATMAN_FANG, LANGK_LIZARDMAN_TOOTH,
-    FELIM_LIZARDMAN_TOOTH, IRON_WILL_SCROLL, TORUKUS_LETTER, KASHA_SPIDERS_TOOTH,
+    POMEGRANATE,
+    LEATHER_POUCH_1ST,
+    LEATHER_POUCH_2ND,
+    LEATHER_POUCH_3RD,
+    LEATHER_POUCH_1ST_FULL,
+    LEATHER_POUCH_2ND_FULL,
+    LEATHER_POUCH_3RD_FULL,
+    KASHA_BEAR_CLAW,
+    KASHA_BLADE_SPIDER_TALON,
+    SCARLET_SALAMANDER_SCALE,
+    FIERY_SPIRIT_SCROLL,
+    ROSHEEKS_LETTER,
+    GANTAKIS_RECOMMENDATION,
+    FIG,
+    LEATHER_POUCH_4TH,
+    LEATHER_POUCH_4TH_FULL,
+    VUKU_ORC_TUSK,
+    RATMAN_FANG,
+    LANGK_LIZARDMAN_TOOTH,
+    FELIM_LIZARDMAN_TOOTH,
+    IRON_WILL_SCROLL,
+    TORUKUS_LETTER,
+    KASHA_SPIDERS_TOOTH,
     HORN_OF_BAAR_DRE_VANUL,
 ];
 
@@ -155,7 +202,10 @@ impl Q00415PathOfTheOrcMonk {
         items.iter().any(|id| ctx.quest_items_count(*id) > 0)
     }
     fn fourth_total(&self, ctx: &QuestCtx) -> i64 {
-        FOURTH_TROPHIES.iter().map(|id| ctx.quest_items_count(*id)).sum()
+        FOURTH_TROPHIES
+            .iter()
+            .map(|id| ctx.quest_items_count(*id))
+            .sum()
     }
     /// Fill the fourth pouch and clear all four trophy piles.
     fn fill_fourth_pouch(&self, ctx: &mut QuestCtx) {
@@ -183,7 +233,12 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
     }
     /// 31979 and 32056 are deliberately absent — see the module header.
     fn talk_npcs(&self) -> &[i32] {
-        &[GANTAKI_ZU_URUTU, PREFECT_KASMAN, KHAVATARI_ROSHEEK, KHAVATARI_TORUKU]
+        &[
+            GANTAKI_ZU_URUTU,
+            PREFECT_KASMAN,
+            KHAVATARI_ROSHEEK,
+            KHAVATARI_TORUKU,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
         &TAGGED_MOBS
@@ -392,8 +447,12 @@ impl Q00415PathOfTheOrcMonk {
     fn talk_gantaki(&self, ctx: &mut QuestCtx) -> Option<String> {
         // Any pouch, empty or full.
         let pouches = [
-            LEATHER_POUCH_1ST, LEATHER_POUCH_2ND, LEATHER_POUCH_3RD, LEATHER_POUCH_1ST_FULL,
-            LEATHER_POUCH_2ND_FULL, LEATHER_POUCH_3RD_FULL,
+            LEATHER_POUCH_1ST,
+            LEATHER_POUCH_2ND,
+            LEATHER_POUCH_3RD,
+            LEATHER_POUCH_1ST_FULL,
+            LEATHER_POUCH_2ND_FULL,
+            LEATHER_POUCH_3RD_FULL,
         ];
         let pouch_count: i64 = pouches.iter().map(|id| ctx.quest_items_count(*id)).sum();
         let memo = ctx.memo_state();
@@ -462,9 +521,30 @@ impl Q00415PathOfTheOrcMonk {
         }
         // (carrying, full, next pouch, cond, busy page, handover page)
         let rungs: [Rung; 3] = [
-            (LEATHER_POUCH_1ST, LEATHER_POUCH_1ST_FULL, Some(LEATHER_POUCH_2ND), 4, "30590-02.html", "30590-03.html"),
-            (LEATHER_POUCH_2ND, LEATHER_POUCH_2ND_FULL, Some(LEATHER_POUCH_3RD), 6, "30590-04.html", "30590-05.html"),
-            (LEATHER_POUCH_3RD, LEATHER_POUCH_3RD_FULL, None, 8, "30590-06.html", "30590-07.html"),
+            (
+                LEATHER_POUCH_1ST,
+                LEATHER_POUCH_1ST_FULL,
+                Some(LEATHER_POUCH_2ND),
+                4,
+                "30590-02.html",
+                "30590-03.html",
+            ),
+            (
+                LEATHER_POUCH_2ND,
+                LEATHER_POUCH_2ND_FULL,
+                Some(LEATHER_POUCH_3RD),
+                6,
+                "30590-04.html",
+                "30590-05.html",
+            ),
+            (
+                LEATHER_POUCH_3RD,
+                LEATHER_POUCH_3RD_FULL,
+                None,
+                8,
+                "30590-06.html",
+                "30590-07.html",
+            ),
         ];
         for (pouch, full, next, cond, busy, done) in rungs {
             if self.has(ctx, pouch) && !self.has(ctx, full) {

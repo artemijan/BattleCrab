@@ -63,13 +63,29 @@ const SHEETS: i64 = 5;
 const RUNES_NEEDED: i64 = 5;
 const BONES_NEEDED: i64 = 10;
 
-const UNDEAD: [i32; 4] = [ZOMBIE_SOLDIER, ZOMBIE_WARRIOR, SHIELD_SKELETON, SKELETON_INFANTRYMAN];
-const KILL_NPCS: [i32; 5] =
-    [ZOMBIE_SOLDIER, ZOMBIE_WARRIOR, SHIELD_SKELETON, SKELETON_INFANTRYMAN, DARK_SUCCUBUS];
+const UNDEAD: [i32; 4] = [
+    ZOMBIE_SOLDIER,
+    ZOMBIE_WARRIOR,
+    SHIELD_SKELETON,
+    SKELETON_INFANTRYMAN,
+];
+const KILL_NPCS: [i32; 5] = [
+    ZOMBIE_SOLDIER,
+    ZOMBIE_WARRIOR,
+    SHIELD_SKELETON,
+    SKELETON_INFANTRYMAN,
+    DARK_SUCCUBUS,
+];
 
 const QUEST_ITEMS: [i32; 8] = [
-    SIDRAS_LETTER, BLANK_SHEET, BLOODY_RUNE, GARMIELS_BOOK, PRAYER_OF_ADONIUS, PENITENTS_MARK,
-    ASHEN_BONES, ANDARIEL_BOOK,
+    SIDRAS_LETTER,
+    BLANK_SHEET,
+    BLOODY_RUNE,
+    GARMIELS_BOOK,
+    PRAYER_OF_ADONIUS,
+    PENITENTS_MARK,
+    ASHEN_BONES,
+    ANDARIEL_BOOK,
 ];
 
 pub struct Q00413PathOfTheShillienOracle;
@@ -158,8 +174,7 @@ impl QuestScript for Q00413PathOfTheShillienOracle {
         }
         let npc_id = ctx.npc_id;
         if UNDEAD.contains(&npc_id) {
-            if !self.has(ctx, PENITENTS_MARK)
-                || ctx.quest_items_count(ASHEN_BONES) >= BONES_NEEDED
+            if !self.has(ctx, PENITENTS_MARK) || ctx.quest_items_count(ASHEN_BONES) >= BONES_NEEDED
             {
                 return;
             }
@@ -213,7 +228,15 @@ impl Q00413PathOfTheShillienOracle {
             return Some("30330-08.html".to_string());
         }
         if !self.has(ctx, ANDARIEL_BOOK)
-            && self.has_any(ctx, &[PRAYER_OF_ADONIUS, GARMIELS_BOOK, PENITENTS_MARK, ASHEN_BONES])
+            && self.has_any(
+                ctx,
+                &[
+                    PRAYER_OF_ADONIUS,
+                    GARMIELS_BOOK,
+                    PENITENTS_MARK,
+                    ASHEN_BONES,
+                ],
+            )
         {
             return Some("30330-09.html".to_string());
         }

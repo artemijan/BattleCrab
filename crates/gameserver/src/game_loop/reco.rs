@@ -42,13 +42,19 @@ fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to_player(world, object_id, server_packets::system_message_with(message_id, params));
+    send_to_player(
+        world,
+        object_id,
+        server_packets::system_message_with(message_id, params),
+    );
 }
 
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves
 /// (no `CharInfo` broadcast; that's `broadcastUserInfo`).
 fn update_user_info(world: &World, object_id: i32) {
-    let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else { return };
+    let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else {
+        return;
+    };
     let relation = super::party::calculate_relation(world, v.p);
     send_to_player(
         world,
@@ -58,19 +64,32 @@ fn update_user_info(world: &World, object_id: i32) {
 }
 
 fn send_ex_vote(world: &World, object_id: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&object_id) else { return };
+    let Some(p) = world.objects.get_component::<Player>(&object_id) else {
+        return;
+    };
     let (rec_left, rec_have) = (p.rec_left, p.rec_have);
-    send_to_player(world, object_id, server_packets::ex_vote_system_info(rec_left, rec_have));
+    send_to_player(
+        world,
+        object_id,
+        server_packets::ex_vote_system_info(rec_left, rec_have),
+    );
 }
 
 /// Port of `clientpackets/RequestVoteNew` — recommend the targeted player.
 pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
-    let Some(target_id) = PacketReader::new(body).read_i32() else { return };
+    let Some(target_id) = PacketReader::new(body).read_i32() else {
+        return;
+    };
 
     // `player.getTarget()`.
-    let target = world.objects.get_component::<TargetRef>(&player).and_then(|t| t.0);
+    let target = world
+        .objects
+        .get_component::<TargetRef>(&player)
+        .and_then(|t| t.0);
     let Some(target) = target else {
         // Java: `object == null` → SELECT_TARGET.
         send_sm(world, player, sm_ids::SELECT_TARGET, &[]);
@@ -94,14 +113,30 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
         send_sm(world, player, sm_ids::YOU_CANNOT_RECOMMEND_YOURSELF, &[]);
         return;
     }
-    let rec_left = world.objects.get_component::<Player>(&player).map_or(0, |p| p.rec_left);
+    let rec_left = world
+        .objects
+        .get_component::<Player>(&player)
+        .map_or(0, |p| p.rec_left);
     if rec_left <= 0 {
-        send_sm(world, player, sm_ids::YOU_ARE_OUT_OF_RECOMMENDATIONS_TRY_AGAIN_LATER, &[]);
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_ARE_OUT_OF_RECOMMENDATIONS_TRY_AGAIN_LATER,
+            &[],
+        );
         return;
     }
-    let target_rec_have = world.objects.get_component::<Player>(&target).map_or(0, |p| p.rec_have);
+    let target_rec_have = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.rec_have);
     if target_rec_have >= 255 {
-        send_sm(world, player, sm_ids::YOUR_SELECTED_TARGET_CAN_NO_LONGER_RECEIVE_A_RECOMMENDATION, &[]);
+        send_sm(
+            world,
+            player,
+            sm_ids::YOUR_SELECTED_TARGET_CAN_NO_LONGER_RECEIVE_A_RECOMMENDATION,
+            &[],
+        );
         return;
     }
 
@@ -112,7 +147,10 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
         }
     }
     let player_rec_left = {
-        let p = world.objects.get_component_mut::<Player>(&player).expect("player online");
+        let p = world
+            .objects
+            .get_component_mut::<Player>(&player)
+            .expect("player online");
         if p.rec_left > 0 {
             p.rec_left -= 1;
         }
@@ -120,16 +158,32 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     };
 
     // "You have recommended $c1. You have $s2 recommendations left."
-    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
     send_sm(
         world,
         player,
         sm_ids::YOU_HAVE_RECOMMENDED_C1_YOU_HAVE_S2_RECOMMENDATIONS_LEFT,
-        &[SmParam::PlayerName(target_name), SmParam::Int(player_rec_left)],
+        &[
+            SmParam::PlayerName(target_name),
+            SmParam::Int(player_rec_left),
+        ],
     );
     // "You have been recommended by $c1." to the target.
-    let player_name = world.objects.get_component::<Player>(&player).map(|p| p.name.clone()).unwrap_or_default();
-    send_sm(world, target, sm_ids::YOU_HAVE_BEEN_RECOMMENDED_BY_C1, &[SmParam::PlayerName(player_name)]);
+    let player_name = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    send_sm(
+        world,
+        target,
+        sm_ids::YOU_HAVE_BEEN_RECOMMENDED_BY_C1,
+        &[SmParam::PlayerName(player_name)],
+    );
 
     update_user_info(world, player);
     super::party::broadcast_user_info(world, target);
@@ -141,20 +195,42 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
 /// effected player up to `amount` recommendations received (`rec_have`, capped
 /// at 255). When the target is already maxed, the effector is told "Nothing
 /// happened."
-pub(crate) fn apply_give_recommendation(world: &mut World, effector_oid: i32, effected_oid: i32, amount: i32) {
+pub(crate) fn apply_give_recommendation(
+    world: &mut World,
+    effector_oid: i32,
+    effected_oid: i32,
+    amount: i32,
+) {
     // Java: only players receive recommendations.
-    let Some(rec_have) = world.objects.get_component::<Player>(&effected_oid).map(|p| p.rec_have) else {
+    let Some(rec_have) = world
+        .objects
+        .get_component::<Player>(&effected_oid)
+        .map(|p| p.rec_have)
+    else {
         return;
     };
-    let recommendations_given = if rec_have + amount >= 255 { 255 - rec_have } else { amount };
+    let recommendations_given = if rec_have + amount >= 255 {
+        255 - rec_have
+    } else {
+        amount
+    };
     if recommendations_given > 0 {
         if let Some(p) = world.objects.get_component_mut::<Player>(&effected_oid) {
             p.rec_have = clamp_reco(p.rec_have + recommendations_given);
         }
-        send_sm(world, effected_oid, sm_ids::YOU_OBTAINED_S1_RECOMMENDATION_S, &[SmParam::Int(recommendations_given)]);
+        send_sm(
+            world,
+            effected_oid,
+            sm_ids::YOU_OBTAINED_S1_RECOMMENDATION_S,
+            &[SmParam::Int(recommendations_given)],
+        );
         update_user_info(world, effected_oid);
         send_ex_vote(world, effected_oid);
-    } else if world.objects.get_component::<Player>(&effector_oid).is_some() {
+    } else if world
+        .objects
+        .get_component::<Player>(&effector_oid)
+        .is_some()
+    {
         send_sm(world, effector_oid, sm_ids::NOTHING_HAPPENED, &[]);
     }
 }
@@ -165,13 +241,18 @@ pub(crate) fn apply_give_recommendation(world: &mut World, effector_oid: i32, ef
 pub(crate) fn handle_reco_give(world: &mut World, player_object_id: i32, seq: u64) {
     // Stale (logged out, or relogged with a fresh seq) → no-op, cancelling the
     // per-session fixed-rate task.
-    let Some(p) = world.objects.get_component::<Player>(&player_object_id) else { return };
+    let Some(p) = world.objects.get_component::<Player>(&player_object_id) else {
+        return;
+    };
     if p.reco_give_seq != seq {
         return;
     }
 
     let reco_to_give = {
-        let p = world.objects.get_component_mut::<Player>(&player_object_id).expect("checked");
+        let p = world
+            .objects
+            .get_component_mut::<Player>(&player_object_id)
+            .expect("checked");
         // 10 to give out after 2 h logged in, then 1 more every hour.
         let amount = if !p.reco_two_hours_given {
             p.reco_two_hours_given = true;
@@ -183,12 +264,21 @@ pub(crate) fn handle_reco_give(world: &mut World, player_object_id: i32, seq: u6
         amount
     };
 
-    send_sm(world, player_object_id, sm_ids::YOU_OBTAINED_S1_RECOMMENDATION_S, &[SmParam::Int(reco_to_give)]);
+    send_sm(
+        world,
+        player_object_id,
+        sm_ids::YOU_OBTAINED_S1_RECOMMENDATION_S,
+        &[SmParam::Int(reco_to_give)],
+    );
     update_user_info(world, player_object_id);
 
-    world
-        .scheduler
-        .schedule(world.tick + RECO_GIVE_PERIOD, ScheduledTask::RecoGive { player_object_id, seq });
+    world.scheduler.schedule(
+        world.tick + RECO_GIVE_PERIOD,
+        ScheduledTask::RecoGive {
+            player_object_id,
+            seq,
+        },
+    );
 }
 
 /// Start the per-player `RecoGiveTask` at enter-world (Java `restore` →
@@ -201,7 +291,10 @@ pub(crate) fn start_reco_give_task(world: &mut World, player_object_id: i32) {
     }
     world.scheduler.schedule(
         world.tick + RECO_GIVE_INITIAL_DELAY,
-        ScheduledTask::RecoGive { player_object_id, seq },
+        ScheduledTask::RecoGive {
+            player_object_id,
+            seq,
+        },
     );
 }
 
@@ -232,7 +325,10 @@ pub(crate) fn handle_daily_reco_reset(world: &mut World) {
         super::party::broadcast_user_info(world, oid);
     }
 
-    world.scheduler.schedule(world.tick + DAILY_RESET_PERIOD, ScheduledTask::DailyRecoReset);
+    world.scheduler.schedule(
+        world.tick + DAILY_RESET_PERIOD,
+        ScheduledTask::DailyRecoReset,
+    );
 }
 
 /// Schedule the first `DailyRecoReset` for the next 06:30 (Java
@@ -252,5 +348,7 @@ pub(crate) fn schedule_initial_daily_reset(world: &mut World) {
         delay_ms += 86_400_000;
     }
     let delay_ticks = (delay_ms / 100) as u64;
-    world.scheduler.schedule(world.tick + delay_ticks, ScheduledTask::DailyRecoReset);
+    world
+        .scheduler
+        .schedule(world.tick + delay_ticks, ScheduledTask::DailyRecoReset);
 }

@@ -94,7 +94,10 @@ impl Region {
                 return Err(bad("truncated region file"));
             }
         }
-        Ok(Self { bytes, block_offsets: offsets.into_boxed_slice() })
+        Ok(Self {
+            bytes,
+            block_offsets: offsets.into_boxed_slice(),
+        })
     }
 
     fn i16_at(&self, pos: usize) -> i16 {
@@ -177,7 +180,11 @@ impl Region {
         match self.bytes.as_slice()[pos] {
             TYPE_FLAT => {
                 let height = self.i16_at(pos + 1) as i32;
-                if height <= world_z { height } else { world_z }
+                if height <= world_z {
+                    height
+                } else {
+                    world_z
+                }
             }
             TYPE_COMPLEX => {
                 cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).min(world_z)
@@ -194,7 +201,11 @@ impl Region {
                         lower = layer_z;
                     }
                 }
-                if lower == i32::MIN { world_z } else { lower }
+                if lower == i32::MIN {
+                    world_z
+                } else {
+                    lower
+                }
             }
         }
     }
@@ -206,7 +217,11 @@ impl Region {
         match self.bytes.as_slice()[pos] {
             TYPE_FLAT => {
                 let height = self.i16_at(pos + 1) as i32;
-                if height >= world_z { height } else { world_z }
+                if height >= world_z {
+                    height
+                } else {
+                    world_z
+                }
             }
             TYPE_COMPLEX => {
                 cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).max(world_z)
@@ -223,7 +238,11 @@ impl Region {
                         higher = layer_z;
                     }
                 }
-                if higher == i32::MAX { world_z } else { higher }
+                if higher == i32::MAX {
+                    world_z
+                } else {
+                    higher
+                }
             }
         }
     }
@@ -317,7 +336,11 @@ mod tests {
         // Block 0 = geo cells (0..8, 0..8): flat.
         assert_eq!(region.nearest_z(0, 0, 12345), -100);
         assert!(region.check_nearest_nswe(0, 0, 0, NSWE_ALL));
-        assert_eq!(region.next_lower_z(0, 0, -200), -200, "flat above worldZ → worldZ");
+        assert_eq!(
+            region.next_lower_z(0, 0, -200),
+            -200,
+            "flat above worldZ → worldZ"
+        );
         assert_eq!(region.next_higher_z(0, 0, -200), -100);
 
         // Block 1 = geo cells x 0..8, y 8..16 (blocks are laid out y-minor).

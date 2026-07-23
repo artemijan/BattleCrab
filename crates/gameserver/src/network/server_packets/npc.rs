@@ -2,10 +2,10 @@
 
 use commons::network::PacketWriter;
 
+use super::opcodes;
 use crate::data::npc_data::NpcTemplate;
 use crate::enums::NpcInfoType;
 use crate::network::masks;
-use super::opcodes;
 
 /// Port of `serverpackets/NpcSay`'s npc-string shape (`new NpcSay(npc,
 /// NPC_GENERAL, npcStringId)`): chat bubble over an NPC with a client-side
@@ -79,7 +79,12 @@ pub fn npc_info(
     t: &NpcTemplate,
     cfg: &crate::config::NpcConfig,
 ) -> Vec<u8> {
-    let crate::model::npc::NpcView { npc, pos, vitals, speeds } = v;
+    let crate::model::npc::NpcView {
+        npc,
+        pos,
+        vitals,
+        speeds,
+    } = v;
     use NpcInfoType as T;
 
     let title = npc_title(t, cfg);
@@ -254,7 +259,12 @@ mod tests {
         let (npc, (mut pos, _region, vitals, speeds, _collision, _attack, _ai, _aggro, _buffs)) =
             crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
         pos.heading = 4000;
-        let v = crate::model::npc::NpcView { npc: &npc, pos: &pos, vitals: &vitals, speeds: &speeds };
+        let v = crate::model::npc::NpcView {
+            npc: &npc,
+            pos: &pos,
+            vitals: &vitals,
+            speeds: &speeds,
+        };
 
         let mut w = PacketWriter::new();
         w.write_u8(0x0C); // NPC_INFO
@@ -290,7 +300,10 @@ mod tests {
         w.write_u8(0x0C); // visual state: targetable | show name
         let expected = w.into_bytes();
 
-        assert_eq!(super::npc_info(&v, &t, &crate::config::NpcConfig::default()), expected);
+        assert_eq!(
+            super::npc_info(&v, &t, &crate::config::NpcConfig::default()),
+            expected
+        );
     }
 
     /// `Creature.getTitle()` monster branch, per config combination.
@@ -487,7 +500,10 @@ pub fn set_summon_remain_time(max_time: i32, remaining: i32) -> Vec<u8> {
 ///
 /// Just a count and the standard item entries; unlike the player's
 /// `ItemList` (0x11) there is no "open window" flag or trailing block.
-pub fn pet_item_list(inventory: &crate::model::inventory::Inventory, data: &crate::data::GameData) -> Vec<u8> {
+pub fn pet_item_list(
+    inventory: &crate::model::inventory::Inventory,
+    data: &crate::data::GameData,
+) -> Vec<u8> {
     let entries: Vec<_> = inventory
         .items()
         .iter()

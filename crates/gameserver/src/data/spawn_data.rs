@@ -93,7 +93,8 @@ impl Territory {
                     let (xi, yi) = (xs[i] as i64, ys[i] as i64);
                     let (xj, yj) = (xs[j] as i64, ys[j] as i64);
                     if ((yi > py as i64) != (yj > py as i64))
-                        && ((px as i64 - xi) * (yj - yi) < (xj - xi) * (py as i64 - yi)) == (yj > yi)
+                        && ((px as i64 - xi) * (yj - yi) < (xj - xi) * (py as i64 - yi))
+                            == (yj > yi)
                     {
                         inside = !inside;
                     }
@@ -133,7 +134,10 @@ impl SpawnData {
         for path in &paths {
             parse_file(path, &mut spawns);
         }
-        info!("SpawnData: Loaded {} spawns.", spawns.iter().map(Self::template_spawn_count).sum::<usize>());
+        info!(
+            "SpawnData: Loaded {} spawns.",
+            spawns.iter().map(Self::template_spawn_count).sum::<usize>()
+        );
         Self { spawns }
     }
 
@@ -154,7 +158,9 @@ impl SpawnData {
 }
 
 fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
@@ -216,7 +222,12 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                             s.groups.push(g);
                         }
                     }
-                    b"territory" => finish_territory(&mut cur_territory, &mut cur_spawn, &mut cur_group, in_group),
+                    b"territory" => finish_territory(
+                        &mut cur_territory,
+                        &mut cur_spawn,
+                        &mut cur_group,
+                        in_group,
+                    ),
                     _ => {}
                 }
                 continue;
@@ -235,7 +246,10 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
             }
             b"group" => {
                 in_group = true;
-                cur_group = Some(SpawnGroup { territories: Vec::new(), npcs: Vec::new() });
+                cur_group = Some(SpawnGroup {
+                    territories: Vec::new(),
+                    npcs: Vec::new(),
+                });
             }
             b"territory" => {
                 cur_territory = Some(PendingTerritory {
@@ -257,7 +271,9 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                 }
             }
             b"npc" => {
-                let Some(npc_id) = attr_i32(&e, b"id") else { continue };
+                let Some(npc_id) = attr_i32(&e, b"id") else {
+                    continue;
+                };
                 let (x, y, z) = (attr_i32(&e, b"x"), attr_i32(&e, b"y"), attr_i32(&e, b"z"));
                 let loc = match (x, y, z) {
                     (Some(x), Some(y), Some(z)) => Some(FixedLoc {
@@ -272,8 +288,14 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                     npc_id,
                     count: attr_i32(&e, b"count").unwrap_or(1),
                     loc,
-                    respawn_secs: attr_str(&e, b"respawnTime").as_deref().and_then(parse_duration_secs).unwrap_or(0),
-                    respawn_random_secs: attr_str(&e, b"respawnRandom").as_deref().and_then(parse_duration_secs).unwrap_or(0),
+                    respawn_secs: attr_str(&e, b"respawnTime")
+                        .as_deref()
+                        .and_then(parse_duration_secs)
+                        .unwrap_or(0),
+                    respawn_random_secs: attr_str(&e, b"respawnRandom")
+                        .as_deref()
+                        .and_then(parse_duration_secs)
+                        .unwrap_or(0),
                     db_save: attr_str(&e, b"dbSave").as_deref() == Some("true"),
                 };
                 if in_group {
@@ -281,7 +303,13 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                         g.npcs.push(def);
                     }
                 } else {
-                    default_group.get_or_insert_with(|| SpawnGroup { territories: Vec::new(), npcs: Vec::new() }).npcs.push(def);
+                    default_group
+                        .get_or_insert_with(|| SpawnGroup {
+                            territories: Vec::new(),
+                            npcs: Vec::new(),
+                        })
+                        .npcs
+                        .push(def);
                 }
             }
             _ => {}
@@ -305,7 +333,17 @@ fn finish_territory(
     group: &mut Option<SpawnGroup>,
     in_group: bool,
 ) {
-    let Some(PendingTerritory { shape, min_z, max_z, rad, xs, ys }) = cur.take() else { return };
+    let Some(PendingTerritory {
+        shape,
+        min_z,
+        max_z,
+        rad,
+        xs,
+        ys,
+    }) = cur.take()
+    else {
+        return;
+    };
     let form = match shape.as_str() {
         "Cuboid" if xs.len() >= 2 && ys.len() >= 2 => ZoneForm::Cuboid {
             x1: xs[0].min(xs[1]),
@@ -372,13 +410,19 @@ mod tests {
         let first = &giran.groups[0].npcs[0];
         assert_eq!(first.npc_id, 30878);
         let loc = first.loc.expect("fixed loc");
-        assert_eq!((loc.x, loc.y, loc.z, loc.heading), (47984, 186832, -3445, 42000));
+        assert_eq!(
+            (loc.x, loc.y, loc.z, loc.heading),
+            (47984, 186832, -3445, 42000)
+        );
         assert_eq!(first.respawn_secs, 60);
 
         // At least one template carries territories with a polygon.
         assert!(
             data.spawns.iter().any(|s| {
-                let terr = s.territories.iter().chain(s.groups.iter().flat_map(|g| g.territories.iter()));
+                let terr = s
+                    .territories
+                    .iter()
+                    .chain(s.groups.iter().flat_map(|g| g.territories.iter()));
                 terr.clone().count() > 0
             }),
             "no territories parsed"
@@ -389,7 +433,10 @@ mod tests {
     fn npoly_containment() {
         // A 100×100 square as an NPoly.
         let t = Territory {
-            form: ZoneForm::NPoly { xs: vec![0, 100, 100, 0], ys: vec![0, 0, 100, 100] },
+            form: ZoneForm::NPoly {
+                xs: vec![0, 100, 100, 0],
+                ys: vec![0, 0, 100, 100],
+            },
             min_z: -100,
             max_z: 100,
         };

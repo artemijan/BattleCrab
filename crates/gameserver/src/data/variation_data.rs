@@ -139,7 +139,11 @@ impl VariationData {
         if let Ok(content) = std::fs::read_to_string(format!("{file_path}{VARIATIONS_FILE}")) {
             data.parse(&content);
         }
-        info!("VariationData: Loaded {} variations, {} fee items.", data.variations.len(), data.fees.len());
+        info!(
+            "VariationData: Loaded {} variations, {} fee items.",
+            data.variations.len(),
+            data.fees.len()
+        );
         data
     }
 
@@ -162,9 +166,18 @@ impl VariationData {
     /// group and from the `order=1` group. `rng` yields `[0,1)` (drive it with
     /// `World::roll_f64`). `None` if the mineral is unknown or a group is
     /// missing.
-    pub fn generate(&self, mineral_id: i32, is_magic_weapon: bool, rng: &mut dyn FnMut() -> f64) -> Option<(i32, i32)> {
+    pub fn generate(
+        &self,
+        mineral_id: i32,
+        is_magic_weapon: bool,
+        rng: &mut dyn FnMut() -> f64,
+    ) -> Option<(i32, i32)> {
         let variation = self.variations.get(&mineral_id)?;
-        let kind = if is_magic_weapon { WeaponKind::Mage } else { WeaponKind::Warrior };
+        let kind = if is_magic_weapon {
+            WeaponKind::Mage
+        } else {
+            WeaponKind::Warrior
+        };
         let groups = variation.groups(kind);
         let o1 = groups[0].as_ref()?.random_effect(rng)?;
         let o2 = groups[1].as_ref()?.random_effect(rng)?;
@@ -181,7 +194,11 @@ impl VariationData {
     /// `None` when the item has no fee data at all.
     pub fn cancel_fee(&self, item_id: i32, mineral_id: i32) -> Option<i64> {
         let fees = self.fees.get(&item_id)?;
-        Some(fees.get(&mineral_id).or_else(|| fees.values().next()).map(|f| f.cancel_fee)?)
+        Some(
+            fees.get(&mineral_id)
+                .or_else(|| fees.values().next())
+                .map(|f| f.cancel_fee)?,
+        )
     }
 
     // ---- parsing -------------------------------------------------------
@@ -217,15 +234,25 @@ impl VariationData {
                         cur_group = OptionGroup::default();
                     }
                     b"optionCategory" => {
-                        cur_category = OptionCategory { chance: attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0), options: Vec::new() };
+                        cur_category = OptionCategory {
+                            chance: attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0),
+                            options: Vec::new(),
+                        };
                     }
                     b"option" => {
-                        if let (Some(id), chance) = (attr(&e, "id").and_then(parse_i32), attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0)) {
+                        if let (Some(id), chance) = (
+                            attr(&e, "id").and_then(parse_i32),
+                            attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0),
+                        ) {
                             cur_category.options.push((id, chance));
                         }
                     }
                     b"optionRange" => {
-                        if let (Some(from), Some(to), chance) = (attr(&e, "from").and_then(parse_i32), attr(&e, "to").and_then(parse_i32), attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0)) {
+                        if let (Some(from), Some(to), chance) = (
+                            attr(&e, "from").and_then(parse_i32),
+                            attr(&e, "to").and_then(parse_i32),
+                            attr(&e, "chance").and_then(parse_f64).unwrap_or(0.0),
+                        ) {
                             for id in from..=to {
                                 cur_category.options.push((id, chance));
                             }
@@ -244,8 +271,10 @@ impl VariationData {
                         let group_id = attr(&e, "itemGroup").and_then(parse_i32).unwrap_or(0);
                         let fee = VariationFee {
                             item_id: attr(&e, "itemId").and_then(parse_i32).unwrap_or(0),
-                            item_count: attr(&e, "itemCount").and_then(parse_i32).unwrap_or(0) as i64,
-                            cancel_fee: attr(&e, "cancelFee").and_then(parse_i32).unwrap_or(0) as i64,
+                            item_count: attr(&e, "itemCount").and_then(parse_i32).unwrap_or(0)
+                                as i64,
+                            cancel_fee: attr(&e, "cancelFee").and_then(parse_i32).unwrap_or(0)
+                                as i64,
                         };
                         cur_fee = Some((group_id, fee));
                         cur_fee_minerals = Vec::new();
@@ -256,14 +285,19 @@ impl VariationData {
                         }
                     }
                     b"mineralRange" => {
-                        if let (Some(from), Some(to)) = (attr(&e, "from").and_then(parse_i32), attr(&e, "to").and_then(parse_i32)) {
+                        if let (Some(from), Some(to)) = (
+                            attr(&e, "from").and_then(parse_i32),
+                            attr(&e, "to").and_then(parse_i32),
+                        ) {
                             cur_fee_minerals.extend(from..=to);
                         }
                     }
                     _ => {}
                 },
                 Ok(Event::End(e)) => match e.name().as_ref() {
-                    b"optionCategory" => cur_group.categories.push(std::mem::take(&mut cur_category)),
+                    b"optionCategory" => {
+                        cur_group.categories.push(std::mem::take(&mut cur_category))
+                    }
                     b"optionGroup" => {
                         let slot = cur_order.min(1);
                         let group = std::mem::take(&mut cur_group);
@@ -274,7 +308,8 @@ impl VariationData {
                     }
                     b"variation" => {
                         if let Some(mineral) = cur_mineral.take() {
-                            self.variations.insert(mineral, std::mem::take(&mut cur_variation));
+                            self.variations
+                                .insert(mineral, std::mem::take(&mut cur_variation));
                         }
                     }
                     b"itemGroup" => {
@@ -305,7 +340,10 @@ impl VariationData {
 }
 
 fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes().flatten().find(|a| a.key.as_ref() == key.as_bytes()).and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+    e.attributes()
+        .flatten()
+        .find(|a| a.key.as_ref() == key.as_bytes())
+        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 fn parse_i32(s: String) -> Option<i32> {
@@ -327,7 +365,11 @@ mod tests {
         let d = VariationData::load_from(DIST);
         // The full dist has 211 warrior + 211 mage optionGroups across its
         // life stones; every `<variation>` must parse.
-        assert!(d.variation_count() > 100, "loaded {} variations", d.variation_count());
+        assert!(
+            d.variation_count() > 100,
+            "loaded {} variations",
+            d.variation_count()
+        );
         // Lv.46 life stone (8723) is the first variation.
         assert!(d.has_variation(8723), "known life stone loaded");
         assert!(!d.has_variation(1), "non-mineral absent");

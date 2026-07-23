@@ -27,7 +27,11 @@ fn player_of(world: &World, client_id: u32) -> Option<i32> {
 }
 
 fn adena(world: &World, oid: i32) -> i64 {
-    world.objects.get_component::<Inventory>(&oid).map(|i| i.adena()).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map(|i| i.adena())
+        .unwrap_or(0)
 }
 
 fn send(world: &World, client_id: u32, packet: Vec<u8>) {
@@ -54,22 +58,40 @@ fn class_level(world: &World, class_id: i32) -> i32 {
 /// `Player.getHennaEmptySlots`: 2 slots at class level 1, 3 at level ≥ 2, 0 at
 /// base class — minus the worn dyes.
 fn empty_slots(world: &World, oid: i32) -> i32 {
-    let Some(class_id) = world.objects.get_component::<Player>(&oid).map(|p| p.class_id) else { return 0 };
+    let Some(class_id) = world
+        .objects
+        .get_component::<Player>(&oid)
+        .map(|p| p.class_id)
+    else {
+        return 0;
+    };
     let total = match class_level(world, class_id) {
         1 => 2,
         n if n > 1 => 3,
         _ => 0,
     };
-    let worn = world.objects.get_component::<HennaSlots>(&oid).map(|h| h.worn() as i32).unwrap_or(0);
+    let worn = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .map(|h| h.worn() as i32)
+        .unwrap_or(0);
     (total - worn).max(0)
 }
 
 fn class_id_of(world: &World, oid: i32) -> i32 {
-    world.objects.get_component::<Player>(&oid).map(|p| p.class_id).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .map(|p| p.class_id)
+        .unwrap_or(0)
 }
 
 fn worn_sums(world: &World, oid: i32) -> HennaStatSums {
-    let slots = world.objects.get_component::<HennaSlots>(&oid).map(|h| h.0).unwrap_or_default();
+    let slots = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .map(|h| h.0)
+        .unwrap_or_default();
     world.data.hennas.stat_sums(&slots)
 }
 
@@ -78,32 +100,61 @@ fn worn_sums(world: &World, oid: i32) -> HennaStatSums {
 /// `RequestHennaItemList` / SymbolMaker "Draw" → `HennaEquipList`: the dyes the
 /// player's class may wear and currently holds the item for.
 pub(crate) fn handle_item_list(world: &mut World, client_id: u32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     let class_id = class_id_of(world, oid);
     let lines: Vec<sp::HennaLine> = world
         .data
         .hennas
         .list_for_class(class_id)
         .iter()
-        .filter(|h| world.objects.get_component::<Inventory>(&oid).is_some_and(|inv| inv.count_of(h.dye_item_id) > 0))
+        .filter(|h| {
+            world
+                .objects
+                .get_component::<Inventory>(&oid)
+                .is_some_and(|inv| inv.count_of(h.dye_item_id) > 0)
+        })
         .map(|h| (h.dye_id, h.dye_item_id, h.wear_count, h.wear_fee, true))
         .collect();
-    send(world, client_id, sp::henna_equip_list(adena(world, oid), &lines));
+    send(
+        world,
+        client_id,
+        sp::henna_equip_list(adena(world, oid), &lines),
+    );
 }
 
 /// `RequestHennaRemoveList` / SymbolMaker "Remove" → `HennaRemoveList`: the
 /// worn dyes.
 pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     let class_id = class_id_of(world, oid);
-    let worn = world.objects.get_component::<HennaSlots>(&oid).map(|h| h.0).unwrap_or_default();
+    let worn = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .map(|h| h.0)
+        .unwrap_or_default();
     let lines: Vec<sp::HennaLine> = worn
         .iter()
         .filter_map(|d| *d)
         .filter_map(|dye_id| world.data.hennas.get(dye_id))
-        .map(|h| (h.dye_id, h.dye_item_id, h.cancel_count, h.cancel_fee, h.is_allowed_class(class_id)))
+        .map(|h| {
+            (
+                h.dye_id,
+                h.dye_item_id,
+                h.cancel_count,
+                h.cancel_fee,
+                h.is_allowed_class(class_id),
+            )
+        })
         .collect();
-    send(world, client_id, sp::henna_remove_list(adena(world, oid), lines.len() as i32, &lines));
+    send(
+        world,
+        client_id,
+        sp::henna_remove_list(adena(world, oid), lines.len() as i32, &lines),
+    );
 }
 
 // --- per-dye previews -----------------------------------------------------
@@ -112,32 +163,60 @@ pub(crate) fn handle_remove_list(world: &mut World, client_id: u32) {
 /// stat columns. Current stats read from `BaseStats` (which already includes
 /// worn henna); the preview adds this candidate dye's bonus.
 pub(crate) fn handle_item_info(world: &mut World, client_id: u32, symbol_id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
-    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else {
+        return;
+    };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else { return };
+    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else {
+        return;
+    };
     let stats = stat_preview(&base, |s| current(&base, s) + henna.base_stat(s));
     send(
         world,
         client_id,
-        sp::henna_item_draw_info(henna.dye_id, henna.dye_item_id, henna.wear_count, henna.wear_fee, henna.is_allowed_class(class_id), adena(world, oid), &stats),
+        sp::henna_item_draw_info(
+            henna.dye_id,
+            henna.dye_item_id,
+            henna.wear_count,
+            henna.wear_fee,
+            henna.is_allowed_class(class_id),
+            adena(world, oid),
+            &stats,
+        ),
     );
 }
 
 /// `RequestHennaItemRemoveInfo` → `HennaItemRemoveInfo`: current vs. after-removing.
 pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     if symbol_id == 0 {
         return;
     }
-    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else { return };
+    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else {
+        return;
+    };
     let class_id = class_id_of(world, oid);
-    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else { return };
+    let Some(base) = world.objects.get_component::<BaseStats>(&oid).copied() else {
+        return;
+    };
     let stats = stat_preview(&base, |s| current(&base, s) - henna.base_stat(s));
     send(
         world,
         client_id,
-        sp::henna_item_remove_info(henna.dye_id, henna.dye_item_id, henna.cancel_count, henna.cancel_fee, henna.is_allowed_class(class_id), adena(world, oid), &stats),
+        sp::henna_item_remove_info(
+            henna.dye_id,
+            henna.dye_item_id,
+            henna.cancel_count,
+            henna.cancel_fee,
+            henna.is_allowed_class(class_id),
+            adena(world, oid),
+            &stats,
+        ),
     );
 }
 
@@ -146,26 +225,48 @@ pub(crate) fn handle_item_remove_info(world: &mut World, client_id: u32, symbol_
 /// `RequestHennaEquip`: draw the dye onto the first empty slot (class / count /
 /// adena / free-slot gates), consuming the dyes + fee.
 pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     if empty_slots(world, oid) == 0 {
-        send(world, client_id, sp::system_message_with(sm_ids::NO_SLOT_EXISTS_TO_DRAW_THE_SYMBOL, &[]));
+        send(
+            world,
+            client_id,
+            sp::system_message_with(sm_ids::NO_SLOT_EXISTS_TO_DRAW_THE_SYMBOL, &[]),
+        );
         return;
     }
-    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else { return };
+    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else {
+        return;
+    };
     let class_id = class_id_of(world, oid);
-    let count = world.objects.get_component::<Inventory>(&oid).map(|i| i.count_of(henna.dye_item_id)).unwrap_or(0);
-    let ok = henna.is_allowed_class(class_id) && count >= henna.wear_count && adena(world, oid) >= henna.wear_fee;
+    let count = world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map(|i| i.count_of(henna.dye_item_id))
+        .unwrap_or(0);
+    let ok = henna.is_allowed_class(class_id)
+        && count >= henna.wear_count
+        && adena(world, oid) >= henna.wear_fee;
     if !ok {
-        send(world, client_id, sp::system_message_with(sm_ids::THE_SYMBOL_CANNOT_BE_DRAWN, &[]));
+        send(
+            world,
+            client_id,
+            sp::system_message_with(sm_ids::THE_SYMBOL_CANNOT_BE_DRAWN, &[]),
+        );
         return;
     }
 
     // Assign the first empty slot.
-    let Some(slot) = world.objects.get_component_mut::<HennaSlots>(&oid).and_then(|h| {
-        let idx = h.0.iter().position(|s| s.is_none())?;
-        h.0[idx] = Some(henna.dye_id);
-        Some(idx)
-    }) else {
+    let Some(slot) = world
+        .objects
+        .get_component_mut::<HennaSlots>(&oid)
+        .and_then(|h| {
+            let idx = h.0.iter().position(|s| s.is_none())?;
+            h.0[idx] = Some(henna.dye_id);
+            Some(idx)
+        })
+    else {
         return;
     };
     let _ = slot;
@@ -178,21 +279,40 @@ pub(crate) fn handle_equip(world: &mut World, client_id: u32, symbol_id: i32) {
 
     apply_henna_change(world, client_id, oid);
     refresh_inventory(world, client_id, oid);
-    send(world, client_id, sp::henna_equip_list(adena(world, oid), &equip_lines(world, oid)));
-    send(world, client_id, sp::system_message_with(sm_ids::THE_SYMBOL_HAS_BEEN_ADDED, &[]));
+    send(
+        world,
+        client_id,
+        sp::henna_equip_list(adena(world, oid), &equip_lines(world, oid)),
+    );
+    send(
+        world,
+        client_id,
+        sp::system_message_with(sm_ids::THE_SYMBOL_HAS_BEEN_ADDED, &[]),
+    );
 }
 
 /// `RequestHennaRemove`: erase the worn dye with this id (adena-fee gated),
 /// refunding its cancel count of dyes.
 pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     // Find the slot holding this dye.
-    let slot = world.objects.get_component::<HennaSlots>(&oid).and_then(|h| h.0.iter().position(|s| *s == Some(symbol_id)));
+    let slot = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .and_then(|h| h.0.iter().position(|s| *s == Some(symbol_id)));
     let Some(slot) = slot else { return };
-    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else { return };
+    let Some(henna) = world.data.hennas.get(symbol_id).cloned() else {
+        return;
+    };
 
     if adena(world, oid) < henna.cancel_fee {
-        send(world, client_id, sp::system_message_with(sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]));
+        send(
+            world,
+            client_id,
+            sp::system_message_with(sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]),
+        );
         return;
     }
 
@@ -211,13 +331,23 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
         send(
             world,
             client_id,
-            sp::system_message_with(sm_ids::YOU_HAVE_EARNED_S2_S1_S, &[SmParam::ItemName(henna.dye_item_id), SmParam::Long(henna.cancel_count)]),
+            sp::system_message_with(
+                sm_ids::YOU_HAVE_EARNED_S2_S1_S,
+                &[
+                    SmParam::ItemName(henna.dye_item_id),
+                    SmParam::Long(henna.cancel_count),
+                ],
+            ),
         );
     }
 
     apply_henna_change(world, client_id, oid);
     refresh_inventory(world, client_id, oid);
-    send(world, client_id, sp::system_message_with(sm_ids::THE_SYMBOL_HAS_BEEN_DELETED, &[]));
+    send(
+        world,
+        client_id,
+        sp::system_message_with(sm_ids::THE_SYMBOL_HAS_BEEN_DELETED, &[]),
+    );
 }
 
 // --- shared -----------------------------------------------------------------
@@ -242,7 +372,14 @@ pub(crate) fn henna_info_packet(
     };
     let dyes: Vec<(i32, bool)> = slots
         .dye_ids()
-        .map(|id| (id, data.hennas.get(id).is_some_and(|hn| hn.is_allowed_class(class_id))))
+        .map(|id| {
+            (
+                id,
+                data.hennas
+                    .get(id)
+                    .is_some_and(|hn| hn.is_allowed_class(class_id)),
+            )
+        })
         .collect();
     sp::henna_info(wire, slots.worn() as i32, &dyes)
 }
@@ -251,7 +388,11 @@ pub(crate) fn henna_info_packet(
 /// enter-world copy goes out through [`henna_info_packet`]).
 pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
     let class_id = class_id_of(world, oid);
-    let slots = world.objects.get_component::<HennaSlots>(&oid).cloned().unwrap_or_default();
+    let slots = world
+        .objects
+        .get_component::<HennaSlots>(&oid)
+        .cloned()
+        .unwrap_or_default();
     let pkt = henna_info_packet(&world.data, class_id, &slots);
     send(world, client_id, pkt);
 }
@@ -260,7 +401,11 @@ pub(crate) fn send_henna_info(world: &World, client_id: u32, oid: i32) {
 /// max-HP/MP, then push `UserInfo` + `HennaInfo` to the owner (Java `addHenna`/
 /// `removeHenna`'s `recalcHennaStats` + `broadcastUserInfo(BASE_STATS, …)`).
 pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
-    let (class_id, base_class_id) = world.objects.get_component::<Player>(&oid).map(|p| (p.class_id, p.base_class_id)).unwrap_or((0, 0));
+    let (class_id, base_class_id) = world
+        .objects
+        .get_component::<Player>(&oid)
+        .map(|p| (p.class_id, p.base_class_id))
+        .unwrap_or((0, 0));
     let t = world
         .data
         .player_templates
@@ -270,15 +415,16 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         .unwrap_or_default();
     let sums = worn_sums(world, oid);
 
-    if let Some((player, mut base, mods, inventory, mut vitals, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-        &Player,
-        &mut BaseStats,
-        &StatModifiers,
-        &Inventory,
-        &mut Vitals,
-        &mut Speeds,
-        &mut CombatStats,
-    )>(&oid)
+    if let Some((player, mut base, mods, inventory, mut vitals, mut speeds, mut combat)) =
+        world.objects.get_many_mut::<(
+            &Player,
+            &mut BaseStats,
+            &StatModifiers,
+            &Inventory,
+            &mut Vitals,
+            &mut Speeds,
+            &mut CombatStats,
+        )>(&oid)
     {
         *base = BaseStats {
             str_: t.base_str + sums.str_,
@@ -288,9 +434,18 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
             wit: t.base_wit + sums.wit,
             men: t.base_men + sums.men,
         };
-        player.recalculate_stats(&world.data, &base, mods, &inventory, &mut speeds, &mut combat);
-        vitals.max_hp = crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
-        vitals.max_mp = crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+        player.recalculate_stats(
+            &world.data,
+            &base,
+            mods,
+            &inventory,
+            &mut speeds,
+            &mut combat,
+        );
+        vitals.max_hp =
+            crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+        vitals.max_mp =
+            crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
@@ -299,7 +454,12 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         send(
             world,
             client_id,
-            crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)),
+            crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, v.p),
+            ),
         );
     }
     send_henna_info(world, client_id, oid);
@@ -307,7 +467,11 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
 
 fn refresh_inventory(world: &World, client_id: u32, oid: i32) {
     if let Some(inv) = world.objects.get_component::<Inventory>(&oid) {
-        send(world, client_id, crate::network::enter_world::item_list(inv, &world.data, false));
+        send(
+            world,
+            client_id,
+            crate::network::enter_world::item_list(inv, &world.data, false),
+        );
     }
 }
 
@@ -318,7 +482,12 @@ fn equip_lines(world: &World, oid: i32) -> Vec<sp::HennaLine> {
         .hennas
         .list_for_class(class_id)
         .iter()
-        .filter(|h| world.objects.get_component::<Inventory>(&oid).is_some_and(|inv| inv.count_of(h.dye_item_id) > 0))
+        .filter(|h| {
+            world
+                .objects
+                .get_component::<Inventory>(&oid)
+                .is_some_and(|inv| inv.count_of(h.dye_item_id) > 0)
+        })
         .map(|h| (h.dye_id, h.dye_item_id, h.wear_count, h.wear_fee, true))
         .collect()
 }

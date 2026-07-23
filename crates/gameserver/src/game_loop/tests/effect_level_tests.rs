@@ -28,7 +28,12 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 /// effects alongside its two `fromLevel="6"` ones, so "does level 1 have PAtk"
 /// is the wrong question — the gated pair shows up as two extra entries from
 /// level 6.
-fn count_stat(skills: &crate::data::skill_data::SkillData, id: i32, level: i32, stat: Stat) -> usize {
+fn count_stat(
+    skills: &crate::data::skill_data::SkillData,
+    id: i32,
+    level: i32,
+    stat: Stat,
+) -> usize {
     skills
         .get(id, level)
         .unwrap_or_else(|| panic!("skill {id} level {level} loads"))
@@ -51,11 +56,22 @@ fn frenzy_gains_its_extra_patk_effects_only_from_level_six() {
     let skills = dist_skills();
     let low_patk = count_stat(&skills, 176, 1, Stat::PhysicalAttack);
     let low_crit = count_stat(&skills, 176, 1, Stat::CriticalRate);
-    assert!(low_patk > 0, "sanity: the ungated PAtk effects are still there at level 1");
+    assert!(
+        low_patk > 0,
+        "sanity: the ungated PAtk effects are still there at level 1"
+    );
 
     for level in 1..=5 {
-        assert_eq!(count_stat(&skills, 176, level, Stat::PhysicalAttack), low_patk, "level {level}: no extra PAtk");
-        assert_eq!(count_stat(&skills, 176, level, Stat::CriticalRate), low_crit, "level {level}: no extra CriticalRate");
+        assert_eq!(
+            count_stat(&skills, 176, level, Stat::PhysicalAttack),
+            low_patk,
+            "level {level}: no extra PAtk"
+        );
+        assert_eq!(
+            count_stat(&skills, 176, level, Stat::CriticalRate),
+            low_crit,
+            "level {level}: no extra CriticalRate"
+        );
     }
     for level in 6..=9 {
         assert_eq!(
@@ -77,9 +93,21 @@ fn frenzy_gains_its_extra_patk_effects_only_from_level_six() {
 fn the_level_range_is_inclusive_at_both_ends() {
     let skills = dist_skills();
     let base = count_stat(&skills, 176, 1, Stat::PhysicalAttack);
-    assert_eq!(count_stat(&skills, 176, 5, Stat::PhysicalAttack), base, "one below the range: not yet");
-    assert_eq!(count_stat(&skills, 176, 6, Stat::PhysicalAttack), base + 2, "the first level in range: included");
-    assert_eq!(count_stat(&skills, 176, 9, Stat::PhysicalAttack), base + 2, "the last level in range: still included");
+    assert_eq!(
+        count_stat(&skills, 176, 5, Stat::PhysicalAttack),
+        base,
+        "one below the range: not yet"
+    );
+    assert_eq!(
+        count_stat(&skills, 176, 6, Stat::PhysicalAttack),
+        base + 2,
+        "the first level in range: included"
+    );
+    assert_eq!(
+        count_stat(&skills, 176, 9, Stat::PhysicalAttack),
+        base + 2,
+        "the last level in range: still included"
+    );
 }
 
 /// An effect with no level attributes at all is unaffected — the overwhelming
@@ -92,7 +120,12 @@ fn an_ungated_effect_still_applies_at_every_level() {
     assert!(max > 1, "sanity: Death Whisper has several levels");
     for level in 1..=max as i32 {
         assert!(
-            skills.get(1242, level).unwrap().effects.iter().any(|e| matches!(e, SkillEffect::StatModifier(_))),
+            skills
+                .get(1242, level)
+                .unwrap()
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::StatModifier(_))),
             "Death Whisper level {level} keeps its ungated effect"
         );
     }
@@ -114,9 +147,14 @@ fn an_ungated_effect_still_applies_at_every_level() {
 fn enchant_only_effects_never_apply_to_an_unenchanted_skill() {
     let skills = dist_skills();
     for level in 1..=9 {
-        let Some(skill) = skills.get(176, level) else { continue };
+        let Some(skill) = skills.get(176, level) else {
+            continue;
+        };
         assert!(
-            !skill.effects.iter().any(|e| matches!(e, SkillEffect::Heal { .. })),
+            !skill
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::Heal { .. })),
             "Frenzy level {level} must not carry its enchant-only Heal: {:?}",
             skill.effects
         );
@@ -131,12 +169,17 @@ fn guts_keeps_its_ungated_effect_and_drops_the_enchant_only_one() {
     let skills = dist_skills();
     let guts = skills.get(139, 1).expect("Guts loads");
     assert!(
-        guts.effects.iter().any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::ResistAbnormalDebuff)),
+        guts.effects.iter().any(
+            |e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::ResistAbnormalDebuff)
+        ),
         "the real debuff-resist effect survives: {:?}",
         guts.effects
     );
     assert!(
-        !guts.effects.iter().any(|e| matches!(e, SkillEffect::Heal { .. })),
+        !guts
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::Heal { .. })),
         "the enchant-only Heal is gated out"
     );
 }
@@ -160,10 +203,16 @@ fn weapon_mastery_effect_count_changes_at_its_boundary() {
         let below = skills.get(id, 8).map(|s| s.effects.len());
         let at = skills.get(id, 9).map(|s| s.effects.len());
         // Both levels must exist for the comparison to mean anything.
-        assert!(below.is_some() && at.is_some(), "skill {id} has levels 8 and 9");
+        assert!(
+            below.is_some() && at.is_some(),
+            "skill {id} has levels 8 and 9"
+        );
         // `TriggerSkillByAttack` is unported, so it contributes no
         // `SkillEffect` either way — the assertion is simply that gating did
         // not corrupt the surrounding effects.
-        assert!(below.unwrap() <= at.unwrap(), "skill {id}: level 8 carries no more effects than level 9");
+        assert!(
+            below.unwrap() <= at.unwrap(),
+            "skill {id}: level 8 carries no more effects than level 9"
+        );
     }
 }

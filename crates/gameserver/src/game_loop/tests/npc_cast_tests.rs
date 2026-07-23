@@ -64,7 +64,13 @@ fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
 /// MAGE is used for the behaviour tests because it casts on every think
 /// without the `hasSkillChance()` roll — otherwise the assertions would be
 /// probabilistic.
-fn mob_world(skills: &[Skill]) -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn mob_world(
+    skills: &[Skill],
+) -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(MAGE_NPC);
     t.type_name = "Monster".into();
@@ -100,8 +106,17 @@ fn engage(world: &mut World) -> i32 {
         .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
         .unwrap()
         .0
-        .insert(PLAYER, crate::model::npc::AggroInfo { hate: 100.0, damage: 0.0 });
-    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&NPC_OID) {
+        .insert(
+            PLAYER,
+            crate::model::npc::AggroInfo {
+                hate: 100.0,
+                damage: 0.0,
+            },
+        );
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<crate::model::npc::NpcAi>(&NPC_OID)
+    {
         ai.intention = crate::model::npc::NpcIntention::Attack;
         ai.global_aggro = 0;
         ai.attack_timeout_tick = u64::MAX;
@@ -114,27 +129,56 @@ fn engage(world: &mut World) -> i32 {
 
 #[test]
 fn nuke_buckets_as_attack_and_by_range() {
-    let mut skill = npc_skill(NUKE, "Nuke", vec![SkillEffect::MagicalAttack { power: 50.0 }]);
+    let mut skill = npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    );
     skill.cast_range = 600;
     let (mut world, _db, _l) = mob_world(&[skill]);
     rebuild_ai_index(&mut world);
 
     let ai = world.data.npc_ai_skills.get(MAGE_NPC).expect("indexed");
-    assert_eq!(ai.get(AiSkillScope::Attack), &[(NUKE, 1)], "damage → ATTACK");
-    assert_eq!(ai.get(AiSkillScope::LongRange), &[(NUKE, 1)], "castRange 600 > 150 → LONG_RANGE");
+    assert_eq!(
+        ai.get(AiSkillScope::Attack),
+        &[(NUKE, 1)],
+        "damage → ATTACK"
+    );
+    assert_eq!(
+        ai.get(AiSkillScope::LongRange),
+        &[(NUKE, 1)],
+        "castRange 600 > 150 → LONG_RANGE"
+    );
     assert!(ai.get(AiSkillScope::ShortRange).is_empty());
-    assert_eq!(ai.get(AiSkillScope::General), &[(NUKE, 1)], "everything non-suicide is also GENERAL");
+    assert_eq!(
+        ai.get(AiSkillScope::General),
+        &[(NUKE, 1)],
+        "everything non-suicide is also GENERAL"
+    );
 }
 
 #[test]
 fn short_range_nuke_buckets_as_short_range() {
-    let mut skill = npc_skill(NUKE, "Jab", vec![SkillEffect::PhysicalAttack { power: 20.0, p_atk_mod: 1.0, p_def_mod: 1.0, critical_chance: 0.0 }]);
+    let mut skill = npc_skill(
+        NUKE,
+        "Jab",
+        vec![SkillEffect::PhysicalAttack {
+            power: 20.0,
+            p_atk_mod: 1.0,
+            p_def_mod: 1.0,
+            critical_chance: 0.0,
+        }],
+    );
     skill.cast_range = 40;
     let (mut world, _db, _l) = mob_world(&[skill]);
     rebuild_ai_index(&mut world);
 
     let ai = world.data.npc_ai_skills.get(MAGE_NPC).expect("indexed");
-    assert_eq!(ai.get(AiSkillScope::ShortRange), &[(NUKE, 1)], "castRange 40 <= 150");
+    assert_eq!(
+        ai.get(AiSkillScope::ShortRange),
+        &[(NUKE, 1)],
+        "castRange 40 <= 150"
+    );
     assert!(ai.get(AiSkillScope::LongRange).is_empty());
 }
 
@@ -146,7 +190,14 @@ fn continuous_debuff_buckets_as_debuff_and_cot_not_attack() {
     let mut skill = npc_skill(
         NUKE,
         "Curse",
-        vec![SkillEffect::MagicalAttack { power: 10.0 }, SkillEffect::DamOverTime { power: 5.0, ticks: 5, can_kill: false }],
+        vec![
+            SkillEffect::MagicalAttack { power: 10.0 },
+            SkillEffect::DamOverTime {
+                power: 5.0,
+                ticks: 5,
+                can_kill: false,
+            },
+        ],
     );
     skill.is_continuous = true;
     skill.is_debuff = true;
@@ -156,8 +207,15 @@ fn continuous_debuff_buckets_as_debuff_and_cot_not_attack() {
 
     let ai = world.data.npc_ai_skills.get(MAGE_NPC).expect("indexed");
     assert_eq!(ai.get(AiSkillScope::Debuff), &[(NUKE, 1)]);
-    assert_eq!(ai.get(AiSkillScope::Cot), &[(NUKE, 1)], "a debuff is worth interrupting a caster with");
-    assert!(ai.get(AiSkillScope::Attack).is_empty(), "continuous arm wins over the attack arm");
+    assert_eq!(
+        ai.get(AiSkillScope::Cot),
+        &[(NUKE, 1)],
+        "a debuff is worth interrupting a caster with"
+    );
+    assert!(
+        ai.get(AiSkillScope::Attack).is_empty(),
+        "continuous arm wins over the attack arm"
+    );
 }
 
 #[test]
@@ -168,7 +226,10 @@ fn passive_template_skills_are_not_ai_skills() {
     let (mut world, _db, _l) = mob_world(&[passive]);
     rebuild_ai_index(&mut world);
 
-    assert!(world.data.npc_ai_skills.get(MAGE_NPC).is_none(), "passive-only template gets no bucket entry");
+    assert!(
+        world.data.npc_ai_skills.get(MAGE_NPC).is_none(),
+        "passive-only template gets no bucket entry"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -176,18 +237,35 @@ fn passive_template_skills_are_not_ai_skills() {
 
 #[test]
 fn mage_mob_casts_at_its_target_and_deals_damage() {
-    let (mut world, _db, _l) = mob_world(&[npc_skill(NUKE, "Nuke", vec![SkillEffect::MagicalAttack { power: 200.0 }])]);
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+    )]);
     let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
-    let hp_before = world.objects.get_component::<Vitals>(&PLAYER).unwrap().cur_hp;
+    let hp_before = world
+        .objects
+        .get_component::<Vitals>(&PLAYER)
+        .unwrap()
+        .cur_hp;
 
     advance_world(&mut world, 30);
 
-    let hp_after = world.objects.get_component::<Vitals>(&PLAYER).unwrap().cur_hp;
-    assert!(hp_after < hp_before, "mob's nuke should have damaged the player ({hp_before} → {hp_after})");
+    let hp_after = world
+        .objects
+        .get_component::<Vitals>(&PLAYER)
+        .unwrap()
+        .cur_hp;
+    assert!(
+        hp_after < hp_before,
+        "mob's nuke should have damaged the player ({hp_before} → {hp_after})"
+    );
     let packets = drain(&mut out);
     assert!(
-        packets.iter().any(|p| p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE)),
+        packets
+            .iter()
+            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE)),
         "the client must see MagicSkillUse so the mob plays its cast animation"
     );
 }
@@ -196,7 +274,11 @@ fn mage_mob_casts_at_its_target_and_deals_damage() {
 fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
     // A non-MAGE only casts when standing still. Give it a nuke and set it
     // moving: `hasSkillChance` is never even rolled.
-    let (mut world, _db, _l) = mob_world(&[npc_skill(NUKE, "Nuke", vec![SkillEffect::MagicalAttack { power: 200.0 }])]);
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+    )]);
     {
         let mut t = world.data.npc_data.get(MAGE_NPC).unwrap().clone();
         t.ai_type = AiType::Fighter;
@@ -258,17 +340,28 @@ fn mob_does_not_recast_a_buff_it_already_has() {
 
     let cast_started = crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
 
-    assert!(!cast_started, "the mob already carries MIGHT at this level — recasting it would be wasted");
+    assert!(
+        !cast_started,
+        "the mob already carries MIGHT at this level — recasting it would be wasted"
+    );
 }
 
 #[test]
 fn mob_without_the_mp_does_not_cast() {
-    let mut nuke = npc_skill(NUKE, "Expensive Nuke", vec![SkillEffect::MagicalAttack { power: 200.0 }]);
+    let mut nuke = npc_skill(
+        NUKE,
+        "Expensive Nuke",
+        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+    );
     nuke.mp_consume = 400;
     let (mut world, _db, _l) = mob_world(&[nuke]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
-    world.objects.get_component_mut::<Vitals>(&NPC_OID).unwrap().cur_mp = 10.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&NPC_OID)
+        .unwrap()
+        .cur_mp = 10.0;
 
     let cast_started = crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
 
@@ -277,7 +370,11 @@ fn mob_without_the_mp_does_not_cast() {
 
 #[test]
 fn heal_is_skipped_at_full_hp_and_taken_when_wounded() {
-    let mut heal = npc_skill(MOB_HEAL, "Mob Heal", vec![SkillEffect::Heal { power: 100.0 }]);
+    let mut heal = npc_skill(
+        MOB_HEAL,
+        "Mob Heal",
+        vec![SkillEffect::Heal { power: 100.0 }],
+    );
     heal.effect_point = 100;
     heal.is_debuff = false;
     heal.target_type = TargetType::Self_;
@@ -302,16 +399,26 @@ fn heal_is_skipped_at_full_hp_and_taken_when_wounded() {
         crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
         "at 10 % HP the heal chance is 135 % — the mob must heal itself"
     );
-    assert!(world.objects.has_component::<Casting>(&NPC_OID), "the heal cast should be in flight");
+    assert!(
+        world.objects.has_component::<Casting>(&NPC_OID),
+        "the heal cast should be in flight"
+    );
 }
 
 #[test]
 fn a_mob_mid_cast_does_not_start_a_second_one() {
-    let (mut world, _db, _l) = mob_world(&[npc_skill(NUKE, "Nuke", vec![SkillEffect::MagicalAttack { power: 50.0 }])]);
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    )]);
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     engage(&mut world);
 
-    assert!(crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER), "first cast starts");
+    assert!(
+        crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
+        "first cast starts"
+    );
     assert!(
         !crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER),
         "a mob already casting must not start another spell"
@@ -344,10 +451,16 @@ fn real_dist_index_buckets_a_known_caster() {
     // making mobs "cast" their stat holders.
     let mut checked = 0;
     for template in npc_data.all() {
-        let Some(ai) = index.get(template.id) else { continue };
+        let Some(ai) = index.get(template.id) else {
+            continue;
+        };
         for &(id, lvl) in ai.get(AiSkillScope::General) {
             let skill = skill_data.get(id, lvl).expect("bucketed skill resolves");
-            assert_ne!(skill.operate_type, OperateType::Passive, "skill {id} is passive but was bucketed");
+            assert_ne!(
+                skill.operate_type,
+                OperateType::Passive,
+                "skill {id} is passive but was bucketed"
+            );
             checked += 1;
         }
         if checked > 500 {

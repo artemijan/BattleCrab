@@ -33,7 +33,13 @@ const CLIENT_MAX_AMOUNT: i64 = 999_999;
 /// Port of `MultisellData.separateAndSend(listId, player, null, inventoryOnly)`
 /// for the npc-less community-board path: send one `MultiSellList` per page and
 /// record the open list on the player.
-pub(crate) fn separate_and_send(world: &mut World, client_id: u32, player: i32, list_id: i32, inventory_only: bool) {
+pub(crate) fn separate_and_send(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    list_id: i32,
+    inventory_only: bool,
+) {
     let Some(list) = world.data.multisells.get(list_id) else {
         warn!("Multisell: list {list_id} not found (player {player}).");
         return;
@@ -62,7 +68,9 @@ pub(crate) fn separate_and_send(world: &mut World, client_id: u32, player: i32, 
             cs.send(page);
         }
     }
-    world.objects.add_components(&player, ActiveMultisell { list_id });
+    world
+        .objects
+        .add_components(&player, ActiveMultisell { list_id });
 }
 
 /// Build every `MultiSellList` page (Java's `do … while index < size` loop —
@@ -82,18 +90,30 @@ fn build_pages(list: &MultisellList, items: &crate::data::item_data::ItemData) -
 
 /// Port of `clientpackets/MultiSellChoose.runImpl` for the community-board path.
 pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::MultiSellChoose::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::MultiSellChoose::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
 
     // `(_amount < 1) || (_amount > 999999)`.
     if pkt.amount < 1 || pkt.amount > CLIENT_MAX_AMOUNT {
-        send_sm(world, client_id, sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED, &[]);
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+            &[],
+        );
         return;
     }
 
     // The open list must match the one the client claims.
-    let active = world.objects.get_component::<ActiveMultisell>(&player).copied();
+    let active = world
+        .objects
+        .get_component::<ActiveMultisell>(&player)
+        .copied();
     let Some(active) = active.filter(|a| a.list_id == pkt.list_id) else {
         world.objects.remove_component::<ActiveMultisell>(&player);
         return;
@@ -105,7 +125,10 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         // `entryId` is 1-based and indexes the list directly on this path.
         l.entries.get((pkt.entry_id - 1) as usize)
     }) else {
-        warn!("Multisell: player {player} chose out-of-range entry {} in list {}.", pkt.entry_id, pkt.list_id);
+        warn!(
+            "Multisell: player {player} chose out-of-range entry {} in list {}.",
+            pkt.entry_id, pkt.list_id
+        );
         world.objects.remove_component::<ActiveMultisell>(&player);
         return;
     };
@@ -119,7 +142,10 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
 
     // `!entry.isStackable() && (_amount > 1)`.
     if !entry.stackable && pkt.amount > 1 {
-        warn!("Multisell: player {player} set amount > 1 on non-stackable entry (list {}).", pkt.list_id);
+        warn!(
+            "Multisell: player {player} set amount > 1 on non-stackable entry (list {}).",
+            pkt.list_id
+        );
         world.objects.remove_component::<ActiveMultisell>(&player);
         return;
     }
@@ -130,7 +156,10 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         if product.id < 0 {
             // TODO(G30): SpecialItemType products (clan reputation / fame / raid
             // points). Refuse rather than silently grant nothing.
-            warn!("Multisell: list {} has an unported special product {}.", pkt.list_id, product.id);
+            warn!(
+                "Multisell: list {} has an unported special product {}.",
+                pkt.list_id, product.id
+            );
             return;
         }
         if world.data.item_data.get(product.id).is_none() {
@@ -139,7 +168,12 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         }
         let count = mul(product_count(product.count, prod_mult), pkt.amount);
         let Some(count) = count.filter(|&c| (1..=i32::MAX as i64).contains(&c)) else {
-            send_sm(world, client_id, sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED, &[]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+                &[],
+            );
             return;
         };
         let _ = count;
@@ -153,14 +187,22 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
     for ing in &entry.ingredients {
         if ing.enchant_level > 0 || ing.id < 0 {
             // TODO(G30): enchanted-item and SpecialItemType ingredients.
-            warn!("Multisell: list {} has an unported enchant/special ingredient {}.", pkt.list_id, ing.id);
+            warn!(
+                "Multisell: list {} has an unported enchant/special ingredient {}.",
+                pkt.list_id, ing.id
+            );
             return;
         }
         if ing.maintain {
             continue; // not consumed, so no presence requirement
         }
         let Some(total) = mul(ingredient_count(ing.count, ing_mult), pkt.amount) else {
-            send_sm(world, client_id, sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED, &[]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+                &[],
+            );
             return;
         };
         if let Some(slot) = needed.iter_mut().find(|(id, _)| *id == ing.id) {
@@ -170,9 +212,18 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         }
     }
     for &(id, total) in &needed {
-        let have = world.objects.get_component::<Inventory>(&player).map(|i| i.count_of(id)).unwrap_or(0);
+        let have = world
+            .objects
+            .get_component::<Inventory>(&player)
+            .map(|i| i.count_of(id))
+            .unwrap_or(0);
         if have < total {
-            send_sm(world, client_id, sm_ids::YOU_NEED_S2_S1_S, &[SmParam::ItemName(id), SmParam::Long(total)]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_NEED_S2_S1_S,
+                &[SmParam::ItemName(id), SmParam::Long(total)],
+            );
             return;
         }
     }
@@ -187,31 +238,57 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
 
     for product in &entry.products {
         let total = product_count(product.count, prod_mult) * pkt.amount;
-        let added = super::items::add_inventory_item(world, player, product.id, total).unwrap_or_default();
+        let added =
+            super::items::add_inventory_item(world, player, product.id, total).unwrap_or_default();
         for oid in &added {
-            if let Some(item) =
-                world.objects.get_component::<Inventory>(&player).and_then(|inv| inv.items().iter().find(|i| i.object_id == *oid).copied())
+            if let Some(item) = world
+                .objects
+                .get_component::<Inventory>(&player)
+                .and_then(|inv| inv.items().iter().find(|i| i.object_id == *oid).copied())
             {
                 changes.push(ItemChange::Modified(item));
             }
         }
         // Acquisition message (Java's count > 1 / enchant > 0 / else split).
         if total > 1 {
-            send_sm(world, client_id, sm_ids::YOU_HAVE_EARNED_S2_S1_S, &[SmParam::ItemName(product.id), SmParam::Long(total)]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EARNED_S2_S1_S,
+                &[SmParam::ItemName(product.id), SmParam::Long(total)],
+            );
         } else if product.enchant_level > 0 {
-            send_sm(world, client_id, sm_ids::ACQUIRED_S1_S2, &[SmParam::Long(product.enchant_level as i64), SmParam::ItemName(product.id)]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::ACQUIRED_S1_S2,
+                &[
+                    SmParam::Long(product.enchant_level as i64),
+                    SmParam::ItemName(product.id),
+                ],
+            );
         } else {
-            send_sm(world, client_id, sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(product.id)]);
+            send_sm(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EARNED_S1,
+                &[SmParam::ItemName(product.id)],
+            );
         }
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(sp::ex_multi_sell_result(true, 0, total.min(i32::MAX as i64) as i32));
+            cs.send(sp::ex_multi_sell_result(
+                true,
+                0,
+                total.min(i32::MAX as i64) as i32,
+            ));
         }
     }
 
     // One InventoryUpdate + weight refresh for the whole exchange.
-    if let (Some(inv), Some(cs)) =
-        (world.objects.get_component::<Inventory>(&player), world.clients.get(&client_id))
-    {
+    if let (Some(inv), Some(cs)) = (
+        world.objects.get_component::<Inventory>(&player),
+        world.clients.get(&client_id),
+    ) {
         cs.send(ew::inventory_update_changes(&world.data, &changes));
         cs.send(ew::ex_user_info_inven_weight(player, inv, &world.data));
     }

@@ -67,7 +67,11 @@ impl QuestScript for Q00265BondsOfSlavery {
         if !ctx.has_qs() {
             return;
         }
-        let chance = MONSTERS.iter().find(|(id, _)| *id == ctx.npc_id).map(|(_, c)| *c).unwrap_or(0);
+        let chance = MONSTERS
+            .iter()
+            .find(|(id, _)| *id == ctx.npc_id)
+            .map(|(_, c)| *c)
+            .unwrap_or(0);
         if ctx.roll(10) < chance {
             ctx.give_items(IMP_SHACKLES, 1);
             ctx.play_sound(quest_sounds::ITEMGET);

@@ -63,7 +63,12 @@ impl QuestScript for Q00109InSearchOfTheNest {
             PIERCE => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() < 81 { "31553-0a.htm" } else { "31553-0b.htm" }.to_string(),
+                        if ctx.player_level() < 81 {
+                            "31553-0a.htm"
+                        } else {
+                            "31553-0b.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 if ctx.is_started() {

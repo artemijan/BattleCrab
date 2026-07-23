@@ -52,7 +52,14 @@ impl QuestScript for Q00271ProofOfValor {
         if ctx.has_qs() && event.eq_ignore_ascii_case("30577-04.htm") {
             ctx.start_quest();
             // Already wearing the necklace → a different acknowledgement page.
-            return Some(if ctx.quest_items_count(NECKLACE_OF_VALOR) > 0 { "30577-08.html" } else { "30577-04.htm" }.to_string());
+            return Some(
+                if ctx.quest_items_count(NECKLACE_OF_VALOR) > 0 {
+                    "30577-08.html"
+                } else {
+                    "30577-04.htm"
+                }
+                .to_string(),
+            );
         }
         None
     }
@@ -63,7 +70,11 @@ impl QuestScript for Q00271ProofOfValor {
         }
         let count = ctx.quest_items_count(KASHA_WOLF_FANG);
         // 25% for a double drop, but never when it would overshoot 50.
-        let amount = if ctx.roll(100) < 25 && count < 49 { 2 } else { 1 };
+        let amount = if ctx.roll(100) < 25 && count < 49 {
+            2
+        } else {
+            1
+        };
         ctx.give_items(KASHA_WOLF_FANG, amount);
         if count + amount >= REQUIRED_FANGS {
             ctx.set_cond(2, true);

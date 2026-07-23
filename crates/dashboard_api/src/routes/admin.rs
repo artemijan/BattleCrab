@@ -34,7 +34,10 @@ pub fn router() -> Router<AppState> {
     Router::new()
         .route("/accounts", axum::routing::get(list_accounts))
         .route("/accounts/{email}", axum::routing::get(account_detail))
-        .route("/accounts/{email}/verify", axum::routing::post(verify_master))
+        .route(
+            "/accounts/{email}/verify",
+            axum::routing::post(verify_master),
+        )
         .route(
             "/accounts/{email}/access-level",
             axum::routing::post(set_master_access_level),
@@ -165,7 +168,9 @@ async fn verify_master(
         .await?
         .ok_or(ApiError::NotFound)?;
     if target.is_verified() {
-        return Err(ApiError::BadRequest("this address is already confirmed".into()));
+        return Err(ApiError::BadRequest(
+            "this address is already confirmed".into(),
+        ));
     }
 
     accounts::mark_verified(&app.pool, target.subject()).await?;
@@ -197,8 +202,12 @@ async fn set_master_access_level(
         .ok_or(ApiError::NotFound)?;
     assert_outranks(&actor, target.access_level)?;
 
-    admin::set_access_level(&app.pool, AccessLevelTarget::Master(target.subject()), body.level)
-        .await?;
+    admin::set_access_level(
+        &app.pool,
+        AccessLevelTarget::Master(target.subject()),
+        body.level,
+    )
+    .await?;
     tracing::info!(
         admin = %actor.subject(),
         target = %target.subject(),

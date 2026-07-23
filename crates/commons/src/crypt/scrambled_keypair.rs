@@ -20,7 +20,11 @@ impl ScrambledKeyPair {
 
     pub fn from_parts(n: BigUint, d: BigUint) -> Self {
         let scrambled_modulus = scramble_modulus(&n);
-        Self { n, d, scrambled_modulus }
+        Self {
+            n,
+            d,
+            scrambled_modulus,
+        }
     }
 
     pub fn scrambled_modulus(&self) -> &[u8; 0x80] {

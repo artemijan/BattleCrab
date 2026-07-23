@@ -47,20 +47,42 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
 }
 
 /// A world with a bow (mp_consume 1, no grade) and matching arrows registered.
-fn bow_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn bow_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
 
-    let mut bow = template(BOW_ID, "Test Bow", ItemKind::Weapon, crate::data::item_data::SLOT_LR_HAND);
+    let mut bow = template(
+        BOW_ID,
+        "Test Bow",
+        ItemKind::Weapon,
+        crate::data::item_data::SLOT_LR_HAND,
+    );
     bow.mp_consume = 1;
     world.data.item_data.insert_for_test(bow);
-    world.data.item_data.set_weapon_type_for_test(BOW_ID, WeaponType::Bow);
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(BOW_ID, WeaponType::Bow);
 
-    let mut arrow = template(ARROW_ID, "Test Arrow", ItemKind::Etc, crate::data::item_data::SLOT_L_HAND);
+    let mut arrow = template(
+        ARROW_ID,
+        "Test Arrow",
+        ItemKind::Etc,
+        crate::data::item_data::SLOT_L_HAND,
+    );
     arrow.etc_item_type = EtcItemType::Arrow;
     world.data.item_data.insert_for_test(arrow);
 
     // Same kind, *different* grade — must not be picked up for a no-grade bow.
-    let mut wrong = template(WRONG_GRADE_ARROW, "B-grade Arrow", ItemKind::Etc, crate::data::item_data::SLOT_L_HAND);
+    let mut wrong = template(
+        WRONG_GRADE_ARROW,
+        "B-grade Arrow",
+        ItemKind::Etc,
+        crate::data::item_data::SLOT_L_HAND,
+    );
     wrong.etc_item_type = EtcItemType::Arrow;
     wrong.crystal_type = CrystalType::B;
     world.data.item_data.insert_for_test(wrong);
@@ -95,7 +117,11 @@ fn give(world: &mut World, oid: i32, item_id: i32, count: i64) -> i32 {
 }
 
 fn arrow_count(world: &World, arrow_id: i32) -> i64 {
-    world.objects.get_component::<Inventory>(&ARCHER).map(|i| i.count_of(arrow_id)).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Inventory>(&ARCHER)
+        .map(|i| i.count_of(arrow_id))
+        .unwrap_or(0)
 }
 
 fn shoot(world: &mut World, target: i32) {
@@ -120,7 +146,11 @@ fn bow_shot_consumes_an_arrow_and_mp() {
     assert_eq!(arrow_count(&world, ARROW_ID), 9, "one arrow spent");
     assert!(pvit(&world, ARCHER).cur_mp < mp_before, "the shot cost MP");
     // The arrow was auto-equipped into the left hand (checkAndEquipAmmunition).
-    let lhand = world.objects.get_component::<Inventory>(&ARCHER).unwrap().paperdoll_item_id(PaperdollSlot::LHand);
+    let lhand = world
+        .objects
+        .get_component::<Inventory>(&ARCHER)
+        .unwrap()
+        .paperdoll_item_id(PaperdollSlot::LHand);
     assert_eq!(lhand, ARROW_ID, "arrows are equipped in the left hand");
 }
 
@@ -136,17 +166,29 @@ fn reload_delay_blocks_the_next_shot() {
 
     shoot(&mut world, NPC_OID);
     assert_eq!(arrow_count(&world, ARROW_ID), 9);
-    let ready_at = world.objects.get_component::<RangedReload>(&ARCHER).expect("reload armed").ready_at_tick;
+    let ready_at = world
+        .objects
+        .get_component::<RangedReload>(&ARCHER)
+        .expect("reload armed")
+        .ready_at_tick;
     assert!(ready_at > world.tick, "the reload delay is in the future");
 
     // Immediately again: refused, no arrow spent.
     shoot(&mut world, NPC_OID);
-    assert_eq!(arrow_count(&world, ARROW_ID), 9, "no second arrow while reloading");
+    assert_eq!(
+        arrow_count(&world, ARROW_ID),
+        9,
+        "no second arrow while reloading"
+    );
 
     // Past the delay it fires again.
     world.tick = ready_at + 1;
     shoot(&mut world, NPC_OID);
-    assert_eq!(arrow_count(&world, ARROW_ID), 8, "fires again once reloaded");
+    assert_eq!(
+        arrow_count(&world, ARROW_ID),
+        8,
+        "fires again once reloaded"
+    );
 }
 
 /// With no arrows the shot is refused with "You have run out of arrows" and the
@@ -163,12 +205,15 @@ fn out_of_arrows_cancels_the_attack() {
 
     let pkts = drain(&mut out);
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::YOU_HAVE_RUN_OUT_OF_ARROWS),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOU_HAVE_RUN_OUT_OF_ARROWS),
         "the player is told they are out of arrows"
     );
     assert!(
-        !world.objects.has_component::<crate::model::components::Intent>(&ARCHER),
+        !world
+            .objects
+            .has_component::<crate::model::components::Intent>(&ARCHER),
         "the attack intention is dropped"
     );
 }
@@ -185,11 +230,16 @@ fn ammunition_must_match_the_bow_grade() {
 
     shoot(&mut world, NPC_OID);
 
-    assert_eq!(arrow_count(&world, WRONG_GRADE_ARROW), 10, "the wrong-grade stack is untouched");
+    assert_eq!(
+        arrow_count(&world, WRONG_GRADE_ARROW),
+        10,
+        "the wrong-grade stack is untouched"
+    );
     let pkts = drain(&mut out);
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::YOU_HAVE_RUN_OUT_OF_ARROWS),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOU_HAVE_RUN_OUT_OF_ARROWS),
         "and the shot is refused as if there were none"
     );
 }
@@ -201,16 +251,25 @@ fn not_enough_mp_refuses_the_shot() {
     let mut out = ingame_caster(&mut world, CID, ARCHER, 0, 0);
     arm_archer(&mut world, 10, ARROW_ID);
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 300, 0, 0);
-    world.objects.get_component_mut::<Vitals>(&ARCHER).unwrap().cur_mp = 0.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&ARCHER)
+        .unwrap()
+        .cur_mp = 0.0;
     drain(&mut out);
 
     shoot(&mut world, NPC_OID);
 
-    assert_eq!(arrow_count(&world, ARROW_ID), 10, "no arrow spent when the shot is refused");
+    assert_eq!(
+        arrow_count(&world, ARROW_ID),
+        10,
+        "no arrow spent when the shot is refused"
+    );
     let pkts = drain(&mut out);
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::NOT_ENOUGH_MP),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::NOT_ENOUGH_MP),
         "the player is told they lack MP"
     );
 }

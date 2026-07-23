@@ -68,8 +68,15 @@ const MIN_LEVEL: i32 = 19;
 const SIMPLON_BOOKS: i64 = 3;
 
 const QUEST_ITEMS: [i32; 10] = [
-    LETTER_OF_ORDER_1ST, LETTER_OF_ORDER_2ND, LIONELS_BOOK, BOOK_OF_VIVYAN, BOOK_OF_SIMPLON,
-    BOOK_OF_PRAGA, CERTIFICATE_OF_GALLINT, PENDANT_OF_MOTHER, NECKLACE_OF_MOTHER,
+    LETTER_OF_ORDER_1ST,
+    LETTER_OF_ORDER_2ND,
+    LIONELS_BOOK,
+    BOOK_OF_VIVYAN,
+    BOOK_OF_SIMPLON,
+    BOOK_OF_PRAGA,
+    CERTIFICATE_OF_GALLINT,
+    PENDANT_OF_MOTHER,
+    NECKLACE_OF_MOTHER,
     LEMONIELLS_COVENANT,
 ];
 
@@ -98,7 +105,14 @@ impl QuestScript for Q00405PathOfTheCleric {
         &[ZIGAUNT]
     }
     fn talk_npcs(&self) -> &[i32] {
-        &[ZIGAUNT, GALLINT, VIVYAN, TRADER_SIMPLON, GUARD_PRAGA, LIONEL]
+        &[
+            ZIGAUNT,
+            GALLINT,
+            VIVYAN,
+            TRADER_SIMPLON,
+            GUARD_PRAGA,
+            LIONEL,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
         &[RUIN_ZOMBIE, RUIN_ZOMBIE_LEADER]
@@ -144,8 +158,12 @@ impl QuestScript for Q00405PathOfTheCleric {
         if ctx.is_created() {
             if npc == ZIGAUNT {
                 return Some(
-                    if ctx.quest_items_count(MARK_OF_FAITH) == 0 { "30022-01.htm" } else { "30022-04.htm" }
-                        .to_string(),
+                    if ctx.quest_items_count(MARK_OF_FAITH) == 0 {
+                        "30022-01.htm"
+                    } else {
+                        "30022-04.htm"
+                    }
+                    .to_string(),
                 );
             }
             return Some(ctx.no_quest_html());
@@ -156,10 +174,16 @@ impl QuestScript for Q00405PathOfTheCleric {
         match npc {
             ZIGAUNT => self.talk_zigaunt(ctx),
             GALLINT => self.talk_gallint(ctx),
-            VIVYAN => self.talk_book_giver(ctx, BOOK_OF_VIVYAN, 1, "30030-01.html", "30030-02.html"),
-            TRADER_SIMPLON => {
-                self.talk_book_giver(ctx, BOOK_OF_SIMPLON, SIMPLON_BOOKS, "30253-01.html", "30253-02.html")
+            VIVYAN => {
+                self.talk_book_giver(ctx, BOOK_OF_VIVYAN, 1, "30030-01.html", "30030-02.html")
             }
+            TRADER_SIMPLON => self.talk_book_giver(
+                ctx,
+                BOOK_OF_SIMPLON,
+                SIMPLON_BOOKS,
+                "30253-01.html",
+                "30253-02.html",
+            ),
             GUARD_PRAGA => self.talk_praga(ctx),
             LIONEL => self.talk_lionel(ctx),
             _ => Some(ctx.no_quest_html()),

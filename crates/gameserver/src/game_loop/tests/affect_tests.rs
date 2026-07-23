@@ -5,7 +5,9 @@ use super::*;
 
 use crate::game_loop::skills::affect::targets_affected;
 use crate::model::components::Buffs;
-use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{
+    AffectObject, AffectScope, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
+};
 use crate::model::stats::{Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
@@ -133,8 +135,14 @@ fn point_blank_sweeps_around_the_caster() {
     let skill = aoe_skill(9004, AffectScope::PointBlank, AffectObject::NotFriend, 200);
 
     let hit = targets_affected(&mut world, CASTER, target, &skill);
-    assert!(hit.contains(&near), "caster-centred sweep catches the near mob");
-    assert!(hit.contains(&target), "the primary target is always included");
+    assert!(
+        hit.contains(&near),
+        "caster-centred sweep catches the near mob"
+    );
+    assert!(
+        hit.contains(&target),
+        "the primary target is always included"
+    );
 }
 
 /// `affectLimit` caps how many extra targets a sweep may pick up. The primary
@@ -156,7 +164,11 @@ fn affect_limit_caps_the_sweep() {
     // Uncapped: the whole cluster inside 300 units.
     skill.affect_limit = (0, 0);
     let hit = targets_affected(&mut world, CASTER, a, &skill);
-    assert!(hit.len() >= 3, "uncapped sweep picks up the cluster, got {}", hit.len());
+    assert!(
+        hit.len() >= 3,
+        "uncapped sweep picks up the cluster, got {}",
+        hit.len()
+    );
     assert!(hit.contains(&b));
 }
 
@@ -170,7 +182,10 @@ fn dead_creatures_are_skipped() {
 
     let skill = aoe_skill(9006, AffectScope::Range, AffectObject::NotFriend, 300);
     let hit = targets_affected(&mut world, CASTER, a, &skill);
-    assert!(!hit.contains(&b), "a corpse is not swept into a hostile AoE");
+    assert!(
+        !hit.contains(&b),
+        "a corpse is not swept into a hostile AoE"
+    );
 }
 
 /// Drop two players into one party directly — the invite/accept packet dance
@@ -202,7 +217,10 @@ fn not_friend_excludes_the_caster() {
     let skill = aoe_skill(9007, AffectScope::Range, AffectObject::NotFriend, 500);
 
     let hit = targets_affected(&mut world, CASTER, a, &skill);
-    assert!(!hit.contains(&CASTER), "the caster is not their own AoE victim");
+    assert!(
+        !hit.contains(&CASTER),
+        "the caster is not their own AoE victim"
+    );
 }
 
 /// A party mate is a "friend": a NOT_FRIEND AoE skips them, while a FRIEND
@@ -220,11 +238,17 @@ fn party_mates_are_friends() {
 
     let hostile = aoe_skill(9008, AffectScope::Range, AffectObject::NotFriend, 500);
     let hit = targets_affected(&mut world, CASTER, a, &hostile);
-    assert!(!hit.contains(&mate), "a party mate is not swept into a hostile AoE");
+    assert!(
+        !hit.contains(&mate),
+        "a party mate is not swept into a hostile AoE"
+    );
 
     let helpful = aoe_skill(9009, AffectScope::Range, AffectObject::Friend, 500);
     let hit = targets_affected(&mut world, CASTER, mate, &helpful);
-    assert!(hit.contains(&mate), "a FRIEND scope does reach the party mate");
+    assert!(
+        hit.contains(&mate),
+        "a FRIEND scope does reach the party mate"
+    );
 }
 
 /// PARTY scope reaches the target's party regardless of who is nearby, and an
@@ -240,11 +264,17 @@ fn party_scope_covers_the_party() {
     skill.effect_point = 100; // a party buff is a good skill
 
     // Unpartied: only the target.
-    assert_eq!(targets_affected(&mut world, CASTER, CASTER, &skill), vec![CASTER]);
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill),
+        vec![CASTER]
+    );
 
     put_in_party(&mut world, CASTER, mate);
     let hit = targets_affected(&mut world, CASTER, CASTER, &skill);
-    assert!(hit.contains(&CASTER) && hit.contains(&mate), "the whole party is covered");
+    assert!(
+        hit.contains(&CASTER) && hit.contains(&mate),
+        "the whole party is covered"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -288,15 +318,23 @@ fn toggle_switches_on_and_off() {
 
     // On: toggles are instant, so the buff is live without advancing any ticks.
     crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9100, false, false);
-    assert!(has_buff(&world, CASTER, 9100), "first use switches the toggle on");
     assert!(
-        !world.objects.has_component::<crate::model::components::Casting>(&CASTER),
+        has_buff(&world, CASTER, 9100),
+        "first use switches the toggle on"
+    );
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::Casting>(&CASTER),
         "a toggle is an instant cast — it never occupies the cast bar"
     );
 
     // Off: the recast strips it.
     crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9100, false, false);
-    assert!(!has_buff(&world, CASTER, 9100), "second use switches it back off");
+    assert!(
+        !has_buff(&world, CASTER, 9100),
+        "second use switches it back off"
+    );
 }
 
 /// Toggles sharing a `toggleGroupId` are mutually exclusive — switching one on
@@ -322,8 +360,14 @@ fn toggles_in_a_group_are_mutually_exclusive() {
 
     // The sibling replaces it rather than stacking.
     crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9102, false, false);
-    assert!(has_buff(&world, CASTER, 9102), "the newly toggled skill is on");
-    assert!(!has_buff(&world, CASTER, 9101), "its group sibling was switched off");
+    assert!(
+        has_buff(&world, CASTER, 9102),
+        "the newly toggled skill is on"
+    );
+    assert!(
+        !has_buff(&world, CASTER, 9101),
+        "its group sibling was switched off"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -353,9 +397,17 @@ fn aoe_nuke_damages_the_whole_cluster() {
 
     // Two mobs inside the 300 sweep of the primary target, one far outside.
     let (a, b, far) = spawn_cluster(&mut world);
-    world.objects.get_component_mut::<TargetRef>(&CASTER).unwrap().0 = Some(a);
+    world
+        .objects
+        .get_component_mut::<TargetRef>(&CASTER)
+        .unwrap()
+        .0 = Some(a);
     let hp_before = |w: &World, oid: i32| w.objects.get_component::<Vitals>(&oid).unwrap().cur_hp;
-    let (a0, b0, far0) = (hp_before(&world, a), hp_before(&world, b), hp_before(&world, far));
+    let (a0, b0, far0) = (
+        hp_before(&world, a),
+        hp_before(&world, b),
+        hp_before(&world, far),
+    );
     drain(&mut out);
 
     crate::game_loop::skills::cast::use_magic(&mut world, CID, CASTER, 9200, true, false);
@@ -363,6 +415,13 @@ fn aoe_nuke_damages_the_whole_cluster() {
     advance_ticks(&mut world, 60);
 
     assert!(hp_before(&world, a) < a0, "the primary target took damage");
-    assert!(hp_before(&world, b) < b0, "the mob inside the sweep took damage too");
-    assert_eq!(hp_before(&world, far), far0, "the mob outside the sweep was untouched");
+    assert!(
+        hp_before(&world, b) < b0,
+        "the mob inside the sweep took damage too"
+    );
+    assert_eq!(
+        hp_before(&world, far),
+        far0,
+        "the mob outside the sweep was untouched"
+    );
 }

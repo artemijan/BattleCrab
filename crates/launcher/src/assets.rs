@@ -19,7 +19,11 @@ pub fn window_icon() -> egui::IconData {
         .expect("embedded icon.png is not a valid image")
         .to_rgba8();
     let (width, height) = img.dimensions();
-    egui::IconData { rgba: img.into_raw(), width, height }
+    egui::IconData {
+        rgba: img.into_raw(),
+        width,
+        height,
+    }
 }
 
 /// Decodes the logo and keys its black background out to transparency.

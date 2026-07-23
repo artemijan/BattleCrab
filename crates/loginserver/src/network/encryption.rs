@@ -18,7 +18,10 @@ pub struct LoginEncryption {
 
 impl LoginEncryption {
     pub fn new(key: &[u8]) -> Self {
-        Self { crypt: NewCrypt::new(key), static_mode: true }
+        Self {
+            crypt: NewCrypt::new(key),
+            static_mode: true,
+        }
     }
 
     /// Decrypts in place and validates the checksum. `false` = corrupt packet

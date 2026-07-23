@@ -9,13 +9,27 @@ const MIN_LEVEL: i32 = 11;
 const REQUIRED: i64 = 5;
 pub struct Q00319ScentOfDeath;
 impl QuestScript for Q00319ScentOfDeath {
-    fn id(&self) -> i32 { 319 }
-    fn name(&self) -> &'static str { "Q00319_ScentOfDeath" }
-    fn html_dir(&self) -> &'static str { "quests/Q00319_ScentOfDeath" }
-    fn start_npcs(&self) -> &[i32] { &[MINALESS] }
-    fn talk_npcs(&self) -> &[i32] { &[MINALESS] }
-    fn kill_npcs(&self) -> &[i32] { &MONSTERS }
-    fn quest_items(&self) -> &[i32] { &[ZOMBIES_SKIN] }
+    fn id(&self) -> i32 {
+        319
+    }
+    fn name(&self) -> &'static str {
+        "Q00319_ScentOfDeath"
+    }
+    fn html_dir(&self) -> &'static str {
+        "quests/Q00319_ScentOfDeath"
+    }
+    fn start_npcs(&self) -> &[i32] {
+        &[MINALESS]
+    }
+    fn talk_npcs(&self) -> &[i32] {
+        &[MINALESS]
+    }
+    fn kill_npcs(&self) -> &[i32] {
+        &MONSTERS
+    }
+    fn quest_items(&self) -> &[i32] {
+        &[ZOMBIES_SKIN]
+    }
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 18).then(|| ctx.no_quest_html())
     }
@@ -30,13 +44,22 @@ impl QuestScript for Q00319ScentOfDeath {
         if ctx.has_qs() && ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED && ctx.roll(10) > 7 {
             ctx.give_items(ZOMBIES_SKIN, 1);
             // Java sets cond 2 on any skin below the target (a quirk).
-            if ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED { ctx.set_cond(2, true); }
+            if ctx.quest_items_count(ZOMBIES_SKIN) < REQUIRED {
+                ctx.set_cond(2, true);
+            }
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30138-03.htm" } else { "30138-02.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30138-03.htm"
+                } else {
+                    "30138-02.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             if ctx.quest_items_count(ZOMBIES_SKIN) >= REQUIRED {

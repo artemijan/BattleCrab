@@ -157,12 +157,12 @@ const BRANCHES: [Branch; 6] = [
 /// roll at all, which is easy to miss in a table of six near-identical blocks.
 type Drop = (&'static [i32], i32, i32, i64, Option<i32>);
 const DROPS: [Drop; 6] = [
-    (&[20775], 1168, 1169, 10, None),                    // Bugbear Raider
-    (&[27024], 1170, 1171, 12, Some(5)),                 // Undead Priest (quest monster)
-    (&[20038, 20043, 20050], 1172, 1173, 20, None),      // Venomous spiders
-    (&[20024, 20027, 20030], 1174, 1175, 20, Some(5)),   // Langk Lizardmen
-    (&[20103, 20106, 20108], 1176, 1177, 20, Some(4)),   // Giant spiders
-    (&[20404], 1178, 1179, 10, Some(4)),                 // Silent Horror
+    (&[20775], 1168, 1169, 10, None),                  // Bugbear Raider
+    (&[27024], 1170, 1171, 12, Some(5)),               // Undead Priest (quest monster)
+    (&[20038, 20043, 20050], 1172, 1173, 20, None),    // Venomous spiders
+    (&[20024, 20027, 20030], 1174, 1175, 20, Some(5)), // Langk Lizardmen
+    (&[20103, 20106, 20108], 1176, 1177, 20, Some(4)), // Giant spiders
+    (&[20404], 1178, 1179, 10, Some(4)),               // Silent Horror
 ];
 
 const KILL_NPCS: [i32; 12] = [
@@ -172,15 +172,35 @@ const KILL_NPCS: [i32; 12] = [
 const TALK_NPCS: [i32; 8] = [30417, 30031, 30037, 30289, 30039, 30332, 30379, 30653];
 
 const QUEST_ITEMS: [i32; 19] = [
-    SQUIRES_MARK, 1162, 1163, 1164, 1165, 1166, 1167, 1168, 1169, 1170, 1171, 1172, 1173, 1174,
-    1175, 1176, 1177, 1178, 1179,
+    SQUIRES_MARK,
+    1162,
+    1163,
+    1164,
+    1165,
+    1166,
+    1167,
+    1168,
+    1169,
+    1170,
+    1171,
+    1172,
+    1173,
+    1174,
+    1175,
+    1176,
+    1177,
+    1178,
+    1179,
 ];
 
 pub struct Q00402PathOfTheHumanKnight;
 
 impl Q00402PathOfTheHumanKnight {
     fn coin_count(&self, ctx: &QuestCtx) -> i64 {
-        COINS.iter().filter(|id| ctx.quest_items_count(**id) > 0).count() as i64
+        COINS
+            .iter()
+            .filter(|id| ctx.quest_items_count(**id) > 0)
+            .count() as i64
     }
 
     /// The reward, plus Java's sweep of every leftover badge and trophy.
@@ -262,7 +282,11 @@ impl QuestScript for Q00402PathOfTheHumanKnight {
                     return None;
                 }
                 let coins = self.coin_count(ctx);
-                let ok = if event == "30417-13.html" { coins == 3 } else { coins > 3 && coins < 6 };
+                let ok = if event == "30417-13.html" {
+                    coins == 3
+                } else {
+                    coins > 3 && coins < 6
+                };
                 if !ok {
                     return None;
                 }
@@ -331,7 +355,11 @@ impl QuestScript for Q00402PathOfTheHumanKnight {
         }
         if npc == SIR_ARON_TANFORD {
             // Pure hint NPC.
-            return Some(if has_mark { "30653-01.html".to_string() } else { ctx.no_quest_html() });
+            return Some(if has_mark {
+                "30653-01.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            });
         }
         let Some(b) = BRANCHES.iter().find(|b| b.npc == npc) else {
             return Some(ctx.no_quest_html());

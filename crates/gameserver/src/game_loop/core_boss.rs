@@ -67,7 +67,10 @@ pub struct CoreState {
 
 /// `Core.onAttack` — the intro pair on the first hit, a rare taunt after.
 pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
-    let first = world.objects.get_component::<CoreState>(&core_oid).is_some_and(|s| s.first_attacked);
+    let first = world
+        .objects
+        .get_component::<CoreState>(&core_oid)
+        .is_some_and(|s| s.first_attacked);
     if first {
         // `if (getRandom(100) == 0)` — a rare line, not every swing.
         if world.roll(TAUNT_CHANCE) == 0 {
@@ -75,8 +78,14 @@ pub(crate) fn on_core_attacked(world: &mut World, core_oid: i32) {
         }
         return;
     }
-    if world.objects.get_component::<CoreState>(&core_oid).is_none() {
-        world.objects.add_components(&core_oid, CoreState::default());
+    if world
+        .objects
+        .get_component::<CoreState>(&core_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&core_oid, CoreState::default());
     }
     if let Some(s) = world.objects.get_component_mut::<CoreState>(&core_oid) {
         s.first_attacked = true;
@@ -95,7 +104,9 @@ pub(crate) fn is_core_minion(npc_id: i32) -> bool {
 /// Java guards on `getStatus(CORE) == ALIVE`, so minions killed after Core
 /// stop coming back rather than repopulating an empty lair.
 pub(crate) fn on_minion_killed(world: &mut World, npc_id: i32) {
-    if crate::game_loop::grand_boss::status(world, CORE) != Some(crate::game_loop::grand_boss::ALIVE) {
+    if crate::game_loop::grand_boss::status(world, CORE)
+        != Some(crate::game_loop::grand_boss::ALIVE)
+    {
         return;
     }
     world.scheduler.schedule(
@@ -107,7 +118,9 @@ pub(crate) fn on_minion_killed(world: &mut World, npc_id: i32) {
 /// The 60 s timer firing.
 pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
     // Core died while the timer ran: don't repopulate.
-    if crate::game_loop::grand_boss::status(world, CORE) != Some(crate::game_loop::grand_boss::ALIVE) {
+    if crate::game_loop::grand_boss::status(world, CORE)
+        != Some(crate::game_loop::grand_boss::ALIVE)
+    {
         return;
     }
     if let Some((_, x, y, z)) = MINION_SPAWNS.iter().copied().find(|(id, ..)| *id == npc_id) {
@@ -119,19 +132,22 @@ pub(crate) fn handle_minion_respawn(world: &mut World, npc_id: i32) {
 pub(crate) fn on_core_killed(world: &mut World) {
     // `_firstAttacked = false` — the intro plays again next life.
     let mut cores = Vec::new();
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &CoreState)>(|(n, _)| {
-        if n.npc_id == CORE {
-            cores.push(n.object_id);
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &CoreState)>(|(n, _)| {
+            if n.npc_id == CORE {
+                cores.push(n.object_id);
+            }
+        });
     for oid in cores {
         if let Some(s) = world.objects.get_component_mut::<CoreState>(&oid) {
             s.first_attacked = false;
         }
     }
-    world
-        .scheduler
-        .schedule(world.tick + DESPAWN_DELAY_SECS * TICKS_PER_SECOND, ScheduledTask::CoreDespawnMinions);
+    world.scheduler.schedule(
+        world.tick + DESPAWN_DELAY_SECS * TICKS_PER_SECOND,
+        ScheduledTask::CoreDespawnMinions,
+    );
 }
 
 /// The despawn timer firing — remove every living Core minion.
@@ -143,7 +159,11 @@ pub(crate) fn handle_despawn_minions(world: &mut World) {
         }
     });
     for oid in doomed {
-        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&oid)
+            .map(|r| r.0)
+        {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }

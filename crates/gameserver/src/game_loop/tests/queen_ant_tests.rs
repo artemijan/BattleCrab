@@ -9,9 +9,17 @@ const QUEEN_OID: i32 = NPC_OID + 70;
 const HEAL1: i32 = 4020;
 const HEAL2: i32 = 4024;
 
-fn queen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn queen_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    for (id, kind, hp) in [(QUEEN, "GrandBoss", 100_000.0), (LARVA, "Monster", 50_000.0), (NURSE, "Monster", 5_000.0)] {
+    for (id, kind, hp) in [
+        (QUEEN, "GrandBoss", 100_000.0),
+        (LARVA, "Monster", 50_000.0),
+        (NURSE, "Monster", 5_000.0),
+    ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();
         t.level = 40;
@@ -20,20 +28,25 @@ fn queen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Logi
         world.data.npc_data.insert_for_test(t);
     }
     for id in [HEAL1, HEAL2] {
-        world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-            id,
-            level: 1,
-            magic_type: 1,
-            effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
-            ..Default::default()
-        });
+        world
+            .data
+            .skill_data
+            .insert_for_test(crate::model::skill::Skill {
+                id,
+                level: 1,
+                magic_type: 1,
+                effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
+                ..Default::default()
+            });
     }
     (world, db, l)
 }
 
 fn spawn_nurse(world: &mut World, oid: i32, master: i32) {
     add_test_npc(world, oid, NURSE, "Monster", 40, 20, 0, 0);
-    world.objects.add_components(&oid, crate::game_loop::minions::MinionOf(master));
+    world
+        .objects
+        .add_components(&oid, crate::game_loop::minions::MinionOf(master));
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
@@ -125,14 +138,21 @@ fn killing_the_larva_frees_the_nurses_for_the_queen() {
     let larva = find(&mut world, LARVA).unwrap();
 
     let wounded = wound_to_half(&mut world, QUEEN_OID);
-    world.objects.get_component_mut::<Vitals>(&larva).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&larva)
+        .unwrap()
+        .dead = true;
 
     crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);
     for _ in 0..60 {
         advance_ticks(&mut world, 1);
     }
 
-    assert!(hp(&world, QUEEN_OID) > wounded, "the nurses turned to the Queen");
+    assert!(
+        hp(&world, QUEEN_OID) > wounded,
+        "the nurses turned to the Queen"
+    );
 }
 
 /// A nurse belonging to a *different* master is not part of this Queen's
@@ -150,7 +170,11 @@ fn a_nurse_of_another_master_does_not_heal_this_queen() {
         advance_ticks(&mut world, 1);
     }
 
-    assert_eq!(hp(&world, QUEEN_OID), wounded, "not this Queen's nurse, no heal");
+    assert_eq!(
+        hp(&world, QUEEN_OID),
+        wounded,
+        "not this Queen's nurse, no heal"
+    );
 }
 
 /// A dead Queen ends the beat rather than rescheduling forever.
@@ -158,7 +182,11 @@ fn a_nurse_of_another_master_does_not_heal_this_queen() {
 fn the_heal_beat_stops_when_the_queen_dies() {
     let (mut world, _db, _l) = queen_world();
     add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
-    world.objects.get_component_mut::<Vitals>(&QUEEN_OID).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&QUEEN_OID)
+        .unwrap()
+        .dead = true;
 
     let before = world.scheduler.len();
     crate::game_loop::queen_ant::handle_heal_tick(&mut world, QUEEN_OID);

@@ -52,7 +52,14 @@ pub struct MobGroup {
 
 impl MobGroup {
     pub fn new(id: i32, npc_id: i32, max_count: i32) -> Self {
-        Self { id, npc_id, max_count, members: Vec::new(), state: MobGroupState::Idle, invul: false }
+        Self {
+            id,
+            npc_id,
+            max_count,
+            members: Vec::new(),
+            state: MobGroupState::Idle,
+            invul: false,
+        }
     }
 
     /// Live member count (Java `getActiveMobCount`).

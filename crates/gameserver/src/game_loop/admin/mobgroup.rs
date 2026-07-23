@@ -18,12 +18,26 @@ pub(super) fn admin_mobmenu(world: &mut World, client_id: u32) {
 
 /// `//mobgroup_list` — list every group with its size and state.
 pub(super) fn admin_mobgroup_list(world: &mut World, client_id: u32) {
-    let mut groups: Vec<(i32, i32, usize, MobGroupState)> =
-        world.mob_groups.values().map(|g| (g.id, g.npc_id, alive(world, g), g.state)).collect();
+    let mut groups: Vec<(i32, i32, usize, MobGroupState)> = world
+        .mob_groups
+        .values()
+        .map(|g| (g.id, g.npc_id, alive(world, g), g.state))
+        .collect();
     groups.sort_by_key(|g| g.0);
-    send_message(world, client_id, &format!("=== Mob groups ({}) ===", groups.len()));
+    send_message(
+        world,
+        client_id,
+        &format!("=== Mob groups ({}) ===", groups.len()),
+    );
     for (id, npc_id, count, state) in groups {
-        send_message(world, client_id, &format!("  #{id}: npc {npc_id}, {count} alive, {}", state_name(state)));
+        send_message(
+            world,
+            client_id,
+            &format!(
+                "  #{id}: npc {npc_id}, {count} alive, {}",
+                state_name(state)
+            ),
+        );
     }
 }
 
@@ -35,34 +49,63 @@ pub(super) fn admin_mobgroup_create(world: &mut World, client_id: u32, args: &[&
         args.get(1).and_then(|s| s.parse::<i32>().ok()),
         args.get(2).and_then(|s| s.parse::<i32>().ok()),
     ) else {
-        send_message(world, client_id, "Usage: //mobgroup_create <group> <npcid> <count>");
+        send_message(
+            world,
+            client_id,
+            "Usage: //mobgroup_create <group> <npcid> <count>",
+        );
         return;
     };
     if world.mob_groups.contains_key(&group_id) {
-        send_message(world, client_id, &format!("Mob group {group_id} already exists."));
+        send_message(
+            world,
+            client_id,
+            &format!("Mob group {group_id} already exists."),
+        );
         return;
     }
     if world.data.npc_data.get(npc_id).is_none() {
         send_message(world, client_id, "Invalid NPC ID specified.");
         return;
     }
-    world.mob_groups.insert(group_id, MobGroup::new(group_id, npc_id, count.clamp(1, 100)));
+    world.mob_groups.insert(
+        group_id,
+        MobGroup::new(group_id, npc_id, count.clamp(1, 100)),
+    );
     send_message(world, client_id, &format!("Mob group {group_id} created."));
 }
 
 /// `//mobgroup_remove`/`//mobgroup_delete <group>` — unspawn and drop the group.
-pub(super) fn admin_mobgroup_remove(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+pub(super) fn admin_mobgroup_remove(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     let _ = object_id;
     despawn_members(world, group_id);
     world.mob_groups.remove(&group_id);
-    send_message(world, client_id, &format!("Mob group {group_id} unspawned and removed."));
+    send_message(
+        world,
+        client_id,
+        &format!("Mob group {group_id} unspawned and removed."),
+    );
 }
 
 /// `//mobgroup_spawn <group> [x y z]` — spawn the group's members at the GM
 /// (or explicit coords).
-pub(super) fn admin_mobgroup_spawn(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+pub(super) fn admin_mobgroup_spawn(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     let (npc_id, max_count, already) = {
         let g = world.mob_groups.get(&group_id).expect("checked");
         (g.npc_id, g.max_count, alive(world, g))
@@ -79,14 +122,20 @@ pub(super) fn admin_mobgroup_spawn(world: &mut World, client_id: u32, object_id:
     ) {
         (Some(x), Some(y), Some(z)) => (x, y, z, 0),
         _ => {
-            let Some(p) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+            let Some(p) = world.objects.get_component::<Position>(&object_id).copied() else {
+                return;
+            };
             (p.x, p.y, p.z, p.heading)
         }
     };
     let mut members = Vec::new();
     for _ in 0..max_count {
-        if let Some(oid) = crate::model::npc::spawn_npc_at(world, npc_id, pos.0, pos.1, pos.2, pos.3) {
-            world.objects.add_components(&oid, Controllable { group_id });
+        if let Some(oid) =
+            crate::model::npc::spawn_npc_at(world, npc_id, pos.0, pos.1, pos.2, pos.3)
+        {
+            world
+                .objects
+                .add_components(&oid, Controllable { group_id });
             super::death::introduce_npc(world, oid);
             members.push(oid);
         }
@@ -96,21 +145,42 @@ pub(super) fn admin_mobgroup_spawn(world: &mut World, client_id: u32, object_id:
         g.members = members;
         g.state = MobGroupState::Idle;
     }
-    send_message(world, client_id, &format!("Spawned {n} mob(s) in group {group_id}."));
+    send_message(
+        world,
+        client_id,
+        &format!("Spawned {n} mob(s) in group {group_id}."),
+    );
 }
 
 /// `//mobgroup_unspawn <group>` — despawn the members but keep the group.
 pub(super) fn admin_mobgroup_unspawn(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     despawn_members(world, group_id);
-    send_message(world, client_id, &format!("Mob group {group_id} unspawned."));
+    send_message(
+        world,
+        client_id,
+        &format!("Mob group {group_id} unspawned."),
+    );
 }
 
 /// `//mobgroup_kill <group>` — kill every member (GM as killer).
-pub(super) fn admin_mobgroup_kill(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+pub(super) fn admin_mobgroup_kill(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     for oid in members(world, group_id) {
-        if world.objects.get_component::<crate::model::components::Vitals>(&oid).is_some_and(|v| !v.dead) {
+        if world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&oid)
+            .is_some_and(|v| !v.dead)
+        {
             super::death::npc_do_die(world, oid, object_id);
         }
     }
@@ -118,11 +188,22 @@ pub(super) fn admin_mobgroup_kill(world: &mut World, client_id: u32, object_id: 
 }
 
 /// `//mobgroup_teleport <group>` — relocate the live members to the GM.
-pub(super) fn admin_mobgroup_teleport(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
-    let Some(gm) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+pub(super) fn admin_mobgroup_teleport(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
+    let Some(gm) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
     for oid in members(world, group_id) {
-        world.objects.remove_component::<crate::model::components::Movement>(&oid);
+        world
+            .objects
+            .remove_component::<crate::model::components::Movement>(&oid);
         if let Some(p) = world.objects.get_component_mut::<Position>(&oid) {
             p.x = gm.x;
             p.y = gm.y;
@@ -130,32 +211,57 @@ pub(super) fn admin_mobgroup_teleport(world: &mut World, client_id: u32, object_
         }
         super::visibility::update_npc_region(world, oid);
     }
-    send_message(world, client_id, &format!("Mob group {group_id} teleported."));
+    send_message(
+        world,
+        client_id,
+        &format!("Mob group {group_id} teleported."),
+    );
 }
 
 /// `//mobgroup_invul <group> on|off` — toggle member invulnerability.
 pub(super) fn admin_mobgroup_invul(world: &mut World, client_id: u32, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     let Some(on) = on_off(args.get(1)) else {
         send_message(world, client_id, "Usage: //mobgroup_invul <group> on|off");
         return;
     };
     for oid in members(world, group_id) {
-        let mut flags = world.objects.get_component::<AdminFlags>(&oid).copied().unwrap_or_default();
+        let mut flags = world
+            .objects
+            .get_component::<AdminFlags>(&oid)
+            .copied()
+            .unwrap_or_default();
         flags.invul = on;
         world.objects.add_components(&oid, flags);
     }
     if let Some(g) = world.mob_groups.get_mut(&group_id) {
         g.invul = on;
     }
-    send_message(world, client_id, &format!("Mob group {group_id} invul {}.", if on { "on" } else { "off" }));
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Mob group {group_id} invul {}.",
+            if on { "on" } else { "off" }
+        ),
+    );
 }
 
 /// The state-setting commands (`idle`/`rnd`/`nomove`/`attack`/`attackgrp`/
 /// `follow`/`return`/`casting`) — resolve the target/mode and store it on the
 /// group; the AI tick acts on it.
-pub(super) fn admin_mobgroup_state(world: &mut World, client_id: u32, object_id: i32, kind: &str, args: &[&str]) {
-    let Some(group_id) = group_arg(world, client_id, args) else { return };
+pub(super) fn admin_mobgroup_state(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    kind: &str,
+    args: &[&str],
+) {
+    let Some(group_id) = group_arg(world, client_id, args) else {
+        return;
+    };
     let state = match kind {
         "idle" => MobGroupState::Idle,
         "rnd" => MobGroupState::Random,
@@ -182,7 +288,11 @@ pub(super) fn admin_mobgroup_state(world: &mut World, client_id: u32, object_id:
         }
         "attackgrp" => {
             let Some(other) = args.get(1).and_then(|s| s.parse::<i32>().ok()) else {
-                send_message(world, client_id, "Usage: //mobgroup_attackgrp <group> <otherGroup>");
+                send_message(
+                    world,
+                    client_id,
+                    "Usage: //mobgroup_attackgrp <group> <otherGroup>",
+                );
                 return;
             };
             if !world.mob_groups.contains_key(&other) {
@@ -196,7 +306,11 @@ pub(super) fn admin_mobgroup_state(world: &mut World, client_id: u32, object_id:
     if let Some(g) = world.mob_groups.get_mut(&group_id) {
         g.state = state;
     }
-    send_message(world, client_id, &format!("Mob group {group_id} → {}.", state_name(state)));
+    send_message(
+        world,
+        client_id,
+        &format!("Mob group {group_id} → {}.", state_name(state)),
+    );
 }
 
 // --- helpers ---
@@ -224,7 +338,11 @@ fn on_off(arg: Option<&&str>) -> Option<bool> {
 
 /// The group's member object ids (empty if the group is gone).
 fn members(world: &World, group_id: i32) -> Vec<i32> {
-    world.mob_groups.get(&group_id).map(|g| g.members.clone()).unwrap_or_default()
+    world
+        .mob_groups
+        .get(&group_id)
+        .map(|g| g.members.clone())
+        .unwrap_or_default()
 }
 
 /// Count members that still exist and are alive.
@@ -232,7 +350,12 @@ fn alive(world: &World, group: &MobGroup) -> usize {
     group
         .members
         .iter()
-        .filter(|&&m| world.objects.get_component::<crate::model::components::Vitals>(&m).is_some_and(|v| !v.dead))
+        .filter(|&&m| {
+            world
+                .objects
+                .get_component::<crate::model::components::Vitals>(&m)
+                .is_some_and(|v| !v.dead)
+        })
         .count()
 }
 

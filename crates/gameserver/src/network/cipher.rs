@@ -24,7 +24,11 @@ pub struct Encryption {
 
 impl Encryption {
     pub fn new() -> Self {
-        Self { in_key: [0; 16], out_key: [0; 16], enabled: false }
+        Self {
+            in_key: [0; 16],
+            out_key: [0; 16],
+            enabled: false,
+        }
     }
 
     /// Java `setKey`: both directions start from the same key.

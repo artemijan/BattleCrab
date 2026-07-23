@@ -29,12 +29,19 @@ const DROP_LIST_ITEMS_PER_PAGE: usize = 10;
 /// already set the player's target, matching `NpcActionShift`.
 pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     use crate::model::components::{Speeds, Vitals};
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
     let Some(t) = npc.template(world) else { return };
     let (Some(vitals), Some(speeds), Some(stats)) = (
         world.objects.get_component::<Vitals>(&npc_object_id),
         world.objects.get_component::<Speeds>(&npc_object_id),
-        world.objects.get_component::<crate::model::components::CombatStats>(&npc_object_id),
+        world
+            .objects
+            .get_component::<crate::model::components::CombatStats>(&npc_object_id),
     ) else {
         return;
     };
@@ -42,13 +49,32 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     // Java `NpcHtmlMessage.setFile`: a missing file still sends the packet
     // (empty content, logged) — mirror `interact_with_npc`'s stub fallback so
     // the window always opens even when the datapack html is absent.
-    let mut html = crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/Info.htm", world.data.root))
-        .unwrap_or_else(|| "<html><body>NPC Info<br>%name%</body></html>".to_string());
+    let mut html = crate::data::htm_cache::read_htm(format!(
+        "{}data/html/mods/NpcView/Info.htm",
+        world.data.root
+    ))
+    .unwrap_or_else(|| "<html><body>NPC Info<br>%name%</body></html>".to_string());
 
     let mut set = |needle: &str, value: &str| html = html.replace(needle, value);
     set("%name%", &t.name);
-    set("%hpGauge%", &gauge(250, vitals.cur_hp as i64, vitals.max_hp as i64, GaugeKind::Hp));
-    set("%mpGauge%", &gauge(250, vitals.cur_mp as i64, vitals.max_mp as i64, GaugeKind::Mp));
+    set(
+        "%hpGauge%",
+        &gauge(
+            250,
+            vitals.cur_hp as i64,
+            vitals.max_hp as i64,
+            GaugeKind::Hp,
+        ),
+    );
+    set(
+        "%mpGauge%",
+        &gauge(
+            250,
+            vitals.cur_mp as i64,
+            vitals.max_mp as i64,
+            GaugeKind::Mp,
+        ),
+    );
     set("%respawn%", &respawn_text(npc));
     set("%atktype%", &attack_type_name(world, t));
     set("%atkrange%", &stats.atk_range.to_string());
@@ -86,17 +112,27 @@ pub(crate) fn handle_npc_view_bypass(world: &World, client_id: u32, object_id: i
     let Some(verb) = it.next() else { return };
     match verb.to_ascii_lowercase().as_str() {
         "view" => {
-            let target = it.next().and_then(|s| s.parse::<i32>().ok()).or_else(|| current_target(world, object_id));
-            if let Some(npc_object_id) = target.filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id)) {
+            let target = it
+                .next()
+                .and_then(|s| s.parse::<i32>().ok())
+                .or_else(|| current_target(world, object_id));
+            if let Some(npc_object_id) =
+                target.filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
+            {
                 send_npc_view(world, client_id, npc_object_id);
             }
         }
         "droplist" => {
             // `dropList <DROP|SPOIL> <objId> [page]`.
             let scope = it.next().unwrap_or("");
-            let Some(npc_object_id) = it.next().and_then(|s| s.parse::<i32>().ok()) else { return };
+            let Some(npc_object_id) = it.next().and_then(|s| s.parse::<i32>().ok()) else {
+                return;
+            };
             let page = it.next().and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
-            if world.objects.has_component::<crate::model::npc::Npc>(&npc_object_id) {
+            if world
+                .objects
+                .has_component::<crate::model::npc::Npc>(&npc_object_id)
+            {
                 send_npc_drop_list(world, client_id, npc_object_id, scope, page);
             }
         }
@@ -105,7 +141,10 @@ pub(crate) fn handle_npc_view_bypass(world: &World, client_id: u32, object_id: i
 }
 
 fn current_target(world: &World, object_id: i32) -> Option<i32> {
-    world.objects.get_component::<crate::model::components::TargetRef>(&object_id).and_then(|t| t.0)
+    world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&object_id)
+        .and_then(|t| t.0)
 }
 
 /// `NpcViewMod.getDropListButtons`: a "Show Drop" button when the NPC has any
@@ -147,25 +186,45 @@ fn drop_list_buttons(t: &NpcTemplate, npc_object_id: i32) -> String {
 /// read them). The premium system, the herb special case
 /// (`hasExImmediateEffect`), and the player's `BONUS_DROP_*` effects are not
 /// ported, so those factors stay at ×1 — exact for the stock rates.
-fn send_npc_drop_list(world: &World, client_id: u32, npc_object_id: i32, scope: &str, page_value: usize) {
+fn send_npc_drop_list(
+    world: &World,
+    client_id: u32,
+    npc_object_id: i32,
+    scope: &str,
+    page_value: usize,
+) {
     let is_spoil = scope.eq_ignore_ascii_case("SPOIL");
     if !is_spoil && !scope.eq_ignore_ascii_case("DROP") {
         return; // unknown scope: nothing to show.
     }
     // The scope token echoed back into paging bypasses (upper-case, like Java).
     let scope_token = if is_spoil { "SPOIL" } else { "DROP" };
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
     let Some(t) = npc.template(world) else { return };
 
     // The list to show: the spoil list, or the combined death list (ungrouped
     // drops, then each group's drops with the group chance folded into the item
     // chance — Java `chance / 100`).
-    let mut drop_list: Vec<DropHolder> = if is_spoil { t.drop_list_spoil.clone() } else { t.drop_list_death.clone() };
+    let mut drop_list: Vec<DropHolder> = if is_spoil {
+        t.drop_list_spoil.clone()
+    } else {
+        t.drop_list_death.clone()
+    };
     if !is_spoil {
         for group in &t.drop_groups {
             let group_chance = group.chance / 100.0;
             for d in &group.items {
-                drop_list.push(DropHolder { item_id: d.item_id, min: d.min, max: d.max, chance: d.chance * group_chance });
+                drop_list.push(DropHolder {
+                    item_id: d.item_id,
+                    min: d.min,
+                    max: d.max,
+                    chance: d.chance * group_chance,
+                });
             }
         }
     }
@@ -193,7 +252,11 @@ fn send_npc_drop_list(world: &World, client_id: u32, npc_object_id: i32, scope: 
         pages_sb.push_str("</tr></table>");
     }
 
-    let page = if page_value >= pages { pages.saturating_sub(1) } else { page_value };
+    let page = if page_value >= pages {
+        pages.saturating_sub(1)
+    } else {
+        page_value
+    };
     let start = page * DROP_LIST_ITEMS_PER_PAGE;
     let end = (start + DROP_LIST_ITEMS_PER_PAGE).min(drop_list.len());
 
@@ -224,17 +287,38 @@ fn send_npc_drop_list(world: &World, client_id: u32, npc_object_id: i32, scope: 
             (1.0, 1.0)
         } else {
             (
-                world.cfg.rates.drop_chance_by_id.get(&d.item_id).copied().unwrap_or(1.0),
-                world.cfg.rates.drop_amount_by_id.get(&d.item_id).copied().unwrap_or(1.0),
+                world
+                    .cfg
+                    .rates
+                    .drop_chance_by_id
+                    .get(&d.item_id)
+                    .copied()
+                    .unwrap_or(1.0),
+                world
+                    .cfg
+                    .rates
+                    .drop_amount_by_id
+                    .get(&d.item_id)
+                    .copied()
+                    .unwrap_or(1.0),
             )
         };
         let rate_chance = rate_chance_base * chance_by_id;
         let rate_amount = rate_amount_base * amount_by_id;
-        let name = world.data.item_data.get(d.item_id).map(|i| i.name.as_str()).unwrap_or("Unknown item");
+        let name = world
+            .data
+            .item_data
+            .get(d.item_id)
+            .map(|i| i.name.as_str())
+            .unwrap_or("Unknown item");
 
         let min = (d.min as f64 * rate_amount) as i64;
         let max = (d.max as f64 * rate_amount) as i64;
-        let amount = if min == max { format_amount(min) } else { format!("{} - {}", format_amount(min), format_amount(max)) };
+        let amount = if min == max {
+            format_amount(min)
+        } else {
+            format!("{} - {}", format_amount(min), format_amount(max))
+        };
         let chance = format!("{:.2}", (d.chance * rate_chance).min(100.0));
 
         let row = format!(
@@ -264,12 +348,14 @@ fn send_npc_drop_list(world: &World, client_id: u32, npc_object_id: i32, scope: 
         }
     }
 
-    let Some(template_html) =
-        crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/DropList.htm", world.data.root))
-    else {
+    let Some(template_html) = crate::data::htm_cache::read_htm(format!(
+        "{}data/html/mods/NpcView/DropList.htm",
+        world.data.root
+    )) else {
         return;
     };
-    let body = format!("<table><tr><td>{left_sb}</td><td>{right_sb}</td></tr></table>{limit_reached}");
+    let body =
+        format!("<table><tr><td>{left_sb}</td><td>{right_sb}</td></tr></table>{limit_reached}");
     let html = template_html
         .replace("%name%", &t.name)
         .replace("%dropListButtons%", &drop_list_buttons(t, npc_object_id))
@@ -304,8 +390,16 @@ fn format_amount(value: i64) -> String {
 /// formatted like Java `CommonUtil.capitalizeFirst(name.toLowerCase())`.
 fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
     use crate::data::item_data::WeaponType;
-    let wt = if t.rhand != 0 { world.data.item_data.weapon_type(t.rhand) } else { WeaponType::None };
-    let wt = if wt == WeaponType::None { WeaponType::Fist } else { wt };
+    let wt = if t.rhand != 0 {
+        world.data.item_data.weapon_type(t.rhand)
+    } else {
+        WeaponType::None
+    };
+    let wt = if wt == WeaponType::None {
+        WeaponType::Fist
+    } else {
+        wt
+    };
     capitalize_first(&format!("{wt:?}").to_ascii_lowercase())
 }
 
@@ -327,9 +421,16 @@ fn respawn_text(npc: &crate::model::npc::Npc) -> String {
     // Match `death.rs`'s in-repo convention for the randomised window.
     let min_s = (npc.respawn_secs - npc.respawn_random_secs).max(0) as i64;
     let max_s = (npc.respawn_secs + npc.respawn_random_secs) as i64;
-    const UNITS: [(i64, &str); 4] = [(86400, "Days"), (3600, "Hours"), (60, "Minutes"), (1, "Seconds")];
-    let (div, unit) =
-        UNITS.into_iter().find(|(u, _)| min_s % u == 0 && max_s % u == 0).unwrap_or((1, "Seconds"));
+    const UNITS: [(i64, &str); 4] = [
+        (86400, "Days"),
+        (3600, "Hours"),
+        (60, "Minutes"),
+        (1, "Seconds"),
+    ];
+    let (div, unit) = UNITS
+        .into_iter()
+        .find(|(u, _)| min_s % u == 0 && max_s % u == 0)
+        .unwrap_or((1, "Seconds"));
     if npc.respawn_random_secs > 0 {
         format!("{}-{} {unit}", min_s / div, max_s / div)
     } else {
@@ -355,7 +456,11 @@ fn gauge(width: i64, current_value: i64, max: i64, kind: GaugeKind) -> String {
             "L2UI_CT1.Gauges.Gauge_DF_Large_MP_Center",
         ),
     };
-    let image_height = if matches!(kind, GaugeKind::Hp) { 21 } else { 17 };
+    let image_height = if matches!(kind, GaugeKind::Hp) {
+        21
+    } else {
+        17
+    };
     let max = max.max(1); // guard div-by-zero (Java NPCs always have max hp/mp).
     let current = current_value.min(max);
     let fill = ((current as f64 / max as f64) * width as f64) as i64;

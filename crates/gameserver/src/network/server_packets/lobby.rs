@@ -4,8 +4,8 @@
 
 use commons::network::PacketWriter;
 
-use crate::model::inventory::PaperdollSlot;
 use super::opcodes;
+use crate::model::inventory::PaperdollSlot;
 
 /// Port of `serverpackets/KeyPacket` — the reply to `ProtocolVersion`. Hands the
 /// client the first 8 bytes of the cipher key and the crypt/server flags.
@@ -13,7 +13,13 @@ use super::opcodes;
 /// * `key8` — first 8 bytes of the 16-byte cipher key (the static tail is
 ///   hard-coded in the client).
 /// * `result` — 1 = protocol ok, 0 = wrong protocol.
-pub fn key_packet(key8: &[u8; 8], result: u8, packet_encryption: bool, server_id: i32, is_classic: bool) -> Vec<u8> {
+pub fn key_packet(
+    key8: &[u8; 8],
+    result: u8,
+    packet_encryption: bool,
+    server_id: i32,
+    is_classic: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::VERSION_CHECK);
     w.write_u8(result); // 0 - wrong protocol, 1 - protocol ok
@@ -139,7 +145,11 @@ pub fn char_selection_info(
     w.write_u8(0); // Balthus Knights / premium suggestion
 
     // If no active id was given, the most-recently-accessed character is active.
-    let active_id = if active_id == -1 { lobby_active_id(chars) } else { active_id };
+    let active_id = if active_id == -1 {
+        lobby_active_id(chars)
+    } else {
+        active_id
+    };
 
     for (i, c) in chars.iter().enumerate() {
         w.write_string(&c.name);
@@ -187,7 +197,11 @@ pub fn char_selection_info(
         w.write_i32(c.face);
         w.write_f64(c.max_hp as f64);
         w.write_f64(c.max_mp as f64);
-        w.write_i32(if c.delete_time > 0 { ((c.delete_time - now) / 1000) as i32 } else { 0 });
+        w.write_i32(if c.delete_time > 0 {
+            ((c.delete_time - now) / 1000) as i32
+        } else {
+            0
+        });
         w.write_i32(c.class_id);
         w.write_i32((i as i32 == active_id) as i32);
         w.write_u8(inv.paperdoll_enchant_level(PaperdollSlot::RHand).min(127) as u8); // rhand weapon enchant (capped 127)
@@ -224,7 +238,13 @@ fn exp_percent(exp: &crate::data::ExperienceData, current_exp: i64, level: i32) 
 
 /// `serverpackets/NewCharacterSuccess` — the base-stat table for the creation
 /// screen (one entry per offered template).
-pub fn new_character_success(templates: &[(i32, crate::enums::Race, &crate::data::player_template::PlayerTemplate)]) -> Vec<u8> {
+pub fn new_character_success(
+    templates: &[(
+        i32,
+        crate::enums::Race,
+        &crate::data::player_template::PlayerTemplate,
+    )],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::NEW_CHARACTER_SUCCESS);
     w.write_i32(templates.len() as i32);
@@ -358,12 +378,20 @@ mod tests {
     use crate::character::CharData;
 
     fn chr(last_access: i64, delete_time: i64) -> CharData {
-        CharData { last_access, delete_time, ..Default::default() }
+        CharData {
+            last_access,
+            delete_time,
+            ..Default::default()
+        }
     }
 
     #[test]
     fn active_id_is_most_recently_accessed_non_deleted() {
-        let chars = [chr(100, 0), chr(300, commons::util::now_millis()), chr(200, 0)];
+        let chars = [
+            chr(100, 0),
+            chr(300, commons::util::now_millis()),
+            chr(200, 0),
+        ];
         assert_eq!(lobby_active_id(&chars), 2);
     }
 

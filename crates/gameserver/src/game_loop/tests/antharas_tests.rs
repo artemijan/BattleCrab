@@ -8,9 +8,17 @@ const ANTHARAS_OID: i32 = NPC_OID + 120;
 const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
-fn antharas_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn antharas_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    for (id, kind) in [(ANTHARAS, "GrandBoss"), (BEHEMOTH, "Monster"), (TERASQUE, "Monster")] {
+    for (id, kind) in [
+        (ANTHARAS, "GrandBoss"),
+        (BEHEMOTH, "Monster"),
+        (TERASQUE, "Monster"),
+    ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();
         t.level = 85;
@@ -31,11 +39,16 @@ fn spawned(world: &mut World) -> usize {
 }
 
 fn state(world: &World) -> AntharasMinions {
-    *world.objects.get_component::<AntharasMinions>(&ANTHARAS_OID).unwrap()
+    *world
+        .objects
+        .get_component::<AntharasMinions>(&ANTHARAS_OID)
+        .unwrap()
 }
 
 fn set_state(world: &mut World, count: i32, multiplier: i32) {
-    world.objects.add_components(&ANTHARAS_OID, AntharasMinions { count, multiplier });
+    world
+        .objects
+        .add_components(&ANTHARAS_OID, AntharasMinions { count, multiplier });
 }
 
 /// The first wave is a **single pair** — the multiplier starts at 1, so
@@ -49,7 +62,11 @@ fn the_first_wave_is_one_pair() {
     world.forced_rolls.push_back(50); // > 10: the multiplier grows
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 2, "one Behemoth and one Tarask");
-    assert_eq!(state(&world).multiplier, 2, "and the next wave will be bigger");
+    assert_eq!(
+        state(&world).multiplier,
+        2,
+        "and the next wave will be bigger"
+    );
 }
 
 /// **Waves grow to a cap of 4** (eight adds), not without bound.
@@ -121,7 +138,11 @@ fn a_full_lair_spawns_nothing_but_keeps_ticking() {
     world.forced_rolls.push_back(5);
     crate::game_loop::antharas::handle_wave(&mut world, ANTHARAS_OID);
     assert_eq!(spawned(&mut world), 0, "the lair is full");
-    assert_eq!(world.scheduler.len(), before + 1, "and the next wave is still armed");
+    assert_eq!(
+        world.scheduler.len(),
+        before + 1,
+        "and the next wave is still armed"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -149,7 +170,11 @@ fn the_cinematic_is_a_chain_not_a_batch() {
 
     let before = world.scheduler.len();
     crate::game_loop::antharas::begin_cinematic(&mut world, ANTHARAS_OID);
-    assert_eq!(world.scheduler.len() - before, 1, "one beat armed, not five");
+    assert_eq!(
+        world.scheduler.len() - before,
+        1,
+        "one beat armed, not five"
+    );
 }
 
 /// Each beat sends its camera shot and arms the next.
@@ -178,10 +203,18 @@ fn the_third_beat_forks_a_second_social() {
 
     let before = world.scheduler.len();
     crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 2);
-    assert_eq!(world.scheduler.len(), before + 2, "the next beat *and* the forked social");
+    assert_eq!(
+        world.scheduler.len(),
+        before + 2,
+        "the next beat *and* the forked social"
+    );
     // `SocialAction` is 0x27 — the roar goes out with the shot, not only the
     // deferred one 5.2 s later.
-    assert_eq!(drain(&mut rx, 0x27), 1, "the roar accompanied the camera shot");
+    assert_eq!(
+        drain(&mut rx, 0x27),
+        1,
+        "the roar accompanied the camera shot"
+    );
 }
 
 /// The forked social fires on its own, after the chain has moved on.
@@ -193,7 +226,11 @@ fn the_forked_social_fires_independently() {
     while rx.try_recv().is_ok() {}
 
     crate::game_loop::antharas::handle_social(&mut world, ANTHARAS_OID);
-    assert_eq!(drain(&mut rx, 0x27), 1, "the second social went out by itself");
+    assert_eq!(
+        drain(&mut rx, 0x27),
+        1,
+        "the second social went out by itself"
+    );
 }
 
 /// The tail hands Antharas his AI back and **starts the minion waves** — so a
@@ -206,7 +243,10 @@ fn the_cinematic_tail_starts_the_waves() {
     // One past the last camera beat is `START_MOVE`.
     crate::game_loop::antharas::handle_cinematic_step(&mut world, ANTHARAS_OID, 5);
     assert!(
-        world.objects.get_component::<AntharasMinions>(&ANTHARAS_OID).is_some(),
+        world
+            .objects
+            .get_component::<AntharasMinions>(&ANTHARAS_OID)
+            .is_some(),
         "the wave state exists, so the waves are running"
     );
 }
@@ -220,7 +260,10 @@ fn spawning_starts_the_cinematic_not_the_waves() {
     crate::game_loop::antharas::begin_cinematic(&mut world, ANTHARAS_OID);
 
     assert!(
-        world.objects.get_component::<AntharasMinions>(&ANTHARAS_OID).is_none(),
+        world
+            .objects
+            .get_component::<AntharasMinions>(&ANTHARAS_OID)
+            .is_none(),
         "no adds before the fight begins"
     );
 }
@@ -234,7 +277,11 @@ use crate::game_loop::antharas::{EntryVerdict, PORTAL_STONE};
 const LEADER: i32 = 9940;
 const MEMBER: i32 = 9941;
 
-fn gate_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn gate_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = antharas_world();
     world.grand_bosses.insert(
         ANTHARAS,
@@ -273,7 +320,10 @@ fn a_solo_player_with_a_stone_is_admitted() {
     let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
     give_stone(&mut world, LEADER);
 
-    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), EntryVerdict::Admitted(vec![LEADER]));
+    assert_eq!(
+        crate::game_loop::antharas::try_enter(&mut world, LEADER),
+        EntryVerdict::Admitted(vec![LEADER])
+    );
 }
 
 /// Without the stone, nobody enters.
@@ -282,20 +332,29 @@ fn no_stone_no_entry() {
     let (mut world, _db, _l) = gate_world();
     let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
 
-    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), EntryVerdict::NoStone);
+    assert_eq!(
+        crate::game_loop::antharas::try_enter(&mut world, LEADER),
+        EntryVerdict::NoStone
+    );
 }
 
 /// A dead or already-fighting Antharas refuses everyone, stone or not — and
 /// **before** the stone is even checked, so the player is told the real reason.
 #[test]
 fn the_boss_state_is_checked_before_the_ticket() {
-    for (status, expected) in [(3, EntryVerdict::BossDead), (2, EntryVerdict::AlreadyFighting)] {
+    for (status, expected) in [
+        (3, EntryVerdict::BossDead),
+        (2, EntryVerdict::AlreadyFighting),
+    ] {
         let (mut world, _db, _l) = gate_world();
         let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
         // No stone: if the ladder were reordered this would report NoStone.
         world.grand_bosses.get_mut(&ANTHARAS).unwrap().status = status;
 
-        assert_eq!(crate::game_loop::antharas::try_enter(&mut world, LEADER), expected);
+        assert_eq!(
+            crate::game_loop::antharas::try_enter(&mut world, LEADER),
+            expected
+        );
     }
 }
 
@@ -309,7 +368,10 @@ fn a_party_member_cannot_let_the_group_in() {
     make_party(&mut world, &[LEADER, MEMBER], LootRule::FindersKeepers);
     give_stone(&mut world, MEMBER);
 
-    assert_eq!(crate::game_loop::antharas::try_enter(&mut world, MEMBER), EntryVerdict::NotLeader);
+    assert_eq!(
+        crate::game_loop::antharas::try_enter(&mut world, MEMBER),
+        EntryVerdict::NotLeader
+    );
 }
 
 /// The leader brings the party — but **only members gathered at the Heart**.
@@ -320,13 +382,24 @@ fn the_leader_brings_only_nearby_members() {
     let _rx2 = ingame_caster(&mut world, 2, MEMBER, 20, 0);
     let straggler = MEMBER + 1;
     let _rx3 = ingame_caster(&mut world, 3, straggler, 0, 0);
-    world.objects.get_component_mut::<Position>(&straggler).unwrap().x = 500_000;
-    make_party(&mut world, &[LEADER, MEMBER, straggler], LootRule::FindersKeepers);
+    world
+        .objects
+        .get_component_mut::<Position>(&straggler)
+        .unwrap()
+        .x = 500_000;
+    make_party(
+        &mut world,
+        &[LEADER, MEMBER, straggler],
+        LootRule::FindersKeepers,
+    );
     give_stone(&mut world, LEADER);
 
     match crate::game_loop::antharas::try_enter(&mut world, LEADER) {
         EntryVerdict::Admitted(v) => {
-            assert!(v.contains(&LEADER) && v.contains(&MEMBER), "the gathered two came");
+            assert!(
+                v.contains(&LEADER) && v.contains(&MEMBER),
+                "the gathered two came"
+            );
             assert!(!v.contains(&straggler), "the one who wandered off did not");
         }
         other => panic!("expected admission, got {other:?}"),
@@ -387,15 +460,33 @@ const ANTH_NORM_ATTACK: i32 = 4112;
 const ATTACKER: i32 = 9950;
 
 /// Antharas at the origin, and a target placed by hand so the arcs are exact.
-fn skill_world(target_at: (i32, i32)) -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn skill_world(
+    target_at: (i32, i32),
+) -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = antharas_world();
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
-    add_test_npc(&mut world, ATTACKER, BEHEMOTH, "Monster", 80, target_at.0, target_at.1, 0);
+    add_test_npc(
+        &mut world,
+        ATTACKER,
+        BEHEMOTH,
+        "Monster",
+        80,
+        target_at.0,
+        target_at.1,
+        0,
+    );
     (world, db, l)
 }
 
 fn wound_to(world: &mut World, fraction: f64) {
-    let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+    let v = world
+        .objects
+        .get_component_mut::<Vitals>(&ANTHARAS_OID)
+        .unwrap();
     v.cur_hp = v.max_hp as f64 * fraction;
 }
 
@@ -419,15 +510,29 @@ fn choose(world: &mut World, rolls: &[i32]) -> Option<Choice> {
 fn the_tail_sweep_is_gated_on_world_west_not_on_facing() {
     // Due west, well inside 1423 units.
     let (mut world, _db, _l) = skill_world((-800, 0));
-    world.objects.get_component_mut::<Position>(&ANTHARAS_OID).unwrap().heading = 0; // facing east
+    world
+        .objects
+        .get_component_mut::<Position>(&ANTHARAS_OID)
+        .unwrap()
+        .heading = 0; // facing east
     let c = choose(&mut world, &[0]).unwrap();
-    assert_eq!(c.skill_id, ANTH_TAIL, "west of him: the tail lands even facing away");
+    assert_eq!(
+        c.skill_id, ANTH_TAIL,
+        "west of him: the tail lands even facing away"
+    );
 
     // Same distance, due east — the mirror position, and no tail.
     let (mut world, _db, _l) = skill_world((800, 0));
-    world.objects.get_component_mut::<Position>(&ANTHARAS_OID).unwrap().heading = 32_768; // facing west
+    world
+        .objects
+        .get_component_mut::<Position>(&ANTHARAS_OID)
+        .unwrap()
+        .heading = 32_768; // facing west
     let c = choose(&mut world, &[0, 99, 99, 99, 99, 1, 99]).unwrap();
-    assert_ne!(c.skill_id, ANTH_TAIL, "east of him: no tail, however he faces");
+    assert_ne!(
+        c.skill_id, ANTH_TAIL,
+        "east of him: no tail, however he faces"
+    );
 }
 
 /// The arc gate is a **distance-and-angle pair**: the wide window is short
@@ -452,11 +557,19 @@ fn the_curse_is_a_below_half_health_skill() {
 
     let (mut world, _db, _l) = skill_world((-400, -100));
     wound_to(&mut world, 0.4);
-    assert_eq!(angles(&mut world).unwrap().skill_id, ANTH_DEBUFF, "below half: cursed");
+    assert_eq!(
+        angles(&mut world).unwrap().skill_id,
+        ANTH_DEBUFF,
+        "below half: cursed"
+    );
 
     let (mut world, _db, _l) = skill_world((-400, -100));
     wound_to(&mut world, 0.6);
-    assert_ne!(angles(&mut world).unwrap().skill_id, ANTH_DEBUFF, "above half: never");
+    assert_ne!(
+        angles(&mut world).unwrap().skill_id,
+        ANTH_DEBUFF,
+        "above half: never"
+    );
 }
 
 /// **Below 25% he leads with the Breath Attack**, before distance or angle is
@@ -519,15 +632,21 @@ fn a_hit_makes_antharas_cast() {
     let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ANTHARAS_OID)
+            .unwrap();
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-        id: ANTH_TAIL,
-        level: 1,
-        ..Default::default()
-    });
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: ANTH_TAIL,
+            level: 1,
+            ..Default::default()
+        });
     while rx.try_recv().is_ok() {}
 
     // No jitter, then the tail's opening roll.
@@ -536,7 +655,9 @@ fn a_hit_makes_antharas_cast() {
     world.forced_rolls.push_back(0);
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
 
-    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    let casts = std::iter::from_fn(|| rx.try_recv().ok())
+        .filter(|p| p.first() == Some(&0x48))
+        .count();
     assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }
 
@@ -549,16 +670,22 @@ fn a_second_hit_mid_cast_starts_nothing() {
     let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&ANTHARAS_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ANTHARAS_OID)
+            .unwrap();
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-        id: ANTH_TAIL,
-        level: 1,
-        hit_time: 5_000,
-        ..Default::default()
-    });
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: ANTH_TAIL,
+            level: 1,
+            hit_time: 5_000,
+            ..Default::default()
+        });
     for _ in 0..3 {
         world.forced_rolls.push_back(0);
     }
@@ -569,7 +696,9 @@ fn a_second_hit_mid_cast_starts_nothing() {
         world.forced_rolls.push_back(0);
     }
     crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, ATTACKER, 500, true);
-    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    let casts = std::iter::from_fn(|| rx.try_recv().ok())
+        .filter(|p| p.first() == Some(&0x48))
+        .count();
     assert_eq!(casts, 0, "still casting the first");
 }
 
@@ -595,34 +724,74 @@ fn the_heart_admits_waits_and_spawns_antharas() {
     while rx.try_recv().is_ok() {}
     while rx2.try_recv().is_ok() {}
 
-    assert_eq!(crate::game_loop::antharas::heart_enter(&mut world, LEADER), None, "admitted");
-    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    assert_eq!(
+        crate::game_loop::antharas::heart_enter(&mut world, LEADER),
+        None,
+        "admitted"
+    );
+    let pos = world
+        .objects
+        .get_component::<Position>(&LEADER)
+        .copied()
+        .unwrap();
     assert!(
-        (179700..=180400).contains(&pos.x) && (113800..=115900).contains(&pos.y) && (pos.z - -7709).abs() < 100,
+        (179700..=180400).contains(&pos.x)
+            && (113800..=115900).contains(&pos.y)
+            && (pos.z - -7709).abs() < 100,
         "teleported into the nest: {pos:?}"
     );
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "WAITING");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(1),
+        "WAITING"
+    );
 
     // Half the 20-minute window passes; a second player enters. The clock
     // must NOT restart.
     advance_ticks(&mut world, 10 * 60 * 10);
-    assert_eq!(crate::game_loop::antharas::heart_enter(&mut world, MEMBER), None, "second entrant admitted");
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "still WAITING");
+    assert_eq!(
+        crate::game_loop::antharas::heart_enter(&mut world, MEMBER),
+        None,
+        "second entrant admitted"
+    );
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(1),
+        "still WAITING"
+    );
 
     // The remaining half elapses → SPAWN_ANTHARAS fires off the FIRST clock.
     advance_ticks(&mut world, 10 * 60 * 10 + 5);
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(2), "IN_FIGHT");
-    let boss_pos = world.objects.get_component::<Position>(&ANTHARAS_OID).copied().unwrap();
-    assert_eq!((boss_pos.x, boss_pos.y, boss_pos.z), (181323, 114850, -7623), "on the platform");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(2),
+        "IN_FIGHT"
+    );
+    let boss_pos = world
+        .objects
+        .get_component::<Position>(&ANTHARAS_OID)
+        .copied()
+        .unwrap();
+    assert_eq!(
+        (boss_pos.x, boss_pos.y, boss_pos.z),
+        (181323, 114850, -7623),
+        "on the platform"
+    );
     // The region index followed the cross-region teleport.
     let new_region = crate::world::region_of(181323, 114850);
     assert!(
-        world.npc_regions.get(&new_region).is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
+        world
+            .npc_regions
+            .get(&new_region)
+            .is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
         "region index moved with him"
     );
     let old_region = crate::world::region_of(0, 0);
     assert!(
-        !world.npc_regions.get(&old_region).is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
+        !world
+            .npc_regions
+            .get(&old_region)
+            .is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
         "and left the old cell"
     );
     // The lair heard BS02_A — the entrants stand inside the lair zone, and
@@ -631,7 +800,10 @@ fn the_heart_admits_waits_and_spawns_antharas() {
     while let Ok(p) = rx.try_recv() {
         heard.push(p);
     }
-    let sound: Vec<u8> = "BS02_A".encode_utf16().flat_map(|u| u.to_le_bytes()).collect();
+    let sound: Vec<u8> = "BS02_A"
+        .encode_utf16()
+        .flat_map(|u| u.to_le_bytes())
+        .collect();
     assert!(
         heard
             .iter()
@@ -667,9 +839,15 @@ fn the_cubic_teleports_out() {
     let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
 
     crate::game_loop::antharas::teleport_out(&mut world, LEADER);
-    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    let pos = world
+        .objects
+        .get_component::<Position>(&LEADER)
+        .copied()
+        .unwrap();
     assert!(
-        (79800..=80400).contains(&pos.x) && (151200..=152300).contains(&pos.y) && (pos.z - -3534).abs() < 100,
+        (79800..=80400).contains(&pos.x)
+            && (151200..=152300).contains(&pos.y)
+            && (pos.z - -3534).abs() < 100,
         "out to Giran: {pos:?}"
     );
 }
@@ -685,7 +863,11 @@ fn a_dead_antharas_stores_three_and_still_respawns() {
     give_stone(&mut world, LEADER);
 
     crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ANTHARAS);
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(3), "four-state DEAD");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(3),
+        "four-state DEAD"
+    );
     assert_eq!(
         crate::game_loop::antharas::try_enter(&mut world, LEADER),
         EntryVerdict::BossDead,
@@ -695,7 +877,11 @@ fn a_dead_antharas_stores_three_and_still_respawns() {
     // The window elapsed while the server was down: boot must respawn him.
     world.grand_bosses.get_mut(&ANTHARAS).unwrap().respawn_time = 1;
     crate::game_loop::grand_boss::resolve_at_boot(&mut world);
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(0), "back to DORMANT");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(0),
+        "back to DORMANT"
+    );
 
     // The simple bosses keep the two-state pair.
     world.grand_bosses.insert(
@@ -712,7 +898,10 @@ fn a_dead_antharas_stores_three_and_still_respawns() {
             status: 0,
         },
     );
-    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, crate::game_loop::core_boss::CORE);
+    crate::game_loop::grand_boss::on_grand_boss_killed(
+        &mut world,
+        crate::game_loop::core_boss::CORE,
+    );
     assert_eq!(
         crate::game_loop::grand_boss::status(&world, crate::game_loop::core_boss::CORE),
         Some(1),
@@ -737,16 +926,30 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
         t
     });
     add_test_npc(&mut world, heart_oid, 13001, "Folk", 80, 20, 0, 0);
-    world.objects.add_components(&LEADER, crate::model::components::LastFolkNpc(heart_oid));
+    world
+        .objects
+        .add_components(&LEADER, crate::model::components::LastFolkNpc(heart_oid));
 
-    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas enter"));
+    crate::game_loop::bypass::handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("Quest Antharas enter"),
+    );
 
-    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    let pos = world
+        .objects
+        .get_component::<Position>(&LEADER)
+        .copied()
+        .unwrap();
     assert!(
         (179700..=180400).contains(&pos.x),
         "the bypass admitted and teleported through the real router: {pos:?}"
     );
-    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "WAITING set");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, ANTHARAS),
+        Some(1),
+        "WAITING set"
+    );
 
     // And the cubic's bypass sends them back out — the cubic stands inside
     // the nest beside the teleported player (the Heart is 180k units away
@@ -757,11 +960,33 @@ fn the_enter_bypass_reaches_the_ladder_through_the_router() {
         t.type_name = "Folk".into();
         t
     });
-    add_test_npc(&mut world, cube_oid, 31859, "Folk", 80, pos.x + 20, pos.y, pos.z);
-    world.objects.add_components(&LEADER, crate::model::components::LastFolkNpc(cube_oid));
-    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
-    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
-    assert!((79800..=80400).contains(&pos.x), "teleportOut through the router: {pos:?}");
+    add_test_npc(
+        &mut world,
+        cube_oid,
+        31859,
+        "Folk",
+        80,
+        pos.x + 20,
+        pos.y,
+        pos.z,
+    );
+    world
+        .objects
+        .add_components(&LEADER, crate::model::components::LastFolkNpc(cube_oid));
+    crate::game_loop::bypass::handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("Quest Antharas teleportOut"),
+    );
+    let pos = world
+        .objects
+        .get_component::<Position>(&LEADER)
+        .copied()
+        .unwrap();
+    assert!(
+        (79800..=80400).contains(&pos.x),
+        "teleportOut through the router: {pos:?}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -784,8 +1009,14 @@ fn register_cube(world: &mut World) {
 fn cube_in_lair(world: &World) -> Option<i32> {
     let zone = world.data.zone_data.by_id(70050)?;
     world.npc_regions.values().flatten().copied().find(|oid| {
-        world.objects.get_component::<crate::model::npc::Npc>(oid).is_some_and(|n| n.npc_id == CUBE)
-            && world.objects.get_component::<Position>(oid).is_some_and(|p| zone.contains(p.x, p.y, p.z))
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(oid)
+            .is_some_and(|n| n.npc_id == CUBE)
+            && world
+                .objects
+                .get_component::<Position>(oid)
+                .is_some_and(|p| zone.contains(p.x, p.y, p.z))
     })
 }
 
@@ -797,17 +1028,51 @@ fn killing_antharas_spawns_the_exit_cube_and_clears_minions() {
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
     register_cube(&mut world);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
-    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
-    add_test_npc(&mut world, MINION_A, BEHEMOTH, "Monster", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
-    add_test_npc(&mut world, MINION_B, TERASQUE, "Monster", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    add_test_npc(
+        &mut world,
+        ANTHARAS_OID,
+        ANTHARAS,
+        "GrandBoss",
+        85,
+        LAIR_POINT.0,
+        LAIR_POINT.1,
+        LAIR_POINT.2,
+    );
+    add_test_npc(
+        &mut world,
+        MINION_A,
+        BEHEMOTH,
+        "Monster",
+        85,
+        LAIR_POINT.0,
+        LAIR_POINT.1,
+        LAIR_POINT.2,
+    );
+    add_test_npc(
+        &mut world,
+        MINION_B,
+        TERASQUE,
+        "Monster",
+        85,
+        LAIR_POINT.0,
+        LAIR_POINT.1,
+        LAIR_POINT.2,
+    );
     assert_eq!(spawned(&mut world), 2, "two adds before the kill");
 
     crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
 
     assert_eq!(spawned(&mut world), 0, "DESPAWN_MINIONS cleared the adds");
-    assert!(cube_in_lair(&world).is_some(), "the exit cube stands in the lair");
     assert!(
-        world.scheduler.pending_tasks_for_test().iter().any(|t| matches!(t, ScheduledTask::AntharasClearZone)),
+        cube_in_lair(&world).is_some(),
+        "the exit cube stands in the lair"
+    );
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, ScheduledTask::AntharasClearZone)),
         "CLEAR_ZONE armed"
     );
 }
@@ -820,17 +1085,40 @@ fn the_death_cube_teleports_out_through_the_router() {
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
     register_cube(&mut world);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
-    world.objects.get_component_mut::<Position>(&KILLER).unwrap().z = LAIR_POINT.2; // beside the cube, deep underground
-    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    world
+        .objects
+        .get_component_mut::<Position>(&KILLER)
+        .unwrap()
+        .z = LAIR_POINT.2; // beside the cube, deep underground
+    add_test_npc(
+        &mut world,
+        ANTHARAS_OID,
+        ANTHARAS,
+        "GrandBoss",
+        85,
+        LAIR_POINT.0,
+        LAIR_POINT.1,
+        LAIR_POINT.2,
+    );
 
     crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
     let cube_oid = cube_in_lair(&world).expect("cube spawned on death");
 
     // The killer stands beside the cube; the named bypass reaches teleportOut.
-    world.objects.add_components(&KILLER, crate::model::components::LastFolkNpc(cube_oid));
-    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
+    world
+        .objects
+        .add_components(&KILLER, crate::model::components::LastFolkNpc(cube_oid));
+    crate::game_loop::bypass::handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("Quest Antharas teleportOut"),
+    );
 
-    let pos = world.objects.get_component::<Position>(&KILLER).copied().unwrap();
+    let pos = world
+        .objects
+        .get_component::<Position>(&KILLER)
+        .copied()
+        .unwrap();
     assert!(
         (79800..=80400).contains(&pos.x) && (151200..=152300).contains(&pos.y),
         "the death cube teleported the player out: {pos:?}"
@@ -845,16 +1133,44 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
     register_cube(&mut world);
     let _rx = ingame_caster(&mut world, 1, KILLER, LAIR_POINT.0, LAIR_POINT.1);
-    world.objects.get_component_mut::<Position>(&KILLER).unwrap().z = LAIR_POINT.2; // the lair sits deep underground
-    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, LAIR_POINT.0, LAIR_POINT.1, LAIR_POINT.2);
+    world
+        .objects
+        .get_component_mut::<Position>(&KILLER)
+        .unwrap()
+        .z = LAIR_POINT.2; // the lair sits deep underground
+    add_test_npc(
+        &mut world,
+        ANTHARAS_OID,
+        ANTHARAS,
+        "GrandBoss",
+        85,
+        LAIR_POINT.0,
+        LAIR_POINT.1,
+        LAIR_POINT.2,
+    );
     crate::game_loop::death::npc_do_die(&mut world, ANTHARAS_OID, KILLER);
-    assert!(cube_in_lair(&world).is_some(), "cube present before the clear");
+    assert!(
+        cube_in_lair(&world).is_some(),
+        "cube present before the clear"
+    );
 
     // Fire the armed clear immediately through the real dispatch.
-    world.scheduler.schedule(world.tick, ScheduledTask::AntharasClearZone);
+    world
+        .scheduler
+        .schedule(world.tick, ScheduledTask::AntharasClearZone);
     advance_ticks(&mut world, 1);
 
-    let pos = world.objects.get_component::<Position>(&KILLER).copied().unwrap();
-    assert!((79800..=80400).contains(&pos.x), "the lingering player was ousted to the exit: {pos:?}");
-    assert!(cube_in_lair(&world).is_none(), "the cube was despawned with the zone");
+    let pos = world
+        .objects
+        .get_component::<Position>(&KILLER)
+        .copied()
+        .unwrap();
+    assert!(
+        (79800..=80400).contains(&pos.x),
+        "the lingering player was ousted to the exit: {pos:?}"
+    );
+    assert!(
+        cube_in_lair(&world).is_none(),
+        "the cube was despawned with the zone"
+    );
 }

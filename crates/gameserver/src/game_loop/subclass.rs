@@ -37,7 +37,11 @@ pub(crate) enum AddError {
 /// Java takes an explicit `classIndex` from the village-master flow and
 /// refuses index 0; picking the lowest free slot here is the same outcome for
 /// every caller that exists, and keeps slot ids dense.
-pub(crate) fn add_subclass(world: &mut World, player_oid: i32, class_id: i32) -> Result<i32, AddError> {
+pub(crate) fn add_subclass(
+    world: &mut World,
+    player_oid: i32,
+    class_id: i32,
+) -> Result<i32, AddError> {
     if world.data.player_templates.get(class_id).is_none() {
         return Err(AddError::UnknownClass);
     }
@@ -47,7 +51,10 @@ pub(crate) fn add_subclass(world: &mut World, player_oid: i32, class_id: i32) ->
         let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
             return Err(AddError::UnknownClass);
         };
-        (p.base_class_id, p.subclasses.iter().map(|s| s.class_id).collect())
+        (
+            p.base_class_id,
+            p.subclasses.iter().map(|s| s.class_id).collect(),
+        )
     };
     if class_id == base_class || held.contains(&class_id) {
         return Err(AddError::AlreadyHave);
@@ -67,7 +74,13 @@ pub(crate) fn add_subclass(world: &mut World, player_oid: i32, class_id: i32) ->
     };
 
     let exp = world.data.experience.exp_for_level(BASE_SUBCLASS_LEVEL);
-    let slot = SubClass { class_id, class_index: index, level: BASE_SUBCLASS_LEVEL, exp, sp: 0 };
+    let slot = SubClass {
+        class_id,
+        class_index: index,
+        level: BASE_SUBCLASS_LEVEL,
+        exp,
+        sp: 0,
+    };
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.subclasses.push(slot);
     }
@@ -81,7 +94,9 @@ pub(crate) fn add_subclass(world: &mut World, player_oid: i32, class_id: i32) ->
 /// (Java calls `store()` before touching `_classIndex`, "to avoid skill
 /// effects rollover"), then load the target, then rebuild the skill list.
 pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: i32) -> bool {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return false };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return false;
+    };
     if p.class_index == class_index {
         return false;
     }
@@ -95,8 +110,14 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
             None => return false,
         }
     };
-    let (base_class, cur_index, cur_class, cur_level, cur_exp, cur_sp) =
-        (p.base_class_id, p.class_index, p.class_id, p.level, p.exp, p.sp);
+    let (base_class, cur_index, cur_class, cur_level, cur_exp, cur_sp) = (
+        p.base_class_id,
+        p.class_index,
+        p.class_id,
+        p.level,
+        p.exp,
+        p.sp,
+    );
 
     // A cast in flight would land against the old class's stats.
     super::skills::cast::stop_casting(world, player_oid);
@@ -106,8 +127,13 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         // The base class's progress lives in the `characters` row, which the
         // ordinary player save already writes.
     } else {
-        let banked =
-            SubClass { class_id: cur_class, class_index: cur_index, level: cur_level, exp: cur_exp, sp: cur_sp };
+        let banked = SubClass {
+            class_id: cur_class,
+            class_index: cur_index,
+            level: cur_level,
+            exp: cur_exp,
+            sp: cur_sp,
+        };
         if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
             if let Some(slot) = p.subclasses.iter_mut().find(|s| s.class_index == cur_index) {
                 *slot = banked;
@@ -166,7 +192,9 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         })
         .unwrap_or_default();
     let incoming = {
-        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else { return false };
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
+            return false;
+        };
         p.skills_by_index.insert(cur_index, outgoing);
         p.skills_by_index.get(&class_index).cloned()
     };
@@ -180,7 +208,10 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         }
     }
     // Enchant sub-levels ride the same banked rows.
-    if let Some(ench) = world.objects.get_component_mut::<crate::model::components::SkillEnchants>(&player_oid) {
+    if let Some(ench) = world
+        .objects
+        .get_component_mut::<crate::model::components::SkillEnchants>(&player_oid)
+    {
         ench.0.clear();
         for &(id, _, sub) in &incoming {
             if sub > 0 {
@@ -208,12 +239,20 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
         .map(|s| s.0.values().cloned().collect())
         .unwrap_or_default();
     let (incoming_henna, incoming_shortcuts) = {
-        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else { return false };
+        let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else {
+            return false;
+        };
         p.hennas_by_index.insert(cur_index, outgoing_henna);
         p.shortcuts_by_index.insert(cur_index, outgoing_shortcuts);
         (
-            p.hennas_by_index.get(&class_index).cloned().unwrap_or_default(),
-            p.shortcuts_by_index.get(&class_index).cloned().unwrap_or_default(),
+            p.hennas_by_index
+                .get(&class_index)
+                .cloned()
+                .unwrap_or_default(),
+            p.shortcuts_by_index
+                .get(&class_index)
+                .cloned()
+                .unwrap_or_default(),
         )
     };
     let mut slots = [None; 3];
@@ -222,10 +261,16 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
             slots[(slot - 1) as usize] = Some(dye);
         }
     }
-    if let Some(h) = world.objects.get_component_mut::<crate::model::components::HennaSlots>(&player_oid) {
+    if let Some(h) = world
+        .objects
+        .get_component_mut::<crate::model::components::HennaSlots>(&player_oid)
+    {
         h.0 = slots;
     }
-    if let Some(sc) = world.objects.get_component_mut::<crate::model::components::Shortcuts>(&player_oid) {
+    if let Some(sc) = world
+        .objects
+        .get_component_mut::<crate::model::components::Shortcuts>(&player_oid)
+    {
         sc.0.clear();
         for s in incoming_shortcuts {
             sc.0.insert(s.slot + s.page * 12, s);
@@ -241,7 +286,10 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     // 3c. `resetTimeStamps()` — Java *clears* skill cooldowns on a class
     //     switch rather than banking them per slot, so a subclass can't be
     //     used to sit out a long reuse on the class that started it.
-    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&player_oid) {
+    if let Some(reuses) = world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&player_oid)
+    {
         reuses.0.clear();
     }
 
@@ -296,19 +344,27 @@ const RACE_DARK_ELF: i32 = 2;
 ///
 /// Kamael rules are omitted: the race doesn't exist on this chronicle.
 pub(crate) fn available_subclasses(world: &World, player_oid: i32) -> Vec<i32> {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return Vec::new() };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return Vec::new();
+    };
     let (base_class, race) = (p.base_class_id, p.race);
     let held: Vec<i32> = p.subclasses.iter().map(|s| s.class_id).collect();
 
     // The base's whole lineage is off-limits, not just the exact class.
     let base_lineage = world.data.skill_trees.class_lineage(base_class);
     // Likewise every held subclass's lineage.
-    let held_lineages: Vec<i32> =
-        held.iter().flat_map(|c| world.data.skill_trees.class_lineage(*c)).collect();
+    let held_lineages: Vec<i32> = held
+        .iter()
+        .flat_map(|c| world.data.skill_trees.class_lineage(*c))
+        .collect();
 
     let mut out: Vec<i32> = Vec::new();
     for class_id in world.data.player_templates.class_ids() {
-        if !world.data.categories.contains("THIRD_CLASS_GROUP", class_id) {
+        if !world
+            .data
+            .categories
+            .contains("THIRD_CLASS_GROUP", class_id)
+        {
             continue;
         }
         if NEVER_SUBCLASSED.contains(&class_id) {
@@ -388,10 +444,20 @@ pub(crate) fn handle_village_master_bypass(
             // Java gates the *action* on level 75 and a free slot, not just
             // the list — a stale link must not slip past.
             if !can_add_subclass(world, player_oid) {
-                return html(world, client_id, npc_oid, "You cannot add a subclass right now.");
+                return html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "You cannot add a subclass right now.",
+                );
             }
             if !available_subclasses(world, player_oid).contains(&param) {
-                return html(world, client_id, npc_oid, "That class is not available to you.");
+                return html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "That class is not available to you.",
+                );
             }
             match add_subclass(world, player_oid, param) {
                 Ok(_) => html(world, client_id, npc_oid, "Your subclass has been added."),
@@ -399,13 +465,27 @@ pub(crate) fn handle_village_master_bypass(
             }
         }
         5 => {
-            if world.objects.get_component::<Player>(&player_oid).is_some_and(|p| p.class_index == param) {
-                return html(world, client_id, npc_oid, "You are already using that class.");
+            if world
+                .objects
+                .get_component::<Player>(&player_oid)
+                .is_some_and(|p| p.class_index == param)
+            {
+                return html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "You are already using that class.",
+                );
             }
             if set_active_class(world, player_oid, param) {
                 html(world, client_id, npc_oid, "Your class has been changed.");
             } else {
-                html(world, client_id, npc_oid, "You cannot change to that class.");
+                html(
+                    world,
+                    client_id,
+                    npc_oid,
+                    "You cannot change to that class.",
+                );
             }
         }
         _ => show_menu(world, client_id, npc_oid),
@@ -413,7 +493,10 @@ pub(crate) fn handle_village_master_bypass(
 }
 
 fn html(world: &World, client_id: u32, npc_oid: i32, body: &str) {
-    let page = format!("<html><body>Subclass<br><br>{body}<br><br>{}</body></html>", back_link(npc_oid));
+    let page = format!(
+        "<html><body>Subclass<br><br>{body}<br><br>{}</body></html>",
+        back_link(npc_oid)
+    );
     send_html(world, client_id, npc_oid, &page);
 }
 
@@ -442,7 +525,12 @@ fn show_add_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
     }
     let available = available_subclasses(world, player_oid);
     if available.is_empty() {
-        return html(world, client_id, npc_oid, "There are no sub classes available at this time.");
+        return html(
+            world,
+            client_id,
+            npc_oid,
+            "There are no sub classes available at this time.",
+        );
     }
     let mut body = String::new();
     for class_id in available {
@@ -450,12 +538,17 @@ fn show_add_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
             "<a action=\"bypass -h npc_{npc_oid}_Subclass 4 {class_id}\">Class {class_id}</a><br>"
         ));
     }
-    let page = format!("<html><body>Add a subclass<br><br>{body}<br>{}</body></html>", back_link(npc_oid));
+    let page = format!(
+        "<html><body>Add a subclass<br><br>{body}<br>{}</body></html>",
+        back_link(npc_oid)
+    );
     send_html(world, client_id, npc_oid, &page);
 }
 
 fn show_change_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32) {
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return;
+    };
     if p.subclasses.is_empty() {
         return html(world, client_id, npc_oid, "You do not have any subclasses.");
     }
@@ -469,13 +562,18 @@ fn show_change_list(world: &World, client_id: u32, player_oid: i32, npc_oid: i32
             s.class_index, s.class_id, s.level
         ));
     }
-    let page = format!("<html><body>Change class<br><br>{body}<br>{}</body></html>", back_link(npc_oid));
+    let page = format!(
+        "<html><body>Change class<br><br>{body}<br>{}</body></html>",
+        back_link(npc_oid)
+    );
     send_html(world, client_id, npc_oid, &page);
 }
 
 fn send_html(world: &World, client_id: u32, npc_oid: i32, page: &str) {
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::server_packets::npc_html_message(npc_oid, page));
+        cs.send(crate::network::server_packets::npc_html_message(
+            npc_oid, page,
+        ));
     }
 }
 
@@ -498,7 +596,9 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     if world.data.player_templates.get(class_id).is_none() {
         return false;
     }
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return false };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return false;
+    };
     let (index, level) = (p.class_index, p.level);
 
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
@@ -518,7 +618,12 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         if let Some(slot) = world
             .objects
             .get_component::<Player>(&player_oid)
-            .and_then(|p| p.subclasses.iter().find(|s| s.class_index == index).copied())
+            .and_then(|p| {
+                p.subclasses
+                    .iter()
+                    .find(|s| s.class_index == index)
+                    .copied()
+            })
         {
             persist_slot(world, player_oid, slot);
         }
@@ -529,8 +634,16 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     super::party::broadcast_user_info(world, player_oid);
 
     // The class-change flash, to everyone nearby including the player.
-    if let Some(pos) = world.objects.get_component::<Position>(&player_oid).copied() {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&player_oid).map(|r| r.0) {
+    if let Some(pos) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .copied()
+    {
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&player_oid)
+            .map(|r| r.0)
+        {
             super::helpers::broadcast_near_region(
                 world,
                 region,

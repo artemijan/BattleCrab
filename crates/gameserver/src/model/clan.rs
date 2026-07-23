@@ -92,7 +92,11 @@ pub struct Clan {
 
 impl Clan {
     pub fn leader_name(&self) -> &str {
-        self.members.iter().find(|m| m.char_id == self.leader_id).map(|m| m.name.as_str()).unwrap_or("")
+        self.members
+            .iter()
+            .find(|m| m.char_id == self.leader_id)
+            .map(|m| m.name.as_str())
+            .unwrap_or("")
     }
 
     pub fn member(&self, char_id: i32) -> Option<&ClanMember> {
@@ -136,7 +140,9 @@ impl Clan {
             _ if is_leader => leader_val,
             _ => match self.leader_sub_pledge_of(char_id) {
                 SUBUNIT_ROYAL1 | SUBUNIT_ROYAL2 => default_member + if level == 6 { 1 } else { 2 },
-                SUBUNIT_KNIGHT1 | SUBUNIT_KNIGHT2 | SUBUNIT_KNIGHT3 | SUBUNIT_KNIGHT4 => default_member + 1,
+                SUBUNIT_KNIGHT1 | SUBUNIT_KNIGHT2 | SUBUNIT_KNIGHT3 | SUBUNIT_KNIGHT4 => {
+                    default_member + 1
+                }
                 _ => default_member,
             },
         };
@@ -153,7 +159,10 @@ impl Clan {
     /// zero-crossing clan-skill (de)activation and the `PledgeShowInfoUpdate`
     /// broadcast are the caller's job (clan skills are a later milestone).
     pub fn add_reputation_score(&mut self, value: i32) -> i32 {
-        self.reputation_score = self.reputation_score.saturating_add(value).clamp(-MAX_REPUTATION, MAX_REPUTATION);
+        self.reputation_score = self
+            .reputation_score
+            .saturating_add(value)
+            .clamp(-MAX_REPUTATION, MAX_REPUTATION);
         self.reputation_score
     }
 }
@@ -185,7 +194,11 @@ impl Clan {
     /// Java `Clan.getLeaderSubPledge(leaderId)` — the pledge-type id of the
     /// sub-unit `leaderId` captains, or 0 if they don't lead one.
     pub fn leader_sub_pledge_of(&self, leader_id: i32) -> i32 {
-        self.sub_pledges.values().find(|sp| sp.leader_id != 0 && sp.leader_id == leader_id).map(|sp| sp.id).unwrap_or(0)
+        self.sub_pledges
+            .values()
+            .find(|sp| sp.leader_id != 0 && sp.leader_id == leader_id)
+            .map(|sp| sp.id)
+            .unwrap_or(0)
     }
 
     /// Java `Clan.getAvailablePledgeTypes(pledgeType)`: 0 when every slot of
@@ -293,7 +306,10 @@ impl Clan {
 
     /// Java `getSubPledgeMembersCount(pledgeType)`.
     pub fn sub_pledge_members_count(&self, pledge_type: i32) -> usize {
-        self.members.iter().filter(|m| m.pledge_type == pledge_type).count()
+        self.members
+            .iter()
+            .filter(|m| m.pledge_type == pledge_type)
+            .count()
     }
 }
 
@@ -470,8 +486,16 @@ mod pledge_class_tests {
             (10, 10, 7, 1, 6, 9, Some(5), Some(8)),
             (11, 11, 8, 1, 7, 10, Some(6), Some(9)),
         ];
-        for &(level, leader, default_member, academy, royal_member, royal_captain, knight_member, knight_captain) in
-            table
+        for &(
+            level,
+            leader,
+            default_member,
+            academy,
+            royal_member,
+            royal_captain,
+            knight_member,
+            knight_captain,
+        ) in table
         {
             let mut members = vec![
                 (1, 0),   // leader, main pledge
@@ -481,19 +505,52 @@ mod pledge_class_tests {
                 (5, 0),   // the royal captain: main-pledge member who leads unit 100
             ];
             let mut c = clan_at(level, 1, members.clone());
-            c.sub_pledges.insert(100, SubPledge { id: 100, name: "Royal".into(), leader_id: 5 });
+            c.sub_pledges.insert(
+                100,
+                SubPledge {
+                    id: 100,
+                    name: "Royal".into(),
+                    leader_id: 5,
+                },
+            );
             assert_eq!(c.pledge_class_of(1), leader, "level {level} leader");
-            assert_eq!(c.pledge_class_of(2), default_member, "level {level} plain member");
+            assert_eq!(
+                c.pledge_class_of(2),
+                default_member,
+                "level {level} plain member"
+            );
             assert_eq!(c.pledge_class_of(3), academy, "level {level} academy");
-            assert_eq!(c.pledge_class_of(4), royal_member, "level {level} royal member");
-            assert_eq!(c.pledge_class_of(5), royal_captain, "level {level} royal captain");
+            assert_eq!(
+                c.pledge_class_of(4),
+                royal_member,
+                "level {level} royal member"
+            );
+            assert_eq!(
+                c.pledge_class_of(5),
+                royal_captain,
+                "level {level} royal captain"
+            );
 
             if let (Some(km), Some(kc)) = (knight_member, knight_captain) {
                 members.push((6, 1001)); // knight-unit member
                 members.push((7, 0)); // the knight captain
                 c = clan_at(level, 1, members.clone());
-                c.sub_pledges.insert(100, SubPledge { id: 100, name: "Royal".into(), leader_id: 5 });
-                c.sub_pledges.insert(1001, SubPledge { id: 1001, name: "Knights".into(), leader_id: 7 });
+                c.sub_pledges.insert(
+                    100,
+                    SubPledge {
+                        id: 100,
+                        name: "Royal".into(),
+                        leader_id: 5,
+                    },
+                );
+                c.sub_pledges.insert(
+                    1001,
+                    SubPledge {
+                        id: 1001,
+                        name: "Knights".into(),
+                        leader_id: 7,
+                    },
+                );
                 assert_eq!(c.pledge_class_of(6), km, "level {level} knight member");
                 assert_eq!(c.pledge_class_of(7), kc, "level {level} knight captain");
             }

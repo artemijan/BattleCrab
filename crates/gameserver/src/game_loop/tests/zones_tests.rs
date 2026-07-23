@@ -9,16 +9,31 @@ fn melee_player_in_peace_zone_is_refused() {
     let mut a_rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
     // Both inside a peace zone.
-    world.objects.get_component_mut::<ZoneFlags>(&5001).unwrap().mask =
-        crate::data::zone_data::ZoneKind::Peace.bit();
-    world.objects.get_component_mut::<ZoneFlags>(&5002).unwrap().mask =
-        crate::data::zone_data::ZoneKind::Peace.bit();
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&5001)
+        .unwrap()
+        .mask = crate::data::zone_data::ZoneKind::Peace.bit();
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&5002)
+        .unwrap()
+        .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     // Select first, then the attack-click.
     super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
 
-    assert!(!world.objects.has_component::<Intent>(&5001), "no attack intent in a peace zone");
-    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE);
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(
+        !world.objects.has_component::<Intent>(&5001),
+        "no attack intent in a peace zone"
+    );
+    assert_eq!(
+        sm_id(&a_rx.try_recv().unwrap()),
+        server_packets::sm_ids::YOU_MAY_NOT_ATTACK_THIS_TARGET_IN_A_PEACEFUL_ZONE
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
 }
 
 /// Melee-attacking a player outside a peace zone sets the attack intent (the
@@ -34,8 +49,12 @@ fn melee_player_outside_peace_zone_starts_attack() {
     super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
 
     assert!(
-        matches!(world.objects.get_component::<Intent>(&5001).map(|i| i.0),
-            Some(PlayerIntent::Attack { target_object_id: 5002 })),
+        matches!(
+            world.objects.get_component::<Intent>(&5001).map(|i| i.0),
+            Some(PlayerIntent::Attack {
+                target_object_id: 5002
+            })
+        ),
         "attack intent against the player target",
     );
 }
@@ -46,7 +65,14 @@ fn melee_player_outside_peace_zone_starts_attack() {
 #[test]
 fn peace_zone_blocks_hostile_casts_between_players() {
     let (mut world, ..) = cast_test_world();
-    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Peace, -500, 500, -500, 500);
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Peace,
+        -500,
+        500,
+        -500,
+        500,
+    );
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     super::zones::revalidate_zone(&mut world, 3001, true);
@@ -55,7 +81,10 @@ fn peace_zone_blocks_hostile_casts_between_players() {
     // The initial revalidate reports the peace compass code.
     let a_pkts = drain(&mut a_rx);
     assert_eq!(
-        a_pkts.iter().filter_map(|p| compass_code(p)).collect::<Vec<_>>(),
+        a_pkts
+            .iter()
+            .filter_map(|p| compass_code(p))
+            .collect::<Vec<_>>(),
         vec![server_packets::compass_zone::PEACE]
     );
 
@@ -69,13 +98,22 @@ fn peace_zone_blocks_hostile_casts_between_players() {
         sm_id(&a_rx.try_recv().unwrap()),
         server_packets::sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE
     );
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(!world.objects.has_component::<Casting>(&3001));
-    assert!(b_rx.try_recv().is_err(), "the target hears nothing about the refused cast");
+    assert!(
+        b_rx.try_recv().is_err(),
+        "the target hears nothing about the refused cast"
+    );
 
     // A friendly skill (Battle Heal, TARGET type) is not gated.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
-    assert!(world.objects.has_component::<Casting>(&3001), "heal must start casting in a peace zone");
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "heal must start casting in a peace zone"
+    );
 }
 
 /// The peace gate only guards playable-vs-playable: with only the *attacker*
@@ -84,7 +122,14 @@ fn peace_zone_blocks_hostile_casts_between_players() {
 #[test]
 fn peace_zone_gate_checks_both_sides() {
     let (mut world, ..) = cast_test_world();
-    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Peace, 60, 200, -500, 500);
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Peace,
+        60,
+        200,
+        -500,
+        500,
+    );
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0); // outside
     let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0); // inside
     super::zones::revalidate_zone(&mut world, 3001, true);
@@ -100,7 +145,11 @@ fn peace_zone_gate_checks_both_sides() {
     assert!(!world.objects.has_component::<Casting>(&3001));
 
     // Move the target out of the zone and revalidate: the cast now starts.
-    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 30;
+    world
+        .objects
+        .get_component_mut::<Position>(&3002)
+        .unwrap()
+        .x = 30;
     super::zones::revalidate_zone(&mut world, 3002, true);
     drain(&mut a_rx);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -113,7 +162,14 @@ fn peace_zone_gate_checks_both_sides() {
 #[test]
 fn water_zone_flips_swim_state_and_speeds() {
     let (mut world, ..) = cast_test_world();
-    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Water, 5000, 6000, -500, 500);
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Water,
+        5000,
+        6000,
+        -500,
+        500,
+    );
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     {
         let speeds = world.objects.get_component_mut::<Speeds>(&3001).unwrap();
@@ -123,25 +179,48 @@ fn water_zone_flips_swim_state_and_speeds() {
     super::zones::revalidate_zone(&mut world, 3001, true);
     let pkts = drain(&mut rx);
     assert_eq!(
-        pkts.iter().filter_map(|p| compass_code(p)).collect::<Vec<_>>(),
+        pkts.iter()
+            .filter_map(|p| compass_code(p))
+            .collect::<Vec<_>>(),
         vec![server_packets::compass_zone::GENERAL],
         "the first revalidate pushes GENERAL (Java's _lastCompassZone starts at 0; \
          without a valid code the client won't open the world map)"
     );
-    assert_eq!(world.objects.get_component::<Speeds>(&3001).unwrap().move_speed(), 120.0);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Speeds>(&3001)
+            .unwrap()
+            .move_speed(),
+        120.0
+    );
 
     // Wade in: swim speeds take over and a fresh UserInfo goes out.
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 5500;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 5500;
     super::zones::revalidate_zone(&mut world, 3001, false);
     let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
     assert!(speeds.swimming);
     assert_eq!(speeds.move_speed(), 50.0);
     let pkts = drain(&mut rx);
-    assert!(pkts.iter().any(|p| p[0] == 0x32), "UserInfo re-broadcast on water enter");
-    assert!(pkts.iter().all(|p| compass_code(p).is_none()), "water does not change the compass");
+    assert!(
+        pkts.iter().any(|p| p[0] == 0x32),
+        "UserInfo re-broadcast on water enter"
+    );
+    assert!(
+        pkts.iter().all(|p| compass_code(p).is_none()),
+        "water does not change the compass"
+    );
 
     // Wade out: ground speeds return.
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 0;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 0;
     super::zones::revalidate_zone(&mut world, 3001, false);
     let speeds = *world.objects.get_component::<Speeds>(&3001).unwrap();
     assert!(!speeds.swimming);
@@ -168,24 +247,53 @@ fn siege_zone_combat_messages_and_leave_flag() {
     drain(&mut rx);
 
     // Enter the active siege zone → combat-zone message, still unflagged.
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 5500;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 5500;
     super::zones::revalidate_zone(&mut world, 3001, false);
-    assert!(world.objects.get_component::<ZoneFlags>(&3001).unwrap().in_active_siege);
     assert!(
-        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE),
+        world
+            .objects
+            .get_component::<ZoneFlags>(&3001)
+            .unwrap()
+            .in_active_siege
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_HAVE_ENTERED_A_COMBAT_ZONE),
         "entered-combat-zone message"
     );
-    assert_eq!(world.objects.get_component::<PvpState>(&3001).unwrap().flag, 0, "no flag while inside");
+    assert_eq!(
+        world.objects.get_component::<PvpState>(&3001).unwrap().flag,
+        0,
+        "no flag while inside"
+    );
 
     // Leave → exit message + the flag is raised (the leave-blink).
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 0;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 0;
     super::zones::revalidate_zone(&mut world, 3001, false);
-    assert!(!world.objects.get_component::<ZoneFlags>(&3001).unwrap().in_active_siege);
+    assert!(
+        !world
+            .objects
+            .get_component::<ZoneFlags>(&3001)
+            .unwrap()
+            .in_active_siege
+    );
     assert!(
         sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_LEFT_A_COMBAT_ZONE),
         "left-combat-zone message"
     );
-    assert_eq!(world.objects.get_component::<PvpState>(&3001).unwrap().flag, 1, "flagged on leaving the siege zone");
+    assert_eq!(
+        world.objects.get_component::<PvpState>(&3001).unwrap().flag,
+        1,
+        "flagged on leaving the siege zone"
+    );
 }
 
 /// Entering an active siege zone broadcasts the attackable siege relation
@@ -211,9 +319,16 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
     drain(&mut b_rx);
 
     // B walks into the active siege zone (keep its region cell in sync).
-    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 5500;
-    world.objects.get_component_mut::<crate::model::components::RegionCell>(&3002).unwrap().0 =
-        crate::world::region_of(5500, 0);
+    world
+        .objects
+        .get_component_mut::<Position>(&3002)
+        .unwrap()
+        .x = 5500;
+    world
+        .objects
+        .get_component_mut::<crate::model::components::RegionCell>(&3002)
+        .unwrap()
+        .0 = crate::world::region_of(5500, 0);
     super::zones::revalidate_zone(&mut world, 3002, false);
 
     let is_attackable_rc = |pkts: &[Vec<u8>], about: i32| {
@@ -227,8 +342,14 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
                 }
         })
     };
-    assert!(is_attackable_rc(&drain(&mut a_rx), 3002), "A sees B as an attackable siege enemy");
-    assert!(is_attackable_rc(&drain(&mut b_rx), 3001), "B sees A as an attackable siege enemy");
+    assert!(
+        is_attackable_rc(&drain(&mut a_rx), 3002),
+        "A sees B as an attackable siege enemy"
+    );
+    assert!(
+        is_attackable_rc(&drain(&mut b_rx), 3001),
+        "B sees A as an attackable siege enemy"
+    );
 }
 
 /// A clan leader's siege `RelationChanged` carries the leader bit (`0x80`,
@@ -260,9 +381,16 @@ fn siege_relation_carries_clan_leader_crown_bit() {
 
     // B walks into the active siege zone; the relation broadcast about the leader
     // (3001) must set the crown bit alongside the siege enemy bits.
-    world.objects.get_component_mut::<Position>(&3002).unwrap().x = 5500;
-    world.objects.get_component_mut::<crate::model::components::RegionCell>(&3002).unwrap().0 =
-        crate::world::region_of(5500, 0);
+    world
+        .objects
+        .get_component_mut::<Position>(&3002)
+        .unwrap()
+        .x = 5500;
+    world
+        .objects
+        .get_component_mut::<crate::model::components::RegionCell>(&3002)
+        .unwrap()
+        .0 = crate::world::region_of(5500, 0);
     super::zones::revalidate_zone(&mut world, 3002, false);
 
     let leader_crown_rc = drain(&mut b_rx).iter().any(|p| {
@@ -273,7 +401,10 @@ fn siege_relation_carries_clan_leader_crown_bit() {
                 rel & 0x80 != 0 // RELATION_LEADER (crown)
             }
     });
-    assert!(leader_crown_rc, "the leader's siege RelationChanged sets the 0x80 crown bit");
+    assert!(
+        leader_crown_rc,
+        "the leader's siege RelationChanged sets the 0x80 crown bit"
+    );
 }
 
 /// The UserInfo relation's in-siege bit (0x80 — the siege crown) is set for a
@@ -293,20 +424,37 @@ fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
     });
     // Registered attacker (clan 77) and a non-participant (clan 88), both inside.
     let _rx = ingame_caster(&mut world, 1, 3001, 5500, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = 77;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_id = 77;
     let _rx2 = ingame_caster(&mut world, 2, 3002, 5500, 0);
-    world.objects.get_component_mut::<Player>(&3002).unwrap().clan_id = 88;
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .clan_id = 88;
 
     let rel = |world: &World, oid: i32| {
         let p = world.objects.get_component::<Player>(&oid).unwrap().clone();
         super::party::calculate_relation(world, &p)
     };
-    assert!(rel(&world, 3001) & 0x80 != 0, "registered participant in the active siege zone gets the crown bit");
-    assert!(rel(&world, 3002) & 0x80 == 0, "a non-participant in the zone does not");
+    assert!(
+        rel(&world, 3001) & 0x80 != 0,
+        "registered participant in the active siege zone gets the crown bit"
+    );
+    assert!(
+        rel(&world, 3002) & 0x80 == 0,
+        "a non-participant in the zone does not"
+    );
 
     // Siege no longer in progress → the bit clears.
     world.sieges.get_mut(&3).unwrap().in_progress = false;
-    assert!(rel(&world, 3001) & 0x80 == 0, "the crown bit clears once the siege ends");
+    assert!(
+        rel(&world, 3001) & 0x80 == 0,
+        "the crown bit clears once the siege ends"
+    );
 }
 
 /// The 100-unit revalidation filter: a small drift does not re-run the zone
@@ -314,17 +462,48 @@ fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
 #[test]
 fn zone_revalidation_distance_filter() {
     let (mut world, ..) = cast_test_world();
-    insert_zone(&mut world, crate::data::zone_data::ZoneKind::Water, 5000, 6000, -500, 500);
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Water,
+        5000,
+        6000,
+        -500,
+        500,
+    );
     let _rx = ingame_caster(&mut world, 1, 3001, 5990, 0);
     super::zones::revalidate_zone(&mut world, 3001, true);
-    assert!(world.objects.get_component::<Speeds>(&3001).unwrap().swimming);
+    assert!(
+        world
+            .objects
+            .get_component::<Speeds>(&3001)
+            .unwrap()
+            .swimming
+    );
 
     // A 50-unit drift out of the zone edge: unforced revalidate is skipped.
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 6040;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 6040;
     super::zones::revalidate_zone(&mut world, 3001, false);
-    assert!(world.objects.get_component::<Speeds>(&3001).unwrap().swimming, "filtered — still stale");
+    assert!(
+        world
+            .objects
+            .get_component::<Speeds>(&3001)
+            .unwrap()
+            .swimming,
+        "filtered — still stale"
+    );
     super::zones::revalidate_zone(&mut world, 3001, true);
-    assert!(!world.objects.get_component::<Speeds>(&3001).unwrap().swimming, "forced — recomputed");
+    assert!(
+        !world
+            .objects
+            .get_component::<Speeds>(&3001)
+            .unwrap()
+            .swimming,
+        "forced — recomputed"
+    );
 }
 
 /// Enter-world burst includes StaticObjectInfo + DoorStatusUpdate for a
@@ -332,7 +511,10 @@ fn zone_revalidation_distance_filter() {
 #[test]
 fn enter_world_sends_door_info_for_nearby_doors() {
     let (mut world, ..) = test_world();
-    crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+    crate::model::door::spawn_door_for_test(
+        &mut world,
+        test_door(9001, crate::data::door_data::DoorOpenMethod::None),
+    );
     let mut far = test_door(9002, crate::data::door_data::DoorOpenMethod::None);
     far.x = 50_000;
     far.node_x = [49_998, 50_002, 50_002, 49_998];
@@ -355,22 +537,31 @@ fn enter_world_sends_door_info_for_nearby_doors() {
 #[test]
 fn closed_door_blocks_cast_los_until_opened() {
     let (mut world, ..) = cast_test_world();
-    let door_oid =
-        crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+    let door_oid = crate::model::door::spawn_door_for_test(
+        &mut world,
+        test_door(9001, crate::data::door_data::DoorOpenMethod::None),
+    );
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let _b_rx = ingame_caster(&mut world, 2, 3002, 200, 0);
 
     handle_action(&mut world, 1, &action_body(3002, 0));
     drain(&mut a_rx);
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
-    assert_eq!(sm_id(&a_rx.try_recv().unwrap()), server_packets::sm_ids::CANNOT_SEE_TARGET);
+    assert_eq!(
+        sm_id(&a_rx.try_recv().unwrap()),
+        server_packets::sm_ids::CANNOT_SEE_TARGET
+    );
     assert!(!world.objects.has_component::<Casting>(&3001));
 
     // Open the door: both nearby players get the status packets…
     super::doors::open_door(&mut world, door_oid);
     let pkts = drain(&mut a_rx);
-    assert!(pkts.iter().any(|p| is_static_object_info(p) && door_packet_closed(p) == 0));
-    assert!(pkts.iter().any(|p| is_door_status(p) && door_packet_closed(p) == 0));
+    assert!(pkts
+        .iter()
+        .any(|p| is_static_object_info(p) && door_packet_closed(p) == 0));
+    assert!(pkts
+        .iter()
+        .any(|p| is_door_status(p) && door_packet_closed(p) == 0));
 
     // …and the cast now starts.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -382,8 +573,10 @@ fn closed_door_blocks_cast_los_until_opened() {
 #[test]
 fn opened_door_auto_closes_after_close_time() {
     let (mut world, ..) = test_world();
-    let door_oid =
-        crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::None));
+    let door_oid = crate::model::door::spawn_door_for_test(
+        &mut world,
+        test_door(9001, crate::data::door_data::DoorOpenMethod::None),
+    );
 
     super::doors::open_door(&mut world, door_oid);
     assert!(world.geo.doors.is_open(9001));
@@ -400,7 +593,10 @@ fn opened_door_auto_closes_after_close_time() {
     super::doors::close_door(&mut world, door_oid);
     assert!(!world.geo.doors.is_open(9001));
     advance_ticks(&mut world, 40);
-    assert!(!world.geo.doors.is_open(9001), "stale auto-close is a no-op");
+    assert!(
+        !world.geo.doors.is_open(9001),
+        "stale auto-close is a no-op"
+    );
 }
 
 /// BY_TIME doors cycle on their own: closed → open after `closeTime`,
@@ -408,7 +604,10 @@ fn opened_door_auto_closes_after_close_time() {
 #[test]
 fn by_time_door_cycles() {
     let (mut world, ..) = test_world();
-    crate::model::door::spawn_door_for_test(&mut world, test_door(9001, crate::data::door_data::DoorOpenMethod::ByTime));
+    crate::model::door::spawn_door_for_test(
+        &mut world,
+        test_door(9001, crate::data::door_data::DoorOpenMethod::ByTime),
+    );
     super::doors::start_time_cycles(&mut world);
 
     assert!(!world.geo.doors.is_open(9001));
@@ -428,22 +627,26 @@ fn by_time_door_cycles() {
 #[test]
 fn enter_world_sends_static_object_info_nearby() {
     let (mut world, ..) = test_world();
-    world.data.static_object_data.objects.push(crate::data::static_object_data::StaticObjectTemplate {
-        id: 17250001,
-        name: "town_map".into(),
-        kind: 0,
-        x: 100,
-        y: 100,
-        z: 0,
-    });
-    world.data.static_object_data.objects.push(crate::data::static_object_data::StaticObjectTemplate {
-        id: 17250002,
-        name: "far_map".into(),
-        kind: 0,
-        x: 60_000,
-        y: 60_000,
-        z: 0,
-    });
+    world.data.static_object_data.objects.push(
+        crate::data::static_object_data::StaticObjectTemplate {
+            id: 17250001,
+            name: "town_map".into(),
+            kind: 0,
+            x: 100,
+            y: 100,
+            z: 0,
+        },
+    );
+    world.data.static_object_data.objects.push(
+        crate::data::static_object_data::StaticObjectTemplate {
+            id: 17250002,
+            name: "far_map".into(),
+            kind: 0,
+            x: 60_000,
+            y: 60_000,
+            z: 0,
+        },
+    );
     crate::model::static_object::spawn_static_objects(&mut world);
 
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -451,7 +654,10 @@ fn enter_world_sends_static_object_info_nearby() {
     let pkts = drain(&mut rx);
     let so: Vec<_> = pkts.iter().filter(|p| is_static_object_info(p)).collect();
     assert_eq!(so.len(), 1, "only the nearby panel renders");
-    assert_eq!(i32::from_le_bytes(so[0][1..5].try_into().unwrap()), 17250001);
+    assert_eq!(
+        i32::from_le_bytes(so[0][1..5].try_into().unwrap()),
+        17250001
+    );
     // type field (offset 9..13) is 0, targetable (13..17) is 1.
     assert_eq!(i32::from_le_bytes(so[0][9..13].try_into().unwrap()), 0);
     assert_eq!(i32::from_le_bytes(so[0][13..17].try_into().unwrap()), 1);

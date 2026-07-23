@@ -15,7 +15,8 @@ use super::{current_target, find_online_player, send_message};
 pub(super) fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first() {
         Some(name) => find_online_player(world, name),
-        None => current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
     };
     let Some(target) = target else {
         send_message(world, client_id, "Usage: //kick <player name>");
@@ -27,7 +28,8 @@ pub(super) fn admin_kick(world: &mut World, client_id: u32, object_id: i32, args
 /// `AdminDisconnect`'s `//character_disconnect` — disconnect the targeted
 /// player.
 pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
         send_message(world, client_id, "Select a player first.");
         return;
@@ -38,7 +40,9 @@ pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, obje
 /// The clean logout teardown for a player (Java `Disconnection.of`): persist,
 /// despawn, and drop the session.
 fn disconnect_player(world: &mut World, target: i32) {
-    let Some(tcid) = super::helpers::client_for_player(world, target) else { return };
+    let Some(tcid) = super::helpers::client_for_player(world, target) else {
+        return;
+    };
     if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
         super::net::store_and_remove_player(world, target);
         session.send(server_packets::leave_world());
@@ -73,14 +77,22 @@ pub(super) fn admin_gmchat(world: &mut World, client_id: u32, object_id: i32, ar
         return;
     }
     let text = args.join(" ");
-    let Some(name) = world.objects.get_component::<Player>(&object_id).map(|p| p.name.clone()) else {
+    let Some(name) = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+    else {
         return;
     };
     // Java passes a null sender (object id 0); the name carries the display.
     let say = server_packets::creature_say(0, crate::enums::ChatType::Alliance, &name, &text, None);
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
-            if world.objects.get_component::<Player>(&s.player_object_id()).is_some_and(|p| p.is_gm(&world.data)) {
+            if world
+                .objects
+                .get_component::<Player>(&s.player_object_id())
+                .is_some_and(|p| p.is_gm(&world.data))
+            {
                 cs.send(say.clone());
             }
         }
@@ -96,7 +108,11 @@ pub(super) fn admin_changelvl(world: &mut World, client_id: u32, object_id: i32,
     let (target, level) = match args {
         [level_str] => {
             let Some(level) = level_str.parse::<i32>().ok() else {
-                send_message(world, client_id, "Usage: //changelvl <level> | //changelvl <name> <level>");
+                send_message(
+                    world,
+                    client_id,
+                    "Usage: //changelvl <level> | //changelvl <name> <level>",
+                );
                 return;
             };
             let target = current_target(world, object_id)
@@ -116,13 +132,21 @@ pub(super) fn admin_changelvl(world: &mut World, client_id: u32, object_id: i32,
             (target, level)
         }
         _ => {
-            send_message(world, client_id, "Usage: //changelvl <level> | //changelvl <name> <level>");
+            send_message(
+                world,
+                client_id,
+                "Usage: //changelvl <level> | //changelvl <name> <level>",
+            );
             return;
         }
     };
     // Java `AdminData.getAccessLevel(level) != null` — the tier must exist.
     if world.data.admin.access_level(level).level != level {
-        send_message(world, client_id, &format!("Access level {level} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Access level {level} does not exist."),
+        );
         return;
     }
     set_access(world, target, level, true);
@@ -144,7 +168,10 @@ fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
         if level != 0 {
             (al.name_color, al.title_color)
         } else {
-            (crate::model::DEFAULT_NAME_COLOR, crate::model::DEFAULT_TITLE_COLOR)
+            (
+                crate::model::DEFAULT_NAME_COLOR,
+                crate::model::DEFAULT_TITLE_COLOR,
+            )
         }
     };
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
@@ -153,7 +180,10 @@ fn set_access(world: &mut World, target: i32, level: i32, persist: bool) {
         p.title_color = title_color;
     }
     if persist {
-        let _ = world.db.send(crate::db::DbCommand::SetAccessLevel { char_id: target, level });
+        let _ = world.db.send(crate::db::DbCommand::SetAccessLevel {
+            char_id: target,
+            level,
+        });
     }
     super::party::broadcast_user_info(world, target);
 }
@@ -176,7 +206,11 @@ pub(super) fn admin_target(world: &mut World, client_id: u32, object_id: i32, ar
 /// text lines (a documented G13.A simplification; the HTML build waits for the
 /// admin-menu work in G13.B).
 pub(super) fn admin_serverinfo(world: &World, client_id: u32) {
-    let online = world.clients.values().filter(|c| matches!(c, ClientSession::InGame(_))).count();
+    let online = world
+        .clients
+        .values()
+        .filter(|c| matches!(c, ClientSession::InGame(_)))
+        .count();
     send_message(world, client_id, "=== Server Info ===");
     send_message(world, client_id, &format!("Online players: {online}"));
     send_message(world, client_id, &format!("Server tick: {}", world.tick));

@@ -80,9 +80,17 @@ impl PetTemplate {
     /// The food capacity at `level`, falling back to the highest level defined
     /// below it (Java clamps to the table's bounds).
     pub fn max_meal(&self, level: i32) -> i32 {
-        self.levels.get(&level).map(|l| l.max_meal).unwrap_or_else(|| {
-            self.levels.iter().filter(|(l, _)| **l <= level).max_by_key(|(l, _)| **l).map(|(_, r)| r.max_meal).unwrap_or(0)
-        })
+        self.levels
+            .get(&level)
+            .map(|l| l.max_meal)
+            .unwrap_or_else(|| {
+                self.levels
+                    .iter()
+                    .filter(|(l, _)| **l <= level)
+                    .max_by_key(|(l, _)| **l)
+                    .map(|(_, r)| r.max_meal)
+                    .unwrap_or(0)
+            })
     }
 
     /// Java `PetDataTable.getPetMinLevel` — the lowest level this species has a
@@ -137,7 +145,9 @@ impl PetData {
 
     /// Java `PetDataTable.getPetDataByItemId` — the collar → pet lookup.
     pub fn by_item_id(&self, item_id: i32) -> Option<&PetTemplate> {
-        self.by_item.get(&item_id).and_then(|npc| self.by_npc.get(npc))
+        self.by_item
+            .get(&item_id)
+            .and_then(|npc| self.by_npc.get(npc))
     }
 
     /// Whether this item is a pet collar at all.
@@ -160,7 +170,11 @@ impl PetData {
     }
 }
 
-fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mut HashMap<i32, i32>) {
+fn parse_str(
+    content: &str,
+    by_npc: &mut HashMap<i32, PetTemplate>,
+    by_item: &mut HashMap<i32, i32>,
+) {
     let mut reader = Reader::from_str(content);
     let mut cur: Option<PetTemplate> = None;
     let mut cur_level: i32 = 0;
@@ -174,7 +188,9 @@ fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mu
                     b"pet" => {
                         let mut t = PetTemplate::default();
                         for a in e.attributes().flatten() {
-                            let v = String::from_utf8_lossy(&a.value).parse::<i32>().unwrap_or(0);
+                            let v = String::from_utf8_lossy(&a.value)
+                                .parse::<i32>()
+                                .unwrap_or(0);
                             match a.key.as_ref() {
                                 b"id" => t.npc_id = v,
                                 b"itemId" => t.item_id = v,
@@ -230,10 +246,16 @@ fn parse_str(content: &str, by_npc: &mut HashMap<i32, PetTemplate>, by_item: &mu
                                 "org_mp" => row.max_mp = val.parse().unwrap_or(0.0),
                                 "org_hp_regen" => row.regen_hp = val.parse().unwrap_or(0.0),
                                 "soulshot_count" => row.soulshot_count = val.parse().unwrap_or(0),
-                                "spiritshot_count" => row.spiritshot_count = val.parse().unwrap_or(0),
+                                "spiritshot_count" => {
+                                    row.spiritshot_count = val.parse().unwrap_or(0)
+                                }
                                 "org_mp_regen" => row.regen_mp = val.parse().unwrap_or(0.0),
-                                "consume_meal_in_normal" => row.consume_meal_in_normal = val.parse().unwrap_or(0),
-                                "consume_meal_in_battle" => row.consume_meal_in_battle = val.parse().unwrap_or(0),
+                                "consume_meal_in_normal" => {
+                                    row.consume_meal_in_normal = val.parse().unwrap_or(0)
+                                }
+                                "consume_meal_in_battle" => {
+                                    row.consume_meal_in_battle = val.parse().unwrap_or(0)
+                                }
                                 "exp" => row.exp = val.parse().unwrap_or(0),
                                 _ => {}
                             }
@@ -273,7 +295,11 @@ mod tests {
     #[test]
     fn real_dist_pets_load() {
         let d = PetData::load_from(DIST);
-        assert!(d.len() >= 50, "56 pet files ship on this dist, got {}", d.len());
+        assert!(
+            d.len() >= 50,
+            "56 pet files ship on this dist, got {}",
+            d.len()
+        );
 
         let wolf = d.get(12077).expect("Wolf 12077 loads");
         assert_eq!(wolf.item_id, 2375, "summoned by the Wolf Collar");
@@ -284,23 +310,57 @@ mod tests {
         // the finalizers substitute for the NPC template's. Fixtures can't
         // catch a parse-arm slip here, so read the shipped Wolf.
         let l1 = wolf.levels.get(&1).expect("Wolf level 1");
-        assert!((l1.p_atk - 2.118_644_068).abs() < 1e-6, "org_pattack: {}", l1.p_atk);
-        assert!((l1.m_atk - 1.446_759_259).abs() < 1e-6, "org_mattack: {}", l1.m_atk);
-        assert!((l1.p_def - 11.111_111_11).abs() < 1e-6, "org_pdefend: {}", l1.p_def);
+        assert!(
+            (l1.p_atk - 2.118_644_068).abs() < 1e-6,
+            "org_pattack: {}",
+            l1.p_atk
+        );
+        assert!(
+            (l1.m_atk - 1.446_759_259).abs() < 1e-6,
+            "org_mattack: {}",
+            l1.m_atk
+        );
+        assert!(
+            (l1.p_def - 11.111_111_11).abs() < 1e-6,
+            "org_pdefend: {}",
+            l1.p_def
+        );
         assert!((l1.max_hp - 19.873).abs() < 1e-6, "org_hp: {}", l1.max_hp);
         assert_eq!(l1.max_mp, 20.0, "org_mp");
         assert_eq!(l1.regen_hp, 2.0, "org_hp_regen");
-        assert!((l1.regen_mp - 0.9).abs() < 1e-9, "org_mp_regen: {}", l1.regen_mp);
+        assert!(
+            (l1.regen_mp - 0.9).abs() < 1e-9,
+            "org_mp_regen: {}",
+            l1.regen_mp
+        );
         assert_eq!(l1.soulshot_count, 1, "soulshot_count");
         assert_eq!(l1.spiritshot_count, 1, "spiritshot_count");
-        assert_eq!(l1.owner_exp_taken, 73, "get_exp_type is the owner's percentage share");
+        assert_eq!(
+            l1.owner_exp_taken, 73,
+            "get_exp_type is the owner's percentage share"
+        );
 
         // Growth is the whole point: a higher level must be strictly stronger.
         let top = wolf.levels.keys().copied().max().expect("levels");
         let ltop = wolf.levels.get(&top).unwrap();
-        assert!(ltop.p_atk > l1.p_atk, "p.atk grows with level ({} → {})", l1.p_atk, ltop.p_atk);
-        assert!(ltop.max_hp > l1.max_hp, "HP grows with level ({} → {})", l1.max_hp, ltop.max_hp);
-        assert!(ltop.regen_hp > l1.regen_hp, "regen grows with level ({} → {})", l1.regen_hp, ltop.regen_hp);
+        assert!(
+            ltop.p_atk > l1.p_atk,
+            "p.atk grows with level ({} → {})",
+            l1.p_atk,
+            ltop.p_atk
+        );
+        assert!(
+            ltop.max_hp > l1.max_hp,
+            "HP grows with level ({} → {})",
+            l1.max_hp,
+            ltop.max_hp
+        );
+        assert!(
+            ltop.regen_hp > l1.regen_hp,
+            "regen grows with level ({} → {})",
+            l1.regen_hp,
+            ltop.regen_hp
+        );
         assert!(
             ltop.soulshot_count > l1.soulshot_count,
             "shot cost grows with level ({} → {})",
@@ -323,7 +383,10 @@ mod tests {
         let wolf = d.get(12077).unwrap();
         assert!(wolf.levels.len() > 1, "several levels parsed");
         // `food` is species-wide and must not have landed in a level row.
-        assert!(wolf.levels.values().all(|l| l.max_meal > 0), "every level got its own max_meal");
+        assert!(
+            wolf.levels.values().all(|l| l.max_meal > 0),
+            "every level got its own max_meal"
+        );
     }
 
     /// `max_meal` falls back to the highest level at or below the one asked
@@ -333,6 +396,10 @@ mod tests {
         let d = PetData::load_from(DIST);
         let wolf = d.get(12077).unwrap();
         let top = wolf.levels.keys().copied().max().unwrap();
-        assert_eq!(wolf.max_meal(top + 50), wolf.max_meal(top), "past the table, use its top row");
+        assert_eq!(
+            wolf.max_meal(top + 50),
+            wolf.max_meal(top),
+            "past the table, use its top row"
+        );
     }
 }

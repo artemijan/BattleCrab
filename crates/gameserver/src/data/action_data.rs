@@ -42,10 +42,13 @@ impl ActionData {
                             .find(|a| a.key.as_ref() == key)
                             .map(|a| String::from_utf8_lossy(&a.value).to_string())
                     };
-                    let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else { continue };
+                    let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                        continue;
+                    };
                     action_ids.push(id);
                     if attr(b"handler").as_deref() == Some("ServitorSkillUse") {
-                        if let Some(skill_id) = attr(b"option").and_then(|v| v.parse::<i32>().ok()) {
+                        if let Some(skill_id) = attr(b"option").and_then(|v| v.parse::<i32>().ok())
+                        {
                             servitor_skills.insert(id, skill_id);
                         }
                     }
@@ -61,7 +64,10 @@ impl ActionData {
             action_ids.len(),
             servitor_skills.len()
         );
-        Self { action_ids, servitor_skills }
+        Self {
+            action_ids,
+            servitor_skills,
+        }
     }
 
     pub fn action_ids(&self) -> &[i32] {
@@ -70,7 +76,10 @@ impl ActionData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { action_ids: Vec::new(), servitor_skills: std::collections::HashMap::new() }
+        Self {
+            action_ids: Vec::new(),
+            servitor_skills: std::collections::HashMap::new(),
+        }
     }
 
     /// The skill an action id tells the servitor to cast, if it is one of the

@@ -26,13 +26,28 @@ use crate::world::World;
 /// path (`death::give_item`), quest rewards (`quests`), the shop (`shop`),
 /// and pack/box extraction (`extract_item` below); the caller owns
 /// messaging/`InventoryUpdate`.
-pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i32, count: i64) -> Option<Vec<i32>> {
-    let stackable = world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
+pub(crate) fn add_inventory_item(
+    world: &mut World,
+    player_oid: i32,
+    item_id: i32,
+    count: i64,
+) -> Option<Vec<i32>> {
+    let stackable = world
+        .data
+        .item_data
+        .get(item_id)
+        .map(|t| t.is_stackable)
+        .unwrap_or(false);
     if stackable {
         let existing_stack = world
             .objects
             .get_component::<crate::model::inventory::Inventory>(&player_oid)
-            .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id));
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|i| i.item_id == item_id)
+                    .map(|i| i.object_id)
+            });
 
         if let Some(stack_oid) = existing_stack {
             // Memory-first: the stack grows in memory; the new count persists on
@@ -45,7 +60,9 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
             return Some(vec![stack_oid]);
         }
         let new_oid = world.alloc_object_id()?;
-        let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
         return Some(vec![new_oid]);
     }
@@ -53,7 +70,9 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
     let mut created = Vec::with_capacity(count.max(1) as usize);
     for _ in 0..count.max(1) {
         let new_oid = world.alloc_object_id()?;
-        let inv = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
+        let inv = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);
         created.push(new_oid);
     }
@@ -69,22 +88,36 @@ pub(crate) fn add_inventory_item(world: &mut World, player_oid: i32, item_id: i3
 /// in this port blocks the inventory yet (set only by trades/some skills, both
 /// unported).
 pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
-    let Some(cs) = world.clients.get(&client_id) else { return };
+    let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+        return;
+    };
+    let Some(cs) = world.clients.get(&client_id) else {
+        return;
+    };
     cs.send(ew::item_list(inventory, &world.data, true));
     cs.send(ew::ex_quest_item_list(inventory, &world.data));
     cs.send(ew::ex_adena_inven_count(inventory));
-    cs.send(ew::ex_user_info_inven_weight(object_id, inventory, &world.data));
+    cs.send(ew::ex_user_info_inven_weight(
+        object_id,
+        inventory,
+        &world.data,
+    ));
 }
 
 /// Port of `clientpackets/UseItem.runImpl`: right-clicking a `Weapon`/`Armor`
 /// toggles equip/unequip; anything else routes through the `EtcItem` handler
 /// dispatch (Java: `ItemHandler.getInstance().getHandler(etcItem)`).
 pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::UseItem::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::UseItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     // `UseItem.runImpl`: `hasBlockActions() || isControlBlocked() ||
     // isAlikeDead()` refuses the use outright. (Death is gated further in.)
@@ -106,7 +139,12 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
 /// schedule at `attackEndTime` — sending no packet either way. Non-equipable
 /// items never get queued this way (dispatched to `use_etc_item` immediately,
 /// same as Java's else-branch which has no busy check).
-pub(crate) fn use_equipable_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
+pub(crate) fn use_equipable_item(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    item_object_id: i32,
+) {
     use crate::model::components::{AttackState, Casting, QueuedAction};
 
     let is_equipable = {
@@ -114,8 +152,16 @@ pub(crate) fn use_equipable_item(world: &mut World, client_id: u32, object_id: i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             return;
         };
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
-        let Some(template) = catalog.get(item.item_id) else { return };
+        let Some(item) = inventory
+            .items()
+            .iter()
+            .find(|i| i.object_id == item_object_id)
+        else {
+            return;
+        };
+        let Some(template) = catalog.get(item.item_id) else {
+            return;
+        };
         template.is_equipable()
     };
     if !is_equipable {
@@ -128,12 +174,17 @@ pub(crate) fn use_equipable_item(world: &mut World, client_id: u32, object_id: i
         .get_component::<AttackState>(&object_id)
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if mid_swing || world.objects.has_component::<Casting>(&object_id) {
-        world.objects.add_components(&object_id, QueuedAction::UseItem { item_object_id });
+        world
+            .objects
+            .add_components(&object_id, QueuedAction::UseItem { item_object_id });
         return;
     }
 
     let catalog = &world.data.item_data;
-    let Some(inventory) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&object_id) else {
+    let Some(inventory) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
+    else {
         return;
     };
 
@@ -153,10 +204,17 @@ pub(crate) fn use_equipable_item(world: &mut World, client_id: u32, object_id: i
 /// Port of `clientpackets/RequestUnEquipItem.runImpl` (combat/cursed-weapon
 /// guards are skipped — there's no combat system yet).
 pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(body_part) = cp::read_char_slot(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(body_part) = cp::read_char_slot(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    let Some(inventory) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&object_id) else {
+    let Some(inventory) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&object_id)
+    else {
         return;
     };
     let changed = inventory.unequip_slot(body_part);
@@ -169,8 +227,12 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
 /// equipped item is unequipped first. The cursed-weapon / hero-item / pet /
 /// enchant-transaction guards are skipped (those subsystems aren't ported).
 pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDestroyItem::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestDestroyItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     if pkt.count <= 0 {
         return;
@@ -179,10 +241,20 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     let Some((item_id, held, is_stackable, is_quest)) = world
         .objects
         .get_component::<Inventory>(&object_id)
-        .and_then(|inv| inv.items().iter().find(|it| it.object_id == pkt.object_id).map(|it| (it.item_id, it.count)))
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|it| it.object_id == pkt.object_id)
+                .map(|it| (it.item_id, it.count))
+        })
         .map(|(id, cnt)| {
             let t = world.data.item_data.get(id);
-            (id, cnt, t.map(|t| t.is_stackable).unwrap_or(false), t.map(|t| t.is_quest_item).unwrap_or(false))
+            (
+                id,
+                cnt,
+                t.map(|t| t.is_stackable).unwrap_or(false),
+                t.map(|t| t.is_quest_item).unwrap_or(false),
+            )
         })
     else {
         send_item_message(world, client_id, "This item cannot be destroyed.");
@@ -199,7 +271,11 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
     let count = pkt.count.min(held);
 
     // Unequip first if it's worn (Java unequips, sending its own InventoryUpdate).
-    if world.objects.get_component::<Inventory>(&object_id).is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some()) {
+    if world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
+    {
         let changed = world
             .objects
             .get_component_mut::<Inventory>(&object_id)
@@ -226,10 +302,16 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
             .objects
             .get_component_mut::<crate::model::components::PlayerPets>(&object_id)
             .map(|p| p.0.remove(&pkt.object_id));
-        let _ = world.db.send(crate::db::DbCommand::DeletePetRow { collar_object_id: pkt.object_id });
+        let _ = world.db.send(crate::db::DbCommand::DeletePetRow {
+            collar_object_id: pkt.object_id,
+        });
     }
 
-    let Some(change) = world.objects.get_component_mut::<Inventory>(&object_id).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {
+    let Some(change) = world
+        .objects
+        .get_component_mut::<Inventory>(&object_id)
+        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    else {
         return;
     };
     let packet = ew::inventory_update_changes(&world.data, &[change]);
@@ -247,8 +329,12 @@ const CRYSTALLIZE_SKILL_ID: i32 = 248;
 /// `ItemCrystallizationData`, Java's fallback is `crystalCount` of the grade's
 /// crystal at 100% — that's what we award. Hero/shadow/augment guards skipped.
 pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDestroyItem::read(body) else { return }; // same layout (objectId, count)
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestDestroyItem::read(body) else {
+        return;
+    }; // same layout (objectId, count)
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player_oid = session.player_object_id();
     if pkt.count <= 0 {
         return;
@@ -257,13 +343,32 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     let Some((item_id, held, is_stackable)) = world
         .objects
         .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| inv.items().iter().find(|it| it.object_id == pkt.object_id).map(|it| (it.item_id, it.count)))
-        .map(|(id, cnt)| (id, cnt, world.data.item_data.get(id).map(|t| t.is_stackable).unwrap_or(false)))
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|it| it.object_id == pkt.object_id)
+                .map(|it| (it.item_id, it.count))
+        })
+        .map(|(id, cnt)| {
+            (
+                id,
+                cnt,
+                world
+                    .data
+                    .item_data
+                    .get(id)
+                    .map(|t| t.is_stackable)
+                    .unwrap_or(false),
+            )
+        })
     else {
         return;
     };
-    let Some(t) = world.data.item_data.get(item_id) else { return };
-    let (Some(crystal_item), crystal_count) = (t.crystal_type.crystal_item_id(), t.crystal_count) else {
+    let Some(t) = world.data.item_data.get(item_id) else {
+        return;
+    };
+    let (Some(crystal_item), crystal_count) = (t.crystal_type.crystal_item_id(), t.crystal_count)
+    else {
         send_item_message(world, client_id, "This item cannot be crystallized.");
         return;
     };
@@ -272,9 +377,17 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
         return;
     }
     let required = t.crystal_type.required_crystallize_level();
-    let skill_level = world.objects.get_component::<crate::model::components::SkillBook>(&player_oid).and_then(|b| b.0.get(&CRYSTALLIZE_SKILL_ID).copied()).unwrap_or(0);
+    let skill_level = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&player_oid)
+        .and_then(|b| b.0.get(&CRYSTALLIZE_SKILL_ID).copied())
+        .unwrap_or(0);
     if skill_level < required {
-        send_item_message(world, client_id, "Your crystallization skill level is too low.");
+        send_item_message(
+            world,
+            client_id,
+            "Your crystallization skill level is too low.",
+        );
         return;
     }
     if !is_stackable && pkt.count > 1 {
@@ -283,11 +396,23 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     let count = pkt.count.min(held);
 
     // Unequip first if worn, then destroy, then award the crystals.
-    if world.objects.get_component::<Inventory>(&player_oid).is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some()) {
-        let changed = world.objects.get_component_mut::<Inventory>(&player_oid).map(|inv| inv.unequip_item(pkt.object_id)).unwrap_or_default();
+    if world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
+    {
+        let changed = world
+            .objects
+            .get_component_mut::<Inventory>(&player_oid)
+            .map(|inv| inv.unequip_item(pkt.object_id))
+            .unwrap_or_default();
         finish_equip_change(world, client_id, player_oid, &changed);
     }
-    let Some(removed) = world.objects.get_component_mut::<Inventory>(&player_oid).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {
+    let Some(removed) = world
+        .objects
+        .get_component_mut::<Inventory>(&player_oid)
+        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    else {
         return;
     };
     let total = crystal_count as i64 * count;
@@ -308,7 +433,10 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
 /// Send a bare `$s1` system-message line to one client.
 fn send_item_message(world: &World, client_id: u32, text: &str) {
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::system_message_with(sm_ids::S1_TEXT, &[SmParam::Text(text.to_string())]));
+        cs.send(server_packets::system_message_with(
+            sm_ids::S1_TEXT,
+            &[SmParam::Text(text.to_string())],
+        ));
     }
 }
 
@@ -320,8 +448,12 @@ fn send_item_message(world: &World, client_id: u32, text: &str) {
 /// to the DB; `load_items` restores `ORDER BY loc_data`, so the arrangement
 /// survives relog. No response packet — Java sends none either.
 pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestSaveInventoryOrder::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
         return;
@@ -334,7 +466,8 @@ pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: 
         .order
         .into_iter()
         .filter(|&(oid, _)| {
-            inventory.items().iter().any(|i| i.object_id == oid) && inventory.paperdoll_slot_of(oid).is_none()
+            inventory.items().iter().any(|i| i.object_id == oid)
+                && inventory.paperdoll_slot_of(oid).is_none()
         })
         .collect();
     inventory.apply_inventory_order(&order);
@@ -358,7 +491,12 @@ pub(crate) fn handle_request_save_inventory_order(world: &mut World, client_id: 
 ///     snapshots the client immediately overwrites.
 ///   * We omit Java's *extra* `ThreadPool.schedule(new ExUserInfoEquipSlot, 100)`
 ///     in `useEquippableItem` — a redundant second copy of that same snapshot.
-pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: i32, changed: &[i32]) {
+pub(crate) fn finish_equip_change(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    changed: &[i32],
+) {
     if changed.is_empty() {
         return;
     }
@@ -372,17 +510,25 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
     // `Inventory.equipItem`/`unEquipItemInBodySlot` → `Creature.recalculateStats`
     // before `broadcastUserInfo`). Without it the client shows the item on the
     // paperdoll but the stat panel never moves.
-    if let Some((player, base, mods, inventory, mut vitals, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-        &crate::model::Player,
-        &crate::model::components::BaseStats,
-        &crate::model::components::StatModifiers,
-        &crate::model::inventory::Inventory,
-        &mut crate::model::components::Vitals,
-        &mut crate::model::components::Speeds,
-        &mut crate::model::components::CombatStats,
-    )>(&object_id)
+    if let Some((player, base, mods, inventory, mut vitals, mut speeds, mut combat)) =
+        world.objects.get_many_mut::<(
+            &crate::model::Player,
+            &crate::model::components::BaseStats,
+            &crate::model::components::StatModifiers,
+            &crate::model::inventory::Inventory,
+            &mut crate::model::components::Vitals,
+            &mut crate::model::components::Speeds,
+            &mut crate::model::components::CombatStats,
+        )>(&object_id)
     {
-        player.recalculate_stats(&world.data, base, mods, &inventory, &mut speeds, &mut combat);
+        player.recalculate_stats(
+            &world.data,
+            base,
+            mods,
+            &inventory,
+            &mut speeds,
+            &mut combat,
+        );
         // Max HP/MP can carry item bonuses (e.g. +MP jewelry), which live in
         // `Vitals` on a separate path from `recalculate_stats`. Recompute them
         // and clamp current values down if a bonus was just removed (Java's
@@ -394,21 +540,37 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
             .or_else(|| world.data.player_templates.get(player.base_class_id))
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp = crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
-        vitals.max_mp = crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+        vitals.max_hp =
+            crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+        vitals.max_mp =
+            crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
 
-    let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id) else {
+    let Some(inventory) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::ex_user_info_equip_slot(object_id, inventory));
+        cs.send(crate::network::enter_world::ex_user_info_equip_slot(
+            object_id, inventory,
+        ));
         if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
+            cs.send(crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, v.p),
+            ));
         }
-        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, changed));
+        cs.send(crate::network::enter_world::inventory_update(
+            inventory,
+            &world.data,
+            changed,
+        ));
     }
     // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
     // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
@@ -429,9 +591,22 @@ pub(crate) fn finish_equip_change(world: &mut World, client_id: u32, object_id: 
 /// "Unmanaged Item handler" branch (logged, no visible effect to the player).
 fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     let handler = {
-        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
-        world.data.item_data.get(item.item_id).map(|t| t.handler).unwrap_or_default()
+        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
+        let Some(item) = inventory
+            .items()
+            .iter()
+            .find(|i| i.object_id == item_object_id)
+        else {
+            return;
+        };
+        world
+            .data
+            .item_data
+            .get(item.item_id)
+            .map(|t| t.handler)
+            .unwrap_or_default()
     };
     match handler {
         ItemHandler::ExtractableItems => extract_item(world, client_id, object_id, item_object_id),
@@ -440,7 +615,12 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             let item_id = world
                 .objects
                 .get_component::<Inventory>(&object_id)
-                .and_then(|inv| inv.items().iter().find(|i| i.object_id == item_object_id).map(|i| i.item_id));
+                .and_then(|inv| {
+                    inv.items()
+                        .iter()
+                        .find(|i| i.object_id == item_object_id)
+                        .map(|i| i.item_id)
+                });
             if let Some(item_id) = item_id {
                 charge_shot(world, object_id, item_id, handler, false);
             }
@@ -469,7 +649,13 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
 /// perk (a chance to spend fewer shots) isn't modelled — no Interlude weapon in
 /// the dist declares it — and the ruby/sapphire brooch visual swap doesn't
 /// exist (no jewels), so the shot's own `<skills>` visual always plays.
-pub(crate) fn charge_shot(world: &mut World, object_id: i32, shot_item_id: i32, handler: ItemHandler, auto: bool) -> bool {
+pub(crate) fn charge_shot(
+    world: &mut World,
+    object_id: i32,
+    shot_item_id: i32,
+    handler: ItemHandler,
+    auto: bool,
+) -> bool {
     use crate::model::{Player, ShotType};
 
     let physical = handler.is_soulshot();
@@ -492,9 +678,16 @@ pub(crate) fn charge_shot(world: &mut World, object_id: i32, shot_item_id: i32, 
 
     // Equipped weapon + its per-charge shot count / grade.
     let (weapon_item_id, shot_visual) = {
-        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return false };
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
+            return false;
+        };
         let weapon = inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand);
-        let visual = world.data.item_data.get(shot_item_id).map(|t| t.item_skills.clone()).unwrap_or_default();
+        let visual = world
+            .data
+            .item_data
+            .get(shot_item_id)
+            .map(|t| t.item_skills.clone())
+            .unwrap_or_default();
         (weapon, visual)
     };
     let shot_count = if physical {
@@ -505,30 +698,67 @@ pub(crate) fn charge_shot(world: &mut World, object_id: i32, shot_item_id: i32, 
 
     // No weapon, or a weapon that can't take this shot kind.
     if weapon_item_id == 0 || shot_count == 0 {
-        send(world, if physical { sm_ids::CANNOT_USE_SOULSHOTS } else { sm_ids::YOU_MAY_NOT_USE_SPIRITSHOTS });
+        send(
+            world,
+            if physical {
+                sm_ids::CANNOT_USE_SOULSHOTS
+            } else {
+                sm_ids::YOU_MAY_NOT_USE_SPIRITSHOTS
+            },
+        );
         return false;
     }
 
     // Grade must match (`getCrystalTypePlus`).
-    let weapon_grade = world.data.item_data.get(weapon_item_id).map(|t| t.crystal_type.plus());
-    let shot_grade = world.data.item_data.get(shot_item_id).map(|t| t.crystal_type.plus());
+    let weapon_grade = world
+        .data
+        .item_data
+        .get(weapon_item_id)
+        .map(|t| t.crystal_type.plus());
+    let shot_grade = world
+        .data
+        .item_data
+        .get(shot_item_id)
+        .map(|t| t.crystal_type.plus());
     if weapon_grade != shot_grade {
-        send(world, if physical { sm_ids::THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON } else { sm_ids::YOUR_SPIRITSHOT_DOES_NOT_MATCH_THE_WEAPON_S_GRADE });
+        send(
+            world,
+            if physical {
+                sm_ids::THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON
+            } else {
+                sm_ids::YOUR_SPIRITSHOT_DOES_NOT_MATCH_THE_WEAPON_S_GRADE
+            },
+        );
         return false;
     }
 
     // Already charged → no-op (also how the auto path avoids re-spending).
-    if world.objects.get_component::<Player>(&object_id).is_some_and(|p| p.is_charged_shot(shot_type)) {
+    if world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.is_charged_shot(shot_type))
+    {
         return false;
     }
 
     // Consume the shots; not enough → drop auto-use for this item.
-    let have = world.objects.get_component::<Inventory>(&object_id).map(|inv| inv.count_of(shot_item_id)).unwrap_or(0);
+    let have = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map(|inv| inv.count_of(shot_item_id))
+        .unwrap_or(0);
     if have < shot_count as i64 {
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
             p.auto_shots.retain(|&id| id != shot_item_id);
         }
-        send(world, if physical { sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SOULSHOTS_FOR_THAT } else { sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SPIRITSHOT_FOR_THAT });
+        send(
+            world,
+            if physical {
+                sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SOULSHOTS_FOR_THAT
+            } else {
+                sm_ids::YOU_DO_NOT_HAVE_ENOUGH_SPIRITSHOT_FOR_THAT
+            },
+        );
         return false;
     }
     let changes = world
@@ -548,7 +778,14 @@ pub(crate) fn charge_shot(world: &mut World, object_id: i32, shot_item_id: i32, 
             }
         }
     }
-    send(world, if physical { sm_ids::YOUR_SOULSHOTS_ARE_ENABLED } else { sm_ids::YOUR_SPIRITSHOT_HAS_BEEN_ENABLED });
+    send(
+        world,
+        if physical {
+            sm_ids::YOUR_SOULSHOTS_ARE_ENABLED
+        } else {
+            sm_ids::YOUR_SPIRITSHOT_HAS_BEEN_ENABLED
+        },
+    );
     broadcast_shot_visual(world, object_id, &shot_visual);
     true
 }
@@ -566,19 +803,32 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
     let enable = i32::from_le_bytes(ex_body[4..8].try_into().unwrap()) == 1;
     let shot_type = i32::from_le_bytes(ex_body[8..12].try_into().unwrap());
 
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     // `!player.isDead()` — a dead player can't toggle shots.
-    if world.objects.get_component::<crate::model::components::Vitals>(&object_id).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&object_id)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     // The item must be in the inventory, and be a player shot we handle.
     let handler = {
-        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return };
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
         if inv.count_of(item_id) == 0 {
             return;
         }
-        world.data.item_data.get(item_id).map(|t| t.handler).unwrap_or_default()
+        world
+            .data
+            .item_data
+            .get(item_id)
+            .map(|t| t.handler)
+            .unwrap_or_default()
     };
     if !handler.is_soulshot() && !handler.is_spiritshot() {
         return;
@@ -595,7 +845,8 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
     // are for the pet's swing, not the owner's.
     let is_summon_shot = matches!(
         handler,
-        crate::data::item_data::ItemHandler::BeastSoulShot | crate::data::item_data::ItemHandler::BeastSpiritShot
+        crate::data::item_data::ItemHandler::BeastSoulShot
+            | crate::data::item_data::ItemHandler::BeastSpiritShot
     );
     if enable && is_summon_shot {
         if crate::game_loop::servitor::pet_of(world, object_id).is_none()
@@ -604,12 +855,19 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             send(world, sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR_FOR_AUTO_USE, &[]);
             return;
         }
-        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&object_id)
+        {
             if !p.auto_shots.contains(&item_id) {
                 p.auto_shots.push(item_id);
             }
         }
-        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED, &[SmParam::ItemName(item_id)]);
+        send(
+            world,
+            sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED,
+            &[SmParam::ItemName(item_id)],
+        );
         // Java charges the summon immediately on activation.
         if let Some(summon) = crate::game_loop::servitor::pet_of(world, object_id)
             .or_else(|| crate::game_loop::servitor::servitor_of(world, object_id))
@@ -627,7 +885,11 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             .get_component::<Inventory>(&object_id)
             .map(|inv| inv.paperdoll_item_id(crate::model::inventory::PaperdollSlot::RHand))
             .unwrap_or(0);
-        let weapon_grade = world.data.item_data.get(weapon_item_id).map(|t| t.crystal_type.plus());
+        let weapon_grade = world
+            .data
+            .item_data
+            .get(weapon_item_id)
+            .map(|t| t.crystal_type.plus());
         let shot_grade = world.data.item_data.get(item_id).map(|t| t.crystal_type);
         if weapon_item_id == 0 || weapon_grade != shot_grade {
             send(
@@ -650,9 +912,18 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::ex_auto_soul_shot(item_id, true, shot_type));
         }
-        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED, &[SmParam::ItemName(item_id)]);
+        send(
+            world,
+            sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_ACTIVATED,
+            &[SmParam::ItemName(item_id)],
+        );
         // Charge immediately (Java `player.rechargeShots(...)`).
-        recharge_shots(world, object_id, handler.is_soulshot(), handler.is_spiritshot());
+        recharge_shots(
+            world,
+            object_id,
+            handler.is_soulshot(),
+            handler.is_spiritshot(),
+        );
     } else {
         // Deactivate.
         if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
@@ -661,7 +932,11 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::ex_auto_soul_shot(item_id, false, shot_type));
         }
-        send(world, sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED, &[SmParam::ItemName(item_id)]);
+        send(
+            world,
+            sm_ids::THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED,
+            &[SmParam::ItemName(item_id)],
+        );
     }
 }
 
@@ -677,13 +952,27 @@ pub(crate) fn recharge_shots(world: &mut World, object_id: i32, physical: bool, 
         .map(|p| p.auto_shots.clone())
         .unwrap_or_default();
     for item_id in auto {
-        if world.objects.get_component::<Inventory>(&object_id).map(|inv| inv.count_of(item_id)).unwrap_or(0) == 0 {
-            if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+        if world
+            .objects
+            .get_component::<Inventory>(&object_id)
+            .map(|inv| inv.count_of(item_id))
+            .unwrap_or(0)
+            == 0
+        {
+            if let Some(p) = world
+                .objects
+                .get_component_mut::<crate::model::Player>(&object_id)
+            {
                 p.auto_shots.retain(|&id| id != item_id);
             }
             continue;
         }
-        let handler = world.data.item_data.get(item_id).map(|t| t.handler).unwrap_or_default();
+        let handler = world
+            .data
+            .item_data
+            .get(item_id)
+            .map(|t| t.handler)
+            .unwrap_or_default();
         if (magic && handler.is_spiritshot()) || (physical && handler.is_soulshot()) {
             charge_shot(world, object_id, item_id, handler, true);
         }
@@ -695,8 +984,14 @@ pub(crate) fn recharge_shots(world: &mut World, object_id: i32, physical: bool, 
 /// `MagicSkillUse` — the client renders the charge glow off it.
 fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)]) {
     let Some((player, pos)) = ({
-        let p = world.objects.get_component::<crate::model::Player>(&object_id).cloned();
-        let pos = world.objects.get_component::<crate::model::components::Position>(&object_id).copied();
+        let p = world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+            .cloned();
+        let pos = world
+            .objects
+            .get_component::<crate::model::components::Position>(&object_id)
+            .copied();
         p.zip(pos)
     }) else {
         return;
@@ -751,9 +1046,19 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     use crate::model::Player;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
-        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
-        let Some(template) = world.data.item_data.get(item.item_id) else { return };
+        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
+        let Some(item) = inventory
+            .items()
+            .iter()
+            .find(|i| i.object_id == item_object_id)
+        else {
+            return;
+        };
+        let Some(template) = world.data.item_data.get(item.item_id) else {
+            return;
+        };
         (
             template.item_skills.clone(),
             template.immediate_effect,
@@ -772,10 +1077,22 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
         let is_collar = world
             .objects
             .get_component::<Inventory>(&object_id)
-            .and_then(|inv| inv.items().iter().find(|i| i.object_id == item_object_id).map(|i| i.item_id))
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|i| i.object_id == item_object_id)
+                    .map(|i| i.item_id)
+            })
             .is_some_and(|item_id| world.data.pet_data.is_pet_collar(item_id));
-        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
-            p.pending_pet_collar = if is_collar { Some(item_object_id) } else { None };
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&object_id)
+        {
+            p.pending_pet_collar = if is_collar {
+                Some(item_object_id)
+            } else {
+                None
+            };
         }
     }
 
@@ -784,7 +1101,9 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
     // the per-skill `continue`s, so a skill that never fires still counts.
     let mut has_consume_skill = false;
     for (skill_id, skill_level) in item_skills {
-        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else { continue };
+        let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
         if skill.item_consume_id > 0 {
             has_consume_skill = true;
         }
@@ -794,9 +1113,18 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
         let target_oid = match skill.target_type {
             TargetType::Self_ => object_id,
             _ => {
-                let Some(player) = world.objects.get_component::<Player>(&object_id) else { continue };
-                let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { continue };
-                let target_ref = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0;
+                let Some(player) = world.objects.get_component::<Player>(&object_id) else {
+                    continue;
+                };
+                let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+                    continue;
+                };
+                let target_ref = world
+                    .objects
+                    .get_component::<TargetRef>(&object_id)
+                    .copied()
+                    .unwrap_or_default()
+                    .0;
                 match resolve_cast_target(world, player, &pos, target_ref, &skill, true, false) {
                     Ok(oid) => oid,
                     Err(_) => continue,
@@ -853,7 +1181,9 @@ fn check_consume(
 /// consume tail shared by `ExtractableItems` and `ItemSkills`.
 fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     let Some(destroyed) = ({
-        let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else { return };
+        let Some(inventory) = world.objects.get_component_mut::<Inventory>(&object_id) else {
+            return;
+        };
         inventory.remove_by_object_id(item_object_id, 1)
     }) else {
         return;
@@ -861,7 +1191,10 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
     // Memory-first: the count decrement / removal already applied to the
     // `Inventory` component; it persists on the next flush.
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed)));
+        cs.send(ew::inventory_update_changes(
+            &world.data,
+            std::slice::from_ref(&destroyed),
+        ));
     }
 }
 
@@ -877,10 +1210,24 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
 /// nothing currently loaded needs them).
 fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     let (capsules, count_min, count_max) = {
-        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { return };
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == item_object_id) else { return };
-        let Some(template) = world.data.item_data.get(item.item_id) else { return };
-        (template.capsuled_items.clone(), template.extractable_count_min.max(0), template.extractable_count_max)
+        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
+        let Some(item) = inventory
+            .items()
+            .iter()
+            .find(|i| i.object_id == item_object_id)
+        else {
+            return;
+        };
+        let Some(template) = world.data.item_data.get(item.item_id) else {
+            return;
+        };
+        (
+            template.capsuled_items.clone(),
+            template.extractable_count_min.max(0),
+            template.extractable_count_max,
+        )
     };
     if capsules.is_empty() {
         return;
@@ -890,7 +1237,11 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     // `ExtractableItems.useItem` checks before touching the item: refuse
     // (leaving the box and inventory untouched) if the bag is already too
     // full for the reward roll to have anywhere to go.
-    let race = world.objects.get_component::<crate::model::Player>(&object_id).map(|p| p.race).unwrap_or(0);
+    let race = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.race)
+        .unwrap_or(0);
     let normal_limit = world.cfg.character.inventory_limit(race);
     let under_80 = world
         .objects
@@ -898,7 +1249,10 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         .is_some_and(|inv| inv.is_under_80_percent(&world.data.item_data, normal_limit));
     if !under_80 {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_ids::YOUR_INVENTORY_IS_FULL, &[]));
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOUR_INVENTORY_IS_FULL,
+                &[],
+            ));
         }
         return;
     }
@@ -915,7 +1269,11 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
                 continue;
             }
             let span = (product.max - product.min + 1).max(1) as i32;
-            let amount = if product.max == product.min { product.min } else { product.min + world.roll(span) as i64 };
+            let amount = if product.max == product.min {
+                product.min
+            } else {
+                product.min + world.roll(span) as i64
+            };
             if amount != 0 {
                 granted.push((product.item_id, amount));
             }
@@ -927,7 +1285,10 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
 
     if granted.is_empty() {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]));
+            cs.send(server_packets::system_message_with(
+                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
+                &[],
+            ));
         }
         return;
     }
@@ -937,16 +1298,23 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
             warn!("ExtractableItems: object-id pool exhausted, dropping {item_id}x{amount}");
             continue;
         };
-        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else { continue };
+        let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
+            continue;
+        };
         if let Some(cs) = world.clients.get(&client_id) {
             let sm = if amount > 1 {
-                server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S2_S1, &[SmParam::ItemName(item_id), SmParam::Long(amount)])
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+                )
             } else {
-                server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S1,
+                    &[SmParam::ItemName(item_id)],
+                )
             };
             cs.send(sm);
             cs.send(ew::inventory_update(inventory, &world.data, &changed_oids));
         }
     }
 }
-

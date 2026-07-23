@@ -28,7 +28,12 @@ pub(crate) fn has_premium_status(world: &World, object_id: i32) -> bool {
     if !premium_system_enabled(world) {
         return false;
     }
-    let Some(p) = world.objects.get_component::<crate::model::Player>(&object_id) else { return false };
+    let Some(p) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    else {
+        return false;
+    };
     get_premium_expiration(world, &p.account) > commons::util::now_millis()
 }
 
@@ -67,7 +72,14 @@ fn add_premium(world: &mut World, client_id: u32, months: i64, args: &[&str]) {
         return;
     }
     let enddate = add_premium_time(world, account, months * MONTH_MILLIS);
-    send_message(world, client_id, &format!("Account {account} will now have premium status until {}.", format_datetime(enddate)));
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Account {account} will now have premium status until {}.",
+            format_datetime(enddate)
+        ),
+    );
     // TODO(G16): Java also runs PcCafePointsManager.run(player) here when
     // Config.PC_CAFE_RETAIL_LIKE and the account is online; that manager is
     // unported.
@@ -85,9 +97,20 @@ fn view_premium(world: &World, client_id: u32, args: &[&str]) {
     }
     let expiration = get_premium_expiration(world, account);
     if expiration > 0 {
-        send_message(world, client_id, &format!("Account {account} has premium status until {}.", format_datetime(expiration)));
+        send_message(
+            world,
+            client_id,
+            &format!(
+                "Account {account} has premium status until {}.",
+                format_datetime(expiration)
+            ),
+        );
     } else {
-        send_message(world, client_id, &format!("Account {account} has no premium status."));
+        send_message(
+            world,
+            client_id,
+            &format!("Account {account} has no premium status."),
+        );
     }
 }
 
@@ -104,16 +127,30 @@ fn remove_premium(world: &mut World, client_id: u32, args: &[&str]) {
     if get_premium_expiration(world, account) > 0 {
         let key = account.to_lowercase();
         world.premium.remove(&key);
-        let _ = world.db.send(crate::db::DbCommand::DeletePremium { account_name: key });
-        send_message(world, client_id, &format!("Account {account} has no longer premium status."));
+        let _ = world
+            .db
+            .send(crate::db::DbCommand::DeletePremium { account_name: key });
+        send_message(
+            world,
+            client_id,
+            &format!("Account {account} has no longer premium status."),
+        );
     } else {
-        send_message(world, client_id, &format!("Account {account} has no premium status."));
+        send_message(
+            world,
+            client_id,
+            &format!("Account {account} has no premium status."),
+        );
     }
 }
 
 /// Java `PremiumManager.getPremiumExpiration` — the cached enddate, or 0.
 fn get_premium_expiration(world: &World, account: &str) -> i64 {
-    world.premium.get(&account.to_lowercase()).copied().unwrap_or(0)
+    world
+        .premium
+        .get(&account.to_lowercase())
+        .copied()
+        .unwrap_or(0)
 }
 
 /// Java `PremiumManager.addPremiumTime` — extend from `max(now, current)` by
@@ -124,7 +161,10 @@ pub(crate) fn add_premium_time(world: &mut World, account: &str, duration_millis
     let now = commons::util::now_millis();
     let new_end = now.max(get_premium_expiration(world, account)) + duration_millis;
     world.premium.insert(key.clone(), new_end);
-    let _ = world.db.send(crate::db::DbCommand::StorePremium { account_name: key, enddate: new_end });
+    let _ = world.db.send(crate::db::DbCommand::StorePremium {
+        account_name: key,
+        enddate: new_end,
+    });
     new_end
 }
 

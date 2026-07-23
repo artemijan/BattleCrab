@@ -70,20 +70,32 @@ pub enum ScheduledTask {
     /// `cast_seq` must match it or the task is stale (aborted/replaced cast)
     /// and no-ops — the heap-free abort mechanism, same dead-id contract as
     /// everything else here.
-    SkillLaunch { player_object_id: i32, cast_seq: u64 },
+    SkillLaunch {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
     /// `SkillCaster.run` phase 2 (`finishSkill`), fires `_cancelTime` ms
     /// after the launch: consume MP/HP, apply effects.
-    SkillFinish { player_object_id: i32, cast_seq: u64 },
+    SkillFinish {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
     /// `SkillCaster.run` end (`stopCasting(false)`), fires `_coolTime` ms
     /// after the finish: the cast slot frees up.
-    CastEnd { player_object_id: i32, cast_seq: u64 },
+    CastEnd {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
     /// One `SkillChannelizer.run()` tick of a `CA1` cast (G19,
     /// PLAN_G19_GROUND_CHANNELING.md): MP upkeep, re-sweep, apply the
     /// CHANNELING effect scope. Re-schedules itself while the cast (matched
     /// by `cast_seq`, same stale contract as the other cast phases) lives —
     /// `stop_casting` removing the `Casting` component is Java's
     /// `stopChanneling`.
-    ChannelingTick { player_object_id: i32, cast_seq: u64 },
+    ChannelingTick {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
     /// An `EffectPoint` totem's fixed-rate `union_skill` cast (G19,
     /// PLAN_G19_SYMBOLS.md). Re-schedules itself while the totem lives; a
     /// dead/despawned totem ends the series (Java cancels the task in
@@ -93,20 +105,34 @@ pub enum ScheduledTask {
     /// lifetime running out.
     EffectPointDespawn { npc_oid: i32 },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
-    BuffExpire { player_object_id: i32, skill_id: i32 },
+    BuffExpire {
+        player_object_id: i32,
+        skill_id: i32,
+    },
     /// A `DamOverTime` effect's periodic tick (Java `EffectTickTask`, armed by
     /// `BuffInfo` via `scheduleAtFixedRate` at `ticks * EFFECT_TICK_RATIO` ms).
     /// Deals the per-tick poison/bleed damage from `caster` to `target` and
     /// reschedules itself; a no-op that stops the chain once the buff has
     /// expired/been removed (its `BuffExpire` drops it at `abnormalTime`) or the
     /// target is dead — the same dead-id/`isDead` contract as everything here.
-    DamOverTimeTick { caster: i32, target: i32, skill_id: i32, skill_level: i32 },
+    DamOverTimeTick {
+        caster: i32,
+        target: i32,
+        skill_id: i32,
+        skill_level: i32,
+    },
     /// `CreatureAttackTaskManager.onHitTimeNotDual` — one auto-attack swing
     /// landing. The hit was rolled at swing start (Java
     /// `generateAttackTargetData`) and rides along; attacker/target death or
     /// disappearance before it fires makes it a no-op (Java's `isDead` /
     /// dead-ref checks inside the task).
-    AttackHit { attacker: i32, target: i32, damage: i32, miss: bool, crit: bool },
+    AttackHit {
+        attacker: i32,
+        target: i32,
+        damage: i32,
+        miss: bool,
+        crit: bool,
+    },
     /// The Rust `EVT_READY_TO_ACT`: a player's swing period ended
     /// (`attack_end_tick`), releasing whatever action the swing held back
     /// (`run_queued_action`); a no-op when nothing is queued.
@@ -123,13 +149,20 @@ pub enum ScheduledTask {
     /// rather than an object id: the boss isn't in the world yet.
     BossRespawn { spawn_ref: (usize, usize, usize) },
     /// A leader's killed minion is due back — see [`crate::game_loop::minions`].
-    MinionRespawn { master_object_id: i32, minion_npc_id: i32 },
+    MinionRespawn {
+        master_object_id: i32,
+        minion_npc_id: i32,
+    },
     /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after
     /// its lifetime elapses.
     GroundItemDecay { item_object_id: i32 },
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
     /// dead NPC came from (indices into `GameData.spawn_data`).
-    NpcRespawn { spawn_idx: usize, group_idx: usize, npc_idx: usize },
+    NpcRespawn {
+        spawn_idx: usize,
+        group_idx: usize,
+        npc_idx: usize,
+    },
     /// A leader-requested clan dissolution came due (`ClanTable.
     /// scheduleRemoveClan`): destroy the clan if `dissolving_expiry_time` is
     /// still set (a `recover_clan` zeroes it → no-op). Re-armed at boot from
@@ -162,7 +195,13 @@ pub enum ScheduledTask {
     /// `on_timer`. `seq` is checked against the player's `QuestTimerSeqs`
     /// entry for `(quest, name)` — cancelling a timer is bumping that seq
     /// (the cast_seq pattern). `npc` is 0 when the timer has no NPC.
-    QuestTimer { quest: &'static str, name: String, player: i32, npc: i32, seq: u64 },
+    QuestTimer {
+        quest: &'static str,
+        name: String,
+        player: i32,
+        npc: i32,
+        seq: u64,
+    },
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose { door_object_id: i32, seq: u64 },
@@ -206,7 +245,10 @@ impl PartialEq for Entry {
 impl Eq for Entry {}
 impl Ord for Entry {
     fn cmp(&self, other: &Self) -> Ordering {
-        other.fire_at.cmp(&self.fire_at).then_with(|| other.seq.cmp(&self.seq))
+        other
+            .fire_at
+            .cmp(&self.fire_at)
+            .then_with(|| other.seq.cmp(&self.seq))
     }
 }
 impl PartialOrd for Entry {
@@ -284,7 +326,10 @@ mod tests {
         assert_eq!(s.drain_due(3), vec![ScheduledTask::Noop { object_id: 1 }]);
         assert_eq!(
             s.drain_due(10),
-            vec![ScheduledTask::Noop { object_id: 2 }, ScheduledTask::Noop { object_id: 3 }]
+            vec![
+                ScheduledTask::Noop { object_id: 2 },
+                ScheduledTask::Noop { object_id: 3 }
+            ]
         );
         assert!(s.is_empty());
     }

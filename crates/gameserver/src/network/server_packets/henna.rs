@@ -91,7 +91,15 @@ pub type StatPreview = [(i32, i16); 6];
 
 /// Port of `serverpackets/HennaItemDrawInfo` — the "draw this dye" preview:
 /// costs + the current vs. after-adding stat columns.
-pub fn henna_item_draw_info(dye_id: i32, item_id: i32, count: i64, fee: i64, allowed: bool, adena: i64, stats: &StatPreview) -> Vec<u8> {
+pub fn henna_item_draw_info(
+    dye_id: i32,
+    item_id: i32,
+    count: i64,
+    fee: i64,
+    allowed: bool,
+    adena: i64,
+    stats: &StatPreview,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::HENNA_ITEM_INFO);
     w.write_i32(dye_id);
@@ -109,7 +117,15 @@ pub fn henna_item_draw_info(dye_id: i32, item_id: i32, count: i64, fee: i64, all
 }
 
 /// Port of `serverpackets/HennaItemRemoveInfo` — the "remove this dye" preview.
-pub fn henna_item_remove_info(dye_id: i32, item_id: i32, count: i64, fee: i64, allowed: bool, adena: i64, stats: &StatPreview) -> Vec<u8> {
+pub fn henna_item_remove_info(
+    dye_id: i32,
+    item_id: i32,
+    count: i64,
+    fee: i64,
+    allowed: bool,
+    adena: i64,
+    stats: &StatPreview,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::HENNA_UNEQUIP_INFO);
     w.write_i32(dye_id);

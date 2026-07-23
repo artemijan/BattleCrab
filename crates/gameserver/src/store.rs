@@ -69,7 +69,10 @@ impl EntityStore {
         self.index.get(id).and_then(|e| self.ecs.get::<C>(*e))
     }
 
-    pub fn get_component_mut<C: Component<Mutability = Mutable>>(&mut self, id: &i32) -> Option<&mut C> {
+    pub fn get_component_mut<C: Component<Mutability = Mutable>>(
+        &mut self,
+        id: &i32,
+    ) -> Option<&mut C> {
         let entity = *self.index.get(id)?;
         self.ecs.get_mut::<C>(entity).map(Mut::into_inner)
     }

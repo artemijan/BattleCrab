@@ -156,7 +156,10 @@ mod datapack_path_tests {
 
     #[test]
     fn joins_relative_paths_onto_the_root() {
-        assert_eq!(datapack_path("dist/game/", "data/html"), "dist/game/data/html");
+        assert_eq!(
+            datapack_path("dist/game/", "data/html"),
+            "dist/game/data/html"
+        );
     }
 
     #[test]
@@ -173,12 +176,18 @@ mod datapack_path_tests {
     fn keeps_parent_traversal_so_backup_path_still_escapes_the_datapack() {
         // BackupPath is `../backup/`, i.e. dist/backup — trimming this the way
         // `./` is trimmed would silently relocate backups inside the datapack.
-        assert_eq!(datapack_path("dist/game/", "../backup/"), "dist/game/../backup/");
+        assert_eq!(
+            datapack_path("dist/game/", "../backup/"),
+            "dist/game/../backup/"
+        );
     }
 
     #[test]
     fn leaves_absolute_paths_alone() {
-        assert_eq!(datapack_path("dist/game/", "/srv/l2/geodata"), "/srv/l2/geodata");
+        assert_eq!(
+            datapack_path("dist/game/", "/srv/l2/geodata"),
+            "/srv/l2/geodata"
+        );
     }
 
     #[test]

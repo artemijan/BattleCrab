@@ -201,15 +201,28 @@ impl ZoneData {
             // silently skip the exp penalty. Adding a file for one kind must
             // not change behaviour for another.
             if kind == ZoneKind::Script {
-                let kept: Vec<Zone> =
-                    zones.split_off(before).into_iter().filter(|z| z.kind == ZoneKind::Script).collect();
+                let kept: Vec<Zone> = zones
+                    .split_off(before)
+                    .into_iter()
+                    .filter(|z| z.kind == ZoneKind::Script)
+                    .collect();
                 zones.extend(kept);
             }
         }
-        let mut data = Self { zones, grid: Default::default() };
+        let mut data = Self {
+            zones,
+            grid: Default::default(),
+        };
         data.build_grid();
-        let effects = data.zones.iter().filter(|z| z.kind == ZoneKind::Effect).count();
-        info!("ZoneData: Loaded {} zones ({effects} effect).", data.zones.len());
+        let effects = data
+            .zones
+            .iter()
+            .filter(|z| z.kind == ZoneKind::Effect)
+            .count();
+        info!(
+            "ZoneData: Loaded {} zones ({effects} effect).",
+            data.zones.len()
+        );
         data
     }
 
@@ -246,7 +259,9 @@ impl ZoneData {
             .into_iter()
             .flatten()
             .map(|&i| &self.zones[i as usize])
-            .filter(move |zn| z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y))
+            .filter(move |zn| {
+                z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y)
+            })
     }
 
     /// Indices (into [`Self::zones`]) of every zone containing the point.
@@ -272,7 +287,9 @@ impl ZoneData {
     /// The castle id of the `SiegeZone` covering the point, if any (Java
     /// `getZone(x, y, z, SiegeZone.class).getSiege().getCastle()`).
     pub fn siege_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
-        self.zones_at(x, y, z).find(|zn| zn.kind == ZoneKind::Siege).map(|zn| zn.castle_id)
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::Siege)
+            .map(|zn| zn.castle_id)
     }
 }
 
@@ -309,7 +326,9 @@ fn parse_skill_id_lvl(raw: &str) -> Vec<(i32, i32)> {
 /// `default_kind` is the filename-derived fallback for files that predate
 /// per-zone `type=` parsing; a zone's own `type=` attribute always wins.
 fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
-    let Ok(content) = std::fs::read_to_string(path) else { return };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
     let mut reader = Reader::from_str(&content);
 
     struct Pending {
@@ -371,7 +390,11 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 id: p.id,
                                 name: p.name,
                                 kind: p.kind,
-                                territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
+                                territory: Territory {
+                                    form,
+                                    min_z: p.min_z,
+                                    max_z: p.max_z,
+                                },
                                 castle_id: p.castle_id,
                                 effect,
                                 damage,
@@ -399,7 +422,10 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     castle_id: 0,
                     // A zone's own `type=` wins; the filename mapping is the
                     // fallback for the single-type files.
-                    kind: attr_str(&e, b"type").as_deref().and_then(kind_from_type).unwrap_or(kind),
+                    kind: attr_str(&e, b"type")
+                        .as_deref()
+                        .and_then(kind_from_type)
+                        .unwrap_or(kind),
                     skills: Vec::new(),
                     chance: 100,
                     initial_delay: 0,
@@ -423,14 +449,24 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
             // the spawn territories' lowercase — accept either.
             b"node" => {
                 if let Some(p) = cur.as_mut() {
-                    p.xs.push(attr_i32(&e, b"X").or_else(|| attr_i32(&e, b"x")).unwrap_or(0));
-                    p.ys.push(attr_i32(&e, b"Y").or_else(|| attr_i32(&e, b"y")).unwrap_or(0));
+                    p.xs.push(
+                        attr_i32(&e, b"X")
+                            .or_else(|| attr_i32(&e, b"x"))
+                            .unwrap_or(0),
+                    );
+                    p.ys.push(
+                        attr_i32(&e, b"Y")
+                            .or_else(|| attr_i32(&e, b"y"))
+                            .unwrap_or(0),
+                    );
                 }
             }
             // `SiegeZone`s carry `<stat name="castleId" val="N"/>`; other zone
             // stats are still skipped (see module docs).
             b"stat" => {
-                let (Some(p), Some(name)) = (cur.as_mut(), attr_str(&e, b"name")) else { continue };
+                let (Some(p), Some(name)) = (cur.as_mut(), attr_str(&e, b"name")) else {
+                    continue;
+                };
                 let val = attr_str(&e, b"val").unwrap_or_default();
                 match name.as_str() {
                     "castleId" => p.castle_id = val.parse().unwrap_or(0),
@@ -461,9 +497,11 @@ fn build_form(shape: &str, xs: Vec<i32>, ys: Vec<i32>, rad: Option<i32>) -> Opti
             y1: ys[0].min(ys[1]),
             y2: ys[0].max(ys[1]),
         }),
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => {
-            Some(ZoneForm::Cylinder { x: xs[0], y: ys[0], rad: rad.unwrap_or(0) })
-        }
+        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
+            x: xs[0],
+            y: ys[0],
+            rad: rad.unwrap_or(0),
+        }),
         _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
         _ => None,
     }
@@ -542,7 +580,12 @@ mod tests {
             name: "test_peace".into(),
             kind: ZoneKind::Peace,
             territory: Territory {
-                form: ZoneForm::Cuboid { x1: 0, x2: 1000, y1: 0, y2: 1000 },
+                form: ZoneForm::Cuboid {
+                    x1: 0,
+                    x2: 1000,
+                    y1: 0,
+                    y2: 1000,
+                },
                 min_z: -100,
                 max_z: 100,
             },
@@ -566,12 +609,28 @@ mod effect_zone_tests {
     #[test]
     fn parses_effect_zones_from_dist() {
         let data = ZoneData::load_from(DIST);
-        let effects: Vec<&Zone> = data.zones.iter().filter(|z| z.kind == ZoneKind::Effect).collect();
-        let with_skills = effects.iter().filter(|z| !z.effect.as_ref().unwrap().skills.is_empty()).count();
-        let npc_only = effects.iter().filter(|z| !z.effect.as_ref().unwrap().casts_on_players).count();
-        println!("EFFECT ZONES={} with_skills={with_skills} npc_targeted={npc_only}", effects.len());
+        let effects: Vec<&Zone> = data
+            .zones
+            .iter()
+            .filter(|z| z.kind == ZoneKind::Effect)
+            .collect();
+        let with_skills = effects
+            .iter()
+            .filter(|z| !z.effect.as_ref().unwrap().skills.is_empty())
+            .count();
+        let npc_only = effects
+            .iter()
+            .filter(|z| !z.effect.as_ref().unwrap().casts_on_players)
+            .count();
+        println!(
+            "EFFECT ZONES={} with_skills={with_skills} npc_targeted={npc_only}",
+            effects.len()
+        );
         assert_eq!(effects.len(), 218, "expected the dist's 218 EffectZones");
-        assert_eq!(npc_only, 27, "expected 27 targetClass=Npc zones (which cast on nobody)");
+        assert_eq!(
+            npc_only, 27,
+            "expected 27 targetClass=Npc zones (which cast on nobody)"
+        );
 
         // Blazing Swamp: fire damage-over-time, 50% chance.
         let fire = effects
@@ -606,7 +665,11 @@ mod effect_zone_tests {
                 z.name
             );
             if z.kind == ZoneKind::Effect {
-                assert!(z.effect.is_some(), "effect zone {} must carry params", z.name);
+                assert!(
+                    z.effect.is_some(),
+                    "effect zone {} must carry params",
+                    z.name
+                );
             }
         }
     }

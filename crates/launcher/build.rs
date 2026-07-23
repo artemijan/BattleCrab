@@ -46,7 +46,10 @@ fn main() {
     // `1` is the resource id. Windows shows the lowest-numbered ICON resource as the
     // application icon, so this must stay first if more are ever added.
     let rc_path = out_dir.join("icon.rc");
-    let rc = format!("1 ICON \"{}\"\n", icon.display().to_string().replace('\\', "\\\\"));
+    let rc = format!(
+        "1 ICON \"{}\"\n",
+        icon.display().to_string().replace('\\', "\\\\")
+    );
     std::fs::write(&rc_path, rc).expect("failed to write icon.rc");
 
     let arch = std::env::var("CARGO_CFG_TARGET_ARCH").unwrap_or_default();
@@ -60,7 +63,9 @@ fn main() {
         // 'pe-aarch64'"), so ARM64 goes the two-step MSVC-style route instead.
         "aarch64" => rc_then_cvtres("ARM64", &rc_path, &out_dir, &obj),
         other => {
-            warn(&format!("no resource-compiler recipe for target arch '{other}'"));
+            warn(&format!(
+                "no resource-compiler recipe for target arch '{other}'"
+            ));
             false
         }
     };
@@ -109,7 +114,10 @@ fn bake_in_config() {
 fn read_dotenv() -> std::collections::HashMap<String, String> {
     let path = PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap()).join(".env");
     let Ok(text) = std::fs::read_to_string(&path) else {
-        println!("cargo:warning=no .env at {}; using defaults", path.display());
+        println!(
+            "cargo:warning=no .env at {}; using defaults",
+            path.display()
+        );
         return Default::default();
     };
 
@@ -163,7 +171,11 @@ fn rc_then_cvtres(machine: &str, rc_path: &Path, out_dir: &Path, obj: &Path) -> 
         && run_in(
             out_dir,
             &cvt,
-            &[&format!("/machine:{machine}"), &format!("/out:{obj_name}"), "icon.res"],
+            &[
+                &format!("/machine:{machine}"),
+                &format!("/out:{obj_name}"),
+                "icon.res",
+            ],
         )
 }
 

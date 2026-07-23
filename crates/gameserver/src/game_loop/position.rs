@@ -2,7 +2,10 @@
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::geo::worker::{PathEvent, PathRequest};
-use crate::model::components::{AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds, Vitals};
+use crate::model::components::{
+    AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds,
+    Vitals,
+};
 use crate::model::movement::GeoPath;
 use crate::model::Player;
 use crate::network::client_packets as cp;
@@ -24,17 +27,34 @@ use super::helpers::{broadcast_including_self, broadcast_to_others};
 /// covered by the busy branch overwriting the `QueuedAction` slot — outside
 /// a cast/swing the slot is always empty, so there is nothing to clear.
 pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::MoveBackwardToLocation::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::MoveBackwardToLocation::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    if world.objects.get_component::<crate::model::Player>(&object_id).is_none() {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_none()
+    {
         return;
     }
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
 
-    if pkt.target_x == pkt.origin_x && pkt.target_y == pkt.origin_y && pkt.target_z == pkt.origin_z {
+    if pkt.target_x == pkt.origin_x && pkt.target_y == pkt.origin_y && pkt.target_z == pkt.origin_z
+    {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading));
+            cs.send(server_packets::stop_move(
+                object_id,
+                cur.x,
+                cur.y,
+                cur.z,
+                cur.heading,
+            ));
             cs.send(server_packets::action_failed());
         }
         return;
@@ -58,13 +78,23 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
     // of `isMovementDisabled`'s effect-driven terms.
     if super::abnormal::is_movement_disabled(world, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::stop_move(object_id, cur.x, cur.y, cur.z, cur.heading));
+            cs.send(server_packets::stop_move(
+                object_id,
+                cur.x,
+                cur.y,
+                cur.z,
+                cur.heading,
+            ));
             cs.send(server_packets::action_failed());
         }
         return;
     }
     // Dead players can't move at all (`isMovementDisabled`).
-    if world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .is_some_and(|v| v.dead)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -83,9 +113,14 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         .is_some_and(|st| st.attack_end_tick > world.tick);
     if mid_swing || world.objects.has_component::<Casting>(&object_id) {
         world.objects.remove_component::<Intent>(&object_id);
-        world
-            .objects
-            .add_components(&object_id, QueuedAction::Move { x: pkt.target_x, y: pkt.target_y, z: target_z });
+        world.objects.add_components(
+            &object_id,
+            QueuedAction::Move {
+                x: pkt.target_x,
+                y: pkt.target_y,
+                z: target_z,
+            },
+        );
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -96,7 +131,13 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         world.objects.remove_component::<Intent>(&object_id);
     }
 
-    intention_move_to(world, client_id, object_id, cur, (pkt.target_x, pkt.target_y, target_z));
+    intention_move_to(
+        world,
+        client_id,
+        object_id,
+        cur,
+        (pkt.target_x, pkt.target_y, target_z),
+    );
 }
 
 /// Port of `clientpackets/RequestStopMove.runImpl`:
@@ -109,9 +150,13 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
 /// player's own current position, so nothing moves and no zone boundary is
 /// crossed.
 pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
 
     world.objects.remove_component::<Movement>(&object_id);
     world.objects.remove_component::<PathWait>(&object_id);
@@ -125,9 +170,17 @@ pub(crate) fn handle_request_stop_move(world: &mut World, client_id: u32) {
 
 /// Port of `clientpackets/ExSendSelectedQuestZoneID.runImpl`: store the quest
 /// zone the client selected on `Player` (read later by quest teleports).
-pub(crate) fn handle_ex_send_selected_quest_zone_id(world: &mut World, client_id: u32, ex_body: &[u8]) {
-    let Some(quest_zone_id) = cp::read_selected_quest_zone_id(ex_body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+pub(crate) fn handle_ex_send_selected_quest_zone_id(
+    world: &mut World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
+    let Some(quest_zone_id) = cp::read_selected_quest_zone_id(ex_body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     if let Some(player) = world.objects.get_component_mut::<Player>(&object_id) {
         player.quest_zone_id = quest_zone_id;
@@ -181,8 +234,11 @@ pub(crate) fn intention_move_to(
     // Java skips the destination correction for far clicks (> 3000: "should
     // be able to click far away and move") and for intentional falls
     // ((curZ - z) > 300 with distance < 300).
-    if world.path_finding > 0 && distance <= 3000.0 && !(cur.z - target_z > 300 && distance < 300.0) {
-        let (vx, vy, _vz) = world.geo.get_valid_location(cur.x, cur.y, cur.z, target_x, target_y, target_z);
+    if world.path_finding > 0 && distance <= 3000.0 && !(cur.z - target_z > 300 && distance < 300.0)
+    {
+        let (vx, vy, _vz) = world
+            .geo
+            .get_valid_location(cur.x, cur.y, cur.z, target_x, target_y, target_z);
         // Players keep the client-requested z (Java: `if (!isPlayer()) z = destiny.getZ()`).
         target_x = vx;
         target_y = vy;
@@ -217,7 +273,14 @@ pub(crate) fn intention_move_to(
         return;
     }
 
-    start_move(world, client_id, object_id, cur, (target_x, target_y, target_z), None);
+    start_move(
+        world,
+        client_id,
+        object_id,
+        cur,
+        (target_x, target_y, target_z),
+        None,
+    );
 }
 
 /// The path worker's reply (`geo::worker::PathEvent`): start the route move,
@@ -226,7 +289,13 @@ pub(crate) fn intention_move_to(
 /// found" + ActionFailed); the extra liveness re-checks cover state changes
 /// during the round-trip, which the synchronous Java flow can't see.
 pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
-    let PathEvent { seq, client_id, object_id, to, path } = ev;
+    let PathEvent {
+        seq,
+        client_id,
+        object_id,
+        to,
+        path,
+    } = ev;
     // Stale reply: the player left, or clicked again (newer seq) — drop it.
     match world.objects.get_component::<PathWait>(&object_id) {
         Some(w) if w.seq == seq => {}
@@ -253,7 +322,10 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     };
 
     // Move gates re-checked after the round-trip (same set as the click).
-    let is_dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
+    let is_dead = world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .is_some_and(|v| v.dead);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
         if is_player {
             if let Some(cs) = world.clients.get(&client_id) {
@@ -262,7 +334,9 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
         }
         return;
     }
-    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
 
     let first = points[0];
     let geo_path = GeoPath {
@@ -295,8 +369,18 @@ pub(crate) fn start_move(
     let distance = (dx * dx + dy * dy).sqrt();
     let (start_x, start_y, start_z) = (cur.x, cur.y, cur.z);
     let heading = crate::model::movement::calculate_heading(dx, dy);
-    let Some(speed) = world.objects.get_component::<Speeds>(&object_id).map(Speeds::move_speed) else { return };
-    let total_ticks = if speed > 0.0 { ((10.0 * distance / speed).round() as u64).max(1) } else { 1 };
+    let Some(speed) = world
+        .objects
+        .get_component::<Speeds>(&object_id)
+        .map(Speeds::move_speed)
+    else {
+        return;
+    };
+    let total_ticks = if speed > 0.0 {
+        ((10.0 * distance / speed).round() as u64).max(1)
+    } else {
+        1
+    };
     let start_tick = world.tick;
 
     if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
@@ -317,8 +401,9 @@ pub(crate) fn start_move(
         }),
     );
 
-    let move_pkt =
-        server_packets::move_to_location(object_id, target_x, target_y, target_z, start_x, start_y, start_z);
+    let move_pkt = server_packets::move_to_location(
+        object_id, target_x, target_y, target_z, start_x, start_y, start_z,
+    );
     // The mover's own copy (Java's `includeSelf` override on `Player`); an NPC
     // has no client, and `broadcast_to_others` covers the onlookers either way.
     if world.objects.has_component::<Player>(&object_id) {
@@ -335,10 +420,19 @@ pub(crate) fn start_move(
 /// or Blink, and the trailing door-exploit check is skipped (no doors) —
 /// those branches simply can't trigger yet.
 pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::ValidatePosition::read(body) else { return };
+    let Some(pkt) = cp::ValidatePosition::read(body) else {
+        return;
+    };
     // Field-level split borrow: `player`+`pos` (mut) + `geo`/`clients` (shared).
-    let World { clients, objects, geo, .. } = world;
-    let Some(ClientSession::InGame(session)) = clients.get(&client_id) else { return };
+    let World {
+        clients,
+        objects,
+        geo,
+        ..
+    } = world;
+    let Some(ClientSession::InGame(session)) = clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     // Java bails while casting, teleporting, or in observer mode (no observer
     // mode yet). The teleporting bail is load-bearing: during a far teleport
@@ -347,7 +441,9 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     // reverts the server position to the pre-teleport spot and the client
     // hangs on the black loading screen.
     if objects.has_component::<Casting>(&object_id)
-        || objects.get_component::<Player>(&object_id).is_none_or(|p| p.teleporting)
+        || objects
+            .get_component::<Player>(&object_id)
+            .is_none_or(|p| p.teleporting)
     {
         return;
     }
@@ -376,7 +472,13 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
         } else {
             // Push the server position back to the client (built pre-snap,
             // exactly where Java builds the packet).
-            correction = Some(server_packets::validate_location(object_id, pos.x, pos.y, pos.z, pos.heading));
+            correction = Some(server_packets::validate_location(
+                object_id,
+                pos.x,
+                pos.y,
+                pos.z,
+                pos.heading,
+            ));
         }
     }
 
@@ -388,7 +490,11 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     let sdz = (pkt.z - pos.z) as f64;
     let move_speed = speeds.move_speed();
     if (sdx * sdx + sdy * sdy + sdz * sdz).sqrt() > move_speed {
-        let z = if pos.z > pkt.z { geo.get_height(pkt.x, pkt.y, pos.z) } else { pkt.z };
+        let z = if pos.z > pkt.z {
+            geo.get_height(pkt.x, pkt.y, pos.z)
+        } else {
+            pkt.z
+        };
         pos.x = pkt.x;
         pos.y = pkt.y;
         pos.z = z;

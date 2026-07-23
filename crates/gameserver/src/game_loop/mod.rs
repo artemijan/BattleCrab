@@ -8,75 +8,75 @@
 
 mod abnormal;
 pub(crate) mod admin;
+pub(crate) mod antharas;
+mod augment;
+mod baium;
+mod boss_respawn;
+mod boss_threat;
 mod bypass;
 mod chat;
 mod clans;
-mod community_board;
 mod combat;
+mod common;
+mod community_board;
+mod core_boss;
 mod crafting;
-mod augment;
+mod cubic;
+pub(crate) mod cursed_weapon;
 pub(crate) mod death;
 mod dispatch;
 pub(crate) mod doors;
+pub(crate) mod dr_chaos;
 pub(crate) mod duel;
 mod effect_point;
-pub(crate) mod dr_chaos;
-pub(crate) mod cursed_weapon;
-mod skill_enchant;
+pub(crate) mod effect_zones;
 mod enchant;
 mod expertise;
 mod friends;
+mod grand_boss;
 mod ground_items;
-mod henna;
 mod helpers;
-mod private_store;
-mod trade;
-mod warehouse;
+mod henna;
 mod items;
 mod lobby;
+pub(crate) mod minions;
 mod multisell;
 mod net;
-mod boss_respawn;
-pub(crate) mod effect_zones;
-pub(crate) mod minions;
 pub(crate) mod npc_ai;
 mod npc_cast;
 mod npc_view;
+mod orfen;
 mod party;
 mod passive_skills;
 pub(crate) mod position;
+mod private_store;
 mod pvp;
+mod queen_ant;
 pub mod quests;
+mod raid_curse;
 mod ranged;
 mod reco;
 pub(crate) mod regen;
-mod shop;
-mod cubic;
-mod grand_boss;
-pub(crate) mod antharas;
-mod baium;
-mod boss_threat;
-mod core_boss;
-mod orfen;
-mod queen_ant;
-pub(crate) mod valakas;
-mod raid_curse;
 mod servitor;
+mod shop;
 mod shortcuts;
 mod siege;
+mod skill_enchant;
 mod skills;
+pub(crate) mod subclass;
 mod support_magic;
 mod target;
 mod teleporter;
-mod user_commands;
-mod vitality;
 #[cfg(test)]
 mod tests;
+mod trade;
+mod user_commands;
+pub(crate) mod valakas;
 mod visibility;
-pub(crate) mod subclass;
+mod vitality;
 pub(crate) mod walkers;
+mod warehouse;
 pub(crate) mod zones;
-mod common;
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
@@ -108,7 +108,6 @@ const TICK_OVERRUN_WARN: Duration = Duration::from_millis(50);
 /// How often the staggered autosave sweep runs — every 1 s (10 ticks), the same
 /// fixed-rate cadence as Java's `PlayerAutoSaveTaskManager`.
 const AUTOSAVE_CHECK_PERIOD: u64 = 10;
-
 
 /// Signal shared with the async side (ctrl-c / scheduled restart) to stop the
 /// loop after the current tick finishes.
@@ -284,7 +283,6 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     boss_respawn::save_all_bosses(&mut world);
 }
 
-
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`
 /// and the timer half of the memory-first model. Flushes **at most one** due
 /// player per sweep (Java's `break; // Prevent SQL flood`) and reschedules it
@@ -313,16 +311,28 @@ fn apply_due_tasks(world: &mut World) {
     for task in world.drain_due_tasks() {
         match task {
             ScheduledTask::Noop { .. } => {}
-            ScheduledTask::SkillLaunch { player_object_id, cast_seq } => {
+            ScheduledTask::SkillLaunch {
+                player_object_id,
+                cast_seq,
+            } => {
                 handle_skill_launch(world, player_object_id, cast_seq);
             }
-            ScheduledTask::SkillFinish { player_object_id, cast_seq } => {
+            ScheduledTask::SkillFinish {
+                player_object_id,
+                cast_seq,
+            } => {
                 handle_skill_finish(world, player_object_id, cast_seq);
             }
-            ScheduledTask::CastEnd { player_object_id, cast_seq } => {
+            ScheduledTask::CastEnd {
+                player_object_id,
+                cast_seq,
+            } => {
                 handle_cast_end(world, player_object_id, cast_seq);
             }
-            ScheduledTask::ChannelingTick { player_object_id, cast_seq } => {
+            ScheduledTask::ChannelingTick {
+                player_object_id,
+                cast_seq,
+            } => {
                 skills::cast::handle_channeling_tick(world, player_object_id, cast_seq);
             }
             ScheduledTask::EffectPointCast { npc_oid } => {
@@ -331,7 +341,10 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::EffectPointDespawn { npc_oid } => {
                 effect_point::handle_effect_point_despawn(world, npc_oid);
             }
-            ScheduledTask::BuffExpire { player_object_id, skill_id } => {
+            ScheduledTask::BuffExpire {
+                player_object_id,
+                skill_id,
+            } => {
                 // A re-cast/refresh pushes a fresh instance with a later expiry
                 // and its own `BuffExpire`; only fire when the *current* buff has
                 // actually elapsed, so a stale task can't drop the refreshed buff.
@@ -399,16 +412,36 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::CoreDespawnMinions => {
                 core_boss::handle_despawn_minions(world);
             }
-            ScheduledTask::CubicAction { owner_oid, cubic_id } => {
+            ScheduledTask::CubicAction {
+                owner_oid,
+                cubic_id,
+            } => {
                 cubic::handle_cubic_action(world, owner_oid, cubic_id);
             }
             ScheduledTask::PetFeedTick { pet_oid } => {
                 servitor::handle_feed_tick(world, pet_oid);
             }
-            ScheduledTask::DamOverTimeTick { caster, target, skill_id, skill_level } => {
-                skills::effects::handle_dam_over_time_tick(world, caster, target, skill_id, skill_level);
+            ScheduledTask::DamOverTimeTick {
+                caster,
+                target,
+                skill_id,
+                skill_level,
+            } => {
+                skills::effects::handle_dam_over_time_tick(
+                    world,
+                    caster,
+                    target,
+                    skill_id,
+                    skill_level,
+                );
             }
-            ScheduledTask::AttackHit { attacker, target, damage, miss, crit } => {
+            ScheduledTask::AttackHit {
+                attacker,
+                target,
+                damage,
+                miss,
+                crit,
+            } => {
                 combat::handle_attack_hit(world, attacker, target, damage, miss, crit);
             }
             ScheduledTask::AttackFinish { object_id } => {
@@ -423,13 +456,20 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::BossRespawn { spawn_ref } => {
                 boss_respawn::handle_boss_respawn(world, spawn_ref);
             }
-            ScheduledTask::MinionRespawn { master_object_id, minion_npc_id } => {
+            ScheduledTask::MinionRespawn {
+                master_object_id,
+                minion_npc_id,
+            } => {
                 minions::handle_minion_respawn(world, master_object_id, minion_npc_id);
             }
             ScheduledTask::NpcDecay { npc_object_id } => {
                 death::handle_npc_decay(world, npc_object_id);
             }
-            ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx } => {
+            ScheduledTask::NpcRespawn {
+                spawn_idx,
+                group_idx,
+                npc_idx,
+            } => {
                 death::handle_npc_respawn(world, spawn_idx, group_idx, npc_idx);
             }
             ScheduledTask::RequestTimeout { object_id, seq } => {
@@ -452,16 +492,28 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::PartyLootChangeTimeout { party_id, seq } => {
                 party::handle_loot_change_timeout(world, party_id, seq);
             }
-            ScheduledTask::QuestTimer { quest, name, player, npc, seq } => {
+            ScheduledTask::QuestTimer {
+                quest,
+                name,
+                player,
+                npc,
+                seq,
+            } => {
                 quests::handle_quest_timer(world, quest, &name, player, npc, seq);
             }
-            ScheduledTask::DoorAutoClose { door_object_id, seq } => {
+            ScheduledTask::DoorAutoClose {
+                door_object_id,
+                seq,
+            } => {
                 doors::handle_door_auto_close(world, door_object_id, seq);
             }
             ScheduledTask::DoorTimerToggle { door_object_id } => {
                 doors::handle_door_timer_toggle(world, door_object_id);
             }
-            ScheduledTask::RecoGive { player_object_id, seq } => {
+            ScheduledTask::RecoGive {
+                player_object_id,
+                seq,
+            } => {
                 reco::handle_reco_give(world, player_object_id, seq);
             }
             ScheduledTask::DailyRecoReset => {
@@ -479,4 +531,3 @@ fn apply_due_tasks(world: &mut World) {
         }
     }
 }
-

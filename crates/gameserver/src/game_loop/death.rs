@@ -8,10 +8,13 @@
 //! `RequestRestartPoint`/`Appearing`/`Player.doRevive`.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
-use crate::model::components::{BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook, Speeds, StatModifiers, Vitals};
+use crate::model::components::{
+    BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook,
+    Speeds, StatModifiers, Vitals,
+};
+use crate::model::formulas;
 use crate::model::inventory::Inventory;
 use crate::model::Player;
-use crate::model::formulas;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids, SmParam};
 use crate::scheduler::ScheduledTask;
@@ -31,8 +34,9 @@ pub(crate) const ADENA_ID: i32 = 57;
 /// schedule the decay task.
 pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     let (corpse_secs, max_hp) = {
-        let Some((npc, mut vitals)) =
-            world.objects.get_many_mut::<(&mut crate::model::npc::Npc, &mut Vitals)>(&npc_oid)
+        let Some((npc, mut vitals)) = world
+            .objects
+            .get_many_mut::<(&mut crate::model::npc::Npc, &mut Vitals)>(&npc_oid)
         else {
             return;
         };
@@ -53,11 +57,20 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .unwrap_or(world.cfg.npc.default_corpse_time);
         (corpse_secs, max_hp)
     };
-    let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
 
     // A grand boss dying: mark it dead, roll and persist its respawn window,
     // arm the timer. No-op for every other NPC.
-    if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) {
+    if let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    {
         let npc_id = npc.npc_id;
         super::grand_boss::on_grand_boss_killed(world, npc_id);
         // Core's script-spawned minions: respawn one, or clear them all when
@@ -113,7 +126,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // path; here it's an ordinary call after rewards — same tick, no
     // component borrow held). Killer-only: party quest sharing is deferred.
     {
-        let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id);
+        let npc_id = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .map(|n| n.npc_id);
         if let Some(npc_id) = npc_id {
             // Quest kill credit also follows the acting player: a pet's kill
             // has to advance its owner's quest.
@@ -128,7 +144,11 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // sliding toward its last `MoveToPawn` destination client-side, since the
     // client never learns the movement ended.
     if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
-        broadcast_near_region(world, region, &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading));
+        broadcast_near_region(
+            world,
+            region,
+            &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading),
+        );
     }
 
     // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
@@ -149,9 +169,12 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // The mob stays *selected* while its corpse lasts — a player keeps it in
     // target so corpse actions (sweep/spoil, looting) can act on it. The
     // selection is dropped only when the corpse decays; see `handle_npc_decay`.
-    world
-        .scheduler
-        .schedule(world.tick + corpse_secs.max(0) as u64 * 10, ScheduledTask::NpcDecay { npc_object_id: npc_oid });
+    world.scheduler.schedule(
+        world.tick + corpse_secs.max(0) as u64 * 10,
+        ScheduledTask::NpcDecay {
+            npc_object_id: npc_oid,
+        },
+    );
 }
 
 /// `DecayTaskManager` firing → `Npc.onDecay` + `Spawn.decreaseCount`: remove
@@ -160,20 +183,39 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     // A corpse revived in the meantime (admin `//res_monster`) is alive again;
     // its pending decay task is a no-op, mirroring Java `DecayTaskManager.cancel`
     // on revive.
-    if world.objects.get_component::<Vitals>(&npc_oid).is_some_and(|v| !v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&npc_oid)
+        .is_some_and(|v| !v.dead)
+    {
         return;
     }
     // `Summon.onDecay` → `unSummon` + `Pet.deleteMe`: a pet's corpse decaying
     // **destroys the pet permanently**. Handled before the generic despawn
     // because it needs the pet's components, which drop with the entity.
-    if world.objects.has_component::<crate::model::components::PetOf>(&npc_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::components::PetOf>(&npc_oid)
+    {
         super::servitor::pet_decay(world, npc_oid);
     }
 
-    let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
     // Gather the respawn bookkeeping before despawn (components drop with
     // the entity).
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).cloned() else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .cloned()
+    else {
+        return;
+    };
     // A `dbSave` boss's row is written from its *spawn* position, which the
     // despawn below drops along with the entity — so read it first.
     let db_saved = super::boss_respawn::is_db_saved(world, npc.spawn_ref);
@@ -185,11 +227,20 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
     if npc.respawn_secs > 0 {
         let min = (npc.respawn_secs - npc.respawn_random_secs).max(0);
         let max = npc.respawn_secs + npc.respawn_random_secs;
-        let delay_secs = if max > min { min + world.roll(max - min + 1) } else { min };
+        let delay_secs = if max > min {
+            min + world.roll(max - min + 1)
+        } else {
+            min
+        };
         let (spawn_idx, group_idx, npc_idx) = npc.spawn_ref;
-        world
-            .scheduler
-            .schedule(world.tick + delay_secs as u64 * 10, ScheduledTask::NpcRespawn { spawn_idx, group_idx, npc_idx });
+        world.scheduler.schedule(
+            world.tick + delay_secs as u64 * 10,
+            ScheduledTask::NpcRespawn {
+                spawn_idx,
+                group_idx,
+                npc_idx,
+            },
+        );
         // `DBSpawnManager.updateStatus(npc, true)`: bank the absolute due time
         // so a restart inside the (up to 24 h + 12 h random) window resumes the
         // wait instead of handing the boss back immediately.
@@ -222,15 +273,26 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
             }
         });
     for watcher_oid in watchers {
-        if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&watcher_oid) {
+        if let Some(t) = world
+            .objects
+            .get_component_mut::<crate::model::components::TargetRef>(&watcher_oid)
+        {
             t.0 = None;
         }
         if let (Some(client_id), Some(pos)) = (
             client_for_player(world, watcher_oid),
-            world.objects.get_component::<Position>(&watcher_oid).copied(),
+            world
+                .objects
+                .get_component::<Position>(&watcher_oid)
+                .copied(),
         ) {
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::target_unselected(watcher_oid, pos.x, pos.y, pos.z));
+                cs.send(server_packets::target_unselected(
+                    watcher_oid,
+                    pos.x,
+                    pos.y,
+                    pos.z,
+                ));
             }
         }
     }
@@ -238,8 +300,15 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
 
 /// `RespawnTaskManager` firing → `Spawn.respawnNpc`: re-run the spawn line
 /// and introduce the fresh NPC to nearby players.
-pub(crate) fn handle_npc_respawn(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usize) {
-    let Some(object_id) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) else { return };
+pub(crate) fn handle_npc_respawn(
+    world: &mut World,
+    spawn_idx: usize,
+    group_idx: usize,
+    npc_idx: usize,
+) {
+    let Some(object_id) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) else {
+        return;
+    };
     introduce_npc(world, object_id);
 }
 
@@ -253,9 +322,18 @@ pub(crate) fn handle_npc_respawn(world: &mut World, spawn_idx: usize, group_idx:
 /// cross-region teleport (Antharas entering his lair) neither ghosts nor
 /// duplicates the NPC.
 pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32, heading: i32) {
-    let Some(old_region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
+    let Some(old_region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
     let new_region = crate::world::region_of(x, y);
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&npc_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&npc_oid)
+    {
         p.x = x;
         p.y = y;
         p.z = z;
@@ -265,7 +343,11 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         if let Some(ids) = world.npc_regions.get_mut(&old_region) {
             ids.retain(|&id| id != npc_oid);
         }
-        world.npc_regions.entry(new_region).or_default().push(npc_oid);
+        world
+            .npc_regions
+            .entry(new_region)
+            .or_default()
+            .push(npc_oid);
         if let Some(r) = world.objects.get_component_mut::<RegionCell>(&npc_oid) {
             r.0 = new_region;
         }
@@ -275,9 +357,19 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
 }
 
 pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
-    let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else { return };
-    let Some(region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
-    let Some(t) = v.npc.template(world) else { return };
+    let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else {
+        return;
+    };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    let Some(t) = v.npc.template(world) else {
+        return;
+    };
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc);
     broadcast_near_region(world, region, &pkt);
 }
@@ -291,11 +383,26 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
 /// Narrowings: no overhit bonus (no overhit skills), no raid points, no
 /// champion mods, no command channels.
 fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
-    let Some(t) = npc.template(world).cloned() else { return };
-    let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    else {
+        return;
+    };
+    let Some(t) = npc.template(world).cloned() else {
+        return;
+    };
+    let Some(npc_region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
     let (nx, ny, nz) = {
-        let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else { return };
+        let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
+            return;
+        };
         (pos.x, pos.y, pos.z)
     };
 
@@ -313,19 +420,33 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // Collected first because resolving borrows the store while the aggro list
     // is still borrowed.
     let entries: Vec<(i32, f64)> = {
-        let Some(aggro) = world.objects.get_component::<crate::model::npc::AggroList>(&npc_oid) else { return };
-        aggro.0.iter().map(|(&oid, info)| (oid, info.damage)).collect()
+        let Some(aggro) = world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&npc_oid)
+        else {
+            return;
+        };
+        aggro
+            .0
+            .iter()
+            .map(|(&oid, info)| (oid, info.damage))
+            .collect()
     };
     for (dealer_oid, damage) in entries {
         let player_oid = crate::game_loop::pvp::acting_player(world, dealer_oid);
         // Only players earn. A summon resolves to its owner; a mob to itself,
         // which is not a player and so is skipped as before.
-        if !world.objects.has_component::<crate::model::Player>(&player_oid) {
+        if !world
+            .objects
+            .has_component::<crate::model::Player>(&player_oid)
+        {
             continue;
         }
         // Range is measured from the **earner**, as Java does — a pet fighting
         // out of its owner's reward range earns them nothing.
-        let Some(ppos) = world.objects.get_component::<Position>(&player_oid) else { continue };
+        let Some(ppos) = world.objects.get_component::<Position>(&player_oid) else {
+            continue;
+        };
         if damage <= 1.0 {
             continue;
         }
@@ -341,7 +462,11 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         } else {
             shares.push((player_oid, damage));
         }
-        let merged = shares.iter().find(|(id, _)| *id == player_oid).map(|(_, d)| *d).unwrap_or(damage);
+        let merged = shares
+            .iter()
+            .find(|(id, _)| *id == player_oid)
+            .map(|(_, d)| *d)
+            .unwrap_or(damage);
         if max_dealer.is_none_or(|(_, d)| merged > d) {
             max_dealer = Some((player_oid, merged));
         }
@@ -359,7 +484,12 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     if let Some(earner) = max_dealer.map(|(id, _)| id).or(Some(killer_oid)) {
         award_raid_points(world, npc_oid, earner);
     }
-    let looter = max_dealer.map(|(id, _)| id).or_else(|| world.objects.has_component::<crate::model::Player>(&killer_oid).then_some(killer_oid));
+    let looter = max_dealer.map(|(id, _)| id).or_else(|| {
+        world
+            .objects
+            .has_component::<crate::model::Player>(&killer_oid)
+            .then_some(killer_oid)
+    });
     if let Some(looter) = looter {
         // `doItemDrop`: a mob that died spoiled rolls its `<spoil>` list into
         // the sweep loot (`DropType.SPOIL`), stashed on the corpse until a
@@ -372,27 +502,42 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .unwrap_or(false);
         if spoiled {
             let sweep = roll_spoil_drops(world, &t, looter);
-            if let Some(npc) = world.objects.get_component_mut::<crate::model::npc::Npc>(&npc_oid) {
+            if let Some(npc) = world
+                .objects
+                .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+            {
                 // `_sweepItems.set(...)`: `null`/empty → `isSweepActive()` false.
                 npc.sweep_items = if sweep.is_empty() { None } else { Some(sweep) };
             }
         }
 
         let drops = roll_drops(world, &t, looter);
-        let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&looter).map(|r| r.0);
+        let party_id = world
+            .objects
+            .get_component::<crate::model::components::PartyRef>(&looter)
+            .map(|r| r.0);
         let auto_loot = world.cfg.character.auto_loot;
         for (item_id, count) in drops {
             if !auto_loot {
                 // Drop onto the ground for anyone to pick up (Java's owner-based
                 // loot-window protection is simplified away).
                 super::ground_items::spawn_ground_item(
-                    world, item_id, count, 0, nx, ny, nz, npc_oid,
+                    world,
+                    item_id,
+                    count,
+                    0,
+                    nx,
+                    ny,
+                    nz,
+                    npc_oid,
                     super::ground_items::DropSource::Npc,
                 );
                 continue;
             }
             match party_id {
-                Some(pid) => super::party::distribute_item(world, pid, looter, item_id, count, (nx, ny)),
+                Some(pid) => {
+                    super::party::distribute_item(world, pid, looter, item_id, count, (nx, ny))
+                }
                 None => give_item(world, looter, item_id, count),
             }
         }
@@ -410,11 +555,25 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if processed.contains(&player_oid) {
             continue;
         }
-        let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&player_oid).map(|r| r.0);
+        let party_id = world
+            .objects
+            .get_component::<crate::model::components::PartyRef>(&player_oid)
+            .map(|r| r.0);
         let Some(party_id) = party_id else {
             // Solo branch (unchanged from G9).
-            let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { continue };
-            let Some(pregion) = world.objects.get_component::<RegionCell>(&player_oid).map(|r| r.0) else { continue };
+            let Some(p) = world
+                .objects
+                .get_component::<crate::model::Player>(&player_oid)
+            else {
+                continue;
+            };
+            let Some(pregion) = world
+                .objects
+                .get_component::<RegionCell>(&player_oid)
+                .map(|r| r.0)
+            else {
+                continue;
+            };
             if !regions_adjacent(npc_region, pregion) {
                 continue; // Java `isInSurroundingRegion(attacker)`.
             }
@@ -444,20 +603,31 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         // Party branch: pool every member's share; alive members within
         // `ALT_PARTY_RANGE` of the corpse are rewarded, the top rewarded
         // level keys the level-gap multiplier and the cutoff.
-        let members = world.parties.get(&party_id).map(|p| p.members.clone()).unwrap_or_default();
+        let members = world
+            .parties
+            .get(&party_id)
+            .map(|p| p.members.clone())
+            .unwrap_or_default();
         let share_of: std::collections::HashMap<i32, f64> = shares.iter().copied().collect();
         let mut party_dmg = 0.0;
         let mut rewarded: Vec<(i32, i32)> = Vec::new();
         let mut party_lvl = 0;
         for &m in &members {
-            let dead = world.objects.get_component::<Vitals>(&m).map(|v| v.dead).unwrap_or(true);
+            let dead = world
+                .objects
+                .get_component::<Vitals>(&m)
+                .map(|v| v.dead)
+                .unwrap_or(true);
             if dead {
                 continue; // their leftover share rewards nothing (Java parity)
             }
-            let in_range = world.objects.get_component::<Position>(&m).is_some_and(|p| {
-                let (dx, dy) = ((p.x - nx) as f64, (p.y - ny) as f64);
-                (dx * dx + dy * dy).sqrt() <= reward_range
-            });
+            let in_range = world
+                .objects
+                .get_component::<Position>(&m)
+                .is_some_and(|p| {
+                    let (dx, dy) = ((p.x - nx) as f64, (p.y - ny) as f64);
+                    (dx * dx + dy * dy).sqrt() <= reward_range
+                });
             if !in_range {
                 continue;
             }
@@ -465,7 +635,14 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
                 party_dmg += share;
                 processed.insert(m);
             }
-            rewarded.push((m, world.objects.get_component::<crate::model::Player>(&m).map(|p| p.level).unwrap_or(0)));
+            rewarded.push((
+                m,
+                world
+                    .objects
+                    .get_component::<crate::model::Player>(&m)
+                    .map(|p| p.level)
+                    .unwrap_or(0),
+            ));
             party_lvl = party_lvl.max(rewarded.last().unwrap().1);
         }
         processed.insert(player_oid);
@@ -475,7 +652,11 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         // `calculateExpAndSp(partyLvl, partyDmg, totalDamage)` then
         // `exp *= partyMul` — Java applies the damage fraction twice when
         // outsiders contributed; kept for parity.
-        let party_mul = if party_dmg < total_damage { party_dmg / total_damage } else { 1.0 };
+        let party_mul = if party_dmg < total_damage {
+            party_dmg / total_damage
+        } else {
+            1.0
+        };
         let gap = formulas::exp_sp_level_gap_multiplier(party_lvl, t.level);
         let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0) * party_mul;
         let sp = (t.sp * rate_sp * party_dmg / total_damage * gap).max(0.0) * party_mul;
@@ -488,7 +669,12 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
 /// The temporary "replace highest-chance random drop" reshuffling Java does
 /// when the cap is hit mid-list is simplified to a hard stop at the cap.
 fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, i64)> {
-    let Some(killer) = world.objects.get_component::<crate::model::Player>(&killer_oid) else { return Vec::new() };
+    let Some(killer) = world
+        .objects
+        .get_component::<crate::model::Player>(&killer_oid)
+    else {
+        return Vec::new();
+    };
     let level_diff = (t.level - killer.level) as f64;
     let r = &world.cfg.rates;
     let adena_gap_chance = formulas::map_range(
@@ -525,18 +711,28 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
                 continue;
             }
             // Level-gap gate.
-            let gap = if drop.item_id == ADENA_ID { adena_gap_chance } else { item_gap_chance };
+            let gap = if drop.item_id == ADENA_ID {
+                adena_gap_chance
+            } else {
+                item_gap_chance
+            };
             if world.roll_f64() * 100.0 > gap {
                 continue;
             }
             // Chance roll (grouped items fold the group chance in).
-            let rate_chance = by_id_chance.get(&drop.item_id).copied().unwrap_or(chance_mult);
+            let rate_chance = by_id_chance
+                .get(&drop.item_id)
+                .copied()
+                .unwrap_or(chance_mult);
             let chance = drop.chance * (group_chance / 100.0) * rate_chance;
             if world.roll_f64() * 100.0 >= chance {
                 continue;
             }
             // Amount.
-            let rate_amount = by_id_amount.get(&drop.item_id).copied().unwrap_or(amount_mult);
+            let rate_amount = by_id_amount
+                .get(&drop.item_id)
+                .copied()
+                .unwrap_or(amount_mult);
             let base = if drop.max > drop.min {
                 drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
             } else {
@@ -562,7 +758,12 @@ fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<
     if t.drop_list_spoil.is_empty() {
         return Vec::new();
     }
-    let Some(killer) = world.objects.get_component::<crate::model::Player>(&killer_oid) else { return Vec::new() };
+    let Some(killer) = world
+        .objects
+        .get_component::<crate::model::Player>(&killer_oid)
+    else {
+        return Vec::new();
+    };
     let level_diff = (t.level - killer.level) as f64;
     let r = &world.cfg.rates;
     let item_gap_chance = formulas::map_range(
@@ -612,29 +813,45 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     if !world.cfg.character.auto_loot {
         return; // ground-drop path unported (see PROGRESS G9 notes).
     }
-    let Some(changed_oids) = super::items::add_inventory_item(world, player_oid, item_id, count) else {
+    let Some(changed_oids) = super::items::add_inventory_item(world, player_oid, item_id, count)
+    else {
         tracing::warn!("give_item: object-id pool exhausted, dropping loot {item_id}×{count}");
         return;
     };
 
     // "You have obtained …" + InventoryUpdate + the weight/adena footers.
-    let Some(client_id) = client_for_player(world, player_oid) else { return };
-    let Some(inventory) = world.objects.get_component::<crate::model::inventory::Inventory>(&player_oid) else {
+    let Some(client_id) = client_for_player(world, player_oid) else {
+        return;
+    };
+    let Some(inventory) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+    else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
         let sm = if item_id == ADENA_ID {
-            server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1_ADENA, &[SmParam::Long(count)])
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_OBTAINED_S1_ADENA,
+                &[SmParam::Long(count)],
+            )
         } else if count > 1 {
             server_packets::system_message_with(
                 sm_ids::YOU_HAVE_OBTAINED_S2_S1,
                 &[SmParam::ItemName(item_id), SmParam::Long(count)],
             )
         } else {
-            server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_OBTAINED_S1,
+                &[SmParam::ItemName(item_id)],
+            )
         };
         cs.send(sm);
-        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids));
+        cs.send(crate::network::enter_world::inventory_update(
+            inventory,
+            &world.data,
+            &changed_oids,
+        ));
     }
 }
 
@@ -660,7 +877,9 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     use crate::data::item_data;
 
-    let killer_is_player = world.objects.has_component::<crate::model::Player>(&killer_oid);
+    let killer_is_player = world
+        .objects
+        .has_component::<crate::model::Player>(&killer_oid);
     // Arena deaths cost nothing when another player did it.
     if killer_is_player
         && world
@@ -670,7 +889,12 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     {
         return;
     }
-    let Some(victim) = world.objects.get_component::<crate::model::Player>(&victim_oid) else { return };
+    let Some(victim) = world
+        .objects
+        .get_component::<crate::model::Player>(&victim_oid)
+    else {
+        return;
+    };
     if victim.is_gm(&world.data) {
         return;
     }
@@ -716,14 +940,22 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
                 .collect()
         })
         .unwrap_or_default();
-    let Some(pos) = world.objects.get_component::<Position>(&victim_oid).copied() else { return };
+    let Some(pos) = world
+        .objects
+        .get_component::<Position>(&victim_oid)
+        .copied()
+    else {
+        return;
+    };
 
     let mut dropped = 0;
     for (obj_id, item_id, count, enchant) in candidates {
         if limit > 0 && dropped >= limit {
             break;
         }
-        let Some(t) = world.data.item_data.get(item_id) else { continue };
+        let Some(t) = world.data.item_data.get(item_id) else {
+            continue;
+        };
         // Adena and quest items never drop.
         if item_id == item_data::ADENA_ID || t.is_quest_item || t.type2 == item_data::TYPE2_QUEST {
             continue;
@@ -733,7 +965,11 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
             .get_component::<crate::model::inventory::Inventory>(&victim_oid)
             .is_some_and(|inv| inv.paperdoll_slot_of(obj_id).is_some());
         let chance = if equipped {
-            if t.type2 == item_data::TYPE2_WEAPON { weapon_pct } else { equip_pct }
+            if t.type2 == item_data::TYPE2_WEAPON {
+                weapon_pct
+            } else {
+                equip_pct
+            }
         } else {
             item_pct
         };
@@ -742,11 +978,17 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         }
         // Equipped items come off first (`unEquipItemInSlot`).
         if equipped {
-            if let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&victim_oid) {
+            if let Some(inv) = world
+                .objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&victim_oid)
+            {
                 inv.unequip_item(obj_id);
             }
         }
-        if let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&victim_oid) {
+        if let Some(inv) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&victim_oid)
+        {
             inv.remove_item(item_id, count);
         }
         crate::game_loop::ground_items::spawn_ground_item(
@@ -766,7 +1008,11 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         if let Some(client_id) = client_for_player(world, victim_oid) {
             if let Some(v) = crate::model::PlayerView::of(&world.objects, victim_oid) {
                 if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(crate::network::enter_world::item_list(v.inventory, &world.data, false));
+                    cs.send(crate::network::enter_world::item_list(
+                        v.inventory,
+                        &world.data,
+                        false,
+                    ));
                 }
             }
         }
@@ -782,11 +1028,17 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
 /// kill pays it once.
 fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, exp: f64) -> f64 {
     use crate::model::components::Overhit;
-    let Some(oh) = world.objects.get_component::<Overhit>(&npc_oid).copied() else { return 0.0 };
+    let Some(oh) = world.objects.get_component::<Overhit>(&npc_oid).copied() else {
+        return 0.0;
+    };
     if oh.attacker != attacker_oid {
         return 0.0;
     }
-    let max_hp = world.objects.get_component::<Vitals>(&npc_oid).map(|v| v.max_hp as f64).unwrap_or(0.0);
+    let max_hp = world
+        .objects
+        .get_component::<Vitals>(&npc_oid)
+        .map(|v| v.max_hp as f64)
+        .unwrap_or(0.0);
     if max_hp <= 0.0 {
         return 0.0;
     }
@@ -821,7 +1073,8 @@ pub(crate) fn consume_kill_vitality(
     if is_boss && !world.cfg.character.raidboss_use_vitality {
         return;
     }
-    let delta = super::vitality::kill_vitality_delta(world, t.level, t.exp, player_level, exp, is_boss);
+    let delta =
+        super::vitality::kill_vitality_delta(world, t.level, t.exp, player_level, exp, is_boss);
     super::vitality::update_vitality_points(world, player_oid, delta, true, false);
     // TODO(G16): Java also calls `PcCafePointsManager.givePcCafePoint(attacker,
     // exp)` right here (PC_CAFE_RETAIL_LIKE); the points store exists
@@ -841,7 +1094,13 @@ pub(crate) fn consume_kill_vitality(
 /// Java's fishing-rod branch (`FANCY_FISHING_ROD_SKILL` → ×1.5) is not ported —
 /// fishing is G32. Amounts stay `f64` until the final `Math.round`, as in Java,
 /// so the bonus never compounds a rounding error.
-pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f64, use_bonuses: bool) {
+pub(crate) fn add_exp_and_sp(
+    world: &mut World,
+    player_oid: i32,
+    exp: f64,
+    sp: f64,
+    use_bonuses: bool,
+) {
     let (bonus_exp, bonus_sp) = if use_bonuses {
         // Java reads the exp and sp multipliers separately; with BONUS_EXP /
         // BONUS_SP unmodelled they are the same value today.
@@ -871,7 +1130,12 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f
     let max_level = world.data.experience.max_level as i32;
     let cap = world.data.experience.exp_for_level(max_level) - 1;
     let (old_level, new_exp) = {
-        let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) else { return };
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
         p.exp = (p.exp + exp.max(0)).min(cap);
         p.sp = p.sp.saturating_add(sp.max(0));
         (p.level, p.exp)
@@ -897,10 +1161,16 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f
         set_level(world, player_oid, new_level);
     } else if let Some(client_id) = client_for_player(world, player_oid) {
         // Exp bar refresh (`player.updateUserInfo()`).
-        if let (Some(v), Some(cs)) =
-            (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
-        {
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
+        if let (Some(v), Some(cs)) = (
+            crate::model::PlayerView::of(&world.objects, player_oid),
+            world.clients.get(&client_id),
+        ) {
+            cs.send(crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, v.p),
+            ));
         }
     }
 }
@@ -911,7 +1181,12 @@ pub(crate) fn add_exp_and_sp(world: &mut World, player_oid: i32, exp: f64, sp: f
 pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp: i64) {
     let max_level = world.data.experience.max_level as i32;
     let (old_level, new_exp) = {
-        let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) else { return };
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
         p.exp = (p.exp - exp.max(0)).max(0);
         p.sp = (p.sp - sp.max(0)).max(0);
         (p.level, p.exp)
@@ -921,10 +1196,16 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
         set_level(world, player_oid, new_level);
     } else if let Some(client_id) = client_for_player(world, player_oid) {
         // Exp bar refresh (`player.updateUserInfo()`), no level change.
-        if let (Some(v), Some(cs)) =
-            (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
-        {
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
+        if let (Some(v), Some(cs)) = (
+            crate::model::PlayerView::of(&world.objects, player_oid),
+            world.clients.get(&client_id),
+        ) {
+            cs.send(crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, v.p),
+            ));
         }
     }
 }
@@ -947,7 +1228,12 @@ fn level_for_exp(world: &World, exp: i64, max_level: i32) -> i32 {
 /// autoGet skills, broadcast the level-up flourish.
 pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     let leveled_up = {
-        let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) else { return };
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
         let up = new_level > p.level;
         p.level = new_level;
         up
@@ -955,9 +1241,8 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // Vitals follow the level tables (`getMaxHp` etc. read level).
     {
         let data = &world.data;
-        let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) = world
-            .objects
-            .get_many_mut::<(
+        let Some((p, mut vitals, mut pvitals, base, mods, inventory, mut speeds, mut combat)) =
+            world.objects.get_many_mut::<(
                 &mut crate::model::Player,
                 &mut Vitals,
                 &mut PlayerVitals,
@@ -976,8 +1261,10 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             .or_else(|| data.player_templates.get(p.base_class_id))
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(&inventory), &mods) as i32;
-        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level, Some(&inventory), &mods) as i32;
+        vitals.max_hp =
+            crate::model::calc_max_hp(data, &t, p.level, Some(&inventory), &mods) as i32;
+        vitals.max_mp =
+            crate::model::calc_max_mp(data, &t, p.level, Some(&inventory), &mods) as i32;
         pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level, &mods) as i32;
         if leveled_up {
             // Classic level-up: all vitals refill (Mobius Java only refills
@@ -1013,7 +1300,10 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     // + `SkillList`).
     let (Some(vitals), Some(pvitals)) = (
         world.objects.get_component::<Vitals>(&player_oid).copied(),
-        world.objects.get_component::<PlayerVitals>(&player_oid).copied(),
+        world
+            .objects
+            .get_component::<PlayerVitals>(&player_oid)
+            .copied(),
     ) else {
         return;
     };
@@ -1024,25 +1314,45 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             player_oid,
             &[
                 (server_packets::status_update_type::MAX_HP, vitals.max_hp),
-                (server_packets::status_update_type::CUR_HP, vitals.cur_hp as i32),
+                (
+                    server_packets::status_update_type::CUR_HP,
+                    vitals.cur_hp as i32,
+                ),
                 (server_packets::status_update_type::MAX_MP, vitals.max_mp),
-                (server_packets::status_update_type::CUR_MP, vitals.cur_mp as i32),
+                (
+                    server_packets::status_update_type::CUR_MP,
+                    vitals.cur_mp as i32,
+                ),
                 (server_packets::status_update_type::MAX_CP, pvitals.max_cp),
-                (server_packets::status_update_type::CUR_CP, pvitals.cur_cp as i32),
+                (
+                    server_packets::status_update_type::CUR_CP,
+                    pvitals.cur_cp as i32,
+                ),
             ],
         ),
     );
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     super::party::notify_party_all(world, player_oid);
     if let Some(client_id) = client_for_player(world, player_oid) {
-        if let (Some(v), Some(cs)) =
-            (crate::model::PlayerView::of(&world.objects, player_oid), world.clients.get(&client_id))
-        {
+        if let (Some(v), Some(cs)) = (
+            crate::model::PlayerView::of(&world.objects, player_oid),
+            world.clients.get(&client_id),
+        ) {
             if leveled_up {
-                cs.send(server_packets::system_message_with(sm_ids::YOUR_LEVEL_HAS_INCREASED, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::YOUR_LEVEL_HAS_INCREASED,
+                    &[],
+                ));
             }
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
-            let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) else { return };
+            cs.send(crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, v.p),
+            ));
+            let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) else {
+                return;
+            };
             cs.send(pkt);
         }
     }
@@ -1089,11 +1399,27 @@ pub(crate) fn reward_skill_grants(
 /// notice.
 pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     let (class_id, level, known, is_gm) = {
-        let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
-        let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
+        let Some(p) = world
+            .objects
+            .get_component::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
+        let skills = world
+            .objects
+            .get_component::<SkillBook>(&player_oid)
+            .cloned()
+            .unwrap_or_default();
         (p.class_id, p.level, skills.0, p.is_gm(&world.data))
     };
-    let granted = reward_skill_grants(&world.data, &world.cfg.character, class_id, level, &known, is_gm);
+    let granted = reward_skill_grants(
+        &world.data,
+        &world.cfg.character,
+        class_id,
+        level,
+        &known,
+        is_gm,
+    );
     if granted.is_empty() {
         return;
     }
@@ -1111,13 +1437,22 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
     if world.cfg.character.auto_learn_skills {
         if let Some(client_id) = client_for_player(world, player_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
-                let count = granted.iter().map(|&(id, _)| id).collect::<std::collections::HashSet<_>>().len();
-                if let Some(shortcuts) = world.objects.get_component::<crate::model::components::Shortcuts>(&player_oid) {
+                let count = granted
+                    .iter()
+                    .map(|&(id, _)| id)
+                    .collect::<std::collections::HashSet<_>>()
+                    .len();
+                if let Some(shortcuts) = world
+                    .objects
+                    .get_component::<crate::model::components::Shortcuts>(&player_oid)
+                {
                     cs.send(server_packets::shortcut_init(shortcuts));
                 }
                 cs.send(server_packets::system_message_with(
                     sm_ids::S1_TEXT,
-                    &[SmParam::Text(format!("You have learned {count} new skills."))],
+                    &[SmParam::Text(format!(
+                        "You have learned {count} new skills."
+                    ))],
                 ));
             }
         }
@@ -1173,8 +1508,14 @@ pub(crate) fn maybe_skill_remove_on_delevel(
 /// `UserInfo` stats), broadcasting the fresh stats.
 pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
     let (class_id, level, mut known) = {
-        let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return };
-        let skills = world.objects.get_component::<SkillBook>(&player_oid).cloned().unwrap_or_default();
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+            return;
+        };
+        let skills = world
+            .objects
+            .get_component::<SkillBook>(&player_oid)
+            .cloned()
+            .unwrap_or_default();
         (p.class_id, p.level, skills.0)
     };
     let changes = maybe_skill_remove_on_delevel(world, player_oid, class_id, level, &mut known);
@@ -1187,7 +1528,9 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
     }
     for &(skill_id, action) in &changes {
         match action {
-            Some(new_level) => super::shortcuts::update_skill_shortcuts(world, player_oid, skill_id, new_level),
+            Some(new_level) => {
+                super::shortcuts::update_skill_shortcuts(world, player_oid, skill_id, new_level)
+            }
             None => super::shortcuts::remove_skill_shortcuts(world, player_oid, skill_id),
         }
     }
@@ -1201,15 +1544,38 @@ pub(crate) fn check_player_skills(world: &mut World, player_oid: i32) {
 /// active skill leaves the stats untouched here. Updates the stat components in
 /// place but sends no packet — the caller (`set_level`) already broadcasts a
 /// fresh `UserInfo` for the level change, so this avoids a redundant second one.
-fn recompute_passives_after_skill_change(world: &mut World, player_oid: i32, changes: &[(i32, Option<i32>)]) {
-    let removed: Vec<i32> = changes.iter().filter_map(|&(id, action)| action.is_none().then_some(id)).collect();
+fn recompute_passives_after_skill_change(
+    world: &mut World,
+    player_oid: i32,
+    changes: &[(i32, Option<i32>)],
+) {
+    let removed: Vec<i32> = changes
+        .iter()
+        .filter_map(|&(id, action)| action.is_none().then_some(id))
+        .collect();
     if !removed.is_empty() {
-        if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
-            .objects
-            .get_many_mut::<(&Player, &BaseStats, &mut StatModifiers, &Inventory, &mut Buffs, &mut Speeds, &mut CombatStats)>(&player_oid)
+        if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+            world.objects.get_many_mut::<(
+                &Player,
+                &BaseStats,
+                &mut StatModifiers,
+                &Inventory,
+                &mut Buffs,
+                &mut Speeds,
+                &mut CombatStats,
+            )>(&player_oid)
         {
             for skill_id in &removed {
-                player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, *skill_id);
+                player.remove_buff(
+                    &world.data,
+                    base,
+                    &mut mods,
+                    &inventory,
+                    &mut buffs,
+                    &mut speeds,
+                    &mut combat,
+                    *skill_id,
+                );
             }
         }
     }
@@ -1236,8 +1602,9 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // id, and there is no signal when that goes wrong.
     let killer_oid = super::pvp::acting_player(world, killer_oid);
     {
-        let Some((p, mut vitals)) =
-            world.objects.get_many_mut::<(&mut crate::model::Player, &mut Vitals)>(&player_oid)
+        let Some((p, mut vitals)) = world
+            .objects
+            .get_many_mut::<(&mut crate::model::Player, &mut Vitals)>(&player_oid)
         else {
             return;
         };
@@ -1249,8 +1616,13 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         drop((p, vitals));
         world.objects.remove_component::<Movement>(&player_oid);
         world.objects.remove_component::<Intent>(&player_oid);
-        world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
-        if let Some(t) = world.objects.get_component_mut::<crate::model::components::TargetRef>(&player_oid) {
+        world
+            .objects
+            .remove_component::<crate::model::components::QueuedAction>(&player_oid);
+        if let Some(t) = world
+            .objects
+            .get_component_mut::<crate::model::components::TargetRef>(&player_oid)
+        {
             t.0 = None;
         }
     }
@@ -1264,7 +1636,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
 
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
-    if world.objects.has_component::<crate::model::Player>(&killer_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::Player>(&killer_oid)
+    {
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
     }
 
@@ -1287,15 +1662,27 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
             f.contains(crate::data::zone_data::ZoneKind::Pvp)
                 || f.contains(crate::data::zone_data::ZoneKind::Siege)
         });
-    if !in_free_death_zone && world.objects.has_component::<crate::model::Player>(&killer_oid) {
+    if !in_free_death_zone
+        && world
+            .objects
+            .has_component::<crate::model::Player>(&killer_oid)
+    {
         super::clans::clan_war_on_kill(world, killer_oid, player_oid);
     }
     if !in_free_death_zone {
         // Java `calculateDeathExpPenalty(killer)` quarters the loss when the
         // killer is a clan-war enemy (`atWarWith`, any war state).
         let at_war = {
-            let kc = world.objects.get_component::<crate::model::Player>(&killer_oid).map(|p| p.clan_id).unwrap_or(0);
-            let vc = world.objects.get_component::<crate::model::Player>(&player_oid).map(|p| p.clan_id).unwrap_or(0);
+            let kc = world
+                .objects
+                .get_component::<crate::model::Player>(&killer_oid)
+                .map(|p| p.clan_id)
+                .unwrap_or(0);
+            let vc = world
+                .objects
+                .get_component::<crate::model::Player>(&player_oid)
+                .map(|p| p.clan_id)
+                .unwrap_or(0);
             super::clans::at_war_between(world, kc, vc)
         };
         apply_death_exp_penalty_ex(world, player_oid, at_war);
@@ -1305,7 +1692,10 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     broadcast_including_self(
         world,
         player_oid,
-        &server_packets::status_update(player_oid, &[(server_packets::status_update_type::CUR_HP, 0)]),
+        &server_packets::status_update(
+            player_oid,
+            &[(server_packets::status_update_type::CUR_HP, 0)],
+        ),
     );
 }
 
@@ -1327,7 +1717,9 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
     use crate::model::skill::effect_flag;
 
     let blessed = super::abnormal::flags_of(world, player_oid) & effect_flag::NOBLESS_BLESSING != 0;
-    let Some(buffs) = world.objects.get_component::<Buffs>(&player_oid) else { return };
+    let Some(buffs) = world.objects.get_component::<Buffs>(&player_oid) else {
+        return;
+    };
     let to_stop: Vec<i32> = buffs
         .0
         .iter()
@@ -1360,17 +1752,32 @@ pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
 
 /// The killer-aware variant: `at_war_with_killer` quarters the loss (Java's
 /// `lostExp /= 4` for a clan-war death).
-pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_war_with_killer: bool) {
+pub(crate) fn apply_death_exp_penalty_ex(
+    world: &mut World,
+    player_oid: i32,
+    at_war_with_killer: bool,
+) {
     let (level, exp) = {
-        let Some(p) = world.objects.get_component::<crate::model::Player>(&player_oid) else { return };
+        let Some(p) = world
+            .objects
+            .get_component::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
         (p.level, p.exp)
     };
     let max_level = world.data.experience.max_level as i32;
     let percent = world.data.xp_lost.xp_percent(level);
     let (lo, hi) = if level < max_level {
-        (world.data.experience.exp_for_level(level), world.data.experience.exp_for_level(level + 1))
+        (
+            world.data.experience.exp_for_level(level),
+            world.data.experience.exp_for_level(level + 1),
+        )
     } else {
-        (world.data.experience.exp_for_level(max_level - 1), world.data.experience.exp_for_level(max_level))
+        (
+            world.data.experience.exp_for_level(max_level - 1),
+            world.data.experience.exp_for_level(max_level),
+        )
     };
     let mut lost = (((hi - lo) as f64) * percent / 100.0).round() as i64;
     if at_war_with_killer {
@@ -1379,7 +1786,8 @@ pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_
 
     // `removeExp`'s delevel clamp: without delevel (or at/below the floor)
     // exp can't drop below the current level's threshold.
-    let can_delevel = world.cfg.character.player_delevel && level > world.cfg.character.delevel_minimum;
+    let can_delevel =
+        world.cfg.character.player_delevel && level > world.cfg.character.delevel_minimum;
     if !can_delevel {
         lost = lost.min(exp - world.data.experience.exp_for_level(level));
     }
@@ -1389,7 +1797,10 @@ pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_
     }
 
     let new_exp = exp - lost;
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+    {
         p.exp = new_exp;
         // Java keeps `_expBeforeDeath` and subtracts; the difference is the
         // only thing a resurrection reads, so record that directly.
@@ -1397,7 +1808,10 @@ pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_
     }
     if let Some(client_id) = client_for_player(world, player_oid) {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_ids::YOUR_XP_HAS_DECREASED_BY_S1, &[SmParam::Long(lost)]));
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOUR_XP_HAS_DECREASED_BY_S1,
+                &[SmParam::Long(lost)],
+            ));
         }
     }
     let new_level = level_for_exp(world, new_exp, max_level);
@@ -1411,12 +1825,20 @@ pub(crate) fn apply_death_exp_penalty_ex(world: &mut World, player_oid: i32, at_
 /// dead player is a participant, else the map-region town respawn — and start
 /// the teleport; the revive itself lands on `Appearing`.
 pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestRestartPoint::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestRestartPoint::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     let (px, py, pz, dead) = {
-        let Some(pos) = world.objects.get_component::<Position>(&object_id) else { return };
-        let Some(vitals) = world.objects.get_component::<Vitals>(&object_id) else { return };
+        let Some(pos) = world.objects.get_component::<Position>(&object_id) else {
+            return;
+        };
+        let Some(vitals) = world.objects.get_component::<Vitals>(&object_id) else {
+            return;
+        };
         (pos.x, pos.y, pos.z, vitals.dead)
     };
     if !dead {
@@ -1427,14 +1849,23 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
         .get_component::<crate::model::Player>(&object_id)
         .and_then(|p| crate::enums::Race::from_ordinal(p.race))
         .unwrap_or(crate::enums::Race::Human);
-    let pick = if world.cfg.character.random_respawn_in_town { world.roll(64) as usize } else { 0 };
+    let pick = if world.cfg.character.random_respawn_in_town {
+        world.roll(64) as usize
+    } else {
+        0
+    };
     // The siege restart cases (Java `RequestRestartPoint.portPlayer`); everything
     // else, and a non-participant, falls through to the map-region town respawn.
     let siege_spawn = siege_restart_location(world, object_id, pkt.point_type, pick);
-    let Some((x, y, z)) = siege_spawn.or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick)) else {
+    let Some((x, y, z)) =
+        siege_spawn.or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick))
+    else {
         return;
     };
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+    {
         p.pending_revive = true;
     }
     teleport_player(world, object_id, x, y, z);
@@ -1454,9 +1885,17 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
 /// a rejection message for a normal res skill during a siege — see
 /// `Siege.control_tower_count`). The attacker respawn delay
 /// (`getAttackerRespawnDelay`) is deferred (TODO(G24)).
-fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick: usize) -> Option<(i32, i32, i32)> {
+fn siege_restart_location(
+    world: &World,
+    player_oid: i32,
+    point_type: i32,
+    pick: usize,
+) -> Option<(i32, i32, i32)> {
     use crate::model::siege::SiegeClanType;
-    let clan_id = world.objects.get_component::<crate::model::Player>(&player_oid)?.clan_id;
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)?
+        .clan_id;
     if clan_id == 0 {
         return None;
     }
@@ -1466,10 +1905,17 @@ fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick:
     if !siege.in_progress {
         return None;
     }
-    let role = siege.clans.iter().find(|c| c.clan_id == clan_id).map(|c| c.kind);
+    let role = siege
+        .clans
+        .iter()
+        .find(|c| c.clan_id == clan_id)
+        .map(|c| c.kind);
     // `checkIsDefender` covers the castle owner even if it holds no `siege_clans`
     // row, so fold in castle ownership.
-    let is_defender = world.clans.get(&clan_id).is_some_and(|c| c.castle_id == castle_id)
+    let is_defender = world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.castle_id == castle_id)
         || matches!(role, Some(SiegeClanType::Owner | SiegeClanType::Defender));
     match point_type {
         2 if is_defender => {
@@ -1478,7 +1924,10 @@ fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick:
         }
         4 if role == Some(SiegeClanType::Attacker) => {
             let flag_oid = siege.flag_of(clan_id)?;
-            world.objects.get_component::<Position>(&flag_oid).map(|p| (p.x, p.y, p.z))
+            world
+                .objects
+                .get_component::<Position>(&flag_oid)
+                .map(|p| (p.x, p.y, p.z))
         }
         _ => None,
     }
@@ -1488,7 +1937,11 @@ fn siege_restart_location(world: &World, player_oid: i32, point_type: i32, pick:
 /// (`decayMe` → `DeleteObject`), push the new position, and wait for the
 /// client's `Appearing` before becoming visible again.
 pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32, z: i32) {
-    if world.objects.get_component::<crate::model::Player>(&player_oid).is_none() {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_none()
+    {
         return;
     }
     // Java grounds the z on the geodata (`GeoEngine.getHeight`, non-flying)
@@ -1496,7 +1949,9 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     let z = world.geo.get_height(x, y, z) + 5;
     world.objects.remove_component::<Movement>(&player_oid);
     world.objects.remove_component::<Intent>(&player_oid);
-    world.objects.remove_component::<crate::model::components::QueuedAction>(&player_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::QueuedAction>(&player_oid);
     // The rest of `teleToLocation`'s prologue, in Java's order: cancel the
     // client's pending action, `abortCast()`, then `setTarget(null)` — all
     // before `decayMe`. The abort is what tells the client to stop drawing
@@ -1508,12 +1963,25 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     }
     super::skills::cast::abort_cast_on_teleport(world, player_oid);
     super::target::drop_target_notify(world, player_oid);
-    let Some(heading) = world.objects.get_component::<Position>(&player_oid).map(|p| p.heading) else { return };
-    broadcast_including_self(world, player_oid, &server_packets::teleport_to_location(player_oid, x, y, z, heading));
+    let Some(heading) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .map(|p| p.heading)
+    else {
+        return;
+    };
+    broadcast_including_self(
+        world,
+        player_oid,
+        &server_packets::teleport_to_location(player_oid, x, y, z, heading),
+    );
     // `decayMe`: DeleteObject to everyone who could see the old position
     // (also drops their dangling targets).
     super::visibility::on_leave_world(world, player_oid);
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&player_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player_oid)
+    {
         p.teleporting = true;
     }
     if let Some(pos) = world.objects.get_component_mut::<Position>(&player_oid) {
@@ -1527,10 +1995,10 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     // "Send teleport finished packet to player" (Java, right after `setXYZ`):
     // the client sits on the black loading screen until this arrives, then
     // loads the destination and answers with `Appearing`.
-    if let Some(cs) =
-        client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid))
-    {
-        cs.send(server_packets::ex_teleport_to_location_activate(player_oid, x, y, z, heading));
+    if let Some(cs) = client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::ex_teleport_to_location_activate(
+            player_oid, x, y, z, heading,
+        ));
     }
 }
 
@@ -1538,25 +2006,44 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
 /// teleport — `onTeleported` (spawnMe → mutual CharInfo/NpcInfo, pending
 /// revive resolves, fresh `UserInfo`).
 pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
-    if !world.objects.get_component::<crate::model::Player>(&object_id).is_some_and(|p| p.teleporting) {
+    if !world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.teleporting)
+    {
         return;
     }
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+    {
         p.teleporting = false;
     }
-    if world.objects.get_component::<crate::model::Player>(&object_id).is_some_and(|p| p.pending_revive) {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.pending_revive)
+    {
         do_revive(world, object_id);
     }
     // `spawnMe`-equivalent visibility exchange at the new position.
     super::visibility::on_enter_world(world, client_id, object_id);
     // Java `onTeleported` → `revalidateZone(true)`.
     super::zones::revalidate_zone(world, object_id, true);
-    if let (Some(v), Some(cs)) =
-        (crate::model::PlayerView::of(&world.objects, object_id), world.clients.get(&client_id))
-    {
-        cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, super::party::calculate_relation(world, v.p)));
+    if let (Some(v), Some(cs)) = (
+        crate::model::PlayerView::of(&world.objects, object_id),
+        world.clients.get(&client_id),
+    ) {
+        cs.send(crate::network::user_info::user_info(
+            &v,
+            &world.data,
+            &world.cfg.character,
+            super::party::calculate_relation(world, v.p),
+        ));
     }
 }
 
@@ -1603,7 +2090,9 @@ pub(crate) fn revive_request(
     use crate::network::server_packets::sm_ids;
     // `isResurrectionBlocked()` — Java also ORs `isInvul()`; the flag is the
     // ported half (`BlockResurrection` has no learnable source on this dist).
-    if crate::game_loop::abnormal::flags_of(world, target_oid) & crate::model::skill::effect_flag::BLOCK_RESURRECTION != 0
+    if crate::game_loop::abnormal::flags_of(world, target_oid)
+        & crate::model::skill::effect_flag::BLOCK_RESURRECTION
+        != 0
     {
         return;
     }
@@ -1611,10 +2100,15 @@ pub(crate) fn revive_request(
     // effected.isPet(), …)`: casting on a dead **pet** puts the dialog in front
     // of its **owner**, who is the one who answers. So resolve the corpse to
     // the player who will be asked, and remember which of the two is dying.
-    let is_pet = world.objects.has_component::<crate::model::components::PetOf>(&target_oid);
+    let is_pet = world
+        .objects
+        .has_component::<crate::model::components::PetOf>(&target_oid);
     let corpse_oid = target_oid;
     let target_oid = if is_pet {
-        match world.objects.get_component::<crate::model::components::ServitorOf>(&corpse_oid) {
+        match world
+            .objects
+            .get_component::<crate::model::components::ServitorOf>(&corpse_oid)
+        {
             Some(s) => s.owner_object_id,
             None => return,
         }
@@ -1622,14 +2116,26 @@ pub(crate) fn revive_request(
         target_oid
     };
 
-    let Some(target) = world.objects.get_component::<crate::model::Player>(&target_oid) else { return };
-    if world.objects.get_component::<Vitals>(&corpse_oid).is_none_or(|v| !v.dead) {
+    let Some(target) = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+    else {
+        return;
+    };
+    if world
+        .objects
+        .get_component::<Vitals>(&corpse_oid)
+        .is_none_or(|v| !v.dead)
+    {
         return;
     }
     if target.revive_request.is_some() {
         if let Some(cid) = client_for_player(world, reviver_oid) {
             if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
+                    &[],
+                ));
             }
         }
         return;
@@ -1638,7 +2144,12 @@ pub(crate) fn revive_request(
     let wit_bonus = world
         .objects
         .get_component::<crate::model::components::BaseStats>(&reviver_oid)
-        .map(|b| world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Wit, b.wit))
+        .map(|b| {
+            world
+                .data
+                .stat_bonus
+                .bonus(crate::model::stats::BaseStat::Wit, b.wit)
+        })
         .unwrap_or(1.0);
     let restore_percent = resurrect_restore_percent(power as f64, wit_bonus);
 
@@ -1658,7 +2169,10 @@ pub(crate) fn revive_request(
     };
     let restore_exp = ((lost as f64 * restore_percent) / 100.0).round() as i64;
 
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&target_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&target_oid)
+    {
         p.revive_request = Some(crate::model::ReviveRequest {
             reviver: reviver_oid,
             restore_percent,
@@ -1709,18 +2223,42 @@ pub(crate) fn handle_revive_answer(world: &mut World, player_oid: i32, accepted:
     } else {
         player_oid
     };
-    if world.objects.get_component::<Vitals>(&corpse_oid).is_none_or(|v| !v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&corpse_oid)
+        .is_none_or(|v| !v.dead)
+    {
         return true;
     }
     if !accepted {
         return true;
     }
     if request.is_pet {
-        revive_pet(world, player_oid, corpse_oid, request.restore_percent, request.hp_percent, request.mp_percent);
+        revive_pet(
+            world,
+            player_oid,
+            corpse_oid,
+            request.restore_percent,
+            request.hp_percent,
+            request.mp_percent,
+        );
         return true;
     }
-    let crate::model::ReviveRequest { restore_percent, hp_percent, mp_percent, cp_percent, .. } = request;
-    do_revive_with(world, player_oid, hp_percent, mp_percent, cp_percent, restore_percent);
+    let crate::model::ReviveRequest {
+        restore_percent,
+        hp_percent,
+        mp_percent,
+        cp_percent,
+        ..
+    } = request;
+    do_revive_with(
+        world,
+        player_oid,
+        hp_percent,
+        mp_percent,
+        cp_percent,
+        restore_percent,
+    );
     true
 }
 
@@ -1737,9 +2275,12 @@ pub(crate) fn do_revive_with(
 ) {
     do_revive(world, player_oid);
     let restored = {
-        let Some((mut p, mut vitals, mut pvitals)) = world
-            .objects
-            .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
+        let Some((mut p, mut vitals, mut pvitals)) =
+            world
+                .objects
+                .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(
+                    &player_oid,
+                )
         else {
             return;
         };
@@ -1747,13 +2288,16 @@ pub(crate) fn do_revive_with(
         // zero means "leave what the config gave", matching Java's
         // `if (reviveHp > 0)` guards.
         if hp_percent > 0 {
-            vitals.cur_hp = (vitals.max_hp as f64 * hp_percent as f64 / 100.0).min(vitals.max_hp as f64);
+            vitals.cur_hp =
+                (vitals.max_hp as f64 * hp_percent as f64 / 100.0).min(vitals.max_hp as f64);
         }
         if mp_percent > 0 {
-            vitals.cur_mp = (vitals.max_mp as f64 * mp_percent as f64 / 100.0).min(vitals.max_mp as f64);
+            vitals.cur_mp =
+                (vitals.max_mp as f64 * mp_percent as f64 / 100.0).min(vitals.max_mp as f64);
         }
         if cp_percent > 0 {
-            pvitals.cur_cp = (pvitals.max_cp as f64 * cp_percent as f64 / 100.0).min(pvitals.max_cp as f64);
+            pvitals.cur_cp =
+                (pvitals.max_cp as f64 * cp_percent as f64 / 100.0).min(pvitals.max_cp as f64);
         }
         let restored = ((p.lost_exp_on_death as f64 * restore_percent) / 100.0).round() as i64;
         p.exp += restored;
@@ -1768,9 +2312,12 @@ pub(crate) fn do_revive_with(
 /// = 65% on the stock config) and broadcast `Revive`.
 pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
     {
-        let Some((mut p, mut vitals, mut pvitals)) = world
-            .objects
-            .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(&player_oid)
+        let Some((mut p, mut vitals, mut pvitals)) =
+            world
+                .objects
+                .get_many_mut::<(&mut crate::model::Player, &mut Vitals, &mut PlayerVitals)>(
+                    &player_oid,
+                )
         else {
             return;
         };
@@ -1778,20 +2325,26 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
         p.pending_revive = false;
         let c = &world.cfg.character;
         if c.respawn_restore_hp > 0.0 {
-            vitals.cur_hp = (vitals.max_hp as f64 * c.respawn_restore_hp / 100.0).min(vitals.max_hp as f64);
+            vitals.cur_hp =
+                (vitals.max_hp as f64 * c.respawn_restore_hp / 100.0).min(vitals.max_hp as f64);
         }
         if c.respawn_restore_mp > 0.0 {
-            vitals.cur_mp = (vitals.max_mp as f64 * c.respawn_restore_mp / 100.0).min(vitals.max_mp as f64);
+            vitals.cur_mp =
+                (vitals.max_mp as f64 * c.respawn_restore_mp / 100.0).min(vitals.max_mp as f64);
         }
         if c.respawn_restore_cp > 0.0 {
-            pvitals.cur_cp = (pvitals.max_cp as f64 * c.respawn_restore_cp / 100.0).min(pvitals.max_cp as f64);
+            pvitals.cur_cp =
+                (pvitals.max_cp as f64 * c.respawn_restore_cp / 100.0).min(pvitals.max_cp as f64);
         }
     }
     broadcast_including_self(world, player_oid, &server_packets::revive(player_oid));
     super::party::notify_party_vitals(world, player_oid);
     let (Some(vitals), Some(pvitals)) = (
         world.objects.get_component::<Vitals>(&player_oid).copied(),
-        world.objects.get_component::<PlayerVitals>(&player_oid).copied(),
+        world
+            .objects
+            .get_component::<PlayerVitals>(&player_oid)
+            .copied(),
     ) else {
         return;
     };
@@ -1801,9 +2354,18 @@ pub(crate) fn do_revive(world: &mut World, player_oid: i32) {
         &server_packets::status_update(
             player_oid,
             &[
-                (server_packets::status_update_type::CUR_HP, vitals.cur_hp as i32),
-                (server_packets::status_update_type::CUR_MP, vitals.cur_mp as i32),
-                (server_packets::status_update_type::CUR_CP, pvitals.cur_cp as i32),
+                (
+                    server_packets::status_update_type::CUR_HP,
+                    vitals.cur_hp as i32,
+                ),
+                (
+                    server_packets::status_update_type::CUR_MP,
+                    vitals.cur_mp as i32,
+                ),
+                (
+                    server_packets::status_update_type::CUR_CP,
+                    pvitals.cur_cp as i32,
+                ),
             ],
         ),
     );
@@ -1845,9 +2407,10 @@ fn revive_pet(
 
 /// `calculateDistance3D(this) < ALT_PARTY_RANGE` — measured from the corpse.
 fn in_range_of(world: &World, from: i32, to: i32, range: f64) -> bool {
-    let (Some(a), Some(b)) =
-        (world.objects.get_component::<Position>(&from), world.objects.get_component::<Position>(&to))
-    else {
+    let (Some(a), Some(b)) = (
+        world.objects.get_component::<Position>(&from),
+        world.objects.get_component::<Position>(&to),
+    ) else {
         return false;
     };
     let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
@@ -1868,24 +2431,41 @@ fn in_range_of(world: &World, from: i32, to: i32, range: f64) -> bool {
 fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32) {
     use crate::network::server_packets::{sm_ids, SmParam};
 
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
-    let Some(t) = world.data.npc_data.get(npc.npc_id) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    else {
+        return;
+    };
+    let Some(t) = world.data.npc_data.get(npc.npc_id) else {
+        return;
+    };
     // Only a real raid boss, never its minions.
     if !matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss") || t.raid_points <= 0.0 {
         return;
     }
-    if world.objects.has_component::<crate::game_loop::minions::MinionOf>(&npc_oid) {
+    if world
+        .objects
+        .has_component::<crate::game_loop::minions::MinionOf>(&npc_oid)
+    {
         return;
     }
     let total = (t.raid_points * world.cfg.rates.rate_raidboss_points) as i32;
 
     // `broadcastPacket(CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL)` — everyone
     // present hears it, not just the earner.
-    if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
+    if let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    {
         super::helpers::broadcast_near_region(
             world,
             region,
-            &server_packets::system_message_with(sm_ids::CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL, &[]),
+            &server_packets::system_message_with(
+                sm_ids::CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL,
+                &[],
+            ),
         );
     }
 

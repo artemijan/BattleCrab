@@ -20,7 +20,12 @@ pub struct StoreLine<'a> {
 /// `PrivateStoreManageListSell` (0xA0): the owner's setup window — every
 /// inventory item they *could* sell (with the reference-price×2 suggestion) then
 /// the items already added to the store (with their set price).
-pub fn manage_list_sell(owner_object_id: i32, owner_adena: i64, sellable: &[StoreLine], in_store: &[StoreLine]) -> Vec<u8> {
+pub fn manage_list_sell(
+    owner_object_id: i32,
+    owner_adena: i64,
+    sellable: &[StoreLine],
+    in_store: &[StoreLine],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_MANAGE_LIST);
     w.write_i32(owner_object_id);

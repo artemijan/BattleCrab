@@ -13,12 +13,12 @@ use super::opcodes;
 /// send the same set verbatim (the retail boards behind most of them are not
 /// ported yet — the client just needs the strings present).
 const NAV_BYPASSES: [&str; 8] = [
-    "bypass _bbshome",   // top
-    "bypass _bbsgetfav", // favorite
-    "bypass _bbsloc",    // region
-    "bypass _bbsclan",   // clan
-    "bypass _bbsmemo",   // memo
-    "bypass _bbsmail",   // mail
+    "bypass _bbshome",    // top
+    "bypass _bbsgetfav",  // favorite
+    "bypass _bbsloc",     // region
+    "bypass _bbsclan",    // clan
+    "bypass _bbsmemo",    // memo
+    "bypass _bbsmail",    // mail
     "bypass _bbsfriends", // friends
     "bypass bbs_add_fav", // add fav.
 ];

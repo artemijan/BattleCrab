@@ -24,7 +24,12 @@ fn next_siege_is_the_next_matching_weekday_and_hour() {
     let thursday_midnight = 0i64;
     assert_eq!(weekday_of(thursday_midnight), 3, "epoch is Thursday");
 
-    for now in [0i64, 5 * DAY_MS + 3 * HOUR_MS, 123_456_789_000, 1_700_000_000_000] {
+    for now in [
+        0i64,
+        5 * DAY_MS + 3 * HOUR_MS,
+        123_456_789_000,
+        1_700_000_000_000,
+    ] {
         for weekday in 0..7u32 {
             for hour in [0u32, 16, 20, 23] {
                 let at = next_siege_millis(now, weekday, hour);
@@ -64,17 +69,43 @@ fn the_dist_schedule_loads_all_nine_castles() {
     assert_eq!(sched.get(&2).unwrap().hour, 20);
 }
 
-fn schedule_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn schedule_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     world.castles = vec![
-        Castle { id: 1, name: "Gludio".into(), side: CastleSide::Neutral },
-        Castle { id: 2, name: "Dion".into(), side: CastleSide::Neutral },
+        Castle {
+            id: 1,
+            name: "Gludio".into(),
+            side: CastleSide::Neutral,
+        },
+        Castle {
+            id: 2,
+            name: "Dion".into(),
+            side: CastleSide::Neutral,
+        },
     ];
     world.sieges.insert(1, Siege::new(1));
     world.sieges.insert(2, Siege::new(2));
-    world.data.siege_schedule.insert(1, SiegeScheduleEntry { weekday: 6, hour: 16, enabled: true });
+    world.data.siege_schedule.insert(
+        1,
+        SiegeScheduleEntry {
+            weekday: 6,
+            hour: 16,
+            enabled: true,
+        },
+    );
     // Castle 2 is disabled — it must not be armed.
-    world.data.siege_schedule.insert(2, SiegeScheduleEntry { weekday: 6, hour: 20, enabled: false });
+    world.data.siege_schedule.insert(
+        2,
+        SiegeScheduleEntry {
+            weekday: 6,
+            hour: 20,
+            enabled: false,
+        },
+    );
     (world, db, l)
 }
 
@@ -95,7 +126,11 @@ fn boot_arms_enabled_castles_and_the_start_re_arms_next_week() {
     let (mut world, _db, _l) = schedule_world();
 
     crate::game_loop::siege::schedule_all_at_boot(&mut world);
-    assert_eq!(pending_siege_starts(&world), 1, "only the enabled castle is armed");
+    assert_eq!(
+        pending_siege_starts(&world),
+        1,
+        "only the enabled castle is armed"
+    );
 
     // Fire castle 1's start. (Calling the handler directly leaves the
     // boot-armed task in the heap — production drains it first — so measure the
@@ -104,5 +139,9 @@ fn boot_arms_enabled_castles_and_the_start_re_arms_next_week() {
     let before = pending_siege_starts(&world);
     crate::game_loop::siege::handle_scheduled_siege_start(&mut world, 1);
     assert!(world.sieges[&1].in_progress, "the scheduled siege began");
-    assert_eq!(pending_siege_starts(&world) - before, 1, "firing re-arms exactly one next-week start");
+    assert_eq!(
+        pending_siege_starts(&world) - before,
+        1,
+        "firing re-arms exactly one next-week start"
+    );
 }

@@ -25,7 +25,11 @@ pub struct ExprVars {
 /// parse error, unknown identifier, or missing `base`.
 pub fn eval_braced(text: &str, vars: ExprVars) -> Option<f64> {
     let inner = text.trim().strip_prefix('{')?.strip_suffix('}')?;
-    let mut p = Parser { bytes: inner.as_bytes(), pos: 0, vars };
+    let mut p = Parser {
+        bytes: inner.as_bytes(),
+        pos: 0,
+        vars,
+    };
     let v = p.expr()?;
     p.skip_ws();
     if p.pos != p.bytes.len() {
@@ -42,7 +46,11 @@ struct Parser<'a> {
 
 impl Parser<'_> {
     fn skip_ws(&mut self) {
-        while self.bytes.get(self.pos).is_some_and(|b| b.is_ascii_whitespace()) {
+        while self
+            .bytes
+            .get(self.pos)
+            .is_some_and(|b| b.is_ascii_whitespace())
+        {
             self.pos += 1;
         }
     }
@@ -110,7 +118,10 @@ impl Parser<'_> {
                 {
                     self.pos += 1;
                 }
-                std::str::from_utf8(&self.bytes[start..self.pos]).ok()?.parse().ok()
+                std::str::from_utf8(&self.bytes[start..self.pos])
+                    .ok()?
+                    .parse()
+                    .ok()
             }
             b'a'..=b'z' | b'A'..=b'Z' => {
                 let start = self.pos;
@@ -138,16 +149,29 @@ mod tests {
     use super::*;
 
     fn v(base: f64) -> ExprVars {
-        ExprVars { base: Some(base), index: 3.0, sub_index: 7.0 }
+        ExprVars {
+            base: Some(base),
+            index: 3.0,
+            sub_index: 7.0,
+        }
     }
 
     /// Real dist expressions, one per shape.
     #[test]
     fn dist_expression_shapes_evaluate() {
-        assert_eq!(eval_braced("{base + base / 100 * subIndex}", v(200.0)), Some(214.0));
+        assert_eq!(
+            eval_braced("{base + base / 100 * subIndex}", v(200.0)),
+            Some(214.0)
+        );
         assert_eq!(eval_braced("{23+index*3}", v(0.0)), Some(32.0));
-        assert_eq!(eval_braced("{0.99 - 0.006 * (subIndex - 1)}", v(0.0)), Some(0.99 - 0.006 * 6.0));
-        assert_eq!(eval_braced("{-0.6 - (0.4 * subIndex)}", v(0.0)), Some(-0.6 - 0.4 * 7.0));
+        assert_eq!(
+            eval_braced("{0.99 - 0.006 * (subIndex - 1)}", v(0.0)),
+            Some(0.99 - 0.006 * 6.0)
+        );
+        assert_eq!(
+            eval_braced("{-0.6 - (0.4 * subIndex)}", v(0.0)),
+            Some(-0.6 - 0.4 * 7.0)
+        );
         assert_eq!(eval_braced("{base - (2 * subIndex)}", v(100.0)), Some(86.0));
         assert_eq!(eval_braced("{1800 + subIndex * 15}", v(0.0)), Some(1905.0));
     }
@@ -159,7 +183,14 @@ mod tests {
         assert_eq!(eval_braced("{-1 - ((subIndex - 1}", v(1.0)), None);
         assert_eq!(eval_braced("{foo + 1}", v(1.0)), None);
         assert_eq!(
-            eval_braced("{base + 1}", ExprVars { base: None, index: 1.0, sub_index: 1.0 }),
+            eval_braced(
+                "{base + 1}",
+                ExprVars {
+                    base: None,
+                    index: 1.0,
+                    sub_index: 1.0
+                }
+            ),
             None
         );
         assert_eq!(eval_braced("plain text", v(1.0)), None);

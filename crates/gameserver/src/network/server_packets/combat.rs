@@ -40,9 +40,20 @@ fn hit_flags(hit: &AttackHit) -> i32 {
 /// a polearm sweep adds one hit per extra target (Java `Attack.addHit`). `hits`
 /// must be non-empty; the first is written inline and the rest follow the
 /// `writeShort(size - 1)` count.
-pub fn attack(attacker_object_id: i32, hits: &[AttackHit], ax: i32, ay: i32, az: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
+pub fn attack(
+    attacker_object_id: i32,
+    hits: &[AttackHit],
+    ax: i32,
+    ay: i32,
+    az: i32,
+    tx: i32,
+    ty: i32,
+    tz: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
-    let Some(first) = hits.first() else { return Vec::new() };
+    let Some(first) = hits.first() else {
+        return Vec::new();
+    };
     w.write_u8(opcodes::ATTACK);
     w.write_i32(attacker_object_id);
     w.write_i32(first.target_object_id);

@@ -3,10 +3,10 @@ use std::sync::Arc;
 use sqlx::SqlitePool;
 
 use crate::auth::ratelimit::RateLimiter;
-use crate::cors::OriginPolicy;
-use crate::mail::Mailer;
 use crate::auth::SigningKey;
 use crate::config::DashboardConfig;
+use crate::cors::OriginPolicy;
+use crate::mail::Mailer;
 
 pub type AppState = Arc<App>;
 
@@ -40,7 +40,8 @@ impl App {
             origin_policy.push_exact("http://127.0.0.1:3000");
         }
         let mailer = Mailer::from_config(&config);
-        let login_limiter = RateLimiter::new(config.login_rate_limit, config.login_rate_window_secs);
+        let login_limiter =
+            RateLimiter::new(config.login_rate_limit, config.login_rate_window_secs);
         // Registration is rarer than login; a tighter budget over a longer
         // window keeps one host from farming accounts.
         let register_limiter = RateLimiter::new(5, 3600);

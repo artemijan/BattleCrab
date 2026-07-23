@@ -16,7 +16,8 @@ use super::{current_target, send_message, target_player};
 pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     use crate::network::server_packets::sm_ids;
     // Java `adminAddExpSp`: the target must be a player, else INVALID_TARGET.
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
         super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
@@ -30,13 +31,25 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
     ) {
         // Java only applies + messages when at least one value is non-zero.
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+            let name = world
+                .objects
+                .get_component::<Player>(&target)
+                .map(|p| p.name.clone())
+                .unwrap_or_default();
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
-                send_message(world, tcid, &format!("Admin is adding you {exp} xp and {sp} sp."));
+                send_message(
+                    world,
+                    tcid,
+                    &format!("Admin is adding you {exp} xp and {sp} sp."),
+                );
             }
             // `AdminEditChar` uses the no-bonus overload.
             super::death::add_exp_and_sp(world, target, exp as f64, sp as f64, false);
-            send_message(world, client_id, &format!("Added {exp} xp and {sp} sp to {name}."));
+            send_message(
+                world,
+                client_id,
+                &format!("Added {exp} xp and {sp} sp to {name}."),
+            );
         }
         (2, Some(_), Some(_)) => {} // both zero: Java no-ops the grant, still refreshes the menu.
         _ => send_message(world, client_id, "Usage: //add_exp_sp exp sp"),
@@ -47,9 +60,15 @@ pub(super) fn admin_add_exp_sp(world: &mut World, client_id: u32, object_id: i32
 /// `AdminExpSp`'s `//remove_exp_sp <exp> <sp>` — subtract exp+sp from the
 /// **targeted player**, deleveling as needed. The mirror of [`admin_add_exp_sp`]
 /// (player target required, target notified, menu refreshed).
-pub(super) fn admin_remove_exp_sp(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(super) fn admin_remove_exp_sp(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
     use crate::network::server_packets::sm_ids;
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
         super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
@@ -60,12 +79,24 @@ pub(super) fn admin_remove_exp_sp(world: &mut World, client_id: u32, object_id: 
         args.get(1).and_then(|s| s.parse::<i64>().ok()),
     ) {
         (2, Some(exp), Some(sp)) if exp != 0 || sp != 0 => {
-            let name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+            let name = world
+                .objects
+                .get_component::<Player>(&target)
+                .map(|p| p.name.clone())
+                .unwrap_or_default();
             if let Some(tcid) = crate::game_loop::helpers::client_for_player(world, target) {
-                send_message(world, tcid, &format!("Admin is removing you {exp} xp and {sp} sp."));
+                send_message(
+                    world,
+                    tcid,
+                    &format!("Admin is removing you {exp} xp and {sp} sp."),
+                );
             }
             super::death::remove_exp_and_sp(world, target, exp, sp);
-            send_message(world, client_id, &format!("Removed {exp} xp and {sp} sp from {name}."));
+            send_message(
+                world,
+                client_id,
+                &format!("Removed {exp} xp and {sp} sp from {name}."),
+            );
         }
         (2, Some(_), Some(_)) => {}
         _ => send_message(world, client_id, "Usage: //remove_exp_sp exp sp"),
@@ -79,12 +110,19 @@ pub(super) fn admin_remove_exp_sp(world: &mut World, client_id: u32, object_id: 
 /// window up when its Add/Remove/Set-Level buttons fire. Java requires a player
 /// target, else `INVALID_TARGET`.
 pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
-        super::send_sm(world, client_id, crate::network::server_packets::sm_ids::INVALID_TARGET);
+        super::send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::INVALID_TARGET,
+        );
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&target) else { return };
+    let Some(p) = world.objects.get_component::<Player>(&target) else {
+        return;
+    };
     // Java fills `%class%` via `ClassListData` client-code; the port has no
     // client-code table, so use the numeric class id (as `//character_info` does).
     let r: Vec<(&str, String)> = vec![
@@ -99,15 +137,35 @@ pub(super) fn admin_add_exp_sp_menu(world: &mut World, client_id: u32, object_id
 
 /// `AdminLevel`'s `//add_level <n>` / `//set_level <n>` — add levels to, or set
 /// the level of, the targeted player (or self). `set` chooses between the two.
-pub(super) fn admin_change_level(world: &mut World, client_id: u32, object_id: i32, args: &[&str], set: bool) {
+pub(super) fn admin_change_level(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    set: bool,
+) {
     let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, if set { "Usage: //set_level <level>" } else { "Usage: //add_level <levels>" });
+        send_message(
+            world,
+            client_id,
+            if set {
+                "Usage: //set_level <level>"
+            } else {
+                "Usage: //add_level <levels>"
+            },
+        );
         return;
     };
     let target = current_target(world, object_id)
         .filter(|oid| world.objects.has_component::<Player>(oid))
         .unwrap_or(object_id);
-    let Some(current) = world.objects.get_component::<Player>(&target).map(|p| p.level) else { return };
+    let Some(current) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.level)
+    else {
+        return;
+    };
     let max_level = world.data.experience.max_level as i32;
     let new_level = if set { value } else { current + value }.clamp(1, max_level);
     // Set exp to the level's threshold so the exp bar and future exp math stay
@@ -141,15 +199,31 @@ impl IntField {
 
 /// `//setreputation`/`//setfame`/`//setpk`/`//setpvp <n>` — set an integer field
 /// on the target player (or self).
-pub(super) fn set_int_field(world: &mut World, client_id: u32, object_id: i32, field: IntField, args: &[&str]) {
+pub(super) fn set_int_field(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    field: IntField,
+    args: &[&str],
+) {
     let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, &format!("Usage: //set{} <value>", field.label().to_lowercase()));
+        send_message(
+            world,
+            client_id,
+            &format!("Usage: //set{} <value>", field.label().to_lowercase()),
+        );
         return;
     };
     set_field_value(world, client_id, object_id, field, value);
 }
 
-pub(super) fn set_field_value(world: &mut World, client_id: u32, object_id: i32, field: IntField, value: i32) {
+pub(super) fn set_field_value(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    field: IntField,
+    value: i32,
+) {
     let target = target_player(world, object_id);
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         match field {
@@ -160,7 +234,11 @@ pub(super) fn set_field_value(world: &mut World, client_id: u32, object_id: i32,
         }
     }
     super::party::broadcast_user_info(world, target);
-    send_message(world, client_id, &format!("{} set to {value}.", field.label()));
+    send_message(
+        world,
+        client_id,
+        &format!("{} set to {value}.", field.label()),
+    );
 }
 
 /// `AdminVitality`'s `//set_vitality <n>` / `//full_vitality` / `//empty_vitality`
@@ -168,14 +246,25 @@ pub(super) fn set_field_value(world: &mut World, client_id: u32, object_id: i32,
 /// (Java requires a player target). Java passes `quiet = true` to
 /// `setVitalityPoints`, so the player gets the gauge update and the UserInfo
 /// broadcast but none of the "your vitality has increased/decreased" lines.
-pub(super) fn admin_vitality(world: &mut World, client_id: u32, object_id: i32, mode: &str, args: &[&str]) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+pub(super) fn admin_vitality(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    mode: &str,
+    args: &[&str],
+) {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
         send_message(world, client_id, "Target not found or not a player");
         return;
     };
     match mode {
         "get" => {
-            let v = world.objects.get_component::<Player>(&target).map_or(0, |p| p.vitality_points);
+            let v = world
+                .objects
+                .get_component::<Player>(&target)
+                .map_or(0, |p| p.vitality_points);
             send_message(world, client_id, &format!("Player vitality points: {v}"));
             return;
         }
@@ -187,10 +276,20 @@ pub(super) fn admin_vitality(world: &mut World, client_id: u32, object_id: i32, 
             crate::game_loop::vitality::set_vitality_points(world, target, value, true);
         }
         "full" => {
-            crate::game_loop::vitality::set_vitality_points(world, target, MAX_VITALITY_POINTS, true);
+            crate::game_loop::vitality::set_vitality_points(
+                world,
+                target,
+                MAX_VITALITY_POINTS,
+                true,
+            );
         }
         "empty" => {
-            crate::game_loop::vitality::set_vitality_points(world, target, MIN_VITALITY_POINTS, true);
+            crate::game_loop::vitality::set_vitality_points(
+                world,
+                target,
+                MIN_VITALITY_POINTS,
+                true,
+            );
         }
         _ => {}
     }
@@ -210,7 +309,11 @@ pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, 
         return;
     };
     if world.data.player_templates.get(class_id).is_none() {
-        send_message(world, client_id, &format!("Class id {class_id} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Class id {class_id} does not exist."),
+        );
         return;
     }
     let target = target_player(world, object_id);
@@ -220,7 +323,11 @@ pub(super) fn admin_setclass(world: &mut World, client_id: u32, object_id: i32, 
     if crate::game_loop::subclass::set_class_id(world, target, class_id) {
         send_message(world, client_id, &format!("Class set to {class_id}."));
     } else {
-        send_message(world, client_id, &format!("Class id {class_id} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Class id {class_id} does not exist."),
+        );
     }
 }
 
@@ -236,8 +343,17 @@ pub(super) fn admin_set_title(world: &mut World, client_id: u32, object_id: i32,
 }
 
 /// `//setcolor`/`//settcolor <hex>` — set the target player's name/title color.
-pub(super) fn admin_set_color(world: &mut World, client_id: u32, object_id: i32, args: &[&str], title: bool) {
-    let Some(color) = args.first().and_then(|s| i32::from_str_radix(s.trim_start_matches("0x"), 16).ok()) else {
+pub(super) fn admin_set_color(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    title: bool,
+) {
+    let Some(color) = args
+        .first()
+        .and_then(|s| i32::from_str_radix(s.trim_start_matches("0x"), 16).ok())
+    else {
         send_message(world, client_id, "Usage: //setcolor <hex, e.g. FF0000>");
         return;
     };
@@ -267,8 +383,17 @@ pub(super) fn admin_set_sex(world: &mut World, client_id: u32, object_id: i32) {
 /// the item equipped in `slot` on the targeted player (or self). Enchant *stat*
 /// bonuses aren't applied yet (item stats are a later milestone); this sets the
 /// stored level, refreshes the inventory, and rebroadcasts UserInfo (glow).
-pub(super) fn admin_set_enchant(world: &mut World, client_id: u32, object_id: i32, slot: PaperdollSlot, args: &[&str]) {
-    let Some(value) = args.first().and_then(|s| s.parse::<i32>().ok()).filter(|v| (0..=127).contains(v))
+pub(super) fn admin_set_enchant(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    slot: PaperdollSlot,
+    args: &[&str],
+) {
+    let Some(value) = args
+        .first()
+        .and_then(|s| s.parse::<i32>().ok())
+        .filter(|v| (0..=127).contains(v))
     else {
         send_message(world, client_id, "Usage: //set<slot> <0..127>");
         return;
@@ -286,7 +411,8 @@ pub(super) fn admin_set_enchant(world: &mut World, client_id: u32, object_id: i3
     };
     if let Some(cid) = super::helpers::client_for_player(world, target) {
         if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-            let packet = crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
+            let packet =
+                crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
             if let Some(cs) = world.clients.get(&cid) {
                 cs.send(packet);
             }
@@ -308,14 +434,22 @@ pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i3
             .objects
             .get_component::<Player>(&target)
             .map(|p| {
-                let mut s = format!("Base class {} (index 0){}", p.base_class_id, if p.class_index == 0 { " [active]" } else { "" });
+                let mut s = format!(
+                    "Base class {} (index 0){}",
+                    p.base_class_id,
+                    if p.class_index == 0 { " [active]" } else { "" }
+                );
                 for sub in &p.subclasses {
                     s.push_str(&format!(
                         "\nSubclass {} (index {}, level {}){}",
                         sub.class_id,
                         sub.class_index,
                         sub.level,
-                        if p.class_index == sub.class_index { " [active]" } else { "" }
+                        if p.class_index == sub.class_index {
+                            " [active]"
+                        } else {
+                            ""
+                        }
                     ));
                 }
                 s
@@ -326,25 +460,48 @@ pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i3
     };
 
     match add_subclass(world, target, class_id) {
-        Ok(index) => send_message(world, client_id, &format!("Added subclass {class_id} in slot {index}.")),
+        Ok(index) => send_message(
+            world,
+            client_id,
+            &format!("Added subclass {class_id} in slot {index}."),
+        ),
         Err(AddError::SlotsFull) => send_message(world, client_id, "No free subclass slots."),
         Err(AddError::AlreadyHave) => send_message(world, client_id, "That class is already held."),
-        Err(AddError::UnknownClass) => {
-            send_message(world, client_id, &format!("Class id {class_id} does not exist."))
-        }
+        Err(AddError::UnknownClass) => send_message(
+            world,
+            client_id,
+            &format!("Class id {class_id} does not exist."),
+        ),
     }
 }
 
 /// `//changesubclass <index>` — switch the target's active class (0 = base).
-pub(super) fn admin_changesubclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(super) fn admin_changesubclass(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
     let Some(index) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, "Usage: //changesubclass <index> (0 = base class)");
+        send_message(
+            world,
+            client_id,
+            "Usage: //changesubclass <index> (0 = base class)",
+        );
         return;
     };
     let target = target_player(world, object_id);
     if crate::game_loop::subclass::set_active_class(world, target, index) {
-        send_message(world, client_id, &format!("Active class index is now {index}."));
+        send_message(
+            world,
+            client_id,
+            &format!("Active class index is now {index}."),
+        );
     } else {
-        send_message(world, client_id, "No such subclass slot (or it is already active).");
+        send_message(
+            world,
+            client_id,
+            "No such subclass slot (or it is already active).",
+        );
     }
 }

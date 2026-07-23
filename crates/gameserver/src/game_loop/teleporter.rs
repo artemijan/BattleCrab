@@ -69,7 +69,14 @@ pub(crate) fn handle_bypass(
                 return true;
             };
             let loc_id = loc_id.parse::<usize>().ok();
-            do_teleport(world, client_id, object_id, npc_object_id, list_name, loc_id);
+            do_teleport(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                list_name,
+                loc_id,
+            );
             true
         }
         _ => false,
@@ -91,7 +98,12 @@ fn holder<'a>(world: &'a World, npc_object_id: i32, list_name: &str) -> Option<&
 
 /// `TeleportHolder.shouldPayFee`: non-NORMAL lists always charge; NORMAL/
 /// HUNTING charge above the free-teleport level (subclass check skipped).
-fn should_pay_fee(world: &World, level: i32, holder: &TeleportHolder, loc: &TeleportLocation) -> bool {
+fn should_pay_fee(
+    world: &World,
+    level: i32,
+    holder: &TeleportHolder,
+    loc: &TeleportLocation,
+) -> bool {
     !holder.is_normal_teleport()
         || (level > world.cfg.character.max_free_teleport_level
             && loc.fee_id != 0
@@ -100,7 +112,12 @@ fn should_pay_fee(world: &World, level: i32, holder: &TeleportHolder, loc: &Tele
 
 /// `TeleportHolder.calculateFee` minus the Mon/Tue evening discount (see
 /// module docs).
-fn calculate_fee(world: &World, level: i32, holder: &TeleportHolder, loc: &TeleportLocation) -> i64 {
+fn calculate_fee(
+    world: &World,
+    level: i32,
+    holder: &TeleportHolder,
+    loc: &TeleportLocation,
+) -> i64 {
     if holder.is_normal_teleport() && level <= world.cfg.character.max_free_teleport_level {
         return 0;
     }
@@ -134,8 +151,10 @@ fn show_teleport_list(
     npc_object_id: i32,
     list_name: &str,
 ) {
-    let Some(level) =
-        world.objects.get_component::<crate::model::Player>(&object_id).map(|p| p.level)
+    let Some(level) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| p.level)
     else {
         return;
     };
@@ -195,7 +214,9 @@ fn do_teleport(
     loc_id: Option<usize>,
 ) {
     let (Some(level), Some(reputation)) = ({
-        let p = world.objects.get_component::<crate::model::Player>(&object_id);
+        let p = world
+            .objects
+            .get_component::<crate::model::Player>(&object_id);
         (p.map(|p| p.level), p.map(|p| p.reputation))
     }) else {
         return;
@@ -246,15 +267,21 @@ fn do_teleport(
                     .get(loc.fee_id)
                     .map(|t| t.name.clone())
                     .unwrap_or_else(|| format!("Unknown item: {}", loc.fee_id));
-                super::admin::send_message(world, client_id, &format!("You do not have enough {item}"));
+                super::admin::send_message(
+                    world,
+                    client_id,
+                    &format!("You do not have enough {item}"),
+                );
             }
             return;
         }
     }
 
     // `!player.isAlikeDead()` → teleport.
-    let dead =
-        world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead);
+    let dead = world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .is_none_or(|v| v.dead);
     if !dead {
         super::death::teleport_player(world, object_id, loc.x, loc.y, loc.z);
     }
@@ -269,10 +296,11 @@ fn send_teleporter_html(world: &World, client_id: u32, npc_object_id: i32, file:
         .and_then(|n| n.template(world))
         .map(|t| t.name.clone())
         .unwrap_or_default();
-    let html = crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
-        .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
-        .replace("%objectId%", &npc_object_id.to_string())
-        .replace("%npcname%", &name);
+    let html =
+        crate::data::htm_cache::read_htm(format!("{}data/html/teleporter/{file}", world.data.root))
+            .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
+            .replace("%objectId%", &npc_object_id.to_string())
+            .replace("%npcname%", &name);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));
     }

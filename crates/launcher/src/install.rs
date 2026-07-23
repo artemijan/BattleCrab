@@ -124,7 +124,9 @@ fn download(
 
     loop {
         req.cancel.check()?;
-        let n = resp.read(&mut buf).context("connection dropped mid-download")?;
+        let n = resp
+            .read(&mut buf)
+            .context("connection dropped mid-download")?;
         if n == 0 {
             break;
         }
@@ -288,8 +290,8 @@ mod tests {
     }
 
     fn scratch(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir()
-            .join(format!("launcher-install-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("launcher-install-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -326,7 +328,11 @@ mod tests {
 
         let exe = install_dir.join("L2_Client/system/l2.exe");
         assert!(exe.is_file(), "l2.exe should have been unpacked");
-        assert_eq!(std::fs::read(&exe).unwrap(), b"MZ fake game", "contents must survive");
+        assert_eq!(
+            std::fs::read(&exe).unwrap(),
+            b"MZ fake game",
+            "contents must survive"
+        );
 
         // The whole point of unpacking: the Play button must light up afterwards.
         assert_eq!(
@@ -359,6 +365,9 @@ mod tests {
         };
 
         let result = extract(&archive, &install_dir, &req, &Reporter::new(tx, None));
-        assert!(result.is_err(), "a cancelled extraction must not report success");
+        assert!(
+            result.is_err(),
+            "a cancelled extraction must not report success"
+        );
     }
 }

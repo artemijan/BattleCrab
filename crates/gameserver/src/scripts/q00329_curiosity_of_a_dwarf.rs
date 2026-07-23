@@ -18,36 +18,70 @@ fn drops(npc_id: i32) -> &'static [(i32, i32)] {
 }
 pub struct Q00329CuriosityOfADwarf;
 impl QuestScript for Q00329CuriosityOfADwarf {
-    fn id(&self) -> i32 { 329 }
-    fn name(&self) -> &'static str { "Q00329_CuriosityOfADwarf" }
-    fn html_dir(&self) -> &'static str { "quests/Q00329_CuriosityOfADwarf" }
-    fn start_npcs(&self) -> &[i32] { &[ROLENTO] }
-    fn talk_npcs(&self) -> &[i32] { &[ROLENTO] }
-    fn kill_npcs(&self) -> &[i32] { &KILL_NPCS }
-    fn quest_items(&self) -> &[i32] { &[GOLEM_HEARTSTONE, BROKEN_HEARTSTONE] }
+    fn id(&self) -> i32 {
+        329
+    }
+    fn name(&self) -> &'static str {
+        "Q00329_CuriosityOfADwarf"
+    }
+    fn html_dir(&self) -> &'static str {
+        "quests/Q00329_CuriosityOfADwarf"
+    }
+    fn start_npcs(&self) -> &[i32] {
+        &[ROLENTO]
+    }
+    fn talk_npcs(&self) -> &[i32] {
+        &[ROLENTO]
+    }
+    fn kill_npcs(&self) -> &[i32] {
+        &KILL_NPCS
+    }
+    fn quest_items(&self) -> &[i32] {
+        &[GOLEM_HEARTSTONE, BROKEN_HEARTSTONE]
+    }
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 38).then(|| ctx.no_quest_html())
     }
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() { return None; }
+        if !ctx.has_qs() {
+            return None;
+        }
         match event {
-            "30437-03.htm" => { ctx.start_quest(); Some(event.to_string()) }
-            "30437-06.html" => { ctx.exit_quest(true, true); Some(event.to_string()) }
+            "30437-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30437-06.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
             "30437-07.html" => Some(event.to_string()),
             _ => None,
         }
     }
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() { return; }
+        if !ctx.has_qs() {
+            return;
+        }
         let roll = ctx.roll(100);
         for &(item, threshold) in drops(ctx.npc_id) {
-            if roll < threshold { ctx.give_item_randomly(item, 1, 0, 1.0, true); break; }
+            if roll < threshold {
+                ctx.give_item_randomly(item, 1, 0, 1.0, true);
+                break;
+            }
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30437-02.htm" } else { "30437-01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30437-02.htm"
+                } else {
+                    "30437-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             let broken = ctx.quest_items_count(BROKEN_HEARTSTONE);

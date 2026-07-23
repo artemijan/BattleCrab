@@ -18,7 +18,10 @@ use quick_xml::events::Event;
 use quick_xml::Reader;
 use tracing::info;
 
-use crate::model::skill::{AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{
+    AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill,
+    SkillEffect, StatModifierEffect, TargetType,
+};
 use crate::model::stats::{Stat, StatModifierType};
 
 pub const SKILLS_DIR: &str = "data/stats/skills";
@@ -134,7 +137,11 @@ impl SkillData {
             out.enchanted.len(),
             out.routes.len()
         );
-        Self { skills: out.skills, enchanted: out.enchanted, routes: out.routes }
+        Self {
+            skills: out.skills,
+            enchanted: out.enchanted,
+            routes: out.routes,
+        }
     }
 
     pub fn get(&self, id: i32, level: i32) -> Option<&Skill> {
@@ -153,13 +160,21 @@ impl SkillData {
     /// The enchant routes available to `(id, level)` as `(first, last)`
     /// sub-level bounds — empty for a non-enchantable skill.
     pub fn enchant_routes(&self, id: i32, level: i32) -> &[(i32, i32)] {
-        self.routes.get(&(id, level)).map(Vec::as_slice).unwrap_or(&[])
+        self.routes
+            .get(&(id, level))
+            .map(Vec::as_slice)
+            .unwrap_or(&[])
     }
 
     /// Java `SkillData.getMaxLevel(id)` — the highest loaded level for a skill
     /// id (0 if the id is unknown). Used by `//cast` when no level is given.
     pub fn max_level(&self, id: i32) -> i32 {
-        self.skills.keys().filter(|(sid, _)| *sid == id).map(|(_, lvl)| *lvl).max().unwrap_or(0)
+        self.skills
+            .keys()
+            .filter(|(sid, _)| *sid == id)
+            .map(|(_, lvl)| *lvl)
+            .max()
+            .unwrap_or(0)
     }
 
     /// Java `Skill` constructor: `EnableModifySkillDuration` + `SkillDurationList`.
@@ -188,7 +203,11 @@ impl SkillData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { skills: HashMap::new(), enchanted: HashMap::new(), routes: HashMap::new() }
+        Self {
+            skills: HashMap::new(),
+            enchanted: HashMap::new(),
+            routes: HashMap::new(),
+        }
     }
 
     #[doc(hidden)]
@@ -198,7 +217,8 @@ impl SkillData {
 
     #[doc(hidden)]
     pub fn insert_enchanted_for_test(&mut self, skill: Skill) {
-        self.enchanted.insert((skill.id, skill.level, skill.sub_level), skill);
+        self.enchanted
+            .insert((skill.id, skill.level, skill.sub_level), skill);
     }
 
     #[doc(hidden)]
@@ -214,7 +234,10 @@ type LeveledValues = HashMap<String, HashMap<i32, String>>;
 /// Look up `field` at `level`, falling back to the scalar (level 0) entry.
 fn value_at<'a>(values: &'a LeveledValues, field: &str, level: i32) -> Option<&'a str> {
     let table = values.get(field)?;
-    table.get(&level).or_else(|| table.get(&0)).map(String::as_str)
+    table
+        .get(&level)
+        .or_else(|| table.get(&0))
+        .map(String::as_str)
 }
 
 fn parse_file(path: &std::path::Path, out: &mut ParsedSkills) {
@@ -227,7 +250,9 @@ fn parse_file(path: &std::path::Path, out: &mut ParsedSkills) {
 /// The level-range attributes on an `<effect>` element, with Java's defaulting:
 /// `level` supplies the default for both `fromLevel` and `toLevel`, and
 /// `subLevel` for both sub-level bounds.
-fn effect_level_attrs(e: &quick_xml::events::BytesStart) -> (Option<i32>, Option<i32>, Option<i32>, Option<i32>) {
+fn effect_level_attrs(
+    e: &quick_xml::events::BytesStart,
+) -> (Option<i32>, Option<i32>, Option<i32>, Option<i32>) {
     let level = attr_i32(e, b"level");
     let sub_level = attr_i32(e, b"subLevel");
     (
@@ -285,7 +310,8 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
     // instant damage/heal handlers —, mode, RestorationRandom groups).
     let mut effects: Vec<ParsedEffect> = Vec::new();
     // The current `<effect>`'s level-range attributes (Java `NamedParamInfo`).
-    let mut cur_effect_levels: (Option<i32>, Option<i32>, Option<i32>, Option<i32>) = (None, None, None, None);
+    let mut cur_effect_levels: (Option<i32>, Option<i32>, Option<i32>, Option<i32>) =
+        (None, None, None, None);
     let mut in_effects = false;
     let mut cur_scope = EffectScope::General;
     let mut in_conditions = false;
@@ -334,8 +360,14 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 // — the one shape this loader reads here is `RestorationRandom`'s
                 // inner `<item id=".." count=".."/>`, sitting right inside an
                 // open group (`path` still at the group's depth, 5).
-                if in_effects && cur_effect_field == "items" && path.len() == 5 && e.name().as_ref() == b"item" {
-                    if let (Some(item_id), Some(count)) = (attr_i32(&e, b"id"), attr_i64(&e, b"count")) {
+                if in_effects
+                    && cur_effect_field == "items"
+                    && path.len() == 5
+                    && e.name().as_ref() == b"item"
+                {
+                    if let (Some(item_id), Some(count)) =
+                        (attr_i32(&e, b"id"), attr_i64(&e, b"count"))
+                    {
                         cur_group_items.push(RestorationItem {
                             item_id,
                             count,
@@ -350,7 +382,8 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     // otherwise the effect is silently dropped and the skill
                     // becomes a no-op.
                     if let Some(effect_name) = attr_str(&e, b"name") {
-                        let (from_level, to_level, from_sub_level, to_sub_level) = effect_level_attrs(&e);
+                        let (from_level, to_level, from_sub_level, to_sub_level) =
+                            effect_level_attrs(&e);
                         effects.push(ParsedEffect {
                             scope: cur_scope,
                             name: effect_name,
@@ -422,7 +455,11 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 } else if path.len() == 4 && in_effects && name == "value" {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
                     pending_range = ranged_bounds(&e);
-                } else if path.len() == 4 && in_effects && cur_effect_field == "items" && name == "item" {
+                } else if path.len() == 4
+                    && in_effects
+                    && cur_effect_field == "items"
+                    && name == "item"
+                {
                     // `RestorationRandom`'s outer `<item chance="30">` group tag.
                     cur_group_chance = attr_f64(&e, b"chance").unwrap_or(0.0);
                     cur_group_items = Vec::new();
@@ -452,11 +489,13 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 } else if in_effects && cur_effect_field == "armorType" && path.len() == 5 {
                     // `<effect><armorType><item>MAGIC</item>...` — OR each armor
                     // kind's bit into the effect's condition mask.
-                    cur_effect_armor |= crate::data::item_data::ArmorType::from_name(text).mask_bit();
+                    cur_effect_armor |=
+                        crate::data::item_data::ArmorType::from_name(text).mask_bit();
                 } else if in_effects && cur_effect_field == "weaponType" && path.len() == 5 {
                     // `<effect><weaponType><item>BOW</item>...` — OR each weapon
                     // kind's bit into the effect's weapon-condition mask.
-                    cur_effect_weapon |= crate::data::item_data::WeaponType::from_name(text).mask_bit();
+                    cur_effect_weapon |=
+                        crate::data::item_data::WeaponType::from_name(text).mask_bit();
                 } else if in_effects {
                     match path.len() {
                         4 if cur_effect_field == "mode" => {
@@ -464,14 +503,20 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                         }
                         // Directly under `<effect><param>SCALAR</param>`.
                         4 => {
-                            cur_effect_params.entry(cur_effect_field.clone()).or_default().insert(0, text.to_string());
+                            cur_effect_params
+                                .entry(cur_effect_field.clone())
+                                .or_default()
+                                .insert(0, text.to_string());
                         }
                         // `<effect><param><value fromLevel=… [fromSubLevel=…]>`
                         // — a ranged (possibly computed) row.
                         5 if pending_range.is_some() => {
                             let mut row = pending_range.take().expect("checked");
                             row.text = text.to_string();
-                            cur_effect_sub_params.entry(cur_effect_field.clone()).or_default().push(row);
+                            cur_effect_sub_params
+                                .entry(cur_effect_field.clone())
+                                .or_default()
+                                .push(row);
                         }
                         // `<effect><param><value level="N">...`
                         5 => {
@@ -486,7 +531,10 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     match path.len() {
                         // `<field>SCALAR</field>` directly under `<skill>`.
                         2 => {
-                            values.entry(cur_field.clone()).or_default().insert(0, text.to_string());
+                            values
+                                .entry(cur_field.clone())
+                                .or_default()
+                                .insert(0, text.to_string());
                         }
                         // `<field><value fromLevel=… [fromSubLevel=…]>` — a
                         // ranged (possibly computed) row. Before this branch
@@ -500,7 +548,10 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                         }
                         // `<field><value level="N">...`
                         3 => {
-                            values.entry(cur_field.clone()).or_default().insert(pending_level, text.to_string());
+                            values
+                                .entry(cur_field.clone())
+                                .or_default()
+                                .insert(pending_level, text.to_string());
                         }
                         _ => {}
                     }
@@ -509,7 +560,16 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
             Ok(Event::End(_)) => {
                 let closed = path.pop().unwrap_or_default();
                 if closed == "skill" {
-                    finalize_skill(skill_id, &skill_name, to_level, &values, &effects, &field_rows, &op_exist_npc, out);
+                    finalize_skill(
+                        skill_id,
+                        &skill_name,
+                        to_level,
+                        &values,
+                        &effects,
+                        &field_rows,
+                        &op_exist_npc,
+                        out,
+                    );
                     skill_id = -1;
                 } else if closed.ends_with("ffects") {
                     in_effects = false;
@@ -527,8 +587,10 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     // Closes a `RestorationRandom` group (the inner
                     // `<item id=".." count=".."/>` is self-closing, so this
                     // `End` only ever fires for the outer group tag).
-                    cur_restoration_groups
-                        .push(RestorationGroup { chance: cur_group_chance, items: std::mem::take(&mut cur_group_items) });
+                    cur_restoration_groups.push(RestorationGroup {
+                        chance: cur_group_chance,
+                        items: std::mem::take(&mut cur_group_items),
+                    });
                 } else if closed == "effect" && in_effects {
                     if let Some(name) = cur_effect_name.take() {
                         effects.push(ParsedEffect {
@@ -659,17 +721,26 @@ fn finalize_skill(
         // The plain (sub 0) skill: ranged level rows resolved, sub rows inert.
         let vals = patched_values(values, field_rows, level, 0);
         let effs = patched_effects(effects, level, 0);
-        out.skills.insert((id, level), build_skill(id, name, level, 0, &vals, &effs, op_exist_npc));
+        out.skills.insert(
+            (id, level),
+            build_skill(id, name, level, 0, &vals, &effs, op_exist_npc),
+        );
 
         // The enchanted variants — one instance per declared sub-level, like
         // Java's parse loop, plus the route registration `addRouteForSkill`
         // does per instance.
         for (from_sub, to_sub) in declared_sub_ranges(field_rows, effects, level) {
-            out.routes.entry((id, level)).or_default().push((from_sub, to_sub));
+            out.routes
+                .entry((id, level))
+                .or_default()
+                .push((from_sub, to_sub));
             for sub in from_sub..=to_sub {
                 let vals = patched_values(values, field_rows, level, sub);
                 let effs = patched_effects(effects, level, sub);
-                out.enchanted.insert((id, level, sub), build_skill(id, name, level, sub, &vals, &effs, op_exist_npc));
+                out.enchanted.insert(
+                    (id, level, sub),
+                    build_skill(id, name, level, sub, &vals, &effs, op_exist_npc),
+                );
             }
         }
     }
@@ -704,7 +775,9 @@ fn patched_values(
                     continue;
                 }
                 if let Some(resolved) = resolve_row(&out, field, r, level, sub) {
-                    out.entry(field.clone()).or_default().insert(level, resolved);
+                    out.entry(field.clone())
+                        .or_default()
+                        .insert(level, resolved);
                 }
             }
         }
@@ -714,7 +787,13 @@ fn patched_values(
 
 /// Resolve one ranged row's text: `{…}` through the expression evaluator
 /// (`None` drops the row, like Java's exception path), plain text verbatim.
-fn resolve_row(current: &LeveledValues, field: &str, r: &RangedRow, level: i32, sub: i32) -> Option<String> {
+fn resolve_row(
+    current: &LeveledValues,
+    field: &str,
+    r: &RangedRow,
+    level: i32,
+    sub: i32,
+) -> Option<String> {
     let text = r.text.trim();
     if !text.starts_with('{') {
         return Some(text.to_string());
@@ -722,7 +801,11 @@ fn resolve_row(current: &LeveledValues, field: &str, r: &RangedRow, level: i32, 
     let vars = crate::data::skill_expr::ExprVars {
         base: value_at(current, field, level).and_then(|v| v.parse().ok()),
         index: (level - r.from_level + 1) as f64,
-        sub_index: if r.from_sub > 0 { (sub - r.from_sub + 1) as f64 } else { 0.0 },
+        sub_index: if r.from_sub > 0 {
+            (sub - r.from_sub + 1) as f64
+        } else {
+            0.0
+        },
     };
     crate::data::skill_expr::eval_braced(text, vars).map(fmt_num)
 }
@@ -753,14 +836,18 @@ fn patched_effects(effects: &[ParsedEffect], level: i32, sub: i32) -> Vec<Parsed
                 for (field, rows) in &e.sub_params {
                     for r in rows {
                         let is_sub_row = r.from_sub > 0;
-                        if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
+                        if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level)
+                        {
                             continue;
                         }
                         if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
                             continue;
                         }
                         if let Some(resolved) = resolve_row(&out.params, field, r, level, sub) {
-                            out.params.entry(field.clone()).or_default().insert(level, resolved);
+                            out.params
+                                .entry(field.clone())
+                                .or_default()
+                                .insert(level, resolved);
                         }
                     }
                 }
@@ -780,7 +867,8 @@ fn declared_sub_ranges(
     // Rows within one route are often fragmented (`1001–1005`, `1006–1006`,
     // …), so merge by the route bucket (`sub / 1000`) — the registry's unit
     // is the route, and instances are built over the merged span.
-    let mut buckets: std::collections::BTreeMap<i32, (i32, i32)> = std::collections::BTreeMap::new();
+    let mut buckets: std::collections::BTreeMap<i32, (i32, i32)> =
+        std::collections::BTreeMap::new();
     let mut add = |from_sub: i32, to_sub: i32| {
         let e = buckets.entry(from_sub / 1000).or_insert((from_sub, to_sub));
         e.0 = e.0.min(from_sub);
@@ -830,10 +918,18 @@ fn build_skill(
         // = 10.5) and Java's `StatSet.getInt` truncates via `Number.intValue`.
         let get_i = |field: &str, default: i32| {
             value_at(values, field, level)
-                .and_then(|v| v.parse::<i32>().ok().or_else(|| v.parse::<f64>().ok().map(|f| f as i32)))
+                .and_then(|v| {
+                    v.parse::<i32>()
+                        .ok()
+                        .or_else(|| v.parse::<f64>().ok().map(|f| f as i32))
+                })
                 .unwrap_or(default)
         };
-        let get_f = |field: &str, default: f64| value_at(values, field, level).and_then(|v| v.parse().ok()).unwrap_or(default);
+        let get_f = |field: &str, default: f64| {
+            value_at(values, field, level)
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(default)
+        };
         let operate_type = match value_at(values, "operateType", level) {
             Some("A1") | Some("A2") => OperateType::Active,
             Some("P") => OperateType::Passive,
@@ -877,9 +973,13 @@ fn build_skill(
         // damage effect in practice, so hoisting "any effect declares it" to the
         // skill is behaviourally identical and avoids threading the flag
         // through every `SkillEffect` variant.
-        let over_hit = effects.iter().filter(|e| e.applies_at(level, sub)).any(|e| {
-            value_at(&e.params, "overHit", level).is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
-        });
+        let over_hit = effects
+            .iter()
+            .filter(|e| e.applies_at(level, sub))
+            .any(|e| {
+                value_at(&e.params, "overHit", level)
+                    .is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
+            });
         let toggle_group_id = get_i("toggleGroupId", 0);
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
         let affect_scope = match value_at(values, "affectScope", level) {
@@ -925,873 +1025,991 @@ fn build_skill(
             })
             .unwrap_or([0; 4]);
 
-        let build_scope = |want: EffectScope| effects
-            .iter()
-            // Java `forEachNamedParamInfoParam`: an effect whose declared level
-            // range excludes this level is simply not part of the skill here.
-            .filter(|e| e.applies_at(level, sub) && e.scope == want)
-            .flat_map(|e| {
-                let (xml_name, params, mode, groups, armor_condition, weapon_condition) =
-                    (&e.name, &e.params, &e.mode, &e.groups, &e.armor_condition, &e.weapon_condition);
-                let param = |key: &str| -> Option<f64> { value_at(params, key, level).and_then(|v| v.parse().ok()) };
-                let modifier_mode = if mode == "PER" { StatModifierType::Per } else { StatModifierType::Diff };
-                let stat_mod = |stat: Stat, amount: f64| {
-                    SkillEffect::StatModifier(StatModifierEffect {
-                        stat,
-                        mode: modifier_mode,
-                        amount,
-                        armor_condition: *armor_condition,
-                        weapon_condition: *weapon_condition,
-                        qualifier: None,
-                        two_handed: false,
-                    })
-                };
-                match xml_name.as_str() {
-                    // Vital Force (148), Esprit (171), Acrobatic Move (225),
-                    // Clear Mind (1297): a flat stat bonus that only counts
-                    // while the creature is in the named locomotion state.
-                    // Java names its own `<stat>`/`<type>`/`<value>` rather
-                    // than using the generic `amount`/`mode` pair, and merges
-                    // into `_moveTypeStats` — always additive, never percent —
-                    // so `modifier_mode` is deliberately not consulted.
-                    //
-                    // Before this arm the effect fell through to
-                    // `EFFECT_REGISTRY`, wasn't found, and was dropped: Vital
-                    // Force and Clear Mind carry *only* `StatByMoveType`, so
-                    // both were passives that did precisely nothing.
-                    "StatByMoveType" => {
-                        let stat = value_at(params, "stat", level).and_then(Stat::from_xml);
-                        let move_type = value_at(params, "type", level).and_then(crate::model::stats::MoveType::from_xml);
-                        return match (stat, move_type, param("value")) {
-                            (Some(stat), Some(move_type), Some(amount)) => vec![SkillEffect::StatModifier(StatModifierEffect {
-                                stat,
-                                mode: StatModifierType::Diff,
-                                amount,
-                                armor_condition: *armor_condition,
-                                weapon_condition: *weapon_condition,
-                                qualifier: Some(crate::model::stats::StatQualifier::MoveType(move_type)),
-                                two_handed: false,
-                            })],
-                            _ => Vec::new(),
-                        };
-                    }
-                    // Guts (139) / Touch of Life (341) / Touch of Death (342):
-                    // a multiplier on how likely an incoming *debuff* is to
-                    // land. Java `mergeMul(RESIST_ABNORMAL_DEBUFF,
-                    // 1 + amount/100)` — which is exactly what `Per` mode does
-                    // here — so the mode is forced rather than read from the
-                    // XML (these effects carry no `<mode>`, which would default
-                    // to DIFF and silently mean something else entirely).
-                    //
-                    // Java's handler switches on `<slot>` and only implements
-                    // DEBUFF ("only this one is in use it seems"); a different
-                    // slot pumps nothing, so it is skipped here too.
-                    "ResistAbnormalByCategory" => {
-                        let slot = value_at(params, "slot", level).unwrap_or("DEBUFF");
-                        return param("amount")
-                            .filter(|_| slot == "DEBUFF")
-                            .map(|amount| {
-                                SkillEffect::StatModifier(StatModifierEffect {
-                                    stat: Stat::ResistAbnormalDebuff,
-                                    mode: StatModifierType::Per,
-                                    amount,
-                                    armor_condition: *armor_condition,
-                                    weapon_condition: *weapon_condition,
-                                    qualifier: None,
-                                    two_handed: false,
-                                })
-                            })
-                            .into_iter()
-                            .collect();
-                    }
-                    // Ultimate Defense (110) / Ultimate Evasion (111): the same
-                    // shape for resisting *dispel*. Java only implements the
-                    // BUFF slot.
-                    "ResistDispelByCategory" => {
-                        let slot = value_at(params, "slot", level).unwrap_or("BUFF");
-                        return param("amount")
-                            .filter(|_| slot == "BUFF")
-                            .map(|amount| {
-                                SkillEffect::StatModifier(StatModifierEffect {
-                                    stat: Stat::ResistDispelBuff,
-                                    mode: StatModifierType::Per,
-                                    amount,
-                                    armor_condition: *armor_condition,
-                                    weapon_condition: *weapon_condition,
-                                    qualifier: None,
-                                    two_handed: false,
-                                })
-                            })
-                            .into_iter()
-                            .collect();
-                    }
-                    // Prophecy family / Heroic Miracle: block a set of abnormal
-                    // types from landing while this buff is up.
-                    "BlockAbnormalSlot" => {
-                        let slots: Vec<String> = value_at(params, "slot", level)
-                            .unwrap_or("")
-                            .split(';')
-                            .map(|t| t.trim().to_string())
-                            .filter(|t| !t.is_empty())
-                            .collect();
-                        if slots.is_empty() {
-                            return Vec::new();
+        let build_scope = |want: EffectScope| {
+            effects
+                .iter()
+                // Java `forEachNamedParamInfoParam`: an effect whose declared level
+                // range excludes this level is simply not part of the skill here.
+                .filter(|e| e.applies_at(level, sub) && e.scope == want)
+                .flat_map(|e| {
+                    let (xml_name, params, mode, groups, armor_condition, weapon_condition) = (
+                        &e.name,
+                        &e.params,
+                        &e.mode,
+                        &e.groups,
+                        &e.armor_condition,
+                        &e.weapon_condition,
+                    );
+                    let param = |key: &str| -> Option<f64> {
+                        value_at(params, key, level).and_then(|v| v.parse().ok())
+                    };
+                    let modifier_mode = if mode == "PER" {
+                        StatModifierType::Per
+                    } else {
+                        StatModifierType::Diff
+                    };
+                    let stat_mod = |stat: Stat, amount: f64| {
+                        SkillEffect::StatModifier(StatModifierEffect {
+                            stat,
+                            mode: modifier_mode,
+                            amount,
+                            armor_condition: *armor_condition,
+                            weapon_condition: *weapon_condition,
+                            qualifier: None,
+                            two_handed: false,
+                        })
+                    };
+                    match xml_name.as_str() {
+                        // Vital Force (148), Esprit (171), Acrobatic Move (225),
+                        // Clear Mind (1297): a flat stat bonus that only counts
+                        // while the creature is in the named locomotion state.
+                        // Java names its own `<stat>`/`<type>`/`<value>` rather
+                        // than using the generic `amount`/`mode` pair, and merges
+                        // into `_moveTypeStats` — always additive, never percent —
+                        // so `modifier_mode` is deliberately not consulted.
+                        //
+                        // Before this arm the effect fell through to
+                        // `EFFECT_REGISTRY`, wasn't found, and was dropped: Vital
+                        // Force and Clear Mind carry *only* `StatByMoveType`, so
+                        // both were passives that did precisely nothing.
+                        "StatByMoveType" => {
+                            let stat = value_at(params, "stat", level).and_then(Stat::from_xml);
+                            let move_type = value_at(params, "type", level)
+                                .and_then(crate::model::stats::MoveType::from_xml);
+                            return match (stat, move_type, param("value")) {
+                                (Some(stat), Some(move_type), Some(amount)) => {
+                                    vec![SkillEffect::StatModifier(StatModifierEffect {
+                                        stat,
+                                        mode: StatModifierType::Diff,
+                                        amount,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: Some(
+                                            crate::model::stats::StatQualifier::MoveType(move_type),
+                                        ),
+                                        two_handed: false,
+                                    })]
+                                }
+                                _ => Vec::new(),
+                            };
                         }
-                        return vec![SkillEffect::BlockAbnormalSlot { slots }];
-                    }
-                    // Stun / sleep / paralyze (540 uses) and Root (79): no stat
-                    // modifier at all — the whole mechanic is the abnormal-state
-                    // flag they contribute (`Skill::effect_flags`).
-                    "BlockActions" => {
-                        // Java: a non-empty `allowedSkills` whitelist makes this
-                        // CONDITIONAL_BLOCK_ACTIONS instead. Both gate the same
-                        // way in `hasBlockActions()`.
-                        let conditional = value_at(params, "allowedSkills", level)
-                            .is_some_and(|v| !v.trim().is_empty());
-                        return vec![SkillEffect::BlockActions { conditional }];
-                    }
-                    "Root" => return vec![SkillEffect::Root],
-                    // The elemental attribute pair (PLAN_G19_ATTRIBUTES.md):
-                    // one flat StatModifier per element named in the
-                    // (comma-separable) `attribute` param, default FIRE —
-                    // Java's `Stat.valueOf(attribute + "_POWER"/"_RES")`.
-                    "AttackAttribute" | "DefenceAttribute" => {
-                        let Some(amount) = param("amount") else { return Vec::new() };
-                        let defence = xml_name.as_str() == "DefenceAttribute";
-                        return value_at(params, "attribute", level)
-                            .unwrap_or("FIRE")
-                            .split(',')
-                            .filter_map(|n| crate::model::stats::Element::from_xml(n.trim()))
-                            .map(|el| {
-                                stat_mod(
-                                    if defence { el.res_stat() } else { el.power_stat() },
+                        // Guts (139) / Touch of Life (341) / Touch of Death (342):
+                        // a multiplier on how likely an incoming *debuff* is to
+                        // land. Java `mergeMul(RESIST_ABNORMAL_DEBUFF,
+                        // 1 + amount/100)` — which is exactly what `Per` mode does
+                        // here — so the mode is forced rather than read from the
+                        // XML (these effects carry no `<mode>`, which would default
+                        // to DIFF and silently mean something else entirely).
+                        //
+                        // Java's handler switches on `<slot>` and only implements
+                        // DEBUFF ("only this one is in use it seems"); a different
+                        // slot pumps nothing, so it is skipped here too.
+                        "ResistAbnormalByCategory" => {
+                            let slot = value_at(params, "slot", level).unwrap_or("DEBUFF");
+                            return param("amount")
+                                .filter(|_| slot == "DEBUFF")
+                                .map(|amount| {
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::ResistAbnormalDebuff,
+                                        mode: StatModifierType::Per,
+                                        amount,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: None,
+                                        two_handed: false,
+                                    })
+                                })
+                                .into_iter()
+                                .collect();
+                        }
+                        // Ultimate Defense (110) / Ultimate Evasion (111): the same
+                        // shape for resisting *dispel*. Java only implements the
+                        // BUFF slot.
+                        "ResistDispelByCategory" => {
+                            let slot = value_at(params, "slot", level).unwrap_or("BUFF");
+                            return param("amount")
+                                .filter(|_| slot == "BUFF")
+                                .map(|amount| {
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::ResistDispelBuff,
+                                        mode: StatModifierType::Per,
+                                        amount,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: None,
+                                        two_handed: false,
+                                    })
+                                })
+                                .into_iter()
+                                .collect();
+                        }
+                        // Prophecy family / Heroic Miracle: block a set of abnormal
+                        // types from landing while this buff is up.
+                        "BlockAbnormalSlot" => {
+                            let slots: Vec<String> = value_at(params, "slot", level)
+                                .unwrap_or("")
+                                .split(';')
+                                .map(|t| t.trim().to_string())
+                                .filter(|t| !t.is_empty())
+                                .collect();
+                            if slots.is_empty() {
+                                return Vec::new();
+                            }
+                            return vec![SkillEffect::BlockAbnormalSlot { slots }];
+                        }
+                        // Stun / sleep / paralyze (540 uses) and Root (79): no stat
+                        // modifier at all — the whole mechanic is the abnormal-state
+                        // flag they contribute (`Skill::effect_flags`).
+                        "BlockActions" => {
+                            // Java: a non-empty `allowedSkills` whitelist makes this
+                            // CONDITIONAL_BLOCK_ACTIONS instead. Both gate the same
+                            // way in `hasBlockActions()`.
+                            let conditional = value_at(params, "allowedSkills", level)
+                                .is_some_and(|v| !v.trim().is_empty());
+                            return vec![SkillEffect::BlockActions { conditional }];
+                        }
+                        "Root" => return vec![SkillEffect::Root],
+                        // The elemental attribute pair (PLAN_G19_ATTRIBUTES.md):
+                        // one flat StatModifier per element named in the
+                        // (comma-separable) `attribute` param, default FIRE —
+                        // Java's `Stat.valueOf(attribute + "_POWER"/"_RES")`.
+                        "AttackAttribute" | "DefenceAttribute" => {
+                            let Some(amount) = param("amount") else {
+                                return Vec::new();
+                            };
+                            let defence = xml_name.as_str() == "DefenceAttribute";
+                            return value_at(params, "attribute", level)
+                                .unwrap_or("FIRE")
+                                .split(',')
+                                .filter_map(|n| crate::model::stats::Element::from_xml(n.trim()))
+                                .map(|el| {
+                                    stat_mod(
+                                        if defence {
+                                            el.res_stat()
+                                        } else {
+                                            el.power_stat()
+                                        },
+                                        amount,
+                                    )
+                                })
+                                .collect();
+                        }
+                        // Polearm Mastery 216: `HitNumber` is a plain
+                        // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
+                        "HitNumber" => {
+                            return param("amount")
+                                .map(|amount| stat_mod(Stat::AttackCountMax, amount))
+                                .into_iter()
+                                .collect();
+                        }
+                        // The rest of the state-flag CC family (Seal of Silence,
+                        // Shield Slam, Mystic Immunity, Horror): no parameters, the
+                        // mechanic is entirely the flag.
+                        "Mute" => return vec![SkillEffect::Mute],
+                        "PhysicalMute" => return vec![SkillEffect::PhysicalMute],
+                        "DebuffBlock" => return vec![SkillEffect::DebuffBlock],
+                        "BlockControl" => return vec![SkillEffect::BlockControl],
+                        "TargetCancel" => {
+                            let chance = value_at(params, "chance", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(100);
+                            return vec![SkillEffect::TargetCancel { chance }];
+                        }
+                        // Aggression 28/18, Judgment 401, Tribunal 400: no params.
+                        "GetAgro" => return vec![SkillEffect::GetAgro],
+                        // Charm 15, Lure 51: `power` (default 0, Java always
+                        // instantiates the handler even with no param).
+                        "AddHate" => {
+                            return vec![SkillEffect::AddHate {
+                                power: param("power").unwrap_or(0.0),
+                            }]
+                        }
+                        "DeleteHate" => {
+                            let chance = value_at(params, "chance", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(100);
+                            return vec![SkillEffect::DeleteHate { chance }];
+                        }
+                        "DeleteHateOfMe" => {
+                            let chance = value_at(params, "chance", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(100);
+                            return vec![SkillEffect::DeleteHateOfMe { chance }];
+                        }
+                        // TODO(G19+): `TargetMe` (paired with `GetAgro` on
+                        // Aggression 28/Aggression Aura 18) and `RandomizeHate`
+                        // (Confusion 2, Switch 12) fall through here unregistered
+                        // and are dropped — see PLAN_G19_HATE_EFFECTS.md's
+                        // "Deferred" section for why (a locked-target UI concept
+                        // and a general nearby-visible-creatures query,
+                        // respectively, neither of which exists on this port yet).
+                        // Java instantiates these handlers whenever the `<effect>` is
+                        // present and reads `params.getDouble("power", 0)` — the
+                        // effect is always created, `power` defaulting to 0 when the
+                        // param is absent (e.g. skills 1011/4717/4718, whose
+                        // `<item>power</item>` parses to the param key `item`, not
+                        // `power`). Mirror that default here; do NOT drop the effect,
+                        // or the skill becomes a silent no-op.
+                        "MagicalAttack" => vec![SkillEffect::MagicalAttack {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // The EffectPoint totem spawner (Symbol of Noise 455, Day
+                        // of Doom 1422, Anti-summoning Field 1424; PLAN_G19_SYMBOLS.md).
+                        "SummonNpc" => vec![SkillEffect::SummonNpc {
+                            npc_id: param("npcId").unwrap_or(0.0) as i32,
+                            npc_count: param("npcCount").unwrap_or(1.0) as i32,
+                            despawn_delay: param("despawnDelay").unwrap_or(0.0) as i32,
+                        }],
+                        // Ranged magical nuke (e.g. Prominence 1230). Java's
+                        // `MagicalAttackRange` computes the same
+                        // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
+                        // `MagicalAttack`; the only extra is a `shieldDefPercent`
+                        // shield-block term, which the `MagicalAttack` damage path
+                        // doesn't model yet either, so route it to the same effect.
+                        // Without this the effect fell through to `EFFECT_REGISTRY`,
+                        // wasn't found, and got dropped — the skill cast but dealt
+                        // no damage.
+                        // TODO(G7.5): honor `shieldDefPercent` (adds
+                        // `shldDef * pct/100` to mDef on shield-block) once shield
+                        // defense is modeled in the magic-damage formula.
+                        "MagicalAttackRange" => vec![SkillEffect::MagicalAttack {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // Soul-charge magic nuke (e.g. some Kamael/dagger-mage
+                        // skills). Java's `MagicalSoulAttack` runs the identical
+                        // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
+                        // `MagicalAttack`; its only difference is scaling mAtk by
+                        // `1.3 + souls*0.05` when the caster has charged souls.
+                        // Souls/charges aren't modeled yet, so that multiplier is
+                        // exactly 1.0 here and the damage is identical to
+                        // `MagicalAttack` — same silent-drop trap as
+                        // `MagicalAttackRange` if left unhandled.
+                        // TODO(G7.5): scale mAtk by charged souls once charges land.
+                        "MagicalSoulAttack" => vec![SkillEffect::MagicalAttack {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // Vampiric Touch/Claw: magic damage + self-heal of
+                        // `percentage`% of the drained HP.
+                        "HpDrain" => vec![SkillEffect::HpDrain {
+                            power: param("power").unwrap_or(0.0),
+                            percentage: param("percentage").unwrap_or(0.0),
+                        }],
+                        // Poison/bleed damage-over-time (e.g. Curse Poison 1168).
+                        // Java always creates the effect and reads `power`/`ticks`
+                        // (`ticks` is a scalar child → level-0 fallback); `canKill`
+                        // defaults false. Without this arm the effect fell through
+                        // to `EFFECT_REGISTRY`, wasn't found, and got dropped — the
+                        // debuff landed but never dealt damage.
+                        // Periodic HP / MP effects riding the same tick chain as DamOverTime.
+                        // `HealEffect` scales the healing its bearer *receives* — a two-stat
+                        // AbstractStatEffect like CriticalDamage: PER feeds the multiplier,
+                        // DIFF the flat addend.
+                        "HealEffect" => {
+                            return param("amount")
+                                .map(|amount| {
+                                    let stat = if modifier_mode == StatModifierType::Per {
+                                        Stat::HealEffect
+                                    } else {
+                                        Stat::HealEffectAdd
+                                    };
+                                    stat_mod(stat, amount)
+                                })
+                                .into_iter()
+                                .collect();
+                        }
+                        // Instant CP change (Braveheart, Wrath, Touch of Death).
+                        "Cp" => {
+                            return param("amount")
+                                .map(|amount| SkillEffect::Cp {
                                     amount,
-                                )
-                            })
-                            .collect();
-                    }
-                    // Polearm Mastery 216: `HitNumber` is a plain
-                    // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
-                    "HitNumber" => {
-                        return param("amount")
-                            .map(|amount| stat_mod(Stat::AttackCountMax, amount))
+                                    percent: modifier_mode == StatModifierType::Per,
+                                })
+                                .into_iter()
+                                .collect();
+                        }
+                        "HealOverTime" => {
+                            return match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::HealOverTime { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            };
+                        }
+                        "ManaDamOverTime" => {
+                            return match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::ManaDamOverTime { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            };
+                        }
+                        "DamOverTime" => vec![SkillEffect::DamOverTime {
+                            power: param("power").unwrap_or(0.0),
+                            ticks: param("ticks").unwrap_or(0.0) as i32,
+                            can_kill: value_at(params, "canKill", level) == Some("true"),
+                        }],
+                        // Dagger blows (calcBlowDamage). FatalBlow/Backstab roll
+                        // `criticalChance` (default 0) to double; SoulBlow doesn't
+                        // (its charged-soul boost is unmodeled → ×1). Backstab also
+                        // requires flanking. Their `Lethal` sibling effect is a
+                        // separate `<effect>` block, parsed in its own arm below.
+                        "FatalBlow" => vec![SkillEffect::Blow {
+                            power: param("power").unwrap_or(0.0),
+                            chance_boost: param("chanceBoost").unwrap_or(0.0),
+                            critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
+                            backstab: false,
+                        }],
+                        "Backstab" => vec![SkillEffect::Blow {
+                            power: param("power").unwrap_or(0.0),
+                            chance_boost: param("chanceBoost").unwrap_or(0.0),
+                            critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
+                            backstab: true,
+                        }],
+                        "SoulBlow" => vec![SkillEffect::Blow {
+                            power: param("power").unwrap_or(0.0),
+                            chance_boost: param("chanceBoost").unwrap_or(0.0),
+                            critical_chance: None,
+                            backstab: false,
+                        }],
+                        // Backstab (30), Lethal Blow (344), Deadly Blow (263),
+                        // Critical Blow (409), Lethal Shot (343), Turn/Banish
+                        // Undead/Seraph (1400/405/450): without this arm the
+                        // effect fell through to `EFFECT_REGISTRY`, wasn't found,
+                        // and the bonus instant-kill/half-kill chance never
+                        // rolled — only these skills' other (already-ported)
+                        // effect landed.
+                        "Lethal" => vec![SkillEffect::Lethal {
+                            full_lethal: param("fullLethal").unwrap_or(0.0),
+                            half_lethal: param("halfLethal").unwrap_or(0.0),
+                        }],
+                        // Physical skill damage. `PhysicalSoulAttack` runs the
+                        // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
+                        // core; its only extra is a charged-soul boost that is ×1
+                        // until charges are modeled, so it routes here too (like
+                        // MagicalSoulAttack→MagicalAttack). The `FatalBlow`/
+                        // `Backstab`/`SoulBlow` blow skills use a different
+                        // `calcBlowDamage` formula and are intentionally left to fall
+                        // through until that formula is ported.
+                        // TODO(G20): honor charged souls on PhysicalSoulAttack.
+                        "PhysicalAttack" | "PhysicalSoulAttack" => {
+                            vec![SkillEffect::PhysicalAttack {
+                                power: param("power").unwrap_or(0.0),
+                                p_atk_mod: param("pAtkMod").unwrap_or(1.0),
+                                p_def_mod: param("pDefMod").unwrap_or(1.0),
+                                critical_chance: param("criticalChance").unwrap_or(10.0),
+                            }]
+                        }
+                        "Heal" => vec![SkillEffect::Heal {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // Miracle (1426), Benediction (1271), Restore Life (1258),
+                        // Revival (181), Touch of Life (341): without this arm the
+                        // effect fell through to `EFFECT_REGISTRY`, wasn't found,
+                        // and the heal amount was silently 0.
+                        "HealPercent" => vec![SkillEffect::HealPercent {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // Sonic Focus (8), Focus Force (50), Sonic Rage (345), …:
+                        // without this arm the effect fell through to
+                        // `EFFECT_REGISTRY`, wasn't found, and the "build Force"
+                        // toggle/skill did nothing.
+                        "FocusMomentum" => vec![SkillEffect::FocusMomentum {
+                            amount: param("amount").unwrap_or(1.0) as i32,
+                            max_charges: param("maxCharges").unwrap_or(0.0) as i32,
+                        }],
+                        // Double Sonic Slash (5), Sonic Blaster (6), Force Burst
+                        // (17), …: `chargeConsume` is a *skill-level* tag (a
+                        // sibling of `<targetType>`), not a child of the
+                        // `<effect name="EnergyAttack">` element itself — Java's
+                        // effect constructors read the skill's whole merged param
+                        // set, so it reaches `_chargeConsume` the same way. Without
+                        // this arm the effect fell through to `EFFECT_REGISTRY`,
+                        // wasn't found, and every Force-spend attack did nothing.
+                        "EnergyAttack" => vec![SkillEffect::EnergyAttack {
+                            power: param("power").unwrap_or(0.0),
+                            critical_chance: param("criticalChance").unwrap_or(10.0),
+                            p_def_mod: param("pDefMod").unwrap_or(1.0),
+                            charge_consume: value_at(values, "chargeConsume", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                        }],
+                        // Pet food (Wolf Food 2048, etc.). Without this arm the
+                        // food item was consumed and restored nothing.
+                        "Feed" => vec![SkillEffect::Feed {
+                            normal: param("normal").unwrap_or(0.0) as i32,
+                        }],
+                        "SummonCubic" => vec![SkillEffect::SummonCubic {
+                            cubic_id: param("cubicId").unwrap_or(-1.0) as i32,
+                            cubic_level: param("cubicLvl").unwrap_or(0.0) as i32,
+                        }],
+                        "Restoration" => match (param("itemId"), param("itemCount")) {
+                            (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
+                                item_id: item_id as i32,
+                                item_count: item_count as i64,
+                                item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0)
+                                    as i32,
+                            }],
+                            _ => Vec::new(),
+                        },
+                        "RestorationRandom" => vec![SkillEffect::GiveItemRandom {
+                            groups: groups.clone(),
+                        }],
+                        // Spoil (254/…): mark the mob spoiled. No params — the
+                        // landing roll and target checks live in the effect handler.
+                        "Spoil" => vec![SkillEffect::Spoil],
+                        // Sweeper (42/474): claim the dead mob's spoil loot.
+                        "Sweeper" => vec![SkillEffect::Sweeper],
+                        // ConsumeBody (paired with Sweeper on 42): decay the corpse.
+                        "ConsumeBody" => vec![SkillEffect::ConsumeBody],
+                        // Cure Poison/Bleeding etc.: the `<dispel>` string is a
+                        // per-level `"TYPE,level"` list (Java splits on ';' then ',').
+                        // Falls through to an empty effect (silent no-op, like other
+                        // unhandled bodies) if the string is missing/unparseable,
+                        // rather than dropping the whole cast. Without this arm the
+                        // effect fell through to `EFFECT_REGISTRY`, wasn't found, and
+                        // got dropped — the skill cast but cured nothing.
+                        // The Bane family: `<dispel>` is a plain `;` list of
+                        // abnormal types (no `,level` suffix) plus a `<rate>`.
+                        "DispelBySlotProbability" => {
+                            let dispel: Vec<String> = value_at(params, "dispel", level)
+                                .unwrap_or("")
+                                .split(';')
+                                .map(|t| t.trim().to_string())
+                                .filter(|t| !t.is_empty())
+                                .collect();
+                            if dispel.is_empty() {
+                                return Vec::new();
+                            }
+                            let rate = value_at(params, "rate", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(100);
+                            return vec![SkillEffect::DispelBySlotProbability { dispel, rate }];
+                        }
+                        "DispelBySlot" => match value_at(params, "dispel", level) {
+                            Some(spec) if !spec.is_empty() => {
+                                let dispel = spec
+                                    .split(';')
+                                    .filter_map(|pair| {
+                                        let mut it = pair.split(',');
+                                        let ty = it.next()?.trim().to_string();
+                                        let lvl = it.next()?.trim().parse::<i32>().ok()?;
+                                        Some((ty, lvl))
+                                    })
+                                    .collect::<Vec<_>>();
+
+                                if dispel.is_empty() {
+                                    Vec::new()
+                                } else {
+                                    vec![SkillEffect::DispelBySlot { dispel }]
+                                }
+                            }
+                            _ => Vec::new(),
+                        },
+                        // The "Cancel" family: Cancellation 1056/Touch of Death
+                        // 342 (BUFF, rate 25, max 5), Cleanse 1409/Purification
+                        // Field 1425 (DEBUFF, rate 100, max 10). `slot` defaults
+                        // to BUFF (Java's `DispelSlotType` default) when absent.
+                        "DispelByCategory" => {
+                            let slot = match value_at(params, "slot", level) {
+                                Some("DEBUFF") => DispelSlot::Debuff,
+                                Some("ALL") => DispelSlot::All,
+                                _ => DispelSlot::Buff,
+                            };
+                            let rate = value_at(params, "rate", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(0);
+                            let max = value_at(params, "max", level)
+                                .and_then(|v| v.parse::<i32>().ok())
+                                .unwrap_or(0);
+                            return vec![SkillEffect::DispelByCategory { slot, rate, max }];
+                        }
+                        // Both the basic (247) and advanced HQ skills carry this;
+                        // isAdvanced is not yet behaviorally distinct (see the effect).
+                        "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
+                        // "Common Craft" (1322) / "Dwarven Craft" (1321): param-less
+                        // self-closing effects whose whole job is to open the recipe
+                        // window. Without these arms both skills parsed to zero
+                        // effects and the cast did nothing.
+                        "OpenCommonRecipeBook" => {
+                            vec![SkillEffect::OpenRecipeBook { dwarven: false }]
+                        }
+                        "OpenDwarfRecipeBook" => {
+                            vec![SkillEffect::OpenRecipeBook { dwarven: true }]
+                        }
+                        // Java throws if amount is 0/missing; we drop the effect
+                        // (silent no-op) to match how other bad effect bodies fall
+                        // through, rather than panicking at data-load.
+                        "GiveRecommendation" => match param("amount") {
+                            Some(amount) if amount != 0.0 => {
+                                vec![SkillEffect::GiveRecommendation {
+                                    amount: amount as i32,
+                                }]
+                            }
+                            _ => Vec::new(),
+                        },
+                        // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
+                        // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
+                        "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
+                            vec![SkillEffect::EscapeToTown]
+                        }
+                        // `Speed` pumps four move-speed stats at once (Java
+                        // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
+                        // express that, so expand it here. Without this, movement
+                        // buffs (Wind Walk, Agility) loaded with an empty effect
+                        // list and did nothing — server or client.
+                        "Speed" => match param("amount") {
+                            Some(amount) => [
+                                Stat::RunSpeed,
+                                Stat::WalkSpeed,
+                                Stat::SwimRunSpeed,
+                                Stat::SwimWalkSpeed,
+                            ]
                             .into_iter()
+                            .map(|stat| stat_mod(stat, amount))
+                            .collect(),
+                            None => Vec::new(),
+                        },
+                        // Blessing of Protection (5182): PK-damage immunity. No stat
+                        // modifier, so it would otherwise fall through to an empty
+                        // effect list and never land as a buff — carry a marker so
+                        // `apply_skill_effects` still creates the icon-only timed buff.
+                        // TODO(G-pvp): honor the actual damage immunity.
+                        "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
+                        // Noblesse Blessing (1323): no params, no stat modifier —
+                        // the whole mechanic is the `NOBLESS_BLESSING` flag the
+                        // death path reads. Without this arm the effect fell through
+                        // to `EFFECT_REGISTRY`, wasn't found, and the buff was
+                        // dropped whole (the skill cast but nothing landed).
+                        "NoblesseBless" => vec![SkillEffect::NoblesseBless],
+                        // Fear (65/405/450/1092/1169/1272/1381/1400): forced flight.
+                        // The `<effect name="Fear"/>` element carries no params in
+                        // this dist — Java's `Fear` constructor ignores its `StatSet`
+                        // outright and `getTicks()` returns a hard-coded 5 — so the
+                        // cadence is a literal, not a parsed value. Every one of
+                        // these skills also carries `BlockControl`, so the *buff*
+                        // already landed before this arm existed (icon, duration and
+                        // the `BLOCK_CONTROL` flag); what was missing was the flight
+                        // itself, so the debuff simply never moved anyone.
+                        "Fear" => vec![SkillEffect::Fear { ticks: FEAR_TICKS }],
+                        // Silent Move 221, Stealth 411, Dance of Shadows 366, and
+                        // the stealth half of Fake Death 60. Java's handler is an
+                        // empty constructor plus `getEffectFlags` — a pure state
+                        // flag, no params at all.
+                        // Mana Burn 1398, Mana Storm 1399, Aura Sink 1102, Seal of
+                        // Gloom 1210 — MP drain. `critical`/`criticalLimit` are the
+                        // effect's own params (all four declare `critical=true`);
+                        // the crit *rate* comes from the skill's
+                        // `<magicCriticalRate>`, not from here.
+                        //
+                        // Mana Burn and Mana Storm carry only this effect, so before
+                        // this arm both parsed to an empty effect list and were
+                        // dropped whole — the nukes cast and drained nothing.
+                        "MagicalAttackMp" => vec![SkillEffect::MagicalAttackMp {
+                            power: param("power").unwrap_or(0.0),
+                            critical: value_at(params, "critical", level) == Some("true"),
+                            critical_limit: param("criticalLimit").unwrap_or(0.0),
+                        }],
+                        // The MP-restore family. All four are instant effects that
+                        // differ only in how the amount is computed; the shared
+                        // apply path lives in `restore_mp`.
+                        "ManaHeal" => vec![SkillEffect::ManaHeal {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        "ManaHealByLevel" => vec![SkillEffect::ManaHealByLevel {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        "ManaHealPercent" => vec![SkillEffect::ManaHealPercent {
+                            power: param("power").unwrap_or(0.0),
+                        }],
+                        // Java's `Mp` handler reads `amount`/`mode`, not `power`.
+                        "Mp" => vec![SkillEffect::MpRestore {
+                            amount: param("amount").unwrap_or(0.0),
+                            percent: modifier_mode == StatModifierType::Per,
+                        }],
+                        // Java defaults `chance` to 100 when the tag is absent —
+                        // which is every Confuse skill on this dist (only the two
+                        // `RandomizeHate` ones declare 80).
+                        "Confuse" => vec![SkillEffect::Confuse {
+                            chance: value_at(params, "chance", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(100),
+                        }],
+                        "RandomizeHate" => vec![SkillEffect::RandomizeHate {
+                            chance: value_at(params, "chance", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(100),
+                        }],
+                        // Sword/Blunt Weapon Mastery 205, Dagger Mastery 209,
+                        // Dance of Shadows 366. Only the params the reachable
+                        // content sets are read; the rest keep Java's defaults.
+                        "TriggerSkillByAttack" => {
+                            let int_param = |key: &str, default: i32| {
+                                value_at(params, key, level)
+                                    .and_then(|v| v.parse().ok())
+                                    .unwrap_or(default)
+                            };
+                            let allow_weapons = value_at(params, "allowWeapons", level)
+                                .filter(|v| !v.eq_ignore_ascii_case("ALL"))
+                                .map(|v| {
+                                    v.split(',')
+                                        .map(|w| {
+                                            crate::data::item_data::WeaponType::from_name(w.trim())
+                                                .mask_bit()
+                                        })
+                                        .fold(0u32, |acc, b| acc | b)
+                                })
+                                .unwrap_or(0);
+                            let skill_id = int_param("skillId", 0);
+                            // Java bails when the skill id or level is 0.
+                            return if skill_id == 0 {
+                                Vec::new()
+                            } else {
+                                vec![SkillEffect::TriggerSkillByAttack {
+                                    min_damage: int_param("minDamage", 1),
+                                    chance: int_param("chance", 100),
+                                    skill_id,
+                                    skill_level: int_param("skillLevel", 1),
+                                    on_party: value_at(params, "targetType", level)
+                                        == Some("MY_PARTY"),
+                                    is_critical: value_at(params, "isCritical", level)
+                                        == Some("true"),
+                                    allow_weapons,
+                                }]
+                            };
+                        }
+                        // Rage 94, Frenzy 176, Two-handed Weapon Mastery 293.
+                        // Java's handler carries eleven stat/mode pairs; the only
+                        // ones any reachable skill sets are `pAtk` and
+                        // `pAccuracy`, so those two are read and the rest keep
+                        // their zero default (the same
+                        // scope-to-what-the-dist-reaches call `TriggerSkillByAttack`
+                        // made).
+                        //
+                        // Two conditions, both from Java's static fields:
+                        // `ConditionUsingItemType(BLUNT|SWORD)` — expressed through
+                        // the existing `weapon_condition` mask — and
+                        // `ConditionUsingSlotType(SLOT_LR_HAND)`, the new
+                        // `two_handed` axis.
+                        "TwoHandedBluntBonus" | "TwoHandedSwordBonus" => {
+                            let weapon = if xml_name == "TwoHandedBluntBonus" {
+                                crate::data::item_data::WeaponType::Blunt.mask_bit()
+                            } else {
+                                crate::data::item_data::WeaponType::Sword.mask_bit()
+                            };
+                            let pair = |amount_key: &str, mode_key: &str, stat: Stat| {
+                                let amount = value_at(params, amount_key, level)
+                                    .and_then(|v| v.parse::<f64>().ok())?;
+                                if amount == 0.0 {
+                                    return None;
+                                }
+                                let mode = if value_at(params, mode_key, level) == Some("PER") {
+                                    StatModifierType::Per
+                                } else {
+                                    StatModifierType::Diff
+                                };
+                                Some(SkillEffect::StatModifier(StatModifierEffect {
+                                    stat,
+                                    mode,
+                                    amount,
+                                    weapon_condition: weapon,
+                                    two_handed: true,
+                                    ..Default::default()
+                                }))
+                            };
+                            return [
+                                pair("pAtkAmount", "pAtkMode", Stat::PhysicalAttack),
+                                pair("pAccuracyAmount", "pAccuracyMode", Stat::AccuracyCombat),
+                            ]
+                            .into_iter()
+                            .flatten()
                             .collect();
-                    }
-                    // The rest of the state-flag CC family (Seal of Silence,
-                    // Shield Slam, Mystic Immunity, Horror): no parameters, the
-                    // mechanic is entirely the flag.
-                    "Mute" => return vec![SkillEffect::Mute],
-                    "PhysicalMute" => return vec![SkillEffect::PhysicalMute],
-                    "DebuffBlock" => return vec![SkillEffect::DebuffBlock],
-                    "BlockControl" => return vec![SkillEffect::BlockControl],
-                    "TargetCancel" => {
-                        let chance = value_at(params, "chance", level)
-                            .and_then(|v| v.parse::<i32>().ok())
-                            .unwrap_or(100);
-                        return vec![SkillEffect::TargetCancel { chance }];
-                    }
-                    // Aggression 28/18, Judgment 401, Tribunal 400: no params.
-                    "GetAgro" => return vec![SkillEffect::GetAgro],
-                    // Charm 15, Lure 51: `power` (default 0, Java always
-                    // instantiates the handler even with no param).
-                    "AddHate" => return vec![SkillEffect::AddHate { power: param("power").unwrap_or(0.0) }],
-                    "DeleteHate" => {
-                        let chance = value_at(params, "chance", level)
-                            .and_then(|v| v.parse::<i32>().ok())
-                            .unwrap_or(100);
-                        return vec![SkillEffect::DeleteHate { chance }];
-                    }
-                    "DeleteHateOfMe" => {
-                        let chance = value_at(params, "chance", level)
-                            .and_then(|v| v.parse::<i32>().ok())
-                            .unwrap_or(100);
-                        return vec![SkillEffect::DeleteHateOfMe { chance }];
-                    }
-                    // TODO(G19+): `TargetMe` (paired with `GetAgro` on
-                    // Aggression 28/Aggression Aura 18) and `RandomizeHate`
-                    // (Confusion 2, Switch 12) fall through here unregistered
-                    // and are dropped — see PLAN_G19_HATE_EFFECTS.md's
-                    // "Deferred" section for why (a locked-target UI concept
-                    // and a general nearby-visible-creatures query,
-                    // respectively, neither of which exists on this port yet).
-                    // Java instantiates these handlers whenever the `<effect>` is
-                    // present and reads `params.getDouble("power", 0)` — the
-                    // effect is always created, `power` defaulting to 0 when the
-                    // param is absent (e.g. skills 1011/4717/4718, whose
-                    // `<item>power</item>` parses to the param key `item`, not
-                    // `power`). Mirror that default here; do NOT drop the effect,
-                    // or the skill becomes a silent no-op.
-                    "MagicalAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
-                    // The EffectPoint totem spawner (Symbol of Noise 455, Day
-                    // of Doom 1422, Anti-summoning Field 1424; PLAN_G19_SYMBOLS.md).
-                    "SummonNpc" => vec![SkillEffect::SummonNpc {
-                        npc_id: param("npcId").unwrap_or(0.0) as i32,
-                        npc_count: param("npcCount").unwrap_or(1.0) as i32,
-                        despawn_delay: param("despawnDelay").unwrap_or(0.0) as i32,
-                    }],
-                    // Ranged magical nuke (e.g. Prominence 1230). Java's
-                    // `MagicalAttackRange` computes the same
-                    // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
-                    // `MagicalAttack`; the only extra is a `shieldDefPercent`
-                    // shield-block term, which the `MagicalAttack` damage path
-                    // doesn't model yet either, so route it to the same effect.
-                    // Without this the effect fell through to `EFFECT_REGISTRY`,
-                    // wasn't found, and got dropped — the skill cast but dealt
-                    // no damage.
-                    // TODO(G7.5): honor `shieldDefPercent` (adds
-                    // `shldDef * pct/100` to mDef on shield-block) once shield
-                    // defense is modeled in the magic-damage formula.
-                    "MagicalAttackRange" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
-                    // Soul-charge magic nuke (e.g. some Kamael/dagger-mage
-                    // skills). Java's `MagicalSoulAttack` runs the identical
-                    // `calcMagicDam(mAtk, power, mDef, sps, bss, mcrit)` core as
-                    // `MagicalAttack`; its only difference is scaling mAtk by
-                    // `1.3 + souls*0.05` when the caster has charged souls.
-                    // Souls/charges aren't modeled yet, so that multiplier is
-                    // exactly 1.0 here and the damage is identical to
-                    // `MagicalAttack` — same silent-drop trap as
-                    // `MagicalAttackRange` if left unhandled.
-                    // TODO(G7.5): scale mAtk by charged souls once charges land.
-                    "MagicalSoulAttack" => vec![SkillEffect::MagicalAttack { power: param("power").unwrap_or(0.0) }],
-                    // Vampiric Touch/Claw: magic damage + self-heal of
-                    // `percentage`% of the drained HP.
-                    "HpDrain" => vec![SkillEffect::HpDrain {
-                        power: param("power").unwrap_or(0.0),
-                        percentage: param("percentage").unwrap_or(0.0),
-                    }],
-                    // Poison/bleed damage-over-time (e.g. Curse Poison 1168).
-                    // Java always creates the effect and reads `power`/`ticks`
-                    // (`ticks` is a scalar child → level-0 fallback); `canKill`
-                    // defaults false. Without this arm the effect fell through
-                    // to `EFFECT_REGISTRY`, wasn't found, and got dropped — the
-                    // debuff landed but never dealt damage.
-                    // Periodic HP / MP effects riding the same tick chain as DamOverTime.
-                    // `HealEffect` scales the healing its bearer *receives* — a two-stat
-                    // AbstractStatEffect like CriticalDamage: PER feeds the multiplier,
-                    // DIFF the flat addend.
-                    "HealEffect" => {
-                        return param("amount")
+                        }
+                        "Resurrection" => {
+                            let int_param = |key: &str, d: i32| {
+                                value_at(params, key, level)
+                                    .and_then(|v| v.parse().ok())
+                                    .unwrap_or(d)
+                            };
+                            vec![SkillEffect::Resurrection {
+                                power: int_param("power", 0),
+                                hp_percent: int_param("hpPercent", 0),
+                                mp_percent: int_param("mpPercent", 0),
+                                cp_percent: int_param("cpPercent", 0),
+                            }]
+                        }
+                        // Java throws on an empty `Summon` param set; here a
+                        // missing/zero `npcId` simply yields no effect, matching how
+                        // every other arm handles unusable params.
+                        "Summon" => {
+                            let int_param = |key: &str, d: i32| {
+                                value_at(params, key, level)
+                                    .and_then(|v| v.parse().ok())
+                                    .unwrap_or(d)
+                            };
+                            let npc_id = int_param("npcId", 0);
+                            return if npc_id == 0 {
+                                Vec::new()
+                            } else {
+                                vec![SkillEffect::Summon {
+                                    npc_id,
+                                    life_time: int_param("lifeTime", 0),
+                                    consume_item_id: int_param("consumeItemId", 0),
+                                    consume_item_count: int_param("consumeItemCount", 1) as i64,
+                                }]
+                            };
+                        }
+                        "SummonPet" => vec![SkillEffect::SummonPet],
+                        "BlockMove" => vec![SkillEffect::BlockMove],
+                        // `type` picks the Java stat: PHYSICAL (the default) or
+                        // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
+                        // *only* this effect, so both were dropped whole before it.
+                        // `type` is a `BasicProperty`: `NONE`, `PHYSICAL` (the
+                        // default) or **`MAGIC`** — not "MAGICAL", which is the
+                        // spelling this port first guessed and which would have
+                        // silently routed every magic reflect into the physical
+                        // stat. Both Mirrors carry one effect of each kind.
+                        //
+                        // Their `<armorTYpe>SHIELD</armorTYpe>` gate is a datapack
+                        // typo (10 occurrences against 220 correct `<armorType>`).
+                        // Java matches element names exactly too, so the condition
+                        // is inert on both sides and is faithfully reproduced by
+                        // not special-casing it.
+                        "ReflectSkill" => vec![SkillEffect::ReflectSkill {
+                            magic: value_at(params, "type", level) == Some("MAGIC"),
+                            amount: param("amount").unwrap_or(0.0),
+                        }],
+                        "SilentMove" => vec![SkillEffect::SilentMove],
+                        // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
+                        // MP upkeep with the same `power * getTicksMultiplier()`
+                        // shape as `ManaDamOverTime`, which it shares the tick
+                        // chain with. Skill 60 carries *only* this and
+                        // `SilentMove`, so with both unported the effect list came
+                        // out empty and the whole skill was dropped — it cast and
+                        // did nothing at all.
+                        "FakeDeath" => vec![SkillEffect::FakeDeath {
+                            power: param("power").unwrap_or(0.0),
+                            ticks: value_at(params, "ticks", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                        }],
+                        // "Transform <Monster>" scroll family (541-558, 617-674):
+                        // polymorph the caster into `transformationId`. No stat
+                        // modifier of its own — the transform template's own
+                        // stat/speed/skill overrides apply via
+                        // `admin::transforms::apply_transform_state` — so without
+                        // this arm the effect fell through to `EFFECT_REGISTRY`,
+                        // wasn't found, and the buff was dropped whole.
+                        "Transformation" => match param("transformationId") {
+                            Some(id) if id != 0.0 => vec![SkillEffect::Transform {
+                                transformation_id: id as i32,
+                            }],
+                            _ => Vec::new(),
+                        },
+                        // Fighter-class toggle upkeep (Accuracy 256, Guard Stance
+                        // 288, War Frenzy 424, Super Haste 7029, …): without this
+                        // arm the effect fell through to `EFFECT_REGISTRY`, wasn't
+                        // found, and the toggle's *stat* half (parsed separately,
+                        // below) landed as a free buff with no MP cost at all.
+                        "MpConsumePerLevel" => {
+                            return match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::MpConsumePerLevel { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            };
+                        }
+                        // Death Whisper (1242) & co.: Java `CriticalDamage extends
+                        // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
+                        // — a two-stat effect that pumps the multiplicative
+                        // `CRITICAL_DAMAGE` in `PER` mode and the additive
+                        // `CRITICAL_DAMAGE_ADD` in `DIFF` mode. The 1-name→1-stat
+                        // `EFFECT_REGISTRY` can't express that, so pick the stat by
+                        // mode here (like `Speed`). Without this the effect fell
+                        // through, produced no modifier, and the buff was dropped
+                        // whole (community-board "Death Whisper doesn't apply").
+                        // The `AbstractStatEffect` crit-damage family: one handler,
+                        // two stats, picked by mode (PER → the multiplier, DIFF →
+                        // the flat add). Every one of these was parsed *before* this
+                        // slice and pumped a stat that nothing read — see
+                        // `formulas::crit_damage_multiplier`.
+                        "CriticalDamage" => param("amount")
                             .map(|amount| {
                                 let stat = if modifier_mode == StatModifierType::Per {
-                                    Stat::HealEffect
+                                    Stat::CriticalDamage
                                 } else {
-                                    Stat::HealEffectAdd
+                                    Stat::CriticalDamageAdd
                                 };
                                 stat_mod(stat, amount)
                             })
                             .into_iter()
-                            .collect();
-                    }
-                    // Instant CP change (Braveheart, Wrath, Touch of Death).
-                    "Cp" => {
-                        return param("amount")
-                            .map(|amount| SkillEffect::Cp {
-                                amount,
-                                percent: modifier_mode == StatModifierType::Per,
-                            })
-                            .into_iter()
-                            .collect();
-                    }
-                    "HealOverTime" => {
-                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
-                            (Some(power), Some(ticks)) if ticks > 0 => {
-                                vec![SkillEffect::HealOverTime { power, ticks }]
-                            }
-                            _ => Vec::new(),
-                        };
-                    }
-                    "ManaDamOverTime" => {
-                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
-                            (Some(power), Some(ticks)) if ticks > 0 => {
-                                vec![SkillEffect::ManaDamOverTime { power, ticks }]
-                            }
-                            _ => Vec::new(),
-                        };
-                    }
-                    "DamOverTime" => vec![SkillEffect::DamOverTime {
-                        power: param("power").unwrap_or(0.0),
-                        ticks: param("ticks").unwrap_or(0.0) as i32,
-                        can_kill: value_at(params, "canKill", level) == Some("true"),
-                    }],
-                    // Dagger blows (calcBlowDamage). FatalBlow/Backstab roll
-                    // `criticalChance` (default 0) to double; SoulBlow doesn't
-                    // (its charged-soul boost is unmodeled → ×1). Backstab also
-                    // requires flanking. Their `Lethal` sibling effect is a
-                    // separate `<effect>` block, parsed in its own arm below.
-                    "FatalBlow" => vec![SkillEffect::Blow {
-                        power: param("power").unwrap_or(0.0),
-                        chance_boost: param("chanceBoost").unwrap_or(0.0),
-                        critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
-                        backstab: false,
-                    }],
-                    "Backstab" => vec![SkillEffect::Blow {
-                        power: param("power").unwrap_or(0.0),
-                        chance_boost: param("chanceBoost").unwrap_or(0.0),
-                        critical_chance: Some(param("criticalChance").unwrap_or(0.0)),
-                        backstab: true,
-                    }],
-                    "SoulBlow" => vec![SkillEffect::Blow {
-                        power: param("power").unwrap_or(0.0),
-                        chance_boost: param("chanceBoost").unwrap_or(0.0),
-                        critical_chance: None,
-                        backstab: false,
-                    }],
-                    // Backstab (30), Lethal Blow (344), Deadly Blow (263),
-                    // Critical Blow (409), Lethal Shot (343), Turn/Banish
-                    // Undead/Seraph (1400/405/450): without this arm the
-                    // effect fell through to `EFFECT_REGISTRY`, wasn't found,
-                    // and the bonus instant-kill/half-kill chance never
-                    // rolled — only these skills' other (already-ported)
-                    // effect landed.
-                    "Lethal" => vec![SkillEffect::Lethal {
-                        full_lethal: param("fullLethal").unwrap_or(0.0),
-                        half_lethal: param("halfLethal").unwrap_or(0.0),
-                    }],
-                    // Physical skill damage. `PhysicalSoulAttack` runs the
-                    // identical `77·((pAtk·pAtkMod)·levelMod + power)/(pDef·pDefMod)`
-                    // core; its only extra is a charged-soul boost that is ×1
-                    // until charges are modeled, so it routes here too (like
-                    // MagicalSoulAttack→MagicalAttack). The `FatalBlow`/
-                    // `Backstab`/`SoulBlow` blow skills use a different
-                    // `calcBlowDamage` formula and are intentionally left to fall
-                    // through until that formula is ported.
-                    // TODO(G20): honor charged souls on PhysicalSoulAttack.
-                    "PhysicalAttack" | "PhysicalSoulAttack" => vec![SkillEffect::PhysicalAttack {
-                        power: param("power").unwrap_or(0.0),
-                        p_atk_mod: param("pAtkMod").unwrap_or(1.0),
-                        p_def_mod: param("pDefMod").unwrap_or(1.0),
-                        critical_chance: param("criticalChance").unwrap_or(10.0),
-                    }],
-                    "Heal" => vec![SkillEffect::Heal { power: param("power").unwrap_or(0.0) }],
-                    // Miracle (1426), Benediction (1271), Restore Life (1258),
-                    // Revival (181), Touch of Life (341): without this arm the
-                    // effect fell through to `EFFECT_REGISTRY`, wasn't found,
-                    // and the heal amount was silently 0.
-                    "HealPercent" => vec![SkillEffect::HealPercent { power: param("power").unwrap_or(0.0) }],
-                    // Sonic Focus (8), Focus Force (50), Sonic Rage (345), …:
-                    // without this arm the effect fell through to
-                    // `EFFECT_REGISTRY`, wasn't found, and the "build Force"
-                    // toggle/skill did nothing.
-                    "FocusMomentum" => vec![SkillEffect::FocusMomentum {
-                        amount: param("amount").unwrap_or(1.0) as i32,
-                        max_charges: param("maxCharges").unwrap_or(0.0) as i32,
-                    }],
-                    // Double Sonic Slash (5), Sonic Blaster (6), Force Burst
-                    // (17), …: `chargeConsume` is a *skill-level* tag (a
-                    // sibling of `<targetType>`), not a child of the
-                    // `<effect name="EnergyAttack">` element itself — Java's
-                    // effect constructors read the skill's whole merged param
-                    // set, so it reaches `_chargeConsume` the same way. Without
-                    // this arm the effect fell through to `EFFECT_REGISTRY`,
-                    // wasn't found, and every Force-spend attack did nothing.
-                    "EnergyAttack" => vec![SkillEffect::EnergyAttack {
-                        power: param("power").unwrap_or(0.0),
-                        critical_chance: param("criticalChance").unwrap_or(10.0),
-                        p_def_mod: param("pDefMod").unwrap_or(1.0),
-                        charge_consume: value_at(values, "chargeConsume", level).and_then(|v| v.parse().ok()).unwrap_or(0),
-                    }],
-                    // Pet food (Wolf Food 2048, etc.). Without this arm the
-                    // food item was consumed and restored nothing.
-                    "Feed" => vec![SkillEffect::Feed { normal: param("normal").unwrap_or(0.0) as i32 }],
-                    "SummonCubic" => vec![SkillEffect::SummonCubic {
-                        cubic_id: param("cubicId").unwrap_or(-1.0) as i32,
-                        cubic_level: param("cubicLvl").unwrap_or(0.0) as i32,
-                    }],
-                    "Restoration" => match (param("itemId"), param("itemCount")) {
-                        (Some(item_id), Some(item_count)) => vec![SkillEffect::GiveItem {
-                            item_id: item_id as i32,
-                            item_count: item_count as i64,
-                            item_enchant_level: param("itemEnchantmentLevel").unwrap_or(0.0) as i32,
-                        }],
-                        _ => Vec::new(),
-                    },
-                    "RestorationRandom" => vec![SkillEffect::GiveItemRandom { groups: groups.clone() }],
-                    // Spoil (254/…): mark the mob spoiled. No params — the
-                    // landing roll and target checks live in the effect handler.
-                    "Spoil" => vec![SkillEffect::Spoil],
-                    // Sweeper (42/474): claim the dead mob's spoil loot.
-                    "Sweeper" => vec![SkillEffect::Sweeper],
-                    // ConsumeBody (paired with Sweeper on 42): decay the corpse.
-                    "ConsumeBody" => vec![SkillEffect::ConsumeBody],
-                    // Cure Poison/Bleeding etc.: the `<dispel>` string is a
-                    // per-level `"TYPE,level"` list (Java splits on ';' then ',').
-                    // Falls through to an empty effect (silent no-op, like other
-                    // unhandled bodies) if the string is missing/unparseable,
-                    // rather than dropping the whole cast. Without this arm the
-                    // effect fell through to `EFFECT_REGISTRY`, wasn't found, and
-                    // got dropped — the skill cast but cured nothing.
-                    // The Bane family: `<dispel>` is a plain `;` list of
-                    // abnormal types (no `,level` suffix) plus a `<rate>`.
-                    "DispelBySlotProbability" => {
-                        let dispel: Vec<String> = value_at(params, "dispel", level)
-                            .unwrap_or("")
-                            .split(';')
-                            .map(|t| t.trim().to_string())
-                            .filter(|t| !t.is_empty())
-                            .collect();
-                        if dispel.is_empty() {
-                            return Vec::new();
-                        }
-                        let rate = value_at(params, "rate", level)
-                            .and_then(|v| v.parse::<i32>().ok())
-                            .unwrap_or(100);
-                        return vec![SkillEffect::DispelBySlotProbability { dispel, rate }];
-                    }
-                    "DispelBySlot" => match value_at(params, "dispel", level) {
-                        Some(spec) if !spec.is_empty() => {
-                            let dispel = spec
-                                .split(';')
-                                .filter_map(|pair| {
-                                    let mut it = pair.split(',');
-                                    let ty = it.next()?.trim().to_string();
-                                    let lvl = it.next()?.trim().parse::<i32>().ok()?;
-                                    Some((ty, lvl))
-                                })
-                                .collect::<Vec<_>>();
-
-                            if dispel.is_empty() {
-                                Vec::new()
-                            } else {
-                                vec![SkillEffect::DispelBySlot { dispel }]
-                            }
-                        }
-                        _ => Vec::new(),
-                    },
-                    // The "Cancel" family: Cancellation 1056/Touch of Death
-                    // 342 (BUFF, rate 25, max 5), Cleanse 1409/Purification
-                    // Field 1425 (DEBUFF, rate 100, max 10). `slot` defaults
-                    // to BUFF (Java's `DispelSlotType` default) when absent.
-                    "DispelByCategory" => {
-                        let slot = match value_at(params, "slot", level) {
-                            Some("DEBUFF") => DispelSlot::Debuff,
-                            Some("ALL") => DispelSlot::All,
-                            _ => DispelSlot::Buff,
-                        };
-                        let rate = value_at(params, "rate", level).and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
-                        let max = value_at(params, "max", level).and_then(|v| v.parse::<i32>().ok()).unwrap_or(0);
-                        return vec![SkillEffect::DispelByCategory { slot, rate, max }];
-                    }
-                    // Both the basic (247) and advanced HQ skills carry this;
-                    // isAdvanced is not yet behaviorally distinct (see the effect).
-                    "HeadquarterCreate" => vec![SkillEffect::CreateHeadquarter],
-                    // "Common Craft" (1322) / "Dwarven Craft" (1321): param-less
-                    // self-closing effects whose whole job is to open the recipe
-                    // window. Without these arms both skills parsed to zero
-                    // effects and the cast did nothing.
-                    "OpenCommonRecipeBook" => vec![SkillEffect::OpenRecipeBook { dwarven: false }],
-                    "OpenDwarfRecipeBook" => vec![SkillEffect::OpenRecipeBook { dwarven: true }],
-                    // Java throws if amount is 0/missing; we drop the effect
-                    // (silent no-op) to match how other bad effect bodies fall
-                    // through, rather than panicking at data-load.
-                    "GiveRecommendation" => match param("amount") {
-                        Some(amount) if amount != 0.0 => {
-                            vec![SkillEffect::GiveRecommendation { amount: amount as i32 }]
-                        }
-                        _ => Vec::new(),
-                    },
-                    // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
-                    // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
-                    "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
-                        vec![SkillEffect::EscapeToTown]
-                    }
-                    // `Speed` pumps four move-speed stats at once (Java
-                    // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
-                    // express that, so expand it here. Without this, movement
-                    // buffs (Wind Walk, Agility) loaded with an empty effect
-                    // list and did nothing — server or client.
-                    "Speed" => match param("amount") {
-                        Some(amount) => [Stat::RunSpeed, Stat::WalkSpeed, Stat::SwimRunSpeed, Stat::SwimWalkSpeed]
-                            .into_iter()
-                            .map(|stat| stat_mod(stat, amount))
                             .collect(),
-                        None => Vec::new(),
-                    },
-                    // Blessing of Protection (5182): PK-damage immunity. No stat
-                    // modifier, so it would otherwise fall through to an empty
-                    // effect list and never land as a buff — carry a marker so
-                    // `apply_skill_effects` still creates the icon-only timed buff.
-                    // TODO(G-pvp): honor the actual damage immunity.
-                    "ProtectionBlessing" => vec![SkillEffect::ProtectionBlessing],
-                    // Noblesse Blessing (1323): no params, no stat modifier —
-                    // the whole mechanic is the `NOBLESS_BLESSING` flag the
-                    // death path reads. Without this arm the effect fell through
-                    // to `EFFECT_REGISTRY`, wasn't found, and the buff was
-                    // dropped whole (the skill cast but nothing landed).
-                    "NoblesseBless" => vec![SkillEffect::NoblesseBless],
-                    // Fear (65/405/450/1092/1169/1272/1381/1400): forced flight.
-                    // The `<effect name="Fear"/>` element carries no params in
-                    // this dist — Java's `Fear` constructor ignores its `StatSet`
-                    // outright and `getTicks()` returns a hard-coded 5 — so the
-                    // cadence is a literal, not a parsed value. Every one of
-                    // these skills also carries `BlockControl`, so the *buff*
-                    // already landed before this arm existed (icon, duration and
-                    // the `BLOCK_CONTROL` flag); what was missing was the flight
-                    // itself, so the debuff simply never moved anyone.
-                    "Fear" => vec![SkillEffect::Fear { ticks: FEAR_TICKS }],
-                    // Silent Move 221, Stealth 411, Dance of Shadows 366, and
-                    // the stealth half of Fake Death 60. Java's handler is an
-                    // empty constructor plus `getEffectFlags` — a pure state
-                    // flag, no params at all.
-                    // Mana Burn 1398, Mana Storm 1399, Aura Sink 1102, Seal of
-                    // Gloom 1210 — MP drain. `critical`/`criticalLimit` are the
-                    // effect's own params (all four declare `critical=true`);
-                    // the crit *rate* comes from the skill's
-                    // `<magicCriticalRate>`, not from here.
-                    //
-                    // Mana Burn and Mana Storm carry only this effect, so before
-                    // this arm both parsed to an empty effect list and were
-                    // dropped whole — the nukes cast and drained nothing.
-                    "MagicalAttackMp" => vec![SkillEffect::MagicalAttackMp {
-                        power: param("power").unwrap_or(0.0),
-                        critical: value_at(params, "critical", level) == Some("true"),
-                        critical_limit: param("criticalLimit").unwrap_or(0.0),
-                    }],
-                    // The MP-restore family. All four are instant effects that
-                    // differ only in how the amount is computed; the shared
-                    // apply path lives in `restore_mp`.
-                    "ManaHeal" => vec![SkillEffect::ManaHeal { power: param("power").unwrap_or(0.0) }],
-                    "ManaHealByLevel" => vec![SkillEffect::ManaHealByLevel { power: param("power").unwrap_or(0.0) }],
-                    "ManaHealPercent" => vec![SkillEffect::ManaHealPercent { power: param("power").unwrap_or(0.0) }],
-                    // Java's `Mp` handler reads `amount`/`mode`, not `power`.
-                    "Mp" => vec![SkillEffect::MpRestore {
-                        amount: param("amount").unwrap_or(0.0),
-                        percent: modifier_mode == StatModifierType::Per,
-                    }],
-                    // Java defaults `chance` to 100 when the tag is absent —
-                    // which is every Confuse skill on this dist (only the two
-                    // `RandomizeHate` ones declare 80).
-                    "Confuse" => vec![SkillEffect::Confuse {
-                        chance: value_at(params, "chance", level).and_then(|v| v.parse().ok()).unwrap_or(100),
-                    }],
-                    "RandomizeHate" => vec![SkillEffect::RandomizeHate {
-                        chance: value_at(params, "chance", level).and_then(|v| v.parse().ok()).unwrap_or(100),
-                    }],
-                    // Sword/Blunt Weapon Mastery 205, Dagger Mastery 209,
-                    // Dance of Shadows 366. Only the params the reachable
-                    // content sets are read; the rest keep Java's defaults.
-                    "TriggerSkillByAttack" => {
-                        let int_param = |key: &str, default: i32| {
-                            value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(default)
-                        };
-                        let allow_weapons = value_at(params, "allowWeapons", level)
-                            .filter(|v| !v.eq_ignore_ascii_case("ALL"))
-                            .map(|v| {
-                                v.split(',')
-                                    .map(|w| crate::data::item_data::WeaponType::from_name(w.trim()).mask_bit())
-                                    .fold(0u32, |acc, b| acc | b)
-                            })
-                            .unwrap_or(0);
-                        let skill_id = int_param("skillId", 0);
-                        // Java bails when the skill id or level is 0.
-                        return if skill_id == 0 {
-                            Vec::new()
-                        } else {
-                            vec![SkillEffect::TriggerSkillByAttack {
-                                min_damage: int_param("minDamage", 1),
-                                chance: int_param("chance", 100),
-                                skill_id,
-                                skill_level: int_param("skillLevel", 1),
-                                on_party: value_at(params, "targetType", level) == Some("MY_PARTY"),
-                                is_critical: value_at(params, "isCritical", level) == Some("true"),
-                                allow_weapons,
-                            }]
-                        };
-                    }
-                    // Rage 94, Frenzy 176, Two-handed Weapon Mastery 293.
-                    // Java's handler carries eleven stat/mode pairs; the only
-                    // ones any reachable skill sets are `pAtk` and
-                    // `pAccuracy`, so those two are read and the rest keep
-                    // their zero default (the same
-                    // scope-to-what-the-dist-reaches call `TriggerSkillByAttack`
-                    // made).
-                    //
-                    // Two conditions, both from Java's static fields:
-                    // `ConditionUsingItemType(BLUNT|SWORD)` — expressed through
-                    // the existing `weapon_condition` mask — and
-                    // `ConditionUsingSlotType(SLOT_LR_HAND)`, the new
-                    // `two_handed` axis.
-                    "TwoHandedBluntBonus" | "TwoHandedSwordBonus" => {
-                        let weapon = if xml_name == "TwoHandedBluntBonus" {
-                            crate::data::item_data::WeaponType::Blunt.mask_bit()
-                        } else {
-                            crate::data::item_data::WeaponType::Sword.mask_bit()
-                        };
-                        let pair = |amount_key: &str, mode_key: &str, stat: Stat| {
-                            let amount = value_at(params, amount_key, level).and_then(|v| v.parse::<f64>().ok())?;
-                            if amount == 0.0 {
-                                return None;
-                            }
-                            let mode = if value_at(params, mode_key, level) == Some("PER") {
-                                StatModifierType::Per
-                            } else {
-                                StatModifierType::Diff
-                            };
-                            Some(SkillEffect::StatModifier(StatModifierEffect {
-                                stat,
-                                mode,
-                                amount,
-                                weapon_condition: weapon,
-                                two_handed: true,
-                                ..Default::default()
-                            }))
-                        };
-                        return [
-                            pair("pAtkAmount", "pAtkMode", Stat::PhysicalAttack),
-                            pair("pAccuracyAmount", "pAccuracyMode", Stat::AccuracyCombat),
-                        ]
-                        .into_iter()
-                        .flatten()
-                        .collect();
-                    }
-                    "Resurrection" => {
-                        let int_param =
-                            |key: &str, d: i32| value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(d);
-                        vec![SkillEffect::Resurrection {
-                            power: int_param("power", 0),
-                            hp_percent: int_param("hpPercent", 0),
-                            mp_percent: int_param("mpPercent", 0),
-                            cp_percent: int_param("cpPercent", 0),
-                        }]
-                    }
-                    // Java throws on an empty `Summon` param set; here a
-                    // missing/zero `npcId` simply yields no effect, matching how
-                    // every other arm handles unusable params.
-                    "Summon" => {
-                        let int_param =
-                            |key: &str, d: i32| value_at(params, key, level).and_then(|v| v.parse().ok()).unwrap_or(d);
-                        let npc_id = int_param("npcId", 0);
-                        return if npc_id == 0 {
-                            Vec::new()
-                        } else {
-                            vec![SkillEffect::Summon {
-                                npc_id,
-                                life_time: int_param("lifeTime", 0),
-                                consume_item_id: int_param("consumeItemId", 0),
-                                consume_item_count: int_param("consumeItemCount", 1) as i64,
-                            }]
-                        };
-                    }
-                    "SummonPet" => vec![SkillEffect::SummonPet],
-                    "BlockMove" => vec![SkillEffect::BlockMove],
-                    // `type` picks the Java stat: PHYSICAL (the default) or
-                    // MAGICAL. Physical Mirror 350 and Magical Mirror 351 carry
-                    // *only* this effect, so both were dropped whole before it.
-                    // `type` is a `BasicProperty`: `NONE`, `PHYSICAL` (the
-                    // default) or **`MAGIC`** — not "MAGICAL", which is the
-                    // spelling this port first guessed and which would have
-                    // silently routed every magic reflect into the physical
-                    // stat. Both Mirrors carry one effect of each kind.
-                    //
-                    // Their `<armorTYpe>SHIELD</armorTYpe>` gate is a datapack
-                    // typo (10 occurrences against 220 correct `<armorType>`).
-                    // Java matches element names exactly too, so the condition
-                    // is inert on both sides and is faithfully reproduced by
-                    // not special-casing it.
-                    "ReflectSkill" => vec![SkillEffect::ReflectSkill {
-                        magic: value_at(params, "type", level) == Some("MAGIC"),
-                        amount: param("amount").unwrap_or(0.0),
-                    }],
-                    "SilentMove" => vec![SkillEffect::SilentMove],
-                    // Fake Death 60. Two halves: the `FAKE_DEATH` flag and an
-                    // MP upkeep with the same `power * getTicksMultiplier()`
-                    // shape as `ManaDamOverTime`, which it shares the tick
-                    // chain with. Skill 60 carries *only* this and
-                    // `SilentMove`, so with both unported the effect list came
-                    // out empty and the whole skill was dropped — it cast and
-                    // did nothing at all.
-                    "FakeDeath" => vec![SkillEffect::FakeDeath {
-                        power: param("power").unwrap_or(0.0),
-                        ticks: value_at(params, "ticks", level).and_then(|v| v.parse().ok()).unwrap_or(0),
-                    }],
-                    // "Transform <Monster>" scroll family (541-558, 617-674):
-                    // polymorph the caster into `transformationId`. No stat
-                    // modifier of its own — the transform template's own
-                    // stat/speed/skill overrides apply via
-                    // `admin::transforms::apply_transform_state` — so without
-                    // this arm the effect fell through to `EFFECT_REGISTRY`,
-                    // wasn't found, and the buff was dropped whole.
-                    "Transformation" => match param("transformationId") {
-                        Some(id) if id != 0.0 => vec![SkillEffect::Transform { transformation_id: id as i32 }],
-                        _ => Vec::new(),
-                    },
-                    // Fighter-class toggle upkeep (Accuracy 256, Guard Stance
-                    // 288, War Frenzy 424, Super Haste 7029, …): without this
-                    // arm the effect fell through to `EFFECT_REGISTRY`, wasn't
-                    // found, and the toggle's *stat* half (parsed separately,
-                    // below) landed as a free buff with no MP cost at all.
-                    "MpConsumePerLevel" => {
-                        return match (param("power"), value_at(params, "ticks", level).and_then(|v| v.parse::<i32>().ok())) {
-                            (Some(power), Some(ticks)) if ticks > 0 => {
-                                vec![SkillEffect::MpConsumePerLevel { power, ticks }]
-                            }
-                            _ => Vec::new(),
-                        };
-                    }
-                    // Death Whisper (1242) & co.: Java `CriticalDamage extends
-                    // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
-                    // — a two-stat effect that pumps the multiplicative
-                    // `CRITICAL_DAMAGE` in `PER` mode and the additive
-                    // `CRITICAL_DAMAGE_ADD` in `DIFF` mode. The 1-name→1-stat
-                    // `EFFECT_REGISTRY` can't express that, so pick the stat by
-                    // mode here (like `Speed`). Without this the effect fell
-                    // through, produced no modifier, and the buff was dropped
-                    // whole (community-board "Death Whisper doesn't apply").
-                    // The `AbstractStatEffect` crit-damage family: one handler,
-                    // two stats, picked by mode (PER → the multiplier, DIFF →
-                    // the flat add). Every one of these was parsed *before* this
-                    // slice and pumped a stat that nothing read — see
-                    // `formulas::crit_damage_multiplier`.
-                    "CriticalDamage" => param("amount")
-                        .map(|amount| {
-                            let stat = if modifier_mode == StatModifierType::Per {
-                                Stat::CriticalDamage
-                            } else {
-                                Stat::CriticalDamageAdd
-                            };
-                            stat_mod(stat, amount)
-                        })
-                        .into_iter()
-                        .collect(),
-                    "DefenceCriticalRate" => param("amount")
-                        .map(|amount| {
-                            let stat = if modifier_mode == StatModifierType::Per {
-                                Stat::DefenceCriticalRate
-                            } else {
-                                Stat::DefenceCriticalRateAdd
-                            };
-                            stat_mod(stat, amount)
-                        })
-                        .into_iter()
-                        .collect(),
-                    "DefenceCriticalDamage" => param("amount")
-                        .map(|amount| {
-                            let stat = if modifier_mode == StatModifierType::Per {
-                                Stat::DefenceCriticalDamage
-                            } else {
-                                Stat::DefenceCriticalDamageAdd
-                            };
-                            stat_mod(stat, amount)
-                        })
-                        .into_iter()
-                        .collect(),
-                    // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
-                    // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
-                    // magic branch of `calcCritDamage` reads only the
-                    // multiplier, and `calcCritDamageAdd`'s magic result is
-                    // never applied (see `Formulas.calcMagicDam`'s own TODO).
-                    "MagicCriticalDamage" => param("amount")
-                        .filter(|_| modifier_mode == StatModifierType::Per)
-                        .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))
-                        .into_iter()
-                        .collect(),
-                    "DefenceMagicCriticalDamage" => param("amount")
-                        .filter(|_| modifier_mode == StatModifierType::Per)
-                        .map(|amount| stat_mod(Stat::DefenceMagicCriticalDamage, amount))
-                        .into_iter()
-                        .collect(),
-                    // Focus Death (355), Focus Power (357): a crit-damage
-                    // multiplier that applies only from a given attack
-                    // position. Java merges `(amount/100)+1` multiplicatively
-                    // into `_positionTypeStats` — a different map, merge and
-                    // identity from the move-type one, so the qualifier routes
-                    // it accordingly. Read only by the *autoattack* branch of
-                    // `calcCritDamage`, matching Java.
-                    "CriticalDamagePosition" => {
-                        let position = match value_at(params, "position", level) {
-                            // Java `params.getEnum("position", Position.class, Position.FRONT)`.
-                            Some("BACK") => crate::model::movement::Position::Back,
-                            Some("SIDE") => crate::model::movement::Position::Side,
-                            _ => crate::model::movement::Position::Front,
-                        };
-                        return param("amount")
+                        "DefenceCriticalRate" => param("amount")
                             .map(|amount| {
-                                SkillEffect::StatModifier(StatModifierEffect {
-                                    stat: Stat::CriticalDamage,
-                                    mode: StatModifierType::Per,
-                                    amount,
-                                    armor_condition: *armor_condition,
-                                    weapon_condition: *weapon_condition,
-                                    qualifier: Some(crate::model::stats::StatQualifier::Position(position)),
-                                    two_handed: false,
-                                })
+                                let stat = if modifier_mode == StatModifierType::Per {
+                                    Stat::DefenceCriticalRate
+                                } else {
+                                    Stat::DefenceCriticalRateAdd
+                                };
+                                stat_mod(stat, amount)
                             })
                             .into_iter()
-                            .collect();
+                            .collect(),
+                        "DefenceCriticalDamage" => param("amount")
+                            .map(|amount| {
+                                let stat = if modifier_mode == StatModifierType::Per {
+                                    Stat::DefenceCriticalDamage
+                                } else {
+                                    Stat::DefenceCriticalDamageAdd
+                                };
+                                stat_mod(stat, amount)
+                            })
+                            .into_iter()
+                            .collect(),
+                        // Prophecy of Wind (1357), Victories of Pa'agrio (1414).
+                        // Java's `MAGIC_CRITICAL_DAMAGE_ADD` half is dropped: the
+                        // magic branch of `calcCritDamage` reads only the
+                        // multiplier, and `calcCritDamageAdd`'s magic result is
+                        // never applied (see `Formulas.calcMagicDam`'s own TODO).
+                        "MagicCriticalDamage" => param("amount")
+                            .filter(|_| modifier_mode == StatModifierType::Per)
+                            .map(|amount| stat_mod(Stat::MagicCriticalDamage, amount))
+                            .into_iter()
+                            .collect(),
+                        "DefenceMagicCriticalDamage" => param("amount")
+                            .filter(|_| modifier_mode == StatModifierType::Per)
+                            .map(|amount| stat_mod(Stat::DefenceMagicCriticalDamage, amount))
+                            .into_iter()
+                            .collect(),
+                        // Focus Death (355), Focus Power (357): a crit-damage
+                        // multiplier that applies only from a given attack
+                        // position. Java merges `(amount/100)+1` multiplicatively
+                        // into `_positionTypeStats` — a different map, merge and
+                        // identity from the move-type one, so the qualifier routes
+                        // it accordingly. Read only by the *autoattack* branch of
+                        // `calcCritDamage`, matching Java.
+                        "CriticalDamagePosition" => {
+                            let position = match value_at(params, "position", level) {
+                                // Java `params.getEnum("position", Position.class, Position.FRONT)`.
+                                Some("BACK") => crate::model::movement::Position::Back,
+                                Some("SIDE") => crate::model::movement::Position::Side,
+                                _ => crate::model::movement::Position::Front,
+                            };
+                            return param("amount")
+                                .map(|amount| {
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::CriticalDamage,
+                                        mode: StatModifierType::Per,
+                                        amount,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: Some(
+                                            crate::model::stats::StatQualifier::Position(position),
+                                        ),
+                                        two_handed: false,
+                                    })
+                                })
+                                .into_iter()
+                                .collect();
+                        }
+                        // Mental Shield (1035) / Stun Resistance ("Resist Shock",
+                        // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
+                        // (HOLD/SLEEP/SHOCK…) — not a single `Stat`, and its params
+                        // are the trait names, not `amount`. The trait-defense math
+                        // isn't modeled yet, so carry a marker (like
+                        // `ProtectionBlessing`) so the buff still lands icon-only
+                        // instead of being dropped whole.
+                        "DefenceTrait" => vec![SkillEffect::DefenceTrait],
+                        // Vampiric Rage (1268): Java `VampiricAttack` grants a chance
+                        // to absorb a % of melee damage as HP. The melee-absorb path
+                        // isn't modeled, so carry an icon-only marker rather than
+                        // dropping the buff.
+                        "VampiricAttack" => vec![SkillEffect::VampiricAttack],
+                        // "Detect <Category> Weakness" (75/80/87/88/104, 359/360):
+                        // Java `AttackTrait` merges a `*_WEAKNESS` bonus onto the
+                        // caster — genuinely inert in the reference server too (see
+                        // the doc comment on `SkillEffect::AttackTrait`), so this
+                        // carries an icon-only marker like `DefenceTrait`/
+                        // `VampiricAttack` rather than the per-trait param map.
+                        "AttackTrait" => vec![SkillEffect::AttackTrait],
+                        // Celestial Shield (1418), Flames of Invincibility (1427),
+                        // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
+                        // skill carries two of these, one `BLOCK_HP` and one
+                        // `BLOCK_MP` (`<effect name="DamageBlock"><type>BLOCK_HP
+                        // </type></effect>`, a plain string param, not `param()`'s
+                        // f64). Without this arm the effect fell through to
+                        // `EFFECT_REGISTRY`, wasn't found, and these short
+                        // invulnerability shields did nothing.
+                        "DamageBlock" => {
+                            let ty = value_at(params, "type", level);
+                            vec![SkillEffect::DamageBlock {
+                                block_hp: ty == Some("BLOCK_HP"),
+                                block_mp: ty == Some("BLOCK_MP"),
+                            }]
+                        }
+                        // Community-board dance/song buffs whose combat/cost math
+                        // isn't modeled yet — Song of Champion/Renewal
+                        // (`MagicMpCost`/`Reuse`), Gift of Seraphim (4703, `Reuse`),
+                        // Song of Vengeance (305, `DamageShield`). Each maps to a
+                        // per-magic-type stat the port doesn't have, so carry an
+                        // icon-only marker (like `DefenceTrait`) rather than
+                        // dropping the buff whole at the empty-effects guard — the
+                        // buff must show and expire. (`AttackAttribute` graduated
+                        // to a real element-POWER modifier in the G19 attributes
+                        // slice; its arm above wins.)
+                        "MagicMpCost" => vec![SkillEffect::MagicMpCost],
+                        "Reuse" => vec![SkillEffect::Reuse],
+                        "DamageShield" => vec![SkillEffect::DamageShield],
+                        // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven
+                        // Craft (1368-1372, the craftsman-guild storage passives):
+                        // Java `EnlargeSlot extends AbstractStatEffect` reads
+                        // `amount` + a `type` string picking one of 6 `Stat`s; an
+                        // absent `type` (Expand Inventory) defaults to
+                        // INVENTORY_NORMAL. Expand Trade carries two effect blocks
+                        // per level, one TRADE_BUY one TRADE_SELL. The 1-name-1-stat
+                        // `EFFECT_REGISTRY` can't express the type-selected stat, so
+                        // without this arm the effect fell through and these
+                        // passives did nothing.
+                        "EnlargeSlot" => {
+                            let stat = match value_at(params, "type", level) {
+                                Some("STORAGE_PRIVATE") => Stat::StoragePrivate,
+                                Some("TRADE_SELL") => Stat::TradeSell,
+                                Some("TRADE_BUY") => Stat::TradeBuy,
+                                Some("RECIPE_DWARVEN") => Stat::RecipeDwarven,
+                                Some("RECIPE_COMMON") => Stat::RecipeCommon,
+                                _ => Stat::InventoryNormal,
+                            };
+                            param("amount")
+                                .map(|amount| stat_mod(stat, amount))
+                                .into_iter()
+                                .collect()
+                        }
+                        _ => match EFFECT_REGISTRY
+                            .iter()
+                            .find(|(n, _)| n == xml_name)
+                            .map(|(_, s)| *s)
+                        {
+                            Some(stat) => param("amount")
+                                .map(|amount| stat_mod(stat, amount))
+                                .into_iter()
+                                .collect(),
+                            None => Vec::new(),
+                        },
                     }
-                    // Mental Shield (1035) / Stun Resistance ("Resist Shock",
-                    // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
-                    // (HOLD/SLEEP/SHOCK…) — not a single `Stat`, and its params
-                    // are the trait names, not `amount`. The trait-defense math
-                    // isn't modeled yet, so carry a marker (like
-                    // `ProtectionBlessing`) so the buff still lands icon-only
-                    // instead of being dropped whole.
-                    "DefenceTrait" => vec![SkillEffect::DefenceTrait],
-                    // Vampiric Rage (1268): Java `VampiricAttack` grants a chance
-                    // to absorb a % of melee damage as HP. The melee-absorb path
-                    // isn't modeled, so carry an icon-only marker rather than
-                    // dropping the buff.
-                    "VampiricAttack" => vec![SkillEffect::VampiricAttack],
-                    // "Detect <Category> Weakness" (75/80/87/88/104, 359/360):
-                    // Java `AttackTrait` merges a `*_WEAKNESS` bonus onto the
-                    // caster — genuinely inert in the reference server too (see
-                    // the doc comment on `SkillEffect::AttackTrait`), so this
-                    // carries an icon-only marker like `DefenceTrait`/
-                    // `VampiricAttack` rather than the per-trait param map.
-                    "AttackTrait" => vec![SkillEffect::AttackTrait],
-                    // Celestial Shield (1418), Flames of Invincibility (1427),
-                    // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
-                    // skill carries two of these, one `BLOCK_HP` and one
-                    // `BLOCK_MP` (`<effect name="DamageBlock"><type>BLOCK_HP
-                    // </type></effect>`, a plain string param, not `param()`'s
-                    // f64). Without this arm the effect fell through to
-                    // `EFFECT_REGISTRY`, wasn't found, and these short
-                    // invulnerability shields did nothing.
-                    "DamageBlock" => {
-                        let ty = value_at(params, "type", level);
-                        vec![SkillEffect::DamageBlock { block_hp: ty == Some("BLOCK_HP"), block_mp: ty == Some("BLOCK_MP") }]
-                    }
-                    // Community-board dance/song buffs whose combat/cost math
-                    // isn't modeled yet — Song of Champion/Renewal
-                    // (`MagicMpCost`/`Reuse`), Gift of Seraphim (4703, `Reuse`),
-                    // Song of Vengeance (305, `DamageShield`). Each maps to a
-                    // per-magic-type stat the port doesn't have, so carry an
-                    // icon-only marker (like `DefenceTrait`) rather than
-                    // dropping the buff whole at the empty-effects guard — the
-                    // buff must show and expire. (`AttackAttribute` graduated
-                    // to a real element-POWER modifier in the G19 attributes
-                    // slice; its arm above wins.)
-                    "MagicMpCost" => vec![SkillEffect::MagicMpCost],
-                    "Reuse" => vec![SkillEffect::Reuse],
-                    "DamageShield" => vec![SkillEffect::DamageShield],
-                    // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven
-                    // Craft (1368-1372, the craftsman-guild storage passives):
-                    // Java `EnlargeSlot extends AbstractStatEffect` reads
-                    // `amount` + a `type` string picking one of 6 `Stat`s; an
-                    // absent `type` (Expand Inventory) defaults to
-                    // INVENTORY_NORMAL. Expand Trade carries two effect blocks
-                    // per level, one TRADE_BUY one TRADE_SELL. The 1-name-1-stat
-                    // `EFFECT_REGISTRY` can't express the type-selected stat, so
-                    // without this arm the effect fell through and these
-                    // passives did nothing.
-                    "EnlargeSlot" => {
-                        let stat = match value_at(params, "type", level) {
-                            Some("STORAGE_PRIVATE") => Stat::StoragePrivate,
-                            Some("TRADE_SELL") => Stat::TradeSell,
-                            Some("TRADE_BUY") => Stat::TradeBuy,
-                            Some("RECIPE_DWARVEN") => Stat::RecipeDwarven,
-                            Some("RECIPE_COMMON") => Stat::RecipeCommon,
-                            _ => Stat::InventoryNormal,
-                        };
-                        param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect()
-                    }
-                    _ => match EFFECT_REGISTRY.iter().find(|(n, _)| n == xml_name).map(|(_, s)| *s) {
-                        Some(stat) => param("amount").map(|amount| stat_mod(stat, amount)).into_iter().collect(),
-                        None => Vec::new(),
-                    },
-                }
-            })
-            .collect::<Vec<_>>();
+                })
+                .collect::<Vec<_>>()
+        };
         // Java keeps one effect list per `EffectScope`; the port carries the
         // ones it can act on. `START`/`END` parse as `Other` and are dropped —
         // they hang off lifecycle hooks this port doesn't have.
@@ -1801,73 +2019,75 @@ fn build_skill(
         let pvp_effects = build_scope(EffectScope::Pvp);
         let channeling_effects = build_scope(EffectScope::Channeling);
 
-
         // Effect names present in the XML but not in `EFFECT_REGISTRY` are
         // silently dropped (see module docs) — expected for the vast majority
         // of skills, which are outside G6's scope.
         Skill {
-                id,
-                level,
-                sub_level: sub,
-                name: name.to_string(),
-                operate_type,
-                is_continuous,
-                target_type,
-                over_hit,
-                abnormal_visuals,
-                toggle_group_id,
-                affect_scope,
-                affect_object,
-                affect_range,
-                affect_limit,
-                fan_range,
-                magic_type: get_i("isMagic", 0),
-                magic_level: get_i("magicLevel", 0),
-                activate_rate: get_i("activateRate", -1),
-                lvl_bonus_rate: get_i("lvlBonusRate", 0),
-                effect_point: get_i("effectPoint", 0),
-                cast_range: get_i("castRange", 0),
-                effect_range: get_i("effectRange", 0),
-                hit_time: get_i("hitTime", 0),
-                hit_cancel_time: get_f("hitCancelTime", 0.0),
-                cool_time: get_i("coolTime", 0),
-                reuse_delay: get_i("reuseDelay", 0),
-                reuse_delay_group: get_i("reuseDelayGroup", -1),
-                mp_consume: get_i("mpConsume", 0),
-                mp_initial_consume: get_i("mpInitialConsume", 0),
-                hp_consume: get_i("hpConsume", 0),
-                without_action: value_at(values, "withoutAction", level).map_or(false, |v| v == "true"),
-                item_consume_id: get_i("itemConsumeId", 0),
-                item_consume_count: get_i("itemConsumeCount", 0),
-                abnormal_time: get_i("abnormalTime", 0),
-                abnormal_level: get_i("abnormalLevel", 0),
-                abnormal_type: value_at(values, "abnormalType", level).unwrap_or("NONE").to_string(),
-                // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
-                can_be_dispelled: value_at(values, "canBeDispelled", level).map_or(true, |v| v == "true"),
-                is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
-                // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
-                // both `true` and `True` for this tag and `Boolean.parseBoolean`
-                // is case-insensitive, so compare loosely.
-                stay_after_death: value_at(values, "stayAfterDeath", level)
-                    .is_some_and(|v| v.eq_ignore_ascii_case("true")),
-                effects: skill_effects,
-                self_effects,
-                pve_effects,
-                pvp_effects,
-                channeling_effects,
-                op_exist_npc: op_exist_npc.clone(),
-                // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
-                // default is the skill's own mpConsume, not 0.
-                mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),
-                // XML values are seconds; Java stores ms (`getFloat × 1000`).
-                channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
-                channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
-                // `<attributeType>FIRE</attributeType>` + `<attributeValue>20`
-                // — the skill's element for `calcAttributeBonus`. `NONE` and
-                // unknown names read as no element, like Java's enum default.
-                attribute_type: value_at(values, "attributeType", level)
-                    .and_then(crate::model::stats::Element::from_xml),
-                attribute_value: get_i("attributeValue", 0),
+            id,
+            level,
+            sub_level: sub,
+            name: name.to_string(),
+            operate_type,
+            is_continuous,
+            target_type,
+            over_hit,
+            abnormal_visuals,
+            toggle_group_id,
+            affect_scope,
+            affect_object,
+            affect_range,
+            affect_limit,
+            fan_range,
+            magic_type: get_i("isMagic", 0),
+            magic_level: get_i("magicLevel", 0),
+            activate_rate: get_i("activateRate", -1),
+            lvl_bonus_rate: get_i("lvlBonusRate", 0),
+            effect_point: get_i("effectPoint", 0),
+            cast_range: get_i("castRange", 0),
+            effect_range: get_i("effectRange", 0),
+            hit_time: get_i("hitTime", 0),
+            hit_cancel_time: get_f("hitCancelTime", 0.0),
+            cool_time: get_i("coolTime", 0),
+            reuse_delay: get_i("reuseDelay", 0),
+            reuse_delay_group: get_i("reuseDelayGroup", -1),
+            mp_consume: get_i("mpConsume", 0),
+            mp_initial_consume: get_i("mpInitialConsume", 0),
+            hp_consume: get_i("hpConsume", 0),
+            without_action: value_at(values, "withoutAction", level).map_or(false, |v| v == "true"),
+            item_consume_id: get_i("itemConsumeId", 0),
+            item_consume_count: get_i("itemConsumeCount", 0),
+            abnormal_time: get_i("abnormalTime", 0),
+            abnormal_level: get_i("abnormalLevel", 0),
+            abnormal_type: value_at(values, "abnormalType", level)
+                .unwrap_or("NONE")
+                .to_string(),
+            // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
+            can_be_dispelled: value_at(values, "canBeDispelled", level)
+                .map_or(true, |v| v == "true"),
+            is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
+            // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
+            // both `true` and `True` for this tag and `Boolean.parseBoolean`
+            // is case-insensitive, so compare loosely.
+            stay_after_death: value_at(values, "stayAfterDeath", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+            effects: skill_effects,
+            self_effects,
+            pve_effects,
+            pvp_effects,
+            channeling_effects,
+            op_exist_npc: op_exist_npc.clone(),
+            // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
+            // default is the skill's own mpConsume, not 0.
+            mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),
+            // XML values are seconds; Java stores ms (`getFloat × 1000`).
+            channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
+            channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
+            // `<attributeType>FIRE</attributeType>` + `<attributeValue>20`
+            // — the skill's element for `calcAttributeBonus`. `NONE` and
+            // unknown names read as no element, like Java's enum default.
+            attribute_type: value_at(values, "attributeType", level)
+                .and_then(crate::model::stats::Element::from_xml),
+            attribute_value: get_i("attributeValue", 0),
         }
     }
 }
@@ -1914,12 +2134,23 @@ mod tests {
             &[(1001, 1020), (2001, 2020), (3001, 3020)],
             "Sonic Storm 40's three routes"
         );
-        assert!(sd.enchant_routes(7, 39).is_empty(), "the routes open at level 40");
-        assert!(sd.enchant_routes(1177, 1).is_empty(), "Wind Strike is not enchantable");
+        assert!(
+            sd.enchant_routes(7, 39).is_empty(),
+            "the routes open at level 40"
+        );
+        assert!(
+            sd.enchant_routes(1177, 1).is_empty(),
+            "Wind Strike is not enchantable"
+        );
 
         let base = sd.get(7, 40).expect("Sonic Storm 40");
         let (p0, c0, d0) = match base.effects.as_slice() {
-            [SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, .. }] => (*power, *critical_chance, *p_def_mod),
+            [SkillEffect::EnergyAttack {
+                power,
+                critical_chance,
+                p_def_mod,
+                ..
+            }] => (*power, *critical_chance, *p_def_mod),
             other => panic!("EnergyAttack expected: {other:?}"),
         };
         assert_eq!((p0, c0, d0), (20732.0, 15.0, 1.0));
@@ -1929,8 +2160,16 @@ mod tests {
         let e1 = sd.get_enchanted(7, 40, 1001).expect("+1 power route");
         assert_eq!(e1.sub_level, 1001);
         match e1.effects.as_slice() {
-            [SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, .. }] => {
-                assert!((power - (20732.0 + 20732.0 / 100.0)).abs() < 1e-6, "+1: {power}");
+            [SkillEffect::EnergyAttack {
+                power,
+                critical_chance,
+                p_def_mod,
+                ..
+            }] => {
+                assert!(
+                    (power - (20732.0 + 20732.0 / 100.0)).abs() < 1e-6,
+                    "+1: {power}"
+                );
                 assert_eq!((*critical_chance, *p_def_mod), (15.0, 1.0));
             }
             other => panic!("{other:?}"),
@@ -1944,16 +2183,33 @@ mod tests {
         }
 
         // Route 2 enchants the crit chance; route 3 the pDefMod.
-        match sd.get_enchanted(7, 40, 2001).expect("+1 crit route").effects.as_slice() {
-            [SkillEffect::EnergyAttack { power, critical_chance, .. }] => {
+        match sd
+            .get_enchanted(7, 40, 2001)
+            .expect("+1 crit route")
+            .effects
+            .as_slice()
+        {
+            [SkillEffect::EnergyAttack {
+                power,
+                critical_chance,
+                ..
+            }] => {
                 assert!((critical_chance - 15.15).abs() < 1e-6, "{critical_chance}");
                 assert_eq!(*power, 20732.0, "power keeps its base on route 2");
             }
             other => panic!("{other:?}"),
         }
-        match sd.get_enchanted(7, 40, 3005).expect("+5 pdef route").effects.as_slice() {
+        match sd
+            .get_enchanted(7, 40, 3005)
+            .expect("+5 pdef route")
+            .effects
+            .as_slice()
+        {
             [SkillEffect::EnergyAttack { p_def_mod, .. }] => {
-                assert!((p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6, "{p_def_mod}");
+                assert!(
+                    (p_def_mod - (0.99 - 0.006 * 4.0)).abs() < 1e-6,
+                    "{p_def_mod}"
+                );
             }
             other => panic!("{other:?}"),
         }
@@ -1967,9 +2223,24 @@ mod tests {
         assert_eq!(sd.enchant_routes(1263, 20), &[(1001, 1020), (2001, 2020)]);
         let cg = sd.get(1263, 20).expect("Curse Gloom 20");
         assert_eq!(cg.abnormal_time, 10);
-        assert_eq!(sd.get_enchanted(1263, 20, 2001).expect("+1 duration").abnormal_time, 10);
-        assert_eq!(sd.get_enchanted(1263, 20, 2002).expect("+2 duration").abnormal_time, 11);
-        assert_eq!(sd.get_enchanted(1263, 20, 2020).expect("+20 duration").abnormal_time, 20);
+        assert_eq!(
+            sd.get_enchanted(1263, 20, 2001)
+                .expect("+1 duration")
+                .abnormal_time,
+            10
+        );
+        assert_eq!(
+            sd.get_enchanted(1263, 20, 2002)
+                .expect("+2 duration")
+                .abnormal_time,
+            11
+        );
+        assert_eq!(
+            sd.get_enchanted(1263, 20, 2020)
+                .expect("+20 duration")
+                .abnormal_time,
+            20
+        );
 
         // The cost table (data/EnchantSkillGroups.xml): 30 levels; +1 costs
         // 90% NORMAL with a Superior Giant's Codex 30297 and adena.
@@ -1982,18 +2253,30 @@ mod tests {
         assert_eq!(one.chance.get("NORMAL"), Some(&90));
         assert_eq!(one.sp.get("NORMAL"), Some(&4_250_000));
         let items = one.items.get("NORMAL").expect("NORMAL items");
-        assert!(items.contains(&(30297, 1)) && items.contains(&(57, 2_380_000)), "{items:?}");
+        assert!(
+            items.contains(&(30297, 1)) && items.contains(&(57, 2_380_000)),
+            "{items:?}"
+        );
     }
 
     #[test]
     fn loads_real_dist_files() {
         let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        assert!(sd.skills.len() > 10_000, "expected thousands of skill levels, got {}", sd.skills.len());
+        assert!(
+            sd.skills.len() > 10_000,
+            "expected thousands of skill levels, got {}",
+            sd.skills.len()
+        );
         let ws = sd.get(1177, 1).expect("Wind Strike lvl 1");
         assert_eq!(ws.target_type, TargetType::EnemyOnly);
         assert_eq!(ws.cast_range, 600);
-        assert!(matches!(ws.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
-        assert_eq!(ws.reuse_delay_group, -1, "no <reuseDelayGroup> must stay -1, never 0");
+        assert!(
+            matches!(ws.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        );
+        assert_eq!(
+            ws.reuse_delay_group, -1,
+            "no <reuseDelayGroup> must stay -1, never 0"
+        );
         assert_eq!(ws.reuse_key(), 1177);
 
         // Prominence 1230: a ranged nuke backed by the `MagicalAttackRange`
@@ -2001,7 +2284,9 @@ mod tests {
         // before the handler existed the effect fell through and was dropped,
         // so the skill cast but dealt zero damage.
         let prominence = sd.get(1230, 28).expect("Prominence lvl 28");
-        assert!(matches!(prominence.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 108.0));
+        assert!(
+            matches!(prominence.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 108.0)
+        );
 
         // Power Strike 3: the canonical `PhysicalAttack` skill. Before the
         // handler existed every physical attack skill (1164 XML entries) cast
@@ -2083,13 +2368,22 @@ mod tests {
         // Frintezza Charge 5015 — SQUARE with a **level-valued** fanRange
         // (the only leveled tuple in the dist): 400×150 at level 1, 700×200
         // at level 3. A skill with no `<fanRange>` parses to all zeroes.
-        assert_eq!(sd.get(5015, 1).expect("Frintezza Charge lvl 1").fan_range, [0, 0, 400, 150]);
-        assert_eq!(sd.get(5015, 3).expect("Frintezza Charge lvl 3").fan_range, [0, 0, 700, 200]);
+        assert_eq!(
+            sd.get(5015, 1).expect("Frintezza Charge lvl 1").fan_range,
+            [0, 0, 400, 150]
+        );
+        assert_eq!(
+            sd.get(5015, 3).expect("Frintezza Charge lvl 3").fan_range,
+            [0, 0, 700, 200]
+        );
         assert_eq!(tempest.fan_range, [0; 4]);
 
         // Over-hit (G20): 59 learnable skills carry `<overHit>true</overHit>` —
         // a killing blow with one pays bonus XP for the excess damage.
-        assert!(sd.get(1, 1).expect("Triple Slash").over_hit, "Triple Slash over-hits");
+        assert!(
+            sd.get(1, 1).expect("Triple Slash").over_hit,
+            "Triple Slash over-hits"
+        );
         assert!(sd.get(7, 1).expect("Sonic Storm").over_hit);
         assert!(!sd.get(1068, 1).expect("Might").over_hit, "a buff does not");
 
@@ -2097,49 +2391,93 @@ mod tests {
         // this is what turns a polearm into a sweep weapon; the weapon type
         // alone does not.
         let mastery = sd.get(216, 1).expect("Polearm Mastery lvl 1");
-        assert!(mastery
-            .stat_modifier_effects()
-            .iter()
-            .any(|m| m.stat == Stat::AttackCountMax && m.amount == 5.0), "got {:?}", mastery.effects);
+        assert!(
+            mastery
+                .stat_modifier_effects()
+                .iter()
+                .any(|m| m.stat == Stat::AttackCountMax && m.amount == 5.0),
+            "got {:?}",
+            mastery.effects
+        );
 
         // Abnormal *visual* effects — the cosmetic half of everything above.
         // Shield Stun 92 draws STUN(7), Bleed 96 draws DOT_BLEEDING(1), Horror
         // 65 draws TURN_FLEE(32); Might 1068 draws nothing.
-        assert_eq!(sd.get(92, 1).expect("Shield Stun").abnormal_visuals, vec![7]);
+        assert_eq!(
+            sd.get(92, 1).expect("Shield Stun").abnormal_visuals,
+            vec![7]
+        );
         assert_eq!(sd.get(96, 1).expect("Bleed").abnormal_visuals, vec![1]);
         assert_eq!(sd.get(65, 1).expect("Horror").abnormal_visuals, vec![32]);
         assert!(sd.get(1068, 1).expect("Might").abnormal_visuals.is_empty());
         // An unknown enum name resolves to nothing rather than panicking.
-        assert_eq!(crate::model::skill::abnormal_visual_client_id("NOT_A_REAL_AVE"), None);
-        assert_eq!(crate::model::skill::abnormal_visual_client_id("STUN"), Some(7));
+        assert_eq!(
+            crate::model::skill::abnormal_visual_client_id("NOT_A_REAL_AVE"),
+            None
+        );
+        assert_eq!(
+            crate::model::skill::abnormal_visual_client_id("STUN"),
+            Some(7)
+        );
 
         // The rest of the CC family, against the real Interlude skills.
         // Seal of Silence 1246 silences (magic only); Shield Slam 353 is the
         // physical twin; Mystic Immunity 1411 blocks incoming debuffs; Horror
         // 65 blocks control; Trick 11 cancels the target.
         use crate::model::skill::effect_flag;
-        assert_eq!(sd.get(1246, 1).expect("Seal of Silence").effect_flags(), effect_flag::MUTED);
-        assert_eq!(sd.get(353, 1).expect("Shield Slam").effect_flags() & effect_flag::PHYSICAL_MUTED, effect_flag::PHYSICAL_MUTED);
-        assert_eq!(sd.get(1411, 1).expect("Mystic Immunity").effect_flags() & effect_flag::DEBUFF_BLOCK, effect_flag::DEBUFF_BLOCK);
-        assert_eq!(sd.get(65, 1).expect("Horror").effect_flags() & effect_flag::BLOCK_CONTROL, effect_flag::BLOCK_CONTROL);
-        assert!(matches!(
-            sd.get(11, 1).expect("Trick").effects.iter().find(|e| matches!(e, SkillEffect::TargetCancel { .. })),
-            Some(SkillEffect::TargetCancel { .. })
-        ), "Trick cancels its target");
+        assert_eq!(
+            sd.get(1246, 1).expect("Seal of Silence").effect_flags(),
+            effect_flag::MUTED
+        );
+        assert_eq!(
+            sd.get(353, 1).expect("Shield Slam").effect_flags() & effect_flag::PHYSICAL_MUTED,
+            effect_flag::PHYSICAL_MUTED
+        );
+        assert_eq!(
+            sd.get(1411, 1).expect("Mystic Immunity").effect_flags() & effect_flag::DEBUFF_BLOCK,
+            effect_flag::DEBUFF_BLOCK
+        );
+        assert_eq!(
+            sd.get(65, 1).expect("Horror").effect_flags() & effect_flag::BLOCK_CONTROL,
+            effect_flag::BLOCK_CONTROL
+        );
+        assert!(
+            matches!(
+                sd.get(11, 1)
+                    .expect("Trick")
+                    .effects
+                    .iter()
+                    .find(|e| matches!(e, SkillEffect::TargetCancel { .. })),
+                Some(SkillEffect::TargetCancel { .. })
+            ),
+            "Trick cancels its target"
+        );
         // A silence must not also block physical skills, and vice versa.
-        assert_eq!(sd.get(1246, 1).unwrap().effect_flags() & effect_flag::PHYSICAL_MUTED, 0);
+        assert_eq!(
+            sd.get(1246, 1).unwrap().effect_flags() & effect_flag::PHYSICAL_MUTED,
+            0
+        );
 
         // Noblesse Blessing 1323 — its only effect is the flag the death path
         // reads; without the parse arm the buff would be dropped whole.
         let bless = sd.get(1323, 1).expect("Noblesse Blessing");
-        assert!(matches!(bless.effects.as_slice(), [SkillEffect::NoblesseBless]));
+        assert!(matches!(
+            bless.effects.as_slice(),
+            [SkillEffect::NoblesseBless]
+        ));
         assert_eq!(bless.effect_flags(), effect_flag::NOBLESS_BLESSING);
-        assert!(!bless.stay_after_death, "the blessing itself is what death consumes");
+        assert!(
+            !bless.stay_after_death,
+            "the blessing itself is what death consumes"
+        );
         // `<stayAfterDeath>` is parsed case-insensitively — the dist writes both
         // spellings: Final Flying Form 840 `true`, Report Status 6038 `True`.
         // Might 1068 is untagged.
         assert!(sd.get(840, 1).expect("Final Flying Form").stay_after_death);
-        assert!(sd.get(6038, 1).expect("Report Status").stay_after_death, "`True` parses too");
+        assert!(
+            sd.get(6038, 1).expect("Report Status").stay_after_death,
+            "`True` parses too"
+        );
         assert!(!sd.get(1068, 1).expect("Might").stay_after_death);
 
         // Fury Fists 222 — an upkeep toggle: `HealOverTime` with a *negative*
@@ -2148,23 +2486,35 @@ mod tests {
         // toggle-off-on-exhaustion path.
         let fury_fists = sd.get(222, 1).expect("Fury Fists lvl 1");
         assert_eq!(fury_fists.operate_type, OperateType::Toggle);
-        assert!(matches!(
-            fury_fists.effects.iter().find(|e| matches!(e, SkillEffect::HealOverTime { .. })),
-            Some(SkillEffect::HealOverTime { power, ticks }) if *power == -12.0 && *ticks == 2
-        ), "got {:?}", fury_fists.effects);
+        assert!(
+            matches!(
+                fury_fists.effects.iter().find(|e| matches!(e, SkillEffect::HealOverTime { .. })),
+                Some(SkillEffect::HealOverTime { power, ticks }) if *power == -12.0 && *ticks == 2
+            ),
+            "got {:?}",
+            fury_fists.effects
+        );
         let silent_move = sd.get(221, 1).expect("Silent Move lvl 1");
-        assert!(matches!(
-            silent_move.effects.iter().find(|e| matches!(e, SkillEffect::ManaDamOverTime { .. })),
-            Some(SkillEffect::ManaDamOverTime { power, ticks }) if *power == 9.0 && *ticks == 5
-        ), "got {:?}", silent_move.effects);
+        assert!(
+            matches!(
+                silent_move.effects.iter().find(|e| matches!(e, SkillEffect::ManaDamOverTime { .. })),
+                Some(SkillEffect::ManaDamOverTime { power, ticks }) if *power == 9.0 && *ticks == 5
+            ),
+            "got {:?}",
+            silent_move.effects
+        );
 
         // Braveheart 440 grants a flat +1000 CP; Touch of Death 342 takes CP as
         // a percentage.
         let braveheart = sd.get(440, 1).expect("Braveheart lvl 1");
-        assert!(matches!(
-            braveheart.effects.iter().find(|e| matches!(e, SkillEffect::Cp { .. })),
-            Some(SkillEffect::Cp { amount, percent: false }) if *amount == 1000.0
-        ), "got {:?}", braveheart.effects);
+        assert!(
+            matches!(
+                braveheart.effects.iter().find(|e| matches!(e, SkillEffect::Cp { .. })),
+                Some(SkillEffect::Cp { amount, percent: false }) if *amount == 1000.0
+            ),
+            "got {:?}",
+            braveheart.effects
+        );
         assert!(matches!(
             sd.get(342, 1).expect("Touch of Death").effects.iter().find(|e| matches!(e, SkillEffect::Cp { .. })),
             Some(SkillEffect::Cp { amount, percent: true }) if *amount == -90.0
@@ -2189,7 +2539,10 @@ mod tests {
             .find(|m| m.stat == Stat::ResistAbnormalDebuff)
             .expect("Guts pumps ResistAbnormalDebuff");
         assert_eq!(resist.mode, StatModifierType::Per);
-        assert_eq!(resist.amount, -50.0, "Guts lvl 1 is -50 → x0.5 debuff chance");
+        assert_eq!(
+            resist.amount, -50.0,
+            "Guts lvl 1 is -50 → x0.5 debuff chance"
+        );
         // Touch of Death 342 is the same effect with the sign flipped.
         let touch_of_death = sd.get(342, 1).expect("Touch of Death lvl 1");
         assert_eq!(
@@ -2211,14 +2564,25 @@ mod tests {
         // the Prophecies stay mutually exclusive.
         let prophecy = sd.get(1355, 1).expect("Prophecy of Water lvl 1");
         let blocked = prophecy.blocked_abnormals();
-        assert!(blocked.contains(&"BUFF_SPECIAL_ATTACK".to_string()), "got {blocked:?}");
+        assert!(
+            blocked.contains(&"BUFF_SPECIAL_ATTACK".to_string()),
+            "got {blocked:?}"
+        );
         assert_eq!(blocked.len(), 5, "all five BUFF_SPECIAL slots: {blocked:?}");
         // An ordinary buff blocks nothing.
-        assert!(sd.get(1068, 1).expect("Might").blocked_abnormals().is_empty());
+        assert!(sd
+            .get(1068, 1)
+            .expect("Might")
+            .blocked_abnormals()
+            .is_empty());
 
         // Warrior Bane 1350 / Mass Warrior Bane 1344 — probabilistic dispel.
         let bane = sd.get(1350, 1).expect("Warrior Bane lvl 1");
-        match bane.effects.iter().find(|e| matches!(e, SkillEffect::DispelBySlotProbability { .. })) {
+        match bane
+            .effects
+            .iter()
+            .find(|e| matches!(e, SkillEffect::DispelBySlotProbability { .. }))
+        {
             Some(SkillEffect::DispelBySlotProbability { dispel, rate }) => {
                 assert_eq!(*rate, 80, "single-target Bane is 80%");
                 assert!(dispel.contains(&"SPEED_UP".to_string()), "got {dispel:?}");
@@ -2226,22 +2590,34 @@ mod tests {
             other => panic!("expected DispelBySlotProbability, got {other:?}"),
         }
         let mass_bane = sd.get(1344, 1).expect("Mass Warrior Bane lvl 1");
-        assert!(mass_bane.effects.iter().any(|e| matches!(
-            e,
-            SkillEffect::DispelBySlotProbability { rate, .. } if *rate == 40
-        )), "the mass version trades rate for reach");
+        assert!(
+            mass_bane.effects.iter().any(|e| matches!(
+                e,
+                SkillEffect::DispelBySlotProbability { rate, .. } if *rate == 40
+            )),
+            "the mass version trades rate for reach"
+        );
 
         // Shield Stun 92 / Arrest 402 — the crowd-control pair. Neither carries
         // a stat modifier: the whole mechanic is the abnormal-state flag.
         let shield_stun = sd.get(92, 1).expect("Shield Stun lvl 1");
-        assert_eq!(shield_stun.effect_flags(), crate::model::skill::effect_flag::BLOCK_ACTIONS);
+        assert_eq!(
+            shield_stun.effect_flags(),
+            crate::model::skill::effect_flag::BLOCK_ACTIONS
+        );
         assert_eq!(shield_stun.abnormal_type, "STUN");
         assert!(shield_stun.stat_modifier_effects().is_empty());
         let arrest = sd.get(402, 1).expect("Arrest lvl 1");
-        assert_eq!(arrest.effect_flags(), crate::model::skill::effect_flag::ROOTED);
+        assert_eq!(
+            arrest.effect_flags(),
+            crate::model::skill::effect_flag::ROOTED
+        );
         assert_eq!(arrest.abnormal_type, "ROOT_PHYSICALLY");
         // A root does NOT block actions — only movement.
-        assert_eq!(arrest.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS, 0);
+        assert_eq!(
+            arrest.effect_flags() & crate::model::skill::effect_flag::BLOCK_ACTIONS,
+            0
+        );
         // An ordinary buff contributes no state flags at all.
         assert_eq!(sd.get(1068, 1).expect("Might").effect_flags(), 0);
 
@@ -2255,7 +2631,10 @@ mod tests {
         assert_eq!(thunder_storm.affect_range, 150);
         // ...and it is *also* a stun, so it exercises both G19 slices at once:
         // a caster-centred sweep that block-actions everything it catches.
-        assert_eq!(thunder_storm.effect_flags(), crate::model::skill::effect_flag::BLOCK_ACTIONS);
+        assert_eq!(
+            thunder_storm.effect_flags(),
+            crate::model::skill::effect_flag::BLOCK_ACTIONS
+        );
         // A skill with no `<activateRate>` defaults to -1 (always lands): the
         // buff Might 1068.
         let might = sd.get(1068, 1).expect("Might lvl 1");
@@ -2283,9 +2662,15 @@ mod tests {
         assert_eq!(escape.magic_type, 2, "static skill");
         assert_eq!(escape.hit_time, 300_000);
         assert_eq!(escape.target_type, TargetType::Self_);
-        assert!(matches!(escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
+        assert!(matches!(
+            escape.effects.as_slice(),
+            [SkillEffect::EscapeToTown]
+        ));
         let gm_escape = sd.get(2100, 1).expect("Escape: 1 Second lvl 1");
-        assert!(matches!(gm_escape.effects.as_slice(), [SkillEffect::EscapeToTown]));
+        assert!(matches!(
+            gm_escape.effects.as_slice(),
+            [SkillEffect::EscapeToTown]
+        ));
 
         // G15 item-cast slice: `ItemSkillsTemplate` picks the instant vs cast
         // branch from `withoutAction` + the item's `immediate_effect`, and
@@ -2304,7 +2689,12 @@ mod tests {
         assert_eq!(might.item_consume_id, 3933);
         // A potion skill carries no reagent — the item handler consumes it via
         // the item's own `immediate_effect`.
-        assert_eq!(sd.get(2031, 1).expect("Healing Potion lvl 1").item_consume_id, 0);
+        assert_eq!(
+            sd.get(2031, 1)
+                .expect("Healing Potion lvl 1")
+                .item_consume_id,
+            0
+        );
 
         // Blessing of Protection 5182 (Newbie Helper): its `ProtectionBlessing`
         // effect carries no stat modifier — before this arm it fell through to
@@ -2312,7 +2702,10 @@ mod tests {
         // marker so `apply_skill_effects` still creates the icon-only PK_PROTECT
         // buff (7200 s).
         let blessing = sd.get(5182, 1).expect("Blessing of Protection lvl 1");
-        assert!(matches!(blessing.effects.as_slice(), [SkillEffect::ProtectionBlessing]));
+        assert!(matches!(
+            blessing.effects.as_slice(),
+            [SkillEffect::ProtectionBlessing]
+        ));
         assert_eq!(blessing.abnormal_time, 7200);
 
         // The Newbie Helper support buffs must all load with their stat effects
@@ -2320,18 +2713,36 @@ mod tests {
         // 4322 pumps all four move speeds; Shield 4323 is PhysicalDefence;
         // Empower 4331 is MAtk.
         let wind_walk = sd.get(4322, 1).expect("Adventurer's Wind Walk lvl 1");
-        assert_eq!(wind_walk.stat_modifier_effects().len(), 4, "Speed pumps 4 move stats");
-        assert!(!sd.get(4323, 1).expect("Shield").stat_modifier_effects().is_empty());
-        assert!(!sd.get(4331, 1).expect("Empower").stat_modifier_effects().is_empty());
+        assert_eq!(
+            wind_walk.stat_modifier_effects().len(),
+            4,
+            "Speed pumps 4 move stats"
+        );
+        assert!(!sd
+            .get(4323, 1)
+            .expect("Shield")
+            .stat_modifier_effects()
+            .is_empty());
+        assert!(!sd
+            .get(4331, 1)
+            .expect("Empower")
+            .stat_modifier_effects()
+            .is_empty());
 
         // Skill 22490 "Mysterious Spiritshot d 5000" — the `Restoration`
         // effect backing the "Mysterious Blessed Spiritshot Pack (5000)
         // (D-grade)" item (22599). Previously parsed with an empty effect
         // list, so using the pack consumed it and granted nothing.
-        let spiritshot_pack = sd.get(22490, 5).expect("Mysterious Spiritshot d 5000 lvl 5");
+        let spiritshot_pack = sd
+            .get(22490, 5)
+            .expect("Mysterious Spiritshot d 5000 lvl 5");
         assert!(matches!(
             spiritshot_pack.effects.as_slice(),
-            [SkillEffect::GiveItem { item_id: 21852, item_count: 5000, item_enchant_level: 0 }]
+            [SkillEffect::GiveItem {
+                item_id: 21852,
+                item_count: 5000,
+                item_enchant_level: 0
+            }]
         ));
 
         // Skill 323 "Quiver of Arrow" — a real `RestorationRandom` skill
@@ -2341,7 +2752,15 @@ mod tests {
             [SkillEffect::GiveItemRandom { groups }] => {
                 assert_eq!(groups.len(), 3);
                 assert_eq!(groups[0].chance, 30.0);
-                assert_eq!(groups[0].items, vec![RestorationItem { item_id: 1344, count: 700, min_enchant: 0, max_enchant: 0 }]);
+                assert_eq!(
+                    groups[0].items,
+                    vec![RestorationItem {
+                        item_id: 1344,
+                        count: 700,
+                        min_enchant: 0,
+                        max_enchant: 0
+                    }]
+                );
                 assert_eq!(groups[1].chance, 50.0);
                 assert_eq!(groups[1].items[0].count, 1400);
                 assert_eq!(groups[2].chance, 20.0);
@@ -2354,17 +2773,30 @@ mod tests {
         // penalty — each level must carry the registry-known stat maluses so
         // `refresh_expertise_penalty` actually debuffs the over-grade wearer.
         let weapon_pen = sd.get(6209, 1).expect("Weapon Grade Penalty lvl 1");
-        assert!(!weapon_pen.stat_modifier_effects().is_empty(), "6209 must have stat effects");
-        assert!(weapon_pen.stat_modifier_effects().iter().any(|e| e.stat == Stat::PhysicalAttack));
+        assert!(
+            !weapon_pen.stat_modifier_effects().is_empty(),
+            "6209 must have stat effects"
+        );
+        assert!(weapon_pen
+            .stat_modifier_effects()
+            .iter()
+            .any(|e| e.stat == Stat::PhysicalAttack));
         let armor_pen = sd.get(6213, 4).expect("Armor Grade Penalty lvl 4");
-        assert!(!armor_pen.stat_modifier_effects().is_empty(), "6213 must have stat effects");
+        assert!(
+            !armor_pen.stat_modifier_effects().is_empty(),
+            "6213 must have stat effects"
+        );
 
         // Clan Advent (19009) — the clan-leader-online aura applied via the clan
         // login/logout hooks. Permanent (`abnormalTime=-1`) with all six stat
         // effects: PAtk/PDef/MDef/MAtk percent buffs + flat HP/MP regen.
         let advent = sd.get(19009, 1).expect("Clan Advent lvl 1");
         assert_eq!(advent.abnormal_time, -1, "Clan Advent is permanent");
-        let stats: Vec<Stat> = advent.stat_modifier_effects().iter().map(|e| e.stat).collect();
+        let stats: Vec<Stat> = advent
+            .stat_modifier_effects()
+            .iter()
+            .map(|e| e.stat)
+            .collect();
         for want in [
             Stat::PhysicalAttack,
             Stat::PhysicalDefence,
@@ -2373,7 +2805,10 @@ mod tests {
             Stat::RegenerateHpRate,
             Stat::RegenerateMpRate,
         ] {
-            assert!(stats.contains(&want), "Clan Advent must modify {want:?}, got {stats:?}");
+            assert!(
+                stats.contains(&want),
+                "Clan Advent must modify {want:?}, got {stats:?}"
+            );
         }
 
         // Curse Poison 1168: a `DamOverTime` debuff (power 11, ticks 5, no
@@ -2392,7 +2827,9 @@ mod tests {
         // Before the handler existed the effect fell through `EFFECT_REGISTRY`
         // and was dropped, so the cure cast but removed nothing.
         for (lvl, want) in [(1, 3), (2, 7), (3, 9)] {
-            let cure = sd.get(1012, lvl).unwrap_or_else(|| panic!("Cure Poison lvl {lvl}"));
+            let cure = sd
+                .get(1012, lvl)
+                .unwrap_or_else(|| panic!("Cure Poison lvl {lvl}"));
             assert!(
                 matches!(cure.effects.as_slice(), [SkillEffect::DispelBySlot { dispel }] if dispel.as_slice() == [("POISON".to_string(), want)]),
                 "Cure Poison lvl {lvl} dispels POISON,{want}, got {:?}",
@@ -2412,7 +2849,10 @@ mod tests {
         // `Sweeper` then `ConsumeBody` (order matters — claim loot, then decay).
         let sweeper = sd.get(42, 1).expect("Sweeper lvl 1");
         assert_eq!(sweeper.target_type, TargetType::NpcBody);
-        assert!(matches!(sweeper.effects.as_slice(), [SkillEffect::Sweeper, SkillEffect::ConsumeBody]));
+        assert!(matches!(
+            sweeper.effects.as_slice(),
+            [SkillEffect::Sweeper, SkillEffect::ConsumeBody]
+        ));
 
         // Common Craft 1322 / Dwarven Craft 1321: self-target ability skills
         // whose only effect opens the matching recipe window. Both parsed to an
@@ -2420,9 +2860,15 @@ mod tests {
         // were registered, so casting them did nothing at all.
         let common_craft = sd.get(1322, 1).expect("Common Craft lvl 1");
         assert_eq!(common_craft.target_type, TargetType::Self_);
-        assert!(matches!(common_craft.effects.as_slice(), [SkillEffect::OpenRecipeBook { dwarven: false }]));
+        assert!(matches!(
+            common_craft.effects.as_slice(),
+            [SkillEffect::OpenRecipeBook { dwarven: false }]
+        ));
         let dwarven_craft = sd.get(1321, 1).expect("Dwarven Craft lvl 1");
-        assert!(matches!(dwarven_craft.effects.as_slice(), [SkillEffect::OpenRecipeBook { dwarven: true }]));
+        assert!(matches!(
+            dwarven_craft.effects.as_slice(),
+            [SkillEffect::OpenRecipeBook { dwarven: true }]
+        ));
 
         // Community-board buffer skills that previously loaded with an empty
         // effect list (every effect unregistered → dropped whole at the
@@ -2450,12 +2896,21 @@ mod tests {
         // marker. No stat modifier, but the marker keeps the buff off the
         // empty-effects bail so it lands icon-only for its 1200 s.
         let mental_shield = sd.get(1035, 1).expect("Mental Shield lvl 1");
-        assert!(matches!(mental_shield.effects.as_slice(), [SkillEffect::DefenceTrait]));
+        assert!(matches!(
+            mental_shield.effects.as_slice(),
+            [SkillEffect::DefenceTrait]
+        ));
         assert_eq!(mental_shield.abnormal_time, 1200);
         let resist_shock = sd.get(1259, 1).expect("Stun Resistance lvl 1");
-        assert!(matches!(resist_shock.effects.as_slice(), [SkillEffect::DefenceTrait]));
+        assert!(matches!(
+            resist_shock.effects.as_slice(),
+            [SkillEffect::DefenceTrait]
+        ));
         let vampiric_rage = sd.get(1268, 1).expect("Vampiric Rage lvl 1");
-        assert!(matches!(vampiric_rage.effects.as_slice(), [SkillEffect::VampiricAttack]));
+        assert!(matches!(
+            vampiric_rage.effects.as_slice(),
+            [SkillEffect::VampiricAttack]
+        ));
     }
 
     /// A trimmed Wind Strike (1177): per-level `targetType` and
@@ -2512,11 +2967,15 @@ mod tests {
         assert_eq!(l1.reuse_delay, 1200);
         assert_eq!(l1.mp_consume, 7);
         assert_eq!(l1.mp_initial_consume, 2);
-        assert!(matches!(l1.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0));
+        assert!(
+            matches!(l1.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 12.0)
+        );
 
         let l2 = out.skills.get(&(1177, 2)).expect("level 2 parsed");
         assert_eq!(l2.target_type, TargetType::Enemy);
-        assert!(matches!(l2.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 13.0));
+        assert!(
+            matches!(l2.effects.as_slice(), [SkillEffect::MagicalAttack { power }] if *power == 13.0)
+        );
     }
 
     /// A Heal-shaped effect parses to `SkillEffect::Heal`; a stat-modifier
@@ -2653,7 +3112,10 @@ mod tests {
         );
         let soc = out.skills.get(&(8547, 1)).expect("Song of Champion parsed");
         assert!(
-            matches!(soc.effects.as_slice(), [SkillEffect::MagicMpCost, SkillEffect::Reuse]),
+            matches!(
+                soc.effects.as_slice(),
+                [SkillEffect::MagicMpCost, SkillEffect::Reuse]
+            ),
             "MagicMpCost/Reuse are not dropped"
         );
         let sov = out.skills.get(&(305, 1)).expect("Song of Vengeance parsed");
@@ -2718,23 +3180,35 @@ mod tests {
         let inv = out.skills.get(&(1372, 1)).expect("Expand Inventory parsed");
         assert!(
             matches!(inv.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::InventoryNormal, amount, .. })] if *amount == 6.0),
-            "no <type> defaults to INVENTORY_NORMAL: {:?}", inv.effects
+            "no <type> defaults to INVENTORY_NORMAL: {:?}",
+            inv.effects
         );
-        let dwc = out.skills.get(&(1368, 1)).expect("Expand Dwarven Craft parsed");
+        let dwc = out
+            .skills
+            .get(&(1368, 1))
+            .expect("Expand Dwarven Craft parsed");
         assert!(
             matches!(dwc.effects.as_slice(), [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::RecipeDwarven, amount, .. })] if *amount == 6.0),
-            "type=RECIPE_DWARVEN picked: {:?}", dwc.effects
+            "type=RECIPE_DWARVEN picked: {:?}",
+            dwc.effects
         );
         let trade = out.skills.get(&(1370, 1)).expect("Expand Trade parsed");
         assert!(
             matches!(
                 trade.effects.as_slice(),
                 [
-                    SkillEffect::StatModifier(StatModifierEffect { stat: Stat::TradeBuy, .. }),
-                    SkillEffect::StatModifier(StatModifierEffect { stat: Stat::TradeSell, .. }),
+                    SkillEffect::StatModifier(StatModifierEffect {
+                        stat: Stat::TradeBuy,
+                        ..
+                    }),
+                    SkillEffect::StatModifier(StatModifierEffect {
+                        stat: Stat::TradeSell,
+                        ..
+                    }),
                 ]
             ),
-            "both TRADE_BUY and TRADE_SELL land: {:?}", trade.effects
+            "both TRADE_BUY and TRADE_SELL land: {:?}",
+            trade.effects
         );
     }
 
@@ -2790,22 +3264,32 @@ mod tests {
         let aggression = out.skills.get(&(28, 1)).expect("Aggression parsed");
         assert!(
             matches!(aggression.effects.as_slice(), [SkillEffect::GetAgro]),
-            "GetAgro lands (TargetMe stays unported, dropped): {:?}", aggression.effects
+            "GetAgro lands (TargetMe stays unported, dropped): {:?}",
+            aggression.effects
         );
         let charm = out.skills.get(&(15, 1)).expect("Charm parsed");
         assert!(
             matches!(charm.effects.as_slice(), [SkillEffect::AddHate { power }] if *power == 500.0),
-            "AddHate power=500: {:?}", charm.effects
+            "AddHate power=500: {:?}",
+            charm.effects
         );
         let eva = out.skills.get(&(1273, 1)).expect("Eva's Serenade parsed");
         assert!(
-            matches!(eva.effects.as_slice(), [SkillEffect::DeleteHate { chance: 80 }]),
-            "DeleteHate chance=80: {:?}", eva.effects
+            matches!(
+                eva.effects.as_slice(),
+                [SkillEffect::DeleteHate { chance: 80 }]
+            ),
+            "DeleteHate chance=80: {:?}",
+            eva.effects
         );
         let forget = out.skills.get(&(1156, 1)).expect("Forget parsed");
         assert!(
-            matches!(forget.effects.as_slice(), [SkillEffect::DeleteHateOfMe { chance: 80 }]),
-            "DeleteHateOfMe chance=80: {:?}", forget.effects
+            matches!(
+                forget.effects.as_slice(),
+                [SkillEffect::DeleteHateOfMe { chance: 80 }]
+            ),
+            "DeleteHateOfMe chance=80: {:?}",
+            forget.effects
         );
     }
 
@@ -2849,17 +3333,27 @@ mod tests {
         assert!(
             matches!(
                 cancellation.effects.as_slice(),
-                [SkillEffect::DispelByCategory { slot: DispelSlot::Buff, rate: 25, max: 5 }]
+                [SkillEffect::DispelByCategory {
+                    slot: DispelSlot::Buff,
+                    rate: 25,
+                    max: 5
+                }]
             ),
-            "BUFF/25/5: {:?}", cancellation.effects
+            "BUFF/25/5: {:?}",
+            cancellation.effects
         );
         let cleanse = out.skills.get(&(1409, 1)).expect("Cleanse parsed");
         assert!(
             matches!(
                 cleanse.effects.as_slice(),
-                [SkillEffect::DispelByCategory { slot: DispelSlot::Debuff, rate: 100, max: 10 }]
+                [SkillEffect::DispelByCategory {
+                    slot: DispelSlot::Debuff,
+                    rate: 100,
+                    max: 10
+                }]
             ),
-            "DEBUFF/100/10: {:?}", cleanse.effects
+            "DEBUFF/100/10: {:?}",
+            cleanse.effects
         );
     }
 
@@ -2904,7 +3398,8 @@ mod tests {
                 [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Diff, amount, weapon_condition, .. })]
                     if *amount == 50.0 && *weapon_condition != 0
             ),
-            "DIFF +50, bow-conditioned: {:?}", archery.effects
+            "DIFF +50, bow-conditioned: {:?}",
+            archery.effects
         );
         let rapid_fire = out.skills.get(&(413, 1)).expect("Rapid Fire parsed");
         assert!(
@@ -2913,7 +3408,8 @@ mod tests {
                 [SkillEffect::StatModifier(StatModifierEffect { stat: Stat::PhysicalAttackRange, mode: StatModifierType::Per, amount, weapon_condition, .. })]
                     if *amount == -50.0 && *weapon_condition != 0
             ),
-            "PER -50, bow-conditioned: {:?}", rapid_fire.effects
+            "PER -50, bow-conditioned: {:?}",
+            rapid_fire.effects
         );
     }
 
@@ -2942,19 +3438,42 @@ mod tests {
         </list>"#;
         let mut out = ParsedSkills::default();
         parse_str(xml, &mut out);
-        let mut sd = SkillData { skills: out.skills, enchanted: out.enchanted, routes: out.routes };
+        let mut sd = SkillData {
+            skills: out.skills,
+            enchanted: out.enchanted,
+            routes: out.routes,
+        };
 
         let list = HashMap::from([(1078, 7200), (9999, 7200)]);
         sd.apply_skill_duration_list(&list);
 
-        assert_eq!(sd.get(1078, 1).unwrap().abnormal_time, 7200, "active buff time replaced");
-        assert_eq!(sd.get(9999, 1).unwrap().abnormal_time, 1200, "toggle is exempt");
-        assert_eq!(sd.get(5555, 1).unwrap().abnormal_time, 1200, "skill not in list is untouched");
+        assert_eq!(
+            sd.get(1078, 1).unwrap().abnormal_time,
+            7200,
+            "active buff time replaced"
+        );
+        assert_eq!(
+            sd.get(9999, 1).unwrap().abnormal_time,
+            1200,
+            "toggle is exempt"
+        );
+        assert_eq!(
+            sd.get(5555, 1).unwrap().abnormal_time,
+            1200,
+            "skill not in list is untouched"
+        );
 
         // Enchanted levels (100..=140) add rather than replace.
-        let enchanted = Skill { level: 101, ..sd.get(1078, 1).unwrap().clone() };
+        let enchanted = Skill {
+            level: 101,
+            ..sd.get(1078, 1).unwrap().clone()
+        };
         sd.insert_for_test(enchanted);
         sd.apply_skill_duration_list(&HashMap::from([(1078, 100)]));
-        assert_eq!(sd.get(1078, 101).unwrap().abnormal_time, 7300, "enchanted level adds to base");
+        assert_eq!(
+            sd.get(1078, 101).unwrap().abnormal_time,
+            7300,
+            "enchanted level adds to base"
+        );
     }
 }

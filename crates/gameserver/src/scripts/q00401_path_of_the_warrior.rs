@@ -46,8 +46,13 @@ const WARRIOR: i32 = 1;
 const MIN_LEVEL: i32 = 19;
 
 const QUEST_ITEMS: [i32; 7] = [
-    AURONS_LETTER, WARRIOR_GUILD_MARK, RUSTED_BRONZE_SWORD1, RUSTED_BRONZE_SWORD2,
-    RUSTED_BRONZE_SWORD3, SIMPLONS_LETTER, VENOMOUS_SPIDERS_LEG,
+    AURONS_LETTER,
+    WARRIOR_GUILD_MARK,
+    RUSTED_BRONZE_SWORD1,
+    RUSTED_BRONZE_SWORD2,
+    RUSTED_BRONZE_SWORD3,
+    SIMPLONS_LETTER,
+    VENOMOUS_SPIDERS_LEG,
 ];
 
 pub struct Q00401PathOfTheWarrior;
@@ -69,7 +74,12 @@ impl QuestScript for Q00401PathOfTheWarrior {
         &[MASTER_AURON, TRADER_SIMPLON]
     }
     fn kill_npcs(&self) -> &[i32] {
-        &[TRACKER_SKELETON, VENOMOUS_SPIDERS, TRACKER_SKELETON_LIDER, ARACHNID_TRACKER]
+        &[
+            TRACKER_SKELETON,
+            VENOMOUS_SPIDERS,
+            TRACKER_SKELETON_LIDER,
+            ARACHNID_TRACKER,
+        ]
     }
     /// Only the spiders are tagged — the skeletons pay on a plain roll.
     fn attack_npcs(&self) -> &[i32] {

@@ -2,7 +2,9 @@
 //! **login server's** own packet code (added as a dev-dependency). Proves the
 //! game side and login side agree byte-for-byte without spinning up sockets.
 
-use commons::crypt::{gs_decrypt, gs_encrypt, NewCrypt, RawRsaKeyPair, RsaPublicModulus, GS_STATIC_BLOWFISH_KEY};
+use commons::crypt::{
+    gs_decrypt, gs_encrypt, NewCrypt, RawRsaKeyPair, RsaPublicModulus, GS_STATIC_BLOWFISH_KEY,
+};
 use commons::network::PacketReader;
 use gameserver::loginlink::packets as gs;
 use gameserver::session::SessionKey;
@@ -32,11 +34,20 @@ fn ls_to_gs_packets_parse() {
     assert!(!par.authed);
 
     // KickPlayer / RequestCharacters: a single account string.
-    assert_eq!(gs::read_account(&ls::kick_player("bob")[1..]).unwrap(), "bob");
-    assert_eq!(gs::read_account(&ls::request_characters("bob")[1..]).unwrap(), "bob");
+    assert_eq!(
+        gs::read_account(&ls::kick_player("bob")[1..]).unwrap(),
+        "bob"
+    );
+    assert_eq!(
+        gs::read_account(&ls::request_characters("bob")[1..]).unwrap(),
+        "bob"
+    );
 
     // LoginServerFail: reason code.
-    assert_eq!(gs::read_login_server_fail(&ls::login_server_fail(7)[1..]).unwrap(), 7);
+    assert_eq!(
+        gs::read_login_server_fail(&ls::login_server_fail(7)[1..]).unwrap(),
+        7
+    );
 }
 
 /// GS→LS `BlowFishKey` RSA block decrypts on the LS side to the original key.
@@ -55,7 +66,10 @@ fn blowfish_key_rsa_roundtrips_to_ls() {
 
     // LS decrypts with its private key and strips leading zeros (as it does live).
     let decrypted = pair.decrypt_raw(block);
-    let first = decrypted.iter().position(|&b| b != 0).unwrap_or(decrypted.len());
+    let first = decrypted
+        .iter()
+        .position(|&b| b != 0)
+        .unwrap_or(decrypted.len());
     assert_eq!(&decrypted[first..], &key[..]);
 }
 

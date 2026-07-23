@@ -30,7 +30,10 @@ pub async fn read_frame<R: AsyncRead + Unpin>(
 }
 
 /// Writes one frame: header (payload length + 2, LE) followed by the payload.
-pub async fn write_frame<W: AsyncWrite + Unpin>(write: &mut W, payload: &[u8]) -> std::io::Result<()> {
+pub async fn write_frame<W: AsyncWrite + Unpin>(
+    write: &mut W,
+    payload: &[u8],
+) -> std::io::Result<()> {
     let total = (payload.len() + HEADER_SIZE) as u16;
     write.write_all(&total.to_le_bytes()).await?;
     write.write_all(payload).await?;

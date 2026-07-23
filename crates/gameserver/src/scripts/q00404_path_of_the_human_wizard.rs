@@ -119,8 +119,18 @@ const DROPS: [Drop; 3] = [
 ];
 
 const QUEST_ITEMS: [i32; 12] = [
-    MAP_OF_LUSTER, KEY_OF_FLAME, FLAME_EARING, BROKEN_BRONZE_MIRROR, WIND_FEATHER, WIND_BANGLE,
-    RAMAS_DIARY, SPARKLE_PEBBLE, WATER_NECKLACE, RUSTY_COIN, RED_SOIL, EARTH_RING,
+    MAP_OF_LUSTER,
+    KEY_OF_FLAME,
+    FLAME_EARING,
+    BROKEN_BRONZE_MIRROR,
+    WIND_FEATHER,
+    WIND_BANGLE,
+    RAMAS_DIARY,
+    SPARKLE_PEBBLE,
+    WATER_NECKLACE,
+    RUSTY_COIN,
+    RED_SOIL,
+    EARTH_RING,
 ];
 
 pub struct Q00404PathOfTheHumanWizard;
@@ -139,7 +149,14 @@ impl QuestScript for Q00404PathOfTheHumanWizard {
         &[PARINA]
     }
     fn talk_npcs(&self) -> &[i32] {
-        &[PARINA, EARTH_SNAKE, WASTELAND_LIZARDMAN, FLAME_SALAMANDER, WIND_SYLPH, WATER_UNDINE]
+        &[
+            PARINA,
+            EARTH_SNAKE,
+            WASTELAND_LIZARDMAN,
+            FLAME_SALAMANDER,
+            WIND_SYLPH,
+            WATER_UNDINE,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
         &[RED_BEAR, RATMAN_WARRIOR, WATER_SEER]
@@ -153,20 +170,18 @@ impl QuestScript for Q00404PathOfTheHumanWizard {
             return None;
         }
         match event {
-            "ACCEPT" => Some(
-                match ctx.player_class_id() {
-                    MAGE if ctx.player_level() < MIN_LEVEL => "30391-02.htm".to_string(),
-                    MAGE if ctx.quest_items_count(BEAD_OF_SEASON) > 0 => "30391-03.htm".to_string(),
-                    MAGE => {
-                        // `ACCEPT` starts the quest directly here — there is no
-                        // separate confirmation page as in 401/403.
-                        ctx.start_quest();
-                        "30391-07.htm".to_string()
-                    }
-                    WIZARD => "30391-02a.htm".to_string(),
-                    _ => "30391-01.htm".to_string(),
-                },
-            ),
+            "ACCEPT" => Some(match ctx.player_class_id() {
+                MAGE if ctx.player_level() < MIN_LEVEL => "30391-02.htm".to_string(),
+                MAGE if ctx.quest_items_count(BEAD_OF_SEASON) > 0 => "30391-03.htm".to_string(),
+                MAGE => {
+                    // `ACCEPT` starts the quest directly here — there is no
+                    // separate confirmation page as in 401/403.
+                    ctx.start_quest();
+                    "30391-07.htm".to_string()
+                }
+                WIZARD => "30391-02a.htm".to_string(),
+                _ => "30391-01.htm".to_string(),
+            }),
             "30410-02.html" => Some(event.to_string()),
             // Wind's collectable is handed over in dialog, not dropped.
             "30410-03.html" => {
@@ -236,8 +251,12 @@ impl QuestScript for Q00404PathOfTheHumanWizard {
                 return Some(ctx.no_quest_html());
             }
             return Some(
-                if ctx.quest_items_count(WIND_FEATHER) == 0 { "30410-01.html" } else { "30410-04.html" }
-                    .to_string(),
+                if ctx.quest_items_count(WIND_FEATHER) == 0 {
+                    "30410-01.html"
+                } else {
+                    "30410-04.html"
+                }
+                .to_string(),
             );
         }
         let Some(e) = ELEMENTS.iter().find(|e| e.npc == npc) else {

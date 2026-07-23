@@ -9,11 +9,11 @@ use super::*;
 #[test]
 fn the_wire_carries_eleven_ints_and_drops_range() {
     let pkt = crate::network::server_packets::special_camera(
-        1_000, // object id
-        1_800, // force
-        180,   // angle1
-        -1,    // angle2
-        1_500, // time
+        1_000,  // object id
+        1_800,  // force
+        180,    // angle1
+        -1,     // angle2
+        1_500,  // time
         15_000, // range — dropped
         10_000, // duration
         0, 0, 1, 0, 0,

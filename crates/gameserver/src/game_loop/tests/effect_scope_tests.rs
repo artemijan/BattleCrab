@@ -31,15 +31,23 @@ fn vengeance_self_effect_now_loads() {
     let v = skills.get(368, 1).expect("Vengeance loads");
 
     assert!(
-        v.self_effects.iter().any(|e| matches!(e, SkillEffect::BlockMove)),
+        v.self_effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::BlockMove)),
         "its BlockMove is in self_effects: {:?}",
         v.self_effects
     );
     assert!(
-        !v.effects.iter().any(|e| matches!(e, SkillEffect::BlockMove)),
+        !v.effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::BlockMove)),
         "and not duplicated into the general list"
     );
-    assert!(v.effects.len() >= 3, "its ordinary <effects> still load: {:?}", v.effects);
+    assert!(
+        v.effects.len() >= 3,
+        "its ordinary <effects> still load: {:?}",
+        v.effects
+    );
 }
 
 /// The other learnable `<selfEffects>` carriers. Every one of them holds an
@@ -52,8 +60,14 @@ fn the_learnable_self_effect_skills_all_load_something() {
     // (FocusMomentum), Evade Shot 369 (PhysicalEvasion), Critical Blow 409
     // (FatalBlowRate).
     for id in [321, 345, 346, 369, 409] {
-        let skill = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} loads"));
-        assert!(!skill.self_effects.is_empty(), "skill {id} has self effects: {:?}", skill.self_effects);
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} loads"));
+        assert!(
+            !skill.self_effects.is_empty(),
+            "skill {id} has self effects: {:?}",
+            skill.self_effects
+        );
     }
 }
 
@@ -72,7 +86,10 @@ fn critical_blow_self_buffs_its_own_blow_rate() {
             _ => None,
         })
         .collect();
-    assert!(self_mods.contains(&Stat::BlowRate), "self-buffs BlowRate: {self_mods:?}");
+    assert!(
+        self_mods.contains(&Stat::BlowRate),
+        "self-buffs BlowRate: {self_mods:?}"
+    );
 }
 
 /// Scopes the port can't act on (`startEffects`, `endEffects`) are parsed as
@@ -92,7 +109,10 @@ fn unsupported_scopes_are_dropped_not_merged() {
         anchor.pve_effects.is_empty() && anchor.pvp_effects.is_empty(),
         "no stray scope contents on Anchor"
     );
-    assert!(general_and_self > 0, "sanity: Anchor still loads its ordinary effects");
+    assert!(
+        general_and_self > 0,
+        "sanity: Anchor still loads its ordinary effects"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -122,7 +142,10 @@ fn a_self_effect_lands_on_the_caster() {
     world.data.skill_data.insert_for_test(skill.clone());
 
     // Apply the self scope the way the cast path does.
-    let self_skill = crate::model::skill::Skill { effects: skill.self_effects.clone(), ..skill.clone() };
+    let self_skill = crate::model::skill::Skill {
+        effects: skill.self_effects.clone(),
+        ..skill.clone()
+    };
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &self_skill);
 
     assert_ne!(
@@ -143,7 +166,10 @@ fn a_self_effect_lands_on_the_caster() {
 #[test]
 fn skill_default_uses_javas_sentinels() {
     let d = crate::model::skill::Skill::default();
-    assert_eq!(d.activate_rate, -1, "\"no declared rate\" — never reflected, always lands");
+    assert_eq!(
+        d.activate_rate, -1,
+        "\"no declared rate\" — never reflected, always lands"
+    );
     assert_eq!(d.reuse_delay_group, -1, "\"no group\"");
     assert_eq!(d.abnormal_type, "NONE");
     assert!(d.effects.is_empty() && d.self_effects.is_empty());
@@ -178,7 +204,10 @@ fn self_scope_buffs_use_the_normal_pipeline() {
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, CASTER, &skill);
 
     assert!(
-        world.objects.get_component::<Buffs>(&CASTER).is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9951)),
+        world
+            .objects
+            .get_component::<Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9951)),
         "it lands as an ordinary timed buff"
     );
 }

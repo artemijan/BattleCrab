@@ -70,9 +70,10 @@ pub(crate) fn resolve_at_boot(world: &mut World) {
                 .map(|b| b.respawn_time - commons::util::now_millis())
                 .unwrap_or(0);
             if remaining > 0 {
-                world
-                    .scheduler
-                    .schedule(world.tick + (remaining / 1000).max(1) as u64 * TICKS_PER_SECOND, ScheduledTask::DrChaosReset);
+                world.scheduler.schedule(
+                    world.tick + (remaining / 1000).max(1) as u64 * TICKS_PER_SECOND,
+                    ScheduledTask::DrChaosReset,
+                );
             } else {
                 // The window elapsed while the server was down — Dr. Chaos
                 // returns now (the boss-lifecycle "elapsed during downtime"
@@ -98,8 +99,13 @@ fn spawn_dr_chaos(world: &mut World) {
         return;
     };
     crate::game_loop::death::introduce_npc(world, oid);
-    world.objects.add_components(&oid, DrChaosState { pissed_off: 30 });
-    world.scheduler.schedule(world.tick + PARANOIA_TICKS, ScheduledTask::DrChaosParanoia { dr_chaos_oid: oid });
+    world
+        .objects
+        .add_components(&oid, DrChaosState { pissed_off: 30 });
+    world.scheduler.schedule(
+        world.tick + PARANOIA_TICKS,
+        ScheduledTask::DrChaosParanoia { dr_chaos_oid: oid },
+    );
 }
 
 /// `paranoia_activity` — drain the timer by one per nearby living player, bark
@@ -109,14 +115,23 @@ pub(crate) fn handle_paranoia(world: &mut World, dr_chaos_oid: i32) {
         return; // stopped (transformed or reset)
     }
     // Dr. Chaos may have been removed/replaced; bail if the timer is gone.
-    if world.objects.get_component::<DrChaosState>(&dr_chaos_oid).is_none() {
+    if world
+        .objects
+        .get_component::<DrChaosState>(&dr_chaos_oid)
+        .is_none()
+    {
         return;
     }
     let nearby = living_players_near(world, dr_chaos_oid, PARANOIA_RANGE);
     let mut transformed = false;
     for _ in 0..nearby {
         let timer = {
-            let Some(st) = world.objects.get_component_mut::<DrChaosState>(&dr_chaos_oid) else { break };
+            let Some(st) = world
+                .objects
+                .get_component_mut::<DrChaosState>(&dr_chaos_oid)
+            else {
+                break;
+            };
             st.pissed_off -= 1;
             st.pissed_off
         };
@@ -134,7 +149,10 @@ pub(crate) fn handle_paranoia(world: &mut World, dr_chaos_oid: i32) {
         }
     }
     if !transformed {
-        world.scheduler.schedule(world.tick + PARANOIA_TICKS, ScheduledTask::DrChaosParanoia { dr_chaos_oid });
+        world.scheduler.schedule(
+            world.tick + PARANOIA_TICKS,
+            ScheduledTask::DrChaosParanoia { dr_chaos_oid },
+        );
     }
 }
 
@@ -145,7 +163,9 @@ fn become_angry(world: &mut World, dr_chaos_oid: i32) {
         return;
     }
     set_status(world, CRAZY);
-    world.objects.remove_component::<DrChaosState>(&dr_chaos_oid);
+    world
+        .objects
+        .remove_component::<DrChaosState>(&dr_chaos_oid);
     // `setIntention(MOVE_TO, grotto)` — cosmetic; teleport rather than model
     // the walk (scripted bosses teleport elsewhere in the port too).
     crate::game_loop::death::relocate_npc(world, dr_chaos_oid, GROTTO.0, GROTTO.1, GROTTO.2, 0);
@@ -154,7 +174,13 @@ fn become_angry(world: &mut World, dr_chaos_oid: i32) {
         dr_chaos_oid,
         "Fools! Why haven't you fled yet? Prepare to learn a lesson!",
     );
-    for (step, delay_ms) in [(1u8, 2_000u64), (2, 4_000), (3, 6_500), (4, 12_500), (5, 17_000)] {
+    for (step, delay_ms) in [
+        (1u8, 2_000u64),
+        (2, 4_000),
+        (3, 6_500),
+        (4, 12_500),
+        (5, 17_000),
+    ] {
         world.scheduler.schedule(
             world.tick + delay_ms / 1000 * TICKS_PER_SECOND,
             ScheduledTask::DrChaosTransform { dr_chaos_oid, step },
@@ -169,17 +195,36 @@ pub(crate) fn handle_transform(world: &mut World, dr_chaos_oid: i32, step: u8) {
     match step {
         1 => {
             broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 2));
-            broadcast_near(world, dr_chaos_oid, &special_camera(dr_chaos_oid, 1, -200, 15, 5500, 1000, 13500, 0, 0, 0, 0, 0));
+            broadcast_near(
+                world,
+                dr_chaos_oid,
+                &special_camera(dr_chaos_oid, 1, -200, 15, 5500, 1000, 13500, 0, 0, 0, 0, 0),
+            );
         }
         2 => broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 3)),
         3 => broadcast_near(world, dr_chaos_oid, &social_action(dr_chaos_oid, 1)),
         4 => {
-            broadcast_near(world, dr_chaos_oid, &special_camera(dr_chaos_oid, 1, -150, 10, 3500, 1000, 5000, 0, 0, 0, 0, 0));
-            crate::game_loop::death::relocate_npc(world, dr_chaos_oid, GROTTO.0, GROTTO.1, GROTTO.2, 0);
+            broadcast_near(
+                world,
+                dr_chaos_oid,
+                &special_camera(dr_chaos_oid, 1, -150, 10, 3500, 1000, 5000, 0, 0, 0, 0, 0),
+            );
+            crate::game_loop::death::relocate_npc(
+                world,
+                dr_chaos_oid,
+                GROTTO.0,
+                GROTTO.1,
+                GROTTO.2,
+                0,
+            );
         }
         5 => {
             // Delete Dr. Chaos, spawn the golem with its intro.
-            if let Some(region) = world.objects.get_component::<RegionCell>(&dr_chaos_oid).map(|r| r.0) {
+            if let Some(region) = world
+                .objects
+                .get_component::<RegionCell>(&dr_chaos_oid)
+                .map(|r| r.0)
+            {
                 crate::game_loop::death::despawn_npc(world, dr_chaos_oid, region);
             }
             spawn_golem(world, GOLEM_SPAWN.0, GOLEM_SPAWN.1, GOLEM_SPAWN.2, false);
@@ -195,19 +240,33 @@ fn spawn_golem(world: &mut World, x: i32, y: i32, z: i32, restore: bool) -> Opti
     use crate::network::server_packets::{play_sound, social_action, special_camera};
     let oid = crate::model::npc::spawn_npc_at(world, CHAOS_GOLEM, x, y, z, 0)?;
     crate::game_loop::death::introduce_npc(world, oid);
-    world.objects.add_components(&oid, DrChaosGolem { last_attack_tick: world.tick });
+    world.objects.add_components(
+        &oid,
+        DrChaosGolem {
+            last_attack_tick: world.tick,
+        },
+    );
     if !restore {
-        broadcast_near(world, oid, &special_camera(oid, 30, 200, 20, 6000, 700, 8000, 0, 0, 0, 0, 0));
+        broadcast_near(
+            world,
+            oid,
+            &special_camera(oid, 30, 200, 20, 6000, 700, 8000, 0, 0, 0, 0, 0),
+        );
         broadcast_near(world, oid, &social_action(oid, 1));
         broadcast_near(world, oid, &play_sound("Rm03_A"));
     }
-    world.scheduler.schedule(world.tick + DESPAWN_CHECK_TICKS, ScheduledTask::DrChaosGolemDespawn { golem_oid: oid });
+    world.scheduler.schedule(
+        world.tick + DESPAWN_CHECK_TICKS,
+        ScheduledTask::DrChaosGolemDespawn { golem_oid: oid },
+    );
     Some(oid)
 }
 
 /// Boot's CRAZY branch: respawn the golem at its stored location/vitals.
 fn respawn_golem_from_record(world: &mut World) {
-    let Some(b) = world.grand_bosses.get(&CHAOS_GOLEM).cloned() else { return };
+    let Some(b) = world.grand_bosses.get(&CHAOS_GOLEM).cloned() else {
+        return;
+    };
     if let Some(oid) = spawn_golem(world, b.loc_x, b.loc_y, b.loc_z, true) {
         if b.current_hp > 0.0 {
             if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
@@ -220,15 +279,28 @@ fn respawn_golem_from_record(world: &mut World) {
 
 /// `golem_despawn` — 30 idle minutes reverts to Dr. Chaos; else reschedule.
 pub(crate) fn handle_golem_despawn(world: &mut World, golem_oid: i32) {
-    let Some(g) = world.objects.get_component::<DrChaosGolem>(&golem_oid).copied() else { return };
+    let Some(g) = world
+        .objects
+        .get_component::<DrChaosGolem>(&golem_oid)
+        .copied()
+    else {
+        return;
+    };
     if world.tick.saturating_sub(g.last_attack_tick) >= GOLEM_IDLE_TICKS {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&golem_oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&golem_oid)
+            .map(|r| r.0)
+        {
             crate::game_loop::death::despawn_npc(world, golem_oid, region);
         }
         set_status(world, NORMAL);
         spawn_dr_chaos(world);
     } else {
-        world.scheduler.schedule(world.tick + DESPAWN_CHECK_TICKS, ScheduledTask::DrChaosGolemDespawn { golem_oid });
+        world.scheduler.schedule(
+            world.tick + DESPAWN_CHECK_TICKS,
+            ScheduledTask::DrChaosGolemDespawn { golem_oid },
+        );
     }
 }
 
@@ -250,7 +322,11 @@ pub(crate) fn on_golem_attacked(world: &mut World, golem_oid: i32) {
 
 /// `onKill` (golem): DEAD, a `(36 ± 24)h` reset, and the parting bark.
 pub(crate) fn on_golem_killed(world: &mut World, golem_oid: i32) {
-    crate::game_loop::helpers::npc_say_text(world, golem_oid, "Urggh! You will pay dearly for this insult.");
+    crate::game_loop::helpers::npc_say_text(
+        world,
+        golem_oid,
+        "Urggh! You will pay dearly for this insult.",
+    );
     // `(36 + Rnd.get(-24, 24))` hours — a 12..=60 h window.
     let hours = 36 + (world.roll(49) - 24);
     let respawn_millis = hours.max(1) as i64 * MILLIS_PER_HOUR;
@@ -292,7 +368,12 @@ pub(crate) fn on_first_talk(world: &mut World, dr_chaos_oid: i32) -> Option<Stri
     }
     let drain = 1 + world.roll(5);
     let timer = {
-        let Some(st) = world.objects.get_component_mut::<DrChaosState>(&dr_chaos_oid) else { return None };
+        let Some(st) = world
+            .objects
+            .get_component_mut::<DrChaosState>(&dr_chaos_oid)
+        else {
+            return None;
+        };
         st.pissed_off -= drain;
         st.pissed_off
     };
@@ -311,7 +392,9 @@ pub(crate) fn on_first_talk(world: &mut World, dr_chaos_oid: i32) -> Option<Stri
 // -- helpers ----------------------------------------------------------------
 
 fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
-    let Some(origin) = world.objects.get_component::<Position>(&oid).copied() else { return 0 };
+    let Some(origin) = world.objects.get_component::<Position>(&oid).copied() else {
+        return 0;
+    };
     world
         .clients
         .values()
@@ -320,11 +403,17 @@ fn living_players_near(world: &World, oid: i32, range: f64) -> usize {
             _ => None,
         })
         .filter(|p| {
-            let alive = world.objects.get_component::<Vitals>(p).is_some_and(|v| !v.dead);
-            let near = world.objects.get_component::<Position>(p).is_some_and(|pos| {
-                let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);
-                (dx * dx + dy * dy).sqrt() <= range
-            });
+            let alive = world
+                .objects
+                .get_component::<Vitals>(p)
+                .is_some_and(|v| !v.dead);
+            let near = world
+                .objects
+                .get_component::<Position>(p)
+                .is_some_and(|pos| {
+                    let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);
+                    (dx * dx + dy * dy).sqrt() <= range
+                });
             alive && near
         })
         .count()

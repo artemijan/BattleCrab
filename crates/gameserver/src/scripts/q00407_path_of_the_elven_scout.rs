@@ -51,15 +51,26 @@ const MIN_LEVEL: i32 = 19;
 const VARIABLE: &str = "variable";
 
 const QUEST_ITEMS: [i32; 10] = [
-    REISAS_LETTER, 1208, 1209, 1210, 1211, MORETTIES_HERB, MORETTIS_LETTER, PRIASS_LETTER,
-    HONORARY_GUARD, RUSTED_KEY,
+    REISAS_LETTER,
+    1208,
+    1209,
+    1210,
+    1211,
+    MORETTIES_HERB,
+    MORETTIS_LETTER,
+    PRIASS_LETTER,
+    HONORARY_GUARD,
+    RUSTED_KEY,
 ];
 
 pub struct Q00407PathOfTheElvenScout;
 
 impl Q00407PathOfTheElvenScout {
     fn letter_count(&self, ctx: &QuestCtx) -> i64 {
-        TORN_LETTERS.iter().map(|id| ctx.quest_items_count(*id)).sum()
+        TORN_LETTERS
+            .iter()
+            .map(|id| ctx.quest_items_count(*id))
+            .sum()
     }
 
     /// Java's `giveLetterAndCheckState`: the fourth letter advances the cond,
@@ -166,7 +177,10 @@ impl QuestScript for Q00407PathOfTheElvenScout {
             return;
         }
         // The four torn letters drop in a fixed order, one per kill.
-        if let Some(&next) = TORN_LETTERS.iter().find(|id| ctx.quest_items_count(**id) == 0) {
+        if let Some(&next) = TORN_LETTERS
+            .iter()
+            .find(|id| ctx.quest_items_count(**id) == 0)
+        {
             self.give_letter(ctx, next);
         }
     }

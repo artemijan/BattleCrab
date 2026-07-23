@@ -18,10 +18,21 @@ use super::helpers::client_for_player;
 /// introduces `p`, tell the observer about in-flight state — currently just an
 /// ongoing move (without it, a mover entering visibility stands still on the
 /// observer's screen until the next `MoveToLocation` broadcast).
-fn describe_state(observer: &ClientSession, p: &Player, pos: &Position, movement: Option<&Movement>) {
+fn describe_state(
+    observer: &ClientSession,
+    p: &Player,
+    pos: &Position,
+    movement: Option<&Movement>,
+) {
     if let Some(Movement(m)) = movement {
         observer.send(server_packets::move_to_location(
-            p.object_id, m.dest_x, m.dest_y, m.dest_z, pos.x, pos.y, pos.z,
+            p.object_id,
+            m.dest_x,
+            m.dest_y,
+            m.dest_z,
+            pos.x,
+            pos.y,
+            pos.z,
         ));
     }
 }
@@ -32,14 +43,22 @@ fn describe_state(observer: &ClientSession, p: &Player, pos: &Position, movement
 /// has no incremental packet on this chronicle, so the whole record goes again.
 pub(crate) fn refresh_char_info(world: &World, player_id: i32) {
     use crate::model::components::RegionCell;
-    let Some(from) = world.objects.get_component::<RegionCell>(&player_id).copied() else { return };
+    let Some(from) = world
+        .objects
+        .get_component::<RegionCell>(&player_id)
+        .copied()
+    else {
+        return;
+    };
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
             if other_id == player_id {
                 continue;
             }
-            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else { continue };
+            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else {
+                continue;
+            };
             if crate::world::regions_adjacent(from.0, other.0) {
                 send_char_info(world, cs, player_id);
             }
@@ -58,21 +77,36 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
     {
         return;
     }
-    let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else { return };
+    let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else {
+        return;
+    };
     let cubics = world
         .objects
         .get_component::<super::cubic::Cubics>(&player_id)
         .map(|c| c.ids())
         .unwrap_or_default();
-    observer.send(server_packets::char_info(&v, &super::abnormal::visual_effects(world, player_id), &cubics));
+    observer.send(server_packets::char_info(
+        &v,
+        &super::abnormal::visual_effects(world, player_id),
+        &cubics,
+    ));
     // Java `Player.sendInfo` pairs each CharInfo with a RelationChanged, so the
     // viewer learns the relation bits CharInfo can't carry — notably the
     // clan-leader crown (`RELATION_LEADER`). Without it a leader shows no crown
     // to others outside a siege.
     if let ClientSession::InGame(s) = observer {
-        observer.send(super::pvp::sendinfo_relation_changed(world, player_id, s.player_object_id()));
+        observer.send(super::pvp::sendinfo_relation_changed(
+            world,
+            player_id,
+            s.player_object_id(),
+        ));
     }
-    describe_state(observer, v.p, v.pos, world.objects.get_component::<Movement>(&player_id));
+    describe_state(
+        observer,
+        v.p,
+        v.pos,
+        world.objects.get_component::<Movement>(&player_id),
+    );
 }
 
 /// Send one NPC's `NpcInfo` to a session (skipping NPCs whose template went
@@ -83,14 +117,27 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
 ///
 /// The **owner** is excluded here: they already got `PetSummonInfo` when it was
 /// summoned, and Java likewise splits the two in `Summon.sendInfo`.
-fn send_summon_info(world: &World, session: &ClientSession, servitor_oid: i32, viewer_oid: i32) -> bool {
+fn send_summon_info(
+    world: &World,
+    session: &ClientSession,
+    servitor_oid: i32,
+    viewer_oid: i32,
+) -> bool {
     use crate::model::components::{CombatStats, Position, ServitorOf, Speeds, Vitals};
-    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return false };
+    let Some(link) = world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .copied()
+    else {
+        return false;
+    };
     if link.owner_object_id == viewer_oid {
         return true; // the owner's view is the PetInfo one
     }
     let (Some(npc), Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
-        world.objects.get_component::<crate::model::npc::Npc>(&servitor_oid),
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&servitor_oid),
         world.objects.get_component::<Position>(&servitor_oid),
         world.objects.get_component::<Vitals>(&servitor_oid),
         world.objects.get_component::<Speeds>(&servitor_oid),
@@ -98,7 +145,9 @@ fn send_summon_info(world: &World, session: &ClientSession, servitor_oid: i32, v
     ) else {
         return true;
     };
-    let Some(t) = npc.template(world) else { return true };
+    let Some(t) = npc.template(world) else {
+        return true;
+    };
     let owner_name = world
         .objects
         .get_component::<crate::model::Player>(&link.owner_object_id)
@@ -119,14 +168,21 @@ fn send_summon_info(world: &World, session: &ClientSession, servitor_oid: i32, v
 }
 
 fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
-    let Some(v) = crate::model::npc::NpcView::of(&world.objects, npc_id) else { return };
-    let Some(t) = v.npc.template(world) else { return };
+    let Some(v) = crate::model::npc::NpcView::of(&world.objects, npc_id) else {
+        return;
+    };
+    let Some(t) = v.npc.template(world) else {
+        return;
+    };
     session.send(server_packets::npc_info(&v, t, &world.cfg.npc));
 }
 
 /// The region cell a player is registered in (`None` once they're gone).
 fn player_region(world: &World, object_id: i32) -> Option<(i32, i32)> {
-    world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0)
+    world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
 }
 
 /// Java `World.addVisibleObject` for a player spawning in (`EnterWorld` →
@@ -134,15 +190,21 @@ fn player_region(world: &World, object_id: i32) -> Option<(i32, i32)> {
 /// spawn region, plus `NpcInfo` for every NPC in the 3×3 block (NPCs are
 /// told nothing — they get aggro/AI eyes in G9).
 pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
-    let Some(my_region) = player_region(world, object_id) else { return };
-    let Some(my_session) = world.clients.get(&client_id) else { return };
+    let Some(my_region) = player_region(world, object_id) else {
+        return;
+    };
+    let Some(my_session) = world.clients.get(&client_id) else {
+        return;
+    };
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
             if other_id == object_id {
                 continue;
             }
-            let Some(other_region) = player_region(world, other_id) else { continue };
+            let Some(other_region) = player_region(world, other_id) else {
+                continue;
+            };
             if regions_adjacent(my_region, other_region) {
                 send_char_info(world, cs, object_id);
                 send_char_info(world, my_session, other_id);
@@ -173,8 +235,14 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
 
 /// `StaticObject.sendInfo(player)`.
 fn send_static_object_info(world: &World, session: &ClientSession, object_id: i32) {
-    if let Some(so) = world.objects.get_component::<crate::model::static_object::StaticObj>(&object_id) {
-        session.send(server_packets::static_object_info(so.static_id, so.object_id));
+    if let Some(so) = world
+        .objects
+        .get_component::<crate::model::static_object::StaticObj>(&object_id)
+    {
+        session.send(server_packets::static_object_info(
+            so.static_id,
+            so.object_id,
+        ));
     }
 }
 
@@ -214,7 +282,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             if other_id == object_id {
                 continue;
             }
-            let Some(other_region) = player_region(world, other_id) else { continue };
+            let Some(other_region) = player_region(world, other_id) else {
+                continue;
+            };
             let was = regions_adjacent(old, other_region);
             let now = regions_adjacent(new, other_region);
             if was != now {
@@ -230,8 +300,15 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     // TODO(G9): Java also fires `EVT_FORGET_OBJECT` at both sides' AI here so
     // NPCs drop aggro/follow on objects leaving their block — wire up when NPC
     // AI can hold references.
-    if let Some(TargetRef(Some(target))) = world.objects.get_component::<TargetRef>(&object_id).copied() {
-        let target_region = world.objects.get_component::<RegionCell>(&target).map(|r| r.0);
+    if let Some(TargetRef(Some(target))) = world
+        .objects
+        .get_component::<TargetRef>(&object_id)
+        .copied()
+    {
+        let target_region = world
+            .objects
+            .get_component::<RegionCell>(&target)
+            .map(|r| r.0);
         if target_region.is_some_and(|r| !regions_adjacent(new, r)) {
             super::target::drop_target_notify(world, object_id);
         }
@@ -243,7 +320,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     let my_client = client_for_player(world, object_id);
     if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
         for npc_id in world.npcs_visible_from(new) {
-            let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else { continue };
+            let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else {
+                continue;
+            };
             if !regions_adjacent(old, npc_region.0) {
                 if !send_summon_info(world, cs, npc_id, object_id) {
                     send_npc_info(world, cs, npc_id);
@@ -251,39 +330,51 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
         for npc_id in world.npcs_visible_from(old) {
-            let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else { continue };
+            let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else {
+                continue;
+            };
             if !regions_adjacent(new, npc_region.0) {
                 cs.send(server_packets::delete_object(npc_id));
             }
         }
         // Door/static-object deltas, same shape as the NPC ones.
         for door_id in world.doors_visible_from(new) {
-            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else { continue };
+            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else {
+                continue;
+            };
             if !regions_adjacent(old, door_region.0) {
                 super::doors::send_door_info(world, cs, door_id);
             }
         }
         for door_id in world.doors_visible_from(old) {
-            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else { continue };
+            let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else {
+                continue;
+            };
             if !regions_adjacent(new, door_region.0) {
                 cs.send(server_packets::delete_object(door_id));
             }
         }
         for so_id in world.statics_visible_from(new) {
-            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else { continue };
+            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else {
+                continue;
+            };
             if !regions_adjacent(old, so_region.0) {
                 send_static_object_info(world, cs, so_id);
             }
         }
         for so_id in world.statics_visible_from(old) {
-            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else { continue };
+            let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else {
+                continue;
+            };
             if !regions_adjacent(new, so_region.0) {
                 cs.send(server_packets::delete_object(so_id));
             }
         }
         // Ground-item deltas, same shape (SpawnItem in / DeleteObject out).
         for item_id in world.ground_items_visible_from(new) {
-            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else { continue };
+            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else {
+                continue;
+            };
             if !regions_adjacent(old, r.0) {
                 if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
                     cs.send(server_packets::spawn_item(&view));
@@ -291,7 +382,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             }
         }
         for item_id in world.ground_items_visible_from(old) {
-            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else { continue };
+            let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else {
+                continue;
+            };
             if !regions_adjacent(new, r.0) {
                 cs.send(server_packets::delete_object(item_id));
             }
@@ -309,10 +402,20 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             // Target drops (with their TargetUnselected) precede the
             // DeleteObject, as in Java. The mover's own target was already
             // handled above; the guard makes a second call a no-op anyway.
-            if world.objects.get_component::<TargetRef>(&other_id).copied().is_some_and(|t| t.0 == Some(object_id)) {
+            if world
+                .objects
+                .get_component::<TargetRef>(&other_id)
+                .copied()
+                .is_some_and(|t| t.0 == Some(object_id))
+            {
                 super::target::drop_target_notify(world, other_id);
             }
-            if world.objects.get_component::<TargetRef>(&object_id).copied().is_some_and(|t| t.0 == Some(other_id)) {
+            if world
+                .objects
+                .get_component::<TargetRef>(&object_id)
+                .copied()
+                .is_some_and(|t| t.0 == Some(other_id))
+            {
                 super::target::drop_target_notify(world, object_id);
             }
             if let Some(cs) = world.clients.get(&other_client) {
@@ -333,7 +436,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
 /// direction is skipped. Call *before* removing the player from
 /// `world.objects`.
 pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
-    let Some(region) = player_region(world, object_id) else { return };
+    let Some(region) = player_region(world, object_id) else {
+        return;
+    };
     let mut observers: Vec<(u32, i32)> = Vec::new();
     for (&cid, cs) in &world.clients {
         if let ClientSession::InGame(s) = cs {
@@ -341,7 +446,9 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
             if other_id == object_id {
                 continue;
             }
-            let Some(other_region) = player_region(world, other_id) else { continue };
+            let Some(other_region) = player_region(world, other_id) else {
+                continue;
+            };
             if regions_adjacent(region, other_region) {
                 observers.push((cid, other_id));
             }
@@ -350,7 +457,12 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
     for (cid, other_id) in observers {
         // TargetUnselected before DeleteObject (Java `removeVisibleObject`
         // runs `setTarget(null)` first) — see `drop_target_notify`.
-        if world.objects.get_component::<TargetRef>(&other_id).copied().is_some_and(|t| t.0 == Some(object_id)) {
+        if world
+            .objects
+            .get_component::<TargetRef>(&other_id)
+            .copied()
+            .is_some_and(|t| t.0 == Some(object_id))
+        {
             super::target::drop_target_notify(world, other_id);
         }
         if let Some(cs) = world.clients.get(&cid) {
@@ -384,7 +496,11 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     if let Some(ids) = world.npc_regions.get_mut(&old) {
         ids.retain(|&id| id != npc_object_id);
     }
-    world.npc_regions.entry(new).or_default().push(npc_object_id);
+    world
+        .npc_regions
+        .entry(new)
+        .or_default()
+        .push(npc_object_id);
 
     // Deltas are collected first so the target drop (which needs `&mut World`
     // for its TargetUnselected broadcast) can run before the DeleteObject
@@ -393,7 +509,9 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     for (&cid, cs) in &world.clients {
         if let ClientSession::InGame(s) = cs {
             let player_id = s.player_object_id();
-            let Some(player_region) = player_region(world, player_id) else { continue };
+            let Some(player_region) = player_region(world, player_id) else {
+                continue;
+            };
             let was = regions_adjacent(old, player_region);
             let now = regions_adjacent(new, player_region);
             if was != now {
@@ -407,7 +525,12 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
                 send_npc_info(world, cs, npc_object_id);
             }
         } else {
-            if world.objects.get_component::<TargetRef>(&player_id).copied().is_some_and(|t| t.0 == Some(npc_object_id)) {
+            if world
+                .objects
+                .get_component::<TargetRef>(&player_id)
+                .copied()
+                .is_some_and(|t| t.0 == Some(npc_object_id))
+            {
                 super::target::drop_target_notify(world, player_id);
             }
             if let Some(cs) = world.clients.get(&cid) {
@@ -424,7 +547,9 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
 pub(crate) fn movement_tick(world: &mut World) {
     let outcome = crate::model::movement::tick(world);
     let mut ids: Vec<i32> = Vec::new();
-    world.objects.for_each_mut::<&Player>(|p| ids.push(p.object_id));
+    world
+        .objects
+        .for_each_mut::<&Player>(|p| ids.push(p.object_id));
     for id in ids {
         update_region(world, id);
         // Java couples `updatePosition` with `revalidateZone(false)` — the
@@ -439,7 +564,10 @@ pub(crate) fn movement_tick(world: &mut World) {
     // leg starts thinking again (and re-acquires a target if the fear has since
     // worn off; if it hasn't, the next fear tick shoves it onward).
     for id in &outcome.arrived {
-        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(id) {
+        if let Some(ai) = world
+            .objects
+            .get_component_mut::<crate::model::npc::NpcAi>(id)
+        {
             if ai.intention == crate::model::npc::NpcIntention::MoveTo {
                 ai.intention = crate::model::npc::NpcIntention::Active;
             }
@@ -449,8 +577,12 @@ pub(crate) fn movement_tick(world: &mut World) {
     // plain moves, the client only knows the previous segment's endpoint
     // (Java `moveToNextRoutePoint` → `broadcastMoveToLocation`).
     for id in outcome.route_advanced {
-        let Some(Movement(m)) = world.objects.get_component::<Movement>(&id) else { continue };
-        let pkt = server_packets::move_to_location(id, m.dest_x, m.dest_y, m.dest_z, m.start_x, m.start_y, m.start_z);
+        let Some(Movement(m)) = world.objects.get_component::<Movement>(&id) else {
+            continue;
+        };
+        let pkt = server_packets::move_to_location(
+            id, m.dest_x, m.dest_y, m.dest_z, m.start_x, m.start_y, m.start_z,
+        );
         super::helpers::broadcast_including_self(world, id, &pkt);
     }
 }

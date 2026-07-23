@@ -29,7 +29,12 @@ const LEVEL_GAP: i32 = 8;
 /// **raid minion**, which inherits the answer from its master
 /// (`Monster.giveRaidCurse`). An ordinary monster never curses.
 pub(crate) fn gives_raid_curse(world: &World, npc_oid: i32) -> bool {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return false };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    else {
+        return false;
+    };
     if is_raid_template(world, npc.npc_id) {
         return true;
     }
@@ -58,7 +63,9 @@ fn should_curse(world: &World, npc_oid: i32, player_oid: i32) -> bool {
     if !gives_raid_curse(world, npc_oid) {
         return false;
     }
-    let Some(p) = world.objects.get_component::<Player>(&player_oid) else { return false };
+    let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+        return false;
+    };
     let boss_level = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
@@ -105,7 +112,11 @@ pub(crate) fn on_skill_cast_near_raid(world: &mut World, caster_oid: i32, skill_
         if !in_combat(world, npc_oid) || !should_curse(world, npc_oid, caster_oid) {
             continue;
         }
-        let curse = if skill_is_bad { RAID_CURSE2 } else { RAID_CURSE };
+        let curse = if skill_is_bad {
+            RAID_CURSE2
+        } else {
+            RAID_CURSE
+        };
         apply_curse(world, npc_oid, caster_oid, curse);
         return; // one curse is enough
     }
@@ -116,9 +127,10 @@ const PARTY_RANGE: f64 = 1500.0;
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
     use crate::model::components::Position;
-    let (Some(pa), Some(pb)) =
-        (world.objects.get_component::<Position>(&a), world.objects.get_component::<Position>(&b))
-    else {
+    let (Some(pa), Some(pb)) = (
+        world.objects.get_component::<Position>(&a),
+        world.objects.get_component::<Position>(&b),
+    ) else {
         return false;
     };
     let (dx, dy) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64);
@@ -137,6 +149,10 @@ fn in_combat(world: &World, npc_oid: i32) -> bool {
 /// caster, so the debuff cannot be resisted as if the victim had cast it on
 /// themselves, and its landing rate reads the boss's level.
 fn apply_curse(world: &mut World, npc_oid: i32, player_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else { return };
-    crate::game_loop::skills::effects::apply_continuous_effects(world, npc_oid, player_oid, &skill, None);
+    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+        return;
+    };
+    crate::game_loop::skills::effects::apply_continuous_effects(
+        world, npc_oid, player_oid, &skill, None,
+    );
 }

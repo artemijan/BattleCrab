@@ -581,7 +581,10 @@ impl Controller {
                     // Java `setCharactersOnServer`: only servers with ≥1 char are
                     // recorded; a 0-char reply still counts as "replied" above.
                     if chars > 0 {
-                        entry.chars_on_servers.get_or_insert_with(HashMap::new).insert(server_id, chars);
+                        entry
+                            .chars_on_servers
+                            .get_or_insert_with(HashMap::new)
+                            .insert(server_id, chars);
                     }
                 }
             }
@@ -590,7 +593,10 @@ impl Controller {
                 // none). An unknown account (shouldn't happen post-auth) is
                 // "ready" so the caller never blocks on it.
                 let status = match self.authed_clients.get(&account) {
-                    Some(e) => (e.chars_received >= e.chars_expected, e.chars_on_servers.clone()),
+                    Some(e) => (
+                        e.chars_received >= e.chars_expected,
+                        e.chars_on_servers.clone(),
+                    ),
                     None => (true, None),
                 };
                 let _ = reply.send(status);

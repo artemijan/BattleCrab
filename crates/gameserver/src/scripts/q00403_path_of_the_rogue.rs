@@ -47,8 +47,14 @@ const STOLEN_ITEMS: [i32; 4] = [STOLEN_JEWELRY, STOLEN_TOMES, STOLEN_RING, STOLE
 
 const CATS_EYE_BANDIT: i32 = 27038;
 /// `(npc id, chance out of TEN)` — see the module note on the denominator.
-const MONSTER_DROPS: [(i32, i32); 6] =
-    [(20035, 2), (20042, 3), (20045, 2), (20051, 2), (20054, 8), (20060, 8)];
+const MONSTER_DROPS: [(i32, i32); 6] = [
+    (20035, 2),
+    (20042, 3),
+    (20045, 2),
+    (20051, 2),
+    (20054, 8),
+    (20060, 8),
+];
 
 /// "You childish fool, do you think you can catch me?"
 const NS_TAUNT: i32 = 40306;
@@ -61,8 +67,16 @@ const MIN_LEVEL: i32 = 19;
 const REQUIRED_ITEM_COUNT: i64 = 10;
 
 const QUEST_ITEMS: [i32; 10] = [
-    BEZIQUES_LETTER, NETIS_BOW, NETIS_DAGGER, SPARTOIS_BONES, HORSESHOE_OF_LIGHT,
-    MOST_WANTED_LIST, STOLEN_JEWELRY, STOLEN_TOMES, STOLEN_RING, STOLEN_NECKLACE,
+    BEZIQUES_LETTER,
+    NETIS_BOW,
+    NETIS_DAGGER,
+    SPARTOIS_BONES,
+    HORSESHOE_OF_LIGHT,
+    MOST_WANTED_LIST,
+    STOLEN_JEWELRY,
+    STOLEN_TOMES,
+    STOLEN_RING,
+    STOLEN_NECKLACE,
 ];
 
 const KILL_NPCS: [i32; 7] = [20035, 20042, 20045, 20051, 20054, 20060, CATS_EYE_BANDIT];

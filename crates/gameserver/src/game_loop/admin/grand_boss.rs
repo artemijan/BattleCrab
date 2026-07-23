@@ -42,8 +42,16 @@ fn manage_html(world: &mut World, client_id: u32, boss_id: i32) {
     }
 
     // Java `GrandBossManager.getStatus` → -1 when the boss isn't stored.
-    let status = world.grand_bosses.get(&boss_id).map(|b| b.status).unwrap_or(-1);
-    let respawn = world.grand_bosses.get(&boss_id).map(|b| b.respawn_time).unwrap_or(0);
+    let status = world
+        .grand_bosses
+        .get(&boss_id)
+        .map(|b| b.status)
+        .unwrap_or(-1);
+    let respawn = world
+        .grand_bosses
+        .get(&boss_id)
+        .map(|b| b.respawn_time)
+        .unwrap_or(0);
 
     let html_patch = match boss_id {
         ANTHARAS => "grandboss/grandboss_antharas.htm",
@@ -65,18 +73,37 @@ fn manage_html(world: &mut World, client_id: u32, boss_id: i32) {
             3 => ("Dead", "FF0000"),
             _ => ("", "FFFFFF"),
         };
-        (if t.is_empty() { format!("Unk {status}") } else { t.to_string() }, c, 3)
+        (
+            if t.is_empty() {
+                format!("Unk {status}")
+            } else {
+                t.to_string()
+            },
+            c,
+            3,
+        )
     } else {
         let (t, c) = match status {
             0 => ("Alive", "00FF00"),
             1 => ("Dead", "FF0000"),
             _ => ("", "FFFFFF"),
         };
-        (if t.is_empty() { format!("Unk {status}") } else { t.to_string() }, c, 1)
+        (
+            if t.is_empty() {
+                format!("Unk {status}")
+            } else {
+                t.to_string()
+            },
+            c,
+            1,
+        )
     };
 
-    let respawn_str =
-        if status == dead_status { format_epoch_millis(respawn) } else { "Already respawned!".to_string() };
+    let respawn_str = if status == dead_status {
+        format_epoch_millis(respawn)
+    } else {
+        "Already respawned!".to_string()
+    };
 
     // Java counts players in the boss's NoRestartZone (Antharas/Baium only) and
     // otherwise shows "Zone not found!". The grand-boss zones aren't modelled
@@ -98,7 +125,12 @@ fn manage_html(world: &mut World, client_id: u32, boss_id: i32) {
 /// buttons. Each targets the grand-boss AI (Antharas for skip; Antharas + Baium
 /// for the rest). That AI is unported (G21) and null in this dist, so Java NPEs
 /// on the `notifyEvent` call; the same failure is reproduced here.
-pub(super) fn admin_grandboss_action(world: &mut World, client_id: u32, command: &str, args: &[&str]) {
+pub(super) fn admin_grandboss_action(
+    world: &mut World,
+    client_id: u32,
+    command: &str,
+    args: &[&str],
+) {
     // "admin_grandboss_skip" → "grandboss_skip" for the usage line.
     let usage_name = command.strip_prefix("admin_").unwrap_or(command);
     let Some(id_str) = args.first() else {
@@ -110,7 +142,11 @@ pub(super) fn admin_grandboss_action(world: &mut World, client_id: u32, command:
         return;
     };
     // `skip` is Antharas-only; respawn/minions/abort also handle Baium.
-    let supported: &[i32] = if command == "admin_grandboss_skip" { &[ANTHARAS] } else { &[ANTHARAS, BAIUM] };
+    let supported: &[i32] = if command == "admin_grandboss_skip" {
+        &[ANTHARAS]
+    } else {
+        &[ANTHARAS, BAIUM]
+    };
     if supported.contains(&id) {
         // TODO(G21): dispatch to the real Antharas/Baium AI, e.g.
         //   antharas_ai.notify_event("SKIP_WAITING" | "RESPAWN_ANTHARAS" |
@@ -126,8 +162,16 @@ pub(super) fn admin_grandboss_action(world: &mut World, client_id: u32, command:
 /// null-AI `NullPointerException` (Java prints `"Exception during execution of
 /// '<full>': " + e` — note the two spaces after "of").
 fn exec_exception_npe(world: &World, client_id: u32, command: &str, args: &[&str]) {
-    let full = if args.is_empty() { command.to_string() } else { format!("{command} {}", args.join(" ")) };
-    send_message(world, client_id, &format!("Exception during execution of  '{full}': java.lang.NullPointerException"));
+    let full = if args.is_empty() {
+        command.to_string()
+    } else {
+        format!("{command} {}", args.join(" "))
+    };
+    send_message(
+        world,
+        client_id,
+        &format!("Exception during execution of  '{full}': java.lang.NullPointerException"),
+    );
 }
 
 /// As above for the `Integer.parseInt` `NumberFormatException` (unreachable via

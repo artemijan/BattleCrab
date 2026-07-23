@@ -7,7 +7,11 @@ use super::opcodes;
 /// Port of `serverpackets/DoorStatusUpdate`. `enemy` (siege-active doors)
 /// and the HP-damage grade are always their idle values — no sieges, and
 /// nothing damages doors yet.
-pub fn door_status_update(door: &crate::model::door::Door, t: &crate::data::door_data::DoorTemplate, open: bool) -> Vec<u8> {
+pub fn door_status_update(
+    door: &crate::model::door::Door,
+    t: &crate::data::door_data::DoorTemplate,
+    open: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::DOOR_STATUS_UPDATE);
     w.write_i32(door.object_id);
@@ -23,7 +27,11 @@ pub fn door_status_update(door: &crate::model::door::Door, t: &crate::data::door
 /// Port of `serverpackets/StaticObjectInfo`'s door constructor
 /// (`type = 1`, mesh index 1 — `Door._meshindex` default; the GM
 /// forced-targetable variant is not ported).
-pub fn static_object_info_door(door: &crate::model::door::Door, t: &crate::data::door_data::DoorTemplate, open: bool) -> Vec<u8> {
+pub fn static_object_info_door(
+    door: &crate::model::door::Door,
+    t: &crate::data::door_data::DoorTemplate,
+    open: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::STATIC_OBJECT);
     w.write_i32(door.door_id); // staticObjectId

@@ -10,7 +10,9 @@
 //! IP is tracked), `//setparam`/`//unsetparam` (no fixed-stat API) and
 //! `//setnoble`/`//rec` (fields not modelled) stay on the not-implemented path.
 
-use crate::model::components::{CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals};
+use crate::model::components::{
+    CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
+};
 use crate::model::Player;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -29,7 +31,13 @@ fn online_players(world: &World) -> Vec<i32> {
             _ => None,
         })
         .collect();
-    ids.sort_by_key(|oid| world.objects.get_component::<Player>(oid).map(|p| p.name.clone()).unwrap_or_default());
+    ids.sort_by_key(|oid| {
+        world
+            .objects
+            .get_component::<Player>(oid)
+            .map(|p| p.name.clone())
+            .unwrap_or_default()
+    });
     ids
 }
 
@@ -44,7 +52,13 @@ pub(super) fn admin_fullfood(world: &mut World, client_id: u32) {
     send_sm(world, client_id, sm_ids::INVALID_TARGET);
 }
 
-pub(super) fn admin_character_info(world: &mut World, client_id: u32, object_id: i32, args: &[&str], self_only: bool) {
+pub(super) fn admin_character_info(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    self_only: bool,
+) {
     let target = if self_only {
         object_id
     } else if let Some(name) = args.first() {
@@ -56,7 +70,9 @@ pub(super) fn admin_character_info(world: &mut World, client_id: u32, object_id:
             }
         }
     } else {
-        match current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) {
+        match current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid))
+        {
             Some(t) => t,
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
@@ -64,14 +80,58 @@ pub(super) fn admin_character_info(world: &mut World, client_id: u32, object_id:
             }
         }
     };
-    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else { return };
-    let pos = world.objects.get_component::<Position>(&target).copied().unwrap_or(Position { x: 0, y: 0, z: 0, heading: 0 });
-    let vit = world.objects.get_component::<Vitals>(&target).copied().unwrap_or(Vitals { max_hp: 0, cur_hp: 0.0, max_mp: 0, cur_mp: 0.0, dead: false });
-    let cp = world.objects.get_component::<PlayerVitals>(&target).copied().unwrap_or(PlayerVitals { max_cp: 0, cur_cp: 0.0 });
-    let cs = world.objects.get_component::<CombatStats>(&target).copied().unwrap_or_default();
-    let spd = world.objects.get_component::<Speeds>(&target).map(|s| s.run_spd).unwrap_or(0.0);
-    let pvp_flag = world.objects.get_component::<PvpState>(&target).map(|s| s.flag).unwrap_or(0);
-    let clan = if p.clan_id == 0 { "None".to_string() } else { p.clan_id.to_string() };
+    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
+        return;
+    };
+    let pos = world
+        .objects
+        .get_component::<Position>(&target)
+        .copied()
+        .unwrap_or(Position {
+            x: 0,
+            y: 0,
+            z: 0,
+            heading: 0,
+        });
+    let vit = world
+        .objects
+        .get_component::<Vitals>(&target)
+        .copied()
+        .unwrap_or(Vitals {
+            max_hp: 0,
+            cur_hp: 0.0,
+            max_mp: 0,
+            cur_mp: 0.0,
+            dead: false,
+        });
+    let cp = world
+        .objects
+        .get_component::<PlayerVitals>(&target)
+        .copied()
+        .unwrap_or(PlayerVitals {
+            max_cp: 0,
+            cur_cp: 0.0,
+        });
+    let cs = world
+        .objects
+        .get_component::<CombatStats>(&target)
+        .copied()
+        .unwrap_or_default();
+    let spd = world
+        .objects
+        .get_component::<Speeds>(&target)
+        .map(|s| s.run_spd)
+        .unwrap_or(0.0);
+    let pvp_flag = world
+        .objects
+        .get_component::<PvpState>(&target)
+        .map(|s| s.flag)
+        .unwrap_or(0);
+    let clan = if p.clan_id == 0 {
+        "None".to_string()
+    } else {
+        p.clan_id.to_string()
+    };
     // Fill `charinfo.htm`. Stats not computed in the port yet (regen/load/hwid/
     // ai/instance) default to `0`/`N/A`; class is the numeric id (no client-code
     // table ported).
@@ -136,7 +196,10 @@ fn char_row(name: &str, class_id: i32, level: i32) -> String {
 /// as `charlist.htm` (Java `listCharacters`, 20 per page).
 pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&str]) {
     const PER_PAGE: usize = 20;
-    let page = args.first().and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
+    let page = args
+        .first()
+        .and_then(|s| s.parse::<usize>().ok())
+        .unwrap_or(0);
     let ids = online_players(world);
     let pages = ids.len().div_ceil(PER_PAGE).max(1);
     let page = page.min(pages.saturating_sub(1));
@@ -150,7 +213,12 @@ pub(super) fn admin_character_list(world: &mut World, client_id: u32, args: &[&s
     // Pager (Java `PageBuilder`): a link per page when there's more than one.
     let pager = if pages > 1 {
         (0..pages)
-            .map(|i| format!("<td><a action=\"bypass -h admin_show_characters {i}\">{}</a></td>", i + 1))
+            .map(|i| {
+                format!(
+                    "<td><a action=\"bypass -h admin_show_characters {i}\">{}</a></td>",
+                    i + 1
+                )
+            })
             .collect::<String>()
     } else {
         String::new()
@@ -180,7 +248,10 @@ pub(super) fn admin_find_character(world: &mut World, client_id: u32, args: &[&s
     let ids = online_players(world);
     let mut rows = String::new();
     let mut found = 0;
-    for p in ids.iter().filter_map(|oid| world.objects.get_component::<Player>(oid)) {
+    for p in ids
+        .iter()
+        .filter_map(|oid| world.objects.get_component::<Player>(oid))
+    {
         if p.name.to_lowercase().contains(&needle) {
             rows.push_str(&char_row(&p.name, p.class_id, p.level));
             found += 1;
@@ -193,7 +264,11 @@ pub(super) fn admin_find_character(world: &mut World, client_id: u32, args: &[&s
         world,
         client_id,
         "charfind.htm",
-        &[("results", rows), ("number", found.to_string()), ("end", String::new())],
+        &[
+            ("results", rows),
+            ("number", found.to_string()),
+            ("end", String::new()),
+        ],
     );
 }
 
@@ -208,8 +283,18 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(account) = world.objects.get_component::<Player>(&target).map(|p| p.account.clone()) else { return };
-    send_message(world, client_id, &format!("=== Account '{account}' (online) ==="));
+    let Some(account) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.account.clone())
+    else {
+        return;
+    };
+    send_message(
+        world,
+        client_id,
+        &format!("=== Account '{account}' (online) ==="),
+    );
     for oid in online_players(world) {
         if let Some(p) = world.objects.get_component::<Player>(&oid) {
             if p.account == account {
@@ -224,14 +309,39 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
 /// `//edit_character` — the `charedit.htm` field-editor for the current target
 /// (Java `editCharacter`). Falls back to `INVALID_TARGET` with no player target.
 pub(super) fn admin_edit_character(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else { return };
-    let vit = world.objects.get_component::<Vitals>(&target).copied().unwrap_or(Vitals { max_hp: 0, cur_hp: 0.0, max_mp: 0, cur_mp: 0.0, dead: false });
-    let cp = world.objects.get_component::<PlayerVitals>(&target).copied().unwrap_or(PlayerVitals { max_cp: 0, cur_cp: 0.0 });
-    let percent = if vit.max_hp > 0 { (vit.cur_hp / vit.max_hp as f64 * 100.0) as i64 } else { 0 };
+    let Some(p) = world.objects.get_component::<Player>(&target).cloned() else {
+        return;
+    };
+    let vit = world
+        .objects
+        .get_component::<Vitals>(&target)
+        .copied()
+        .unwrap_or(Vitals {
+            max_hp: 0,
+            cur_hp: 0.0,
+            max_mp: 0,
+            cur_mp: 0.0,
+            dead: false,
+        });
+    let cp = world
+        .objects
+        .get_component::<PlayerVitals>(&target)
+        .copied()
+        .unwrap_or(PlayerVitals {
+            max_cp: 0,
+            cur_cp: 0.0,
+        });
+    let percent = if vit.max_hp > 0 {
+        (vit.cur_hp / vit.max_hp as f64 * 100.0) as i64
+    } else {
+        0
+    };
     let r: Vec<(&str, String)> = vec![
         ("name", p.name.clone()),
         ("access", p.access_level.to_string()),
@@ -262,12 +372,18 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
         send_message(world, client_id, "Usage: //changename <new_name>");
         return;
     };
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     if find_online_player(world, &new_name).is_some() {
-        send_message(world, client_id, &format!("Warning, player {new_name} already exists"));
+        send_message(
+            world,
+            client_id,
+            &format!("Warning, player {new_name} already exists"),
+        );
         return;
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
@@ -282,11 +398,16 @@ pub(super) fn admin_changename(world: &mut World, client_id: u32, object_id: i32
 /// `//set_pvp_flag` — toggle the target playable's PvP flag (Java
 /// `updatePvPFlag(abs(flag - 1))`).
 pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) else {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let cur = world.objects.get_component::<PvpState>(&target).map_or(0, |s| s.flag);
+    let cur = world
+        .objects
+        .get_component::<PvpState>(&target)
+        .map_or(0, |s| s.flag);
     let next = (cur as i32 - 1).unsigned_abs() as u8;
     crate::game_loop::pvp::update_pvp_flag(world, target, next);
 }
@@ -296,7 +417,9 @@ pub(super) fn admin_set_pvp_flag(world: &mut World, client_id: u32, object_id: i
 pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let target = match args.first().and_then(|n| find_online_player(world, n)) {
         Some(t) => t,
-        None => match current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid)) {
+        None => match current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid))
+        {
             Some(t) => t,
             None => {
                 send_sm(world, client_id, sm_ids::INVALID_TARGET);
@@ -304,13 +427,26 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
             }
         },
     };
-    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
     let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
         // Java: not-in-party still opens the window (empty party table).
-        super::menu::show_admin_html_replace(world, client_id, "partyinfo.htm", &[("player", target_name), ("party", String::new())]);
+        super::menu::show_admin_html_replace(
+            world,
+            client_id,
+            "partyinfo.htm",
+            &[("player", target_name), ("party", String::new())],
+        );
         return;
     };
-    let members = world.parties.get(&pid).map(|p| p.members.clone()).unwrap_or_default();
+    let members = world
+        .parties
+        .get(&pid)
+        .map(|p| p.members.clone())
+        .unwrap_or_default();
     let mut rows = String::new();
     for oid in members {
         if let Some(p) = world.objects.get_component::<Player>(&oid) {
@@ -322,38 +458,75 @@ pub(super) fn admin_partyinfo(world: &mut World, client_id: u32, object_id: i32,
             ));
         }
     }
-    super::menu::show_admin_html_replace(world, client_id, "partyinfo.htm", &[("player", target_name), ("party", rows)]);
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "partyinfo.htm",
+        &[("player", target_name), ("party", rows)],
+    );
 }
 
 /// `AdminEditChar`'s `//setparam <stat> <value>` / `//unsetparam <stat>` — set
 /// or clear a fixed-value override on one of the target's combat stats (Java
 /// `CreatureStat.addFixedValue`/`removeFixedValue`), then recompute + broadcast.
 /// `maxHp`/`maxMp` compute on a separate path and aren't overridable here.
-pub(super) fn admin_setparam(world: &mut World, client_id: u32, object_id: i32, args: &[&str], set: bool) {
+pub(super) fn admin_setparam(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    set: bool,
+) {
     let Some(stat) = args.first().and_then(|s| stat_from_name(s)) else {
-        send_message(world, client_id, if set { "Syntax: //setparam <stat> <value>" } else { "Syntax: //unsetparam <stat>" });
+        send_message(
+            world,
+            client_id,
+            if set {
+                "Syntax: //setparam <stat> <value>"
+            } else {
+                "Syntax: //unsetparam <stat>"
+            },
+        );
         if args.first().is_some() {
             send_message(world, client_id, "Couldn't find such stat!");
         }
         return;
     };
     let target = current_target(world, object_id)
-        .filter(|oid| world.objects.has_component::<crate::model::components::StatModifiers>(oid))
+        .filter(|oid| {
+            world
+                .objects
+                .has_component::<crate::model::components::StatModifiers>(oid)
+        })
         .unwrap_or(object_id);
     if set {
         let Some(value) = args.get(1).and_then(|s| s.parse::<f64>().ok()) else {
             send_message(world, client_id, "Syntax: //setparam <stat> <value>");
             return;
         };
-        if let Some(m) = world.objects.get_component_mut::<crate::model::components::StatModifiers>(&target) {
+        if let Some(m) = world
+            .objects
+            .get_component_mut::<crate::model::components::StatModifiers>(&target)
+        {
             m.fixed.insert(stat, value);
         }
-        send_message(world, client_id, &format!("Fixed stat {} set to {value}.", args[0]));
+        send_message(
+            world,
+            client_id,
+            &format!("Fixed stat {} set to {value}.", args[0]),
+        );
     } else {
-        if let Some(m) = world.objects.get_component_mut::<crate::model::components::StatModifiers>(&target) {
+        if let Some(m) = world
+            .objects
+            .get_component_mut::<crate::model::components::StatModifiers>(&target)
+        {
             m.fixed.remove(&stat);
         }
-        send_message(world, client_id, &format!("Fixed stat {} has been removed.", args[0]));
+        send_message(
+            world,
+            client_id,
+            &format!("Fixed stat {} has been removed.", args[0]),
+        );
     }
     recompute_combat_stats(world, target);
     super::party::broadcast_user_info(world, target);
@@ -388,8 +561,14 @@ fn recompute_combat_stats(world: &mut World, target: i32) {
     use crate::model::components::{BaseStats, CombatStats, Speeds, StatModifiers};
     use crate::model::inventory::Inventory;
     let data = &world.data;
-    if let Some((p, base, mods, inventory, mut speeds, mut combat)) =
-        world.objects.get_many_mut::<(&Player, &BaseStats, &StatModifiers, &Inventory, &mut Speeds, &mut CombatStats)>(&target)
+    if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
+        &Player,
+        &BaseStats,
+        &StatModifiers,
+        &Inventory,
+        &mut Speeds,
+        &mut CombatStats,
+    )>(&target)
     {
         p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
     }
@@ -401,12 +580,20 @@ fn recompute_combat_stats(world: &mut World, target: i32) {
 /// isn't tracked. Applies to an online target in memory.
 pub(super) fn admin_remove_clan_penalty(world: &mut World, client_id: u32, args: &[&str]) {
     let [kind, name] = args else {
-        send_message(world, client_id, "Usage: //remove_clan_penalty join|create charname");
+        send_message(
+            world,
+            client_id,
+            "Usage: //remove_clan_penalty join|create charname",
+        );
         return;
     };
     let is_create = kind.eq_ignore_ascii_case("create");
     if !is_create {
-        send_message(world, client_id, "The clan join penalty is not tracked in this build.");
+        send_message(
+            world,
+            client_id,
+            "The clan join penalty is not tracked in this build.",
+        );
         return;
     }
     let Some(target) = find_online_player(world, name) else {
@@ -416,5 +603,9 @@ pub(super) fn admin_remove_clan_penalty(world: &mut World, client_id: u32, args:
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.clan_create_expiry_time = 0;
     }
-    send_message(world, client_id, &format!("Clan penalty successfully removed to character: {name}"));
+    send_message(
+        world,
+        client_id,
+        &format!("Clan penalty successfully removed to character: {name}"),
+    );
 }

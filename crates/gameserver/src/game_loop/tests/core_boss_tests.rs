@@ -8,9 +8,18 @@ use crate::game_loop::grand_boss::{ALIVE, DEAD};
 const DEATH_KNIGHT: i32 = 29007;
 const CORE_OID: i32 = NPC_OID + 80;
 
-fn core_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn core_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    for (id, kind) in [(CORE, "GrandBoss"), (29007, "Monster"), (29008, "Monster"), (29011, "Monster")] {
+    for (id, kind) in [
+        (CORE, "GrandBoss"),
+        (29007, "Monster"),
+        (29008, "Monster"),
+        (29011, "Monster"),
+    ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();
         t.level = 50;
@@ -79,7 +88,11 @@ fn a_minion_killed_while_core_lives_respawns() {
     crate::game_loop::core_boss::on_minion_killed(&mut world, DEATH_KNIGHT);
     crate::game_loop::core_boss::handle_minion_respawn(&mut world, DEATH_KNIGHT);
 
-    assert_eq!(count_of(&mut world, DEATH_KNIGHT), 2, "a replacement was placed");
+    assert_eq!(
+        count_of(&mut world, DEATH_KNIGHT),
+        2,
+        "a replacement was placed"
+    );
 }
 
 /// **With Core dead, minions stop coming back** — Java guards the respawn on
@@ -94,7 +107,11 @@ fn minions_do_not_respawn_once_core_is_dead() {
     crate::game_loop::core_boss::on_minion_killed(&mut world, DEATH_KNIGHT);
     crate::game_loop::core_boss::handle_minion_respawn(&mut world, DEATH_KNIGHT);
 
-    assert_eq!(count_of(&mut world, DEATH_KNIGHT), before, "no repopulating an empty lair");
+    assert_eq!(
+        count_of(&mut world, DEATH_KNIGHT),
+        before,
+        "no repopulating an empty lair"
+    );
 }
 
 /// Core dying clears its minions — otherwise the adds outlive the boss.
@@ -117,13 +134,20 @@ fn the_despawn_is_scheduled_rather_than_immediate() {
     crate::game_loop::core_boss::on_core_spawned(&mut world);
 
     crate::game_loop::core_boss::on_core_killed(&mut world);
-    assert_eq!(total_minions(&mut world), 3, "still standing right after the kill");
+    assert_eq!(
+        total_minions(&mut world),
+        3,
+        "still standing right after the kill"
+    );
 }
 
 /// An unrelated NPC is not treated as one of Core's minions.
 #[test]
 fn an_unrelated_npc_is_not_a_core_minion() {
-    assert!(!crate::game_loop::core_boss::is_core_minion(12077), "a Wolf is not Core's add");
+    assert!(
+        !crate::game_loop::core_boss::is_core_minion(12077),
+        "a Wolf is not Core's add"
+    );
     assert!(crate::game_loop::core_boss::is_core_minion(DEATH_KNIGHT));
 }
 
@@ -152,7 +176,11 @@ fn core_says_its_intro_once_per_life() {
     while rx.try_recv().is_ok() {}
 
     crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
-    assert_eq!(count_npc_say(&mut rx), 2, "both intro lines on the first hit");
+    assert_eq!(
+        count_npc_say(&mut rx),
+        2,
+        "both intro lines on the first hit"
+    );
 
     // A later hit: force the taunt roll to fail so only the intro could speak.
     world.forced_rolls.push_back(7);

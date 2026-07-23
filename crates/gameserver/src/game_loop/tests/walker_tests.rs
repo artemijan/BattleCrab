@@ -10,7 +10,14 @@ const WALKER_ID: i32 = 46000;
 const WALKER: i32 = NPC_OID;
 
 fn node(x: i32, delay: i32) -> WalkNode {
-    WalkNode { x, y: 0, z: 0, delay, run: false, chat: String::new() }
+    WalkNode {
+        x,
+        y: 0,
+        z: 0,
+        delay,
+        run: false,
+        chat: String::new(),
+    }
 }
 
 /// A three-node route, so the turn-around arithmetic is observable.
@@ -23,7 +30,14 @@ fn route(style: RepeatStyle, repeat: bool) -> WalkRoute {
     }
 }
 
-fn walker_world(style: RepeatStyle, repeat: bool) -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn walker_world(
+    style: RepeatStyle,
+    repeat: bool,
+) -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(WALKER_ID);
     t.type_name = "Folk".into();
@@ -110,7 +124,10 @@ fn the_walker_starts_moving_towards_the_next_node() {
 
     crate::game_loop::walkers::walker_tick(&mut world);
 
-    let mv = world.objects.get_component::<Movement>(&WALKER).expect("a leg started");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&WALKER)
+        .expect("a leg started");
     assert_eq!(mv.0.dest_x, 100, "heading for node 1");
     assert!(state(&world).unwrap().travelling);
 }
@@ -144,7 +161,10 @@ fn a_non_repeating_route_stops_at_the_last_node() {
     assert_eq!(state(&world).map(|s| s.node), Some(2));
     walk_one_leg(&mut world); // would overrun
 
-    assert!(state(&world).is_none(), "the route is dropped once it runs out");
+    assert!(
+        state(&world).is_none(),
+        "the route is dropped once it runs out"
+    );
 }
 
 #[test]
@@ -160,12 +180,18 @@ fn a_node_delay_holds_the_walker_in_place() {
 
     // Immediately after arriving, no new leg should start.
     crate::game_loop::walkers::walker_tick(&mut world);
-    assert!(world.objects.get_component::<Movement>(&WALKER).is_none(), "still serving the delay");
+    assert!(
+        world.objects.get_component::<Movement>(&WALKER).is_none(),
+        "still serving the delay"
+    );
 
     // Past the delay it sets off again.
     world.tick += 10 * crate::game_loop::walkers::WALKER_PERIOD + 1;
     crate::game_loop::walkers::walker_tick(&mut world);
-    assert!(world.objects.get_component::<Movement>(&WALKER).is_some(), "delay served, walking again");
+    assert!(
+        world.objects.get_component::<Movement>(&WALKER).is_some(),
+        "delay served, walking again"
+    );
 }
 
 #[test]
@@ -173,7 +199,11 @@ fn a_dead_walker_stops_permanently() {
     // `WalkingManager.onDeath` cancels the route.
     let (mut world, _db, _l) = walker_world(RepeatStyle::GoFirst, true);
     place(&mut world);
-    world.objects.get_component_mut::<Vitals>(&WALKER).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&WALKER)
+        .unwrap()
+        .dead = true;
 
     crate::game_loop::walkers::walker_tick(&mut world);
 

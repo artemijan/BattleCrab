@@ -9,7 +9,9 @@ use super::*;
 use crate::model::components::PlayerVitals;
 use crate::model::skill::{SkillEffect, TargetType};
 
-use crate::game_loop::death::{do_revive_with, handle_revive_answer, resurrect_restore_percent, revive_request};
+use crate::game_loop::death::{
+    do_revive_with, handle_revive_answer, resurrect_restore_percent, revive_request,
+};
 
 const REVIVER: i32 = 9601;
 const CORPSE: i32 = 9602;
@@ -18,8 +20,15 @@ const TCID: u32 = 2;
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
 fn kill(world: &mut World, oid: i32, lost_exp: i64) {
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().dead = true;
-    let p = world.objects.get_component_mut::<crate::model::Player>(&oid).unwrap();
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .dead = true;
+    let p = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&oid)
+        .unwrap();
     p.lost_exp_on_death = lost_exp;
     p.exp = 100_000;
 }
@@ -66,7 +75,12 @@ fn a_proposal_does_not_revive_by_itself() {
 
     assert!(is_dead(&world, CORPSE), "still dead until they accept");
     assert!(
-        world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().revive_request.is_some(),
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .revive_request
+            .is_some(),
         "but the proposal is recorded"
     );
 }
@@ -81,11 +95,22 @@ fn a_second_proposal_is_refused_while_one_is_pending() {
     kill(&mut world, CORPSE, 10_000);
 
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
-    let first = world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().revive_request;
+    let first = world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap()
+        .revive_request;
     revive_request(&mut world, REVIVER, CORPSE, 90, 10, 10, 0);
-    let second = world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().revive_request;
+    let second = world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap()
+        .revive_request;
 
-    assert_eq!(first, second, "the pending proposal is untouched by the second attempt");
+    assert_eq!(
+        first, second,
+        "the pending proposal is untouched by the second attempt"
+    );
 }
 
 /// A living player is never proposed to.
@@ -96,7 +121,12 @@ fn a_living_player_gets_no_proposal() {
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
 
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
-    assert!(world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().revive_request.is_none());
+    assert!(world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap()
+        .revive_request
+        .is_none());
 }
 
 // ---------------------------------------------------------------------------
@@ -111,7 +141,11 @@ fn accepting_revives_with_the_skills_percentages_and_restores_xp() {
     let _r = ingame_caster(&mut world, CID, REVIVER, 0, 0);
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
     kill(&mut world, CORPSE, 10_000);
-    let max_hp = world.objects.get_component::<Vitals>(&CORPSE).unwrap().max_hp as f64;
+    let max_hp = world
+        .objects
+        .get_component::<Vitals>(&CORPSE)
+        .unwrap()
+        .max_hp as f64;
 
     // Force a known restore percent by driving `do_revive_with` directly; the
     // WIT-scaled path is covered by the formula test above.
@@ -119,9 +153,19 @@ fn accepting_revives_with_the_skills_percentages_and_restores_xp() {
 
     assert!(!is_dead(&world, CORPSE), "back up");
     let v = world.objects.get_component::<Vitals>(&CORPSE).unwrap();
-    assert!((v.cur_hp - max_hp * 0.5).abs() < 1e-6, "50% HP, not the config default");
-    let p = world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap();
-    assert_eq!(p.exp, 100_000 + 4_000, "40% of the 10 000 lost XP is given back");
+    assert!(
+        (v.cur_hp - max_hp * 0.5).abs() < 1e-6,
+        "50% HP, not the config default"
+    );
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap();
+    assert_eq!(
+        p.exp,
+        100_000 + 4_000,
+        "40% of the 10 000 lost XP is given back"
+    );
     assert_eq!(p.lost_exp_on_death, 0, "and the debt is cleared");
 }
 
@@ -134,10 +178,18 @@ fn declining_leaves_the_corpse_dead() {
     kill(&mut world, CORPSE, 10_000);
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
 
-    assert!(handle_revive_answer(&mut world, CORPSE, false), "the reply was claimed by the revive flow");
+    assert!(
+        handle_revive_answer(&mut world, CORPSE, false),
+        "the reply was claimed by the revive flow"
+    );
     assert!(is_dead(&world, CORPSE), "still dead");
     assert!(
-        world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().revive_request.is_none(),
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .revive_request
+            .is_none(),
         "and the proposal is consumed, so a new one can be made"
     );
 }
@@ -148,7 +200,10 @@ fn declining_leaves_the_corpse_dead() {
 fn an_unrelated_answer_is_not_claimed() {
     let (mut world, _db, _l) = cast_test_world();
     let _r = ingame_caster(&mut world, CID, REVIVER, 0, 0);
-    assert!(!handle_revive_answer(&mut world, REVIVER, true), "no proposal, not ours");
+    assert!(
+        !handle_revive_answer(&mut world, REVIVER, true),
+        "no proposal, not ours"
+    );
 }
 
 /// Java re-checks the corpse is still dead: they may have used "to village"
@@ -162,12 +217,24 @@ fn accepting_after_already_respawning_does_nothing() {
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
 
     // They respawned by themselves first.
-    world.objects.get_component_mut::<Vitals>(&CORPSE).unwrap().dead = false;
-    let exp_before = world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().exp;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&CORPSE)
+        .unwrap()
+        .dead = false;
+    let exp_before = world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap()
+        .exp;
 
     assert!(handle_revive_answer(&mut world, CORPSE, true), "claimed");
     assert_eq!(
-        world.objects.get_component::<crate::model::Player>(&CORPSE).unwrap().exp,
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .exp,
         exp_before,
         "no second helping of XP"
     );
@@ -184,15 +251,24 @@ fn real_dist_resurrection_skills_parse() {
     let skills = crate::data::skill_data::SkillData::load_from(DIST);
 
     let res = skills.get(1016, 2).expect("Resurrection loads");
-    assert_eq!(res.target_type, TargetType::PcBody, "it is cast on a corpse");
+    assert_eq!(
+        res.target_type,
+        TargetType::PcBody,
+        "it is cast on a corpse"
+    );
     assert!(
-        res.effects.iter().any(|e| matches!(e, SkillEffect::Resurrection { power, .. } if *power > 0)),
+        res.effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::Resurrection { power, .. } if *power > 0)),
         "with a real restore power at level 2: {:?}",
         res.effects
     );
 
     let mass = skills.get(1254, 2).expect("Mass Resurrection loads");
-    assert!(mass.effects.iter().any(|e| matches!(e, SkillEffect::Resurrection { .. })));
+    assert!(mass
+        .effects
+        .iter()
+        .any(|e| matches!(e, SkillEffect::Resurrection { .. })));
 }
 
 /// Level 1 of both declares `power = 0` — the skill revives but restores no XP.
@@ -207,5 +283,9 @@ fn level_one_resurrection_restores_no_xp() {
         _ => None,
     });
     assert_eq!(power, Some(0), "level 1 restores no XP");
-    assert_eq!(resurrect_restore_percent(0.0, 2.0), 0.0, "and the formula short-circuits on it");
+    assert_eq!(
+        resurrect_restore_percent(0.0, 2.0),
+        0.0,
+        "and the formula short-circuits on it"
+    );
 }

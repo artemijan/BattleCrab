@@ -155,14 +155,28 @@ const ERRANDS: [Errand; 3] = [
 /// Every item that means "an errand is in flight" — Rossela's idle/completion
 /// branches both require none of these.
 const IN_FLIGHT: [i32; 6] = [
-    ROSELLAS_LETTER, APPETIZING_APPLE, IMMORTAL_LOVE, GREENISS_CHARM, SAP_OF_THE_MOTHER_TREE,
+    ROSELLAS_LETTER,
+    APPETIZING_APPLE,
+    IMMORTAL_LOVE,
+    GREENISS_CHARM,
+    SAP_OF_THE_MOTHER_TREE,
     LUCKY_POTPOURRI,
 ];
 
 const QUEST_ITEMS: [i32; 13] = [
-    ROSELLAS_LETTER, RED_DOWN, MAGICAL_POWERS_RUBY, PURE_AQUAMARINE, APPETIZING_APPLE, GOLD_LEAVES,
-    IMMORTAL_LOVE, AMETHYST, NOBILITY_AMETHYST, FERTILITY_PERIDOT, GREENISS_CHARM,
-    SAP_OF_THE_MOTHER_TREE, LUCKY_POTPOURRI,
+    ROSELLAS_LETTER,
+    RED_DOWN,
+    MAGICAL_POWERS_RUBY,
+    PURE_AQUAMARINE,
+    APPETIZING_APPLE,
+    GOLD_LEAVES,
+    IMMORTAL_LOVE,
+    AMETHYST,
+    NOBILITY_AMETHYST,
+    FERTILITY_PERIDOT,
+    GREENISS_CHARM,
+    SAP_OF_THE_MOTHER_TREE,
+    LUCKY_POTPOURRI,
 ];
 
 pub struct Q00408PathOfTheElvenWizard;
@@ -264,7 +278,9 @@ impl QuestScript for Q00408PathOfTheElvenWizard {
             return;
         }
         let npc_id = ctx.npc_id;
-        let Some(e) = ERRANDS.iter().find(|e| e.mob == npc_id) else { return };
+        let Some(e) = ERRANDS.iter().find(|e| e.mob == npc_id) else {
+            return;
+        };
         // The charm is the drop gate; without it the mob is just a mob.
         if !self.has(ctx, e.charm) || ctx.quest_items_count(e.material) >= e.need {
             return;
@@ -335,8 +351,12 @@ impl Q00408PathOfTheElvenWizard {
             }
             if self.has(ctx, e.charm) {
                 return Some(
-                    if ctx.quest_items_count(e.material) < e.need { e.collecting } else { e.collected }
-                        .to_string(),
+                    if ctx.quest_items_count(e.material) < e.need {
+                        e.collecting
+                    } else {
+                        e.collected
+                    }
+                    .to_string(),
                 );
             }
         }

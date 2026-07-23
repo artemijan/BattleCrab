@@ -26,10 +26,16 @@ pub(crate) const INTERACTION_DISTANCE: f64 = 250.0;
 /// * **NPC** → an auto-attackable template (monsters), or a siege
 ///   control/flame tower, HQ flag, or stationed guard the attacker may engage.
 pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
-    if world.objects.has_component::<crate::model::Player>(&target_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
+    {
         return super::pvp::is_player_auto_attackable(world, attacker_oid, target_oid);
     }
-    if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::door::Door>(&target_oid)
+    {
         return super::siege::attackable_door(world, target_oid);
     }
     world
@@ -52,7 +58,11 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
     ) else {
         return false;
     };
-    let (dx, dy, dz) = ((npos.x - ppos.x) as f64, (npos.y - ppos.y) as f64, (npos.z - ppos.z) as f64);
+    let (dx, dy, dz) = (
+        (npos.x - ppos.x) as f64,
+        (npos.y - ppos.y) as f64,
+        (npos.z - ppos.z) as f64,
+    );
     dx * dx + dy * dy + dz * dz <= INTERACTION_DISTANCE * INTERACTION_DISTANCE
 }
 
@@ -70,12 +80,19 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
 /// plain select. Always terminates with `ActionFailed`, matching
 /// `WorldObject.onAction`.
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::Action::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::Action::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     let shift = pkt.action_id == 1;
 
-    if world.objects.has_component::<crate::model::components::GroundItem>(&pkt.object_id) {
+    if world
+        .objects
+        .has_component::<crate::model::components::GroundItem>(&pkt.object_id)
+    {
         // `Item.onAction` → `Player.doPickupItem`: pick it straight up (the
         // walk-to-item approach path is a simplification).
         super::ground_items::pickup_ground_item(world, client_id, object_id, pkt.object_id);
@@ -88,24 +105,45 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(crate::network::server_packets::action_failed());
         }
-    } else if world.objects.has_component::<crate::model::Player>(&pkt.object_id) {
+    } else if world
+        .objects
+        .has_component::<crate::model::Player>(&pkt.object_id)
+    {
         // A player running a private store, clicked while already targeted, opens
         // their store window for the customer (Java `Player.onAction`).
-        let already_targeted = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0 == Some(pkt.object_id);
-        if already_targeted && pkt.object_id != object_id && super::private_store::is_store_owner(world, pkt.object_id) {
+        let already_targeted = world
+            .objects
+            .get_component::<TargetRef>(&object_id)
+            .copied()
+            .unwrap_or_default()
+            .0
+            == Some(pkt.object_id);
+        if already_targeted
+            && pkt.object_id != object_id
+            && super::private_store::is_store_owner(world, pkt.object_id)
+        {
             super::private_store::open_buyer_view(world, client_id, object_id, pkt.object_id);
-        } else if already_targeted && pkt.object_id != object_id && super::crafting::is_manufacture_owner(world, pkt.object_id) {
+        } else if already_targeted
+            && pkt.object_id != object_id
+            && super::crafting::is_manufacture_owner(world, pkt.object_id)
+        {
             super::crafting::open_sell_list(world, client_id, object_id, pkt.object_id);
         } else {
             set_target(world, client_id, object_id, Some(pkt.object_id));
         }
-    } else if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&pkt.object_id) {
+    } else if let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&pkt.object_id)
+    {
         // Java `Npc.canTarget` → `WorldObject.isTargetable` (template flag).
         let targetable = npc.template(world).is_none_or(|t| t.targetable);
         if targetable {
             // `NpcAction.action`: every click on an NPC records it as the
             // player's last folk NPC (bare-bypass origin resolution).
-            world.objects.add_components(&object_id, crate::model::components::LastFolkNpc(pkt.object_id));
+            world.objects.add_components(
+                &object_id,
+                crate::model::components::LastFolkNpc(pkt.object_id),
+            );
             if shift && world.cfg.npc.alt_game_view_npc {
                 // `NpcActionShift`: set the target, then open the info window.
                 set_target(world, client_id, object_id, Some(pkt.object_id));
@@ -125,7 +163,10 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
                 }
             }
         }
-    } else if world.objects.has_component::<crate::model::door::Door>(&pkt.object_id) {
+    } else if world
+        .objects
+        .has_component::<crate::model::door::Door>(&pkt.object_id)
+    {
         // `DoorAction.action`: the first click selects the door; a second click
         // (already targeted, non-shift `interact`) engages it when it's auto-
         // attackable — a castle gate during a siege — gated on the 400-unit
@@ -144,7 +185,8 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             ),
             (Some(a), Some(d)) if (a.z - d.z).abs() < 400
         );
-        if already_targeted && !shift && z_ok && is_auto_attackable(world, object_id, pkt.object_id) {
+        if already_targeted && !shift && z_ok && is_auto_attackable(world, object_id, pkt.object_id)
+        {
             super::combat::start_attack_intent(world, client_id, object_id, pkt.object_id, false);
         } else {
             set_target(world, client_id, object_id, Some(pkt.object_id));
@@ -169,8 +211,12 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
 /// the *current* target, which `setTarget(null)` just removed — our `Attack`
 /// intent snapshots the target, so drop it explicitly to match.
 pub(crate) fn handle_request_target_canceld(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestTargetCanceld::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestTargetCanceld::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     if matches!(
         world.objects.get_component::<QueuedAction>(&object_id),
@@ -206,7 +252,11 @@ struct TargetInfo {
 }
 
 fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<TargetInfo> {
-    if world.objects.get_component::<crate::model::Player>(&target_id).is_some() {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&target_id)
+        .is_some()
+    {
         let pos = world.objects.get_component::<Position>(&target_id)?;
         let vitals = world.objects.get_component::<Vitals>(&target_id)?;
         return Some(TargetInfo {
@@ -220,11 +270,19 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
             y: pos.y,
         });
     }
-    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&target_id) {
+    if let Some(door) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&target_id)
+    {
         // Doors validate-location and show an HP bar like NPCs (the siege attack
         // gate lives in the attack path, not here).
         let pos = world.objects.get_component::<Position>(&target_id)?;
-        let max_hp = world.data.door_data.get(door.door_id).map(|t| t.hp_max).unwrap_or(1);
+        let max_hp = world
+            .data
+            .door_data
+            .get(door.door_id)
+            .map(|t| t.hp_max)
+            .unwrap_or(1);
         return Some(TargetInfo {
             z: pos.z,
             max_hp,
@@ -236,7 +294,9 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
             y: pos.y,
         });
     }
-    let npc = world.objects.get_component::<crate::model::npc::Npc>(&target_id)?;
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_id)?;
     let pos = world.objects.get_component::<Position>(&target_id)?;
     let vitals = world.objects.get_component::<Vitals>(&target_id)?;
     let t = npc.template(world)?;
@@ -244,7 +304,11 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
         z: pos.z,
         max_hp: vitals.max_hp,
         cur_hp: vitals.cur_hp as i32,
-        color: if t.is_auto_attackable() { (viewer_level - t.level) as i16 } else { 0 },
+        color: if t.is_auto_attackable() {
+            (viewer_level - t.level) as i16
+        } else {
+            0
+        },
         is_npc: true,
         heading: pos.heading,
         x: pos.x,
@@ -256,18 +320,37 @@ fn target_info(world: &World, viewer_level: i32, target_id: i32) -> Option<Targe
 /// vehicles/party checks yet). Same-target re-click is handled by the caller
 /// (`handle_action` routes it to the interact path for NPCs; for players
 /// Java only re-sends `ValidateLocation`, which we skip).
-pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_target: Option<i32>) {
-    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
-    let current = world.objects.get_component::<TargetRef>(&object_id).copied().unwrap_or_default().0;
+pub(crate) fn set_target(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    new_target: Option<i32>,
+) {
+    let Some(player) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    else {
+        return;
+    };
+    let current = world
+        .objects
+        .get_component::<TargetRef>(&object_id)
+        .copied()
+        .unwrap_or_default()
+        .0;
     if current == new_target {
         return;
     }
     let viewer_level = player.level;
 
-    let Some(ppos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(ppos) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
     // Prevents /target exploiting: reject targets too far away in Z.
     let new_target = new_target.filter(|&t| {
-        target_info(world, viewer_level, t).map(|i| (i.z - ppos.z).abs() <= 1000).unwrap_or(false)
+        target_info(world, viewer_level, t)
+            .map(|i| (i.z - ppos.z).abs() <= 1000)
+            .unwrap_or(false)
     });
     if current == new_target {
         return;
@@ -275,13 +358,21 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 
     let (px, py, pz) = (ppos.x, ppos.y, ppos.z);
     if let Some(t) = new_target {
-        let Some(info) = target_info(world, viewer_level, t) else { return };
+        let Some(info) = target_info(world, viewer_level, t) else {
+            return;
+        };
         if let Some(cs) = world.clients.get(&client_id) {
             // Java sends ValidateLocation for any creature target; the
             // player→player path predates it and skips the (cosmetic)
             // correction, so it stays NPC-only here.
             if info.is_npc {
-                cs.send(server_packets::validate_location(t, info.x, info.y, info.z, info.heading));
+                cs.send(server_packets::validate_location(
+                    t,
+                    info.x,
+                    info.y,
+                    info.z,
+                    info.heading,
+                ));
             }
             cs.send(server_packets::my_target_selected(t, info.color));
             cs.send(server_packets::status_update(
@@ -295,13 +386,24 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
             // carries (non-passive) buffs — Java sends this on the next
             // `updateEffectIcons`; we send it up front on select.
             let now = world.tick;
-            if let Some(buffs) = world.objects.get_component::<crate::model::components::Buffs>(&t) {
+            if let Some(buffs) = world
+                .objects
+                .get_component::<crate::model::components::Buffs>(&t)
+            {
                 if buffs.0.iter().any(|b| !b.passive) {
-                    cs.send(crate::network::enter_world::ex_abnormal_status_update_from_target(t, buffs, now));
+                    cs.send(
+                        crate::network::enter_world::ex_abnormal_status_update_from_target(
+                            t, buffs, now,
+                        ),
+                    );
                 }
             }
         }
-        broadcast_to_others(world, object_id, &server_packets::target_selected(object_id, t, px, py, pz));
+        broadcast_to_others(
+            world,
+            object_id,
+            &server_packets::target_selected(object_id, t, px, py, pz),
+        );
     } else {
         // Java's clear path uses broadcastPacket(includeSelf=true): the
         // deselecting client must get TargetUnselected too, or its UI keeps
@@ -327,15 +429,31 @@ pub(crate) fn set_target(world: &mut World, client_id: u32, object_id: i32, new_
 /// must invoke this *before* sending the target's `DeleteObject`, matching
 /// Java `World.switchRegion` (`setTarget(null)` runs first).
 pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
-    if !world.objects.get_component::<TargetRef>(&holder_object_id).copied().is_some_and(|t| t.0.is_some()) {
+    if !world
+        .objects
+        .get_component::<TargetRef>(&holder_object_id)
+        .copied()
+        .is_some_and(|t| t.0.is_some())
+    {
         return;
     }
-    if let Some(t) = world.objects.get_component_mut::<TargetRef>(&holder_object_id) {
+    if let Some(t) = world
+        .objects
+        .get_component_mut::<TargetRef>(&holder_object_id)
+    {
         t.0 = None;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&holder_object_id).copied() else { return };
+    let Some(pos) = world
+        .objects
+        .get_component::<Position>(&holder_object_id)
+        .copied()
+    else {
+        return;
+    };
     let pkt = server_packets::target_unselected(holder_object_id, pos.x, pos.y, pos.z);
-    if let Some(cs) = super::helpers::client_for_player(world, holder_object_id).and_then(|cid| world.clients.get(&cid)) {
+    if let Some(cs) = super::helpers::client_for_player(world, holder_object_id)
+        .and_then(|cid| world.clients.get(&cid))
+    {
         cs.send(pkt.clone());
     }
     broadcast_to_others(world, holder_object_id, &pkt);
@@ -347,16 +465,36 @@ pub(crate) fn drop_target_notify(world: &mut World, holder_object_id: i32) {
 /// player walks in first (`combat::start_interact_intent`, Java's
 /// `AI_INTENTION_INTERACT`) and this function is re-entered on arrival —
 /// matching Java's `Player.doInteract` re-dispatching `onAction`.
-pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32, shift: bool) {
-    if world.objects.get_component::<crate::model::Player>(&object_id).is_none() {
+pub(crate) fn interact_with_npc(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    npc_object_id: i32,
+    shift: bool,
+) {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_none()
+    {
         return;
     }
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
     let Some(t) = npc.template(world) else { return };
     // `Defender.onAction`: a siege guard is attacked on click (not talked to)
     // when the clicker is an attacker — same gate as the monster auto-attack.
-    if t.is_auto_attackable() || super::siege::attackable_siege_guard(world, npc_object_id, object_id) {
-        let dead = world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead);
+    if t.is_auto_attackable()
+        || super::siege::attackable_siege_guard(world, npc_object_id, object_id)
+    {
+        let dead = world
+            .objects
+            .get_component::<Vitals>(&object_id)
+            .is_some_and(|v| v.dead);
         if !dead {
             // Shift-click carries the dontMove modifier into the attack.
             super::combat::start_attack_intent(world, client_id, object_id, npc_object_id, shift);
@@ -395,7 +533,12 @@ pub(crate) fn interact_with_npc(world: &mut World, client_id: u32, object_id: i3
 // `ALT_GAME_KARMA_PLAYER_CAN_SHOP`/`_USE_GK`/`_USE_WAREHOUSE` configs, which
 // we don't parse yet.
 pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id: i32, value: i32) {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_object_id) else { return };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
     let Some(t) = npc.template(world) else { return };
     if !t.talkable {
         return;
@@ -424,7 +567,11 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
 /// `HtmCache`; we read per interaction but apply the same normalization via
 /// [`read_htm`] (TODO: cache if profiling ever cares).
 fn load_chat_window_html(root: &str, type_name: &str, npc_id: i32, value: i32) -> Option<String> {
-    let pom = if value == 0 { npc_id.to_string() } else { format!("{npc_id}-{value}") };
+    let pom = if value == 0 {
+        npc_id.to_string()
+    } else {
+        format!("{npc_id}-{value}")
+    };
     let dir = match type_name {
         "Merchant" => Some("merchant"),
         "Fisherman" => Some("fisherman"),

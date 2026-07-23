@@ -153,7 +153,12 @@ async fn create_persist_delete_restore() {
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Create a character.
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Hero") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Hero"),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
         _ => panic!("expected CharacterCreated"),
@@ -171,14 +176,24 @@ async fn create_persist_delete_restore() {
     };
 
     // Duplicate name is rejected.
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Hero") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Hero"),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::NameExists),
         _ => panic!("expected CharacterCreated(NameExists)"),
     }
 
     // It persists: a fresh load still finds it.
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert_eq!(chars.len(), 1),
         _ => panic!("expected CharactersLoaded"),
@@ -186,7 +201,14 @@ async fn create_persist_delete_restore() {
 
     // Mark for deletion (3-day timer) → still listed, now with a delete time.
     let delete_time = commons::util::now_millis() + 3 * 86_400_000;
-    cmd_tx.send(DbCommand::MarkDelete { client_id: 1, account: "acc".into(), char_id, delete_time }).unwrap();
+    cmd_tx
+        .send(DbCommand::MarkDelete {
+            client_id: 1,
+            account: "acc".into(),
+            char_id,
+            delete_time,
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars.len(), 1);
@@ -196,7 +218,13 @@ async fn create_persist_delete_restore() {
     }
 
     // Restore → delete time cleared.
-    cmd_tx.send(DbCommand::RestoreCharacter { client_id: 1, account: "acc".into(), char_id }).unwrap();
+    cmd_tx
+        .send(DbCommand::RestoreCharacter {
+            client_id: 1,
+            account: "acc".into(),
+            char_id,
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars.len(), 1);
@@ -206,9 +234,15 @@ async fn create_persist_delete_restore() {
     }
 
     // Char count for the login server's ReplyCharacters.
-    cmd_tx.send(DbCommand::CountCharacters { account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::CountCharacters {
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
-        DbEvent::CharCount { count, del_times, .. } => {
+        DbEvent::CharCount {
+            count, del_times, ..
+        } => {
             assert_eq!(count, 1);
             assert!(del_times.is_empty());
         }
@@ -216,7 +250,10 @@ async fn create_persist_delete_restore() {
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -232,10 +269,24 @@ async fn login_char_count_excludes_expired_deletions() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "character_skills", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "character_skills",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -251,11 +302,21 @@ async fn login_char_count_excludes_expired_deletions() {
 
     // Three characters on the account.
     for name in ["Alive", "Pending", "Doomed"] {
-        cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char(name) }).unwrap();
+        cmd_tx
+            .send(DbCommand::CreateCharacter {
+                client_id: 1,
+                data: new_char(name),
+            })
+            .unwrap();
         recv(&event_rx); // CharacterCreated
         recv(&event_rx); // CharactersLoaded
     }
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     let chars = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars,
         _ => panic!("expected CharactersLoaded"),
@@ -266,37 +327,68 @@ async fn login_char_count_excludes_expired_deletions() {
     // "Pending" is counting down (future); "Doomed" already expired — stamped
     // directly so no `LoadCharacters` purge intervenes before the count.
     cmd_tx
-        .send(DbCommand::MarkDelete { client_id: 1, account: "acc".into(), char_id: id_of("Pending"), delete_time: now + 3 * 86_400_000 })
+        .send(DbCommand::MarkDelete {
+            client_id: 1,
+            account: "acc".into(),
+            char_id: id_of("Pending"),
+            delete_time: now + 3 * 86_400_000,
+        })
         .unwrap();
     recv(&event_rx); // CharactersLoaded (Pending kept — still counting down)
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?").bind(1_i64).bind(id_of("Doomed")).execute(&pool).await.unwrap();
+        sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?")
+            .bind(1_i64)
+            .bind(id_of("Doomed"))
+            .execute(&pool)
+            .await
+            .unwrap();
         pool.close().await;
     }
 
     // The login count: 3 rows → 2 (Doomed purged), 1 pending-deletion timestamp.
-    cmd_tx.send(DbCommand::CountCharacters { account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::CountCharacters {
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
-        DbEvent::CharCount { count, del_times, .. } => {
+        DbEvent::CharCount {
+            count, del_times, ..
+        } => {
             assert_eq!(count, 2, "expired deletion excluded from the login count");
-            assert_eq!(del_times.len(), 1, "only the still-counting-down deletion is reported");
+            assert_eq!(
+                del_times.len(),
+                1,
+                "only the still-counting-down deletion is reported"
+            );
         }
         _ => panic!("expected CharCount"),
     }
 
     // …and the expired row is actually purged, so the char-select list agrees.
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars.len(), 2, "two characters remain");
-            assert!(!chars.iter().any(|c| c.name == "Doomed"), "expired char purged");
+            assert!(
+                !chars.iter().any(|c| c.name == "Doomed"),
+                "expired char purged"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -313,13 +405,29 @@ async fn shortcuts_and_macros_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
         // `character_quests` is needed too: the memory-first flush reconciles
         // every child table, so `store_player` always touches it (even with no
         // quests, to delete any that were abandoned).
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -333,7 +441,13 @@ async fn shortcuts_and_macros_persist() {
     add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
-    let sc = |slot: i32, kind: ShortcutType, id: i32, level: i32| db::NewShortcut { slot, page: 0, kind, id, level };
+    let sc = |slot: i32, kind: ShortcutType, id: i32, level: i32| db::NewShortcut {
+        slot,
+        page: 0,
+        kind,
+        id,
+        level,
+    };
     let preset = Macro {
         id: 10000,
         icon: 1,
@@ -341,12 +455,28 @@ async fn shortcuts_and_macros_persist() {
         descr: "d".into(),
         acronym: "p".into(),
         commands: vec![
-            MacroCmd { entry: 0, kind: MacroType::Skill, d1: 1177, d2: 1, cmd: String::new() },
-            MacroCmd { entry: 1, kind: MacroType::Text, d1: 0, d2: 0, cmd: "/loc".into() },
+            MacroCmd {
+                entry: 0,
+                kind: MacroType::Skill,
+                d1: 1177,
+                d2: 1,
+                cmd: String::new(),
+            },
+            MacroCmd {
+                entry: 1,
+                kind: MacroType::Text,
+                d1: 0,
+                d2: 0,
+                cmd: "/loc".into(),
+            },
         ],
     };
     let mut data = new_char("Shorty");
-    data.items = vec![db::NewItem { item_id: 2369, count: 1, paperdoll_index: Some(5) }];
+    data.items = vec![db::NewItem {
+        item_id: 2369,
+        count: 1,
+        paperdoll_index: Some(5),
+    }];
     data.shortcuts = vec![
         sc(0, ShortcutType::Action, 2, 0),
         sc(1, ShortcutType::Item, 2369, 0),
@@ -356,7 +486,9 @@ async fn shortcuts_and_macros_persist() {
     ];
     data.macros = vec![preset.clone()];
 
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter { client_id: 1, data })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
         _ => panic!("expected CharacterCreated"),
@@ -367,12 +499,28 @@ async fn shortcuts_and_macros_persist() {
             assert_eq!(c.items.len(), 1);
             let item_oid = c.items[0].object_id;
             assert_eq!(c.shortcuts.len(), 4, "missing-item shortcut dropped");
-            let item_sc = c.shortcuts.iter().find(|s| s.kind == ShortcutType::Item).unwrap();
-            assert_eq!(item_sc.id, item_oid, "ITEM shortcut resolved to the created object id");
-            assert!(c.shortcuts.iter().any(|s| s.kind == ShortcutType::Skill && s.id == 1177 && s.level == 1));
-            assert!(c.shortcuts.iter().any(|s| s.kind == ShortcutType::Macro && s.id == 10000));
+            let item_sc = c
+                .shortcuts
+                .iter()
+                .find(|s| s.kind == ShortcutType::Item)
+                .unwrap();
+            assert_eq!(
+                item_sc.id, item_oid,
+                "ITEM shortcut resolved to the created object id"
+            );
+            assert!(c
+                .shortcuts
+                .iter()
+                .any(|s| s.kind == ShortcutType::Skill && s.id == 1177 && s.level == 1));
+            assert!(c
+                .shortcuts
+                .iter()
+                .any(|s| s.kind == ShortcutType::Macro && s.id == 10000));
             assert_eq!(c.macros.len(), 1);
-            assert_eq!(c.macros[0].commands, preset.commands, "commands column round-trips");
+            assert_eq!(
+                c.macros[0].commands, preset.commands,
+                "commands column round-trips"
+            );
             c.clone()
         }
         _ => panic!("expected CharactersLoaded"),
@@ -388,27 +536,57 @@ async fn shortcuts_and_macros_persist() {
     save.base.pccafe_points = 4200;
     // Raid points ride the same `characters` row (G23).
     save.base.raidboss_points = 137;
-    for sc in save.shortcuts.iter_mut().filter(|s| s.slot == 0 && s.page == 0) {
+    for sc in save
+        .shortcuts
+        .iter_mut()
+        .filter(|s| s.slot == 0 && s.page == 0)
+    {
         sc.kind = ShortcutType::Skill;
         sc.id = 1177;
         sc.level = 2;
     }
     save.shortcuts.retain(|s| !(s.slot == 3 && s.page == 0));
-    save.macros = vec![Macro { id: 1000, icon: 0, name: "mine".into(), descr: String::new(), acronym: String::new(), commands: vec![] }];
+    save.macros = vec![Macro {
+        id: 1000,
+        icon: 0,
+        name: "mine".into(),
+        descr: String::new(),
+        acronym: String::new(),
+        commands: vec![],
+    }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let c = &chars[0];
             assert_eq!(c.shortcuts.len(), 3);
-            let slot0 = c.shortcuts.iter().find(|s| s.slot == 0 && s.page == 0).unwrap();
-            assert_eq!((slot0.kind, slot0.id, slot0.level), (ShortcutType::Skill, 1177, 2), "slot overwritten in place");
-            assert!(!c.shortcuts.iter().any(|s| s.slot == 3), "deleted slot gone");
+            let slot0 = c
+                .shortcuts
+                .iter()
+                .find(|s| s.slot == 0 && s.page == 0)
+                .unwrap();
+            assert_eq!(
+                (slot0.kind, slot0.id, slot0.level),
+                (ShortcutType::Skill, 1177, 2),
+                "slot overwritten in place"
+            );
+            assert!(
+                !c.shortcuts.iter().any(|s| s.slot == 3),
+                "deleted slot gone"
+            );
             assert_eq!(c.macros.len(), 1);
             assert_eq!(c.macros[0].id, 1000, "preset deleted, user macro kept");
             // Untouched child rows survive the reconcile.
             assert_eq!(c.items.len(), 1, "item preserved");
-            assert!(c.skills.iter().any(|&(id, lvl, _)| id == 1177 && lvl == 1), "skill preserved");
+            assert!(
+                c.skills.iter().any(|&(id, lvl, _)| id == 1177 && lvl == 1),
+                "skill preserved"
+            );
             assert_eq!(c.pccafe_points, 4200, "pccafe points persisted");
             assert_eq!(c.raidboss_points, 137, "raid points persisted");
         }
@@ -416,7 +594,10 @@ async fn shortcuts_and_macros_persist() {
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -430,10 +611,26 @@ async fn friendships_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_friends",
+            "character_reco_bonus",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -448,7 +645,12 @@ async fn friendships_persist() {
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Two characters on separate accounts.
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Aria") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Aria"),
+        })
+        .unwrap();
     recv(&event_rx); // CharacterCreated
     let aria = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
@@ -456,7 +658,12 @@ async fn friendships_persist() {
     };
     let mut second = new_char("Boro");
     second.account = "acc2".into();
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 2, data: second }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 2,
+            data: second,
+        })
+        .unwrap();
     recv(&event_rx);
     let boro = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars[0].object_id,
@@ -464,8 +671,15 @@ async fn friendships_persist() {
     };
 
     // Befriend + reload: both sides see each other with joined columns.
-    cmd_tx.send(DbCommand::InsertFriendPair { a: aria, b: boro }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::InsertFriendPair { a: aria, b: boro })
+        .unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars[0].friends.len(), 1);
@@ -474,7 +688,12 @@ async fn friendships_persist() {
         }
         _ => panic!("expected CharactersLoaded"),
     }
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 2, account: "acc2".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 2,
+            account: "acc2".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             assert_eq!(chars[0].friends.len(), 1);
@@ -484,15 +703,25 @@ async fn friendships_persist() {
     }
 
     // Unfriend removes both rows.
-    cmd_tx.send(DbCommand::DeleteFriendPair { a: boro, b: aria }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::DeleteFriendPair { a: boro, b: aria })
+        .unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].friends.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -508,10 +737,27 @@ async fn quest_states_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_friends", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_friends",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -525,7 +771,12 @@ async fn quest_states_persist() {
     add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Ques") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Ques"),
+        })
+        .unwrap();
     recv(&event_rx); // CharacterCreated
     let loaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
@@ -538,12 +789,20 @@ async fn quest_states_persist() {
     // transaction; the load path rebuilds the `QuestState`.
     {
         let mut save = save_from(&loaded);
-        let mut qs = QuestState { state: state::STARTED, ..Default::default() };
+        let mut qs = QuestState {
+            state: state::STARTED,
+            ..Default::default()
+        };
         qs.vars.insert("cond".into(), "2".into());
         save.quests.insert(quest.into(), qs);
         cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     }
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let quests = &chars[0].quests;
@@ -561,10 +820,21 @@ async fn quest_states_persist() {
     // full-state rewrite.
     {
         let mut save = save_from(&loaded);
-        save.quests.insert(quest.into(), QuestState { state: state::COMPLETED, ..Default::default() });
+        save.quests.insert(
+            quest.into(),
+            QuestState {
+                state: state::COMPLETED,
+                ..Default::default()
+            },
+        );
         cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
     }
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let qs = &chars[0].quests[quest];
@@ -576,15 +846,27 @@ async fn quest_states_persist() {
 
     // Repeatable exit (quest forgotten): flushing with no quest at all makes the
     // reconcile delete every row for it.
-    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: save_from(&loaded),
+        })
+        .unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].quests.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -599,10 +881,26 @@ async fn recommendations_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -617,11 +915,26 @@ async fn recommendations_persist() {
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
     // Create → the seed row grants 20 recommendations to give.
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Recruit") }).unwrap();
-    assert!(matches!(recv(&event_rx), DbEvent::CharacterCreated { result: CreateResult::Ok, .. }));
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Recruit"),
+        })
+        .unwrap();
+    assert!(matches!(
+        recv(&event_rx),
+        DbEvent::CharacterCreated {
+            result: CreateResult::Ok,
+            ..
+        }
+    ));
     let loaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
-            assert_eq!((chars[0].rec_have, chars[0].rec_left), (0, 20), "new character seed");
+            assert_eq!(
+                (chars[0].rec_have, chars[0].rec_left),
+                (0, 20),
+                "new character seed"
+            );
             chars[0].clone()
         }
         _ => panic!("expected CharactersLoaded"),
@@ -634,10 +947,19 @@ async fn recommendations_persist() {
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
 
     // Reload → the flushed counts survive.
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
-            assert_eq!((chars[0].rec_have, chars[0].rec_left), (7, 13), "flushed counts persist");
+            assert_eq!(
+                (chars[0].rec_have, chars[0].rec_left),
+                (7, 13),
+                "flushed counts persist"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }
@@ -645,16 +967,28 @@ async fn recommendations_persist() {
     // The daily reset command zeroes rec_left and decays rec_have for the
     // offline row (rec_have 7 <= 20 → 0).
     cmd_tx.send(DbCommand::ResetRecommends).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
-            assert_eq!((chars[0].rec_have, chars[0].rec_left), (0, 0), "daily reset");
+            assert_eq!(
+                (chars[0].rec_have, chars[0].rec_left),
+                (0, 0),
+                "daily reset"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -669,10 +1003,26 @@ async fn skill_reuse_cooldowns_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -686,7 +1036,12 @@ async fn skill_reuse_cooldowns_persist() {
     add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Cooldown") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Cooldown"),
+        })
+        .unwrap();
     recv(&event_rx); // CharacterCreated
     let loaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
@@ -696,31 +1051,68 @@ async fn skill_reuse_cooldowns_persist() {
     let now = commons::util::now_millis();
     let mut save = save_from(&loaded);
     save.skill_reuses = vec![
-        db::SkillReuseRow { reuse_key: 1177, skill_level: 3, reuse_delay: 300_000, systime_ms: now + 120_000 },
-        db::SkillReuseRow { reuse_key: 1178, skill_level: 1, reuse_delay: 10_000, systime_ms: now - 5_000 },
+        db::SkillReuseRow {
+            reuse_key: 1177,
+            skill_level: 3,
+            reuse_delay: 300_000,
+            systime_ms: now + 120_000,
+        },
+        db::SkillReuseRow {
+            reuse_key: 1178,
+            skill_level: 1,
+            reuse_delay: 10_000,
+            systime_ms: now - 5_000,
+        },
     ];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let r = &chars[0].skill_reuses;
-            assert_eq!(r.len(), 1, "the already-elapsed cooldown is filtered on load");
-            assert_eq!((r[0].reuse_key, r[0].skill_level, r[0].reuse_delay), (1177, 3, 300_000));
-            assert!(r[0].systime_ms >= now + 120_000 - 5_000, "future systime preserved");
+            assert_eq!(
+                r.len(),
+                1,
+                "the already-elapsed cooldown is filtered on load"
+            );
+            assert_eq!(
+                (r[0].reuse_key, r[0].skill_level, r[0].reuse_delay),
+                (1177, 3, 300_000)
+            );
+            assert!(
+                r[0].systime_ms >= now + 120_000 - 5_000,
+                "future systime preserved"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }
 
     // A flush with no live cooldowns clears the table (the reconcile always deletes).
-    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: save_from(&loaded),
+        })
+        .unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_reuses.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -738,10 +1130,26 @@ async fn active_buffs_persist_with_frozen_countdown() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -755,7 +1163,12 @@ async fn active_buffs_persist_with_frozen_countdown() {
     add_accounts_table(&url).await;
     let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
 
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data: new_char("Buffed") }).unwrap();
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Buffed"),
+        })
+        .unwrap();
     recv(&event_rx); // CharacterCreated
     let loaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => chars[0].clone(),
@@ -766,36 +1179,80 @@ async fn active_buffs_persist_with_frozen_countdown() {
     let mut save = save_from(&loaded);
     // Wind Walk with 20 min left, Might with 5 s left, and an already-dead row.
     save.skill_buffs = vec![
-        db::SkillBuffRow { skill_id: 1204, skill_level: 2, remaining_time_secs: 1200 },
-        db::SkillBuffRow { skill_id: 1068, skill_level: 3, remaining_time_secs: 5 },
-        db::SkillBuffRow { skill_id: 1085, skill_level: 1, remaining_time_secs: 0 },
+        db::SkillBuffRow {
+            skill_id: 1204,
+            skill_level: 2,
+            remaining_time_secs: 1200,
+        },
+        db::SkillBuffRow {
+            skill_id: 1068,
+            skill_level: 3,
+            remaining_time_secs: 5,
+        },
+        db::SkillBuffRow {
+            skill_id: 1085,
+            skill_level: 1,
+            remaining_time_secs: 0,
+        },
     ];
     // A cooldown shares the table; it must not come back as a buff.
-    save.skill_reuses = vec![db::SkillReuseRow { reuse_key: 1177, skill_level: 3, reuse_delay: 300_000, systime_ms: now + 120_000 }];
+    save.skill_reuses = vec![db::SkillReuseRow {
+        reuse_key: 1177,
+        skill_level: 3,
+        reuse_delay: 300_000,
+        systime_ms: now + 120_000,
+    }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let b = &chars[0].skill_buffs;
             assert_eq!(b.len(), 2, "the zero-remaining buff is filtered on load");
             // `buff_index` order is preserved, so the bar comes back as stored.
-            assert_eq!((b[0].skill_id, b[0].skill_level, b[0].remaining_time_secs), (1204, 2, 1200));
-            assert_eq!((b[1].skill_id, b[1].skill_level, b[1].remaining_time_secs), (1068, 3, 5));
-            assert_eq!(chars[0].skill_reuses.len(), 1, "the reuse row loads as a reuse, not a buff");
+            assert_eq!(
+                (b[0].skill_id, b[0].skill_level, b[0].remaining_time_secs),
+                (1204, 2, 1200)
+            );
+            assert_eq!(
+                (b[1].skill_id, b[1].skill_level, b[1].remaining_time_secs),
+                (1068, 3, 5)
+            );
+            assert_eq!(
+                chars[0].skill_reuses.len(),
+                1,
+                "the reuse row loads as a reuse, not a buff"
+            );
         }
         _ => panic!("expected CharactersLoaded"),
     }
 
     // A flush with no live buffs clears them (the reconcile always deletes).
-    cmd_tx.send(DbCommand::StorePlayer { save: save_from(&loaded) }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::StorePlayer {
+            save: save_from(&loaded),
+        })
+        .unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => assert!(chars[0].skill_buffs.is_empty()),
         _ => panic!("expected CharactersLoaded"),
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }
 
@@ -812,10 +1269,29 @@ async fn pets_persist() {
     let db_path = dir.join("test.db");
     let url = format!("jdbc:sqlite:{}", db_path.display());
 
-    let sql_root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/db_installer/sql/sqlite/game");
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
-        for table in ["characters", "items", "item_variations", "character_skills", "character_skills_save", "character_shortcuts", "character_macroses", "character_reco_bonus", "character_quests", "character_hennas", "character_recipebook", "character_variables", "pets", "character_summons", "character_summon_skills_save"] {
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+            "pets",
+            "character_summons",
+            "character_summon_skills_save",
+        ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
                 sqlx::query(stmt).execute(&pool).await.unwrap();
@@ -831,8 +1307,14 @@ async fn pets_persist() {
 
     let mut data = new_char("Beastmaster");
     // The Wolf Collar this pet is bound to.
-    data.items = vec![db::NewItem { item_id: 2375, count: 1, paperdoll_index: None }];
-    cmd_tx.send(DbCommand::CreateCharacter { client_id: 1, data }).unwrap();
+    data.items = vec![db::NewItem {
+        item_id: 2375,
+        count: 1,
+        paperdoll_index: None,
+    }];
+    cmd_tx
+        .send(DbCommand::CreateCharacter { client_id: 1, data })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharacterCreated { result, .. } => assert_eq!(result, CreateResult::Ok),
         _ => panic!("expected CharacterCreated"),
@@ -869,28 +1351,49 @@ async fn pets_persist() {
         cur_mp: 45,
         remaining_secs: 900,
         // The servitor's own buffs ride with it.
-        buffs: vec![db::SkillBuffRow { skill_id: 1144, skill_level: 1, remaining_time_secs: 480 }],
+        buffs: vec![db::SkillBuffRow {
+            skill_id: 1144,
+            skill_level: 1,
+            remaining_time_secs: 480,
+        }],
     }];
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     let reloaded = match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
             let c = &chars[0];
             assert_eq!(c.pets.len(), 1, "the pet row came back");
             let p = &c.pets[0];
-            assert_eq!(p.collar_object_id, collar_oid, "keyed by the collar's object id");
+            assert_eq!(
+                p.collar_object_id, collar_oid,
+                "keyed by the collar's object id"
+            );
             assert_eq!(p.level, 5);
             assert_eq!(p.exp, 12_345);
             assert_eq!(p.sp, 67);
             assert_eq!(p.fed, 140);
             assert_eq!(p.cur_hp, 91.5, "fractional HP survives the column type");
-            assert!(p.restore, "the 'was out at logout' flag round-trips as a string column");
+            assert!(
+                p.restore,
+                "the 'was out at logout' flag round-trips as a string column"
+            );
             assert_eq!(c.summons.len(), 1, "the servitor row came back");
             assert_eq!(c.summons[0].summon_skill_id, 1111);
-            assert_eq!(c.summons[0].remaining_secs, 900, "its lifetime is not reset by a relog");
+            assert_eq!(
+                c.summons[0].remaining_secs, 900,
+                "its lifetime is not reset by a relog"
+            );
             assert_eq!(c.summons[0].buffs.len(), 1, "and its own buffs came back");
             assert_eq!(c.summons[0].buffs[0].skill_id, 1144);
-            assert_eq!(c.summons[0].buffs[0].remaining_time_secs, 480, "with their remaining time");
+            assert_eq!(
+                c.summons[0].buffs[0].remaining_time_secs, 480,
+                "with their remaining time"
+            );
             assert_eq!(c.items.len(), 1, "the collar itself is untouched");
             c.clone()
         }
@@ -904,10 +1407,19 @@ async fn pets_persist() {
     save.pets[0].level = 6;
     save.pets[0].restore = false;
     cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
-    cmd_tx.send(DbCommand::LoadCharacters { client_id: 1, account: "acc".into() }).unwrap();
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
     match recv(&event_rx) {
         DbEvent::CharactersLoaded { chars, .. } => {
-            assert_eq!(chars[0].pets.len(), 1, "re-saving updates in place, no duplicate row");
+            assert_eq!(
+                chars[0].pets.len(),
+                1,
+                "re-saving updates in place, no duplicate row"
+            );
             assert_eq!(chars[0].pets[0].fed, 30);
             assert_eq!(chars[0].pets[0].level, 6);
             assert!(!chars[0].pets[0].restore, "and it can be cleared again");
@@ -916,6 +1428,9 @@ async fn pets_persist() {
     }
 
     cmd_tx.send(DbCommand::Shutdown).unwrap();
-    tokio::task::spawn_blocking(move || handle.join()).await.unwrap().unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
     let _ = std::fs::remove_dir_all(&dir);
 }

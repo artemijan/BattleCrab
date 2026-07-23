@@ -43,22 +43,41 @@ fn player_of(world: &World, client_id: u32) -> Option<i32> {
 }
 
 fn adena(world: &World, oid: i32) -> i64 {
-    world.objects.get_component::<Inventory>(&oid).map(|i| i.adena()).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map(|i| i.adena())
+        .unwrap_or(0)
 }
 
 /// The player's level in the relevant create-item skill (0 if not known) — Java
 /// `getDwarvenCraft` / `getCommonCraft`.
 fn craft_skill_level(world: &World, oid: i32, is_dwarven: bool) -> i32 {
-    let skill_id = if is_dwarven { SKILL_CREATE_DWARVEN } else { SKILL_CREATE_COMMON };
-    world.objects.get_component::<SkillBook>(&oid).and_then(|b| b.0.get(&skill_id).copied()).unwrap_or(0)
+    let skill_id = if is_dwarven {
+        SKILL_CREATE_DWARVEN
+    } else {
+        SKILL_CREATE_COMMON
+    };
+    world
+        .objects
+        .get_component::<SkillBook>(&oid)
+        .and_then(|b| b.0.get(&skill_id).copied())
+        .unwrap_or(0)
 }
 
 fn store_type(world: &World, oid: i32) -> u8 {
-    world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.store_type).unwrap_or(0)
+    world
+        .objects
+        .get_component::<crate::model::Player>(&oid)
+        .map(|p| p.store_type)
+        .unwrap_or(0)
 }
 
 fn set_store_type(world: &mut World, oid: i32, ty: u8) {
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&oid)
+    {
         p.store_type = ty;
     }
 }
@@ -76,7 +95,10 @@ fn send_to_player(world: &World, oid: i32, packet: Vec<u8>) {
 }
 
 fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {
-    world.objects.get_component::<Vitals>(&oid).map(|v| (v.cur_mp, v.max_mp, v.cur_hp))
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| (v.cur_mp, v.max_mp, v.cur_hp))
 }
 
 // --- recipe book -----------------------------------------------------------
@@ -85,33 +107,61 @@ fn vitals(world: &World, oid: i32) -> Option<(f64, i32, f64)> {
 /// (The Java "engaged in manufacturing" guard is moot: crafts finish inline, so
 /// no maker is ever active when this arrives.)
 pub(crate) fn request_book_open(world: &mut World, client_id: u32, is_dwarven: bool) {
-    let Some(oid) = player_of(world, client_id) else { return };
-    let max_mp = world.objects.get_component::<Vitals>(&oid).map(|v| v.max_mp).unwrap_or(0);
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| v.max_mp)
+        .unwrap_or(0);
     let recipes = book_ids(world, oid, is_dwarven);
-    send_to_client(world, client_id, sp::recipe_book_item_list(is_dwarven, max_mp, &recipes));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_book_item_list(is_dwarven, max_mp, &recipes),
+    );
 }
 
 /// `RequestRecipeBookDestroy` — drop a recipe from whichever book holds it, then
 /// resend that book.
 pub(crate) fn handle_book_destroy(world: &mut World, client_id: u32, recipe_id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     // Java looks the recipe up in RecipeData for its dwarven flag; do the same so
     // we resend the correct book even after removing the id.
-    let Some(is_dwarven) = world.data.recipes.get(recipe_id).map(|r| r.is_dwarven) else { return };
+    let Some(is_dwarven) = world.data.recipes.get(recipe_id).map(|r| r.is_dwarven) else {
+        return;
+    };
     if let Some(book) = world.objects.get_component_mut::<RecipeBook>(&oid) {
         book.dwarven.retain(|&id| id != recipe_id);
         book.common.retain(|&id| id != recipe_id);
     }
-    let max_mp = world.objects.get_component::<Vitals>(&oid).map(|v| v.max_mp).unwrap_or(0);
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| v.max_mp)
+        .unwrap_or(0);
     let recipes = book_ids(world, oid, is_dwarven);
-    send_to_client(world, client_id, sp::recipe_book_item_list(is_dwarven, max_mp, &recipes));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_book_item_list(is_dwarven, max_mp, &recipes),
+    );
 }
 
 fn book_ids(world: &World, oid: i32, is_dwarven: bool) -> Vec<i32> {
     world
         .objects
         .get_component::<RecipeBook>(&oid)
-        .map(|b| if is_dwarven { b.dwarven.clone() } else { b.common.clone() })
+        .map(|b| {
+            if is_dwarven {
+                b.dwarven.clone()
+            } else {
+                b.common.clone()
+            }
+        })
         .unwrap_or_default()
 }
 
@@ -130,14 +180,24 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     }
 
     let item_id = {
-        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else { return };
-        let Some(item) = inv.items().iter().find(|i| i.object_id == item_object_id) else { return };
+        let Some(inv) = world.objects.get_component::<Inventory>(&object_id) else {
+            return;
+        };
+        let Some(item) = inv.items().iter().find(|i| i.object_id == item_object_id) else {
+            return;
+        };
         item.item_id
     };
-    let Some(recipe) = world.data.recipes.by_recipe_item_id(item_id).cloned() else { return };
+    let Some(recipe) = world.data.recipes.by_recipe_item_id(item_id).cloned() else {
+        return;
+    };
 
     // Already registered?
-    if world.objects.get_component::<RecipeBook>(&object_id).is_some_and(|b| b.contains(recipe.id)) {
+    if world
+        .objects
+        .get_component::<RecipeBook>(&object_id)
+        .is_some_and(|b| b.contains(recipe.id))
+    {
         send(world, sm_ids::THAT_RECIPE_IS_ALREADY_REGISTERED, &[]);
         return;
     }
@@ -146,9 +206,17 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     let (limit, book_len) = {
         let book = world.objects.get_component::<RecipeBook>(&object_id);
         let (stat, base, len) = if recipe.is_dwarven {
-            (Stat::RecipeDwarven, world.cfg.character.dwarf_recipe_limit, book.map(|b| b.dwarven.len()).unwrap_or(0))
+            (
+                Stat::RecipeDwarven,
+                world.cfg.character.dwarf_recipe_limit,
+                book.map(|b| b.dwarven.len()).unwrap_or(0),
+            )
         } else {
-            (Stat::RecipeCommon, world.cfg.character.common_recipe_limit, book.map(|b| b.common.len()).unwrap_or(0))
+            (
+                Stat::RecipeCommon,
+                world.cfg.character.common_recipe_limit,
+                book.map(|b| b.common.len()).unwrap_or(0),
+            )
         };
         // Expand Dwarven/Common Craft (1368/1369, `EnlargeSlot`): the base
         // config limit plus whatever the learned passive raises it to.
@@ -161,15 +229,27 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
 
     // `hasDwarvenCraft` / `hasCommonCraft`: the create-item skill (level ≥ 1).
     if craft_level < 1 {
-        send(world, sm_ids::THE_RECIPE_CANNOT_BE_REGISTERED_YOU_DO_NOT_HAVE_THE_ABILITY_TO_CREATE_ITEMS, &[]);
+        send(
+            world,
+            sm_ids::THE_RECIPE_CANNOT_BE_REGISTERED_YOU_DO_NOT_HAVE_THE_ABILITY_TO_CREATE_ITEMS,
+            &[],
+        );
         return;
     }
     if recipe.level > craft_level {
-        send(world, sm_ids::YOUR_CREATE_ITEM_LEVEL_IS_TOO_LOW_TO_REGISTER_THIS_RECIPE, &[]);
+        send(
+            world,
+            sm_ids::YOUR_CREATE_ITEM_LEVEL_IS_TOO_LOW_TO_REGISTER_THIS_RECIPE,
+            &[],
+        );
         return;
     }
     if book_len as i32 >= limit {
-        send(world, sm_ids::UP_TO_S1_RECIPES_CAN_BE_REGISTERED, &[SmParam::Int(limit)]);
+        send(
+            world,
+            sm_ids::UP_TO_S1_RECIPES_CAN_BE_REGISTERED,
+            &[SmParam::Int(limit)],
+        );
         return;
     }
 
@@ -191,25 +271,51 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
     }
 
     // Consume the recipe item + notify.
-    if let Some(destroyed) = world.objects.get_component_mut::<Inventory>(&object_id).and_then(|inv| inv.remove_by_object_id(item_object_id, 1)) {
-        send_to_client(world, client_id, ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed)));
+    if let Some(destroyed) = world
+        .objects
+        .get_component_mut::<Inventory>(&object_id)
+        .and_then(|inv| inv.remove_by_object_id(item_object_id, 1))
+    {
+        send_to_client(
+            world,
+            client_id,
+            ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed)),
+        );
     }
-    send(world, sm_ids::S1_HAS_BEEN_ADDED, &[SmParam::ItemName(item_id)]);
+    send(
+        world,
+        sm_ids::S1_HAS_BEEN_ADDED,
+        &[SmParam::ItemName(item_id)],
+    );
 }
 
 // --- self-craft ------------------------------------------------------------
 
 /// `RequestRecipeItemMakeInfo` — (re)open the self-craft "make" window.
 pub(crate) fn handle_make_info(world: &mut World, client_id: u32, id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
-    let Some(is_dwarven) = world.data.recipes.get(id).map(|r| r.is_dwarven) else { return };
-    let (cur_mp, max_mp) = world.objects.get_component::<Vitals>(&oid).map(|v| (v.cur_mp as i32, v.max_mp)).unwrap_or((0, 0));
-    send_to_client(world, client_id, sp::recipe_item_make_info(id, is_dwarven, cur_mp, max_mp, true));
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(is_dwarven) = world.data.recipes.get(id).map(|r| r.is_dwarven) else {
+        return;
+    };
+    let (cur_mp, max_mp) = world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| (v.cur_mp as i32, v.max_mp))
+        .unwrap_or((0, 0));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_item_make_info(id, is_dwarven, cur_mp, max_mp, true),
+    );
 }
 
 /// `RequestRecipeItemMakeSelf` — craft one of the player's own recipes.
 pub(crate) fn handle_make_self(world: &mut World, client_id: u32, id: i32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     // Java: refuse while running a store or mid-craft. Crafts finish inline, so
     // only the store guard is observable here.
     if store_type(world, oid) != 0 {
@@ -224,8 +330,14 @@ pub(crate) fn handle_make_self(world: &mut World, client_id: u32, id: i32) {
 /// Java always passes `isDwarven = true`; the packet builder falls back to the
 /// common book when the seller has no dwarven craft.
 pub(crate) fn open_manage(world: &mut World, client_id: u32) {
-    let Some(oid) = player_of(world, client_id) else { return };
-    if world.objects.get_component::<Vitals>(&oid).is_some_and(|v| v.dead) {
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
+    if world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .is_some_and(|v| v.dead)
+    {
         return;
     }
     // Leaving a different store type when opening the manage window.
@@ -237,13 +349,19 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
     let is_dwarven = craft_skill_level(world, oid, true) >= 1;
     let recipes = book_ids(world, oid, is_dwarven);
     let store = active_store_items(world, oid, is_dwarven);
-    send_to_client(world, client_id, sp::recipe_shop_manage_list(oid, adena(world, oid) as i32, is_dwarven, &recipes, &store));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_shop_manage_list(oid, adena(world, oid) as i32, is_dwarven, &recipes, &store),
+    );
 }
 
 /// `RequestRecipeShopMessageSet` — set the store title (Java `setStoreName`,
 /// stored on the player across store types; here on the `ManufactureStore`).
 pub(crate) fn handle_message_set(world: &mut World, client_id: u32, name: String) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     const MAX_MSG_LENGTH: usize = 29;
     if name.chars().count() > MAX_MSG_LENGTH {
         return;
@@ -251,14 +369,22 @@ pub(crate) fn handle_message_set(world: &mut World, client_id: u32, name: String
     if let Some(store) = world.objects.get_component_mut::<ManufactureStore>(&oid) {
         store.title = name;
     } else {
-        world.objects.add_components(&oid, ManufactureStore { items: Vec::new(), title: name });
+        world.objects.add_components(
+            &oid,
+            ManufactureStore {
+                items: Vec::new(),
+                title: name,
+            },
+        );
     }
 }
 
 /// `RequestRecipeShopListSet` — activate the manufacture store with the given
 /// recipe/price lines (each validated against the seller's book).
 pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::ManufactureLine>) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     // Combat guard (Java `hasAttackStanceTask || isInDuel`). No duels yet; the
     // attack-stance check maps to a live attack window.
     let in_combat = world
@@ -274,7 +400,10 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
     // set (Java `handleIllegalPlayerAction` + return).
     let mut items = Vec::with_capacity(lines.len());
     for line in &lines {
-        let known = world.objects.get_component::<RecipeBook>(&oid).is_some_and(|b| b.contains(line.recipe_id));
+        let known = world
+            .objects
+            .get_component::<RecipeBook>(&oid)
+            .is_some_and(|b| b.contains(line.recipe_id));
         if !known {
             return;
         }
@@ -293,7 +422,13 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
             store.items = items;
             store.title.clone()
         } else {
-            world.objects.add_components(&oid, ManufactureStore { items, title: String::new() });
+            world.objects.add_components(
+                &oid,
+                ManufactureStore {
+                    items,
+                    title: String::new(),
+                },
+            );
             String::new()
         }
     };
@@ -306,7 +441,9 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
 
 /// `RequestRecipeShopManageQuit` — close the manufacture store.
 pub(crate) fn handle_manage_quit(world: &mut World, client_id: u32) {
-    let Some(oid) = player_of(world, client_id) else { return };
+    let Some(oid) = player_of(world, client_id) else {
+        return;
+    };
     set_store_type(world, oid, 0);
     super::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, ""));
     super::party::broadcast_user_info(world, oid);
@@ -317,23 +454,51 @@ pub(crate) fn open_sell_list(world: &mut World, client_id: u32, buyer: i32, manu
     if store_type(world, manufacturer) != STORE_TYPE_MANUFACTURE {
         return;
     }
-    let (cur_mp, max_mp) = world.objects.get_component::<Vitals>(&manufacturer).map(|v| (v.cur_mp as i32, v.max_mp)).unwrap_or((0, 0));
+    let (cur_mp, max_mp) = world
+        .objects
+        .get_component::<Vitals>(&manufacturer)
+        .map(|v| (v.cur_mp as i32, v.max_mp))
+        .unwrap_or((0, 0));
     let store = current_store_items(world, manufacturer);
-    send_to_client(world, client_id, sp::recipe_shop_sell_list(manufacturer, cur_mp, max_mp, adena(world, buyer), &store));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_shop_sell_list(manufacturer, cur_mp, max_mp, adena(world, buyer), &store),
+    );
 }
 
 /// `RequestRecipeShopMakeInfo` — the per-recipe info line in a shop.
-pub(crate) fn handle_shop_make_info(world: &mut World, client_id: u32, shop_oid: i32, recipe_id: i32) {
+pub(crate) fn handle_shop_make_info(
+    world: &mut World,
+    client_id: u32,
+    shop_oid: i32,
+    recipe_id: i32,
+) {
     if store_type(world, shop_oid) != STORE_TYPE_MANUFACTURE {
         return;
     }
-    let (cur_mp, max_mp) = world.objects.get_component::<Vitals>(&shop_oid).map(|v| (v.cur_mp as i32, v.max_mp)).unwrap_or((0, 0));
-    send_to_client(world, client_id, sp::recipe_shop_item_info(shop_oid, recipe_id, cur_mp, max_mp));
+    let (cur_mp, max_mp) = world
+        .objects
+        .get_component::<Vitals>(&shop_oid)
+        .map(|v| (v.cur_mp as i32, v.max_mp))
+        .unwrap_or((0, 0));
+    send_to_client(
+        world,
+        client_id,
+        sp::recipe_shop_item_info(shop_oid, recipe_id, cur_mp, max_mp),
+    );
 }
 
 /// `RequestRecipeShopMakeItem` — a customer buys a craft from a manufacturer.
-pub(crate) fn handle_shop_make_item(world: &mut World, client_id: u32, manufacturer: i32, recipe_id: i32) {
-    let Some(buyer) = player_of(world, client_id) else { return };
+pub(crate) fn handle_shop_make_item(
+    world: &mut World,
+    client_id: u32,
+    manufacturer: i32,
+    recipe_id: i32,
+) {
+    let Some(buyer) = player_of(world, client_id) else {
+        return;
+    };
     if buyer == manufacturer || store_type(world, manufacturer) != STORE_TYPE_MANUFACTURE {
         return;
     }
@@ -346,7 +511,12 @@ pub(crate) fn handle_shop_make_item(world: &mut World, client_id: u32, manufactu
     let Some(price) = world
         .objects
         .get_component::<ManufactureStore>(&manufacturer)
-        .and_then(|s| s.items.iter().find(|(id, _)| *id == recipe_id).map(|(_, cost)| *cost))
+        .and_then(|s| {
+            s.items
+                .iter()
+                .find(|(id, _)| *id == recipe_id)
+                .map(|(_, cost)| *cost)
+        })
     else {
         return;
     };
@@ -359,24 +529,47 @@ pub(crate) fn handle_shop_make_item(world: &mut World, client_id: u32, manufactu
 /// everything, then consume + roll. `crafter` provides the recipe + MP/HP;
 /// `customer` provides materials + adena and receives the product (they're the
 /// same object for a self-craft). `customer_client` is the customer's socket.
-fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32, recipe_id: i32, price: i64) {
-    let Some(recipe) = world.data.recipes.get(recipe_id).cloned() else { return };
+fn do_craft(
+    world: &mut World,
+    crafter: i32,
+    customer: i32,
+    customer_client: u32,
+    recipe_id: i32,
+    price: i64,
+) {
+    let Some(recipe) = world.data.recipes.get(recipe_id).cloned() else {
+        return;
+    };
 
     let abort = |world: &World| {
         // Java `abort()` → `updateMakeInfo(false)`: for a self-craft that's the
         // make-info failure; for manufacture it's the shop item-info refresh.
-        update_make_info(world, crafter, customer, customer_client, recipe_id, recipe.is_dwarven, false);
+        update_make_info(
+            world,
+            crafter,
+            customer,
+            customer_client,
+            recipe_id,
+            recipe.is_dwarven,
+            false,
+        );
     };
     let sm_customer = |world: &World, msg: i16, params: &[SmParam]| {
         send_to_client(world, customer_client, sp::system_message_with(msg, params));
     };
 
     // The crafter must actually hold this recipe (Java's book check).
-    if !world.objects.get_component::<RecipeBook>(&crafter).is_some_and(|b| b.contains(recipe.id)) {
+    if !world
+        .objects
+        .get_component::<RecipeBook>(&crafter)
+        .is_some_and(|b| b.contains(recipe.id))
+    {
         return;
     }
     // Empty recipe / skill-level gate (crafter's create-item level).
-    if recipe.ingredients.is_empty() || recipe.level > craft_skill_level(world, crafter, recipe.is_dwarven) {
+    if recipe.ingredients.is_empty()
+        || recipe.level > craft_skill_level(world, crafter, recipe.is_dwarven)
+    {
         abort(world);
         return;
     }
@@ -388,16 +581,26 @@ fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32
     }
     // Materials present on the customer (listItems check).
     for &(item_id, need) in &recipe.ingredients {
-        let have = world.objects.get_component::<Inventory>(&customer).map(|i| i.count_of(item_id)).unwrap_or(0);
+        let have = world
+            .objects
+            .get_component::<Inventory>(&customer)
+            .map(|i| i.count_of(item_id))
+            .unwrap_or(0);
         if have < need {
-            sm_customer(world, sm_ids::YOU_NEED_S2_MORE_S1_S, &[SmParam::ItemName(item_id), SmParam::Long(need - have)]);
+            sm_customer(
+                world,
+                sm_ids::YOU_NEED_S2_MORE_S1_S,
+                &[SmParam::ItemName(item_id), SmParam::Long(need - have)],
+            );
             abort(world);
             return;
         }
     }
     // MP/HP present on the crafter (statUse check). HP uses `<=` (can't kill),
     // MP uses `<`, matching Java.
-    let Some((cur_mp, _, cur_hp)) = vitals(world, crafter) else { return };
+    let Some((cur_mp, _, cur_hp)) = vitals(world, crafter) else {
+        return;
+    };
     if recipe.mp_use > 0 && cur_mp < recipe.mp_use as f64 {
         sm_customer(world, sm_ids::NOT_ENOUGH_MP, &[]);
         abort(world);
@@ -434,7 +637,11 @@ fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32
             inv.remove_item(item_id, need);
         }
         if need > 1 {
-            sm_customer(world, sm_ids::S2_S1_S_DISAPPEARED, &[SmParam::ItemName(item_id), SmParam::Long(need)]);
+            sm_customer(
+                world,
+                sm_ids::S2_S1_S_DISAPPEARED,
+                &[SmParam::ItemName(item_id), SmParam::Long(need)],
+            );
         } else {
             sm_customer(world, sm_ids::S1_DISAPPEARED, &[SmParam::ItemName(item_id)]);
         }
@@ -451,13 +658,21 @@ fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32
             crafter,
             sp::system_message_with(
                 sm_ids::YOU_FAILED_TO_CREATE_S2_FOR_C1_AT_THE_PRICE_OF_S3_ADENA,
-                &[SmParam::PlayerName(name_of(world, customer)), SmParam::ItemName(recipe.item_id), SmParam::Long(price)],
+                &[
+                    SmParam::PlayerName(name_of(world, customer)),
+                    SmParam::ItemName(recipe.item_id),
+                    SmParam::Long(price),
+                ],
             ),
         );
         sm_customer(
             world,
             sm_ids::C1_HAS_FAILED_TO_CREATE_S2_AT_THE_PRICE_OF_S3_ADENA,
-            &[SmParam::PlayerName(name_of(world, crafter)), SmParam::ItemName(recipe.item_id), SmParam::Long(price)],
+            &[
+                SmParam::PlayerName(name_of(world, crafter)),
+                SmParam::ItemName(recipe.item_id),
+                SmParam::Long(price),
+            ],
         );
     } else {
         sm_customer(world, sm_ids::YOU_FAILED_AT_MIXING_THE_ITEM, &[]);
@@ -465,7 +680,15 @@ fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32
 
     // updateMakeInfo(success) + refresh the customer's item window (Java
     // `_target.sendItemList(false)`), and the crafter's if they were paid.
-    update_make_info(world, crafter, customer, customer_client, recipe_id, recipe.is_dwarven, success);
+    update_make_info(
+        world,
+        crafter,
+        customer,
+        customer_client,
+        recipe_id,
+        recipe.is_dwarven,
+        success,
+    );
     refresh_inventory(world, customer);
     if crafter != customer && price > 0 {
         refresh_inventory(world, crafter);
@@ -474,13 +697,22 @@ fn do_craft(world: &mut World, crafter: i32, customer: i32, customer_client: u32
 
 /// `rewardPlayer` (`!ALT_GAME_CREATION` slice — no XP/SP): produce the item,
 /// rolling the masterwork rare when the recipe has one.
-fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, recipe: &RecipeList, price: i64) {
+fn reward(
+    world: &mut World,
+    crafter: i32,
+    customer: i32,
+    customer_client: u32,
+    recipe: &RecipeList,
+    price: i64,
+) {
     let mut item_id = recipe.item_id;
     let mut count = recipe.count;
     // Masterwork: `(rareProdId != -1) && (rareProdId == itemId || CRAFT_MASTERWORK)`
     // then `Rnd.get(100) <= rarity`.
     if let Some(rare) = recipe.rare {
-        if (rare.item_id == item_id || world.cfg.character.craft_masterwork) && world.roll(100) <= rare.rarity {
+        if (rare.item_id == item_id || world.cfg.character.craft_masterwork)
+            && world.roll(100) <= rare.rarity
+        {
             item_id = rare.item_id;
             count = rare.count;
         }
@@ -500,7 +732,11 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
                 crafter,
                 sp::system_message_with(
                     sm_ids::S2_HAS_BEEN_CREATED_FOR_C1_AFTER_THE_PAYMENT_OF_S3_ADENA_WAS_RECEIVED,
-                    &[SmParam::PlayerName(customer_name.clone()), SmParam::ItemName(item_id), SmParam::Long(price)],
+                    &[
+                        SmParam::PlayerName(customer_name.clone()),
+                        SmParam::ItemName(item_id),
+                        SmParam::Long(price),
+                    ],
                 ),
             );
             send_to_client(
@@ -508,7 +744,11 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
                 customer_client,
                 sp::system_message_with(
                     sm_ids::C1_CREATED_S2_AFTER_RECEIVING_S3_ADENA,
-                    &[SmParam::PlayerName(crafter_name), SmParam::ItemName(item_id), SmParam::Long(price)],
+                    &[
+                        SmParam::PlayerName(crafter_name),
+                        SmParam::ItemName(item_id),
+                        SmParam::Long(price),
+                    ],
                 ),
             );
         } else {
@@ -517,7 +757,12 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
                 crafter,
                 sp::system_message_with(
                     sm_ids::S3_S2_S_HAVE_BEEN_CREATED_FOR_C1_AT_THE_PRICE_OF_S4_ADENA,
-                    &[SmParam::PlayerName(customer_name.clone()), SmParam::Int(count), SmParam::ItemName(item_id), SmParam::Long(price)],
+                    &[
+                        SmParam::PlayerName(customer_name.clone()),
+                        SmParam::Int(count),
+                        SmParam::ItemName(item_id),
+                        SmParam::Long(price),
+                    ],
                 ),
             );
             send_to_client(
@@ -525,7 +770,12 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
                 customer_client,
                 sp::system_message_with(
                     sm_ids::C1_CREATED_S3_S2_S_AT_THE_PRICE_OF_S4_ADENA,
-                    &[SmParam::PlayerName(crafter_name), SmParam::Int(count), SmParam::ItemName(item_id), SmParam::Long(price)],
+                    &[
+                        SmParam::PlayerName(crafter_name),
+                        SmParam::Int(count),
+                        SmParam::ItemName(item_id),
+                        SmParam::Long(price),
+                    ],
                 ),
             );
         }
@@ -533,9 +783,20 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
 
     // "You have earned …" to the customer.
     if count > 1 {
-        send_to_client(world, customer_client, sp::system_message_with(sm_ids::YOU_HAVE_EARNED_S2_S1_S, &[SmParam::ItemName(item_id), SmParam::Long(count as i64)]));
+        send_to_client(
+            world,
+            customer_client,
+            sp::system_message_with(
+                sm_ids::YOU_HAVE_EARNED_S2_S1_S,
+                &[SmParam::ItemName(item_id), SmParam::Long(count as i64)],
+            ),
+        );
     } else {
-        send_to_client(world, customer_client, sp::system_message_with(sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(item_id)]));
+        send_to_client(
+            world,
+            customer_client,
+            sp::system_message_with(sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(item_id)]),
+        );
     }
 }
 
@@ -543,23 +804,55 @@ fn reward(world: &mut World, crafter: i32, customer: i32, customer_client: u32, 
 
 /// `updateMakeInfo`: self-craft → `RecipeItemMakeInfo`; manufacture → the
 /// buyer's `RecipeShopItemInfo`.
-fn update_make_info(world: &World, crafter: i32, customer: i32, customer_client: u32, recipe_id: i32, is_dwarven: bool, success: bool) {
+fn update_make_info(
+    world: &World,
+    crafter: i32,
+    customer: i32,
+    customer_client: u32,
+    recipe_id: i32,
+    is_dwarven: bool,
+    success: bool,
+) {
     if crafter == customer {
-        let (cur_mp, max_mp) = world.objects.get_component::<Vitals>(&customer).map(|v| (v.cur_mp as i32, v.max_mp)).unwrap_or((0, 0));
-        send_to_client(world, customer_client, sp::recipe_item_make_info(recipe_id, is_dwarven, cur_mp, max_mp, success));
+        let (cur_mp, max_mp) = world
+            .objects
+            .get_component::<Vitals>(&customer)
+            .map(|v| (v.cur_mp as i32, v.max_mp))
+            .unwrap_or((0, 0));
+        send_to_client(
+            world,
+            customer_client,
+            sp::recipe_item_make_info(recipe_id, is_dwarven, cur_mp, max_mp, success),
+        );
     } else {
-        let (cur_mp, max_mp) = world.objects.get_component::<Vitals>(&crafter).map(|v| (v.cur_mp as i32, v.max_mp)).unwrap_or((0, 0));
-        send_to_client(world, customer_client, sp::recipe_shop_item_info(crafter, recipe_id, cur_mp, max_mp));
+        let (cur_mp, max_mp) = world
+            .objects
+            .get_component::<Vitals>(&crafter)
+            .map(|v| (v.cur_mp as i32, v.max_mp))
+            .unwrap_or((0, 0));
+        send_to_client(
+            world,
+            customer_client,
+            sp::recipe_shop_item_info(crafter, recipe_id, cur_mp, max_mp),
+        );
     }
 }
 
 /// The crafter's `StatusUpdate(CUR_MP/CUR_HP)` after a craft consumed vitals.
 fn send_crafter_mp(world: &World, crafter: i32) {
-    let Some(v) = world.objects.get_component::<Vitals>(&crafter) else { return };
+    let Some(v) = world.objects.get_component::<Vitals>(&crafter) else {
+        return;
+    };
     send_to_player(
         world,
         crafter,
-        sp::status_update(crafter, &[(status_update_type::CUR_MP, v.cur_mp as i32), (status_update_type::CUR_HP, v.cur_hp as i32)]),
+        sp::status_update(
+            crafter,
+            &[
+                (status_update_type::CUR_MP, v.cur_mp as i32),
+                (status_update_type::CUR_HP, v.cur_hp as i32),
+            ],
+        ),
     );
 }
 
@@ -570,13 +863,19 @@ fn refresh_inventory(world: &World, oid: i32) {
 }
 
 fn name_of(world: &World, oid: i32) -> String {
-    world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.name.clone()).unwrap_or_default()
+    world
+        .objects
+        .get_component::<crate::model::Player>(&oid)
+        .map(|p| p.name.clone())
+        .unwrap_or_default()
 }
 
 /// The seller's active manufacture list `(recipe_id, cost)`, filtered to the
 /// book side being shown and recipes still in the book (Java `RecipeShopManageList`).
 fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i64)> {
-    let Some(store) = world.objects.get_component::<ManufactureStore>(&oid) else { return Vec::new() };
+    let Some(store) = world.objects.get_component::<ManufactureStore>(&oid) else {
+        return Vec::new();
+    };
     if store_type(world, oid) != STORE_TYPE_MANUFACTURE {
         return Vec::new();
     }
@@ -585,7 +884,10 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
         .iter()
         .filter(|(id, _)| {
             world.data.recipes.get(*id).map(|r| r.is_dwarven) == Some(is_dwarven)
-                && world.objects.get_component::<RecipeBook>(&oid).is_some_and(|b| b.contains(*id))
+                && world
+                    .objects
+                    .get_component::<RecipeBook>(&oid)
+                    .is_some_and(|b| b.contains(*id))
         })
         .copied()
         .collect()
@@ -593,7 +895,11 @@ fn active_store_items(world: &World, oid: i32, is_dwarven: bool) -> Vec<(i32, i6
 
 /// The seller's full active manufacture list (buyer view — no book-side filter).
 fn current_store_items(world: &World, oid: i32) -> Vec<(i32, i64)> {
-    world.objects.get_component::<ManufactureStore>(&oid).map(|s| s.items.clone()).unwrap_or_default()
+    world
+        .objects
+        .get_component::<ManufactureStore>(&oid)
+        .map(|s| s.items.clone())
+        .unwrap_or_default()
 }
 
 /// Whether the object is running a manufacture store (for `Action` routing).
@@ -611,9 +917,21 @@ fn in_range(world: &World, a: i32, b: i32, range: i32) -> bool {
     ) else {
         return false;
     };
-    let ra = world.objects.get_component::<Collision>(&a).map(|c| c.radius).unwrap_or(0.0);
-    let rb = world.objects.get_component::<Collision>(&b).map(|c| c.radius).unwrap_or(0.0);
+    let ra = world
+        .objects
+        .get_component::<Collision>(&a)
+        .map(|c| c.radius)
+        .unwrap_or(0.0);
+    let rb = world
+        .objects
+        .get_component::<Collision>(&b)
+        .map(|c| c.radius)
+        .unwrap_or(0.0);
     let reach = range as f64 + ra + rb;
-    let (dx, dy, dz) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64, (pa.z - pb.z) as f64);
+    let (dx, dy, dz) = (
+        (pa.x - pb.x) as f64,
+        (pa.y - pb.y) as f64,
+        (pa.z - pb.z) as f64,
+    );
     dx * dx + dy * dy + dz * dz <= reach * reach
 }

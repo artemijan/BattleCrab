@@ -38,7 +38,10 @@ pub struct Config {
 
 impl Default for Config {
     fn default() -> Self {
-        Self { install_dir: default_install_dir(), game_exe: None }
+        Self {
+            install_dir: default_install_dir(),
+            game_exe: None,
+        }
     }
 }
 
@@ -47,7 +50,10 @@ impl Config {
         let path = config_path();
         match std::fs::read_to_string(&path) {
             Ok(raw) => serde_json::from_str(&raw).unwrap_or_else(|e| {
-                tracing::warn!("config at {} is malformed ({e}); using defaults", path.display());
+                tracing::warn!(
+                    "config at {} is malformed ({e}); using defaults",
+                    path.display()
+                );
                 Self::default()
             }),
             Err(_) => Self::default(),
@@ -142,8 +148,8 @@ mod tests {
     use super::*;
 
     fn scratch(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir()
-            .join(format!("launcher-config-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("launcher-config-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -206,11 +212,17 @@ mod tests {
     fn not_installed_when_the_recorded_exe_is_gone() {
         let root = scratch("stale");
         let exe = make_exe(&root, "system/l2.exe");
-        let mut config = Config { install_dir: root, game_exe: Some(exe.clone()) };
+        let mut config = Config {
+            install_dir: root,
+            game_exe: Some(exe.clone()),
+        };
         assert!(config.is_installed());
 
         std::fs::remove_file(&exe).unwrap();
-        assert!(!config.is_installed(), "deleted client must not count as installed");
+        assert!(
+            !config.is_installed(),
+            "deleted client must not count as installed"
+        );
 
         config.refresh_game_exe();
         assert_eq!(config.game_exe, None);

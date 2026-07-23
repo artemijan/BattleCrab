@@ -48,7 +48,9 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
 
     // Auto-end after the siege length (Java `ScheduleEndSiegeTask`).
     let fire_at = world.tick + ms_to_ticks(SIEGE_LENGTH_MIN * 60 * 1000);
-    world.scheduler.schedule(fire_at, ScheduledTask::SiegeEnd { castle_id });
+    world
+        .scheduler
+        .schedule(fire_at, ScheduledTask::SiegeEnd { castle_id });
 
     // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield of everyone but
     // the owning clan. TODO(G24): attackers/defenders re-enter through their
@@ -58,9 +60,18 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // `_castle.spawnDoor()` — close the castle gates at full HP for the battle.
     spawn_castle_doors(world, castle_id, false);
     // `spawnControlTower()` / `spawnFlameTower()` + `spawnSiegeGuard()`.
-    let towers = world.data.siege_towers.get(&castle_id).cloned().unwrap_or_default();
+    let towers = world
+        .data
+        .siege_towers
+        .get(&castle_id)
+        .cloned()
+        .unwrap_or_default();
     spawn_siege_npcs(world, castle_id, &towers);
-    let guards = world.siege_guards.get(&castle_id).cloned().unwrap_or_default();
+    let guards = world
+        .siege_guards
+        .get(&castle_id)
+        .cloned()
+        .unwrap_or_default();
     spawn_siege_npcs(world, castle_id, &guards);
 
     // TODO(G24): updatePlayerSiegeStateFlags; the control-tower destruction
@@ -89,7 +100,12 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
 
     // The winner is whoever owns the castle at the end (an attacker only owns it
     // if they captured it mid-siege via `capture`).
-    match world.clans.values().find(|c| c.castle_id == castle_id).map(|c| (c.id, c.name.clone())) {
+    match world
+        .clans
+        .values()
+        .find(|c| c.castle_id == castle_id)
+        .map(|c| (c.id, c.name.clone()))
+    {
         Some((owner_id, owner_name)) => {
             // "Clan <owner> is victorious over <castle>'s castle siege!"
             let pkt = server_packets::system_message_with(
@@ -103,7 +119,11 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
             // blood-alliance count, castle ticket count and nobles aren't modelled.
             let _ = (owner_id, first_owner);
         }
-        None => broadcast_sm(world, sm_ids::THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW, castle_id),
+        None => broadcast_sm(
+            world,
+            sm_ids::THE_SIEGE_OF_S1_HAS_ENDED_IN_A_DRAW,
+            castle_id,
+        ),
     }
 
     // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield at the end too.
@@ -134,12 +154,18 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
         if let Some(c) = world.clans.get_mut(&old) {
             c.castle_id = 0;
         }
-        let _ = world.db.send(DbCommand::UpdateClanCastle { clan_id: old, castle_id: 0 });
+        let _ = world.db.send(DbCommand::UpdateClanCastle {
+            clan_id: old,
+            castle_id: 0,
+        });
     }
     if let Some(c) = world.clans.get_mut(&new_clan_id) {
         c.castle_id = castle_id;
     }
-    let _ = world.db.send(DbCommand::UpdateClanCastle { clan_id: new_clan_id, castle_id });
+    let _ = world.db.send(DbCommand::UpdateClanCastle {
+        clan_id: new_clan_id,
+        castle_id,
+    });
 
     // Reshuffle siege roles: every other side becomes an attacker, the captor
     // becomes the OWNER; then re-persist the changed rows.
@@ -149,7 +175,9 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
                 if sc.clan_id != new_clan_id
                     && matches!(
                         sc.kind,
-                        SiegeClanType::Owner | SiegeClanType::Defender | SiegeClanType::DefenderPending
+                        SiegeClanType::Owner
+                            | SiegeClanType::Defender
+                            | SiegeClanType::DefenderPending
                     )
                 {
                     sc.kind = SiegeClanType::Attacker;
@@ -159,12 +187,20 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
                 Some(sc) => sc.kind = SiegeClanType::Owner,
                 None => siege.add_clan(new_clan_id, SiegeClanType::Owner),
             }
-            siege.clans.iter().map(|c| (c.clan_id, c.kind.as_db())).collect()
+            siege
+                .clans
+                .iter()
+                .map(|c| (c.clan_id, c.kind.as_db()))
+                .collect()
         }
         None => Vec::new(),
     };
     for (clan_id, kind) in changed {
-        let _ = world.db.send(DbCommand::SaveSiegeClan { castle_id, clan_id, kind });
+        let _ = world.db.send(DbCommand::SaveSiegeClan {
+            castle_id,
+            clan_id,
+            kind,
+        });
     }
 
     // `_castle.spawnDoor(true)` — respawn the (now the captor's) gates at 50% HP.
@@ -176,10 +212,16 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
 /// the end. NPCs carry their template AI, so aggressive guards engage attackers.
 fn spawn_siege_npcs(world: &mut World, castle_id: i32, spawns: &[SiegeSpawn]) {
     for s in spawns {
-        if let Some(oid) = crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading) {
+        if let Some(oid) =
+            crate::model::npc::spawn_npc_at(world, s.npc_id, s.x, s.y, s.z, s.heading)
+        {
             super::death::introduce_npc(world, oid);
             // Java `spawnControlTower` counts the live control towers.
-            let is_control_tower = world.data.npc_data.get(s.npc_id).is_some_and(|t| t.type_name == "ControlTower");
+            let is_control_tower = world
+                .data
+                .npc_data
+                .get(s.npc_id)
+                .is_some_and(|t| t.type_name == "ControlTower");
             if let Some(siege) = world.sieges.get_mut(&castle_id) {
                 siege.spawned_npcs.push(oid);
                 if is_control_tower {
@@ -201,7 +243,9 @@ pub(crate) fn attackable_siege_tower(world: &World, npc_oid: i32) -> bool {
     if !is_tower {
         return false;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else { return false };
+    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
+        return false;
+    };
     match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
         Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
         None => false,
@@ -219,8 +263,12 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     if !is_ct {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else { return };
-    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
+    let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() else {
+        return;
+    };
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {
+        return;
+    };
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.control_tower_count = (siege.control_tower_count - 1).max(0);
         // The count has no gameplay outcome in Interlude Classic (see the field
@@ -239,8 +287,17 @@ const HQ_NPC_ID: i32 = 35062;
 /// attacker clan plants an HQ flag in the siege zone, becoming the clan's respawn
 /// point until a defender destroys it. Returns whether a flag was placed.
 pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
-    let Some(clan_id) = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id) else { return false };
-    let Some((x, y, z, heading)) = world.objects.get_component::<Position>(&player_oid).map(|p| (p.x, p.y, p.z, p.heading))
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .map(|p| p.clan_id)
+    else {
+        return false;
+    };
+    let Some((x, y, z, heading)) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .map(|p| (p.x, p.y, p.z, p.heading))
     else {
         return false;
     };
@@ -251,17 +308,23 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
     }
     // `BuildCampSkillCondition`: an active siege at this spot where the clan is
     // registered as an attacker. TODO(G24): also require the `ZoneId.HQ` sub-zone.
-    let Some(castle_id) = world.data.zone_data.siege_castle_at(x, y, z) else { return false };
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(x, y, z) else {
+        return false;
+    };
     let ok = world.sieges.get(&castle_id).is_some_and(|s| {
         s.in_progress
-            && s.clans.iter().any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
+            && s.clans
+                .iter()
+                .any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
             && s.flag_count(clan_id) < FLAG_MAX_COUNT // getNumFlags < MaxFlags
     });
     if !ok {
         return false;
     }
     // Plant it at z+50 (Java `spawnMe(x, y, z + 50)`) and register it.
-    let Some(oid) = crate::model::npc::spawn_npc_at(world, HQ_NPC_ID, x, y, z + 50, heading) else { return false };
+    let Some(oid) = crate::model::npc::spawn_npc_at(world, HQ_NPC_ID, x, y, z + 50, heading) else {
+        return false;
+    };
     super::death::introduce_npc(world, oid);
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.add_flag(clan_id, oid);
@@ -275,7 +338,10 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
 /// Whether an NPC is a registered HQ flag standing in an active siege —
 /// attackable so defenders can destroy it (Java `SiegeFlag.isAutoAttackable`).
 pub(crate) fn attackable_siege_flag(world: &World, npc_oid: i32) -> bool {
-    world.sieges.values().any(|s| s.in_progress && s.flags.iter().any(|&(_, oid)| oid == npc_oid))
+    world
+        .sieges
+        .values()
+        .any(|s| s.in_progress && s.flags.iter().any(|&(_, oid)| oid == npc_oid))
 }
 
 /// Java `Siege.killedFlag` — a defender destroyed an attacker's HQ flag; drop it
@@ -292,19 +358,27 @@ pub(crate) fn killed_siege_flag(world: &mut World, npc_oid: i32) {
 /// registered defender clan (Java `Siege.checkIsDefender`, which counts the
 /// owner). Non-players and clanless players are never defenders.
 pub(crate) fn is_siege_defender(world: &World, castle_id: i32, player_oid: i32) -> bool {
-    let Some(clan_id) = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id) else {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .map(|p| p.clan_id)
+    else {
         return false;
     };
     if clan_id == 0 {
         return false;
     }
-    if world.clans.get(&clan_id).is_some_and(|c| c.castle_id == castle_id) {
+    if world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.castle_id == castle_id)
+    {
         return true;
     }
     world.sieges.get(&castle_id).is_some_and(|s| {
-        s.clans
-            .iter()
-            .any(|c| c.clan_id == clan_id && matches!(c.kind, SiegeClanType::Owner | SiegeClanType::Defender))
+        s.clans.iter().any(|c| {
+            c.clan_id == clan_id && matches!(c.kind, SiegeClanType::Owner | SiegeClanType::Defender)
+        })
     })
 }
 
@@ -321,7 +395,11 @@ pub(crate) fn active_siege_guard_castle(world: &World, guard_oid: i32) -> Option
     }
     let pos = world.objects.get_component::<Position>(&guard_oid)?;
     let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
-    world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
+    world
+        .sieges
+        .get(&castle_id)
+        .filter(|s| s.in_progress)
+        .map(|_| castle_id)
 }
 
 /// Whether a stationed siege guard (`Defender`) is attackable by `attacker_oid`:
@@ -339,7 +417,11 @@ pub(crate) fn attackable_siege_guard(world: &World, guard_oid: i32, attacker_oid
 /// Despawn every NPC spawned for this siege (Java `removeSiegeGuards` + the
 /// control/flame towers — the latter unported yet).
 fn despawn_siege_npcs(world: &mut World, castle_id: i32) {
-    let oids = world.sieges.get_mut(&castle_id).map(|s| std::mem::take(&mut s.spawned_npcs)).unwrap_or_default();
+    let oids = world
+        .sieges
+        .get_mut(&castle_id)
+        .map(|s| std::mem::take(&mut s.spawned_npcs))
+        .unwrap_or_default();
     for oid in oids {
         if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
             super::death::despawn_npc(world, oid, region);
@@ -376,7 +458,12 @@ fn spawn_castle_doors(world: &mut World, castle_id: i32, weak: bool) {
             None => continue,
         };
         if dead {
-            let max_hp = world.data.door_data.get(door_id).map(|t| t.hp_max).unwrap_or(1);
+            let max_hp = world
+                .data
+                .door_data
+                .get(door_id)
+                .map(|t| t.hp_max)
+                .unwrap_or(1);
             if let Some(d) = world.objects.get_component_mut::<Door>(&oid) {
                 d.current_hp = if weak { (max_hp / 2).max(1) } else { max_hp };
             }
@@ -394,7 +481,9 @@ pub(crate) fn attackable_door(world: &World, door_oid: i32) -> bool {
     if !world.objects.has_component::<Door>(&door_oid) {
         return false;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&door_oid) else { return false };
+    let Some(pos) = world.objects.get_component::<Position>(&door_oid) else {
+        return false;
+    };
     match world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) {
         Some(castle_id) => world.sieges.get(&castle_id).is_some_and(|s| s.in_progress),
         None => false,
@@ -406,7 +495,9 @@ pub(crate) fn attackable_door(world: &World, door_oid: i32) -> bool {
 /// door (`combat::attack_door`).
 pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool {
     let breached = {
-        let Some(d) = world.objects.get_component_mut::<Door>(&door_oid) else { return false };
+        let Some(d) = world.objects.get_component_mut::<Door>(&door_oid) else {
+            return false;
+        };
         if d.current_hp <= 0 {
             return false; // already breached
         }
@@ -415,7 +506,7 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
     };
     if breached {
         super::doors::open_door(world, door_oid); // breach — the gate swings open
-        // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
+                                                  // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
     }
     breached
 }
@@ -424,20 +515,33 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
 /// `Castle.setOwner` → `Siege.midVictory`): an attacker clan member touching the
 /// artifact during an active siege takes the castle. No-op otherwise.
 pub(crate) fn try_capture_artifact(world: &mut World, player_oid: i32, artifact_oid: i32) {
-    let Some(pos) = world.objects.get_component::<Position>(&artifact_oid).copied() else { return };
-    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else { return };
+    let Some(pos) = world
+        .objects
+        .get_component::<Position>(&artifact_oid)
+        .copied()
+    else {
+        return;
+    };
+    let Some(castle_id) = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z) else {
+        return;
+    };
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
     }
-    let clan_id = world.objects.get_component::<Player>(&player_oid).map(|p| p.clan_id).unwrap_or(0);
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
     if clan_id == 0 {
         return;
     }
     // Only a registered attacker can seize the castle.
-    let is_attacker = world
-        .sieges
-        .get(&castle_id)
-        .is_some_and(|s| s.clans.iter().any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker));
+    let is_attacker = world.sieges.get(&castle_id).is_some_and(|s| {
+        s.clans
+            .iter()
+            .any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
+    });
     if is_attacker {
         capture(world, castle_id, clan_id);
     }
@@ -449,14 +553,23 @@ fn owner_clan_id(world: &World, castle_id: i32) -> i32 {
 }
 
 fn owner_clan_id_opt(world: &World, castle_id: i32) -> Option<i32> {
-    world.clans.values().find(|c| c.castle_id == castle_id).map(|c| c.id)
+    world
+        .clans
+        .values()
+        .find(|c| c.castle_id == castle_id)
+        .map(|c| c.id)
 }
 
 /// `Siege.teleportPlayer(NotOwner, TOWN)`: send every player standing in the
 /// castle's siege zone who isn't in the owning clan (nor a GM) to their nearest
 /// town.
 fn teleport_non_owners(world: &mut World, castle_id: i32) {
-    let owner_clan_id = world.clans.values().find(|c| c.castle_id == castle_id).map(|c| c.id).unwrap_or(0);
+    let owner_clan_id = world
+        .clans
+        .values()
+        .find(|c| c.castle_id == castle_id)
+        .map(|c| c.id)
+        .unwrap_or(0);
     // Collect first — teleporting mutates the world and re-runs visibility.
     let targets: Vec<i32> = world
         .clients
@@ -466,7 +579,9 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
             _ => None,
         })
         .filter(|&oid| {
-            let Some(p) = world.objects.get_component::<Player>(&oid) else { return false };
+            let Some(p) = world.objects.get_component::<Player>(&oid) else {
+                return false;
+            };
             // Owner clan stays; GMs (canOverrideCond CASTLE_CONDITIONS) stay.
             if (owner_clan_id != 0 && p.clan_id == owner_clan_id) || p.is_gm(&world.data) {
                 return false;
@@ -480,13 +595,19 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
         .collect();
 
     for oid in targets {
-        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else { continue };
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
         let race = world
             .objects
             .get_component::<Player>(&oid)
             .and_then(|p| crate::enums::Race::from_ordinal(p.race))
             .unwrap_or(crate::enums::Race::Human);
-        if let Some((x, y, z)) = world.data.map_region.town_respawn(pos.x, pos.y, pos.z, race, 0) {
+        if let Some((x, y, z)) = world
+            .data
+            .map_region
+            .town_respawn(pos.x, pos.y, pos.z, race, 0)
+        {
             super::death::teleport_player(world, oid, x, y, z);
         }
     }
@@ -553,7 +674,10 @@ pub(crate) fn schedule_all_at_boot(world: &mut World) {
 fn arm_next_siege(world: &mut World, castle_id: i32, weekday: u32, hour: u32, now: i64) {
     let at_millis = next_siege_millis(now, weekday, hour);
     let delay_ticks = ((at_millis - now).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(world.tick + delay_ticks, ScheduledTask::SiegeStart { castle_id });
+    world.scheduler.schedule(
+        world.tick + delay_ticks,
+        ScheduledTask::SiegeStart { castle_id },
+    );
 }
 
 /// A scheduled siege's start time arrived: begin it, and re-arm next week so
@@ -563,7 +687,13 @@ pub(crate) fn handle_scheduled_siege_start(world: &mut World, castle_id: i32) {
     start_siege(world, castle_id);
     if let Some(e) = world.data.siege_schedule.get(&castle_id).copied() {
         if e.enabled {
-            arm_next_siege(world, castle_id, e.weekday, e.hour, commons::util::now_millis());
+            arm_next_siege(
+                world,
+                castle_id,
+                e.weekday,
+                e.hour,
+                commons::util::now_millis(),
+            );
         }
     }
 }

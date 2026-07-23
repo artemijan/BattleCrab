@@ -287,7 +287,8 @@ impl CharacterConfig {
             alt_party_range: p.get_int("AltPartyRange", d.alt_party_range),
             player_delevel: p.get_bool("Delevel", d.player_delevel),
             delevel_minimum: p.get_int("DelevelMinimum", d.delevel_minimum),
-            random_respawn_in_town: p.get_bool("RandomRespawnInTownEnabled", d.random_respawn_in_town),
+            random_respawn_in_town: p
+                .get_bool("RandomRespawnInTownEnabled", d.random_respawn_in_town),
             alt_party_max_members: p.get_int("AltPartyMaxMembers", 7).max(2) as usize,
             blow_rate_chance_limit: p.get_int("BlowRateChanceLimit", 80) as f64,
             alt_leave_party_leader: p.get_bool("AltLeavePartyLeader", d.alt_leave_party_leader),
@@ -307,21 +308,30 @@ impl CharacterConfig {
                 .collect(),
             inventory_max_no_dwarf: p.get_int("MaximumSlotsForNoDwarf", d.inventory_max_no_dwarf),
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
-            inventory_max_quest_items: p.get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
+            inventory_max_quest_items: p
+                .get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
             crafting_enabled: p.get_bool("CraftingEnabled", d.crafting_enabled),
             dwarf_recipe_limit: p.get_int("DwarfRecipeLimit", d.dwarf_recipe_limit),
             common_recipe_limit: p.get_int("CommonRecipeLimit", d.common_recipe_limit),
             craft_masterwork: p.get_bool("CraftMasterwork", d.craft_masterwork),
             craft_masterwork_chance: p.get_int("CraftMasterworkChance", d.craft_masterwork_chance),
             auto_learn_skills: p.get_bool("AutoLearnSkills", d.auto_learn_skills),
-            auto_learn_skills_without_items: p
-                .get_bool("AutoLearnSkillsWithoutItems", d.auto_learn_skills_without_items),
-            auto_learn_divine_inspiration: p
-                .get_bool("AutoLearnDivineInspiration", d.auto_learn_divine_inspiration),
+            auto_learn_skills_without_items: p.get_bool(
+                "AutoLearnSkillsWithoutItems",
+                d.auto_learn_skills_without_items,
+            ),
+            auto_learn_divine_inspiration: p.get_bool(
+                "AutoLearnDivineInspiration",
+                d.auto_learn_divine_inspiration,
+            ),
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),
-            strict_delevel_skill_removal: p.get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
-            character_data_store_interval_ticks: general.get_int("CharacterDataStoreInterval", 15).max(1) as u64 * 600,
+            strict_delevel_skill_removal: p
+                .get_bool("StrictDelevelSkillRemoval", d.strict_delevel_skill_removal),
+            character_data_store_interval_ticks: general
+                .get_int("CharacterDataStoreInterval", 15)
+                .max(1) as u64
+                * 600,
             run_spd_boost: p.get_float("RunSpeedBoost", 35.0) as f64,
             max_p_atk: p.get_float("MaxPAtk", 999_999.0) as f64,
             max_m_atk: p.get_float("MaxMAtk", 999_999.0) as f64,
@@ -338,14 +348,20 @@ impl CharacterConfig {
             alt_store_dances: p.get_bool("AltStoreDances", d.alt_store_dances),
             dance_cancel_buff: p.get_bool("DanceCancelBuff", d.dance_cancel_buff),
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
-            alt_karma_player_can_use_gk: p.get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
+            alt_karma_player_can_use_gk: p
+                .get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
-            calculate_magic_success_by_skill_magic_level: p
-                .get_bool("CalculateMagicSuccessBySkillMagicLevel", d.calculate_magic_success_by_skill_magic_level),
+            calculate_magic_success_by_skill_magic_level: p.get_bool(
+                "CalculateMagicSuccessBySkillMagicLevel",
+                d.calculate_magic_success_by_skill_magic_level,
+            ),
             magic_failures: p.get_bool("MagicFailures", d.magic_failures),
-            enable_modify_skill_duration: p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration),
+            enable_modify_skill_duration: p
+                .get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration),
             // Java only builds the map when the flag is set; keep it empty otherwise.
-            skill_duration_list: if p.get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration) {
+            skill_duration_list: if p
+                .get_bool("EnableModifySkillDuration", d.enable_modify_skill_duration)
+            {
                 parse_skill_duration_list(&p.get_string("SkillDurationList", ""))
             } else {
                 HashMap::new()

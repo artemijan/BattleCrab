@@ -153,7 +153,10 @@ mod tests {
     use super::*;
 
     fn started_with_cond(cond: &str) -> QuestState {
-        let mut qs = QuestState { state: state::STARTED, ..Default::default() };
+        let mut qs = QuestState {
+            state: state::STARTED,
+            ..Default::default()
+        };
         qs.vars.insert(COND_VAR.into(), cond.into());
         qs
     }
@@ -185,7 +188,10 @@ mod tests {
         assert_eq!(started_with_cond("3").cond_bit_set(), 3);
         // Legacy row: flags 0x80000007 = steps 1-3 done, no skips beyond →
         // highest step 3 (traced from the Java loop).
-        assert_eq!(started_with_cond(&(0x8000_0007u32 as i32).to_string()).cond_bit_set(), 3);
+        assert_eq!(
+            started_with_cond(&(0x8000_0007u32 as i32).to_string()).cond_bit_set(),
+            3
+        );
         // 0x80000001 | 1<<4 → steps {1, 5}: loop exits at i = 5.
         let w = 0x8000_0001u32 as i32 | 1 << 4;
         assert_eq!(started_with_cond(&w.to_string()).cond_bit_set(), 5);
@@ -226,6 +232,9 @@ mod tests {
     fn cond_flags_out_of_range_conds_drop_the_var() {
         // cond 2 after a skip-word existed (e.g. abort/restart paths).
         assert_eq!(updated_cond_flags(2, 5, Some(0x8000_0011u32 as i32)), None);
-        assert_eq!(updated_cond_flags(32, 31, Some(0x8000_0011u32 as i32)), None);
+        assert_eq!(
+            updated_cond_flags(32, 31, Some(0x8000_0011u32 as i32)),
+            None
+        );
     }
 }

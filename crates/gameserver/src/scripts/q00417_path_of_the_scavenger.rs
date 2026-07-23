@@ -108,17 +108,47 @@ const ERRANDS: [(i32, i32, &str); 3] = [
 
 /// `(npc, delivery item, pay item, first page, promoted page)`.
 const DELIVERIES: [(i32, i32, i32, &str, &str); 3] = [
-    (PRIEST_OF_THE_EARTH_ZIMENF, ZIMENFS_POTION, ZIMENFS_PAY, "30538-01.html", "30538-02.html"),
-    (TRADER_SHARI, SHARIS_AXE, SHARIS_PAY, "30517-01.html", "30517-02.html"),
-    (HEAD_BLACKSMITH_BRONK, BRONKS_INGOT, BRONKS_PAY, "30525-01.html", "30525-02.html"),
+    (
+        PRIEST_OF_THE_EARTH_ZIMENF,
+        ZIMENFS_POTION,
+        ZIMENFS_PAY,
+        "30538-01.html",
+        "30538-02.html",
+    ),
+    (
+        TRADER_SHARI,
+        SHARIS_AXE,
+        SHARIS_PAY,
+        "30517-01.html",
+        "30517-02.html",
+    ),
+    (
+        HEAD_BLACKSMITH_BRONK,
+        BRONKS_INGOT,
+        BRONKS_PAY,
+        "30525-01.html",
+        "30525-02.html",
+    ),
 ];
 
 const TAGGED_MOBS: [i32; 4] = [HUNTER_TARANTULA, PLUNDER_TARANTULA, HUNTER_BEAR, HONEY_BEAR];
 
 const QUEST_ITEMS: [i32; 15] = [
-    PIPPIS_LETTER, ROUTS_TELEPORT_SCROLL, SUCCUBUS_UNDIES, MIONS_LETTER, BRONKS_INGOT, SHARIS_AXE,
-    ZIMENFS_POTION, BRONKS_PAY, SHARIS_PAY, ZIMENFS_PAY, BEAR_PICTURE, TARANTULA_PICTURE,
-    HONEY_JAR, BEAD, BEAD_PARCEL,
+    PIPPIS_LETTER,
+    ROUTS_TELEPORT_SCROLL,
+    SUCCUBUS_UNDIES,
+    MIONS_LETTER,
+    BRONKS_INGOT,
+    SHARIS_AXE,
+    ZIMENFS_POTION,
+    BRONKS_PAY,
+    SHARIS_PAY,
+    ZIMENFS_PAY,
+    BEAR_PICTURE,
+    TARANTULA_PICTURE,
+    HONEY_JAR,
+    BEAD,
+    BEAD_PARCEL,
 ];
 
 pub struct Q00417PathOfTheScavenger;
@@ -168,8 +198,14 @@ impl QuestScript for Q00417PathOfTheScavenger {
     /// 31958 is deliberately absent — see the module header.
     fn talk_npcs(&self) -> &[i32] {
         &[
-            COLLECTOR_PIPI, WAREHOUSE_KEEPER_RAUT, TRADER_MION, TRADER_SHARI,
-            HEAD_BLACKSMITH_BRONK, PRIEST_OF_THE_EARTH_ZIMENF, MASTER_TOMA, TORAI,
+            COLLECTOR_PIPI,
+            WAREHOUSE_KEEPER_RAUT,
+            TRADER_MION,
+            TRADER_SHARI,
+            HEAD_BLACKSMITH_BRONK,
+            PRIEST_OF_THE_EARTH_ZIMENF,
+            MASTER_TOMA,
+            TORAI,
         ]
     }
     fn kill_npcs(&self) -> &[i32] {
@@ -215,9 +251,14 @@ impl QuestScript for Q00417PathOfTheScavenger {
                 ctx.take_items(BRONKS_PAY, 1);
                 Some(self.give_random_errand(ctx))
             }
-            "reply_2" => {
-                Some(if ctx.roll(2) == 0 { "30519-06.html" } else { "30519-11.html" }.to_string())
-            }
+            "reply_2" => Some(
+                if ctx.roll(2) == 0 {
+                    "30519-06.html"
+                } else {
+                    "30519-11.html"
+                }
+                .to_string(),
+            ),
             "reply_3" => {
                 // The units digit of memoStateEx(1) counts Mion's dialogue.
                 let ex = ctx.memo_state_ex(1);
@@ -309,8 +350,7 @@ impl QuestScript for Q00417PathOfTheScavenger {
         }
         match ctx.npc_id {
             HUNTER_BEAR => {
-                if !self.has(ctx, BEAR_PICTURE)
-                    || ctx.quest_items_count(HONEY_JAR) >= HONEY_NEEDED
+                if !self.has(ctx, BEAR_PICTURE) || ctx.quest_items_count(HONEY_JAR) >= HONEY_NEEDED
                 {
                     return;
                 }
@@ -356,19 +396,21 @@ impl QuestScript for Q00417PathOfTheScavenger {
         }
         match npc {
             COLLECTOR_PIPI => Some(
-                if self.has(ctx, PIPPIS_LETTER) { "30524-06.html" } else { "30524-07.html" }
-                    .to_string(),
+                if self.has(ctx, PIPPIS_LETTER) {
+                    "30524-06.html"
+                } else {
+                    "30524-07.html"
+                }
+                .to_string(),
             ),
             TRADER_MION => self.talk_mion(ctx),
             MASTER_TOMA => self.talk_toma(ctx),
             WAREHOUSE_KEEPER_RAUT => self.talk_raut(ctx),
-            TORAI => Some(
-                if self.has(ctx, ROUTS_TELEPORT_SCROLL) {
-                    "30557-01.html".to_string()
-                } else {
-                    ctx.no_quest_html()
-                },
-            ),
+            TORAI => Some(if self.has(ctx, ROUTS_TELEPORT_SCROLL) {
+                "30557-01.html".to_string()
+            } else {
+                ctx.no_quest_html()
+            }),
             _ => self.talk_delivery(ctx, npc),
         }
     }
@@ -382,8 +424,12 @@ impl Q00417PathOfTheScavenger {
         }
         if self.deliveries_held(ctx) == 1 {
             return Some(
-                if ctx.memo_state_ex(1) % 10 == 0 { "30519-05.html" } else { "30519-08.html" }
-                    .to_string(),
+                if ctx.memo_state_ex(1) % 10 == 0 {
+                    "30519-05.html"
+                } else {
+                    "30519-08.html"
+                }
+                .to_string(),
             );
         }
         if self.pays_held(ctx) == 1 {
@@ -403,7 +449,13 @@ impl Q00417PathOfTheScavenger {
         }
         if self.has_any(
             ctx,
-            &[BEAR_PICTURE, TARANTULA_PICTURE, BEAD_PARCEL, ROUTS_TELEPORT_SCROLL, SUCCUBUS_UNDIES],
+            &[
+                BEAR_PICTURE,
+                TARANTULA_PICTURE,
+                BEAD_PARCEL,
+                ROUTS_TELEPORT_SCROLL,
+                SUCCUBUS_UNDIES,
+            ],
         ) {
             return Some("30519-14.html".to_string());
         }
@@ -413,8 +465,7 @@ impl Q00417PathOfTheScavenger {
     /// Shari, Bronk and Zimenf share one shape: take the delivery, pay, and
     /// bump the tens digit. The second hand-in promotes the quest to cond 3.
     fn talk_delivery(&self, ctx: &mut QuestCtx, npc: i32) -> Option<String> {
-        let Some(&(_, item, pay, first, promoted)) =
-            DELIVERIES.iter().find(|(id, ..)| *id == npc)
+        let Some(&(_, item, pay, first, promoted)) = DELIVERIES.iter().find(|(id, ..)| *id == npc)
         else {
             return Some(ctx.no_quest_html());
         };

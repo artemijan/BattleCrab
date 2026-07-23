@@ -50,7 +50,10 @@ pub(crate) fn vitals_of(world: &World, object_id: i32) -> Option<&Vitals> {
 /// breached siege gate (0 HP) counts as dead, like a corpse, so the attack
 /// loop ends on it. A vanished object (no `Vitals`, no `Door`) is also "dead".
 pub(crate) fn target_is_dead(world: &World, object_id: i32) -> bool {
-    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+    if let Some(door) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&object_id)
+    {
         return door.current_hp <= 0;
     }
     vitals_of(world, object_id).is_none_or(|v| v.dead)
@@ -98,7 +101,10 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     // (`distance_2d`/`attack_reach`/`pawn_destination`) works uniformly.
     // `dead` = breached (0 HP); the combat-stat fields are unused for a door
     // target (`do_door_swing` reads the template directly).
-    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+    if let Some(door) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&object_id)
+    {
         let pos = world.objects.get_component::<Position>(&object_id)?;
         let p_def = world
             .data
@@ -169,8 +175,14 @@ fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
         return (1.0, 0.0);
     };
     (
-        m.mul.get(&Stat::DefenceCriticalRate).copied().unwrap_or(1.0),
-        m.add.get(&Stat::DefenceCriticalRateAdd).copied().unwrap_or(0.0),
+        m.mul
+            .get(&Stat::DefenceCriticalRate)
+            .copied()
+            .unwrap_or(1.0),
+        m.add
+            .get(&Stat::DefenceCriticalRateAdd)
+            .copied()
+            .unwrap_or(0.0),
     )
 }
 
@@ -204,12 +216,20 @@ fn crit_damage_auto(
     // and the add map to 0.0, so an actor with no `StatModifiers` at all (most
     // NPCs) yields Java's stat-free `2.0` / `0.0` — what the whole port
     // hard-coded before this slice.
-    let mul_of = |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0);
-    let add_of = |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.add.get(&s).copied()).unwrap_or(0.0);
-    let position_mul = attacker.map(|m| m.position_value(Stat::CriticalDamage, position)).unwrap_or(1.0);
+    let mul_of =
+        |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0);
+    let add_of =
+        |m: Option<&StatModifiers>, s: Stat| m.and_then(|m| m.add.get(&s).copied()).unwrap_or(0.0);
+    let position_mul = attacker
+        .map(|m| m.position_value(Stat::CriticalDamage, position))
+        .unwrap_or(1.0);
     formulas::CritDamage {
-        mul: 2.0 * mul_of(attacker, Stat::CriticalDamage) * position_mul * mul_of(target, Stat::DefenceCriticalDamage),
-        add: add_of(attacker, Stat::CriticalDamageAdd) + add_of(target, Stat::DefenceCriticalDamageAdd),
+        mul: 2.0
+            * mul_of(attacker, Stat::CriticalDamage)
+            * position_mul
+            * mul_of(target, Stat::DefenceCriticalDamage),
+        add: add_of(attacker, Stat::CriticalDamageAdd)
+            + add_of(target, Stat::DefenceCriticalDamageAdd),
     }
 }
 
@@ -223,16 +243,26 @@ fn crit_damage_auto(
 /// precedent of not inventing plumbing for a stat nothing reachable sets.
 /// The magic half is real: Prophecy of Wind 1357 and Victories of Pa'agrio
 /// 1414 grant `MAGIC_CRITICAL_DAMAGE`.
-pub(crate) fn crit_damage_skill(world: &World, attacker_oid: i32, target_oid: i32, magic: bool) -> f64 {
+pub(crate) fn crit_damage_skill(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    magic: bool,
+) -> f64 {
     use crate::model::components::StatModifiers;
     use crate::model::stats::Stat;
     if !magic {
         return 2.0;
     }
     let mul_of = |oid: i32, s: Stat| {
-        world.objects.get_component::<StatModifiers>(&oid).and_then(|m| m.mul.get(&s).copied()).unwrap_or(1.0)
+        world
+            .objects
+            .get_component::<StatModifiers>(&oid)
+            .and_then(|m| m.mul.get(&s).copied())
+            .unwrap_or(1.0)
     };
-    2.0 * mul_of(attacker_oid, Stat::MagicCriticalDamage) * mul_of(target_oid, Stat::DefenceMagicCriticalDamage)
+    2.0 * mul_of(attacker_oid, Stat::MagicCriticalDamage)
+        * mul_of(target_oid, Stat::DefenceMagicCriticalDamage)
 }
 
 /// The `StatByMoveType` contribution to evasion for whoever is being snapshot
@@ -241,7 +271,10 @@ pub(crate) fn crit_damage_skill(world: &World, attacker_oid: i32, target_oid: i3
 /// like every other evasion term on this port; zero for anyone without the
 /// passive or standing still.
 fn move_type_evasion_bonus(world: &World, object_id: i32) -> i32 {
-    let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&object_id) else {
+    let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+    else {
         return 0;
     };
     let move_type = crate::game_loop::regen::move_type_of(world, object_id);
@@ -258,18 +291,29 @@ pub(crate) fn shield_stats(world: &World, object_id: i32) -> (f64, f64, f64) {
     let Some(base) = world.objects.get_component::<BaseStats>(&object_id) else {
         return (0.0, 0.0, 1.0);
     };
-    let con_bonus = world.data.stat_bonus.bonus(crate::model::stats::BaseStat::Con, base.con);
+    let con_bonus = world
+        .data
+        .stat_bonus
+        .bonus(crate::model::stats::BaseStat::Con, base.con);
     let shield = world
         .objects
         .get_component::<Inventory>(&object_id)
-        .and_then(|inv| inv.paperdoll_item(PaperdollSlot::LHand).map(|it| it.item_id))
+        .and_then(|inv| {
+            inv.paperdoll_item(PaperdollSlot::LHand)
+                .map(|it| it.item_id)
+        })
         .and_then(|id| world.data.item_data.item_stats(id));
     // Java `Formulas.calcShldUse` bails on `!(secondaryWeaponItem instanceof
     // Armor)` *before* ever reading `Stat.SHIELD_DEFENCE`/`_RATE` — so a buff
     // like Residence Shield Defense (+225 DIFF) contributes nothing without an
     // actual shield equipped, matching the early return here.
-    let Some(shield) = shield else { return (0.0, 0.0, con_bonus) };
-    let (def, rate) = (shield.shield_def.unwrap_or(0) as f64, shield.shield_rate.unwrap_or(0) as f64);
+    let Some(shield) = shield else {
+        return (0.0, 0.0, con_bonus);
+    };
+    let (def, rate) = (
+        shield.shield_def.unwrap_or(0) as f64,
+        shield.shield_rate.unwrap_or(0) as f64,
+    );
     // `ShieldDefenceFinalizer`/`ShieldDefenceRateFinalizer`: `Stat.defaultValue`
     // (`base * mul + add`) over `calcWeaponPlusBaseValue` — the shield's own
     // sDef/rShld *is* that base value (no other item contributes to either
@@ -479,9 +523,10 @@ pub(crate) fn start_attack_intent(
     // stationary here — a chase leg or manual move ends before this — so the
     // current position is the right thing to range-check.
     if shift {
-        if let (Some(attacker), Some(target)) =
-            (combatant(world, object_id), combatant(world, target_object_id))
-        {
+        if let (Some(attacker), Some(target)) = (
+            combatant(world, object_id),
+            combatant(world, target_object_id),
+        ) {
             if distance_2d(&attacker, &target) > attack_reach(&attacker, &target) {
                 super::helpers::send_sm_and_action_failed(
                     world,
@@ -517,8 +562,12 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         world.objects.remove_component::<Intent>(&attacker_oid);
         return;
     }
-    let Some(attacker) = combatant(world, attacker_oid) else { return };
-    let Some(dpos) = world.objects.get_component::<Position>(&door_oid).copied() else { return };
+    let Some(attacker) = combatant(world, attacker_oid) else {
+        return;
+    };
+    let Some(dpos) = world.objects.get_component::<Position>(&door_oid).copied() else {
+        return;
+    };
 
     // Damage: pAtk vs the door's pDef (front, no crit, no shot).
     let door_pdef = world
@@ -539,7 +588,8 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     ) as i32;
 
     // Face the gate (Java `doAttack` `setHeading`).
-    let heading = movement::calculate_heading((dpos.x - attacker.x) as f64, (dpos.y - attacker.y) as f64);
+    let heading =
+        movement::calculate_heading((dpos.x - attacker.x) as f64, (dpos.y - attacker.y) as f64);
     if let Some(pos) = world.objects.get_component_mut::<Position>(&attacker_oid) {
         pos.heading = heading;
     }
@@ -548,12 +598,17 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
     // fire the swing-end hook (queued action), exactly like `do_auto_attack`.
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
     let now = world.tick;
-    if let Some(st) = world.objects.get_component_mut::<AttackState>(&attacker_oid) {
+    if let Some(st) = world
+        .objects
+        .get_component_mut::<AttackState>(&attacker_oid)
+    {
         st.attack_end_tick = now + ms_to_ticks(time_atk);
     }
     world.scheduler.schedule(
         now + ms_to_ticks(time_atk),
-        ScheduledTask::AttackFinish { object_id: attacker_oid },
+        ScheduledTask::AttackFinish {
+            object_id: attacker_oid,
+        },
     );
 
     // Broadcast the swing.
@@ -565,8 +620,16 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
         soulshot: false,
         ss_grade: 0,
     };
-    let pkt =
-        server_packets::attack(attacker_oid, std::slice::from_ref(&hit), attacker.x, attacker.y, attacker.z, dpos.x, dpos.y, dpos.z);
+    let pkt = server_packets::attack(
+        attacker_oid,
+        std::slice::from_ref(&hit),
+        attacker.x,
+        attacker.y,
+        attacker.z,
+        dpos.x,
+        dpos.y,
+        dpos.z,
+    );
     broadcast_including_self(world, attacker_oid, &pkt);
     refresh_attack_stance(world, attacker_oid);
 
@@ -582,13 +645,21 @@ fn do_door_swing(world: &mut World, attacker_oid: i32, door_oid: i32) {
 pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
     super::siege::damage_door(world, door_oid, damage);
     let (cur_hp, max_hp) = {
-        let d = world.objects.get_component::<crate::model::door::Door>(&door_oid);
+        let d = world
+            .objects
+            .get_component::<crate::model::door::Door>(&door_oid);
         (
             d.map(|d| d.current_hp).unwrap_or(0),
-            d.and_then(|d| world.data.door_data.get(d.door_id)).map(|t| t.hp_max).unwrap_or(1),
+            d.and_then(|d| world.data.door_data.get(d.door_id))
+                .map(|t| t.hp_max)
+                .unwrap_or(1),
         )
     };
-    if let Some(region) = world.objects.get_component::<RegionCell>(&door_oid).map(|r| r.0) {
+    if let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&door_oid)
+        .map(|r| r.0)
+    {
         broadcast_near_region(
             world,
             region,
@@ -695,7 +766,10 @@ fn player_attack_think(world: &mut World, object_id: i32) {
     }
     // A siege door takes damage through the gate path (no miss/crit/shield/AI);
     // everything else goes through the shared creature swing.
-    if world.objects.has_component::<crate::model::door::Door>(&target_object_id) {
+    if world
+        .objects
+        .has_component::<crate::model::door::Door>(&target_object_id)
+    {
         do_door_swing(world, object_id, target_object_id);
     } else {
         do_auto_attack(world, object_id, target_object_id);
@@ -992,7 +1066,11 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     // archer shoots freely, as in Java (the whole block is `isPlayer()`-gated
     // apart from the reuse timer).
     let weapon_type = super::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default();
-    if super::ranged::is_ranged(weapon_type) && world.objects.has_component::<crate::model::Player>(&attacker_oid) {
+    if super::ranged::is_ranged(weapon_type)
+        && world
+            .objects
+            .has_component::<crate::model::Player>(&attacker_oid)
+    {
         if let Err(why) = super::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type) {
             super::ranged::report_refusal(world, attacker_oid, why);
             return;
@@ -1091,7 +1169,12 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         let rand_roll = if r > 0 { world.roll(2 * r + 1) - r } else { 0 };
         // A normal block adds the shield's defence to pDef; a perfect block
         // reduces the hit to 1 (Java `SHIELD_DEFENSE_PERFECT_BLOCK`).
-        let eff_pdef = target.p_def + if shield == formulas::SHIELD_SUCCEED { target.shield_def } else { 0.0 };
+        let eff_pdef = target.p_def
+            + if shield == formulas::SHIELD_SUCCEED {
+                target.shield_def
+            } else {
+                0.0
+            };
         let dmg = if shield == formulas::SHIELD_PERFECT {
             1.0
         } else {
@@ -1112,7 +1195,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     if shield != formulas::SHIELD_NONE {
         if let Some(cid) = client_for_player(world, target_oid) {
             if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(sm_ids::SHIELD_DEFENSE_SUCCEEDED, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::SHIELD_DEFENSE_SUCCEEDED,
+                    &[],
+                ));
             }
         }
     }
@@ -1285,21 +1371,35 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
     let max_targets = world
         .objects
         .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
-        .and_then(|m| m.add.get(&crate::model::stats::Stat::AttackCountMax).copied())
+        .and_then(|m| {
+            m.add
+                .get(&crate::model::stats::Stat::AttackCountMax)
+                .copied()
+        })
         .unwrap_or(0.0) as i32
         + 1; // the base 1 target
     if max_targets <= 1 {
         return Vec::new();
     }
-    let Some(template) = world.data.item_data.get(weapon_id) else { return Vec::new() };
+    let Some(template) = world.data.item_data.get(weapon_id) else {
+        return Vec::new();
+    };
     let (radius, angle) = (template.attack_radius, template.attack_angle);
     if radius <= 0 || angle <= 0 {
         return Vec::new();
     }
-    let Some(origin) = world.objects.get_component::<Position>(&attacker_oid).copied() else {
+    let Some(origin) = world
+        .objects
+        .get_component::<Position>(&attacker_oid)
+        .copied()
+    else {
         return Vec::new();
     };
-    let Some(region) = world.objects.get_component::<RegionCell>(&attacker_oid).map(|r| r.0) else {
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&attacker_oid)
+        .map(|r| r.0)
+    else {
         return Vec::new();
     };
     let heading_deg = origin.heading as f64 * 360.0 / 65536.0;
@@ -1325,7 +1425,9 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         if !attackable {
             continue;
         }
-        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else { continue };
+        let Some(pos) = world.objects.get_component::<Position>(&candidate).copied() else {
+            continue;
+        };
         let (dx, dy) = ((pos.x - origin.x) as f64, (pos.y - origin.y) as f64);
         if (dx * dx + dy * dy).sqrt() > radius as f64 {
             continue;
@@ -1444,7 +1546,11 @@ pub(crate) fn handle_attack_hit(
                         SmParam::Int(damage),
                         // `sendDamageMessage`'s `addPopup(target, attacker,
                         // -damage)` — the on-screen floating damage number.
-                        SmParam::Popup { target, attacker, damage: -damage },
+                        SmParam::Popup {
+                            target,
+                            attacker,
+                            damage: -damage,
+                        },
                     ],
                 ));
             }
@@ -1488,7 +1594,13 @@ fn target_display_param(world: &World, target: i32) -> SmParam {
 /// casts / killing at 0 HP. `is_dot` is Java `CreatureStatus.reduceHp`'s
 /// `isDOT` — the one exemption from `HP_BLOCK` (Celestial Shield, …) besides
 /// a skill's own HP cost, which never reaches this shared path at all.
-pub(crate) fn apply_physical_damage(world: &mut World, attacker: i32, target: i32, damage: f64, is_dot: bool) {
+pub(crate) fn apply_physical_damage(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    is_dot: bool,
+) {
     if !is_dot && super::abnormal::is_hp_blocked(world, target) {
         return;
     }
@@ -1562,7 +1674,11 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     // Orfen's `onAttack`: the half-HP relocation and the mid-range drag. Both
     // react to a hit that has already landed, so they sit alongside the raid
     // curse below. No-op for every other NPC.
-    if let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id) {
+    if let Some(npc_id) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+    {
         if npc_id == super::core_boss::CORE {
             super::core_boss::on_core_attacked(world, npc_oid);
         }
@@ -1653,7 +1769,11 @@ pub(crate) const ATTACK_TIMEOUT_TICKS: u64 = 1200;
 /// (hate += 1), reset the calm-after-spawn counter, arm the timeout, run, and
 /// switch to the attack intention. No StatusUpdate — HP didn't move.
 pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid: i32) {
-    if world.objects.get_component::<Vitals>(&npc_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&npc_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     // `Attackable.addDamageHate` → `MinionList.onAssist`: hitting one member of
@@ -1662,7 +1782,9 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
     let now = world.tick;
     let became_running = {
         let Some((mut aggro, mut ai, mut speeds)) =
-            world.objects.get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)
+            world
+                .objects
+                .get_many_mut::<(&mut AggroList, &mut NpcAi, &mut Speeds)>(&npc_oid)
         else {
             return;
         };
@@ -1677,8 +1799,16 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         !was_running
     };
     if became_running {
-        if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
-            broadcast_near_region(world, region, &server_packets::change_move_type(npc_oid, true));
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&npc_oid)
+            .map(|r| r.0)
+        {
+            broadcast_near_region(
+                world,
+                region,
+                &server_packets::change_move_type(npc_oid, true),
+            );
         }
     }
 }
@@ -1801,7 +1931,10 @@ pub(crate) fn player_receive_damage(
             .get_component::<crate::model::components::StatModifiers>(&player_oid)
             .map(|m| {
                 use crate::model::stats::Stat::AttackCancel;
-                (m.add.get(&AttackCancel).copied().unwrap_or(0.0), m.mul.get(&AttackCancel).copied().unwrap_or(1.0))
+                (
+                    m.add.get(&AttackCancel).copied().unwrap_or(0.0),
+                    m.mul.get(&AttackCancel).copied().unwrap_or(1.0),
+                )
             })
             .unwrap_or((0.0, 1.0));
         let break_roll = world.roll(100);

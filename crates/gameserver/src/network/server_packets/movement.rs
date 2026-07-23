@@ -55,7 +55,17 @@ pub fn change_move_type(object_id: i32, running: bool) -> Vec<u8> {
 /// Port of `serverpackets/MoveToPawn` — "walk toward that creature, stopping
 /// at `distance`" (chasing/follow movement; plain destination moves use
 /// `MoveToLocation`).
-pub fn move_to_pawn(object_id: i32, target_object_id: i32, distance: i32, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> Vec<u8> {
+pub fn move_to_pawn(
+    object_id: i32,
+    target_object_id: i32,
+    distance: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    tx: i32,
+    ty: i32,
+    tz: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MOVE_TO_PAWN);
     w.write_i32(object_id);
@@ -89,7 +99,13 @@ pub fn teleport_to_location(object_id: i32, x: i32, y: i32, z: i32, heading: i32
 /// finished" packet `Creature.teleToLocation` sends to the player right
 /// after `setXYZ`. Without it the client never leaves the black loading
 /// screen (it does not act on `TeleportToLocation` alone).
-pub fn ex_teleport_to_location_activate(object_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
+pub fn ex_teleport_to_location_activate(
+    object_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_TELEPORT_TO_LOCATION_ACTIVATE);
@@ -106,13 +122,25 @@ pub fn ex_teleport_to_location_activate(object_id: i32, x: i32, y: i32, z: i32, 
 /// Port of `serverpackets/Ride` — mount / dismount broadcast. `ride_type` is the
 /// `MountType` ordinal (0 none, 1 strider, 2 wyvern, 3 wolf); `mount_npc_id` is
 /// sent as `+ 1_000_000` (0 stays 0), matching Java.
-pub fn ride(object_id: i32, mounted: bool, ride_type: u8, mount_npc_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+pub fn ride(
+    object_id: i32,
+    mounted: bool,
+    ride_type: u8,
+    mount_npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::RIDE);
     w.write_i32(object_id);
     w.write_i32(mounted as i32);
     w.write_i32(ride_type as i32);
-    w.write_i32(if mount_npc_id == 0 { 0 } else { mount_npc_id + 1_000_000 });
+    w.write_i32(if mount_npc_id == 0 {
+        0
+    } else {
+        mount_npc_id + 1_000_000
+    });
     w.write_i32(x);
     w.write_i32(y);
     w.write_i32(z);
@@ -125,7 +153,15 @@ pub fn ride(object_id: i32, mounted: bool, ride_type: u8, mount_npc_id: i32, x: 
 /// once to the mover *and* other known players (the client only starts
 /// walking on the server's confirmation; Java's `Player.broadcastPacket`
 /// includes self).
-pub fn move_to_location(object_id: i32, dest_x: i32, dest_y: i32, dest_z: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+pub fn move_to_location(
+    object_id: i32,
+    dest_x: i32,
+    dest_y: i32,
+    dest_z: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::MOVE_TO_LOCATION);
     w.write_i32(object_id);

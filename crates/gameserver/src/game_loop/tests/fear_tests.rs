@@ -66,12 +66,20 @@ fn fear_skill(id: i32) -> Skill {
 }
 
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world.data.skill_data.get(skill_id, 1).cloned().expect("registered");
+    let skill = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .cloned()
+        .expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, CASTER, target, &skill);
 }
 
 fn dest(world: &World, oid: i32) -> Option<(i32, i32)> {
-    world.objects.get_component::<Movement>(&oid).map(|Movement(m)| (m.dest_x, m.dest_y))
+    world
+        .objects
+        .get_component::<Movement>(&oid)
+        .map(|Movement(m)| (m.dest_x, m.dest_y))
 }
 
 fn pos(world: &World, oid: i32) -> (i32, i32) {
@@ -93,7 +101,10 @@ fn advance_moving(world: &mut World, n: u64) {
     for _ in 0..n {
         world.tick += 1;
         apply_due_tasks(world);
-        if world.tick.is_multiple_of(crate::game_loop::npc_ai::NPC_THINK_PERIOD) {
+        if world
+            .tick
+            .is_multiple_of(crate::game_loop::npc_ai::NPC_THINK_PERIOD)
+        {
             crate::game_loop::npc_ai::npc_ai_tick(world);
         }
         crate::game_loop::visibility::movement_tick(world);
@@ -115,12 +126,21 @@ fn fear_shoves_the_victim_directly_away_from_the_caster() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _v = ingame_player(&mut world, VICTIM_CID, VICTIM, 100, 0, 0);
 
-    assert!(dest(&world, VICTIM).is_none(), "not moving before the fear lands");
+    assert!(
+        dest(&world, VICTIM).is_none(),
+        "not moving before the fear lands"
+    );
     land(&mut world, 9600, VICTIM);
 
     let (dx, dy) = dest(&world, VICTIM).expect("the fear started a move");
-    assert!((dx - 600).abs() <= 2, "flees 500 further from the caster (x 100 -> ~600), got {dx}");
-    assert!(dy.abs() <= 2, "and straight along the caster->victim line, got y {dy}");
+    assert!(
+        (dx - 600).abs() <= 2,
+        "flees 500 further from the caster (x 100 -> ~600), got {dx}"
+    );
+    assert!(
+        dy.abs() <= 2,
+        "and straight along the caster->victim line, got y {dy}"
+    );
 }
 
 /// `onActionTime` passes `null` for the effector, so each repeat steers by the
@@ -143,9 +163,18 @@ fn fear_keeps_pushing_the_victim_further_each_beat() {
     advance_moving(&mut world, ONE_BEAT * 2);
     let after_two = pos(&world, VICTIM).0;
 
-    assert!(after_one > start_x, "the first leg ran: {start_x} -> {after_one}");
-    assert!(after_two > after_one, "and the fear kept shoving: {after_one} -> {after_two}");
-    assert!(pos(&world, VICTIM).1.abs() <= 8, "still fleeing along the original bearing");
+    assert!(
+        after_one > start_x,
+        "the first leg ran: {start_x} -> {after_one}"
+    );
+    assert!(
+        after_two > after_one,
+        "and the fear kept shoving: {after_one} -> {after_two}"
+    );
+    assert!(
+        pos(&world, VICTIM).1.abs() <= 8,
+        "still fleeing along the original bearing"
+    );
 }
 
 /// The chain is the buff's: once the fear expires nothing reschedules, so the
@@ -170,7 +199,10 @@ fn fear_stops_pushing_once_the_buff_is_gone() {
         }
         advance_moving(&mut world, 1);
     }
-    assert!(!world.objects.has_component::<Movement>(&VICTIM), "the in-flight leg finished");
+    assert!(
+        !world.objects.has_component::<Movement>(&VICTIM),
+        "the in-flight leg finished"
+    );
 
     // Well past several beats' worth: nothing shoves the victim again.
     let settled = pos(&world, VICTIM);
@@ -195,7 +227,10 @@ fn fear_never_moves_a_raid_boss() {
     land(&mut world, 9603, NPC_OID);
     assert!(dest(&world, NPC_OID).is_none(), "a raid boss does not flee");
     assert_eq!(
-        world.objects.get_component::<NpcAi>(&NPC_OID).map(|ai| ai.intention),
+        world
+            .objects
+            .get_component::<NpcAi>(&NPC_OID)
+            .map(|ai| ai.intention),
         Some(NpcIntention::Active),
         "and its AI is untouched"
     );
@@ -210,7 +245,10 @@ fn fear_never_moves_siege_defenders() {
     world.data.skill_data.insert_for_test(fear_skill(9604));
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
 
-    for (i, type_name) in ["Defender", "FortCommander", "SiegeFlag"].iter().enumerate() {
+    for (i, type_name) in ["Defender", "FortCommander", "SiegeFlag"]
+        .iter()
+        .enumerate()
+    {
         let oid = NPC_OID + i as i32;
         add_test_npc(&mut world, oid, 90010 + i as i32, type_name, 40, 100, 0, 0);
         land(&mut world, 9604, oid);
@@ -229,7 +267,10 @@ fn fear_does_not_move_a_non_attackable_npc() {
     add_test_npc(&mut world, NPC_OID, 90020, "Merchant", 40, 100, 0, 0);
 
     land(&mut world, 9605, NPC_OID);
-    assert!(dest(&world, NPC_OID).is_none(), "a merchant is not fearable");
+    assert!(
+        dest(&world, NPC_OID).is_none(),
+        "a merchant is not fearable"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -249,23 +290,43 @@ fn feared_mob_stops_thinking_until_it_arrives() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     add_test_npc(&mut world, NPC_OID, 90030, "Monster", 40, 100, 0, 0);
     // Aggroed onto the caster: this is what would drag it back mid-flight.
-    world.objects.get_component_mut::<NpcAi>(&NPC_OID).unwrap().intention = NpcIntention::Attack;
-    world.objects.get_component_mut::<crate::model::npc::AggroList>(&NPC_OID).unwrap().0.entry(CASTER).or_default().hate =
-        100.0;
+    world
+        .objects
+        .get_component_mut::<NpcAi>(&NPC_OID)
+        .unwrap()
+        .intention = NpcIntention::Attack;
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
+        .unwrap()
+        .0
+        .entry(CASTER)
+        .or_default()
+        .hate = 100.0;
 
     land(&mut world, 9606, NPC_OID);
     assert_eq!(
-        world.objects.get_component::<NpcAi>(&NPC_OID).unwrap().intention,
+        world
+            .objects
+            .get_component::<NpcAi>(&NPC_OID)
+            .unwrap()
+            .intention,
         NpcIntention::MoveTo,
         "the fear takes the mob off its attack intention"
     );
     let fleeing_to = dest(&world, NPC_OID).expect("and starts it running");
-    assert!(fleeing_to.0 > 100, "away from the caster at the origin, got {fleeing_to:?}");
+    assert!(
+        fleeing_to.0 > 100,
+        "away from the caster at the origin, got {fleeing_to:?}"
+    );
 
     // Run out the leg with the AI ticking. The mob must not have turned
     // around: `think_attack` never got to re-target it.
     advance_moving(&mut world, ONE_BEAT);
-    assert!(pos(&world, NPC_OID).0 > 100, "the mob fled instead of chasing back");
+    assert!(
+        pos(&world, NPC_OID).0 > 100,
+        "the mob fled instead of chasing back"
+    );
 }
 
 /// `Fear.onExit`: `if (!effected.isPlayer()) notifyEvent(EVT_THINK)` — a mob
@@ -280,11 +341,22 @@ fn fear_expiry_returns_the_mob_to_active() {
     add_test_npc(&mut world, NPC_OID, 90040, "Monster", 40, 100, 0, 0);
 
     land(&mut world, 9607, NPC_OID);
-    assert_eq!(world.objects.get_component::<NpcAi>(&NPC_OID).unwrap().intention, NpcIntention::MoveTo);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<NpcAi>(&NPC_OID)
+            .unwrap()
+            .intention,
+        NpcIntention::MoveTo
+    );
 
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, 9607);
     assert_eq!(
-        world.objects.get_component::<NpcAi>(&NPC_OID).unwrap().intention,
+        world
+            .objects
+            .get_component::<NpcAi>(&NPC_OID)
+            .unwrap()
+            .intention,
         NpcIntention::Active,
         "the mob starts thinking again the moment the fear drops"
     );
@@ -307,14 +379,22 @@ fn real_dist_fear_skills_parse_a_fear_effect() {
     // 1169, Word of Fear 1272, Mass Curse Fear 1381, Turn Undead 1400 — every
     // learnable `Fear` instance in this dist.
     for id in [65, 405, 450, 1092, 1169, 1272, 1381, 1400] {
-        let skill = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} loads"));
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} loads"));
         assert!(
-            skill.effects.iter().any(|e| matches!(e, SkillEffect::Fear { ticks: 5 })),
+            skill
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::Fear { ticks: 5 })),
             "skill {id} carries Fear with Java's hard-coded 5 ticks: {:?}",
             skill.effects
         );
         assert!(
-            skill.effects.iter().any(|e| matches!(e, SkillEffect::BlockControl)),
+            skill
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::BlockControl)),
             "skill {id} still carries its BlockControl too"
         );
         assert!(

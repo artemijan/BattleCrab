@@ -192,7 +192,8 @@ pub struct World {
     pub recruit_clans: HashMap<i32, crate::model::clan_entry::PledgeRecruitInfo>,
     /// Java `ClanEntryManager._applicantList` — pending applications, keyed
     /// by clan id then applicant player id.
-    pub recruit_applicants: HashMap<i32, HashMap<i32, crate::model::clan_entry::PledgeApplicantInfo>>,
+    pub recruit_applicants:
+        HashMap<i32, HashMap<i32, crate::model::clan_entry::PledgeApplicantInfo>>,
     /// Java `ClanEntryManager._playerLocked`/`_clanLocked` — the 5-minute
     /// re-registration cooldown after a cancelled waiting-list/board entry,
     /// as the tick it expires at.
@@ -302,7 +303,14 @@ pub struct World {
 }
 
 impl World {
-    pub fn new(link: CommandTx, max_characters_per_account: i32, delete_days: i32, starting_adena: i64, data: GameData, db: db::CmdTx) -> Self {
+    pub fn new(
+        link: CommandTx,
+        max_characters_per_account: i32,
+        delete_days: i32,
+        starting_adena: i64,
+        data: GameData,
+        db: db::CmdTx,
+    ) -> Self {
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
@@ -403,7 +411,10 @@ impl World {
         let mut out = Vec::new();
         for dx in -1..=1 {
             for dy in -1..=1 {
-                if let Some(ids) = self.ground_item_regions.get(&(region.0 + dx, region.1 + dy)) {
+                if let Some(ids) = self
+                    .ground_item_regions
+                    .get(&(region.0 + dx, region.1 + dy))
+                {
                     out.extend_from_slice(ids);
                 }
             }
@@ -447,7 +458,9 @@ impl World {
         const LOW_WATER: i64 = 200;
         let remaining = self.id_pool.end - self.id_pool.start;
         if remaining == LOW_WATER {
-            let _ = self.db.send(crate::db::DbCommand::ReserveIds { count: crate::db::ID_BLOCK_SIZE });
+            let _ = self.db.send(crate::db::DbCommand::ReserveIds {
+                count: crate::db::ID_BLOCK_SIZE,
+            });
         }
         self.id_pool.next().map(|id| id as i32)
     }
@@ -492,20 +505,27 @@ impl World {
         use rand::Rng;
         #[cfg(test)]
         {
-            let World { data, forced_rolls, rng, .. } = self;
+            let World {
+                data,
+                forced_rolls,
+                rng,
+                ..
+            } = self;
             let mut roll = || {
                 if let Some(v) = forced_rolls.pop_front() {
                     return v as f64 / 1_000_000.0;
                 }
                 rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
             };
-            data.variations.generate(mineral_id, is_magic_weapon, &mut roll)
+            data.variations
+                .generate(mineral_id, is_magic_weapon, &mut roll)
         }
         #[cfg(not(test))]
         {
             let World { data, rng, .. } = self;
             let mut roll = || rng.gen_range(0..1_000_000) as f64 / 1_000_000.0;
-            data.variations.generate(mineral_id, is_magic_weapon, &mut roll)
+            data.variations
+                .generate(mineral_id, is_magic_weapon, &mut roll)
         }
     }
 

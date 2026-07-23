@@ -80,7 +80,9 @@ pub fn friend_status(mode: i32, name: &str, extra: i32) -> Vec<u8> {
     w.write_i32(mode);
     w.write_string(name);
     match mode {
-        friend_status_mode::OFFLINE | friend_status_mode::LEVEL | friend_status_mode::CLASS => w.write_i32(extra),
+        friend_status_mode::OFFLINE | friend_status_mode::LEVEL | friend_status_mode::CLASS => {
+            w.write_i32(extra)
+        }
         _ => {} // ONLINE writes nothing extra
     }
     w.into_bytes()

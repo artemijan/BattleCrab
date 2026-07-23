@@ -15,12 +15,16 @@ use crate::world::World;
 /// player (forced removal, reverting its stats and refreshing the icons), gated
 /// exactly as Java gates it.
 pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: &[u8]) {
-    let Some(pkt) = cp::RequestDispel::read(ex_body) else { return };
+    let Some(pkt) = cp::RequestDispel::read(ex_body) else {
+        return;
+    };
     // Java: `(_skillId <= 0) || (_skillLevel <= 0)` → return.
     if pkt.skill_id <= 0 || pkt.skill_level <= 0 {
         return;
     }
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
     // Java looks up `(skillId, skillLevel, skillSubLevel)`; the Rust skill store
     // is keyed by `(id, level)` only (sub-level is always 0 in Interlude), so the
@@ -59,7 +63,9 @@ pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: 
 /// only (see the G6 plan's scope notes — every other type is silently
 /// ignored, same as Java ignores an out-of-state/unsupported request).
 pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestAcquireSkill::read(body) else { return };
+    let Some(pkt) = cp::RequestAcquireSkill::read(body) else {
+        return;
+    };
     if pkt.acquire_type == cp::RequestAcquireSkill::PLEDGE {
         // The rep-gated clan-skill learn (G18) lives with the clan handlers.
         super::clans::handle_learn_pledge_skill(world, client_id, pkt.skill_id, pkt.skill_level);
@@ -68,11 +74,25 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     if pkt.acquire_type != cp::RequestAcquireSkill::CLASS {
         return;
     }
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
 
-    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else { return };
-    let Some(learn) = world.data.skill_trees.skill_learn(player.class_id, pkt.skill_id, pkt.skill_level) else { return };
+    let Some(player) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    else {
+        return;
+    };
+    let Some(learn) =
+        world
+            .data
+            .skill_trees
+            .skill_learn(player.class_id, pkt.skill_id, pkt.skill_level)
+    else {
+        return;
+    };
     // `RequestAcquireSkill.checkPlayerSkill` gates, in Java's order: minimum
     // level first, then SP (the SP gate only bites a skill that actually costs
     // SP). Each failure sends its own SystemMessage and stops.
@@ -98,12 +118,19 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // e.g. Divine Inspiration). Java's `checkPlayerSkill` also verifies and
     // consumes `getRequiredItems` here (ITEM_MISSING_TO_LEARN_SKILL on failure);
     // we don't parse the item id/count yet, so such skills are learned for free.
-    let (skill_id, skill_level, level_up_sp) = (learn.skill_id, learn.skill_level, learn.level_up_sp);
+    let (skill_id, skill_level, level_up_sp) =
+        (learn.skill_id, learn.skill_level, learn.level_up_sp);
 
-    if let Some(player) = world.objects.get_component_mut::<crate::model::Player>(&object_id) {
+    if let Some(player) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&object_id)
+    {
         player.sp -= level_up_sp;
     }
-    if let Some(book) = world.objects.get_component_mut::<crate::model::components::SkillBook>(&object_id) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+    {
         // Memory-first: the learned skill (and the SP spend above) live in memory
         // and persist on the next flush.
         book.0.insert(skill_id, skill_level);
@@ -117,7 +144,9 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
 
     if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
-            let Some(skills) = world.objects.get_component::<crate::model::components::SkillBook>(&object_id)
+            let Some(skills) = world
+                .objects
+                .get_component::<crate::model::components::SkillBook>(&object_id)
             else {
                 return;
             };
@@ -125,12 +154,20 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
             if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
                 cs.send(pkt);
             }
-            cs.send(crate::network::enter_world::acquire_skill_list(v.p, skills, &world.data));
-            cs.send(crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, crate::game_loop::party::calculate_relation(world, v.p)));
+            cs.send(crate::network::enter_world::acquire_skill_list(
+                v.p,
+                skills,
+                &world.data,
+            ));
+            cs.send(crate::network::user_info::user_info(
+                &v,
+                &world.data,
+                &world.cfg.character,
+                crate::game_loop::party::calculate_relation(world, v.p),
+            ));
         }
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
     // the upgraded skill.
     super::shortcuts::update_skill_shortcuts(world, object_id, skill_id, skill_level);
 }
-

@@ -105,7 +105,10 @@ impl Siege {
 
     /// A clan's HQ flag oid, if it has one (`getFlag(clan)` — the respawn point).
     pub fn flag_of(&self, clan_id: i32) -> Option<i32> {
-        self.flags.iter().find(|&&(c, _)| c == clan_id).map(|&(_, oid)| oid)
+        self.flags
+            .iter()
+            .find(|&&(c, _)| c == clan_id)
+            .map(|&(_, oid)| oid)
     }
 
     pub fn add_flag(&mut self, clan_id: i32, npc_oid: i32) {

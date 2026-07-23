@@ -64,7 +64,10 @@ impl LootRule {
     /// party looter for the `*_INCLUDING_SPOIL` types; every other rule leaves
     /// spoil loot with the caster.
     pub fn includes_spoil(self) -> bool {
-        matches!(self, Self::RandomIncludingSpoil | Self::ByTurnIncludingSpoil)
+        matches!(
+            self,
+            Self::RandomIncludingSpoil | Self::ByTurnIncludingSpoil
+        )
     }
 }
 
@@ -148,7 +151,11 @@ pub fn exp_sp_bonus(members_count: usize, party_rate: f64) -> f64 {
 /// reward a member keeps, by their level gap to the top rewarded level.
 /// `gaps` are inclusive `(from, to)` ranges paired with `percents`; a gap
 /// outside every range keeps **nothing** (Java only rewards inside a range).
-pub fn highfive_cutoff_percent(level_diff: i32, gaps: &[(i32, i32)], percents: &[i32]) -> Option<i32> {
+pub fn highfive_cutoff_percent(
+    level_diff: i32,
+    gaps: &[(i32, i32)],
+    percents: &[i32],
+) -> Option<i32> {
     gaps.iter()
         .zip(percents)
         .find(|((from, to), _)| level_diff >= *from && level_diff <= *to)
@@ -220,14 +227,21 @@ mod tests {
         assert_eq!(highfive_cutoff_percent(10, &gaps, &pct), Some(30));
         assert_eq!(highfive_cutoff_percent(14, &gaps, &pct), Some(30));
         assert_eq!(highfive_cutoff_percent(15, &gaps, &pct), Some(0));
-        assert_eq!(highfive_cutoff_percent(-1, &gaps, &pct), None, "below every range");
+        assert_eq!(
+            highfive_cutoff_percent(-1, &gaps, &pct),
+            None,
+            "below every range"
+        );
     }
 
     #[test]
     fn valid_members_level_method() {
         let members = [(1, 20), (2, 10), (3, 4)];
         assert_eq!(valid_members(&members, 20, "level", 15, 3.0), vec![1, 2]);
-        assert_eq!(valid_members(&members, 20, "highfive", 15, 3.0), vec![1, 2, 3]);
+        assert_eq!(
+            valid_members(&members, 20, "highfive", 15, 3.0),
+            vec![1, 2, 3]
+        );
         assert_eq!(valid_members(&members, 20, "none", 15, 3.0), vec![1, 2, 3]);
     }
 }

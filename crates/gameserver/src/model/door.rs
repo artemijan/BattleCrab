@@ -47,12 +47,26 @@ pub fn spawn_doors(world: &mut World) -> usize {
         world.objects.spawn(
             object_id,
             (
-                Door { object_id, door_id, auto_close_seq: 0, current_hp: hp },
-                Position { x, y, z, heading: 0 },
+                Door {
+                    object_id,
+                    door_id,
+                    auto_close_seq: 0,
+                    current_hp: hp,
+                },
+                Position {
+                    x,
+                    y,
+                    z,
+                    heading: 0,
+                },
                 RegionCell(region),
             ),
         );
-        world.door_regions.entry(region).or_default().push(object_id);
+        world
+            .door_regions
+            .entry(region)
+            .or_default()
+            .push(object_id);
         placed += 1;
     }
     if placed > 0 {
@@ -63,7 +77,10 @@ pub fn spawn_doors(world: &mut World) -> usize {
 
 /// Test hook: spawn one synthetic door (template + entity + collision shape).
 #[doc(hidden)]
-pub fn spawn_door_for_test(world: &mut World, template: crate::data::door_data::DoorTemplate) -> i32 {
+pub fn spawn_door_for_test(
+    world: &mut World,
+    template: crate::data::door_data::DoorTemplate,
+) -> i32 {
     // Collision registration needs a uniquely-held engine (tests only).
     if let Some(geo) = std::sync::Arc::get_mut(&mut world.geo) {
         geo.doors.register(
@@ -84,8 +101,26 @@ pub fn spawn_door_for_test(world: &mut World, template: crate::data::door_data::
     let region = region_of(x, y);
     world.objects.spawn(
         object_id,
-        (Door { object_id, door_id, auto_close_seq: 0, current_hp: hp }, Position { x, y, z, heading: 0 }, RegionCell(region)),
+        (
+            Door {
+                object_id,
+                door_id,
+                auto_close_seq: 0,
+                current_hp: hp,
+            },
+            Position {
+                x,
+                y,
+                z,
+                heading: 0,
+            },
+            RegionCell(region),
+        ),
     );
-    world.door_regions.entry(region).or_default().push(object_id);
+    world
+        .door_regions
+        .entry(region)
+        .or_default()
+        .push(object_id);
     object_id
 }

@@ -10,8 +10,13 @@ fn vectors() -> serde_json::Value {
 }
 
 fn hex(v: &serde_json::Value, key: &str) -> Vec<u8> {
-    let s = v[key].as_str().unwrap_or_else(|| panic!("missing vector {key}"));
-    (0..s.len()).step_by(2).map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap()).collect()
+    let s = v[key]
+        .as_str()
+        .unwrap_or_else(|| panic!("missing vector {key}"));
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap())
+        .collect()
 }
 
 #[test]
@@ -26,7 +31,11 @@ fn blowfish_matches_java() {
         let crypt = NewCrypt::new(&hex(&v, key_name));
         let mut work = plain.clone();
         crypt.crypt(&mut work);
-        assert_eq!(work, hex(&v, expected_name), "encrypt mismatch for {key_name}");
+        assert_eq!(
+            work,
+            hex(&v, expected_name),
+            "encrypt mismatch for {key_name}"
+        );
         crypt.decrypt(&mut work);
         assert_eq!(work, plain, "decrypt roundtrip failed for {key_name}");
     }
@@ -56,7 +65,10 @@ fn modulus_scramble_matches_java() {
     let n = BigUint::parse_bytes(v["rsa_modulus"].as_str().unwrap().as_bytes(), 16).unwrap();
     let d = BigUint::parse_bytes(v["rsa_d"].as_str().unwrap().as_bytes(), 16).unwrap();
     let pair = ScrambledKeyPair::from_parts(n, d);
-    assert_eq!(pair.scrambled_modulus().as_slice(), hex(&v, "rsa_scrambled_modulus"));
+    assert_eq!(
+        pair.scrambled_modulus().as_slice(),
+        hex(&v, "rsa_scrambled_modulus")
+    );
 }
 
 #[test]
@@ -74,5 +86,8 @@ fn raw_rsa_decrypt_matches_java() {
 #[test]
 fn password_hash_matches_java() {
     let v = vectors();
-    assert_eq!(hash_password(v["password_plain"].as_str().unwrap()), v["password_hash"].as_str().unwrap());
+    assert_eq!(
+        hash_password(v["password_plain"].as_str().unwrap()),
+        v["password_hash"].as_str().unwrap()
+    );
 }

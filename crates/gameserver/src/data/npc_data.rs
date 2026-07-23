@@ -217,7 +217,10 @@ impl NpcTemplate {
     /// A `<parameters><param>` scalar as f64 with a default — Java
     /// `template.getParameters().getFloat(name, default)`.
     pub fn ai_param_f64(&self, name: &str, default: f64) -> f64 {
-        self.ai_params.get(name).and_then(|v| v.parse().ok()).unwrap_or(default)
+        self.ai_params
+            .get(name)
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(default)
     }
 
     /// Membership in Java's `Monster` subtree (`Npc.isMonster()` —
@@ -225,7 +228,15 @@ impl NpcTemplate {
     pub fn is_monster(&self) -> bool {
         matches!(
             self.type_name.as_str(),
-            "Monster" | "Chest" | "ControllableMob" | "EventMonster" | "FeedableBeast" | "TamedBeast" | "GrandBoss" | "RaidBoss" | "FestivalMonster"
+            "Monster"
+                | "Chest"
+                | "ControllableMob"
+                | "EventMonster"
+                | "FeedableBeast"
+                | "TamedBeast"
+                | "GrandBoss"
+                | "RaidBoss"
+                | "FestivalMonster"
         )
     }
 
@@ -256,7 +267,12 @@ impl NpcTemplate {
         self.is_monster()
             || matches!(
                 self.type_name.as_str(),
-                "Guard" | "Defender" | "FortCommander" | "Doppelganger" | "FriendlyMob" | "FriendlyNpc"
+                "Guard"
+                    | "Defender"
+                    | "FortCommander"
+                    | "Doppelganger"
+                    | "FriendlyMob"
+                    | "FriendlyNpc"
             )
     }
 
@@ -318,7 +334,10 @@ impl NpcData {
             }
         }
         info!("NpcData: Loaded {} NPCs.", by_id.len());
-        Self { by_id, drop_index: OnceLock::new() }
+        Self {
+            by_id,
+            drop_index: OnceLock::new(),
+        }
     }
 
     pub fn get(&self, npc_id: i32) -> Option<&NpcTemplate> {
@@ -329,7 +348,9 @@ impl NpcData {
     /// `name` case-insensitively (linear scan, as in Java). Used by the admin
     /// spawn commands, whose "Id/Name" input accepts a name in place of an id.
     pub fn get_by_name(&self, name: &str) -> Option<&NpcTemplate> {
-        self.by_id.values().find(|t| t.name.eq_ignore_ascii_case(name))
+        self.by_id
+            .values()
+            .find(|t| t.name.eq_ignore_ascii_case(name))
     }
 
     /// Java `NpcData.getAllMonstersOfLevel(level)` — templates of exactly
@@ -337,8 +358,11 @@ impl NpcData {
     /// by id so the admin spawn-by-level menu's `Next` pagination is stable
     /// across calls (Java relies on unspecified HashMap order).
     pub fn monsters_of_level(&self, level: i32) -> Vec<&NpcTemplate> {
-        let mut v: Vec<&NpcTemplate> =
-            self.by_id.values().filter(|t| t.level == level && t.type_name.eq_ignore_ascii_case("Monster")).collect();
+        let mut v: Vec<&NpcTemplate> = self
+            .by_id
+            .values()
+            .filter(|t| t.level == level && t.type_name.eq_ignore_ascii_case("Monster"))
+            .collect();
         v.sort_by_key(|t| t.id);
         v
     }
@@ -347,8 +371,11 @@ impl NpcData {
     /// name has `text` as a (case-sensitive) prefix. Sorted by id for stable
     /// pagination, as with [`monsters_of_level`].
     pub fn folk_starting_with(&self, text: &str) -> Vec<&NpcTemplate> {
-        let mut v: Vec<&NpcTemplate> =
-            self.by_id.values().filter(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with(text)).collect();
+        let mut v: Vec<&NpcTemplate> = self
+            .by_id
+            .values()
+            .filter(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with(text))
+            .collect();
         v.sort_by_key(|t| t.id);
         v
     }
@@ -363,13 +390,19 @@ impl NpcData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new(), drop_index: OnceLock::new() }
+        Self {
+            by_id: HashMap::new(),
+            drop_index: OnceLock::new(),
+        }
     }
 
     /// Synthetic catalog for unit tests (same hook as `ItemData::from_templates`).
     #[doc(hidden)]
     pub fn from_templates(templates: Vec<NpcTemplate>) -> Self {
-        Self { by_id: templates.into_iter().map(|t| (t.id, t)).collect(), drop_index: OnceLock::new() }
+        Self {
+            by_id: templates.into_iter().map(|t| (t.id, t)).collect(),
+            drop_index: OnceLock::new(),
+        }
     }
 
     /// Every loaded template (Java `NpcData.getTemplates`), unordered.
@@ -384,7 +417,11 @@ impl NpcData {
         self.drop_index.get_or_init(|| {
             const ADENA_ID: i32 = 57;
             let mut index: HashMap<i32, Vec<CbDrop>> = HashMap::new();
-            let add = |index: &mut HashMap<i32, Vec<CbDrop>>, t: &NpcTemplate, d: &DropHolder, chance: f64, is_spoil: bool| {
+            let add = |index: &mut HashMap<i32, Vec<CbDrop>>,
+                       t: &NpcTemplate,
+                       d: &DropHolder,
+                       chance: f64,
+                       is_spoil: bool| {
                 if d.item_id == ADENA_ID {
                     return;
                 }
@@ -602,228 +639,243 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
         };
         let name = e.name().as_ref().to_ascii_lowercase();
         match name.as_slice() {
-                    b"parameters" => in_parameters = !self_closing,
-                    b"skilllist" => in_skill_list = !self_closing,
-                    // `<skillList><skill id level/>` — a template skill. (The
-                    // `name`-tagged `<parameters><skill>` rows never reach here:
-                    // `in_skill_list` is false inside `<parameters>`.)
-                    b"skill" if in_skill_list => {
-                        if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
-                            let level = attr_i32(&e, b"level").unwrap_or(1);
-                            t.skill_list.push((id, level));
-                        }
-                    }
-                    // `<parameters><skill name id level/>` — a parameter
-                    // SkillHolder (`union_skill`, boss AI skills). Keyed by
-                    // its `name` attribute, never merged into `skill_list`.
-                    b"skill" if in_parameters => {
-                        if let (Some(t), Some(pname), Some(id)) =
-                            (cur.as_mut(), attr_str(&e, b"name"), attr_i32(&e, b"id"))
-                        {
-                            let level = attr_i32(&e, b"level").unwrap_or(1);
-                            t.ai_skill_params.insert(pname, (id, level));
-                        }
-                    }
-                    // `<parameters><param name value/>` — a scalar AI
-                    // parameter (`despawn_time`, `skill_delay`, …).
-                    b"param" if in_parameters => {
-                        if let (Some(t), Some(pname), Some(v)) =
-                            (cur.as_mut(), attr_str(&e, b"name"), attr_str(&e, b"value"))
-                        {
-                            t.ai_params.insert(pname, v);
-                        }
-                    }
-                    // Minion references inside `<parameters>` are not templates
-                    // — but they *are* this NPC's escort list, so record them
-                    // on the parent before skipping the template handling.
-                    b"npc" if in_parameters => {
-                        if in_minions {
-                            if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
-                                t.minions.push(MinionHolder {
-                                    npc_id: id,
-                                    count: attr_i32(&e, b"count").unwrap_or(1),
-                                });
-                            }
-                        }
-                        continue;
-                    }
-                    b"npc" => {
-                        let Some(id) = attr_i32(&e, b"id") else { continue };
-                        let mut t = default_template(id);
-                        if let Some(v) = attr_i32(&e, b"displayId") {
-                            t.display_id = v;
-                        }
-                        if let Some(v) = attr_i32(&e, b"level") {
-                            t.level = v;
-                        }
-                        if let Some(v) = attr_str(&e, b"type") {
-                            t.type_name = v;
-                        }
-                        t.name = attr_str(&e, b"name").unwrap_or_default();
-                        t.title = attr_str(&e, b"title").unwrap_or_default();
-                        // NpcTemplate.set: randomWalk defaults to `!type.equals("Guard")`.
-                        t.random_walk = t.type_name != "Guard";
-                        t.server_side_name = attr_bool(&e, b"usingServerSideName").unwrap_or(false);
-                        t.server_side_title = attr_bool(&e, b"usingServerSideTitle").unwrap_or(false);
-                        cur = Some(t);
-                    }
-                    b"attribute" => in_attribute = true,
-                    b"stats" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_i32(&e, b"str", &mut t.base_str);
-                            set_i32(&e, b"int", &mut t.base_int);
-                            set_i32(&e, b"dex", &mut t.base_dex);
-                            set_i32(&e, b"wit", &mut t.base_wit);
-                            set_i32(&e, b"con", &mut t.base_con);
-                            set_i32(&e, b"men", &mut t.base_men);
-                        }
-                    }
-                    b"vitals" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"hp", &mut t.base_hp_max);
-                            set_f64(&e, b"mp", &mut t.base_mp_max);
-                            set_f64(&e, b"hpRegen", &mut t.base_hp_reg);
-                            set_f64(&e, b"mpRegen", &mut t.base_mp_reg);
-                        }
-                    }
-                    // `<attribute><defence fire=… dark=…/>` — the six element
-                    // defence bases (PLAN_G19_ATTRIBUTES.md).
-                    b"defence" if in_attribute => {
-                        if let Some(t) = cur.as_mut() {
-                            for (i, key) in [b"fire" as &[u8], b"water", b"wind", b"earth", b"holy", b"dark"].iter().enumerate() {
-                                if let Some(v) = attr_f64(&e, key) {
-                                    t.base_element_res[i] = v as i32;
-                                }
-                            }
-                        }
-                    }
-                    // `<attribute><attack type value/>` — the attack element.
-                    // A handful of templates declare several rows; last wins,
-                    // matching a repeated `set` of the same base stat.
-                    b"attack" if in_attribute => {
-                        if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type")) {
-                            if let Some(el) = crate::model::stats::Element::from_xml(&ty) {
-                                let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
-                                t.base_attack_element = Some((el, v));
-                            }
-                        }
-                    }
-                    b"attack" if !in_attribute => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"physical", &mut t.base_p_atk);
-                            set_f64(&e, b"magical", &mut t.base_m_atk);
-                            if let Some(v) = attr_f64(&e, b"attackSpeed") {
-                                t.base_p_atk_spd = v as i32;
-                            }
-                            set_i32(&e, b"range", &mut t.base_atk_range);
-                            set_i32(&e, b"random", &mut t.base_rnd_dam);
-                            set_f64(&e, b"critical", &mut t.base_crit_rate);
-                        }
-                    }
-                    b"defence" if !in_attribute => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"physical", &mut t.base_p_def);
-                            set_f64(&e, b"magical", &mut t.base_m_def);
-                        }
-                    }
-                    b"walk" => {
-                        if let Some(t) = cur.as_mut() {
-                            if let Some(v) = attr_f64(&e, b"ground") {
-                                // NpcData: `groundWalk <= 0 → 0.1`.
-                                t.base_walk_spd = if v <= 0.0 { 0.1 } else { v };
-                            }
-                        }
-                    }
-                    b"run" => {
-                        if let Some(t) = cur.as_mut() {
-                            if let Some(v) = attr_f64(&e, b"ground") {
-                                t.base_run_spd = if v <= 0.0 { 0.1 } else { v };
-                            }
-                        }
-                    }
-                    b"acquire" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"exp", &mut t.exp);
-                            set_f64(&e, b"sp", &mut t.sp);
-                            set_f64(&e, b"raidPoints", &mut t.raid_points);
-                        }
-                    }
-                    b"equipment" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_i32(&e, b"rhand", &mut t.rhand);
-                            set_i32(&e, b"lhand", &mut t.lhand);
-                        }
-                    }
-                    b"status" => {
-                        if let Some(t) = cur.as_mut() {
-                            t.attackable = attr_bool(&e, b"attackable").unwrap_or(true);
-                            t.targetable = attr_bool(&e, b"targetable").unwrap_or(true);
-                            t.talkable = attr_bool(&e, b"talkable").unwrap_or(true);
-                            t.show_name = attr_bool(&e, b"showName").unwrap_or(true);
-                            t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
-                            if let Some(v) = attr_bool(&e, b"randomWalk") {
-                                t.random_walk = v;
-                            }
-                            if let Some(v) = attr_bool(&e, b"randomAnimation") {
-                                t.random_animation = v;
-                            }
-                        }
-                    }
-                    b"ai" => {
-                        if let Some(t) = cur.as_mut() {
-                            if let Some(v) = attr_bool(&e, b"isAggressive") {
-                                t.is_aggressive = v;
-                            }
-                            set_i32(&e, b"aggroRange", &mut t.aggro_range);
-                            set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
-                            if let Some(v) = attr_str(&e, b"type") {
-                                t.ai_type = AiType::parse(&v);
-                            }
-                            set_i32(&e, b"minSkillChance", &mut t.min_skill_chance);
-                            set_i32(&e, b"maxSkillChance", &mut t.max_skill_chance);
-                        }
-                    }
-                    b"corpsetime" => in_corpse_time = !self_closing,
-                    b"race" => in_race = !self_closing,
-                    b"minions" => in_minions = !self_closing,
-                    b"clan" => in_clan = !self_closing,
-                    b"ignorenpcid" => in_ignore_npc_id = !self_closing,
-                    b"drop" => drop_scope = DropScope::Death,
-                    b"spoil" => drop_scope = DropScope::Spoil,
-                    b"group" => {
-                        cur_group = Some(DropGroup { chance: attr_f64(&e, b"chance").unwrap_or(0.0), items: Vec::new() });
-                    }
-                    b"item" if drop_scope != DropScope::None || cur_group.is_some() => {
-                        let holder = DropHolder {
-                            item_id: attr_i32(&e, b"id").unwrap_or(0),
-                            min: attr_i32(&e, b"min").unwrap_or(1) as i64,
-                            max: attr_i32(&e, b"max").unwrap_or(1) as i64,
-                            chance: attr_f64(&e, b"chance").unwrap_or(0.0),
-                        };
-                        if let Some(g) = cur_group.as_mut() {
-                            g.items.push(holder);
-                        } else if drop_scope == DropScope::Death {
-                            if let Some(t) = cur.as_mut() {
-                                t.drop_list_death.push(holder);
-                            }
-                        } else if drop_scope == DropScope::Spoil {
-                            if let Some(t) = cur.as_mut() {
-                                t.drop_list_spoil.push(holder);
-                            }
-                        }
-                    }
-                    b"radius" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"normal", &mut t.collision_radius);
-                        }
-                    }
-                    b"height" => {
-                        if let Some(t) = cur.as_mut() {
-                            set_f64(&e, b"normal", &mut t.collision_height);
-                        }
-                    }
-                    _ => {}
+            b"parameters" => in_parameters = !self_closing,
+            b"skilllist" => in_skill_list = !self_closing,
+            // `<skillList><skill id level/>` — a template skill. (The
+            // `name`-tagged `<parameters><skill>` rows never reach here:
+            // `in_skill_list` is false inside `<parameters>`.)
+            b"skill" if in_skill_list => {
+                if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+                    let level = attr_i32(&e, b"level").unwrap_or(1);
+                    t.skill_list.push((id, level));
                 }
+            }
+            // `<parameters><skill name id level/>` — a parameter
+            // SkillHolder (`union_skill`, boss AI skills). Keyed by
+            // its `name` attribute, never merged into `skill_list`.
+            b"skill" if in_parameters => {
+                if let (Some(t), Some(pname), Some(id)) =
+                    (cur.as_mut(), attr_str(&e, b"name"), attr_i32(&e, b"id"))
+                {
+                    let level = attr_i32(&e, b"level").unwrap_or(1);
+                    t.ai_skill_params.insert(pname, (id, level));
+                }
+            }
+            // `<parameters><param name value/>` — a scalar AI
+            // parameter (`despawn_time`, `skill_delay`, …).
+            b"param" if in_parameters => {
+                if let (Some(t), Some(pname), Some(v)) =
+                    (cur.as_mut(), attr_str(&e, b"name"), attr_str(&e, b"value"))
+                {
+                    t.ai_params.insert(pname, v);
+                }
+            }
+            // Minion references inside `<parameters>` are not templates
+            // — but they *are* this NPC's escort list, so record them
+            // on the parent before skipping the template handling.
+            b"npc" if in_parameters => {
+                if in_minions {
+                    if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+                        t.minions.push(MinionHolder {
+                            npc_id: id,
+                            count: attr_i32(&e, b"count").unwrap_or(1),
+                        });
+                    }
+                }
+                continue;
+            }
+            b"npc" => {
+                let Some(id) = attr_i32(&e, b"id") else {
+                    continue;
+                };
+                let mut t = default_template(id);
+                if let Some(v) = attr_i32(&e, b"displayId") {
+                    t.display_id = v;
+                }
+                if let Some(v) = attr_i32(&e, b"level") {
+                    t.level = v;
+                }
+                if let Some(v) = attr_str(&e, b"type") {
+                    t.type_name = v;
+                }
+                t.name = attr_str(&e, b"name").unwrap_or_default();
+                t.title = attr_str(&e, b"title").unwrap_or_default();
+                // NpcTemplate.set: randomWalk defaults to `!type.equals("Guard")`.
+                t.random_walk = t.type_name != "Guard";
+                t.server_side_name = attr_bool(&e, b"usingServerSideName").unwrap_or(false);
+                t.server_side_title = attr_bool(&e, b"usingServerSideTitle").unwrap_or(false);
+                cur = Some(t);
+            }
+            b"attribute" => in_attribute = true,
+            b"stats" => {
+                if let Some(t) = cur.as_mut() {
+                    set_i32(&e, b"str", &mut t.base_str);
+                    set_i32(&e, b"int", &mut t.base_int);
+                    set_i32(&e, b"dex", &mut t.base_dex);
+                    set_i32(&e, b"wit", &mut t.base_wit);
+                    set_i32(&e, b"con", &mut t.base_con);
+                    set_i32(&e, b"men", &mut t.base_men);
+                }
+            }
+            b"vitals" => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"hp", &mut t.base_hp_max);
+                    set_f64(&e, b"mp", &mut t.base_mp_max);
+                    set_f64(&e, b"hpRegen", &mut t.base_hp_reg);
+                    set_f64(&e, b"mpRegen", &mut t.base_mp_reg);
+                }
+            }
+            // `<attribute><defence fire=… dark=…/>` — the six element
+            // defence bases (PLAN_G19_ATTRIBUTES.md).
+            b"defence" if in_attribute => {
+                if let Some(t) = cur.as_mut() {
+                    for (i, key) in [
+                        b"fire" as &[u8],
+                        b"water",
+                        b"wind",
+                        b"earth",
+                        b"holy",
+                        b"dark",
+                    ]
+                    .iter()
+                    .enumerate()
+                    {
+                        if let Some(v) = attr_f64(&e, key) {
+                            t.base_element_res[i] = v as i32;
+                        }
+                    }
+                }
+            }
+            // `<attribute><attack type value/>` — the attack element.
+            // A handful of templates declare several rows; last wins,
+            // matching a repeated `set` of the same base stat.
+            b"attack" if in_attribute => {
+                if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type")) {
+                    if let Some(el) = crate::model::stats::Element::from_xml(&ty) {
+                        let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
+                        t.base_attack_element = Some((el, v));
+                    }
+                }
+            }
+            b"attack" if !in_attribute => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"physical", &mut t.base_p_atk);
+                    set_f64(&e, b"magical", &mut t.base_m_atk);
+                    if let Some(v) = attr_f64(&e, b"attackSpeed") {
+                        t.base_p_atk_spd = v as i32;
+                    }
+                    set_i32(&e, b"range", &mut t.base_atk_range);
+                    set_i32(&e, b"random", &mut t.base_rnd_dam);
+                    set_f64(&e, b"critical", &mut t.base_crit_rate);
+                }
+            }
+            b"defence" if !in_attribute => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"physical", &mut t.base_p_def);
+                    set_f64(&e, b"magical", &mut t.base_m_def);
+                }
+            }
+            b"walk" => {
+                if let Some(t) = cur.as_mut() {
+                    if let Some(v) = attr_f64(&e, b"ground") {
+                        // NpcData: `groundWalk <= 0 → 0.1`.
+                        t.base_walk_spd = if v <= 0.0 { 0.1 } else { v };
+                    }
+                }
+            }
+            b"run" => {
+                if let Some(t) = cur.as_mut() {
+                    if let Some(v) = attr_f64(&e, b"ground") {
+                        t.base_run_spd = if v <= 0.0 { 0.1 } else { v };
+                    }
+                }
+            }
+            b"acquire" => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"exp", &mut t.exp);
+                    set_f64(&e, b"sp", &mut t.sp);
+                    set_f64(&e, b"raidPoints", &mut t.raid_points);
+                }
+            }
+            b"equipment" => {
+                if let Some(t) = cur.as_mut() {
+                    set_i32(&e, b"rhand", &mut t.rhand);
+                    set_i32(&e, b"lhand", &mut t.lhand);
+                }
+            }
+            b"status" => {
+                if let Some(t) = cur.as_mut() {
+                    t.attackable = attr_bool(&e, b"attackable").unwrap_or(true);
+                    t.targetable = attr_bool(&e, b"targetable").unwrap_or(true);
+                    t.talkable = attr_bool(&e, b"talkable").unwrap_or(true);
+                    t.show_name = attr_bool(&e, b"showName").unwrap_or(true);
+                    t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
+                    if let Some(v) = attr_bool(&e, b"randomWalk") {
+                        t.random_walk = v;
+                    }
+                    if let Some(v) = attr_bool(&e, b"randomAnimation") {
+                        t.random_animation = v;
+                    }
+                }
+            }
+            b"ai" => {
+                if let Some(t) = cur.as_mut() {
+                    if let Some(v) = attr_bool(&e, b"isAggressive") {
+                        t.is_aggressive = v;
+                    }
+                    set_i32(&e, b"aggroRange", &mut t.aggro_range);
+                    set_i32(&e, b"clanHelpRange", &mut t.clan_help_range);
+                    if let Some(v) = attr_str(&e, b"type") {
+                        t.ai_type = AiType::parse(&v);
+                    }
+                    set_i32(&e, b"minSkillChance", &mut t.min_skill_chance);
+                    set_i32(&e, b"maxSkillChance", &mut t.max_skill_chance);
+                }
+            }
+            b"corpsetime" => in_corpse_time = !self_closing,
+            b"race" => in_race = !self_closing,
+            b"minions" => in_minions = !self_closing,
+            b"clan" => in_clan = !self_closing,
+            b"ignorenpcid" => in_ignore_npc_id = !self_closing,
+            b"drop" => drop_scope = DropScope::Death,
+            b"spoil" => drop_scope = DropScope::Spoil,
+            b"group" => {
+                cur_group = Some(DropGroup {
+                    chance: attr_f64(&e, b"chance").unwrap_or(0.0),
+                    items: Vec::new(),
+                });
+            }
+            b"item" if drop_scope != DropScope::None || cur_group.is_some() => {
+                let holder = DropHolder {
+                    item_id: attr_i32(&e, b"id").unwrap_or(0),
+                    min: attr_i32(&e, b"min").unwrap_or(1) as i64,
+                    max: attr_i32(&e, b"max").unwrap_or(1) as i64,
+                    chance: attr_f64(&e, b"chance").unwrap_or(0.0),
+                };
+                if let Some(g) = cur_group.as_mut() {
+                    g.items.push(holder);
+                } else if drop_scope == DropScope::Death {
+                    if let Some(t) = cur.as_mut() {
+                        t.drop_list_death.push(holder);
+                    }
+                } else if drop_scope == DropScope::Spoil {
+                    if let Some(t) = cur.as_mut() {
+                        t.drop_list_spoil.push(holder);
+                    }
+                }
+            }
+            b"radius" => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"normal", &mut t.collision_radius);
+                }
+            }
+            b"height" => {
+                if let Some(t) = cur.as_mut() {
+                    set_f64(&e, b"normal", &mut t.collision_height);
+                }
+            }
+            _ => {}
+        }
         // Self-closing `<npc …/>` (no children) — no End event follows.
         if self_closing && name.as_slice() == b"npc" {
             if let Some(t) = cur.take() {
@@ -853,7 +905,11 @@ fn parse_race(text: &str) -> Option<i32> {
     let upper = text.to_ascii_uppercase();
     // "DARKELF" (no underscore) isn't a real `<race>` value on this dist, but
     // predates this function's move to `Race::from_name` — kept for safety.
-    let normalized = if upper == "DARKELF" { "DARK_ELF" } else { upper.as_str() };
+    let normalized = if upper == "DARKELF" {
+        "DARK_ELF"
+    } else {
+        upper.as_str()
+    };
     crate::enums::Race::from_name(normalized).map(|r| r.ordinal())
 }
 
@@ -897,7 +953,11 @@ mod tests {
         let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         // Java startup: "NpcData: Loaded ~13k NPCs" — pin a floor, not the
         // exact count, so datapack tweaks don't churn the test.
-        assert!(data.len() > 10_000, "expected >10k NPC templates, got {}", data.len());
+        assert!(
+            data.len() > 10_000,
+            "expected >10k NPC templates, got {}",
+            data.len()
+        );
 
         // Thomas D. Turkey (id 100) — the first template in 00100-00199.xml,
         // hand-checked against the XML.
@@ -939,14 +999,22 @@ mod tests {
         assert_eq!(goblin.aggro_range, 450);
         assert!(!goblin.is_aggressive);
         assert_eq!(goblin.drop_list_death.len(), 9);
-        let adena = goblin.drop_list_death.iter().find(|d| d.item_id == 57).expect("adena line");
+        let adena = goblin
+            .drop_list_death
+            .iter()
+            .find(|d| d.item_id == 57)
+            .expect("adena line");
         assert_eq!((adena.min, adena.max), (13, 30));
         assert_eq!(adena.chance, 70.0);
         assert!(goblin.drop_groups.is_empty());
         // <spoil> lines land in `drop_list_spoil` (Goblin 20003: Magic Ring
         // 76.92%, Charcoal 12.1%) — a separate list from the 9 death drops.
         assert_eq!(goblin.drop_list_spoil.len(), 2);
-        let magic_ring = goblin.drop_list_spoil.iter().find(|d| d.item_id == 116).expect("spoil Magic Ring");
+        let magic_ring = goblin
+            .drop_list_spoil
+            .iter()
+            .find(|d| d.item_id == 116)
+            .expect("spoil Magic Ring");
         assert_eq!(magic_ring.chance, 76.92);
 
         // <corpseTime> element text (npc 103, Holiday Santa); absent = None.
@@ -956,32 +1024,58 @@ mod tests {
         // getTemplateByName (admin spawn "Id/Name" input): case-insensitive
         // exact-name match. "Gremlin" is a real name; several ids share it, so
         // (like Java) which one is returned is unspecified — assert on the name.
-        assert_eq!(data.get_by_name("Gremlin").map(|t| t.name.as_str()), Some("Gremlin"));
-        assert_eq!(data.get_by_name("gremlin").map(|t| t.name.as_str()), Some("Gremlin"));
+        assert_eq!(
+            data.get_by_name("Gremlin").map(|t| t.name.as_str()),
+            Some("Gremlin")
+        );
+        assert_eq!(
+            data.get_by_name("gremlin").map(|t| t.name.as_str()),
+            Some("Gremlin")
+        );
         assert!(data.get_by_name("NoSuchNpcName").is_none());
 
         // getAllMonstersOfLevel (spawn-by-level "List" buttons): exact level +
         // Monster type, id-sorted. Gremlin (20001) is level 1, type Monster.
         let lvl1 = data.monsters_of_level(1);
-        assert!(lvl1.iter().any(|t| t.id == 20001), "Gremlin should be a level-1 Monster");
-        assert!(lvl1.iter().all(|t| t.level == 1 && t.type_name.eq_ignore_ascii_case("Monster")));
-        assert!(lvl1.windows(2).all(|w| w[0].id <= w[1].id), "monsters_of_level sorted by id");
+        assert!(
+            lvl1.iter().any(|t| t.id == 20001),
+            "Gremlin should be a level-1 Monster"
+        );
+        assert!(lvl1
+            .iter()
+            .all(|t| t.level == 1 && t.type_name.eq_ignore_ascii_case("Monster")));
+        assert!(
+            lvl1.windows(2).all(|w| w[0].id <= w[1].id),
+            "monsters_of_level sorted by id"
+        );
         // Folk 100 (Thomas D. Turkey) is not a monster of any level.
         assert!(!data.monsters_of_level(80).iter().any(|t| t.id == 100));
 
         // getAllNpcStartingWith (A–Z letter buttons): Folk type + name prefix.
         let t_folk = data.folk_starting_with("T");
-        assert!(t_folk.iter().any(|t| t.id == 100), "Thomas D. Turkey should list under 'T'");
-        assert!(t_folk.iter().all(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with('T')));
+        assert!(
+            t_folk.iter().any(|t| t.id == 100),
+            "Thomas D. Turkey should list under 'T'"
+        );
+        assert!(t_folk
+            .iter()
+            .all(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with('T')));
     }
 
     /// The one dist file with `<group chance>` drops (Primeval Isle mobs).
     #[test]
     fn grouped_drops_parse() {
         let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        let t = data.get(22119).or_else(|| data.get(22100)).expect("a 221xx monster");
+        let t = data
+            .get(22119)
+            .or_else(|| data.get(22100))
+            .expect("a 221xx monster");
         // Every monster in that file carries grouped drops.
-        assert!(!t.drop_groups.is_empty(), "npc {} should have drop groups", t.id);
+        assert!(
+            !t.drop_groups.is_empty(),
+            "npc {} should have drop groups",
+            t.id
+        );
         let group = &t.drop_groups[0];
         assert!(group.chance > 0.0);
         assert!(!group.items.is_empty());
@@ -992,7 +1086,10 @@ mod tests {
         let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         let index = data.drop_index();
         // Adena (57) is on the block list — never indexed.
-        assert!(!index.contains_key(&57), "adena excluded from the drop index");
+        assert!(
+            !index.contains_key(&57),
+            "adena excluded from the drop index"
+        );
         // Goblin (20003) spoils Magic Ring (116) — a spoil entry maps back to it.
         let ring = index.get(&116).expect("Magic Ring indexed");
         let goblin_spoil = ring
@@ -1001,9 +1098,15 @@ mod tests {
             .expect("goblin spoils Magic Ring");
         assert_eq!(goblin_spoil.npc_level, data.get(20003).unwrap().level);
         // Each item's list is sorted by NPC level (ascending).
-        assert!(ring.windows(2).all(|w| w[0].npc_level <= w[1].npc_level), "sorted by level");
+        assert!(
+            ring.windows(2).all(|w| w[0].npc_level <= w[1].npc_level),
+            "sorted by level"
+        );
         // Cached: a second call returns the same populated map.
-        assert!(std::ptr::eq(index, data.drop_index()), "drop index is built once and cached");
+        assert!(
+            std::ptr::eq(index, data.drop_index()),
+            "drop index is built once and cached"
+        );
     }
 
     #[test]
@@ -1025,11 +1128,16 @@ mod tests {
     fn npc_with_nested_minions_keeps_its_body_and_drops() {
         let data = NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
 
-        let boss = data.get(3404).expect("npc 3404 must load despite nested minions");
+        let boss = data
+            .get(3404)
+            .expect("npc 3404 must load despite nested minions");
         assert_eq!(boss.type_name, "RaidBoss");
         assert_eq!(boss.level, 23);
         assert_eq!(boss.drop_list_death.len(), 15, "all 15 death drops parsed");
-        assert!(boss.drop_list_death.iter().any(|d| d.item_id == 955), "D-grade enchant scroll drop");
+        assert!(
+            boss.drop_list_death.iter().any(|d| d.item_id == 955),
+            "D-grade enchant scroll drop"
+        );
 
         // The minion ref must not have created/corrupted 3405: its own later
         // `<npc>` block is the real definition (a level-22 Monster).
@@ -1071,11 +1179,20 @@ mod clan_tests {
         let data = NpcData::load_from(DIST);
         let with_clans = data.all().filter(|t| !t.clans.is_empty()).count();
         let guards = data.all().filter(|t| t.is_guard()).count();
-        let ignores = data.all().filter(|t| !t.ignore_clan_npc_ids.is_empty()).count();
+        let ignores = data
+            .all()
+            .filter(|t| !t.ignore_clan_npc_ids.is_empty())
+            .count();
         println!("CLANS={with_clans} GUARDS={guards} IGNORES={ignores}");
-        assert!(with_clans > 2000, "expected thousands of faction NPCs, got {with_clans}");
+        assert!(
+            with_clans > 2000,
+            "expected thousands of faction NPCs, got {with_clans}"
+        );
         assert!(guards > 100, "expected ~186 Guard templates, got {guards}");
-        assert!(ignores > 0, "expected some ignoreNpcId lists, got {ignores}");
+        assert!(
+            ignores > 0,
+            "expected some ignoreNpcId lists, got {ignores}"
+        );
 
         // Cave Servant 20236 sits in a clanList that also carries ignoreNpcIds.
         if let Some(t) = data.get(20236) {

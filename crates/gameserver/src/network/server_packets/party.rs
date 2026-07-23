@@ -95,7 +95,11 @@ fn write_party_member(w: &mut PacketWriter, m: &PartyMemberView) {
 
 /// `serverpackets/PartySmallWindowAll` — the receiver's full party window
 /// (every member **except the receiver**, leader first).
-pub fn party_small_window_all(leader_object_id: i32, loot_rule_id: i32, others: &[PartyMemberView]) -> Vec<u8> {
+pub fn party_small_window_all(
+    leader_object_id: i32,
+    loot_rule_id: i32,
+    others: &[PartyMemberView],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PARTY_SMALL_WINDOW_ALL);
     w.write_i32(leader_object_id);
@@ -112,7 +116,11 @@ pub fn party_small_window_all(leader_object_id: i32, loot_rule_id: i32, others: 
 
 /// `serverpackets/PartySmallWindowAdd` — one new member for existing members'
 /// windows (note: loot rule is an **int** here, a byte in `…All`).
-pub fn party_small_window_add(leader_object_id: i32, loot_rule_id: i32, member: &PartyMemberView) -> Vec<u8> {
+pub fn party_small_window_add(
+    leader_object_id: i32,
+    loot_rule_id: i32,
+    member: &PartyMemberView,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PARTY_SMALL_WINDOW_ADD);
     w.write_i32(leader_object_id);

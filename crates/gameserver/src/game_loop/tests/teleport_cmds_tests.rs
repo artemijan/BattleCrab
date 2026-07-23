@@ -10,21 +10,59 @@ fn teleporter_list_shows_fee_only_above_free_level() {
     let (mut world, mut rx) = teleporter_world(10_000);
 
     // Level 45 > 40: fee shown.
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 45;
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_showTeleports")));
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_showTeleports")),
+    );
     let pkts = drain(&mut rx);
-    let html = pkts.iter().find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE).expect("list html");
-    assert!(contains_utf16(html, &format!("npc_{NPC_OID}_teleport NORMAL 0")), "teleport button bypass");
-    assert!(contains_utf16(html, "<fstring>1010004</fstring> - 9400"), "fee suffix at level 45");
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ACTION_FAIL), "npc_ terminator");
+    let html = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("list html");
+    assert!(
+        contains_utf16(html, &format!("npc_{NPC_OID}_teleport NORMAL 0")),
+        "teleport button bypass"
+    );
+    assert!(
+        contains_utf16(html, "<fstring>1010004</fstring> - 9400"),
+        "fee suffix at level 45"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "npc_ terminator"
+    );
 
     // Level 30 ≤ 40: free — no fee suffix.
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 30;
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_showTeleports")));
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 30;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_showTeleports")),
+    );
     let pkts = drain(&mut rx);
-    let html = pkts.iter().find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE).expect("list html");
-    assert!(contains_utf16(html, "<fstring>1010004</fstring>"), "destination still listed");
-    assert!(!contains_utf16(html, " - 9400"), "no fee suffix below the free level");
+    let html = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("list html");
+    assert!(
+        contains_utf16(html, "<fstring>1010004</fstring>"),
+        "destination still listed"
+    );
+    assert!(
+        !contains_utf16(html, " - 9400"),
+        "no fee suffix below the free level"
+    );
 }
 
 /// `teleport NORMAL 0`: above the free level the adena fee is charged and
@@ -34,29 +72,57 @@ fn teleporter_list_shows_fee_only_above_free_level() {
 fn teleporter_charges_fee_and_teleports() {
     // Paid: level 45, 10 000 adena → 600 left, position moved.
     let (mut world, mut rx) = teleporter_world(10_000);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 45;
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")));
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
     let pkts = drain(&mut rx);
     assert_eq!(adena_of(&world, 3001), 600, "9400 adena fee charged");
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -25));
 
     // Free: level 1 ≤ 40 → no charge.
     let (mut world, mut rx) = teleporter_world(10_000);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
     drain(&mut rx);
-    assert_eq!(adena_of(&world, 3001), 10_000, "free below MaxFreeTeleportLevel");
+    assert_eq!(
+        adena_of(&world, 3001),
+        10_000,
+        "free below MaxFreeTeleportLevel"
+    );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -25));
 
     // Shortfall: SM 279, no movement, adena untouched.
     let (mut world, mut rx) = teleporter_world(100);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 45;
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")));
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
     let pkts = drain(&mut rx);
     assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA));
-    assert!(!pkts.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(!pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
     assert_eq!(adena_of(&world, 3001), 100);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y), (0, 0), "shortfall must not teleport");
@@ -68,10 +134,24 @@ fn teleporter_charges_fee_and_teleports() {
 #[test]
 fn teleporter_rejects_malformed_and_wrong_npc() {
     let (mut world, mut rx) = teleporter_world(10_000);
-    for cmd in ["teleport NORMAL 5", "teleport NOPE 0", "teleport NORMAL", "teleport NORMAL 0 extra"] {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_{cmd}")));
+    for cmd in [
+        "teleport NORMAL 5",
+        "teleport NOPE 0",
+        "teleport NORMAL",
+        "teleport NORMAL 0 extra",
+    ] {
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_{cmd}")),
+        );
         let pkts = drain(&mut rx);
-        assert!(!pkts.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION), "for {cmd}");
+        assert!(
+            !pkts
+                .iter()
+                .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+            "for {cmd}"
+        );
         let pos = world.objects.get_component::<Position>(&3001).unwrap();
         assert_eq!((pos.x, pos.y), (0, 0), "for {cmd}");
     }
@@ -86,14 +166,28 @@ fn teleporter_rejects_malformed_and_wrong_npc() {
             name: "NORMAL".into(),
             teleport_type: crate::data::teleporter_data::TeleportType::Normal,
             locations: vec![crate::data::teleporter_data::TeleportLocation {
-                x: 1, y: 2, z: 3, name: None, npc_string_id: -1, fee_id: 57, fee_count: 0,
+                x: 1,
+                y: 2,
+                z: 3,
+                name: None,
+                npc_string_id: -1,
+                fee_id: 57,
+                fee_count: 0,
             }],
         },
     );
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_teleport NORMAL 0", NPC_OID + 1)));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_teleport NORMAL 0", NPC_OID + 1)),
+    );
     drain(&mut rx);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y), (0, 0), "non-teleporter NPC must not teleport");
+    assert_eq!(
+        (pos.x, pos.y),
+        (0, 0),
+        "non-teleporter NPC must not teleport"
+    );
 }
 
 /// `/unstuck` (user command 52) with the dist's 30 s `UnstuckInterval`:
@@ -104,14 +198,13 @@ fn teleporter_rejects_malformed_and_wrong_npc() {
 fn unstuck_casts_escape_and_teleports_to_town() {
     let (mut world, ..) = test_world();
     world.cfg.character.unstuck_interval = 30;
-    world.data.map_region = crate::data::MapRegionData::from_regions(vec![
-        crate::data::map_region::MapRegion {
+    world.data.map_region =
+        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 924,
             respawn_points: vec![(5000, 6000, -30)],
             tiles: vec![(20, 18)], // the tile containing (0,0)
-        },
-    ]);
+        }]);
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
         item_consume_id: 0,
@@ -156,32 +249,56 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     // The bare test template spawns at 0 HP; the finish phase's HP re-check
     // (`cur_hp <= hp_consume`) needs a live caster.
-    world.objects.get_component_mut::<Vitals>(&3001).unwrap().cur_hp = 100.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&3001)
+        .unwrap()
+        .cur_hp = 100.0;
 
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
     let pkts = drain(&mut rx);
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::S1_TEXT), "'You use Escape' message");
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "cast started");
+    assert!(
+        sm_ids_of(&pkts).contains(&server_packets::sm_ids::S1_TEXT),
+        "'You use Escape' message"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "cast started"
+    );
     assert!(world.objects.has_component::<Casting>(&3001));
 
     // Mid-cast re-use refuses silently (Java `isCastingNow` → false).
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
-    assert!(!drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE));
+    assert!(!drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE));
 
     // 30 s (300 ticks) to launch + the 500 ms finish floor.
     advance_ticks(&mut world, 310);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (5000, 6000, -25), "escaped to the town respawn (z lifted by 5)");
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (5000, 6000, -25),
+        "escaped to the town respawn (z lifted by 5)"
+    );
     let landed = drain(&mut rx);
-    assert!(landed.iter().any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(landed
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
     // `teleToLocation`'s `abortCast()`: without the cancel the client keeps
     // drawing the escape FX at the destination for skill 2099's own 5-minute
     // duration, even though the teleport already landed.
     assert!(
-        landed.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
+        landed
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED),
         "teleport must cancel the cast animation client-side"
     );
-    assert!(!world.objects.has_component::<Casting>(&3001), "cast slot freed by the abort");
+    assert!(
+        !world.objects.has_component::<Casting>(&3001),
+        "cast slot freed by the abort"
+    );
 }
 
 /// `/loc` (user command 0): inside a mapped region the region's `locId` is
@@ -191,14 +308,13 @@ fn unstuck_casts_escape_and_teleports_to_town() {
 #[test]
 fn loc_user_command_reports_region() {
     let (mut world, ..) = test_world();
-    world.data.map_region = crate::data::MapRegionData::from_regions(vec![
-        crate::data::map_region::MapRegion {
+    world.data.map_region =
+        crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 924,
             respawn_points: vec![(5000, 6000, -30)],
             tiles: vec![(20, 18)],
-        },
-    ]);
+        }]);
     let mut rx = ingame_player(&mut world, 1, 3001, 123, 456, -78);
     drain(&mut rx);
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(0));
@@ -210,9 +326,15 @@ fn loc_user_command_reports_region() {
     drain(&mut rx2);
     super::user_commands::handle_bypass_user_cmd(&mut world, 2, &user_cmd_body(0));
     let pkts = drain(&mut rx2);
-    assert_eq!(sm_ids_of(&pkts), vec![server_packets::sm_ids::CURRENT_LOCATION_S1]);
+    assert_eq!(
+        sm_ids_of(&pkts),
+        vec![server_packets::sm_ids::CURRENT_LOCATION_S1]
+    );
 
     // Unknown command id: silence for a non-GM.
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(77));
-    assert!(drain(&mut rx).is_empty(), "unknown user command must be silent");
+    assert!(
+        drain(&mut rx).is_empty(),
+        "unknown user command must be silent"
+    );
 }

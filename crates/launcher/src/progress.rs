@@ -12,10 +12,16 @@ pub enum Phase {
     Connecting,
     /// Streaming the archive to disk. `total` is `None` when the server sends no
     /// `Content-Length` (progress is then indeterminate).
-    Downloading { done: u64, total: Option<u64> },
+    Downloading {
+        done: u64,
+        total: Option<u64>,
+    },
     /// Unpacking, in *uncompressed* bytes — the 7z index carries the real total, so
     /// this bar reflects actual progress rather than bytes consumed from the archive.
-    Extracting { done: u64, total: u64 },
+    Extracting {
+        done: u64,
+        total: u64,
+    },
     /// Install finished; the client is playable.
     Ready,
     Failed(String),
@@ -25,12 +31,11 @@ impl Phase {
     /// Fraction complete in `0.0..=1.0`, or `None` when indeterminate.
     pub fn fraction(&self) -> Option<f32> {
         match self {
-            Phase::Downloading { done, total: Some(total) } if *total > 0 => {
-                Some(*done as f32 / *total as f32)
-            }
-            Phase::Extracting { done, total } if *total > 0 => {
-                Some(*done as f32 / *total as f32)
-            }
+            Phase::Downloading {
+                done,
+                total: Some(total),
+            } if *total > 0 => Some(*done as f32 / *total as f32),
+            Phase::Extracting { done, total } if *total > 0 => Some(*done as f32 / *total as f32),
             Phase::Ready => Some(1.0),
             _ => None,
         }

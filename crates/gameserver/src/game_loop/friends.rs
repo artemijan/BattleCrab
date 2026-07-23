@@ -12,7 +12,9 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::client_for_player;
-use super::party::{clear_linked_request, find_player_by_name, install_request, REQUEST_TIMEOUT_TICKS};
+use super::party::{
+    clear_linked_request, find_player_by_name, install_request, REQUEST_TIMEOUT_TICKS,
+};
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
     if let Some(cid) = client_for_player(world, object_id) {
@@ -23,7 +25,11 @@ fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
-    send_to_player(world, object_id, server_packets::system_message_with(message_id, params));
+    send_to_player(
+        world,
+        object_id,
+        server_packets::system_message_with(message_id, params),
+    );
 }
 
 fn is_online(world: &World, object_id: i32) -> bool {
@@ -39,17 +45,26 @@ fn entry_of(world: &World, info: &FriendInfo) -> FriendEntry {
         .get_component::<Player>(&info.char_id)
         .map(|p| (p.level, p.class_id))
         .unwrap_or((info.level, info.class_id));
-    FriendEntry { char_id: info.char_id, name: info.name.clone(), level, class_id, online }
+    FriendEntry {
+        char_id: info.char_id,
+        name: info.name.clone(),
+        level,
+        class_id,
+        online,
+    }
 }
 
 /// The live `FriendInfo` snapshot of an in-world player.
 fn info_of(world: &World, object_id: i32) -> Option<FriendInfo> {
-    world.objects.get_component::<Player>(&object_id).map(|p| FriendInfo {
-        char_id: object_id,
-        name: p.name.clone(),
-        level: p.level,
-        class_id: p.class_id,
-    })
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| FriendInfo {
+            char_id: object_id,
+            name: p.name.clone(),
+            level: p.level,
+            class_id: p.class_id,
+        })
 }
 
 /// The `L2FriendList` packet for a player's current snapshot.
@@ -65,8 +80,14 @@ pub(crate) fn l2_friend_list_packet(world: &World, friends: &Friends) -> Vec<u8>
 /// EnterWorld's friend block, run *after* the player spawned: SM 503 "your
 /// friend just logged in" + `FriendStatus(ONLINE)` to each online friend.
 pub(crate) fn on_enter_world(world: &World, object_id: i32) {
-    let Some(friends) = world.objects.get_component::<Friends>(&object_id) else { return };
-    let name = world.objects.get_component::<Player>(&object_id).map(|p| p.name.clone()).unwrap_or_default();
+    let Some(friends) = world.objects.get_component::<Friends>(&object_id) else {
+        return;
+    };
+    let name = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
     let sm = server_packets::system_message_with(
         sm_ids::YOUR_FRIEND_S1_JUST_LOGGED_IN,
         &[SmParam::Text(name.clone())],
@@ -83,8 +104,14 @@ pub(crate) fn on_enter_world(world: &World, object_id: i32) {
 /// `Player.deleteMe` → `notifyFriends(MODE_OFFLINE)`. Runs before despawn
 /// (needs the leaver's components).
 pub(crate) fn on_leave_world(world: &World, object_id: i32) {
-    let Some(friends) = world.objects.get_component::<Friends>(&object_id) else { return };
-    let name = world.objects.get_component::<Player>(&object_id).map(|p| p.name.clone()).unwrap_or_default();
+    let Some(friends) = world.objects.get_component::<Friends>(&object_id) else {
+        return;
+    };
+    let name = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
     let status = server_packets::friend_status(friend_status_mode::OFFLINE, &name, object_id);
     for f in &friends.0 {
         if f.char_id != object_id && is_online(world, f.char_id) {
@@ -98,16 +125,25 @@ pub(crate) fn on_leave_world(world: &World, object_id: i32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
-    let Some(name) = cp::read_name(body) else { return };
+    let Some(name) = cp::read_name(body) else {
+        return;
+    };
 
     let Some((_, friend)) = find_player_by_name(world, &name) else {
         send_sm(world, player, sm_ids::FRIEND_INVITE_TARGET_NOT_FOUND, &[]);
         return;
     };
     if friend == player {
-        send_sm(world, player, sm_ids::YOU_CANNOT_ADD_YOURSELF_TO_YOUR_OWN_FRIEND_LIST, &[]);
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_CANNOT_ADD_YOURSELF_TO_YOUR_OWN_FRIEND_LIST,
+            &[],
+        );
         return;
     }
     if world
@@ -115,10 +151,17 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         .get_component::<Friends>(&player)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == friend))
     {
-        send_sm(world, player, sm_ids::THIS_PLAYER_IS_ALREADY_REGISTERED_ON_YOUR_FRIENDS_LIST, &[]);
+        send_sm(
+            world,
+            player,
+            sm_ids::THIS_PLAYER_IS_ALREADY_REGISTERED_ON_YOUR_FRIENDS_LIST,
+            &[],
+        );
         return;
     }
-    if world.objects.has_component::<PendingRequest>(&friend) || world.objects.has_component::<PendingRequest>(&player) {
+    if world.objects.has_component::<PendingRequest>(&friend)
+        || world.objects.has_component::<PendingRequest>(&player)
+    {
         send_sm(
             world,
             player,
@@ -128,9 +171,23 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
         return;
     }
 
-    install_request(world, player, friend, RequestKind::FriendInvite, REQUEST_TIMEOUT_TICKS);
-    let requestor_name = world.objects.get_component::<Player>(&player).map(|p| p.name.clone()).unwrap_or_default();
-    send_to_player(world, friend, server_packets::friend_add_request(&requestor_name));
+    install_request(
+        world,
+        player,
+        friend,
+        RequestKind::FriendInvite,
+        REQUEST_TIMEOUT_TICKS,
+    );
+    let requestor_name = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    send_to_player(
+        world,
+        friend,
+        server_packets::friend_add_request(&requestor_name),
+    );
     send_sm(
         world,
         player,
@@ -140,12 +197,22 @@ pub(crate) fn handle_request_friend_invite(world: &mut World, client_id: u32, bo
 }
 
 pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
     let response = cp::read_friend_answer(body).unwrap_or(0);
 
-    let Some(req) = world.objects.get_component::<PendingRequest>(&player).copied() else { return };
-    let (RequestKind::FriendInvite, true) = (req.kind, req.answerer) else { return };
+    let Some(req) = world
+        .objects
+        .get_component::<PendingRequest>(&player)
+        .copied()
+    else {
+        return;
+    };
+    let (RequestKind::FriendInvite, true) = (req.kind, req.answerer) else {
+        return;
+    };
     clear_linked_request(world, player);
     let requestor = req.other;
 
@@ -161,20 +228,39 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
             .get_component::<Friends>(&requestor)
             .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player));
     if already {
-        let name = world.objects.get_component::<Player>(&player).map(|p| p.name.clone()).unwrap_or_default();
-        send_sm(world, requestor, sm_ids::C1_IS_ALREADY_ON_YOUR_FRIEND_LIST, &[SmParam::Text(name)]);
+        let name = world
+            .objects
+            .get_component::<Player>(&player)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
+        send_sm(
+            world,
+            requestor,
+            sm_ids::C1_IS_ALREADY_ON_YOUR_FRIEND_LIST,
+            &[SmParam::Text(name)],
+        );
         return;
     }
 
     if response != 1 {
-        send_sm(world, requestor, sm_ids::YOU_HAVE_FAILED_TO_ADD_A_FRIEND, &[]);
+        send_sm(
+            world,
+            requestor,
+            sm_ids::YOU_HAVE_FAILED_TO_ADD_A_FRIEND,
+            &[],
+        );
         return;
     }
 
-    let (Some(player_info), Some(requestor_info)) = (info_of(world, player), info_of(world, requestor)) else {
+    let (Some(player_info), Some(requestor_info)) =
+        (info_of(world, player), info_of(world, requestor))
+    else {
         return;
     };
-    let _ = world.db.send(crate::db::DbCommand::InsertFriendPair { a: requestor, b: player });
+    let _ = world.db.send(crate::db::DbCommand::InsertFriendPair {
+        a: requestor,
+        b: player,
+    });
     if let Some(fl) = world.objects.get_component_mut::<Friends>(&requestor) {
         fl.0.push(player_info.clone());
     }
@@ -196,8 +282,16 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
         &[SmParam::Text(requestor_info.name.clone())],
     );
     // Both sides' client lists learn the new (online) friend.
-    send_to_player(world, player, server_packets::friend_add_request_result(1, &entry_of(world, &requestor_info)));
-    send_to_player(world, requestor, server_packets::friend_add_request_result(1, &entry_of(world, &player_info)));
+    send_to_player(
+        world,
+        player,
+        server_packets::friend_add_request_result(1, &entry_of(world, &requestor_info)),
+    );
+    send_to_player(
+        world,
+        requestor,
+        server_packets::friend_add_request_result(1, &entry_of(world, &player_info)),
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -205,9 +299,13 @@ pub(crate) fn handle_request_answer_friend_invite(world: &mut World, client_id: 
 // ---------------------------------------------------------------------------
 
 pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
-    let Some(name) = cp::read_name(body) else { return };
+    let Some(name) = cp::read_name(body) else {
+        return;
+    };
 
     // Java resolves the name through `CharInfoTable` (works offline); our
     // loaded snapshot carries every friend's name — not on the list and
@@ -215,13 +313,25 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
     let friend = world
         .objects
         .get_component::<Friends>(&player)
-        .and_then(|fl| fl.0.iter().find(|f| f.name.eq_ignore_ascii_case(&name)).cloned());
+        .and_then(|fl| {
+            fl.0.iter()
+                .find(|f| f.name.eq_ignore_ascii_case(&name))
+                .cloned()
+        });
     let Some(friend) = friend else {
-        send_sm(world, player, sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST, &[SmParam::Text(name)]);
+        send_sm(
+            world,
+            player,
+            sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST,
+            &[SmParam::Text(name)],
+        );
         return;
     };
 
-    let _ = world.db.send(crate::db::DbCommand::DeleteFriendPair { a: player, b: friend.char_id });
+    let _ = world.db.send(crate::db::DbCommand::DeleteFriendPair {
+        a: player,
+        b: friend.char_id,
+    });
     if let Some(fl) = world.objects.get_component_mut::<Friends>(&player) {
         fl.0.retain(|f| f.char_id != friend.char_id);
     }
@@ -231,48 +341,82 @@ pub(crate) fn handle_request_friend_del(world: &mut World, client_id: u32, body:
         sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2,
         &[SmParam::Text(friend.name.clone())],
     );
-    send_to_player(world, player, server_packets::friend_remove(&friend.name, 1));
+    send_to_player(
+        world,
+        player,
+        server_packets::friend_remove(&friend.name, 1),
+    );
 
     // The (online) ex-friend's side updates too.
     if is_online(world, friend.char_id) {
-        let player_name = world.objects.get_component::<Player>(&player).map(|p| p.name.clone()).unwrap_or_default();
+        let player_name = world
+            .objects
+            .get_component::<Player>(&player)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
         if let Some(fl) = world.objects.get_component_mut::<Friends>(&friend.char_id) {
             fl.0.retain(|f| f.char_id != player);
         }
-        send_to_player(world, friend.char_id, server_packets::friend_remove(&player_name, 1));
+        send_to_player(
+            world,
+            friend.char_id,
+            server_packets::friend_remove(&player_name, 1),
+        );
     }
 }
 
 pub(crate) fn handle_request_friend_list(world: &mut World, client_id: u32) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
-    let Some(friends) = world.objects.get_component::<Friends>(&player).cloned() else { return };
+    let Some(friends) = world.objects.get_component::<Friends>(&player).cloned() else {
+        return;
+    };
     send_sm(world, player, sm_ids::FRIENDS_LIST_HEADER, &[]);
     for f in &friends.0 {
-        let id = if is_online(world, f.char_id) { sm_ids::S1_CURRENTLY_ONLINE } else { sm_ids::S1_CURRENTLY_OFFLINE };
+        let id = if is_online(world, f.char_id) {
+            sm_ids::S1_CURRENTLY_ONLINE
+        } else {
+            sm_ids::S1_CURRENTLY_OFFLINE
+        };
         send_sm(world, player, id, &[SmParam::Text(f.name.clone())]);
     }
     send_sm(world, player, sm_ids::FRIENDS_LIST_FOOTER, &[]);
 }
 
 pub(crate) fn handle_request_send_friend_msg(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
-    let Some(pkt) = cp::RequestSendFriendMsg::read(body) else { return };
+    let Some(pkt) = cp::RequestSendFriendMsg::read(body) else {
+        return;
+    };
     if pkt.message.is_empty() || pkt.message.chars().count() > 300 {
         return;
     }
     // The receiver must be online and have the *sender* on their list.
-    let receiver = find_player_by_name(world, &pkt.receiver).map(|(_, oid)| oid).filter(|&oid| {
-        world
-            .objects
-            .get_component::<Friends>(&oid)
-            .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player))
-    });
+    let receiver = find_player_by_name(world, &pkt.receiver)
+        .map(|(_, oid)| oid)
+        .filter(|&oid| {
+            world
+                .objects
+                .get_component::<Friends>(&oid)
+                .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == player))
+        });
     let Some(receiver) = receiver else {
         send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
         return;
     };
-    let sender_name = world.objects.get_component::<Player>(&player).map(|p| p.name.clone()).unwrap_or_default();
-    send_to_player(world, receiver, server_packets::l2_friend_say(&sender_name, &pkt.receiver, &pkt.message));
+    let sender_name = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    send_to_player(
+        world,
+        receiver,
+        server_packets::l2_friend_say(&sender_name, &pkt.receiver, &pkt.message),
+    );
 }

@@ -177,7 +177,9 @@ fn advance_route(
     speed: f64,
     now: u64,
 ) -> bool {
-    let Some(path) = &mut m.geo_path else { return false };
+    let Some(path) = &mut m.geo_path else {
+        return false;
+    };
     if !path.has_next() || speed <= 0.0 {
         return false;
     }
@@ -185,7 +187,11 @@ fn advance_route(
     // The last segment heads to the accurate (requested) destination, not
     // the cell-centre route point.
     let (dest_x, dest_y, dest_z) = if path.index == path.points.len() - 1 {
-        (path.accurate_tx, path.accurate_ty, path.points[path.index].2)
+        (
+            path.accurate_tx,
+            path.accurate_ty,
+            path.points[path.index].2,
+        )
     } else {
         path.points[path.index]
     };

@@ -26,10 +26,19 @@ use super::effects::apply_skill_effects;
 /// shared reuse group when the skill has one. `true` means the skill is off
 /// cooldown; a still-cooling skill sends the h/m/s breakdown (or SM 48 for
 /// short reuses) plus `ActionFailed` and returns `false`.
-pub(crate) fn check_skill_reuse(world: &World, client_id: u32, object_id: i32, skill: &Skill) -> bool {
+pub(crate) fn check_skill_reuse(
+    world: &World,
+    client_id: u32,
+    object_id: i32,
+    skill: &Skill,
+) -> bool {
     use server_packets::{sm_ids, SmParam};
 
-    let Some(&crate::model::SkillReuse { until_tick, total_ms, .. }) = world
+    let Some(&crate::model::SkillReuse {
+        until_tick,
+        total_ms,
+        ..
+    }) = world
         .objects
         .get_component::<crate::model::components::Reuses>(&object_id)
         .and_then(|r| r.0.get(&skill.reuse_key()))
@@ -39,7 +48,10 @@ pub(crate) fn check_skill_reuse(world: &World, client_id: u32, object_id: i32, s
     if until_tick <= world.tick {
         return true;
     }
-    let name_param = SmParam::SkillName { id: skill.id, level: skill.level };
+    let name_param = SmParam::SkillName {
+        id: skill.id,
+        level: skill.level,
+    };
     if total_ms > 3000 {
         let remaining_ms = (until_tick - world.tick) * 100;
         let hours = (remaining_ms / 3_600_000) as i32;
@@ -50,7 +62,12 @@ pub(crate) fn check_skill_reuse(world: &World, client_id: u32, object_id: i32, s
                 world,
                 client_id,
                 sm_ids::S2_HOURS_S3_MINUTES_S4_SECONDS_REMAINING_FOR_REUSE,
-                &[name_param, SmParam::Int(hours), SmParam::Int(minutes), SmParam::Int(seconds)],
+                &[
+                    name_param,
+                    SmParam::Int(hours),
+                    SmParam::Int(minutes),
+                    SmParam::Int(seconds),
+                ],
             );
         } else if minutes > 0 {
             send_sm_and_action_failed(
@@ -68,7 +85,12 @@ pub(crate) fn check_skill_reuse(world: &World, client_id: u32, object_id: i32, s
             );
         }
     } else {
-        send_sm_and_action_failed(world, client_id, sm_ids::S1_IS_NOT_AVAILABLE_REUSE, &[name_param]);
+        send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::S1_IS_NOT_AVAILABLE_REUSE,
+            &[name_param],
+        );
     }
     false
 }
@@ -90,13 +112,26 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
     // Attached on first use rather than at spawn, so only NPCs that actually
     // cast pay for the map (this world holds ~34.9k of them, the vast majority
     // of which never cast anything).
-    if world.objects.get_component::<crate::model::components::Reuses>(&object_id).is_none() {
-        world.objects.add_components(&object_id, crate::model::components::Reuses::default());
+    if world
+        .objects
+        .get_component::<crate::model::components::Reuses>(&object_id)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&object_id, crate::model::components::Reuses::default());
     }
-    if let Some(reuses) = world.objects.get_component_mut::<crate::model::components::Reuses>(&object_id) {
+    if let Some(reuses) = world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&object_id)
+    {
         reuses.0.insert(
             skill.reuse_key(),
-            crate::model::SkillReuse { skill_level: skill.level, until_tick, total_ms: skill.reuse_delay },
+            crate::model::SkillReuse {
+                skill_level: skill.level,
+                until_tick,
+                total_ms: skill.reuse_delay,
+            },
         );
     }
 }
@@ -153,7 +188,10 @@ pub(crate) fn resolve_cast_target(
                     return Err(sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED);
                 }
             }
-            if !world.geo.can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, gp.x, gp.y, gp.z) {
+            if !world
+                .geo
+                .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, gp.x, gp.y, gp.z)
+            {
                 return Err(sm_ids::CANNOT_SEE_TARGET);
             }
             // `ZoneRegion.checkEffectRangeInsidePeaceZone`: a bad ground cast
@@ -161,13 +199,16 @@ pub(crate) fn resolve_cast_target(
             // Java samples five points (centre + N/S/E/W at `effectRange`).
             if skill.is_bad() {
                 let r = skill.effect_range;
-                let clips_peace = [(0, 0), (0, r), (0, -r), (r, 0), (-r, 0)].iter().any(|&(ox, oy)| {
-                    world
-                        .data
-                        .zone_data
-                        .zones_at(gp.x + ox, gp.y + oy, gp.z)
-                        .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace)
-                });
+                let clips_peace =
+                    [(0, 0), (0, r), (0, -r), (r, 0), (-r, 0)]
+                        .iter()
+                        .any(|&(ox, oy)| {
+                            world
+                                .data
+                                .zone_data
+                                .zones_at(gp.x + ox, gp.y + oy, gp.z)
+                                .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace)
+                        });
                 if clips_peace {
                     return Err(sm_ids::YOU_CANNOT_USE_SKILLS_THAT_MAY_HARM_OTHER_PLAYERS_IN_HERE);
                 }
@@ -252,7 +293,10 @@ pub(crate) fn resolve_cast_target(
                 .objects
                 .get_component::<crate::model::npc::Npc>(&t)
                 .is_some()
-                && world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
+                && world
+                    .objects
+                    .get_component::<Vitals>(&t)
+                    .is_some_and(|v| v.dead);
             if !is_dead_npc {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -278,8 +322,13 @@ pub(crate) fn resolve_cast_target(
         TargetType::PcBody => {
             let t = caster_target.ok_or(sm_ids::INVALID_TARGET)?;
             let is_revivable = world.objects.has_component::<Player>(&t)
-                || world.objects.has_component::<crate::model::components::PetOf>(&t);
-            let is_dead = world.objects.get_component::<Vitals>(&t).is_some_and(|v| v.dead);
+                || world
+                    .objects
+                    .has_component::<crate::model::components::PetOf>(&t);
+            let is_dead = world
+                .objects
+                .get_component::<Vitals>(&t)
+                .is_some_and(|v| v.dead);
             if !is_revivable || !is_dead {
                 return Err(sm_ids::INVALID_TARGET);
             }
@@ -290,16 +339,20 @@ pub(crate) fn resolve_cast_target(
         // (Servitor Heal/Recharge/shields/Haste/Wind Walk/Magic Boost and the
         // four class servitor buffs): 18 learnable skills that resolved to
         // `INVALID_TARGET` before this arm existed.
-        TargetType::Summon => {
-            super::super::servitor::servitor_of(world, caster.object_id).ok_or(sm_ids::INVALID_TARGET)?
-        }
+        TargetType::Summon => super::super::servitor::servitor_of(world, caster.object_id)
+            .ok_or(sm_ids::INVALID_TARGET)?,
         TargetType::Other => return Err(sm_ids::INVALID_TARGET),
     };
     let (tx, ty, tz, target_dead) = target_state(world, resolved).ok_or(sm_ids::INVALID_TARGET)?;
     // A corpse (`NPC_BODY`) is *supposed* to be dead; `EnemyNot` explicitly
     // "works on dead targets... as well" (a heal landing on a fresh corpse
     // ahead of a resurrection); every other target type rejects the dead.
-    if target_dead && !matches!(skill.target_type, TargetType::NpcBody | TargetType::PcBody | TargetType::EnemyNot) {
+    if target_dead
+        && !matches!(
+            skill.target_type,
+            TargetType::NpcBody | TargetType::PcBody | TargetType::EnemyNot
+        )
+    {
         return Err(sm_ids::INVALID_TARGET);
     }
     // "Geodata check when character is within range" — every non-self
@@ -308,7 +361,9 @@ pub(crate) fn resolve_cast_target(
     // is a door (GeoEngine.java: `target.isDoor() || canSeeTarget(...)`) — a
     // closed siege gate occludes the ray to its own centre, so without this a
     // gate could never be nuked.
-    let target_is_door = world.objects.has_component::<crate::model::door::Door>(&resolved);
+    let target_is_door = world
+        .objects
+        .has_component::<crate::model::door::Door>(&resolved);
     if !target_is_door
         && !world
             .geo
@@ -337,7 +392,10 @@ pub(crate) fn target_state(world: &World, object_id: i32) -> Option<(i32, i32, i
     }
     // Doors carry no `Vitals`/`Npc` — their HP lives on the `Door` component;
     // a breached gate (0 HP) counts as dead, so a skill can't re-hit it.
-    if let Some(door) = world.objects.get_component::<crate::model::door::Door>(&object_id) {
+    if let Some(door) = world
+        .objects
+        .get_component::<crate::model::door::Door>(&object_id)
+    {
         let pos = world.objects.get_component::<Position>(&object_id)?;
         return Some((pos.x, pos.y, pos.z, door.current_hp <= 0));
     }
@@ -372,7 +430,10 @@ pub(crate) fn in_cast_range(
         .get_component::<Collision>(&target_oid)
         .map(|c| c.radius)
         .unwrap_or_else(|| {
-            if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+            if world
+                .objects
+                .has_component::<crate::model::door::Door>(&target_oid)
+            {
                 crate::game_loop::combat::DOOR_COLLISION_RADIUS
             } else {
                 0.0
@@ -415,7 +476,11 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
 
 /// `World.getVisibleObjectsInRange(caster, Npc.class, range)` filtered to the
 /// condition's id list — the sweep half of `OpExistNpcSkillCondition`.
-fn op_exist_npc_around(world: &World, caster_oid: i32, cond: &crate::model::skill::OpExistNpcCondition) -> bool {
+fn op_exist_npc_around(
+    world: &World,
+    caster_oid: i32,
+    cond: &crate::model::skill::OpExistNpcCondition,
+) -> bool {
     let Some(region) = world
         .objects
         .get_component::<crate::model::components::RegionCell>(&caster_oid)
@@ -423,7 +488,11 @@ fn op_exist_npc_around(world: &World, caster_oid: i32, cond: &crate::model::skil
     else {
         return false;
     };
-    let Some(origin) = world.objects.get_component::<Position>(&caster_oid).copied() else {
+    let Some(origin) = world
+        .objects
+        .get_component::<Position>(&caster_oid)
+        .copied()
+    else {
         return false;
     };
     let range = cond.range as f64;
@@ -433,10 +502,17 @@ fn op_exist_npc_around(world: &World, caster_oid: i32, cond: &crate::model::skil
             .get_component::<crate::model::npc::Npc>(&oid)
             .is_some_and(|n| cond.npc_ids.contains(&n.npc_id));
         listed
-            && world.objects.get_component::<Position>(&oid).is_some_and(|p| {
-                let (dx, dy, dz) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64, (p.z - origin.z) as f64);
-                dx * dx + dy * dy + dz * dz <= range * range
-            })
+            && world
+                .objects
+                .get_component::<Position>(&oid)
+                .is_some_and(|p| {
+                    let (dx, dy, dz) = (
+                        (p.x - origin.x) as f64,
+                        (p.y - origin.y) as f64,
+                        (p.z - origin.z) as f64,
+                    );
+                    dx * dx + dy * dy + dz * dz <= range * range
+                })
     })
 }
 
@@ -446,7 +522,11 @@ fn op_exist_npc_around(world: &World, caster_oid: i32, cond: &crate::model::skil
 /// side but for these skills, it doesn't"), then enter the normal `useMagic`
 /// path — the `Ground.java` target leg resolves the caster as sentinel from
 /// there.
-pub(crate) fn handle_request_magic_skill_use_ground(world: &mut World, client_id: u32, ex_body: &[u8]) {
+pub(crate) fn handle_request_magic_skill_use_ground(
+    world: &mut World,
+    client_id: u32,
+    ex_body: &[u8],
+) {
     let Some(pkt) = cp::RequestExMagicSkillUseGround::read(ex_body) else {
         return;
     };
@@ -456,7 +536,11 @@ pub(crate) fn handle_request_magic_skill_use_ground(world: &mut World, client_id
     let object_id = session.player_object_id();
     world.objects.add_components(
         &object_id,
-        crate::model::components::GroundSkillTarget { x: pkt.x, y: pkt.y, z: pkt.z },
+        crate::model::components::GroundSkillTarget {
+            x: pkt.x,
+            y: pkt.y,
+            z: pkt.z,
+        },
     );
     if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
         pos.heading = crate::model::movement::calculate_heading(
@@ -473,7 +557,14 @@ pub(crate) fn handle_request_magic_skill_use_ground(world: &mut World, client_id
             &server_packets::validate_location(object_id, pos.x, pos.y, pos.z, pos.heading),
         );
     }
-    use_magic(world, client_id, object_id, pkt.skill_id, pkt.ctrl_pressed, pkt.shift_pressed);
+    use_magic(
+        world,
+        client_id,
+        object_id,
+        pkt.skill_id,
+        pkt.ctrl_pressed,
+        pkt.shift_pressed,
+    );
 }
 
 /// Port of `Player.useMagic`'s guards + `SkillCaster.castSkill`/
@@ -618,7 +709,9 @@ pub(crate) fn use_magic_on(
         // `MagicSkillUse` with a 0 cast time — the client plays the toggle's
         // animation without drawing a cast bar.
         if let (Some(caster), Some(pos)) = (
-            world.objects.get_component::<crate::model::Player>(&object_id),
+            world
+                .objects
+                .get_component::<crate::model::Player>(&object_id),
             world.objects.get_component::<Position>(&object_id).copied(),
         ) {
             let pkt = server_packets::magic_skill_use(
@@ -639,7 +732,10 @@ pub(crate) fn use_magic_on(
             cs.send(server_packets::action_failed());
         }
         return;
-    } else if !matches!(skill.operate_type, OperateType::Active | OperateType::Channeling) {
+    } else if !matches!(
+        skill.operate_type,
+        OperateType::Active | OperateType::Channeling
+    ) {
         return;
     }
     if skill.target_type == TargetType::Other {
@@ -665,7 +761,11 @@ pub(crate) fn use_magic_on(
     // a bare ActionFailed, like every unmet skill condition in Java.
     if let Some(cond) = &skill.op_exist_npc {
         let found = op_exist_npc_around(world, object_id, cond);
-        let can_use = if found { cond.is_around } else { !cond.is_around };
+        let can_use = if found {
+            cond.is_around
+        } else {
+            !cond.is_around
+        };
         if !can_use {
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());
@@ -699,7 +799,11 @@ pub(crate) fn use_magic_on(
     // ported: already transformed (this port also represents a horse/bike
     // mount as a transform, so `transform_id != 0` covers Java's separate
     // `isMounted()` leg too), in water, and cursed-weapon-equipped.
-    if skill.effects.iter().any(|e| matches!(e, SkillEffect::Transform { .. })) {
+    if skill
+        .effects
+        .iter()
+        .any(|e| matches!(e, SkillEffect::Transform { .. }))
+    {
         use server_packets::sm_ids;
         let (transform_id, cursed_weapon) = world
             .objects
@@ -713,11 +817,21 @@ pub(crate) fn use_magic_on(
         // cursed-weapon one (`ConditionPlayerCanTransform`'s final `else`
         // branches fall through with no packet) — cast just silently fails.
         if transform_id != 0 {
-            send_sm_and_action_failed(world, client_id, sm_ids::YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN, &[]);
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN,
+                &[],
+            );
             return;
         }
         if in_water {
-            send_sm_and_action_failed(world, client_id, sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER, &[]);
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER,
+                &[],
+            );
             return;
         }
         if cursed_weapon != 0 {
@@ -750,17 +864,27 @@ pub(crate) fn use_magic_on(
     });
     // Fetched here rather than at the top of the function: the toggle branch
     // above needs `&mut world`, so this borrow must start after it.
-    let Some(player) = world.objects.get_component::<crate::model::Player>(&object_id) else {
+    let Some(player) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    else {
         return;
     };
-    let target_oid =
-        match resolve_cast_target(world, player, &caster_pos, caster_target, &skill, ctrl, shift) {
-            Ok(oid) => oid,
-            Err(sm_id) => {
-                send_sm_and_action_failed(world, client_id, sm_id, &[]);
-                return;
-            }
-        };
+    let target_oid = match resolve_cast_target(
+        world,
+        player,
+        &caster_pos,
+        caster_target,
+        &skill,
+        ctrl,
+        shift,
+    ) {
+        Ok(oid) => oid,
+        Err(sm_id) => {
+            send_sm_and_action_failed(world, client_id, sm_id, &[]);
+            return;
+        }
+    };
 
     // Busy — mid-cast or mid-swing (`useMagic`'s `isAttackingNow() ||
     // isCastingNow()` branch): park the click in the queue slot instead of
@@ -1193,10 +1317,22 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         let Some(player) = world.objects.get_component::<Player>(&player_object_id) else {
             return;
         };
-        let Some(pos) = world.objects.get_component::<Position>(&player_object_id).copied() else {
+        let Some(pos) = world
+            .objects
+            .get_component::<Position>(&player_object_id)
+            .copied()
+        else {
             return;
         };
-        match resolve_cast_target(world, player, &pos, Some(cast.target_object_id), &skill, false, false) {
+        match resolve_cast_target(
+            world,
+            player,
+            &pos,
+            Some(cast.target_object_id),
+            &skill,
+            false,
+            false,
+        ) {
             Ok(oid) => oid,
             Err(_) => return, // quiet: skip this tick, keep channeling
         }
@@ -1205,7 +1341,11 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
     if affected.is_empty() || skill.channeling_effects.is_empty() {
         return;
     }
-    let Some(caster_pos) = world.objects.get_component::<Position>(&player_object_id).copied() else {
+    let Some(caster_pos) = world
+        .objects
+        .get_component::<Position>(&player_object_id)
+        .copied()
+    else {
         return;
     };
     let scoped = Skill {
@@ -1235,10 +1375,14 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
                 continue;
             }
         }
-        if !world
-            .geo
-            .can_see_target(caster_pos.x, caster_pos.y, caster_pos.z, pos.x, pos.y, pos.z)
-        {
+        if !world.geo.can_see_target(
+            caster_pos.x,
+            caster_pos.y,
+            caster_pos.z,
+            pos.x,
+            pos.y,
+            pos.z,
+        ) {
             continue;
         }
         // Just `applyChannelingEffects` — Java's simple path runs **no**
@@ -1449,7 +1593,10 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         //   otherwise              ⇒ neither
         if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill) {
             if !extra.is_empty() {
-                let scoped = Skill { effects: extra, ..skill.clone() };
+                let scoped = Skill {
+                    effects: extra,
+                    ..skill.clone()
+                };
                 apply_skill_effects(world, player_object_id, target_oid, &scoped);
             }
         }
@@ -1463,7 +1610,10 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // target (Blinding Blow 321, Critical Blow 409, Vengeance 368, …). The
     // parser used to read only `<effects>`, so none of these landed.
     if !skill.self_effects.is_empty() {
-        let self_skill = Skill { effects: skill.self_effects.clone(), ..skill.clone() };
+        let self_skill = Skill {
+            effects: skill.self_effects.clone(),
+            ..skill.clone()
+        };
         apply_skill_effects(world, player_object_id, player_object_id, &self_skill);
     }
 
@@ -1515,7 +1665,11 @@ fn calc_buff_debuff_reflection(world: &mut World, target_oid: i32, skill: &Skill
     if !skill.is_debuff || skill.activate_rate == -1 {
         return false;
     }
-    let stat = if skill.magic_type == 1 { Stat::ReflectSkillMagic } else { Stat::ReflectSkillPhysic };
+    let stat = if skill.magic_type == 1 {
+        Stat::ReflectSkillMagic
+    } else {
+        Stat::ReflectSkillPhysic
+    };
     let chance = world
         .objects
         .get_component::<crate::model::components::StatModifiers>(&target_oid)
@@ -1536,7 +1690,12 @@ fn calc_buff_debuff_reflection(world: &mut World, target_oid: i32, skill: &Skill
 ///
 /// Returns `None` when neither applies (an NPC caster, or a player hitting
 /// something that is neither attackable nor playable).
-fn matchup_effects(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> Option<Vec<SkillEffect>> {
+fn matchup_effects(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> Option<Vec<SkillEffect>> {
     // `isPlayable()` — a player (summons are TODO(G29)).
     if !world.objects.has_component::<Player>(&caster_oid) {
         return None;
@@ -1552,7 +1711,12 @@ fn matchup_effects(world: &World, caster_oid: i32, target_oid: i32, skill: &Skil
     attackable.then(|| skill.pve_effects.clone())
 }
 
-fn apply_cast_consequences(world: &mut World, player_object_id: i32, target_oid: i32, skill: &Skill) {
+fn apply_cast_consequences(
+    world: &mut World,
+    player_object_id: i32,
+    target_oid: i32,
+    skill: &Skill,
+) {
     let target_is_player = world.objects.has_component::<Player>(&target_oid);
     // Monster proxy: an NPC whose template is auto-attackable (same test the
     // targeting code uses for "is this a monster").
@@ -1585,8 +1749,9 @@ fn apply_cast_consequences(world: &mut World, player_object_id: i32, target_oid:
             crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, player_object_id);
             let hate = (-skill.effect_point) as f64;
             if hate != 0.0 {
-                if let Some(aggro) =
-                    world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+                if let Some(aggro) = world
+                    .objects
+                    .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
                 {
                     aggro.0.entry(player_object_id).or_default().hate += hate;
                 }

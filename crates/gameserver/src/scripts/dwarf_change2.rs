@@ -97,7 +97,10 @@ impl DwarfChange2 {
         // Java's `hasQuestItems(player, a, b, c)` requires *all three*.
         let has_proofs = proofs.iter().all(|id| ctx.quest_items_count(*id) > 0);
         if ctx.player_level() < 40 {
-            return Some(format!("{page}-{}.htm", if has_proofs { "09" } else { "10" }));
+            return Some(format!(
+                "{page}-{}.htm",
+                if has_proofs { "09" } else { "10" }
+            ));
         }
         if !has_proofs {
             return Some(format!("{page}-12.htm"));

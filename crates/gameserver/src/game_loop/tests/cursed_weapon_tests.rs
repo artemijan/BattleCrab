@@ -25,15 +25,21 @@ fn load_cursed_weapons(world: &mut World) {
         .iter()
         .cloned()
         .map(|mut cw| {
-            cw.skill_max_level =
-                (1..=100).take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some()).last().unwrap_or(1);
+            cw.skill_max_level = (1..=100)
+                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+                .last()
+                .unwrap_or(1);
             cw
         })
         .collect();
 }
 
 fn cw_idx(world: &World, item_id: i32) -> usize {
-    world.cursed_weapons.iter().position(|c| c.item_id == item_id).unwrap()
+    world
+        .cursed_weapons
+        .iter()
+        .position(|c| c.item_id == item_id)
+        .unwrap()
 }
 
 fn ground_item_count(world: &World) -> usize {
@@ -65,9 +71,21 @@ fn monster_kill_drops_cursed_weapon() {
     assert_eq!(ground_item_count(&world), 1, "the weapon is on the ground");
 
     let pkts = drain(&mut killer_rx);
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION), "drop announced");
-    assert!(pkts.iter().any(|p| p[0] == 0xFE && p.len() >= 3 && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_RED_SKY), "red sky");
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::EARTHQUAKE), "earthquake");
+    assert!(
+        sm_ids_of(&pkts).contains(&server_packets::sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION),
+        "drop announced"
+    );
+    assert!(
+        pkts.iter().any(|p| p[0] == 0xFE
+            && p.len() >= 3
+            && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_RED_SKY),
+        "red sky"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::EARTHQUAKE),
+        "earthquake"
+    );
     let _ = &mut db_rx;
 }
 
@@ -86,7 +104,10 @@ fn missed_roll_drops_nothing() {
     crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
     assert_eq!(ground_item_count(&world), 0, "nothing dropped");
-    assert!(world.cursed_weapons.iter().all(|c| !c.is_active()), "both weapons still out of world");
+    assert!(
+        world.cursed_weapons.iter().all(|c| !c.is_active()),
+        "both weapons still out of world"
+    );
 }
 
 /// A monster killed by a player who ALREADY wields a cursed weapon can't drop
@@ -97,13 +118,21 @@ fn cursed_killer_gets_no_drop() {
     let (mut world, _db, _db_rx, _l) = test_world();
     load_cursed_weapons(&mut world);
     let _rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
-    world.objects.get_component_mut::<Player>(&KILLER_OID).unwrap().cursed_weapon_equipped_id = 8689;
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER_OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = 8689;
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0); // would hit if the killer were eligible
     crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
 
-    assert_eq!(ground_item_count(&world), 0, "a cursed wielder triggers no new drop");
+    assert_eq!(
+        ground_item_count(&world),
+        0,
+        "a cursed wielder triggers no new drop"
+    );
     // The forced roll was never consumed (we bailed before rolling).
     assert_eq!(world.forced_rolls.front(), Some(&0), "roll not reached");
 }
@@ -148,9 +177,15 @@ fn pickup_curses_the_finder() {
 
     let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
     assert_eq!(p.cursed_weapon_equipped_id, ZARICHE, "picker is now cursed");
-    assert_eq!(p.reputation, -9_999_999, "karma slammed to the cursed value");
+    assert_eq!(
+        p.reputation, -9_999_999,
+        "karma slammed to the cursed value"
+    );
     let cw = &world.cursed_weapons[idx];
-    assert!(cw.is_activated && cw.player_id == PICKER_OID, "activated on the picker");
+    assert!(
+        cw.is_activated && cw.player_id == PICKER_OID,
+        "activated on the picker"
+    );
     assert!(!cw.is_dropped, "no longer on the ground");
     assert_eq!(ground_item_count(&world), 0, "ground item consumed");
 
@@ -162,7 +197,14 @@ fn pickup_curses_the_finder() {
     // Persisted to the DB (activate's saveData).
     let mut saw_store = false;
     while let Ok(c) = db_rx.try_recv() {
-        if matches!(c, db::DbCommand::StoreCursedWeapon { item_id: ZARICHE, char_id: PICKER_OID, .. }) {
+        if matches!(
+            c,
+            db::DbCommand::StoreCursedWeapon {
+                item_id: ZARICHE,
+                char_id: PICKER_OID,
+                ..
+            }
+        ) {
             saw_store = true;
         }
     }
@@ -177,7 +219,11 @@ fn already_cursed_picker_consumes_the_weapon() {
     load_cursed_weapons(&mut world);
     let _krx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
     let _prx = ingame_player_access(&mut world, 2, PICKER_OID, 0);
-    world.objects.get_component_mut::<Player>(&PICKER_OID).unwrap().cursed_weapon_equipped_id = 8689;
+    world
+        .objects
+        .get_component_mut::<Player>(&PICKER_OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = 8689;
     add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
 
     world.forced_rolls.push_back(0);
@@ -188,10 +234,17 @@ fn already_cursed_picker_consumes_the_weapon() {
     crate::game_loop::ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
 
     // Zariche vanished; the picker still wields only their original weapon.
-    assert!(!world.cursed_weapons[idx].is_active(), "the picked weapon is consumed");
+    assert!(
+        !world.cursed_weapons[idx].is_active(),
+        "the picked weapon is consumed"
+    );
     assert_eq!(ground_item_count(&world), 0, "gone from the ground");
     assert_eq!(
-        world.objects.get_component::<Player>(&PICKER_OID).unwrap().cursed_weapon_equipped_id,
+        world
+            .objects
+            .get_component::<Player>(&PICKER_OID)
+            .unwrap()
+            .cursed_weapon_equipped_id,
         8689,
         "still holds the original weapon, not Zariche"
     );
@@ -216,10 +269,16 @@ fn expiry_removes_ungrabbed_drop() {
     world.cursed_weapons[idx].end_time = 1; // deadline in the distant past
     crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
 
-    assert!(!world.cursed_weapons[idx].is_active(), "weapon reset to not-in-world");
+    assert!(
+        !world.cursed_weapons[idx].is_active(),
+        "weapon reset to not-in-world"
+    );
     assert_eq!(ground_item_count(&world), 0, "ground item removed");
     let disappeared = drain(&mut rx);
-    assert!(sm_ids_of(&disappeared).contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED), "disappearance announced");
+    assert!(
+        sm_ids_of(&disappeared).contains(&server_packets::sm_ids::S1_HAS_DISAPPEARED),
+        "disappearance announced"
+    );
     let mut saw_remove = false;
     while let Ok(c) = db_rx.try_recv() {
         if matches!(c, db::DbCommand::RemoveCursedWeapon { item_id: ZARICHE }) {
@@ -244,12 +303,18 @@ fn premature_expiry_is_ignored() {
 
     crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
 
-    assert!(world.cursed_weapons[idx].is_dropped, "still dropped — the timer wasn't due");
+    assert!(
+        world.cursed_weapons[idx].is_dropped,
+        "still dropped — the timer wasn't due"
+    );
     assert_eq!(ground_item_count(&world), 1, "ground item still present");
 }
 
 fn now_millis_test() -> i64 {
-    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
 
 /// The scheduled `CursedWeaponExpiry` task actually reaches `handle_expiry`
@@ -272,8 +337,15 @@ fn scheduled_expiry_fires_through_loop() {
 
     advance_ticks(&mut world, 1);
 
-    assert!(!world.cursed_weapons[idx].is_active(), "the scheduled task expired the weapon");
-    assert_eq!(ground_item_count(&world), 0, "ground item removed by the loop");
+    assert!(
+        !world.cursed_weapons[idx].is_active(),
+        "the scheduled task expired the weapon"
+    );
+    assert_eq!(
+        ground_item_count(&world),
+        0,
+        "ground item removed by the loop"
+    );
 }
 
 /// The death path actually calls the cursed-weapon check: a guaranteed-rate
@@ -293,6 +365,9 @@ fn death_path_triggers_drop() {
 
     crate::game_loop::death::npc_do_die(&mut world, MONSTER_OID, KILLER_OID);
 
-    assert!(world.cursed_weapons[idx].is_dropped, "npc_do_die dropped the cursed weapon");
+    assert!(
+        world.cursed_weapons[idx].is_dropped,
+        "npc_do_die dropped the cursed weapon"
+    );
     assert_eq!(ground_item_count(&world), 1, "on the ground");
 }

@@ -45,7 +45,10 @@ impl OrcChange1 {
         }
         let has_proof = ctx.quest_items_count(proof) > 0;
         if ctx.player_level() < 20 {
-            return Some(format!("{npc}-{}.htm", if has_proof { low } else { low_no_proof }));
+            return Some(format!(
+                "{npc}-{}.htm",
+                if has_proof { low } else { low_no_proof }
+            ));
         }
         if !has_proof {
             return Some(format!("{npc}-{no_proof}.htm"));
@@ -78,7 +81,9 @@ impl QuestScript for OrcChange1 {
         // The dialog pages echo back; the numeric events are transfers.
         match event {
             "45" | "47" | "50" => Self::class_change(ctx, event.parse().unwrap()),
-            _ if event.ends_with(".htm") && NPCS.iter().any(|id| event.starts_with(&id.to_string())) => {
+            _ if event.ends_with(".htm")
+                && NPCS.iter().any(|id| event.starts_with(&id.to_string())) =>
+            {
                 Some(event.to_string())
             }
             _ => None,

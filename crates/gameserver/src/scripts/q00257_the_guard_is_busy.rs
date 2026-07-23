@@ -17,7 +17,9 @@ const ORC_AMULET: i32 = 752;
 const ORC_NECKLACE: i32 = 1085;
 const WEREWOLF_FANG: i32 = 1086;
 
-const KILL_NPCS: [i32; 9] = [20006, 20093, 20096, 20098, 20130, 20131, 20132, 20342, 20343];
+const KILL_NPCS: [i32; 9] = [
+    20006, 20093, 20096, 20098, 20130, 20131, 20132, 20342, 20343,
+];
 
 /// `(random, chance, item, count)` — `getRandom(random) < chance` gives
 /// `count` of `item`; the first hit in the list wins. Transcribed from Java's
@@ -102,14 +104,25 @@ impl QuestScript for Q00257TheGuardIsBusy {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30039-02.htm" } else { "30039-01.html" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30039-02.htm"
+                } else {
+                    "30039-01.html"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             let amulets = ctx.quest_items_count(ORC_AMULET);
             let necklace = ctx.quest_items_count(ORC_NECKLACE);
             let fang = ctx.quest_items_count(WEREWOLF_FANG);
             if amulets + necklace + fang > 0 {
-                let bonus = if amulets + necklace + fang >= 10 { 1000 } else { 0 };
+                let bonus = if amulets + necklace + fang >= 10 {
+                    1000
+                } else {
+                    0
+                };
                 ctx.give_adena(amulets * 5 + necklace * 8 + fang * 10 + bonus, true);
                 ctx.take_items(ORC_AMULET, -1);
                 ctx.take_items(ORC_NECKLACE, -1);

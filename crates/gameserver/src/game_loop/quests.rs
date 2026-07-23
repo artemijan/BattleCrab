@@ -174,13 +174,24 @@ impl QuestRegistry {
                 first_talk.insert(id, idx);
             }
         }
-        Self { scripts, by_name, start, talk, kill, attack, spawn, first_talk }
+        Self {
+            scripts,
+            by_name,
+            start,
+            talk,
+            kill,
+            attack,
+            spawn,
+            first_talk,
+        }
     }
 
     /// The script owning `npc_id`'s chat window, if any (Java
     /// `npc.hasListener(ON_NPC_FIRST_TALK)` + the listener itself).
     pub fn first_talk_quest(&self, npc_id: i32) -> Option<Arc<dyn QuestScript>> {
-        self.first_talk.get(&npc_id).map(|&i| self.scripts[i].clone())
+        self.first_talk
+            .get(&npc_id)
+            .map(|&i| self.scripts[i].clone())
     }
 
     pub fn by_name(&self, name: &str) -> Option<Arc<dyn QuestScript>> {
@@ -197,28 +208,42 @@ impl QuestRegistry {
 
     /// Scripts listing `npc_id` as a talk NPC (the quest-window set).
     pub fn talk_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
-        self.talk.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+        self.talk
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     /// Scripts listing `npc_id` as a kill NPC.
     pub fn kill_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
-        self.kill.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+        self.kill
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     /// Scripts listing `npc_id` as an attack NPC.
     pub fn attack_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
-        self.attack.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+        self.attack
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     /// Scripts listing `npc_id` as a spawn NPC.
     pub fn spawn_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
-        self.spawn.get(&npc_id).map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect()).unwrap_or_default()
+        self.spawn
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
     }
 
     /// Whether `npc_id` is a start NPC of the named script (the
     /// `ON_NPC_QUEST_START` owner check in `notifyTalk`).
     pub fn is_start_npc(&self, name: &str, npc_id: i32) -> bool {
-        self.start.get(&npc_id).is_some_and(|v| v.iter().any(|&i| self.scripts[i].name() == name))
+        self.start
+            .get(&npc_id)
+            .is_some_and(|v| v.iter().any(|&i| self.scripts[i].name() == name))
     }
 
     pub fn len(&self) -> usize {
@@ -246,13 +271,26 @@ pub struct QuestCtx<'w> {
 }
 
 impl<'w> QuestCtx<'w> {
-    fn new(world: &'w mut World, client_id: u32, player: i32, npc: i32, script: Arc<dyn QuestScript>) -> Self {
+    fn new(
+        world: &'w mut World,
+        client_id: u32,
+        player: i32,
+        npc: i32,
+        script: Arc<dyn QuestScript>,
+    ) -> Self {
         let npc_id = world
             .objects
             .get_component::<crate::model::npc::Npc>(&npc)
             .map(|n| n.npc_id)
             .unwrap_or(0);
-        Self { world, client_id, player, npc, npc_id, script }
+        Self {
+            world,
+            client_id,
+            player,
+            npc,
+            npc_id,
+            script,
+        }
     }
 
     pub fn quest_id(&self) -> i32 {
@@ -266,7 +304,11 @@ impl<'w> QuestCtx<'w> {
     // --- QuestState reads -------------------------------------------------
 
     fn qs(&self) -> Option<&QuestState> {
-        self.world.objects.get_component::<Quests>(&self.player)?.0.get(self.script.name())
+        self.world
+            .objects
+            .get_component::<Quests>(&self.player)?
+            .0
+            .get(self.script.name())
     }
 
     /// `State.CREATED` when the player has no `QuestState` yet — Java
@@ -349,7 +391,9 @@ impl<'w> QuestCtx<'w> {
         if new_cond == old_cond {
             return;
         }
-        let stored = self.qs().and_then(|qs| qs.vars.get(FLAGS_VAR).and_then(|v| v.parse::<i32>().ok()));
+        let stored = self
+            .qs()
+            .and_then(|qs| qs.vars.get(FLAGS_VAR).and_then(|v| v.parse::<i32>().ok()));
         let updated = quest::updated_cond_flags(new_cond, old_cond, stored);
         if updated != stored {
             match updated {
@@ -486,7 +530,14 @@ impl<'w> QuestCtx<'w> {
     /// chance, playSound)`: chance and amount ×`RateQuestDrop`, capped at
     /// `limit`; returns true when the limit is (already) reached — the
     /// "collection finished" signal quests key `setCond` off.
-    pub fn give_item_randomly(&mut self, item_id: i32, amount: i64, limit: i64, chance: f64, play_sound: bool) -> bool {
+    pub fn give_item_randomly(
+        &mut self,
+        item_id: i32,
+        amount: i64,
+        limit: i64,
+        chance: f64,
+        play_sound: bool,
+    ) -> bool {
         let current = self.quest_items_count(item_id);
         if limit > 0 && current >= limit {
             return true;
@@ -499,7 +550,13 @@ impl<'w> QuestCtx<'w> {
             if limit > 0 && current + amount_to_give > limit {
                 amount_to_give = limit - current;
             }
-            give_item_with_earned_message(self.world, self.client_id, self.player, item_id, amount_to_give);
+            give_item_with_earned_message(
+                self.world,
+                self.client_id,
+                self.player,
+                item_id,
+                amount_to_give,
+            );
             if current + amount_to_give == limit {
                 if play_sound {
                     self.play_sound(quest_sounds::MIDDLE);
@@ -552,13 +609,21 @@ impl<'w> QuestCtx<'w> {
     }
 
     pub fn player_level(&self) -> i32 {
-        self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.level).unwrap_or(0)
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .map(|p| p.level)
+            .unwrap_or(0)
     }
 
     /// The `Race` ordinal (`characters.race` — 0 Human, 1 Elf, 2 Dark Elf,
     /// 3 Orc, 4 Dwarf).
     pub fn player_race(&self) -> i32 {
-        self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.race).unwrap_or(0)
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .map(|p| p.race)
+            .unwrap_or(0)
     }
 
     /// `Npc.getRace()` — the talked-to NPC's `<race>` as the same ordinal
@@ -588,11 +653,13 @@ impl<'w> QuestCtx<'w> {
     /// where Java would still answer.
     pub fn any_spawn_location(&mut self, npc_id: i32) -> Option<(i32, i32, i32)> {
         let mut loc = None;
-        self.world.objects.for_each_mut::<&crate::model::npc::Npc>(|npc| {
-            if loc.is_none() && npc.npc_id == npc_id {
-                loc = Some(npc.spawn_loc);
-            }
-        });
+        self.world
+            .objects
+            .for_each_mut::<&crate::model::npc::Npc>(|npc| {
+                if loc.is_none() && npc.npc_id == npc_id {
+                    loc = Some(npc.spawn_loc);
+                }
+            });
         loc
     }
 
@@ -614,7 +681,11 @@ impl<'w> QuestCtx<'w> {
     }
 
     pub fn player_class_id(&self) -> i32 {
-        self.world.objects.get_component::<crate::model::Player>(&self.player).map(|p| p.class_id).unwrap_or(-1)
+        self.world
+            .objects
+            .get_component::<crate::model::Player>(&self.player)
+            .map(|p| p.class_id)
+            .unwrap_or(-1)
     }
 
     /// Java `Player.isSubClassActive()` — true while a subclass slot is the
@@ -629,7 +700,10 @@ impl<'w> QuestCtx<'w> {
 
     /// `Player.isInCategory(CategoryType.X)` against `CategoryData.xml`.
     pub fn is_in_category(&self, category: &str) -> bool {
-        self.world.data.categories.contains(category, self.player_class_id())
+        self.world
+            .data
+            .categories
+            .contains(category, self.player_class_id())
     }
 
     /// The village-master class transfer — routed through the G17 mechanic
@@ -666,8 +740,10 @@ impl<'w> QuestCtx<'w> {
     /// `player.getVariables().set(key, value)` (memory-first — flushed with
     /// the character like every other persisted field).
     pub fn set_player_var_int(&mut self, key: &str, value: i32) {
-        if let Some(v) =
-            self.world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
+        if let Some(v) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
         {
             v.set_int(key, value);
         }
@@ -675,8 +751,10 @@ impl<'w> QuestCtx<'w> {
 
     /// `player.getVariables().remove(key)`.
     pub fn unset_player_var(&mut self, key: &str) {
-        if let Some(v) =
-            self.world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
+        if let Some(v) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&self.player)
         {
             v.0.remove(key);
         }
@@ -694,7 +772,11 @@ impl<'w> QuestCtx<'w> {
     }
 
     pub fn set_npc_script_value(&mut self, value: i32) {
-        if let Some(n) = self.world.objects.get_component_mut::<crate::model::npc::Npc>(&self.npc) {
+        if let Some(n) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::npc::Npc>(&self.npc)
+        {
             n.script_value = value;
         }
     }
@@ -802,7 +884,11 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.getVariables().set(key, value)`.
     pub fn set_npc_var_int(&mut self, key: &str, value: i32) {
-        if let Some(n) = self.world.objects.get_component_mut::<crate::model::npc::Npc>(&self.npc) {
+        if let Some(n) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::npc::Npc>(&self.npc)
+        {
             n.vars.insert(key.to_string(), value);
         }
     }
@@ -842,7 +928,11 @@ impl<'w> QuestCtx<'w> {
     /// Quest 403's Cat's Eye Bandit taunts its attacker this way while its
     /// death line broadcasts, so the two are not interchangeable.
     pub fn npc_say_to_player(&mut self, npc_string_id: i32) {
-        let Some(npc) = self.world.objects.get_component::<crate::model::npc::Npc>(&self.npc) else {
+        let Some(npc) = self
+            .world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&self.npc)
+        else {
             return;
         };
         let pkt = server_packets::npc_say(self.npc, npc.npc_id, npc_string_id);
@@ -851,8 +941,13 @@ impl<'w> QuestCtx<'w> {
 
     /// `Quest.getAlreadyCompletedMsg` (`data/html/alreadycompleted.htm`).
     pub fn already_completed_html(&self) -> String {
-        crate::data::htm_cache::read_htm(format!("{}data/html/alreadycompleted.htm", self.world.data.root))
-            .unwrap_or_else(|| "<html><body>This quest has already been completed.</body></html>".to_string())
+        crate::data::htm_cache::read_htm(format!(
+            "{}data/html/alreadycompleted.htm",
+            self.world.data.root
+        ))
+        .unwrap_or_else(|| {
+            "<html><body>This quest has already been completed.</body></html>".to_string()
+        })
     }
 
     /// `Quest.startQuestTimer(name, time, npc, player)` — non-repeating
@@ -881,7 +976,13 @@ impl<'w> QuestCtx<'w> {
         let fire_at = self.world.tick + delay_ms.div_ceil(100);
         self.world.scheduler.schedule(
             fire_at,
-            ScheduledTask::QuestTimer { quest, name: name.to_string(), player: self.player, npc: self.npc, seq },
+            ScheduledTask::QuestTimer {
+                quest,
+                name: name.to_string(),
+                player: self.player,
+                npc: self.npc,
+                seq,
+            },
         );
     }
 
@@ -889,7 +990,11 @@ impl<'w> QuestCtx<'w> {
     /// no-ops.
     pub fn cancel_quest_timer(&mut self, name: &str) {
         let seq = self.world.next_request_seq();
-        if let Some(t) = self.world.objects.get_component_mut::<QuestTimerSeqs>(&self.player) {
+        if let Some(t) = self
+            .world
+            .objects
+            .get_component_mut::<QuestTimerSeqs>(&self.player)
+        {
             t.0.insert((self.script.name(), name.to_string()), seq);
         }
     }
@@ -903,7 +1008,9 @@ impl<'w> QuestCtx<'w> {
     /// Push a fresh `QuestList` (Java sends it after every state/cond
     /// change).
     pub fn send_quest_list(&self) {
-        let Some(quests) = self.world.objects.get_component::<Quests>(&self.player) else { return };
+        let Some(quests) = self.world.objects.get_component::<Quests>(&self.player) else {
+            return;
+        };
         let pkt = ew::quest_list(quests, &self.world.quests);
         self.send(pkt);
     }
@@ -916,22 +1023,40 @@ impl<'w> QuestCtx<'w> {
 /// `Player.addItem("Quest", …)` + `sendItemGetMessage`: SM 52/53/54 ("You
 /// have earned …") + `InventoryUpdate`, and an `ExQuestItemList` refresh
 /// when the item lives in the quest tab.
-pub(crate) fn give_item_with_earned_message(world: &mut World, client_id: u32, player: i32, item_id: i32, count: i64) {
+pub(crate) fn give_item_with_earned_message(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+) {
     let Some(changed_oids) = super::items::add_inventory_item(world, player, item_id, count) else {
         warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
         return;
     };
-    let is_quest_item = world.data.item_data.get(item_id).is_some_and(|t| t.is_quest_item);
-    let Some(inventory) = world.objects.get_component::<Inventory>(&player) else { return };
+    let is_quest_item = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_quest_item);
+    let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
+        return;
+    };
     let sm = if item_id == ADENA_ID {
-        server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1_ADENA, &[SmParam::Long(count)])
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S1_ADENA,
+            &[SmParam::Long(count)],
+        )
     } else if count > 1 {
         server_packets::system_message_with(
             sm_ids::YOU_HAVE_EARNED_S2_S1_S,
             &[SmParam::ItemName(item_id), SmParam::Long(count)],
         )
     } else {
-        server_packets::system_message_with(sm_ids::YOU_HAVE_EARNED_S1, &[SmParam::ItemName(item_id)])
+        server_packets::system_message_with(
+            sm_ids::YOU_HAVE_EARNED_S1,
+            &[SmParam::ItemName(item_id)],
+        )
     };
     let iu = ew::inventory_update(inventory, &world.data, &changed_oids);
     let quest_list = is_quest_item.then(|| ew::ex_quest_item_list(inventory, &world.data));
@@ -951,9 +1076,17 @@ pub(crate) fn give_item_with_earned_message(world: &mut World, client_id: u32, p
 /// The game-loop half of `takeItems`: `Inventory::remove_item` + DB deletes/
 /// count updates + `InventoryUpdate` (with removed entries) + quest-tab
 /// refresh.
-pub(crate) fn take_items(world: &mut World, client_id: u32, player: i32, item_id: i32, count: i64) -> bool {
+pub(crate) fn take_items(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    item_id: i32,
+    count: i64,
+) -> bool {
     let changes = {
-        let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) else { return false };
+        let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) else {
+            return false;
+        };
         inv.remove_item(item_id, count)
     };
     if changes.is_empty() {
@@ -961,7 +1094,11 @@ pub(crate) fn take_items(world: &mut World, client_id: u32, player: i32, item_id
     }
     // Memory-first: the count decrements / removals already applied to the
     // `Inventory` component; they persist on the next flush.
-    let is_quest_item = world.data.item_data.get(item_id).is_some_and(|t| t.is_quest_item);
+    let is_quest_item = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_quest_item);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(ew::inventory_update_changes(&world.data, &changes));
         if is_quest_item {
@@ -980,8 +1117,17 @@ pub(crate) fn take_items(world: &mut World, client_id: u32, player: i32, item_id
 /// The `QuestLink` bypass handler: `Quest` (chooser), `Quest <Name>`
 /// (talk), `Quest <Name> <event>` (html-button event). `command` is the
 /// full bypass command starting with `Quest`.
-pub(crate) fn quest_link(world: &mut World, client_id: u32, player: i32, npc_oid: i32, command: &str) {
-    let rest = command.strip_prefix("Quest").map(|r| r.trim()).unwrap_or("");
+pub(crate) fn quest_link(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    command: &str,
+) {
+    let rest = command
+        .strip_prefix("Quest")
+        .map(|r| r.trim())
+        .unwrap_or("");
     if rest.is_empty() {
         show_quest_window_all(world, client_id, player, npc_oid);
     } else if let Some((name, event)) = rest.split_once(' ') {
@@ -997,7 +1143,11 @@ pub(crate) fn quest_link(world: &mut World, client_id: u32, player: i32, npc_oid
 /// no-quest message — the simulation machinery is unported; the chooser may
 /// list a quest that then shows `noquest.htm`, which is harmless.)
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
-    let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id).unwrap_or(0);
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .unwrap_or(0);
     let registry = world.quests.clone();
     // Opted-in utility scripts (`bare_talk`, e.g. TeleportWithCharm) run
     // their `on_talk` from the bare quest-window route; a returned html
@@ -1037,7 +1187,11 @@ fn show_quest_choose_window(
     npc_oid: i32,
     quests: &[Arc<dyn QuestScript>],
 ) {
-    let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id).unwrap_or(0);
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .unwrap_or(0);
     let registry = world.quests.clone();
     let mut started = String::new();
     let mut can_start = String::new();
@@ -1088,11 +1242,21 @@ fn show_quest_choose_window(
     }
 
     if start_count == 1 {
-        show_quest_window(world, client_id, player, npc_oid, start_quest.expect("count == 1"));
+        show_quest_window(
+            world,
+            client_id,
+            player,
+            npc_oid,
+            start_quest.expect("count == 1"),
+        );
         return;
     }
 
-    let content = if started.is_empty() && can_start.is_empty() && cant_start.is_empty() && completed.is_empty() {
+    let content = if started.is_empty()
+        && can_start.is_empty()
+        && cant_start.is_empty()
+        && completed.is_empty()
+    {
         no_quest_html(world)
     } else {
         format!("<html><body>{started}{can_start}{cant_start}{completed}</body></html>")
@@ -1108,7 +1272,13 @@ fn show_quest_choose_window(
 /// the start-condition gate (only when this NPC starts the quest), else
 /// `on_talk`. (The weight-penalty / 40-quest guards are unported — no
 /// weight model.)
-fn show_quest_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32, quest_name: &str) {
+fn show_quest_window(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    quest_name: &str,
+) {
     let registry = world.quests.clone();
     let Some(script) = registry.by_name(quest_name) else {
         send_no_quest_html(world, client_id, npc_oid);
@@ -1118,7 +1288,11 @@ fn show_quest_window(world: &mut World, client_id: u32, player: i32, npc_oid: i3
         return;
     };
     world.objects.add_components(&player, LastFolkNpc(npc_oid));
-    let npc_id = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id).unwrap_or(0);
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .unwrap_or(0);
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
         let gate = if registry.is_start_npc(quest_name, npc_id) && ctx.is_created() {
@@ -1135,7 +1309,14 @@ fn show_quest_window(world: &mut World, client_id: u32, player: i32, npc_oid: i3
 }
 
 /// `Player.processQuestEvent` → `Quest.notifyEvent` → `onEvent`.
-fn process_quest_event(world: &mut World, client_id: u32, player: i32, npc_oid: i32, name: &str, event: &str) {
+fn process_quest_event(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    name: &str,
+    event: &str,
+) {
     let registry = world.quests.clone();
     let Some(script) = registry.by_name(name) else {
         warn!("Quest event for unknown quest [{name}].");
@@ -1151,9 +1332,17 @@ fn process_quest_event(world: &mut World, client_id: u32, player: i32, npc_oid: 
 /// `NpcAction`'s first-talk branch: if a script owns this NPC's chat
 /// window, run its `onFirstTalk` and report `true` so the caller skips
 /// `Npc.showChatWindow` entirely.
-pub(crate) fn notify_first_talk(world: &mut World, client_id: u32, player: i32, npc_oid: i32, npc_id: i32) -> bool {
+pub(crate) fn notify_first_talk(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    npc_id: i32,
+) -> bool {
     let registry = world.quests.clone();
-    let Some(script) = registry.first_talk_quest(npc_id) else { return false };
+    let Some(script) = registry.first_talk_quest(npc_id) else {
+        return false;
+    };
     let res = {
         let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
         script.on_first_talk(&mut ctx)
@@ -1171,7 +1360,9 @@ pub(crate) fn notify_kill(world: &mut World, killer_oid: i32, npc_oid: i32, npc_
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, killer_oid) else { return };
+    let Some(client_id) = client_for_player(world, killer_oid) else {
+        return;
+    };
     for script in scripts {
         let mut ctx = QuestCtx::new(world, client_id, killer_oid, npc_oid, script.clone());
         script.on_kill(&mut ctx);
@@ -1186,7 +1377,9 @@ pub(crate) fn notify_attack(world: &mut World, attacker_oid: i32, npc_oid: i32, 
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, attacker_oid) else { return };
+    let Some(client_id) = client_for_player(world, attacker_oid) else {
+        return;
+    };
     for script in scripts {
         let mut ctx = QuestCtx::new(world, client_id, attacker_oid, npc_oid, script.clone());
         script.on_attack(&mut ctx);
@@ -1206,7 +1399,14 @@ pub(crate) fn notify_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
 
 /// `ScheduledTask::QuestTimer` firing: seq-check against `QuestTimerSeqs`,
 /// then `on_timer`.
-pub(crate) fn handle_quest_timer(world: &mut World, quest: &'static str, name: &str, player: i32, npc: i32, seq: u64) {
+pub(crate) fn handle_quest_timer(
+    world: &mut World,
+    quest: &'static str,
+    name: &str,
+    player: i32,
+    npc: i32,
+    seq: u64,
+) {
     let live = world
         .objects
         .get_component::<QuestTimerSeqs>(&player)
@@ -1217,9 +1417,13 @@ pub(crate) fn handle_quest_timer(world: &mut World, quest: &'static str, name: &
     if let Some(t) = world.objects.get_component_mut::<QuestTimerSeqs>(&player) {
         t.0.remove(&(quest, name.to_string()));
     }
-    let Some(client_id) = client_for_player(world, player) else { return };
+    let Some(client_id) = client_for_player(world, player) else {
+        return;
+    };
     let registry = world.quests.clone();
-    let Some(script) = registry.by_name(quest) else { return };
+    let Some(script) = registry.by_name(quest) else {
+        return;
+    };
     let mut ctx = QuestCtx::new(world, client_id, player, npc, script.clone());
     script.on_timer(&mut ctx, name);
 }
@@ -1227,11 +1431,17 @@ pub(crate) fn handle_quest_timer(world: &mut World, quest: &'static str, name: &
 /// `RequestQuestAbort` (0x63): the quest UI's Abandon button —
 /// `qs.exitQuest(true)` + `QuestList`, no sound.
 pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = crate::network::client_packets::RequestQuestAbort::read(body) else { return };
-    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = crate::network::client_packets::RequestQuestAbort::read(body) else {
+        return;
+    };
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
     let registry = world.quests.clone();
-    let Some(script) = registry.by_id(pkt.quest_id) else { return };
+    let Some(script) = registry.by_id(pkt.quest_id) else {
+        return;
+    };
     let mut ctx = QuestCtx::new(world, client_id, player, 0, script);
     if ctx.is_started() {
         ctx.exit_quest(true, false);
@@ -1245,7 +1455,13 @@ pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body
 /// `Quest.showResult`: `.htm`/`.html` → html file; inline `<html>` → plain
 /// window; other non-empty strings are Java `sendMessage` (unported — none
 /// of the shipped scripts return one; logged).
-fn show_result(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<dyn QuestScript>, res: Option<String>) {
+fn show_result(
+    world: &mut World,
+    client_id: u32,
+    npc_oid: i32,
+    script: &Arc<dyn QuestScript>,
+    res: Option<String>,
+) {
     let Some(res) = res else { return };
     if res.is_empty() {
         return;
@@ -1262,7 +1478,10 @@ fn show_result(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<dyn
             cs.send(server_packets::action_failed());
         }
     } else {
-        warn!("Quest {}: plain-message result [{res}] (sendMessage unported).", script.name());
+        warn!(
+            "Quest {}: plain-message result [{res}] (sendMessage unported).",
+            script.name()
+        );
     }
 }
 
@@ -1270,7 +1489,13 @@ fn show_result(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<dyn
 /// `.htm` results of real quests (`0 < id < 20000`, id ≠ 999), plain
 /// `NpcHtmlMessage` otherwise. Missing files send nothing, like Java's
 /// null-content branch.
-fn show_html_file(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<dyn QuestScript>, filename: &str) {
+fn show_html_file(
+    world: &mut World,
+    client_id: u32,
+    npc_oid: i32,
+    script: &Arc<dyn QuestScript>,
+    filename: &str,
+) {
     let quest_window = !filename.ends_with(".html");
     let Some(content) = load_quest_html(world, script, filename) else {
         warn!("Quest {}: missing html [{filename}].", script.name());
@@ -1283,7 +1508,9 @@ fn show_html_file(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<
     let id = script.id();
     if let Some(cs) = world.clients.get(&client_id) {
         if quest_window && id > 0 && id < 20000 && id != 999 {
-            cs.send(server_packets::ex_npc_quest_html_message(npc_oid, &content, id));
+            cs.send(server_packets::ex_npc_quest_html_message(
+                npc_oid, &content, id,
+            ));
         } else {
             cs.send(server_packets::npc_html_message(npc_oid, &content));
         }
@@ -1295,8 +1522,16 @@ fn show_html_file(world: &mut World, client_id: u32, npc_oid: i32, script: &Arc<
 /// `data/scripts/quests/<Name>/` fallback.
 fn load_quest_html(world: &World, script: &Arc<dyn QuestScript>, filename: &str) -> Option<String> {
     let root = &world.data.root;
-    crate::data::htm_cache::read_htm(format!("{root}data/scripts/{}/{filename}", script.html_dir()))
-        .or_else(|| crate::data::htm_cache::read_htm(format!("{root}data/scripts/quests/{}/{filename}", script.name())))
+    crate::data::htm_cache::read_htm(format!(
+        "{root}data/scripts/{}/{filename}",
+        script.html_dir()
+    ))
+    .or_else(|| {
+        crate::data::htm_cache::read_htm(format!(
+            "{root}data/scripts/quests/{}/{filename}",
+            script.name()
+        ))
+    })
 }
 
 /// `Quest.getNoQuestMsg` (`data/html/noquest.htm`, with Java's inline

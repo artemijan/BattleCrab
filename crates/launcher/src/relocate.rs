@@ -82,7 +82,10 @@ pub fn relocate_exe(current_exe: &Path, install_dir: &Path) -> anyhow::Result<Re
 /// development. The logic itself is covered by the unit tests below.
 pub fn relocate_self(install_dir: &Path) -> anyhow::Result<Relocation> {
     if cfg!(debug_assertions) {
-        tracing::info!("debug build: skipping relocation into {}", install_dir.display());
+        tracing::info!(
+            "debug build: skipping relocation into {}",
+            install_dir.display()
+        );
         return Ok(Relocation::AlreadyInPlace);
     }
     let current = std::env::current_exe().context("cannot determine current executable")?;
@@ -104,7 +107,8 @@ mod tests {
 
     /// Unique scratch directory; avoids pulling in a temp-dir dependency.
     fn scratch(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("launcher-relocate-{name}-{}", std::process::id()));
+        let dir =
+            std::env::temp_dir().join(format!("launcher-relocate-{name}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
         dir
@@ -127,8 +131,14 @@ mod tests {
         let outcome = relocate_exe(&exe, &install).unwrap();
 
         assert_eq!(outcome, Relocation::Moved(install.join("launcher.exe")));
-        assert!(install.join("launcher.exe").is_file(), "launcher should be in the game folder");
-        assert!(!exe.exists(), "original should be gone after a same-volume move");
+        assert!(
+            install.join("launcher.exe").is_file(),
+            "launcher should be in the game folder"
+        );
+        assert!(
+            !exe.exists(),
+            "original should be gone after a same-volume move"
+        );
     }
 
     #[test]

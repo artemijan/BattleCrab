@@ -65,7 +65,14 @@ impl QuestScript for Q00295DreamingOfTheSkies {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30536-02.htm" } else { "30536-01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30536-02.htm"
+                } else {
+                    "30536-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             if ctx.is_cond(2) {

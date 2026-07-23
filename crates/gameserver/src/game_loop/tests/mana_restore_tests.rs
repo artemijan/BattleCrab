@@ -32,7 +32,13 @@ fn mp(world: &World, oid: i32) -> f64 {
 }
 
 /// Register a one-effect skill and cast it from `CASTER` at `target`.
-fn cast(world: &mut World, skill_id: i32, effects: Vec<SkillEffect>, magic_level: i32, target: i32) {
+fn cast(
+    world: &mut World,
+    skill_id: i32,
+    effects: Vec<SkillEffect>,
+    magic_level: i32,
+    target: i32,
+) {
     use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
     let skill = Skill {
         without_action: false,
@@ -81,7 +87,11 @@ fn cast(world: &mut World, skill_id: i32, effects: Vec<SkillEffect>, magic_level
 
 /// Drain the target so there is headroom to restore into.
 fn empty_mp(world: &mut World, oid: i32) {
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_mp = 0.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .cur_mp = 0.0;
 }
 
 /// Give the target a pool big enough that the overheal clamp can't mask what a
@@ -105,16 +115,37 @@ fn roomy_mp(world: &mut World, oid: i32) {
 fn recharge_level_penalty_matches_javas_ladder() {
     // No penalty at or below a 5-level gap (including the target being lower).
     for diff in [-10, 0, 5] {
-        assert_eq!(recharge_level_penalty(30 + diff, 30), 1.0, "gap {diff} is unpenalised");
+        assert_eq!(
+            recharge_level_penalty(30 + diff, 30),
+            1.0,
+            "gap {diff} is unpenalised"
+        );
     }
     // Java's explicit branches, 6..=14.
-    for (diff, expected) in [(6, 0.9), (7, 0.8), (8, 0.7), (9, 0.6), (10, 0.5), (11, 0.4), (12, 0.3), (13, 0.2), (14, 0.1)] {
+    for (diff, expected) in [
+        (6, 0.9),
+        (7, 0.8),
+        (8, 0.7),
+        (9, 0.6),
+        (10, 0.5),
+        (11, 0.4),
+        (12, 0.3),
+        (13, 0.2),
+        (14, 0.1),
+    ] {
         let got = recharge_level_penalty(30 + diff, 30);
-        assert!((got - expected).abs() < 1e-9, "gap {diff} → {expected}, got {got}");
+        assert!(
+            (got - expected).abs() < 1e-9,
+            "gap {diff} → {expected}, got {got}"
+        );
     }
     // 15 and beyond: zero, not a small number.
     for diff in [15, 16, 40] {
-        assert_eq!(recharge_level_penalty(30 + diff, 30), 0.0, "gap {diff} restores nothing");
+        assert_eq!(
+            recharge_level_penalty(30 + diff, 30),
+            0.0,
+            "gap {diff} restores nothing"
+        );
     }
 }
 
@@ -128,19 +159,40 @@ fn a_high_level_target_is_recharged_less() {
 
     // Target level 5 (the `ingame_caster` default); skill magicLevel 5 → no gap.
     roomy_mp(&mut world, TARGET);
-    cast(&mut world, 9700, vec![SkillEffect::ManaHealByLevel { power: 100.0 }], 5, TARGET);
+    cast(
+        &mut world,
+        9700,
+        vec![SkillEffect::ManaHealByLevel { power: 100.0 }],
+        5,
+        TARGET,
+    );
     let unpenalised = mp(&world, TARGET);
     assert!(unpenalised > 0.0, "sanity: the recharge lands");
 
     // Same skill, magicLevel 5 lower than the target by 10 → ×0.5.
     roomy_mp(&mut world, TARGET);
-    cast(&mut world, 9701, vec![SkillEffect::ManaHealByLevel { power: 100.0 }], 5 - 10, TARGET);
+    cast(
+        &mut world,
+        9701,
+        vec![SkillEffect::ManaHealByLevel { power: 100.0 }],
+        5 - 10,
+        TARGET,
+    );
     let penalised = mp(&world, TARGET);
-    assert!((penalised - unpenalised * 0.5).abs() < 1e-6, "a 10-level gap halves it: {unpenalised} -> {penalised}");
+    assert!(
+        (penalised - unpenalised * 0.5).abs() < 1e-6,
+        "a 10-level gap halves it: {unpenalised} -> {penalised}"
+    );
 
     // And past the cliff, nothing.
     roomy_mp(&mut world, TARGET);
-    cast(&mut world, 9702, vec![SkillEffect::ManaHealByLevel { power: 100.0 }], 5 - 20, TARGET);
+    cast(
+        &mut world,
+        9702,
+        vec![SkillEffect::ManaHealByLevel { power: 100.0 }],
+        5 - 20,
+        TARGET,
+    );
     assert_eq!(mp(&world, TARGET), 0.0, "a 20-level gap restores nothing");
 }
 
@@ -153,11 +205,25 @@ fn a_high_level_target_is_recharged_less() {
 fn restore_never_overheals() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    let max_mp = world.objects.get_component::<Vitals>(&CASTER).unwrap().max_mp as f64;
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&CASTER)
+        .unwrap()
+        .max_mp as f64;
 
     // Leave 5 MP of headroom, then try to restore 10_000.
-    world.objects.get_component_mut::<Vitals>(&CASTER).unwrap().cur_mp = max_mp - 5.0;
-    cast(&mut world, 9710, vec![SkillEffect::ManaHeal { power: 10_000.0 }], 1, CASTER);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&CASTER)
+        .unwrap()
+        .cur_mp = max_mp - 5.0;
+    cast(
+        &mut world,
+        9710,
+        vec![SkillEffect::ManaHeal { power: 10_000.0 }],
+        1,
+        CASTER,
+    );
     assert_eq!(mp(&world, CASTER), max_mp, "clamped exactly to full");
 }
 
@@ -170,23 +236,38 @@ fn mp_block_refuses_a_restore() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     empty_mp(&mut world, CASTER);
 
-    world.objects.get_component_mut::<Buffs>(&CASTER).unwrap().0.push(crate::model::skill::ActiveBuff {
-        skill_id: 1418,
-        skill_level: 1,
-        abnormal_type_client_id: 0,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Buff,
-        expires_at_tick: u64::MAX,
-        passive: false,
-        effect_flags: effect_flag::MP_BLOCK,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects: Vec::new(),
-    });
+    world
+        .objects
+        .get_component_mut::<Buffs>(&CASTER)
+        .unwrap()
+        .0
+        .push(crate::model::skill::ActiveBuff {
+            skill_id: 1418,
+            skill_level: 1,
+            abnormal_type_client_id: 0,
+            abnormal_type: "NONE".to_string(),
+            abnormal_level: 0,
+            slot: crate::model::skill::BuffSlot::Buff,
+            expires_at_tick: u64::MAX,
+            passive: false,
+            effect_flags: effect_flag::MP_BLOCK,
+            blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
+            effects: Vec::new(),
+        });
 
-    cast(&mut world, 9711, vec![SkillEffect::ManaHeal { power: 500.0 }], 1, CASTER);
-    assert_eq!(mp(&world, CASTER), 0.0, "MP_BLOCK blocks restoration, not just drain");
+    cast(
+        &mut world,
+        9711,
+        vec![SkillEffect::ManaHeal { power: 500.0 }],
+        1,
+        CASTER,
+    );
+    assert_eq!(
+        mp(&world, CASTER),
+        0.0,
+        "MP_BLOCK blocks restoration, not just drain"
+    );
 }
 
 /// A dead target is not recharged (Java's `effected.isDead()` bail).
@@ -196,9 +277,19 @@ fn a_dead_target_is_not_recharged() {
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _t = ingame_caster(&mut world, TCID, TARGET, 0, 0);
     empty_mp(&mut world, TARGET);
-    world.objects.get_component_mut::<Vitals>(&TARGET).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&TARGET)
+        .unwrap()
+        .dead = true;
 
-    cast(&mut world, 9712, vec![SkillEffect::ManaHeal { power: 500.0 }], 1, TARGET);
+    cast(
+        &mut world,
+        9712,
+        vec![SkillEffect::ManaHeal { power: 500.0 }],
+        1,
+        TARGET,
+    );
     assert_eq!(mp(&world, TARGET), 0.0, "the dead are not recharged");
 }
 
@@ -211,21 +302,61 @@ fn mana_charge_adds_to_the_recharged_amount() {
     let _t = ingame_caster(&mut world, TCID, TARGET, 0, 0);
 
     empty_mp(&mut world, TARGET);
-    cast(&mut world, 9713, vec![SkillEffect::ManaHeal { power: 20.0 }], 1, TARGET);
+    cast(
+        &mut world,
+        9713,
+        vec![SkillEffect::ManaHeal { power: 20.0 }],
+        1,
+        TARGET,
+    );
     let bare = mp(&world, TARGET);
 
     // The bonus belongs to the *recipient*: put it on the target, not the caster.
-    world.objects.get_component_mut::<StatModifiers>(&TARGET).unwrap().add.insert(Stat::ManaCharge, 22.0);
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&TARGET)
+        .unwrap()
+        .add
+        .insert(Stat::ManaCharge, 22.0);
     empty_mp(&mut world, TARGET);
-    cast(&mut world, 9714, vec![SkillEffect::ManaHeal { power: 20.0 }], 1, TARGET);
-    assert!((mp(&world, TARGET) - bare - 22.0).abs() < 1e-9, "+22 flat: {bare} -> {}", mp(&world, TARGET));
+    cast(
+        &mut world,
+        9714,
+        vec![SkillEffect::ManaHeal { power: 20.0 }],
+        1,
+        TARGET,
+    );
+    assert!(
+        (mp(&world, TARGET) - bare - 22.0).abs() < 1e-9,
+        "+22 flat: {bare} -> {}",
+        mp(&world, TARGET)
+    );
 
     // And it does nothing when it sits on the caster instead.
-    world.objects.get_component_mut::<StatModifiers>(&TARGET).unwrap().add.clear();
-    world.objects.get_component_mut::<StatModifiers>(&CASTER).unwrap().add.insert(Stat::ManaCharge, 22.0);
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&TARGET)
+        .unwrap()
+        .add
+        .clear();
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&CASTER)
+        .unwrap()
+        .add
+        .insert(Stat::ManaCharge, 22.0);
     empty_mp(&mut world, TARGET);
-    cast(&mut world, 9715, vec![SkillEffect::ManaHeal { power: 20.0 }], 1, TARGET);
-    assert!((mp(&world, TARGET) - bare).abs() < 1e-9, "the caster's own MANA_CHARGE is irrelevant");
+    cast(
+        &mut world,
+        9715,
+        vec![SkillEffect::ManaHeal { power: 20.0 }],
+        1,
+        TARGET,
+    );
+    assert!(
+        (mp(&world, TARGET) - bare).abs() < 1e-9,
+        "the caster's own MANA_CHARGE is irrelevant"
+    );
 }
 
 /// `ManaHealPercent` and `Mp`'s `PER` mode both scale off **max** MP.
@@ -233,19 +364,53 @@ fn mana_charge_adds_to_the_recharged_amount() {
 fn percent_restores_scale_off_max_mp() {
     let (mut world, _db, _l) = cast_test_world();
     let _c = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    let max_mp = world.objects.get_component::<Vitals>(&CASTER).unwrap().max_mp as f64;
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&CASTER)
+        .unwrap()
+        .max_mp as f64;
 
     empty_mp(&mut world, CASTER);
-    cast(&mut world, 9720, vec![SkillEffect::ManaHealPercent { power: 25.0 }], 1, CASTER);
-    assert!((mp(&world, CASTER) - max_mp * 0.25).abs() < 1e-9, "25% of max");
+    cast(
+        &mut world,
+        9720,
+        vec![SkillEffect::ManaHealPercent { power: 25.0 }],
+        1,
+        CASTER,
+    );
+    assert!(
+        (mp(&world, CASTER) - max_mp * 0.25).abs() < 1e-9,
+        "25% of max"
+    );
 
     empty_mp(&mut world, CASTER);
-    cast(&mut world, 9721, vec![SkillEffect::MpRestore { amount: 50.0, percent: true }], 1, CASTER);
-    assert!((mp(&world, CASTER) - max_mp * 0.5).abs() < 1e-9, "Mp PER is also a share of max");
+    cast(
+        &mut world,
+        9721,
+        vec![SkillEffect::MpRestore {
+            amount: 50.0,
+            percent: true,
+        }],
+        1,
+        CASTER,
+    );
+    assert!(
+        (mp(&world, CASTER) - max_mp * 0.5).abs() < 1e-9,
+        "Mp PER is also a share of max"
+    );
 
     // DIFF mode is the flat reading of the same field.
     empty_mp(&mut world, CASTER);
-    cast(&mut world, 9722, vec![SkillEffect::MpRestore { amount: 7.0, percent: false }], 1, CASTER);
+    cast(
+        &mut world,
+        9722,
+        vec![SkillEffect::MpRestore {
+            amount: 7.0,
+            percent: false,
+        }],
+        1,
+        CASTER,
+    );
     assert!((mp(&world, CASTER) - 7.0).abs() < 1e-9, "Mp DIFF is flat");
 }
 
@@ -260,8 +425,15 @@ fn percent_restores_scale_off_max_mp() {
 fn the_recharge_skills_carry_only_the_restore_effect() {
     let skills = dist_skills();
     for id in [1013, 1126, 1428] {
-        let skill = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} loads"));
-        assert_eq!(skill.effects.len(), 1, "skill {id} has one effect: {:?}", skill.effects);
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} loads"));
+        assert_eq!(
+            skill.effects.len(),
+            1,
+            "skill {id} has one effect: {:?}",
+            skill.effects
+        );
         assert!(matches!(skill.effects[0], SkillEffect::ManaHealByLevel { power } if power > 0.0));
     }
 }
@@ -275,7 +447,10 @@ fn the_rest_of_the_family_parses() {
     for id in [417, 1157] {
         let skill = skills.get(id, 1).unwrap();
         assert!(
-            skill.effects.iter().any(|e| matches!(e, SkillEffect::MpRestore { amount, .. } if *amount > 0.0)),
+            skill
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::MpRestore { amount, .. } if *amount > 0.0)),
             "skill {id} reads its amount: {:?}",
             skill.effects
         );
@@ -289,12 +464,18 @@ fn the_rest_of_the_family_parses() {
     // reachable learnable skills here, and the slice's real reach was 6, not 7.
     let mortal = skills.get(410, 1).unwrap();
     assert!(
-        !mortal.effects.iter().any(|e| matches!(e, SkillEffect::ManaHeal { .. })),
+        !mortal
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::ManaHeal { .. })),
         "Mortal Strike's ManaHeal is enchant-only and must not apply: {:?}",
         mortal.effects
     );
     assert!(
-        mortal.effects.iter().any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::BlowRate)),
+        mortal
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::StatModifier(m) if m.stat == Stat::BlowRate)),
         "but its ungated FatalBlowRate is untouched"
     );
 }
@@ -314,11 +495,23 @@ fn higher_mana_gain_grants_the_mana_charge_stat() {
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let bare = Player::from_char(&world.data, &dummy_char(6101, "Bare"));
-    assert_eq!(bare.stat_modifiers.add.get(&Stat::ManaCharge), None, "no skill, no stat");
+    assert_eq!(
+        bare.stat_modifiers.add.get(&Stat::ManaCharge),
+        None,
+        "no skill, no stat"
+    );
 
     let mut chr = dummy_char(6102, "Recharger");
     chr.skills = vec![(285, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
-    let add = bundle.stat_modifiers.add.get(&Stat::ManaCharge).copied().unwrap_or(0.0);
-    assert!((add - 22.0).abs() < 1e-9, "Higher Mana Gain lvl 1 is +22 flat, got {add}");
+    let add = bundle
+        .stat_modifiers
+        .add
+        .get(&Stat::ManaCharge)
+        .copied()
+        .unwrap_or(0.0);
+    assert!(
+        (add - 22.0).abs() < 1e-9,
+        "Higher Mana Gain lvl 1 is +22 flat, got {add}"
+    );
 }

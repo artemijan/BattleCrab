@@ -228,7 +228,8 @@ pub fn calc_magic_success_rate(i: &MagicSuccess) -> i32 {
                 && !i.skill_chance_penalty.is_empty()
             {
                 let level_diff = (i.target_level - caster_level - 2) as usize;
-                target_modifier = i.skill_chance_penalty[level_diff.min(i.skill_chance_penalty.len() - 1)];
+                target_modifier =
+                    i.skill_chance_penalty[level_diff.min(i.skill_chance_penalty.len() - 1)];
             }
         }
     } else {
@@ -295,7 +296,11 @@ pub fn calc_effect_land_rate(
     if activate_rate == -1 {
         return 100.0;
     }
-    let magic_level = if magic_level <= -1 { target_level + 3 } else { magic_level };
+    let magic_level = if magic_level <= -1 {
+        target_level + 3
+    } else {
+        magic_level
+    };
     let base_mod = (magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30;
     // Java multiplies the raw rate by the mods and clamps *after*
     // (`constrain(baseMod * elementMod * … * buffDebuffMod, minChance,
@@ -335,8 +340,16 @@ pub fn calc_atk_spd_multiplier(
         .cloned()
         .unwrap_or_default();
     let dex_bonus = data.stat_bonus.bonus(BaseStat::Dex, base.dex);
-    let mul = mods.mul.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(1.0);
-    let add = mods.add.get(&Stat::PhysicalAttackSpeed).copied().unwrap_or(0.0);
+    let mul = mods
+        .mul
+        .get(&Stat::PhysicalAttackSpeed)
+        .copied()
+        .unwrap_or(1.0);
+    let add = mods
+        .add
+        .get(&Stat::PhysicalAttackSpeed)
+        .copied()
+        .unwrap_or(0.0);
     dex_bonus * (t.base_p_atk_spd as f64 / 333.0) * mul + add / 333.0
 }
 
@@ -347,8 +360,16 @@ pub fn calc_m_atk_spd_multiplier(
     data: &GameData,
 ) -> f64 {
     let wit_bonus = data.stat_bonus.bonus(BaseStat::Wit, base.wit);
-    let mul = mods.mul.get(&Stat::MagicAttackSpeed).copied().unwrap_or(1.0);
-    let add = mods.add.get(&Stat::MagicAttackSpeed).copied().unwrap_or(0.0);
+    let mul = mods
+        .mul
+        .get(&Stat::MagicAttackSpeed)
+        .copied()
+        .unwrap_or(1.0);
+    let add = mods
+        .add
+        .get(&Stat::MagicAttackSpeed)
+        .copied()
+        .unwrap_or(0.0);
     wit_bonus * mul + add / 333.0
 }
 
@@ -381,12 +402,17 @@ pub fn calc_skill_cancel_time(
     data: &GameData,
     skill: &Skill,
 ) -> f64 {
-    ((skill.hit_cancel_time * 1000.0) / calc_skill_time_factor(p, base, mods, data, skill)).max(SKILL_LAUNCH_TIME_MS)
+    ((skill.hit_cancel_time * 1000.0) / calc_skill_time_factor(p, base, mods, data, skill))
+        .max(SKILL_LAUNCH_TIME_MS)
 }
 
 /// `Formulas.calcAtkSpd` — the post-finish cool phase in ms (magic scales by
 /// casting speed against the 333 base, physical by attack speed against 300).
-pub fn calc_atk_spd(combat: &crate::model::components::CombatStats, skill: &Skill, skill_time: f64) -> i32 {
+pub fn calc_atk_spd(
+    combat: &crate::model::components::CombatStats,
+    skill: &Skill,
+    skill_time: f64,
+) -> i32 {
     if skill.magic_type == 1 {
         (skill_time / combat.m_atk_spd.max(1) as f64 * 333.0) as i32
     } else {
@@ -438,7 +464,15 @@ pub fn calc_cast_times(
 /// (every Interlude heal-casting class is a mage class, and NPC heals don't
 /// reach this fn). Shotless (`sps == bss == false`) reproduces the old
 /// `sqrt(2·mAtk)`.
-pub fn calc_heal(power: f64, m_atk: f64, mcrit: bool, sps: bool, bss: bool, mp_consume: i32, is_mage_caster: bool) -> f64 {
+pub fn calc_heal(
+    power: f64,
+    m_atk: f64,
+    mcrit: bool,
+    sps: bool,
+    bss: bool,
+    mp_consume: i32,
+    is_mage_caster: bool,
+) -> f64 {
     let m_atk_mul = if bss { 4.0 } else { 2.0 };
     let static_bonus = if (sps || bss) && is_mage_caster {
         mp_consume as f64 * if bss { 2.4 } else { 1.0 }
@@ -515,7 +549,9 @@ pub fn calc_auto_attack_crit(
     // multiplier scales the *attacker's* rate. Both default to identity
     // (1.0 / 0.0), which reproduces the plain `crit_stat / 10` this had before.
     let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
-    let rate = calc_critical_position_bonus(position) * rate_mod * calc_critical_height_bonus(from_z, to_z);
+    let rate = calc_critical_position_bonus(position)
+        * rate_mod
+        * calc_critical_height_bonus(from_z, to_z);
     rate.clamp(3.0, 97.0) > roll as f64
 }
 
@@ -536,12 +572,23 @@ pub const SHIELD_PERFECT: u8 = 2;
 /// `con_bonus` is that CON bonus (for the perfect-block roll). `from_behind` is
 /// the attacker outside the 120° shield arc (Java's `degreeside` check — a back
 /// attack can't be blocked). `rate_roll`/`perfect_roll` are `Rnd.get(100)`.
-pub fn calc_shield_use(shield_rate: f64, con_bonus: f64, ranged: bool, from_behind: bool, rate_roll: i32, perfect_roll: i32) -> u8 {
+pub fn calc_shield_use(
+    shield_rate: f64,
+    con_bonus: f64,
+    ranged: bool,
+    from_behind: bool,
+    rate_roll: i32,
+    perfect_roll: i32,
+) -> u8 {
     if shield_rate <= 0.0 || from_behind {
         return SHIELD_NONE;
     }
     // A bow attacker raises the block rate by 30% (Java).
-    let rate = if ranged { shield_rate * 1.3 } else { shield_rate };
+    let rate = if ranged {
+        shield_rate * 1.3
+    } else {
+        shield_rate
+    };
     if rate > rate_roll as f64 {
         if (100.0 - (2.0 * con_bonus)) < perfect_roll as f64 {
             SHIELD_PERFECT
@@ -606,7 +653,11 @@ pub fn calc_auto_attack_damage(
     //          + (attack·(1 − critMod)·ss·77)
     // — a crit takes the first term only, a non-crit the second. Note
     // `cAtkAdd` lands *after* the soulshot multiply and *inside* the ×77.
-    let attack = if crit { (attack * cd.mul * ss_bonus) + cd.add } else { attack * ss_bonus } * 77.0;
+    let attack = if crit {
+        (attack * cd.mul * ss_bonus) + cd.add
+    } else {
+        attack * ss_bonus
+    } * 77.0;
     (attack / p_def.max(1.0)).max(0.0)
 }
 
@@ -667,7 +718,14 @@ pub fn level_mod(level: i32) -> f64 {
 /// the caller shortcuts to 1). `SKILL_POWER_ADD` is 0.
 ///
 /// `77·((power+pAtk)·0.666 + isPos·(power+pAtk)·randomMul) / pDef · ssMod · randomMul`
-pub fn calc_blow_damage(p_atk: f64, power: f64, p_def: f64, position: Position, random_mul: f64, ss: bool) -> f64 {
+pub fn calc_blow_damage(
+    p_atk: f64,
+    power: f64,
+    p_def: f64,
+    position: Position,
+    random_mul: f64,
+    ss: bool,
+) -> f64 {
     let is_pos = match position {
         Position::Back => 0.2,
         Position::Side => 0.05,
@@ -740,7 +798,13 @@ pub fn map_range(value: f64, from_min: f64, from_max: f64, to_min: f64, to_max: 
 /// `Stat.ATTACK_CANCEL` modifiers (Java `getStat().getValue(ATTACK_CANCEL,
 /// init)`), which buffs like Concentration lower. The raid/HP-blocked/
 /// channeling guards still don't apply to players yet.
-pub fn calc_atk_break(dmg: f64, men_bonus: f64, roll: i32, cancel_add: f64, cancel_mul: f64) -> bool {
+pub fn calc_atk_break(
+    dmg: f64,
+    men_bonus: f64,
+    roll: i32,
+    cancel_add: f64,
+    cancel_mul: f64,
+) -> bool {
     let init = 15.0 + (13.0 * dmg).sqrt() - (men_bonus * 100.0 - 100.0);
     let rate = (init * cancel_mul + cancel_add).clamp(1.0, 99.0);
     (roll as f64) < rate
@@ -775,10 +839,23 @@ mod tests {
     /// a halved crit keeps the full ×2.
     #[test]
     fn magic_failure_applies_before_the_crit_multiplier() {
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Half) - 77.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Half) - 154.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Resisted) - 1.0).abs() < 1e-9);
-        assert!((calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Resisted) - 2.0).abs() < 1e-9);
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Half) - 77.0).abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Half) - 154.0).abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, false, 2.0, 1.0, MagicFailure::Resisted) - 1.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_magic_dam(100.0, 60.0, 12.0, true, 2.0, 1.0, MagicFailure::Resisted) - 2.0).abs()
+                < 1e-9
+        );
     }
 
     /// A PvE cast with no level gap and no level-78 penalty: `1.3^0 = 1`, so
@@ -919,7 +996,12 @@ mod tests {
         // term unchanged at ×2): 83 + 40 + √100 = 133.
         assert!((calc_heal(83.0, 50.0, false, true, false, 40, true) - 133.0).abs() < 1e-9);
         // Blessed spiritshot: sqrt term ×4 (√200) and static ×2.4: 83 + 96 + √200.
-        assert!((calc_heal(83.0, 50.0, false, false, true, 40, true) - (83.0 + 96.0 + 200.0_f64.sqrt())).abs() < 1e-9);
+        assert!(
+            (calc_heal(83.0, 50.0, false, false, true, 40, true)
+                - (83.0 + 96.0 + 200.0_f64.sqrt()))
+            .abs()
+                < 1e-9
+        );
     }
 
     use crate::model::movement::Position;
@@ -956,25 +1038,114 @@ mod tests {
     fn auto_attack_crit_rate() {
         // stat 44 (displayed), front, level ground: 4.4 × 1.1 (height base
         // +10%) = 4.84 → roll 4 crits, roll 5 doesn't.
-        assert!(calc_auto_attack_crit(44.0, 1.0, 0.0, Position::Front, 0, 0, 4));
-        assert!(!calc_auto_attack_crit(44.0, 1.0, 0.0, Position::Front, 0, 0, 5));
+        assert!(calc_auto_attack_crit(
+            44.0,
+            1.0,
+            0.0,
+            Position::Front,
+            0,
+            0,
+            4
+        ));
+        assert!(!calc_auto_attack_crit(
+            44.0,
+            1.0,
+            0.0,
+            Position::Front,
+            0,
+            0,
+            5
+        ));
         // Floor: even 0 stat crits below 3%.
-        assert!(calc_auto_attack_crit(0.0, 1.0, 0.0, Position::Front, 0, 0, 2));
+        assert!(calc_auto_attack_crit(
+            0.0,
+            1.0,
+            0.0,
+            Position::Front,
+            0,
+            0,
+            2
+        ));
         // Cap: 97% — a 97 roll never crits.
-        assert!(!calc_auto_attack_crit(10_000.0, 1.0, 0.0, Position::Back, 25, 0, 97));
+        assert!(!calc_auto_attack_crit(
+            10_000.0,
+            1.0,
+            0.0,
+            Position::Back,
+            25,
+            0,
+            97
+        ));
     }
 
     /// `calcAutoAttackDamage`, melee/shotless: pAtk 100 vs pDef 50 → 154;
     /// crit doubles; back position adds 20% of pAtk before the ×77.
     #[test]
     fn auto_attack_damage_matches_java() {
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), false) - 154.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, CritDamage::default(), false) - 308.0).abs() < 1e-9);
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Back, 50.0, false, CritDamage::default(), false) - 184.8).abs() < 1e-9);
+        assert!(
+            (calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Front,
+                50.0,
+                false,
+                CritDamage::default(),
+                false
+            ) - 154.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Front,
+                50.0,
+                true,
+                CritDamage::default(),
+                false
+            ) - 308.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Back,
+                50.0,
+                false,
+                CritDamage::default(),
+                false
+            ) - 184.8)
+                .abs()
+                < 1e-9
+        );
         // A soulshot doubles the swing (×2 ssBonus): 154 → 308.
-        assert!((calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), true) - 308.0).abs() < 1e-9);
+        assert!(
+            (calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Front,
+                50.0,
+                false,
+                CritDamage::default(),
+                true
+            ) - 308.0)
+                .abs()
+                < 1e-9
+        );
         // pDef floors at 1.
-        assert!(calc_auto_attack_damage(100.0, 1.0, Position::Front, 0.0, false, CritDamage::default(), false).is_finite());
+        assert!(calc_auto_attack_damage(
+            100.0,
+            1.0,
+            Position::Front,
+            0.0,
+            false,
+            CritDamage::default(),
+            false
+        )
+        .is_finite());
     }
 
     /// `calcShldUse`: no shield → never blocks; a back attack can't be blocked;
@@ -986,16 +1157,31 @@ mod tests {
         assert_eq!(calc_shield_use(0.0, 1.2, false, false, 0, 0), SHIELD_NONE);
         // Rate 30 blocks a roll of 20, not a roll of 40 (low perfect-roll keeps
         // it a normal block).
-        assert_eq!(calc_shield_use(30.0, 1.0, false, false, 20, 50), SHIELD_SUCCEED);
-        assert_eq!(calc_shield_use(30.0, 1.0, false, false, 40, 50), SHIELD_NONE);
+        assert_eq!(
+            calc_shield_use(30.0, 1.0, false, false, 20, 50),
+            SHIELD_SUCCEED
+        );
+        assert_eq!(
+            calc_shield_use(30.0, 1.0, false, false, 40, 50),
+            SHIELD_NONE
+        );
         // A back attack is never blocked even at a high rate.
         assert_eq!(calc_shield_use(90.0, 1.0, false, true, 0, 0), SHIELD_NONE);
         // Perfect block when `100 - 2·conBonus < perfectRoll` (conBonus 1.0 →
         // threshold 98): a perfect-roll of 99 upgrades, 98 does not.
-        assert_eq!(calc_shield_use(90.0, 1.0, false, false, 0, 99), SHIELD_PERFECT);
-        assert_eq!(calc_shield_use(90.0, 1.0, false, false, 0, 98), SHIELD_SUCCEED);
+        assert_eq!(
+            calc_shield_use(90.0, 1.0, false, false, 0, 99),
+            SHIELD_PERFECT
+        );
+        assert_eq!(
+            calc_shield_use(90.0, 1.0, false, false, 0, 98),
+            SHIELD_SUCCEED
+        );
         // A bow attacker raises the rate 30% (rate 30 → 39, blocks a roll of 35).
-        assert_eq!(calc_shield_use(30.0, 1.0, true, false, 35, 50), SHIELD_SUCCEED);
+        assert_eq!(
+            calc_shield_use(30.0, 1.0, true, false, 35, 50),
+            SHIELD_SUCCEED
+        );
     }
 
     /// Physical skill damage, melee/shotless: pAtk 100, level 40 (levelMod
@@ -1004,13 +1190,32 @@ mod tests {
     #[test]
     fn physical_skill_damage_matches_java() {
         let lm = level_mod(40);
-        let base = calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false);
+        let base =
+            calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false);
         assert!((base - (77.0 * ((100.0 * 1.29) + 50.0) / 60.0)).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false) - base * 2.0).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true) - base * 2.0).abs() < 1e-9);
-        assert!((calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false) - base * 1.1).abs() < 1e-9);
+        assert!(
+            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false)
+                - base * 2.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true)
+                - base * 2.0)
+                .abs()
+                < 1e-9
+        );
+        assert!(
+            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false)
+                - base * 1.1)
+                .abs()
+                < 1e-9
+        );
         // pAtkMod/pDefMod scale attack and defence; defence floors at 1.
-        assert!(calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false).is_finite());
+        assert!(
+            calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false)
+                .is_finite()
+        );
     }
 
     /// Physical skill crit: `critChance · strBonus` clamped [5, 90] vs Rnd(100).
@@ -1035,7 +1240,10 @@ mod tests {
         let back = calc_blow_damage(100.0, 50.0, 60.0, Position::Back, 1.0, false);
         assert!((back - (77.0 * ((150.0 * 0.666) + (0.2 * 150.0)) / 60.0)).abs() < 1e-9);
         // Soulshot doubles the front hit.
-        assert!((calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, true) - front * 2.0).abs() < 1e-9);
+        assert!(
+            (calc_blow_damage(100.0, 50.0, 60.0, Position::Front, 1.0, true) - front * 2.0).abs()
+                < 1e-9
+        );
         // pDef floors at 1.
         assert!(calc_blow_damage(100.0, 50.0, 0.0, Position::Front, 1.0, false).is_finite());
     }
@@ -1045,17 +1253,80 @@ mod tests {
     #[test]
     fn blow_success_rate_cap_and_threshold() {
         // 1.0 · 1.1 · 10 · 1.0 · 1.0 = 11: roll 10 lands, 11 doesn't.
-        assert!(calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 1.0, 100.0, 10));
-        assert!(!calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 1.0, 100.0, 11));
+        assert!(calc_blow_success(
+            10.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.0,
+            100.0,
+            10
+        ));
+        assert!(!calc_blow_success(
+            10.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.0,
+            100.0,
+            11
+        ));
         // chanceBoost 100 doubles the rate → 22.
-        assert!(calc_blow_success(10.0, Position::Front, 0, 0, 100.0, 1.0, 100.0, 21));
+        assert!(calc_blow_success(
+            10.0,
+            Position::Front,
+            0,
+            0,
+            100.0,
+            1.0,
+            100.0,
+            21
+        ));
         // A huge crit rate is capped at `limit` (80): roll 79 lands, 80 doesn't.
-        assert!(calc_blow_success(10_000.0, Position::Front, 0, 0, 0.0, 1.0, 80.0, 79));
-        assert!(!calc_blow_success(10_000.0, Position::Front, 0, 0, 0.0, 1.0, 80.0, 80));
+        assert!(calc_blow_success(
+            10_000.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.0,
+            80.0,
+            79
+        ));
+        assert!(!calc_blow_success(
+            10_000.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.0,
+            80.0,
+            80
+        ));
         // Assassination lvl1 (`blowRateMod = 1.03`, +3% PER) raises the same
         // capped-at-11 rate to 11.33 — roll 11 now lands, 12 still doesn't.
-        assert!(calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 1.03, 100.0, 11));
-        assert!(!calc_blow_success(10.0, Position::Front, 0, 0, 0.0, 1.03, 100.0, 12));
+        assert!(calc_blow_success(
+            10.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.03,
+            100.0,
+            11
+        ));
+        assert!(!calc_blow_success(
+            10.0,
+            Position::Front,
+            0,
+            0,
+            0.0,
+            1.03,
+            100.0,
+            12
+        ));
     }
 
     /// The level-gap XP table: full through +2, tapering to 5%.
@@ -1074,8 +1345,14 @@ mod tests {
     fn map_range_matches_util_map() {
         assert!((map_range(-8.0, -15.0, -8.0, 10.0, 100.0) - 100.0).abs() < 1e-9);
         assert!((map_range(-15.0, -15.0, -8.0, 10.0, 100.0) - 10.0).abs() < 1e-9);
-        assert!((map_range(-20.0, -15.0, -8.0, 10.0, 100.0) - 10.0).abs() < 1e-9, "clamped below");
-        assert!((map_range(3.0, -15.0, -8.0, 10.0, 100.0) - 100.0).abs() < 1e-9, "clamped above");
+        assert!(
+            (map_range(-20.0, -15.0, -8.0, 10.0, 100.0) - 10.0).abs() < 1e-9,
+            "clamped below"
+        );
+        assert!(
+            (map_range(3.0, -15.0, -8.0, 10.0, 100.0) - 100.0).abs() < 1e-9,
+            "clamped above"
+        );
     }
 
     /// Neutral MEN (bonus 1.0): rate = 15 + √(13·dmg), clamped to [1, 99].
@@ -1095,7 +1372,13 @@ mod tests {
     /// (≈51.06 → ≈33.06), so a roll of 40 now survives where it broke before.
     #[test]
     fn atk_break_honors_cancel_stat() {
-        assert!(calc_atk_break(100.0, 1.0, 40, 0.0, 1.0), "no buff: 40 < 51.06 breaks");
-        assert!(!calc_atk_break(100.0, 1.0, 40, -18.0, 1.0), "Concentration: 40 > 33.06 survives");
+        assert!(
+            calc_atk_break(100.0, 1.0, 40, 0.0, 1.0),
+            "no buff: 40 < 51.06 breaks"
+        );
+        assert!(
+            !calc_atk_break(100.0, 1.0, 40, -18.0, 1.0),
+            "Concentration: 40 > 33.06 survives"
+        );
     }
 }

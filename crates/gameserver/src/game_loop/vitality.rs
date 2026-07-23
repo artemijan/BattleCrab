@@ -41,7 +41,10 @@ pub(crate) fn vitality_points(world: &World, object_id: i32) -> i32 {
     world
         .objects
         .get_component::<Player>(&object_id)
-        .map(|p| p.vitality_points.clamp(MIN_VITALITY_POINTS, MAX_VITALITY_POINTS))
+        .map(|p| {
+            p.vitality_points
+                .clamp(MIN_VITALITY_POINTS, MAX_VITALITY_POINTS)
+        })
         .unwrap_or(0)
 }
 
@@ -80,7 +83,9 @@ pub(crate) fn exp_bonus_multiplier(world: &World, object_id: i32) -> f64 {
 /// Java `Player.isLucky()`: level ≤ 9 **and** carrying the Lucky skill. Such a
 /// character never spends vitality.
 fn is_lucky(world: &World, object_id: i32) -> bool {
-    let Some(p) = world.objects.get_component::<Player>(&object_id) else { return false };
+    let Some(p) = world.objects.get_component::<Player>(&object_id) else {
+        return false;
+    };
     p.level <= 9
         && world
             .objects
@@ -97,7 +102,12 @@ fn is_lucky(world: &World, object_id: i32) -> bool {
 /// `VITA_FAME` component; this port resends the whole packet — the same
 /// approach the rest of the port takes to component-scoped UserInfo updates),
 /// and finally the party window's vitality field.
-pub(crate) fn set_vitality_points(world: &mut World, object_id: i32, value: i32, quiet: bool) -> bool {
+pub(crate) fn set_vitality_points(
+    world: &mut World,
+    object_id: i32,
+    value: i32,
+    quiet: bool,
+) -> bool {
     let points = value.clamp(MIN_VITALITY_POINTS, MAX_VITALITY_POINTS);
     let current = vitality_points(world, object_id);
     if points == current {
@@ -126,7 +136,11 @@ pub(crate) fn set_vitality_points(world: &mut World, object_id: i32, value: i32,
 
     // Java sends these regardless of `quiet` — the client's vitality gauge must
     // track the pool even on a silent change (`//set_vitality` passes quiet).
-    send_to_player(world, object_id, crate::network::enter_world::ex_vitality_point_info(points));
+    send_to_player(
+        world,
+        object_id,
+        crate::network::enter_world::ex_vitality_point_info(points),
+    );
     // Java `broadcastUserInfo(UserInfoType.VITA_FAME)`: UserInfo to self *and*
     // CharInfo to everyone who can see them.
     super::party::broadcast_user_info(world, object_id);
@@ -229,13 +243,21 @@ fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
 }
 
 fn send_sm(world: &World, object_id: i32, message_id: i16) {
-    send_to_player(world, object_id, server_packets::system_message_with(message_id, &[]));
+    send_to_player(
+        world,
+        object_id,
+        server_packets::system_message_with(message_id, &[]),
+    );
 }
 
 /// The `PartySmallWindowUpdate` vitality piggyback (Java adds the
 /// `VITALITY_POINTS` component type and broadcasts to the other members).
 fn notify_party_vitality(world: &World, object_id: i32) {
-    if world.objects.get_component::<PartyRef>(&object_id).is_none() {
+    if world
+        .objects
+        .get_component::<PartyRef>(&object_id)
+        .is_none()
+    {
         return;
     }
     super::party::notify_party_vitality_points(world, object_id);

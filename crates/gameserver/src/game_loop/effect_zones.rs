@@ -54,7 +54,9 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
     }
 
     for (idx, players) in occupants {
-        let Some(params) = world.data.zone_data.zones[idx].effect.clone() else { continue };
+        let Some(params) = world.data.zone_data.zones[idx].effect.clone() else {
+            continue;
+        };
         // `ApplySkill.run`: a disabled zone does nothing. `casts_on_players`
         // folds in Java's `targetClass`/`isPlayer()` pair — 27 zones target
         // NPCs and therefore reach nobody.
@@ -69,10 +71,15 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
         match world.effect_zone_next_tick.get(&idx) {
             Some(&due) if due > now => continue,
             Some(_) => {
-                world.effect_zone_next_tick.insert(idx, now + ms_to_ticks(params.reuse));
+                world
+                    .effect_zone_next_tick
+                    .insert(idx, now + ms_to_ticks(params.reuse));
             }
             None => {
-                world.effect_zone_next_tick.insert(idx, now + ms_to_ticks(params.initial_delay.max(params.reuse)));
+                world.effect_zone_next_tick.insert(
+                    idx,
+                    now + ms_to_ticks(params.initial_delay.max(params.reuse)),
+                );
                 continue;
             }
         }
@@ -84,7 +91,9 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
                 continue;
             }
             for &(skill_id, skill_level) in &params.skills {
-                let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else { continue };
+                let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+                    continue;
+                };
                 // `getAffectedSkillLevel(id) < skill.getLevel()` — don't
                 // refresh a buff the player already has at this level or
                 // better. Without this the Hot Springs trio would re-cast every
@@ -106,7 +115,10 @@ fn already_affected_at_least(world: &World, oid: i32, skill_id: i32, level: i32)
     world
         .objects
         .get_component::<crate::model::components::Buffs>(&oid)
-        .is_some_and(|b| b.0.iter().any(|e| e.skill_id == skill_id && e.skill_level >= level))
+        .is_some_and(|b| {
+            b.0.iter()
+                .any(|e| e.skill_id == skill_id && e.skill_level >= level)
+        })
 }
 
 fn ms_to_ticks(ms: i32) -> u64 {
@@ -146,7 +158,9 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
     }
 
     for (idx, players) in occupants {
-        let Some(params) = world.data.zone_data.zones[idx].damage.clone() else { continue };
+        let Some(params) = world.data.zone_data.zones[idx].damage.clone() else {
+            continue;
+        };
         if !params.enabled {
             continue;
         }
@@ -160,12 +174,15 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
         match world.effect_zone_next_tick.get(&idx) {
             Some(&due) if due > now => continue,
             Some(_) => {
-                world.effect_zone_next_tick.insert(idx, now + ms_to_ticks(params.reuse));
-            }
-            None => {
                 world
                     .effect_zone_next_tick
-                    .insert(idx, now + ms_to_ticks(params.initial_delay.max(params.reuse)));
+                    .insert(idx, now + ms_to_ticks(params.reuse));
+            }
+            None => {
+                world.effect_zone_next_tick.insert(
+                    idx,
+                    now + ms_to_ticks(params.initial_delay.max(params.reuse)),
+                );
                 continue;
             }
         }
@@ -179,7 +196,13 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                 // Java's `DamageZone` calls the plain 3-arg `reduceCurrentHp`
                 // (`isDOT` defaults `false`) — a damage zone *is* blocked by
                 // `HP_BLOCK`, unlike an abnormal-effect DoT tick.
-                super::combat::apply_physical_damage(world, oid, oid, params.hp_per_tick as f64, false);
+                super::combat::apply_physical_damage(
+                    world,
+                    oid,
+                    oid,
+                    params.hp_per_tick as f64,
+                    false,
+                );
             }
             if params.mp_per_tick > 0 {
                 if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
@@ -194,13 +217,17 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
 /// `baseValue *= zone.getMoveBonus()` for a playable inside one. `1.0` when
 /// not in a swamp. Castle-trap swamps only bite during their siege.
 pub(crate) fn swamp_multiplier_at(world: &World, oid: i32) -> f64 {
-    let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else { return 1.0 };
+    let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+        return 1.0;
+    };
     for idx in world.data.zone_data.zone_indices_at(pos.x, pos.y, pos.z) {
         let zone = &world.data.zone_data.zones[idx];
         if zone.kind != ZoneKind::Swamp {
             continue;
         }
-        let Some(p) = zone.swamp.as_ref() else { continue };
+        let Some(p) = zone.swamp.as_ref() else {
+            continue;
+        };
         if !p.enabled {
             continue;
         }

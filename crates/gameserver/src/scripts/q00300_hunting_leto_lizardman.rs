@@ -105,7 +105,14 @@ impl QuestScript for Q00300HuntingLetoLizardman {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= 34 { "30126-01.htm" } else { "30126-02.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= 34 {
+                    "30126-01.htm"
+                } else {
+                    "30126-02.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             match ctx.cond() {

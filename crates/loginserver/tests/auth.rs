@@ -3,8 +3,8 @@
 
 mod common;
 
-use commons::crypt::hash_password;
 use common::{login, start_server, test_config};
+use commons::crypt::hash_password;
 
 #[tokio::test]
 async fn auto_create_and_login_ok() {
@@ -17,10 +17,11 @@ async fn auto_create_and_login_ok() {
     assert!(ok1 != 0 || ok2 != 0, "session key should be random");
 
     // Account was created with the Java password hash.
-    let (password,): (String,) = sqlx::query_as("SELECT password FROM accounts WHERE login = 'newuser'")
-        .fetch_one(&server.pool)
-        .await
-        .unwrap();
+    let (password,): (String,) =
+        sqlx::query_as("SELECT password FROM accounts WHERE login = 'newuser'")
+            .fetch_one(&server.pool)
+            .await
+            .unwrap();
     assert_eq!(password, hash_password("secret"));
 }
 
@@ -57,7 +58,11 @@ async fn banned_account_gets_account_kicked() {
 
     let (_c, reply) = login(server.addr, "banned", "pw").await;
     assert_eq!(reply[0], 0x02, "AccountKicked opcode");
-    assert_eq!(i32::from_le_bytes(reply[1..5].try_into().unwrap()), 0x20, "REASON_PERMANENTLY_BANNED");
+    assert_eq!(
+        i32::from_le_bytes(reply[1..5].try_into().unwrap()),
+        0x20,
+        "REASON_PERMANENTLY_BANNED"
+    );
 }
 
 #[tokio::test]
@@ -69,7 +74,10 @@ async fn temp_ban_via_account_data() {
         .await
         .unwrap();
     // ban_temp in the future → accessLevel reads as -1.
-    let future = (std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as i64)
+    let future = (std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64)
         + 3_600_000;
     sqlx::query("INSERT INTO account_data VALUES ('tempban', 'ban_temp', ?)")
         .bind(future.to_string())
@@ -97,7 +105,10 @@ async fn double_login_kicks_first_client() {
     let kick = first.recv().await.expect("kick packet");
     assert_eq!(kick[0], 0x01);
     assert_eq!(kick[1], 0x07);
-    assert!(first.recv().await.is_none(), "first connection closed after kick");
+    assert!(
+        first.recv().await.is_none(),
+        "first connection closed after kick"
+    );
 }
 
 #[tokio::test]
@@ -118,7 +129,10 @@ async fn failed_attempts_ban_ip() {
     // of Init, under the static first-packet encryption.
     let stream = tokio::net::TcpStream::connect(server.addr).await.unwrap();
     let (mut read, _write) = stream.into_split();
-    let mut first = commons::network::read_frame(&mut read, 8192).await.unwrap().expect("no packet");
+    let mut first = commons::network::read_frame(&mut read, 8192)
+        .await
+        .unwrap()
+        .expect("no packet");
     commons::crypt::NewCrypt::new(&common::STATIC_BLOWFISH_KEY).decrypt(&mut first);
     common::dec_xor_pass(&mut first);
     assert_eq!(first[0], 0x01, "LoginFail opcode");

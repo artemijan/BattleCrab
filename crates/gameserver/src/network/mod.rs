@@ -36,7 +36,11 @@ pub type NetEventRx = std::sync::mpsc::Receiver<NetEvent>;
 pub enum NetEvent {
     /// A client finished connecting; carries the handle the game thread uses to
     /// send packets back and identify the client.
-    Connected { client_id: u32, out: OutboundTx, addr: std::net::SocketAddr },
+    Connected {
+        client_id: u32,
+        out: OutboundTx,
+        addr: std::net::SocketAddr,
+    },
     /// A decrypted gameplay packet body (opcode byte + payload) past the
     /// transport handshake. Opcode dispatch happens on the game thread (G2+).
     Received { client_id: u32, data: Vec<u8> },

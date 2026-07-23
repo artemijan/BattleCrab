@@ -37,7 +37,12 @@ pub(super) fn show_admin_html(world: &World, client_id: u32, path: &str) {
 
 /// As [`show_admin_html`] but substitutes `%token%` placeholders first (Java
 /// `NpcHtmlMessage.replace`). Each `(token, value)` replaces every `%token%`.
-pub(super) fn show_admin_html_replace(world: &World, client_id: u32, path: &str, replacements: &[(&str, String)]) {
+pub(super) fn show_admin_html_replace(
+    world: &World,
+    client_id: u32,
+    path: &str,
+    replacements: &[(&str, String)],
+) {
     let full = format!("{}data/html/admin/{path}", world.data.root);
     let mut content = crate::data::htm_cache::read_htm(&full).unwrap_or_else(|| {
         format!("<html><body>My text is missing:<br>data/html/admin/{path}</body></html>")

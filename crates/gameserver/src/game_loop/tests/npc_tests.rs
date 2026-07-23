@@ -12,27 +12,46 @@ fn queued_action_slot_is_last_click_wins() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let _b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
-    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
-    world.objects.get_component_mut::<Speeds>(&3001).unwrap().running = true;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&3001)
+        .unwrap()
+        .run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&3001)
+        .unwrap()
+        .running = true;
 
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     drain(&mut a_rx);
 
     handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
-    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+    assert!(matches!(
+        world.objects.get_component::<QueuedAction>(&3001),
+        Some(QueuedAction::Move { .. })
+    ));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1015, false));
-    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Skill { skill_id: 1015, .. })));
+    assert!(matches!(
+        world.objects.get_component::<QueuedAction>(&3001),
+        Some(QueuedAction::Skill { skill_id: 1015, .. })
+    ));
     handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
     match world.objects.get_component::<QueuedAction>(&3001) {
-        Some(&QueuedAction::Move { x, .. }) => assert_eq!(x, 600, "move click wipes the queued skill"),
+        Some(&QueuedAction::Move { x, .. }) => {
+            assert_eq!(x, 600, "move click wipes the queued skill")
+        }
         other => panic!("expected the last move click in the slot: {other:?}"),
     }
 
     // Cast end: the last click (move) replays; no second cast starts.
     advance_ticks(&mut world, 45);
     assert!(!world.objects.has_component::<Casting>(&3001));
-    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at cast end");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&3001)
+        .expect("move started at cast end");
     assert_eq!((mv.0.dest_x, mv.0.dest_y), (600, 0));
 }
 
@@ -51,39 +70,84 @@ fn action_selects_switches_and_cancels_target() {
 
     handle_action(&mut world, 1, &action_body(3002, 0));
 
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(3002));
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(3002)
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MY_TARGET_SELECTED
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::STATUS_UPDATE
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(a_rx.try_recv().is_err(), "no extra packets to the selector");
 
-    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_SELECTED);
-    assert!(b_rx.try_recv().is_err(), "target never gets MyTargetSelected");
+    assert_eq!(
+        b_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::TARGET_SELECTED
+    );
+    assert!(
+        b_rx.try_recv().is_err(),
+        "target never gets MyTargetSelected"
+    );
 
     // Re-click the same target: no-op besides the ActionFailed terminator.
     handle_action(&mut world, 1, &action_body(3002, 0));
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(a_rx.try_recv().is_err());
-    assert!(b_rx.try_recv().is_err(), "no TargetSelected rebroadcast on re-click");
+    assert!(
+        b_rx.try_recv().is_err(),
+        "no TargetSelected rebroadcast on re-click"
+    );
 
     // Cancel.
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        None
+    );
     assert_eq!(
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::TARGET_UNSELECTED,
         "canceller must receive TargetUnselected too"
     );
-    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_UNSELECTED);
+    assert_eq!(
+        b_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::TARGET_UNSELECTED
+    );
 
     // Self-click: same select path as any other player target (Java
     // routes self-clicks through `PlayerAction` too).
     handle_action(&mut world, 1, &action_body(3001, 0));
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(3001));
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::MY_TARGET_SELECTED);
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert_eq!(b_rx.try_recv().unwrap()[0], server_packets::opcodes::TARGET_SELECTED);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(3001)
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MY_TARGET_SELECTED
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::STATUS_UPDATE
+    );
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
+    assert_eq!(
+        b_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::TARGET_SELECTED
+    );
 }
 
 /// Entering the world sends `NpcInfo` for NPCs in the 3×3 region block and
@@ -97,7 +161,10 @@ fn enter_world_sends_npc_info_for_nearby_npcs_only() {
     visibility::on_enter_world(&world, 1, 3001);
 
     let packets = drain(&mut rx);
-    let npc_infos: Vec<_> = packets.iter().filter(|p| p[0] == server_packets::opcodes::NPC_INFO).collect();
+    let npc_infos: Vec<_> = packets
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::NPC_INFO)
+        .collect();
     assert_eq!(npc_infos.len(), 1, "only the nearby NPC is described");
     let described = i32::from_le_bytes(npc_infos[0][1..5].try_into().unwrap());
     assert_eq!(described, NPC_OID);
@@ -114,11 +181,17 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     // Step into region (2, 0): the NPC appears.
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 2 * 2048 + 10;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 2 * 2048 + 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_INFO),
         "NpcInfo on entering visibility range"
     );
 
@@ -126,8 +199,16 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
     // released with an explicit TargetUnselected *before* the DeleteObject
     // (Java `switchRegion` runs `setTarget(null)` first, and the self-directed
     // TargetUnselected is what clears this client's ground ring).
-    world.objects.get_component_mut::<TargetRef>(&3001).unwrap().0 = Some(NPC_OID);
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 10;
+    world
+        .objects
+        .get_component_mut::<TargetRef>(&3001)
+        .unwrap()
+        .0 = Some(NPC_OID);
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
     let unselect_at = packets
@@ -138,31 +219,52 @@ fn region_cross_sends_npc_deltas_and_drops_npc_target() {
         .iter()
         .position(|p| p[0] == server_packets::opcodes::DELETE_OBJECT)
         .expect("DeleteObject for the NPC leaving range");
-    assert!(unselect_at < delete_at, "TargetUnselected must precede DeleteObject");
+    assert!(
+        unselect_at < delete_at,
+        "TargetUnselected must precede DeleteObject"
+    );
     assert_eq!(
         i32::from_le_bytes(packets[unselect_at][1..5].try_into().unwrap()),
         3001,
         "payload carries the deselecting player"
     );
-    assert_eq!(i32::from_le_bytes(packets[delete_at][1..5].try_into().unwrap()), NPC_OID);
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None, "dangling NPC target dropped");
+    assert_eq!(
+        i32::from_le_bytes(packets[delete_at][1..5].try_into().unwrap()),
+        NPC_OID
+    );
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        None,
+        "dangling NPC target dropped"
+    );
 
     // Walk back into range: the NPC re-enters via NpcInfo only — no selection
     // packets, and the target stays dropped (the walk-away-and-back ring bug).
-    world.objects.get_component_mut::<Position>(&3001).unwrap().x = 2 * 2048 + 10;
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 2 * 2048 + 10;
     visibility::update_region(&mut world, 3001);
     let packets = drain(&mut rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_INFO),
         "NpcInfo on re-entering visibility range"
     );
     assert!(
         !packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED || p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
+            .any(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED
+                || p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
         "coming back must not touch target state"
     );
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, None, "target stays dropped after returning");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        None,
+        "target stays dropped after returning"
+    );
 }
 
 /// `Action` on an NPC: first click selects (`ValidateLocation` +
@@ -176,21 +278,43 @@ fn action_on_npc_selects_then_second_click_opens_chat_window() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID));
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::VALIDATE_LOCATION);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(NPC_OID)
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::VALIDATE_LOCATION
+    );
     let mts = rx.try_recv().unwrap();
     assert_eq!(mts[0], server_packets::opcodes::MY_TARGET_SELECTED);
-    assert_eq!(i16::from_le_bytes(mts[9..11].try_into().unwrap()), 0, "no level color on a Folk");
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STATUS_UPDATE);
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        i16::from_le_bytes(mts[9..11].try_into().unwrap()),
+        0,
+        "no level color on a Folk"
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::STATUS_UPDATE
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(rx.try_recv().is_err());
 
     // Second click within INTERACTION_DISTANCE: the dialog opens (the html
     // file itself is absent in the synthetic world, so the "text is missing"
     // stub is served — the packet flow is what's under test).
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::NPC_HTML_MESSAGE);
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::NPC_HTML_MESSAGE
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(rx.try_recv().is_err());
 }
 
@@ -207,11 +331,26 @@ fn shift_click_npc_opens_view_window_when_alt_game_view_npc() {
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 1));
 
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID), "target set like NpcActionShift");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(NPC_OID),
+        "target set like NpcActionShift"
+    );
     let pkts = drain(&mut rx);
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::MY_TARGET_SELECTED), "target selected");
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE), "info window opened");
-    assert!(!world.objects.has_component::<Intent>(&3001), "the info window must not start an attack/interact");
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::MY_TARGET_SELECTED),
+        "target selected"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        "info window opened"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "the info window must not start an attack/interact"
+    );
 }
 
 /// Without `AltGameViewNpc` (the default), a shift-click on an NPC is just a
@@ -224,9 +363,14 @@ fn shift_click_npc_without_alt_game_view_npc_only_selects() {
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 1));
 
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(NPC_OID));
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(NPC_OID)
+    );
     assert!(
-        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        !drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
         "no info window without the config flag"
     );
 }
@@ -241,7 +385,11 @@ fn action_on_far_npc_walks_in_then_opens_chat_window() {
     let (mut world, ..) = test_world();
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 2000, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&3001)
+        .unwrap()
+        .run_spd = 100.0;
 
     // First click: select (far away, selection itself isn't range-gated).
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
@@ -252,11 +400,15 @@ fn action_on_far_npc_walks_in_then_opens_chat_window() {
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     let packets = drain(&mut rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
         "out-of-range talk click must start walking toward the NPC"
     );
     assert!(
-        !packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
         "no dialog yet — still far away"
     );
     assert!(matches!(
@@ -270,7 +422,9 @@ fn action_on_far_npc_walks_in_then_opens_chat_window() {
     advance_world(&mut world, 400);
     let packets = drain(&mut rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
         "chat window must open once the walk-in arrives"
     );
     assert!(
@@ -301,23 +455,44 @@ fn bypass_routes_npc_commands_and_tracks_last_folk_npc() {
     // `npc_`-prefixed command on an in-range NPC whose verb has no handler
     // (log-drop): the `ActionFailed` terminator still arrives — Java sends it
     // from the `npc_` branch regardless of the outcome.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_NoSuchVerb")));
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_NoSuchVerb")),
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(rx.try_recv().is_err());
 
     // A handled verb answers before that terminator: `Chat 0` sends the NPC's
     // dialog page (here the "text is missing" stub — this world has no html
     // root) ahead of the `ActionFailed`.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Chat 0")));
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::NPC_HTML_MESSAGE);
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Chat 0")),
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::NPC_HTML_MESSAGE
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(rx.try_recv().is_err());
 
     // Malformed `npc_` forms never act but still terminate: missing command
     // tail, non-numeric id, unknown object id.
     for cmd in ["npc_12345", "npc_x_y", "npc_999_Chat 0"] {
         handle_request_bypass_to_server(&mut world, 1, &bypass_body(cmd));
-        assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL, "for {cmd}");
+        assert_eq!(
+            rx.try_recv().unwrap()[0],
+            server_packets::opcodes::ACTION_FAIL,
+            "for {cmd}"
+        );
         assert!(rx.try_recv().is_err(), "for {cmd}");
     }
 
@@ -350,15 +525,37 @@ fn chat_bypass_walks_merchant_dialog_pages() {
     // Landing page (`Npc.showChatWindow(player, 0)`), via the NPC click.
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    let landing = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("landing page");
-    assert!(landing.contains("Trader Lector"), "merchant/30001.htm: {landing}");
-    assert!(landing.contains(&format!("npc_{NPC_OID}_Chat 1")), "trade button carries the objectId");
+    let landing = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("landing page");
+    assert!(
+        landing.contains("Trader Lector"),
+        "merchant/30001.htm: {landing}"
+    );
+    assert!(
+        landing.contains(&format!("npc_{NPC_OID}_Chat 1")),
+        "trade button carries the objectId"
+    );
 
     // The trade button: page 1 is the buy-list menu.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Chat 1")));
-    let page1 = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("page 1");
-    assert!(page1.contains("What would you like to trade?"), "merchant/30001-1.htm: {page1}");
-    assert!(page1.contains(&format!("npc_{NPC_OID}_Buy 3000101")), "warrior buy list reachable");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Chat 1")),
+    );
+    let page1 = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("page 1");
+    assert!(
+        page1.contains("What would you like to trade?"),
+        "merchant/30001-1.htm: {page1}"
+    );
+    assert!(
+        page1.contains(&format!("npc_{NPC_OID}_Buy 3000101")),
+        "warrior buy list reachable"
+    );
 }
 
 /// Walking across a region boundary out of / back into an observer's 3×3
@@ -370,40 +567,72 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
     let (mut world, ..) = test_world();
     let mut mover_rx = ingame_player(&mut world, 1, 6201, 0, 0, 0);
     let mut watcher_rx = ingame_player(&mut world, 2, 6202, 3000, 0, 0); // region (1,0)
-    world.objects.get_component_mut::<Speeds>(&6201).unwrap().run_spd = 500.0;
-    world.objects.get_component_mut::<TargetRef>(&6202).unwrap().0 = Some(6201);
+    world
+        .objects
+        .get_component_mut::<Speeds>(&6201)
+        .unwrap()
+        .run_spd = 500.0;
+    world
+        .objects
+        .get_component_mut::<TargetRef>(&6202)
+        .unwrap()
+        .0 = Some(6201);
 
     // Walk west: region 0 → -1 → -2; (−1,0) is no longer adjacent to (1,0).
     handle_move_backward_to_location(&mut world, 1, &move_body((-2500, 0, 0), (0, 0, 0), 1));
-    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
-    assert_eq!(watcher_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(
+        mover_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
+    assert_eq!(
+        watcher_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
     for _ in 0..100 {
         world.tick += 1;
         visibility::movement_tick(&mut world);
     }
-    assert!(!world.objects.has_component::<Movement>(&6201), "move must have finished");
+    assert!(
+        !world.objects.has_component::<Movement>(&6201),
+        "move must have finished"
+    );
 
     // The first movement tick also fires the watcher's initial zone
     // revalidate (ExSetCompassZoneCode) — unrelated to visibility, drop it.
-    let to_watcher: Vec<_> =
-        drain(&mut watcher_rx).into_iter().filter(|p| p[0] != server_packets::opcodes::EX).collect();
+    let to_watcher: Vec<_> = drain(&mut watcher_rx)
+        .into_iter()
+        .filter(|p| p[0] != server_packets::opcodes::EX)
+        .collect();
     assert_eq!(
         to_watcher.len(),
         2,
         "TargetUnselected then DeleteObject after the move; got opcodes {:02x?}",
         to_watcher.iter().map(|p| p[0]).collect::<Vec<_>>()
     );
-    assert_eq!(to_watcher[0][0], server_packets::opcodes::TARGET_UNSELECTED, "ring released before the delete");
+    assert_eq!(
+        to_watcher[0][0],
+        server_packets::opcodes::TARGET_UNSELECTED,
+        "ring released before the delete"
+    );
     assert_eq!(delete_object_id(&to_watcher[1]), 6201);
-    let to_mover: Vec<_> =
-        drain(&mut mover_rx).into_iter().filter(|p| p[0] != server_packets::opcodes::EX).collect();
+    let to_mover: Vec<_> = drain(&mut mover_rx)
+        .into_iter()
+        .filter(|p| p[0] != server_packets::opcodes::EX)
+        .collect();
     assert_eq!(delete_object_id(to_mover.last().unwrap()), 6202);
-    assert_eq!(world.objects.get_component::<TargetRef>(&6202).unwrap().0, None, "dangling target dropped");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&6202).unwrap().0,
+        None,
+        "dangling target dropped"
+    );
 
     // Walk back east: crossing into region 0 re-enters the watcher's block —
     // CharInfo, then the in-flight move (describeStateToPlayer).
     handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (-2500, 0, 0), 1));
-    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(
+        mover_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
     for _ in 0..100 {
         world.tick += 1;
         visibility::movement_tick(&mut world);
@@ -415,7 +644,11 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
     assert_eq!(to_watcher[1][0], server_packets::opcodes::RELATION_CHANGED);
     assert_eq!(to_watcher[2][0], server_packets::opcodes::MOVE_TO_LOCATION);
     let to_mover = drain(&mut mover_rx);
-    assert_eq!(to_mover.len(), 2, "watcher isn't moving → CharInfo + RelationChanged only");
+    assert_eq!(
+        to_mover.len(),
+        2,
+        "watcher isn't moving → CharInfo + RelationChanged only"
+    );
     assert_eq!(char_info_object_id(&to_mover[0]), 6202);
     assert_eq!(to_mover[1][0], server_packets::opcodes::RELATION_CHANGED);
 }
@@ -432,9 +665,16 @@ fn shift_click_via_action_packet_does_not_move() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 34;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_oid, cs);
 
     // Select the far monster (plain click just targets it).
@@ -443,18 +683,29 @@ fn shift_click_via_action_packet_does_not_move() {
 
     // Shift-click it (Action, action_id = 1) — dontMove: no chase, "out of range".
     handle_action(&mut world, 1, &action_body(npc_oid, 1));
-    assert!(!world.objects.has_component::<Intent>(&3001), "no attack intent — dontMove");
-    assert!(!world.objects.has_component::<Movement>(&3001), "no chase — dontMove");
     assert!(
-        drain(&mut a_rx).iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
+        !world.objects.has_component::<Intent>(&3001),
+        "no attack intent — dontMove"
+    );
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "no chase — dontMove"
+    );
+    assert!(
+        drain(&mut a_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
         "out-of-range system message"
     );
 
     // A plain click on the same target chases instead.
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     assert!(
-        matches!(world.objects.get_component::<Intent>(&3001), Some(Intent(crate::model::PlayerIntent::Attack { .. }))),
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+        ),
         "a non-shift click engages (and will chase)"
     );
 }

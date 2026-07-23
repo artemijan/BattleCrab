@@ -63,7 +63,14 @@ impl QuestScript for Q00303CollectArrowheads {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30029-03.htm" } else { "30029-02.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30029-03.htm"
+                } else {
+                    "30029-02.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             match ctx.cond() {

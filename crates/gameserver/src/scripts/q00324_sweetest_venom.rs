@@ -59,7 +59,11 @@ impl QuestScript for Q00324SweetestVenom {
             return;
         }
         let sacs = ctx.quest_items_count(VENOM_SAC);
-        let chance = MONSTERS.iter().find(|(id, _)| *id == ctx.npc_id).map(|(_, c)| *c).unwrap_or(0);
+        let chance = MONSTERS
+            .iter()
+            .find(|(id, _)| *id == ctx.npc_id)
+            .map(|(_, c)| *c)
+            .unwrap_or(0);
         if sacs < REQUIRED_COUNT && ctx.roll(100) < chance {
             ctx.give_items(VENOM_SAC, 1);
             if sacs + 1 < REQUIRED_COUNT {
@@ -73,7 +77,14 @@ impl QuestScript for Q00324SweetestVenom {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() < MIN_LEVEL { "30351-02.html" } else { "30351-03.htm" }.to_string());
+            return Some(
+                if ctx.player_level() < MIN_LEVEL {
+                    "30351-02.html"
+                } else {
+                    "30351-03.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             return Some(if ctx.is_cond(2) {

@@ -13,12 +13,18 @@ fn link_bypass_serves_whitelisted_html_only() {
 
     // Whitelisted page (real dist file).
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Link common/craft_01.htm"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("html window");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("html window");
     assert!(html.contains("Dualsword"), "served the real page: {html}");
 
     // Non-whitelisted page: empty html window, not the file.
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Link merchant/30001.htm"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("empty html window");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("empty html window");
     assert!(html.is_empty());
 
     // Path traversal: dropped outright.

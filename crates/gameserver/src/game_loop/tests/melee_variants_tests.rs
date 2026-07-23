@@ -47,22 +47,46 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
     }
 }
 
-fn melee_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn melee_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
     // Real geometry: a polearm reaches 66 with a 120° arc; a sword 40/120.
-    world.data.item_data.insert_for_test(weapon_template(DUAL_ID, "Test Duals", 40, 120));
-    world.data.item_data.set_weapon_type_for_test(DUAL_ID, WeaponType::Dual);
-    world.data.item_data.insert_for_test(weapon_template(POLE_ID, "Test Polearm", 66, 120));
-    world.data.item_data.set_weapon_type_for_test(POLE_ID, WeaponType::Pole);
-    world.data.item_data.insert_for_test(weapon_template(SWORD_ID, "Test Sword", 40, 120));
-    world.data.item_data.set_weapon_type_for_test(SWORD_ID, WeaponType::Sword);
+    world
+        .data
+        .item_data
+        .insert_for_test(weapon_template(DUAL_ID, "Test Duals", 40, 120));
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(DUAL_ID, WeaponType::Dual);
+    world
+        .data
+        .item_data
+        .insert_for_test(weapon_template(POLE_ID, "Test Polearm", 66, 120));
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(POLE_ID, WeaponType::Pole);
+    world
+        .data
+        .item_data
+        .insert_for_test(weapon_template(SWORD_ID, "Test Sword", 40, 120));
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(SWORD_ID, WeaponType::Sword);
     (world, db, l)
 }
 
 fn equip(world: &mut World, item_id: i32) {
     let obj_id = 0x5100_0000 + item_id;
     let World { objects, data, .. } = world;
-    let inv = objects.get_component_mut::<Inventory>(&ATTACKER).expect("inventory");
+    let inv = objects
+        .get_component_mut::<Inventory>(&ATTACKER)
+        .expect("inventory");
     inv.add_item(&data.item_data, obj_id, item_id, 1);
     inv.equip_item(&data.item_data, obj_id);
 }
@@ -81,7 +105,10 @@ fn grant_hit_number(world: &mut World, extra: f64) {
 /// The hits carried by the Attack packet: `(target_id, damage)`, first inline
 /// then the additional-hit block.
 fn attack_hits(pkts: &[Vec<u8>]) -> Vec<(i32, i32)> {
-    let pkt = pkts.iter().find(|p| p[0] == server_packets::opcodes::ATTACK).expect("Attack packet");
+    let pkt = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::ATTACK)
+        .expect("Attack packet");
     let mut r = commons::network::PacketReader::new(&pkt[1..]);
     let _attacker = r.read_i32().unwrap();
     let first_target = r.read_i32().unwrap();
@@ -89,7 +116,11 @@ fn attack_hits(pkts: &[Vec<u8>]) -> Vec<(i32, i32)> {
     let first_damage = r.read_i32().unwrap();
     let _flags = r.read_i32().unwrap();
     let _grade = r.read_i32().unwrap();
-    let (_x, _y, _z) = (r.read_i32().unwrap(), r.read_i32().unwrap(), r.read_i32().unwrap());
+    let (_x, _y, _z) = (
+        r.read_i32().unwrap(),
+        r.read_i32().unwrap(),
+        r.read_i32().unwrap(),
+    );
     let extra = r.read_i16().unwrap();
     let mut out = vec![(first_target, first_damage)];
     for _ in 0..extra {
@@ -117,7 +148,10 @@ fn dual_weapon_strikes_twice_at_half_damage() {
     let hits = attack_hits(&drain(&mut out));
 
     assert_eq!(hits.len(), 2, "a dual swing carries two hits: {hits:?}");
-    assert!(hits.iter().all(|(t, _)| *t == NPC_OID), "both land on the main target");
+    assert!(
+        hits.iter().all(|(t, _)| *t == NPC_OID),
+        "both land on the main target"
+    );
     assert_eq!(hits[0].1, hits[1].1, "the two halves are equal");
 }
 
@@ -146,7 +180,11 @@ fn polearm_without_mastery_hits_one_target() {
     drain(&mut out);
 
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
-    assert_eq!(attack_hits(&drain(&mut out)).len(), 1, "no mastery, no sweep");
+    assert_eq!(
+        attack_hits(&drain(&mut out)).len(),
+        1,
+        "no mastery, no sweep"
+    );
 }
 
 /// **With** mastery the polearm sweeps neighbours inside its radius and arc —
@@ -163,7 +201,11 @@ fn polearm_with_mastery_sweeps_neighbours() {
     add_test_npc(&mut world, NPC_OID + 1, 20001, "Monster", 5, 55, 0, 0);
     add_test_npc(&mut world, NPC_OID + 2, 20001, "Monster", 5, 900, 0, 0);
     // Face them (heading 0 = +x).
-    world.objects.get_component_mut::<Position>(&ATTACKER).unwrap().heading = 0;
+    world
+        .objects
+        .get_component_mut::<Position>(&ATTACKER)
+        .unwrap()
+        .heading = 0;
     drain(&mut out);
 
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
@@ -171,8 +213,14 @@ fn polearm_with_mastery_sweeps_neighbours() {
     let targets: Vec<i32> = hits.iter().map(|(t, _)| *t).collect();
 
     assert!(targets.contains(&NPC_OID), "the main target is hit");
-    assert!(targets.contains(&(NPC_OID + 1)), "the neighbour in the arc is swept: {targets:?}");
-    assert!(!targets.contains(&(NPC_OID + 2)), "the distant mob is not: {targets:?}");
+    assert!(
+        targets.contains(&(NPC_OID + 1)),
+        "the neighbour in the arc is swept: {targets:?}"
+    );
+    assert!(
+        !targets.contains(&(NPC_OID + 2)),
+        "the distant mob is not: {targets:?}"
+    );
 }
 
 /// The sweep is capped by `ATTACK_COUNT_MAX` — one extra target means two hits
@@ -185,13 +233,30 @@ fn sweep_is_capped_by_attack_count() {
     grant_hit_number(&mut world, 1.0); // 1 base + 1 extra = 2
 
     for i in 0..4 {
-        add_test_npc(&mut world, NPC_OID + i, 20001, "Monster", 5, 30 + i * 5, 0, 0);
+        add_test_npc(
+            &mut world,
+            NPC_OID + i,
+            20001,
+            "Monster",
+            5,
+            30 + i * 5,
+            0,
+            0,
+        );
     }
-    world.objects.get_component_mut::<Position>(&ATTACKER).unwrap().heading = 0;
+    world
+        .objects
+        .get_component_mut::<Position>(&ATTACKER)
+        .unwrap()
+        .heading = 0;
     drain(&mut out);
 
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
-    assert_eq!(attack_hits(&drain(&mut out)).len(), 2, "capped at the base + one extra");
+    assert_eq!(
+        attack_hits(&drain(&mut out)).len(),
+        2,
+        "capped at the base + one extra"
+    );
 }
 
 /// A creature behind the attacker is outside the arc and is not swept up.
@@ -204,11 +269,18 @@ fn sweep_respects_the_attack_angle() {
 
     add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 40, 0, 0); // ahead (+x)
     add_test_npc(&mut world, NPC_OID + 1, 20001, "Monster", 5, -40, 0, 0); // directly behind
-    world.objects.get_component_mut::<Position>(&ATTACKER).unwrap().heading = 0; // facing +x
+    world
+        .objects
+        .get_component_mut::<Position>(&ATTACKER)
+        .unwrap()
+        .heading = 0; // facing +x
     drain(&mut out);
 
     crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
-    let targets: Vec<i32> = attack_hits(&drain(&mut out)).iter().map(|(t, _)| *t).collect();
+    let targets: Vec<i32> = attack_hits(&drain(&mut out))
+        .iter()
+        .map(|(t, _)| *t)
+        .collect();
     assert!(
         !targets.contains(&(NPC_OID + 1)),
         "a mob 180° behind is outside the 120° arc: {targets:?}"

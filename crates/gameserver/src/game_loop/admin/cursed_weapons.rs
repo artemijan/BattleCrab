@@ -23,7 +23,10 @@ use super::{current_target, send_message};
 
 /// Wall-clock millis (Java `System.currentTimeMillis()`).
 pub(crate) fn now_millis() -> i64 {
-    std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
 
 /// Resolve the `<itemid|name>` argument to a cursed-weapon index in
@@ -31,7 +34,10 @@ pub(crate) fn now_millis() -> i64 {
 /// substring). `None` when unmatched.
 /// The index of the cursed weapon with `item_id`, if this dist has it.
 pub(crate) fn idx_by_item(world: &World, item_id: i32) -> Option<usize> {
-    world.cursed_weapons.iter().position(|cw| cw.item_id == item_id)
+    world
+        .cursed_weapons
+        .iter()
+        .position(|cw| cw.item_id == item_id)
 }
 
 fn resolve(world: &World, arg: &str) -> Option<usize> {
@@ -40,7 +46,10 @@ fn resolve(world: &World, arg: &str) -> Option<usize> {
         world.cursed_weapons.iter().position(|cw| cw.item_id == id)
     } else {
         let needle = arg.replace('_', " ").to_ascii_lowercase();
-        world.cursed_weapons.iter().position(|cw| cw.name.to_ascii_lowercase().contains(&needle))
+        world
+            .cursed_weapons
+            .iter()
+            .position(|cw| cw.name.to_ascii_lowercase().contains(&needle))
     }
 }
 
@@ -61,11 +70,17 @@ pub(super) fn admin_cw_info(world: &mut World, client_id: u32) {
                     .unwrap_or_else(|| "null".to_string());
                 out.push(format!("  Player holding: {holder}"));
                 out.push(format!("    Player Reputation: {}", cw.player_reputation));
-                out.push(format!("    Time Remaining: {} min.", cw.time_left(now) / 60000));
+                out.push(format!(
+                    "    Time Remaining: {} min.",
+                    cw.time_left(now) / 60000
+                ));
                 out.push(format!("    Kills : {}", cw.nb_kills));
             } else if cw.is_dropped {
                 out.push("  Lying on the ground.".to_string());
-                out.push(format!("    Time Remaining: {} min.", cw.time_left(now) / 60000));
+                out.push(format!(
+                    "    Time Remaining: {} min.",
+                    cw.time_left(now) / 60000
+                ));
                 out.push(format!("    Kills : {}", cw.nb_kills));
             } else {
                 out.push("  Don't exist in the world.".to_string());
@@ -91,7 +106,10 @@ pub(super) fn admin_cw_info_menu(world: &mut World, client_id: u32) {
     let now = now_millis();
     let mut body = String::new();
     for cw in &world.cursed_weapons {
-        body.push_str(&format!("<table width=270><tr><td>Name:</td><td>{}</td></tr>", cw.name));
+        body.push_str(&format!(
+            "<table width=270><tr><td>Name:</td><td>{}</td></tr>",
+            cw.name
+        ));
         if cw.is_activated {
             let holder = world
                 .objects
@@ -99,16 +117,28 @@ pub(super) fn admin_cw_info_menu(world: &mut World, client_id: u32) {
                 .map(|p| p.name.clone())
                 .unwrap_or_else(|| "null".to_string());
             body.push_str(&format!("<tr><td>Weilder:</td><td>{holder}</td></tr>"));
-            body.push_str(&format!("<tr><td>Karma:</td><td>{}</td></tr>", cw.player_reputation));
-            body.push_str(&format!("<tr><td>Kills:</td><td>{}/{}</td></tr>", cw.player_pk_kills, cw.nb_kills));
-            body.push_str(&format!("<tr><td>Time remaining:</td><td>{} min.</td></tr>", cw.time_left(now) / 60000));
+            body.push_str(&format!(
+                "<tr><td>Karma:</td><td>{}</td></tr>",
+                cw.player_reputation
+            ));
+            body.push_str(&format!(
+                "<tr><td>Kills:</td><td>{}/{}</td></tr>",
+                cw.player_pk_kills, cw.nb_kills
+            ));
+            body.push_str(&format!(
+                "<tr><td>Time remaining:</td><td>{} min.</td></tr>",
+                cw.time_left(now) / 60000
+            ));
             body.push_str(&format!(
                 "<tr><td><button value=\"Remove\" action=\"bypass -h admin_cw_remove {0}\" width=73 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td><td><button value=\"Go\" action=\"bypass -h admin_cw_goto {0}\" width=73 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>",
                 cw.item_id
             ));
         } else if cw.is_dropped {
             body.push_str("<tr><td>Position:</td><td>Lying on the ground</td></tr>");
-            body.push_str(&format!("<tr><td>Time remaining:</td><td>{} min.</td></tr>", cw.time_left(now) / 60000));
+            body.push_str(&format!(
+                "<tr><td>Time remaining:</td><td>{} min.</td></tr>",
+                cw.time_left(now) / 60000
+            ));
             body.push_str(&format!("<tr><td>Kills:</td><td>{}</td></tr>", cw.nb_kills));
             body.push_str(&format!(
                 "<tr><td><button value=\"Remove\" action=\"bypass -h admin_cw_remove {0}\" width=73 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td><td><button value=\"Go\" action=\"bypass -h admin_cw_goto {0}\" width=73 height=21 back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr>",
@@ -132,7 +162,11 @@ pub(super) fn admin_cw_info_menu(world: &mut World, client_id: u32) {
 pub(super) fn admin_cw_reload(world: &mut World) {
     let fresh = crate::data::CursedWeaponData::load_from(&world.data.root);
     for cfg in fresh.weapons {
-        if let Some(cw) = world.cursed_weapons.iter_mut().find(|c| c.item_id == cfg.item_id) {
+        if let Some(cw) = world
+            .cursed_weapons
+            .iter_mut()
+            .find(|c| c.item_id == cfg.item_id)
+        {
             cw.name = cfg.name;
             cw.skill_id = cfg.skill_id;
             cw.disappear_chance = cfg.disappear_chance;
@@ -150,7 +184,11 @@ pub(super) fn admin_cw_reload(world: &mut World) {
 /// ground drop's position is a TODO(G28) nicety.
 pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
-        send_message(world, client_id, "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>");
+        send_message(
+            world,
+            client_id,
+            "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>",
+        );
         return;
     };
     let cw = &world.cursed_weapons[idx];
@@ -169,7 +207,11 @@ pub(super) fn admin_cw_goto(world: &mut World, client_id: u32, gm_object_id: i32
 /// wielder / not-in-world cases the admin path reaches.
 pub(super) fn admin_cw_remove(world: &mut World, client_id: u32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
-        send_message(world, client_id, "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>");
+        send_message(
+            world,
+            client_id,
+            "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>",
+        );
         return;
     };
     end_of_life(world, idx);
@@ -180,7 +222,11 @@ pub(super) fn admin_cw_remove(world: &mut World, client_id: u32, args: &[&str]) 
 /// `setEndTime` + `reActivate`).
 pub(super) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
-        send_message(world, client_id, "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>");
+        send_message(
+            world,
+            client_id,
+            "Usage: //cw_remove|//cw_goto|//cw_add <itemid|name>",
+        );
         return;
     };
     if world.cursed_weapons[idx].is_active() {
@@ -194,7 +240,11 @@ pub(super) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
     // TODO(G21): Java's `activate` gives a stage bonus to an existing cursed
     // weapon and end-of-lifes the new one when the target already wields one;
     // here we only handle the common (unowned) case.
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.cursed_weapon_equipped_id != 0) {
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
+    {
         send_message(world, client_id, "Target already wields a cursed weapon.");
         return;
     }
@@ -206,18 +256,29 @@ pub(super) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
 pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     let (item_id, skill_id, duration, skill_max_level, stage_kills) = {
         let cw = &world.cursed_weapons[idx];
-        (cw.item_id, cw.skill_id, cw.duration, cw.skill_max_level, cw.stage_kills)
+        (
+            cw.item_id,
+            cw.skill_id,
+            cw.duration,
+            cw.skill_max_level,
+            cw.stage_kills,
+        )
     };
     let target_client = super::helpers::client_for_player(world, target);
 
     // Save the wielder's current reputation/pk-kills (restored on end-of-life).
     let (saved_rep, saved_pk) = {
-        let Some(p) = world.objects.get_component::<Player>(&target) else { return };
+        let Some(p) = world.objects.get_component::<Player>(&target) else {
+            return;
+        };
         (p.reputation, p.pk_kills)
     };
 
     // addItem — give the weapon.
-    let Some(item_oids) = crate::game_loop::items::add_inventory_item(world, target, item_id, 1) else { return };
+    let Some(item_oids) = crate::game_loop::items::add_inventory_item(world, target, item_id, 1)
+    else {
+        return;
+    };
     let item_oid = item_oids[0];
 
     // Change wielder stats (Java: reputation = -9999999, pkKills = 0).
@@ -247,7 +308,10 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         crate::game_loop::items::use_equipable_item(world, tc, target, item_oid);
         // "You have equipped your $s1."
         if let Some(cs) = world.clients.get(&tc) {
-            cs.send(server_packets::system_message_with(sm_ids::YOU_HAVE_EQUIPPED_YOUR_S1, &[SmParam::ItemName(item_id)]));
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_HAVE_EQUIPPED_YOUR_S1,
+                &[SmParam::ItemName(item_id)],
+            ));
         }
     }
 
@@ -297,7 +361,14 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
 pub(crate) fn end_of_life(world: &mut World, idx: usize) {
     let (item_id, name, is_activated, player_id, saved_rep, saved_pk) = {
         let cw = &world.cursed_weapons[idx];
-        (cw.item_id, cw.name.clone(), cw.is_activated, cw.player_id, cw.player_reputation, cw.player_pk_kills)
+        (
+            cw.item_id,
+            cw.name.clone(),
+            cw.is_activated,
+            cw.player_id,
+            cw.player_reputation,
+            cw.player_pk_kills,
+        )
     };
 
     if is_activated && world.objects.has_component::<Player>(&player_id) {
@@ -318,7 +389,12 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
 
         // Unequip (if worn) + destroy the weapon item, refresh the inventory.
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player_id) {
-            if let Some(item_oid) = inv.items().iter().find(|i| i.item_id == item_id).map(|i| i.object_id) {
+            if let Some(item_oid) = inv
+                .items()
+                .iter()
+                .find(|i| i.item_id == item_id)
+                .map(|i| i.object_id)
+            {
                 if inv.paperdoll_slot_of(item_oid).is_some() {
                     inv.unequip_item(item_oid);
                 }
@@ -333,7 +409,10 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
 
     // Drop the DB row + announce the disappearance to everyone.
     let _ = world.db.send(DbCommand::RemoveCursedWeapon { item_id });
-    let announce = server_packets::system_message_with(sm_ids::S1_HAS_DISAPPEARED, &[SmParam::ItemName(item_id)]);
+    let announce = server_packets::system_message_with(
+        sm_ids::S1_HAS_DISAPPEARED,
+        &[SmParam::ItemName(item_id)],
+    );
     broadcast_to_all(world, &announce);
     let _ = name;
 

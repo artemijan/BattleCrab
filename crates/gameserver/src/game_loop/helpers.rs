@@ -20,12 +20,15 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
 /// Ported paths that only sent the bare `InventoryUpdate` left the adena display
 /// stale (e.g. `//create_coin Adena`). `iu` is the already-built InventoryUpdate.
 pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i32, iu: Vec<u8>) {
-    let extras = world.objects.get_component::<crate::model::inventory::Inventory>(&object_id).map(|inv| {
-        (
-            crate::network::enter_world::ex_adena_inven_count(inv),
-            crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data),
-        )
-    });
+    let extras = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .map(|inv| {
+            (
+                crate::network::enter_world::ex_adena_inven_count(inv),
+                crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data),
+            )
+        });
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(iu);
         if let Some((adena, weight)) = extras {
@@ -43,10 +46,21 @@ pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>
     use crate::model::components::{ClanSkills, SkillBook, SkillEnchants};
     let book = world.objects.get_component::<SkillBook>(&object_id)?;
     let empty = ClanSkills::default();
-    let clan = world.objects.get_component::<ClanSkills>(&object_id).unwrap_or(&empty);
+    let clan = world
+        .objects
+        .get_component::<ClanSkills>(&object_id)
+        .unwrap_or(&empty);
     let no_enchants = SkillEnchants::default();
-    let enchants = world.objects.get_component::<SkillEnchants>(&object_id).unwrap_or(&no_enchants);
-    Some(crate::network::enter_world::skill_list(book, enchants, clan, &world.data))
+    let enchants = world
+        .objects
+        .get_component::<SkillEnchants>(&object_id)
+        .unwrap_or(&no_enchants);
+    Some(crate::network::enter_world::skill_list(
+        book,
+        enchants,
+        clan,
+        &world.data,
+    ))
 }
 
 /// Send a fresh `EtcStatusUpdate` to one player, built from their current state
@@ -55,11 +69,23 @@ pub(crate) fn skill_list_packet(world: &World, object_id: i32) -> Option<Vec<u8>
 /// This is what redraws the grade-penalty and chat-block icons.
 pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i32) {
     use crate::model::components::{AdminFlags, ExpertisePenalty};
-    let ep = world.objects.get_component::<ExpertisePenalty>(&object_id).copied().unwrap_or_default();
-    let silence = world.objects.get_component::<AdminFlags>(&object_id).is_some_and(|f| f.silence);
-    let charges = world.objects.get_component::<crate::model::Player>(&object_id).map_or(0, |p| p.charges);
+    let ep = world
+        .objects
+        .get_component::<ExpertisePenalty>(&object_id)
+        .copied()
+        .unwrap_or_default();
+    let silence = world
+        .objects
+        .get_component::<AdminFlags>(&object_id)
+        .is_some_and(|f| f.silence);
+    let charges = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map_or(0, |p| p.charges);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::enter_world::etc_status_update(charges, ep.weapon, ep.armor, silence));
+        cs.send(crate::network::enter_world::etc_status_update(
+            charges, ep.weapon, ep.armor, silence,
+        ));
     }
 }
 
@@ -69,7 +95,9 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
 /// broadcaster's 3×3 surrounding-region block receive it.
 pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {
     use crate::model::components::RegionCell;
-    let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else { return };
+    let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else {
+        return;
+    };
     let from_region = from.0;
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
@@ -77,7 +105,9 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
             if other_id == from_object_id {
                 continue;
             }
-            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else { continue };
+            let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else {
+                continue;
+            };
             if crate::world::regions_adjacent(from_region, other.0) {
                 cs.send(packet.to_vec());
             }
@@ -93,7 +123,12 @@ pub(crate) fn broadcast_near_region(world: &World, region: (i32, i32), packet: &
     use crate::model::components::RegionCell;
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
-            let Some(p) = world.objects.get_component::<RegionCell>(&s.player_object_id()) else { continue };
+            let Some(p) = world
+                .objects
+                .get_component::<RegionCell>(&s.player_object_id())
+            else {
+                continue;
+            };
             if crate::world::regions_adjacent(region, p.0) {
                 cs.send(packet.to_vec());
             }
@@ -109,7 +144,12 @@ pub(crate) fn ms_to_ticks(ms: i32) -> u64 {
 /// Send a `SystemMessage` + `ActionFailed` to one client — the standard
 /// "request rejected" reply shape all over `Player.useMagic` /
 /// `SkillCaster.checkUseConditions`.
-pub(crate) fn send_sm_and_action_failed(world: &World, client_id: u32, message_id: i16, params: &[server_packets::SmParam]) {
+pub(crate) fn send_sm_and_action_failed(
+    world: &World,
+    client_id: u32,
+    message_id: i16,
+    params: &[server_packets::SmParam],
+) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::system_message_with(message_id, params));
         cs.send(server_packets::action_failed());
@@ -123,8 +163,16 @@ pub(crate) fn send_sm_and_action_failed(world: &World, client_id: u32, message_i
 /// needed the world and the speaker, and the quest coupling was incidental.
 /// `QuestCtx::npc_say` now delegates here.
 pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
-    let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&npc_oid).map(|r| r.0)
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    else {
+        return;
+    };
+    let Some(region) = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&npc_oid)
+        .map(|r| r.0)
     else {
         return;
     };
@@ -134,8 +182,16 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
 
 /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
 pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
-    let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&npc_oid).map(|r| r.0)
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+    else {
+        return;
+    };
+    let Some(region) = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&npc_oid)
+        .map(|r| r.0)
     else {
         return;
     };
@@ -163,30 +219,57 @@ pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[
 /// stays for the later stop.
 pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
     use crate::model::components::{AttackState, Casting, Position, QueuedAction, Vitals};
-    let Some(&action) = world.objects.get_component::<QueuedAction>(&object_id) else { return };
+    let Some(&action) = world.objects.get_component::<QueuedAction>(&object_id) else {
+        return;
+    };
     if world.objects.has_component::<Casting>(&object_id)
-        || world.objects.get_component::<AttackState>(&object_id).is_some_and(|st| st.attack_end_tick > world.tick)
-        || world.objects.get_component::<Vitals>(&object_id).is_some_and(|v| v.dead)
+        || world
+            .objects
+            .get_component::<AttackState>(&object_id)
+            .is_some_and(|st| st.attack_end_tick > world.tick)
+        || world
+            .objects
+            .get_component::<Vitals>(&object_id)
+            .is_some_and(|v| v.dead)
     {
         return;
     }
     world.objects.remove_component::<QueuedAction>(&object_id);
-    let Some(client_id) = client_for_player(world, object_id) else { return };
+    let Some(client_id) = client_for_player(world, object_id) else {
+        return;
+    };
     match action {
         QueuedAction::Move { x, y, z } => {
-            let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else { return };
-            crate::game_loop::position::intention_move_to(world, client_id, object_id, cur, (x, y, z));
+            let Some(cur) = world.objects.get_component::<Position>(&object_id).copied() else {
+                return;
+            };
+            crate::game_loop::position::intention_move_to(
+                world,
+                client_id,
+                object_id,
+                cur,
+                (x, y, z),
+            );
         }
-        QueuedAction::Skill { skill_id, ctrl, shift } => {
-            crate::game_loop::skills::cast::use_magic(world, client_id, object_id, skill_id, ctrl, shift);
+        QueuedAction::Skill {
+            skill_id,
+            ctrl,
+            shift,
+        } => {
+            crate::game_loop::skills::cast::use_magic(
+                world, client_id, object_id, skill_id, ctrl, shift,
+            );
         }
         QueuedAction::UseItem { item_object_id } => {
-            crate::game_loop::items::use_equipable_item(world, client_id, object_id, item_object_id);
+            crate::game_loop::items::use_equipable_item(
+                world,
+                client_id,
+                object_id,
+                item_object_id,
+            );
         }
     }
 }
-
-
 
 /// Java `World.forEachVisibleObject(origin, Creature.class, …)` — every living
 /// creature (player **or** NPC) in `origin`'s own region cell or an adjacent
@@ -202,23 +285,32 @@ pub(crate) fn run_queued_action(world: &mut World, object_id: i32) {
 /// fighting.
 pub(crate) fn visible_creatures(world: &mut World, origin_object_id: i32) -> Vec<i32> {
     use crate::model::components::{RegionCell, Vitals};
-    let Some(origin) = world.objects.get_component::<RegionCell>(&origin_object_id).map(|r| r.0) else {
+    let Some(origin) = world
+        .objects
+        .get_component::<RegionCell>(&origin_object_id)
+        .map(|r| r.0)
+    else {
         return Vec::new();
     };
     let mut out: Vec<i32> = Vec::new();
     // `for_each_mut` is the store's only sweep; the query itself borrows
     // everything shared, matching how the aggro scan reads the world.
-    world.objects.for_each_mut::<(&RegionCell, &Vitals, Option<&crate::model::Player>, Option<&crate::model::npc::Npc>)>(
-        |(region, vitals, player, npc)| {
-            if vitals.dead || !crate::world::regions_adjacent(origin, region.0) {
-                return;
-            }
-            let Some(oid) = player.map(|p| p.object_id).or(npc.map(|n| n.object_id)) else { return };
-            if oid != origin_object_id {
-                out.push(oid);
-            }
-        },
-    );
+    world.objects.for_each_mut::<(
+        &RegionCell,
+        &Vitals,
+        Option<&crate::model::Player>,
+        Option<&crate::model::npc::Npc>,
+    )>(|(region, vitals, player, npc)| {
+        if vitals.dead || !crate::world::regions_adjacent(origin, region.0) {
+            return;
+        }
+        let Some(oid) = player.map(|p| p.object_id).or(npc.map(|n| n.object_id)) else {
+            return;
+        };
+        if oid != origin_object_id {
+            out.push(oid);
+        }
+    });
     // Sorted so the caller's `Rnd.get(size)` index maps to a stable candidate.
     // Java's iteration order is arbitrary too, and a uniform index over a
     // sorted list is still uniform — but this makes a forced roll in tests

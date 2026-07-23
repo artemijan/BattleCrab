@@ -51,7 +51,14 @@ impl DoorGrid {
         open: bool,
     ) {
         let idx = self.doors.len() as u32;
-        self.doors.push(DoorShape { door_id, node_x, node_y, z_min, z_max, open: AtomicBool::new(open) });
+        self.doors.push(DoorShape {
+            door_id,
+            node_x,
+            node_y,
+            z_min,
+            z_max,
+            open: AtomicBool::new(open),
+        });
         self.by_id.insert(door_id, idx);
         let region = (
             self.doors[idx as usize].node_x.iter().sum::<i32>() / 4 >> crate::world::REGION_SHIFT,
@@ -59,7 +66,10 @@ impl DoorGrid {
         );
         for dx in -1..=1 {
             for dy in -1..=1 {
-                self.by_region.entry((region.0 + dx, region.1 + dy)).or_default().push(idx);
+                self.by_region
+                    .entry((region.0 + dx, region.1 + dy))
+                    .or_default()
+                    .push(idx);
             }
         }
     }
@@ -94,8 +104,13 @@ impl DoorGrid {
         if self.doors.is_empty() {
             return false;
         }
-        let region = (x >> crate::world::REGION_SHIFT, y >> crate::world::REGION_SHIFT);
-        let Some(nearby) = self.by_region.get(&region) else { return false };
+        let region = (
+            x >> crate::world::REGION_SHIFT,
+            y >> crate::world::REGION_SHIFT,
+        );
+        let Some(nearby) = self.by_region.get(&region) else {
+            return false;
+        };
 
         for &idx in nearby {
             let door = &self.doors[idx as usize];
@@ -112,12 +127,14 @@ impl DoorGrid {
                 if denominator == 0 {
                     continue;
                 }
-                let multiplier1 = (((door.node_x[j] - door.node_x[i]) as i64 * (y - door.node_y[i]) as i64)
+                let multiplier1 = (((door.node_x[j] - door.node_x[i]) as i64
+                    * (y - door.node_y[i]) as i64)
                     - ((door.node_y[j] - door.node_y[i]) as i64 * (x - door.node_x[i]) as i64))
                     as f64
                     / denominator as f64;
                 let multiplier2 = (((tx - x) as i64 * (y - door.node_y[i]) as i64)
-                    - ((ty - y) as i64 * (x - door.node_x[i]) as i64)) as f64
+                    - ((ty - y) as i64 * (x - door.node_x[i]) as i64))
+                    as f64
                     / denominator as f64;
                 if (0.0..=1.0).contains(&multiplier1) && (0.0..=1.0).contains(&multiplier2) {
                     let intersect_z = (z as f64 + (multiplier1 * (tz - z) as f64)).round() as i32;
@@ -186,7 +203,9 @@ mod tests {
     #[test]
     fn geo_engine_queries_respect_doors() {
         let mut engine = crate::geo::GeoEngine::empty();
-        engine.doors.register(7, [98, 102, 102, 98], [-50, -50, 50, 50], -100, 100, false);
+        engine
+            .doors
+            .register(7, [98, 102, 102, 98], [-50, -50, 50, 50], -100, 100, false);
 
         assert!(!engine.can_see_target(0, 0, 0, 200, 0, 0));
         assert!(!engine.can_move_to_target(0, 0, 0, 200, 0, 0));

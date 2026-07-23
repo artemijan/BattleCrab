@@ -250,12 +250,16 @@ pub enum SkillEffect {
     /// yields `CONDITIONAL_BLOCK_ACTIONS` instead). The whitelist contents are
     /// not modelled — `hasBlockActions()` treats both flags the same, so the
     /// only skills wrongly blocked are the whitelisted ones. TODO(G19).
-    BlockActions { conditional: bool },
+    BlockActions {
+        conditional: bool,
+    },
     /// `handlers/effecthandlers/BlockAbnormalSlot.java` — while this buff is
     /// up, the listed abnormal types cannot land on the target at all. Backs
     /// the Prophecy family's mutual exclusion (Prophecy of Water 1355 blocks
     /// every `BUFF_SPECIAL_*` slot) and Heroic Miracle 395 (`INVINCIBILITY`).
-    BlockAbnormalSlot { slots: Vec<String> },
+    BlockAbnormalSlot {
+        slots: Vec<String>,
+    },
     /// `handlers/effecthandlers/Mute.java` — silence: magic skills refused.
     /// Landing it also aborts the victim's current cast; raid bosses are immune
     /// (`onStart`'s `isRaid()` bail).
@@ -272,7 +276,9 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/TargetCancel.java` — an instant, chance-rolled
     /// effect that drops the victim's target and aborts their attack and cast
     /// (Trick 11, Switch 12, Aura Flash 1417).
-    TargetCancel { chance: i32 },
+    TargetCancel {
+        chance: i32,
+    },
     /// The MP-restore family — four Java handlers that differ only in how they
     /// compute the amount, then share one apply path (dead/door/`isMpBlocked`
     /// gate, overheal clamp, `broadcastStatusUpdate`, and the self-vs-other
@@ -288,25 +294,43 @@ pub enum SkillEffect {
     /// Mortal Strike 410 is the one learnable `ManaHeal`; Recharge 1013,
     /// Servitor Recharge 1126 and Mass Recharge 1428 are the `ManaHealByLevel`
     /// ones; Pain of Sagittarius 417 and Body To Mind 1157 the `Mp` ones.
-    ManaHeal { power: f64 },
-    ManaHealByLevel { power: f64 },
-    ManaHealPercent { power: f64 },
+    ManaHeal {
+        power: f64,
+    },
+    ManaHealByLevel {
+        power: f64,
+    },
+    ManaHealPercent {
+        power: f64,
+    },
 
     /// `Feed` — restores a pet's food bar (Java `effecthandlers/Feed`). The
     /// `ride`/`wyvern` params feed a *mounted player's* bar instead; mounts are
     /// not ported, so only `normal` is carried.
     /// TODO(G29): apply `ride`/`wyvern` when mounts land.
-    Feed { normal: i32 },
+    Feed {
+        normal: i32,
+    },
 
     /// `SummonCubic` — attaches a cubic to the caster (see `game_loop/cubic`).
-    SummonCubic { cubic_id: i32, cubic_level: i32 },
-    MpRestore { amount: f64, percent: bool },
+    SummonCubic {
+        cubic_id: i32,
+        cubic_level: i32,
+    },
+    MpRestore {
+        amount: f64,
+        percent: bool,
+    },
     /// `handlers/effecthandlers/MagicalAttackMp.java` — an MP drain (Mana Burn
     /// 1398, Mana Storm 1399, Aura Sink 1102, Seal of Gloom 1210). Damage is
     /// dealt to the target's **MP pool**, not HP, by its own `calcManaDam`
     /// formula. Mana Burn and Mana Storm carry only this effect, so both were
     /// dropped whole before it was ported.
-    MagicalAttackMp { power: f64, critical: bool, critical_limit: f64 },
+    MagicalAttackMp {
+        power: f64,
+        critical: bool,
+        critical_limit: f64,
+    },
     /// `handlers/effecthandlers/TriggerSkillByAttack.java` — a chance to fire
     /// another skill when this creature lands a hit (Sword/Blunt Weapon Mastery
     /// 205, Dagger Mastery 209, Dance of Shadows 366).
@@ -340,7 +364,12 @@ pub enum SkillEffect {
     /// of XP lost on death that the revive restores (run through
     /// `calculateSkillResurrectRestorePercent` first); the three percentages are
     /// how much HP/MP/CP they come back with.
-    Resurrection { power: i32, hp_percent: i32, mp_percent: i32, cp_percent: i32 },
+    Resurrection {
+        power: i32,
+        hp_percent: i32,
+        mp_percent: i32,
+        cp_percent: i32,
+    },
     /// `handlers/effecthandlers/Summon.java` — summon a **servitor** (24
     /// learnable skills: Summon Dark Panther 283, Summon Kat the Cat 1111,
     /// Summon Shadow 1128, the golems, …).
@@ -349,7 +378,12 @@ pub enum SkillEffect {
     /// template. `life_time` is in seconds and `<= 0` means "no expiry" (Java
     /// maps it to `Integer.MAX_VALUE` with the note "Classic hack. Resummon
     /// upon entering game.").
-    Summon { npc_id: i32, life_time: i32, consume_item_id: i32, consume_item_count: i64 },
+    Summon {
+        npc_id: i32,
+        life_time: i32,
+        consume_item_id: i32,
+        consume_item_count: i64,
+    },
     /// `handlers/effecthandlers/SummonPet.java` — bring out the pet bound to
     /// the collar the player just used. Carries no params: the collar arrives
     /// through `Player.pending_pet_collar` (Java's `PetItemHolder`), and every
@@ -364,16 +398,23 @@ pub enum SkillEffect {
     /// an incoming **debuff** back at its caster (Riposte Stance 340, Physical
     /// Mirror 350, Magical Mirror 351). `magic` selects which of the two Java
     /// stats it pumps; the incoming skill's own `isMagic` decides which is read.
-    ReflectSkill { magic: bool, amount: f64 },
+    ReflectSkill {
+        magic: bool,
+        amount: f64,
+    },
     /// `handlers/effecthandlers/Confuse.java` — the victim turns on a random
     /// bystander (Madness 1105, Curse Discord 1163, Seal of Mirage 1213).
     /// Chance-gated by `calcProbability`. Madness and Curse Discord carry only
     /// this effect, so both were dropped whole before it was ported.
-    Confuse { chance: i32 },
+    Confuse {
+        chance: i32,
+    },
     /// `handlers/effecthandlers/RandomizeHate.java` — move the caster's hate
     /// onto a random bystander (Confusion 2, Switch 12). Confusion carries only
     /// this effect. Same chance gate as [`Self::Confuse`].
-    RandomizeHate { chance: i32 },
+    RandomizeHate {
+        chance: i32,
+    },
     /// `handlers/effecthandlers/SilentMove.java` — stealth (Silent Move 221,
     /// Stealth 411, Dance of Shadows 366, Fake Death 60). A pure state flag:
     /// the Java handler has an empty constructor and nothing but
@@ -382,7 +423,10 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/FakeDeath.java` — feign death (Fake Death 60).
     /// A state flag *plus* an MP upkeep on the same 5-tick cadence as
     /// `ManaDamOverTime`, which it shares the tick chain with.
-    FakeDeath { power: f64, ticks: i32 },
+    FakeDeath {
+        power: f64,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/Fear.java` — forced flight (Horror 65, Banish
     /// Undead 405, Banish Seraph 450, Fear 1092, Curse Fear 1169, Word of Fear
     /// 1272, Mass Curse Fear 1381, Turn Undead 1400).
@@ -394,7 +438,9 @@ pub enum SkillEffect {
     /// this dist carries no params at all — kept as a field so the effect
     /// shares the DoT tick chain's cadence arithmetic rather than hard-coding
     /// an interval of its own.
-    Fear { ticks: i32 },
+    Fear {
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/GetAgro.java` — forces the effected NPC to
     /// intend-attack the caster (Aggression 28, Aggression Aura 18, plus the
     /// aggro side-effect on the debuffs Judgment 401/Tribunal 400). No params.
@@ -408,31 +454,43 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/AddHate.java` — a flat hate change with no
     /// damage. Positive `power` (Charm 15, Lure 51) adds hate for the caster;
     /// negative reduces it (unused on this dist, but Java supports it).
-    AddHate { power: f64 },
+    AddHate {
+        power: f64,
+    },
     /// `handlers/effecthandlers/DeleteHate.java` — chance-rolled: wipes the
     /// target's *entire* aggro list and disengages its AI (Java
     /// `setWalking()` + `setIntention(ACTIVE)`). Eva's Serenade 1273, Peace
     /// 1075, Repose 1034.
-    DeleteHate { chance: i32 },
+    DeleteHate {
+        chance: i32,
+    },
     /// `handlers/effecthandlers/DeleteHateOfMe.java` — chance-rolled: zeroes
     /// just the caster's own aggro entry (`stopHating`), but — matching Java
     /// exactly — still disengages the target's AI wholesale (`setWalking()` +
     /// `setIntention(ACTIVE)`) even if other attackers remain in the list;
     /// the AI naturally re-picks the next-most-hated target on its following
     /// think tick if any hate remains. Bluff 358, Forget 1156, Trick 11.
-    DeleteHateOfMe { chance: i32 },
+    DeleteHateOfMe {
+        chance: i32,
+    },
     /// `handlers/effecthandlers/Root.java` — immobilised. Unlike a stun the
     /// target may still attack and cast.
     Root,
     /// `handlers/effecthandlers/MagicalAttack.java` — instant magic damage.
-    MagicalAttack { power: f64 },
+    MagicalAttack {
+        power: f64,
+    },
     /// `handlers/effecthandlers/SummonNpc.java`, narrowed to the `EffectPoint`
     /// branch (PLAN_G19_SYMBOLS.md): drop a totem NPC at the aimed ground
     /// point that pulses its template's `union_skill` every `skill_delay`
     /// seconds until `despawn_time`. The `Decoy` and default-spawn branches
     /// are TODO(G19) (no learnable carriers); `despawn_delay` is the effect's
     /// fallback when the template declares no `despawn_time`.
-    SummonNpc { npc_id: i32, npc_count: i32, despawn_delay: i32 },
+    SummonNpc {
+        npc_id: i32,
+        npc_count: i32,
+        despawn_delay: i32,
+    },
     /// `handlers/effecthandlers/PhysicalAttack.java` — instant physical skill
     /// damage (`77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod)`, crit ×2,
     /// soulshot ×2). Also backs `PhysicalSoulAttack` (identical formula; its
@@ -440,9 +498,16 @@ pub enum SkillEffect {
     /// skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different `calcBlowDamage`
     /// formula and are NOT routed here.
     /// TODO(G20): ranged (bow) weaponMod 70 branch; shield-block `pDef` add.
-    PhysicalAttack { power: f64, p_atk_mod: f64, p_def_mod: f64, critical_chance: f64 },
+    PhysicalAttack {
+        power: f64,
+        p_atk_mod: f64,
+        p_def_mod: f64,
+        critical_chance: f64,
+    },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
-    Heal { power: f64 },
+    Heal {
+        power: f64,
+    },
     /// `handlers/effecthandlers/HealPercent.java` — instant HP restore as a
     /// `power`% share of the target's max HP (100 = full). Backs core priest
     /// heals — Miracle (1426), Benediction (1271), Restore Life (1258),
@@ -458,7 +523,9 @@ pub enum SkillEffect {
     /// Also skips a *positive*-power (heal) landing while
     /// `effected.isHpBlocked()` — the negative-power (damage) branch already
     /// gets this for free through the shared `apply_skill_damage` path.
-    HealPercent { power: f64 },
+    HealPercent {
+        power: f64,
+    },
     /// `handlers/effecthandlers/FocusMomentum.java` — the "Force" gain half of
     /// the Sonic/Force skill family (Sonic Focus 8, Focus Force 50, Sonic Rage
     /// 345, Raging Force 346, …): `+amount` charges (default 1), capped at
@@ -468,7 +535,10 @@ pub enum SkillEffect {
     /// simplification. Already at the cap: refused with SM 324 (no gain).
     /// Otherwise SM 323 (`"Your force has increased to level $s1"`) +
     /// `EtcStatusUpdate` (the charge-count icon).
-    FocusMomentum { amount: i32, max_charges: i32 },
+    FocusMomentum {
+        amount: i32,
+        max_charges: i32,
+    },
     /// `handlers/effecthandlers/EnergyAttack.java` — the "Force" *spend* half:
     /// instant physical damage (Double Sonic Slash 5, Sonic Blaster 6, Sonic
     /// Buster 9, Force Burst/Storm/Blaster 17/35/54, …), sharing
@@ -482,7 +552,12 @@ pub enum SkillEffect {
     /// merged param set, not just their own element's children.
     /// TODO(G20): shield-block `pDef` add / perfect-block-to-1-damage, same
     /// gap `PhysicalAttack` already has — not modeled for either.
-    EnergyAttack { power: f64, critical_chance: f64, p_def_mod: f64, charge_consume: i32 },
+    EnergyAttack {
+        power: f64,
+        critical_chance: f64,
+        p_def_mod: f64,
+        charge_consume: i32,
+    },
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
     /// roll (blows can miss). `critical_chance` is `Some` for FatalBlow/Backstab
@@ -490,7 +565,12 @@ pub enum SkillEffect {
     /// charged-soul boost is ×1 until charges land). `backstab` requires the
     /// caster to be outside the target's front arc.
     /// TODO(G20): SoulBlow charged-soul boost.
-    Blow { power: f64, chance_boost: f64, critical_chance: Option<f64>, backstab: bool },
+    Blow {
+        power: f64,
+        chance_boost: f64,
+        critical_chance: Option<f64>,
+        backstab: bool,
+    },
     /// `handlers/effecthandlers/Lethal.java` — the instant-kill/half-kill
     /// secondary effect riding alongside `Backstab`/`FatalBlow`/
     /// `PhysicalAttack` on Backstab (30), Lethal Blow (344), Deadly Blow
@@ -512,12 +592,18 @@ pub enum SkillEffect {
     /// `HealPercent`'s); `calcCounterAttack`'s reflect-on-lethal (no counter
     /// mechanic modeled yet); grand-boss/door lethal-immunity (only the raid
     /// case is covered).
-    Lethal { full_lethal: f64, half_lethal: f64 },
+    Lethal {
+        full_lethal: f64,
+        half_lethal: f64,
+    },
     /// `handlers/effecthandlers/HpDrain.java` — magic damage (same
     /// `calcMagicDam` core as `MagicalAttack`) that also heals the caster by
     /// `percentage`% of the HP actually drained (CP absorbs first, clamped to
     /// the target's remaining HP). Backs Vampiric Touch/Claw.
-    HpDrain { power: f64, percentage: f64 },
+    HpDrain {
+        power: f64,
+        percentage: f64,
+    },
     /// `handlers/effecthandlers/DamOverTime.java` — a poison/bleed damage-over-
     /// time debuff. Lands as an `ActiveBuff` for `abnormalTime` and ticks every
     /// `ticks * EFFECT_TICK_RATIO` ms (Java `BuffInfo.scheduleEffects`) for
@@ -526,23 +612,36 @@ pub enum SkillEffect {
     /// the target dies. `can_kill == false` (the XML default) clamps each tick
     /// so it leaves the target at 1 HP. Backs Curse Poison (1168), Poison,
     /// Bleed, etc.
-    DamOverTime { power: f64, ticks: i32, can_kill: bool },
+    DamOverTime {
+        power: f64,
+        ticks: i32,
+        can_kill: bool,
+    },
     /// `handlers/effecthandlers/Cp.java` — an instant CP change. `percent`
     /// selects Java's `PER` mode (a share of max CP) over `DIFF` (a flat
     /// amount). Braveheart 440 grants `+1000 DIFF`; Wrath 320 and Touch of
     /// Death 342 take CP away.
-    Cp { amount: f64, percent: bool },
+    Cp {
+        amount: f64,
+        percent: bool,
+    },
     /// `handlers/effecthandlers/HealOverTime.java` — periodic HP change on the
     /// same tick chain as [`SkillEffect::DamOverTime`]. **`power` is routinely
     /// negative on this dist** (Fury Fists 222 `-12`, Arcane Wisdom 336 `-50`):
     /// those are toggles that *drain* HP for their upkeep, so this is not a
     /// heal-only effect despite the name.
-    HealOverTime { power: f64, ticks: i32 },
+    HealOverTime {
+        power: f64,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/ManaDamOverTime.java` — periodic MP drain
     /// (positive `power` = MP removed). Silent Move 221 and friends are toggles
     /// paying MP upkeep; when a tick's drain exceeds current MP the toggle is
     /// switched off (Java returns `false`, which cancels a toggle).
-    ManaDamOverTime { power: f64, ticks: i32 },
+    ManaDamOverTime {
+        power: f64,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/MpConsumePerLevel.java` — periodic MP drain
     /// for fighter-class toggles (Accuracy 256, Guard Stance 288, Vicious
     /// Stance 312, Parry/Riposte Stance 339/340, War Frenzy 424, Super Haste
@@ -559,16 +658,25 @@ pub enum SkillEffect {
     /// skill *with* an `abnormalTime` — unexercised by any skill in this
     /// datapack, so not ported; split out of the shared arm if one ever needs
     /// it.
-    MpConsumePerLevel { power: f64, ticks: i32 },
+    MpConsumePerLevel {
+        power: f64,
+        ticks: i32,
+    },
     /// `handlers/effecthandlers/Restoration.java` — instant single-item
     /// grant. Backs item-use skills wrapping a fixed pack/box reward (e.g.
     /// spiritshot packs): the item's `<skills>` entry casts this, which is
     /// where the actual reward comes from.
-    GiveItem { item_id: i32, item_count: i64, item_enchant_level: i32 },
+    GiveItem {
+        item_id: i32,
+        item_count: i64,
+        item_enchant_level: i32,
+    },
     /// `handlers/effecthandlers/RestorationRandom.java` — one weighted
     /// roulette pick among reward groups (each group can grant multiple
     /// items at once). Used by "pick one of N" reward boxes.
-    GiveItemRandom { groups: Vec<RestorationGroup> },
+    GiveItemRandom {
+        groups: Vec<RestorationGroup>,
+    },
     /// `handlers/effecthandlers/Escape.java`, `escapeType=TOWN` only — the
     /// `/unstuck` skills (2099/2100) and scrolls of escape: teleport the
     /// target to its map-region town respawn on landing. The CASTLE/CLANHALL/
@@ -577,7 +685,9 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/GiveRecommendation.java` — grant the target
     /// `amount` recommendations received (`rec_have`), capped at 255. Backs the
     /// "recommendation certificate" self-target skills.
-    GiveRecommendation { amount: i32 },
+    GiveRecommendation {
+        amount: i32,
+    },
     /// `handlers/effecthandlers/HeadquarterCreate.java` — the "Build
     /// Headquarters" siege skill (247): the caster (an attacker clan leader)
     /// plants an HQ flag (NPC 35062) in the siege zone as a respawn point.
@@ -589,7 +699,9 @@ pub enum SkillEffect {
     /// (1321) ability skills: casting one opens the matching recipe window
     /// (`RecipeManager.requestBookOpen`). Refused while the caster runs a
     /// private store. Instant, self-target.
-    OpenRecipeBook { dwarven: bool },
+    OpenRecipeBook {
+        dwarven: bool,
+    },
     /// `handlers/effecthandlers/Spoil.java` — marks a live monster as spoiled
     /// (`Attackable.setSpoilerObjectId`) so its `<spoil>` list rolls into sweep
     /// loot on death. Gated by `calcSuccess` = `Formulas.calcMagicSuccess`, and
@@ -610,13 +722,18 @@ pub enum SkillEffect {
     /// pair comes from the `<dispel>` string (`"POISON,3"`), which is per-skill-
     /// level. Backs Cure Poison (1012), Cure Bleeding, etc. Java's special-cased
     /// `AbnormalType.TRANSFORM` branch is omitted — no transforms in scope yet.
-    DispelBySlot { dispel: Vec<(String, i32)> },
+    DispelBySlot {
+        dispel: Vec<(String, i32)>,
+    },
     /// `handlers/effecthandlers/DispelBySlotProbability.java` — the Bane family
     /// (Warrior Bane 1350, Mass Warrior Bane 1344, …): cleanse a set of
     /// abnormal types, but roll `rate`% **per buff** rather than stripping all
     /// of them. Unlike [`SkillEffect::DispelBySlot`] the spec carries no
     /// per-type level, so every level of a listed type is a candidate.
-    DispelBySlotProbability { dispel: Vec<String>, rate: i32 },
+    DispelBySlotProbability {
+        dispel: Vec<String>,
+        rate: i32,
+    },
     /// `handlers/effecthandlers/DispelByCategory.java` — the "Cancel" family
     /// (Cancellation 1056, Touch of Death 342: `BUFF`/`rate=25`/`max=5`;
     /// Cleanse 1409, Purification Field 1425: `DEBUFF`/`rate=100`/`max=10`).
@@ -632,7 +749,11 @@ pub enum SkillEffect {
     /// `ALL` slot is dead code — no shipped skill uses it — and is a no-op
     /// here too. `isIrreplacableBuff()`/hero/GM/static-skill exclusions
     /// aren't modeled, matching `DispelBySlotProbability`'s own precedent.
-    DispelByCategory { slot: DispelSlot, rate: i32, max: i32 },
+    DispelByCategory {
+        slot: DispelSlot,
+        rate: i32,
+        max: i32,
+    },
     /// `handlers/effecthandlers/ProtectionBlessing.java` — the Newbie Helper's
     /// Blessing of Protection (5182): a chaotic (PK) character 10+ levels above
     /// the target cannot damage or be damaged by them. Carries no stat
@@ -701,7 +822,10 @@ pub enum SkillEffect {
     /// combat::is_hp_blocked`, gating `player_receive_damage`/
     /// `npc_receive_damage`); `MP_BLOCK` doesn't, matching Java's own dead
     /// `isMpBlocked()`.
-    DamageBlock { block_hp: bool, block_mp: bool },
+    DamageBlock {
+        block_hp: bool,
+        block_mp: bool,
+    },
     /// `handlers/effecthandlers/MagicMpCost.java` — multiplies the target's
     /// MP-consume rate for a given `magicType` (`mergeMpConsumeTypeValue`, factor
     /// `amount/100 + 1`). Backs the MP-cost-reduction songs (Song of Champion
@@ -749,7 +873,9 @@ pub enum SkillEffect {
     /// transformed" on this port, since a horse/bike mount is itself a
     /// transform); TODO(G19): the sitting and registered-on-event legs have
     /// no modeled state on this port yet.
-    Transform { transformation_id: i32 },
+    Transform {
+        transformation_id: i32,
+    },
 }
 
 /// Java `EffectFlag` — the abnormal-state bitmask a creature carries while
@@ -1145,7 +1271,6 @@ impl Default for Skill {
     }
 }
 
-
 /// Which count-cap pool a landed buff occupies (Java `SkillBuffType`, trimmed
 /// to the pools the caps use). `Uncapped` folds Java's DEBUFF/TOGGLE/TRIGGER/
 /// passive types — none are limited by `MaxBuffAmount`/`MaxDanceAmount`.
@@ -1197,7 +1322,11 @@ impl Skill {
     /// passive/toggle or a debuff is `Uncapped`, a dance/song (`isMagic == 3`)
     /// is `Dance`, everything else is a `Buff`.
     pub fn buff_slot(&self) -> BuffSlot {
-        if matches!(self.operate_type, OperateType::Passive | OperateType::Toggle) || self.is_bad() {
+        if matches!(
+            self.operate_type,
+            OperateType::Passive | OperateType::Toggle
+        ) || self.is_bad()
+        {
             BuffSlot::Uncapped
         } else if self.magic_type == 3 {
             BuffSlot::Dance
@@ -1274,7 +1403,11 @@ impl Skill {
                 // `StatModifierEffect` so it rides the existing buff/passive
                 // pipeline instead of needing its own plumbing.
                 SkillEffect::ReflectSkill { magic, amount } => Some(StatModifierEffect {
-                    stat: if *magic { Stat::ReflectSkillMagic } else { Stat::ReflectSkillPhysic },
+                    stat: if *magic {
+                        Stat::ReflectSkillMagic
+                    } else {
+                        Stat::ReflectSkillPhysic
+                    },
                     mode: StatModifierType::Diff,
                     amount: *amount,
                     armor_condition: 0,

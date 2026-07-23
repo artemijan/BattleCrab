@@ -129,8 +129,11 @@ impl CubicData {
             info!("cubic data: {} not found, no cubics loaded", dir.display());
             return out;
         };
-        let mut files: Vec<_> =
-            entries.filter_map(Result::ok).map(|e| e.path()).filter(|p| p.extension().is_some_and(|e| e == "xml")).collect();
+        let mut files: Vec<_> = entries
+            .filter_map(Result::ok)
+            .map(|e| e.path())
+            .filter(|p| p.extension().is_some_and(|e| e == "xml"))
+            .collect();
         files.sort();
         for f in files {
             out.load_file(&f);
@@ -140,7 +143,9 @@ impl CubicData {
     }
 
     fn load_file(&mut self, path: &std::path::Path) {
-        let Ok(text) = std::fs::read_to_string(path) else { return };
+        let Ok(text) = std::fs::read_to_string(path) else {
+            return;
+        };
         let mut reader = Reader::from_str(&text);
         reader.config_mut().trim_text(true);
         let mut buf = Vec::new();
@@ -152,9 +157,10 @@ impl CubicData {
                     let name = e.name();
                     let tag = String::from_utf8_lossy(name.as_ref()).to_string();
                     let attr = |key: &str| -> Option<String> {
-                        e.attributes().flatten().find(|a| a.key.as_ref() == key.as_bytes()).map(|a| {
-                            String::from_utf8_lossy(&a.value).to_string()
-                        })
+                        e.attributes()
+                            .flatten()
+                            .find(|a| a.key.as_ref() == key.as_bytes())
+                            .map(|a| String::from_utf8_lossy(&a.value).to_string())
                     };
                     match tag.as_str() {
                         "cubic" => {
@@ -162,9 +168,13 @@ impl CubicData {
                                 id: attr("id").and_then(|v| v.parse().ok()).unwrap_or(0),
                                 level: attr("level").and_then(|v| v.parse().ok()).unwrap_or(1),
                                 slot: attr("slot").and_then(|v| v.parse().ok()).unwrap_or(1),
-                                duration: attr("duration").and_then(|v| v.parse().ok()).unwrap_or(0),
+                                duration: attr("duration")
+                                    .and_then(|v| v.parse().ok())
+                                    .unwrap_or(0),
                                 delay: attr("delay").and_then(|v| v.parse().ok()).unwrap_or(0),
-                                max_count: attr("maxCount").and_then(|v| v.parse().ok()).unwrap_or(0),
+                                max_count: attr("maxCount")
+                                    .and_then(|v| v.parse().ok())
+                                    .unwrap_or(0),
                                 power: attr("power").and_then(|v| v.parse().ok()).unwrap_or(0.0),
                                 target_type: attr("targetType")
                                     .map(|v| CubicTargetType::parse(&v))
@@ -183,22 +193,31 @@ impl CubicData {
                             if let Some(t) = cur.as_mut() {
                                 t.skills.push(CubicSkill {
                                     skill_id: attr("id").and_then(|v| v.parse().ok()).unwrap_or(0),
-                                    skill_level: attr("level").and_then(|v| v.parse().ok()).unwrap_or(1),
-                                    success_rate: attr("successRate").and_then(|v| v.parse().ok()).unwrap_or(100),
+                                    skill_level: attr("level")
+                                        .and_then(|v| v.parse().ok())
+                                        .unwrap_or(1),
+                                    success_rate: attr("successRate")
+                                        .and_then(|v| v.parse().ok())
+                                        .unwrap_or(100),
                                     // A lone skill with no triggerRate must
                                     // still win the cumulative roll.
-                                    trigger_rate: attr("triggerRate").and_then(|v| v.parse().ok()).unwrap_or(100),
+                                    trigger_rate: attr("triggerRate")
+                                        .and_then(|v| v.parse().ok())
+                                        .unwrap_or(100),
                                     can_use_on_static_objects: attr("canUseOnStaticObjects")
                                         .map(|v| v == "true")
                                         .unwrap_or(false),
-                                    target_type: attr("targetType").map(|v| CubicTargetType::parse(&v)),
+                                    target_type: attr("targetType")
+                                        .map(|v| CubicTargetType::parse(&v)),
                                 });
                             }
                         }
                         "hp" => {
                             if let Some(t) = cur.as_mut() {
                                 t.hp_condition = Some(HpCondition {
-                                    percent: attr("percent").and_then(|v| v.parse().ok()).unwrap_or(0),
+                                    percent: attr("percent")
+                                        .and_then(|v| v.parse().ok())
+                                        .unwrap_or(0),
                                     greater: attr("type").map(|v| v != "LESS").unwrap_or(true),
                                 });
                             }
@@ -245,7 +264,11 @@ mod tests {
     #[test]
     fn the_real_cubic_table_parses() {
         let data = CubicData::load_from(DIST);
-        assert!(data.len() > 100, "expected the full cubic table, got {}", data.len());
+        assert!(
+            data.len() > 100,
+            "expected the full cubic table, got {}",
+            data.len()
+        );
 
         let storm = data.get(1, 1).expect("cubic 1 level 1");
         assert_eq!(storm.duration, 900);
@@ -261,7 +284,10 @@ mod tests {
         let s = &storm.skills[0];
         assert_eq!((s.skill_id, s.skill_level, s.success_rate), (4049, 1, 12));
         assert!(s.can_use_on_static_objects);
-        assert_eq!(s.trigger_rate, 100, "a lone skill with no triggerRate must still win the roll");
+        assert_eq!(
+            s.trigger_rate, 100,
+            "a lone skill with no triggerRate must still win the roll"
+        );
     }
 
     /// Multi-skill cubics carry real `triggerRate` weights — the parse would

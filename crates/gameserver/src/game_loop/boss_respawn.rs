@@ -27,7 +27,10 @@ use crate::world::World;
 /// here at boot (and only here).
 fn now_millis() -> i64 {
     use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now().duration_since(UNIX_EPOCH).map(|d| d.as_millis() as i64).unwrap_or(0)
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
 
 /// `DBSpawnManager.load` + the deferred half of `NpcSpawnTemplate.spawnNpc`:
@@ -64,15 +67,18 @@ pub(crate) fn resolve_boot(world: &mut World, rows: Vec<NpcRespawnRow>) {
             // Still dead: put it back on the clock instead of on the map.
             Some(r) if r.respawn_time > now => {
                 let delay_ticks = ((r.respawn_time - now) / 100).max(1) as u64;
-                world
-                    .scheduler
-                    .schedule(world.tick + delay_ticks, ScheduledTask::BossRespawn { spawn_ref });
+                world.scheduler.schedule(
+                    world.tick + delay_ticks,
+                    ScheduledTask::BossRespawn { spawn_ref },
+                );
                 world.boss_spawn_refs.insert(npc_id, spawn_ref);
                 scheduled += 1;
             }
             // Alive (or due): place it, restoring stored vitals when we have them.
             _ => {
-                if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2) {
+                if let Some(oid) =
+                    crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
+                {
                     if let Some(r) = row {
                         restore_vitals(world, oid, r.cur_hp, r.cur_mp);
                     }
@@ -85,7 +91,9 @@ pub(crate) fn resolve_boot(world: &mut World, rows: Vec<NpcRespawnRow>) {
     }
 
     if spawned + scheduled > 0 {
-        tracing::info!("DBSpawnManager: {spawned} raid bosses spawned, {scheduled} awaiting respawn.");
+        tracing::info!(
+            "DBSpawnManager: {spawned} raid bosses spawned, {scheduled} awaiting respawn."
+        );
     }
 }
 
@@ -108,7 +116,9 @@ fn restore_vitals(world: &mut World, oid: i32, cur_hp: f64, cur_mp: f64) {
 /// `DBSpawnManager.updateStatus` for a living boss: `respawnTime = 0` plus its
 /// current vitals and position.
 pub(crate) fn persist_alive(world: &World, npc_id: i32, oid: i32) {
-    let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else { return };
+    let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+        return;
+    };
     let (cur_hp, cur_mp) = world
         .objects
         .get_component::<Vitals>(&oid)
@@ -157,7 +167,11 @@ pub(crate) fn is_db_saved(world: &World, spawn_ref: (usize, usize, usize)) -> bo
 /// while the server was running (scheduled at boot by [`resolve_boot`]).
 pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, usize)) {
     if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2) {
-        if let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|n| n.npc_id) {
+        if let Some(npc_id) = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .map(|n| n.npc_id)
+        {
             persist_alive(world, npc_id, oid);
         }
     }
@@ -169,11 +183,13 @@ pub(crate) fn save_all_bosses(world: &mut World) {
     // Collect first: the store can't be queried while a write borrow is out,
     // and `persist_alive` reads it again per boss.
     let mut live: Vec<(i32, i32)> = Vec::new();
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-        if !v.dead {
-            live.push((n.npc_id, n.object_id));
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if !v.dead {
+                live.push((n.npc_id, n.object_id));
+            }
+        });
     for (npc_id, oid) in live {
         if world.boss_spawn_refs.contains_key(&npc_id) {
             persist_alive(world, npc_id, oid);

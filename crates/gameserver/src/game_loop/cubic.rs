@@ -70,10 +70,18 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
     if cubic_id < 0 {
         return;
     }
-    if world.objects.get_component::<crate::model::Player>(&owner_oid).is_none() {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)
+        .is_none()
+    {
         return;
     }
-    if world.objects.get_component::<Vitals>(&owner_oid).is_some_and(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&owner_oid)
+        .is_some_and(|v| v.dead)
+    {
         return;
     }
     let Some(template) = world.data.cubic_data.get(cubic_id, cubic_level).cloned() else {
@@ -93,7 +101,11 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
     } else {
         // At the cap, Java drops a *random* existing cubic. With MAX_CUBIC == 1
         // on this dist that is always "the only one", but keep the shape.
-        let count = world.objects.get_component::<Cubics>(&owner_oid).map(|c| c.0.len()).unwrap_or(0);
+        let count = world
+            .objects
+            .get_component::<Cubics>(&owner_oid)
+            .map(|c| c.0.len())
+            .unwrap_or(0);
         if count >= MAX_CUBIC {
             let victim = world
                 .objects
@@ -105,14 +117,20 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
         }
     }
 
-    let Some(caster_oid) = spawn_cubic_caster(world, owner_oid, &template) else { return };
+    let Some(caster_oid) = spawn_cubic_caster(world, owner_oid, &template) else {
+        return;
+    };
     let active = ActiveCubic {
         id: cubic_id,
         level: cubic_level,
         slot: template.slot,
         caster_oid,
         expires_at_tick: world.tick + (template.duration.max(0) as u64) * TICKS_PER_SECOND,
-        remaining_count: if template.max_count > 0 { template.max_count } else { i32::MAX },
+        remaining_count: if template.max_count > 0 {
+            template.max_count
+        } else {
+            i32::MAX
+        },
     };
     if world.objects.get_component::<Cubics>(&owner_oid).is_none() {
         world.objects.add_components(&owner_oid, Cubics::default());
@@ -131,7 +149,10 @@ pub(crate) fn summon_cubic(world: &mut World, owner_oid: i32, cubic_id: i32, cub
 fn schedule_action(world: &mut World, owner_oid: i32, cubic_id: i32, delay_secs: u64) {
     world.scheduler.schedule(
         world.tick + delay_secs * TICKS_PER_SECOND,
-        crate::scheduler::ScheduledTask::CubicAction { owner_oid, cubic_id },
+        crate::scheduler::ScheduledTask::CubicAction {
+            owner_oid,
+            cubic_id,
+        },
     );
 }
 
@@ -151,13 +172,15 @@ fn spawn_cubic_caster(world: &mut World, owner_oid: i32, template: &CubicTemplat
     // that had no stats at all.
     world.objects.spawn(oid, stats);
     // The level link — see `CubicOf`. Without it every cast is resisted.
-    world.objects.add_components(&oid, crate::model::components::CubicOf { owner_object_id: owner_oid });
-    // A cubic is never attacked, but the damage path reads the caster's
-    // vitals; give it something alive rather than a zeroed corpse.
     world.objects.add_components(
         &oid,
-        Vitals::hp_full(1, 1),
+        crate::model::components::CubicOf {
+            owner_object_id: owner_oid,
+        },
     );
+    // A cubic is never attacked, but the damage path reads the caster's
+    // vitals; give it something alive rather than a zeroed corpse.
+    world.objects.add_components(&oid, Vitals::hp_full(1, 1));
     // Position is read for range/aggro bookkeeping; the cubic floats at its
     // owner, and follows them because it is re-read at cast time.
     if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied() {
@@ -200,7 +223,11 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
         return; // deactivated — the chain ends.
     };
     // Owner gone or dead → stop, the same contract the servitor ticks use.
-    if world.objects.get_component::<Vitals>(&owner_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&owner_oid)
+        .is_none_or(|v| v.dead)
+    {
         remove_cubic(world, owner_oid, cubic_id);
         return;
     }
@@ -234,18 +261,29 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
 }
 
 /// Returns true when a skill actually fired.
-fn try_action(world: &mut World, owner_oid: i32, caster_oid: i32, template: &CubicTemplate) -> bool {
+fn try_action(
+    world: &mut World,
+    owner_oid: i32,
+    caster_oid: i32,
+    template: &CubicTemplate,
+) -> bool {
     // `<hp type="GREATER" percent="33"/>` gates the *owner*: a badly wounded
     // player's attack cubic stops firing.
     if let Some(cond) = template.hp_condition {
         let pct = hp_percent(world, owner_oid);
-        let ok = if cond.greater { pct > cond.percent as f64 } else { pct < cond.percent as f64 };
+        let ok = if cond.greater {
+            pct > cond.percent as f64
+        } else {
+            pct < cond.percent as f64
+        };
         if !ok {
             return false;
         }
     }
 
-    let Some(skill) = choose_skill(world, template) else { return false };
+    let Some(skill) = choose_skill(world, template) else {
+        return false;
+    };
 
     let target = match template.target_type {
         CubicTargetType::Master => Some(owner_oid),
@@ -296,9 +334,16 @@ fn choose_skill(world: &mut World, template: &CubicTemplate) -> Option<CubicSkil
 }
 
 fn current_target(world: &World, owner_oid: i32) -> Option<i32> {
-    let target = world.objects.get_component::<crate::model::components::TargetRef>(&owner_oid)?.0?;
+    let target = world
+        .objects
+        .get_component::<crate::model::components::TargetRef>(&owner_oid)?
+        .0?;
     // A dead target is not worth a cast.
-    if world.objects.get_component::<Vitals>(&target).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&target)
+        .is_none_or(|v| v.dead)
+    {
         return None;
     }
     Some(target)
@@ -308,8 +353,10 @@ fn current_target(world: &World, owner_oid: i32) -> Option<i32> {
 /// the dead ("Life Cubic should not try to heal dead targets").
 fn heal_target(world: &mut World, owner_oid: i32, _template: &CubicTemplate) -> Option<i32> {
     let mut candidates = vec![owner_oid];
-    if let Some(crate::model::components::PartyRef(pid)) =
-        world.objects.get_component::<crate::model::components::PartyRef>(&owner_oid).copied()
+    if let Some(crate::model::components::PartyRef(pid)) = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&owner_oid)
+        .copied()
     {
         if let Some(party) = world.parties.get(&pid) {
             candidates.extend(party.members.iter().copied().filter(|m| *m != owner_oid));
@@ -317,7 +364,12 @@ fn heal_target(world: &mut World, owner_oid: i32, _template: &CubicTemplate) -> 
     }
     candidates
         .into_iter()
-        .filter(|oid| world.objects.get_component::<Vitals>(oid).is_some_and(|v| !v.dead))
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
+        })
         .filter(|oid| in_heal_range(world, owner_oid, *oid))
         .min_by(|a, b| hp_percent(world, *a).total_cmp(&hp_percent(world, *b)))
 }
@@ -326,12 +378,20 @@ fn hp_percent(world: &World, oid: i32) -> f64 {
     world
         .objects
         .get_component::<Vitals>(&oid)
-        .map(|v| if v.max_hp > 0 { v.cur_hp / v.max_hp as f64 * 100.0 } else { 0.0 })
+        .map(|v| {
+            if v.max_hp > 0 {
+                v.cur_hp / v.max_hp as f64 * 100.0
+            } else {
+                0.0
+            }
+        })
         .unwrap_or(0.0)
 }
 
 fn in_range(world: &World, owner_oid: i32, target: i32, template: &CubicTemplate) -> bool {
-    let Some(range) = template.range else { return true };
+    let Some(range) = template.range else {
+        return true;
+    };
     distance(world, owner_oid, target).is_some_and(|d| d <= range as f64)
 }
 
@@ -348,7 +408,11 @@ fn in_heal_range(world: &World, owner_oid: i32, target: i32) -> bool {
 fn distance(world: &World, a: i32, b: i32) -> Option<f64> {
     let pa = world.objects.get_component::<Position>(&a)?;
     let pb = world.objects.get_component::<Position>(&b)?;
-    let (dx, dy, dz) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64, (pa.z - pb.z) as f64);
+    let (dx, dy, dz) = (
+        (pa.x - pb.x) as f64,
+        (pa.y - pb.y) as f64,
+        (pa.z - pb.z) as f64,
+    );
     Some((dx * dx + dy * dy + dz * dz).sqrt())
 }
 
@@ -356,12 +420,19 @@ fn distance(world: &World, a: i32, b: i32) -> Option<f64> {
 /// owner**, since the cubic has no object id of its own, and the effects are
 /// applied with the owner as caster.
 fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_skill: &CubicSkill) {
-    let Some(skill) = world.data.skill_data.get(cubic_skill.skill_id, cubic_skill.skill_level).cloned() else {
+    let Some(skill) = world
+        .data
+        .skill_data
+        .get(cubic_skill.skill_id, cubic_skill.skill_level)
+        .cloned()
+    else {
         return;
     };
     let target_pos = world.objects.get_component::<Position>(&target).copied();
     if let (Some(caster), Some(pos), Some(tp)) = (
-        world.objects.get_component::<crate::model::Player>(&owner_oid),
+        world
+            .objects
+            .get_component::<crate::model::Player>(&owner_oid),
         world.objects.get_component::<Position>(&owner_oid).copied(),
         target_pos,
     ) {

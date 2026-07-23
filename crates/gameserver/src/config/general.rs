@@ -98,10 +98,13 @@ impl GeneralConfig {
             gm_startup_auto_list: p.get_bool("GMStartupAutoList", d.gm_startup_auto_list),
             gm_startup_diet_mode: p.get_bool("GMStartupDietMode", d.gm_startup_diet_mode),
             gm_give_special_skills: p.get_bool("GMGiveSpecialSkills", d.gm_give_special_skills),
-            gm_give_special_aura_skills: p.get_bool("GMGiveSpecialAuraSkills", d.gm_give_special_aura_skills),
+            gm_give_special_aura_skills: p
+                .get_bool("GMGiveSpecialAuraSkills", d.gm_give_special_aura_skills),
             autodestroy_item_after: p.get_int("AutoDestroyDroppedItemAfter", 0).max(0) as u64,
-            destroy_dropped_player_item: p.get_bool("DestroyPlayerDroppedItem", d.destroy_dropped_player_item),
-            destroy_equipable_player_item: p.get_bool("DestroyEquipableItem", d.destroy_equipable_player_item),
+            destroy_dropped_player_item: p
+                .get_bool("DestroyPlayerDroppedItem", d.destroy_dropped_player_item),
+            destroy_equipable_player_item: p
+                .get_bool("DestroyEquipableItem", d.destroy_equipable_player_item),
             // Java parses a comma-separated id list; the dist ships a lone `0`.
             protected_items: p
                 .get_string("ListOfProtectedItems", "")
@@ -120,7 +123,10 @@ mod tests {
     /// file). Guards the key names against a config rename.
     #[test]
     fn loads_dist_gm_startup_values() {
-        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/config/General.ini");
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/config/General.ini"
+        );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
         assert!(g.gm_hero_aura, "GMHeroAura=True");
         assert!(g.gm_startup_builder_hide, "GMStartupBuilderHide=True");
@@ -136,11 +142,23 @@ mod tests {
     /// but player drops are kept (`DestroyPlayerDroppedItem=False`).
     #[test]
     fn loads_dist_ground_item_autodestroy_values() {
-        let path = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/config/General.ini");
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/config/General.ini"
+        );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
-        assert_eq!(g.autodestroy_item_after, 600, "AutoDestroyDroppedItemAfter=600");
-        assert!(!g.destroy_dropped_player_item, "DestroyPlayerDroppedItem=False");
-        assert!(!g.destroy_equipable_player_item, "DestroyEquipableItem=False");
+        assert_eq!(
+            g.autodestroy_item_after, 600,
+            "AutoDestroyDroppedItemAfter=600"
+        );
+        assert!(
+            !g.destroy_dropped_player_item,
+            "DestroyPlayerDroppedItem=False"
+        );
+        assert!(
+            !g.destroy_equipable_player_item,
+            "DestroyEquipableItem=False"
+        );
         assert_eq!(g.protected_items, vec![0], "ListOfProtectedItems=0");
     }
 }

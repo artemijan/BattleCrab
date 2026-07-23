@@ -91,7 +91,14 @@ impl QuestScript for Q00296TarantulasSpiderSilk {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() && ctx.npc_id == TRADER_MION {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30519-02.htm" } else { "30519-01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30519-02.htm"
+                } else {
+                    "30519-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             if ctx.npc_id == TRADER_MION {

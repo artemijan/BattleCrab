@@ -34,7 +34,10 @@ const HEAL_TICK_TICKS: u64 = 10;
 pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
     let heading = world.roll(360);
     crate::model::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading);
-    world.scheduler.schedule(world.tick + HEAL_TICK_TICKS, ScheduledTask::QueenAntHeal { queen_oid });
+    world.scheduler.schedule(
+        world.tick + HEAL_TICK_TICKS,
+        ScheduledTask::QueenAntHeal { queen_oid },
+    );
 }
 
 /// The `"heal"` timer — the nurse rotation.
@@ -49,7 +52,10 @@ pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
 /// code, and recorded here so its absence is deliberate.
 pub(crate) fn handle_heal_tick(world: &mut World, queen_oid: i32) {
     // Queen gone (killed, or the world moved on) → the beat stops.
-    let queen_alive = world.objects.get_component::<Vitals>(&queen_oid).is_some_and(|v| !v.dead);
+    let queen_alive = world
+        .objects
+        .get_component::<Vitals>(&queen_oid)
+        .is_some_and(|v| !v.dead);
     if !queen_alive {
         return;
     }
@@ -73,34 +79,44 @@ pub(crate) fn handle_heal_tick(world: &mut World, queen_oid: i32) {
         }
     }
 
-    world.scheduler.schedule(world.tick + HEAL_TICK_TICKS, ScheduledTask::QueenAntHeal { queen_oid });
+    world.scheduler.schedule(
+        world.tick + HEAL_TICK_TICKS,
+        ScheduledTask::QueenAntHeal { queen_oid },
+    );
 }
 
 fn wounded(world: &World, oid: i32) -> bool {
-    world.objects.get_component::<Vitals>(&oid).is_some_and(|v| !v.dead && v.cur_hp < v.max_hp as f64)
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .is_some_and(|v| !v.dead && v.cur_hp < v.max_hp as f64)
 }
 
 /// The first living NPC of `npc_id` — the larva is unique, so "first" is "the".
 fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
     let mut found = None;
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-        if n.npc_id == npc_id && !v.dead {
-            found = Some(n.object_id);
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if n.npc_id == npc_id && !v.dead {
+                found = Some(n.object_id);
+            }
+        });
     found
 }
 
 /// Living nurse minions of this Queen.
 fn nurses_of(world: &mut World, queen_oid: i32) -> Vec<i32> {
     let mut out = Vec::new();
-    world
-        .objects
-        .for_each_mut::<(&crate::model::npc::Npc, &Vitals, &crate::game_loop::minions::MinionOf)>(|(n, v, m)| {
-            if n.npc_id == NURSE && !v.dead && m.0 == queen_oid {
-                out.push(n.object_id);
-            }
-        });
+    world.objects.for_each_mut::<(
+        &crate::model::npc::Npc,
+        &Vitals,
+        &crate::game_loop::minions::MinionOf,
+    )>(|(n, v, m)| {
+        if n.npc_id == NURSE && !v.dead && m.0 == queen_oid {
+            out.push(n.object_id);
+        }
+    });
     out
 }
 
@@ -108,7 +124,9 @@ fn nurses_of(world: &mut World, queen_oid: i32) -> Vec<i32> {
 /// cast path, so a nurse's heal obeys the same MP cost and cooldown as any
 /// other NPC skill rather than being a privileged script effect.
 fn cast_heal(world: &mut World, nurse_oid: i32, target_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else { return };
+    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+        return;
+    };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, nurse_oid, &skill) {
         return;
     }

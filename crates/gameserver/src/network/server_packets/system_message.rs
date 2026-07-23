@@ -41,7 +41,8 @@ pub mod sm_ids {
     pub const THE_CLAN_SKILL_S1_HAS_BEEN_ADDED: i16 = 1788;
     pub const CLAN_HAS_DISPERSED: i16 = 193;
     pub const YOUR_CLAN_S_LEVEL_HAS_INCREASED: i16 = 274;
-    pub const NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION: i16 = 1771;
+    pub const NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION: i16 =
+        1771;
     // Quests (G11): "earned" for quest gives, vs the loot "obtained" trio.
     pub const YOU_HAVE_EARNED_S1_ADENA: i16 = 52;
     pub const YOU_HAVE_EARNED_S2_S1_S: i16 = 53;
@@ -99,7 +100,8 @@ pub mod sm_ids {
     // Crafting (G15.7).
     pub const S1_HAS_BEEN_ADDED: i16 = 851;
     pub const THAT_RECIPE_IS_ALREADY_REGISTERED: i16 = 840;
-    pub const THE_RECIPE_CANNOT_BE_REGISTERED_YOU_DO_NOT_HAVE_THE_ABILITY_TO_CREATE_ITEMS: i16 = 1061;
+    pub const THE_RECIPE_CANNOT_BE_REGISTERED_YOU_DO_NOT_HAVE_THE_ABILITY_TO_CREATE_ITEMS: i16 =
+        1061;
     pub const YOUR_CREATE_ITEM_LEVEL_IS_TOO_LOW_TO_REGISTER_THIS_RECIPE: i16 = 404;
     pub const UP_TO_S1_RECIPES_CAN_BE_REGISTERED: i16 = 894;
     pub const YOU_MAY_NOT_ALTER_YOUR_RECIPE_BOOK_WHILE_ENGAGED_IN_MANUFACTURING: i16 = 853;
@@ -266,7 +268,8 @@ pub mod sm_ids {
     // Crests (G18 slice 7)
     pub const THE_SIZE_OF_THE_IMAGE_FILE_IS_INAPPROPRIATE_16X12: i16 = 209;
     pub const PLEASE_ADJUST_THE_IMAGE_SIZE_TO_8X12: i16 = 476;
-    pub const A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE: i16 = 272;
+    pub const A_CLAN_CREST_CAN_ONLY_BE_REGISTERED_WHEN_THE_CLAN_S_SKILL_LEVEL_IS_3_OR_ABOVE: i16 =
+        272;
     pub const AS_YOU_ARE_SCHEDULED_FOR_CLAN_DISSOLUTION_CANNOT_REGISTER_OR_DELETE_CREST: i16 = 552;
     pub const THE_CLAN_MARK_WAS_SUCCESSFULLY_REGISTERED_ON_ITEMS: i16 = 1663;
     pub const THE_CLAN_MARK_HAS_BEEN_DELETED: i16 = 1861;
@@ -503,7 +506,11 @@ pub enum SmParam {
     /// on-screen floating damage number: the client draws it over `target`'s
     /// head when the "show damage" client option is enabled. `damage` is passed
     /// negative (`-damage`) exactly as `Player.sendDamageMessage` does.
-    Popup { target: i32, attacker: i32, damage: i32 },
+    Popup {
+        target: i32,
+        attacker: i32,
+        damage: i32,
+    },
 }
 
 /// Port of `serverpackets/SystemMessage.writeImpl` (localisation branch
@@ -554,7 +561,11 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
                 w.write_u8(13);
                 w.write_i32(*id);
             }
-            SmParam::Popup { target, attacker, damage } => {
+            SmParam::Popup {
+                target,
+                attacker,
+                damage,
+            } => {
                 w.write_u8(16);
                 w.write_i32(*target);
                 w.write_i32(*attacker);

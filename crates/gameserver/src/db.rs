@@ -185,8 +185,7 @@ pub struct PlayerSaveData {
     /// Inactive indices' worn hennas.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
-    pub shortcuts_by_index:
-        std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
+    pub shortcuts_by_index: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>>,
     /// Which class index [`Self::skills`] belongs to.
     pub class_index: i32,
     /// Worn henna dyes as `(slot 1-3, symbol_id)` (class_index 0).
@@ -310,53 +309,104 @@ pub enum CreateResult {
 
 /// Game thread → DB thread.
 pub enum DbCommand {
-    LoadCharacters { client_id: u32, account: String },
-    CreateCharacter { client_id: u32, data: NewCharacter },
-    MarkDelete { client_id: u32, account: String, char_id: i32, delete_time: i64 },
-    RestoreCharacter { client_id: u32, account: String, char_id: i32 },
+    LoadCharacters {
+        client_id: u32,
+        account: String,
+    },
+    CreateCharacter {
+        client_id: u32,
+        data: NewCharacter,
+    },
+    MarkDelete {
+        client_id: u32,
+        account: String,
+        char_id: i32,
+        delete_time: i64,
+    },
+    RestoreCharacter {
+        client_id: u32,
+        account: String,
+        char_id: i32,
+    },
     /// Fire-and-forget hard delete (expired characters).
-    DeleteCharacter { char_id: i32 },
+    DeleteCharacter {
+        char_id: i32,
+    },
     /// Fire-and-forget delete of a `pets` row whose collar was destroyed (Java
     /// `RequestDestroyItem`). Object ids are recycled, so leaving the row would
     /// let a future item inherit a stale pet.
-    DeletePetRow { collar_object_id: i32 },
+    DeletePetRow {
+        collar_object_id: i32,
+    },
     /// Write a grand boss's state back (Java `GrandBossManager.setStatus` +
     /// `setStatSet`, which both hit `grandboss_data`). Sent when a boss dies
     /// and when it respawns, so the respawn window survives a restart —
     /// **the point of the table**.
-    StoreGrandBoss { boss: crate::model::grand_boss::GrandBoss },
+    StoreGrandBoss {
+        boss: crate::model::grand_boss::GrandBoss,
+    },
     /// Char count + deletion times for the login server's `ReplyCharacters`.
-    CountCharacters { account: String },
+    CountCharacters {
+        account: String,
+    },
     /// Name availability check for `RequestCharacterNameCreatable` (name already
     /// passed the game thread's validity checks).
-    CheckNameCreatable { client_id: u32, name: String },
+    CheckNameCreatable {
+        client_id: u32,
+        name: String,
+    },
     /// Flush a player's full state to the DB (`store_player`) — the memory-first
     /// model's only character-write path, sent by the staggered periodic
     /// autosave, on logout (`Disconnection.storeMe().deleteMe()`), on
     /// class-transfer, and by the shutdown save-all. Ordered before any
     /// following `LoadCharacters` on this channel, so a restart's re-sent list
     /// already reflects the save.
-    StorePlayer { save: PlayerSaveData },
+    StorePlayer {
+        save: PlayerSaveData,
+    },
     /// Reserve a block of object ids for the game thread (Java `IdManager`
     /// semantics without a cross-thread round trip per item — the DB thread
     /// owns the counter, the game thread allocates out of its block and asks
     /// for another when it runs low). Replied with `DbEvent::IdBlock`.
-    ReserveIds { count: i64 },
+    ReserveIds {
+        count: i64,
+    },
     /// Fire-and-forget friendship insert — both directions in one statement
     /// (Java `RequestAnswerFriendInvite`'s two-row INSERT). Kept immediate:
     /// needs a consenting second player, so it's not a packet-flood surface.
-    InsertFriendPair { a: i32, b: i32 },
+    InsertFriendPair {
+        a: i32,
+        b: i32,
+    },
     /// Fire-and-forget friendship delete, both directions (`RequestFriendDel`).
-    DeleteFriendPair { a: i32, b: i32 },
+    DeleteFriendPair {
+        a: i32,
+        b: i32,
+    },
     /// Fire-and-forget `Clan.store()` — the 13-column `clan_data` INSERT
     /// with everything but id/name/leader at Java's defaults.
-    InsertClan { clan_id: i32, name: String, leader_id: i32 },
+    InsertClan {
+        clan_id: i32,
+        name: String,
+        leader_id: i32,
+    },
     /// Fire-and-forget clan-membership update on a character
     /// (`ClanTable.createClan` side effects; `StorePlayer`'s UPDATE doesn't
     /// touch these columns).
-    UpdateCharClan { char_id: i32, clan_id: i32, clan_privs: i32 },
+    UpdateCharClan {
+        char_id: i32,
+        clan_id: i32,
+        clan_privs: i32,
+    },
     /// `CursedWeapon.saveData` — upsert the weapon's wielder state row.
-    StoreCursedWeapon { item_id: i32, char_id: i32, reputation: i32, pk_kills: i32, nb_kills: i32, end_time: i64 },
+    StoreCursedWeapon {
+        item_id: i32,
+        char_id: i32,
+        reputation: i32,
+        pk_kills: i32,
+        nb_kills: i32,
+        end_time: i64,
+    },
     /// `DBSpawnManager.updateStatus`/`addNewSpawn` — upsert a raid boss's
     /// `npc_respawns` row (live HP/MP while alive, or the pending respawn time
     /// while dead). Keyed on npc id, matching Java's PRIMARY KEY.
@@ -372,56 +422,128 @@ pub enum DbCommand {
     },
     /// `ADD_CHAR_SUBCLASS` / `UPDATE_CHAR_SUBCLASS` — upsert one subclass slot.
     /// Keyed on `(charId, class_id)` like Java's primary key.
-    StoreSubClass { char_id: i32, class_id: i32, class_index: i32, level: i32, exp: i64, sp: i64 },
+    StoreSubClass {
+        char_id: i32,
+        class_id: i32,
+        class_index: i32,
+        level: i32,
+        exp: i64,
+        sp: i64,
+    },
     /// `DBSpawnManager.deleteSpawn` — drop a raid boss's respawn row.
-    DeleteNpcRespawn { npc_id: i32 },
+    DeleteNpcRespawn {
+        npc_id: i32,
+    },
     /// `CursedWeaponsManager.removeFromDb` — drop the weapon's state row.
-    RemoveCursedWeapon { item_id: i32 },
+    RemoveCursedWeapon {
+        item_id: i32,
+    },
     /// `Castle.setSide`/`switchSide` — persist a castle's side.
-    UpdateCastleSide { castle_id: i32, side: String },
+    UpdateCastleSide {
+        castle_id: i32,
+        side: String,
+    },
     /// Castle ownership on the clan side (`Castle.setOwner`/`removeOwner` →
     /// `clan_data.hasCastle`).
-    UpdateClanCastle { clan_id: i32, castle_id: i32 },
+    UpdateClanCastle {
+        clan_id: i32,
+        castle_id: i32,
+    },
     /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
-    SaveSiegeClan { castle_id: i32, clan_id: i32, kind: i32 },
+    SaveSiegeClan {
+        castle_id: i32,
+        clan_id: i32,
+        kind: i32,
+    },
     /// `Siege.removeSiegeClan` — drop a clan's `siege_clans` row.
-    RemoveSiegeClan { castle_id: i32, clan_id: i32 },
+    RemoveSiegeClan {
+        castle_id: i32,
+        clan_id: i32,
+    },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
-    UpdateClanLevel { clan_id: i32, level: i32 },
+    UpdateClanLevel {
+        clan_id: i32,
+        level: i32,
+    },
     /// `Clan.addNewSkill` — upsert a learned clan skill (`sub_pledge_id = -2`,
     /// the main pledge). Keyed on `(clan_id, skill_id)`, so a re-grant at a
     /// higher level replaces the row.
-    SaveClanSkill { clan_id: i32, skill_id: i32, skill_level: i32, skill_name: String },
+    SaveClanSkill {
+        clan_id: i32,
+        skill_id: i32,
+        skill_level: i32,
+        skill_name: String,
+    },
     /// Delete one learned clan skill row (`sub_pledge_id = -2`). Used to purge a
     /// residence skill wrongly stored on the clan by a pre-fix `//give_clan_skills`.
-    DeleteClanSkill { clan_id: i32, skill_id: i32 },
+    DeleteClanSkill {
+        clan_id: i32,
+        skill_id: i32,
+    },
     /// Fire-and-forget clan reputation persist (`Clan.setReputationScore`, which
     /// Java writes via `updateClanScoreInDb`).
-    UpdateClanReputation { clan_id: i32, reputation: i32 },
+    UpdateClanReputation {
+        clan_id: i32,
+        reputation: i32,
+    },
     /// `RequestOustPledgeMember` / village-master dissolve/recover — the two
     /// clan-side penalty stamps (`Clan.updateClanInDB`, narrowed).
-    UpdateClanPenalties { clan_id: i32, char_penalty_expiry_time: i64, dissolving_expiry_time: i64 },
+    UpdateClanPenalties {
+        clan_id: i32,
+        char_penalty_expiry_time: i64,
+        dissolving_expiry_time: i64,
+    },
     /// A member left/was ousted (`Clan.removeClanMember` →
     /// `removeMemberInDatabase`): reset the character's clan columns and stamp
     /// the rejoin penalty (+ recreate penalty when the ex-member led the clan).
-    RemoveClanMember { char_id: i32, clan_join_expiry: i64, clan_create_expiry: i64 },
+    RemoveClanMember {
+        char_id: i32,
+        clan_join_expiry: i64,
+        clan_create_expiry: i64,
+    },
     /// `Player.setClanJoinExpiryTime` persisted alone (invite accepted zeroes
     /// it; `characters.clan_join_expiry_time`).
-    UpdateCharClanJoinExpiry { char_id: i32, expiry: i64 },
+    UpdateCharClanJoinExpiry {
+        char_id: i32,
+        expiry: i64,
+    },
     /// `Clan.setRankPrivs` — upsert one `clan_privs` row (party is always 0).
-    SaveClanRankPrivs { clan_id: i32, rank: i32, privs: i32 },
+    SaveClanRankPrivs {
+        clan_id: i32,
+        rank: i32,
+        privs: i32,
+    },
     /// `ClanMember.updatePowerGrade` — persist a member's rank.
-    UpdateCharPowerGrade { char_id: i32, power_grade: i32 },
+    UpdateCharPowerGrade {
+        char_id: i32,
+        power_grade: i32,
+    },
     /// `Clan.setNewLeaderId(id, true)` — the pending delegated leader transfer.
-    UpdateClanNewLeader { clan_id: i32, new_leader_id: i32 },
+    UpdateClanNewLeader {
+        clan_id: i32,
+        new_leader_id: i32,
+    },
     /// `ClanEntryManager.addPlayerApplicationToClan` — upsert one applicant row.
-    UpsertPledgeApplicant { player_id: i32, clan_id: i32, karma: i32, message: String },
+    UpsertPledgeApplicant {
+        player_id: i32,
+        clan_id: i32,
+        karma: i32,
+        message: String,
+    },
     /// `ClanEntryManager.removePlayerApplication`.
-    DeletePledgeApplicant { player_id: i32, clan_id: i32 },
+    DeletePledgeApplicant {
+        player_id: i32,
+        clan_id: i32,
+    },
     /// `ClanEntryManager.addToWaitingList`.
-    InsertPledgeWaiting { player_id: i32, karma: i32 },
+    InsertPledgeWaiting {
+        player_id: i32,
+        karma: i32,
+    },
     /// `ClanEntryManager.removeFromWaitingList`.
-    DeletePledgeWaiting { player_id: i32 },
+    DeletePledgeWaiting {
+        player_id: i32,
+    },
     /// `ClanEntryManager.addToClanList`.
     InsertPledgeRecruit {
         clan_id: i32,
@@ -441,32 +563,71 @@ pub enum DbCommand {
         recruit_type: i32,
     },
     /// `ClanEntryManager.removeFromClanList`.
-    DeletePledgeRecruit { clan_id: i32 },
+    DeletePledgeRecruit {
+        clan_id: i32,
+    },
     /// `CrestTable.createCrest` — insert a new stored bitmap.
-    InsertCrest { id: i32, data: Vec<u8>, kind: i32 },
+    InsertCrest {
+        id: i32,
+        data: Vec<u8>,
+        kind: i32,
+    },
     /// `CrestTable.removeCrest` (skipped by the caller when `id` is the most
     /// recently allocated one — Java never reuses the last id).
-    DeleteCrest { id: i32 },
+    DeleteCrest {
+        id: i32,
+    },
     /// `Clan.changeClanCrest` — the small pledge crest column.
-    UpdateClanCrest { clan_id: i32, crest_id: i32 },
+    UpdateClanCrest {
+        clan_id: i32,
+        crest_id: i32,
+    },
     /// `Clan.changeLargeCrest` — the large pledge crest column.
-    UpdateClanCrestLarge { clan_id: i32, crest_large_id: i32 },
+    UpdateClanCrestLarge {
+        clan_id: i32,
+        crest_large_id: i32,
+    },
     /// `Clan.changeAllyCrest(id, onlyThisClan=true)` — one clan's own row
     /// (a member who just joined/left inherits the leader's crest id this way).
-    UpdateClanAllyCrestSelf { clan_id: i32, ally_crest_id: i32 },
+    UpdateClanAllyCrestSelf {
+        clan_id: i32,
+        ally_crest_id: i32,
+    },
     /// `Clan.changeAllyCrest(id, onlyThisClan=false)` — every clan in the
     /// alliance at once (`WHERE ally_id=?`), the leader's own registration path.
-    UpdateAllyCrestForAlliance { ally_id: i32, ally_crest_id: i32 },
+    UpdateAllyCrestForAlliance {
+        ally_id: i32,
+        ally_crest_id: i32,
+    },
     /// The ally half of `Clan.updateClanInDB` — membership + penalty stamps.
-    UpdateClanAlly { clan_id: i32, ally_id: i32, ally_name: String, penalty_expiry: i64, penalty_type: i32 },
+    UpdateClanAlly {
+        clan_id: i32,
+        ally_id: i32,
+        ally_name: String,
+        penalty_expiry: i64,
+        penalty_type: i32,
+    },
     /// `Clan.createSubPledge`'s insert — a new academy/royal/knight unit.
-    InsertSubPledge { clan_id: i32, pledge_type: i32, name: String, leader_id: i32 },
+    InsertSubPledge {
+        clan_id: i32,
+        pledge_type: i32,
+        name: String,
+        leader_id: i32,
+    },
     /// `Clan.updateSubPledgeInDB` — rename and/or leader reassignment.
-    UpdateSubPledge { clan_id: i32, pledge_type: i32, name: String, leader_id: i32 },
+    UpdateSubPledge {
+        clan_id: i32,
+        pledge_type: i32,
+        name: String,
+        leader_id: i32,
+    },
     /// `ClanMember.updatePowerGrade`'s sibling for pledge type — persisted
     /// whenever a member's sub-unit membership changes (join/reorganize/
     /// leave-clears-captaincy).
-    UpdateCharPledgeType { char_id: i32, pledge_type: i32 },
+    UpdateCharPledgeType {
+        char_id: i32,
+        pledge_type: i32,
+    },
     /// `ClanTable.storeClanWars` — upsert one `clan_wars` row (ids, despite the
     /// varchar columns — Java binds ints too).
     SaveClanWar {
@@ -483,41 +644,79 @@ pub enum DbCommand {
     /// `(clan1, clan2)` order it was called with (a surrender can miss the row
     /// until the next boot's cleanup); both orders are deleted here — the same
     /// eventual outcome without the stale row.
-    DeleteClanWar { clan1: i32, clan2: i32 },
+    DeleteClanWar {
+        clan1: i32,
+        clan2: i32,
+    },
     /// `ClanTable.destroyClan` — delete the `clan_data` row and reset every
     /// member's `characters` clan columns (online *and* offline, since the
     /// memory-first autosave never touches those columns). `leader_id` also gets
     /// the 10-day recreate cooldown stamped at `leader_expiry` (Java sets it on
     /// the leader during `removeClanMember`).
-    DestroyClan { clan_id: i32, leader_id: i32, leader_expiry: i64 },
+    DestroyClan {
+        clan_id: i32,
+        leader_id: i32,
+        leader_expiry: i64,
+    },
     /// Fire-and-forget clan-warehouse flush — delete every `owner_id = clan_id`
     /// item row (`loc = "CLANWH"`) and reinsert the current set (the same
     /// delete-then-reinsert the player item save uses).
-    StoreClanWarehouse { clan_id: i32, items: Vec<ItemRow> },
+    StoreClanWarehouse {
+        clan_id: i32,
+        items: Vec<ItemRow>,
+    },
     /// Java `Player.setAccessLevel(updateInDb=true)` — persist a GM access-level
     /// change immediately (the memory-first autosave doesn't carry accesslevel).
-    SetAccessLevel { char_id: i32, level: i32 },
+    SetAccessLevel {
+        char_id: i32,
+        level: i32,
+    },
     /// Upsert one `account_gsdata` row (Java `AccountVariables.storeMe`,
     /// write-through). Used by `//primepoints` for the account-scoped
     /// "PRIME_POINTS" variable.
-    StoreAccountVar { account_name: String, var: String, value: String },
+    StoreAccountVar {
+        account_name: String,
+        var: String,
+        value: String,
+    },
     /// Upsert / delete an `account_premium` row (Java `PremiumManager`
     /// UPDATE/DELETE). Used by `//premium_*`.
-    StorePremium { account_name: String, enddate: i64 },
-    DeletePremium { account_name: String },
+    StorePremium {
+        account_name: String,
+        enddate: i64,
+    },
+    DeletePremium {
+        account_name: String,
+    },
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
     /// `_bbs_buff_scheme_create`/`_delete`.
-    StoreBufferScheme { object_id: i32, scheme_name: String, skills: String },
-    DeleteBufferScheme { object_id: i32, scheme_name: String },
+    StoreBufferScheme {
+        object_id: i32,
+        scheme_name: String,
+        skills: String,
+    },
+    DeleteBufferScheme {
+        object_id: i32,
+        scheme_name: String,
+    },
     /// Insert / delete a `bbs_favorites` row (Java `FavoriteBoard`
     /// ADD_FAVORITE / DELETE_FAVORITE). `fav_id` is allocated on the game thread
     /// (the table-wide AUTOINCREMENT PK, written explicitly here) so the
     /// memory-first mirror carries it immediately. Used by the community board's
     /// `bbs_add_fav`/`_bbsdelfav_`.
-    StoreFavorite { fav_id: i32, player_id: i32, title: String, bypass: String, add_date: String },
-    DeleteFavorite { player_id: i32, fav_id: i32 },
+    StoreFavorite {
+        fav_id: i32,
+        player_id: i32,
+        title: String,
+        bypass: String,
+        add_date: String,
+    },
+    DeleteFavorite {
+        player_id: i32,
+        fav_id: i32,
+    },
     /// Fire-and-forget daily recommendation reset for offline characters
     /// (Java `DailyTaskManager.resetRecommends`'s two UPDATE statements).
     /// Online players are reset in memory on the game thread; their rows get
@@ -532,9 +731,21 @@ pub enum DbEvent {
     /// `send_list` = push a fresh `CharSelectionInfo` to the client (login,
     /// delete, restore). After character creation it is false — Java only caches
     /// the list (`setCharSelection`) and does not re-send it.
-    CharactersLoaded { client_id: u32, account: String, chars: Vec<CharData>, send_list: bool },
-    CharacterCreated { client_id: u32, result: CreateResult },
-    CharCount { account: String, count: u8, del_times: Vec<i64> },
+    CharactersLoaded {
+        client_id: u32,
+        account: String,
+        chars: Vec<CharData>,
+        send_list: bool,
+    },
+    CharacterCreated {
+        client_id: u32,
+        result: CreateResult,
+    },
+    CharCount {
+        account: String,
+        count: u8,
+        del_times: Vec<i64>,
+    },
     /// `ExIsCharNameCreatable` result: -1 = creatable, else a failure code.
     NameCreatable { client_id: u32, result: i32 },
     /// A reserved object-id block `[start, end)` for the game thread's
@@ -559,27 +770,37 @@ pub enum DbEvent {
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
     /// the available-buff table are filtered on the game thread.
-    BufferSchemesLoaded { entries: Vec<(i32, String, Vec<i32>)> },
+    BufferSchemesLoaded {
+        entries: Vec<(i32, String, Vec<i32>)>,
+    },
     /// The whole `bbs_favorites` table (Java `FavoriteBoard` loads per-player on
     /// demand; this port caches all rows at boot like `buffer_schemes`), pushed
     /// unprompted at boot. `(player_id, fav_id, title, bypass, add_date)`,
     /// newest first.
-    FavoritesLoaded { entries: Vec<(i32, i32, String, String, String)> },
+    FavoritesLoaded {
+        entries: Vec<(i32, i32, String, String, String)>,
+    },
     /// The `grandboss_data` table (Java `GrandBossManager.init`), pushed
     /// unprompted at boot. Filtered to known NPC templates on the game thread.
-    GrandBossesLoaded { bosses: Vec<crate::model::grand_boss::GrandBoss> },
+    GrandBossesLoaded {
+        bosses: Vec<crate::model::grand_boss::GrandBoss>,
+    },
     /// The `cursed_weapons` state table (Java `CursedWeaponsManager.restore`),
     /// pushed unprompted at boot; overlaid onto the XML config on the game thread.
     CursedWeaponsLoaded { rows: Vec<CursedWeaponRow> },
     /// The `castle` table (Java `CastleManager.load`), pushed unprompted at boot.
-    CastlesLoaded { castles: Vec<crate::model::castle::Castle> },
+    CastlesLoaded {
+        castles: Vec<crate::model::castle::Castle>,
+    },
     /// The `siege_clans` table (Java `Siege.loadSiegeClan`), pushed unprompted at
     /// boot after `CastlesLoaded`. Grouped into per-castle sieges on the game thread.
     SiegesLoaded { rows: Vec<SiegeClanRow> },
     /// The `castle_siege_guards` table (the stationed garrison, `isHired=0`),
     /// pushed unprompted at boot. `(castle_id, spawn)`; grouped by castle on the
     /// game thread.
-    SiegeGuardsLoaded { guards: Vec<(i32, crate::model::siege::SiegeSpawn)> },
+    SiegeGuardsLoaded {
+        guards: Vec<(i32, crate::model::siege::SiegeSpawn)>,
+    },
 }
 
 /// One `siege_clans` row — a clan registered for a castle's siege.
@@ -607,7 +828,13 @@ pub type EventTx = std::sync::mpsc::Sender<DbEvent>;
 pub type DbEventRx = std::sync::mpsc::Receiver<DbEvent>;
 
 /// Spawn the DB thread. It creates and owns the pool on its own runtime.
-pub fn spawn(url: String, max_connections: u32, max_characters: i32, cmd_rx: CmdRx, event_tx: EventTx) -> JoinHandle<()> {
+pub fn spawn(
+    url: String,
+    max_connections: u32,
+    max_characters: i32,
+    cmd_rx: CmdRx,
+    event_tx: EventTx,
+) -> JoinHandle<()> {
     std::thread::Builder::new()
         .name("db-thread".to_string())
         .spawn(move || {
@@ -641,10 +868,19 @@ async fn verify_schema(pool: &sqlx::SqlitePool) -> Result<(), String> {
     if missing.is_empty() {
         return Ok(());
     }
-    Err(format!("database is missing required table(s): {}", missing.join(", ")))
+    Err(format!(
+        "database is missing required table(s): {}",
+        missing.join(", ")
+    ))
 }
 
-async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx: CmdRx, event_tx: EventTx) {
+async fn run(
+    url: String,
+    max_connections: u32,
+    max_characters: i32,
+    mut cmd_rx: CmdRx,
+    event_tx: EventTx,
+) {
     let pool = match commons::db::init(&url, max_connections).await {
         Ok(p) => p,
         Err(e) => {
@@ -676,36 +912,57 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
 
     // Hand the game thread its initial runtime-id block unprompted (it can't
     // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
-    let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + ID_BLOCK_SIZE });
+    let _ = event_tx.send(DbEvent::IdBlock {
+        start: next_id,
+        end: next_id + ID_BLOCK_SIZE,
+    });
     next_id += ID_BLOCK_SIZE;
 
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
-    let _ = event_tx.send(DbEvent::PremiumLoaded { entries: load_premium(&pool).await });
+    let _ = event_tx.send(DbEvent::PremiumLoaded {
+        entries: load_premium(&pool).await,
+    });
 
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::BufferSchemesLoaded { entries: load_buffer_schemes(&pool).await });
+    let _ = event_tx.send(DbEvent::BufferSchemesLoaded {
+        entries: load_buffer_schemes(&pool).await,
+    });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::FavoritesLoaded { entries: load_favorites(&pool).await });
+    let _ = event_tx.send(DbEvent::FavoritesLoaded {
+        entries: load_favorites(&pool).await,
+    });
 
     // `DBSpawnManager.load` — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::NpcRespawnsLoaded { rows: load_npc_respawns(&pool).await });
+    let _ = event_tx.send(DbEvent::NpcRespawnsLoaded {
+        rows: load_npc_respawns(&pool).await,
+    });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::GrandBossesLoaded { bosses: load_grandboss_data(&pool).await });
+    let _ = event_tx.send(DbEvent::GrandBossesLoaded {
+        bosses: load_grandboss_data(&pool).await,
+    });
 
     // `CursedWeaponsManager.restore` — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::CursedWeaponsLoaded { rows: load_cursed_weapons(&pool).await });
+    let _ = event_tx.send(DbEvent::CursedWeaponsLoaded {
+        rows: load_cursed_weapons(&pool).await,
+    });
 
     // `CastleManager.load` — likewise unprompted, before `ClansLoaded`.
-    let _ = event_tx.send(DbEvent::CastlesLoaded { castles: load_castles(&pool).await });
+    let _ = event_tx.send(DbEvent::CastlesLoaded {
+        castles: load_castles(&pool).await,
+    });
 
     // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
-    let _ = event_tx.send(DbEvent::SiegesLoaded { rows: load_siege_clans(&pool).await });
+    let _ = event_tx.send(DbEvent::SiegesLoaded {
+        rows: load_siege_clans(&pool).await,
+    });
 
     // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
-    let _ = event_tx.send(DbEvent::SiegeGuardsLoaded { guards: load_siege_guards(&pool).await });
+    let _ = event_tx.send(DbEvent::SiegeGuardsLoaded {
+        guards: load_siege_guards(&pool).await,
+    });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded {
@@ -730,12 +987,31 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                     reload(&pool, &event_tx, client_id, data.account, false).await;
                 }
             }
-            DbCommand::MarkDelete { client_id, account, char_id, delete_time } => {
-                exec(&pool, sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?").bind(delete_time).bind(char_id)).await;
+            DbCommand::MarkDelete {
+                client_id,
+                account,
+                char_id,
+                delete_time,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?")
+                        .bind(delete_time)
+                        .bind(char_id),
+                )
+                .await;
                 reload(&pool, &event_tx, client_id, account, true).await;
             }
-            DbCommand::RestoreCharacter { client_id, account, char_id } => {
-                exec(&pool, sqlx::query("UPDATE characters SET deletetime=0 WHERE charId=?").bind(char_id)).await;
+            DbCommand::RestoreCharacter {
+                client_id,
+                account,
+                char_id,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET deletetime=0 WHERE charId=?").bind(char_id),
+                )
+                .await;
                 reload(&pool, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
@@ -766,7 +1042,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             }
             DbCommand::CountCharacters { account } => {
                 let (count, del_times) = count_characters(&pool, &account).await;
-                let _ = event_tx.send(DbEvent::CharCount { account, count, del_times });
+                let _ = event_tx.send(DbEvent::CharCount {
+                    account,
+                    count,
+                    del_times,
+                });
             }
             DbCommand::CheckNameCreatable { client_id, name } => {
                 // RequestCharacterNameCreatable: NAME_ALREADY_EXISTS=2,
@@ -784,7 +1064,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 store_player(&pool, &save).await;
             }
             DbCommand::ReserveIds { count } => {
-                let _ = event_tx.send(DbEvent::IdBlock { start: next_id, end: next_id + count });
+                let _ = event_tx.send(DbEvent::IdBlock {
+                    start: next_id,
+                    end: next_id + count,
+                });
                 next_id += count;
             }
             DbCommand::InsertFriendPair { a, b } => {
@@ -809,7 +1092,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::InsertClan { clan_id, name, leader_id } => {
+            DbCommand::InsertClan {
+                clan_id,
+                name,
+                leader_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -824,7 +1111,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateCharClan { char_id, clan_id, clan_privs } => {
+            DbCommand::UpdateCharClan {
+                char_id,
+                clan_id,
+                clan_privs,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE characters SET clanid=?, clan_privs=? WHERE charId=?")
@@ -834,7 +1125,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::SaveClanSkill { clan_id, skill_id, skill_level, skill_name } => {
+            DbCommand::SaveClanSkill {
+                clan_id,
+                skill_id,
+                skill_level,
+                skill_name,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -858,7 +1154,14 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StoreCursedWeapon { item_id, char_id, reputation, pk_kills, nb_kills, end_time } => {
+            DbCommand::StoreCursedWeapon {
+                item_id,
+                char_id,
+                reputation,
+                pk_kills,
+                nb_kills,
+                end_time,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -875,7 +1178,16 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StoreNpcRespawn { npc_id, x, y, z, heading, respawn_time, cur_hp, cur_mp } => {
+            DbCommand::StoreNpcRespawn {
+                npc_id,
+                x,
+                y,
+                z,
+                heading,
+                respawn_time,
+                cur_hp,
+                cur_mp,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -894,7 +1206,14 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StoreSubClass { char_id, class_id, class_index, level, exp, sp } => {
+            DbCommand::StoreSubClass {
+                char_id,
+                class_id,
+                class_index,
+                level,
+                exp,
+                sp,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -912,22 +1231,42 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 .await;
             }
             DbCommand::DeleteNpcRespawn { npc_id } => {
-                exec(&pool, sqlx::query("DELETE FROM npc_respawns WHERE id=?").bind(npc_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM npc_respawns WHERE id=?").bind(npc_id),
+                )
+                .await;
             }
             DbCommand::RemoveCursedWeapon { item_id } => {
-                exec(&pool, sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id),
+                )
+                .await;
             }
             DbCommand::UpdateCastleSide { castle_id, side } => {
-                exec(&pool, sqlx::query("UPDATE castle SET side=? WHERE id=?").bind(side).bind(castle_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE castle SET side=? WHERE id=?")
+                        .bind(side)
+                        .bind(castle_id),
+                )
+                .await;
             }
             DbCommand::UpdateClanCastle { clan_id, castle_id } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?").bind(castle_id).bind(clan_id),
+                    sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?")
+                        .bind(castle_id)
+                        .bind(clan_id),
                 )
                 .await;
             }
-            DbCommand::SaveSiegeClan { castle_id, clan_id, kind } => {
+            DbCommand::SaveSiegeClan {
+                castle_id,
+                clan_id,
+                kind,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -942,25 +1281,38 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             DbCommand::RemoveSiegeClan { castle_id, clan_id } => {
                 exec(
                     &pool,
-                    sqlx::query("DELETE FROM siege_clans WHERE castle_id=? AND clan_id=?").bind(castle_id).bind(clan_id),
+                    sqlx::query("DELETE FROM siege_clans WHERE castle_id=? AND clan_id=?")
+                        .bind(castle_id)
+                        .bind(clan_id),
                 )
                 .await;
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE clan_data SET clan_level=? WHERE clan_id=?").bind(level).bind(clan_id),
+                    sqlx::query("UPDATE clan_data SET clan_level=? WHERE clan_id=?")
+                        .bind(level)
+                        .bind(clan_id),
                 )
                 .await;
             }
-            DbCommand::UpdateClanReputation { clan_id, reputation } => {
+            DbCommand::UpdateClanReputation {
+                clan_id,
+                reputation,
+            } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE clan_data SET reputation_score=? WHERE clan_id=?").bind(reputation).bind(clan_id),
+                    sqlx::query("UPDATE clan_data SET reputation_score=? WHERE clan_id=?")
+                        .bind(reputation)
+                        .bind(clan_id),
                 )
                 .await;
             }
-            DbCommand::UpdateClanPenalties { clan_id, char_penalty_expiry_time, dissolving_expiry_time } => {
+            DbCommand::UpdateClanPenalties {
+                clan_id,
+                char_penalty_expiry_time,
+                dissolving_expiry_time,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -972,7 +1324,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::RemoveClanMember { char_id, clan_join_expiry, clan_create_expiry } => {
+            DbCommand::RemoveClanMember {
+                char_id,
+                clan_join_expiry,
+                clan_create_expiry,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -985,7 +1341,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::SaveClanRankPrivs { clan_id, rank, privs } => {
+            DbCommand::SaveClanRankPrivs {
+                clan_id,
+                rank,
+                privs,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -998,7 +1358,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateCharPowerGrade { char_id, power_grade } => {
+            DbCommand::UpdateCharPowerGrade {
+                char_id,
+                power_grade,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
@@ -1007,7 +1370,13 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateClanAlly { clan_id, ally_id, ally_name, penalty_expiry, penalty_type } => {
+            DbCommand::UpdateClanAlly {
+                clan_id,
+                ally_id,
+                ally_name,
+                penalty_expiry,
+                penalty_type,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1021,7 +1390,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::InsertSubPledge { clan_id, pledge_type, name, leader_id } => {
+            DbCommand::InsertSubPledge {
+                clan_id,
+                pledge_type,
+                name,
+                leader_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("INSERT INTO clan_subpledges (clan_id, sub_pledge_id, name, leader_id) VALUES (?, ?, ?, ?)")
@@ -1032,7 +1406,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateSubPledge { clan_id, pledge_type, name, leader_id } => {
+            DbCommand::UpdateSubPledge {
+                clan_id,
+                pledge_type,
+                name,
+                leader_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_subpledges SET leader_id=?, name=? WHERE clan_id=? AND sub_pledge_id=?")
@@ -1043,10 +1422,15 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateCharPledgeType { char_id, pledge_type } => {
+            DbCommand::UpdateCharPledgeType {
+                char_id,
+                pledge_type,
+            } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE characters SET subpledge=? WHERE charId=?").bind(pledge_type).bind(char_id),
+                    sqlx::query("UPDATE characters SET subpledge=? WHERE charId=?")
+                        .bind(pledge_type)
+                        .bind(char_id),
                 )
                 .await;
             }
@@ -1061,16 +1445,25 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 .await;
             }
             DbCommand::DeleteCrest { id } => {
-                exec(&pool, sqlx::query("DELETE FROM crests WHERE crest_id=?").bind(id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM crests WHERE crest_id=?").bind(id),
+                )
+                .await;
             }
             DbCommand::UpdateClanCrest { clan_id, crest_id } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE clan_data SET crest_id=? WHERE clan_id=?").bind(crest_id).bind(clan_id),
+                    sqlx::query("UPDATE clan_data SET crest_id=? WHERE clan_id=?")
+                        .bind(crest_id)
+                        .bind(clan_id),
                 )
                 .await;
             }
-            DbCommand::UpdateClanCrestLarge { clan_id, crest_large_id } => {
+            DbCommand::UpdateClanCrestLarge {
+                clan_id,
+                crest_large_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_data SET crest_large_id=? WHERE clan_id=?")
@@ -1079,7 +1472,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateClanAllyCrestSelf { clan_id, ally_crest_id } => {
+            DbCommand::UpdateClanAllyCrestSelf {
+                clan_id,
+                ally_crest_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE clan_id=?")
@@ -1088,7 +1484,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateAllyCrestForAlliance { ally_id, ally_crest_id } => {
+            DbCommand::UpdateAllyCrestForAlliance {
+                ally_id,
+                ally_crest_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE ally_id=?")
@@ -1097,7 +1496,12 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpsertPledgeApplicant { player_id, clan_id, karma, message } => {
+            DbCommand::UpsertPledgeApplicant {
+                player_id,
+                clan_id,
+                karma,
+                message,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1114,21 +1518,36 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             DbCommand::DeletePledgeApplicant { player_id, clan_id } => {
                 exec(
                     &pool,
-                    sqlx::query("DELETE FROM pledge_applicant WHERE charId=? AND clanId=?").bind(player_id).bind(clan_id),
+                    sqlx::query("DELETE FROM pledge_applicant WHERE charId=? AND clanId=?")
+                        .bind(player_id)
+                        .bind(clan_id),
                 )
                 .await;
             }
             DbCommand::InsertPledgeWaiting { player_id, karma } => {
                 exec(
                     &pool,
-                    sqlx::query("INSERT INTO pledge_waiting_list (char_id, karma) VALUES (?, ?)").bind(player_id).bind(karma),
+                    sqlx::query("INSERT INTO pledge_waiting_list (char_id, karma) VALUES (?, ?)")
+                        .bind(player_id)
+                        .bind(karma),
                 )
                 .await;
             }
             DbCommand::DeletePledgeWaiting { player_id } => {
-                exec(&pool, sqlx::query("DELETE FROM pledge_waiting_list WHERE char_id=?").bind(player_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM pledge_waiting_list WHERE char_id=?").bind(player_id),
+                )
+                .await;
             }
-            DbCommand::InsertPledgeRecruit { clan_id, karma, information, detailed_information, application_type, recruit_type } => {
+            DbCommand::InsertPledgeRecruit {
+                clan_id,
+                karma,
+                information,
+                detailed_information,
+                application_type,
+                recruit_type,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1144,7 +1563,14 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdatePledgeRecruit { clan_id, karma, information, detailed_information, application_type, recruit_type } => {
+            DbCommand::UpdatePledgeRecruit {
+                clan_id,
+                karma,
+                information,
+                detailed_information,
+                application_type,
+                recruit_type,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1160,9 +1586,22 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 .await;
             }
             DbCommand::DeletePledgeRecruit { clan_id } => {
-                exec(&pool, sqlx::query("DELETE FROM pledge_recruit WHERE clan_id=?").bind(clan_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM pledge_recruit WHERE clan_id=?").bind(clan_id),
+                )
+                .await;
             }
-            DbCommand::SaveClanWar { attacker, attacked, attacker_kills, attacked_kills, winner, start_time, end_time, state } => {
+            DbCommand::SaveClanWar {
+                attacker,
+                attacked,
+                attacker_kills,
+                attacked_kills,
+                winner,
+                start_time,
+                end_time,
+                state,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1194,7 +1633,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::UpdateClanNewLeader { clan_id, new_leader_id } => {
+            DbCommand::UpdateClanNewLeader {
+                clan_id,
+                new_leader_id,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("UPDATE clan_data SET new_leader_id=? WHERE clan_id=?")
@@ -1212,12 +1654,25 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::DestroyClan { clan_id, leader_id, leader_expiry } => {
-                exec(&pool, sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id)).await;
-                exec(&pool, sqlx::query("DELETE FROM clan_skills WHERE clan_id=?").bind(clan_id)).await;
+            DbCommand::DestroyClan {
+                clan_id,
+                leader_id,
+                leader_expiry,
+            } => {
                 exec(
                     &pool,
-                    sqlx::query("UPDATE characters SET clanid=0, clan_privs=0 WHERE clanid=?").bind(clan_id),
+                    sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM clan_skills WHERE clan_id=?").bind(clan_id),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE characters SET clanid=0, clan_privs=0 WHERE clanid=?")
+                        .bind(clan_id),
                 )
                 .await;
                 exec(
@@ -1229,7 +1684,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 .await;
             }
             DbCommand::StoreClanWarehouse { clan_id, items } => {
-                exec(&pool, sqlx::query("DELETE FROM items WHERE owner_id=?").bind(clan_id)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM items WHERE owner_id=?").bind(clan_id),
+                )
+                .await;
                 for it in &items {
                     exec(
                         &pool,
@@ -1263,7 +1722,11 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StoreAccountVar { account_name, var, value } => {
+            DbCommand::StoreAccountVar {
+                account_name,
+                var,
+                value,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("INSERT OR REPLACE INTO account_gsdata (account_name, var, value) VALUES (?, ?, ?)")
@@ -1273,7 +1736,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StorePremium { account_name, enddate } => {
+            DbCommand::StorePremium {
+                account_name,
+                enddate,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("INSERT OR REPLACE INTO account_premium (account_name, enddate) VALUES (?, ?)")
@@ -1283,9 +1749,18 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 .await;
             }
             DbCommand::DeletePremium { account_name } => {
-                exec(&pool, sqlx::query("DELETE FROM account_premium WHERE account_name=?").bind(account_name)).await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM account_premium WHERE account_name=?")
+                        .bind(account_name),
+                )
+                .await;
             }
-            DbCommand::StoreBufferScheme { object_id, scheme_name, skills } => {
+            DbCommand::StoreBufferScheme {
+                object_id,
+                scheme_name,
+                skills,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("INSERT OR REPLACE INTO buffer_schemes (object_id, scheme_name, skills) VALUES (?, ?, ?)")
@@ -1295,7 +1770,10 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::DeleteBufferScheme { object_id, scheme_name } => {
+            DbCommand::DeleteBufferScheme {
+                object_id,
+                scheme_name,
+            } => {
                 exec(
                     &pool,
                     sqlx::query("DELETE FROM buffer_schemes WHERE object_id=? AND scheme_name=?")
@@ -1304,7 +1782,13 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
                 )
                 .await;
             }
-            DbCommand::StoreFavorite { fav_id, player_id, title, bypass, add_date } => {
+            DbCommand::StoreFavorite {
+                fav_id,
+                player_id,
+                title,
+                bypass,
+                add_date,
+            } => {
                 exec(
                     &pool,
                     sqlx::query(
@@ -1321,7 +1805,9 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
             DbCommand::DeleteFavorite { player_id, fav_id } => {
                 exec(
                     &pool,
-                    sqlx::query("DELETE FROM bbs_favorites WHERE playerId=? AND favId=?").bind(player_id).bind(fav_id),
+                    sqlx::query("DELETE FROM bbs_favorites WHERE playerId=? AND favId=?")
+                        .bind(player_id)
+                        .bind(fav_id),
                 )
                 .await;
             }
@@ -1343,9 +1829,20 @@ async fn run(url: String, max_connections: u32, max_characters: i32, mut cmd_rx:
     info!("DB thread: stopped.");
 }
 
-async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: String, send_list: bool) {
+async fn reload(
+    pool: &SqlitePool,
+    event_tx: &EventTx,
+    client_id: u32,
+    account: String,
+    send_list: bool,
+) {
     let chars = load_characters(pool, &account).await;
-    let _ = event_tx.send(DbEvent::CharactersLoaded { client_id, account, chars, send_list });
+    let _ = event_tx.send(DbEvent::CharactersLoaded {
+        client_id,
+        account,
+        chars,
+        send_list,
+    });
 }
 
 /// Best-effort read of one `account_gsdata` variable (Java
@@ -1353,21 +1850,29 @@ async fn reload(pool: &SqlitePool, event_tx: &EventTx, client_id: u32, account: 
 /// (e.g. the table absent in a minimal test schema), mirroring Java's
 /// catch-and-default-empty behaviour.
 async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option<String> {
-    sqlx::query_scalar::<_, String>("SELECT value FROM account_gsdata WHERE account_name=? AND var=?")
-        .bind(account)
-        .bind(var)
-        .fetch_optional(pool)
-        .await
-        .ok()
-        .flatten()
+    sqlx::query_scalar::<_, String>(
+        "SELECT value FROM account_gsdata WHERE account_name=? AND var=?",
+    )
+    .bind(account)
+    .bind(var)
+    .fetch_optional(pool)
+    .await
+    .ok()
+    .flatten()
 }
 
 /// Best-effort boot load of the whole `account_premium` table (Java
 /// `PremiumManager` has no table-wide load; this port caches all rows so the
 /// admin `//premium_*` commands work for offline accounts). Missing table → empty.
 async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
-    match sqlx::query("SELECT account_name, enddate FROM account_premium").fetch_all(pool).await {
-        Ok(rows) => rows.iter().map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate"))).collect(),
+    match sqlx::query("SELECT account_name, enddate FROM account_premium")
+        .fetch_all(pool)
+        .await
+    {
+        Ok(rows) => rows
+            .iter()
+            .map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate")))
+            .collect(),
         Err(_) => Vec::new(),
     }
 }
@@ -1414,9 +1919,11 @@ async fn load_subclasses(pool: &SqlitePool, char_id: i32) -> Vec<crate::model::S
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
 async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
-    match sqlx::query("SELECT id, x, y, z, heading, respawnTime, currentHp, currentMp FROM npc_respawns")
-        .fetch_all(pool)
-        .await
+    match sqlx::query(
+        "SELECT id, x, y, z, heading, respawnTime, currentHp, currentMp FROM npc_respawns",
+    )
+    .fetch_all(pool)
+    .await
     {
         Ok(rows) => rows
             .iter()
@@ -1440,7 +1947,10 @@ async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
 /// filtering (skills still in the buffer table) happens on the game thread,
 /// where the datapack lives. Missing table → empty.
 async fn load_buffer_schemes(pool: &SqlitePool) -> Vec<(i32, String, Vec<i32>)> {
-    match sqlx::query("SELECT object_id, scheme_name, skills FROM buffer_schemes").fetch_all(pool).await {
+    match sqlx::query("SELECT object_id, scheme_name, skills FROM buffer_schemes")
+        .fetch_all(pool)
+        .await
+    {
         Ok(rows) => rows
             .iter()
             .map(|r| {
@@ -1498,17 +2008,18 @@ async fn load_next_id(pool: &SqlitePool) -> i64 {
 
 /// `loadCharacterSelectInfo`: rows for an account, expired deletions purged.
 async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
-    let rows = match sqlx::query("SELECT * FROM characters WHERE account_name=? ORDER BY createDate")
-        .bind(account)
-        .fetch_all(pool)
-        .await
-    {
-        Ok(r) => r,
-        Err(e) => {
-            warn!("DB thread: load_characters failed: {e}");
-            return Vec::new();
-        }
-    };
+    let rows =
+        match sqlx::query("SELECT * FROM characters WHERE account_name=? ORDER BY createDate")
+            .bind(account)
+            .fetch_all(pool)
+            .await
+        {
+            Ok(r) => r,
+            Err(e) => {
+                warn!("DB thread: load_characters failed: {e}");
+                return Vec::new();
+            }
+        };
 
     // Account-scoped prime (NCoin) balance — same for every char on the
     // account. Best-effort: absent table/row → 0 (Java `restoreMe` catch).
@@ -1594,15 +2105,24 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             items,
             // The active class index is whichever subclass row matches the
             // `characters.classid` we just loaded; base class → 0.
-            skills: skills_by_index.get(&active_index).cloned().unwrap_or_default(),
+            skills: skills_by_index
+                .get(&active_index)
+                .cloned()
+                .unwrap_or_default(),
             skills_by_index,
-            hennas: hennas_by_index.get(&active_index).cloned().unwrap_or_default(),
+            hennas: hennas_by_index
+                .get(&active_index)
+                .cloned()
+                .unwrap_or_default(),
             hennas_by_index,
             recipe_book,
             variables,
             pets,
             summons,
-            shortcuts: shortcuts_by_index.get(&active_index).cloned().unwrap_or_default(),
+            shortcuts: shortcuts_by_index
+                .get(&active_index)
+                .cloned()
+                .unwrap_or_default(),
             shortcuts_by_index,
             macros,
             friends,
@@ -1624,13 +2144,17 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
 /// A character's `character_skills` rows (Java: `Player.restoreSkills`,
 /// called for every row shown in `CharSelectionInfo` — same treatment as
 /// `load_items`).
-async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32, i32)>> {
+async fn load_skills(
+    pool: &SqlitePool,
+    owner_id: i32,
+) -> std::collections::HashMap<i32, Vec<(i32, i32, i32)>> {
     let rows = sqlx::query("SELECT skill_id, skill_level, skill_sub_level, class_index FROM character_skills WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    let mut out: std::collections::HashMap<i32, Vec<(i32, i32, i32)>> = std::collections::HashMap::new();
+    let mut out: std::collections::HashMap<i32, Vec<(i32, i32, i32)>> =
+        std::collections::HashMap::new();
     for r in &rows {
         out.entry(geti(r, "class_index") as i32).or_default().push((
             geti(r, "skill_id") as i32,
@@ -1643,17 +2167,23 @@ async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::Hash
 
 /// A character's `character_hennas` rows (Java `Player.restoreHenna`) as
 /// `(slot, symbol_id)`. `class_index = 0` — no subclasses on this dist.
-async fn load_hennas(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
-    let rows = sqlx::query("SELECT slot, symbol_id, class_index FROM character_hennas WHERE charId=?")
-        .bind(owner_id)
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
+async fn load_hennas(
+    pool: &SqlitePool,
+    owner_id: i32,
+) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
+    let rows =
+        sqlx::query("SELECT slot, symbol_id, class_index FROM character_hennas WHERE charId=?")
+            .bind(owner_id)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
     let mut out: std::collections::HashMap<i32, Vec<(i32, i32)>> = std::collections::HashMap::new();
     for r in &rows {
         let (slot, sym) = (geti(r, "slot") as i32, geti(r, "symbol_id") as i32);
         if (1..=3).contains(&slot) && sym != 0 {
-            out.entry(geti(r, "class_index") as i32).or_default().push((slot, sym));
+            out.entry(geti(r, "class_index") as i32)
+                .or_default()
+                .push((slot, sym));
         }
     }
     out
@@ -1681,7 +2211,9 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    rows.iter().map(|r| (gets(r, "var"), gets(r, "val"))).collect()
+    rows.iter()
+        .map(|r| (gets(r, "var"), gets(r, "val")))
+        .collect()
 }
 
 /// Every pet this character owns (Java `Pet.restore`, hoisted from per-summon
@@ -1715,7 +2247,11 @@ async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
 /// A servitor's saved buffs (Java `Servitor.RESTORE_SKILL_SAVE`), ordered by
 /// `buff_index` so they come back in the order they were applied — which
 /// matters for the buff-slot cap.
-async fn load_summon_buffs(pool: &SqlitePool, owner_id: i32, summon_skill_id: i32) -> Vec<SkillBuffRow> {
+async fn load_summon_buffs(
+    pool: &SqlitePool,
+    owner_id: i32,
+    summon_skill_id: i32,
+) -> Vec<SkillBuffRow> {
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, remaining_time FROM character_summon_skills_save \
          WHERE ownerId=? AND ownerClassIndex=0 AND summonSkillId=? ORDER BY buff_index ASC",
@@ -1762,7 +2298,11 @@ async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
 /// dropped here; the survivors carry the absolute `systime` and the game side
 /// converts it to a game tick when the character enters the world. Buff rows
 /// (restore_type 0) are loaded separately by [`load_skill_buffs`].
-async fn load_skill_reuses(pool: &SqlitePool, owner_id: i32, class_index: i32) -> Vec<SkillReuseRow> {
+async fn load_skill_reuses(
+    pool: &SqlitePool,
+    owner_id: i32,
+    class_index: i32,
+) -> Vec<SkillReuseRow> {
     let now = now_millis();
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, reuse_delay, systime FROM character_skills_save \
@@ -1849,15 +2389,17 @@ async fn load_shortcuts(
     let mut out: std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>> =
         std::collections::HashMap::new();
     for r in &rows {
-        out.entry(geti(r, "class_index") as i32).or_default().push(crate::model::shortcut::Shortcut {
-            slot: geti(r, "slot") as i32,
-            page: geti(r, "page") as i32,
-            kind: crate::model::shortcut::ShortcutType::from_ordinal(geti(r, "type") as i32),
-            id: geti(r, "shortcut_id") as i32,
-            level: geti(r, "level") as i32,
-            character_type: 1,
-            shared_reuse_group: -1,
-        });
+        out.entry(geti(r, "class_index") as i32).or_default().push(
+            crate::model::shortcut::Shortcut {
+                slot: geti(r, "slot") as i32,
+                page: geti(r, "page") as i32,
+                kind: crate::model::shortcut::ShortcutType::from_ordinal(geti(r, "type") as i32),
+                id: geti(r, "shortcut_id") as i32,
+                level: geti(r, "level") as i32,
+                character_type: 1,
+                shared_reuse_group: -1,
+            },
+        );
     }
     out
 }
@@ -1889,7 +2431,10 @@ async fn load_friends(pool: &SqlitePool, owner_id: i32) -> Vec<crate::character:
 /// remaining rows fill each one's variable map. Vars for a quest without a
 /// state row are orphans — Java warns (or deletes with
 /// `AUTODELETE_INVALID_QUEST_DATA`); we drop them from the load.
-async fn load_quests(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
+async fn load_quests(
+    pool: &SqlitePool,
+    owner_id: i32,
+) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
     use crate::model::quest::{state, QuestState, STATE_VAR};
     let rows = sqlx::query("SELECT name, var, value FROM character_quests WHERE charId=?")
         .bind(owner_id)
@@ -1900,7 +2445,10 @@ async fn load_quests(pool: &SqlitePool, owner_id: i32) -> std::collections::Hash
     for row in rows.iter().filter(|r| gets(r, "var") == STATE_VAR) {
         out.insert(
             gets(row, "name"),
-            QuestState { state: state::from_name(&gets(row, "value")), ..Default::default() },
+            QuestState {
+                state: state::from_name(&gets(row, "value")),
+                ..Default::default()
+            },
         );
     }
     for row in rows.iter().filter(|r| gets(r, "var") != STATE_VAR) {
@@ -1962,10 +2510,12 @@ async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
 /// The stationed siege guards (`castle_siege_guards WHERE isHired=0`) — the
 /// non-mercenary garrison spawned at siege start.
 async fn load_siege_guards(pool: &SqlitePool) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
-    let rows = sqlx::query("SELECT castleId, npcId, x, y, z, heading FROM castle_siege_guards WHERE isHired=0")
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
+    let rows = sqlx::query(
+        "SELECT castleId, npcId, x, y, z, heading FROM castle_siege_guards WHERE isHired=0",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
     rows.iter()
         .map(|r| {
             (
@@ -1984,7 +2534,10 @@ async fn load_siege_guards(pool: &SqlitePool) -> Vec<(i32, crate::model::siege::
 
 /// `Siege.loadSiegeClan`: every `siege_clans` row.
 async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
-    let rows = sqlx::query("SELECT castle_id, clan_id, type FROM siege_clans").fetch_all(pool).await.unwrap_or_default();
+    let rows = sqlx::query("SELECT castle_id, clan_id, type FROM siege_clans")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
     rows.iter()
         .map(|r| SiegeClanRow {
             castle_id: geti(r, "castle_id") as i32,
@@ -1996,7 +2549,10 @@ async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
 
 /// `CastleManager.load`: every `castle` row (id/name/side).
 async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
-    let rows = sqlx::query("SELECT id, name, side FROM castle ORDER BY id").fetch_all(pool).await.unwrap_or_default();
+    let rows = sqlx::query("SELECT id, name, side FROM castle ORDER BY id")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
     rows.iter()
         .map(|r| crate::model::castle::Castle {
             id: geti(r, "id") as i32,
@@ -2045,16 +2601,25 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .filter(|&(rank, _)| rank != -1)
             .collect();
         // Sub-pledges (Java `Clan.restoreSubPledges`).
-        let sub_rows = sqlx::query("SELECT sub_pledge_id, name, leader_id FROM clan_subpledges WHERE clan_id=?")
-            .bind(clan_id)
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
+        let sub_rows = sqlx::query(
+            "SELECT sub_pledge_id, name, leader_id FROM clan_subpledges WHERE clan_id=?",
+        )
+        .bind(clan_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
         let sub_pledges: std::collections::HashMap<i32, crate::model::clan::SubPledge> = sub_rows
             .iter()
             .map(|r| {
                 let id = geti(r, "sub_pledge_id") as i32;
-                (id, crate::model::clan::SubPledge { id, name: gets(r, "name"), leader_id: geti(r, "leader_id") as i32 })
+                (
+                    id,
+                    crate::model::clan::SubPledge {
+                        id,
+                        name: gets(r, "name"),
+                        leader_id: geti(r, "leader_id") as i32,
+                    },
+                )
             })
             .collect();
         out.push(crate::model::clan::Clan {
@@ -2100,11 +2665,13 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
 /// A character's `character_macroses` rows (Java `MacroList.restoreMe`),
 /// commands decoded from the `type,d1,d2[,cmd];…` column encoding.
 async fn load_macros(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
-    let rows = sqlx::query("SELECT id, icon, name, descr, acronym, commands FROM character_macroses WHERE charId=?")
-        .bind(owner_id)
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
+    let rows = sqlx::query(
+        "SELECT id, icon, name, descr, acronym, commands FROM character_macroses WHERE charId=?",
+    )
+    .bind(owner_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
     rows.iter()
         .map(|r| crate::model::shortcut::Macro {
             id: geti(r, "id") as i32,
@@ -2117,7 +2684,15 @@ async fn load_macros(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shor
         .collect()
 }
 
-async fn upsert_shortcut(pool: &SqlitePool, char_id: i32, slot: i32, page: i32, kind: i32, shortcut_id: i32, level: i32) {
+async fn upsert_shortcut(
+    pool: &SqlitePool,
+    char_id: i32,
+    slot: i32,
+    page: i32,
+    kind: i32,
+    shortcut_id: i32,
+    level: i32,
+) {
     exec(
         pool,
         sqlx::query(
@@ -2178,12 +2753,22 @@ async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
     .unwrap_or_default();
     let variations: std::collections::HashMap<i32, (i32, i32, i32)> = var_rows
         .iter()
-        .map(|r| (geti(r, "itemId") as i32, (geti(r, "mineralId") as i32, geti(r, "option1") as i32, geti(r, "option2") as i32)))
+        .map(|r| {
+            (
+                geti(r, "itemId") as i32,
+                (
+                    geti(r, "mineralId") as i32,
+                    geti(r, "option1") as i32,
+                    geti(r, "option2") as i32,
+                ),
+            )
+        })
         .collect();
     rows.iter()
         .map(|r| {
             let object_id = geti(r, "object_id") as i32;
-            let (augment_mineral, augment_option1, augment_option2) = variations.get(&object_id).copied().unwrap_or((0, 0, 0));
+            let (augment_mineral, augment_option1, augment_option2) =
+                variations.get(&object_id).copied().unwrap_or((0, 0, 0));
             ItemRow {
                 object_id,
                 item_id: geti(r, "item_id") as i32,
@@ -2205,15 +2790,21 @@ async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
 
 /// Case-insensitive character-name existence check (`getIdByName`).
 async fn name_exists(pool: &SqlitePool, name: &str) -> bool {
-    let n: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
-        .bind(name)
-        .fetch_one(pool)
-        .await
-        .unwrap_or(0);
+    let n: i64 =
+        sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
+            .bind(name)
+            .fetch_one(pool)
+            .await
+            .unwrap_or(0);
     n > 0
 }
 
-async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: i32, data: &NewCharacter) -> CreateResult {
+async fn create_character(
+    pool: &SqlitePool,
+    next_id: &mut i64,
+    max_characters: i32,
+    data: &NewCharacter,
+) -> CreateResult {
     if name_exists(pool, &data.name).await {
         return CreateResult::NameExists;
     }
@@ -2288,11 +2879,14 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
             // Initial equipment + starting adena. The item_id → object_id
             // map feeds ITEM shortcut resolution below (first occurrence
             // wins, like Java `getItemByItemId`).
-            let mut item_object_ids: std::collections::HashMap<i32, i64> = std::collections::HashMap::new();
+            let mut item_object_ids: std::collections::HashMap<i32, i64> =
+                std::collections::HashMap::new();
             for item in &data.items {
                 let item_object_id = *next_id;
                 *next_id += 1;
-                item_object_ids.entry(item.item_id).or_insert(item_object_id);
+                item_object_ids
+                    .entry(item.item_id)
+                    .or_insert(item_object_id);
                 let (loc, loc_data) = match item.paperdoll_index {
                     Some(slot) => ("PAPERDOLL", slot as i32),
                     None => ("INVENTORY", 0),
@@ -2328,7 +2922,16 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
                 } else {
                     sc.id
                 };
-                upsert_shortcut(pool, char_id as i32, sc.slot, sc.page, sc.kind.ordinal(), shortcut_id, sc.level).await;
+                upsert_shortcut(
+                    pool,
+                    char_id as i32,
+                    sc.slot,
+                    sc.page,
+                    sc.kind.ordinal(),
+                    shortcut_id,
+                    sc.level,
+                )
+                .await;
             }
             for m in &data.macros {
                 upsert_macro(pool, char_id as i32, m).await;
@@ -2365,7 +2968,10 @@ async fn create_character(pool: &SqlitePool, next_id: &mut i64, max_characters: 
 /// intact.
 async fn store_player(pool: &SqlitePool, s: &PlayerSaveData) {
     if let Err(e) = store_player_tx(pool, s).await {
-        error!("store_player: flush for char {} failed (rolled back): {e}", s.base.object_id);
+        error!(
+            "store_player: flush for char {} failed (rolled back): {e}",
+            s.base.object_id
+        );
     }
 }
 
@@ -2431,7 +3037,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     .await?;
 
     // items (inventory + equipped): `Inventory::to_rows` is the whole owned set.
-    sqlx::query("DELETE FROM items WHERE owner_id=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM items WHERE owner_id=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     for it in &s.items {
         sqlx::query(
             "INSERT INTO items \
@@ -2460,23 +3069,35 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .bind(char_id)
         .execute(&mut *tx)
         .await?;
-    for it in s.items.iter().filter(|it| it.augment_option1 != 0 || it.augment_option2 != 0) {
-        sqlx::query("INSERT INTO item_variations (itemId, mineralId, option1, option2) VALUES (?, ?, ?, ?)")
-            .bind(it.object_id)
-            .bind(it.augment_mineral)
-            .bind(it.augment_option1)
-            .bind(it.augment_option2)
-            .execute(&mut *tx)
-            .await?;
+    for it in s
+        .items
+        .iter()
+        .filter(|it| it.augment_option1 != 0 || it.augment_option2 != 0)
+    {
+        sqlx::query(
+            "INSERT INTO item_variations (itemId, mineralId, option1, option2) VALUES (?, ?, ?, ?)",
+        )
+        .bind(it.object_id)
+        .bind(it.augment_mineral)
+        .bind(it.augment_option1)
+        .bind(it.augment_option2)
+        .execute(&mut *tx)
+        .await?;
     }
 
     // Learned skills, per class index (G17): every slot is rewritten, so a
     // subclass keeps its own book rather than inheriting the active one.
-    sqlx::query("DELETE FROM character_skills WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_skills WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
 
     // worn henna dyes (Java stores per add/remove; here delete+reinsert on flush,
     // memory-first like items/skills). Per class index since G17.
-    sqlx::query("DELETE FROM character_hennas WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_hennas WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     let mut henna_idx: Vec<(i32, &Vec<(i32, i32)>)> =
         s.hennas_by_index.iter().map(|(i, v)| (*i, v)).collect();
     henna_idx.push((s.class_index, &s.hennas));
@@ -2519,7 +3140,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     // registered recipes (Java saves per-registration; here delete+reinsert
     // with the persist flush, memory-first like items/skills). `type` = 1
     // dwarven / 0 common; `classIndex` 0.
-    sqlx::query("DELETE FROM character_recipebook WHERE charId=? AND classIndex=0").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_recipebook WHERE charId=? AND classIndex=0")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     for (list_id, is_dwarven) in &s.recipe_book {
         sqlx::query(
             "INSERT INTO character_recipebook (charId, id, classIndex, type) VALUES (?, ?, 0, ?)",
@@ -2534,7 +3158,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     // character variables (Java `PlayerVariables.storeMe` does exactly this
     // delete-then-reinsert, guarded by a dirty flag we don't need — the flush
     // is already batched).
-    sqlx::query("DELETE FROM character_variables WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_variables WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     for (var, val) in &s.variables {
         sqlx::query("INSERT INTO character_variables (charId, var, val) VALUES (?, ?, ?)")
             .bind(char_id)
@@ -2580,7 +3207,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     // an absent servitor row. Same best-effort rationale as `load_account_var`,
     // applied to a write because a write inside the transaction takes
     // everything else down with it.
-    let _ = sqlx::query("DELETE FROM character_summons WHERE ownerId=?").bind(char_id).execute(&mut *tx).await;
+    let _ = sqlx::query("DELETE FROM character_summons WHERE ownerId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await;
     for s in &s.summons {
         let _ = sqlx::query(
             "INSERT INTO character_summons \
@@ -2620,7 +3250,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     }
 
     // shortcuts (Java's delete+insert, here scoped to the transaction).
-    sqlx::query("DELETE FROM character_shortcuts WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_shortcuts WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     let mut sc_idx: Vec<(i32, &Vec<crate::model::shortcut::Shortcut>)> =
         s.shortcuts_by_index.iter().map(|(i, v)| (*i, v)).collect();
     sc_idx.push((s.class_index, &s.shortcuts));
@@ -2644,7 +3277,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     }
 
     // macros.
-    sqlx::query("DELETE FROM character_macroses WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_macroses WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     for m in &s.macros {
         sqlx::query(
             "INSERT INTO character_macroses (charId, id, icon, name, descr, acronym, commands) \
@@ -2665,7 +3301,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     // `load_quests` reconstructs). Skip freshly-`CREATED` quests with no vars —
     // Java never wrote a row for those, and a touched-but-untouched quest state
     // must not start persisting where Java wouldn't.
-    sqlx::query("DELETE FROM character_quests WHERE charId=?").bind(char_id).execute(&mut *tx).await?;
+    sqlx::query("DELETE FROM character_quests WHERE charId=?")
+        .bind(char_id)
+        .execute(&mut *tx)
+        .await?;
     for (name, qs) in &s.quests {
         use crate::model::quest::{state, STATE_VAR};
         if qs.state == state::CREATED && qs.vars.is_empty() {
@@ -2679,13 +3318,15 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
             .execute(&mut *tx)
             .await?;
         for (var, value) in &qs.vars {
-            sqlx::query("INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)")
-                .bind(char_id)
-                .bind(name)
-                .bind(var)
-                .bind(value)
-                .execute(&mut *tx)
-                .await?;
+            sqlx::query(
+                "INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)",
+            )
+            .bind(char_id)
+            .bind(name)
+            .bind(var)
+            .bind(value)
+            .execute(&mut *tx)
+            .await?;
         }
     }
 
@@ -2773,10 +3414,17 @@ async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {
 }
 
 async fn delete_char(pool: &SqlitePool, char_id: i32) {
-    exec(pool, sqlx::query("DELETE FROM characters WHERE charId=?").bind(char_id)).await;
+    exec(
+        pool,
+        sqlx::query("DELETE FROM characters WHERE charId=?").bind(char_id),
+    )
+    .await;
 }
 
-async fn exec<'q>(pool: &SqlitePool, q: sqlx::query::Query<'q, sqlx::Sqlite, sqlx::sqlite::SqliteArguments<'q>>) {
+async fn exec<'q>(
+    pool: &SqlitePool,
+    q: sqlx::query::Query<'q, sqlx::Sqlite, sqlx::sqlite::SqliteArguments<'q>>,
+) {
     if let Err(e) = q.execute(pool).await {
         warn!("DB thread: query failed: {e}");
     }
@@ -2784,10 +3432,14 @@ async fn exec<'q>(pool: &SqlitePool, q: sqlx::query::Query<'q, sqlx::Sqlite, sql
 
 // SQLite is dynamically typed; fetch numeric columns leniently.
 fn geti(row: &sqlx::sqlite::SqliteRow, col: &str) -> i64 {
-    row.try_get::<i64, _>(col).or_else(|_| row.try_get::<f64, _>(col).map(|f| f as i64)).unwrap_or(0)
+    row.try_get::<i64, _>(col)
+        .or_else(|_| row.try_get::<f64, _>(col).map(|f| f as i64))
+        .unwrap_or(0)
 }
 fn getf(row: &sqlx::sqlite::SqliteRow, col: &str) -> f64 {
-    row.try_get::<f64, _>(col).or_else(|_| row.try_get::<i64, _>(col).map(|i| i as f64)).unwrap_or(0.0)
+    row.try_get::<f64, _>(col)
+        .or_else(|_| row.try_get::<i64, _>(col).map(|i| i as f64))
+        .unwrap_or(0.0)
 }
 fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
     row.try_get::<String, _>(col).unwrap_or_default()
@@ -2816,7 +3468,10 @@ async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
 
 /// `CrestTable.load` — every stored crest bitmap (`crests` table).
 async fn load_crests(pool: &SqlitePool) -> Vec<crate::model::clan::Crest> {
-    let rows = sqlx::query("SELECT crest_id, data, type FROM crests").fetch_all(pool).await.unwrap_or_default();
+    let rows = sqlx::query("SELECT crest_id, data, type FROM crests")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
     rows.iter()
         .map(|r| crate::model::clan::Crest {
             id: geti(r, "crest_id") as i32,
@@ -2848,7 +3503,9 @@ async fn load_recruit_clans(pool: &SqlitePool) -> Vec<crate::model::clan_entry::
 
 /// `ClanEntryManager.load`'s `pledge_waiting_list` half (joined with
 /// `characters` for the display fields, as Java's own query does).
-async fn load_recruit_waiting(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
+async fn load_recruit_waiting(
+    pool: &SqlitePool,
+) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
     let rows = sqlx::query(
         "SELECT a.char_id, a.karma, b.base_class, b.level, b.char_name          FROM pledge_waiting_list AS a LEFT JOIN characters AS b ON a.char_id = b.charId",
     )
@@ -2867,7 +3524,9 @@ async fn load_recruit_waiting(pool: &SqlitePool) -> Vec<crate::model::clan_entry
 }
 
 /// `ClanEntryManager.load`'s `pledge_applicant` half.
-async fn load_recruit_applicants(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
+async fn load_recruit_applicants(
+    pool: &SqlitePool,
+) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
     let rows = sqlx::query(
         "SELECT a.charId, a.clanId, a.karma, a.message, b.base_class, b.level, b.char_name          FROM pledge_applicant AS a LEFT JOIN characters AS b ON a.charId = b.charId",
     )

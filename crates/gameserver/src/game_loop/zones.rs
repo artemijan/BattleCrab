@@ -19,18 +19,31 @@ use super::helpers::client_for_player;
 /// membership mask at the current position and applies the enter/exit
 /// effects of every bit that flipped.
 pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
-    let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&object_id).copied() else {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+        .copied()
+    else {
         return;
     };
-    let Some(flags) = world.objects.get_component::<ZoneFlags>(&object_id).copied() else { return };
+    let Some(flags) = world
+        .objects
+        .get_component::<ZoneFlags>(&object_id)
+        .copied()
+    else {
+        return;
+    };
 
     // "This function is called too often from movement code."
     if !force {
         let (lx, ly, lz) = flags.last_validate;
         // f64: the fresh-player sentinel (`i32::MIN`) would overflow any
         // integer square.
-        let (dx, dy, dz) =
-            (pos.x as f64 - lx as f64, pos.y as f64 - ly as f64, pos.z as f64 - lz as f64);
+        let (dx, dy, dz) = (
+            pos.x as f64 - lx as f64,
+            pos.y as f64 - ly as f64,
+            pos.z as f64 - lz as f64,
+        );
         if dx * dx + dy * dy + dz * dz < 100.0 * 100.0 {
             return;
         }
@@ -56,7 +69,9 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     }
 
     if compass_changed {
-        if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
+        if let Some(cs) =
+            client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid))
+        {
             cs.send(server_packets::ex_set_compass_zone_code(compass));
         }
     }
@@ -86,16 +101,24 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         }
         // Speeds only — the swamp multiplier is applied inside
         // `recalculate_stats`, so a plain recompute picks it up.
-        if let Some((player, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-            &crate::model::Player,
-            &crate::model::components::BaseStats,
-            &crate::model::components::StatModifiers,
-            &crate::model::inventory::Inventory,
-            &mut Speeds,
-            &mut crate::model::components::CombatStats,
-        )>(&object_id)
+        if let Some((player, base, mods, inventory, mut speeds, mut combat)) =
+            world.objects.get_many_mut::<(
+                &crate::model::Player,
+                &crate::model::components::BaseStats,
+                &crate::model::components::StatModifiers,
+                &crate::model::inventory::Inventory,
+                &mut Speeds,
+                &mut crate::model::components::CombatStats,
+            )>(&object_id)
         {
-            player.recalculate_stats(&world.data, base, mods, &inventory, &mut speeds, &mut combat);
+            player.recalculate_stats(
+                &world.data,
+                base,
+                mods,
+                &inventory,
+                &mut speeds,
+                &mut combat,
+            );
         }
         super::party::broadcast_user_info(world, object_id);
     }
@@ -117,7 +140,10 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
 /// which the PvP task then blinks out.
 pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
     let now_active_siege = super::pvp::active_siege_castle(world, object_id).is_some();
-    let was = world.objects.get_component::<ZoneFlags>(&object_id).is_some_and(|f| f.in_active_siege);
+    let was = world
+        .objects
+        .get_component::<ZoneFlags>(&object_id)
+        .is_some_and(|f| f.in_active_siege);
     if now_active_siege == was {
         return;
     }
@@ -164,8 +190,12 @@ pub(crate) fn refresh_siege_zone_for_all(world: &mut World) {
 /// GM-override branches (no reputation-based PvP or access levels yet).
 /// True ⇒ hostile actions between them are refused.
 pub(crate) fn is_inside_peace_zone(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
-    let attacker_player = world.objects.has_component::<crate::model::Player>(&attacker_oid);
-    let target_player = world.objects.has_component::<crate::model::Player>(&target_oid);
+    let attacker_player = world
+        .objects
+        .has_component::<crate::model::Player>(&attacker_oid);
+    let target_player = world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid);
     if !attacker_player || !target_player {
         return false;
     }

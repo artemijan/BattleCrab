@@ -55,7 +55,10 @@ impl QuestScript for Q00261CollectorsDream {
     /// credits the killer only (the G11 party deviation), which reduces to the
     /// cond-1 gate.
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_cond(1) && ctx.give_item_randomly(SPIDER_LEG, 1, MAX_LEG_COUNT, 1.0, true) {
+        if ctx.has_qs()
+            && ctx.is_cond(1)
+            && ctx.give_item_randomly(SPIDER_LEG, 1, MAX_LEG_COUNT, 1.0, true)
+        {
             ctx.set_cond(2, false);
         }
     }
@@ -63,7 +66,14 @@ impl QuestScript for Q00261CollectorsDream {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30222-02.htm" } else { "30222-01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30222-02.htm"
+                } else {
+                    "30222-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             match ctx.cond() {

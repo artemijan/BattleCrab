@@ -122,7 +122,8 @@ impl Mailer {
              If you didn't ask for this, you can ignore this email.\n",
             site = self.site_name
         );
-        self.send(to, &subject, text, link, "Confirm email address").await
+        self.send(to, &subject, text, link, "Confirm email address")
+            .await
     }
 
     /// Reset a forgotten password. The link stops working the moment the
@@ -297,16 +298,32 @@ mod tests {
 
     #[test]
     fn html_body_escapes_and_keeps_the_link_clickable() {
-        let html = html_body("Site", "Hi <script>\nuse http://x", "https://x/y?t=1&b=2", "Go");
-        assert!(html.contains("&lt;script&gt;"), "must escape injected markup");
-        assert!(html.contains("https://x/y?t=1&b=2"), "link must survive verbatim");
+        let html = html_body(
+            "Site",
+            "Hi <script>\nuse http://x",
+            "https://x/y?t=1&b=2",
+            "Go",
+        );
+        assert!(
+            html.contains("&lt;script&gt;"),
+            "must escape injected markup"
+        );
+        assert!(
+            html.contains("https://x/y?t=1&b=2"),
+            "link must survive verbatim"
+        );
         assert!(html.contains(">Go<"));
     }
 
     #[test]
     fn html_body_stops_the_intro_before_the_raw_link() {
         // The URL is rendered as a button and a copyable span, not inline prose.
-        let html = html_body("Site", "Line one\n\nhttps://example.com/tok\n\ntrailing", "https://example.com/tok", "Go");
+        let html = html_body(
+            "Site",
+            "Line one\n\nhttps://example.com/tok\n\ntrailing",
+            "https://example.com/tok",
+            "Go",
+        );
         let intro_end = html.find("<a href").unwrap();
         assert!(!html[..intro_end].contains("example.com"));
     }

@@ -21,7 +21,14 @@ pub struct HitConditionBonusData {
 impl Default for HitConditionBonusData {
     /// The stock XML values, doubling as the no-file default.
     fn default() -> Self {
-        Self { front_bonus: 0.0, side_bonus: 5.0, back_bonus: 10.0, high_bonus: 3.0, low_bonus: -3.0, dark_bonus: -10.0 }
+        Self {
+            front_bonus: 0.0,
+            side_bonus: 5.0,
+            back_bonus: 10.0,
+            high_bonus: 3.0,
+            low_bonus: -3.0,
+            dark_bonus: -10.0,
+        }
     }
 }
 
@@ -32,7 +39,9 @@ impl HitConditionBonusData {
 
     pub fn load_from(file_path: &str) -> Self {
         let mut out = Self::default();
-        if let Ok(content) = std::fs::read_to_string(format!("{file_path}{HIT_CONDITION_BONUS_FILE}")) {
+        if let Ok(content) =
+            std::fs::read_to_string(format!("{file_path}{HIT_CONDITION_BONUS_FILE}"))
+        {
             let mut reader = Reader::from_str(&content);
             while let Ok(event) = reader.read_event() {
                 let e = match event {
@@ -63,7 +72,12 @@ impl HitConditionBonusData {
     /// `getConditionBonus`, minus the night/rain terms (no game clock or
     /// weather): 100 base, ± elevation (z-diff > 50), + position bonus,
     /// as a multiplier (Java divides by 100), floored at 0.
-    pub fn condition_bonus(&self, attacker_z: i32, target_z: i32, position: crate::model::movement::Position) -> f64 {
+    pub fn condition_bonus(
+        &self,
+        attacker_z: i32,
+        target_z: i32,
+        position: crate::model::movement::Position,
+    ) -> f64 {
         use crate::model::movement::Position;
         let mut modifier = 100.0;
         if attacker_z - target_z > 50 {
@@ -87,7 +101,10 @@ mod tests {
 
     #[test]
     fn loads_real_dist_values_and_combines() {
-        let data = HitConditionBonusData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = HitConditionBonusData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
         assert_eq!(data.back_bonus, 10.0);
         assert_eq!(data.side_bonus, 5.0);
         assert_eq!(data.high_bonus, 3.0);

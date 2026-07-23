@@ -123,8 +123,12 @@ impl QuestScript for Q00623TheFinestFood {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "31521-01.htm" } else { "31521-02.htm" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31521-01.htm"
+                } else {
+                    "31521-02.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

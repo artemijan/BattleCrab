@@ -74,7 +74,11 @@ impl QuestScript for Q00260OrcHunting {
             return;
         }
         if ctx.roll(10) > 4 {
-            let item = MONSTERS.iter().find(|(id, _)| *id == ctx.npc_id).map(|(_, i)| *i).unwrap_or(ORC_AMULET);
+            let item = MONSTERS
+                .iter()
+                .find(|(id, _)| *id == ctx.npc_id)
+                .map(|(_, i)| *i)
+                .unwrap_or(ORC_AMULET);
             ctx.give_items(item, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
@@ -99,7 +103,9 @@ impl QuestScript for Q00260OrcHunting {
             let necklaces = ctx.quest_items_count(ORC_NECKLACE);
             return Some(if amulets + necklaces > 0 {
                 ctx.give_adena(
-                    (amulets * 4) + (necklaces * 10) + if amulets + necklaces >= 10 { 1000 } else { 0 },
+                    (amulets * 4)
+                        + (necklaces * 10)
+                        + if amulets + necklaces >= 10 { 1000 } else { 0 },
                     true,
                 );
                 ctx.take_items(ORC_AMULET, -1);

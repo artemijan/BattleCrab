@@ -272,7 +272,6 @@ impl DashboardConfig {
     }
 }
 
-
 /// Why a session secret is unusable, if it is.
 ///
 /// Checked at startup and fatal: booting with a weak or absent signing key

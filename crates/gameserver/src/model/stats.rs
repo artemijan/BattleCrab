@@ -212,7 +212,14 @@ pub enum Element {
 }
 
 impl Element {
-    pub const ALL: [Element; 6] = [Element::Fire, Element::Water, Element::Wind, Element::Earth, Element::Holy, Element::Dark];
+    pub const ALL: [Element; 6] = [
+        Element::Fire,
+        Element::Water,
+        Element::Wind,
+        Element::Earth,
+        Element::Holy,
+        Element::Dark,
+    ];
 
     pub fn from_xml(name: &str) -> Option<Self> {
         Some(match name {

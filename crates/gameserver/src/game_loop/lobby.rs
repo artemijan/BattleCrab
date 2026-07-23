@@ -147,7 +147,11 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
         // `CharacterCreate`: only seeded when the system is on, and capped at
         // the pool maximum. 0 on this dist — a fresh character starts drained.
         vitality_points: if world.cfg.character.enable_vitality {
-            world.cfg.character.starting_vitality_points.min(crate::model::MAX_VITALITY_POINTS)
+            world
+                .cfg
+                .character
+                .starting_vitality_points
+                .min(crate::model::MAX_VITALITY_POINTS)
         } else {
             0
         },
@@ -343,11 +347,21 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
 /// corrected `chr`.
 fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) {
     use crate::model::shortcut::ShortcutType;
-    let subs: std::collections::HashMap<i32, i32> =
-        chr.skills.iter().filter(|&&(_, _, sub)| sub > 0).map(|&(id, _, sub)| (id, sub)).collect();
+    let subs: std::collections::HashMap<i32, i32> = chr
+        .skills
+        .iter()
+        .filter(|&&(_, _, sub)| sub > 0)
+        .map(|&(id, _, sub)| (id, sub))
+        .collect();
     let mut skills: std::collections::HashMap<i32, i32> =
         chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
-    let changes = super::death::maybe_skill_remove_on_delevel(world, chr.object_id, chr.class_id, chr.level, &mut skills);
+    let changes = super::death::maybe_skill_remove_on_delevel(
+        world,
+        chr.object_id,
+        chr.class_id,
+        chr.level,
+        &mut skills,
+    );
     if changes.is_empty() {
         return;
     }
@@ -356,19 +370,35 @@ fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) 
     chr.skills = skills
         .into_iter()
         .map(|(id, lvl)| {
-            let keep = chr.skills.iter().any(|&(cid, clvl, _)| cid == id && clvl == lvl);
-            (id, lvl, if keep { subs.get(&id).copied().unwrap_or(0) } else { 0 })
+            let keep = chr
+                .skills
+                .iter()
+                .any(|&(cid, clvl, _)| cid == id && clvl == lvl);
+            (
+                id,
+                lvl,
+                if keep {
+                    subs.get(&id).copied().unwrap_or(0)
+                } else {
+                    0
+                },
+            )
         })
         .collect();
     for (skill_id, action) in changes {
         match action {
             Some(new_level) => {
-                for sc in chr.shortcuts.iter_mut().filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id) {
+                for sc in chr
+                    .shortcuts
+                    .iter_mut()
+                    .filter(|sc| sc.kind == ShortcutType::Skill && sc.id == skill_id)
+                {
                     sc.level = new_level;
                 }
             }
             None if !(3080..=3259).contains(&skill_id) => {
-                chr.shortcuts.retain(|sc| !(sc.kind == ShortcutType::Skill && sc.id == skill_id));
+                chr.shortcuts
+                    .retain(|sc| !(sc.kind == ShortcutType::Skill && sc.id == skill_id));
             }
             None => {}
         }
@@ -441,14 +471,24 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // The enter-world packet burst (EnterWorld.runImpl). Inventory real as
     // of G5, skills G6, shortcuts/macros G9.6, friends G10, quest lists
     // G11; henna/mail still empty (TODOs in `enter_world`).
-    session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
+    session.send(user_info(
+        &view,
+        data,
+        &world.cfg.character,
+        super::party::calculate_relation(world, view.p),
+    ));
     // `EnterWorld`: the vitality block only goes out when the system is on.
     // The player isn't in the world store yet (the bundle still owns them), so
     // the bonus is computed here rather than through `vitality::`.
     if world.cfg.character.enable_vitality {
-        let bonus =
-            if player.vitality_points > 0 { world.cfg.rates.rate_vitality_exp_multiplier } else { 1.0 };
-        let items_used = bundle.variables.get_int(crate::model::components::VITALITY_ITEMS_USED, 0);
+        let bonus = if player.vitality_points > 0 {
+            world.cfg.rates.rate_vitality_exp_multiplier
+        } else {
+            1.0
+        };
+        let items_used = bundle
+            .variables
+            .get_int(crate::model::components::VITALITY_ITEMS_USED, 0);
         session.send(ew::ex_vitality_effect_info(
             player,
             bonus,
@@ -470,10 +510,19 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `EnterWorld` sends `HennaInfo` here, inside the burst and ahead of
     // the welcome message — with the player's real worn dyes (their stat bonus
     // is already folded into the UserInfo above).
-    session.send(super::henna::henna_info_packet(&world.data, player.class_id, &bundle.henna));
+    session.send(super::henna::henna_info_packet(
+        &world.data,
+        player.class_id,
+        &bundle.henna,
+    ));
     // Clan skills aren't applied yet (the clan login hook runs after the player
     // is registered and re-sends the merged list) → empty clan set here.
-    session.send(ew::skill_list(&bundle.skills, &bundle.skill_enchants, &crate::model::components::ClanSkills::default(), data));
+    session.send(ew::skill_list(
+        &bundle.skills,
+        &bundle.skill_enchants,
+        &crate::model::components::ClanSkills::default(),
+        data,
+    ));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
     // Initial burst carries 0 charges/0/0; a fresh login never has Force built
     // up. `refresh_expertise_penalty` (after the player is registered below)
@@ -487,7 +536,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         data,
     ));
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
-    session.send(ew::ex_storage_max_count(player.race, &world.cfg.character, &bundle.stat_modifiers));
+    session.send(ew::ex_storage_max_count(
+        player.race,
+        &world.cfg.character,
+        &bundle.stat_modifiers,
+    ));
     session.send(ew::ex_user_info_equip_slot(
         player.object_id,
         &bundle.inventory,
@@ -501,10 +554,18 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     ));
     session.send(server_packets::skill_cool_time(&bundle.reuses, world.tick));
     // `EnterWorld`: the recommendation panel state.
-    session.send(server_packets::ex_vote_system_info(player.rec_left, player.rec_have));
+    session.send(server_packets::ex_vote_system_info(
+        player.rec_left,
+        player.rec_have,
+    ));
 
     // Register the player in the world and re-send UserInfo (Java does both).
-    session.send(user_info(&view, data, &world.cfg.character, super::party::calculate_relation(world, view.p)));
+    session.send(user_info(
+        &view,
+        data,
+        &world.cfg.character,
+        super::party::calculate_relation(world, view.p),
+    ));
     // No ExSetCompassZoneCode here: Java's EnterWorld never sends one — the
     // first revalidateZone below pushes the real code (0x08–0x0F). Sending an
     // out-of-range code (e.g. 0) leaves the client in an unknown zone state
@@ -559,7 +620,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `EnterWorld.runImpl`'s GM branch: apply the configured default GM
     // state (builder-hide / invul / invis / silence / diet) before the spawn
     // broadcast, so an invisible GM is never described to nearby players.
-    if world.objects.get_component::<crate::model::Player>(&object_id).is_some_and(|p| p.is_gm(&world.data)) {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.is_gm(&world.data))
+    {
         super::admin::apply_gm_startup(world, client_id, object_id);
     }
     // Java `spawnMe` → `World.addVisibleObject`: mutual CharInfo with every

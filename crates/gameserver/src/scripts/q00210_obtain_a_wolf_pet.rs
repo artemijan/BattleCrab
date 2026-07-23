@@ -77,7 +77,14 @@ impl QuestScript for Q00210ObtainAWolfPet {
         if ctx.is_created() {
             // Only Lundy opens the quest; `addCondMinLevel(15, "no_level.htm")`.
             if ctx.npc_id == LUNDY {
-                return Some(if ctx.player_level() < MIN_LEVEL { "no_level.htm" } else { "30827-01.htm" }.to_string());
+                return Some(
+                    if ctx.player_level() < MIN_LEVEL {
+                        "no_level.htm"
+                    } else {
+                        "30827-01.htm"
+                    }
+                    .to_string(),
+                );
             }
             return Some(ctx.no_quest_html());
         }

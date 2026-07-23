@@ -26,8 +26,24 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 /// 440 gives `(440/10) * 1.0 * 1.1 = 48.4`, not 44.
 #[test]
 fn identity_defences_reproduce_the_old_formula() {
-    assert!(calc_auto_attack_crit(440.0, 1.0, 0.0, Position::Front, 0, 0, 48));
-    assert!(!calc_auto_attack_crit(440.0, 1.0, 0.0, Position::Front, 0, 0, 49));
+    assert!(calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        48
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        1.0,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        49
+    ));
 }
 
 /// A defender's multiplier scales the **attacker's** rate — that is what the
@@ -36,11 +52,43 @@ fn identity_defences_reproduce_the_old_formula() {
 #[test]
 fn the_defenders_multiplier_scales_the_attackers_rate() {
     // Light Armor Mastery's -15% → x0.85: (374/10) * 1.1 = 41.14.
-    assert!(calc_auto_attack_crit(440.0, 0.85, 0.0, Position::Front, 0, 0, 41));
-    assert!(!calc_auto_attack_crit(440.0, 0.85, 0.0, Position::Front, 0, 0, 42));
+    assert!(calc_auto_attack_crit(
+        440.0,
+        0.85,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        41
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        0.85,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        42
+    ));
     // Pa'agrio's Eye's -30% → x0.70: (308/10) * 1.1 = 33.88.
-    assert!(calc_auto_attack_crit(440.0, 0.70, 0.0, Position::Front, 0, 0, 33));
-    assert!(!calc_auto_attack_crit(440.0, 0.70, 0.0, Position::Front, 0, 0, 34));
+    assert!(calc_auto_attack_crit(
+        440.0,
+        0.70,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        33
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        0.70,
+        0.0,
+        Position::Front,
+        0,
+        0,
+        34
+    ));
 }
 
 /// The `_ADD` term is applied after the multiply and before the `/10`, so it is
@@ -48,16 +96,38 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
 #[test]
 fn the_add_term_lands_before_the_divide() {
     // ((1.0 * 440) + 100) / 10 = 54, then x1.1 = 59.4.
-    assert!(calc_auto_attack_crit(440.0, 1.0, 100.0, Position::Front, 0, 0, 59));
-    assert!(!calc_auto_attack_crit(440.0, 1.0, 100.0, Position::Front, 0, 0, 60));
+    assert!(calc_auto_attack_crit(
+        440.0,
+        1.0,
+        100.0,
+        Position::Front,
+        0,
+        0,
+        59
+    ));
+    assert!(!calc_auto_attack_crit(
+        440.0,
+        1.0,
+        100.0,
+        Position::Front,
+        0,
+        0,
+        60
+    ));
 }
 
 /// The 3..97 clamp still bounds the result, so no defence stat can take an
 /// attacker below a 3% chance.
 #[test]
 fn the_clamp_still_bounds_a_heavily_defended_target() {
-    assert!(calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 2), "floored at 3, so roll 2 crits");
-    assert!(!calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 3), "and roll 3 does not");
+    assert!(
+        calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 2),
+        "floored at 3, so roll 2 crits"
+    );
+    assert!(
+        !calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 3),
+        "and roll 3 does not"
+    );
 }
 
 /// Both carriers parse to the `PER` stat with their real negative amounts.
@@ -72,7 +142,11 @@ fn real_dist_carriers_parse() {
                 .map(|m| m.amount)
         })
     };
-    assert_eq!(amount_of(233, 1), Some(-15.0), "Light Armor Mastery is -15%");
+    assert_eq!(
+        amount_of(233, 1),
+        Some(-15.0),
+        "Light Armor Mastery is -15%"
+    );
     assert_eq!(amount_of(1364, 1), Some(-30.0), "Pa'agrio's Eye is -30%");
 }
 

@@ -23,7 +23,8 @@ pub struct SchemeBufferData {
 
 impl SchemeBufferData {
     pub fn load_from(file_path: &str) -> Self {
-        let content = std::fs::read_to_string(format!("{file_path}{SCHEME_BUFFER_SKILLS_XML}")).unwrap_or_default();
+        let content = std::fs::read_to_string(format!("{file_path}{SCHEME_BUFFER_SKILLS_XML}"))
+            .unwrap_or_default();
         let levels = parse(&content);
         info!("SchemeBufferData: Loaded {} available buffs.", levels.len());
         Self { levels }

@@ -50,9 +50,15 @@ pub fn load_castle_restart_points(file_path: &str) -> HashMap<i32, Vec<(i32, i32
                 castle_id = attr_i32(&e, b"val").unwrap_or(0);
             }
             b"spawn" => {
-                let x = attr_i32(&e, b"X").or_else(|| attr_i32(&e, b"x")).unwrap_or(0);
-                let y = attr_i32(&e, b"Y").or_else(|| attr_i32(&e, b"y")).unwrap_or(0);
-                let z = attr_i32(&e, b"Z").or_else(|| attr_i32(&e, b"z")).unwrap_or(0);
+                let x = attr_i32(&e, b"X")
+                    .or_else(|| attr_i32(&e, b"x"))
+                    .unwrap_or(0);
+                let y = attr_i32(&e, b"Y")
+                    .or_else(|| attr_i32(&e, b"y"))
+                    .unwrap_or(0);
+                let z = attr_i32(&e, b"Z")
+                    .or_else(|| attr_i32(&e, b"z"))
+                    .unwrap_or(0);
                 spawns.push((x, y, z));
             }
             _ => {}
@@ -78,7 +84,8 @@ mod tests {
 
     #[test]
     fn loads_castle_restart_points_from_dist() {
-        let pts = load_castle_restart_points(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let pts =
+            load_castle_restart_points(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         // All nine castles carry an owner_restart_point_list.
         assert_eq!(pts.len(), 9, "nine castle residence zones");
         // Gludio (castle 1): first owner_restart_point is -16554,109382,-1799.

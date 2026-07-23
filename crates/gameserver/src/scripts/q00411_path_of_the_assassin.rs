@@ -53,11 +53,21 @@ const MIN_LEVEL: i32 = 19;
 const MOLARS_NEEDED: i64 = 10;
 
 /// The chain, in order. Exactly one of these is held at a time.
-const TOKENS: [i32; 6] =
-    [SHILENS_CALL, ARKENIAS_LETTER, LEIKANS_NOTE, SHILENS_TEARS, ARKENIAS_RECOMMENDATION, IRON_HEART];
+const TOKENS: [i32; 6] = [
+    SHILENS_CALL,
+    ARKENIAS_LETTER,
+    LEIKANS_NOTE,
+    SHILENS_TEARS,
+    ARKENIAS_RECOMMENDATION,
+    IRON_HEART,
+];
 
 const QUEST_ITEMS: [i32; 6] = [
-    SHILENS_CALL, ARKENIAS_LETTER, LEIKANS_NOTE, MOONSTONE_BEASTS_MOLAR, SHILENS_TEARS,
+    SHILENS_CALL,
+    ARKENIAS_LETTER,
+    LEIKANS_NOTE,
+    MOONSTONE_BEASTS_MOLAR,
+    SHILENS_TEARS,
     ARKENIAS_RECOMMENDATION,
 ];
 
@@ -72,8 +82,11 @@ impl Q00411PathOfTheAssassin {
     /// This is Java's `!hasAtLeastOneQuestItem(others) && hasQuestItems(x)`,
     /// asked once.
     fn token(&self, ctx: &QuestCtx) -> Option<i32> {
-        let held: Vec<i32> =
-            TOKENS.iter().copied().filter(|id| ctx.quest_items_count(*id) > 0).collect();
+        let held: Vec<i32> = TOKENS
+            .iter()
+            .copied()
+            .filter(|id| ctx.quest_items_count(*id) > 0)
+            .collect();
         match held.as_slice() {
             [one] => Some(*one),
             _ => None,
@@ -182,8 +195,12 @@ impl QuestScript for Q00411PathOfTheAssassin {
         if ctx.is_created() {
             if npc == TRISKEL {
                 return Some(
-                    if self.has(ctx, IRON_HEART) { "30416-04.htm" } else { "30416-01.htm" }
-                        .to_string(),
+                    if self.has(ctx, IRON_HEART) {
+                        "30416-04.htm"
+                    } else {
+                        "30416-01.htm"
+                    }
+                    .to_string(),
                 );
             }
             return Some(ctx.no_quest_html());

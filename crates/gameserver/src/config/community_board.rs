@@ -141,9 +141,11 @@ impl CommunityBoardConfig {
             delevel_price: cb.get_long("CommunityDelevelPrice", d.delevel_price),
             karma_disabled: cb.get_bool("CommunityKarmaDisabled", d.karma_disabled),
             cast_animations: cb.get_bool("CommunityCastAnimations", d.cast_animations),
-            community_premium_system: cb.get_bool("CommunityPremiumSystem", d.community_premium_system),
+            community_premium_system: cb
+                .get_bool("CommunityPremiumSystem", d.community_premium_system),
             premium_coin_id: cb.get_int("CommunityPremiumBuyCoinId", d.premium_coin_id),
-            premium_price_per_day: cb.get_long("CommunityPremiumPricePerDay", d.premium_price_per_day),
+            premium_price_per_day: cb
+                .get_long("CommunityPremiumPricePerDay", d.premium_price_per_day),
             available_buffs: cb
                 .get_string("CommunityAvailableBuffs", "")
                 .split(',')
@@ -174,7 +176,9 @@ pub fn scan_available_teleports(
 }
 
 fn collect_teleports_in_dir(dir: &std::path::Path, out: &mut HashMap<String, (i32, i32, i32)>) {
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
@@ -233,14 +237,23 @@ mod tests {
         assert!(!c.enable_delevel, "CommunityEnableDelevel=False");
         assert!(c.karma_disabled, "CommunityKarmaDisabled=True");
         // A couple of the whitelisted buff ids from the dist list.
-        assert!(c.available_buffs.contains(&1204), "Wind Walk (1204) whitelisted");
-        assert!(c.available_buffs.contains(&1085), "Acumen (1085) whitelisted");
+        assert!(
+            c.available_buffs.contains(&1204),
+            "Wind Walk (1204) whitelisted"
+        );
+        assert!(
+            c.available_buffs.contains(&1085),
+            "Acumen (1085) whitelisted"
+        );
     }
 
     #[test]
     fn scans_gatekeeper_teleports_from_dist() {
         let tps = scan_available_teleports(true, &dist("data/html"));
-        assert!(!tps.is_empty(), "gatekeeper htmls yield teleport destinations");
+        assert!(
+            !tps.is_empty(),
+            "gatekeeper htmls yield teleport destinations"
+        );
         // A known Giran gatekeeper entry from the dist markup.
         assert_eq!(
             tps.get("207320 87617 -1112"),

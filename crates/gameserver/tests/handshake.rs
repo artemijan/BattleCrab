@@ -16,7 +16,9 @@ use tokio::net::TcpStream;
 
 const PROTOCOL: i32 = 110;
 
-async fn start_server(cfg: NetworkConfig) -> (std::net::SocketAddr, std::sync::mpsc::Receiver<NetEvent>) {
+async fn start_server(
+    cfg: NetworkConfig,
+) -> (std::net::SocketAddr, std::sync::mpsc::Receiver<NetEvent>) {
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
@@ -25,7 +27,12 @@ async fn start_server(cfg: NetworkConfig) -> (std::net::SocketAddr, std::sync::m
 }
 
 fn cfg() -> NetworkConfig {
-    NetworkConfig { packet_encryption: true, protocol_list: vec![PROTOCOL], server_id: 1, is_classic: true }
+    NetworkConfig {
+        packet_encryption: true,
+        protocol_list: vec![PROTOCOL],
+        server_id: 1,
+        is_classic: true,
+    }
 }
 
 fn protocol_version_body(version: i32) -> Vec<u8> {
@@ -40,8 +47,13 @@ async fn accepts_protocol_and_sends_keypacket() {
     let (addr, net_rx) = start_server(cfg()).await;
     let mut stream = TcpStream::connect(addr).await.unwrap();
 
-    write_frame(&mut stream, &protocol_version_body(PROTOCOL)).await.unwrap();
-    let reply = read_frame(&mut stream, 65535).await.unwrap().expect("KeyPacket");
+    write_frame(&mut stream, &protocol_version_body(PROTOCOL))
+        .await
+        .unwrap();
+    let reply = read_frame(&mut stream, 65535)
+        .await
+        .unwrap()
+        .expect("KeyPacket");
 
     // KeyPacket is the server's first packet → sent in the clear (cipher pass-through).
     let mut r = PacketReader::new(&reply);
@@ -82,7 +94,9 @@ async fn accepts_protocol_and_sends_keypacket() {
     // The server must decrypt it back to the original bytes and forward it.
     let ev = net_rx.recv_timeout(Duration::from_secs(1)).unwrap();
     match ev {
-        NetEvent::Received { data, .. } => assert_eq!(data, plain, "server decrypt must match client plaintext"),
+        NetEvent::Received { data, .. } => {
+            assert_eq!(data, plain, "server decrypt must match client plaintext")
+        }
         _ => panic!("expected Received"),
     }
 }
@@ -92,13 +106,21 @@ async fn rejects_wrong_protocol_and_closes() {
     let (addr, _net_rx) = start_server(cfg()).await;
     let mut stream = TcpStream::connect(addr).await.unwrap();
 
-    write_frame(&mut stream, &protocol_version_body(999)).await.unwrap();
-    let reply = read_frame(&mut stream, 65535).await.unwrap().expect("KeyPacket");
+    write_frame(&mut stream, &protocol_version_body(999))
+        .await
+        .unwrap();
+    let reply = read_frame(&mut stream, 65535)
+        .await
+        .unwrap()
+        .expect("KeyPacket");
     let mut r = PacketReader::new(&reply);
     assert_eq!(r.read_u8().unwrap(), 0x2E);
     assert_eq!(r.read_u8().unwrap(), 0, "result = wrong protocol");
 
     // Server closes after the rejection: the next read hits EOF.
     let eof = read_frame(&mut stream, 65535).await.unwrap();
-    assert!(eof.is_none(), "connection should be closed after wrong protocol");
+    assert!(
+        eof.is_none(),
+        "connection should be closed after wrong protocol"
+    );
 }

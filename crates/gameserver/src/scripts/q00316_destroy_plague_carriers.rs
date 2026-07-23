@@ -114,7 +114,9 @@ impl QuestScript for Q00316DestroyPlagueCarriers {
             let foulclaws = ctx.quest_items_count(VAROOL_FOULCLAW_FANG);
             return Some(if wererats + foulclaws > 0 {
                 ctx.give_adena(
-                    (wererats * 5) + (foulclaws * 1000) + if wererats + foulclaws >= 10 { 5000 } else { 0 },
+                    (wererats * 5)
+                        + (foulclaws * 1000)
+                        + if wererats + foulclaws >= 10 { 5000 } else { 0 },
                     true,
                 );
                 ctx.take_items(WERERAT_FANG, -1);

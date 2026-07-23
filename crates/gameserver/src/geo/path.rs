@@ -79,7 +79,12 @@ impl NodeLoc {
                 nswe |= dir;
             }
         }
-        Self { geo_x: x, geo_y: y, nswe, geo_height: geo.get_nearest_z(x, y, z) }
+        Self {
+            geo_x: x,
+            geo_y: y,
+            nswe,
+            geo_height: geo.get_nearest_z(x, y, z),
+        }
     }
 
     fn can_go(&self, dir: u8) -> bool {
@@ -177,18 +182,36 @@ impl<'a> CellNodeBuffer<'a> {
         }
         let (x, y, z) = (loc.geo_x, loc.geo_y, loc.geo_height);
 
-        let node_e = if loc.can_go(NSWE_EAST) { self.add_node(x + 1, y, z, false) } else { None };
-        let node_s = if loc.can_go(NSWE_SOUTH) { self.add_node(x, y + 1, z, false) } else { None };
-        let node_w = if loc.can_go(NSWE_WEST) { self.add_node(x - 1, y, z, false) } else { None };
-        let node_n = if loc.can_go(NSWE_NORTH) { self.add_node(x, y - 1, z, false) } else { None };
+        let node_e = if loc.can_go(NSWE_EAST) {
+            self.add_node(x + 1, y, z, false)
+        } else {
+            None
+        };
+        let node_s = if loc.can_go(NSWE_SOUTH) {
+            self.add_node(x, y + 1, z, false)
+        } else {
+            None
+        };
+        let node_w = if loc.can_go(NSWE_WEST) {
+            self.add_node(x - 1, y, z, false)
+        } else {
+            None
+        };
+        let node_n = if loc.can_go(NSWE_NORTH) {
+            self.add_node(x, y - 1, z, false)
+        } else {
+            None
+        };
 
         if !self.cfg.advanced_diagonal_strategy {
             return;
         }
         // Snapshot the cardinal nodes' exits (fixed at node creation) so the
         // diagonal inserts below can borrow `self` mutably.
-        let locs: Vec<Option<NodeLoc>> =
-            [node_e, node_s, node_w, node_n].iter().map(|n| n.map(|i| self.nodes[i].loc)).collect();
+        let locs: Vec<Option<NodeLoc>> = [node_e, node_s, node_w, node_n]
+            .iter()
+            .map(|n| n.map(|i| self.nodes[i].loc))
+            .collect();
         let can = |n: Option<NodeLoc>, dir: u8| n.is_some_and(|loc| loc.can_go(dir));
         let (node_e, node_s, node_w, node_n) = (locs[0], locs[1], locs[2], locs[3]);
 
@@ -245,7 +268,11 @@ impl<'a> CellNodeBuffer<'a> {
 
         let geo_z = self.nodes[new_idx].loc.geo_height;
         let step_z = (geo_z - self.nodes[self.current].loc.geo_height).abs();
-        let mut weight = if diagonal { self.cfg.diagonal_weight } else { self.cfg.low_weight };
+        let mut weight = if diagonal {
+            self.cfg.diagonal_weight
+        } else {
+            self.cfg.low_weight
+        };
 
         if !self.nodes[new_idx].loc.can_go_all() || step_z > 16 {
             weight = self.cfg.high_weight;
@@ -451,7 +478,10 @@ mod tests {
     }
 
     fn world_at(g: &GeoEngine, cx: i32, cy: i32) -> (i32, i32) {
-        (g.get_world_x(BASE_GEO_X + cx), g.get_world_y(BASE_GEO_Y + cy))
+        (
+            g.get_world_x(BASE_GEO_X + cx),
+            g.get_world_y(BASE_GEO_Y + cy),
+        )
     }
 
     #[test]
@@ -504,7 +534,10 @@ mod tests {
         let cfg = PathConfig::default();
         let (x0, y0) = world_at(&engine, 5, 1000);
         let (x1, y1) = world_at(&engine, 15, 1000);
-        assert_eq!(find_path(&engine, &cfg, (x0, y0, 0), (x1, y1, 0), true), None);
+        assert_eq!(
+            find_path(&engine, &cfg, (x0, y0, 0), (x1, y1, 0), true),
+            None
+        );
     }
 
     #[test]

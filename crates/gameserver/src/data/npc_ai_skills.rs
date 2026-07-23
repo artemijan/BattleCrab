@@ -127,7 +127,8 @@ fn classify(skill: &crate::model::skill::Skill) -> Vec<AiSkillScope> {
         S::LongRange
     };
 
-    let has = |e: &[fn(&SkillEffect) -> bool]| skill.effects.iter().any(|se| e.iter().any(|f| f(se)));
+    let has =
+        |e: &[fn(&SkillEffect) -> bool]| skill.effects.iter().any(|se| e.iter().any(|f| f(se)));
 
     if skill.is_continuous {
         if !skill.is_debuff {
@@ -170,10 +171,16 @@ fn classify(skill: &crate::model::skill::Skill) -> Vec<AiSkillScope> {
 }
 
 fn is_dispel(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::DispelBySlot { .. } | SkillEffect::DispelBySlotProbability { .. })
+    matches!(
+        e,
+        SkillEffect::DispelBySlot { .. } | SkillEffect::DispelBySlotProbability { .. }
+    )
 }
 fn is_heal(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::Heal { .. } | SkillEffect::HealOverTime { .. })
+    matches!(
+        e,
+        SkillEffect::Heal { .. } | SkillEffect::HealOverTime { .. }
+    )
 }
 fn is_attack(e: &SkillEffect) -> bool {
     matches!(
@@ -195,13 +202,19 @@ fn is_root(e: &SkillEffect) -> bool {
     matches!(e, SkillEffect::Root { .. })
 }
 fn is_mute(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::Mute { .. } | SkillEffect::PhysicalMute { .. })
+    matches!(
+        e,
+        SkillEffect::Mute { .. } | SkillEffect::PhysicalMute { .. }
+    )
 }
 fn is_block_control(e: &SkillEffect) -> bool {
     matches!(e, SkillEffect::BlockControl { .. })
 }
 fn is_dot(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::DamOverTime { .. } | SkillEffect::ManaDamOverTime { .. })
+    matches!(
+        e,
+        SkillEffect::DamOverTime { .. } | SkillEffect::ManaDamOverTime { .. }
+    )
 }
 fn is_resurrection(_e: &SkillEffect) -> bool {
     // No Resurrection effect is ported yet; the RES bucket stays empty and the

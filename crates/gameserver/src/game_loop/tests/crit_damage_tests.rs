@@ -22,7 +22,11 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 }
 
 /// The `(stat, amount)` pairs a skill contributes with no qualifier.
-fn plain_mods(skills: &crate::data::skill_data::SkillData, id: i32, level: i32) -> Vec<(Stat, f64)> {
+fn plain_mods(
+    skills: &crate::data::skill_data::SkillData,
+    id: i32,
+    level: i32,
+) -> Vec<(Stat, f64)> {
     skills
         .get(id, level)
         .unwrap_or_else(|| panic!("skill {id} loads"))
@@ -43,10 +47,25 @@ fn plain_mods(skills: &crate::data::skill_data::SkillData, id: i32, level: i32) 
 /// crit-damage buff would silently become a flat damage buff.
 #[test]
 fn crit_stats_do_not_touch_a_normal_hit() {
-    let huge = CritDamage { mul: 10.0, add: 1000.0 };
-    let plain = formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), false);
-    let with_stats = formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, huge, false);
-    assert_eq!(plain, with_stats, "a non-crit ignores cAtk/cAtkAdd entirely");
+    let huge = CritDamage {
+        mul: 10.0,
+        add: 1000.0,
+    };
+    let plain = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        false,
+        CritDamage::default(),
+        false,
+    );
+    let with_stats =
+        formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, huge, false);
+    assert_eq!(
+        plain, with_stats,
+        "a non-crit ignores cAtk/cAtkAdd entirely"
+    );
 }
 
 /// `CritDamage::default()` is Java's stat-free `2 * 1 * 1 * 1` / `0`, so the
@@ -54,9 +73,28 @@ fn crit_stats_do_not_touch_a_normal_hit() {
 /// which is what every pre-existing damage test relies on.
 #[test]
 fn default_crit_damage_reproduces_the_old_hard_coded_double() {
-    let base = formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, false, CritDamage::default(), false);
-    let crit = formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, CritDamage::default(), false);
-    assert!((crit - base * 2.0).abs() < 1e-9, "default crit is exactly ×2: {base} -> {crit}");
+    let base = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        false,
+        CritDamage::default(),
+        false,
+    );
+    let crit = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        true,
+        CritDamage::default(),
+        false,
+    );
+    assert!(
+        (crit - base * 2.0).abs() < 1e-9,
+        "default crit is exactly ×2: {base} -> {crit}"
+    );
 }
 
 /// The multiplier scales the crit, and the flat add lands **after** the
@@ -74,14 +112,37 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         CritDamage { mul: 4.0, add: 0.0 },
         false,
     );
-    let default_crit =
-        formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, CritDamage::default(), false);
-    assert!((doubled - default_crit * 2.0).abs() < 1e-9, "cAtk 4 is twice cAtk 2");
+    let default_crit = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        true,
+        CritDamage::default(),
+        false,
+    );
+    assert!(
+        (doubled - default_crit * 2.0).abs() < 1e-9,
+        "cAtk 4 is twice cAtk 2"
+    );
 
     // cAtkAdd = 50 → attack becomes (100*2 + 50) = 250, ×77 / 50.
-    let with_add =
-        formulas::calc_auto_attack_damage(100.0, 1.0, Position::Front, 50.0, true, CritDamage { mul: 2.0, add: 50.0 }, false);
-    assert!((with_add - (250.0 * 77.0 / 50.0)).abs() < 1e-9, "cAtkAdd lands inside the ×77, got {with_add}");
+    let with_add = formulas::calc_auto_attack_damage(
+        100.0,
+        1.0,
+        Position::Front,
+        50.0,
+        true,
+        CritDamage {
+            mul: 2.0,
+            add: 50.0,
+        },
+        false,
+    );
+    assert!(
+        (with_add - (250.0 * 77.0 / 50.0)).abs() < 1e-9,
+        "cAtkAdd lands inside the ×77, got {with_add}"
+    );
 
     // With soulshots the add is applied *after* the ss multiply, so it is
     // NOT doubled: (100*2*2 + 50) rather than ((100*2 + 50)*2).
@@ -91,10 +152,16 @@ fn crit_multiplier_and_flat_add_follow_javas_bracketing() {
         Position::Front,
         50.0,
         true,
-        CritDamage { mul: 2.0, add: 50.0 },
+        CritDamage {
+            mul: 2.0,
+            add: 50.0,
+        },
         true,
     );
-    assert!((ss - (450.0 * 77.0 / 50.0)).abs() < 1e-9, "soulshots do not scale cAtkAdd, got {ss}");
+    assert!(
+        (ss - (450.0 * 77.0 / 50.0)).abs() < 1e-9,
+        "soulshots do not scale cAtkAdd, got {ss}"
+    );
 }
 
 /// The magic branch takes its own multiplier (`MAGIC_CRITICAL_DAMAGE`), and
@@ -107,7 +174,10 @@ fn magic_crit_multiplier_applies_only_on_a_magic_crit() {
     assert_eq!(plain, base, "a non-crit cast ignores the crit multiplier");
 
     let crit = formulas::calc_magic_dam(100.0, 60.0, 12.0, true, 3.0, 1.0, none);
-    assert!((crit - base * 3.0).abs() < 1e-9, "a magic crit takes the full multiplier");
+    assert!(
+        (crit - base * 3.0).abs() < 1e-9,
+        "a magic crit takes the full multiplier"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -120,7 +190,11 @@ fn magic_crit_multiplier_applies_only_on_a_magic_crit() {
 #[test]
 fn position_qualified_stats_multiply_from_one() {
     let mut mods = StatModifiers::default();
-    assert_eq!(mods.position_value(Stat::CriticalDamage, Position::Back), 1.0, "absent reads as 1.0, not 0.0");
+    assert_eq!(
+        mods.position_value(Stat::CriticalDamage, Position::Back),
+        1.0,
+        "absent reads as 1.0, not 0.0"
+    );
 
     crate::model::apply_modifier(
         &mut mods,
@@ -134,9 +208,19 @@ fn position_qualified_stats_multiply_from_one() {
             two_handed: false,
         },
     );
-    assert!(mods.mul.is_empty(), "a position-qualified effect must not leak into the plain mul map");
-    assert!((mods.position_value(Stat::CriticalDamage, Position::Back) - 1.3).abs() < 1e-9, "+30% → ×1.3");
-    assert_eq!(mods.position_value(Stat::CriticalDamage, Position::Front), 1.0, "and only from behind");
+    assert!(
+        mods.mul.is_empty(),
+        "a position-qualified effect must not leak into the plain mul map"
+    );
+    assert!(
+        (mods.position_value(Stat::CriticalDamage, Position::Back) - 1.3).abs() < 1e-9,
+        "+30% → ×1.3"
+    );
+    assert_eq!(
+        mods.position_value(Stat::CriticalDamage, Position::Front),
+        1.0,
+        "and only from behind"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -150,7 +234,10 @@ fn position_qualified_stats_multiply_from_one() {
 fn death_whisper_grants_a_critical_damage_multiplier() {
     let skills = dist_skills();
     let mods = plain_mods(&skills, 1242, 1);
-    let crit = mods.iter().find(|(s, _)| *s == Stat::CriticalDamage).expect("Death Whisper pumps CriticalDamage");
+    let crit = mods
+        .iter()
+        .find(|(s, _)| *s == Stat::CriticalDamage)
+        .expect("Death Whisper pumps CriticalDamage");
     assert!(crit.1 > 0.0, "and by a positive amount, got {}", crit.1);
 }
 
@@ -159,10 +246,13 @@ fn death_whisper_grants_a_critical_damage_multiplier() {
 #[test]
 fn learnable_critical_damage_skills_all_reach_a_crit_stat() {
     let skills = dist_skills();
-    for id in [176, 193, 274, 312, 317, 401, 414, 420, 1242, 1253, 1356, 1363] {
+    for id in [
+        176, 193, 274, 312, 317, 401, 414, 420, 1242, 1253, 1356, 1363,
+    ] {
         let mods = plain_mods(&skills, id, 1);
         assert!(
-            mods.iter().any(|(s, _)| matches!(s, Stat::CriticalDamage | Stat::CriticalDamageAdd)),
+            mods.iter()
+                .any(|(s, _)| matches!(s, Stat::CriticalDamage | Stat::CriticalDamageAdd)),
             "skill {id} contributes a crit-damage stat, got {mods:?}"
         );
     }
@@ -205,9 +295,19 @@ fn focus_death_penalises_frontal_crits_and_rewards_backstabs() {
             crate::model::apply_modifier(&mut mods, m);
         }
     }
-    assert!((mods.position_value(Stat::CriticalDamage, Position::Front) - 0.7).abs() < 1e-9, "front -30% → ×0.7");
-    assert!((mods.position_value(Stat::CriticalDamage, Position::Back) - 1.9).abs() < 1e-9, "back +90% → ×1.9");
-    assert_eq!(mods.position_value(Stat::CriticalDamage, Position::Side), 1.0, "side is untouched");
+    assert!(
+        (mods.position_value(Stat::CriticalDamage, Position::Front) - 0.7).abs() < 1e-9,
+        "front -30% → ×0.7"
+    );
+    assert!(
+        (mods.position_value(Stat::CriticalDamage, Position::Back) - 1.9).abs() < 1e-9,
+        "back +90% → ×1.9"
+    );
+    assert_eq!(
+        mods.position_value(Stat::CriticalDamage, Position::Side),
+        1.0,
+        "side is untouched"
+    );
 }
 
 /// Prophecy of Wind 1357 grants the magic-crit multiplier — the one branch
@@ -237,7 +337,11 @@ fn learned_crit_damage_passive_folds_into_stat_modifiers() {
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let bare = Player::from_char(&world.data, &dummy_char(4301, "Bare"));
-    assert_eq!(bare.stat_modifiers.add.get(&Stat::CriticalDamageAdd), None, "no skill: no modifier at all");
+    assert_eq!(
+        bare.stat_modifiers.add.get(&Stat::CriticalDamageAdd),
+        None,
+        "no skill: no modifier at all"
+    );
 
     // Skill 193 "Critical Damage" — a genuine `operateType=P` passive, and a
     // `mode=DIFF` one, so it feeds the *flat* `CriticalDamageAdd` rather than
@@ -247,9 +351,21 @@ fn learned_crit_damage_passive_folds_into_stat_modifiers() {
     let mut chr = dummy_char(4302, "Crit");
     chr.skills = vec![(193, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
-    let add = bundle.stat_modifiers.add.get(&Stat::CriticalDamageAdd).copied().unwrap_or(0.0);
-    assert!((add - 32.0).abs() < 1e-9, "Critical Damage lvl 1 is a flat +32 cAtkAdd, got {add}");
+    let add = bundle
+        .stat_modifiers
+        .add
+        .get(&Stat::CriticalDamageAdd)
+        .copied()
+        .unwrap_or(0.0);
+    assert!(
+        (add - 32.0).abs() < 1e-9,
+        "Critical Damage lvl 1 is a flat +32 cAtkAdd, got {add}"
+    );
     // Which, per the bracketing test above, is worth 32·77/pDef on a crit —
     // far more than its face value suggests.
-    assert_eq!(bundle.stat_modifiers.mul.get(&Stat::CriticalDamage), None, "a DIFF effect never touches the multiplier");
+    assert_eq!(
+        bundle.stat_modifiers.mul.get(&Stat::CriticalDamage),
+        None,
+        "a DIFF effect never touches the multiplier"
+    );
 }

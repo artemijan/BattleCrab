@@ -38,7 +38,8 @@ pub(crate) fn flags_of(world: &World, object_id: i32) -> u32 {
 /// Java `Creature.hasBlockActions()` — stunned, asleep or paralyzed. Blocks
 /// attacking, casting **and** moving.
 pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
-    admin_paralyzed(world, object_id) || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
+    admin_paralyzed(world, object_id)
+        || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
 /// Java `EffectList.getCurrentAbnormalVisualEffects()` — every visual effect
@@ -49,7 +50,10 @@ pub(crate) fn visual_effects(world: &World, object_id: i32) -> Vec<i16> {
     let mut out: Vec<i16> = Vec::new();
     // GM-pinned effects first, so `//ave_abnormal` shows even on a buff-less
     // creature.
-    if let Some(admin) = world.objects.get_component::<crate::model::components::AdminVisuals>(&object_id) {
+    if let Some(admin) = world
+        .objects
+        .get_component::<crate::model::components::AdminVisuals>(&object_id)
+    {
         out.extend(admin.0.iter().copied());
     }
     if let Some(buffs) = world.objects.get_component::<Buffs>(&object_id) {
@@ -121,5 +125,7 @@ fn admin_paralyzed(world: &World, object_id: i32) -> bool {
 
 pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
     admin_paralyzed(world, object_id)
-        || flags_of(world, object_id) & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED) != 0
+        || flags_of(world, object_id)
+            & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED)
+            != 0
 }

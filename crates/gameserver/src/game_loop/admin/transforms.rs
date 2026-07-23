@@ -9,7 +9,9 @@
 //! combat-stat overrides, the `ExBasicActionList` swap, additional-item
 //! inventory blocks) is not applied yet — documented TODO.
 
-use crate::model::components::{BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers};
+use crate::model::components::{
+    BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
+};
 use crate::model::inventory::Inventory;
 use crate::model::Player;
 use crate::world::World;
@@ -24,12 +26,24 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         return;
     };
     if world.data.transforms.get(transform_id).is_none() {
-        send_message(world, client_id, &format!("Transform {transform_id} does not exist."));
+        send_message(
+            world,
+            client_id,
+            &format!("Transform {transform_id} does not exist."),
+        );
         return;
     }
     let target = ride_target(world, object_id);
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.transform_id != 0) {
-        send_message(world, client_id, "You already polymorphed and cannot polymorph again.");
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.transform_id != 0)
+    {
+        send_message(
+            world,
+            client_id,
+            "You already polymorphed and cannot polymorph again.",
+        );
         return;
     }
     apply_transform(world, target, transform_id);
@@ -43,10 +57,23 @@ pub(super) fn admin_untransform(world: &mut World, object_id: i32) {
 
 /// `AdminRide`'s transform-based rides — `//ride_horse` (106) / `//ride_bike`
 /// (20001). Refused if already transformed (Java sends the polymorph message).
-pub(super) fn admin_ride_transform(world: &mut World, client_id: u32, object_id: i32, transform_id: i32) {
+pub(super) fn admin_ride_transform(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    transform_id: i32,
+) {
     let target = ride_target(world, object_id);
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.transform_id != 0) {
-        send_message(world, client_id, "You already polymorphed and cannot polymorph again.");
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.transform_id != 0)
+    {
+        send_message(
+            world,
+            client_id,
+            "You already polymorphed and cannot polymorph again.",
+        );
         return;
     }
     if world.data.transforms.get(transform_id).is_none() {
@@ -60,7 +87,11 @@ pub(super) fn admin_ride_transform(world: &mut World, client_id: u32, object_id:
 /// transform-based ride (horse/bike). Routes to whichever the target is in.
 pub(super) fn admin_dismount_or_untransform(world: &mut World, object_id: i32) {
     let target = ride_target(world, object_id);
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.transform_id != 0) {
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.transform_id != 0)
+    {
         remove_transform(world, target);
     } else {
         super::mounts::dismount(world, target);
@@ -91,8 +122,13 @@ pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32)
 /// display state, override collision, grant the template's transform skills,
 /// recompute speed.
 pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id: i32) {
-    let is_female = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_female);
-    let Some(tf) = world.data.transforms.get(transform_id) else { return };
+    let is_female = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_female);
+    let Some(tf) = world.data.transforms.get(transform_id) else {
+        return;
+    };
     let display_id = tf.display_id;
     let tmpl = tf.template(is_female);
     let (radius, height) = (tmpl.collision_radius, tmpl.collision_height);
@@ -103,7 +139,9 @@ pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id
         p.transform_display_id = display_id;
     }
     if radius > 0.0 || height > 0.0 {
-        world.objects.add_components(&target, Collision { radius, height });
+        world
+            .objects
+            .add_components(&target, Collision { radius, height });
     }
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         for (id, level) in &skills {
@@ -132,18 +170,30 @@ pub(crate) fn remove_transform(world: &mut World, target: i32) {
 /// broadcast into the generic buff-removal `UserInfo` it already sends rather
 /// than sending a second one.
 pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
-    let transform_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_id);
+    let transform_id = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.transform_id);
     if transform_id == 0 {
         return false;
     }
     // Skills the transform granted (removed on revert; Java tracks these in
     // `_transformSkills` — here we re-derive them from the template).
-    let is_female = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_female);
+    let is_female = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_female);
     let skills: Vec<i32> = world
         .data
         .transforms
         .get(transform_id)
-        .map(|tf| tf.template(is_female).skills.iter().map(|(id, _)| *id).collect())
+        .map(|tf| {
+            tf.template(is_female)
+                .skills
+                .iter()
+                .map(|(id, _)| *id)
+                .collect()
+        })
         .unwrap_or_default();
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
         for id in &skills {
@@ -160,8 +210,19 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
         .get_component::<Player>(&target)
         .map(|p| (p.class_id, p.base_class_id))
         .unwrap_or((0, 0));
-    if let Some(t) = world.data.player_templates.get(class_id).or_else(|| world.data.player_templates.get(base_class_id)) {
-        world.objects.add_components(&target, Collision { radius: t.collision_radius, height: t.collision_height });
+    if let Some(t) = world
+        .data
+        .player_templates
+        .get(class_id)
+        .or_else(|| world.data.player_templates.get(base_class_id))
+    {
+        world.objects.add_components(
+            &target,
+            Collision {
+                radius: t.collision_radius,
+                height: t.collision_height,
+            },
+        );
     }
     recompute_speeds(world, target);
     true
@@ -199,11 +260,19 @@ fn broadcast_transform(world: &World, target: i32) {
 /// `UserInfo`/`CharInfo` its buff-landing path already broadcasts, without a
 /// second full `UserInfo` send.
 pub(crate) fn refresh_transform_visuals(world: &World, target: i32) {
-    let display_id = world.objects.get_component::<Player>(&target).map_or(0, |p| p.transform_display_id);
-    let hidden = world.objects.get_component::<crate::model::components::AdminFlags>(&target).is_some_and(|f| f.hidden);
+    let display_id = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.transform_display_id);
+    let hidden = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&target)
+        .is_some_and(|f| f.hidden);
     if let Some(cid) = super::helpers::client_for_player(world, target) {
         let visuals = crate::game_loop::abnormal::visual_effects(world, target);
-        let ave = crate::network::user_info::ex_user_info_abnormal_visual_effect(target, hidden, display_id, &visuals);
+        let ave = crate::network::user_info::ex_user_info_abnormal_visual_effect(
+            target, hidden, display_id, &visuals,
+        );
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(ave);
             if let Some(pkt) = super::helpers::skill_list_packet(world, target) {

@@ -5,9 +5,9 @@
 
 mod common;
 
+use common::{login, start_server, test_config};
 use commons::crypt::NewCrypt;
 use commons::network::{read_frame, write_frame, PacketReader, PacketWriter};
-use common::{login, start_server, test_config};
 use loginserver::gs_link::packets::{gs_decrypt, gs_encrypt, GS_STATIC_BLOWFISH_KEY};
 use loginserver::gs_table::hexid_from_string;
 use num_bigint_dig::BigUint;
@@ -37,10 +37,18 @@ impl SimGameServer {
 }
 
 /// Connect + key exchange + GameServerAuth, exactly like `LoginServerThread`.
-async fn register_game_server(gs_addr: std::net::SocketAddr, desired_id: u8, port: u16) -> SimGameServer {
+async fn register_game_server(
+    gs_addr: std::net::SocketAddr,
+    desired_id: u8,
+    port: u16,
+) -> SimGameServer {
     let stream = TcpStream::connect(gs_addr).await.unwrap();
     let (read, write) = stream.into_split();
-    let mut gs = SimGameServer { read, write, crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY) };
+    let mut gs = SimGameServer {
+        read,
+        write,
+        crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY),
+    };
 
     // InitLS: protocol rev + RSA modulus (BigInteger.toByteArray()).
     let init = gs.recv().await.expect("no InitLS");
@@ -221,7 +229,11 @@ async fn mixed_case_account_authenticates_at_game_server() {
     let mut r = PacketReader::new(&auth);
     assert_eq!(r.read_u8().unwrap(), 0x03, "PlayerAuthResponse opcode");
     assert_eq!(r.read_string().unwrap(), "testuser");
-    assert_eq!(r.read_u8().unwrap(), 1, "session accepted despite mixed-case login");
+    assert_eq!(
+        r.read_u8().unwrap(),
+        1,
+        "session accepted despite mixed-case login"
+    );
 }
 
 #[tokio::test]
@@ -286,7 +298,11 @@ async fn wrong_hexid_rejected() {
 
     let stream = TcpStream::connect(server.gs_addr).await.unwrap();
     let (read, write) = stream.into_split();
-    let mut gs = SimGameServer { read, write, crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY) };
+    let mut gs = SimGameServer {
+        read,
+        write,
+        crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY),
+    };
 
     let init = gs.recv().await.expect("no InitLS");
     let mut r = PacketReader::new(&init);

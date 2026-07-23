@@ -94,24 +94,36 @@ impl MapRegionData {
             regions.len(),
             respawn_zones.len()
         );
-        Self { regions, respawn_zones }
+        Self {
+            regions,
+            respawn_zones,
+        }
     }
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { regions: Vec::new(), respawn_zones: Vec::new() }
+        Self {
+            regions: Vec::new(),
+            respawn_zones: Vec::new(),
+        }
     }
 
     /// Synthetic regions for unit tests.
     #[doc(hidden)]
     pub fn from_regions(regions: Vec<MapRegion>) -> Self {
-        Self { regions, respawn_zones: Vec::new() }
+        Self {
+            regions,
+            respawn_zones: Vec::new(),
+        }
     }
 
     /// Synthetic regions + respawn zones for unit tests.
     #[doc(hidden)]
     pub fn from_parts(regions: Vec<MapRegion>, respawn_zones: Vec<RespawnZone>) -> Self {
-        Self { regions, respawn_zones }
+        Self {
+            regions,
+            respawn_zones,
+        }
     }
 
     /// `getMapRegion(locX, locY)`.
@@ -127,9 +139,9 @@ impl MapRegionData {
     /// `ZoneManager.getZone(loc, RespawnZone.class)`: the first RespawnZone
     /// whose polygon and z band contain the point.
     fn respawn_zone_at(&self, x: i32, y: i32, z: i32) -> Option<&RespawnZone> {
-        self.respawn_zones
-            .iter()
-            .find(|zn| z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y))
+        self.respawn_zones.iter().find(|zn| {
+            z >= zn.territory.min_z && z <= zn.territory.max_z && zn.territory.contains_2d(x, y)
+        })
     }
 
     /// `getTeleToLocation(creature, TeleportWhereType.TOWN)` narrowed to the
@@ -143,7 +155,14 @@ impl MapRegionData {
     ///
     /// `pick` indexes into the chosen region's ordinary spawn points
     /// (`RandomRespawnInTownEnabled` — the caller rolls).
-    pub fn town_respawn(&self, x: i32, y: i32, z: i32, race: Race, pick: usize) -> Option<(i32, i32, i32)> {
+    pub fn town_respawn(
+        &self,
+        x: i32,
+        y: i32,
+        z: i32,
+        race: Race,
+        pick: usize,
+    ) -> Option<(i32, i32, i32)> {
         let region = if let Some(zone) = self.respawn_zone_at(x, y, z) {
             // getRestartRegion(getRespawnPoint(race)): the named region, or the
             // default when the race isn't mapped / the name doesn't resolve.
@@ -152,7 +171,8 @@ impl MapRegionData {
                 .and_then(|name| self.region_by_name(name))
                 .or_else(|| self.region_by_name(DEFAULT_RESPAWN))
         } else {
-            self.region_at(x, y).or_else(|| self.region_by_name(DEFAULT_RESPAWN))
+            self.region_at(x, y)
+                .or_else(|| self.region_by_name(DEFAULT_RESPAWN))
         }?;
         if region.respawn_points.is_empty() {
             return None;
@@ -162,7 +182,9 @@ impl MapRegionData {
 }
 
 fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
-    let Ok(content) = std::fs::read_to_string(path) else { return };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
     let mut reader = Reader::from_str(&content);
     let mut cur: Option<MapRegion> = None;
 
@@ -230,7 +252,9 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
 /// this dist), plus the per-race `<race name= point=/>` region map.
 fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
     let mut out = Vec::new();
-    let Ok(content) = std::fs::read_to_string(path) else { return out };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return out;
+    };
     let mut reader = Reader::from_str(&content);
 
     struct Pending {
@@ -256,7 +280,11 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
                             if let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad) {
                                 out.push(RespawnZone {
                                     name: p.name,
-                                    territory: Territory { form, min_z: p.min_z, max_z: p.max_z },
+                                    territory: Territory {
+                                        form,
+                                        min_z: p.min_z,
+                                        max_z: p.max_z,
+                                    },
                                     race_points: p.race_points,
                                 });
                             }
@@ -280,8 +308,12 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
                     name: attr(b"name").unwrap_or_default(),
                     is_respawn: attr(b"type").as_deref() == Some("RespawnZone"),
                     shape: attr(b"shape").unwrap_or_else(|| "NPoly".to_string()),
-                    min_z: attr(b"minZ").and_then(|v| v.parse().ok()).unwrap_or(i32::MIN),
-                    max_z: attr(b"maxZ").and_then(|v| v.parse().ok()).unwrap_or(i32::MAX),
+                    min_z: attr(b"minZ")
+                        .and_then(|v| v.parse().ok())
+                        .unwrap_or(i32::MIN),
+                    max_z: attr(b"maxZ")
+                        .and_then(|v| v.parse().ok())
+                        .unwrap_or(i32::MAX),
                     rad: attr(b"rad").and_then(|v| v.parse().ok()),
                     xs: Vec::new(),
                     ys: Vec::new(),
@@ -290,8 +322,18 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
             }
             b"node" => {
                 if let Some(p) = cur.as_mut() {
-                    p.xs.push(attr(b"X").or_else(|| attr(b"x")).and_then(|v| v.parse().ok()).unwrap_or(0));
-                    p.ys.push(attr(b"Y").or_else(|| attr(b"y")).and_then(|v| v.parse().ok()).unwrap_or(0));
+                    p.xs.push(
+                        attr(b"X")
+                            .or_else(|| attr(b"x"))
+                            .and_then(|v| v.parse().ok())
+                            .unwrap_or(0),
+                    );
+                    p.ys.push(
+                        attr(b"Y")
+                            .or_else(|| attr(b"y"))
+                            .and_then(|v| v.parse().ok())
+                            .unwrap_or(0),
+                    );
                 }
             }
             b"race" => {
@@ -319,9 +361,11 @@ fn build_form(shape: &str, xs: Vec<i32>, ys: Vec<i32>, rad: Option<i32>) -> Opti
             y1: ys[0].min(ys[1]),
             y2: ys[0].max(ys[1]),
         }),
-        "Cylinder" if !xs.is_empty() && !ys.is_empty() => {
-            Some(ZoneForm::Cylinder { x: xs[0], y: ys[0], rad: rad.unwrap_or(0) })
-        }
+        "Cylinder" if !xs.is_empty() && !ys.is_empty() => Some(ZoneForm::Cylinder {
+            x: xs[0],
+            y: ys[0],
+            rad: rad.unwrap_or(0),
+        }),
         _ if xs.len() >= 3 => Some(ZoneForm::NPoly { xs, ys }),
         _ => None,
     }
@@ -342,15 +386,23 @@ mod tests {
         // Its first ordinary respawn point (hand-checked from the XML). Giran
         // town proper isn't inside any RespawnZone at this z, so this is the
         // pure map-tile path. (z picked inside the town peace-zone band.)
-        assert_eq!(data.town_respawn(83000, 148000, -3350, Race::Human, 0), Some((82480, 149087, -3350)));
+        assert_eq!(
+            data.town_respawn(83000, 148000, -3350, Race::Human, 0),
+            Some((82480, 149087, -3350))
+        );
     }
 
     #[test]
     fn unknown_position_falls_back_to_talking_island() {
         let data = MapRegionData::load_from(DIST);
-        let (x, y, _z) = data.town_respawn(-800_000, -800_000, -3000, Race::Human, 0).expect("default respawn");
+        let (x, y, _z) = data
+            .town_respawn(-800_000, -800_000, -3000, Race::Human, 0)
+            .expect("default respawn");
         // talking_island_town's first respawn point is on Talking Island.
-        assert!(x > -130_000 && x < 0 && y > 200_000, "unexpected default respawn: {x},{y}");
+        assert!(
+            x > -130_000 && x < 0 && y > 200_000,
+            "unexpected default respawn: {x},{y}"
+        );
     }
 
     #[test]
@@ -360,7 +412,9 @@ mod tests {
         // Its bare map tile (21,25) is claimed by giran_habor, but the death
         // sits inside RespawnZone `talking_island_town_21_25`, which sends
         // every race to talking_island_town.
-        let (x, y, _z) = data.town_respawn(48765, 248461, -6160, Race::Elf, 0).expect("respawn");
+        let (x, y, _z) = data
+            .town_respawn(48765, 248461, -6160, Race::Elf, 0)
+            .expect("respawn");
         let ti = data.region_by_name("talking_island_town").unwrap();
         assert!(
             ti.respawn_points.contains(&(x, y, _z)),
@@ -369,7 +423,10 @@ mod tests {
 
         // Sanity: the raw map tile really is Giran Harbour, so without the
         // RespawnZone override this position would have gone there.
-        assert_eq!(data.region_at(48765, 248461).map(|r| r.name.as_str()), Some("giran_habor"));
+        assert_eq!(
+            data.region_at(48765, 248461).map(|r| r.name.as_str()),
+            Some("giran_habor")
+        );
     }
 
     #[test]
@@ -377,9 +434,21 @@ mod tests {
         let data = MapRegionData::load_from(DIST);
         // `elf_town_21_18` maps DARK_ELF → darkelf_town (per-race redirect),
         // everyone else → elf_town. Pick a point inside that polygon/z band.
-        let (ex, ey, _z) = data.town_respawn(40000, 31000, -3000, Race::Elf, 0).expect("elf respawn");
-        let (dx, dy, _z2) = data.town_respawn(40000, 31000, -3000, Race::DarkElf, 0).expect("de respawn");
-        assert!(data.region_by_name("elf_town").unwrap().respawn_points.contains(&(ex, ey, _z)));
-        assert!(data.region_by_name("darkelf_town").unwrap().respawn_points.contains(&(dx, dy, _z2)));
+        let (ex, ey, _z) = data
+            .town_respawn(40000, 31000, -3000, Race::Elf, 0)
+            .expect("elf respawn");
+        let (dx, dy, _z2) = data
+            .town_respawn(40000, 31000, -3000, Race::DarkElf, 0)
+            .expect("de respawn");
+        assert!(data
+            .region_by_name("elf_town")
+            .unwrap()
+            .respawn_points
+            .contains(&(ex, ey, _z)));
+        assert!(data
+            .region_by_name("darkelf_town")
+            .unwrap()
+            .respawn_points
+            .contains(&(dx, dy, _z2)));
     }
 }

@@ -8,7 +8,11 @@ use crate::model::Player;
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;
 
-fn sub_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn sub_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     // A handful of extra class templates so `add_subclass` has real targets.
     let base = world.data.player_templates.get(0).unwrap().clone();
@@ -57,7 +61,10 @@ fn the_base_class_cannot_be_taken_as_a_subclass() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     let base = p(&world).base_class_id;
 
-    assert_eq!(add_subclass(&mut world, PLAYER, base), Err(AddError::AlreadyHave));
+    assert_eq!(
+        add_subclass(&mut world, PLAYER, base),
+        Err(AddError::AlreadyHave)
+    );
 }
 
 #[test]
@@ -66,7 +73,10 @@ fn the_same_subclass_cannot_be_taken_twice() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();
 
-    assert_eq!(add_subclass(&mut world, PLAYER, 3), Err(AddError::AlreadyHave));
+    assert_eq!(
+        add_subclass(&mut world, PLAYER, 3),
+        Err(AddError::AlreadyHave)
+    );
 }
 
 #[test]
@@ -77,7 +87,10 @@ fn slots_are_capped_by_max_subclass() {
     add_subclass(&mut world, PLAYER, 3).unwrap();
     add_subclass(&mut world, PLAYER, 4).unwrap();
 
-    assert_eq!(add_subclass(&mut world, PLAYER, 5), Err(AddError::SlotsFull));
+    assert_eq!(
+        add_subclass(&mut world, PLAYER, 5),
+        Err(AddError::SlotsFull)
+    );
 }
 
 #[test]
@@ -85,7 +98,10 @@ fn an_unknown_class_is_refused() {
     let (mut world, _db, _l) = sub_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
 
-    assert_eq!(add_subclass(&mut world, PLAYER, 9999), Err(AddError::UnknownClass));
+    assert_eq!(
+        add_subclass(&mut world, PLAYER, 9999),
+        Err(AddError::UnknownClass)
+    );
 }
 
 #[test]
@@ -144,7 +160,11 @@ fn switching_to_a_slot_that_does_not_exist_fails() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
 
     assert!(!set_active_class(&mut world, PLAYER, 3), "no such slot");
-    assert_eq!(p(&world).class_index, 0, "and the active class is untouched");
+    assert_eq!(
+        p(&world).class_index,
+        0,
+        "and the active class is untouched"
+    );
 }
 
 #[test]
@@ -180,13 +200,21 @@ fn adding_a_subclass_is_persisted() {
 use crate::model::components::SkillBook;
 
 fn knows(world: &World, skill_id: i32) -> bool {
-    world.objects.get_component::<SkillBook>(&PLAYER).is_some_and(|b| b.0.contains_key(&skill_id))
+    world
+        .objects
+        .get_component::<SkillBook>(&PLAYER)
+        .is_some_and(|b| b.0.contains_key(&skill_id))
 }
 
 /// Put a skill in the book that the class tree would never grant, standing in
 /// for one learned by hand from a trainer.
 fn learn_by_hand(world: &mut World, skill_id: i32) {
-    world.objects.get_component_mut::<SkillBook>(&PLAYER).unwrap().0.insert(skill_id, 3);
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&PLAYER)
+        .unwrap()
+        .0
+        .insert(skill_id, 3);
 }
 
 #[test]
@@ -202,7 +230,10 @@ fn a_hand_learned_skill_survives_a_switch_away_and_back() {
     assert!(!knows(&world, 7777), "the subclass has its own, empty book");
     set_active_class(&mut world, PLAYER, 0);
 
-    assert!(knows(&world, 7777), "the base class got its hand-learned skill back");
+    assert!(
+        knows(&world, 7777),
+        "the base class got its hand-learned skill back"
+    );
 }
 
 #[test]
@@ -243,8 +274,14 @@ fn the_save_carries_every_slots_book() {
     });
     let save = save.expect("a save went out");
     assert_eq!(save.class_index, 1, "the active index is recorded");
-    assert!(save.skills.iter().any(|(id, _, _)| *id == 8001), "the active book carries the new skill");
-    assert!(save.skills_by_index.contains_key(&0), "and the base slot's book is banked alongside");
+    assert!(
+        save.skills.iter().any(|(id, _, _)| *id == 8001),
+        "the active book carries the new skill"
+    );
+    assert!(
+        save.skills_by_index.contains_key(&0),
+        "and the base slot's book is banked alongside"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -253,11 +290,19 @@ fn the_save_carries_every_slots_book() {
 use crate::model::components::{HennaSlots, Shortcuts};
 
 fn set_henna(world: &mut World, slot: usize, dye: i32) {
-    world.objects.get_component_mut::<HennaSlots>(&PLAYER).unwrap().0[slot] = Some(dye);
+    world
+        .objects
+        .get_component_mut::<HennaSlots>(&PLAYER)
+        .unwrap()
+        .0[slot] = Some(dye);
 }
 
 fn henna(world: &World, slot: usize) -> Option<i32> {
-    world.objects.get_component::<HennaSlots>(&PLAYER).unwrap().0[slot]
+    world
+        .objects
+        .get_component::<HennaSlots>(&PLAYER)
+        .unwrap()
+        .0[slot]
 }
 
 fn add_shortcut(world: &mut World, slot: i32, id: i32) {
@@ -270,7 +315,12 @@ fn add_shortcut(world: &mut World, slot: i32, id: i32) {
         character_type: 1,
         shared_reuse_group: -1,
     };
-    world.objects.get_component_mut::<Shortcuts>(&PLAYER).unwrap().0.insert(slot, sc);
+    world
+        .objects
+        .get_component_mut::<Shortcuts>(&PLAYER)
+        .unwrap()
+        .0
+        .insert(slot, sc);
 }
 
 fn shortcut_ids(world: &World) -> Vec<i32> {
@@ -291,10 +341,18 @@ fn hennas_are_per_subclass() {
     set_henna(&mut world, 0, 111);
 
     set_active_class(&mut world, PLAYER, 1);
-    assert_eq!(henna(&world, 0), None, "the subclass starts with bare slots");
+    assert_eq!(
+        henna(&world, 0),
+        None,
+        "the subclass starts with bare slots"
+    );
     set_active_class(&mut world, PLAYER, 0);
 
-    assert_eq!(henna(&world, 0), Some(111), "the base class's dye came back");
+    assert_eq!(
+        henna(&world, 0),
+        Some(111),
+        "the base class's dye came back"
+    );
 }
 
 #[test]
@@ -305,7 +363,10 @@ fn shortcuts_are_per_subclass() {
     add_shortcut(&mut world, 1, 1001);
 
     set_active_class(&mut world, PLAYER, 1);
-    assert!(!shortcut_ids(&world).contains(&1001), "the subclass has its own bar");
+    assert!(
+        !shortcut_ids(&world).contains(&1001),
+        "the subclass has its own bar"
+    );
     add_shortcut(&mut world, 1, 2002);
     set_active_class(&mut world, PLAYER, 0);
 
@@ -334,8 +395,14 @@ fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
             _ => None,
         })
         .expect("a save went out");
-    assert!(save.hennas_by_index.contains_key(&0), "the base slot's dyes are banked");
-    assert!(save.shortcuts_by_index.contains_key(&0), "and its shortcut bar");
+    assert!(
+        save.hennas_by_index.contains_key(&0),
+        "the base slot's dyes are banked"
+    );
+    assert!(
+        save.shortcuts_by_index.contains_key(&0),
+        "and its shortcut bar"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -371,14 +438,15 @@ fn the_available_list_excludes_the_base_lineage_and_held_classes() {
     // Against the real datapack, so the class hierarchy and category groups
     // are the shipped ones rather than a fixture's guess.
     let (mut world, _db, _l) = combat_test_world();
-    world.data = crate::data::GameData::load_from(concat!(
-        env!("CARGO_MANIFEST_DIR"),
-        "/../../dist/game/"
-    ));
+    world.data =
+        crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     // Human Fighter line: base class 0.
     let avail = available_subclasses(&world, PLAYER);
-    assert!(!avail.is_empty(), "a human fighter has subclasses available");
+    assert!(
+        !avail.is_empty(),
+        "a human fighter has subclasses available"
+    );
 
     // Every offering is a third-class group entry...
     for c in &avail {
@@ -394,7 +462,10 @@ fn the_available_list_excludes_the_base_lineage_and_held_classes() {
     // Taking one removes it (and its lineage) from the next offering.
     let taken = avail[0];
     add_subclass(&mut world, PLAYER, taken).unwrap();
-    assert!(!available_subclasses(&world, PLAYER).contains(&taken), "a held class is not offered again");
+    assert!(
+        !available_subclasses(&world, PLAYER).contains(&taken),
+        "a held class is not offered again"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -410,7 +481,11 @@ fn a_class_change_on_the_base_slot_moves_the_base_class() {
     assert!(set_class_id(&mut world, PLAYER, 5));
 
     assert_eq!(p(&world).class_id, 5);
-    assert_eq!(p(&world).base_class_id, 5, "advancing on the base slot changes what you are");
+    assert_eq!(
+        p(&world).base_class_id,
+        5,
+        "advancing on the base slot changes what you are"
+    );
 }
 
 #[test]
@@ -427,9 +502,18 @@ fn a_class_change_on_a_subclass_leaves_the_base_class_alone() {
     assert!(set_class_id(&mut world, PLAYER, 5));
 
     assert_eq!(p(&world).class_id, 5, "the active class advanced");
-    assert_eq!(p(&world).base_class_id, base, "the BASE class must not move");
     assert_eq!(
-        p(&world).subclasses.iter().find(|s| s.class_index == 1).unwrap().class_id,
+        p(&world).base_class_id,
+        base,
+        "the BASE class must not move"
+    );
+    assert_eq!(
+        p(&world)
+            .subclasses
+            .iter()
+            .find(|s| s.class_index == 1)
+            .unwrap()
+            .class_id,
         5,
         "the slot itself records the new class"
     );
@@ -488,15 +572,29 @@ fn a_class_switch_clears_skill_cooldowns() {
     let (mut world, _db, _l) = sub_world();
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();
-    world.objects.get_component_mut::<crate::model::components::Reuses>(&PLAYER).unwrap().0.insert(
-        1234,
-        crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 100_000, total_ms: 600_000 },
-    );
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&PLAYER)
+        .unwrap()
+        .0
+        .insert(
+            1234,
+            crate::model::SkillReuse {
+                skill_level: 1,
+                until_tick: world.tick + 100_000,
+                total_ms: 600_000,
+            },
+        );
 
     set_active_class(&mut world, PLAYER, 1);
 
     assert!(
-        world.objects.get_component::<crate::model::components::Reuses>(&PLAYER).unwrap().0.is_empty(),
+        world
+            .objects
+            .get_component::<crate::model::components::Reuses>(&PLAYER)
+            .unwrap()
+            .0
+            .is_empty(),
         "cooldowns are wiped on a class switch, not carried or banked"
     );
 }
@@ -507,10 +605,19 @@ fn cooldowns_are_saved_under_the_active_class_index() {
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_subclass(&mut world, PLAYER, 3).unwrap();
     set_active_class(&mut world, PLAYER, 1);
-    world.objects.get_component_mut::<crate::model::components::Reuses>(&PLAYER).unwrap().0.insert(
-        1234,
-        crate::model::SkillReuse { skill_level: 1, until_tick: world.tick + 100_000, total_ms: 600_000 },
-    );
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&PLAYER)
+        .unwrap()
+        .0
+        .insert(
+            1234,
+            crate::model::SkillReuse {
+                skill_level: 1,
+                until_tick: world.tick + 100_000,
+                total_ms: 600_000,
+            },
+        );
     let _ = drain_db(&mut db);
 
     crate::game_loop::net::save_all_players(&mut world);
@@ -523,7 +630,10 @@ fn cooldowns_are_saved_under_the_active_class_index() {
             _ => None,
         })
         .expect("a save went out");
-    assert_eq!(save.class_index, 1, "the reuse rows go under the active slot, not index 0");
+    assert_eq!(
+        save.class_index, 1,
+        "the reuse rows go under the active slot, not index 0"
+    );
     assert!(!save.skill_reuses.is_empty(), "and the cooldown is in them");
 }
 
@@ -545,9 +655,25 @@ fn ex_subjob_info_lists_the_base_class_and_subclasses() {
         crate::network::enter_world::ex_subjob_info(p)
     };
 
-    world.objects.get_component_mut::<Player>(&PLAYER).unwrap().subclasses = vec![
-        SubClass { class_id: 20, class_index: 1, level: 55, exp: 0, sp: 0 },
-        SubClass { class_id: 30, class_index: 2, level: 60, exp: 0, sp: 0 },
+    world
+        .objects
+        .get_component_mut::<Player>(&PLAYER)
+        .unwrap()
+        .subclasses = vec![
+        SubClass {
+            class_id: 20,
+            class_index: 1,
+            level: 55,
+            exp: 0,
+            sp: 0,
+        },
+        SubClass {
+            class_id: 30,
+            class_index: 2,
+            level: 60,
+            exp: 0,
+            sp: 0,
+        },
     ];
     let with_subs = {
         let p = world.objects.get_component::<Player>(&PLAYER).unwrap();
@@ -563,5 +689,8 @@ fn ex_subjob_info_lists_the_base_class_and_subclasses() {
     // The count field sits after: ex-opcode (3) + type (1) + classId (4) + race (4).
     let count_at = 12;
     let count = i32::from_le_bytes(base_only[count_at..count_at + 4].try_into().unwrap());
-    assert_eq!(count, 1, "a character with no subclasses still reports its base class");
+    assert_eq!(
+        count, 1,
+        "a character with no subclasses still reports its base class"
+    );
 }

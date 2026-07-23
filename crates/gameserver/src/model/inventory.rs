@@ -164,14 +164,15 @@ impl Inventory {
         self.items
             .iter()
             .map(|i| {
-                let (loc, loc_data) = match self.paperdoll.iter().position(|p| *p == Some(i.object_id)) {
-                    Some(slot) => ("PAPERDOLL".to_string(), slot as i32),
-                    None => {
-                        let order = inv_order;
-                        inv_order += 1;
-                        ("INVENTORY".to_string(), order)
-                    }
-                };
+                let (loc, loc_data) =
+                    match self.paperdoll.iter().position(|p| *p == Some(i.object_id)) {
+                        Some(slot) => ("PAPERDOLL".to_string(), slot as i32),
+                        None => {
+                            let order = inv_order;
+                            inv_order += 1;
+                            ("INVENTORY".to_string(), order)
+                        }
+                    };
                 crate::character::ItemRow {
                     object_id: i.object_id,
                     item_id: i.item_id,
@@ -221,7 +222,8 @@ impl Inventory {
     /// keep their relative position after the arranged ones (stable sort).
     pub fn apply_inventory_order(&mut self, order: &[(i32, i32)]) {
         let want: std::collections::HashMap<i32, i32> = order.iter().copied().collect();
-        self.items.sort_by_key(|i| want.get(&i.object_id).copied().unwrap_or(i32::MAX));
+        self.items
+            .sort_by_key(|i| want.get(&i.object_id).copied().unwrap_or(i32::MAX));
     }
 
     /// `PlayerInventory.addItem`: stacks onto an existing instance of the same
@@ -229,15 +231,25 @@ impl Inventory {
     /// `EtcItem`s, which `equip_item` refuses to equip, so there's no risk of
     /// merging into an equipped instance), else adds a new instance. Returns
     /// the resulting `object_id`.
-    pub fn add_item(&mut self, catalog: &ItemData, object_id: i32, item_id: i32, count: i64) -> i32 {
-        let stackable = catalog.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
+    pub fn add_item(
+        &mut self,
+        catalog: &ItemData,
+        object_id: i32,
+        item_id: i32,
+        count: i64,
+    ) -> i32 {
+        let stackable = catalog
+            .get(item_id)
+            .map(|t| t.is_stackable)
+            .unwrap_or(false);
         if stackable {
             if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
                 existing.count += count;
                 return existing.object_id;
             }
         }
-        self.items.push(ItemInstance::new(object_id, item_id, count));
+        self.items
+            .push(ItemInstance::new(object_id, item_id, count));
         object_id
     }
 
@@ -245,8 +257,18 @@ impl Inventory {
     /// transfers), stacking into an existing same-id stack when stackable. Unlike
     /// [`add_item`](Self::add_item) — which always starts enchant 0 — this keeps
     /// the moved instance's enchant.
-    pub fn insert_instance(&mut self, catalog: &ItemData, object_id: i32, item_id: i32, count: i64, enchant: i32) {
-        let stackable = catalog.get(item_id).map(|t| t.is_stackable).unwrap_or(false);
+    pub fn insert_instance(
+        &mut self,
+        catalog: &ItemData,
+        object_id: i32,
+        item_id: i32,
+        count: i64,
+        enchant: i32,
+    ) {
+        let stackable = catalog
+            .get(item_id)
+            .map(|t| t.is_stackable)
+            .unwrap_or(false);
         if stackable {
             if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
                 existing.count += count;
@@ -262,7 +284,11 @@ impl Inventory {
     /// (`Inventory.getInventoryItemCount` narrowed to no-enchant matching —
     /// what `AbstractScript.getQuestItemsCount` calls).
     pub fn count_of(&self, item_id: i32) -> i64 {
-        self.items.iter().filter(|i| i.item_id == item_id).map(|i| i.count).sum()
+        self.items
+            .iter()
+            .filter(|i| i.item_id == item_id)
+            .map(|i| i.count)
+            .sum()
     }
 
     /// Destroy up to `count` of an item id (negative = all, Java
@@ -276,7 +302,9 @@ impl Inventory {
         let mut remaining = if count < 0 { i64::MAX } else { count };
         let mut changes = Vec::new();
         while remaining > 0 {
-            let Some(idx) = self.items.iter().position(|i| i.item_id == item_id) else { break };
+            let Some(idx) = self.items.iter().position(|i| i.item_id == item_id) else {
+                break;
+            };
             if self.items[idx].count > remaining {
                 self.items[idx].count -= remaining;
                 changes.push(ItemChange::Modified(self.items[idx]));
@@ -366,9 +394,13 @@ impl Inventory {
     }
 
     pub fn equip_item(&mut self, catalog: &ItemData, object_id: i32) -> Vec<i32> {
-        let Some(item) = self.find(object_id) else { return Vec::new() };
+        let Some(item) = self.find(object_id) else {
+            return Vec::new();
+        };
         let item_id = item.item_id;
-        let Some(template) = catalog.get(item_id) else { return Vec::new() };
+        let Some(template) = catalog.get(item_id) else {
+            return Vec::new();
+        };
         if template.kind == ItemKind::Etc || !template.is_equipable() {
             return Vec::new();
         }
@@ -377,10 +409,17 @@ impl Inventory {
 
         match body_part {
             item_data::SLOT_LR_EAR => {
-                changed.extend(self.set_first_free(&[PaperdollSlot::LEar, PaperdollSlot::REar], object_id));
+                changed.extend(
+                    self.set_first_free(&[PaperdollSlot::LEar, PaperdollSlot::REar], object_id),
+                );
             }
             item_data::SLOT_LR_FINGER => {
-                changed.extend(self.set_first_free(&[PaperdollSlot::LFinger, PaperdollSlot::RFinger], object_id));
+                changed.extend(
+                    self.set_first_free(
+                        &[PaperdollSlot::LFinger, PaperdollSlot::RFinger],
+                        object_id,
+                    ),
+                );
             }
             item_data::SLOT_LR_HAND => {
                 changed.extend(self.clear(PaperdollSlot::LHand));
@@ -390,7 +429,8 @@ impl Inventory {
             item_data::SLOT_L_HAND => {
                 // A two-handed weapon in RHand is displaced by an off-hand item.
                 if let Some(rh) = self.paperdoll_item(PaperdollSlot::RHand) {
-                    if catalog.get(rh.item_id).map(|t| t.body_part) == Some(item_data::SLOT_LR_HAND) {
+                    if catalog.get(rh.item_id).map(|t| t.body_part) == Some(item_data::SLOT_LR_HAND)
+                    {
                         changed.extend(self.clear(PaperdollSlot::RHand));
                     }
                 }
@@ -429,7 +469,10 @@ impl Inventory {
                 // A full-armor piece in Chest covers Legs too; equipping Legs
                 // separately displaces it.
                 if let Some(ch) = self.paperdoll_item(PaperdollSlot::Chest) {
-                    if matches!(catalog.get(ch.item_id).map(|t| t.body_part), Some(item_data::SLOT_FULL_ARMOR) | Some(item_data::SLOT_ALLDRESS)) {
+                    if matches!(
+                        catalog.get(ch.item_id).map(|t| t.body_part),
+                        Some(item_data::SLOT_FULL_ARMOR) | Some(item_data::SLOT_ALLDRESS)
+                    ) {
                         changed.extend(self.clear(PaperdollSlot::Chest));
                     }
                 }
@@ -520,7 +563,11 @@ impl Inventory {
     }
 
     fn set_first_free(&mut self, prefer: &[PaperdollSlot; 2], object_id: i32) -> Vec<i32> {
-        let target = if self.paperdoll[prefer[0] as usize].is_none() { prefer[0] } else { prefer[1] };
+        let target = if self.paperdoll[prefer[0] as usize].is_none() {
+            prefer[0]
+        } else {
+            prefer[1]
+        };
         let mut changed: Vec<i32> = self.clear(target).into_iter().collect();
         changed.push(self.set(target, object_id));
         changed
@@ -557,18 +604,22 @@ impl Inventory {
     /// `slot`, or `None` when the slot is empty / unaugmented.
     pub fn paperdoll_augmentation(&self, slot: PaperdollSlot) -> Option<(i32, i32)> {
         let item = self.paperdoll_item(slot)?;
-        item.is_augmented().then_some((item.augment_option1, item.augment_option2))
+        item.is_augmented()
+            .then_some((item.augment_option1, item.augment_option2))
     }
 
     /// The augment option ids of an item by object id, if augmented.
     pub fn augmentation_of(&self, object_id: i32) -> Option<(i32, i32)> {
         let item = self.items.iter().find(|i| i.object_id == object_id)?;
-        item.is_augmented().then_some((item.augment_option1, item.augment_option2))
+        item.is_augmented()
+            .then_some((item.augment_option1, item.augment_option2))
     }
 
     /// Whether the item `object_id` is augmented (Java `Item.isAugmented`).
     pub fn is_augmented(&self, object_id: i32) -> bool {
-        self.items.iter().any(|i| i.object_id == object_id && i.is_augmented())
+        self.items
+            .iter()
+            .any(|i| i.object_id == object_id && i.is_augmented())
     }
 
     /// Attach a variation to an item (Java `Item.setAugmentation`).
@@ -582,7 +633,10 @@ impl Inventory {
 
     /// The life stone id an item was augmented with (for the cancel fee).
     pub fn augment_mineral(&self, object_id: i32) -> Option<i32> {
-        self.items.iter().find(|i| i.object_id == object_id && i.is_augmented()).map(|i| i.augment_mineral)
+        self.items
+            .iter()
+            .find(|i| i.object_id == object_id && i.is_augmented())
+            .map(|i| i.augment_mineral)
     }
 
     /// Remove an item's variation (Java `Item.removeAugmentation`).
@@ -618,20 +672,30 @@ impl Inventory {
 
     /// Sum of `count` for adena (`Inventory.getAdena`).
     pub fn adena(&self) -> i64 {
-        self.items.iter().filter(|i| i.item_id == item_data::ADENA_ID).map(|i| i.count).sum()
+        self.items
+            .iter()
+            .filter(|i| i.item_id == item_data::ADENA_ID)
+            .map(|i| i.count)
+            .sum()
     }
 
     /// `PlayerInventory.getNonQuestSize` — item count excluding quest items,
     /// what the ordinary inventory-slot cap (`getInventoryLimit`) is checked
     /// against, so quest rewards never crowd out bag space.
     pub fn non_quest_size(&self, catalog: &ItemData) -> usize {
-        self.items.iter().filter(|i| catalog.get(i.item_id).is_none_or(|t| !t.is_quest_item)).count()
+        self.items
+            .iter()
+            .filter(|i| catalog.get(i.item_id).is_none_or(|t| !t.is_quest_item))
+            .count()
     }
 
     /// `PlayerInventory.getQuestSize` — quest items are checked against
     /// their own separate `getQuestInventoryLimit`, never the ordinary one.
     pub fn quest_size(&self, catalog: &ItemData) -> usize {
-        self.items.iter().filter(|i| catalog.get(i.item_id).is_some_and(|t| t.is_quest_item)).count()
+        self.items
+            .iter()
+            .filter(|i| catalog.get(i.item_id).is_some_and(|t| t.is_quest_item))
+            .count()
     }
 
     /// `Player.isInventoryUnder80(false)`: ordinary (non-quest) item count is
@@ -648,11 +712,71 @@ mod tests {
     use crate::data::item_data::ItemTemplate;
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("armor{id}"), kind: ItemKind::Armor, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false, immediate_effect: false, ex_immediate_effect: false, default_action: crate::data::item_data::ActionType::Other }
+        ItemTemplate {
+            item_id: id,
+            name: format!("armor{id}"),
+            kind: ItemKind::Armor,
+            crystal_type: item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            body_part,
+            weight: 0,
+            is_stackable: false,
+            type1: 0,
+            type2: 0,
+            is_quest_item: false,
+            price: 0,
+            handler: item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+        }
     }
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
-        ItemTemplate { item_id: id, name: format!("weapon{id}"), kind: ItemKind::Weapon, crystal_type: item_data::CrystalType::None, crystal_count: 0, attack_radius: 40, attack_angle: 0, mp_consume: 0, reduced_mp_consume: 0, reduced_mp_consume_chance: 0, body_part, weight: 0, is_stackable: false, type1: 0, type2: 0, is_quest_item: false, price: 0, handler: item_data::ItemHandler::None, capsuled_items: Vec::new(), extractable_count_min: 0, extractable_count_max: 0, item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false, immediate_effect: false, ex_immediate_effect: false, default_action: crate::data::item_data::ActionType::Other }
+        ItemTemplate {
+            item_id: id,
+            name: format!("weapon{id}"),
+            kind: ItemKind::Weapon,
+            crystal_type: item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            body_part,
+            weight: 0,
+            is_stackable: false,
+            type1: 0,
+            type2: 0,
+            is_quest_item: false,
+            price: 0,
+            handler: item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+        }
     }
 
     #[test]
@@ -667,7 +791,11 @@ mod tests {
         inv.equip_item(&catalog, 2);
         inv.equip_item(&catalog, 1);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 1);
-        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 2, "plain chest must not unequip Legs");
+        assert_eq!(
+            inv.paperdoll_object_id(PaperdollSlot::Legs),
+            2,
+            "plain chest must not unequip Legs"
+        );
     }
 
     #[test]
@@ -688,12 +816,20 @@ mod tests {
         inv.add_item(&catalog, 3, 3, 1);
         inv.equip_item(&catalog, 3);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 3);
-        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 0, "full armor clears Legs");
+        assert_eq!(
+            inv.paperdoll_object_id(PaperdollSlot::Legs),
+            0,
+            "full armor clears Legs"
+        );
 
         // Equipping Legs again displaces the full-armor piece from Chest.
         inv.equip_item(&catalog, 2);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Legs), 2);
-        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::Chest), 0, "equipping Legs displaces full armor");
+        assert_eq!(
+            inv.paperdoll_object_id(PaperdollSlot::Chest),
+            0,
+            "equipping Legs displaces full armor"
+        );
     }
 
     #[test]
@@ -720,7 +856,11 @@ mod tests {
         // Equipping the shield again displaces the two-handed weapon from RHand.
         inv.equip_item(&catalog, 2);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LHand), 2);
-        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::RHand), 0, "off-hand item displaces the two-handed weapon");
+        assert_eq!(
+            inv.paperdoll_object_id(PaperdollSlot::RHand),
+            0,
+            "off-hand item displaces the two-handed weapon"
+        );
     }
 
     #[test]
@@ -738,7 +878,11 @@ mod tests {
 
         inv.equip_item(&catalog, 2);
         assert_eq!(inv.paperdoll_object_id(PaperdollSlot::LEar), 1);
-        assert_eq!(inv.paperdoll_object_id(PaperdollSlot::REar), 2, "second earring fills the free REar slot");
+        assert_eq!(
+            inv.paperdoll_object_id(PaperdollSlot::REar),
+            2,
+            "second earring fills the free REar slot"
+        );
     }
 
     #[test]
@@ -759,16 +903,21 @@ mod tests {
                 is_quest_item: true,
                 price: 0,
                 handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
+                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_count: 0,
+                attack_radius: 40,
+                attack_angle: 0,
+                mp_consume: 0,
+                reduced_mp_consume: 0,
+                reduced_mp_consume_chance: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
-                item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+                item_skills: Vec::new(),
+                etc_item_type: crate::data::item_data::EtcItemType::Other,
+                enchant_enabled: false,
+                enchant_limit: 0,
+                is_magic_weapon: false,
             },
             ItemTemplate {
                 immediate_effect: false,
@@ -785,16 +934,21 @@ mod tests {
                 is_quest_item: false,
                 price: 0,
                 handler: item_data::ItemHandler::None,
-                crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
+                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_count: 0,
+                attack_radius: 40,
+                attack_angle: 0,
+                mp_consume: 0,
+                reduced_mp_consume: 0,
+                reduced_mp_consume_chance: 0,
                 capsuled_items: Vec::new(),
                 extractable_count_min: 0,
                 extractable_count_max: 0,
-                item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+                item_skills: Vec::new(),
+                etc_item_type: crate::data::item_data::EtcItemType::Other,
+                enchant_enabled: false,
+                enchant_limit: 0,
+                is_magic_weapon: false,
             },
         ]);
         let mut inv = Inventory::new();
@@ -824,16 +978,21 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
         }]);
         let mut inv = Inventory::new();
         let oid = inv.add_item(&catalog, 1, 57, 100);

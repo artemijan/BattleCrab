@@ -47,8 +47,14 @@ impl PledgeSkillTreeData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        let pledge = parse(&format!("{file_path}{PLEDGE_SKILL_TREE_FILE}"), "pledgeSkillTree");
-        let sub_pledge = parse(&format!("{file_path}{SUB_PLEDGE_SKILL_TREE_FILE}"), "subPledgeSkillTree");
+        let pledge = parse(
+            &format!("{file_path}{PLEDGE_SKILL_TREE_FILE}"),
+            "pledgeSkillTree",
+        );
+        let sub_pledge = parse(
+            &format!("{file_path}{SUB_PLEDGE_SKILL_TREE_FILE}"),
+            "subPledgeSkillTree",
+        );
         info!(
             "PledgeSkillTreeData: Loaded {} pledge + {} sub-pledge skill levels.",
             pledge.len(),
@@ -59,7 +65,10 @@ impl PledgeSkillTreeData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { pledge: Vec::new(), sub_pledge: Vec::new() }
+        Self {
+            pledge: Vec::new(),
+            sub_pledge: Vec::new(),
+        }
     }
 
     #[doc(hidden)]
@@ -125,7 +134,9 @@ impl PledgeSkillTreeData {
     /// Java `getPledgeSkill(id, lvl)` — one pledge-tree entry (the learn
     /// request's validation + reputation cost).
     pub fn pledge_skill(&self, skill_id: i32, skill_level: i32) -> Option<&PledgeSkillLearn> {
-        self.pledge.iter().find(|l| l.skill_id == skill_id && l.skill_level == skill_level)
+        self.pledge
+            .iter()
+            .find(|l| l.skill_id == skill_id && l.skill_level == skill_level)
     }
 
     /// Java `addSkillEffects`'s per-skill gate: the `<socialClass>` ordinal a
@@ -147,7 +158,9 @@ impl PledgeSkillTreeData {
     /// grant. Used to purge/ignore residence skills that a pre-fix grant leaked
     /// into a clan's stored skill set.
     pub fn is_residence_skill(&self, skill_id: i32) -> bool {
-        self.pledge.iter().any(|l| l.skill_id == skill_id && l.residencial)
+        self.pledge
+            .iter()
+            .any(|l| l.skill_id == skill_id && l.residencial)
     }
 }
 
@@ -180,7 +193,9 @@ fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
         get_level: attr_i32(e, b"getLevel").unwrap_or(99),
         social_class: None,
         residencial: attr_str(e, b"residenceSkill").as_deref() == Some("true"),
-        level_up_sp: attr_str(e, b"levelUpSp").and_then(|s| s.parse().ok()).unwrap_or(0),
+        level_up_sp: attr_str(e, b"levelUpSp")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
     }
 }
 
@@ -235,7 +250,10 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
 }
 
 fn attr_str(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<String> {
-    e.attributes().flatten().find(|a| a.key.as_ref() == key).and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+    e.attributes()
+        .flatten()
+        .find(|a| a.key.as_ref() == key)
+        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 fn attr_i32(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<i32> {
@@ -255,17 +273,30 @@ mod tests {
         let t = PledgeSkillTreeData::load_from(dist_root());
         // Clan Body (370) is an HEIR (ordinal 3) pledge skill learnable at clan
         // level 3 — the canonical clan passive.
-        assert_eq!(t.social_class_of(370, 1), Some(3), "Clan Body lv1 is HEIR-gated");
+        assert_eq!(
+            t.social_class_of(370, 1),
+            Some(3),
+            "Clan Body lv1 is HEIR-gated"
+        );
         // A brand-new clan of level 4 qualifies for the level-1..4 clan skills.
         let none: HashMap<i32, i32> = HashMap::new();
         let l4 = t.max_pledge_skills(4, &none, false);
-        assert!(l4.iter().any(|&(id, _)| id == 370), "level-4 clan qualifies for Clan Body");
+        assert!(
+            l4.iter().any(|&(id, _)| id == 370),
+            "level-4 clan qualifies for Clan Body"
+        );
         // A level-1 clan qualifies for nothing gated above level 1.
         let l1 = t.max_pledge_skills(1, &none, false);
-        assert!(!l1.iter().any(|&(id, _)| id == 370), "level-1 clan does not get level-3 Clan Body");
+        assert!(
+            !l1.iter().any(|&(id, _)| id == 370),
+            "level-1 clan does not get level-3 Clan Body"
+        );
         // includeSquad pulls in sub-pledge (squad) skills at high clan level.
         let squad = t.max_pledge_skills(11, &none, true);
-        assert!(squad.len() > t.max_pledge_skills(11, &none, false).len(), "squad skills add entries");
+        assert!(
+            squad.len() > t.max_pledge_skills(11, &none, false).len(),
+            "squad skills add entries"
+        );
     }
 
     #[test]
@@ -302,6 +333,9 @@ mod tests {
         let mut current = HashMap::new();
         current.insert(370, max_lvl);
         let refreshed = t.max_pledge_skills(11, &current, false);
-        assert!(!refreshed.iter().any(|&(id, _)| id == 370), "already-max skill is skipped");
+        assert!(
+            !refreshed.iter().any(|&(id, _)| id == 370),
+            "already-max skill is skipped"
+        );
     }
 }

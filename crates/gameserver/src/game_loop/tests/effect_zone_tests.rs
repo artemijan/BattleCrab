@@ -38,7 +38,11 @@ fn zone_skill(id: i32, effects: Vec<SkillEffect>, abnormal: &str) -> Skill {
         hp_consume: 0,
         abnormal_time: if abnormal.is_empty() { 0 } else { 100 },
         abnormal_level: 1,
-        abnormal_type: if abnormal.is_empty() { "NONE".into() } else { abnormal.into() },
+        abnormal_type: if abnormal.is_empty() {
+            "NONE".into()
+        } else {
+            abnormal.into()
+        },
         activate_rate: -1,
         lvl_bonus_rate: 0,
         over_hit: false,
@@ -75,7 +79,12 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         name: "test_effect_zone".into(),
         kind: ZoneKind::Effect,
         territory: crate::data::spawn_data::Territory {
-            form: crate::data::spawn_data::ZoneForm::Cuboid { x1: -500, x2: 500, y1: -500, y2: 500 },
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -500,
+                x2: 500,
+                y1: -500,
+                y2: 500,
+            },
             min_z: -1000,
             max_z: 1000,
         },
@@ -86,21 +95,31 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
     });
 }
 
-fn zone_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn zone_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     // A flat 50-damage burn, and a stat buff with an abnormal type.
-    world.data.skill_data.insert_for_test(zone_skill(BURN_ID, vec![SkillEffect::MagicalAttack { power: 50.0 }], ""));
+    world.data.skill_data.insert_for_test(zone_skill(
+        BURN_ID,
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        "",
+    ));
     world.data.skill_data.insert_for_test(zone_skill(
         BUFF_ID,
-        vec![SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
-            stat: crate::model::stats::Stat::PhysicalAttack,
-            mode: crate::model::stats::StatModifierType::Per,
-            amount: 1.2,
-            armor_condition: 0,
-            weapon_condition: 0,
-            qualifier: None,
-            two_handed: false,
-        })],
+        vec![SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::PhysicalAttack,
+                mode: crate::model::stats::StatModifierType::Per,
+                amount: 1.2,
+                armor_condition: 0,
+                weapon_condition: 0,
+                qualifier: None,
+                two_handed: false,
+            },
+        )],
         "MIGHT",
     ));
     (world, db, l)
@@ -115,7 +134,11 @@ fn sweep(world: &mut World, n: u64) {
 }
 
 fn hp(world: &World) -> f64 {
-    world.objects.get_component::<Vitals>(&PLAYER).unwrap().cur_hp
+    world
+        .objects
+        .get_component::<Vitals>(&PLAYER)
+        .unwrap()
+        .cur_hp
 }
 
 // ---------------------------------------------------------------------------
@@ -129,7 +152,11 @@ fn a_player_standing_in_a_damage_zone_takes_damage() {
 
     sweep(&mut world, 20); // 20 s — several 6 s reuses
 
-    assert!(hp(&world) < before, "the zone should have burned the player ({before} → {})", hp(&world));
+    assert!(
+        hp(&world) < before,
+        "the zone should have burned the player ({before} → {})",
+        hp(&world)
+    );
 }
 
 #[test]
@@ -141,7 +168,11 @@ fn a_player_outside_the_zone_is_untouched() {
 
     sweep(&mut world, 20);
 
-    assert_eq!(hp(&world), before, "standing outside the cuboid must be safe");
+    assert_eq!(
+        hp(&world),
+        before,
+        "standing outside the cuboid must be safe"
+    );
 }
 
 #[test]
@@ -176,7 +207,11 @@ fn a_disabled_zone_does_nothing() {
 
     sweep(&mut world, 20);
 
-    assert_eq!(hp(&world), before, "a disabled zone waits for a script to enable it");
+    assert_eq!(
+        hp(&world),
+        before,
+        "a disabled zone waits for a script to enable it"
+    );
 }
 
 #[test]
@@ -192,7 +227,11 @@ fn an_npc_targeted_zone_casts_on_nobody() {
 
     sweep(&mut world, 20);
 
-    assert_eq!(hp(&world), before, "targetClass=Npc zones are inert for players");
+    assert_eq!(
+        hp(&world),
+        before,
+        "targetClass=Npc zones are inert for players"
+    );
 }
 
 #[test]
@@ -219,7 +258,10 @@ fn a_buff_zone_grants_its_buff_once_not_repeatedly() {
 
     sweep(&mut world, 30);
 
-    let buffs = world.objects.get_component::<crate::model::components::Buffs>(&PLAYER).unwrap();
+    let buffs = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&PLAYER)
+        .unwrap();
     let count = buffs.0.iter().filter(|b| b.skill_id == BUFF_ID).count();
     assert_eq!(count, 1, "the zone buff should be held once, not stacked");
 }
@@ -250,6 +292,12 @@ fn multiple_skills_all_land_in_one_tick() {
     sweep(&mut world, 20);
 
     assert!(hp(&world) < before, "the damage skill landed");
-    let buffs = world.objects.get_component::<crate::model::components::Buffs>(&PLAYER).unwrap();
-    assert!(buffs.0.iter().any(|b| b.skill_id == BUFF_ID), "and the buff skill landed too");
+    let buffs = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&PLAYER)
+        .unwrap();
+    assert!(
+        buffs.0.iter().any(|b| b.skill_id == BUFF_ID),
+        "and the buff skill landed too"
+    );
 }

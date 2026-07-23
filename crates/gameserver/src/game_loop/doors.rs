@@ -18,8 +18,12 @@ use super::helpers::{broadcast_near_region, ms_to_ticks};
 /// `Door.sendInfo(player)`: `StaticObjectInfo` + `DoorStatusUpdate` for one
 /// door to one session (enter-world burst, region-cross deltas).
 pub(crate) fn send_door_info(world: &World, session: &ClientSession, door_oid: i32) {
-    let Some(door) = world.objects.get_component::<Door>(&door_oid) else { return };
-    let Some(t) = world.data.door_data.get(door.door_id) else { return };
+    let Some(door) = world.objects.get_component::<Door>(&door_oid) else {
+        return;
+    };
+    let Some(t) = world.data.door_data.get(door.door_id) else {
+        return;
+    };
     let open = world.geo.doors.is_open(door.door_id);
     session.send(server_packets::static_object_info_door(door, t, open));
     session.send(server_packets::door_status_update(door, t, open));
@@ -28,12 +32,26 @@ pub(crate) fn send_door_info(world: &World, session: &ClientSession, door_oid: i
 /// `Door.broadcastStatusUpdate()`: push the new state to everyone whose
 /// region block contains the door.
 fn broadcast_status(world: &World, door_oid: i32) {
-    let Some(door) = world.objects.get_component::<Door>(&door_oid) else { return };
-    let Some(t) = world.data.door_data.get(door.door_id) else { return };
-    let Some(region) = world.objects.get_component::<RegionCell>(&door_oid) else { return };
+    let Some(door) = world.objects.get_component::<Door>(&door_oid) else {
+        return;
+    };
+    let Some(t) = world.data.door_data.get(door.door_id) else {
+        return;
+    };
+    let Some(region) = world.objects.get_component::<RegionCell>(&door_oid) else {
+        return;
+    };
     let open = world.geo.doors.is_open(door.door_id);
-    broadcast_near_region(world, region.0, &server_packets::static_object_info_door(door, t, open));
-    broadcast_near_region(world, region.0, &server_packets::door_status_update(door, t, open));
+    broadcast_near_region(
+        world,
+        region.0,
+        &server_packets::static_object_info_door(door, t, open),
+    );
+    broadcast_near_region(
+        world,
+        region.0,
+        &server_packets::door_status_update(door, t, open),
+    );
 }
 
 /// `Door.openMe()`: no-op when already open; otherwise flip, broadcast, and
@@ -44,7 +62,10 @@ fn broadcast_status(world: &World, door_oid: i32) {
 /// for the match — the Valakas gatekeepers name their doors by id.
 pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
     let oid = world.door_regions.values().flatten().copied().find(|&oid| {
-        world.objects.get_component::<Door>(&oid).is_some_and(|d| d.door_id == door_id)
+        world
+            .objects
+            .get_component::<Door>(&oid)
+            .is_some_and(|d| d.door_id == door_id)
     });
     if let Some(oid) = oid {
         open_door(world, oid);
@@ -64,16 +85,23 @@ pub(crate) fn open_door(world: &mut World, door_oid: i32) {
     world.geo.doors.set_open(door_id, true);
     broadcast_status(world, door_oid);
 
-    let Some((close_time, method)) =
-        world.data.door_data.get(door_id).map(|t| (t.close_time, t.open_method))
+    let Some((close_time, method)) = world
+        .data
+        .door_data
+        .get(door_id)
+        .map(|t| (t.close_time, t.open_method))
     else {
         return;
     };
     if close_time >= 0 && method != DoorOpenMethod::ByTime {
         let delay = ms_to_ticks(close_time * 1000);
-        world
-            .scheduler
-            .schedule(world.tick + delay, ScheduledTask::DoorAutoClose { door_object_id: door_oid, seq });
+        world.scheduler.schedule(
+            world.tick + delay,
+            ScheduledTask::DoorAutoClose {
+                door_object_id: door_oid,
+                seq,
+            },
+        );
     }
 }
 
@@ -96,7 +124,11 @@ pub(crate) fn close_door(world: &mut World, door_oid: i32) {
 /// The `AutoClose` task: shut the door unless a newer open/close superseded
 /// this schedule.
 pub(crate) fn handle_door_auto_close(world: &mut World, door_oid: i32, seq: u64) {
-    if world.objects.get_component::<Door>(&door_oid).is_none_or(|d| d.auto_close_seq != seq) {
+    if world
+        .objects
+        .get_component::<Door>(&door_oid)
+        .is_none_or(|d| d.auto_close_seq != seq)
+    {
         return;
     }
     close_door(world, door_oid);
@@ -108,7 +140,9 @@ pub(crate) fn handle_door_auto_close(world: &mut World, door_oid: i32, seq: u64)
 /// running cycle) choice.
 pub(crate) fn start_time_cycles(world: &mut World) {
     let mut doors: Vec<(i32, i32)> = Vec::new(); // (door_oid, door_id)
-    world.objects.for_each_mut::<&Door>(|d| doors.push((d.object_id, d.door_id)));
+    world
+        .objects
+        .for_each_mut::<&Door>(|d| doors.push((d.object_id, d.door_id)));
     for (door_oid, door_id) in doors {
         let Some((method, open_time, close_time, random_time)) = world
             .data
@@ -127,9 +161,12 @@ pub(crate) fn start_time_cycles(world: &mut World) {
             delay += world.roll(random_time);
         }
         let ticks = ms_to_ticks(delay.max(0) * 1000);
-        world
-            .scheduler
-            .schedule(world.tick + ticks, ScheduledTask::DoorTimerToggle { door_object_id: door_oid });
+        world.scheduler.schedule(
+            world.tick + ticks,
+            ScheduledTask::DoorTimerToggle {
+                door_object_id: door_oid,
+            },
+        );
     }
 }
 
@@ -137,15 +174,24 @@ pub(crate) fn start_time_cycles(world: &mut World) {
 /// `closeTime` while open / `openTime` while closed (Java's `TimerOpen.run`
 /// — note the inversion against `startTimerOpen`, kept as-is).
 pub(crate) fn handle_door_timer_toggle(world: &mut World, door_oid: i32) {
-    let Some(door_id) = world.objects.get_component::<Door>(&door_oid).map(|d| d.door_id) else { return };
+    let Some(door_id) = world
+        .objects
+        .get_component::<Door>(&door_oid)
+        .map(|d| d.door_id)
+    else {
+        return;
+    };
     let open = world.geo.doors.is_open(door_id);
     if open {
         close_door(world, door_oid);
     } else {
         open_door(world, door_oid);
     }
-    let Some((random_time, close_time, open_time)) =
-        world.data.door_data.get(door_id).map(|t| (t.random_time, t.close_time, t.open_time))
+    let Some((random_time, close_time, open_time)) = world
+        .data
+        .door_data
+        .get(door_id)
+        .map(|t| (t.random_time, t.close_time, t.open_time))
     else {
         return;
     };
@@ -155,7 +201,12 @@ pub(crate) fn handle_door_timer_toggle(world: &mut World, door_oid: i32) {
         delay += world.roll(random_time);
     }
     let ticks = ms_to_ticks(delay.max(0) * 1000);
-    world.scheduler.schedule(world.tick + ticks, ScheduledTask::DoorTimerToggle { door_object_id: door_oid });
+    world.scheduler.schedule(
+        world.tick + ticks,
+        ScheduledTask::DoorTimerToggle {
+            door_object_id: door_oid,
+        },
+    );
 }
 
 /// Convenience for scripts/systems: open or close a door by its template id

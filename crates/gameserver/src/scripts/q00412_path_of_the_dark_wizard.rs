@@ -119,15 +119,33 @@ const ERRANDS: [Errand; 3] = [
     },
 ];
 
-const SEEDS: [i32; 4] = [SEEDS_OF_DESPAIR, SEEDS_OF_ANGER, SEEDS_OF_HORROR, SEEDS_OF_LUNACY];
-
-const QUEST_ITEMS: [i32; 10] = [
-    SEEDS_OF_ANGER, SEEDS_OF_DESPAIR, SEEDS_OF_HORROR, SEEDS_OF_LUNACY, FAMILYS_REMAINS, KNEE_BONE,
-    HEART_OF_LUNACY, LUCKY_KEY, CANDLE, HUB_SCENT,
+const SEEDS: [i32; 4] = [
+    SEEDS_OF_DESPAIR,
+    SEEDS_OF_ANGER,
+    SEEDS_OF_HORROR,
+    SEEDS_OF_LUNACY,
 ];
 
-const KILL_NPCS: [i32; 5] =
-    [MARSH_ZOMBIE, MISERY_SKELETON, SKELETON_SCOUT, SKELETON_HUNTER, SKELETON_HUNTER_ARCHER];
+const QUEST_ITEMS: [i32; 10] = [
+    SEEDS_OF_ANGER,
+    SEEDS_OF_DESPAIR,
+    SEEDS_OF_HORROR,
+    SEEDS_OF_LUNACY,
+    FAMILYS_REMAINS,
+    KNEE_BONE,
+    HEART_OF_LUNACY,
+    LUCKY_KEY,
+    CANDLE,
+    HUB_SCENT,
+];
+
+const KILL_NPCS: [i32; 5] = [
+    MARSH_ZOMBIE,
+    MISERY_SKELETON,
+    SKELETON_SCOUT,
+    SKELETON_HUNTER,
+    SKELETON_HUNTER_ARCHER,
+];
 
 pub struct Q00412PathOfTheDarkWizard;
 
@@ -184,10 +202,20 @@ impl QuestScript for Q00412PathOfTheDarkWizard {
             // Varika's three "how is X going?" buttons, each answering
             // differently depending on whether that seed is already grown.
             "30421-06.html" => Some(
-                if self.has(ctx, SEEDS_OF_ANGER) { event } else { "30421-07.html" }.to_string(),
+                if self.has(ctx, SEEDS_OF_ANGER) {
+                    event
+                } else {
+                    "30421-07.html"
+                }
+                .to_string(),
             ),
             "30421-09.html" => Some(
-                if self.has(ctx, SEEDS_OF_HORROR) { event } else { "30421-10.html" }.to_string(),
+                if self.has(ctx, SEEDS_OF_HORROR) {
+                    event
+                } else {
+                    "30421-10.html"
+                }
+                .to_string(),
             ),
             "30421-11.html" => {
                 if self.has(ctx, SEEDS_OF_LUNACY) {
@@ -208,7 +236,9 @@ impl QuestScript for Q00412PathOfTheDarkWizard {
             return;
         }
         let npc_id = ctx.npc_id;
-        let Some(e) = ERRANDS.iter().find(|e| e.mobs.contains(&npc_id)) else { return };
+        let Some(e) = ERRANDS.iter().find(|e| e.mobs.contains(&npc_id)) else {
+            return;
+        };
         if !self.has(ctx, e.tool) || ctx.quest_items_count(e.material) >= e.need {
             return;
         }
@@ -231,8 +261,12 @@ impl QuestScript for Q00412PathOfTheDarkWizard {
         if ctx.is_created() {
             if npc == VARIKA {
                 return Some(
-                    if self.has(ctx, JEWEL_OF_DARKNESS) { "30421-04.htm" } else { "30421-01.htm" }
-                        .to_string(),
+                    if self.has(ctx, JEWEL_OF_DARKNESS) {
+                        "30421-04.htm"
+                    } else {
+                        "30421-01.htm"
+                    }
+                    .to_string(),
                 );
             }
             return Some(ctx.no_quest_html());
@@ -289,9 +323,16 @@ impl Q00412PathOfTheDarkWizard {
         if !self.has(ctx, SEEDS_OF_DESPAIR) {
             return Some(ctx.no_quest_html());
         }
-        let carrying = [FAMILYS_REMAINS, LUCKY_KEY, CANDLE, HUB_SCENT, KNEE_BONE, HEART_OF_LUNACY]
-            .iter()
-            .any(|id| ctx.quest_items_count(*id) > 0);
+        let carrying = [
+            FAMILYS_REMAINS,
+            LUCKY_KEY,
+            CANDLE,
+            HUB_SCENT,
+            KNEE_BONE,
+            HEART_OF_LUNACY,
+        ]
+        .iter()
+        .any(|id| ctx.quest_items_count(*id) > 0);
         if !carrying {
             return Some("30421-14.html".to_string());
         }

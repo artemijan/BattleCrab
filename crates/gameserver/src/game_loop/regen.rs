@@ -13,7 +13,6 @@ use crate::world::World;
 /// 100 ms base tick), matching Java's `CreatureStatus.startHpMpRegeneration`.
 pub(crate) const REGEN_TICK_PERIOD: u64 = 30;
 
-
 /// `CreatureStatus.doRegeneration`, run every `REGEN_TICK_PERIOD` ticks for
 /// every in-game player. Iterates connected clients (not `world.objects`
 /// directly) so each player's `StatusUpdate` reaches its own connection.
@@ -32,14 +31,26 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         // rather than cached anywhere — a player who starts running between
         // ticks regenerates at the running rate on the very next one.
         let move_type = move_type_of(world, object_id);
-        let Some((player, mut vitals, mut pvitals, base, mods)) = world
-            .objects
-            .get_many_mut::<(&Player, &mut Vitals, &mut PlayerVitals, &BaseStats, &StatModifiers)>(&object_id)
+        let Some((player, mut vitals, mut pvitals, base, mods)) =
+            world.objects.get_many_mut::<(
+                &Player,
+                &mut Vitals,
+                &mut PlayerVitals,
+                &BaseStats,
+                &StatModifiers,
+            )>(&object_id)
         else {
             continue;
         };
-        let Some(updates) = regen_player(&player, &mut vitals, &mut pvitals, &base, &mods, move_type, &world.data)
-        else {
+        let Some(updates) = regen_player(
+            &player,
+            &mut vitals,
+            &mut pvitals,
+            &base,
+            &mods,
+            move_type,
+            &world.data,
+        ) else {
             continue;
         };
         if let Some(cs) = world.clients.get(&client_id) {
@@ -82,7 +93,9 @@ pub(crate) fn movement_regen_multiplier(move_type: MoveType) -> f64 {
 /// Sitting is not modeled on this port (`TODO(G29)`), so the seated branch has
 /// no source yet and the result is one of walking/running/standing.
 pub(crate) fn move_type_of(world: &World, object_id: i32) -> MoveType {
-    let moving = world.objects.has_component::<crate::model::components::Movement>(&object_id);
+    let moving = world
+        .objects
+        .has_component::<crate::model::components::Movement>(&object_id);
     if !moving {
         return MoveType::Standing;
     }
@@ -149,19 +162,37 @@ pub(crate) fn regen_player(
 
     let mut updates = Vec::new();
     if vitals.cur_hp < vitals.max_hp as f64 {
-        let regen = finalize(Stat::RegenerateHpRate, t.base_hp_regen(p.level) * movement * level_mod * con_bonus);
+        let regen = finalize(
+            Stat::RegenerateHpRate,
+            t.base_hp_regen(p.level) * movement * level_mod * con_bonus,
+        );
         vitals.cur_hp = (vitals.cur_hp + regen).min(vitals.max_hp as f64);
-        updates.push((server_packets::status_update_type::CUR_HP, vitals.cur_hp as i32));
+        updates.push((
+            server_packets::status_update_type::CUR_HP,
+            vitals.cur_hp as i32,
+        ));
     }
     if vitals.cur_mp < vitals.max_mp as f64 {
-        let regen = finalize(Stat::RegenerateMpRate, t.base_mp_regen(p.level) * movement * level_mod * men_bonus);
+        let regen = finalize(
+            Stat::RegenerateMpRate,
+            t.base_mp_regen(p.level) * movement * level_mod * men_bonus,
+        );
         vitals.cur_mp = (vitals.cur_mp + regen).min(vitals.max_mp as f64);
-        updates.push((server_packets::status_update_type::CUR_MP, vitals.cur_mp as i32));
+        updates.push((
+            server_packets::status_update_type::CUR_MP,
+            vitals.cur_mp as i32,
+        ));
     }
     if pvitals.cur_cp < pvitals.max_cp as f64 {
-        let regen = finalize(Stat::RegenerateCpRate, t.base_cp_regen(p.level) * level_mod * con_bonus * movement);
+        let regen = finalize(
+            Stat::RegenerateCpRate,
+            t.base_cp_regen(p.level) * level_mod * con_bonus * movement,
+        );
         pvitals.cur_cp = (pvitals.cur_cp + regen).min(pvitals.max_cp as f64);
-        updates.push((server_packets::status_update_type::CUR_CP, pvitals.cur_cp as i32));
+        updates.push((
+            server_packets::status_update_type::CUR_CP,
+            pvitals.cur_cp as i32,
+        ));
     }
     if updates.is_empty() {
         None
@@ -196,12 +227,20 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
     });
 
     for (oid, npc_id) in wounded {
-        let Some(t) = world.data.npc_data.get(npc_id) else { continue };
+        let Some(t) = world.data.npc_data.get(npc_id) else {
+            continue;
+        };
         let is_raid = matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss");
         let (hp_mul, mp_mul) = if is_raid {
-            (world.cfg.npc.raid_hp_regen_multiplier, world.cfg.npc.raid_mp_regen_multiplier)
+            (
+                world.cfg.npc.raid_hp_regen_multiplier,
+                world.cfg.npc.raid_mp_regen_multiplier,
+            )
         } else {
-            (world.cfg.npc.hp_regen_multiplier, world.cfg.npc.mp_regen_multiplier)
+            (
+                world.cfg.npc.hp_regen_multiplier,
+                world.cfg.npc.mp_regen_multiplier,
+            )
         };
         // Java `RegenHPFinalizer`/`RegenMPFinalizer` pet branch: a pet regens
         // from its **per-level pet row**, under its own multipliers — the same
@@ -211,7 +250,13 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         let pet_row = world
             .objects
             .get_component::<crate::model::components::PetOf>(&oid)
-            .and_then(|p| world.data.pet_data.get(npc_id).and_then(|pt| pt.levels.get(&p.level)));
+            .and_then(|p| {
+                world
+                    .data
+                    .pet_data
+                    .get(npc_id)
+                    .and_then(|pt| pt.levels.get(&p.level))
+            });
         let (hp_regen, mp_regen) = match pet_row {
             Some(row) => (
                 row.regen_hp * world.cfg.npc.pet_hp_regen_multiplier,
@@ -223,7 +268,9 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         // Scoped so the mutable borrow ends before the broadcast reads the
         // store again.
         let (cur_hp, max_hp, changed) = {
-            let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) else { continue };
+            let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) else {
+                continue;
+            };
             let before_hp = v.cur_hp;
             v.cur_hp = (v.cur_hp + hp_regen).min(v.max_hp as f64);
             v.cur_mp = (v.cur_mp + mp_regen).min(v.max_mp as f64);
@@ -233,7 +280,11 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
         // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
         // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
         if changed {
-            if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+            if let Some(region) = world
+                .objects
+                .get_component::<crate::model::components::RegionCell>(&oid)
+                .map(|r| r.0)
+            {
                 super::helpers::broadcast_near_region(
                     world,
                     region,
