@@ -5376,3 +5376,68 @@ fn quest_q00277_level_gates() {
     handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
     assert!(quest_cond(&world, 3002, q).is_none_or(|c| c == 0), "level-22 refused by addCondMaxLevel");
 }
+
+/// Q00295 Dreaming of the Skies: the variable amount (1 or 2) capped at 50, the
+/// first-time Ring of Firefly reward, and the repeat-run 200-adena branch.
+#[test]
+fn quest_q00295_dreaming_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1492, "Floating Stone", true), (1509, "Ring of Firefly", false)]);
+    let mut t = crate::data::npc_data::default_template(20153);
+    t.type_name = "Monster".into();
+    t.level = 13;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30536, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 13;
+    drain_db(&mut db_rx);
+
+    let q = "Q00295_DreamingOfTheSkies";
+    let mut obj = 0x5600_0000;
+    let mut mob = NPC_OID + 1;
+
+    // Helper: fill to 48 by injection then a double-drop kill closes to 50 → cond 2.
+    let start_and_fill = |world: &mut World, obj: &mut i32, mob: &mut i32| {
+        handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+        handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")));
+        {
+            let World { objects, data, .. } = world;
+            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, *obj, 1492, 48);
+        }
+        *obj += 1;
+        add_test_npc(world, *mob, 20153, "Monster", 13, 30, 0, 0);
+        world.forced_rolls.push_back(10); // <=25 → amount 2
+        world.forced_rolls.push_back(0); // give_item_randomly roll
+        death::npc_do_die(world, *mob, 3001);
+        *mob += 1;
+        assert_eq!(quest_cond(world, 3001, q), Some(2), "cond 2 at 50 stones");
+    };
+
+    // First run: earn the Ring of Firefly.
+    start_and_fill(&mut world, &mut obj, &mut mob);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1509), 1, "first run: Ring of Firefly");
+    assert_eq!(item_count(&world, 3001, 1492), 0, "stones cleared");
+
+    // Second run (ring already held): 200 adena instead of a second ring.
+    let adena_before = item_count(&world, 3001, 57);
+    start_and_fill(&mut world, &mut obj, &mut mob);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1509), 1, "still just one ring");
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 200, "repeat run pays 200 adena");
+    let _ = &mut rx;
+}
+
+/// Q00295 refuses a starter above level 15 (`addCondMaxLevel(15)`).
+#[test]
+fn quest_q00295_refused_above_level_15() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1492, "Floating Stone", true)]);
+    add_test_npc(&mut world, NPC_OID, 30536, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 16;
+    let q = "Q00295_DreamingOfTheSkies";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
+}
