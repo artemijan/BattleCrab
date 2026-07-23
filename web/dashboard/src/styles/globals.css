@@ -118,7 +118,7 @@ body {
   margin: 0;
   background: var(--page-bg);
   color: var(--text);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }

@@ -5,11 +5,11 @@
  *     bun run og-image
  *
  * The image is committed, so neither the build nor CI needs a browser — this
- * only runs when the artwork changes. It exists so the image is reproducible and
+ * only runs when the artwork changes. It exists, so the image is reproducible and
  * reviewable as code: the alternative is a binary nobody can regenerate or
  * confidently edit.
  *
- * 1200x630 is the size Facebook, LinkedIn and Slack all scale from, and is the
+ * 1200x630 is the size Facebook, LinkedIn, and Slack all scale from, and is the
  * 1.91:1 ratio Twitter's `summary_large_image` expects. Below 600x315 several
  * of them fall back to a small square card instead.
  */

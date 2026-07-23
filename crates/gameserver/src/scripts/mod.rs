@@ -24,11 +24,24 @@ pub mod q00111_elrokian_hunters_proof;
 pub mod q00124_meeting_the_elroki;
 pub mod q00127_fishing_specialists_request;
 pub mod q00210_obtain_a_wolf_pet;
+pub mod q00211_trial_of_the_challenger;
+pub mod q00212_trial_of_duty;
+pub mod q00213_trial_of_the_seeker;
+pub mod q00215_trial_of_the_pilgrim;
+pub mod q00216_trial_of_the_guildsman;
+pub mod q00217_testimony_of_trust;
+pub mod q00218_testimony_of_life;
+pub mod q00219_testimony_of_fate;
 pub mod q00222_test_of_the_duelist;
 pub mod q00223_test_of_the_champion;
 pub mod q00224_test_of_sagittarius;
 pub mod q00225_test_of_the_searcher;
+pub mod q00226_test_of_the_healer;
+pub mod q00228_test_of_magus;
+pub mod q00229_test_of_witchcraft;
 pub mod q00231_test_of_the_maestro;
+pub mod q00232_test_of_the_lord;
+pub mod q00233_test_of_the_war_spirit;
 pub mod q00235_mimirs_elixir;
 pub mod q00257_the_guard_is_busy;
 pub mod q00258_bring_wolf_pelts;
@@ -189,6 +202,19 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00224_test_of_sagittarius::Q00224TestOfSagittarius),
         Arc::new(q00225_test_of_the_searcher::Q00225TestOfTheSearcher),
         Arc::new(q00231_test_of_the_maestro::Q00231TestOfTheMaestro),
+        Arc::new(q00211_trial_of_the_challenger::Q00211TrialOfTheChallenger),
+        Arc::new(q00212_trial_of_duty::Q00212TrialOfDuty),
+        Arc::new(q00213_trial_of_the_seeker::Q00213TrialOfTheSeeker),
+        Arc::new(q00215_trial_of_the_pilgrim::Q00215TrialOfThePilgrim),
+        Arc::new(q00216_trial_of_the_guildsman::Q00216TrialOfTheGuildsman),
+        Arc::new(q00217_testimony_of_trust::Q00217TestimonyOfTrust),
+        Arc::new(q00218_testimony_of_life::Q00218TestimonyOfLife),
+        Arc::new(q00219_testimony_of_fate::Q00219TestimonyOfFate),
+        Arc::new(q00226_test_of_the_healer::Q00226TestOfTheHealer),
+        Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
+        Arc::new(q00229_test_of_witchcraft::Q00229TestOfWitchcraft),
+        Arc::new(q00232_test_of_the_lord::Q00232TestOfTheLord),
+        Arc::new(q00233_test_of_the_war_spirit::Q00233TestOfTheWarSpirit),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),

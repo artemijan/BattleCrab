@@ -110,7 +110,7 @@ export function Landing() {
           alt="BattleCrab — Lineage 2 Rust server"
           loading="eager"
           fetchPriority="high"
-          className="mx-auto mb-6 h-auto w-[260px] drop-shadow-[0_18px_40px_rgba(0,44,92,0.35)] sm:w-[340px]"
+          className="mx-auto mb-6 h-auto w-65 drop-shadow-[0_18px_40px_rgba(0,44,92,0.35)] sm:w-85"
         />
 
         <p
