@@ -6495,3 +6495,160 @@ fn quest_q00622_specialty_liquor_delivery() {
     assert_eq!(item_count(&world, 3001, 57), a + 18800, "18800 adena");
     assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
 }
+
+#[test]
+fn quest_q00110_to_the_primeval_isle() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(8777, "Ancient Book", true)]);
+    add_test_npc(&mut world, NPC_OID, 31338, "Folk", 70, 100, 0, 0); // Anton
+    add_test_npc(&mut world, NPC_OID + 1, 32113, "Folk", 70, 100, 0, 0); // Marquez
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    let q = "Q00110_ToThePrimevalIsle";
+    // Below the min level the empty-html gate blocks state creation.
+    let _rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 70;
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(quest_cond(&world, 3002, q), None, "level-70 player can't start (empty-html gate)");
+    // Level-75 player: accept from Anton, deliver to Marquez.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31338-05.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 8777), 1, "Anton hands over the Ancient Book");
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 32113-04.html", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 189208, "Marquez pays 189208 adena");
+    assert_eq!(item_count(&world, 3001, 8777), 0, "book consumed on the one-time exit");
+    // One-time exit → COMPLETED, so a fresh talk is refused (not restarted).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_ne!(quest_cond(&world, 3001, q), Some(1), "quest does not restart");
+}
+
+#[test]
+fn quest_q00628_hunt_golden_ram() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (7248, "Splinter Stakato Chitin", true),
+            (7249, "Needle Stakato Chitin", true),
+            (7246, "Golden Ram Badge Recruit", false),
+            (7247, "Golden Ram Badge Soldier", false),
+        ],
+    );
+    for id in [21508, 21513] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 66;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 31554, "Folk", 66, 100, 0, 0); // Kahman
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 66;
+    let q = "Q00628_HuntGoldenRam";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} accept")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Splinter (count 1) drops at cond 1; needle (count 2) does not.
+    add_test_npc(&mut world, NPC_OID + 1, 21508, "Monster", 66, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.5) → hit
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7248), 1, "splinter drops at cond 1");
+    add_test_npc(&mut world, NPC_OID + 2, 21513, "Monster", 66, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 7249), 0, "needle (count 2) does NOT drop at cond 1");
+    // 100 splinters → Recruit badge, cond 2.
+    inject(&mut world, 3001, 0x0628_0000, 7248, 99);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31554-08.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 7246), 1, "Recruit badge awarded");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(item_count(&world, 3001, 7248), 0, "splinters consumed");
+    // 100 splinter + 100 needle at cond 2 → Soldier badge, cond 3.
+    inject(&mut world, 3001, 0x0628_0001, 7248, 100);
+    inject(&mut world, 3001, 0x0628_0002, 7249, 100);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 7247), 1, "Soldier badge awarded");
+    assert_eq!(item_count(&world, 3001, 7246), 0, "Recruit badge consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+}
+
+#[test]
+fn quest_q00374_whisper_of_dreams_part1() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (5884, "Cave Beast Tooth", true),
+            (5885, "Death Wave Light", true),
+            (5886, "Sealed Mysterious Stone", true),
+            (5887, "Mysterious Stone", false),
+            (49475, "Scroll Part EA", false),
+        ],
+    );
+    for id in [20620, 20621] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 60;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30938, "Folk", 60, 100, 0, 0); // Vanutu
+    add_test_npc(&mut world, NPC_OID + 1, 31044, "Folk", 60, 100, 0, 0); // Galman
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 60;
+    let q = "Q00374_WhisperOfDreamsPart1";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-01.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // 360 tooth + one Death Wave kill topping light to 360 → cond 2.
+    inject(&mut world, 3001, 0x0374_0000, 5884, 360);
+    inject(&mut world, 3001, 0x0374_0001, 5885, 359);
+    add_test_npc(&mut world, NPC_OID + 2, 20621, "Monster", 60, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 5885), 360, "light topped to 360");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "both ingredients full → cond 2");
+    // reward1: hand both stacks over for the scroll + 9000 adena.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")));
+    assert_eq!(item_count(&world, 3001, 49475), 1, "scroll reward");
+    assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
+    assert_eq!(item_count(&world, 3001, 5884) + item_count(&world, 3001, 5885), 0, "ingredients consumed");
+    // Advance to cond 3, where kills also drop the Sealed Mysterious Stone.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-06.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    add_test_npc(&mut world, NPC_OID + 3, 20620, "Monster", 60, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly(tooth) roll_f64
+    world.forced_rolls.push_back(0); // give_item_randomly(sealed stone) roll_f64 (0.0 < 0.2)
+    death::npc_do_die(&mut world, NPC_OID + 3, 3001);
+    assert_eq!(item_count(&world, 3001, 5886), 1, "sealed stone drops at cond 3");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4), "sealed stone → cond 4");
+    // Galman exchanges the sealed stone for the Mysterious Stone (Part 2 opener).
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 31044-01.html", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 5887), 1, "Mysterious Stone (opens Part 2)");
+    assert_eq!(item_count(&world, 3001, 5886), 0, "sealed stone consumed");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}

@@ -83,6 +83,9 @@ pub mod q00358_illegitimate_child_of_the_goddess;
 pub mod q00355_family_honor;
 pub mod q00622_specialty_liquor_delivery;
 pub mod q00688_defeat_the_elrokian_raiders;
+pub mod q00110_to_the_primeval_isle;
+pub mod q00374_whisper_of_dreams_part1;
+pub mod q00628_hunt_golden_ram;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -145,6 +148,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00355_family_honor::Q00355FamilyHonor),
         Arc::new(q00622_specialty_liquor_delivery::Q00622SpecialtyLiquorDelivery),
         Arc::new(q00688_defeat_the_elrokian_raiders::Q00688DefeatTheElrokianRaiders),
+        Arc::new(q00110_to_the_primeval_isle::Q00110ToThePrimevalIsle),
+        Arc::new(q00374_whisper_of_dreams_part1::Q00374WhisperOfDreamsPart1),
+        Arc::new(q00628_hunt_golden_ram::Q00628HuntGoldenRam),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
