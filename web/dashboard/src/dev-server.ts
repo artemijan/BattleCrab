@@ -22,7 +22,7 @@ const server = Bun.serve({
       const url = new URL(request.url);
       const target = new URL(url.pathname + url.search, API_TARGET);
       try {
-        return await fetch(target, {
+        const upstream = await fetch(target, {
           method: request.method,
           headers: request.headers,
           body: request.body,
@@ -30,6 +30,19 @@ const server = Bun.serve({
           // @ts-expect-error -- duplex is valid at runtime, missing from types
           duplex: "half",
           redirect: "manual",
+        });
+        // fetch() already decompressed the body but keeps the upstream
+        // Content-Encoding header. Forwarding both makes the browser gunzip
+        // plaintext → ERR_CONTENT_DECODING_FAILED. Drop the encoding headers
+        // (and the stale length) so the response describes what is actually
+        // being sent.
+        const headers = new Headers(upstream.headers);
+        headers.delete("content-encoding");
+        headers.delete("content-length");
+        return new Response(upstream.body, {
+          status: upstream.status,
+          statusText: upstream.statusText,
+          headers,
         });
       } catch {
         return Response.json(
