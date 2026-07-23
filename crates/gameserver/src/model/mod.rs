@@ -170,6 +170,9 @@ pub struct Player {
     /// lives in the `SkillBook` component; a switch moves it here and takes the
     /// target's out.
     pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
+    /// Java `Creature._team` (`//setteam` — 0 none, 1 blue, 2 red): the aura
+    /// circle color in UserInfo/CharInfo. Transient, like Java (not persisted).
+    pub team: u8,
     /// Inactive indices' worn hennas — dyes are per-subclass.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
@@ -826,6 +829,7 @@ impl Player {
                 .unwrap_or(0),
             subclasses: c.subclasses.clone(),
             skills_by_index: c.skills_by_index.clone(),
+            team: 0,
             hennas_by_index: c.hennas_by_index.clone(),
             shortcuts_by_index: c.shortcuts_by_index.clone(),
             base_level: c.level,

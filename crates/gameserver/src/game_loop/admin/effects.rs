@@ -216,3 +216,194 @@ pub(super) fn admin_play_sound(world: &mut World, client_id: u32, object_id: i32
     super::helpers::broadcast_including_self(world, object_id, &packet);
     send_message(world, client_id, &format!("Playing {sound}."));
 }
+
+// ---------------------------------------------------------------------------
+// AdminEffects' G19 tail (PLAN: close the milestone's unblock list): teams,
+// targetable, GM paralysis, big head, cinematics, event triggers, NPC display
+// state. Java: handlers/admincommandhandlers/AdminEffects.java.
+// ---------------------------------------------------------------------------
+
+/// `//setteam <none|blue|red>` (current target) and `//setteam_close <team>
+/// [radius=400]` (players around the GM). Player targets only — the port's
+/// NpcInfo doesn't model the team block yet (TODO(G19)).
+pub(super) fn admin_setteam(world: &mut World, client_id: u32, object_id: i32, args: &[&str], close: bool) {
+    let Some(team) = args.first().and_then(|v| match v.to_lowercase().as_str() {
+        "none" => Some(0u8),
+        "blue" => Some(1),
+        "red" => Some(2),
+        _ => None,
+    }) else {
+        send_message(world, client_id, "Usage: //setteam <none|blue|red>");
+        return;
+    };
+    let targets: Vec<i32> = if close {
+        let radius = args.get(1).and_then(|r| r.parse::<i32>().ok()).unwrap_or(400) as f64;
+        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+        players_in_radius(world, &origin, radius)
+    } else {
+        vec![current_target(world, object_id).unwrap_or(object_id)]
+    };
+    let mut set = 0;
+    for target in targets {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+            p.team = team;
+            set += 1;
+            crate::game_loop::party::broadcast_user_info(world, target);
+        }
+    }
+    send_message(world, client_id, &format!("Team set on {set} player(s)."));
+}
+
+/// `//clearteams` — every visible player back to NONE.
+pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    // "Visible" ≈ the same broadcast radius the packet fan-out uses; a large
+    // sweep is fine for a GM tool.
+    let targets = players_in_radius(world, &origin, 10_000.0);
+    for target in targets {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+            if p.team != 0 {
+                p.team = 0;
+                crate::game_loop::party::broadcast_user_info(world, target);
+            }
+        }
+    }
+    send_message(world, client_id, "Teams cleared.");
+}
+
+fn players_in_radius(world: &World, origin: &Position, radius: f64) -> Vec<i32> {
+    world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world.objects.get_component::<Position>(oid).is_some_and(|p| {
+                let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
+                (dx * dx + dy * dy).sqrt() <= radius
+            })
+        })
+        .collect()
+}
+
+/// `//settargetable` — toggle whether the GM can be selected (Java toggles
+/// `activeChar` itself, not the target).
+pub(super) fn admin_settargetable(world: &mut World, client_id: u32, object_id: i32) {
+    let mut flags = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .copied()
+        .unwrap_or_default();
+    flags.untargetable = !flags.untargetable;
+    let off = flags.untargetable;
+    world.objects.add_components(&object_id, flags);
+    send_message(world, client_id, if off { "You are now untargetable." } else { "You are targetable again." });
+}
+
+/// `//para [type]` / `//unpara [type]` on the current target, and the `_all`
+/// variants over nearby players. Type 1 draws PARALYZE, anything else
+/// FLESH_STONE (Java's split); the block itself is `AdminFlags.paralyzed`.
+pub(super) fn admin_para(world: &mut World, client_id: u32, object_id: i32, args: &[&str], on: bool, all: bool) {
+    let ave_name = if args.first().copied().unwrap_or("1") == "1" { "PARALYZE" } else { "FLESH_STONE" };
+    let ave = crate::model::skill::abnormal_visual_client_id(ave_name).expect("known AVE");
+    let targets: Vec<i32> = if all {
+        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+        players_in_radius(world, &origin, 10_000.0)
+    } else {
+        vec![current_target(world, object_id).unwrap_or(object_id)]
+    };
+    for target in &targets {
+        let mut flags = world
+            .objects
+            .get_component::<crate::model::components::AdminFlags>(target)
+            .copied()
+            .unwrap_or_default();
+        flags.paralyzed = on;
+        world.objects.add_components(target, flags);
+        set_admin_visual(world, *target, ave, on);
+        crate::game_loop::party::broadcast_user_info(world, *target);
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("{} {} target(s).", if on { "Paralyzed" } else { "Released" }, targets.len()),
+    );
+}
+
+/// `//bighead` / `//shrinkhead` — the BIG_HEAD abnormal visual on the target.
+pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, on: bool) {
+    let ave = crate::model::skill::abnormal_visual_client_id("BIG_HEAD").expect("known AVE");
+    let target = current_target(world, object_id).unwrap_or(object_id);
+    set_admin_visual(world, target, ave, on);
+    crate::game_loop::party::broadcast_user_info(world, target);
+    send_message(world, client_id, if on { "Big head on." } else { "Big head off." });
+}
+
+/// Pin/unpin one GM abnormal visual (the `//ave_abnormal` storage).
+fn set_admin_visual(world: &mut World, target: i32, ave: i16, on: bool) {
+    use crate::model::components::AdminVisuals;
+    match world.objects.get_component_mut::<AdminVisuals>(&target) {
+        Some(v) => {
+            if on {
+                if !v.0.contains(&ave) {
+                    v.0.push(ave);
+                }
+            } else {
+                v.0.retain(|&x| x != ave);
+            }
+        }
+        None if on => {
+            world.objects.add_components(&target, AdminVisuals(vec![ave]));
+        }
+        None => {}
+    }
+}
+
+/// `//playmovie <id>` — play a client cinematic for the GM. The MovieHolder
+/// bookkeeping (movement freeze, escape handling) is TODO(G19); this is the
+/// preview tool.
+pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(id) = args.first().and_then(|v| v.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //playmovie <id>");
+        return;
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::ex_start_scene_player(id));
+    }
+}
+
+/// `//event_trigger <id> [true|false]` — toggle a client emitter for everyone
+/// nearby (Java fans out to visible players plus the GM).
+pub(super) fn admin_event_trigger(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let (Some(id), enabled) = (
+        args.first().and_then(|v| v.parse::<i32>().ok()),
+        args.get(1).is_some_and(|v| v.eq_ignore_ascii_case("true")),
+    ) else {
+        send_message(world, client_id, "Usage: //event_trigger id [true | false]");
+        return;
+    };
+    let pkt = crate::network::enter_world::event_trigger(id, enabled);
+    super::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `//set_displayeffect <state>` — an NPC target's display-effect state
+/// (`ExChangeNpcState`). Broadcast-only: the state isn't stored, so a fresh
+/// observer won't see it (TODO(G19) — needs an NpcInfo field).
+pub(super) fn admin_set_displayeffect(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(state) = args.first().and_then(|v| v.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //set_displayeffect <id>");
+        return;
+    };
+    let Some(target) = current_target(world, object_id) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    if !world.objects.has_component::<crate::model::npc::Npc>(&target) {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    }
+    let pkt = crate::network::enter_world::ex_change_npc_state(target, state);
+    super::helpers::broadcast_including_self(world, object_id, &pkt);
+}

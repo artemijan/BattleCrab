@@ -2044,3 +2044,123 @@ fn admin_ave_abnormal_toggles_a_pinned_visual() {
     on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("ave_abnormal NOT_REAL")].concat());
     assert!(visual_effects(&world, 6481).is_empty(), "an unknown effect name is rejected");
 }
+
+// ---------------------------------------------------------------------------
+// AdminEffects' G19 tail: //setteam, //para, //settargetable, //event_trigger,
+// //playmovie, //bighead.
+// ---------------------------------------------------------------------------
+
+/// `//setteam blue` colors the aura (self when untargeted); `//setteam none`
+/// clears it; a bad color is refused with usage text.
+#[test]
+fn admin_setteam_sets_the_aura_color() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6491, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("setteam blue")].concat());
+    assert_eq!(world.objects.get_component::<Player>(&6491).unwrap().team, 1);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("setteam red")].concat());
+    assert_eq!(world.objects.get_component::<Player>(&6491).unwrap().team, 2);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("setteam purple")].concat());
+    assert_eq!(world.objects.get_component::<Player>(&6491).unwrap().team, 2, "bad color leaves it");
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("setteam none")].concat());
+    assert_eq!(world.objects.get_component::<Player>(&6491).unwrap().team, 0);
+}
+
+/// `//para` freezes the target — the block-actions and movement gates both
+/// hold, and the PARALYZE visual (11) is pinned — and `//unpara` releases.
+#[test]
+fn admin_para_blocks_actions_until_unpara() {
+    use crate::game_loop::abnormal::{is_blocked_from_actions, is_movement_disabled, visual_effects};
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6492, 100);
+    drain(&mut rx);
+
+    assert!(!is_blocked_from_actions(&world, 6492));
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("para")].concat());
+    assert!(is_blocked_from_actions(&world, 6492), "GM paralysis blocks actions");
+    assert!(is_movement_disabled(&world, 6492), "and movement");
+    assert!(visual_effects(&world, 6492).contains(&11), "PARALYZE visual pinned");
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("unpara")].concat());
+    assert!(!is_blocked_from_actions(&world, 6492), "released");
+    assert!(!visual_effects(&world, 6492).contains(&11), "visual unpinned");
+}
+
+/// `//settargetable` makes the GM unselectable: another player's click no
+/// longer sets their target; toggling back restores it.
+#[test]
+fn admin_settargetable_blocks_selection() {
+    use crate::model::components::TargetRef;
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6493, 100);
+    let mut rx2 = ingame_player_access(&mut world, 2, 6494, 0);
+    drain(&mut rx);
+    drain(&mut rx2);
+
+    let click_gm = {
+        let mut w = PacketWriter::new();
+        w.write_i32(6493);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_i32(0);
+        w.write_u8(0);
+        w.into_bytes()
+    };
+    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&6494).copied().unwrap_or_default().0,
+        Some(6493),
+        "targetable by default"
+    );
+    crate::game_loop::target::set_target(&mut world, 2, 6494, None);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("settargetable")].concat());
+    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&6494).copied().unwrap_or_default().0,
+        None,
+        "untargetable GM can't be selected"
+    );
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("settargetable")].concat());
+    crate::game_loop::target::handle_action(&mut world, 2, &click_gm);
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&6494).copied().unwrap_or_default().0,
+        Some(6493),
+        "toggled back"
+    );
+}
+
+/// `//event_trigger` fans the 0xCF packet out (self included); `//playmovie`
+/// sends the cinematic starter to the GM.
+#[test]
+fn admin_event_trigger_and_playmovie_send_their_packets() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 6495, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("event_trigger 21170110 true")].concat());
+    let got = drain(&mut rx);
+    assert!(
+        got.iter().any(|p| p.first() == Some(&0xCF) && p[1..5] == 21170110i32.to_le_bytes() && p[5] == 1),
+        "OnEventTrigger 0xCF with the id and enabled byte"
+    );
+
+    on_packet(&mut world, 1, [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("playmovie 101")].concat());
+    let got = drain(&mut rx);
+    assert!(
+        got.iter().any(|p| p.first() == Some(&0xFE) && p[1..3] == 0x9Au16.to_le_bytes() && p[3..7] == 101i32.to_le_bytes()),
+        "ExStartScenePlayer with the movie id"
+    );
+}

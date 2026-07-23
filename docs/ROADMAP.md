@@ -42,7 +42,7 @@ out-of-scope list.
 | G16 | Character variables, premium & vitality ✅ | Foundations | `//premium*` `//pccafepoints` `//primepoints` `//set_vitality_level` | — |
 | G17 | Sub-classes, class change & nobless | Progression | `//setnoble` `//setsubclass` (editchar) | G22¹ |
 | G18 | Clans — full ✅ | Progression | `//clan_*` `//pledge` `//add_clan_skill` | G15 |
-| G19 | Skills & effects breadth 🚧 | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
+| G19 | Skills & effects breadth ✅ | Combat | `//ave_abnormal` `//setteam` `//settargetable` `//para` `//playmovie` … (AdminEffects) | — |
 | G20 | Combat breadth ✅ | Combat | — | G14, G19 |
 | G20.5 | Recommendations | Support | — | G16 |
 | G21 | NPC AI & world-content breadth | Combat | `//scan` extras, guard/faction | G20 |

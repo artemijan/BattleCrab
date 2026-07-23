@@ -747,6 +747,13 @@ pub struct AdminFlags {
     /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`;
     /// TODO(G14): honored once the overload calc exists.
     pub diet: bool,
+    /// `//para`'s `setBlockActions(true)` + `startParalyze()` — ORed into
+    /// `abnormal::is_action_blocked`/`is_movement_disabled` beside the buff
+    /// flags. Attachable to NPCs too (Java paralyzes any creature target).
+    pub paralyzed: bool,
+    /// `//settargetable`'s `setTargetable(false)` — `handle_action` refuses to
+    /// select this creature.
+    pub untargetable: bool,
 }
 
 /// Object id of the last NPC this player clicked/talked to (Java

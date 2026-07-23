@@ -148,7 +148,7 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)
     w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8); // weapon enchant
-    w.write_u8(0); // team id
+    w.write_u8(v.p.team); // team aura (`//setteam`)
     w.write_i32(0); // clan crest large id
     w.write_u8(0); // noble
     w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))

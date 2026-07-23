@@ -224,9 +224,13 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i32(p.fame);
     w.write_i32(0); // raidboss points
 
-    // SLOTS — TODO(G6): talisman/brooch slots from inventory.
+    // SLOTS — TODO(G6): talisman/brooch slots from inventory. Byte 3 is the
+    // team aura (`//setteam`); the tail four stay Java's zeros.
     w.write_i16(UserInfoType::Slots.block_length() as i16);
-    for _ in 0..7 {
+    w.write_u8(0); // talisman slots
+    w.write_u8(0); // brooch jewel slots
+    w.write_u8(p.team);
+    for _ in 0..4 {
         w.write_u8(0);
     }
 

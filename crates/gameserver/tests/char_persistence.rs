@@ -388,7 +388,7 @@ async fn shortcuts_and_macros_persist() {
             assert_eq!(c.macros[0].id, 1000, "preset deleted, user macro kept");
             // Untouched child rows survive the reconcile.
             assert_eq!(c.items.len(), 1, "item preserved");
-            assert!(c.skills.iter().any(|&(id, lvl)| id == 1177 && lvl == 1), "skill preserved");
+            assert!(c.skills.iter().any(|&(id, lvl, _)| id == 1177 && lvl == 1), "skill preserved");
             assert_eq!(c.pccafe_points, 4200, "pccafe points persisted");
             assert_eq!(c.raidboss_points, 137, "raid points persisted");
         }

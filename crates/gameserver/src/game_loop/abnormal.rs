@@ -38,7 +38,7 @@ pub(crate) fn flags_of(world: &World, object_id: i32) -> u32 {
 /// Java `Creature.hasBlockActions()` — stunned, asleep or paralyzed. Blocks
 /// attacking, casting **and** moving.
 pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
-    flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
+    admin_paralyzed(world, object_id) || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
 /// Java `EffectList.getCurrentAbnormalVisualEffects()` — every visual effect
@@ -110,6 +110,16 @@ pub(crate) fn is_hp_blocked(world: &World, object_id: i32) -> bool {
 /// Java `Creature.isMovementDisabled()`, effect-driven terms only: a stun
 /// blocks movement, and so does a root (which leaves attacking and casting
 /// alone).
+/// `//para`'s GM paralysis (`AdminFlags.paralyzed`) — a state flag beside the
+/// buff-folded mask, so a GM freeze needs no synthetic buff.
+fn admin_paralyzed(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .is_some_and(|f| f.paralyzed)
+}
+
 pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
-    flags_of(world, object_id) & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED) != 0
+    admin_paralyzed(world, object_id)
+        || flags_of(world, object_id) & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED) != 0
 }
