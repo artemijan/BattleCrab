@@ -538,7 +538,21 @@ pub(crate) fn use_magic_on(
         }
         return;
     };
-    let Some(skill) = world.data.skill_data.get(magic_id, skill_level).cloned() else {
+    // An enchanted skill resolves to its sub-level variant (Java's known
+    // skill IS the enchanted instance); the plain instance backs sub 0 and
+    // any sub the data lacks.
+    let sub_level = world
+        .objects
+        .get_component::<crate::model::components::SkillEnchants>(&object_id)
+        .and_then(|e| e.0.get(&magic_id).copied())
+        .unwrap_or(0);
+    let Some(skill) = world
+        .data
+        .skill_data
+        .get_enchanted(magic_id, skill_level, sub_level)
+        .or_else(|| world.data.skill_data.get(magic_id, skill_level))
+        .cloned()
+    else {
         return;
     };
 
@@ -1076,6 +1090,7 @@ pub(crate) fn start_casting(
         Casting(crate::model::CastState {
             skill_id: skill.id,
             skill_level: skill.level,
+            skill_sub_level: skill.sub_level,
             target_object_id: target_oid,
             seq: cast_seq,
             launched: false,
@@ -1124,7 +1139,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
     let Some(skill) = world
         .data
         .skill_data
-        .get(cast.skill_id, cast.skill_level)
+        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
         .cloned()
     else {
         return;
@@ -1276,7 +1291,7 @@ pub(crate) fn handle_skill_launch(world: &mut World, player_object_id: i32, cast
     let Some(skill) = world
         .data
         .skill_data
-        .get(cast.skill_id, cast.skill_level)
+        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
         .cloned()
     else {
         return;
@@ -1350,7 +1365,7 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     let Some(skill) = world
         .data
         .skill_data
-        .get(cast.skill_id, cast.skill_level)
+        .get_enchanted(cast.skill_id, cast.skill_level, cast.skill_sub_level)
         .cloned()
     else {
         return;

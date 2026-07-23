@@ -343,6 +343,17 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_EX_MAGIC_SKILL_USE_GROUND => {
             super::skills::cast::handle_request_magic_skill_use_ground(world, client_id, ex_body)
         }
+        // Skill enchanting (G19): the enchant window's info/detail queries and
+        // the enchant itself.
+        exop::REQUEST_EX_ENCHANT_SKILL_INFO => {
+            super::skill_enchant::handle_request_enchant_skill_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_ENCHANT_SKILL => {
+            super::skill_enchant::handle_request_enchant_skill(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_ENCHANT_SKILL_INFO_DETAIL => {
+            super::skill_enchant::handle_request_enchant_skill_info_detail(world, client_id, ex_body)
+        }
         exop::REQUEST_DUEL_START => super::duel::handle_request_duel_start(world, client_id, ex_body),
         exop::REQUEST_DUEL_ANSWER_START => super::duel::handle_request_duel_answer(world, client_id, ex_body),
         exop::REQUEST_DUEL_SURRENDER => super::duel::handle_request_duel_surrender(world, client_id),

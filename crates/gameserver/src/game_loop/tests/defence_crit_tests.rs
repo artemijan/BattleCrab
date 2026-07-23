@@ -108,7 +108,7 @@ fn light_armor_mastery_is_armor_conditioned() {
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let mut chr = dummy_char(9702, "Light");
-    chr.skills = vec![(233, 1)];
+    chr.skills = vec![(233, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     assert_eq!(
         bundle.stat_modifiers.mul.get(&Stat::DefenceCriticalRate),

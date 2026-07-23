@@ -364,6 +364,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
         Casting(crate::model::CastState {
             skill_id: skill.id,
             skill_level: skill.level,
+            skill_sub_level: 0,
             target_object_id: target_oid,
             seq,
             launched: false,

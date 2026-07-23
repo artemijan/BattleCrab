@@ -326,7 +326,7 @@ fn vital_force_passive_folds_into_by_move_type() {
     assert_eq!(bare.stat_modifiers.move_type_value(Stat::RegenerateHpRate, MoveType::Running), 0.0);
 
     let mut chr = dummy_char(4202, "Vital");
-    chr.skills = vec![(148, 1)]; // Vital Force
+    chr.skills = vec![(148, 1, 0)]; // Vital Force
     let bundle = Player::from_char(&world.data, &chr);
     assert_eq!(
         bundle.stat_modifiers.move_type_value(Stat::RegenerateHpRate, MoveType::Running),

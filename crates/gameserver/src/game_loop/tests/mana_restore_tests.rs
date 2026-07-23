@@ -317,7 +317,7 @@ fn higher_mana_gain_grants_the_mana_charge_stat() {
     assert_eq!(bare.stat_modifiers.add.get(&Stat::ManaCharge), None, "no skill, no stat");
 
     let mut chr = dummy_char(6102, "Recharger");
-    chr.skills = vec![(285, 1)];
+    chr.skills = vec![(285, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let add = bundle.stat_modifiers.add.get(&Stat::ManaCharge).copied().unwrap_or(0.0);
     assert!((add - 22.0).abs() < 1e-9, "Higher Mana Gain lvl 1 is +22 flat, got {add}");

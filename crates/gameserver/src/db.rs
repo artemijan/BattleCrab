@@ -176,12 +176,12 @@ pub struct PlayerSaveData {
     /// any `items` row for this owner not present here, so this is the whole
     /// authoritative set, covering pickups, drops, stack changes and equips.
     pub items: Vec<ItemRow>,
-    /// Learned skills as `(skill_id, skill_level)` for the **active** class
-    /// index (see [`Self::class_index`]).
-    pub skills: Vec<(i32, i32)>,
+    /// Learned skills as `(skill_id, skill_level, skill_sub_level)` for the
+    /// **active** class index (see [`Self::class_index`]).
+    pub skills: Vec<(i32, i32, i32)>,
     /// The *inactive* class indices' books (G17 subclasses), so a slot keeps
     /// what it learned while it was active.
-    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
     /// Inactive indices' worn hennas.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
@@ -1624,17 +1624,19 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
 /// A character's `character_skills` rows (Java: `Player.restoreSkills`,
 /// called for every row shown in `CharSelectionInfo` — same treatment as
 /// `load_items`).
-async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
-    let rows = sqlx::query("SELECT skill_id, skill_level, class_index FROM character_skills WHERE charId=?")
+async fn load_skills(pool: &SqlitePool, owner_id: i32) -> std::collections::HashMap<i32, Vec<(i32, i32, i32)>> {
+    let rows = sqlx::query("SELECT skill_id, skill_level, skill_sub_level, class_index FROM character_skills WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
         .await
         .unwrap_or_default();
-    let mut out: std::collections::HashMap<i32, Vec<(i32, i32)>> = std::collections::HashMap::new();
+    let mut out: std::collections::HashMap<i32, Vec<(i32, i32, i32)>> = std::collections::HashMap::new();
     for r in &rows {
-        out.entry(geti(r, "class_index") as i32)
-            .or_default()
-            .push((geti(r, "skill_id") as i32, geti(r, "skill_level") as i32));
+        out.entry(geti(r, "class_index") as i32).or_default().push((
+            geti(r, "skill_id") as i32,
+            geti(r, "skill_level") as i32,
+            geti(r, "skill_sub_level") as i32,
+        ));
     }
     out
 }
@@ -2494,19 +2496,20 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
     }
     // The active index's book comes from `skills`; the rest from the banked
     // per-index map.
-    let mut per_index: Vec<(i32, &Vec<(i32, i32)>)> =
+    let mut per_index: Vec<(i32, &Vec<(i32, i32, i32)>)> =
         s.skills_by_index.iter().map(|(i, v)| (*i, v)).collect();
     per_index.push((s.class_index, &s.skills));
     for (class_index, skills) in per_index {
-        for (skill_id, level) in skills {
+        for (skill_id, level, sub_level) in skills {
             sqlx::query(
                 "INSERT OR REPLACE INTO character_skills \
                  (charId, skill_id, skill_level, skill_sub_level, class_index) \
-                 VALUES (?, ?, ?, 0, ?)",
+                 VALUES (?, ?, ?, ?, ?)",
             )
             .bind(char_id)
             .bind(skill_id)
             .bind(level)
+            .bind(sub_level)
             .bind(class_index)
             .execute(&mut *tx)
             .await?;

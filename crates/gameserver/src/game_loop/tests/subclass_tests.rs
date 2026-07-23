@@ -243,7 +243,7 @@ fn the_save_carries_every_slots_book() {
     });
     let save = save.expect("a save went out");
     assert_eq!(save.class_index, 1, "the active index is recorded");
-    assert!(save.skills.iter().any(|(id, _)| *id == 8001), "the active book carries the new skill");
+    assert!(save.skills.iter().any(|(id, _, _)| *id == 8001), "the active book carries the new skill");
     assert!(save.skills_by_index.contains_key(&0), "and the base slot's book is banked alongside");
 }
 

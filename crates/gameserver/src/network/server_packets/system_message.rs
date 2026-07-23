@@ -133,6 +133,16 @@ pub mod sm_ids {
     /// "There are not enough necessary items to use the skill." — the reagent
     /// gate (`SkillCaster.checkUseConditions`, G19).
     pub const THERE_ARE_NOT_ENOUGH_NECESSARY_ITEMS_TO_USE_THE_SKILL: i16 = 2156;
+    // Skill enchanting (G19 slice 2)
+    pub const YOU_DO_NOT_HAVE_ALL_OF_THE_ITEMS_NEEDED_TO_ENCHANT_THAT_SKILL: i16 = 1439;
+    /// "Skill enchant was successful! $s1 has been enchanted."
+    pub const SKILL_ENCHANT_WAS_SUCCESSFUL_S1_HAS_BEEN_ENCHANTED: i16 = 1440;
+    pub const SKILL_ENCHANT_FAILED_THE_SKILL_WILL_BE_INITIALIZED: i16 = 1441;
+    pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_ENCHANT_THAT_SKILL: i16 = 1443;
+    /// "Enchant skill route change was successful. Lv of enchant skill $s1 will remain."
+    pub const ENCHANT_SKILL_ROUTE_CHANGE_WAS_SUCCESSFUL: i16 = 2073;
+    /// "Skill enchant failed. Current level of enchant skill $s1 will remain unchanged."
+    pub const SKILL_ENCHANT_FAILED_CURRENT_LEVEL_WILL_REMAIN_UNCHANGED: i16 = 2074;
     // GM silence / message refusal (G13.B)
     pub const THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE: i16 = 176;
     pub const MESSAGE_REFUSAL_MODE: i16 = 177;

@@ -96,13 +96,14 @@ pub struct CharData {
     pub subclasses: Vec<crate::model::SubClass>,
     pub char_slot: i32,
     pub items: Vec<ItemRow>,
-    /// `character_skills` rows: (skill_id, skill_level).
+    /// `character_skills` rows: (skill_id, skill_level, skill_sub_level) —
+    /// the sub-level is the enchant route step (0 = unenchanted).
     /// Learned skills for the **active** class index (what the login path puts
     /// in the skill book).
-    pub skills: Vec<(i32, i32)>,
+    pub skills: Vec<(i32, i32, i32)>,
     /// Every class index's learned skills, so a subclass switch can restore the
     /// target slot's book instead of re-deriving it.
-    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
     /// Worn hennas per class index (G17) — dyes are per-subclass in Java too.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Shortcut bars per class index (G17).
