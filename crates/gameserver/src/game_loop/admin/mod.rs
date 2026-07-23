@@ -402,9 +402,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_online" => admin_online(world, client_id),
         "admin_targetsay" => admin_targetsay(world, client_id, object_id, &args),
         "admin_msg" => admin_msg(world, client_id, &args),
-        "admin_announce_crit" | "admin_announce_screen" | "admin_announces" => {
-            admin_announce_variant(world, client_id, &args)
-        }
+        "admin_announce_screen" => admin_announce_variant(world, client_id, &args, true),
+        "admin_announce_crit" | "admin_announces" => admin_announce_variant(world, client_id, &args, false),
         "admin_html" | "admin_loadhtml" => admin_html(world, client_id, &args),
         "admin_showdoors" => admin_showdoors(world, client_id, object_id),
         "admin_debug" => admin_debug(world, client_id, object_id),

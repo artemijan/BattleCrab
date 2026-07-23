@@ -113,14 +113,21 @@ pub(super) fn admin_msg(world: &mut World, client_id: u32, args: &[&str]) {
 }
 
 /// `AdminAnnouncements`'s `//announce_crit` / `//announce_screen <message>` —
-/// broadcast to all players. The critical/screen variants fall back to the same
-/// system-message text line as `//announce` (no ExShowScreenMessage packet yet).
-pub(super) fn admin_announce_variant(world: &mut World, client_id: u32, args: &[&str]) {
+/// broadcast to all players. `//announce_screen` puts the text on everyone's
+/// screen as an `ExShowScreenMessage` (top-centre, 10 s); `//announce_crit` /
+/// `//announces` fall back to the ordinary system-message text line.
+pub(super) fn admin_announce_variant(world: &mut World, client_id: u32, args: &[&str], screen: bool) {
     if args.is_empty() {
         send_message(world, client_id, "Usage: //announce_screen <message>");
         return;
     }
-    broadcast_text(world, &args.join(" "));
+    let text = args.join(" ");
+    if screen {
+        // `ExShowScreenMessage(text, TOP_CENTER, 10000)`.
+        broadcast_packet(world, server_packets::ex_show_screen_message(&text, 2, 10_000));
+    } else {
+        broadcast_text(world, &text);
+    }
 }
 
 /// `AdminHtml`'s `//html <path>` / `//loadhtml <path>` — serve an admin HTML
@@ -243,10 +250,15 @@ fn recall_all(world: &mut World, gm_oid: i32, members: &[i32]) {
 
 /// Broadcast a plain text line to every online player as a `$s1` system message.
 fn broadcast_text(world: &World, text: &str) {
-    let packet = server_packets::system_message_with(
+    broadcast_packet(world, server_packets::system_message_with(
         sm_ids::S1_TEXT,
         &[server_packets::SmParam::Text(text.to_string())],
-    );
+    ));
+}
+
+/// Send one prebuilt packet to every online player (Java
+/// `Broadcast.toAllOnlinePlayers`).
+fn broadcast_packet(world: &World, packet: Vec<u8>) {
     for cs in world.clients.values() {
         if matches!(cs, ClientSession::InGame(_)) {
             cs.send(packet.clone());

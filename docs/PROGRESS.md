@@ -1269,7 +1269,12 @@ command bodies (G13.B) are next.
     directional `//go*`, `//walk`/`//sendhome`/`//teleport_character`/
     `//recall_npc`, teleport HTML menus, `//gmspeed`/`//superhaste`/`//speed`.
   - **B5 GM utility & comms** (`gm_util`/`moderation`/`menu`): `//serverinfo`,
-    `//gmchat`/`//announce`/`//announce_crit`/`//announce_screen`/`//worldchat`,
+    `//gmchat`/`//announce`/`//announce_crit`/`//announce_screen`/`//worldchat`
+    (`//announce_screen` now sends a real **`ExShowScreenMessage`** top-centre
+    banner — new reusable packet `server_packets::ex_show_screen_message`, text
+    variant, `MULTILANG` branch skipped; the NpcString/parameterised variants
+    and its boss/quest consumers (Antharas taunt, Q261 newbie reward) are a
+    later add),
     `//target`/`//changelvl`/`//gm`/`//gmliston`/`//gmlistoff`/`//diet`/
     `//online`/`//targetsay`/`//msg`/`//kick`/`//kick_non_gm`/
     `//character_disconnect`, `//html`/`//loadhtml`/`//showdoors`/`//debug`/
