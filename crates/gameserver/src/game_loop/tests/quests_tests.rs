@@ -4752,3 +4752,121 @@ fn quest_q00259_refused_above_level_21() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
 }
+
+/// Q00293 The Hidden Veins — the full Dwarf loop: kill for ores + rare map
+/// fragments, craft 4 fragments into a Hidden Ore Map at Chichirin, hand the
+/// lot to Filaur for adena (ore 5a, map 150a).
+#[test]
+fn quest_q00293_hidden_veins_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1488, "Chrysolite Ore", true), (1489, "Torn Map Fragment", true), (1490, "Hidden Ore Map", true)]);
+    for id in [20446, 20447, 20448] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 10;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let (filaur, chichirin) = (NPC_OID, NPC_OID + 1);
+    add_test_npc(&mut world, filaur, 30535, "Folk", 5, 100, 0, 0);
+    add_test_npc(&mut world, chichirin, 30539, "Folk", 5, 120, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 10;
+        p.race = 4; // Dwarf
+    }
+    drain_db(&mut db_rx);
+
+    let q = "Q00293_TheHiddenVeins";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q} 30535-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    // One getRandom(100) per kill: 4 fragments (roll 2 < 5), 3 ores (roll 60 > 50).
+    let mob = NPC_OID + 2;
+    for i in 0..4 {
+        add_test_npc(&mut world, mob + i, 20446, "Monster", 10, 30, 0, 0);
+        world.forced_rolls.push_back(2);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    for i in 4..7 {
+        add_test_npc(&mut world, mob + i, 20447, "Monster", 10, 30, 0, 0);
+        world.forced_rolls.push_back(60);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1489), 4, "four map fragments");
+    assert_eq!(item_count(&world, 3001, 1488), 3, "three ores");
+
+    // Craft the fragments into a Hidden Ore Map at Chichirin.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{chichirin}_Quest {q} 30539-03.html")));
+    assert_eq!(item_count(&world, 3001, 1490), 1, "one Hidden Ore Map crafted");
+    assert_eq!(item_count(&world, 3001, 1489), 0, "four fragments consumed");
+
+    // Hand in at Filaur: 3 ores * 5 + 1 map * 150 = 165 adena (4 items < 10, no bonus).
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 165, "ore 5a + map 150a");
+    assert_eq!(item_count(&world, 3001, 1488) + item_count(&world, 3001, 1490), 0, "ores + maps handed in");
+}
+
+/// The Dwarf-only race gate: a non-Dwarf sees a different Filaur page than a
+/// Dwarf in the CREATED state (`30535-01.htm` vs `30535-03.htm`).
+#[test]
+fn quest_q00293_race_gate() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1488, "Chrysolite Ore", true)]);
+    add_test_npc(&mut world, NPC_OID, 30535, "Folk", 5, 100, 0, 0);
+    let mut dwarf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    {
+        let d = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        d.level = 10;
+        d.race = 4; // Dwarf
+    }
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 10; // Human (race 0)
+    drain(&mut dwarf_rx);
+    drain(&mut human_rx);
+
+    fn quest_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                (p[0] == server_packets::opcodes::EX
+                    && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                    .then(|| {
+                        let mut r = commons::network::PacketReader::new(&p[3..]);
+                        r.read_i32();
+                        r.read_string().unwrap_or_default()
+                    })
+            })
+            .unwrap_or_default()
+    }
+
+    let q = "Q00293_TheHiddenVeins";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    let dwarf_page = quest_html(&mut dwarf_rx);
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    let human_page = quest_html(&mut human_rx);
+
+    assert!(!dwarf_page.is_empty() && !human_page.is_empty(), "both got a page");
+    assert_ne!(dwarf_page, human_page, "the Dwarf and non-Dwarf see different Filaur pages");
+}
+
+/// Q00293 refuses a starter above level 15 (`addCondMaxLevel(15)`).
+#[test]
+fn quest_q00293_refused_above_level_15() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1488, "Chrysolite Ore", true)]);
+    add_test_npc(&mut world, NPC_OID, 30535, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 16;
+        p.race = 4;
+    }
+    let q = "Q00293_TheHiddenVeins";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30535-04.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
+}
