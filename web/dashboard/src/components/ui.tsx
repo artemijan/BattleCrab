@@ -149,7 +149,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           "transition-[border-color,box-shadow] duration-200",
           error
             ? "border-red-400/70 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.22)]"
-            : "border-(--field-border) focus:border-brand-400 focus:shadow-[0_0_0_3px_var(--surface-ring)]",
+            : "border-(--field-border) focus:shadow-[0_0_0_3px_var(--surface-ring)]",
           className,
         )}
         {...rest}
