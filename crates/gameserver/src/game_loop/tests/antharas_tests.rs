@@ -572,3 +572,194 @@ fn a_second_hit_mid_cast_starts_nothing() {
     let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
     assert_eq!(casts, 0, "still casting the first");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 20: the entry flow wired — Heart of Warding → WAITING → SPAWN.
+// ---------------------------------------------------------------------------
+
+const DIST_GAME: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+/// The full arc: an admitted player is teleported in, WAITING is set, and the
+/// clock is NOT restarted by a second entrant — the boss takes the platform
+/// exactly one window after the FIRST entry, crossing regions, flipping
+/// IN_FIGHT, sounding the lair and arming the camera chain.
+#[test]
+fn the_heart_admits_waits_and_spawns_antharas() {
+    let (mut world, _db, _l) = gate_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST_GAME);
+    let mut rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    let mut rx2 = ingame_caster(&mut world, 2, MEMBER, 10, 0);
+    give_stone(&mut world, LEADER);
+    give_stone(&mut world, MEMBER);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    while rx.try_recv().is_ok() {}
+    while rx2.try_recv().is_ok() {}
+
+    assert_eq!(crate::game_loop::antharas::heart_enter(&mut world, LEADER), None, "admitted");
+    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    assert!(
+        (179700..=180400).contains(&pos.x) && (113800..=115900).contains(&pos.y) && (pos.z - -7709).abs() < 100,
+        "teleported into the nest: {pos:?}"
+    );
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "WAITING");
+
+    // Half the 20-minute window passes; a second player enters. The clock
+    // must NOT restart.
+    advance_ticks(&mut world, 10 * 60 * 10);
+    assert_eq!(crate::game_loop::antharas::heart_enter(&mut world, MEMBER), None, "second entrant admitted");
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "still WAITING");
+
+    // The remaining half elapses → SPAWN_ANTHARAS fires off the FIRST clock.
+    advance_ticks(&mut world, 10 * 60 * 10 + 5);
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(2), "IN_FIGHT");
+    let boss_pos = world.objects.get_component::<Position>(&ANTHARAS_OID).copied().unwrap();
+    assert_eq!((boss_pos.x, boss_pos.y, boss_pos.z), (181323, 114850, -7623), "on the platform");
+    // The region index followed the cross-region teleport.
+    let new_region = crate::world::region_of(181323, 114850);
+    assert!(
+        world.npc_regions.get(&new_region).is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
+        "region index moved with him"
+    );
+    let old_region = crate::world::region_of(0, 0);
+    assert!(
+        !world.npc_regions.get(&old_region).is_some_and(|ids| ids.contains(&ANTHARAS_OID)),
+        "and left the old cell"
+    );
+    // The lair heard BS02_A — the entrants stand inside the lair zone, and
+    // PlaySound carries the name as UTF-16.
+    let mut heard = Vec::new();
+    while let Ok(p) = rx.try_recv() {
+        heard.push(p);
+    }
+    let sound: Vec<u8> = "BS02_A".encode_utf16().flat_map(|u| u.to_le_bytes()).collect();
+    assert!(
+        heard
+            .iter()
+            .any(|p| p.first() == Some(&0x9E) && p.windows(sound.len()).any(|w| w == sound)),
+        "the lair player heard BS02_A"
+    );
+}
+
+/// The refusal htmls: a dead Antharas answers 13001-01, a stoneless visitor
+/// 13001-03 — the ladder's verdicts drive the window the player reads.
+#[test]
+fn the_heart_serves_the_refusal_htmls() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+
+    assert_eq!(
+        crate::game_loop::antharas::heart_enter(&mut world, LEADER),
+        Some("13001-03.html"),
+        "no stone"
+    );
+    world.grand_bosses.get_mut(&ANTHARAS).unwrap().status = 3;
+    assert_eq!(
+        crate::game_loop::antharas::heart_enter(&mut world, LEADER),
+        Some("13001-01.html"),
+        "dead boss wins over the missing stone"
+    );
+}
+
+/// The Teleportation Cubic sends a player to the Giran side.
+#[test]
+fn the_cubic_teleports_out() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+
+    crate::game_loop::antharas::teleport_out(&mut world, LEADER);
+    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    assert!(
+        (79800..=80400).contains(&pos.x) && (151200..=152300).contains(&pos.y) && (pos.z - -3534).abs() < 100,
+        "out to Giran: {pos:?}"
+    );
+}
+
+/// The status-model fix: a killed Antharas stores DEAD as **3** (not the
+/// two-state 1, which the four-state ladder reads as WAITING), entry refuses
+/// it as BossDead, and the boot branch still recognises 3 as dead — an
+/// elapsed window respawns him.
+#[test]
+fn a_dead_antharas_stores_three_and_still_respawns() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    give_stone(&mut world, LEADER);
+
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ANTHARAS);
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(3), "four-state DEAD");
+    assert_eq!(
+        crate::game_loop::antharas::try_enter(&mut world, LEADER),
+        EntryVerdict::BossDead,
+        "a dead boss refuses entry even with the stone"
+    );
+
+    // The window elapsed while the server was down: boot must respawn him.
+    world.grand_bosses.get_mut(&ANTHARAS).unwrap().respawn_time = 1;
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(0), "back to DORMANT");
+
+    // The simple bosses keep the two-state pair.
+    world.grand_bosses.insert(
+        crate::game_loop::core_boss::CORE,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: crate::game_loop::core_boss::CORE,
+            loc_x: 0,
+            loc_y: 0,
+            loc_z: 0,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: 0,
+        },
+    );
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, crate::game_loop::core_boss::CORE);
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, crate::game_loop::core_boss::CORE),
+        Some(1),
+        "Core's DEAD stays 1"
+    );
+}
+
+/// The wiring itself — the whole point of this slice: the dist html's
+/// `Quest Antharas enter` bypass reaches `heart_enter` through the real
+/// bypass router and registered script, not through a direct call. (Slices
+/// 12 and 18 both shipped complete, tested, *uncalled* functions; this test
+/// is what would have caught them.)
+#[test]
+fn the_enter_bypass_reaches_the_ladder_through_the_router() {
+    let (mut world, _db, _l) = gate_world();
+    let _rx = ingame_caster(&mut world, 1, LEADER, 0, 0);
+    give_stone(&mut world, LEADER);
+    let heart_oid = NPC_OID + 130;
+    world.data.npc_data.insert_for_test({
+        let mut t = crate::data::npc_data::default_template(13001);
+        t.type_name = "Folk".into();
+        t
+    });
+    add_test_npc(&mut world, heart_oid, 13001, "Folk", 80, 20, 0, 0);
+    world.objects.add_components(&LEADER, crate::model::components::LastFolkNpc(heart_oid));
+
+    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas enter"));
+
+    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    assert!(
+        (179700..=180400).contains(&pos.x),
+        "the bypass admitted and teleported through the real router: {pos:?}"
+    );
+    assert_eq!(crate::game_loop::grand_boss::status(&world, ANTHARAS), Some(1), "WAITING set");
+
+    // And the cubic's bypass sends them back out — the cubic stands inside
+    // the nest beside the teleported player (the Heart is 180k units away
+    // now, and the bypass distance guard would rightly refuse it).
+    let cube_oid = NPC_OID + 131;
+    world.data.npc_data.insert_for_test({
+        let mut t = crate::data::npc_data::default_template(31859);
+        t.type_name = "Folk".into();
+        t
+    });
+    add_test_npc(&mut world, cube_oid, 31859, "Folk", 80, pos.x + 20, pos.y, pos.z);
+    world.objects.add_components(&LEADER, crate::model::components::LastFolkNpc(cube_oid));
+    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest Antharas teleportOut"));
+    let pos = world.objects.get_component::<Position>(&LEADER).copied().unwrap();
+    assert!((79800..=80400).contains(&pos.x), "teleportOut through the router: {pos:?}");
+}

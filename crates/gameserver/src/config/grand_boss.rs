@@ -21,6 +21,9 @@ pub struct RespawnWindow {
 #[derive(Debug, Clone)]
 pub struct GrandBossConfig {
     pub antharas: RespawnWindow,
+    /// `AntharasWaitTime` — minutes between the first group entering the lair
+    /// (WAITING) and Antharas teleporting in (`SPAWN_ANTHARAS`).
+    pub antharas_wait_minutes: i32,
     pub valakas: RespawnWindow,
     pub baium: RespawnWindow,
     pub core: RespawnWindow,
@@ -35,6 +38,7 @@ impl Default for GrandBossConfig {
         // reading the file.
         Self {
             antharas: RespawnWindow { interval_hours: 264, random_hours: 72 },
+            antharas_wait_minutes: 20,
             valakas: RespawnWindow { interval_hours: 264, random_hours: 72 },
             baium: RespawnWindow { interval_hours: 121, random_hours: 0 },
             core: RespawnWindow { interval_hours: 60, random_hours: 24 },
@@ -59,6 +63,7 @@ impl GrandBossConfig {
         };
         Self {
             antharas: w("Antharas", d.antharas),
+            antharas_wait_minutes: p.get_int("AntharasWaitTime", d.antharas_wait_minutes),
             valakas: w("Valakas", d.valakas),
             baium: w("Baium", d.baium),
             core: w("Core", d.core),

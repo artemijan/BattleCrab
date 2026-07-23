@@ -226,6 +226,34 @@ pub(crate) fn handle_npc_respawn(world: &mut World, spawn_idx: usize, group_idx:
 /// Broadcast a freshly spawned NPC's `NpcInfo` to nearby players (Java
 /// `Spawn.respawnNpc` → `npc.spawnMe()` visibility). Shared by respawn and the
 /// admin `//spawn` path.
+/// Move a live NPC to a new point, possibly across regions — Java
+/// `Npc.teleToLocation`. Orfen's in-place `Position` mutation is safe only
+/// within one region; this also re-indexes `npc_regions` and re-announces
+/// (`DeleteObject` near the old region, `NpcInfo` near the new one), so a
+/// cross-region teleport (Antharas entering his lair) neither ghosts nor
+/// duplicates the NPC.
+pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32, heading: i32) {
+    let Some(old_region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else { return };
+    let new_region = crate::world::region_of(x, y);
+    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&npc_oid) {
+        p.x = x;
+        p.y = y;
+        p.z = z;
+        p.heading = heading;
+    }
+    if old_region != new_region {
+        if let Some(ids) = world.npc_regions.get_mut(&old_region) {
+            ids.retain(|&id| id != npc_oid);
+        }
+        world.npc_regions.entry(new_region).or_default().push(npc_oid);
+        if let Some(r) = world.objects.get_component_mut::<RegionCell>(&npc_oid) {
+            r.0 = new_region;
+        }
+        broadcast_near_region(world, old_region, &server_packets::delete_object(npc_oid));
+    }
+    introduce_npc(world, npc_oid);
+}
+
 pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(v) = crate::model::npc::NpcView::of(&world.objects, object_id) else { return };
     let Some(region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };

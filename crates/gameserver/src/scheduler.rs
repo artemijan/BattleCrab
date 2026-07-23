@@ -28,6 +28,9 @@ pub enum ScheduledTask {
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// One of Antharas's five-minute minion waves.
     AntharasMinionWave { antharas_oid: i32 },
+    /// `SPAWN_ANTHARAS` — the Heart of Warding's wait window elapsed; the
+    /// boss takes the platform and the fight starts (G23 slice 20).
+    AntharasSpawn,
     /// One beat of Antharas's entry cinematic.
     AntharasCinematic { antharas_oid: i32, step: u8 },
     /// The second social action `CAMERA_3` forks.

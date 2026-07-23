@@ -10,6 +10,19 @@ pub const ANTHARAS: i32 = 29068;
 const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
+/// The four-state ladder (Java `GrandBossManager` statuses for Antharas).
+pub const DORMANT: i32 = 0;
+pub const WAITING: i32 = 1;
+pub const IN_FIGHT: i32 = 2;
+pub const DEAD: i32 = 3;
+
+/// Where an admitted player lands: `(179700+rnd(700), 113800+rnd(2100), -7709)`.
+const ENTRY_POINT: (i32, i32, i32) = (179700, 113800, -7709);
+/// `SPAWN_ANTHARAS`: the boss teleports to the fight platform.
+const FIGHT_POINT: (i32, i32, i32, i32) = (181323, 114850, -7623, 32542);
+/// `teleportOut`: `(79800+rnd(600), 151200+rnd(1100), -3534)` — Giran side.
+const EXIT_POINT: (i32, i32, i32) = (79800, 151200, -3534);
+
 const TICKS_PER_SECOND: u64 = 10;
 /// `startQuestTimer("SPAWN_MINION", 300000, …)` — a wave every five minutes.
 const WAVE_INTERVAL_SECS: u64 = 300;
@@ -555,3 +568,84 @@ pub(crate) fn on_antharas_damage(world: &mut World, antharas_oid: i32, attacker_
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, antharas_oid);
 }
+
+// ---------------------------------------------------------------------------
+// The entry flow (Java `onEvent("enter")` / `SPAWN_ANTHARAS` /
+// `teleportOut`), reached through `scripts::antharas_heart`.
+// ---------------------------------------------------------------------------
+
+fn set_status(world: &mut World, status: i32) {
+    if let Some(b) = world.grand_bosses.get_mut(&ANTHARAS) {
+        b.status = status;
+    }
+    crate::game_loop::grand_boss::persist(world, ANTHARAS);
+}
+
+/// The live Antharas NPC, if one stands in the world.
+pub(crate) fn find_antharas(world: &World) -> Option<i32> {
+    world.npc_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(oid)
+            .is_some_and(|n| n.npc_id == ANTHARAS)
+    })
+}
+
+/// The Heart of Warding's `enter` bypass: run the ladder, teleport the
+/// admitted group in, and arm the `SPAWN_ANTHARAS` window on the first entry.
+/// Returns the refusal html name, `None` when admitted (the teleport is the
+/// reply, like Java's null htmltext).
+pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static str> {
+    match try_enter(world, player_oid) {
+        EntryVerdict::BossDead => Some("13001-01.html"),
+        EntryVerdict::AlreadyFighting => Some("13001-02.html"),
+        EntryVerdict::NoStone => Some("13001-03.html"),
+        EntryVerdict::LairFull => Some("13001-04.html"),
+        EntryVerdict::NotLeader => Some("13001-05.html"),
+        EntryVerdict::Admitted(members) => {
+            for member in members {
+                let (dx, dy) = (world.roll(700), world.roll(2100));
+                crate::game_loop::death::teleport_player(
+                    world,
+                    member,
+                    ENTRY_POINT.0 + dx,
+                    ENTRY_POINT.1 + dy,
+                    ENTRY_POINT.2,
+                );
+            }
+            // Only the FIRST admission arms the clock — a later party entering
+            // during the window must not restart it (Java's
+            // `if (getStatus() != WAITING)`).
+            if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(WAITING) {
+                set_status(world, WAITING);
+                let wait_secs = world.cfg.grand_boss.antharas_wait_minutes.max(1) as u64 * 60;
+                world
+                    .scheduler
+                    .schedule(world.tick + wait_secs * TICKS_PER_SECOND, ScheduledTask::AntharasSpawn);
+            }
+            None
+        }
+    }
+}
+
+/// `SPAWN_ANTHARAS`: the window elapsed — Antharas takes the platform, the
+/// fight starts, the lair hears `BS02_A`, and the camera chain begins (its
+/// tail starts the minion waves).
+pub(crate) fn handle_spawn_timer(world: &mut World) {
+    let Some(oid) = find_antharas(world) else { return };
+    // A GM could have killed him during the window; a dead boss stays down.
+    if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(WAITING) {
+        return;
+    }
+    crate::game_loop::death::relocate_npc(world, oid, FIGHT_POINT.0, FIGHT_POINT.1, FIGHT_POINT.2, FIGHT_POINT.3);
+    set_status(world, IN_FIGHT);
+    broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS02_A"));
+    begin_cinematic(world, oid);
+}
+
+/// The Teleportation Cubic's `teleportOut`.
+pub(crate) fn teleport_out(world: &mut World, player_oid: i32) {
+    let (dx, dy) = (world.roll(600), world.roll(1100));
+    crate::game_loop::death::teleport_player(world, player_oid, EXIT_POINT.0 + dx, EXIT_POINT.1 + dy, EXIT_POINT.2);
+}
+
