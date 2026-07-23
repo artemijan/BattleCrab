@@ -94,8 +94,12 @@ impl QuestScript for Q00306CrystalOfFireAndIce {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "30004-03.htm" } else { "30004-02.htm" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30004-03.htm"
+                } else {
+                    "30004-02.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

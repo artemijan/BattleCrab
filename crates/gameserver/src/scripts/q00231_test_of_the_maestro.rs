@@ -82,10 +82,18 @@ impl QuestScript for Q00231TestOfTheMaestro {
         &[LOCKIRIN]
     }
     fn talk_npcs(&self) -> &[i32] {
-        &[LOCKIRIN, 30532, BALANKI, 30534, FILAUR, ARIN, TOMA, CROTO, DUBABAH, LORAIN]
+        &[
+            LOCKIRIN, 30532, BALANKI, 30534, FILAUR, ARIN, TOMA, CROTO, DUBABAH, LORAIN,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
-        &[KING_BUGBEAR, GIANT_MIST_LEECH, STINGER_WASP, MARSH_SPIDER, EVIL_EYE_LORD]
+        &[
+            KING_BUGBEAR,
+            GIANT_MIST_LEECH,
+            STINGER_WASP,
+            MARSH_SPIDER,
+            EVIL_EYE_LORD,
+        ]
     }
     fn quest_items(&self) -> &[i32] {
         &[
@@ -224,8 +232,12 @@ impl QuestScript for Q00231TestOfTheMaestro {
             if ctx.npc_id == LOCKIRIN {
                 if ctx.player_class_id() == ARTISAN {
                     return Some(
-                        if ctx.player_level() >= MIN_LEVEL { "30531-03.htm" } else { "30531-01.html" }
-                            .to_string(),
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30531-03.htm"
+                        } else {
+                            "30531-01.html"
+                        }
+                        .to_string(),
                     );
                 }
                 return Some("30531-02.html".to_string());
@@ -262,7 +274,9 @@ impl QuestScript for Q00231TestOfTheMaestro {
                         ctx.give_items(REC_BALANKI, 1);
                         ctx.take_items(LETTER, 1);
                         ctx.set_memo_state(1);
-                        if ctx.quest_items_count(REC_ARIN) > 0 && ctx.quest_items_count(REC_FILAUR) > 0 {
+                        if ctx.quest_items_count(REC_ARIN) > 0
+                            && ctx.quest_items_count(REC_FILAUR) > 0
+                        {
                             ctx.set_cond(2, true);
                         }
                         Some("30533-04.html".to_string())
@@ -280,13 +294,19 @@ impl QuestScript for Q00231TestOfTheMaestro {
                     ctx.set_memo_state(4);
                     Some("30535-01.html".to_string())
                 } else if memo == 4 {
-                    if ctx.quest_items_count(ARCHITECTURE) > 0 && ctx.quest_items_count(REPORT_CRUMA) == 0 {
+                    if ctx.quest_items_count(ARCHITECTURE) > 0
+                        && ctx.quest_items_count(REPORT_CRUMA) == 0
+                    {
                         Some("30535-02.html".to_string())
-                    } else if ctx.quest_items_count(REPORT_CRUMA) > 0 && ctx.quest_items_count(ARCHITECTURE) == 0 {
+                    } else if ctx.quest_items_count(REPORT_CRUMA) > 0
+                        && ctx.quest_items_count(ARCHITECTURE) == 0
+                    {
                         ctx.give_items(REC_FILAUR, 1);
                         ctx.take_items(REPORT_CRUMA, 1);
                         ctx.set_memo_state(1);
-                        if ctx.quest_items_count(REC_BALANKI) > 0 && ctx.quest_items_count(REC_ARIN) > 0 {
+                        if ctx.quest_items_count(REC_BALANKI) > 0
+                            && ctx.quest_items_count(REC_ARIN) > 0
+                        {
                             ctx.set_cond(2, true);
                         }
                         Some("30535-03.html".to_string())
@@ -305,13 +325,17 @@ impl QuestScript for Q00231TestOfTheMaestro {
                     ctx.set_memo_state(3);
                     Some("30536-01.html".to_string())
                 } else if memo == 3 {
-                    if ctx.quest_items_count(PAINT_TELEPORT) > 0 && ctx.quest_items_count(TELEPORT_DEVICE) == 0 {
+                    if ctx.quest_items_count(PAINT_TELEPORT) > 0
+                        && ctx.quest_items_count(TELEPORT_DEVICE) == 0
+                    {
                         Some("30536-02.html".to_string())
                     } else if ctx.quest_items_count(TELEPORT_DEVICE) >= 5 {
                         ctx.give_items(REC_ARIN, 1);
                         ctx.take_items(TELEPORT_DEVICE, -1);
                         ctx.set_memo_state(1);
-                        if ctx.quest_items_count(REC_BALANKI) > 0 && ctx.quest_items_count(REC_FILAUR) > 0 {
+                        if ctx.quest_items_count(REC_BALANKI) > 0
+                            && ctx.quest_items_count(REC_FILAUR) > 0
+                        {
                             ctx.set_cond(2, true);
                         }
                         Some("30536-03.html".to_string())
@@ -347,7 +371,9 @@ impl QuestScript for Q00231TestOfTheMaestro {
                     && ctx.quest_items_count(LETTER) == 0
                 {
                     Some("30671-01.html".to_string())
-                } else if ctx.quest_items_count(PAINT_KAMURU) > 0 && ctx.quest_items_count(NECKLACE_KAMUTU) == 0 {
+                } else if ctx.quest_items_count(PAINT_KAMURU) > 0
+                    && ctx.quest_items_count(NECKLACE_KAMUTU) == 0
+                {
                     Some("30671-03.html".to_string())
                 } else if ctx.quest_items_count(NECKLACE_KAMUTU) > 0 {
                     ctx.give_items(LETTER, 1);
@@ -377,7 +403,9 @@ impl QuestScript for Q00231TestOfTheMaestro {
                         ctx.take_items(ARCHITECTURE, 1);
                         return Some("30673-01.html".to_string());
                     }
-                    if ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0 && ctx.quest_items_count(REPORT_CRUMA) == 0 {
+                    if ctx.quest_items_count(INGREDIENTS_ANTIDOTE) > 0
+                        && ctx.quest_items_count(REPORT_CRUMA) == 0
+                    {
                         return Some(
                             if ctx.quest_items_count(WASP_NEEDLE) >= 10
                                 && ctx.quest_items_count(SPIDER_WEB) >= 10

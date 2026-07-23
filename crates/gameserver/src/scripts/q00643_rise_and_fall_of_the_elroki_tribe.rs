@@ -3,8 +3,8 @@
 //! Isle dinosaurs (per-mob rate-in-threshold drops, 1–2 each): sell them at 1374
 //! adena apiece, or exchange 300 at Karakawei (32117) for 5 of a random B-grade
 //! weapon piece. Repeatable.
-use std::sync::OnceLock;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::OnceLock;
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -18,8 +18,9 @@ const CHANCE_MOBS2: i32 = 360;
 const CHANCE_DEINO: i32 = 558;
 const DEINONYCHUS: i32 = 22203;
 /// The weapon pieces the exchange awards (5 of a random one).
-const PIECE: [i32; 11] =
-    [8712, 8713, 8714, 8715, 8716, 8717, 8718, 8719, 8720, 8721, 8722];
+const PIECE: [i32; 11] = [
+    8712, 8713, 8714, 8715, 8716, 8717, 8718, 8719, 8720, 8721, 8722,
+];
 const MOBS2: [i32; 4] = [22742, 22743, 22744, 22745];
 
 fn mobs1() -> &'static [i32] {
@@ -49,7 +50,15 @@ pub struct Q00643RiseAndFallOfTheElrokiTribe {
 
 impl Q00643RiseAndFallOfTheElrokiTribe {
     pub fn new() -> Self {
-        Self { first_talk: AtomicBool::new(true) }
+        Self {
+            first_talk: AtomicBool::new(true),
+        }
+    }
+}
+
+impl Default for Q00643RiseAndFallOfTheElrokiTribe {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -134,7 +143,11 @@ impl QuestScript for Q00643RiseAndFallOfTheElrokiTribe {
         let npc = ctx.npc_id;
         if mobs1().contains(&npc) {
             // Always pays; the roll only decides 2 vs 1.
-            let count = if (ctx.roll(1000) as f64) < (CHANCE_MOBS1 as f64 * rate) { 2 } else { 1 };
+            let count = if (ctx.roll(1000) as f64) < (CHANCE_MOBS1 as f64 * rate) {
+                2
+            } else {
+                1
+            };
             ctx.reward_items(BONES, count);
             ctx.play_sound(quest_sounds::ITEMGET);
         } else if MOBS2.contains(&npc) {
@@ -152,15 +165,23 @@ impl QuestScript for Q00643RiseAndFallOfTheElrokiTribe {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "32106-01.htm" } else { "32106-06.html" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "32106-01.htm"
+                } else {
+                    "32106-06.html"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {
             if ctx.npc_id == SINGSING {
                 return Some(
-                    if ctx.quest_items_count(BONES) > 0 { "32106-08.html" } else { "32106-14.html" }
-                        .to_string(),
+                    if ctx.quest_items_count(BONES) > 0 {
+                        "32106-08.html"
+                    } else {
+                        "32106-14.html"
+                    }
+                    .to_string(),
                 );
             }
             if ctx.npc_id == KARAKAWEI {

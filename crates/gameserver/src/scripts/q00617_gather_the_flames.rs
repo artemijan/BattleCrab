@@ -143,20 +143,32 @@ impl QuestScript for Q00617GatherTheFlames {
             VULCAN => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() >= 74 { "31539-01.htm" } else { "31539-02.htm" }
-                            .to_string(),
+                        if ctx.player_level() >= 74 {
+                            "31539-01.htm"
+                        } else {
+                            "31539-02.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 Some(
-                    if ctx.quest_items_count(TORCH) >= 1000 { "31539-04.html" } else { "31539-05.html" }
-                        .to_string(),
+                    if ctx.quest_items_count(TORCH) >= 1000 {
+                        "31539-04.html"
+                    } else {
+                        "31539-05.html"
+                    }
+                    .to_string(),
                 )
             }
             HILDA => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() >= 74 { "31271-01.htm" } else { "31271-02.htm" }
-                            .to_string(),
+                        if ctx.player_level() >= 74 {
+                            "31271-01.htm"
+                        } else {
+                            "31271-02.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 Some("31271-04.html".to_string())

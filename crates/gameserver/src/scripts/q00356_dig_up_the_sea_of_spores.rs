@@ -115,8 +115,12 @@ impl QuestScript for Q00356DigUpTheSeaOfSpores {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "30717-01.htm" } else { "30717-06.htm" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30717-01.htm"
+                } else {
+                    "30717-06.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

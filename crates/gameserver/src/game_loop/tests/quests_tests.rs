@@ -9364,7 +9364,11 @@ fn quest_q00292_brigands_sweep() {
         p.race = 4; // Dwarf
     }
     let q = "Q00292_BrigandsSweep";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9380,7 +9384,11 @@ fn quest_q00292_brigands_sweep() {
         world.forced_rolls.push_back(0); // give_item_randomly(MEMO) roll_f64 → hit
         death::npc_do_die(&mut world, mob + i, 3001);
     }
-    assert_eq!(item_count(&world, 3001, 1487), 1, "3 memos assemble a contract");
+    assert_eq!(
+        item_count(&world, 3001, 1487),
+        1,
+        "3 memos assemble a contract"
+    );
     assert_eq!(item_count(&world, 3001, 1486), 0, "memos consumed");
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "contract → cond 2");
     // Balanki pays 620 for the contract.
@@ -9395,8 +9403,16 @@ fn quest_q00292_brigands_sweep() {
     // Goblin-token turn-in at Spiron: 10 necklaces → 10*6 + 1000 bonus.
     inject(&mut world, 3001, 0x1483_0000, 1483, 10);
     let b = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), b + 1060, "10 necklaces → 60 + 1000 bonus");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        b + 1060,
+        "10 necklaces → 60 + 1000 bonus"
+    );
     assert_eq!(item_count(&world, 3001, 1483), 0, "necklaces consumed");
 }
 
@@ -9426,7 +9442,11 @@ fn quest_q00276_totem_of_the_hestui() {
         p.race = 3; // Orc
     }
     let q = "Q00276_TotemOfTheHestui";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9440,8 +9460,15 @@ fn quest_q00276_totem_of_the_hestui() {
     world.forced_rolls.push_back(50); // roll(100) chance2 (irrelevant with 0 parasites)
     world.forced_rolls.push_back(0); // give_item_randomly(PARASITE) roll_f64 → hit
     death::npc_do_die(&mut world, bear, 3001);
-    assert_eq!(item_count(&world, 3001, 1480), 1, "kasha bear yields a parasite");
-    assert!(npcs_of(&mut world, 27044).is_empty(), "no totem below threshold");
+    assert_eq!(
+        item_count(&world, 3001, 1480),
+        1,
+        "kasha bear yields a parasite"
+    );
+    assert!(
+        npcs_of(&mut world, 27044).is_empty(),
+        "no totem below threshold"
+    );
     // Stock 79 parasites → the next bear kill certainly conjures the totem
     // (ladder head (79, 100)) and wipes the hoard.
     inject(&mut world, 3001, 0x1480_0000, 1480, 78);
@@ -9449,7 +9476,11 @@ fn quest_q00276_totem_of_the_hestui() {
     add_test_npc(&mut world, bear2, 20479, "Monster", 18, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll(100)=0 ≤ 100 → spawn
     death::npc_do_die(&mut world, bear2, 3001);
-    assert_eq!(item_count(&world, 3001, 1480), 0, "spawning the totem consumes the hoard");
+    assert_eq!(
+        item_count(&world, 3001, 1480),
+        0,
+        "spawning the totem consumes the hoard"
+    );
     let totems = npcs_of(&mut world, 27044);
     assert_eq!(totems.len(), 1, "a Kasha Bear Totem was conjured");
     // Slaying the totem yields the Kasha Crystal and advances to cond 2.
@@ -9458,10 +9489,18 @@ fn quest_q00276_totem_of_the_hestui() {
     assert_eq!(item_count(&world, 3001, 1481), 1, "totem drops the crystal");
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // Turn in at Tanapi → both rewards, repeatable exit.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 29), 1, "leather shirt reward");
     assert_eq!(item_count(&world, 3001, 1500), 1, "second reward");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -9469,7 +9508,11 @@ fn quest_q00617_gather_the_flames() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(7264, "Torch", true), (6881, "Recipe A", false), (6883, "Recipe B", false)],
+        &[
+            (7264, "Torch", true),
+            (6881, "Recipe A", false),
+            (6883, "Recipe B", false),
+        ],
     );
     let mut t = crate::data::npc_data::default_template(22634);
     t.type_name = "Monster".into();
@@ -9478,9 +9521,17 @@ fn quest_q00617_gather_the_flames() {
     add_test_npc(&mut world, NPC_OID, 31539, "Folk", 70, 100, 0, 0); // Vulcan
     add_test_npc(&mut world, NPC_OID + 1, 32049, "Folk", 70, 100, 0, 0); // Rooney
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
     let q = "Q00617_GatherTheFlames";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9491,7 +9542,11 @@ fn quest_q00617_gather_the_flames() {
     add_test_npc(&mut world, NPC_OID + 2, 22634, "Monster", 74, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
-    assert_eq!(item_count(&world, 3001, 7264), 2, "22634 drops 2 torches on a low roll");
+    assert_eq!(
+        item_count(&world, 3001, 7264),
+        2,
+        "22634 drops 2 torches on a low roll"
+    );
     // Vulcan: 1000 torches → one random S-grade recipe (force index 0 → 6881).
     inject(&mut world, 3001, 0x7264_0000, 7264, 998);
     world.forced_rolls.push_back(0); // getRandomEntry index
@@ -9516,7 +9571,10 @@ fn quest_q00617_gather_the_flames() {
 #[test]
 fn quest_q00358_illegitimate_child_of_the_goddess() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(5868, "Snake Scale", true), (4975, "Recipe", false)]);
+    add_quest_items(
+        &mut world,
+        &[(5868, "Snake Scale", true), (4975, "Recipe", false)],
+    );
     // Trives (20672) drops snake scales at 71%.
     let mut t = crate::data::npc_data::default_template(20672);
     t.type_name = "Monster".into();
@@ -9524,9 +9582,17 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 65;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 65;
     let q = "Q00358_IllegitimateChildOfTheGoddess";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9538,13 +9604,25 @@ fn quest_q00358_illegitimate_child_of_the_goddess() {
     add_test_npc(&mut world, NPC_OID + 1, 20672, "Monster", 65, 30, 0, 0);
     world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.71) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 5868), 108, "108th scale tops the cap");
+    assert_eq!(
+        item_count(&world, 3001, 5868),
+        108,
+        "108th scale tops the cap"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cap reached → cond 2");
     // Turn in: 108 scales → one random recipe (force index 0 → 4975), exit.
     world.forced_rolls.push_back(0); // REWARDS index
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 4975), 1, "random recipe reward");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -9559,9 +9637,17 @@ fn quest_q00354_conquest_of_alligator_island() {
     }
     add_test_npc(&mut world, NPC_OID, 30895, "Folk", 40, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 40;
     let q = "Q00354_ConquestOfAlligatorIsland";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9572,7 +9658,11 @@ fn quest_q00354_conquest_of_alligator_island() {
     add_test_npc(&mut world, NPC_OID + 1, 20804, "Monster", 40, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.84) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 5863), 1, "crokian_lad drops a tooth");
+    assert_eq!(
+        item_count(&world, 3001, 5863),
+        1,
+        "crokian_lad drops a tooth"
+    );
     // nos_lad (20808): roll(100)=0 < 14 → double drop.
     add_test_npc(&mut world, NPC_OID + 2, 20808, "Monster", 40, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll(100) < 14 → count 2
@@ -9587,7 +9677,11 @@ fn quest_q00354_conquest_of_alligator_island() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ADENA")),
     );
-    assert_eq!(item_count(&world, 3001, 57), a + 2000, "400 teeth → 2000 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 2000,
+        "400 teeth → 2000 adena"
+    );
     assert_eq!(item_count(&world, 3001, 5863), 0, "teeth consumed");
     // Repeatable: still started after turn-in.
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
@@ -9596,16 +9690,30 @@ fn quest_q00354_conquest_of_alligator_island() {
 #[test]
 fn quest_q00356_dig_up_the_sea_of_spores() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(5865, "Carnivore Spore", true), (5866, "Herbivorous Spore", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (5865, "Carnivore Spore", true),
+            (5866, "Herbivorous Spore", true),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20558); // Rotting Tree → herb
     t.type_name = "Monster".into();
     t.level = 45;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30717, "Folk", 45, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 45;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
     let q = "Q00356_DigUpTheSeaOfSpores";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9619,8 +9727,16 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     add_test_npc(&mut world, NPC_OID + 1, 20558, "Monster", 45, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.73) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 5866), 100, "herb spore tops to 100");
-    assert_eq!(quest_cond(&world, 3001, q), Some(3), "both kinds full → cond 3");
+    assert_eq!(
+        item_count(&world, 3001, 5866),
+        100,
+        "herb spore tops to 100"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(3),
+        "both kinds full → cond 3"
+    );
     // FINISH: roll(100)=0 < 20 → 3000 adena, exit.
     let a = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(0);
@@ -9629,8 +9745,16 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} FINISH")),
     );
-    assert_eq!(item_count(&world, 3001, 57), a + 3000, "top reward bucket → 3000 adena");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 3000,
+        "top reward bucket → 3000 adena"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -9643,9 +9767,17 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 32105, "Folk", 70, 100, 0, 0); // Dinn
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 75;
     let q = "Q00688_DefeatTheElrokianRaiders";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9665,7 +9797,11 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32105-06.html")),
     );
-    assert_eq!(item_count(&world, 3001, 57), a + 30000, "10 necklaces → 30000 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 30000,
+        "10 necklaces → 30000 adena"
+    );
     assert_eq!(item_count(&world, 3001, 8785), 0, "necklaces consumed");
     // Donation: 100 necklaces, roll(1000)=0 < 500 → 450000 adena.
     inject(&mut world, 3001, 0x0688_0001, 8785, 100);
@@ -9676,7 +9812,11 @@ fn quest_q00688_defeat_the_elrokian_raiders() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} donation")),
     );
-    assert_eq!(item_count(&world, 3001, 57), b + 450000, "donation jackpot → 450000 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        b + 450000,
+        "donation jackpot → 450000 adena"
+    );
     assert_eq!(item_count(&world, 3001, 8785), 0, "100 necklaces consumed");
 }
 
@@ -9698,9 +9838,17 @@ fn quest_q00355_family_honor() {
     add_test_npc(&mut world, NPC_OID, 30181, "Folk", 40, 100, 0, 0); // Galibredo
     add_test_npc(&mut world, NPC_OID + 1, 30929, "Folk", 40, 100, 0, 0); // Patrin
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 40;
     let q = "Q00355_FamilyHonor";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9727,7 +9875,11 @@ fn quest_q00355_family_honor() {
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30181-06.html")),
     );
-    assert_eq!(item_count(&world, 3001, 57), a + 2000, "100 busts → 2000 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 2000,
+        "100 busts → 2000 adena"
+    );
     assert_eq!(item_count(&world, 3001, 4252), 0, "busts consumed");
     // Patrin appraises the berona: roll(100)=0 < 2 → the Prototype (4351).
     world.forced_rolls.push_back(0);
@@ -9736,14 +9888,25 @@ fn quest_q00355_family_honor() {
         1,
         &bypass_body(&format!("npc_{}_Quest {q} 30929-03.html", NPC_OID + 1)),
     );
-    assert_eq!(item_count(&world, 3001, 4351), 1, "berona → ancient statue prototype");
+    assert_eq!(
+        item_count(&world, 3001, 4351),
+        1,
+        "berona → ancient statue prototype"
+    );
     assert_eq!(item_count(&world, 3001, 4350), 0, "berona consumed");
 }
 
 #[test]
 fn quest_q00622_specialty_liquor_delivery() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(7197, "Special Drink", true), (7198, "Special Drink Price", true), (734, "Quick Step Potion", false)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (7197, "Special Drink", true),
+            (7198, "Special Drink Price", true),
+            (734, "Quick Step Potion", false),
+        ],
+    );
     // Seven talk NPCs, one fixture each.
     let jeremy = NPC_OID;
     let boelin = NPC_OID + 1;
@@ -9760,36 +9923,88 @@ fn quest_q00622_specialty_liquor_delivery() {
     add_test_npc(&mut world, pulin, 31543, "Folk", 70, 100, 0, 0);
     add_test_npc(&mut world, lietta, 31267, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 70;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 70;
     let q = "Q00622_SpecialtyLiquorDelivery";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{jeremy}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
-    assert_eq!(item_count(&world, 3001, 7197), 5, "Jeremy hands over 5 drinks");
+    assert_eq!(
+        item_count(&world, 3001, 7197),
+        5,
+        "Jeremy hands over 5 drinks"
+    );
     // Deliver to the five bartenders in order (Boelin, Kuber, Crocus, Naff, Pulin).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{boelin}_Quest {q} 31547-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{boelin}_Quest {q} 31547-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kuber}_Quest {q} 31546-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kuber}_Quest {q} 31546-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{crocus}_Quest {q} 31545-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{crocus}_Quest {q} 31545-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{naff}_Quest {q} 31544-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{naff}_Quest {q} 31544-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pulin}_Quest {q} 31543-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pulin}_Quest {q} 31543-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(6));
     assert_eq!(item_count(&world, 3001, 7197), 0, "all drinks delivered");
-    assert_eq!(item_count(&world, 3001, 7198), 5, "five payment slips collected");
+    assert_eq!(
+        item_count(&world, 3001, 7198),
+        5,
+        "five payment slips collected"
+    );
     // Jeremy takes the five slips → cond 7.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-06.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-06.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
     assert_eq!(item_count(&world, 3001, 7198), 0, "slips consumed");
     // Lietta: roll(1000)=0 < 800 → Quick Step Potion + 18800 adena, exit.
     let a = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lietta}_Quest {q} 31267-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lietta}_Quest {q} 31267-02.html")),
+    );
     assert_eq!(item_count(&world, 3001, 734), 1, "Quick Step Potion reward");
     assert_eq!(item_count(&world, 3001, 57), a + 18800, "18800 adena");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -9799,33 +10014,73 @@ fn quest_q00110_to_the_primeval_isle() {
     add_test_npc(&mut world, NPC_OID, 31338, "Folk", 70, 100, 0, 0); // Anton
     add_test_npc(&mut world, NPC_OID + 1, 32113, "Folk", 70, 100, 0, 0); // Marquez
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 75;
     let q = "Q00110_ToThePrimevalIsle";
     // Below the min level the empty-html gate blocks state creation.
     let _rx2 = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 70;
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(quest_cond(&world, 3002, q), None, "level-70 player can't start (empty-html gate)");
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 70;
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3002, q),
+        None,
+        "level-70 player can't start (empty-html gate)"
+    );
     // Level-75 player: accept from Anton, deliver to Marquez.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31338-05.html")),
     );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
-    assert_eq!(item_count(&world, 3001, 8777), 1, "Anton hands over the Ancient Book");
+    assert_eq!(
+        item_count(&world, 3001, 8777),
+        1,
+        "Anton hands over the Ancient Book"
+    );
     let a = item_count(&world, 3001, 57);
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{}_Quest {q} 32113-04.html", NPC_OID + 1)),
     );
-    assert_eq!(item_count(&world, 3001, 57), a + 189208, "Marquez pays 189208 adena");
-    assert_eq!(item_count(&world, 3001, 8777), 0, "book consumed on the one-time exit");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 189208,
+        "Marquez pays 189208 adena"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 8777),
+        0,
+        "book consumed on the one-time exit"
+    );
     // One-time exit → COMPLETED, so a fresh talk is refused (not restarted).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_ne!(quest_cond(&world, 3001, q), Some(1), "quest does not restart");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "quest does not restart"
+    );
 }
 
 #[test]
@@ -9848,19 +10103,39 @@ fn quest_q00628_hunt_golden_ram() {
     }
     add_test_npc(&mut world, NPC_OID, 31554, "Folk", 66, 100, 0, 0); // Kahman
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 66;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 66;
     let q = "Q00628_HuntGoldenRam";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} accept")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} accept")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Splinter (count 1) drops at cond 1; needle (count 2) does not.
     add_test_npc(&mut world, NPC_OID + 1, 21508, "Monster", 66, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll_f64 (0.0 < 0.5) → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 7248), 1, "splinter drops at cond 1");
+    assert_eq!(
+        item_count(&world, 3001, 7248),
+        1,
+        "splinter drops at cond 1"
+    );
     add_test_npc(&mut world, NPC_OID + 2, 21513, "Monster", 66, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
-    assert_eq!(item_count(&world, 3001, 7249), 0, "needle (count 2) does NOT drop at cond 1");
+    assert_eq!(
+        item_count(&world, 3001, 7249),
+        0,
+        "needle (count 2) does NOT drop at cond 1"
+    );
     // 100 splinters → Recruit badge, cond 2.
     inject(&mut world, 3001, 0x0628_0000, 7248, 99);
     handle_request_bypass_to_server(
@@ -9874,7 +10149,11 @@ fn quest_q00628_hunt_golden_ram() {
     // 100 splinter + 100 needle at cond 2 → Soldier badge, cond 3.
     inject(&mut world, 3001, 0x0628_0001, 7248, 100);
     inject(&mut world, 3001, 0x0628_0002, 7249, 100);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 7247), 1, "Soldier badge awarded");
     assert_eq!(item_count(&world, 3001, 7246), 0, "Recruit badge consumed");
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
@@ -9902,9 +10181,17 @@ fn quest_q00374_whisper_of_dreams_part1() {
     add_test_npc(&mut world, NPC_OID, 30938, "Folk", 60, 100, 0, 0); // Vanutu
     add_test_npc(&mut world, NPC_OID + 1, 31044, "Folk", 60, 100, 0, 0); // Galman
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 60;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
     let q = "Q00374_WhisperOfDreamsPart1";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9918,13 +10205,25 @@ fn quest_q00374_whisper_of_dreams_part1() {
     world.forced_rolls.push_back(0); // give_item_randomly(light) roll_f64 (0.0 < 0.9)
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 5885), 360, "light topped to 360");
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "both ingredients full → cond 2");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "both ingredients full → cond 2"
+    );
     // reward1: hand both stacks over for the scroll + 9000 adena.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")),
+    );
     assert_eq!(item_count(&world, 3001, 49475), 1, "scroll reward");
     assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
-    assert_eq!(item_count(&world, 3001, 5884) + item_count(&world, 3001, 5885), 0, "ingredients consumed");
+    assert_eq!(
+        item_count(&world, 3001, 5884) + item_count(&world, 3001, 5885),
+        0,
+        "ingredients consumed"
+    );
     // Advance to cond 3, where kills also drop the Sealed Mysterious Stone.
     handle_request_bypass_to_server(
         &mut world,
@@ -9936,23 +10235,42 @@ fn quest_q00374_whisper_of_dreams_part1() {
     world.forced_rolls.push_back(0); // give_item_randomly(tooth) roll_f64
     world.forced_rolls.push_back(0); // give_item_randomly(sealed stone) roll_f64 (0.0 < 0.2)
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
-    assert_eq!(item_count(&world, 3001, 5886), 1, "sealed stone drops at cond 3");
-    assert_eq!(quest_cond(&world, 3001, q), Some(4), "sealed stone → cond 4");
+    assert_eq!(
+        item_count(&world, 3001, 5886),
+        1,
+        "sealed stone drops at cond 3"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(4),
+        "sealed stone → cond 4"
+    );
     // Galman exchanges the sealed stone for the Mysterious Stone (Part 2 opener).
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{}_Quest {q} 31044-01.html", NPC_OID + 1)),
     );
-    assert_eq!(item_count(&world, 3001, 5887), 1, "Mysterious Stone (opens Part 2)");
+    assert_eq!(
+        item_count(&world, 3001, 5887),
+        1,
+        "Mysterious Stone (opens Part 2)"
+    );
     assert_eq!(item_count(&world, 3001, 5886), 0, "sealed stone consumed");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
 fn quest_q00306_crystal_of_fire_and_ice() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1020, "Flame Shard", true), (1021, "Ice Shard", true)]);
+    add_quest_items(
+        &mut world,
+        &[(1020, "Flame Shard", true), (1021, "Ice Shard", true)],
+    );
     for id in [20109, 20110] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
@@ -9961,9 +10279,17 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     }
     add_test_npc(&mut world, NPC_OID, 30004, "Folk", 20, 100, 0, 0); // Katerina
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 20;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
     let q = "Q00306_CrystalOfFireAndIce";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -9974,18 +10300,38 @@ fn quest_q00306_crystal_of_fire_and_ice() {
     add_test_npc(&mut world, NPC_OID + 1, 20109, "Monster", 20, 30, 0, 0); // Salamander → flame
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 1020), 1, "salamander always drops a flame shard");
+    assert_eq!(
+        item_count(&world, 3001, 1020),
+        1,
+        "salamander always drops a flame shard"
+    );
     add_test_npc(&mut world, NPC_OID + 2, 20110, "Monster", 20, 30, 0, 0); // Undine → ice
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
-    assert_eq!(item_count(&world, 3001, 1021), 1, "undine always drops an ice shard");
+    assert_eq!(
+        item_count(&world, 3001, 1021),
+        1,
+        "undine always drops an ice shard"
+    );
     // Turn in 5 + 5 = 10 shards → 10*15 + 5000 bonus = 5150 adena.
     inject(&mut world, 3001, 0x0306_0000, 1020, 4);
     inject(&mut world, 3001, 0x0306_0001, 1021, 4);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), a + 5150, "10 shards → 150 + 5000 bonus");
-    assert_eq!(item_count(&world, 3001, 1020) + item_count(&world, 3001, 1021), 0, "shards consumed");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 5150,
+        "10 shards → 150 + 5000 bonus"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1020) + item_count(&world, 3001, 1021),
+        0,
+        "shards consumed"
+    );
 }
 
 #[test]
@@ -10007,28 +10353,68 @@ fn quest_q00127_fishing_specialists_request() {
     add_test_npc(&mut world, ferma, 30015, "Folk", 30, 100, 0, 0);
     add_test_npc(&mut world, baikal, 30016, "Folk", 30, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 30;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 30;
     let q = "Q00127_FishingSpecialistsRequest";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q} 30013-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierre}_Quest {q} 30013-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
-    assert_eq!(item_count(&world, 3001, 49510), 1, "Pierre hands over his letter");
+    assert_eq!(
+        item_count(&world, 3001, 49510),
+        1,
+        "Pierre hands over his letter"
+    );
     // Ferma: letter → report, cond 2.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{ferma}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{ferma}_Quest {q}")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     assert_eq!(item_count(&world, 3001, 49510), 0, "letter consumed");
     assert_eq!(item_count(&world, 3001, 49504), 1, "fish report received");
     // Baikal: report → sealed bottle, cond 3.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{baikal}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{baikal}_Quest {q}")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     assert_eq!(item_count(&world, 3001, 49505), 1, "sealed bottle received");
     // Pierre: bottle → Fishing Rod Chest, one-time exit.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 49507), 1, "Fishing Rod Chest reward");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 49507),
+        1,
+        "Fishing Rod Chest reward"
+    );
     assert_eq!(item_count(&world, 3001, 49505), 0, "bottle consumed");
     // One-time exit → does not restart.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
-    assert_ne!(quest_cond(&world, 3001, q), Some(1), "quest does not restart");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierre}_Quest {q}")),
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "quest does not restart"
+    );
 }
 
 #[test]
@@ -10051,12 +10437,24 @@ fn quest_q00375_whisper_of_dreams_part2() {
     }
     add_test_npc(&mut world, NPC_OID, 30938, "Folk", 65, 100, 0, 0); // Vanutu
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 65;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 65;
     // The Mysterious Stone from Part 1 is the ticket in.
     inject(&mut world, 3001, 0x0375_0000, 5887, 1);
     let q = "Q00375_WhisperOfDreamsPart2";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 5887), 0, "the Mysterious Stone is consumed on first talk");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 5887),
+        0,
+        "the Mysterious Stone is consumed on first talk"
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10070,28 +10468,51 @@ fn quest_q00375_whisper_of_dreams_part2() {
     world.forced_rolls.push_back(0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 5889), 325, "blood topped to 325");
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "both stacks full → cond 2");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "both stacks full → cond 2"
+    );
     // reward1: hand both stacks over for the scroll + 9000 adena.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")),
+    );
     assert_eq!(item_count(&world, 3001, 49474), 1, "scroll reward");
     assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
-    assert_eq!(item_count(&world, 3001, 5888) + item_count(&world, 3001, 5889), 0, "325 of each consumed");
+    assert_eq!(
+        item_count(&world, 3001, 5888) + item_count(&world, 3001, 5889),
+        0,
+        "325 of each consumed"
+    );
 }
 
 #[test]
 fn quest_q00606_battle_against_varka_silenos() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(7233, "Varka Mane", true), (7186, "Varka Horn", false)]);
+    add_quest_items(
+        &mut world,
+        &[(7233, "Varka Mane", true), (7186, "Varka Horn", false)],
+    );
     let mut t = crate::data::npc_data::default_template(21350); // chance 500
     t.type_name = "Monster".into();
     t.level = 74;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 31370, "Folk", 74, 100, 0, 0); // Kadun
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
     let q = "Q00606_BattleAgainstVarkaSilenos";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10102,7 +10523,11 @@ fn quest_q00606_battle_against_varka_silenos() {
     add_test_npc(&mut world, NPC_OID + 1, 21350, "Monster", 74, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 7233), 1, "Varka recruit drops a mane");
+    assert_eq!(
+        item_count(&world, 3001, 7233),
+        1,
+        "Varka recruit drops a mane"
+    );
     // 100 manes → 20 horns.
     inject(&mut world, 3001, 0x0606_0000, 7233, 99);
     handle_request_bypass_to_server(
@@ -10117,16 +10542,27 @@ fn quest_q00606_battle_against_varka_silenos() {
 #[test]
 fn quest_q00612_battle_against_ketra_orcs() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(7234, "Ketra Molar", true), (7187, "Ketra Seed", false)]);
+    add_quest_items(
+        &mut world,
+        &[(7234, "Ketra Molar", true), (7187, "Ketra Seed", false)],
+    );
     let mut t = crate::data::npc_data::default_template(21324); // chance 500
     t.type_name = "Monster".into();
     t.level = 74;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 31377, "Folk", 74, 100, 0, 0); // Ashas
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
     let q = "Q00612_BattleAgainstKetraOrcs";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -10136,7 +10572,11 @@ fn quest_q00612_battle_against_ketra_orcs() {
     add_test_npc(&mut world, NPC_OID + 1, 21324, "Monster", 74, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 7234), 1, "Ketra footman drops a molar");
+    assert_eq!(
+        item_count(&world, 3001, 7234),
+        1,
+        "Ketra footman drops a molar"
+    );
     inject(&mut world, 3001, 0x0612_0000, 7234, 99);
     handle_request_bypass_to_server(
         &mut world,
@@ -10157,19 +10597,43 @@ fn quest_q00634_in_search_of_fragments_of_dimension() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 31095, "Folk", 40, 100, 0, 0); // a Dimensional Gate Keeper
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 40;
     let q = "Q00634_InSearchOfFragmentsOfDimension";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 02.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 02.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll(100)=0 < 80 → fragments, amount = (int)(40*0.15 + 2.6) = 8.
     add_test_npc(&mut world, NPC_OID + 1, 21139, "Monster", 40, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 7079), 8, "level-40 mob yields 8 fragments");
+    assert_eq!(
+        item_count(&world, 3001, 7079),
+        8,
+        "level-40 mob yields 8 fragments"
+    );
     // 05.htm exits (repeatable).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 05.htm")));
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 05.htm")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -10198,28 +10662,60 @@ fn quest_q00325_grim_collector() {
     add_test_npc(&mut world, NPC_OID + 1, 30342, "Folk", 15, 100, 0, 0); // Varsak
     add_test_npc(&mut world, NPC_OID + 2, 30434, "Folk", 15, 100, 0, 0); // Samed
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 20;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
     let q = "Q00325_GrimCollector";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30336-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30336-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Samed hands out the Anatomy Diagram (the drop gate).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} 30434-03.html", NPC_OID + 2)));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 30434-03.html", NPC_OID + 2)),
+    );
     assert_eq!(item_count(&world, 3001, 1349), 1, "diagram received");
     // Kill 20026: roll(100)=0 < 30 → the head branch of the ladder.
     add_test_npc(&mut world, NPC_OID + 3, 20026, "Monster", 20, 30, 0, 0);
     world.forced_rolls.push_back(0); // roll(100) → head
     world.forced_rolls.push_back(0); // give_item_randomly roll_f64
     death::npc_do_die(&mut world, NPC_OID + 3, 3001);
-    assert_eq!(item_count(&world, 3001, 1350), 1, "ladder drops a zombie head");
+    assert_eq!(
+        item_count(&world, 3001, 1350),
+        1,
+        "ladder drops a zombie head"
+    );
     // Assemble a Complete Skeleton at Varsak: five bones + roll(5)=0 (<4) success.
     for id in [1355, 1356, 1353, 1354, 1357] {
         inject(&mut world, 3001, 0x0325_0000 + id, id, 1);
     }
     world.forced_rolls.push_back(0); // roll(5) < 4 → success
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} assembleSkeleton", NPC_OID + 1)));
-    assert_eq!(item_count(&world, 3001, 1358), 1, "five bones assemble a skeleton");
-    assert_eq!(item_count(&world, 3001, 1355), 0, "bones consumed by assembly");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} assembleSkeleton", NPC_OID + 1)),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1358),
+        1,
+        "five bones assemble a skeleton"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1355),
+        0,
+        "bones consumed by assembly"
+    );
     // Sell (30434-07): pays only with ALL ten registered items. Stock one of each
     // part so the gate opens; head is already 1, complete is 1, diagram is 1.
     for id in [1351, 1352, 1353, 1354, 1355, 1356, 1357] {
@@ -10228,9 +10724,21 @@ fn quest_q00325_grim_collector() {
     // Now: head1 heart1 liver1 skull1 rib1 spine1 arm1 thigh1 complete1 → total 9.
     // sum = 8+5+5+25+5+5+5+5 = 63; complete → +543+341 = 947.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} 30434-07.html", NPC_OID + 2)));
-    assert_eq!(item_count(&world, 3001, 57), a + 947, "full collection sells for 947 adena");
-    assert_eq!(item_count(&world, 3001, 1349), 0, "all registered items consumed by the sale");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 30434-07.html", NPC_OID + 2)),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 947,
+        "full collection sells for 947 adena"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1349),
+        0,
+        "all registered items consumed by the sale"
+    );
     assert_eq!(item_count(&world, 3001, 1358), 0, "skeleton consumed too");
 }
 
@@ -10241,9 +10749,17 @@ fn quest_q00124_meeting_the_elroki() {
     add_test_npc(&mut world, NPC_OID, 32113, "Folk", 70, 100, 0, 0); // Marquez
     add_test_npc(&mut world, NPC_OID + 1, 32115, "Folk", 70, 100, 0, 0); // Asamah
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 75;
     let q = "Q00124_MeetingTheElroki";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     // Walk the cond chain 1 → 6 (on_event ignores which NPC fires the event).
     for (ev, expect) in [
         ("32113-03.html", 1),
@@ -10253,47 +10769,109 @@ fn quest_q00124_meeting_the_elroki() {
         ("32117-05.html", 5),
         ("32118-04.html", 6),
     ] {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} {ev}")));
-        assert_eq!(quest_cond(&world, 3001, q), Some(expect), "after event {ev}");
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} {ev}")),
+        );
+        assert_eq!(
+            quest_cond(&world, 3001, q),
+            Some(expect),
+            "after event {ev}"
+        );
     }
-    assert_eq!(item_count(&world, 3001, 8778), 1, "Mantarasa Egg received at cond 6");
+    assert_eq!(
+        item_count(&world, 3001, 8778),
+        1,
+        "Mantarasa Egg received at cond 6"
+    );
     // Asamah pays out and finishes the quest.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)));
-    assert_eq!(item_count(&world, 3001, 57), a + 100013, "Asamah pays 100013 adena");
-    assert_ne!(quest_cond(&world, 3001, q), Some(6), "one-time quest is finished");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 100013,
+        "Asamah pays 100013 adena"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(6),
+        "one-time quest is finished"
+    );
 }
 
 #[test]
 fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(8776, "Bones of a Plains Dinosaur", true), (8712, "Sirra's Blade Edge", false)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (8776, "Bones of a Plains Dinosaur", true),
+            (8712, "Sirra's Blade Edge", false),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(22200); // a MOBS1 dinosaur
     t.type_name = "Monster".into();
     t.level = 75;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 32106, "Folk", 75, 100, 0, 0); // Singsing
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 75;
     let q = "Q00643_RiseAndFallOfTheElrokiTribe";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} quest_accept")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} quest_accept")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // MOBS1 always pays; roll(1000)=0 < 116 → 2 bones.
     add_test_npc(&mut world, NPC_OID + 1, 22200, "Monster", 75, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 8776), 2, "a MOBS1 dinosaur drops 2 bones");
+    assert_eq!(
+        item_count(&world, 3001, 8776),
+        2,
+        "a MOBS1 dinosaur drops 2 bones"
+    );
     // Sell at Singsing (32106-09): 1374 adena per bone.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32106-09.html")));
-    assert_eq!(item_count(&world, 3001, 57), a + 2 * 1374, "2 bones → 2748 adena");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32106-09.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 2 * 1374,
+        "2 bones → 2748 adena"
+    );
     assert_eq!(item_count(&world, 3001, 8776), 0, "bones consumed");
     // Exchange 300 bones for 5 of a random weapon piece (force index 0 → 8712).
     inject(&mut world, 3001, 0x0643_0000, 8776, 300);
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} exchange")));
-    assert_eq!(item_count(&world, 3001, 8712), 5, "exchange yields 5 weapon pieces");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} exchange")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 8712),
+        5,
+        "exchange yields 5 weapon pieces"
+    );
     assert_eq!(item_count(&world, 3001, 8776), 0, "300 bones consumed");
 }
 
@@ -10328,7 +10906,11 @@ fn quest_q00111_elrokian_hunters_proof() {
     add_test_npc(&mut world, asamah, 32115, "Folk", 70, 100, 0, 0);
     add_test_npc(&mut world, kirikachin, 32116, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 75;
     let q = "Q00111_ElrokianHuntersProof";
     let ev = |w: &mut World, npc: i32, e: &str| {
         handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
@@ -10358,7 +10940,11 @@ fn quest_q00111_elrokian_hunters_proof() {
     assert_eq!(item_count(&world, 3001, 8768), 0, "diary consumed");
     ev(&mut world, marquez, "32113-25.html"); // memo 5 → 6, cond 6, letter
     assert_eq!(quest_cond(&world, 3001, q), Some(6));
-    assert_eq!(item_count(&world, 3001, 8769), 1, "expedition letter received");
+    assert_eq!(
+        item_count(&world, 3001, 8769),
+        1,
+        "expedition letter received"
+    );
     // Kirikachin (memo 6 → 7, takes letter, cond 7) then the flute steps.
     talk(&mut world, kirikachin);
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
@@ -10383,15 +10969,37 @@ fn quest_q00111_elrokian_hunters_proof() {
     talk(&mut world, asamah);
     assert_eq!(quest_cond(&world, 3001, q), Some(12));
     assert_eq!(item_count(&world, 3001, 8773), 1, "practice trap forged");
-    assert_eq!(item_count(&world, 3001, 8770) + item_count(&world, 3001, 8771) + item_count(&world, 3001, 8772), 0, "trophies consumed");
+    assert_eq!(
+        item_count(&world, 3001, 8770)
+            + item_count(&world, 3001, 8771)
+            + item_count(&world, 3001, 8772),
+        0,
+        "trophies consumed"
+    );
     // Kirikachin redeems it for the real trap + stones + reward, then exits.
     let a = item_count(&world, 3001, 57);
     ev(&mut world, kirikachin, "32116-10.html");
-    assert_eq!(item_count(&world, 3001, 8763), 1, "real Elrokian Trap awarded");
-    assert_eq!(item_count(&world, 3001, 8764), 100, "100 Trap Stones awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 1702800, "final adena reward");
+    assert_eq!(
+        item_count(&world, 3001, 8763),
+        1,
+        "real Elrokian Trap awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 8764),
+        100,
+        "100 Trap Stones awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 1702800,
+        "final adena reward"
+    );
     assert_eq!(item_count(&world, 3001, 8773), 0, "practice trap consumed");
-    assert_ne!(quest_cond(&world, 3001, q), Some(12), "one-time quest finished");
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(12),
+        "one-time quest finished"
+    );
 }
 
 #[test]
@@ -10419,10 +11027,22 @@ fn quest_q00373_supplier_of_reagents() {
     add_test_npc(&mut world, wesley, 30166, "Folk", 55, 100, 0, 0);
     add_test_npc(&mut world, urn, 31149, "Folk", 55, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 60;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
     let q = "Q00373_SupplierOfReagents";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{wesley}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{wesley}_Quest {q} 30166-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{wesley}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{wesley}_Quest {q} 30166-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(item_count(&world, 3001, 5904), 1, "mixing stone given");
     assert_eq!(item_count(&world, 3001, 6317), 1, "mixing manual given");
@@ -10430,20 +11050,48 @@ fn quest_q00373_supplier_of_reagents() {
     add_test_npc(&mut world, NPC_OID + 10, 21111, "Monster", 60, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
-    assert_eq!(item_count(&world, 3001, 6011), 1, "Lava Wyrm drops Wyrm's Blood on a low roll");
+    assert_eq!(
+        item_count(&world, 3001, 6011),
+        1,
+        "Lava Wyrm drops Wyrm's Blood on a low roll"
+    );
     // Single drop: Platinum Guardian Shaman, roll(1_000_000)=0 < 442000 → Reagent Box.
     add_test_npc(&mut world, NPC_OID + 11, 21066, "Monster", 60, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 11, 3001);
-    assert_eq!(item_count(&world, 3001, 6010), 1, "Platinum Guardian Shaman drops a Reagent Box");
+    assert_eq!(
+        item_count(&world, 3001, 6010),
+        1,
+        "Platinum Guardian Shaman drops a Reagent Box"
+    );
     // Alchemy: 10 Wyrm's Blood + 1 Blood Root, mixed at temperature 1 → Dracoplasm.
     inject(&mut world, 3001, 0x0373_0000, 6011, 9); // 10 total
     inject(&mut world, 3001, 0x0373_0001, 6017, 1);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-03-6011.htm")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-06-6017.htm")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{urn}_Quest {q} 31149-12-1")));
-    assert_eq!(item_count(&world, 3001, 6021), 1, "temperature-1 mix yields one Dracoplasm");
-    assert_eq!(item_count(&world, 3001, 6011), 0, "10 Wyrm's Blood consumed");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-03-6011.htm")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-06-6017.htm")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{urn}_Quest {q} 31149-12-1")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 6021),
+        1,
+        "temperature-1 mix yields one Dracoplasm"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 6011),
+        0,
+        "10 Wyrm's Blood consumed"
+    );
     assert_eq!(item_count(&world, 3001, 6017), 0, "Blood Root consumed");
 }
 
@@ -10467,36 +11115,84 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     add_test_npc(&mut world, gilmore, 30754, "Folk", 50, 100, 0, 0);
     add_test_npc(&mut world, kaien, 30623, "Folk", 50, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 50;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 50;
     let q = "Q00344_1000YearsTheEndOfLamentation";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{gilmore}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{gilmore}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // Kill a Cave Servant → an Article.
     add_test_npc(&mut world, NPC_OID + 10, 20236, "Monster", 50, 30, 0, 0);
     world.forced_rolls.push_back(0); // give_item_randomly roll_f64 (0.0 < 0.58)
     death::npc_do_die(&mut world, NPC_OID + 10, 3001);
-    assert_eq!(item_count(&world, 3001, 4269), 1, "Cave Servant drops an Article");
+    assert_eq!(
+        item_count(&world, 3001, 4269),
+        1,
+        "Cave Servant drops an Article"
+    );
     // Turn-in gamble: 5 articles, roll(1000)=0 < 5 → relic; roll(4)=0 → Old Hilt (memo 1, cond 2).
     inject(&mut world, 3001, 0x0344_0000, 4269, 4); // 5 total
     world.forced_rolls.push_back(0); // roll(1000) < count → relic path
     world.forced_rolls.push_back(0); // roll(4) → Old Hilt
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")));
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "relic jackpot → cond 2");
-    assert_eq!(item_count(&world, 3001, 4271), 1, "received the Old Hilt relic");
-    assert_eq!(item_count(&world, 3001, 4269), 0, "articles consumed by the turn-in");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "relic jackpot → cond 2"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 4271),
+        1,
+        "received the Old Hilt relic"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 4269),
+        0,
+        "articles consumed by the turn-in"
+    );
     // Kaien exchanges the Old Hilt: roll(100)=0 ≤ 52 → 25 Oriharukon Ore, back to cond 1.
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kaien}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 1874), 25, "Kaien pays 25 Oriharukon Ore for the hilt");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kaien}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1874),
+        25,
+        "Kaien pays 25 Oriharukon Ore for the hilt"
+    );
     assert_eq!(item_count(&world, 3001, 4271), 0, "hilt consumed");
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "back to collecting");
     // Adena path: 3 articles, roll(1000)=500 ≥ 3 → 3*60 = 180 adena.
     inject(&mut world, 3001, 0x0344_0001, 4269, 3);
     let a = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(500);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")));
-    assert_eq!(item_count(&world, 3001, 57), a + 180, "3 articles → 180 adena");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{gilmore}_Quest {q} 30754-08.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 180,
+        "3 articles → 180 adena"
+    );
     assert_eq!(item_count(&world, 3001, 4269), 0, "articles consumed");
 }
 
@@ -10529,7 +11225,11 @@ fn quest_q00235_mimirs_elixir() {
     add_test_npc(&mut world, joan, 30718, "Folk", 70, 100, 0, 0);
     add_test_npc(&mut world, urn, 31149, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 76;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 76;
     inject(&mut world, 3001, 0x0235_9000, 5011, 1); // Star of Destiny (Fate's Whisper prereq)
     let q = "Q00235_MimirsElixir";
     let ev = |w: &mut World, npc: i32, e: &str| {
@@ -10573,16 +11273,30 @@ fn quest_q00235_mimirs_elixir() {
     assert_eq!(quest_cond(&world, 3001, q), Some(8));
     assert_eq!(item_count(&world, 3001, 6319), 1, "Mimir's Elixir brewed");
     assert_eq!(
-        item_count(&world, 3001, 6320) + item_count(&world, 3001, 6321) + item_count(&world, 3001, 6318),
+        item_count(&world, 3001, 6320)
+            + item_count(&world, 3001, 6321)
+            + item_count(&world, 3001, 6318),
         0,
         "silver/gold/fire consumed"
     );
     // Ladd redeems the elixir for the A-grade enchant scroll and finishes.
     ev(&mut world, ladd, "30721-16.htm");
-    assert_eq!(item_count(&world, 3001, 729), 1, "Scroll: Enchant Weapon (A) awarded");
-    assert_eq!(item_count(&world, 3001, 5011), 0, "Star of Destiny consumed");
+    assert_eq!(
+        item_count(&world, 3001, 729),
+        1,
+        "Scroll: Enchant Weapon (A) awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 5011),
+        0,
+        "Star of Destiny consumed"
+    );
     assert_eq!(item_count(&world, 3001, 6319), 0, "elixir consumed");
-    assert_ne!(quest_cond(&world, 3001, q), Some(8), "one-time quest finished");
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(8),
+        "one-time quest finished"
+    );
 }
 
 #[test]
@@ -10592,7 +11306,9 @@ fn quest_q00222_test_of_the_duelist() {
     let mut items: Vec<(i32, &str, bool)> = (2762..=2783).map(|id| (id, "Q222", true)).collect();
     items.push((2762, "Mark of Duelist", false)); // reward (overwrites, non-quest)
     add_quest_items(&mut world, &items);
-    let stage1_mobs = [20085, 20090, 20202, 20234, 20270, 20552, 20564, 20582, 20601, 20602];
+    let stage1_mobs = [
+        20085, 20090, 20202, 20234, 20270, 20552, 20564, 20582, 20601, 20602,
+    ];
     let stage2_mobs = [20214, 20217, 20554, 20588, 20604];
     for &id in stage1_mobs.iter().chain(stage2_mobs.iter()) {
         let mut t = crate::data::npc_data::default_template(id);
@@ -10608,11 +11324,23 @@ fn quest_q00222_test_of_the_duelist() {
         p.class_id = 1; // Warrior
     }
     let q = "Q00222_TestOfTheDuelist";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} ACCEPT")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     assert_eq!(item_count(&world, 3001, 2763), 1, "Order of Gludio given");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-08.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-08.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // Stage 1: 9 of each of 10 trophies pre-stocked, then one kill of each mob.
     // The kill counter reaches 9 exactly as the 10th kill fills the last trophy.
@@ -10625,13 +11353,29 @@ fn quest_q00222_test_of_the_duelist() {
         death::npc_do_die(&mut world, oid, 3001);
         oid += 1;
     }
-    assert_eq!(quest_cond(&world, 3001, q), Some(3), "all ten trophies + kill counter → cond 3");
-    assert_eq!(item_count(&world, 3001, 2768), 10, "Puncher's Shard capped at 10");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(3),
+        "all ten trophies + kill counter → cond 3"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 2768),
+        10,
+        "Puncher's Shard capped at 10"
+    );
     // Turn in the ten trophies + five orders for the Final Order (memo 2, cond 4).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-16.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30623-16.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     assert_eq!(item_count(&world, 3001, 2778), 1, "Final Order received");
-    assert_eq!(item_count(&world, 3001, 2768), 0, "stage-1 trophies consumed");
+    assert_eq!(
+        item_count(&world, 3001, 2768),
+        0,
+        "stage-1 trophies consumed"
+    );
     assert_eq!(item_count(&world, 3001, 2763), 0, "region orders consumed");
     // Stage 2: 2 each of four trophies + 1 of the fifth, then kills. The counter
     // needs >= 5, so the fifth trophy takes two kills to cap.
@@ -10645,23 +11389,40 @@ fn quest_q00222_test_of_the_duelist() {
         death::npc_do_die(&mut world, oid, 3001);
         oid += 1;
     }
-    assert_eq!(quest_cond(&world, 3001, q), Some(5), "stage-2 trophies + counter → cond 5");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(5),
+        "stage-2 trophies + counter → cond 5"
+    );
     // Kaien awards the Mark of Duelist and finishes.
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 2762), 1, "Mark of Duelist awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
-    assert_ne!(quest_cond(&world, 3001, q), Some(5), "one-time quest finished");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 161806,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(5),
+        "one-time quest finished"
+    );
 }
 
 #[test]
 fn quest_q00231_test_of_the_maestro() {
     let (mut world, _db, _l) = quest_test_world();
-    let mut items: Vec<(i32, &str, bool)> =
-        [2864, 2865, 2866, 2868, 2869, 2870, 2871, 2872, 2873, 2874, 2875, 2876, 2877, 2878, 2916]
-            .iter()
-            .map(|&id| (id, "Q231", true))
-            .collect();
+    let mut items: Vec<(i32, &str, bool)> = [
+        2864, 2865, 2866, 2868, 2869, 2870, 2871, 2872, 2873, 2874, 2875, 2876, 2877, 2878, 2916,
+    ]
+    .iter()
+    .map(|&id| (id, "Q231", true))
+    .collect();
     items.push((2867, "Mark of Maestro", false));
     add_quest_items(&mut world, &items);
     for id in [27133, 20225, 20150] {
@@ -10712,20 +11473,36 @@ fn quest_q00231_test_of_the_maestro() {
     assert_eq!(item_count(&world, 3001, 2869), 1, "Paint of Kamuru");
     add_test_npc(&mut world, NPC_OID + 20, 27133, "Monster", 40, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 20, 3001);
-    assert_eq!(item_count(&world, 3001, 2870), 1, "Evil Eye Lord drops the Necklace of Kamutu");
+    assert_eq!(
+        item_count(&world, 3001, 2870),
+        1,
+        "Evil Eye Lord drops the Necklace of Kamutu"
+    );
     talk(&mut world, croto); // necklace → Letter of Solder Detachment
     assert_eq!(item_count(&world, 3001, 2868), 1, "Letter received");
     talk(&mut world, balanki); // letter → Recommendation of Balanki
-    assert_eq!(item_count(&world, 3001, 2864), 1, "Recommendation of Balanki");
+    assert_eq!(
+        item_count(&world, 3001, 2864),
+        1,
+        "Recommendation of Balanki"
+    );
     // --- Arin's recommendation (memo 3): Toma's teleport-device errand. ---
     talk(&mut world, arin); // Paint of Teleport Device, memo 3
-    assert_eq!(item_count(&world, 3001, 2871), 1, "Paint of Teleport Device");
+    assert_eq!(
+        item_count(&world, 3001, 2871),
+        1,
+        "Paint of Teleport Device"
+    );
     talk(&mut world, toma);
     ev(&mut world, toma, "30556-05.html"); // Broken device + teleport + timer
     assert_eq!(item_count(&world, 3001, 2916), 1, "Broken Teleport Device");
     // The 5-second timer conjures three King Bugbears at the arrival spot.
     advance_ticks(&mut world, 50);
-    assert_eq!(npcs_of(&mut world, 20150).len(), 3, "on_timer ambush spawns three King Bugbears");
+    assert_eq!(
+        npcs_of(&mut world, 20150).len(),
+        3,
+        "on_timer ambush spawns three King Bugbears"
+    );
     // The errand teleported the player to Cruma; walk back to the NPCs so the
     // bypass interaction-distance guard lets the remaining turn-ins through.
     {
@@ -10747,7 +11524,11 @@ fn quest_q00231_test_of_the_maestro() {
     assert_eq!(item_count(&world, 3001, 2875), 1, "Ingredients of Antidote");
     add_test_npc(&mut world, NPC_OID + 21, 20225, "Monster", 40, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 21, 3001);
-    assert_eq!(item_count(&world, 3001, 2878), 1, "Giant Mist Leech drops Blood of Leech");
+    assert_eq!(
+        item_count(&world, 3001, 2878),
+        1,
+        "Giant Mist Leech drops Blood of Leech"
+    );
     // Fast-forward the rest of the antidote reagents (no kill counter here).
     inject(&mut world, 3001, 0x0231_0000, 2878, 9); // 10 leech blood
     inject(&mut world, 3001, 0x0231_0001, 2876, 10); // wasp needle
@@ -10755,14 +11536,30 @@ fn quest_q00231_test_of_the_maestro() {
     ev(&mut world, lorain, "30673-04.html"); // → Report of Cruma
     assert_eq!(item_count(&world, 3001, 2874), 1, "Report of Cruma");
     talk(&mut world, filaur); // report → Recommendation of Filaur, cond 2
-    assert_eq!(item_count(&world, 3001, 2865), 1, "Recommendation of Filaur");
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "all three recommendations → cond 2");
+    assert_eq!(
+        item_count(&world, 3001, 2865),
+        1,
+        "Recommendation of Filaur"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "all three recommendations → cond 2"
+    );
     // --- Lockirin awards the Mark of Maestro. ---
     let a = item_count(&world, 3001, 57);
     talk(&mut world, lockirin);
     assert_eq!(item_count(&world, 3001, 2867), 1, "Mark of Maestro awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 372154, "final adena reward");
-    assert_ne!(quest_cond(&world, 3001, q), Some(2), "one-time quest finished");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 372154,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "one-time quest finished"
+    );
 }
 
 #[test]
@@ -10789,7 +11586,12 @@ fn quest_q00223_test_of_the_champion() {
     let groot = NPC_OID + 1;
     let mouen = NPC_OID + 2;
     let mason = NPC_OID + 3;
-    for (oid, npc) in [(ascalon, 30624), (groot, 30093), (mouen, 30196), (mason, 30625)] {
+    for (oid, npc) in [
+        (ascalon, 30624),
+        (groot, 30093),
+        (mouen, 30196),
+        (mason, 30625),
+    ] {
         add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
     }
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -10824,10 +11626,18 @@ fn quest_q00223_test_of_the_champion() {
     add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
     world.forced_rolls.push_back(0); // roll(2) == 0 → spawn
     combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
-    assert_eq!(npcs_of(&mut world, 20780).len(), 2, "on_attack conjures a second Bloody Axe Elite");
+    assert_eq!(
+        npcs_of(&mut world, 20780).len(),
+        2,
+        "on_attack conjures a second Bloody Axe Elite"
+    );
     inject(&mut world, 3001, 0x0223_0000, 3290, 9); // 9 heads
     kill(&mut world, 20780); // 10th head → cond 3
-    assert_eq!(item_count(&world, 3001, 3290), 10, "Bloody Axe Head reaches 10");
+    assert_eq!(
+        item_count(&world, 3001, 3290),
+        10,
+        "Bloody Axe Head reaches 10"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     talk(&mut world, mason); // ring + heads → Mason's Letter
     assert_eq!(item_count(&world, 3001, 3278), 1, "Mason's Letter");
@@ -10842,12 +11652,20 @@ fn quest_q00223_test_of_the_champion() {
     assert_eq!(quest_cond(&world, 3001, q), Some(6));
     // --- Leg 3: hunt 30 each of eggs/venom/bile → cond 7. ---
     kill(&mut world, 20145); // one real Harpy kill drops 2 eggs
-    assert_eq!(item_count(&world, 3001, 3287), 2, "Harpy drops eggs (insignia-gated)");
+    assert_eq!(
+        item_count(&world, 3001, 3287),
+        2,
+        "Harpy drops eggs (insignia-gated)"
+    );
     inject(&mut world, 3001, 0x0223_0001, 3287, 28); // eggs → 30
     inject(&mut world, 3001, 0x0223_0002, 3288, 30); // venom → 30
     inject(&mut world, 3001, 0x0223_0003, 3289, 27); // bile → 27
     kill(&mut world, 20553); // Windsus: 27 → 30, all three complete → cond 7
-    assert_eq!(item_count(&world, 3001, 3289), 30, "Windsus Bile reaches 30");
+    assert_eq!(
+        item_count(&world, 3001, 3289),
+        30,
+        "Windsus Bile reaches 30"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
     talk(&mut world, groot); // insignia + all → Groot's Letter, cond 8
     assert_eq!(item_count(&world, 3001, 3282), 1, "Groot's Letter");
@@ -10879,19 +11697,32 @@ fn quest_q00223_test_of_the_champion() {
     // --- Completion: Ascalon awards the Mark of the Champion. ---
     let a = item_count(&world, 3001, 57);
     talk(&mut world, ascalon);
-    assert_eq!(item_count(&world, 3001, 3276), 1, "Mark of the Champion awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 229764, "final adena reward");
-    assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
+    assert_eq!(
+        item_count(&world, 3001, 3276),
+        1,
+        "Mark of the Champion awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 229764,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(14),
+        "one-time quest finished"
+    );
 }
 
 #[test]
 fn quest_q00224_test_of_sagittarius() {
     let (mut world, _db, _l) = quest_test_world();
-    let mut items: Vec<(i32, &str, bool)> =
-        [3028, 3294, 3295, 3296, 3297, 3298, 3299, 3300, 3301, 3302, 3303, 3304, 3305, 3306]
-            .iter()
-            .map(|&id| (id, "Q224", true))
-            .collect();
+    let mut items: Vec<(i32, &str, bool)> = [
+        3028, 3294, 3295, 3296, 3297, 3298, 3299, 3300, 3301, 3302, 3303, 3304, 3305, 3306,
+    ]
+    .iter()
+    .map(|&id| (id, "Q224", true))
+    .collect();
     items.push((3293, "Mark of Sagittarius", false));
     items.push((17, "Wooden Arrow", false));
     add_quest_items(&mut world, &items);
@@ -10950,7 +11781,11 @@ fn quest_q00224_test_of_sagittarius() {
     // --- Leg: 10 Hunter's 1st Runes from ants → memo/cond 4. ---
     inject(&mut world, 3001, 0x0224_0000, 3298, 9);
     kill(&mut world, 20079); // 10th rune → memo 4
-    assert_eq!(item_count(&world, 3001, 3298), 10, "Hunter's 1st Rune reaches 10");
+    assert_eq!(
+        item_count(&world, 3001, 3298),
+        10,
+        "Hunter's 1st Rune reaches 10"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     talk(&mut world, hamil);
     ev(&mut world, hamil, "30626-07.html"); // runes → 2nd Letter, memo/cond 5
@@ -10965,7 +11800,11 @@ fn quest_q00224_test_of_sagittarius() {
     assert_eq!(item_count(&world, 3001, 3301), 1, "Talisman of Snake");
     assert_eq!(quest_cond(&world, 3001, q), Some(7));
     talk(&mut world, vokian); // Talisman of Snake → memo/cond 8
-    assert_eq!(item_count(&world, 3001, 3301), 0, "Talisman of Snake consumed");
+    assert_eq!(
+        item_count(&world, 3001, 3301),
+        0,
+        "Talisman of Snake consumed"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(8));
     talk(&mut world, hamil); // → 3rd Letter, memo/cond 9
     assert_eq!(item_count(&world, 3001, 3297), 1, "Hamil's 3rd Letter");
@@ -10975,7 +11814,11 @@ fn quest_q00224_test_of_sagittarius() {
     // --- Leg: four bow-materials, set completes in any order → memo/cond 11. ---
     kill(&mut world, 20233); // Marsh Spider: bowstring, but set incomplete → still memo 10
     assert_eq!(item_count(&world, 3001, 3304), 1, "Reinforced Bowstring");
-    assert_eq!(quest_memo(&world, 3001, q), 10, "set incomplete: no advance");
+    assert_eq!(
+        quest_memo(&world, 3001, q),
+        10,
+        "set incomplete: no advance"
+    );
     inject(&mut world, 3001, 0x0224_0002, 3302, 1); // Mithril Clip
     inject(&mut world, 3001, 0x0224_0003, 3305, 1); // Manashen's Horn
     kill(&mut world, 20230); // Stakato: chitin completes the set → memo/cond 11
@@ -10990,29 +11833,68 @@ fn quest_q00224_test_of_sagittarius() {
     // --- Blood farming spawns Serpent Demon Kadesh probabilistically. ---
     inject(&mut world, 3001, 0x0224_0004, 3306, 5); // low stack → else branch
     kill(&mut world, 20577); // ((5-10)*5) < roll → just one more Blood
-    assert_eq!(item_count(&world, 3001, 3306), 6, "low stack: Blood accrues, no spawn");
+    assert_eq!(
+        item_count(&world, 3001, 3306),
+        6,
+        "low stack: Blood accrues, no spawn"
+    );
     let before = npcs_of(&mut world, 27090).len();
     inject(&mut world, 3001, 0x0224_0005, 3306, 24); // stack now 30
     world.forced_rolls.push_back(0); // ((30-10)*5)=100 > 0 → spawn Kadesh
     kill(&mut world, 20577);
-    assert_eq!(npcs_of(&mut world, 27090).len(), before + 1, "Kadesh conjured");
-    assert_eq!(item_count(&world, 3001, 3306), 0, "Blood consumed on the summon");
+    assert_eq!(
+        npcs_of(&mut world, 27090).len(),
+        before + 1,
+        "Kadesh conjured"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 3306),
+        0,
+        "Blood consumed on the summon"
+    );
     // --- Kadesh with the wrong weapon: no Talisman, he respawns. ---
     kill(&mut world, 27090); // no weapon equipped → respawn, no reward
-    assert_eq!(item_count(&world, 3001, 3300), 0, "wrong weapon: no Talisman of Kadesh");
-    assert_eq!(quest_memo(&world, 3001, q), 13, "wrong weapon: still memo 13");
-    assert!(!npcs_of(&mut world, 27090).is_empty(), "wrong-weapon kill respawns Kadesh");
+    assert_eq!(
+        item_count(&world, 3001, 3300),
+        0,
+        "wrong weapon: no Talisman of Kadesh"
+    );
+    assert_eq!(
+        quest_memo(&world, 3001, q),
+        13,
+        "wrong weapon: still memo 13"
+    );
+    assert!(
+        !npcs_of(&mut world, 27090).is_empty(),
+        "wrong-weapon kill respawns Kadesh"
+    );
     // --- Equip the Crescent Moon Bow and fell him properly. ---
     equip_weapon_row(&mut world, 3001, 3028);
     kill(&mut world, 27090); // killing blow with the bow → Talisman of Kadesh, memo/cond 14
-    assert_eq!(item_count(&world, 3001, 3300), 1, "Talisman of Kadesh awarded");
+    assert_eq!(
+        item_count(&world, 3001, 3300),
+        1,
+        "Talisman of Kadesh awarded"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(14));
     // --- Completion. ---
     let a = item_count(&world, 3001, 57);
     talk(&mut world, hamil);
-    assert_eq!(item_count(&world, 3001, 3293), 1, "Mark of Sagittarius awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
-    assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
+    assert_eq!(
+        item_count(&world, 3001, 3293),
+        1,
+        "Mark of Sagittarius awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 161806,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(14),
+        "one-time quest finished"
+    );
 }
 
 #[test]
@@ -11029,7 +11911,10 @@ fn quest_q00225_test_of_the_searcher() {
         world.data.npc_data.insert_for_test(t);
     }
     // The Ancient Tree conjures a Strong Wooden Chest; it needs a template.
-    world.data.npc_data.insert_for_test(crate::data::npc_data::default_template(30628));
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(30628));
     let luther = NPC_OID;
     let alex = NPC_OID + 1;
     let leirynn = NPC_OID + 2;
@@ -11082,12 +11967,20 @@ fn quest_q00225_test_of_the_searcher() {
     // onAttack: first hit on a Delu Shaman (1st Order held) conjures a Neer Bodyguard.
     add_test_npc(&mut world, NPC_OID + 20, 20781, "Monster", 40, 40, 0, 0);
     combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
-    assert_eq!(npcs_of(&mut world, 27092).len(), 1, "onAttack conjures a Neer Bodyguard");
+    assert_eq!(
+        npcs_of(&mut world, 27092).len(),
+        1,
+        "onAttack conjures a Neer Bodyguard"
+    );
     // Collect 10 Delu Totems (cond stays 3 — the totem leg advances at Leirynn).
     inject(&mut world, 3001, 0x0225_0000, 2787, 9);
     kill(&mut world, 20781);
     assert_eq!(item_count(&world, 3001, 2787), 10, "Delu Totem reaches 10");
-    assert_eq!(quest_cond(&world, 3001, q), Some(3), "totem kill does not fire the dead cond 4");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(3),
+        "totem kill does not fire the dead cond 4"
+    );
     talk(&mut world, leirynn); // 1st Order + totems → 2nd Order, cond 5
     assert_eq!(item_count(&world, 3001, 2788), 1, "Leirynn's 2nd Order");
     assert_eq!(quest_cond(&world, 3001, q), Some(5));
@@ -11126,15 +12019,31 @@ fn quest_q00225_test_of_the_searcher() {
     assert_eq!(quest_cond(&world, 3001, q), Some(14));
     // --- Map pieces: Solt's (deterministic) + Makel's (50/50) → cond 15. ---
     kill(&mut world, 20551); // Road Scavenger: first torn piece
-    assert_eq!(item_count(&world, 3001, 2801), 1, "Torn Map Piece 1st accrues");
+    assert_eq!(
+        item_count(&world, 3001, 2801),
+        1,
+        "Torn Map Piece 1st accrues"
+    );
     inject(&mut world, 3001, 0x0225_0002, 2801, 2); // → 3 pieces
     kill(&mut world, 20551); // at 3 → Solt's Map (no cond 15 yet, Makel's absent)
     assert_eq!(item_count(&world, 3001, 2803), 1, "Solt's Map");
-    assert_eq!(item_count(&world, 3001, 2801), 0, "torn 1st pieces consumed");
-    assert_ne!(quest_cond(&world, 3001, q), Some(15), "one map is not enough");
+    assert_eq!(
+        item_count(&world, 3001, 2801),
+        0,
+        "torn 1st pieces consumed"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(15),
+        "one map is not enough"
+    );
     world.forced_rolls.push_back(0); // roll(100) < 50 → drop
     kill(&mut world, 20144); // Hangman Tree: first torn 2nd piece
-    assert_eq!(item_count(&world, 3001, 2802), 1, "Torn Map Piece 2nd accrues");
+    assert_eq!(
+        item_count(&world, 3001, 2802),
+        1,
+        "Torn Map Piece 2nd accrues"
+    );
     inject(&mut world, 3001, 0x0225_0003, 2802, 2); // → 3 pieces
     world.forced_rolls.push_back(0); // roll(100) < 50 → convert
     kill(&mut world, 20144); // at 3 → Makel's Map + cond 15 (Solt's held)
@@ -11148,7 +12057,10 @@ fn quest_q00225_test_of_the_searcher() {
     ev(&mut world, tree, "30627-01a.html"); // Rusted Key + spawn chest, cond 17
     assert_eq!(item_count(&world, 3001, 2806), 1, "Rusted Key");
     assert_eq!(quest_cond(&world, 3001, q), Some(17));
-    assert!(!npcs_of(&mut world, 30628).is_empty(), "the tree conjures a Strong Wooden Chest");
+    assert!(
+        !npcs_of(&mut world, 30628).is_empty(),
+        "the tree conjures a Strong Wooden Chest"
+    );
     talk(&mut world, chest);
     ev(&mut world, chest, "30628-01a.html"); // key → 20 Gold Bars, cond 18, chest deleted
     assert_eq!(item_count(&world, 3001, 2807), 20, "20 Gold Bars");
@@ -11161,7 +12073,19 @@ fn quest_q00225_test_of_the_searcher() {
     // --- Completion at Luther. ---
     let a = item_count(&world, 3001, 57);
     talk(&mut world, luther);
-    assert_eq!(item_count(&world, 3001, 2809), 1, "Mark of the Searcher awarded");
-    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
-    assert_ne!(quest_cond(&world, 3001, q), Some(19), "one-time quest finished");
+    assert_eq!(
+        item_count(&world, 3001, 2809),
+        1,
+        "Mark of the Searcher awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 161806,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(19),
+        "one-time quest finished"
+    );
 }

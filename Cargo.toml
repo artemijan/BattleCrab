@@ -63,3 +63,7 @@ assertions_on_constants = "allow"
 drop_non_drop = "allow"
 unnecessary_sort_by = "allow"
 unnecessary_get_then_check = "allow"
+# Quest scripts mirror Java's switch-case cond lists (`2 | 3 | 4`) and nested
+# match shapes on purpose — the parity with the Java source must stay greppable.
+manual_range_patterns = "allow"
+collapsible_match = "allow"

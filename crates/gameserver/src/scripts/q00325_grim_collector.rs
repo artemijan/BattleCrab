@@ -47,8 +47,20 @@ fn drops_for(npc_id: i32) -> &'static [(i32, i32)] {
         20051 => &[(SKULL, 9), (RIB_BONE, 59), (SPINE, 79), (ARM_BONE, 100)],
         20457 => &[(ZOMBIE_HEAD, 40), (ZOMBIE_HEART, 60), (ZOMBIE_LIVER, 80)],
         20458 => &[(ZOMBIE_HEAD, 40), (ZOMBIE_HEART, 70), (ZOMBIE_LIVER, 100)],
-        20514 => &[(SKULL, 6), (RIB_BONE, 21), (SPINE, 30), (ARM_BONE, 31), (THIGH_BONE, 64)],
-        20515 => &[(SKULL, 5), (RIB_BONE, 20), (SPINE, 31), (ARM_BONE, 33), (THIGH_BONE, 69)],
+        20514 => &[
+            (SKULL, 6),
+            (RIB_BONE, 21),
+            (SPINE, 30),
+            (ARM_BONE, 31),
+            (THIGH_BONE, 64),
+        ],
+        20515 => &[
+            (SKULL, 5),
+            (RIB_BONE, 20),
+            (SPINE, 31),
+            (ARM_BONE, 33),
+            (THIGH_BONE, 69),
+        ],
         _ => &[],
     }
 }
@@ -79,7 +91,9 @@ impl QuestScript for Q00325GrimCollector {
         &[GUARD_CURTIZ, VARSAK, SAMED]
     }
     fn kill_npcs(&self) -> &[i32] {
-        &[20026, 20029, 20035, 20042, 20045, 20051, 20457, 20458, 20514, 20515]
+        &[
+            20026, 20029, 20035, 20042, 20045, 20051, 20457, 20458, 20514, 20515,
+        ]
     }
     fn quest_items(&self) -> &[i32] {
         &REGISTERED
@@ -194,8 +208,12 @@ impl QuestScript for Q00325GrimCollector {
             GUARD_CURTIZ => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() >= MIN_LEVEL { "30336-02.htm" } else { "30336-01.htm" }
-                            .to_string(),
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30336-02.htm"
+                        } else {
+                            "30336-01.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 if ctx.is_started() {

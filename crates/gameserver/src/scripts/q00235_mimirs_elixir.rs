@@ -47,7 +47,14 @@ impl QuestScript for Q00235MimirsElixir {
         &[20965, 21090]
     }
     fn quest_items(&self) -> &[i32] {
-        &[PURE_SILVER, TRUE_GOLD, SAGE_STONE, BLOOD_FIRE, MAGISTER_MIXING_STONE, MIMIR_ELIXIR]
+        &[
+            PURE_SILVER,
+            TRUE_GOLD,
+            SAGE_STONE,
+            BLOOD_FIRE,
+            MAGISTER_MIXING_STONE,
+            MIMIR_ELIXIR,
+        ]
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
@@ -106,14 +113,20 @@ impl QuestScript for Q00235MimirsElixir {
                 }
             }
             "31149-07.htm" => {
-                if !has_all(ctx, &[MAGISTER_MIXING_STONE, PURE_SILVER, TRUE_GOLD, BLOOD_FIRE]) {
+                if !has_all(
+                    ctx,
+                    &[MAGISTER_MIXING_STONE, PURE_SILVER, TRUE_GOLD, BLOOD_FIRE],
+                ) {
                     Some("31149-havent.htm".to_string())
                 } else {
                     Some(event.to_string())
                 }
             }
             "31149-success.htm" => {
-                if has_all(ctx, &[MAGISTER_MIXING_STONE, PURE_SILVER, TRUE_GOLD, BLOOD_FIRE]) {
+                if has_all(
+                    ctx,
+                    &[MAGISTER_MIXING_STONE, PURE_SILVER, TRUE_GOLD, BLOOD_FIRE],
+                ) {
                     ctx.set_cond(8, true);
                     ctx.take_items(PURE_SILVER, -1);
                     ctx.take_items(TRUE_GOLD, -1);

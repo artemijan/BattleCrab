@@ -53,8 +53,13 @@ const KRATORS_SHARD: i32 = 2780;
 const GRANDIS_SKIN: i32 = 2781;
 const TIMAK_ORCS_BELT: i32 = 2782;
 const LAKINS_MACE: i32 = 2783;
-const STAGE2_TROPHIES: [i32; 5] =
-    [EXCUROS_SKIN, KRATORS_SHARD, GRANDIS_SKIN, TIMAK_ORCS_BELT, LAKINS_MACE];
+const STAGE2_TROPHIES: [i32; 5] = [
+    EXCUROS_SKIN,
+    KRATORS_SHARD,
+    GRANDIS_SKIN,
+    TIMAK_ORCS_BELT,
+    LAKINS_MACE,
+];
 
 const MIN_LEVEL: i32 = 39;
 // Eligible starting classes: Warrior, Elven Knight, Palus Knight, Orc Monk.
@@ -80,11 +85,11 @@ fn stage1_mob(npc_id: i32) -> Option<(i32, i32)> {
 /// Stage-2 kill: npc → trophy (all gated on holding the Final Order).
 fn stage2_mob(npc_id: i32) -> Option<i32> {
     Some(match npc_id {
-        20214 => EXCUROS_SKIN,      // Excuro
-        20217 => KRATORS_SHARD,     // Krator
-        20554 => GRANDIS_SKIN,      // Grandis
-        20588 => TIMAK_ORCS_BELT,   // Timak Orc Overlord
-        20604 => LAKINS_MACE,       // Lakin
+        20214 => EXCUROS_SKIN,    // Excuro
+        20217 => KRATORS_SHARD,   // Krator
+        20554 => GRANDIS_SKIN,    // Grandis
+        20588 => TIMAK_ORCS_BELT, // Timak Orc Overlord
+        20604 => LAKINS_MACE,     // Lakin
         _ => return None,
     })
 }
@@ -152,7 +157,13 @@ impl QuestScript for Q00222TestOfTheDuelist {
                 if ctx.is_created() {
                     ctx.start_quest();
                     ctx.set_memo_state(1);
-                    for order in [ORDER_GLUDIO, ORDER_DION, ORDER_GIRAN, ORDER_OREN, ORDER_ADEN] {
+                    for order in [
+                        ORDER_GLUDIO,
+                        ORDER_DION,
+                        ORDER_GIRAN,
+                        ORDER_OREN,
+                        ORDER_ADEN,
+                    ] {
                         ctx.give_items(order, 1);
                     }
                     ctx.play_sound(quest_sounds::MIDDLE);
@@ -161,7 +172,14 @@ impl QuestScript for Q00222TestOfTheDuelist {
             }
             "30623-04.htm" => {
                 // Orcs are steered elsewhere (Orc Monk aside).
-                Some(if ctx.player_race() != 3 { "30623-04.htm" } else { "30623-05.htm" }.to_string())
+                Some(
+                    if ctx.player_race() != 3 {
+                        "30623-04.htm"
+                    } else {
+                        "30623-05.htm"
+                    }
+                    .to_string(),
+                )
             }
             "30623-06.htm" | "30623-07.html" | "30623-09.html" | "30623-10.html"
             | "30623-11.html" | "30623-12.html" | "30623-15.html" => Some(event.to_string()),
@@ -173,7 +191,13 @@ impl QuestScript for Q00222TestOfTheDuelist {
                 for id in STAGE1_TROPHIES {
                     ctx.take_items(id, -1);
                 }
-                for order in [ORDER_GLUDIO, ORDER_DION, ORDER_GIRAN, ORDER_OREN, ORDER_ADEN] {
+                for order in [
+                    ORDER_GLUDIO,
+                    ORDER_DION,
+                    ORDER_GIRAN,
+                    ORDER_OREN,
+                    ORDER_ADEN,
+                ] {
                     ctx.take_items(order, 1);
                 }
                 ctx.give_items(FINAL_ORDER, 1);
@@ -223,8 +247,12 @@ impl QuestScript for Q00222TestOfTheDuelist {
         if ctx.is_created() {
             if ELIGIBLE_CLASSES.contains(&ctx.player_class_id()) {
                 return Some(
-                    if ctx.player_level() >= MIN_LEVEL { "30623-03.htm" } else { "30623-01.html" }
-                        .to_string(),
+                    if ctx.player_level() >= MIN_LEVEL {
+                        "30623-03.htm"
+                    } else {
+                        "30623-01.html"
+                    }
+                    .to_string(),
                 );
             }
             return Some("30623-02.html".to_string());
@@ -236,13 +264,23 @@ impl QuestScript for Q00222TestOfTheDuelist {
             return Some(ctx.no_quest_html());
         }
         // Stage 1: still holding the five region Orders.
-        let has_orders = [ORDER_GLUDIO, ORDER_DION, ORDER_GIRAN, ORDER_OREN, ORDER_ADEN]
-            .iter()
-            .all(|&id| ctx.quest_items_count(id) > 0);
+        let has_orders = [
+            ORDER_GLUDIO,
+            ORDER_DION,
+            ORDER_GIRAN,
+            ORDER_OREN,
+            ORDER_ADEN,
+        ]
+        .iter()
+        .all(|&id| ctx.quest_items_count(id) > 0);
         if has_orders {
             return Some(
-                if total(ctx, &STAGE1_TROPHIES) == 100 { "30623-13.html" } else { "30623-14.html" }
-                    .to_string(),
+                if total(ctx, &STAGE1_TROPHIES) == 100 {
+                    "30623-13.html"
+                } else {
+                    "30623-14.html"
+                }
+                .to_string(),
             );
         }
         // Stage 2: the Final Order.

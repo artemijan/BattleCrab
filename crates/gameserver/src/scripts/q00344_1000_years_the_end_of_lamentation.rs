@@ -39,7 +39,9 @@ fn article_chance(npc_id: i32) -> Option<f64> {
 }
 
 fn has_any_relic(ctx: &QuestCtx) -> bool {
-    [OLD_KEY, OLD_HILT, TOTEM_NECKLACE, CRUCIFIX].iter().any(|&id| ctx.quest_items_count(id) > 0)
+    [OLD_KEY, OLD_HILT, TOTEM_NECKLACE, CRUCIFIX]
+        .iter()
+        .any(|&id| ctx.quest_items_count(id) > 0)
 }
 
 pub struct Q003441000YearsTheEndOfLamentation;
@@ -61,7 +63,9 @@ impl QuestScript for Q003441000YearsTheEndOfLamentation {
         &[KAIEN, GARVARENTZ, GILMORE, RODEMAI, ORVEN]
     }
     fn kill_npcs(&self) -> &[i32] {
-        &[20236, 20238, 20237, 20239, 20240, 20272, 20273, 20274, 20275, 20276]
+        &[
+            20236, 20238, 20237, 20239, 20240, 20272, 20273, 20274, 20275, 20276,
+        ]
     }
     fn quest_items(&self) -> &[i32] {
         &[ARTICLES, OLD_KEY, OLD_HILT, TOTEM_NECKLACE, CRUCIFIX]
@@ -152,8 +156,12 @@ impl QuestScript for Q003441000YearsTheEndOfLamentation {
             GILMORE => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() >= MIN_LEVEL { "30754-02.htm" } else { "30754-01.htm" }
-                            .to_string(),
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30754-02.htm"
+                        } else {
+                            "30754-01.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 if ctx.is_started() {

@@ -619,7 +619,12 @@ impl<'w> QuestCtx<'w> {
     /// `npc.getLevel()` — the in-context NPC's template level (regular mobs do
     /// not level up, so the template value is authoritative). 0 when unknown.
     pub fn npc_level(&self) -> i32 {
-        self.world.data.npc_data.get(self.npc_id).map(|t| t.level).unwrap_or(0)
+        self.world
+            .data
+            .npc_data
+            .get(self.npc_id)
+            .map(|t| t.level)
+            .unwrap_or(0)
     }
 
     /// The `Race` ordinal (`characters.race` — 0 Human, 1 Elf, 2 Dark Elf,

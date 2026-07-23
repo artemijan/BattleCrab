@@ -76,7 +76,14 @@ impl QuestScript for Q00355FamilyHonor {
                 } else {
                     ctx.give_adena(busts * 20, true);
                     ctx.take_items(GALFREDO_ROMERS_BUST, -1);
-                    Some(if busts >= 100 { "30181-07.html" } else { "30181-08.html" }.to_string())
+                    Some(
+                        if busts >= 100 {
+                            "30181-07.html"
+                        } else {
+                            "30181-08.html"
+                        }
+                        .to_string(),
+                    )
                 }
             }
             "30181-10.html" => {
@@ -135,8 +142,12 @@ impl QuestScript for Q00355FamilyHonor {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "30181-01.htm" } else { "30181-04.html" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30181-01.htm"
+                } else {
+                    "30181-04.html"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

@@ -82,19 +82,58 @@ const TEMPERATURES: [(i32, i32, i64); 3] = [(1, 100, 1), (2, 45, 2), (3, 15, 3)]
 /// `DROPLIST` — the reagent drops. `Single` rolls out of 1_000_000; `Pair` rolls
 /// out of 1000 (item1 below `t2`, item2 up to `t3`, nothing beyond).
 enum Drop {
-    Single { item: i32, chance: i32 },
-    Pair { item1: i32, item2: i32, t2: i32, t3: i32 },
+    Single {
+        item: i32,
+        chance: i32,
+    },
+    Pair {
+        item1: i32,
+        item2: i32,
+        t2: i32,
+        t3: i32,
+    },
 }
 
 fn drop_for(npc_id: i32) -> Option<Drop> {
     Some(match npc_id {
-        PLATINUM_GUARDIAN_SHAMAN => Drop::Single { item: REAGENT_BOX, chance: 442000 },
-        HAMES_ORC_SHAMAN => Drop::Single { item: REAGENT_POUCH_3, chance: 470000 },
-        PLATINUM_TRIBE_SHAMAN => Drop::Pair { item1: REAGENT_POUCH_2, item2: QUICKSILVER, t2: 680, t3: 1000 },
-        HALLATE_MAID => Drop::Pair { item1: REAGENT_POUCH_1, item2: VOLCANIC_ASH, t2: 664, t3: 844 },
-        HALLATE_GUARDIAN => Drop::Pair { item1: DEMONS_BLOOD, item2: MOONSTONE_SHARD, t2: 729, t3: 833 },
-        CRENDION => Drop::Pair { item1: ROTTEN_BONE, item2: QUICKSILVER, t2: 618, t3: 1000 },
-        LAVA_WYRM => Drop::Pair { item1: WYRMS_BLOOD, item2: LAVA_STONE, t2: 505, t3: 750 },
+        PLATINUM_GUARDIAN_SHAMAN => Drop::Single {
+            item: REAGENT_BOX,
+            chance: 442000,
+        },
+        HAMES_ORC_SHAMAN => Drop::Single {
+            item: REAGENT_POUCH_3,
+            chance: 470000,
+        },
+        PLATINUM_TRIBE_SHAMAN => Drop::Pair {
+            item1: REAGENT_POUCH_2,
+            item2: QUICKSILVER,
+            t2: 680,
+            t3: 1000,
+        },
+        HALLATE_MAID => Drop::Pair {
+            item1: REAGENT_POUCH_1,
+            item2: VOLCANIC_ASH,
+            t2: 664,
+            t3: 844,
+        },
+        HALLATE_GUARDIAN => Drop::Pair {
+            item1: DEMONS_BLOOD,
+            item2: MOONSTONE_SHARD,
+            t2: 729,
+            t3: 833,
+        },
+        CRENDION => Drop::Pair {
+            item1: ROTTEN_BONE,
+            item2: QUICKSILVER,
+            t2: 618,
+            t3: 1000,
+        },
+        LAVA_WYRM => Drop::Pair {
+            item1: WYRMS_BLOOD,
+            item2: LAVA_STONE,
+            t2: 505,
+            t3: 750,
+        },
         _ => return None,
     })
 }
@@ -238,7 +277,12 @@ impl QuestScript for Q00373SupplierOfReagents {
                     ctx.play_sound(quest_sounds::ITEMGET);
                 }
             }
-            Drop::Pair { item1, item2, t2, t3 } => {
+            Drop::Pair {
+                item1,
+                item2,
+                t2,
+                t3,
+            } => {
                 let r = ctx.roll(1000);
                 if r < t3 {
                     ctx.give_items(if r < t2 { item1 } else { item2 }, 1);
@@ -252,11 +296,23 @@ impl QuestScript for Q00373SupplierOfReagents {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() < 57 { "30166-01.htm" } else { "30166-02.htm" }.to_string(),
+                if ctx.player_level() < 57 {
+                    "30166-01.htm"
+                } else {
+                    "30166-02.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {
-            return Some(if ctx.npc_id == WESLEY { "30166-05.htm" } else { "31149-01.htm" }.to_string());
+            return Some(
+                if ctx.npc_id == WESLEY {
+                    "30166-05.htm"
+                } else {
+                    "31149-01.htm"
+                }
+                .to_string(),
+            );
         }
         Some(ctx.no_quest_html())
     }

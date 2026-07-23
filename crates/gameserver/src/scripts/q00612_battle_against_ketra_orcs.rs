@@ -107,14 +107,22 @@ impl QuestScript for Q00612BattleAgainstKetraOrcs {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "31377-01.htm" } else { "31377-02.htm" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31377-01.htm"
+                } else {
+                    "31377-02.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {
             return Some(
-                if ctx.quest_items_count(MOLAR) > 0 { "31377-04.html" } else { "31377-05.html" }
-                    .to_string(),
+                if ctx.quest_items_count(MOLAR) > 0 {
+                    "31377-04.html"
+                } else {
+                    "31377-05.html"
+                }
+                .to_string(),
             );
         }
         Some(ctx.no_quest_html())

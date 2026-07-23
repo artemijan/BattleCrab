@@ -222,16 +222,40 @@ impl QuestScript for Q00224TestOfSagittarius {
                 }
             }
             MARSH_STAKATO_WORKER | MARSH_STAKATO_SOLDIER | MARSH_STAKATO_DRONE => {
-                material_kill(ctx, STAKATO_CHITIN, MITHRIL_CLIP, REINFORCED_BOWSTRING, MANASHENS_HORN);
+                material_kill(
+                    ctx,
+                    STAKATO_CHITIN,
+                    MITHRIL_CLIP,
+                    REINFORCED_BOWSTRING,
+                    MANASHENS_HORN,
+                );
             }
             MARSH_SPIDER => {
-                material_kill(ctx, REINFORCED_BOWSTRING, MITHRIL_CLIP, MANASHENS_HORN, STAKATO_CHITIN);
+                material_kill(
+                    ctx,
+                    REINFORCED_BOWSTRING,
+                    MITHRIL_CLIP,
+                    MANASHENS_HORN,
+                    STAKATO_CHITIN,
+                );
             }
             ROAD_SCAVENGER => {
-                material_kill(ctx, MITHRIL_CLIP, REINFORCED_BOWSTRING, MANASHENS_HORN, STAKATO_CHITIN);
+                material_kill(
+                    ctx,
+                    MITHRIL_CLIP,
+                    REINFORCED_BOWSTRING,
+                    MANASHENS_HORN,
+                    STAKATO_CHITIN,
+                );
             }
             MANASHEN_GARGOYLE => {
-                material_kill(ctx, MANASHENS_HORN, MITHRIL_CLIP, REINFORCED_BOWSTRING, STAKATO_CHITIN);
+                material_kill(
+                    ctx,
+                    MANASHENS_HORN,
+                    MITHRIL_CLIP,
+                    REINFORCED_BOWSTRING,
+                    STAKATO_CHITIN,
+                );
             }
             BREKA_ORC_SHAMAN | BREKA_ORC_OVERLORD => {
                 if ctx.memo_state() == 6 && ctx.quest_items_count(HUNTERS_2ND_RUNE) < 10 {
@@ -246,8 +270,12 @@ impl QuestScript for Q00224TestOfSagittarius {
                     }
                 }
             }
-            LETO_LIZARDMAN | LETO_LIZARDMAN_ARCHER | LETO_LIZARDMAN_SOLDIER
-            | LETO_LIZARDMAN_WARRIOR | LETO_LIZARDMAN_SHAMAN | LETO_LIZARDMAN_OVERLORD => {
+            LETO_LIZARDMAN
+            | LETO_LIZARDMAN_ARCHER
+            | LETO_LIZARDMAN_SOLDIER
+            | LETO_LIZARDMAN_WARRIOR
+            | LETO_LIZARDMAN_SHAMAN
+            | LETO_LIZARDMAN_OVERLORD => {
                 if ctx.memo_state() == 13 && ctx.quest_items_count(BLOOD_OF_LIZARDMAN) < 140 {
                     // Chance to conjure Kadesh climbs as the Blood stack grows.
                     let blood = ctx.quest_items_count(BLOOD_OF_LIZARDMAN) as i32;
@@ -327,7 +355,9 @@ impl QuestScript for Q00224TestOfSagittarius {
 /// other three materials are already in hand does the set complete → state 11.
 fn material_kill(ctx: &mut QuestCtx, own: i32, a: i32, b: i32, c: i32) {
     if ctx.memo_state() == 10 && ctx.quest_items_count(own) == 0 {
-        if ctx.quest_items_count(a) > 0 && ctx.quest_items_count(b) > 0 && ctx.quest_items_count(c) > 0
+        if ctx.quest_items_count(a) > 0
+            && ctx.quest_items_count(b) > 0
+            && ctx.quest_items_count(c) > 0
         {
             ctx.give_items(own, 1);
             ctx.set_memo_state(11);

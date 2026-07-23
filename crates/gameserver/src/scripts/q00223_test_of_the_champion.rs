@@ -312,8 +312,12 @@ impl QuestScript for Q00223TestOfTheChampion {
                     }
                 }
             }
-            LETO_LIZARDMAN | LETO_LIZARDMAN_ARCHER | LETO_LIZARDMAN_SOLDIER
-            | LETO_LIZARDMAN_WARRIOR | LETO_LIZARDMAN_SHAMAN | LETO_LIZARDMAN_OCERLORD => {
+            LETO_LIZARDMAN
+            | LETO_LIZARDMAN_ARCHER
+            | LETO_LIZARDMAN_SOLDIER
+            | LETO_LIZARDMAN_WARRIOR
+            | LETO_LIZARDMAN_SHAMAN
+            | LETO_LIZARDMAN_OCERLORD => {
                 if ctx.quest_items_count(MOUENS_2ND_ORDER) > 0
                     && ctx.quest_items_count(LETO_LIZARDMAN_FANG) < 10
                 {

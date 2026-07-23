@@ -158,7 +158,8 @@ impl QuestScript for Q00225TestOfTheSearcher {
             | "30730-01b.html" | "30730-01c.html" | "30730-02.html" | "30730-02a.html"
             | "30730-02b.html" => Some(event.to_string()),
             "30291-07.html" => {
-                if ctx.quest_items_count(LEIRYNNS_REPORT) > 0 && ctx.quest_items_count(STRINGE_MAP) > 0
+                if ctx.quest_items_count(LEIRYNNS_REPORT) > 0
+                    && ctx.quest_items_count(STRINGE_MAP) > 0
                 {
                     ctx.take_items(LEIRYNNS_REPORT, 1);
                     ctx.take_items(STRINGE_MAP, 1);

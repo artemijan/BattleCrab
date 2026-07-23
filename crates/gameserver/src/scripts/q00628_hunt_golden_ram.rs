@@ -52,7 +52,9 @@ impl QuestScript for Q00628HuntGoldenRam {
         &[KAHMAN]
     }
     fn kill_npcs(&self) -> &[i32] {
-        &[21508, 21509, 21510, 21511, 21512, 21513, 21514, 21515, 21516, 21517]
+        &[
+            21508, 21509, 21510, 21511, 21512, 21513, 21514, 21515, 21516, 21517,
+        ]
     }
     fn quest_items(&self) -> &[i32] {
         &[SPLINTER_STAKATO_CHITIN, NEEDLE_STAKATO_CHITIN]
@@ -126,8 +128,12 @@ impl QuestScript for Q00628HuntGoldenRam {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "31554-01.htm" } else { "31554-02.htm" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "31554-01.htm"
+                } else {
+                    "31554-02.htm"
+                }
+                .to_string(),
             );
         }
         if !ctx.is_started() {

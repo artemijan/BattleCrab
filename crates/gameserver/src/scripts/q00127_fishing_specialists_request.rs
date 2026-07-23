@@ -67,8 +67,12 @@ impl QuestScript for Q00127FishingSpecialistsRequest {
         if ctx.is_created() {
             if ctx.npc_id == PIERRE {
                 return Some(
-                    if ctx.player_level() < MIN_LEVEL { "30013-00.htm" } else { "30013-01.htm" }
-                        .to_string(),
+                    if ctx.player_level() < MIN_LEVEL {
+                        "30013-00.htm"
+                    } else {
+                        "30013-01.htm"
+                    }
+                    .to_string(),
                 );
             }
             return Some(ctx.no_quest_html());

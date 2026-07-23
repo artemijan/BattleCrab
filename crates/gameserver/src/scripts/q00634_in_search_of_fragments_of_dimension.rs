@@ -83,7 +83,14 @@ impl QuestScript for Q00634InSearchOfFragmentsOfDimension {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() < 20 { "01a.htm" } else { "01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() < 20 {
+                    "01a.htm"
+                } else {
+                    "01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             return Some("03.htm".to_string());

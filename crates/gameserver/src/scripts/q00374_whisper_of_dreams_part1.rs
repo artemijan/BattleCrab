@@ -124,7 +124,11 @@ impl QuestScript for Q00374WhisperOfDreamsPart1 {
             return;
         }
         if ctx.cond() < 4 {
-            let ingredient = if ctx.npc_id == CAVE_BEAST { CAVE_BEAST_TOOTH } else { DEATH_WAVE_LIGHT };
+            let ingredient = if ctx.npc_id == CAVE_BEAST {
+                CAVE_BEAST_TOOTH
+            } else {
+                DEATH_WAVE_LIGHT
+            };
             ctx.give_item_randomly(ingredient, 1, REQUIRED, 0.9, true);
             if ctx.is_cond(3) {
                 ctx.give_item_randomly(SEALED_MYSTERIOUS_STONE, 1, 1, 0.2, true);

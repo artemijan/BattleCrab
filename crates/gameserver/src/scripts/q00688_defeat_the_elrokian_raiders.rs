@@ -103,8 +103,12 @@ impl QuestScript for Q00688DefeatTheElrokianRaiders {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "32105-01.htm" } else { "32105-04.html" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "32105-01.htm"
+                } else {
+                    "32105-04.html"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

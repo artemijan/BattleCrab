@@ -77,8 +77,12 @@ impl QuestScript for Q00124MeetingTheElroki {
             MARQUEZ => {
                 if ctx.is_created() {
                     return Some(
-                        if ctx.player_level() < 75 { "32113-01a.htm" } else { "32113-01.htm" }
-                            .to_string(),
+                        if ctx.player_level() < 75 {
+                            "32113-01a.htm"
+                        } else {
+                            "32113-01.htm"
+                        }
+                        .to_string(),
                     );
                 }
                 if ctx.is_completed() {

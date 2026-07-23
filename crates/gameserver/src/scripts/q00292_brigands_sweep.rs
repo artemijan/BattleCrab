@@ -31,9 +31,15 @@ fn mob_item(npc_id: i32) -> Option<i32> {
 
 /// `hasAtLeastOneQuestItem(getRegisteredItemIds())`.
 fn has_any_registered(ctx: &QuestCtx) -> bool {
-    [GOBLIN_NECKLACE, GOBLIN_PENDANT, GOBLIN_LORD_PENDANT, SUSPICIOUS_MEMO, SUSPICIOUS_CONTRACT]
-        .iter()
-        .any(|&id| ctx.quest_items_count(id) > 0)
+    [
+        GOBLIN_NECKLACE,
+        GOBLIN_PENDANT,
+        GOBLIN_LORD_PENDANT,
+        SUSPICIOUS_MEMO,
+        SUSPICIOUS_CONTRACT,
+    ]
+    .iter()
+    .any(|&id| ctx.quest_items_count(id) > 0)
 }
 
 pub struct Q00292BrigandsSweep;
@@ -58,7 +64,13 @@ impl QuestScript for Q00292BrigandsSweep {
         &[20322, 20323, 20324, 20327, 20528]
     }
     fn quest_items(&self) -> &[i32] {
-        &[GOBLIN_NECKLACE, GOBLIN_PENDANT, GOBLIN_LORD_PENDANT, SUSPICIOUS_MEMO, SUSPICIOUS_CONTRACT]
+        &[
+            GOBLIN_NECKLACE,
+            GOBLIN_PENDANT,
+            GOBLIN_LORD_PENDANT,
+            SUSPICIOUS_MEMO,
+            SUSPICIOUS_CONTRACT,
+        ]
     }
 
     /// `addCondMaxLevel(18, getNoQuestMsg(null))`.
@@ -153,7 +165,10 @@ impl QuestScript for Q00292BrigandsSweep {
                     let sum = necklaces + pendants + lord;
                     if sum > 0 {
                         ctx.give_adena(
-                            necklaces * 6 + pendants * 8 + lord * 10 + if sum >= 10 { 1000 } else { 0 },
+                            necklaces * 6
+                                + pendants * 8
+                                + lord * 10
+                                + if sum >= 10 { 1000 } else { 0 },
                             true,
                         );
                         ctx.take_items(GOBLIN_NECKLACE, -1);

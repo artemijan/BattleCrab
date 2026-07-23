@@ -129,21 +129,19 @@ impl QuestScript for Q00375WhisperOfDreamsPart2 {
             return Some("30938-05.html".to_string());
         }
         if ctx.is_started() {
-            return Some(
-                match ctx.cond() {
-                    1 => "30938-04.html".to_string(),
-                    2 => {
-                        if ctx.quest_items_count(KARIK_HORN) >= REQUIRED
-                            && ctx.quest_items_count(LIMAL_KARINESS_BLOOD) >= REQUIRED
-                        {
-                            "30938-05.html".to_string()
-                        } else {
-                            "30938-06.html".to_string()
-                        }
+            return Some(match ctx.cond() {
+                1 => "30938-04.html".to_string(),
+                2 => {
+                    if ctx.quest_items_count(KARIK_HORN) >= REQUIRED
+                        && ctx.quest_items_count(LIMAL_KARINESS_BLOOD) >= REQUIRED
+                    {
+                        "30938-05.html".to_string()
+                    } else {
+                        "30938-06.html".to_string()
                     }
-                    _ => ctx.no_quest_html(),
-                },
-            );
+                }
+                _ => ctx.no_quest_html(),
+            });
         }
         Some(ctx.no_quest_html())
     }
