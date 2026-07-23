@@ -1,9 +1,11 @@
 //! Data access against the live game SQLite DB — one pool, two tables.
 //!
-//! `accounts` is writable in exactly two columns; `characters` is read-only.
-//! See PLAN_DASHBOARD.md §5.5.
+//! `accounts` is writable in exactly two columns for players — plus, for the
+//! admin surface only, `accessLevel` restricted to values ≤ 0 (see `admin`).
+//! `characters` is read-only. See PLAN_DASHBOARD.md §5.5 and §16.
 
 pub mod accounts;
+pub mod admin;
 pub mod characters;
 
 use std::path::PathBuf;

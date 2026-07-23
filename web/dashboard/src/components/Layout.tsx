@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 
 import markUrl from "../../assets/favicon.svg";
-import { api } from "../lib/api";
+import { api, type Account } from "../lib/api";
 import { Button, cx } from "./ui";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -95,7 +95,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 
-export function Header({ account }: { account?: { email: string | null } | null }) {
+export function Header({ account }: { account?: Account | null }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -152,6 +152,8 @@ export function Header({ account }: { account?: { email: string | null } | null 
           {account ? (
             <>
               <NavItem to="/account">Account</NavItem>
+              {/* Cosmetic only — the server 403s a non-admin regardless. */}
+              {account.isAdmin && <NavItem to="/admin">Admin</NavItem>}
               {/* An address is far longer than the login name this replaced, so
                   it is truncated rather than allowed to push the nav around. */}
               <span
@@ -256,7 +258,7 @@ export function Page({
   account,
   children,
 }: {
-  account?: { email: string | null } | null;
+  account?: Account | null;
   children: ReactNode;
 }) {
   return (

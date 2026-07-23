@@ -35,7 +35,9 @@ storage of its own, and §7 covers what has to change when the coin shop eventua
 **Non-goals for v1**
 
 - **The coin shop.** Deferred — it cannot be built without new storage. See §7.
-- Admin/GM panel (ban, mute, item spawn). Separate concern, separate auth tier — design later.
+- ~~Admin/GM panel (ban, mute, item spawn). Separate concern, separate auth tier — design later.~~
+  **Built (the accounts half): §16.** In-game actions (mute, item spawn, kick) stay out — they
+  need a network path into the game server that deliberately does not exist (§4).
 - Forums, clan pages, rankings/ladder. Nice-to-have, additive to the same API.
 - Any write path into `characters`, `items`, or other live game rows. See §3.
 
@@ -810,3 +812,97 @@ session's address. Until then a forgotten game password has no recovery path at 
 
 There is also no way to delete or rename a game account. Deleting one would orphan its characters
 (`characters.account_name` is a plain string), so it needs a decision about them first.
+
+---
+
+## 16. Admin panel (2026-07-23)
+
+Implemented on `feat/dashboard-admin`. An account-administration surface in the **same crate, same
+SPA, same session mechanism** as the player dashboard, gated on the master account's
+`accounts.accessLevel`.
+
+### 16.1 Decisions, against the stated criteria
+
+**REST, not GraphQL.** Considered and rejected: the admin surface is seven known endpoints serving
+two views. GraphQL would add a second API paradigm to the same binary (schema + resolvers on the
+Rust side, a query client on the FE side, its own error semantics next to the existing envelope,
+and CSRF/caching interactions to re-derive) and would pay for itself only when clients compose
+queries the server didn't anticipate. Nothing here composes; the two pages need exactly the data
+two purpose-built endpoints return. Staying REST keeps one error envelope, one auth path, one
+client, one testing style — which is the consistency/simplicity/maintainability ask directly.
+Performance-wise the list endpoint returns counts via correlated subqueries in one round trip,
+which is precisely the "N+1 solved by hand where it matters" GraphQL folklore worries about.
+
+**Access level, not a new role system.** The gate is `accessLevel >= AdminAccessLevel` (config,
+default 100 = "Master" in the game's own `AccessLevels.xml`; the tiers below are visible in the
+listing but get nothing until the knob is lowered). No new tables (§3's constraint holds — this
+feature adds zero storage), no role enum to migrate later. Finer-grained permissions can be layered
+on if a real need shows up; none is visible from here.
+
+**Same session, boolean to the client.** `/auth/me` now carries `isAdmin`; the SPA's `RequireAdmin`
+route guard and the header's Admin link key off it. The raw level number never leaves the API. The
+guard is UX only — every `/admin/*` handler starts with `require_admin`, which re-reads the account
+per request, so demotion takes effect on the target's next call with no stale claim baked into a
+cookie.
+
+### 16.2 The two safety rules
+
+1. **Never upward.** The admin API's only `accessLevel` write is `db::admin::set_access_level`,
+   which refuses any value above 0 *inside the DB module* — the handler validates too, but the
+   refusal at the bottom means no future caller can turn the ban endpoint into a promotion
+   primitive. Promotion is a manual SQL statement by someone who already has DB access (documented
+   in `Dashboard.ini`). A compromised admin session cannot mint a GM.
+2. **Never sideways.** Mutations refuse any target whose level is **at or above** the actor's own
+   (`assert_outranks`). Equal admins cannot ban each other, an admin cannot self-ban into a
+   lockout, and a GM's game account is as protected as their master. Those cases are DB-console
+   territory, deliberately.
+
+Corollaries worth naming: there is **no admin reset of a master password** — that would be silent
+takeover of the identity owning everything else; masters recover via the email flow, which proves
+inbox control rather than trusting whoever holds an admin session. And `characters` stays
+read-only (§3.2 is unconditional — admin does not change the memory-first problem).
+
+### 16.3 Surface
+
+All under `/api/v1/admin`, all `require_admin`, same envelope and CSRF header as everything else:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/accounts?q=&limit=&offset=` | Master list + counts; `q` matches the address **or a game-account login** ("who owns login X" is the top admin lookup) |
+| `GET` | `/accounts/{email}` | One master: summary + game accounts (with `accessLevel`, `lastIP`) + characters |
+| `POST` | `/accounts/{email}/verify` | Force-confirm an address (support path for bounced mail) |
+| `POST` | `/accounts/{email}/access-level` | `{level ≤ 0}` — dashboard ban / unban |
+| `GET` | `/game-accounts?q=` | Search **all** game accounts — the only route to rows the login server auto-created with no master |
+| `POST` | `/game-accounts/{login}/access-level` | `{level ≤ 0}` — game ban / unban (the login server refuses `accessLevel < 0`) |
+| `POST` | `/game-accounts/{login}/password` | Support reset; writes the game's own hash |
+
+Admin responses expose `accessLevel`, `lastactive`, `created_time` and `lastIP` — §5.6's "never
+expose" list is hereby scoped to the *player* API; password hashes stay unexposed everywhere, and
+the integration tests assert it.
+
+A ban became the session-revocation story §12's open question 2 asked for: `current_account`
+rejects `accessLevel < 0`, and since it re-reads the row per request, banning a master kills their
+open sessions on the next call. Login-with-correct-password answers `403 account_banned` (checked
+only *after* password verification, so it is not an enumeration oracle).
+
+### 16.4 Frontend
+
+Two routes in the existing SPA, reusing `Panel`/`Field`/`Button`/`Alert` and the query client:
+`/admin` (searchable, paged master list) and `/admin/accounts/:email` (master card with
+verify/ban actions; per-game-account cards with ban and password-reset, characters grouped under
+their account). Non-admins never see the nav link and get bounced by `RequireAdmin`; the server
+would 403 them regardless.
+
+### 16.5 Auditability, and what stays out
+
+Every mutation logs `admin`, `target` and the action at `info` — with shared level-100 accounts the
+journal is the only attribution there is. A real `admin_audit` table is deferred to the same
+storage decision as the shop (§7): it is exactly the kind of append-only, dashboard-owned state
+that decision unlocks, and it should ride along when that lands.
+
+Also consciously out, with reasons rather than TODOs:
+
+- **In-game actions** (kick, mute, item grants, announcements): need the game-server network
+  endpoint §4 declined to add; revisit alongside §12's live-status question.
+- **Deleting accounts**: orphans `characters.account_name` rows (§15.7's unresolved decision).
+- **Editing characters**: forbidden by §3.2, full stop.

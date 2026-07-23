@@ -15,6 +15,9 @@ export type ApiErrorCode =
   | "email_not_verified"
   | "too_many_game_accounts"
   | "registration_disabled"
+  | "forbidden"
+  | "account_banned"
+  | "not_found"
   | "rate_limited"
   | "invalid_token"
   | "internal";
@@ -37,6 +40,8 @@ export class ApiError extends Error {
 export type Account = {
   email: string | null;
   isVerified: boolean;
+  /** Grants the /admin routes. Enforced server-side; this only shapes the UI. */
+  isAdmin: boolean;
 };
 
 /** A game account's login name, as typed into the game client. */
@@ -58,6 +63,41 @@ export type Character = {
 export type ServerStatus = {
   online: boolean;
   playersOnline: number;
+};
+
+/* ----------------------------- Admin types ------------------------------ */
+
+export type AdminMasterSummary = {
+  email: string;
+  isVerified: boolean;
+  accessLevel: number;
+  /** SQLite's CURRENT_TIMESTAMP text, e.g. "2026-07-23 10:15:00". */
+  createdTime: string;
+  /** Millis since epoch; 0 when the account never logged in. */
+  lastActive: number;
+  gameAccounts: number;
+  characters: number;
+};
+
+export type AdminGameAccount = {
+  login: string;
+  /** Owning master's address; null for a row auto-created by the login server. */
+  email: string | null;
+  accessLevel: number;
+  lastActive: number;
+  lastIp: string | null;
+  characters: number;
+};
+
+export type AdminAccountList = {
+  total: number;
+  accounts: AdminMasterSummary[];
+};
+
+export type AdminAccountDetail = {
+  master: AdminMasterSummary;
+  gameAccounts: AdminGameAccount[];
+  characters: Character[];
 };
 
 /**
@@ -155,4 +195,38 @@ export const api = {
   characters: () => request<Character[]>("/account/characters"),
 
   status: () => request<ServerStatus>("/server/status"),
+
+  /**
+   * The `/admin` surface. Every call 403s for a non-admin session — the
+   * `isAdmin` flag on `Account` only decides whether the UI offers these.
+   *
+   * Access levels only ever go to 0 (restore) or negative (ban) from here; the
+   * server refuses anything positive, so there is deliberately no "promote".
+   */
+  admin: {
+    accounts: (q: string, offset: number, limit: number) =>
+      request<AdminAccountList>(
+        `/admin/accounts?q=${encodeURIComponent(q)}&offset=${offset}&limit=${limit}`,
+      ),
+
+    account: (email: string) =>
+      request<AdminAccountDetail>(`/admin/accounts/${encodeURIComponent(email)}`),
+
+    verifyMaster: (email: string) =>
+      post<void>(`/admin/accounts/${encodeURIComponent(email)}/verify`, {}),
+
+    setMasterAccessLevel: (email: string, level: number) =>
+      post<void>(`/admin/accounts/${encodeURIComponent(email)}/access-level`, { level }),
+
+    searchGameAccounts: (q: string, limit: number) =>
+      request<AdminGameAccount[]>(
+        `/admin/game-accounts?q=${encodeURIComponent(q)}&limit=${limit}`,
+      ),
+
+    setGameAccountAccessLevel: (login: string, level: number) =>
+      post<void>(`/admin/game-accounts/${encodeURIComponent(login)}/access-level`, { level }),
+
+    setGameAccountPassword: (login: string, password: string) =>
+      post<void>(`/admin/game-accounts/${encodeURIComponent(login)}/password`, { password }),
+  },
 };

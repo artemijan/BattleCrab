@@ -1,9 +1,10 @@
-//! The only module in this crate that writes. Writes are confined to
-//! `accounts.login`, `accounts.password`, `accounts.email` and
-//! `accounts.is_verified` (PLAN_DASHBOARD.md §5.5).
+//! Player-facing writes. Confined to `accounts.login`, `accounts.password`,
+//! `accounts.email` and `accounts.is_verified` (PLAN_DASHBOARD.md §5.5).
 //!
-//! Never touch `accessLevel` (privilege escalation), `lastIP`/`pcIp`/`hop*` or
-//! `lastServer` — the login server owns those columns.
+//! Never touch `accessLevel` from a player-facing path (privilege escalation) —
+//! the single, ban-only exception is `admin::set_access_level`, which refuses
+//! any value above 0. `lastIP`/`pcIp`/`hop*` and `lastServer` stay the login
+//! server's alone.
 //!
 //! # Master accounts vs game accounts
 //!

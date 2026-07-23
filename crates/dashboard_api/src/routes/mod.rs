@@ -1,4 +1,5 @@
 pub mod account;
+pub mod admin;
 pub mod auth;
 pub mod status;
 
@@ -15,6 +16,7 @@ pub fn api_router() -> Router<AppState> {
     Router::new()
         .nest("/auth", auth::router())
         .nest("/account", account::router())
+        .nest("/admin", admin::router())
         .merge(status::router())
 }
 
@@ -41,6 +43,28 @@ pub async fn current_account(app: &AppState, headers: &HeaderMap) -> ApiResult<A
         .ok_or(ApiError::Unauthorized)?;
 
     cookie::authenticate(&app.key, &raw, &account.password).ok_or(ApiError::Unauthorized)?;
+
+    // A banned master's sessions die here, on the next request — which is the
+    // instant revocation the signed-cookie design otherwise lacks, and it works
+    // exactly because the account is re-read every time.
+    if account.access_level < 0 {
+        return Err(ApiError::Unauthorized);
+    }
+
+    Ok(account)
+}
+
+/// `current_account`, plus the admin gate: the session's master account must
+/// carry `accessLevel >= AdminAccessLevel`.
+///
+/// The check runs per request against the *stored* level, so demoting an admin
+/// takes effect on their next call — there is no admin flag baked into the
+/// cookie to go stale.
+pub async fn require_admin(app: &AppState, headers: &HeaderMap) -> ApiResult<Account> {
+    let account = current_account(app, headers).await?;
+    if account.access_level < app.config.admin_access_level {
+        return Err(ApiError::Forbidden);
+    }
     Ok(account)
 }
 
@@ -150,6 +174,7 @@ mod tests {
             max_game_accounts: 5,
             login_rate_limit: 10,
             login_rate_window_secs: 300,
+            admin_access_level: 100,
             smtp_host: String::new(),
             smtp_port: 587,
             smtp_from: "BattleCrab <no-reply@battlecrab.com>".into(),

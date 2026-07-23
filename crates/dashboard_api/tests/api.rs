@@ -69,6 +69,7 @@ fn test_config() -> DashboardConfig {
         max_game_accounts: 3,
         login_rate_limit: 5,
         login_rate_window_secs: 300,
+        admin_access_level: 100,
         // Email stays disabled in tests: the mailer then logs instead of
         // sending, so nothing tries to reach an SMTP server.
         smtp_host: String::new(),
@@ -160,6 +161,19 @@ async fn verified_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> 
         .unwrap();
 
     session_cookie(&registered)
+}
+
+/// A verified master promoted to admin the only way that exists: a direct
+/// `accessLevel` write, as an operator with DB access would do it. There is
+/// deliberately no API path to reach this state.
+async fn admin_master(pool: &SqlitePool, app: &axum::Router, email: &str) -> String {
+    let cookie = verified_master(pool, app, email).await;
+    sqlx::query("UPDATE accounts SET accessLevel = 100 WHERE login IS NULL AND email = ?")
+        .bind(email)
+        .execute(pool)
+        .await
+        .unwrap();
+    cookie
 }
 
 fn get_with_cookie(path: &str, cookie: &str) -> Request<Body> {
@@ -1220,4 +1234,379 @@ async fn the_link_preview_image_is_served_at_a_stable_url() {
     // JPEG magic — proves a real image came back rather than the SPA fallback,
     // which would be a 200 full of HTML.
     assert_eq!(&body[..2], &[0xff, 0xd8], "expected a JPEG, not the index.html fallback");
+}
+
+// ---------------------------------------------------------------------------
+// Admin (PLAN_DASHBOARD.md §16)
+//
+// The two properties everything below defends: the /admin surface is closed to
+// ordinary sessions, and no admin action can ever move an access level upward.
+// ---------------------------------------------------------------------------
+
+#[tokio::test]
+async fn admin_routes_are_closed_to_ordinary_accounts() {
+    let (app, pool) = test_app().await;
+    let cookie = verified_master(&pool, &app, "player@example.com").await;
+
+    // Authenticated but not an admin: 403, not 401 — the session is fine.
+    let response = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts", &cookie))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::FORBIDDEN);
+    assert_eq!(body_json(response).await["error"]["code"], "forbidden");
+
+    // No session at all: 401.
+    let response = app
+        .oneshot(with_peer(
+            Request::builder().uri("/api/v1/admin/accounts").body(Body::empty()).unwrap(),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
+}
+
+#[tokio::test]
+async fn me_reports_admin_status() {
+    let (app, pool) = test_app().await;
+
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    let me = app.clone().oneshot(get_with_cookie("/api/v1/auth/me", &player)).await.unwrap();
+    assert_eq!(body_json(me).await["isAdmin"], false);
+
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let me = app.oneshot(get_with_cookie("/api/v1/auth/me", &admin)).await.unwrap();
+    assert_eq!(body_json(me).await["isAdmin"], true);
+}
+
+#[tokio::test]
+async fn an_admin_lists_master_accounts_with_counts() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    verified_master(&pool, &app, "alice@example.com").await;
+
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+    add_game_account(&pool, "alice@example.com", "alice2").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+         ('alice1', 1, 'Shen', 42, 1), ('alice2', 2, 'Mira', 7, 2)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let listed = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts", &admin))
+        .await
+        .unwrap();
+    assert_eq!(listed.status(), StatusCode::OK);
+    let body = body_json(listed).await;
+    assert_eq!(body["total"], 2, "both masters, the admin included");
+
+    let alice = body["accounts"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|a| a["email"] == "alice@example.com")
+        .expect("alice should be listed");
+    assert_eq!(alice["gameAccounts"], 2);
+    assert_eq!(alice["characters"], 2);
+    assert_eq!(alice["isVerified"], true);
+    assert_eq!(alice["accessLevel"], 0);
+
+    // The search box answers "which master owns login alice2".
+    let found = app
+        .oneshot(get_with_cookie("/api/v1/admin/accounts?q=alice2", &admin))
+        .await
+        .unwrap();
+    let body = body_json(found).await;
+    assert_eq!(body["total"], 1);
+    assert_eq!(body["accounts"][0]["email"], "alice@example.com");
+}
+
+#[tokio::test]
+async fn admin_account_detail_shows_game_accounts_and_characters() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    verified_master(&pool, &app, "alice@example.com").await;
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess)
+         VALUES ('alice1', 1, 'Shen', 42, 1)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let detail = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts/alice%40example.com", &admin))
+        .await
+        .unwrap();
+    assert_eq!(detail.status(), StatusCode::OK);
+    let body = body_json(detail).await;
+    assert_eq!(body["master"]["email"], "alice@example.com");
+    assert_eq!(body["gameAccounts"][0]["login"], "alice1");
+    // Admin-only columns the player API must never return.
+    assert_eq!(body["gameAccounts"][0]["accessLevel"], 0);
+    assert!(body["gameAccounts"][0].get("lastIp").is_some());
+    assert_eq!(body["characters"][0]["name"], "Shen");
+    // The hash must not leak to admins either.
+    assert!(body["master"].get("password").is_none());
+    assert!(body["gameAccounts"][0].get("password").is_none());
+
+    let missing = app
+        .oneshot(get_with_cookie("/api/v1/admin/accounts/nobody%40example.com", &admin))
+        .await
+        .unwrap();
+    assert_eq!(missing.status(), StatusCode::NOT_FOUND);
+}
+
+#[tokio::test]
+async fn an_admin_can_ban_and_unban_a_game_account() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+
+    let banned = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts/alice1/access-level",
+            &admin,
+            serde_json::json!({ "level": -100 }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(banned.status(), StatusCode::NO_CONTENT);
+
+    let level: i32 = sqlx::query_scalar("SELECT accessLevel FROM accounts WHERE login = 'alice1'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(level, -100, "the login server refuses accessLevel < 0 — this is the game ban");
+
+    let unbanned = app
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts/alice1/access-level",
+            &admin,
+            serde_json::json!({ "level": 0 }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(unbanned.status(), StatusCode::NO_CONTENT);
+
+    let level: i32 = sqlx::query_scalar("SELECT accessLevel FROM accounts WHERE login = 'alice1'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(level, 0);
+}
+
+/// The invariant the whole admin design leans on: no request, however formed,
+/// may move an access level above 0. A compromised admin session must not be
+/// able to mint a GM.
+#[tokio::test]
+async fn the_admin_api_never_raises_an_access_level() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    verified_master(&pool, &app, "alice@example.com").await;
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+
+    for path in [
+        "/api/v1/admin/game-accounts/alice1/access-level",
+        "/api/v1/admin/accounts/alice%40example.com/access-level",
+    ] {
+        let response = app
+            .clone()
+            .oneshot(post_with_cookie(path, &admin, serde_json::json!({ "level": 100 })))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{path} must refuse level > 0");
+    }
+
+    let levels: Vec<(i32,)> = sqlx::query_as(
+        "SELECT accessLevel FROM accounts WHERE email = 'alice@example.com' COLLATE NOCASE",
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
+    assert!(levels.iter().all(|(l,)| *l == 0), "nothing may have been promoted: {levels:?}");
+}
+
+/// Equal admins cannot ban each other, and an admin cannot ban themself —
+/// which would otherwise be the quickest way to lock everyone out.
+#[tokio::test]
+async fn an_admin_cannot_touch_a_peer_or_themself() {
+    let (app, pool) = test_app().await;
+    let first = admin_master(&pool, &app, "first@example.com").await;
+    admin_master(&pool, &app, "second@example.com").await;
+
+    for target in ["second%40example.com", "first%40example.com"] {
+        let response = app
+            .clone()
+            .oneshot(post_with_cookie(
+                &format!("/api/v1/admin/accounts/{target}/access-level"),
+                &first,
+                serde_json::json!({ "level": -1 }),
+            ))
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::FORBIDDEN, "banning {target} must be refused");
+    }
+
+    let levels: Vec<(i32,)> = sqlx::query_as("SELECT accessLevel FROM accounts WHERE login IS NULL")
+        .fetch_all(&pool)
+        .await
+        .unwrap();
+    assert!(levels.iter().all(|(l,)| *l == 100), "both admins must be untouched: {levels:?}");
+}
+
+#[tokio::test]
+async fn a_banned_master_cannot_log_in_and_its_open_sessions_die() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    let alice = verified_master(&pool, &app, "alice@example.com").await;
+
+    let banned = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/accounts/alice%40example.com/access-level",
+            &admin,
+            serde_json::json!({ "level": -1 }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(banned.status(), StatusCode::NO_CONTENT);
+
+    // The session that was already open dies on its next request — the account
+    // is re-read every time, which is what stands in for revocable sessions.
+    let me = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/auth/me", &alice))
+        .await
+        .unwrap();
+    assert_eq!(me.status(), StatusCode::UNAUTHORIZED);
+
+    // A fresh login with the *correct* password says "suspended" — after the
+    // password check, so it is not an enumeration oracle.
+    let login = app
+        .oneshot(post(
+            "/api/v1/auth/login",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(login.status(), StatusCode::FORBIDDEN);
+    assert_eq!(body_json(login).await["error"]["code"], "account_banned");
+}
+
+#[tokio::test]
+async fn an_admin_resets_a_game_account_password() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+    add_game_account(&pool, "alice@example.com", "alice1").await;
+
+    let weak = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts/alice1/password",
+            &admin,
+            serde_json::json!({ "password": "short" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(weak.status(), StatusCode::BAD_REQUEST, "the game's password rules still apply");
+
+    let reset = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts/alice1/password",
+            &admin,
+            serde_json::json!({ "password": "recovered-account" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(reset.status(), StatusCode::NO_CONTENT);
+
+    let hash: String = sqlx::query_scalar("SELECT password FROM accounts WHERE login = 'alice1'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(
+        hash,
+        commons::crypt::hash_password("recovered-account"),
+        "must be the game's own hash or the client cannot use it"
+    );
+
+    // Masters have no admin password reset — recovery must prove inbox control.
+    let master = app
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/accounts/admin%40example.com/password",
+            &admin,
+            serde_json::json!({ "password": "does-not-matter" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(master.status(), StatusCode::NOT_FOUND, "no such route may exist");
+}
+
+#[tokio::test]
+async fn an_admin_can_force_verify_a_master() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    // Registered but never clicked the link.
+    app.clone()
+        .oneshot(post(
+            "/api/v1/auth/register",
+            serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" }),
+        ))
+        .await
+        .unwrap();
+
+    let verified = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/accounts/alice%40example.com/verify",
+            &admin,
+            serde_json::json!({}),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(verified.status(), StatusCode::NO_CONTENT);
+
+    let is_verified: Option<i64> = sqlx::query_scalar(
+        "SELECT is_verified FROM accounts WHERE login IS NULL AND email = 'alice@example.com'",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(is_verified, Some(1));
+}
+
+/// Rows the login server auto-created carry no master email, so the master
+/// list can never reach them — the game-account search is their only way in.
+#[tokio::test]
+async fn game_account_search_reaches_masterless_rows() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    sqlx::query(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel)
+         VALUES ('orphan1', 'x', NULL, NULL, 0, 0)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let found = app
+        .oneshot(get_with_cookie("/api/v1/admin/game-accounts?q=orph", &admin))
+        .await
+        .unwrap();
+    assert_eq!(found.status(), StatusCode::OK);
+    let body = body_json(found).await;
+    assert_eq!(body[0]["login"], "orphan1");
+    assert_eq!(body[0]["email"], serde_json::Value::Null);
 }
