@@ -4870,3 +4870,100 @@ fn quest_q00293_refused_above_level_15() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30535-04.htm")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
 }
+
+/// Q00300 Hunting Leto Lizardman: the per-mob 1000-denominator drop gate, the
+/// cond-2 trigger at exactly 60 bracelets, and the adena reward branch.
+#[test]
+fn quest_q00300_leto_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(7139, "Bracelet of Lizardman", true)]);
+    let mut t = crate::data::npc_data::default_template(20577);
+    t.type_name = "Monster".into();
+    t.level = 36;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 36;
+    drain_db(&mut db_rx);
+
+    let q = "Q00300_HuntingLetoLizardman";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mob = NPC_OID + 1;
+    // Drop gate: a roll >= 360 (Leto Lizardman's chance) yields nothing.
+    add_test_npc(&mut world, mob, 20577, "Monster", 36, 30, 0, 0);
+    world.forced_rolls.push_back(360);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 7139), 0, "roll 360 (not < 360) drops nothing");
+
+    // 59 hits, still cond 1.
+    for i in 1..=59 {
+        add_test_npc(&mut world, mob + i, 20577, "Monster", 36, 30, 0, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 7139), 59);
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "still collecting at 59");
+
+    // The 60th bracelet flips cond to 2.
+    add_test_npc(&mut world, mob + 60, 20577, "Monster", 36, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob + 60, 3001);
+    assert_eq!(item_count(&world, 3001, 7139), 60);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at exactly 60");
+    drain(&mut rx);
+
+    // Turn in with the reward roll forced to the adena branch (< 500).
+    let adena_before = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 5000, "adena reward");
+    assert_eq!(item_count(&world, 3001, 7139), 0, "bracelets taken");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// The `getRandom(1000)` reward fork: 500..750 → 50 Animal Skin, 750+ → 50
+/// Animal Bone (driven through repeatable re-runs, bracelets injected).
+#[test]
+fn quest_q00300_reward_skin_and_bone() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(7139, "Bracelet", true), (1867, "Animal Skin", true), (1872, "Animal Bone", true)]);
+    add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 36;
+
+    let q = "Q00300_HuntingLetoLizardman";
+    let mut obj = 0x5000_0000;
+    for (reward_roll, reward_item) in [(600, 1867), (800, 1872)] {
+        // (Re)start the repeatable quest and inject a full batch of bracelets.
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
+        {
+            let World { objects, data, .. } = &mut world;
+            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, obj, 7139, 60);
+        }
+        obj += 1;
+        let before = item_count(&world, 3001, reward_item);
+        world.forced_rolls.push_back(reward_roll);
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")));
+        assert_eq!(item_count(&world, 3001, reward_item), before + 50, "roll {reward_roll} → 50 of {reward_item}");
+        assert_eq!(item_count(&world, 3001, 7139), 0, "bracelets consumed");
+    }
+}
+
+/// Q00300 refuses a starter above level 39 (`addCondMaxLevel(39)`).
+#[test]
+fn quest_q00300_refused_above_level_39() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(7139, "Bracelet", true)]);
+    add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    let q = "Q00300_HuntingLetoLizardman";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-40 starter never begins");
+}
