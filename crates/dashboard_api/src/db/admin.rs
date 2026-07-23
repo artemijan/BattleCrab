@@ -8,6 +8,9 @@
 //!   dashboard can never *grant* privileges: `set_access_level` rejects a
 //!   positive level outright, so even a compromised admin session cannot mint
 //!   a GM. Promotion stays a manual SQL statement by someone with DB access.
+//!   The one nuance is [`create_gm_game_account`], which writes a *new* row at
+//!   exactly the actor's own level — copying, never exceeding, what the actor
+//!   already holds, so the no-elevation property is preserved.
 //! * `accounts.is_verified` and `accounts.password` reuse the existing helpers
 //!   in [`super::accounts`].
 //!
@@ -61,7 +64,76 @@ fn like_contains(query: &str) -> String {
     format!("%{escaped}%")
 }
 
-/// The list behind `/admin/accounts`: master accounts, newest first.
+/// A sortable column of the master list.
+///
+/// This enum is the whitelist that keeps caller-supplied sort input away from
+/// the SQL: an unknown name never reaches the query, it fails parsing here.
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub enum MasterSort {
+    /// Insertion order — `rowid`, not the text timestamp, so two accounts
+    /// created in the same second still sort deterministically.
+    #[default]
+    Created,
+    Email,
+    AccessLevel,
+    Verified,
+    LastActive,
+    GameAccounts,
+    Characters,
+}
+
+impl MasterSort {
+    pub fn parse(raw: &str) -> Option<Self> {
+        Some(match raw {
+            "" | "created" => Self::Created,
+            "email" => Self::Email,
+            "accessLevel" => Self::AccessLevel,
+            "verified" => Self::Verified,
+            "lastActive" => Self::LastActive,
+            "gameAccounts" => Self::GameAccounts,
+            "characters" => Self::Characters,
+            _ => return None,
+        })
+    }
+
+    /// The ORDER BY expression. Count columns sort by their SELECT alias.
+    fn sql(self) -> &'static str {
+        match self {
+            Self::Created => "a.rowid",
+            Self::Email => "a.email COLLATE NOCASE",
+            Self::AccessLevel => "a.accessLevel",
+            Self::Verified => "COALESCE(a.is_verified, 0)",
+            Self::LastActive => "a.lastactive",
+            Self::GameAccounts => "game_accounts",
+            Self::Characters => "characters",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SortDir {
+    Asc,
+    Desc,
+}
+
+impl SortDir {
+    pub fn parse(raw: &str) -> Option<Self> {
+        Some(match raw {
+            "asc" => Self::Asc,
+            "" | "desc" => Self::Desc,
+            _ => return None,
+        })
+    }
+
+    fn sql(self) -> &'static str {
+        match self {
+            Self::Asc => "ASC",
+            Self::Desc => "DESC",
+        }
+    }
+}
+
+/// The list behind `/admin/accounts`: master accounts, newest first by default.
 ///
 /// `query` matches the master's address *or* the login of any game account
 /// under it — "which master owns login X" is the single most common admin
@@ -69,6 +141,8 @@ fn like_contains(query: &str) -> String {
 pub async fn list_masters(
     pool: &SqlitePool,
     query: &str,
+    sort: MasterSort,
+    dir: SortDir,
     limit: i64,
     offset: i64,
 ) -> ApiResult<(Vec<MasterSummary>, i64)> {
@@ -89,15 +163,18 @@ pub async fn list_masters(
             .await?;
 
     type Row = (String, Option<i64>, i32, String, i64, i64, i64);
+    // `sort`/`dir` are interpolated, but only through the enums' fixed sql()
+    // strings — nothing caller-supplied can reach the statement text.
+    let order = format!("{} {}, a.rowid DESC", sort.sql(), dir.sql());
     let rows: Vec<Row> = sqlx::query_as(&format!(
         "SELECT a.email, a.is_verified, a.accessLevel, a.created_time, a.lastactive, \
            (SELECT COUNT(*) FROM accounts g \
-              WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE), \
+              WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE) AS game_accounts, \
            (SELECT COUNT(*) FROM characters c WHERE c.deletetime = 0 AND c.account_name IN \
               (SELECT g.login FROM accounts g \
-                 WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE)) \
+                 WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE)) AS characters \
          FROM accounts a WHERE {WHERE} \
-         ORDER BY a.rowid DESC LIMIT ? OFFSET ?"
+         ORDER BY {order} LIMIT ? OFFSET ?"
     ))
     .bind(query)
     .bind(&pattern)
@@ -182,6 +259,42 @@ pub async fn search_game_accounts(
     .await?;
 
     Ok(rows.into_iter().map(to_game_account).collect())
+}
+
+/// Creates a game account under the acting admin's own master address, with
+/// the actor's `accessLevel` copied onto it — a GM game account.
+///
+/// This is the crate's second `accessLevel` write, and it keeps the "never
+/// upward" property structurally: the level written is read from `actor`
+/// inside this function, not taken as a parameter, so no caller can mint an
+/// account above (or below a different admin than) itself. The player-facing
+/// `create_game_account` cap (`MaxGameAccounts`) deliberately does not apply —
+/// this is a privileged, logged path, not a farmable one.
+pub async fn create_gm_game_account(
+    pool: &SqlitePool,
+    actor: &super::accounts::Account,
+    login: &str,
+    password_hash: &str,
+) -> ApiResult<()> {
+    let now_millis = crate::auth::now_unix() * 1000;
+
+    let result = sqlx::query(
+        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel, lastIP) \
+         VALUES (?, ?, ?, NULL, ?, ?, NULL)",
+    )
+    .bind(super::accounts::normalize_login(login))
+    .bind(password_hash)
+    .bind(super::accounts::normalize_email(actor.subject()))
+    .bind(now_millis)
+    .bind(actor.access_level)
+    .execute(pool)
+    .await;
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => Err(ApiError::LoginTaken),
+        Err(e) => Err(e.into()),
+    }
 }
 
 /// Which row a ban/unban targets.

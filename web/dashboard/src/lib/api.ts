@@ -89,6 +89,18 @@ export type AdminGameAccount = {
   characters: number;
 };
 
+/** Server-side sort whitelist for the master list — must match `MasterSort::parse`. */
+export type AdminSortKey =
+  | "created"
+  | "email"
+  | "accessLevel"
+  | "verified"
+  | "lastActive"
+  | "gameAccounts"
+  | "characters";
+
+export type AdminSortDir = "asc" | "desc";
+
 export type AdminAccountList = {
   total: number;
   accounts: AdminMasterSummary[];
@@ -204,9 +216,10 @@ export const api = {
    * server refuses anything positive, so there is deliberately no "promote".
    */
   admin: {
-    accounts: (q: string, offset: number, limit: number) =>
+    accounts: (q: string, offset: number, limit: number, sort: AdminSortKey, dir: AdminSortDir) =>
       request<AdminAccountList>(
-        `/admin/accounts?q=${encodeURIComponent(q)}&offset=${offset}&limit=${limit}`,
+        `/admin/accounts?q=${encodeURIComponent(q)}&offset=${offset}&limit=${limit}` +
+          `&sort=${sort}&dir=${dir}`,
       ),
 
     account: (email: string) =>
@@ -222,6 +235,11 @@ export const api = {
       request<AdminGameAccount[]>(
         `/admin/game-accounts?q=${encodeURIComponent(q)}&limit=${limit}`,
       ),
+
+    /** Creates a game account under the admin's own master, at the admin's
+     *  access level — a GM game account. */
+    createGameAccount: (login: string, password: string) =>
+      post<void>(`/admin/game-accounts`, { login, password }),
 
     setGameAccountAccessLevel: (login: string, level: number) =>
       post<void>(`/admin/game-accounts/${encodeURIComponent(login)}/access-level`, { level }),

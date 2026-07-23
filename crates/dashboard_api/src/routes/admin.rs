@@ -22,7 +22,9 @@ use axum::{Json, Router};
 use serde::Deserialize;
 
 use crate::db::accounts::{self, Account};
-use crate::db::admin::{self, AccessLevelTarget, GameAccountInfo, MasterSummary};
+use crate::db::admin::{
+    self, AccessLevelTarget, GameAccountInfo, MasterSort, MasterSummary, SortDir,
+};
 use crate::db::characters::{self, CharacterSummary};
 use crate::error::{ApiError, ApiResult};
 use crate::routes::{require_admin, validate_password};
@@ -37,7 +39,10 @@ pub fn router() -> Router<AppState> {
             "/accounts/{email}/access-level",
             axum::routing::post(set_master_access_level),
         )
-        .route("/game-accounts", axum::routing::get(search_game_accounts))
+        .route(
+            "/game-accounts",
+            axum::routing::get(search_game_accounts).post(create_game_account),
+        )
         .route(
             "/game-accounts/{login}/access-level",
             axum::routing::post(set_game_account_access_level),
@@ -61,6 +66,12 @@ fn assert_outranks(actor: &Account, target_level: i32) -> ApiResult<()> {
 pub struct ListQuery {
     #[serde(default)]
     pub q: String,
+    /// Column to sort by; `MasterSort::parse` is the whitelist.
+    #[serde(default)]
+    pub sort: String,
+    /// `asc` or `desc` (the default).
+    #[serde(default)]
+    pub dir: String,
     pub limit: Option<i64>,
     pub offset: Option<i64>,
 }
@@ -86,9 +97,17 @@ async fn list_accounts(
 ) -> ApiResult<Json<MasterListResponse>> {
     require_admin(&app, &headers).await?;
 
+    // Unknown names are a 400, not a silent default: the FE builds these from
+    // a fixed set, so an unrecognised value is a bug worth surfacing.
+    let sort = MasterSort::parse(&query.sort)
+        .ok_or_else(|| ApiError::BadRequest(format!("unknown sort column: {:?}", query.sort)))?;
+    let dir = SortDir::parse(&query.dir)
+        .ok_or_else(|| ApiError::BadRequest(format!("unknown sort direction: {:?}", query.dir)))?;
+
     let limit = page_limit(query.limit);
     let offset = query.offset.unwrap_or(0).max(0);
-    let (accounts, total) = admin::list_masters(&app.pool, query.q.trim(), limit, offset).await?;
+    let (accounts, total) =
+        admin::list_masters(&app.pool, query.q.trim(), sort, dir, limit, offset).await?;
 
     Ok(Json(MasterListResponse { total, accounts }))
 }
@@ -110,7 +129,15 @@ async fn account_detail(
 
     // Through the list query so the detail view carries the same counts and
     // fields the row it was opened from did — one projection, no drift.
-    let (mut masters, _) = admin::list_masters(&app.pool, &email, 1, 0).await?;
+    let (mut masters, _) = admin::list_masters(
+        &app.pool,
+        &email,
+        MasterSort::default(),
+        SortDir::Desc,
+        1,
+        0,
+    )
+    .await?;
     let master = masters.pop().filter(|m| {
         // list_masters searches with LIKE; the path names one exact account.
         m.email.eq_ignore_ascii_case(email.trim())
@@ -200,6 +227,38 @@ async fn search_game_accounts(
     let rows =
         admin::search_game_accounts(&app.pool, query.q.trim(), page_limit(query.limit)).await?;
     Ok(Json(rows))
+}
+
+#[derive(Deserialize)]
+pub struct CreateGameAccountRequest {
+    pub login: String,
+    pub password: String,
+}
+
+/// Creates a GM game account: it lands under the acting admin's own master
+/// address with the actor's `accessLevel` copied onto it (MVP requirement —
+/// game admins are minted by dashboard admins for themselves). The level is
+/// read from the actor inside `db::admin`, never from the request, so this
+/// cannot grant more than the actor already holds.
+async fn create_game_account(
+    State(app): State<AppState>,
+    headers: HeaderMap,
+    Json(body): Json<CreateGameAccountRequest>,
+) -> ApiResult<StatusCode> {
+    let actor = require_admin(&app, &headers).await?;
+
+    let login = crate::routes::validate_login(&body.login, &app.config)?;
+    validate_password(&body.password, &app.config)?;
+
+    let hash = commons::crypt::hash_password(&body.password);
+    admin::create_gm_game_account(&app.pool, &actor, &login, &hash).await?;
+    tracing::info!(
+        admin = %actor.subject(),
+        login = %login,
+        level = actor.access_level,
+        "admin: created GM game account at own access level"
+    );
+    Ok(StatusCode::CREATED)
 }
 
 async fn set_game_account_access_level(

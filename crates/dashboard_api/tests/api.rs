@@ -1610,3 +1610,120 @@ async fn game_account_search_reaches_masterless_rows() {
     assert_eq!(body[0]["login"], "orphan1");
     assert_eq!(body[0]["email"], serde_json::Value::Null);
 }
+
+#[tokio::test]
+async fn the_master_list_sorts_by_whitelisted_columns() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "zz-admin@example.com").await;
+    verified_master(&pool, &app, "alice@example.com").await;
+    verified_master(&pool, &app, "bob@example.com").await;
+
+    // bob owns the only characters, so characters-desc puts him first.
+    add_game_account(&pool, "bob@example.com", "bobgame").await;
+    sqlx::query(
+        "INSERT INTO characters (account_name, charId, char_name, level, lastAccess) VALUES
+         ('bobgame', 1, 'Kai', 30, 1), ('bobgame', 2, 'Rin', 12, 2)",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+
+    let emails = |body: &serde_json::Value| -> Vec<String> {
+        body["accounts"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|a| a["email"].as_str().unwrap().to_string())
+            .collect()
+    };
+
+    let by_email = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=email&dir=asc", &admin))
+        .await
+        .unwrap();
+    assert_eq!(by_email.status(), StatusCode::OK);
+    assert_eq!(
+        emails(&body_json(by_email).await),
+        ["alice@example.com", "bob@example.com", "zz-admin@example.com"]
+    );
+
+    let by_chars = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=characters&dir=desc", &admin))
+        .await
+        .unwrap();
+    assert_eq!(emails(&body_json(by_chars).await)[0], "bob@example.com");
+
+    // Anything outside the whitelist is a 400, not a silently different order.
+    let bad = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=lastIP", &admin))
+        .await
+        .unwrap();
+    assert_eq!(bad.status(), StatusCode::BAD_REQUEST);
+    let bad_dir = app
+        .oneshot(get_with_cookie("/api/v1/admin/accounts?dir=sideways", &admin))
+        .await
+        .unwrap();
+    assert_eq!(bad_dir.status(), StatusCode::BAD_REQUEST);
+}
+
+#[tokio::test]
+async fn an_admin_creates_a_gm_game_account_at_their_own_level() {
+    let (app, pool) = test_app().await;
+    let admin = admin_master(&pool, &app, "admin@example.com").await;
+
+    let created = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts",
+            &admin,
+            serde_json::json!({ "login": "gmalt", "password": "supersecret1" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(created.status(), StatusCode::CREATED);
+
+    // The new row copies the actor's accessLevel — that is the whole point —
+    // and lands under the actor's own master address.
+    let (level, email): (i32, String) =
+        sqlx::query_as("SELECT accessLevel, email FROM accounts WHERE login = 'gmalt'")
+            .fetch_one(&pool)
+            .await
+            .unwrap();
+    assert_eq!(level, 100, "the GM game account must copy the admin's level");
+    assert_eq!(email, "admin@example.com");
+
+    // And the password hash is the game's own scheme, usable in the client.
+    let hash: String = sqlx::query_scalar("SELECT password FROM accounts WHERE login = 'gmalt'")
+        .fetch_one(&pool)
+        .await
+        .unwrap();
+    assert_eq!(hash, commons::crypt::hash_password("supersecret1"));
+
+    // A taken login conflicts instead of clobbering the existing row.
+    let taken = app
+        .clone()
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts",
+            &admin,
+            serde_json::json!({ "login": "gmalt", "password": "supersecret1" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(taken.status(), StatusCode::CONFLICT);
+    assert_eq!(body_json(taken).await["error"]["code"], "login_taken");
+
+    // Non-admins get a 403 before any validation runs.
+    let player = verified_master(&pool, &app, "player@example.com").await;
+    let refused = app
+        .oneshot(post_with_cookie(
+            "/api/v1/admin/game-accounts",
+            &player,
+            serde_json::json!({ "login": "sneaky", "password": "supersecret1" }),
+        ))
+        .await
+        .unwrap();
+    assert_eq!(refused.status(), StatusCode::FORBIDDEN);
+}
