@@ -34,25 +34,56 @@ fn mob_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate {
     t
 }
 
-fn confuse_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn confuse_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    world.data.npc_data.insert_for_test(mob_template(MOB_ID, &[]));
-    world.data.npc_data.insert_for_test(mob_template(ORC_A, &["ORC"]));
-    world.data.npc_data.insert_for_test(mob_template(ORC_B, &["ORC"]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(mob_template(MOB_ID, &[]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(mob_template(ORC_A, &["ORC"]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(mob_template(ORC_B, &["ORC"]));
     (world, db, l)
 }
 
 fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
-    world.objects.get_component::<AggroList>(&npc).and_then(|a| a.0.get(&target)).map(|i| i.hate).unwrap_or(0.0)
+    world
+        .objects
+        .get_component::<AggroList>(&npc)
+        .and_then(|a| a.0.get(&target))
+        .map(|i| i.hate)
+        .unwrap_or(0.0)
 }
 
 fn set_hate(world: &mut World, npc: i32, target: i32, hate: f64) {
-    world.objects.get_component_mut::<AggroList>(&npc).unwrap().0.entry(target).or_default().hate = hate;
+    world
+        .objects
+        .get_component_mut::<AggroList>(&npc)
+        .unwrap()
+        .0
+        .entry(target)
+        .or_default()
+        .hate = hate;
 }
 
 /// Cast a one-effect skill from `CASTER` at `target`. `magic_level` feeds the
 /// `calcProbability` gate.
-fn cast(world: &mut World, skill_id: i32, effects: Vec<SkillEffect>, magic_level: i32, target: i32) {
+fn cast(
+    world: &mut World,
+    skill_id: i32,
+    effects: Vec<SkillEffect>,
+    magic_level: i32,
+    target: i32,
+) {
     use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
     let skill = Skill {
         without_action: false,
@@ -125,8 +156,18 @@ fn a_far_higher_level_target_is_never_confused() {
     add_test_npc(&mut world, VICTIM_OID, MOB_ID, "Monster", 5, 100, 0, 0);
     add_test_npc(&mut world, BYSTANDER_OID, MOB_ID, "Monster", 5, 150, 0, 0);
     // Skill magicLevel 1, chance 1, victim level 5 → threshold -3.
-    cast(&mut world, 9800, vec![SkillEffect::Confuse { chance: 1 }], 1, VICTIM_OID);
-    assert_eq!(hate_on(&world, VICTIM_OID, BYSTANDER_OID), 0.0, "the gate refused it");
+    cast(
+        &mut world,
+        9800,
+        vec![SkillEffect::Confuse { chance: 1 }],
+        1,
+        VICTIM_OID,
+    );
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, BYSTANDER_OID),
+        0.0,
+        "the gate refused it"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -159,13 +200,26 @@ fn a_confused_mob_turns_on_a_bystander() {
     // coin flip. It happened to pass for two slices before a later change
     // shifted the draw and exposed it.
     world.forced_rolls.extend([0, 0, 1]);
-    cast(&mut world, 9801, vec![SkillEffect::Confuse { chance: 100 }], 80, VICTIM_OID);
+    cast(
+        &mut world,
+        9801,
+        vec![SkillEffect::Confuse { chance: 100 }],
+        80,
+        VICTIM_OID,
+    );
 
     let on_bystander = hate_on(&world, VICTIM_OID, BYSTANDER_OID);
     let on_caster = hate_on(&world, VICTIM_OID, CASTER);
-    assert!(on_bystander > on_caster, "the bystander is now the most hated ({on_bystander} vs {on_caster})");
+    assert!(
+        on_bystander > on_caster,
+        "the bystander is now the most hated ({on_bystander} vs {on_caster})"
+    );
     assert_eq!(
-        world.objects.get_component::<crate::model::npc::NpcAi>(&VICTIM_OID).unwrap().intention,
+        world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&VICTIM_OID)
+            .unwrap()
+            .intention,
         crate::model::npc::NpcIntention::Attack,
         "and the mob is woken into an attack"
     );
@@ -182,7 +236,13 @@ fn confuse_adds_a_target_without_erasing_the_old_hate() {
     add_test_npc(&mut world, BYSTANDER_OID, MOB_ID, "Monster", 5, 150, 0, 0);
     set_hate(&mut world, VICTIM_OID, CASTER, 500.0);
 
-    cast(&mut world, 9802, vec![SkillEffect::Confuse { chance: 100 }], 80, VICTIM_OID);
+    cast(
+        &mut world,
+        9802,
+        vec![SkillEffect::Confuse { chance: 100 }],
+        80,
+        VICTIM_OID,
+    );
 
     // Which of the two visible creatures the roll picks is not fixed, so the
     // invariant asserted here is the one that holds either way: `Confuse` only
@@ -194,7 +254,12 @@ fn confuse_adds_a_target_without_erasing_the_old_hate() {
         hate_on(&world, VICTIM_OID, CASTER)
     );
     assert!(
-        world.objects.get_component::<AggroList>(&VICTIM_OID).unwrap().0.contains_key(&CASTER),
+        world
+            .objects
+            .get_component::<AggroList>(&VICTIM_OID)
+            .unwrap()
+            .0
+            .contains_key(&CASTER),
         "and the caster stays on the aggro list"
     );
 }
@@ -208,12 +273,25 @@ fn confuse_with_no_bystanders_does_nothing() {
     add_test_npc(&mut world, VICTIM_OID, MOB_ID, "Monster", 5, 100, 0, 0);
     set_hate(&mut world, VICTIM_OID, CASTER, 500.0);
 
-    cast(&mut world, 9803, vec![SkillEffect::Confuse { chance: 100 }], 80, VICTIM_OID);
+    cast(
+        &mut world,
+        9803,
+        vec![SkillEffect::Confuse { chance: 100 }],
+        80,
+        VICTIM_OID,
+    );
 
     // The only visible creature is the caster, so that is who it picks — and
     // the hate simply becomes dominant, which it already was.
-    assert!(hate_on(&world, VICTIM_OID, CASTER) >= 500.0, "no crash, no self-target");
-    assert_eq!(hate_on(&world, VICTIM_OID, VICTIM_OID), 0.0, "the victim never targets itself");
+    assert!(
+        hate_on(&world, VICTIM_OID, CASTER) >= 500.0,
+        "no crash, no self-target"
+    );
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, VICTIM_OID),
+        0.0,
+        "the victim never targets itself"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -230,10 +308,24 @@ fn randomize_hate_moves_the_casters_hate_to_a_bystander() {
     add_test_npc(&mut world, BYSTANDER_OID, MOB_ID, "Monster", 5, 150, 0, 0);
     set_hate(&mut world, VICTIM_OID, CASTER, 500.0);
 
-    cast(&mut world, 9810, vec![SkillEffect::RandomizeHate { chance: 100 }], 80, VICTIM_OID);
+    cast(
+        &mut world,
+        9810,
+        vec![SkillEffect::RandomizeHate { chance: 100 }],
+        80,
+        VICTIM_OID,
+    );
 
-    assert_eq!(hate_on(&world, VICTIM_OID, CASTER), 0.0, "the caster is off the list entirely");
-    assert_eq!(hate_on(&world, VICTIM_OID, BYSTANDER_OID), 500.0, "and the bystander inherited all of it");
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, CASTER),
+        0.0,
+        "the caster is off the list entirely"
+    );
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, BYSTANDER_OID),
+        500.0,
+        "and the bystander inherited all of it"
+    );
 }
 
 /// "Aggro cannot be transfered to a mob of the same faction" — with the only
@@ -247,10 +339,24 @@ fn randomize_hate_refuses_to_pass_aggro_to_a_clan_mate() {
     add_test_npc(&mut world, BYSTANDER_OID, ORC_B, "Monster", 5, 150, 0, 0);
     set_hate(&mut world, VICTIM_OID, CASTER, 500.0);
 
-    cast(&mut world, 9811, vec![SkillEffect::RandomizeHate { chance: 100 }], 80, VICTIM_OID);
+    cast(
+        &mut world,
+        9811,
+        vec![SkillEffect::RandomizeHate { chance: 100 }],
+        80,
+        VICTIM_OID,
+    );
 
-    assert_eq!(hate_on(&world, VICTIM_OID, CASTER), 500.0, "no valid recipient, so nothing moved");
-    assert_eq!(hate_on(&world, VICTIM_OID, BYSTANDER_OID), 0.0, "the clan-mate is never handed the aggro");
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, CASTER),
+        500.0,
+        "no valid recipient, so nothing moved"
+    );
+    assert_eq!(
+        hate_on(&world, VICTIM_OID, BYSTANDER_OID),
+        0.0,
+        "the clan-mate is never handed the aggro"
+    );
 }
 
 /// Java bails when the effected is not an `Attackable` — a player cannot have
@@ -263,8 +369,17 @@ fn randomize_hate_ignores_a_player_target() {
     add_test_npc(&mut world, BYSTANDER_OID, MOB_ID, "Monster", 5, 150, 0, 0);
 
     // Must not panic, and must not invent an aggro list for the player.
-    cast(&mut world, 9812, vec![SkillEffect::RandomizeHate { chance: 100 }], 80, 7002);
-    assert!(world.objects.get_component::<AggroList>(&7002).is_none(), "players have no aggro list to shuffle");
+    cast(
+        &mut world,
+        9812,
+        vec![SkillEffect::RandomizeHate { chance: 100 }],
+        80,
+        7002,
+    );
+    assert!(
+        world.objects.get_component::<AggroList>(&7002).is_none(),
+        "players have no aggro list to shuffle"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -282,7 +397,9 @@ fn real_dist_skills_parse_with_their_chances() {
     // the parser's default of 100, so the default is exercised by no shipped
     // skill on this dist.
     for (id, chance) in [(1105, 20), (1163, 20), (1213, 60)] {
-        let skill = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} loads"));
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} loads"));
         let got = skill.effects.iter().find_map(|e| match e {
             SkillEffect::Confuse { chance } => Some(*chance),
             _ => None,
@@ -292,17 +409,40 @@ fn real_dist_skills_parse_with_their_chances() {
     // Madness and Curse Discord carry *only* Confuse — the reason both were
     // dropped whole before this slice.
     for id in [1105, 1163] {
-        assert_eq!(skills.get(id, 1).unwrap().effects.len(), 1, "skill {id} has exactly one effect");
+        assert_eq!(
+            skills.get(id, 1).unwrap().effects.len(),
+            1,
+            "skill {id} has exactly one effect"
+        );
     }
 
     let confusion = skills.get(2, 1).expect("Confusion loads");
-    assert_eq!(confusion.effects.len(), 1, "Confusion carries only RandomizeHate");
-    assert!(matches!(confusion.effects[0], SkillEffect::RandomizeHate { chance: 80 }), "with its real 80% chance");
+    assert_eq!(
+        confusion.effects.len(),
+        1,
+        "Confusion carries only RandomizeHate"
+    );
+    assert!(
+        matches!(
+            confusion.effects[0],
+            SkillEffect::RandomizeHate { chance: 80 }
+        ),
+        "with its real 80% chance"
+    );
 
     // Switch 12 pairs it with the already-ported TargetCancel, which must survive.
     let switch = skills.get(12, 1).expect("Switch loads");
-    assert!(switch.effects.iter().any(|e| matches!(e, SkillEffect::RandomizeHate { chance: 80 })));
-    assert!(switch.effects.iter().any(|e| matches!(e, SkillEffect::TargetCancel { .. })), "TargetCancel survives");
+    assert!(switch
+        .effects
+        .iter()
+        .any(|e| matches!(e, SkillEffect::RandomizeHate { chance: 80 })));
+    assert!(
+        switch
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::TargetCancel { .. })),
+        "TargetCancel survives"
+    );
 }
 
 /// The `abnormalTime="20"` **attribute** on Madness/Curse Discord/Seal of
@@ -317,6 +457,10 @@ fn real_dist_skills_parse_with_their_chances() {
 fn confuse_skills_have_no_real_abnormal_time() {
     let skills = crate::data::skill_data::SkillData::load_from(DIST);
     for id in [1105, 1163, 1213] {
-        assert_eq!(skills.get(id, 1).unwrap().abnormal_time, 0, "skill {id} has no duration");
+        assert_eq!(
+            skills.get(id, 1).unwrap().abnormal_time,
+            0,
+            "skill {id} has no duration"
+        );
     }
 }

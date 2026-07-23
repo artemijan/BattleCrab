@@ -28,7 +28,13 @@ pub fn recipe_book_item_list(is_dwarven: bool, max_mp: i32, recipes: &[i32]) -> 
 /// state after opening it or after a craft attempt. `id` is the recipe-list id,
 /// `is_dwarven` its book, `success` whether the last attempt succeeded (Java
 /// defaults it to true when opening).
-pub fn recipe_item_make_info(id: i32, is_dwarven: bool, cur_mp: i32, max_mp: i32, success: bool) -> Vec<u8> {
+pub fn recipe_item_make_info(
+    id: i32,
+    is_dwarven: bool,
+    cur_mp: i32,
+    max_mp: i32,
+    success: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::RECIPE_ITEM_MAKE_INFO);
     w.write_i32(id);
@@ -98,7 +104,12 @@ pub fn recipe_shop_sell_list(
 
 /// Port of `serverpackets/RecipeShopItemInfo` — the per-recipe make state shown
 /// to a buyer in a manufacturer's shop (their MP + the selected recipe).
-pub fn recipe_shop_item_info(manufacturer_oid: i32, recipe_id: i32, cur_mp: i32, max_mp: i32) -> Vec<u8> {
+pub fn recipe_shop_item_info(
+    manufacturer_oid: i32,
+    recipe_id: i32,
+    cur_mp: i32,
+    max_mp: i32,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::RECIPE_SHOP_ITEM_INFO);
     w.write_i32(manufacturer_oid);

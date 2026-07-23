@@ -31,13 +31,26 @@ const SPAWN_OFFSET: i32 = 200;
 /// Returns how many minions were actually placed, so callers that keep a
 /// spawn tally (`spawn_all`) stay consistent with the world's NPC count.
 pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
-    if world.objects.get_component::<Vitals>(&master_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&master_oid)
+        .is_none_or(|v| v.dead)
+    {
         return 0;
     }
-    let Some(master_npc_id) = world.objects.get_component::<Npc>(&master_oid).map(|n| n.npc_id) else {
+    let Some(master_npc_id) = world
+        .objects
+        .get_component::<Npc>(&master_oid)
+        .map(|n| n.npc_id)
+    else {
         return 0;
     };
-    let Some(entries) = world.data.npc_data.get(master_npc_id).map(|t| t.minions.clone()) else {
+    let Some(entries) = world
+        .data
+        .npc_data
+        .get(master_npc_id)
+        .map(|t| t.minions.clone())
+    else {
         return 0;
     };
     if entries.is_empty() {
@@ -63,25 +76,40 @@ pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
 /// server missed its login-server registration window. Java keeps the same
 /// per-master `_spawnedMinions` list for the same reason.
 fn count_alive_minions(world: &World, master_oid: i32, npc_id: i32) -> i32 {
-    let Some(roster) = world.objects.get_component::<Minions>(&master_oid) else { return 0 };
+    let Some(roster) = world.objects.get_component::<Minions>(&master_oid) else {
+        return 0;
+    };
     roster
         .0
         .iter()
         .filter(|&&oid| {
-            world.objects.get_component::<Npc>(&oid).is_some_and(|n| n.npc_id == npc_id)
-                && world.objects.get_component::<Vitals>(&oid).is_some_and(|v| !v.dead)
+            world
+                .objects
+                .get_component::<Npc>(&oid)
+                .is_some_and(|n| n.npc_id == npc_id)
+                && world
+                    .objects
+                    .get_component::<Vitals>(&oid)
+                    .is_some_and(|v| !v.dead)
         })
         .count() as i32
 }
 
 /// Live members of a leader's escort, from its roster.
 fn live_pack(world: &World, master_oid: i32) -> Vec<i32> {
-    let Some(roster) = world.objects.get_component::<Minions>(&master_oid) else { return Vec::new() };
+    let Some(roster) = world.objects.get_component::<Minions>(&master_oid) else {
+        return Vec::new();
+    };
     roster
         .0
         .iter()
         .copied()
-        .filter(|oid| world.objects.get_component::<Vitals>(oid).is_some_and(|v| !v.dead))
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Vitals>(oid)
+                .is_some_and(|v| !v.dead)
+        })
         .collect()
 }
 
@@ -90,7 +118,11 @@ fn live_pack(world: &World, master_oid: i32) -> Vec<i32> {
 /// around the leader rather than a uniform disc, and is kept as-is so packs
 /// sit the way retail players expect.
 fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> bool {
-    let Some(master_pos) = world.objects.get_component::<Position>(&master_oid).copied() else {
+    let Some(master_pos) = world
+        .objects
+        .get_component::<Position>(&master_oid)
+        .copied()
+    else {
         return false;
     };
     let min_radius = world
@@ -100,8 +132,12 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
         .map(|t| t.collision_radius as i32 + 30)
         .unwrap_or(30);
 
-    let mut new_x = world.rng.gen_range((min_radius * 2)..(SPAWN_OFFSET * 2).max(min_radius * 2 + 1));
-    let mut new_y = world.rng.gen_range(new_x..(SPAWN_OFFSET * 2).max(new_x + 1));
+    let mut new_x = world
+        .rng
+        .gen_range((min_radius * 2)..(SPAWN_OFFSET * 2).max(min_radius * 2 + 1));
+    let mut new_y = world
+        .rng
+        .gen_range(new_x..(SPAWN_OFFSET * 2).max(new_x + 1));
     new_y = (((new_y * new_y) - (new_x * new_x)) as f64).sqrt() as i32;
 
     new_x = if new_x > (SPAWN_OFFSET + min_radius) {
@@ -115,13 +151,22 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
         master_pos.y - new_y + min_radius
     };
 
-    match crate::model::npc::spawn_npc_at(world, minion_npc_id, new_x, new_y, master_pos.z, master_pos.heading) {
+    match crate::model::npc::spawn_npc_at(
+        world,
+        minion_npc_id,
+        new_x,
+        new_y,
+        master_pos.z,
+        master_pos.heading,
+    ) {
         Some(oid) => {
             world.objects.add_components(&oid, MinionOf(master_oid));
             // Keep the leader's roster in step (Java `onMinionSpawn`).
             match world.objects.get_component_mut::<Minions>(&master_oid) {
                 Some(roster) => roster.0.push(oid),
-                None => world.objects.add_components(&master_oid, Minions(vec![oid])),
+                None => world
+                    .objects
+                    .add_components(&master_oid, Minions(vec![oid])),
             }
             true
         }
@@ -134,15 +179,27 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
 /// `0` means "gone for good" even on a raid), otherwise only a **raid** leader
 /// brings its escort back.
 pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
-    let Some(master_oid) = world.objects.get_component::<MinionOf>(&minion_oid).map(|m| m.0) else {
+    let Some(master_oid) = world
+        .objects
+        .get_component::<MinionOf>(&minion_oid)
+        .map(|m| m.0)
+    else {
         return;
     };
-    let Some(minion_npc_id) = world.objects.get_component::<Npc>(&minion_oid).map(|n| n.npc_id) else {
+    let Some(minion_npc_id) = world
+        .objects
+        .get_component::<Npc>(&minion_oid)
+        .map(|n| n.npc_id)
+    else {
         return;
     };
 
     // A dead (or vanished) leader doesn't rebuild its pack.
-    if world.objects.get_component::<Vitals>(&master_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&master_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     let master_is_raid = world
@@ -151,7 +208,12 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
         .and_then(|n| n.template(world))
         .is_some_and(|t| matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss"));
 
-    let delay_ms = match world.cfg.npc.custom_minions_respawn_time.get(&minion_npc_id) {
+    let delay_ms = match world
+        .cfg
+        .npc
+        .custom_minions_respawn_time
+        .get(&minion_npc_id)
+    {
         Some(&secs) => secs * 1000,
         None if master_is_raid => world.cfg.npc.raid_minion_respawn_time,
         None => 0,
@@ -162,7 +224,10 @@ pub(crate) fn on_minion_die(world: &mut World, minion_oid: i32) {
 
     world.scheduler.schedule(
         world.tick + (delay_ms as u64 / 100).max(1),
-        ScheduledTask::MinionRespawn { master_object_id: master_oid, minion_npc_id },
+        ScheduledTask::MinionRespawn {
+            master_object_id: master_oid,
+            minion_npc_id,
+        },
     );
 }
 
@@ -188,7 +253,11 @@ pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
     }
 
     for oid in live_pack(world, master_oid) {
-        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&oid)
+            .map(|r| r.0)
+        {
             super::death::despawn_npc(world, oid, region);
         }
     }
@@ -200,7 +269,8 @@ pub(crate) fn on_master_die(world: &mut World, master_oid: i32) {
 /// boss aggros its escort far harder than hitting one minion does.
 pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
     // Resolve the pack's leader from whichever member was hit.
-    let (master_oid, caller_is_master) = match world.objects.get_component::<MinionOf>(&victim_oid) {
+    let (master_oid, caller_is_master) = match world.objects.get_component::<MinionOf>(&victim_oid)
+    {
         Some(m) => (m.0, false),
         None => (victim_oid, true),
     };
@@ -216,7 +286,10 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
         .is_some_and(|t| matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss"));
 
     // The leader wakes with 1 hate, unless it's already fighting.
-    let master_alive = world.objects.get_component::<Vitals>(&master_oid).is_some_and(|v| !v.dead);
+    let master_alive = world
+        .objects
+        .get_component::<Vitals>(&master_oid)
+        .is_some_and(|v| !v.dead);
     let master_engaged = world
         .objects
         .get_component::<NpcAi>(&master_oid)
@@ -225,7 +298,8 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
         add_hate(world, master_oid, attacker_oid, 1.0);
     }
 
-    let aggro = (if caller_is_master { 10.0 } else { 1.0 }) * if master_is_raid { 10.0 } else { 1.0 };
+    let aggro =
+        (if caller_is_master { 10.0 } else { 1.0 }) * if master_is_raid { 10.0 } else { 1.0 };
     for oid in live_pack(world, master_oid) {
         // A minion already in a fight of its own is left alone unless the
         // leader itself was the one struck.
@@ -242,7 +316,10 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
 /// `addDamageHate(attacker, 0, n)` — hate without damage, plus the AI wake.
 fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate: f64) {
     if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-        let entry = aggro.0.entry(attacker_oid).or_insert(AggroInfo { hate: 0.0, damage: 0.0 });
+        let entry = aggro.0.entry(attacker_oid).or_insert(AggroInfo {
+            hate: 0.0,
+            damage: 0.0,
+        });
         entry.hate += hate;
     }
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {

@@ -9,7 +9,9 @@
 //! to the client in `EtcStatusUpdate` so it can draw the penalty icons.
 
 use crate::data::item_data::ItemKind;
-use crate::model::components::{BaseStats, Buffs, CombatStats, ExpertisePenalty, SkillBook, Speeds, StatModifiers};
+use crate::model::components::{
+    BaseStats, Buffs, CombatStats, ExpertisePenalty, SkillBook, Speeds, StatModifiers,
+};
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, StatModifierEffect};
 use crate::model::Player;
@@ -55,7 +57,11 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
         compute_penalties(expertise, equipped)
     };
 
-    let current = world.objects.get_component::<ExpertisePenalty>(&object_id).copied().unwrap_or_default();
+    let current = world
+        .objects
+        .get_component::<ExpertisePenalty>(&object_id)
+        .copied()
+        .unwrap_or_default();
     if current.weapon == weapon_penalty && current.armor == armor_penalty {
         return;
     }
@@ -67,31 +73,72 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // --- apply phase: swap the penalty buffs, recompute stats. Scoped so the
     // entity-store borrow ends before the component/packet work below. ---
     {
-        let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-            &Player,
-            &BaseStats,
-            &mut StatModifiers,
-            &crate::model::inventory::Inventory,
-            &mut Buffs,
-            &mut Speeds,
-            &mut CombatStats,
-        )>(&object_id) else {
+        let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+            world.objects.get_many_mut::<(
+                &Player,
+                &BaseStats,
+                &mut StatModifiers,
+                &crate::model::inventory::Inventory,
+                &mut Buffs,
+                &mut Speeds,
+                &mut CombatStats,
+            )>(&object_id)
+        else {
             return;
         };
         // `remove_buff` rebuilds the modifier maps from the *remaining* buffs,
         // so removing then re-adding at the new level leaves no stale penalty
         // modifiers (a no-op when the penalty wasn't present).
-        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, WEAPON_GRADE_PENALTY);
-        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, ARMOR_GRADE_PENALTY);
+        player.remove_buff(
+            &world.data,
+            base,
+            &mut mods,
+            inventory,
+            &mut buffs,
+            &mut speeds,
+            &mut combat,
+            WEAPON_GRADE_PENALTY,
+        );
+        player.remove_buff(
+            &world.data,
+            base,
+            &mut mods,
+            inventory,
+            &mut buffs,
+            &mut speeds,
+            &mut combat,
+            ARMOR_GRADE_PENALTY,
+        );
         if let Some((level, effects)) = weapon_effects {
-            player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects));
+            player.apply_buff(
+                &world.data,
+                base,
+                &mut mods,
+                inventory,
+                &mut buffs,
+                &mut speeds,
+                &mut combat,
+                passive_penalty_buff(WEAPON_GRADE_PENALTY, level, effects),
+            );
         }
         if let Some((level, effects)) = armor_effects {
-            player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects));
+            player.apply_buff(
+                &world.data,
+                base,
+                &mut mods,
+                inventory,
+                &mut buffs,
+                &mut speeds,
+                &mut combat,
+                passive_penalty_buff(ARMOR_GRADE_PENALTY, level, effects),
+            );
         }
     }
 
-    if let Some(ep) = world.objects.get_component_mut::<ExpertisePenalty>(&object_id) {
+    if let Some(ep) = world
+        .objects
+        .get_component_mut::<ExpertisePenalty>(&object_id)
+    {
         ep.weapon = weapon_penalty;
         ep.armor = armor_penalty;
     }
@@ -104,10 +151,20 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
                 .objects
                 .get_component::<crate::model::components::AdminFlags>(&object_id)
                 .is_some_and(|f| f.silence);
-            let user_info = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, super::party::calculate_relation(world, view.p));
+            let user_info = crate::network::user_info::user_info(
+                &view,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, view.p),
+            );
             let charges = view.p.charges;
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::enter_world::etc_status_update(charges, weapon_penalty, armor_penalty, silence));
+                cs.send(crate::network::enter_world::etc_status_update(
+                    charges,
+                    weapon_penalty,
+                    armor_penalty,
+                    silence,
+                ));
                 cs.send(user_info);
             }
         }
@@ -119,7 +176,10 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
 /// return the `(weapon, armor)` penalty levels. Only over-grade items count;
 /// the penalty is "how many grades over" the highest such item is, clamped to
 /// 0-4 (Java also subtracts an expertise bonus that is always 0 here).
-fn compute_penalties(expertise: i32, equipped: impl IntoIterator<Item = (bool, i32)>) -> (i32, i32) {
+fn compute_penalties(
+    expertise: i32,
+    equipped: impl IntoIterator<Item = (bool, i32)>,
+) -> (i32, i32) {
     let mut weapon_grade = 0;
     let mut armor_grade = 0;
     for (is_weapon, grade) in equipped {
@@ -131,14 +191,21 @@ fn compute_penalties(expertise: i32, equipped: impl IntoIterator<Item = (bool, i
             }
         }
     }
-    ((weapon_grade - expertise).clamp(0, 4), (armor_grade - expertise).clamp(0, 4))
+    (
+        (weapon_grade - expertise).clamp(0, 4),
+        (armor_grade - expertise).clamp(0, 4),
+    )
 }
 
 /// The penalty skill's continuous stat effects at `level`, paired with the
 /// level — or `None` when `level == 0` (no penalty) or the skill level isn't
 /// loaded. Cloned out so the caller can drop the `GameData` borrow before
 /// mutating the entity store.
-fn penalty_effects(world: &World, skill_id: i32, level: i32) -> Option<(i32, Vec<StatModifierEffect>)> {
+fn penalty_effects(
+    world: &World,
+    skill_id: i32,
+    level: i32,
+) -> Option<(i32, Vec<StatModifierEffect>)> {
     if level <= 0 {
         return None;
     }

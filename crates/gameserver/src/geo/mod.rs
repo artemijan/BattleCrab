@@ -86,13 +86,17 @@ impl GeoEngine {
     /// The effective NSWE bits of the cell nearest `world_z` (runtime override
     /// if edited, else the base region; `NSWE_ALL` on unloaded geodata).
     pub fn nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32) -> u8 {
-        if self.has_overrides.load(std::sync::atomic::Ordering::Relaxed) {
+        if self
+            .has_overrides
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
             let nz = self.get_nearest_z(geo_x, geo_y, world_z);
             if let Some(&ov) = self.nswe_overrides.read().unwrap().get(&(geo_x, geo_y, nz)) {
                 return ov;
             }
         }
-        self.region(geo_x, geo_y).map_or(NSWE_ALL, |r| r.nearest_nswe(geo_x, geo_y, world_z))
+        self.region(geo_x, geo_y)
+            .map_or(NSWE_ALL, |r| r.nearest_nswe(geo_x, geo_y, world_z))
     }
 
     /// Admin `//geoenable<dir>` — OR `nswe` into the nearest cell's flags.
@@ -108,8 +112,12 @@ impl GeoEngine {
     fn edit_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, f: impl FnOnce(u8) -> u8) {
         let cur = self.nearest_nswe(geo_x, geo_y, world_z);
         let nz = self.get_nearest_z(geo_x, geo_y, world_z);
-        self.nswe_overrides.write().unwrap().insert((geo_x, geo_y, nz), f(cur));
-        self.has_overrides.store(true, std::sync::atomic::Ordering::Relaxed);
+        self.nswe_overrides
+            .write()
+            .unwrap()
+            .insert((geo_x, geo_y, nz), f(cur));
+        self.has_overrides
+            .store(true, std::sync::atomic::Ordering::Relaxed);
     }
 
     /// Number of runtime NSWE edits currently applied (admin `//geosave`).
@@ -126,7 +134,11 @@ impl GeoEngine {
         let (size_x, size_y) = (REGION_CELLS_X * 16, REGION_CELLS_Y * 16);
         let min_x = tile_x * size_x + WORLD_MIN_X;
         let min_y = tile_y * size_y + WORLD_MIN_Y;
-        ((tile_x, tile_y), (min_x, min_y), (min_x + size_x - 1, min_y + size_y - 1))
+        (
+            (tile_x, tile_y),
+            (min_x, min_y),
+            (min_x + size_x - 1, min_y + size_y - 1),
+        )
     }
 
     /// Java `GeoEngine()` constructor: scan `geodata_path` for
@@ -144,7 +156,8 @@ impl GeoEngine {
                 }
                 match Region::load(&file) {
                     Ok(region) => {
-                        engine.regions[(region_x * GEO_REGIONS_Y + region_y) as usize] = Some(region);
+                        engine.regions[(region_x * GEO_REGIONS_Y + region_y) as usize] =
+                            Some(region);
                         loaded += 1;
                     }
                     Err(e) => warn!("GeoEngine: failed to load {}: {e}", file.display()),
@@ -193,32 +206,45 @@ impl GeoEngine {
     }
 
     pub fn check_nearest_nswe(&self, geo_x: i32, geo_y: i32, world_z: i32, nswe: u8) -> bool {
-        if self.has_overrides.load(std::sync::atomic::Ordering::Relaxed) {
+        if self
+            .has_overrides
+            .load(std::sync::atomic::Ordering::Relaxed)
+        {
             let nz = self.get_nearest_z(geo_x, geo_y, world_z);
             if let Some(&ov) = self.nswe_overrides.read().unwrap().get(&(geo_x, geo_y, nz)) {
                 return (ov & nswe) == nswe;
             }
         }
-        self.region(geo_x, geo_y).is_none_or(|r| r.check_nearest_nswe(geo_x, geo_y, world_z, nswe))
+        self.region(geo_x, geo_y)
+            .is_none_or(|r| r.check_nearest_nswe(geo_x, geo_y, world_z, nswe))
     }
 
     pub fn get_nearest_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
-        self.region(geo_x, geo_y).map_or(world_z, |r| r.nearest_z(geo_x, geo_y, world_z))
+        self.region(geo_x, geo_y)
+            .map_or(world_z, |r| r.nearest_z(geo_x, geo_y, world_z))
     }
 
     pub fn get_next_lower_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
-        self.region(geo_x, geo_y).map_or(world_z, |r| r.next_lower_z(geo_x, geo_y, world_z))
+        self.region(geo_x, geo_y)
+            .map_or(world_z, |r| r.next_lower_z(geo_x, geo_y, world_z))
     }
 
     pub fn get_next_higher_z(&self, geo_x: i32, geo_y: i32, world_z: i32) -> i32 {
-        self.region(geo_x, geo_y).map_or(world_z, |r| r.next_higher_z(geo_x, geo_y, world_z))
+        self.region(geo_x, geo_y)
+            .map_or(world_z, |r| r.next_higher_z(geo_x, geo_y, world_z))
     }
 
     /// Java `checkNearestNsweAntiCornerCut`: a diagonal step also requires
     /// both adjacent cardinal cells to be enterable. Ported verbatim,
     /// including the NW branch checking `(geoX, geoY-1)` twice where the
     /// commented-out original intent was `(geoX-1, geoY)` — kept for parity.
-    pub fn check_nearest_nswe_anti_corner_cut(&self, geo_x: i32, geo_y: i32, world_z: i32, nswe: u8) -> bool {
+    pub fn check_nearest_nswe_anti_corner_cut(
+        &self,
+        geo_x: i32,
+        geo_y: i32,
+        world_z: i32,
+        nswe: u8,
+    ) -> bool {
         let mut can = true;
         if (nswe & NSWE_NORTH_EAST) == NSWE_NORTH_EAST {
             can = self.check_nearest_nswe(geo_x, geo_y - 1, world_z, NSWE_EAST)
@@ -260,13 +286,25 @@ impl GeoEngine {
             return world_z;
         }
         let next_lower_z = self.get_next_lower_z(geo_x, geo_y, world_z + 20);
-        if (next_lower_z - world_z).abs() <= SPAWN_Z_DELTA_LIMIT { next_lower_z } else { world_z }
+        if (next_lower_z - world_z).abs() <= SPAWN_Z_DELTA_LIMIT {
+            next_lower_z
+        } else {
+            world_z
+        }
     }
 
     /// Java `getLosGeoZ`: the z the sight line is forced to at `(cur_x,
     /// cur_y)` — ground level if the step is enterable, otherwise the next
     /// obstacle top.
-    fn get_los_geo_z(&self, prev_x: i32, prev_y: i32, prev_geo_z: i32, cur_x: i32, cur_y: i32, nswe: u8) -> i32 {
+    fn get_los_geo_z(
+        &self,
+        prev_x: i32,
+        prev_y: i32,
+        prev_geo_z: i32,
+        cur_x: i32,
+        cur_y: i32,
+        nswe: u8,
+    ) -> i32 {
         if self.check_nearest_nswe_anti_corner_cut(prev_x, prev_y, prev_geo_z, nswe) {
             self.get_nearest_z(cur_x, cur_y, prev_geo_z)
         } else {
@@ -330,29 +368,85 @@ impl GeoEngine {
                 let mut can_see_through = false;
                 if cur_geo_z <= max_height {
                     if (nswe & NSWE_NORTH_EAST) == NSWE_NORTH_EAST {
-                        let north = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x, prev_y - 1, NSWE_EAST);
-                        let east = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x + 1, prev_y, NSWE_NORTH);
+                        let north = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x,
+                            prev_y - 1,
+                            NSWE_EAST,
+                        );
+                        let east = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x + 1,
+                            prev_y,
+                            NSWE_NORTH,
+                        );
                         can_see_through = north <= max_height
                             && east <= max_height
                             && north <= self.get_nearest_z(prev_x, prev_y - 1, bee_cur_z)
                             && east <= self.get_nearest_z(prev_x + 1, prev_y, bee_cur_z);
                     } else if (nswe & NSWE_NORTH_WEST) == NSWE_NORTH_WEST {
-                        let north = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x, prev_y - 1, NSWE_WEST);
-                        let west = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x - 1, prev_y, NSWE_NORTH);
+                        let north = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x,
+                            prev_y - 1,
+                            NSWE_WEST,
+                        );
+                        let west = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x - 1,
+                            prev_y,
+                            NSWE_NORTH,
+                        );
                         can_see_through = north <= max_height
                             && west <= max_height
                             && north <= self.get_nearest_z(prev_x, prev_y - 1, bee_cur_z)
                             && west <= self.get_nearest_z(prev_x - 1, prev_y, bee_cur_z);
                     } else if (nswe & NSWE_SOUTH_EAST) == NSWE_SOUTH_EAST {
-                        let south = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x, prev_y + 1, NSWE_EAST);
-                        let east = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x + 1, prev_y, NSWE_SOUTH);
+                        let south = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x,
+                            prev_y + 1,
+                            NSWE_EAST,
+                        );
+                        let east = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x + 1,
+                            prev_y,
+                            NSWE_SOUTH,
+                        );
                         can_see_through = south <= max_height
                             && east <= max_height
                             && south <= self.get_nearest_z(prev_x, prev_y + 1, bee_cur_z)
                             && east <= self.get_nearest_z(prev_x + 1, prev_y, bee_cur_z);
                     } else if (nswe & NSWE_SOUTH_WEST) == NSWE_SOUTH_WEST {
-                        let south = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x, prev_y + 1, NSWE_WEST);
-                        let west = self.get_los_geo_z(prev_x, prev_y, prev_geo_z, prev_x - 1, prev_y, NSWE_SOUTH);
+                        let south = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x,
+                            prev_y + 1,
+                            NSWE_WEST,
+                        );
+                        let west = self.get_los_geo_z(
+                            prev_x,
+                            prev_y,
+                            prev_geo_z,
+                            prev_x - 1,
+                            prev_y,
+                            NSWE_SOUTH,
+                        );
                         can_see_through = south <= max_height
                             && west <= max_height
                             && south <= self.get_nearest_z(prev_x, prev_y + 1, bee_cur_z)
@@ -378,7 +472,15 @@ impl GeoEngine {
     /// walk the cell line towards the destination and return the last
     /// walkable location — the destination itself if nothing blocks. A
     /// closed door across the line keeps the mover at the origin.
-    pub fn get_valid_location(&self, x: i32, y: i32, z: i32, tx: i32, ty: i32, tz: i32) -> (i32, i32, i32) {
+    pub fn get_valid_location(
+        &self,
+        x: i32,
+        y: i32,
+        z: i32,
+        tx: i32,
+        ty: i32,
+        tz: i32,
+    ) -> (i32, i32, i32) {
         let geo_x = self.get_geo_x(x);
         let geo_y = self.get_geo_y(y);
         let nearest_from_z = self.get_nearest_z(geo_x, geo_y, z);
@@ -386,7 +488,10 @@ impl GeoEngine {
         let t_geo_y = self.get_geo_y(ty);
         let nearest_to_z = self.get_nearest_z(t_geo_x, t_geo_y, tz);
 
-        if self.doors.check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false) {
+        if self
+            .doors
+            .check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false)
+        {
             return (x, y, self.get_height(x, y, nearest_from_z));
         }
 
@@ -435,7 +540,10 @@ impl GeoEngine {
         let t_geo_y = self.get_geo_y(ty);
         let nearest_to_z = self.get_nearest_z(t_geo_x, t_geo_y, tz);
 
-        if self.doors.check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false) {
+        if self
+            .doors
+            .check_doors_between(x, y, nearest_from_z, tx, ty, nearest_to_z, false)
+        {
             return false;
         }
 
@@ -525,7 +633,10 @@ mod tests {
 
     /// World coords of the centre of local cell (cx, cy) of the test region.
     fn world(g: &GeoEngine, cx: i32, cy: i32) -> (i32, i32) {
-        (g.get_world_x(BASE_GEO_X + cx), g.get_world_y(BASE_GEO_Y + cy))
+        (
+            g.get_world_x(BASE_GEO_X + cx),
+            g.get_world_y(BASE_GEO_Y + cy),
+        )
     }
 
     /// Runtime NSWE edits (admin `//geodisable*`/`//geoenable*`) layer over the
@@ -536,19 +647,34 @@ mod tests {
         let g = engine_with(|_, _| (0, NSWE_ALL));
         let (gx, gy, z) = (BASE_GEO_X + 5, BASE_GEO_Y + 5, 0);
         assert!(g.has_geo_pos(gx, gy));
-        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "open before edit");
+        assert!(
+            g.check_nearest_nswe(gx, gy, z, NSWE_NORTH),
+            "open before edit"
+        );
 
         g.unset_nearest_nswe(gx, gy, z, NSWE_NORTH);
-        assert!(!g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "north blocked after //geodisablenorth");
-        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_SOUTH), "other directions untouched");
+        assert!(
+            !g.check_nearest_nswe(gx, gy, z, NSWE_NORTH),
+            "north blocked after //geodisablenorth"
+        );
+        assert!(
+            g.check_nearest_nswe(gx, gy, z, NSWE_SOUTH),
+            "other directions untouched"
+        );
         assert_eq!(g.override_count(), 1, "one cell edited");
 
         g.set_nearest_nswe(gx, gy, z, NSWE_NORTH);
-        assert!(g.check_nearest_nswe(gx, gy, z, NSWE_NORTH), "north re-enabled after //geoenablenorth");
+        assert!(
+            g.check_nearest_nswe(gx, gy, z, NSWE_NORTH),
+            "north re-enabled after //geoenablenorth"
+        );
 
         // An unedited cell still reads from the base region (no override lookup
         // false-positives).
-        assert!(g.check_nearest_nswe(gx + 1, gy, z, NSWE_ALL), "neighbour cell unaffected");
+        assert!(
+            g.check_nearest_nswe(gx + 1, gy, z, NSWE_ALL),
+            "neighbour cell unaffected"
+        );
     }
 
     #[test]
@@ -576,7 +702,10 @@ mod tests {
         ));
         let g = GeoEngine::load(path);
         // Giran town square: ground height must be within a step of retail z.
-        assert!(g.has_geo(82698, 148638), "Giran region 22_22 should be loaded");
+        assert!(
+            g.has_geo(82698, 148638),
+            "Giran region 22_22 should be loaded"
+        );
         let height = g.get_height(82698, 148638, -3473);
         assert!((height - -3473).abs() <= 32, "Giran ground z, got {height}");
         // Open square: adjacent points see each other and are walkable.
@@ -601,7 +730,10 @@ mod tests {
         });
         let (x0, y0) = world(&g, 5, 5);
         let (x1, y1) = world(&g, 15, 5);
-        assert!(!g.can_see_target(x0, y0, 0, x1, y1, 0), "wall must block LOS");
+        assert!(
+            !g.can_see_target(x0, y0, 0, x1, y1, 0),
+            "wall must block LOS"
+        );
         assert!(!g.can_move_to_target(x0, y0, 0, x1, y1, 0));
         // Last walkable cell before the wall is x = 9.
         let (vx, vy, vz) = g.get_valid_location(x0, y0, 0, x1, y1, 0);
@@ -639,8 +771,10 @@ mod tests {
         assert_eq!(g.get_height(82698, 148638, -3473), -3473);
         assert!(g.can_see_target(0, 0, 0, 5000, 5000, 500));
         assert!(g.can_move_to_target(0, 0, 0, 5000, 5000, 500));
-        assert_eq!(g.get_valid_location(0, 0, 0, 5000, 5000, 500), (5000, 5000, 500));
+        assert_eq!(
+            g.get_valid_location(0, 0, 0, 5000, 5000, 500),
+            (5000, 5000, 500)
+        );
         assert_eq!(g.get_spawn_height(82698, 148638, -3473), -3473);
     }
 }
-

@@ -65,14 +65,16 @@ impl QuestScript for Q00320BonesTellTheFuture {
             );
         }
         if ctx.is_started() {
-            return Some(if ctx.quest_items_count(BONE_FRAGMENT) >= REQUIRED_BONE_COUNT {
-                ctx.give_adena(500, true);
-                ctx.exit_quest(true, true);
-                "30359-06.html"
-            } else {
-                "30359-05.html"
-            }
-            .to_string());
+            return Some(
+                if ctx.quest_items_count(BONE_FRAGMENT) >= REQUIRED_BONE_COUNT {
+                    ctx.give_adena(500, true);
+                    ctx.exit_quest(true, true);
+                    "30359-06.html"
+                } else {
+                    "30359-05.html"
+                }
+                .to_string(),
+            );
         }
         Some(ctx.no_quest_html())
     }

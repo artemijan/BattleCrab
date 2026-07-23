@@ -30,7 +30,10 @@ impl IpConfig {
 
     pub fn load_from(root: &str) -> Self {
         let path = format!("{root}{IPCONFIG_FILE}");
-        let mut cfg = IpConfig { subnets: Vec::new(), hosts: Vec::new() };
+        let mut cfg = IpConfig {
+            subnets: Vec::new(),
+            hosts: Vec::new(),
+        };
         if std::path::Path::new(&path).exists() {
             info!("Network Config: ipconfig.xml exists using manual configuration...");
             cfg.parse_file(&path);
@@ -46,7 +49,11 @@ impl IpConfig {
         if self.subnets.is_empty() {
             return vec![("0.0.0.0/0".to_string(), "127.0.0.1".to_string())];
         }
-        self.subnets.iter().cloned().zip(self.hosts.iter().cloned()).collect()
+        self.subnets
+            .iter()
+            .cloned()
+            .zip(self.hosts.iter().cloned())
+            .collect()
     }
 
     /// `parseDocument`: `<gameserver address="..."><define subnet address/></gameserver>`.
@@ -65,10 +72,11 @@ impl IpConfig {
                 Ok(Event::Start(e)) | Ok(Event::Empty(e)) => {
                     let name = e.name();
                     if name.as_ref().eq_ignore_ascii_case(b"gameserver") {
-                        default_address =
-                            attr(&e, b"address").or(default_address);
+                        default_address = attr(&e, b"address").or(default_address);
                     } else if name.as_ref().eq_ignore_ascii_case(b"define") {
-                        if let (Some(subnet), Some(address)) = (attr(&e, b"subnet"), attr(&e, b"address")) {
+                        if let (Some(subnet), Some(address)) =
+                            (attr(&e, b"subnet"), attr(&e, b"address"))
+                        {
                             self.subnets.push(subnet);
                             self.hosts.push(address);
                         }
@@ -100,7 +108,9 @@ impl IpConfig {
         match if_addrs::get_if_addrs() {
             Ok(interfaces) => {
                 for iface in interfaces {
-                    let if_addrs::IfAddr::V4(v4) = iface.addr else { continue };
+                    let if_addrs::IfAddr::V4(v4) = iface.addr else {
+                        continue;
+                    };
                     let prefix = mask_to_prefix(v4.netmask);
                     let network = mask_network(v4.ip, v4.netmask);
                     let subnet = format!("{network}/{prefix}");
@@ -142,7 +152,10 @@ fn mask_network(ip: Ipv4Addr, mask: Ipv4Addr) -> Ipv4Addr {
 /// plain HTTP with a short timeout so boot never hangs; `None` on any failure.
 fn fetch_external_ip() -> Option<String> {
     let timeout = Duration::from_millis(1500);
-    let addr = ("checkip.amazonaws.com", 80).to_socket_addrs().ok()?.next()?;
+    let addr = ("checkip.amazonaws.com", 80)
+        .to_socket_addrs()
+        .ok()?
+        .next()?;
     let mut stream = TcpStream::connect_timeout(&addr, timeout).ok()?;
     stream.set_read_timeout(Some(timeout)).ok()?;
     stream.set_write_timeout(Some(timeout)).ok()?;
@@ -166,15 +179,24 @@ mod tests {
         assert_eq!(mask_to_prefix("255.0.0.0".parse().unwrap()), 8);
         assert_eq!(mask_to_prefix("255.255.255.255".parse().unwrap()), 32);
         assert_eq!(
-            mask_network("192.168.1.42".parse().unwrap(), "255.255.255.0".parse().unwrap()),
+            mask_network(
+                "192.168.1.42".parse().unwrap(),
+                "255.255.255.0".parse().unwrap()
+            ),
             "192.168.1.0".parse::<Ipv4Addr>().unwrap()
         );
     }
 
     #[test]
     fn empty_falls_back_to_localhost() {
-        let cfg = IpConfig { subnets: Vec::new(), hosts: Vec::new() };
-        assert_eq!(cfg.pairs(), vec![("0.0.0.0/0".to_string(), "127.0.0.1".to_string())]);
+        let cfg = IpConfig {
+            subnets: Vec::new(),
+            hosts: Vec::new(),
+        };
+        assert_eq!(
+            cfg.pairs(),
+            vec![("0.0.0.0/0".to_string(), "127.0.0.1".to_string())]
+        );
     }
 
     /// Parse the shipped `ipconfig.xml` format (defines + default address).
@@ -204,9 +226,15 @@ mod tests {
         // Each define, plus the gameserver default appended as another 0.0.0.0/0.
         assert!(pairs.contains(&("127.0.0.0/8".into(), "127.0.0.1".into())));
         assert!(pairs.contains(&("192.168.1.0/24".into(), "192.168.1.17".into())));
-        assert_eq!(pairs.last().unwrap(), &("0.0.0.0/0".to_string(), "192.168.1.17".to_string()));
+        assert_eq!(
+            pairs.last().unwrap(),
+            &("0.0.0.0/0".to_string(), "192.168.1.17".to_string())
+        );
         // A LAN client (192.168.1.x) must resolve to the LAN address, not localhost.
-        let lan = pairs.iter().find(|(s, _)| s == "192.168.1.0/24").map(|(_, h)| h.as_str());
+        let lan = pairs
+            .iter()
+            .find(|(s, _)| s == "192.168.1.0/24")
+            .map(|(_, h)| h.as_str());
         assert_eq!(lan, Some("192.168.1.17"));
     }
 }

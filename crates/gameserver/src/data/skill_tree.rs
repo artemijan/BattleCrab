@@ -96,7 +96,9 @@ impl SkillTreeData {
         let mut parents: HashMap<i32, i32> = HashMap::new();
         let mut common: Vec<SkillLearn> = Vec::new();
         for sub in CLASS_TREE_SUBDIRS {
-            let Ok(dir) = std::fs::read_dir(format!("{file_path}{SKILL_TREES_DIR}/{sub}")) else { continue };
+            let Ok(dir) = std::fs::read_dir(format!("{file_path}{SKILL_TREES_DIR}/{sub}")) else {
+                continue;
+            };
             for entry in dir.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|e| e.to_str()) != Some("xml") {
@@ -123,7 +125,13 @@ impl SkillTreeData {
             hero_skills.len()
         );
         info!("SkillTreeData: Loaded {} noble skills.", noble_skills.len());
-        Self { trees, parents, common, hero_skills, noble_skills }
+        Self {
+            trees,
+            parents,
+            common,
+            hero_skills,
+            noble_skills,
+        }
     }
 
     /// Java `getCompleteClassSkillTree`: the class's own `<skill>` entries, then
@@ -197,7 +205,13 @@ impl SkillTreeData {
     pub fn initial_skills(&self, class_id: i32) -> Vec<Skill> {
         self.trees
             .get(&class_id)
-            .map(|entries| entries.iter().filter(|s| s.auto_get).map(|s| (s.skill_id, s.skill_level)).collect())
+            .map(|entries| {
+                entries
+                    .iter()
+                    .filter(|s| s.auto_get)
+                    .map(|s| (s.skill_id, s.skill_level))
+                    .collect()
+            })
             .unwrap_or_default()
     }
 
@@ -206,7 +220,12 @@ impl SkillTreeData {
     /// `skillLevel` is exactly one past what they currently know (0 for an
     /// unknown skill, so `skillLevel == 1` is "new"). autoGet entries are
     /// already granted at creation, so they never reappear here once known.
-    pub fn available_skills(&self, class_id: i32, level: i32, known: &HashMap<i32, i32>) -> Vec<&SkillLearn> {
+    pub fn available_skills(
+        &self,
+        class_id: i32,
+        level: i32,
+        known: &HashMap<i32, i32>,
+    ) -> Vec<&SkillLearn> {
         self.complete_entries(class_id)
             .into_iter()
             .filter(|s| !s.auto_get && s.get_level <= level)
@@ -218,7 +237,10 @@ impl SkillTreeData {
     /// entry reachable at `level`. The caller keeps only levels above what the
     /// player already knows.
     pub fn auto_get_skills(&self, class_id: i32, level: i32) -> Vec<&SkillLearn> {
-        self.complete_entries(class_id).into_iter().filter(|s| s.auto_get && s.get_level <= level).collect()
+        self.complete_entries(class_id)
+            .into_iter()
+            .filter(|s| s.auto_get && s.get_level <= level)
+            .collect()
     }
 
     /// Java `SkillTreeData.getAllAvailableSkills` (the `AutoLearnSkills` path,
@@ -242,7 +264,11 @@ impl SkillTreeData {
         include_divine_inspiration: bool,
     ) -> Vec<Skill> {
         let mut best: HashMap<i32, i32> = HashMap::new();
-        for s in self.complete_entries(class_id).into_iter().filter(|s| s.get_level <= level) {
+        for s in self
+            .complete_entries(class_id)
+            .into_iter()
+            .filter(|s| s.get_level <= level)
+        {
             if !include_required_items && s.requires_item {
                 continue;
             }
@@ -252,12 +278,19 @@ impl SkillTreeData {
             let slot = best.entry(s.skill_id).or_insert(0);
             *slot = (*slot).max(s.skill_level);
         }
-        best.into_iter().filter(|&(id, lvl)| lvl > known.get(&id).copied().unwrap_or(0)).collect()
+        best.into_iter()
+            .filter(|&(id, lvl)| lvl > known.get(&id).copied().unwrap_or(0))
+            .collect()
     }
 
     /// The `SkillLearn` for a specific `(class_id, skill_id, skill_level)`,
     /// used by `RequestAcquireSkill` to re-validate the client's request.
-    pub fn skill_learn(&self, class_id: i32, skill_id: i32, skill_level: i32) -> Option<&SkillLearn> {
+    pub fn skill_learn(
+        &self,
+        class_id: i32,
+        skill_id: i32,
+        skill_level: i32,
+    ) -> Option<&SkillLearn> {
         self.complete_entries(class_id)
             .into_iter()
             .find(|s| s.skill_id == skill_id && s.skill_level == skill_level)
@@ -276,18 +309,33 @@ impl SkillTreeData {
     /// SkillRemoval`): when true, every skill is matched level-exactly (the same
     /// no-grace rule Java always uses for Expertise); when false, the ordinary
     /// 9-level buffer applies (0 for Expertise).
-    pub fn delevel_skill_changes(&self, class_id: i32, level: i32, known: &HashMap<i32, i32>, strict: bool) -> Vec<(i32, Option<i32>)> {
+    pub fn delevel_skill_changes(
+        &self,
+        class_id: i32,
+        level: i32,
+        known: &HashMap<i32, i32>,
+        strict: bool,
+    ) -> Vec<(i32, Option<i32>)> {
         let entries = self.complete_entries(class_id);
         if entries.is_empty() {
             return Vec::new();
         }
-        let level_diff_of = |skill_id: i32| if strict || skill_id == EXPERTISE_SKILL_ID { 0 } else { 9 };
+        let level_diff_of = |skill_id: i32| {
+            if strict || skill_id == EXPERTISE_SKILL_ID {
+                0
+            } else {
+                9
+            }
+        };
         let mut out = Vec::new();
         for (&skill_id, &skill_level) in known {
             // Java keys the lookup on `getLevel() % 100` — enchanted skills
             // carry the enchant route in the hundreds digit.
             let base_level = skill_level % 100;
-            let Some(learn) = entries.iter().find(|s| s.skill_id == skill_id && s.skill_level == base_level) else {
+            let Some(learn) = entries
+                .iter()
+                .find(|s| s.skill_id == skill_id && s.skill_level == base_level)
+            else {
                 continue;
             };
             let level_diff = level_diff_of(skill_id);
@@ -297,7 +345,10 @@ impl SkillTreeData {
             // deacreaseSkillLevel: highest level of this skill still reachable.
             let mut next = -1;
             for s in entries.iter() {
-                if s.skill_id == skill_id && s.skill_level > next && level >= (s.get_level - level_diff) {
+                if s.skill_id == skill_id
+                    && s.skill_level > next
+                    && level >= (s.get_level - level_diff)
+                {
                     next = s.skill_level;
                 }
             }
@@ -309,7 +360,13 @@ impl SkillTreeData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { trees: HashMap::new(), parents: HashMap::new(), common: Vec::new(), hero_skills: Vec::new(), noble_skills: Vec::new() }
+        Self {
+            trees: HashMap::new(),
+            parents: HashMap::new(),
+            common: Vec::new(),
+            hero_skills: Vec::new(),
+            noble_skills: Vec::new(),
+        }
     }
 
     #[doc(hidden)]
@@ -368,7 +425,8 @@ fn parse_tree(
                 let get_level = attr_i32(&e, b"getLevel").unwrap_or(99);
                 let level_up_sp = attr_i64(&e, b"levelUpSp").unwrap_or(0);
                 let name = attr_str(&e, b"skillName").unwrap_or_default();
-                let auto_get = attr_str(&e, b"autoGet").as_deref() == Some("true") || (get_level <= 1 && skill_level == 1);
+                let auto_get = attr_str(&e, b"autoGet").as_deref() == Some("true")
+                    || (get_level <= 1 && skill_level == 1);
                 if skill_id > 0 {
                     let learn = SkillLearn {
                         skill_id,
@@ -434,7 +492,15 @@ mod tests {
     use super::*;
 
     fn learn(skill_id: i32, skill_level: i32, get_level: i32, level_up_sp: i64) -> SkillLearn {
-        SkillLearn { skill_id, skill_level, name: String::new(), get_level, level_up_sp, auto_get: false, requires_item: false }
+        SkillLearn {
+            skill_id,
+            skill_level,
+            name: String::new(),
+            get_level,
+            level_up_sp,
+            auto_get: false,
+            requires_item: false,
+        }
     }
 
     #[test]
@@ -450,7 +516,11 @@ mod tests {
         // At the gate: both level-1 entries, not the level-2 (still gated by
         // its own getLevel *and* by not knowing level 1 yet).
         let known = HashMap::new();
-        let mut ids: Vec<i32> = data.available_skills(0, 5, &known).iter().map(|s| s.skill_id).collect();
+        let mut ids: Vec<i32> = data
+            .available_skills(0, 5, &known)
+            .iter()
+            .map(|s| s.skill_id)
+            .collect();
         ids.sort();
         assert_eq!(ids, vec![3, 91]);
 
@@ -459,11 +529,23 @@ mod tests {
         // (still unknown) stays available regardless.
         let mut known = HashMap::new();
         known.insert(91, 1);
-        let ids_at_5: Vec<i32> = data.available_skills(0, 5, &known).iter().map(|s| s.skill_id).collect();
+        let ids_at_5: Vec<i32> = data
+            .available_skills(0, 5, &known)
+            .iter()
+            .map(|s| s.skill_id)
+            .collect();
         assert_eq!(ids_at_5, vec![3]);
-        let mut ids_at_10: Vec<i32> = data.available_skills(0, 10, &known).iter().map(|s| s.skill_id).collect();
+        let mut ids_at_10: Vec<i32> = data
+            .available_skills(0, 10, &known)
+            .iter()
+            .map(|s| s.skill_id)
+            .collect();
         ids_at_10.sort();
-        assert_eq!(ids_at_10, vec![3, 91], "91's next level (getLevel=10) now shows up alongside still-unlearned 3");
+        assert_eq!(
+            ids_at_10,
+            vec![3, 91],
+            "91's next level (getLevel=10) now shows up alongside still-unlearned 3"
+        );
     }
 
     #[test]
@@ -473,7 +555,10 @@ mod tests {
         data.insert_for_test(0, learn(91, 2, 10, 200));
         data.insert_for_test(0, learn(91, 3, 20, 300));
         data.insert_for_test(0, learn(3, 1, 5, 50));
-        let auto = SkillLearn { auto_get: true, ..learn(1000, 1, 1, 0) };
+        let auto = SkillLearn {
+            auto_get: true,
+            ..learn(1000, 1, 1, 0)
+        };
         data.insert_for_test(0, auto);
 
         // Level below any gate: nothing but the level-1 autoGet skill.
@@ -483,7 +568,8 @@ mod tests {
 
         // At level 10, skill 91 jumps straight to its level-2 max (not 1), plus
         // skill 3 and the autoGet — all in one pass (Java's holder loop).
-        let mut got: Vec<(i32, i32)> = data.all_available_skills(0, 10, &HashMap::new(), true, true);
+        let mut got: Vec<(i32, i32)> =
+            data.all_available_skills(0, 10, &HashMap::new(), true, true);
         got.sort();
         assert_eq!(got, vec![(3, 1), (91, 2), (1000, 1)]);
 
@@ -510,14 +596,22 @@ mod tests {
 
         // Non-strict (Java-faithful) 9-level grace below.
         // Within the grace (skill-2 getLevel 40, level 31 ≥ 40-9): keep.
-        assert!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false).is_empty());
+        assert!(data
+            .delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
+            .is_empty());
 
         // Below grace for level 2 (30 < 40-9) but still fine for level 1
         // (30 ≥ 20-9): downgrade 91 to level 1.
-        assert_eq!(data.delevel_skill_changes(0, 30, &known(&[(91, 2)]), false), vec![(91, Some(1))]);
+        assert_eq!(
+            data.delevel_skill_changes(0, 30, &known(&[(91, 2)]), false),
+            vec![(91, Some(1))]
+        );
 
         // Below grace even for level 1 (10 < 20-9): remove 91 entirely.
-        assert_eq!(data.delevel_skill_changes(0, 10, &known(&[(91, 2)]), false), vec![(91, None)]);
+        assert_eq!(
+            data.delevel_skill_changes(0, 10, &known(&[(91, 2)]), false),
+            vec![(91, None)]
+        );
 
         // Expertise has no grace even in non-strict mode: at level 19 (< 20)
         // it's removed, even though a 9-level grace would have kept it.
@@ -525,10 +619,14 @@ mod tests {
             data.delevel_skill_changes(0, 19, &known(&[(EXPERTISE_SKILL_ID, 1)]), false),
             vec![(EXPERTISE_SKILL_ID, None)]
         );
-        assert!(data.delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false).is_empty());
+        assert!(data
+            .delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false)
+            .is_empty());
 
         // A skill not in this class tree is left untouched.
-        assert!(data.delevel_skill_changes(0, 1, &known(&[(777, 5)]), false).is_empty());
+        assert!(data
+            .delevel_skill_changes(0, 1, &known(&[(777, 5)]), false)
+            .is_empty());
     }
 
     #[test]
@@ -542,23 +640,44 @@ mod tests {
         // Strict mode drops the 9-level grace: at level 31, skill 91 @ level 2
         // (getLevel 40) is out of range (31 < 40), so it downgrades to level 1
         // (31 ≥ 20) — where non-strict keeps it (31 ≥ 40 − 9).
-        assert!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false).is_empty());
-        assert_eq!(data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), true), vec![(91, Some(1))]);
+        assert!(data
+            .delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
+            .is_empty());
+        assert_eq!(
+            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), true),
+            vec![(91, Some(1))]
+        );
 
         // At level 19 (< 20) even level 1 is out of range → removed.
-        assert_eq!(data.delevel_skill_changes(0, 19, &known(&[(91, 2)]), true), vec![(91, None)]);
+        assert_eq!(
+            data.delevel_skill_changes(0, 19, &known(&[(91, 2)]), true),
+            vec![(91, None)]
+        );
 
         // At level 40 the skill is exactly in range → no change.
-        assert!(data.delevel_skill_changes(0, 40, &known(&[(91, 2)]), true).is_empty());
+        assert!(data
+            .delevel_skill_changes(0, 40, &known(&[(91, 2)]), true)
+            .is_empty());
 
         // Real HumanMystic case that non-strict keeps but strict strips: Wind
         // Strike @ level 3 has getLevel 7; a level-1 char in strict mode
         // downgrades it to the highest reachable level (its autoGet level 1).
-        data.insert_for_test(10, SkillLearn { auto_get: true, ..learn(1177, 1, 1, 0) });
+        data.insert_for_test(
+            10,
+            SkillLearn {
+                auto_get: true,
+                ..learn(1177, 1, 1, 0)
+            },
+        );
         data.insert_for_test(10, learn(1177, 2, 7, 240));
         data.insert_for_test(10, learn(1177, 3, 7, 240));
-        assert!(data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false).is_empty());
-        assert_eq!(data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), true), vec![(1177, Some(1))]);
+        assert!(data
+            .delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false)
+            .is_empty());
+        assert_eq!(
+            data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), true),
+            vec![(1177, Some(1))]
+        );
     }
 
     /// `complete_entries` (Java `getCompleteClassSkillTree`) unions the class's
@@ -575,13 +694,25 @@ mod tests {
         data.set_parent_for_test(1, 0);
         data.common.push(learn(999, 1, 1, 0));
 
-        let mut ids: Vec<i32> = data.all_available_skills(3, 40, &HashMap::new(), true, true).into_iter().map(|(id, _)| id).collect();
+        let mut ids: Vec<i32> = data
+            .all_available_skills(3, 40, &HashMap::new(), true, true)
+            .into_iter()
+            .map(|(id, _)| id)
+            .collect();
         ids.sort();
-        assert_eq!(ids, vec![10, 20, 30, 999], "child reaches parent + grandparent + common skills");
+        assert_eq!(
+            ids,
+            vec![10, 20, 30, 999],
+            "child reaches parent + grandparent + common skills"
+        );
 
         // The parent (class 1) reaches only its own + grandparent + common, not
         // the child's skill 30.
-        let mut pids: Vec<i32> = data.all_available_skills(1, 40, &HashMap::new(), true, true).into_iter().map(|(id, _)| id).collect();
+        let mut pids: Vec<i32> = data
+            .all_available_skills(1, 40, &HashMap::new(), true, true)
+            .into_iter()
+            .map(|(id, _)| id)
+            .collect();
         pids.sort();
         assert_eq!(pids, vec![10, 20, 999]);
     }
@@ -593,12 +724,21 @@ mod tests {
     fn all_available_skills_gates_item_and_divine_inspiration() {
         let mut data = SkillTreeData::empty();
         data.insert_for_test(0, learn(50, 1, 5, 100)); // ordinary skill
-        data.insert_for_test(0, SkillLearn { requires_item: true, ..learn(60, 1, 5, 100) }); // book-gated
+        data.insert_for_test(
+            0,
+            SkillLearn {
+                requires_item: true,
+                ..learn(60, 1, 5, 100)
+            },
+        ); // book-gated
         data.insert_for_test(0, learn(DIVINE_INSPIRATION_SKILL_ID, 1, 5, 100)); // Divine Inspiration
 
         let ids = |items: bool, di: bool| {
-            let mut v: Vec<i32> =
-                data.all_available_skills(0, 40, &HashMap::new(), items, di).into_iter().map(|(id, _)| id).collect();
+            let mut v: Vec<i32> = data
+                .all_available_skills(0, 40, &HashMap::new(), items, di)
+                .into_iter()
+                .map(|(id, _)| id)
+                .collect();
             v.sort();
             v
         };
@@ -620,14 +760,30 @@ mod tests {
     fn dist_warlord_inherits_ancestor_and_common_skills() {
         const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
         let data = SkillTreeData::load_from(DIST);
-        let warlord: HashMap<i32, i32> =
-            data.all_available_skills(3, 80, &HashMap::new(), true, true).into_iter().collect();
+        let warlord: HashMap<i32, i32> = data
+            .all_available_skills(3, 80, &HashMap::new(), true, true)
+            .into_iter()
+            .collect();
         assert!(warlord.contains_key(&36), "Warlord's own Whirlwind (36)");
-        assert!(warlord.contains_key(&239), "common Expertise (239) inherited by every class");
+        assert!(
+            warlord.contains_key(&239),
+            "common Expertise (239) inherited by every class"
+        );
         // Inheritance: the Human Fighter (0) ancestor tree is a subset reachable
         // through the parent chain, so Warlord strictly out-reaches it.
-        let base: HashMap<i32, i32> = data.all_available_skills(0, 80, &HashMap::new(), true, true).into_iter().collect();
-        assert!(base.keys().all(|id| warlord.contains_key(id)), "Warlord inherits every Human Fighter skill");
-        assert!(warlord.len() > base.len(), "Warlord adds its own tier on top ({} vs {})", warlord.len(), base.len());
+        let base: HashMap<i32, i32> = data
+            .all_available_skills(0, 80, &HashMap::new(), true, true)
+            .into_iter()
+            .collect();
+        assert!(
+            base.keys().all(|id| warlord.contains_key(id)),
+            "Warlord inherits every Human Fighter skill"
+        );
+        assert!(
+            warlord.len() > base.len(),
+            "Warlord adds its own tier on top ({} vs {})",
+            warlord.len(),
+            base.len()
+        );
     }
 }

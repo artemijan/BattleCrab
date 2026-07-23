@@ -87,23 +87,48 @@ const FIGHTER: Spec = Spec {
     human_class: "HUMAN_FALL_CLASS",
     elf_class: "ELF_FALL_CLASS",
     rows: &[
-        (2, 1, 40, [MARK_OF_CHALLENGER, MARK_OF_TRUST, MARK_OF_DUELIST]), // Gladiator ← Warrior
-        (3, 1, 44, [MARK_OF_CHALLENGER, MARK_OF_TRUST, MARK_OF_CHAMPION]), // Warlord ← Warrior
-        (5, 4, 48, [MARK_OF_DUTY, MARK_OF_TRUST, MARK_OF_HEALER]),        // Paladin ← Knight
-        (6, 4, 52, [MARK_OF_DUTY, MARK_OF_TRUST, MARK_OF_WITCHCRAFT]),    // Dark Avenger ← Knight
-        (8, 7, 56, [MARK_OF_SEEKER, MARK_OF_TRUST, MARK_OF_SEARCHER]),    // Treasure Hunter ← Rogue
-        (9, 7, 60, [MARK_OF_SEEKER, MARK_OF_TRUST, MARK_OF_SAGITTARIUS]), // Hawkeye ← Rogue
-        (20, 19, 64, [MARK_OF_DUTY, MARK_OF_LIFE, MARK_OF_HEALER]),       // Temple Knight ← Elven Knight
-        (21, 19, 68, [MARK_OF_CHALLENGER, MARK_OF_LIFE, MARK_OF_DUELIST]), // Swordsinger ← Elven Knight
-        (23, 22, 72, [MARK_OF_SEEKER, MARK_OF_LIFE, MARK_OF_SEARCHER]),   // Plains Walker ← Elven Scout
-        (24, 22, 76, [MARK_OF_SEEKER, MARK_OF_LIFE, MARK_OF_SAGITTARIUS]), // Silver Ranger ← Elven Scout
+        (
+            2,
+            1,
+            40,
+            [MARK_OF_CHALLENGER, MARK_OF_TRUST, MARK_OF_DUELIST],
+        ), // Gladiator ← Warrior
+        (
+            3,
+            1,
+            44,
+            [MARK_OF_CHALLENGER, MARK_OF_TRUST, MARK_OF_CHAMPION],
+        ), // Warlord ← Warrior
+        (5, 4, 48, [MARK_OF_DUTY, MARK_OF_TRUST, MARK_OF_HEALER]), // Paladin ← Knight
+        (6, 4, 52, [MARK_OF_DUTY, MARK_OF_TRUST, MARK_OF_WITCHCRAFT]), // Dark Avenger ← Knight
+        (8, 7, 56, [MARK_OF_SEEKER, MARK_OF_TRUST, MARK_OF_SEARCHER]), // Treasure Hunter ← Rogue
+        (
+            9,
+            7,
+            60,
+            [MARK_OF_SEEKER, MARK_OF_TRUST, MARK_OF_SAGITTARIUS],
+        ), // Hawkeye ← Rogue
+        (20, 19, 64, [MARK_OF_DUTY, MARK_OF_LIFE, MARK_OF_HEALER]), // Temple Knight ← Elven Knight
+        (
+            21,
+            19,
+            68,
+            [MARK_OF_CHALLENGER, MARK_OF_LIFE, MARK_OF_DUELIST],
+        ), // Swordsinger ← Elven Knight
+        (23, 22, 72, [MARK_OF_SEEKER, MARK_OF_LIFE, MARK_OF_SEARCHER]), // Plains Walker ← Elven Scout
+        (
+            24,
+            22,
+            76,
+            [MARK_OF_SEEKER, MARK_OF_LIFE, MARK_OF_SAGITTARIUS],
+        ), // Silver Ranger ← Elven Scout
     ],
     lists: &[
-        (&[1, 2, 3], 2),      // Warrior line
-        (&[4, 5, 6], 9),      // Knight line
-        (&[7, 8, 9], 16),     // Rogue line
-        (&[19, 20, 21], 23),  // Elven Knight line
-        (&[22, 23, 24], 30),  // Elven Scout line
+        (&[1, 2, 3], 2),     // Warrior line
+        (&[4, 5, 6], 9),     // Knight line
+        (&[7, 8, 9], 16),    // Rogue line
+        (&[19, 20, 21], 23), // Elven Knight line
+        (&[22, 23, 24], 30), // Elven Scout line
     ],
     first_class_page: 37,
     mismatch_page: 38,
@@ -121,10 +146,25 @@ const WIZARD: Spec = Spec {
     elf_class: "ELF_MALL_CLASS",
     rows: &[
         (12, 11, 22, [MARK_OF_SCHOLAR, MARK_OF_TRUST, MARK_OF_MAGUS]), // Sorcerer ← Wizard
-        (13, 11, 26, [MARK_OF_SCHOLAR, MARK_OF_TRUST, MARK_OF_WITCHCRAFT]), // Necromancer ← Wizard
-        (14, 11, 30, [MARK_OF_SCHOLAR, MARK_OF_TRUST, MARK_OF_SUMMONER]), // Warlock ← Wizard
+        (
+            13,
+            11,
+            26,
+            [MARK_OF_SCHOLAR, MARK_OF_TRUST, MARK_OF_WITCHCRAFT],
+        ), // Necromancer ← Wizard
+        (
+            14,
+            11,
+            30,
+            [MARK_OF_SCHOLAR, MARK_OF_TRUST, MARK_OF_SUMMONER],
+        ), // Warlock ← Wizard
         (27, 26, 34, [MARK_OF_SCHOLAR, MARK_OF_LIFE, MARK_OF_MAGUS]),  // Spellsinger ← Elven Wizard
-        (28, 26, 38, [MARK_OF_SCHOLAR, MARK_OF_LIFE, MARK_OF_SUMMONER]), // Elemental Summoner ← Elven Wizard
+        (
+            28,
+            26,
+            38,
+            [MARK_OF_SCHOLAR, MARK_OF_LIFE, MARK_OF_SUMMONER],
+        ), // Elemental Summoner ← Elven Wizard
     ],
     lists: &[
         (&[11, 12, 13, 14], 2), // Wizard line
@@ -146,7 +186,12 @@ const CLERIC: Spec = Spec {
     elf_class: "ELF_CALL_CLASS",
     rows: &[
         (16, 15, 16, [MARK_OF_PILGRIM, MARK_OF_TRUST, MARK_OF_HEALER]), // Bishop ← Cleric
-        (17, 15, 20, [MARK_OF_PILGRIM, MARK_OF_TRUST, MARK_OF_REFORMER]), // Prophet ← Cleric
+        (
+            17,
+            15,
+            20,
+            [MARK_OF_PILGRIM, MARK_OF_TRUST, MARK_OF_REFORMER],
+        ), // Prophet ← Cleric
         (30, 29, 24, [MARK_OF_PILGRIM, MARK_OF_LIFE, MARK_OF_HEALER]),  // Elder ← Oracle
     ],
     lists: &[
@@ -257,8 +302,7 @@ impl QuestScript for ElfHumanChange2 {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         let spec = self.spec();
         let in_group = ctx.is_in_category(spec.group);
-        let right_race =
-            ctx.is_in_category(spec.human_class) || ctx.is_in_category(spec.elf_class);
+        let right_race = ctx.is_in_category(spec.human_class) || ctx.is_in_category(spec.elf_class);
         if !in_group || !right_race {
             return Some(self.page(spec.mismatch_page));
         }

@@ -33,8 +33,8 @@ pub fn ex_user_info_abnormal_visual_effect(
     w.write_i16(opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT);
     w.write_i32(object_id);
     w.write_i32(transform_display_id); // transformation id
-    // The buff-driven visuals, plus STEALTH when GM-invisible (Java appends it
-    // to the set rather than sending it alone).
+                                       // The buff-driven visuals, plus STEALTH when GM-invisible (Java appends it
+                                       // to the set rather than sending it alone).
     let extra = usize::from(invisible && !visuals.contains(&STEALTH_CLIENT_ID));
     w.write_i32((visuals.len() + extra) as i32);
     for &id in visuals {
@@ -46,32 +46,49 @@ pub fn ex_user_info_abnormal_visual_effect(
     w.into_bytes()
 }
 
-pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::config::CharacterConfig, relation: i32) -> Vec<u8> {
-    let crate::model::PlayerView { p, pos, vitals, pvitals, base, speeds, collision, combat, inventory, .. } = v;
+pub fn user_info(
+    v: &crate::model::PlayerView,
+    data: &GameData,
+    cfg: &crate::config::CharacterConfig,
+    relation: i32,
+) -> Vec<u8> {
+    let crate::model::PlayerView {
+        p,
+        pos,
+        vitals,
+        pvitals,
+        base,
+        speeds,
+        collision,
+        combat,
+        inventory,
+        ..
+    } = v;
     let name_units = p.name.encode_utf16().count() as i32;
     let title_units = p.title.encode_utf16().count() as i32;
 
     // Java `calcBlockSize`: 5 header bytes + every block's length, where
     // BASIC_INFO and CLAN additionally carry the name/title UTF-16 bytes.
-    let init_size: i32 = 5
-        + UserInfoType::VALUES
-            .iter()
-            .map(|t| {
-                t.block_length()
-                    + match t {
-                        UserInfoType::BasicInfo => name_units * 2,
-                        UserInfoType::Clan => title_units * 2,
-                        _ => 0,
-                    }
-            })
-            .sum::<i32>();
+    let init_size: i32 = 5 + UserInfoType::VALUES
+        .iter()
+        .map(|t| {
+            t.block_length()
+                + match t {
+                    UserInfoType::BasicInfo => name_units * 2,
+                    UserInfoType::Clan => title_units * 2,
+                    _ => 0,
+                }
+        })
+        .sum::<i32>();
 
     let mut w = PacketWriter::new();
     w.write_u8(OPCODE_USER_INFO);
     w.write_i32(p.object_id);
     w.write_i32(init_size);
     w.write_i16(UserInfoType::VALUES.len() as i16); // number of mask bits
-    w.write_bytes(&build_mask::<3>(UserInfoType::VALUES.iter().map(|t| t.mask())));
+    w.write_bytes(&build_mask::<3>(
+        UserInfoType::VALUES.iter().map(|t| t.mask()),
+    ));
 
     // RELATION — party/clan bitmask (Java `calculateRelation`); the caller
     // computes it via `game_loop::party::calculate_relation`. Siege (0x80) is
@@ -248,7 +265,11 @@ pub fn user_info(v: &crate::model::PlayerView, data: &GameData, cfg: &crate::con
     w.write_i16(UserInfoType::InventoryLimit.block_length() as i16);
     w.write_i16(0);
     w.write_i16(0);
-    w.write_i16(crate::model::finalize(v.mods, crate::model::stats::Stat::InventoryNormal, cfg.inventory_limit(p.race) as f64) as i16);
+    w.write_i16(crate::model::finalize(
+        v.mods,
+        crate::model::stats::Stat::InventoryNormal,
+        cfg.inventory_limit(p.race) as f64,
+    ) as i16);
     w.write_u8(0);
 
     // TRUE_HERO

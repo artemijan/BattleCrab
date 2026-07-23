@@ -10,7 +10,11 @@ const CID: u32 = 1;
 const ANTI_STRIDER: i32 = 4258;
 const MOUNT_STRIDER: u8 = 1;
 
-fn baium_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn baium_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     for (id, kind) in [(BAIUM, "GrandBoss"), (ARCHANGEL, "Monster")] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -20,18 +24,23 @@ fn baium_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Logi
         t.base_mp_max = 10_000.0;
         world.data.npc_data.insert_for_test(t);
     }
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-        id: ANTI_STRIDER,
-        level: 1,
-        abnormal_time: 60,
-        effects: vec![crate::model::skill::SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
-            stat: crate::model::stats::Stat::RunSpeed,
-            mode: crate::model::stats::StatModifierType::Diff,
-            amount: -50.0,
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: ANTI_STRIDER,
+            level: 1,
+            abnormal_time: 60,
+            effects: vec![crate::model::skill::SkillEffect::StatModifier(
+                crate::model::skill::StatModifierEffect {
+                    stat: crate::model::stats::Stat::RunSpeed,
+                    mode: crate::model::stats::StatModifierType::Diff,
+                    amount: -50.0,
+                    ..Default::default()
+                },
+            )],
             ..Default::default()
-        })],
-        ..Default::default()
-    });
+        });
     (world, db, l)
 }
 
@@ -68,11 +77,18 @@ fn a_strider_rider_is_hindered() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&BAIUM_OID)
+            .unwrap();
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world.objects.get_component_mut::<crate::model::Player>(&PLAYER).unwrap().mount_type = MOUNT_STRIDER;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .unwrap()
+        .mount_type = MOUNT_STRIDER;
 
     crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
@@ -104,11 +120,18 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
     let mut rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 20, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&BAIUM_OID)
+            .unwrap();
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
-    world.objects.get_component_mut::<crate::model::Player>(&PLAYER).unwrap().mount_type = MOUNT_STRIDER;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .unwrap()
+        .mount_type = MOUNT_STRIDER;
 
     crate::game_loop::baium::on_baium_attacked(&mut world, BAIUM_OID, PLAYER);
     for _ in 0..60 {
@@ -136,11 +159,18 @@ fn the_strider_debuff_is_not_recast_while_it_holds() {
 use crate::game_loop::boss_threat::BossThreat;
 
 fn threat(world: &World, oid: i32) -> [(i32, i32); 3] {
-    world.objects.get_component::<BossThreat>(&oid).map(|t| t.slots).unwrap_or_default()
+    world
+        .objects
+        .get_component::<BossThreat>(&oid)
+        .map(|t| t.slots)
+        .unwrap_or_default()
 }
 
 fn wound_baium_to(world: &mut World, fraction: f64) {
-    let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+    let v = world
+        .objects
+        .get_component_mut::<Vitals>(&BAIUM_OID)
+        .unwrap();
     v.cur_hp = v.max_hp as f64 * fraction;
 }
 
@@ -171,7 +201,11 @@ fn melee_threat_dwarfs_caster_threat_at_full_health() {
     let caster_v = t.iter().find(|(id, _)| *id == caster).unwrap().1;
     assert_eq!(melee_v, 300 * 1000);
     assert_eq!(caster_v, (300 / 3) * 20);
-    assert_eq!(melee_v / caster_v, 150, "melee is worth 150x this caster hit");
+    assert_eq!(
+        melee_v / caster_v,
+        150,
+        "melee is worth 150x this caster hit"
+    );
 }
 
 /// **The caster weighting climbs as Baium weakens** — a caster who is beneath
@@ -184,7 +218,11 @@ fn caster_threat_climbs_as_baium_weakens() {
         wound_baium_to(&mut world, fraction);
         world.forced_rolls.push_back(0);
         crate::game_loop::boss_threat::on_boss_damage(&mut world, BAIUM_OID, PLAYER, 300, false);
-        threat(&world, BAIUM_OID).iter().find(|(id, _)| *id == PLAYER).unwrap().1
+        threat(&world, BAIUM_OID)
+            .iter()
+            .find(|(id, _)| *id == PLAYER)
+            .unwrap()
+            .1
     };
 
     let full = weighted_at(1.0); // (300/3)*20 = 2000
@@ -192,8 +230,14 @@ fn caster_threat_climbs_as_baium_weakens() {
     let half = weighted_at(0.4); // *20 = 6000
     let quarter = weighted_at(0.1); // (300/3)*100 = 10000
 
-    assert_eq!((full, three_quarters, half, quarter), (2000, 3000, 6000, 10000));
-    assert!(quarter > full * 4, "a caster matters five times more once Baium is nearly dead");
+    assert_eq!(
+        (full, three_quarters, half, quarter),
+        (2000, 3000, 6000, 10000)
+    );
+    assert!(
+        quarter > full * 4,
+        "a caster matters five times more once Baium is nearly dead"
+    );
 }
 
 /// The table holds **three** attackers, and a fourth displaces the weakest —
@@ -210,10 +254,19 @@ fn a_fourth_attacker_displaces_the_weakest() {
     world.forced_rolls.push_back(0);
     crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, 104, 300, 300);
 
-    let ids: Vec<i32> = threat(&world, BAIUM_OID).iter().map(|(id, _)| *id).collect();
+    let ids: Vec<i32> = threat(&world, BAIUM_OID)
+        .iter()
+        .map(|(id, _)| *id)
+        .collect();
     assert!(ids.contains(&104), "the newcomer got on the table");
-    assert!(!ids.contains(&102), "by displacing the weakest, not the oldest");
-    assert!(ids.contains(&101) && ids.contains(&103), "the stronger two stayed");
+    assert!(
+        !ids.contains(&102),
+        "by displacing the weakest, not the oldest"
+    );
+    assert!(
+        ids.contains(&101) && ids.contains(&103),
+        "the stronger two stayed"
+    );
 }
 
 /// An attacker already on the table is **only raised when it is below the
@@ -230,7 +283,11 @@ fn an_existing_entry_is_not_ratcheted_by_small_hits() {
     // so nothing changes.
     world.forced_rolls.push_back(0);
     crate::game_loop::boss_threat::refresh_threat(&mut world, BAIUM_OID, PLAYER, 50, 50);
-    assert_eq!(threat(&world, BAIUM_OID)[0].1, after_big, "a small hit does not move a large threat");
+    assert_eq!(
+        threat(&world, BAIUM_OID)[0].1,
+        after_big,
+        "a small hit does not move a large threat"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -262,7 +319,8 @@ fn baium_targets_the_highest_threat() {
     world.forced_rolls.push_back(99); // skip the decay
     world.forced_rolls.push_back(99); // and the skill rolls
     world.forced_rolls.push_back(99);
-    let (target, _) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    let (target, _) =
+        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
     assert_eq!(target, 202, "the biggest threat");
 }
 
@@ -295,7 +353,11 @@ fn dead_and_distant_attackers_are_pruned() {
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     seed_threat(&mut world, 201, 9_000);
     seed_threat(&mut world, 202, 4_000);
-    world.objects.get_component_mut::<Vitals>(&201).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&201)
+        .unwrap()
+        .dead = true;
     world.objects.get_component_mut::<Position>(&202).unwrap().x = 999_999;
     seed_threat(&mut world, 203, 100);
 
@@ -303,8 +365,12 @@ fn dead_and_distant_attackers_are_pruned() {
     for _ in 0..4 {
         world.forced_rolls.push_back(99);
     }
-    let (target, _) = crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
-    assert_eq!(target, 203, "the only live, nearby attacker — despite the lowest raw threat");
+    let (target, _) =
+        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).expect("a target");
+    assert_eq!(
+        target, 203,
+        "the only live, nearby attacker — despite the lowest raw threat"
+    );
 }
 
 /// **The skill pool widens as Baium weakens.** Above 75% he has two options
@@ -318,18 +384,39 @@ fn the_skill_pool_widens_as_baium_weakens() {
         add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
         seed_threat(&mut world, 201, 9_000);
         {
-            let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+            let v = world
+                .objects
+                .get_component_mut::<Vitals>(&BAIUM_OID)
+                .unwrap();
             v.cur_hp = v.max_hp as f64 * fraction;
         }
         world.forced_rolls.push_back(99); // skip the decay
         world.forced_rolls.push_back(5); // the first skill roll hits
-        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID).unwrap().1
+        crate::game_loop::baium::manage_skills(&mut world, BAIUM_OID)
+            .unwrap()
+            .1
     };
 
-    assert_eq!(first_option_at(1.0), ENERGY_WAVE, "above 75%: Energy Wave leads");
-    assert_eq!(first_option_at(0.6), GROUP_HOLD, "below 75%: Group Hold joins and leads");
-    assert_eq!(first_option_at(0.4), THUNDERBOLT, "below 50%: Thunderbolt joins and leads");
-    assert_eq!(first_option_at(0.1), THUNDERBOLT, "below 25%: the full repertoire");
+    assert_eq!(
+        first_option_at(1.0),
+        ENERGY_WAVE,
+        "above 75%: Energy Wave leads"
+    );
+    assert_eq!(
+        first_option_at(0.6),
+        GROUP_HOLD,
+        "below 75%: Group Hold joins and leads"
+    );
+    assert_eq!(
+        first_option_at(0.4),
+        THUNDERBOLT,
+        "below 50%: Thunderbolt joins and leads"
+    );
+    assert_eq!(
+        first_option_at(0.1),
+        THUNDERBOLT,
+        "below 25%: the full repertoire"
+    );
 }
 
 /// Every roll missing falls back to the basic attack — the common case.
@@ -369,12 +456,22 @@ fn a_hit_makes_baium_cast() {
     let mut rx = ingame_caster(&mut world, CID, PLAYER, 20, 0);
     add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&BAIUM_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&BAIUM_OID)
+            .unwrap();
         v.max_mp = 10_000;
         v.cur_mp = 10_000.0;
     }
     // BAIUM_ATTACK, the fallback every band ends on.
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill { id: 4127, level: 1, ..Default::default() });
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 4127,
+            level: 1,
+            ..Default::default()
+        });
     while rx.try_recv().is_ok() {}
 
     // Jitter 0, no decay, then every ladder roll missing -> the basic attack.
@@ -385,6 +482,8 @@ fn a_hit_makes_baium_cast() {
     }
     crate::game_loop::baium::on_baium_damage(&mut world, BAIUM_OID, PLAYER, 500, true);
 
-    let casts = std::iter::from_fn(|| rx.try_recv().ok()).filter(|p| p.first() == Some(&0x48)).count();
+    let casts = std::iter::from_fn(|| rx.try_recv().ok())
+        .filter(|p| p.first() == Some(&0x48))
+        .count();
     assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }

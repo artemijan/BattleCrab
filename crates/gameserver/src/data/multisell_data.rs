@@ -81,7 +81,9 @@ pub struct MultisellList {
 impl MultisellList {
     /// `MultisellListHolder.isNpcAllowed`.
     pub fn is_npc_allowed(&self, npc_id: i32) -> bool {
-        self.npcs_allowed.as_ref().is_none_or(|s| s.contains(&npc_id))
+        self.npcs_allowed
+            .as_ref()
+            .is_none_or(|s| s.contains(&npc_id))
     }
 
     /// `MultisellListHolder.isNpcOnly` — true when a `<npcs>` allow-list exists.
@@ -112,14 +114,18 @@ impl MultisellData {
         // Retail lists first, then the custom overlay (`CustomMultisellLoad`).
         for sub in ["", "/custom"] {
             let dir = format!("{file_path}{MULTISELL_DIR}{sub}");
-            let Ok(entries) = std::fs::read_dir(&dir) else { continue };
+            let Ok(entries) = std::fs::read_dir(&dir) else {
+                continue;
+            };
             for entry in entries.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|e| e.to_str()) != Some("xml") {
                     continue;
                 }
-                let Some(list_id) =
-                    path.file_stem().and_then(|s| s.to_str()).and_then(|s| s.parse::<i32>().ok())
+                let Some(list_id) = path
+                    .file_stem()
+                    .and_then(|s| s.to_str())
+                    .and_then(|s| s.parse::<i32>().ok())
                 else {
                     continue;
                 };
@@ -199,30 +205,50 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                 match e.name().as_ref() {
                     b"list" => {
                         let b = |k: &[u8]| {
-                            attr(k).map(|v| v.eq_ignore_ascii_case("true")).unwrap_or(false)
+                            attr(k)
+                                .map(|v| v.eq_ignore_ascii_case("true"))
+                                .unwrap_or(false)
                         };
                         list.is_chance_multisell = b(b"isChanceMultisell");
                         list.apply_taxes = b(b"applyTaxes");
                         list.maintain_enchantment = b(b"maintainEnchantment");
-                        list.ingredient_multiplier =
-                            attr(b"ingredientMultiplier").and_then(|v| v.parse().ok()).unwrap_or(1.0);
-                        list.product_multiplier =
-                            attr(b"productMultiplier").and_then(|v| v.parse().ok()).unwrap_or(1.0);
+                        list.ingredient_multiplier = attr(b"ingredientMultiplier")
+                            .and_then(|v| v.parse().ok())
+                            .unwrap_or(1.0);
+                        list.product_multiplier = attr(b"productMultiplier")
+                            .and_then(|v| v.parse().ok())
+                            .unwrap_or(1.0);
                     }
                     b"npcs" => npcs = Some(HashSet::new()),
                     b"npc" => in_npc = true,
-                    b"item" => cur = Some(MultisellEntry { ingredients: Vec::new(), products: Vec::new(), stackable: true }),
+                    b"item" => {
+                        cur = Some(MultisellEntry {
+                            ingredients: Vec::new(),
+                            products: Vec::new(),
+                            stackable: true,
+                        })
+                    }
                     b"ingredient" => {
                         if let Some(entry) = cur.as_mut() {
-                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else { continue };
-                            let count = attr(b"count").and_then(|v| v.parse::<i64>().ok()).unwrap_or(0);
-                            let enchant_level =
-                                attr(b"enchantmentLevel").and_then(|v| v.parse().ok()).unwrap_or(0);
+                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                                continue;
+                            };
+                            let count = attr(b"count")
+                                .and_then(|v| v.parse::<i64>().ok())
+                                .unwrap_or(0);
+                            let enchant_level = attr(b"enchantmentLevel")
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0);
                             let maintain = attr(b"maintainIngredient")
                                 .map(|v| v.eq_ignore_ascii_case("true"))
                                 .unwrap_or(false);
                             if item_exists(id, count, items) {
-                                entry.ingredients.push(Ingredient { id, count, enchant_level, maintain });
+                                entry.ingredients.push(Ingredient {
+                                    id,
+                                    count,
+                                    enchant_level,
+                                    maintain,
+                                });
                             } else {
                                 warn!("MultisellData: invalid ingredient id {id} count {count} in list {list_id}");
                             }
@@ -230,11 +256,16 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                     }
                     b"production" => {
                         if let Some(entry) = cur.as_mut() {
-                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else { continue };
-                            let count = attr(b"count").and_then(|v| v.parse::<i64>().ok()).unwrap_or(0);
+                            let Some(id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                                continue;
+                            };
+                            let count = attr(b"count")
+                                .and_then(|v| v.parse::<i64>().ok())
+                                .unwrap_or(0);
                             let chance = attr(b"chance").and_then(|v| v.parse::<f64>().ok());
-                            let enchant_level =
-                                attr(b"enchantmentLevel").and_then(|v| v.parse().ok()).unwrap_or(0);
+                            let enchant_level = attr(b"enchantmentLevel")
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0);
                             if let Some(c) = chance {
                                 if !(0.0..=100.0).contains(&c) {
                                     warn!("MultisellData: invalid chance {c} for item {id} in list {list_id}");
@@ -247,7 +278,12 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                                 if id < 0 || !items.get(id).is_some_and(|t| t.is_stackable) {
                                     entry.stackable = false;
                                 }
-                                entry.products.push(Product { id, count, chance, enchant_level });
+                                entry.products.push(Product {
+                                    id,
+                                    count,
+                                    chance,
+                                    enchant_level,
+                                });
                             } else {
                                 warn!("MultisellData: invalid product id {id} count {count} in list {list_id}");
                             }
@@ -257,9 +293,12 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                 }
             }
             Event::Text(t) if in_npc => {
-                if let (Some(set), Ok(id)) =
-                    (npcs.as_mut(), String::from_utf8_lossy(&t.into_inner()).trim().parse::<i32>())
-                {
+                if let (Some(set), Ok(id)) = (
+                    npcs.as_mut(),
+                    String::from_utf8_lossy(&t.into_inner())
+                        .trim()
+                        .parse::<i32>(),
+                ) {
                     set.insert(id);
                 }
             }

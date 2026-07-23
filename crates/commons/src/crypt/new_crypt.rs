@@ -17,7 +17,9 @@ pub struct NewCrypt {
 
 impl NewCrypt {
     pub fn new(key: &[u8]) -> Self {
-        Self { cipher: BlowfishLe::new_from_slice(key).expect("invalid blowfish key length") }
+        Self {
+            cipher: BlowfishLe::new_from_slice(key).expect("invalid blowfish key length"),
+        }
     }
 
     /// `NewCrypt.crypt` — encrypt in place, 8-byte ECB blocks.

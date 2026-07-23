@@ -16,11 +16,19 @@ pub struct RawRsaKeyPair {
 impl RawRsaKeyPair {
     pub fn generate(bits: usize) -> Self {
         let key = RsaPrivateKey::new(&mut rand::thread_rng(), bits).expect("RSA keygen failed");
-        Self { n: key.n().clone(), d: key.d().clone(), block_size: bits / 8 }
+        Self {
+            n: key.n().clone(),
+            d: key.d().clone(),
+            block_size: bits / 8,
+        }
     }
 
     pub fn from_parts(n: BigUint, d: BigUint, bits: usize) -> Self {
-        Self { n, d, block_size: bits / 8 }
+        Self {
+            n,
+            d,
+            block_size: bits / 8,
+        }
     }
 
     pub fn modulus(&self) -> &BigUint {
@@ -70,7 +78,10 @@ mod tests {
 
         let decrypted = pair.decrypt_raw(&block);
         let stripped: Vec<u8> = {
-            let first = decrypted.iter().position(|&b| b != 0).unwrap_or(decrypted.len());
+            let first = decrypted
+                .iter()
+                .position(|&b| b != 0)
+                .unwrap_or(decrypted.len());
             decrypted[first..].to_vec()
         };
         assert_eq!(stripped, key);

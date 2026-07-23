@@ -44,27 +44,65 @@ const RACE_DARK_ELF: i32 = 2;
 /// `(to, from, first_page, [three proofs])`.
 type Row = (i32, i32, u32, [i32; 3]);
 
-const ORC_NPCS: [i32; 9] = [30513, 30681, 30704, 30865, 30913, 31288, 31326, 31336, 31977];
+const ORC_NPCS: [i32; 9] = [
+    30513, 30681, 30704, 30865, 30913, 31288, 31326, 31336, 31977,
+];
 const ORC_PAGE_NPC: i32 = 30513;
 const ORC_ROWS: [Row; 4] = [
-    (46, 45, 20, [MARK_OF_CHALLENGER, MARK_OF_GLORY, MARK_OF_CHAMPION]), // Destroyer ← Orc Raider
-    (48, 47, 24, [MARK_OF_CHALLENGER, MARK_OF_GLORY, MARK_OF_DUELIST]),  // Tyrant ← Orc Monk
-    (51, 50, 28, [MARK_OF_PILGRIM, MARK_OF_GLORY, MARK_OF_LORD]),        // Overlord ← Orc Shaman
-    (52, 50, 32, [MARK_OF_PILGRIM, MARK_OF_GLORY, MARK_OF_WARSPIRIT]),   // Warcryer ← Orc Shaman
+    (
+        46,
+        45,
+        20,
+        [MARK_OF_CHALLENGER, MARK_OF_GLORY, MARK_OF_CHAMPION],
+    ), // Destroyer ← Orc Raider
+    (
+        48,
+        47,
+        24,
+        [MARK_OF_CHALLENGER, MARK_OF_GLORY, MARK_OF_DUELIST],
+    ), // Tyrant ← Orc Monk
+    (51, 50, 28, [MARK_OF_PILGRIM, MARK_OF_GLORY, MARK_OF_LORD]), // Overlord ← Orc Shaman
+    (
+        52,
+        50,
+        32,
+        [MARK_OF_PILGRIM, MARK_OF_GLORY, MARK_OF_WARSPIRIT],
+    ), // Warcryer ← Orc Shaman
 ];
 
-const DE_NPCS: [i32; 10] =
-    [30195, 30699, 30474, 31324, 30862, 30910, 31285, 31334, 31974, 32096];
+const DE_NPCS: [i32; 10] = [
+    30195, 30699, 30474, 31324, 30862, 30910, 31285, 31334, 31974, 32096,
+];
 const DE_PAGE_NPC: i32 = 30474;
 /// Java's `CLASSES` rows, keeping its `lowNoProof, low, noProof, done` order.
 const DE_ROWS: [Row; 7] = [
-    (33, 32, 26, [MARK_OF_DUTY, MARK_OF_FATE, MARK_OF_WITCHCRAFT]),      // Shillien Knight
-    (34, 32, 30, [MARK_OF_CHALLENGER, MARK_OF_FATE, MARK_OF_DUELIST]),   // Bladedancer
-    (43, 42, 34, [MARK_OF_PILGRIM, MARK_OF_FATE, MARK_OF_REFORMER]),     // Shillien Elder
-    (36, 35, 38, [MARK_OF_SEEKER, MARK_OF_FATE, MARK_OF_SEARCHER]),      // Abyss Walker
-    (37, 35, 42, [MARK_OF_SEEKER, MARK_OF_FATE, MARK_OF_SAGITTARIUS]),   // Phantom Ranger
-    (40, 39, 46, [MARK_OF_SCHOLAR, MARK_OF_FATE, MARK_OF_MAGUS]),        // Spellhowler
-    (41, 39, 50, [MARK_OF_SCHOLAR, MARK_OF_FATE, MARK_OF_SUMMONER]),     // Phantom Summoner
+    (33, 32, 26, [MARK_OF_DUTY, MARK_OF_FATE, MARK_OF_WITCHCRAFT]), // Shillien Knight
+    (
+        34,
+        32,
+        30,
+        [MARK_OF_CHALLENGER, MARK_OF_FATE, MARK_OF_DUELIST],
+    ), // Bladedancer
+    (
+        43,
+        42,
+        34,
+        [MARK_OF_PILGRIM, MARK_OF_FATE, MARK_OF_REFORMER],
+    ), // Shillien Elder
+    (36, 35, 38, [MARK_OF_SEEKER, MARK_OF_FATE, MARK_OF_SEARCHER]), // Abyss Walker
+    (
+        37,
+        35,
+        42,
+        [MARK_OF_SEEKER, MARK_OF_FATE, MARK_OF_SAGITTARIUS],
+    ), // Phantom Ranger
+    (40, 39, 46, [MARK_OF_SCHOLAR, MARK_OF_FATE, MARK_OF_MAGUS]),   // Spellhowler
+    (
+        41,
+        39,
+        50,
+        [MARK_OF_SCHOLAR, MARK_OF_FATE, MARK_OF_SUMMONER],
+    ), // Phantom Summoner
 ];
 
 #[derive(Clone, Copy)]
@@ -172,8 +210,10 @@ impl QuestScript for Change2 {
                     if ctx.is_in_category("THIRD_CLASS_GROUP") {
                         return Some(self.page(19));
                     }
-                    if let Some(&row) =
-                        self.rows().iter().find(|(to, from, _, _)| *to == class_id && *from == ctx.player_class_id())
+                    if let Some(&row) = self
+                        .rows()
+                        .iter()
+                        .find(|(to, from, _, _)| *to == class_id && *from == ctx.player_class_id())
                     {
                         return Some(self.apply(ctx, row));
                     }
@@ -182,7 +222,9 @@ impl QuestScript for Change2 {
             // Dark Elf: the event is the row index.
             Branch::DarkElf => {
                 if let Ok(i) = event.parse::<usize>() {
-                    let Some(&row) = self.rows().get(i) else { return Some(event.to_string()) };
+                    let Some(&row) = self.rows().get(i) else {
+                        return Some(event.to_string());
+                    };
                     if ctx.player_race() != RACE_DARK_ELF || ctx.player_class_id() != row.1 {
                         return Some(event.to_string());
                     }
@@ -199,7 +241,8 @@ impl QuestScript for Change2 {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         match self.0 {
             Branch::Orc => {
-                let in_orc = ctx.is_in_category("ORC_MALL_CLASS") || ctx.is_in_category("ORC_FALL_CLASS");
+                let in_orc =
+                    ctx.is_in_category("ORC_MALL_CLASS") || ctx.is_in_category("ORC_FALL_CLASS");
                 if ctx.is_in_category("FOURTH_CLASS_GROUP") && in_orc {
                     return Some(self.page(1));
                 }
@@ -209,7 +252,7 @@ impl QuestScript for Change2 {
                 Some(match ctx.player_class_id() {
                     45 | 46 => self.page(2),  // Orc Raider / Destroyer
                     47 | 48 => self.page(6),  // Orc Monk / Tyrant
-                    50 | 51 | 52 => self.page(10), // Shaman / Overlord / Warcryer
+                    50..=52 => self.page(10), // Shaman / Overlord / Warcryer
                     _ => self.page(17),
                 })
             }

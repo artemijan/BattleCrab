@@ -10,11 +10,19 @@ const CID: u32 = 1;
 const PARALYSIS: i32 = 4064;
 const ORFEN_HEAL: i32 = 4516;
 
-fn orfen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn orfen_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     for id in [ORFEN, RIBA_IREN] {
         let mut t = crate::data::npc_data::default_template(id);
-        t.type_name = if id == ORFEN { "RaidBoss".into() } else { "Monster".into() };
+        t.type_name = if id == ORFEN {
+            "RaidBoss".into()
+        } else {
+            "Monster".into()
+        };
         t.level = 50;
         t.base_hp_max = 10_000.0;
         t.base_mp_max = 10_000.0;
@@ -23,26 +31,36 @@ fn orfen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Logi
     // The two skills do different things, and giving them the same effect list
     // is how the first draft of `riba_iren_heals_on_its_own_wounds` passed
     // while measuring nothing.
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-        id: PARALYSIS,
-        level: 1,
-        abnormal_time: 60,
-        effects: vec![crate::model::skill::SkillEffect::BlockActions { conditional: false }],
-        ..Default::default()
-    });
-    world.data.skill_data.insert_for_test(crate::model::skill::Skill {
-        id: ORFEN_HEAL,
-        level: 1,
-        magic_type: 1,
-        effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
-        ..Default::default()
-    });
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: PARALYSIS,
+            level: 1,
+            abnormal_time: 60,
+            effects: vec![crate::model::skill::SkillEffect::BlockActions { conditional: false }],
+            ..Default::default()
+        });
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: ORFEN_HEAL,
+            level: 1,
+            magic_type: 1,
+            effects: vec![crate::model::skill::SkillEffect::Heal { power: 1000.0 }],
+            ..Default::default()
+        });
     (world, db, l)
 }
 
 /// Put the player at a given 2D distance from Orfen.
 fn place_player_at(world: &mut World, dist: i32) {
-    world.objects.get_component_mut::<Position>(&PLAYER).unwrap().x = dist;
+    world
+        .objects
+        .get_component_mut::<Position>(&PLAYER)
+        .unwrap()
+        .x = dist;
 }
 
 fn player_pos(world: &World) -> (i32, i32) {
@@ -113,19 +131,34 @@ fn orfen_relocates_once_at_half_health() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
     {
-        let v = world.objects.get_component_mut::<Vitals>(&ORFEN_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ORFEN_OID)
+            .unwrap();
         v.cur_hp = v.max_hp as f64 * 0.4;
     }
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
     let after_first = *world.objects.get_component::<Position>(&ORFEN_OID).unwrap();
-    assert_eq!((after_first.x, after_first.y), (43728, 17220), "moved to its home point");
+    assert_eq!(
+        (after_first.x, after_first.y),
+        (43728, 17220),
+        "moved to its home point"
+    );
 
     // Shove it elsewhere and hit it again: it must not relocate a second time.
-    world.objects.get_component_mut::<Position>(&ORFEN_OID).unwrap().x = 999;
+    world
+        .objects
+        .get_component_mut::<Position>(&ORFEN_OID)
+        .unwrap()
+        .x = 999;
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
     assert_eq!(
-        world.objects.get_component::<Position>(&ORFEN_OID).unwrap().x,
+        world
+            .objects
+            .get_component::<Position>(&ORFEN_OID)
+            .unwrap()
+            .x,
         999,
         "once per life, not once per hit"
     );
@@ -140,7 +173,15 @@ fn orfen_does_not_relocate_above_half_health() {
     place_player_at(&mut world, 5000); // out of drag range, isolating the test
 
     crate::game_loop::orfen::on_orfen_attacked(&mut world, ORFEN_OID, PLAYER);
-    assert_eq!(world.objects.get_component::<Position>(&ORFEN_OID).unwrap().x, 0, "still home");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Position>(&ORFEN_OID)
+            .unwrap()
+            .x,
+        0,
+        "still home"
+    );
 }
 
 /// **Riba Iren heals Orfen when *it* is hurt, not when Orfen is** — the
@@ -160,7 +201,10 @@ fn riba_iren_heals_on_its_own_wounds() {
     // Orfen is wounded too, so the heal has somewhere to land and the
     // assertion can measure it.
     let orfen_before = {
-        let v = world.objects.get_component_mut::<Vitals>(&ORFEN_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ORFEN_OID)
+            .unwrap();
         v.cur_hp = v.max_hp as f64 / 2.0;
         v.cur_hp
     };
@@ -170,7 +214,12 @@ fn riba_iren_heals_on_its_own_wounds() {
         advance_ticks(&mut world, 1);
     }
     assert!(
-        world.objects.get_component::<Vitals>(&ORFEN_OID).unwrap().cur_hp > orfen_before,
+        world
+            .objects
+            .get_component::<Vitals>(&ORFEN_OID)
+            .unwrap()
+            .cur_hp
+            > orfen_before,
         "the wounded minion healed Orfen"
     );
 }
@@ -189,7 +238,10 @@ fn a_healthy_riba_iren_does_not_heal_orfen() {
         v.cur_mp = 10_000.0; // minion at full health
     }
     let orfen_before = {
-        let v = world.objects.get_component_mut::<Vitals>(&ORFEN_OID).unwrap();
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&ORFEN_OID)
+            .unwrap();
         v.cur_hp = v.max_hp as f64 * 0.1; // Orfen nearly dead
         v.cur_hp
     };
@@ -199,7 +251,11 @@ fn a_healthy_riba_iren_does_not_heal_orfen() {
         advance_ticks(&mut world, 1);
     }
     assert_eq!(
-        world.objects.get_component::<Vitals>(&ORFEN_OID).unwrap().cur_hp,
+        world
+            .objects
+            .get_component::<Vitals>(&ORFEN_OID)
+            .unwrap()
+            .cur_hp,
         orfen_before,
         "a healthy minion ignores a dying master"
     );

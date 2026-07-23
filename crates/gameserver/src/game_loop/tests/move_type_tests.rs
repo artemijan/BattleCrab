@@ -24,7 +24,11 @@ const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 /// loaded. Required for anything asserting on a regen *rate*: the synthetic
 /// `GameData::for_test` templates have a zero `baseHpRegen`, so every rate
 /// would be 0 and the multiplier assertions below would pass vacuously.
-fn regen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn regen_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
     world.data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
     world.data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
@@ -43,7 +47,11 @@ fn wound(world: &mut World, oid: i32) {
     let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
     v.cur_hp = 1.0;
     v.cur_mp = 1.0;
-    world.objects.get_component_mut::<PlayerVitals>(&oid).unwrap().cur_cp = 0.0;
+    world
+        .objects
+        .get_component_mut::<PlayerVitals>(&oid)
+        .unwrap()
+        .cur_cp = 0.0;
 }
 
 /// Put the player in a locomotion state: `Movement` present = moving, and
@@ -70,7 +78,11 @@ fn set_moving(world: &mut World, oid: i32, moving: bool, running: bool) {
     } else {
         world.objects.remove_component::<Movement>(&oid);
     }
-    world.objects.get_component_mut::<Speeds>(&oid).unwrap().running = running;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&oid)
+        .unwrap()
+        .running = running;
 }
 
 /// One regen tick's HP gain, from a fixed wounded start.
@@ -101,9 +113,14 @@ fn movement_regen_multipliers_match_java() {
     assert_eq!(movement_regen_multiplier(MoveType::Sitting), 1.5);
     assert_eq!(movement_regen_multiplier(MoveType::Standing), 1.1);
     assert_eq!(movement_regen_multiplier(MoveType::Running), 0.7);
-    assert_eq!(movement_regen_multiplier(MoveType::Walking), 1.0, "walking gets no multiplier at all");
+    assert_eq!(
+        movement_regen_multiplier(MoveType::Walking),
+        1.0,
+        "walking gets no multiplier at all"
+    );
     assert!(
-        movement_regen_multiplier(MoveType::Walking) < movement_regen_multiplier(MoveType::Standing),
+        movement_regen_multiplier(MoveType::Walking)
+            < movement_regen_multiplier(MoveType::Standing),
         "walking regenerates slower than standing still — Java's fall-through, not a bug"
     );
 }
@@ -116,7 +133,11 @@ fn move_type_follows_movement_and_run_flag() {
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
 
     set_moving(&mut world, PLAYER, false, true);
-    assert_eq!(move_type_of(&world, PLAYER), MoveType::Standing, "not moving → Standing, run flag irrelevant");
+    assert_eq!(
+        move_type_of(&world, PLAYER),
+        MoveType::Standing,
+        "not moving → Standing, run flag irrelevant"
+    );
 
     set_moving(&mut world, PLAYER, true, true);
     assert_eq!(move_type_of(&world, PLAYER), MoveType::Running);
@@ -140,11 +161,25 @@ fn regen_rate_tracks_the_move_type() {
     set_moving(&mut world, PLAYER, true, true);
     let running = hp_gain_per_tick(&mut world);
 
-    assert!(standing > walking, "standing ({standing}) beats walking ({walking})");
-    assert!(walking > running, "walking ({walking}) beats running ({running})");
+    assert!(
+        standing > walking,
+        "standing ({standing}) beats walking ({walking})"
+    );
+    assert!(
+        walking > running,
+        "walking ({walking}) beats running ({running})"
+    );
     // The ratios are the raw multipliers: 1.1 / 1.0 / 0.7.
-    assert!((standing / walking - 1.1).abs() < 1e-6, "standing/walking == 1.1, got {}", standing / walking);
-    assert!((running / walking - 0.7).abs() < 1e-6, "running/walking == 0.7, got {}", running / walking);
+    assert!(
+        (standing / walking - 1.1).abs() < 1e-6,
+        "standing/walking == 1.1, got {}",
+        standing / walking
+    );
+    assert!(
+        (running / walking - 0.7).abs() < 1e-6,
+        "running/walking == 0.7, got {}",
+        running / walking
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -163,15 +198,36 @@ fn hp_regen_stat_modifiers_now_reach_the_regen_tick() {
     let bare = hp_gain_per_tick(&mut world);
 
     // A flat +10 `HpRegen` (Java `Diff` mode), as Regeneration 1044 grants.
-    world.objects.get_component_mut::<StatModifiers>(&PLAYER).unwrap().add.insert(Stat::RegenerateHpRate, 10.0);
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&PLAYER)
+        .unwrap()
+        .add
+        .insert(Stat::RegenerateHpRate, 10.0);
     let buffed = hp_gain_per_tick(&mut world);
-    assert!((buffed - bare - 10.0).abs() < 1e-6, "a flat +10 adds exactly 10: {bare} -> {buffed}");
+    assert!(
+        (buffed - bare - 10.0).abs() < 1e-6,
+        "a flat +10 adds exactly 10: {bare} -> {buffed}"
+    );
 
     // And a `Per` modifier multiplies the base, not the already-added flat.
-    world.objects.get_component_mut::<StatModifiers>(&PLAYER).unwrap().add.clear();
-    world.objects.get_component_mut::<StatModifiers>(&PLAYER).unwrap().mul.insert(Stat::RegenerateHpRate, 2.0);
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&PLAYER)
+        .unwrap()
+        .add
+        .clear();
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&PLAYER)
+        .unwrap()
+        .mul
+        .insert(Stat::RegenerateHpRate, 2.0);
     let doubled = hp_gain_per_tick(&mut world);
-    assert!((doubled - bare * 2.0).abs() < 1e-6, "×2 doubles the base: {bare} -> {doubled}");
+    assert!(
+        (doubled - bare * 2.0).abs() < 1e-6,
+        "×2 doubles the base: {bare} -> {doubled}"
+    );
 }
 
 /// The same for MP — `MpRegen` is the bigger of the two families (12 learnable
@@ -183,9 +239,17 @@ fn mp_regen_stat_modifiers_now_reach_the_regen_tick() {
     set_moving(&mut world, PLAYER, false, false);
 
     let bare = mp_gain_per_tick(&mut world);
-    world.objects.get_component_mut::<StatModifiers>(&PLAYER).unwrap().add.insert(Stat::RegenerateMpRate, 7.0);
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&PLAYER)
+        .unwrap()
+        .add
+        .insert(Stat::RegenerateMpRate, 7.0);
     let buffed = mp_gain_per_tick(&mut world);
-    assert!((buffed - bare - 7.0).abs() < 1e-6, "a flat +7 MP regen lands: {bare} -> {buffed}");
+    assert!(
+        (buffed - bare - 7.0).abs() < 1e-6,
+        "a flat +7 MP regen lands: {bare} -> {buffed}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -209,13 +273,25 @@ fn move_type_effects_route_to_their_own_map() {
             amount: 1.9,
             armor_condition: 0,
             weapon_condition: 0,
-            qualifier: Some(crate::model::stats::StatQualifier::MoveType(MoveType::Running)),
+            qualifier: Some(crate::model::stats::StatQualifier::MoveType(
+                MoveType::Running,
+            )),
             two_handed: false,
         },
     );
-    assert!(mods.add.is_empty(), "not folded into the unconditional add map");
-    assert_eq!(mods.move_type_value(Stat::RegenerateHpRate, MoveType::Running), 1.9);
-    assert_eq!(mods.move_type_value(Stat::RegenerateHpRate, MoveType::Standing), 0.0, "and only in its own state");
+    assert!(
+        mods.add.is_empty(),
+        "not folded into the unconditional add map"
+    );
+    assert_eq!(
+        mods.move_type_value(Stat::RegenerateHpRate, MoveType::Running),
+        1.9
+    );
+    assert_eq!(
+        mods.move_type_value(Stat::RegenerateHpRate, MoveType::Standing),
+        0.0,
+        "and only in its own state"
+    );
 }
 
 /// End to end: a `RUNNING`-qualified HP-regen bonus shows up while running and
@@ -243,8 +319,14 @@ fn stat_by_move_type_applies_only_in_its_own_state() {
     set_moving(&mut world, PLAYER, false, false);
     let standing_buffed = hp_gain_per_tick(&mut world);
 
-    assert!((running_buffed - running_bare - 50.0).abs() < 1e-6, "the RUNNING bonus applies while running");
-    assert!((standing_buffed - standing_bare).abs() < 1e-6, "and not at all while standing");
+    assert!(
+        (running_buffed - running_bare - 50.0).abs() < 1e-6,
+        "the RUNNING bonus applies while running"
+    );
+    assert!(
+        (standing_buffed - standing_bare).abs() < 1e-6,
+        "and not at all while standing"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -267,7 +349,9 @@ fn real_dist_stat_by_move_type_skills_parse() {
             .iter()
             .filter_map(|e| match e {
                 SkillEffect::StatModifier(m) => match m.qualifier {
-                    Some(crate::model::stats::StatQualifier::MoveType(mt)) => Some((m.stat, mt, m.amount)),
+                    Some(crate::model::stats::StatQualifier::MoveType(mt)) => {
+                        Some((m.stat, mt, m.amount))
+                    }
                     _ => None,
                 },
                 _ => None,
@@ -292,7 +376,10 @@ fn real_dist_stat_by_move_type_skills_parse() {
         ]
     );
     // Acrobatic Move 225: the one non-regen use — evasion while RUNNING.
-    assert_eq!(qualified(225, 1), vec![(Stat::EvasionRate, MoveType::Running, 4.0)]);
+    assert_eq!(
+        qualified(225, 1),
+        vec![(Stat::EvasionRate, MoveType::Running, 4.0)]
+    );
     // Esprit 171 — the same shape as Vital Force but its own values (2.5/1.8,
     // not 1.9/1.9), alongside a `DefenceTrait` that must survive the parse too.
     assert_eq!(
@@ -303,7 +390,12 @@ fn real_dist_stat_by_move_type_skills_parse() {
         ]
     );
     assert!(
-        skills.get(171, 1).unwrap().effects.iter().any(|e| matches!(e, SkillEffect::DefenceTrait)),
+        skills
+            .get(171, 1)
+            .unwrap()
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::DefenceTrait)),
         "Esprit keeps its DefenceTrait"
     );
 }
@@ -323,18 +415,27 @@ fn vital_force_passive_folds_into_by_move_type() {
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let bare = Player::from_char(&world.data, &dummy_char(4201, "Bare"));
-    assert_eq!(bare.stat_modifiers.move_type_value(Stat::RegenerateHpRate, MoveType::Running), 0.0);
+    assert_eq!(
+        bare.stat_modifiers
+            .move_type_value(Stat::RegenerateHpRate, MoveType::Running),
+        0.0
+    );
 
     let mut chr = dummy_char(4202, "Vital");
     chr.skills = vec![(148, 1, 0)]; // Vital Force
     let bundle = Player::from_char(&world.data, &chr);
     assert_eq!(
-        bundle.stat_modifiers.move_type_value(Stat::RegenerateHpRate, MoveType::Running),
+        bundle
+            .stat_modifiers
+            .move_type_value(Stat::RegenerateHpRate, MoveType::Running),
         1.9,
         "the passive's RUNNING entry folded in"
     );
     assert!(
-        !bundle.stat_modifiers.add.contains_key(&Stat::RegenerateHpRate),
+        !bundle
+            .stat_modifiers
+            .add
+            .contains_key(&Stat::RegenerateHpRate),
         "and did not leak into the unconditional add map"
     );
 }

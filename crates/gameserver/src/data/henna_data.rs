@@ -105,7 +105,11 @@ impl HennaData {
     /// `HennaData.getHennaList(classId)` — the dyes a class may draw, dye-id
     /// order (stable so the equip/remove windows list them consistently).
     pub fn list_for_class(&self, class_id: i32) -> Vec<&Henna> {
-        let mut list: Vec<&Henna> = self.hennas.values().filter(|h| h.is_allowed_class(class_id)).collect();
+        let mut list: Vec<&Henna> = self
+            .hennas
+            .values()
+            .filter(|h| h.is_allowed_class(class_id))
+            .collect();
         list.sort_by_key(|h| h.dye_id);
         list
     }
@@ -154,7 +158,9 @@ impl HennaData {
                     let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
                     match e.name().as_ref() {
                         b"henna" => {
-                            let (Some(dye_id), Some(dye_item_id)) = (num(b"dyeId"), num(b"dyeItemId")) else {
+                            let (Some(dye_id), Some(dye_item_id)) =
+                                (num(b"dyeId"), num(b"dyeItemId"))
+                            else {
                                 cur = None;
                                 continue;
                             };
@@ -246,7 +252,10 @@ mod tests {
         assert_eq!(h.cancel_count, 5);
         assert_eq!(h.cancel_fee, 7400);
         assert!(h.is_allowed_class(11), "Human Wizard allowed");
-        assert!(!h.is_allowed_class(0), "Human Fighter not in this dye's list");
+        assert!(
+            !h.is_allowed_class(0),
+            "Human Fighter not in this dye's list"
+        );
 
         // The class filter returns only allowed dyes.
         assert!(data.list_for_class(11).iter().any(|h| h.dye_id == 1));

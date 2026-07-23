@@ -19,13 +19,7 @@ export function Panel({
   strong?: boolean;
 }) {
   return (
-    <div
-      className={cx(
-        strong ? "glass-strong" : "glass",
-        "glass-sheen rounded-2xl",
-        className,
-      )}
-    >
+    <div className={cx(strong ? "glass-strong" : "glass", "glass-sheen rounded-2xl", className)}>
       {children}
     </div>
   );

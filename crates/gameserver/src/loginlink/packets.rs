@@ -134,7 +134,10 @@ impl AuthResponse {
         let mut r = PacketReader::new(after_opcode);
         let server_id = r.read_u8()? as i32;
         let server_name = r.read_string()?;
-        Some(Self { server_id, server_name })
+        Some(Self {
+            server_id,
+            server_name,
+        })
     }
 }
 

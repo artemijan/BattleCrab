@@ -119,7 +119,12 @@ pub fn pledge_show_member_list_update(m: &crate::model::clan::ClanMember, online
 /// Port of `serverpackets/AskJoinPledge` — the clan-invite confirm dialog on
 /// the invited player's screen. Java appends the pledge-type int only when
 /// non-zero (the academy/sub-unit variant of the dialog).
-pub fn ask_join_pledge(requestor_oid: i32, requestor_name: &str, pledge_type: i32, pledge_name: &str) -> Vec<u8> {
+pub fn ask_join_pledge(
+    requestor_oid: i32,
+    requestor_name: &str,
+    pledge_type: i32,
+    pledge_name: &str,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::ASK_JOIN_PLEDGE);
     w.write_i32(requestor_oid);
@@ -287,7 +292,20 @@ pub fn ex_pledge_recruit_apply_info(status: i32) -> Vec<u8> {
 pub fn ex_pledge_recruit_board_search(
     current_page: i32,
     total_matching: usize,
-    entries: &[(i32, i32, i32, i32, String, String, i32, i32, i32, String, i32, i32)],
+    entries: &[(
+        i32,
+        i32,
+        i32,
+        i32,
+        String,
+        String,
+        i32,
+        i32,
+        i32,
+        String,
+        i32,
+        i32,
+    )],
 ) -> Vec<u8> {
     const CLAN_PER_PAGE: usize = 12;
     let mut w = ex(0x141);

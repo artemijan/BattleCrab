@@ -7,7 +7,9 @@ use super::*;
 
 use crate::model::components::{Buffs, StatModifiers, Vitals};
 use crate::model::formulas::calc_attribute_bonus;
-use crate::model::skill::{ActiveBuff, BuffSlot, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType};
+use crate::model::skill::{
+    ActiveBuff, BuffSlot, OperateType, Skill, SkillEffect, StatModifierEffect, TargetType,
+};
 use crate::model::stats::{Element, Stat, StatModifierType};
 
 const CASTER: i32 = 2001;
@@ -97,7 +99,10 @@ fn dist_attributes_parse() {
 
     let holy_weapon = sd.get(1043, 1).expect("Holy Weapon");
     assert!(
-        holy_weapon.stat_modifier_effects().iter().any(|m| m.stat == Stat::HolyPower && m.amount == 20.0),
+        holy_weapon
+            .stat_modifier_effects()
+            .iter()
+            .any(|m| m.stat == Stat::HolyPower && m.amount == 20.0),
         "Holy Weapon grants HolyPower +20: {:?}",
         holy_weapon.effects
     );
@@ -107,10 +112,18 @@ fn dist_attributes_parse() {
         .stat_modifier_effects()
         .into_iter()
         .filter(|m| {
-            matches!(m.stat, Stat::FireRes | Stat::WaterRes | Stat::WindRes | Stat::EarthRes) && m.amount == -50.0
+            matches!(
+                m.stat,
+                Stat::FireRes | Stat::WaterRes | Stat::WindRes | Stat::EarthRes
+            ) && m.amount == -50.0
         })
         .collect();
-    assert_eq!(res_debuffs.len(), 4, "four elemental −50s: {:?}", dod_aura.effects);
+    assert_eq!(
+        res_debuffs.len(),
+        4,
+        "four elemental −50s: {:?}",
+        dod_aura.effects
+    );
 
     let npcs = crate::data::NpcData::load_from(DIST);
     let totem = npcs.get(13028).expect("totem 13028");
@@ -152,7 +165,9 @@ fn fire_resistance_reduces_and_surrender_restores() {
     // Surrender to Fire's shape: FireRes −80 as a live debuff on the mob —
     // folded on read (NPCs keep no StatModifiers), so damage climbs past the
     // neutral case (net res −20 vs the skill's attack 20).
-    world.objects.get_component_mut::<Buffs>(&resistant).map(|b| b.0.clear());
+    if let Some(b) = world.objects.get_component_mut::<Buffs>(&resistant) {
+        b.0.clear()
+    }
     world.objects.add_components(
         &resistant,
         Buffs(vec![ActiveBuff {

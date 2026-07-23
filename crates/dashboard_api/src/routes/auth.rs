@@ -24,7 +24,10 @@ pub fn router() -> Router<AppState> {
         .route("/login", axum::routing::post(login))
         .route("/logout", axum::routing::post(logout))
         .route("/me", axum::routing::get(me))
-        .route("/resend-verification", axum::routing::post(resend_verification))
+        .route(
+            "/resend-verification",
+            axum::routing::post(resend_verification),
+        )
         .route("/forgot-password", axum::routing::post(forgot_password))
         .route("/reset-password", axum::routing::post(reset_password))
 }
@@ -84,7 +87,11 @@ async fn send_verification(app: &AppState, email: &str) {
     // site_base_url: /verify-email is an SPA route, not an API one.
     let link = format!("{}/verify-email?token={raw}", app.config.site_base_url);
 
-    if let Err(e) = app.mailer.send_email_verification(email, email, &link).await {
+    if let Err(e) = app
+        .mailer
+        .send_email_verification(email, email, &link)
+        .await
+    {
         tracing::error!("failed to send verification email for {email}: {e}");
     }
 }
@@ -143,7 +150,10 @@ async fn login(
 
     // Verify even when the account is missing, against a dummy hash, so the
     // response time doesn't reveal which addresses exist.
-    let stored = account.as_ref().map(|a| a.password.clone()).unwrap_or_default();
+    let stored = account
+        .as_ref()
+        .map(|a| a.password.clone())
+        .unwrap_or_default();
     let ok = verify_password(&body.password, &stored);
 
     let Some(account) = account.filter(|_| ok) else {
@@ -195,7 +205,9 @@ async fn resend_verification(
 
     if account.is_verified() {
         // Nothing to confirm. Reporting success would be a lie the UI acts on.
-        return Err(ApiError::BadRequest("this address is already confirmed".into()));
+        return Err(ApiError::BadRequest(
+            "this address is already confirmed".into(),
+        ));
     }
 
     let Some(email) = account.email.as_deref() else {
@@ -226,7 +238,11 @@ async fn forgot_password(
         // A delivery failure must NOT change the response: whether the address
         // exists, and whether SES accepted the message, are both invisible to
         // the caller by design. Log it and move on.
-        if let Err(e) = app.mailer.send_password_reset(&subject, &subject, &link).await {
+        if let Err(e) = app
+            .mailer
+            .send_password_reset(&subject, &subject, &link)
+            .await
+        {
             tracing::error!("failed to send reset email for {subject}: {e}");
         }
     }

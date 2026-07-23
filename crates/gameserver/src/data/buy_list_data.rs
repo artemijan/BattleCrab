@@ -110,7 +110,10 @@ impl BuyListData {
 fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<BuyList> {
     let content = std::fs::read_to_string(path).ok()?;
     let mut reader = Reader::from_str(&content);
-    let mut list = BuyList { list_id, ..Default::default() };
+    let mut list = BuyList {
+        list_id,
+        ..Default::default()
+    };
     let mut default_base_tax = 0i32;
     let mut in_npcs = false;
     let mut in_npc = false;
@@ -126,31 +129,44 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                 };
                 match e.name().as_ref() {
                     b"list" => {
-                        default_base_tax = attr(b"baseTax").and_then(|v| v.parse().ok()).unwrap_or(0);
+                        default_base_tax =
+                            attr(b"baseTax").and_then(|v| v.parse().ok()).unwrap_or(0);
                     }
                     b"npcs" => in_npcs = true,
                     b"npc" if in_npcs => in_npc = true,
                     b"item" => {
-                        let Some(item_id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else { continue };
+                        let Some(item_id) = attr(b"id").and_then(|v| v.parse::<i32>().ok()) else {
+                            continue;
+                        };
                         let Some(template) = items.get(item_id) else {
                             warn!("BuyListData: item {item_id} not found (buylist {list_id})");
                             continue;
                         };
-                        let mut price: i64 = attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
+                        let mut price: i64 =
+                            attr(b"price").and_then(|v| v.parse().ok()).unwrap_or(-1);
                         // `Config.CORRECT_PRICES` (True on this dist): never
                         // sell below the item's own sell value.
                         let sell_price = template.price / 2;
                         if price > -1 && sell_price > price {
                             price = sell_price;
                         }
-                        let base_tax = attr(b"baseTax").and_then(|v| v.parse().ok()).unwrap_or(default_base_tax);
-                        list.products.push(Product { item_id, price, base_tax });
+                        let base_tax = attr(b"baseTax")
+                            .and_then(|v| v.parse().ok())
+                            .unwrap_or(default_base_tax);
+                        list.products.push(Product {
+                            item_id,
+                            price,
+                            base_tax,
+                        });
                     }
                     _ => {}
                 }
             }
             Event::Text(t) if in_npc => {
-                if let Ok(id) = String::from_utf8_lossy(&t.into_inner()).trim().parse::<i32>() {
+                if let Ok(id) = String::from_utf8_lossy(&t.into_inner())
+                    .trim()
+                    .parse::<i32>()
+                {
                     list.npcs.push(id);
                 }
             }
@@ -197,7 +213,12 @@ mod tests {
             for p in &list.products {
                 if p.price > -1 {
                     if let Some(t) = items.get(p.item_id) {
-                        assert!(p.price >= t.price / 2, "buylist {} item {}", list.list_id, p.item_id);
+                        assert!(
+                            p.price >= t.price / 2,
+                            "buylist {} item {}",
+                            list.list_id,
+                            p.item_id
+                        );
                     }
                 }
             }

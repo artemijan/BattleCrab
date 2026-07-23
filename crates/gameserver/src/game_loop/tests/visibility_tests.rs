@@ -9,14 +9,26 @@ fn leave_world_sends_delete_object_to_watchers() {
     let _leaver_rx = ingame_player(&mut world, 1, 6301, 0, 0, 0);
     let mut near_rx = ingame_player(&mut world, 2, 6302, 500, 500, 0);
     let mut far_rx = ingame_player(&mut world, 3, 6303, 10_000, 10_000, 0);
-    world.objects.get_component_mut::<TargetRef>(&6302).unwrap().0 = Some(6301);
+    world
+        .objects
+        .get_component_mut::<TargetRef>(&6302)
+        .unwrap()
+        .0 = Some(6301);
 
     handle_logout(&mut world, 1);
 
     let to_near = drain(&mut near_rx);
-    assert_eq!(to_near[0][0], server_packets::opcodes::TARGET_UNSELECTED, "ring released before the delete");
+    assert_eq!(
+        to_near[0][0],
+        server_packets::opcodes::TARGET_UNSELECTED,
+        "ring released before the delete"
+    );
     assert_eq!(delete_object_id(&to_near[1]), 6301);
-    assert_eq!(world.objects.get_component::<TargetRef>(&6302).unwrap().0, None, "dangling target dropped");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&6302).unwrap().0,
+        None,
+        "dangling target dropped"
+    );
     assert!(far_rx.try_recv().is_err());
 }
 
@@ -41,5 +53,8 @@ fn clan_leader_crown_relation_sent_on_entering_view() {
             && i32::from_le_bytes(p[2..6].try_into().unwrap()) == 6401
             && i32::from_le_bytes(p[6..10].try_into().unwrap()) & 0x80 != 0
     });
-    assert!(saw_crown, "leader entering view sends RelationChanged with the 0x80 crown bit");
+    assert!(
+        saw_crown,
+        "leader entering view sends RelationChanged with the 0x80 crown bit"
+    );
 }

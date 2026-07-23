@@ -20,15 +20,22 @@ const MAX_CHAT_LENGTH: usize = 105;
 const GENERAL_CHAT_RANGE: f64 = 1250.0;
 
 pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let sender_oid = session.player_object_id();
-    let Some(pkt) = cp::Say2::read(body) else { return };
+    let Some(pkt) = cp::Say2::read(body) else {
+        return;
+    };
 
     // Java disconnects on an unknown type or empty text ("possible packet
     // hack"); we log and drop instead (deliberate deviation — a malformed
     // packet shouldn't kill the session).
     let Some(chat_type) = ChatType::from_client_id(pkt.chat_type) else {
-        warn!("Say2: invalid chat type {} from object {sender_oid}.", pkt.chat_type);
+        warn!(
+            "Say2: invalid chat type {} from object {sender_oid}.",
+            pkt.chat_type
+        );
         return;
     };
     if pkt.text.is_empty() {
@@ -40,27 +47,44 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
-    let Some(p) = world.objects.get_component::<Player>(&sender_oid) else { return };
+    let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
+        return;
+    };
     let (sender_name, sender_level) = (p.name.clone(), p.level);
 
     match chat_type {
         ChatType::General => {
             // ChatGeneral: everyone within 1250 units + the speaker.
-            let say = server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
-            let Some(&from_pos) = world.objects.get_component::<Position>(&sender_oid) else { return };
-            let Some(&RegionCell(from_region)) = world.objects.get_component::<RegionCell>(&sender_oid) else { return };
+            let say =
+                server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+            let Some(&from_pos) = world.objects.get_component::<Position>(&sender_oid) else {
+                return;
+            };
+            let Some(&RegionCell(from_region)) =
+                world.objects.get_component::<RegionCell>(&sender_oid)
+            else {
+                return;
+            };
             for cs in world.clients.values() {
-                let ClientSession::InGame(s) = cs else { continue };
+                let ClientSession::InGame(s) = cs else {
+                    continue;
+                };
                 let other_oid = s.player_object_id();
                 if other_oid == sender_oid {
                     cs.send(say.clone());
                     continue;
                 }
-                let Some(&RegionCell(other_region)) = world.objects.get_component::<RegionCell>(&other_oid) else { continue };
+                let Some(&RegionCell(other_region)) =
+                    world.objects.get_component::<RegionCell>(&other_oid)
+                else {
+                    continue;
+                };
                 if !regions_adjacent(from_region, other_region) {
                     continue;
                 }
-                let Some(other_pos) = world.objects.get_component::<Position>(&other_oid) else { continue };
+                let Some(other_pos) = world.objects.get_component::<Position>(&other_oid) else {
+                    continue;
+                };
                 if from_pos.distance_2d(other_pos) <= GENERAL_CHAT_RANGE {
                     cs.send(say.clone());
                 }
@@ -72,14 +96,29 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // *tile group* (`MapRegionManager.getMapRegionLocId`), speaker
             // included. Region identity = the region entry; two off-map
             // players share Java's `0` bucket (both `None` here).
-            let say = server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
-            let Some(from_pos) = world.objects.get_component::<Position>(&sender_oid) else { return };
-            let from_region = world.data.map_region.region_at(from_pos.x, from_pos.y).map(|r| r.name.clone());
+            let say =
+                server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+            let Some(from_pos) = world.objects.get_component::<Position>(&sender_oid) else {
+                return;
+            };
+            let from_region = world
+                .data
+                .map_region
+                .region_at(from_pos.x, from_pos.y)
+                .map(|r| r.name.clone());
             for cs in world.clients.values() {
-                let ClientSession::InGame(s) = cs else { continue };
+                let ClientSession::InGame(s) = cs else {
+                    continue;
+                };
                 let other_oid = s.player_object_id();
-                let Some(other_pos) = world.objects.get_component::<Position>(&other_oid) else { continue };
-                let other_region = world.data.map_region.region_at(other_pos.x, other_pos.y).map(|r| r.name.clone());
+                let Some(other_pos) = world.objects.get_component::<Position>(&other_oid) else {
+                    continue;
+                };
+                let other_region = world
+                    .data
+                    .map_region
+                    .region_at(other_pos.x, other_pos.y)
+                    .map(|r| r.name.clone());
                 if from_region == other_region {
                     cs.send(say.clone());
                 }
@@ -111,7 +150,11 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 .get_component::<crate::model::components::AdminFlags>(&receiver_oid)
                 .is_some_and(|f| f.silence)
             {
-                send_sm(world, client_id, sm_ids::THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE);
+                send_sm(
+                    world,
+                    client_id,
+                    sm_ids::THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE,
+                );
                 return;
             }
             // Relation mask: bit 0x01 = sender on the receiver's friend list
@@ -138,7 +181,8 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         }
         ChatType::Party => {
             // ChatParty — `party.broadcastCreatureSay` (speaker included).
-            let say = server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+            let say =
+                server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
             if !super::party::party_say(world, sender_oid, &say) {
                 send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
             }
@@ -151,7 +195,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 .map(|p| p.clan_id)
                 .unwrap_or(0);
             if clan_id != 0 && world.clans.contains_key(&clan_id) {
-                let say = server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+                let say = server_packets::creature_say(
+                    sender_oid,
+                    chat_type,
+                    &sender_name,
+                    &pkt.text,
+                    None,
+                );
                 super::clans::broadcast_to_clan(world, clan_id, &say);
             } else {
                 send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_CLAN);
@@ -169,7 +219,11 @@ fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u
         .objects
         .get_component::<crate::model::components::Friends>(&receiver_oid)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == sender_oid));
-    if is_friend { 0x01 } else { 0 }
+    if is_friend {
+        0x01
+    } else {
+        0
+    }
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16) {

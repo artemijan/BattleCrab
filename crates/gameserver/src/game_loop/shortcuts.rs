@@ -33,11 +33,15 @@ fn send(world: &World, client_id: u32, body: Vec<u8>) {
 /// `ShortCutRegister` and a `SkillList` re-send — both unconditional in Java,
 /// even when the registry rejected the slot.
 pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestShortCutReg::read(body) else { return };
+    let Some(pkt) = cp::RequestShortCutReg::read(body) else {
+        return;
+    };
     if !(0..=19).contains(&pkt.page) {
         return;
     }
-    let Some(object_id) = ingame_object_id(world, client_id) else { return };
+    let Some(object_id) = ingame_object_id(world, client_id) else {
+        return;
+    };
 
     let mut sc = Shortcut {
         slot: pkt.slot,
@@ -76,11 +80,15 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
 
 /// Port of `clientpackets/RequestShortCutDel.runImpl`.
 pub(crate) fn handle_request_short_cut_del(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestShortCutDel::read(body) else { return };
+    let Some(pkt) = cp::RequestShortCutDel::read(body) else {
+        return;
+    };
     if !(0..=19).contains(&pkt.page) {
         return;
     }
-    let Some(object_id) = ingame_object_id(world, client_id) else { return };
+    let Some(object_id) = ingame_object_id(world, client_id) else {
+        return;
+    };
     delete_shortcut(world, client_id, object_id, pkt.slot, pkt.page);
 }
 
@@ -109,14 +117,25 @@ fn delete_shortcut(world: &mut World, client_id: u32, object_id: i32, slot: i32,
 /// holding a macro, possibly its own — and since execution is client-side,
 /// refusing to register it is the only enforcement point. Java accepts them.
 pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestMakeMacro::read(body) else { return };
-    let Some(object_id) = ingame_object_id(world, client_id) else { return };
+    let Some(pkt) = cp::RequestMakeMacro::read(body) else {
+        return;
+    };
+    let Some(object_id) = ingame_object_id(world, client_id) else {
+        return;
+    };
 
-    let reject = |world: &World, sm_id: i16| send(world, client_id, system_message_with(sm_id, &[]));
+    let reject =
+        |world: &World, sm_id: i16| send(world, client_id, system_message_with(sm_id, &[]));
     if pkt.commands_length > 255 {
-        return reject(world, sm_ids::INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS);
+        return reject(
+            world,
+            sm_ids::INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS,
+        );
     }
-    let macro_count = world.objects.get_component::<Macros>(&object_id).map_or(0, |m| m.entries.len());
+    let macro_count = world
+        .objects
+        .get_component::<Macros>(&object_id)
+        .map_or(0, |m| m.entries.len());
     if macro_count > 48 {
         return reject(world, sm_ids::YOU_MAY_CREATE_UP_TO_48_MACROS);
     }
@@ -124,17 +143,36 @@ pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body:
         return reject(world, sm_ids::ENTER_THE_NAME_OF_THE_MACRO);
     }
     if pkt.macro_.descr.chars().count() > 32 {
-        return reject(world, sm_ids::MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS);
+        return reject(
+            world,
+            sm_ids::MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS,
+        );
     }
     // The no-recurring-macros deviation (see the fn doc).
-    if pkt.macro_.commands.iter().any(|c| c.kind == MacroType::Shortcut) {
-        return reject(world, sm_ids::INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS);
+    if pkt
+        .macro_
+        .commands
+        .iter()
+        .any(|c| c.kind == MacroType::Shortcut)
+    {
+        return reject(
+            world,
+            sm_ids::INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS,
+        );
     }
 
-    let Some(macros) = world.objects.get_component_mut::<Macros>(&object_id) else { return };
+    let Some(macros) = world.objects.get_component_mut::<Macros>(&object_id) else {
+        return;
+    };
     let (id, update) = macros.register(pkt.macro_);
-    let Some(registered) = macros.get(id).cloned() else { return };
-    send(world, client_id, server_packets::send_macro_list(1, Some(&registered), update));
+    let Some(registered) = macros.get(id).cloned() else {
+        return;
+    };
+    send(
+        world,
+        client_id,
+        server_packets::send_macro_list(1, Some(&registered), update),
+    );
 }
 
 /// Port of `clientpackets/RequestDeleteMacro.runImpl` +
@@ -144,10 +182,17 @@ pub(crate) fn handle_request_make_macro(world: &mut World, client_id: u32, body:
 /// null macro NPEs in Java's `writeImpl`, so no packet reaches the client
 /// there either).
 pub(crate) fn handle_request_delete_macro(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDeleteMacro::read(body) else { return };
-    let Some(object_id) = ingame_object_id(world, client_id) else { return };
+    let Some(pkt) = cp::RequestDeleteMacro::read(body) else {
+        return;
+    };
+    let Some(object_id) = ingame_object_id(world, client_id) else {
+        return;
+    };
 
-    let removed = world.objects.get_component_mut::<Macros>(&object_id).and_then(|m| m.delete(pkt.id));
+    let removed = world
+        .objects
+        .get_component_mut::<Macros>(&object_id)
+        .and_then(|m| m.delete(pkt.id));
 
     let slots = world
         .objects
@@ -159,7 +204,11 @@ pub(crate) fn handle_request_delete_macro(world: &mut World, client_id: u32, bod
     }
 
     if let Some(removed) = removed {
-        send(world, client_id, server_packets::send_macro_list(0, Some(&removed), MacroUpdateType::Delete));
+        send(
+            world,
+            client_id,
+            server_packets::send_macro_list(0, Some(&removed), MacroUpdateType::Delete),
+        );
     }
 }
 
@@ -167,8 +216,15 @@ pub(crate) fn handle_request_delete_macro(world: &mut World, client_id: u32, bod
 /// upgrade rewrites every SKILL slot holding it (new level, `ShortCutRegister`
 /// echo per slot, row upsert). Called from `RequestAcquireSkill` and the
 /// level-up `rewardSkills` grants.
-pub(crate) fn update_skill_shortcuts(world: &mut World, object_id: i32, skill_id: i32, skill_level: i32) {
-    let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) else { return };
+pub(crate) fn update_skill_shortcuts(
+    world: &mut World,
+    object_id: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) else {
+        return;
+    };
     let mut updated = Vec::new();
     for sc in shortcuts.0.values_mut() {
         if sc.kind == ShortcutType::Skill && sc.id == skill_id {
@@ -196,7 +252,9 @@ pub(crate) fn remove_skill_shortcuts(world: &mut World, object_id: i32, skill_id
     if (3080..=3259).contains(&skill_id) {
         return;
     }
-    let Some(shortcuts) = world.objects.get_component::<Shortcuts>(&object_id) else { return };
+    let Some(shortcuts) = world.objects.get_component::<Shortcuts>(&object_id) else {
+        return;
+    };
     let victims: Vec<(i32, i32)> = shortcuts
         .0
         .values()
@@ -211,9 +269,10 @@ pub(crate) fn remove_skill_shortcuts(world: &mut World, object_id: i32, skill_id
             shortcuts.remove(slot, page);
         }
     }
-    if let (Some(client_id), Some(shortcuts)) =
-        (super::helpers::client_for_player(world, object_id), world.objects.get_component::<Shortcuts>(&object_id))
-    {
+    if let (Some(client_id), Some(shortcuts)) = (
+        super::helpers::client_for_player(world, object_id),
+        world.objects.get_component::<Shortcuts>(&object_id),
+    ) {
         send(world, client_id, server_packets::shortcut_init(shortcuts));
     }
 }

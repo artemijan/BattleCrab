@@ -25,7 +25,11 @@ pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args
             for oid in super::creatures_in_range(world, object_id, radius, true, true) {
                 heal_creature(world, oid);
             }
-            send_message(world, client_id, &format!("Healed within {radius} unit radius."));
+            send_message(
+                world,
+                client_id,
+                &format!("Healed within {radius} unit radius."),
+            );
             return;
         }
         // A non-name, non-numeric argument falls through to the target/self.
@@ -44,7 +48,9 @@ pub(super) fn admin_heal(world: &mut World, client_id: u32, object_id: i32, args
 pub(crate) fn heal_creature(world: &mut World, target: i32) {
     let is_player = world.objects.has_component::<Player>(&target);
     let (max_hp, max_mp) = {
-        let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+        let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {
+            return;
+        };
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;
         (v.max_hp, v.max_mp)
@@ -64,7 +70,11 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
             }
         }
         super::party::notify_party_vitals(world, target);
-    } else if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target).map(|r| r.0) {
+    } else if let Some(region) = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&target)
+        .map(|r| r.0)
+    {
         super::helpers::broadcast_near_region(world, region, &packet);
     }
 }
@@ -85,7 +95,11 @@ pub(super) fn admin_res(world: &mut World, client_id: u32, object_id: i32, args:
         for oid in super::creatures_in_range(world, object_id, radius, true, false) {
             res_creature(world, oid);
         }
-        send_message(world, client_id, &format!("Resurrected all players within a {radius} unit radius."));
+        send_message(
+            world,
+            client_id,
+            &format!("Resurrected all players within a {radius} unit radius."),
+        );
         return;
     }
     let target = current_target(world, object_id)
@@ -101,10 +115,16 @@ pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i3
         for oid in super::creatures_in_range(world, object_id, radius, false, true) {
             res_creature(world, oid);
         }
-        send_message(world, client_id, &format!("Resurrected all non-players within a {radius} unit radius."));
+        send_message(
+            world,
+            client_id,
+            &format!("Resurrected all non-players within a {radius} unit radius."),
+        );
         return;
     }
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid)) else {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Npc>(oid))
+    else {
         send_sm(world, client_id, server_packets::sm_ids::INVALID_TARGET);
         return;
     };
@@ -116,16 +136,26 @@ pub(super) fn admin_res_monster(world: &mut World, client_id: u32, object_id: i3
 /// cancel its pending decay (via the `!dead` guard) and revive it in place with
 /// a `Revive` broadcast and refilled HP.
 fn res_creature(world: &mut World, target: i32) {
-    if !world.objects.get_component::<Vitals>(&target).is_some_and(|v| v.dead) {
+    if !world
+        .objects
+        .get_component::<Vitals>(&target)
+        .is_some_and(|v| v.dead)
+    {
         return;
     }
     if world.objects.has_component::<Player>(&target) {
         super::death::do_revive(world, target);
         full_restore(world, target);
     } else if world.objects.has_component::<Npc>(&target) {
-        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&target)
+            .map(|r| r.0)
+        {
             let max_hp = {
-                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {
+                    return;
+                };
                 v.dead = false;
                 v.cur_hp = v.max_hp as f64;
                 v.max_hp
@@ -134,7 +164,10 @@ fn res_creature(world: &mut World, target: i32) {
             super::helpers::broadcast_near_region(
                 world,
                 region,
-                &server_packets::status_update(target, &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)]),
+                &server_packets::status_update(
+                    target,
+                    &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)],
+                ),
             );
         }
     }
@@ -144,8 +177,9 @@ fn res_creature(world: &mut World, target: i32) {
 /// `StatusUpdate` to that player + their party. Shared by `//heal` and `//res`.
 fn full_restore(world: &mut World, target: i32) {
     let updates = {
-        let Some((mut vitals, mut pvitals)) =
-            world.objects.get_many_mut::<(&mut Vitals, &mut PlayerVitals)>(&target)
+        let Some((mut vitals, mut pvitals)) = world
+            .objects
+            .get_many_mut::<(&mut Vitals, &mut PlayerVitals)>(&target)
         else {
             return;
         };
@@ -153,7 +187,11 @@ fn full_restore(world: &mut World, target: i32) {
         vitals.cur_mp = vitals.max_mp as f64;
         vitals.dead = false;
         pvitals.cur_cp = pvitals.max_cp as f64;
-        [(sut::CUR_HP, vitals.max_hp), (sut::CUR_MP, vitals.max_mp), (sut::CUR_CP, pvitals.max_cp)]
+        [
+            (sut::CUR_HP, vitals.max_hp),
+            (sut::CUR_MP, vitals.max_mp),
+            (sut::CUR_CP, pvitals.max_cp),
+        ]
     };
     let packet = server_packets::status_update(target, &updates);
     if let Some(cid) = super::helpers::client_for_player(world, target) {
@@ -174,7 +212,13 @@ pub(super) enum Vital {
 
 /// `//set_hp`/`//set_mp`/`//set_cp <n>` — set a vital on the target player (or
 /// self), clamped to its max, with a `StatusUpdate`.
-pub(super) fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital: Vital, args: &[&str]) {
+pub(super) fn set_vital(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    vital: Vital,
+    args: &[&str],
+) {
     let Some(value) = args.first().and_then(|s| s.parse::<f64>().ok()) else {
         send_message(world, client_id, "Usage: //set_hp <value>");
         return;
@@ -183,7 +227,9 @@ pub(super) fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital
     let update = {
         match vital {
             Vital::Hp | Vital::Mp => {
-                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else { return };
+                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {
+                    return;
+                };
                 match vital {
                     Vital::Hp => {
                         v.cur_hp = value.clamp(0.0, v.max_hp as f64);
@@ -197,7 +243,9 @@ pub(super) fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital
                 }
             }
             Vital::Cp => {
-                let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) else { return };
+                let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) else {
+                    return;
+                };
                 pv.cur_cp = value.clamp(0.0, pv.max_cp as f64);
                 (sut::CUR_CP, pv.cur_cp as i32)
             }
@@ -216,7 +264,13 @@ pub(super) fn set_vital(world: &mut World, client_id: u32, object_id: i32, vital
 /// NPC), the named online player, or (numeric arg) every creature in radius. The
 /// `monster` flavour (`//kill_monster`) restricts the radius/target to
 /// non-players.
-pub(super) fn admin_kill(world: &mut World, client_id: u32, object_id: i32, args: &[&str], monster: bool) {
+pub(super) fn admin_kill(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    monster: bool,
+) {
     if let Some(arg) = args.first() {
         // `//kill <name>` — a named online player (not for `//kill_monster`).
         if !monster {
@@ -226,7 +280,11 @@ pub(super) fn admin_kill(world: &mut World, client_id: u32, object_id: i32, args
                     for oid in super::creatures_in_range(world, named, radius, true, false) {
                         kill_creature(world, oid, object_id);
                     }
-                    send_message(world, client_id, &format!("Killed all characters within a {radius} unit radius."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("Killed all characters within a {radius} unit radius."),
+                    );
                     return;
                 }
                 kill_creature(world, named, object_id);
@@ -234,13 +292,25 @@ pub(super) fn admin_kill(world: &mut World, client_id: u32, object_id: i32, args
             }
         }
         let Some(radius) = arg.parse::<i32>().ok() else {
-            send_message(world, client_id, if monster { "Usage: //kill_monster <radius>" } else { "Usage: //kill <player_name | radius>" });
+            send_message(
+                world,
+                client_id,
+                if monster {
+                    "Usage: //kill_monster <radius>"
+                } else {
+                    "Usage: //kill <player_name | radius>"
+                },
+            );
             return;
         };
         for oid in super::creatures_in_range(world, object_id, radius, !monster, true) {
             kill_creature(world, oid, object_id);
         }
-        send_message(world, client_id, &format!("Killed all characters within a {radius} unit radius."));
+        send_message(
+            world,
+            client_id,
+            &format!("Killed all characters within a {radius} unit radius."),
+        );
         return;
     }
     let Some(target) = current_target(world, object_id) else {

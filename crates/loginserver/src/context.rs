@@ -31,14 +31,21 @@ impl LoginContext {
         // pairs in parallel — one thread per key, wall time ≈ the slowest
         // single key (Java generates the same caches sequentially).
         let (keypairs, gs_keypairs) = std::thread::scope(|s| {
-            let client: Vec<_> =
-                (0..KEYPAIRS).map(|_| s.spawn(|| Arc::new(ScrambledKeyPair::generate()))).collect();
+            let client: Vec<_> = (0..KEYPAIRS)
+                .map(|_| s.spawn(|| Arc::new(ScrambledKeyPair::generate())))
+                .collect();
             // GameServerTable.initRSAKeys: 512-bit pairs for the GS link.
-            let gs: Vec<_> =
-                (0..GS_KEYPAIRS).map(|_| s.spawn(|| Arc::new(RawRsaKeyPair::generate(512)))).collect();
+            let gs: Vec<_> = (0..GS_KEYPAIRS)
+                .map(|_| s.spawn(|| Arc::new(RawRsaKeyPair::generate(512))))
+                .collect();
             (
-                client.into_iter().map(|h| h.join().expect("RSA keygen thread panicked")).collect::<Vec<_>>(),
-                gs.into_iter().map(|h| h.join().expect("RSA keygen thread panicked")).collect::<Vec<_>>(),
+                client
+                    .into_iter()
+                    .map(|h| h.join().expect("RSA keygen thread panicked"))
+                    .collect::<Vec<_>>(),
+                gs.into_iter()
+                    .map(|h| h.join().expect("RSA keygen thread panicked"))
+                    .collect::<Vec<_>>(),
             )
         });
         info!("Cached {KEYPAIRS} KeyPairs for RSA communication.");
@@ -54,7 +61,14 @@ impl LoginContext {
 
         info!("Cached {GS_KEYPAIRS} RSA keys for Game Server communication.");
 
-        Self { config, pool, controller, keypairs, blowfish_keys, gs_keypairs }
+        Self {
+            config,
+            pool,
+            controller,
+            keypairs,
+            blowfish_keys,
+            gs_keypairs,
+        }
     }
 
     pub fn random_keypair(&self) -> Arc<ScrambledKeyPair> {

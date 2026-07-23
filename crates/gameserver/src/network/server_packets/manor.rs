@@ -63,7 +63,11 @@ pub struct CropInfoEntry {
 /// (`CastleManorManager.getCropProcure` / `Seed`) are unported, so callers
 /// currently have no `CropInfoEntry` list to pass. Wire it once the manor
 /// system lands; the serializer itself matches `writeImpl` byte-for-byte.
-pub fn ex_show_crop_info(manor_id: i32, hide_buttons: bool, crops: Option<&[CropInfoEntry]>) -> Vec<u8> {
+pub fn ex_show_crop_info(
+    manor_id: i32,
+    hide_buttons: bool,
+    crops: Option<&[CropInfoEntry]>,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_SHOW_CROP_INFO);

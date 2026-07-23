@@ -82,11 +82,20 @@ impl QuestScript for Q00262TradeWithTheIvoryTower {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30137-02.htm" } else { "30137-01.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30137-02.htm"
+                } else {
+                    "30137-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             match ctx.cond() {
-                1 if ctx.quest_items_count(SPORE_SAC) < REQUIRED_ITEM_COUNT => return Some("30137-04.html".to_string()),
+                1 if ctx.quest_items_count(SPORE_SAC) < REQUIRED_ITEM_COUNT => {
+                    return Some("30137-04.html".to_string())
+                }
                 2 if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_ITEM_COUNT => {
                     ctx.give_adena(300, true);
                     ctx.exit_quest(true, true);

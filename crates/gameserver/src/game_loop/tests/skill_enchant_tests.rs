@@ -34,19 +34,30 @@ fn install_enchant_data(world: &mut World) {
         world.data.skill_data.insert_enchanted_for_test(Skill {
             sub_level: sub,
             // A big, visible power step so the cast test can tell +N landed.
-            effects: vec![SkillEffect::MagicalAttack { power: 1.0 + (sub - 1000) as f64 * 10.0 }],
+            effects: vec![SkillEffect::MagicalAttack {
+                power: 1.0 + (sub - 1000) as f64 * 10.0,
+            }],
             ..base.clone()
         });
     }
-    world.data.skill_data.insert_route_for_test(SKILL, 40, (1001, 1005));
+    world
+        .data
+        .skill_data
+        .insert_route_for_test(SKILL, 40, (1001, 1005));
     for step in 1..=5 {
-        let mut cost = EnchantSkillCost { level: step, enchant_fail_level: 3, ..Default::default() };
+        let mut cost = EnchantSkillCost {
+            level: step,
+            enchant_fail_level: 3,
+            ..Default::default()
+        };
         cost.sp.insert("NORMAL".into(), 1000);
         cost.sp.insert("BLESSED".into(), 1000);
         cost.chance.insert("NORMAL".into(), 90);
         cost.chance.insert("BLESSED".into(), 90);
-        cost.items.insert("NORMAL".into(), vec![(CODEX, 1), (ADENA, 500)]);
-        cost.items.insert("BLESSED".into(), vec![(CODEX, 1), (ADENA, 500)]);
+        cost.items
+            .insert("NORMAL".into(), vec![(CODEX, 1), (ADENA, 500)]);
+        cost.items
+            .insert("BLESSED".into(), vec![(CODEX, 1), (ADENA, 500)]);
         world.data.enchant_skill_groups.insert_for_test(cost);
     }
 }
@@ -57,8 +68,15 @@ fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>
     install_enchant_data(world);
     // The gate reads `FOURTH_CLASS_GROUP` off CategoryData; the fixture
     // player's class id must be a member.
-    let class_id = world.objects.get_component::<Player>(&CASTER).unwrap().class_id;
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[class_id]);
+    let class_id = world
+        .objects
+        .get_component::<Player>(&CASTER)
+        .unwrap()
+        .class_id;
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[class_id]);
     world
         .objects
         .get_component_mut::<crate::model::components::SkillBook>(&CASTER)
@@ -70,7 +88,9 @@ fn enchanter(world: &mut World) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>
     }
     {
         let World { objects, data, .. } = world;
-        let inv = objects.get_component_mut::<crate::model::inventory::Inventory>(&CASTER).unwrap();
+        let inv = objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&CASTER)
+            .unwrap();
         inv.add_item(&data.item_data, 990_101, CODEX, 5);
         inv.add_item(&data.item_data, 990_102, ADENA, 100_000);
     }
@@ -140,8 +160,16 @@ fn a_successful_enchant_applies_and_casts_stronger() {
 
     enchant(&mut world, 0, 1001, 0); // NORMAL, roll 0 ≤ 90 → success
     assert_eq!(sub_of(&world, CASTER, SKILL), 1001, "+1 landed");
-    assert_eq!(count_of(&world, CASTER, CODEX), 4, "one codex consumed on the +1 step");
-    assert_eq!(count_of(&world, CASTER, ADENA), adena_before - 500, "the adena holder too");
+    assert_eq!(
+        count_of(&world, CASTER, CODEX),
+        4,
+        "one codex consumed on the +1 step"
+    );
+    assert_eq!(
+        count_of(&world, CASTER, ADENA),
+        adena_before - 500,
+        "the adena holder too"
+    );
     assert_eq!(
         world.objects.get_component::<Player>(&CASTER).unwrap().sp,
         sp_before - 1000,
@@ -151,7 +179,15 @@ fn a_successful_enchant_applies_and_casts_stronger() {
     // The cast pipeline resolves the +1 variant: same tape, bigger hit.
     let hp1 = world.objects.get_component::<Vitals>(&mob).unwrap().cur_hp;
     world.forced_rolls.extend([0, 0, 0, 0]);
-    crate::game_loop::skills::cast::use_magic_on(&mut world, CID, CASTER, SKILL, false, false, Some(mob));
+    crate::game_loop::skills::cast::use_magic_on(
+        &mut world,
+        CID,
+        CASTER,
+        SKILL,
+        false,
+        false,
+        Some(mob),
+    );
     // The nuke has hit_time 0 → launch/finish next ticks.
     advance_ticks(&mut world, 12);
     world.forced_rolls.clear();
@@ -174,7 +210,11 @@ fn later_steps_charge_adena_instead_of_the_codex() {
 
     enchant(&mut world, 0, 1002, 0);
     assert_eq!(sub_of(&world, CASTER, SKILL), 1002);
-    assert_eq!(count_of(&world, CASTER, CODEX), 4, "the codex is never consumed past +1");
+    assert_eq!(
+        count_of(&world, CASTER, CODEX),
+        4,
+        "the codex is never consumed past +1"
+    );
     assert_eq!(
         count_of(&world, CASTER, ADENA),
         adena_after_first - 501,
@@ -195,13 +235,21 @@ fn failure_modes_normal_resets_blessed_keeps() {
 
     // Roll 91 > 90 → failure. NORMAL: back to route base + failLevel (3).
     enchant(&mut world, 0, 1004, 99);
-    assert_eq!(sub_of(&world, CASTER, SKILL), 1003, "NORMAL fail resets to the fail step");
+    assert_eq!(
+        sub_of(&world, CASTER, SKILL),
+        1003,
+        "NORMAL fail resets to the fail step"
+    );
 
     // Push to +4, then fail a BLESSED: the step must survive.
     enchant(&mut world, 0, 1004, 0);
     assert_eq!(sub_of(&world, CASTER, SKILL), 1004);
     enchant(&mut world, 1, 1005, 99);
-    assert_eq!(sub_of(&world, CASTER, SKILL), 1004, "BLESSED fail keeps the step");
+    assert_eq!(
+        sub_of(&world, CASTER, SKILL),
+        1004,
+        "BLESSED fail keeps the step"
+    );
 }
 
 /// Step validation: an enchanted skill only advances by exactly one.
@@ -214,7 +262,11 @@ fn skipping_steps_is_refused() {
 
     enchant(&mut world, 0, 1004, 0); // +1 → +4: refused before any payment
     assert_eq!(sub_of(&world, CASTER, SKILL), 1001, "still +1");
-    assert_eq!(count_of(&world, CASTER, CODEX), codex_before, "nothing was charged");
+    assert_eq!(
+        count_of(&world, CASTER, CODEX),
+        codex_before,
+        "nothing was charged"
+    );
 }
 
 /// The Java payment-order quirk, pinned: the items are consumed **before**
@@ -228,8 +280,16 @@ fn items_are_consumed_before_the_sp_check() {
     }
     enchant(&mut world, 0, 1001, 0);
     assert_eq!(sub_of(&world, CASTER, SKILL), 0, "no enchant");
-    assert_eq!(count_of(&world, CASTER, CODEX), 4, "…but the codex is gone (Java's order)");
-    assert_eq!(world.objects.get_component::<Player>(&CASTER).unwrap().sp, 10, "SP untouched");
+    assert_eq!(
+        count_of(&world, CASTER, CODEX),
+        4,
+        "…but the codex is gone (Java's order)"
+    );
+    assert_eq!(
+        world.objects.get_component::<Player>(&CASTER).unwrap().sp,
+        10,
+        "SP untouched"
+    );
 }
 
 /// A non-3rd-class player is refused outright.

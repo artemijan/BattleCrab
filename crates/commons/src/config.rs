@@ -62,7 +62,11 @@ impl PropertiesParser {
             }
         }
 
-        Self { file_name, env_path_prefix, properties }
+        Self {
+            file_name,
+            env_path_prefix,
+            properties,
+        }
     }
 
     pub fn contains_key(&self, key: &str) -> bool {
@@ -114,7 +118,11 @@ impl PropertiesParser {
         self.get_parsed(key, default)
     }
 
-    fn get_parsed<T: std::str::FromStr + std::fmt::Display + Copy>(&self, key: &str, default: T) -> T {
+    fn get_parsed<T: std::str::FromStr + std::fmt::Display + Copy>(
+        &self,
+        key: &str,
+        default: T,
+    ) -> T {
         match self.value(key) {
             Some(v) => match v.parse() {
                 Ok(parsed) => parsed,
@@ -131,7 +139,10 @@ impl PropertiesParser {
     }
 
     fn warn_missing(&self, key: &str, default: impl std::fmt::Display) {
-        warn!("[{}] missing property for key: {key} using default value: {default}", self.file_name);
+        warn!(
+            "[{}] missing property for key: {key} using default value: {default}",
+            self.file_name
+        );
     }
 
     fn warn_invalid(&self, key: &str, value: &str, default: impl std::fmt::Display) {
@@ -148,7 +159,11 @@ fn parse_properties(content: &str, out: &mut HashMap<String, String>) {
     let mut logical = String::new();
     for line in content.lines() {
         let trimmed_start = line.trim_start();
-        if logical.is_empty() && (trimmed_start.is_empty() || trimmed_start.starts_with('#') || trimmed_start.starts_with('!')) {
+        if logical.is_empty()
+            && (trimmed_start.is_empty()
+                || trimmed_start.starts_with('#')
+                || trimmed_start.starts_with('!'))
+        {
             continue;
         }
         if let Some(stripped) = trimmed_start.strip_suffix('\\') {
@@ -175,7 +190,10 @@ mod tests {
     #[test]
     fn parses_basic_ini() {
         let mut map = HashMap::new();
-        parse_properties("# comment\nLoginserverPort = 2106\nEmpty=\nFlag = True\n", &mut map);
+        parse_properties(
+            "# comment\nLoginserverPort = 2106\nEmpty=\nFlag = True\n",
+            &mut map,
+        );
         assert_eq!(map.get("LoginserverPort").unwrap(), "2106");
         assert_eq!(map.get("Empty").unwrap(), "");
         assert_eq!(map.get("Flag").unwrap(), "True");

@@ -161,7 +161,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return body as T;
 }
 
-const post = <T,>(path: string, body: unknown) =>
+const post = <T>(path: string, body: unknown) =>
   request<T>(path, { method: "POST", body: JSON.stringify(body) });
 
 export const api = {
@@ -232,9 +232,7 @@ export const api = {
       post<void>(`/admin/accounts/${encodeURIComponent(email)}/access-level`, { level }),
 
     searchGameAccounts: (q: string, limit: number) =>
-      request<AdminGameAccount[]>(
-        `/admin/game-accounts?q=${encodeURIComponent(q)}&limit=${limit}`,
-      ),
+      request<AdminGameAccount[]>(`/admin/game-accounts?q=${encodeURIComponent(q)}&limit=${limit}`),
 
     /** Creates a game account under the admin's own master, at the admin's
      *  access level — a GM game account. */

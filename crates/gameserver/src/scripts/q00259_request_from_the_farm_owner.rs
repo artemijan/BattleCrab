@@ -65,7 +65,9 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
         }
         match event {
             // Plain pages.
-            "30405-03.html" | "30405-05b.html" | "30405-05d.html" | "30497-07.html" => Some(event.to_string()),
+            "30405-03.html" | "30405-05b.html" | "30405-05d.html" | "30497-07.html" => {
+                Some(event.to_string())
+            }
             // Consumable trades — 10 skins for the batch.
             "30405-04.html" | "30405-05.html" | "30405-05a.html" | "30405-05c.html" => {
                 if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT {
@@ -78,7 +80,14 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
                 None
             }
             // Marius's menu opens only with a full batch.
-            "30405-06.html" => Some(if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT { "30405-06.html" } else { "30405-07.html" }.to_string()),
+            "30405-06.html" => Some(
+                if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT {
+                    "30405-06.html"
+                } else {
+                    "30405-07.html"
+                }
+                .to_string(),
+            ),
             "30497-03.html" => {
                 ctx.start_quest();
                 Some(event.to_string())
@@ -103,7 +112,14 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
         match ctx.npc_id {
             EDMOND => {
                 if ctx.is_created() {
-                    return Some(if ctx.player_level() >= MIN_LEVEL { "30497-02.htm" } else { "30497-01.html" }.to_string());
+                    return Some(
+                        if ctx.player_level() >= MIN_LEVEL {
+                            "30497-02.htm"
+                        } else {
+                            "30497-01.html"
+                        }
+                        .to_string(),
+                    );
                 }
                 if ctx.is_started() {
                     let skins = ctx.quest_items_count(SPIDER_SKIN);
@@ -117,7 +133,14 @@ impl QuestScript for Q00259RequestFromTheFarmOwner {
                 }
                 Some(ctx.no_quest_html())
             }
-            MARIUS => Some(if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT { "30405-02.html" } else { "30405-01.html" }.to_string()),
+            MARIUS => Some(
+                if ctx.quest_items_count(SPIDER_SKIN) >= SKIN_COUNT {
+                    "30405-02.html"
+                } else {
+                    "30405-01.html"
+                }
+                .to_string(),
+            ),
             _ => Some(ctx.no_quest_html()),
         }
     }

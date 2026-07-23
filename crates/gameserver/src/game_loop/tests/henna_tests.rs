@@ -62,12 +62,16 @@ fn test_dye() -> Henna {
 }
 
 fn has_sm(out: &[Vec<u8>], id: i16) -> bool {
-    out.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
+    out.iter()
+        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
 }
 
 fn give(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
     let World { objects, data, .. } = world;
-    objects.get_component_mut::<Inventory>(&oid).unwrap().add_item(&data.item_data, obj_id, item_id, count);
+    objects
+        .get_component_mut::<Inventory>(&oid)
+        .unwrap()
+        .add_item(&data.item_data, obj_id, item_id, count);
 }
 
 /// Install a class-0 henna slot (via a SECOND_CLASS_GROUP membership → class
@@ -75,10 +79,19 @@ fn give(world: &mut World, oid: i32, obj_id: i32, item_id: i32, count: i64) {
 /// live id pool.
 fn install(world: &mut World) {
     world.id_pool = 0x4000_0000..0x4000_0100;
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[0]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[0]);
     world.data.hennas.insert_for_test(test_dye());
-    world.data.item_data.insert_for_test(etc_template(DYE_ITEM, "Dye"));
-    world.data.item_data.insert_for_test(etc_template(57, "Adena"));
+    world
+        .data
+        .item_data
+        .insert_for_test(etc_template(DYE_ITEM, "Dye"));
+    world
+        .data
+        .item_data
+        .insert_for_test(etc_template(57, "Adena"));
 }
 
 fn str_of(world: &World, oid: i32) -> i32 {
@@ -104,13 +117,24 @@ fn equip_henna_changes_stats_and_consumes() {
 
     assert_eq!(str_of(&world, 3001), str0 + 5, "STR gained the dye bonus");
     assert_eq!(con_of(&world, 3001), con0 - 2, "CON took the dye penalty");
-    assert_eq!(world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0], Some(DYE_ID), "slot filled");
+    assert_eq!(
+        world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0],
+        Some(DYE_ID),
+        "slot filled"
+    );
     let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
     assert_eq!(inv.count_of(DYE_ITEM), 2, "3 dyes consumed");
     assert_eq!(inv.adena(), 4000, "1000 adena fee paid");
     let out = drain(&mut rx);
-    assert!(out.iter().any(|p| p[0] == server_packets::opcodes::HENNA_INFO), "HennaInfo sent");
-    assert!(has_sm(&out, server_packets::sm_ids::THE_SYMBOL_HAS_BEEN_ADDED));
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::HENNA_INFO),
+        "HennaInfo sent"
+    );
+    assert!(has_sm(
+        &out,
+        server_packets::sm_ids::THE_SYMBOL_HAS_BEEN_ADDED
+    ));
 }
 
 /// Removing a dye reverts the stats, charges the cancel fee, and refunds the
@@ -130,14 +154,21 @@ fn remove_henna_reverts_and_refunds() {
 
     assert_eq!(str_of(&world, 3001), str0, "STR reverted");
     assert_eq!(con_of(&world, 3001), con0, "CON reverted");
-    assert_eq!(world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0], None, "slot cleared");
+    assert_eq!(
+        world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0],
+        None,
+        "slot cleared"
+    );
     let inv = world.objects.get_component::<Inventory>(&3001).unwrap();
     // Left after equip: 2 dyes; remove refunds cancel_count (1) → 3.
     assert_eq!(inv.count_of(DYE_ITEM), 3, "cancel count refunded");
     // After equip: 4000 adena; remove charges cancel_fee 500 → 3500.
     assert_eq!(inv.adena(), 3500, "cancel fee charged");
     let out = drain(&mut rx);
-    assert!(has_sm(&out, server_packets::sm_ids::THE_SYMBOL_HAS_BEEN_DELETED));
+    assert!(has_sm(
+        &out,
+        server_packets::sm_ids::THE_SYMBOL_HAS_BEEN_DELETED
+    ));
 }
 
 /// A base-class character (no henna slots) is refused with NO_SLOT.
@@ -147,8 +178,14 @@ fn base_class_has_no_henna_slots() {
     // Note: no SECOND_CLASS_GROUP membership → class 0 stays level 0 → 0 slots.
     world.id_pool = 0x4000_0000..0x4000_0100;
     world.data.hennas.insert_for_test(test_dye());
-    world.data.item_data.insert_for_test(etc_template(DYE_ITEM, "Dye"));
-    world.data.item_data.insert_for_test(etc_template(57, "Adena"));
+    world
+        .data
+        .item_data
+        .insert_for_test(etc_template(DYE_ITEM, "Dye"));
+    world
+        .data
+        .item_data
+        .insert_for_test(etc_template(57, "Adena"));
     let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     give(&mut world, 3001, 9001, DYE_ITEM, 5);
     give(&mut world, 3001, 9002, 57, 5000);
@@ -158,9 +195,15 @@ fn base_class_has_no_henna_slots() {
     henna::handle_equip(&mut world, 1, DYE_ID);
 
     assert_eq!(str_of(&world, 3001), str0, "no stat change");
-    assert!(world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0].is_none(), "no slot filled");
+    assert!(
+        world.objects.get_component::<HennaSlots>(&3001).unwrap().0[0].is_none(),
+        "no slot filled"
+    );
     let out = drain(&mut rx);
-    assert!(has_sm(&out, server_packets::sm_ids::NO_SLOT_EXISTS_TO_DRAW_THE_SYMBOL));
+    assert!(has_sm(
+        &out,
+        server_packets::sm_ids::NO_SLOT_EXISTS_TO_DRAW_THE_SYMBOL
+    ));
 }
 
 /// The dye's stat bonus survives a reload: `from_char` folds a stored dye back

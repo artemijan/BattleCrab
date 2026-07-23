@@ -72,7 +72,5 @@ if (!(await ogImage.exists())) {
 await Bun.write(`${outdir}/${OG_IMAGE}`, ogImage);
 
 const total = result.outputs.reduce((sum, output) => sum + output.size, 0);
-console.log(
-  `built ${result.outputs.length} files (${(total / 1024).toFixed(1)} KiB) -> ${outdir}`,
-);
+console.log(`built ${result.outputs.length} files (${(total / 1024).toFixed(1)} KiB) -> ${outdir}`);
 console.log(`copied ${OG_IMAGE} (${(ogImage.size / 1024).toFixed(1)} KiB)`);

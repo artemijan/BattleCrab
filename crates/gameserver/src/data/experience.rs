@@ -80,7 +80,10 @@ impl ExperienceData {
     /// Synthetic cumulative table for unit tests: `table[level] = tolevel`.
     #[doc(hidden)]
     pub fn from_table(exp_for_level: Vec<i64>, max_level: u8) -> Self {
-        Self { exp_for_level, max_level }
+        Self {
+            exp_for_level,
+            max_level,
+        }
     }
 
     /// `getExpForLevel(level)`; out-of-range clamps to the ends (as Java does).

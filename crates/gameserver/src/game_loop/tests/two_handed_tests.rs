@@ -5,8 +5,6 @@
 //! Both conditions are separate axes: a one-handed mace fails the slot test
 //! even though it passes the weapon-type one.
 
-use super::*;
-
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 
@@ -17,14 +15,20 @@ fn dist_skills() -> crate::data::skill_data::SkillData {
 }
 
 /// The `(stat, weapon_mask_set, two_handed)` triples a skill contributes.
-fn conditioned(skills: &crate::data::skill_data::SkillData, id: i32, level: i32) -> Vec<(Stat, bool, bool)> {
+fn conditioned(
+    skills: &crate::data::skill_data::SkillData,
+    id: i32,
+    level: i32,
+) -> Vec<(Stat, bool, bool)> {
     skills
         .get(id, level)
         .unwrap_or_else(|| panic!("skill {id} level {level} loads"))
         .effects
         .iter()
         .filter_map(|e| match e {
-            SkillEffect::StatModifier(m) if m.two_handed => Some((m.stat, m.weapon_condition != 0, m.two_handed)),
+            SkillEffect::StatModifier(m) if m.two_handed => {
+                Some((m.stat, m.weapon_condition != 0, m.two_handed))
+            }
             _ => None,
         })
         .collect()
@@ -44,8 +48,14 @@ fn the_three_carriers_produce_two_handed_modifiers() {
     // `rage_grants_nothing_at_level_one`), so level 1 would prove nothing.
     for id in [94, 176, 293] {
         let got = conditioned(&skills, id, 2);
-        assert!(!got.is_empty(), "skill {id} contributes something two-handed");
-        assert!(got.iter().all(|(_, weapon_gated, _)| *weapon_gated), "skill {id}: every one is weapon-gated too");
+        assert!(
+            !got.is_empty(),
+            "skill {id} contributes something two-handed"
+        );
+        assert!(
+            got.iter().all(|(_, weapon_gated, _)| *weapon_gated),
+            "skill {id}: every one is weapon-gated too"
+        );
         assert!(
             got.iter().any(|(s, _, _)| *s == Stat::PhysicalAttack),
             "skill {id} grants pAtk: {got:?}"
@@ -54,7 +64,9 @@ fn the_three_carriers_produce_two_handed_modifiers() {
     // Frenzy and the Mastery add accuracy on top; Rage does not.
     for id in [176, 293] {
         assert!(
-            conditioned(&skills, id, 2).iter().any(|(s, _, _)| *s == Stat::AccuracyCombat),
+            conditioned(&skills, id, 2)
+                .iter()
+                .any(|(s, _, _)| *s == Stat::AccuracyCombat),
             "skill {id} grants accuracy too"
         );
     }
@@ -68,7 +80,10 @@ fn the_three_carriers_produce_two_handed_modifiers() {
 fn rage_grants_nothing_at_level_one() {
     let skills = dist_skills();
     assert!(conditioned(&skills, 94, 1).is_empty(), "level 1 is a no-op");
-    assert!(!conditioned(&skills, 94, 2).is_empty(), "level 2 starts granting");
+    assert!(
+        !conditioned(&skills, 94, 2).is_empty(),
+        "level 2 starts granting"
+    );
 }
 
 /// Rage 94 and Frenzy 176 carry **both** the Blunt and the Sword variant, so
@@ -89,7 +104,10 @@ fn rage_and_frenzy_cover_both_weapon_families() {
             })
             .collect();
         let distinct: std::collections::HashSet<u32> = masks.iter().copied().collect();
-        assert!(distinct.len() >= 2, "skill {id} carries both a blunt and a sword variant: {distinct:?}");
+        assert!(
+            distinct.len() >= 2,
+            "skill {id} carries both a blunt and a sword variant: {distinct:?}"
+        );
     }
 }
 
@@ -130,13 +148,20 @@ fn the_slot_condition_reads_the_weapon_bodypart() {
     // A two-handed weapon really is marked `lrhand` in the datapack, and a
     // one-handed one is not — the premise the condition rests on.
     let two_handed = (1..=1000).find(|&id| {
-        items.get(id).is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
+        items
+            .get(id)
+            .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_LR_HAND)
     });
     let one_handed = (1..=1000).find(|&id| {
-        items.get(id).is_some_and(|t| t.body_part == crate::data::item_data::SLOT_R_HAND)
+        items
+            .get(id)
+            .is_some_and(|t| t.body_part == crate::data::item_data::SLOT_R_HAND)
     });
     assert!(two_handed.is_some(), "the dist has two-handed weapons");
-    assert!(one_handed.is_some(), "and one-handed ones, which must not qualify");
+    assert!(
+        one_handed.is_some(),
+        "and one-handed ones, which must not qualify"
+    );
     assert_ne!(two_handed, one_handed);
 }
 
@@ -148,7 +173,9 @@ fn an_unconditioned_modifier_is_not_two_handed_gated() {
     // Death Whisper 1242: a plain crit-damage buff, no conditions at all.
     let dw = skills.get(1242, 1).expect("Death Whisper loads");
     assert!(
-        dw.effects.iter().all(|e| !matches!(e, SkillEffect::StatModifier(m) if m.two_handed)),
+        dw.effects
+            .iter()
+            .all(|e| !matches!(e, SkillEffect::StatModifier(m) if m.two_handed)),
         "no stray two-handed gating"
     );
 }

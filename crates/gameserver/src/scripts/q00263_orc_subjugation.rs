@@ -10,8 +10,12 @@ const KAYLEEN: i32 = 30346;
 const ORC_AMULET: i32 = 1116;
 const ORC_NECKLACE: i32 = 1117;
 /// monster id → dropped item.
-const MONSTERS: [(i32, i32); 4] =
-    [(20385, ORC_AMULET), (20386, ORC_NECKLACE), (20387, ORC_NECKLACE), (20388, ORC_NECKLACE)];
+const MONSTERS: [(i32, i32); 4] = [
+    (20385, ORC_AMULET),
+    (20386, ORC_NECKLACE),
+    (20387, ORC_NECKLACE),
+    (20388, ORC_NECKLACE),
+];
 const MIN_LEVEL: i32 = 8;
 const RACE_DARK_ELF: i32 = 2;
 
@@ -69,7 +73,11 @@ impl QuestScript for Q00263OrcSubjugation {
             return;
         }
         if ctx.roll(10) > 4 {
-            let item = MONSTERS.iter().find(|(id, _)| *id == ctx.npc_id).map(|(_, i)| *i).unwrap_or(ORC_AMULET);
+            let item = MONSTERS
+                .iter()
+                .find(|(id, _)| *id == ctx.npc_id)
+                .map(|(_, i)| *i)
+                .unwrap_or(ORC_AMULET);
             ctx.give_items(item, 1);
             ctx.play_sound(quest_sounds::ITEMGET);
         }
@@ -94,7 +102,9 @@ impl QuestScript for Q00263OrcSubjugation {
             let necklaces = ctx.quest_items_count(ORC_NECKLACE);
             return Some(if amulets + necklaces > 0 {
                 ctx.give_adena(
-                    (amulets * 8) + (necklaces * 10) + if amulets + necklaces >= 10 { 1100 } else { 0 },
+                    (amulets * 8)
+                        + (necklaces * 10)
+                        + if amulets + necklaces >= 10 { 1100 } else { 0 },
                     true,
                 );
                 ctx.take_items(ORC_AMULET, -1);

@@ -166,7 +166,10 @@ async fn create_game_account(
     .await?;
 
     tracing::info!("created game account {login} for {subject}");
-    Ok((StatusCode::CREATED, Json(CreateGameAccountResponse { login })))
+    Ok((
+        StatusCode::CREATED,
+        Json(CreateGameAccountResponse { login }),
+    ))
 }
 
 async fn list_characters(

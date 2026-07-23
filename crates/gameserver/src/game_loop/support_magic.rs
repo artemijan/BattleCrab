@@ -76,15 +76,28 @@ const BLESSING_OF_PROTECTION: (i32, i32) = (5182, 1); // CommonSkill.BLESSING_OF
 /// `bypasshandlers/SupportBlessing.useBypass`: Blessing of Protection, gated on
 /// level ≤ 39 and not-yet-2nd-class.
 pub(crate) fn give_blessing(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32) {
-    let Some(player) = world.objects.get_component::<Player>(&object_id) else { return };
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
+        return;
+    };
     let level = player.level;
     let class_id = player.class_id;
     // Java `player.getClassId().level() >= 2` — completed the 2nd (or 3rd)
     // class transfer. THIRD/FOURTH_CLASS_GROUP == classId.level() 2/3.
-    let second_class_done = world.data.categories.contains("THIRD_CLASS_GROUP", class_id)
-        || world.data.categories.contains("FOURTH_CLASS_GROUP", class_id);
+    let second_class_done = world
+        .data
+        .categories
+        .contains("THIRD_CLASS_GROUP", class_id)
+        || world
+            .data
+            .categories
+            .contains("FOURTH_CLASS_GROUP", class_id);
     if level > 39 || second_class_done {
-        send_default_html(world, client_id, npc_object_id, "SupportBlessingHighLevel.htm");
+        send_default_html(
+            world,
+            client_id,
+            npc_object_id,
+            "SupportBlessingHighLevel.htm",
+        );
         return;
     }
     cast_from_npc(world, npc_object_id, object_id, BLESSING_OF_PROTECTION);
@@ -92,8 +105,16 @@ pub(crate) fn give_blessing(world: &mut World, client_id: u32, object_id: i32, n
 
 /// `bypasshandlers/SupportMagic.makeSupportMagic`. `is_summon` = the
 /// `SupportMagicServitor` verb.
-pub(crate) fn support_magic(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32, is_summon: bool) {
-    let Some(player) = world.objects.get_component::<Player>(&object_id) else { return };
+pub(crate) fn support_magic(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    npc_object_id: i32,
+    is_summon: bool,
+) {
+    let Some(player) = world.objects.get_component::<Player>(&object_id) else {
+        return;
+    };
     // Java: `player.isCursedWeaponEquipped()` blocks the whole bypass.
     if player.cursed_weapon_equipped_id != 0 {
         return;
@@ -117,7 +138,11 @@ pub(crate) fn support_magic(world: &mut World, client_id: u32, object_id: i32, n
     }
     // Java `player.getClassId().level() == 3` (custom message). FOURTH_CLASS_GROUP
     // == classId.level() 3; unreachable in Interlude but ported faithfully.
-    if world.data.categories.contains("FOURTH_CLASS_GROUP", class_id) {
+    if world
+        .data
+        .categories
+        .contains("FOURTH_CLASS_GROUP", class_id)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::system_message_with(
                 server_packets::sm_ids::S1_TEXT,
@@ -149,15 +174,26 @@ pub(crate) fn support_magic(world: &mut World, client_id: u32, object_id: i32, n
 /// Java `npc.setTarget(target); SkillCaster.triggerCast(npc, target, skill)`:
 /// broadcast the NPC's cast animation, then apply the skill's effects on the
 /// target (no cast bar, no MP cost — the trigger-cast path).
-fn cast_from_npc(world: &mut World, npc_object_id: i32, target_oid: i32, (skill_id, skill_level): (i32, i32)) {
+fn cast_from_npc(
+    world: &mut World,
+    npc_object_id: i32,
+    target_oid: i32,
+    (skill_id, skill_level): (i32, i32),
+) {
     let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
         warn!("SupportMagic: skill {skill_id}/{skill_level} missing from skill data.");
         return;
     };
     // Animation: MagicSkillUse from the NPC onto the target (Java's
     // `broadcastPacket(new MagicSkillUse(...))` inside triggerCast).
-    let npc_pos = world.objects.get_component::<Position>(&npc_object_id).copied();
-    let target_pos = world.objects.get_component::<Position>(&target_oid).copied();
+    let npc_pos = world
+        .objects
+        .get_component::<Position>(&npc_object_id)
+        .copied();
+    let target_pos = world
+        .objects
+        .get_component::<Position>(&target_oid)
+        .copied();
     if let (Some(np), Some(tp)) = (npc_pos, target_pos) {
         let pkt = server_packets::magic_skill_use_raw(
             (npc_object_id, np.x, np.y, np.z),
@@ -174,9 +210,10 @@ fn cast_from_npc(world: &mut World, npc_object_id: i32, target_oid: i32, (skill_
 /// Serve a `data/html/default/<file>` window through the clicked NPC (Java
 /// `npc.showChatWindow(player, "data/html/default/...")`).
 fn send_default_html(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
-    let html = crate::data::htm_cache::read_htm(format!("{}data/html/default/{file}", world.data.root))
-        .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
-        .replace("%objectId%", &npc_object_id.to_string());
+    let html =
+        crate::data::htm_cache::read_htm(format!("{}data/html/default/{file}", world.data.root))
+            .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
+            .replace("%objectId%", &npc_object_id.to_string());
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::npc_html_message(npc_object_id, &html));
     }

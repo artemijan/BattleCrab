@@ -30,7 +30,12 @@ fn ex(sub: i16) -> PacketWriter {
 /// mask (always 0 — augmentation/elemental/enchant-effect/visual-id are later
 /// milestones), object id, item id, T1, count, type2, customType1, equipped,
 /// body part, enchant level, customType2, mana, time, available.
-pub(crate) fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, template: &ItemTemplate, equipped: bool) {
+pub(crate) fn write_item_entry(
+    w: &mut PacketWriter,
+    item: &ItemInstance,
+    template: &ItemTemplate,
+    equipped: bool,
+) {
     w.write_u8(0); // mask
     w.write_i32(item.object_id);
     w.write_i32(item.item_id);
@@ -53,7 +58,11 @@ pub(crate) fn write_item_entry(w: &mut PacketWriter, item: &ItemInstance, templa
 /// is Java's `_showWindow`: the enter-world burst sends it false; a client
 /// `RequestItemList` (inventory window opened) sends it true so the client
 /// pops the inventory window.
-pub fn item_list(inventory: &crate::model::inventory::Inventory, data: &GameData, open: bool) -> Vec<u8> {
+pub fn item_list(
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+    open: bool,
+) -> Vec<u8> {
     let entries: Vec<_> = inventory
         .items()
         .iter()
@@ -85,8 +94,12 @@ pub fn inventory_update(
     w.write_u8(0x21);
     w.write_i16(changed_object_ids.len() as i16);
     for &object_id in changed_object_ids {
-        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else { continue };
-        let Some(template) = data.item_data.get(item.item_id) else { continue };
+        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+            continue;
+        };
+        let Some(template) = data.item_data.get(item.item_id) else {
+            continue;
+        };
         let equipped = inventory.paperdoll_slot_of(object_id).is_some();
         w.write_i16(2); // change type: modify
         write_item_entry(&mut w, item, template, equipped);
@@ -111,7 +124,9 @@ pub fn inventory_update_changes(
             ItemChange::Modified(item) => (2i16, item),
             ItemChange::Removed(item) => (3i16, item),
         };
-        let Some(template) = data.item_data.get(item.item_id) else { continue };
+        let Some(template) = data.item_data.get(item.item_id) else {
+            continue;
+        };
         w.write_i16(kind);
         write_item_entry(&mut w, item, template, false);
     }
@@ -141,7 +156,8 @@ pub fn skill_list(
     w.write_i32(merged.len() as i32);
     for (&skill_id, &level) in &merged {
         let skill = data.skill_data.get(skill_id, level);
-        let passive = skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
+        let passive =
+            skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
         w.write_i32(passive as i32);
         w.write_i16(level as i16);
         // The enchant sub-level (1001–3020) — how the client shows the +N.
@@ -205,7 +221,11 @@ pub fn ex_enchant_skill_info(
     for &route in route_starts {
         let route_id = route / 1000;
         let current_route_id = sub / 1000;
-        let sub_level = if current_sub > 0 { route + (current_sub % 1000) - 1 } else { route };
+        let sub_level = if current_sub > 0 {
+            route + (current_sub % 1000) - 1
+        } else {
+            route
+        };
         w.write_i16(level as i16);
         w.write_i16(if current_route_id != route_id {
             sub_level as i16
@@ -253,8 +273,14 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
 /// `data/skill_tree.rs::available_skills`). No entry carries remove-skills or
 /// dual-class gates (confirmed absent from the class trees), so those two
 /// counts are always zero.
-pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBook, data: &GameData) -> Vec<u8> {
-    let learnable = data.skill_trees.available_skills(p.class_id, p.level, &skills.0);
+pub fn acquire_skill_list(
+    p: &Player,
+    skills: &crate::model::components::SkillBook,
+    data: &GameData,
+) -> Vec<u8> {
+    let learnable = data
+        .skill_trees
+        .available_skills(p.class_id, p.level, &skills.0);
     let mut w = PacketWriter::new();
     w.write_u8(0x90);
     w.write_i16(learnable.len() as i16);
@@ -264,10 +290,10 @@ pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBo
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
         w.write_u8(0); // dual class level
-        // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
-        // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
-        // (item id + count) so the client shows/charges the book; we don't parse
-        // the `<item>` id/count yet, so the required-item list stays empty.
+                       // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
+                       // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
+                       // (item id + count) so the client shows/charges the book; we don't parse
+                       // the `<item>` id/count yet, so the required-item list stays empty.
         w.write_u8(0); // required item count
         w.write_u8(0); // remove-skill count
     }
@@ -278,7 +304,12 @@ pub fn acquire_skill_list(p: &Player, skills: &crate::model::components::SkillBo
 /// modeled yet); `charges` (G19, `Player.charges` — the Force resource) and
 /// the weapon/armor grade-penalty bytes (`refresh_expertise_penalty`) carry
 /// real state.
-pub fn etc_status_update(charges: i32, weapon_grade_penalty: i32, armor_grade_penalty: i32, message_refusal: bool) -> Vec<u8> {
+pub fn etc_status_update(
+    charges: i32,
+    weapon_grade_penalty: i32,
+    armor_grade_penalty: i32,
+    message_refusal: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(0xF9);
     w.write_u8(charges as u8);
@@ -287,9 +318,9 @@ pub fn etc_status_update(charges: i32, weapon_grade_penalty: i32, armor_grade_pe
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
     w.write_u8(0); // charged souls
-    // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
-    // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
-    // modeled; this is what draws the chat-block icon.
+                   // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
+                   // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
+                   // modeled; this is what draws the chat-block icon.
     w.write_u8(if message_refusal { 1 } else { 0 });
     w.into_bytes()
 }
@@ -305,7 +336,9 @@ pub fn quest_list(
     let mut active: Vec<(i32, i32)> = Vec::new();
     let mut one_time_mask = [0u8; 128];
     for (name, qs) in &quests.0 {
-        let Some(quest_id) = registry.quest_id(name) else { continue };
+        let Some(quest_id) = registry.quest_id(name) else {
+            continue;
+        };
         if quest_id <= 0 {
             continue;
         }
@@ -457,7 +490,10 @@ pub fn ex_get_bookmark_info() -> Vec<u8> {
 
 /// `ExQuestItemList` (0xC7) — the quest-inventory tab: the `is_quest_item`
 /// complement of `item_list`.
-pub fn ex_quest_item_list(inventory: &crate::model::inventory::Inventory, data: &GameData) -> Vec<u8> {
+pub fn ex_quest_item_list(
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+) -> Vec<u8> {
     let entries: Vec<_> = inventory
         .items()
         .iter()
@@ -524,7 +560,11 @@ pub fn ex_user_info_inven_weight(
     let load: i64 = inventory
         .items()
         .iter()
-        .map(|item| data.item_data.get(item.item_id).map_or(0, |t| t.weight as i64 * item.count))
+        .map(|item| {
+            data.item_data
+                .get(item.item_id)
+                .map_or(0, |t| t.weight as i64 * item.count)
+        })
         .sum();
     let mut w = ex(0x166);
     w.write_i32(object_id);
@@ -545,7 +585,11 @@ pub fn ex_user_info_inven_weight(
 /// warehouse deposit and private-store listing aren't capacity-checked
 /// anywhere in this port yet (`TODO(G29+)`: `Warehouse.java`'s over-limit
 /// reject on deposit, `PrivateStore`'s slot-count reject on `handle_set_list`).
-pub fn ex_storage_max_count(race: i32, cfg: &crate::config::CharacterConfig, mods: &crate::model::components::StatModifiers) -> Vec<u8> {
+pub fn ex_storage_max_count(
+    race: i32,
+    cfg: &crate::config::CharacterConfig,
+    mods: &crate::model::components::StatModifiers,
+) -> Vec<u8> {
     use crate::model::stats::Stat;
     let is_dwarf = race == crate::enums::Race::Dwarf as i32;
     let f = |stat: Stat, base: i32| crate::model::finalize(mods, stat, base as f64) as i32;
@@ -575,7 +619,10 @@ pub fn ex_adena_inven_count(inventory: &crate::model::inventory::Inventory) -> V
 
 /// `ExUserInfoEquipSlot` (0x156) — masked, all 33 `InventorySlot` components,
 /// values read from the real paperdoll.
-pub fn ex_user_info_equip_slot(object_id: i32, inventory: &crate::model::inventory::Inventory) -> Vec<u8> {
+pub fn ex_user_info_equip_slot(
+    object_id: i32,
+    inventory: &crate::model::inventory::Inventory,
+) -> Vec<u8> {
     let mut w = ex(0x156);
     w.write_i32(object_id);
     w.write_i16(InventorySlot::VALUES.len() as i16);
@@ -647,16 +694,21 @@ mod tests {
             is_quest_item: false,
             price: 0,
             handler: item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
         }
     }
 
@@ -685,9 +737,21 @@ mod tests {
             }
             offset += block_len;
         }
-        assert_eq!(offset, bytes.len(), "block lengths must account for every byte written");
-        assert_eq!(found_lear, Some((100, 501)), "first earring fills LEar (equip_item fills left first)");
-        assert_eq!(found_rear, Some((101, 502)), "second earring fills the free REar slot");
+        assert_eq!(
+            offset,
+            bytes.len(),
+            "block lengths must account for every byte written"
+        );
+        assert_eq!(
+            found_lear,
+            Some((100, 501)),
+            "first earring fills LEar (equip_item fills left first)"
+        );
+        assert_eq!(
+            found_rear,
+            Some((101, 502)),
+            "second earring fills the free REar slot"
+        );
     }
 
     // ---- Java ground-truth golden (jewelry-in-inventory differential) ----
@@ -707,30 +771,84 @@ mod tests {
 
     /// `(InventorySlot name, mask bit, backing paperdoll index)` in wire order.
     const JAVA_SLOTS: [(&str, usize, usize); 33] = [
-        ("UNDER", 0, 0), ("REAR", 1, 8), ("LEAR", 2, 9), ("NECK", 3, 4),
-        ("RFINGER", 4, 13), ("LFINGER", 5, 14), ("HEAD", 6, 1), ("RHAND", 7, 5),
-        ("LHAND", 8, 7), ("GLOVES", 9, 10), ("CHEST", 10, 6), ("LEGS", 11, 11),
-        ("FEET", 12, 12), ("CLOAK", 13, 23), ("LRHAND", 14, 5), ("HAIR", 15, 2),
-        ("HAIR2", 16, 3), ("RBRACELET", 17, 16), ("LBRACELET", 18, 15),
-        ("DECO1", 19, 17), ("DECO2", 20, 18), ("DECO3", 21, 19), ("DECO4", 22, 20),
-        ("DECO5", 23, 21), ("DECO6", 24, 22), ("BELT", 25, 24), ("BROOCH", 26, 25),
-        ("BROOCH_JEWEL", 27, 26), ("BROOCH_JEWEL2", 28, 27), ("BROOCH_JEWEL3", 29, 28),
-        ("BROOCH_JEWEL4", 30, 29), ("BROOCH_JEWEL5", 31, 30), ("BROOCH_JEWEL6", 32, 31),
+        ("UNDER", 0, 0),
+        ("REAR", 1, 8),
+        ("LEAR", 2, 9),
+        ("NECK", 3, 4),
+        ("RFINGER", 4, 13),
+        ("LFINGER", 5, 14),
+        ("HEAD", 6, 1),
+        ("RHAND", 7, 5),
+        ("LHAND", 8, 7),
+        ("GLOVES", 9, 10),
+        ("CHEST", 10, 6),
+        ("LEGS", 11, 11),
+        ("FEET", 12, 12),
+        ("CLOAK", 13, 23),
+        ("LRHAND", 14, 5),
+        ("HAIR", 15, 2),
+        ("HAIR2", 16, 3),
+        ("RBRACELET", 17, 16),
+        ("LBRACELET", 18, 15),
+        ("DECO1", 19, 17),
+        ("DECO2", 20, 18),
+        ("DECO3", 21, 19),
+        ("DECO4", 22, 20),
+        ("DECO5", 23, 21),
+        ("DECO6", 24, 22),
+        ("BELT", 25, 24),
+        ("BROOCH", 26, 25),
+        ("BROOCH_JEWEL", 27, 26),
+        ("BROOCH_JEWEL2", 28, 27),
+        ("BROOCH_JEWEL3", 29, 28),
+        ("BROOCH_JEWEL4", 30, 29),
+        ("BROOCH_JEWEL5", 31, 30),
+        ("BROOCH_JEWEL6", 32, 31),
     ];
 
     /// `(object_id, item_id)` block each component reports when paperdoll slot
     /// `i` holds `(1000 + i, 2000 + i)`. RHAND and LRHAND repeat paperdoll 5.
     const JAVA_EQUIP_BLOCKS: [(i32, i32); 33] = [
-        (1000, 2000), (1008, 2008), (1009, 2009), (1004, 2004), (1013, 2013),
-        (1014, 2014), (1001, 2001), (1005, 2005), (1007, 2007), (1010, 2010),
-        (1006, 2006), (1011, 2011), (1012, 2012), (1023, 2023), (1005, 2005),
-        (1002, 2002), (1003, 2003), (1016, 2016), (1015, 2015), (1017, 2017),
-        (1018, 2018), (1019, 2019), (1020, 2020), (1021, 2021), (1022, 2022),
-        (1024, 2024), (1025, 2025), (1026, 2026), (1027, 2027), (1028, 2028),
-        (1029, 2029), (1030, 2030), (1031, 2031),
+        (1000, 2000),
+        (1008, 2008),
+        (1009, 2009),
+        (1004, 2004),
+        (1013, 2013),
+        (1014, 2014),
+        (1001, 2001),
+        (1005, 2005),
+        (1007, 2007),
+        (1010, 2010),
+        (1006, 2006),
+        (1011, 2011),
+        (1012, 2012),
+        (1023, 2023),
+        (1005, 2005),
+        (1002, 2002),
+        (1003, 2003),
+        (1016, 2016),
+        (1015, 2015),
+        (1017, 2017),
+        (1018, 2018),
+        (1019, 2019),
+        (1020, 2020),
+        (1021, 2021),
+        (1022, 2022),
+        (1024, 2024),
+        (1025, 2025),
+        (1026, 2026),
+        (1027, 2027),
+        (1028, 2028),
+        (1029, 2029),
+        (1030, 2030),
+        (1031, 2031),
     ];
 
-    fn paperdoll_row(paperdoll_slot: i32, object_id: i32, item_id: i32) -> crate::character::ItemRow {
+    fn paperdoll_row(
+        paperdoll_slot: i32,
+        object_id: i32,
+        item_id: i32,
+    ) -> crate::character::ItemRow {
         crate::character::ItemRow {
             object_id,
             item_id,
@@ -755,7 +873,11 @@ mod tests {
         assert_eq!(InventorySlot::VALUES.len(), JAVA_SLOTS.len());
         for (slot, &(name, bit, paperdoll)) in InventorySlot::VALUES.iter().zip(JAVA_SLOTS.iter()) {
             assert_eq!(slot.mask(), bit, "{name}: mask bit");
-            assert_eq!(slot.slot() as usize, paperdoll, "{name}: backing paperdoll slot");
+            assert_eq!(
+                slot.slot() as usize,
+                paperdoll,
+                "{name}: backing paperdoll slot"
+            );
         }
         assert_eq!(
             masks::build_mask::<5>(InventorySlot::VALUES.iter().map(|s| s.mask())),
@@ -776,7 +898,11 @@ mod tests {
         let bytes = ex_user_info_equip_slot(3001, &inv);
 
         // Header: 1 (EX) + 2 (sub) + 4 (object id) + 2 (component count).
-        assert_eq!(i16::from_le_bytes([bytes[7], bytes[8]]), 33, "component count");
+        assert_eq!(
+            i16::from_le_bytes([bytes[7], bytes[8]]),
+            33,
+            "component count"
+        );
         // Mask bytes.
         assert_eq!(&bytes[9..14], &JAVA_MASK_ALL_SLOTS, "mask bytes");
 
@@ -787,7 +913,12 @@ mod tests {
             let obj = i32::from_le_bytes(bytes[offset + 2..offset + 6].try_into().unwrap());
             let item = i32::from_le_bytes(bytes[offset + 6..offset + 10].try_into().unwrap());
             assert_eq!(block_len, 22, "block {i} length");
-            assert_eq!((obj, item), (exp_obj, exp_item), "block {i} ({})", JAVA_SLOTS[i].0);
+            assert_eq!(
+                (obj, item),
+                (exp_obj, exp_item),
+                "block {i} ({})",
+                JAVA_SLOTS[i].0
+            );
             offset += block_len as usize;
         }
         assert_eq!(offset, bytes.len(), "no trailing bytes");

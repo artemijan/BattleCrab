@@ -5,7 +5,7 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, Casting, GroundSkillTarget, SummonerRef, Vitals};
+use crate::model::components::{Buffs, Casting, SummonerRef};
 use crate::model::skill::{
     AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillEffect, TargetType,
 };
@@ -32,7 +32,8 @@ fn register_totem_template(world: &mut World) {
     t.base_mp_max = 1345.0;
     t.ai_params.insert("skill_delay".into(), "0.2".into());
     t.ai_params.insert("despawn_time".into(), "1".into());
-    t.ai_skill_params.insert("union_skill".into(), (AURA_SKILL, 1));
+    t.ai_skill_params
+        .insert("union_skill".into(), (AURA_SKILL, 1));
     world.data.npc_data.insert_for_test(t);
 }
 
@@ -54,15 +55,17 @@ fn aura_skill() -> Skill {
         abnormal_level: 1,
         abnormal_type: "MULTI_DEBUFF".into(),
         magic_type: 2,
-        effects: vec![SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
-            stat: Stat::RunSpeed,
-            mode: StatModifierType::Per,
-            amount: -50.0,
-            armor_condition: 0,
-            weapon_condition: 0,
-            qualifier: None,
-            two_handed: false,
-        })],
+        effects: vec![SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: Stat::RunSpeed,
+                mode: StatModifierType::Per,
+                amount: -50.0,
+                armor_condition: 0,
+                weapon_condition: 0,
+                qualifier: None,
+                two_handed: false,
+            },
+        )],
         ..Default::default()
     }
 }
@@ -79,7 +82,11 @@ fn symbol_skill() -> Skill {
         effect_range: 1000,
         hit_time: 500,
         magic_type: 2,
-        effects: vec![SkillEffect::SummonNpc { npc_id: TOTEM_NPC, npc_count: 1, despawn_delay: 0 }],
+        effects: vec![SkillEffect::SummonNpc {
+            npc_id: TOTEM_NPC,
+            npc_count: 1,
+            despawn_delay: 0,
+        }],
         ..Default::default()
     }
 }
@@ -114,17 +121,12 @@ fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
 
 /// The totem entity standing at (x, y), if any.
 fn totem_at(world: &mut World) -> Option<i32> {
-    world
-        .npc_regions
-        .values()
-        .flatten()
-        .copied()
-        .find(|oid| {
-            world
-                .objects
-                .get_component::<crate::model::npc::Npc>(oid)
-                .is_some_and(|n| n.npc_id == TOTEM_NPC)
-        })
+    world.npc_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(oid)
+            .is_some_and(|n| n.npc_id == TOTEM_NPC)
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -141,9 +143,14 @@ fn day_of_doom_parses_with_its_totem_and_gate() {
     let sd = crate::data::skill_data::SkillData::load_from(DIST);
     let dod = sd.get(1422, 1).expect("Day of Doom lvl 1");
     assert!(
-        dod.effects
-            .iter()
-            .any(|e| matches!(e, SkillEffect::SummonNpc { npc_id: 13028, npc_count: 1, .. })),
+        dod.effects.iter().any(|e| matches!(
+            e,
+            SkillEffect::SummonNpc {
+                npc_id: 13028,
+                npc_count: 1,
+                ..
+            }
+        )),
         "SummonNpc totem 13028: {:?}",
         dod.effects
     );
@@ -166,7 +173,10 @@ fn day_of_doom_parses_with_its_totem_and_gate() {
     // The dist declares 5145 in BOTH places — as the union_skill parameter
     // and again in `<skillList>` — so the parameter parse must not have eaten
     // the skill-list row (or vice versa).
-    assert!(totem.skill_list.contains(&(5145, 1)), "the skillList row survives alongside the parameter");
+    assert!(
+        totem.skill_list.contains(&(5145, 1)),
+        "the skillList row survives alongside the parameter"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -193,7 +203,10 @@ fn a_seal_pulses_its_aura_and_expires() {
         CID,
         &ground_body(500, 0, 0, SYMBOL_SKILL),
     );
-    assert!(world.objects.has_component::<Casting>(&CASTER), "the symbol cast starts");
+    assert!(
+        world.objects.has_component::<Casting>(&CASTER),
+        "the symbol cast starts"
+    );
 
     // Past hit (500 ms) + cancel + the first pulses: 3 s covers spawn and a
     // few 200 ms pulses, while the totem (1 s lifetime from spawn) also dies
@@ -201,12 +214,23 @@ fn a_seal_pulses_its_aura_and_expires() {
     advance_ticks(&mut world, 12);
     let totem = totem_at(&mut world).expect("the totem spawned");
     assert_eq!(
-        world.objects.get_component::<SummonerRef>(&totem).map(|s| s.0),
+        world
+            .objects
+            .get_component::<SummonerRef>(&totem)
+            .map(|s| s.0),
         Some(CASTER),
         "the totem knows its owner"
     );
-    let pos = world.objects.get_component::<Position>(&totem).copied().unwrap();
-    assert_eq!((pos.x, pos.y), (500, 0), "it stands at the aimed point, not on the caster");
+    let pos = world
+        .objects
+        .get_component::<Position>(&totem)
+        .copied()
+        .unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (500, 0),
+        "it stands at the aimed point, not on the caster"
+    );
 
     advance_ticks(&mut world, 5);
     assert!(
@@ -230,7 +254,7 @@ fn walking_into_a_live_seal_gets_cursed() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 900, 0); // far away
-    // Long-lived totem for this one, so the walk-in happens mid-life.
+                                                                   // Long-lived totem for this one, so the walk-in happens mid-life.
     world.data.npc_data.insert_for_test({
         let mut t = crate::data::npc_data::default_template(TOTEM_NPC);
         t.type_name = "EffectPoint".into();
@@ -238,7 +262,8 @@ fn walking_into_a_live_seal_gets_cursed() {
         t.base_mp_max = 1345.0;
         t.ai_params.insert("skill_delay".into(), "0.2".into());
         t.ai_params.insert("despawn_time".into(), "60".into());
-        t.ai_skill_params.insert("union_skill".into(), (AURA_SKILL, 1));
+        t.ai_skill_params
+            .insert("union_skill".into(), (AURA_SKILL, 1));
         t
     });
     world.data.skill_data.insert_for_test(aura_skill());
@@ -255,7 +280,11 @@ fn walking_into_a_live_seal_gets_cursed() {
         "at 400 units out, the first pulses miss"
     );
 
-    world.objects.get_component_mut::<Position>(&BYSTANDER).unwrap().x = 520;
+    world
+        .objects
+        .get_component_mut::<Position>(&BYSTANDER)
+        .unwrap()
+        .x = 520;
     advance_ticks(&mut world, 10);
     assert!(
         has_buff(&world, BYSTANDER, AURA_SKILL),
@@ -297,7 +326,11 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
     );
 
     // Move the existing totem out to 250: allowed.
-    world.objects.get_component_mut::<Position>(&NPC_OID).unwrap().x = 250;
+    world
+        .objects
+        .get_component_mut::<Position>(&NPC_OID)
+        .unwrap()
+        .x = 250;
     crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
         &mut world,
         CID,

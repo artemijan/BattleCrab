@@ -80,7 +80,10 @@ fn cors_layer(state: &AppState) -> CorsLayer {
         .allow_origin(allow_origin)
         .allow_credentials(true)
         .allow_methods([Method::GET, Method::POST, Method::OPTIONS])
-        .allow_headers([header::CONTENT_TYPE, header::HeaderName::from_static("x-requested-with")])
+        .allow_headers([
+            header::CONTENT_TYPE,
+            header::HeaderName::from_static("x-requested-with"),
+        ])
         .max_age(Duration::from_secs(600))
 }
 

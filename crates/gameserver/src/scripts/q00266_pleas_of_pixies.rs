@@ -35,9 +35,9 @@ fn drops(npc_id: i32) -> &'static [(i32, i64)] {
 /// `(item, count)` prizes indexed by the reward roll's bucket.
 fn reward(bucket: i32) -> &'static [(i32, i64)] {
     match bucket {
-        0 => &[(1336, 1), (ADENA, 100)],  // Glass Shard + 100a (jackpot chime, ironically)
-        1 => &[(1339, 1), (ADENA, 300)],  // Onyx + 300a
-        2 => &[(1338, 1), (ADENA, 500)],  // Blue Onyx + 500a
+        0 => &[(1336, 1), (ADENA, 100)], // Glass Shard + 100a (jackpot chime, ironically)
+        1 => &[(1339, 1), (ADENA, 300)], // Onyx + 300a
+        2 => &[(1338, 1), (ADENA, 500)], // Blue Onyx + 500a
         _ => &[(1337, 1), (ADENA, 5000)], // Emerald + 5000a
     }
 }

@@ -57,15 +57,30 @@ fn nuke(id: i32, power: f64, over_hit: bool) -> Skill {
     }
 }
 
-fn overhit_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn overhit_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
     world.data.experience = crate::data::ExperienceData::from_table(
-        vec![0, 0, 1000, 5000, 20_000, 100_000, 500_000, 2_000_000, 10_000_000],
+        vec![
+            0, 0, 1000, 5000, 20_000, 100_000, 500_000, 2_000_000, 10_000_000,
+        ],
         8,
     );
-    world.data.skill_data.insert_for_test(nuke(OVERHIT_SKILL, 5000.0, true));
-    world.data.skill_data.insert_for_test(nuke(PLAIN_SKILL, 5000.0, false));
-    world.data.skill_data.insert_for_test(nuke(WEAK_OVERHIT_SKILL, 1.0, true));
+    world
+        .data
+        .skill_data
+        .insert_for_test(nuke(OVERHIT_SKILL, 5000.0, true));
+    world
+        .data
+        .skill_data
+        .insert_for_test(nuke(PLAIN_SKILL, 5000.0, false));
+    world
+        .data
+        .skill_data
+        .insert_for_test(nuke(WEAK_OVERHIT_SKILL, 1.0, true));
     (world, db, l)
 }
 
@@ -94,12 +109,23 @@ fn wounded_mob(world: &mut World, remaining_hp: f64) -> i32 {
         .get_component_mut::<crate::model::npc::AggroList>(&NPC_OID)
         .unwrap()
         .0
-        .insert(CASTER, crate::model::npc::AggroInfo { hate: 100.0, damage: 100.0 });
+        .insert(
+            CASTER,
+            crate::model::npc::AggroInfo {
+                hate: 100.0,
+                damage: 100.0,
+            },
+        );
     NPC_OID
 }
 
 fn cast(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world.data.skill_data.get(skill_id, 1).cloned().expect("registered");
+    let skill = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .cloned()
+        .expect("registered");
     // Pin the two rolls a `MagicalAttack` consumes: the magic crit (999 → no
     // crit, so the exp comparisons aren't skewed by a random doubling) and the
     // `MagicFailures` success roll (0 → lands). A resisted cast floors the
@@ -143,10 +169,14 @@ fn overhit_kill_pays_bonus_exp_and_announces() {
     let (with_overhit, pkts) = kill_for_exp(OVERHIT_SKILL, 5.0);
 
     assert!(plain > 0, "baseline kill paid exp: {plain}");
-    assert!(with_overhit > plain, "over-hit paid more ({with_overhit} vs {plain})");
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::OVER_HIT),
+        with_overhit > plain,
+        "over-hit paid more ({with_overhit} vs {plain})"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::OVER_HIT),
         "the killer is told it was an over-hit"
     );
 }

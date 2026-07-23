@@ -68,7 +68,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Character.ini `EnableModifySkillDuration`/`SkillDurationList`: bake the
     // per-skill `abnormalTime` overrides into the loaded skills (Java does this
     // in the `Skill` constructor). No-op when the list is empty/disabled.
-    data.skill_data.apply_skill_duration_list(&config.character.skill_duration_list);
+    data.skill_data
+        .apply_skill_duration_list(&config.character.skill_duration_list);
 
     // Java: print_section("Geodata") → GeoEngine.getInstance() (scans
     // GeoDataPath for `{x}_{y}.l2j` regions; missing files just stay null).
@@ -80,7 +81,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // `checkIfDoorsBetween` inside canSeeTarget/canMoveToTarget). The door
     // *entities* spawn on the game thread (`model::door::spawn_doors`).
     for t in &data.door_data.doors {
-        geo_engine.doors.register(t.id, t.node_x, t.node_y, t.z_min(), t.z_max(), t.open_by_default);
+        geo_engine.doors.register(
+            t.id,
+            t.node_x,
+            t.node_y,
+            t.z_min(),
+            t.z_max(),
+            t.open_by_default,
+        );
     }
     let geo = Arc::new(geo_engine);
 
@@ -100,8 +108,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Path-worker thread (Java: CellPathFinding, run synchronously there —
     // here the game thread talks to it through the channels above). Shares
     // the read-only geodata; exits when the game thread drops its sender.
-    let path_thread =
-        gameserver::geo::worker::spawn(geo.clone(), config.geoengine.path.clone(), path_req_rx, path_event_tx);
+    let path_thread = gameserver::geo::worker::spawn(
+        geo.clone(),
+        config.geoengine.path.clone(),
+        path_req_rx,
+        path_event_tx,
+    );
 
     print_section("Database");
     let db_thread = db::spawn(
@@ -168,7 +180,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         server_id: config.server_id,
         is_classic: (config.server.server_list_type & 0x400) == 0x400,
     });
-    let bind = format!("{}:{}", config.server.gameserver_hostname, config.server.port_game);
+    let bind = format!(
+        "{}:{}",
+        config.server.gameserver_hostname, config.server.port_game
+    );
     let listener = TcpListener::bind(&bind).await?;
     tokio::spawn(connection::accept_loop(listener, net_tx, net_cfg));
 
@@ -186,12 +201,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     shutdown.request();
     // Join the game thread so its final tick (drain + save) completes, then
     // stop the DB thread (which flushes and closes the pool).
-    tokio::task::spawn_blocking(move || game_thread.join()).await?.ok();
+    tokio::task::spawn_blocking(move || game_thread.join())
+        .await?
+        .ok();
     // The game thread's World held the last path-request sender, so the path
     // worker is already unblocking; then flush and stop the DB thread.
-    tokio::task::spawn_blocking(move || path_thread.join()).await?.ok();
+    tokio::task::spawn_blocking(move || path_thread.join())
+        .await?
+        .ok();
     let _ = db_tx.send(DbCommand::Shutdown);
-    tokio::task::spawn_blocking(move || db_thread.join()).await?.ok();
+    tokio::task::spawn_blocking(move || db_thread.join())
+        .await?
+        .ok();
     info!("GameServer: shutdown complete.");
     Ok(())
 }
@@ -213,7 +234,11 @@ fn resolve_datapack_root() -> String {
     const CONFIG: &str = gameserver::config::server::SERVER_CONFIG_FILE;
 
     if let Ok(root) = std::env::var("DATAPACK_ROOT") {
-        let root = if root.ends_with('/') { root } else { format!("{root}/") };
+        let root = if root.ends_with('/') {
+            root
+        } else {
+            format!("{root}/")
+        };
         info!("GameServer: datapack root from DATAPACK_ROOT: {root}");
         return root;
     }

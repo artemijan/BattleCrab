@@ -29,13 +29,17 @@ pub(crate) fn spawn_effect_point(
     let Some(npc_oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0) else {
         return;
     };
-    world.objects.add_components(&npc_oid, SummonerRef(owner_oid));
+    world
+        .objects
+        .add_components(&npc_oid, SummonerRef(owner_oid));
     // TODO(G19): Java `effectPoint.setTitle(player.getName())` — the seal
     // shows its owner's name. The port's NPC titles are template-derived at
     // packet-build time (`npc_title`); a per-instance override needs its own
     // NpcInfo plumbing. Cosmetic only.
 
-    let Some(template) = world.data.npc_data.get(npc_id) else { return };
+    let Some(template) = world.data.npc_data.get(npc_id) else {
+        return;
+    };
     // `EffectPoint`'s ctor: first fire after `cast_time` (default **0.1 s**),
     // then every `skill_delay` (default 2 s) — armed only when the template
     // declares a `union_skill`.
@@ -50,7 +54,11 @@ pub(crate) fn spawn_effect_point(
     // `despawnDelay` is the fallback. (All three symbol totems declare 15 s.)
     // A totem with neither lives until something else removes it, like Java.
     let template_ms = (template.ai_param_f64("despawn_time", 0.0) * 1000.0) as i32;
-    let despawn_ms = if template_ms > 0 { template_ms } else { effect_despawn_ms };
+    let despawn_ms = if template_ms > 0 {
+        template_ms
+    } else {
+        effect_despawn_ms
+    };
     if despawn_ms > 0 {
         world.scheduler.schedule(
             world.tick + ms_to_ticks(despawn_ms),
@@ -76,9 +84,13 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
         .get_component::<crate::model::npc::Npc>(&npc_oid)
         .and_then(|n| n.template(world))
         .and_then(|t| {
-            t.ai_skill_params
-                .get("union_skill")
-                .map(|&(id, lvl)| (id, lvl, (t.ai_param_f64("skill_delay", 2.0) * 1000.0) as i32))
+            t.ai_skill_params.get("union_skill").map(|&(id, lvl)| {
+                (
+                    id,
+                    lvl,
+                    (t.ai_param_f64("skill_delay", 2.0) * 1000.0) as i32,
+                )
+            })
         })
     else {
         return;
@@ -95,7 +107,11 @@ pub(crate) fn handle_effect_point_cast(world: &mut World, npc_oid: i32) {
 /// `Npc.scheduleDespawn` firing: remove the totem from the world. The cast
 /// task dies with it (its next fire finds no living NPC).
 pub(crate) fn handle_effect_point_despawn(world: &mut World, npc_oid: i32) {
-    let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) else {
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
         return;
     };
     super::death::despawn_npc(world, npc_oid, region);

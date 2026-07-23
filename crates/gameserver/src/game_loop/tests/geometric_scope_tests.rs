@@ -31,7 +31,11 @@ fn geo_skill(scope: AffectScope, fan_range: [i32; 4], affect_range: i32) -> Skil
 }
 
 fn face(world: &mut World, oid: i32, heading: i32) {
-    world.objects.get_component_mut::<Position>(&oid).unwrap().heading = heading;
+    world
+        .objects
+        .get_component_mut::<Position>(&oid)
+        .unwrap()
+        .heading = heading;
 }
 
 /// Heading units for a given degree bearing (Java divides by 182.044444444).
@@ -60,7 +64,10 @@ fn fan_hits_ahead_and_misses_behind() {
 
     let hit = targets_affected(&mut world, CASTER, ahead, &skill);
     assert!(hit.contains(&ahead), "the primary in the arc is hit");
-    assert!(hit.contains(&bystander), "the bystander in the arc is swept");
+    assert!(
+        hit.contains(&bystander),
+        "the bystander in the arc is swept"
+    );
     assert!(!hit.contains(&behind), "the mob behind the caster is not");
 }
 
@@ -99,8 +106,14 @@ fn fan_can_drop_its_own_primary_target() {
     let skill = geo_skill(AffectScope::Fan, [0, 0, 200, 180], 200);
 
     let hit = targets_affected(&mut world, CASTER, behind, &skill);
-    assert!(!hit.contains(&behind), "the named target is behind the caster");
-    assert!(hit.contains(&ahead), "the bystander in the arc is still swept");
+    assert!(
+        !hit.contains(&behind),
+        "the named target is behind the caster"
+    );
+    assert!(
+        hit.contains(&ahead),
+        "the bystander in the arc is still swept"
+    );
 }
 
 /// Java's angle test has **no wrap-around normalization** — pinned in both
@@ -121,12 +134,18 @@ fn fan_angle_seam_quirk_is_java_faithful() {
     // side of it is missed.
     face(&mut world, CASTER, heading_units(350.0));
     let hit = targets_affected(&mut world, CASTER, mob, &skill);
-    assert!(!hit.contains(&mob), "|10 − 350| = 340 > 90: missed across the 0° seam");
+    assert!(
+        !hit.contains(&mob),
+        "|10 − 350| = 340 > 90: missed across the 0° seam"
+    );
 
     // The same 20° separation with no seam in between: heading 30°.
     face(&mut world, CASTER, heading_units(30.0));
     let hit = targets_affected(&mut world, CASTER, mob, &skill);
-    assert!(hit.contains(&mob), "|10 − 30| = 20 ≤ 90: hit away from the seam");
+    assert!(
+        hit.contains(&mob),
+        "|10 − 30| = 20 ≤ 90: hit away from the seam"
+    );
 }
 
 /// `fanHalfAngle = fanAngle / 2` is integer division: a 35° fan tests against
@@ -148,7 +167,10 @@ fn fan_half_angle_is_integer_division() {
 
     let hit = targets_affected(&mut world, CASTER, primary, &skill);
     assert!(hit.contains(&inside), "16.7° ≤ 17.0 (35/2 truncated)");
-    assert!(!hit.contains(&outside), "17.35° > 17.0 — 17.5 would have kept it");
+    assert!(
+        !hit.contains(&outside),
+        "17.35° > 17.0 — 17.5 would have kept it"
+    );
 }
 
 /// The rolled affect limit caps a fan sweep like any other scope.
@@ -157,7 +179,16 @@ fn fan_respects_the_affect_limit() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     for i in 0..4 {
-        add_test_npc(&mut world, NPC_OID + i, 20001, "Monster", 5, 80 + 20 * i, 0, 0);
+        add_test_npc(
+            &mut world,
+            NPC_OID + i,
+            20001,
+            "Monster",
+            5,
+            80 + 20 * i,
+            0,
+            0,
+        );
     }
     face(&mut world, CASTER, 0);
     let mut skill = geo_skill(AffectScope::Fan, [0, 0, 400, 180], 400);
@@ -188,7 +219,10 @@ fn square_is_a_forward_rectangle() {
 
     let hit = targets_affected(&mut world, CASTER, ahead, &skill);
     assert!(hit.contains(&ahead), "inside the 200×100 rect");
-    assert!(hit.contains(&in_rect), "the bystander at (150, 30) is swept too");
+    assert!(
+        hit.contains(&in_rect),
+        "the bystander at (150, 30) is swept too"
+    );
     assert!(!hit.contains(&side), "80 > width/2 = 50");
     assert!(!hit.contains(&behind), "the rect extends forward only");
 }
@@ -209,7 +243,10 @@ fn square_rotates_with_heading() {
 
     let hit = targets_affected(&mut world, CASTER, north, &skill);
     assert!(hit.contains(&north), "the rect now extends along +Y");
-    assert!(hit.contains(&north2), "the second northern mob is swept too");
+    assert!(
+        hit.contains(&north2),
+        "the second northern mob is swept too"
+    );
     assert!(!hit.contains(&east), "the old forward direction is out");
 }
 
@@ -234,7 +271,10 @@ fn ring_range_is_a_donut_around_the_target() {
     let hit = targets_affected(&mut world, CASTER, epicenter, &skill);
     assert!(hit.contains(&ring), "150 sits in the 100..270 annulus");
     assert!(!hit.contains(&hole), "50 is inside the inner radius");
-    assert!(!hit.contains(&epicenter), "the epicenter target is never affected");
+    assert!(
+        !hit.contains(&epicenter),
+        "the epicenter target is never affected"
+    );
     assert!(!hit.contains(&outside), "400 is past the outer radius");
 }
 
@@ -268,5 +308,8 @@ fn monster_group_buffs_do_not_sweep_players_in() {
     let mut nuke = buff.clone();
     nuke.effect_point = -100;
     let hit = targets_affected(&mut world, minion_a, minion_b, &nuke);
-    assert!(hit.contains(&CASTER), "a monster's offensive AoE still hits players");
+    assert!(
+        hit.contains(&CASTER),
+        "a monster's offensive AoE still hits players"
+    );
 }

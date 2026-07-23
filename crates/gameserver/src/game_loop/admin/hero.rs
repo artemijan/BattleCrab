@@ -16,7 +16,11 @@ use super::{current_target, send_message, send_sm};
 /// `getTarget() == null` → INVALID_TARGET).
 fn hero_target(world: &World, gm_object_id: i32) -> Option<i32> {
     let target = current_target(world, gm_object_id)?;
-    Some(if world.objects.has_component::<Player>(&target) { target } else { gm_object_id })
+    Some(if world.objects.has_component::<Player>(&target) {
+        target
+    } else {
+        gm_object_id
+    })
 }
 
 /// `//sethero` — toggle the target's hero status.
@@ -25,7 +29,10 @@ pub(super) fn admin_sethero(world: &mut World, client_id: u32, gm_object_id: i32
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let now = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_hero);
+    let now = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_hero);
     set_hero(world, target, !now);
 }
 
@@ -36,15 +43,27 @@ pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i3
         return;
     };
     // Java: `Hero.isHero(objectId)` → already claimed.
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_hero) {
-        send_message(world, client_id, "This player has already claimed the hero status.");
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_hero)
+    {
+        send_message(
+            world,
+            client_id,
+            "This player has already claimed the hero status.",
+        );
         return;
     }
     // Java: `!Hero.isUnclaimedHero(objectId)` → cannot claim. The unclaimed-hero
     // list is Olympiad-crowned (unported, G25), so it is always empty and this
     // branch always fires — the same result Java gives with no crowned hero.
     // TODO(G25): `Hero.claimHero(target)` once the Olympiad hero list exists.
-    send_message(world, client_id, "This player cannot claim the hero status.");
+    send_message(
+        world,
+        client_id,
+        "This player cannot claim the hero status.",
+    );
 }
 
 /// Java `Player.setHero`: grant the hero skill tree when turning hero on while
@@ -69,7 +88,10 @@ fn set_hero(world: &mut World, target: i32, hero: bool) {
     }
     // Hero glow = isHero || (isGM && GM_HERO_AURA).
     let gm_aura = world.data.gm.hero_aura;
-    let is_gm = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_gm(&world.data));
+    let is_gm = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_gm(&world.data));
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.is_hero = hero;
         p.hero_aura = hero || (is_gm && gm_aura);
@@ -86,9 +108,16 @@ pub(super) fn admin_setnoble(world: &mut World, client_id: u32, gm_object_id: i3
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    let now = world.objects.get_component::<Player>(&target).is_some_and(|p| p.is_noble);
+    let now = world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.is_noble);
     set_noble(world, target, !now);
-    let msg = if now { "You are no longer a noblesse." } else { "You are now a noblesse." };
+    let msg = if now {
+        "You are no longer a noblesse."
+    } else {
+        "You are now a noblesse."
+    };
     if let Some(cid) = crate::game_loop::helpers::client_for_player(world, target) {
         send_message(world, cid, msg);
     }

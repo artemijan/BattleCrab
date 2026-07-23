@@ -11,8 +11,16 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
     let (mut world, ..) = cast_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
-    world.objects.get_component_mut::<Speeds>(&3001).unwrap().run_spd = 100.0;
-    world.objects.get_component_mut::<Speeds>(&3001).unwrap().running = true;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&3001)
+        .unwrap()
+        .run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&3001)
+        .unwrap()
+        .running = true;
 
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
@@ -22,23 +30,45 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
 
     // Click to move mid-cast: rejected, cast intact, click remembered.
     handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(a_rx.try_recv().is_err(), "nothing else while the cast runs");
-    assert!(world.objects.has_component::<Casting>(&3001), "the cast is not aborted");
-    assert!(!world.objects.has_component::<Movement>(&3001), "no move yet");
-    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "the cast is not aborted"
+    );
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "no move yet"
+    );
+    assert!(matches!(
+        world.objects.get_component::<QueuedAction>(&3001),
+        Some(QueuedAction::Move { .. })
+    ));
 
     // Launch (35 ticks) + finish (5 more, coolTime 0 frees the slot): the
     // queued click replays through the normal move pipeline.
     advance_ticks(&mut world, 45);
     assert!(!world.objects.has_component::<Casting>(&3001));
-    assert!(!world.objects.has_component::<QueuedAction>(&3001), "queue consumed");
-    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at cast end");
+    assert!(
+        !world.objects.has_component::<QueuedAction>(&3001),
+        "queue consumed"
+    );
+    let mv = world
+        .objects
+        .get_component::<Movement>(&3001)
+        .expect("move started at cast end");
     assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
     let a_packets = drain(&mut a_rx);
-    assert!(a_packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+    assert!(a_packets
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
     let b_packets = drain(&mut b_rx);
-    assert!(b_packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+    assert!(b_packets
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
 }
 
 /// A move click mid-swing waits out the swing (Java `onIntentionMoveTo`'s
@@ -52,26 +82,52 @@ fn move_click_mid_swing_defers_to_swing_end() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 21;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_oid, cs);
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     world.forced_rolls.extend([0, 99, 10]);
     handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
     drain(&mut a_rx);
-    let swing_end = world.objects.get_component::<crate::model::components::AttackState>(&3001).unwrap().attack_end_tick;
+    let swing_end = world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&3001)
+        .unwrap()
+        .attack_end_tick;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
-    assert_eq!(a_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
-    assert!(!world.objects.has_component::<Movement>(&3001), "no move mid-swing");
-    assert!(!world.objects.has_component::<Intent>(&3001), "move click ends the attack loop");
-    assert!(matches!(world.objects.get_component::<QueuedAction>(&3001), Some(QueuedAction::Move { .. })));
+    assert_eq!(
+        a_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "no move mid-swing"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "move click ends the attack loop"
+    );
+    assert!(matches!(
+        world.objects.get_component::<QueuedAction>(&3001),
+        Some(QueuedAction::Move { .. })
+    ));
 
     let remaining = swing_end - world.tick;
     advance_ticks(&mut world, remaining);
-    let mv = world.objects.get_component::<Movement>(&3001).expect("move started at swing end");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&3001)
+        .expect("move started at swing end");
     assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
 }
 
@@ -86,17 +142,42 @@ fn move_backward_to_location_interpolates_and_arrives() {
     let (mut world, ..) = test_world();
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 0, 0, 0);
     let mut bystander_rx = ingame_player(&mut world, 2, 4002, 500, 500, 0);
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().running = true;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .running = true;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((1000, 0, 0), (0, 0, 0), 1));
 
-    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
-    assert!(mover_rx.try_recv().is_err(), "exactly one packet to the mover");
-    assert_eq!(bystander_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(
+        mover_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
+    assert!(
+        mover_rx.try_recv().is_err(),
+        "exactly one packet to the mover"
+    );
+    assert_eq!(
+        bystander_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
 
-    let total_ticks = world.objects.get_component::<Movement>(&4001).unwrap().0.total_ticks;
-    assert_eq!(total_ticks, 100, "distance 1000 / speed 100 * 10 ticks-per-sec");
+    let total_ticks = world
+        .objects
+        .get_component::<Movement>(&4001)
+        .unwrap()
+        .0
+        .total_ticks;
+    assert_eq!(
+        total_ticks, 100,
+        "distance 1000 / speed 100 * 10 ticks-per-sec"
+    );
 
     // Half way: linear interpolation.
     world.tick += total_ticks / 2;
@@ -122,10 +203,20 @@ fn move_backward_to_location_same_origin_and_target_sends_stop_move() {
     let (mut world, ..) = test_world();
     let mut rx = ingame_player(&mut world, 1, 5001, 10, 20, 30);
 
-    handle_move_backward_to_location(&mut world, 1, &move_body((100, 100, 100), (100, 100, 100), 1));
+    handle_move_backward_to_location(
+        &mut world,
+        1,
+        &move_body((100, 100, 100), (100, 100, 100), 1),
+    );
 
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::STOP_MOVE
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(!world.objects.has_component::<Movement>(&5001));
 }
 
@@ -138,15 +229,27 @@ fn move_blocked_by_wall_defers_to_path_worker() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 8, 0); // cell 0
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .run_spd = 100.0;
 
     // Click to cell 20 (x = 328), on the far side of the wall at cell 10:
     // the clamp to cell 9 (x = 152) shortens 320 → 144, well over 30.
     handle_move_backward_to_location(&mut world, 1, &move_body((328, 8, 0), (8, 8, 0), 1));
 
-    assert!(!world.objects.has_component::<Movement>(&4001), "move deferred, not started");
-    assert!(world.objects.has_component::<crate::model::components::PathWait>(&4001));
-    assert!(mover_rx.try_recv().is_err(), "no packet until the path reply lands");
+    assert!(
+        !world.objects.has_component::<Movement>(&4001),
+        "move deferred, not started"
+    );
+    assert!(world
+        .objects
+        .has_component::<crate::model::components::PathWait>(&4001));
+    assert!(
+        mover_rx.try_recv().is_err(),
+        "no packet until the path reply lands"
+    );
 }
 
 /// A clamp of ≤ 30 units starts the move directly with the clamped
@@ -157,18 +260,33 @@ fn move_destination_is_clamped_by_geodata() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 120, 8, 0); // cell 7
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .run_spd = 100.0;
 
     // Click one cell into the wall (cell 10, x = 168): clamped to cell 9
     // (x = 152), only 16 units short of the request.
     handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (120, 8, 0), 1));
 
-    let md = world.objects.get_component::<Movement>(&4001).map(|m| m.0.clone()).expect("move must start");
-    assert_eq!((md.dest_x, md.dest_y), (152, 8), "clamped to cell 9, before the wall");
+    let md = world
+        .objects
+        .get_component::<Movement>(&4001)
+        .map(|m| m.0.clone())
+        .expect("move must start");
+    assert_eq!(
+        (md.dest_x, md.dest_y),
+        (152, 8),
+        "clamped to cell 9, before the wall"
+    );
     let pkt = mover_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::MOVE_TO_LOCATION);
     let dest_x = i32::from_le_bytes(pkt[5..9].try_into().unwrap());
-    assert_eq!(dest_x, 152, "MoveToLocation carries the clamped destination");
+    assert_eq!(
+        dest_x, 152,
+        "MoveToLocation carries the clamped destination"
+    );
 }
 
 /// Full pathfinding round-trip against a real path-worker thread: a click
@@ -185,20 +303,22 @@ fn path_worker_round_trip_walks_around_wall() {
     let (mut world, ..) = test_world();
     // Mid-region wall at cell x == 10 with a gap at y ∈ [1010, 1014) — far
     // from region edges so the search can't skirt through unloaded void.
-    std::sync::Arc::get_mut(&mut world.geo).expect("geo Arc not shared yet").set_region(
-        20,
-        18,
-        synthetic_region(|x, y| {
-            let in_gap = (1010..1014).contains(&y);
-            if x == 10 && !in_gap {
-                (200, 0)
-            } else if x == 9 && !in_gap {
-                (0, NSWE_ALL & !NSWE_EAST)
-            } else {
-                (0, NSWE_ALL)
-            }
-        }),
-    );
+    std::sync::Arc::get_mut(&mut world.geo)
+        .expect("geo Arc not shared yet")
+        .set_region(
+            20,
+            18,
+            synthetic_region(|x, y| {
+                let in_gap = (1010..1014).contains(&y);
+                if x == 10 && !in_gap {
+                    (200, 0)
+                } else if x == 9 && !in_gap {
+                    (0, NSWE_ALL & !NSWE_EAST)
+                } else {
+                    (0, NSWE_ALL)
+                }
+            }),
+        );
     let (req_tx, req_rx) = std::sync::mpsc::channel();
     let (ev_tx, ev_rx) = std::sync::mpsc::channel();
     let worker = crate::geo::worker::spawn(world.geo.clone(), PathConfig::default(), req_rx, ev_tx);
@@ -206,21 +326,37 @@ fn path_worker_round_trip_walks_around_wall() {
 
     // Player at cell (0, 1000) = (8, 16008); click to cell (20, 1000).
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 8, 16008, 0);
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .run_spd = 100.0;
     handle_move_backward_to_location(&mut world, 1, &move_body((328, 16008, 0), (8, 16008, 0), 1));
     assert!(world.objects.has_component::<PathWait>(&4001));
 
     // The reply normally lands via `drain_path` on a later tick.
-    let ev = ev_rx.recv_timeout(std::time::Duration::from_secs(10)).expect("worker reply");
+    let ev = ev_rx
+        .recv_timeout(std::time::Duration::from_secs(10))
+        .expect("worker reply");
     handle_path_result(&mut world, ev);
     assert!(!world.objects.has_component::<PathWait>(&4001));
 
-    let md = world.objects.get_component::<Movement>(&4001).map(|m| m.0.clone()).expect("route move started");
+    let md = world
+        .objects
+        .get_component::<Movement>(&4001)
+        .map(|m| m.0.clone())
+        .expect("route move started");
     let path = md.geo_path.expect("move carries the geodata route");
     assert_eq!(path.index, 0);
-    assert!(path.points.len() > 1, "walking around needs several segments");
+    assert!(
+        path.points.len() > 1,
+        "walking around needs several segments"
+    );
     assert_eq!((path.accurate_tx, path.accurate_ty), (328, 16008));
-    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::MOVE_TO_LOCATION);
+    assert_eq!(
+        mover_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::MOVE_TO_LOCATION
+    );
 
     // Walk the whole route: each segment completion advances to the next
     // point and broadcasts another MoveToLocation; the last one arrives.
@@ -240,10 +376,17 @@ fn path_worker_round_trip_walks_around_wall() {
             }
         }
     }
-    assert!(!world.objects.has_component::<Movement>(&4001), "route must complete");
+    assert!(
+        !world.objects.has_component::<Movement>(&4001),
+        "route must complete"
+    );
     assert!(advances >= 1, "route advances broadcast MoveToLocation");
     let pos = world.objects.get_component::<Position>(&4001).unwrap();
-    assert_eq!((pos.x, pos.y), (328, 16008), "arrived at the exact requested destination");
+    assert_eq!(
+        (pos.x, pos.y),
+        (328, 16008),
+        "arrived at the exact requested destination"
+    );
 
     drop(world);
     worker.join().unwrap();
@@ -256,12 +399,22 @@ fn move_into_wall_from_adjacent_cell_is_cancelled() {
     let (mut world, ..) = test_world();
     install_wall_region(&mut world);
     let mut mover_rx = ingame_player(&mut world, 1, 4001, 152, 8, 0); // cell 9
-    world.objects.get_component_mut::<Speeds>(&4001).unwrap().run_spd = 100.0;
+    world
+        .objects
+        .get_component_mut::<Speeds>(&4001)
+        .unwrap()
+        .run_spd = 100.0;
 
     handle_move_backward_to_location(&mut world, 1, &move_body((168, 8, 0), (152, 8, 0), 1));
 
-    assert!(!world.objects.has_component::<Movement>(&4001), "no movement into the wall");
-    assert_eq!(mover_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert!(
+        !world.objects.has_component::<Movement>(&4001),
+        "no movement into the wall"
+    );
+    assert_eq!(
+        mover_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(mover_rx.try_recv().is_err());
 }
 
@@ -287,13 +440,20 @@ fn validate_position_reconciles_client_and_server() {
 
     // Climb: z 0 → 300 with matching client-z history — trusted, silent.
     handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 300, 0));
-    assert_eq!(world.objects.get_component::<Position>(&4001).unwrap().z, 300);
+    assert_eq!(
+        world.objects.get_component::<Position>(&4001).unwrap().z,
+        300
+    );
     assert!(rx.try_recv().is_err(), "no correction for a trusted climb");
 
     // Drift: diffSq 270400 ∈ (250000, 360000), within move speed (600) —
     // server answers ValidateLocation and stays put.
     handle_validate_position(&mut world, 1, &validate_position_body(1520, 1000, 300, 0));
-    assert_eq!(world.objects.get_component::<Position>(&4001).unwrap().x, 1000, "server position kept on drift");
+    assert_eq!(
+        world.objects.get_component::<Position>(&4001).unwrap().x,
+        1000,
+        "server position kept on drift"
+    );
     let pkt = rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::VALIDATE_LOCATION);
     assert!(rx.try_recv().is_err());
@@ -302,7 +462,11 @@ fn validate_position_reconciles_client_and_server() {
     // pulled onto the geodata ground (server was above the client).
     handle_validate_position(&mut world, 1, &validate_position_body(3000, 1000, 0, 0));
     let pos = world.objects.get_component::<Position>(&4001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (3000, 1000, 0), "snapped, z on the geodata floor");
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (3000, 1000, 0),
+        "snapped, z on the geodata floor"
+    );
     let c = world.objects.get_component::<ClientPos>(&4001).unwrap();
     assert_eq!((c.x, c.y, c.z), (3000, 1000, 0));
 }
@@ -321,28 +485,47 @@ fn validate_position_ignored_while_teleporting() {
     // The "teleport finished" packet must reach the player, or the client
     // never leaves the loading screen.
     assert!(
-        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::EX
-            && i16::from_le_bytes(p[1..3].try_into().unwrap())
-                == server_packets::opcodes::EX_TELEPORT_TO_LOCATION_ACTIVATE),
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::EX
+                && i16::from_le_bytes(p[1..3].try_into().unwrap())
+                    == server_packets::opcodes::EX_TELEPORT_TO_LOCATION_ACTIVATE),
         "ExTeleportToLocationActivate sent to the teleporting player"
     );
 
     // The stale in-flight report from the old spot must not move the server.
     handle_validate_position(&mut world, 1, &validate_position_body(1000, 1000, 0, 0));
     let pos = *world.objects.get_component::<Position>(&4001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (48765, 248461, -6155), "teleport destination kept (z lifted by 5)");
-    assert!(rx.try_recv().is_err(), "no correction packet while teleporting");
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (48765, 248461, -6155),
+        "teleport destination kept (z lifted by 5)"
+    );
+    assert!(
+        rx.try_recv().is_err(),
+        "no correction packet while teleporting"
+    );
 
     // Appearing completes the teleport; afterwards reports count again.
     super::death::handle_appearing(&mut world, 1);
-    assert!(!world.objects.get_component::<Player>(&4001).unwrap().teleporting);
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&4001)
+            .unwrap()
+            .teleporting
+    );
     handle_validate_position(
         &mut world,
         1,
         &validate_position_body(48765, 248461, -6160, 0),
     );
     let c = world.objects.get_component::<ClientPos>(&4001).unwrap();
-    assert_eq!((c.x, c.y, c.z), (48765, 248461, -6160), "client pos tracked again");
+    assert_eq!(
+        (c.x, c.y, c.z),
+        (48765, 248461, -6160),
+        "client pos tracked again"
+    );
 }
 
 /// A move click while walking to cast abandons the cast intention (Java: the
@@ -358,11 +541,19 @@ fn move_click_cancels_walk_to_cast() {
     assert!(world.objects.has_component::<Intent>(&3001));
 
     handle_move_backward_to_location(&mut world, 1, &move_body((0, 300, 0), (0, 0, 0), 1));
-    assert!(!world.objects.has_component::<Intent>(&3001), "move click drops the walk-to-cast");
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "move click drops the walk-to-cast"
+    );
     advance_world(&mut world, 60);
     assert!(!world.objects.has_component::<Casting>(&3001));
     let packets = drain(&mut a_rx);
-    assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "the cast never fires");
+    assert!(
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "the cast never fires"
+    );
 }
 
 /// Selecting another target mid-walk must NOT drop the cast: Java's
@@ -377,7 +568,10 @@ fn retarget_mid_walk_keeps_cast_intent() {
     spawn_targeted_monster(&mut world, &mut a_rx, npc_a, 700);
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
-    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+    assert!(
+        world.objects.has_component::<Intent>(&3001),
+        "walk-to-cast started"
+    );
 
     // Walk a couple of ticks, then switch to monster B — the client emits
     // a target cancel followed by the new select click.
@@ -386,21 +580,36 @@ fn retarget_mid_walk_keeps_cast_intent() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
     world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_b, cs);
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
     handle_action(&mut world, 1, &action_body(npc_b, 0));
     drain(&mut a_rx);
 
-    assert!(world.objects.has_component::<Intent>(&3001), "re-target must not drop the cast intent");
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(npc_b), "target switched to B");
+    assert!(
+        world.objects.has_component::<Intent>(&3001),
+        "re-target must not drop the cast intent"
+    );
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(npc_b),
+        "target switched to B"
+    );
     advance_world(&mut world, 60);
     let packets = drain(&mut a_rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
         "cast fires at the snapshotted target after the walk"
     );
-    assert!(nvit(&world, npc_a).cur_hp < 5000.0, "nuke landed on monster A");
+    assert!(
+        nvit(&world, npc_a).cur_hp < 5000.0,
+        "nuke landed on monster A"
+    );
     assert_eq!(nvit(&world, npc_b).cur_hp, 5000.0, "monster B untouched");
 }
 
@@ -415,7 +624,10 @@ fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
     spawn_targeted_monster(&mut world, &mut a_rx, npc_a, 700);
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
-    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+    assert!(
+        world.objects.has_component::<Intent>(&3001),
+        "walk-to-cast started"
+    );
 
     // Walk a couple of ticks, then switch to monster B, far off to the side
     // (well beyond castRange 600 from the walking player).
@@ -424,21 +636,36 @@ fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
     world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_b, cs);
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
     handle_action(&mut world, 1, &action_body(npc_b, 0));
     drain(&mut a_rx);
 
-    assert!(world.objects.has_component::<Intent>(&3001), "re-target must not drop the cast intent");
-    assert_eq!(world.objects.get_component::<TargetRef>(&3001).unwrap().0, Some(npc_b), "target switched to B");
+    assert!(
+        world.objects.has_component::<Intent>(&3001),
+        "re-target must not drop the cast intent"
+    );
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(npc_b),
+        "target switched to B"
+    );
     advance_world(&mut world, 60);
     let packets = drain(&mut a_rx);
     assert!(
-        packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
         "cast fires at the snapshotted target after the walk"
     );
-    assert!(nvit(&world, npc_a).cur_hp < 5000.0, "nuke landed on monster A");
+    assert!(
+        nvit(&world, npc_a).cur_hp < 5000.0,
+        "nuke landed on monster A"
+    );
     assert_eq!(nvit(&world, npc_b).cur_hp, 5000.0, "monster B untouched");
 }
 
@@ -454,22 +681,43 @@ fn walk_to_cast_boundary_rounding_still_casts() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 64;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 500, 500, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_oid, cs);
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
-    assert!(world.objects.has_component::<Intent>(&3001), "walk-to-cast started");
+    assert!(
+        world.objects.has_component::<Intent>(&3001),
+        "walk-to-cast started"
+    );
 
     // ~93 units to walk at run speed — in range well within 20 ticks.
     advance_world(&mut world, 20);
-    assert!(world.objects.has_component::<Casting>(&3001), "cast starts on arrival despite boundary rounding");
-    assert!(!world.objects.has_component::<Intent>(&3001), "the walk-to-cast intent is consumed");
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "cast starts on arrival despite boundary rounding"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "the walk-to-cast intent is consumed"
+    );
     let packets = drain(&mut a_rx);
-    assert!(packets.iter().any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE), "the cast fires");
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE),
+        "the cast fires"
+    );
 }
 
 /// The walk-to-cast target dying mid-walk drops the intention on the next
@@ -484,9 +732,16 @@ fn walk_to_cast_target_death_drops_intent() {
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, false));
     assert!(world.objects.has_component::<Intent>(&3001));
 
-    world.objects.get_component_mut::<Vitals>(&npc_oid).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&npc_oid)
+        .unwrap()
+        .dead = true;
     advance_world(&mut world, 1);
-    assert!(!world.objects.has_component::<Intent>(&3001), "dead target ends the walk-to-cast");
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "dead target ends the walk-to-cast"
+    );
     assert!(!world.objects.has_component::<Casting>(&3001));
 }
 
@@ -499,9 +754,16 @@ fn idle_monster_without_random_walk_stays_put() {
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 9;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_oid, cs);
     drain(&mut a_rx);
 
@@ -509,7 +771,15 @@ fn idle_monster_without_random_walk_stays_put() {
     world.forced_rolls.extend([0, 0, 0]);
     npc_ai::npc_ai_tick(&mut world);
 
-    assert!(!world.objects.has_component::<Movement>(&npc_oid), "a non-wandering mob never moves while idle");
+    assert!(
+        !world.objects.has_component::<Movement>(&npc_oid),
+        "a non-wandering mob never moves while idle"
+    );
     let packets = drain(&mut a_rx);
-    assert!(!packets.iter().any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION), "no wander broadcast");
+    assert!(
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION),
+        "no wander broadcast"
+    );
 }

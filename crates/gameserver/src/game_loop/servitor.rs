@@ -41,10 +41,16 @@ use super::helpers::client_for_player;
 /// Java `Player.getServitors()` — this port scans rather than caching a second
 /// index, because a player has at most one servitor on this dist.
 pub(crate) fn servitor_of(world: &World, owner_oid: i32) -> Option<i32> {
-    let oid = world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid)?.servitor?;
+    let oid = world
+        .objects
+        .get_component::<crate::model::components::SummonRef>(&owner_oid)?
+        .servitor?;
     // Validated on read: a despawn path that forgot to clear the link yields
     // `None` here rather than a dangling id.
-    world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|_| oid)
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .map(|_| oid)
 }
 
 /// `Summon.instant` — spawn a servitor for `owner_oid`.
@@ -62,11 +68,17 @@ pub(crate) fn summon_servitor(
     consume_item_count: i64,
 ) -> Option<i32> {
     // Players only (Java's `if (!effected.isPlayer()) return`).
-    world.objects.get_component::<crate::model::Player>(&owner_oid)?;
+    world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)?;
     unsummon_servitor(world, owner_oid);
 
-    let pos = world.objects.get_component::<Position>(&owner_oid).copied()?;
-    let servitor_oid = crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading)?;
+    let pos = world
+        .objects
+        .get_component::<Position>(&owner_oid)
+        .copied()?;
+    let servitor_oid =
+        crate::model::npc::spawn_npc_at(world, npc_id, pos.x, pos.y, pos.z, pos.heading)?;
 
     // `lifeTime <= 0` → Java's `Integer.MAX_VALUE` ("Classic hack. Resummon
     // upon entering game."), i.e. no expiry while the session lasts.
@@ -120,7 +132,10 @@ pub(crate) fn unsummon_servitor(world: &mut World, owner_oid: i32) -> Option<i32
     let servitor_oid = servitor_of(world, owner_oid).or_else(|| pet_of(world, owner_oid))?;
     set_summon_link(world, owner_oid, None, None, false);
     set_summon_link(world, owner_oid, None, None, true);
-    let region = world.objects.get_component::<crate::model::components::RegionCell>(&servitor_oid)?.0;
+    let region = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&servitor_oid)?
+        .0;
     crate::game_loop::death::despawn_npc(world, servitor_oid, region);
     Some(servitor_oid)
 }
@@ -139,14 +154,27 @@ pub(crate) enum PetInfoKind {
 /// slice, so a servitor is currently visible only to the player who summoned
 /// it. That is a deliberate, documented narrowing, not an oversight.
 pub(crate) fn send_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInfoKind) {
-    let Some(client_id) = client_for_player(world, owner_oid) else { return };
-    let Some(cs) = world.clients.get(&client_id) else { return };
-    let Some(pkt) = build_pet_info(world, owner_oid, servitor_oid, kind) else { return };
+    let Some(client_id) = client_for_player(world, owner_oid) else {
+        return;
+    };
+    let Some(cs) = world.clients.get(&client_id) else {
+        return;
+    };
+    let Some(pkt) = build_pet_info(world, owner_oid, servitor_oid, kind) else {
+        return;
+    };
     cs.send(pkt);
 }
 
-fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInfoKind) -> Option<Vec<u8>> {
-    let npc = world.objects.get_component::<crate::model::npc::Npc>(&servitor_oid)?;
+fn build_pet_info(
+    world: &World,
+    owner_oid: i32,
+    servitor_oid: i32,
+    kind: PetInfoKind,
+) -> Option<Vec<u8>> {
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&servitor_oid)?;
     let template = npc.template(world)?;
     let pos = world.objects.get_component::<Position>(&servitor_oid)?;
     let vitals = world.objects.get_component::<Vitals>(&servitor_oid)?;
@@ -154,8 +182,14 @@ fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInf
     let speeds = world.objects.get_component::<Speeds>(&servitor_oid)?;
     let collision = world.objects.get_component::<Collision>(&servitor_oid)?;
     let servitor = world.objects.get_component::<ServitorOf>(&servitor_oid)?;
-    let pet = world.objects.get_component::<crate::model::components::PetOf>(&servitor_oid).copied();
-    let owner_name = world.objects.get_component::<crate::model::Player>(&owner_oid).map(|p| p.name.clone())?;
+    let pet = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&servitor_oid)
+        .copied();
+    let owner_name = world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)
+        .map(|p| p.name.clone())?;
 
     // Java divides the wire speeds by the move multiplier (the client
     // multiplies them back) — the same treatment `UserInfo`/`CharInfo` already
@@ -206,9 +240,13 @@ fn build_pet_info(world: &World, owner_oid: i32, servitor_oid: i32, kind: PetInf
         PetInfoKind::Default => 1,
     });
     w.write_i32(-1); // NPCString id
-    // A servitor sends its name only when the template is server-side named;
-    // otherwise the client uses the template's own.
-    w.write_string(if template.server_side_name { &template.name } else { "" });
+                     // A servitor sends its name only when the template is server-side named;
+                     // otherwise the client uses the template's own.
+    w.write_string(if template.server_side_name {
+        &template.name
+    } else {
+        ""
+    });
     w.write_i32(-1); // NPCString id
     w.write_string(&owner_name); // the title slot carries the owner's name
     w.write_u8(0); // pvp flag
@@ -276,7 +314,13 @@ const FOLLOW_RANGE: f64 = 150.0;
 /// for a mob, because "attack whoever is on the aggro list" is the same
 /// behaviour once the owner's order has seeded that list.
 pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
-    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    let Some(link) = world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .copied()
+    else {
+        return;
+    };
     if !link.following {
         return;
     }
@@ -289,8 +333,14 @@ pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
         return;
     }
     let (Some(owner), Some(me)) = (
-        world.objects.get_component::<Position>(&link.owner_object_id).copied(),
-        world.objects.get_component::<Position>(&servitor_oid).copied(),
+        world
+            .objects
+            .get_component::<Position>(&link.owner_object_id)
+            .copied(),
+        world
+            .objects
+            .get_component::<Position>(&servitor_oid)
+            .copied(),
     ) else {
         return;
     };
@@ -310,10 +360,15 @@ pub(crate) fn servitor_follow_tick(world: &mut World, servitor_oid: i32) {
 /// `Confuse` use — the ported NPC AI derives its target from the aggro list
 /// each think rather than caching one.
 pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32) -> bool {
-    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return false };
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else {
+        return false;
+    };
     let (Some(owner), Some(target)) = (
         world.objects.get_component::<Position>(&owner_oid).copied(),
-        world.objects.get_component::<Position>(&target_oid).copied(),
+        world
+            .objects
+            .get_component::<Position>(&target_oid)
+            .copied(),
     ) else {
         return false;
     };
@@ -337,10 +392,16 @@ pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32
         .get_component::<crate::model::npc::AggroList>(&servitor_oid)
         .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
         .unwrap_or(0.0);
-    if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&servitor_oid) {
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&servitor_oid)
+    {
         aggro.0.entry(target_oid).or_default().hate = max_hate + 1.0;
     }
-    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
+    {
         ai.intention = crate::model::npc::NpcIntention::Attack;
         ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
     }
@@ -350,12 +411,22 @@ pub(crate) fn servitor_attack(world: &mut World, owner_oid: i32, target_oid: i32
 /// `ServitorStop` (action 23) — `cancelAction()`: drop the target, stop moving,
 /// and go back to trailing the owner.
 pub(crate) fn servitor_stop(world: &mut World, owner_oid: i32) -> bool {
-    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return false };
-    if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&servitor_oid) {
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else {
+        return false;
+    };
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&servitor_oid)
+    {
         aggro.0.clear();
     }
-    world.objects.remove_component::<crate::model::components::Movement>(&servitor_oid);
-    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&servitor_oid);
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
+    {
         ai.intention = crate::model::npc::NpcIntention::Active;
     }
     if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
@@ -368,12 +439,16 @@ pub(crate) fn servitor_stop(world: &mut World, owner_oid: i32) -> bool {
 /// Returns the new follow state.
 pub(crate) fn servitor_toggle_follow(world: &mut World, owner_oid: i32) -> Option<bool> {
     let servitor_oid = servitor_of(world, owner_oid)?;
-    let l = world.objects.get_component_mut::<ServitorOf>(&servitor_oid)?;
+    let l = world
+        .objects
+        .get_component_mut::<ServitorOf>(&servitor_oid)?;
     l.following = !l.following;
     let now = l.following;
     if !now {
         // Holding ground: stop where you are.
-        world.objects.remove_component::<crate::model::components::Movement>(&servitor_oid);
+        world
+            .objects
+            .remove_component::<crate::model::components::Movement>(&servitor_oid);
     }
     Some(now)
 }
@@ -392,13 +467,18 @@ pub mod action {
 /// socials, the per-summon skill buttons) are not handled here yet.
 pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body: &[u8]) {
     use crate::network::server_packets::sm_ids;
-    let Some(pkt) = crate::network::client_packets::RequestActionUse::read(body) else { return };
+    let Some(pkt) = crate::network::client_packets::RequestActionUse::read(body) else {
+        return;
+    };
     // `ServitorSkillUse` — the summon's own action-bar buttons, bound
     // id → skill in `ActionData.xml`. Looked up rather than matched, because
     // there are 105 of them.
     let servitor_skill = world.data.action_data.servitor_skill(pkt.action_id);
     if servitor_skill.is_none()
-        && !matches!(pkt.action_id, action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP)
+        && !matches!(
+            pkt.action_id,
+            action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP
+        )
     {
         return;
     }
@@ -409,7 +489,10 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         return;
     };
     // Java's shared guard: dead or control-blocked players issue no actions.
-    if world.objects.get_component::<Vitals>(&owner_oid).is_none_or(|v| v.dead)
+    if world
+        .objects
+        .get_component::<Vitals>(&owner_oid)
+        .is_none_or(|v| v.dead)
         || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
         return;
@@ -417,7 +500,10 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     // Every handler opens with the same "do you even have one" check.
     if servitor_of(world, owner_oid).is_none() {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR, &[]));
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_DO_NOT_HAVE_A_SERVITOR,
+                &[],
+            ));
         }
         return;
     }
@@ -450,9 +536,26 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
 /// `PetInfo` view). Used when the servitor first appears.
 pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summoned: bool) {
     use crate::model::components::RegionCell;
-    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
-    let Some(region) = world.objects.get_component::<RegionCell>(&servitor_oid).map(|r| r.0) else { return };
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&servitor_oid) else { return };
+    let Some(link) = world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .copied()
+    else {
+        return;
+    };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&servitor_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&servitor_oid)
+    else {
+        return;
+    };
     let Some(t) = npc.template(world) else { return };
     let (Some(pos), Some(vitals), Some(speeds), Some(combat)) = (
         world.objects.get_component::<Position>(&servitor_oid),
@@ -467,15 +570,28 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
         .get_component::<crate::model::Player>(&link.owner_object_id)
         .map(|p| p.name.clone())
         .unwrap_or_default();
-    let pkt =
-        server_packets::summon_info(servitor_oid, t, pos, vitals, speeds, combat, &owner_name, 0, summoned);
+    let pkt = server_packets::summon_info(
+        servitor_oid,
+        t,
+        pos,
+        vitals,
+        speeds,
+        combat,
+        &owner_name,
+        0,
+        summoned,
+    );
     for cs in world.clients.values() {
-        let crate::session::ClientSession::InGame(session) = cs else { continue };
+        let crate::session::ClientSession::InGame(session) = cs else {
+            continue;
+        };
         let viewer = session.player_object_id();
         if viewer == link.owner_object_id {
             continue; // the owner has the PetInfo view
         }
-        let Some(vr) = world.objects.get_component::<RegionCell>(&viewer) else { continue };
+        let Some(vr) = world.objects.get_component::<RegionCell>(&viewer) else {
+            continue;
+        };
         if crate::world::regions_adjacent(region, vr.0) {
             cs.send(pkt.clone());
         }
@@ -491,9 +607,19 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
 /// on death/despawn.
 pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     use crate::network::server_packets::{sm_ids, SmParam};
-    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    let Some(link) = world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .copied()
+    else {
+        return;
+    };
     // Dead or already gone → the chain ends (Java cancels the task).
-    if world.objects.get_component::<Vitals>(&servitor_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&servitor_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     let owner = link.owner_object_id;
@@ -523,15 +649,28 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .unwrap_or_default();
             if let Some(cid) = client_for_player(world, owner) {
                 if let Some(cs) = world.clients.get(&cid) {
-                    cs.send(crate::network::enter_world::inventory_update_changes(&world.data, &changes));
+                    cs.send(crate::network::enter_world::inventory_update_changes(
+                        &world.data,
+                        &changes,
+                    ));
                 }
             }
-            notify_owner(world, owner, sm_ids::A_SUMMONED_MONSTER_USES_S1, &[SmParam::ItemName(link.consume_item_id)]);
+            notify_owner(
+                world,
+                owner,
+                sm_ids::A_SUMMONED_MONSTER_USES_S1,
+                &[SmParam::ItemName(link.consume_item_id)],
+            );
             if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
                 l.next_consume_tick = world.tick + CONSUME_INTERVAL_SECS * TICKS_PER_SECOND;
             }
         } else {
-            notify_owner(world, owner, sm_ids::NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR, &[]);
+            notify_owner(
+                world,
+                owner,
+                sm_ids::NOT_ENOUGH_ITEMS_TO_MAINTAIN_SERVITOR,
+                &[],
+            );
             unsummon_servitor(world, owner);
             return;
         }
@@ -542,7 +681,10 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
         let remaining = (link.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND) as i32;
         if let Some(cid) = client_for_player(world, owner) {
             if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::set_summon_remain_time(link.life_time_secs, remaining));
+                cs.send(server_packets::set_summon_remain_time(
+                    link.life_time_secs,
+                    remaining,
+                ));
             }
         }
     }
@@ -551,7 +693,10 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // A servitor left too far behind is dragged back into follow whatever it
     // was doing, so an ordered attack can't strand it across the map.
     if let (Some(me), Some(o)) = (
-        world.objects.get_component::<Position>(&servitor_oid).copied(),
+        world
+            .objects
+            .get_component::<Position>(&servitor_oid)
+            .copied(),
         world.objects.get_component::<Position>(&owner).copied(),
     ) {
         let dx = (me.x - o.x) as f64;
@@ -561,7 +706,10 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
             if let Some(l) = world.objects.get_component_mut::<ServitorOf>(&servitor_oid) {
                 l.following = true;
             }
-            if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid) {
+            if let Some(ai) = world
+                .objects
+                .get_component_mut::<crate::model::npc::NpcAi>(&servitor_oid)
+            {
                 ai.intention = crate::model::npc::NpcIntention::Active;
             }
         }
@@ -573,9 +721,18 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     );
 }
 
-fn notify_owner(world: &World, owner_oid: i32, sm: i16, params: &[crate::network::server_packets::SmParam]) {
-    let Some(cid) = client_for_player(world, owner_oid) else { return };
-    let Some(cs) = world.clients.get(&cid) else { return };
+fn notify_owner(
+    world: &World,
+    owner_oid: i32,
+    sm: i16,
+    params: &[crate::network::server_packets::SmParam],
+) {
+    let Some(cid) = client_for_player(world, owner_oid) else {
+        return;
+    };
+    let Some(cs) = world.clients.get(&cid) else {
+        return;
+    };
     cs.send(server_packets::system_message_with(sm, params));
 }
 
@@ -596,17 +753,38 @@ pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
 
 /// Java `Player.getPet()` — a player has at most one.
 pub(crate) fn pet_of(world: &World, owner_oid: i32) -> Option<i32> {
-    let oid = world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid)?.pet?;
-    world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|_| oid)
+    let oid = world
+        .objects
+        .get_component::<crate::model::components::SummonRef>(&owner_oid)?
+        .pet?;
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .map(|_| oid)
 }
 
 /// Set or clear the owner's summon link. Every spawn and despawn path goes
 /// through here, so the link can never be updated in only one direction.
-fn set_summon_link(world: &mut World, owner_oid: i32, servitor: Option<i32>, pet: Option<i32>, is_pet: bool) {
-    if world.objects.get_component::<crate::model::components::SummonRef>(&owner_oid).is_none() {
-        world.objects.add_components(&owner_oid, crate::model::components::SummonRef::default());
+fn set_summon_link(
+    world: &mut World,
+    owner_oid: i32,
+    servitor: Option<i32>,
+    pet: Option<i32>,
+    is_pet: bool,
+) {
+    if world
+        .objects
+        .get_component::<crate::model::components::SummonRef>(&owner_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&owner_oid, crate::model::components::SummonRef::default());
     }
-    if let Some(r) = world.objects.get_component_mut::<crate::model::components::SummonRef>(&owner_oid) {
+    if let Some(r) = world
+        .objects
+        .get_component_mut::<crate::model::components::SummonRef>(&owner_oid)
+    {
         if is_pet {
             r.pet = pet;
         } else {
@@ -635,8 +813,14 @@ fn set_summon_link(world: &mut World, owner_oid: i32, servitor: Option<i32>, pet
 /// has no pet out, which is the common case, so it is cheap to call
 /// unconditionally rather than tracking a dirty flag.
 pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
-    let Some(pet_oid) = pet_of(world, owner_oid) else { return };
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet_oid) = pet_of(world, owner_oid) else {
+        return;
+    };
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
     let (cur_hp, cur_mp) = world
@@ -665,7 +849,10 @@ pub(crate) fn sync_pet_row(world: &mut World, owner_oid: i32) {
         // calls this *before* the unsummon precisely so this reads true.
         restore: world.cfg.character.restore_pet_on_reconnect,
     };
-    if let Some(pets) = world.objects.get_component_mut::<crate::model::components::PlayerPets>(&owner_oid) {
+    if let Some(pets) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerPets>(&owner_oid)
+    {
         pets.0.insert(row.collar_object_id, row);
     }
 }
@@ -674,14 +861,17 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     use crate::model::components::PetOf;
     use crate::network::server_packets::sm_ids;
 
-    if world.objects.get_component::<crate::model::Player>(&owner_oid).is_none() {
-        return None;
-    }
+    world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)?;
     // `if (player.hasPet() || player.isMounted())` → "You already have a pet."
     if pet_of(world, owner_oid).is_some() {
         if let Some(cid) = client_for_player(world, owner_oid) {
             if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(sm_ids::YOU_ALREADY_HAVE_A_PET, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::YOU_ALREADY_HAVE_A_PET,
+                    &[],
+                ));
             }
         }
         return None;
@@ -697,7 +887,12 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     let collar_item_id = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&owner_oid)
-        .and_then(|inv| inv.items().iter().find(|i| i.object_id == collar_object_id).map(|i| i.item_id))?;
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == collar_object_id)
+                .map(|i| i.item_id)
+        })?;
 
     let npc_id = world.data.pet_data.by_item_id(collar_item_id)?.npc_id;
 
@@ -708,8 +903,11 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         .get_component::<crate::model::components::PlayerPets>(&owner_oid)
         .and_then(|p| p.0.get(&collar_object_id).cloned());
 
-    let owner_level =
-        world.objects.get_component::<crate::model::Player>(&owner_oid).map(|p| p.level).unwrap_or(1);
+    let owner_level = world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)
+        .map(|p| p.level)
+        .unwrap_or(1);
     let (template_level, display_id) = world
         .data
         .npc_data
@@ -733,8 +931,18 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     };
 
     // Java spawns the pet beside its owner, not on top of them.
-    let pos = world.objects.get_component::<Position>(&owner_oid).copied()?;
-    let pet_oid = crate::model::npc::spawn_npc_at(world, npc_id, pos.x + 50, pos.y + 100, pos.z, pos.heading)?;
+    let pos = world
+        .objects
+        .get_component::<Position>(&owner_oid)
+        .copied()?;
+    let pet_oid = crate::model::npc::spawn_npc_at(
+        world,
+        npc_id,
+        pos.x + 50,
+        pos.y + 100,
+        pos.z,
+        pos.heading,
+    )?;
 
     world.objects.add_components(
         &pet_oid,
@@ -755,14 +963,20 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
         &pet_oid,
         PetOf {
             collar_object_id,
-            fed: saved.as_ref().map(|r| r.fed.min(max_fed)).unwrap_or(max_fed),
+            fed: saved
+                .as_ref()
+                .map(|r| r.fed.min(max_fed))
+                .unwrap_or(max_fed),
             max_fed,
             level,
             // "DS: update experience based by level. Avoiding pet delevels due
             // to exp per level values changed." — a stored exp below what this
             // level now costs is raised to the level's floor, so a retuned
             // datapack curve can't demote a pet the player already levelled.
-            exp: saved.as_ref().map(|r| r.exp.max(exp_floor)).unwrap_or(exp_floor),
+            exp: saved
+                .as_ref()
+                .map(|r| r.exp.max(exp_floor))
+                .unwrap_or(exp_floor),
             sp: saved.as_ref().map(|r| r.sp).unwrap_or(0),
             exp_before_death: 0,
         },
@@ -814,16 +1028,20 @@ const FEED_TICK_SECS: u64 = 10;
 
 /// Arm the feed chain for a freshly summoned pet (Java `startFeed`).
 pub(crate) fn start_feed(world: &mut World, pet_oid: i32) {
-    world
-        .scheduler
-        .schedule(world.tick + FEED_TICK_SECS * TICKS_PER_SECOND, crate::scheduler::ScheduledTask::PetFeedTick { pet_oid });
+    world.scheduler.schedule(
+        world.tick + FEED_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::PetFeedTick { pet_oid },
+    );
 }
 
 /// Java `Pet.isHungry()` — below `hungryLimit`% of the level's `maxMeal`.
 /// A hungry pet is what triggers auto-eating; it is *not* the same as
 /// [`is_uncontrollable`].
 pub(crate) fn is_hungry(world: &World, pet_oid: i32) -> bool {
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid) else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+    else {
         return false;
     };
     let limit = npc_template_id(world, pet_oid)
@@ -835,11 +1053,17 @@ pub(crate) fn is_hungry(world: &World, pet_oid: i32) -> bool {
 
 /// Java `Pet.isUncontrollable()` — a starving (empty-bar) pet stops obeying.
 pub(crate) fn is_uncontrollable(world: &World, pet_oid: i32) -> bool {
-    world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).is_some_and(|p| p.fed <= 0)
+    world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .is_some_and(|p| p.fed <= 0)
 }
 
 fn npc_template_id(world: &World, oid: i32) -> Option<i32> {
-    world.objects.get_component::<crate::model::npc::Npc>(&oid).map(|n| n.npc_id)
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&oid)
+        .map(|n| n.npc_id)
 }
 
 /// `effecthandlers/Feed.instant` for a pet: `setCurrentFed(fed + normal * rate)`.
@@ -849,7 +1073,10 @@ fn npc_template_id(world: &World, oid: i32) -> Option<i32> {
 /// from a bar with room in it.
 pub(crate) fn apply_feed(world: &mut World, pet_oid: i32, normal: i32) {
     let rate = world.cfg.rates.pet_food_rate;
-    if let Some(pet) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+    if let Some(pet) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
         pet.fed = (pet.fed + normal * rate).min(pet.max_fed);
     }
 }
@@ -860,13 +1087,25 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
     use crate::network::server_packets::{sm_ids, SmParam};
 
     // "dead or gone → the chain ends", the same contract the life tick uses.
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
-    if world.objects.get_component::<Vitals>(&pet_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&pet_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
-    let Some(owner) = world.objects.get_component::<ServitorOf>(&pet_oid).map(|s| s.owner_object_id) else {
+    let Some(owner) = world
+        .objects
+        .get_component::<ServitorOf>(&pet_oid)
+        .map(|s| s.owner_object_id)
+    else {
         return;
     };
 
@@ -883,7 +1122,10 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
         .get_component::<crate::model::components::AttackState>(&pet_oid)
         .is_some_and(|a| world.tick < a.attack_end_tick);
     let cost = if attacking { battle_cost } else { normal_cost };
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
         p.fed = if p.fed > cost { p.fed - cost } else { 0 };
     }
 
@@ -900,17 +1142,30 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
 
     if is_hungry(world, pet_oid) && has_food {
         // `handler.useItem(pet, food, false)` → destroy one, apply the skill.
-        if let Some(pi) = world.objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
+        if let Some(pi) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::PetInventory>(&owner)
+        {
             pi.0.remove_item(food_id, 1);
         }
         for (skill_id, skill_level) in item_skills(world, food_id) {
             apply_food_skill(world, pet_oid, skill_id, skill_level);
         }
-        notify_owner(world, owner, sm_ids::YOUR_PET_WAS_HUNGRY_SO_IT_ATE_S1, &[SmParam::ItemName(food_id)]);
+        notify_owner(
+            world,
+            owner,
+            sm_ids::YOUR_PET_WAS_HUNGRY_SO_IT_ATE_S1,
+            &[SmParam::ItemName(food_id)],
+        );
         send_pet_item_list(world, owner);
         // Still hungry after one helping — Java says so explicitly.
         if is_hungry(world, pet_oid) {
-            notify_owner(world, owner, sm_ids::YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY, &[]);
+            notify_owner(
+                world,
+                owner,
+                sm_ids::YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY,
+                &[],
+            );
         }
     } else if is_uncontrollable(world, pet_oid) {
         // Java `deleteMe` only when the species has *no* food ids at all;
@@ -924,21 +1179,34 @@ pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
         }
         notify_owner(world, owner, sm_ids::YOUR_PET_IS_STARVING, &[]);
     } else if is_hungry(world, pet_oid) {
-        notify_owner(world, owner, sm_ids::THERE_IS_NOT_MUCH_TIME_REMAINING_UNTIL_THE_PET_LEAVES, &[]);
+        notify_owner(
+            world,
+            owner,
+            sm_ids::THERE_IS_NOT_MUCH_TIME_REMAINING_UNTIL_THE_PET_LEAVES,
+            &[],
+        );
     }
 
     send_pet_info(world, owner, pet_oid, PetInfoKind::Default);
-    world
-        .scheduler
-        .schedule(world.tick + FEED_TICK_SECS * TICKS_PER_SECOND, crate::scheduler::ScheduledTask::PetFeedTick { pet_oid });
+    world.scheduler.schedule(
+        world.tick + FEED_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::PetFeedTick { pet_oid },
+    );
 }
 
 /// `PetItemList` for the owner — the pet's inventory is only ever shown to the
 /// player who owns it.
 pub(crate) fn send_pet_item_list(world: &World, owner_oid: i32) {
-    let Some(client_id) = client_for_player(world, owner_oid) else { return };
-    let Some(cs) = world.clients.get(&client_id) else { return };
-    let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&owner_oid) else {
+    let Some(client_id) = client_for_player(world, owner_oid) else {
+        return;
+    };
+    let Some(cs) = world.clients.get(&client_id) else {
+        return;
+    };
+    let Some(pi) = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&owner_oid)
+    else {
         return;
     };
     cs.send(server_packets::pet_item_list(&pi.0, &world.data));
@@ -946,14 +1214,21 @@ pub(crate) fn send_pet_item_list(world: &World, owner_oid: i32) {
 
 /// The `NORMAL` item-skill list Java's `PetFood` handler runs.
 fn item_skills(world: &World, item_id: i32) -> Vec<(i32, i32)> {
-    world.data.item_data.get(item_id).map(|t| t.item_skills.clone()).unwrap_or_default()
+    world
+        .data
+        .item_data
+        .get(item_id)
+        .map(|t| t.item_skills.clone())
+        .unwrap_or_default()
 }
 
 /// Run one food skill's effects on the pet. Only `Feed` is meaningful today;
 /// going through the skill (rather than hard-coding a bar bump) is what lets a
 /// food item that also heals work when those effects land.
 fn apply_food_skill(world: &mut World, pet_oid: i32, skill_id: i32, skill_level: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, skill_level) else { return };
+    let Some(skill) = world.data.skill_data.get(skill_id, skill_level) else {
+        return;
+    };
     for effect in skill.effects.clone() {
         if let crate::model::skill::SkillEffect::Feed { normal } = effect {
             apply_feed(world, pet_oid, normal);
@@ -966,8 +1241,12 @@ fn apply_food_skill(world: &mut World, pet_oid: i32, skill_id: i32, skill_level:
 /// refuses an unmounted *player*, so the owner cannot eat it on the pet's
 /// behalf.
 pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some((object_id, amount)) = read_oid_and_count(body) else { return };
-    let Some(owner) = player_for_client(world, client_id) else { return };
+    let Some((object_id, amount)) = read_oid_and_count(body) else {
+        return;
+    };
+    let Some(owner) = player_for_client(world, client_id) else {
+        return;
+    };
     if amount <= 0 || pet_of(world, owner).is_none() {
         return;
     }
@@ -975,7 +1254,12 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&owner)
-        .and_then(|inv| inv.items().iter().find(|i| i.object_id == object_id).map(|i| (i.item_id, i.count)))
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == object_id)
+                .map(|i| (i.item_id, i.count))
+        })
     else {
         return;
     };
@@ -986,7 +1270,12 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
     {
         return;
     }
-    if world.data.item_data.get(item_id).is_some_and(|t| t.is_quest_item) {
+    if world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_quest_item)
+    {
         return;
     }
     // The collar itself must not go into the pet it summons — Java blocks it,
@@ -1000,7 +1289,9 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
         .get_component_mut::<crate::model::inventory::Inventory>(&owner)
         .map(|inv| inv.remove_item(item_id, count))
         .unwrap_or_default();
-    let Some(next_oid) = world.alloc_object_id() else { return };
+    let Some(next_oid) = world.alloc_object_id() else {
+        return;
+    };
     let World { data, objects, .. } = world;
     if let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
         pi.0.add_item(&data.item_data, next_oid, item_id, count);
@@ -1014,23 +1305,37 @@ pub(crate) fn handle_give_item_to_pet(world: &mut World, client_id: u32, body: &
 
 /// `RequestGetItemFromPet` (0x2C) — the reverse transfer.
 pub(crate) fn handle_get_item_from_pet(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some((object_id, amount)) = read_oid_and_count(body) else { return };
-    let Some(owner) = player_for_client(world, client_id) else { return };
+    let Some((object_id, amount)) = read_oid_and_count(body) else {
+        return;
+    };
+    let Some(owner) = player_for_client(world, client_id) else {
+        return;
+    };
     if amount <= 0 || pet_of(world, owner).is_none() {
         return;
     }
     let Some((item_id, held)) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| pi.0.items().iter().find(|i| i.object_id == object_id).map(|i| (i.item_id, i.count)))
+        .and_then(|pi| {
+            pi.0.items()
+                .iter()
+                .find(|i| i.object_id == object_id)
+                .map(|i| (i.item_id, i.count))
+        })
     else {
         return;
     };
     let count = amount.min(held);
-    if let Some(pi) = world.objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
+    if let Some(pi) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::PetInventory>(&owner)
+    {
         pi.0.remove_item(item_id, count);
     }
-    let Some(next_oid) = world.alloc_object_id() else { return };
+    let Some(next_oid) = world.alloc_object_id() else {
+        return;
+    };
     let World { data, objects, .. } = world;
     let changes = objects
         .get_component_mut::<crate::model::inventory::Inventory>(&owner)
@@ -1061,12 +1366,21 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
         return;
     }
     let object_id = i32::from_le_bytes([body[0], body[1], body[2], body[3]]);
-    let Some(owner) = player_for_client(world, client_id) else { return };
-    let Some(pet_oid) = pet_of(world, owner) else { return };
+    let Some(owner) = player_for_client(world, client_id) else {
+        return;
+    };
+    let Some(pet_oid) = pet_of(world, owner) else {
+        return;
+    };
     let Some(item_id) = world
         .objects
         .get_component::<crate::model::inventory::PetInventory>(&owner)
-        .and_then(|pi| pi.0.items().iter().find(|i| i.object_id == object_id).map(|i| i.item_id))
+        .and_then(|pi| {
+            pi.0.items()
+                .iter()
+                .find(|i| i.object_id == object_id)
+                .map(|i| i.item_id)
+        })
     else {
         return;
     };
@@ -1074,7 +1388,12 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
     // Java `RequestPetUseItem`: an **equippable** item is worn rather than
     // consumed (`useEquippableItem`), which is how a battle pet gets its
     // armour. 96 pet-armour items ship on this dist.
-    if world.data.item_data.get(item_id).is_some_and(|t| t.is_equipable()) {
+    if world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_equipable())
+    {
         equip_pet_item(world, owner, pet_oid, object_id);
         return;
     }
@@ -1088,14 +1407,22 @@ pub(crate) fn handle_pet_use_item(world: &mut World, client_id: u32, body: &[u8]
         return;
     }
 
-    if let Some(pi) = world.objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
+    if let Some(pi) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::PetInventory>(&owner)
+    {
         pi.0.remove_item(item_id, 1);
     }
     for (skill_id, skill_level) in item_skills(world, item_id) {
         apply_food_skill(world, pet_oid, skill_id, skill_level);
     }
     if is_hungry(world, pet_oid) {
-        notify_owner(world, owner, sm_ids::YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY, &[]);
+        notify_owner(
+            world,
+            owner,
+            sm_ids::YOUR_PET_ATE_A_LITTLE_BUT_IS_STILL_HUNGRY,
+            &[],
+        );
     }
     send_pet_item_list(world, owner);
     send_pet_info(world, owner, pet_oid, PetInfoKind::Default);
@@ -1136,18 +1463,33 @@ const PET_EXP_RANGE: f64 = 1500.0;
 ///
 /// Returns `(owner_ratio, pet_exp, pet_sp)`. `owner_ratio` is 1.0 with no
 /// eligible pet, which leaves the owner's award untouched.
-pub(crate) fn split_exp_with_pet(world: &World, owner_oid: i32, exp: f64, sp: f64) -> (f64, f64, f64) {
-    let Some(pet_oid) = pet_of(world, owner_oid) else { return (1.0, 0.0, 0.0) };
+pub(crate) fn split_exp_with_pet(
+    world: &World,
+    owner_oid: i32,
+    exp: f64,
+    sp: f64,
+) -> (f64, f64, f64) {
+    let Some(pet_oid) = pet_of(world, owner_oid) else {
+        return (1.0, 0.0, 0.0);
+    };
     // A dead pet earns nothing (Java `if (!pet.isDead())`), but note the
     // owner's ratio is still reduced — Java adjusts it outside that guard, so
     // the exp is lost rather than returned to the player. Faithful.
-    if world.objects.get_component::<Vitals>(&pet_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&pet_oid)
+        .is_none_or(|v| v.dead)
+    {
         return (1.0, 0.0, 0.0);
     }
     if !within(world, owner_oid, pet_oid, PET_EXP_RANGE) {
         return (1.0, 0.0, 0.0);
     }
-    let level = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).map(|p| p.level).unwrap_or(1);
+    let level = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .map(|p| p.level)
+        .unwrap_or(1);
     let owner_taken = npc_template_id(world, pet_oid)
         .and_then(|id| world.data.pet_data.get(id))
         .and_then(|t| t.levels.get(&level))
@@ -1160,12 +1502,17 @@ pub(crate) fn split_exp_with_pet(world: &World, owner_oid: i32, exp: f64, sp: f6
 }
 
 fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
-    let (Some(pa), Some(pb)) =
-        (world.objects.get_component::<Position>(&a), world.objects.get_component::<Position>(&b))
-    else {
+    let (Some(pa), Some(pb)) = (
+        world.objects.get_component::<Position>(&a),
+        world.objects.get_component::<Position>(&b),
+    ) else {
         return false;
     };
-    let (dx, dy, dz) = ((pa.x - pb.x) as f64, (pa.y - pb.y) as f64, (pa.z - pb.z) as f64);
+    let (dx, dy, dz) = (
+        (pa.x - pb.x) as f64,
+        (pa.y - pb.y) as f64,
+        (pa.z - pb.z) as f64,
+    );
     (dx * dx + dy * dy + dz * dz).sqrt() <= range
 }
 
@@ -1176,7 +1523,9 @@ fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
 /// an incidental check.
 pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) {
     use crate::network::server_packets::{sm_ids, SmParam};
-    let Some(pet_oid) = pet_of(world, owner_oid) else { return };
+    let Some(pet_oid) = pet_of(world, owner_oid) else {
+        return;
+    };
     if is_uncontrollable(world, pet_oid) {
         return;
     }
@@ -1185,11 +1534,19 @@ pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) 
         return;
     }
     let max_level = max_pet_level(world, pet_oid);
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
         p.exp += gained.max(0);
         p.sp += (sp.round() as i64).max(0);
     }
-    notify_owner(world, owner_oid, sm_ids::YOUR_PET_GAINED_S1_XP, &[SmParam::Int(gained as i32)]);
+    notify_owner(
+        world,
+        owner_oid,
+        sm_ids::YOUR_PET_GAINED_S1_XP,
+        &[SmParam::Int(gained as i32)],
+    );
     level_up_pet(world, owner_oid, pet_oid, max_level);
     send_pet_info(world, owner_oid, pet_oid, PetInfoKind::Default);
 }
@@ -1206,23 +1563,42 @@ fn max_pet_level(world: &World, pet_oid: i32) -> i32 {
 
 /// Advance the pet through every level its new exp total has earned.
 fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32) {
-    let Some(npc_id) = npc_template_id(world, pet_oid) else { return };
+    let Some(npc_id) = npc_template_id(world, pet_oid) else {
+        return;
+    };
     let mut levelled = false;
     loop {
-        let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+        let Some(pet) = world
+            .objects
+            .get_component::<crate::model::components::PetOf>(&pet_oid)
+            .copied()
+        else {
             return;
         };
         if pet.level >= max_level {
             break;
         }
         let next = pet.level + 1;
-        let needed = world.data.pet_data.get(npc_id).map(|t| t.exp_for_level(next)).unwrap_or(i64::MAX);
+        let needed = world
+            .data
+            .pet_data
+            .get(npc_id)
+            .map(|t| t.exp_for_level(next))
+            .unwrap_or(i64::MAX);
         if needed <= 0 || pet.exp < needed {
             break;
         }
         // The food bar's capacity is per level, so it moves with the level.
-        let new_max_fed = world.data.pet_data.get(npc_id).map(|t| t.max_meal(next)).unwrap_or(pet.max_fed);
-        if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+        let new_max_fed = world
+            .data
+            .pet_data
+            .get(npc_id)
+            .map(|t| t.max_meal(next))
+            .unwrap_or(pet.max_fed);
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        {
             p.level = next;
             p.max_fed = new_max_fed;
             p.fed = p.fed.min(new_max_fed);
@@ -1245,10 +1621,17 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
 /// *is* the pet's level, which is how the client shows "Wolf Collar +12" and
 /// how a traded pet advertises what it is without being summoned.
 fn sync_collar_enchant(world: &mut World, owner_oid: i32, pet_oid: i32) {
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
-    if let Some(inv) = world.objects.get_component_mut::<crate::model::inventory::Inventory>(&owner_oid) {
+    if let Some(inv) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&owner_oid)
+    {
         inv.set_item_enchant(pet.collar_object_id, pet.level);
     }
 }
@@ -1297,19 +1680,36 @@ fn pet_template_at_level(
 /// Recompute a live pet's stats for its current level, preserving the HP/MP
 /// *fraction* across a max-HP change so levelling neither heals nor wounds it.
 pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
-    let Some(level) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).map(|p| p.level)
+    let Some(level) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .map(|p| p.level)
     else {
         return;
     };
-    let Some(npc_id) = npc_template_id(world, pet_oid) else { return };
-    let Some(row) = world.data.pet_data.get(npc_id).and_then(|t| t.levels.get(&level).cloned()) else {
+    let Some(npc_id) = npc_template_id(world, pet_oid) else {
         return;
     };
-    let Some(template) = world.data.npc_data.get(npc_id).cloned() else { return };
+    let Some(row) = world
+        .data
+        .pet_data
+        .get(npc_id)
+        .and_then(|t| t.levels.get(&level).cloned())
+    else {
+        return;
+    };
+    let Some(template) = world.data.npc_data.get(npc_id).cloned() else {
+        return;
+    };
     let petted = pet_template_at_level(&template, &row, level);
 
-    let buffs = world.objects.get_component::<crate::model::components::Buffs>(&pet_oid).cloned().unwrap_or_default();
-    let (mut combat, speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(&world.data, &petted, &buffs);
+    let buffs = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&pet_oid)
+        .cloned()
+        .unwrap_or_default();
+    let (mut combat, speeds, max_hp, max_mp) =
+        crate::model::npc_finalized_stats(&world.data, &petted, &buffs);
 
     // A pet's worn armour adds to its defences. Java runs pets through the same
     // finalizers as everyone else, which sum the paperdoll; the port's NPC
@@ -1318,11 +1718,19 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     //
     // Only the defensive stats are folded: the 96 pet-armour items on this dist
     // are armour, and a pet has no weapon slot to speak of.
-    let owner = world.objects.get_component::<ServitorOf>(&pet_oid).map(|s| s.owner_object_id);
+    let owner = world
+        .objects
+        .get_component::<ServitorOf>(&pet_oid)
+        .map(|s| s.owner_object_id);
     if let Some(owner) = owner {
-        if let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&owner) {
+        if let Some(pi) = world
+            .objects
+            .get_component::<crate::model::inventory::PetInventory>(&owner)
+        {
             for item in pi.0.equipped_items() {
-                let Some(stats) = world.data.item_data.item_stats(item.item_id) else { continue };
+                let Some(stats) = world.data.item_data.item_stats(item.item_id) else {
+                    continue;
+                };
                 for &(stat, val) in &stats.bonuses {
                     match stat {
                         crate::model::stats::Stat::PhysicalDefence => combat.p_def += val,
@@ -1337,8 +1745,16 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
         // Keep the bar where it was proportionally — Java's stat recompute does
         // not refill a pet on level-up.
-        let hp_frac = if v.max_hp > 0 { v.cur_hp / v.max_hp as f64 } else { 1.0 };
-        let mp_frac = if v.max_mp > 0 { v.cur_mp / v.max_mp as f64 } else { 1.0 };
+        let hp_frac = if v.max_hp > 0 {
+            v.cur_hp / v.max_hp as f64
+        } else {
+            1.0
+        };
+        let mp_frac = if v.max_mp > 0 {
+            v.cur_mp / v.max_mp as f64
+        } else {
+            1.0
+        };
         v.max_hp = max_hp.round() as i32;
         v.max_mp = max_mp.round() as i32;
         v.cur_hp = (v.max_hp as f64 * hp_frac).min(v.max_hp as f64);
@@ -1358,8 +1774,13 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
 /// Returns the owner so the caller can finish its own bookkeeping.
 pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
     use crate::network::server_packets::sm_ids;
-    let owner = world.objects.get_component::<ServitorOf>(&pet_oid)?.owner_object_id;
-    world.objects.get_component::<crate::model::components::PetOf>(&pet_oid)?;
+    let owner = world
+        .objects
+        .get_component::<ServitorOf>(&pet_oid)?
+        .owner_object_id;
+    world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)?;
 
     // `if (owner != null && !owner.isInDuel() && (!isInsideZone(PVP) || isInsideZone(SIEGE)))`
     // — no exp is lost to a duel or an arena death.
@@ -1383,19 +1804,30 @@ pub(crate) fn pet_do_die(world: &mut World, pet_oid: i32) -> Option<i32> {
 /// *current* level band — so the loss is a share of one level's worth of exp,
 /// and it shrinks as the pet levels.
 fn pet_death_penalty(world: &mut World, pet_oid: i32) {
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
-    let Some(npc_id) = npc_template_id(world, pet_oid) else { return };
+    let Some(npc_id) = npc_template_id(world, pet_oid) else {
+        return;
+    };
     let (this_level, next_level) = {
-        let Some(t) = world.data.pet_data.get(npc_id) else { return };
+        let Some(t) = world.data.pet_data.get(npc_id) else {
+            return;
+        };
         (t.exp_for_level(pet.level), t.exp_for_level(pet.level + 1))
     };
     let band = (next_level - this_level).max(0) as f64;
     let percent_lost = (-0.07 * pet.level as f64) + 6.5;
     let lost = ((band * percent_lost) / 100.0).round() as i64;
 
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
         // Captured *before* the penalty — `restoreExp` gives back a share of
         // the gap between this and the post-penalty total.
         p.exp_before_death = p.exp;
@@ -1407,14 +1839,22 @@ fn pet_death_penalty(world: &mut World, pet_oid: i32) {
 /// Java `Pet.restoreExp(restorePercent)` — hand back a share of what the death
 /// penalty took. Called from the resurrection path with the skill's power.
 pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: f64) {
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
     if pet.exp_before_death <= 0 {
         return;
     }
-    let regained = (((pet.exp_before_death - pet.exp) as f64 * restore_percent) / 100.0).round() as i64;
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::PetOf>(&pet_oid) {
+    let regained =
+        (((pet.exp_before_death - pet.exp) as f64 * restore_percent) / 100.0).round() as i64;
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
         p.exp += regained.max(0);
         // One resurrection consumes the record — a second revive restores
         // nothing, as in Java.
@@ -1440,10 +1880,18 @@ pub(crate) fn pet_restore_exp(world: &mut World, pet_oid: i32, restore_percent: 
 /// branch. (The "24 hours" in the death message is flavour text that does not
 /// match the mechanic; checked against the datapack rather than trusted.)
 pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
-    let Some(owner) = world.objects.get_component::<ServitorOf>(&pet_oid).map(|s| s.owner_object_id) else {
+    let Some(owner) = world
+        .objects
+        .get_component::<ServitorOf>(&pet_oid)
+        .map(|s| s.owner_object_id)
+    else {
         return;
     };
-    let Some(pet) = world.objects.get_component::<crate::model::components::PetOf>(&pet_oid).copied() else {
+    let Some(pet) = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet_oid)
+        .copied()
+    else {
         return;
     };
 
@@ -1454,11 +1902,16 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
         .get_component::<crate::model::inventory::PetInventory>(&owner)
         .map(|pi| pi.0.items().iter().map(|i| (i.item_id, i.count)).collect())
         .unwrap_or_default();
-    if let Some(pi) = world.objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner) {
+    if let Some(pi) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::PetInventory>(&owner)
+    {
         pi.0 = Default::default();
     }
     for (item_id, count) in carried {
-        let Some(oid) = world.alloc_object_id() else { break };
+        let Some(oid) = world.alloc_object_id() else {
+            break;
+        };
         let World { data, objects, .. } = world;
         if let Some(inv) = objects.get_component_mut::<crate::model::inventory::Inventory>(&owner) {
             inv.add_item(&data.item_data, oid, item_id, count);
@@ -1482,7 +1935,9 @@ pub(crate) fn pet_decay(world: &mut World, pet_oid: i32) {
         .objects
         .get_component_mut::<crate::model::components::PlayerPets>(&owner)
         .map(|p| p.0.remove(&collar));
-    let _ = world.db.send(crate::db::DbCommand::DeletePetRow { collar_object_id: collar });
+    let _ = world.db.send(crate::db::DbCommand::DeletePetRow {
+        collar_object_id: collar,
+    });
 
     // The owner has no pet any more.
     set_summon_link(world, owner, None, None, true);
@@ -1506,11 +1961,18 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
     use crate::data::item_data::ActionType;
     use crate::model::components::ChargedShots;
 
-    let already = world.objects.get_component::<ChargedShots>(&summon_oid).is_some_and(|c| c.soulshot);
+    let already = world
+        .objects
+        .get_component::<ChargedShots>(&summon_oid)
+        .is_some_and(|c| c.soulshot);
     if already || !physical {
         return already;
     }
-    let Some(owner) = world.objects.get_component::<ServitorOf>(&summon_oid).map(|s| s.owner_object_id) else {
+    let Some(owner) = world
+        .objects
+        .get_component::<ServitorOf>(&summon_oid)
+        .map(|s| s.owner_object_id)
+    else {
         return false;
     };
     // How many the swing costs: from the pet's level row. A servitor has no
@@ -1536,8 +1998,8 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
         .map(|p| p.auto_shots.clone())
         .unwrap_or_default();
     for item_id in shots {
-        let is_summon_soulshot =
-            world.data.item_data.get(item_id).map(|t| t.default_action) == Some(ActionType::SummonSoulshot);
+        let is_summon_soulshot = world.data.item_data.get(item_id).map(|t| t.default_action)
+            == Some(ActionType::SummonSoulshot);
         if !is_summon_soulshot {
             continue;
         }
@@ -1549,7 +2011,10 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
         if have < per_hit {
             // Java drops the toggle when the item runs out entirely.
             if have == 0 {
-                if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&owner) {
+                if let Some(p) = world
+                    .objects
+                    .get_component_mut::<crate::model::Player>(&owner)
+                {
                     p.auto_shots.retain(|&id| id != item_id);
                 }
             }
@@ -1564,8 +2029,14 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
         if let Some(cs) = client_for_player(world, owner).and_then(|c| world.clients.get(&c)) {
             cs.send(packet);
         }
-        if world.objects.get_component::<ChargedShots>(&summon_oid).is_none() {
-            world.objects.add_components(&summon_oid, ChargedShots::default());
+        if world
+            .objects
+            .get_component::<ChargedShots>(&summon_oid)
+            .is_none()
+        {
+            world
+                .objects
+                .add_components(&summon_oid, ChargedShots::default());
         }
         if let Some(c) = world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
             c.soulshot = true;
@@ -1603,7 +2074,8 @@ pub(crate) fn uncharge_soulshot(world: &mut World, summon_oid: i32) -> bool {
 /// off.
 pub(crate) fn equip_pet_item(world: &mut World, owner_oid: i32, pet_oid: i32, object_id: i32) {
     let World { data, objects, .. } = world;
-    let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner_oid) else {
+    let Some(pi) = objects.get_component_mut::<crate::model::inventory::PetInventory>(&owner_oid)
+    else {
         return;
     };
     let worn = pi.0.paperdoll_slot_of(object_id).is_some();
@@ -1657,7 +2129,10 @@ pub(crate) fn restore_pet_on_login(world: &mut World, owner_oid: i32) {
     // pet is identical to a freshly summoned one — same stats, same feed clock,
     // same packets. It reads its state from the saved row exactly as it does
     // after a mid-session re-summon.
-    if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&owner_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&owner_oid)
+    {
         p.pending_pet_collar = Some(collar);
     }
     summon_pet(world, owner_oid);
@@ -1673,12 +2148,21 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
     let Some(servitor_oid) = servitor_of(world, owner_oid) else {
         // Nothing out: clear any stale row, or a servitor dismissed before
         // logout would come back anyway.
-        if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+        if let Some(s) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+        {
             s.0.clear();
         }
         return;
     };
-    let Some(link) = world.objects.get_component::<ServitorOf>(&servitor_oid).copied() else { return };
+    let Some(link) = world
+        .objects
+        .get_component::<ServitorOf>(&servitor_oid)
+        .copied()
+    else {
+        return;
+    };
     // A servitor summoned with no lifetime (`lifeTime <= 0` → `u64::MAX`) has
     // nothing to count down; store 0 and let the re-cast decide again.
     let remaining_secs = if link.expires_at_tick == u64::MAX {
@@ -1709,12 +2193,27 @@ pub(crate) fn sync_summon_row(world: &mut World, owner_oid: i32) {
                 .collect()
         })
         .unwrap_or_default();
-    let row =
-        crate::db::SummonRow { summon_skill_id: link.reference_skill, cur_hp, cur_mp, remaining_secs, buffs };
-    if world.objects.get_component::<crate::model::components::PlayerSummons>(&owner_oid).is_none() {
-        world.objects.add_components(&owner_oid, crate::model::components::PlayerSummons::default());
+    let row = crate::db::SummonRow {
+        summon_skill_id: link.reference_skill,
+        cur_hp,
+        cur_mp,
+        remaining_secs,
+        buffs,
+    };
+    if world
+        .objects
+        .get_component::<crate::model::components::PlayerSummons>(&owner_oid)
+        .is_none()
+    {
+        world.objects.add_components(
+            &owner_oid,
+            crate::model::components::PlayerSummons::default(),
+        );
     }
-    if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+    if let Some(s) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+    {
         s.0.clear();
         s.0.push(row);
     }
@@ -1742,7 +2241,10 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     };
     // The row is consumed either way (Java `removeServitor` before the recast):
     // a skill the player no longer knows must not be retried every login.
-    if let Some(s) = world.objects.get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid) {
+    if let Some(s) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerSummons>(&owner_oid)
+    {
         s.0.clear();
     }
     let Some(level) = world
@@ -1752,11 +2254,20 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
     else {
         return; // unlearned across a subclass change — nothing to restore
     };
-    let Some(skill) = world.data.skill_data.get(row.summon_skill_id, level).cloned() else { return };
+    let Some(skill) = world
+        .data
+        .skill_data
+        .get(row.summon_skill_id, level)
+        .cloned()
+    else {
+        return;
+    };
     crate::game_loop::skills::effects::apply_skill_effects(world, owner_oid, owner_oid, &skill);
 
     // Stamp the saved state back over the fresh summon.
-    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return };
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else {
+        return;
+    };
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&servitor_oid) {
         v.cur_hp = (row.cur_hp as f64).clamp(1.0, v.max_hp as f64);
         v.cur_mp = (row.cur_mp as f64).clamp(0.0, v.max_mp as f64);
@@ -1789,28 +2300,49 @@ pub(crate) fn restore_servitor_on_login(world: &mut World, owner_oid: i32) {
 /// as one the servitor chose itself.
 pub(crate) fn use_servitor_skill(world: &mut World, owner_oid: i32, skill_id: i32) {
     use crate::network::server_packets::sm_ids;
-    let Some(servitor_oid) = servitor_of(world, owner_oid) else { return };
+    let Some(servitor_oid) = servitor_of(world, owner_oid) else {
+        return;
+    };
 
     let known_level = npc_template_id(world, servitor_oid)
         .and_then(|id| world.data.npc_data.get(id))
-        .and_then(|t| t.skill_list.iter().find(|(sid, _)| *sid == skill_id).map(|(_, lvl)| *lvl));
+        .and_then(|t| {
+            t.skill_list
+                .iter()
+                .find(|(sid, _)| *sid == skill_id)
+                .map(|(_, lvl)| *lvl)
+        });
     let Some(level) = known_level else {
         // Not this summon's skill — Java's handler simply finds nothing to
         // cast. Silent, as it is: the client only shows buttons the summon has.
         return;
     };
-    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else { return };
+    let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() else {
+        return;
+    };
 
     // A self/support skill targets the servitor; anything else needs the
     // owner's current target, exactly like the attack command.
-    let target_oid = if matches!(skill.target_type, crate::model::skill::TargetType::Self_ | crate::model::skill::TargetType::None_) {
+    let target_oid = if matches!(
+        skill.target_type,
+        crate::model::skill::TargetType::Self_ | crate::model::skill::TargetType::None_
+    ) {
         servitor_oid
     } else {
-        match world.objects.get_component::<crate::model::components::TargetRef>(&owner_oid).and_then(|t| t.0) {
+        match world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&owner_oid)
+            .and_then(|t| t.0)
+        {
             Some(t) => t,
             None => {
-                if let Some(cs) = client_for_player(world, owner_oid).and_then(|c| world.clients.get(&c)) {
-                    cs.send(server_packets::system_message_with(sm_ids::INVALID_TARGET, &[]));
+                if let Some(cs) =
+                    client_for_player(world, owner_oid).and_then(|c| world.clients.get(&c))
+                {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::INVALID_TARGET,
+                        &[],
+                    ));
                 }
                 return;
             }
@@ -1829,10 +2361,18 @@ pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
     use crate::data::item_data::ActionType;
     use crate::model::components::ChargedShots;
 
-    if world.objects.get_component::<ChargedShots>(&summon_oid).is_some_and(|c| c.spiritshot) {
+    if world
+        .objects
+        .get_component::<ChargedShots>(&summon_oid)
+        .is_some_and(|c| c.spiritshot)
+    {
         return true;
     }
-    let Some(owner) = world.objects.get_component::<ServitorOf>(&summon_oid).map(|s| s.owner_object_id) else {
+    let Some(owner) = world
+        .objects
+        .get_component::<ServitorOf>(&summon_oid)
+        .map(|s| s.owner_object_id)
+    else {
         return false;
     };
     let per_hit = world
@@ -1853,7 +2393,9 @@ pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
         .map(|p| p.auto_shots.clone())
         .unwrap_or_default();
     for item_id in shots {
-        if world.data.item_data.get(item_id).map(|t| t.default_action) != Some(ActionType::SummonSpiritshot) {
+        if world.data.item_data.get(item_id).map(|t| t.default_action)
+            != Some(ActionType::SummonSpiritshot)
+        {
             continue;
         }
         let have = world
@@ -1873,8 +2415,14 @@ pub(crate) fn recharge_spiritshots(world: &mut World, summon_oid: i32) -> bool {
         if let Some(cs) = client_for_player(world, owner).and_then(|c| world.clients.get(&c)) {
             cs.send(packet);
         }
-        if world.objects.get_component::<ChargedShots>(&summon_oid).is_none() {
-            world.objects.add_components(&summon_oid, ChargedShots::default());
+        if world
+            .objects
+            .get_component::<ChargedShots>(&summon_oid)
+            .is_none()
+        {
+            world
+                .objects
+                .add_components(&summon_oid, ChargedShots::default());
         }
         if let Some(c) = world.objects.get_component_mut::<ChargedShots>(&summon_oid) {
             c.spiritshot = true;

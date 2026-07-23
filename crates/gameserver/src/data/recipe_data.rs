@@ -86,7 +86,9 @@ impl RecipeData {
 
     /// `getRecipeByItemId(itemId)` — the recipe an etc-item teaches.
     pub fn by_recipe_item_id(&self, item_id: i32) -> Option<&RecipeList> {
-        self.by_item.get(&item_id).and_then(|id| self.recipes.get(id))
+        self.by_item
+            .get(&item_id)
+            .and_then(|id| self.recipes.get(id))
     }
 
     pub fn len(&self) -> usize {
@@ -123,7 +125,9 @@ impl RecipeData {
                                 num(b"craftLevel"),
                                 num(b"successRate"),
                             ) else {
-                                warn!("RecipeData: recipe item missing required attribute, skipping");
+                                warn!(
+                                    "RecipeData: recipe item missing required attribute, skipping"
+                                );
                                 cur = None;
                                 continue;
                             };

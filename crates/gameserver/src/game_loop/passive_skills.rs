@@ -47,8 +47,10 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
         return false;
     };
     let desired = crate::model::conditioned_passive_buffs(&world.data, book, inventory);
-    let desired_pairs: Vec<(i32, Vec<StatModifierEffect>)> =
-        desired.iter().map(|b| (b.skill_id, b.effects.clone())).collect();
+    let desired_pairs: Vec<(i32, Vec<StatModifierEffect>)> = desired
+        .iter()
+        .map(|b| (b.skill_id, b.effects.clone()))
+        .collect();
 
     let current: Vec<(i32, Vec<StatModifierEffect>)> = world
         .objects
@@ -77,22 +79,42 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
     // --- apply phase: drop the managed passive buffs, re-add those that apply.
     // `remove_buff`/`apply_buff` rebuild the modifier maps from the remaining
     // buffs, composing with the expertise penalty buffs (distinct skill ids). ---
-    let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world.objects.get_many_mut::<(
-        &Player,
-        &BaseStats,
-        &mut StatModifiers,
-        &Inventory,
-        &mut Buffs,
-        &mut Speeds,
-        &mut CombatStats,
-    )>(&object_id) else {
+    let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+        world.objects.get_many_mut::<(
+            &Player,
+            &BaseStats,
+            &mut StatModifiers,
+            &Inventory,
+            &mut Buffs,
+            &mut Speeds,
+            &mut CombatStats,
+        )>(&object_id)
+    else {
         return false;
     };
     for &skill_id in &managed_ids {
-        player.remove_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
+        player.remove_buff(
+            &world.data,
+            base,
+            &mut mods,
+            inventory,
+            &mut buffs,
+            &mut speeds,
+            &mut combat,
+            skill_id,
+        );
     }
     for buff in desired {
-        player.apply_buff(&world.data, base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff);
+        player.apply_buff(
+            &world.data,
+            base,
+            &mut mods,
+            inventory,
+            &mut buffs,
+            &mut speeds,
+            &mut combat,
+            buff,
+        );
     }
     true
 }
@@ -102,7 +124,12 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
 fn send_user_info(world: &World, object_id: i32) {
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
         if let Some(view) = crate::model::PlayerView::of(&world.objects, object_id) {
-            let user_info = crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, super::party::calculate_relation(world, view.p));
+            let user_info = crate::network::user_info::user_info(
+                &view,
+                &world.data,
+                &world.cfg.character,
+                super::party::calculate_relation(world, view.p),
+            );
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(user_info);
             }
@@ -111,6 +138,9 @@ fn send_user_info(world: &World, object_id: i32) {
 }
 
 /// Order-insensitive equality of two `(skill_id, effects)` buff sets.
-fn same_buff_set(a: &[(i32, Vec<StatModifierEffect>)], b: &[(i32, Vec<StatModifierEffect>)]) -> bool {
+fn same_buff_set(
+    a: &[(i32, Vec<StatModifierEffect>)],
+    b: &[(i32, Vec<StatModifierEffect>)],
+) -> bool {
     a.len() == b.len() && a.iter().all(|entry| b.contains(entry))
 }

@@ -74,7 +74,11 @@ impl QuestScript for NewbieGuide {
         }
         // Java `Player.isMageClass()` (a `ClassId` flag); `MAGE_GROUP` is
         // this port's established stand-in for it.
-        let suffix = if ctx.is_in_category("MAGE_GROUP") { "m" } else { "f" };
+        let suffix = if ctx.is_in_category("MAGE_GROUP") {
+            "m"
+        } else {
+            "f"
+        };
         Some(format!("{}-{event}{suffix}.htm", ctx.npc_id))
     }
 }

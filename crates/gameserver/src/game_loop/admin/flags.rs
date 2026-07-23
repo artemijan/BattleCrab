@@ -29,7 +29,11 @@ impl GmFlag {
 
 /// Flip a GM flag on `target`, returning its new state.
 fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
-    let mut flags = world.objects.get_component::<AdminFlags>(&target).copied().unwrap_or_default();
+    let mut flags = world
+        .objects
+        .get_component::<AdminFlags>(&target)
+        .copied()
+        .unwrap_or_default();
     let now = match flag {
         GmFlag::Invul => {
             flags.invul = !flags.invul;
@@ -54,12 +58,19 @@ fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
 fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisible: bool) {
     // Keep the current transform id in the packet so toggling invisibility on a
     // transformed GM doesn't drop the transform model.
-    let transform = world.objects.get_component::<Player>(&object_id).map_or(0, |p| p.transform_display_id);
+    let transform = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map_or(0, |p| p.transform_display_id);
     // Carry the buff-driven visuals through too, so toggling invisibility on a
     // stunned/poisoned GM doesn't wipe those from their own view.
     let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(object_id, invisible, transform, &visuals));
+        cs.send(
+            crate::network::user_info::ex_user_info_abnormal_visual_effect(
+                object_id, invisible, transform, &visuals,
+            ),
+        );
     }
 }
 
@@ -72,7 +83,11 @@ fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisibl
 pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
     let hidden = set_flag(world, object_id, GmFlag::Hidden);
     if hidden {
-        super::helpers::broadcast_to_others(world, object_id, &server_packets::delete_object(object_id));
+        super::helpers::broadcast_to_others(
+            world,
+            object_id,
+            &server_packets::delete_object(object_id),
+        );
         send_message(world, client_id, "You are now hidden.");
     } else {
         super::visibility::on_enter_world(world, client_id, object_id);
@@ -85,14 +100,22 @@ pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
 /// GM. Java `setSilenceMode` + the MESSAGE_REFUSAL/ACCEPTANCE_MODE system
 /// message; the whisper handler refuses PMs to a silenced player.
 pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
-    let mut flags = world.objects.get_component::<AdminFlags>(&object_id).copied().unwrap_or_default();
+    let mut flags = world
+        .objects
+        .get_component::<AdminFlags>(&object_id)
+        .copied()
+        .unwrap_or_default();
     flags.silence = !flags.silence;
     let on = flags.silence;
     world.objects.add_components(&object_id, flags);
     send_sm(
         world,
         client_id,
-        if on { server_packets::sm_ids::MESSAGE_REFUSAL_MODE } else { server_packets::sm_ids::MESSAGE_ACCEPTANCE_MODE },
+        if on {
+            server_packets::sm_ids::MESSAGE_REFUSAL_MODE
+        } else {
+            server_packets::sm_ids::MESSAGE_ACCEPTANCE_MODE
+        },
     );
     // Java `setSilenceMode` → `EtcStatusUpdate`: redraw the chat-block icon.
     super::helpers::send_etc_status_update(world, client_id, object_id);
@@ -103,7 +126,15 @@ pub(super) fn admin_silence(world: &mut World, client_id: u32, object_id: i32) {
 /// `//invul` / `//undying` — toggle the flag on the GM.
 pub(super) fn toggle_flag(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
     let on = set_flag(world, object_id, flag);
-    send_message(world, client_id, &format!("{} {}.", flag.label(), if on { "enabled" } else { "disabled" }));
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "{} {}.",
+            flag.label(),
+            if on { "enabled" } else { "disabled" }
+        ),
+    );
 }
 
 /// Java `EnterWorld.runImpl`'s GM startup block (the `gmStartupProcess:`
@@ -117,11 +148,18 @@ pub(super) fn toggle_flag(world: &mut World, client_id: u32, object_id: i32, fla
 /// The caller has already confirmed the player is a GM.
 pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32) {
     let gm = world.data.gm;
-    let Some(access_level) = world.objects.get_component::<Player>(&object_id).map(|p| p.access_level)
+    let Some(access_level) = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.access_level)
     else {
         return;
     };
-    let mut flags = world.objects.get_component::<AdminFlags>(&object_id).copied().unwrap_or_default();
+    let mut flags = world
+        .objects
+        .get_component::<AdminFlags>(&object_id)
+        .copied()
+        .unwrap_or_default();
 
     // `GMStartupBuilderHide`: hide + the three retail "…is default for builder"
     // notices, then **break** — Java deliberately skips the rest so the custom
@@ -173,14 +211,28 @@ fn register_gm(world: &World, _object_id: i32, access_level: i32) {
 }
 
 /// `//setinvul` / `//setundying` — toggle the flag on the targeted player.
-pub(super) fn toggle_flag_on_target(world: &mut World, client_id: u32, object_id: i32, flag: GmFlag) {
-    let Some(target) = current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+pub(super) fn toggle_flag_on_target(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    flag: GmFlag,
+) {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
         send_message(world, client_id, "Select a player first.");
         return;
     };
     let on = set_flag(world, target, flag);
-    send_message(world, client_id, &format!("Target {} {}.", flag.label().to_lowercase(), if on { "enabled" } else { "disabled" }));
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Target {} {}.",
+            flag.label().to_lowercase(),
+            if on { "enabled" } else { "disabled" }
+        ),
+    );
 }
 
 /// `AdminEffects`' `//ave_abnormal <NAME> [radius]` — **toggle** an abnormal
@@ -195,18 +247,29 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
     use crate::model::components::AdminVisuals;
 
     let Some(&name) = args.first() else {
-        send_message(world, client_id, "Usage: //ave_abnormal <EFFECT_NAME> [radius]");
+        send_message(
+            world,
+            client_id,
+            "Usage: //ave_abnormal <EFFECT_NAME> [radius]",
+        );
         return;
     };
     let Some(ave) = crate::model::skill::abnormal_visual_client_id(&name.to_uppercase()) else {
-        send_message(world, client_id, &format!("Unknown abnormal visual effect: {name}"));
+        send_message(
+            world,
+            client_id,
+            &format!("Unknown abnormal visual effect: {name}"),
+        );
         return;
     };
     let radius = args.get(1).and_then(|r| r.parse::<i32>().ok()).unwrap_or(0);
 
     // Target set: everyone in radius, else the target, else self.
     let targets: Vec<i32> = if radius > 0 {
-        let Some(origin) = world.objects.get_component::<crate::model::components::Position>(&object_id).copied()
+        let Some(origin) = world
+            .objects
+            .get_component::<crate::model::components::Position>(&object_id)
+            .copied()
         else {
             return;
         };
@@ -214,10 +277,14 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
         for cs in world.clients.values() {
             if let crate::session::ClientSession::InGame(s) = cs {
                 let oid = s.player_object_id();
-                if world.objects.get_component::<crate::model::components::Position>(&oid).is_some_and(|p| {
-                    let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
-                    (dx * dx + dy * dy).sqrt() <= radius as f64
-                }) {
+                if world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&oid)
+                    .is_some_and(|p| {
+                        let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
+                        (dx * dx + dy * dy).sqrt() <= radius as f64
+                    })
+                {
                     out.push(oid);
                 }
             }
@@ -242,7 +309,9 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
                     }
                 }
                 None => {
-                    world.objects.add_components(target, AdminVisuals(vec![ave]));
+                    world
+                        .objects
+                        .add_components(target, AdminVisuals(vec![ave]));
                     true
                 }
             }
@@ -262,15 +331,21 @@ pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i
                 .get_component::<crate::model::components::AdminFlags>(target)
                 .is_some_and(|f| f.hidden);
             if let Some(cs) = world.clients.get(&cid) {
-                cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
-                    *target, hidden, transform, &visuals,
-                ));
+                cs.send(
+                    crate::network::user_info::ex_user_info_abnormal_visual_effect(
+                        *target, hidden, transform, &visuals,
+                    ),
+                );
             }
         }
     }
     send_message(
         world,
         client_id,
-        &format!("{name}: enabled on {toggled_on}, disabled on {} of {} target(s).", targets.len() as i32 - toggled_on, targets.len()),
+        &format!(
+            "{name}: enabled on {toggled_on}, disabled on {} of {} target(s).",
+            targets.len() as i32 - toggled_on,
+            targets.len()
+        ),
     );
 }

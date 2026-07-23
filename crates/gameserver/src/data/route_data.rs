@@ -130,7 +130,11 @@ impl RouteData {
 
         // Drop attachments whose route was discarded (empty node list).
         by_npc.retain(|_, &mut idx| idx < routes.len());
-        info!("RouteData: Loaded {} walking routes for {} NPCs.", routes.len(), by_npc.len());
+        info!(
+            "RouteData: Loaded {} walking routes for {} NPCs.",
+            routes.len(),
+            by_npc.len()
+        );
         Self { routes, by_npc }
     }
 

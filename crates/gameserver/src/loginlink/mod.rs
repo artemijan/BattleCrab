@@ -61,10 +61,21 @@ pub struct LoginLinkConfig {
 
 /// Commands the game thread sends to the link (game → LS).
 pub enum LoginLinkCommand {
-    PlayerAuthRequest { account: String, key: SessionKey },
-    PlayerInGame { accounts: Vec<String> },
-    PlayerLogout { account: String },
-    ReplyCharacters { account: String, chars: u8, del_times: Vec<i64> },
+    PlayerAuthRequest {
+        account: String,
+        key: SessionKey,
+    },
+    PlayerInGame {
+        accounts: Vec<String>,
+    },
+    PlayerLogout {
+        account: String,
+    },
+    ReplyCharacters {
+        account: String,
+        chars: u8,
+        del_times: Vec<i64>,
+    },
 }
 
 /// Events the link reports to the game thread (LS → game).
@@ -101,7 +112,10 @@ pub async fn run(
         return;
     }
     loop {
-        info!("LoginServerThread: Connecting to login on {}:{}", cfg.host, cfg.port);
+        info!(
+            "LoginServerThread: Connecting to login on {}:{}",
+            cfg.host, cfg.port
+        );
         match TcpStream::connect((cfg.host.as_str(), cfg.port)).await {
             Ok(stream) => {
                 if let Err(e) = session(&cfg, stream, &mut cmd_rx, &event_tx).await {
@@ -219,12 +233,20 @@ fn status_attributes(cfg: &LoginLinkConfig) -> Vec<(i32, i32)> {
     let mut attrs = Vec::new();
     attrs.push((
         status::SERVER_LIST_SQUARE_BRACKET,
-        if cfg.server_list_bracket { status::ON } else { status::OFF },
+        if cfg.server_list_bracket {
+            status::ON
+        } else {
+            status::OFF
+        },
     ));
     attrs.push((status::SERVER_TYPE, cfg.server_list_type));
     attrs.push((
         status::SERVER_LIST_STATUS,
-        if cfg.gmonly { status::STATUS_GM_ONLY } else { status::STATUS_AUTO },
+        if cfg.gmonly {
+            status::STATUS_GM_ONLY
+        } else {
+            status::STATUS_AUTO
+        },
     ));
     let age = match cfg.server_list_age {
         15 => status::SERVER_AGE_15,
@@ -235,6 +257,10 @@ fn status_attributes(cfg: &LoginLinkConfig) -> Vec<(i32, i32)> {
     attrs
 }
 
-async fn send<W: AsyncWrite + Unpin>(write: &mut W, crypt: &NewCrypt, body: Vec<u8>) -> std::io::Result<()> {
+async fn send<W: AsyncWrite + Unpin>(
+    write: &mut W,
+    crypt: &NewCrypt,
+    body: Vec<u8>,
+) -> std::io::Result<()> {
     write_frame(write, &gs_encrypt(crypt, body)).await
 }

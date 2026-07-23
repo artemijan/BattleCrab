@@ -28,9 +28,25 @@ pub fn spawn_static_objects(world: &mut World) -> usize {
         let region = region_of(x, y);
         world.objects.spawn(
             object_id,
-            (StaticObj { object_id, static_id }, Position { x, y, z, heading: 0 }, RegionCell(region)),
+            (
+                StaticObj {
+                    object_id,
+                    static_id,
+                },
+                Position {
+                    x,
+                    y,
+                    z,
+                    heading: 0,
+                },
+                RegionCell(region),
+            ),
         );
-        world.static_regions.entry(region).or_default().push(object_id);
+        world
+            .static_regions
+            .entry(region)
+            .or_default()
+            .push(object_id);
         placed += 1;
     }
     if placed > 0 {

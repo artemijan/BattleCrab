@@ -27,6 +27,9 @@ const ATTACKER_REMOVE: (i32, i32, i32) = (150_037, -57_255, -2_976);
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
 pub const FIGHTING: i32 = 2;
+// No reader yet; the ladder is kept whole so the Java-mirrored numbering
+// can't drift when the remaining states land.
+#[allow(dead_code)]
 pub const DEAD: i32 = 3;
 
 /// Strider riders are debuffed on sight (skill 4258), once.
@@ -52,8 +55,16 @@ pub enum AttackVerdict {
 /// an out-of-zone attacker dies whatever the boss's status — including while
 /// Valakas is dead, when the status check would otherwise have merely teleported
 /// them.
-pub(crate) fn on_valakas_attacked(world: &mut World, valakas_oid: i32, attacker_oid: i32) -> AttackVerdict {
-    if world.objects.get_component::<crate::model::Player>(&attacker_oid).is_none() {
+pub(crate) fn on_valakas_attacked(
+    world: &mut World,
+    valakas_oid: i32,
+    attacker_oid: i32,
+) -> AttackVerdict {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&attacker_oid)
+        .is_none()
+    {
         return AttackVerdict::Allowed;
     }
 
@@ -84,8 +95,14 @@ pub(crate) fn on_valakas_attacked(world: &mut World, valakas_oid: i32, attacker_
 }
 
 fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
-    let Some(pos) = world.objects.get_component::<Position>(&attacker_oid) else { return false };
-    world.data.zone_data.by_id(BOSS_ZONE_ID).is_some_and(|z| z.contains(pos.x, pos.y, pos.z))
+    let Some(pos) = world.objects.get_component::<Position>(&attacker_oid) else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(BOSS_ZONE_ID)
+        .is_some_and(|z| z.contains(pos.x, pos.y, pos.z))
 }
 
 fn already_debuffed(world: &World, oid: i32) -> bool {
@@ -96,8 +113,12 @@ fn already_debuffed(world: &World, oid: i32) -> bool {
 }
 
 fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
-    let Some(skill) = world.data.skill_data.get(STRIDER_DEBUFF, 1).cloned() else { return };
-    crate::game_loop::skills::effects::apply_continuous_effects(world, caster_oid, target_oid, &skill, None);
+    let Some(skill) = world.data.skill_data.get(STRIDER_DEBUFF, 1).cloned() else {
+        return;
+    };
+    crate::game_loop::skills::effects::apply_continuous_effects(
+        world, caster_oid, target_oid, &skill, None,
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -119,15 +140,42 @@ const TICKS_PER_SECOND: u64 = 10;
 /// The final beat carries no camera: it flips the status to `FIGHTING`, which
 /// is what actually starts the fight and locks entry.
 const CINEMATIC: [(u64, Option<[i32; 11]>); 10] = [
-    (1_700, Some([1800, 180, -1, 1500, 15000, 10000, 0, 0, 1, 0, 0])),
-    (3_200, Some([1300, 180, -5, 3000, 15000, 10000, 0, -5, 1, 0, 0])),
-    (6_500, Some([500, 180, -8, 600, 15000, 10000, 0, 60, 1, 0, 0])),
-    (9_400, Some([800, 180, -8, 2700, 15000, 10000, 0, 30, 1, 0, 0])),
-    (12_100, Some([200, 250, 70, 0, 15000, 10000, 30, 80, 1, 0, 0])),
-    (12_430, Some([1100, 250, 70, 2500, 15000, 10000, 30, 80, 1, 0, 0])),
-    (15_430, Some([700, 150, 30, 0, 15000, 10000, -10, 60, 1, 0, 0])),
-    (16_830, Some([1200, 150, 20, 2900, 15000, 10000, -10, 30, 1, 0, 0])),
-    (23_530, Some([750, 170, -10, 3400, 15000, 4000, 10, -15, 1, 0, 0])),
+    (
+        1_700,
+        Some([1800, 180, -1, 1500, 15000, 10000, 0, 0, 1, 0, 0]),
+    ),
+    (
+        3_200,
+        Some([1300, 180, -5, 3000, 15000, 10000, 0, -5, 1, 0, 0]),
+    ),
+    (
+        6_500,
+        Some([500, 180, -8, 600, 15000, 10000, 0, 60, 1, 0, 0]),
+    ),
+    (
+        9_400,
+        Some([800, 180, -8, 2700, 15000, 10000, 0, 30, 1, 0, 0]),
+    ),
+    (
+        12_100,
+        Some([200, 250, 70, 0, 15000, 10000, 30, 80, 1, 0, 0]),
+    ),
+    (
+        12_430,
+        Some([1100, 250, 70, 2500, 15000, 10000, 30, 80, 1, 0, 0]),
+    ),
+    (
+        15_430,
+        Some([700, 150, 30, 0, 15000, 10000, -10, 60, 1, 0, 0]),
+    ),
+    (
+        16_830,
+        Some([1200, 150, 20, 2900, 15000, 10000, -10, 30, 1, 0, 0]),
+    ),
+    (
+        23_530,
+        Some([750, 170, -10, 3400, 15000, 4000, 10, -15, 1, 0, 0]),
+    ),
     (26_000, None), // status → FIGHTING
 ];
 
@@ -147,18 +195,34 @@ pub(crate) fn begin_cinematic(world: &mut World, valakas_oid: i32) {
     for (i, (delay_ms, _)) in CINEMATIC.iter().enumerate() {
         world.scheduler.schedule(
             world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
-            crate::scheduler::ScheduledTask::ValakasCinematic { valakas_oid, step: i as u8 },
+            crate::scheduler::ScheduledTask::ValakasCinematic {
+                valakas_oid,
+                step: i as u8,
+            },
         );
     }
 }
 
 /// One cinematic beat.
 pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u8) {
-    let Some((_, camera)) = CINEMATIC.get(step as usize).copied() else { return };
+    let Some((_, camera)) = CINEMATIC.get(step as usize).copied() else {
+        return;
+    };
     match camera {
         Some(a) => {
             let pkt = crate::network::server_packets::special_camera(
-                valakas_oid, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10],
+                valakas_oid,
+                a[0],
+                a[1],
+                a[2],
+                a[3],
+                a[4],
+                a[5],
+                a[6],
+                a[7],
+                a[8],
+                a[9],
+                a[10],
             );
             broadcast_to_lair(world, &pkt);
         }
@@ -226,13 +290,29 @@ pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
     // TODO(G23): Java plays the type-1 music variant `PlaySound(1, "B03_D", …)`;
     // the ported builder emits the type-0 quest-sound form.
     broadcast_to_lair(world, &crate::network::server_packets::play_sound("B03_D"));
-    let open = crate::network::server_packets::special_camera(valakas_oid, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0);
+    let open = crate::network::server_packets::special_camera(
+        valakas_oid,
+        1200,
+        20,
+        -10,
+        0,
+        10000,
+        13000,
+        0,
+        0,
+        0,
+        0,
+        0,
+    );
     broadcast_to_lair(world, &open);
 
     for (i, (delay_ms, _)) in DEATH_CINEMATIC.iter().enumerate() {
         world.scheduler.schedule(
             world.tick + (delay_ms / 1000 * TICKS_PER_SECOND).max(1),
-            crate::scheduler::ScheduledTask::ValakasDeathCinematic { valakas_oid, step: i as u8 },
+            crate::scheduler::ScheduledTask::ValakasDeathCinematic {
+                valakas_oid,
+                step: i as u8,
+            },
         );
     }
 }
@@ -240,9 +320,22 @@ pub(crate) fn on_valakas_killed(world: &mut World, valakas_oid: i32) {
 /// One death-cinematic beat. The eighth (`die_8`) also drops the fifteen exit
 /// cubes and arms the 15-minute `remove_players` oust.
 pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, step: u8) {
-    let Some((_, a)) = DEATH_CINEMATIC.get(step as usize).copied() else { return };
+    let Some((_, a)) = DEATH_CINEMATIC.get(step as usize).copied() else {
+        return;
+    };
     let pkt = crate::network::server_packets::special_camera(
-        valakas_oid, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10],
+        valakas_oid,
+        a[0],
+        a[1],
+        a[2],
+        a[3],
+        a[4],
+        a[5],
+        a[6],
+        a[7],
+        a[8],
+        a[9],
+        a[10],
     );
     broadcast_to_lair(world, &pkt);
 
@@ -250,9 +343,10 @@ pub(crate) fn handle_death_cinematic_step(world: &mut World, valakas_oid: i32, s
         for (x, y, z) in TELEPORT_CUBE_LOCATIONS {
             crate::model::npc::spawn_npc_at(world, CUBE, x, y, z, 0);
         }
-        world
-            .scheduler
-            .schedule(world.tick + REMOVE_PLAYERS_SECS * TICKS_PER_SECOND, crate::scheduler::ScheduledTask::ValakasRemovePlayers);
+        world.scheduler.schedule(
+            world.tick + REMOVE_PLAYERS_SECS * TICKS_PER_SECOND,
+            crate::scheduler::ScheduledTask::ValakasRemovePlayers,
+        );
     }
 }
 
@@ -267,7 +361,9 @@ pub(crate) fn handle_remove_players(world: &mut World) {
 
 /// Object ids of the online players standing in the lair zone.
 fn players_in_lair_oids(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else { return Vec::new() };
+    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else {
+        return Vec::new();
+    };
     world
         .clients
         .values()
@@ -288,7 +384,9 @@ fn players_in_lair_oids(world: &World) -> Vec<i32> {
 /// lair**, not everyone nearby: a player outside the zone sees nothing, which
 /// is the point of running it on the zone rather than the boss's region.
 fn broadcast_to_lair(world: &World, pkt: &[u8]) {
-    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else { return };
+    let Some(zone) = world.data.zone_data.by_id(BOSS_ZONE_ID) else {
+        return;
+    };
     for cs in world.clients.values() {
         if let crate::session::ClientSession::InGame(s) = cs {
             let oid = s.player_object_id();
@@ -408,7 +506,9 @@ pub(crate) fn handle_beginning_timer(world: &mut World) {
     if crate::game_loop::grand_boss::status(world, VALAKAS) != Some(WAITING) {
         return;
     }
-    let Some(oid) = find_valakas(world) else { return };
+    let Some(oid) = find_valakas(world) else {
+        return;
+    };
     begin_cinematic(world, oid);
 }
 
@@ -420,7 +520,11 @@ pub(crate) fn teleport_out(world: &mut World, player_oid: i32) {
 // -- small helpers, kept local so the entry flow reads as one unit ----------
 
 fn teleport_player_rand(world: &mut World, player_oid: i32, base: (i32, i32, i32), spread: i32) {
-    let (dx, dy) = if spread > 0 { (world.roll(spread), world.roll(spread)) } else { (0, 0) };
+    let (dx, dy) = if spread > 0 {
+        (world.roll(spread), world.roll(spread))
+    } else {
+        (0, 0)
+    };
     crate::game_loop::death::teleport_player(world, player_oid, base.0 + dx, base.1 + dy, base.2);
 }
 
@@ -441,13 +545,19 @@ fn player_flag(world: &World, oid: i32, key: &str) -> i32 {
 }
 
 fn set_player_flag(world: &mut World, oid: i32, key: &str, value: i32) {
-    if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&oid) {
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+    {
         v.0.insert(key.to_string(), value.to_string());
     }
 }
 
 fn unset_player_flag(world: &mut World, oid: i32, key: &str) {
-    if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&oid) {
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+    {
         v.0.remove(key);
     }
 }

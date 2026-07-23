@@ -77,8 +77,15 @@ const TEETH_NEEDED: i64 = 10;
 const LEADER_TEETH_NEEDED: i64 = 2;
 
 const QUEST_ITEMS: [i32; 9] = [
-    SILVERYS_RING, PASS_1ST_CERTIFICATE, PASS_2ND_CERTIFICATE, BOOGLE_RATMAN_TOOTH,
-    BOOGLE_RATMAN_LEADERS_TOOTH, KLUTOS_LETTER, FOOTPRINT_OF_THIEF, STOLEN_SECRET_BOX, SECRET_BOX,
+    SILVERYS_RING,
+    PASS_1ST_CERTIFICATE,
+    PASS_2ND_CERTIFICATE,
+    BOOGLE_RATMAN_TOOTH,
+    BOOGLE_RATMAN_LEADERS_TOOTH,
+    KLUTOS_LETTER,
+    FOOTPRINT_OF_THIEF,
+    STOLEN_SECRET_BOX,
+    SECRET_BOX,
 ];
 
 pub struct Q00418PathOfTheArtisan;
@@ -123,7 +130,12 @@ impl QuestScript for Q00418PathOfTheArtisan {
     }
     /// 31956 / 31963 / 32052 are deliberately absent — see the module header.
     fn talk_npcs(&self) -> &[i32] {
-        &[BLACKSMITH_SILVERA, BLACKSMITH_PINTER, BLACKSMITH_KLUTO, IRON_GATES_LOCKIRIN]
+        &[
+            BLACKSMITH_SILVERA,
+            BLACKSMITH_PINTER,
+            BLACKSMITH_KLUTO,
+            IRON_GATES_LOCKIRIN,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
         &[VUKU_ORC_FIGHTER, BOOGLE_RATMAN, BOOGLE_RATMAN_LEADER]
@@ -335,7 +347,12 @@ impl Q00418PathOfTheArtisan {
         }
         if !self.has_any(
             ctx,
-            &[FOOTPRINT_OF_THIEF, KLUTOS_LETTER, PASS_2ND_CERTIFICATE, SECRET_BOX],
+            &[
+                FOOTPRINT_OF_THIEF,
+                KLUTOS_LETTER,
+                PASS_2ND_CERTIFICATE,
+                SECRET_BOX,
+            ],
         ) {
             return Some("30317-01.html".to_string());
         }

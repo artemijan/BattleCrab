@@ -61,7 +61,13 @@ pub(crate) fn on_monster_killed(world: &mut World, monster_oid: i32, killer_oid:
     if !ordinary {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&monster_oid).copied() else { return };
+    let Some(pos) = world
+        .objects
+        .get_component::<Position>(&monster_oid)
+        .copied()
+    else {
+        return;
+    };
 
     for idx in candidates {
         let drop_rate = world.cursed_weapons[idx].drop_rate;
@@ -85,7 +91,16 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
     // RedSky + Earthquake at the drop site (Java `dropIt`, fromMonster branch).
     broadcast_to_all(world, &server_packets::ex_red_sky(10));
     let quake = {
-        let p = world.objects.get_component::<Position>(&killer).copied().unwrap_or(Position { x, y, z, heading: 0 });
+        let p = world
+            .objects
+            .get_component::<Position>(&killer)
+            .copied()
+            .unwrap_or(Position {
+                x,
+                y,
+                z,
+                heading: 0,
+            });
         server_packets::earthquake(p.x, p.y, p.z, 14, 3)
     };
     broadcast_to_all(world, &quake);
@@ -121,11 +136,25 @@ pub(crate) fn is_dropped_cursed(world: &World, item_id: i32) -> bool {
 /// `CursedWeaponsManager.activate(player, item)` for a picked-up drop: the
 /// pickup animation, despawn, then either curse an un-cursed picker (the common
 /// case) or silently consume the weapon if the picker already wields one.
-pub(crate) fn try_pickup(world: &mut World, client_id: u32, player_oid: i32, item_oid: i32, region: (i32, i32), item_id: i32, pos: Position) {
-    let Some(idx) = idx_by_item(world, item_id) else { return };
+pub(crate) fn try_pickup(
+    world: &mut World,
+    client_id: u32,
+    player_oid: i32,
+    item_oid: i32,
+    region: (i32, i32),
+    item_id: i32,
+    pos: Position,
+) {
+    let Some(idx) = idx_by_item(world, item_id) else {
+        return;
+    };
 
     // Pickup animation to nearby, then remove the ground item.
-    super::helpers::broadcast_near_region(world, region, &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z));
+    super::helpers::broadcast_near_region(
+        world,
+        region,
+        &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
+    );
     despawn_ground_item(world, item_oid, region);
     {
         let cw = &mut world.cursed_weapons[idx];
@@ -166,7 +195,10 @@ pub(crate) fn arm_expiry(world: &mut World, idx: usize) {
         (cw.item_id, cw.end_time)
     };
     let delay_ticks = ((end_time - now_millis()).max(0) / 1000) as u64 * TICKS_PER_SECOND;
-    world.scheduler.schedule(world.tick + delay_ticks, ScheduledTask::CursedWeaponExpiry { item_id });
+    world.scheduler.schedule(
+        world.tick + delay_ticks,
+        ScheduledTask::CursedWeaponExpiry { item_id },
+    );
 }
 
 /// `CursedWeapon.RemoveTask.run`: the expiry timer fired — end-of-life the
@@ -174,10 +206,17 @@ pub(crate) fn arm_expiry(world: &mut World, idx: usize) {
 /// picked up and re-armed, or an already-gone weapon) no-ops. A dropped weapon
 /// vanishes from the ground; an activated one is stripped from its wielder.
 pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
-    let Some(idx) = idx_by_item(world, item_id) else { return };
+    let Some(idx) = idx_by_item(world, item_id) else {
+        return;
+    };
     let (active, dropped, end_time, ground_oid) = {
         let cw = &world.cursed_weapons[idx];
-        (cw.is_active(), cw.is_dropped, cw.end_time, cw.dropped_item_oid)
+        (
+            cw.is_active(),
+            cw.is_dropped,
+            cw.end_time,
+            cw.dropped_item_oid,
+        )
     };
     if !active || now_millis() < end_time {
         return; // already gone, or a superseded (re-armed) timer
@@ -185,7 +224,11 @@ pub(crate) fn handle_expiry(world: &mut World, item_id: i32) {
     if dropped {
         // Despawn the un-grabbed ground item; `end_of_life` then announces +
         // clears the DB row + resets state (its non-activated branch).
-        if let Some(region) = world.objects.get_component::<RegionCell>(&ground_oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&ground_oid)
+            .map(|r| r.0)
+        {
             despawn_ground_item(world, ground_oid, region);
         }
     }

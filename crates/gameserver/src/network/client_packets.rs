@@ -258,7 +258,9 @@ impl ProtocolVersion {
     /// `readImpl`: the opcode byte has already been consumed by the dispatcher.
     pub fn read(body_after_opcode: &[u8]) -> Self {
         let mut r = PacketReader::new(body_after_opcode);
-        Self { version: r.read_i32().unwrap_or(0) }
+        Self {
+            version: r.read_i32().unwrap_or(0),
+        }
     }
 }
 
@@ -281,7 +283,13 @@ impl AuthLogin {
         let play_key1 = r.read_i32()?;
         let login_key1 = r.read_i32()?;
         let login_key2 = r.read_i32()?;
-        Some(Self { login_name, play_key1, play_key2, login_key1, login_key2 })
+        Some(Self {
+            login_name,
+            play_key1,
+            play_key2,
+            login_key1,
+            login_key2,
+        })
     }
 }
 
@@ -308,7 +316,14 @@ impl CharacterCreate {
         let hair_style = r.read_i32()? & 0xff;
         let hair_color = r.read_i32()? & 0xff;
         let face = r.read_i32()? & 0xff;
-        Some(Self { name, is_female, class_id, hair_style, hair_color, face })
+        Some(Self {
+            name,
+            is_female,
+            class_id,
+            hair_style,
+            hair_color,
+            face,
+        })
     }
 }
 
@@ -370,7 +385,10 @@ impl UseItem {
         let mut r = PacketReader::new(body_after_opcode);
         let object_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
-        Some(Self { object_id, ctrl_pressed })
+        Some(Self {
+            object_id,
+            ctrl_pressed,
+        })
     }
 }
 
@@ -485,7 +503,7 @@ impl PrivateStoreItemList {
 
     fn read_lines(r: &mut PacketReader, target: i32) -> Option<Self> {
         let count = r.read_i32()?;
-        if count < 1 || count > 500 {
+        if !(1..=500).contains(&count) {
             return None;
         }
         let mut items = Vec::with_capacity(count as usize);
@@ -498,7 +516,10 @@ impl PrivateStoreItemList {
             }
             items.push((object_id, cnt, price));
         }
-        Some(Self { target_object_id: target, items })
+        Some(Self {
+            target_object_id: target,
+            items,
+        })
     }
 }
 
@@ -557,7 +578,11 @@ impl MultiSellChoose {
         for _ in 0..8 {
             let _ = r.read_i16()?;
         }
-        Some(Self { list_id, entry_id, amount })
+        Some(Self {
+            list_id,
+            entry_id,
+            amount,
+        })
     }
 }
 
@@ -579,7 +604,13 @@ impl RequestDropItem {
         let x = r.read_i32()?;
         let y = r.read_i32()?;
         let z = r.read_i32()?;
-        Some(Self { object_id, count, x, y, z })
+        Some(Self {
+            object_id,
+            count,
+            x,
+            y,
+            z,
+        })
     }
 }
 
@@ -599,7 +630,11 @@ impl RequestMagicSkillUse {
         let magic_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
         let shift_pressed = r.read_u8().is_some_and(|b| b != 0);
-        Some(Self { magic_id, ctrl_pressed, shift_pressed })
+        Some(Self {
+            magic_id,
+            ctrl_pressed,
+            shift_pressed,
+        })
     }
 }
 
@@ -623,7 +658,14 @@ impl RequestExMagicSkillUseGround {
         let skill_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? != 0;
         let shift_pressed = r.read_u8().is_some_and(|b| b != 0);
-        Some(Self { x, y, z, skill_id, ctrl_pressed, shift_pressed })
+        Some(Self {
+            x,
+            y,
+            z,
+            skill_id,
+            ctrl_pressed,
+            shift_pressed,
+        })
     }
 }
 
@@ -650,7 +692,11 @@ impl RequestAcquireSkill {
         if acquire_type == Self::SUBPLEDGE {
             r.read_i32()?; // sub_type — unused (see doc comment)
         }
-        Some(Self { skill_id, skill_level, acquire_type })
+        Some(Self {
+            skill_id,
+            skill_level,
+            acquire_type,
+        })
     }
 }
 
@@ -670,7 +716,10 @@ impl Action {
         r.read_i32()?; // origin_y — unused
         r.read_i32()?; // origin_z — unused
         let action_id = r.read_u8()?;
-        Some(Self { object_id, action_id })
+        Some(Self {
+            object_id,
+            action_id,
+        })
     }
 }
 
@@ -744,7 +793,12 @@ impl RequestDispel {
         let skill_id = r.read_i32()?;
         let skill_level = r.read_i16()? as i32;
         let skill_sub_level = r.read_i16()? as i32;
-        Some(Self { object_id, skill_id, skill_level, skill_sub_level })
+        Some(Self {
+            object_id,
+            skill_id,
+            skill_level,
+            skill_sub_level,
+        })
     }
 }
 
@@ -773,7 +827,15 @@ impl MoveBackwardToLocation {
         let origin_y = r.read_i32()?;
         let origin_z = r.read_i32()?;
         let movement_mode = r.read_i32()?;
-        Some(Self { target_x, target_y, target_z, origin_x, origin_y, origin_z, movement_mode })
+        Some(Self {
+            target_x,
+            target_y,
+            target_z,
+            origin_x,
+            origin_y,
+            origin_z,
+            movement_mode,
+        })
     }
 }
 
@@ -799,7 +861,15 @@ impl RequestShortCutReg {
         let level = r.read_i16()? as i32;
         let sub_level = r.read_i16()? as i32;
         let character_type = r.read_i32()?;
-        Some(Self { kind, slot: slot_raw % 12, page: slot_raw / 12, id, level, sub_level, character_type })
+        Some(Self {
+            kind,
+            slot: slot_raw % 12,
+            page: slot_raw / 12,
+            id,
+            level,
+            sub_level,
+            character_type,
+        })
     }
 }
 
@@ -813,7 +883,10 @@ impl RequestShortCutDel {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
         let mut r = PacketReader::new(body_after_opcode);
         let slot_raw = r.read_i32()?;
-        Some(Self { slot: slot_raw % 12, page: slot_raw / 12 })
+        Some(Self {
+            slot: slot_raw % 12,
+            page: slot_raw / 12,
+        })
     }
 }
 
@@ -847,9 +920,25 @@ impl RequestMakeMacro {
             let d2 = r.read_u8()? as i32;
             let cmd = r.read_string()?;
             commands_length += cmd.chars().count();
-            commands.push(MacroCmd { entry, kind, d1, d2, cmd });
+            commands.push(MacroCmd {
+                entry,
+                kind,
+                d1,
+                d2,
+                cmd,
+            });
         }
-        Some(Self { macro_: Macro { id, icon, name, descr, acronym, commands }, commands_length })
+        Some(Self {
+            macro_: Macro {
+                id,
+                icon,
+                name,
+                descr,
+                acronym,
+                commands,
+            },
+            commands_length,
+        })
     }
 }
 
@@ -904,7 +993,11 @@ impl Say2 {
         } else {
             None
         };
-        Some(Self { text, chat_type, target })
+        Some(Self {
+            text,
+            chat_type,
+            target,
+        })
     }
 }
 
@@ -935,7 +1028,9 @@ pub fn read_bbs_write(body_after_opcode: &[u8]) -> Option<[String; 6]> {
 /// the `//command` GM bar, trimmed. The `admin_` prefix is added by the caller
 /// (Java's `useAdminCommand(player, "admin_" + cmd, true)`).
 pub fn read_build_command(body_after_opcode: &[u8]) -> Option<String> {
-    PacketReader::new(body_after_opcode).read_string().map(|s| s.trim().to_string())
+    PacketReader::new(body_after_opcode)
+        .read_string()
+        .map(|s| s.trim().to_string())
 }
 
 /// Port of `clientpackets/BypassUserCmd` — the `/command` bar's int command id.
@@ -957,7 +1052,11 @@ impl DlgAnswer {
         let message_id = r.read_i32()?;
         let answer = r.read_i32()?;
         let requester_id = r.read_i32()?;
-        Some(Self { message_id, answer, requester_id })
+        Some(Self {
+            message_id,
+            answer,
+            requester_id,
+        })
     }
 }
 
@@ -969,7 +1068,9 @@ pub struct RequestQuestAbort {
 impl RequestQuestAbort {
     pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
         let mut r = PacketReader::new(body_after_opcode);
-        Some(Self { quest_id: r.read_i32()? })
+        Some(Self {
+            quest_id: r.read_i32()?,
+        })
     }
 }
 
@@ -1042,7 +1143,7 @@ pub struct ManufactureLine {
 pub fn read_recipe_shop_list_set(body: &[u8]) -> Option<Vec<ManufactureLine>> {
     let mut r = PacketReader::new(body);
     let count = r.read_i32()?;
-    if count < 0 || count > 500 {
+    if !(0..=500).contains(&count) {
         return None;
     }
     let mut items = Vec::with_capacity(count as usize);
@@ -1111,8 +1212,9 @@ mod tests {
     fn save_inventory_order_caps_at_limit() {
         // A count above LIMIT reads exactly LIMIT pairs; trailing pairs the
         // client sent past the cap are ignored (matches Java's `Math.min`).
-        let pairs: Vec<(i32, i32)> =
-            (0..RequestSaveInventoryOrder::LIMIT as i32 + 10).map(|i| (2000 + i, i)).collect();
+        let pairs: Vec<(i32, i32)> = (0..RequestSaveInventoryOrder::LIMIT as i32 + 10)
+            .map(|i| (2000 + i, i))
+            .collect();
         let body = save_order_body(pairs.len() as i32, &pairs);
         let pkt = RequestSaveInventoryOrder::read(&body).expect("parses");
         assert_eq!(pkt.order.len(), RequestSaveInventoryOrder::LIMIT);
@@ -1159,6 +1261,10 @@ impl RequestActionUse {
         let action_id = r.read_i32()?;
         let ctrl_pressed = r.read_i32()? == 1;
         let shift_pressed = r.read_u8()? == 1;
-        Some(Self { action_id, ctrl_pressed, shift_pressed })
+        Some(Self {
+            action_id,
+            ctrl_pressed,
+            shift_pressed,
+        })
     }
 }

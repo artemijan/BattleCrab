@@ -28,7 +28,10 @@ impl GeoEngineConfig {
         let p = PropertiesParser::load_rel(root, GEOENGINE_CONFIG_FILE);
         Self {
             path_finding: p.get_int("PathFinding", 0),
-            geodata_path: super::datapack_path(root, &p.get_string("GeoDataPath", "./data/geodata/")),
+            geodata_path: super::datapack_path(
+                root,
+                &p.get_string("GeoDataPath", "./data/geodata/"),
+            ),
             path: PathConfig {
                 buffer_sizes: parse_buffer_sizes(&p.get_string(
                     "PathFindBuffers",

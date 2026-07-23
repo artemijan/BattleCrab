@@ -129,7 +129,10 @@ fn shutdown_saves_all_online_players() {
     let _o1 = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     let _o2 = ingame_player(&mut world, 2, 5002, 300, 400, 0);
     {
-        let p = world.objects.get_component_mut::<crate::model::Player>(&5001).unwrap();
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&5001)
+            .unwrap();
         p.level = 7;
         p.exp = 9999;
     }
@@ -144,7 +147,10 @@ fn shutdown_saves_all_online_players() {
         snaps.insert(s.base.object_id, s);
     }
     assert_eq!(snaps.len(), 2, "both online players saved");
-    assert_eq!(snaps[&5001].base.level, 7, "the leveled-up character's level is persisted");
+    assert_eq!(
+        snaps[&5001].base.level, 7,
+        "the leveled-up character's level is persisted"
+    );
     assert_eq!(snaps[&5001].base.exp, 9999);
     assert!(snaps.contains_key(&5002));
     // Save-all does not despawn — the players are still in the world.
@@ -158,16 +164,31 @@ fn restart_then_reenter_world() {
     let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
     let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     handle_request_restart(&mut world, 1);
-    on_characters_loaded(&mut world, 1, "bob".into(), vec![dummy_char(5001, "P5001")], true);
+    on_characters_loaded(
+        &mut world,
+        1,
+        "bob".into(),
+        vec![dummy_char(5001, "P5001")],
+        true,
+    );
     while out_rx.try_recv().is_ok() {} // RestartResponse + CharSelectionInfo
 
     let mut w = PacketWriter::new();
     w.write_i32(0); // slot
     handle_character_select(&mut world, 1, &w.into_bytes());
-    assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::CHAR_SELECTED);
+    assert_eq!(
+        out_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::CHAR_SELECTED
+    );
     handle_enter_world(&mut world, 1);
-    assert!(world.objects.has_component::<crate::model::Player>(&5001), "player re-entered the world");
-    assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))));
+    assert!(
+        world.objects.has_component::<crate::model::Player>(&5001),
+        "player re-entered the world"
+    );
+    assert!(matches!(
+        world.clients.get(&1),
+        Some(ClientSession::InGame(_))
+    ));
 }
 
 /// `Player.canLogout` refuses a restart while the player is in combat stance:
@@ -178,17 +199,31 @@ fn restart_blocked_while_in_combat_stance() {
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
     // In stance until 15 s from now (AttackStanceTaskManager.addAttackStanceTask).
-    world.objects.get_component_mut::<crate::model::components::AttackState>(&5001).unwrap().stance_until_tick = world.tick + 1;
+    world
+        .objects
+        .get_component_mut::<crate::model::components::AttackState>(&5001)
+        .unwrap()
+        .stance_until_tick = world.tick + 1;
 
     handle_request_restart(&mut world, 1);
 
-    assert_eq!(world.objects.count::<Player>(), 1, "player stays in the world");
-    assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))), "still in game");
+    assert_eq!(
+        world.objects.count::<Player>(),
+        1,
+        "player stays in the world"
+    );
+    assert!(
+        matches!(world.clients.get(&1), Some(ClientSession::InGame(_))),
+        "still in game"
+    );
     assert!(db_rx.try_recv().is_err(), "no store/reload while refused");
     let pkt = out_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::RESTART_RESPONSE);
     assert_eq!(pkt[1], 0, "RestartResponse.FALSE");
-    assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        out_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
 }
 
 /// `Player.canLogout` refuses a logout while in combat stance: `ActionFailed`
@@ -197,14 +232,28 @@ fn restart_blocked_while_in_combat_stance() {
 fn logout_blocked_while_in_combat_stance() {
     let (mut world, _db_tx, mut db_rx, _link_rx) = test_world();
     let mut out_rx = ingame_player(&mut world, 1, 5002, 100, 200, 0);
-    world.objects.get_component_mut::<crate::model::components::AttackState>(&5002).unwrap().stance_until_tick = world.tick + 1;
+    world
+        .objects
+        .get_component_mut::<crate::model::components::AttackState>(&5002)
+        .unwrap()
+        .stance_until_tick = world.tick + 1;
 
     handle_logout(&mut world, 1);
 
-    assert_eq!(world.objects.count::<Player>(), 1, "player stays in the world");
-    assert!(matches!(world.clients.get(&1), Some(ClientSession::InGame(_))), "still in game");
+    assert_eq!(
+        world.objects.count::<Player>(),
+        1,
+        "player stays in the world"
+    );
+    assert!(
+        matches!(world.clients.get(&1), Some(ClientSession::InGame(_))),
+        "still in game"
+    );
     assert!(db_rx.try_recv().is_err(), "no store while refused");
-    assert_eq!(out_rx.try_recv().unwrap()[0], server_packets::opcodes::ACTION_FAIL);
+    assert_eq!(
+        out_rx.try_recv().unwrap()[0],
+        server_packets::opcodes::ACTION_FAIL
+    );
     assert!(out_rx.try_recv().is_err(), "no LeaveWorld");
 }
 
@@ -227,9 +276,19 @@ fn autosave_flushes_one_due_player_and_reschedules() {
     // Exactly one StorePlayer this sweep (the lowest object id), and both players
     // are still in the world.
     let save = expect_store_player(&mut db_rx);
-    assert_eq!(save.base.object_id, 5001, "lowest due object id flushed first");
-    assert!(db_rx.try_recv().is_err(), "only one player flushed per sweep");
-    assert_eq!(world.objects.count::<Player>(), 2, "autosave does not despawn");
+    assert_eq!(
+        save.base.object_id, 5001,
+        "lowest due object id flushed first"
+    );
+    assert!(
+        db_rx.try_recv().is_err(),
+        "only one player flushed per sweep"
+    );
+    assert_eq!(
+        world.objects.count::<Player>(),
+        2,
+        "autosave does not despawn"
+    );
     // 5001 rescheduled one interval out; 5002 still due.
     assert_eq!(world.player_autosave_due[&5001], world.tick + 100);
     assert_eq!(world.player_autosave_due[&5002], world.tick);
@@ -238,7 +297,10 @@ fn autosave_flushes_one_due_player_and_reschedules() {
     super::autosave_tick(&mut world);
     assert_eq!(expect_store_player(&mut db_rx).base.object_id, 5002);
     super::autosave_tick(&mut world);
-    assert!(db_rx.try_recv().is_err(), "nothing due after both rescheduled");
+    assert!(
+        db_rx.try_recv().is_err(),
+        "nothing due after both rescheduled"
+    );
 }
 
 /// Entering the world exchanges `CharInfo` with players in the surrounding
@@ -257,12 +319,17 @@ fn enter_world_exchanges_char_info_with_nearby_players_only() {
     // RelationChanged (Java `sendInfo`), and nothing more.
     let pkt = near_rx.try_recv().expect("nearby player must get CharInfo");
     assert_eq!(char_info_object_id(&pkt), 6003);
-    let rc = near_rx.try_recv().expect("nearby player must get the paired RelationChanged");
+    let rc = near_rx
+        .try_recv()
+        .expect("nearby player must get the paired RelationChanged");
     assert_eq!(rc[0], server_packets::opcodes::RELATION_CHANGED);
     assert_eq!(i32::from_le_bytes(rc[2..6].try_into().unwrap()), 6003);
     assert!(near_rx.try_recv().is_err());
     // …the far one (regions (4,4) vs (0,0)) hears nothing…
-    assert!(far_rx.try_recv().is_err(), "far player must not get CharInfo");
+    assert!(
+        far_rx.try_recv().is_err(),
+        "far player must not get CharInfo"
+    );
     // …and the newcomer's burst ends with the nearby player's CharInfo only.
     let to_newcomer = drain(&mut new_rx);
     let char_infos: Vec<i32> = to_newcomer

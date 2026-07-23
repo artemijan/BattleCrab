@@ -35,7 +35,13 @@ pub(crate) fn is_merchant(world: &World, npc_object_id: i32) -> bool {
 /// `bypasshandlers/Buy.java` → `Merchant.showBuyWindow`: the buy tab +
 /// the accompanying sell tab. The caller (bypass router) already verified
 /// existence and interaction distance.
-pub(crate) fn show_buy_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32, list_id: i32) {
+pub(crate) fn show_buy_window(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    list_id: i32,
+) {
     let npc_id = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
@@ -55,7 +61,9 @@ pub(crate) fn show_buy_window(world: &mut World, client_id: u32, player: i32, np
         }
         return;
     }
-    let Some(inventory) = world.objects.get_component::<Inventory>(&player) else { return };
+    let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
+        return;
+    };
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(trade::buy_list(list, inventory, &world.data));
         cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, false));
@@ -66,23 +74,40 @@ pub(crate) fn show_buy_window(world: &mut World, client_id: u32, player: i32, np
 /// don't exist: karma gate, GM bypasses, castle tax, limited stock, and the
 /// weight/slot capacity checks (no encumbrance enforcement yet).
 pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestBuyItem::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestBuyItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
 
     // The target must be a merchant within interaction distance.
-    let target = world.objects.get_component::<TargetRef>(&player).copied().unwrap_or_default().0;
-    let Some(merchant_oid) = target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t)) else {
+    let target = world
+        .objects
+        .get_component::<TargetRef>(&player)
+        .copied()
+        .unwrap_or_default()
+        .0;
+    let Some(merchant_oid) =
+        target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
+    else {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
         return;
     };
-    let merchant_id =
-        world.objects.get_component::<crate::model::npc::Npc>(&merchant_oid).map(|n| n.npc_id).unwrap_or(0);
+    let merchant_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&merchant_oid)
+        .map(|n| n.npc_id)
+        .unwrap_or(0);
 
     let Some(list) = world.data.buy_lists.get(pkt.list_id) else {
-        warn!("Shop: player {player} sent a false buylist id {}.", pkt.list_id);
+        warn!(
+            "Shop: player {player} sent a false buylist id {}.",
+            pkt.list_id
+        );
         return;
     };
     if !list.is_npc_allowed(merchant_id) {
@@ -96,16 +121,31 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     let mut sub_total: i64 = 0;
     for line in &pkt.items {
         let Some(product) = list.product(line.item_id) else {
-            warn!("Shop: player {player} sent an item {} not on buylist {}.", line.item_id, pkt.list_id);
+            warn!(
+                "Shop: player {player} sent an item {} not on buylist {}.",
+                line.item_id, pkt.list_id
+            );
             return;
         };
-        let stackable = world.data.item_data.get(line.item_id).is_some_and(|t| t.is_stackable);
+        let stackable = world
+            .data
+            .item_data
+            .get(line.item_id)
+            .is_some_and(|t| t.is_stackable);
         if !stackable && line.count > 1 {
-            send_sm_and_action_failed(world, client_id, sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED, &[]);
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+                &[],
+            );
             return;
         }
         if product.price < 0 {
-            warn!("Shop: no price for item {} on buylist {}.", line.item_id, pkt.list_id);
+            warn!(
+                "Shop: no price for item {} on buylist {}.",
+                line.item_id, pkt.list_id
+            );
             if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());
             }
@@ -123,7 +163,11 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
 
     // Charge (Java `reduceAdena`) — refuse without touching anything on a
     // shortfall.
-    let adena = world.objects.get_component::<Inventory>(&player).map(|i| i.adena()).unwrap_or(0);
+    let adena = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .map(|i| i.adena())
+        .unwrap_or(0);
     if adena < sub_total {
         send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
         return;
@@ -136,17 +180,30 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     // Deliver.
     let mut added: Vec<i32> = Vec::new();
     for line in &pkt.items {
-        if let Some(oids) = super::items::add_inventory_item(world, player, line.item_id, line.count) {
+        if let Some(oids) =
+            super::items::add_inventory_item(world, player, line.item_id, line.count)
+        {
             added.extend(oids);
         }
     }
-    if let (Some(inventory), Some(cs)) =
-        (world.objects.get_component::<Inventory>(&player), world.clients.get(&client_id))
-    {
-        cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &added));
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(player, inventory, &world.data));
+    if let (Some(inventory), Some(cs)) = (
+        world.objects.get_component::<Inventory>(&player),
+        world.clients.get(&client_id),
+    ) {
+        cs.send(crate::network::enter_world::inventory_update(
+            inventory,
+            &world.data,
+            &added,
+        ));
+        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+            player,
+            inventory,
+            &world.data,
+        ));
         cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, true));
-        cs.send(crate::network::enter_world::system_message(sm_ids::EXCHANGE_IS_SUCCESSFUL));
+        cs.send(crate::network::enter_world::system_message(
+            sm_ids::EXCHANGE_IS_SUCCESSFUL,
+        ));
     }
 }
 
@@ -155,12 +212,24 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
 /// skipped (a merchant buys anything sellable); quest/equipped items and
 /// price-0 items are refused.
 pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestSellItem::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestSellItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player = session.player_object_id();
 
-    let target = world.objects.get_component::<TargetRef>(&player).copied().unwrap_or_default().0;
-    if target.filter(|&t| is_merchant(world, t) && can_interact(world, player, t)).is_none() {
+    let target = world
+        .objects
+        .get_component::<TargetRef>(&player)
+        .copied()
+        .unwrap_or_default()
+        .0;
+    if target
+        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
+        .is_none()
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -171,12 +240,17 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     let mut changes: Vec<crate::model::inventory::ItemChange> = Vec::new();
     for (obj_id, item_id, count) in pkt.items {
         // The instance must exist, match the claimed item id, and be unequipped.
-        let Some((held, equipped)) = world.objects.get_component::<Inventory>(&player).and_then(|inv| {
-            inv.items()
-                .iter()
-                .find(|it| it.object_id == obj_id && it.item_id == item_id)
-                .map(|it| (it.count, inv.paperdoll_slot_of(obj_id).is_some()))
-        }) else {
+        let Some((held, equipped)) =
+            world
+                .objects
+                .get_component::<Inventory>(&player)
+                .and_then(|inv| {
+                    inv.items()
+                        .iter()
+                        .find(|it| it.object_id == obj_id && it.item_id == item_id)
+                        .map(|it| (it.count, inv.paperdoll_slot_of(obj_id).is_some()))
+                })
+        else {
             continue;
         };
         let t = world.data.item_data.get(item_id);
@@ -186,8 +260,14 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
             continue;
         }
         let sell = count.min(held);
-        total_price = total_price.saturating_add((price / 2) * sell).min(MAX_ADENA);
-        if let Some(change) = world.objects.get_component_mut::<Inventory>(&player).and_then(|inv| inv.remove_by_object_id(obj_id, sell)) {
+        total_price = total_price
+            .saturating_add((price / 2) * sell)
+            .min(MAX_ADENA);
+        if let Some(change) = world
+            .objects
+            .get_component_mut::<Inventory>(&player)
+            .and_then(|inv| inv.remove_by_object_id(obj_id, sell))
+        {
             changes.push(change);
         }
     }
@@ -195,7 +275,16 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     if total_price > 0 {
         super::items::add_inventory_item(world, player, ADENA_ID, total_price);
         // Fold the (grown) adena stack into the same InventoryUpdate.
-        if let Some(adena) = world.objects.get_component::<Inventory>(&player).and_then(|inv| inv.items().iter().find(|it| it.item_id == ADENA_ID).copied()) {
+        if let Some(adena) = world
+            .objects
+            .get_component::<Inventory>(&player)
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|it| it.item_id == ADENA_ID)
+                    .copied()
+            })
+        {
             changes.push(crate::model::inventory::ItemChange::Modified(adena));
         }
     }
@@ -203,7 +292,11 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         return;
     }
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-    if let Some((cs, inv)) = world.clients.get(&client_id).zip(world.objects.get_component::<Inventory>(&player)) {
+    if let Some((cs, inv)) = world
+        .clients
+        .get(&client_id)
+        .zip(world.objects.get_component::<Inventory>(&player))
+    {
         cs.send(iu);
         cs.send(trade::ex_buy_sell_list_sell(inv, &world.data, true));
     }

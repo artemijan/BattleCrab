@@ -97,7 +97,10 @@ impl AdminData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        let mut data = Self { user_default: AccessLevel::user_default(), ..Default::default() };
+        let mut data = Self {
+            user_default: AccessLevel::user_default(),
+            ..Default::default()
+        };
         data.parse_access_levels(file_path);
         data.parse_admin_commands(file_path);
         info!(
@@ -109,7 +112,8 @@ impl AdminData {
     }
 
     fn parse_access_levels(&mut self, file_path: &str) {
-        let Ok(content) = std::fs::read_to_string(format!("{file_path}{ACCESS_LEVELS_FILE}")) else {
+        let Ok(content) = std::fs::read_to_string(format!("{file_path}{ACCESS_LEVELS_FILE}"))
+        else {
             return;
         };
         let mut reader = Reader::from_str(&content);
@@ -129,17 +133,23 @@ impl AdminData {
                     .map(|a| String::from_utf8_lossy(&a.value).into_owned())
             };
             let get_i32 = |key: &[u8], default: i32| {
-                attr(key).and_then(|v| v.parse::<i32>().ok()).unwrap_or(default)
+                attr(key)
+                    .and_then(|v| v.parse::<i32>().ok())
+                    .unwrap_or(default)
             };
             let get_bool = |key: &[u8], default: bool| {
-                attr(key).map(|v| v.eq_ignore_ascii_case("true")).unwrap_or(default)
+                attr(key)
+                    .map(|v| v.eq_ignore_ascii_case("true"))
+                    .unwrap_or(default)
             };
             let get_color = |key: &[u8]| {
                 attr(key)
                     .and_then(|v| i32::from_str_radix(v.trim_start_matches("0x"), 16).ok())
                     .unwrap_or(DEFAULT_COLOR)
             };
-            let Some(level) = attr(b"level").and_then(|v| v.parse::<i32>().ok()) else { continue };
+            let Some(level) = attr(b"level").and_then(|v| v.parse::<i32>().ok()) else {
+                continue;
+            };
             let access = AccessLevel {
                 level,
                 name: attr(b"name").unwrap_or_default(),
@@ -163,7 +173,8 @@ impl AdminData {
     }
 
     fn parse_admin_commands(&mut self, file_path: &str) {
-        let Ok(content) = std::fs::read_to_string(format!("{file_path}{ADMIN_COMMANDS_FILE}")) else {
+        let Ok(content) = std::fs::read_to_string(format!("{file_path}{ADMIN_COMMANDS_FILE}"))
+        else {
             return;
         };
         let mut reader = Reader::from_str(&content);
@@ -182,18 +193,29 @@ impl AdminData {
                     .find(|a| a.key.as_ref() == key)
                     .map(|a| String::from_utf8_lossy(&a.value).into_owned())
             };
-            let Some(command) = attr(b"command") else { continue };
-            let access_level = attr(b"accessLevel").and_then(|v| v.parse::<i32>().ok()).unwrap_or(7);
-            let require_confirm =
-                attr(b"confirmDlg").map(|v| v.eq_ignore_ascii_case("true")).unwrap_or(false);
+            let Some(command) = attr(b"command") else {
+                continue;
+            };
+            let access_level = attr(b"accessLevel")
+                .and_then(|v| v.parse::<i32>().ok())
+                .unwrap_or(7);
+            let require_confirm = attr(b"confirmDlg")
+                .map(|v| v.eq_ignore_ascii_case("true"))
+                .unwrap_or(false);
             // Key on the lowercased command: L2J's handlers dispatch on
             // `actualCommand.toLowerCase()`, and some XML entries are camelCase
             // (e.g. `admin_deleteNpcByObjectId`, the `admin_chsiege_*` family)
             // while the bypass/`//` bar that triggers them may use any case.
             // Lookups (`has_command`/`has_access`/`require_confirm`) match the
             // already-lowercased incoming command word.
-            self.command_rights
-                .insert(command.to_ascii_lowercase(), AdminCommandAccessRight { command, access_level, require_confirm });
+            self.command_rights.insert(
+                command.to_ascii_lowercase(),
+                AdminCommandAccessRight {
+                    command,
+                    access_level,
+                    require_confirm,
+                },
+            );
         }
     }
 
@@ -222,7 +244,9 @@ impl AdminData {
 
     /// Java `AdminData.requireConfirm` — undefined commands do not confirm.
     pub fn require_confirm(&self, command: &str) -> bool {
-        self.command_rights.get(command).is_some_and(|r| r.require_confirm)
+        self.command_rights
+            .get(command)
+            .is_some_and(|r| r.require_confirm)
     }
 
     /// Java `AdminData.hasAccess`: an undefined command is granted only to the
@@ -239,7 +263,9 @@ impl AdminData {
     fn right_has_access(&self, right: &AdminCommandAccessRight, char_level: i32) -> bool {
         // The required tier must itself be defined (Java: `getAccessLevel`
         // non-null); a right pointing at an unknown level denies everyone.
-        let Some(required) = self.access_levels.get(&right.access_level) else { return false };
+        let Some(required) = self.access_levels.get(&right.access_level) else {
+            return false;
+        };
         required.level == char_level || self.has_child_access(char_level, required.level)
     }
 
@@ -264,7 +290,10 @@ impl AdminData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { user_default: AccessLevel::user_default(), ..Default::default() }
+        Self {
+            user_default: AccessLevel::user_default(),
+            ..Default::default()
+        }
     }
 }
 

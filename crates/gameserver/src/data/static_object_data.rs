@@ -85,11 +85,16 @@ mod tests {
 
     #[test]
     fn loads_real_dist_file() {
-        let data = StaticObjectData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data =
+            StaticObjectData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
         // 159 <object> lines, 73 of them commented out ("custom static
         // objects" missing from the NA/EU client) — Java's DOM parse loads 86.
         assert_eq!(data.objects.len(), 86);
-        let map = data.objects.iter().find(|o| o.id == 17250001).expect("talking island town map");
+        let map = data
+            .objects
+            .iter()
+            .find(|o| o.id == 17250001)
+            .expect("talking island town map");
         assert_eq!(map.kind, 0);
         assert_eq!((map.x, map.y, map.z), (-82873, 244808, -3717));
         assert_eq!(map.name, "town_map_talking_1");

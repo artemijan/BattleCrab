@@ -385,7 +385,10 @@ impl ItemHandler {
     /// Whether this handler charges a magic (spirit/blessed) shot — the
     /// `rechargeShots(magic=…)` category (Java `ActionType.SPIRITSHOT`).
     pub fn is_spiritshot(self) -> bool {
-        matches!(self, ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot | ItemHandler::BeastSpiritShot)
+        matches!(
+            self,
+            ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot | ItemHandler::BeastSpiritShot
+        )
     }
 }
 
@@ -476,16 +479,28 @@ impl EtcItemType {
             Some("GIANT_ENCHT_AM") => EtcItemType::GiantEnchtAm,
             Some("ENCHT_ATTR_CRYSTAL_ENCHANT_WP") => EtcItemType::EnchtAttrCrystalEnchantWp,
             Some("ENCHT_ATTR_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrCrystalEnchantAm,
-            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP") => EtcItemType::EnchtAttrAncientCrystalEnchantWp,
-            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM") => EtcItemType::EnchtAttrAncientCrystalEnchantAm,
+            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_WP") => {
+                EtcItemType::EnchtAttrAncientCrystalEnchantWp
+            }
+            Some("ENCHT_ATTR_ANCIENT_CRYSTAL_ENCHANT_AM") => {
+                EtcItemType::EnchtAttrAncientCrystalEnchantAm
+            }
             Some("ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::EnchtAttrIncPropEnchtWp,
             Some("ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::EnchtAttrIncPropEnchtAm,
-            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::BlessedEnchtAttrIncPropEnchtWp,
-            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::BlessedEnchtAttrIncPropEnchtAm,
+            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_WP") => {
+                EtcItemType::BlessedEnchtAttrIncPropEnchtWp
+            }
+            Some("BLESSED_ENCHT_ATTR_INC_PROP_ENCHT_AM") => {
+                EtcItemType::BlessedEnchtAttrIncPropEnchtAm
+            }
             Some("GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::GiantEnchtAttrIncPropEnchtWp,
             Some("GIANT_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::GiantEnchtAttrIncPropEnchtAm,
-            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP") => EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp,
-            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_AM") => EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm,
+            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_WP") => {
+                EtcItemType::BlessedGiantEnchtAttrIncPropEnchtWp
+            }
+            Some("BLESSED_GIANT_ENCHT_ATTR_INC_PROP_ENCHT_AM") => {
+                EtcItemType::BlessedGiantEnchtAttrIncPropEnchtAm
+            }
             _ => EtcItemType::Other,
         }
     }
@@ -766,17 +781,35 @@ impl ItemData {
                 .collect();
             paths.sort();
             for path in paths {
-                parse_file(&path, &mut by_id, &mut stat_bonuses, &mut armor_types, &mut weapon_types, &mut weapon_shots, &mut icons);
+                parse_file(
+                    &path,
+                    &mut by_id,
+                    &mut stat_bonuses,
+                    &mut armor_types,
+                    &mut weapon_types,
+                    &mut weapon_shots,
+                    &mut icons,
+                );
             }
         }
         info!("ItemData: Loaded {} item templates.", by_id.len());
-        Self { by_id, stat_bonuses, armor_types, weapon_types, weapon_shots, icons }
+        Self {
+            by_id,
+            stat_bonuses,
+            armor_types,
+            weapon_types,
+            weapon_shots,
+            icons,
+        }
     }
 
     /// `<set name="icon"/>` of an item, or the client question-mark fallback
     /// (Java `DropSearchBoard`'s `icon == null` default). Never fails.
     pub fn icon(&self, item_id: i32) -> &str {
-        self.icons.get(&item_id).map(String::as_str).unwrap_or("icon.etc_question_mark_i00")
+        self.icons
+            .get(&item_id)
+            .map(String::as_str)
+            .unwrap_or("icon.etc_question_mark_i00")
     }
 
     /// Every loaded template (Java `ItemData.getAllItems`), unordered.
@@ -797,25 +830,37 @@ impl ItemData {
     /// undeclared/unknown (Java's `ArmorType.NONE` default). Weapons/etc items
     /// report `None` — the armor condition only inspects chest/legs armor.
     pub fn armor_type(&self, item_id: i32) -> ArmorType {
-        self.armor_types.get(&item_id).copied().unwrap_or(ArmorType::None)
+        self.armor_types
+            .get(&item_id)
+            .copied()
+            .unwrap_or(ArmorType::None)
     }
 
     /// The item's `<set name="weapon_type"/>`, or `WeaponType::None` when
     /// undeclared/unknown (non-weapons report `None`). Read for the equipped
     /// weapon by the weapon-conditioned passive check.
     pub fn weapon_type(&self, item_id: i32) -> WeaponType {
-        self.weapon_types.get(&item_id).copied().unwrap_or(WeaponType::None)
+        self.weapon_types
+            .get(&item_id)
+            .copied()
+            .unwrap_or(WeaponType::None)
     }
 
     /// `Weapon.getSoulShotCount()` — shots consumed per soulshot charge; 0 when
     /// the weapon can't take soulshots (Java's default `_soulShotCount = 0`).
     pub fn soulshot_count(&self, weapon_item_id: i32) -> i32 {
-        self.weapon_shots.get(&weapon_item_id).map(|s| s.0).unwrap_or(0)
+        self.weapon_shots
+            .get(&weapon_item_id)
+            .map(|s| s.0)
+            .unwrap_or(0)
     }
 
     /// `Weapon.getSpiritShotCount()` — shots consumed per spiritshot charge.
     pub fn spiritshot_count(&self, weapon_item_id: i32) -> i32 {
-        self.weapon_shots.get(&weapon_item_id).map(|s| s.1).unwrap_or(0)
+        self.weapon_shots
+            .get(&weapon_item_id)
+            .map(|s| s.1)
+            .unwrap_or(0)
     }
 
     #[doc(hidden)]
@@ -854,8 +899,14 @@ impl ItemData {
     /// Attach weapon soulshot/spiritshot counts (tests exercising shot charging
     /// without reading `dist/game` XML).
     #[doc(hidden)]
-    pub fn set_weapon_shots_for_test(&mut self, weapon_item_id: i32, soulshots: i32, spiritshots: i32) {
-        self.weapon_shots.insert(weapon_item_id, (soulshots, spiritshots));
+    pub fn set_weapon_shots_for_test(
+        &mut self,
+        weapon_item_id: i32,
+        soulshots: i32,
+        spiritshots: i32,
+    ) {
+        self.weapon_shots
+            .insert(weapon_item_id, (soulshots, spiritshots));
     }
 
     /// Synthetic catalog for unit tests that need specific templates without
@@ -879,8 +930,18 @@ impl ItemData {
     /// fields they care about instead of spelling out all thirty.
     /// Attach `<stats>` bonuses to an item in a test fixture.
     #[cfg(test)]
-    pub fn insert_stats_for_test(&mut self, item_id: i32, bonuses: Vec<(crate::model::stats::Stat, f64)>) {
-        self.stat_bonuses.insert(item_id, ItemStats { bonuses, ..Default::default() });
+    pub fn insert_stats_for_test(
+        &mut self,
+        item_id: i32,
+        bonuses: Vec<(crate::model::stats::Stat, f64)>,
+    ) {
+        self.stat_bonuses.insert(
+            item_id,
+            ItemStats {
+                bonuses,
+                ..Default::default()
+            },
+        );
     }
 
     pub fn insert_for_test(&mut self, t: ItemTemplate) {
@@ -896,7 +957,10 @@ fn damage_range_part(raw: Option<&String>, index: usize, fallback: i32) -> i32 {
     if parts.len() < 4 {
         return fallback;
     }
-    parts.get(index).and_then(|v| v.trim().parse().ok()).unwrap_or(fallback)
+    parts
+        .get(index)
+        .and_then(|v| v.trim().parse().ok())
+        .unwrap_or(fallback)
 }
 
 fn parse_file(
@@ -985,10 +1049,18 @@ fn parse_file(
                 in_capsules = false;
             }
             Ok(Event::Empty(e)) if in_capsules && e.name().as_ref() == b"item" => {
-                if let (Some(item_id), Some(min), Some(max), Some(chance)) =
-                    (attr_i32(&e, b"id"), attr_i64(&e, b"min"), attr_i64(&e, b"max"), attr_f64(&e, b"chance"))
-                {
-                    cur_capsules.push(CapsuledItem { item_id, min, max, chance: (chance * 1000.0) as i32 });
+                if let (Some(item_id), Some(min), Some(max), Some(chance)) = (
+                    attr_i32(&e, b"id"),
+                    attr_i64(&e, b"min"),
+                    attr_i64(&e, b"max"),
+                    attr_f64(&e, b"chance"),
+                ) {
+                    cur_capsules.push(CapsuledItem {
+                        item_id,
+                        min,
+                        max,
+                        chance: (chance * 1000.0) as i32,
+                    });
                 }
             }
             Ok(Event::Start(e)) if e.name().as_ref() == b"skills" => {
@@ -1016,7 +1088,10 @@ fn parse_file(
                         ),
                     );
                     let stats = std::mem::take(&mut cur_stats);
-                    if !stats.bonuses.is_empty() || stats.atk_range.is_some() || stats.random_damage.is_some() {
+                    if !stats.bonuses.is_empty()
+                        || stats.atk_range.is_some()
+                        || stats.random_damage.is_some()
+                    {
                         stats_out.insert(item_id, stats);
                     }
                     if let Some(at) = attrs.get("armor_type").map(|s| ArmorType::from_name(s)) {
@@ -1031,8 +1106,14 @@ fn parse_file(
                     }
                     // `Weapon._soulShotCount`/`_spiritShotCount` — only weapons
                     // declaring a non-zero count can charge that shot kind.
-                    let ss = attrs.get("soulshots").and_then(|v| v.parse().ok()).unwrap_or(0);
-                    let sps = attrs.get("spiritshots").and_then(|v| v.parse().ok()).unwrap_or(0);
+                    let ss = attrs
+                        .get("soulshots")
+                        .and_then(|v| v.parse().ok())
+                        .unwrap_or(0);
+                    let sps = attrs
+                        .get("spiritshots")
+                        .and_then(|v| v.parse().ok())
+                        .unwrap_or(0);
                     if ss != 0 || sps != 0 {
                         weapon_shots_out.insert(item_id, (ss, sps));
                     }
@@ -1056,15 +1137,29 @@ fn make_template(
     capsuled_items: Vec<CapsuledItem>,
     item_skills: Vec<(i32, i32)>,
 ) -> ItemTemplate {
-    let weight = attrs.get("weight").and_then(|v| v.parse().ok()).unwrap_or(0);
-    let is_stackable = attrs.get("is_stackable").map(|v| v == "true").unwrap_or(false);
-    let is_quest_item = attrs.get("is_questitem").map(|v| v == "true").unwrap_or(false);
+    let weight = attrs
+        .get("weight")
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
+    let is_stackable = attrs
+        .get("is_stackable")
+        .map(|v| v == "true")
+        .unwrap_or(false);
+    let is_quest_item = attrs
+        .get("is_questitem")
+        .map(|v| v == "true")
+        .unwrap_or(false);
     let part = body_part(attrs.get("bodypart").map(|s| s.as_str()).unwrap_or("none"));
 
     let (type1, type2) = match kind {
         ItemKind::Weapon => (TYPE1_WEAPON_RING_EARRING_NECKLACE, TYPE2_WEAPON),
         ItemKind::Armor => {
-            if part == SLOT_NECK || (part & SLOT_L_EAR) != 0 || (part & SLOT_L_FINGER) != 0 || (part & SLOT_R_BRACELET) != 0 || (part & SLOT_L_BRACELET) != 0 {
+            if part == SLOT_NECK
+                || (part & SLOT_L_EAR) != 0
+                || (part & SLOT_L_FINGER) != 0
+                || (part & SLOT_R_BRACELET) != 0
+                || (part & SLOT_L_BRACELET) != 0
+            {
                 (TYPE1_WEAPON_RING_EARRING_NECKLACE, TYPE2_ACCESSORY)
             } else {
                 (TYPE1_SHIELD_ARMOR, TYPE2_SHIELD_ARMOR)
@@ -1102,13 +1197,22 @@ fn make_template(
         crystal_type: CrystalType::from_name(attrs.get("crystal_type").map(|s| s.as_str())),
         attack_radius: damage_range_part(attrs.get("damage_range"), 2, 40),
         attack_angle: damage_range_part(attrs.get("damage_range"), 3, 0),
-        mp_consume: attrs.get("mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
-        reduced_mp_consume: attrs.get("reduced_mp_consume").and_then(|v| v.parse().ok()).unwrap_or(0),
+        mp_consume: attrs
+            .get("mp_consume")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
+        reduced_mp_consume: attrs
+            .get("reduced_mp_consume")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
         reduced_mp_consume_chance: attrs
             .get("reduced_mp_consume_chance")
             .and_then(|v| v.parse().ok())
             .unwrap_or(0),
-        crystal_count: attrs.get("crystal_count").and_then(|s| s.parse().ok()).unwrap_or(0),
+        crystal_count: attrs
+            .get("crystal_count")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
         body_part: part,
         weight,
         is_stackable,
@@ -1118,15 +1222,37 @@ fn make_template(
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
         handler,
         capsuled_items,
-        extractable_count_min: attrs.get("extractableCountMin").and_then(|v| v.parse().ok()).unwrap_or(0),
-        extractable_count_max: attrs.get("extractableCountMax").and_then(|v| v.parse().ok()).unwrap_or(0),
+        extractable_count_min: attrs
+            .get("extractableCountMin")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
+        extractable_count_max: attrs
+            .get("extractableCountMax")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
         item_skills,
         etc_item_type: EtcItemType::from_name(attrs.get("etcitem_type").map(|s| s.as_str())),
-        enchant_enabled: attrs.get("enchant_enabled").map(|v| v == "true").unwrap_or(false),
-        enchant_limit: attrs.get("enchant_limit").and_then(|v| v.parse().ok()).unwrap_or(0),
-        is_magic_weapon: kind == ItemKind::Weapon && attrs.get("is_magic_weapon").map(|v| v == "true").unwrap_or(false),
-        immediate_effect: attrs.get("immediate_effect").map(|v| v == "true").unwrap_or(false),
-        ex_immediate_effect: attrs.get("ex_immediate_effect").map(|v| v == "true").unwrap_or(false),
+        enchant_enabled: attrs
+            .get("enchant_enabled")
+            .map(|v| v == "true")
+            .unwrap_or(false),
+        enchant_limit: attrs
+            .get("enchant_limit")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(0),
+        is_magic_weapon: kind == ItemKind::Weapon
+            && attrs
+                .get("is_magic_weapon")
+                .map(|v| v == "true")
+                .unwrap_or(false),
+        immediate_effect: attrs
+            .get("immediate_effect")
+            .map(|v| v == "true")
+            .unwrap_or(false),
+        ex_immediate_effect: attrs
+            .get("ex_immediate_effect")
+            .map(|v| v == "true")
+            .unwrap_or(false),
         default_action: ActionType::from_name(attrs.get("default_action").map(|s| s.as_str())),
     }
 }
@@ -1198,7 +1324,11 @@ mod tests {
         assert_eq!(bow.crystal_type, CrystalType::None);
         let arrow = data.get(17).expect("Wooden Arrow 17");
         assert_eq!(arrow.etc_item_type, EtcItemType::Arrow);
-        assert_eq!(arrow.crystal_type, CrystalType::None, "matches the no-grade bow");
+        assert_eq!(
+            arrow.crystal_type,
+            CrystalType::None,
+            "matches the no-grade bow"
+        );
         // A melee weapon spends nothing.
         assert_eq!(data.get(2).map(|t| t.mp_consume), Some(0));
 
@@ -1243,8 +1373,14 @@ mod tests {
         assert!(soulshot.item_skills.iter().any(|&(id, _)| id == 2150));
         assert_eq!(soulshot.crystal_type, CrystalType::D);
         // Some real weapon must declare soulshots/spiritshots.
-        assert!(data.weapon_shots.values().any(|&(ss, _)| ss > 0), "a weapon declares a soulshot count");
-        assert!(data.weapon_shots.values().any(|&(_, sps)| sps > 0), "a weapon declares a spiritshot count");
+        assert!(
+            data.weapon_shots.values().any(|&(ss, _)| ss > 0),
+            "a weapon declares a soulshot count"
+        );
+        assert!(
+            data.weapon_shots.values().any(|&(_, sps)| sps > 0),
+            "a weapon declares a spiritshot count"
+        );
 
         assert!(data.by_id.len() > 5000);
     }
@@ -1252,17 +1388,25 @@ mod tests {
     #[test]
     fn parses_extractable_pack_handler_and_capsules() {
         let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        let pack = data.get(15195).expect("item 15195 (Mage Class Equipment Set, 10-day)");
+        let pack = data
+            .get(15195)
+            .expect("item 15195 (Mage Class Equipment Set, 10-day)");
         assert_eq!(pack.handler, ItemHandler::ExtractableItems);
         assert_eq!(pack.extractable_count_min, 0);
         assert_eq!(pack.extractable_count_max, 0);
         assert_eq!(pack.capsuled_items.len(), 9);
-        let robe = pack.capsuled_items.iter().find(|c| c.item_id == 15230).expect("Dark Crystal Robe pack entry");
+        let robe = pack
+            .capsuled_items
+            .iter()
+            .find(|c| c.item_id == 15230)
+            .expect("Dark Crystal Robe pack entry");
         assert_eq!(robe.min, 1);
         assert_eq!(robe.max, 1);
         assert_eq!(robe.chance, 100_000); // chance="100" -> (100.0 * 1000) as i32
 
-        let box_item = data.get(23762).expect("item 23762 (High-grade Elixir Pack)");
+        let box_item = data
+            .get(23762)
+            .expect("item 23762 (High-grade Elixir Pack)");
         assert_eq!(box_item.extractable_count_min, 1);
         assert_eq!(box_item.extractable_count_max, 1);
     }
@@ -1275,7 +1419,10 @@ mod tests {
         // An unknown item falls back to the client question-mark (Java default).
         assert_eq!(data.icon(-1), "icon.etc_question_mark_i00");
         // `all()` yields the loaded catalog (Java `getAllItems`).
-        assert!(data.all().any(|i| i.item_id == 57), "adena is in the catalog");
+        assert!(
+            data.all().any(|i| i.item_id == 57),
+            "adena is in the catalog"
+        );
     }
 
     #[test]
@@ -1284,7 +1431,13 @@ mod tests {
 
         // Short Sword (item 1): pAtk/mAtk/rCrit/pAtkSpd + range/random-damage.
         let sword = data.item_stats(1).expect("item 1 <stats>");
-        let get = |s: Stat| sword.bonuses.iter().find(|(st, _)| *st == s).map(|(_, v)| *v);
+        let get = |s: Stat| {
+            sword
+                .bonuses
+                .iter()
+                .find(|(st, _)| *st == s)
+                .map(|(_, v)| *v)
+        };
         assert_eq!(get(Stat::PhysicalAttack), Some(8.0));
         assert_eq!(get(Stat::MagicalAttack), Some(6.0));
         assert_eq!(get(Stat::CriticalRate), Some(8.0));
@@ -1302,7 +1455,11 @@ mod tests {
         assert_eq!(hoplon.shield_def, Some(128));
         assert_eq!(hoplon.shield_rate, Some(20));
         assert_eq!(
-            hoplon.bonuses.iter().find(|(s, _)| *s == Stat::EvasionRate).map(|(_, v)| *v),
+            hoplon
+                .bonuses
+                .iter()
+                .find(|(s, _)| *s == Stat::EvasionRate)
+                .map(|(_, v)| *v),
             Some(-8.0)
         );
 

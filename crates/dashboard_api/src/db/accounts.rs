@@ -48,7 +48,13 @@ impl Account {
     }
 }
 
-type Row = (Option<String>, Option<String>, Option<String>, Option<i64>, i32);
+type Row = (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<i64>,
+    i32,
+);
 
 const COLUMNS: &str = "login, password, email, is_verified, accessLevel";
 
@@ -79,10 +85,11 @@ pub fn normalize_email(email: &str) -> String {
 /// Looks up a game account by login name. Cannot return a master account:
 /// `login = ?` never matches a NULL login.
 pub async fn find_by_login(pool: &SqlitePool, login: &str) -> ApiResult<Option<Account>> {
-    let row: Option<Row> = sqlx::query_as(&format!("SELECT {COLUMNS} FROM accounts WHERE login = ?"))
-        .bind(normalize_login(login))
-        .fetch_optional(pool)
-        .await?;
+    let row: Option<Row> =
+        sqlx::query_as(&format!("SELECT {COLUMNS} FROM accounts WHERE login = ?"))
+            .bind(normalize_login(login))
+            .fetch_optional(pool)
+            .await?;
 
     Ok(row.map(to_account))
 }
@@ -190,7 +197,9 @@ pub async fn create_game_account(
         Ok(_) => {}
         // Covers a login taken by *anyone*, including another master's game
         // account — the column is globally unique, as the login server needs.
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => return Err(ApiError::LoginTaken),
+        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => {
+            return Err(ApiError::LoginTaken)
+        }
         Err(e) => return Err(e.into()),
     }
 
@@ -216,11 +225,13 @@ pub async fn set_master_password(
     email: &str,
     password_hash: &str,
 ) -> ApiResult<()> {
-    sqlx::query("UPDATE accounts SET password = ? WHERE login IS NULL AND email = ? COLLATE NOCASE")
-        .bind(password_hash)
-        .bind(normalize_email(email))
-        .execute(pool)
-        .await?;
+    sqlx::query(
+        "UPDATE accounts SET password = ? WHERE login IS NULL AND email = ? COLLATE NOCASE",
+    )
+    .bind(password_hash)
+    .bind(normalize_email(email))
+    .execute(pool)
+    .await?;
     Ok(())
 }
 

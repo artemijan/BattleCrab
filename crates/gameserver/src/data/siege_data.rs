@@ -37,9 +37,19 @@ pub fn load_siege_towers(file_path: &str) -> HashMap<i32, Vec<SiegeSpawn>> {
                 if !p.contains_key(&key) {
                     break; // towers are numbered contiguously from 1
                 }
-                let nums: Vec<i32> = p.get_string(&key, "").split(',').filter_map(|s| s.trim().parse().ok()).collect();
+                let nums: Vec<i32> = p
+                    .get_string(&key, "")
+                    .split(',')
+                    .filter_map(|s| s.trim().parse().ok())
+                    .collect();
                 if let [x, y, z, npc_id, ..] = nums[..] {
-                    out.entry(castle_id).or_default().push(SiegeSpawn { npc_id, x, y, z, heading: 0 });
+                    out.entry(castle_id).or_default().push(SiegeSpawn {
+                        npc_id,
+                        x,
+                        y,
+                        z,
+                        heading: 0,
+                    });
                 }
             }
         }
@@ -61,7 +71,9 @@ mod tests {
         // GludioControlTower1=-18325,112811,-2377,13002.
         let gludio = towers.get(&1).expect("Gludio towers");
         assert!(
-            gludio.iter().any(|s| s.npc_id == 13002 && s.x == -18325 && s.y == 112811 && s.z == -2377),
+            gludio
+                .iter()
+                .any(|s| s.npc_id == 13002 && s.x == -18325 && s.y == 112811 && s.z == -2377),
             "GludioControlTower1 parsed at its coords"
         );
     }
@@ -87,7 +99,9 @@ pub struct SiegeScheduleEntry {
 pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> {
     let mut out = HashMap::new();
     let path = format!("{file_path}{SIEGE_SCHEDULE_FILE}");
-    let Ok(content) = std::fs::read_to_string(&path) else { return out };
+    let Ok(content) = std::fs::read_to_string(&path) else {
+        return out;
+    };
     let mut reader = quick_xml::Reader::from_str(&content);
     reader.config_mut().trim_text(true);
     loop {
@@ -110,7 +124,14 @@ pub fn load_siege_schedule(file_path: &str) -> HashMap<i32, SiegeScheduleEntry> 
                     continue;
                 };
                 let enabled = attr(b"siegeEnabled").is_none_or(|v| v.eq_ignore_ascii_case("true"));
-                out.insert(castle_id, SiegeScheduleEntry { weekday: day, hour, enabled });
+                out.insert(
+                    castle_id,
+                    SiegeScheduleEntry {
+                        weekday: day,
+                        hour,
+                        enabled,
+                    },
+                );
             }
             _ => {}
         }

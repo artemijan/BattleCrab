@@ -21,8 +21,12 @@ const ESCAPE_SKILL_ID: i32 = 2099;
 const GM_ESCAPE_SKILL_ID: i32 = 2100;
 
 pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(command_id) = cp::read_user_command(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(command_id) = cp::read_user_command(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
 
     match command_id {
@@ -53,12 +57,23 @@ pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[
 /// mapregion files reference is a 3-param location message (Java checks
 /// `getParamCount() == 3` against its message table, which isn't ported).
 fn loc(world: &World, client_id: u32, object_id: i32) {
-    let Some(pos) = world.objects.get_component::<Position>(&object_id) else { return };
-    let loc_id = world.data.map_region.region_at(pos.x, pos.y).map(|r| r.loc_id).unwrap_or(0);
+    let Some(pos) = world.objects.get_component::<Position>(&object_id) else {
+        return;
+    };
+    let loc_id = world
+        .data
+        .map_region
+        .region_at(pos.x, pos.y)
+        .map(|r| r.loc_id)
+        .unwrap_or(0);
     let packet = if loc_id > 0 {
         server_packets::system_message_with(
             loc_id as i16,
-            &[SmParam::Int(pos.x), SmParam::Int(pos.y), SmParam::Int(pos.z)],
+            &[
+                SmParam::Int(pos.x),
+                SmParam::Int(pos.y),
+                SmParam::Int(pos.z),
+            ],
         )
     } else {
         server_packets::system_message_with(
@@ -78,12 +93,18 @@ fn loc(world: &World, client_id: u32, object_id: i32) {
 fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // `isCastingNow || isAlikeDead` → refuse silently (Java returns false).
     if world.objects.has_component::<Casting>(&object_id)
-        || world.objects.get_component::<Vitals>(&object_id).is_none_or(|v| v.dead)
+        || world
+            .objects
+            .get_component::<Vitals>(&object_id)
+            .is_none_or(|v| v.dead)
     {
         return;
     }
     let (is_gm, interval) = {
-        let Some(p) = world.objects.get_component::<crate::model::Player>(&object_id) else {
+        let Some(p) = world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+        else {
             return;
         };
         (p.is_gm(&world.data), world.cfg.character.unstuck_interval)

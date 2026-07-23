@@ -41,10 +41,19 @@ impl InitialEquipmentData {
                     }
                     Ok(Event::Empty(e)) if e.name().as_ref() == b"item" => {
                         let Some(class_id) = cur_class else { continue };
-                        let Some(item_id) = attr_i32(&e, b"id") else { continue };
+                        let Some(item_id) = attr_i32(&e, b"id") else {
+                            continue;
+                        };
                         let count = attr_i32(&e, b"count").unwrap_or(1) as i64;
                         let equipped = attr_str(&e, b"equipped").as_deref() == Some("true");
-                        by_class.entry(class_id).or_default().push(InitialEquipmentItem { item_id, count, equipped });
+                        by_class
+                            .entry(class_id)
+                            .or_default()
+                            .push(InitialEquipmentItem {
+                                item_id,
+                                count,
+                                equipped,
+                            });
                     }
                     Ok(Event::Eof) => break,
                     Err(_) => break,
@@ -53,17 +62,25 @@ impl InitialEquipmentData {
             }
         }
         let total: usize = by_class.values().map(|v| v.len()).sum();
-        info!("InitialEquipmentData: Loaded gear for {} classes ({total} item entries).", by_class.len());
+        info!(
+            "InitialEquipmentData: Loaded gear for {} classes ({total} item entries).",
+            by_class.len()
+        );
         Self { by_class }
     }
 
     pub fn get(&self, class_id: i32) -> &[InitialEquipmentItem] {
-        self.by_class.get(&class_id).map(|v| v.as_slice()).unwrap_or(&[])
+        self.by_class
+            .get(&class_id)
+            .map(|v| v.as_slice())
+            .unwrap_or(&[])
     }
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { by_class: HashMap::new() }
+        Self {
+            by_class: HashMap::new(),
+        }
     }
 }
 
@@ -84,10 +101,16 @@ mod tests {
 
     #[test]
     fn loads_human_fighter_starting_gear() {
-        let data = InitialEquipmentData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = InitialEquipmentData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
         let items = data.get(0); // Human Fighter
         assert!(!items.is_empty());
-        let sword = items.iter().find(|i| i.item_id == 2369).expect("Squire's Sword");
+        let sword = items
+            .iter()
+            .find(|i| i.item_id == 2369)
+            .expect("Squire's Sword");
         assert!(sword.equipped);
         let dagger = items.iter().find(|i| i.item_id == 10).expect("Dagger");
         assert!(!dagger.equipped);

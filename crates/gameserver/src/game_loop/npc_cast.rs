@@ -53,8 +53,11 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     let Some(template) = world.data.npc_data.get(npc_id) else {
         return false;
     };
-    let (ai_type, min_chance, max_chance) =
-        (template.ai_type, template.min_skill_chance, template.max_skill_chance);
+    let (ai_type, min_chance, max_chance) = (
+        template.ai_type,
+        template.min_skill_chance,
+        template.max_skill_chance,
+    );
 
     // `(!npc.isMoving() && npc.hasSkillChance()) || (npc.getAiType() == AIType.MAGE)`
     // — a mage casts on every think, regardless of movement or the roll. 402
@@ -155,7 +158,11 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
 /// `Npc.hasSkillChance()` — `Rnd.get(100) < Rnd.get(min, max)`.
 fn has_skill_chance(min: i32, max: i32) -> bool {
     let mut rng = rand::thread_rng();
-    let ceiling = if max > min { rng.gen_range(min..=max) } else { min };
+    let ceiling = if max > min {
+        rng.gen_range(min..=max)
+    } else {
+        min
+    };
     rng.gen_range(0..100) < ceiling
 }
 
@@ -249,7 +256,12 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
 
     if skill.is_continuous {
         // Don't re-apply an abnormal the target already has at >= this level.
-        if has_abnormal_at_least(world, target_oid, &skill.abnormal_type, skill.abnormal_level) {
+        if has_abnormal_at_least(
+            world,
+            target_oid,
+            &skill.abnormal_type,
+            skill.abnormal_level,
+        ) {
             return false;
         }
         // Java: "there are cases where bad skills (negative effect points) are
@@ -315,8 +327,7 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     let cool_ms = crate::model::formulas::calc_atk_spd(combat, skill, skill.cool_time as f64);
 
     // Face the target.
-    let heading =
-        crate::model::movement::calculate_heading((tx - cx) as f64, (ty - cy) as f64);
+    let heading = crate::model::movement::calculate_heading((tx - cx) as f64, (ty - cy) as f64);
     if let Some(pos) = world.objects.get_component_mut::<Position>(&npc_oid) {
         pos.heading = heading;
     }
@@ -333,7 +344,11 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
 
     set_skill_reuse(world, npc_oid, skill);
 
-    if let Some(region) = world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0) {
+    if let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    {
         broadcast_near_region(
             world,
             region,
@@ -407,7 +422,13 @@ fn hp_percent(world: &World, oid: i32) -> f64 {
     world
         .objects
         .get_component::<Vitals>(&oid)
-        .map(|v| if v.max_hp > 0 { v.cur_hp / v.max_hp as f64 * 100.0 } else { 100.0 })
+        .map(|v| {
+            if v.max_hp > 0 {
+                v.cur_hp / v.max_hp as f64 * 100.0
+            } else {
+                100.0
+            }
+        })
         .unwrap_or(100.0)
 }
 
@@ -456,7 +477,11 @@ fn skill_target_reconsider(
 ) -> Option<i32> {
     // `isBad`: for a continuous skill the debuff flag decides, otherwise the
     // effect points do.
-    let is_bad = if skill.is_continuous { skill.is_debuff } else { skill.is_bad() };
+    let is_bad = if skill.is_continuous {
+        skill.is_debuff
+    } else {
+        skill.is_bad()
+    };
 
     if is_bad {
         // Anything already fighting this NPC is fair game.
@@ -493,7 +518,11 @@ fn skill_target_reconsider(
     }
 
     // A heal goes to whoever is worst off, not to a random member.
-    if skill.effects.iter().any(|e| matches!(e, crate::model::skill::SkillEffect::Heal { .. })) {
+    if skill
+        .effects
+        .iter()
+        .any(|e| matches!(e, crate::model::skill::SkillEffect::Heal { .. }))
+    {
         return valid
             .into_iter()
             .min_by(|&a, &b| hp_percent(world, a).total_cmp(&hp_percent(world, b)));
@@ -511,13 +540,20 @@ fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
 /// Living NPCs within `range` that share a faction with this one (the same
 /// `shares_clan_with` test the help-call uses), excluding the caller.
 fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
-    let Some(npc_id) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid).map(|n| n.npc_id) else {
+    let Some(npc_id) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+    else {
         return Vec::new();
     };
     let (Some(mine), Some(pos), Some(region)) = (
         world.data.npc_data.get(npc_id),
         world.objects.get_component::<Position>(&npc_oid).copied(),
-        world.objects.get_component::<RegionCell>(&npc_oid).map(|r| r.0),
+        world
+            .objects
+            .get_component::<RegionCell>(&npc_oid)
+            .map(|r| r.0),
     ) else {
         return Vec::new();
     };
@@ -532,12 +568,16 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
         .copied()
         .filter(|&other| other != npc_oid)
         .filter(|&other| {
-            world.objects.get_component::<Vitals>(&other).is_some_and(|v| !v.dead)
+            world
+                .objects
+                .get_component::<Vitals>(&other)
+                .is_some_and(|v| !v.dead)
                 && world
                     .objects
                     .get_component::<Position>(&other)
                     .is_some_and(|p| {
-                        let d = (((p.x - pos.x) as f64).powi(2) + ((p.y - pos.y) as f64).powi(2)).sqrt();
+                        let d = (((p.x - pos.x) as f64).powi(2) + ((p.y - pos.y) as f64).powi(2))
+                            .sqrt();
                         d <= range
                     })
                 && world
@@ -553,5 +593,7 @@ fn faction_mates_in_range(world: &World, npc_oid: i32, range: f64) -> Vec<i32> {
 /// other NPCs are not. That's what keeps a support mob from "buffing" the
 /// player it's fighting while still letting it buff its pack.
 fn is_auto_attackable_by_npc(world: &World, target_oid: i32) -> bool {
-    world.objects.has_component::<crate::model::Player>(&target_oid)
+    world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
 }

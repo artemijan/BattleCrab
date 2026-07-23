@@ -2,6 +2,10 @@
 //! client — Init decode (static Blowfish + XOR unwrap), session-key packet
 //! encryption, RSA modulus unscramble and credential-block encryption.
 
+// Each test binary compiles this module separately and uses a different
+// subset of it, so per-binary dead_code warnings are false positives.
+#![allow(dead_code)]
+
 use std::sync::Arc;
 
 use commons::crypt::NewCrypt;
@@ -117,9 +121,16 @@ pub async fn start_server(config: LoginConfig) -> TestServer {
 
     let gs_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let gs_addr = gs_listener.local_addr().unwrap();
-    tokio::spawn(loginserver::gs_link::listener::accept_loop(ctx, gs_listener));
+    tokio::spawn(loginserver::gs_link::listener::accept_loop(
+        ctx,
+        gs_listener,
+    ));
 
-    TestServer { addr, gs_addr, pool }
+    TestServer {
+        addr,
+        gs_addr,
+        pool,
+    }
 }
 
 /// Client-side inverse of `NewCrypt.encXORPass` (as the real client decodes `Init`).
@@ -206,19 +217,31 @@ impl HandshakedClient {
 /// Connect + decode Init + complete the GameGuard exchange.
 pub async fn handshake(addr: std::net::SocketAddr) -> HandshakedClient {
     let stream = TcpStream::connect(addr).await.unwrap();
-    let (mut read, mut write) = stream.into_split();
+    let (mut read, write) = stream.into_split();
 
-    let mut init = read_frame(&mut read, 8192).await.unwrap().expect("no Init frame");
+    let mut init = read_frame(&mut read, 8192)
+        .await
+        .unwrap()
+        .expect("no Init frame");
     NewCrypt::new(&STATIC_BLOWFISH_KEY).decrypt(&mut init);
     dec_xor_pass(&mut init);
     assert_eq!(init[0], 0x00, "Init opcode");
     let session_id = i32::from_le_bytes(init[1..5].try_into().unwrap());
-    assert_eq!(i32::from_le_bytes(init[5..9].try_into().unwrap()), 0x0000c621);
+    assert_eq!(
+        i32::from_le_bytes(init[5..9].try_into().unwrap()),
+        0x0000c621
+    );
     let modulus = unscramble_modulus(&init[9..9 + 128]);
     let blowfish_key: [u8; 16] = init[9 + 128 + 16..9 + 128 + 16 + 16].try_into().unwrap();
     let crypt = NewCrypt::new(&blowfish_key);
 
-    let mut client = HandshakedClient { read, write, session_id, crypt, modulus };
+    let mut client = HandshakedClient {
+        read,
+        write,
+        session_id,
+        crypt,
+        modulus,
+    };
 
     let mut gg = vec![0x07u8];
     gg.extend_from_slice(&session_id.to_le_bytes());
@@ -231,7 +254,11 @@ pub async fn handshake(addr: std::net::SocketAddr) -> HandshakedClient {
 }
 
 /// Handshake + RequestAuthLogin; returns the first auth reply packet.
-pub async fn login(addr: std::net::SocketAddr, user: &str, password: &str) -> (HandshakedClient, Vec<u8>) {
+pub async fn login(
+    addr: std::net::SocketAddr,
+    user: &str,
+    password: &str,
+) -> (HandshakedClient, Vec<u8>) {
     let mut client = handshake(addr).await;
     let block = encrypt_credentials(&client.modulus, user, password);
     let mut body = vec![0x00u8];

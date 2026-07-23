@@ -50,8 +50,13 @@ const SKULLS_NEEDED: i64 = 13;
 const SILK_NEEDED: i64 = 5;
 
 const QUEST_ITEMS: [i32; 7] = [
-    PALLUS_TALISMAN, LYCANTHROPE_SKULL, VIRGILS_LETTER, MORTE_TALISMAN,
-    VENOMOUS_SPIDERS_CARAPACE, ARACHNID_TRACKER_SILK, COFFIN_OF_ETERNAL_REST,
+    PALLUS_TALISMAN,
+    LYCANTHROPE_SKULL,
+    VIRGILS_LETTER,
+    MORTE_TALISMAN,
+    VENOMOUS_SPIDERS_CARAPACE,
+    ARACHNID_TRACKER_SILK,
+    COFFIN_OF_ETERNAL_REST,
 ];
 
 pub struct Q00410PathOfThePalusKnight;
@@ -267,8 +272,12 @@ impl Q00410PathOfThePalusKnight {
                 return Some("30422-03.html".to_string());
             }
             return Some(
-                if self.collection_done(ctx) { "30422-05.html" } else { "30422-04.html" }
-                    .to_string(),
+                if self.collection_done(ctx) {
+                    "30422-05.html"
+                } else {
+                    "30422-04.html"
+                }
+                .to_string(),
             );
         }
         if self.has(ctx, COFFIN_OF_ETERNAL_REST) {

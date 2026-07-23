@@ -56,7 +56,8 @@ async fn main() {
         }
     }
 
-    let pool = match commons::db::init(&config.database_url, config.database_max_connections).await {
+    let pool = match commons::db::init(&config.database_url, config.database_max_connections).await
+    {
         Ok(pool) => pool,
         Err(e) => {
             eprintln!("FATAL: cannot open database: {e}");

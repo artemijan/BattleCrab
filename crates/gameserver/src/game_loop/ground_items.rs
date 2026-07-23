@@ -46,7 +46,11 @@ fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option
             if !g.destroy_dropped_player_item {
                 return None;
             }
-            let equipable = world.data.item_data.get(item_id).is_some_and(|t| t.is_equipable());
+            let equipable = world
+                .data
+                .item_data
+                .get(item_id)
+                .is_some_and(|t| t.is_equipable());
             if equipable && !g.destroy_equipable_player_item {
                 return None;
             }
@@ -60,7 +64,12 @@ fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option
 pub(crate) fn ground_item_view(world: &World, oid: i32) -> Option<GroundItemView> {
     let g = world.objects.get_component::<GroundItem>(&oid)?;
     let pos = world.objects.get_component::<Position>(&oid)?;
-    let stackable = world.data.item_data.get(g.item_id).map(|t| t.is_stackable).unwrap_or(false);
+    let stackable = world
+        .data
+        .item_data
+        .get(g.item_id)
+        .map(|t| t.is_stackable)
+        .unwrap_or(false);
     Some(GroundItemView {
         object_id: g.object_id,
         display_id: g.item_id,
@@ -89,21 +98,46 @@ pub(crate) fn spawn_ground_item(
     let object_id = world.next_npc_object_id;
     world.next_npc_object_id += 1;
     let region = region_of(x, y);
-    world.ground_item_regions.entry(region).or_default().push(object_id);
+    world
+        .ground_item_regions
+        .entry(region)
+        .or_default()
+        .push(object_id);
     world.objects.spawn(
         object_id,
-        (GroundItem { object_id, item_id, count, enchant }, Position { x, y, z, heading: 0 }, RegionCell(region)),
+        (
+            GroundItem {
+                object_id,
+                item_id,
+                count,
+                enchant,
+            },
+            Position {
+                x,
+                y,
+                z,
+                heading: 0,
+            },
+            RegionCell(region),
+        ),
     );
     if let Some(view) = ground_item_view(world, object_id) {
-        super::helpers::broadcast_near_region(world, region, &server_packets::drop_item(dropper_oid, &view));
+        super::helpers::broadcast_near_region(
+            world,
+            region,
+            &server_packets::drop_item(dropper_oid, &view),
+        );
     }
     // Auto-destroy scheduling, gated by General.ini: a player's drop persists
     // unless `DestroyPlayerDroppedItem` is set (dist default: off), while an NPC
     // drop decays after `AutoDestroyDroppedItemAfter`.
     if let Some(delay_secs) = auto_destroy_delay(world, item_id, source) {
-        world
-            .scheduler
-            .schedule(world.tick + delay_secs * 10, ScheduledTask::GroundItemDecay { item_object_id: object_id });
+        world.scheduler.schedule(
+            world.tick + delay_secs * 10,
+            ScheduledTask::GroundItemDecay {
+                item_object_id: object_id,
+            },
+        );
     }
     object_id
 }
@@ -111,7 +145,13 @@ pub(crate) fn spawn_ground_item(
 /// `ItemsOnGroundManager` cleanup task: remove a ground item that has lain past
 /// its lifetime (no-op if it was already picked up).
 pub(crate) fn handle_ground_item_decay(world: &mut World, item_object_id: i32) {
-    let Some(region) = world.objects.get_component::<RegionCell>(&item_object_id).map(|r| r.0) else { return };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&item_object_id)
+        .map(|r| r.0)
+    else {
+        return;
+    };
     if !world.objects.has_component::<GroundItem>(&item_object_id) {
         return;
     }
@@ -133,18 +173,41 @@ pub(crate) fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32
 /// with the "you obtained" message + `InventoryUpdate`. (Enchant is not carried
 /// through the give path yet — stackable drops are enchant 0; enchanted gear
 /// pickup keeping its level is a TODO.)
-pub(crate) fn pickup_ground_item(world: &mut World, client_id: u32, player_oid: i32, item_oid: i32) {
-    let Some(g) = world.objects.get_component::<GroundItem>(&item_oid).cloned() else { return };
-    let Some(pos) = world.objects.get_component::<Position>(&item_oid).copied() else { return };
-    let region = world.objects.get_component::<RegionCell>(&item_oid).map(|r| r.0).unwrap_or_else(|| region_of(pos.x, pos.y));
+pub(crate) fn pickup_ground_item(
+    world: &mut World,
+    client_id: u32,
+    player_oid: i32,
+    item_oid: i32,
+) {
+    let Some(g) = world
+        .objects
+        .get_component::<GroundItem>(&item_oid)
+        .cloned()
+    else {
+        return;
+    };
+    let Some(pos) = world.objects.get_component::<Position>(&item_oid).copied() else {
+        return;
+    };
+    let region = world
+        .objects
+        .get_component::<RegionCell>(&item_oid)
+        .map(|r| r.0)
+        .unwrap_or_else(|| region_of(pos.x, pos.y));
     // A cursed weapon lying on the ground curses whoever grabs it — route into
     // the cursed-weapon pickup path (its own get-item broadcast + despawn +
     // activation) instead of the plain give.
     if super::cursed_weapon::is_dropped_cursed(world, g.item_id) {
-        super::cursed_weapon::try_pickup(world, client_id, player_oid, item_oid, region, g.item_id, pos);
+        super::cursed_weapon::try_pickup(
+            world, client_id, player_oid, item_oid, region, g.item_id, pos,
+        );
         return;
     }
-    super::helpers::broadcast_near_region(world, region, &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z));
+    super::helpers::broadcast_near_region(
+        world,
+        region,
+        &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z),
+    );
     despawn_ground_item(world, item_oid, region);
     super::quests::give_item_with_earned_message(world, client_id, player_oid, g.item_id, g.count);
 }
@@ -154,8 +217,12 @@ pub(crate) fn pickup_ground_item(world: &mut World, client_id: u32, player_oid: 
 /// protected; a worn item is unequipped first. Java's precise drop-location /
 /// distance / weight guards are simplified (drop at the player's position).
 pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::RequestDropItem::read(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(pkt) = cp::RequestDropItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let player_oid = session.player_object_id();
     if pkt.count <= 0 {
         return;
@@ -163,10 +230,21 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     let Some((item_id, held, enchant, is_stackable, is_quest)) = world
         .objects
         .get_component::<Inventory>(&player_oid)
-        .and_then(|inv| inv.items().iter().find(|it| it.object_id == pkt.object_id).map(|it| (it.item_id, it.count, it.enchant_level)))
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|it| it.object_id == pkt.object_id)
+                .map(|it| (it.item_id, it.count, it.enchant_level))
+        })
         .map(|(id, cnt, ench)| {
             let t = world.data.item_data.get(id);
-            (id, cnt, ench, t.map(|t| t.is_stackable).unwrap_or(false), t.map(|t| t.is_quest_item).unwrap_or(false))
+            (
+                id,
+                cnt,
+                ench,
+                t.map(|t| t.is_stackable).unwrap_or(false),
+                t.map(|t| t.is_quest_item).unwrap_or(false),
+            )
         })
     else {
         return;
@@ -175,10 +253,20 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         return;
     }
     let count = pkt.count.min(held);
-    let Some(ppos) = world.objects.get_component::<Position>(&player_oid).copied() else { return };
+    let Some(ppos) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .copied()
+    else {
+        return;
+    };
 
     // Unequip first if worn (Java unequips before the drop, with its own update).
-    if world.objects.get_component::<Inventory>(&player_oid).is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some()) {
+    if world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .is_some_and(|inv| inv.paperdoll_slot_of(pkt.object_id).is_some())
+    {
         let changed = world
             .objects
             .get_component_mut::<Inventory>(&player_oid)
@@ -187,12 +275,26 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         super::items::finish_equip_change(world, client_id, player_oid, &changed);
     }
 
-    let Some(change) = world.objects.get_component_mut::<Inventory>(&player_oid).and_then(|inv| inv.remove_by_object_id(pkt.object_id, count)) else {
+    let Some(change) = world
+        .objects
+        .get_component_mut::<Inventory>(&player_oid)
+        .and_then(|inv| inv.remove_by_object_id(pkt.object_id, count))
+    else {
         return;
     };
     let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
-    spawn_ground_item(world, item_id, count, enchant, ppos.x, ppos.y, ppos.z, player_oid, DropSource::Player);
+    spawn_ground_item(
+        world,
+        item_id,
+        count,
+        enchant,
+        ppos.x,
+        ppos.y,
+        ppos.z,
+        player_oid,
+        DropSource::Player,
+    );
 }

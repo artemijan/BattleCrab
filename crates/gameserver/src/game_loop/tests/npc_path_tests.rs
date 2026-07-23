@@ -18,7 +18,8 @@ const CLEAR_DELTA: (i32, i32) = (0, 600);
 /// The real geodata, loaded once for the whole test module — it's ~seconds to
 /// parse and several tests need it.
 fn geo() -> std::sync::Arc<crate::geo::GeoEngine> {
-    static GEO: std::sync::OnceLock<std::sync::Arc<crate::geo::GeoEngine>> = std::sync::OnceLock::new();
+    static GEO: std::sync::OnceLock<std::sync::Arc<crate::geo::GeoEngine>> =
+        std::sync::OnceLock::new();
     GEO.get_or_init(|| {
         std::sync::Arc::new(crate::geo::GeoEngine::load(std::path::Path::new(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -42,7 +43,9 @@ fn path_world() -> (World, std::sync::mpsc::Receiver<PathRequest>, i32) {
     t.base_hp_max = 500.0;
     t.base_run_spd = 120.0;
     world.data.npc_data.insert_for_test(t);
-    add_test_npc(&mut world, NPC_OID, NPC_ID, "Monster", 20, GIRAN.0, GIRAN.1, GIRAN.2);
+    add_test_npc(
+        &mut world, NPC_OID, NPC_ID, "Monster", 20, GIRAN.0, GIRAN.1, GIRAN.2,
+    );
     (world, rx, NPC_OID)
 }
 
@@ -69,26 +72,46 @@ fn a_clear_line_moves_straight_without_asking_the_path_worker() {
     );
 
     assert!(requests(&rx).is_empty(), "open ground needs no pathfinding");
-    let mv = world.objects.get_component::<Movement>(&oid).expect("straight move started");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&oid)
+        .expect("straight move started");
     assert!(mv.0.geo_path.is_none(), "and no route attached");
 }
 
 #[test]
 fn a_blocked_line_asks_the_path_worker_instead_of_walking_through_the_wall() {
     let (mut world, rx, oid) = path_world();
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
 
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
 
     let reqs = requests(&rx);
-    assert_eq!(reqs.len(), 1, "the blocked line should have queued one path request");
-    assert_eq!(reqs[0].to, target, "the worker gets the ORIGINAL destination, not the clamped one");
-    assert!(!reqs[0].playable, "AI movers use Java's cheaper single-pass filter");
+    assert_eq!(
+        reqs.len(),
+        1,
+        "the blocked line should have queued one path request"
+    );
+    assert_eq!(
+        reqs[0].to, target,
+        "the worker gets the ORIGINAL destination, not the clamped one"
+    );
+    assert!(
+        !reqs[0].playable,
+        "AI movers use Java's cheaper single-pass filter"
+    );
     assert!(
         world.objects.get_component::<Movement>(&oid).is_none(),
         "no move starts until the route comes back — the mob must not walk into the wall meanwhile"
     );
-    assert!(world.objects.has_component::<PathWait>(&oid), "and it is marked as waiting");
+    assert!(
+        world.objects.has_component::<PathWait>(&oid),
+        "and it is marked as waiting"
+    );
 }
 
 #[test]
@@ -96,7 +119,11 @@ fn a_second_think_does_not_queue_a_duplicate_request() {
     // The AI re-issues a chase every 1 s think; without the in-flight guard
     // that floods the worker with duplicates for the same mob.
     let (mut world, rx, oid) = path_world();
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
 
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
@@ -110,7 +137,11 @@ fn the_reply_starts_a_route_move_for_an_npc() {
     // The reply path was player-only before this slice; an NPC riding it is
     // the main risk in the change.
     let (mut world, rx, oid) = path_world();
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
 
@@ -125,24 +156,46 @@ fn the_reply_starts_a_route_move_for_an_npc() {
         },
     );
 
-    let mv = world.objects.get_component::<Movement>(&oid).expect("route move started");
-    assert!(mv.0.geo_path.is_some(), "the NPC follows the returned route");
-    assert!(!world.objects.has_component::<PathWait>(&oid), "the wait is cleared");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&oid)
+        .expect("route move started");
+    assert!(
+        mv.0.geo_path.is_some(),
+        "the NPC follows the returned route"
+    );
+    assert!(
+        !world.objects.has_component::<PathWait>(&oid),
+        "the wait is cleared"
+    );
 }
 
 #[test]
 fn a_route_that_cannot_be_found_leaves_the_npc_still() {
     let (mut world, rx, oid) = path_world();
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
 
     crate::game_loop::position::handle_path_result(
         &mut world,
-        PathEvent { seq: req.seq, client_id: req.client_id, object_id: oid, to: target, path: None },
+        PathEvent {
+            seq: req.seq,
+            client_id: req.client_id,
+            object_id: oid,
+            to: target,
+            path: None,
+        },
     );
 
-    assert!(world.objects.get_component::<Movement>(&oid).is_none(), "no route, no move");
+    assert!(
+        world.objects.get_component::<Movement>(&oid).is_none(),
+        "no route, no move"
+    );
     assert!(
         !world.objects.has_component::<PathWait>(&oid),
         "but the wait must clear, or the mob could never path again"
@@ -152,10 +205,18 @@ fn a_route_that_cannot_be_found_leaves_the_npc_still() {
 #[test]
 fn a_reply_for_a_mob_that_died_meanwhile_is_dropped() {
     let (mut world, rx, oid) = path_world();
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
     let req = requests(&rx).pop().expect("request queued");
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .dead = true;
 
     crate::game_loop::position::handle_path_result(
         &mut world,
@@ -168,20 +229,37 @@ fn a_reply_for_a_mob_that_died_meanwhile_is_dropped() {
         },
     );
 
-    assert!(world.objects.get_component::<Movement>(&oid).is_none(), "a corpse doesn't walk the route");
+    assert!(
+        world.objects.get_component::<Movement>(&oid).is_none(),
+        "a corpse doesn't walk the route"
+    );
 }
 
 #[test]
 fn pathfinding_disabled_falls_back_to_the_old_straight_move() {
     let (mut world, rx, oid) = path_world();
     world.path_finding = 0;
-    let target = (GIRAN.0 + BLOCKED_DELTA.0, GIRAN.1 + BLOCKED_DELTA.1, GIRAN.2);
+    let target = (
+        GIRAN.0 + BLOCKED_DELTA.0,
+        GIRAN.1 + BLOCKED_DELTA.1,
+        GIRAN.2,
+    );
 
     crate::game_loop::npc_ai::move_npc_to(&mut world, oid, target.0, target.1, target.2);
 
-    assert!(requests(&rx).is_empty(), "PathFinding=0 never consults the worker");
-    let mv = world.objects.get_component::<Movement>(&oid).expect("straight move");
-    assert_eq!((mv.0.dest_x, mv.0.dest_y), (target.0, target.1), "unclamped, exactly as before");
+    assert!(
+        requests(&rx).is_empty(),
+        "PathFinding=0 never consults the worker"
+    );
+    let mv = world
+        .objects
+        .get_component::<Movement>(&oid)
+        .expect("straight move");
+    assert_eq!(
+        (mv.0.dest_x, mv.0.dest_y),
+        (target.0, target.1),
+        "unclamped, exactly as before"
+    );
 }
 
 #[test]
@@ -199,8 +277,14 @@ fn the_npc_takes_the_geodata_corrected_z() {
         absurd_z,
     );
 
-    let mv = world.objects.get_component::<Movement>(&oid).expect("move started");
-    assert_ne!(mv.0.dest_z, absurd_z, "the mob must not path to a z 5000 units in the air");
+    let mv = world
+        .objects
+        .get_component::<Movement>(&oid)
+        .expect("move started");
+    assert_ne!(
+        mv.0.dest_z, absurd_z,
+        "the mob must not path to a z 5000 units in the air"
+    );
 }
 
 #[test]
@@ -208,7 +292,11 @@ fn a_rooted_mob_still_refuses_to_move() {
     // The geodata work sits after the movement-disabled gate; make sure the
     // new code didn't move that check.
     let (mut world, rx, oid) = path_world();
-    let pos = world.objects.get_component::<Position>(&oid).copied().unwrap();
+    let pos = world
+        .objects
+        .get_component::<Position>(&oid)
+        .copied()
+        .unwrap();
     assert_eq!((pos.x, pos.y), (GIRAN.0, GIRAN.1));
     // Root the mob via a buff carrying the movement-disabled flag.
     world.objects.add_components(
@@ -229,8 +317,17 @@ fn a_rooted_mob_still_refuses_to_move() {
         }]),
     );
 
-    crate::game_loop::npc_ai::move_npc_to(&mut world, oid, GIRAN.0 + CLEAR_DELTA.0, GIRAN.1 + CLEAR_DELTA.1, GIRAN.2);
+    crate::game_loop::npc_ai::move_npc_to(
+        &mut world,
+        oid,
+        GIRAN.0 + CLEAR_DELTA.0,
+        GIRAN.1 + CLEAR_DELTA.1,
+        GIRAN.2,
+    );
 
     assert!(requests(&rx).is_empty());
-    assert!(world.objects.get_component::<Movement>(&oid).is_none(), "a rooted mob stays put");
+    assert!(
+        world.objects.get_component::<Movement>(&oid).is_none(),
+        "a rooted mob stays put"
+    );
 }

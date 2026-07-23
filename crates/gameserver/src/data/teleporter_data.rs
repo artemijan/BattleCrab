@@ -75,13 +75,19 @@ pub struct TeleportHolder {
 impl TeleportHolder {
     /// `TeleportHolder.isNoblesse()`.
     pub fn is_noblesse(&self) -> bool {
-        matches!(self.teleport_type, TeleportType::NoblesToken | TeleportType::NoblesAdena)
+        matches!(
+            self.teleport_type,
+            TeleportType::NoblesToken | TeleportType::NoblesAdena
+        )
     }
 
     /// `TeleportHolder.isNormalTeleport()` — the lists whose fee waives below
     /// the free-teleport level.
     pub fn is_normal_teleport(&self) -> bool {
-        matches!(self.teleport_type, TeleportType::Normal | TeleportType::Hunting)
+        matches!(
+            self.teleport_type,
+            TeleportType::Normal | TeleportType::Hunting
+        )
     }
 }
 
@@ -94,23 +100,34 @@ impl TeleporterData {
     pub fn load_from(file_path: &str) -> Self {
         let mut teleporters = HashMap::new();
         let mut files = Vec::new();
-        collect_xml_files(std::path::Path::new(&format!("{file_path}{TELEPORTERS_DIR}")), &mut files);
+        collect_xml_files(
+            std::path::Path::new(&format!("{file_path}{TELEPORTERS_DIR}")),
+            &mut files,
+        );
         files.sort();
         for path in &files {
             parse_file(path, &mut teleporters);
         }
-        info!("TeleporterData: Loaded {} npc teleporters.", teleporters.len());
+        info!(
+            "TeleporterData: Loaded {} npc teleporters.",
+            teleporters.len()
+        );
         Self { teleporters }
     }
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { teleporters: HashMap::new() }
+        Self {
+            teleporters: HashMap::new(),
+        }
     }
 
     #[doc(hidden)]
     pub fn insert_for_test(&mut self, npc_id: i32, holder: TeleportHolder) {
-        self.teleporters.entry(npc_id).or_default().insert(holder.name.clone(), holder);
+        self.teleporters
+            .entry(npc_id)
+            .or_default()
+            .insert(holder.name.clone(), holder);
     }
 
     /// `TeleporterData.getHolder(npcId, listName)`.
@@ -124,7 +141,9 @@ impl TeleporterData {
 }
 
 fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-    let Ok(entries) = std::fs::read_dir(dir) else { return };
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
     for entry in entries.flatten() {
         let path = entry.path();
         if path.is_dir() {
@@ -136,7 +155,9 @@ fn collect_xml_files(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
 }
 
 fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, TeleportHolder>>) {
-    let Ok(content) = std::fs::read_to_string(path) else { return };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
     let mut reader = Reader::from_str(&content);
 
     // Per `<npc>` element: the named lists being built plus the alias ids from
@@ -181,13 +202,16 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                         };
                         let name = attr(b"name")
                             .unwrap_or_else(|| teleport_type.default_name().to_string());
-                        current = Some(TeleportHolder { name, teleport_type, locations: Vec::new() });
+                        current = Some(TeleportHolder {
+                            name,
+                            teleport_type,
+                            locations: Vec::new(),
+                        });
                     }
                     b"location" => {
                         if let Some(holder) = current.as_mut() {
                             let num = |key: &[u8]| attr(key).and_then(|v| v.parse::<i64>().ok());
-                            let (Some(x), Some(y), Some(z)) =
-                                (num(b"x"), num(b"y"), num(b"z"))
+                            let (Some(x), Some(y), Some(z)) = (num(b"x"), num(b"y"), num(b"z"))
                             else {
                                 continue;
                             };

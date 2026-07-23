@@ -113,14 +113,31 @@ const MOBS: [(i32, i32, i32); 6] = [
 const FIRST_TROPHIES: [i32; 3] = [FIRST_FIERY_EGG, KASHA_BLADE_SPIDER_HUSK, KASHA_BEAR_PELT];
 
 const KILL_NPCS: [i32; 7] = [
-    SCARLET_SALAMANDER, KASHA_BLADE_SPIDER, KASHA_BEAR, GRIZZLY_BEAR, POISON_SPIDER,
-    BIND_POISON_SPIDER, DURKA_SPIRIT,
+    SCARLET_SALAMANDER,
+    KASHA_BLADE_SPIDER,
+    KASHA_BEAR,
+    GRIZZLY_BEAR,
+    POISON_SPIDER,
+    BIND_POISON_SPIDER,
+    DURKA_SPIRIT,
 ];
 
 const QUEST_ITEMS: [i32; 15] = [
-    FIRE_CHARM, KASHA_BEAR_PELT, KASHA_BLADE_SPIDER_HUSK, FIRST_FIERY_EGG, HESTUI_MASK,
-    SECOND_FIERY_EGG, TOTEM_SPIRIT_CLAW, TATARUS_LETTER, FLAME_CHARM, GRIZZLY_BLOOD,
-    BLOOD_CAULDRON, SPIRIT_NET, BOUND_DURKA_SPIRIT, DURKA_PARASITE, TOTEM_SPIRIT_BLOOD,
+    FIRE_CHARM,
+    KASHA_BEAR_PELT,
+    KASHA_BLADE_SPIDER_HUSK,
+    FIRST_FIERY_EGG,
+    HESTUI_MASK,
+    SECOND_FIERY_EGG,
+    TOTEM_SPIRIT_CLAW,
+    TATARUS_LETTER,
+    FLAME_CHARM,
+    GRIZZLY_BLOOD,
+    BLOOD_CAULDRON,
+    SPIRIT_NET,
+    BOUND_DURKA_SPIRIT,
+    DURKA_PARASITE,
+    TOTEM_SPIRIT_BLOOD,
 ];
 
 pub struct Q00416PathOfTheOrcShaman;
@@ -163,7 +180,12 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
     }
     /// 31979 / 32057 / 32090 are deliberately absent — see the module header.
     fn talk_npcs(&self) -> &[i32] {
-        &[TATARU_ZU_HESTUI, UMOS, DUDA_MARA_TOTEM_SPIRIT, HESTUI_TOTEM_SPIRIT]
+        &[
+            TATARU_ZU_HESTUI,
+            UMOS,
+            DUDA_MARA_TOTEM_SPIRIT,
+            HESTUI_TOTEM_SPIRIT,
+        ]
     }
     fn kill_npcs(&self) -> &[i32] {
         &KILL_NPCS
@@ -265,7 +287,9 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
         }
 
         // `item.getCount() == qs.getCond()` — count is the cond gate.
-        let Some(&(_, item, gate)) = MOBS.iter().find(|(mob, ..)| *mob == npc_id) else { return };
+        let Some(&(_, item, gate)) = MOBS.iter().find(|(mob, ..)| *mob == npc_id) else {
+            return;
+        };
         if gate != cond {
             return;
         }
@@ -273,7 +297,9 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
             1 if self.has(ctx, FIRE_CHARM) => {
                 // chance 1.0, limit 1 — one of each trophy.
                 if ctx.give_item_randomly(item, 1, 1, 1.0, true)
-                    && FIRST_TROPHIES.iter().all(|id| ctx.quest_items_count(*id) > 0)
+                    && FIRST_TROPHIES
+                        .iter()
+                        .all(|id| ctx.quest_items_count(*id) > 0)
                 {
                     ctx.set_cond(2, true);
                 }
@@ -327,7 +353,10 @@ impl QuestScript for Q00416PathOfTheOrcShaman {
 impl Q00416PathOfTheOrcShaman {
     fn talk_tataru(&self, ctx: &mut QuestCtx) -> Option<String> {
         if self.has(ctx, FIRE_CHARM) {
-            let trophies: i64 = FIRST_TROPHIES.iter().map(|id| ctx.quest_items_count(*id)).sum();
+            let trophies: i64 = FIRST_TROPHIES
+                .iter()
+                .map(|id| ctx.quest_items_count(*id))
+                .sum();
             if trophies < 3 {
                 return Some("30585-08.html".to_string());
             }
@@ -351,7 +380,14 @@ impl Q00416PathOfTheOrcShaman {
         }
         if self.has_any(
             ctx,
-            &[GRIZZLY_BLOOD, FLAME_CHARM, BLOOD_CAULDRON, SPIRIT_NET, BOUND_DURKA_SPIRIT, TOTEM_SPIRIT_BLOOD],
+            &[
+                GRIZZLY_BLOOD,
+                FLAME_CHARM,
+                BLOOD_CAULDRON,
+                SPIRIT_NET,
+                BOUND_DURKA_SPIRIT,
+                TOTEM_SPIRIT_BLOOD,
+            ],
         ) {
             return Some("30585-16.html".to_string());
         }
@@ -418,7 +454,15 @@ impl Q00416PathOfTheOrcShaman {
         }
         if self.has_any(
             ctx,
-            &[GRIZZLY_BLOOD, FLAME_CHARM, BLOOD_CAULDRON, SPIRIT_NET, BOUND_DURKA_SPIRIT, TOTEM_SPIRIT_BLOOD, TATARUS_LETTER],
+            &[
+                GRIZZLY_BLOOD,
+                FLAME_CHARM,
+                BLOOD_CAULDRON,
+                SPIRIT_NET,
+                BOUND_DURKA_SPIRIT,
+                TOTEM_SPIRIT_BLOOD,
+                TATARUS_LETTER,
+            ],
         ) {
             return Some("30592-05.html".to_string());
         }

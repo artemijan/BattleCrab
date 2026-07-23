@@ -53,7 +53,10 @@ use super::target::{handle_action, handle_request_target_canceld};
 pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
     let Some(&opcode) = data.first() else { return };
     let body = &data[1..];
-    trace!("client {client_id} → opcode 0x{opcode:02x} ({} B)", data.len());
+    trace!(
+        "client {client_id} → opcode 0x{opcode:02x} ({} B)",
+        data.len()
+    );
     match opcode {
         cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
         cop::NEW_CHARACTER => handle_new_character(world, client_id),
@@ -76,7 +79,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // RequestSkillList (IN_GAME): empty body, just `player.sendSkillList()`.
         cop::REQUEST_SKILL_LIST => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                if let Some(pkt) = super::helpers::skill_list_packet(world, session.player_object_id()) {
+                if let Some(pkt) =
+                    super::helpers::skill_list_packet(world, session.player_object_id())
+                {
                     cs.send(pkt);
                 }
             }
@@ -84,11 +89,21 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_ITEM_LIST => handle_request_item_list(world, client_id),
         cop::USE_ITEM => handle_use_item(world, client_id, body),
         cop::REQUEST_UN_EQUIP_ITEM => handle_request_un_equip_item(world, client_id, body),
-        cop::REQUEST_DESTROY_ITEM => super::items::handle_request_destroy_item(world, client_id, body),
-        cop::REQUEST_CRYSTALLIZE_ITEM => super::items::handle_request_crystallize_item(world, client_id, body),
-        cop::REQUEST_DROP_ITEM => super::ground_items::handle_request_drop_item(world, client_id, body),
-        cop::SEND_WARE_HOUSE_DEPOSIT_LIST => super::warehouse::handle_deposit(world, client_id, body),
-        cop::SEND_WARE_HOUSE_WITH_DRAW_LIST => super::warehouse::handle_withdraw(world, client_id, body),
+        cop::REQUEST_DESTROY_ITEM => {
+            super::items::handle_request_destroy_item(world, client_id, body)
+        }
+        cop::REQUEST_CRYSTALLIZE_ITEM => {
+            super::items::handle_request_crystallize_item(world, client_id, body)
+        }
+        cop::REQUEST_DROP_ITEM => {
+            super::ground_items::handle_request_drop_item(world, client_id, body)
+        }
+        cop::SEND_WARE_HOUSE_DEPOSIT_LIST => {
+            super::warehouse::handle_deposit(world, client_id, body)
+        }
+        cop::SEND_WARE_HOUSE_WITH_DRAW_LIST => {
+            super::warehouse::handle_withdraw(world, client_id, body)
+        }
         cop::REQUEST_ENCHANT_ITEM => super::enchant::handle_enchant(world, client_id, body),
         cop::REQUEST_MAGIC_SKILL_USE => handle_request_magic_skill_use(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
@@ -97,7 +112,8 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             // answered (the class flow works off the enter-world skill list;
             // TODO(G18.6): SUBPLEDGE squad-skill info).
             let mut r = commons::network::PacketReader::new(body);
-            if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32()) {
+            if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32())
+            {
                 if kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE {
                     super::clans::handle_request_pledge_skill_info(world, client_id, id, level);
                 }
@@ -157,8 +173,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                     Some(crate::session::ClientSession::InGame(s)) => Some(s.player_object_id()),
                     _ => None,
                 };
-                let claimed =
-                    oid.is_some_and(|oid| super::death::handle_revive_answer(world, oid, answer.answer == 1));
+                let claimed = oid.is_some_and(|oid| {
+                    super::death::handle_revive_answer(world, oid, answer.answer == 1)
+                });
                 if !claimed {
                     super::admin::handle_dlg_answer(world, client_id, answer);
                 }
@@ -166,15 +183,27 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         // RequestActionUse (IN_GAME): the action bar's non-skill buttons. Only
         // the servitor commands are handled so far.
-        cop::REQUEST_ACTION_USE => super::servitor::handle_request_action_use(world, client_id, body),
-        cop::REQUEST_GIVE_ITEM_TO_PET => super::servitor::handle_give_item_to_pet(world, client_id, body),
-        cop::REQUEST_GET_ITEM_FROM_PET => super::servitor::handle_get_item_from_pet(world, client_id, body),
+        cop::REQUEST_ACTION_USE => {
+            super::servitor::handle_request_action_use(world, client_id, body)
+        }
+        cop::REQUEST_GIVE_ITEM_TO_PET => {
+            super::servitor::handle_give_item_to_pet(world, client_id, body)
+        }
+        cop::REQUEST_GET_ITEM_FROM_PET => {
+            super::servitor::handle_get_item_from_pet(world, client_id, body)
+        }
         cop::REQUEST_PET_USE_ITEM => super::servitor::handle_pet_use_item(world, client_id, body),
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
         cop::REQUEST_SELL_ITEM => super::shop::handle_request_sell_item(world, client_id, body),
-        cop::MULTI_SELL_CHOOSE => super::multisell::handle_multi_sell_choose(world, client_id, body),
-        cop::REQUEST_PRIVATE_STORE_MANAGE_SELL => super::private_store::open_manage(world, client_id),
-        cop::SET_PRIVATE_STORE_LIST_SELL => super::private_store::handle_set_list(world, client_id, body),
+        cop::MULTI_SELL_CHOOSE => {
+            super::multisell::handle_multi_sell_choose(world, client_id, body)
+        }
+        cop::REQUEST_PRIVATE_STORE_MANAGE_SELL => {
+            super::private_store::open_manage(world, client_id)
+        }
+        cop::SET_PRIVATE_STORE_LIST_SELL => {
+            super::private_store::handle_set_list(world, client_id, body)
+        }
         cop::REQUEST_PRIVATE_STORE_QUIT_SELL => super::private_store::handle_quit(world, client_id),
         cop::REQUEST_PRIVATE_STORE_BUY => super::private_store::handle_buy(world, client_id, body),
         cop::TRADE_REQUEST => super::trade::handle_request(world, client_id, body),
@@ -184,8 +213,12 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }
-        cop::REQUEST_PLEDGE_INFO => super::clans::handle_request_pledge_info(world, client_id, body),
-        cop::REQUEST_JOIN_PLEDGE => super::clans::handle_request_join_pledge(world, client_id, body),
+        cop::REQUEST_PLEDGE_INFO => {
+            super::clans::handle_request_pledge_info(world, client_id, body)
+        }
+        cop::REQUEST_JOIN_PLEDGE => {
+            super::clans::handle_request_join_pledge(world, client_id, body)
+        }
         cop::REQUEST_ANSWER_JOIN_PLEDGE => {
             super::clans::handle_request_answer_join_pledge(world, client_id, body)
         }
@@ -195,7 +228,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_OUST_PLEDGE_MEMBER => {
             super::clans::handle_request_oust_pledge_member(world, client_id, body)
         }
-        cop::REQUEST_PLEDGE_POWER => super::clans::handle_request_pledge_power(world, client_id, body),
+        cop::REQUEST_PLEDGE_POWER => {
+            super::clans::handle_request_pledge_power(world, client_id, body)
+        }
         cop::REQUEST_START_PLEDGE_WAR => {
             super::clans::handle_request_start_pledge_war(world, client_id, body)
         }
@@ -206,9 +241,15 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             super::clans::handle_request_surrender_pledge_war(world, client_id, body)
         }
         cop::REQUEST_ALLY_INFO => super::clans::handle_request_ally_info(world, client_id),
-        cop::REQUEST_SET_PLEDGE_CREST => super::clans::handle_request_set_pledge_crest(world, client_id, body),
-        cop::REQUEST_PLEDGE_CREST => super::clans::handle_request_pledge_crest(world, client_id, body),
-        cop::REQUEST_SET_ALLY_CREST => super::clans::handle_request_set_ally_crest(world, client_id, body),
+        cop::REQUEST_SET_PLEDGE_CREST => {
+            super::clans::handle_request_set_pledge_crest(world, client_id, body)
+        }
+        cop::REQUEST_PLEDGE_CREST => {
+            super::clans::handle_request_pledge_crest(world, client_id, body)
+        }
+        cop::REQUEST_SET_ALLY_CREST => {
+            super::clans::handle_request_set_ally_crest(world, client_id, body)
+        }
         cop::REQUEST_ALLY_CREST => super::clans::handle_request_ally_crest(world, client_id, body),
         cop::REQUEST_JOIN_ALLY => super::clans::handle_request_join_ally(world, client_id, body),
         cop::REQUEST_ANSWER_JOIN_ALLY => {
@@ -237,7 +278,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // RequestRecipeBookOpen (IN_GAME): the "Common Craft" / "Dwarven Craft"
         // action. Body is one int (`0` = dwarven).
         cop::REQUEST_RECIPE_BOOK_OPEN => {
-            let is_dwarven = body.get(..4).map(|b| i32::from_le_bytes([b[0], b[1], b[2], b[3]]) == 0).unwrap_or(true);
+            let is_dwarven = body
+                .get(..4)
+                .map(|b| i32::from_le_bytes([b[0], b[1], b[2], b[3]]) == 0)
+                .unwrap_or(true);
             super::crafting::request_book_open(world, client_id, is_dwarven);
         }
         cop::REQUEST_RECIPE_BOOK_DESTROY => {
@@ -266,7 +310,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 super::crafting::handle_list_set(world, client_id, lines);
             }
         }
-        cop::REQUEST_RECIPE_SHOP_MANAGE_QUIT => super::crafting::handle_manage_quit(world, client_id),
+        cop::REQUEST_RECIPE_SHOP_MANAGE_QUIT => {
+            super::crafting::handle_manage_quit(world, client_id)
+        }
         cop::REQUEST_RECIPE_SHOP_MAKE_INFO => {
             if let Some((shop, recipe)) = cp::read_recipe_shop_make_info(body) {
                 super::crafting::handle_shop_make_info(world, client_id, shop, recipe);
@@ -312,7 +358,10 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
     let Some((sub, ex_body)) = cp::read_ex_opcode(body) else {
         return;
     };
-    trace!("client {client_id} → ex-opcode 0x{sub:04x} ({} B)", ex_body.len());
+    trace!(
+        "client {client_id} → ex-opcode 0x{sub:04x} ({} B)",
+        ex_body.len()
+    );
     match sub {
         exop::REQUEST_CHARACTER_NAME_CREATABLE => {
             handle_request_character_name_creatable(world, client_id, ex_body)
@@ -352,11 +401,19 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::skill_enchant::handle_request_enchant_skill(world, client_id, ex_body)
         }
         exop::REQUEST_EX_ENCHANT_SKILL_INFO_DETAIL => {
-            super::skill_enchant::handle_request_enchant_skill_info_detail(world, client_id, ex_body)
+            super::skill_enchant::handle_request_enchant_skill_info_detail(
+                world, client_id, ex_body,
+            )
         }
-        exop::REQUEST_DUEL_START => super::duel::handle_request_duel_start(world, client_id, ex_body),
-        exop::REQUEST_DUEL_ANSWER_START => super::duel::handle_request_duel_answer(world, client_id, ex_body),
-        exop::REQUEST_DUEL_SURRENDER => super::duel::handle_request_duel_surrender(world, client_id),
+        exop::REQUEST_DUEL_START => {
+            super::duel::handle_request_duel_start(world, client_id, ex_body)
+        }
+        exop::REQUEST_DUEL_ANSWER_START => {
+            super::duel::handle_request_duel_answer(world, client_id, ex_body)
+        }
+        exop::REQUEST_DUEL_SURRENDER => {
+            super::duel::handle_request_duel_surrender(world, client_id)
+        }
         exop::REQUEST_SAVE_INVENTORY_ORDER => {
             handle_request_save_inventory_order(world, client_id, ex_body)
         }
@@ -418,7 +475,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::augment::handle_confirm_refiner(world, client_id, ex_body)
         }
         exop::REQUEST_REFINE => super::augment::handle_refine(world, client_id, ex_body),
-        exop::REQUEST_REFINE_CANCEL => super::augment::handle_refine_cancel(world, client_id, ex_body),
+        exop::REQUEST_REFINE_CANCEL => {
+            super::augment::handle_refine_cancel(world, client_id, ex_body)
+        }
         exop::REQUEST_CHANGE_PARTY_LEADER => {
             handle_request_change_party_leader(world, client_id, ex_body)
         }
@@ -488,7 +547,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::clans::handle_request_pledge_draft_list_apply(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD => {
-            super::clans::handle_request_pledge_sign_in_for_open_joining_method(world, client_id, ex_body)
+            super::clans::handle_request_pledge_sign_in_for_open_joining_method(
+                world, client_id, ex_body,
+            )
         }
         exop::REQUEST_PLEDGE_RECRUIT_APPLY_INFO => {
             super::clans::handle_request_pledge_recruit_apply_info(world, client_id)

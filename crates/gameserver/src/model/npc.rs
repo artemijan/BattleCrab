@@ -135,7 +135,11 @@ impl AggroList {
         self.0
             .iter()
             .filter(|(_, info)| info.hate > 0.0)
-            .max_by(|a, b| a.1.hate.partial_cmp(&b.1.hate).unwrap_or(std::cmp::Ordering::Equal))
+            .max_by(|a, b| {
+                a.1.hate
+                    .partial_cmp(&b.1.hate)
+                    .unwrap_or(std::cmp::Ordering::Equal)
+            })
             .map(|(&id, _)| id)
     }
 }
@@ -194,8 +198,16 @@ pub fn npc_combat_stats(
     }
     let evasion = evasion.round() as i32;
     // `P/MAttackSpeedFinalizer`: base × {DEX,WIT} bonus (`getX() > 0 ? bonus : 1`).
-    let dex_bonus = if t.base_dex > 0 { sb.bonus(BaseStat::Dex, t.base_dex) } else { 1.0 };
-    let wit_bonus = if t.base_wit > 0 { sb.bonus(BaseStat::Wit, t.base_wit) } else { 1.0 };
+    let dex_bonus = if t.base_dex > 0 {
+        sb.bonus(BaseStat::Dex, t.base_dex)
+    } else {
+        1.0
+    };
+    let wit_bonus = if t.base_wit > 0 {
+        sb.bonus(BaseStat::Wit, t.base_wit)
+    } else {
+        1.0
+    };
     crate::model::components::CombatStats {
         p_atk: t.base_p_atk * sb.bonus(BaseStat::Str, t.base_str) * level_mod,
         // `MAttackFinalizer`: `base × (INT bonus × levelMod)^2.2072` — a power,
@@ -269,7 +281,9 @@ impl Npc {
         max_hp: i32,
         max_mp: i32,
     ) -> (Self, NpcExtra) {
-        use crate::model::components::{AttackState, Collision, Position, RegionCell, Speeds, Vitals};
+        use crate::model::components::{
+            AttackState, Collision, Position, RegionCell, Speeds, Vitals,
+        };
         let npc = Self {
             object_id,
             npc_id,
@@ -283,7 +297,12 @@ impl Npc {
             sweep_items: None,
         };
         let extra = (
-            Position { x, y, z, heading: 0 },
+            Position {
+                x,
+                y,
+                z,
+                heading: 0,
+            },
             RegionCell(region_of(x, y)),
             Vitals::hp_full(max_hp, max_mp),
             // Default-template speeds (run 120/walk 60), like spawn_one.
@@ -298,7 +317,10 @@ impl Npc {
                 swimming: false,
                 swamp_multiplier: 1.0,
             },
-            Collision { radius: 8.0, height: 15.0 },
+            Collision {
+                radius: 8.0,
+                height: 15.0,
+            },
             AttackState::default(),
             NpcAi::default(),
             AggroList::default(),
@@ -306,7 +328,6 @@ impl Npc {
         );
         (npc, extra)
     }
-
 }
 
 /// Instance-class (`type` attribute) names that exist under Java's
@@ -365,7 +386,10 @@ pub fn spawn_all(world: &mut World) -> usize {
     // spawn definitions are read-only — walk indices instead of iterators.
     for spawn_idx in 0..world.data.spawn_data.spawns.len() {
         for group_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups.len() {
-            for npc_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups[group_idx].npcs.len() {
+            for npc_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups[group_idx]
+                .npcs
+                .len()
+            {
                 let (count, ok) = {
                     let template = &world.data.spawn_data.spawns[spawn_idx];
                     let def = &template.groups[group_idx].npcs[npc_idx];
@@ -381,7 +405,9 @@ pub fn spawn_all(world: &mut World) -> usize {
                 // `boss_respawn::resolve_boot`, which settles them against the
                 // `npc_respawns` rows once those arrive.
                 if world.data.spawn_data.spawns[spawn_idx].groups[group_idx].npcs[npc_idx].db_save {
-                    world.pending_boss_spawns.push((spawn_idx, group_idx, npc_idx));
+                    world
+                        .pending_boss_spawns
+                        .push((spawn_idx, group_idx, npc_idx));
                     continue;
                 }
                 for _ in 0..count {
@@ -396,7 +422,9 @@ pub fn spawn_all(world: &mut World) -> usize {
     // otherwise the reported count disagrees with the world's NPC population.
     let escorts = std::mem::take(&mut world.minions_placed);
     let placed = placed + escorts;
-    tracing::info!("SpawnData: spawned {placed} NPCs ({escorts} minions, {skipped} spawn lines skipped).");
+    tracing::info!(
+        "SpawnData: spawned {placed} NPCs ({escorts} minions, {skipped} spawn lines skipped)."
+    );
     placed
 }
 
@@ -404,8 +432,13 @@ pub fn spawn_all(world: &mut World) -> usize {
 /// (Servitor/Pet), `NpcSpawnTemplate.spawn` (missing template, Defender) and
 /// `Spawn.doSpawn` (Pet/Decoy/Trap), plus the missing-instance-class failure.
 fn spawnable(world: &World, def: &NpcSpawnDef) -> bool {
-    let Some(t) = world.data.npc_data.get(def.npc_id) else { return false };
-    if matches!(t.type_name.as_str(), "Servitor" | "Pet" | "Defender" | "Decoy" | "Trap") {
+    let Some(t) = world.data.npc_data.get(def.npc_id) else {
+        return false;
+    };
+    if matches!(
+        t.type_name.as_str(),
+        "Servitor" | "Pet" | "Defender" | "Decoy" | "Trap"
+    ) {
         return false;
     }
     SPAWNABLE_TYPES.contains(&t.type_name.as_str())
@@ -418,15 +451,38 @@ fn spawnable(world: &World, def: &NpcSpawnDef) -> bool {
 /// its object id); here a respawn runs this same function and gets a fresh
 /// transient id — clients saw the corpse `DeleteObject`d at decay, so the new
 /// id is indistinguishable from the old one on the wire.
-pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, npc_idx: usize) -> Option<i32> {
+pub(crate) fn spawn_one(
+    world: &mut World,
+    spawn_idx: usize,
+    group_idx: usize,
+    npc_idx: usize,
+) -> Option<i32> {
     let (npc_id, loc, respawn_secs, respawn_random_secs) = {
         let template = world.data.spawn_data.spawns.get(spawn_idx)?;
         let def = template.groups.get(group_idx)?.npcs.get(npc_idx)?;
-        let loc = resolve_location(&mut world.rng, &world.geo, template, &template.groups[group_idx], def);
+        let loc = resolve_location(
+            &mut world.rng,
+            &world.geo,
+            template,
+            &template.groups[group_idx],
+            def,
+        );
         (def.npc_id, loc, def.respawn_secs, def.respawn_random_secs)
     };
-    let Some((x, y, z, heading)) = loc else { return None };
-    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, respawn_secs, respawn_random_secs, (spawn_idx, group_idx, npc_idx))?;
+    let Some((x, y, z, heading)) = loc else {
+        return None;
+    };
+    let oid = spawn_npc_entity(
+        world,
+        npc_id,
+        x,
+        y,
+        z,
+        heading,
+        respawn_secs,
+        respawn_random_secs,
+        (spawn_idx, group_idx, npc_idx),
+    )?;
     // `NpcSpawnTemplate.spawnNpc`: a leader brings its escort. Hooked here
     // rather than in `spawn_npc_entity` so a minion that itself declares
     // minions can't recurse — minions are placed through `spawn_npc_at`,
@@ -443,7 +499,14 @@ pub(crate) fn spawn_one(world: &mut World, spawn_idx: usize, group_idx: usize, n
 /// non-permanent spawn). The sentinel `spawn_ref` is never read because
 /// `respawn_secs == 0` (see `handle_npc_decay`). Returns the object id, or
 /// `None` if `npc_id` is unknown.
-pub(crate) fn spawn_npc_at(world: &mut World, npc_id: i32, x: i32, y: i32, z: i32, heading: i32) -> Option<i32> {
+pub(crate) fn spawn_npc_at(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> Option<i32> {
     spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0))
 }
 
@@ -471,13 +534,20 @@ fn spawn_npc_entity(
             z = geo_z;
         }
     }
-    let heading = if heading < 0 { world.rng.gen_range(0..RANDOM_HEADING_BOUND) } else { heading };
+    let heading = if heading < 0 {
+        world.rng.gen_range(0..RANDOM_HEADING_BOUND)
+    } else {
+        heading
+    };
 
     // Finalize combat/speed/vitals from template base + passive template skills
     // (Java's `Creature` ctor copies `template.getSkills()` — HP Increase, Strong
     // P.Atk, …). Spawns at full HP/MP. No player buffs yet, so pass empty.
-    let (combat, speeds, max_hp, max_mp) =
-        crate::model::npc_finalized_stats(&world.data, t, &crate::model::components::Buffs::default());
+    let (combat, speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(
+        &world.data,
+        t,
+        &crate::model::components::Buffs::default(),
+    );
 
     let npc = Npc {
         object_id: world.next_npc_object_id,
@@ -511,7 +581,10 @@ fn spawn_npc_entity(
             // Speeds finalized off the template (NPCs spawn walking; AI flips
             // `running` on aggro).
             speeds,
-            crate::model::components::Collision { radius: t.collision_radius, height: t.collision_height },
+            crate::model::components::Collision {
+                radius: t.collision_radius,
+                height: t.collision_height,
+            },
             combat,
             crate::model::components::AttackState::default(),
             NpcAi::default(),
@@ -602,11 +675,22 @@ mod tests {
         });
         let giran_guide_id = candidates
             .into_iter()
-            .find(|oid| world.objects.get_component::<crate::model::components::Position>(oid).is_some_and(|p| p.x == 47984))
+            .find(|oid| {
+                world
+                    .objects
+                    .get_component::<crate::model::components::Position>(oid)
+                    .is_some_and(|p| p.x == 47984)
+            })
             .expect("Giran npc 30878 at retail coords");
-        let pos = world.objects.get_component::<crate::model::components::Position>(&giran_guide_id).unwrap();
+        let pos = world
+            .objects
+            .get_component::<crate::model::components::Position>(&giran_guide_id)
+            .unwrap();
         assert_eq!((pos.y, pos.z, pos.heading), (186832, -3445, 42000));
-        let region = world.objects.get_component::<crate::model::components::RegionCell>(&giran_guide_id).unwrap();
+        let region = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&giran_guide_id)
+            .unwrap();
         assert_eq!(region.0, region_of(47984, 186832));
 
         // Region index covers every NPC exactly once.
@@ -614,14 +698,19 @@ mod tests {
         assert_eq!(indexed, placed);
         for (region, ids) in &world.npc_regions {
             for id in ids {
-                let cell = world.objects.get_component::<crate::model::components::RegionCell>(id).unwrap();
+                let cell = world
+                    .objects
+                    .get_component::<crate::model::components::RegionCell>(id)
+                    .unwrap();
                 assert_eq!(cell.0, *region);
             }
         }
 
         // Monsters got distinct object ids starting at the NPC base.
         let mut ids: Vec<i32> = Vec::new();
-        world.objects.for_each_mut::<&Npc>(|n| ids.push(n.object_id));
+        world
+            .objects
+            .for_each_mut::<&Npc>(|n| ids.push(n.object_id));
         assert!(ids.iter().all(|&id| id >= FIRST_NPC_OBJECT_ID));
     }
 
@@ -636,10 +725,19 @@ mod tests {
     /// tests.
     #[test]
     fn stakato_22109_finalized_stats_match_java() {
-        let data = crate::data::GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
-        let t = data.npc_data.get(22109).expect("22109 Male Spiked Stakato in datapack");
-        let (combat, _speeds, max_hp, max_mp) =
-            crate::model::npc_finalized_stats(&data, t, &crate::model::components::Buffs::default());
+        let data = crate::data::GameData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
+        let t = data
+            .npc_data
+            .get(22109)
+            .expect("22109 Male Spiked Stakato in datapack");
+        let (combat, _speeds, max_hp, max_mp) = crate::model::npc_finalized_stats(
+            &data,
+            t,
+            &crate::model::components::Buffs::default(),
+        );
         // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).
         assert_eq!(max_hp as i32, 16635, "max HP");
         // MP: 1× (skill 4409) × (1475 base × 1.22 MEN bonus).
@@ -659,6 +757,9 @@ mod tests {
         assert_eq!(combat.accuracy, 106, "accuracy (level tier ladder)");
         // evasion: [sqrt(30)·5 + 74 + (74-69)+2 NPC tier] − 10 (4414 Heavy Armor
         // Type) + 3 (4789) = 101. Distinct tier ladder from accuracy.
-        assert_eq!(combat.evasion, 101, "evasion (NPC tier + EvasionRate skills)");
+        assert_eq!(
+            combat.evasion, 101,
+            "evasion (NPC tier + EvasionRate skills)"
+        );
     }
 }

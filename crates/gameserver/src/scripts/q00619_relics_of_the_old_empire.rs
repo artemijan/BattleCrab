@@ -99,7 +99,12 @@ impl QuestScript for Q00619RelicsOfTheOldEmpire {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() < 74 { "31538-02.htm" } else { "31538-01.htm" }.to_string(),
+                if ctx.player_level() < 74 {
+                    "31538-02.htm"
+                } else {
+                    "31538-01.htm"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

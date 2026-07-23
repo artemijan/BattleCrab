@@ -42,7 +42,13 @@ pub(crate) fn on_baium_spawned(world: &mut World) {
 /// **once** — Java checks both `!isAffectedBySkill(4258)` and that the skill
 /// is off cooldown, so it is not recast every swing.
 /// `Baium.onAttack`'s threat half: weight the hit, then act on the table.
-pub(crate) fn on_baium_damage(world: &mut World, baium_oid: i32, attacker_oid: i32, damage: i32, is_melee: bool) {
+pub(crate) fn on_baium_damage(
+    world: &mut World,
+    baium_oid: i32,
+    attacker_oid: i32,
+    damage: i32,
+    is_melee: bool,
+) {
     super::boss_threat::on_boss_damage(world, baium_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, baium_oid);
 }
@@ -62,7 +68,9 @@ pub(crate) fn on_baium_attacked(world: &mut World, baium_oid: i32, attacker_oid:
     if already {
         return;
     }
-    let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned() else { return };
+    let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned() else {
+        return;
+    };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, baium_oid, &skill) {
         return;
     }
@@ -98,10 +106,15 @@ pub(crate) fn manage_skills(world: &mut World, baium_oid: i32) -> Option<(i32, i
 /// whole decision procedure with no caller. Casting on the boss himself is not
 /// applicable here (all five of Baium's are target-cast).
 pub(crate) fn manage_and_cast(world: &mut World, baium_oid: i32) {
-    if world.objects.has_component::<crate::model::components::Casting>(&baium_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&baium_oid)
+    {
         return;
     }
-    let Some((target, skill_id)) = manage_skills(world, baium_oid) else { return };
+    let Some((target, skill_id)) = manage_skills(world, baium_oid) else {
+        return;
+    };
     super::boss_threat::cast_boss_skill(world, baium_oid, target, skill_id, false);
 }
 
@@ -112,7 +125,10 @@ pub(crate) fn manage_and_cast(world: &mut World, baium_oid: i32) {
 /// So a party sees Baium's repertoire grow as the fight goes on, which is the
 /// same shape as his threat weighting.
 fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
-    let (cur, max) = match world.objects.get_component::<crate::model::components::Vitals>(&baium_oid) {
+    let (cur, max) = match world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&baium_oid)
+    {
         Some(v) => (v.cur_hp, v.max_hp as f64),
         None => return BAIUM_ATTACK,
     };

@@ -35,9 +35,16 @@ pub mod login_server_fail {
 /// Commands the controller sends to a connected game server's link task.
 #[derive(Debug)]
 pub enum GsCommand {
-    KickPlayer { account: String },
-    RequestCharacters { account: String },
-    ChangePasswordResponse { character_name: String, message: String },
+    KickPlayer {
+        account: String,
+    },
+    RequestCharacters {
+        account: String,
+    },
+    ChangePasswordResponse {
+        character_name: String,
+        message: String,
+    },
 }
 
 /// IPv4 subnet ("a.b.c.d/n" or bare address), port of `IPSubnet`.
@@ -54,8 +61,15 @@ impl Subnet {
             None => (s, 32),
         };
         let addr: std::net::Ipv4Addr = ip.parse().ok()?;
-        let mask = if bits == 0 { 0 } else { u32::MAX << (32 - bits.min(32)) };
-        Some(Self { addr: u32::from(addr) & mask, mask })
+        let mask = if bits == 0 {
+            0
+        } else {
+            u32::MAX << (32 - bits.min(32))
+        };
+        Some(Self {
+            addr: u32::from(addr) & mask,
+            mask,
+        })
     }
 
     pub fn matches(&self, ip: std::net::Ipv4Addr) -> bool {
@@ -109,7 +123,10 @@ impl GameServerEntry {
 
     /// `getServerAddress(clientAddr)`: first matching subnet's host.
     pub fn address_for(&self, client_ip: std::net::Ipv4Addr) -> Option<&str> {
-        self.addresses.iter().find(|(subnet, _)| subnet.matches(client_ip)).map(|(_, host)| host.as_str())
+        self.addresses
+            .iter()
+            .find(|(subnet, _)| subnet.matches(client_ip))
+            .map(|(_, host)| host.as_str())
     }
 
     /// `canLogin`.
@@ -117,7 +134,9 @@ impl GameServerEntry {
         if self.status == server_status::STATUS_DOWN {
             return false;
         }
-        if self.status == server_status::STATUS_GM_ONLY || (self.accounts.len() as i32) >= self.max_players {
+        if self.status == server_status::STATUS_GM_ONLY
+            || (self.accounts.len() as i32) >= self.max_players
+        {
             return access_level > 0;
         }
         access_level >= 0
@@ -140,8 +159,10 @@ impl GameServerTable {
         info!("Loaded {} server names.", server_names.len());
 
         let mut servers = HashMap::new();
-        let rows: Vec<(i32, String)> =
-            sqlx::query_as("SELECT server_id, hexid FROM gameservers").fetch_all(pool).await.unwrap_or_default();
+        let rows: Vec<(i32, String)> = sqlx::query_as("SELECT server_id, hexid FROM gameservers")
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
         for (id, hexid) in rows {
             match hexid_from_string(&hexid) {
                 Some(hex) => {
@@ -152,7 +173,10 @@ impl GameServerTable {
         }
         info!("Loaded {} registered Game Servers.", servers.len());
 
-        Self { server_names, servers }
+        Self {
+            server_names,
+            servers,
+        }
     }
 }
 

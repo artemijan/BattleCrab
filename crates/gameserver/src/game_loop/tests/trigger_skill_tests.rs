@@ -18,7 +18,11 @@ const CARRIER: i32 = 9900;
 const TRIGGERED: i32 = 9901;
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
-fn trigger_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn trigger_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(MOB_ID);
     t.type_name = "Monster".into();
@@ -33,7 +37,9 @@ fn trigger_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Lo
 /// Build a carrier skill holding one `TriggerSkillByAttack`, plus the skill it
 /// triggers (a plain 60s stat buff, so "did it fire" is just "is the buff up").
 fn install(world: &mut World, effect: SkillEffect) {
-    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, StatModifierEffect, TargetType};
+    use crate::model::skill::{
+        AffectObject, AffectScope, OperateType, Skill, StatModifierEffect, TargetType,
+    };
     use crate::model::stats::{Stat, StatModifierType};
     let base = |id: i32, effects: Vec<SkillEffect>, abnormal_time: i32, op: OperateType| Skill {
         without_action: false,
@@ -76,7 +82,10 @@ fn install(world: &mut World, effect: SkillEffect) {
         effects,
         ..Default::default()
     };
-    world.data.skill_data.insert_for_test(base(CARRIER, vec![effect], 0, OperateType::Passive));
+    world
+        .data
+        .skill_data
+        .insert_for_test(base(CARRIER, vec![effect], 0, OperateType::Passive));
     world.data.skill_data.insert_for_test(base(
         TRIGGERED,
         vec![SkillEffect::StatModifier(StatModifierEffect {
@@ -106,11 +115,19 @@ fn a_trigger(chance: i32, is_critical: bool) -> SkillEffect {
 }
 
 fn know(world: &mut World, oid: i32) {
-    world.objects.get_component_mut::<SkillBook>(&oid).unwrap().0.insert(CARRIER, 1);
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&oid)
+        .unwrap()
+        .0
+        .insert(CARRIER, 1);
 }
 
 fn triggered(world: &World, oid: i32) -> bool {
-    world.objects.get_component::<Buffs>(&oid).is_some_and(|b| b.0.iter().any(|x| x.skill_id == TRIGGERED))
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == TRIGGERED))
 }
 
 /// Land one normal hit of `damage`, critical or not.
@@ -134,7 +151,10 @@ fn a_qualifying_hit_fires_the_trigger() {
 
     assert!(!triggered(&world, PLAYER), "nothing up before the hit");
     hit(&mut world, 50, false);
-    assert!(triggered(&world, PLAYER), "the trigger fired and its buff landed");
+    assert!(
+        triggered(&world, PLAYER),
+        "the trigger fired and its buff landed"
+    );
 }
 
 /// Without the carrier skill nothing fires — proving the trigger comes from the
@@ -164,7 +184,10 @@ fn is_critical_matches_the_hit_exactly() {
     install(&mut world, a_trigger(100, false));
     know(&mut world, PLAYER);
     hit(&mut world, 50, true);
-    assert!(!triggered(&world, PLAYER), "a non-crit trigger must not fire on a crit");
+    assert!(
+        !triggered(&world, PLAYER),
+        "a non-crit trigger must not fire on a crit"
+    );
     hit(&mut world, 50, false);
     assert!(triggered(&world, PLAYER), "but does on a normal hit");
 
@@ -175,7 +198,10 @@ fn is_critical_matches_the_hit_exactly() {
     install(&mut world, a_trigger(100, true));
     know(&mut world, PLAYER);
     hit(&mut world, 50, false);
-    assert!(!triggered(&world, PLAYER), "a crit trigger must not fire on a normal hit");
+    assert!(
+        !triggered(&world, PLAYER),
+        "a crit trigger must not fire on a normal hit"
+    );
     hit(&mut world, 50, true);
     assert!(triggered(&world, PLAYER), "but does on a crit");
 }
@@ -204,7 +230,10 @@ fn a_hit_below_min_damage_does_not_fire() {
     hit(&mut world, 99, false);
     assert!(!triggered(&world, PLAYER), "99 < minDamage 100");
     hit(&mut world, 100, false);
-    assert!(triggered(&world, PLAYER), "100 meets it (the check is `<`, so the floor itself qualifies)");
+    assert!(
+        triggered(&world, PLAYER),
+        "100 meets it (the check is `<`, so the floor itself qualifies)"
+    );
 }
 
 /// `chance == 0` is Java's explicit early bail, distinct from "rolled and lost".
@@ -233,12 +262,25 @@ fn an_already_active_trigger_is_not_recast() {
     know(&mut world, PLAYER);
 
     hit(&mut world, 50, false);
-    let after_first = world.objects.get_component::<Buffs>(&PLAYER).unwrap().0.len();
+    let after_first = world
+        .objects
+        .get_component::<Buffs>(&PLAYER)
+        .unwrap()
+        .0
+        .len();
     for _ in 0..5 {
         hit(&mut world, 50, false);
     }
-    let after_many = world.objects.get_component::<Buffs>(&PLAYER).unwrap().0.len();
-    assert_eq!(after_first, after_many, "the buff is not re-applied while it is already up");
+    let after_many = world
+        .objects
+        .get_component::<Buffs>(&PLAYER)
+        .unwrap()
+        .0
+        .len();
+    assert_eq!(
+        after_first, after_many,
+        "the buff is not re-applied while it is already up"
+    );
 }
 
 /// A creature never triggers off hitting itself (`attacker == target` bails).
@@ -267,9 +309,13 @@ fn real_dist_carriers_parse() {
     let trigger_of = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
             s.effects.iter().find_map(|e| match e {
-                SkillEffect::TriggerSkillByAttack { chance, skill_id, is_critical, allow_weapons, .. } => {
-                    Some((*chance, *skill_id, *is_critical, *allow_weapons != 0))
-                }
+                SkillEffect::TriggerSkillByAttack {
+                    chance,
+                    skill_id,
+                    is_critical,
+                    allow_weapons,
+                    ..
+                } => Some((*chance, *skill_id, *is_critical, *allow_weapons != 0)),
                 _ => None,
             })
         })

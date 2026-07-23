@@ -20,7 +20,11 @@ pub fn send_trade_request(sender_object_id: i32) -> Vec<u8> {
 
 /// `TradeStart` (0x14): open the trade window against `partner`, listing this
 /// player's tradeable items.
-pub fn trade_start(partner_object_id: i32, partner_level: u8, items: &[(ItemInstance, &ItemTemplate)]) -> Vec<u8> {
+pub fn trade_start(
+    partner_object_id: i32,
+    partner_level: u8,
+    items: &[(ItemInstance, &ItemTemplate)],
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::TRADE_START);
     w.write_i32(partner_object_id);
@@ -37,7 +41,11 @@ pub fn trade_start(partner_object_id: i32, partner_level: u8, items: &[(ItemInst
 /// echoed to the adder (`own`) or the partner.
 pub fn trade_add(own: bool, item: &ItemInstance, template: &ItemTemplate) -> Vec<u8> {
     let mut w = PacketWriter::new();
-    w.write_u8(if own { opcodes::TRADE_OWN_ADD } else { opcodes::TRADE_OTHER_ADD });
+    w.write_u8(if own {
+        opcodes::TRADE_OWN_ADD
+    } else {
+        opcodes::TRADE_OTHER_ADD
+    });
     w.write_i16(1); // items added
     write_item_entry(&mut w, item, template, false);
     w.into_bytes()
@@ -46,7 +54,11 @@ pub fn trade_add(own: bool, item: &ItemInstance, template: &ItemTemplate) -> Vec
 /// `TradePressOwnOk` (0x53) / `TradePressOtherOk` (0x82): a confirm press echo.
 pub fn trade_press_ok(own: bool) -> Vec<u8> {
     let mut w = PacketWriter::new();
-    w.write_u8(if own { opcodes::TRADE_PRESS_OWN_OK } else { opcodes::TRADE_PRESS_OTHER_OK });
+    w.write_u8(if own {
+        opcodes::TRADE_PRESS_OWN_OK
+    } else {
+        opcodes::TRADE_PRESS_OTHER_OK
+    });
     w.into_bytes()
 }
 

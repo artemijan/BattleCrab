@@ -66,7 +66,14 @@ async fn handle(
 
     let (out_tx, mut out_rx) = tokio::sync::mpsc::unbounded_channel::<Vec<u8>>();
     // Tell the game thread this client exists (registry, later broadcast).
-    if net_tx.send(NetEvent::Connected { client_id, out: out_tx, addr }).is_err() {
+    if net_tx
+        .send(NetEvent::Connected {
+            client_id,
+            out: out_tx,
+            addr,
+        })
+        .is_err()
+    {
         return Ok(()); // game thread gone
     }
 
@@ -132,24 +139,56 @@ async fn on_packet<W: AsyncWrite + Unpin>(
                 return Ok(false);
             }
             if !cfg.protocol_list.contains(&pv.version) {
-                warn!("Wrong protocol version {} from client {}", pv.version, client.client_id);
+                warn!(
+                    "Wrong protocol version {} from client {}",
+                    pv.version, client.client_id
+                );
                 client.protocol_ok = false;
                 let key = client.enable_crypt();
-                send(client, write, key_packet(key8(&key), 0, cfg.packet_encryption, cfg.server_id, cfg.is_classic))
-                    .await?;
+                send(
+                    client,
+                    write,
+                    key_packet(
+                        key8(&key),
+                        0,
+                        cfg.packet_encryption,
+                        cfg.server_id,
+                        cfg.is_classic,
+                    ),
+                )
+                .await?;
                 return Ok(false); // Java: close(KeyPacket) → disconnect
             }
             client.protocol_version = pv.version;
             client.protocol_ok = true;
             let key = client.enable_crypt();
-            send(client, write, key_packet(key8(&key), 1, cfg.packet_encryption, cfg.server_id, cfg.is_classic))
-                .await?;
-            info!("Client {} accepted protocol {}.", client.client_id, pv.version);
+            send(
+                client,
+                write,
+                key_packet(
+                    key8(&key),
+                    1,
+                    cfg.packet_encryption,
+                    cfg.server_id,
+                    cfg.is_classic,
+                ),
+            )
+            .await?;
+            info!(
+                "Client {} accepted protocol {}.",
+                client.client_id, pv.version
+            );
             Ok(true)
         }
         // Past the handshake: hand the decrypted body to the game thread.
         _ => {
-            if net_tx.send(NetEvent::Received { client_id: client.client_id, data: body }).is_err() {
+            if net_tx
+                .send(NetEvent::Received {
+                    client_id: client.client_id,
+                    data: body,
+                })
+                .is_err()
+            {
                 return Ok(false);
             }
             Ok(true)
@@ -158,7 +197,11 @@ async fn on_packet<W: AsyncWrite + Unpin>(
 }
 
 /// Encrypt (first call = pass-through) and frame one packet body.
-async fn send<W: AsyncWrite + Unpin>(client: &mut GameClient, write: &mut W, mut body: Vec<u8>) -> std::io::Result<()> {
+async fn send<W: AsyncWrite + Unpin>(
+    client: &mut GameClient,
+    write: &mut W,
+    mut body: Vec<u8>,
+) -> std::io::Result<()> {
     client.encrypt(&mut body);
     write_frame(write, &body).await
 }

@@ -39,37 +39,74 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
             "set" => {
                 if value > PC_CAFE_MAX_POINTS {
                     show_pccafe_menu(world, client_id, object_id);
-                    send_message(world, client_id, &format!("You cannot set more than {PC_CAFE_MAX_POINTS} PC points!"));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("You cannot set more than {PC_CAFE_MAX_POINTS} PC points!"),
+                    );
                     return;
                 }
                 let value = value.max(0);
                 set_points(world, target, value);
-                send_player_message(world, target, &format!("Admin set your PC Cafe point(s) to {value}!"));
-                send_message(world, client_id, &format!("You set {value} PC Cafe point(s) to player {name}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin set your PC Cafe point(s) to {value}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You set {value} PC Cafe point(s) to player {name}"),
+                );
                 send_pccafe_packet(world, target, value, value);
             }
             "increase" => {
                 if cur == PC_CAFE_MAX_POINTS {
                     show_pccafe_menu(world, client_id, object_id);
-                    send_message(world, client_id, &format!("{name} already have max count of PC points!"));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("{name} already have max count of PC points!"),
+                    );
                     return;
                 }
-                let new_count = (cur as i64 + value as i64).clamp(0, PC_CAFE_MAX_POINTS as i64) as i32;
+                let new_count =
+                    (cur as i64 + value as i64).clamp(0, PC_CAFE_MAX_POINTS as i64) as i32;
                 set_points(world, target, new_count);
-                send_player_message(world, target, &format!("Admin increased your PC Cafe point(s) by {value}!"));
-                send_message(world, client_id, &format!("You increased PC Cafe point(s) of {name} by {value}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin increased your PC Cafe point(s) by {value}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You increased PC Cafe point(s) of {name} by {value}"),
+                );
                 send_pccafe_packet(world, target, new_count, value);
             }
             "decrease" => {
                 if cur == 0 {
                     show_pccafe_menu(world, client_id, object_id);
-                    send_message(world, client_id, &format!("{name} already have min count of PC points!"));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("{name} already have min count of PC points!"),
+                    );
                     return;
                 }
                 let new_count = (cur - value).max(0);
                 set_points(world, target, new_count);
-                send_player_message(world, target, &format!("Admin decreased your PC Cafe point(s) by {value}!"));
-                send_message(world, client_id, &format!("You decreased PC Cafe point(s) of {name} by {value}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin decreased your PC Cafe point(s) by {value}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You decreased PC Cafe point(s) of {name} by {value}"),
+                );
                 send_pccafe_packet(world, target, points_of(world, target), -value);
             }
             "rewardOnline" => {
@@ -106,10 +143,20 @@ fn reward_online_pccafe(world: &mut World, gm_oid: i32, value: i32, range: i32) 
     };
     let mut count = 0;
     for t in targets {
-        let Some(cur) = world.objects.get_component::<Player>(&t).map(|p| p.pccafe_points) else { continue };
+        let Some(cur) = world
+            .objects
+            .get_component::<Player>(&t)
+            .map(|p| p.pccafe_points)
+        else {
+            continue;
+        };
         let new_count = (cur as i64 + value as i64).clamp(0, PC_CAFE_MAX_POINTS as i64) as i32;
         set_points(world, t, new_count);
-        send_player_message(world, t, &format!("Admin increased your PC Cafe point(s) by {value}!"));
+        send_player_message(
+            world,
+            t,
+            &format!("Admin increased your PC Cafe point(s) by {value}!"),
+        );
         send_pccafe_packet(world, t, new_count, value);
         count += 1;
     }
@@ -141,30 +188,62 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
             "set" => {
                 set_prime(world, target, value);
                 let stored = value.max(0);
-                send_player_message(world, target, &format!("Admin set your Prime Point(s) to {stored}!"));
-                send_message(world, client_id, &format!("You set {stored} Prime Point(s) to player {name}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin set your Prime Point(s) to {stored}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You set {stored} Prime Point(s) to player {name}"),
+                );
             }
             "increase" => {
                 if cur == i32::MAX {
                     show_primepoints_menu(world, client_id, object_id);
-                    send_message(world, client_id, &format!("{name} already have max count of Prime Points!"));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("{name} already have max count of Prime Points!"),
+                    );
                     return;
                 }
                 let new_count = (cur as i64 + value as i64).clamp(0, i32::MAX as i64) as i32;
                 set_prime(world, target, new_count);
-                send_player_message(world, target, &format!("Admin increase your Prime Point(s) by {value}!"));
-                send_message(world, client_id, &format!("You increased Prime Point(s) of {name} by {value}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin increase your Prime Point(s) by {value}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You increased Prime Point(s) of {name} by {value}"),
+                );
             }
             "decrease" => {
                 if cur == 0 {
                     show_primepoints_menu(world, client_id, object_id);
-                    send_message(world, client_id, &format!("{name} already have min count of Prime Points!"));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("{name} already have min count of Prime Points!"),
+                    );
                     return;
                 }
                 let new_count = (cur - value).max(0);
                 set_prime(world, target, new_count);
-                send_player_message(world, target, &format!("Admin decreased your Prime Point(s) by {value}!"));
-                send_message(world, client_id, &format!("You decreased Prime Point(s) of {name} by {value}"));
+                send_player_message(
+                    world,
+                    target,
+                    &format!("Admin decreased your Prime Point(s) by {value}!"),
+                );
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You decreased Prime Point(s) of {name} by {value}"),
+                );
             }
             "rewardOnline" => {
                 let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
@@ -198,10 +277,20 @@ fn reward_online_prime(world: &mut World, gm_oid: i32, value: i32, range: i32) -
     };
     let mut count = 0;
     for t in targets {
-        let Some(cur) = world.objects.get_component::<Player>(&t).map(|p| p.prime_points) else { continue };
+        let Some(cur) = world
+            .objects
+            .get_component::<Player>(&t)
+            .map(|p| p.prime_points)
+        else {
+            continue;
+        };
         let new_count = (cur as i64 + value as i64).clamp(0, i32::MAX as i64) as i32;
         set_prime(world, t, new_count);
-        send_player_message(world, t, &format!("Admin increase your Prime Point(s) by {value}!"));
+        send_player_message(
+            world,
+            t,
+            &format!("Admin increase your Prime Point(s) by {value}!"),
+        );
         count += 1;
     }
     count
@@ -211,11 +300,19 @@ fn show_primepoints_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
     let points = format_adena(prime_of(world, target));
     let name = name_of(world, target);
-    show_admin_html_replace(world, client_id, "primepoints.htm", &[("points", points), ("targetName", name)]);
+    show_admin_html_replace(
+        world,
+        client_id,
+        "primepoints.htm",
+        &[("points", points), ("targetName", name)],
+    );
 }
 
 fn prime_of(world: &World, target: i32) -> i32 {
-    world.objects.get_component::<Player>(&target).map_or(0, |p| p.prime_points)
+    world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.prime_points)
 }
 
 /// Java `Player.setPrimePoints` — store `max(value, 0)` on the account var,
@@ -242,11 +339,19 @@ fn show_pccafe_menu(world: &World, client_id: u32, object_id: i32) {
     let target = target_player(world, object_id);
     let points = format_adena(points_of(world, target));
     let name = name_of(world, target);
-    show_admin_html_replace(world, client_id, "pccafe.htm", &[("points", points), ("targetName", name)]);
+    show_admin_html_replace(
+        world,
+        client_id,
+        "pccafe.htm",
+        &[("points", points), ("targetName", name)],
+    );
 }
 
 fn points_of(world: &World, target: i32) -> i32 {
-    world.objects.get_component::<Player>(&target).map_or(0, |p| p.pccafe_points)
+    world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.pccafe_points)
 }
 
 /// Java `Player.setPcCafePoints` — store the value capped at the max.
@@ -257,7 +362,11 @@ fn set_points(world: &mut World, target: i32, value: i32) {
 }
 
 fn name_of(world: &World, target: i32) -> String {
-    world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default()
+    world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default()
 }
 
 /// Java `target.sendMessage(...)` — a system message to the target player (the
@@ -285,7 +394,7 @@ pub(super) fn format_adena(value: i32) -> String {
     let digits = value.unsigned_abs().to_string();
     let mut out = String::new();
     for (i, ch) in digits.chars().enumerate() {
-        if i > 0 && (digits.len() - i) % 3 == 0 {
+        if i > 0 && (digits.len() - i).is_multiple_of(3) {
             out.push(',');
         }
         out.push(ch);

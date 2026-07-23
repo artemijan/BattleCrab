@@ -12,7 +12,13 @@ use super::{now_unix, SigningKey};
 pub const COOKIE_NAME: &str = "bc_session";
 
 /// Builds the `Set-Cookie` value for a fresh session.
-pub fn issue(key: &SigningKey, login: &str, password_hash: &str, ttl_days: i64, secure: bool) -> String {
+pub fn issue(
+    key: &SigningKey,
+    login: &str,
+    password_hash: &str,
+    ttl_days: i64,
+    secure: bool,
+) -> String {
     let expiry = now_unix() + ttl_days * 86_400;
     let value = encode(key, login, password_hash, expiry);
     let max_age = ttl_days * 86_400;
@@ -28,7 +34,11 @@ pub fn clear(secure: bool) -> String {
 
 fn encode(key: &SigningKey, login: &str, password_hash: &str, expiry: i64) -> String {
     let expiry_s = expiry.to_string();
-    let sig = key.sign(&[login.as_bytes(), expiry_s.as_bytes(), password_hash.as_bytes()]);
+    let sig = key.sign(&[
+        login.as_bytes(),
+        expiry_s.as_bytes(),
+        password_hash.as_bytes(),
+    ]);
     format!("{login}|{expiry_s}|{sig}")
 }
 
@@ -45,7 +55,11 @@ pub fn authenticate(key: &SigningKey, raw: &str, current_password_hash: &str) ->
         return None;
     }
     if !key.verify(
-        &[login.as_bytes(), expiry_s.as_bytes(), current_password_hash.as_bytes()],
+        &[
+            login.as_bytes(),
+            expiry_s.as_bytes(),
+            current_password_hash.as_bytes(),
+        ],
         sig,
     ) {
         return None;
@@ -65,7 +79,10 @@ pub fn extract(headers: &HeaderMap) -> Option<String> {
 /// The login a `Set-Cookie` header would authenticate — test/debug helper.
 pub fn header_value(set_cookie: &HeaderMap) -> Option<String> {
     let raw = set_cookie.get(SET_COOKIE)?.to_str().ok()?;
-    raw.split(';').next().and_then(|c| c.split_once('=')).map(|(_, v)| v.to_string())
+    raw.split(';')
+        .next()
+        .and_then(|c| c.split_once('='))
+        .map(|(_, v)| v.to_string())
 }
 
 #[cfg(test)]
@@ -79,7 +96,14 @@ mod tests {
     }
 
     fn value_of(set_cookie: &str) -> String {
-        set_cookie.split(';').next().unwrap().split_once('=').unwrap().1.to_string()
+        set_cookie
+            .split(';')
+            .next()
+            .unwrap()
+            .split_once('=')
+            .unwrap()
+            .1
+            .to_string()
     }
 
     #[test]
@@ -118,7 +142,10 @@ mod tests {
     #[test]
     fn extract_finds_our_cookie_among_others() {
         let mut headers = HeaderMap::new();
-        headers.insert(COOKIE, "theme=dark; bc_session=abc; other=1".parse().unwrap());
+        headers.insert(
+            COOKIE,
+            "theme=dark; bc_session=abc; other=1".parse().unwrap(),
+        );
         assert_eq!(extract(&headers).as_deref(), Some("abc"));
     }
 

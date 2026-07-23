@@ -117,7 +117,11 @@ impl QuestScript for Q00293TheHiddenVeins {
                         ctx.take_items(HIDDEN_ORE_MAP, -1);
                         // Java's `giveNewbieReward` here is commented out in the dist.
                         let html = if ores > 0 {
-                            if maps > 0 { "30535-10.html" } else { "30535-06.html" }
+                            if maps > 0 {
+                                "30535-10.html"
+                            } else {
+                                "30535-06.html"
+                            }
                         } else {
                             "30535-09.html"
                         };

@@ -52,7 +52,10 @@ fn an_identity_res_modifier_changes_nothing() {
 fn a_higher_res_modifier_lowers_the_success_rate() {
     let base = calc_magic_success_rate(&pvp_input(1.0));
     let resisted = calc_magic_success_rate(&pvp_input(1.5));
-    assert!(resisted < base, "more resistance means less success: {base} -> {resisted}");
+    assert!(
+        resisted < base,
+        "more resistance means less success: {base} -> {resisted}"
+    );
     // 60 * 1.5 = 90, so the rate is 100 - 90 = 10.
     assert_eq!(resisted, 10);
 }
@@ -76,10 +79,17 @@ fn real_dist_carriers_parse() {
     let skills = dist_skills();
     let amount_at = |id: i32, level: i32| {
         skills.get(id, level).and_then(|s| {
-            s.stat_modifier_effects().iter().find(|m| m.stat == Stat::MagicSuccessRes).map(|m| m.amount)
+            s.stat_modifier_effects()
+                .iter()
+                .find(|m| m.stat == Stat::MagicSuccessRes)
+                .map(|m| m.amount)
         })
     };
-    assert_eq!(amount_at(146, 1), Some(0.0), "Anti Magic does nothing at level 1");
+    assert_eq!(
+        amount_at(146, 1),
+        Some(0.0),
+        "Anti Magic does nothing at level 1"
+    );
     assert_eq!(amount_at(146, 3), Some(5.0), "and 5% from level 3");
     assert!(amount_at(147, 1).is_some(), "M. Def. carries the stat too");
 }
@@ -98,12 +108,24 @@ fn anti_magic_folds_a_raising_multiplier() {
     let world = World::new(link_tx, 7, 3, 0, data, db_tx);
 
     let bare = Player::from_char(&world.data, &dummy_char(9801, "Bare"));
-    assert_eq!(bare.stat_modifiers.mul.get(&Stat::MagicSuccessRes), None, "no skill, no modifier");
+    assert_eq!(
+        bare.stat_modifiers.mul.get(&Stat::MagicSuccessRes),
+        None,
+        "no skill, no modifier"
+    );
 
     let mut chr = dummy_char(9802, "Warded");
     chr.skills = vec![(146, 3, 0)]; // level 3 — the first with a non-zero amount
     let bundle = Player::from_char(&world.data, &chr);
-    let mul = bundle.stat_modifiers.mul.get(&Stat::MagicSuccessRes).copied().unwrap_or(1.0);
-    assert!((mul - 1.05).abs() < 1e-9, "+5% PER folds to x1.05, got {mul}");
+    let mul = bundle
+        .stat_modifiers
+        .mul
+        .get(&Stat::MagicSuccessRes)
+        .copied()
+        .unwrap_or(1.0);
+    assert!(
+        (mul - 1.05).abs() < 1e-9,
+        "+5% PER folds to x1.05, got {mul}"
+    );
     assert!(mul > 1.0, "and it raises the failure term, i.e. defends");
 }

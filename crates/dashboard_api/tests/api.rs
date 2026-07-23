@@ -83,7 +83,10 @@ fn test_config() -> DashboardConfig {
 async fn test_app() -> (axum::Router, SqlitePool) {
     let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
     sqlx::query(ACCOUNTS_DDL).execute(&pool).await.unwrap();
-    sqlx::query(ACCOUNTS_MASTER_EMAIL_INDEX).execute(&pool).await.unwrap();
+    sqlx::query(ACCOUNTS_MASTER_EMAIL_INDEX)
+        .execute(&pool)
+        .await
+        .unwrap();
     sqlx::query(CHARACTERS_DDL).execute(&pool).await.unwrap();
 
     let state = Arc::new(App::new(pool.clone(), test_config()));
@@ -107,7 +110,10 @@ async fn add_game_account(pool: &SqlitePool, email: &str, login: &str) {
 /// axum's ConnectInfo extractor needs a peer address; `oneshot` doesn't set one.
 fn with_peer(mut req: Request<Body>) -> Request<Body> {
     req.extensions_mut()
-        .insert(axum::extract::ConnectInfo(SocketAddr::from(([127, 0, 0, 1], 1234))));
+        .insert(axum::extract::ConnectInfo(SocketAddr::from((
+            [127, 0, 0, 1],
+            1234,
+        ))));
     req
 }
 
@@ -265,7 +271,13 @@ async fn a_game_account_cannot_sign_into_the_dashboard() {
 async fn registration_requires_something_that_looks_like_an_address() {
     let (app, _pool) = test_app().await;
 
-    for bad in ["alice", "alice@localhost", "alice@", "@example.com", "a b@c.d"] {
+    for bad in [
+        "alice",
+        "alice@localhost",
+        "alice@",
+        "@example.com",
+        "a b@c.d",
+    ] {
         let response = app
             .clone()
             .oneshot(post(
@@ -369,7 +381,11 @@ async fn characters_are_scoped_to_the_session_account() {
         .await
         .unwrap();
     let body = body_json(chars).await;
-    assert_eq!(body.as_array().unwrap().len(), 0, "must not see another account's characters");
+    assert_eq!(
+        body.as_array().unwrap().len(),
+        0,
+        "must not see another account's characters"
+    );
 }
 
 #[tokio::test]
@@ -485,10 +501,12 @@ async fn a_game_account_is_created_under_the_masters_address() {
     // back to the master, the login is what the game matches on, and a
     // non-NULL is_verified would make this row look like a second identity.
     let (login, email, password, is_verified): (String, String, String, Option<i64>) =
-        sqlx::query_as("SELECT login, email, password, is_verified FROM accounts WHERE login IS NOT NULL")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+        sqlx::query_as(
+            "SELECT login, email, password, is_verified FROM accounts WHERE login IS NOT NULL",
+        )
+        .fetch_one(&pool)
+        .await
+        .unwrap();
     assert_eq!(login, "alice1", "logins are stored lowercased");
     assert_eq!(email, "alice@example.com");
     assert_eq!(
@@ -556,7 +574,10 @@ async fn an_unverified_master_cannot_create_game_accounts() {
         .await
         .unwrap();
     assert_eq!(response.status(), StatusCode::FORBIDDEN);
-    assert_eq!(body_json(response).await["error"]["code"], "email_not_verified");
+    assert_eq!(
+        body_json(response).await["error"]["code"],
+        "email_not_verified"
+    );
 }
 
 #[tokio::test]
@@ -639,11 +660,12 @@ async fn game_accounts_are_capped_per_master() {
     );
 
     // The refusal must not have written the row anyway.
-    let (count,): (i64,) =
-        sqlx::query_as("SELECT COUNT(*) FROM accounts WHERE email = 'alice@example.com' AND login IS NOT NULL")
-            .fetch_one(&pool)
-            .await
-            .unwrap();
+    let (count,): (i64,) = sqlx::query_as(
+        "SELECT COUNT(*) FROM accounts WHERE email = 'alice@example.com' AND login IS NOT NULL",
+    )
+    .fetch_one(&pool)
+    .await
+    .unwrap();
     assert_eq!(count, 3);
 }
 
@@ -654,10 +676,22 @@ async fn game_account_credentials_are_validated() {
 
     for (login, password, why) in [
         ("ab", "game-password", "login too short"),
-        ("alice bob", "game-password", "space is untypeable in the client"),
-        ("alice!", "game-password", "punctuation is untypeable in the client"),
+        (
+            "alice bob",
+            "game-password",
+            "space is untypeable in the client",
+        ),
+        (
+            "alice!",
+            "game-password",
+            "punctuation is untypeable in the client",
+        ),
         ("alice1", "short", "password below the minimum"),
-        ("alice1", "pässwörd1", "non-ASCII password is untypeable in the client"),
+        (
+            "alice1",
+            "pässwörd1",
+            "non-ASCII password is untypeable in the client",
+        ),
     ] {
         let response = app
             .clone()
@@ -760,7 +794,11 @@ async fn duplicate_registration_is_rejected() {
     let (app, _pool) = test_app().await;
     let body = serde_json::json!({ "email": "alice@example.com", "password": "correct-horse" });
 
-    let first = app.clone().oneshot(post("/api/v1/auth/register", body.clone())).await.unwrap();
+    let first = app
+        .clone()
+        .oneshot(post("/api/v1/auth/register", body.clone()))
+        .await
+        .unwrap();
     assert_eq!(first.status(), StatusCode::CREATED);
 
     // Same address in different case must still collide — addresses are
@@ -824,7 +862,10 @@ async fn unknown_account_and_wrong_password_are_indistinguishable() {
         .unwrap();
 
     assert_eq!(wrong_password.status(), no_such_account.status());
-    assert_eq!(body_json(wrong_password).await, body_json(no_such_account).await);
+    assert_eq!(
+        body_json(wrong_password).await,
+        body_json(no_such_account).await
+    );
 }
 
 #[tokio::test]
@@ -1032,7 +1073,10 @@ fn preflight(path: &str, origin: &str, method: &str) -> Request<Body> {
             .uri(path)
             .header(header::ORIGIN, origin)
             .header(header::ACCESS_CONTROL_REQUEST_METHOD, method)
-            .header(header::ACCESS_CONTROL_REQUEST_HEADERS, "content-type,x-requested-with")
+            .header(
+                header::ACCESS_CONTROL_REQUEST_HEADERS,
+                "content-type,x-requested-with",
+            )
             .body(Body::empty())
             .unwrap(),
     )
@@ -1042,10 +1086,17 @@ fn preflight(path: &str, origin: &str, method: &str) -> Request<Body> {
 async fn preflight_from_the_site_is_allowed_with_credentials() {
     let (app, _pool) = test_app().await;
 
-    let response = app.oneshot(preflight("/api/v1/auth/login", SITE, "POST")).await.unwrap();
+    let response = app
+        .oneshot(preflight("/api/v1/auth/login", SITE, "POST"))
+        .await
+        .unwrap();
     let headers = response.headers();
 
-    assert!(response.status().is_success(), "preflight must not fail: {}", response.status());
+    assert!(
+        response.status().is_success(),
+        "preflight must not fail: {}",
+        response.status()
+    );
     // Must echo the exact origin — "*" is rejected by browsers when credentials
     // are involved.
     assert_eq!(
@@ -1053,7 +1104,12 @@ async fn preflight_from_the_site_is_allowed_with_credentials() {
         SITE
     );
     // Without this the browser sends no session cookie at all.
-    assert_eq!(headers.get(header::ACCESS_CONTROL_ALLOW_CREDENTIALS).unwrap(), "true");
+    assert_eq!(
+        headers
+            .get(header::ACCESS_CONTROL_ALLOW_CREDENTIALS)
+            .unwrap(),
+        "true"
+    );
 
     // X-Requested-With must be allowed or every mutation is blocked by the
     // CSRF gate it exists to satisfy.
@@ -1072,14 +1128,21 @@ async fn preflight_from_an_unknown_origin_gets_no_grant() {
     let (app, _pool) = test_app().await;
 
     let response = app
-        .oneshot(preflight("/api/v1/auth/login", "https://evil.example", "POST"))
+        .oneshot(preflight(
+            "/api/v1/auth/login",
+            "https://evil.example",
+            "POST",
+        ))
         .await
         .unwrap();
 
     // The absence of the header is what makes the browser block it; a body or
     // status alone would not.
     assert!(
-        response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).is_none(),
+        response
+            .headers()
+            .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+            .is_none(),
         "must not grant access to an unlisted origin"
     );
 }
@@ -1100,10 +1163,25 @@ async fn actual_response_carries_cors_headers() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::OK);
-    assert_eq!(response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(), SITE);
+    assert_eq!(
+        response
+            .headers()
+            .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+            .unwrap(),
+        SITE
+    );
     // Shared caches must not serve one origin's grant to another.
-    let vary = response.headers().get(header::VARY).unwrap().to_str().unwrap().to_ascii_lowercase();
-    assert!(vary.contains("origin"), "expected Vary: Origin, got: {vary}");
+    let vary = response
+        .headers()
+        .get(header::VARY)
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_ascii_lowercase();
+    assert!(
+        vary.contains("origin"),
+        "expected Vary: Origin, got: {vary}"
+    );
 }
 
 #[tokio::test]
@@ -1124,7 +1202,13 @@ async fn error_responses_also_carry_cors_headers() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::UNAUTHORIZED);
-    assert_eq!(response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).unwrap(), SITE);
+    assert_eq!(
+        response
+            .headers()
+            .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+            .unwrap(),
+        SITE
+    );
 }
 
 #[tokio::test]
@@ -1164,9 +1248,15 @@ async fn subdomains_of_the_site_domain_are_allowed_over_http_layer() {
         "https://play.battlecrab.com",
     ] {
         let (app, _pool) = test_app().await;
-        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        let response = app
+            .oneshot(preflight("/api/v1/auth/login", origin, "POST"))
+            .await
+            .unwrap();
         assert_eq!(
-            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).map(|v| v.to_str().unwrap()),
+            response
+                .headers()
+                .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+                .map(|v| v.to_str().unwrap()),
             Some(origin),
             "{origin} should be allowed",
         );
@@ -1185,9 +1275,15 @@ async fn foreign_and_lookalike_origins_are_refused_over_http_layer() {
         "null",
     ] {
         let (app, _pool) = test_app().await;
-        let response = app.oneshot(preflight("/api/v1/auth/login", origin, "POST")).await.unwrap();
+        let response = app
+            .oneshot(preflight("/api/v1/auth/login", origin, "POST"))
+            .await
+            .unwrap();
         assert!(
-            response.headers().get(header::ACCESS_CONTROL_ALLOW_ORIGIN).is_none(),
+            response
+                .headers()
+                .get(header::ACCESS_CONTROL_ALLOW_ORIGIN)
+                .is_none(),
             "{origin} must NOT be granted access",
         );
     }
@@ -1201,7 +1297,10 @@ async fn foreign_and_lookalike_origins_are_refused_over_http_layer() {
 /// `cargo test` should not require a `bun run build` first.
 #[tokio::test]
 async fn the_link_preview_image_is_served_at_a_stable_url() {
-    let dist = concat!(env!("CARGO_MANIFEST_DIR"), "/../../web/dashboard/dist/og-image.jpg");
+    let dist = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../web/dashboard/dist/og-image.jpg"
+    );
     if !std::path::Path::new(dist).exists() {
         eprintln!("skipped: run `bun run build` in web/dashboard first");
         return;
@@ -1210,7 +1309,10 @@ async fn the_link_preview_image_is_served_at_a_stable_url() {
     let (app, _pool) = test_app().await;
     let response = app
         .oneshot(with_peer(
-            Request::builder().uri("/og-image.jpg").body(Body::empty()).unwrap(),
+            Request::builder()
+                .uri("/og-image.jpg")
+                .body(Body::empty())
+                .unwrap(),
         ))
         .await
         .unwrap();
@@ -1224,7 +1326,12 @@ async fn the_link_preview_image_is_served_at_a_stable_url() {
 
     // It is NOT content-hashed, so the year-long immutable policy the hashed
     // bundles get would pin stale artwork that no deploy could replace.
-    let cache = response.headers().get(header::CACHE_CONTROL).unwrap().to_str().unwrap();
+    let cache = response
+        .headers()
+        .get(header::CACHE_CONTROL)
+        .unwrap()
+        .to_str()
+        .unwrap();
     assert!(
         !cache.contains("immutable"),
         "og-image.jpg must not be immutably cached, got {cache:?}"
@@ -1233,7 +1340,11 @@ async fn the_link_preview_image_is_served_at_a_stable_url() {
     let body = response.into_body().collect().await.unwrap().to_bytes();
     // JPEG magic — proves a real image came back rather than the SPA fallback,
     // which would be a 200 full of HTML.
-    assert_eq!(&body[..2], &[0xff, 0xd8], "expected a JPEG, not the index.html fallback");
+    assert_eq!(
+        &body[..2],
+        &[0xff, 0xd8],
+        "expected a JPEG, not the index.html fallback"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -1260,7 +1371,10 @@ async fn admin_routes_are_closed_to_ordinary_accounts() {
     // No session at all: 401.
     let response = app
         .oneshot(with_peer(
-            Request::builder().uri("/api/v1/admin/accounts").body(Body::empty()).unwrap(),
+            Request::builder()
+                .uri("/api/v1/admin/accounts")
+                .body(Body::empty())
+                .unwrap(),
         ))
         .await
         .unwrap();
@@ -1272,11 +1386,18 @@ async fn me_reports_admin_status() {
     let (app, pool) = test_app().await;
 
     let player = verified_master(&pool, &app, "player@example.com").await;
-    let me = app.clone().oneshot(get_with_cookie("/api/v1/auth/me", &player)).await.unwrap();
+    let me = app
+        .clone()
+        .oneshot(get_with_cookie("/api/v1/auth/me", &player))
+        .await
+        .unwrap();
     assert_eq!(body_json(me).await["isAdmin"], false);
 
     let admin = admin_master(&pool, &app, "admin@example.com").await;
-    let me = app.oneshot(get_with_cookie("/api/v1/auth/me", &admin)).await.unwrap();
+    let me = app
+        .oneshot(get_with_cookie("/api/v1/auth/me", &admin))
+        .await
+        .unwrap();
     assert_eq!(body_json(me).await["isAdmin"], true);
 }
 
@@ -1342,7 +1463,10 @@ async fn admin_account_detail_shows_game_accounts_and_characters() {
 
     let detail = app
         .clone()
-        .oneshot(get_with_cookie("/api/v1/admin/accounts/alice%40example.com", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts/alice%40example.com",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(detail.status(), StatusCode::OK);
@@ -1358,7 +1482,10 @@ async fn admin_account_detail_shows_game_accounts_and_characters() {
     assert!(body["gameAccounts"][0].get("password").is_none());
 
     let missing = app
-        .oneshot(get_with_cookie("/api/v1/admin/accounts/nobody%40example.com", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts/nobody%40example.com",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(missing.status(), StatusCode::NOT_FOUND);
@@ -1385,7 +1512,10 @@ async fn an_admin_can_ban_and_unban_a_game_account() {
         .fetch_one(&pool)
         .await
         .unwrap();
-    assert_eq!(level, -100, "the login server refuses accessLevel < 0 — this is the game ban");
+    assert_eq!(
+        level, -100,
+        "the login server refuses accessLevel < 0 — this is the game ban"
+    );
 
     let unbanned = app
         .oneshot(post_with_cookie(
@@ -1420,10 +1550,18 @@ async fn the_admin_api_never_raises_an_access_level() {
     ] {
         let response = app
             .clone()
-            .oneshot(post_with_cookie(path, &admin, serde_json::json!({ "level": 100 })))
+            .oneshot(post_with_cookie(
+                path,
+                &admin,
+                serde_json::json!({ "level": 100 }),
+            ))
             .await
             .unwrap();
-        assert_eq!(response.status(), StatusCode::BAD_REQUEST, "{path} must refuse level > 0");
+        assert_eq!(
+            response.status(),
+            StatusCode::BAD_REQUEST,
+            "{path} must refuse level > 0"
+        );
     }
 
     let levels: Vec<(i32,)> = sqlx::query_as(
@@ -1432,7 +1570,10 @@ async fn the_admin_api_never_raises_an_access_level() {
     .fetch_all(&pool)
     .await
     .unwrap();
-    assert!(levels.iter().all(|(l,)| *l == 0), "nothing may have been promoted: {levels:?}");
+    assert!(
+        levels.iter().all(|(l,)| *l == 0),
+        "nothing may have been promoted: {levels:?}"
+    );
 }
 
 /// Equal admins cannot ban each other, and an admin cannot ban themself —
@@ -1453,14 +1594,22 @@ async fn an_admin_cannot_touch_a_peer_or_themself() {
             ))
             .await
             .unwrap();
-        assert_eq!(response.status(), StatusCode::FORBIDDEN, "banning {target} must be refused");
+        assert_eq!(
+            response.status(),
+            StatusCode::FORBIDDEN,
+            "banning {target} must be refused"
+        );
     }
 
-    let levels: Vec<(i32,)> = sqlx::query_as("SELECT accessLevel FROM accounts WHERE login IS NULL")
-        .fetch_all(&pool)
-        .await
-        .unwrap();
-    assert!(levels.iter().all(|(l,)| *l == 100), "both admins must be untouched: {levels:?}");
+    let levels: Vec<(i32,)> =
+        sqlx::query_as("SELECT accessLevel FROM accounts WHERE login IS NULL")
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+    assert!(
+        levels.iter().all(|(l,)| *l == 100),
+        "both admins must be untouched: {levels:?}"
+    );
 }
 
 #[tokio::test]
@@ -1517,7 +1666,11 @@ async fn an_admin_resets_a_game_account_password() {
         ))
         .await
         .unwrap();
-    assert_eq!(weak.status(), StatusCode::BAD_REQUEST, "the game's password rules still apply");
+    assert_eq!(
+        weak.status(),
+        StatusCode::BAD_REQUEST,
+        "the game's password rules still apply"
+    );
 
     let reset = app
         .clone()
@@ -1549,7 +1702,11 @@ async fn an_admin_resets_a_game_account_password() {
         ))
         .await
         .unwrap();
-    assert_eq!(master.status(), StatusCode::NOT_FOUND, "no such route may exist");
+    assert_eq!(
+        master.status(),
+        StatusCode::NOT_FOUND,
+        "no such route may exist"
+    );
 }
 
 #[tokio::test]
@@ -1602,7 +1759,10 @@ async fn game_account_search_reaches_masterless_rows() {
     .unwrap();
 
     let found = app
-        .oneshot(get_with_cookie("/api/v1/admin/game-accounts?q=orph", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/game-accounts?q=orph",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(found.status(), StatusCode::OK);
@@ -1639,18 +1799,28 @@ async fn the_master_list_sorts_by_whitelisted_columns() {
 
     let by_email = app
         .clone()
-        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=email&dir=asc", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts?sort=email&dir=asc",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(by_email.status(), StatusCode::OK);
     assert_eq!(
         emails(&body_json(by_email).await),
-        ["alice@example.com", "bob@example.com", "zz-admin@example.com"]
+        [
+            "alice@example.com",
+            "bob@example.com",
+            "zz-admin@example.com"
+        ]
     );
 
     let by_chars = app
         .clone()
-        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=characters&dir=desc", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts?sort=characters&dir=desc",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(emails(&body_json(by_chars).await)[0], "bob@example.com");
@@ -1658,12 +1828,18 @@ async fn the_master_list_sorts_by_whitelisted_columns() {
     // Anything outside the whitelist is a 400, not a silently different order.
     let bad = app
         .clone()
-        .oneshot(get_with_cookie("/api/v1/admin/accounts?sort=lastIP", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts?sort=lastIP",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(bad.status(), StatusCode::BAD_REQUEST);
     let bad_dir = app
-        .oneshot(get_with_cookie("/api/v1/admin/accounts?dir=sideways", &admin))
+        .oneshot(get_with_cookie(
+            "/api/v1/admin/accounts?dir=sideways",
+            &admin,
+        ))
         .await
         .unwrap();
     assert_eq!(bad_dir.status(), StatusCode::BAD_REQUEST);
@@ -1692,7 +1868,10 @@ async fn an_admin_creates_a_gm_game_account_at_their_own_level() {
             .fetch_one(&pool)
             .await
             .unwrap();
-    assert_eq!(level, 100, "the GM game account must copy the admin's level");
+    assert_eq!(
+        level, 100,
+        "the GM game account must copy the admin's level"
+    );
     assert_eq!(email, "admin@example.com");
 
     // And the password hash is the game's own scheme, usable in the client.

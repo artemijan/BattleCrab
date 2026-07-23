@@ -2,10 +2,10 @@
 
 use commons::network::PacketWriter;
 
+use super::opcodes;
 use crate::data::npc_data::NpcTemplate;
 use crate::enums::NpcInfoType;
 use crate::network::masks;
-use super::opcodes;
 
 /// Port of `serverpackets/NpcSay`'s npc-string shape (`new NpcSay(npc,
 /// NPC_GENERAL, npcStringId)`): chat bubble over an NPC with a client-side
@@ -79,7 +79,12 @@ pub fn npc_info(
     t: &NpcTemplate,
     cfg: &crate::config::NpcConfig,
 ) -> Vec<u8> {
-    let crate::model::npc::NpcView { npc, pos, vitals, speeds } = v;
+    let crate::model::npc::NpcView {
+        npc,
+        pos,
+        vitals,
+        speeds,
+    } = v;
     use NpcInfoType as T;
 
     let title = npc_title(t, cfg);
@@ -232,97 +237,6 @@ pub fn npc_html_message_item(npc_object_id: i32, item_id: i32, html: &str) -> Ve
     w.write_i32(item_id);
     w.write_i32(0); // show common board
     w.into_bytes()
-}
-
-#[cfg(test)]
-mod tests {
-    use commons::network::PacketWriter;
-
-    /// `NpcInfo` byte layout, hand-computed against the Java constructor +
-    /// `writeImpl` (no client capture available for NPCs yet, unlike the
-    /// UserInfo test — the mask math is shared with that byte-verified path).
-    #[test]
-    fn npc_info_layout_matches_java() {
-        let mut t = crate::data::npc_data::default_template(30001);
-        t.name = "Gina".into();
-        t.server_side_name = true;
-        t.level = 5;
-        t.base_hp_max = 100.0;
-        t.base_mp_max = 50.0;
-        // Defaults keep: p_atk_spd 300, m_atk_spd 333, run 120, rhand/lhand 0,
-        // targetable + show_name true (→ status mask 0x0C), type Folk.
-        let (npc, (mut pos, _region, vitals, speeds, _collision, _attack, _ai, _aggro, _buffs)) =
-            crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
-        pos.heading = 4000;
-        let v = crate::model::npc::NpcView { npc: &npc, pos: &pos, vitals: &vitals, speeds: &speeds };
-
-        let mut w = PacketWriter::new();
-        w.write_u8(0x0C); // NPC_INFO
-        w.write_i32(0x4000_0001);
-        w.write_u8(0); // no summon animation
-        w.write_i16(37);
-        // Components: Id, Attackable, Relations, Name, Position, Heading,
-        // AtkCastSpeed | SpeedMultiplier, StopMode, MoveMode (+ pre-set
-        // 0x0C/0x0D) | PetEvolutionId (+ pre-set 0x14/0x15) | CurrentHp,
-        // CurrentMp, MaxHp, MaxMp | VisualState(37).
-        w.write_bytes(&[0xFD, 0xBC, 0x1C, 0xF0, 0x04]);
-        w.write_u8(5); // init size: attackable(1) + relations(4)
-        w.write_u8(0); // Folk is not in the Attackable subtree
-        w.write_i32(0); // relations
-        w.write_i16(69); // block 2 size
-        w.write_i32(1_030_001); // display id + 1000000
-        w.write_i32(100);
-        w.write_i32(200);
-        w.write_i32(-300);
-        w.write_i32(4000); // heading
-        w.write_i32(300); // p atk spd
-        w.write_i32(333); // m atk spd
-        w.write_f32(1.0); // movement multiplier
-        w.write_f32(1.0); // attack speed multiplier
-        w.write_u8(1); // stop mode: alive
-        w.write_u8(0); // move mode: walking
-        w.write_i32(0); // pet evolution id
-        w.write_i32(100); // cur hp
-        w.write_i32(50); // cur mp
-        w.write_i32(100); // max hp
-        w.write_i32(50); // max mp
-        w.write_string("Gina");
-        w.write_u8(0x0C); // visual state: targetable | show name
-        let expected = w.into_bytes();
-
-        assert_eq!(super::npc_info(&v, &t, &crate::config::NpcConfig::default()), expected);
-    }
-
-    /// `Creature.getTitle()` monster branch, per config combination.
-    #[test]
-    fn npc_title_level_and_aggression_flags() {
-        let mut t = crate::data::npc_data::default_template(20001);
-        t.type_name = "Monster".into();
-        t.level = 20;
-        t.is_aggressive = true;
-        t.clans = vec!["ORC_CLAN".into()];
-        t.clan_help_range = 300;
-
-        let mut cfg = crate::config::NpcConfig::default();
-        assert_eq!(super::npc_title(&t, &cfg), ""); // both off → template title
-        cfg.show_npc_level = true;
-        cfg.show_npc_aggression = true;
-        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 [A][G]");
-
-        t.is_aggressive = false;
-        t.clan_help_range = 0;
-        // Java writes the separator space even when no flag follows.
-        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 ");
-
-        cfg.show_npc_level = false;
-        t.is_aggressive = true;
-        t.title = "Raid Fighter".into();
-        assert_eq!(super::npc_title(&t, &cfg), "[A] Raid Fighter");
-
-        // Non-monsters keep their template title untouched.
-        t.type_name = "Folk".into();
-        assert_eq!(super::npc_title(&t, &cfg), "Raid Fighter");
-    }
 }
 
 /// Port of `serverpackets/SummonInfo` (masked, same 37-bit `NpcInfoType`
@@ -487,7 +401,10 @@ pub fn set_summon_remain_time(max_time: i32, remaining: i32) -> Vec<u8> {
 ///
 /// Just a count and the standard item entries; unlike the player's
 /// `ItemList` (0x11) there is no "open window" flag or trailing block.
-pub fn pet_item_list(inventory: &crate::model::inventory::Inventory, data: &crate::data::GameData) -> Vec<u8> {
+pub fn pet_item_list(
+    inventory: &crate::model::inventory::Inventory,
+    data: &crate::data::GameData,
+) -> Vec<u8> {
     let entries: Vec<_> = inventory
         .items()
         .iter()
@@ -545,4 +462,103 @@ pub fn special_camera(
     w.write_i32(rel_angle);
     w.write_i32(unk);
     w.into_bytes()
+}
+
+#[cfg(test)]
+mod tests {
+    use commons::network::PacketWriter;
+
+    /// `NpcInfo` byte layout, hand-computed against the Java constructor +
+    /// `writeImpl` (no client capture available for NPCs yet, unlike the
+    /// UserInfo test — the mask math is shared with that byte-verified path).
+    #[test]
+    fn npc_info_layout_matches_java() {
+        let mut t = crate::data::npc_data::default_template(30001);
+        t.name = "Gina".into();
+        t.server_side_name = true;
+        t.level = 5;
+        t.base_hp_max = 100.0;
+        t.base_mp_max = 50.0;
+        // Defaults keep: p_atk_spd 300, m_atk_spd 333, run 120, rhand/lhand 0,
+        // targetable + show_name true (→ status mask 0x0C), type Folk.
+        let (npc, (mut pos, _region, vitals, speeds, _collision, _attack, _ai, _aggro, _buffs)) =
+            crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
+        pos.heading = 4000;
+        let v = crate::model::npc::NpcView {
+            npc: &npc,
+            pos: &pos,
+            vitals: &vitals,
+            speeds: &speeds,
+        };
+
+        let mut w = PacketWriter::new();
+        w.write_u8(0x0C); // NPC_INFO
+        w.write_i32(0x4000_0001);
+        w.write_u8(0); // no summon animation
+        w.write_i16(37);
+        // Components: Id, Attackable, Relations, Name, Position, Heading,
+        // AtkCastSpeed | SpeedMultiplier, StopMode, MoveMode (+ pre-set
+        // 0x0C/0x0D) | PetEvolutionId (+ pre-set 0x14/0x15) | CurrentHp,
+        // CurrentMp, MaxHp, MaxMp | VisualState(37).
+        w.write_bytes(&[0xFD, 0xBC, 0x1C, 0xF0, 0x04]);
+        w.write_u8(5); // init size: attackable(1) + relations(4)
+        w.write_u8(0); // Folk is not in the Attackable subtree
+        w.write_i32(0); // relations
+        w.write_i16(69); // block 2 size
+        w.write_i32(1_030_001); // display id + 1000000
+        w.write_i32(100);
+        w.write_i32(200);
+        w.write_i32(-300);
+        w.write_i32(4000); // heading
+        w.write_i32(300); // p atk spd
+        w.write_i32(333); // m atk spd
+        w.write_f32(1.0); // movement multiplier
+        w.write_f32(1.0); // attack speed multiplier
+        w.write_u8(1); // stop mode: alive
+        w.write_u8(0); // move mode: walking
+        w.write_i32(0); // pet evolution id
+        w.write_i32(100); // cur hp
+        w.write_i32(50); // cur mp
+        w.write_i32(100); // max hp
+        w.write_i32(50); // max mp
+        w.write_string("Gina");
+        w.write_u8(0x0C); // visual state: targetable | show name
+        let expected = w.into_bytes();
+
+        assert_eq!(
+            super::npc_info(&v, &t, &crate::config::NpcConfig::default()),
+            expected
+        );
+    }
+
+    /// `Creature.getTitle()` monster branch, per config combination.
+    #[test]
+    fn npc_title_level_and_aggression_flags() {
+        let mut t = crate::data::npc_data::default_template(20001);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        t.is_aggressive = true;
+        t.clans = vec!["ORC_CLAN".into()];
+        t.clan_help_range = 300;
+
+        let mut cfg = crate::config::NpcConfig::default();
+        assert_eq!(super::npc_title(&t, &cfg), ""); // both off → template title
+        cfg.show_npc_level = true;
+        cfg.show_npc_aggression = true;
+        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 [A][G]");
+
+        t.is_aggressive = false;
+        t.clan_help_range = 0;
+        // Java writes the separator space even when no flag follows.
+        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 ");
+
+        cfg.show_npc_level = false;
+        t.is_aggressive = true;
+        t.title = "Raid Fighter".into();
+        assert_eq!(super::npc_title(&t, &cfg), "[A] Raid Fighter");
+
+        // Non-monsters keep their template title untouched.
+        t.type_name = "Folk".into();
+        assert_eq!(super::npc_title(&t, &cfg), "Raid Fighter");
+    }
 }

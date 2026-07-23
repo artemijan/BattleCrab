@@ -24,7 +24,12 @@ pub fn ex_show_variation_cancel_window() -> Vec<u8> {
 
 /// `ExPutIntensiveResultForVariationMake` — echo the chosen life stone + the
 /// gemstone fee back to the make window (the trailing `1` is Java's `_unk2`).
-pub fn ex_put_intensive_result_for_variation_make(refiner_obj_id: i32, lifestone_item_id: i32, gemstone_item_id: i32, gemstone_count: i64) -> Vec<u8> {
+pub fn ex_put_intensive_result_for_variation_make(
+    refiner_obj_id: i32,
+    lifestone_item_id: i32,
+    gemstone_item_id: i32,
+    gemstone_count: i64,
+) -> Vec<u8> {
     let mut w = ex(opcodes::EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE);
     w.write_i32(refiner_obj_id);
     w.write_i32(lifestone_item_id);

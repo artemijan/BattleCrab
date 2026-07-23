@@ -40,15 +40,36 @@ impl Default for GrandBossConfig {
         // The dist's own values, so a test world matches production without
         // reading the file.
         Self {
-            antharas: RespawnWindow { interval_hours: 264, random_hours: 72 },
+            antharas: RespawnWindow {
+                interval_hours: 264,
+                random_hours: 72,
+            },
             antharas_wait_minutes: 20,
-            valakas: RespawnWindow { interval_hours: 264, random_hours: 72 },
+            valakas: RespawnWindow {
+                interval_hours: 264,
+                random_hours: 72,
+            },
             valakas_wait_minutes: 30,
-            baium: RespawnWindow { interval_hours: 121, random_hours: 0 },
-            core: RespawnWindow { interval_hours: 60, random_hours: 24 },
-            orfen: RespawnWindow { interval_hours: 48, random_hours: 20 },
-            queen_ant: RespawnWindow { interval_hours: 36, random_hours: 17 },
-            zaken: RespawnWindow { interval_hours: 60, random_hours: 20 },
+            baium: RespawnWindow {
+                interval_hours: 121,
+                random_hours: 0,
+            },
+            core: RespawnWindow {
+                interval_hours: 60,
+                random_hours: 24,
+            },
+            orfen: RespawnWindow {
+                interval_hours: 48,
+                random_hours: 20,
+            },
+            queen_ant: RespawnWindow {
+                interval_hours: 36,
+                random_hours: 17,
+            },
+            zaken: RespawnWindow {
+                interval_hours: 60,
+                random_hours: 20,
+            },
         }
     }
 }

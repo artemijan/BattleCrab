@@ -54,7 +54,11 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 /// on the fixed creature. Refused if already mounted.
 pub(super) fn admin_ride(world: &mut World, client_id: u32, object_id: i32, mount: Mount) {
     let target = ride_target(world, object_id);
-    if world.objects.get_component::<Player>(&target).is_some_and(|p| p.mount_type != 0) {
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.mount_type != 0)
+    {
         send_message(world, client_id, "Target already have a summon.");
         return;
     }
@@ -70,7 +74,11 @@ pub(super) fn admin_ride(world: &mut World, client_id: u32, object_id: i32, moun
 /// not mounted. The `//unride*` commands route here through the transform
 /// module's combined dismount-or-untransform path.
 pub(super) fn dismount(world: &mut World, target: i32) {
-    if !world.objects.get_component::<Player>(&target).is_some_and(|p| p.mount_type != 0) {
+    if !world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.mount_type != 0)
+    {
         return;
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
@@ -90,6 +98,14 @@ fn broadcast_ride(world: &World, target: i32, mounted: bool) {
     ) else {
         return;
     };
-    let packet = server_packets::ride(target, mounted, p.mount_type, p.mount_npc_id, pos.x, pos.y, pos.z);
+    let packet = server_packets::ride(
+        target,
+        mounted,
+        p.mount_type,
+        p.mount_npc_id,
+        pos.x,
+        pos.y,
+        pos.z,
+    );
     super::helpers::broadcast_including_self(world, target, &packet);
 }

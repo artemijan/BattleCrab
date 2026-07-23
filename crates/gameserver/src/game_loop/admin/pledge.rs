@@ -23,7 +23,8 @@ fn show_main_page(world: &World, client_id: u32) {
 /// player) and finishes by re-showing the Game panel.
 pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     // Java: the target must be a player, else INVALID_TARGET + showMainPage.
-    let Some(target) = current_target(world, gm_object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    let Some(target) = current_target(world, gm_object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
     else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         show_main_page(world, client_id);
@@ -40,8 +41,16 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
         return;
     };
 
-    let clan_id = world.objects.get_component::<Player>(&target).map(|p| p.clan_id).filter(|&c| c != 0);
-    let target_name = world.objects.get_component::<Player>(&target).map(|p| p.name.clone()).unwrap_or_default();
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.clan_id)
+        .filter(|&c| c != 0);
+    let target_name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
 
     match action {
         "create" => {
@@ -50,18 +59,29 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             } else {
                 // Java: save the recreate cooldown, zero it so `createClan`'s
                 // expiry guard passes, then restore it if creation fails.
-                let penalty =
-                    world.objects.get_component::<Player>(&target).map(|p| p.clan_create_expiry_time).unwrap_or(0);
+                let penalty = world
+                    .objects
+                    .get_component::<Player>(&target)
+                    .map(|p| p.clan_create_expiry_time)
+                    .unwrap_or(0);
                 if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
                     p.clan_create_expiry_time = 0;
                 }
                 match crate::game_loop::clans::create_clan(world, target, param) {
-                    Some(_) => send_message(world, client_id, &format!("Clan {param} created. Leader: {target_name}")),
+                    Some(_) => send_message(
+                        world,
+                        client_id,
+                        &format!("Clan {param} created. Leader: {target_name}"),
+                    ),
                     None => {
                         if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
                             p.clan_create_expiry_time = penalty;
                         }
-                        send_message(world, client_id, "There was a problem while creating the clan.");
+                        send_message(
+                            world,
+                            client_id,
+                            "There was a problem while creating the clan.",
+                        );
                     }
                 }
             }
@@ -85,10 +105,16 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
             }
             crate::game_loop::clans::destroy_clan(world, cid);
             // Java re-reads targetPlayer.getClan() after destroyClan.
-            let still_in_clan =
-                world.objects.get_component::<Player>(&target).is_some_and(|p| p.clan_id != 0);
+            let still_in_clan = world
+                .objects
+                .get_component::<Player>(&target)
+                .is_some_and(|p| p.clan_id != 0);
             if still_in_clan {
-                send_message(world, client_id, "There was a problem while destroying the clan.");
+                send_message(
+                    world,
+                    client_id,
+                    "There was a problem while destroying the clan.",
+                );
             } else {
                 send_message(world, client_id, "Clan disbanded.");
             }
@@ -120,15 +146,26 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
                 send_message(
                     world,
                     client_id,
-                    &format!("Exception during execution of 'admin_pledge {}': invalid number.", args.join(" ")),
+                    &format!(
+                        "Exception during execution of 'admin_pledge {}': invalid number.",
+                        args.join(" ")
+                    ),
                 );
                 return;
             };
             // Java: valid range is [0, 12).
             if (0..12).contains(&level) {
                 crate::game_loop::clans::set_clan_level(world, cid, level);
-                let name = world.clans.get(&cid).map(|c| c.name.clone()).unwrap_or_default();
-                send_message(world, client_id, &format!("You set level {level} for clan {name}"));
+                let name = world
+                    .clans
+                    .get(&cid)
+                    .map(|c| c.name.clone())
+                    .unwrap_or_default();
+                send_message(
+                    world,
+                    client_id,
+                    &format!("You set level {level} for clan {name}"),
+                );
             } else {
                 send_message(world, client_id, "Level incorrect.");
             }
@@ -140,15 +177,29 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
                 return;
             };
             if world.clans.get(&cid).is_some_and(|c| c.level < 5) {
-                send_message(world, client_id, "Only clans of level 5 or above may receive reputation points.");
+                send_message(
+                    world,
+                    client_id,
+                    "Only clans of level 5 or above may receive reputation points.",
+                );
                 show_main_page(world, client_id);
                 return;
             }
             match param.parse::<i32>() {
                 Ok(points) => {
-                    if let Some(score) = crate::game_loop::clans::add_clan_reputation(world, cid, points) {
-                        let name = world.clans.get(&cid).map(|c| c.name.clone()).unwrap_or_default();
-                        let (verb, dir) = if points > 0 { ("add", "to") } else { ("remove", "from") };
+                    if let Some(score) =
+                        crate::game_loop::clans::add_clan_reputation(world, cid, points)
+                    {
+                        let name = world
+                            .clans
+                            .get(&cid)
+                            .map(|c| c.name.clone())
+                            .unwrap_or_default();
+                        let (verb, dir) = if points > 0 {
+                            ("add", "to")
+                        } else {
+                            ("remove", "from")
+                        };
                         send_message(
                             world,
                             client_id,
@@ -174,5 +225,10 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
 /// mechanism (`setNewLeader`/`new_leader_id` unported), so no clan is ever
 /// pending and the list renders empty — the panel itself still shows correctly.
 pub(super) fn admin_clan_show_pending(world: &mut World, client_id: u32) {
-    super::menu::show_admin_html_replace(world, client_id, "clanchanges.htm", &[("data", String::new())]);
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "clanchanges.htm",
+        &[("data", String::new())],
+    );
 }

@@ -9,7 +9,11 @@ const BOSS_ID: i32 = 25999;
 
 /// Register a raid-boss template plus a `dbSave` spawn line for it, exactly as
 /// `RaidbossSpawns.xml` declares one (24 h respawn).
-fn boss_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn boss_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     let mut t = crate::data::npc_data::default_template(BOSS_ID);
     t.type_name = "RaidBoss".into();
@@ -20,42 +24,65 @@ fn boss_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Login
     t.collision_radius = 20.0;
     world.data.npc_data.insert_for_test(t);
 
-    world.data.spawn_data.spawns.push(crate::data::spawn_data::SpawnTemplate {
-        groups: vec![crate::data::spawn_data::SpawnGroup {
-            npcs: vec![crate::data::spawn_data::NpcSpawnDef {
-                npc_id: BOSS_ID,
-                count: 1,
-                loc: Some(crate::data::spawn_data::FixedLoc { x: 5000, y: 5000, z: 0, heading: 0 }),
-                respawn_secs: 86_400,
-                respawn_random_secs: 0,
-                db_save: true,
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(crate::data::spawn_data::SpawnTemplate {
+            groups: vec![crate::data::spawn_data::SpawnGroup {
+                npcs: vec![crate::data::spawn_data::NpcSpawnDef {
+                    npc_id: BOSS_ID,
+                    count: 1,
+                    loc: Some(crate::data::spawn_data::FixedLoc {
+                        x: 5000,
+                        y: 5000,
+                        z: 0,
+                        heading: 0,
+                    }),
+                    respawn_secs: 86_400,
+                    respawn_random_secs: 0,
+                    db_save: true,
+                }],
+                territories: Vec::new(),
             }],
+            name: Some("test_raidboss".into()),
             territories: Vec::new(),
-        }],
-        name: Some("test_raidboss".into()),
-        territories: Vec::new(),
-    });
+        });
     world.id_pool = 0x2100_0000..0x2100_1000;
     (world, db, l)
 }
 
 fn live_boss(world: &mut World) -> Option<i32> {
     let mut found = None;
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-        if n.npc_id == BOSS_ID && !v.dead {
-            found = Some(n.object_id);
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if n.npc_id == BOSS_ID && !v.dead {
+                found = Some(n.object_id);
+            }
+        });
     found
 }
 
 fn now_ms() -> i64 {
     use std::time::{SystemTime, UNIX_EPOCH};
-    SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis() as i64
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64
 }
 
 fn row(respawn_time: i64, cur_hp: f64, cur_mp: f64) -> NpcRespawnRow {
-    NpcRespawnRow { npc_id: BOSS_ID, x: 5000, y: 5000, z: 0, heading: 0, respawn_time, cur_hp, cur_mp }
+    NpcRespawnRow {
+        npc_id: BOSS_ID,
+        x: 5000,
+        y: 5000,
+        z: 0,
+        heading: 0,
+        respawn_time,
+        cur_hp,
+        cur_mp,
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -68,8 +95,15 @@ fn static_pass_defers_db_save_spawns_instead_of_placing_them() {
 
     crate::model::npc::spawn_all(&mut world);
 
-    assert!(live_boss(&mut world).is_none(), "a dbSave boss must not be placed by the static spawn pass");
-    assert_eq!(world.pending_boss_spawns.len(), 1, "it should be queued for DBSpawnManager instead");
+    assert!(
+        live_boss(&mut world).is_none(),
+        "a dbSave boss must not be placed by the static spawn pass"
+    );
+    assert_eq!(
+        world.pending_boss_spawns.len(),
+        1,
+        "it should be queued for DBSpawnManager instead"
+    );
 }
 
 #[test]
@@ -84,7 +118,14 @@ fn boss_with_no_stored_row_spawns_at_full_hp_and_is_persisted() {
     assert_eq!(v.cur_hp, v.max_hp as f64, "no stored row → full HP");
     let cmds = drain_db(&mut db);
     assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::StoreNpcRespawn { npc_id: BOSS_ID, respawn_time: 0, .. })),
+        cmds.iter().any(|c| matches!(
+            c,
+            db::DbCommand::StoreNpcRespawn {
+                npc_id: BOSS_ID,
+                respawn_time: 0,
+                ..
+            }
+        )),
         "a newly placed boss inserts its row (Java addNewSpawn storeInDb=true)"
     );
 }
@@ -109,10 +150,19 @@ fn a_boss_still_on_its_respawn_timer_does_not_spawn() {
     crate::model::npc::spawn_all(&mut world);
 
     // Due in an hour.
-    crate::game_loop::boss_respawn::resolve_boot(&mut world, vec![row(now_ms() + 3_600_000, 0.0, 0.0)]);
+    crate::game_loop::boss_respawn::resolve_boot(
+        &mut world,
+        vec![row(now_ms() + 3_600_000, 0.0, 0.0)],
+    );
 
-    assert!(live_boss(&mut world).is_none(), "a boss killed before the restart stays dead until its time");
-    assert!(world.boss_spawn_refs.contains_key(&BOSS_ID), "but it is tracked for the scheduled respawn");
+    assert!(
+        live_boss(&mut world).is_none(),
+        "a boss killed before the restart stays dead until its time"
+    );
+    assert!(
+        world.boss_spawn_refs.contains_key(&BOSS_ID),
+        "but it is tracked for the scheduled respawn"
+    );
 }
 
 #[test]
@@ -121,11 +171,17 @@ fn an_elapsed_respawn_time_spawns_the_boss_immediately() {
     crate::model::npc::spawn_all(&mut world);
 
     // Due an hour ago — the server was down past the window.
-    crate::game_loop::boss_respawn::resolve_boot(&mut world, vec![row(now_ms() - 3_600_000, 0.0, 0.0)]);
+    crate::game_loop::boss_respawn::resolve_boot(
+        &mut world,
+        vec![row(now_ms() - 3_600_000, 0.0, 0.0)],
+    );
 
     let oid = live_boss(&mut world).expect("overdue boss spawns at boot");
     let v = world.objects.get_component::<Vitals>(&oid).unwrap();
-    assert_eq!(v.cur_hp, v.max_hp as f64, "a respawn is a fresh boss, at full HP");
+    assert_eq!(
+        v.cur_hp, v.max_hp as f64,
+        "a respawn is a fresh boss, at full HP"
+    );
 }
 
 #[test]
@@ -152,7 +208,10 @@ fn stored_hp_above_the_template_max_is_clamped() {
 
     let oid = live_boss(&mut world).expect("spawns");
     let v = world.objects.get_component::<Vitals>(&oid).unwrap();
-    assert_eq!(v.cur_hp, v.max_hp as f64, "a stale over-max row clamps rather than over-filling");
+    assert_eq!(
+        v.cur_hp, v.max_hp as f64,
+        "a stale over-max row clamps rather than over-filling"
+    );
 }
 
 #[test]
@@ -173,7 +232,11 @@ fn killing_a_boss_banks_its_absolute_respawn_time() {
 
     let cmds = drain_db(&mut db);
     let banked = cmds.iter().find_map(|c| match c {
-        db::DbCommand::StoreNpcRespawn { npc_id: BOSS_ID, respawn_time, .. } => Some(*respawn_time),
+        db::DbCommand::StoreNpcRespawn {
+            npc_id: BOSS_ID,
+            respawn_time,
+            ..
+        } => Some(*respawn_time),
         _ => None,
     });
     let banked = banked.expect("a dbSave boss's death must write its respawn row");
@@ -202,7 +265,9 @@ fn an_ordinary_monster_death_writes_no_respawn_row() {
 
     let cmds = drain_db(&mut db);
     assert!(
-        !cmds.iter().any(|c| matches!(c, db::DbCommand::StoreNpcRespawn { .. })),
+        !cmds
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::StoreNpcRespawn { .. })),
         "a plain monster must not write to npc_respawns"
     );
 }
@@ -213,7 +278,11 @@ fn shutdown_flushes_living_boss_hp() {
     crate::model::npc::spawn_all(&mut world);
     crate::game_loop::boss_respawn::resolve_boot(&mut world, Vec::new());
     let oid = live_boss(&mut world).expect("spawned");
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_hp = 4321.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .cur_hp = 4321.0;
     let _ = drain_db(&mut db);
 
     crate::game_loop::boss_respawn::save_all_bosses(&mut world);
@@ -243,5 +312,8 @@ fn real_dist_flags_raid_bosses_as_db_save() {
         .filter(|d| d.db_save)
         .count();
     // 225 `dbSave="true"` lines on this dist, all in RaidbossSpawns.xml.
-    assert_eq!(db_save_count, 225, "expected the dist's 225 dbSave raid-boss spawns");
+    assert_eq!(
+        db_save_count, 225,
+        "expected the dist's 225 dbSave raid-boss spawns"
+    );
 }

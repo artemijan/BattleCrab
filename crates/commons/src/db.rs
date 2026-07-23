@@ -137,8 +137,10 @@ mod tests {
 
     #[test]
     fn parses_jdbc_sqlite_url() {
-        let (path, params) =
-            parse_jdbc_sqlite_url("jdbc:sqlite:../../interlude_classic.db?journal_mode=WAL&busy_timeout=5000").unwrap();
+        let (path, params) = parse_jdbc_sqlite_url(
+            "jdbc:sqlite:../../interlude_classic.db?journal_mode=WAL&busy_timeout=5000",
+        )
+        .unwrap();
         assert_eq!(path, "../../interlude_classic.db");
         assert_eq!(params[0], ("journal_mode".into(), "WAL".into()));
         assert_eq!(params[1], ("busy_timeout".into(), "5000".into()));
@@ -190,10 +192,15 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let file = dir.join("abs.db");
 
-        let pool = init(&format!("jdbc:sqlite:{}", file.display()), 1).await.unwrap();
+        let pool = init(&format!("jdbc:sqlite:{}", file.display()), 1)
+            .await
+            .unwrap();
         drop(pool);
 
-        assert!(file.exists(), "absolute paths must not be re-rooted at the executable");
+        assert!(
+            file.exists(),
+            "absolute paths must not be re-rooted at the executable"
+        );
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -15,7 +15,8 @@ const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 /// config (custom board, buff/teleport whitelists).
 fn enable_board(world: &mut World) {
     let general = commons::config::PropertiesParser::load(format!("{DIST}config/General.ini"));
-    let cb = commons::config::PropertiesParser::load(format!("{DIST}config/Custom/CommunityBoard.ini"));
+    let cb =
+        commons::config::PropertiesParser::load(format!("{DIST}config/Custom/CommunityBoard.ini"));
     let mut c = CommunityBoardConfig::from_parsers(&general, &cb);
     c.available_teleports = scan_available_teleports(true, &format!("{DIST}data/html"));
     world.cfg.community_board = c;
@@ -25,7 +26,11 @@ fn enable_board(world: &mut World) {
 /// Decode a `ShowBoard` packet's content (skip opcode + show/hide byte + the 8
 /// fixed nav strings).
 fn cb_content(pkt: &[u8]) -> String {
-    assert_eq!(pkt[0], server_packets::opcodes::SHOW_BOARD, "a ShowBoard packet");
+    assert_eq!(
+        pkt[0],
+        server_packets::opcodes::SHOW_BOARD,
+        "a ShowBoard packet"
+    );
     let mut r = commons::network::PacketReader::new(&pkt[2..]);
     for _ in 0..8 {
         r.read_string().unwrap();
@@ -48,13 +53,26 @@ fn board_button_opens_custom_home_with_navigation() {
         .iter()
         .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
         .collect();
-    assert_eq!(board.len(), 3, "sendCBHtml sends three ShowBoard chunks (101/102/103)");
+    assert_eq!(
+        board.len(),
+        3,
+        "sendCBHtml sends three ShowBoard chunks (101/102/103)"
+    );
 
     let content = cb_content(board[0]);
-    assert!(content.contains("Community Board"), "home page body rendered");
-    assert!(!content.contains("%navigation%"), "navigation panel was injected");
+    assert!(
+        content.contains("Community Board"),
+        "home page body rendered"
+    );
+    assert!(
+        !content.contains("%navigation%"),
+        "navigation panel was injected"
+    );
     // The navigation markup links back through `_bbs*` bypasses.
-    assert!(content.contains("_bbs"), "nav buttons wired to community-board bypasses");
+    assert!(
+        content.contains("_bbs"),
+        "nav buttons wired to community-board bypasses"
+    );
 }
 
 #[test]
@@ -69,10 +87,16 @@ fn board_offline_when_disabled_sends_system_message() {
     let pkts = drain(&mut rx);
 
     assert!(
-        !pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
         "no board window when the community server is offline"
     );
-    assert_eq!(count_system_messages(&pkts), 1, "the offline SystemMessage is sent");
+    assert_eq!(
+        count_system_messages(&pkts),
+        1,
+        "the offline SystemMessage is sent"
+    );
 }
 
 #[test]
@@ -108,7 +132,11 @@ fn heal_blocked_without_currency() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbsheal;");
-    assert_eq!(pvit(&world, 7006).cur_hp, 1.0, "no heal when the player can't pay");
+    assert_eq!(
+        pvit(&world, 7006).cur_hp,
+        1.0,
+        "no heal when the player can't pay"
+    );
 }
 
 #[test]
@@ -121,17 +149,26 @@ fn teleport_action_moves_player_and_hides_board() {
     // A destination whitelisted by the gatekeeper htmls (Giran gatekeeper).
     let key = "207320 87617 -1112";
     assert!(
-        world.cfg.community_board.available_teleports.contains_key(key),
+        world
+            .cfg
+            .community_board
+            .available_teleports
+            .contains_key(key),
         "the destination is in the scanned whitelist"
     );
     handle_parse_command(&mut world, 1, &format!("_bbsteleport;{key}"));
 
     let pos = *world.objects.get_component::<Position>(&7004).unwrap();
-    assert_eq!((pos.x, pos.y), (207320, 87617), "player teleported to the destination x/y");
+    assert_eq!(
+        (pos.x, pos.y),
+        (207320, 87617),
+        "player teleported to the destination x/y"
+    );
 
     let pkts = drain(&mut rx);
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD && p[1] == 0),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SHOW_BOARD && p[1] == 0),
         "the board is hidden (ShowBoard show=0) around the teleport"
     );
 }
@@ -146,13 +183,20 @@ fn teleport_to_unlisted_destination_is_refused() {
     // Coordinates not present in any gatekeeper html — anti-exploit reject.
     handle_parse_command(&mut world, 1, "_bbsteleport;999999 999999 999999");
     let pos = *world.objects.get_component::<Position>(&7005).unwrap();
-    assert_eq!((pos.x, pos.y), (100, 200), "player did not move for an unlisted destination");
+    assert_eq!(
+        (pos.x, pos.y),
+        (100, 200),
+        "player did not move for an unlisted destination"
+    );
 }
 
 /// Give the player an active buff so the scheme-create snapshot has something
 /// to capture.
 fn push_buff(world: &mut World, oid: i32, skill_id: i32) {
-    let buffs = world.objects.get_component_mut::<Buffs>(&oid).expect("player has a Buffs component");
+    let buffs = world
+        .objects
+        .get_component_mut::<Buffs>(&oid)
+        .expect("player has a Buffs component");
     buffs.0.push(ActiveBuff {
         skill_id,
         skill_level: 1,
@@ -183,13 +227,20 @@ fn premium_buy_grants_status_and_serves_thankyou() {
     handle_parse_command(&mut world, 1, "_bbspremium;7");
 
     // The account behind the test session is "bob" (lowercased in the store).
-    assert!(world.premium.get("bob").copied().unwrap_or(0) > 0, "premium granted for the account");
+    assert!(
+        world.premium.get("bob").copied().unwrap_or(0) > 0,
+        "premium granted for the account"
+    );
     let pkts = drain(&mut rx);
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
         "the thank-you page is served"
     );
-    assert!(count_system_messages(&pkts) >= 1, "the status message is sent");
+    assert!(
+        count_system_messages(&pkts) >= 1,
+        "the status message is sent"
+    );
 }
 
 #[test]
@@ -201,7 +252,10 @@ fn premium_buy_refused_without_currency() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbspremium;1");
-    assert!(world.premium.is_empty(), "no premium granted when the player can't pay");
+    assert!(
+        world.premium.is_empty(),
+        "no premium granted when the player can't pay"
+    );
 }
 
 #[test]
@@ -213,7 +267,10 @@ fn premium_buy_rejects_out_of_range_days() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, "_bbspremium;40"); // > 30 → refused
-    assert!(world.premium.is_empty(), "an out-of-range day count is refused");
+    assert!(
+        world.premium.is_empty(),
+        "an out-of-range day count is refused"
+    );
 }
 
 #[test]
@@ -225,12 +282,20 @@ fn scheme_create_from_active_buffs_persists() {
     drain(&mut rx);
     let _ = drain_db(&mut db_rx);
 
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Windy buffer/schemes.html");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_create Windy buffer/schemes.html",
+    );
 
     let schemes = world.buffer_schemes.get(&7110).expect("scheme registered");
     assert_eq!(schemes.len(), 1);
     assert_eq!(schemes[0].0, "Windy", "scheme stored under its name");
-    assert_eq!(schemes[0].1, vec![1204], "the active whitelisted buff was captured");
+    assert_eq!(
+        schemes[0].1,
+        vec![1204],
+        "the active whitelisted buff was captured"
+    );
     let cmds = drain_db(&mut db_rx);
     assert!(
         cmds.iter().any(|c| matches!(
@@ -249,9 +314,13 @@ fn scheme_create_without_buffs_shows_error() {
     let mut rx = ingame_player(&mut world, 1, 7111, 0, 0, 0);
     drain(&mut rx);
 
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Empty buffer/schemes.html");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_create Empty buffer/schemes.html",
+    );
     assert!(
-        world.buffer_schemes.get(&7111).map_or(true, |s| s.is_empty()),
+        world.buffer_schemes.get(&7111).is_none_or(|s| s.is_empty()),
         "no scheme created without active buffs"
     );
     let pkts = drain(&mut rx);
@@ -260,7 +329,10 @@ fn scheme_create_without_buffs_shows_error() {
         .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
         .map(|p| cb_content(p))
         .unwrap_or_default();
-    assert!(content.contains("You don't have any buffs applied."), "the error banner is rendered");
+    assert!(
+        content.contains("You don't have any buffs applied."),
+        "the error banner is rendered"
+    );
 }
 
 #[test]
@@ -269,13 +341,24 @@ fn scheme_delete_removes_it() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7112, 0, 0, 0);
     push_buff(&mut world, 7112, 1204);
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Gone buffer/schemes.html");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_create Gone buffer/schemes.html",
+    );
     assert_eq!(world.buffer_schemes.get(&7112).unwrap().len(), 1);
     let _ = drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_delete Gone buffer/schemes.html");
-    assert!(world.buffer_schemes.get(&7112).unwrap().is_empty(), "scheme removed");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_delete Gone buffer/schemes.html",
+    );
+    assert!(
+        world.buffer_schemes.get(&7112).unwrap().is_empty(),
+        "scheme removed"
+    );
     let cmds = drain_db(&mut db_rx);
     assert!(
         cmds.iter().any(|c| matches!(
@@ -292,17 +375,28 @@ fn scheme_execute_pet_without_pet_errors() {
     enable_board(&mut world);
     let mut rx = ingame_player(&mut world, 1, 7113, 0, 0, 0);
     push_buff(&mut world, 7113, 1204);
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create Petless buffer/schemes.html");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_create Petless buffer/schemes.html",
+    );
     drain(&mut rx);
 
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_execute Petless buffer/schemes.html pet");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_execute Petless buffer/schemes.html pet",
+    );
     let pkts = drain(&mut rx);
     let content = pkts
         .iter()
         .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
         .map(|p| cb_content(p))
         .unwrap_or_default();
-    assert!(content.contains("You don't have a pet."), "the pet execute reports no pet");
+    assert!(
+        content.contains("You don't have a pet."),
+        "the pet execute reports no pet"
+    );
 }
 
 #[test]
@@ -312,20 +406,39 @@ fn scheme_create_enforces_max_schemes() {
     let mut rx = ingame_player(&mut world, 1, 7114, 0, 0, 0);
     push_buff(&mut world, 7114, 1204);
     for i in 0..5 {
-        handle_parse_command(&mut world, 1, &format!("_bbs_buff_scheme_create S{i} buffer/schemes.html"));
+        handle_parse_command(
+            &mut world,
+            1,
+            &format!("_bbs_buff_scheme_create S{i} buffer/schemes.html"),
+        );
     }
-    assert_eq!(world.buffer_schemes.get(&7114).unwrap().len(), 5, "five schemes created");
+    assert_eq!(
+        world.buffer_schemes.get(&7114).unwrap().len(),
+        5,
+        "five schemes created"
+    );
     drain(&mut rx);
 
-    handle_parse_command(&mut world, 1, "_bbs_buff_scheme_create S6 buffer/schemes.html");
-    assert_eq!(world.buffer_schemes.get(&7114).unwrap().len(), 5, "the sixth is rejected at the cap");
+    handle_parse_command(
+        &mut world,
+        1,
+        "_bbs_buff_scheme_create S6 buffer/schemes.html",
+    );
+    assert_eq!(
+        world.buffer_schemes.get(&7114).unwrap().len(),
+        5,
+        "the sixth is rejected at the cap"
+    );
     let pkts = drain(&mut rx);
     let content = pkts
         .iter()
         .find(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
         .map(|p| cb_content(p))
         .unwrap_or_default();
-    assert!(content.contains("Maximum schemes amount is already reached."), "the cap error is shown");
+    assert!(
+        content.contains("Maximum schemes amount is already reached."),
+        "the cap error is shown"
+    );
 }
 
 // --- FavoriteBoard / HomepageBoard ----------------------------------------
@@ -348,11 +461,16 @@ fn homepage_link_serves_homepage() {
     handle_parse_command(&mut world, 1, "_bbslink");
     let pkts = drain(&mut rx);
     assert_eq!(
-        pkts.iter().filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD).count(),
+        pkts.iter()
+            .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+            .count(),
         3,
         "the homepage is sent as three chunks"
     );
-    assert!(board_html(&pkts).contains("bbs_Webfolder"), "homepage.html body rendered");
+    assert!(
+        board_html(&pkts).contains("bbs_Webfolder"),
+        "homepage.html body rendered"
+    );
 }
 
 #[test]
@@ -365,7 +483,10 @@ fn getfav_on_empty_renders_the_list_page() {
     handle_parse_command(&mut world, 1, "_bbsgetfav");
     let html = board_html(&drain(&mut rx));
     assert!(html.contains("Bookmark list"), "favorite.html rendered");
-    assert!(!html.contains("%fav_list%"), "the (empty) list placeholder was substituted");
+    assert!(
+        !html.contains("%fav_list%"),
+        "the (empty) list placeholder was substituted"
+    );
 }
 
 #[test]
@@ -396,7 +517,10 @@ fn add_favorite_from_home_persists_and_renders() {
     // The callback re-renders the favorites list with the new row.
     let html = board_html(&drain(&mut rx));
     assert!(html.contains("Home"), "the new favorite row is rendered");
-    assert!(html.contains("_bbsdelfav_"), "the delete button carries the fav id");
+    assert!(
+        html.contains("_bbsdelfav_"),
+        "the delete button carries the fav id"
+    );
 }
 
 #[test]
@@ -408,7 +532,10 @@ fn add_favorite_without_queued_bypass_is_noop() {
 
     // No `_bbshome` first → nothing queued, nothing added (Java logs & returns).
     handle_parse_command(&mut world, 1, "bbs_add_fav");
-    assert!(world.bbs_favorites.get(&7203).map_or(true, |f| f.is_empty()), "no favorite added");
+    assert!(
+        world.bbs_favorites.get(&7203).is_none_or(|f| f.is_empty()),
+        "no favorite added"
+    );
 }
 
 #[test]
@@ -423,7 +550,10 @@ fn delete_favorite_removes_and_writes_through() {
     drain(&mut rx);
 
     handle_parse_command(&mut world, 1, &format!("_bbsdelfav_{fav_id}"));
-    assert!(world.bbs_favorites.get(&7204).unwrap().is_empty(), "favorite removed");
+    assert!(
+        world.bbs_favorites.get(&7204).unwrap().is_empty(),
+        "favorite removed"
+    );
     let cmds = drain_db(&mut db_rx);
     assert!(
         cmds.iter()
@@ -476,16 +606,22 @@ fn merchant_multisell_opens_the_exchange_window() {
 
     // `_bbstop` names no page file, so the board is not re-rendered...
     assert!(
-        !pkts.iter().any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SHOW_BOARD),
         "no board re-render (the page file is absent, like Java's null returnHtml)"
     );
     // ...but the multisell window opens, and the open list is recorded.
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::MULTI_SELL_LIST),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::MULTI_SELL_LIST),
         "the MultiSellList window is sent"
     );
     assert_eq!(
-        world.objects.get_component::<ActiveMultisell>(&7205).map(|a| a.list_id),
+        world
+            .objects
+            .get_component::<ActiveMultisell>(&7205)
+            .map(|a| a.list_id),
         Some(600026),
         "the open list is tracked on the player"
     );
@@ -539,7 +675,11 @@ fn multisell_choose_refused_without_enough_adena() {
     drain(&mut rx);
 
     let inv = world.objects.get_component::<Inventory>(&7207).unwrap();
-    assert_eq!(inv.count_of(ADENA_ID), 1_000, "adena untouched on a shortfall");
+    assert_eq!(
+        inv.count_of(ADENA_ID),
+        1_000,
+        "adena untouched on a shortfall"
+    );
     assert_eq!(inv.count_of(13894), 0, "no belt granted");
 }
 
@@ -558,7 +698,11 @@ fn multisell_choose_ignored_for_a_stale_list() {
     handle_multi_sell_choose(&mut world, 1, &body);
 
     let inv = world.objects.get_component::<Inventory>(&7208).unwrap();
-    assert_eq!(inv.count_of(ADENA_ID), 50_000_000, "no exchange without an open list");
+    assert_eq!(
+        inv.count_of(ADENA_ID),
+        50_000_000,
+        "no exchange without an open list"
+    );
 }
 
 // --- DropSearchBoard --------------------------------------------------------
@@ -581,24 +725,50 @@ fn drop_search_item_and_drop_list_render() {
     // The nav "Search" button (`_bbs_search_item;`) opens the empty page.
     handle_parse_command(&mut world, 1, "_bbs_search_item;");
     let html = board_html(&drain(&mut rx));
-    assert!(html.contains("Drop Search"), "the drop-search page rendered with navigation");
+    assert!(
+        html.contains("Drop Search"),
+        "the drop-search page rendered with navigation"
+    );
 
     // An empty query matches all droppable items → the first 14 icon buttons.
     handle_parse_command(&mut world, 1, "_bbs_search_item ");
     let html = board_html(&drain(&mut rx));
-    assert_eq!(html.matches("_bbs_search_drop").count(), 14, "14 item-icon buttons on a full page");
+    assert_eq!(
+        html.matches("_bbs_search_drop").count(),
+        14,
+        "14 item-icon buttons on a full page"
+    );
     assert!(!html.contains("No Match"));
 
     // A nonsense query → No Match.
     handle_parse_command(&mut world, 1, "_bbs_search_item zzzznotanitem");
-    assert!(board_html(&drain(&mut rx)).contains("No Match"), "no matches reported");
+    assert!(
+        board_html(&drain(&mut rx)).contains("No Match"),
+        "no matches reported"
+    );
 
     // Drop list for a real indexed item: rows link each NPC to `_bbs_npc_trace`.
-    let item_id = *world.data.npc_data.drop_index().keys().next().expect("some item is dropped");
-    handle_parse_command(&mut world, 1, &format!("_bbs_search_drop {item_id} 1 $order $level"));
+    let item_id = *world
+        .data
+        .npc_data
+        .drop_index()
+        .keys()
+        .next()
+        .expect("some item is dropped");
+    handle_parse_command(
+        &mut world,
+        1,
+        &format!("_bbs_search_drop {item_id} 1 $order $level"),
+    );
     let html = board_html(&drain(&mut rx));
-    assert!(html.contains("_bbs_npc_trace"), "drop rows link to the NPC trace");
-    assert!(html.contains("Drop") || html.contains("Spoil"), "each row is tagged Drop or Spoil");
+    assert!(
+        html.contains("_bbs_npc_trace"),
+        "drop rows link to the NPC trace"
+    );
+    assert!(
+        html.contains("Drop") || html.contains("Spoil"),
+        "each row is tagged Drop or Spoil"
+    );
 }
 
 #[test]
@@ -613,7 +783,10 @@ fn npc_trace_marks_a_live_spawn() {
 
     handle_parse_command(&mut world, 1, "_bbs_npc_trace 12345");
     let pkts = drain(&mut rx);
-    let radars: Vec<_> = pkts.iter().filter(|p| p[0] == server_packets::opcodes::RADAR_CONTROL).collect();
+    let radars: Vec<_> = pkts
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::RADAR_CONTROL)
+        .collect();
     assert_eq!(radars.len(), 2, "addMarker sends two RadarControl packets");
     // The marker carries the spawn coordinates (x=111 after the opcode + showRadar + type ints).
     let mut r = commons::network::PacketReader::new(&radars[0][1..]);
@@ -634,8 +807,14 @@ fn npc_trace_without_a_spawn_messages_the_player() {
     handle_parse_command(&mut world, 1, "_bbs_npc_trace 999999");
     let pkts = drain(&mut rx);
     assert!(
-        !pkts.iter().any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL),
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL),
         "no marker when nothing is spawned"
     );
-    assert_eq!(count_system_messages(&pkts), 1, "the player is told no spawn was found");
+    assert_eq!(
+        count_system_messages(&pkts),
+        1,
+        "the player is told no spawn was found"
+    );
 }

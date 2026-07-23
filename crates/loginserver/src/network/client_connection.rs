@@ -61,7 +61,12 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
     // LoginClient constructor: banned address → LoginFail(REASON_NOT_AUTHED),
     // no Init.
     if ctx.controller.is_banned(&session.ip).await {
-        let _ = send(&mut write, &mut encryption, server_packets::login_fail(LoginFailReason::ReasonNotAuthed)).await;
+        let _ = send(
+            &mut write,
+            &mut encryption,
+            server_packets::login_fail(LoginFailReason::ReasonNotAuthed),
+        )
+        .await;
         return;
     }
 
@@ -69,7 +74,11 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
     let (kick_tx, mut kick_rx) = mpsc::channel::<LoginFailReason>(1);
 
     // onConnected: send Init (goes out under the static key + XOR pass).
-    let init = server_packets::init(session.session_id, session.keypair.scrambled_modulus(), &session.blowfish_key);
+    let init = server_packets::init(
+        session.session_id,
+        session.keypair.scrambled_modulus(),
+        &session.blowfish_key,
+    );
     if send(&mut write, &mut encryption, init).await.is_err() {
         return;
     }
@@ -95,7 +104,16 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
             break;
         }
 
-        match dispatch(&ctx, &mut session, &payload, &mut write, &mut encryption, &kick_tx).await {
+        match dispatch(
+            &ctx,
+            &mut session,
+            &payload,
+            &mut write,
+            &mut encryption,
+            &kick_tx,
+        )
+        .await
+        {
             Ok(true) => {}
             _ => break,
         }
@@ -134,7 +152,12 @@ async fn dispatch(
             let session_id = r.read_i32().unwrap();
             if session_id == session.session_id {
                 session.state = ConnectionState::AuthedGg;
-                send(write, encryption, server_packets::gg_auth(session.session_id)).await?;
+                send(
+                    write,
+                    encryption,
+                    server_packets::gg_auth(session.session_id),
+                )
+                .await?;
                 Ok(true)
             } else {
                 close(write, encryption, LoginFailReason::ReasonAccessFailed).await
@@ -153,7 +176,10 @@ async fn dispatch(
             let skey2 = r.read_i32().unwrap();
             let key = session.session_key.expect("authed implies session key");
             if key.login_ok1 == skey1 && key.login_ok2 == skey2 {
-                let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
+                let servers = ctx
+                    .controller
+                    .server_list_data(session.ip.clone(), session.access_level)
+                    .await;
                 // ServerList constructor: wait up to 500 ms for every connected
                 // game server's ReplyCharacters before sending.
                 let account = session.account.clone().unwrap_or_default();
@@ -189,8 +215,17 @@ async fn dispatch(
             let Some(account_id) = r.read_i32() else {
                 return Ok(false);
             };
-            let status = if ctx.config.show_pi_agreement { 0x01 } else { 0x00 };
-            send(write, encryption, server_packets::pi_agreement_check(account_id, status)).await?;
+            let status = if ctx.config.show_pi_agreement {
+                0x01
+            } else {
+                0x00
+            };
+            send(
+                write,
+                encryption,
+                server_packets::pi_agreement_check(account_id, status),
+            )
+            .await?;
             Ok(true)
         }
         // REQUEST_PI_AGREEMENT(0x0F, ConnectionState.AUTHED_LOGIN)
@@ -198,7 +233,12 @@ async fn dispatch(
             let (Some(account_id), Some(status)) = (r.read_i32(), r.read_u8()) else {
                 return Ok(false);
             };
-            send(write, encryption, server_packets::pi_agreement_ack(account_id, status)).await?;
+            send(
+                write,
+                encryption,
+                server_packets::pi_agreement_ack(account_id, status),
+            )
+            .await?;
             Ok(true)
         }
         // REQUEST_SERVER_LOGIN(0x02, ConnectionState.AUTHED_LOGIN)
@@ -216,14 +256,24 @@ async fn dispatch(
                 let account = session.account.clone().unwrap_or_default();
                 if ctx
                     .controller
-                    .is_login_possible(server_id, session.access_level, account, session.last_server)
+                    .is_login_possible(
+                        server_id,
+                        session.access_level,
+                        account,
+                        session.last_server,
+                    )
                     .await
                 {
                     session.joined_gs = true;
                     send(write, encryption, server_packets::play_ok(&key)).await?;
                     Ok(true)
                 } else {
-                    send(write, encryption, server_packets::play_fail(PlayFailReason::ReasonServerOverloaded)).await?;
+                    send(
+                        write,
+                        encryption,
+                        server_packets::play_fail(PlayFailReason::ReasonServerOverloaded),
+                    )
+                    .await?;
                     Ok(false)
                 }
             } else {
@@ -231,7 +281,10 @@ async fn dispatch(
             }
         }
         _ => {
-            debug!("Ignored packet 0x{opcode:02x} in state {:?} from {}", session.state, session.ip);
+            debug!(
+                "Ignored packet 0x{opcode:02x} in state {:?} from {}",
+                session.state, session.ip
+            );
             Ok(true)
         }
     }
@@ -268,11 +321,18 @@ async fn request_auth_login(
 
     let (user, password) = if new_auth_method {
         (
-            format!("{}{}", java_trim(&decrypted[0x4E..0x4E + 50]), java_trim(&decrypted[0xCE..0xCE + 14])),
+            format!(
+                "{}{}",
+                java_trim(&decrypted[0x4E..0x4E + 50]),
+                java_trim(&decrypted[0xCE..0xCE + 14])
+            ),
             java_trim(&decrypted[0xDC..0xDC + 16]),
         )
     } else {
-        (java_trim(&decrypted[0x5E..0x5E + 14]), java_trim(&decrypted[0x6C..0x6C + 16]))
+        (
+            java_trim(&decrypted[0x5E..0x5E + 14]),
+            java_trim(&decrypted[0x6C..0x6C + 16]),
+        )
     };
 
     finish_auth(ctx, session, user, password, write, encryption, kick_tx).await
@@ -299,7 +359,11 @@ async fn finish_auth(
         .await;
 
     match outcome {
-        AuthOutcome::Success { key, access_level, last_server } => {
+        AuthOutcome::Success {
+            key,
+            access_level,
+            last_server,
+        } => {
             session.account = Some(user.clone());
             session.session_key = Some(key);
             session.access_level = access_level;
@@ -308,7 +372,10 @@ async fn finish_auth(
             if ctx.config.show_licence {
                 send(write, encryption, server_packets::login_ok(&key)).await?;
             } else {
-                let servers = ctx.controller.server_list_data(session.ip.clone(), session.access_level).await;
+                let servers = ctx
+                    .controller
+                    .server_list_data(session.ip.clone(), session.access_level)
+                    .await;
                 let chars = wait_for_char_counts(ctx, &user).await;
                 send(
                     write,
@@ -319,11 +386,20 @@ async fn finish_auth(
             }
             Ok(true)
         }
-        AuthOutcome::AccessFailed => close(write, encryption, LoginFailReason::ReasonAccessFailed).await,
-        AuthOutcome::InvalidPassword => close(write, encryption, LoginFailReason::ReasonUserOrPassWrong).await,
+        AuthOutcome::AccessFailed => {
+            close(write, encryption, LoginFailReason::ReasonAccessFailed).await
+        }
+        AuthOutcome::InvalidPassword => {
+            close(write, encryption, LoginFailReason::ReasonUserOrPassWrong).await
+        }
         AuthOutcome::AccountBanned => {
             info!("Banned account {user} tried to login from {}", session.ip);
-            send(write, encryption, server_packets::account_kicked(AccountKickedReason::ReasonPermanentlyBanned)).await?;
+            send(
+                write,
+                encryption,
+                server_packets::account_kicked(AccountKickedReason::ReasonPermanentlyBanned),
+            )
+            .await?;
             Ok(false)
         }
         AuthOutcome::AlreadyOnLs | AuthOutcome::AlreadyOnGs => {
@@ -335,7 +411,9 @@ async fn finish_auth(
 /// `new String(bytes, off, len).trim()` — Java's trim strips every char
 /// `<= ' '` from both ends, which is what removes the NUL padding.
 fn java_trim(bytes: &[u8]) -> String {
-    String::from_utf8_lossy(bytes).trim_matches(|c| c <= ' ').to_string()
+    String::from_utf8_lossy(bytes)
+        .trim_matches(|c| c <= ' ')
+        .to_string()
 }
 
 pub async fn send(

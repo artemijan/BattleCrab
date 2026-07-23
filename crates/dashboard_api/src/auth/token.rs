@@ -53,7 +53,12 @@ fn decode(key: &SigningKey, want_purpose: &str, raw: &str) -> Option<(String, St
         return None;
     }
     if !key.verify(
-        &[purpose.as_bytes(), login.as_bytes(), payload.as_bytes(), expiry_s.as_bytes()],
+        &[
+            purpose.as_bytes(),
+            login.as_bytes(),
+            payload.as_bytes(),
+            expiry_s.as_bytes(),
+        ],
         sig,
     ) {
         return None;
@@ -63,7 +68,13 @@ fn decode(key: &SigningKey, want_purpose: &str, raw: &str) -> Option<(String, St
 
 /// Reset link. `current_password_hash` is what makes it single-use.
 pub fn issue_reset(key: &SigningKey, login: &str, current_password_hash: &str) -> String {
-    encode(key, PURPOSE_RESET, login, current_password_hash, RESET_TTL_SECS)
+    encode(
+        key,
+        PURPOSE_RESET,
+        login,
+        current_password_hash,
+        RESET_TTL_SECS,
+    )
 }
 
 /// Returns the login iff the token is valid *and* the account's password has
@@ -133,7 +144,10 @@ mod tests {
     #[test]
     fn verify_email_roundtrips_the_address() {
         let t = issue_verify_email(&key(), "alice@example.com");
-        assert_eq!(verify_email(&key(), &t).as_deref(), Some("alice@example.com"));
+        assert_eq!(
+            verify_email(&key(), &t).as_deref(),
+            Some("alice@example.com")
+        );
     }
 
     /// A leftover change-email link from before that feature was removed is

@@ -61,11 +61,9 @@ impl QuestScript for Q00210ObtainAWolfPet {
                     ctx.set_cond(4, true);
                 }
             }
-            "30827-05.html" => {
-                if ctx.is_cond(4) {
-                    ctx.reward_items(WOLF_COLLAR, 1);
-                    ctx.exit_quest(false, true);
-                }
+            "30827-05.html" if ctx.is_cond(4) => {
+                ctx.reward_items(WOLF_COLLAR, 1);
+                ctx.exit_quest(false, true);
             }
             _ => {}
         }
@@ -77,7 +75,14 @@ impl QuestScript for Q00210ObtainAWolfPet {
         if ctx.is_created() {
             // Only Lundy opens the quest; `addCondMinLevel(15, "no_level.htm")`.
             if ctx.npc_id == LUNDY {
-                return Some(if ctx.player_level() < MIN_LEVEL { "no_level.htm" } else { "30827-01.htm" }.to_string());
+                return Some(
+                    if ctx.player_level() < MIN_LEVEL {
+                        "no_level.htm"
+                    } else {
+                        "30827-01.htm"
+                    }
+                    .to_string(),
+                );
             }
             return Some(ctx.no_quest_html());
         }

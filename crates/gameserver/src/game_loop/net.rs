@@ -40,7 +40,6 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
     }
 }
 
-
 /// Take the player out of the world and persist them — Java
 /// `Disconnection.storeMe().deleteMe()`. Shared by restart, logout, and
 /// unexpected disconnects. Scheduled tasks holding the dead object id no-op.
@@ -88,10 +87,14 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
 /// only mutates these components (never the DB directly), one flush captures
 /// everything the player did since the last one.
 pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::PlayerSaveData> {
-    use crate::model::components::{Macros, PlayerVitals, Position, Quests, Shortcuts, SkillBook, Vitals};
+    use crate::model::components::{
+        Macros, PlayerVitals, Position, Quests, Shortcuts, SkillBook, Vitals,
+    };
     use crate::model::inventory::Inventory;
 
-    let p = world.objects.get_component::<crate::model::Player>(&object_id)?;
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)?;
     let pos = world.objects.get_component::<Position>(&object_id)?;
     let vitals = world.objects.get_component::<Vitals>(&object_id)?;
     let pvitals = world.objects.get_component::<PlayerVitals>(&object_id)?;
@@ -99,16 +102,29 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
 
     // The whole persisted item set = inventory + warehouse + freight (the save
     // deletes any `items` row not present, so every container must be included).
-    let mut items = world.objects.get_component::<Inventory>(&object_id).map(Inventory::to_rows).unwrap_or_default();
-    if let Some(wh) = world.objects.get_component::<crate::model::inventory::Warehouse>(&object_id) {
+    let mut items = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map(Inventory::to_rows)
+        .unwrap_or_default();
+    if let Some(wh) = world
+        .objects
+        .get_component::<crate::model::inventory::Warehouse>(&object_id)
+    {
         items.extend(wh.to_rows());
     }
-    if let Some(fr) = world.objects.get_component::<crate::model::inventory::Freight>(&object_id) {
+    if let Some(fr) = world
+        .objects
+        .get_component::<crate::model::inventory::Freight>(&object_id)
+    {
         items.extend(fr.to_rows());
     }
     // Pet-held items persist against the player (Java `PetInventory.getOwnerId`
     // returns the *owner's* id), so they join the same reconciled set.
-    if let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&object_id) {
+    if let Some(pi) = world
+        .objects
+        .get_component::<crate::model::inventory::PetInventory>(&object_id)
+    {
         items.extend(pi.to_rows());
     }
     let skill_enchants = world
@@ -130,11 +146,29 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         .get_component::<Shortcuts>(&object_id)
         .map(|s| s.0.values().cloned().collect())
         .unwrap_or_default();
-    let macros = world.objects.get_component::<Macros>(&object_id).map(|m| m.entries.clone()).unwrap_or_default();
-    let quests = world.objects.get_component::<Quests>(&object_id).map(|q| q.0.clone()).unwrap_or_default();
+    let macros = world
+        .objects
+        .get_component::<Macros>(&object_id)
+        .map(|m| m.entries.clone())
+        .unwrap_or_default();
+    let quests = world
+        .objects
+        .get_component::<Quests>(&object_id)
+        .map(|q| q.0.clone())
+        .unwrap_or_default();
 
-    let skill_reuses = reuses_to_save(world, world.objects.get_component::<crate::model::components::Reuses>(&object_id));
-    let skill_buffs = buffs_to_save(world, world.objects.get_component::<crate::model::components::Buffs>(&object_id));
+    let skill_reuses = reuses_to_save(
+        world,
+        world
+            .objects
+            .get_component::<crate::model::components::Reuses>(&object_id),
+    );
+    let skill_buffs = buffs_to_save(
+        world,
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&object_id),
+    );
 
     let hennas = world
         .objects
@@ -177,14 +211,23 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     let variables = world
         .objects
         .get_component::<crate::model::components::PlayerVariables>(&object_id)
-        .map(|v| v.0.iter().map(|(k, val)| (k.clone(), val.clone())).collect())
+        .map(|v| {
+            v.0.iter()
+                .map(|(k, val)| (k.clone(), val.clone()))
+                .collect()
+        })
         .unwrap_or_default();
 
     let (skills_by_index, hennas_by_index, shortcuts_by_index, class_index) = world
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map(|p| {
-            (p.skills_by_index.clone(), p.hennas_by_index.clone(), p.shortcuts_by_index.clone(), p.class_index)
+            (
+                p.skills_by_index.clone(),
+                p.hennas_by_index.clone(),
+                p.shortcuts_by_index.clone(),
+                p.class_index,
+            )
         })
         .unwrap_or_default();
 
@@ -224,7 +267,10 @@ fn henna_rows(henna: &crate::model::components::HennaSlots) -> Vec<(i32, i32)> {
 /// relative, so persist an absolute wall-clock end time that survives a
 /// relog/restart; only cooldowns with time still left are written. Empty (which
 /// clears the DB rows on flush) when the config is off or there's no map.
-fn reuses_to_save(world: &World, reuses: Option<&crate::model::components::Reuses>) -> Vec<db::SkillReuseRow> {
+fn reuses_to_save(
+    world: &World,
+    reuses: Option<&crate::model::components::Reuses>,
+) -> Vec<db::SkillReuseRow> {
     let Some(reuses) = reuses.filter(|_| world.cfg.character.store_skill_cooltime) else {
         return Vec::new();
     };
@@ -268,7 +314,10 @@ fn reuses_to_save(world: &World, reuses: Option<&crate::model::components::Reuse
 /// TODO(G22): Java also skips `isDeleteAbnormalOnLeave()` skills; the flag
 /// isn't parsed into `Skill` yet, so such a buff currently survives a relog it
 /// shouldn't.
-fn buffs_to_save(world: &World, buffs: Option<&crate::model::components::Buffs>) -> Vec<db::SkillBuffRow> {
+fn buffs_to_save(
+    world: &World,
+    buffs: Option<&crate::model::components::Buffs>,
+) -> Vec<db::SkillBuffRow> {
     use crate::model::skill::BuffSlot;
     let Some(buffs) = buffs.filter(|_| world.cfg.character.store_skill_cooltime) else {
         return Vec::new();
@@ -323,7 +372,9 @@ pub(crate) fn store_player_now(world: &mut World, player_object_id: i32) {
 /// `DbCommand::Shutdown` only after this thread joins).
 pub(crate) fn save_all_players(world: &mut World) {
     let mut ids = Vec::new();
-    world.objects.for_each_mut::<&crate::model::Player>(|p| ids.push(p.object_id));
+    world
+        .objects
+        .for_each_mut::<&crate::model::Player>(|p| ids.push(p.object_id));
     let count = ids.len();
     for oid in ids {
         store_player_now(world, oid);
@@ -358,7 +409,10 @@ pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
         unreachable!("checked above");
     };
     store_and_remove_player(world, s.player_object_id());
-    info!("GameLoop: '{}' logged out to character selection.", s.account());
+    info!(
+        "GameLoop: '{}' logged out to character selection.",
+        s.account()
+    );
 
     // Java: setConnectionState(AUTHENTICATED) + RestartResponse.TRUE, then a
     // freshly restored CharSelectionInfo. The reload arrives through the normal
@@ -367,8 +421,12 @@ pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
     let s = s.into_authenticated();
     s.send(server_packets::restart_response(true));
     let account = s.account().to_string();
-    world.clients.insert(client_id, ClientSession::Authenticated(s));
-    let _ = world.db.send(db::DbCommand::LoadCharacters { client_id, account });
+    world
+        .clients
+        .insert(client_id, ClientSession::Authenticated(s));
+    let _ = world
+        .db
+        .send(db::DbCommand::LoadCharacters { client_id, account });
 }
 
 /// Port of `clientpackets/Logout.runImpl`: save + leave the world, acknowledge
@@ -418,7 +476,12 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
             let b = s.player();
             let _ = world.db.send(db::DbCommand::StorePlayer {
                 save: db::PlayerSaveData {
-                    base: db::PlayerSnapshot::of(&b.player, &b.position, &b.vitals, &b.player_vitals),
+                    base: db::PlayerSnapshot::of(
+                        &b.player,
+                        &b.position,
+                        &b.vitals,
+                        &b.player_vitals,
+                    ),
                     // No summon can exist before entering the world, so the
                     // rows loaded at login are still current — but they must be
                     // written back, since `store_player` reconciles.
@@ -436,7 +499,9 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                         .skills
                         .0
                         .iter()
-                        .map(|(id, lvl)| (*id, *lvl, b.skill_enchants.0.get(id).copied().unwrap_or(0)))
+                        .map(|(id, lvl)| {
+                            (*id, *lvl, b.skill_enchants.0.get(id).copied().unwrap_or(0))
+                        })
                         .collect(),
                     skills_by_index: Default::default(),
                     hennas_by_index: Default::default(),
@@ -450,7 +515,12 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                         .map(|&id| (id, true))
                         .chain(b.recipe_book.common.iter().map(|&id| (id, false)))
                         .collect(),
-                    variables: b.variables.0.iter().map(|(k, v)| (k.clone(), v.clone())).collect(),
+                    variables: b
+                        .variables
+                        .0
+                        .iter()
+                        .map(|(k, v)| (k.clone(), v.clone()))
+                        .collect(),
                     shortcuts: b.shortcuts.0.values().cloned().collect(),
                     macros: b.macros.entries.clone(),
                     quests: b.quests.0.clone(),
@@ -615,11 +685,20 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // in `_availableBuffs`; the buffer table lives here on the game
                 // thread, so the filter runs at insert time (like grand bosses).
                 for (object_id, scheme_name, skills) in entries {
-                    let skills: Vec<i32> =
-                        skills.into_iter().filter(|id| world.data.scheme_buffer.contains(*id)).collect();
-                    world.buffer_schemes.entry(object_id).or_default().push((scheme_name, skills));
+                    let skills: Vec<i32> = skills
+                        .into_iter()
+                        .filter(|id| world.data.scheme_buffer.contains(*id))
+                        .collect();
+                    world
+                        .buffer_schemes
+                        .entry(object_id)
+                        .or_default()
+                        .push((scheme_name, skills));
                 }
-                tracing::info!("GameLoop: loaded buffer schemes for {} characters.", world.buffer_schemes.len());
+                tracing::info!(
+                    "GameLoop: loaded buffer schemes for {} characters.",
+                    world.buffer_schemes.len()
+                );
             }
             DbEvent::FavoritesLoaded { entries } => {
                 // `favId` is a table-wide AUTOINCREMENT PK; seed the game-thread
@@ -627,14 +706,20 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 let mut max_id = 0;
                 for (player_id, fav_id, title, bypass, add_date) in entries {
                     max_id = max_id.max(fav_id);
-                    world
-                        .bbs_favorites
-                        .entry(player_id)
-                        .or_default()
-                        .push(crate::world::Favorite { fav_id, title, bypass, add_date });
+                    world.bbs_favorites.entry(player_id).or_default().push(
+                        crate::world::Favorite {
+                            fav_id,
+                            title,
+                            bypass,
+                            add_date,
+                        },
+                    );
                 }
                 world.next_fav_id = max_id + 1;
-                tracing::info!("GameLoop: loaded favorites for {} characters.", world.bbs_favorites.len());
+                tracing::info!(
+                    "GameLoop: loaded favorites for {} characters.",
+                    world.bbs_favorites.len()
+                );
             }
             DbEvent::NpcRespawnsLoaded { rows } => {
                 // Settle the `dbSave` spawns the static pass deferred (Java's
@@ -650,7 +735,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     .filter(|b| world.data.npc_data.get(b.boss_id).is_some())
                     .map(|b| (b.boss_id, b))
                     .collect();
-                tracing::info!("GameLoop: loaded {} grand bosses.", world.grand_bosses.len());
+                tracing::info!(
+                    "GameLoop: loaded {} grand bosses.",
+                    world.grand_bosses.len()
+                );
             }
             DbEvent::CursedWeaponsLoaded { rows } => {
                 // Build from the XML config, compute each skill's max level, then
@@ -659,8 +747,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // start inactive.
                 let mut weapons = world.data.cursed_weapons.weapons.clone();
                 for cw in &mut weapons {
-                    cw.skill_max_level =
-                        (1..=100).take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some()).last().unwrap_or(1);
+                    cw.skill_max_level = (1..=100)
+                        .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+                        .last()
+                        .unwrap_or(1);
                     if let Some(row) = rows.iter().find(|r| r.item_id == cw.item_id) {
                         cw.player_id = row.char_id;
                         cw.player_reputation = row.player_reputation;
@@ -682,32 +772,52 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // One Siege per castle (Java creates a Siege for every castle),
                 // then attach the registered clans from `siege_clans`.
                 use crate::model::siege::{Siege, SiegeClanType};
-                let mut sieges: std::collections::HashMap<i32, Siege> =
-                    world.castles.iter().map(|c| (c.id, Siege::new(c.id))).collect();
+                let mut sieges: std::collections::HashMap<i32, Siege> = world
+                    .castles
+                    .iter()
+                    .map(|c| (c.id, Siege::new(c.id)))
+                    .collect();
                 for row in &rows {
-                    if let (Some(siege), Some(kind)) =
-                        (sieges.get_mut(&row.castle_id), SiegeClanType::from_db(row.kind))
-                    {
+                    if let (Some(siege), Some(kind)) = (
+                        sieges.get_mut(&row.castle_id),
+                        SiegeClanType::from_db(row.kind),
+                    ) {
                         siege.add_clan(row.clan_id, kind);
                     }
                 }
-                tracing::info!("GameLoop: loaded sieges for {} castles ({} registered clans).", sieges.len(), rows.len());
+                tracing::info!(
+                    "GameLoop: loaded sieges for {} castles ({} registered clans).",
+                    sieges.len(),
+                    rows.len()
+                );
                 world.sieges = sieges;
                 // The per-castle Siege records now exist — arm the weekly
                 // auto-start schedule (`SiegeSchedule.xml`).
                 crate::game_loop::siege::schedule_all_at_boot(world);
             }
             DbEvent::SiegeGuardsLoaded { guards } => {
-                let mut by_castle: std::collections::HashMap<i32, Vec<crate::model::siege::SiegeSpawn>> =
-                    std::collections::HashMap::new();
+                let mut by_castle: std::collections::HashMap<
+                    i32,
+                    Vec<crate::model::siege::SiegeSpawn>,
+                > = std::collections::HashMap::new();
                 for (castle_id, spawn) in guards {
                     by_castle.entry(castle_id).or_default().push(spawn);
                 }
                 let total: usize = by_castle.values().map(|v| v.len()).sum();
-                tracing::info!("GameLoop: loaded {total} siege guards for {} castles.", by_castle.len());
+                tracing::info!(
+                    "GameLoop: loaded {total} siege guards for {} castles.",
+                    by_castle.len()
+                );
                 world.siege_guards = by_castle;
             }
-            DbEvent::ClansLoaded { clans, wars, crests, recruit_clans, recruit_waiting, recruit_applicants } => {
+            DbEvent::ClansLoaded {
+                clans,
+                wars,
+                crests,
+                recruit_clans,
+                recruit_waiting,
+                recruit_applicants,
+            } => {
                 tracing::info!(
                     "GameLoop: loaded {} clans, {} clan wars, {} crests, {} recruiting clans, \
                      {} waiting players, {} applications.",
@@ -724,10 +834,21 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 world.crests = crests.into_iter().map(|c| (c.id, c)).collect();
                 // `ClanEntryManager.load`: drop recruiting entries for clans
                 // that no longer exist.
-                world.recruit_clans = recruit_clans.into_iter().filter(|r| world.clans.contains_key(&r.clan_id)).map(|r| (r.clan_id, r)).collect();
-                world.recruit_waiting = recruit_waiting.into_iter().map(|w| (w.player_id, w)).collect();
+                world.recruit_clans = recruit_clans
+                    .into_iter()
+                    .filter(|r| world.clans.contains_key(&r.clan_id))
+                    .map(|r| (r.clan_id, r))
+                    .collect();
+                world.recruit_waiting = recruit_waiting
+                    .into_iter()
+                    .map(|w| (w.player_id, w))
+                    .collect();
                 for a in recruit_applicants {
-                    world.recruit_applicants.entry(a.clan_id).or_default().insert(a.player_id, a);
+                    world
+                        .recruit_applicants
+                        .entry(a.clan_id)
+                        .or_default()
+                        .insert(a.player_id, a);
                 }
                 super::clans::rearm_clan_wars_at_boot(world);
                 // Re-arm pending dissolutions (Java `ClanTable`'s constructor:

@@ -47,7 +47,9 @@ mod platform {
 
     use anyhow::{bail, Context};
     use windows_sys::Win32::Foundation::{CloseHandle, ERROR_CANCELLED};
-    use windows_sys::Win32::UI::Shell::{ShellExecuteExW, SEE_MASK_NOCLOSEPROCESS, SHELLEXECUTEINFOW};
+    use windows_sys::Win32::UI::Shell::{
+        ShellExecuteExW, SEE_MASK_NOCLOSEPROCESS, SHELLEXECUTEINFOW,
+    };
     use windows_sys::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
 
     /// Null-terminated UTF-16, as every `*W` Win32 entry point expects.

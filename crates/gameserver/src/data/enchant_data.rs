@@ -262,11 +262,9 @@ impl EnchantData {
             if !scroll.item_ids.contains(&target.item_id) {
                 return false;
             }
-        } else if self
-            .scrolls
-            .values()
-            .any(|s| s.id != scroll.id && !s.item_ids.is_empty() && s.item_ids.contains(&target.item_id))
-        {
+        } else if self.scrolls.values().any(|s| {
+            s.id != scroll.id && !s.item_ids.is_empty() && s.item_ids.contains(&target.item_id)
+        }) {
             // An item claimed by a branded scroll's whitelist can't be
             // enchanted by a generic scroll.
             return false;
@@ -283,7 +281,9 @@ impl EnchantData {
         // armor/accessory.
         let type_ok = match target.type2 {
             super::item_data::TYPE2_WEAPON => scroll_is_weapon,
-            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => !scroll_is_weapon,
+            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => {
+                !scroll_is_weapon
+            }
             _ => false,
         };
         if !type_ok {
@@ -335,7 +335,9 @@ impl EnchantData {
         }
         let type_ok = match target.type2 {
             super::item_data::TYPE2_WEAPON => support_weapon,
-            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => !support_weapon,
+            super::item_data::TYPE2_SHIELD_ARMOR | super::item_data::TYPE2_ACCESSORY => {
+                !support_weapon
+            }
             _ => false,
         };
         if !type_ok {
@@ -368,9 +370,10 @@ impl EnchantData {
                         cur_group = EnchantItemGroup::default();
                     }
                     b"current" => {
-                        if let (Some(range), Some(chance)) =
-                            (attr(&e, "enchant"), attr(&e, "chance").and_then(|s| s.parse::<f64>().ok()))
-                        {
+                        if let (Some(range), Some(chance)) = (
+                            attr(&e, "enchant"),
+                            attr(&e, "chance").and_then(|s| s.parse::<f64>().ok()),
+                        ) {
                             if let Some((min, max)) = parse_range(&range) {
                                 cur_group.chances.push(RangeChance { min, max, chance });
                             }
@@ -403,7 +406,8 @@ impl EnchantData {
                 Ok(Event::End(e)) => match e.name().as_ref() {
                     b"enchantRateGroup" => {
                         if let Some(name) = cur_group_name.take() {
-                            self.item_groups.insert(name, std::mem::take(&mut cur_group));
+                            self.item_groups
+                                .insert(name, std::mem::take(&mut cur_group));
                         }
                     }
                     b"enchantRate" => {
@@ -413,7 +417,8 @@ impl EnchantData {
                     }
                     b"enchantScrollGroup" => {
                         if let Some(id) = cur_scroll_id.take() {
-                            self.scroll_groups.insert(id, std::mem::take(&mut cur_scroll));
+                            self.scroll_groups
+                                .insert(id, std::mem::take(&mut cur_scroll));
                         }
                     }
                     _ => {}
@@ -470,15 +475,25 @@ impl EnchantData {
 /// Build an [`EnchantSupport`] from a `<support …>` element's attributes.
 fn build_support(e: &quick_xml::events::BytesStart) -> Option<EnchantSupport> {
     let id = attr(e, "id").and_then(|s| s.parse().ok())?;
-    let min = attr(e, "randomEnchantMin").and_then(|s| s.parse().ok()).unwrap_or(1);
+    let min = attr(e, "randomEnchantMin")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(1);
     Some(EnchantSupport {
         id,
         target_grade: CrystalType::from_name(attr(e, "targetGrade").as_deref()),
-        min_enchant: attr(e, "minEnchant").and_then(|s| s.parse().ok()).unwrap_or(0),
-        max_enchant: attr(e, "maxEnchant").and_then(|s| s.parse().ok()).unwrap_or(127),
-        bonus_rate: attr(e, "bonusRate").and_then(|s| s.parse().ok()).unwrap_or(0.0),
+        min_enchant: attr(e, "minEnchant")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
+        max_enchant: attr(e, "maxEnchant")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(127),
+        bonus_rate: attr(e, "bonusRate")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0.0),
         random_min: min,
-        random_max: attr(e, "randomEnchantMax").and_then(|s| s.parse().ok()).unwrap_or(min),
+        random_max: attr(e, "randomEnchantMax")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(min),
     })
 }
 
@@ -489,11 +504,21 @@ fn build_scroll(e: &quick_xml::events::BytesStart) -> Option<EnchantScroll> {
     Some(EnchantScroll {
         id,
         target_grade: CrystalType::from_name(attr(e, "targetGrade").as_deref()),
-        min_enchant: attr(e, "minEnchant").and_then(|s| s.parse().ok()).unwrap_or(0),
-        max_enchant: attr(e, "maxEnchant").and_then(|s| s.parse().ok()).unwrap_or(127),
-        safe_enchant: attr(e, "safeEnchant").and_then(|s| s.parse().ok()).unwrap_or(0),
-        bonus_rate: attr(e, "bonusRate").and_then(|s| s.parse().ok()).unwrap_or(0.0),
-        scroll_group_id: attr(e, "scrollGroupId").and_then(|s| s.parse().ok()).unwrap_or(0),
+        min_enchant: attr(e, "minEnchant")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
+        max_enchant: attr(e, "maxEnchant")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(127),
+        safe_enchant: attr(e, "safeEnchant")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
+        bonus_rate: attr(e, "bonusRate")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0.0),
+        scroll_group_id: attr(e, "scrollGroupId")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
         item_ids: HashSet::new(),
     })
 }
@@ -533,7 +558,11 @@ mod tests {
             default_action: crate::data::item_data::ActionType::Other,
             item_id,
             name: String::new(),
-            kind: if type2 == TYPE2_WEAPON { ItemKind::Weapon } else { ItemKind::Armor },
+            kind: if type2 == TYPE2_WEAPON {
+                ItemKind::Weapon
+            } else {
+                ItemKind::Armor
+            },
             crystal_type: CrystalType::D,
             crystal_count: 0,
             attack_radius: 40,
@@ -552,7 +581,11 @@ mod tests {
             capsuled_items: Vec::new(),
             extractable_count_min: 0,
             extractable_count_max: 0,
-            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
         }
     }
 
@@ -565,9 +598,20 @@ mod tests {
         let d = EnchantData::load_from(DIST);
         let helm = template(100, SLOT_HEAD, TYPE2_SHIELD_ARMOR);
         // ARMOR_GROUP: 0-2 => 100, 3-15 => 66.67, 16-19 => 33, 20-29 => 20, 30+ => 0.
-        for (enchant, want) in [(0, 100.0), (2, 100.0), (3, 66.67), (15, 66.67), (16, 33.0), (20, 20.0), (30, 0.0)] {
+        for (enchant, want) in [
+            (0, 100.0),
+            (2, 100.0),
+            (3, 66.67),
+            (15, 66.67),
+            (16, 33.0),
+            (20, 20.0),
+            (30, 0.0),
+        ] {
             let got = d.base_chance(&helm, false, 0, enchant, 0, 0.0);
-            assert!(approx(got, want), "helm @+{enchant}: got {got}, want {want}");
+            assert!(
+                approx(got, want),
+                "helm @+{enchant}: got {got}, want {want}"
+            );
         }
     }
 

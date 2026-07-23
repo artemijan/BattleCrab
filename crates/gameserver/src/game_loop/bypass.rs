@@ -27,8 +27,12 @@ use crate::world::World;
 use super::target::can_interact;
 
 pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(command) = cp::read_bypass_command(body) else { return };
-    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else { return };
+    let Some(command) = cp::read_bypass_command(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
     let object_id = session.player_object_id();
 
     if command.is_empty() {
@@ -42,7 +46,9 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // ActionFailed terminator is sent regardless).
         if let Some((id_str, npc_command)) = rest.split_once('_') {
             if let Ok(npc_object_id) = id_str.parse::<i32>() {
-                if world.objects.has_component::<crate::model::npc::Npc>(&npc_object_id)
+                if world
+                    .objects
+                    .has_component::<crate::model::npc::Npc>(&npc_object_id)
                     && can_interact(world, object_id, npc_object_id)
                 {
                     npc_bypass(world, client_id, object_id, npc_object_id, npc_command);
@@ -57,11 +63,14 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // the quest/script htmls use. Java recovers the NPC from the
         // validateHtmlAction origin; we use the last folk NPC (set on every
         // NPC click) and re-check range like Java does after validation.
-        let Some(&LastFolkNpc(npc_object_id)) = world.objects.get_component::<LastFolkNpc>(&object_id)
+        let Some(&LastFolkNpc(npc_object_id)) =
+            world.objects.get_component::<LastFolkNpc>(&object_id)
         else {
             return;
         };
-        if world.objects.has_component::<crate::model::npc::Npc>(&npc_object_id)
+        if world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&npc_object_id)
             && can_interact(world, object_id, npc_object_id)
         {
             npc_bypass(world, client_id, object_id, npc_object_id, &command);
@@ -147,7 +156,13 @@ fn handle_link(world: &mut World, client_id: u32, object_id: i32, html_path: &st
 /// Port of `Npc.onBypassFeedback` + the `VillageMaster` override: route an
 /// NPC-scoped command by its first token. The caller has already verified
 /// the NPC exists and is within `INTERACTION_DISTANCE`.
-fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: i32, command: &str) {
+fn npc_bypass(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    npc_object_id: i32,
+    command: &str,
+) {
     let verb = command.split(' ').next().unwrap_or("");
     match verb {
         "Quest" => super::quests::quest_link(world, client_id, object_id, npc_object_id, command),
@@ -157,8 +172,10 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // TODO(G23): `Chat 0` on an NPC with an `ON_NPC_FIRST_TALK` listener
         // fires that quest event instead of the static page.
         "Chat" => {
-            let value =
-                command.strip_prefix("Chat").and_then(|s| s.trim().parse::<i32>().ok()).unwrap_or(0);
+            let value = command
+                .strip_prefix("Chat")
+                .and_then(|s| s.trim().parse::<i32>().ok())
+                .unwrap_or(0);
             super::target::show_chat_window(world, client_id, npc_object_id, value);
         }
         // `VillageMaster.onBypassFeedback` verbs — gated on the instance
@@ -199,11 +216,25 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // `VillageMaster`: the delegated leader transfer (applied at the daily
         // reset — TODO(G33)) and its cancellation.
         "change_clan_leader" if is_village_master(world, npc_object_id) => {
-            let args = command.strip_prefix("change_clan_leader").unwrap_or("").trim();
-            super::clans::handle_change_clan_leader(world, client_id, object_id, npc_object_id, args);
+            let args = command
+                .strip_prefix("change_clan_leader")
+                .unwrap_or("")
+                .trim();
+            super::clans::handle_change_clan_leader(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                args,
+            );
         }
         "cancel_clan_leader_change" if is_village_master(world, npc_object_id) => {
-            super::clans::handle_cancel_clan_leader_change(world, client_id, object_id, npc_object_id);
+            super::clans::handle_cancel_clan_leader_change(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+            );
         }
         // `VillageMaster`: alliance creation/dissolution (`Clan.createAlly`/
         // `dissolveAlly`).
@@ -233,17 +264,28 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
             super::clans::handle_rename_pledge(world, client_id, object_id, args);
         }
         "assign_subpl_leader" if is_village_master(world, npc_object_id) => {
-            let args = command.strip_prefix("assign_subpl_leader").unwrap_or("").trim();
+            let args = command
+                .strip_prefix("assign_subpl_leader")
+                .unwrap_or("")
+                .trim();
             super::clans::handle_assign_subpledge_leader(world, client_id, object_id, args);
         }
         // `bypasshandlers/PrivateWarehouse.java`: the keeper's deposit/withdraw
         // windows (the bypass only appears on warehouse-keeper htmls).
         "WithdrawP" => {
-            super::warehouse::set_active(world, object_id, crate::model::components::ActiveWarehouse::Private);
+            super::warehouse::set_active(
+                world,
+                object_id,
+                crate::model::components::ActiveWarehouse::Private,
+            );
             super::warehouse::open_withdraw_window(world, client_id);
         }
         "DepositP" => {
-            super::warehouse::set_active(world, object_id, crate::model::components::ActiveWarehouse::Private);
+            super::warehouse::set_active(
+                world,
+                object_id,
+                crate::model::components::ActiveWarehouse::Private,
+            );
             super::warehouse::open_deposit_window(world, client_id);
         }
         // `bypasshandlers/ClanWarehouse.java`: the shared clan warehouse.
@@ -256,7 +298,11 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         // `bypasshandlers/Augment.java`: `Augment 1` = make window, `Augment 2`
         // = cancel window.
         "Augment" => {
-            let make = command.split(' ').nth(1).map(|a| a.trim() != "2").unwrap_or(true);
+            let make = command
+                .split(' ')
+                .nth(1)
+                .map(|a| a.trim() != "2")
+                .unwrap_or(true);
             super::augment::open_window(world, client_id, make);
         }
         // `Teleporter.onBypassFeedback` (G15.5): the gatekeeper verbs —
@@ -269,18 +315,23 @@ fn npc_bypass(world: &mut World, client_id: u32, object_id: i32, npc_object_id: 
         }
         // `bypasshandlers/Buy.java`: merchants only.
         "Buy" if super::shop::is_merchant(world, npc_object_id) => {
-            if let Some(list_id) =
-                command.strip_prefix("Buy").and_then(|s| s.trim().parse::<i32>().ok())
+            if let Some(list_id) = command
+                .strip_prefix("Buy")
+                .and_then(|s| s.trim().parse::<i32>().ok())
             {
                 super::shop::show_buy_window(world, client_id, object_id, npc_object_id, list_id);
             }
         }
         // `bypasshandlers/SupportBlessing.java`: the Newbie Helper / Gatekeeper
         // Blessing of Protection (the `default/BlessingOfProtection.htm` button).
-        "GiveBlessing" => super::support_magic::give_blessing(world, client_id, object_id, npc_object_id),
+        "GiveBlessing" => {
+            super::support_magic::give_blessing(world, client_id, object_id, npc_object_id)
+        }
         // `bypasshandlers/SupportMagic.java`: the newbie support buffs (the
         // `default/SupportMagic.htm` / `SupportMagicServitor.htm` buttons).
-        "SupportMagic" => super::support_magic::support_magic(world, client_id, object_id, npc_object_id, false),
+        "SupportMagic" => {
+            super::support_magic::support_magic(world, client_id, object_id, npc_object_id, false)
+        }
         "SupportMagicServitor" => {
             super::support_magic::support_magic(world, client_id, object_id, npc_object_id, true)
         }

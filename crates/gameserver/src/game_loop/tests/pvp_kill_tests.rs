@@ -12,13 +12,25 @@ const KILLER_CID: u32 = 1;
 const VICTIM_CID: u32 = 2;
 
 fn rep(world: &World, oid: i32) -> i32 {
-    world.objects.get_component::<Player>(&oid).unwrap().reputation
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .reputation
 }
 fn pvp_kills(world: &World, oid: i32) -> i32 {
-    world.objects.get_component::<Player>(&oid).unwrap().pvp_kills
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .pvp_kills
 }
 fn pk_kills(world: &World, oid: i32) -> i32 {
-    world.objects.get_component::<Player>(&oid).unwrap().pk_kills
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .pk_kills
 }
 
 fn two_players(world: &mut World) {
@@ -59,7 +71,13 @@ fn karma_gain_follows_the_pk_count_brackets() {
 fn killing_a_flagged_player_is_a_pvp_kill() {
     let (mut world, _db, _l) = cast_test_world();
     two_players(&mut world);
-    world.objects.add_components(&VICTIM, PvpState { flag: 1, ..Default::default() });
+    world.objects.add_components(
+        &VICTIM,
+        PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
 
     kill(&mut world);
 
@@ -74,11 +92,19 @@ fn killing_a_flagged_player_is_a_pvp_kill() {
 fn first_offence_resets_positive_reputation() {
     let (mut world, _db, _l) = cast_test_world();
     two_players(&mut world);
-    world.objects.get_component_mut::<Player>(&KILLER).unwrap().reputation = 500;
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER)
+        .unwrap()
+        .reputation = 500;
 
     kill(&mut world);
 
-    assert_eq!(rep(&world, KILLER), 0, "reputation reset, not driven negative");
+    assert_eq!(
+        rep(&world, KILLER),
+        0,
+        "reputation reset, not driven negative"
+    );
     assert_eq!(pk_kills(&world, KILLER), 1);
     assert_eq!(pvp_kills(&world, KILLER), 0);
 }
@@ -94,13 +120,20 @@ fn killing_a_clean_player_costs_karma() {
 
     assert_eq!(pk_kills(&world, KILLER), 1);
     assert_eq!(pvp_kills(&world, KILLER), 0);
-    assert_eq!(rep(&world, KILLER), -pvp::calculate_karma_gain(0), "karma for the first PK");
+    assert_eq!(
+        rep(&world, KILLER),
+        -pvp::calculate_karma_gain(0),
+        "karma for the first PK"
+    );
 
     // A second PK costs more, from the now-higher pk count.
     let after_first = rep(&world, KILLER);
     kill(&mut world);
     assert_eq!(pk_kills(&world, KILLER), 2);
-    assert_eq!(rep(&world, KILLER), after_first - pvp::calculate_karma_gain(1));
+    assert_eq!(
+        rep(&world, KILLER),
+        after_first - pvp::calculate_karma_gain(1)
+    );
 }
 
 /// Killing a **PK** is lawful and counts as PvP.
@@ -108,7 +141,11 @@ fn killing_a_clean_player_costs_karma() {
 fn killing_a_pk_is_lawful() {
     let (mut world, _db, _l) = cast_test_world();
     two_players(&mut world);
-    world.objects.get_component_mut::<Player>(&VICTIM).unwrap().reputation = -5000;
+    world
+        .objects
+        .get_component_mut::<Player>(&VICTIM)
+        .unwrap()
+        .reputation = -5000;
 
     kill(&mut world);
 
@@ -128,8 +165,11 @@ fn pvp_zone_kills_count_for_nothing() {
     let (mut world, _db, _l) = cast_test_world();
     two_players(&mut world);
     for oid in [KILLER, VICTIM] {
-        world.objects.get_component_mut::<ZoneFlags>(&oid).unwrap().mask =
-            crate::data::zone_data::ZoneKind::Pvp.bit();
+        world
+            .objects
+            .get_component_mut::<ZoneFlags>(&oid)
+            .unwrap()
+            .mask = crate::data::zone_data::ZoneKind::Pvp.bit();
     }
 
     kill(&mut world);
@@ -159,13 +199,32 @@ fn check_if_pvp_classifies_targets() {
     let (mut world, _db, _l) = cast_test_world();
     two_players(&mut world);
 
-    assert!(!pvp::check_if_pvp(&world, KILLER, VICTIM), "a clean stranger is not a lawful target");
-    assert!(!pvp::check_if_pvp(&world, KILLER, KILLER), "self is never PvP");
+    assert!(
+        !pvp::check_if_pvp(&world, KILLER, VICTIM),
+        "a clean stranger is not a lawful target"
+    );
+    assert!(
+        !pvp::check_if_pvp(&world, KILLER, KILLER),
+        "self is never PvP"
+    );
 
-    world.objects.add_components(&VICTIM, PvpState { flag: 1, ..Default::default() });
-    assert!(pvp::check_if_pvp(&world, KILLER, VICTIM), "a flagged target is lawful");
+    world.objects.add_components(
+        &VICTIM,
+        PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
+    assert!(
+        pvp::check_if_pvp(&world, KILLER, VICTIM),
+        "a flagged target is lawful"
+    );
 
     world.objects.add_components(&VICTIM, PvpState::default());
-    world.objects.get_component_mut::<Player>(&VICTIM).unwrap().reputation = -1;
+    world
+        .objects
+        .get_component_mut::<Player>(&VICTIM)
+        .unwrap()
+        .reputation = -1;
     assert!(pvp::check_if_pvp(&world, KILLER, VICTIM), "a PK is lawful");
 }

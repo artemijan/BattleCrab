@@ -63,9 +63,15 @@ fn in_pvp_zone(world: &World, oid: i32) -> bool {
 /// `SiegeZone` is only "active" (PvP) while its castle's siege runs, so — unlike
 /// the static arena flag — this is a position + siege-state lookup.
 pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
-    let pos = world.objects.get_component::<crate::model::components::Position>(&oid)?;
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&oid)?;
     let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
-    world.sieges.get(&castle_id).filter(|s| s.in_progress).map(|_| castle_id)
+    world
+        .sieges
+        .get(&castle_id)
+        .filter(|s| s.in_progress)
+        .map(|_| castle_id)
 }
 
 /// Java `Player.isInSiege()` as the UserInfo relation reads it: the player is a
@@ -74,9 +80,18 @@ pub(crate) fn active_siege_castle(world: &World, oid: i32) -> Option<i32> {
 /// character — Java `Siege.updatePlayerSiegeStateFlags` does `setInSiege(true)`
 /// only for attacker/defender clan members inside the zone (`checkIfInZone`).
 pub(crate) fn is_in_siege(world: &World, oid: i32) -> bool {
-    let Some(castle_id) = active_siege_castle(world, oid) else { return false };
-    let clan_id = world.objects.get_component::<Player>(&oid).map_or(0, |p| p.clan_id);
-    clan_id != 0 && world.sieges.get(&castle_id).is_some_and(|s| s.is_registered(clan_id))
+    let Some(castle_id) = active_siege_castle(world, oid) else {
+        return false;
+    };
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&oid)
+        .map_or(0, |p| p.clan_id);
+    clan_id != 0
+        && world
+            .sieges
+            .get(&castle_id)
+            .is_some_and(|s| s.is_registered(clan_id))
 }
 
 /// Both creatures stand in the *same* castle's active siege zone (Java
@@ -108,8 +123,16 @@ pub(crate) fn check_if_pvp(world: &World, self_oid: i32, target_oid: i32) -> boo
     // party mate in the same clan can't be at war with themselves.
     // The clan-war leg (Java `Playable.checkIfPvP`'s tail): a MUTUAL war
     // between the clans makes the kill lawful.
-    let self_clan = world.objects.get_component::<Player>(&self_oid).map(|p| p.clan_id).unwrap_or(0);
-    let target_clan = world.objects.get_component::<Player>(&target_oid).map(|p| p.clan_id).unwrap_or(0);
+    let self_clan = world
+        .objects
+        .get_component::<Player>(&self_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
+    let target_clan = world
+        .objects
+        .get_component::<Player>(&target_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
     super::clans::mutual_war_between(world, self_clan, target_clan)
 }
 
@@ -144,8 +167,16 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     // Mutual clan war → freely attackable (Java `isAutoAttackable`'s
     // `isAtWarWith` both-ways test; the shared war object makes MUTUAL
     // symmetric).
-    let attacker_clan = world.objects.get_component::<Player>(&attacker_oid).map(|p| p.clan_id).unwrap_or(0);
-    let target_clan = world.objects.get_component::<Player>(&target_oid).map(|p| p.clan_id).unwrap_or(0);
+    let attacker_clan = world
+        .objects
+        .get_component::<Player>(&attacker_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
+    let target_clan = world
+        .objects
+        .get_component::<Player>(&target_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
     if super::clans::mutual_war_between(world, attacker_clan, target_clan) {
         return true;
     }
@@ -242,11 +273,18 @@ fn siege_relation_bits(world: &World, viewer_oid: i32, target_oid: i32) -> i32 {
 /// `viewer`. Emitted next to every `CharInfo` so a clan leader's crown shows the
 /// moment they come into view, not only inside a siege zone (the crown rides
 /// `RelationChanged`, since `CharInfo` carries no is-leader field).
-pub(crate) fn sendinfo_relation_changed(world: &World, subject_oid: i32, viewer_oid: i32) -> Vec<u8> {
+pub(crate) fn sendinfo_relation_changed(
+    world: &World,
+    subject_oid: i32,
+    viewer_oid: i32,
+) -> Vec<u8> {
     let base = super::party::relation_changed_base(world, subject_oid);
     let siege = siege_relation_bits(world, viewer_oid, subject_oid);
     let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
-    let reputation = world.objects.get_component::<Player>(&subject_oid).map_or(0, |p| p.reputation);
+    let reputation = world
+        .objects
+        .get_component::<Player>(&subject_oid)
+        .map_or(0, |p| p.reputation);
     server_packets::relation_changed(
         subject_oid,
         base | siege | war,
@@ -257,11 +295,17 @@ pub(crate) fn sendinfo_relation_changed(world: &World, subject_oid: i32, viewer_
 }
 
 fn relation_parts(world: &World, oid: i32) -> (i32, i32, u8) {
-    let Some(p) = world.objects.get_component::<Player>(&oid) else { return (0, 0, 0) };
+    let Some(p) = world.objects.get_component::<Player>(&oid) else {
+        return (0, 0, 0);
+    };
     // RelationChanged uses `Player.getRelation`'s bitmask (leader = 0x80), not
     // `UserInfo.calculateRelation`'s (leader = 0x40) — the former is what carries
     // the on-head clan-leader crown.
-    (super::party::relation_changed_base(world, oid), p.reputation, flag_of(world, oid))
+    (
+        super::party::relation_changed_base(world, oid),
+        p.reputation,
+        flag_of(world, oid),
+    )
 }
 
 /// Java `Player.broadcastRelationChanged`, for the siege case: refresh how
@@ -270,16 +314,30 @@ fn relation_parts(world: &World, oid: i32) -> (i32, i32, u8) {
 /// clears — the attackable state that neither `CharInfo` nor the pvp-flag path
 /// carries. Without it, a combatant entering the zone never appears attackable.
 pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
-    let Some(my_region) = world.objects.get_component::<RegionCell>(&object_id).map(|r| r.0) else { return };
+    let Some(my_region) = world
+        .objects
+        .get_component::<RegionCell>(&object_id)
+        .map(|r| r.0)
+    else {
+        return;
+    };
     let my_client = client_for_player(world, object_id).and_then(|c| world.clients.get(&c));
     let (my_relation, my_rep, my_flag) = relation_parts(world, object_id);
     for cs in world.clients.values() {
-        let ClientSession::InGame(s) = cs else { continue };
+        let ClientSession::InGame(s) = cs else {
+            continue;
+        };
         let viewer = s.player_object_id();
         if viewer == object_id {
             continue;
         }
-        let Some(vr) = world.objects.get_component::<RegionCell>(&viewer).map(|r| r.0) else { continue };
+        let Some(vr) = world
+            .objects
+            .get_component::<RegionCell>(&viewer)
+            .map(|r| r.0)
+        else {
+            continue;
+        };
         if !regions_adjacent(my_region, vr) {
             continue;
         }
@@ -455,13 +513,24 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
 
     let legitimate = check_if_pvp(world, killer_oid, victim_oid);
     let (killer_rep, killer_pk) = {
-        let Some(p) = world.objects.get_component::<Player>(&killer_oid) else { return };
+        let Some(p) = world.objects.get_component::<Player>(&killer_oid) else {
+            return;
+        };
         (p.reputation, p.pk_kills)
     };
-    let victim_rep = world.objects.get_component::<Player>(&victim_oid).map_or(0, |p| p.reputation);
+    let victim_rep = world
+        .objects
+        .get_component::<Player>(&victim_oid)
+        .map_or(0, |p| p.reputation);
     let level_diff = {
-        let v = world.objects.get_component::<Player>(&victim_oid).map_or(0, |p| p.level);
-        let k = world.objects.get_component::<Player>(&killer_oid).map_or(0, |p| p.level);
+        let v = world
+            .objects
+            .get_component::<Player>(&victim_oid)
+            .map_or(0, |p| p.level);
+        let k = world
+            .objects
+            .get_component::<Player>(&killer_oid)
+            .map_or(0, |p| p.level);
         v - k
     };
 

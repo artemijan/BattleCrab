@@ -38,7 +38,14 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
     let (cmd_tx, mut cmd_rx) = mpsc::channel::<GsCommand>(32);
 
     // InitLS goes out immediately, under the static key.
-    if send(&mut write, &crypt, packets::init_ls(PROTOCOL_REV, &keypair.modulus_java_bytes())).await.is_err() {
+    if send(
+        &mut write,
+        &crypt,
+        packets::init_ls(PROTOCOL_REV, &keypair.modulus_java_bytes()),
+    )
+    .await
+    .is_err()
+    {
         return;
     }
 
@@ -242,7 +249,10 @@ async fn handle_game_server_auth(
     let port = r.read_i16().ok_or(login_server_fail::NOT_AUTHED)? as u16;
     let max_players = r.read_i32().ok_or(login_server_fail::NOT_AUTHED)?;
     let hex_size = r.read_i32().ok_or(login_server_fail::NOT_AUTHED)? as usize;
-    let hex_id = r.read_bytes(hex_size).ok_or(login_server_fail::NOT_AUTHED)?.to_vec();
+    let hex_id = r
+        .read_bytes(hex_size)
+        .ok_or(login_server_fail::NOT_AUTHED)?
+        .to_vec();
     let pair_count = r.read_i32().ok_or(login_server_fail::NOT_AUTHED)?;
     let mut hosts = Vec::with_capacity(pair_count as usize);
     for _ in 0..pair_count {
@@ -252,7 +262,15 @@ async fn handle_game_server_auth(
     }
 
     ctx.controller
-        .register_game_server(desired_id, accept_alternative, port, max_players, hex_id, hosts, link)
+        .register_game_server(
+            desired_id,
+            accept_alternative,
+            port,
+            max_players,
+            hex_id,
+            hosts,
+            link,
+        )
         .await
         .map(|reg| (reg.server_id, reg.server_name))
 }

@@ -67,7 +67,11 @@ impl QuestScript for Q00273InvadersOfTheHolyLand {
         if !ctx.has_qs() {
             return;
         }
-        let chance = MONSTERS.iter().find(|(id, _)| *id == ctx.npc_id).map(|(_, c)| *c).unwrap_or(0);
+        let chance = MONSTERS
+            .iter()
+            .find(|(id, _)| *id == ctx.npc_id)
+            .map(|(_, c)| *c)
+            .unwrap_or(0);
         if ctx.roll(100) <= chance {
             ctx.give_items(BLACK_SOULSTONE, 1);
         } else {
@@ -94,10 +98,18 @@ impl QuestScript for Q00273InvadersOfTheHolyLand {
             let black = ctx.quest_items_count(BLACK_SOULSTONE);
             let red = ctx.quest_items_count(RED_SOULSTONE);
             return Some(if black + red > 0 {
-                ctx.give_adena((red * 5) + (black * 3) + if red + black >= 10 { 1000 } else { 0 }, true);
+                ctx.give_adena(
+                    (red * 5) + (black * 3) + if red + black >= 10 { 1000 } else { 0 },
+                    true,
+                );
                 ctx.take_items(BLACK_SOULSTONE, -1);
                 ctx.take_items(RED_SOULSTONE, -1);
-                if red > 0 { "30566-07.html" } else { "30566-06.html" }.to_string()
+                if red > 0 {
+                    "30566-07.html"
+                } else {
+                    "30566-06.html"
+                }
+                .to_string()
             } else {
                 "30566-05.html".to_string()
             });

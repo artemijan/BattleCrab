@@ -27,11 +27,19 @@ impl HexId {
             let p = PropertiesParser::load_rel(root, HEXID_FILE);
             if p.contains_key("ServerID") && p.contains_key("HexID") {
                 if let Some(hex_id) = hexid_from_string(&p.get_string("HexID", "")) {
-                    return Self { hex_id, server_id: p.get_int("ServerID", 1), path };
+                    return Self {
+                        hex_id,
+                        server_id: p.get_int("ServerID", 1),
+                        path,
+                    };
                 }
             }
         }
-        Self { hex_id: generate_hex(16), server_id: request_id, path }
+        Self {
+            hex_id: generate_hex(16),
+            server_id: request_id,
+            path,
+        }
     }
 
     /// Java `Config.saveHexid`: persist the id assigned by the login server so

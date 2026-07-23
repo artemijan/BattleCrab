@@ -45,14 +45,15 @@ fn perform_social(world: &World, action: i32, target: i32, gm_client_id: u32) ->
     if !is_creature(world, target) {
         return false;
     }
-    let is_npc = world.objects.has_component::<crate::model::npc::Npc>(&target);
+    let is_npc = world
+        .objects
+        .has_component::<crate::model::npc::Npc>(&target);
     // (Java also rejects `Chest` NPCs outright; no Chest type exists here.)
     if is_npc && !(1..=20).contains(&action) {
         send_sm(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
         return false;
     }
-    if !is_npc
-        && (action < 2 || (action > 18 && action != server_packets::SOCIAL_ACTION_LEVEL_UP))
+    if !is_npc && (action < 2 || (action > 18 && action != server_packets::SOCIAL_ACTION_LEVEL_UP))
     {
         send_sm(world, gm_client_id, sm_ids::NOTHING_HAPPENED);
         return false;
@@ -67,34 +68,57 @@ fn perform_social(world: &World, action: i32, target: i32, gm_client_id: u32) ->
 pub(super) fn admin_social(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     match args.len() {
         2 => {
-            let Some(social) = args[0].parse::<i32>().ok() else { return };
+            let Some(social) = args[0].parse::<i32>().ok() else {
+                return;
+            };
             let who = args[1];
             if let Some(pid) = find_online_player(world, who) {
                 if perform_social(world, social, pid, client_id) {
                     let name = object_name(world, pid);
-                    send_message(world, client_id, &format!("{name} was affected by your request."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!("{name} was affected by your request."),
+                    );
                 }
             } else if let Ok(radius) = who.parse::<i32>() {
-                let Some(center) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+                let Some(center) = world.objects.get_component::<Position>(&object_id).copied()
+                else {
+                    return;
+                };
                 for oid in creatures_in_range(world, &center, radius, object_id) {
                     perform_social(world, social, oid, client_id);
                 }
-                send_message(world, client_id, &format!("{radius} units radius affected by your request."));
+                send_message(
+                    world,
+                    client_id,
+                    &format!("{radius} units radius affected by your request."),
+                );
             } else {
                 send_message(world, client_id, "Incorrect parameter");
             }
         }
         1 => {
-            let Some(social) = args[0].parse::<i32>().ok() else { return };
+            let Some(social) = args[0].parse::<i32>().ok() else {
+                return;
+            };
             let target = current_target(world, object_id).unwrap_or(object_id);
             if perform_social(world, social, target, client_id) {
                 let name = object_name(world, target);
-                send_message(world, client_id, &format!("{name} was affected by your request."));
+                send_message(
+                    world,
+                    client_id,
+                    &format!("{name} was affected by your request."),
+                );
             } else {
                 send_sm(world, client_id, sm_ids::NOTHING_HAPPENED);
             }
         }
-        _ => send_message(world, client_id, "Usage: //social <social_id> [player_name|radius]"),
+        _ => send_message(
+            world,
+            client_id,
+            "Usage: //social <social_id> [player_name|radius]",
+        ),
     }
 }
 
@@ -110,14 +134,22 @@ fn creatures_in_range(world: &World, center: &Position, radius: i32, exclude: i3
             if oid == exclude {
                 continue;
             }
-            if world.objects.get_component::<Position>(&oid).is_some_and(|p| center.distance_2d(p) <= r) {
+            if world
+                .objects
+                .get_component::<Position>(&oid)
+                .is_some_and(|p| center.distance_2d(p) <= r)
+            {
                 out.push(oid);
             }
         }
     }
     let region = crate::world::region_of(center.x, center.y);
     for oid in world.npcs_visible_from(region) {
-        if world.objects.get_component::<Position>(&oid).is_some_and(|p| center.distance_2d(p) <= r) {
+        if world
+            .objects
+            .get_component::<Position>(&oid)
+            .is_some_and(|p| center.distance_2d(p) <= r)
+        {
             out.push(oid);
         }
     }
@@ -129,7 +161,11 @@ fn creatures_in_range(world: &World, center: &Position, radius: i32, exclude: i3
 /// plays the skill's animation toward the GM. Purely cosmetic (no effects run).
 pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(skill_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
-        send_message(world, client_id, "Usage: //effect skill [level | level hittime]");
+        send_message(
+            world,
+            client_id,
+            "Usage: //effect skill [level | level hittime]",
+        );
         return;
     };
     let level = args.get(1).and_then(|s| s.parse::<i32>().ok()).unwrap_or(1);
@@ -155,7 +191,11 @@ pub(super) fn admin_effect(world: &mut World, client_id: u32, object_id: i32, ar
     );
     super::helpers::broadcast_including_self(world, source, &packet);
     let name = object_name(world, source);
-    send_message(world, client_id, &format!("{name} performs MSU {skill_id}/{level} by your request."));
+    send_message(
+        world,
+        client_id,
+        &format!("{name} performs MSU {skill_id}/{level} by your request."),
+    );
 }
 
 /// `AdminEffects`' `//earthquake <intensity> <duration>` — a localised
@@ -165,10 +205,16 @@ pub(super) fn admin_earthquake(world: &mut World, client_id: u32, object_id: i32
         args.first().and_then(|s| s.parse::<i32>().ok()),
         args.get(1).and_then(|s| s.parse::<i32>().ok()),
     ) else {
-        send_message(world, client_id, "Usage: //earthquake <intensity> <duration>");
+        send_message(
+            world,
+            client_id,
+            "Usage: //earthquake <intensity> <duration>",
+        );
         return;
     };
-    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
     let packet = server_packets::earthquake(pos.x, pos.y, pos.z, intensity, duration);
     super::helpers::broadcast_including_self(world, object_id, &packet);
 }
@@ -188,7 +234,11 @@ pub(super) fn admin_atmosphere(world: &mut World, client_id: u32, args: &[&str])
         match state {
             "night" => Some(server_packets::sun_set()),
             "day" => Some(server_packets::sun_rise()),
-            "red" => Some(server_packets::ex_red_sky(if duration != 0 { duration } else { 10 })),
+            "red" => Some(server_packets::ex_red_sky(if duration != 0 {
+                duration
+            } else {
+                10
+            })),
             _ => None,
         }
     } else {
@@ -226,7 +276,13 @@ pub(super) fn admin_play_sound(world: &mut World, client_id: u32, object_id: i32
 /// `//setteam <none|blue|red>` (current target) and `//setteam_close <team>
 /// [radius=400]` (players around the GM). Player targets only — the port's
 /// NpcInfo doesn't model the team block yet (TODO(G19)).
-pub(super) fn admin_setteam(world: &mut World, client_id: u32, object_id: i32, args: &[&str], close: bool) {
+pub(super) fn admin_setteam(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    close: bool,
+) {
     let Some(team) = args.first().and_then(|v| match v.to_lowercase().as_str() {
         "none" => Some(0u8),
         "blue" => Some(1),
@@ -237,8 +293,13 @@ pub(super) fn admin_setteam(world: &mut World, client_id: u32, object_id: i32, a
         return;
     };
     let targets: Vec<i32> = if close {
-        let radius = args.get(1).and_then(|r| r.parse::<i32>().ok()).unwrap_or(400) as f64;
-        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+        let radius = args
+            .get(1)
+            .and_then(|r| r.parse::<i32>().ok())
+            .unwrap_or(400) as f64;
+        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+            return;
+        };
         players_in_radius(world, &origin, radius)
     } else {
         vec![current_target(world, object_id).unwrap_or(object_id)]
@@ -256,7 +317,9 @@ pub(super) fn admin_setteam(world: &mut World, client_id: u32, object_id: i32, a
 
 /// `//clearteams` — every visible player back to NONE.
 pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+    let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
     // "Visible" ≈ the same broadcast radius the packet fan-out uses; a large
     // sweep is fine for a GM tool.
     let targets = players_in_radius(world, &origin, 10_000.0);
@@ -280,10 +343,13 @@ fn players_in_radius(world: &World, origin: &Position, radius: f64) -> Vec<i32> 
             _ => None,
         })
         .filter(|oid| {
-            world.objects.get_component::<Position>(oid).is_some_and(|p| {
-                let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
-                (dx * dx + dy * dy).sqrt() <= radius
-            })
+            world
+                .objects
+                .get_component::<Position>(oid)
+                .is_some_and(|p| {
+                    let (dx, dy) = ((p.x - origin.x) as f64, (p.y - origin.y) as f64);
+                    (dx * dx + dy * dy).sqrt() <= radius
+                })
         })
         .collect()
 }
@@ -299,17 +365,38 @@ pub(super) fn admin_settargetable(world: &mut World, client_id: u32, object_id: 
     flags.untargetable = !flags.untargetable;
     let off = flags.untargetable;
     world.objects.add_components(&object_id, flags);
-    send_message(world, client_id, if off { "You are now untargetable." } else { "You are targetable again." });
+    send_message(
+        world,
+        client_id,
+        if off {
+            "You are now untargetable."
+        } else {
+            "You are targetable again."
+        },
+    );
 }
 
 /// `//para [type]` / `//unpara [type]` on the current target, and the `_all`
 /// variants over nearby players. Type 1 draws PARALYZE, anything else
 /// FLESH_STONE (Java's split); the block itself is `AdminFlags.paralyzed`.
-pub(super) fn admin_para(world: &mut World, client_id: u32, object_id: i32, args: &[&str], on: bool, all: bool) {
-    let ave_name = if args.first().copied().unwrap_or("1") == "1" { "PARALYZE" } else { "FLESH_STONE" };
+pub(super) fn admin_para(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    on: bool,
+    all: bool,
+) {
+    let ave_name = if args.first().copied().unwrap_or("1") == "1" {
+        "PARALYZE"
+    } else {
+        "FLESH_STONE"
+    };
     let ave = crate::model::skill::abnormal_visual_client_id(ave_name).expect("known AVE");
     let targets: Vec<i32> = if all {
-        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else { return };
+        let Some(origin) = world.objects.get_component::<Position>(&object_id).copied() else {
+            return;
+        };
         players_in_radius(world, &origin, 10_000.0)
     } else {
         vec![current_target(world, object_id).unwrap_or(object_id)]
@@ -328,7 +415,11 @@ pub(super) fn admin_para(world: &mut World, client_id: u32, object_id: i32, args
     send_message(
         world,
         client_id,
-        &format!("{} {} target(s).", if on { "Paralyzed" } else { "Released" }, targets.len()),
+        &format!(
+            "{} {} target(s).",
+            if on { "Paralyzed" } else { "Released" },
+            targets.len()
+        ),
     );
 }
 
@@ -338,7 +429,11 @@ pub(super) fn admin_bighead(world: &mut World, client_id: u32, object_id: i32, o
     let target = current_target(world, object_id).unwrap_or(object_id);
     set_admin_visual(world, target, ave, on);
     crate::game_loop::party::broadcast_user_info(world, target);
-    send_message(world, client_id, if on { "Big head on." } else { "Big head off." });
+    send_message(
+        world,
+        client_id,
+        if on { "Big head on." } else { "Big head off." },
+    );
 }
 
 /// Pin/unpin one GM abnormal visual (the `//ave_abnormal` storage).
@@ -355,7 +450,9 @@ fn set_admin_visual(world: &mut World, target: i32, ave: i16, on: bool) {
             }
         }
         None if on => {
-            world.objects.add_components(&target, AdminVisuals(vec![ave]));
+            world
+                .objects
+                .add_components(&target, AdminVisuals(vec![ave]));
         }
         None => {}
     }
@@ -376,7 +473,12 @@ pub(super) fn admin_playmovie(world: &mut World, client_id: u32, args: &[&str]) 
 
 /// `//event_trigger <id> [true|false]` — toggle a client emitter for everyone
 /// nearby (Java fans out to visible players plus the GM).
-pub(super) fn admin_event_trigger(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(super) fn admin_event_trigger(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
     let (Some(id), enabled) = (
         args.first().and_then(|v| v.parse::<i32>().ok()),
         args.get(1).is_some_and(|v| v.eq_ignore_ascii_case("true")),
@@ -391,7 +493,12 @@ pub(super) fn admin_event_trigger(world: &mut World, client_id: u32, object_id: 
 /// `//set_displayeffect <state>` — an NPC target's display-effect state
 /// (`ExChangeNpcState`). Broadcast-only: the state isn't stored, so a fresh
 /// observer won't see it (TODO(G19) — needs an NpcInfo field).
-pub(super) fn admin_set_displayeffect(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(super) fn admin_set_displayeffect(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
     let Some(state) = args.first().and_then(|v| v.parse::<i32>().ok()) else {
         send_message(world, client_id, "Usage: //set_displayeffect <id>");
         return;
@@ -400,7 +507,10 @@ pub(super) fn admin_set_displayeffect(world: &mut World, client_id: u32, object_
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
-    if !world.objects.has_component::<crate::model::npc::Npc>(&target) {
+    if !world
+        .objects
+        .has_component::<crate::model::npc::Npc>(&target)
+    {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     }

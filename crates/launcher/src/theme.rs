@@ -216,12 +216,8 @@ fn full_uv() -> Rect {
 /// transparent, and nothing may bleed past the curve.
 pub fn paint_backdrop(painter: &egui::Painter, rect: Rect, surfaces: &Surfaces) {
     painter.add(Shape::Rect(
-        egui::epaint::RectShape::filled(
-            rect,
-            CornerRadius::same(WINDOW_RADIUS),
-            Color32::WHITE,
-        )
-        .with_texture(surfaces.backdrop.id(), full_uv()),
+        egui::epaint::RectShape::filled(rect, CornerRadius::same(WINDOW_RADIUS), Color32::WHITE)
+            .with_texture(surfaces.backdrop.id(), full_uv()),
     ));
 }
 
@@ -237,7 +233,12 @@ pub fn glass_panel_shape(rect: Rect, radius: u8, surfaces: &Surfaces) -> Shape {
             egui::epaint::RectShape::filled(rect, cr, Color32::WHITE)
                 .with_texture(surfaces.glass.id(), full_uv()),
         ),
-        Shape::rect_stroke(rect, cr, Stroke::new(1.0, glass_edge(46)), StrokeKind::Inside),
+        Shape::rect_stroke(
+            rect,
+            cr,
+            Stroke::new(1.0, glass_edge(46)),
+            StrokeKind::Inside,
+        ),
     ])
 }
 
@@ -296,7 +297,12 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
     let painter = ui.painter();
 
     painter.rect_filled(rect, cr, Color32::from_rgba_unmultiplied(0, 0, 0, 90));
-    painter.rect_stroke(rect, cr, Stroke::new(1.0, glass_edge(30)), StrokeKind::Inside);
+    painter.rect_stroke(
+        rect,
+        cr,
+        Stroke::new(1.0, glass_edge(30)),
+        StrokeKind::Inside,
+    );
 
     let fill_rect = match fraction {
         Some(f) => {
@@ -395,11 +401,7 @@ fn ghost(label: &str) -> egui::Button<'static> {
 ///
 /// `ui.vertical_centered` centres each child by its own width, which a `horizontal`
 /// block defeats by expanding to fill — so the padding is computed explicitly.
-pub fn centered_row<R>(
-    ui: &mut egui::Ui,
-    width: f32,
-    add: impl FnOnce(&mut egui::Ui) -> R,
-) -> R {
+pub fn centered_row<R>(ui: &mut egui::Ui, width: f32, add: impl FnOnce(&mut egui::Ui) -> R) -> R {
     ui.horizontal(|ui| {
         let pad = ((ui.available_width() - width) * 0.5).max(0.0);
         ui.add_space(pad);

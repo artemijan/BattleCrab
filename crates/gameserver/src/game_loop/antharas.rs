@@ -11,9 +11,14 @@ const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
 /// The four-state ladder (Java `GrandBossManager` statuses for Antharas).
+/// `DORMANT` and `DEAD` have no reader yet, but the ladder is kept whole —
+/// the numeric values mirror Java's and dropping members would invite a
+/// re-numbering bug when the remaining states land.
+#[allow(dead_code)]
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
 pub const IN_FIGHT: i32 = 2;
+#[allow(dead_code)]
 pub const DEAD: i32 = 3;
 
 /// Where an admitted player lands: `(179700+rnd(700), 113800+rnd(2100), -7709)`.
@@ -43,14 +48,23 @@ pub struct AntharasMinions {
 impl Default for AntharasMinions {
     fn default() -> Self {
         // Java starts the multiplier at 1: the first wave is a single pair.
-        Self { count: 0, multiplier: 1 }
+        Self {
+            count: 0,
+            multiplier: 1,
+        }
     }
 }
 
 /// Arm the first wave.
 pub(crate) fn begin_waves(world: &mut World, antharas_oid: i32) {
-    if world.objects.get_component::<AntharasMinions>(&antharas_oid).is_none() {
-        world.objects.add_components(&antharas_oid, AntharasMinions::default());
+    if world
+        .objects
+        .get_component::<AntharasMinions>(&antharas_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&antharas_oid, AntharasMinions::default());
     }
     world.scheduler.schedule(
         world.tick + WAVE_INTERVAL_SECS * TICKS_PER_SECOND,
@@ -73,7 +87,11 @@ pub(crate) fn begin_waves(world: &mut World, antharas_oid: i32) {
 /// pair if there is room for two" would lose that and cap the fight two adds
 /// early.
 pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
-    let Some(state) = world.objects.get_component::<AntharasMinions>(&antharas_oid).copied() else {
+    let Some(state) = world
+        .objects
+        .get_component::<AntharasMinions>(&antharas_oid)
+        .copied()
+    else {
         return;
     };
     let mut spawned: Vec<i32> = Vec::new();
@@ -87,10 +105,17 @@ pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
         spawned.push(BEHEMOTH);
         spawned.push(TERASQUE);
     } else if state.count < 99 {
-        spawned.push(if world.roll(2) == 0 { BEHEMOTH } else { TERASQUE });
+        spawned.push(if world.roll(2) == 0 {
+            BEHEMOTH
+        } else {
+            TERASQUE
+        });
     }
 
-    let pos = world.objects.get_component::<crate::model::components::Position>(&antharas_oid).copied();
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&antharas_oid)
+        .copied();
     if let Some(p) = pos {
         for npc_id in &spawned {
             crate::model::npc::spawn_npc_at(world, *npc_id, p.x, p.y, p.z, 0);
@@ -99,7 +124,10 @@ pub(crate) fn handle_wave(world: &mut World, antharas_oid: i32) {
 
     // `getRandom(100) > 10 && multiplier < 4` — the waves grow, but stop at 4.
     let grow = world.roll(100) > GROWTH_ROLL_ABOVE;
-    if let Some(s) = world.objects.get_component_mut::<AntharasMinions>(&antharas_oid) {
+    if let Some(s) = world
+        .objects
+        .get_component_mut::<AntharasMinions>(&antharas_oid)
+    {
         s.count += spawned.len() as i32;
         if grow && s.multiplier < MAX_MULTIPLIER {
             s.multiplier += 1;
@@ -137,13 +165,33 @@ struct Beat {
 /// ported as a chain rather than reshaped to match the Valakas table — reusing
 /// that shape here would have quietly changed the timing model.
 const BEATS: [Beat; 5] = [
-    Beat { camera: [700, 13, -19, 0, 10000, 20000, 0, 0, 0, 0, 0], next_delay_ms: 3_000, social: None },
-    Beat { camera: [700, 13, 0, 6000, 10000, 20000, 0, 0, 0, 0, 0], next_delay_ms: 10_000, social: None },
+    Beat {
+        camera: [700, 13, -19, 0, 10000, 20000, 0, 0, 0, 0, 0],
+        next_delay_ms: 3_000,
+        social: None,
+    },
+    Beat {
+        camera: [700, 13, 0, 6000, 10000, 20000, 0, 0, 0, 0, 0],
+        next_delay_ms: 10_000,
+        social: None,
+    },
     // `CAMERA_3` roars, schedules `CAMERA_4` at +200 **and** a second social at
     // +5200 — the only beat that forks.
-    Beat { camera: [3700, 0, -3, 0, 10000, 10000, 0, 0, 0, 0, 0], next_delay_ms: 200, social: Some(SOCIAL_ROAR) },
-    Beat { camera: [1100, 0, -3, 22000, 10000, 30000, 0, 0, 0, 0, 0], next_delay_ms: 10_800, social: None },
-    Beat { camera: [1100, 0, -3, 300, 10000, 7000, 0, 0, 0, 0, 0], next_delay_ms: 1_900, social: None },
+    Beat {
+        camera: [3700, 0, -3, 0, 10000, 10000, 0, 0, 0, 0, 0],
+        next_delay_ms: 200,
+        social: Some(SOCIAL_ROAR),
+    },
+    Beat {
+        camera: [1100, 0, -3, 22000, 10000, 30000, 0, 0, 0, 0, 0],
+        next_delay_ms: 10_800,
+        social: None,
+    },
+    Beat {
+        camera: [1100, 0, -3, 300, 10000, 7000, 0, 0, 0, 0, 0],
+        next_delay_ms: 1_900,
+        social: None,
+    },
 ];
 
 /// `CAMERA_3` forks this at +5200 ms.
@@ -175,8 +223,16 @@ pub(crate) fn handle_cinematic_step(world: &mut World, antharas_oid: i32, step: 
 
     let pkt = crate::network::server_packets::special_camera(
         antharas_oid,
-        beat.camera[0], beat.camera[1], beat.camera[2], beat.camera[3], beat.camera[4],
-        beat.camera[5], beat.camera[6], beat.camera[7], beat.camera[8], beat.camera[9],
+        beat.camera[0],
+        beat.camera[1],
+        beat.camera[2],
+        beat.camera[3],
+        beat.camera[4],
+        beat.camera[5],
+        beat.camera[6],
+        beat.camera[7],
+        beat.camera[8],
+        beat.camera[9],
         beat.camera[10],
     );
     broadcast_to_lair(world, &pkt);
@@ -204,7 +260,10 @@ pub(crate) fn handle_social(world: &mut World, antharas_oid: i32) {
 /// `START_MOVE` — the cinematic is over: Antharas takes his AI back and walks
 /// into the lair.
 fn start_move(world: &mut World, antharas_oid: i32) {
-    if let Some(p) = world.objects.get_component_mut::<crate::model::components::Position>(&antharas_oid) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&antharas_oid)
+    {
         p.x = MOVE_TO.0;
         p.y = MOVE_TO.1;
         p.z = MOVE_TO.2;
@@ -280,7 +339,11 @@ pub(crate) fn try_enter(world: &mut World, player_oid: i32) -> EntryVerdict {
 /// Split out so the "the group would overfill the lair" rung is reachable from
 /// a test: filling a 200-player lair for real is impractical, and a test that
 /// cannot reach a branch is not testing it.
-pub(crate) fn try_enter_with_occupancy(world: &mut World, player_oid: i32, inside: usize) -> EntryVerdict {
+pub(crate) fn try_enter_with_occupancy(
+    world: &mut World,
+    player_oid: i32,
+    inside: usize,
+) -> EntryVerdict {
     match crate::game_loop::grand_boss::status(world, ANTHARAS) {
         Some(3) => return EntryVerdict::BossDead,
         Some(2) => return EntryVerdict::AlreadyFighting,
@@ -302,7 +365,10 @@ pub(crate) fn try_enter_with_occupancy(world: &mut World, player_oid: i32, insid
             return EntryVerdict::LairFull;
         }
         // Only members actually gathered at the Heart come along.
-        let near: Vec<i32> = members.into_iter().filter(|m| near_leader(world, player_oid, *m)).collect();
+        let near: Vec<i32> = members
+            .into_iter()
+            .filter(|m| near_leader(world, player_oid, *m))
+            .collect();
         return EntryVerdict::Admitted(near);
     }
 
@@ -318,7 +384,10 @@ pub(crate) fn try_enter_with_occupancy(world: &mut World, player_oid: i32, insid
 /// The **command channel wins over the party**: a CC leader brings everyone,
 /// and a party leader inside a CC is not a leader for this purpose.
 fn group_of(world: &World, player_oid: i32) -> Option<(i32, Vec<i32>)> {
-    let party_id = world.objects.get_component::<crate::model::components::PartyRef>(&player_oid)?.0;
+    let party_id = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&player_oid)?
+        .0;
     let party = world.parties.get(&party_id)?;
     Some((party.leader(), party.members.clone()))
 }
@@ -335,8 +404,12 @@ fn near_leader(world: &World, leader: i32, member: i32) -> bool {
         return true;
     }
     let (Some(a), Some(b)) = (
-        world.objects.get_component::<crate::model::components::Position>(&leader),
-        world.objects.get_component::<crate::model::components::Position>(&member),
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&leader),
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&member),
     ) else {
         return false;
     };
@@ -345,7 +418,9 @@ fn near_leader(world: &World, leader: i32, member: i32) -> bool {
 }
 
 fn players_in_lair(world: &World) -> usize {
-    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return 0 };
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {
+        return 0;
+    };
     world
         .clients
         .values()
@@ -390,16 +465,26 @@ pub struct Choice {
 }
 
 const fn on_target(skill_id: i32) -> Choice {
-    Choice { skill_id, on_self: false }
+    Choice {
+        skill_id,
+        on_self: false,
+    }
 }
 const fn on_self(skill_id: i32) -> Choice {
-    Choice { skill_id, on_self: true }
+    Choice {
+        skill_id,
+        on_self: true,
+    }
 }
 
 /// `Util.calculateAngleFrom` — the angle from `a` to `b` in degrees, `0..360`.
 fn angle_between(ax: i32, ay: i32, bx: i32, by: i32) -> f64 {
     let deg = ((by - ay) as f64).atan2((bx - ax) as f64).to_degrees();
-    if deg < 0.0 { deg + 360.0 } else { deg }
+    if deg < 0.0 {
+        deg + 360.0
+    } else {
+        deg
+    }
 }
 
 /// **The tail sweep and curse are gated on an absolute world angle, not on
@@ -442,20 +527,37 @@ fn debuff_arc(dist: f64, angle: f64) -> bool {
 /// Four health bands, and the repertoire opens up as he is worn down. Only
 /// below 25% does he use the Breath Attack at all — and he leads with it, at a
 /// 30% chance, before anything else is considered.
-pub(crate) fn choose_skill(world: &mut World, antharas_oid: i32, target_oid: i32) -> Option<Choice> {
-    let (cur, max) = match world.objects.get_component::<crate::model::components::Vitals>(&antharas_oid) {
-        Some(v) => (v.cur_hp, v.max_hp as f64),
-        None => return None,
+pub(crate) fn choose_skill(
+    world: &mut World,
+    antharas_oid: i32,
+    target_oid: i32,
+) -> Option<Choice> {
+    let (cur, max) = {
+        let v = world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&antharas_oid)?;
+        (v.cur_hp, v.max_hp as f64)
     };
     let (dist, angle) = {
-        let a = world.objects.get_component::<crate::model::components::Position>(&antharas_oid)?;
-        let b = world.objects.get_component::<crate::model::components::Position>(&target_oid)?;
+        let a = world
+            .objects
+            .get_component::<crate::model::components::Position>(&antharas_oid)?;
+        let b = world
+            .objects
+            .get_component::<crate::model::components::Position>(&target_oid)?;
         let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
-        ((dx * dx + dy * dy + dz * dz).sqrt(), angle_between(a.x, a.y, b.x, b.y))
+        (
+            (dx * dx + dy * dy + dz * dz).sqrt(),
+            angle_between(a.x, a.y, b.x, b.y),
+        )
     };
 
     let fear = |w: &mut World| {
-        if w.roll(2) == 0 { on_target(ANTH_FEAR) } else { on_target(ANTH_FEAR_SHORT) }
+        if w.roll(2) == 0 {
+            on_target(ANTH_FEAR)
+        } else {
+            on_target(ANTH_FEAR_SHORT)
+        }
     };
 
     if cur < max * 0.25 {
@@ -558,16 +660,35 @@ pub(crate) fn choose_skill(world: &mut World, antharas_oid: i32, target_oid: i32
 /// `manageSkills`' guard and body: skip while already casting, take the top
 /// threat, choose, cast.
 pub(crate) fn manage_and_cast(world: &mut World, antharas_oid: i32) {
-    if world.objects.has_component::<crate::model::components::Casting>(&antharas_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&antharas_oid)
+    {
         return;
     }
-    let Some(target) = super::boss_threat::take_top_threat(world, antharas_oid) else { return };
-    let Some(choice) = choose_skill(world, antharas_oid, target) else { return };
-    super::boss_threat::cast_boss_skill(world, antharas_oid, target, choice.skill_id, choice.on_self);
+    let Some(target) = super::boss_threat::take_top_threat(world, antharas_oid) else {
+        return;
+    };
+    let Some(choice) = choose_skill(world, antharas_oid, target) else {
+        return;
+    };
+    super::boss_threat::cast_boss_skill(
+        world,
+        antharas_oid,
+        target,
+        choice.skill_id,
+        choice.on_self,
+    );
 }
 
 /// `Antharas.onAttack` — the threat half and the skill half, in Java's order.
-pub(crate) fn on_antharas_damage(world: &mut World, antharas_oid: i32, attacker_oid: i32, damage: i32, is_melee: bool) {
+pub(crate) fn on_antharas_damage(
+    world: &mut World,
+    antharas_oid: i32,
+    attacker_oid: i32,
+    damage: i32,
+    is_melee: bool,
+) {
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, antharas_oid);
 }
@@ -622,9 +743,10 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
             if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(WAITING) {
                 set_status(world, WAITING);
                 let wait_secs = world.cfg.grand_boss.antharas_wait_minutes.max(1) as u64 * 60;
-                world
-                    .scheduler
-                    .schedule(world.tick + wait_secs * TICKS_PER_SECOND, ScheduledTask::AntharasSpawn);
+                world.scheduler.schedule(
+                    world.tick + wait_secs * TICKS_PER_SECOND,
+                    ScheduledTask::AntharasSpawn,
+                );
             }
             None
         }
@@ -635,12 +757,21 @@ pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static
 /// fight starts, the lair hears `BS02_A`, and the camera chain begins (its
 /// tail starts the minion waves).
 pub(crate) fn handle_spawn_timer(world: &mut World) {
-    let Some(oid) = find_antharas(world) else { return };
+    let Some(oid) = find_antharas(world) else {
+        return;
+    };
     // A GM could have killed him during the window; a dead boss stays down.
     if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(WAITING) {
         return;
     }
-    crate::game_loop::death::relocate_npc(world, oid, FIGHT_POINT.0, FIGHT_POINT.1, FIGHT_POINT.2, FIGHT_POINT.3);
+    crate::game_loop::death::relocate_npc(
+        world,
+        oid,
+        FIGHT_POINT.0,
+        FIGHT_POINT.1,
+        FIGHT_POINT.2,
+        FIGHT_POINT.3,
+    );
     set_status(world, IN_FIGHT);
     broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS02_A"));
     begin_cinematic(world, oid);
@@ -649,7 +780,13 @@ pub(crate) fn handle_spawn_timer(world: &mut World) {
 /// The Teleportation Cubic's `teleportOut`.
 pub(crate) fn teleport_out(world: &mut World, player_oid: i32) {
     let (dx, dy) = (world.roll(600), world.roll(1100));
-    crate::game_loop::death::teleport_player(world, player_oid, EXIT_POINT.0 + dx, EXIT_POINT.1 + dy, EXIT_POINT.2);
+    crate::game_loop::death::teleport_player(
+        world,
+        player_oid,
+        EXIT_POINT.0 + dx,
+        EXIT_POINT.1 + dy,
+        EXIT_POINT.2,
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -672,22 +809,29 @@ const CLEAR_ZONE_SECS: u64 = 900;
 pub(crate) fn on_antharas_killed(world: &mut World) {
     // `DESPAWN_MINIONS`: delete every Behemoth/Terasque left in the lair.
     for oid in lair_minions(world) {
-        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&oid)
+            .map(|r| r.0)
+        {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }
 
     // Death cinematic + sound, to the lair.
-    let cam = crate::network::server_packets::special_camera(0, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0);
+    let cam = crate::network::server_packets::special_camera(
+        0, 1200, 20, -10, 0, 10000, 13000, 0, 0, 0, 0, 0,
+    );
     broadcast_to_lair(world, &cam);
     broadcast_to_lair(world, &crate::network::server_packets::play_sound("BS01_D"));
 
     // The exit cube — `AntharasHeart` already routes its `teleportOut` talk.
     crate::model::npc::spawn_npc_at(world, CUBE, DEATH_CUBE.0, DEATH_CUBE.1, DEATH_CUBE.2, 0);
 
-    world
-        .scheduler
-        .schedule(world.tick + CLEAR_ZONE_SECS * TICKS_PER_SECOND, ScheduledTask::AntharasClearZone);
+    world.scheduler.schedule(
+        world.tick + CLEAR_ZONE_SECS * TICKS_PER_SECOND,
+        ScheduledTask::AntharasClearZone,
+    );
 }
 
 /// `CLEAR_ZONE`: teleport every lingering player out, then despawn every NPC
@@ -697,7 +841,11 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
         teleport_out(world, player_oid);
     }
     for oid in npcs_in_lair(world) {
-        if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&oid).map(|r| r.0) {
+        if let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&oid)
+            .map(|r| r.0)
+        {
             crate::game_loop::death::despawn_npc(world, oid, region);
         }
     }
@@ -705,7 +853,9 @@ pub(crate) fn handle_clear_zone(world: &mut World) {
 
 /// Behemoth/Terasque adds standing in the lair zone.
 fn lair_minions(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {
+        return Vec::new();
+    };
     world
         .npc_regions
         .values()
@@ -727,7 +877,9 @@ fn lair_minions(world: &World) -> Vec<i32> {
 
 /// Every NPC currently standing in the lair zone.
 fn npcs_in_lair(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {
+        return Vec::new();
+    };
     world
         .npc_regions
         .values()
@@ -744,7 +896,9 @@ fn npcs_in_lair(world: &World) -> Vec<i32> {
 
 /// Object ids of the online players standing in the lair zone.
 fn players_in_lair_oids(world: &World) -> Vec<i32> {
-    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else { return Vec::new() };
+    let Some(zone) = world.data.zone_data.by_id(LAIR_ZONE_ID) else {
+        return Vec::new();
+    };
     world
         .clients
         .values()
@@ -760,4 +914,3 @@ fn players_in_lair_oids(world: &World) -> Vec<i32> {
         })
         .collect()
 }
-

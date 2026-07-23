@@ -39,7 +39,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         gs_table,
     );
     let bind = format!("{}:{}", config.login_bind_address, config.port_login);
-    let gs_host = if config.game_server_login_host == "*" { "0.0.0.0" } else { &config.game_server_login_host };
+    let gs_host = if config.game_server_login_host == "*" {
+        "0.0.0.0"
+    } else {
+        &config.game_server_login_host
+    };
     let gs_bind = format!("{}:{}", gs_host, config.game_server_login_port);
     let ctx = Arc::new(LoginContext::new(config, pool, controller.clone()));
 
@@ -48,11 +52,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // GameServerListener.
     let gs_listener = tokio::net::TcpListener::bind(&gs_bind).await?;
     info!("Listening for GameServers on {gs_bind}");
-    tokio::spawn(loginserver::gs_link::listener::accept_loop(ctx.clone(), gs_listener));
+    tokio::spawn(loginserver::gs_link::listener::accept_loop(
+        ctx.clone(),
+        gs_listener,
+    ));
 
     let listener = tokio::net::TcpListener::bind(&bind).await?;
     info!("LoginServer: is now listening on: {bind}");
-    tokio::spawn(network::client_connection::accept_loop(ctx.clone(), listener));
+    tokio::spawn(network::client_connection::accept_loop(
+        ctx.clone(),
+        listener,
+    ));
 
     // Scheduled LS restart (Java: ThreadPool.schedule(() -> shutdown(true))).
     // Exit code 2 = restart request, honored by a wrapper/orchestrator.
@@ -91,10 +101,15 @@ fn backup_database(jdbc_url: &str, backup_path: &str) {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    let file_name = std::path::Path::new(path).file_name().map(|n| n.to_string_lossy()).unwrap_or_default();
+    let file_name = std::path::Path::new(path)
+        .file_name()
+        .map(|n| n.to_string_lossy())
+        .unwrap_or_default();
     let target_dir = std::path::Path::new(backup_path);
     let target = target_dir.join(format!("{file_name}.{timestamp}.bak"));
-    if let Err(e) = std::fs::create_dir_all(target_dir).and_then(|_| std::fs::copy(path, &target).map(|_| ())) {
+    if let Err(e) =
+        std::fs::create_dir_all(target_dir).and_then(|_| std::fs::copy(path, &target).map(|_| ()))
+    {
         tracing::warn!("Database backup failed ({}): {e}", target.display());
     } else {
         info!("Database backed up to {}", target.display());

@@ -204,13 +204,18 @@ impl Shortcuts {
     }
 
     pub fn from_list(list: Vec<Shortcut>) -> Self {
-        Self(BTreeMap::from_iter(list.into_iter().map(|sc| (sc.client_slot(), sc))))
+        Self(BTreeMap::from_iter(
+            list.into_iter().map(|sc| (sc.client_slot(), sc)),
+        ))
     }
 }
 
 impl Default for Macros {
     fn default() -> Self {
-        Self { next_id: FIRST_MACRO_ID, entries: Vec::new() }
+        Self {
+            next_id: FIRST_MACRO_ID,
+            entries: Vec::new(),
+        }
     }
 }
 
@@ -252,7 +257,10 @@ impl Macros {
 
     /// Restore from DB rows, keeping insertion order (Java `LinkedHashMap`).
     pub fn from_list(entries: Vec<Macro>) -> Self {
-        Self { next_id: FIRST_MACRO_ID, entries }
+        Self {
+            next_id: FIRST_MACRO_ID,
+            entries,
+        }
     }
 }
 
@@ -288,9 +296,11 @@ pub fn decode_commands(s: &str) -> Vec<MacroCmd> {
         if tokens.len() < 3 || tokens[..3].iter().any(|t| t.trim().is_empty()) {
             continue;
         }
-        let (Ok(kind), Ok(d1), Ok(d2)) =
-            (tokens[0].parse::<i32>(), tokens[1].parse::<i32>(), tokens[2].parse::<i32>())
-        else {
+        let (Ok(kind), Ok(d1), Ok(d2)) = (
+            tokens[0].parse::<i32>(),
+            tokens[1].parse::<i32>(),
+            tokens[2].parse::<i32>(),
+        ) else {
             continue;
         };
         let cmd = tokens.get(3).copied().unwrap_or("").to_string();
@@ -310,7 +320,13 @@ mod tests {
     use super::*;
 
     fn cmd(kind: MacroType, d1: i32, d2: i32, cmd: &str) -> MacroCmd {
-        MacroCmd { entry: 0, kind, d1, d2, cmd: cmd.to_string() }
+        MacroCmd {
+            entry: 0,
+            kind,
+            d1,
+            d2,
+            cmd: cmd.to_string(),
+        }
     }
 
     #[test]
@@ -349,12 +365,23 @@ mod tests {
             acronym: String::new(),
             commands: vec![],
         }]);
-        let m = Macro { id: 0, icon: 1, name: "new".into(), descr: String::new(), acronym: String::new(), commands: vec![] };
+        let m = Macro {
+            id: 0,
+            icon: 1,
+            name: "new".into(),
+            descr: String::new(),
+            acronym: String::new(),
+            commands: vec![],
+        };
         let (id, update) = macros.register(m.clone());
         assert_eq!(id, 1001);
         assert_eq!(update, MacroUpdateType::Add);
         // Re-registering with the real id modifies in place.
-        let (id2, update2) = macros.register(Macro { id: 1001, name: "edited".into(), ..m });
+        let (id2, update2) = macros.register(Macro {
+            id: 1001,
+            name: "edited".into(),
+            ..m
+        });
         assert_eq!(id2, 1001);
         assert_eq!(update2, MacroUpdateType::Modify);
         assert_eq!(macros.entries.len(), 2);

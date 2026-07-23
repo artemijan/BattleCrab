@@ -11,7 +11,11 @@ fn request_show_mini_map_opens_world_map() {
     on_packet(&mut world, 1, vec![cop::REQUEST_SHOW_MINI_MAP]);
     let pkt = a_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::SHOW_MINI_MAP);
-    assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 0, "base world map");
+    assert_eq!(
+        i32::from_le_bytes(pkt[1..5].try_into().unwrap()),
+        0,
+        "base world map"
+    );
     assert_eq!(pkt[5], 0, "Seven Signs state");
     assert_eq!(pkt.len(), 6);
 }
@@ -28,15 +32,29 @@ fn map_castle_and_fortress_info_requests_answered() {
     on_packet(&mut world, 1, vec![cop::EX_PACKET, 0x39, 0x00]);
     let pkt = a_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::EX);
-    assert_eq!(i16::from_le_bytes(pkt[1..3].try_into().unwrap()), server_packets::opcodes::EX_SHOW_CASTLE_INFO);
-    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 9, "nine castles");
+    assert_eq!(
+        i16::from_le_bytes(pkt[1..3].try_into().unwrap()),
+        server_packets::opcodes::EX_SHOW_CASTLE_INFO
+    );
+    assert_eq!(
+        i32::from_le_bytes(pkt[3..7].try_into().unwrap()),
+        9,
+        "nine castles"
+    );
     assert!(a_rx.try_recv().is_err(), "no PartyMemberPosition when solo");
 
     on_packet(&mut world, 1, vec![cop::EX_PACKET, 0x3A, 0x00]);
     let pkt = a_rx.try_recv().unwrap();
     assert_eq!(pkt[0], server_packets::opcodes::EX);
-    assert_eq!(i16::from_le_bytes(pkt[1..3].try_into().unwrap()), server_packets::opcodes::EX_SHOW_FORTRESS_INFO);
-    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 21, "twenty-one forts");
+    assert_eq!(
+        i16::from_le_bytes(pkt[1..3].try_into().unwrap()),
+        server_packets::opcodes::EX_SHOW_FORTRESS_INFO
+    );
+    assert_eq!(
+        i32::from_le_bytes(pkt[3..7].try_into().unwrap()),
+        21,
+        "twenty-one forts"
+    );
 }
 
 /// RequestSkillList (0x50): empty body, re-sends the `SkillList` packet
@@ -51,7 +69,11 @@ fn request_skill_list_resends_skill_list() {
     on_packet(&mut world, 1, vec![cop::REQUEST_SKILL_LIST]);
     let pkt = a_rx.try_recv().unwrap();
     assert_eq!(pkt[0], 0x5F, "SkillList opcode");
-    assert_eq!(i32::from_le_bytes(pkt[1..5].try_into().unwrap()), 4, "all known skills listed");
+    assert_eq!(
+        i32::from_le_bytes(pkt[1..5].try_into().unwrap()),
+        4,
+        "all known skills listed"
+    );
 }
 
 /// `RequestStopMove` (`player.stopMove(getLocation())`): the in-flight move
@@ -84,9 +106,18 @@ fn request_stop_move_clears_movement_and_pending_path() {
 
     handle_request_stop_move(&mut world, 1);
 
-    assert!(!world.objects.has_component::<Movement>(&5001), "move data deleted");
-    assert!(!world.objects.has_component::<PathWait>(&5001), "pending path dropped");
-    assert_eq!(rx.try_recv().unwrap()[0], server_packets::opcodes::STOP_MOVE);
+    assert!(
+        !world.objects.has_component::<Movement>(&5001),
+        "move data deleted"
+    );
+    assert!(
+        !world.objects.has_component::<PathWait>(&5001),
+        "pending path dropped"
+    );
+    assert_eq!(
+        rx.try_recv().unwrap()[0],
+        server_packets::opcodes::STOP_MOVE
+    );
 }
 
 /// `ExSendSelectedQuestZoneID` stores the selected zone id on the player
@@ -95,11 +126,25 @@ fn request_stop_move_clears_movement_and_pending_path() {
 fn ex_send_selected_quest_zone_id_sets_field() {
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 5001, 10, 20, 30);
-    assert_eq!(world.objects.get_component::<Player>(&5001).unwrap().quest_zone_id, -1);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&5001)
+            .unwrap()
+            .quest_zone_id,
+        -1
+    );
 
     handle_ex_send_selected_quest_zone_id(&mut world, 1, &int_body(7));
 
-    assert_eq!(world.objects.get_component::<Player>(&5001).unwrap().quest_zone_id, 7);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&5001)
+            .unwrap()
+            .quest_zone_id,
+        7
+    );
 }
 
 /// The full Q00258 loop against the real dist htmls: quest window on talk
@@ -114,41 +159,69 @@ fn quest_q00258_accept_collect_turn_in() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 3;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 3;
     drain_db(&mut db_rx);
 
     // Talk: the single talk-quest short-circuits the chooser; CREATED at
     // level 3 → 30001-02.htm → the quest-window packet (FE:0x8E).
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     let pkts = drain(&mut rx);
-    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)), "quest window html");
+    assert!(
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)),
+        "quest window html"
+    );
 
     // Accept.
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
+        )),
     );
     let pkts = drain(&mut rx);
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
         assert_eq!(qs.state, crate::model::quest::state::STARTED);
         assert_eq!(qs.cond(), 1);
     }
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::QUEST_LIST), "QuestList after accept");
-    assert!(sound_names(&pkts).contains(&"ItemSound.quest_accept".to_string()), "accept sound");
     assert!(
-        pkts.iter().any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::QUEST_LIST),
+        "QuestList after accept"
+    );
+    assert!(
+        sound_names(&pkts).contains(&"ItemSound.quest_accept".to_string()),
+        "accept sound"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE),
         ".html result uses the plain window"
     );
     // Memory-first: cond + state land in the Quests component (they persist on
     // the next flush, not per set).
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         let qs = &quests.0["Q00258_BringWolfPelts"];
         assert_eq!(qs.cond(), 1, "cond set in memory");
-        assert_eq!(qs.state, crate::model::quest::state::STARTED, "state Started in memory");
+        assert_eq!(
+            qs.state,
+            crate::model::quest::state::STARTED,
+            "state Started in memory"
+        );
     }
 
     // First wolf kill: one pelt, earned-SM, quest-tab refresh, itemget sound.
@@ -164,8 +237,15 @@ fn quest_q00258_accept_collect_turn_in() {
             .count_of(702)
     };
     assert_eq!(inv_count(&world), 1);
-    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1), "earned SM");
-    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_QUEST_ITEM_LIST)), "quest tab refresh");
+    assert!(
+        sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1),
+        "earned SM"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_QUEST_ITEM_LIST)),
+        "quest tab refresh"
+    );
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_itemget".to_string()));
 
     // 38 more pelts, then the 40th kill flips cond 2 (+ mark + middle).
@@ -176,10 +256,16 @@ fn quest_q00258_accept_collect_turn_in() {
     let pkts = drain(&mut rx);
     assert_eq!(inv_count(&world), 40);
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert_eq!(quests.0["Q00258_BringWolfPelts"].cond(), 2);
     }
-    let mark = pkts.iter().find(|p| is_ex(p, server_packets::opcodes::EX_SHOW_QUEST_MARK)).expect("quest mark");
+    let mark = pkts
+        .iter()
+        .find(|p| is_ex(p, server_packets::opcodes::EX_SHOW_QUEST_MARK))
+        .expect("quest mark");
     assert_eq!(i32::from_le_bytes(mark[3..7].try_into().unwrap()), 258);
     assert_eq!(i32::from_le_bytes(mark[7..11].try_into().unwrap()), 2);
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()));
@@ -187,11 +273,19 @@ fn quest_q00258_accept_collect_turn_in() {
     // Turn-in: roll 0 → Cloth Cap; pelts destroyed; repeatable exit.
     drain_db(&mut db_rx);
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts")),
+    );
     let pkts = drain(&mut rx);
     assert_eq!(inv_count(&world), 0, "pelts destroyed on exit");
     assert_eq!(
-        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(41),
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .count_of(41),
         1,
         "Cloth Cap rewarded on roll 0"
     );
@@ -208,7 +302,8 @@ fn quest_q00258_accept_collect_turn_in() {
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()));
     // The removal reaches the client as a removed-type InventoryUpdate.
     assert!(
-        pkts.iter().any(|p| p[0] == 0x21 && i16::from_le_bytes([p[3], p[4]]) == 3),
+        pkts.iter()
+            .any(|p| p[0] == 0x21 && i16::from_le_bytes([p[3], p[4]]) == 3),
         "InventoryUpdate with change type 3 (removed)"
     );
     // Memory-first: the pelts are gone from the Inventory component and the
@@ -218,7 +313,11 @@ fn quest_q00258_accept_collect_turn_in() {
     // Re-talk: the quest is takeable again (CREATED intro window).
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     let pkts = drain(&mut rx);
-    assert!(pkts.iter().any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)), "repeatable re-offer");
+    assert!(
+        pkts.iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)),
+        "repeatable re-offer"
+    );
 }
 
 /// Q00320's chance-drop path (forced `roll_f64`), the giveItemRandomly
@@ -240,7 +339,9 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture 30359-04.htm")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture 30359-04.htm"
+        )),
     );
     drain(&mut rx);
 
@@ -251,7 +352,11 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     world.forced_rolls.push_back(999_999);
     death::npc_do_die(&mut world, skel, 3001);
     let count_of = |world: &World, id: i32| {
-        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(id)
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .count_of(id)
     };
     assert_eq!(count_of(&world, 809), 0, "18% roll failed");
 
@@ -272,26 +377,34 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 10);
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert_eq!(quests.0["Q00320_BonesTellTheFuture"].cond(), 2);
     }
-    assert!(sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()), "limit-reached sound");
+    assert!(
+        sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()),
+        "limit-reached sound"
+    );
 
     // Turn-in: 500 adena (rates ×1 in tests), bones destroyed, exit.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00320_BonesTellTheFuture")),
+    );
     let pkts = drain(&mut rx);
     assert_eq!(count_of(&world, 809), 0);
     assert_eq!(count_of(&world, 57), 500, "500 adena at ×1 rates");
     assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA));
-    assert!(
-        world
-            .objects
-            .get_component::<crate::model::components::Quests>(&3001)
-            .unwrap()
-            .0
-            .get("Q00320_BonesTellTheFuture")
-            .is_none()
-    );
+    assert!(world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap()
+        .0
+        .get("Q00320_BonesTellTheFuture")
+        .is_none());
 }
 
 /// The quest UI's Abandon button (`RequestQuestAbort` 0x63): repeatable
@@ -301,13 +414,19 @@ fn quest_abort_wipes_state_and_items() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 3;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 3;
 
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html")),
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00258_BringWolfPelts 30001-03.html"
+        )),
     );
     super::items::add_inventory_item(&mut world, 3001, 702, 5).unwrap();
     drain(&mut rx);
@@ -333,12 +452,23 @@ fn quest_abort_wipes_state_and_items() {
         "abort forgets the quest"
     );
     assert_eq!(
-        world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().count_of(702),
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .count_of(702),
         0,
         "quest items destroyed"
     );
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::QUEST_LIST), "QuestList refresh");
-    assert!(!sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()), "no finish sound on abort");
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::QUEST_LIST),
+        "QuestList refresh"
+    );
+    assert!(
+        !sound_names(&pkts).contains(&"ItemSound.quest_finish".to_string()),
+        "no finish sound on abort"
+    );
     // Memory-first: the quest is forgotten in the Quests component (asserted
     // above); the flush reconcile drops its rows — no per-action DB write.
 }
@@ -384,24 +514,44 @@ fn quest_timer_fires_once_and_cancels() {
     }
 
     let (mut world, _db_rx, _link_rx) = quest_test_world();
-    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(TimerTestScript)]));
+    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
+        TimerTestScript,
+    )]));
     add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")),
+    );
     drain(&mut rx);
     advance_ticks(&mut world, 5);
     let pkts = drain(&mut rx);
-    assert!(sound_names(&pkts).contains(&"timer_fired".to_string()), "timer fired at 500 ms");
+    assert!(
+        sound_names(&pkts).contains(&"timer_fired".to_string()),
+        "timer fired at 500 ms"
+    );
     advance_ticks(&mut world, 10);
     assert!(drain(&mut rx).is_empty(), "non-repeating: fires once");
 
     // Start then cancel: the stale seq no-ops.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest cancel")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest start")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest TimerTest cancel")),
+    );
     drain(&mut rx);
     advance_ticks(&mut world, 10);
-    assert!(sound_names(&drain(&mut rx)).is_empty(), "cancelled timer never fires");
+    assert!(
+        sound_names(&drain(&mut rx)).is_empty(),
+        "cancelled timer never fires"
+    );
 }
 
 /// A purchase debits adena, adds the items, and answers with the
@@ -418,19 +568,28 @@ fn request_buy_item_purchases_and_guards() {
     assert_eq!(count_of_item(&world, 3001, 1061), 5);
     let pkts = drain(&mut rx);
     assert!(pkts.iter().any(|p| p[0] == 0x21), "InventoryUpdate");
-    assert!(pkts.iter().any(|p| is_ex(p, 0x166)), "ExUserInfoInvenWeight");
-    let sell_done = pkts.iter().find(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST)).expect("sell refresh");
+    assert!(
+        pkts.iter().any(|p| is_ex(p, 0x166)),
+        "ExUserInfoInvenWeight"
+    );
+    let sell_done = pkts
+        .iter()
+        .find(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST))
+        .expect("sell refresh");
     assert_eq!(*sell_done.last().unwrap(), 1, "done flag");
     assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::EXCHANGE_IS_SUCCESSFUL));
 
     // Non-stackable quantity > 1: SM 1036, nothing purchased.
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 2)]));
-    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED));
+    assert!(sm_ids_of(&drain(&mut rx))
+        .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED));
     assert_eq!(adena_of(&world, 3001), 850);
 
     // Too expensive: SM 279.
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 100)]));
-    assert!(sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA));
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA)
+    );
     assert_eq!(adena_of(&world, 3001), 850);
 
     // Off-list item: dropped, no charge.
@@ -443,7 +602,9 @@ fn request_buy_item_purchases_and_guards() {
     drain(&mut rx);
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 1)]));
     let pkts = drain(&mut rx);
-    assert!(pkts.iter().any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
     assert_eq!(adena_of(&world, 3001), 850);
 }
 
@@ -459,17 +620,30 @@ fn quest_q00303_collect_arrowheads_loop() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30029, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 10;
     drain_db(&mut db_rx);
 
     // Accept.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")));
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
     );
-    assert_eq!(quest_cond(&world, 3001, "Q00303_CollectArrowheads"), Some(1));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00303_CollectArrowheads 30029-04.htm"
+        )),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00303_CollectArrowheads"),
+        Some(1)
+    );
     drain(&mut rx);
 
     // Kill 10 marksmen with the 40% roll forced to hit each time.
@@ -480,15 +654,29 @@ fn quest_q00303_collect_arrowheads_loop() {
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 963), 10);
-    assert_eq!(quest_cond(&world, 3001, "Q00303_CollectArrowheads"), Some(2));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00303_CollectArrowheads"),
+        Some(2)
+    );
     drain(&mut rx);
 
     // Turn-in.
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00303_CollectArrowheads")),
+    );
     assert_eq!(item_count(&world, 3001, 57), adena_before + 500);
-    assert_eq!(item_count(&world, 3001, 963), 0, "quest items removed on exit");
-    assert!(quest_cond(&world, 3001, "Q00303_CollectArrowheads").is_none(), "repeatable exit");
+    assert_eq!(
+        item_count(&world, 3001, 963),
+        0,
+        "quest items removed on exit"
+    );
+    assert!(
+        quest_cond(&world, 3001, "Q00303_CollectArrowheads").is_none(),
+        "repeatable exit"
+    );
 }
 
 /// Q00316 Destroy Plague Carriers: the first hit on Varool Foulclaw makes
@@ -497,7 +685,13 @@ fn quest_q00303_collect_arrowheads_loop() {
 #[test]
 fn quest_q00316_on_attack_say_and_limited_fang() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1042, "Wererat Fang", true), (1043, "Varool Foulclaw Fang", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1042, "Wererat Fang", true),
+            (1043, "Varool Foulclaw Fang", true),
+        ],
+    );
     for id in [27020, 20040] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
@@ -514,13 +708,22 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     }
     drain_db(&mut db_rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")));
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers 30155-04.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")),
     );
-    assert_eq!(quest_cond(&world, 3001, "Q00316_DestroyPlagueCarriers"), Some(1));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers 30155-04.htm"
+        )),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00316_DestroyPlagueCarriers"),
+        Some(1)
+    );
     drain(&mut rx);
 
     // First hit on Varool: exactly one NpcSay; further hits stay quiet.
@@ -528,12 +731,21 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     add_test_npc(&mut world, varool, 27020, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
     let pkts = drain(&mut rx);
-    let says: Vec<_> = pkts.iter().filter(|p| p[0] == server_packets::opcodes::NPC_SAY).collect();
+    let says: Vec<_> = pkts
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::NPC_SAY)
+        .collect();
     assert_eq!(says.len(), 1, "one shout on the first hit");
-    assert_eq!(i32::from_le_bytes(says[0][13..17].try_into().unwrap()), 31603, "WHY_DO_YOU_OPPRESS_US_SO");
+    assert_eq!(
+        i32::from_le_bytes(says[0][13..17].try_into().unwrap()),
+        31603,
+        "WHY_DO_YOU_OPPRESS_US_SO"
+    );
     combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
     assert!(
-        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_SAY),
+        !drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_SAY),
         "script value keeps him quiet"
     );
 
@@ -543,7 +755,11 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     let varool2 = NPC_OID + 2;
     add_test_npc(&mut world, varool2, 27020, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, varool2, 3001);
-    assert_eq!(item_count(&world, 3001, 1043), 1, "only one Varool fang ever");
+    assert_eq!(
+        item_count(&world, 3001, 1043),
+        1,
+        "only one Varool fang ever"
+    );
 
     // Wererats drop fangs freely (chance 2.0 → always).
     for i in 0..10 {
@@ -556,8 +772,15 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
 
     // Turn-in: 10×5 + 1×1000 + 5000 bonus.
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 50 + 1000 + 5000);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00316_DestroyPlagueCarriers")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 50 + 1000 + 5000
+    );
     assert_eq!(item_count(&world, 3001, 1042), 0);
     assert_eq!(item_count(&world, 3001, 1043), 0);
 }
@@ -574,21 +797,41 @@ fn quest_q00109_multi_cond_one_time() {
     add_test_npc(&mut world, corpse, 32015, "Folk", 5, 120, 0, 0);
     add_test_npc(&mut world, kahman, 31554, "Folk", 5, 140, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 81;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 81;
     drain_db(&mut db_rx);
 
     let q = "Q00109_InSearchOfTheNest";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-0.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierce}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-0.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
 
     // The corpse: cond 2 + the note.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{corpse}_Quest {q} 32015-2.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{corpse}_Quest {q} 32015-2.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     assert_eq!(item_count(&world, 3001, 14858), 1);
 
     // Back to Pierce: cond 3, note taken.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-3.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierce}_Quest {q} 31553-3.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     assert_eq!(item_count(&world, 3001, 14858), 0);
 
@@ -597,20 +840,37 @@ fn quest_q00109_multi_cond_one_time() {
         item_count(&world, 3001, 57),
         world.objects.get_component::<Player>(&3001).unwrap().exp,
     );
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kahman}_Quest {q} 31554-2.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kahman}_Quest {q} 31554-2.html")),
+    );
     assert_eq!(item_count(&world, 3001, 57), adena + 161500);
     assert!(world.objects.get_component::<Player>(&3001).unwrap().exp > exp);
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
     }
 
     // Talking to Pierce again answers the already-completed page.
     drain(&mut rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierce}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pierce}_Quest {q}")),
+    );
     let pkts = drain(&mut rx);
-    eprintln!("DBG opcodes: {:?}", pkts.iter().map(|p| p[0]).collect::<Vec<_>>());
-    let html = pkts.iter().find_map(|p| decode_npc_html(p)).unwrap_or_default();
+    eprintln!(
+        "DBG opcodes: {:?}",
+        pkts.iter().map(|p| p[0]).collect::<Vec<_>>()
+    );
+    let html = pkts
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
     eprintln!("DBG html: {html}");
     assert!(
         html.contains("already completed") || html.contains("already been completed"),
@@ -624,12 +884,30 @@ fn quest_q00109_multi_cond_one_time() {
 #[test]
 fn orc_change1_first_class_transfer() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1592, "Mark of Raider", true), (8869, "Shadow Coupon (D)", false)]);
-    world.data.categories.insert_for_test("FIGHTER_GROUP", &[44, 45]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1592, "Mark of Raider", true),
+            (8869, "Shadow Coupon (D)", false),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("FIGHTER_GROUP", &[44, 45]);
     world.data.categories.insert_for_test("MAGE_GROUP", &[49]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[45]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[45]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30500, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -644,12 +922,23 @@ fn orc_change1_first_class_transfer() {
     drain(&mut rx);
 
     // The named bypass shows the fighter class list.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1")));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("class list");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1")),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("class list");
     assert!(html.contains("45") || !html.is_empty());
 
     // Transfer to Orc Raider (45).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")),
+    );
     {
         let p = world.objects.get_component::<Player>(&3001).unwrap();
         assert_eq!(p.class_id, 45);
@@ -660,17 +949,36 @@ fn orc_change1_first_class_transfer() {
     // The change persisted immediately.
     let cmds = drain_db(&mut db_rx);
     assert!(
-        cmds.iter().any(|c| matches!(c, db::DbCommand::StorePlayer { save } if save.base.class_id == 45)),
+        cmds.iter()
+            .any(|c| matches!(c, db::DbCommand::StorePlayer { save } if save.base.class_id == 45)),
         "StorePlayer with the new class"
     );
     // A UserInfo re-broadcast reached the player.
-    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x32), "UserInfo after transfer");
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0x32),
+        "UserInfo after transfer"
+    );
 
     // Now in SECOND_CLASS_GROUP: another transfer attempt is refused.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("refusal page");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange1 45")),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("refusal page");
     assert!(html.contains("class transfer") || !html.is_empty());
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 45, "unchanged");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        45,
+        "unchanged"
+    );
 }
 
 /// TeleportWithCharm: the bare `Quest` click consumes the token and
@@ -685,16 +993,32 @@ fn teleport_with_charm_consumes_token() {
 
     // No token: the explain page.
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("no-token page");
-    assert!(html.contains("Token") || html.contains("token"), "got: {html}");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("no-token page");
+    assert!(
+        html.contains("Token") || html.contains("token"),
+        "got: {html}"
+    );
 
     // With a token: teleport + consumption.
     super::items::add_inventory_item(&mut world, 3001, 1659, 1);
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
     assert_eq!(item_count(&world, 3001, 1659), 0, "token consumed");
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (-80826, 149775, -3038), "destination z lifted by 5 (teleToLocation)");
-    assert!(world.objects.get_component::<Player>(&3001).unwrap().teleporting);
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (-80826, 149775, -3038),
+        "destination z lifted by 5 (teleToLocation)"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .teleporting
+    );
     assert!(
         drain(&mut rx).iter().any(|p| p[0] == 0x22),
         "TeleportToLocation sent"
@@ -710,33 +1034,69 @@ fn teleport_to_race_track_round_trips_via_monster_return() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     // Trisha (Dion gatekeeper) and the Race Manager at the arena.
     add_test_npc(&mut world, NPC_OID, 30059, "Teleporter", 70, 100, 0, 0);
-    add_test_npc(&mut world, NPC_OID + 1, 30995, "RaceManager", 70, 12661, 181687, -3540);
+    add_test_npc(
+        &mut world,
+        NPC_OID + 1,
+        30995,
+        "RaceManager",
+        70,
+        12661,
+        181687,
+        -3540,
+    );
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     drain_db(&mut db_rx);
     drain(&mut rx);
 
     // Outbound: the gatekeeper's button.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")),
+    );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (12661, 181687, -3535), "at the race track");
     assert_eq!(
-        world.objects.get_component::<crate::model::components::PlayerVariables>(&3001).unwrap().get_int("MONSTER_RETURN", -1),
+        (pos.x, pos.y, pos.z),
+        (12661, 181687, -3535),
+        "at the race track"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .unwrap()
+            .get_int("MONSTER_RETURN", -1),
         30059,
         "origin gatekeeper remembered"
     );
-    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x22), "TeleportToLocation sent");
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0x22),
+        "TeleportToLocation sent"
+    );
 
     // Inbound: the manager sends them back to Trisha's town, not the default.
-    world.objects.get_component_mut::<Player>(&3001).unwrap().teleporting = false;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .teleporting = false;
     handle_request_bypass_to_server(
         &mut world,
         1,
         &bypass_body(&format!("npc_{}_Quest TeleportToRaceTrack", NPC_OID + 1)),
     );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (15670, 142983, -2700), "returned to Dion");
     assert_eq!(
-        world.objects.get_component::<crate::model::components::PlayerVariables>(&3001).unwrap().get_int("MONSTER_RETURN", -1),
+        (pos.x, pos.y, pos.z),
+        (15670, 142983, -2700),
+        "returned to Dion"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerVariables>(&3001)
+            .unwrap()
+            .get_int("MONSTER_RETURN", -1),
         -1,
         "return point consumed"
     );
@@ -753,9 +1113,17 @@ fn race_manager_without_monster_return_falls_back_to_dion() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest TeleportToRaceTrack")),
+    );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
-    assert_eq!((pos.x, pos.y, pos.z), (15670, 142983, -2700), "default return is Dion");
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (15670, 142983, -2700),
+        "default return is Dion"
+    );
 }
 
 /// `RequestSellItem` (0x37) sells inventory items to the targeted merchant for
@@ -763,35 +1131,50 @@ fn race_manager_without_monster_return_falls_back_to_dion() {
 #[test]
 fn request_sell_item_pays_adena() {
     let (mut world, _db_rx, mut rx) = shop_world();
-    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
-        item_id: 5000,
-        name: "Trophy".into(),
-        kind: crate::data::item_data::ItemKind::Etc,
-        body_part: 0,
-        weight: 0,
-        is_stackable: true,
-        type1: 4,
-        type2: 5,
-        is_quest_item: false,
-        price: 200, // sells for 100 each
-        handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None,
-        crystal_count: 0,
-        attack_radius: 40,
-        attack_angle: 0,
-        mp_consume: 0,
-        reduced_mp_consume: 0,
-        reduced_mp_consume_chance: 0,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
-        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-    });
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+            item_id: 5000,
+            name: "Trophy".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 200, // sells for 100 each
+            handler: crate::data::item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
     super::items::add_inventory_item(&mut world, 3001, 5000, 10).expect("trophies");
-    let oid = world.objects.get_component::<crate::model::inventory::Inventory>(&3001).unwrap().items().iter().find(|it| it.item_id == 5000).unwrap().object_id;
+    let oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&3001)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 5000)
+        .unwrap()
+        .object_id;
     drain(&mut rx);
 
     let mut w = PacketWriter::new();
@@ -805,7 +1188,10 @@ fn request_sell_item_pays_adena() {
 
     assert_eq!(count_of_item(&world, 3001, 5000), 6, "4 sold");
     assert_eq!(adena_of(&world, 3001), 1000 + 400, "paid 4 × (200/2)");
-    assert!(drain(&mut rx).iter().any(|p| p[0] == 0x21), "InventoryUpdate sent");
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0x21),
+        "InventoryUpdate sent"
+    );
 }
 
 /// Register a Newbie Guide (30598, Talking Island / Human) as a live NPC,
@@ -833,12 +1219,27 @@ fn newbie_guide_first_talk_replaces_the_default_chat_window() {
     // First click targets, second interacts (Java `Player.doInteract`).
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("guide window");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("guide window");
     assert!(html.contains("Ask for an advice"), "advice entry: {html}");
-    assert!(html.contains("Quest NpcLocationInfo"), "npc-location entry: {html}");
-    assert!(html.contains("Link default/SupportMagic.htm"), "support-magic entry: {html}");
-    assert!(html.contains("action=\"bypass -h Quest\">Quest"), "quest entry: {html}");
-    assert!(!html.contains("I have nothing to say"), "not the npcdefault fallback: {html}");
+    assert!(
+        html.contains("Quest NpcLocationInfo"),
+        "npc-location entry: {html}"
+    );
+    assert!(
+        html.contains("Link default/SupportMagic.htm"),
+        "support-magic entry: {html}"
+    );
+    assert!(
+        html.contains("action=\"bypass -h Quest\">Quest"),
+        "quest entry: {html}"
+    );
+    assert!(
+        !html.contains("I have nothing to say"),
+        "not the npcdefault fallback: {html}"
+    );
 }
 
 /// The race gate: a guide only advises its own race (`npc.getRace() !=
@@ -848,12 +1249,19 @@ fn newbie_guide_turns_away_other_races() {
     let (mut world, ..) = quest_test_world();
     add_newbie_guide(&mut world);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<crate::model::Player>(&3001).unwrap().race = 1; // ELF
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .race = 1; // ELF
     drain(&mut rx);
 
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("refusal window");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("refusal window");
     assert!(!html.contains("Ask for an advice"), "menu withheld: {html}");
 }
 
@@ -869,12 +1277,24 @@ fn newbie_guide_advice_pages_follow_the_class_suffix() {
     drain(&mut rx);
 
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 1"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("advice page");
-    assert!(html.contains("What should I do now?"), "30598-1f.htm: {html}");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("advice page");
+    assert!(
+        html.contains("What should I do now?"),
+        "30598-1f.htm: {html}"
+    );
 
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NewbieGuide 0"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("menu");
-    assert!(html.contains("Ask for an advice"), "back to the menu: {html}");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("menu");
+    assert!(
+        html.contains("Ask for an advice"),
+        "back to the menu: {html}"
+    );
 }
 
 /// `NpcLocationInfo`: the bare bypass opens the profession list, a page name
@@ -884,23 +1304,48 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
     let (mut world, ..) = quest_test_world();
     add_newbie_guide(&mut world);
     // Gatekeeper Roxxy — a whitelisted target, spawned so the lookup lands.
-    add_test_npc(&mut world, NPC_OID + 1, 30006, "Teleporter", 70, 500, 600, 700);
+    add_test_npc(
+        &mut world,
+        NPC_OID + 1,
+        30006,
+        "Teleporter",
+        70,
+        500,
+        600,
+        700,
+    );
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     world.objects.add_components(&3001, LastFolkNpc(NPC_OID));
     drain(&mut rx);
 
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("profession list");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("profession list");
     assert!(html.contains("Teleporter"), "30598.htm: {html}");
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 30598-1.htm"));
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("teleporter page");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("Quest NpcLocationInfo 30598-1.htm"),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("teleporter page");
     assert!(html.contains("Gatekeeper Roxxy"), "30598-1.htm: {html}");
 
     handle_request_bypass_to_server(&mut world, 1, &bypass_body("Quest NpcLocationInfo 30006"));
     let pkts = drain(&mut rx);
-    let html = pkts.iter().find_map(|p| decode_npc_html(p)).expect("MoveToLoc page");
-    assert!(html.contains("direction of the arrow"), "MoveToLoc.htm: {html}");
+    let html = pkts
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("MoveToLoc page");
+    assert!(
+        html.contains("direction of the arrow"),
+        "MoveToLoc.htm: {html}"
+    );
     assert!(pkts.iter().any(|p| p[0] == 0xF1), "RadarControl sent");
 
     // Off-whitelist id: Java returns null, so nothing is sent.
@@ -914,11 +1359,29 @@ fn npc_location_info_marks_the_requested_npc_on_the_radar() {
 #[test]
 fn dwarf_warehouse_change1_first_class_transfer() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1642, "Ring of Raven", true), (8869, "Shadow Coupon (D)", false)]);
-    world.data.categories.insert_for_test("BOUNTY_HUNTER_GROUP", &[53, 54]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[54]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1642, "Ring of Raven", true),
+            (8869, "Shadow Coupon (D)", false),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("BOUNTY_HUNTER_GROUP", &[53, 54]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[54]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30498, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -940,7 +1403,10 @@ fn dwarf_warehouse_change1_first_class_transfer() {
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 54, "now a Scavenger");
-    assert_eq!(p.base_class_id, 54, "on the base slot the base class moves too");
+    assert_eq!(
+        p.base_class_id, 54,
+        "on the base slot the base class moves too"
+    );
     assert_eq!(item_count(&world, 3001, 1642), 0, "proof consumed");
     assert_eq!(item_count(&world, 3001, 8869), 15, "shadow coupons paid");
 }
@@ -949,11 +1415,29 @@ fn dwarf_warehouse_change1_first_class_transfer() {
 #[test]
 fn dwarf_change1_refuses_below_level_20() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1635, "Final Pass Certificate", true), (8869, "Shadow Coupon (D)", false)]);
-    world.data.categories.insert_for_test("WARSMITH_GROUP", &[53, 56]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[56]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1635, "Final Pass Certificate", true),
+            (8869, "Shadow Coupon (D)", false),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("WARSMITH_GROUP", &[53, 56]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[56]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -975,7 +1459,11 @@ fn dwarf_change1_refuses_below_level_20() {
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 53, "still a Dwarven Fighter at 19");
-    assert_eq!(item_count(&world, 3001, 1635), 1, "the proof is NOT consumed on a refusal");
+    assert_eq!(
+        item_count(&world, 3001, 1635),
+        1,
+        "the proof is NOT consumed on a refusal"
+    );
     assert_eq!(item_count(&world, 3001, 8869), 0, "and nothing is paid");
 }
 
@@ -983,11 +1471,29 @@ fn dwarf_change1_refuses_below_level_20() {
 #[test]
 fn dwarf_change1_refuses_without_the_proof_item() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1635, "Final Pass Certificate", true), (8869, "Shadow Coupon (D)", false)]);
-    world.data.categories.insert_for_test("WARSMITH_GROUP", &[53, 56]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[56]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1635, "Final Pass Certificate", true),
+            (8869, "Shadow Coupon (D)", false),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("WARSMITH_GROUP", &[53, 56]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[56]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30499, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1006,7 +1512,15 @@ fn dwarf_change1_refuses_without_the_proof_item() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange1 56")),
     );
 
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 53, "no proof, no transfer");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        53,
+        "no proof, no transfer"
+    );
 }
 
 /// Every html page the two scripts can return must exist in the dist, or a
@@ -1016,8 +1530,16 @@ fn dwarf_change1_html_pages_exist_in_dist() {
     // Village-master pages live under data/scripts/, not data/html/.
     const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/");
     for (dir, npcs, extra) in [
-        ("village_master/DwarfBlacksmithChange1", [30499, 30504, 30595, 32093], "30499-12.htm"),
-        ("village_master/DwarfWarehouseChange1", [30498, 30503, 30594, 32092], "30498-12.htm"),
+        (
+            "village_master/DwarfBlacksmithChange1",
+            [30499, 30504, 30595, 32093],
+            "30499-12.htm",
+        ),
+        (
+            "village_master/DwarfWarehouseChange1",
+            [30498, 30503, 30594, 32092],
+            "30498-12.htm",
+        ),
     ] {
         for npc in npcs {
             // -01/-05 from onTalk, -06/-07 refusals, -08..-11 the level/proof
@@ -1046,11 +1568,29 @@ fn dwarf_change1_html_pages_exist_in_dist() {
 #[test]
 fn elf_human_fighter_change1_transfers_by_race() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1145, "Medallion of Warrior", true), (8869, "Coupon", false)]);
-    world.data.categories.insert_for_test("FIGHTER_GROUP", &[0, 1, 18, 19]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[1, 19]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1145, "Medallion of Warrior", true),
+            (8869, "Coupon", false),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("FIGHTER_GROUP", &[0, 1, 18, 19]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[1, 19]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30066, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1071,11 +1611,19 @@ fn elf_human_fighter_change1_transfers_by_race() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest ElfHumanFighterChange1 19")),
     );
     assert_eq!(
-        world.objects.get_component::<Player>(&3001).unwrap().class_id,
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
         0,
         "a Human must not take an Elf class from the same NPC"
     );
-    assert_eq!(item_count(&world, 3001, 1145), 1, "and nothing was consumed");
+    assert_eq!(
+        item_count(&world, 3001, 1145),
+        1,
+        "and nothing was consumed"
+    );
 
     // Warrior (1) is the Human branch.
     handle_request_bypass_to_server(
@@ -1094,11 +1642,26 @@ fn elf_human_fighter_change1_transfers_by_race() {
 #[test]
 fn elf_human_wizard_change1_elf_branch() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1235, "Leaf of Oracle", true), (8869, "Coupon", false)]);
-    world.data.categories.insert_for_test("MAGE_GROUP", &[10, 25, 29]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[29]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[(1235, "Leaf of Oracle", true), (8869, "Coupon", false)],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("MAGE_GROUP", &[10, 25, 29]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[29]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30037, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1151,12 +1714,18 @@ fn elf_human_change1_html_pages_exist_in_dist() {
         for npc in npcs {
             for page in fixed {
                 let path = format!("{DIST}{dir}/{npc}-{page:02}.htm");
-                assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{page:02}.htm");
+                assert!(
+                    std::path::Path::new(&path).exists(),
+                    "missing {dir}/{npc}-{page:02}.htm"
+                );
             }
             for first in firsts {
                 for p in *first..=(*first + 3) {
                     let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-                    assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.htm");
+                    assert!(
+                        std::path::Path::new(&path).exists(),
+                        "missing {dir}/{npc}-{p}.htm"
+                    );
                 }
             }
         }
@@ -1173,10 +1742,22 @@ fn elf_human_change1_html_pages_exist_in_dist() {
 #[test]
 fn dark_elf_change1_transfers_by_row_index() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)]);
-    world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1190,7 +1771,11 @@ fn dark_elf_change1_transfers_by_row_index() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")),
+    );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 32, "row 0 is Palus Knight");
@@ -1203,8 +1788,14 @@ fn dark_elf_change1_transfers_by_row_index() {
 #[test]
 fn dark_elf_change1_rejects_the_wrong_source_class() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)]);
-    world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
+    add_quest_items(
+        &mut world,
+        &[(1244, "Gaze of Abyss", true), (8869, "Coupon", false)],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("FIRST_CLASS_GROUP", &[32, 35, 39, 42]);
     add_test_npc(&mut world, NPC_OID, 30290, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1218,9 +1809,21 @@ fn dark_elf_change1_rejects_the_wrong_source_class() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1 0")),
+    );
 
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 38, "unchanged");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        38,
+        "unchanged"
+    );
     assert_eq!(item_count(&world, 3001, 1244), 1, "and nothing consumed");
 }
 
@@ -1243,25 +1846,44 @@ fn dark_elf_change1_refuses_while_a_subclass_is_active() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange1")),
+    );
 
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
-    assert!(!html.contains("30290-01"), "the class list must not be offered on a subclass");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("a reply");
+    assert!(
+        !html.contains("30290-01"),
+        "the class list must not be offered on a subclass"
+    );
 }
 
 /// Every page DarkElfChange1 can return exists — and note these are `.html`,
 /// not `.htm` like its siblings.
 #[test]
 fn dark_elf_change1_html_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/DarkElfChange1/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/village_master/DarkElfChange1/"
+    );
     for npc in [30290, 30297, 30462] {
         for page in [1, 8, 31, 32, 33] {
             let path = format!("{DIST}{npc}-{page:02}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{page:02}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{page:02}.html"
+            );
         }
         for page in 15..=30 {
             let path = format!("{DIST}{npc}-{page}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{page}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{page}.html"
+            );
         }
     }
 }
@@ -1273,27 +1895,45 @@ fn dark_elf_change1_html_pages_exist_in_dist() {
 fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
     let cases: [(i32, i32, bool, i32, &str); 7] = [
         // (npc, player race, is_mage, class level, expected suffix)
-        (30026, 0, false, 0, "fighter"),      // Blitz, human fighter
-        (30026, 0, true, 0, "no"),            // a mage at the fighter guild
-        (30031, 0, true, 0, "mystic"),        // Biotin, human priest
-        (30154, 1, true, 0, "mystic"),        // Asterios serves both sides
-        (30520, 4, false, 0, "fighter"),      // Dwarves: fighter only
-        (30026, 0, false, 1, "transfer_1"),   // already first-occupation
-        (30026, 0, false, 2, "transfer_2"),   // second or beyond
+        (30026, 0, false, 0, "fighter"),    // Blitz, human fighter
+        (30026, 0, true, 0, "no"),          // a mage at the fighter guild
+        (30031, 0, true, 0, "mystic"),      // Biotin, human priest
+        (30154, 1, true, 0, "mystic"),      // Asterios serves both sides
+        (30520, 4, false, 0, "fighter"),    // Dwarves: fighter only
+        (30026, 0, false, 1, "transfer_1"), // already first-occupation
+        (30026, 0, false, 2, "transfer_2"), // second or beyond
     ];
     for (npc_id, race, is_mage, class_level, expected) in cases {
         let (mut world, _db_rx, _link_rx) = quest_test_world();
         // class 0 = base fighter, 1 = a first occupation, 4 = a second.
         let class_id = match class_level {
-            0 => if is_mage { 10 } else { 0 },
+            0 => {
+                if is_mage {
+                    10
+                } else {
+                    0
+                }
+            }
             1 => 1,
             _ => 4,
         };
         world.data.categories.insert_for_test("MAGE_GROUP", &[10]);
-        world.data.categories.insert_for_test("FIRST_CLASS_GROUP", &[1]);
-        world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[4]);
-        world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-        world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+        world
+            .data
+            .categories
+            .insert_for_test("FIRST_CLASS_GROUP", &[1]);
+        world
+            .data
+            .categories
+            .insert_for_test("SECOND_CLASS_GROUP", &[4]);
+        world
+            .data
+            .categories
+            .insert_for_test("THIRD_CLASS_GROUP", &[]);
+        world
+            .data
+            .categories
+            .insert_for_test("FOURTH_CLASS_GROUP", &[]);
         add_test_npc(&mut world, NPC_OID, npc_id, "VillageMaster", 70, 100, 0, 0);
         let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
         {
@@ -1310,7 +1950,10 @@ fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
             &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
         );
 
-        let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default();
+        let html = drain(&mut rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .unwrap_or_default();
         // Compare against the actual dist page, run through the same strip the
         // cache applies — asserting "non-empty" would happily accept the
         // *wrong* page.
@@ -1319,7 +1962,8 @@ fn first_class_transfer_talk_picks_the_page_by_race_and_progress() {
             env!("CARGO_MANIFEST_DIR")
         );
         let want = crate::data::htm_cache::strip_htm(
-            &std::fs::read_to_string(&want_path).unwrap_or_else(|_| panic!("dist page {want_path}")),
+            &std::fs::read_to_string(&want_path)
+                .unwrap_or_else(|_| panic!("dist page {want_path}")),
         )
         .replace("%objectId%", &NPC_OID.to_string());
         assert_eq!(
@@ -1349,7 +1993,10 @@ fn first_class_transfer_talk_refuses_another_race() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest FirstClassTransferTalk")),
     );
 
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("a reply");
     let want = crate::data::htm_cache::strip_htm(
         &std::fs::read_to_string(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -1358,7 +2005,10 @@ fn first_class_transfer_talk_refuses_another_race() {
         .expect("dist page"),
     )
     .replace("%objectId%", &NPC_OID.to_string());
-    assert_eq!(html, want, "a Human at a Dwarf headmaster gets the refusal page");
+    assert_eq!(
+        html, want,
+        "a Human at a Dwarf headmaster gets the refusal page"
+    );
 }
 
 /// Every page the script can name must exist — and the availability is
@@ -1373,16 +2023,28 @@ fn first_class_transfer_talk_pages_exist_in_dist() {
     let expected: [(i32, &[&str]); 7] = [
         (30026, &["fighter", "no", "transfer_1", "transfer_2"]),
         (30031, &["mystic", "no", "transfer_1", "transfer_2"]),
-        (30154, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
-        (30358, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
-        (30565, &["fighter", "mystic", "no", "transfer_1", "transfer_2"]),
+        (
+            30154,
+            &["fighter", "mystic", "no", "transfer_1", "transfer_2"],
+        ),
+        (
+            30358,
+            &["fighter", "mystic", "no", "transfer_1", "transfer_2"],
+        ),
+        (
+            30565,
+            &["fighter", "mystic", "no", "transfer_1", "transfer_2"],
+        ),
         (30520, &["fighter", "no", "transfer_1", "transfer_2"]),
         (30525, &["fighter", "no", "transfer_1", "transfer_2"]),
     ];
     for (npc, suffixes) in expected {
         for s in suffixes {
             let path = format!("{DIST}{npc}_{s}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}_{s}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}_{s}.html"
+            );
         }
     }
     // And the asymmetry is real, not an accident of my table: the Human
@@ -1400,12 +2062,25 @@ fn dwarf_change2_second_class_transfer() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
-          (2867, "Mark of Maestro", true), (8870, "Coupon C", false)],
+        &[
+            (3119, "Mark of Guildsman", true),
+            (3238, "Mark of Prosperity", true),
+            (2867, "Mark of Maestro", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("WARSMITH_GROUP", &[56, 57]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("WARSMITH_GROUP", &[56, 57]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1443,12 +2118,25 @@ fn dwarf_change2_requires_all_three_marks() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
-          (2867, "Mark of Maestro", true), (8870, "Coupon C", false)],
+        &[
+            (3119, "Mark of Guildsman", true),
+            (3238, "Mark of Prosperity", true),
+            (2867, "Mark of Maestro", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("WARSMITH_GROUP", &[56, 57]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("WARSMITH_GROUP", &[56, 57]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30512, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1470,8 +2158,20 @@ fn dwarf_change2_requires_all_three_marks() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfBlacksmithChange2 57")),
     );
 
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 56, "still an Artisan");
-    assert_eq!(item_count(&world, 3001, 3119), 1, "and the marks are not taken");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        56,
+        "still an Artisan"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 3119),
+        1,
+        "and the marks are not taken"
+    );
     assert_eq!(item_count(&world, 3001, 3238), 1);
 }
 
@@ -1481,12 +2181,25 @@ fn dwarf_change2_requires_level_40() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(3119, "Mark of Guildsman", true), (3238, "Mark of Prosperity", true),
-          (2809, "Mark of Searcher", true), (8870, "Coupon C", false)],
+        &[
+            (3119, "Mark of Guildsman", true),
+            (3238, "Mark of Prosperity", true),
+            (2809, "Mark of Searcher", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("BOUNTY_HUNTER_GROUP", &[54, 55]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("BOUNTY_HUNTER_GROUP", &[54, 55]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30511, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1508,7 +2221,15 @@ fn dwarf_change2_requires_level_40() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest DwarfWarehouseChange2 55")),
     );
 
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 54, "still a Scavenger at 39");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        54,
+        "still a Scavenger at 39"
+    );
     assert_eq!(item_count(&world, 3001, 3119), 1, "marks kept");
 }
 
@@ -1516,15 +2237,27 @@ fn dwarf_change2_requires_level_40() {
 /// scripts can name belongs to the *first* NPC's id.
 #[test]
 fn dwarf_change2_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
-    for (dir, page_npc) in [("DwarfBlacksmithChange2", 30512), ("DwarfWarehouseChange2", 30511)] {
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/village_master/"
+    );
+    for (dir, page_npc) in [
+        ("DwarfBlacksmithChange2", 30512),
+        ("DwarfWarehouseChange2", 30511),
+    ] {
         for n in 1..=12 {
             let path = format!("{DIST}{dir}/{page_npc}-{n:02}.htm");
-            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{page_npc}-{n:02}.htm");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {dir}/{page_npc}-{n:02}.htm"
+            );
         }
         // And the other masters genuinely ship nothing of their own.
         let other = format!("{DIST}{dir}/30677-01.htm");
-        assert!(!std::path::Path::new(&other).exists(), "only the first NPC ships pages");
+        assert!(
+            !std::path::Path::new(&other).exists(),
+            "only the first NPC ships pages"
+        );
     }
 }
 
@@ -1535,12 +2268,26 @@ fn orc_change2_transfer_pays_coupons() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(2627, "Challenger", true), (3203, "Glory", true), (3276, "Champion", true), (8870, "Coupon C", false)],
+        &[
+            (2627, "Challenger", true),
+            (3203, "Glory", true),
+            (3276, "Champion", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("ORC_MALL_CLASS", &[45, 46]);
+    world
+        .data
+        .categories
+        .insert_for_test("ORC_MALL_CLASS", &[45, 46]);
     world.data.categories.insert_for_test("ORC_FALL_CLASS", &[]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1556,11 +2303,19 @@ fn orc_change2_transfer_pays_coupons() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")),
+    );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 46, "now a Destroyer");
-    assert_eq!(item_count(&world, 3001, 8870), 15, "Orc masters pay coupons");
+    assert_eq!(
+        item_count(&world, 3001, 8870),
+        15,
+        "Orc masters pay coupons"
+    );
 }
 
 /// DarkElfChange2 takes the **row index**, and — unlike every other Change2 —
@@ -1570,10 +2325,21 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(2633, "Duty", true), (3172, "Fate", true), (3307, "Witchcraft", true), (8870, "Coupon C", false)],
+        &[
+            (2633, "Duty", true),
+            (3172, "Fate", true),
+            (3307, "Witchcraft", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("SECOND_CLASS_GROUP", &[33]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("SECOND_CLASS_GROUP", &[33]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30474, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1590,24 +2356,48 @@ fn dark_elf_change2_uses_row_index_and_pays_nothing() {
     drain(&mut rx);
 
     // Row 0 = Shillien Knight (33) from Palus Knight (32).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange2 0")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest DarkElfChange2 0")),
+    );
 
     let p = world.objects.get_component::<Player>(&3001).unwrap();
     assert_eq!(p.class_id, 33, "row 0 is Shillien Knight");
     for id in [2633, 3172, 3307] {
         assert_eq!(item_count(&world, 3001, id), 0, "mark {id} consumed");
     }
-    assert_eq!(item_count(&world, 3001, 8870), 0, "the Dark Elf script pays NO coupon");
+    assert_eq!(
+        item_count(&world, 3001, 8870),
+        0,
+        "the Dark Elf script pays NO coupon"
+    );
 }
 
 /// Both scripts need all three marks.
 #[test]
 fn change2_scripts_require_all_three_marks() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(2627, "Challenger", true), (3203, "Glory", true), (3276, "Champion", true)]);
-    world.data.categories.insert_for_test("ORC_MALL_CLASS", &[45, 46]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    add_quest_items(
+        &mut world,
+        &[
+            (2627, "Challenger", true),
+            (3203, "Glory", true),
+            (3276, "Champion", true),
+        ],
+    );
+    world
+        .data
+        .categories
+        .insert_for_test("ORC_MALL_CLASS", &[45, 46]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30513, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1621,9 +2411,21 @@ fn change2_scripts_require_all_three_marks() {
     drain_db(&mut db_rx);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest OrcChange2 46")),
+    );
 
-    assert_eq!(world.objects.get_component::<Player>(&3001).unwrap().class_id, 45, "still a Raider");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        45,
+        "still a Raider"
+    );
     assert_eq!(item_count(&world, 3001, 2627), 1, "the one mark is kept");
 }
 
@@ -1631,25 +2433,40 @@ fn change2_scripts_require_all_three_marks() {
 /// Elf owner (30474) is the *third* entry in its NPC list, not the first.
 #[test]
 fn change2_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/village_master/"
+    );
     for n in [1u32, 2, 6, 10, 17, 18, 19] {
         let p = format!("{DIST}OrcChange2/30513-{n:02}.htm");
-        assert!(std::path::Path::new(&p).exists(), "missing OrcChange2/30513-{n:02}.htm");
+        assert!(
+            std::path::Path::new(&p).exists(),
+            "missing OrcChange2/30513-{n:02}.htm"
+        );
     }
     for first in [20u32, 24, 28, 32] {
         for n in first..=(first + 3) {
             let p = format!("{DIST}OrcChange2/30513-{n}.htm");
-            assert!(std::path::Path::new(&p).exists(), "missing OrcChange2/30513-{n}.htm");
+            assert!(
+                std::path::Path::new(&p).exists(),
+                "missing OrcChange2/30513-{n}.htm"
+            );
         }
     }
     for n in [1u32, 8, 12, 19, 54, 55, 56] {
         let p = format!("{DIST}DarkElfChange2/30474-{n:02}.html");
-        assert!(std::path::Path::new(&p).exists(), "missing DarkElfChange2/30474-{n:02}.html");
+        assert!(
+            std::path::Path::new(&p).exists(),
+            "missing DarkElfChange2/30474-{n:02}.html"
+        );
     }
     for first in [26u32, 30, 34, 38, 42, 46, 50] {
         for n in first..=(first + 3) {
             let p = format!("{DIST}DarkElfChange2/30474-{n}.html");
-            assert!(std::path::Path::new(&p).exists(), "missing DarkElfChange2/30474-{n}.html");
+            assert!(
+                std::path::Path::new(&p).exists(),
+                "missing DarkElfChange2/30474-{n}.html"
+            );
         }
     }
 }
@@ -1661,14 +2478,30 @@ fn elf_human_change2_second_class_transfer() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(2627, "Challenger", true), (2734, "Trust", true), (2762, "Duelist", true),
-          (8870, "Coupon C", false)],
+        &[
+            (2627, "Challenger", true),
+            (2734, "Trust", true),
+            (2762, "Duelist", true),
+            (8870, "Coupon C", false),
+        ],
     );
-    world.data.categories.insert_for_test("FIGHTER_GROUP", &[1, 2, 3]);
-    world.data.categories.insert_for_test("HUMAN_FALL_CLASS", &[1, 2, 3]);
+    world
+        .data
+        .categories
+        .insert_for_test("FIGHTER_GROUP", &[1, 2, 3]);
+    world
+        .data
+        .categories
+        .insert_for_test("HUMAN_FALL_CLASS", &[1, 2, 3]);
     world.data.categories.insert_for_test("ELF_FALL_CLASS", &[]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1707,13 +2540,26 @@ fn elf_human_change2_rejects_the_wrong_source_class() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(2633, "Duty", true), (3140, "Life", true), (2820, "Healer", true)],
+        &[
+            (2633, "Duty", true),
+            (3140, "Life", true),
+            (2820, "Healer", true),
+        ],
     );
     world.data.categories.insert_for_test("FIGHTER_GROUP", &[4]);
-    world.data.categories.insert_for_test("HUMAN_FALL_CLASS", &[4]);
+    world
+        .data
+        .categories
+        .insert_for_test("HUMAN_FALL_CLASS", &[4]);
     world.data.categories.insert_for_test("ELF_FALL_CLASS", &[]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30109, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1750,13 +2596,26 @@ fn elf_human_change2_requires_all_three_marks() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(2721, "Pilgrim", true), (2734, "Trust", true), (2820, "Healer", true)],
+        &[
+            (2721, "Pilgrim", true),
+            (2734, "Trust", true),
+            (2820, "Healer", true),
+        ],
     );
     world.data.categories.insert_for_test("CLERIC_GROUP", &[15]);
-    world.data.categories.insert_for_test("HUMAN_CALL_CLASS", &[15]);
+    world
+        .data
+        .categories
+        .insert_for_test("HUMAN_CALL_CLASS", &[15]);
     world.data.categories.insert_for_test("ELF_CALL_CLASS", &[]);
-    world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-    world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[]);
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[]);
     add_test_npc(&mut world, NPC_OID, 30120, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     {
@@ -1792,24 +2651,105 @@ fn elf_human_change2_requires_all_three_marks() {
 fn elf_human_change2_talk_picks_the_class_list() {
     // (script, page npc, group, human cat, elf cat, class id, expected page)
     let cases: [(&str, i32, &str, &str, &str, i32, u32); 9] = [
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 1, 2),
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 5, 9),
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 7, 16),
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 19, 23),
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 22, 30),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            1,
+            2,
+        ),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            5,
+            9,
+        ),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            7,
+            16,
+        ),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            19,
+            23,
+        ),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            22,
+            30,
+        ),
         // No first occupation yet.
-        ("ElfHumanFighterChange2", 30109, "FIGHTER_GROUP", "HUMAN_FALL_CLASS", "ELF_FALL_CLASS", 0, 37),
-        ("ElfHumanWizardChange2", 30115, "WIZARD_GROUP", "HUMAN_MALL_CLASS", "ELF_MALL_CLASS", 11, 2),
-        ("ElfHumanWizardChange2", 30115, "WIZARD_GROUP", "HUMAN_MALL_CLASS", "ELF_MALL_CLASS", 26, 12),
-        ("ElfHumanClericChange2", 30120, "CLERIC_GROUP", "HUMAN_CALL_CLASS", "ELF_CALL_CLASS", 29, 9),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            "FIGHTER_GROUP",
+            "HUMAN_FALL_CLASS",
+            "ELF_FALL_CLASS",
+            0,
+            37,
+        ),
+        (
+            "ElfHumanWizardChange2",
+            30115,
+            "WIZARD_GROUP",
+            "HUMAN_MALL_CLASS",
+            "ELF_MALL_CLASS",
+            11,
+            2,
+        ),
+        (
+            "ElfHumanWizardChange2",
+            30115,
+            "WIZARD_GROUP",
+            "HUMAN_MALL_CLASS",
+            "ELF_MALL_CLASS",
+            26,
+            12,
+        ),
+        (
+            "ElfHumanClericChange2",
+            30120,
+            "CLERIC_GROUP",
+            "HUMAN_CALL_CLASS",
+            "ELF_CALL_CLASS",
+            29,
+            9,
+        ),
     ];
     for (script, npc_id, group, human_cat, elf_cat, class_id, expected) in cases {
         let (mut world, _db_rx, _link_rx) = quest_test_world();
         world.data.categories.insert_for_test(group, &[class_id]);
-        world.data.categories.insert_for_test(human_cat, &[class_id]);
+        world
+            .data
+            .categories
+            .insert_for_test(human_cat, &[class_id]);
         world.data.categories.insert_for_test(elf_cat, &[]);
-        world.data.categories.insert_for_test("THIRD_CLASS_GROUP", &[]);
-        world.data.categories.insert_for_test("FOURTH_CLASS_GROUP", &[]);
+        world
+            .data
+            .categories
+            .insert_for_test("THIRD_CLASS_GROUP", &[]);
+        world
+            .data
+            .categories
+            .insert_for_test("FOURTH_CLASS_GROUP", &[]);
         add_test_npc(&mut world, NPC_OID, npc_id, "VillageMaster", 70, 100, 0, 0);
         let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
         {
@@ -1825,16 +2765,23 @@ fn elf_human_change2_talk_picks_the_class_list() {
             &bypass_body(&format!("npc_{NPC_OID}_Quest {script}")),
         );
 
-        let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default();
+        let html = drain(&mut rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .unwrap_or_default();
         let want_path = format!(
             "{}/../../dist/game/data/scripts/village_master/{script}/{npc_id}-{expected:02}.htm",
             env!("CARGO_MANIFEST_DIR")
         );
         let want = crate::data::htm_cache::strip_htm(
-            &std::fs::read_to_string(&want_path).unwrap_or_else(|_| panic!("dist page {want_path}")),
+            &std::fs::read_to_string(&want_path)
+                .unwrap_or_else(|_| panic!("dist page {want_path}")),
         )
         .replace("%objectId%", &NPC_OID.to_string());
-        assert_eq!(html, want, "{script} class {class_id}: wrong page (wanted {expected})");
+        assert_eq!(
+            html, want,
+            "{script} class {class_id}: wrong page (wanted {expected})"
+        );
     }
 }
 
@@ -1843,28 +2790,56 @@ fn elf_human_change2_talk_picks_the_class_list() {
 /// page owner cannot be tidied into a per-NPC name that would 404).
 #[test]
 fn elf_human_change2_pages_exist_in_dist() {
-    const DIST: &str =
-        concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/village_master/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/village_master/"
+    );
     // (script, page npc, fixed pages, row first-pages, another master's id)
     let sets: [(&str, i32, &[u32], &[u32], i32); 3] = [
-        ("ElfHumanFighterChange2", 30109, &[1, 2, 9, 16, 23, 30, 37, 38, 39],
-         &[40, 44, 48, 52, 56, 60, 64, 68, 72, 76], 30187),
-        ("ElfHumanWizardChange2", 30115, &[1, 2, 12, 19, 20, 21], &[22, 26, 30, 34, 38], 30174),
-        ("ElfHumanClericChange2", 30120, &[1, 2, 9, 13, 14, 15], &[16, 20, 24], 30191),
+        (
+            "ElfHumanFighterChange2",
+            30109,
+            &[1, 2, 9, 16, 23, 30, 37, 38, 39],
+            &[40, 44, 48, 52, 56, 60, 64, 68, 72, 76],
+            30187,
+        ),
+        (
+            "ElfHumanWizardChange2",
+            30115,
+            &[1, 2, 12, 19, 20, 21],
+            &[22, 26, 30, 34, 38],
+            30174,
+        ),
+        (
+            "ElfHumanClericChange2",
+            30120,
+            &[1, 2, 9, 13, 14, 15],
+            &[16, 20, 24],
+            30191,
+        ),
     ];
     for (script, npc, fixed, firsts, other) in sets {
         for n in fixed {
             let p = format!("{DIST}{script}/{npc}-{n:02}.htm");
-            assert!(std::path::Path::new(&p).exists(), "missing {script}/{npc}-{n:02}.htm");
+            assert!(
+                std::path::Path::new(&p).exists(),
+                "missing {script}/{npc}-{n:02}.htm"
+            );
         }
         for first in firsts {
             for n in *first..=(*first + 3) {
                 let p = format!("{DIST}{script}/{npc}-{n}.htm");
-                assert!(std::path::Path::new(&p).exists(), "missing {script}/{npc}-{n}.htm");
+                assert!(
+                    std::path::Path::new(&p).exists(),
+                    "missing {script}/{npc}-{n}.htm"
+                );
             }
         }
         let p = format!("{DIST}{script}/{other}-01.htm");
-        assert!(!std::path::Path::new(&p).exists(), "only {npc} ships {script} pages");
+        assert!(
+            !std::path::Path::new(&p).exists(),
+            "only {npc} ships {script} pages"
+        );
     }
 }
 
@@ -1888,7 +2863,11 @@ fn alliance_master_talk_opens_the_menu_without_a_clan() {
     add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 70, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     assert_eq!(
-        world.objects.get_component::<Player>(&3001).unwrap().clan_id,
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .clan_id,
         0,
         "fixture player is clanless"
     );
@@ -1900,8 +2879,15 @@ fn alliance_master_talk_opens_the_menu_without_a_clan() {
         &bypass_body(&format!("npc_{NPC_OID}_Quest AllianceMaster")),
     );
 
-    let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
-    assert_eq!(html, alliance_page("9001-01.htm"), "the menu, not the clan refusal");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("a reply");
+    assert_eq!(
+        html,
+        alliance_page("9001-01.htm"),
+        "the menu, not the clan refusal"
+    );
 }
 
 /// Every page *except* the menu needs a clan. The asymmetry is the whole
@@ -1921,7 +2907,11 @@ fn alliance_master_gates_every_page_but_the_menu_on_having_a_clan() {
         let (mut world, _db_rx, _link_rx) = quest_test_world();
         add_test_npc(&mut world, NPC_OID, 30026, "VillageMaster", 70, 100, 0, 0);
         let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-        world.objects.get_component_mut::<Player>(&3001).unwrap().clan_id = clan_id;
+        world
+            .objects
+            .get_component_mut::<Player>(&3001)
+            .unwrap()
+            .clan_id = clan_id;
         drain(&mut rx);
 
         handle_request_bypass_to_server(
@@ -1930,7 +2920,10 @@ fn alliance_master_gates_every_page_but_the_menu_on_having_a_clan() {
             &bypass_body(&format!("npc_{NPC_OID}_Quest AllianceMaster {requested}")),
         );
 
-        let html = drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).expect("a reply");
+        let html = drain(&mut rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .expect("a reply");
         assert_eq!(
             html,
             alliance_page(expected),
@@ -1953,7 +2946,10 @@ fn alliance_master_pages_exist_in_dist() {
     }
     for npc in [30026, 30031, 30913] {
         let p = format!("{DIST}{npc}-01.htm");
-        assert!(!std::path::Path::new(&p).exists(), "pages are 9001-*, not per-NPC");
+        assert!(
+            !std::path::Path::new(&p).exists(),
+            "pages are 9001-*, not per-NPC"
+        );
     }
 }
 
@@ -1988,17 +2984,33 @@ fn quest_q00406_drop_ignores_the_quest_drop_rate() {
     world.forced_rolls.push_back(0); // roll(100) → 0 < 70
     death::npc_do_die(&mut world, mob, 3001);
 
-    assert_eq!(item_count(&world, 3001, 1205), 1, "one piece per kill regardless of RateQuestDrop");
+    assert_eq!(
+        item_count(&world, 3001, 1205),
+        1,
+        "one piece per kill regardless of RateQuestDrop"
+    );
 }
 
 /// Drive Q00406 up to "quest started".
 fn accept_q406(world: &mut World) {
-    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")));
-    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight ACCEPT")));
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight 30327-06.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+    );
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight ACCEPT"
+        )),
+    );
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight 30327-06.htm"
+        )),
     );
 }
 
@@ -2011,8 +3023,14 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(1202, "Sorius Letter", true), (1203, "Kluto Box", true), (1205, "Topaz", true),
-          (1206, "Emerald", true), (1276, "Kluto Memo", true), (1204, "Elven Knight Brooch", false)],
+        &[
+            (1202, "Sorius Letter", true),
+            (1203, "Kluto Box", true),
+            (1205, "Topaz", true),
+            (1206, "Emerald", true),
+            (1276, "Kluto Memo", true),
+            (1204, "Elven Knight Brooch", false),
+        ],
     );
     for id in [20035, 20782] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -2033,7 +3051,10 @@ fn quest_q00406_full_chain_awards_the_brooch() {
     }
     drain_db(&mut db_rx);
     accept_q406(&mut world);
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(1));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(1)
+    );
     drain(&mut rx);
 
     // 20 topaz.
@@ -2044,22 +3065,38 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1205), 20);
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(2), "20 topaz advances");
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(2),
+        "20 topaz advances"
+    );
 
     // Sorius hands over his letter.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+    );
     assert_eq!(item_count(&world, 3001, 1202), 1, "Sorius' letter");
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(3));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(3)
+    );
 
     // Kluto swaps the letter for his memo.
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{kluto}_Quest Q00406_PathOfTheElvenKnight 30317-02.html")),
+        &bypass_body(&format!(
+            "npc_{kluto}_Quest Q00406_PathOfTheElvenKnight 30317-02.html"
+        )),
     );
     assert_eq!(item_count(&world, 3001, 1202), 0, "letter consumed");
     assert_eq!(item_count(&world, 3001, 1276), 1, "memo received");
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(4));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(4)
+    );
 
     // 20 emerald from Ol Mahum Novices.
     for i in 0..20 {
@@ -2069,27 +3106,49 @@ fn quest_q00406_full_chain_awards_the_brooch() {
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1206), 20);
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(5));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(5)
+    );
 
     // Kluto builds the box, consuming everything.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kluto}_Quest Q00406_PathOfTheElvenKnight")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kluto}_Quest Q00406_PathOfTheElvenKnight")),
+    );
     assert_eq!(item_count(&world, 3001, 1203), 1, "the box");
     assert_eq!(item_count(&world, 3001, 1205), 0, "topaz consumed");
     assert_eq!(item_count(&world, 3001, 1206), 0, "emerald consumed");
-    assert_eq!(quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"), Some(6));
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00406_PathOfTheElvenKnight"),
+        Some(6)
+    );
     drain(&mut rx);
 
     // Sorius pays out.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00406_PathOfTheElvenKnight")),
+    );
     assert_eq!(item_count(&world, 3001, 1204), 1, "the Elven Knight Brooch");
     {
         // `exitQuest(false, ...)` — one-time, so the state stays COMPLETED
         // rather than being deleted (that would let it be repeated).
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
-        assert!(quests.0["Q00406_PathOfTheElvenKnight"].is_completed(), "one-time quest stays COMPLETED");
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        assert!(
+            quests.0["Q00406_PathOfTheElvenKnight"].is_completed(),
+            "one-time quest stays COMPLETED"
+        );
     }
     assert!(
-        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
         "the completion animation"
     );
 }
@@ -2102,8 +3161,13 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(1207, "Reisa Letter", true), (1208, "Torn 1", true), (1209, "Torn 2", true),
-          (1210, "Torn 3", true), (1211, "Torn 4", true)],
+        &[
+            (1207, "Reisa Letter", true),
+            (1208, "Torn 1", true),
+            (1209, "Torn 2", true),
+            (1210, "Torn 3", true),
+            (1211, "Torn 4", true),
+        ],
     );
     let mut t = crate::data::npc_data::default_template(20053);
     t.type_name = "Monster".into();
@@ -2123,30 +3187,61 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
     }
     drain_db(&mut db_rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout ACCEPT")));
-    assert_eq!(item_count(&world, 3001, 1207), 1, "Reisa's letter on accept");
     handle_request_bypass_to_server(
         &mut world,
         1,
-        &bypass_body(&format!("npc_{moretti}_Quest Q00407_PathOfTheElvenScout 30337-03.html")),
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout")),
     );
-    assert_eq!(quest_cond(&world, 3001, "Q00407_PathOfTheElvenScout"), Some(2));
-    assert_eq!(item_count(&world, 3001, 1207), 0, "Moretti takes the letter");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00407_PathOfTheElvenScout ACCEPT"
+        )),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1207),
+        1,
+        "Reisa's letter on accept"
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{moretti}_Quest Q00407_PathOfTheElvenScout 30337-03.html"
+        )),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, "Q00407_PathOfTheElvenScout"),
+        Some(2)
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1207),
+        0,
+        "Moretti takes the letter"
+    );
     drain(&mut rx);
 
     // Killed cold — never attacked, so never tagged.
     let untagged = NPC_OID + 100;
     add_test_npc(&mut world, untagged, 20053, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, untagged, 3001);
-    assert_eq!(item_count(&world, 3001, 1208), 0, "an untagged mob pays nothing");
+    assert_eq!(
+        item_count(&world, 3001, 1208),
+        0,
+        "an untagged mob pays nothing"
+    );
 
     // Attack first, then kill.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 20053, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, tagged, 3001, 10.0);
     death::npc_do_die(&mut world, tagged, 3001);
-    assert_eq!(item_count(&world, 3001, 1208), 1, "the tagging player is paid");
+    assert_eq!(
+        item_count(&world, 3001, 1208),
+        1,
+        "the tagging player is paid"
+    );
 }
 
 /// Both quests' pages exist. The extension is **mixed within one quest** —
@@ -2154,34 +3249,66 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
 /// never names either.
 #[test]
 fn elven_path_quest_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/quests/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/"
+    );
     let htm: [(&str, &str, &[&str]); 2] = [
-        ("Q00406_PathOfTheElvenKnight", "30327", &["01", "02", "02a", "03", "04", "05", "06"]),
-        ("Q00407_PathOfTheElvenScout", "30328", &["01", "02", "02a", "03", "04", "05"]),
+        (
+            "Q00406_PathOfTheElvenKnight",
+            "30327",
+            &["01", "02", "02a", "03", "04", "05", "06"],
+        ),
+        (
+            "Q00407_PathOfTheElvenScout",
+            "30328",
+            &["01", "02", "02a", "03", "04", "05"],
+        ),
     ];
     for (dir, npc, pages) in htm {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.htm");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {dir}/{npc}-{p}.htm"
+            );
         }
     }
     let html: [(&str, &str, &[&str]); 6] = [
-        ("Q00406_PathOfTheElvenKnight", "30327", &["07", "08", "09", "10", "11"]),
-        ("Q00406_PathOfTheElvenKnight", "30317", &["01", "02", "03", "04", "05", "06"]),
+        (
+            "Q00406_PathOfTheElvenKnight",
+            "30327",
+            &["07", "08", "09", "10", "11"],
+        ),
+        (
+            "Q00406_PathOfTheElvenKnight",
+            "30317",
+            &["01", "02", "03", "04", "05", "06"],
+        ),
         ("Q00407_PathOfTheElvenScout", "30328", &["06", "07", "08"]),
         ("Q00407_PathOfTheElvenScout", "30334", &["01"]),
-        ("Q00407_PathOfTheElvenScout", "30337", &["01", "02", "03", "04", "05", "06", "07", "08", "09"]),
+        (
+            "Q00407_PathOfTheElvenScout",
+            "30337",
+            &["01", "02", "03", "04", "05", "06", "07", "08", "09"],
+        ),
         ("Q00407_PathOfTheElvenScout", "30426", &["01", "02", "04"]),
     ];
     for (dir, npc, pages) in html {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {dir}/{npc}-{p}.html"
+            );
         }
     }
     // Prias' gap is real; the port must not invent a -03 to "complete" the run.
     let gap = format!("{DIST}Q00407_PathOfTheElvenScout/30426-03.html");
-    assert!(!std::path::Path::new(&gap).exists(), "30426-03 genuinely does not ship");
+    assert!(
+        !std::path::Path::new(&gap).exists(),
+        "30426-03 genuinely does not ship"
+    );
 }
 
 /// Put `item_id` straight into the RHand paperdoll. Bypasses `equip_item`,
@@ -2202,17 +3329,32 @@ fn equip_weapon_row(world: &mut World, player: i32, item_id: i32) {
         augment_option1: 0,
         augment_option2: 0,
     };
-    world.objects.add_components(&player, crate::model::inventory::Inventory::from_rows(&[row]));
+    world.objects.add_components(
+        &player,
+        crate::model::inventory::Inventory::from_rows(&[row]),
+    );
 }
 
 /// Accept Q00401 and return the world to "quest started".
 fn accept_q401(world: &mut World) {
-    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior")));
-    handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior ACCEPT")));
     handle_request_bypass_to_server(
         world,
         1,
-        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior 30010-06.htm")),
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior")),
+    );
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior ACCEPT"
+        )),
+    );
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00401_PathOfTheWarrior 30010-06.htm"
+        )),
     );
 }
 
@@ -2223,7 +3365,14 @@ fn accept_q401(world: &mut World) {
 fn quest_q00401_spider_legs_require_the_quest_sword() {
     for (equip_sword, expected) in [(false, 0), (true, 1)] {
         let (mut world, mut db_rx, _link_rx) = quest_test_world();
-        add_quest_items(&mut world, &[(1138, "Auron Letter", true), (1142, "Rusted Sword 3", true), (1144, "Spider Leg", true)]);
+        add_quest_items(
+            &mut world,
+            &[
+                (1138, "Auron Letter", true),
+                (1142, "Rusted Sword 3", true),
+                (1144, "Spider Leg", true),
+            ],
+        );
         let mut t = crate::data::npc_data::default_template(20038);
         t.type_name = "Monster".into();
         t.level = 20;
@@ -2263,7 +3412,14 @@ fn quest_q00401_spider_legs_require_the_quest_sword() {
 fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
     for (forced, expected) in [(3, 1), (4, 0)] {
         let (mut world, mut db_rx, _link_rx) = quest_test_world();
-        add_quest_items(&mut world, &[(1138, "Auron Letter", true), (1139, "Guild Mark", true), (1140, "Rusted Sword 1", true)]);
+        add_quest_items(
+            &mut world,
+            &[
+                (1138, "Auron Letter", true),
+                (1139, "Guild Mark", true),
+                (1140, "Rusted Sword 1", true),
+            ],
+        );
         let mut t = crate::data::npc_data::default_template(20035);
         t.type_name = "Monster".into();
         t.level = 20;
@@ -2303,7 +3459,15 @@ fn quest_q00401_rusted_sword_chance_is_out_of_ten() {
 #[test]
 fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1180, "Bezique Letter", true), (1181, "Neti Bow", true), (1182, "Neti Dagger", true), (1183, "Spartois Bones", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1180, "Bezique Letter", true),
+            (1181, "Neti Bow", true),
+            (1182, "Neti Dagger", true),
+            (1183, "Spartois Bones", true),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20054);
     t.type_name = "Monster".into();
     t.level = 20;
@@ -2319,9 +3483,23 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
     }
     equip_weapon_row(&mut world, 3001, 1181); // Neti's bow satisfies the tag
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
+        )),
+    );
     drain(&mut rx);
 
     for i in 0..40 {
@@ -2331,7 +3509,11 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
         death::npc_do_die(&mut world, mob, 3001);
     }
 
-    assert_eq!(item_count(&world, 3001, 1183), 10, "80% drop caps at 10 well within 40 kills");
+    assert_eq!(
+        item_count(&world, 3001, 1183),
+        10,
+        "80% drop caps at 10 well within 40 kills"
+    );
     assert_eq!(quest_cond(&world, 3001, "Q00403_PathOfTheRogue"), Some(3));
 }
 
@@ -2343,9 +3525,15 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(1180, "Bezique Letter", true), (1181, "Neti Bow", true), (1185, "Most Wanted", true),
-          (1186, "Stolen Jewelry", true), (1187, "Stolen Tomes", true), (1188, "Stolen Ring", true),
-          (1189, "Stolen Necklace", true)],
+        &[
+            (1180, "Bezique Letter", true),
+            (1181, "Neti Bow", true),
+            (1185, "Most Wanted", true),
+            (1186, "Stolen Jewelry", true),
+            (1187, "Stolen Tomes", true),
+            (1188, "Stolen Ring", true),
+            (1189, "Stolen Necklace", true),
+        ],
     );
     let mut t = crate::data::npc_data::default_template(27038);
     t.type_name = "Monster".into();
@@ -2362,23 +3550,46 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
     }
     equip_weapon_row(&mut world, 3001, 1181);
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest Q00403_PathOfTheRogue ACCEPT")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest Q00403_PathOfTheRogue 30379-06.htm"
+        )),
+    );
     super::items::add_inventory_item(&mut world, 3001, 1185, 1); // the most-wanted list
     drain(&mut rx);
 
     let bandit = NPC_OID + 1;
     add_test_npc(&mut world, bandit, 27038, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
-    let says: Vec<_> = drain(&mut rx).into_iter().filter(|p| p[0] == server_packets::opcodes::NPC_SAY).collect();
+    let says: Vec<_> = drain(&mut rx)
+        .into_iter()
+        .filter(|p| p[0] == server_packets::opcodes::NPC_SAY)
+        .collect();
     assert_eq!(says.len(), 1, "one taunt on the first qualifying hit");
-    assert_eq!(i32::from_le_bytes(says[0][13..17].try_into().unwrap()), 40306, "the taunt line");
+    assert_eq!(
+        i32::from_le_bytes(says[0][13..17].try_into().unwrap()),
+        40306,
+        "the taunt line"
+    );
 
     // A second hit must not re-taunt (script value is no longer 0).
     combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
     assert!(
-        !drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::NPC_SAY),
+        !drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::NPC_SAY),
         "the taunt fires once"
     );
 
@@ -2398,27 +3609,60 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
 /// elven pair.
 #[test]
 fn warrior_rogue_quest_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/quests/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/"
+    );
     let htm: [(&str, &str, &[&str]); 2] = [
-        ("Q00401_PathOfTheWarrior", "30010", &["01", "02", "02a", "03", "04", "05", "06"]),
-        ("Q00403_PathOfTheRogue", "30379", &["01", "02", "02a", "03", "04", "05", "06"]),
+        (
+            "Q00401_PathOfTheWarrior",
+            "30010",
+            &["01", "02", "02a", "03", "04", "05", "06"],
+        ),
+        (
+            "Q00403_PathOfTheRogue",
+            "30379",
+            &["01", "02", "02a", "03", "04", "05", "06"],
+        ),
     ];
     for (dir, npc, pages) in htm {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.htm");
-            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.htm");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {dir}/{npc}-{p}.htm"
+            );
         }
     }
     let html: [(&str, &str, &[&str]); 4] = [
-        ("Q00401_PathOfTheWarrior", "30010", &["07", "08", "09", "10", "11", "12", "13"]),
-        ("Q00401_PathOfTheWarrior", "30253", &["01", "02", "03", "04", "05", "06"]),
-        ("Q00403_PathOfTheRogue", "30379", &["07", "08", "09", "10", "11"]),
-        ("Q00403_PathOfTheRogue", "30425", &["01", "02", "03", "04", "05", "06", "07", "08"]),
+        (
+            "Q00401_PathOfTheWarrior",
+            "30010",
+            &["07", "08", "09", "10", "11", "12", "13"],
+        ),
+        (
+            "Q00401_PathOfTheWarrior",
+            "30253",
+            &["01", "02", "03", "04", "05", "06"],
+        ),
+        (
+            "Q00403_PathOfTheRogue",
+            "30379",
+            &["07", "08", "09", "10", "11"],
+        ),
+        (
+            "Q00403_PathOfTheRogue",
+            "30425",
+            &["01", "02", "03", "04", "05", "06", "07", "08"],
+        ),
     ];
     for (dir, npc, pages) in html {
         for p in pages {
             let path = format!("{DIST}{dir}/{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {dir}/{npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {dir}/{npc}-{p}.html"
+            );
         }
     }
 }
@@ -2429,11 +3673,16 @@ const Q402: &str = "Q00402_PathOfTheHumanKnight";
 /// already in the bag.
 fn q402_world_with_coins(coins: usize) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    let mut items: Vec<(i32, &str, bool)> = vec![(1271, "Squire's Mark", true), (1161, "Sword of Ritual", false)];
+    let mut items: Vec<(i32, &str, bool)> = vec![
+        (1271, "Squire's Mark", true),
+        (1161, "Sword of Ritual", false),
+    ];
     for id in [1162, 1163, 1164, 1165, 1166, 1167] {
         items.push((id, "Coin of Lords", true));
     }
-    for id in [1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179] {
+    for id in [
+        1168, 1169, 1170, 1171, 1172, 1173, 1174, 1175, 1176, 1177, 1178, 1179,
+    ] {
         items.push((id, "Badge or trophy", true));
     }
     add_quest_items(&mut world, &items);
@@ -2446,9 +3695,21 @@ fn q402_world_with_coins(coins: usize) -> (World, tokio::sync::mpsc::UnboundedRe
         p.base_class_id = 0;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} ACCEPT")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} ACCEPT")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-08.htm")),
+    );
     for id in [1162, 1163, 1164, 1165, 1166, 1167].iter().take(coins) {
         super::items::add_inventory_item(&mut world, 3001, *id, 1);
     }
@@ -2462,14 +3723,36 @@ fn q402_world_with_coins(coins: usize) -> (World, tokio::sync::mpsc::UnboundedRe
 fn quest_q00402_three_coins_needs_the_confirm_button() {
     let (mut world, _rx) = q402_world_with_coins(3);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
-    assert_eq!(item_count(&world, 3001, 1161), 0, "talking alone does not pay at 3 coins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1161),
+        0,
+        "talking alone does not pay at 3 coins"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")));
-    assert_eq!(item_count(&world, 3001, 1161), 1, "the confirm button awards the Sword of Ritual");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1161),
+        1,
+        "the confirm button awards the Sword of Ritual"
+    );
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
-        assert!(quests.0[Q402].is_completed(), "one-time quest stays COMPLETED");
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        assert!(
+            quests.0[Q402].is_completed(),
+            "one-time quest stays COMPLETED"
+        );
     }
 }
 
@@ -2479,15 +3762,30 @@ fn quest_q00402_three_coins_needs_the_confirm_button() {
 fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
     let (mut world, _rx) = q402_world_with_coins(6);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402}")),
+    );
 
-    assert_eq!(item_count(&world, 3001, 1161), 1, "six coins pays out on the talk itself");
+    assert_eq!(
+        item_count(&world, 3001, 1161),
+        1,
+        "six coins pays out on the talk itself"
+    );
     for id in [1162, 1163, 1164, 1165, 1166, 1167] {
         assert_eq!(item_count(&world, 3001, id), 0, "coin {id} consumed");
     }
-    assert_eq!(item_count(&world, 3001, 1271), 0, "the Squire's Mark is taken");
+    assert_eq!(
+        item_count(&world, 3001, 1271),
+        0,
+        "the Squire's Mark is taken"
+    );
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q402].is_completed());
     }
 }
@@ -2498,12 +3796,28 @@ fn quest_q00402_six_coins_completes_on_talk_without_a_confirm() {
 fn quest_q00402_confirm_buttons_check_their_coin_range() {
     // `-13` is the "exactly 3" button; with 4 coins it must refuse.
     let (mut world, _rx) = q402_world_with_coins(4);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")));
-    assert_eq!(item_count(&world, 3001, 1161), 0, "the 3-coin button refuses 4 coins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-13.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1161),
+        0,
+        "the 3-coin button refuses 4 coins"
+    );
     // `-14` is the "4 or 5" button; it must refuse a full set of 6.
     let (mut world6, _rx6) = q402_world_with_coins(6);
-    handle_request_bypass_to_server(&mut world6, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-14.html")));
-    assert_eq!(item_count(&world6, 3001, 1161), 0, "the 4-5 coin button refuses 6 coins");
+    handle_request_bypass_to_server(
+        &mut world6,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q402} 30417-14.html")),
+    );
+    assert_eq!(
+        item_count(&world6, 3001, 1161),
+        0,
+        "the 4-5 coin button refuses 6 coins"
+    );
 }
 
 /// One officer's sub-quest end to end — and Bathis' Bugbear Necklace is one of
@@ -2520,8 +3834,16 @@ fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
     add_test_npc(&mut world, bathis, 30332, "Folk", 5, 100, 0, 0);
 
     // The badge hand-over.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bathis}_Quest {Q402} 30332-02.html")));
-    assert_eq!(item_count(&world, 3001, 1168), 1, "Gludio Guard's 1st badge");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{bathis}_Quest {Q402} 30332-02.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1168),
+        1,
+        "Gludio Guard's 1st badge"
+    );
     drain(&mut rx);
 
     // Ten kills, no roll forced — every one must pay.
@@ -2530,10 +3852,18 @@ fn quest_q00402_badge_to_coin_and_the_unrolled_drop() {
         add_test_npc(&mut world, mob, 20775, "Monster", 20, 30, 0, 0);
         death::npc_do_die(&mut world, mob, 3001);
     }
-    assert_eq!(item_count(&world, 3001, 1169), 10, "the necklace has no chance roll");
+    assert_eq!(
+        item_count(&world, 3001, 1169),
+        10,
+        "the necklace has no chance roll"
+    );
 
     // Turn in for the coin.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bathis}_Quest {Q402}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{bathis}_Quest {Q402}")),
+    );
     assert_eq!(item_count(&world, 3001, 1162), 1, "Coin of Lords 1");
     assert_eq!(item_count(&world, 3001, 1168), 0, "badge returned");
     assert_eq!(item_count(&world, 3001, 1169), 0, "necklaces handed over");
@@ -2567,11 +3897,17 @@ fn human_knight_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05", "07", "08"] {
         let path = format!("{DIST}30417-{p}.htm");
-        assert!(std::path::Path::new(&path).exists(), "missing 30417-{p}.htm");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30417-{p}.htm"
+        );
     }
     for p in ["06", "09", "10", "11", "12", "13", "14", "15"] {
         let path = format!("{DIST}30417-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30417-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30417-{p}.html"
+        );
     }
     // The alternation is real, not a tidy prefix split.
     assert!(!std::path::Path::new(&format!("{DIST}30417-07.html")).exists());
@@ -2588,7 +3924,10 @@ fn human_knight_quest_pages_exist_in_dist() {
     for (npc, pages) in officers {
         for p in pages {
             let path = format!("{DIST}{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{p}.html"
+            );
         }
     }
     assert!(std::path::Path::new(&format!("{DIST}30653-01.html")).exists());
@@ -2627,8 +3966,16 @@ fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.base_class_id = 10;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404} ACCEPT")),
+    );
     drain(&mut rx);
     (world, rx)
 }
@@ -2638,8 +3985,13 @@ fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
 #[test]
 fn quest_q00404_full_elemental_chain_awards_the_bead() {
     let (mut world, mut rx) = q404_world();
-    let (salamander, sylph, lizardman, undine, snake) =
-        (NPC_OID + 11, NPC_OID + 12, NPC_OID + 10, NPC_OID + 13, NPC_OID + 9);
+    let (salamander, sylph, lizardman, undine, snake) = (
+        NPC_OID + 11,
+        NPC_OID + 12,
+        NPC_OID + 10,
+        NPC_OID + 13,
+        NPC_OID + 9,
+    );
     add_test_npc(&mut world, salamander, 30411, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, sylph, 30412, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, lizardman, 30410, "Folk", 5, 100, 0, 0);
@@ -2654,53 +4006,103 @@ fn quest_q00404_full_elemental_chain_awards_the_bead() {
     };
 
     // Fire: map → key (Ratman Warrior) → earring.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{salamander}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{salamander}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1280), 1, "Map of Luster");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(2));
     kill(&mut world, 20359);
     assert_eq!(item_count(&world, 3001, 1281), 1, "Key of Flame");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{salamander}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{salamander}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1282), 1, "Flame Earring");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(4));
 
     // Wind: mirror → feather (from DIALOG, not a kill) → bangle.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{sylph}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1283), 1, "Broken Bronze Mirror");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lizardman}_Quest {Q404} 30410-03.html")));
-    assert_eq!(item_count(&world, 3001, 1284), 1, "Wind Feather comes from the lizardman's dialog");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lizardman}_Quest {Q404} 30410-03.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1284),
+        1,
+        "Wind Feather comes from the lizardman's dialog"
+    );
     assert_eq!(quest_cond(&world, 3001, Q404), Some(6));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{sylph}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1285), 1, "Wind Bangle");
 
     // Water: diary → two pebbles → necklace.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{undine}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{undine}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1286), 1, "Rama's Diary");
     kill(&mut world, 27030);
-    assert_eq!(quest_cond(&world, 3001, Q404), Some(8), "one pebble is not enough");
+    assert_eq!(
+        quest_cond(&world, 3001, Q404),
+        Some(8),
+        "one pebble is not enough"
+    );
     kill(&mut world, 27030);
     assert_eq!(item_count(&world, 3001, 1287), 2, "two Sparkle Pebbles");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(9));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{undine}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{undine}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1288), 1, "Water Necklace");
 
     // Earth: coin → red soil → ring.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{snake}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{snake}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1289), 1, "Rusty Coin");
     kill(&mut world, 20021);
     assert_eq!(item_count(&world, 3001, 1290), 1, "Red Soil");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{snake}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{snake}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1291), 1, "Earth Ring");
     assert_eq!(quest_cond(&world, 3001, Q404), Some(13));
     drain(&mut rx);
 
     // Parina takes all four trinkets.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q404}")),
+    );
     assert_eq!(item_count(&world, 3001, 1292), 1, "the Bead of Season");
     for id in [1282, 1285, 1288, 1291] {
         assert_eq!(item_count(&world, 3001, id), 0, "trinket {id} handed over");
     }
     assert!(
-        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
         "the completion animation"
     );
 }
@@ -2713,9 +4115,17 @@ fn quest_q00404_branches_are_gated_on_the_previous_trinket() {
     let sylph = NPC_OID + 12;
     add_test_npc(&mut world, sylph, 30412, "Folk", 5, 100, 0, 0);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{sylph}_Quest {Q404}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sylph}_Quest {Q404}")),
+    );
 
-    assert_eq!(item_count(&world, 3001, 1283), 0, "no mirror without the Flame Earring");
+    assert_eq!(
+        item_count(&world, 3001, 1283),
+        0,
+        "no mirror without the Flame Earring"
+    );
 }
 
 /// A Q00405 world with the quest accepted (ACCEPT issues the first letter).
@@ -2741,9 +4151,21 @@ fn q405_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.base_class_id = 10;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405} ACCEPT")));
-    assert_eq!(item_count(&world, 3001, 1191), 1, "ACCEPT issues the 1st Letter of Order");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405} ACCEPT")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1191),
+        1,
+        "ACCEPT issues the 1st Letter of Order"
+    );
     drain(&mut rx);
     (world, rx)
 }
@@ -2758,27 +4180,62 @@ fn quest_q00405_simplon_gives_three_books() {
     add_test_npc(&mut world, simplon, 30253, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, praga, 30333, "Folk", 5, 100, 0, 0);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{vivyan}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{vivyan}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1194), 1, "Vivyan gives one");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{simplon}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{simplon}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1195), 3, "Simplon gives THREE");
-    assert!(quest_cond(&world, 3001, Q405) != Some(2), "Praga's book is still missing");
+    assert!(
+        quest_cond(&world, 3001, Q405) != Some(2),
+        "Praga's book is still missing"
+    );
 
     // Praga: necklace on loan, pendant from a zombie (no chance roll), then
     // the book.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{praga}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{praga}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1199), 1, "Necklace of Mother");
     let zombie = NPC_OID + 300;
     add_test_npc(&mut world, zombie, 20026, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, zombie, 3001);
-    assert_eq!(item_count(&world, 3001, 1198), 1, "the pendant drops with no roll");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{praga}_Quest {Q405}")));
+    assert_eq!(
+        item_count(&world, 3001, 1198),
+        1,
+        "the pendant drops with no roll"
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{praga}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1196), 1, "Book of Praga");
-    assert_eq!(quest_cond(&world, 3001, Q405), Some(2), "all three books held");
+    assert_eq!(
+        quest_cond(&world, 3001, Q405),
+        Some(2),
+        "all three books held"
+    );
 
     // Zigaunt swaps the letters and takes ALL THREE of Simplon's books.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")));
-    assert_eq!(item_count(&world, 3001, 1195), 0, "the whole stack of three is taken");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1195),
+        0,
+        "the whole stack of three is taken"
+    );
     assert_eq!(item_count(&world, 3001, 1192), 1, "2nd Letter of Order");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(3));
 }
@@ -2797,24 +4254,43 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
     super::items::add_inventory_item(&mut world, 3001, 1192, 1);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lionel}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lionel}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1193), 1, "Lionel's Book");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(4));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{gallint}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{gallint}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1197), 1, "Certificate of Gallint");
     assert_eq!(item_count(&world, 3001, 1193), 0, "book handed over");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(5));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lionel}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lionel}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1200), 1, "Lemoniell's Covenant");
     assert_eq!(quest_cond(&world, 3001, Q405), Some(6));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q405}")),
+    );
     assert_eq!(item_count(&world, 3001, 1201), 1, "the Mark of Faith");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q405].is_completed());
     }
 }
@@ -2823,25 +4299,40 @@ fn quest_q00405_courier_loop_awards_the_mark_of_faith() {
 /// four elemental spirits.
 #[test]
 fn wizard_cleric_quest_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/quests/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/"
+    );
     for p in ["01", "02", "02a", "03", "04", "07"] {
         let path = format!("{DIST}Q00404_PathOfTheHumanWizard/30391-{p}.htm");
-        assert!(std::path::Path::new(&path).exists(), "missing 30391-{p}.htm");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30391-{p}.htm"
+        );
     }
     for p in ["05", "06"] {
         let path = format!("{DIST}Q00404_PathOfTheHumanWizard/30391-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30391-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30391-{p}.html"
+        );
     }
     // All four spirits (and the lizardman) use the same 01..04 scheme.
     for npc in ["30409", "30410", "30411", "30412", "30413"] {
         for p in ["01", "02", "03", "04"] {
             let path = format!("{DIST}Q00404_PathOfTheHumanWizard/{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{p}.html"
+            );
         }
     }
     for p in ["01", "02", "02a", "03", "04", "05"] {
         let path = format!("{DIST}Q00405_PathOfTheCleric/30022-{p}.htm");
-        assert!(std::path::Path::new(&path).exists(), "missing 30022-{p}.htm");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30022-{p}.htm"
+        );
     }
     let cleric: [(&str, &[&str]); 6] = [
         ("30022", &["06", "07", "08", "09"]),
@@ -2854,7 +4345,10 @@ fn wizard_cleric_quest_pages_exist_in_dist() {
     for (npc, pages) in cleric {
         for p in pages {
             let path = format!("{DIST}Q00405_PathOfTheCleric/{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{p}.html"
+            );
         }
     }
 }
@@ -2886,8 +4380,16 @@ fn q409_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.race = 1;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409} ACCEPT")),
+    );
     assert_eq!(item_count(&world, 3001, 1231), 1, "the Crystal Medallion");
     drain(&mut rx);
     (world, rx)
@@ -2913,10 +4415,22 @@ fn quest_q00409_allana_spawns_three_ambushers_that_aggro() {
     let allana = NPC_OID + 20;
     add_test_npc(&mut world, allana, 30424, "Folk", 5, 100, 0, 0);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409}")));
-    assert_eq!(quest_cond(&world, 3001, Q409), Some(2), "Allana starts the tale");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{allana}_Quest {Q409}")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, Q409),
+        Some(2),
+        "Allana starts the tale"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")),
+    );
 
     for id in [27032, 27033, 27034] {
         let spawned = npcs_of(&mut world, id);
@@ -2940,14 +4454,22 @@ fn quest_q00409_ambush_pays_only_the_first_attacker() {
     let cold = NPC_OID + 100;
     add_test_npc(&mut world, cold, 27033, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, cold, 3001);
-    assert_eq!(item_count(&world, 3001, 1234), 0, "an untagged ambusher pays nothing");
+    assert_eq!(
+        item_count(&world, 3001, 1234),
+        0,
+        "an untagged ambusher pays nothing"
+    );
 
     // Attacked first (bare-handed) then killed: qualifies.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 27033, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, tagged, 3001, 10.0);
     death::npc_do_die(&mut world, tagged, 3001);
-    assert_eq!(item_count(&world, 3001, 1234), 1, "no weapon gate here, unlike 401/403");
+    assert_eq!(
+        item_count(&world, 3001, 1234),
+        1,
+        "no weapon gate here, unlike 401/403"
+    );
     assert_eq!(quest_cond(&world, 3001, Q409), Some(3));
 }
 
@@ -2958,16 +4480,36 @@ fn quest_q00409_memo_state_rewinds_independently_of_cond() {
     let (mut world, mut rx) = q409_world();
     let allana = NPC_OID + 20;
     add_test_npc(&mut world, allana, 30424, "Folk", 5, 100, 0, 0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")));
-    assert_eq!(quest_memo(&world, 3001, Q409), 2, "the re-enactment is running");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{allana}_Quest {Q409}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{allana}_Quest {Q409} replay_1")),
+    );
+    assert_eq!(
+        quest_memo(&world, 3001, Q409),
+        2,
+        "the re-enactment is running"
+    );
     drain(&mut rx);
 
     // Back to Manuel empty-handed: the tale is reset, the window jumps to 8.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q409}")),
+    );
 
     assert_eq!(quest_memo(&world, 3001, Q409), 1, "memoState rewound");
-    assert_eq!(quest_cond(&world, 3001, Q409), Some(8), "cond moved the other way");
+    assert_eq!(
+        quest_cond(&world, 3001, Q409),
+        Some(8),
+        "cond moved the other way"
+    );
 }
 
 fn quest_memo(world: &World, player: i32, quest: &str) -> i32 {
@@ -2988,19 +4530,31 @@ fn elven_oracle_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05"] {
         let path = format!("{DIST}30293-{p}.htm");
-        assert!(std::path::Path::new(&path).exists(), "missing 30293-{p}.htm");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30293-{p}.htm"
+        );
     }
     for p in ["06", "07", "08", "09"] {
         let path = format!("{DIST}30293-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30293-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30293-{p}.html"
+        );
     }
     for p in ["01", "02", "03", "04", "05", "06", "07", "08", "09"] {
         let path = format!("{DIST}30424-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30424-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30424-{p}.html"
+        );
     }
     for p in ["01", "02", "03", "04", "05", "06"] {
         let path = format!("{DIST}30428-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30428-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30428-{p}.html"
+        );
     }
 }
 
@@ -3010,7 +4564,9 @@ const Q408: &str = "Q00408_PathOfTheElvenWizard";
 fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
     let mut items: Vec<(i32, &str, bool)> = vec![(1230, "Eternity Diamond", false)];
-    for id in [1218, 1219, 1220, 1221, 1222, 1223, 1224, 1225, 1226, 1229, 1272, 1273, 1274] {
+    for id in [
+        1218, 1219, 1220, 1221, 1222, 1223, 1224, 1225, 1226, 1229, 1272, 1273, 1274,
+    ] {
         items.push((id, "Q408 item", true));
     }
     add_quest_items(&mut world, &items);
@@ -3030,8 +4586,16 @@ fn q408_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.race = 1;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} ACCEPT")),
+    );
     assert_eq!(item_count(&world, 3001, 1229), 1, "the Fertility Peridot");
     drain(&mut rx);
     (world, rx)
@@ -3051,20 +4615,48 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
 
     // (offer event, specialist oid, swap event, mob, material, need, gem)
     let errands: [(&str, i32, Option<&str>, i32, i32, i64, i32); 3] = [
-        ("30414-10.html", greenis, Some("30157-02.html"), 20466, 1219, 5, 1220),
-        ("30414-12.html", thalia, Some("30371-02.html"), 20019, 1223, 5, 1221),
+        (
+            "30414-10.html",
+            greenis,
+            Some("30157-02.html"),
+            20466,
+            1219,
+            5,
+            1220,
+        ),
+        (
+            "30414-12.html",
+            thalia,
+            Some("30371-02.html"),
+            20019,
+            1223,
+            5,
+            1221,
+        ),
         ("30414-16.html", northwind, None, 20047, 1225, 2, 1226),
     ];
     for (offer, specialist, swap, mob, material, need, gem) in errands {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} {offer}")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408} {offer}")),
+        );
         match swap {
             // Greenis / Thalia: the swap needs the dialog event.
             Some(ev) => {
-                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408} {ev}")));
+                handle_request_bypass_to_server(
+                    &mut world,
+                    1,
+                    &bypass_body(&format!("npc_{specialist}_Quest {Q408} {ev}")),
+                );
             }
             // Northwind: talking is enough.
             None => {
-                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408}")));
+                handle_request_bypass_to_server(
+                    &mut world,
+                    1,
+                    &bypass_body(&format!("npc_{specialist}_Quest {Q408}")),
+                );
             }
         }
         for _ in 0..need {
@@ -3073,21 +4665,42 @@ fn quest_q00408_three_errands_award_the_eternity_diamond() {
             world.forced_rolls.push_back(0); // inside every chance
             death::npc_do_die(&mut world, mob_oid, 3001);
         }
-        assert_eq!(item_count(&world, 3001, material), need, "collected material {material}");
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{specialist}_Quest {Q408}")));
+        assert_eq!(
+            item_count(&world, 3001, material),
+            need,
+            "collected material {material}"
+        );
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{specialist}_Quest {Q408}")),
+        );
         assert_eq!(item_count(&world, 3001, gem), 1, "gem {gem} awarded");
-        assert_eq!(item_count(&world, 3001, material), 0, "material handed over");
+        assert_eq!(
+            item_count(&world, 3001, material),
+            0,
+            "material handed over"
+        );
     }
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q408}")),
+    );
     assert_eq!(item_count(&world, 3001, 1230), 1, "the Eternity Diamond");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q408].is_completed());
     }
     assert!(
-        drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
         "the completion animation"
     );
 }
@@ -3114,21 +4727,33 @@ fn elven_wizard_quest_pages_exist_in_dist() {
     );
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
         let path = format!("{DIST}30414-{p}.htm");
-        assert!(std::path::Path::new(&path).exists(), "missing 30414-{p}.htm");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30414-{p}.htm"
+        );
     }
     for n in 7..=23 {
         let path = format!("{DIST}30414-{n:02}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30414-{n:02}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30414-{n:02}.html"
+        );
     }
     for npc in ["30157", "30371"] {
         for p in ["01", "02", "03", "04"] {
             let path = format!("{DIST}{npc}-{p}.html");
-            assert!(std::path::Path::new(&path).exists(), "missing {npc}-{p}.html");
+            assert!(
+                std::path::Path::new(&path).exists(),
+                "missing {npc}-{p}.html"
+            );
         }
     }
     for p in ["01", "02", "03"] {
         let path = format!("{DIST}30423-{p}.html");
-        assert!(std::path::Path::new(&path).exists(), "missing 30423-{p}.html");
+        assert!(
+            std::path::Path::new(&path).exists(),
+            "missing 30423-{p}.html"
+        );
     }
     assert!(
         !std::path::Path::new(&format!("{DIST}30423-04.html")).exists(),
@@ -3166,10 +4791,22 @@ fn dark_elf_quest_world(
         p.race = 2;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")),
+    );
     if let Some(page) = accept_page {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")),
+        );
     }
     drain(&mut rx);
     (world, rx)
@@ -3199,12 +4836,24 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     for _ in 0..13 {
         kill(&mut world, 20049);
     }
-    assert_eq!(item_count(&world, 3001, 1238), 13, "unrolled: 13 kills = 13 skulls");
+    assert_eq!(
+        item_count(&world, 3001, 1238),
+        13,
+        "unrolled: 13 kills = 13 skulls"
+    );
     assert_eq!(quest_cond(&world, 3001, Q410), Some(2));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410} 30329-10.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410} 30329-10.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1239), 1, "Virgil's letter");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-02.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1240), 1, "Morte talisman");
 
     // One carapace and five silks.
@@ -3214,19 +4863,36 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
     }
     assert_eq!(item_count(&world, 3001, 1241), 1, "carapace");
     assert_eq!(item_count(&world, 3001, 1242), 5, "silks");
-    assert_eq!(quest_cond(&world, 3001, Q410), Some(5), "collection complete");
+    assert_eq!(
+        quest_cond(&world, 3001, Q410),
+        Some(5),
+        "collection complete"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-06.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kalinta}_Quest {Q410} 30422-06.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1243), 1, "the coffin");
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q410}")),
+    );
     assert_eq!(item_count(&world, 3001, 1244), 1, "the Gaze of Abyss");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q410].is_completed());
     }
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
 
 /// Each drop is gated on the matching talisman: the right mob pays nothing
@@ -3244,7 +4910,11 @@ fn quest_q00410_drops_are_gated_on_the_talisman() {
     let mob = NPC_OID + 400;
     add_test_npc(&mut world, mob, 20038, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, mob, 3001);
-    assert_eq!(item_count(&world, 3001, 1241), 0, "carapace needs the Morte talisman");
+    assert_eq!(
+        item_count(&world, 3001, 1241),
+        0,
+        "carapace needs the Morte talisman"
+    );
 }
 
 /// Q00411's token chain, all the way to the Iron Heart.
@@ -3268,21 +4938,41 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
         death::npc_do_die(world, mob_oid, 3001);
     };
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1246), 1, "Arkenia's letter");
-    assert_eq!(item_count(&world, 3001, 1245), 0, "the call is consumed — one token at a time");
+    assert_eq!(
+        item_count(&world, 3001, 1245),
+        0,
+        "the call is consumed — one token at a time"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1247), 1, "Leikan's note");
     assert_eq!(item_count(&world, 3001, 1246), 0);
 
     for _ in 0..10 {
         kill(&mut world, 20369);
     }
-    assert_eq!(item_count(&world, 3001, 1248), 10, "unrolled: 10 kills = 10 molars");
+    assert_eq!(
+        item_count(&world, 3001, 1248),
+        10,
+        "unrolled: 10 kills = 10 molars"
+    );
     assert_eq!(quest_cond(&world, 3001, Q411), Some(4));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{leikan}_Quest {Q411}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+    );
     assert_eq!(item_count(&world, 3001, 1248), 0, "molars handed over");
     assert_eq!(quest_cond(&world, 3001, Q411), Some(5));
 
@@ -3290,15 +4980,30 @@ fn quest_q00411_token_chain_awards_the_iron_heart() {
     assert_eq!(item_count(&world, 3001, 1250), 1, "Shilen's Tears");
     assert_eq!(quest_cond(&world, 3001, Q411), Some(6));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{arkenia}_Quest {Q411}")));
-    assert_eq!(item_count(&world, 3001, 1251), 1, "Arkenia's recommendation");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{arkenia}_Quest {Q411}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1251),
+        1,
+        "Arkenia's recommendation"
+    );
     assert_eq!(quest_cond(&world, 3001, Q411), Some(7));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q411}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q411}")),
+    );
     assert_eq!(item_count(&world, 3001, 1252), 1, "the Iron Heart");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q411].is_completed());
     }
 }
@@ -3317,8 +5022,16 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     let (leikan, arkenia) = (NPC_OID + 20, NPC_OID + 21);
     add_test_npc(&mut world, leikan, 30382, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, arkenia, 30419, "Folk", 5, 100, 0, 0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{arkenia}_Quest {Q411} 30419-05.html")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{leikan}_Quest {Q411} 30382-03.html")),
+    );
 
     let dist = |page: &str| {
         let path = format!(
@@ -3331,9 +5044,16 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
 
     // 0 molars.
     drain(&mut rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{leikan}_Quest {Q411}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+    );
     assert_eq!(
-        drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default(),
+        drain(&mut rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .unwrap_or_default(),
         dist("30382-05.html"),
         "note in hand, no molars"
     );
@@ -3342,9 +5062,16 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
     let mob = NPC_OID + 600;
     add_test_npc(&mut world, mob, 20369, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, mob, 3001);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{leikan}_Quest {Q411}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{leikan}_Quest {Q411}")),
+    );
     assert_eq!(
-        drain(&mut rx).iter().find_map(|p| decode_npc_html(p)).unwrap_or_default(),
+        drain(&mut rx)
+            .iter()
+            .find_map(|p| decode_npc_html(p))
+            .unwrap_or_default(),
         dist("30382-06.html"),
         "some molars but not ten"
     );
@@ -3352,14 +5079,18 @@ fn quest_q00411_leikan_page_tracks_the_molar_count() {
 
 #[test]
 fn dark_elf_path_quest_pages_exist_in_dist() {
-    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/data/scripts/quests/");
+    const DIST: &str = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/data/scripts/quests/"
+    );
     // The two quests split .htm/.html at *different* points: 410's accept
     // page `30329-06` is `.htm`, while 411's `30416-06` is `.html` (its
     // accept page is `-05`). Asserted separately so the split can't be
     // assumed uniform across the tier.
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
         assert!(
-            std::path::Path::new(&format!("{DIST}Q00410_PathOfThePalusKnight/30329-{p}.htm")).exists(),
+            std::path::Path::new(&format!("{DIST}Q00410_PathOfThePalusKnight/30329-{p}.htm"))
+                .exists(),
             "missing 30329-{p}.htm"
         );
     }
@@ -3374,19 +5105,34 @@ fn dark_elf_path_quest_pages_exist_in_dist() {
         "411's -06 is .html, unlike 410's"
     );
     for n in 7..=12 {
-        assert!(std::path::Path::new(&format!("{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html")).exists());
+        assert!(std::path::Path::new(&format!(
+            "{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html"
+        ))
+        .exists());
     }
     for n in 1..=6 {
-        assert!(std::path::Path::new(&format!("{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html")).exists());
+        assert!(std::path::Path::new(&format!(
+            "{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html"
+        ))
+        .exists());
     }
     for n in 6..=11 {
-        assert!(std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30416-{n:02}.html")).exists());
+        assert!(
+            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30416-{n:02}.html"))
+                .exists()
+        );
     }
     for n in 1..=9 {
-        assert!(std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30382-{n:02}.html")).exists());
+        assert!(
+            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30382-{n:02}.html"))
+                .exists()
+        );
     }
     for n in 1..=11 {
-        assert!(std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30419-{n:02}.html")).exists());
+        assert!(
+            std::path::Path::new(&format!("{DIST}Q00411_PathOfTheAssassin/30419-{n:02}.html"))
+                .exists()
+        );
     }
 }
 
@@ -3420,10 +5166,22 @@ fn dark_mage_quest_world(
         p.race = 2;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} ACCEPT")),
+    );
     if let Some(page) = accept_page {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} {page}")),
+        );
     }
     drain(&mut rx);
     (world, rx)
@@ -3438,7 +5196,9 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
         Q412,
         30421,
         None,
-        &[1253, 1254, 1255, 1256, 1257, 1259, 1260, 1261, 1277, 1278, 1279],
+        &[
+            1253, 1254, 1255, 1256, 1257, 1259, 1260, 1261, 1277, 1278, 1279,
+        ],
         &[20015, 20022, 20045, 20517, 20518],
     );
     assert_eq!(item_count(&world, 3001, 1254), 1, "the Seed of Despair");
@@ -3457,11 +5217,19 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
     for (npc, tool_event, tool, mob, material, need, seed) in errands {
         match tool_event {
             Some(ev) => {
-                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{npc}_Quest {Q412} {ev}")));
+                handle_request_bypass_to_server(
+                    &mut world,
+                    1,
+                    &bypass_body(&format!("npc_{npc}_Quest {Q412} {ev}")),
+                );
             }
             None => {
                 // Arkenia: the talk itself hands the Hub Scent over.
-                handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{npc}_Quest {Q412}")));
+                handle_request_bypass_to_server(
+                    &mut world,
+                    1,
+                    &bypass_body(&format!("npc_{npc}_Quest {Q412}")),
+                );
             }
         }
         assert_eq!(item_count(&world, 3001, tool), 1, "tool {tool} received");
@@ -3471,17 +5239,32 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
             world.forced_rolls.push_back(0); // `getRandom(2) == 0`
             death::npc_do_die(&mut world, mob_oid, 3001);
         }
-        assert_eq!(item_count(&world, 3001, material), need, "material {material}");
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{npc}_Quest {Q412}")));
+        assert_eq!(
+            item_count(&world, 3001, material),
+            need,
+            "material {material}"
+        );
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{npc}_Quest {Q412}")),
+        );
         assert_eq!(item_count(&world, 3001, seed), 1, "seed {seed} grown");
         assert_eq!(item_count(&world, 3001, tool), 0, "tool spent");
     }
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q412}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q412}")),
+    );
     assert_eq!(item_count(&world, 3001, 1261), 1, "the Jewel of Darkness");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q412].is_completed());
     }
 }
@@ -3491,21 +5274,24 @@ fn quest_q00412_three_seeds_award_the_jewel_of_darkness() {
 #[test]
 fn quest_q00412_drop_is_a_coin_flip_on_equality() {
     for (forced, expected) in [(0, 1), (1, 0)] {
-        let (mut world, _rx) = dark_mage_quest_world(
-            Q412,
-            30421,
-            None,
-            &[1253, 1254, 1257, 1277],
-            &[20015],
-        );
+        let (mut world, _rx) =
+            dark_mage_quest_world(Q412, 30421, None, &[1253, 1254, 1257, 1277], &[20015]);
         let charkeren = NPC_OID + 20;
         add_test_npc(&mut world, charkeren, 30415, "Folk", 5, 100, 0, 0);
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{charkeren}_Quest {Q412} 30415-03.html")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{charkeren}_Quest {Q412} 30415-03.html")),
+        );
         let mob = NPC_OID + 400;
         add_test_npc(&mut world, mob, 20015, "Monster", 20, 30, 0, 0);
         world.forced_rolls.push_back(forced);
         death::npc_do_die(&mut world, mob, 3001);
-        assert_eq!(item_count(&world, 3001, 1257), expected, "roll {forced} against `== 0`");
+        assert_eq!(
+            item_count(&world, 3001, 1257),
+            expected,
+            "roll {forced} against `== 0`"
+        );
     }
 }
 
@@ -3523,17 +5309,33 @@ fn quest_q00413_succubus_swaps_sheets_for_runes() {
     );
     let talbot = NPC_OID + 20;
     add_test_npc(&mut world, talbot, 30377, "Folk", 5, 100, 0, 0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")));
-    assert_eq!(item_count(&world, 3001, 1263), 5, "Talbot gives a stack of five sheets");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1263),
+        5,
+        "Talbot gives a stack of five sheets"
+    );
 
     for i in 1..=5 {
         let mob = NPC_OID + 500 + i;
         add_test_npc(&mut world, mob, 20776, "Monster", 20, 30, 0, 0);
         death::npc_do_die(&mut world, mob, 3001);
         assert_eq!(item_count(&world, 3001, 1264), i as i64, "rune {i} made");
-        assert_eq!(item_count(&world, 3001, 1263), 5 - i as i64, "sheet {i} spent");
+        assert_eq!(
+            item_count(&world, 3001, 1263),
+            5 - i as i64,
+            "sheet {i} spent"
+        );
     }
-    assert_eq!(quest_cond(&world, 3001, Q413), Some(3), "sheets exhausted AND five runes");
+    assert_eq!(
+        quest_cond(&world, 3001, Q413),
+        Some(3),
+        "sheets exhausted AND five runes"
+    );
 
     // A sixth succubus has no sheet left to spend.
     let extra = NPC_OID + 600;
@@ -3562,35 +5364,64 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
         death::npc_do_die(world, mob_oid, 3001);
     };
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{talbot}_Quest {Q413} 30377-02.html")),
+    );
     for _ in 0..5 {
         kill(&mut world, 20776);
     }
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{talbot}_Quest {Q413}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{talbot}_Quest {Q413}")),
+    );
     assert_eq!(item_count(&world, 3001, 1265), 1, "Garmiel's Book");
     assert_eq!(item_count(&world, 3001, 1266), 1, "Prayer of Adonius");
     assert_eq!(quest_cond(&world, 3001, Q413), Some(4));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{adonius}_Quest {Q413} 30375-04.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{adonius}_Quest {Q413} 30375-04.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1267), 1, "Penitent's Mark");
     for _ in 0..10 {
         kill(&mut world, 20457);
     }
-    assert_eq!(item_count(&world, 3001, 1268), 10, "unrolled: 10 kills = 10 bones");
+    assert_eq!(
+        item_count(&world, 3001, 1268),
+        10,
+        "unrolled: 10 kills = 10 bones"
+    );
     assert_eq!(quest_cond(&world, 3001, Q413), Some(6));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{adonius}_Quest {Q413}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{adonius}_Quest {Q413}")),
+    );
     assert_eq!(item_count(&world, 3001, 1269), 1, "Andariel's Book");
     assert_eq!(quest_cond(&world, 3001, Q413), Some(7));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q413}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q413}")),
+    );
     assert_eq!(item_count(&world, 3001, 1270), 1, "the Orb of Abyss");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q413].is_completed());
     }
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
 
 const Q414: &str = "Q00414_PathOfTheOrcRaider";
@@ -3598,8 +5429,10 @@ const Q414: &str = "Q00414_PathOfTheOrcRaider";
 /// An Orc Fighter with Q00414 accepted (Karukia at NPC_OID).
 fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    let rows: Vec<(i32, &str, bool)> =
-        [1578, 1579, 1580, 1589, 1590, 1591, 1592, 8544].iter().map(|id| (*id, "Q414", true)).collect();
+    let rows: Vec<(i32, &str, bool)> = [1578, 1579, 1580, 1589, 1590, 1591, 1592, 8544]
+        .iter()
+        .map(|id| (*id, "Q414", true))
+        .collect();
     add_quest_items(&mut world, &rows);
     for id in [20320, 27045, 27054] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -3617,8 +5450,16 @@ fn q414_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.race = 3;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} ACCEPT")),
+    );
     assert_eq!(item_count(&world, 3001, 1579), 1, "the Goblin Dwelling Map");
     drain(&mut rx);
     (world, rx)
@@ -3670,7 +5511,11 @@ fn quest_q00414_teeth_come_from_kuruka_and_reset_the_meter() {
     let kuruka = NPC_OID + 200;
     add_test_npc(&mut world, kuruka, 27045, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, kuruka, 3001);
-    assert_eq!(item_count(&world, 3001, 1580), 1, "the tooth comes from Kuruka");
+    assert_eq!(
+        item_count(&world, 3001, 1580),
+        1,
+        "the tooth comes from Kuruka"
+    );
     assert_eq!(item_count(&world, 3001, 1578), 0, "and resets the meter");
 }
 
@@ -3681,7 +5526,11 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     for _ in 0..10 {
         super::items::add_inventory_item(&mut world, 3001, 1580, 1); // 10 teeth
     }
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} 30570-07a.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q414} 30570-07a.htm")),
+    );
     assert_eq!(item_count(&world, 3001, 1589), 1, "Umbar's report");
     assert_eq!(item_count(&world, 3001, 1590), 1, "Zakan's report");
     assert_eq!(quest_cond(&world, 3001, Q414), Some(3));
@@ -3691,7 +5540,11 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
     add_test_npc(&mut world, miss, 27054, "Monster", 20, 30, 0, 0);
     world.forced_rolls.push_back(2);
     death::npc_do_die(&mut world, miss, 3001);
-    assert_eq!(item_count(&world, 3001, 1591), 0, "roll 2 is outside the 20%");
+    assert_eq!(
+        item_count(&world, 3001, 1591),
+        0,
+        "roll 2 is outside the 20%"
+    );
 
     for i in 0..2 {
         let mob = NPC_OID + 310 + i;
@@ -3700,17 +5553,28 @@ fn quest_q00414_umbar_heads_spend_the_reports() {
         death::npc_do_die(&mut world, mob, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1591), 2, "two betrayer heads");
-    assert_eq!(item_count(&world, 3001, 1590), 0, "Zakan's report spent first");
+    assert_eq!(
+        item_count(&world, 3001, 1590),
+        0,
+        "Zakan's report spent first"
+    );
     assert_eq!(item_count(&world, 3001, 1589), 0, "then Umbar's");
     assert_eq!(quest_cond(&world, 3001, Q414), Some(4));
 
     // Kasman pays out.
     let kasman = NPC_OID + 20;
     add_test_npc(&mut world, kasman, 30501, "Folk", 5, 100, 0, 0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kasman}_Quest {Q414}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kasman}_Quest {Q414}")),
+    );
     assert_eq!(item_count(&world, 3001, 1592), 1, "the Mark of Raider");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q414].is_completed());
     }
 }
@@ -3735,7 +5599,10 @@ fn orc_raider_dead_branch_is_dead_at_both_ends() {
     // ...and nothing offers the 07b button.
     let fork = std::fs::read_to_string(format!("{DIST}30570-07.htm")).expect("the fork page");
     assert!(fork.contains("30570-07a.htm"), "07a is offered");
-    assert!(!fork.contains("30570-07b.htm"), "07b is NOT offered — the route is unreachable");
+    assert!(
+        !fork.contains("30570-07b.htm"),
+        "07b is NOT offered — the route is unreachable"
+    );
 }
 
 #[test]
@@ -3744,11 +5611,19 @@ fn orc_raider_quest_pages_exist_in_dist() {
         env!("CARGO_MANIFEST_DIR"),
         "/../../dist/game/data/scripts/quests/Q00414_PathOfTheOrcRaider/"
     );
-    for p in ["01", "02", "02a", "03", "04", "05", "06", "07", "07a", "07b", "08"] {
-        assert!(std::path::Path::new(&format!("{DIST}30570-{p}.htm")).exists(), "missing 30570-{p}.htm");
+    for p in [
+        "01", "02", "02a", "03", "04", "05", "06", "07", "07a", "07b", "08",
+    ] {
+        assert!(
+            std::path::Path::new(&format!("{DIST}30570-{p}.htm")).exists(),
+            "missing 30570-{p}.htm"
+        );
     }
     for p in ["01", "02", "03"] {
-        assert!(std::path::Path::new(&format!("{DIST}30501-{p}.htm")).exists(), "missing 30501-{p}.htm");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30501-{p}.htm")).exists(),
+            "missing 30501-{p}.htm"
+        );
     }
 }
 
@@ -3764,7 +5639,9 @@ fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiv
     ];
     let rows: Vec<(i32, &str, bool)> = ids.iter().map(|id| (*id, "Q415", true)).collect();
     add_quest_items(&mut world, &rows);
-    for id in [20014, 20017, 20024, 20359, 20415, 20476, 20478, 20479, 21118] {
+    for id in [
+        20014, 20017, 20024, 20359, 20415, 20476, 20478, 20479, 21118,
+    ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
         t.level = 20;
@@ -3784,9 +5661,21 @@ fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiv
         equip_weapon_row(&mut world, 3001, w);
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} ACCEPT")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} 30587-06.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} ACCEPT")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q415} 30587-06.htm")),
+    );
     assert_eq!(item_count(&world, 3001, 1593), 1, "the pomegranate");
     drain(&mut rx);
     (world, rx)
@@ -3798,19 +5687,26 @@ fn q415_world(weapon: Option<i32>) -> (World, tokio::sync::mpsc::UnboundedReceiv
 fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
     // (equipped weapon, is it a fist type, expected claws after one kill)
     let cases: [(Option<i32>, bool, i64); 3] = [
-        (None, false, 1),        // bare-handed — the pass case
-        (Some(7000), false, 0),  // a sword — disqualifies
-        (Some(7001), true, 1),   // a fist weapon — passes
+        (None, false, 1),       // bare-handed — the pass case
+        (Some(7000), false, 0), // a sword — disqualifies
+        (Some(7001), true, 1),  // a fist weapon — passes
     ];
     for (weapon, is_fist, expected) in cases {
         let (mut world, _rx) = q415_world(weapon);
         if let (Some(w), true) = (weapon, is_fist) {
-            world.data.item_data.set_weapon_type_for_test(w, crate::data::item_data::WeaponType::Fist);
+            world
+                .data
+                .item_data
+                .set_weapon_type_for_test(w, crate::data::item_data::WeaponType::Fist);
         }
         // Get pouch 1 from Rosheek.
         let rosheek = NPC_OID + 20;
         add_test_npc(&mut world, rosheek, 30590, "Folk", 5, 100, 0, 0);
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+        );
         assert_eq!(item_count(&world, 3001, 1594), 1, "first leather pouch");
 
         let bear = NPC_OID + 100;
@@ -3831,7 +5727,11 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     let (mut world, _rx) = q415_world(None);
     let rosheek = NPC_OID + 20;
     add_test_npc(&mut world, rosheek, 30590, "Folk", 5, 100, 0, 0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+    );
 
     for i in 1..=4 {
         let bear = NPC_OID + 100 + i;
@@ -3846,13 +5746,21 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
     death::npc_do_die(&mut world, bear, 3001);
-    assert_eq!(item_count(&world, 3001, 1597), 1, "the fifth kill fills the pouch");
+    assert_eq!(
+        item_count(&world, 3001, 1597),
+        1,
+        "the fifth kill fills the pouch"
+    );
     assert_eq!(item_count(&world, 3001, 1600), 0, "claws consumed");
     assert_eq!(item_count(&world, 3001, 1594), 0, "empty pouch handed over");
     assert_eq!(quest_cond(&world, 3001, Q415), Some(3));
 
     // Rosheek swaps the full pouch for the next empty one.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{rosheek}_Quest {Q415}")),
+    );
     assert_eq!(item_count(&world, 3001, 1595), 1, "second pouch");
     assert_eq!(quest_cond(&world, 3001, Q415), Some(4));
 }
@@ -3874,12 +5782,20 @@ fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
             death::npc_do_die(&mut world, oid, 3001);
             killed += 1;
             if killed < 12 {
-                assert_eq!(item_count(&world, 3001, 1608), 0, "not full at {killed} kills");
+                assert_eq!(
+                    item_count(&world, 3001, 1608),
+                    0,
+                    "not full at {killed} kills"
+                );
             }
         }
         let _ = trophy;
     }
-    assert_eq!(item_count(&world, 3001, 1608), 1, "the twelfth kill fills the pouch");
+    assert_eq!(
+        item_count(&world, 3001, 1608),
+        1,
+        "the twelfth kill fills the pouch"
+    );
     for id in [1609, 1610, 1611, 1612] {
         assert_eq!(item_count(&world, 3001, id), 0, "trophy {id} consumed");
     }
@@ -3896,7 +5812,10 @@ fn orc_monk_alternate_ending_is_dead_at_both_ends() {
     );
     // The orphaned pages ship: 31979 x4, 32056 x9.
     for p in ["01", "02", "03", "04"] {
-        assert!(std::path::Path::new(&format!("{DIST}31979-{p}.html")).exists(), "31979-{p} ships");
+        assert!(
+            std::path::Path::new(&format!("{DIST}31979-{p}.html")).exists(),
+            "31979-{p} ships"
+        );
     }
     for n in 1..=9 {
         assert!(
@@ -3907,7 +5826,10 @@ fn orc_monk_alternate_ending_is_dead_at_both_ends() {
     // ...and the fork page offers only 09b.
     let fork = std::fs::read_to_string(format!("{DIST}30587-09a.html")).expect("the fork page");
     assert!(fork.contains("30587-09b.html"), "09b is offered");
-    assert!(!fork.contains("30587-09c.html"), "09c is NOT offered — the route is unreachable");
+    assert!(
+        !fork.contains("30587-09c.html"),
+        "09c is NOT offered — the route is unreachable"
+    );
 }
 
 #[test]
@@ -3917,19 +5839,34 @@ fn orc_monk_quest_pages_exist_in_dist() {
         "/../../dist/game/data/scripts/quests/Q00415_PathOfTheOrcMonk/"
     );
     for p in ["01", "02", "02a", "03", "04", "05", "06"] {
-        assert!(std::path::Path::new(&format!("{DIST}30587-{p}.htm")).exists(), "missing 30587-{p}.htm");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30587-{p}.htm")).exists(),
+            "missing 30587-{p}.htm"
+        );
     }
     for p in ["07", "08", "09a", "09b", "09c", "10", "11"] {
-        assert!(std::path::Path::new(&format!("{DIST}30587-{p}.html")).exists(), "missing 30587-{p}.html");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30587-{p}.html")).exists(),
+            "missing 30587-{p}.html"
+        );
     }
     for n in 1..=4 {
-        assert!(std::path::Path::new(&format!("{DIST}30501-0{n}.html")).exists(), "missing 30501-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30501-0{n}.html")).exists(),
+            "missing 30501-0{n}"
+        );
     }
     for n in 1..=9 {
-        assert!(std::path::Path::new(&format!("{DIST}30590-0{n}.html")).exists(), "missing 30590-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30590-0{n}.html")).exists(),
+            "missing 30590-0{n}"
+        );
     }
     for n in 1..=4 {
-        assert!(std::path::Path::new(&format!("{DIST}30591-0{n}.html")).exists(), "missing 30591-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30591-0{n}.html")).exists(),
+            "missing 30591-0{n}"
+        );
     }
 }
 
@@ -3938,8 +5875,7 @@ const Q416: &str = "Q00416_PathOfTheOrcShaman";
 /// An Orc Mage with Q00416 accepted (Tataru at NPC_OID).
 fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    let rows: Vec<(i32, &str, bool)> =
-        (1616..=1631).map(|id| (id, "Q416", true)).collect();
+    let rows: Vec<(i32, &str, bool)> = (1616..=1631).map(|id| (id, "Q416", true)).collect();
     add_quest_items(&mut world, &rows);
     for id in [20038, 20043, 20335, 20415, 20478, 20479, 27056] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -3958,9 +5894,21 @@ fn q416_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     }
     drain_db(&mut db_rx);
     // Note the event name: START, not ACCEPT.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} START")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} 30585-07.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} START")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416} 30585-07.htm")),
+    );
     assert_eq!(item_count(&world, 3001, 1616), 1, "the fire charm");
     drain(&mut rx);
     (world, rx)
@@ -3976,7 +5924,11 @@ fn quest_q00416_holder_count_is_a_cond_gate_not_a_quantity() {
     let early = NPC_OID + 100;
     add_test_npc(&mut world, early, 20335, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, early, 3001);
-    assert_eq!(item_count(&world, 3001, 1625), 0, "grizzly is gated to cond 6");
+    assert_eq!(
+        item_count(&world, 3001, 1625),
+        0,
+        "grizzly is gated to cond 6"
+    );
 
     // Advance to cond 6 the short way: hand the player the flame charm and set
     // the cond, mirroring Umos' hand-over.
@@ -3985,7 +5937,11 @@ fn quest_q00416_holder_count_is_a_cond_gate_not_a_quantity() {
     let mob = NPC_OID + 101;
     add_test_npc(&mut world, mob, 20335, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, mob, 3001);
-    assert_eq!(item_count(&world, 3001, 1625), 1, "one blood per kill, not six");
+    assert_eq!(
+        item_count(&world, 3001, 1625),
+        1,
+        "one blood per kill, not six"
+    );
 }
 
 /// The first stage: three different mobs, one trophy each, cond 2 when all
@@ -4004,10 +5960,18 @@ fn quest_q00416_first_stage_needs_one_of_each_trophy() {
     oid += 1;
     add_test_npc(&mut world, oid, 20479, "Monster", 20, 30, 0, 0);
     death::npc_do_die(&mut world, oid, 3001);
-    assert_eq!(quest_cond(&world, 3001, Q416), Some(2), "all three trophies");
+    assert_eq!(
+        quest_cond(&world, 3001, Q416),
+        Some(2),
+        "all three trophies"
+    );
 
     // Tataru swaps them for the mask and the second egg.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q416}")),
+    );
     assert_eq!(item_count(&world, 3001, 1620), 1, "Hestui mask");
     assert_eq!(item_count(&world, 3001, 1621), 1, "second fiery egg");
     assert_eq!(item_count(&world, 3001, 1616), 0, "fire charm consumed");
@@ -4065,17 +6029,34 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
     set_quest_cond(&mut world, 3001, Q416, 9);
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{duda}_Quest {Q416}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{duda}_Quest {Q416}")),
+    );
     assert_eq!(item_count(&world, 3001, 1630), 1, "totem spirit blood");
-    assert_eq!(quest_cond(&world, 3001, Q416), Some(11), "Java jumps 9 -> 11");
+    assert_eq!(
+        quest_cond(&world, 3001, Q416),
+        Some(11),
+        "Java jumps 9 -> 11"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{umos}_Quest {Q416} 30502-07.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{umos}_Quest {Q416} 30502-07.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1631), 1, "the Mask of Medium");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q416].is_completed());
     }
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
 
 /// The `memoState` 100+ branch is dead at both ends — third Orc quest running.
@@ -4087,16 +6068,20 @@ fn orc_shaman_dead_branch_is_dead_at_both_ends() {
     );
     // The orphaned NPCs really do ship pages.
     for npc in ["31979", "32057", "32090"] {
-        let any = (1..=9).any(|n| {
-            std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists()
-        });
+        let any = (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
         assert!(any, "{npc} ships pages but is registered nowhere");
     }
     // The only entry to memoState 100 is 30585-14, which nothing offers.
-    assert!(std::path::Path::new(&format!("{DIST}30585-14.html")).exists(), "30585-14 ships");
+    assert!(
+        std::path::Path::new(&format!("{DIST}30585-14.html")).exists(),
+        "30585-14 ships"
+    );
     for page in ["30585-11.html", "30585-12.html", "30585-13.html"] {
         let body = std::fs::read_to_string(format!("{DIST}{page}")).expect(page);
-        assert!(!body.contains("30585-14"), "{page} must not offer the dead entry");
+        assert!(
+            !body.contains("30585-14"),
+            "{page} must not offer the dead entry"
+        );
     }
 }
 
@@ -4107,7 +6092,10 @@ fn orc_shaman_quest_pages_exist_in_dist() {
         "/../../dist/game/data/scripts/quests/Q00416_PathOfTheOrcShaman/"
     );
     for p in ["01", "02", "03", "04", "05", "06", "07"] {
-        assert!(std::path::Path::new(&format!("{DIST}30585-{p}.htm")).exists(), "missing 30585-{p}.htm");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30585-{p}.htm")).exists(),
+            "missing 30585-{p}.htm"
+        );
     }
     for n in 8..=16 {
         assert!(
@@ -4116,20 +6104,32 @@ fn orc_shaman_quest_pages_exist_in_dist() {
         );
     }
     for n in 1..=7 {
-        assert!(std::path::Path::new(&format!("{DIST}30502-0{n}.html")).exists(), "missing 30502-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30502-0{n}.html")).exists(),
+            "missing 30502-0{n}"
+        );
     }
     for n in 1..=5 {
-        assert!(std::path::Path::new(&format!("{DIST}30592-0{n}.html")).exists(), "missing 30592-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30592-0{n}.html")).exists(),
+            "missing 30592-0{n}"
+        );
     }
     for n in 1..=6 {
-        assert!(std::path::Path::new(&format!("{DIST}30593-0{n}.html")).exists(), "missing 30593-0{n}");
+        assert!(
+            std::path::Path::new(&format!("{DIST}30593-0{n}.html")).exists(),
+            "missing 30593-0{n}"
+        );
     }
 }
 
 /// Force a quest's cond directly — used to jump into a mid-quest stage without
 /// replaying the whole chain.
 fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
-    if let Some(q) = world.objects.get_component_mut::<crate::model::components::Quests>(&player) {
+    if let Some(q) = world
+        .objects
+        .get_component_mut::<crate::model::components::Quests>(&player)
+    {
         if let Some(qs) = q.0.get_mut(quest) {
             qs.vars.insert("cond".to_string(), cond.to_string());
         }
@@ -4159,9 +6159,21 @@ fn q418_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.race = 4;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} ACCEPT")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-06.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} ACCEPT")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-06.htm")),
+    );
     assert_eq!(item_count(&world, 3001, 1632), 1, "Silvery's ring");
     drain(&mut rx);
     (world, rx)
@@ -4179,7 +6191,11 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
     add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, oid, 3001);
-    assert_eq!(item_count(&world, 3001, 1637), 0, "roll<5 at zero teeth pays nothing");
+    assert_eq!(
+        item_count(&world, 3001, 1637),
+        0,
+        "roll<5 at zero teeth pays nothing"
+    );
 
     // Roll 5 with zero teeth: the `else` branch always pays.
     oid += 1;
@@ -4193,7 +6209,11 @@ fn quest_q00418_leader_tooth_roll_has_a_hole_at_zero() {
     add_test_npc(&mut world, oid, 20390, "Monster", 20, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, oid, 3001);
-    assert_eq!(item_count(&world, 3001, 1637), 2, "roll<5 pays the second tooth");
+    assert_eq!(
+        item_count(&world, 3001, 1637),
+        2,
+        "roll<5 pays the second tooth"
+    );
 }
 
 /// Ratman teeth cap at 10 on a 70% roll; a roll of 7 misses.
@@ -4228,16 +6248,28 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
         super::items::add_inventory_item(&mut world, 3001, 1637, 1);
     }
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-08b.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q418} 30527-08b.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1633), 1, "first pass certificate");
     assert_eq!(item_count(&world, 3001, 1636), 0, "teeth handed over");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(3));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-04.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-04.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1638), 1, "Kluto's letter");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(4));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-03.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1639), 1, "footprint of thief");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(5));
 
@@ -4248,19 +6280,36 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
     assert_eq!(item_count(&world, 3001, 1640), 1, "the stolen secret box");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(6));
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-06.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{pinter}_Quest {Q418} 30298-06.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1634), 1, "second pass certificate");
     assert_eq!(item_count(&world, 3001, 1641), 1, "the secret box");
     assert_eq!(quest_cond(&world, 3001, Q418), Some(7));
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-10.html")));
-    assert_eq!(item_count(&world, 3001, 1635), 1, "the Final Pass Certificate");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kluto}_Quest {Q418} 30317-10.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1635),
+        1,
+        "the Final Pass Certificate"
+    );
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q418].is_completed());
     }
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
 
 /// Fourth quest running with a route dead at both ends.
@@ -4271,8 +6320,7 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
         "/../../dist/game/data/scripts/quests/Q00418_PathOfTheArtisan/"
     );
     for npc in ["31956", "31963", "32052"] {
-        let any =
-            (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
+        let any = (1..=9).any(|n| std::path::Path::new(&format!("{DIST}{npc}-0{n}.html")).exists());
         assert!(any, "{npc} ships pages but is registered nowhere");
     }
     // Only 08b is offered; 08c (the memoState 10 entry) is not.
@@ -4289,7 +6337,10 @@ fn artisan_dead_branch_is_dead_at_both_ends() {
             continue;
         }
         let body = std::fs::read_to_string(&path).unwrap_or_default();
-        assert!(!body.contains("30527-08c"), "no page may offer the dead 08c entry");
+        assert!(
+            !body.contains("30527-08c"),
+            "no page may offer the dead 08c entry"
+        );
         offers_08b |= body.contains("30527-08b");
     }
     assert!(offers_08b, "08b is the live route and is offered");
@@ -4319,8 +6370,16 @@ fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
         p.race = 4;
     }
     drain_db(&mut db_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417} ACCEPT")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {Q417} ACCEPT")),
+    );
     assert_eq!(item_count(&world, 3001, 1643), 1, "Pipi's letter");
     drain(&mut rx);
     (world, rx)
@@ -4328,7 +6387,10 @@ fn q417_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
 
 /// Mark `npc_oid` as spoiled by `player`, the way the Spoil effect would.
 fn mark_spoiled(world: &mut World, npc_oid: i32, player: i32) {
-    if let Some(n) = world.objects.get_component_mut::<crate::model::npc::Npc>(&npc_oid) {
+    if let Some(n) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+    {
         n.spoiler_object_id = player;
     }
 }
@@ -4372,7 +6434,11 @@ fn quest_q00417_drop_chance_fifty_means_always() {
         mark_spoiled(&mut world, mob, 9999);
         death::npc_do_die(&mut world, mob, 3001);
     }
-    assert_eq!(item_count(&world, 3001, 1656), 6, "six kills, six beads — chance 50 is not 50%");
+    assert_eq!(
+        item_count(&world, 3001, 1656),
+        6,
+        "six kills, six beads — chance 50 is not 50%"
+    );
 }
 
 /// The Honey Bear summon meter escalates at `20 * flag` percent and resets on
@@ -4387,7 +6453,10 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     add_test_npc(&mut world, b1, 20777, "Monster", 20, 30, 0, 0);
     combat::npc_receive_damage(&mut world, b1, 3001, 10.0);
     death::npc_do_die(&mut world, b1, 3001);
-    assert!(npcs_of(&mut world, 27058).is_empty(), "flag 0 never summons");
+    assert!(
+        npcs_of(&mut world, 27058).is_empty(),
+        "flag 0 never summons"
+    );
 
     // Second kill with the roll inside `20 * 1`: the bear appears.
     let b2 = NPC_OID + 301;
@@ -4395,7 +6464,11 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     combat::npc_receive_damage(&mut world, b2, 3001, 10.0);
     world.forced_rolls.push_back(5); // 5 < 20
     death::npc_do_die(&mut world, b2, 3001);
-    assert_eq!(npcs_of(&mut world, 27058).len(), 1, "the Honey Bear was summoned");
+    assert_eq!(
+        npcs_of(&mut world, 27058).len(),
+        1,
+        "the Honey Bear was summoned"
+    );
 }
 
 /// The delivery round-trip bumps the **tens** digit of `memoStateEx(1)`, and
@@ -4407,17 +6480,40 @@ fn quest_q00417_deliveries_bump_the_tens_digit() {
     add_test_npc(&mut world, shari, 30517, "Folk", 5, 100, 0, 0);
 
     super::items::add_inventory_item(&mut world, 3001, 1648, 1); // Shari's axe
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+    );
     assert_eq!(item_count(&world, 3001, 1651), 1, "Shari's pay");
-    assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 10, "tens digit bumped");
-    assert!(quest_cond(&world, 3001, Q417) != Some(3), "not promoted on the first");
+    assert_eq!(
+        quest_memo_ex(&world, 3001, Q417, 1),
+        10,
+        "tens digit bumped"
+    );
+    assert!(
+        quest_cond(&world, 3001, Q417) != Some(3),
+        "not promoted on the first"
+    );
 
     super::items::add_inventory_item(&mut world, 3001, 1648, 1);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+    );
     assert_eq!(quest_memo_ex(&world, 3001, Q417, 1), 20);
     super::items::add_inventory_item(&mut world, 3001, 1648, 1);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{shari}_Quest {Q417}")));
-    assert_eq!(quest_cond(&world, 3001, Q417), Some(3), "the third hand-in promotes");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{shari}_Quest {Q417}")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, Q417),
+        Some(3),
+        "the third hand-in promotes"
+    );
 }
 
 /// Torai hands over the undies and **deletes himself**; Raut then pays the
@@ -4430,22 +6526,38 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
     add_test_npc(&mut world, raut, 30316, "Folk", 5, 100, 0, 0);
     super::items::add_inventory_item(&mut world, 3001, 1644, 1); // teleport scroll
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{torai}_Quest {Q417} 30557-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{torai}_Quest {Q417} 30557-03.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1645), 1, "succubus undies");
     assert_eq!(quest_cond(&world, 3001, Q417), Some(11));
     assert!(
-        world.objects.get_component::<crate::model::npc::Npc>(&torai).is_none(),
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&torai)
+            .is_none(),
         "Torai deleted himself"
     );
     drain(&mut rx);
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{raut}_Quest {Q417}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{raut}_Quest {Q417}")),
+    );
     assert_eq!(item_count(&world, 3001, 1642), 1, "the Ring of Raven");
     {
-        let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+        let quests = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap();
         assert!(quests.0[Q417].is_completed());
     }
-    assert!(drain(&mut rx).iter().any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
 }
 
 fn quest_memo_ex(world: &World, player: i32, quest: &str, slot: i32) -> i32 {
@@ -4472,29 +6584,76 @@ fn quest_q00210_wolf_pet_chain() {
     add_test_npc(&mut world, bynn, 30335, "Folk", 5, 140, 0, 0);
     add_test_npc(&mut world, sydnia, 30321, "Folk", 5, 160, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 15;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 15;
     drain_db(&mut db_rx);
 
     let q = "Q00210_ObtainAWolfPet";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lundy}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-03.htm")));
-    assert_eq!(quest_cond(&world, 3001, q), Some(1), "Lundy started the quest");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lundy}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-03.htm")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "Lundy started the quest"
+    );
 
     // An out-of-order click is refused: Bynn (cond 2) while still at cond 1.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")));
-    assert_eq!(quest_cond(&world, 3001, q), Some(1), "cond guard holds — no skipping ahead");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")),
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "cond guard holds — no skipping ahead"
+    );
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bella}_Quest {q} 30256-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{bella}_Quest {q} 30256-03.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{bynn}_Quest {q} 30335-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{sydnia}_Quest {q} 30321-02.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sydnia}_Quest {q} 30321-02.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
 
-    assert_eq!(item_count(&world, 3001, 2375), 0, "no collar until the payout");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-05.html")));
+    assert_eq!(
+        item_count(&world, 3001, 2375),
+        0,
+        "no collar until the payout"
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lundy}_Quest {q} 30827-05.html")),
+    );
     assert_eq!(item_count(&world, 3001, 2375), 1, "Wolf Collar rewarded");
-    let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
 }
 
@@ -4506,16 +6665,25 @@ fn quest_q00210_refused_below_level_15() {
     let lundy = NPC_OID;
     add_test_npc(&mut world, lundy, 30827, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 14;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 14;
     drain(&mut rx);
 
     let q = "Q00210_ObtainAWolfPet";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lundy}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{lundy}_Quest {q}")),
+    );
     // `no_level.htm` is a `.htm` file, so it ships as ExNpcQuestHtmlMessage
     // (the quest window), not a plain NpcHtmlMessage.
     let decode_quest_html = |pkt: &[u8]| -> Option<String> {
         if pkt[0] != server_packets::opcodes::EX
-            || i16::from_le_bytes([pkt[1], pkt[2]]) != server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE
+            || i16::from_le_bytes([pkt[1], pkt[2]])
+                != server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE
         {
             return None;
         }
@@ -4523,11 +6691,20 @@ fn quest_q00210_refused_below_level_15() {
         r.read_i32()?;
         r.read_string()
     };
-    let html = drain(&mut rx).iter().find_map(|p| decode_quest_html(p)).expect("quest html");
-    assert!(html.contains("level requirements") || html.contains("level 15"), "the level gate, got: {html}");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_quest_html(p))
+        .expect("quest html");
+    assert!(
+        html.contains("level requirements") || html.contains("level 15"),
+        "the level gate, got: {html}"
+    );
     // The talk creates a CREATED state (Java `getQuestState(player, true)`) but
     // the gate keeps it un-started (cond 0, never `startQuest`).
-    let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
     assert!(!quests.0[q].is_started(), "the quest never started");
 }
 
@@ -4545,12 +6722,24 @@ fn quest_q00261_collectors_dream_loop() {
     }
     add_test_npc(&mut world, NPC_OID, 30222, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     drain_db(&mut db_rx);
 
     let q = "Q00261_CollectorsDream";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -4563,15 +6752,30 @@ fn quest_q00261_collectors_dream_loop() {
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 1087), 8, "eight legs collected");
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond advanced at the cap");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "cond advanced at the cap"
+    );
     drain(&mut rx);
 
     // Turn-in: 700 adena, legs consumed, repeatable exit.
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 57), adena_before + 700);
-    assert_eq!(item_count(&world, 3001, 1087), 0, "quest items removed on exit");
-    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit clears the record");
+    assert_eq!(
+        item_count(&world, 3001, 1087),
+        0,
+        "quest items removed on exit"
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none(),
+        "repeatable exit clears the record"
+    );
 }
 
 /// Q00261 refuses a starter above level 21 (`addCondMaxLevel(21)`): the quest
@@ -4582,11 +6786,23 @@ fn quest_q00261_refused_above_level_21() {
     add_quest_items(&mut world, &[(1087, "Spider Leg", true)]);
     add_test_npc(&mut world, NPC_OID, 30222, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 22;
 
     let q = "Q00261_CollectorsDream";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")),
+    );
     assert!(
         quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
         "the level-22 starter never begins the quest"
@@ -4599,7 +6815,15 @@ fn quest_q00261_refused_above_level_21() {
 #[test]
 fn quest_q00257_the_guard_is_busy_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(752, "Orc Amulet", true), (1084, "Gludio Lord's Mark", false), (1085, "Orc Necklace", true), (1086, "Werewolf Fang", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (752, "Orc Amulet", true),
+            (1084, "Gludio Lord's Mark", false),
+            (1085, "Orc Necklace", true),
+            (1086, "Werewolf Fang", true),
+        ],
+    );
     for id in [20006, 20093, 20130, 20343] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
@@ -4608,14 +6832,30 @@ fn quest_q00257_the_guard_is_busy_loop() {
     }
     add_test_npc(&mut world, NPC_OID, 30039, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 10;
     drain_db(&mut db_rx);
 
     let q = "Q00257_TheGuardIsBusy";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
-    assert_eq!(item_count(&world, 3001, 1084), 1, "Gludio Lord's Mark given");
+    assert_eq!(
+        item_count(&world, 3001, 1084),
+        1,
+        "Gludio Lord's Mark given"
+    );
     drain(&mut rx);
 
     let mob = NPC_OID + 1;
@@ -4623,7 +6863,11 @@ fn quest_q00257_the_guard_is_busy_loop() {
     add_test_npc(&mut world, mob, 20006, "Monster", 10, 30, 0, 0);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, mob, 3001);
-    assert_eq!(item_count(&world, 3001, 752), 2, "Orc Archer's first entry pays two amulets");
+    assert_eq!(
+        item_count(&world, 3001, 752),
+        2,
+        "Orc Archer's first entry pays two amulets"
+    );
 
     // Orc Fighter 20093 → 1 necklace; Werewolf Hunter 20343 → 1 fang.
     add_test_npc(&mut world, mob + 1, 20093, "Monster", 10, 30, 0, 0);
@@ -4638,14 +6882,39 @@ fn quest_q00257_the_guard_is_busy_loop() {
 
     // Turn in: 2 amulets*5 + 1 necklace*8 + 1 fang*10 = 28 adena (total 4 < 10, no bonus).
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 28, "adena by trophy type");
-    assert_eq!(item_count(&world, 3001, 752) + item_count(&world, 3001, 1085) + item_count(&world, 3001, 1086), 0, "trophies taken");
-    assert_eq!(quest_cond(&world, 3001, q), Some(1), "turn-in keeps the quest running");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 28,
+        "adena by trophy type"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 752)
+            + item_count(&world, 3001, 1085)
+            + item_count(&world, 3001, 1086),
+        0,
+        "trophies taken"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "turn-in keeps the quest running"
+    );
 
     // Leaving (30039-05.html) is the repeatable exit.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-05.html")));
-    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit clears the record");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-05.html")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none(),
+        "repeatable exit clears the record"
+    );
 }
 
 /// Q00257 refuses a starter above level 16 (`addCondMaxLevel(16)`).
@@ -4655,13 +6924,32 @@ fn quest_q00257_refused_above_level_16() {
     add_quest_items(&mut world, &[(1084, "Gludio Lord's Mark", false)]);
     add_test_npc(&mut world, NPC_OID, 30039, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 17;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 17;
 
     let q = "Q00257_TheGuardIsBusy";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
-    assert_eq!(item_count(&world, 3001, 1084), 0, "no Lord's Mark handed out");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-17 starter never begins"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1084),
+        0,
+        "no Lord's Mark handed out"
+    );
 }
 
 /// Q00259 Request from the Farm Owner — the Edmond adena path: kill spiders for
@@ -4678,28 +6966,65 @@ fn quest_q00259_edmond_adena_path() {
     }
     add_test_npc(&mut world, NPC_OID, 30497, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     drain_db(&mut db_rx);
 
     let q = "Q00259_RequestFromTheFarmOwner";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
     let mob = NPC_OID + 1;
     for i in 0..10 {
-        add_test_npc(&mut world, mob + i, [20103, 20106, 20108][(i % 3) as usize], "Monster", 18, 30, 0, 0);
+        add_test_npc(
+            &mut world,
+            mob + i,
+            [20103, 20106, 20108][(i % 3) as usize],
+            "Monster",
+            18,
+            30,
+            0,
+            0,
+        );
         death::npc_do_die(&mut world, mob + i, 3001);
     }
-    assert_eq!(item_count(&world, 3001, 1495), 10, "one skin per kill (unrolled)");
+    assert_eq!(
+        item_count(&world, 3001, 1495),
+        10,
+        "one skin per kill (unrolled)"
+    );
 
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 500, "10*25 + 250 bonus");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 500,
+        "10*25 + 250 bonus"
+    );
     assert_eq!(item_count(&world, 3001, 1495), 0, "skins handed in");
 
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-06.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-06.html")),
+    );
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
 
@@ -4708,7 +7033,13 @@ fn quest_q00259_edmond_adena_path() {
 #[test]
 fn quest_q00259_marius_consumables_path() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1495, "Spider Skin", true), (1061, "Greater Healing Potion", false)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1495, "Spider Skin", true),
+            (1061, "Greater Healing Potion", false),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20103);
     t.type_name = "Monster".into();
     t.level = 18;
@@ -4718,12 +7049,24 @@ fn quest_q00259_marius_consumables_path() {
     add_test_npc(&mut world, edmond, 30497, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, marius, 30405, "Folk", 5, 120, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     drain_db(&mut db_rx);
 
     let q = "Q00259_RequestFromTheFarmOwner";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{edmond}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{edmond}_Quest {q} 30497-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{edmond}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{edmond}_Quest {q} 30497-03.html")),
+    );
     let mob = NPC_OID + 2;
     for i in 0..10 {
         add_test_npc(&mut world, mob + i, 20103, "Monster", 18, 30, 0, 0);
@@ -4733,9 +7076,21 @@ fn quest_q00259_marius_consumables_path() {
     drain(&mut rx);
 
     // Trade the batch at Marius for 2 Greater Healing Potions.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{marius}_Quest {q} 30405-04.html")));
-    assert_eq!(item_count(&world, 3001, 1061), 2, "two potions from the trade");
-    assert_eq!(item_count(&world, 3001, 1495), 0, "ten skins consumed by the trade");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{marius}_Quest {q} 30405-04.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1061),
+        2,
+        "two potions from the trade"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1495),
+        0,
+        "ten skins consumed by the trade"
+    );
 }
 
 /// Q00259 refuses a starter above level 21 (`addCondMaxLevel(21)`).
@@ -4745,12 +7100,27 @@ fn quest_q00259_refused_above_level_21() {
     add_quest_items(&mut world, &[(1495, "Spider Skin", true)]);
     add_test_npc(&mut world, NPC_OID, 30497, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 22;
 
     let q = "Q00259_RequestFromTheFarmOwner";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30497-03.html")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-22 starter never begins"
+    );
 }
 
 /// Q00293 The Hidden Veins — the full Dwarf loop: kill for ores + rare map
@@ -4759,7 +7129,14 @@ fn quest_q00259_refused_above_level_21() {
 #[test]
 fn quest_q00293_hidden_veins_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1488, "Chrysolite Ore", true), (1489, "Torn Map Fragment", true), (1490, "Hidden Ore Map", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1488, "Chrysolite Ore", true),
+            (1489, "Torn Map Fragment", true),
+            (1490, "Hidden Ore Map", true),
+        ],
+    );
     for id in [20446, 20447, 20448] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
@@ -4778,8 +7155,16 @@ fn quest_q00293_hidden_veins_loop() {
     drain_db(&mut db_rx);
 
     let q = "Q00293_TheHiddenVeins";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q} 30535-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{filaur}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{filaur}_Quest {q} 30535-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -4799,15 +7184,35 @@ fn quest_q00293_hidden_veins_loop() {
     assert_eq!(item_count(&world, 3001, 1488), 3, "three ores");
 
     // Craft the fragments into a Hidden Ore Map at Chichirin.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{chichirin}_Quest {q} 30539-03.html")));
-    assert_eq!(item_count(&world, 3001, 1490), 1, "one Hidden Ore Map crafted");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{chichirin}_Quest {q} 30539-03.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1490),
+        1,
+        "one Hidden Ore Map crafted"
+    );
     assert_eq!(item_count(&world, 3001, 1489), 0, "four fragments consumed");
 
     // Hand in at Filaur: 3 ores * 5 + 1 map * 150 = 165 adena (4 items < 10, no bonus).
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{filaur}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 165, "ore 5a + map 150a");
-    assert_eq!(item_count(&world, 3001, 1488) + item_count(&world, 3001, 1490), 0, "ores + maps handed in");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{filaur}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 165,
+        "ore 5a + map 150a"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1488) + item_count(&world, 3001, 1490),
+        0,
+        "ores + maps handed in"
+    );
 }
 
 /// The Dwarf-only race gate: a non-Dwarf sees a different Filaur page than a
@@ -4824,7 +7229,11 @@ fn quest_q00293_race_gate() {
         d.level = 10;
         d.race = 4; // Dwarf
     }
-    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 10; // Human (race 0)
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 10; // Human (race 0)
     drain(&mut dwarf_rx);
     drain(&mut human_rx);
 
@@ -4833,7 +7242,8 @@ fn quest_q00293_race_gate() {
             .iter()
             .find_map(|p| {
                 (p[0] == server_packets::opcodes::EX
-                    && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                    && i16::from_le_bytes([p[1], p[2]])
+                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
                     .then(|| {
                         let mut r = commons::network::PacketReader::new(&p[3..]);
                         r.read_i32();
@@ -4844,13 +7254,27 @@ fn quest_q00293_race_gate() {
     }
 
     let q = "Q00293_TheHiddenVeins";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     let dwarf_page = quest_html(&mut dwarf_rx);
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     let human_page = quest_html(&mut human_rx);
 
-    assert!(!dwarf_page.is_empty() && !human_page.is_empty(), "both got a page");
-    assert_ne!(dwarf_page, human_page, "the Dwarf and non-Dwarf see different Filaur pages");
+    assert!(
+        !dwarf_page.is_empty() && !human_page.is_empty(),
+        "both got a page"
+    );
+    assert_ne!(
+        dwarf_page, human_page,
+        "the Dwarf and non-Dwarf see different Filaur pages"
+    );
 }
 
 /// Q00293 refuses a starter above level 15 (`addCondMaxLevel(15)`).
@@ -4866,9 +7290,20 @@ fn quest_q00293_refused_above_level_15() {
         p.race = 4;
     }
     let q = "Q00293_TheHiddenVeins";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30535-04.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30535-04.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-16 starter never begins"
+    );
 }
 
 /// Q00300 Hunting Leto Lizardman: the per-mob 1000-denominator drop gate, the
@@ -4883,12 +7318,24 @@ fn quest_q00300_leto_loop() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 36;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 36;
     drain_db(&mut db_rx);
 
     let q = "Q00300_HuntingLetoLizardman";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -4897,7 +7344,11 @@ fn quest_q00300_leto_loop() {
     add_test_npc(&mut world, mob, 20577, "Monster", 36, 30, 0, 0);
     world.forced_rolls.push_back(360);
     death::npc_do_die(&mut world, mob, 3001);
-    assert_eq!(item_count(&world, 3001, 7139), 0, "roll 360 (not < 360) drops nothing");
+    assert_eq!(
+        item_count(&world, 3001, 7139),
+        0,
+        "roll 360 (not < 360) drops nothing"
+    );
 
     // 59 hits, still cond 1.
     for i in 1..=59 {
@@ -4906,7 +7357,11 @@ fn quest_q00300_leto_loop() {
         death::npc_do_die(&mut world, mob + i, 3001);
     }
     assert_eq!(item_count(&world, 3001, 7139), 59);
-    assert_eq!(quest_cond(&world, 3001, q), Some(1), "still collecting at 59");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "still collecting at 59"
+    );
 
     // The 60th bracelet flips cond to 2.
     add_test_npc(&mut world, mob + 60, 20577, "Monster", 36, 30, 0, 0);
@@ -4919,8 +7374,16 @@ fn quest_q00300_leto_loop() {
     // Turn in with the reward roll forced to the adena branch (< 500).
     let adena_before = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 5000, "adena reward");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 5000,
+        "adena reward"
+    );
     assert_eq!(item_count(&world, 3001, 7139), 0, "bracelets taken");
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
@@ -4930,26 +7393,56 @@ fn quest_q00300_leto_loop() {
 #[test]
 fn quest_q00300_reward_skin_and_bone() {
     let (mut world, _db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(7139, "Bracelet", true), (1867, "Animal Skin", true), (1872, "Animal Bone", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (7139, "Bracelet", true),
+            (1867, "Animal Skin", true),
+            (1872, "Animal Bone", true),
+        ],
+    );
     add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 36;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 36;
 
     let q = "Q00300_HuntingLetoLizardman";
     let mut obj = 0x5000_0000;
     for (reward_roll, reward_item) in [(600, 1867), (800, 1872)] {
         // (Re)start the repeatable quest and inject a full batch of bracelets.
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        );
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+        );
         {
             let World { objects, data, .. } = &mut world;
-            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, obj, 7139, 60);
+            objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .unwrap()
+                .add_item(&data.item_data, obj, 7139, 60);
         }
         obj += 1;
         let before = item_count(&world, 3001, reward_item);
         world.forced_rolls.push_back(reward_roll);
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")));
-        assert_eq!(item_count(&world, 3001, reward_item), before + 50, "roll {reward_roll} → 50 of {reward_item}");
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-06.html")),
+        );
+        assert_eq!(
+            item_count(&world, 3001, reward_item),
+            before + 50,
+            "roll {reward_roll} → 50 of {reward_item}"
+        );
         assert_eq!(item_count(&world, 3001, 7139), 0, "bracelets consumed");
     }
 }
@@ -4961,11 +7454,26 @@ fn quest_q00300_refused_above_level_39() {
     add_quest_items(&mut world, &[(7139, "Bracelet", true)]);
     add_test_npc(&mut world, NPC_OID, 30126, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 40;
     let q = "Q00300_HuntingLetoLizardman";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-40 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30126-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-40 starter never begins"
+    );
 }
 
 /// Q00296 Tarantula's Spider Silk: the rare spinnerette drop, Nathan spinning
@@ -4973,7 +7481,13 @@ fn quest_q00300_refused_above_level_39() {
 #[test]
 fn quest_q00296_spider_silk_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1493, "Tarantula Spider Silk", true), (1494, "Tarantula Spinnerette", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1493, "Tarantula Spider Silk", true),
+            (1494, "Tarantula Spinnerette", true),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20394);
     t.type_name = "Monster".into();
     t.level = 18;
@@ -4982,12 +7496,24 @@ fn quest_q00296_spider_silk_loop() {
     add_test_npc(&mut world, mion, 30519, "Folk", 5, 100, 0, 0);
     add_test_npc(&mut world, nathan, 30548, "Folk", 5, 120, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     drain_db(&mut db_rx);
 
     let q = "Q00296_TarantulasSpiderSilk";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q} 30519-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{mion}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{mion}_Quest {q} 30519-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -5012,18 +7538,38 @@ fn quest_q00296_spider_silk_loop() {
 
     // Nathan spins: (15 + rnd(9)=0) * 2 spinnerettes = 30 silk; spinnerettes consumed.
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")),
+    );
     assert_eq!(item_count(&world, 3001, 1493), 33, "3 + 15*2 silk");
     assert_eq!(item_count(&world, 3001, 1494), 0, "spinnerettes consumed");
 
     // Spinning again with none does nothing (30548-02).
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")));
-    assert_eq!(item_count(&world, 3001, 1493), 33, "no silk added without a spinnerette");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{nathan}_Quest {q} 30548-03.html")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1493),
+        33,
+        "no silk added without a spinnerette"
+    );
 
     // Mion pays 5a per silk (+1000 for 10+): 33*5 + 1000 = 1165.
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{mion}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 1165, "silk turn-in");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{mion}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 1165,
+        "silk turn-in"
+    );
     assert_eq!(item_count(&world, 3001, 1493), 0, "silk handed in");
 }
 
@@ -5034,11 +7580,26 @@ fn quest_q00296_refused_above_level_21() {
     add_quest_items(&mut world, &[(1493, "Silk", true)]);
     add_test_npc(&mut world, NPC_OID, 30519, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 22;
     let q = "Q00296_TarantulasSpiderSilk";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30519-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30519-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-22 starter never begins"
+    );
 }
 
 /// Q00266 Pleas of Pixies: the per-mob variable-amount `getRandom(10)` drop,
@@ -5046,7 +7607,10 @@ fn quest_q00296_refused_above_level_21() {
 #[test]
 fn quest_q00266_pixies_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1334, "Predator's Fang", true), (1336, "Glass Shard", true)]);
+    add_quest_items(
+        &mut world,
+        &[(1334, "Predator's Fang", true), (1336, "Glass Shard", true)],
+    );
     for id in [20537, 20525] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = "Monster".into();
@@ -5063,8 +7627,16 @@ fn quest_q00266_pixies_loop() {
     drain_db(&mut db_rx);
 
     let q = "Q00266_PleasOfPixies";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -5078,12 +7650,19 @@ fn quest_q00266_pixies_loop() {
     world.forced_rolls.push_back(7);
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, mob + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 1334), 5, "2 + 3 fangs from the two gate buckets");
+    assert_eq!(
+        item_count(&world, 3001, 1334),
+        5,
+        "2 + 3 fangs from the two gate buckets"
+    );
 
     // Inject up to 98, then an Elder Red Keltir (gives 2) hits the 100 cap → cond 2.
     {
         let World { objects, data, .. } = &mut world;
-        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5100_0000, 1334, 93);
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .add_item(&data.item_data, 0x5100_0000, 1334, 93);
     }
     add_test_npc(&mut world, mob + 2, 20537, "Monster", 5, 30, 0, 0);
     world.forced_rolls.push_back(0);
@@ -5096,9 +7675,17 @@ fn quest_q00266_pixies_loop() {
     // Turn in with the reward roll < 2 → bucket 0 (Glass Shard + 100a, jackpot chime).
     let adena_before = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 1336), 1, "Glass Shard");
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 100, "100 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 100,
+        "100 adena"
+    );
     assert_eq!(item_count(&world, 3001, 1334), 0, "fangs consumed");
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
@@ -5108,7 +7695,14 @@ fn quest_q00266_pixies_loop() {
 #[test]
 fn quest_q00266_reward_buckets() {
     let (mut world, _db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1334, "Fang", true), (1338, "Blue Onyx", true), (1337, "Emerald", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1334, "Fang", true),
+            (1338, "Blue Onyx", true),
+            (1337, "Emerald", true),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20537);
     t.type_name = "Monster".into();
     t.level = 5;
@@ -5125,11 +7719,22 @@ fn quest_q00266_reward_buckets() {
     let mob = NPC_OID + 1;
     let mut mi = 0;
     for (roll, item, adena) in [(30, 1338, 500), (60, 1337, 5000)] {
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        );
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+        );
         {
             let World { objects, data, .. } = &mut world;
-            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, obj, 1334, 98);
+            objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .unwrap()
+                .add_item(&data.item_data, obj, 1334, 98);
         }
         obj += 1;
         add_test_npc(&mut world, mob + mi, 20537, "Monster", 5, 30, 0, 0);
@@ -5140,9 +7745,21 @@ fn quest_q00266_reward_buckets() {
         assert_eq!(quest_cond(&world, 3001, q), Some(2));
         let adena_before = item_count(&world, 3001, 57);
         world.forced_rolls.push_back(roll);
-        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-        assert_eq!(item_count(&world, 3001, item), 1, "roll {roll} → item {item}");
-        assert_eq!(item_count(&world, 3001, 57), adena_before + adena, "roll {roll} → {adena}a");
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        );
+        assert_eq!(
+            item_count(&world, 3001, item),
+            1,
+            "roll {roll} → item {item}"
+        );
+        assert_eq!(
+            item_count(&world, 3001, 57),
+            adena_before + adena,
+            "roll {roll} → {adena}a"
+        );
     }
 }
 
@@ -5160,7 +7777,11 @@ fn quest_q00266_race_and_level_gates() {
         e.level = 5;
         e.race = 1;
     }
-    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 5; // Human
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 5; // Human
     drain(&mut elf_rx);
     drain(&mut human_rx);
 
@@ -5169,7 +7790,9 @@ fn quest_q00266_race_and_level_gates() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                (p[0] == server_packets::opcodes::EX
+                    && i16::from_le_bytes([p[1], p[2]])
+                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
                     .then(|| {
                         let mut r = commons::network::PacketReader::new(&p[3..]);
                         r.read_i32();
@@ -5178,9 +7801,21 @@ fn quest_q00266_race_and_level_gates() {
             })
             .unwrap_or_default()
     };
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_ne!(quest_html(&mut elf_rx), quest_html(&mut human_rx), "Elf and Human see different pages");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_ne!(
+        quest_html(&mut elf_rx),
+        quest_html(&mut human_rx),
+        "Elf and Human see different pages"
+    );
 
     // A fresh level-9 Elf: `addCondMaxLevel(8)` blocks the start-npc talk from
     // ever creating the state, so the start event has nothing to start.
@@ -5190,9 +7825,20 @@ fn quest_q00266_race_and_level_gates() {
         e.level = 9;
         e.race = 1;
     }
-    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
-    assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-9 Elf refused");
+    handle_request_bypass_to_server(
+        &mut world,
+        3,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        3,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3003, q).is_none_or(|c| c == 0),
+        "level-9 Elf refused"
+    );
 }
 
 /// Q00271 Proof of Valor: the 25%-double-drop capped so it can't overshoot 50,
@@ -5200,7 +7846,14 @@ fn quest_q00266_race_and_level_gates() {
 #[test]
 fn quest_q00271_proof_of_valor_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1473, "Kasha Wolf Fang", true), (1507, "Necklace of Valor", false), (1539, "Healing Potion", true)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1473, "Kasha Wolf Fang", true),
+            (1507, "Necklace of Valor", false),
+            (1539, "Healing Potion", true),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20475);
     t.type_name = "Monster".into();
     t.level = 6;
@@ -5215,8 +7868,16 @@ fn quest_q00271_proof_of_valor_loop() {
     drain_db(&mut db_rx);
 
     let q = "Q00271_ProofOfValor";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -5233,20 +7894,35 @@ fn quest_q00271_proof_of_valor_loop() {
     // Fill to 49, then a <25 roll still gives ONE (count 49 is not < 49) → exactly 50, cond 2.
     {
         let World { objects, data, .. } = &mut world;
-        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5300_0000, 1473, 46);
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .add_item(&data.item_data, 0x5300_0000, 1473, 46);
     }
     add_test_npc(&mut world, mob + 2, 20475, "Monster", 6, 30, 0, 0);
     world.forced_rolls.push_back(10);
     death::npc_do_die(&mut world, mob + 2, 3001);
-    assert_eq!(item_count(&world, 3001, 1473), 50, "the double-drop cap held at 49");
+    assert_eq!(
+        item_count(&world, 3001, 1473),
+        50,
+        "the double-drop cap held at 49"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 50");
     drain(&mut rx);
 
     // Turn in with the 13% roll hitting → necklace + potion.
     world.forced_rolls.push_back(5);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 1507), 1, "Necklace of Valor");
-    assert_eq!(item_count(&world, 3001, 1539), 1, "Healing Potion (13% roll hit)");
+    assert_eq!(
+        item_count(&world, 3001, 1539),
+        1,
+        "Healing Potion (13% roll hit)"
+    );
     assert_eq!(item_count(&world, 3001, 1473), 0, "fangs consumed");
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
@@ -5256,7 +7932,10 @@ fn quest_q00271_proof_of_valor_loop() {
 #[test]
 fn quest_q00271_gates_and_necklace_page() {
     let (mut world, _db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1473, "Fang", true), (1507, "Necklace of Valor", false)]);
+    add_quest_items(
+        &mut world,
+        &[(1473, "Fang", true), (1507, "Necklace of Valor", false)],
+    );
     add_test_npc(&mut world, NPC_OID, 30577, "Folk", 5, 100, 0, 0);
     let mut orc_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     let mut necklace_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
@@ -5269,7 +7948,10 @@ fn quest_q00271_gates_and_necklace_page() {
     {
         // Player 3002 already owns the necklace.
         let World { objects, data, .. } = &mut world;
-        objects.get_component_mut::<crate::model::inventory::Inventory>(&3002).unwrap().add_item(&data.item_data, 0x5400_0000, 1507, 1);
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&3002)
+            .unwrap()
+            .add_item(&data.item_data, 0x5400_0000, 1507, 1);
     }
     for rx in [&mut orc_rx, &mut necklace_rx, &mut human_rx] {
         drain(rx);
@@ -5280,7 +7962,9 @@ fn quest_q00271_gates_and_necklace_page() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                (p[0] == server_packets::opcodes::EX
+                    && i16::from_le_bytes([p[1], p[2]])
+                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
                     .then(|| {
                         let mut r = commons::network::PacketReader::new(&p[3..]);
                         r.read_i32();
@@ -5289,11 +7973,30 @@ fn quest_q00271_gates_and_necklace_page() {
             })
             .unwrap_or_default()
     };
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    let (orc, necklace, human) = (page(&mut orc_rx), page(&mut necklace_rx), page(&mut human_rx));
-    assert!(!orc.is_empty() && orc != human, "non-Orc sees a different page");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        3,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    let (orc, necklace, human) = (
+        page(&mut orc_rx),
+        page(&mut necklace_rx),
+        page(&mut human_rx),
+    );
+    assert!(
+        !orc.is_empty() && orc != human,
+        "non-Orc sees a different page"
+    );
     assert_ne!(orc, necklace, "necklace-held Orc sees a different page");
 
     // A fresh level-9 Orc: refused before the state is created.
@@ -5303,9 +8006,20 @@ fn quest_q00271_gates_and_necklace_page() {
         p.level = 9;
         p.race = 3;
     }
-    handle_request_bypass_to_server(&mut world, 4, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 4, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")));
-    assert!(quest_cond(&world, 3004, q).is_none_or(|c| c == 0), "level-9 Orc refused");
+    handle_request_bypass_to_server(
+        &mut world,
+        4,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        4,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3004, q).is_none_or(|c| c == 0),
+        "level-9 Orc refused"
+    );
 }
 
 /// Q00277 Gatekeeper's Offering: collect 20 starstones (unrolled, capped) for
@@ -5313,31 +8027,53 @@ fn quest_q00271_gates_and_necklace_page() {
 #[test]
 fn quest_q00277_gatekeepers_offering_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1572, "Starstone", true), (1658, "Gatekeeper Charm", true)]);
+    add_quest_items(
+        &mut world,
+        &[(1572, "Starstone", true), (1658, "Gatekeeper Charm", true)],
+    );
     let mut t = crate::data::npc_data::default_template(20333);
     t.type_name = "Monster".into();
     t.level = 18;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30576, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     drain_db(&mut db_rx);
 
     let q = "Q00277_GatekeepersOffering";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
     // Inject 19, then one golem kill hits the cap → cond 2.
     {
         let World { objects, data, .. } = &mut world;
-        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5500_0000, 1572, 19);
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .add_item(&data.item_data, 0x5500_0000, 1572, 19);
     }
     add_test_npc(&mut world, NPC_OID + 1, 20333, "Monster", 18, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1572), 20);
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 20 starstones");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "cond 2 at 20 starstones"
+    );
 
     // A further kill past the cap adds nothing.
     add_test_npc(&mut world, NPC_OID + 2, 20333, "Monster", 18, 30, 0, 0);
@@ -5345,9 +8081,17 @@ fn quest_q00277_gatekeepers_offering_loop() {
     assert_eq!(item_count(&world, 3001, 1572), 20, "capped at 20");
 
     // Turn in: 2 charms, starstones cleared by the repeatable exit.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 1658), 2, "two Gatekeeper Charms");
-    assert_eq!(item_count(&world, 3001, 1572), 0, "starstones removed on exit");
+    assert_eq!(
+        item_count(&world, 3001, 1572),
+        0,
+        "starstones removed on exit"
+    );
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
 
@@ -5363,18 +8107,48 @@ fn quest_q00277_level_gates() {
     // A level-14 player reaches the start button (the talk has no level gate)
     // but the event refuses with 30576-01.htm and does not start.
     let mut low_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 14;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 14;
     drain(&mut low_rx);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-14 start refused by the event");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-14 start refused by the event"
+    );
 
     // A fresh level-22 player is blocked before the state is even created.
     let _hi_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 22;
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")));
-    assert!(quest_cond(&world, 3002, q).is_none_or(|c| c == 0), "level-22 refused by addCondMaxLevel");
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 22;
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30576-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3002, q).is_none_or(|c| c == 0),
+        "level-22 refused by addCondMaxLevel"
+    );
 }
 
 /// Q00295 Dreaming of the Skies: the variable amount (1 or 2) capped at 50, the
@@ -5382,14 +8156,24 @@ fn quest_q00277_level_gates() {
 #[test]
 fn quest_q00295_dreaming_loop() {
     let (mut world, mut db_rx, _link_rx) = quest_test_world();
-    add_quest_items(&mut world, &[(1492, "Floating Stone", true), (1509, "Ring of Firefly", false)]);
+    add_quest_items(
+        &mut world,
+        &[
+            (1492, "Floating Stone", true),
+            (1509, "Ring of Firefly", false),
+        ],
+    );
     let mut t = crate::data::npc_data::default_template(20153);
     t.type_name = "Monster".into();
     t.level = 13;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30536, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 13;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 13;
     drain_db(&mut db_rx);
 
     let q = "Q00295_DreamingOfTheSkies";
@@ -5398,11 +8182,22 @@ fn quest_q00295_dreaming_loop() {
 
     // Helper: fill to 48 by injection then a double-drop kill closes to 50 → cond 2.
     let start_and_fill = |world: &mut World, obj: &mut i32, mob: &mut i32| {
-        handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-        handle_request_bypass_to_server(world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")));
+        handle_request_bypass_to_server(
+            world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+        );
+        handle_request_bypass_to_server(
+            world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")),
+        );
         {
             let World { objects, data, .. } = world;
-            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, *obj, 1492, 48);
+            objects
+                .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+                .unwrap()
+                .add_item(&data.item_data, *obj, 1492, 48);
         }
         *obj += 1;
         add_test_npc(world, *mob, 20153, "Monster", 13, 30, 0, 0);
@@ -5415,16 +8210,32 @@ fn quest_q00295_dreaming_loop() {
 
     // First run: earn the Ring of Firefly.
     start_and_fill(&mut world, &mut obj, &mut mob);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 1509), 1, "first run: Ring of Firefly");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1509),
+        1,
+        "first run: Ring of Firefly"
+    );
     assert_eq!(item_count(&world, 3001, 1492), 0, "stones cleared");
 
     // Second run (ring already held): 200 adena instead of a second ring.
     let adena_before = item_count(&world, 3001, 57);
     start_and_fill(&mut world, &mut obj, &mut mob);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 1509), 1, "still just one ring");
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 200, "repeat run pays 200 adena");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 200,
+        "repeat run pays 200 adena"
+    );
     let _ = &mut rx;
 }
 
@@ -5435,11 +8246,26 @@ fn quest_q00295_refused_above_level_15() {
     add_quest_items(&mut world, &[(1492, "Floating Stone", true)]);
     add_test_npc(&mut world, NPC_OID, 30536, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 16;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 16;
     let q = "Q00295_DreamingOfTheSkies";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-16 starter never begins"
+    );
 }
 
 /// Q00262 Trade with the Ivory Tower: the rate-in-threshold drop
@@ -5457,12 +8283,24 @@ fn quest_q00262_ivory_tower_loop() {
     }
     add_test_npc(&mut world, NPC_OID, 30137, "Folk", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 12;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 12;
     drain_db(&mut db_rx);
 
     let q = "Q00262_TradeWithTheIvoryTower";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -5476,11 +8314,18 @@ fn quest_q00262_ivory_tower_loop() {
     kill(&mut world, 20007, 2); // Green base 3: 2 < 3 → drop
     kill(&mut world, 20007, 5); // 5 ≥ 3 → nothing
     kill(&mut world, 20400, 3); // Blood base 4: 3 < 4 → drop (would be nothing on Green)
-    assert_eq!(item_count(&world, 3001, 707), 2, "the per-mob thresholds differ (3 vs 4)");
+    assert_eq!(
+        item_count(&world, 3001, 707),
+        2,
+        "the per-mob thresholds differ (3 vs 4)"
+    );
 
     {
         let World { objects, data, .. } = &mut world;
-        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5700_0000, 707, 7);
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+            .unwrap()
+            .add_item(&data.item_data, 0x5700_0000, 707, 7);
     }
     kill(&mut world, 20007, 0); // 10th sac → cond 2
     assert_eq!(item_count(&world, 3001, 707), 10);
@@ -5488,8 +8333,16 @@ fn quest_q00262_ivory_tower_loop() {
     drain(&mut rx);
 
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 300, "300 adena");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 300,
+        "300 adena"
+    );
     assert_eq!(item_count(&world, 3001, 707), 0, "sacs cleared");
     assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
 }
@@ -5501,11 +8354,26 @@ fn quest_q00262_refused_above_level_16() {
     add_quest_items(&mut world, &[(707, "Spore Sac", true)]);
     add_test_npc(&mut world, NPC_OID, 30137, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 17;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 17;
     let q = "Q00262_TradeWithTheIvoryTower";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")));
-    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "level-17 starter never begins"
+    );
 }
 
 /// Q00267 Wrath of Verdure: the flat 50% club drop, the `2 + count` adena
@@ -5528,8 +8396,16 @@ fn quest_q00267_wrath_of_verdure_loop() {
     drain_db(&mut db_rx);
 
     let q = "Q00267_WrathOfVerdure";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
     drain(&mut rx);
 
@@ -5543,18 +8419,41 @@ fn quest_q00267_wrath_of_verdure_loop() {
     kill(&mut world, 2); // < 5 → club
     kill(&mut world, 7); // ≥ 5 → nothing
     kill(&mut world, 0); // → club
-    assert_eq!(item_count(&world, 3001, 1335), 2, "two clubs from three kills");
+    assert_eq!(
+        item_count(&world, 3001, 1335),
+        2,
+        "two clubs from three kills"
+    );
 
     // Turn in: 2 + 2 clubs = 4 adena, clubs taken, quest STILL running.
     let adena_before = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), adena_before + 4, "2 + club count");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        adena_before + 4,
+        "2 + club count"
+    );
     assert_eq!(item_count(&world, 3001, 1335), 0, "clubs handed in");
-    assert_eq!(quest_cond(&world, 3001, q), Some(1), "turn-in does not end the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(1),
+        "turn-in does not end the quest"
+    );
 
     // Leaving is a separate event.
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-07.html")));
-    assert!(quest_cond(&world, 3001, q).is_none(), "the leave event exits");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-07.html")),
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none(),
+        "the leave event exits"
+    );
 }
 
 /// Q00267 is Elf-only (non-Elf → `31853-01.htm`) and refuses above level 9.
@@ -5570,7 +8469,11 @@ fn quest_q00267_race_and_level_gates() {
         e.level = 6;
         e.race = 1;
     }
-    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 6;
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .level = 6;
     drain(&mut elf_rx);
     drain(&mut human_rx);
 
@@ -5579,7 +8482,9 @@ fn quest_q00267_race_and_level_gates() {
         drain(rx)
             .iter()
             .find_map(|p| {
-                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                (p[0] == server_packets::opcodes::EX
+                    && i16::from_le_bytes([p[1], p[2]])
+                        == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
                     .then(|| {
                         let mut r = commons::network::PacketReader::new(&p[3..]);
                         r.read_i32();
@@ -5588,9 +8493,21 @@ fn quest_q00267_race_and_level_gates() {
             })
             .unwrap_or_default()
     };
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_ne!(page(&mut elf_rx), page(&mut human_rx), "Elf and Human see different pages");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        2,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_ne!(
+        page(&mut elf_rx),
+        page(&mut human_rx),
+        "Elf and Human see different pages"
+    );
 
     let _rx3 = ingame_player(&mut world, 3, 3003, 0, 0, 0);
     {
@@ -5598,36 +8515,71 @@ fn quest_q00267_race_and_level_gates() {
         e.level = 10;
         e.race = 1;
     }
-    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")));
-    assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-10 Elf refused");
+    handle_request_bypass_to_server(
+        &mut world,
+        3,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        3,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")),
+    );
+    assert!(
+        quest_cond(&world, 3003, q).is_none_or(|c| c == 0),
+        "level-10 Elf refused"
+    );
 }
 
 // ===== G22 quest batch (Q297/272/328/331/294/274/326) =====
 
 fn inject(world: &mut World, oid: i32, obj: i32, item: i32, count: i64) {
     let World { objects, data, .. } = world;
-    objects.get_component_mut::<crate::model::inventory::Inventory>(&oid).unwrap().add_item(&data.item_data, obj, item, count);
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .unwrap()
+        .add_item(&data.item_data, obj, item, count);
 }
 
 #[test]
 fn quest_q00297_gatekeepers_favor() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1573, "Starstone", true), (736, "Gatekeeper Token", true)]);
-    let mut t = crate::data::npc_data::default_template(20521); t.type_name = "Monster".into(); t.level = 18;
+    add_quest_items(
+        &mut world,
+        &[(1573, "Starstone", true), (736, "Gatekeeper Token", true)],
+    );
+    let mut t = crate::data::npc_data::default_template(20521);
+    t.type_name = "Monster".into();
+    t.level = 18;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30540, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 18;
     let q = "Q00297_GatekeepersFavor";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30540-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30540-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6000_0000, 1573, 19);
     add_test_npc(&mut world, NPC_OID + 1, 20521, "Monster", 18, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 736), 2, "two Gatekeeper Tokens");
     assert!(quest_cond(&world, 3001, q).is_none());
 }
@@ -5636,21 +8588,39 @@ fn quest_q00297_gatekeepers_favor() {
 fn quest_q00272_wrath_of_ancestors() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(1474, "Grave Robber's Head", true)]);
-    let mut t = crate::data::npc_data::default_template(20319); t.type_name = "Monster".into(); t.level = 8;
+    let mut t = crate::data::npc_data::default_template(20319);
+    t.type_name = "Monster".into();
+    t.level = 8;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30572, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 8; p.race = 3; }
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 8;
+        p.race = 3;
+    }
     let q = "Q00272_WrathOfAncestors";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30572-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30572-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6100_0000, 1474, 49);
     add_test_npc(&mut world, NPC_OID + 1, 20319, "Monster", 8, 30, 0, 0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 57), a + 100);
     assert!(quest_cond(&world, 3001, q).is_none());
 }
@@ -5658,16 +8628,45 @@ fn quest_q00272_wrath_of_ancestors() {
 #[test]
 fn quest_q00328_sense_for_business() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1347, "Carcass", true), (1366, "Lens", true), (1348, "Gizzard", true)]);
-    for id in [20055, 20070] { let mut t = crate::data::npc_data::default_template(id); t.type_name = "Monster".into(); t.level = 22; world.data.npc_data.insert_for_test(t); }
+    add_quest_items(
+        &mut world,
+        &[
+            (1347, "Carcass", true),
+            (1366, "Lens", true),
+            (1348, "Gizzard", true),
+        ],
+    );
+    for id in [20055, 20070] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 22;
+        world.data.npc_data.insert_for_test(t);
+    }
     add_test_npc(&mut world, NPC_OID, 30436, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 22;
     let q = "Q00328_SenseForBusiness";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30436-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30436-03.htm")),
+    );
     let mut m = NPC_OID + 1;
-    let mut kill = |world: &mut World, sp: i32, roll: i32| { add_test_npc(world, m, sp, "Monster", 22, 30, 0, 0); world.forced_rolls.push_back(roll); death::npc_do_die(world, m, 3001); m += 1; };
+    let mut kill = |world: &mut World, sp: i32, roll: i32| {
+        add_test_npc(world, m, sp, "Monster", 22, 30, 0, 0);
+        world.forced_rolls.push_back(roll);
+        death::npc_do_die(world, m, 3001);
+        m += 1;
+    };
     kill(&mut world, 20055, 60); // < 61 → carcass
     kill(&mut world, 20055, 61); // 61 < 62 → lens
     kill(&mut world, 20070, 59); // < 60 → gizzard
@@ -5675,23 +8674,57 @@ fn quest_q00328_sense_for_business() {
     assert_eq!(item_count(&world, 3001, 1366), 1);
     assert_eq!(item_count(&world, 3001, 1348), 1);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), a + 14, "carcass 2 + lens 10 + gizzard 2");
-    assert_eq!(item_count(&world, 3001, 1347) + item_count(&world, 3001, 1366) + item_count(&world, 3001, 1348), 0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 14,
+        "carcass 2 + lens 10 + gizzard 2"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1347)
+            + item_count(&world, 3001, 1366)
+            + item_count(&world, 3001, 1348),
+        0
+    );
 }
 
 #[test]
 fn quest_q00331_arrow_of_vengeance() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1452, "Feather", true), (1453, "Venom", true), (1454, "Tooth", true)]);
-    let mut t = crate::data::npc_data::default_template(20145); t.type_name = "Monster".into(); t.level = 35;
+    add_quest_items(
+        &mut world,
+        &[
+            (1452, "Feather", true),
+            (1453, "Venom", true),
+            (1454, "Tooth", true),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20145);
+    t.type_name = "Monster".into();
+    t.level = 35;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30125, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 35;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 35;
     let q = "Q00331_ArrowOfVengeance";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30125-03.htm")),
+    );
     add_test_npc(&mut world, NPC_OID + 1, 20145, "Monster", 35, 30, 0, 0);
     world.forced_rolls.push_back(58); // < 59 → feather
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
@@ -5700,22 +8733,43 @@ fn quest_q00331_arrow_of_vengeance() {
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1452), 1);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 57), a + 6, "one feather = 6a");
 }
 
 #[test]
 fn quest_q00294_covert_business() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1491, "Bat Fang", true), (1508, "Ring of Raccoon", false)]);
-    let mut t = crate::data::npc_data::default_template(20370); t.type_name = "Monster".into(); t.level = 12;
+    add_quest_items(
+        &mut world,
+        &[(1491, "Bat Fang", true), (1508, "Ring of Raccoon", false)],
+    );
+    let mut t = crate::data::npc_data::default_template(20370);
+    t.type_name = "Monster".into();
+    t.level = 12;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30534, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 12; p.race = 4; }
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 12;
+        p.race = 4;
+    }
     let q = "Q00294_CovertBusiness";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30534-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30534-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6200_0000, 1491, 96);
     // 20370 table [6,3,1,-1], roll 0 → count 4 → 96+4 = 100 → cond 2.
@@ -5724,7 +8778,11 @@ fn quest_q00294_covert_business() {
     world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 100 fangs");
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 1508), 1, "Ring of Raccoon");
     assert_eq!(item_count(&world, 3001, 1491), 0);
 }
@@ -5732,16 +8790,37 @@ fn quest_q00294_covert_business() {
 #[test]
 fn quest_q00274_skirmish_with_the_werewolves() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1477, "Werewolf Head", true), (1501, "Totem", true), (1507, "Necklace of Valor", false)]);
-    let mut t = crate::data::npc_data::default_template(20363); t.type_name = "Monster".into(); t.level = 12;
+    add_quest_items(
+        &mut world,
+        &[
+            (1477, "Werewolf Head", true),
+            (1501, "Totem", true),
+            (1507, "Necklace of Valor", false),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20363);
+    t.type_name = "Monster".into();
+    t.level = 12;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30569, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    { let p = world.objects.get_component_mut::<Player>(&3001).unwrap(); p.level = 12; p.race = 3; }
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 12;
+        p.race = 3;
+    }
     inject(&mut world, 3001, 0x6300_0000, 1507, 1); // Necklace of Valor gates the start
     let q = "Q00274_SkirmishWithTheWerewolves";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30569-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30569-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x6301_0000, 1477, 39);
     add_test_npc(&mut world, NPC_OID + 1, 20363, "Monster", 12, 30, 0, 0);
@@ -5750,7 +8829,11 @@ fn quest_q00274_skirmish_with_the_werewolves() {
     assert_eq!(item_count(&world, 3001, 1477), 40);
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 40 heads");
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 57), a + 200);
     assert!(quest_cond(&world, 3001, q).is_none());
 }
@@ -5758,15 +8841,37 @@ fn quest_q00274_skirmish_with_the_werewolves() {
 #[test]
 fn quest_q00326_vanquish_remnants() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1359, "Red Badge", true), (1360, "Blue Badge", true), (1361, "Black Badge", true), (1369, "Black Lion Mark", false)]);
-    let mut t = crate::data::npc_data::default_template(20053); t.type_name = "Monster".into(); t.level = 25;
+    add_quest_items(
+        &mut world,
+        &[
+            (1359, "Red Badge", true),
+            (1360, "Blue Badge", true),
+            (1361, "Black Badge", true),
+            (1369, "Black Lion Mark", false),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20053);
+    t.type_name = "Monster".into();
+    t.level = 25;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30435, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 25;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 25;
     let q = "Q00326_VanquishRemnants";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30435-03.htm")),
+    );
     add_test_npc(&mut world, NPC_OID + 1, 20053, "Monster", 25, 30, 0, 0);
     world.forced_rolls.push_back(60); // < 61 → red badge
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
@@ -5774,10 +8879,26 @@ fn quest_q00326_vanquish_remnants() {
     // Push to 100 red badges to earn the Black Lion Mark.
     inject(&mut world, 3001, 0x6400_0000, 1359, 99);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 1369), 1, "Black Lion Mark at 100 badges");
-    assert_eq!(item_count(&world, 3001, 57), a + 2000, "100*10 + 1000 bonus");
-    assert_eq!(item_count(&world, 3001, 1359), 0, "badges taken (mark kept)");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1369),
+        1,
+        "Black Lion Mark at 100 badges"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 2000,
+        "100*10 + 1000 bonus"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1359),
+        0,
+        "badges taken (mark kept)"
+    );
 }
 
 // ===== G22 quest batch 2 (Q264/319/329/360) =====
@@ -5785,26 +8906,56 @@ fn quest_q00326_vanquish_remnants() {
 #[test]
 fn quest_q00264_keen_claws() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1367, "Wolf Claw", true), (734, "Reward A", true), (35, "Reward B", true)]);
-    let mut t = crate::data::npc_data::default_template(20003); t.type_name = "Monster".into(); t.level = 5;
+    add_quest_items(
+        &mut world,
+        &[
+            (1367, "Wolf Claw", true),
+            (734, "Reward A", true),
+            (35, "Reward B", true),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20003);
+    t.type_name = "Monster".into();
+    t.level = 5;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30136, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 5;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 5;
     let q = "Q00264_KeenClaws";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30136-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30136-03.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     inject(&mut world, 3001, 0x7000_0000, 1367, 42);
     // 20003 table [(2,25),(8,50)]: roll 30 → second entry → 8 claws → 50 → cond 2.
     add_test_npc(&mut world, NPC_OID + 1, 20003, "Monster", 5, 30, 0, 0);
-    world.forced_rolls.push_back(30); world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(30);
+    world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 1367), 50, "the second table entry gives 8 claws");
+    assert_eq!(
+        item_count(&world, 3001, 1367),
+        50,
+        "the second table entry gives 8 claws"
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(2));
     // Reward roll(17) == 0 → item 734 (+ jackpot); 735 is unreachable.
     world.forced_rolls.push_back(0);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 734), 1, "roll 0 → reward 734");
     assert!(quest_cond(&world, 3001, q).is_none());
 }
@@ -5813,21 +8964,39 @@ fn quest_q00264_keen_claws() {
 fn quest_q00319_scent_of_death() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(1045, "Zombie Skin", true)]);
-    let mut t = crate::data::npc_data::default_template(20015); t.type_name = "Monster".into(); t.level = 13;
+    let mut t = crate::data::npc_data::default_template(20015);
+    t.type_name = "Monster".into();
+    t.level = 13;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30138, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 13;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 13;
     let q = "Q00319_ScentOfDeath";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30138-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30138-04.htm")),
+    );
     assert_eq!(quest_cond(&world, 3001, q), Some(1));
     // roll 8 (> 7) → a skin, and count 1 < 5 sets cond 2 (the quirk).
     add_test_npc(&mut world, NPC_OID + 1, 20015, "Monster", 13, 30, 0, 0);
     world.forced_rolls.push_back(8);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 1045), 1);
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 set below the target");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "cond 2 set below the target"
+    );
     // roll 5 (≤ 7) → nothing.
     add_test_npc(&mut world, NPC_OID + 2, 20015, "Monster", 13, 30, 0, 0);
     world.forced_rolls.push_back(5);
@@ -5835,7 +9004,11 @@ fn quest_q00319_scent_of_death() {
     assert_eq!(item_count(&world, 3001, 1045), 1, "roll ≤ 7 drops nothing");
     inject(&mut world, 3001, 0x7100_0000, 1045, 4);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     assert_eq!(item_count(&world, 3001, 57), a + 500, "500 adena (no rate)");
     assert!(quest_cond(&world, 3001, q).is_none());
 }
@@ -5843,50 +9016,105 @@ fn quest_q00319_scent_of_death() {
 #[test]
 fn quest_q00329_curiosity_of_a_dwarf() {
     let (mut world, _db, _l) = quest_test_world();
-    add_quest_items(&mut world, &[(1346, "Golem Heartstone", true), (1365, "Broken Heartstone", true)]);
-    let mut t = crate::data::npc_data::default_template(20083); t.type_name = "Monster".into(); t.level = 35;
+    add_quest_items(
+        &mut world,
+        &[
+            (1346, "Golem Heartstone", true),
+            (1365, "Broken Heartstone", true),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20083);
+    t.type_name = "Monster".into();
+    t.level = 35;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30437, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 35;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 35;
     let q = "Q00329_CuriosityOfADwarf";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30437-03.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30437-03.htm")),
+    );
     // roll 2 (< 3) → golem heartstone; roll 10 (3..54) → broken heartstone.
     add_test_npc(&mut world, NPC_OID + 1, 20083, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(2); world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(2);
+    world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     add_test_npc(&mut world, NPC_OID + 2, 20083, "Monster", 35, 30, 0, 0);
-    world.forced_rolls.push_back(10); world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(10);
+    world.forced_rolls.push_back(0);
     death::npc_do_die(&mut world, NPC_OID + 2, 3001);
     assert_eq!(item_count(&world, 3001, 1346), 1, "golem heartstone");
     assert_eq!(item_count(&world, 3001, 1365), 1, "broken heartstone");
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), a + 1045, "40 + 5 + 1000 (inverted <700 bonus)");
-    assert_eq!(item_count(&world, 3001, 1346) + item_count(&world, 3001, 1365), 0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 1045,
+        "40 + 5 + 1000 (inverted <700 bonus)"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 1346) + item_count(&world, 3001, 1365),
+        0
+    );
 }
 
 #[test]
 fn quest_q00360_plunder_their_supplies() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(&mut world, &[(5872, "Supply Items", true)]);
-    let mut t = crate::data::npc_data::default_template(20666); t.type_name = "Monster".into(); t.level = 55;
+    let mut t = crate::data::npc_data::default_template(20666);
+    t.type_name = "Monster".into();
+    t.level = 55;
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30873, "Folk", 5, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 55;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 55;
     let q = "Q00360_PlunderTheirSupplies";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")),
+    );
     add_test_npc(&mut world, NPC_OID + 1, 20666, "Monster", 55, 30, 0, 0);
     world.forced_rolls.push_back(40); // < 50 → supply
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 5872), 1);
     inject(&mut world, 3001, 0x7200_0000, 5872, 499);
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), a + 14000, "500 supplies → 14000 adena");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 14000,
+        "500 supplies → 14000 adena"
+    );
     assert_eq!(item_count(&world, 3001, 5872), 0);
 }
 
@@ -5895,7 +9123,11 @@ fn quest_q00619_relics_of_the_old_empire() {
     let (mut world, _db, _l) = quest_test_world();
     add_quest_items(
         &mut world,
-        &[(7254, "Relics", true), (7075, "Entrance", false), (6881, "Recipe", false)],
+        &[
+            (7254, "Relics", true),
+            (7075, "Entrance", false),
+            (6881, "Recipe", false),
+        ],
     );
     // A killable Imperial Tomb monster in the registered 21396..=21434 range.
     let mut t = crate::data::npc_data::default_template(21400);
@@ -5904,9 +9136,17 @@ fn quest_q00619_relics_of_the_old_empire() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 31538, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
     let q = "Q00619_RelicsOfTheOldEmpire";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -5919,7 +9159,11 @@ fn quest_q00619_relics_of_the_old_empire() {
     world.forced_rolls.push_back(50);
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
     assert_eq!(item_count(&world, 3001, 7254), 2, "2 relics from kill");
-    assert_eq!(item_count(&world, 3001, 7075), 0, "no entrance pass (roll 50 > 10)");
+    assert_eq!(
+        item_count(&world, 3001, 7075),
+        0,
+        "no entrance pass (roll 50 > 10)"
+    );
     // Fast-forward to 1000 relics and turn in (force recipe index 0 → 6881).
     inject(&mut world, 3001, 0x7254_0000, 7254, 998);
     world.forced_rolls.push_back(0);
@@ -5948,9 +9192,17 @@ fn quest_q00369_collector_of_jewels() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 30376, "Folk", 30, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 30;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 30;
     let q = "Q00369_CollectorOfJewels";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -5962,13 +9214,25 @@ fn quest_q00369_collector_of_jewels() {
     world.forced_rolls.push_back(0); // outer roll(100) < chance
     world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 5882), 2, "death_fire drops 2 flare shards");
+    assert_eq!(
+        item_count(&world, 3001, 5882),
+        2,
+        "death_fire drops 2 flare shards"
+    );
     // Fast-forward to 100 combined shards and turn in stage 1 → 3000 adena.
     inject(&mut world, 3001, 0x5882_0000, 5882, 48); // 50 flare
     inject(&mut world, 3001, 0x5883_0000, 5883, 50); // 50 freezing
     let a = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), a + 3000, "stage 1: 100 shards → 3000 adena");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 3000,
+        "stage 1: 100 shards → 3000 adena"
+    );
     assert_eq!(
         item_count(&world, 3001, 5882) + item_count(&world, 3001, 5883),
         0,
@@ -5985,9 +9249,21 @@ fn quest_q00369_collector_of_jewels() {
     inject(&mut world, 3001, 0x5882_0001, 5882, 200);
     inject(&mut world, 3001, 0x5883_0001, 5883, 200);
     let b = item_count(&world, 3001, 57);
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
-    assert_eq!(item_count(&world, 3001, 57), b + 12000, "stage 2: 400 shards → 12000 adena");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        b + 12000,
+        "stage 2: 400 shards → 12000 adena"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]
@@ -6009,9 +9285,17 @@ fn quest_q00623_the_finest_food() {
     world.data.npc_data.insert_for_test(t);
     add_test_npc(&mut world, NPC_OID, 31521, "Folk", 70, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
-    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 71;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 71;
     let q = "Q00623_TheFinestFood";
-    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")),
+    );
     handle_request_bypass_to_server(
         &mut world,
         1,
@@ -6026,8 +9310,16 @@ fn quest_q00623_the_finest_food() {
     add_test_npc(&mut world, NPC_OID + 1, 21318, "Monster", 71, 30, 0, 0);
     world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
     death::npc_do_die(&mut world, NPC_OID + 1, 3001);
-    assert_eq!(item_count(&world, 3001, 7201), 100, "antelope tops horn to 100");
-    assert_eq!(quest_cond(&world, 3001, q), Some(2), "all three ingredients → cond 2");
+    assert_eq!(
+        item_count(&world, 3001, 7201),
+        100,
+        "antelope tops horn to 100"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "all three ingredients → cond 2"
+    );
     // Turn in: force reward roll 0 (< 120) → Ring of Aurakyra + 25000 adena, exit.
     let a = item_count(&world, 3001, 57);
     world.forced_rolls.push_back(0);
@@ -6038,7 +9330,11 @@ fn quest_q00623_the_finest_food() {
     );
     assert_eq!(item_count(&world, 3001, 6849), 1, "ring reward");
     assert_eq!(item_count(&world, 3001, 57), a + 25000, "25000 adena");
-    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        None,
+        "repeatable exit removes the quest"
+    );
 }
 
 #[test]

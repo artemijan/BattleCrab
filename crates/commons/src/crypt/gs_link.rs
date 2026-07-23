@@ -16,7 +16,7 @@ pub const GS_STATIC_BLOWFISH_KEY: &[u8] = b"_;v.]05-31!|+-%xT!^[$\x00";
 /// to a multiple of 8, write the checksum, then Blowfish-encrypt.
 pub fn gs_encrypt(crypt: &NewCrypt, mut body: Vec<u8>) -> Vec<u8> {
     body.extend_from_slice(&[0u8; 4]); // reserved for checksum
-    while body.len() % 8 != 0 {
+    while !body.len().is_multiple_of(8) {
         body.push(0);
     }
     NewCrypt::append_checksum(&mut body);
@@ -26,7 +26,7 @@ pub fn gs_encrypt(crypt: &NewCrypt, mut body: Vec<u8>) -> Vec<u8> {
 
 /// Decrypt + checksum-verify an inbound GS-link payload in place.
 pub fn gs_decrypt(crypt: &NewCrypt, data: &mut [u8]) -> bool {
-    if data.len() % 8 != 0 {
+    if !data.len().is_multiple_of(8) {
         return false;
     }
     crypt.decrypt(data);
@@ -47,7 +47,7 @@ impl RsaPublicModulus {
     /// harmless for the unsigned interpretation.
     pub fn from_java_bytes(bytes: &[u8]) -> Self {
         let n = BigUint::from_bytes_be(bytes);
-        let block_size = (n.bits() + 7) / 8;
+        let block_size = n.bits().div_ceil(8);
         Self { n, block_size }
     }
 
@@ -87,7 +87,10 @@ mod tests {
         let key = crate::util::generate_hex(40); // non-zero bytes, like Java
         let block = pubmod.encrypt_raw(&key);
         let decrypted = pair.decrypt_raw(&block);
-        let first = decrypted.iter().position(|&b| b != 0).unwrap_or(decrypted.len());
+        let first = decrypted
+            .iter()
+            .position(|&b| b != 0)
+            .unwrap_or(decrypted.len());
         assert_eq!(&decrypted[first..], &key[..]);
     }
 }

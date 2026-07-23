@@ -15,11 +15,11 @@ const KILL_NPCS: [i32; 6] = [20609, 20612, 20749, 20616, 20619, 20747];
 /// `MOBS_DROP_CHANCES`: npc → (item, chance /100, count).
 fn drop_for(npc_id: i32) -> Option<(i32, i32, i64)> {
     match npc_id {
-        20609 => Some((FLARE_SHARD, 75, 1)),    // salamander_lakin
-        20612 => Some((FLARE_SHARD, 91, 1)),    // salamander_rowin
-        20749 => Some((FLARE_SHARD, 100, 2)),   // death_fire
-        20616 => Some((FREEZING_SHARD, 81, 1)), // undine_lakin
-        20619 => Some((FREEZING_SHARD, 87, 1)), // undine_rowin
+        20609 => Some((FLARE_SHARD, 75, 1)),     // salamander_lakin
+        20612 => Some((FLARE_SHARD, 91, 1)),     // salamander_rowin
+        20749 => Some((FLARE_SHARD, 100, 2)),    // death_fire
+        20616 => Some((FREEZING_SHARD, 81, 1)),  // undine_lakin
+        20619 => Some((FREEZING_SHARD, 87, 1)),  // undine_rowin
         20747 => Some((FREEZING_SHARD, 100, 2)), // roxide
         _ => None,
     }
@@ -120,8 +120,12 @@ impl QuestScript for Q00369CollectorOfJewels {
         ctx.ensure_qs();
         if ctx.is_created() {
             return Some(
-                if ctx.player_level() >= MIN_LEVEL { "30376-01.htm" } else { "30376-03.html" }
-                    .to_string(),
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30376-01.htm"
+                } else {
+                    "30376-03.html"
+                }
+                .to_string(),
             );
         }
         if ctx.is_started() {

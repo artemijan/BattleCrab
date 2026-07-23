@@ -38,26 +38,40 @@ pub struct WalkState {
 /// `WalkingManager.onSpawn`: attach a route if this NPC id has one. Called
 /// from the spawn path, next to the minion hook.
 pub(crate) fn on_npc_spawn(world: &mut World, npc_oid: i32, npc_id: i32) {
-    let Some((route_idx, route)) = world.data.routes.route_for_npc(npc_id) else { return };
+    let Some((route_idx, route)) = world.data.routes.route_for_npc(npc_id) else {
+        return;
+    };
     if route.nodes.is_empty() {
         return;
     }
     world.objects.add_components(
         &npc_oid,
-        WalkState { route_idx, node: 0, forward: true, travelling: false, resume_at: 0 },
+        WalkState {
+            route_idx,
+            node: 0,
+            forward: true,
+            travelling: false,
+            resume_at: 0,
+        },
     );
 }
 
 /// One sweep over every NPC on a route.
 pub(crate) fn walker_tick(world: &mut World) {
     let mut walkers: Vec<(i32, WalkState)> = Vec::new();
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &WalkState)>(|(npc, w)| {
-        walkers.push((npc.object_id, *w));
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &WalkState)>(|(npc, w)| {
+            walkers.push((npc.object_id, *w));
+        });
 
     for (oid, mut state) in walkers {
         // `WalkingManager.onDeath` cancels the route permanently.
-        if world.objects.get_component::<Vitals>(&oid).is_none_or(|v| v.dead) {
+        if world
+            .objects
+            .get_component::<Vitals>(&oid)
+            .is_none_or(|v| v.dead)
+        {
             world.objects.remove_component::<WalkState>(&oid);
             continue;
         }
@@ -75,7 +89,10 @@ pub(crate) fn walker_tick(world: &mut World) {
             // The `Movement` vanished, so the NPC reached `node`: bank its
             // delay, then wait (Java schedules `ArrivedTask` with the node's
             // `delay` and blocks the walk check meanwhile).
-            let delay_ticks = route.nodes.get(state.node).map_or(0, |n| n.delay.max(0) as u64 * 10);
+            let delay_ticks = route
+                .nodes
+                .get(state.node)
+                .map_or(0, |n| n.delay.max(0) as u64 * 10);
             state.travelling = false;
             state.resume_at = world.tick + delay_ticks;
             world.objects.add_components(&oid, state);
@@ -109,7 +126,11 @@ pub(crate) fn walker_tick(world: &mut World) {
 /// the last node it steps back **two** (`_currentNode -= 2`), because the
 /// index was already incremented past the end — landing on the second-to-last
 /// node, which is the first step of the return leg.
-fn advance(route: &crate::data::route_data::WalkRoute, current: usize, forward: &mut bool) -> Option<usize> {
+fn advance(
+    route: &crate::data::route_data::WalkRoute,
+    current: usize,
+    forward: &mut bool,
+) -> Option<usize> {
     let count = route.nodes.len();
     if count == 0 {
         return None;

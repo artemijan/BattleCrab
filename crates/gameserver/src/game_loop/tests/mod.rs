@@ -1,111 +1,114 @@
 //! Game-loop integration tests. Shared fixtures/helpers live here; the
 //! `#[test]` cases are split into topical submodules that `use super::*`.
 
-use super::*;
 use super::bypass::handle_request_bypass_to_server;
+use super::combat::handle_attack_request;
+use super::death::handle_request_restart_point;
 use super::dispatch::*;
 use super::lobby::*;
 use super::net::*;
 use super::position::*;
-use super::combat::handle_attack_request;
-use super::death::handle_request_restart_point;
 use super::skills::cast::*;
 use super::skills::*;
 use super::target::*;
+use super::*;
 use crate::character::CharData;
+use crate::character::FriendInfo;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
+use crate::model::components::Friends;
+use crate::model::components::{
+    AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement,
+    PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals,
+};
+use crate::model::components::{Macros, Shortcuts};
+use crate::model::components::{PartyRef, PendingRequest};
 use crate::model::formulas;
+use crate::model::party::LootRule;
+use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
-use crate::model::components::{AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement, PlayerVitals, Position, Reuses, SkillBook, Speeds, TargetRef, Vitals};
 use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
 use commons::network::PacketWriter;
-use crate::model::components::{Macros, Shortcuts};
-use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
-use crate::model::components::{PartyRef, PendingRequest};
-use crate::model::party::LootRule;
-use crate::character::FriendInfo;
-use crate::model::components::Friends;
 
 mod abnormal_tests;
 mod admin_tests;
 mod affect_tests;
+mod antharas_tests;
 mod attribute_tests;
+mod baium_tests;
+mod boss_respawn_tests;
+mod boss_zone_tests;
 mod clans_tests;
-mod geometric_scope_tests;
-mod ground_channeling_tests;
-mod symbol_tests;
-mod skill_enchant_tests;
 mod combat_tests;
-mod confuse_tests;
-mod crit_damage_tests;
 mod community_board_tests;
-mod death_buff_tests;
-mod defence_crit_tests;
-mod death_drop_tests;
-mod duel_tests;
-mod fear_tests;
-mod henna_tests;
+mod confuse_tests;
+mod core_boss_tests;
 mod crafting_tests;
+mod crit_damage_tests;
+mod cubic_tests;
+mod cursed_weapon_tests;
+mod damage_swamp_tests;
+mod death_buff_tests;
+mod death_drop_tests;
+mod defence_crit_tests;
+mod dr_chaos_tests;
+mod duel_tests;
+mod effect_level_tests;
+mod effect_scope_tests;
+mod effect_zone_tests;
+mod fear_tests;
+mod geometric_scope_tests;
+mod grand_boss_tests;
+mod ground_channeling_tests;
+mod guard_aggro_tests;
+mod henna_tests;
 mod items_tests;
 mod lobby_tests;
 mod magic_resist_tests;
 mod mana_drain_tests;
 mod mana_restore_tests;
 mod melee_variants_tests;
+mod minion_tests;
 mod misc_tests;
 mod move_type_tests;
 mod movement_tests;
-mod boss_respawn_tests;
-mod damage_swamp_tests;
-mod effect_level_tests;
-mod effect_scope_tests;
-mod effect_zone_tests;
-mod guard_aggro_tests;
-mod minion_tests;
 mod noble_tests;
 mod npc_cast_tests;
 mod npc_path_tests;
-mod subclass_tests;
-mod target_reconsider_tests;
-mod trigger_skill_tests;
-mod two_handed_tests;
-mod walker_tests;
 mod npc_regen_tests;
 mod npc_tests;
+mod orfen_tests;
 mod overhit_tests;
 mod periodic_tests;
 mod pvp_kill_tests;
+mod queen_ant_tests;
 mod quests_tests;
+mod raid_curse_tests;
 mod ranged_tests;
 mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
-mod cubic_tests;
-mod antharas_tests;
-mod baium_tests;
-mod boss_zone_tests;
-mod core_boss_tests;
-mod dr_chaos_tests;
-mod siege_schedule_tests;
-mod cursed_weapon_tests;
-mod grand_boss_tests;
-mod orfen_tests;
-mod queen_ant_tests;
-mod special_camera_tests;
-mod valakas_tests;
-mod raid_curse_tests;
 mod servitor_tests;
 mod shortcuts_tests;
+mod siege_schedule_tests;
+mod skill_enchant_tests;
 mod skills_tests;
 mod social_tests;
+mod special_camera_tests;
 mod stealth_tests;
+mod subclass_tests;
+mod symbol_tests;
+mod target_reconsider_tests;
 mod teleport_cmds_tests;
+mod trigger_skill_tests;
+mod two_handed_tests;
+mod valakas_tests;
 mod visibility_tests;
 mod vitality_tests;
+mod walker_tests;
 mod zones_tests;
 
 fn test_world() -> (
@@ -158,7 +161,11 @@ fn pcs(world: &World, oid: i32) -> CombatStats {
 }
 
 fn pbuffs(world: &World, oid: i32) -> usize {
-    world.objects.get_component::<Buffs>(&oid).map(|b| b.0.len()).unwrap_or(0)
+    world
+        .objects
+        .get_component::<Buffs>(&oid)
+        .map(|b| b.0.len())
+        .unwrap_or(0)
 }
 
 fn dummy_char(object_id: i32, name: &str) -> CharData {
@@ -285,9 +292,7 @@ async fn character_create_inserts_into_real_schema() {
     let data = GameData {
         root: String::new(),
         experience: crate::data::ExperienceData::empty(),
-        player_templates: crate::data::PlayerTemplateData::from_vec(vec![
-            human_fighter_template(),
-        ]),
+        player_templates: crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]),
         skill_trees: crate::data::SkillTreeData::empty(),
         pledge_skill_trees: crate::data::PledgeSkillTreeData::empty(),
         stat_bonus: crate::data::StatBonus::empty(),
@@ -342,7 +347,10 @@ async fn character_create_inserts_into_real_schema() {
     // The DB thread pushes its boot-time id block and clan table first;
     // skip them.
     let next_event = || loop {
-        match db_event_rx.recv_timeout(std::time::Duration::from_secs(5)).unwrap() {
+        match db_event_rx
+            .recv_timeout(std::time::Duration::from_secs(5))
+            .unwrap()
+        {
             DbEvent::IdBlock { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
@@ -405,7 +413,12 @@ fn magic_skill_use_body_shift(magic_id: i32, ctrl: bool) -> Vec<u8> {
 
 /// The `SystemMessage` id of a packet (opcode 0x62 + LE i16 id).
 fn sm_id(pkt: &[u8]) -> i16 {
-    assert_eq!(pkt[0], server_packets::opcodes::SYSTEM_MESSAGE, "not a SystemMessage: 0x{:02x}", pkt[0]);
+    assert_eq!(
+        pkt[0],
+        server_packets::opcodes::SYSTEM_MESSAGE,
+        "not a SystemMessage: 0x{:02x}",
+        pkt[0]
+    );
     i16::from_le_bytes([pkt[1], pkt[2]])
 }
 
@@ -465,7 +478,8 @@ fn cast_test_world() -> (
         is_continuous: false,
         target_type: TargetType::Other,
         magic_type: 1,
-        magic_level: 0,        effect_point: 0,
+        magic_level: 0,
+        effect_point: 0,
         cast_range: 600,
         effect_range: 1100,
         hit_time: 4000,
@@ -549,7 +563,8 @@ fn cast_test_world() -> (
         name: "Power Strike".into(),
         target_type: TargetType::EnemyOnly,
         magic_type: 0,
-        magic_level: 0,        effect_point: -52,
+        magic_level: 0,
+        effect_point: -52,
         hit_time: 1000,
         reuse_delay: 3000,
         effects: vec![SkillEffect::PhysicalAttack {
@@ -575,20 +590,25 @@ fn cast_test_world() -> (
         hit_time: 1000,
         abnormal_time: 60,
         abnormal_type: "SPEED_DOWN".into(),
-        effects: [Stat::RunSpeed, Stat::WalkSpeed, Stat::SwimRunSpeed, Stat::SwimWalkSpeed]
-            .into_iter()
-            .map(|stat| {
-                SkillEffect::StatModifier(StatModifierEffect {
-                    stat,
-                    mode: StatModifierType::Per,
-                    amount: -20.0,
-                    armor_condition: 0,
-                    weapon_condition: 0,
-                    qualifier: None,
-                    two_handed: false,
-                })
+        effects: [
+            Stat::RunSpeed,
+            Stat::WalkSpeed,
+            Stat::SwimRunSpeed,
+            Stat::SwimWalkSpeed,
+        ]
+        .into_iter()
+        .map(|stat| {
+            SkillEffect::StatModifier(StatModifierEffect {
+                stat,
+                mode: StatModifierType::Per,
+                amount: -20.0,
+                armor_condition: 0,
+                weapon_condition: 0,
+                qualifier: None,
+                two_handed: false,
             })
-            .collect(),
+        })
+        .collect(),
         ..base.clone()
     });
     // Vampiric Touch 1147 — HpDrain: magic damage + 40% self-heal.
@@ -598,7 +618,10 @@ fn cast_test_world() -> (
         target_type: TargetType::Enemy,
         effect_point: -143,
         hit_time: 1000,
-        effects: vec![SkillEffect::HpDrain { power: 18.0, percentage: 40.0 }],
+        effects: vec![SkillEffect::HpDrain {
+            power: 18.0,
+            percentage: 40.0,
+        }],
         ..base.clone()
     });
     // Backstab 30 — a dagger blow requiring a flank (backstab: true).
@@ -607,9 +630,15 @@ fn cast_test_world() -> (
         name: "Backstab".into(),
         target_type: TargetType::Enemy,
         magic_type: 0,
-        magic_level: 0,        effect_point: -305,
+        magic_level: 0,
+        effect_point: -305,
         hit_time: 1000,
-        effects: vec![SkillEffect::Blow { power: 1107.0, chance_boost: 400.0, critical_chance: Some(5.0), backstab: true }],
+        effects: vec![SkillEffect::Blow {
+            power: 1107.0,
+            chance_boost: 400.0,
+            critical_chance: Some(5.0),
+            backstab: true,
+        }],
         ..base.clone()
     });
     // Mortal Blow 16 — a FatalBlow (no flank requirement).
@@ -618,9 +647,15 @@ fn cast_test_world() -> (
         name: "Mortal Blow".into(),
         target_type: TargetType::Enemy,
         magic_type: 0,
-        magic_level: 0,        effect_point: -52,
+        magic_level: 0,
+        effect_point: -52,
         hit_time: 1000,
-        effects: vec![SkillEffect::Blow { power: 73.0, chance_boost: 200.0, critical_chance: Some(0.0), backstab: false }],
+        effects: vec![SkillEffect::Blow {
+            power: 73.0,
+            chance_boost: 200.0,
+            critical_chance: Some(0.0),
+            backstab: false,
+        }],
         ..base.clone()
     });
     // A slow self-buff (10 s cast) used as the interruptible victim cast.
@@ -645,7 +680,11 @@ fn cast_test_world() -> (
         ..base
     });
 
-    (World::new(link_tx, 7, 3, 0, data, db_tx.clone()), db_rx, link_rx)
+    (
+        World::new(link_tx, 7, 3, 0, data, db_tx.clone()),
+        db_rx,
+        link_rx,
+    )
 }
 
 /// An `InGame` level-5 player knowing every `cast_test_world` skill, with
@@ -673,8 +712,14 @@ fn ingame_caster(
         .into_entering(player);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(&mut world.objects);
-    world.clients.insert(client_id, ClientSession::InGame(session));
-    world.objects.get_component_mut::<PlayerVitals>(&object_id).unwrap().cur_cp = 100.0;
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
+    world
+        .objects
+        .get_component_mut::<PlayerVitals>(&object_id)
+        .unwrap()
+        .cur_cp = 100.0;
     out_rx
 }
 
@@ -726,7 +771,9 @@ fn ingame_player(
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(&mut world.objects);
-    world.clients.insert(client_id, ClientSession::InGame(session));
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
     out_rx
 }
 
@@ -760,7 +807,16 @@ fn move_body(target: (i32, i32, i32), origin: (i32, i32, i32), movement_mode: i3
 
 /// Register a synthetic NPC template and place one instance in the world +
 /// region index (the test-side mirror of `model::npc::spawn_one`).
-fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str, level: i32, x: i32, y: i32, z: i32) {
+fn add_test_npc(
+    world: &mut World,
+    object_id: i32,
+    npc_id: i32,
+    type_name: &str,
+    level: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+) {
     if world.data.npc_data.get(npc_id).is_none() {
         let mut t = crate::data::npc_data::default_template(npc_id);
         t.type_name = type_name.into();
@@ -770,7 +826,11 @@ fn add_test_npc(world: &mut World, object_id: i32, npc_id: i32, type_name: &str,
         world.data.npc_data.insert_for_test(t);
     }
     let (npc, extra) = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
-    world.npc_regions.entry(extra.1 .0).or_default().push(object_id);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(object_id);
     world.objects.spawn(object_id, (npc, extra));
     // Memoized combat stats, from the template registered above (the
     // test-side mirror of `spawn_one`'s `npc_combat_stats` bundle entry).
@@ -804,19 +864,21 @@ fn install_wall_region(world: &mut World) {
     use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
     // `world.geo` is shared with the path worker via `Arc` — in tests nothing
     // has cloned it yet, so it can be mutated in place.
-    std::sync::Arc::get_mut(&mut world.geo).expect("geo Arc not shared yet").set_region(
-        20,
-        18,
-        synthetic_region(|x, _y| {
-            if x == 10 {
-                (200, 0)
-            } else if x == 9 {
-                (0, NSWE_ALL & !NSWE_EAST)
-            } else {
-                (0, NSWE_ALL)
-            }
-        }),
-    );
+    std::sync::Arc::get_mut(&mut world.geo)
+        .expect("geo Arc not shared yet")
+        .set_region(
+            20,
+            18,
+            synthetic_region(|x, _y| {
+                if x == 10 {
+                    (200, 0)
+                } else if x == 9 {
+                    (0, NSWE_ALL & !NSWE_EAST)
+                } else {
+                    (0, NSWE_ALL)
+                }
+            }),
+        );
 }
 
 fn validate_position_body(x: i32, y: i32, z: i32, heading: i32) -> Vec<u8> {
@@ -885,8 +947,10 @@ fn combat_test_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db_rx, link_rx) = cast_test_world();
-    world.data.experience =
-        crate::data::ExperienceData::from_table(vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000], 8);
+    world.data.experience = crate::data::ExperienceData::from_table(
+        vec![0, 0, 1000, 2000, 3000, 4000, 5000, 50000, 100_000],
+        8,
+    );
     // The caster template lacks the melee-side fields — give it reach, run
     // speed, defence, and level tables past 5 so level-ups stay sane.
     {
@@ -903,32 +967,40 @@ fn combat_test_world() -> (
         world.data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![t]);
     }
     // Adena template so auto-loot stacks it.
-    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
-        item_id: 57,
-        name: "Adena".into(),
-        kind: crate::data::item_data::ItemKind::Etc,
-        body_part: 0,
-        weight: 0,
-        is_stackable: true,
-        type1: 4,
-        type2: 5,
-        is_quest_item: false,
-        price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
-        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-    });
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+            item_id: 57,
+            name: "Adena".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
     let mut t = crate::data::npc_data::default_template(40001);
     t.type_name = "Monster".into();
     t.name = "Test Gremlin".into();
@@ -944,7 +1016,12 @@ fn combat_test_world() -> (
     t.exp = 2000.0;
     t.sp = 100.0;
     t.corpse_time = Some(2);
-    t.drop_list_death.push(crate::data::npc_data::DropHolder { item_id: 57, min: 5, max: 5, chance: 70.0 });
+    t.drop_list_death.push(crate::data::npc_data::DropHolder {
+        item_id: 57,
+        min: 5,
+        max: 5,
+        chance: 70.0,
+    });
     world.data.npc_data.insert_for_test(t);
     // Loot needs a runtime id block (normally pushed by the DB thread at boot).
     world.id_pool = 0x2000_0000..0x2000_1000;
@@ -992,9 +1069,16 @@ fn spawn_targeted_monster(
     x: i32,
 ) {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, x, 0, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_oid);
+    world
+        .npc_regions
+        .entry(extra.1 .0)
+        .or_default()
+        .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
-    let cs = crate::model::npc::npc_combat_stats(world.data.npc_data.get(40001).unwrap(), &world.data.stat_bonus);
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
     world.objects.add_components(&npc_oid, cs);
     handle_action(world, 1, &action_body(npc_oid, 0));
     drain(a_rx);
@@ -1030,7 +1114,13 @@ fn make_macro_body(id: i32, name: &str, descr: &str, commands: &[(u8, i32, u8, &
 }
 
 fn player_shortcuts(world: &World, oid: i32) -> Vec<Shortcut> {
-    world.objects.get_component::<Shortcuts>(&oid).unwrap().iter().copied().collect()
+    world
+        .objects
+        .get_component::<Shortcuts>(&oid)
+        .unwrap()
+        .iter()
+        .copied()
+        .collect()
 }
 
 fn drain_db(rx: &mut db::CmdRx) -> Vec<db::DbCommand> {
@@ -1054,7 +1144,12 @@ fn say2_body(text: &str, chat_type: i32, target: Option<&str>) -> Vec<u8> {
 /// Parsed `CreatureSay` (test-side): (sender oid, chat type, name, text,
 /// whisper tail).
 fn parse_creature_say(pkt: &[u8]) -> (i32, i32, String, String, Option<(u8, u8)>) {
-    assert_eq!(pkt[0], server_packets::opcodes::SAY2, "not a CreatureSay: 0x{:02x}", pkt[0]);
+    assert_eq!(
+        pkt[0],
+        server_packets::opcodes::SAY2,
+        "not a CreatureSay: 0x{:02x}",
+        pkt[0]
+    );
     let mut r = commons::network::PacketReader::new(&pkt[1..]);
     let oid = r.read_i32().unwrap();
     let ty = r.read_i32().unwrap();
@@ -1106,7 +1201,11 @@ fn sm_ids_of(pkts: &[Vec<u8>]) -> Vec<i16> {
 /// packets or non-text messages. Layout: opcode, id(i16), count(u8),
 /// type(u8=0 Text), then the UTF-16 string.
 fn sysmsg_text(p: &[u8]) -> Option<String> {
-    if p.first() != Some(&server_packets::opcodes::SYSTEM_MESSAGE) || p.len() < 5 || p[3] == 0 || p[4] != 0 {
+    if p.first() != Some(&server_packets::opcodes::SYSTEM_MESSAGE)
+        || p.len() < 5
+        || p[3] == 0
+        || p[4] != 0
+    {
         return None;
     }
     commons::network::PacketReader::new(&p[5..]).read_string()
@@ -1152,12 +1251,30 @@ fn friend_answer_body(response: i32) -> Vec<u8> {
 
 fn seed_friendship(world: &mut World, a: i32, b: i32) {
     let info = |world: &World, oid: i32| {
-        let p = world.objects.get_component::<crate::model::Player>(&oid).unwrap();
-        FriendInfo { char_id: oid, name: p.name.clone(), level: p.level, class_id: p.class_id }
+        let p = world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .unwrap();
+        FriendInfo {
+            char_id: oid,
+            name: p.name.clone(),
+            level: p.level,
+            class_id: p.class_id,
+        }
     };
     let (ia, ib) = (info(world, a), info(world, b));
-    world.objects.get_component_mut::<Friends>(&a).unwrap().0.push(ib);
-    world.objects.get_component_mut::<Friends>(&b).unwrap().0.push(ia);
+    world
+        .objects
+        .get_component_mut::<Friends>(&a)
+        .unwrap()
+        .0
+        .push(ib);
+    world
+        .objects
+        .get_component_mut::<Friends>(&b)
+        .unwrap()
+        .0
+        .push(ia);
 }
 
 /// `combat_test_world` + the real dist html root and the item/NPC templates
@@ -1176,7 +1293,12 @@ fn quest_test_world() -> (
     // list — chasing individual ids cost a failing test in four separate
     // slices before this.
     {
-        let base = world.data.player_templates.get(0).cloned().unwrap_or_default();
+        let base = world
+            .data
+            .player_templates
+            .get(0)
+            .cloned()
+            .unwrap_or_default();
         let all: Vec<_> = (0..=57)
             .map(|class_id| {
                 let mut t = base.clone();
@@ -1193,32 +1315,40 @@ fn quest_test_world() -> (
         (42, "Leather Cap", false, false),
         (462, "Stockings", false, false),
     ] {
-        world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
-            item_id,
-            name: name.into(),
-            kind: crate::data::item_data::ItemKind::Etc,
-            body_part: 0,
-            weight: 0,
-            is_stackable,
-            type1: 4,
-            type2: if is_quest_item { 3 } else { 5 },
-            is_quest_item,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-        });
+        world
+            .data
+            .item_data
+            .insert_for_test(crate::data::item_data::ItemTemplate {
+                immediate_effect: false,
+                ex_immediate_effect: false,
+                default_action: crate::data::item_data::ActionType::Other,
+                item_id,
+                name: name.into(),
+                kind: crate::data::item_data::ItemKind::Etc,
+                body_part: 0,
+                weight: 0,
+                is_stackable,
+                type1: 4,
+                type2: if is_quest_item { 3 } else { 5 },
+                is_quest_item,
+                price: 0,
+                handler: crate::data::item_data::ItemHandler::None,
+                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_count: 0,
+                attack_radius: 40,
+                attack_angle: 0,
+                mp_consume: 0,
+                reduced_mp_consume: 0,
+                reduced_mp_consume_chance: 0,
+                capsuled_items: Vec::new(),
+                extractable_count_min: 0,
+                extractable_count_max: 0,
+                item_skills: Vec::new(),
+                etc_item_type: crate::data::item_data::EtcItemType::Other,
+                enchant_enabled: false,
+                enchant_limit: 0,
+                is_magic_weapon: false,
+            });
     }
     for npc_id in [20120i32, 20517] {
         let mut t = crate::data::npc_data::default_template(npc_id);
@@ -1248,7 +1378,8 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         is_continuous: false,
         target_type: TargetType::Self_,
         magic_type: 2,
-        magic_level: 0,        effect_point: 0,
+        magic_level: 0,
+        effect_point: 0,
         cast_range: 0,
         effect_range: 0,
         hit_time: 0,
@@ -1317,7 +1448,8 @@ fn clan_advent_test_skill() -> Skill {
         is_continuous: false,
         target_type: TargetType::Self_,
         magic_type: 2,
-        magic_level: 0,        effect_point: 100,
+        magic_level: 0,
+        effect_point: 100,
         cast_range: 0,
         effect_range: 0,
         hit_time: 0,
@@ -1382,7 +1514,9 @@ fn sound_names(pkts: &[Vec<u8>]) -> Vec<String> {
 }
 
 fn is_ex(pkt: &[u8], sub: i16) -> bool {
-    pkt[0] == server_packets::opcodes::EX && pkt.len() >= 3 && i16::from_le_bytes([pkt[1], pkt[2]]) == sub
+    pkt[0] == server_packets::opcodes::EX
+        && pkt.len() >= 3
+        && i16::from_le_bytes([pkt[1], pkt[2]]) == sub
 }
 
 fn decode_npc_html(pkt: &[u8]) -> Option<String> {
@@ -1395,7 +1529,14 @@ fn decode_npc_html(pkt: &[u8]) -> Option<String> {
 }
 
 /// A synthetic zone cuboid registered into `world.data.zone_data`.
-fn insert_zone(world: &mut World, kind: crate::data::zone_data::ZoneKind, x1: i32, x2: i32, y1: i32, y2: i32) {
+fn insert_zone(
+    world: &mut World,
+    kind: crate::data::zone_data::ZoneKind,
+    x1: i32,
+    x2: i32,
+    y1: i32,
+    y2: i32,
+) {
     world.data.zone_data.insert(crate::data::zone_data::Zone {
         id: 0,
         name: format!("test_{kind:?}"),
@@ -1432,11 +1573,15 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
 
 fn compass_code(pkt: &[u8]) -> Option<i32> {
     (pkt[0] == server_packets::opcodes::EX
-        && i16::from_le_bytes(pkt[1..3].try_into().unwrap()) == server_packets::opcodes::EX_SET_COMPASS_ZONE_CODE)
+        && i16::from_le_bytes(pkt[1..3].try_into().unwrap())
+            == server_packets::opcodes::EX_SET_COMPASS_ZONE_CODE)
         .then(|| i32::from_le_bytes(pkt[3..7].try_into().unwrap()))
 }
 
-fn test_door(door_id: i32, method: crate::data::door_data::DoorOpenMethod) -> crate::data::door_data::DoorTemplate {
+fn test_door(
+    door_id: i32,
+    method: crate::data::door_data::DoorOpenMethod,
+) -> crate::data::door_data::DoorTemplate {
     crate::data::door_data::DoorTemplate {
         id: door_id,
         name: "test_door".into(),
@@ -1472,7 +1617,11 @@ fn is_door_status(p: &[u8]) -> bool {
 /// The "isClosed" int of either door packet (offsets: StaticObjectInfo has
 /// it at byte 1+4*5, DoorStatusUpdate at 1+4).
 fn door_packet_closed(p: &[u8]) -> i32 {
-    let off = if is_static_object_info(p) { 1 + 4 * 5 } else { 1 + 4 };
+    let off = if is_static_object_info(p) {
+        1 + 4 * 5
+    } else {
+        1 + 4
+    };
     i32::from_le_bytes(p[off..off + 4].try_into().unwrap())
 }
 
@@ -1496,40 +1645,59 @@ fn shop_world() -> (
 ) {
     let (mut world, db_rx, _link_rx) = quest_test_world();
     // A stackable potion the shop sells in bulk.
-    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
-        item_id: 1061,
-        name: "Greater Healing Potion".into(),
-        kind: crate::data::item_data::ItemKind::Etc,
-        body_part: 0,
-        weight: 0,
-        is_stackable: true,
-        type1: 4,
-        type2: 5,
-        is_quest_item: false,
-        price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
-        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-    });
-    world.data.buy_lists.insert_for_test(crate::data::buy_list_data::BuyList {
-        list_id: 3,
-        npcs: vec![30001],
-        products: vec![
-            crate::data::buy_list_data::Product { item_id: 41, price: 100, base_tax: 0 },
-            crate::data::buy_list_data::Product { item_id: 1061, price: 10, base_tax: 0 },
-        ],
-    });
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+            item_id: 1061,
+            name: "Greater Healing Potion".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
+    world
+        .data
+        .buy_lists
+        .insert_for_test(crate::data::buy_list_data::BuyList {
+            list_id: 3,
+            npcs: vec![30001],
+            products: vec![
+                crate::data::buy_list_data::Product {
+                    item_id: 41,
+                    price: 100,
+                    base_tax: 0,
+                },
+                crate::data::buy_list_data::Product {
+                    item_id: 1061,
+                    price: 10,
+                    base_tax: 0,
+                },
+            ],
+        });
     add_test_npc(&mut world, NPC_OID, 30001, "Merchant", 5, 100, 0, 0);
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
     super::items::add_inventory_item(&mut world, 3001, 57, 1000);
@@ -1539,7 +1707,11 @@ fn shop_world() -> (
 }
 
 fn adena_of(world: &World, oid: i32) -> i64 {
-    world.objects.get_component::<crate::model::inventory::Inventory>(&oid).unwrap().adena()
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .unwrap()
+        .adena()
 }
 
 fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {
@@ -1557,32 +1729,40 @@ fn count_of_item(world: &World, oid: i32, item_id: i32) -> i64 {
 /// Register extra quest-item templates on top of `quest_test_world`.
 fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
     for &(item_id, name, is_quest_item) in ids {
-        world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-            immediate_effect: false,
-            ex_immediate_effect: false,
-            default_action: crate::data::item_data::ActionType::Other,
-            item_id,
-            name: name.into(),
-            kind: crate::data::item_data::ItemKind::Etc,
-            body_part: 0,
-            weight: 0,
-            is_stackable: true,
-            type1: 4,
-            type2: if is_quest_item { 3 } else { 5 },
-            is_quest_item,
-            price: 0,
-            handler: crate::data::item_data::ItemHandler::None,
-            crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-            capsuled_items: Vec::new(),
-            extractable_count_min: 0,
-            extractable_count_max: 0,
-            item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-        });
+        world
+            .data
+            .item_data
+            .insert_for_test(crate::data::item_data::ItemTemplate {
+                immediate_effect: false,
+                ex_immediate_effect: false,
+                default_action: crate::data::item_data::ActionType::Other,
+                item_id,
+                name: name.into(),
+                kind: crate::data::item_data::ItemKind::Etc,
+                body_part: 0,
+                weight: 0,
+                is_stackable: true,
+                type1: 4,
+                type2: if is_quest_item { 3 } else { 5 },
+                is_quest_item,
+                price: 0,
+                handler: crate::data::item_data::ItemHandler::None,
+                crystal_type: crate::data::item_data::CrystalType::None,
+                crystal_count: 0,
+                attack_radius: 40,
+                attack_angle: 0,
+                mp_consume: 0,
+                reduced_mp_consume: 0,
+                reduced_mp_consume_chance: 0,
+                capsuled_items: Vec::new(),
+                extractable_count_min: 0,
+                extractable_count_max: 0,
+                item_skills: Vec::new(),
+                etc_item_type: crate::data::item_data::EtcItemType::Other,
+                enchant_enabled: false,
+                enchant_limit: 0,
+                is_magic_weapon: false,
+            });
     }
 }
 
@@ -1594,11 +1774,20 @@ fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
 }
 
 fn item_count(world: &World, player: i32, item_id: i32) -> i64 {
-    world.objects.get_component::<crate::model::inventory::Inventory>(&player).unwrap().count_of(item_id)
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player)
+        .unwrap()
+        .count_of(item_id)
 }
 
 /// A `<set name="handler">` shot item template (soulshot/spiritshot).
-fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handler: crate::data::item_data::ItemHandler, skill_id: i32) -> crate::data::item_data::ItemTemplate {
+fn shot_template(
+    item_id: i32,
+    grade: crate::data::item_data::CrystalType,
+    handler: crate::data::item_data::ItemHandler,
+    skill_id: i32,
+) -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
         immediate_effect: false,
         ex_immediate_effect: false,
@@ -1606,12 +1795,13 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         item_id,
         name: format!("shot{item_id}"),
         kind: crate::data::item_data::ItemKind::Etc,
-        crystal_type: grade, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
+        crystal_type: grade,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
         body_part: crate::data::item_data::SLOT_NONE,
         weight: 0,
         is_stackable: true,
@@ -1623,39 +1813,60 @@ fn shot_template(item_id: i32, grade: crate::data::item_data::CrystalType, handl
         capsuled_items: Vec::new(),
         extractable_count_min: 0,
         extractable_count_max: 0,
-        item_skills: vec![(skill_id, 1)], etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
+        item_skills: vec![(skill_id, 1)],
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
     }
 }
 
 /// A graded weapon template that consumes `ss`/`sps` shots per charge.
-fn shot_weapon(world: &mut World, item_id: i32, grade: crate::data::item_data::CrystalType, ss: i32, sps: i32) {
-    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
-        item_id,
-        name: format!("weapon{item_id}"),
-        kind: crate::data::item_data::ItemKind::Weapon,
-        crystal_type: grade, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-        body_part: crate::data::item_data::SLOT_R_HAND,
-        weight: 0,
-        is_stackable: false,
-        type1: 0,
-        type2: 0,
-        is_quest_item: false,
-        price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
-        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-    });
-    world.data.item_data.set_weapon_shots_for_test(item_id, ss, sps);
+fn shot_weapon(
+    world: &mut World,
+    item_id: i32,
+    grade: crate::data::item_data::CrystalType,
+    ss: i32,
+    sps: i32,
+) {
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+            item_id,
+            name: format!("weapon{item_id}"),
+            kind: crate::data::item_data::ItemKind::Weapon,
+            crystal_type: grade,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            body_part: crate::data::item_data::SLOT_R_HAND,
+            weight: 0,
+            is_stackable: false,
+            type1: 0,
+            type2: 0,
+            is_quest_item: false,
+            price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
+    world
+        .data
+        .item_data
+        .set_weapon_shots_for_test(item_id, ss, sps);
 }
 
 /// Equip a freshly granted item and return its object id.
@@ -1667,7 +1878,12 @@ fn grant_and_equip(world: &mut World, player_oid: i32, client_id: u32, item_id: 
 
 /// A datapack-backed world (real `AdminData`) so `is_gm`/access gating and the
 /// name colors resolve; the synthetic `test_world` otherwise loads empty admin.
-fn admin_world() -> (World, db::CmdTx, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn admin_world() -> (
+    World,
+    db::CmdTx,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db_tx, db_rx, link_rx) = test_world();
     world.data.admin =
         crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
@@ -1691,7 +1907,9 @@ fn ingame_player_access(
         .into_entering(bundle);
     let (session, bundle) = s.into_ingame();
     bundle.spawn_into(&mut world.objects);
-    world.clients.insert(client_id, ClientSession::InGame(session));
+    world
+        .clients
+        .insert(client_id, ClientSession::InGame(session));
     out_rx
 }
 
@@ -1703,7 +1921,9 @@ fn build_cmd_body(command: &str) -> Vec<u8> {
 }
 
 fn count_system_messages(pkts: &[Vec<u8>]) -> usize {
-    pkts.iter().filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE).count()
+    pkts.iter()
+        .filter(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE)
+        .count()
 }
 
 fn dlg_answer_body(message_id: i32, answer: i32, requester_id: i32) -> Vec<u8> {
@@ -1744,11 +1964,18 @@ fn etc_status_mask(pkts: &[Vec<u8>]) -> Option<u8> {
 
 /// Build a `//command` (SendBypassBuildCmd) packet from a full command line.
 fn build_admin(command_line: &str) -> Vec<u8> {
-    [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body(command_line)].concat()
+    [
+        vec![cop::SEND_BYPASS_BUILD_CMD],
+        build_cmd_body(command_line),
+    ]
+    .concat()
 }
 
 fn contains_utf16(pkt: &[u8], needle: &str) -> bool {
-    let n: Vec<u8> = needle.encode_utf16().flat_map(|u| u.to_le_bytes()).collect();
+    let n: Vec<u8> = needle
+        .encode_utf16()
+        .flat_map(|u| u.to_le_bytes())
+        .collect();
     pkt.windows(n.len()).any(|w| w == n)
 }
 
@@ -1765,33 +1992,41 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
     let (mut world, ..) = test_world();
     world.cfg.character.max_free_teleport_level = 40;
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena
-    // Adena template so `add_inventory_item`/`take_items` can stack it.
-    world.data.item_data.insert_for_test(crate::data::item_data::ItemTemplate {
-        immediate_effect: false,
-        ex_immediate_effect: false,
-        default_action: crate::data::item_data::ActionType::Other,
-        item_id: 57,
-        name: "Adena".into(),
-        kind: crate::data::item_data::ItemKind::Etc,
-        body_part: 0,
-        weight: 0,
-        is_stackable: true,
-        type1: 4,
-        type2: 5,
-        is_quest_item: false,
-        price: 0,
-        handler: crate::data::item_data::ItemHandler::None,
-        crystal_type: crate::data::item_data::CrystalType::None, crystal_count: 0,
- attack_radius: 40,
- attack_angle: 0,
- mp_consume: 0,
- reduced_mp_consume: 0,
- reduced_mp_consume_chance: 0,
-        capsuled_items: Vec::new(),
-        extractable_count_min: 0,
-        extractable_count_max: 0,
-        item_skills: Vec::new(), etc_item_type: crate::data::item_data::EtcItemType::Other, enchant_enabled: false, enchant_limit: 0, is_magic_weapon: false,
-    });
+                                              // Adena template so `add_inventory_item`/`take_items` can stack it.
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action: crate::data::item_data::ActionType::Other,
+            item_id: 57,
+            name: "Adena".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 0,
+            handler: crate::data::item_data::ItemHandler::None,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
     world.data.teleporters.insert_for_test(
         30001,
         crate::data::teleporter_data::TeleportHolder {

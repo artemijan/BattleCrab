@@ -130,7 +130,13 @@ pub struct Vitals {
 
 impl Vitals {
     pub fn hp_full(max_hp: i32, max_mp: i32) -> Self {
-        Self { max_hp, cur_hp: max_hp as f64, max_mp, cur_mp: max_mp as f64, dead: false }
+        Self {
+            max_hp,
+            cur_hp: max_hp as f64,
+            max_mp,
+            cur_mp: max_mp as f64,
+            dead: false,
+        }
     }
 }
 
@@ -177,8 +183,11 @@ impl Speeds {
     /// The ground speed movement math uses (`Creature.getMoveSpeed`, incl.
     /// its "in water → swim speeds" branch).
     pub fn move_speed(&self) -> f64 {
-        let (run, walk) =
-            if self.swimming { (self.swim_run_spd, self.swim_walk_spd) } else { (self.run_spd, self.walk_spd) };
+        let (run, walk) = if self.swimming {
+            (self.swim_run_spd, self.swim_walk_spd)
+        } else {
+            (self.run_spd, self.walk_spd)
+        };
         (if self.running { run } else { walk }) * self.move_multiplier
     }
 
@@ -194,7 +203,7 @@ impl Speeds {
         if self.base_run_spd <= 0.0 {
             return 1.0;
         }
-        self.move_speed() *(1.0 / self.base_run_spd)
+        self.move_speed() * (1.0 / self.base_run_spd)
     }
 
     /// The four speed shorts `UserInfo`/`CharInfo` carry, in wire order. Java
@@ -205,8 +214,19 @@ impl Speeds {
     /// server moved at ~630).
     pub fn client_speed_fields(&self) -> [i16; 4] {
         let mult = self.client_move_multiplier();
-        let div = |v: f64| if mult > 0.0 { (v / mult).round() as i16 } else { v as i16 };
-        [div(self.run_spd), div(self.walk_spd), div(self.swim_run_spd), div(self.swim_walk_spd)]
+        let div = |v: f64| {
+            if mult > 0.0 {
+                (v / mult).round() as i16
+            } else {
+                v as i16
+            }
+        };
+        [
+            div(self.run_spd),
+            div(self.walk_spd),
+            div(self.swim_run_spd),
+            div(self.swim_walk_spd),
+        ]
     }
 }
 
@@ -369,7 +389,11 @@ pub enum QueuedAction {
     /// target — the target is re-resolved from the player's *current* target
     /// at replay, which is what lets a mid-cast re-target redirect the
     /// queued skill.
-    Skill { skill_id: i32, ctrl: bool, shift: bool },
+    Skill {
+        skill_id: i32,
+        ctrl: bool,
+        shift: bool,
+    },
     /// An equipable `UseItem` click (Java defers it via
     /// `NextAction(EVT_FINISH_CASTING, …)` / a swing-end schedule).
     UseItem { item_object_id: i32 },
@@ -500,7 +524,10 @@ impl PlayerVariables {
     /// Java `AbstractVariables.getInt(key, default)` — a non-numeric or absent
     /// value yields the default.
     pub fn get_int(&self, key: &str, default: i32) -> i32 {
-        self.0.get(key).and_then(|v| v.parse().ok()).unwrap_or(default)
+        self.0
+            .get(key)
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(default)
     }
 
     /// Java `AbstractVariables.set(key, value)`.
@@ -576,15 +603,29 @@ impl StatModifiers {
     /// Java `CreatureStat.getMoveTypeValue(stat, type)` — the flat term for
     /// this stat in the creature's *current* locomotion state (0 when there is
     /// no `StatByMoveType` contribution for that pairing).
-    pub fn move_type_value(&self, stat: crate::model::stats::Stat, move_type: crate::model::stats::MoveType) -> f64 {
-        self.by_move_type.get(&(stat, move_type)).copied().unwrap_or(0.0)
+    pub fn move_type_value(
+        &self,
+        stat: crate::model::stats::Stat,
+        move_type: crate::model::stats::MoveType,
+    ) -> f64 {
+        self.by_move_type
+            .get(&(stat, move_type))
+            .copied()
+            .unwrap_or(0.0)
     }
 
     /// Java `CreatureStat.getPositionTypeValue(stat, position)` — the
     /// multiplier for this stat at the given attacker position (**1.0**, not
     /// 0.0, when nothing contributes: this map multiplies).
-    pub fn position_value(&self, stat: crate::model::stats::Stat, position: crate::model::movement::Position) -> f64 {
-        self.by_position.get(&(stat, position)).copied().unwrap_or(1.0)
+    pub fn position_value(
+        &self,
+        stat: crate::model::stats::Stat,
+        position: crate::model::movement::Position,
+    ) -> f64 {
+        self.by_position
+            .get(&(stat, position))
+            .copied()
+            .unwrap_or(1.0)
     }
 }
 

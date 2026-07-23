@@ -164,7 +164,10 @@ impl LauncherApp {
                 "Installation complete. Launcher moved to the game folder.".into()
             }
             Ok(Relocation::CopiedLeftOriginal(path)) => {
-                tracing::info!("launcher copied to {}, original left behind", path.display());
+                tracing::info!(
+                    "launcher copied to {}, original left behind",
+                    path.display()
+                );
                 "Installation complete. Launcher copied to the game folder — \
                  you can delete the one you downloaded."
                     .into()
@@ -491,8 +494,16 @@ mod tests {
 
     #[test]
     fn fraction_is_none_when_total_unknown() {
-        assert!(Phase::Downloading { done: 10, total: None }.fraction().is_none());
-        assert_eq!(Phase::Extracting { done: 5, total: 10 }.fraction(), Some(0.5));
+        assert!(Phase::Downloading {
+            done: 10,
+            total: None
+        }
+        .fraction()
+        .is_none());
+        assert_eq!(
+            Phase::Extracting { done: 5, total: 10 }.fraction(),
+            Some(0.5)
+        );
     }
 
     /// Rasterizes the full window headlessly so the composition can actually be
@@ -563,7 +574,10 @@ mod tests {
             ),
             (
                 "unpacking",
-                Some(Phase::Extracting { done: 7_000_000_000, total: 9_300_000_000 }),
+                Some(Phase::Extracting {
+                    done: 7_000_000_000,
+                    total: 9_300_000_000,
+                }),
                 None,
                 false,
             ),
@@ -617,6 +631,10 @@ mod tests {
         // image must survive.
         let visible = img.pixels.iter().filter(|p| p.a() > 16).count();
         let ratio = visible as f32 / img.pixels.len() as f32;
-        assert!(ratio > 0.10, "only {:.1}% of the logo survived keying", ratio * 100.0);
+        assert!(
+            ratio > 0.10,
+            "only {:.1}% of the logo survived keying",
+            ratio * 100.0
+        );
     }
 }

@@ -22,14 +22,17 @@ impl CursedWeaponData {
     }
 
     pub fn load_from(file_path: &str) -> Self {
-        let content = std::fs::read_to_string(format!("{file_path}{CURSED_WEAPONS_XML}")).unwrap_or_default();
+        let content =
+            std::fs::read_to_string(format!("{file_path}{CURSED_WEAPONS_XML}")).unwrap_or_default();
         let weapons = parse(&content);
         info!("CursedWeaponData: Loaded {} cursed weapons.", weapons.len());
         Self { weapons }
     }
 
     pub fn empty() -> Self {
-        Self { weapons: Vec::new() }
+        Self {
+            weapons: Vec::new(),
+        }
     }
 }
 
@@ -56,7 +59,9 @@ fn parse(content: &str) -> Vec<CursedWeapon> {
                 b"item" => {
                     cur = Some(CursedWeapon {
                         item_id: attr(&e, "id").and_then(|s| s.parse().ok()).unwrap_or(0),
-                        skill_id: attr(&e, "skillId").and_then(|s| s.parse().ok()).unwrap_or(0),
+                        skill_id: attr(&e, "skillId")
+                            .and_then(|s| s.parse().ok())
+                            .unwrap_or(0),
                         name: attr(&e, "name").unwrap_or_default(),
                         disappear_chance: 0,
                         drop_rate: 0,

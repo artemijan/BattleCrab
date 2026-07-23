@@ -1,7 +1,5 @@
 //! `ScriptZone` support — the groundwork every `ai/bosses` script needs.
 
-use super::*;
-
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 /// Queen Ant's lair, the zone `QueenAnt.java` opens with
 /// `ZoneManager.getZoneById(12012)`.
@@ -29,10 +27,16 @@ fn script_zone_containment_matches_the_polygon() {
     let queen = zones.by_id(QUEEN_ANT_ZONE).unwrap();
 
     // Queen Ant's own spawn point, from QueenAnt.java's QUEEN_X/Y/Z.
-    assert!(queen.contains(-21610, 181594, -5734), "the boss's own spawn point is inside its zone");
+    assert!(
+        queen.contains(-21610, 181594, -5734),
+        "the boss's own spawn point is inside its zone"
+    );
     // Far outside, and outside the Z band.
     assert!(!queen.contains(0, 0, -5734), "a distant point is outside");
-    assert!(!queen.contains(-21610, 181594, 5000), "above the zone's maxZ is outside");
+    assert!(
+        !queen.contains(-21610, 181594, 5000),
+        "above the zone's maxZ is outside"
+    );
 }
 
 /// A `ScriptZone` claims **no membership bit**: Java gives it no `ZoneId`, so

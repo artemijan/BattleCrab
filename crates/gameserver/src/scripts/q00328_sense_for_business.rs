@@ -19,46 +19,90 @@ fn eye_thresholds(npc_id: i32) -> Option<(i32, i32)> {
 }
 /// Basilisk: `roll < chance` → gizzard.
 fn basilisk_chance(npc_id: i32) -> Option<i32> {
-    match npc_id { 20070 => Some(60), 20072 => Some(63), _ => None }
+    match npc_id {
+        20070 => Some(60),
+        20072 => Some(63),
+        _ => None,
+    }
 }
 pub struct Q00328SenseForBusiness;
 impl QuestScript for Q00328SenseForBusiness {
-    fn id(&self) -> i32 { 328 }
-    fn name(&self) -> &'static str { "Q00328_SenseForBusiness" }
-    fn html_dir(&self) -> &'static str { "quests/Q00328_SenseForBusiness" }
-    fn start_npcs(&self) -> &[i32] { &[SARIEN] }
-    fn talk_npcs(&self) -> &[i32] { &[SARIEN] }
-    fn kill_npcs(&self) -> &[i32] { &KILL_NPCS }
-    fn quest_items(&self) -> &[i32] { &[CARCASS, LENS, GIZZARD] }
+    fn id(&self) -> i32 {
+        328
+    }
+    fn name(&self) -> &'static str {
+        "Q00328_SenseForBusiness"
+    }
+    fn html_dir(&self) -> &'static str {
+        "quests/Q00328_SenseForBusiness"
+    }
+    fn start_npcs(&self) -> &[i32] {
+        &[SARIEN]
+    }
+    fn talk_npcs(&self) -> &[i32] {
+        &[SARIEN]
+    }
+    fn kill_npcs(&self) -> &[i32] {
+        &KILL_NPCS
+    }
+    fn quest_items(&self) -> &[i32] {
+        &[CARCASS, LENS, GIZZARD]
+    }
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if !ctx.has_qs() { return None; }
+        if !ctx.has_qs() {
+            return None;
+        }
         match event {
-            "30436-03.htm" => { ctx.start_quest(); Some(event.to_string()) }
-            "30436-06.html" => { ctx.exit_quest(true, true); Some(event.to_string()) }
+            "30436-03.htm" => {
+                ctx.start_quest();
+                Some(event.to_string())
+            }
+            "30436-06.html" => {
+                ctx.exit_quest(true, true);
+                Some(event.to_string())
+            }
             _ => None,
         }
     }
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if !ctx.has_qs() || !ctx.is_started() { return; }
+        if !ctx.has_qs() || !ctx.is_started() {
+            return;
+        }
         let chance = ctx.roll(100);
         if let Some((c, l)) = eye_thresholds(ctx.npc_id) {
-            if chance < c { ctx.give_items(CARCASS, 1); }
-            else if chance < l { ctx.give_items(LENS, 1); }
+            if chance < c {
+                ctx.give_items(CARCASS, 1);
+            } else if chance < l {
+                ctx.give_items(LENS, 1);
+            }
         } else if let Some(g) = basilisk_chance(ctx.npc_id) {
-            if chance < g { ctx.give_items(GIZZARD, 1); }
+            if chance < g {
+                ctx.give_items(GIZZARD, 1);
+            }
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() < MIN_LEVEL { "30436-01.htm" } else { "30436-02.htm" }.to_string());
+            return Some(
+                if ctx.player_level() < MIN_LEVEL {
+                    "30436-01.htm"
+                } else {
+                    "30436-02.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             let carcass = ctx.quest_items_count(CARCASS);
             let lens = ctx.quest_items_count(LENS);
             let gizzards = ctx.quest_items_count(GIZZARD);
             if carcass + lens + gizzards > 0 {
-                let bonus = if carcass + lens + gizzards >= 10 { 100 } else { 0 };
+                let bonus = if carcass + lens + gizzards >= 10 {
+                    100
+                } else {
+                    0
+                };
                 ctx.give_adena(carcass * 2 + lens * 10 + gizzards * 2 + bonus, true);
                 ctx.take_items(CARCASS, -1);
                 ctx.take_items(LENS, -1);

@@ -59,12 +59,17 @@ impl PlayerXpPercentLostData {
 
     #[doc(hidden)]
     pub fn empty() -> Self {
-        Self { percent: Vec::new() }
+        Self {
+            percent: Vec::new(),
+        }
     }
 
     /// `getXpPercent(level)` — Java warns and returns 1.0 above the table.
     pub fn xp_percent(&self, level: i32) -> f64 {
-        self.percent.get(level.max(0) as usize).copied().unwrap_or(DEFAULT_XP_PERCENT_LOST)
+        self.percent
+            .get(level.max(0) as usize)
+            .copied()
+            .unwrap_or(DEFAULT_XP_PERCENT_LOST)
     }
 }
 
@@ -74,10 +79,13 @@ mod tests {
 
     #[test]
     fn loads_real_dist_table() {
-        let data = PlayerXpPercentLostData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let data = PlayerXpPercentLostData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
         assert_eq!(data.xp_percent(1), 10.0);
         assert_eq!(data.xp_percent(40), 5.125); // 10 − 39·0.125
-        // Above the table: Java warns and falls back to 1.0.
+                                                // Above the table: Java warns and falls back to 1.0.
         assert_eq!(data.xp_percent(500), 1.0);
     }
 }

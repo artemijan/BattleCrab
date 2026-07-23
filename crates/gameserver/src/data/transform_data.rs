@@ -86,7 +86,9 @@ impl TransformData {
     }
 
     pub fn empty() -> Self {
-        Self { by_id: HashMap::new() }
+        Self {
+            by_id: HashMap::new(),
+        }
     }
 
     pub fn get(&self, id: i32) -> Option<&Transform> {
@@ -94,8 +96,11 @@ impl TransformData {
     }
 }
 
-fn attr<'a>(e: &'a quick_xml::events::BytesStart, key: &str) -> Option<String> {
-    e.attributes().flatten().find(|a| a.key.as_ref() == key.as_bytes()).and_then(|a| String::from_utf8(a.value.into_owned()).ok())
+fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
+    e.attributes()
+        .flatten()
+        .find(|a| a.key.as_ref() == key.as_bytes())
+        .and_then(|a| String::from_utf8(a.value.into_owned()).ok())
 }
 
 /// Parse one `<transform>` file. Returns `None` if the id is missing.
@@ -109,32 +114,33 @@ fn parse(content: &str) -> Option<Transform> {
     let mut gender = 0usize;
     let mut in_skills = false;
 
-    let handle = |e: &quick_xml::events::BytesStart, tmpl: &mut TransformTemplate, in_skills: &mut bool| {
-        match e.name().as_ref() {
-            b"collision" => {
-                if let Some(r) = attr(e, "radius").and_then(|s| s.parse().ok()) {
-                    tmpl.collision_radius = r;
+    let handle =
+        |e: &quick_xml::events::BytesStart, tmpl: &mut TransformTemplate, in_skills: &mut bool| {
+            match e.name().as_ref() {
+                b"collision" => {
+                    if let Some(r) = attr(e, "radius").and_then(|s| s.parse().ok()) {
+                        tmpl.collision_radius = r;
+                    }
+                    if let Some(h) = attr(e, "height").and_then(|s| s.parse().ok()) {
+                        tmpl.collision_height = h;
+                    }
                 }
-                if let Some(h) = attr(e, "height").and_then(|s| s.parse().ok()) {
-                    tmpl.collision_height = h;
+                b"moving" => {
+                    tmpl.run_spd = attr(e, "run").and_then(|s| s.parse().ok());
+                    tmpl.walk_spd = attr(e, "walk").and_then(|s| s.parse().ok());
                 }
-            }
-            b"moving" => {
-                tmpl.run_spd = attr(e, "run").and_then(|s| s.parse().ok());
-                tmpl.walk_spd = attr(e, "walk").and_then(|s| s.parse().ok());
-            }
-            b"skills" => *in_skills = true,
-            b"skill" if *in_skills => {
-                if let (Some(sid), level) = (
-                    attr(e, "id").and_then(|s| s.parse().ok()),
-                    attr(e, "level").and_then(|s| s.parse().ok()).unwrap_or(1),
-                ) {
-                    tmpl.skills.push((sid, level));
+                b"skills" => *in_skills = true,
+                b"skill" if *in_skills => {
+                    if let (Some(sid), level) = (
+                        attr(e, "id").and_then(|s| s.parse().ok()),
+                        attr(e, "level").and_then(|s| s.parse().ok()).unwrap_or(1),
+                    ) {
+                        tmpl.skills.push((sid, level));
+                    }
                 }
+                _ => {}
             }
-            _ => {}
-        }
-    };
+        };
 
     let mut buf = Vec::new();
     loop {
@@ -166,5 +172,11 @@ fn parse(content: &str) -> Option<Transform> {
     }
 
     let id = id?;
-    Some(Transform { id, display_id: id, flying, male, female })
+    Some(Transform {
+        id,
+        display_id: id,
+        flying,
+        male,
+        female,
+    })
 }

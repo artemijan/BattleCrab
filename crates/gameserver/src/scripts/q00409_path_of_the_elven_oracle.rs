@@ -70,7 +70,11 @@ const FIRST_ATTACKER: &str = "firstAttacker";
 const AMBUSHERS: [i32; 4] = [LIZARDMAN_WARRIOR, LIZARDMAN_SCOUT, LIZARDMAN_SOLDIER, TAMIL];
 
 const QUEST_ITEMS: [i32; 6] = [
-    CRYSTAL_MEDALLION, SWINDLERS_MONEY, ALLANA_OF_DAIRY, LIZARD_CAPTAIN_ORDER, HALF_OF_DAIRY,
+    CRYSTAL_MEDALLION,
+    SWINDLERS_MONEY,
+    ALLANA_OF_DAIRY,
+    LIZARD_CAPTAIN_ORDER,
+    HALF_OF_DAIRY,
     TAMIL_NECKLACE,
 ];
 
@@ -160,7 +164,11 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
         }
         match ctx.npc_script_value() {
             0 => {
-                let line = if ctx.npc_id == TAMIL { NS_AS_YOU_WISH } else { NS_SACRED_FLAME };
+                let line = if ctx.npc_id == TAMIL {
+                    NS_AS_YOU_WISH
+                } else {
+                    NS_SACRED_FLAME
+                };
                 ctx.npc_say(line);
                 ctx.set_npc_script_value(1);
                 let attacker = ctx.player;
@@ -203,8 +211,12 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
         if ctx.is_created() {
             if npc == PRIEST_MANUEL {
                 return Some(
-                    if self.has(ctx, LEAF_OF_ORACLE) { "30293-04.htm" } else { "30293-01.htm" }
-                        .to_string(),
+                    if self.has(ctx, LEAF_OF_ORACLE) {
+                        "30293-04.htm"
+                    } else {
+                        "30293-01.htm"
+                    }
+                    .to_string(),
                 );
             }
             return Some(ctx.no_quest_html());
@@ -226,8 +238,15 @@ impl QuestScript for Q00409PathOfTheElvenOracle {
 
 impl Q00409PathOfTheElvenOracle {
     fn talk_manuel(&self, ctx: &mut QuestCtx) -> Option<String> {
-        let carrying =
-            self.has_any(ctx, &[SWINDLERS_MONEY, ALLANA_OF_DAIRY, LIZARD_CAPTAIN_ORDER, HALF_OF_DAIRY]);
+        let carrying = self.has_any(
+            ctx,
+            &[
+                SWINDLERS_MONEY,
+                ALLANA_OF_DAIRY,
+                LIZARD_CAPTAIN_ORDER,
+                HALF_OF_DAIRY,
+            ],
+        );
         if !carrying {
             // Empty-handed. `memoState == 2` means the re-enactment was
             // started and lost — rewind it and advance the *window* to 8.

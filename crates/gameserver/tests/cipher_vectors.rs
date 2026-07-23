@@ -8,13 +8,16 @@
 use gameserver::network::cipher::Encryption;
 
 fn hex(s: &str) -> Vec<u8> {
-    (0..s.len()).step_by(2).map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap()).collect()
+    (0..s.len())
+        .step_by(2)
+        .map(|i| u8::from_str_radix(&s[i..i + 2], 16).unwrap())
+        .collect()
 }
 
 #[test]
 fn game_cipher_matches_java() {
-    let v: serde_json::Value =
-        serde_json::from_str(include_str!("cipher_vectors.json")).expect("invalid cipher_vectors.json");
+    let v: serde_json::Value = serde_json::from_str(include_str!("cipher_vectors.json"))
+        .expect("invalid cipher_vectors.json");
 
     let key: [u8; 16] = hex(v["key"].as_str().unwrap()).try_into().unwrap();
     let mut e = Encryption::new();
@@ -28,7 +31,11 @@ fn game_cipher_matches_java() {
             "d" => e.decrypt(&mut work),
             other => panic!("unknown op {other}"),
         }
-        assert_eq!(work, hex(step["out"].as_str().unwrap()), "step {i} ({op}) mismatch");
+        assert_eq!(
+            work,
+            hex(step["out"].as_str().unwrap()),
+            "step {i} ({op}) mismatch"
+        );
     }
 }
 

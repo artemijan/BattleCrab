@@ -15,8 +15,9 @@ use tokio::net::TcpStream;
 
 // ---------- login server + client crypto (mirrors loginserver test harness) ----------
 
-const STATIC_BLOWFISH_KEY: [u8; 16] =
-    [0x6b, 0x60, 0xcb, 0x5b, 0x82, 0xce, 0x90, 0xb1, 0xcc, 0x2b, 0x6c, 0x55, 0x6c, 0x6c, 0x6c, 0x6c];
+const STATIC_BLOWFISH_KEY: [u8; 16] = [
+    0x6b, 0x60, 0xcb, 0x5b, 0x82, 0xce, 0x90, 0xb1, 0xcc, 0x2b, 0x6c, 0x55, 0x6c, 0x6c, 0x6c, 0x6c,
+];
 
 async fn setup_login_schema(pool: &sqlx::SqlitePool) {
     for stmt in [
@@ -87,14 +88,22 @@ async fn start_login() -> (std::net::SocketAddr, std::net::SocketAddr) {
         pool.clone(),
         gs_table,
     );
-    let ctx = Arc::new(loginserver::context::LoginContext::new(config, pool, controller));
+    let ctx = Arc::new(loginserver::context::LoginContext::new(
+        config, pool, controller,
+    ));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    tokio::spawn(loginserver::network::client_connection::accept_loop(ctx.clone(), listener));
+    tokio::spawn(loginserver::network::client_connection::accept_loop(
+        ctx.clone(),
+        listener,
+    ));
     let gs_listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let gs_addr = gs_listener.local_addr().unwrap();
-    tokio::spawn(loginserver::gs_link::listener::accept_loop(ctx, gs_listener));
+    tokio::spawn(loginserver::gs_link::listener::accept_loop(
+        ctx,
+        gs_listener,
+    ));
     (addr, gs_addr)
 }
 
@@ -160,7 +169,9 @@ struct LoginClient {
 
 impl LoginClient {
     async fn send(&mut self, body: &[u8]) {
-        write_frame(&mut self.write, &login_encrypt(&self.crypt, body)).await.unwrap();
+        write_frame(&mut self.write, &login_encrypt(&self.crypt, body))
+            .await
+            .unwrap();
     }
     async fn recv(&mut self) -> Vec<u8> {
         let mut d = read_frame(&mut self.read, 8192).await.unwrap().unwrap();
@@ -179,7 +190,12 @@ async fn do_login(addr: std::net::SocketAddr, user: &str, password: &str) -> (i3
     assert_eq!(init[0], 0x00, "Init opcode");
     let modulus = unscramble_modulus(&init[9..9 + 128]);
     let blowfish_key: [u8; 16] = init[9 + 128 + 16..9 + 128 + 32].try_into().unwrap();
-    let mut c = LoginClient { read, write, crypt: NewCrypt::new(&blowfish_key), modulus };
+    let mut c = LoginClient {
+        read,
+        write,
+        crypt: NewCrypt::new(&blowfish_key),
+        modulus,
+    };
 
     // GameGuard.
     let mut gg = vec![0x07u8];
@@ -373,7 +389,7 @@ fn parse_userinfo_hpmp(ui: &[u8]) -> (i32, i32) {
     let block_len = |b: &[u8], p: usize| u16::from_le_bytes([b[p], b[p + 1]]) as usize;
     pos += block_len(ui, pos); // BASIC_INFO
     pos += block_len(ui, pos); // BASE_STATS
-    // MAX_HPCPMP: short(len) then maxHp, maxMp, maxCp.
+                               // MAX_HPCPMP: short(len) then maxHp, maxMp, maxCp.
     let hp = i32::from_le_bytes(ui[pos + 2..pos + 6].try_into().unwrap());
     let mp = i32::from_le_bytes(ui[pos + 6..pos + 10].try_into().unwrap());
     (hp, mp)
@@ -393,7 +409,8 @@ fn parse_userinfo_stats(ui: &[u8]) -> (i32, i32, i32) {
     pos += block_len(ui, pos); // ENCHANTLEVEL
     pos += block_len(ui, pos); // APPEARANCE
     pos += block_len(ui, pos); // STATUS
-    let field = |i: usize| i32::from_le_bytes(ui[pos + 4 + i * 4..pos + 8 + i * 4].try_into().unwrap());
+    let field =
+        |i: usize| i32::from_le_bytes(ui[pos + 4 + i * 4..pos + 8 + i * 4].try_into().unwrap());
     (field(0), field(2), field(7)) // p_atk, p_def, m_atk_spd
 }
 
@@ -454,13 +471,20 @@ async fn full_login_to_character_create() {
     assert_eq!(ok[0], 0x0A, "expected LOGIN_SUCCESS");
     let sel = g.recv().await;
     assert_eq!(sel[0], 0x09, "expected CharSelectionInfo");
-    assert_eq!(i32::from_le_bytes(sel[1..5].try_into().unwrap()), 0, "no characters yet");
+    assert_eq!(
+        i32::from_le_bytes(sel[1..5].try_into().unwrap()),
+        0,
+        "no characters yet"
+    );
 
     // NewCharacter → NewCharacterSuccess (0x0D).
     g.send(&[0x13]).await;
     let templates = g.recv().await;
     assert_eq!(templates[0], 0x0D, "expected NewCharacterSuccess");
-    assert!(i32::from_le_bytes(templates[1..5].try_into().unwrap()) >= 9, "creatable templates offered");
+    assert!(
+        i32::from_le_bytes(templates[1..5].try_into().unwrap()) >= 9,
+        "creatable templates offered"
+    );
 
     // The client checks name availability first (extended 0xD0/0xA9 packet).
     let name = format!("Hero{}", std::process::id() % 10000);
@@ -471,8 +495,16 @@ async fn full_login_to_character_create() {
     g.send(&w.into_bytes()).await;
     let creatable = g.recv().await;
     assert_eq!(creatable[0], 0xFE, "ExIsCharNameCreatable (EX opcode)");
-    assert_eq!(i16::from_le_bytes([creatable[1], creatable[2]]), 0x10B, "EX_IS_CHAR_NAME_CREATABLE");
-    assert_eq!(i32::from_le_bytes(creatable[3..7].try_into().unwrap()), -1, "name should be creatable");
+    assert_eq!(
+        i16::from_le_bytes([creatable[1], creatable[2]]),
+        0x10B,
+        "EX_IS_CHAR_NAME_CREATABLE"
+    );
+    assert_eq!(
+        i32::from_le_bytes(creatable[3..7].try_into().unwrap()),
+        -1,
+        "name should be creatable"
+    );
 
     // CharacterCreate: Human Mystic (class 10) — has 7 level-1 skills (the 5
     // from the class tree plus Lucky + Common Craft from the common tree).
@@ -493,7 +525,11 @@ async fn full_login_to_character_create() {
     // CharCreateOk (0x0F, int 1). Java does NOT re-send CharSelectionInfo after
     // creation, so this is the only reply.
     let created = g.recv().await;
-    assert_eq!(created[0], 0x0F, "expected CharCreateOk, got opcode 0x{:02x}", created[0]);
+    assert_eq!(
+        created[0], 0x0F,
+        "expected CharCreateOk, got opcode 0x{:02x}",
+        created[0]
+    );
     assert_eq!(i32::from_le_bytes(created[1..5].try_into().unwrap()), 1);
 
     // Reconnecting (fresh session) shows the persisted character in the list.
@@ -512,7 +548,11 @@ async fn full_login_to_character_create() {
     assert_eq!(g2.recv().await[0], 0x0A, "LOGIN_SUCCESS on relogin");
     let sel2 = g2.recv().await;
     assert_eq!(sel2[0], 0x09, "CharSelectionInfo on relogin");
-    assert_eq!(i32::from_le_bytes(sel2[1..5].try_into().unwrap()), 1, "the created character persisted");
+    assert_eq!(
+        i32::from_le_bytes(sel2[1..5].try_into().unwrap()),
+        1,
+        "the created character persisted"
+    );
 
     // Select the character (slot 0) → CharSelected → enter the world → UserInfo.
     let mut w = PacketWriter::new();
@@ -530,7 +570,11 @@ async fn full_login_to_character_create() {
     g2.send(&[0xD0, 0x21, 0x00]).await;
     let ui_setting = g2.recv().await;
     assert_eq!(ui_setting[0], 0xFE, "ExUISetting EX opcode");
-    assert_eq!(i16::from_le_bytes([ui_setting[1], ui_setting[2]]), 0x71, "EX_UI_SETTING");
+    assert_eq!(
+        i16::from_le_bytes([ui_setting[1], ui_setting[2]]),
+        0x71,
+        "EX_UI_SETTING"
+    );
 
     g2.send(&[0x11]).await; // EnterWorld
     let ui = g2.recv().await;
@@ -538,7 +582,11 @@ async fn full_login_to_character_create() {
     // The real enter-world UserInfo STATS block must match the Java client:
     // p_atk 2, p_def 52, and casting speed 499 (333 × Spellcraft 1.5 in a robe).
     let (p_atk, p_def, cast_speed) = parse_userinfo_stats(&ui);
-    assert_eq!((p_atk, p_def, cast_speed), (2, 52, 499), "enter-world UserInfo STATS block");
+    assert_eq!(
+        (p_atk, p_def, cast_speed),
+        (2, 52, 499),
+        "enter-world UserInfo STATS block"
+    );
     // Walk the masked blocks to MAX_HPCPMP and check the computed HP/MP match the
     // model (base level-table HP/MP × CON/MEN bonus, truncated like Java).
     let (max_hp, max_mp) = parse_userinfo_hpmp(&ui);
@@ -559,12 +607,43 @@ async fn full_login_to_character_create() {
             .map(|(_, v)| *v)
             .sum()
     };
-    let expected_hp = (gameserver::model::calc_max_hp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
-    let expected_mp = (gameserver::model::calc_max_mp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
-    assert_eq!(max_hp, expected_hp, "UserInfo max HP matches the calc ({expected_hp})");
-    assert_eq!(max_mp, expected_mp, "UserInfo max MP matches the gear-inclusive calc ({expected_mp})");
-    assert!(max_hp > 90 && max_hp < 110, "Human Mystic level 1 HP is ~99");
-    assert!(expected_mp > gameserver::model::calc_max_mp(&data, mystic, 1, None, &gameserver::model::components::StatModifiers::default()) as i32, "equipped gear raised Max MP above the naked value");
+    let expected_hp = (gameserver::model::calc_max_hp(
+        &data,
+        mystic,
+        1,
+        None,
+        &gameserver::model::components::StatModifiers::default(),
+    ) + gear_bonus(gameserver::model::stats::Stat::MaxHp)) as i32;
+    let expected_mp = (gameserver::model::calc_max_mp(
+        &data,
+        mystic,
+        1,
+        None,
+        &gameserver::model::components::StatModifiers::default(),
+    ) + gear_bonus(gameserver::model::stats::Stat::MaxMp)) as i32;
+    assert_eq!(
+        max_hp, expected_hp,
+        "UserInfo max HP matches the calc ({expected_hp})"
+    );
+    assert_eq!(
+        max_mp, expected_mp,
+        "UserInfo max MP matches the gear-inclusive calc ({expected_mp})"
+    );
+    assert!(
+        max_hp > 90 && max_hp < 110,
+        "Human Mystic level 1 HP is ~99"
+    );
+    assert!(
+        expected_mp
+            > gameserver::model::calc_max_mp(
+                &data,
+                mystic,
+                1,
+                None,
+                &gameserver::model::components::StatModifiers::default()
+            ) as i32,
+        "equipped gear raised Max MP above the naked value"
+    );
 
     // Drain the rest of the enter-world burst, collecting opcodes, until the
     // welcome SystemMessage (0x62) — the last packet Java sends on enter.
@@ -599,7 +678,10 @@ async fn full_login_to_character_create() {
     assert!(opcodes.contains(&0x86), "QuestList");
     assert!(opcodes.contains(&0x5F), "SkillList");
     assert!(opcodes.contains(&0x75), "L2FriendList");
-    assert!(opcodes.iter().filter(|&&o| o == 0x32).count() >= 2, "UserInfo sent twice");
+    assert!(
+        opcodes.iter().filter(|&&o| o == 0x32).count() >= 2,
+        "UserInfo sent twice"
+    );
 
     // G9.6: a fresh Human Mystic gets the initialShortcuts.xml panel — the 4
     // global actions plus the class page's Wind Strike/Self Heal, minus one:
@@ -608,14 +690,22 @@ async fn full_login_to_character_create() {
     // stock MACRO example slot is dropped too (its preset ships
     // enabled="false").
     let shortcut_init = shortcut_init_pkt.expect("ShortCutInit packet");
-    let shortcut_count = i32::from_le_bytes([shortcut_init[1], shortcut_init[2], shortcut_init[3], shortcut_init[4]]);
+    let shortcut_count = i32::from_le_bytes([
+        shortcut_init[1],
+        shortcut_init[2],
+        shortcut_init[3],
+        shortcut_init[4],
+    ]);
     assert_eq!(shortcut_count, 5, "Human Mystic starting panel");
 
     // The Human Mystic's starting gear (initialEquipment.xml classId=10: wand,
     // tunic, stockings, all equipped) shows up in ItemList and the paperdoll.
     let item_list = item_list_pkt.expect("ItemList packet");
     let item_count = i16::from_le_bytes([item_list[3], item_list[4]]);
-    assert!(item_count >= 3, "Human Mystic should start with at least 3 items, got {item_count}");
+    assert!(
+        item_count >= 3,
+        "Human Mystic should start with at least 3 items, got {item_count}"
+    );
 
     let equip_slot = equip_slot_pkt.expect("ExUserInfoEquipSlot packet");
     let rhand_wire_index = gameserver::enums::InventorySlot::VALUES
@@ -623,14 +713,22 @@ async fn full_login_to_character_create() {
         .position(|s| matches!(s, gameserver::enums::InventorySlot::RHand))
         .unwrap();
     let block_start = 14 + rhand_wire_index * 22; // marker+sub+objectId+count+mask(5) header
-    let rhand_item_id = i32::from_le_bytes(equip_slot[block_start + 6..block_start + 10].try_into().unwrap());
+    let rhand_item_id = i32::from_le_bytes(
+        equip_slot[block_start + 6..block_start + 10]
+            .try_into()
+            .unwrap(),
+    );
     assert_eq!(rhand_item_id, 6, "Apprentice's Wand equipped in RHand");
 
     // In-game, the client requests the manor list (0xD0 / 0x01) → ExSendManorList.
     g2.send(&[0xD0, 0x01, 0x00]).await;
     let manor = g2.recv_skip_status_update().await;
     assert_eq!(manor[0], 0xFE, "ExSendManorList EX opcode");
-    assert_eq!(i16::from_le_bytes([manor[1], manor[2]]), 0x22, "EX_SEND_MANOR_LIST");
+    assert_eq!(
+        i16::from_le_bytes([manor[1], manor[2]]),
+        0x22,
+        "EX_SEND_MANOR_LIST"
+    );
 
     // RequestUserBanInfo (0xD0 / 0x138) is consumed with no reply; RequestSkillCoolTime
     // (0xA6) → SkillCoolTime. Sending both proves the ban-info was swallowed cleanly
@@ -645,10 +743,18 @@ async fn full_login_to_character_create() {
     g2.send(&[0x57]).await;
     let restart = g2.recv_skip_status_update().await;
     assert_eq!(restart[0], 0x71, "RestartResponse");
-    assert_eq!(i32::from_le_bytes(restart[1..5].try_into().unwrap()), 1, "RestartResponse.TRUE");
+    assert_eq!(
+        i32::from_le_bytes(restart[1..5].try_into().unwrap()),
+        1,
+        "RestartResponse.TRUE"
+    );
     let sel3 = g2.recv_skip_status_update().await;
     assert_eq!(sel3[0], 0x09, "CharSelectionInfo re-sent after restart");
-    assert_eq!(i32::from_le_bytes(sel3[1..5].try_into().unwrap()), 1, "character still listed");
+    assert_eq!(
+        i32::from_le_bytes(sel3[1..5].try_into().unwrap()),
+        1,
+        "character still listed"
+    );
 
     // Relogin without reconnecting (the original bug): select → enter again.
     let mut w = PacketWriter::new();
@@ -659,9 +765,17 @@ async fn full_login_to_character_create() {
     w.write_i32(0);
     w.write_i32(0);
     g2.send(&w.into_bytes()).await;
-    assert_eq!(g2.recv_skip_status_update().await[0], 0x0B, "CharSelected after restart");
+    assert_eq!(
+        g2.recv_skip_status_update().await[0],
+        0x0B,
+        "CharSelected after restart"
+    );
     g2.send(&[0x11]).await; // EnterWorld
-    assert_eq!(g2.recv_skip_status_update().await[0], 0x32, "UserInfo after re-enter");
+    assert_eq!(
+        g2.recv_skip_status_update().await[0],
+        0x32,
+        "UserInfo after re-enter"
+    );
     let mut n = 0;
     loop {
         // Drain the second enter-world burst up to the welcome SystemMessage.

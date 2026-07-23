@@ -18,13 +18,16 @@ pub struct LoginEncryption {
 
 impl LoginEncryption {
     pub fn new(key: &[u8]) -> Self {
-        Self { crypt: NewCrypt::new(key), static_mode: true }
+        Self {
+            crypt: NewCrypt::new(key),
+            static_mode: true,
+        }
     }
 
     /// Decrypts in place and validates the checksum. `false` = corrupt packet
     /// (Java closes the connection).
     pub fn decrypt(&self, data: &mut [u8]) -> bool {
-        if data.len() % 8 != 0 {
+        if !data.len().is_multiple_of(8) {
             return false;
         }
         self.crypt.decrypt(data);

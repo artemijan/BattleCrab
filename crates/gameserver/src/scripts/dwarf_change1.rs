@@ -153,7 +153,12 @@ impl QuestScript for DwarfChange1 {
             return self.class_change(ctx, self.target_class());
         }
         // The dialog pages echo back.
-        if event.ends_with(".htm") && self.npcs().iter().any(|id| event.starts_with(&id.to_string())) {
+        if event.ends_with(".htm")
+            && self
+                .npcs()
+                .iter()
+                .any(|id| event.starts_with(&id.to_string()))
+        {
             return Some(event.to_string());
         }
         None

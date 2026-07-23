@@ -12,21 +12,41 @@ const KILL_NPCS: [i32; 2] = [20370, 20480];
 /// `getRandom(10)`; the count is the 1-based index of the first entry with
 /// `chance > i` — so a low roll pays more fangs.
 fn amount(npc_id: i32, chance: i32) -> Option<i64> {
-    let table: &[i32] = match npc_id { 20370 => &[6, 3, 1, -1], 20480 => &[5, 2, -1], _ => return None };
+    let table: &[i32] = match npc_id {
+        20370 => &[6, 3, 1, -1],
+        20480 => &[5, 2, -1],
+        _ => return None,
+    };
     for (i, &t) in table.iter().enumerate() {
-        if chance > t { return Some((i + 1) as i64); }
+        if chance > t {
+            return Some((i + 1) as i64);
+        }
     }
     None
 }
 pub struct Q00294CovertBusiness;
 impl QuestScript for Q00294CovertBusiness {
-    fn id(&self) -> i32 { 294 }
-    fn name(&self) -> &'static str { "Q00294_CovertBusiness" }
-    fn html_dir(&self) -> &'static str { "quests/Q00294_CovertBusiness" }
-    fn start_npcs(&self) -> &[i32] { &[KEEF] }
-    fn talk_npcs(&self) -> &[i32] { &[KEEF] }
-    fn kill_npcs(&self) -> &[i32] { &KILL_NPCS }
-    fn quest_items(&self) -> &[i32] { &[BAT_FANG] }
+    fn id(&self) -> i32 {
+        294
+    }
+    fn name(&self) -> &'static str {
+        "Q00294_CovertBusiness"
+    }
+    fn html_dir(&self) -> &'static str {
+        "quests/Q00294_CovertBusiness"
+    }
+    fn start_npcs(&self) -> &[i32] {
+        &[KEEF]
+    }
+    fn talk_npcs(&self) -> &[i32] {
+        &[KEEF]
+    }
+    fn kill_npcs(&self) -> &[i32] {
+        &KILL_NPCS
+    }
+    fn quest_items(&self) -> &[i32] {
+        &[BAT_FANG]
+    }
     fn start_condition_html(&self, ctx: &mut QuestCtx) -> Option<String> {
         (ctx.player_level() > 16).then(|| ctx.no_quest_html())
     }
@@ -50,8 +70,16 @@ impl QuestScript for Q00294CovertBusiness {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_race() != RACE_DWARF { "30534-00.htm" }
-                else if ctx.player_level() >= MIN_LEVEL { "30534-02.htm" } else { "30534-01.htm" }.to_string());
+            return Some(
+                if ctx.player_race() != RACE_DWARF {
+                    "30534-00.htm"
+                } else if ctx.player_level() >= MIN_LEVEL {
+                    "30534-02.htm"
+                } else {
+                    "30534-01.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             if ctx.is_cond(2) {

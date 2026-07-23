@@ -11,7 +11,11 @@ const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 /// A point inside zone 12010 ("Valakas Boss"), taken from the boss's own lair.
 const IN_LAIR: (i32, i32, i32) = (212_852, -114_842, -1_632);
 
-fn valakas_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn valakas_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     // The real zone data — the whole mechanic is "is the attacker inside it".
     world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
@@ -38,7 +42,10 @@ fn valakas_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Lo
 }
 
 fn put_player_at(world: &mut World, x: i32, y: i32, z: i32) {
-    let p = world.objects.get_component_mut::<Position>(&PLAYER).unwrap();
+    let p = world
+        .objects
+        .get_component_mut::<Position>(&PLAYER)
+        .unwrap();
     p.x = x;
     p.y = y;
     p.z = z;
@@ -50,7 +57,10 @@ fn put_player_at(world: &mut World, x: i32, y: i32, z: i32) {
 fn the_fixtures_lair_point_is_actually_inside_the_zone() {
     let zones = crate::data::zone_data::ZoneData::load_from(DIST);
     let zone = zones.by_id(12010).expect("Valakas Boss zone");
-    assert!(zone.contains(IN_LAIR.0, IN_LAIR.1, IN_LAIR.2), "the fixture's point is inside the lair");
+    assert!(
+        zone.contains(IN_LAIR.0, IN_LAIR.1, IN_LAIR.2),
+        "the fixture's point is inside the lair"
+    );
 }
 
 /// **Attacking from outside the lair kills you.** Java's `attacker.doDie()` —
@@ -59,12 +69,24 @@ fn the_fixtures_lair_point_is_actually_inside_the_zone() {
 fn attacking_from_outside_the_lair_kills_the_attacker() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     put_player_at(&mut world, 0, 0, 0); // far outside
 
     let verdict = crate::game_loop::valakas::on_valakas_attacked(&mut world, VALAKAS_OID, PLAYER);
     assert_eq!(verdict, AttackVerdict::KilledForAttackingFromOutside);
-    assert!(world.objects.get_component::<Vitals>(&PLAYER).unwrap().dead, "the attacker died");
+    assert!(
+        world.objects.get_component::<Vitals>(&PLAYER).unwrap().dead,
+        "the attacker died"
+    );
 }
 
 /// **The zone check comes first.** With Valakas dead, an out-of-zone attacker
@@ -74,12 +96,25 @@ fn attacking_from_outside_the_lair_kills_the_attacker() {
 fn the_zone_check_precedes_the_status_check() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DEAD;
     put_player_at(&mut world, 0, 0, 0);
 
     let verdict = crate::game_loop::valakas::on_valakas_attacked(&mut world, VALAKAS_OID, PLAYER);
-    assert_eq!(verdict, AttackVerdict::KilledForAttackingFromOutside, "death, not a teleport");
+    assert_eq!(
+        verdict,
+        AttackVerdict::KilledForAttackingFromOutside,
+        "death, not a teleport"
+    );
 }
 
 /// Inside the lair but before the fight has begun: bounced out, not killed.
@@ -87,13 +122,25 @@ fn the_zone_check_precedes_the_status_check() {
 fn attacking_before_the_fight_removes_the_attacker() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = WAITING;
     put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
 
     let verdict = crate::game_loop::valakas::on_valakas_attacked(&mut world, VALAKAS_OID, PLAYER);
     assert_eq!(verdict, AttackVerdict::RemovedNotFighting);
-    assert!(!world.objects.get_component::<Vitals>(&PLAYER).unwrap().dead, "removed, not killed");
+    assert!(
+        !world.objects.get_component::<Vitals>(&PLAYER).unwrap().dead,
+        "removed, not killed"
+    );
     let p = world.objects.get_component::<Position>(&PLAYER).unwrap();
     assert_eq!((p.x, p.y), (150_037, -57_255), "dumped at ATTACKER_REMOVE");
 }
@@ -103,7 +150,16 @@ fn attacking_before_the_fight_removes_the_attacker() {
 fn a_legitimate_attacker_is_allowed() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
 
     let verdict = crate::game_loop::valakas::on_valakas_attacked(&mut world, VALAKAS_OID, PLAYER);
@@ -124,7 +180,11 @@ fn the_cinematic_arms_every_beat_and_ends_in_fighting() {
 
     let before = world.scheduler.len();
     crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
-    assert_eq!(world.scheduler.len() - before, 10, "ten beats scheduled at once");
+    assert_eq!(
+        world.scheduler.len() - before,
+        10,
+        "ten beats scheduled at once"
+    );
 
     // The last beat is what starts the fight.
     crate::game_loop::valakas::handle_cinematic_step(&mut world, VALAKAS_OID, 9);
@@ -144,7 +204,10 @@ fn the_cinematic_moves_valakas_into_the_lair() {
     add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, 0, 0, 0);
 
     crate::game_loop::valakas::begin_cinematic(&mut world, VALAKAS_OID);
-    let p = world.objects.get_component::<Position>(&VALAKAS_OID).unwrap();
+    let p = world
+        .objects
+        .get_component::<Position>(&VALAKAS_OID)
+        .unwrap();
     assert_eq!((p.x, p.y, p.z), IN_LAIR, "moved to the lair");
 }
 
@@ -154,14 +217,26 @@ fn the_cinematic_moves_valakas_into_the_lair() {
 #[test]
 fn only_players_inside_the_lair_see_the_cinematic() {
     let (mut world, _db, _l) = valakas_world();
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
 
     let mut inside_rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     let outsider = PLAYER + 1;
     let mut outside_rx = ingame_caster(&mut world, CID + 1, outsider, 0, 0);
     put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
     {
-        let p = world.objects.get_component_mut::<Position>(&outsider).unwrap();
+        let p = world
+            .objects
+            .get_component_mut::<Position>(&outsider)
+            .unwrap();
         p.x = 0;
         p.y = 0;
         p.z = 0;
@@ -180,7 +255,11 @@ fn only_players_inside_the_lair_see_the_cinematic() {
         }
         n
     };
-    assert_eq!(count(&mut inside_rx), 1, "the player in the lair saw the shot");
+    assert_eq!(
+        count(&mut inside_rx),
+        1,
+        "the player in the lair saw the shot"
+    );
     assert_eq!(count(&mut outside_rx), 0, "the player outside saw nothing");
 }
 
@@ -199,7 +278,10 @@ fn the_beats_keep_their_uneven_spacing() {
     ticks.dedup();
     // Steps 5 and 6 are 330 ms apart — under a tick, so they land together;
     // steps 8 and 9 are 6.7 s apart and must not.
-    assert!(ticks.len() >= 8, "the beats are spread across distinct ticks: {ticks:?}");
+    assert!(
+        ticks.len() >= 8,
+        "the beats are spread across distinct ticks: {ticks:?}"
+    );
     let span = ticks.last().unwrap() - base;
     assert_eq!(span, 260, "the sequence runs 26 s end to end");
 }
@@ -211,10 +293,23 @@ fn the_beats_keep_their_uneven_spacing() {
 use crate::game_loop::valakas::{DORMANT, MAX_PEOPLE, VACUALITE};
 
 /// A world with a DORMANT, spawned Valakas and the item template registered.
-fn entry_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn entry_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = valakas_world();
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DORMANT;
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     let mut t = crate::data::item_data::ItemTemplate::default();
     t.item_id = VACUALITE;
     t.name = "Vacualite Floating Stone".into();
@@ -245,9 +340,21 @@ fn klein_gates_the_antechamber_on_the_vacualite_stone() {
     );
 
     give_stone(&mut world, PLAYER);
-    assert_eq!(crate::game_loop::valakas::enter_hall_of_flames(&mut world, PLAYER), None, "admitted");
-    let p = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
-    assert_eq!((p.x, p.y), (183_813, -115_157), "teleported to the Hall of Flames");
+    assert_eq!(
+        crate::game_loop::valakas::enter_hall_of_flames(&mut world, PLAYER),
+        None,
+        "admitted"
+    );
+    let p = world
+        .objects
+        .get_component::<Position>(&PLAYER)
+        .copied()
+        .unwrap();
+    assert_eq!(
+        (p.x, p.y),
+        (183_813, -115_157),
+        "teleported to the Hall of Flames"
+    );
     assert!((p.z - -3_303).abs() < 50, "z near the Hall floor: {}", p.z);
 }
 
@@ -255,9 +362,18 @@ fn klein_gates_the_antechamber_on_the_vacualite_stone() {
 #[test]
 fn klein_shows_the_crowding_html_by_count() {
     let (mut world, _db, _l) = entry_world();
-    for (count, html) in [(0, "31540-01.htm"), (50, "31540-02.htm"), (150, "31540-04.htm"), (200, "31540-05.htm")] {
+    for (count, html) in [
+        (0, "31540-01.htm"),
+        (50, "31540-02.htm"),
+        (150, "31540-04.htm"),
+        (200, "31540-05.htm"),
+    ] {
         world.valakas_entry_count = count;
-        assert_eq!(crate::game_loop::valakas::klein_status_html(&world), html, "at {count}");
+        assert_eq!(
+            crate::game_loop::valakas::klein_status_html(&world),
+            html,
+            "at {count}"
+        );
     }
 }
 
@@ -275,11 +391,19 @@ fn the_heart_refuses_without_the_flag_or_when_locked() {
     );
 
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = FIGHTING;
-    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-02.htm"), "fighting");
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER),
+        Some("31385-02.htm"),
+        "fighting"
+    );
 
     world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DORMANT;
     world.valakas_entry_count = MAX_PEOPLE;
-    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-03.htm"), "full");
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER),
+        Some("31385-03.htm"),
+        "full"
+    );
 }
 
 /// The full first-entry arc: admitted into the lair, the count ticks, the
@@ -302,18 +426,38 @@ fn the_first_entry_arms_beginning_and_the_second_does_not() {
     }
 
     let before = world.scheduler.len();
-    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), None, "first admitted");
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER),
+        None,
+        "first admitted"
+    );
     assert_eq!(world.valakas_entry_count, 1);
-    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(WAITING), "WAITING");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, VALAKAS),
+        Some(WAITING),
+        "WAITING"
+    );
     assert_eq!(world.scheduler.len() - before, 1, "beginning armed once");
-    let pos = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
+    let pos = world
+        .objects
+        .get_component::<Position>(&PLAYER)
+        .copied()
+        .unwrap();
     assert!((204_328..=204_928).contains(&pos.x), "in the lair: {pos:?}");
     // The flag was consumed — a re-talk without a fresh Klein visit is refused.
-    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-04.htm"), "flag consumed");
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER),
+        Some("31385-04.htm"),
+        "flag consumed"
+    );
 
     // Second player enters mid-window: count ticks, no new timer.
     let mid = world.scheduler.len();
-    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER + 1), None, "second admitted");
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER + 1),
+        None,
+        "second admitted"
+    );
     assert_eq!(world.valakas_entry_count, 2);
     assert_eq!(world.scheduler.len(), mid, "the clock is NOT restarted");
 
@@ -324,7 +468,11 @@ fn the_first_entry_arms_beginning_and_the_second_does_not() {
     // begin_cinematic teleported the boss to the lair and armed the beats;
     // running them out flips FIGHTING.
     advance_ticks(&mut world, 300);
-    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(FIGHTING), "the fight began");
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, VALAKAS),
+        Some(FIGHTING),
+        "the fight began"
+    );
     let _ = before_beats;
 }
 
@@ -339,7 +487,10 @@ fn the_entry_count_never_resets() {
     world.grand_bosses.get_mut(&VALAKAS).unwrap().respawn_time = 1;
     crate::game_loop::grand_boss::resolve_at_boot(&mut world);
 
-    assert_eq!(world.valakas_entry_count, 7, "a respawn does not reset the lifetime count");
+    assert_eq!(
+        world.valakas_entry_count, 7,
+        "a respawn does not reset the lifetime count"
+    );
 }
 
 /// The router e2e (the slice-20 lesson): the Heart of Volcano's dist-html
@@ -362,12 +513,25 @@ fn the_bypass_reaches_the_entry_through_the_router() {
         t
     });
     add_test_npc(&mut world, heart_oid, 31385, "Folk", 70, 20, 0, 0);
-    world.objects.add_components(&PLAYER, crate::model::components::LastFolkNpc(heart_oid));
+    world
+        .objects
+        .add_components(&PLAYER, crate::model::components::LastFolkNpc(heart_oid));
 
-    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, CID, &bypass_body("Quest ValakasTeleporters"));
+    crate::game_loop::bypass::handle_request_bypass_to_server(
+        &mut world,
+        CID,
+        &bypass_body("Quest ValakasTeleporters"),
+    );
 
-    assert_eq!(world.valakas_entry_count, 1, "the bypass admitted through the router");
-    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(WAITING), "WAITING set");
+    assert_eq!(
+        world.valakas_entry_count, 1,
+        "the bypass admitted through the router"
+    );
+    assert_eq!(
+        crate::game_loop::grand_boss::status(&world, VALAKAS),
+        Some(WAITING),
+        "WAITING set"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -387,7 +551,12 @@ fn spawned_cubes(world: &World) -> usize {
         .npc_regions
         .values()
         .flatten()
-        .filter(|oid| world.objects.get_component::<crate::model::npc::Npc>(oid).is_some_and(|n| n.npc_id == CUBE))
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::npc::Npc>(oid)
+                .is_some_and(|n| n.npc_id == CUBE)
+        })
         .count()
 }
 
@@ -397,7 +566,16 @@ fn spawned_cubes(world: &World) -> usize {
 fn killing_valakas_arms_the_death_cinematic() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
 
     crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
 
@@ -418,7 +596,16 @@ fn the_death_cinematic_spawns_the_exit_cubes() {
     let (mut world, _db, _l) = valakas_world();
     register_cube(&mut world);
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
 
     crate::game_loop::death::npc_do_die(&mut world, VALAKAS_OID, PLAYER);
     assert_eq!(spawned_cubes(&world), 0, "no cubes until die_8");
@@ -426,9 +613,17 @@ fn the_death_cinematic_spawns_the_exit_cubes() {
     // die_8 fires at 16_500 ms → 160 ticks; advance past it.
     advance_ticks(&mut world, 170);
 
-    assert_eq!(spawned_cubes(&world), 15, "die_8 dropped all fifteen exit cubes");
+    assert_eq!(
+        spawned_cubes(&world),
+        15,
+        "die_8 dropped all fifteen exit cubes"
+    );
     assert!(
-        world.scheduler.pending_tasks_for_test().iter().any(|t| matches!(t, ScheduledTask::ValakasRemovePlayers)),
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, ScheduledTask::ValakasRemovePlayers)),
         "remove_players armed"
     );
 }
@@ -439,13 +634,28 @@ fn the_death_cinematic_spawns_the_exit_cubes() {
 fn remove_players_ousts_lingering_players_through_the_loop() {
     let (mut world, _db, _l) = valakas_world();
     let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
-    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
     put_player_at(&mut world, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
 
-    world.scheduler.schedule(world.tick, ScheduledTask::ValakasRemovePlayers);
+    world
+        .scheduler
+        .schedule(world.tick, ScheduledTask::ValakasRemovePlayers);
     advance_ticks(&mut world, 1);
 
-    let p = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
+    let p = world
+        .objects
+        .get_component::<Position>(&PLAYER)
+        .copied()
+        .unwrap();
     assert!(
         (150_037..=150_537).contains(&p.x) && (-57_720..=-57_220).contains(&p.y),
         "the lingering player was ousted to the exit: {p:?}"

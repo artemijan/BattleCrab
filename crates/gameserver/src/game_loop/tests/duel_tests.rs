@@ -13,7 +13,12 @@ const A_CID: u32 = 1;
 const B_CID: u32 = 2;
 
 /// Two healthy players standing next to each other.
-fn duelists(world: &mut World) -> (tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+fn duelists(
+    world: &mut World,
+) -> (
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+) {
     let a = ingame_caster(world, A_CID, A, 0, 0);
     let b = ingame_caster(world, B_CID, B, 100, 0);
     for oid in [A, B] {
@@ -25,7 +30,12 @@ fn duelists(world: &mut World) -> (tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>
 }
 
 fn name_of(world: &World, oid: i32) -> String {
-    world.objects.get_component::<Player>(&oid).unwrap().name.clone()
+    world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .name
+        .clone()
 }
 
 fn challenge(world: &mut World, from_cid: u32, target: i32) {
@@ -44,7 +54,8 @@ fn answer(world: &mut World, cid: u32, accept: bool) {
 }
 
 fn has_sm(pkts: &[Vec<u8>], id: i16) -> bool {
-    pkts.iter().any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
+    pkts.iter()
+        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE && sm_id(p) == id)
 }
 
 // ---------------------------------------------------------------------------
@@ -61,7 +72,10 @@ fn challenge_asks_the_target() {
 
     challenge(&mut world, A_CID, B);
 
-    assert!(world.objects.has_component::<PendingDuel>(&B), "the challenge is pending on the target");
+    assert!(
+        world.objects.has_component::<PendingDuel>(&B),
+        "the challenge is pending on the target"
+    );
     let pkts = drain(&mut ob);
     assert!(
         pkts.iter().any(|p| p[0] == 0xFE
@@ -80,9 +94,15 @@ fn declining_ends_it() {
 
     answer(&mut world, B_CID, false);
 
-    assert!(!world.objects.has_component::<PendingDuel>(&B), "the pending challenge is cleared");
+    assert!(
+        !world.objects.has_component::<PendingDuel>(&B),
+        "the pending challenge is cleared"
+    );
     assert!(world.duels.is_empty(), "no duel started");
-    assert!(has_sm(&drain(&mut oa), server_packets::sm_ids::C1_HAS_DECLINED_YOUR_CHALLENGE_TO_A_DUEL));
+    assert!(has_sm(
+        &drain(&mut oa),
+        server_packets::sm_ids::C1_HAS_DECLINED_YOUR_CHALLENGE_TO_A_DUEL
+    ));
 }
 
 /// Accepting starts the countdown and marks both sides as dueling, so neither
@@ -118,7 +138,10 @@ fn low_hp_refuses_the_duel() {
 
     challenge(&mut world, A_CID, B);
 
-    assert!(!world.objects.has_component::<PendingDuel>(&B), "no challenge is sent");
+    assert!(
+        !world.objects.has_component::<PendingDuel>(&B),
+        "no challenge is sent"
+    );
     assert!(has_sm(
         &drain(&mut oa),
         server_packets::sm_ids::C1_CANNOT_DUEL_BECAUSE_C1_S_HP_OR_MP_IS_BELOW_50
@@ -135,7 +158,10 @@ fn already_dueling_refuses() {
     drain(&mut oa);
 
     challenge(&mut world, A_CID, B);
-    assert!(has_sm(&drain(&mut oa), server_packets::sm_ids::YOU_ARE_UNABLE_TO_REQUEST_A_DUEL_AT_THIS_TIME));
+    assert!(has_sm(
+        &drain(&mut oa),
+        server_packets::sm_ids::YOU_ARE_UNABLE_TO_REQUEST_A_DUEL_AT_THIS_TIME
+    ));
 }
 
 /// Too far apart to hear the challenge.
@@ -149,7 +175,10 @@ fn out_of_range_refuses() {
     challenge(&mut world, A_CID, B);
 
     assert!(!world.objects.has_component::<PendingDuel>(&B));
-    assert!(has_sm(&drain(&mut oa), server_packets::sm_ids::C1_IS_TOO_FAR_AWAY_TO_RECEIVE_A_DUEL_CHALLENGE));
+    assert!(has_sm(
+        &drain(&mut oa),
+        server_packets::sm_ids::C1_IS_TOO_FAR_AWAY_TO_RECEIVE_A_DUEL_CHALLENGE
+    ));
 }
 
 // ---------------------------------------------------------------------------
@@ -169,7 +198,10 @@ fn countdown_runs_down_and_starts() {
     advance_ticks(&mut world, 60);
 
     let pkts = drain(&mut oa);
-    assert!(has_sm(&pkts, server_packets::sm_ids::LET_THE_DUEL_BEGIN), "the duel began");
+    assert!(
+        has_sm(&pkts, server_packets::sm_ids::LET_THE_DUEL_BEGIN),
+        "the duel began"
+    );
     assert!(
         pkts.iter().any(|p| p[0] == 0xFE
             && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_DUEL_START),
@@ -193,7 +225,10 @@ fn surrender_ends_the_duel() {
 
     assert!(world.duels.is_empty(), "the duel is over");
     assert!(!duel::is_in_duel(&world, A) && !duel::is_in_duel(&world, B));
-    assert!(has_sm(&drain(&mut oa), server_packets::sm_ids::C1_HAS_WON_THE_DUEL));
+    assert!(has_sm(
+        &drain(&mut oa),
+        server_packets::sm_ids::C1_HAS_WON_THE_DUEL
+    ));
 }
 
 /// **A duel never kills.** The losing blow stops at 1 HP and ends the duel
@@ -231,7 +266,10 @@ fn drifting_apart_cancels() {
     advance_ticks(&mut world, 20);
 
     assert!(world.duels.is_empty(), "the duel was cancelled");
-    assert!(has_sm(&drain(&mut oa), server_packets::sm_ids::THE_DUEL_HAS_ENDED_IN_A_TIE));
+    assert!(has_sm(
+        &drain(&mut oa),
+        server_packets::sm_ids::THE_DUEL_HAS_ENDED_IN_A_TIE
+    ));
 }
 
 /// Ending clears the duel marker from both sides so they can duel again.

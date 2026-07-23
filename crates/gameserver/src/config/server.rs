@@ -84,9 +84,15 @@ impl ServerConfig {
     pub fn load_from(root: &str) -> Self {
         let p = PropertiesParser::load_rel(root, SERVER_CONFIG_FILE);
 
-        let protocol_list = split_ints(&p.get_string("AllowedProtocolRevisions", "603;606;607"), ';');
-        let server_restart_schedule =
-            p.get_string("ServerRestartSchedule", "08:00").split(',').map(|s| s.trim().to_string()).collect();
+        let protocol_list = split_ints(
+            &p.get_string("AllowedProtocolRevisions", "603;606;607"),
+            ';',
+        );
+        let server_restart_schedule = p
+            .get_string("ServerRestartSchedule", "08:00")
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .collect();
         let server_restart_days = split_ints(p.get_string("ServerRestartDays", "").trim(), ',');
 
         Self {
@@ -145,7 +151,9 @@ impl ServerConfig {
 /// Split on `sep` and parse the trimmed pieces as ints, skipping non-numeric
 /// entries (mirrors Java's per-token `NumberFormatException`/`isDigit` skip).
 fn split_ints(s: &str, sep: char) -> Vec<i32> {
-    s.split(sep).filter_map(|tok| tok.trim().parse::<i32>().ok()).collect()
+    s.split(sep)
+        .filter_map(|tok| tok.trim().parse::<i32>().ok())
+        .collect()
 }
 
 /// Port of `Config.getServerTypeId` — comma-separated type names → bitmask.

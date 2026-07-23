@@ -2,32 +2,48 @@
 //! effects, and buff expiry.
 
 use crate::game_loop::helpers::client_for_player;
-use crate::model::components::{BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals};
+use crate::model::components::{
+    BaseStats, Buffs, CombatStats, RegionCell, Speeds, StatModifiers, Vitals,
+};
 use crate::model::formulas;
-use crate::model::skill::{abnormal_type_client_id, ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect};
+use crate::model::skill::{
+    abnormal_type_client_id, ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect,
+};
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-
 /// The `callSkill` → `activateSkill` → effect-handler chain for the effect
 /// kinds ported so far. Continuous stat modifiers land as an `ActiveBuff` on
 /// the target; `MagicalAttack`/`Heal` are instant.
-pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+pub(crate) fn apply_skill_effects(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) {
     use server_packets::{sm_ids, SmParam};
 
     // Magic crit is rolled once per cast (Java rolls in each instant effect's
     // `instant()`; one roll covers the single instant effect skills have).
-    let m_crit_rate = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_crit_hit).unwrap_or(0.0);
+    let m_crit_rate = world
+        .objects
+        .get_component::<CombatStats>(&caster_oid)
+        .map(|c| c.m_crit_hit)
+        .unwrap_or(0.0);
     let crit_roll = world.roll(1000);
-    let mcrit = skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
+    let mcrit =
+        skill.magic_type == 1 && formulas::calc_magic_crit(m_crit_rate, skill.is_bad(), crit_roll);
 
     // Spiritshots (magic skills only, `useSpiritShot() == _magic == 1`): read
     // the charged flag once per cast for the damage/heal bonus; the shot is
     // spent below after every effect has been applied (Java `Skill` uncharges
     // post-`applyEffects`). `caster_is_player` stands in for `isMageClass()` in
     // the heal static bonus — this fn's caster is always a player.
-    let caster_is_player = world.objects.get_component::<crate::model::Player>(&caster_oid).is_some();
+    let caster_is_player = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .is_some();
     let (sps, bss) = if skill.magic_type != 1 {
         (false, false)
     } else if crate::game_loop::combat::is_npc_oid(caster_oid) {
@@ -36,7 +52,10 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
         // attack loop because a summon's magic shot is consumed by the *cast*,
         // not by a swing. Blessed Beast Spiritshots do not exist on this dist,
         // so only the ×2 tier is reachable.
-        (crate::game_loop::servitor::uncharge_spiritshot(world, caster_oid), false)
+        (
+            crate::game_loop::servitor::uncharge_spiritshot(world, caster_oid),
+            false,
+        )
     } else {
         world
             .objects
@@ -49,7 +68,13 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
             })
             .unwrap_or((false, false))
     };
-    let magic_shots_bonus = if bss { 4.0 } else if sps { 2.0 } else { 1.0 };
+    let magic_shots_bonus = if bss {
+        4.0
+    } else if sps {
+        2.0
+    } else {
+        1.0
+    };
 
     // Soulshots (physical/thrown skills, Java `useSoulShot() == !isMagic`):
     // charged flag read once for the ×2 physical-damage bonus; spent post-cast
@@ -501,7 +526,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                 // `Lethal.instant`'s `chanceMultiplier` — the attribute half
                 // (its trait half stays unported with the trait system).
                 let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill);
-                if world.roll(100) < ((*full_lethal) as f64 * lethal_amod) as i32 {
+                if world.roll(100) < ((*full_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -525,7 +550,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                             cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
                         }
                     }
-                } else if world.roll(100) < ((*half_lethal) as f64 * lethal_amod) as i32 {
+                } else if world.roll(100) < ((*half_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -987,7 +1012,7 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
                         .data
                         .skill_data
                         .get(sid, slvl)
-                        .is_some_and(|bs| dispel.iter().any(|ty| bs.abnormal_type == *ty));
+                        .is_some_and(|bs| dispel.contains(&bs.abnormal_type));
                     // Roll per candidate, and only for candidates that match —
                     // keeping the roll count (and so the RNG stream) tied to the
                     // buffs actually at risk, as in Java's predicate.
@@ -1282,14 +1307,24 @@ pub(crate) fn apply_skill_effects(world: &mut World, caster_oid: i32, target_oid
     // Spend the spiritshot now that every effect has been applied (Java
     // `Skill`: `unchargeShot(isChargedShot(BLESSED_SPIRITSHOTS) ? BLESSED : SPIRITSHOTS)`).
     if skill.magic_type == 1 && (sps || bss) {
-        let shot = if bss { crate::model::ShotType::BlessedSpiritshots } else { crate::model::ShotType::Spiritshots };
-        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
+        let shot = if bss {
+            crate::model::ShotType::BlessedSpiritshots
+        } else {
+            crate::model::ShotType::Spiritshots
+        };
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&caster_oid)
+        {
             p.uncharge_shot(shot);
         }
     }
     // Spend the soulshot on a physical/thrown skill (Java `unchargeShot(SOULSHOTS)`).
     if ss {
-        if let Some(p) = world.objects.get_component_mut::<crate::model::Player>(&caster_oid) {
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&caster_oid)
+        {
             p.uncharge_shot(crate::model::ShotType::Soulshots);
         }
     }
@@ -1385,7 +1420,11 @@ pub(crate) fn apply_continuous_effects(
             world
                 .objects
                 .get_component::<crate::model::components::StatModifiers>(&target_oid)
-                .and_then(|m| m.mul.get(&crate::model::stats::Stat::ResistAbnormalDebuff).copied())
+                .and_then(|m| {
+                    m.mul
+                        .get(&crate::model::stats::Stat::ResistAbnormalDebuff)
+                        .copied()
+                })
                 .unwrap_or(1.0)
         } else {
             1.0
@@ -1406,13 +1445,22 @@ pub(crate) fn apply_continuous_effects(
         if skill.affect_scope == crate::model::skill::AffectScope::Single {
             let target_name = creature_name(world, target_oid);
             let text = if resisted {
-                format!("{} has resisted {}: {}%", target_name, skill.name, rate as i64)
+                format!(
+                    "{} has resisted {}: {}%",
+                    target_name, skill.name, rate as i64
+                )
             } else {
-                format!("{} landed with {}% chance on {}", skill.name, rate as i64, target_name)
+                format!(
+                    "{} landed with {}% chance on {}",
+                    skill.name, rate as i64, target_name
+                )
             };
             if let Some(client_id) = client_for_player(world, caster_oid) {
                 if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(sm_ids::S1_TEXT, &[SmParam::Text(text)]));
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::S1_TEXT,
+                        &[SmParam::Text(text)],
+                    ));
                 }
             }
         }
@@ -1429,7 +1477,10 @@ pub(crate) fn apply_continuous_effects(
     // Immunity, Celestial Shield) refuses every incoming debuff outright — no
     // roll, no partial landing. Self-cast is exempt for the same reason the
     // resist roll is: Java compares `target != attacker`.
-    if skill.is_debuff && caster_oid != target_oid && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid) {
+    if skill.is_debuff
+        && caster_oid != target_oid
+        && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid)
+    {
         return;
     }
 
@@ -1441,7 +1492,10 @@ pub(crate) fn apply_continuous_effects(
         let blocked = world
             .objects
             .get_component::<Buffs>(&target_oid)
-            .is_some_and(|b| b.0.iter().any(|x| x.blocked_abnormals.iter().any(|t| *t == skill.abnormal_type)));
+            .is_some_and(|b| {
+                b.0.iter()
+                    .any(|x| x.blocked_abnormals.contains(&skill.abnormal_type))
+            });
         if blocked {
             return;
         }
@@ -1450,9 +1504,15 @@ pub(crate) fn apply_continuous_effects(
     // Java `BuffInfo.setAbnormalTime` is applied only for a *positive* override
     // ("if equal or lesser than zero will be ignored"), so a bad stored value
     // falls back to the skill's own duration rather than making the buff permanent.
-    let abnormal_time = abnormal_time_override.filter(|&t| t > 0).unwrap_or(skill.abnormal_time);
+    let abnormal_time = abnormal_time_override
+        .filter(|&t| t > 0)
+        .unwrap_or(skill.abnormal_time);
     let permanent = abnormal_time <= 0;
-    let expires_at_tick = if permanent { u64::MAX } else { world.tick + abnormal_time as u64 * 10 };
+    let expires_at_tick = if permanent {
+        u64::MAX
+    } else {
+        world.tick + abnormal_time as u64 * 10
+    };
     let buff = ActiveBuff {
         skill_id: skill.id,
         skill_level: skill.level,
@@ -1484,29 +1544,42 @@ pub(crate) fn apply_continuous_effects(
         }
         apply_mute_interrupt(world, target_oid, skill);
         if !permanent {
-            world
-                .scheduler
-                .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+            world.scheduler.schedule(
+                expires_at_tick,
+                ScheduledTask::BuffExpire {
+                    player_object_id: target_oid,
+                    skill_id: skill.id,
+                },
+            );
         }
         return;
     }
     {
-        let landed = if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
-            .objects
-            .get_many_mut::<(
-                &mut crate::model::Player,
-                &BaseStats,
-                &mut StatModifiers,
-                &crate::model::inventory::Inventory,
-                &mut Buffs,
-                &mut Speeds,
-                &mut CombatStats,
-            )>(&target_oid)
-        {
-            target.apply_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, buff)
-        } else {
-            false
-        };
+        let landed =
+            if let Some((target, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+                world.objects.get_many_mut::<(
+                    &mut crate::model::Player,
+                    &BaseStats,
+                    &mut StatModifiers,
+                    &crate::model::inventory::Inventory,
+                    &mut Buffs,
+                    &mut Speeds,
+                    &mut CombatStats,
+                )>(&target_oid)
+            {
+                target.apply_buff(
+                    &world.data,
+                    base,
+                    &mut mods,
+                    inventory,
+                    &mut buffs,
+                    &mut speeds,
+                    &mut combat,
+                    buff,
+                )
+            } else {
+                false
+            };
         // A refused buff (a same-type buff of equal/higher level is already up)
         // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
         // shared skill id would drop the surviving buff early) or rebroadcast.
@@ -1514,17 +1587,23 @@ pub(crate) fn apply_continuous_effects(
             return;
         }
         if !permanent {
-            world
-                .scheduler
-                .schedule(expires_at_tick, ScheduledTask::BuffExpire { player_object_id: target_oid, skill_id: skill.id });
+            world.scheduler.schedule(
+                expires_at_tick,
+                ScheduledTask::BuffExpire {
+                    player_object_id: target_oid,
+                    skill_id: skill.id,
+                },
+            );
         }
         let now = world.tick;
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
                 if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(crate::network::enter_world::abnormal_status_update(buffs, now));
+                    cs.send(crate::network::enter_world::abnormal_status_update(
+                        buffs, now,
+                    ));
                 }
-                }
+            }
         }
         // Max HP/MP/CP live on a separate path from `recalculate_stats`; fold
         // the buff's MaxHp/MaxMp/MaxCp modifiers into them too (e.g. a +MP buff).
@@ -1551,7 +1630,11 @@ pub(crate) fn apply_continuous_effects(
         // a refreshed `SkillList` for the transform's granted skills to show up
         // — the two extras `admin::transforms::apply_transform`'s broadcast
         // sends on top of `broadcast_user_info`.
-        if skill.effects.iter().any(|e| matches!(e, SkillEffect::Transform { .. })) {
+        if skill
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::Transform { .. }))
+        {
             crate::game_loop::admin::transforms::refresh_transform_visuals(world, target_oid);
         }
     }
@@ -1573,12 +1656,27 @@ pub(crate) fn apply_continuous_effects(
 ///
 /// A row whose skill no longer exists (datapack change, skill removed) is
 /// dropped silently, like Java's `skill == null` continue.
-pub(crate) fn restore_persisted_buffs(world: &mut World, object_id: i32, rows: &[crate::db::SkillBuffRow]) {
+pub(crate) fn restore_persisted_buffs(
+    world: &mut World,
+    object_id: i32,
+    rows: &[crate::db::SkillBuffRow],
+) {
     for row in rows {
-        let Some(skill) = world.data.skill_data.get(row.skill_id, row.skill_level).cloned() else {
+        let Some(skill) = world
+            .data
+            .skill_data
+            .get(row.skill_id, row.skill_level)
+            .cloned()
+        else {
             continue;
         };
-        apply_continuous_effects(world, object_id, object_id, &skill, Some(row.remaining_time_secs));
+        apply_continuous_effects(
+            world,
+            object_id,
+            object_id,
+            &skill,
+            Some(row.remaining_time_secs),
+        );
     }
 }
 
@@ -1587,7 +1685,9 @@ pub(crate) fn restore_persisted_buffs(world: &mut World, object_id: i32, rows: &
 /// `CharInfo` that `broadcast_user_info` already sends; this is the self-facing
 /// half, without which a stunned player sees no swirl on themselves.
 fn refresh_abnormal_visuals(world: &World, object_id: i32) {
-    let Some(client_id) = client_for_player(world, object_id) else { return };
+    let Some(client_id) = client_for_player(world, object_id) else {
+        return;
+    };
     let visuals = crate::game_loop::abnormal::visual_effects(world, object_id);
     let invisible = world
         .objects
@@ -1598,9 +1698,11 @@ fn refresh_abnormal_visuals(world: &World, object_id: i32) {
         .get_component::<crate::model::Player>(&object_id)
         .map_or(0, |p| p.transform_display_id);
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(crate::network::user_info::ex_user_info_abnormal_visual_effect(
-            object_id, invisible, transform, &visuals,
-        ));
+        cs.send(
+            crate::network::user_info::ex_user_info_abnormal_visual_effect(
+                object_id, invisible, transform, &visuals,
+            ),
+        );
     }
 }
 
@@ -1608,7 +1710,11 @@ fn refresh_abnormal_visuals(world: &World, object_id: i32) {
 /// pose, sent to observers **and** the player themselves (Java's `Player`
 /// override makes `broadcastPacket` include self).
 fn broadcast_change_wait_type(world: &mut World, object_id: i32, move_type: i32) {
-    let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&object_id).copied() else {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+        .copied()
+    else {
         return;
     };
     let pkt = server_packets::change_wait_type(object_id, move_type, pos.x, pos.y, pos.z);
@@ -1646,21 +1752,32 @@ pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
 /// fires only on non-crits), no self-hits, the chance roll, and the
 /// `allowWeapons` mask. `allowSkillAttack` defaults to false and this is the
 /// normal-attack path, so the skill-attack clause is satisfied by construction.
-pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_oid: i32, damage: i32, crit: bool) {
+pub(crate) fn fire_attack_triggers(
+    world: &mut World,
+    attacker_oid: i32,
+    target_oid: i32,
+    damage: i32,
+    crit: bool,
+) {
     // `event.getAttacker() == event.getTarget()` bails.
     if attacker_oid == target_oid {
         return;
     }
     // Only players carry these skills on this dist (the three learnable
     // carriers are all class passives/dances).
-    let Some(book) = world.objects.get_component::<crate::model::components::SkillBook>(&attacker_oid) else {
+    let Some(book) = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&attacker_oid)
+    else {
         return;
     };
     let known: Vec<(i32, i32)> = book.0.iter().map(|(&id, &lvl)| (id, lvl)).collect();
 
     let mut fired: Vec<(i32, i32, bool)> = Vec::new();
     for (skill_id, skill_level) in known {
-        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else { continue };
+        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
         for effect in &carrier.effects {
             let SkillEffect::TriggerSkillByAttack {
                 min_damage,
@@ -1682,7 +1799,8 @@ pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_
             if world.roll(100) > *chance {
                 continue;
             }
-            if *allow_weapons != 0 && !attacker_weapon_allowed(world, attacker_oid, *allow_weapons) {
+            if *allow_weapons != 0 && !attacker_weapon_allowed(world, attacker_oid, *allow_weapons)
+            {
                 continue;
             }
             fired.push((*trigger_id, *trigger_level, *on_party));
@@ -1690,7 +1808,14 @@ pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_
     }
 
     for (trigger_id, trigger_level, on_party) in fired {
-        let Some(trigger) = world.data.skill_data.get(trigger_id, trigger_level).cloned() else { continue };
+        let Some(trigger) = world
+            .data
+            .skill_data
+            .get(trigger_id, trigger_level)
+            .cloned()
+        else {
+            continue;
+        };
         // `targetType`: SELF or MY_PARTY. The party case reduces to the caster
         // when unpartied, which is how Java's PARTY target handler behaves too.
         let mut targets = vec![attacker_oid];
@@ -1708,10 +1833,10 @@ pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_
             // Java's refresh guard: `if (buffInfo == null || buffInfo.getSkill()
             // .getLevel() < triggerSkill.getLevel())` — don't re-cast while the
             // same buff is already up at that level or higher.
-            let already = world
-                .objects
-                .get_component::<Buffs>(&t)
-                .is_some_and(|b| b.0.iter().any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level));
+            let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
+                b.0.iter()
+                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
+            });
             if already {
                 continue;
             }
@@ -1723,7 +1848,10 @@ pub(crate) fn fire_attack_triggers(world: &mut World, attacker_oid: i32, target_
 
 /// `event.getAttacker().getActiveWeaponItem().getItemType().mask() & _allowWeapons`.
 fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool {
-    let Some(inv) = world.objects.get_component::<crate::model::inventory::Inventory>(&attacker_oid) else {
+    let Some(inv) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&attacker_oid)
+    else {
         return false;
     };
     crate::model::weapon_condition_passes(mask, inv, &world.data.item_data)
@@ -1787,10 +1915,16 @@ fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: i32) {
             .get_component::<crate::model::npc::AggroList>(&victim_oid)
             .map(|a| a.0.values().map(|i| i.hate).fold(0.0_f64, f64::max))
             .unwrap_or(0.0);
-        if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&victim_oid) {
+        if let Some(aggro) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&victim_oid)
+        {
             aggro.0.entry(new_target_oid).or_default().hate = max_hate + 1.0;
         }
-        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&victim_oid) {
+        if let Some(ai) = world
+            .objects
+            .get_component_mut::<crate::model::npc::NpcAi>(&victim_oid)
+        {
             ai.intention = crate::model::npc::NpcIntention::Attack;
             ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
         }
@@ -1804,7 +1938,10 @@ fn retarget_onto(world: &mut World, victim_oid: i32, new_target_oid: i32) {
 /// Higher Mana Gain 285 (`mode=DIFF`, +22..81 by level) is a flat addition.
 fn mana_charge_of(world: &World, target_oid: i32, amount: f64) -> f64 {
     use crate::model::stats::Stat;
-    let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&target_oid) else {
+    let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+    else {
         return amount;
     };
     let mul = mods.mul.get(&Stat::ManaCharge).copied().unwrap_or(1.0);
@@ -1853,7 +1990,11 @@ fn target_level(world: &World, oid: i32) -> i32 {
 fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
     use server_packets::{sm_ids, SmParam};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
-    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     if crate::game_loop::abnormal::is_mp_blocked(world, target_oid) {
@@ -1861,7 +2002,9 @@ fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) 
     }
     // "Prevents overheal and negative amount".
     let restored = {
-        let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) else { return };
+        let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) else {
+            return;
+        };
         let headroom = (v.max_mp as f64 - v.cur_mp).max(0.0);
         let restored = amount.min(headroom).max(0.0);
         if restored != 0.0 {
@@ -1877,10 +2020,16 @@ fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) 
         let pkt = if caster_oid != target_oid {
             server_packets::system_message_with(
                 sm_ids::S2_MP_HAS_BEEN_RESTORED_BY_C1,
-                &[SmParam::Text(caster_display_name(world, caster_oid)), SmParam::Int(restored as i32)],
+                &[
+                    SmParam::Text(caster_display_name(world, caster_oid)),
+                    SmParam::Int(restored as i32),
+                ],
             )
         } else {
-            server_packets::system_message_with(sm_ids::S1_MP_HAS_BEEN_RESTORED, &[SmParam::Int(restored as i32)])
+            server_packets::system_message_with(
+                sm_ids::S1_MP_HAS_BEEN_RESTORED,
+                &[SmParam::Int(restored as i32)],
+            )
         };
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(pkt);
@@ -1924,15 +2073,23 @@ const FEAR_RANGE: f64 = 500.0;
 /// counterpart — servitors are `TODO(G29)` — and folds into the player case
 /// once they exist.)
 fn fear_can_start(world: &World, target_oid: i32) -> bool {
-    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&target_oid) else {
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+    else {
         return true;
     };
-    let Some(t) = npc.template(world) else { return false };
+    let Some(t) = npc.template(world) else {
+        return false;
+    };
     if t.is_raid() {
         return false;
     }
     t.is_attackable_class()
-        && !matches!(t.type_name.as_str(), "Defender" | "FortCommander" | "SiegeFlag")
+        && !matches!(
+            t.type_name.as_str(),
+            "Defender" | "FortCommander" | "SiegeFlag"
+        )
         && t.race != Some(crate::enums::Race::SiegeWeapon as i32)
 }
 
@@ -1956,8 +2113,11 @@ fn fear_action(world: &mut World, effector: Option<i32>, effected: i32) {
     {
         return;
     }
-    let Some(pos) = world.objects.get_component::<Position>(&effected).copied() else { return };
-    let radians = match effector.and_then(|e| world.objects.get_component::<Position>(&e).copied()) {
+    let Some(pos) = world.objects.get_component::<Position>(&effected).copied() else {
+        return;
+    };
+    let radians = match effector.and_then(|e| world.objects.get_component::<Position>(&e).copied())
+    {
         Some(src) => ((pos.y - src.y) as f64).atan2((pos.x - src.x) as f64),
         // `Util.convertHeadingToDegree`: heading / 182.044444444, in degrees.
         None => (pos.heading as f64 / 182.044_444_444).to_radians(),
@@ -1965,17 +2125,28 @@ fn fear_action(world: &mut World, effector: Option<i32>, effected: i32) {
     let dest_x = (pos.x as f64 + FEAR_RANGE * radians.cos()) as i32;
     let dest_y = (pos.y as f64 + FEAR_RANGE * radians.sin()) as i32;
     // Java projects at the victim's *own* z and lets geodata correct it.
-    let (vx, vy, vz) = world.geo.get_valid_location(pos.x, pos.y, pos.z, dest_x, dest_y, pos.z);
+    let (vx, vy, vz) = world
+        .geo
+        .get_valid_location(pos.x, pos.y, pos.z, dest_x, dest_y, pos.z);
 
     // `getAI().setIntention(AI_INTENTION_MOVE_TO, destination)` — the player and
     // NPC halves of Java's shared `Creature.moveToLocation` (each already does
     // its own geodata/pathfinding pass on top of the clamp above).
     if let Some(client_id) = client_for_player(world, effected) {
-        crate::game_loop::position::intention_move_to(world, client_id, effected, pos, (vx, vy, vz));
+        crate::game_loop::position::intention_move_to(
+            world,
+            client_id,
+            effected,
+            pos,
+            (vx, vy, vz),
+        );
     } else {
         // Set before the move: `move_npc_to` can bail (no speed, no path), and
         // Java changes the intention regardless of whether the walk starts.
-        if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&effected) {
+        if let Some(ai) = world
+            .objects
+            .get_component_mut::<crate::model::npc::NpcAi>(&effected)
+        {
             ai.intention = crate::model::npc::NpcIntention::MoveTo;
         }
         crate::game_loop::npc_ai::move_npc_to(world, effected, vx, vy, vz);
@@ -1991,7 +2162,8 @@ fn fear_action(world: &mut World, effector: Option<i32>, effected: i32) {
 /// normally.
 fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
     let mutes = skill.effect_flags()
-        & (crate::model::skill::effect_flag::MUTED | crate::model::skill::effect_flag::PHYSICAL_MUTED)
+        & (crate::model::skill::effect_flag::MUTED
+            | crate::model::skill::effect_flag::PHYSICAL_MUTED)
         != 0;
     if !mutes {
         return;
@@ -2004,7 +2176,10 @@ fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
     if is_raid {
         return;
     }
-    if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&target_oid)
+    {
         crate::game_loop::skills::cast::stop_casting(world, target_oid);
     }
 }
@@ -2017,7 +2192,13 @@ fn apply_mute_interrupt(world: &mut World, target_oid: i32, skill: &Skill) {
 /// **disarms** the state — as does any damage from a non-overhit skill — so the
 /// record only ever survives on a corpse, and only from the blow that made it
 /// one.
-fn record_overhit(world: &mut World, caster_oid: i32, target_oid: i32, damage: f64, over_hit: bool) {
+fn record_overhit(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    damage: f64,
+    over_hit: bool,
+) {
     use crate::model::components::Overhit;
     if damage <= 0.0 {
         return;
@@ -2032,7 +2213,13 @@ fn record_overhit(world: &mut World, caster_oid: i32, target_oid: i32, damage: f
         world.objects.remove_component::<Overhit>(&target_oid);
         return;
     }
-    world.objects.add_components(&target_oid, Overhit { damage: excess, attacker: caster_oid });
+    world.objects.add_components(
+        &target_oid,
+        Overhit {
+            damage: excess,
+            attacker: caster_oid,
+        },
+    );
 }
 
 /// `Creature.stopMove` + `abortCast` on the freshly-stunned victim: a skill
@@ -2047,14 +2234,30 @@ fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
     // the cast interrupted (`start_casting` stashes it), so clearing movement
     // before the cast would see it immediately restored — the victim would keep
     // walking while stunned.
-    if world.objects.has_component::<crate::model::components::Casting>(&target_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&target_oid)
+    {
         crate::game_loop::skills::cast::stop_casting(world, target_oid);
     }
     // Then freeze them where they stand and tell everyone who can see them.
-    if world.objects.has_component::<crate::model::components::Movement>(&target_oid) {
-        world.objects.remove_component::<crate::model::components::Movement>(&target_oid);
-        if let Some(pos) = world.objects.get_component::<crate::model::components::Position>(&target_oid).copied() {
-            if let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&target_oid).map(|r| r.0) {
+    if world
+        .objects
+        .has_component::<crate::model::components::Movement>(&target_oid)
+    {
+        world
+            .objects
+            .remove_component::<crate::model::components::Movement>(&target_oid);
+        if let Some(pos) = world
+            .objects
+            .get_component::<crate::model::components::Position>(&target_oid)
+            .copied()
+        {
+            if let Some(region) = world
+                .objects
+                .get_component::<crate::model::components::RegionCell>(&target_oid)
+                .map(|r| r.0)
+            {
                 crate::game_loop::helpers::broadcast_near_region(
                     world,
                     region,
@@ -2073,8 +2276,15 @@ fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
 fn creature_level(world: &World, oid: i32) -> i32 {
     // Java `Cubic.getLevel()` → `_owner.getLevel()`. Checked before the NPC/
     // player split because a cubic's caster entity is neither.
-    if let Some(c) = world.objects.get_component::<crate::model::components::CubicOf>(&oid) {
-        return world.objects.get_component::<crate::model::Player>(&c.owner_object_id).map(|p| p.level).unwrap_or(1);
+    if let Some(c) = world
+        .objects
+        .get_component::<crate::model::components::CubicOf>(&oid)
+    {
+        return world
+            .objects
+            .get_component::<crate::model::Player>(&c.owner_object_id)
+            .map(|p| p.level)
+            .unwrap_or(1);
     }
     if crate::game_loop::combat::is_npc_oid(oid) {
         world
@@ -2084,7 +2294,11 @@ fn creature_level(world: &World, oid: i32) -> i32 {
             .map(|t| t.level)
             .unwrap_or(1)
     } else {
-        world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.level).unwrap_or(1)
+        world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .map(|p| p.level)
+            .unwrap_or(1)
     }
 }
 
@@ -2105,7 +2319,11 @@ fn creature_name(world: &World, oid: i32) -> String {
             .map(|t| t.name.clone())
             .unwrap_or_default()
     } else {
-        world.objects.get_component::<crate::model::Player>(&oid).map(|p| p.name.clone()).unwrap_or_default()
+        world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .map(|p| p.name.clone())
+            .unwrap_or_default()
     }
 }
 
@@ -2116,19 +2334,32 @@ fn creature_name(world: &World, oid: i32) -> String {
 /// was ported, such skills loaded with an empty effect list, so the item was
 /// still consumed (`items::use_item_skills` destroys it once any skill
 /// "lands") but granted nothing.
-fn give_item(world: &mut World, target_oid: i32, item_id: i32, item_count: i64, item_enchant_level: i32) {
+fn give_item(
+    world: &mut World,
+    target_oid: i32,
+    item_id: i32,
+    item_count: i64,
+    item_enchant_level: i32,
+) {
     use server_packets::sm_ids;
 
     if item_id <= 0 || item_count <= 0 {
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
+                    &[],
+                ));
             }
         }
         return;
     }
     // Java `Restoration`: `if (_itemEnchantmentLevel > 0) setEnchantLevel(...)`.
-    grant_and_notify(world, target_oid, &[(item_id, item_count, item_enchant_level.max(0))]);
+    grant_and_notify(
+        world,
+        target_oid,
+        &[(item_id, item_count, item_enchant_level.max(0))],
+    );
 }
 
 /// `handlers/effecthandlers/RestorationRandom.java` — one weighted roulette
@@ -2152,7 +2383,10 @@ fn give_item_random(world: &mut World, target_oid: i32, groups: &[RestorationGro
     let Some(items) = picked else {
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE, &[]));
+                cs.send(server_packets::system_message_with(
+                    sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
+                    &[],
+                ));
             }
         }
         return;
@@ -2182,33 +2416,57 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
     use server_packets::{sm_ids, SmParam};
 
     for &(item_id, amount, enchant) in grants {
-        let Some(changed_oids) = crate::game_loop::items::add_inventory_item(world, target_oid, item_id, amount) else {
+        let Some(changed_oids) =
+            crate::game_loop::items::add_inventory_item(world, target_oid, item_id, amount)
+        else {
             continue;
         };
         // Stamp the rolled/fixed enchant onto the freshly created item(s). Only
         // non-stackable items carry an enchant; a stackable grant returns an
         // existing stack's oid, which must not be touched.
-        if enchant > 0 && !world.data.item_data.get(item_id).map(|t| t.is_stackable).unwrap_or(false) {
+        if enchant > 0
+            && !world
+                .data
+                .item_data
+                .get(item_id)
+                .map(|t| t.is_stackable)
+                .unwrap_or(false)
+        {
             if let Some(inv) = world.objects.get_component_mut::<Inventory>(&target_oid) {
                 for &oid in &changed_oids {
                     inv.set_item_enchant(oid, enchant);
                 }
             }
         }
-        let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else { continue };
+        let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else {
+            continue;
+        };
         if let Some(client_id) = client_for_player(world, target_oid) {
             if let Some(cs) = world.clients.get(&client_id) {
                 // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
                 // single enchanted → "obtained a +S1 S2"; else "obtained S1".
                 let sm = if amount > 1 {
-                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S2_S1, &[SmParam::ItemName(item_id), SmParam::Long(amount)])
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                        &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+                    )
                 } else if enchant > 0 {
-                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_A_S1_S2, &[SmParam::Int(enchant), SmParam::ItemName(item_id)])
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
+                        &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+                    )
                 } else {
-                    server_packets::system_message_with(sm_ids::YOU_HAVE_OBTAINED_S1, &[SmParam::ItemName(item_id)])
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_S1,
+                        &[SmParam::ItemName(item_id)],
+                    )
                 };
                 cs.send(sm);
-                cs.send(crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids));
+                cs.send(crate::network::enter_world::inventory_update(
+                    inventory,
+                    &world.data,
+                    &changed_oids,
+                ));
             }
         }
     }
@@ -2256,8 +2514,10 @@ fn magic_success_input<'a>(
                 .is_some_and(|t| t.is_attackable_class())
     };
 
-    let caster_player_level =
-        world.objects.get_component::<crate::model::Player>(&caster_oid).map(|p| p.level);
+    let caster_player_level = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .map(|p| p.level);
 
     // `target.isRaid() || target.isRaidMinion()` — a minion counts as a raid
     // only when its leader is one (Java sets `_isRaidMinion` from the spawning
@@ -2277,7 +2537,10 @@ fn magic_success_input<'a>(
     formulas::MagicSuccess {
         pve: is_attackable(caster_oid) || is_attackable(target_oid),
         target_level: creature_level(world, target_oid),
-        effective_level: if world.cfg.character.calculate_magic_success_by_skill_magic_level
+        effective_level: if world
+            .cfg
+            .character
+            .calculate_magic_success_by_skill_magic_level
             && skill.magic_level > 0
         {
             skill.magic_level
@@ -2293,7 +2556,11 @@ fn magic_success_input<'a>(
         res_modifier: world
             .objects
             .get_component::<crate::model::components::StatModifiers>(&target_oid)
-            .and_then(|m| m.mul.get(&crate::model::stats::Stat::MagicSuccessRes).copied())
+            .and_then(|m| {
+                m.mul
+                    .get(&crate::model::stats::Stat::MagicSuccessRes)
+                    .copied()
+            })
             .unwrap_or(1.0),
         magic_accuracy: world
             .objects
@@ -2331,14 +2598,24 @@ fn roll_magic_failure(
         return formulas::MagicFailure::None;
     }
 
-    let penalty = world.cfg.npc.skill_chance_penalty_for_lvl_differences.clone();
+    let penalty = world
+        .cfg
+        .npc
+        .skill_chance_penalty_for_lvl_differences
+        .clone();
     let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
     if formulas::calc_magic_success(&input, world.roll(100)) {
         return formulas::MagicFailure::None;
     }
 
-    let caster_is_player = world.objects.get_component::<crate::model::Player>(&caster_oid).is_some();
-    let target_is_player = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
+    let caster_is_player = world
+        .objects
+        .get_component::<crate::model::Player>(&caster_oid)
+        .is_some();
+    let target_is_player = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .is_some();
 
     let outcome = if caster_is_player {
         // Java re-runs `calcMagicSuccess` here — an independent second roll,
@@ -2348,7 +2625,11 @@ fn roll_magic_failure(
             send_sm(
                 world,
                 caster_oid,
-                if is_drain { sm_ids::DRAIN_WAS_ONLY_50_SUCCESSFUL } else { sm_ids::YOUR_ATTACK_HAS_FAILED },
+                if is_drain {
+                    sm_ids::DRAIN_WAS_ONLY_50_SUCCESSFUL
+                } else {
+                    sm_ids::YOUR_ATTACK_HAS_FAILED
+                },
             );
             formulas::MagicFailure::Half
         } else {
@@ -2357,7 +2638,13 @@ fn roll_magic_failure(
                 world,
                 caster_oid,
                 sm_ids::C1_HAS_RESISTED_YOUR_S2,
-                &[SmParam::Text(target_name), SmParam::SkillName { id: skill.id, level: skill.level }],
+                &[
+                    SmParam::Text(target_name),
+                    SmParam::SkillName {
+                        id: skill.id,
+                        level: skill.level,
+                    },
+                ],
             );
             formulas::MagicFailure::Resisted
         }
@@ -2371,7 +2658,11 @@ fn roll_magic_failure(
         send_sm_with(
             world,
             target_oid,
-            if is_drain { sm_ids::YOU_RESISTED_C1_S_DRAIN } else { sm_ids::YOU_RESISTED_C1_S_MAGIC },
+            if is_drain {
+                sm_ids::YOU_RESISTED_C1_S_DRAIN
+            } else {
+                sm_ids::YOU_RESISTED_C1_S_MAGIC
+            },
             &[SmParam::Text(caster_name)],
         );
     }
@@ -2395,19 +2686,32 @@ fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skil
             .get_component::<Npc>(&target_oid)
             .and_then(|n| n.template(world))
             .is_some_and(|t| t.is_auto_attackable());
-    let dead = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.dead).unwrap_or(true);
+    let dead = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.dead)
+        .unwrap_or(true);
     if !is_monster || dead {
         send_sm(world, caster_oid, sm_ids::INVALID_TARGET);
         return;
     }
     // `target.isSpoiled()` → already spoiled.
-    if world.objects.get_component::<Npc>(&target_oid).map(|n| n.spoiler_object_id != 0).unwrap_or(false) {
+    if world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .map(|n| n.spoiler_object_id != 0)
+        .unwrap_or(false)
+    {
         send_sm(world, caster_oid, sm_ids::IT_HAS_ALREADY_BEEN_SPOILED);
         return;
     }
     // `calcSuccess` = `Formulas.calcMagicSuccess`, unconditional here — Spoil's
     // own handler calls it directly, so `MagicFailures` doesn't gate it.
-    let penalty = world.cfg.npc.skill_chance_penalty_for_lvl_differences.clone();
+    let penalty = world
+        .cfg
+        .npc
+        .skill_chance_penalty_for_lvl_differences
+        .clone();
     let input = magic_success_input(world, caster_oid, target_oid, skill, &penalty);
     if !formulas::calc_magic_success(&input, world.roll(100)) {
         // Magic resisted: `applyEffectScope` skips `instant()` — no effect,
@@ -2417,7 +2721,11 @@ fn apply_spoil(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skil
     if let Some(npc) = world.objects.get_component_mut::<Npc>(&target_oid) {
         npc.spoiler_object_id = caster_oid;
     }
-    send_sm(world, caster_oid, sm_ids::THE_SPOIL_CONDITION_HAS_BEEN_ACTIVATED);
+    send_sm(
+        world,
+        caster_oid,
+        sm_ids::THE_SPOIL_CONDITION_HAS_BEEN_ACTIVATED,
+    );
     // `target.getAI().notifyEvent(EVT_ATTACKED, effector)`.
     crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, caster_oid);
 }
@@ -2435,17 +2743,32 @@ fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
     }
     // `checkSpoilOwner(player, false)` — silent (the message-carrying check ran
     // at cast start).
-    let spoiler = world.objects.get_component::<Npc>(&target_oid).map(|n| n.spoiler_object_id).unwrap_or(0);
-    if spoiler == 0 || (spoiler != caster_oid && !crate::game_loop::party::same_party(world, caster_oid, spoiler)) {
+    let spoiler = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .map(|n| n.spoiler_object_id)
+        .unwrap_or(0);
+    if spoiler == 0
+        || (spoiler != caster_oid
+            && !crate::game_loop::party::same_party(world, caster_oid, spoiler))
+    {
         return;
     }
     // `takeSweep()` — atomically claim the loot (a second sweep gets nothing).
     // TODO(G15): `checkInventorySlotsAndWeight` (inventory-full refusal) is
     // skipped — item weight/slot limits aren't modeled for this path yet.
-    let Some(items) = world.objects.get_component_mut::<Npc>(&target_oid).and_then(|n| n.sweep_items.take()) else {
+    let Some(items) = world
+        .objects
+        .get_component_mut::<Npc>(&target_oid)
+        .and_then(|n| n.sweep_items.take())
+    else {
         return;
     };
-    let corpse = world.objects.get_component::<Position>(&target_oid).map(|p| (p.x, p.y)).unwrap_or((0, 0));
+    let corpse = world
+        .objects
+        .get_component::<Position>(&target_oid)
+        .map(|p| (p.x, p.y))
+        .unwrap_or((0, 0));
     for (item_id, count) in items {
         // Solo → the sweeper; partied `*_INCLUDING_SPOIL` → a party member.
         // Sweep loot always enters the looter's inventory (Java `addItem`),
@@ -2462,7 +2785,12 @@ fn apply_consume_body(world: &mut World, _caster_oid: i32, target_oid: i32) {
     if !crate::game_loop::combat::is_npc_oid(target_oid) {
         return;
     }
-    if world.objects.get_component::<Vitals>(&target_oid).map(|v| !v.dead).unwrap_or(true) {
+    if world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| !v.dead)
+        .unwrap_or(true)
+    {
         return;
     }
     // `endDecayTask()` runs `onDecay` now; the corpse's originally-scheduled
@@ -2498,7 +2826,10 @@ fn target_p_def(world: &World, target_oid: i32) -> f64 {
 pub(crate) fn attribute_mod(world: &World, caster_oid: i32, target_oid: i32, skill: &Skill) -> f64 {
     use crate::model::stats::Element;
     let (attack, element) = match skill.attribute_type {
-        Some(el) => (element_stat(world, caster_oid, el, false) + skill.attribute_value as f64, el),
+        Some(el) => (
+            element_stat(world, caster_oid, el, false) + skill.attribute_value as f64,
+            el,
+        ),
         None => {
             let mut best: Option<(Element, f64)> = None;
             for el in Element::ALL {
@@ -2522,8 +2853,17 @@ pub(crate) fn attribute_mod(world: &World, caster_oid: i32, target_oid: i32, ski
 /// Players read their rebuilt `StatModifiers`; NPCs keep none, so their
 /// active buffs are folded on read (the abnormal-flags pattern) — which is
 /// what lets Day of Doom's −50s bite a mob.
-fn element_stat(world: &World, oid: i32, element: crate::model::stats::Element, defence: bool) -> f64 {
-    let stat = if defence { element.res_stat() } else { element.power_stat() };
+fn element_stat(
+    world: &World,
+    oid: i32,
+    element: crate::model::stats::Element,
+    defence: bool,
+) -> f64 {
+    let stat = if defence {
+        element.res_stat()
+    } else {
+        element.power_stat()
+    };
     let base = world
         .objects
         .get_component::<crate::model::npc::Npc>(&oid)
@@ -2539,8 +2879,12 @@ fn element_stat(world: &World, oid: i32, element: crate::model::stats::Element, 
             }
         })
         .unwrap_or(0.0);
-    if let Some(mods) = world.objects.get_component::<crate::model::components::StatModifiers>(&oid) {
-        return base * mods.mul.get(&stat).copied().unwrap_or(1.0) + mods.add.get(&stat).copied().unwrap_or(0.0);
+    if let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&oid)
+    {
+        return base * mods.mul.get(&stat).copied().unwrap_or(1.0)
+            + mods.add.get(&stat).copied().unwrap_or(0.0);
     }
     // NPC: fold the active buffs' stat modifiers for this stat.
     let (mut add, mut mul) = (0.0, 1.0);
@@ -2619,7 +2963,10 @@ pub(crate) fn apply_skill_damage(
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
     // receivers) and refresh its HP bar, then report the damage to the caster.
-    if world.objects.has_component::<crate::model::door::Door>(&target_oid) {
+    if world
+        .objects
+        .has_component::<crate::model::door::Door>(&target_oid)
+    {
         let door_name = world
             .objects
             .get_component::<crate::model::door::Door>(&target_oid)
@@ -2633,7 +2980,11 @@ pub(crate) fn apply_skill_damage(
                 }
                 cs.send(server_packets::system_message_with(
                     sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                    &[SmParam::PlayerName(caster_name.to_string()), SmParam::Text(door_name), SmParam::Int(damage as i32)],
+                    &[
+                        SmParam::PlayerName(caster_name.to_string()),
+                        SmParam::Text(door_name),
+                        SmParam::Int(damage as i32),
+                    ],
                 ));
             }
         }
@@ -2641,9 +2992,16 @@ pub(crate) fn apply_skill_damage(
         return;
     }
 
-    let target_param = if let Some(p) = world.objects.get_component::<crate::model::Player>(&target_oid) {
+    let target_param = if let Some(p) = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+    {
         SmParam::PlayerName(p.name.clone())
-    } else if let Some(t) = world.objects.get_component::<crate::model::npc::Npc>(&target_oid).and_then(|n| n.template(world)) {
+    } else if let Some(t) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+    {
         SmParam::NpcName(t.id)
     } else {
         return;
@@ -2663,7 +3021,11 @@ pub(crate) fn apply_skill_damage(
                     SmParam::Int(dmg_int),
                     // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
                     // — the on-screen floating damage number over the target.
-                    SmParam::Popup { target: target_oid, attacker: caster_oid, damage: -dmg_int },
+                    SmParam::Popup {
+                        target: target_oid,
+                        attacker: caster_oid,
+                        damage: -dmg_int,
+                    },
                 ],
             ));
         }
@@ -2724,9 +3086,9 @@ fn refresh_summon_info(world: &mut World, target_oid: i32) {
 pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
     let now = world.tick;
     let pkt = match world.objects.get_component::<Buffs>(&target_oid) {
-        Some(buffs) => {
-            crate::network::enter_world::ex_abnormal_status_update_from_target(target_oid, buffs, now)
-        }
+        Some(buffs) => crate::network::enter_world::ex_abnormal_status_update_from_target(
+            target_oid, buffs, now,
+        ),
         None => return,
     };
     let mut observers: Vec<i32> = Vec::new();
@@ -2758,12 +3120,24 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
     else {
         return;
     };
-    let Some(t) = world.data.npc_data.get(npc_id) else { return };
-    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world
-        .objects
-        .get_many_mut::<(&Buffs, &mut CombatStats, &mut Speeds, &mut crate::model::components::Vitals)>(&target_oid)
+    let Some(t) = world.data.npc_data.get(npc_id) else {
+        return;
+    };
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
+        &Buffs,
+        &mut CombatStats,
+        &mut Speeds,
+        &mut crate::model::components::Vitals,
+    )>(&target_oid)
     {
-        crate::model::recompute_npc_stats_from_buffs(&world.data, t, buffs, &mut combat, &mut speeds, &mut vitals);
+        crate::model::recompute_npc_stats_from_buffs(
+            &world.data,
+            t,
+            buffs,
+            &mut combat,
+            &mut speeds,
+            &mut vitals,
+        );
     }
 }
 
@@ -2777,7 +3151,9 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
 pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
     use crate::model::components::{PlayerVitals, StatModifiers, Vitals};
     use crate::model::inventory::Inventory;
-    let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) else { return };
+    let Some(p) = world.objects.get_component::<crate::model::Player>(&oid) else {
+        return;
+    };
     let (level, class_id, base_class_id) = (p.level, p.class_id, p.base_class_id);
     let t = world
         .data
@@ -2787,7 +3163,9 @@ pub(crate) fn recompute_max_vitals(world: &mut World, oid: i32) {
         .cloned()
         .unwrap_or_default();
     let (max_hp, max_mp, max_cp) = {
-        let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) else { return };
+        let Some(mods) = world.objects.get_component::<StatModifiers>(&oid) else {
+            return;
+        };
         let inv = world.objects.get_component::<Inventory>(&oid);
         (
             crate::model::calc_max_hp(&world.data, &t, level, inv, mods),
@@ -2920,7 +3298,11 @@ pub(crate) fn handle_dam_over_time_tick(
         return;
     }
     // Dead target → stop (Java `onActionTime`: `isDead()` bails).
-    if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+    if world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .is_none_or(|v| v.dead)
+    {
         return;
     }
     let Some(skill) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
@@ -3019,7 +3401,14 @@ pub(crate) fn handle_dam_over_time_tick(
             _ => {}
         }
 
-        let SkillEffect::DamOverTime { power, ticks, can_kill } = effect else { continue };
+        let SkillEffect::DamOverTime {
+            power,
+            ticks,
+            can_kill,
+        } = effect
+        else {
+            continue;
+        };
         if *ticks <= 0 {
             continue;
         }
@@ -3027,7 +3416,11 @@ pub(crate) fn handle_dam_over_time_tick(
         let mut damage = dot_tick_damage(*power, *ticks);
         // `!canKill`: a tick may never drop the target below 1 HP.
         if !*can_kill {
-            let cur_hp = world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp).unwrap_or(0.0);
+            let cur_hp = world
+                .objects
+                .get_component::<Vitals>(&target_oid)
+                .map(|v| v.cur_hp)
+                .unwrap_or(0.0);
             if cur_hp <= 1.0 {
                 continue;
             }
@@ -3039,9 +3432,23 @@ pub(crate) fn handle_dam_over_time_tick(
             // Java `effector.doAttack(damage, effected, skill, isDOT=true, …,
             // critical=false, …)`: no crit line; reuses the shared victim-side
             // path (CP soak / NPC hate / AI wake / death).
-            apply_skill_damage(world, caster_oid, target_oid, damage, false, skill.magic_type == 1, &caster_name, false, true);
+            apply_skill_damage(
+                world,
+                caster_oid,
+                target_oid,
+                damage,
+                false,
+                skill.magic_type == 1,
+                &caster_name,
+                false,
+                true,
+            );
             // A `canKill` tick can kill outright — stop then.
-            if world.objects.get_component::<Vitals>(&target_oid).is_none_or(|v| v.dead) {
+            if world
+                .objects
+                .get_component::<Vitals>(&target_oid)
+                .is_none_or(|v| v.dead)
+            {
                 return;
             }
         }
@@ -3055,7 +3462,12 @@ pub(crate) fn handle_dam_over_time_tick(
     if interval > 0 {
         world.scheduler.schedule(
             world.tick + interval,
-            ScheduledTask::DamOverTimeTick { caster: caster_oid, target: target_oid, skill_id, skill_level },
+            ScheduledTask::DamOverTimeTick {
+                caster: caster_oid,
+                target: target_oid,
+                skill_id,
+                skill_level,
+            },
         );
     }
 }
@@ -3080,7 +3492,10 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     let had_visuals = world
         .objects
         .get_component::<Buffs>(&player_object_id)
-        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id && !x.abnormal_visuals.is_empty()));
+        .is_some_and(|b| {
+            b.0.iter()
+                .any(|x| x.skill_id == skill_id && !x.abnormal_visuals.is_empty())
+        });
     // NPC: drop the buff and recompute from the template (no icons/broadcast).
     if crate::game_loop::combat::is_npc_oid(player_object_id) {
         // `Fear.onExit`: `if (!effected.isPlayer()) notifyEvent(EVT_THINK)` —
@@ -3089,14 +3504,23 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         // before ever re-engaging. Reading the flag *before* the buff is
         // dropped is what makes this specific to fear rather than to any
         // expiring NPC buff.
-        let was_afraid = world.objects.get_component::<Buffs>(&player_object_id).is_some_and(|b| {
-            b.0.iter().any(|x| x.skill_id == skill_id && x.effect_flags & crate::model::skill::effect_flag::FEAR != 0)
-        });
+        let was_afraid = world
+            .objects
+            .get_component::<Buffs>(&player_object_id)
+            .is_some_and(|b| {
+                b.0.iter().any(|x| {
+                    x.skill_id == skill_id
+                        && x.effect_flags & crate::model::skill::effect_flag::FEAR != 0
+                })
+            });
         if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
             b.0.retain(|x| x.skill_id != skill_id);
         }
         if was_afraid {
-            if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&player_object_id) {
+            if let Some(ai) = world
+                .objects
+                .get_component_mut::<crate::model::npc::NpcAi>(&player_object_id)
+            {
                 if ai.intention == crate::model::npc::NpcIntention::MoveTo {
                     ai.intention = crate::model::npc::NpcIntention::Active;
                 }
@@ -3117,13 +3541,17 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     let skill_level = world
         .objects
         .get_component::<Buffs>(&player_object_id)
-        .and_then(|b| b.0.iter().find(|x| x.skill_id == skill_id).map(|x| x.skill_level));
+        .and_then(|b| {
+            b.0.iter()
+                .find(|x| x.skill_id == skill_id)
+                .map(|x| x.skill_level)
+        });
     let is_transform = skill_level.is_some_and(|lvl| {
-        world
-            .data
-            .skill_data
-            .get(skill_id, lvl)
-            .is_some_and(|s| s.effects.iter().any(|e| matches!(e, SkillEffect::Transform { .. })))
+        world.data.skill_data.get(skill_id, lvl).is_some_and(|s| {
+            s.effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::Transform { .. }))
+        })
     });
     if is_transform {
         crate::game_loop::admin::transforms::remove_transform_state(world, player_object_id);
@@ -3132,15 +3560,20 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     // (not the skill template) so this fires only for fake death, and keeps
     // working for a buff whose skill row is no longer loadable — the same
     // source `Fear`'s own `onExit` and `break_fake_death_on_damage` use.
-    let was_fake_dead = world.objects.get_component::<Buffs>(&player_object_id).is_some_and(|b| {
-        b.0.iter().any(|x| x.skill_id == skill_id && x.effect_flags & crate::model::skill::effect_flag::FAKE_DEATH != 0)
-    });
+    let was_fake_dead = world
+        .objects
+        .get_component::<Buffs>(&player_object_id)
+        .is_some_and(|b| {
+            b.0.iter().any(|x| {
+                x.skill_id == skill_id
+                    && x.effect_flags & crate::model::skill::effect_flag::FAKE_DEATH != 0
+            })
+        });
     if was_fake_dead {
         stop_fake_death(world, player_object_id);
     }
-    if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) = world
-        .objects
-        .get_many_mut::<(
+    if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+        world.objects.get_many_mut::<(
             &mut crate::model::Player,
             &BaseStats,
             &mut StatModifiers,
@@ -3150,7 +3583,16 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
             &mut CombatStats,
         )>(&player_object_id)
     {
-        player.remove_buff(&world.data, &base, &mut mods, &inventory, &mut buffs, &mut speeds, &mut combat, skill_id);
+        player.remove_buff(
+            &world.data,
+            base,
+            &mut mods,
+            inventory,
+            &mut buffs,
+            &mut speeds,
+            &mut combat,
+            skill_id,
+        );
     }
     // Reverting a MaxHp/MaxMp/MaxCp buff shrinks the bar (and clamps current).
     recompute_max_vitals(world, player_object_id);
@@ -3164,14 +3606,17 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     if had_visuals {
         refresh_abnormal_visuals(world, player_object_id);
     }
-    let Some(client_id) = client_for_player(world, player_object_id) else { return };
+    let Some(client_id) = client_for_player(world, player_object_id) else {
+        return;
+    };
     if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
         if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::abnormal_status_update(buffs, now));
+            cs.send(crate::network::enter_world::abnormal_status_update(
+                buffs, now,
+            ));
         }
     }
 }
-
 
 /// The caster's name for the damage system messages. NPCs cast skills as of
 /// G21, so this can't `expect` a `Player` — a monster resolves to its template

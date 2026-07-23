@@ -53,7 +53,10 @@ pub(crate) fn on_orfen_attacked(world: &mut World, orfen_oid: i32, attacker_oid:
 
 /// `if (!_isTeleported && (hp - damage) < maxHp / 2)` — once per life.
 fn try_half_hp_relocation(world: &mut World, orfen_oid: i32) -> bool {
-    let already = world.objects.get_component::<OrfenState>(&orfen_oid).is_some_and(|s| s.teleported);
+    let already = world
+        .objects
+        .get_component::<OrfenState>(&orfen_oid)
+        .is_some_and(|s| s.teleported);
     if already {
         return false;
     }
@@ -64,14 +67,23 @@ fn try_half_hp_relocation(world: &mut World, orfen_oid: i32) -> bool {
     if !below_half {
         return false;
     }
-    if world.objects.get_component::<OrfenState>(&orfen_oid).is_none() {
-        world.objects.add_components(&orfen_oid, OrfenState::default());
+    if world
+        .objects
+        .get_component::<OrfenState>(&orfen_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&orfen_oid, OrfenState::default());
     }
     if let Some(s) = world.objects.get_component_mut::<OrfenState>(&orfen_oid) {
         s.teleported = true;
     }
     // `clearAggroList()` + `setIntention(IDLE)` — it disengages, then moves.
-    if let Some(a) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&orfen_oid) {
+    if let Some(a) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&orfen_oid)
+    {
         a.0.clear();
     }
     if let Some(p) = world.objects.get_component_mut::<Position>(&orfen_oid) {
@@ -85,17 +97,25 @@ fn try_half_hp_relocation(world: &mut World, orfen_oid: i32) -> bool {
 /// The drag: yank a mid-range attacker onto Orfen and paralyse them.
 fn try_drag(world: &mut World, orfen_oid: i32, attacker_oid: i32) {
     // Players only — a summon's damage does not drag its owner.
-    if world.objects.get_component::<crate::model::Player>(&attacker_oid).is_none() {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&attacker_oid)
+        .is_none()
+    {
         return;
     }
-    let Some(dist) = distance_2d(world, orfen_oid, attacker_oid) else { return };
+    let Some(dist) = distance_2d(world, orfen_oid, attacker_oid) else {
+        return;
+    };
     if !(DRAG_MIN..=DRAG_MAX).contains(&dist) {
         return;
     }
     if world.roll(DRAG_CHANCE) != 0 {
         return;
     }
-    let Some(to) = world.objects.get_component::<Position>(&orfen_oid).copied() else { return };
+    let Some(to) = world.objects.get_component::<Position>(&orfen_oid).copied() else {
+        return;
+    };
     crate::game_loop::death::teleport_player(world, attacker_oid, to.x, to.y, to.z);
     cast_on(world, orfen_oid, attacker_oid, PARALYSIS);
 }
@@ -111,17 +131,21 @@ pub(crate) fn on_riba_iren_attacked(world: &mut World, minion_oid: i32) {
     if !below_half {
         return;
     }
-    let Some(orfen_oid) = find_alive(world, ORFEN) else { return };
+    let Some(orfen_oid) = find_alive(world, ORFEN) else {
+        return;
+    };
     cast_on(world, minion_oid, orfen_oid, ORFEN_HEAL);
 }
 
 fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
     let mut found = None;
-    world.objects.for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
-        if n.npc_id == npc_id && !v.dead {
-            found = Some(n.object_id);
-        }
-    });
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if n.npc_id == npc_id && !v.dead {
+                found = Some(n.object_id);
+            }
+        });
     found
 }
 
@@ -133,7 +157,9 @@ fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
 }
 
 fn cast_on(world: &mut World, caster_oid: i32, target_oid: i32, skill_id: i32) {
-    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else { return };
+    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+        return;
+    };
     if !crate::game_loop::npc_cast::check_use_conditions_pub(world, caster_oid, &skill) {
         return;
     }

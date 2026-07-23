@@ -158,13 +158,19 @@ impl NpcConfig {
                 .get_int("AggroDistanceCheckRange", d.aggro_distance_check_range),
             aggro_distance_check_raids: p
                 .get_bool("AggroDistanceCheckRaids", d.aggro_distance_check_raids),
-            aggro_distance_check_raid_range: p
-                .get_int("AggroDistanceCheckRaidRange", d.aggro_distance_check_raid_range),
-            aggro_distance_check_restore_life: p
-                .get_bool("AggroDistanceCheckRestoreLife", d.aggro_distance_check_restore_life),
+            aggro_distance_check_raid_range: p.get_int(
+                "AggroDistanceCheckRaidRange",
+                d.aggro_distance_check_raid_range,
+            ),
+            aggro_distance_check_restore_life: p.get_bool(
+                "AggroDistanceCheckRestoreLife",
+                d.aggro_distance_check_restore_life,
+            ),
             vitality_consume_by_mob: p.get_int("VitalityConsumeByMob", d.vitality_consume_by_mob),
-            vitality_consume_by_boss: p.get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
-            raid_minion_respawn_time: p.get_int("RaidMinionRespawnTime", d.raid_minion_respawn_time),
+            vitality_consume_by_boss: p
+                .get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
+            raid_minion_respawn_time: p
+                .get_int("RaidMinionRespawnTime", d.raid_minion_respawn_time),
             custom_minions_respawn_time: parse_minion_respawn_overrides(
                 &p.get_string("CustomMinionsRespawnTime", ""),
             ),
@@ -176,8 +182,10 @@ impl NpcConfig {
             raid_mp_regen_multiplier: p.get_int("RaidMpRegenMultiplier", 100) as f64 / 100.0,
             hp_regen_multiplier: c.get_int("HpRegenMultiplier", 100) as f64 / 100.0,
             mp_regen_multiplier: c.get_int("MpRegenMultiplier", 100) as f64 / 100.0,
-            min_npc_level_for_magic_penalty: p
-                .get_int("MinNPCLevelForMagicPenalty", d.min_npc_level_for_magic_penalty),
+            min_npc_level_for_magic_penalty: p.get_int(
+                "MinNPCLevelForMagicPenalty",
+                d.min_npc_level_for_magic_penalty,
+            ),
             skill_chance_penalty_for_lvl_differences: parse_config_line(
                 &p.get_string("SkillChancePenaltyForLvLDifferences", ""),
                 d.skill_chance_penalty_for_lvl_differences,
@@ -191,7 +199,10 @@ impl NpcConfig {
 /// would hand back an empty array; an empty penalty table is indistinguishable
 /// from "no penalty", which is the same outcome as the fallback on this dist).
 fn parse_config_line(raw: &str, fallback: Vec<f64>) -> Vec<f64> {
-    let parsed: Vec<f64> = raw.split(',').filter_map(|v| v.trim().parse().ok()).collect();
+    let parsed: Vec<f64> = raw
+        .split(',')
+        .filter_map(|v| v.trim().parse().ok())
+        .collect();
     if parsed.is_empty() {
         fallback
     } else {

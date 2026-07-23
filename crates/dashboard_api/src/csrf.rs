@@ -18,7 +18,10 @@ use axum::response::{IntoResponse, Response};
 pub const REQUIRED_HEADER: &str = "x-requested-with";
 
 pub async fn require_custom_header(request: Request, next: Next) -> Response {
-    let is_safe = matches!(*request.method(), Method::GET | Method::HEAD | Method::OPTIONS);
+    let is_safe = matches!(
+        *request.method(),
+        Method::GET | Method::HEAD | Method::OPTIONS
+    );
 
     if !is_safe && !request.headers().contains_key(REQUIRED_HEADER) {
         return (

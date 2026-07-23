@@ -10,7 +10,11 @@ const CID: u32 = 1;
 const MOB_ID: i32 = 43000;
 const RAID_ID: i32 = 43001;
 
-fn regen_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn regen_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     for (id, type_name) in [(MOB_ID, "Monster"), (RAID_ID, "RaidBoss")] {
         let mut t = crate::data::npc_data::default_template(id);
@@ -66,7 +70,11 @@ fn a_wounded_mob_heals_at_its_template_rate() {
 
     // NPC regen is the bare template value — no levelMod, no CON bonus, no
     // standing multiplier (all of those live inside Java's isPlayer() branch).
-    assert_eq!(hp(&world, oid), 508.5, "one tick of the template's 8.5 hpRegen");
+    assert_eq!(
+        hp(&world, oid),
+        508.5,
+        "one tick of the template's 8.5 hpRegen"
+    );
 }
 
 #[test]
@@ -84,7 +92,11 @@ fn regen_stops_at_full_hp() {
 fn a_dead_mob_does_not_regenerate() {
     let (mut world, _db, _l) = regen_world();
     let oid = place(&mut world, MOB_ID, 0.0);
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().dead = true;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .dead = true;
 
     regen(&mut world, 5);
 
@@ -95,11 +107,19 @@ fn a_dead_mob_does_not_regenerate() {
 fn mp_regenerates_too() {
     let (mut world, _db, _l) = regen_world();
     let oid = place(&mut world, MOB_ID, 500.0);
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_mp = 100.0;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .cur_mp = 100.0;
 
     regen(&mut world, 1);
 
-    assert_eq!(mp(&world, oid), 102.0, "one tick of the template's 2.0 mpRegen");
+    assert_eq!(
+        mp(&world, oid),
+        102.0,
+        "one tick of the template's 2.0 mpRegen"
+    );
 }
 
 #[test]
@@ -111,7 +131,11 @@ fn a_raid_boss_uses_the_raid_multiplier() {
 
     regen(&mut world, 1);
 
-    assert_eq!(hp(&world, oid), 517.0, "8.5 x the raid multiplier, not the ordinary one");
+    assert_eq!(
+        hp(&world, oid),
+        517.0,
+        "8.5 x the raid multiplier, not the ordinary one"
+    );
 }
 
 #[test]
@@ -123,7 +147,11 @@ fn an_ordinary_mob_ignores_the_raid_multiplier() {
 
     regen(&mut world, 1);
 
-    assert_eq!(hp(&world, oid), 508.5, "a Monster uses the plain multiplier");
+    assert_eq!(
+        hp(&world, oid),
+        508.5,
+        "a Monster uses the plain multiplier"
+    );
 }
 
 #[test]
@@ -139,8 +167,17 @@ fn regen_continues_during_combat() {
         .get_component_mut::<crate::model::npc::AggroList>(&oid)
         .unwrap()
         .0
-        .insert(PLAYER, crate::model::npc::AggroInfo { hate: 100.0, damage: 100.0 });
-    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&oid) {
+        .insert(
+            PLAYER,
+            crate::model::npc::AggroInfo {
+                hate: 100.0,
+                damage: 100.0,
+            },
+        );
+    if let Some(ai) = world
+        .objects
+        .get_component_mut::<crate::model::npc::NpcAi>(&oid)
+    {
         ai.intention = crate::model::npc::NpcIntention::Attack;
     }
 
@@ -160,7 +197,9 @@ fn healing_broadcasts_the_hp_bar() {
 
     let packets = drain(&mut out);
     assert!(
-        packets.iter().any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
+        packets
+            .iter()
+            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
         "nearby clients need the refreshed HP bar"
     );
 }
@@ -172,17 +211,25 @@ fn a_full_hp_mob_broadcasts_nothing() {
     let (mut world, _db, _l) = regen_world();
     let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     let oid = place(&mut world, MOB_ID, 500.0);
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_hp =
-        world.objects.get_component::<Vitals>(&oid).unwrap().max_hp as f64;
-    world.objects.get_component_mut::<Vitals>(&oid).unwrap().cur_mp =
-        world.objects.get_component::<Vitals>(&oid).unwrap().max_mp as f64;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .cur_hp = world.objects.get_component::<Vitals>(&oid).unwrap().max_hp as f64;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&oid)
+        .unwrap()
+        .cur_mp = world.objects.get_component::<Vitals>(&oid).unwrap().max_mp as f64;
     let _ = drain(&mut out);
 
     regen(&mut world, 3);
 
     let packets = drain(&mut out);
     assert!(
-        !packets.iter().any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
+        !packets
+            .iter()
+            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STATUS_UPDATE)),
         "a mob at full HP/MP must be skipped entirely"
     );
 }
@@ -190,7 +237,8 @@ fn a_full_hp_mob_broadcasts_nothing() {
 /// The regen values come from the datapack, so check a real one.
 #[test]
 fn real_dist_templates_carry_regen() {
-    let data = crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let data =
+        crate::data::NpcData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let with_regen = data.all().filter(|t| t.base_hp_reg > 0.0).count();
     assert!(
         with_regen > 10_000,

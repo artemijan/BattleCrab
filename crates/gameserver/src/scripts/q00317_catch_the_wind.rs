@@ -84,11 +84,23 @@ impl QuestScript for Q00317CatchTheWind {
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         ctx.ensure_qs();
         if ctx.is_created() {
-            return Some(if ctx.player_level() >= MIN_LEVEL { "30361-03.htm" } else { "30361-02.htm" }.to_string());
+            return Some(
+                if ctx.player_level() >= MIN_LEVEL {
+                    "30361-03.htm"
+                } else {
+                    "30361-02.htm"
+                }
+                .to_string(),
+            );
         }
         if ctx.is_started() {
             return Some(
-                if ctx.quest_items_count(WIND_SHARD) > 0 { "30361-07.html" } else { "30361-05.html" }.to_string(),
+                if ctx.quest_items_count(WIND_SHARD) > 0 {
+                    "30361-07.html"
+                } else {
+                    "30361-05.html"
+                }
+                .to_string(),
             );
         }
         Some(ctx.no_quest_html())

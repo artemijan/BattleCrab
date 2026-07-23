@@ -116,7 +116,11 @@ impl QuestScript for FirstClassTransferTalk {
                     }
                     // Elf, Dark Elf and Orc masters serve both sides.
                     RACE_ELF | RACE_DARK_ELF | RACE_ORC => {
-                        if is_mage { "mystic".to_string() } else { "fighter".to_string() }
+                        if is_mage {
+                            "mystic".to_string()
+                        } else {
+                            "fighter".to_string()
+                        }
                     }
                     // Dwarves have no mage line at all.
                     RACE_DWARF => "fighter".to_string(),

@@ -54,7 +54,10 @@ impl PremiumConfig {
     }
 
     pub fn load_from(root: &str) -> Self {
-        Self::from_parser(&PropertiesParser::load_rel(root, PREMIUM_SYSTEM_CONFIG_FILE))
+        Self::from_parser(&PropertiesParser::load_rel(
+            root,
+            PREMIUM_SYSTEM_CONFIG_FILE,
+        ))
     }
 
     pub fn from_parser(p: &PropertiesParser) -> Self {
@@ -63,10 +66,14 @@ impl PremiumConfig {
             enabled: p.get_bool("EnablePremiumSystem", d.enabled),
             rate_xp: p.get_float("PremiumRateXp", d.rate_xp as f32) as f64,
             rate_sp: p.get_float("PremiumRateSp", d.rate_sp as f32) as f64,
-            rate_drop_chance: p.get_float("PremiumRateDropChance", d.rate_drop_chance as f32) as f64,
-            rate_drop_amount: p.get_float("PremiumRateDropAmount", d.rate_drop_amount as f32) as f64,
-            rate_spoil_chance: p.get_float("PremiumRateSpoilChance", d.rate_spoil_chance as f32) as f64,
-            rate_spoil_amount: p.get_float("PremiumRateSpoilAmount", d.rate_spoil_amount as f32) as f64,
+            rate_drop_chance: p.get_float("PremiumRateDropChance", d.rate_drop_chance as f32)
+                as f64,
+            rate_drop_amount: p.get_float("PremiumRateDropAmount", d.rate_drop_amount as f32)
+                as f64,
+            rate_spoil_chance: p.get_float("PremiumRateSpoilChance", d.rate_spoil_chance as f32)
+                as f64,
+            rate_spoil_amount: p.get_float("PremiumRateSpoilAmount", d.rate_spoil_amount as f32)
+                as f64,
             // TODO(G16): Java also reads PremiumRateDropChanceByItemId /
             // PremiumRateDropAmountByItemId into per-item override maps
             // (`Config.PREMIUM_RATE_DROP_CHANCE_BY_ID`), consulted ahead of the

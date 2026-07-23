@@ -5,7 +5,9 @@ use super::*;
 
 use crate::game_loop::abnormal;
 use crate::model::components::{Buffs, Vitals};
-use crate::model::skill::{effect_flag, AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType};
+use crate::model::skill::{
+    effect_flag, AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType,
+};
 use crate::model::stats::{Stat, StatModifierType};
 
 const VICTIM: i32 = 2001;
@@ -65,7 +67,11 @@ fn buff_skill(id: i32, effects: Vec<SkillEffect>, stay_after_death: bool) -> Ski
     }
 }
 
-fn death_buff_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn death_buff_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = cast_test_world();
     let pump = SkillEffect::StatModifier(crate::model::skill::StatModifierEffect {
         stat: Stat::PhysicalAttack,
@@ -76,15 +82,30 @@ fn death_buff_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver
         qualifier: None,
         two_handed: false,
     });
-    world.data.skill_data.insert_for_test(buff_skill(MIGHT_ID, vec![pump.clone()], false));
-    world.data.skill_data.insert_for_test(buff_skill(BLESS_ID, vec![SkillEffect::NoblesseBless], false));
-    world.data.skill_data.insert_for_test(buff_skill(LASTING_ID, vec![pump], true));
+    world
+        .data
+        .skill_data
+        .insert_for_test(buff_skill(MIGHT_ID, vec![pump.clone()], false));
+    world.data.skill_data.insert_for_test(buff_skill(
+        BLESS_ID,
+        vec![SkillEffect::NoblesseBless],
+        false,
+    ));
+    world
+        .data
+        .skill_data
+        .insert_for_test(buff_skill(LASTING_ID, vec![pump], true));
     (world, db, l)
 }
 
 /// Land a buff straight onto the target, bypassing the cast pipeline.
 fn land(world: &mut World, skill_id: i32, target: i32) {
-    let skill = world.data.skill_data.get(skill_id, 1).cloned().expect("registered");
+    let skill = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .cloned()
+        .expect("registered");
     crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
 }
 
@@ -92,7 +113,12 @@ fn live_buffs(world: &World, oid: i32) -> Vec<i32> {
     world
         .objects
         .get_component::<Buffs>(&oid)
-        .map(|b| b.0.iter().filter(|x| !x.passive).map(|x| x.skill_id).collect())
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| !x.passive)
+                .map(|x| x.skill_id)
+                .collect()
+        })
         .unwrap_or_default()
 }
 
@@ -110,12 +136,25 @@ fn death_without_noblesse_strips_all_buffs() {
     setup(&mut world);
 
     land(&mut world, MIGHT_ID, VICTIM);
-    assert_eq!(live_buffs(&world, VICTIM), vec![MIGHT_ID], "the buff landed");
+    assert_eq!(
+        live_buffs(&world, VICTIM),
+        vec![MIGHT_ID],
+        "the buff landed"
+    );
 
     crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
 
-    assert!(world.objects.get_component::<Vitals>(&VICTIM).is_some_and(|v| v.dead), "the player died");
-    assert!(live_buffs(&world, VICTIM).is_empty(), "death stripped the buff list");
+    assert!(
+        world
+            .objects
+            .get_component::<Vitals>(&VICTIM)
+            .is_some_and(|v| v.dead),
+        "the player died"
+    );
+    assert!(
+        live_buffs(&world, VICTIM).is_empty(),
+        "death stripped the buff list"
+    );
 }
 
 /// Noblesse Blessing up: every other buff rides through death, and the
@@ -134,8 +173,16 @@ fn noblesse_blessing_keeps_buffs_and_consumes_itself() {
 
     crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
 
-    assert_eq!(live_buffs(&world, VICTIM), vec![MIGHT_ID], "only the blessing was removed");
-    assert_eq!(abnormal::flags_of(&world, VICTIM), 0, "and its flag went with it");
+    assert_eq!(
+        live_buffs(&world, VICTIM),
+        vec![MIGHT_ID],
+        "only the blessing was removed"
+    );
+    assert_eq!(
+        abnormal::flags_of(&world, VICTIM),
+        0,
+        "and its flag went with it"
+    );
 }
 
 /// A second death with no blessing left now clears the survivors — the
@@ -156,7 +203,10 @@ fn blessing_does_not_survive_to_a_second_death() {
 
     crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
 
-    assert!(live_buffs(&world, VICTIM).is_empty(), "the unblessed death strips what the blessed one spared");
+    assert!(
+        live_buffs(&world, VICTIM).is_empty(),
+        "the unblessed death strips what the blessed one spared"
+    );
 }
 
 /// `<stayAfterDeath>` buffs are the other exemption, and they don't need the
@@ -171,5 +221,9 @@ fn stay_after_death_buffs_survive_an_unblessed_death() {
 
     crate::game_loop::death::player_do_die(&mut world, VICTIM, KILLER);
 
-    assert_eq!(live_buffs(&world, VICTIM), vec![LASTING_ID], "only the ordinary buff was stripped");
+    assert_eq!(
+        live_buffs(&world, VICTIM),
+        vec![LASTING_ID],
+        "only the ordinary buff was stripped"
+    );
 }

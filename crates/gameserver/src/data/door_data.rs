@@ -102,7 +102,12 @@ impl DoorData {
     }
 
     fn rebuild_index(&mut self) {
-        self.by_id = self.doors.iter().enumerate().map(|(i, d)| (d.id, i as u32)).collect();
+        self.by_id = self
+            .doors
+            .iter()
+            .enumerate()
+            .map(|(i, d)| (d.id, i as u32))
+            .collect();
     }
 
     pub fn get(&self, door_id: i32) -> Option<&DoorTemplate> {
@@ -111,7 +116,9 @@ impl DoorData {
 }
 
 fn parse_file(path: &str, out: &mut Vec<DoorTemplate>) {
-    let Ok(content) = std::fs::read_to_string(path) else { return };
+    let Ok(content) = std::fs::read_to_string(path) else {
+        return;
+    };
     let mut reader = Reader::from_str(&content);
 
     // Flat per-door attribute bag (Java's StatSet) + the node list.
@@ -160,9 +167,7 @@ fn build_door(attrs: &HashMap<String, String>, xs: &[i32], ys: &[i32]) -> Option
         return None; // Java assumes exactly 4 collision nodes, as does the dist.
     }
     let get_i32 = |k: &str| attrs.get(k).and_then(|v| v.parse::<i32>().ok());
-    let get_bool = |k: &str, dflt: bool| {
-        attrs.get(k).map(|v| v == "true").unwrap_or(dflt)
-    };
+    let get_bool = |k: &str, dflt: bool| attrs.get(k).map(|v| v == "true").unwrap_or(dflt);
     let id = get_i32("id")?;
     let node_z = get_i32("nodeZ")?;
     let z = get_i32("z")?;
@@ -237,7 +242,11 @@ mod tests {
         assert_eq!(d.z_max(), 4624 + 150);
 
         // A BY_TIME cycler (Valos dungeon).
-        let t = data.doors.iter().find(|d| d.open_method == DoorOpenMethod::ByTime).expect("a BY_TIME door");
+        let t = data
+            .doors
+            .iter()
+            .find(|d| d.open_method == DoorOpenMethod::ByTime)
+            .expect("a BY_TIME door");
         assert!(t.open_time > 0 && t.close_time > 0);
 
         // The Gludin clan-hall doors are BY_CLICK with default targetable.

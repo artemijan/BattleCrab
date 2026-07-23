@@ -49,15 +49,36 @@ pub type PathEventRx = Receiver<PathEvent>;
 /// Spawn the path-worker thread. It exits when every request sender is gone
 /// (the game thread dropping `World` on shutdown closes the channel); replies
 /// to an already-stopped game thread are silently dropped.
-pub fn spawn(geo: Arc<GeoEngine>, cfg: PathConfig, req_rx: PathReqRx, event_tx: PathEventTx) -> JoinHandle<()> {
+pub fn spawn(
+    geo: Arc<GeoEngine>,
+    cfg: PathConfig,
+    req_rx: PathReqRx,
+    event_tx: PathEventTx,
+) -> JoinHandle<()> {
     std::thread::Builder::new()
         .name("path-worker".to_string())
         .spawn(move || {
             info!("PathWorker: started.");
             while let Ok(req) = req_rx.recv() {
-                let PathRequest { seq, client_id, object_id, from, to, playable } = req;
+                let PathRequest {
+                    seq,
+                    client_id,
+                    object_id,
+                    from,
+                    to,
+                    playable,
+                } = req;
                 let path = find_path(&geo, &cfg, from, to, playable);
-                if event_tx.send(PathEvent { seq, client_id, object_id, to, path }).is_err() {
+                if event_tx
+                    .send(PathEvent {
+                        seq,
+                        client_id,
+                        object_id,
+                        to,
+                        path,
+                    })
+                    .is_err()
+                {
                     break;
                 }
             }

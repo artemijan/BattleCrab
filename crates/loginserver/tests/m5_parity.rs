@@ -4,9 +4,9 @@
 
 mod common;
 
+use common::{login, start_server, test_config};
 use commons::crypt::{hash_password, NewCrypt};
 use commons::network::{read_frame, write_frame, PacketReader, PacketWriter};
-use common::{login, start_server, test_config};
 use loginserver::gs_link::packets::{gs_decrypt, gs_encrypt, GS_STATIC_BLOWFISH_KEY};
 use loginserver::gs_table::hexid_from_string;
 use num_bigint_dig::BigUint;
@@ -39,10 +39,18 @@ async fn register_game_server(gs_addr: std::net::SocketAddr) -> SimGameServer {
     register_game_server_as(gs_addr, 1, HEXID).await
 }
 
-async fn register_game_server_as(gs_addr: std::net::SocketAddr, desired_id: u8, hexid_str: &str) -> SimGameServer {
+async fn register_game_server_as(
+    gs_addr: std::net::SocketAddr,
+    desired_id: u8,
+    hexid_str: &str,
+) -> SimGameServer {
     let stream = TcpStream::connect(gs_addr).await.unwrap();
     let (read, write) = stream.into_split();
-    let mut gs = SimGameServer { read, write, crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY) };
+    let mut gs = SimGameServer {
+        read,
+        write,
+        crypt: NewCrypt::new(GS_STATIC_BLOWFISH_KEY),
+    };
 
     let init = gs.recv().await.expect("no InitLS");
     let mut r = PacketReader::new(&init);
@@ -125,7 +133,10 @@ async fn reply_characters_lands_in_server_list() {
     let count = list[1] as usize;
     // layout: 1 opcode + 1 count + 1 lastServer + count*21 + 2 (0xA4) + chars pairs
     let chars_block = 3 + count * 21 + 2;
-    assert!(list.len() >= chars_block + 2, "char count block should be appended");
+    assert!(
+        list.len() >= chars_block + 2,
+        "char count block should be appended"
+    );
     assert_eq!(list[chars_block], 1, "server id 1");
     assert_eq!(list[chars_block + 1], 3, "3 characters on Bartz");
 }
@@ -199,7 +210,10 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
     let (_c, reply) = login(server.addr, "hacker", "pw").await;
     assert_eq!(reply[0], 0x03);
 
-    let ban_until = (std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_millis() as i64)
+    let ban_until = (std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_millis() as i64)
         + 3_600_000;
     let mut w = PacketWriter::new();
     w.write_u8(0x0A);
@@ -211,11 +225,12 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
     gs.send(w.into_bytes()).await;
     tokio::time::sleep(std::time::Duration::from_millis(150)).await;
 
-    let (value,): (String,) =
-        sqlx::query_as("SELECT value FROM account_data WHERE account_name='hacker' AND var='ban_temp'")
-            .fetch_one(&server.pool)
-            .await
-            .expect("ban_temp row written");
+    let (value,): (String,) = sqlx::query_as(
+        "SELECT value FROM account_data WHERE account_name='hacker' AND var='ban_temp'",
+    )
+    .fetch_one(&server.pool)
+    .await
+    .expect("ban_temp row written");
     assert_eq!(value, ban_until.to_string());
 
     // RequestTempBan also IP-bans the reported address (Java behavior), so a
@@ -223,7 +238,10 @@ async fn temp_ban_writes_account_data_and_bans_ip() {
     // under the static first-packet encryption.
     let stream = TcpStream::connect(server.addr).await.unwrap();
     let (mut read, _write) = stream.into_split();
-    let mut first = read_frame(&mut read, 8192).await.unwrap().expect("no packet");
+    let mut first = read_frame(&mut read, 8192)
+        .await
+        .unwrap()
+        .expect("no packet");
     NewCrypt::new(&common::STATIC_BLOWFISH_KEY).decrypt(&mut first);
     common::dec_xor_pass(&mut first);
     assert_eq!(first[0], 0x01, "LoginFail opcode");
@@ -277,10 +295,11 @@ async fn change_password_roundtrip() {
     assert_eq!(r.read_string().unwrap(), "MyChar");
     assert!(r.read_string().unwrap().contains("successfully"));
 
-    let (password,): (String,) = sqlx::query_as("SELECT password FROM accounts WHERE login='pwuser'")
-        .fetch_one(&server.pool)
-        .await
-        .unwrap();
+    let (password,): (String,) =
+        sqlx::query_as("SELECT password FROM accounts WHERE login='pwuser'")
+            .fetch_one(&server.pool)
+            .await
+            .unwrap();
     assert_eq!(password, hash_password("newpass"));
 }
 

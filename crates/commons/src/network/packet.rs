@@ -30,19 +30,23 @@ impl<'a> PacketReader<'a> {
     }
 
     pub fn read_i16(&mut self) -> Option<i16> {
-        self.take(2).map(|s| i16::from_le_bytes(s.try_into().unwrap()))
+        self.take(2)
+            .map(|s| i16::from_le_bytes(s.try_into().unwrap()))
     }
 
     pub fn read_i32(&mut self) -> Option<i32> {
-        self.take(4).map(|s| i32::from_le_bytes(s.try_into().unwrap()))
+        self.take(4)
+            .map(|s| i32::from_le_bytes(s.try_into().unwrap()))
     }
 
     pub fn read_i64(&mut self) -> Option<i64> {
-        self.take(8).map(|s| i64::from_le_bytes(s.try_into().unwrap()))
+        self.take(8)
+            .map(|s| i64::from_le_bytes(s.try_into().unwrap()))
     }
 
     pub fn read_f64(&mut self) -> Option<f64> {
-        self.take(8).map(|s| f64::from_le_bytes(s.try_into().unwrap()))
+        self.take(8)
+            .map(|s| f64::from_le_bytes(s.try_into().unwrap()))
     }
 
     pub fn read_bytes(&mut self, n: usize) -> Option<&'a [u8]> {

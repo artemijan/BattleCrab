@@ -26,7 +26,12 @@ pub struct SessionKey {
 
 impl SessionKey {
     pub fn new(login_ok1: i32, login_ok2: i32, play_ok1: i32, play_ok2: i32) -> Self {
-        Self { login_ok1, login_ok2, play_ok1, play_ok2 }
+        Self {
+            login_ok1,
+            login_ok2,
+            play_ok1,
+            play_ok2,
+        }
     }
 }
 
@@ -77,16 +82,28 @@ pub struct InLobby {
 
 impl Session<Connecting> {
     pub fn new(client_id: u32, out: OutboundTx, addr: SocketAddr) -> Self {
-        Self { client_id, out, addr, state: Connecting }
+        Self {
+            client_id,
+            out,
+            addr,
+            state: Connecting,
+        }
     }
 
     /// `PlayerAuthResponse` authed → move to the character-selection lifecycle.
-    pub fn into_authenticated(self, account: String, session_key: SessionKey) -> Session<Authenticated> {
+    pub fn into_authenticated(
+        self,
+        account: String,
+        session_key: SessionKey,
+    ) -> Session<Authenticated> {
         Session {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
-            state: Authenticated { account, session_key },
+            state: Authenticated {
+                account,
+                session_key,
+            },
         }
     }
 }
@@ -102,7 +119,11 @@ impl Session<Authenticated> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
-            state: InLobby { account: self.state.account, session_key: self.state.session_key, chars },
+            state: InLobby {
+                account: self.state.account,
+                session_key: self.state.session_key,
+                chars,
+            },
         }
     }
 }
@@ -119,7 +140,9 @@ impl Session<InLobby> {
 
     /// The character at a client-supplied slot (list index).
     pub fn char_at(&self, slot: i32) -> Option<&CharData> {
-        usize::try_from(slot).ok().and_then(|i| self.state.chars.get(i))
+        usize::try_from(slot)
+            .ok()
+            .and_then(|i| self.state.chars.get(i))
     }
 
     /// Replace the cached character list after a reload.
@@ -134,7 +157,11 @@ impl Session<InLobby> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
-            state: Entering { account: self.state.account, session_key: self.state.session_key, player },
+            state: Entering {
+                account: self.state.account,
+                session_key: self.state.session_key,
+                player,
+            },
         }
     }
 }
@@ -217,7 +244,10 @@ impl Session<InGame> {
             client_id: self.client_id,
             out: self.out,
             addr: self.addr,
-            state: Authenticated { account: self.state.account, session_key: self.state.session_key },
+            state: Authenticated {
+                account: self.state.account,
+                session_key: self.state.session_key,
+            },
         }
     }
 }

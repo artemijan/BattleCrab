@@ -42,3 +42,24 @@ opt-level = 3
 
 [profile.dev.package.rsa]
 opt-level = 3
+
+# Grandfathered clippy lints: every entry below was already violated when the
+# linter gate was introduced (2026-07-23), in game code where the churn of
+# fixing them wholesale wasn't worth the review risk. The pre-commit hook runs
+# `clippy -D warnings`, so anything NOT in this list is enforced. Burn entries
+# down over time: delete one, fix what surfaces, commit both together.
+[workspace.lints.clippy]
+too_many_arguments = "allow"
+type_complexity = "allow"
+doc_lazy_continuation = "allow"
+field_reassign_with_default = "allow"
+large_enum_variant = "allow"
+should_implement_trait = "allow"
+if_same_then_else = "allow"
+while_let_loop = "allow"
+question_mark = "allow"
+explicit_counter_loop = "allow"
+assertions_on_constants = "allow"
+drop_non_drop = "allow"
+unnecessary_sort_by = "allow"
+unnecessary_get_then_check = "allow"

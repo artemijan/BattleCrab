@@ -54,7 +54,10 @@ impl RateLimiter {
     /// Clears a key's budget — called after a *successful* login so a legitimate
     /// user who fumbled their password a few times isn't left throttled.
     pub fn reset(&self, key: &str) {
-        self.hits.lock().unwrap_or_else(|e| e.into_inner()).remove(key);
+        self.hits
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .remove(key);
     }
 }
 

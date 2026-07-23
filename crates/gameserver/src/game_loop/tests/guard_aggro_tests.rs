@@ -42,12 +42,25 @@ fn clan_template(id: i32, clans: &[&str]) -> crate::data::npc_data::NpcTemplate 
     t
 }
 
-fn guard_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn guard_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
     world.data.npc_data.insert_for_test(guard_template());
-    world.data.npc_data.insert_for_test(clan_template(ORC_A_ID, &["ORC"]));
-    world.data.npc_data.insert_for_test(clan_template(ORC_B_ID, &["ORC"]));
-    world.data.npc_data.insert_for_test(clan_template(LONER_ID, &["LIZARDMAN"]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(clan_template(ORC_A_ID, &["ORC"]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(clan_template(ORC_B_ID, &["ORC"]));
+    world
+        .data
+        .npc_data
+        .insert_for_test(clan_template(LONER_ID, &["LIZARDMAN"]));
     (world, db, l)
 }
 
@@ -61,7 +74,11 @@ fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
 }
 
 fn set_reputation(world: &mut World, oid: i32, rep: i32) {
-    world.objects.get_component_mut::<crate::model::Player>(&oid).unwrap().reputation = rep;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&oid)
+        .unwrap()
+        .reputation = rep;
 }
 
 // ---------------------------------------------------------------------------
@@ -76,7 +93,10 @@ fn guard_aggros_a_pk_in_range() {
 
     advance_world(&mut world, 20);
 
-    assert!(hate_on(&world, GUARD_OID, PLAYER) > 0.0, "a guard must aggro a PK standing 300 units away");
+    assert!(
+        hate_on(&world, GUARD_OID, PLAYER) > 0.0,
+        "a guard must aggro a PK standing 300 units away"
+    );
 }
 
 #[test]
@@ -89,7 +109,11 @@ fn guard_ignores_a_lawful_player_at_the_same_distance() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "a lawful player walks past a guard untouched");
+    assert_eq!(
+        hate_on(&world, GUARD_OID, PLAYER),
+        0.0,
+        "a lawful player walks past a guard untouched"
+    );
 }
 
 #[test]
@@ -102,7 +126,11 @@ fn guard_ignores_a_pk_beyond_500_units() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "the guard range is 500, not the template aggroRange");
+    assert_eq!(
+        hate_on(&world, GUARD_OID, PLAYER),
+        0.0,
+        "the guard range is 500, not the template aggroRange"
+    );
 }
 
 #[test]
@@ -119,11 +147,19 @@ fn guard_ignores_a_lawful_player_standing_point_blank() {
     // `global_aggro` starts at -10 and only climbs one step per think, so the
     // generic aggro scan is suppressed for the first ten thinks. Clear it, or
     // the guard sits inert for the whole test and it proves nothing.
-    world.objects.get_component_mut::<NpcAi>(&GUARD_OID).unwrap().global_aggro = 0;
+    world
+        .objects
+        .get_component_mut::<NpcAi>(&GUARD_OID)
+        .unwrap()
+        .global_aggro = 0;
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "a guard must not aggro a lawful player standing next to it");
+    assert_eq!(
+        hate_on(&world, GUARD_OID, PLAYER),
+        0.0,
+        "a guard must not aggro a lawful player standing next to it"
+    );
 }
 
 #[test]
@@ -136,7 +172,11 @@ fn a_plain_monster_does_not_inherit_the_pk_rule() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, GUARD_OID, PLAYER), 0.0, "a non-Guard monster ignores reputation");
+    assert_eq!(
+        hate_on(&world, GUARD_OID, PLAYER),
+        0.0,
+        "a non-Guard monster ignores reputation"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -168,9 +208,16 @@ fn attacked_mob_pulls_its_clan_mate_in() {
 
     advance_world(&mut world, 20);
 
-    assert!(hate_on(&world, MATE_OID, PLAYER) > 0.0, "an ORC clan-mate 100 units away should join the fight");
+    assert!(
+        hate_on(&world, MATE_OID, PLAYER) > 0.0,
+        "an ORC clan-mate 100 units away should join the fight"
+    );
     assert_eq!(
-        world.objects.get_component::<NpcAi>(&MATE_OID).unwrap().intention,
+        world
+            .objects
+            .get_component::<NpcAi>(&MATE_OID)
+            .unwrap()
+            .intention,
         NpcIntention::Attack,
         "the recruit switches to the attack loop"
     );
@@ -184,7 +231,11 @@ fn a_different_faction_is_not_pulled_in() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, MATE_OID, PLAYER), 0.0, "LIZARDMAN doesn't answer an ORC's call");
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "LIZARDMAN doesn't answer an ORC's call"
+    );
 }
 
 #[test]
@@ -213,7 +264,11 @@ fn clan_mate_beyond_the_help_range_is_not_pulled_in() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, MATE_OID, PLAYER), 0.0, "out of clanHelpRange");
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "out of clanHelpRange"
+    );
 }
 
 #[test]
@@ -230,7 +285,11 @@ fn an_ignored_npc_id_refuses_the_call() {
 
     advance_world(&mut world, 20);
 
-    assert_eq!(hate_on(&world, MATE_OID, PLAYER), 0.0, "ignoreNpcId beats a shared clan");
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "ignoreNpcId beats a shared clan"
+    );
 }
 
 #[test]
@@ -246,7 +305,10 @@ fn all_clan_matches_any_faction() {
 
     advance_world(&mut world, 20);
 
-    assert!(hate_on(&world, MATE_OID, PLAYER) > 0.0, "an ALL-clan NPC answers any faction's call");
+    assert!(
+        hate_on(&world, MATE_OID, PLAYER) > 0.0,
+        "an ALL-clan NPC answers any faction's call"
+    );
 }
 
 #[test]
@@ -263,7 +325,13 @@ fn a_clan_mate_already_fighting_is_left_alone() {
         .get_component_mut::<AggroList>(&MATE_OID)
         .unwrap()
         .0
-        .insert(PLAYER, AggroInfo { hate: 5.0, damage: 10.0 });
+        .insert(
+            PLAYER,
+            AggroInfo {
+                hate: 5.0,
+                damage: 10.0,
+            },
+        );
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&MATE_OID) {
         ai.intention = NpcIntention::Attack;
         ai.attack_timeout_tick = u64::MAX;

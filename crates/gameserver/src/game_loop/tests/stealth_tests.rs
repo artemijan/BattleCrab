@@ -34,10 +34,20 @@ fn aggressive_template(id: i32, type_name: &str) -> crate::data::npc_data::NpcTe
     t
 }
 
-fn stealth_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+fn stealth_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
     let (mut world, db, l) = combat_test_world();
-    world.data.npc_data.insert_for_test(aggressive_template(MOB_ID, "Monster"));
-    world.data.npc_data.insert_for_test(aggressive_template(RAID_ID, "RaidBoss"));
+    world
+        .data
+        .npc_data
+        .insert_for_test(aggressive_template(MOB_ID, "Monster"));
+    world
+        .data
+        .npc_data
+        .insert_for_test(aggressive_template(RAID_ID, "RaidBoss"));
     (world, db, l)
 }
 
@@ -49,26 +59,36 @@ fn stealth_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<Lo
 const AGGRO_WARMUP: u64 = 120;
 
 fn hate_on(world: &World, npc: i32, target: i32) -> f64 {
-    world.objects.get_component::<AggroList>(&npc).and_then(|a| a.0.get(&target)).map(|i| i.hate).unwrap_or(0.0)
+    world
+        .objects
+        .get_component::<AggroList>(&npc)
+        .and_then(|a| a.0.get(&target))
+        .map(|i| i.hate)
+        .unwrap_or(0.0)
 }
 
 /// Stamp a buff carrying `flags` straight onto the player — the state the
 /// aggro gate reads, without needing a real cast.
 fn give_flag_buff(world: &mut World, oid: i32, skill_id: i32, flags: u32) {
-    world.objects.get_component_mut::<Buffs>(&oid).unwrap().0.push(crate::model::skill::ActiveBuff {
-        skill_id,
-        skill_level: 1,
-        abnormal_type_client_id: 0,
-        abnormal_type: "NONE".to_string(),
-        abnormal_level: 0,
-        slot: crate::model::skill::BuffSlot::Buff,
-        expires_at_tick: u64::MAX,
-        passive: false,
-        effect_flags: flags,
-        blocked_abnormals: Vec::new(),
-        abnormal_visuals: Vec::new(),
-        effects: Vec::new(),
-    });
+    world
+        .objects
+        .get_component_mut::<Buffs>(&oid)
+        .unwrap()
+        .0
+        .push(crate::model::skill::ActiveBuff {
+            skill_id,
+            skill_level: 1,
+            abnormal_type_client_id: 0,
+            abnormal_type: "NONE".to_string(),
+            abnormal_level: 0,
+            slot: crate::model::skill::BuffSlot::Buff,
+            expires_at_tick: u64::MAX,
+            passive: false,
+            effect_flags: flags,
+            blocked_abnormals: Vec::new(),
+            abnormal_visuals: Vec::new(),
+            effects: Vec::new(),
+        });
 }
 
 // ---------------------------------------------------------------------------
@@ -84,7 +104,10 @@ fn an_unhidden_player_is_noticed() {
     add_test_npc(&mut world, MOB_OID, MOB_ID, "Monster", 20, 300, 0, 0);
 
     advance_world(&mut world, AGGRO_WARMUP);
-    assert!(hate_on(&world, MOB_OID, PLAYER) > 0.0, "sanity: the scan works at this range");
+    assert!(
+        hate_on(&world, MOB_OID, PLAYER) > 0.0,
+        "sanity: the scan works at this range"
+    );
 }
 
 /// `SILENT_MOVE`: the same player, same spot, now stealthed — the monster
@@ -97,7 +120,11 @@ fn a_silent_moving_player_walks_past_an_aggressive_monster() {
     give_flag_buff(&mut world, PLAYER, 221, effect_flag::SILENT_MOVE);
 
     advance_world(&mut world, AGGRO_WARMUP);
-    assert_eq!(hate_on(&world, MOB_OID, PLAYER), 0.0, "stealth hides the player from the scan");
+    assert_eq!(
+        hate_on(&world, MOB_OID, PLAYER),
+        0.0,
+        "stealth hides the player from the scan"
+    );
 }
 
 /// **Raid bosses see through stealth** (`!me.isRaid()` in Java's condition) —
@@ -110,7 +137,10 @@ fn a_raid_boss_sees_through_silent_move() {
     give_flag_buff(&mut world, PLAYER, 221, effect_flag::SILENT_MOVE);
 
     advance_world(&mut world, AGGRO_WARMUP);
-    assert!(hate_on(&world, MOB_OID, PLAYER) > 0.0, "a raid boss is not fooled by stealth");
+    assert!(
+        hate_on(&world, MOB_OID, PLAYER) > 0.0,
+        "a raid boss is not fooled by stealth"
+    );
 }
 
 /// `FAKE_DEATH` folds into `isAlikeDead()`, the *first* check in
@@ -125,7 +155,11 @@ fn a_fake_dead_player_is_ignored_even_by_a_raid_boss() {
         give_flag_buff(&mut world, PLAYER, 60, effect_flag::FAKE_DEATH);
 
         advance_world(&mut world, AGGRO_WARMUP);
-        assert_eq!(hate_on(&world, MOB_OID, PLAYER), 0.0, "npc {npc_id} ignores a fake-dead player");
+        assert_eq!(
+            hate_on(&world, MOB_OID, PLAYER),
+            0.0,
+            "npc {npc_id} ignores a fake-dead player"
+        );
     }
 }
 
@@ -135,25 +169,46 @@ fn a_fake_dead_player_is_ignored_even_by_a_raid_boss() {
 #[test]
 fn a_stealthed_pk_slips_past_a_guard() {
     let (mut world, _db, _l) = stealth_world();
-    world.data.npc_data.insert_for_test(aggressive_template(45002, "Guard"));
+    world
+        .data
+        .npc_data
+        .insert_for_test(aggressive_template(45002, "Guard"));
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, MOB_OID, 45002, "Guard", 20, 300, 0, 0);
-    world.objects.get_component_mut::<crate::model::Player>(&PLAYER).unwrap().reputation = -500;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .unwrap()
+        .reputation = -500;
 
     // Unhidden first: the guard must actually want this PK.
     advance_world(&mut world, AGGRO_WARMUP);
-    assert!(hate_on(&world, MOB_OID, PLAYER) > 0.0, "sanity: the guard hunts this PK");
+    assert!(
+        hate_on(&world, MOB_OID, PLAYER) > 0.0,
+        "sanity: the guard hunts this PK"
+    );
 
     // Now the same setup with stealth up.
     let (mut world, _db, _l) = stealth_world();
-    world.data.npc_data.insert_for_test(aggressive_template(45002, "Guard"));
+    world
+        .data
+        .npc_data
+        .insert_for_test(aggressive_template(45002, "Guard"));
     let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
     add_test_npc(&mut world, MOB_OID, 45002, "Guard", 20, 300, 0, 0);
-    world.objects.get_component_mut::<crate::model::Player>(&PLAYER).unwrap().reputation = -500;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .unwrap()
+        .reputation = -500;
     give_flag_buff(&mut world, PLAYER, 411, effect_flag::SILENT_MOVE);
 
     advance_world(&mut world, AGGRO_WARMUP);
-    assert_eq!(hate_on(&world, MOB_OID, PLAYER), 0.0, "stealth hides a PK from a guard too");
+    assert_eq!(
+        hate_on(&world, MOB_OID, PLAYER),
+        0.0,
+        "stealth hides a PK from a guard too"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -213,12 +268,18 @@ fn standing_up_sends_change_wait_type_and_revive() {
 
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, PLAYER, 60);
 
-    let opcodes: Vec<u8> = drain(&mut out).iter().filter_map(|p| p.first().copied()).collect();
+    let opcodes: Vec<u8> = drain(&mut out)
+        .iter()
+        .filter_map(|p| p.first().copied())
+        .collect();
     assert!(
         opcodes.contains(&server_packets::opcodes::CHANGE_WAIT_TYPE),
         "ChangeWaitType is broadcast, got {opcodes:?}"
     );
-    assert!(opcodes.contains(&server_packets::opcodes::REVIVE), "and Revive alongside it, got {opcodes:?}");
+    assert!(
+        opcodes.contains(&server_packets::opcodes::REVIVE),
+        "and Revive alongside it, got {opcodes:?}"
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -240,7 +301,13 @@ fn real_dist_fake_death_parses_both_halves() {
         "FakeDeath with the real power/ticks: {:?}",
         skill.effects
     );
-    assert!(skill.effects.iter().any(|e| matches!(e, SkillEffect::SilentMove)), "and its SilentMove half");
+    assert!(
+        skill
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::SilentMove)),
+        "and its SilentMove half"
+    );
     let flags = skill.effect_flags();
     assert_ne!(flags & effect_flag::FAKE_DEATH, 0);
     assert_ne!(flags & effect_flag::SILENT_MOVE, 0);
@@ -254,14 +321,26 @@ fn real_dist_silent_move_skills_contribute_the_flag() {
     let skills = crate::data::skill_data::SkillData::load_from(DIST);
     // Silent Move 221, Dance of Shadows 366, Stealth 411.
     for id in [221, 366, 411] {
-        let skill = skills.get(id, 1).unwrap_or_else(|| panic!("skill {id} loads"));
+        let skill = skills
+            .get(id, 1)
+            .unwrap_or_else(|| panic!("skill {id} loads"));
         assert!(
-            skill.effects.iter().any(|e| matches!(e, SkillEffect::SilentMove)),
+            skill
+                .effects
+                .iter()
+                .any(|e| matches!(e, SkillEffect::SilentMove)),
             "skill {id} carries SilentMove: {:?}",
             skill.effects
         );
-        assert_ne!(skill.effect_flags() & effect_flag::SILENT_MOVE, 0, "skill {id} contributes the flag");
+        assert_ne!(
+            skill.effect_flags() & effect_flag::SILENT_MOVE,
+            0,
+            "skill {id} contributes the flag"
+        );
         // The pre-existing effects must survive the new arm.
-        assert!(skill.effects.len() > 1, "skill {id} keeps its other effects too");
+        assert!(
+            skill.effects.len() > 1,
+            "skill {id} keeps its other effects too"
+        );
     }
 }
