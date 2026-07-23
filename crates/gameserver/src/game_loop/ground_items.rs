@@ -23,6 +23,10 @@ pub(crate) enum DropSource {
     /// An NPC death drop with auto-loot off: auto-destroyed whenever
     /// `AutoDestroyDroppedItemAfter > 0`.
     Npc,
+    /// A cursed weapon dropped by a slain monster: Java calls
+    /// `_item.setDropTime(0)` to exempt it from `ItemsAutoDestroy` — the
+    /// `CursedWeapon` remove-task owns its lifetime instead.
+    CursedWeapon,
 }
 
 /// The auto-destroy delay (seconds) for a freshly dropped item, or `None` when
@@ -36,6 +40,7 @@ fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option
         return None;
     }
     match source {
+        DropSource::CursedWeapon => None,
         DropSource::Npc => Some(g.autodestroy_item_after),
         DropSource::Player => {
             if !g.destroy_dropped_player_item {
@@ -115,7 +120,7 @@ pub(crate) fn handle_ground_item_decay(world: &mut World, item_object_id: i32) {
 
 /// Remove a ground item from the world (despawn + drop from the region index +
 /// `DeleteObject` to nearby).
-fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32, i32)) {
+pub(crate) fn despawn_ground_item(world: &mut World, item_oid: i32, region: (i32, i32)) {
     world.objects.despawn(&item_oid);
     if let Some(ids) = world.ground_item_regions.get_mut(&region) {
         ids.retain(|&id| id != item_oid);
@@ -132,6 +137,13 @@ pub(crate) fn pickup_ground_item(world: &mut World, client_id: u32, player_oid: 
     let Some(g) = world.objects.get_component::<GroundItem>(&item_oid).cloned() else { return };
     let Some(pos) = world.objects.get_component::<Position>(&item_oid).copied() else { return };
     let region = world.objects.get_component::<RegionCell>(&item_oid).map(|r| r.0).unwrap_or_else(|| region_of(pos.x, pos.y));
+    // A cursed weapon lying on the ground curses whoever grabs it — route into
+    // the cursed-weapon pickup path (its own get-item broadcast + despawn +
+    // activation) instead of the plain give.
+    if super::cursed_weapon::is_dropped_cursed(world, g.item_id) {
+        super::cursed_weapon::try_pickup(world, client_id, player_oid, item_oid, region, g.item_id, pos);
+        return;
+    }
     super::helpers::broadcast_near_region(world, region, &server_packets::get_item(player_oid, item_oid, pos.x, pos.y, pos.z));
     despawn_ground_item(world, item_oid, region);
     super::quests::give_item_with_earned_message(world, client_id, player_oid, g.item_id, g.count);

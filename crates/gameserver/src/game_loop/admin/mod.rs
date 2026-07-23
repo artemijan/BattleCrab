@@ -21,7 +21,7 @@ use crate::world::World;
 
 mod castle;
 mod character;
-mod cursed_weapons;
+pub(crate) mod cursed_weapons;
 mod editchar;
 mod effects;
 mod gm_util;

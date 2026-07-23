@@ -71,6 +71,7 @@ fn parse(content: &str) -> Vec<CursedWeapon> {
                         player_pk_kills: 0,
                         nb_kills: 0,
                         end_time: 0,
+                        dropped_item_oid: 0,
                     });
                 }
                 tag => {

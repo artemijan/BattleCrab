@@ -38,8 +38,12 @@ pub struct CursedWeapon {
     pub player_reputation: i32,
     pub player_pk_kills: i32,
     pub nb_kills: i32,
-    /// Epoch millis at which the weapon expires (Java `_endTime`).
+    /// Epoch millis at which the weapon expires (Java `_endTime`). Also the
+    /// disappear deadline while `is_dropped` (an un-grabbed drop vanishes).
     pub end_time: i64,
+    /// The ground-item object id while `is_dropped` (0 otherwise) — so the
+    /// pickup / disappear paths can despawn it. Runtime only, not persisted.
+    pub dropped_item_oid: i32,
 }
 
 impl CursedWeapon {
@@ -70,5 +74,6 @@ impl CursedWeapon {
         self.player_id = 0;
         self.nb_kills = 0;
         self.end_time = 0;
+        self.dropped_item_oid = 0;
     }
 }
