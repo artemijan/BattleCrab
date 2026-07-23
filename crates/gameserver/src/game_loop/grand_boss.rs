@@ -20,6 +20,20 @@ use crate::world::World;
 pub const ALIVE: i32 = 0;
 pub const DEAD: i32 = 1;
 
+/// The stored "dead" status differs by boss family: the simple bosses use the
+/// two-state 0/1 pair, but the four-state bosses (Antharas, Valakas —
+/// DORMANT 0, WAITING 1, IN_FIGHT 2, DEAD 3) read **1 as WAITING**, so
+/// writing the generic `DEAD` there would let `try_enter` admit raids into a
+/// dead boss's lair. Latent until the entry flows landed, because nothing
+/// ever set WAITING before.
+pub(crate) fn dead_status(boss_id: i32) -> i32 {
+    if boss_id == crate::game_loop::antharas::ANTHARAS || boss_id == crate::game_loop::valakas::VALAKAS {
+        3
+    } else {
+        DEAD
+    }
+}
+
 const TICKS_PER_SECOND: u64 = 10;
 const MILLIS_PER_HOUR: i64 = 3_600_000;
 
@@ -44,8 +58,9 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
     let hours = (window.interval_hours + spread).max(1);
     let respawn_millis = hours as i64 * MILLIS_PER_HOUR;
 
+    let dead = dead_status(boss_id);
     if let Some(b) = world.grand_bosses.get_mut(&boss_id) {
-        b.status = DEAD;
+        b.status = dead;
         b.respawn_time = now_millis() + respawn_millis;
         // Java stores the *stored* HP/MP as full so a restored boss comes back
         // whole; a dead boss's live HP is meaningless.
@@ -92,7 +107,7 @@ pub(crate) fn resolve_at_boot(world: &mut World) {
             continue; // not a boss this slice drives
         }
         match status(world, boss_id) {
-            Some(s) if s == DEAD => {
+            Some(s) if s == dead_status(boss_id) => {
                 let remaining = world
                     .grand_bosses
                     .get(&boss_id)
@@ -130,11 +145,13 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     if boss_id == crate::game_loop::baium::BAIUM {
         crate::game_loop::baium::on_baium_spawned(world);
     }
-    if boss_id == crate::game_loop::antharas::ANTHARAS {
-        // The cinematic runs first; its tail starts the minion waves, so a
-        // boss that has not yet been engaged is not already spawning adds.
-        crate::game_loop::antharas::begin_cinematic(world, oid);
-    }
+    // Antharas spawns DORMANT and stays wherever `grandboss_data` puts it —
+    // the cinematic (and the minion waves its tail starts) fire from
+    // `SPAWN_ANTHARAS`, twenty minutes after the first group enters through
+    // the Heart of Warding (`scripts::antharas_heart`). Slice 17's call here
+    // was a stand-in. Valakas's cinematic stays unwired until its own entry
+    // slice — TODO(G23).
+    let _ = crate::game_loop::antharas::ANTHARAS;
 
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a
     // positive value overrides the template's full vitals.
@@ -146,7 +163,7 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     }
 }
 
-fn persist(world: &mut World, boss_id: i32) {
+pub(crate) fn persist(world: &mut World, boss_id: i32) {
     if let Some(b) = world.grand_bosses.get(&boss_id).cloned() {
         let _ = world.db.send(DbCommand::StoreGrandBoss { boss: b });
     }
