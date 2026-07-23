@@ -9066,3 +9066,133 @@ fn quest_q00217_testimony_of_trust() {
     assert_eq!(item_count(&world, 3001, 57), a + 252212, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(23), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00219_testimony_of_fate() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (3173..=3202).map(|id| (id, "Q219", true)).collect();
+    items.push((3172, "Mark of Fate", false));
+    add_quest_items(&mut world, &items);
+    for id in [20144, 20158, 20233, 20202, 20192, 20157, 20270, 20554, 20582, 20600, 27079] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let kaira = NPC_OID;
+    let metheus = NPC_OID + 1;
+    let ixia = NPC_OID + 2;
+    let roa = NPC_OID + 3;
+    let norman = NPC_OID + 4;
+    let thifiell = NPC_OID + 5;
+    let arkenia = NPC_OID + 6;
+    let pixy = NPC_OID + 7;
+    let treant = NPC_OID + 8;
+    for (oid, npc) in [
+        (kaira, 30476),
+        (metheus, 30614),
+        (ixia, 30463),
+        (roa, 30114),
+        (norman, 30210),
+        (thifiell, 30358),
+        (arkenia, 30419),
+        (pixy, 31845),
+        (treant, 31850),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 32; // Palus Knight (Dark Elf, DELF_2ND_GROUP)
+        p.race = 2; // Dark Elf
+    }
+    world.data.categories.insert_for_test("DELF_2ND_GROUP", &[32]);
+    let q = "Q00219_TestimonyOfFate";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, kaira);
+    ev(&mut world, kaira, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    talk(&mut world, metheus); // → Metheus's Funeral Jar, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    kill(&mut world, 20144); // Hangman → Kasandra's Remains, cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, metheus); // → Herbalism Textbook, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, ixia); // textbook → Ixia's List, cond 6
+    assert_eq!(item_count(&world, 3001, 3177), 1, "Ixia's List");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // Five poison reagents, each to 10 → cond 7.
+    inject(&mut world, 3001, 0x0219_0000, 3178, 9);
+    kill(&mut world, 20158); // Medusa's Ichor → 10
+    inject(&mut world, 3001, 0x0219_0001, 3179, 9);
+    kill(&mut world, 20233); // Marsh Spider Fluids → 10
+    inject(&mut world, 3001, 0x0219_0002, 3180, 9);
+    kill(&mut world, 20202); // Dead Seeker Dung → 10
+    inject(&mut world, 3001, 0x0219_0003, 3181, 9);
+    kill(&mut world, 20192); // Tyrant's Blood → 10
+    inject(&mut world, 3001, 0x0219_0004, 3182, 9);
+    kill(&mut world, 20157); // Nightshade Root → 10, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, ixia); // reagents → Belladonna, cond 8
+    assert_eq!(item_count(&world, 3001, 3183), 1, "Belladonna");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, metheus); // Belladonna → Alder's Skull 1, cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, kaira); // → Alder's Skull 2, cond 10
+    assert_eq!(item_count(&world, 3001, 3185), 1, "Alder's Skull 2");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, kaira); // cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, roa);
+    ev(&mut world, roa, "30114-04.html"); // → Alder's Receipt, cond 12
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, norman); // receipt → Revelations Manuscript, cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, kaira);
+    ev(&mut world, kaira, "30476-12.html"); // → Kaira's Recommendation, cond 15
+    assert_eq!(item_count(&world, 3001, 3189), 1, "Kaira's Recommendation");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    talk(&mut world, thifiell); // → Palus Charm + Thifiell's Letter, cond 16
+    assert_eq!(item_count(&world, 3001, 3190), 1, "Palus Charm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, arkenia);
+    ev(&mut world, arkenia, "30419-02.html"); // → Arkenia's Note, cond 17
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    // --- Alchemy: Red Fairy Dust from four overlord skulls ---
+    ev(&mut world, pixy, "31845-02.html"); // Pixy Garnet
+    kill(&mut world, 20554); // Grandis's Skull
+    kill(&mut world, 20600); // Karul Bugbear Skull
+    kill(&mut world, 20270); // Breka Overlord Skull
+    kill(&mut world, 20582); // Leto Overlord Skull
+    talk(&mut world, pixy); // skulls → Red Fairy Dust
+    assert_eq!(item_count(&world, 3001, 3198), 1, "Red Fairy Dust");
+    // --- Alchemy: Blight Treant Sap ---
+    ev(&mut world, treant, "31850-02.html"); // Timiriran Seed
+    kill(&mut world, 27079); // Black Willow Lurker → Black Willow Leaf
+    talk(&mut world, treant); // → Blight Treant Sap
+    assert_eq!(item_count(&world, 3001, 3201), 1, "Blight Treant Sap");
+    // --- Arkenia's Letter, cond 18 ---
+    talk(&mut world, arkenia);
+    ev(&mut world, arkenia, "30419-05.html"); // dust + sap → Arkenia's Letter, cond 18
+    assert_eq!(item_count(&world, 3001, 3202), 1, "Arkenia's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    // --- Completion at Thifiell ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, thifiell);
+    assert_eq!(item_count(&world, 3001, 3172), 1, "Mark of Fate awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 247708, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(18), "one-time quest finished");
+}
