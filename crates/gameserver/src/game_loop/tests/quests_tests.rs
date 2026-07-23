@@ -5194,3 +5194,116 @@ fn quest_q00266_race_and_level_gates() {
     handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
     assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-9 Elf refused");
 }
+
+/// Q00271 Proof of Valor: the 25%-double-drop capped so it can't overshoot 50,
+/// the cond flip at 50, and the necklace (+13% potion) reward.
+#[test]
+fn quest_q00271_proof_of_valor_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1473, "Kasha Wolf Fang", true), (1507, "Necklace of Valor", false), (1539, "Healing Potion", true)]);
+    let mut t = crate::data::npc_data::default_template(20475);
+    t.type_name = "Monster".into();
+    t.level = 6;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30577, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 5;
+        p.race = 3; // Orc
+    }
+    drain_db(&mut db_rx);
+
+    let q = "Q00271_ProofOfValor";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mob = NPC_OID + 1;
+    // roll 10 (<25) at count 0 → double drop; roll 50 → single.
+    add_test_npc(&mut world, mob, 20475, "Monster", 6, 30, 0, 0);
+    world.forced_rolls.push_back(10);
+    death::npc_do_die(&mut world, mob, 3001);
+    add_test_npc(&mut world, mob + 1, 20475, "Monster", 6, 30, 0, 0);
+    world.forced_rolls.push_back(50);
+    death::npc_do_die(&mut world, mob + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1473), 3, "2 + 1 fangs");
+
+    // Fill to 49, then a <25 roll still gives ONE (count 49 is not < 49) → exactly 50, cond 2.
+    {
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5300_0000, 1473, 46);
+    }
+    add_test_npc(&mut world, mob + 2, 20475, "Monster", 6, 30, 0, 0);
+    world.forced_rolls.push_back(10);
+    death::npc_do_die(&mut world, mob + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1473), 50, "the double-drop cap held at 49");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 50");
+    drain(&mut rx);
+
+    // Turn in with the 13% roll hitting → necklace + potion.
+    world.forced_rolls.push_back(5);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1507), 1, "Necklace of Valor");
+    assert_eq!(item_count(&world, 3001, 1539), 1, "Healing Potion (13% roll hit)");
+    assert_eq!(item_count(&world, 3001, 1473), 0, "fangs consumed");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// Gates: non-Orc / necklace-held pages differ, and a fresh level-9 Orc is
+/// refused (the `30577-02.htm` page from `addCondMaxLevel`).
+#[test]
+fn quest_q00271_gates_and_necklace_page() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1473, "Fang", true), (1507, "Necklace of Valor", false)]);
+    add_test_npc(&mut world, NPC_OID, 30577, "Folk", 5, 100, 0, 0);
+    let mut orc_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut necklace_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    let mut human_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    for (oid, race) in [(3001, 3), (3002, 3), (3003, 0)] {
+        let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
+        p.level = 5;
+        p.race = race;
+    }
+    {
+        // Player 3002 already owns the necklace.
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&3002).unwrap().add_item(&data.item_data, 0x5400_0000, 1507, 1);
+    }
+    for rx in [&mut orc_rx, &mut necklace_rx, &mut human_rx] {
+        drain(rx);
+    }
+
+    let q = "Q00271_ProofOfValor";
+    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                    .then(|| {
+                        let mut r = commons::network::PacketReader::new(&p[3..]);
+                        r.read_i32();
+                        r.read_string().unwrap_or_default()
+                    })
+            })
+            .unwrap_or_default()
+    };
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    let (orc, necklace, human) = (page(&mut orc_rx), page(&mut necklace_rx), page(&mut human_rx));
+    assert!(!orc.is_empty() && orc != human, "non-Orc sees a different page");
+    assert_ne!(orc, necklace, "necklace-held Orc sees a different page");
+
+    // A fresh level-9 Orc: refused before the state is created.
+    let _rx4 = ingame_player(&mut world, 4, 3004, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3004).unwrap();
+        p.level = 9;
+        p.race = 3;
+    }
+    handle_request_bypass_to_server(&mut world, 4, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 4, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30577-04.htm")));
+    assert!(quest_cond(&world, 3004, q).is_none_or(|c| c == 0), "level-9 Orc refused");
+}
