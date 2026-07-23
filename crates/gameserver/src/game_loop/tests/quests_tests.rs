@@ -6652,3 +6652,133 @@ fn quest_q00374_whisper_of_dreams_part1() {
     assert_eq!(item_count(&world, 3001, 5886), 0, "sealed stone consumed");
     assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
 }
+
+#[test]
+fn quest_q00306_crystal_of_fire_and_ice() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1020, "Flame Shard", true), (1021, "Ice Shard", true)]);
+    for id in [20109, 20110] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 20;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30004, "Folk", 20, 100, 0, 0); // Katerina
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 20;
+    let q = "Q00306_CrystalOfFireAndIce";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30004-04.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Chance is 1000/count > 1.0, so every kill drops a shard.
+    add_test_npc(&mut world, NPC_OID + 1, 20109, "Monster", 20, 30, 0, 0); // Salamander → flame
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1020), 1, "salamander always drops a flame shard");
+    add_test_npc(&mut world, NPC_OID + 2, 20110, "Monster", 20, 30, 0, 0); // Undine → ice
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1021), 1, "undine always drops an ice shard");
+    // Turn in 5 + 5 = 10 shards → 10*15 + 5000 bonus = 5150 adena.
+    inject(&mut world, 3001, 0x0306_0000, 1020, 4);
+    inject(&mut world, 3001, 0x0306_0001, 1021, 4);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 5150, "10 shards → 150 + 5000 bonus");
+    assert_eq!(item_count(&world, 3001, 1020) + item_count(&world, 3001, 1021), 0, "shards consumed");
+}
+
+#[test]
+fn quest_q00127_fishing_specialists_request() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (49510, "Pierre's Letter", true),
+            (49504, "Fish Report", true),
+            (49505, "Sealed Bottle", true),
+            (49507, "Fishing Rod Chest", false),
+        ],
+    );
+    let pierre = NPC_OID;
+    let ferma = NPC_OID + 1;
+    let baikal = NPC_OID + 2;
+    add_test_npc(&mut world, pierre, 30013, "Folk", 30, 100, 0, 0);
+    add_test_npc(&mut world, ferma, 30015, "Folk", 30, 100, 0, 0);
+    add_test_npc(&mut world, baikal, 30016, "Folk", 30, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 30;
+    let q = "Q00127_FishingSpecialistsRequest";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q} 30013-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 49510), 1, "Pierre hands over his letter");
+    // Ferma: letter → report, cond 2.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{ferma}_Quest {q}")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(item_count(&world, 3001, 49510), 0, "letter consumed");
+    assert_eq!(item_count(&world, 3001, 49504), 1, "fish report received");
+    // Baikal: report → sealed bottle, cond 3.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{baikal}_Quest {q}")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    assert_eq!(item_count(&world, 3001, 49505), 1, "sealed bottle received");
+    // Pierre: bottle → Fishing Rod Chest, one-time exit.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 49507), 1, "Fishing Rod Chest reward");
+    assert_eq!(item_count(&world, 3001, 49505), 0, "bottle consumed");
+    // One-time exit → does not restart.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pierre}_Quest {q}")));
+    assert_ne!(quest_cond(&world, 3001, q), Some(1), "quest does not restart");
+}
+
+#[test]
+fn quest_q00375_whisper_of_dreams_part2() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (5888, "Karik Horn", true),
+            (5889, "Limal Karinness Blood", true),
+            (5887, "Mysterious Stone", false),
+            (49474, "Scroll Part EW", false),
+        ],
+    );
+    for id in [20628, 20629] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 65;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30938, "Folk", 65, 100, 0, 0); // Vanutu
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 65;
+    // The Mysterious Stone from Part 1 is the ticket in.
+    inject(&mut world, 3001, 0x0375_0000, 5887, 1);
+    let q = "Q00375_WhisperOfDreamsPart2";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 5887), 0, "the Mysterious Stone is consumed on first talk");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30938-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // 325 horns + one Limal kill topping blood to 325 → cond 2.
+    inject(&mut world, 3001, 0x0375_0001, 5888, 325);
+    inject(&mut world, 3001, 0x0375_0002, 5889, 324);
+    add_test_npc(&mut world, NPC_OID + 1, 20628, "Monster", 65, 30, 0, 0);
+    world.forced_rolls.push_back(0); // give_item_randomly(blood) roll_f64 (0.0 < 0.95)
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5889), 325, "blood topped to 325");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "both stacks full → cond 2");
+    // reward1: hand both stacks over for the scroll + 9000 adena.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} reward1")));
+    assert_eq!(item_count(&world, 3001, 49474), 1, "scroll reward");
+    assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
+    assert_eq!(item_count(&world, 3001, 5888) + item_count(&world, 3001, 5889), 0, "325 of each consumed");
+}
