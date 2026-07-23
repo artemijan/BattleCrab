@@ -108,6 +108,7 @@ pub mod q00213_trial_of_the_seeker;
 pub mod q00215_trial_of_the_pilgrim;
 pub mod q00216_trial_of_the_guildsman;
 pub mod q00226_test_of_the_healer;
+pub mod q00228_test_of_magus;
 pub mod q00225_test_of_the_searcher;
 pub mod q00231_test_of_the_maestro;
 pub mod antharas_heart;
@@ -197,6 +198,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00215_trial_of_the_pilgrim::Q00215TrialOfThePilgrim),
         Arc::new(q00216_trial_of_the_guildsman::Q00216TrialOfTheGuildsman),
         Arc::new(q00226_test_of_the_healer::Q00226TestOfTheHealer),
+        Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
         Arc::new(q00225_test_of_the_searcher::Q00225TestOfTheSearcher),
         Arc::new(q00231_test_of_the_maestro::Q00231TestOfTheMaestro),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),

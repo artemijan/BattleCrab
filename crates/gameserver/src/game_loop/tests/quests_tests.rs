@@ -8569,3 +8569,116 @@ fn quest_q00226_test_of_the_healer() {
     assert_eq!(item_count(&world, 3001, 2820), 1, "Mark of the Healer awarded");
     assert_ne!(quest_cond(&world, 3001, q), Some(23), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00228_test_of_magus() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2841..=2863).map(|id| (id, "Q228", true)).collect();
+    items.push((2840, "Mark of Magus", false));
+    add_quest_items(&mut world, &items);
+    for id in [27095, 27096, 27097, 20564, 20565, 20566, 27098, 20145, 20176, 20553, 20157] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let rukal = NPC_OID;
+    let parina = NPC_OID + 1;
+    let casian = NPC_OID + 2;
+    let earth = NPC_OID + 3;
+    let flame = NPC_OID + 4;
+    let sylph = NPC_OID + 5;
+    let undine = NPC_OID + 6;
+    for (oid, npc) in [
+        (rukal, 30629),
+        (parina, 30391),
+        (casian, 30612),
+        (earth, 30409),
+        (flame, 30411),
+        (sylph, 30412),
+        (undine, 30413),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 11; // Wizard
+    }
+    let q = "Q00228_TestOfMagus";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, rukal);
+    ev(&mut world, rukal, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    talk(&mut world, parina);
+    ev(&mut world, parina, "30391-02.html"); // → Parina's Letter, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, casian);
+    ev(&mut world, casian, "30612-02.html"); // → Lilac Charm, cond 3
+    assert_eq!(item_count(&world, 3001, 2843), 1, "Lilac Charm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    kill(&mut world, 27095); // Phantasm → Golden Seed 1
+    kill(&mut world, 27096); // Nightmare → Golden Seed 2
+    kill(&mut world, 27097); // Darkling → Golden Seed 3, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, rukal);
+    ev(&mut world, rukal, "30629-10.html"); // seeds → Score of Elements, cond 5
+    assert_eq!(item_count(&world, 3001, 2847), 1, "Score of Elements");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // --- Earth (Serpent) ---
+    talk(&mut world, earth);
+    ev(&mut world, earth, "30409-03.html"); // Serpent Charm
+    inject(&mut world, 3001, 0x0228_0000, 2853, 9);
+    kill(&mut world, 20564); // Monstereye → 10 shells
+    inject(&mut world, 3001, 0x0228_0001, 2854, 9);
+    kill(&mut world, 20565); // Stolen Golem → 10 powder
+    inject(&mut world, 3001, 0x0228_0002, 2855, 9);
+    kill(&mut world, 20566); // Iron Golem → 10 scrap
+    talk(&mut world, earth); // → Tone of Earth
+    assert_eq!(item_count(&world, 3001, 2859), 1, "Tone of Earth");
+    // --- Fire (Salamander) ---
+    talk(&mut world, flame); // gives Salamander Charm
+    inject(&mut world, 3001, 0x0228_0003, 2849, 4);
+    world.forced_rolls.push_back(0);
+    kill(&mut world, 27098); // Ghost Fire → 5 crystals
+    talk(&mut world, flame); // → Tone of Fire
+    assert_eq!(item_count(&world, 3001, 2857), 1, "Tone of Fire");
+    // --- Wind (Sylph) ---
+    talk(&mut world, sylph);
+    ev(&mut world, sylph, "30412-02.html"); // Sylph Charm
+    inject(&mut world, 3001, 0x0228_0004, 2850, 19);
+    kill(&mut world, 20145); // Harpy → 20 feathers
+    inject(&mut world, 3001, 0x0228_0005, 2851, 9);
+    world.forced_rolls.push_back(0);
+    kill(&mut world, 20176); // Wyrm → 10 wingbone
+    inject(&mut world, 3001, 0x0228_0006, 2852, 9);
+    world.forced_rolls.push_back(0);
+    kill(&mut world, 20553); // Windsus → 10 mane
+    talk(&mut world, sylph); // → Tone of Wind
+    assert_eq!(item_count(&world, 3001, 2858), 1, "Tone of Wind");
+    // --- Water (Undine): the fourth tone → cond 6 ---
+    talk(&mut world, undine); // gives Undine Charm
+    inject(&mut world, 3001, 0x0228_0007, 2848, 19);
+    kill(&mut world, 20157); // Marsh Stakato → 20 drops
+    talk(&mut world, undine); // → Tone of Water, cond 6
+    assert_eq!(item_count(&world, 3001, 2856), 1, "Tone of Water");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // --- Completion ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, rukal);
+    assert_eq!(item_count(&world, 3001, 2840), 1, "Mark of Magus awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 372154, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(6), "one-time quest finished");
+}
