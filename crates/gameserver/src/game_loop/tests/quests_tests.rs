@@ -7203,3 +7203,88 @@ fn quest_q00344_1000_years_the_end_of_lamentation() {
     assert_eq!(item_count(&world, 3001, 57), a + 180, "3 articles → 180 adena");
     assert_eq!(item_count(&world, 3001, 4269), 0, "articles consumed");
 }
+
+#[test]
+fn quest_q00235_mimirs_elixir() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (5011, "Star of Destiny", false),
+            (6320, "Pure Silver", true),
+            (6321, "True Gold", true),
+            (6322, "Sage Stone", true),
+            (6318, "Blood Fire", true),
+            (6319, "Mimir's Elixir", true),
+            (5905, "Magister Mixing Stone", true),
+            (729, "Scroll: Enchant Weapon (A)", false),
+        ],
+    );
+    for id in [20965, 21090] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 75;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let ladd = NPC_OID;
+    let joan = NPC_OID + 1;
+    let urn = NPC_OID + 2;
+    add_test_npc(&mut world, ladd, 30721, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, joan, 30718, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, urn, 31149, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 76;
+    inject(&mut world, 3001, 0x0235_9000, 5011, 1); // Star of Destiny (Fate's Whisper prereq)
+    let q = "Q00235_MimirsElixir";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    talk(&mut world, ladd);
+    ev(&mut world, ladd, "30721-06.htm"); // start, cond 1
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // cond 1 → 2 needs Pure Silver (the Q00373 product).
+    inject(&mut world, 3001, 0x0235_0000, 6320, 1);
+    talk(&mut world, ladd);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Joan → cond 3, then a Sage Stone drop → cond 4.
+    ev(&mut world, joan, "30718-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    add_test_npc(&mut world, NPC_OID + 10, 20965, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(10) < 2 → Sage Stone
+    death::npc_do_die(&mut world, NPC_OID + 10, 3001);
+    assert_eq!(item_count(&world, 3001, 6322), 1, "Sage Stone drops");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // Joan forges True Gold (cond 4 → 5).
+    talk(&mut world, joan);
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    assert_eq!(item_count(&world, 3001, 6321), 1, "True Gold forged");
+    assert_eq!(item_count(&world, 3001, 6322), 0, "Sage Stone consumed");
+    // Ladd hands over the Magister Mixing Stone (cond 5 → 6).
+    ev(&mut world, ladd, "30721-12.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    assert_eq!(item_count(&world, 3001, 5905), 1, "Mixing Stone received");
+    // A Blood Fire drop → cond 7.
+    add_test_npc(&mut world, NPC_OID + 11, 21090, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 11, 3001);
+    assert_eq!(item_count(&world, 3001, 6318), 1, "Blood Fire drops");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    // Mix at the Urn → Mimir's Elixir (cond 7 → 8), consuming silver/gold/fire.
+    ev(&mut world, urn, "31149-success.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    assert_eq!(item_count(&world, 3001, 6319), 1, "Mimir's Elixir brewed");
+    assert_eq!(
+        item_count(&world, 3001, 6320) + item_count(&world, 3001, 6321) + item_count(&world, 3001, 6318),
+        0,
+        "silver/gold/fire consumed"
+    );
+    // Ladd redeems the elixir for the A-grade enchant scroll and finishes.
+    ev(&mut world, ladd, "30721-16.htm");
+    assert_eq!(item_count(&world, 3001, 729), 1, "Scroll: Enchant Weapon (A) awarded");
+    assert_eq!(item_count(&world, 3001, 5011), 0, "Star of Destiny consumed");
+    assert_eq!(item_count(&world, 3001, 6319), 0, "elixir consumed");
+    assert_ne!(quest_cond(&world, 3001, q), Some(8), "one-time quest finished");
+}
