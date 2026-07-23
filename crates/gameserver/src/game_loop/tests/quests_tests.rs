@@ -4530,3 +4530,65 @@ fn quest_q00210_refused_below_level_15() {
     let quests = world.objects.get_component::<crate::model::components::Quests>(&3001).unwrap();
     assert!(!quests.0[q].is_started(), "the quest never started");
 }
+
+/// Q00261 Collector's Dream: accept → kill spiders for 8 legs → 700 adena,
+/// repeatable. The max-level gate (21) refuses an over-levelled starter.
+#[test]
+fn quest_q00261_collectors_dream_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1087, "Spider Leg", true)]);
+    for id in [20308, 20460, 20466] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 18;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30222, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 18;
+    drain_db(&mut db_rx);
+
+    let q = "Q00261_CollectorsDream";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    // Kill 8 spiders (one leg each, roll forced to hit), across all three types.
+    let mob = NPC_OID + 1;
+    for i in 0..8 {
+        let species = [20308, 20460, 20466][(i % 3) as usize];
+        add_test_npc(&mut world, mob + i, species, "Monster", 18, 30, 0, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + i, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, 1087), 8, "eight legs collected");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond advanced at the cap");
+    drain(&mut rx);
+
+    // Turn-in: 700 adena, legs consumed, repeatable exit.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 700);
+    assert_eq!(item_count(&world, 3001, 1087), 0, "quest items removed on exit");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit clears the record");
+}
+
+/// Q00261 refuses a starter above level 21 (`addCondMaxLevel(21)`): the quest
+/// never starts.
+#[test]
+fn quest_q00261_refused_above_level_21() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1087, "Spider Leg", true)]);
+    add_test_npc(&mut world, NPC_OID, 30222, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 22;
+
+    let q = "Q00261_CollectorsDream";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30222-03.htm")));
+    assert!(
+        quest_cond(&world, 3001, q).is_none_or(|c| c == 0),
+        "the level-22 starter never begins the quest"
+    );
+}

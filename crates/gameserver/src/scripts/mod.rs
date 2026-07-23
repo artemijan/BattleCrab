@@ -21,6 +21,7 @@ pub mod q00109_in_search_of_the_nest;
 pub mod q00210_obtain_a_wolf_pet;
 pub mod q00258_bring_wolf_pelts;
 pub mod q00260_orc_hunting;
+pub mod q00261_collectors_dream;
 pub mod q00263_orc_subjugation;
 pub mod q00265_bonds_of_slavery;
 pub mod q00273_invaders_of_the_holy_land;
@@ -66,6 +67,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00258_bring_wolf_pelts::Q00258BringWolfPelts),
         Arc::new(q00260_orc_hunting::Q00260OrcHunting),
+        Arc::new(q00261_collectors_dream::Q00261CollectorsDream),
         Arc::new(q00263_orc_subjugation::Q00263OrcSubjugation),
         Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
         Arc::new(q00273_invaders_of_the_holy_land::Q00273InvadersOfTheHolyLand),
