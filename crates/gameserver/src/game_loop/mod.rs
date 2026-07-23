@@ -17,7 +17,7 @@ mod crafting;
 mod augment;
 pub(crate) mod death;
 mod dispatch;
-mod doors;
+pub(crate) mod doors;
 pub(crate) mod duel;
 mod effect_point;
 mod skill_enchant;
@@ -57,7 +57,7 @@ mod boss_threat;
 mod core_boss;
 mod orfen;
 mod queen_ant;
-mod valakas;
+pub(crate) mod valakas;
 mod raid_curse;
 mod servitor;
 mod shortcuts;
@@ -353,6 +353,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ValakasCinematic { valakas_oid, step } => {
                 valakas::handle_cinematic_step(world, valakas_oid, step);
+            }
+            ScheduledTask::ValakasBeginning => {
+                valakas::handle_beginning_timer(world);
             }
             ScheduledTask::AntharasSpawn => {
                 antharas::handle_spawn_timer(world);

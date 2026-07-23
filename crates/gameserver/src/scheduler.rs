@@ -26,6 +26,9 @@ pub enum ScheduledTask {
     QueenAntHeal { queen_oid: i32 },
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
+    /// `"beginning"` — Valakas's wait window elapsed after the first entry;
+    /// the boss takes the lair and the entry cinematic runs (G23 slice 21).
+    ValakasBeginning,
     /// One of Antharas's five-minute minion waves.
     AntharasMinionWave { antharas_oid: i32 },
     /// `SPAWN_ANTHARAS` — the Heart of Warding's wait window elapsed; the

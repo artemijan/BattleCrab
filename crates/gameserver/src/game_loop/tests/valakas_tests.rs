@@ -203,3 +203,169 @@ fn the_beats_keep_their_uneven_spacing() {
     let span = ticks.last().unwrap() - base;
     assert_eq!(span, 260, "the sequence runs 26 s end to end");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 21: the entry flow wired — Klein → Heart of Volcano → beginning.
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::valakas::{DORMANT, MAX_PEOPLE, VACUALITE};
+
+/// A world with a DORMANT, spawned Valakas and the item template registered.
+fn entry_world() -> (World, db::CmdRx, tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>) {
+    let (mut world, db, l) = valakas_world();
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DORMANT;
+    add_test_npc(&mut world, VALAKAS_OID, VALAKAS, "GrandBoss", 85, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = VACUALITE;
+    t.name = "Vacualite Floating Stone".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    (world, db, l)
+}
+
+fn give_stone(world: &mut World, oid: i32) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&oid)
+        .unwrap()
+        .add_item(&data.item_data, 8_100_000 + oid, VACUALITE, 1);
+}
+
+/// Klein refuses a stoneless visitor (`31540-06`); with the stone, the player
+/// is teleported to the Hall of Flames and gains the `allowEnter` flag.
+#[test]
+fn klein_gates_the_antechamber_on_the_vacualite_stone() {
+    let (mut world, _db, _l) = entry_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+
+    assert_eq!(
+        crate::game_loop::valakas::enter_hall_of_flames(&mut world, PLAYER),
+        Some("31540-06.htm"),
+        "no stone, no antechamber"
+    );
+
+    give_stone(&mut world, PLAYER);
+    assert_eq!(crate::game_loop::valakas::enter_hall_of_flames(&mut world, PLAYER), None, "admitted");
+    let p = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
+    assert_eq!((p.x, p.y), (183_813, -115_157), "teleported to the Hall of Flames");
+    assert!((p.z - -3_303).abs() < 50, "z near the Hall floor: {}", p.z);
+}
+
+/// Klein's crowding html tracks the lifetime count across the thresholds.
+#[test]
+fn klein_shows_the_crowding_html_by_count() {
+    let (mut world, _db, _l) = entry_world();
+    for (count, html) in [(0, "31540-01.htm"), (50, "31540-02.htm"), (150, "31540-04.htm"), (200, "31540-05.htm")] {
+        world.valakas_entry_count = count;
+        assert_eq!(crate::game_loop::valakas::klein_status_html(&world), html, "at {count}");
+    }
+}
+
+/// The Heart of Volcano refuses without the antechamber flag (`31385-04`),
+/// while fighting (`-02`), and at the cap (`-03`).
+#[test]
+fn the_heart_refuses_without_the_flag_or_when_locked() {
+    let (mut world, _db, _l) = entry_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+
+    assert_eq!(
+        crate::game_loop::valakas::heart_enter(&mut world, PLAYER),
+        Some("31385-04.htm"),
+        "no allowEnter flag"
+    );
+
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().status = FIGHTING;
+    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-02.htm"), "fighting");
+
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DORMANT;
+    world.valakas_entry_count = MAX_PEOPLE;
+    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-03.htm"), "full");
+}
+
+/// The full first-entry arc: admitted into the lair, the count ticks, the
+/// FIRST entry arms `beginning` + WAITING, and a second entrant during the
+/// window does NOT re-arm the clock — the boss begins exactly once, on the
+/// first deadline.
+#[test]
+fn the_first_entry_arms_beginning_and_the_second_does_not() {
+    let (mut world, _db, _l) = entry_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    let _rx2 = ingame_caster(&mut world, 2, PLAYER + 1, 10, 0);
+    // Both have the antechamber flag (from Klein).
+    for oid in [PLAYER, PLAYER + 1] {
+        world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+            .unwrap()
+            .0
+            .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());
+    }
+
+    let before = world.scheduler.len();
+    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), None, "first admitted");
+    assert_eq!(world.valakas_entry_count, 1);
+    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(WAITING), "WAITING");
+    assert_eq!(world.scheduler.len() - before, 1, "beginning armed once");
+    let pos = world.objects.get_component::<Position>(&PLAYER).copied().unwrap();
+    assert!((204_328..=204_928).contains(&pos.x), "in the lair: {pos:?}");
+    // The flag was consumed — a re-talk without a fresh Klein visit is refused.
+    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER), Some("31385-04.htm"), "flag consumed");
+
+    // Second player enters mid-window: count ticks, no new timer.
+    let mid = world.scheduler.len();
+    assert_eq!(crate::game_loop::valakas::heart_enter(&mut world, PLAYER + 1), None, "second admitted");
+    assert_eq!(world.valakas_entry_count, 2);
+    assert_eq!(world.scheduler.len(), mid, "the clock is NOT restarted");
+
+    // The window elapses → beginning fires → the cinematic runs (boss on the
+    // lair coords, ten beats scheduled).
+    let before_beats = world.scheduler.len();
+    advance_ticks(&mut world, 30 * 60 * 10 + 5);
+    // begin_cinematic teleported the boss to the lair and armed the beats;
+    // running them out flips FIGHTING.
+    advance_ticks(&mut world, 300);
+    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(FIGHTING), "the fight began");
+    let _ = before_beats;
+}
+
+/// The count NEVER resets across a kill+respawn cycle — Java's static
+/// `playerCount` only increments (the Core-minions "port what it does" call).
+#[test]
+fn the_entry_count_never_resets() {
+    let (mut world, _db, _l) = entry_world();
+    world.valakas_entry_count = 7;
+
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, VALAKAS);
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().respawn_time = 1;
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+
+    assert_eq!(world.valakas_entry_count, 7, "a respawn does not reset the lifetime count");
+}
+
+/// The router e2e (the slice-20 lesson): the Heart of Volcano's dist-html
+/// `Quest ValakasTeleporters` bypass reaches the entry through the real bypass
+/// router and registered script — not a direct call.
+#[test]
+fn the_bypass_reaches_the_entry_through_the_router() {
+    let (mut world, _db, _l) = entry_world();
+    let _rx = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVariables>(&PLAYER)
+        .unwrap()
+        .0
+        .insert("VALAKAS_ALLOW_ENTER".into(), "1".into());
+    let heart_oid = NPC_OID + 101;
+    world.data.npc_data.insert_for_test({
+        let mut t = crate::data::npc_data::default_template(31385);
+        t.type_name = "Folk".into();
+        t
+    });
+    add_test_npc(&mut world, heart_oid, 31385, "Folk", 70, 20, 0, 0);
+    world.objects.add_components(&PLAYER, crate::model::components::LastFolkNpc(heart_oid));
+
+    crate::game_loop::bypass::handle_request_bypass_to_server(&mut world, CID, &bypass_body("Quest ValakasTeleporters"));
+
+    assert_eq!(world.valakas_entry_count, 1, "the bypass admitted through the router");
+    assert_eq!(crate::game_loop::grand_boss::status(&world, VALAKAS), Some(WAITING), "WAITING set");
+}

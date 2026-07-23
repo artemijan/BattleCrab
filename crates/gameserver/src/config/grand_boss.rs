@@ -25,6 +25,9 @@ pub struct GrandBossConfig {
     /// (WAITING) and Antharas teleporting in (`SPAWN_ANTHARAS`).
     pub antharas_wait_minutes: i32,
     pub valakas: RespawnWindow,
+    /// `ValakasWaitTime` — minutes between the first player entering the lair
+    /// (WAITING) and the `"beginning"` cinematic/spawn.
+    pub valakas_wait_minutes: i32,
     pub baium: RespawnWindow,
     pub core: RespawnWindow,
     pub orfen: RespawnWindow,
@@ -40,6 +43,7 @@ impl Default for GrandBossConfig {
             antharas: RespawnWindow { interval_hours: 264, random_hours: 72 },
             antharas_wait_minutes: 20,
             valakas: RespawnWindow { interval_hours: 264, random_hours: 72 },
+            valakas_wait_minutes: 30,
             baium: RespawnWindow { interval_hours: 121, random_hours: 0 },
             core: RespawnWindow { interval_hours: 60, random_hours: 24 },
             orfen: RespawnWindow { interval_hours: 48, random_hours: 20 },
@@ -65,6 +69,7 @@ impl GrandBossConfig {
             antharas: w("Antharas", d.antharas),
             antharas_wait_minutes: p.get_int("AntharasWaitTime", d.antharas_wait_minutes),
             valakas: w("Valakas", d.valakas),
+            valakas_wait_minutes: p.get_int("ValakasWaitTime", d.valakas_wait_minutes),
             baium: w("Baium", d.baium),
             core: w("Core", d.core),
             orfen: w("Orfen", d.orfen),
