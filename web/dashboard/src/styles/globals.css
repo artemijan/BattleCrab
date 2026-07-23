@@ -216,11 +216,7 @@ body {
   inset: 0;
   border-radius: inherit;
   padding-top: 1px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, white 55%, transparent),
-    transparent 45%
-  );
+  background: linear-gradient(180deg, color-mix(in srgb, white 55%, transparent), transparent 45%);
   -webkit-mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
@@ -294,14 +290,30 @@ body {
 .stagger > * {
   animation: rise 0.5s var(--ease-out-soft) both;
 }
-.stagger > *:nth-child(1) { animation-delay: 0.04s; }
-.stagger > *:nth-child(2) { animation-delay: 0.10s; }
-.stagger > *:nth-child(3) { animation-delay: 0.16s; }
-.stagger > *:nth-child(4) { animation-delay: 0.22s; }
-.stagger > *:nth-child(5) { animation-delay: 0.28s; }
-.stagger > *:nth-child(6) { animation-delay: 0.34s; }
-.stagger > *:nth-child(7) { animation-delay: 0.40s; }
-.stagger > *:nth-child(8) { animation-delay: 0.46s; }
+.stagger > *:nth-child(1) {
+  animation-delay: 0.04s;
+}
+.stagger > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.stagger > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.stagger > *:nth-child(4) {
+  animation-delay: 0.22s;
+}
+.stagger > *:nth-child(5) {
+  animation-delay: 0.28s;
+}
+.stagger > *:nth-child(6) {
+  animation-delay: 0.34s;
+}
+.stagger > *:nth-child(7) {
+  animation-delay: 0.4s;
+}
+.stagger > *:nth-child(8) {
+  animation-delay: 0.46s;
+}
 
 /* Everything above is decoration. Users who ask for less motion get none of it —
    including the ambient background, which is the most distracting piece. */

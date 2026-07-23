@@ -6,7 +6,6 @@
 
 use super::*;
 
-use crate::model::components::PlayerVitals;
 use crate::model::skill::{SkillEffect, TargetType};
 
 use crate::game_loop::death::{

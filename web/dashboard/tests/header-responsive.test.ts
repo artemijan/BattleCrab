@@ -48,7 +48,6 @@ afterAll(async () => {
   server?.stop();
 });
 
-
 /**
  * A page that never depends on a reachable API.
  *
@@ -267,7 +266,9 @@ describe("mobile menu", () => {
 
     const page = await openPage(1024, 800, "/");
     expect(await page.locator("header button[aria-expanded]").isVisible()).toBe(false);
-    expect(await page.locator("header nav").first().getByRole("link", { name: "Log in" }).isVisible()).toBe(true);
+    expect(
+      await page.locator("header nav").first().getByRole("link", { name: "Log in" }).isVisible(),
+    ).toBe(true);
     await page.close();
   });
 });

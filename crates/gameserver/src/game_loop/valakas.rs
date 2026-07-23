@@ -27,6 +27,9 @@ const ATTACKER_REMOVE: (i32, i32, i32) = (150_037, -57_255, -2_976);
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
 pub const FIGHTING: i32 = 2;
+// No reader yet; the ladder is kept whole so the Java-mirrored numbering
+// can't drift when the remaining states land.
+#[allow(dead_code)]
 pub const DEAD: i32 = 3;
 
 /// Strider riders are debuffed on sight (skill 4258), once.

@@ -60,7 +60,7 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
         .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
         .filter_map(|it| {
             let t = world.data.item_data.get(it.item_id)?;
-            (!t.is_quest_item && t.price > 0).then(|| StoreLine {
+            (!t.is_quest_item && t.price > 0).then_some(StoreLine {
                 item: *it,
                 template: t,
                 price: 0,

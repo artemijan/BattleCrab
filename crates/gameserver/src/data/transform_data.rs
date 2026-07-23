@@ -96,7 +96,7 @@ impl TransformData {
     }
 }
 
-fn attr<'a>(e: &'a quick_xml::events::BytesStart, key: &str) -> Option<String> {
+fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<String> {
     e.attributes()
         .flatten()
         .find(|a| a.key.as_ref() == key.as_bytes())

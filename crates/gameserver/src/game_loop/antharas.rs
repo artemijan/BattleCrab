@@ -11,9 +11,14 @@ const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
 
 /// The four-state ladder (Java `GrandBossManager` statuses for Antharas).
+/// `DORMANT` and `DEAD` have no reader yet, but the ladder is kept whole —
+/// the numeric values mirror Java's and dropping members would invite a
+/// re-numbering bug when the remaining states land.
+#[allow(dead_code)]
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
 pub const IN_FIGHT: i32 = 2;
+#[allow(dead_code)]
 pub const DEAD: i32 = 3;
 
 /// Where an admitted player lands: `(179700+rnd(700), 113800+rnd(2100), -7709)`.
@@ -527,12 +532,11 @@ pub(crate) fn choose_skill(
     antharas_oid: i32,
     target_oid: i32,
 ) -> Option<Choice> {
-    let (cur, max) = match world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&antharas_oid)
-    {
-        Some(v) => (v.cur_hp, v.max_hp as f64),
-        None => return None,
+    let (cur, max) = {
+        let v = world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&antharas_oid)?;
+        (v.cur_hp, v.max_hp as f64)
     };
     let (dist, angle) = {
         let a = world

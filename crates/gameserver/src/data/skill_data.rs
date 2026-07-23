@@ -1076,7 +1076,7 @@ fn build_skill(
                             let stat = value_at(params, "stat", level).and_then(Stat::from_xml);
                             let move_type = value_at(params, "type", level)
                                 .and_then(crate::model::stats::MoveType::from_xml);
-                            return match (stat, move_type, param("value")) {
+                            match (stat, move_type, param("value")) {
                                 (Some(stat), Some(move_type), Some(amount)) => {
                                     vec![SkillEffect::StatModifier(StatModifierEffect {
                                         stat,
@@ -1091,7 +1091,7 @@ fn build_skill(
                                     })]
                                 }
                                 _ => Vec::new(),
-                            };
+                            }
                         }
                         // Guts (139) / Touch of Life (341) / Touch of Death (342):
                         // a multiplier on how likely an incoming *debuff* is to
@@ -1106,7 +1106,7 @@ fn build_skill(
                         // slot pumps nothing, so it is skipped here too.
                         "ResistAbnormalByCategory" => {
                             let slot = value_at(params, "slot", level).unwrap_or("DEBUFF");
-                            return param("amount")
+                            param("amount")
                                 .filter(|_| slot == "DEBUFF")
                                 .map(|amount| {
                                     SkillEffect::StatModifier(StatModifierEffect {
@@ -1120,14 +1120,14 @@ fn build_skill(
                                     })
                                 })
                                 .into_iter()
-                                .collect();
+                                .collect()
                         }
                         // Ultimate Defense (110) / Ultimate Evasion (111): the same
                         // shape for resisting *dispel*. Java only implements the
                         // BUFF slot.
                         "ResistDispelByCategory" => {
                             let slot = value_at(params, "slot", level).unwrap_or("BUFF");
-                            return param("amount")
+                            param("amount")
                                 .filter(|_| slot == "BUFF")
                                 .map(|amount| {
                                     SkillEffect::StatModifier(StatModifierEffect {
@@ -1141,7 +1141,7 @@ fn build_skill(
                                     })
                                 })
                                 .into_iter()
-                                .collect();
+                                .collect()
                         }
                         // Prophecy family / Heroic Miracle: block a set of abnormal
                         // types from landing while this buff is up.
@@ -1155,7 +1155,7 @@ fn build_skill(
                             if slots.is_empty() {
                                 return Vec::new();
                             }
-                            return vec![SkillEffect::BlockAbnormalSlot { slots }];
+                            vec![SkillEffect::BlockAbnormalSlot { slots }]
                         }
                         // Stun / sleep / paralyze (540 uses) and Root (79): no stat
                         // modifier at all — the whole mechanic is the abnormal-state
@@ -1166,9 +1166,9 @@ fn build_skill(
                             // way in `hasBlockActions()`.
                             let conditional = value_at(params, "allowedSkills", level)
                                 .is_some_and(|v| !v.trim().is_empty());
-                            return vec![SkillEffect::BlockActions { conditional }];
+                            vec![SkillEffect::BlockActions { conditional }]
                         }
-                        "Root" => return vec![SkillEffect::Root],
+                        "Root" => vec![SkillEffect::Root],
                         // The elemental attribute pair (PLAN_G19_ATTRIBUTES.md):
                         // one flat StatModifier per element named in the
                         // (comma-separable) `attribute` param, default FIRE —
@@ -1178,7 +1178,7 @@ fn build_skill(
                                 return Vec::new();
                             };
                             let defence = xml_name.as_str() == "DefenceAttribute";
-                            return value_at(params, "attribute", level)
+                            value_at(params, "attribute", level)
                                 .unwrap_or("FIRE")
                                 .split(',')
                                 .filter_map(|n| crate::model::stats::Element::from_xml(n.trim()))
@@ -1192,35 +1192,33 @@ fn build_skill(
                                         amount,
                                     )
                                 })
-                                .collect();
+                                .collect()
                         }
                         // Polearm Mastery 216: `HitNumber` is a plain
                         // AbstractStatEffect over ATTACK_COUNT_MAX (amount 5).
-                        "HitNumber" => {
-                            return param("amount")
-                                .map(|amount| stat_mod(Stat::AttackCountMax, amount))
-                                .into_iter()
-                                .collect();
-                        }
+                        "HitNumber" => param("amount")
+                            .map(|amount| stat_mod(Stat::AttackCountMax, amount))
+                            .into_iter()
+                            .collect(),
                         // The rest of the state-flag CC family (Seal of Silence,
                         // Shield Slam, Mystic Immunity, Horror): no parameters, the
                         // mechanic is entirely the flag.
-                        "Mute" => return vec![SkillEffect::Mute],
-                        "PhysicalMute" => return vec![SkillEffect::PhysicalMute],
-                        "DebuffBlock" => return vec![SkillEffect::DebuffBlock],
-                        "BlockControl" => return vec![SkillEffect::BlockControl],
+                        "Mute" => vec![SkillEffect::Mute],
+                        "PhysicalMute" => vec![SkillEffect::PhysicalMute],
+                        "DebuffBlock" => vec![SkillEffect::DebuffBlock],
+                        "BlockControl" => vec![SkillEffect::BlockControl],
                         "TargetCancel" => {
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            return vec![SkillEffect::TargetCancel { chance }];
+                            vec![SkillEffect::TargetCancel { chance }]
                         }
                         // Aggression 28/18, Judgment 401, Tribunal 400: no params.
-                        "GetAgro" => return vec![SkillEffect::GetAgro],
+                        "GetAgro" => vec![SkillEffect::GetAgro],
                         // Charm 15, Lure 51: `power` (default 0, Java always
                         // instantiates the handler even with no param).
                         "AddHate" => {
-                            return vec![SkillEffect::AddHate {
+                            vec![SkillEffect::AddHate {
                                 power: param("power").unwrap_or(0.0),
                             }]
                         }
@@ -1228,13 +1226,13 @@ fn build_skill(
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            return vec![SkillEffect::DeleteHate { chance }];
+                            vec![SkillEffect::DeleteHate { chance }]
                         }
                         "DeleteHateOfMe" => {
                             let chance = value_at(params, "chance", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            return vec![SkillEffect::DeleteHateOfMe { chance }];
+                            vec![SkillEffect::DeleteHateOfMe { chance }]
                         }
                         // TODO(G19+): `TargetMe` (paired with `GetAgro` on
                         // Aggression 28/Aggression Aura 18) and `RandomizeHate`
@@ -1304,31 +1302,27 @@ fn build_skill(
                         // `HealEffect` scales the healing its bearer *receives* — a two-stat
                         // AbstractStatEffect like CriticalDamage: PER feeds the multiplier,
                         // DIFF the flat addend.
-                        "HealEffect" => {
-                            return param("amount")
-                                .map(|amount| {
-                                    let stat = if modifier_mode == StatModifierType::Per {
-                                        Stat::HealEffect
-                                    } else {
-                                        Stat::HealEffectAdd
-                                    };
-                                    stat_mod(stat, amount)
-                                })
-                                .into_iter()
-                                .collect();
-                        }
+                        "HealEffect" => param("amount")
+                            .map(|amount| {
+                                let stat = if modifier_mode == StatModifierType::Per {
+                                    Stat::HealEffect
+                                } else {
+                                    Stat::HealEffectAdd
+                                };
+                                stat_mod(stat, amount)
+                            })
+                            .into_iter()
+                            .collect(),
                         // Instant CP change (Braveheart, Wrath, Touch of Death).
-                        "Cp" => {
-                            return param("amount")
-                                .map(|amount| SkillEffect::Cp {
-                                    amount,
-                                    percent: modifier_mode == StatModifierType::Per,
-                                })
-                                .into_iter()
-                                .collect();
-                        }
+                        "Cp" => param("amount")
+                            .map(|amount| SkillEffect::Cp {
+                                amount,
+                                percent: modifier_mode == StatModifierType::Per,
+                            })
+                            .into_iter()
+                            .collect(),
                         "HealOverTime" => {
-                            return match (
+                            match (
                                 param("power"),
                                 value_at(params, "ticks", level)
                                     .and_then(|v| v.parse::<i32>().ok()),
@@ -1337,10 +1331,10 @@ fn build_skill(
                                     vec![SkillEffect::HealOverTime { power, ticks }]
                                 }
                                 _ => Vec::new(),
-                            };
+                            }
                         }
                         "ManaDamOverTime" => {
-                            return match (
+                            match (
                                 param("power"),
                                 value_at(params, "ticks", level)
                                     .and_then(|v| v.parse::<i32>().ok()),
@@ -1349,7 +1343,7 @@ fn build_skill(
                                     vec![SkillEffect::ManaDamOverTime { power, ticks }]
                                 }
                                 _ => Vec::new(),
-                            };
+                            }
                         }
                         "DamOverTime" => vec![SkillEffect::DamOverTime {
                             power: param("power").unwrap_or(0.0),
@@ -1491,7 +1485,7 @@ fn build_skill(
                             let rate = value_at(params, "rate", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(100);
-                            return vec![SkillEffect::DispelBySlotProbability { dispel, rate }];
+                            vec![SkillEffect::DispelBySlotProbability { dispel, rate }]
                         }
                         "DispelBySlot" => match value_at(params, "dispel", level) {
                             Some(spec) if !spec.is_empty() => {
@@ -1529,7 +1523,7 @@ fn build_skill(
                             let max = value_at(params, "max", level)
                                 .and_then(|v| v.parse::<i32>().ok())
                                 .unwrap_or(0);
-                            return vec![SkillEffect::DispelByCategory { slot, rate, max }];
+                            vec![SkillEffect::DispelByCategory { slot, rate, max }]
                         }
                         // Both the basic (247) and advanced HQ skills carry this;
                         // isAdvanced is not yet behaviorally distinct (see the effect).
@@ -1669,7 +1663,7 @@ fn build_skill(
                                 .unwrap_or(0);
                             let skill_id = int_param("skillId", 0);
                             // Java bails when the skill id or level is 0.
-                            return if skill_id == 0 {
+                            if skill_id == 0 {
                                 Vec::new()
                             } else {
                                 vec![SkillEffect::TriggerSkillByAttack {
@@ -1683,7 +1677,7 @@ fn build_skill(
                                         == Some("true"),
                                     allow_weapons,
                                 }]
-                            };
+                            }
                         }
                         // Rage 94, Frenzy 176, Two-handed Weapon Mastery 293.
                         // Java's handler carries eleven stat/mode pairs; the only
@@ -1724,13 +1718,13 @@ fn build_skill(
                                     ..Default::default()
                                 }))
                             };
-                            return [
+                            [
                                 pair("pAtkAmount", "pAtkMode", Stat::PhysicalAttack),
                                 pair("pAccuracyAmount", "pAccuracyMode", Stat::AccuracyCombat),
                             ]
                             .into_iter()
                             .flatten()
-                            .collect();
+                            .collect()
                         }
                         "Resurrection" => {
                             let int_param = |key: &str, d: i32| {
@@ -1755,7 +1749,7 @@ fn build_skill(
                                     .unwrap_or(d)
                             };
                             let npc_id = int_param("npcId", 0);
-                            return if npc_id == 0 {
+                            if npc_id == 0 {
                                 Vec::new()
                             } else {
                                 vec![SkillEffect::Summon {
@@ -1764,7 +1758,7 @@ fn build_skill(
                                     consume_item_id: int_param("consumeItemId", 0),
                                     consume_item_count: int_param("consumeItemCount", 1) as i64,
                                 }]
-                            };
+                            }
                         }
                         "SummonPet" => vec![SkillEffect::SummonPet],
                         "BlockMove" => vec![SkillEffect::BlockMove],
@@ -1819,7 +1813,7 @@ fn build_skill(
                         // found, and the toggle's *stat* half (parsed separately,
                         // below) landed as a free buff with no MP cost at all.
                         "MpConsumePerLevel" => {
-                            return match (
+                            match (
                                 param("power"),
                                 value_at(params, "ticks", level)
                                     .and_then(|v| v.parse::<i32>().ok()),
@@ -1828,7 +1822,7 @@ fn build_skill(
                                     vec![SkillEffect::MpConsumePerLevel { power, ticks }]
                                 }
                                 _ => Vec::new(),
-                            };
+                            }
                         }
                         // Death Whisper (1242) & co.: Java `CriticalDamage extends
                         // AbstractStatEffect(params, CRITICAL_DAMAGE, CRITICAL_DAMAGE_ADD)`
@@ -1906,7 +1900,7 @@ fn build_skill(
                                 Some("SIDE") => crate::model::movement::Position::Side,
                                 _ => crate::model::movement::Position::Front,
                             };
-                            return param("amount")
+                            param("amount")
                                 .map(|amount| {
                                     SkillEffect::StatModifier(StatModifierEffect {
                                         stat: Stat::CriticalDamage,
@@ -1921,7 +1915,7 @@ fn build_skill(
                                     })
                                 })
                                 .into_iter()
-                                .collect();
+                                .collect()
                         }
                         // Mental Shield (1035) / Stun Resistance ("Resist Shock",
                         // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
@@ -2053,7 +2047,7 @@ fn build_skill(
             mp_consume: get_i("mpConsume", 0),
             mp_initial_consume: get_i("mpInitialConsume", 0),
             hp_consume: get_i("hpConsume", 0),
-            without_action: value_at(values, "withoutAction", level).map_or(false, |v| v == "true"),
+            without_action: value_at(values, "withoutAction", level) == Some("true"),
             item_consume_id: get_i("itemConsumeId", 0),
             item_consume_count: get_i("itemConsumeCount", 0),
             abnormal_time: get_i("abnormalTime", 0),
@@ -2062,9 +2056,8 @@ fn build_skill(
                 .unwrap_or("NONE")
                 .to_string(),
             // Java `set.getBoolean("canBeDispelled", true)` / `("isDebuff", false)`.
-            can_be_dispelled: value_at(values, "canBeDispelled", level)
-                .map_or(true, |v| v == "true"),
-            is_debuff: value_at(values, "isDebuff", level).map_or(false, |v| v == "true"),
+            can_be_dispelled: value_at(values, "canBeDispelled", level).is_none_or(|v| v == "true"),
+            is_debuff: value_at(values, "isDebuff", level) == Some("true"),
             // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
             // both `true` and `True` for this tag and `Boolean.parseBoolean`
             // is case-insensitive, so compare loosely.
@@ -2115,10 +2108,6 @@ fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
 mod tests {
     use super::*;
 
-    /// Regression guard: the real dist XMLs are `<list>`-rooted, which the
-    /// original parser mis-indexed (it tracked the root on the tag stack and
-    /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
-    #[test]
     /// Skill-enchant sub-levels against the real dist (PLAN_G19_SKILL_ENCHANT.md).
     /// Sonic Storm 7 at level 40 declares all three routes: route 1 enchants
     /// the `EnergyAttack` power (`{base + base/100*subIndex}` off base 20732),
@@ -2259,6 +2248,9 @@ mod tests {
         );
     }
 
+    /// Regression guard: the real dist XMLs are `<list>`-rooted, which the
+    /// original parser mis-indexed (it tracked the root on the tag stack and
+    /// loaded 0 skills). Wind Strike 1177 is the canonical probe.
     #[test]
     fn loads_real_dist_files() {
         let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));

@@ -5,8 +5,6 @@
 //! Both conditions are separate axes: a one-handed mace fails the slot test
 //! even though it passes the weapon-type one.
 
-use super::*;
-
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 

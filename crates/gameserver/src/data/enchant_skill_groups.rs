@@ -128,11 +128,9 @@ fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
                     _ => {}
                 }
             }
-            Event::End(e) => {
-                if e.name().as_ref() == b"enchant" {
-                    if let Some(c) = cur.take() {
-                        out.insert(c.level, c);
-                    }
+            Event::End(e) if e.name().as_ref() == b"enchant" => {
+                if let Some(c) = cur.take() {
+                    out.insert(c.level, c);
                 }
             }
             _ => {}

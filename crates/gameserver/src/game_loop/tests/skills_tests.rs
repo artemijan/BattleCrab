@@ -1834,7 +1834,7 @@ fn force_attack_mid_cast_engages_new_target_after_cast() {
     let hp_before = nvit(&world, next).cur_hp;
     world
         .forced_rolls
-        .extend(std::iter::repeat([0i32, 99, 10]).take(12).flatten());
+        .extend(std::iter::repeat_n([0i32, 99, 10], 12).flatten());
     advance_world(&mut world, 55);
     assert!(
         nvit(&world, next).cur_hp < hp_before,
@@ -4830,7 +4830,7 @@ fn lethal_half_kill_sets_player_cp_to_1() {
 
     handle_action(&mut world, 1, &action_body(5602, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend(std::iter::repeat(0).take(30));
+    world.forced_rolls.extend(std::iter::repeat_n(0, 30));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, true)); // ctrl: force a clean player target
     advance_world(&mut world, 30); // hitTime 1080 ms
 
@@ -4899,7 +4899,7 @@ fn lethal_spares_a_raid_boss() {
 
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
-    world.forced_rolls.extend(std::iter::repeat(0).take(30));
+    world.forced_rolls.extend(std::iter::repeat_n(0, 30));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(344, false));
     advance_world(&mut world, 30); // hitTime 1080 ms
 

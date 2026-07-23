@@ -43,11 +43,11 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             continue;
         };
         let Some(updates) = regen_player(
-            &player,
+            player,
             &mut vitals,
             &mut pvitals,
-            &base,
-            &mods,
+            base,
+            mods,
             move_type,
             &world.data,
         ) else {

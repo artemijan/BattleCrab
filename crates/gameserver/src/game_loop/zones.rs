@@ -111,14 +111,7 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
                 &mut crate::model::components::CombatStats,
             )>(&object_id)
         {
-            player.recalculate_stats(
-                &world.data,
-                base,
-                mods,
-                &inventory,
-                &mut speeds,
-                &mut combat,
-            );
+            player.recalculate_stats(&world.data, base, mods, inventory, &mut speeds, &mut combat);
         }
         super::party::broadcast_user_info(world, object_id);
     }

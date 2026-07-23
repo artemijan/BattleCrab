@@ -320,10 +320,7 @@ fn scheme_create_without_buffs_shows_error() {
         "_bbs_buff_scheme_create Empty buffer/schemes.html",
     );
     assert!(
-        world
-            .buffer_schemes
-            .get(&7111)
-            .map_or(true, |s| s.is_empty()),
+        world.buffer_schemes.get(&7111).is_none_or(|s| s.is_empty()),
         "no scheme created without active buffs"
     );
     let pkts = drain(&mut rx);
@@ -536,10 +533,7 @@ fn add_favorite_without_queued_bypass_is_noop() {
     // No `_bbshome` first → nothing queued, nothing added (Java logs & returns).
     handle_parse_command(&mut world, 1, "bbs_add_fav");
     assert!(
-        world
-            .bbs_favorites
-            .get(&7203)
-            .map_or(true, |f| f.is_empty()),
+        world.bbs_favorites.get(&7203).is_none_or(|f| f.is_empty()),
         "no favorite added"
     );
 }

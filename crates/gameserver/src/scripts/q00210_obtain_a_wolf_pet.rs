@@ -61,11 +61,9 @@ impl QuestScript for Q00210ObtainAWolfPet {
                     ctx.set_cond(4, true);
                 }
             }
-            "30827-05.html" => {
-                if ctx.is_cond(4) {
-                    ctx.reward_items(WOLF_COLLAR, 1);
-                    ctx.exit_quest(false, true);
-                }
+            "30827-05.html" if ctx.is_cond(4) => {
+                ctx.reward_items(WOLF_COLLAR, 1);
+                ctx.exit_quest(false, true);
             }
             _ => {}
         }

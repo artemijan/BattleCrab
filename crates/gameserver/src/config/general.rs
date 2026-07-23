@@ -9,7 +9,7 @@ pub const GENERAL_CONFIG_FILE: &str = "config/General.ini";
 
 /// The GM login-state settings applied in `EnterWorld.runImpl` plus the hero
 /// aura toggle read by CharInfo/UserInfo (`Config.GM_*`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct GeneralConfig {
     /// `GMHeroAura`: give GMs the Hero glow on login (CharInfo/UserInfo hero
     /// byte = `isHero() || (isGM() && GMHeroAura)`).
@@ -53,27 +53,6 @@ pub struct GeneralConfig {
     /// `ListOfProtectedItems`: item ids never auto-destroyed on the ground
     /// (dist ships `0`, a non-existent id ⇒ effectively empty).
     pub protected_items: Vec<i32>,
-}
-
-impl Default for GeneralConfig {
-    fn default() -> Self {
-        // Java `Config` defaults (the `getBoolean(key, false)` fallbacks).
-        Self {
-            gm_hero_aura: false,
-            gm_startup_builder_hide: false,
-            gm_startup_invulnerable: false,
-            gm_startup_invisible: false,
-            gm_startup_silence: false,
-            gm_startup_auto_list: false,
-            gm_startup_diet_mode: false,
-            gm_give_special_skills: false,
-            gm_give_special_aura_skills: false,
-            autodestroy_item_after: 0,
-            destroy_dropped_player_item: false,
-            destroy_equipable_player_item: false,
-            protected_items: Vec::new(),
-        }
-    }
 }
 
 impl GeneralConfig {

@@ -194,11 +194,9 @@ impl VariationData {
     /// `None` when the item has no fee data at all.
     pub fn cancel_fee(&self, item_id: i32, mineral_id: i32) -> Option<i64> {
         let fees = self.fees.get(&item_id)?;
-        Some(
-            fees.get(&mineral_id)
-                .or_else(|| fees.values().next())
-                .map(|f| f.cancel_fee)?,
-        )
+        fees.get(&mineral_id)
+            .or_else(|| fees.values().next())
+            .map(|f| f.cancel_fee)
     }
 
     // ---- parsing -------------------------------------------------------

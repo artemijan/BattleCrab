@@ -64,12 +64,12 @@ pub(crate) fn open_window(world: &mut World, client_id: u32, make: bool) {
 /// Whether `target_obj` is a valid augment target for life stone `mineral_id`:
 /// an un-augmented weapon with fee data for the pair (Java
 /// `AbstractRefinePacket.isValid`, narrowed). Returns the gemstone fee.
-fn resolve_fee<'a>(
-    world: &'a World,
+fn resolve_fee(
+    world: &World,
     player: i32,
     target_obj: i32,
     mineral_id: i32,
-) -> Option<&'a crate::data::variation_data::VariationFee> {
+) -> Option<&crate::data::variation_data::VariationFee> {
     let inv = world.objects.get_component::<Inventory>(&player)?;
     let target = inv.items().iter().find(|it| it.object_id == target_obj)?;
     if target.is_augmented() {

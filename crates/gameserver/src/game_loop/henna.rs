@@ -438,14 +438,14 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
             &world.data,
             &base,
             mods,
-            &inventory,
+            inventory,
             &mut speeds,
             &mut combat,
         );
         vitals.max_hp =
-            crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+            crate::model::calc_max_hp(&world.data, &t, player.level, Some(inventory), mods) as i32;
         vitals.max_mp =
-            crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+            crate::model::calc_max_mp(&world.data, &t, player.level, Some(inventory), mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }

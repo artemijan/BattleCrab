@@ -1206,7 +1206,7 @@ impl Player {
             }
             b
         };
-        let acc_ev_step = hi_level_step(self.level as i32);
+        let acc_ev_step = hi_level_step(self.level);
         combat.accuracy = finalize(
             mods,
             Stat::AccuracyCombat,

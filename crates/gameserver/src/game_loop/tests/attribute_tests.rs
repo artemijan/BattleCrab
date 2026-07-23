@@ -165,10 +165,9 @@ fn fire_resistance_reduces_and_surrender_restores() {
     // Surrender to Fire's shape: FireRes −80 as a live debuff on the mob —
     // folded on read (NPCs keep no StatModifiers), so damage climbs past the
     // neutral case (net res −20 vs the skill's attack 20).
-    world
-        .objects
-        .get_component_mut::<Buffs>(&resistant)
-        .map(|b| b.0.clear());
+    if let Some(b) = world.objects.get_component_mut::<Buffs>(&resistant) {
+        b.0.clear()
+    }
     world.objects.add_components(
         &resistant,
         Buffs(vec![ActiveBuff {

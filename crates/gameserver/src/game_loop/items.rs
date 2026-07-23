@@ -521,14 +521,7 @@ pub(crate) fn finish_equip_change(
             &mut crate::model::components::CombatStats,
         )>(&object_id)
     {
-        player.recalculate_stats(
-            &world.data,
-            base,
-            mods,
-            &inventory,
-            &mut speeds,
-            &mut combat,
-        );
+        player.recalculate_stats(&world.data, base, mods, inventory, &mut speeds, &mut combat);
         // Max HP/MP can carry item bonuses (e.g. +MP jewelry), which live in
         // `Vitals` on a separate path from `recalculate_stats`. Recompute them
         // and clamp current values down if a bonus was just removed (Java's
@@ -541,9 +534,9 @@ pub(crate) fn finish_equip_change(
             .cloned()
             .unwrap_or_default();
         vitals.max_hp =
-            crate::model::calc_max_hp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+            crate::model::calc_max_hp(&world.data, &t, player.level, Some(inventory), mods) as i32;
         vitals.max_mp =
-            crate::model::calc_max_mp(&world.data, &t, player.level, Some(&inventory), mods) as i32;
+            crate::model::calc_max_mp(&world.data, &t, player.level, Some(inventory), mods) as i32;
         vitals.cur_hp = vitals.cur_hp.min(vitals.max_hp as f64);
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }

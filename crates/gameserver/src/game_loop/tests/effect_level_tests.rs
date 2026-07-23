@@ -11,8 +11,6 @@
 //! Unlike most G19 slices this fixes *already-ported* effects behaving wrongly
 //! rather than adding new ones.
 
-use super::*;
-
 use crate::model::skill::SkillEffect;
 use crate::model::stats::Stat;
 

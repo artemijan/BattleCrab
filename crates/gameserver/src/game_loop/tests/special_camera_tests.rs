@@ -1,7 +1,5 @@
 //! `SpecialCamera` (0xD6) — the cinematic camera packet.
 
-use super::*;
-
 /// The wire is **eleven** ints after the opcode, not twelve: Java's canonical
 /// constructor accepts `range` and never writes it. A port that helpfully
 /// serialised it would shift every following field by four bytes and desync

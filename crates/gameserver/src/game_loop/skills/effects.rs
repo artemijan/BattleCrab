@@ -526,7 +526,7 @@ pub(crate) fn apply_skill_effects(
                 // `Lethal.instant`'s `chanceMultiplier` — the attribute half
                 // (its trait half stays unported with the trait system).
                 let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill);
-                if world.roll(100) < ((*full_lethal) as f64 * lethal_amod) as i32 {
+                if world.roll(100) < ((*full_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -550,7 +550,7 @@ pub(crate) fn apply_skill_effects(
                             cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
                         }
                     }
-                } else if world.roll(100) < ((*half_lethal) as f64 * lethal_amod) as i32 {
+                } else if world.roll(100) < ((*half_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
@@ -1012,7 +1012,7 @@ pub(crate) fn apply_skill_effects(
                         .data
                         .skill_data
                         .get(sid, slvl)
-                        .is_some_and(|bs| dispel.iter().any(|ty| bs.abnormal_type == *ty));
+                        .is_some_and(|bs| dispel.contains(&bs.abnormal_type));
                     // Roll per candidate, and only for candidates that match —
                     // keeping the roll count (and so the RNG stream) tied to the
                     // buffs actually at risk, as in Java's predicate.
@@ -1493,11 +1493,8 @@ pub(crate) fn apply_continuous_effects(
             .objects
             .get_component::<Buffs>(&target_oid)
             .is_some_and(|b| {
-                b.0.iter().any(|x| {
-                    x.blocked_abnormals
-                        .iter()
-                        .any(|t| *t == skill.abnormal_type)
-                })
+                b.0.iter()
+                    .any(|x| x.blocked_abnormals.contains(&skill.abnormal_type))
             });
         if blocked {
             return;
@@ -1572,9 +1569,9 @@ pub(crate) fn apply_continuous_effects(
             {
                 target.apply_buff(
                     &world.data,
-                    &base,
+                    base,
                     &mut mods,
-                    &inventory,
+                    inventory,
                     &mut buffs,
                     &mut speeds,
                     &mut combat,
@@ -3588,9 +3585,9 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     {
         player.remove_buff(
             &world.data,
-            &base,
+            base,
             &mut mods,
-            &inventory,
+            inventory,
             &mut buffs,
             &mut speeds,
             &mut combat,

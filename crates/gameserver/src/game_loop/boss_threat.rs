@@ -78,12 +78,11 @@ pub(crate) fn weighted_damage(
     damage: i32,
     is_melee: bool,
 ) -> Option<i32> {
-    let (cur, max) = match world
-        .objects
-        .get_component::<crate::model::components::Vitals>(&boss_oid)
-    {
-        Some(v) => (v.cur_hp, v.max_hp as f64),
-        None => return None,
+    let (cur, max) = {
+        let v = world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&boss_oid)?;
+        (v.cur_hp, v.max_hp as f64)
     };
     Some(if is_melee {
         damage * 1000

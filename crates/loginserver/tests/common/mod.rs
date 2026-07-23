@@ -2,6 +2,10 @@
 //! client — Init decode (static Blowfish + XOR unwrap), session-key packet
 //! encryption, RSA modulus unscramble and credential-block encryption.
 
+// Each test binary compiles this module separately and uses a different
+// subset of it, so per-binary dead_code warnings are false positives.
+#![allow(dead_code)]
+
 use std::sync::Arc;
 
 use commons::crypt::NewCrypt;
@@ -213,7 +217,7 @@ impl HandshakedClient {
 /// Connect + decode Init + complete the GameGuard exchange.
 pub async fn handshake(addr: std::net::SocketAddr) -> HandshakedClient {
     let stream = TcpStream::connect(addr).await.unwrap();
-    let (mut read, mut write) = stream.into_split();
+    let (mut read, write) = stream.into_split();
 
     let mut init = read_frame(&mut read, 8192)
         .await

@@ -17,3 +17,6 @@ num-bigint-dig.workspace = true
 quick-xml.workspace = true
 
 [dev-dependencies]
+
+[lints]
+workspace = true

@@ -93,10 +93,8 @@ impl QuestScript for Q00109InSearchOfTheNest {
                     }
                 }
             }
-            KAHMAN => {
-                if ctx.is_started() && ctx.is_cond(3) {
-                    return Some("31554-1.html".to_string());
-                }
+            KAHMAN if ctx.is_started() && ctx.is_cond(3) => {
+                return Some("31554-1.html".to_string());
             }
             _ => {}
         }

@@ -1,0 +1,45 @@
+#!/bin/sh
+# Pre-commit: formatting and lints, scoped to what is actually staged.
+#
+# Activate once per clone:   git config core.hooksPath .githooks
+# Bypass in an emergency:    git commit --no-verify
+#
+# Checks fail the commit rather than rewriting files — a hook that edits the
+# tree behind your back turns every commit into a surprise. Run the printed
+# command, restage, commit again.
+
+set -e
+
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -z "$staged" ] && exit 0
+
+fail() {
+    echo ""
+    echo "pre-commit: $1"
+    echo "fix with:   $2"
+    exit 1
+}
+
+# ---- Rust ------------------------------------------------------------------
+
+if echo "$staged" | grep -q '\.rs$'; then
+    cargo fmt --check --quiet 2>/dev/null \
+        || fail "rustfmt found unformatted code" "cargo fmt && git add -u"
+
+    # Warm cache makes this a few seconds; the first run after a toolchain
+    # bump is the slow one. -D warnings so a warning is a failure here, not
+    # something that scrolls past.
+    cargo clippy --workspace --all-targets --quiet -- -D warnings \
+        || fail "clippy found lint errors" "cargo clippy --workspace --all-targets  (then fix or #[allow] with a reason)"
+fi
+
+# ---- Frontend --------------------------------------------------------------
+
+if echo "$staged" | grep -q '^web/dashboard/'; then
+    # --staged limits Biome to the files in this commit; formatter + linter in
+    # one pass. bun x resolves the pinned version from node_modules.
+    (cd web/dashboard && bun x biome check --staged --no-errors-on-unmatched) \
+        || fail "biome found format/lint errors in web/dashboard" "cd web/dashboard && bun x biome check --write --staged && git add -u"
+fi
+
+exit 0

@@ -78,7 +78,7 @@ fn summoning_spawns_a_servitor_owned_by_the_caster() {
     assert_eq!(v.cur_mp, v.max_mp as f64, "full MP");
 
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         Some(oid),
         "found by owner lookup"
     );
@@ -100,7 +100,7 @@ fn resummoning_replaces_rather_than_stacks() {
         "the first one is gone"
     );
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         Some(second),
         "only the newest remains"
     );
@@ -114,7 +114,7 @@ fn unsummoning_removes_the_servitor() {
     let oid = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
 
     assert_eq!(unsummon_servitor(&mut world, OWNER), Some(oid));
-    assert_eq!(servitor_of(&mut world, OWNER), None, "no servitor left");
+    assert_eq!(servitor_of(&world, OWNER), None, "no servitor left");
     assert!(
         world.objects.get_component::<Vitals>(&oid).is_none(),
         "and the entity is despawned"
@@ -592,7 +592,7 @@ fn a_servitor_passes_away_when_its_lifetime_expires() {
         - 1;
     handle_life_tick(&mut world, oid);
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         Some(oid),
         "still here a tick early"
     );
@@ -600,7 +600,7 @@ fn a_servitor_passes_away_when_its_lifetime_expires() {
     world.tick += 1;
     handle_life_tick(&mut world, oid);
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         None,
         "gone once the lifetime ran out"
     );
@@ -616,7 +616,7 @@ fn a_permanent_servitor_is_never_reaped() {
     world.tick += 10_000_000;
     handle_life_tick(&mut world, oid);
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         Some(oid),
         "no deadline, no expiry"
     );
@@ -651,11 +651,7 @@ fn the_upkeep_item_is_consumed_when_due() {
         4,
         "one gemstone paid"
     );
-    assert_eq!(
-        servitor_of(&mut world, OWNER),
-        Some(oid),
-        "and it stays out"
-    );
+    assert_eq!(servitor_of(&world, OWNER), Some(oid), "and it stays out");
 }
 
 /// Running out of the upkeep item dismisses the servitor — Java's "since you do
@@ -676,7 +672,7 @@ fn running_out_of_the_upkeep_item_dismisses_the_servitor() {
     handle_life_tick(&mut world, oid);
 
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         None,
         "dismissed for non-payment"
     );
@@ -699,7 +695,7 @@ fn a_servitor_without_upkeep_is_never_charged() {
     );
     world.tick += 100_000;
     handle_life_tick(&mut world, oid);
-    assert_eq!(servitor_of(&mut world, OWNER), Some(oid));
+    assert_eq!(servitor_of(&world, OWNER), Some(oid));
 }
 
 /// The leash: a servitor stranded far from its owner is pulled back into
@@ -749,7 +745,7 @@ fn logging_out_takes_the_servitor_with_you() {
     on_owner_leave_world(&mut world, OWNER);
 
     assert_eq!(
-        servitor_of(&mut world, OWNER),
+        servitor_of(&world, OWNER),
         None,
         "no ownerless NPC left behind"
     );
@@ -864,7 +860,7 @@ fn a_collar_summons_its_pet() {
         "bound to this collar, not the item type"
     );
     assert_eq!(link.fed, 248, "starts on a full food bar from PetData");
-    assert_eq!(pet_of(&mut world, OWNER), Some(pet));
+    assert_eq!(pet_of(&world, OWNER), Some(pet));
 }
 
 /// A pet reuses the servitor owner-link, so it inherits follow for free.
@@ -943,7 +939,7 @@ fn a_second_pet_is_refused() {
     park_collar(&mut world, collar);
     assert_eq!(summon_pet(&mut world, OWNER), None, "refused");
     assert_eq!(
-        pet_of(&mut world, OWNER),
+        pet_of(&world, OWNER),
         Some(first),
         "the first one is untouched"
     );
@@ -1188,7 +1184,7 @@ fn a_pet_survives_an_unsummon_round_trip() {
     // Owner logs out: state is captured, then the pet leaves the world.
     crate::game_loop::servitor::on_owner_leave_world(&mut world, OWNER);
     assert!(
-        pet_of(&mut world, OWNER).is_none(),
+        pet_of(&world, OWNER).is_none(),
         "the pet is gone with its owner"
     );
 
@@ -1231,7 +1227,7 @@ fn destroying_the_collar_drops_the_saved_pet() {
     crate::game_loop::items::handle_request_destroy_item(&mut world, CID, &body);
 
     assert!(
-        pet_of(&mut world, OWNER).is_none(),
+        pet_of(&world, OWNER).is_none(),
         "the summoned pet is unsummoned with its collar"
     );
     assert!(

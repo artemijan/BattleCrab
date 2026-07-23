@@ -487,7 +487,7 @@ pub(super) fn admin_setparam(
                 "Syntax: //unsetparam <stat>"
             },
         );
-        if args.first().is_some() {
+        if !args.is_empty() {
             send_message(world, client_id, "Couldn't find such stat!");
         }
         return;
@@ -570,7 +570,7 @@ fn recompute_combat_stats(world: &mut World, target: i32) {
         &mut CombatStats,
     )>(&target)
     {
-        p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
+        p.recalculate_stats(data, base, mods, inventory, &mut speeds, &mut combat);
     }
     crate::game_loop::skills::effects::recompute_max_vitals(world, target);
 }

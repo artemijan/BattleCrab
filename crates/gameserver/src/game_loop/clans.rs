@@ -215,7 +215,7 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
             &world.data,
             base,
             &mut mods,
-            &inventory,
+            inventory,
             &mut buffs,
             &mut speeds,
             &mut combat,
@@ -2588,13 +2588,13 @@ const CLAN_MEMBERS_FOR_WAR: usize = 15;
 const REPUTATION_SCORE_PER_KILL: i32 = 1;
 
 /// The war between two clans, either direction (Java `Clan.getWarWith`).
-pub(crate) fn war_between<'a>(world: &'a World, a: i32, b: i32) -> Option<&'a ClanWar> {
+pub(crate) fn war_between(world: &World, a: i32, b: i32) -> Option<&ClanWar> {
     world.clan_wars.iter().find(|w| {
         (w.attacker_id == a && w.attacked_id == b) || (w.attacker_id == b && w.attacked_id == a)
     })
 }
 
-fn war_between_mut<'a>(world: &'a mut World, a: i32, b: i32) -> Option<&'a mut ClanWar> {
+fn war_between_mut(world: &mut World, a: i32, b: i32) -> Option<&mut ClanWar> {
     world.clan_wars.iter_mut().find(|w| {
         (w.attacker_id == a && w.attacked_id == b) || (w.attacker_id == b && w.attacked_id == a)
     })
@@ -4777,7 +4777,7 @@ pub(crate) fn handle_request_ex_set_pledge_crest_large(
     if clan_id == 0 {
         return;
     }
-    if length < 0 || length > 2176 {
+    if !(0..=2176).contains(&length) {
         send_sm_with(
             world,
             player,

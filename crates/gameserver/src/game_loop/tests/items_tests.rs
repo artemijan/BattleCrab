@@ -3171,7 +3171,7 @@ fn augment_make_and_cancel() {
     );
 
     // Refine: force low rolls so the augment always resolves.
-    world.forced_rolls.extend(std::iter::repeat(0).take(8));
+    world.forced_rolls.extend(std::iter::repeat_n(0, 8));
     let mut refine = PacketWriter::new();
     refine.write_i32(weapon);
     refine.write_i32(lifestone);

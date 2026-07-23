@@ -105,11 +105,7 @@ export function ResetPassword() {
   // worth its own message rather than a generic failure after submitting.
   if (!token) {
     return (
-      <AuthShell
-        title="Reset your password"
-        subtitle="This link is incomplete."
-        footer={footer}
-      >
+      <AuthShell title="Reset your password" subtitle="This link is incomplete." footer={footer}>
         <Alert kind="error">
           The reset link is missing its token. Copy the whole link from the email, or{" "}
           <Link to="/forgot-password" className="font-semibold underline">

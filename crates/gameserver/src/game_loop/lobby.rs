@@ -109,7 +109,7 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     };
     let spawn = template
         .creation_points
-        .get(0)
+        .first()
         .copied()
         .unwrap_or((0, 0, 0));
     let account = match world.clients.get(&client_id) {

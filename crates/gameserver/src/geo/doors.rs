@@ -61,8 +61,8 @@ impl DoorGrid {
         });
         self.by_id.insert(door_id, idx);
         let region = (
-            self.doors[idx as usize].node_x.iter().sum::<i32>() / 4 >> crate::world::REGION_SHIFT,
-            self.doors[idx as usize].node_y.iter().sum::<i32>() / 4 >> crate::world::REGION_SHIFT,
+            (self.doors[idx as usize].node_x.iter().sum::<i32>() / 4) >> crate::world::REGION_SHIFT,
+            (self.doors[idx as usize].node_y.iter().sum::<i32>() / 4) >> crate::world::REGION_SHIFT,
         );
         for dx in -1..=1 {
             for dy in -1..=1 {

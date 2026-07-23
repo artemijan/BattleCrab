@@ -79,6 +79,21 @@ a real login play-auth bug (grep `TODO(login-playauth)`), not a test-runner
 issue; remove the `#[ignore]` once it is fixed. Run it explicitly with
 `cargo nextest run -p gameserver --run-ignored all full_login_to_character_create`.
 
+## Linting & formatting
+
+- **Rust**: `cargo fmt` (rustfmt, default style) and `cargo clippy --workspace --all-targets -- -D warnings`.
+  Pre-existing stylistic lints are grandfathered in `[workspace.lints.clippy]` (root `Cargo.toml`) —
+  delete an entry there, fix what surfaces, and commit both together to burn the list down.
+- **Frontend**: [Biome](https://biomejs.dev) (formatter + linter in one binary) — `cd web/dashboard`
+  then `bun run lint` / `bun run format`. Config in `web/dashboard/biome.json`.
+- **Pre-commit hook** runs both, scoped to what is staged. Activate once per clone:
+
+  ```
+  git config core.hooksPath .githooks
+  ```
+
+  Bypass in an emergency with `git commit --no-verify`.
+
 ## Docs
 
 - [`docs/PROGRESS.md`](docs/PROGRESS.md) — **milestone progress & current state** (start here)

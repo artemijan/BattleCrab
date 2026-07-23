@@ -323,10 +323,10 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else {
                 continue;
             };
-            if !regions_adjacent(old, npc_region.0) {
-                if !send_summon_info(world, cs, npc_id, object_id) {
-                    send_npc_info(world, cs, npc_id);
-                }
+            if !regions_adjacent(old, npc_region.0)
+                && !send_summon_info(world, cs, npc_id, object_id)
+            {
+                send_npc_info(world, cs, npc_id);
             }
         }
         for npc_id in world.npcs_visible_from(old) {

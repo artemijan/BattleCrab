@@ -1261,11 +1261,9 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             .or_else(|| data.player_templates.get(p.base_class_id))
             .cloned()
             .unwrap_or_default();
-        vitals.max_hp =
-            crate::model::calc_max_hp(data, &t, p.level, Some(&inventory), &mods) as i32;
-        vitals.max_mp =
-            crate::model::calc_max_mp(data, &t, p.level, Some(&inventory), &mods) as i32;
-        pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level, &mods) as i32;
+        vitals.max_hp = crate::model::calc_max_hp(data, &t, p.level, Some(inventory), mods) as i32;
+        vitals.max_mp = crate::model::calc_max_mp(data, &t, p.level, Some(inventory), mods) as i32;
+        pvitals.max_cp = crate::model::calc_max_cp(data, &t, p.level, mods) as i32;
         if leveled_up {
             // Classic level-up: all vitals refill (Mobius Java only refills
             // CP here, but retail Classic restores HP/MP too).
@@ -1277,7 +1275,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
             vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
             pvitals.cur_cp = pvitals.cur_cp.min(pvitals.max_cp as f64);
         }
-        p.recalculate_stats(data, &base, &mods, &inventory, &mut speeds, &mut combat);
+        p.recalculate_stats(data, base, mods, inventory, &mut speeds, &mut combat);
     }
 
     // `rewardSkills`: grant the skills now reachable (autoGet only, or — with
@@ -1570,7 +1568,7 @@ fn recompute_passives_after_skill_change(
                     &world.data,
                     base,
                     &mut mods,
-                    &inventory,
+                    inventory,
                     &mut buffs,
                     &mut speeds,
                     &mut combat,

@@ -861,13 +861,9 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     use crate::model::components::PetOf;
     use crate::network::server_packets::sm_ids;
 
-    if world
+    world
         .objects
-        .get_component::<crate::model::Player>(&owner_oid)
-        .is_none()
-    {
-        return None;
-    }
+        .get_component::<crate::model::Player>(&owner_oid)?;
     // `if (player.hasPet() || player.isMounted())` → "You already have a pet."
     if pet_of(world, owner_oid).is_some() {
         if let Some(cid) = client_for_player(world, owner_oid) {

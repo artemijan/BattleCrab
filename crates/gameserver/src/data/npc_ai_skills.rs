@@ -189,7 +189,7 @@ fn is_attack(e: &SkillEffect) -> bool {
             | SkillEffect::MagicalAttack { .. }
             | SkillEffect::HpDrain { .. }
             | SkillEffect::Blow { .. }
-            | SkillEffect::VampiricAttack { .. }
+            | SkillEffect::VampiricAttack
     )
 }
 fn is_sleep(_e: &SkillEffect) -> bool {
@@ -199,16 +199,13 @@ fn is_block_actions(e: &SkillEffect) -> bool {
     matches!(e, SkillEffect::BlockActions { .. })
 }
 fn is_root(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::Root { .. })
+    matches!(e, SkillEffect::Root)
 }
 fn is_mute(e: &SkillEffect) -> bool {
-    matches!(
-        e,
-        SkillEffect::Mute { .. } | SkillEffect::PhysicalMute { .. }
-    )
+    matches!(e, SkillEffect::Mute | SkillEffect::PhysicalMute)
 }
 fn is_block_control(e: &SkillEffect) -> bool {
-    matches!(e, SkillEffect::BlockControl { .. })
+    matches!(e, SkillEffect::BlockControl)
 }
 fn is_dot(e: &SkillEffect) -> bool {
     matches!(

@@ -6,8 +6,6 @@
 //! Seal of Gloom 1210 pair it with an already-ported `ManaDamOverTime`, so they
 //! landed but did none of the up-front damage.
 
-use super::*;
-
 use crate::model::formulas::{self, MagicFailure};
 use crate::model::skill::SkillEffect;
 

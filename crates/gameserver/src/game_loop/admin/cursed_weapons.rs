@@ -294,6 +294,8 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
 
     // giveSkill: cursed-weapon skill at level `1 + kills/stageKills` (kills = 0
     // on a fresh grant → level 1), clamped to the skill max.
+    #[allow(clippy::erasing_op)]
+    // Java's formula with kills=0 inlined; the shape stays greppable for parity
     let level = (1 + 0 / stage_kills.max(1)).min(skill_max_level.max(1));
     if world.data.skill_data.get(skill_id, level).is_some() {
         if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {

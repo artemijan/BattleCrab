@@ -26,6 +26,9 @@ const MAX_CUBIC: usize = 1;
 pub struct ActiveCubic {
     pub id: i32,
     pub level: i32,
+    /// Written at summon time; no reader until the cubic display packet
+    /// (`ExUserInfoCubic`-shaped) stops hard-coding its count.
+    #[allow(dead_code)]
     pub slot: i32,
     /// The cubic's own object id.
     ///

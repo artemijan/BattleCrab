@@ -94,6 +94,7 @@ export function Header({ account }: { account?: Account | null }) {
 
   // Navigating (from a menu link or anywhere else) closes the menu; without
   // this the panel would sit open over the page the user just moved to.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the path is not read in the body — it IS the trigger; any navigation closes the menu
   useEffect(() => setMenuOpen(false), [location.pathname]);
 
   // Escape closes, matching what everyone expects of an overlay.
@@ -210,11 +211,7 @@ export function Header({ account }: { account?: Account | null }) {
               strokeWidth="2"
               strokeLinecap="round"
             >
-              {menuOpen ? (
-                <path d="M6 6l12 12M18 6L6 18" />
-              ) : (
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              )}
+              {menuOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
             </svg>
           </button>
         </div>
@@ -355,13 +352,7 @@ export function Footer() {
  * `100dvh + header` tall and every route scrolled by exactly the header's
  * height (82px) even when the content fit with room to spare.
  */
-export function Page({
-  account,
-  children,
-}: {
-  account?: Account | null;
-  children: ReactNode;
-}) {
+export function Page({ account, children }: { account?: Account | null; children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <Background />

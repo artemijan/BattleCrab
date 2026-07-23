@@ -168,9 +168,7 @@ export function AdminAccounts() {
                         onClick={() => onSort(column)}
                         className={cx(
                           "inline-flex items-center gap-1 transition-colors hover:text-[var(--text)]",
-                          sort === column.key
-                            ? "text-[var(--text)]"
-                            : "text-[var(--text-muted)]",
+                          sort === column.key ? "text-[var(--text)]" : "text-[var(--text-muted)]",
                         )}
                       >
                         {column.label}
@@ -186,9 +184,7 @@ export function AdminAccounts() {
                 {list.data.accounts.map((master) => (
                   <tr
                     key={master.email}
-                    onClick={() =>
-                      navigate(`/admin/accounts/${encodeURIComponent(master.email)}`)
-                    }
+                    onClick={() => navigate(`/admin/accounts/${encodeURIComponent(master.email)}`)}
                     className="cursor-pointer transition-colors hover:bg-[var(--surface-strong)]"
                   >
                     <td className="max-w-64 px-4 py-3">
@@ -639,7 +635,12 @@ function ResetPasswordRow({ login }: { login: string }) {
         />
       </div>
       <div className="flex gap-2 pb-6">
-        <Button type="submit" variant="secondary" loading={reset.isPending} className="px-3 py-2 text-xs">
+        <Button
+          type="submit"
+          variant="secondary"
+          loading={reset.isPending}
+          className="px-3 py-2 text-xs"
+        >
           Set password
         </Button>
         <Button

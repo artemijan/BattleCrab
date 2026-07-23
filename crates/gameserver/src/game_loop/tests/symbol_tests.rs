@@ -5,7 +5,7 @@
 
 use super::*;
 
-use crate::model::components::{Buffs, Casting, GroundSkillTarget, SummonerRef, Vitals};
+use crate::model::components::{Buffs, Casting, SummonerRef};
 use crate::model::skill::{
     AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillEffect, TargetType,
 };

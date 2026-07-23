@@ -250,9 +250,9 @@ impl QuestScript for Change2 {
                     return Some(self.page(18));
                 }
                 Some(match ctx.player_class_id() {
-                    45 | 46 => self.page(2),       // Orc Raider / Destroyer
-                    47 | 48 => self.page(6),       // Orc Monk / Tyrant
-                    50 | 51 | 52 => self.page(10), // Shaman / Overlord / Warcryer
+                    45 | 46 => self.page(2),  // Orc Raider / Destroyer
+                    47 | 48 => self.page(6),  // Orc Monk / Tyrant
+                    50..=52 => self.page(10), // Shaman / Overlord / Warcryer
                     _ => self.page(17),
                 })
             }

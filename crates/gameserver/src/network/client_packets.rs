@@ -503,7 +503,7 @@ impl PrivateStoreItemList {
 
     fn read_lines(r: &mut PacketReader, target: i32) -> Option<Self> {
         let count = r.read_i32()?;
-        if count < 1 || count > 500 {
+        if !(1..=500).contains(&count) {
             return None;
         }
         let mut items = Vec::with_capacity(count as usize);
@@ -1143,7 +1143,7 @@ pub struct ManufactureLine {
 pub fn read_recipe_shop_list_set(body: &[u8]) -> Option<Vec<ManufactureLine>> {
     let mut r = PacketReader::new(body);
     let count = r.read_i32()?;
-    if count < 0 || count > 500 {
+    if !(0..=500).contains(&count) {
         return None;
     }
     let mut items = Vec::with_capacity(count as usize);

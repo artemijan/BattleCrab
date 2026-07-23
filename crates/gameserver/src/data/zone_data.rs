@@ -362,7 +362,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                 if e.name().as_ref() == b"zone" {
                     if let Some(p) = cur.take() {
                         if let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad) {
-                            let effect = (p.kind == ZoneKind::Effect).then(|| EffectZoneParams {
+                            let effect = (p.kind == ZoneKind::Effect).then_some(EffectZoneParams {
                                 skills: p.skills,
                                 chance: p.chance,
                                 initial_delay: p.initial_delay,
@@ -371,7 +371,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 casts_on_players: p.casts_on_players,
                                 remove_effects_on_exit: p.remove_effects_on_exit,
                             });
-                            let damage = (p.kind == ZoneKind::Damage).then(|| DamageZoneParams {
+                            let damage = (p.kind == ZoneKind::Damage).then_some(DamageZoneParams {
                                 hp_per_tick: p.dmg_hp,
                                 mp_per_tick: p.dmg_mp,
                                 initial_delay: p.initial_delay,
@@ -381,7 +381,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                 enabled: p.enabled,
                                 castle_id: p.castle_id,
                             });
-                            let swamp = (p.kind == ZoneKind::Swamp).then(|| SwampZoneParams {
+                            let swamp = (p.kind == ZoneKind::Swamp).then_some(SwampZoneParams {
                                 move_bonus: p.move_bonus,
                                 enabled: p.enabled,
                                 castle_id: p.castle_id,
