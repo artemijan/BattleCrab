@@ -26,6 +26,16 @@ pub const SESSION_SECRET_ENV: &str = "DASHBOARD_SESSION_SECRET";
 /// cookies. `openssl rand -hex 32` produces 64.
 pub const MIN_SESSION_SECRET_LEN: usize = 32;
 
+/// Fixed signing key **debug builds** fall back to when `$DASHBOARD_SESSION_SECRET`
+/// is unset, so `cargo run` needs no environment. Being a constant it is also
+/// stable across restarts, so dev sessions survive a rebuild.
+///
+/// Never used by release builds — they refuse to boot without the env var, and
+/// the value is obviously non-secret on purpose: anyone who finds it in a
+/// production cookie knows exactly what went wrong.
+pub const DEBUG_FALLBACK_SESSION_SECRET: &str =
+    "battlecrab-debug-build-fallback-secret-do-not-use-in-production";
+
 /// The **entire** SMTP configuration is environment-only — not just the
 /// credentials.
 ///
@@ -207,7 +217,19 @@ impl DashboardConfig {
 
             // Deliberately NOT p.get_string: the value must never be readable
             // from the committed config file. See `SESSION_SECRET_ENV`.
-            session_secret: std::env::var(SESSION_SECRET_ENV).unwrap_or_default(),
+            session_secret: std::env::var(SESSION_SECRET_ENV).unwrap_or_else(|_| {
+                if cfg!(debug_assertions) {
+                    tracing::warn!(
+                        "${SESSION_SECRET_ENV} not set — using the fixed debug-build \
+                         fallback key. Fine for local dev; release builds refuse to boot."
+                    );
+                    DEBUG_FALLBACK_SESSION_SECRET.to_string()
+                } else {
+                    // Left empty so validate_session_secret() fails the boot
+                    // with its full explanation.
+                    String::new()
+                }
+            }),
             session_ttl_days: p.get_long("SessionTtlDays", 7),
 
             registration_enabled: p.get_bool("RegistrationEnabled", true),
@@ -291,6 +313,13 @@ mod secret_tests {
         assert!(err.contains(SESSION_SECRET_ENV));
         // The message has to say how to produce one, not just that it is wrong.
         assert!(err.contains("openssl rand -hex 32"));
+    }
+
+    #[test]
+    fn the_debug_fallback_passes_validation() {
+        // If this ever fails, debug builds would boot straight into the FATAL
+        // path the fallback exists to avoid.
+        assert!(validate_session_secret(DEBUG_FALLBACK_SESSION_SECRET).is_ok());
     }
 
     #[test]
