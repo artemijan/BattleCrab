@@ -7587,3 +7587,134 @@ fn quest_q00223_test_of_the_champion() {
     assert_eq!(item_count(&world, 3001, 57), a + 229764, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00224_test_of_sagittarius() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [3028, 3294, 3295, 3296, 3297, 3298, 3299, 3300, 3301, 3302, 3303, 3304, 3305, 3306]
+            .iter()
+            .map(|&id| (id, "Q224", true))
+            .collect();
+    items.push((3293, "Mark of Sagittarius", false));
+    items.push((17, "Wooden Arrow", false));
+    add_quest_items(&mut world, &items);
+    for id in [20079, 20269, 20233, 20230, 20577, 27090] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let bernard = NPC_OID;
+    let vokian = NPC_OID + 1;
+    let hamil = NPC_OID + 2;
+    let aron = NPC_OID + 3;
+    let gauen = NPC_OID + 4;
+    for (oid, npc) in [
+        (bernard, 30702),
+        (vokian, 30514),
+        (hamil, 30626),
+        (aron, 30653),
+        (gauen, 30717),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 7; // Rogue
+    }
+    let q = "Q00224_TestOfSagittarius";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, bernard);
+    ev(&mut world, bernard, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 3294), 1, "Bernard's Introduction");
+    // --- Hamil → Aron letter relay. ---
+    talk(&mut world, hamil);
+    ev(&mut world, hamil, "30626-03.html"); // intro → 1st Letter, memo/cond 2
+    assert_eq!(item_count(&world, 3001, 3295), 1, "Hamil's 1st Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, aron);
+    ev(&mut world, aron, "30653-02.html"); // 1st Letter → memo/cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    // --- Leg: 10 Hunter's 1st Runes from ants → memo/cond 4. ---
+    inject(&mut world, 3001, 0x0224_0000, 3298, 9);
+    kill(&mut world, 20079); // 10th rune → memo 4
+    assert_eq!(item_count(&world, 3001, 3298), 10, "Hunter's 1st Rune reaches 10");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, hamil);
+    ev(&mut world, hamil, "30626-07.html"); // runes → 2nd Letter, memo/cond 5
+    assert_eq!(item_count(&world, 3001, 3296), 1, "Hamil's 2nd Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, vokian);
+    ev(&mut world, vokian, "30514-02.html"); // 2nd Letter → memo/cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // --- Leg: 10 Hunter's 2nd Runes from Breka orcs → memo/cond 7 + Talisman of Snake. ---
+    inject(&mut world, 3001, 0x0224_0001, 3299, 9);
+    kill(&mut world, 20269); // 10th → memo 7 + Talisman of Snake
+    assert_eq!(item_count(&world, 3001, 3301), 1, "Talisman of Snake");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, vokian); // Talisman of Snake → memo/cond 8
+    assert_eq!(item_count(&world, 3001, 3301), 0, "Talisman of Snake consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, hamil); // → 3rd Letter, memo/cond 9
+    assert_eq!(item_count(&world, 3001, 3297), 1, "Hamil's 3rd Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, gauen); // 3rd Letter → memo/cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    // --- Leg: four bow-materials, set completes in any order → memo/cond 11. ---
+    kill(&mut world, 20233); // Marsh Spider: bowstring, but set incomplete → still memo 10
+    assert_eq!(item_count(&world, 3001, 3304), 1, "Reinforced Bowstring");
+    assert_eq!(quest_memo(&world, 3001, q), 10, "set incomplete: no advance");
+    inject(&mut world, 3001, 0x0224_0002, 3302, 1); // Mithril Clip
+    inject(&mut world, 3001, 0x0224_0003, 3305, 1); // Manashen's Horn
+    kill(&mut world, 20230); // Stakato: chitin completes the set → memo/cond 11
+    assert_eq!(item_count(&world, 3001, 3303), 1, "Stakato Chitin");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, gauen); // materials → Crescent Moon Bow + arrows, memo/cond 12
+    assert_eq!(item_count(&world, 3001, 3028), 1, "Crescent Moon Bow");
+    assert_eq!(item_count(&world, 3001, 17), 10, "Wooden Arrows");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, hamil); // bow → memo/cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    // --- Blood farming spawns Serpent Demon Kadesh probabilistically. ---
+    inject(&mut world, 3001, 0x0224_0004, 3306, 5); // low stack → else branch
+    kill(&mut world, 20577); // ((5-10)*5) < roll → just one more Blood
+    assert_eq!(item_count(&world, 3001, 3306), 6, "low stack: Blood accrues, no spawn");
+    let before = npcs_of(&mut world, 27090).len();
+    inject(&mut world, 3001, 0x0224_0005, 3306, 24); // stack now 30
+    world.forced_rolls.push_back(0); // ((30-10)*5)=100 > 0 → spawn Kadesh
+    kill(&mut world, 20577);
+    assert_eq!(npcs_of(&mut world, 27090).len(), before + 1, "Kadesh conjured");
+    assert_eq!(item_count(&world, 3001, 3306), 0, "Blood consumed on the summon");
+    // --- Kadesh with the wrong weapon: no Talisman, he respawns. ---
+    kill(&mut world, 27090); // no weapon equipped → respawn, no reward
+    assert_eq!(item_count(&world, 3001, 3300), 0, "wrong weapon: no Talisman of Kadesh");
+    assert_eq!(quest_memo(&world, 3001, q), 13, "wrong weapon: still memo 13");
+    assert!(!npcs_of(&mut world, 27090).is_empty(), "wrong-weapon kill respawns Kadesh");
+    // --- Equip the Crescent Moon Bow and fell him properly. ---
+    equip_weapon_row(&mut world, 3001, 3028);
+    kill(&mut world, 27090); // killing blow with the bow → Talisman of Kadesh, memo/cond 14
+    assert_eq!(item_count(&world, 3001, 3300), 1, "Talisman of Kadesh awarded");
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    // --- Completion. ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, hamil);
+    assert_eq!(item_count(&world, 3001, 3293), 1, "Mark of Sagittarius awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
+}
