@@ -6782,3 +6782,96 @@ fn quest_q00375_whisper_of_dreams_part2() {
     assert_eq!(item_count(&world, 3001, 57), a + 9000, "9000 adena");
     assert_eq!(item_count(&world, 3001, 5888) + item_count(&world, 3001, 5889), 0, "325 of each consumed");
 }
+
+#[test]
+fn quest_q00606_battle_against_varka_silenos() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(7233, "Varka Mane", true), (7186, "Varka Horn", false)]);
+    let mut t = crate::data::npc_data::default_template(21350); // chance 500
+    t.type_name = "Monster".into();
+    t.level = 74;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31370, "Folk", 74, 100, 0, 0); // Kadun
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    let q = "Q00606_BattleAgainstVarkaSilenos";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31370-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // roll(1000)=0 < 500 → a mane.
+    add_test_npc(&mut world, NPC_OID + 1, 21350, "Monster", 74, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7233), 1, "Varka recruit drops a mane");
+    // 100 manes → 20 horns.
+    inject(&mut world, 3001, 0x0606_0000, 7233, 99);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31370-07.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 7186), 20, "100 manes → 20 horns");
+    assert_eq!(item_count(&world, 3001, 7233), 0, "manes consumed");
+}
+
+#[test]
+fn quest_q00612_battle_against_ketra_orcs() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(7234, "Ketra Molar", true), (7187, "Ketra Seed", false)]);
+    let mut t = crate::data::npc_data::default_template(21324); // chance 500
+    t.type_name = "Monster".into();
+    t.level = 74;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31377, "Folk", 74, 100, 0, 0); // Ashas
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 74;
+    let q = "Q00612_BattleAgainstKetraOrcs";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31377-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    add_test_npc(&mut world, NPC_OID + 1, 21324, "Monster", 74, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7234), 1, "Ketra footman drops a molar");
+    inject(&mut world, 3001, 0x0612_0000, 7234, 99);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31377-07.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 7187), 20, "100 molars → 20 seeds");
+    assert_eq!(item_count(&world, 3001, 7234), 0, "molars consumed");
+}
+
+#[test]
+fn quest_q00634_in_search_of_fragments_of_dimension() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(7079, "Dimension Fragment", true)]);
+    let mut t = crate::data::npc_data::default_template(21139); // an aggressive rift mob
+    t.type_name = "Monster".into();
+    t.level = 40;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31095, "Folk", 40, 100, 0, 0); // a Dimensional Gate Keeper
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    let q = "Q00634_InSearchOfFragmentsOfDimension";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 02.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // roll(100)=0 < 80 → fragments, amount = (int)(40*0.15 + 2.6) = 8.
+    add_test_npc(&mut world, NPC_OID + 1, 21139, "Monster", 40, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 7079), 8, "level-40 mob yields 8 fragments");
+    // 05.htm exits (repeatable).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 05.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}

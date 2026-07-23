@@ -89,6 +89,9 @@ pub mod q00628_hunt_golden_ram;
 pub mod q00127_fishing_specialists_request;
 pub mod q00306_crystal_of_fire_and_ice;
 pub mod q00375_whisper_of_dreams_part2;
+pub mod q00606_battle_against_varka_silenos;
+pub mod q00612_battle_against_ketra_orcs;
+pub mod q00634_in_search_of_fragments_of_dimension;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -157,6 +160,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00127_fishing_specialists_request::Q00127FishingSpecialistsRequest),
         Arc::new(q00306_crystal_of_fire_and_ice::Q00306CrystalOfFireAndIce),
         Arc::new(q00375_whisper_of_dreams_part2::Q00375WhisperOfDreamsPart2),
+        Arc::new(q00606_battle_against_varka_silenos::Q00606BattleAgainstVarkaSilenos),
+        Arc::new(q00612_battle_against_ketra_orcs::Q00612BattleAgainstKetraOrcs),
+        Arc::new(q00634_in_search_of_fragments_of_dimension::Q00634InSearchOfFragmentsOfDimension),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
