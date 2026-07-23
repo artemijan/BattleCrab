@@ -8332,3 +8332,108 @@ fn quest_q00215_trial_of_the_pilgrim() {
     assert_eq!(item_count(&world, 3001, 2721), 1, "Mark of the Pilgrim awarded");
     assert_ne!(quest_cond(&world, 3001, q), Some(17), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00216_trial_of_the_guildsman() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [3024, 3025, 3120, 3121, 3122, 3123, 3124, 3125, 3126, 3127, 3128, 3129, 3130, 3131, 3132,
+         3133, 3134, 3135, 3136, 3137, 3138, 3139]
+            .iter()
+            .map(|&id| (id, "Q216", true))
+            .collect();
+    items.push((3119, "Mark of Guildsman", false));
+    add_quest_items(&mut world, &items);
+    for id in [20154, 20267, 20200, 20083, 20202, 20168, 20079] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let valkon = NPC_OID;
+    let norman = NPC_OID + 1;
+    let altran = NPC_OID + 2;
+    let pinter = NPC_OID + 3;
+    let duning = NPC_OID + 4;
+    for (oid, npc) in
+        [(valkon, 30103), (norman, 30210), (altran, 30283), (pinter, 30298), (duning, 30688)]
+    {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 56; // Artisan
+    }
+    let q = "Q00216_TrialOfTheGuildsman";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    inject(&mut world, 3001, 0x0216_0000, 57, 2000); // entry fee
+    talk(&mut world, valkon);
+    ev(&mut world, valkon, "ACCEPT"); // 2000 adena → Valkon's Recommendation, cond 1
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 3120), 1, "Valkon's Recommendation");
+    assert_eq!(item_count(&world, 3001, 57), 0, "entry fee paid");
+    talk(&mut world, altran); // cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, valkon); // cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    kill(&mut world, 20154); // Mandragora → Berry, cond 4
+    assert_eq!(item_count(&world, 3001, 3121), 1, "Mandragora Berry");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    ev(&mut world, altran, "30283-03.html"); // → Alltran's Instructions + recs, cond 5
+    assert_eq!(item_count(&world, 3001, 3122), 1, "Alltran's Instructions");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // --- Track A: Norman/Duning → 7 Journeyman Gems. ---
+    ev(&mut world, norman, "30210-04.html"); // → Norman's Instructions + Receipt
+    assert_eq!(item_count(&world, 3001, 3125), 1, "Norman's Instructions");
+    ev(&mut world, duning, "30688-02.html"); // Receipt → Duning's Instructions
+    assert_eq!(item_count(&world, 3001, 3127), 1, "Duning's Instructions");
+    inject(&mut world, 3001, 0x0216_0001, 3128, 29); // 29 Duning's Keys
+    kill(&mut world, 20267); // Breka → 30th key, consumes Duning's Instructions
+    assert_eq!(item_count(&world, 3001, 3128), 30, "30 Duning's Keys");
+    assert_eq!(item_count(&world, 3001, 3127), 0, "Duning's Instructions consumed at 30 keys");
+    ev(&mut world, norman, "30210-10.html"); // keys → Norman's List
+    assert_eq!(item_count(&world, 3001, 3129), 1, "Norman's List");
+    inject(&mut world, 3001, 0x0216_0002, 3130, 65); // Gray Bone Powder
+    kill(&mut world, 20200); // Strain: +5 → 70
+    inject(&mut world, 3001, 0x0216_0003, 3131, 63); // Granite Whetstone
+    kill(&mut world, 20083); // Granite Golem: +7 → 70
+    inject(&mut world, 3001, 0x0216_0004, 3132, 63); // Red Pigment
+    kill(&mut world, 20202); // Dead Seeker: +7 → 70
+    inject(&mut world, 3001, 0x0216_0005, 3133, 60); // Braided Yarn
+    kill(&mut world, 20168); // Silenos: +10 → 70
+    talk(&mut world, norman); // materials → 7 Journeyman Gems (deco absent, no cond 6 yet)
+    assert_eq!(item_count(&world, 3001, 3134), 7, "7 Journeyman Gems");
+    assert_ne!(quest_cond(&world, 3001, q), Some(6), "cond 6 needs deco beads too");
+    // --- Track B: Pinter → 7 Journeyman Deco Beads → cond 6. ---
+    ev(&mut world, pinter, "30298-04.html"); // Artisan → Recipe + Pinter's Instructions
+    assert_eq!(item_count(&world, 3001, 3135), 1, "Pinter's Instructions");
+    inject(&mut world, 3001, 0x0216_0006, 3136, 65); // 65 Amber Beads
+    world.forced_rolls.push_back(0); // roll(2)==0 → Amber Lump (Artisan)
+    kill(&mut world, 20079); // Ant: +5 amber → 70
+    assert!(item_count(&world, 3001, 3136) >= 70, "70 Amber Beads");
+    assert_eq!(item_count(&world, 3001, 3137), 1, "Amber Lump (Artisan bonus)");
+    talk(&mut world, pinter); // amber → 7 Deco Beads; gem >= 7 → cond 6
+    assert_eq!(item_count(&world, 3001, 3138), 7, "7 Journeyman Deco Beads");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // --- Craft 7 Journeyman Rings (recipe system; supplied directly). ---
+    inject(&mut world, 3001, 0x0216_0007, 3139, 7);
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, valkon);
+    ev(&mut world, valkon, "30103-09a.html"); // rings → Mark of the Guildsman
+    assert_eq!(item_count(&world, 3001, 3119), 1, "Mark of the Guildsman awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 187606, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(6), "one-time quest finished");
+}
