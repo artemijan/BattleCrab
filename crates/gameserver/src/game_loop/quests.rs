@@ -467,6 +467,12 @@ impl<'w> QuestCtx<'w> {
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
     }
 
+    /// `Config.RATE_QUEST_DROP` — the drop-rate multiplier some quests fold
+    /// into their own roll threshold (rather than through `give_item_randomly`).
+    pub fn rate_quest_drop(&self) -> f64 {
+        self.world.cfg.rates.rate_quest_drop
+    }
+
     /// `AbstractScript.giveAdena`.
     pub fn give_adena(&mut self, count: i64, apply_rates: bool) {
         if apply_rates {

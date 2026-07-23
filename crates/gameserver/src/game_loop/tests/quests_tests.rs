@@ -5441,3 +5441,69 @@ fn quest_q00295_refused_above_level_15() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30536-03.htm")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-16 starter never begins");
 }
+
+/// Q00262 Trade with the Ivory Tower: the rate-in-threshold drop
+/// (`roll(10) < base`, distinct per mob), the cond flip at 10, and the 300a
+/// turn-in.
+#[test]
+fn quest_q00262_ivory_tower_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(707, "Spore Sac", true)]);
+    for id in [20007, 20400] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 12;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30137, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 12;
+    drain_db(&mut db_rx);
+
+    let q = "Q00262_TradeWithTheIvoryTower";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mut mob = NPC_OID + 1;
+    let mut kill = |world: &mut World, species: i32, roll: i32| {
+        add_test_npc(world, mob, species, "Monster", 12, 30, 0, 0);
+        world.forced_rolls.push_back(roll);
+        death::npc_do_die(world, mob, 3001);
+        mob += 1;
+    };
+    kill(&mut world, 20007, 2); // Green base 3: 2 < 3 → drop
+    kill(&mut world, 20007, 5); // 5 ≥ 3 → nothing
+    kill(&mut world, 20400, 3); // Blood base 4: 3 < 4 → drop (would be nothing on Green)
+    assert_eq!(item_count(&world, 3001, 707), 2, "the per-mob thresholds differ (3 vs 4)");
+
+    {
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5700_0000, 707, 7);
+    }
+    kill(&mut world, 20007, 0); // 10th sac → cond 2
+    assert_eq!(item_count(&world, 3001, 707), 10);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 10");
+    drain(&mut rx);
+
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 300, "300 adena");
+    assert_eq!(item_count(&world, 3001, 707), 0, "sacs cleared");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// Q00262 refuses a starter above level 16 (`addCondMaxLevel(16)`).
+#[test]
+fn quest_q00262_refused_above_level_16() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(707, "Spore Sac", true)]);
+    add_test_npc(&mut world, NPC_OID, 30137, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 17;
+    let q = "Q00262_TradeWithTheIvoryTower";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
+}
