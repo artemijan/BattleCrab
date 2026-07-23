@@ -774,6 +774,17 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// `addSpawn(npcId, x, y, z, …)` + `addAttackPlayerDesire` — a hostile spawn
+    /// at a **fixed world position** rather than beside the in-context NPC (which
+    /// is what [`spawn_attacker`](Self::spawn_attacker) does). Quest 231's
+    /// teleport ambush conjures its King Bugbears at the arrival spot.
+    pub fn spawn_attacker_at(&mut self, npc_id: i32, x: i32, y: i32, z: i32) -> Option<i32> {
+        let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
+        super::death::introduce_npc(self.world, spawned);
+        super::npc_ai::seed_attack(self.world, spawned, self.player);
+        Some(spawned)
+    }
+
     /// `addSpawn(npcId, npc, randomOffset, 0, …)` **without**
     /// `addAttackPlayerDesire` — the newcomer appears and is left alone.
     /// Quest 416 spawns its Durka Spirit this way: Java conjures it beside the

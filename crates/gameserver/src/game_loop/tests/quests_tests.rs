@@ -7357,3 +7357,114 @@ fn quest_q00222_test_of_the_duelist() {
     assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(5), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00231_test_of_the_maestro() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [2864, 2865, 2866, 2868, 2869, 2870, 2871, 2872, 2873, 2874, 2875, 2876, 2877, 2878, 2916]
+            .iter()
+            .map(|&id| (id, "Q231", true))
+            .collect();
+    items.push((2867, "Mark of Maestro", false));
+    add_quest_items(&mut world, &items);
+    for id in [27133, 20225, 20150] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let lockirin = NPC_OID;
+    let balanki = NPC_OID + 1;
+    let filaur = NPC_OID + 2;
+    let arin = NPC_OID + 3;
+    let toma = NPC_OID + 4;
+    let croto = NPC_OID + 5;
+    let lorain = NPC_OID + 6;
+    for (oid, npc) in [
+        (lockirin, 30531),
+        (balanki, 30533),
+        (filaur, 30535),
+        (arin, 30536),
+        (toma, 30556),
+        (croto, 30671),
+        (lorain, 30673),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 56; // Artisan
+    }
+    let q = "Q00231_TestOfTheMaestro";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    talk(&mut world, lockirin);
+    ev(&mut world, lockirin, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // --- Balanki's recommendation (memo 2): Croto → Evil Eye Lord → letter. ---
+    talk(&mut world, balanki);
+    ev(&mut world, balanki, "30533-02.html"); // memo 2
+    talk(&mut world, croto);
+    ev(&mut world, croto, "30671-02.html"); // Paint of Kamuru
+    assert_eq!(item_count(&world, 3001, 2869), 1, "Paint of Kamuru");
+    add_test_npc(&mut world, NPC_OID + 20, 27133, "Monster", 40, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 20, 3001);
+    assert_eq!(item_count(&world, 3001, 2870), 1, "Evil Eye Lord drops the Necklace of Kamutu");
+    talk(&mut world, croto); // necklace → Letter of Solder Detachment
+    assert_eq!(item_count(&world, 3001, 2868), 1, "Letter received");
+    talk(&mut world, balanki); // letter → Recommendation of Balanki
+    assert_eq!(item_count(&world, 3001, 2864), 1, "Recommendation of Balanki");
+    // --- Arin's recommendation (memo 3): Toma's teleport-device errand. ---
+    talk(&mut world, arin); // Paint of Teleport Device, memo 3
+    assert_eq!(item_count(&world, 3001, 2871), 1, "Paint of Teleport Device");
+    talk(&mut world, toma);
+    ev(&mut world, toma, "30556-05.html"); // Broken device + teleport + timer
+    assert_eq!(item_count(&world, 3001, 2916), 1, "Broken Teleport Device");
+    // The 5-second timer conjures three King Bugbears at the arrival spot.
+    advance_ticks(&mut world, 50);
+    assert_eq!(npcs_of(&mut world, 20150).len(), 3, "on_timer ambush spawns three King Bugbears");
+    // The errand teleported the player to Cruma; walk back to the NPCs so the
+    // bypass interaction-distance guard lets the remaining turn-ins through.
+    {
+        let pos = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&3001)
+            .unwrap();
+        pos.x = 100;
+        pos.y = 0;
+        pos.z = 0;
+    }
+    talk(&mut world, toma); // broken → 5 Teleport Devices
+    assert_eq!(item_count(&world, 3001, 2872), 5, "5 Teleport Devices");
+    talk(&mut world, arin); // devices → Recommendation of Arin
+    assert_eq!(item_count(&world, 3001, 2866), 1, "Recommendation of Arin");
+    // --- Filaur's recommendation (memo 4): Lorain's antidote errand. ---
+    talk(&mut world, filaur); // Architecture of Cruma, memo 4
+    talk(&mut world, lorain); // Ingredients of Antidote
+    assert_eq!(item_count(&world, 3001, 2875), 1, "Ingredients of Antidote");
+    add_test_npc(&mut world, NPC_OID + 21, 20225, "Monster", 40, 30, 0, 0);
+    death::npc_do_die(&mut world, NPC_OID + 21, 3001);
+    assert_eq!(item_count(&world, 3001, 2878), 1, "Giant Mist Leech drops Blood of Leech");
+    // Fast-forward the rest of the antidote reagents (no kill counter here).
+    inject(&mut world, 3001, 0x0231_0000, 2878, 9); // 10 leech blood
+    inject(&mut world, 3001, 0x0231_0001, 2876, 10); // wasp needle
+    inject(&mut world, 3001, 0x0231_0002, 2877, 10); // spider web
+    ev(&mut world, lorain, "30673-04.html"); // → Report of Cruma
+    assert_eq!(item_count(&world, 3001, 2874), 1, "Report of Cruma");
+    talk(&mut world, filaur); // report → Recommendation of Filaur, cond 2
+    assert_eq!(item_count(&world, 3001, 2865), 1, "Recommendation of Filaur");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "all three recommendations → cond 2");
+    // --- Lockirin awards the Mark of Maestro. ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, lockirin);
+    assert_eq!(item_count(&world, 3001, 2867), 1, "Mark of Maestro awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 372154, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(2), "one-time quest finished");
+}
