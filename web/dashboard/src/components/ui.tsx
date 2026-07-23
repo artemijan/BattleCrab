@@ -62,8 +62,8 @@ export function Button({
       "bg-brand-500 text-white shadow-[0_10px_30px_-12px_rgba(0,87,183,0.9)] " +
       "not-disabled:hover:bg-brand-400",
     ghost:
-      "border border-[var(--surface-border)] bg-[var(--surface)] text-[var(--text)] " +
-      "backdrop-blur-md not-disabled:hover:bg-[var(--surface-strong)]",
+      "border border-(--surface-border) bg-(--surface) text-(--text) " +
+      "backdrop-blur-md not-disabled:hover:bg-(--surface-strong)",
   } as const;
 
   return (
@@ -149,7 +149,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           "transition-[border-color,box-shadow] duration-200",
           error
             ? "border-red-400/70 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.22)]"
-            : "border-[var(--field-border)] focus:border-brand-400 focus:shadow-[0_0_0_3px_var(--surface-ring)]",
+            : "border-(--field-border) focus:border-brand-400 focus:shadow-[0_0_0_3px_var(--surface-ring)]",
           className,
         )}
         {...rest}
