@@ -6875,3 +6875,128 @@ fn quest_q00634_in_search_of_fragments_of_dimension() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 05.htm")));
     assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
 }
+
+#[test]
+fn quest_q00325_grim_collector() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (1349, "Anatomy Diagram", true),
+            (1350, "Zombie Head", true),
+            (1351, "Zombie Heart", true),
+            (1352, "Zombie Liver", true),
+            (1353, "Skull", true),
+            (1354, "Rib Bone", true),
+            (1355, "Spine", true),
+            (1356, "Arm Bone", true),
+            (1357, "Thigh Bone", true),
+            (1358, "Complete Skeleton", true),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20026); // ladder: head/heart/liver
+    t.type_name = "Monster".into();
+    t.level = 20;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30336, "Folk", 15, 100, 0, 0); // Curtiz
+    add_test_npc(&mut world, NPC_OID + 1, 30342, "Folk", 15, 100, 0, 0); // Varsak
+    add_test_npc(&mut world, NPC_OID + 2, 30434, "Folk", 15, 100, 0, 0); // Samed
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 20;
+    let q = "Q00325_GrimCollector";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30336-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Samed hands out the Anatomy Diagram (the drop gate).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} 30434-03.html", NPC_OID + 2)));
+    assert_eq!(item_count(&world, 3001, 1349), 1, "diagram received");
+    // Kill 20026: roll(100)=0 < 30 → the head branch of the ladder.
+    add_test_npc(&mut world, NPC_OID + 3, 20026, "Monster", 20, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(100) → head
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    death::npc_do_die(&mut world, NPC_OID + 3, 3001);
+    assert_eq!(item_count(&world, 3001, 1350), 1, "ladder drops a zombie head");
+    // Assemble a Complete Skeleton at Varsak: five bones + roll(5)=0 (<4) success.
+    for id in [1355, 1356, 1353, 1354, 1357] {
+        inject(&mut world, 3001, 0x0325_0000 + id, id, 1);
+    }
+    world.forced_rolls.push_back(0); // roll(5) < 4 → success
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} assembleSkeleton", NPC_OID + 1)));
+    assert_eq!(item_count(&world, 3001, 1358), 1, "five bones assemble a skeleton");
+    assert_eq!(item_count(&world, 3001, 1355), 0, "bones consumed by assembly");
+    // Sell (30434-07): pays only with ALL ten registered items. Stock one of each
+    // part so the gate opens; head is already 1, complete is 1, diagram is 1.
+    for id in [1351, 1352, 1353, 1354, 1355, 1356, 1357] {
+        inject(&mut world, 3001, 0x0325_1000 + id, id, 1);
+    }
+    // Now: head1 heart1 liver1 skull1 rib1 spine1 arm1 thigh1 complete1 → total 9.
+    // sum = 8+5+5+25+5+5+5+5 = 63; complete → +543+341 = 947.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q} 30434-07.html", NPC_OID + 2)));
+    assert_eq!(item_count(&world, 3001, 57), a + 947, "full collection sells for 947 adena");
+    assert_eq!(item_count(&world, 3001, 1349), 0, "all registered items consumed by the sale");
+    assert_eq!(item_count(&world, 3001, 1358), 0, "skeleton consumed too");
+}
+
+#[test]
+fn quest_q00124_meeting_the_elroki() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(8778, "Mantarasa Egg", true)]);
+    add_test_npc(&mut world, NPC_OID, 32113, "Folk", 70, 100, 0, 0); // Marquez
+    add_test_npc(&mut world, NPC_OID + 1, 32115, "Folk", 70, 100, 0, 0); // Asamah
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    let q = "Q00124_MeetingTheElroki";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    // Walk the cond chain 1 → 6 (on_event ignores which NPC fires the event).
+    for (ev, expect) in [
+        ("32113-03.html", 1),
+        ("32113-04.html", 2),
+        ("32114-04.html", 3),
+        ("32115-06.html", 4),
+        ("32117-05.html", 5),
+        ("32118-04.html", 6),
+    ] {
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} {ev}")));
+        assert_eq!(quest_cond(&world, 3001, q), Some(expect), "after event {ev}");
+    }
+    assert_eq!(item_count(&world, 3001, 8778), 1, "Mantarasa Egg received at cond 6");
+    // Asamah pays out and finishes the quest.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{}_Quest {q}", NPC_OID + 1)));
+    assert_eq!(item_count(&world, 3001, 57), a + 100013, "Asamah pays 100013 adena");
+    assert_ne!(quest_cond(&world, 3001, q), Some(6), "one-time quest is finished");
+}
+
+#[test]
+fn quest_q00643_rise_and_fall_of_the_elroki_tribe() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(8776, "Bones of a Plains Dinosaur", true), (8712, "Sirra's Blade Edge", false)]);
+    let mut t = crate::data::npc_data::default_template(22200); // a MOBS1 dinosaur
+    t.type_name = "Monster".into();
+    t.level = 75;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 32106, "Folk", 75, 100, 0, 0); // Singsing
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    let q = "Q00643_RiseAndFallOfTheElrokiTribe";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} quest_accept")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // MOBS1 always pays; roll(1000)=0 < 116 → 2 bones.
+    add_test_npc(&mut world, NPC_OID + 1, 22200, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 8776), 2, "a MOBS1 dinosaur drops 2 bones");
+    // Sell at Singsing (32106-09): 1374 adena per bone.
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32106-09.html")));
+    assert_eq!(item_count(&world, 3001, 57), a + 2 * 1374, "2 bones → 2748 adena");
+    assert_eq!(item_count(&world, 3001, 8776), 0, "bones consumed");
+    // Exchange 300 bones for 5 of a random weapon piece (force index 0 → 8712).
+    inject(&mut world, 3001, 0x0643_0000, 8776, 300);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} exchange")));
+    assert_eq!(item_count(&world, 3001, 8712), 5, "exchange yields 5 weapon pieces");
+    assert_eq!(item_count(&world, 3001, 8776), 0, "300 bones consumed");
+}
