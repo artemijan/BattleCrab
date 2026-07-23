@@ -29,7 +29,16 @@ pub struct App {
 impl App {
     pub fn new(pool: SqlitePool, config: DashboardConfig) -> Self {
         let key = SigningKey::new(&config.session_secret);
-        let origin_policy = OriginPolicy::parse(&config.allowed_origins);
+        let mut origin_policy = OriginPolicy::parse(&config.allowed_origins);
+        // Debug builds whitelist the local dev server, so an SPA on :3000 can
+        // call the API cross-origin without editing AllowedOrigins. Exact
+        // origins only — no scheme/port wiggle room — and `cfg!` compiles this
+        // out of release builds entirely, so production config stays the only
+        // authority there.
+        if cfg!(debug_assertions) {
+            origin_policy.push_exact("http://localhost:3000");
+            origin_policy.push_exact("http://127.0.0.1:3000");
+        }
         let mailer = Mailer::from_config(&config);
         let login_limiter = RateLimiter::new(config.login_rate_limit, config.login_rate_window_secs);
         // Registration is rarer than login; a tighter budget over a longer

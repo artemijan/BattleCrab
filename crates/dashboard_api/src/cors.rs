@@ -47,6 +47,15 @@ impl OriginPolicy {
         Self { rules }
     }
 
+    /// Adds one exact origin to the policy. Exact rules never widen to
+    /// subdomains or other ports, which is what makes this safe to call for
+    /// dev-only origins.
+    pub fn push_exact(&mut self, origin: &str) {
+        self.rules.push(OriginRule::Exact(
+            origin.trim_end_matches('/').to_ascii_lowercase(),
+        ));
+    }
+
     pub fn is_empty(&self) -> bool {
         self.rules.is_empty()
     }
@@ -239,6 +248,21 @@ mod tests {
         assert!(p.allows("https://api.battlecrab.com"));
         assert!(p.allows("http://localhost:3000"));
         assert!(!p.allows("https://evil.example"));
+    }
+
+    #[test]
+    fn push_exact_adds_only_that_origin() {
+        let mut p = policy();
+        p.push_exact("http://localhost:3000/");
+        assert!(p.allows("http://localhost:3000"));
+        assert!(p.allows("HTTP://LOCALHOST:3000"));
+        // Still exact: no other port, scheme, or lookalike host rides along.
+        assert!(!p.allows("http://localhost:3001"));
+        assert!(!p.allows("https://localhost:3000"));
+        assert!(!p.allows("http://localhost.evil.example:3000"));
+        // And the configured rules are untouched.
+        assert!(p.allows("https://battlecrab.com"));
+        assert!(!p.allows("https://evilbattlecrab.com"));
     }
 
     #[test]
