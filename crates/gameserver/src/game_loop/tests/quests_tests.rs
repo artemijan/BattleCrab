@@ -8813,3 +8813,114 @@ fn quest_q00232_test_of_the_lord() {
     assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(7), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00233_test_of_the_war_spirit() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2880..=2914).map(|id| (id, "Q233", true)).collect();
+    items.push((2879, "Mark of Warspirit", false));
+    add_quest_items(&mut world, &items);
+    for id in [20089, 20581, 27108, 20158, 20213, 20214, 20215, 20601] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let somak = NPC_OID;
+    let racoy = NPC_OID + 1;
+    let vivyan = NPC_OID + 2;
+    let sarien = NPC_OID + 3;
+    let pekiron = NPC_OID + 4;
+    let manakia = NPC_OID + 5;
+    let orim = NPC_OID + 6;
+    let martankus = NPC_OID + 7;
+    for (oid, npc) in [
+        (somak, 30510),
+        (racoy, 30507),
+        (vivyan, 30030),
+        (sarien, 30436),
+        (pekiron, 30682),
+        (manakia, 30515),
+        (orim, 30630),
+        (martankus, 30649),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 50; // Orc Shaman
+        p.race = 3; // Orc
+    }
+    let q = "Q00233_TestOfTheWarSpirit";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, somak);
+    ev(&mut world, somak, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // --- Leg Kiruna (Racoy): totem + insect book + 5 randomly-tiered bones ---
+    ev(&mut world, racoy, "30507-02.html"); // Racoy's Totem
+    ev(&mut world, vivyan, "30030-04.html"); // Viviante's Letter
+    talk(&mut world, sarien); // letter → Insect Diagram Book
+    assert_eq!(item_count(&world, 3001, 2904), 1, "Insect Diagram Book");
+    for r in [70, 70, 50, 50, 10] {
+        world.forced_rolls.push_back(r); // thigh, arm, spine, rib, skull
+        kill(&mut world, 20089);
+    }
+    talk(&mut world, racoy); // bones → Kiruna's Remains 1
+    assert_eq!(item_count(&world, 3001, 2910), 1, "Kiruna's Remains 1");
+    // --- Leg Tonar (Pekiron): 5 sequential bones off Leto ---
+    ev(&mut world, pekiron, "30682-02.html"); // Pekiron's Totem
+    for _ in 0..5 {
+        kill(&mut world, 20581);
+    }
+    talk(&mut world, pekiron); // → Tonar's Remains 1
+    assert_eq!(item_count(&world, 3001, 2894), 1, "Tonar's Remains 1");
+    // --- Leg Hermodt (Manakia): skull off Stenoa + 4 bones off Medusa ---
+    ev(&mut world, manakia, "30515-02.html"); // Manakia's Totem
+    kill(&mut world, 27108); // Stenoa → Hermodt's Skull
+    for _ in 0..4 {
+        kill(&mut world, 20158); // Medusa → rib/spine/arm/thigh
+    }
+    talk(&mut world, manakia); // → Hermodt's Remains 1
+    assert_eq!(item_count(&world, 3001, 2901), 1, "Hermodt's Remains 1");
+    // --- Leg Brakis (Orim): 30 reagents → fourth remains → cond 2 ---
+    ev(&mut world, orim, "30630-04.html"); // Orim's Contract
+    inject(&mut world, 3001, 0x0233_0000, 2884, 8); // 8 Porta's Eyes
+    kill(&mut world, 20213); // +2 → 10
+    inject(&mut world, 3001, 0x0233_0001, 2885, 5); // 5 Excuro's Scales
+    kill(&mut world, 20214); // +5 → 10
+    inject(&mut world, 3001, 0x0233_0002, 2886, 5); // 5 Mordeo's Talons
+    kill(&mut world, 20215); // +5 → 10
+    talk(&mut world, orim); // 30 reagents → Brakis's Remains 1, cond 2
+    assert_eq!(item_count(&world, 3001, 2887), 1, "Brakis's Remains 1");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // --- Somak forges the Vendetta Totem ---
+    talk(&mut world, somak); // 4 remains → Vendetta Totem, cond 3
+    assert_eq!(item_count(&world, 3001, 2880), 1, "Vendetta Totem");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    inject(&mut world, 3001, 0x0233_0003, 2881, 12); // 12 Tamlin Orc Heads
+    kill(&mut world, 20601); // 13th → cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, somak); // 13 heads → War Spirit Totem + remains2, cond 5
+    assert_eq!(item_count(&world, 3001, 2882), 1, "War Spirit Totem");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // --- Completion at Martankus ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, martankus);
+    ev(&mut world, martankus, "30649-03.html");
+    assert_eq!(item_count(&world, 3001, 2879), 1, "Mark of the War Spirit awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(5), "one-time quest finished");
+}
