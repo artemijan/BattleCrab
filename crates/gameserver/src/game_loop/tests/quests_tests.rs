@@ -5040,3 +5040,157 @@ fn quest_q00296_refused_above_level_21() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30519-03.htm")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-22 starter never begins");
 }
+
+/// Q00266 Pleas of Pixies: the per-mob variable-amount `getRandom(10)` drop,
+/// the limit-100 cond flip, and the (inverted) jackpot reward at bucket 0.
+#[test]
+fn quest_q00266_pixies_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1334, "Predator's Fang", true), (1336, "Glass Shard", true)]);
+    for id in [20537, 20525] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 5;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 5;
+        p.race = 1; // Elf
+    }
+    drain_db(&mut db_rx);
+
+    let q = "Q00266_PleasOfPixies";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    // Gray Wolf two-entry table: gate 3 (<5) → 2 fangs; gate 7 (5..10) → 3 fangs.
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, mob, 20525, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(3);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob, 3001);
+    add_test_npc(&mut world, mob + 1, 20525, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(7);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1334), 5, "2 + 3 fangs from the two gate buckets");
+
+    // Inject up to 98, then an Elder Red Keltir (gives 2) hits the 100 cap → cond 2.
+    {
+        let World { objects, data, .. } = &mut world;
+        objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, 0x5100_0000, 1334, 93);
+    }
+    add_test_npc(&mut world, mob + 2, 20537, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1334), 100);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 at 100 fangs");
+    drain(&mut rx);
+
+    // Turn in with the reward roll < 2 → bucket 0 (Glass Shard + 100a, jackpot chime).
+    let adena_before = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 1336), 1, "Glass Shard");
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 100, "100 adena");
+    assert_eq!(item_count(&world, 3001, 1334), 0, "fangs consumed");
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit");
+}
+
+/// The reward-roll buckets: 20..45 → Blue Onyx + 500a, 45+ → Emerald + 5000a
+/// (the common case), driven through repeatable re-runs.
+#[test]
+fn quest_q00266_reward_buckets() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1334, "Fang", true), (1338, "Blue Onyx", true), (1337, "Emerald", true)]);
+    let mut t = crate::data::npc_data::default_template(20537);
+    t.type_name = "Monster".into();
+    t.level = 5;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 5;
+        p.race = 1;
+    }
+    let q = "Q00266_PleasOfPixies";
+    let mut obj = 0x5200_0000;
+    let mob = NPC_OID + 1;
+    let mut mi = 0;
+    for (roll, item, adena) in [(30, 1338, 500), (60, 1337, 5000)] {
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
+        {
+            let World { objects, data, .. } = &mut world;
+            objects.get_component_mut::<crate::model::inventory::Inventory>(&3001).unwrap().add_item(&data.item_data, obj, 1334, 98);
+        }
+        obj += 1;
+        add_test_npc(&mut world, mob + mi, 20537, "Monster", 5, 30, 0, 0);
+        world.forced_rolls.push_back(0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob + mi, 3001);
+        mi += 1;
+        assert_eq!(quest_cond(&world, 3001, q), Some(2));
+        let adena_before = item_count(&world, 3001, 57);
+        world.forced_rolls.push_back(roll);
+        handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+        assert_eq!(item_count(&world, 3001, item), 1, "roll {roll} → item {item}");
+        assert_eq!(item_count(&world, 3001, 57), adena_before + adena, "roll {roll} → {adena}a");
+    }
+}
+
+/// Q00266 is Elf-only and level 3–8: a non-Elf sees `31852-01.htm`, and a
+/// level-9 Elf is refused by `addCondMaxLevel(8)`.
+#[test]
+fn quest_q00266_race_and_level_gates() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1334, "Fang", true)]);
+    add_test_npc(&mut world, NPC_OID, 31852, "Folk", 5, 100, 0, 0);
+    let mut elf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    {
+        let e = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        e.level = 5;
+        e.race = 1;
+    }
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 5; // Human
+    drain(&mut elf_rx);
+    drain(&mut human_rx);
+
+    let q = "Q00266_PleasOfPixies";
+    let quest_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                    .then(|| {
+                        let mut r = commons::network::PacketReader::new(&p[3..]);
+                        r.read_i32();
+                        r.read_string().unwrap_or_default()
+                    })
+            })
+            .unwrap_or_default()
+    };
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_ne!(quest_html(&mut elf_rx), quest_html(&mut human_rx), "Elf and Human see different pages");
+
+    // A fresh level-9 Elf: `addCondMaxLevel(8)` blocks the start-npc talk from
+    // ever creating the state, so the start event has nothing to start.
+    let _rx3 = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    {
+        let e = world.objects.get_component_mut::<Player>(&3003).unwrap();
+        e.level = 9;
+        e.race = 1;
+    }
+    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31852-04.htm")));
+    assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-9 Elf refused");
+}
