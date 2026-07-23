@@ -119,12 +119,12 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
 /// `new_clan_id`; the old owner/defenders become attackers and the captor
 /// becomes the OWNER defender.
 ///
-/// TODO(G24): the trigger (the artifact NPC), teleport-attackers-to-flag, the
-/// weakened-door respawn, tower removal, residential skills and crests.
-// The throne-room artifact that calls this is an unported spawn, so nothing in
-// production reaches `capture` yet — the engine + its end-to-end test are ready
-// for when it lands.
-#[allow(dead_code)]
+/// Reached in production: the Holy Artifact (type `Artefact`, e.g. Gludio's
+/// 35063) is a permanent castle spawn, so an attacker touching it during an
+/// active siege calls [`try_capture_artifact`] → here.
+///
+/// TODO(G24): teleport-attackers-to-flag, the weakened-door respawn, tower
+/// removal, residential skills and crests.
 pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
@@ -503,6 +503,67 @@ fn broadcast_to_all(world: &World, pkt: &[u8]) {
     for cs in world.clients.values() {
         if let ClientSession::InGame(_) = cs {
             cs.send(pkt.to_vec());
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// The automatic weekly schedule (`SiegeSchedule.xml`). G24 slice 1.
+// ---------------------------------------------------------------------------
+
+const MILLIS_PER_DAY: i64 = 86_400_000;
+const MILLIS_PER_HOUR: i64 = 3_600_000;
+const TICKS_PER_SECOND: u64 = 10;
+
+/// The next `weekday`@`hour`:00 **UTC** strictly after `now_millis` (Java
+/// `SiegeScheduleDate` + `Calendar` next-occurrence, computed in UTC — Rust std
+/// has no timezone, so this differs from Java's server-local time by the
+/// deployment's UTC offset; the weekly cadence itself is exact).
+///
+/// `weekday` is `Mon=0..Sun=6`. 1970-01-01 (epoch day 0) was a Thursday, so
+/// `weekday_of(day) = (day + 3) % 7`.
+pub(crate) fn next_siege_millis(now_millis: i64, weekday: u32, hour: u32) -> i64 {
+    let now_day = now_millis.div_euclid(MILLIS_PER_DAY);
+    let now_weekday = (now_day + 3).rem_euclid(7) as u32;
+    let mut delta = (weekday as i64 - now_weekday as i64).rem_euclid(7);
+    let mut candidate = (now_day + delta) * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR;
+    if candidate <= now_millis {
+        delta += 7;
+        candidate = (now_day + delta) * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR;
+    }
+    candidate
+}
+
+/// Arm each enabled castle's next scheduled siege. Called once the per-castle
+/// `Siege`s exist (the `SiegesLoaded` boot handler).
+pub(crate) fn schedule_all_at_boot(world: &mut World) {
+    let now = commons::util::now_millis();
+    let entries: Vec<(i32, u32, u32)> = world
+        .data
+        .siege_schedule
+        .iter()
+        .filter(|(_, e)| e.enabled)
+        .map(|(&id, e)| (id, e.weekday, e.hour))
+        .collect();
+    for (castle_id, weekday, hour) in entries {
+        arm_next_siege(world, castle_id, weekday, hour, now);
+    }
+}
+
+fn arm_next_siege(world: &mut World, castle_id: i32, weekday: u32, hour: u32, now: i64) {
+    let at_millis = next_siege_millis(now, weekday, hour);
+    let delay_ticks = ((at_millis - now).max(0) / 1000) as u64 * TICKS_PER_SECOND;
+    world.scheduler.schedule(world.tick + delay_ticks, ScheduledTask::SiegeStart { castle_id });
+}
+
+/// A scheduled siege's start time arrived: begin it, and re-arm next week so
+/// the timer perpetuates itself (whether or not this siege actually runs —
+/// a castle with no registered attackers just holds, as in Java).
+pub(crate) fn handle_scheduled_siege_start(world: &mut World, castle_id: i32) {
+    start_siege(world, castle_id);
+    if let Some(e) = world.data.siege_schedule.get(&castle_id).copied() {
+        if e.enabled {
+            arm_next_siege(world, castle_id, e.weekday, e.hour, commons::util::now_millis());
         }
     }
 }

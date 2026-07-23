@@ -90,6 +90,7 @@ mod baium_tests;
 mod boss_zone_tests;
 mod core_boss_tests;
 mod dr_chaos_tests;
+mod siege_schedule_tests;
 mod grand_boss_tests;
 mod orfen_tests;
 mod queen_ant_tests;
@@ -308,6 +309,7 @@ async fn character_create_inserts_into_real_schema() {
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
         siege_towers: std::collections::HashMap::new(),
+        siege_schedule: std::collections::HashMap::new(),
         castle_restart_points: std::collections::HashMap::new(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),
