@@ -92,6 +92,9 @@ pub mod q00375_whisper_of_dreams_part2;
 pub mod q00606_battle_against_varka_silenos;
 pub mod q00612_battle_against_ketra_orcs;
 pub mod q00634_in_search_of_fragments_of_dimension;
+pub mod q00124_meeting_the_elroki;
+pub mod q00325_grim_collector;
+pub mod q00643_rise_and_fall_of_the_elroki_tribe;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -163,6 +166,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00606_battle_against_varka_silenos::Q00606BattleAgainstVarkaSilenos),
         Arc::new(q00612_battle_against_ketra_orcs::Q00612BattleAgainstKetraOrcs),
         Arc::new(q00634_in_search_of_fragments_of_dimension::Q00634InSearchOfFragmentsOfDimension),
+        Arc::new(q00124_meeting_the_elroki::Q00124MeetingTheElroki),
+        Arc::new(q00325_grim_collector::Q00325GrimCollector),
+        Arc::new(q00643_rise_and_fall_of_the_elroki_tribe::Q00643RiseAndFallOfTheElrokiTribe::new()),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
