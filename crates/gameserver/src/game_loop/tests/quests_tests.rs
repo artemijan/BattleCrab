@@ -4592,3 +4592,74 @@ fn quest_q00261_refused_above_level_21() {
         "the level-22 starter never begins the quest"
     );
 }
+
+/// Q00257 The Guard is Busy: start (Lord's Mark) → hand-rolled trophy drops →
+/// adena payout by trophy type, repeatable. Also pins the Orc Archer's
+/// two-entry table (first hit wins → 2 amulets) and the max-level gate.
+#[test]
+fn quest_q00257_the_guard_is_busy_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(752, "Orc Amulet", true), (1084, "Gludio Lord's Mark", false), (1085, "Orc Necklace", true), (1086, "Werewolf Fang", true)]);
+    for id in [20006, 20093, 20130, 20343] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 10;
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, 30039, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 10;
+    drain_db(&mut db_rx);
+
+    let q = "Q00257_TheGuardIsBusy";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    assert_eq!(item_count(&world, 3001, 1084), 1, "Gludio Lord's Mark given");
+    drain(&mut rx);
+
+    let mob = NPC_OID + 1;
+    // Orc Archer 20006: first table entry (roll(10) < 2) wins → 2 amulets, one roll.
+    add_test_npc(&mut world, mob, 20006, "Monster", 10, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(item_count(&world, 3001, 752), 2, "Orc Archer's first entry pays two amulets");
+
+    // Orc Fighter 20093 → 1 necklace; Werewolf Hunter 20343 → 1 fang.
+    add_test_npc(&mut world, mob + 1, 20093, "Monster", 10, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob + 1, 3001);
+    add_test_npc(&mut world, mob + 2, 20343, "Monster", 10, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1085), 1, "one necklace");
+    assert_eq!(item_count(&world, 3001, 1086), 1, "one fang");
+    drain(&mut rx);
+
+    // Turn in: 2 amulets*5 + 1 necklace*8 + 1 fang*10 = 28 adena (total 4 < 10, no bonus).
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 28, "adena by trophy type");
+    assert_eq!(item_count(&world, 3001, 752) + item_count(&world, 3001, 1085) + item_count(&world, 3001, 1086), 0, "trophies taken");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "turn-in keeps the quest running");
+
+    // Leaving (30039-05.html) is the repeatable exit.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-05.html")));
+    assert!(quest_cond(&world, 3001, q).is_none(), "repeatable exit clears the record");
+}
+
+/// Q00257 refuses a starter above level 16 (`addCondMaxLevel(16)`).
+#[test]
+fn quest_q00257_refused_above_level_16() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1084, "Gludio Lord's Mark", false)]);
+    add_test_npc(&mut world, NPC_OID, 30039, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 17;
+
+    let q = "Q00257_TheGuardIsBusy";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30039-03.htm")));
+    assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
+    assert_eq!(item_count(&world, 3001, 1084), 0, "no Lord's Mark handed out");
+}
