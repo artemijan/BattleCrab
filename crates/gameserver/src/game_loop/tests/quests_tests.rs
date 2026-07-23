@@ -6336,3 +6336,162 @@ fn quest_q00356_dig_up_the_sea_of_spores() {
     assert_eq!(item_count(&world, 3001, 57), a + 3000, "top reward bucket → 3000 adena");
     assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
 }
+
+#[test]
+fn quest_q00688_defeat_the_elrokian_raiders() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(8785, "Dinosaur Fang Necklace", true)]);
+    let mut t = crate::data::npc_data::default_template(22214); // Elroki
+    t.type_name = "Monster".into();
+    t.level = 75;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 32105, "Folk", 70, 100, 0, 0); // Dinn
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 75;
+    let q = "Q00688_DefeatTheElrokianRaiders";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32105-03.html")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Kill Elroki: DROP_RATE 448 folded into the threshold, roll(1000)=0 < 448.
+    add_test_npc(&mut world, NPC_OID + 1, 22214, "Monster", 75, 30, 0, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 8785), 1, "Elroki drops a necklace");
+    // Per-necklace turn-in: 10 necklaces → 30000 adena.
+    inject(&mut world, 3001, 0x0688_0000, 8785, 9);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 32105-06.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 30000, "10 necklaces → 30000 adena");
+    assert_eq!(item_count(&world, 3001, 8785), 0, "necklaces consumed");
+    // Donation: 100 necklaces, roll(1000)=0 < 500 → 450000 adena.
+    inject(&mut world, 3001, 0x0688_0001, 8785, 100);
+    let b = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} donation")),
+    );
+    assert_eq!(item_count(&world, 3001, 57), b + 450000, "donation jackpot → 450000 adena");
+    assert_eq!(item_count(&world, 3001, 8785), 0, "100 necklaces consumed");
+}
+
+#[test]
+fn quest_q00355_family_honor() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (4252, "Galfredo Romer's Bust", true),
+            (4350, "Sculptor Berona", false),
+            (4351, "Ancient Statue Prototype", false),
+        ],
+    );
+    let mut t = crate::data::npc_data::default_template(20767); // timak_orc_troop_leader
+    t.type_name = "Monster".into();
+    t.level = 40;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30181, "Folk", 40, 100, 0, 0); // Galibredo
+    add_test_npc(&mut world, NPC_OID + 1, 30929, "Folk", 40, 100, 0, 0); // Patrin
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    let q = "Q00355_FamilyHonor";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30181-03.htm")),
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // 20767: first 560 / second 684. roll(1000)=0 < 560 → a bust.
+    add_test_npc(&mut world, NPC_OID + 2, 20767, "Monster", 40, 30, 0, 0);
+    world.forced_rolls.push_back(0); // roll(1000) → bust branch
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 4252), 1, "kill drops a bust");
+    // roll(1000)=600 → 560..684 → a Sculptor Berona.
+    add_test_npc(&mut world, NPC_OID + 3, 20767, "Monster", 40, 30, 0, 0);
+    world.forced_rolls.push_back(600); // roll(1000) → berona branch
+    world.forced_rolls.push_back(0); // give_item_randomly roll_f64
+    death::npc_do_die(&mut world, NPC_OID + 3, 3001);
+    assert_eq!(item_count(&world, 3001, 4350), 1, "kill drops a berona");
+    // Sell 100 busts at Galibredo → 100*20 = 2000 adena.
+    inject(&mut world, 3001, 0x4252_0000, 4252, 99);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30181-06.html")),
+    );
+    assert_eq!(item_count(&world, 3001, 57), a + 2000, "100 busts → 2000 adena");
+    assert_eq!(item_count(&world, 3001, 4252), 0, "busts consumed");
+    // Patrin appraises the berona: roll(100)=0 < 2 → the Prototype (4351).
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{}_Quest {q} 30929-03.html", NPC_OID + 1)),
+    );
+    assert_eq!(item_count(&world, 3001, 4351), 1, "berona → ancient statue prototype");
+    assert_eq!(item_count(&world, 3001, 4350), 0, "berona consumed");
+}
+
+#[test]
+fn quest_q00622_specialty_liquor_delivery() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(7197, "Special Drink", true), (7198, "Special Drink Price", true), (734, "Quick Step Potion", false)]);
+    // Seven talk NPCs, one fixture each.
+    let jeremy = NPC_OID;
+    let boelin = NPC_OID + 1;
+    let kuber = NPC_OID + 2;
+    let crocus = NPC_OID + 3;
+    let naff = NPC_OID + 4;
+    let pulin = NPC_OID + 5;
+    let lietta = NPC_OID + 6;
+    add_test_npc(&mut world, jeremy, 31521, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, boelin, 31547, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, kuber, 31546, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, crocus, 31545, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, naff, 31544, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, pulin, 31543, "Folk", 70, 100, 0, 0);
+    add_test_npc(&mut world, lietta, 31267, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 70;
+    let q = "Q00622_SpecialtyLiquorDelivery";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 7197), 5, "Jeremy hands over 5 drinks");
+    // Deliver to the five bartenders in order (Boelin, Kuber, Crocus, Naff, Pulin).
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{boelin}_Quest {q} 31547-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{kuber}_Quest {q} 31546-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{crocus}_Quest {q} 31545-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{naff}_Quest {q} 31544-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{pulin}_Quest {q} 31543-02.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    assert_eq!(item_count(&world, 3001, 7197), 0, "all drinks delivered");
+    assert_eq!(item_count(&world, 3001, 7198), 5, "five payment slips collected");
+    // Jeremy takes the five slips → cond 7.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{jeremy}_Quest {q} 31521-06.html")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    assert_eq!(item_count(&world, 3001, 7198), 0, "slips consumed");
+    // Lietta: roll(1000)=0 < 800 → Quick Step Potion + 18800 adena, exit.
+    let a = item_count(&world, 3001, 57);
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{lietta}_Quest {q} 31267-02.html")));
+    assert_eq!(item_count(&world, 3001, 734), 1, "Quick Step Potion reward");
+    assert_eq!(item_count(&world, 3001, 57), a + 18800, "18800 adena");
+    assert_eq!(quest_cond(&world, 3001, q), None, "repeatable exit removes the quest");
+}

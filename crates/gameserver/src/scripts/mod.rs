@@ -80,6 +80,9 @@ pub mod q00617_gather_the_flames;
 pub mod q00354_conquest_of_alligator_island;
 pub mod q00356_dig_up_the_sea_of_spores;
 pub mod q00358_illegitimate_child_of_the_goddess;
+pub mod q00355_family_honor;
+pub mod q00622_specialty_liquor_delivery;
+pub mod q00688_defeat_the_elrokian_raiders;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -139,6 +142,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00354_conquest_of_alligator_island::Q00354ConquestOfAlligatorIsland),
         Arc::new(q00356_dig_up_the_sea_of_spores::Q00356DigUpTheSeaOfSpores),
         Arc::new(q00358_illegitimate_child_of_the_goddess::Q00358IllegitimateChildOfTheGoddess),
+        Arc::new(q00355_family_honor::Q00355FamilyHonor),
+        Arc::new(q00622_specialty_liquor_delivery::Q00622SpecialtyLiquorDelivery),
+        Arc::new(q00688_defeat_the_elrokian_raiders::Q00688DefeatTheElrokianRaiders),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
