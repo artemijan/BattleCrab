@@ -20,6 +20,21 @@ pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `NpcSay(npc, NPC_GENERAL, String)` — the **literal-text** variant: Java
+/// writes `_npcString = -1` then the string, which is what
+/// `broadcastSay(type, "some English line")` sends (Dr. Chaos's paranoid
+/// barks are literal, not client-localized string ids).
+pub fn npc_say_text(npc_object_id: i32, npc_id: i32, text: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NPC_SAY);
+    w.write_i32(npc_object_id);
+    w.write_i32(22); // ChatType.NPC_GENERAL
+    w.write_i32(1_000_000 + npc_id);
+    w.write_i32(-1); // literal string follows
+    w.write_string(text);
+    w.into_bytes()
+}
+
 /// Port of `Creature.getTitle()`'s monster branch: with `ShowNpcLevel` /
 /// `ShowNpcAggression` on, a monster's title becomes `Lv <level>` plus `[A]`
 /// (template aggressive) / `[G]` (has a clan list and a clan-help range, i.e.

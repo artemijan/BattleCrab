@@ -68,6 +68,11 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         } else if super::core_boss::is_core_minion(npc_id) {
             super::core_boss::on_minion_killed(world, npc_id);
         }
+        // The Gigantic Chaos Golem carries no config window, so the shared
+        // lifecycle no-ops for it — Dr. Chaos owns its death.
+        if npc_id == super::dr_chaos::CHAOS_GOLEM {
+            super::dr_chaos::on_golem_killed(world, npc_oid);
+        }
     }
 
     // `Pet.doDie`: the exp penalty, the owner's warning and the state capture.

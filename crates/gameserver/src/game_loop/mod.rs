@@ -20,6 +20,7 @@ mod dispatch;
 pub(crate) mod doors;
 pub(crate) mod duel;
 mod effect_point;
+pub(crate) mod dr_chaos;
 mod skill_enchant;
 mod enchant;
 mod expertise;
@@ -206,6 +207,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // aren't, and immediately respawn any whose window elapsed while the
     // server was down.
     grand_boss::resolve_at_boot(&mut world);
+    dr_chaos::resolve_at_boot(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -356,6 +358,18 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ValakasBeginning => {
                 valakas::handle_beginning_timer(world);
+            }
+            ScheduledTask::DrChaosParanoia { dr_chaos_oid } => {
+                dr_chaos::handle_paranoia(world, dr_chaos_oid);
+            }
+            ScheduledTask::DrChaosTransform { dr_chaos_oid, step } => {
+                dr_chaos::handle_transform(world, dr_chaos_oid, step);
+            }
+            ScheduledTask::DrChaosGolemDespawn { golem_oid } => {
+                dr_chaos::handle_golem_despawn(world, golem_oid);
+            }
+            ScheduledTask::DrChaosReset => {
+                dr_chaos::handle_reset(world);
             }
             ScheduledTask::AntharasSpawn => {
                 antharas::handle_spawn_timer(world);
