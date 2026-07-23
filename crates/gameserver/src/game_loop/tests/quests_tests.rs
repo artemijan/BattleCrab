@@ -5507,3 +5507,98 @@ fn quest_q00262_refused_above_level_16() {
     handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30137-03.htm")));
     assert!(quest_cond(&world, 3001, q).is_none_or(|c| c == 0), "level-17 starter never begins");
 }
+
+/// Q00267 Wrath of Verdure: the flat 50% club drop, the `2 + count` adena
+/// formula (turn-in without leaving), and the separate exit.
+#[test]
+fn quest_q00267_wrath_of_verdure_loop() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1335, "Goblin Club", true)]);
+    let mut t = crate::data::npc_data::default_template(20325);
+    t.type_name = "Monster".into();
+    t.level = 6;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 31853, "Folk", 5, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 6;
+        p.race = 1; // Elf
+    }
+    drain_db(&mut db_rx);
+
+    let q = "Q00267_WrathOfVerdure";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    drain(&mut rx);
+
+    let mut mob = NPC_OID + 1;
+    let mut kill = |world: &mut World, roll: i32| {
+        add_test_npc(world, mob, 20325, "Monster", 6, 30, 0, 0);
+        world.forced_rolls.push_back(roll);
+        death::npc_do_die(world, mob, 3001);
+        mob += 1;
+    };
+    kill(&mut world, 2); // < 5 → club
+    kill(&mut world, 7); // ≥ 5 → nothing
+    kill(&mut world, 0); // → club
+    assert_eq!(item_count(&world, 3001, 1335), 2, "two clubs from three kills");
+
+    // Turn in: 2 + 2 clubs = 4 adena, clubs taken, quest STILL running.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), adena_before + 4, "2 + club count");
+    assert_eq!(item_count(&world, 3001, 1335), 0, "clubs handed in");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "turn-in does not end the quest");
+
+    // Leaving is a separate event.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-07.html")));
+    assert!(quest_cond(&world, 3001, q).is_none(), "the leave event exits");
+}
+
+/// Q00267 is Elf-only (non-Elf → `31853-01.htm`) and refuses above level 9.
+#[test]
+fn quest_q00267_race_and_level_gates() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    add_quest_items(&mut world, &[(1335, "Goblin Club", true)]);
+    add_test_npc(&mut world, NPC_OID, 31853, "Folk", 5, 100, 0, 0);
+    let mut elf_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut human_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    {
+        let e = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        e.level = 6;
+        e.race = 1;
+    }
+    world.objects.get_component_mut::<Player>(&3002).unwrap().level = 6;
+    drain(&mut elf_rx);
+    drain(&mut human_rx);
+
+    let q = "Q00267_WrathOfVerdure";
+    let page = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                (p[0] == server_packets::opcodes::EX && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_NPC_QUEST_HTML_MESSAGE)
+                    .then(|| {
+                        let mut r = commons::network::PacketReader::new(&p[3..]);
+                        r.read_i32();
+                        r.read_string().unwrap_or_default()
+                    })
+            })
+            .unwrap_or_default()
+    };
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 2, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_ne!(page(&mut elf_rx), page(&mut human_rx), "Elf and Human see different pages");
+
+    let _rx3 = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    {
+        let e = world.objects.get_component_mut::<Player>(&3003).unwrap();
+        e.level = 10;
+        e.race = 1;
+    }
+    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 3, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 31853-04.htm")));
+    assert!(quest_cond(&world, 3003, q).is_none_or(|c| c == 0), "level-10 Elf refused");
+}
