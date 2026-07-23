@@ -9196,3 +9196,132 @@ fn quest_q00219_testimony_of_fate() {
     assert_eq!(item_count(&world, 3001, 57), a + 247708, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(18), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00218_testimony_of_life() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (3141..=3171).map(|id| (id, "Q218", true)).collect();
+    items.push((3026, "Talin's Spear", true));
+    items.push((3140, "Mark of Life", false));
+    add_quest_items(&mut world, &items);
+    for id in [20550, 20082, 20176, 20145, 20233, 20581, 27077] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let cardien = NPC_OID;
+    let asterios = NPC_OID + 1;
+    let pushkin = NPC_OID + 2;
+    let thalia = NPC_OID + 3;
+    let arkenia = NPC_OID + 4;
+    let adonius = NPC_OID + 5;
+    let isael = NPC_OID + 6;
+    for (oid, npc) in [
+        (cardien, 30460),
+        (asterios, 30154),
+        (pushkin, 30300),
+        (thalia, 30371),
+        (arkenia, 30419),
+        (adonius, 30375),
+        (isael, 30655),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 19; // Elven Knight (ELF_2ND_GROUP)
+        p.race = 1; // Elf
+    }
+    world.data.categories.insert_for_test("ELF_2ND_GROUP", &[19]);
+    let q = "Q00218_TestimonyOfLife";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, cardien);
+    ev(&mut world, cardien, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    talk(&mut world, asterios);
+    ev(&mut world, asterios, "30154-07.html"); // → Hierarch's Letter + Moonflower Charm, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, thalia);
+    ev(&mut world, thalia, "30371-03.html"); // → Grail Diagram, cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, pushkin);
+    ev(&mut world, pushkin, "30300-06.html"); // → Pushkin's List, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    inject(&mut world, 3001, 0x0218_0000, 3161, 8); // mithril ore
+    kill(&mut world, 20550); // Basilisk +2 → 10
+    inject(&mut world, 3001, 0x0218_0001, 3162, 18); // ant acid
+    kill(&mut world, 20082); // Ant +2 → 20
+    inject(&mut world, 3001, 0x0218_0002, 3163, 16); // wyrm talon
+    kill(&mut world, 20176); // Wyrm +4 → 20, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, pushkin);
+    ev(&mut world, pushkin, "30300-10.html"); // → Pure Mithril Cup, cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, thalia); // cup → Thalia's 1st Letter, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, arkenia);
+    ev(&mut world, arkenia, "30419-04.html"); // → Arkenia's Contract + Instructions, cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, adonius);
+    ev(&mut world, adonius, "30375-02.html"); // → Adonius's List, cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    inject(&mut world, 3001, 0x0218_0003, 3165, 16); // harpy down
+    kill(&mut world, 20145); // Harpy +4 → 20
+    inject(&mut world, 3001, 0x0218_0004, 3164, 16); // spider ichor
+    kill(&mut world, 20233); // Spider +4 → 20, cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, adonius); // → Andariel Scripture Copy, cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, arkenia); // → Stardust, cond 12
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, thalia);
+    ev(&mut world, thalia, "30371-11.html"); // → Thalia's 2nd Letter, cond 14
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    talk(&mut world, isael);
+    ev(&mut world, isael, "30655-02.html"); // → Isael's Instructions, cond 15
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    for _ in 0..6 {
+        kill(&mut world, 20581); // Leto → six spear parts
+    }
+    talk(&mut world, isael); // parts → Talin's Spear + Isael's Letter, cond 17
+    assert_eq!(item_count(&world, 3001, 3026), 1, "Talin's Spear assembled");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    talk(&mut world, thalia); // spear + letter → Grail of Purity, cond 18
+    assert_eq!(item_count(&world, 3001, 3158), 1, "Grail of Purity");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    // Slay the Unicorn with Talin's Spear equipped.
+    equip_weapon_row(&mut world, 3001, 3026);
+    inject(&mut world, 3001, 0x0218_0005, 3144, 1); // re-supply moonflower/spear/grail
+    inject(&mut world, 3001, 0x0218_0006, 3026, 1);
+    inject(&mut world, 3001, 0x0218_0007, 3158, 1);
+    kill(&mut world, 27077); // Unicorn (spear-struck) → Tears of Unicorn, cond 19
+    assert_eq!(item_count(&world, 3001, 3159), 1, "Tears of Unicorn");
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    talk(&mut world, thalia); // tears → Water of Life, cond 20
+    assert_eq!(item_count(&world, 3001, 3160), 1, "Water of Life");
+    assert_eq!(quest_cond(&world, 3001, q), Some(20));
+    talk(&mut world, asterios); // moonflower + water → Camomile Charm, cond 21
+    assert_eq!(item_count(&world, 3001, 3142), 1, "Camomile Charm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(21));
+    // --- Completion at Cardien ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, cardien);
+    assert_eq!(item_count(&world, 3001, 3140), 1, "Mark of Life awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 342288, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(21), "one-time quest finished");
+}
