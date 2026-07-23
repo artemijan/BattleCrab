@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { ApiError, api, type Account } from "../lib/api";
 import { Alert, Button, Field, Panel } from "../components/ui";
+import * as React from "react";
 
 export function AuthShell({
   title,
@@ -17,8 +18,8 @@ export function AuthShell({
   footer: React.ReactNode;
 }) {
   return (
-    // Vertical rhythm stays tight so the taller form (register, three fields)
-    // still fits an 800px-high laptop viewport without scrolling.
+    // Vertical rhythm stays tight, so the taller form (register, three fields)
+    // still fits 800px-high laptop viewport without scrolling.
     <div className="mx-auto max-w-md py-4 sm:py-6">
       <Panel strong className="animate-rise p-6 sm:p-7">
         <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
@@ -130,7 +131,7 @@ export function Register() {
   const [confirm, setConfirm] = useState("");
 
   // Checked here purely for a fast, friendly message — the server enforces the
-  // real rules, and these must not drift from routes::validate_* .
+  // real rules, and these must not drift from routes::validate_*
   const mismatch = confirm.length > 0 && confirm !== password;
 
   const submit = useMutation({
