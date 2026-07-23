@@ -99,6 +99,7 @@ pub mod q00111_elrokian_hunters_proof;
 pub mod q00373_supplier_of_reagents;
 pub mod q00344_1000_years_the_end_of_lamentation;
 pub mod q00235_mimirs_elixir;
+pub mod q00222_test_of_the_duelist;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -177,6 +178,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00373_supplier_of_reagents::Q00373SupplierOfReagents),
         Arc::new(q00344_1000_years_the_end_of_lamentation::Q003441000YearsTheEndOfLamentation),
         Arc::new(q00235_mimirs_elixir::Q00235MimirsElixir),
+        Arc::new(q00222_test_of_the_duelist::Q00222TestOfTheDuelist),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
