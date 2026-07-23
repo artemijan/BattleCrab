@@ -7718,3 +7718,154 @@ fn quest_q00224_test_of_sagittarius() {
     assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(14), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00225_test_of_the_searcher() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (2784..=2808).map(|id| (id, "Q225", true)).collect();
+    items.push((2809, "Mark of Searcher", false));
+    add_quest_items(&mut world, &items);
+    for id in [20781, 27093, 20555, 20551, 20144, 27092] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    // The Ancient Tree conjures a Strong Wooden Chest; it needs a template.
+    world.data.npc_data.insert_for_test(crate::data::npc_data::default_template(30628));
+    let luther = NPC_OID;
+    let alex = NPC_OID + 1;
+    let leirynn = NPC_OID + 2;
+    let borys = NPC_OID + 3;
+    let tyra = NPC_OID + 4;
+    let jax = NPC_OID + 5;
+    let tree = NPC_OID + 6;
+    let chest = NPC_OID + 7;
+    for (oid, npc) in [
+        (luther, 30690),
+        (alex, 30291),
+        (leirynn, 30728),
+        (borys, 30729),
+        (tyra, 30420),
+        (jax, 30730),
+        (tree, 30627),
+        (chest, 30628),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 7; // Rogue
+    }
+    let q = "Q00225_TestOfTheSearcher";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, luther);
+    ev(&mut world, luther, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(item_count(&world, 3001, 2784), 1, "Luther's Letter");
+    talk(&mut world, alex); // Luther's Letter → Alex's Warrant, cond 2
+    assert_eq!(item_count(&world, 3001, 2785), 1, "Alex's Warrant");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, leirynn); // Warrant → 1st Order, cond 3
+    assert_eq!(item_count(&world, 3001, 2786), 1, "Leirynn's 1st Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    // onAttack: first hit on a Delu Shaman (1st Order held) conjures a Neer Bodyguard.
+    add_test_npc(&mut world, NPC_OID + 20, 20781, "Monster", 40, 40, 0, 0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    assert_eq!(npcs_of(&mut world, 27092).len(), 1, "onAttack conjures a Neer Bodyguard");
+    // Collect 10 Delu Totems (cond stays 3 — the totem leg advances at Leirynn).
+    inject(&mut world, 3001, 0x0225_0000, 2787, 9);
+    kill(&mut world, 20781);
+    assert_eq!(item_count(&world, 3001, 2787), 10, "Delu Totem reaches 10");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3), "totem kill does not fire the dead cond 4");
+    talk(&mut world, leirynn); // 1st Order + totems → 2nd Order, cond 5
+    assert_eq!(item_count(&world, 3001, 2788), 1, "Leirynn's 2nd Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    kill(&mut world, 27093); // Delu Chief Kalkis → fang + Stringe's Map, cond 6
+    assert_eq!(item_count(&world, 3001, 2789), 1, "Chief Kalkis's Fang");
+    assert_eq!(item_count(&world, 3001, 2791), 1, "Stringe's Map");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, leirynn); // 2nd Order + fang → Report, cond 7
+    assert_eq!(item_count(&world, 3001, 2790), 1, "Leirynn's Report");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, alex);
+    ev(&mut world, alex, "30291-07.html"); // Report + Stringe → Lambert's Map + Letter + Order, cond 8
+    assert_eq!(item_count(&world, 3001, 2792), 1, "Lambert's Map");
+    assert_eq!(item_count(&world, 3001, 2793), 1, "Alex's Letter");
+    assert_eq!(item_count(&world, 3001, 2794), 1, "Alex's Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, borys); // Letter → Wine Catalog, cond 9
+    assert_eq!(item_count(&world, 3001, 2795), 1, "Wine Catalog");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, tyra);
+    ev(&mut world, tyra, "30420-01a.html"); // Catalog → Tyra's Contract, cond 10
+    assert_eq!(item_count(&world, 3001, 2796), 1, "Tyra's Contract");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    inject(&mut world, 3001, 0x0225_0001, 2797, 9); // 9 Red Spore Dust
+    kill(&mut world, 20555); // 10th dust → cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, tyra); // Contract + dust → Malrukian Wine, cond 12
+    assert_eq!(item_count(&world, 3001, 2798), 1, "Malrukian Wine");
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, borys); // Wine → Old Order, cond 13
+    assert_eq!(item_count(&world, 3001, 2799), 1, "Old Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, jax);
+    ev(&mut world, jax, "30730-01d.html"); // Old Order → Jax's Diary, cond 14
+    assert_eq!(item_count(&world, 3001, 2800), 1, "Jax's Diary");
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    // --- Map pieces: Solt's (deterministic) + Makel's (50/50) → cond 15. ---
+    kill(&mut world, 20551); // Road Scavenger: first torn piece
+    assert_eq!(item_count(&world, 3001, 2801), 1, "Torn Map Piece 1st accrues");
+    inject(&mut world, 3001, 0x0225_0002, 2801, 2); // → 3 pieces
+    kill(&mut world, 20551); // at 3 → Solt's Map (no cond 15 yet, Makel's absent)
+    assert_eq!(item_count(&world, 3001, 2803), 1, "Solt's Map");
+    assert_eq!(item_count(&world, 3001, 2801), 0, "torn 1st pieces consumed");
+    assert_ne!(quest_cond(&world, 3001, q), Some(15), "one map is not enough");
+    world.forced_rolls.push_back(0); // roll(100) < 50 → drop
+    kill(&mut world, 20144); // Hangman Tree: first torn 2nd piece
+    assert_eq!(item_count(&world, 3001, 2802), 1, "Torn Map Piece 2nd accrues");
+    inject(&mut world, 3001, 0x0225_0003, 2802, 2); // → 3 pieces
+    world.forced_rolls.push_back(0); // roll(100) < 50 → convert
+    kill(&mut world, 20144); // at 3 → Makel's Map + cond 15 (Solt's held)
+    assert_eq!(item_count(&world, 3001, 2804), 1, "Makel's Map");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    talk(&mut world, jax); // both maps → Combined Map, cond 16
+    assert_eq!(item_count(&world, 3001, 2805), 1, "Combined Map");
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    // --- Ancient Tree → Rusted Key + a conjured chest; open it for gold. ---
+    talk(&mut world, tree);
+    ev(&mut world, tree, "30627-01a.html"); // Rusted Key + spawn chest, cond 17
+    assert_eq!(item_count(&world, 3001, 2806), 1, "Rusted Key");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    assert!(!npcs_of(&mut world, 30628).is_empty(), "the tree conjures a Strong Wooden Chest");
+    talk(&mut world, chest);
+    ev(&mut world, chest, "30628-01a.html"); // key → 20 Gold Bars, cond 18, chest deleted
+    assert_eq!(item_count(&world, 3001, 2807), 20, "20 Gold Bars");
+    assert_eq!(item_count(&world, 3001, 2806), 0, "Rusted Key consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    talk(&mut world, alex); // Order + Combined Map + 20 gold → Alex's Recommend, cond 19
+    assert_eq!(item_count(&world, 3001, 2808), 1, "Alex's Recommendation");
+    assert_eq!(item_count(&world, 3001, 2807), 0, "gold handed over");
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    // --- Completion at Luther. ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, luther);
+    assert_eq!(item_count(&world, 3001, 2809), 1, "Mark of the Searcher awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 161806, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(19), "one-time quest finished");
+}
