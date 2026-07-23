@@ -55,7 +55,7 @@ function Brand() {
       */}
       <span
         className="relative shrink-0 transform-gpu transition-[scale] duration-500
-                   [transition-timing-function:var(--ease-out-soft)]
+                   ease-out-soft
                    group-hover:scale-[1.18]
                    group-active:scale-[1.06] group-active:duration-150"
       >
@@ -75,7 +75,7 @@ function Brand() {
           className="pointer-events-none absolute inset-0 rounded-xl
                      shadow-[0_14px_30px_-8px_rgba(0,87,183,1)] opacity-0
                      transition-opacity duration-500
-                     [transition-timing-function:var(--ease-out-soft)]
+                     ease-out-soft
                      group-hover:opacity-100"
         />
       </span>
@@ -167,7 +167,7 @@ export function Header({ account }: { account?: Account | null }) {
                 {/* An address is far longer than the login name this replaced, so
                     it is truncated rather than allowed to push the nav around. */}
                 <span
-                  className="mx-2 hidden max-w-[16ch] truncate text-sm text-[var(--text-muted)] md:inline"
+                  className="mx-2 hidden max-w-[16ch] truncate text-sm text-(--text-muted) md:inline"
                   title={account.email ?? undefined}
                 >
                   {account.email}
@@ -200,8 +200,8 @@ export function Header({ account }: { account?: Account | null }) {
             onClick={() => setMenuOpen((open) => !open)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="grid size-9 place-items-center rounded-lg text-[var(--text-muted)]
-                       transition-colors hover:text-[var(--text)] sm:hidden"
+            className="grid size-9 place-items-center rounded-lg text-(--text-muted)
+                       transition-colors hover:text-(--text) sm:hidden"
           >
             <svg
               viewBox="0 0 24 24"
@@ -237,7 +237,7 @@ export function Header({ account }: { account?: Account | null }) {
               {account ? (
                 <>
                   <span
-                    className="truncate px-3 pb-1.5 pt-2 text-xs text-[var(--text-faint)]"
+                    className="truncate px-3 pb-1.5 pt-2 text-xs text-(--text-faint)"
                     title={account.email ?? undefined}
                   >
                     {account.email}
@@ -249,8 +249,8 @@ export function Header({ account }: { account?: Account | null }) {
                     onClick={() => logout.mutate()}
                     disabled={logout.isPending}
                     className="rounded-lg px-3 py-2.5 text-left text-sm font-medium
-                               text-[var(--text-muted)] transition-colors
-                               hover:bg-[var(--surface-strong)] hover:text-[var(--text)]"
+                               text-(--text-muted) transition-colors
+                               hover:bg-(--surface-strong) hover:text-(--text)"
                   >
                     Log out
                   </button>
@@ -295,7 +295,7 @@ function NavItem({ to, children }: { to: string; children: ReactNode }) {
       to={to}
       className={({ isActive }) =>
         cx(
-          "rounded-lg px-2 py-2 text-sm font-medium transition-colors duration-200 sm:px-3",
+          "rounded-lg p-2  text-sm font-medium transition-colors duration-200 sm:px-3",
           isActive
             ? "text-brand-600 dark:text-brand-200"
             : "text-[var(--text-muted)] hover:text-[var(--text)]",
@@ -328,7 +328,7 @@ export function Footer() {
             )}
             aria-hidden
           />
-          <span className="text-[var(--text-muted)]">
+          <span className="text-(--text-muted)">
             {status.isPending
               ? "Checking server…"
               : status.data?.online
@@ -336,9 +336,7 @@ export function Footer() {
                 : "Server status unavailable"}
           </span>
         </span>
-        <span className="ml-auto text-[var(--text-faint)]">
-          Custom Lineage II · Interlude Classic
-        </span>
+        <span className="ml-auto text-(--text-faint)">Custom Lineage II · Interlude Classic</span>
       </div>
     </footer>
   );

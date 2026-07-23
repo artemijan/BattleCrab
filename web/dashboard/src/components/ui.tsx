@@ -83,7 +83,7 @@ export function Button({
           aria-hidden
           className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 hover:opacity-100"
         >
-          <span className="absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-white/30 blur-md [animation:sweep_1.1s_var(--ease-out-soft)]" />
+          <span className="absolute inset-y-0 -left-1/3 w-1/3 skew-x-12 bg-white/30 blur-md animate-[sweep_1.1s_var(--ease-out-soft)]" />
         </span>
       )}
     </button>
@@ -96,7 +96,7 @@ export function Spinner({ className }: { className?: string }) {
       aria-hidden
       className={cx(
         "inline-block size-4 shrink-0 rounded-full border-2 border-current border-t-transparent",
-        "[animation:spin_0.7s_linear_infinite]",
+        "animate-[spin_0.7s_linear_infinite]",
         className,
       )}
     />
@@ -123,7 +123,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
 
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={inputId} className="text-sm font-medium text-[var(--text-muted)]">
+      <label htmlFor={inputId} className="text-sm font-medium text-(--text-muted)">
         {label}
       </label>
       <input
@@ -144,8 +144,8 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           // everyone, including people who need it to read at all. Sizing the
           // control correctly costs nothing.
           "w-full rounded-xl border px-4 py-2.5 text-base outline-none sm:text-sm",
-          "bg-[var(--field-bg)] text-[var(--text)] backdrop-blur-md",
-          "placeholder:text-[var(--text-faint)]",
+          "bg-(--field-bg) text-(--text) backdrop-blur-md",
+          "placeholder:text-(--text-faint)",
           "transition-[border-color,box-shadow] duration-200",
           error
             ? "border-red-400/70 focus:shadow-[0_0_0_3px_rgba(248,113,113,0.22)]"
@@ -159,7 +159,7 @@ export const Field = forwardRef<HTMLInputElement, FieldProps>(function Field(
           {error}
         </p>
       ) : hint ? (
-        <p id={`${inputId}-hint`} className="text-xs text-[var(--text-faint)]">
+        <p id={`${inputId}-hint`} className="text-xs text-(--text-faint)">
           {hint}
         </p>
       ) : null}

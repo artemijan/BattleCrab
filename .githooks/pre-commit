@@ -40,6 +40,11 @@ if echo "$staged" | grep -q '^web/dashboard/'; then
     # one pass. bun x resolves the pinned version from node_modules.
     (cd web/dashboard && bun x biome check --staged --no-errors-on-unmatched) \
         || fail "biome found format/lint errors in web/dashboard" "cd web/dashboard && bun x biome check --write --staged && git add -u"
+
+    # Tailwind class linting (conflicts, typos, non-canonical forms) — ESLint
+    # exists in this repo for these rules only; Biome cannot check them.
+    (cd web/dashboard && bun x eslint .) \
+        || fail "tailwind class lint errors in web/dashboard" "cd web/dashboard && bun x eslint --fix . && git add -u"
 fi
 
 exit 0

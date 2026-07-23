@@ -124,7 +124,7 @@ export function AdminAccounts() {
     <div className="space-y-5 pb-6">
       <section className="animate-rise">
         <h1 className="text-3xl font-black tracking-tight">Accounts</h1>
-        <p className="mt-1.5 text-[var(--text-muted)]">
+        <p className="mt-1.5 text-(--text-muted)">
           Every master account on the server. Search by email — or by game account username to find
           its owner.
         </p>
@@ -144,13 +144,13 @@ export function AdminAccounts() {
       />
 
       {list.isPending ? (
-        <Panel className="flex items-center gap-3 p-6 text-sm text-[var(--text-muted)]">
+        <Panel className="flex items-center gap-3 p-6 text-sm text-(--text-muted)">
           <Spinner /> Loading accounts…
         </Panel>
       ) : list.isError ? (
         <Alert kind="error">{errorMessage(list.error)}</Alert>
       ) : list.data.accounts.length === 0 ? (
-        <Panel className="p-8 text-center text-sm text-[var(--text-muted)]">
+        <Panel className="p-8 text-center text-sm text-(--text-muted)">
           No accounts match{query ? <> “{query}”</> : null}.
         </Panel>
       ) : (
@@ -158,16 +158,16 @@ export function AdminAccounts() {
           {/* The table scrolls inside the panel on narrow screens rather than
               stretching the page. */}
           <Panel className="overflow-x-auto">
-            <table className="w-full min-w-[44rem] text-sm">
+            <table className="w-full min-w-176 text-sm">
               <thead>
-                <tr className="border-b border-[var(--surface-border)] text-left">
+                <tr className="border-b border-(--surface-border) text-left">
                   {COLUMNS.map((column) => (
                     <th key={column.key} className="px-4 py-2.5 font-medium">
                       <button
                         type="button"
                         onClick={() => onSort(column)}
                         className={cx(
-                          "inline-flex items-center gap-1 transition-colors hover:text-[var(--text)]",
+                          "inline-flex items-center gap-1 transition-colors hover:text-(--text)",
                           sort === column.key ? "text-[var(--text)]" : "text-[var(--text-muted)]",
                         )}
                       >
@@ -180,12 +180,12 @@ export function AdminAccounts() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--surface-border)]">
+              <tbody className="divide-y divide-(--surface-border)">
                 {list.data.accounts.map((master) => (
                   <tr
                     key={master.email}
                     onClick={() => navigate(`/admin/accounts/${encodeURIComponent(master.email)}`)}
-                    className="cursor-pointer transition-colors hover:bg-[var(--surface-strong)]"
+                    className="cursor-pointer transition-colors hover:bg-(--surface-strong)"
                   >
                     <td className="max-w-64 px-4 py-3">
                       {/* A real link so middle-click / copy address work; the
@@ -204,22 +204,22 @@ export function AdminAccounts() {
                       ) : master.accessLevel > 0 ? (
                         <StatusBadge kind="ok">{master.accessLevel}</StatusBadge>
                       ) : (
-                        <span className="text-[var(--text-muted)]">0</span>
+                        <span className="text-(--text-muted)">0</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       {master.isVerified ? (
-                        <span className="text-[var(--text-muted)]">Yes</span>
+                        <span className="text-(--text-muted)">Yes</span>
                       ) : (
                         <StatusBadge kind="warn">No</StatusBadge>
                       )}
                     </td>
                     <td className="px-4 py-3 tabular-nums">{master.gameAccounts}</td>
                     <td className="px-4 py-3 tabular-nums">{master.characters}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-[var(--text-muted)]">
+                    <td className="px-4 py-3 whitespace-nowrap text-(--text-muted)">
                       {formatLastActive(master.lastActive)}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-[var(--text-muted)]">
+                    <td className="px-4 py-3 whitespace-nowrap text-(--text-muted)">
                       {master.createdTime || "—"}
                     </td>
                   </tr>
@@ -228,7 +228,7 @@ export function AdminAccounts() {
             </table>
           </Panel>
 
-          <div className="flex items-center justify-between text-sm text-[var(--text-muted)]">
+          <div className="flex items-center justify-between text-sm text-(--text-muted)">
             <span>
               {shownFrom}–{shownTo} of {total}
             </span>
@@ -351,7 +351,7 @@ function CreateGameAccountPanel() {
             Cancel
           </Button>
         </div>
-        <p className="w-full text-xs text-[var(--text-faint)]">
+        <p className="w-full text-xs text-(--text-faint)">
           The new account is created under your master account and copies your access level — it
           logs into the game as a GM.
         </p>
@@ -375,14 +375,14 @@ export function AdminAccountDetail() {
   return (
     <div className="space-y-5 pb-6">
       <section className="animate-rise">
-        <Link to="/admin" className="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">
+        <Link to="/admin" className="text-sm text-(--text-muted) hover:text-(--text)">
           ← All accounts
         </Link>
         <h1 className="mt-1 break-all text-3xl font-black tracking-tight">{email}</h1>
       </section>
 
       {detail.isPending ? (
-        <Panel className="flex items-center gap-3 p-6 text-sm text-[var(--text-muted)]">
+        <Panel className="flex items-center gap-3 p-6 text-sm text-(--text-muted)">
           <Spinner /> Loading account…
         </Panel>
       ) : detail.isError ? (
@@ -396,11 +396,11 @@ export function AdminAccountDetail() {
           <MasterCard master={detail.data.master} />
 
           <section>
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--text-faint)]">
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-(--text-faint)">
               Game accounts
             </h2>
             {detail.data.gameAccounts.length === 0 ? (
-              <Panel className="p-6 text-sm text-[var(--text-muted)]">
+              <Panel className="p-6 text-sm text-(--text-muted)">
                 No game accounts under this address.
               </Panel>
             ) : (
@@ -450,7 +450,7 @@ function MasterCard({ master }: { master: AdminMasterSummary }) {
         <h2 className="font-semibold">Master account</h2>
         <MasterBadges master={master} />
       </div>
-      <p className="mt-1 text-sm text-[var(--text-muted)]">
+      <p className="mt-1 text-sm text-(--text-muted)">
         Created {master.createdTime || "unknown"} · last active{" "}
         {formatLastActive(master.lastActive)}
       </p>
@@ -481,7 +481,7 @@ function MasterCard({ master }: { master: AdminMasterSummary }) {
           {banned ? "Lift dashboard ban" : "Ban from dashboard"}
         </Button>
       </div>
-      <p className="mt-2 text-xs text-[var(--text-faint)]">
+      <p className="mt-2 text-xs text-(--text-faint)">
         A dashboard ban blocks signing in here and kills open sessions; the game accounts below keep
         working unless banned individually.
       </p>
@@ -506,7 +506,7 @@ function GameAccountCard({
 
   return (
     <Panel className="overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--surface-border)] px-5 py-3.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-(--surface-border) px-5 py-3.5">
         <div className="flex min-w-0 items-center gap-2.5">
           <span
             className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-500/12 text-xs
@@ -523,7 +523,7 @@ function GameAccountCard({
                 <StatusBadge kind="ok">Level {gameAccount.accessLevel}</StatusBadge>
               )}
             </div>
-            <p className="text-xs text-[var(--text-faint)]">
+            <p className="text-xs text-(--text-faint)">
               last active {formatLastActive(gameAccount.lastActive)} · last IP{" "}
               {gameAccount.lastIp ?? "—"}
             </p>
@@ -546,9 +546,9 @@ function GameAccountCard({
       )}
 
       {characters.length === 0 ? (
-        <p className="px-5 py-4 text-sm text-[var(--text-muted)]">No characters.</p>
+        <p className="px-5 py-4 text-sm text-(--text-muted)">No characters.</p>
       ) : (
-        <ul className="divide-y divide-[var(--surface-border)]">
+        <ul className="divide-y divide-(--surface-border)">
           {characters.map((character) => (
             <li key={character.name} className="flex items-center gap-3 px-5 py-3">
               <div className="min-w-0 flex-1">
@@ -556,7 +556,7 @@ function GameAccountCard({
                   <p className="truncate font-medium">{character.name}</p>
                   {character.online && <StatusBadge kind="ok">Online</StatusBadge>}
                 </div>
-                <p className="mt-0.5 text-sm text-[var(--text-muted)]">
+                <p className="mt-0.5 text-sm text-(--text-muted)">
                   Level {character.level} · {Math.floor(character.onlineTime / 3600)}h played
                 </p>
               </div>
@@ -589,7 +589,7 @@ function ResetPasswordRow({ login }: { login: string }) {
 
   if (!open) {
     return (
-      <div className="border-t border-[var(--surface-border)] px-5 py-3">
+      <div className="border-t border-(--surface-border) px-5 py-3">
         {reset.isSuccess ? (
           <span className="text-sm text-emerald-600 dark:text-emerald-300">
             Password reset — it works in the game client immediately.
@@ -601,7 +601,7 @@ function ResetPasswordRow({ login }: { login: string }) {
               reset.reset();
               setOpen(true);
             }}
-            className="text-sm text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
+            className="text-sm text-(--text-muted) transition-colors hover:text-(--text)"
           >
             Reset password…
           </button>
@@ -616,7 +616,7 @@ function ResetPasswordRow({ login }: { login: string }) {
         e.preventDefault();
         reset.mutate();
       }}
-      className="flex flex-wrap items-end gap-3 border-t border-[var(--surface-border)] px-5 py-4"
+      className="flex flex-wrap items-end gap-3 border-t border-(--surface-border) px-5 py-4"
     >
       {reset.isError && (
         <div className="w-full">
