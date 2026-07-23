@@ -205,6 +205,13 @@ pub struct World {
     /// template. Backs the read-only `//grandboss` admin panel.
     pub grand_bosses: HashMap<i32, crate::model::grand_boss::GrandBoss>,
 
+    /// Valakas's lifetime lair-entry count (Java `ValakasTeleporters`'s
+    /// `static int playerCount`). It **only ever increments** — never reset on
+    /// spawn/death/window — so after 200 entries the lair locks until restart.
+    /// Ported faithfully (the Core-minions precedent); the 200 cap and the
+    /// Klein crowding htmls both read it.
+    pub valakas_entry_count: u32,
+
     /// The cursed weapons (Java `CursedWeaponsManager._cursedWeapons`), built at
     /// boot from `CursedWeapons.xml` config + the `cursed_weapons` state table
     /// (`DbEvent::CursedWeaponsLoaded`). Two on this dist (Zariche/Akamanah).
@@ -331,6 +338,7 @@ impl World {
             recruit_player_lock: HashMap::new(),
             recruit_clan_lock: HashMap::new(),
             grand_bosses: HashMap::new(),
+            valakas_entry_count: 0,
             cursed_weapons: Vec::new(),
             castles: Vec::new(),
             sieges: HashMap::new(),

@@ -48,6 +48,7 @@ pub mod q00418_path_of_the_artisan;
 pub mod q00407_path_of_the_elven_scout;
 pub mod q00324_sweetest_venom;
 pub mod antharas_heart;
+mod valakas_teleporters;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
 
@@ -109,6 +110,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(orc_dark_elf_change2::Change2::dark_elf()),
         Arc::new(teleport_to_race_track::TeleportToRaceTrack),
         Arc::new(antharas_heart::AntharasHeart),
+        Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(teleport_with_charm::TeleportWithCharm),
     ];
     QuestRegistry::new(scripts)

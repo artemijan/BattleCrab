@@ -189,3 +189,152 @@ fn broadcast_to_lair(world: &World, pkt: &[u8]) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The entry flow (Java `ai/others/ValakasTeleporters`), reached through
+// `scripts::valakas_teleporters`. Slice 15 built the cinematic and never wired
+// a caller; this is the caller.
+// ---------------------------------------------------------------------------
+
+/// The 200-player lifetime cap (Java `playerCount >= 200`).
+pub const MAX_PEOPLE: u32 = 200;
+/// `VACUALITE_FLOATING_STONE` — Klein's entry ticket.
+pub const VACUALITE: i32 = 7267;
+/// Java `qs.set("allowEnter", "1")` — the antechamber → lair gate flag.
+const ALLOW_ENTER: &str = "VALAKAS_ALLOW_ENTER";
+
+const HALL_OF_FLAMES: (i32, i32, i32) = (183_813, -115_157, -3_303);
+/// `TELEPORT_INTO_VALAKAS_LAIR` — the base, offset by `rnd(600)` in x/y.
+const LAIR_ENTRY: (i32, i32, i32) = (204_328, -111_874, 70);
+/// `TELEPORT_OUT_OF_VALAKAS_LAIR` — the base, offset by `rnd(500)` in x/y.
+const LAIR_EXIT: (i32, i32, i32) = (150_037, -57_720, -2_976);
+
+const TICKS_PER_SECOND_ENTRY: u64 = 10;
+
+fn set_status(world: &mut World, status: i32) {
+    if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
+        b.status = status;
+    }
+    crate::game_loop::grand_boss::persist(world, VALAKAS);
+}
+
+/// The live Valakas NPC, if one stands in the world.
+pub(crate) fn find_valakas(world: &World) -> Option<i32> {
+    world.npc_regions.values().flatten().copied().find(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(oid)
+            .is_some_and(|n| n.npc_id == VALAKAS)
+    })
+}
+
+/// Watcher Klein's `on_talk` — the crowding message by lifetime entry count
+/// (Java's `31540-01`..`-05` ladder). No teleport here; the antechamber
+/// teleport is the `31540` sub-event.
+pub(crate) fn klein_status_html(world: &World) -> &'static str {
+    match world.valakas_entry_count {
+        n if n < 50 => "31540-01.htm",
+        n if n < 100 => "31540-02.htm",
+        n if n < 150 => "31540-03.htm",
+        n if n < MAX_PEOPLE => "31540-04.htm",
+        _ => "31540-05.htm",
+    }
+}
+
+/// Klein's `31540` sub-event — the Vacualite check, the Hall of Flames
+/// teleport, and the `allowEnter` grant. Returns the refusal html, or `None`
+/// when teleported (Java returns `""`, i.e. close the window).
+pub(crate) fn enter_hall_of_flames(world: &mut World, player_oid: i32) -> Option<&'static str> {
+    if quest_items_count(world, player_oid, VACUALITE) < 1 {
+        return Some("31540-06.htm");
+    }
+    teleport_player_rand(world, player_oid, HALL_OF_FLAMES, 0);
+    set_player_flag(world, player_oid, ALLOW_ENTER, 1);
+    None
+}
+
+/// Heart of Volcano's `on_talk` — the lair door. Returns the refusal html, or
+/// `None` when admitted (the teleport is the reply).
+pub(crate) fn heart_enter(world: &mut World, player_oid: i32) -> Option<&'static str> {
+    match crate::game_loop::grand_boss::status(world, VALAKAS) {
+        // DORMANT / WAITING — entry open.
+        Some(DORMANT) | Some(WAITING) => {}
+        Some(FIGHTING) => return Some("31385-02.htm"),
+        // DEAD (or no record) — the regen/dead window.
+        _ => return Some("31385-01.htm"),
+    }
+    if world.valakas_entry_count >= MAX_PEOPLE {
+        return Some("31385-03.htm");
+    }
+    if player_flag(world, player_oid, ALLOW_ENTER) != 1 {
+        return Some("31385-04.htm");
+    }
+    // Admitted: consume the flag, teleport in, and count the entry.
+    unset_player_flag(world, player_oid, ALLOW_ENTER);
+    teleport_player_rand(world, player_oid, LAIR_ENTRY, 600);
+    world.valakas_entry_count += 1;
+
+    // The FIRST entry (DORMANT) starts the 30-minute window; a later entrant
+    // during WAITING must not re-arm it (Java only arms on `status == 0`).
+    if crate::game_loop::grand_boss::status(world, VALAKAS) == Some(DORMANT) {
+        set_status(world, WAITING);
+        let wait_secs = world.cfg.grand_boss.valakas_wait_minutes.max(1) as u64 * 60;
+        world.scheduler.schedule(
+            world.tick + wait_secs * TICKS_PER_SECOND_ENTRY,
+            crate::scheduler::ScheduledTask::ValakasBeginning,
+        );
+    }
+    None
+}
+
+/// `"beginning"` — the window elapsed: Valakas takes the lair and the entry
+/// cinematic runs (`begin_cinematic`, whose final beat flips FIGHTING).
+pub(crate) fn handle_beginning_timer(world: &mut World) {
+    // A GM could have killed him during the window; only a still-WAITING boss
+    // begins the fight.
+    if crate::game_loop::grand_boss::status(world, VALAKAS) != Some(WAITING) {
+        return;
+    }
+    let Some(oid) = find_valakas(world) else { return };
+    begin_cinematic(world, oid);
+}
+
+/// The Teleportation Cubic's exit.
+pub(crate) fn teleport_out(world: &mut World, player_oid: i32) {
+    teleport_player_rand(world, player_oid, LAIR_EXIT, 500);
+}
+
+// -- small helpers, kept local so the entry flow reads as one unit ----------
+
+fn teleport_player_rand(world: &mut World, player_oid: i32, base: (i32, i32, i32), spread: i32) {
+    let (dx, dy) = if spread > 0 { (world.roll(spread), world.roll(spread)) } else { (0, 0) };
+    crate::game_loop::death::teleport_player(world, player_oid, base.0 + dx, base.1 + dy, base.2);
+}
+
+fn quest_items_count(world: &World, oid: i32, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .map(|inv| inv.count_of(item_id))
+        .unwrap_or(0)
+}
+
+fn player_flag(world: &World, oid: i32, key: &str) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::PlayerVariables>(&oid)
+        .and_then(|v| v.0.get(key).and_then(|s| s.parse().ok()))
+        .unwrap_or(0)
+}
+
+fn set_player_flag(world: &mut World, oid: i32, key: &str, value: i32) {
+    if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&oid) {
+        v.0.insert(key.to_string(), value.to_string());
+    }
+}
+
+fn unset_player_flag(world: &mut World, oid: i32, key: &str) {
+    if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVariables>(&oid) {
+        v.0.remove(key);
+    }
+}

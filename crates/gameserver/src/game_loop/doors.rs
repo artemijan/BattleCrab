@@ -39,6 +39,18 @@ fn broadcast_status(world: &World, door_oid: i32) {
 /// `Door.openMe()`: no-op when already open; otherwise flip, broadcast, and
 /// arm the auto-close (script-triggered doors with a `closeTime` shut
 /// themselves — BY_TIME doors are driven by their cycle task instead).
+/// Open the door with a given **door id** (Java `DoorData.getDoor(id).openMe()`).
+/// Door object ids are allocated dynamically, so this scans the door regions
+/// for the match — the Valakas gatekeepers name their doors by id.
+pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
+    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
+        world.objects.get_component::<Door>(&oid).is_some_and(|d| d.door_id == door_id)
+    });
+    if let Some(oid) = oid {
+        open_door(world, oid);
+    }
+}
+
 pub(crate) fn open_door(world: &mut World, door_oid: i32) {
     let Some((door_id, seq)) = world.objects.get_component_mut::<Door>(&door_oid).map(|d| {
         d.auto_close_seq += 1;
