@@ -5779,3 +5779,113 @@ fn quest_q00326_vanquish_remnants() {
     assert_eq!(item_count(&world, 3001, 57), a + 2000, "100*10 + 1000 bonus");
     assert_eq!(item_count(&world, 3001, 1359), 0, "badges taken (mark kept)");
 }
+
+// ===== G22 quest batch 2 (Q264/319/329/360) =====
+
+#[test]
+fn quest_q00264_keen_claws() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1367, "Wolf Claw", true), (734, "Reward A", true), (35, "Reward B", true)]);
+    let mut t = crate::data::npc_data::default_template(20003); t.type_name = "Monster".into(); t.level = 5;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30136, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 5;
+    let q = "Q00264_KeenClaws";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30136-03.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    inject(&mut world, 3001, 0x7000_0000, 1367, 42);
+    // 20003 table [(2,25),(8,50)]: roll 30 → second entry → 8 claws → 50 → cond 2.
+    add_test_npc(&mut world, NPC_OID + 1, 20003, "Monster", 5, 30, 0, 0);
+    world.forced_rolls.push_back(30); world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1367), 50, "the second table entry gives 8 claws");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Reward roll(17) == 0 → item 734 (+ jackpot); 735 is unreachable.
+    world.forced_rolls.push_back(0);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 734), 1, "roll 0 → reward 734");
+    assert!(quest_cond(&world, 3001, q).is_none());
+}
+
+#[test]
+fn quest_q00319_scent_of_death() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1045, "Zombie Skin", true)]);
+    let mut t = crate::data::npc_data::default_template(20015); t.type_name = "Monster".into(); t.level = 13;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30138, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 13;
+    let q = "Q00319_ScentOfDeath";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30138-04.htm")));
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // roll 8 (> 7) → a skin, and count 1 < 5 sets cond 2 (the quirk).
+    add_test_npc(&mut world, NPC_OID + 1, 20015, "Monster", 13, 30, 0, 0);
+    world.forced_rolls.push_back(8);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 1045), 1);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 set below the target");
+    // roll 5 (≤ 7) → nothing.
+    add_test_npc(&mut world, NPC_OID + 2, 20015, "Monster", 13, 30, 0, 0);
+    world.forced_rolls.push_back(5);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1045), 1, "roll ≤ 7 drops nothing");
+    inject(&mut world, 3001, 0x7100_0000, 1045, 4);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 500, "500 adena (no rate)");
+    assert!(quest_cond(&world, 3001, q).is_none());
+}
+
+#[test]
+fn quest_q00329_curiosity_of_a_dwarf() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(1346, "Golem Heartstone", true), (1365, "Broken Heartstone", true)]);
+    let mut t = crate::data::npc_data::default_template(20083); t.type_name = "Monster".into(); t.level = 35;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30437, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 35;
+    let q = "Q00329_CuriosityOfADwarf";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30437-03.htm")));
+    // roll 2 (< 3) → golem heartstone; roll 10 (3..54) → broken heartstone.
+    add_test_npc(&mut world, NPC_OID + 1, 20083, "Monster", 35, 30, 0, 0);
+    world.forced_rolls.push_back(2); world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    add_test_npc(&mut world, NPC_OID + 2, 20083, "Monster", 35, 30, 0, 0);
+    world.forced_rolls.push_back(10); world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, NPC_OID + 2, 3001);
+    assert_eq!(item_count(&world, 3001, 1346), 1, "golem heartstone");
+    assert_eq!(item_count(&world, 3001, 1365), 1, "broken heartstone");
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 1045, "40 + 5 + 1000 (inverted <700 bonus)");
+    assert_eq!(item_count(&world, 3001, 1346) + item_count(&world, 3001, 1365), 0);
+}
+
+#[test]
+fn quest_q00360_plunder_their_supplies() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(5872, "Supply Items", true)]);
+    let mut t = crate::data::npc_data::default_template(20666); t.type_name = "Monster".into(); t.level = 55;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30873, "Folk", 5, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.objects.get_component_mut::<Player>(&3001).unwrap().level = 55;
+    let q = "Q00360_PlunderTheirSupplies";
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q} 30873-04.htm")));
+    add_test_npc(&mut world, NPC_OID + 1, 20666, "Monster", 55, 30, 0, 0);
+    world.forced_rolls.push_back(40); // < 50 → supply
+    death::npc_do_die(&mut world, NPC_OID + 1, 3001);
+    assert_eq!(item_count(&world, 3001, 5872), 1);
+    inject(&mut world, 3001, 0x7200_0000, 5872, 499);
+    let a = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest {q}")));
+    assert_eq!(item_count(&world, 3001, 57), a + 14000, "500 supplies → 14000 adena");
+    assert_eq!(item_count(&world, 3001, 5872), 0);
+}

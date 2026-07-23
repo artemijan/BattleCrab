@@ -25,6 +25,10 @@ pub mod q00259_request_from_the_farm_owner;
 pub mod q00260_orc_hunting;
 pub mod q00261_collectors_dream;
 pub mod q00262_trade_with_the_ivory_tower;
+pub mod q00264_keen_claws;
+pub mod q00319_scent_of_death;
+pub mod q00329_curiosity_of_a_dwarf;
+pub mod q00360_plunder_their_supplies;
 pub mod q00263_orc_subjugation;
 pub mod q00265_bonds_of_slavery;
 pub mod q00266_pleas_of_pixies;
@@ -89,6 +93,10 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00260_orc_hunting::Q00260OrcHunting),
         Arc::new(q00261_collectors_dream::Q00261CollectorsDream),
         Arc::new(q00262_trade_with_the_ivory_tower::Q00262TradeWithTheIvoryTower),
+        Arc::new(q00264_keen_claws::Q00264KeenClaws),
+        Arc::new(q00319_scent_of_death::Q00319ScentOfDeath),
+        Arc::new(q00329_curiosity_of_a_dwarf::Q00329CuriosityOfADwarf),
+        Arc::new(q00360_plunder_their_supplies::Q00360PlunderTheirSupplies),
         Arc::new(q00263_orc_subjugation::Q00263OrcSubjugation),
         Arc::new(q00265_bonds_of_slavery::Q00265BondsOfSlavery),
         Arc::new(q00266_pleas_of_pixies::Q00266PleasOfPixies),
