@@ -111,10 +111,19 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     if let Some(pi) = world.objects.get_component::<crate::model::inventory::PetInventory>(&object_id) {
         items.extend(pi.to_rows());
     }
+    let skill_enchants = world
+        .objects
+        .get_component::<crate::model::components::SkillEnchants>(&object_id)
+        .map(|e| e.0.clone())
+        .unwrap_or_default();
     let skills = world
         .objects
         .get_component::<SkillBook>(&object_id)
-        .map(|s| s.0.iter().map(|(id, lvl)| (*id, *lvl)).collect())
+        .map(|s| {
+            s.0.iter()
+                .map(|(id, lvl)| (*id, *lvl, skill_enchants.get(id).copied().unwrap_or(0)))
+                .collect()
+        })
         .unwrap_or_default();
     let shortcuts = world
         .objects
@@ -423,7 +432,12 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
                         .chain(b.freight.to_rows())
                         .chain(b.pet_inventory.to_rows())
                         .collect(),
-                    skills: b.skills.0.iter().map(|(id, lvl)| (*id, *lvl)).collect(),
+                    skills: b
+                        .skills
+                        .0
+                        .iter()
+                        .map(|(id, lvl)| (*id, *lvl, b.skill_enchants.0.get(id).copied().unwrap_or(0)))
+                        .collect(),
                     skills_by_index: Default::default(),
                     hennas_by_index: Default::default(),
                     shortcuts_by_index: Default::default(),

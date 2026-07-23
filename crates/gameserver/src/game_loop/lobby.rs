@@ -343,12 +343,23 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
 /// corrected `chr`.
 fn filter_skills_on_select(world: &World, chr: &mut crate::character::CharData) {
     use crate::model::shortcut::ShortcutType;
-    let mut skills: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+    let subs: std::collections::HashMap<i32, i32> =
+        chr.skills.iter().filter(|&&(_, _, sub)| sub > 0).map(|&(id, _, sub)| (id, sub)).collect();
+    let mut skills: std::collections::HashMap<i32, i32> =
+        chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
     let changes = super::death::maybe_skill_remove_on_delevel(world, chr.object_id, chr.class_id, chr.level, &mut skills);
     if changes.is_empty() {
         return;
     }
-    chr.skills = skills.into_iter().collect();
+    // A downgraded skill loses its enchant (the sub-level belongs to the level
+    // it was enchanted at); an untouched one keeps it.
+    chr.skills = skills
+        .into_iter()
+        .map(|(id, lvl)| {
+            let keep = chr.skills.iter().any(|&(cid, clvl, _)| cid == id && clvl == lvl);
+            (id, lvl, if keep { subs.get(&id).copied().unwrap_or(0) } else { 0 })
+        })
+        .collect();
     for (skill_id, action) in changes {
         match action {
             Some(new_level) => {
@@ -462,7 +473,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     session.send(super::henna::henna_info_packet(&world.data, player.class_id, &bundle.henna));
     // Clan skills aren't applied yet (the clan login hook runs after the player
     // is registered and re-sends the merged list) → empty clan set here.
-    session.send(ew::skill_list(&bundle.skills, &crate::model::components::ClanSkills::default(), data));
+    session.send(ew::skill_list(&bundle.skills, &bundle.skill_enchants, &crate::model::components::ClanSkills::default(), data));
     session.send(ew::acquire_skill_list(player, &bundle.skills, data));
     // Initial burst carries 0 charges/0/0; a fresh login never has Force built
     // up. `refresh_expertise_penalty` (after the player is registered below)

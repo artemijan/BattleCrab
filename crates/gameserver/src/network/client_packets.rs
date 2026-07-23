@@ -151,6 +151,10 @@ pub mod ex_opcodes {
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
+    /// Skill enchanting (G19, PLAN_G19_SKILL_ENCHANT.md).
+    pub const REQUEST_EX_ENCHANT_SKILL_INFO: u16 = 0x0E;
+    pub const REQUEST_EX_ENCHANT_SKILL: u16 = 0x0F;
+    pub const REQUEST_EX_ENCHANT_SKILL_INFO_DETAIL: u16 = 0x43;
     /// Duels (G20) — `RequestDuelStart` / `AnswerStart` / `Surrender`.
     pub const REQUEST_DUEL_START: u16 = 0x1B;
     pub const REQUEST_DUEL_ANSWER_START: u16 = 0x1C;

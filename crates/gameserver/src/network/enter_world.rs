@@ -124,6 +124,7 @@ pub fn inventory_update_changes(
 /// reputation gate — always false, no clans yet), enchanted (always false).
 pub fn skill_list(
     skills: &crate::model::components::SkillBook,
+    enchants: &crate::model::components::SkillEnchants,
     clan_skills: &crate::model::components::ClanSkills,
     data: &GameData,
 ) -> Vec<u8> {
@@ -143,13 +144,79 @@ pub fn skill_list(
         let passive = skill.is_some_and(|s| s.operate_type == crate::model::skill::OperateType::Passive);
         w.write_i32(passive as i32);
         w.write_i16(level as i16);
-        w.write_i16(0); // sub-level
+        // The enchant sub-level (1001–3020) — how the client shows the +N.
+        w.write_i16(enchants.0.get(&skill_id).copied().unwrap_or(0) as i16);
         w.write_i32(skill_id);
         w.write_i32(skill.map_or(-1, |s| s.reuse_delay_group));
         w.write_u8(0); // disabled
         w.write_u8(0); // enchanted
     }
     w.write_i32(-1); // last learned skill id (none new this burst)
+    w.into_bytes()
+}
+
+/// `ExEnchantSkillInfo` (0xFE 0x2A) — the routes a skill can enchant into
+/// (PLAN_G19_SKILL_ENCHANT.md). Java's per-route entry math ported verbatim,
+/// including the `min(subLevel + 1, route + MAX_ENCHANT − 1)` clamp against
+/// the cost-table size (30) rather than the route's real 20-step span.
+pub fn ex_enchant_skill_info(
+    skill_id: i32,
+    level: i32,
+    sub: i32,
+    current_sub: i32,
+    route_starts: &[i32],
+    max_enchant: i32,
+) -> Vec<u8> {
+    let mut w = ex(0x2A);
+    w.write_i32(skill_id);
+    w.write_i16(level as i16);
+    w.write_i16(sub as i16);
+    w.write_i32(((sub % 1000) != max_enchant) as i32);
+    w.write_i32((sub > 1000) as i32);
+    w.write_i32(route_starts.len() as i32);
+    for &route in route_starts {
+        let route_id = route / 1000;
+        let current_route_id = sub / 1000;
+        let sub_level = if current_sub > 0 { route + (current_sub % 1000) - 1 } else { route };
+        w.write_i16(level as i16);
+        w.write_i16(if current_route_id != route_id {
+            sub_level as i16
+        } else {
+            (sub_level + 1).min(route + (max_enchant - 1)) as i16
+        });
+    }
+    w.into_bytes()
+}
+
+/// `ExEnchantSkillInfoDetail` (0xFE 0x5F) — one step's SP/chance/item cost.
+pub fn ex_enchant_skill_info_detail(
+    enchant_type: i32,
+    skill_id: i32,
+    level: i32,
+    sub: i32,
+    sp: i64,
+    chance: i32,
+    items: &[(i32, i64)],
+) -> Vec<u8> {
+    let mut w = ex(0x5F);
+    w.write_i32(enchant_type);
+    w.write_i32(skill_id);
+    w.write_i16(level as i16);
+    w.write_i16(sub as i16);
+    w.write_i64(sp);
+    w.write_i32(chance);
+    w.write_i32(items.len() as i32);
+    for &(id, count) in items {
+        w.write_i32(id);
+        w.write_i32(count as i32);
+    }
+    w.into_bytes()
+}
+
+/// `ExEnchantSkillResult` (0xFE 0xA8).
+pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
+    let mut w = ex(0xA8);
+    w.write_i32(success as i32);
     w.into_bytes()
 }
 

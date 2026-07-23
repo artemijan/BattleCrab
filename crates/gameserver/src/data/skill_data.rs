@@ -195,6 +195,16 @@ impl SkillData {
     pub fn insert_for_test(&mut self, skill: Skill) {
         self.skills.insert((skill.id, skill.level), skill);
     }
+
+    #[doc(hidden)]
+    pub fn insert_enchanted_for_test(&mut self, skill: Skill) {
+        self.enchanted.insert((skill.id, skill.level, skill.sub_level), skill);
+    }
+
+    #[doc(hidden)]
+    pub fn insert_route_for_test(&mut self, id: i32, level: i32, range: (i32, i32)) {
+        self.routes.entry((id, level)).or_default().push(range);
+    }
 }
 
 /// A field's per-level values, keyed by level; `0` is the "applies to every

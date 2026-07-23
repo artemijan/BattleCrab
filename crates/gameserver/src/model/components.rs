@@ -364,6 +364,14 @@ pub enum QueuedAction {
 #[derive(Component, Debug, Clone, Default)]
 pub struct SkillBook(pub HashMap<i32, i32>);
 
+/// The enchant sub-level per skill id (0/absent = unenchanted) — Java keeps
+/// this on the `Skill` instance itself (`getSubLevel()`); the port's book is
+/// (id → level), so the routes live in a parallel map. Persisted in the same
+/// `character_skills` rows (`skill_sub_level`), banked per class index on a
+/// subclass switch like the book. PLAN_G19_SKILL_ENCHANT.md.
+#[derive(Component, Debug, Clone, Default)]
+pub struct SkillEnchants(pub HashMap<i32, i32>);
+
 /// The player's three worn henna dyes (Java `Player._henna[3]`), by slot →
 /// dye id. Loaded from `character_hennas`, persisted in the store transaction.
 /// The dyes' base-stat bonuses are folded into [`BaseStats`] (recomputed on

@@ -38,6 +38,7 @@ mod clans_tests;
 mod geometric_scope_tests;
 mod ground_channeling_tests;
 mod symbol_tests;
+mod skill_enchant_tests;
 mod combat_tests;
 mod confuse_tests;
 mod crit_damage_tests;
@@ -653,7 +654,7 @@ fn ingame_caster(
     chr.x = x;
     chr.y = y;
     chr.z = 0;
-    chr.skills = vec![(1177, 1), (1015, 1), (1068, 1), (91, 1)];
+    chr.skills = vec![(1177, 1, 0), (1015, 1, 0), (1068, 1, 0), (91, 1, 0)];
     let player = Player::from_char(&world.data, &chr);
     let (out_tx, out_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(client_id, out_tx, "127.0.0.1:1".parse().unwrap())

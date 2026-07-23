@@ -101,7 +101,7 @@ fn anti_magic_folds_a_raising_multiplier() {
     assert_eq!(bare.stat_modifiers.mul.get(&Stat::MagicSuccessRes), None, "no skill, no modifier");
 
     let mut chr = dummy_char(9802, "Warded");
-    chr.skills = vec![(146, 3)]; // level 3 — the first with a non-zero amount
+    chr.skills = vec![(146, 3, 0)]; // level 3 — the first with a non-zero amount
     let bundle = Player::from_char(&world.data, &chr);
     let mul = bundle.stat_modifiers.mul.get(&Stat::MagicSuccessRes).copied().unwrap_or(1.0);
     assert!((mul - 1.05).abs() < 1e-9, "+5% PER folds to x1.05, got {mul}");

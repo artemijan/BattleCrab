@@ -151,22 +151,41 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
     //    (the class's auto-granted tree on top). The port mirrors that: bank
     //    the outgoing book, restore the incoming one if the slot has been
     //    played before, and let `set_level` below add the auto-granted tree.
-    let outgoing: Vec<(i32, i32)> = world
+    let outgoing_enchants = world
+        .objects
+        .get_component::<crate::model::components::SkillEnchants>(&player_oid)
+        .map(|e| e.0.clone())
+        .unwrap_or_default();
+    let outgoing: Vec<(i32, i32, i32)> = world
         .objects
         .get_component::<SkillBook>(&player_oid)
-        .map(|b| b.0.iter().map(|(id, lvl)| (*id, *lvl)).collect())
+        .map(|b| {
+            b.0.iter()
+                .map(|(id, lvl)| (*id, *lvl, outgoing_enchants.get(id).copied().unwrap_or(0)))
+                .collect()
+        })
         .unwrap_or_default();
     let incoming = {
         let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) else { return false };
         p.skills_by_index.insert(cur_index, outgoing);
         p.skills_by_index.get(&class_index).cloned()
     };
+    let incoming = incoming.unwrap_or_default();
     if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_oid) {
         book.0.clear();
         // A slot played before restores exactly what it knew — including
         // *manually learned* skills, which re-deriving the tree would lose.
-        for (id, lvl) in incoming.unwrap_or_default() {
+        for &(id, lvl, _) in &incoming {
             book.0.insert(id, lvl);
+        }
+    }
+    // Enchant sub-levels ride the same banked rows.
+    if let Some(ench) = world.objects.get_component_mut::<crate::model::components::SkillEnchants>(&player_oid) {
+        ench.0.clear();
+        for &(id, _, sub) in &incoming {
+            if sub > 0 {
+                ench.0.insert(id, sub);
+            }
         }
     }
 

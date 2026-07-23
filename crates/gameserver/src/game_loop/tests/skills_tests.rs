@@ -249,7 +249,7 @@ fn human_mystic_lvl1_full_loadout_matches_java_client() {
     chr.class_id = class_id;
     chr.base_class_id = class_id;
     chr.items = items;
-    chr.skills = data.skill_trees.initial_skills(class_id); // 118, 163, 214, 1177, 1216
+    chr.skills = data.skill_trees.initial_skills(class_id).into_iter().map(|(id, lvl)| (id, lvl, 0)).collect(); // 118, 163, 214, 1177, 1216
 
     let b = Player::from_char(&data, &chr);
     let c = &b.combat;
@@ -316,7 +316,7 @@ fn spellcraft_passive_raises_mystic_cast_speed_in_a_robe() {
     chr.base_class_id = 10;
     chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
     // The two autoGet mystic passives.
-    chr.skills = vec![(163, 1), (118, 1)];
+    chr.skills = vec![(163, 1, 0), (118, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     // `from_char` (Java `restoreCharData`/`addSkill`) already folds the robe
     // passives in: Spellcraft's MAGIC branch (+50%) applies, while Magician's
@@ -394,9 +394,9 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     chr.items = items;
     // Every skill a level-7 mystic can reach (autoGet + learnable), i.e. what the
     // character would have after "reaching level 7 and getting skills".
-    chr.skills = data.skill_trees.all_available_skills(class_id, 7, &std::collections::HashMap::new(), true, true);
-    assert!(chr.skills.iter().any(|&(id, _)| id == 163), "level-7 mystic has Spellcraft (163)");
-    assert!(chr.skills.iter().any(|&(id, _)| id == 249), "level-7 mystic has Weapon Mastery (249)");
+    chr.skills = data.skill_trees.all_available_skills(class_id, 7, &std::collections::HashMap::new(), true, true).into_iter().map(|(id, lvl)| (id, lvl, 0)).collect();
+    assert!(chr.skills.iter().any(|&(id, _, _)| id == 163), "level-7 mystic has Spellcraft (163)");
+    assert!(chr.skills.iter().any(|&(id, _, _)| id == 249), "level-7 mystic has Weapon Mastery (249)");
 
     let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
@@ -406,11 +406,11 @@ fn human_mystic_lvl7_weapon_mastery_does_not_slow_staff_casting() {
     // `maybe_skill_remove_on_delevel`), replicated on `chr.skills`.
     let skills_before = chr.skills.len();
     {
-        let mut skills_map: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+        let mut skills_map: std::collections::HashMap<i32, i32> = chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
         super::death::maybe_skill_remove_on_delevel(&world, chr.object_id, chr.class_id, chr.level, &mut skills_map);
-        chr.skills = skills_map.into_iter().collect();
+        chr.skills = skills_map.into_iter().map(|(id, lvl)| (id, lvl, 0)).collect();
     }
-    assert!(chr.skills.iter().any(|&(id, _)| id == 163), "delevel filter kept Spellcraft (163)");
+    assert!(chr.skills.iter().any(|&(id, _, _)| id == 163), "delevel filter kept Spellcraft (163)");
     assert_eq!(chr.skills.len(), skills_before, "delevel filter removed no skills at level 7");
 
     // 2. Build the player from the (filtered) select data.
@@ -465,13 +465,13 @@ fn delevel_filter_on_select_keeps_passive_stats() {
     chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
     // Spellcraft (163, getLevel 1) + Magician's Movement (118, getLevel 1) +
     // Shield (1040, getLevel 7) that a level-5 delevel strips.
-    chr.skills = vec![(163, 1), (118, 1), (1040, 1)];
+    chr.skills = vec![(163, 1, 0), (118, 1, 0), (1040, 1, 0)];
 
     // The select-time filter (what `filter_skills_on_select` runs).
-    let mut skills: std::collections::HashMap<i32, i32> = chr.skills.iter().copied().collect();
+    let mut skills: std::collections::HashMap<i32, i32> = chr.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect();
     let changes = super::death::maybe_skill_remove_on_delevel(&world, chr.object_id, chr.class_id, chr.level, &mut skills);
     assert!(changes.iter().any(|&(id, a)| id == 1040 && a.is_none()), "Shield stripped at level 5");
-    chr.skills = skills.into_iter().collect();
+    chr.skills = skills.into_iter().map(|(id, lvl)| (id, lvl, 0)).collect();
 
     // `from_char` on the corrected skills: Shield gone, Spellcraft kept, so the
     // casting-speed bonus is folded in and the first UserInfo is 499 (not 349).
@@ -519,7 +519,7 @@ fn live_delevel_removes_passive_and_recomputes_stats() {
     chr.level = 5;
     chr.items = vec![paperdoll(1001, 6, 5), paperdoll(1002, 425, 6), paperdoll(1003, 461, 11)];
     // Spellcraft (163, getLevel 1) + Weapon Mastery (249, getLevel 7, passive +m.atk).
-    chr.skills = vec![(163, 1), (249, 1)];
+    chr.skills = vec![(163, 1, 0), (249, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let m_atk_with_mastery = bundle.combat.m_atk;
     bundle.spawn_into(&mut world.objects);
@@ -623,7 +623,7 @@ fn delevel_downgrades_then_removes_skills() {
 
         let mut chr = dummy_char(2001, "Al");
         chr.level = 40;
-        chr.skills = vec![(91, 2), (92, 1)];
+        chr.skills = vec![(91, 2, 0), (92, 1, 0)];
         let bundle = Player::from_char(&world.data, &chr);
         let (link_out, _r) = tokio::sync::mpsc::unbounded_channel();
         let s = Session::new(1, link_out, "127.0.0.1:1".parse().unwrap())
@@ -2925,7 +2925,7 @@ fn shield_mastery_passive_raises_shield_block_stats() {
 
     let mut masted = dummy_char(5202, "Masted");
     masted.items = vec![paperdoll(2, 628, 7)];
-    masted.skills = vec![(153, 4)];
+    masted.skills = vec![(153, 4, 0)];
     let masted_bundle = Player::from_char(&world.data, &masted);
     masted_bundle.spawn_into(&mut world.objects);
     let masted_shield = crate::game_loop::combat::combatant(&world, 5202).expect("masted combatant");
@@ -2980,7 +2980,7 @@ fn archery_passive_raises_bow_attack_range() {
 
     let mut archer = dummy_char(5402, "Archer");
     archer.items = vec![paperdoll(2, 14, 5)];
-    archer.skills = vec![(431, 1)]; // Archery
+    archer.skills = vec![(431, 1, 0)]; // Archery
     let archer_bundle = Player::from_char(&world.data, &archer);
     assert_eq!(archer_bundle.combat.atk_range, 550, "Archery: +50 bow range");
 
@@ -2989,7 +2989,7 @@ fn archery_passive_raises_bow_attack_range() {
     let unarmed_bare = dummy_char(5403, "Unarmed Bare");
     let unarmed_bare_bundle = Player::from_char(&world.data, &unarmed_bare);
     let mut unarmed_archer = dummy_char(5404, "Unarmed Archer");
-    unarmed_archer.skills = vec![(431, 1)];
+    unarmed_archer.skills = vec![(431, 1, 0)];
     let unarmed_archer_bundle = Player::from_char(&world.data, &unarmed_archer);
     assert_eq!(
         unarmed_archer_bundle.combat.atk_range, unarmed_bare_bundle.combat.atk_range,
@@ -3021,7 +3021,7 @@ fn assassination_passive_raises_blow_rate_stat() {
     assert_eq!(bare_bundle.stat_modifiers.mul.get(&crate::model::stats::Stat::BlowRate), None, "no skill: no modifier at all");
 
     let mut assassin = dummy_char(5502, "Assassin");
-    assassin.skills = vec![(432, 1)]; // Assassination
+    assassin.skills = vec![(432, 1, 0)]; // Assassination
     let assassin_bundle = Player::from_char(&world.data, &assassin);
     let mul = assassin_bundle.stat_modifiers.mul.get(&crate::model::stats::Stat::BlowRate).copied().unwrap_or(0.0);
     assert!((mul - 1.03).abs() < 1e-9, "Assassination: +3% PER -> ×1.03, got {mul}");
@@ -3055,7 +3055,7 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
 
     let mut expanded = dummy_char(5302, "Expanded");
     expanded.race = 0;
-    expanded.skills = vec![(1372, 3)]; // Expand Inventory lvl3, real dist: +18
+    expanded.skills = vec![(1372, 3, 0)]; // Expand Inventory lvl3, real dist: +18
     let expanded_bundle = Player::from_char(&world.data, &expanded);
     let expanded_view = expanded_bundle.view();
     let expanded_limit = crate::model::finalize(expanded_view.mods, crate::model::stats::Stat::InventoryNormal, cfg.inventory_limit(0) as f64) as i32;
@@ -3117,7 +3117,7 @@ fn enemy_not_targets_a_friendly_player() {
     let mut chr = dummy_char(5401, "Healer");
     chr.class_id = 10;
     chr.base_class_id = 10;
-    chr.skills = vec![(1258, 1)];
+    chr.skills = vec![(1258, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut a_rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
@@ -3413,7 +3413,7 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
     let mut chr = dummy_char(5801, "Shielded");
     chr.class_id = 10;
     chr.base_class_id = 10;
-    chr.skills = vec![(1418, 1)];
+    chr.skills = vec![(1418, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
     let s = Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())

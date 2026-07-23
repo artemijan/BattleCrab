@@ -20,6 +20,7 @@ mod dispatch;
 mod doors;
 pub(crate) mod duel;
 mod effect_point;
+mod skill_enchant;
 mod enchant;
 mod expertise;
 mod friends;

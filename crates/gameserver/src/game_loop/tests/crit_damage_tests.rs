@@ -245,7 +245,7 @@ fn learned_crit_damage_passive_folds_into_stat_modifiers() {
     // Focus Attack 317 — are *toggles*, which land through the buff path and
     // so are correctly absent from a freshly built `Player`.)
     let mut chr = dummy_char(4302, "Crit");
-    chr.skills = vec![(193, 1)];
+    chr.skills = vec![(193, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     let add = bundle.stat_modifiers.add.get(&Stat::CriticalDamageAdd).copied().unwrap_or(0.0);
     assert!((add - 32.0).abs() < 1e-9, "Critical Damage lvl 1 is a flat +32 cAtkAdd, got {add}");

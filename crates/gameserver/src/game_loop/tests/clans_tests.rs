@@ -578,7 +578,7 @@ fn passive_max_mp_skill_boosts_mp_at_login() {
     let base_mp = crate::model::calc_max_mp(&world.data, &t, 1, None, &StatModifiers::default());
 
     let mut chr = dummy_char(7001, "Mage");
-    chr.skills = vec![(9001, 1)];
+    chr.skills = vec![(9001, 1, 0)];
     let bundle = Player::from_char(&world.data, &chr);
     assert_eq!(bundle.vitals.max_mp, (base_mp * 2.0) as i32, "passive MaxMp folded into max_mp at login");
 }

@@ -54,6 +54,10 @@ use stats::{BaseStat, Stat, StatModifierType};
 pub struct CastState {
     pub skill_id: i32,
     pub skill_level: i32,
+    /// The enchant sub-level the cast was started with (0 = plain) — the
+    /// launch/finish/channeling phases re-resolve through it so an enchanted
+    /// cast lands its enchanted effects (PLAN_G19_SKILL_ENCHANT.md).
+    pub skill_sub_level: i32,
     /// Aiming target snapshotted at cast start (Java `SkillCaster._target`).
     pub target_object_id: i32,
     /// Generation counter from `Player.cast_seq`.
@@ -165,7 +169,7 @@ pub struct Player {
     /// The *inactive* class indices' learned skills. The active index's book
     /// lives in the `SkillBook` component; a switch moves it here and takes the
     /// target's out.
-    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
+    pub skills_by_index: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
     /// Inactive indices' worn hennas — dyes are per-subclass.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
@@ -424,6 +428,8 @@ pub struct PlayerData {
     pub warehouse: inventory::Warehouse,
     pub freight: inventory::Freight,
     pub skills: SkillBook,
+    /// Enchant sub-levels per skill id (`character_skills.skill_sub_level`).
+    pub skill_enchants: components::SkillEnchants,
     /// Worn henna dyes (`character_hennas`); their stat bonus is already folded
     /// into `base_stats`.
     pub henna: components::HennaSlots,
@@ -523,6 +529,7 @@ impl PlayerData {
                     self.warehouse,
                     self.freight,
                     components::ClanSkills::default(),
+                    self.skill_enchants,
                     self.henna,
                     self.recipe_book,
                     self.variables,
@@ -891,7 +898,11 @@ impl Player {
         // armor-conditioned passives (Spellcraft/Magician's Movement) into the
         // stat maps now, so the enter-world `UserInfo` burst already carries them
         // (no separate post-spawn resend). Timed buffs aren't restored yet.
-        let skills = SkillBook(c.skills.iter().copied().collect());
+        let skills = SkillBook(c.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect());
+        // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
+        let skill_enchants = components::SkillEnchants(
+            c.skills.iter().filter(|&&(_, _, sub)| sub > 0).map(|&(id, _, sub)| (id, sub)).collect(),
+        );
         // Java `restoreRecipeBook`: classify each stored recipe-list id into the
         // dwarven/common book by its `RecipeList.isDwarvenRecipe()`; ids with no
         // matching recipe are dropped (Java's `recipe == null` continue).
@@ -963,6 +974,7 @@ impl Player {
             warehouse,
             freight,
             skills,
+            skill_enchants,
             henna,
             recipe_book,
             variables: components::PlayerVariables(c.variables.iter().cloned().collect()),

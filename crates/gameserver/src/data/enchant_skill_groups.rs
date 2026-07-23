@@ -63,6 +63,11 @@ impl EnchantSkillGroups {
     pub fn is_empty(&self) -> bool {
         self.levels.is_empty()
     }
+
+    #[doc(hidden)]
+    pub fn insert_for_test(&mut self, cost: EnchantSkillCost) {
+        self.levels.insert(cost.level, cost);
+    }
 }
 
 fn parse_str(content: &str, out: &mut HashMap<i32, EnchantSkillCost>) {
