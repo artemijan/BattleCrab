@@ -19,6 +19,7 @@ pub mod orc_change1;
 pub mod orc_dark_elf_change2;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00210_obtain_a_wolf_pet;
+pub mod q00257_the_guard_is_busy;
 pub mod q00258_bring_wolf_pelts;
 pub mod q00260_orc_hunting;
 pub mod q00261_collectors_dream;
@@ -65,6 +66,7 @@ pub fn build_registry() -> QuestRegistry {
     let scripts: Vec<Arc<dyn QuestScript>> = vec![
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
+        Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
         Arc::new(q00258_bring_wolf_pelts::Q00258BringWolfPelts),
         Arc::new(q00260_orc_hunting::Q00260OrcHunting),
         Arc::new(q00261_collectors_dream::Q00261CollectorsDream),
