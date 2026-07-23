@@ -86,6 +86,9 @@ pub mod q00688_defeat_the_elrokian_raiders;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00374_whisper_of_dreams_part1;
 pub mod q00628_hunt_golden_ram;
+pub mod q00127_fishing_specialists_request;
+pub mod q00306_crystal_of_fire_and_ice;
+pub mod q00375_whisper_of_dreams_part2;
 pub mod antharas_heart;
 mod valakas_teleporters;
 mod dr_chaos_talk;
@@ -151,6 +154,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00110_to_the_primeval_isle::Q00110ToThePrimevalIsle),
         Arc::new(q00374_whisper_of_dreams_part1::Q00374WhisperOfDreamsPart1),
         Arc::new(q00628_hunt_golden_ram::Q00628HuntGoldenRam),
+        Arc::new(q00127_fishing_specialists_request::Q00127FishingSpecialistsRequest),
+        Arc::new(q00306_crystal_of_fire_and_ice::Q00306CrystalOfFireAndIce),
+        Arc::new(q00375_whisper_of_dreams_part2::Q00375WhisperOfDreamsPart2),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
