@@ -89,6 +89,7 @@ mod antharas_tests;
 mod baium_tests;
 mod boss_zone_tests;
 mod core_boss_tests;
+mod dr_chaos_tests;
 mod grand_boss_tests;
 mod orfen_tests;
 mod queen_ant_tests;

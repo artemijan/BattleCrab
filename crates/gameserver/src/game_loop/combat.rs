@@ -1580,6 +1580,9 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         if npc_id == super::valakas::VALAKAS {
             super::valakas::on_valakas_attacked(world, npc_oid, attacker_oid);
         }
+        if npc_id == super::dr_chaos::CHAOS_GOLEM {
+            super::dr_chaos::on_golem_attacked(world, npc_oid);
+        }
         if npc_id == super::orfen::ORFEN {
             super::orfen::on_orfen_attacked(world, npc_oid, attacker_oid);
         } else if npc_id == super::orfen::RIBA_IREN {

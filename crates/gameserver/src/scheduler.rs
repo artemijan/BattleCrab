@@ -29,6 +29,15 @@ pub enum ScheduledTask {
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;
     /// the boss takes the lair and the entry cinematic runs (G23 slice 21).
     ValakasBeginning,
+    /// Dr. Chaos's paranoia tick (1 s while NORMAL) — drains the timer by the
+    /// nearby-player count and transforms at ≤0 (G23 slice 22).
+    DrChaosParanoia { dr_chaos_oid: i32 },
+    /// One beat of Dr. Chaos's transformation cinematic (beat 5 spawns golem).
+    DrChaosTransform { dr_chaos_oid: i32, step: u8 },
+    /// The golem's 60 s idle check — reverts to Dr. Chaos after 30 idle min.
+    DrChaosGolemDespawn { golem_oid: i32 },
+    /// `reset_drchaos` — the golem's death window elapsed; Dr. Chaos returns.
+    DrChaosReset,
     /// One of Antharas's five-minute minion waves.
     AntharasMinionWave { antharas_oid: i32 },
     /// `SPAWN_ANTHARAS` — the Heart of Warding's wait window elapsed; the

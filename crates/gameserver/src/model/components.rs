@@ -333,6 +333,22 @@ pub struct GroundSkillTarget {
 #[derive(Component, Debug, Clone, Copy)]
 pub struct SummonerRef(pub i32);
 
+/// Dr. Chaos's paranoia timer (Java `_pissedOffTimer`, starts at 30). Lives on
+/// the Dr. Chaos NPC (32033); lingering players drain it, and at ≤0 he becomes
+/// the Gigantic Chaos Golem. (G23 slice 22, PLAN_G23_DR_CHAOS.md.)
+#[derive(Component, Debug, Clone, Copy)]
+pub struct DrChaosState {
+    pub pissed_off: i32,
+}
+
+/// The Gigantic Chaos Golem's idle clock (Java `_lastAttackVsGolem`). Lives on
+/// the golem NPC (25512); 30 minutes with no refresh despawns it back to Dr.
+/// Chaos.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct DrChaosGolem {
+    pub last_attack_tick: u64,
+}
+
 /// The one action a busy actor holds back — Java's three queue slots
 /// (`PlayerAI._nextIntention` MOVE_TO, `Player._queuedSkill`,
 /// `AbstractAI._nextAction` equip) folded into a single presence-based slot.

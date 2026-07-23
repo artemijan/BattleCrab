@@ -132,6 +132,17 @@ pub(crate) fn npc_say(world: &World, npc_oid: i32, npc_string_id: i32) {
     broadcast_near_region(world, region, &pkt);
 }
 
+/// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble.
+pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
+    let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&npc_oid) else { return };
+    let Some(region) = world.objects.get_component::<crate::model::components::RegionCell>(&npc_oid).map(|r| r.0)
+    else {
+        return;
+    };
+    let pkt = crate::network::server_packets::npc_say_text(npc_oid, npc.npc_id, text);
+    broadcast_near_region(world, region, &pkt);
+}
+
 /// Send `packet` to a player's own client (if still connected) and every
 /// player that can see them — Java `Creature.broadcastPacket(packet)` with
 /// `includeSelf == true`.
