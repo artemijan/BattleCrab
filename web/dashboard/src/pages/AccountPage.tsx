@@ -233,7 +233,7 @@ function GameAccountPanel({
   const headerClass = cx(
     "flex w-full flex-wrap items-center justify-between gap-2 border-b px-5 py-3.5 text-left",
     "transition-colors duration-300",
-    showsContent ? "border-[var(--surface-border)]" : "border-transparent",
+    showsContent ? "border-(--surface-border)" : "border-transparent",
   );
 
   return (

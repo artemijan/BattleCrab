@@ -168,7 +168,7 @@ export function AdminAccounts() {
                         onClick={() => onSort(column)}
                         className={cx(
                           "inline-flex items-center gap-1 transition-colors hover:text-(--text)",
-                          sort === column.key ? "text-[var(--text)]" : "text-[var(--text-muted)]",
+                          sort === column.key ? "text-(--text)" : "text-(--text-muted)",
                         )}
                       >
                         {column.label}

@@ -279,8 +279,8 @@ function MenuItem({ to, children }: { to: string; children: ReactNode }) {
         cx(
           "rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
           isActive
-            ? "bg-[var(--surface-strong)] text-brand-600 dark:text-brand-200"
-            : "text-[var(--text-muted)] hover:bg-[var(--surface-strong)] hover:text-[var(--text)]",
+            ? "bg-(--surface-strong) text-brand-600 dark:text-brand-200"
+            : "text-(--text-muted) hover:bg-(--surface-strong) hover:text-(--text)",
         )
       }
     >
@@ -298,7 +298,7 @@ function NavItem({ to, children }: { to: string; children: ReactNode }) {
           "rounded-lg p-2  text-sm font-medium transition-colors duration-200 sm:px-3",
           isActive
             ? "text-brand-600 dark:text-brand-200"
-            : "text-[var(--text-muted)] hover:text-[var(--text)]",
+            : "text-(--text-muted) hover:text-(--text)",
         )
       }
     >
@@ -324,7 +324,7 @@ export function Footer() {
           <span
             className={cx(
               "size-2 rounded-full",
-              status.data?.online ? "bg-emerald-400" : "bg-[var(--text-faint)]",
+              status.data?.online ? "bg-emerald-400" : "bg-(--text-faint)",
             )}
             aria-hidden
           />

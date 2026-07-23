@@ -16,8 +16,18 @@ export default [
       "better-tailwindcss": {
         // Tailwind v4 has no config file; the theme lives in the CSS entry.
         entryPoint: "src/styles/globals.css",
-        // The `cx()` helper joins class fragments across the codebase.
-        callees: ["cx"],
+        // The `cx()` helper joins class fragments across the codebase. The
+        // explicit matcher makes every string literal anywhere inside the call
+        // count — including ternary branches, which the bare form skips.
+        callees: [["cx", [{ match: "strings" }]]],
+        // Class strings also live in plain consts (`base`, `variants` in
+        // ui.tsx) and in className-returning arrow functions (NavLink).
+        variables: [
+          ["base", [{ match: "strings" }]],
+          ["variants", [{ match: "objectValues" }]],
+          ["styles", [{ match: "strings" }]],
+          ["className", [{ match: "strings" }]],
+        ],
       },
     },
     rules: {
