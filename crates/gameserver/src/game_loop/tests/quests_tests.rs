@@ -7960,3 +7960,136 @@ fn quest_q00211_trial_of_the_challenger() {
     assert_eq!(item_count(&world, 3001, 57), a + 194556, "final adena reward");
     assert_ne!(quest_cond(&world, 3001, q), Some(10), "one-time quest finished");
 }
+
+#[test]
+fn quest_q00212_trial_of_duty() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [2634, 2635, 2636, 2637, 2638, 2639, 2640, 2641, 2643, 2644, 2645, 2646, 3027]
+            .iter()
+            .map(|&id| (id, "Q212", true))
+            .collect();
+    items.push((2633, "Mark of Duty", false));
+    add_quest_items(&mut world, &items);
+    for id in [20190, 27119, 20200, 20144, 20577, 20270, 30656] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let hanna = NPC_OID;
+    let aron = NPC_OID + 1;
+    let kiel = NPC_OID + 2;
+    let isael = NPC_OID + 3;
+    let dustin = NPC_OID + 4;
+    let collin = NPC_OID + 5;
+    let talianus = NPC_OID + 6;
+    for (oid, npc) in [
+        (hanna, 30109),
+        (aron, 30653),
+        (kiel, 30654),
+        (isael, 30655),
+        (dustin, 30116),
+        (collin, 30311),
+        (talianus, 30656),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 4; // Knight (KNIGHT_GROUP)
+    }
+    world.data.categories.insert_for_test("KNIGHT_GROUP", &[4]);
+    let q = "Q00212_TrialOfDuty";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, hanna);
+    ev(&mut world, hanna, "quest_accept");
+    assert_eq!(quest_memo(&world, 3001, q), 1, "accepted → memo 1");
+    talk(&mut world, aron); // Old Knight's Sword, memo 2, cond 2
+    assert_eq!(item_count(&world, 3001, 3027), 1, "Old Knight's Sword");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // Escalating flag conjures Sir Herod's spirit off skeletons.
+    kill(&mut world, 20190); // flag 0 → 1 (threshold 0, no spawn)
+    assert!(npcs_of(&mut world, 27119).is_empty(), "flag 0: no spawn yet");
+    world.forced_rolls.push_back(5); // roll(100)=5 < flag(1)*10 → spawn
+    kill(&mut world, 20190);
+    assert_eq!(npcs_of(&mut world, 27119).len(), 1, "flag 1: Sir Herod conjured");
+    // Only the Old Knight's Sword yields the Knight's Tear.
+    equip_weapon_row(&mut world, 3001, 3027);
+    kill(&mut world, 27119); // memo 2 + sword → Knight's Tear, memo 3, cond 3
+    assert_eq!(item_count(&world, 3001, 2635), 1, "Knight's Tear");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, aron); // tear + sword → memo 4, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    talk(&mut world, kiel); // memo 5, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // 10 report pieces via giveItemRandomly.
+    inject(&mut world, 3001, 0x0212_0000, 2638, 9);
+    kill(&mut world, 20200); // Strain: 10th piece → Talianus's Report, cond 6
+    assert_eq!(item_count(&world, 3001, 2639), 1, "Talianus's Report");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, kiel); // report → Mirror of Orpic, memo 6, cond 7
+    assert_eq!(item_count(&world, 3001, 2636), 1, "Mirror of Orpic");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    // Escalating flag conjures Sir Talianus's spirit off Hangman Trees (needs flag >= 4).
+    for _ in 0..4 {
+        kill(&mut world, 20144); // flags 0..3, thresholds <= 0: no spawn
+    }
+    assert!(npcs_of(&mut world, 30656).len() <= 1, "spirit not conjured below flag 4");
+    world.forced_rolls.push_back(10); // roll(100)=10 < (flag(4)-3)*33=33 → spawn
+    kill(&mut world, 20144);
+    assert_eq!(quest_cond(&world, 3001, q), Some(8), "Sir Talianus conjured → cond 8");
+    talk(&mut world, talianus); // mirror + report → Tear of Confession, memo 7, cond 9
+    assert_eq!(item_count(&world, 3001, 2637), 1, "Tear of Confession");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    talk(&mut world, kiel); // confession → memo 8, cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, isael); // memo 9, cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    // 20 militia articles via giveItemRandomly.
+    inject(&mut world, 3001, 0x0212_0001, 2641, 19);
+    kill(&mut world, 20577); // Leto: 20th article → cond 12
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    talk(&mut world, isael); // 20 articles → Tear of Loyalty, memo 10, cond 13
+    assert_eq!(item_count(&world, 3001, 2640), 1, "Tear of Loyalty");
+    assert_eq!(item_count(&world, 3001, 2641), 0, "militia articles consumed");
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, dustin);
+    ev(&mut world, dustin, "30116-05.html"); // loyalty → memo 11, cond 14
+    assert_eq!(quest_cond(&world, 3001, q), Some(14));
+    // Athebaldt's three bones off Breka Orc Prefects.
+    kill(&mut world, 20270); // skull
+    kill(&mut world, 20270); // ribs
+    kill(&mut world, 20270); // shin → cond 15
+    assert_eq!(item_count(&world, 3001, 2645), 1, "Athebaldt's Shin");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    talk(&mut world, dustin); // bones → Saint's Ashes Urn, memo 12, cond 16
+    assert_eq!(item_count(&world, 3001, 2641), 1, "Saint's Ashes Urn (shares id 2641)");
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, collin); // urn → Letter of Windawood, memo 13, cond 17
+    assert_eq!(item_count(&world, 3001, 2646), 1, "Letter of Windawood");
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    talk(&mut world, dustin); // Windawood → Letter of Dustin, memo 14, cond 18
+    assert_eq!(item_count(&world, 3001, 2634), 1, "Letter of Dustin");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    // Completion at Hannavalt.
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, hanna);
+    assert_eq!(item_count(&world, 3001, 2633), 1, "Mark of Duty awarded");
+    assert_eq!(item_count(&world, 3001, 57), a + 138968, "final adena reward");
+    assert_ne!(quest_cond(&world, 3001, q), Some(18), "one-time quest finished");
+}
