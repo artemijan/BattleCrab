@@ -17928,3 +17928,112 @@ fn saga_progression_casts_visual_fx() {
         "the tablet glow (4546) was cast: {casts:?}"
     );
 }
+
+/// During the finale duel the companion keeps up a timed battle-banter cadence:
+/// a first line ~4s in, then reschedules every 12s while the boss stands. Once
+/// the boss retreats (`Tab` set), the cadence lapses on its next firing.
+#[test]
+fn saga_finale_companion_taunt_cadence() {
+    const BOSS: i32 = 27278; // Q70 mob[2]
+    const COMPANION: i32 = 31631; // Q70 npc[4]
+    const START: i32 = 30849;
+
+    let (mut world, _db, _l) = quest_test_world();
+    for id in [BOSS, COMPANION] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = if id == BOSS { "Monster" } else { "Folk" }.into();
+        t.level = 78;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, START, "Folk", 78, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = 5;
+    }
+    let q = "Q00070_SagaOfThePhoenixKnight";
+    let set_var = |w: &mut World, key: &str, val: &str| {
+        w.objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0
+            .entry(q.to_string())
+            .or_default()
+            .vars
+            .insert(key.to_string(), val.to_string());
+    };
+    set_var(&mut world, "cond", "17");
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Quests>(&3001)
+        .unwrap()
+        .0
+        .get_mut(q)
+        .unwrap()
+        .state = crate::model::quest::state::STARTED;
+
+    // Summon the finale (starts the taunt timer).
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{start}_Quest {q} 10-1")),
+    );
+    let companion = *npcs_of(&mut world, COMPANION)
+        .first()
+        .expect("companion spawned");
+    // The opening COMPANION_CALL fires immediately; drain it so we only capture
+    // the *timed* banter that follows.
+    let _ = drain(&mut rx);
+
+    // Decode NpcSay-text (op 0x30): oid, chatType, 1_000_000+npcId, -1, string.
+    let taunt_from = |p: &[u8], oid: i32| -> Option<String> {
+        if p.first() != Some(&crate::network::server_packets::opcodes::NPC_SAY) {
+            return None;
+        }
+        let mut r = commons::network::PacketReader::new(&p[1..]);
+        (r.read_i32()? == oid).then_some(())?;
+        r.read_i32()?; // chat type
+        r.read_i32()?; // 1_000_000 + npc id
+        r.read_i32()?; // -1 (literal string marker)
+        r.read_string()
+    };
+
+    // ~4s in: the first timed taunt lands, from the companion.
+    advance_ticks(&mut world, 41);
+    let first: Vec<String> = drain(&mut rx)
+        .iter()
+        .filter_map(|p| taunt_from(p, companion))
+        .collect();
+    assert!(
+        first
+            .iter()
+            .any(|s| s == "Hold your ground — its strength wanes!"),
+        "companion's first timed taunt: {first:?}"
+    );
+
+    // The cadence reschedules: ~12s later a *second*, different line lands.
+    advance_ticks(&mut world, 121);
+    let second: Vec<String> = drain(&mut rx)
+        .iter()
+        .filter_map(|p| taunt_from(p, companion))
+        .collect();
+    assert!(
+        second.iter().any(|s| s == "Strike now, while it staggers!"),
+        "companion's second timed taunt cycles the line: {second:?}"
+    );
+
+    // Once the boss retreats (Tab set), the cadence lapses on its next firing.
+    set_var(&mut world, "Tab", "1");
+    advance_ticks(&mut world, 121);
+    let after: Vec<String> = drain(&mut rx)
+        .iter()
+        .filter_map(|p| taunt_from(p, companion))
+        .collect();
+    assert!(
+        after.is_empty(),
+        "cadence stops after the boss retreats: {after:?}"
+    );
+}

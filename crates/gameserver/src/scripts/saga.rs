@@ -10,12 +10,13 @@
 //! Guardian Angels and Archon minions, and slaying three scripted spawns
 //! (`mob[0..2]`) before the quest-giver performs the class transfer.
 //!
-//! The finale is wired: the boss and companion spawn and duel each other, trade
-//! opening lines, and the boss is driven off after 15 player hits (unlocking the
-//! reward). Progression glows (`MagicSkillUse` 4546) and the transform flash
-//! (4339) fire on each tablet step and the class change. The one remaining
-//! cosmetic gap: the full *timed* `_text` taunt cadence (here just the opening +
-//! retreat lines, generic across all 31 Sagas rather than per-class).
+//! The finale is fully wired: the boss and companion spawn and duel each other,
+//! trade opening lines, the companion keeps up a timed battle-banter cadence
+//! (Java's repeating `Mob_2` taunt timers, driven by [`SagaQuest::on_timer`]),
+//! and the boss is driven off after 15 player hits (unlocking the reward).
+//! Progression glows (`MagicSkillUse` 4546) and the transform flash (4339) fire
+//! on each tablet step and the class change. The chatter lines are one generic
+//! set across all 31 Sagas rather than the per-class `_text` arrays.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -53,6 +54,20 @@ const MIN_LEVEL: i32 = 76;
 const BOSS_TAUNT: &str = "So, another has come to be broken. You are no different from the rest!";
 const COMPANION_CALL: &str = "Steel yourself — I will stand with you against this thing!";
 const BOSS_RETREAT: &str = "Impossible... I cannot... I must withdraw!";
+/// The companion's timed battle-banter during the finale duel — cycled by
+/// [`SagaQuest::on_timer`] on a fixed cadence while the boss still stands
+/// (Java's `Mob_2` taunt timers 1-3). The cadence stops the moment the fight
+/// ends (cond leaves 17) or the boss is driven off (`Tab` set by `on_attack`).
+const COMPANION_TAUNTS: [&str; 3] = [
+    "Hold your ground — its strength wanes!",
+    "Strike now, while it staggers!",
+    "We have it reeling — do not relent!",
+];
+/// Timer key + cadence for the companion's banter: the first line lands a few
+/// seconds into the duel, then every 12s until the boss retreats.
+const TAUNT_TIMER: &str = "SagaTaunt";
+const TAUNT_FIRST_MS: u64 = 4_000;
+const TAUNT_EVERY_MS: u64 = 12_000;
 
 pub struct SagaQuest {
     data: SagaData,
@@ -221,13 +236,16 @@ impl QuestScript for SagaQuest {
                 let _ = (cx, cy, cz); // companion spawns beside the guide (talkable)
                 let companion = ctx.spawn_near_npc(self.npc(4), false);
                 // Choreography: the companion and boss set upon each other and
-                // trade opening lines. (The authentic timed taunt cadence is
-                // still simplified — TODO(saga) for the full `_text` sequence.)
+                // trade opening lines, then the companion keeps up a timed
+                // battle-banter cadence (`on_timer`) until the boss retreats.
                 if let (Some(b), Some(c)) = (boss, companion) {
                     ctx.seed_npc_attack(b, c);
                     ctx.seed_npc_attack(c, b);
                     ctx.broadcast_npc_text(b, BOSS_TAUNT);
                     ctx.broadcast_npc_text(c, COMPANION_CALL);
+                    ctx.set_var("SagaCompanion", c.to_string()); // whom the cadence speaks from
+                    ctx.set_var("SagaTauntIdx", "0");
+                    ctx.start_quest_timer(TAUNT_TIMER, TAUNT_FIRST_MS);
                 }
                 ctx.set_var("Quest0", "1"); // the boss's hit counter
                 ctx.set_var("Tab", "0"); // set once the boss retreats
@@ -309,6 +327,27 @@ impl QuestScript for SagaQuest {
             ctx.npc_say_text(BOSS_RETREAT); // the boss's parting cry
             ctx.delete_npc(); // the boss retreats
         }
+    }
+
+    fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
+        // The companion's finale battle-banter, from Java's repeating `Mob_2`
+        // taunt timers. It runs only while the duel is live (cond 17) and the
+        // boss still stands (`Tab` unset), then reschedules itself; when the
+        // player advances (cond leaves 17) or the boss retreats, the next
+        // firing sees the gate closed and the cadence lapses.
+        if name != TAUNT_TIMER {
+            return;
+        }
+        if !ctx.has_qs() || ctx.cond() != 17 || ctx.get_int("Tab") == 1 {
+            return;
+        }
+        let companion = ctx.get_int("SagaCompanion");
+        let idx = ctx
+            .get_int("SagaTauntIdx")
+            .rem_euclid(COMPANION_TAUNTS.len() as i32);
+        ctx.broadcast_npc_text(companion, COMPANION_TAUNTS[idx as usize]);
+        ctx.set_var("SagaTauntIdx", (idx + 1).to_string());
+        ctx.start_quest_timer(TAUNT_TIMER, TAUNT_EVERY_MS);
     }
 
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
