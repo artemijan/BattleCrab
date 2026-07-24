@@ -436,3 +436,67 @@ fn weekly_change_adds_points_and_resets_matches() {
     assert_eq!(n.points, 20, "no points during validation");
     assert_eq!(n.comp_done_week, 5, "not reset during validation");
 }
+
+/// Queue `count` online players (object ids 1000..) into the non-class list.
+fn queue_online(world: &mut World, count: i32) {
+    for oid in 1000..1000 + count {
+        let _ = ingame_player(world, oid as u32, oid, 0, 0, 0);
+        world.olympiad.non_class_registers.insert(oid);
+    }
+}
+
+#[test]
+fn game_manager_pairs_waiting_nobles_into_arenas() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    queue_online(&mut world, 20);
+
+    crate::game_loop::olympiad::handle_game_manager(&mut world);
+
+    // Four stadiums → four 1v1 matches; 8 fighters pulled out, 12 left waiting.
+    assert_eq!(world.olympiad.matches.len(), 4, "one match per arena");
+    assert_eq!(world.olympiad.in_competition.len(), 8);
+    assert_eq!(world.olympiad.non_class_registers.len(), 12);
+    let arenas: std::collections::HashSet<usize> =
+        world.olympiad.matches.iter().map(|m| m.arena).collect();
+    assert_eq!(arenas.len(), 4, "each match took a distinct arena");
+    for m in &world.olympiad.matches {
+        assert_ne!(m.player_a, m.player_b, "two distinct fighters");
+        assert!(world.olympiad.is_in_competition(m.player_a));
+        assert!(world.olympiad.is_in_competition(m.player_b));
+        assert!(!world.olympiad.non_class_registers.contains(&m.player_a));
+        assert!(!world.olympiad.non_class_registers.contains(&m.player_b));
+    }
+}
+
+#[test]
+fn game_manager_needs_the_minimum_before_making_matches() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    queue_online(&mut world, 10); // below the 20 threshold
+
+    crate::game_loop::olympiad::handle_game_manager(&mut world);
+    assert!(
+        world.olympiad.matches.is_empty(),
+        "no matches below the minimum"
+    );
+    assert_eq!(
+        world.olympiad.non_class_registers.len(),
+        10,
+        "queue untouched"
+    );
+}
+
+#[test]
+fn a_fighting_noble_cannot_register() {
+    let (mut world, _tx, _db, _l) = test_world();
+    open_games(&mut world);
+    let _rx = make_noble(&mut world, 1, 100);
+    world.olympiad.in_competition.insert(100);
+
+    assert!(
+        !crate::game_loop::olympiad::register(&mut world, 100, CompetitionType::NonClassed),
+        "a fighter cannot re-register"
+    );
+    assert!(!world.olympiad.is_registered(100));
+}
