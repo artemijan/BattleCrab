@@ -649,6 +649,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::friends::on_enter_world(world, object_id);
     // Pledge window to the member + online ping to the rest of the clan.
     super::clans::on_enter_world(world, client_id, object_id);
+    // Re-apply Olympiad hero status to a crowned character.
+    super::olympiad::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

@@ -470,6 +470,11 @@ pub enum DbCommand {
         next_weekly_change: i64,
         nobles: Vec<OlympiadNobleRow>,
     },
+    /// `Hero.computeNewHeroes` — replace the `heroes` table with the new crown
+    /// (all `played = 1`, `claimed = 'false'`).
+    SaveHeroes {
+        heroes: Vec<HeroRow>,
+    },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel {
         clan_id: i32,
@@ -815,6 +820,8 @@ pub enum DbEvent {
         next_weekly_change: i64,
         nobles: Vec<OlympiadNobleRow>,
     },
+    /// The current heroes (`heroes` rows with `played = 1`), loaded at boot.
+    HeroesLoaded { heroes: Vec<HeroRow> },
     /// The `castle_siege_guards` table (the stationed garrison, `isHired=0`),
     /// pushed unprompted at boot. `(castle_id, spawn)`; grouped by castle on the
     /// game thread.
@@ -842,6 +849,15 @@ pub struct OlympiadNobleRow {
     pub comp_lost: i32,
     pub comp_drawn: i32,
     pub comp_done_week: i32,
+}
+
+/// One `heroes` row (`played = 1`) — a currently-crowned hero.
+#[derive(Debug, Clone)]
+pub struct HeroRow {
+    pub char_id: i32,
+    pub class_id: i32,
+    /// How many times this character has been a hero (Java `count`).
+    pub count: i32,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -994,6 +1010,11 @@ async fn run(
 
     // `Olympiad.load` — the period/cycle row + every noble's record.
     let _ = event_tx.send(load_olympiad(&pool).await);
+
+    // `Hero.init` — the currently-crowned heroes (`played = 1`).
+    let _ = event_tx.send(DbEvent::HeroesLoaded {
+        heroes: load_heroes(&pool).await,
+    });
 
     // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded {
@@ -1362,6 +1383,23 @@ async fn run(
                         .bind(n.comp_lost)
                         .bind(n.comp_drawn)
                         .bind(n.comp_done_week),
+                    )
+                    .await;
+                }
+            }
+            DbCommand::SaveHeroes { heroes } => {
+                // `Hero.computeNewHeroes` replaces the active crown.
+                exec(&pool, sqlx::query("DELETE FROM heroes")).await;
+                for h in heroes {
+                    exec(
+                        &pool,
+                        sqlx::query(
+                            "INSERT OR REPLACE INTO heroes \
+                             (charId, class_id, count, played, claimed) VALUES (?, ?, ?, 1, 'false')",
+                        )
+                        .bind(h.char_id)
+                        .bind(h.class_id)
+                        .bind(h.count),
                     )
                     .await;
                 }
@@ -2589,6 +2627,21 @@ async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
         next_weekly_change,
         nobles,
     }
+}
+
+/// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).
+async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
+    sqlx::query("SELECT charId, class_id, count FROM heroes WHERE played = 1")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+        .iter()
+        .map(|r| HeroRow {
+            char_id: geti(r, "charId") as i32,
+            class_id: geti(r, "class_id") as i32,
+            count: geti(r, "count") as i32,
+        })
+        .collect()
 }
 
 async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {
