@@ -17001,3 +17001,122 @@ fn quest_q00620_four_goblets() {
     );
     assert!(item_count(&world, 3001, RELIC) <= 1, "relics consumed");
 }
+
+/// An Obvious Lie (32): Maximilian → Gentler's map → Miki → farm 20 Medicinal
+/// Herbs from Alligators → hand over herbs, Spirit Ore, and Thread + Suede for
+/// a pair of Cat Ears.
+#[test]
+fn quest_q00032_an_obvious_lie() {
+    const MAXIMILIAN: i32 = 30120;
+    const GENTLER: i32 = 30094;
+    const MIKI: i32 = 31706;
+    const ALLIGATOR: i32 = 20135;
+    const MAP_OF_GENTLER: i32 = 7165;
+    const MEDICINAL_HERB: i32 = 7166;
+    const SPIRIT_ORE: i32 = 3031;
+    const THREAD: i32 = 1868;
+    const SUEDE: i32 = 1866;
+    const CAT_EARS: i32 = 6843;
+
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> =
+        [MAP_OF_GENTLER, MEDICINAL_HERB, SPIRIT_ORE, THREAD, SUEDE]
+            .iter()
+            .map(|&i| (i, "q", true))
+            .collect();
+    items.push((CAT_EARS, "ears", false));
+    add_quest_items(&mut world, &items);
+    let mut at = crate::data::npc_data::default_template(ALLIGATOR);
+    at.type_name = "Monster".into();
+    at.level = 46;
+    at.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(at);
+    let maximilian = NPC_OID;
+    let gentler = NPC_OID + 1;
+    let miki = NPC_OID + 2;
+    for (oid, npc) in [(maximilian, MAXIMILIAN), (gentler, GENTLER), (miki, MIKI)] {
+        add_test_npc(&mut world, oid, npc, "Folk", 46, 100, 200, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 46;
+    let q = "Q00032_AnObviousLie";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let cond = |w: &World| quest_cond(w, 3001, q);
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+
+    // Accept → Gentler's map → Miki takes it (cond 3).
+    talk(&mut world, maximilian);
+    ev(&mut world, maximilian, "30120-02.html");
+    assert_eq!(cond(&world), Some(1), "started");
+    ev(&mut world, gentler, "30094-02.html");
+    assert_eq!(cond(&world), Some(2));
+    assert_eq!(item_count(&world, 3001, MAP_OF_GENTLER), 1, "map given");
+    ev(&mut world, miki, "31706-02.html");
+    assert_eq!(cond(&world), Some(3));
+    assert_eq!(
+        item_count(&world, 3001, MAP_OF_GENTLER),
+        0,
+        "map surrendered"
+    );
+
+    // Farm 20 Medicinal Herbs from Alligators → cond 4.
+    let mut mob = NPC_OID + 20;
+    for _ in 0..20 {
+        mob += 1;
+        add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 46, 110, 200, 0);
+        world.forced_rolls.push_back(0); // give_item_randomly → drop
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, MEDICINAL_HERB), 20, "20 herbs");
+    assert_eq!(cond(&world), Some(4), "20th herb → cond 4");
+
+    // Gentler takes the herbs (cond 5), then Spirit Ore (cond 6).
+    ev(&mut world, gentler, "30094-06.html");
+    assert_eq!(cond(&world), Some(5));
+    assert_eq!(
+        item_count(&world, 3001, MEDICINAL_HERB),
+        0,
+        "herbs consumed"
+    );
+    inject(&mut world, 3001, 0x0032_1000, SPIRIT_ORE, 500);
+    ev(&mut world, gentler, "30094-09.html");
+    assert_eq!(cond(&world), Some(6));
+    assert_eq!(
+        item_count(&world, 3001, SPIRIT_ORE),
+        0,
+        "spirit ore consumed"
+    );
+
+    // Miki (cond 7), Gentler (cond 8).
+    ev(&mut world, miki, "31706-05.html");
+    assert_eq!(cond(&world), Some(7));
+    ev(&mut world, gentler, "30094-12.html");
+    assert_eq!(cond(&world), Some(8));
+
+    // Without Thread + Suede, no ears.
+    ev(&mut world, gentler, "cat");
+    assert_eq!(
+        item_count(&world, 3001, CAT_EARS),
+        0,
+        "no ears without materials"
+    );
+    // With them, the Cat Ears are crafted and the quest completes.
+    inject(&mut world, 3001, 0x0032_2000, THREAD, 1000);
+    inject(&mut world, 3001, 0x0032_3000, SUEDE, 500);
+    ev(&mut world, gentler, "cat");
+    assert_eq!(item_count(&world, 3001, CAT_EARS), 1, "Cat Ears crafted");
+    assert_eq!(item_count(&world, 3001, THREAD), 0, "thread consumed");
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "one-time quest completes");
+}
