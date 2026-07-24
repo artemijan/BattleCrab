@@ -1018,6 +1018,26 @@ impl<'w> QuestCtx<'w> {
         })
     }
 
+    /// `Quest.getHtm(player, filename)` — the raw html content of one of the
+    /// script's files, for scripts that must substitute a placeholder before
+    /// returning it (e.g. quest 234's `%weaponname%`). Returning the result to
+    /// the framework sends it inline (`showResult`'s `<html>` branch). Empty
+    /// string if the file is missing, matching Java's null collapsing to "".
+    pub fn get_htm(&self, filename: &str) -> String {
+        load_quest_html(self.world, &self.script, filename).unwrap_or_default()
+    }
+
+    /// `ItemData.getInstance().getTemplate(id).getName()` — an item's display
+    /// name, empty if the id is unknown.
+    pub fn item_name(&self, item_id: i32) -> String {
+        self.world
+            .data
+            .item_data
+            .get(item_id)
+            .map(|t| t.name.clone())
+            .unwrap_or_default()
+    }
+
     /// `Quest.startQuestTimer(name, time, npc, player)` — non-repeating
     /// only. Starting a timer with a live same-key predecessor supersedes it
     /// (Java refuses duplicates instead; superseding is the safer default
