@@ -18037,3 +18037,279 @@ fn saga_finale_companion_taunt_cadence() {
         "cadence stops after the boss retreats: {after:?}"
     );
 }
+
+/// Quest 421 — the full hatchling→strider arc, driven through the pet
+/// infrastructure: the flute-enchant start gate, Mimyu binding the rite to the
+/// flute's object id, the four-tree drink grind (only *the bound pet's* blows
+/// count, and only past each tree's hit threshold), and redeeming the flute for
+/// the Dragon Bugle once all four essences (`memoState == 15`) are drunk.
+#[test]
+fn quest_q00421_little_wings_big_adventure() {
+    use crate::model::components::{PetOf, Quests, SummonRef};
+    use crate::model::inventory::Inventory;
+
+    const CRONOS: i32 = 30610;
+    const MIMYU: i32 = 30747;
+    const FLUTE: i32 = 3500; // Dragonflute of Wind
+    const BUGLE: i32 = 4422; // Dragon Bugle of Wind
+    const LEAF: i32 = 4325; // Fairy Leaf
+    const HATCHLING: i32 = 12311; // stand-in pet species
+                                  // (tree npc id, min_hits, memo bit value)
+    const TREES: [(i32, i32, i32); 4] = [
+        (27185, 270, 1),
+        (27186, 400, 2),
+        (27187, 150, 4),
+        (27188, 270, 8),
+    ];
+    const FLUTE_OID: i32 = 0x0042_1000;
+    let q = "Q00421_LittleWingsBigAdventure";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (FLUTE, "Dragonflute of Wind", false),
+            (BUGLE, "Dragon Bugle of Wind", false),
+            (LEAF, "Fairy Leaf", true),
+        ],
+    );
+
+    let cronos = NPC_OID;
+    let mimyu = NPC_OID + 1;
+    add_test_npc(&mut world, cronos, CRONOS, "Folk", 55, 100, 200, 0);
+    add_test_npc(&mut world, mimyu, MIMYU, "Folk", 55, 120, 200, 0);
+    let tree_oids: Vec<i32> = TREES
+        .iter()
+        .enumerate()
+        .map(|(i, (id, _, _))| {
+            let oid = NPC_OID + 2 + i as i32;
+            add_test_npc(&mut world, oid, *id, "Monster", 60, 300, 300 + i as i32, 0);
+            oid
+        })
+        .collect();
+
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
+    // One Dragonflute of Wind, enchant 60 (its enchant level is the hatchling's).
+    inject(&mut world, 3001, FLUTE_OID, FLUTE, 1);
+
+    let set_enchant = |w: &mut World, level: i32| {
+        w.objects
+            .get_component_mut::<Inventory>(&3001)
+            .unwrap()
+            .set_item_enchant_level(FLUTE, level);
+    };
+    let memo = |w: &World| -> i32 {
+        w.objects
+            .get_component::<Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .and_then(|qs| qs.vars.get("memoState"))
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0)
+    };
+    let started = |w: &World| -> bool {
+        w.objects
+            .get_component::<Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+    };
+    let set_hits = |w: &mut World, n: i32| {
+        w.objects
+            .get_component_mut::<Quests>(&3001)
+            .unwrap()
+            .0
+            .get_mut(q)
+            .unwrap()
+            .vars
+            .insert("hits".into(), n.to_string());
+    };
+    let event = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let bind_pet = |w: &mut World, oid: i32, collar: i32| {
+        add_test_npc(w, oid, HATCHLING, "Pet", 55, 130, 200, 0);
+        w.objects.add_components(
+            &oid,
+            PetOf {
+                collar_object_id: collar,
+                fed: 100,
+                max_fed: 100,
+                level: 55,
+                exp: 0,
+                sp: 0,
+                exp_before_death: 0,
+            },
+        );
+        match w.objects.get_component_mut::<SummonRef>(&3001) {
+            Some(s) => s.pet = Some(oid),
+            None => w.objects.add_components(
+                &3001,
+                SummonRef {
+                    servitor: None,
+                    pet: Some(oid),
+                },
+            ),
+        }
+    };
+
+    // --- Enchant gate: an under-enchanted flute (hatchling < 55) can't start. ---
+    set_enchant(&mut world, 40);
+    talk(&mut world, cronos); // creates the CREATED quest state (Java getQuestState(true))
+    event(&mut world, cronos, "30610-05.htm");
+    assert!(
+        !started(&world),
+        "under-enchanted flute cannot start the rite"
+    );
+    set_enchant(&mut world, 60);
+
+    // --- Start: the rite binds to this flute's object id. ---
+    event(&mut world, cronos, "30610-05.htm");
+    assert!(
+        started(&world),
+        "the rite started with a level-60 hatchling"
+    );
+    assert_eq!(memo(&world), 100, "memoState 100 on start");
+    assert_eq!(
+        world.objects.get_component::<Quests>(&3001).unwrap().0[q]
+            .vars
+            .get("fluteObjectId")
+            .map(|s| s.as_str()),
+        Some(FLUTE_OID.to_string().as_str()),
+        "rite bound to the flute's object id"
+    );
+
+    // --- Mimyu intro (100 → 200). ---
+    talk(&mut world, mimyu);
+    assert_eq!(memo(&world), 200, "Mimyu's intro advances memoState to 200");
+
+    // Without the hatchling out, Mimyu withholds the Fairy Leaves.
+    event(&mut world, mimyu, "30747-05.html");
+    assert_eq!(
+        item_count(&world, 3001, LEAF),
+        0,
+        "no leaves without the pet"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "no cond 2 without the pet"
+    );
+
+    // Summon the bound hatchling; now Mimyu hands over four leaves.
+    bind_pet(&mut world, NPC_OID + 20, FLUTE_OID);
+    event(&mut world, mimyu, "30747-05.html");
+    assert_eq!(
+        item_count(&world, 3001, LEAF),
+        4,
+        "four Fairy Leaves granted"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "cond 2 to drink");
+    assert_eq!(memo(&world), 0, "memoState reset to the 4-bit drink field");
+
+    // --- The player's own blow does not count. ---
+    quests::notify_attack(&mut world, 3001, tree_oids[0], TREES[0].0, None, false);
+    assert_eq!(memo(&world), 0, "a player blow drinks nothing");
+    assert_eq!(
+        item_count(&world, 3001, LEAF),
+        4,
+        "no leaf spent by the player"
+    );
+
+    // A pet blow below the hit threshold drinks nothing either.
+    quests::notify_attack(&mut world, 3001, tree_oids[0], TREES[0].0, None, true);
+    assert_eq!(memo(&world), 0, "below the threshold, no essence taken");
+    assert_eq!(
+        item_count(&world, 3001, LEAF),
+        4,
+        "no leaf spent below threshold"
+    );
+
+    // --- The four-tree grind: past each threshold, the bound pet drinks. ---
+    for (i, (id, min_hits, value)) in TREES.iter().enumerate() {
+        set_hits(&mut world, min_hits - 1); // next blow reaches the threshold
+        world.forced_rolls.push_back(0); // the 2% essence roll → success
+        let before = memo(&world);
+        quests::notify_attack(&mut world, 3001, tree_oids[i], *id, None, true);
+        assert_eq!(memo(&world), before + value, "tree {id} sets its memo bit");
+    }
+    assert_eq!(memo(&world), 15, "all four essences drunk");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(3),
+        "cond 3 once all drunk"
+    );
+    assert_eq!(
+        item_count(&world, 3001, LEAF),
+        0,
+        "all four leaves consumed"
+    );
+
+    // --- Redemption: Mimyu grows the hatchling into a strider. ---
+    talk(&mut world, mimyu); // memoState 15, pet present, no leaves → 16
+    assert_eq!(memo(&world), 16, "Mimyu readies the transformation");
+    world
+        .objects
+        .get_component_mut::<SummonRef>(&3001)
+        .unwrap()
+        .pet = None; // dismiss the hatchling
+    talk(&mut world, mimyu); // memoState 16, no summon, bound flute → the Bugle
+    assert_eq!(item_count(&world, 3001, BUGLE), 1, "Dragon Bugle awarded");
+    assert_eq!(item_count(&world, 3001, FLUTE), 0, "the flute is consumed");
+    assert!(
+        world
+            .objects
+            .get_component::<Quests>(&3001)
+            .is_none_or(|qc| !qc.0.contains_key(q)),
+        "the repeatable quest is forgotten on completion"
+    );
+}
+
+/// Quest 421 — killing a Tree of Vision (rather than drinking from it) summons a
+/// 20-strong Guardian Ghost ambush that despawns after five minutes.
+#[test]
+fn quest_q00421_guardian_ambush_despawns() {
+    use crate::model::components::Quests;
+
+    const TREE: i32 = 27185; // Tree of Wind
+    const GUARDIAN: i32 = 27189;
+
+    let (mut world, _db, _l) = quest_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(GUARDIAN);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let tree = NPC_OID;
+    add_test_npc(&mut world, tree, TREE, "Monster", 60, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 300, 300, 0);
+    let q = "Q00421_LittleWingsBigAdventure";
+    {
+        let quests = world.objects.get_component_mut::<Quests>(&3001).unwrap();
+        let qs = quests.0.entry(q.to_string()).or_default();
+        qs.state = crate::model::quest::state::STARTED;
+        qs.vars.insert("cond".to_string(), "2".to_string());
+    }
+
+    // Fell the tree — the ambush spawns.
+    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0);
+    assert_eq!(
+        npcs_of(&mut world, GUARDIAN).len(),
+        20,
+        "20 Guardian Ghosts swarm the killer"
+    );
+
+    // Five minutes later, they are gone.
+    advance_ticks(&mut world, 3001); // 300_000 ms / 100 ms per tick
+    assert!(
+        npcs_of(&mut world, GUARDIAN).is_empty(),
+        "the ambush despawns after 5 minutes"
+    );
+}

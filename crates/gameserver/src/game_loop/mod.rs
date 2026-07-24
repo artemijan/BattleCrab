@@ -412,6 +412,15 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::CoreDespawnMinions => {
                 core_boss::handle_despawn_minions(world);
             }
+            ScheduledTask::DespawnNpc { npc_oid } => {
+                if let Some(region) = world
+                    .objects
+                    .get_component::<crate::model::components::RegionCell>(&npc_oid)
+                    .map(|r| r.0)
+                {
+                    death::despawn_npc(world, npc_oid, region);
+                }
+            }
             ScheduledTask::CubicAction {
                 owner_oid,
                 cubic_id,

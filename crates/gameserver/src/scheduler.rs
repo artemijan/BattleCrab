@@ -60,6 +60,11 @@ pub enum ScheduledTask {
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.
     CoreDespawnMinions,
+    /// A one-shot "delete this NPC after N ms" — Java's
+    /// `startQuestTimer("DESPAWN…", delay, npc, null)` / `deleteMe` pattern for
+    /// quest-spawned actors on a lifespan (quest 421's Soul of Tree Guardian
+    /// ambush). A no-op if the NPC is already gone, like every dead-id task here.
+    DespawnNpc { npc_oid: i32 },
     /// Java `Cubic._skillUseTask` — one action attempt by a player's cubic.
     CubicAction { owner_oid: i32, cubic_id: i32 },
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and

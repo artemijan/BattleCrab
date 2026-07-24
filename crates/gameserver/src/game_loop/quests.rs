@@ -913,6 +913,68 @@ impl<'w> QuestCtx<'w> {
         super::servitor::servitor_of(self.world, self.player)
     }
 
+    /// `player.getPet()` → its `getControlObjectId()`: the object id of the
+    /// collar (a Dragonflute, in quest 421) that summoned the pet, or `None`
+    /// when no *pet* is out. A servitor is not a pet — this is the
+    /// item-summoned companion only, whose identity quest 421 binds its
+    /// hatchling to (`summon.getControlObjectId() == fluteObjectId`).
+    pub fn pet_control_object_id(&self) -> Option<i32> {
+        let pet = super::servitor::pet_of(self.world, self.player)?;
+        self.world
+            .objects
+            .get_component::<crate::model::components::PetOf>(&pet)
+            .map(|p| p.collar_object_id)
+    }
+
+    /// `player.hasSummon()` — a pet or a servitor is out.
+    pub fn has_summon(&self) -> bool {
+        super::servitor::pet_of(self.world, self.player).is_some()
+            || super::servitor::servitor_of(self.world, self.player).is_some()
+    }
+
+    /// `player.getInventory().getItemByItemId(id).getObjectId()` — the object id
+    /// of the first inventory item of `item_id`, `None` if absent.
+    pub fn item_object_id(&self, item_id: i32) -> Option<i32> {
+        self.world
+            .objects
+            .get_component::<Inventory>(&self.player)
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|i| i.item_id == item_id)
+                    .map(|i| i.object_id)
+            })
+    }
+
+    /// `getItemByItemId(id).getEnchantLevel()` — the enchant level of the first
+    /// inventory item of `item_id`, `None` if absent. Quest 421 reads a
+    /// Dragonflute's enchant level as its hatchling's level.
+    pub fn item_enchant_level(&self, item_id: i32) -> Option<i32> {
+        self.world
+            .objects
+            .get_component::<Inventory>(&self.player)
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|i| i.item_id == item_id)
+                    .map(|i| i.enchant_level)
+            })
+    }
+
+    /// `startQuestTimer("DESPAWN…", delay, npc, null)` for a **spawned** NPC:
+    /// schedule its deletion `delay_ms` from now. Unlike [`start_quest_timer`],
+    /// which fires `on_timer` carrying the in-context NPC, this deletes an
+    /// arbitrary spawned actor with no script round-trip — quest 421's Soul of
+    /// Tree Guardian ambush arms one per guardian.
+    ///
+    /// [`start_quest_timer`]: Self::start_quest_timer
+    pub fn schedule_despawn(&mut self, npc_oid: i32, delay_ms: u64) {
+        let fire_at = self.world.tick + delay_ms.div_ceil(100);
+        self.world
+            .scheduler
+            .schedule(fire_at, ScheduledTask::DespawnNpc { npc_oid });
+    }
+
     /// `addAttackPlayerDesire(npc, target)` on the **in-context NPC** — send it
     /// after `target_oid` (a servitor, in quest 230's arcana duels), the mirror
     /// of [`spawn_attacker`](Self::spawn_attacker) which seeds a *spawned* NPC.

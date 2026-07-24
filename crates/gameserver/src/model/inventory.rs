@@ -215,6 +215,20 @@ impl Inventory {
         self.items.iter().find(|i| i.object_id == object_id)
     }
 
+    /// `Item.setEnchantLevel` on the first item of `item_id`; `false` if absent.
+    /// The enchant-scroll path is a later milestone, but a few systems already
+    /// read an item's enchant level as data — quest 421 reads a Dragonflute's
+    /// as its hatchling's level.
+    pub fn set_item_enchant_level(&mut self, item_id: i32, level: i32) -> bool {
+        match self.items.iter_mut().find(|i| i.item_id == item_id) {
+            Some(item) => {
+                item.enchant_level = level;
+                true
+            }
+            None => false,
+        }
+    }
+
     /// Apply a client `RequestSaveInventoryOrder` arrangement: reorder the
     /// in-memory item list by the given `(object_id, order)` pairs so the new
     /// order persists to `items.loc_data` on the next flush (memory-first — no
