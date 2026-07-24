@@ -39,6 +39,9 @@ pub mod opcodes {
     pub const REQUEST_MAGIC_SKILL_USE: u8 = 0x39;
     pub const REQUEST_TARGET_CANCELD: u8 = 0x48;
     pub const REQUEST_RESTART: u8 = 0x57;
+    /// Boats (G24.5) — board / step off a ferry.
+    pub const REQUEST_GET_ON_VEHICLE: u8 = 0x53;
+    pub const REQUEST_GET_OFF_VEHICLE: u8 = 0x54;
     pub const REQUEST_ACTION_USE: u8 = 0x56;
     /// `RequestGetItemFromPet` — move an item from the pet's inventory back
     /// to the owner's.

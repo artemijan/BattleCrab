@@ -137,6 +137,8 @@ pub const MULTI_SELL_LIST: u8 = 0xD0;
 /// Vehicles / boats (G24.5).
 pub const VEHICLE_INFO: u8 = 0x60;
 pub const VEHICLE_DEPARTURE: u8 = 0x6C;
+pub const GET_ON_VEHICLE: u8 = 0x6E;
+pub const GET_OFF_VEHICLE: u8 = 0x6F;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;

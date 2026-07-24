@@ -15,6 +15,7 @@ const TEST_ROUTE: &[VehiclePathPoint] = &[
         z: -3600,
         move_speed: 200,
         rotation_speed: 800,
+        dock: false,
     },
     VehiclePathPoint {
         x: 1400,
@@ -22,6 +23,7 @@ const TEST_ROUTE: &[VehiclePathPoint] = &[
         z: -3600,
         move_speed: 200,
         rotation_speed: 800,
+        dock: false,
     },
     VehiclePathPoint {
         x: 1600,
@@ -29,6 +31,7 @@ const TEST_ROUTE: &[VehiclePathPoint] = &[
         z: -3600,
         move_speed: 200,
         rotation_speed: 800,
+        dock: false,
     },
 ];
 

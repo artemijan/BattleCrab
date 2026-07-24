@@ -19789,3 +19789,82 @@ fn fishing_zone_toggles_auto_fish_available() {
     crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
     assert_eq!(read_avail(&mut rx), Some(false), "leaving dims it");
 }
+
+/// Boats (G24.5) — the milestone gate: board a docked ferry, ride it to the far
+/// harbor, and step off.
+#[test]
+fn ferry_ride_board_travel_disembark() {
+    use crate::model::boat::{InVehicle, VehiclePathPoint};
+    use crate::model::components::Position;
+
+    // A there-and-back route with docks at both ends; the ferry spawns docked
+    // at the last waypoint (dock A, 1000,1000).
+    const RIDE_ROUTE: &[VehiclePathPoint] = &[
+        VehiclePathPoint {
+            x: 1400,
+            y: 1000,
+            z: -3600,
+            move_speed: 200,
+            rotation_speed: 800,
+            dock: false,
+        }, // mid
+        VehiclePathPoint {
+            x: 1800,
+            y: 1000,
+            z: -3600,
+            move_speed: 200,
+            rotation_speed: 800,
+            dock: true,
+        }, // dock B
+        VehiclePathPoint {
+            x: 1400,
+            y: 1000,
+            z: -3600,
+            move_speed: 200,
+            rotation_speed: 800,
+            dock: false,
+        }, // mid
+        VehiclePathPoint {
+            x: 1000,
+            y: 1000,
+            z: -3600,
+            move_speed: 200,
+            rotation_speed: 800,
+            dock: true,
+        }, // dock A (start)
+    ];
+
+    let (mut world, _db, _l) = quest_test_world();
+    let boat = crate::game_loop::boats::spawn_boat(&mut world, RIDE_ROUTE);
+    let _rx = ingame_player(&mut world, 1, 3001, 1000, 1000, -3600); // standing on dock A
+
+    let ppos = |w: &World| -> (i32, i32) {
+        let p = w.objects.get_component::<Position>(&3001).unwrap();
+        (p.x, p.y)
+    };
+
+    // Board the anchored ferry.
+    crate::game_loop::boats::board(&mut world, 3001, boat, (0, 0, 0));
+    assert!(
+        world
+            .objects
+            .get_component::<InVehicle>(&3001)
+            .is_some_and(|v| v.boat_object_id == boat),
+        "boarded the ferry"
+    );
+    assert_eq!(ppos(&world), (1000, 1000), "snapped to the boat");
+
+    // Weigh anchor (skip the dwell) and sail to dock B (two 400-unit legs at
+    // speed 200 ≈ 40 ticks).
+    crate::game_loop::boats::handle_depart(&mut world, boat);
+    advance_ticks(&mut world, 45);
+    assert_eq!(ppos(&world), (1800, 1000), "the passenger rode to dock B");
+
+    // Step off onto the far dock.
+    crate::game_loop::boats::disembark(&mut world, 3001, boat, (1810, 1000, -3600));
+    assert!(
+        world.objects.get_component::<InVehicle>(&3001).is_none(),
+        "disembarked"
+    );
+    assert_eq!(ppos(&world), (1810, 1000), "stepped onto the far dock");
+}
