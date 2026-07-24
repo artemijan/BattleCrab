@@ -18313,3 +18313,192 @@ fn quest_q00421_guardian_ambush_despawns() {
         "the ambush despawns after 5 minutes"
     );
 }
+
+/// Quest 605 (Alliance with Ketra Orcs) — the shared Alliance engine: accepting,
+/// enemy kills dropping the rank-appropriate badge (gated by `can_get_item`'s
+/// cap), and the first turn-in climbing from cond 1 to Mark of Alliance Lv1.
+#[test]
+fn quest_q00605_alliance_with_ketra_orcs() {
+    use crate::model::components::Quests;
+
+    const WAHKAN: i32 = 31371;
+    const SOLDIER: i32 = 7216; // Varka Badge - Soldier
+    const KETRA_MARK1: i32 = 7211;
+    const RECRUIT: i32 = 21350; // Varka Silenos Recruit — min_cond 1, chance 500
+    let q = "Q00605_AllianceWithKetraOrcs";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (SOLDIER, "Varka Badge - Soldier", true),
+            (7217, "Varka Badge - Officer", true),
+            (7218, "Varka Badge - Captain", true),
+            (KETRA_MARK1, "Mark of Ketra's Alliance Lv1", false),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(RECRUIT);
+        t.type_name = "Monster".into();
+        t.level = 75;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let wahkan = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, wahkan, WAHKAN, "Folk", 75, 100, 200, 0);
+    add_test_npc(&mut world, mob, RECRUIT, "Monster", 75, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
+
+    let started = |w: &World| -> bool {
+        w.objects
+            .get_component::<Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+    };
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{wahkan}_Quest {q} {e}")));
+    };
+    let kill = |w: &mut World, roll: i32| {
+        w.forced_rolls.push_back(roll);
+        quests::notify_kill(w, 3001, mob, RECRUIT);
+    };
+
+    // --- Accept: the ladder starts at cond 1. ---
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{wahkan}_Quest {q}")),
+    );
+    event(&mut world, "31371-04.htm");
+    assert!(started(&world), "quest accepted");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "starts at rank 1");
+
+    // --- A Varka kill (roll 0 < 500) drops one Soldier badge. ---
+    kill(&mut world, 0);
+    assert_eq!(
+        item_count(&world, 3001, SOLDIER),
+        1,
+        "the recruit dropped a Soldier badge"
+    );
+
+    // A high roll (>= chance) drops nothing.
+    kill(&mut world, 999);
+    assert_eq!(
+        item_count(&world, 3001, SOLDIER),
+        1,
+        "a missed roll drops nothing"
+    );
+
+    // --- The cap: at rank 1 you may bank at most 100 Soldier badges. ---
+    inject(&mut world, 3001, 0x0060_5000, SOLDIER, 99); // top up to 100
+    assert_eq!(item_count(&world, 3001, SOLDIER), 100);
+    kill(&mut world, 0); // roll would succeed, but can_get_item caps it
+    assert_eq!(
+        item_count(&world, 3001, SOLDIER),
+        100,
+        "no more Soldier badges past the rank-1 cap"
+    );
+
+    // --- First turn-in: 100 Soldier badges → Mark of Ketra's Alliance Lv1, rank 2. ---
+    event(&mut world, "31371-12.html");
+    assert_eq!(
+        item_count(&world, 3001, SOLDIER),
+        0,
+        "badges spent on the turn-in"
+    );
+    assert_eq!(
+        item_count(&world, 3001, KETRA_MARK1),
+        1,
+        "Mark of Alliance Lv1 awarded"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "climbed to rank 2");
+}
+
+/// Quest 611 (Alliance with Varka Silenos) — the mirror registers and runs on
+/// the same engine, and the mutual-exclusion gate refuses to start while the
+/// player still holds a Ketra alliance mark.
+#[test]
+fn quest_q00611_varka_mirror_and_exclusion() {
+    use crate::model::components::Quests;
+
+    const NARAN: i32 = 31378;
+    const KETRA_BADGE_SOLDIER: i32 = 7226;
+    const KETRA_MARK1: i32 = 7211; // an *enemy* (Ketra) mark blocks Varka
+    const FOOTMAN: i32 = 21324; // Ketra Orc Footman — min_cond 1
+    let q = "Q00611_AllianceWithVarkaSilenos";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (KETRA_BADGE_SOLDIER, "Ketra Badge - Soldier", true),
+            (7227, "Ketra Badge - Officer", true),
+            (7228, "Ketra Badge - Captain", true),
+            (KETRA_MARK1, "Mark of Ketra's Alliance Lv1", false),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(FOOTMAN);
+        t.type_name = "Monster".into();
+        t.level = 75;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let naran = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, naran, NARAN, "Folk", 75, 100, 200, 0);
+    add_test_npc(&mut world, mob, FOOTMAN, "Monster", 75, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 74;
+
+    let started = |w: &World| -> bool {
+        w.objects
+            .get_component::<Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED)
+    };
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{naran}_Quest {q} {e}")));
+    };
+
+    // --- Holding a Ketra mark, Varka refuses the alliance. ---
+    inject(&mut world, 3001, 0x0061_1000, KETRA_MARK1, 1);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{naran}_Quest {q}")),
+    );
+    event(&mut world, "31378-04.htm");
+    assert!(
+        !started(&world),
+        "cannot ally with Varka while allied to Ketra"
+    );
+
+    // --- Drop the Ketra mark and the mirror starts and drops its own badges. ---
+    world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+        .unwrap()
+        .remove_item(KETRA_MARK1, 1);
+    event(&mut world, "31378-04.htm");
+    assert!(
+        started(&world),
+        "Varka alliance starts once the Ketra mark is gone"
+    );
+
+    world.forced_rolls.push_back(0);
+    quests::notify_kill(&mut world, 3001, mob, FOOTMAN);
+    assert_eq!(
+        item_count(&world, 3001, KETRA_BADGE_SOLDIER),
+        1,
+        "a Ketra kill drops a Ketra Soldier badge on the mirror"
+    );
+}
