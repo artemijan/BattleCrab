@@ -123,6 +123,14 @@ impl Default for NpcAi {
     }
 }
 
+/// `Attackable._absorbersList` (NPC-only): the players who cast the Soul
+/// Crystal skill (2096) on this mob, each mapped to the mob's HP **at the
+/// moment of the cast**. Quest 350 reads it on kill — the crystal only levels
+/// if the caster is present *and* absorbed while the mob was at ≤ half HP
+/// (Java `AbsorberInfo.getAbsorbedHp()`).
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct Absorbers(pub std::collections::HashMap<i32, f64>);
+
 /// `Attackable._aggroList`, keyed by player object id (NPC-only).
 #[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
 pub struct AggroList(pub std::collections::HashMap<i32, AggroInfo>);

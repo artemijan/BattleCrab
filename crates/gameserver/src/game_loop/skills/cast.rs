@@ -1570,6 +1570,12 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     } else {
         Vec::new()
     };
+    // `Npc.onSkillSee` witnesses for after the effects land. Java broadcasts to
+    // every NPC in range; here it fires for the skill's NPC targets, which is
+    // the case quest 350's Soul Crystal (a single-target cast on the mob) needs.
+    // TODO(soul-crystal): widen to an in-range broadcast if a quest ever needs a
+    // non-targeted witness.
+    let skill_see_witnesses = affected.clone();
 
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
@@ -1603,6 +1609,23 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         // The hate/PvP consequences are unconditional: the caster still *cast*
         // a bad skill at this target, reflected or not.
         apply_cast_consequences(world, player_object_id, target_oid, &skill);
+    }
+
+    // `Npc.onSkillSee` for each NPC that was a target of the cast.
+    for witness in skill_see_witnesses {
+        let npc_id = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&witness)
+            .map(|n| n.npc_id);
+        if let Some(npc_id) = npc_id {
+            crate::game_loop::quests::notify_skill_see(
+                world,
+                player_object_id,
+                witness,
+                npc_id,
+                cast.skill_id,
+            );
+        }
     }
 
     // `EffectScope.SELF` — a separate `applyEffects(caster, caster, …)` after

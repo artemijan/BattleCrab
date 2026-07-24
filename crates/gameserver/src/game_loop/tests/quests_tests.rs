@@ -18502,3 +18502,120 @@ fn quest_q00611_varka_mirror_and_exclusion() {
         "a Ketra kill drops a Ketra Soldier badge on the mirror"
     );
 }
+
+/// Quest 350 (Enhance Your Weapon) — the Soul Crystal system: accept, take a
+/// Red crystal, and level it by killing a skill-absorb mob. The absorb gate
+/// (Soul Crystal skill cast below half HP) must be satisfied first.
+#[test]
+fn quest_q00350_enhance_your_weapon() {
+    use crate::data::soul_crystal_data::{AbsorbType, LevelingInfo};
+    use crate::model::components::Vitals;
+
+    const ROLENTO: i32 = 30115;
+    const RED0: i32 = 4629; // Red Soul Crystal - stage 0
+    const RED1: i32 = 4630; // stage 1
+    const MOB: i32 = 20583; // a skill-needed leveling mob (Timak Orc)
+    const SOUL_CRYSTAL_SKILL: i32 = 2096;
+    let q = "Q00350_EnhanceYourWeapon";
+
+    let (mut world, _db, _l) = quest_test_world();
+    // Populate the crystal data and rebuild the registry so MOB is registered
+    // for this quest's kill / skill-see hooks (the registry snapshots the
+    // leveling-npc ids at construction, before the test injects them).
+    world
+        .data
+        .soul_crystal_data
+        .insert_crystal_for_test(RED0, 0, RED1);
+    world
+        .data
+        .soul_crystal_data
+        .insert_crystal_for_test(RED1, 1, 4631);
+    world.data.soul_crystal_data.insert_npc_level_for_test(
+        MOB,
+        0,
+        LevelingInfo {
+            absorb_type: AbsorbType::LastHit,
+            skill_needed: true,
+            chance: 100,
+        },
+    );
+    world.quests = std::sync::Arc::new(crate::scripts::build_registry(vec![MOB]));
+
+    add_quest_items(
+        &mut world,
+        &[
+            (RED0, "Red Soul Crystal", false),
+            (RED1, "Red Soul Crystal - Stage 1", false),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(MOB);
+        t.type_name = "Monster".into();
+        t.level = 45;
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let rolento = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, rolento, ROLENTO, "Folk", 45, 100, 200, 0);
+    add_test_npc(&mut world, mob, MOB, "Monster", 45, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 45;
+
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(
+            w,
+            1,
+            &bypass_body(&format!("npc_{rolento}_Quest {q} {e}")),
+        );
+    };
+
+    // --- Accept and take a Red Soul Crystal (stage 0). ---
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{rolento}_Quest {q}")),
+    );
+    event(&mut world, "30115-04.htm"); // start
+    event(&mut world, "30115-09.htm"); // give Red crystal
+    assert_eq!(
+        item_count(&world, 3001, RED0),
+        1,
+        "Red Soul Crystal granted"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "quest started");
+
+    // --- A skill-needed mob killed WITHOUT absorbing does not level. ---
+    quests::notify_kill(&mut world, 3001, mob, MOB);
+    assert_eq!(
+        item_count(&world, 3001, RED0),
+        1,
+        "no level without an absorb"
+    );
+    assert_eq!(item_count(&world, 3001, RED1), 0);
+
+    // --- Cast the Soul Crystal skill below half HP, then kill → level up. ---
+    // Test NPCs come up with max_hp 100 (add_test_npc), so drop below 50.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&mob)
+        .unwrap()
+        .cur_hp = 40.0; // ≤ half HP, the absorb condition
+    quests::notify_skill_see(&mut world, 3001, mob, MOB, SOUL_CRYSTAL_SKILL);
+    world.forced_rolls.push_back(0); // roll(100)=0 <= chance 100 → success
+    quests::notify_kill(&mut world, 3001, mob, MOB);
+    assert_eq!(
+        item_count(&world, 3001, RED0),
+        0,
+        "the stage-0 crystal is consumed"
+    );
+    assert_eq!(
+        item_count(&world, 3001, RED1),
+        1,
+        "the crystal leveled to stage 1 after a valid absorb-kill"
+    );
+}

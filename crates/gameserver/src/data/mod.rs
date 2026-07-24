@@ -33,6 +33,7 @@ pub mod siege_data;
 pub mod skill_data;
 pub mod skill_expr;
 pub mod skill_tree;
+pub mod soul_crystal_data;
 pub mod spawn_data;
 pub mod stat_bonus;
 pub mod static_object_data;
@@ -68,6 +69,7 @@ pub use route_data::RouteData;
 pub use scheme_buffer::SchemeBufferData;
 pub use skill_data::SkillData;
 pub use skill_tree::SkillTreeData;
+pub use soul_crystal_data::SoulCrystalData;
 pub use spawn_data::SpawnData;
 pub use stat_bonus::StatBonus;
 pub use static_object_data::StaticObjectData;
@@ -154,6 +156,7 @@ pub struct GameData {
     pub skill_data: SkillData,
     pub npc_data: NpcData,
     pub cubic_data: CubicData,
+    pub soul_crystal_data: SoulCrystalData,
     /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
     pub pet_data: pet_data::PetData,
     /// Per-template AI skill buckets — see [`NpcAiSkillIndex`].
@@ -220,6 +223,7 @@ impl GameData {
         let skill_data = SkillData::load_from(file_path);
         let npc_data = NpcData::load_from(file_path);
         let cubic_data = CubicData::load_from(file_path);
+        let soul_crystal_data = SoulCrystalData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         Self {
             root: file_path.to_string(),
@@ -235,6 +239,7 @@ impl GameData {
             skill_data,
             npc_data,
             cubic_data,
+            soul_crystal_data,
             pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
@@ -290,6 +295,7 @@ impl GameData {
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
             cubic_data: CubicData::empty(),
+            soul_crystal_data: SoulCrystalData::empty(),
             pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),
