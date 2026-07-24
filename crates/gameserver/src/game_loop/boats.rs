@@ -1,10 +1,13 @@
 //! Boat ferry engine (G24.5) — Java `model/actor/instance/Boat` +
-//! `data/scripts/vehicles/*`. Slice 1: a ferry spawns and sails its route,
-//! snapping to each waypoint and broadcasting `VehicleDeparture` (a move order
-//! the client interpolates) / `VehicleInfo` (its authoritative position).
+//! `data/scripts/vehicles/*`. A ferry spawns and sails its route, snapping to
+//! each waypoint and broadcasting `VehicleDeparture` (a move order the client
+//! interpolates) / `VehicleInfo` (its authoritative position). At a dock it
+//! anchors for a dwell, during which players can board/disembark and ride
+//! along. All four Interlude ferries (`BoatTalkingGludin`, `BoatGiranTalking`,
+//! `BoatInnadrilTour`, `BoatRunePrimeval`) run.
 //!
-//! TODO(G24.5): the dock anchor dwell + departure `CreatureSay` announcements
-//! (the boat loops continuously here), and boarding/disembark (slice 2).
+//! TODO(G24.5): departure `CreatureSay` announcements + the real 10-min dwell
+//! cadence; `MoveToLocationInVehicle` (walking on deck) + ticket collection.
 
 use crate::model::boat::{Boat, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
@@ -67,9 +70,115 @@ const TALKING_GLUDIN: &[VehiclePathPoint] = &[
     dk(-96622, 261660, -3610, 150, 1800), // Talking dock
 ];
 
-/// `BoatManager.load` — spawn the ferries at boot and set them sailing.
+/// Giran <-> Talking Island ferry (`BoatGiranTalking`).
+const GIRAN_TALKING: &[VehiclePathPoint] = &[
+    vp(51914, 189023, -3610, 150, 800),
+    vp(60567, 189789, -3610, 150, 800),
+    vp(63732, 197457, -3610, 200, 800),
+    vp(63732, 219946, -3610, 250, 800),
+    vp(62008, 222240, -3610, 250, 1200),
+    vp(56115, 226791, -3610, 250, 1200),
+    vp(40384, 226432, -3610, 300, 800),
+    vp(37760, 226432, -3610, 300, 800),
+    vp(27153, 226791, -3610, 300, 800),
+    vp(12672, 227535, -3610, 300, 800),
+    vp(-1808, 228280, -3610, 300, 800),
+    vp(-22165, 230542, -3610, 300, 800),
+    vp(-42523, 235205, -3610, 300, 800),
+    vp(-68451, 259560, -3610, 250, 800),
+    vp(-70848, 261696, -3610, 200, 800),
+    vp(-83344, 261610, -3610, 200, 800),
+    vp(-88344, 261660, -3610, 180, 800),
+    vp(-92344, 261660, -3610, 180, 800),
+    vp(-94242, 261659, -3610, 150, 800),
+    dk(-96622, 261660, -3610, 150, 800),
+    vp(-113925, 261660, -3610, 150, 800),
+    vp(-126107, 249116, -3610, 180, 800),
+    vp(-126107, 234499, -3610, 180, 800),
+    vp(-126107, 219882, -3610, 180, 800),
+    vp(-109414, 204914, -3610, 180, 800),
+    vp(-92807, 204914, -3610, 180, 800),
+    vp(-80425, 216450, -3610, 250, 800),
+    vp(-68043, 227987, -3610, 250, 800),
+    vp(-63744, 231168, -3610, 250, 800),
+    vp(-60844, 231369, -3610, 250, 1800),
+    vp(-44915, 231369, -3610, 200, 800),
+    vp(-28986, 231369, -3610, 200, 800),
+    vp(8233, 207624, -3610, 200, 800),
+    vp(21470, 201503, -3610, 180, 800),
+    vp(40058, 195383, -3610, 180, 800),
+    vp(43022, 193793, -3610, 150, 800),
+    vp(45986, 192203, -3610, 150, 800),
+    dk(48950, 190613, -3610, 150, 800),
+];
+
+/// Innadril scenic tour (`BoatInnadrilTour`) — a single-harbor loop.
+const INNADRIL_TOUR: &[VehiclePathPoint] = &[
+    vp(105129, 226240, -3610, 150, 800),
+    vp(90604, 238797, -3610, 150, 800),
+    vp(74853, 237943, -3610, 150, 800),
+    vp(68207, 235399, -3610, 150, 800),
+    vp(63226, 230487, -3610, 150, 800),
+    vp(61843, 224797, -3610, 150, 800),
+    vp(61822, 203066, -3610, 150, 800),
+    vp(59051, 197685, -3610, 150, 800),
+    vp(54048, 195298, -3610, 150, 800),
+    vp(41609, 195687, -3610, 150, 800),
+    vp(35821, 200284, -3610, 150, 800),
+    vp(35567, 205265, -3610, 150, 800),
+    vp(35617, 222471, -3610, 150, 800),
+    vp(37932, 226588, -3610, 150, 800),
+    vp(42932, 229394, -3610, 150, 800),
+    vp(74324, 245231, -3610, 150, 800),
+    vp(81872, 250314, -3610, 150, 800),
+    vp(101692, 249882, -3610, 150, 800),
+    vp(107907, 256073, -3610, 150, 800),
+    vp(112317, 257133, -3610, 150, 800),
+    vp(126273, 255313, -3610, 150, 800),
+    vp(128067, 250961, -3610, 150, 800),
+    vp(128520, 238249, -3610, 150, 800),
+    vp(126428, 235072, -3610, 150, 800),
+    vp(121843, 234656, -3610, 150, 800),
+    vp(120096, 234268, -3610, 150, 800),
+    vp(118572, 233046, -3610, 150, 800),
+    vp(117671, 228951, -3610, 150, 800),
+    vp(115936, 226540, -3610, 150, 800),
+    vp(113628, 226240, -3610, 150, 800),
+    vp(111300, 226240, -3610, 150, 800),
+    dk(111264, 226240, -3610, 150, 800),
+];
+
+/// Rune <-> Primeval Isle ferry (`BoatRunePrimeval`).
+const RUNE_PRIMEVAL: &[VehiclePathPoint] = &[
+    vp(32750, -39300, -3610, 180, 800),
+    vp(27440, -39328, -3610, 250, 1000),
+    vp(19616, -39360, -3610, 270, 1000),
+    vp(3840, -38528, -3610, 270, 1000),
+    vp(1664, -37120, -3610, 270, 1000),
+    vp(896, -34560, -3610, 180, 1800),
+    vp(832, -31104, -3610, 180, 180),
+    vp(2240, -29132, -3610, 150, 1800),
+    vp(4160, -27828, -3610, 150, 1800),
+    vp(5888, -27279, -3610, 150, 1800),
+    vp(7000, -27279, -3610, 150, 1800),
+    dk(10342, -27279, -3610, 150, 1800),
+    vp(15528, -27279, -3610, 180, 800),
+    vp(22304, -29664, -3610, 290, 800),
+    vp(33824, -26880, -3610, 290, 800),
+    vp(38848, -21792, -3610, 240, 1200),
+    vp(43424, -22080, -3610, 180, 1800),
+    vp(44320, -25152, -3610, 180, 1800),
+    vp(40576, -31616, -3610, 250, 800),
+    vp(36819, -35315, -3610, 220, 800),
+    dk(34381, -37680, -3610, 220, 800),
+];
+
+/// `BoatManager.load` — spawn the four Interlude ferries at boot and set them
+/// on their routes.
 pub(crate) fn spawn_boats(world: &mut World) {
-    spawn_boat(world, TALKING_GLUDIN);
+    for route in [TALKING_GLUDIN, GIRAN_TALKING, INNADRIL_TOUR, RUNE_PRIMEVAL] {
+        spawn_boat(world, route);
+    }
 }
 
 /// Spawn one ferry docked at its last waypoint and set it sailing; returns the
