@@ -42,6 +42,8 @@ pub mod opcodes {
     /// Boats (G24.5) — board / step off a ferry.
     pub const REQUEST_GET_ON_VEHICLE: u8 = 0x53;
     pub const REQUEST_GET_OFF_VEHICLE: u8 = 0x54;
+    /// Boats (G24.5) — walk around on a ferry's deck.
+    pub const REQUEST_MOVE_TO_LOCATION_IN_VEHICLE: u8 = 0x75;
     pub const REQUEST_ACTION_USE: u8 = 0x56;
     /// `RequestGetItemFromPet` — move an item from the pet's inventory back
     /// to the owner's.
