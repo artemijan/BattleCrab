@@ -317,6 +317,9 @@ impl World {
         data: GameData,
         db: db::CmdTx,
     ) -> Self {
+        // Quest 350's Soul Crystal kill/skill-see NPCs come from data, not a
+        // compile-time table, so gather them before `data` moves into the struct.
+        let soul_crystal_npc_ids: Vec<i32> = data.soul_crystal_data.leveling_npc_ids().collect();
         Self {
             tick: 0,
             scheduler: Scheduler::new(),
@@ -341,7 +344,7 @@ impl World {
             path: std::sync::mpsc::channel().0,
             path_seq: 0,
             cfg: crate::config::CombatConfig::default(),
-            quests: std::sync::Arc::new(crate::scripts::build_registry()),
+            quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
             clans: HashMap::new(),
             clan_wars: Vec::new(),
             crests: HashMap::new(),

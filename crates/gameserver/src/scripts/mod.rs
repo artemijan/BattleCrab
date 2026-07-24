@@ -130,6 +130,7 @@ pub mod q00328_sense_for_business;
 pub mod q00329_curiosity_of_a_dwarf;
 pub mod q00331_arrow_of_vengeance;
 pub mod q00344_1000_years_the_end_of_lamentation;
+pub mod q00350_enhance_your_weapon;
 pub mod q00354_conquest_of_alligator_island;
 pub mod q00355_family_honor;
 pub mod q00356_dig_up_the_sea_of_spores;
@@ -186,7 +187,7 @@ use crate::game_loop::quests::{QuestRegistry, QuestScript};
 
 /// Java's `ScriptEngineManager.executeScriptList()` + the `Quest`
 /// constructor self-registration, collapsed into one boot-time list.
-pub fn build_registry() -> QuestRegistry {
+pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
     let scripts: Vec<Arc<dyn QuestScript>> = vec![
         Arc::new(q00032_an_obvious_lie::Q00032AnObviousLie),
         Arc::new(q00033_make_a_pair_of_dress_shoes::Q00033MakeAPairOfDressShoes),
@@ -369,6 +370,9 @@ pub fn build_registry() -> QuestRegistry {
         )),
         Arc::new(alliance::AllianceQuest::new(
             q00611_alliance_with_varka_silenos::data(),
+        )),
+        Arc::new(q00350_enhance_your_weapon::Q00350EnhanceYourWeapon::new(
+            soul_crystal_npc_ids,
         )),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),

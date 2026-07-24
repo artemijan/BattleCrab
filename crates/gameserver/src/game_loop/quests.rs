@@ -53,6 +53,11 @@ pub trait QuestScript: Send + Sync {
     fn spawn_npcs(&self) -> &[i32] {
         &[]
     }
+    /// NPCs that notify this quest when they *witness* a skill (`addSkillSeeId`)
+    /// — quest 350's Soul Crystal absorb.
+    fn skill_see_npcs(&self) -> &[i32] {
+        &[]
+    }
     /// NPCs whose chat window this script *replaces* (`addFirstTalkId`).
     /// Java's `NpcAction`: when an NPC carries an `ON_NPC_FIRST_TALK`
     /// listener, clicking it fires [`QuestScript::on_first_talk`] **instead
@@ -118,6 +123,11 @@ pub trait QuestScript: Send + Sync {
     fn on_timer(&self, ctx: &mut QuestCtx, name: &str) {
         let _ = (ctx, name);
     }
+    /// A registered NPC witnessed `skill_id` being cast (`onSkillSee`).
+    /// `ctx.npc` is the witnessing NPC and `ctx.player` the caster.
+    fn on_skill_see(&self, ctx: &mut QuestCtx, skill_id: i32) {
+        let _ = (ctx, skill_id);
+    }
 }
 
 /// Java `QuestManager` + the per-`NpcTemplate` listener containers, built
@@ -131,6 +141,7 @@ pub struct QuestRegistry {
     kill: HashMap<i32, Vec<usize>>,
     attack: HashMap<i32, Vec<usize>>,
     spawn: HashMap<i32, Vec<usize>>,
+    skill_see: HashMap<i32, Vec<usize>>,
     first_talk: HashMap<i32, usize>,
 }
 
@@ -142,6 +153,7 @@ impl QuestRegistry {
         let mut kill: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut attack: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spawn: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut skill_see: HashMap<i32, Vec<usize>> = HashMap::new();
         // One entry per NPC: the first-talk listener owns the whole chat
         // window, so two scripts claiming the same NPC is a bug, not a fan-out.
         let mut first_talk: HashMap<i32, usize> = HashMap::new();
@@ -161,6 +173,9 @@ impl QuestRegistry {
             }
             for &id in s.spawn_npcs() {
                 spawn.entry(id).or_default().push(idx);
+            }
+            for &id in s.skill_see_npcs() {
+                skill_see.entry(id).or_default().push(idx);
             }
             for &id in s.first_talk_npcs() {
                 if let Some(&prev) = first_talk.get(&id) {
@@ -182,6 +197,7 @@ impl QuestRegistry {
             kill,
             attack,
             spawn,
+            skill_see,
             first_talk,
         }
     }
@@ -225,6 +241,14 @@ impl QuestRegistry {
     /// Scripts listing `npc_id` as an attack NPC.
     pub fn attack_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
         self.attack
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as a skill-see NPC.
+    pub fn skill_see_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.skill_see
             .get(&npc_id)
             .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
             .unwrap_or_default()
@@ -982,6 +1006,77 @@ impl<'w> QuestCtx<'w> {
         super::npc_ai::seed_attack(self.world, self.npc, target_oid);
     }
 
+    /// `Attackable.addAbsorber(caster)`: record the acting player as an absorber
+    /// of the in-context NPC, tagged with the NPC's HP **right now** (quest
+    /// 350's Soul Crystal cast). A repeat cast overwrites, as in Java's map.
+    pub fn add_absorber(&mut self) {
+        let Some(hp) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&self.npc)
+            .map(|v| v.cur_hp)
+        else {
+            return;
+        };
+        let player = self.player;
+        if let Some(a) = self
+            .world
+            .objects
+            .get_component_mut::<crate::model::npc::Absorbers>(&self.npc)
+        {
+            a.0.insert(player, hp);
+        } else {
+            let mut a = crate::model::npc::Absorbers::default();
+            a.0.insert(player, hp);
+            self.world.objects.add_components(&self.npc, a);
+        }
+    }
+
+    /// Java `levelSoulCrystals`' skill gate: the acting player is in the
+    /// in-context NPC's absorber list **and** cast the crystal skill while the
+    /// NPC was at ≤ half HP (`AbsorberInfo.getAbsorbedHp() <= maxHp/2`).
+    pub fn killer_absorbed_below_half(&self) -> bool {
+        let Some(max_hp) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&self.npc)
+            .map(|v| v.max_hp)
+        else {
+            return false;
+        };
+        self.world
+            .objects
+            .get_component::<crate::model::npc::Absorbers>(&self.npc)
+            .and_then(|a| a.0.get(&self.player).copied())
+            .is_some_and(|hp| hp <= max_hp as f64 / 2.0)
+    }
+
+    /// The Soul Crystal data table (`LevelUpCrystalData.xml`).
+    pub fn soul_crystal_data(&self) -> &crate::data::SoulCrystalData {
+        &self.world.data.soul_crystal_data
+    }
+
+    /// Java `getSCForPlayer`: the item id of the **single** Soul Crystal the
+    /// acting player carries, or `None` if they hold none or more than one
+    /// (an ambiguous inventory levels nothing).
+    pub fn single_soul_crystal(&self) -> Option<i32> {
+        let inv = self
+            .world
+            .objects
+            .get_component::<Inventory>(&self.player)?;
+        let scd = &self.world.data.soul_crystal_data;
+        let mut found = None;
+        for item in inv.items() {
+            if scd.crystal(item.item_id).is_some() {
+                if found.is_some() {
+                    return None;
+                }
+                found = Some(item.item_id);
+            }
+        }
+        found
+    }
+
     /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble from
     /// the in-context NPC (e.g. the Saga finale boss's retreat cry).
     pub fn npc_say_text(&self, text: &str) {
@@ -1615,6 +1710,30 @@ pub(crate) fn notify_attack(
         ctx.attack_skill_id = skill_id;
         ctx.attack_is_summon = is_summon;
         script.on_attack(&mut ctx);
+    }
+}
+
+/// The `onSkillSee` notification: a registered NPC witnessed a skill cast by
+/// `caster_oid`. Fired from the skill-finish path per affected NPC target
+/// (quest 350's Soul Crystal absorb is a self-targeted read of the mob).
+pub(crate) fn notify_skill_see(
+    world: &mut World,
+    caster_oid: i32,
+    npc_oid: i32,
+    npc_id: i32,
+    skill_id: i32,
+) {
+    let registry = world.quests.clone();
+    let scripts = registry.skill_see_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let Some(client_id) = client_for_player(world, caster_oid) else {
+        return;
+    };
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, caster_oid, npc_oid, script.clone());
+        script.on_skill_see(&mut ctx, skill_id);
     }
 }
 
