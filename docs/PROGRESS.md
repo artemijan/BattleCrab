@@ -1638,3 +1638,12 @@ clanless mob titles as `"Lv 20 "`.
   ids are the only foreign key (`Entity` never leaves `store.rs`).
 - Masked packets use the reversed `DEFAULT_FLAG_ARRAY` bit order — get this right
   or the client desyncs (root cause of the earlier UserInfo mask fix).
+- **Panic policy (2026-07-24):** a panic in a packet handler is caught per-packet
+  in `drain_network` (`catch_unwind`, Java-parity with `ExecuteThread`'s
+  catch-Throwable) — the offending client is disconnected (their mid-mutation
+  session state is suspect; they relog clean), the server lives on. A
+  panic that still kills the game thread no longer leaves a zombie process:
+  `main` selects on the game-thread join alongside the shutdown signal and exits
+  nonzero, so systemd's `Restart=on-failure` restarts the server (previously the
+  listener stayed up with a dead game loop and nothing restarted). Trigger was
+  `//spawn` with no args indexing `args[0]` (also fixed + regression test).

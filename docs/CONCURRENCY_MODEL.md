@@ -285,6 +285,16 @@ byte work is parallel per connection.
 3. **Timers and tasks capture IDs, not objects.** Dead ID ⇒ no-op.
 4. **Tick budget is a metric.** Warn when a tick exceeds e.g. 50 ms; that is the
    failure mode of this architecture and must be visible from day one.
+5. **A panic must not outlive its packet, and a dead game thread must not
+   outlive its process.** Each inbound packet's handling is wrapped in
+   `catch_unwind` in `drain_network` (Java parity: `ExecuteThread` catches
+   `Throwable` per packet) — the offending client is disconnected (its handler
+   may have died mid-mutation, so that session's state is suspect) and the
+   world lives on for everyone else. If a panic escapes
+   anyway (tick systems, timers), `main` notices the game thread exiting
+   without a shutdown request and exits nonzero so systemd
+   (`Restart=on-failure`) restarts the server — never a live listener in front
+   of a dead game loop.
 
 ### 2.7 Behavioral differences vs. Java (intentional)
 
