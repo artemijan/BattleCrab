@@ -127,6 +127,7 @@ pub mod q00320_bones_tell_the_future;
 pub mod q00324_sweetest_venom;
 pub mod q00325_grim_collector;
 pub mod q00326_vanquish_remnants;
+pub mod q00327_recover_the_farmland;
 pub mod q00328_sense_for_business;
 pub mod q00329_curiosity_of_a_dwarf;
 pub mod q00331_arrow_of_vengeance;
@@ -380,6 +381,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00275_dark_winged_spies::Q00275DarkWingedSpies),
         Arc::new(q00370_an_elder_sows_seeds::Q00370AnElderSowsSeeds),
         Arc::new(q00640_the_zero_hour::Q00640TheZeroHour),
+        Arc::new(q00327_recover_the_farmland::Q00327RecoverTheFarmland),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
