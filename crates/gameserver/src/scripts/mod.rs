@@ -18,6 +18,7 @@ pub mod newbie_guide;
 pub mod npc_location_info;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
+pub mod q00032_an_obvious_lie;
 pub mod q00033_make_a_pair_of_dress_shoes;
 pub mod q00034_in_search_of_cloth;
 pub mod q00035_find_glittering_jewelry;
@@ -151,6 +152,7 @@ use crate::game_loop::quests::{QuestRegistry, QuestScript};
 /// constructor self-registration, collapsed into one boot-time list.
 pub fn build_registry() -> QuestRegistry {
     let scripts: Vec<Arc<dyn QuestScript>> = vec![
+        Arc::new(q00032_an_obvious_lie::Q00032AnObviousLie),
         Arc::new(q00033_make_a_pair_of_dress_shoes::Q00033MakeAPairOfDressShoes),
         Arc::new(q00034_in_search_of_cloth::Q00034InSearchOfCloth),
         Arc::new(q00035_find_glittering_jewelry::Q00035FindGlitteringJewelry),
