@@ -16342,3 +16342,328 @@ fn quest_q00641_attack_sailren() {
         "repeatable exit forgets the quest"
     );
 }
+
+/// The Name of Evil - 1 (125): the Primeval Isle letter-puzzle story quest.
+/// Drives the Q124 prereq gate, the claw/bone grind, and all three Kaimu
+/// pillar puzzles through to the Epitaph of Wisdom and completion.
+#[test]
+fn quest_q00125_the_name_of_evil_1() {
+    const MUSHIKA: i32 = 32114;
+    const KARAKAWEI: i32 = 32117;
+    const ULU: i32 = 32119;
+    const BALU: i32 = 32120;
+    const CHUTA: i32 = 32121;
+    const CLAW: i32 = 8779;
+    const BONE: i32 = 8780;
+    const EPITAPH: i32 = 8781;
+    const GAZKH_FRAGMENT: i32 = 8782;
+    const ORNITHO: i32 = 22200; // 661 claw chance
+    const DEINO: i32 = 22203; // 651 bone chance
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (CLAW, "q", true),
+            (BONE, "q", true),
+            (EPITAPH, "q", true),
+            (GAZKH_FRAGMENT, "q", true),
+        ],
+    );
+    for id in [ORNITHO, DEINO] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mushika = NPC_OID;
+    let karakawei = NPC_OID + 1;
+    let ulu = NPC_OID + 2;
+    let balu = NPC_OID + 3;
+    let chuta = NPC_OID + 4;
+    for (oid, npc) in [
+        (mushika, MUSHIKA),
+        (karakawei, KARAKAWEI),
+        (ulu, ULU),
+        (balu, BALU),
+        (chuta, CHUTA),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 78, 100, 200, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00125_TheNameOfEvil1";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut rx = _rx;
+
+    // Prereq: Meeting the Elroki (124) must be complete. (Talking creates a
+    // CREATED state but does not start the quest.)
+    talk(&mut world, mushika);
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        quests
+            .0
+            .entry("Q00124_MeetingTheElroki".to_string())
+            .or_default()
+            .state = crate::model::quest::state::COMPLETED;
+    }
+
+    // Accept → Gazkh Fragment → Karakawei sends hunting.
+    ev(&mut world, mushika, "32114-05.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, mushika, "32114-08.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        1,
+        "Gazkh Fragment"
+    );
+    ev(&mut world, karakawei, "32117-09.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+
+    // Grind 2 claws + 2 bones (forced drops) → cond 4.
+    let mut mob = NPC_OID + 20;
+    for id in [ORNITHO, ORNITHO, DEINO, DEINO] {
+        mob += 1;
+        add_test_npc(&mut world, mob, id, "Monster", 78, 110, 200, 0);
+        world.forced_rolls.push_back(0); // roll(1000)==0 < chance → drop
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, CLAW), 2, "2 claws");
+    assert_eq!(item_count(&world, 3001, BONE), 2, "2 bones");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4), "materials → cond 4");
+
+    // Karakawei takes the materials; then sends to the pillars.
+    talk(&mut world, karakawei); // cond 4: consumes claws+bones
+    assert_eq!(item_count(&world, 3001, CLAW), 0, "claws consumed");
+    ev(&mut world, karakawei, "32117-15.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+
+    // The puzzle sets the "Memo" quest var only on the full correct word.
+    let memo = |w: &World| -> i32 {
+        w.objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .get_int("Memo")
+    };
+    // A wrong Ulu attempt (skip letters) does not solve it.
+    ev(&mut world, ulu, "T_One");
+    ev(&mut world, ulu, "U_One"); // T and U set, but not E/P → fail
+    assert_eq!(memo(&world), 0, "an incomplete word is rejected");
+    let _ = drain(&mut rx);
+
+    // Ulu Kaimu puzzle T-E-P-U → solves, then cond 6.
+    ev(&mut world, ulu, "T_One");
+    ev(&mut world, ulu, "E_One");
+    ev(&mut world, ulu, "P_One");
+    ev(&mut world, ulu, "U_One"); // solves → Memo set
+    assert_eq!(memo(&world), 1, "the full word is accepted");
+    ev(&mut world, ulu, "32119-18.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6), "Ulu solved → cond 6");
+
+    // Balu Kaimu puzzle T-O-O2-N → cond 7.
+    ev(&mut world, balu, "T_Two");
+    ev(&mut world, balu, "O_Two");
+    ev(&mut world, balu, "O2_Two");
+    ev(&mut world, balu, "N_Two");
+    ev(&mut world, balu, "32120-17.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7), "Balu solved → cond 7");
+
+    // Chuta Kaimu puzzle W-A-G-U → Epitaph, cond 8.
+    ev(&mut world, chuta, "W_Three");
+    ev(&mut world, chuta, "A_Three");
+    ev(&mut world, chuta, "G_Three");
+    ev(&mut world, chuta, "U_Three");
+    ev(&mut world, chuta, "32121-18.html"); // Gazkh → Epitaph of Wisdom
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(8),
+        "Chuta solved → cond 8"
+    );
+    assert_eq!(item_count(&world, 3001, EPITAPH), 1, "Epitaph of Wisdom");
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        0,
+        "Gazkh consumed"
+    );
+
+    // Mushika completes the quest for the Epitaph.
+    talk(&mut world, mushika);
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "completed at Mushika");
+}
+
+/// The Name of Evil - 2 (126): the level-77 conclusion — the singing Kaimu
+/// ladder, the three-melody Warrior's Grave puzzle, and the reward. Completing
+/// it is what unlocks Q641 Attack Sailren.
+#[test]
+fn quest_q00126_the_name_of_evil_2() {
+    const ASAMAH: i32 = 32115;
+    const ULU: i32 = 32119;
+    const BALU: i32 = 32120;
+    const CHUTA: i32 = 32121;
+    const GRAVE: i32 = 32122;
+    const STATUE: i32 = 32109;
+    const MUSHIKA: i32 = 32114;
+    const GAZKH_FRAGMENT: i32 = 8782;
+    const BONE_POWDER: i32 = 8783;
+    const ENCHANT_WEAPON_A: i32 = 729;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (GAZKH_FRAGMENT, "q", true),
+            (BONE_POWDER, "q", true),
+            (ENCHANT_WEAPON_A, "reward", false),
+        ],
+    );
+    let asamah = NPC_OID;
+    let ulu = NPC_OID + 1;
+    let balu = NPC_OID + 2;
+    let chuta = NPC_OID + 3;
+    let grave = NPC_OID + 4;
+    let statue = NPC_OID + 5;
+    let mushika = NPC_OID + 6;
+    for (oid, npc) in [
+        (asamah, ASAMAH),
+        (ulu, ULU),
+        (balu, BALU),
+        (chuta, CHUTA),
+        (grave, GRAVE),
+        (statue, STATUE),
+        (mushika, MUSHIKA),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 78, 100, 200, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00126_TheNameOfEvil2";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let cond = |w: &World| quest_cond(w, 3001, q);
+
+    // Prereq: The Name of Evil - 1 (125) complete.
+    talk(&mut world, asamah);
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        quests
+            .0
+            .entry("Q00125_TheNameOfEvil1".to_string())
+            .or_default()
+            .state = crate::model::quest::state::COMPLETED;
+    }
+
+    // Accept and walk the singing-Kaimu ladder (cond 1 → 11).
+    ev(&mut world, asamah, "32115-1.html");
+    assert_eq!(cond(&world), Some(1));
+    for (npc, e, expect) in [
+        (asamah, "32115-1b.html", 2),
+        (ulu, "32119-3.html", 3),
+        (ulu, "32119-4.html", 4),
+        (ulu, "32119-5.html", 5),
+        (balu, "32120-3.html", 6),
+        (balu, "32120-4.html", 7),
+        (balu, "32120-5.html", 8),
+        (chuta, "32121-3.html", 9),
+        (chuta, "32121-4.html", 10),
+        (chuta, "32121-5.html", 11),
+    ] {
+        ev(&mut world, npc, e);
+        assert_eq!(cond(&world), Some(expect), "advance via {e}");
+    }
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        1,
+        "Gazkh Fragment from Chuta"
+    );
+
+    // Warrior's Grave: talking advances to cond 12, then to the melodies.
+    talk(&mut world, grave); // cond 11 → 12
+    assert_eq!(cond(&world), Some(12));
+    ev(&mut world, grave, "32122-3.html"); // → 13
+    ev(&mut world, grave, "32122-4.html"); // → 14
+    assert_eq!(cond(&world), Some(14), "at the first melody");
+
+    // Melody 1 rejects an incomplete tune, accepts the full one.
+    ev(&mut world, grave, "DO_One");
+    ev(&mut world, grave, "FA2_One"); // DO + FA2 only → fail
+    assert_eq!(cond(&world), Some(14), "an incomplete melody is rejected");
+    for note in ["DO_One", "MI_One", "FA_One", "SOL_One", "FA2_One"] {
+        ev(&mut world, grave, note);
+    }
+    assert_eq!(cond(&world), Some(15), "melody 1 → cond 15");
+    // Melody 2.
+    for note in ["FA_Two", "SOL_Two", "TI_Two", "SOL2_Two", "FA2_Two"] {
+        ev(&mut world, grave, note);
+    }
+    assert_eq!(cond(&world), Some(16), "melody 2 → cond 16");
+    // Melody 3.
+    for note in [
+        "SOL_Three",
+        "FA_Three",
+        "MI_Three",
+        "FA2_Three",
+        "MI2_Three",
+    ] {
+        ev(&mut world, grave, note);
+    }
+    assert_eq!(cond(&world), Some(17), "melody 3 → cond 17");
+
+    // The grave raises the Bone Powder; on to the statue and back.
+    ev(&mut world, grave, "32122-7.html");
+    assert_eq!(
+        item_count(&world, 3001, BONE_POWDER),
+        1,
+        "Bone Powder raised"
+    );
+    ev(&mut world, grave, "32122-8.html"); // → 18
+    ev(&mut world, statue, "32109-2.html"); // → 19
+    ev(&mut world, statue, "32109-3.html"); // → 20, takes Bone Powder
+    assert_eq!(item_count(&world, 3001, BONE_POWDER), 0, "Bone Powder read");
+    ev(&mut world, asamah, "32115-4.html"); // → 21
+    ev(&mut world, asamah, "32115-5.html"); // → 22
+    ev(&mut world, mushika, "32114-2.html"); // → 23
+    assert_eq!(cond(&world), Some(23));
+
+    // Mushika's reward completes the chain.
+    ev(&mut world, mushika, "32114-3.html");
+    assert_eq!(
+        item_count(&world, 3001, ENCHANT_WEAPON_A),
+        1,
+        "A-grade Weapon Enchant"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "The Name of Evil - 2 complete");
+}
