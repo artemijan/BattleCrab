@@ -115,6 +115,29 @@ fn all_four_ferries_spawn_docked() {
         vec![1, 2, 2, 2],
         "Innadril tour has one harbor, the other three ferries two each"
     );
+
+    // Every harbor on every ferry now carries a departure-announcement schedule
+    // whose final stage departs silently (empty) — never; it always shouts.
+    for route in &routes {
+        for wp in route.iter().filter(|p| p.dock) {
+            let sched = wp
+                .schedule
+                .expect("every ferry dock has an announcement schedule");
+            assert!(
+                sched.stages.len() >= 2,
+                "a dwell has an arrival stage and a departure stage"
+            );
+            assert!(
+                sched.stages.iter().all(|s| !s.messages.is_empty()),
+                "every dwell stage announces something"
+            );
+            assert_eq!(
+                sched.stages.last().unwrap().then_ms,
+                0,
+                "the final stage departs immediately after its shout"
+            );
+        }
+    }
 }
 
 /// A route whose dock carries a short (test-scale) announcement schedule so the
