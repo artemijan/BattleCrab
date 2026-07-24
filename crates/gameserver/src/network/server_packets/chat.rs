@@ -31,3 +31,23 @@ pub fn creature_say(
     }
     w.into_bytes()
 }
+
+/// Port of `CreatureSay(ChatType, int charId, SystemMessageId)` — the
+/// system-message branch (no `Creature` sender, no literal text). Java writes
+/// the sender-name slot as the raw `charId` int (the `_senderName == null`
+/// branch): for a small id the high two bytes are zero, so the client reads it
+/// as an (empty) UTF-16 string and then the message id. Used for the ferry
+/// boarding/departure announcements (`charId` 801, `ChatType::Boat`).
+pub fn creature_say_system(
+    chat_type: crate::enums::ChatType,
+    char_id: i32,
+    message_id: i32,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SAY2);
+    w.write_i32(0); // sender object id — no Creature sender
+    w.write_i32(chat_type.client_id());
+    w.write_i32(char_id); // name slot written as an int (senderName == null)
+    w.write_i32(message_id); // NpcString / system-message id, no trailing text
+    w.into_bytes()
+}

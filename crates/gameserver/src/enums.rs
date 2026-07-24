@@ -436,6 +436,8 @@ pub enum ChatType {
     Clan = 4,
     Trade = 8,
     Alliance = 9,
+    /// Ferry announcements (`CreatureSay(ChatType.BOAT, ...)`) — server-sent only.
+    Boat = 11,
 }
 
 impl ChatType {
@@ -452,6 +454,7 @@ impl ChatType {
             4 => Some(Self::Clan),
             8 => Some(Self::Trade),
             9 => Some(Self::Alliance),
+            11 => Some(Self::Boat),
             _ => None,
         }
     }

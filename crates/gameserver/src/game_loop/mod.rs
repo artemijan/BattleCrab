@@ -430,6 +430,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::BoatDepart { boat_object_id } => {
                 boats::handle_depart(world, boat_object_id);
             }
+            ScheduledTask::BoatDwellStage {
+                boat_object_id,
+                stage,
+            } => {
+                boats::handle_dwell_stage(world, boat_object_id, stage);
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

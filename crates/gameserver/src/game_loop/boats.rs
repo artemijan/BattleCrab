@@ -2,14 +2,18 @@
 //! `data/scripts/vehicles/*`. A ferry spawns and sails its route, snapping to
 //! each waypoint and broadcasting `VehicleDeparture` (a move order the client
 //! interpolates) / `VehicleInfo` (its authoritative position). At a dock it
-//! anchors for a dwell, during which players can board/disembark and ride
-//! along. All four Interlude ferries (`BoatTalkingGludin`, `BoatGiranTalking`,
-//! `BoatInnadrilTour`, `BoatRunePrimeval`) run.
+//! anchors for a dwell — a staged schedule (`DockSchedule`) of `CreatureSay`
+//! announcements ending in departure — during which players can board/disembark
+//! and ride along. All four Interlude ferries (`BoatTalkingGludin`,
+//! `BoatGiranTalking`, `BoatInnadrilTour`, `BoatRunePrimeval`) run; the flagship
+//! Talking↔Gludin route carries the full 10-minute announced cadence.
 //!
-//! TODO(G24.5): departure `CreatureSay` announcements + the real 10-min dwell
-//! cadence; `MoveToLocationInVehicle` (walking on deck) + ticket collection.
+//! TODO(G24.5): wire the remaining ferries' announcement schedules (they dwell
+//! silently for now); `MoveToLocationInVehicle` (walking on deck) + ticket
+//! collection (`payForRide`).
 
-use crate::model::boat::{Boat, InVehicle, VehiclePathPoint};
+use crate::enums::ChatType;
+use crate::model::boat::{Boat, DockSchedule, DwellStage, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -25,10 +29,12 @@ const fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> Veh
         move_speed,
         rotation_speed,
         dock: false,
+        schedule: None,
     }
 }
 
-/// A harbor waypoint (the ferry anchors here; boarding is allowed).
+/// A harbor waypoint (the ferry anchors here; boarding is allowed) with no
+/// announcement schedule — dwells silently for the default period.
 const fn dk(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
     VehiclePathPoint {
         x,
@@ -37,12 +43,91 @@ const fn dk(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> Veh
         move_speed,
         rotation_speed,
         dock: true,
+        schedule: None,
     }
 }
 
-/// How long the ferry anchors at a harbor before departing.
-/// TODO(G24.5): Java's is 10 minutes; shortened until the schedule is wired.
+/// A harbor waypoint with a staged departure-announcement schedule.
+const fn dka(
+    x: i32,
+    y: i32,
+    z: i32,
+    move_speed: i32,
+    rotation_speed: i32,
+    schedule: &'static DockSchedule,
+) -> VehiclePathPoint {
+    VehiclePathPoint {
+        x,
+        y,
+        z,
+        move_speed,
+        rotation_speed,
+        dock: true,
+        schedule: Some(schedule),
+    }
+}
+
+/// Default dwell for a harbor that has no announcement schedule wired yet.
+/// TODO(G24.5): give the remaining ferries their real per-dock schedules; the
+/// flagship Talking↔Gludin route below carries the full 10-minute cadence.
 const DWELL_MS: u64 = 60_000;
+
+/// The dwell at Talking Island harbor (Java `BoatTalkingGludin` cases 17→3):
+/// arrives, anchors 10 minutes with 5-/1-minute + "soon" warnings, then leaves
+/// for Gludin. Messages 979–985 (983 = "make haste to board").
+static TALKING_DOCK_SCHED: DockSchedule = DockSchedule {
+    char_id: 801,
+    stages: &[
+        DwellStage {
+            messages: &[979, 980], // arrived at Talking + will leave for Gludin in 10 min
+            then_ms: 300_000,
+        },
+        DwellStage {
+            messages: &[981], // leave for Gludin in 5 minutes
+            then_ms: 240_000,
+        },
+        DwellStage {
+            messages: &[982, 983], // leave for Gludin in 1 minute + make haste
+            then_ms: 40_000,
+        },
+        DwellStage {
+            messages: &[984], // leaving soon for Gludin
+            then_ms: 20_000,
+        },
+        DwellStage {
+            messages: &[985], // leaving for Gludin now → depart
+            then_ms: 0,
+        },
+    ],
+};
+
+/// The dwell at Gludin harbor (Java `BoatTalkingGludin` cases 8→12): symmetric,
+/// leaves for Talking Island. Messages 986–991 (983 = "make haste to board").
+static GLUDIN_DOCK_SCHED: DockSchedule = DockSchedule {
+    char_id: 801,
+    stages: &[
+        DwellStage {
+            messages: &[986, 987],
+            then_ms: 300_000,
+        },
+        DwellStage {
+            messages: &[988],
+            then_ms: 240_000,
+        },
+        DwellStage {
+            messages: &[989, 983],
+            then_ms: 40_000,
+        },
+        DwellStage {
+            messages: &[990],
+            then_ms: 20_000,
+        },
+        DwellStage {
+            messages: &[991],
+            then_ms: 0,
+        },
+    ],
+};
 
 /// The Talking Island ↔ Gludin ferry (Java `BoatTalkingGludin`), all legs
 /// flattened into one cycle: Talking → Gludin dock → Gludin → Talking dock.
@@ -57,7 +142,7 @@ const TALKING_GLUDIN: &[VehiclePathPoint] = &[
     vp(-95686, 147718, -3610, 180, 800),
     vp(-95686, 148718, -3610, 180, 800),
     vp(-95686, 149718, -3610, 150, 800),
-    dk(-95686, 150514, -3610, 150, 800), // Gludin dock
+    dka(-95686, 150514, -3610, 150, 800, &GLUDIN_DOCK_SCHED), // Gludin dock
     vp(-95686, 155514, -3610, 180, 800),
     vp(-95686, 185514, -3610, 250, 800),
     vp(-60136, 238816, -3610, 200, 800),
@@ -67,7 +152,7 @@ const TALKING_GLUDIN: &[VehiclePathPoint] = &[
     vp(-88344, 261660, -3610, 180, 1800),
     vp(-92344, 261660, -3610, 150, 1800),
     vp(-94242, 261659, -3610, 150, 1800),
-    dk(-96622, 261660, -3610, 150, 1800), // Talking dock
+    dka(-96622, 261660, -3610, 150, 1800, &TALKING_DOCK_SCHED), // Talking dock
 ];
 
 /// Giran <-> Talking Island ferry (`BoatGiranTalking`).
@@ -186,14 +271,18 @@ pub(crate) fn spawn_boats(world: &mut World) {
 pub(crate) fn spawn_boat(world: &mut World, route: &'static [VehiclePathPoint]) -> i32 {
     let oid = world.next_npc_object_id;
     world.next_npc_object_id += 1;
-    // Start docked at the last waypoint, sailing toward index 0.
-    let start = route[route.len() - 1];
+    // Start at the last waypoint. If it's a harbor, anchor there (leg points at
+    // that dock so its dwell schedule resolves) and depart toward index 0;
+    // otherwise the boat is mid-route and heads for index 0 at once.
+    let last = route.len() - 1;
+    let start = route[last];
+    let leg = if start.dock { last } else { 0 };
     world.objects.spawn(
         oid,
         (
             Boat {
                 route,
-                leg: 0,
+                leg,
                 heading: 0,
                 moving: false,
             },
@@ -210,11 +299,85 @@ pub(crate) fn spawn_boat(world: &mut World, route: &'static [VehiclePathPoint]) 
     broadcast_near_region(world, region_of(start.x, start.y), &info);
     // Anchored at a harbor → dwell (boardable); otherwise set sail at once.
     if start.dock {
-        schedule_depart(world, oid);
+        begin_dwell(world, oid);
     } else {
         move_to_next(world, oid);
     }
     oid
+}
+
+/// Begin the harbor dwell: run the announcement schedule if the anchored dock
+/// (`boat.target()`) has one, otherwise dwell silently for the default period.
+fn begin_dwell(world: &mut World, boat_oid: i32) {
+    let has_schedule = world
+        .objects
+        .get_component::<Boat>(&boat_oid)
+        .map(|b| b.target().schedule.is_some())
+        .unwrap_or(false);
+    if has_schedule {
+        run_dwell_stage(world, boat_oid, 0);
+    } else {
+        schedule_depart(world, boat_oid);
+    }
+}
+
+/// The next harbor the ferry sails to after the one it's anchored at — its
+/// coordinates, so departure shouts also reach players waiting there (Java
+/// `broadcastPacket(fromDock, toDock, ...)`). A single-harbor tour returns
+/// its own dock.
+fn next_dock(world: &World, boat_oid: i32) -> Option<(i32, i32)> {
+    let boat = world.objects.get_component::<Boat>(&boat_oid)?;
+    let n = boat.route.len();
+    (1..=n)
+        .map(|i| boat.route[(boat.leg + i) % n])
+        .find(|wp| wp.dock)
+        .map(|wp| (wp.x, wp.y))
+}
+
+/// One stage of a harbor's dwell schedule: broadcast its announcements (to this
+/// harbor and the destination harbor), then schedule the next stage — or depart
+/// after the last one.
+fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
+    let Some((dock, sched)) = world
+        .objects
+        .get_component::<Boat>(&boat_oid)
+        .and_then(|b| b.target().schedule.map(|s| (b.target(), s)))
+    else {
+        return;
+    };
+    let Some(stage) = sched.stages.get(stage_idx).copied() else {
+        return;
+    };
+
+    let here = region_of(dock.x, dock.y);
+    let there = next_dock(world, boat_oid).map(|(x, y)| region_of(x, y));
+    for &mid in stage.messages {
+        let say = sp::creature_say_system(ChatType::Boat, sched.char_id, mid as i32);
+        broadcast_near_region(world, here, &say);
+        if let Some(there) = there {
+            if there != here {
+                broadcast_near_region(world, there, &say);
+            }
+        }
+    }
+
+    if stage_idx + 1 < sched.stages.len() {
+        let fire_at = world.tick + stage.then_ms.div_ceil(100);
+        world.scheduler.schedule(
+            fire_at,
+            ScheduledTask::BoatDwellStage {
+                boat_object_id: boat_oid,
+                stage: stage_idx + 1,
+            },
+        );
+    } else {
+        depart(world, boat_oid);
+    }
+}
+
+/// The `BoatDwellStage` task: run the next announcement stage of a dwell.
+pub(crate) fn handle_dwell_stage(world: &mut World, boat_oid: i32, stage: usize) {
+    run_dwell_stage(world, boat_oid, stage);
 }
 
 fn schedule_depart(world: &mut World, boat_oid: i32) {
@@ -227,9 +390,17 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
     );
 }
 
-/// The `BoatDepart` task: weigh anchor and sail to the next waypoint.
-pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
+/// Weigh anchor: advance to the next leg of the cycle and set sail.
+fn depart(world: &mut World, boat_oid: i32) {
+    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+        b.advance();
+    }
     move_to_next(world, boat_oid);
+}
+
+/// The `BoatDepart` task (silent-dwell fallback): weigh anchor and sail on.
+pub(crate) fn handle_depart(world: &mut World, boat_oid: i32) {
+    depart(world, boat_oid);
 }
 
 /// `Boat.moveToNextRoutePoint`: head for the current waypoint — face it,
@@ -302,16 +473,17 @@ pub(crate) fn handle_arrive(world: &mut World, boat_oid: i32) {
     // Passengers rode along — snap them to the boat's new position (+ their seat).
     move_passengers(world, boat_oid, target.x, target.y, target.z);
 
-    // Advance the cycle; anchor at harbors, sail on elsewhere.
-    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
-        b.advance();
-    }
+    // At a harbor: anchor (leg stays on the dock so its dwell schedule resolves)
+    // and begin the dwell. Elsewhere: advance the cycle and sail on.
     if target.dock {
         if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
             b.moving = false;
         }
-        schedule_depart(world, boat_oid);
+        begin_dwell(world, boat_oid);
     } else {
+        if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
+            b.advance();
+        }
         move_to_next(world, boat_oid);
     }
 }

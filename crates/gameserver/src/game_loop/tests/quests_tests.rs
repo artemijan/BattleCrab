@@ -19807,6 +19807,7 @@ fn ferry_ride_board_travel_disembark() {
             move_speed: 200,
             rotation_speed: 800,
             dock: false,
+            schedule: None,
         }, // mid
         VehiclePathPoint {
             x: 1800,
@@ -19815,6 +19816,7 @@ fn ferry_ride_board_travel_disembark() {
             move_speed: 200,
             rotation_speed: 800,
             dock: true,
+            schedule: None,
         }, // dock B
         VehiclePathPoint {
             x: 1400,
@@ -19823,6 +19825,7 @@ fn ferry_ride_board_travel_disembark() {
             move_speed: 200,
             rotation_speed: 800,
             dock: false,
+            schedule: None,
         }, // mid
         VehiclePathPoint {
             x: 1000,
@@ -19831,6 +19834,7 @@ fn ferry_ride_board_travel_disembark() {
             move_speed: 200,
             rotation_speed: 800,
             dock: true,
+            schedule: None,
         }, // dock A (start)
     ];
 
