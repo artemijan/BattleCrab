@@ -19413,6 +19413,24 @@ fn fishing_cast_hook_and_land_a_fish() {
         item_row(0x4700_0002, BAIT, 5, PaperdollSlot::LHand),
     ]);
     world.objects.add_components(&3001, inv);
+    // A fishing zone under the player and a water zone under the bob (the
+    // heading-0 cast lands 90 units east, at ~190,200).
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Fishing,
+        0,
+        1000,
+        0,
+        1000,
+    );
+    insert_zone(
+        &mut world,
+        crate::data::zone_data::ZoneKind::Water,
+        0,
+        1000,
+        0,
+        1000,
+    );
 
     // Cast: the reel is scheduled for the bait's time (1000 ms → tick +10).
     crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
@@ -19425,6 +19443,23 @@ fn fishing_cast_hook_and_land_a_fish() {
 
     assert_eq!(item_count(&world, 3001, FISH), 1, "landed a fish");
     assert_eq!(item_count(&world, 3001, BAIT), 4, "one bait consumed");
+
+    // --- Away from any fishing zone, the cast can't start. ---
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&3001)
+        .unwrap()
+        .x = 50_000; // out of the synthetic zones
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop (was still fishing)
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // try to start
+    world.forced_rolls.push_back(0);
+    world.forced_rolls.push_back(0);
+    advance_ticks(&mut world, 12);
+    assert_eq!(
+        item_count(&world, 3001, FISH),
+        1,
+        "no fishing outside a fishing zone"
+    );
 }
 
 /// Build a `PAPERDOLL`-located `ItemRow` for a fishing-fixture inventory.
