@@ -155,6 +155,7 @@ pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;
 pub const EX_FISHING_START: i16 = 0x1E;
 pub const EX_FISHING_END: i16 = 0x1F;
 pub const EX_USER_INFO_FISHING: i16 = 0x159;
+pub const EX_AUTO_FISH_AVAILABLE: i16 = 0x17B;
 /// `PledgeSkillList` — the clan window's skill tab (`(id, level)` list).
 pub const EX_PLEDGE_COUNT: i16 = 0x13D;
 pub const EX_PLEDGE_POWER_GRADE_LIST: i16 = 0x3D;

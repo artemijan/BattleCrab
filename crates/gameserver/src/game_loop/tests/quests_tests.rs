@@ -19692,3 +19692,100 @@ fn fishing_shots_double_the_win_chance() {
         "the fishing shot was spent"
     );
 }
+
+/// Fishing (G32) — entering a fishing zone (rod + bait ready) lights the client's
+/// auto-fish button (`ExAutoFishAvailable` YES); leaving dims it (NO).
+#[test]
+fn fishing_zone_toggles_auto_fish_available() {
+    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
+    use crate::data::item_data::WeaponType;
+    use crate::data::zone_data::ZoneKind;
+    use crate::model::components::{Position, ZoneFlags};
+    use crate::model::inventory::{Inventory, PaperdollSlot};
+
+    const ROD: i32 = 45492;
+    const BAIT: i32 = 47547;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(ROD, "Fishing Rod", false), (BAIT, "Bait", true)],
+    );
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
+    world
+        .data
+        .fishing_data
+        .insert_rod_for_test(ROD, FishingRod::default());
+    world.data.fishing_data.insert_bait_for_test(
+        BAIT,
+        FishingBait {
+            min_player_level: 1,
+            max_player_level: 100,
+            chance: 40,
+            time_min: 1000,
+            time_max: 1000,
+            wait_min: 1000,
+            wait_max: 1000,
+            premium_only: false,
+            catches: vec![FishingCatch {
+                item_id: 47550,
+                chance: 100,
+                multiplier: 1,
+            }],
+        },
+    );
+
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
+    let inv = Inventory::from_rows(&[
+        item_row(0x4700_0031, ROD, 1, PaperdollSlot::RHand),
+        item_row(0x4700_0032, BAIT, 5, PaperdollSlot::LHand),
+    ]);
+    world.objects.add_components(&3001, inv);
+    world.objects.add_components(&3001, ZoneFlags::default());
+    // The fishing zone covers x 400..600 — the player starts outside it (100,200).
+    insert_zone(&mut world, ZoneKind::Fishing, 400, 600, 0, 1000);
+
+    // Read the latest `ExAutoFishAvailable` flag from the outbound packets.
+    let read_avail = |rx: &mut _| -> Option<bool> {
+        drain(rx).iter().rev().find_map(|p| {
+            (p.first() == Some(&server_packets::opcodes::EX)
+                && i16::from_le_bytes(p[1..3].try_into().ok()?)
+                    == server_packets::opcodes::EX_AUTO_FISH_AVAILABLE)
+                .then(|| p[3] != 0)
+        })
+    };
+
+    // Outside the zone: no availability packet (it was never lit).
+    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    assert_eq!(read_avail(&mut rx), None, "no packet while outside");
+
+    // Move into the fishing zone → YES.
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 500;
+    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    assert_eq!(
+        read_avail(&mut rx),
+        Some(true),
+        "entering lights the button"
+    );
+
+    // Move back out → NO.
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 100;
+    crate::game_loop::zones::revalidate_zone(&mut world, 3001, true);
+    assert_eq!(read_avail(&mut rx), Some(false), "leaving dims it");
+}

@@ -860,6 +860,10 @@ pub struct ZoneFlags {
     /// the transition — a `SiegeZone` is only a combat zone while active, which
     /// the plain zone mask (membership only) can't express.
     pub in_active_siege: bool,
+    /// Whether the last `ExAutoFishAvailable` we sent was YES — so the fishing
+    /// availability packet only fires on a real transition (G32). FishingZone
+    /// has no membership bit, so this can't ride the plain mask either.
+    pub fishing_available: bool,
 }
 
 impl Default for ZoneFlags {
@@ -871,6 +875,7 @@ impl Default for ZoneFlags {
             last_validate: (i32::MIN, i32::MIN, i32::MIN),
             last_compass: 0,
             in_active_siege: false,
+            fishing_available: false,
         }
     }
 }

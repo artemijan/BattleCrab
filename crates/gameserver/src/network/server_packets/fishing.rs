@@ -31,6 +31,16 @@ pub fn ex_fishing_end(player_object_id: i32, reason: u8) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ExAutoFishAvailable` — toggles the client's auto-fish button: `true` when
+/// the player enters a fishing zone able to fish, `false` on leaving.
+pub fn ex_auto_fish_available(available: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_AUTO_FISH_AVAILABLE);
+    w.write_u8(available as u8);
+    w.into_bytes()
+}
+
 /// `ExUserInfoFishing` — the self-view fishing flag + bob location (zeroed when
 /// not fishing).
 pub fn ex_user_info_fishing(

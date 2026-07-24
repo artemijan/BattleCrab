@@ -61,6 +61,25 @@ fn equipped_bait(world: &World, player: i32) -> i32 {
         .unwrap_or(0)
 }
 
+/// Whether the client's auto-fish button should be lit (Java `FishingZone`'s
+/// `ExAutoFishAvailable` poll, condensed): the player stands in a FishingZone
+/// and meets [`can_fish`] (rod, bait, level, not underwater). Fired on zone
+/// transitions from [`revalidate_zone`](super::zones::revalidate_zone).
+pub(crate) fn fishing_available(world: &World, player: i32) -> bool {
+    let in_zone = world
+        .objects
+        .get_component::<Position>(&player)
+        .copied()
+        .is_some_and(|p| {
+            world
+                .data
+                .zone_data
+                .zones_at(p.x, p.y, p.z)
+                .any(|z| z.kind == crate::data::zone_data::ZoneKind::Fishing)
+        });
+    in_zone && can_fish(world, player)
+}
+
 /// Java `Fishing.canFish` (slice-1 subset): alive, a real fishing rod equipped,
 /// a known bait hooked, and the player's level within the bait's range.
 fn can_fish(world: &World, player: i32) -> bool {
