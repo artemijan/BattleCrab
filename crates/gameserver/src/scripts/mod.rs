@@ -42,6 +42,12 @@ pub mod q00081_saga_of_the_ghost_hunter;
 pub mod q00082_saga_of_the_sagittarius;
 pub mod q00083_saga_of_the_moonlight_sentinel;
 pub mod q00084_saga_of_the_ghost_sentinel;
+pub mod q00085_saga_of_the_cardinal;
+pub mod q00086_saga_of_the_hierophant;
+pub mod q00087_saga_of_evas_saint;
+pub mod q00088_saga_of_the_archmage;
+pub mod q00089_saga_of_the_mystic_muse;
+pub mod q00090_saga_of_the_storm_screamer;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -199,6 +205,14 @@ pub fn build_registry() -> QuestRegistry {
         )),
         Arc::new(saga::SagaQuest::new(
             q00084_saga_of_the_ghost_sentinel::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(q00085_saga_of_the_cardinal::saga())),
+        Arc::new(saga::SagaQuest::new(q00086_saga_of_the_hierophant::saga())),
+        Arc::new(saga::SagaQuest::new(q00087_saga_of_evas_saint::saga())),
+        Arc::new(saga::SagaQuest::new(q00088_saga_of_the_archmage::saga())),
+        Arc::new(saga::SagaQuest::new(q00089_saga_of_the_mystic_muse::saga())),
+        Arc::new(saga::SagaQuest::new(
+            q00090_saga_of_the_storm_screamer::saga(),
         )),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
