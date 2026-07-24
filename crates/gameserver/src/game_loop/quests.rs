@@ -367,6 +367,16 @@ impl<'w> QuestCtx<'w> {
             .unwrap_or(0)
     }
 
+    /// Whether a *different* quest is COMPLETED for this player. Q641 (Attack
+    /// Sailren) only opens once `Q00126_TheNameOfEvil2` is finished.
+    pub fn other_quest_completed(&self, quest_name: &str) -> bool {
+        self.world
+            .objects
+            .get_component::<Quests>(&self.player)
+            .and_then(|q| q.0.get(quest_name))
+            .is_some_and(|qs| qs.state == state::COMPLETED)
+    }
+
     pub fn is_cond(&self, cond: i32) -> bool {
         self.cond() == cond
     }

@@ -130,6 +130,8 @@ pub mod q00622_specialty_liquor_delivery;
 pub mod q00623_the_finest_food;
 pub mod q00628_hunt_golden_ram;
 pub mod q00634_in_search_of_fragments_of_dimension;
+pub mod q00641_attack_sailren;
+pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
 pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
@@ -201,6 +203,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00355_family_honor::Q00355FamilyHonor),
         Arc::new(q00622_specialty_liquor_delivery::Q00622SpecialtyLiquorDelivery),
         Arc::new(q00688_defeat_the_elrokian_raiders::Q00688DefeatTheElrokianRaiders),
+        Arc::new(q00641_attack_sailren::Q00641AttackSailren),
+        Arc::new(q00642_a_powerful_primeval_creature::Q00642APowerfulPrimevalCreature),
         Arc::new(q00110_to_the_primeval_isle::Q00110ToThePrimevalIsle),
         Arc::new(q00374_whisper_of_dreams_part1::Q00374WhisperOfDreamsPart1),
         Arc::new(q00628_hunt_golden_ram::Q00628HuntGoldenRam),
