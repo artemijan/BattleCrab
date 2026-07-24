@@ -18962,3 +18962,138 @@ fn quest_q00327_recover_the_farmland() {
         "the relic is spent"
     );
 }
+
+/// Quest 348 (An Arrogant Search) — the full Seven Signs cond ladder: hunt a
+/// Shell of Monsters, summon and slay Stone Watchman Ezekiel for the Book of
+/// Saint, gather White Cloth from the Platinum Tribe, and redeem it for Blooded
+/// Fabric.
+#[test]
+fn quest_q00348_an_arrogant_search() {
+    use crate::model::components::Quests;
+
+    const HANELLIN: i32 = 30864;
+    const TABLE_OF_VISION: i32 = 31646;
+    const DRAKE: i32 = 20670;
+    const PLATINUM: i32 = 20828;
+    const EZEKIEL: i32 = 27296;
+    const SHELL: i32 = 14857;
+    const BOOK: i32 = 4397;
+    const HEALING_POTION: i32 = 1061;
+    const WHITE_CLOTH_PLATINUM: i32 = 4294;
+    const BLOODED_FABRIC: i32 = 4295;
+    let q = "Q00348_AnArrogantSearch";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (SHELL, "Shell of Monsters", true),
+            (BOOK, "Book of Saint", true),
+            (HEALING_POTION, "Healing Potion", true),
+            (WHITE_CLOTH_PLATINUM, "White Cloth", true),
+            (BLOODED_FABRIC, "Blooded Fabric", true),
+        ],
+    );
+    for id in [DRAKE, PLATINUM, EZEKIEL] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 62;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let hanellin = NPC_OID;
+    let table = NPC_OID + 1;
+    let drake = NPC_OID + 2;
+    let platinum = NPC_OID + 3;
+    add_test_npc(&mut world, hanellin, HANELLIN, "Folk", 62, 100, 200, 0);
+    add_test_npc(&mut world, table, TABLE_OF_VISION, "Folk", 62, 110, 200, 0);
+    add_test_npc(&mut world, drake, DRAKE, "Monster", 62, 300, 300, 0);
+    add_test_npc(&mut world, platinum, PLATINUM, "Monster", 62, 320, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+
+    let cond = |w: &World| quest_cond(w, 3001, q);
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+
+    // Accept → cond 2.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{hanellin}_Quest {q}")),
+    );
+    ev(&mut world, hanellin, "30864-03.htm");
+    assert_eq!(cond(&world), Some(2), "accepted → cond 2");
+
+    // A Drake kill (forced coin-flip) → Shell of Monsters, cond 3.
+    world.forced_rolls.push_back(0); // roll(2)=0 → the coin flip lands
+    quests::notify_kill(&mut world, 3001, drake, DRAKE);
+    assert_eq!(
+        item_count(&world, 3001, SHELL),
+        1,
+        "the drake dropped a Shell"
+    );
+    assert_eq!(cond(&world), Some(3), "→ cond 3");
+
+    // Return the shell (cond 3 → 4 → 5).
+    ev(&mut world, hanellin, "30864-04.htm");
+    assert_eq!(cond(&world), Some(4), "shell returned → cond 4");
+    ev(&mut world, hanellin, "30864-05.htm");
+    assert_eq!(cond(&world), Some(5), "→ cond 5");
+
+    // The Table of Vision summons Stone Watchman Ezekiel.
+    ev(&mut world, table, "31646-01.htm");
+    let ezekiel = *npcs_of(&mut world, EZEKIEL)
+        .first()
+        .expect("Ezekiel summoned");
+
+    // Slay Ezekiel → Book of Saint, cond 6.
+    quests::notify_kill(&mut world, 3001, ezekiel, EZEKIEL);
+    assert_eq!(
+        item_count(&world, 3001, BOOK),
+        1,
+        "Ezekiel dropped the Book of Saint"
+    );
+    assert_eq!(cond(&world), Some(6), "→ cond 6");
+
+    // cond 6 → 7, then spend a Healing Potion → the Platinum path (cond 8).
+    ev(&mut world, hanellin, "30864-06.htm");
+    assert_eq!(cond(&world), Some(7), "→ cond 7");
+    inject(&mut world, 3001, 0x0034_8000, HEALING_POTION, 1);
+    ev(&mut world, hanellin, "30864-07.htm");
+    assert_eq!(
+        cond(&world),
+        Some(8),
+        "healing potion spent → cond 8 (Platinum path)"
+    );
+
+    // 100 White Cloth from the Platinum Tribe → cond 10.
+    inject(&mut world, 3001, 0x0034_8100, WHITE_CLOTH_PLATINUM, 99); // top up to 100 on the kill
+    world.forced_rolls.push_back(0); // roll_f64 → the cloth drops
+    quests::notify_kill(&mut world, 3001, platinum, PLATINUM);
+    assert_eq!(
+        item_count(&world, 3001, WHITE_CLOTH_PLATINUM),
+        100,
+        "the 100th cloth dropped"
+    );
+    assert_eq!(cond(&world), Some(10), "100 cloth → cond 10");
+
+    // Redeem for Blooded Fabric; the repeatable quest is forgotten.
+    ev(&mut world, hanellin, "end.htm");
+    assert_eq!(
+        item_count(&world, 3001, BLOODED_FABRIC),
+        1,
+        "Blooded Fabric awarded"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Quests>(&3001)
+            .is_none_or(|qc| !qc.0.contains_key(q)),
+        "the repeatable quest is forgotten on completion"
+    );
+}

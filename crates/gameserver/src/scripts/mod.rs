@@ -132,6 +132,7 @@ pub mod q00328_sense_for_business;
 pub mod q00329_curiosity_of_a_dwarf;
 pub mod q00331_arrow_of_vengeance;
 pub mod q00344_1000_years_the_end_of_lamentation;
+pub mod q00348_an_arrogant_search;
 pub mod q00350_enhance_your_weapon;
 pub mod q00354_conquest_of_alligator_island;
 pub mod q00355_family_honor;
@@ -382,6 +383,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00370_an_elder_sows_seeds::Q00370AnElderSowsSeeds),
         Arc::new(q00640_the_zero_hour::Q00640TheZeroHour),
         Arc::new(q00327_recover_the_farmland::Q00327RecoverTheFarmland),
+        Arc::new(q00348_an_arrogant_search::Q00348AnArrogantSearch),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
