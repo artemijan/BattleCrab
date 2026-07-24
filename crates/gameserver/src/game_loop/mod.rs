@@ -47,6 +47,7 @@ mod net;
 pub(crate) mod npc_ai;
 mod npc_cast;
 mod npc_view;
+pub(crate) mod olympiad;
 mod orfen;
 mod party;
 mod passive_skills;

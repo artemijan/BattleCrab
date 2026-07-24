@@ -232,6 +232,10 @@ pub struct World {
     /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
     pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
 
+    /// The Grand Olympiad (G25): period state, the noble registry, and the two
+    /// registration queues (Java `Olympiad` + `OlympiadManager`).
+    pub olympiad: crate::model::olympiad::OlympiadState,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -360,6 +364,7 @@ impl World {
             castles: Vec::new(),
             sieges: HashMap::new(),
             siege_guards: HashMap::new(),
+            olympiad: crate::model::olympiad::OlympiadState::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),
