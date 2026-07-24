@@ -4,6 +4,7 @@
 //! [`build_registry`]). Framework in `game_loop/quests.rs`; this module is
 //! only the content.
 
+pub mod alliance;
 pub mod alliance_master;
 pub mod antharas_heart;
 pub mod clan_master;
@@ -158,7 +159,9 @@ pub mod q00417_path_of_the_scavenger;
 pub mod q00418_path_of_the_artisan;
 pub mod q00420_little_wing;
 pub mod q00421_little_wings_big_adventure;
+pub mod q00605_alliance_with_ketra_orcs;
 pub mod q00606_battle_against_varka_silenos;
+pub mod q00611_alliance_with_varka_silenos;
 pub mod q00612_battle_against_ketra_orcs;
 pub mod q00617_gather_the_flames;
 pub mod q00619_relics_of_the_old_empire;
@@ -361,6 +364,12 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00418_path_of_the_artisan::Q00418PathOfTheArtisan),
         Arc::new(q00420_little_wing::Q00420LittleWing),
         Arc::new(q00421_little_wings_big_adventure::Q00421LittleWingsBigAdventure),
+        Arc::new(alliance::AllianceQuest::new(
+            q00605_alliance_with_ketra_orcs::data(),
+        )),
+        Arc::new(alliance::AllianceQuest::new(
+            q00611_alliance_with_varka_silenos::data(),
+        )),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
