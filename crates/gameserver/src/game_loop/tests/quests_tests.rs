@@ -15384,3 +15384,234 @@ fn quest_q00234_fates_whisper() {
         .unwrap();
     assert!(quests.0[q].is_completed(), "quest completes on the upgrade");
 }
+
+/// Parameters for one "Help the …" pet-ticket quest (42/43/44) — they share a
+/// single flow, differing only in NPCs, mobs, items and the level gate.
+struct HelpQuest {
+    q: &'static str,
+    start_npc: i32,
+    second_npc: i32,
+    mob: i32,
+    weapon: i32,
+    piece: i32,
+    artifact: i32, // the assembled Map / Gemstone
+    ticket: i32,
+    min_level: i32,
+    accept: &'static str,
+    weapon_ev: &'static str,
+    assemble_ev: &'static str,
+    second_ev: &'static str,
+    final_ev: &'static str,
+}
+
+/// Drive one "Help the …" quest end to end: level gate, weapon hand-in, 30
+/// kill-drops assembling the artifact, the second NPC reading it, and the Pet
+/// Ticket reward.
+fn run_help_quest(p: HelpQuest) {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (p.weapon, "weapon", true),
+            (p.piece, "piece", true),
+            (p.artifact, "artifact", true),
+            (p.ticket, "Pet Ticket", false),
+        ],
+    );
+    let mut mt = crate::data::npc_data::default_template(p.mob);
+    mt.type_name = "Monster".into();
+    mt.level = 30;
+    mt.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(mt);
+
+    let start = NPC_OID;
+    let second = NPC_OID + 1;
+    add_test_npc(&mut world, start, p.start_npc, "Folk", 40, 100, 200, 0);
+    add_test_npc(&mut world, second, p.second_npc, "Folk", 40, 100, 200, 0);
+
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = p.min_level - 1;
+    let q = p.q;
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
+        drain(rx).iter().find_map(|pkt| {
+            if pkt[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(pkt)
+            } else if pkt[0] == crate::network::server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&pkt[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
+
+    // --- Level gate: the refusal page carries no accept button. ---
+    talk(&mut world, start);
+    let refusal = grab_html(&mut rx).expect("under-level greeting");
+    assert!(
+        !refusal.contains(p.accept),
+        "{q}: under-level page offers no start: {refusal}"
+    );
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = p.min_level;
+    talk(&mut world, start);
+    let intro = grab_html(&mut rx).expect("intro");
+    assert!(
+        intro.contains(p.accept),
+        "{q}: at-level intro offers start: {intro}"
+    );
+
+    // --- Accept, then hand over the requested weapon (cond 1 → 2). ---
+    ev(&mut world, start, p.accept);
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "{q}: started");
+    inject(&mut world, 3001, 0x0044_1000, p.weapon, 1);
+    ev(&mut world, start, p.weapon_ev);
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "{q}: weapon handed in → cond 2"
+    );
+    assert_eq!(
+        item_count(&world, 3001, p.weapon),
+        0,
+        "{q}: weapon consumed"
+    );
+
+    // --- 30 kill-drops assemble the pieces (cond 2 → 3). ---
+    let mut mob_oid = NPC_OID + 30;
+    for _ in 0..30 {
+        mob_oid += 1;
+        add_test_npc(&mut world, mob_oid, p.mob, "Monster", 30, 110, 200, 0);
+        death::npc_do_die(&mut world, mob_oid, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, p.piece), 30, "{q}: 30 pieces");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(3),
+        "{q}: 30th kill → cond 3"
+    );
+    // A 31st kill drops nothing more (only counts while on cond 2).
+    mob_oid += 1;
+    add_test_npc(&mut world, mob_oid, p.mob, "Monster", 30, 110, 200, 0);
+    death::npc_do_die(&mut world, mob_oid, 3001);
+    assert_eq!(
+        item_count(&world, 3001, p.piece),
+        30,
+        "{q}: no over-collection past cond 2"
+    );
+
+    // --- Assemble the artifact (cond 3 → 4), consuming the pieces. ---
+    ev(&mut world, start, p.assemble_ev);
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(4),
+        "{q}: artifact assembled → cond 4"
+    );
+    assert_eq!(
+        item_count(&world, 3001, p.artifact),
+        1,
+        "{q}: artifact granted"
+    );
+    assert_eq!(item_count(&world, 3001, p.piece), 0, "{q}: pieces consumed");
+
+    // --- The second NPC reads the artifact (cond 4 → 5). ---
+    ev(&mut world, second, p.second_ev);
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(5),
+        "{q}: artifact read → cond 5"
+    );
+    assert_eq!(
+        item_count(&world, 3001, p.artifact),
+        0,
+        "{q}: artifact consumed"
+    );
+
+    // --- The reward: a Pet Ticket, and the quest completes. ---
+    ev(&mut world, start, p.final_ev);
+    assert_eq!(
+        item_count(&world, 3001, p.ticket),
+        1,
+        "{q}: Pet Ticket awarded"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "{q}: completed on reward");
+}
+
+#[test]
+fn quest_q00042_help_the_uncle() {
+    run_help_quest(HelpQuest {
+        q: "Q00042_HelpTheUncle",
+        start_npc: 30828,  // Waters
+        second_npc: 30735, // Sophya
+        mob: 20068,        // Monster Eye Destroyer
+        weapon: 291,       // Trident
+        piece: 7548,
+        artifact: 7549, // Map
+        ticket: 7583,
+        min_level: 25,
+        accept: "30828-01.htm",
+        weapon_ev: "30828-03.html",
+        assemble_ev: "30828-06.html",
+        second_ev: "30735-02.html",
+        final_ev: "30828-09.html",
+    });
+}
+
+#[test]
+fn quest_q00043_help_the_sister() {
+    run_help_quest(HelpQuest {
+        q: "Q00043_HelpTheSister",
+        start_npc: 30829,  // Cooper
+        second_npc: 30097, // Galladucci
+        mob: 20203,        // Dion Grizzly
+        weapon: 220,       // Crafted Dagger
+        piece: 7550,
+        artifact: 7551, // Map
+        ticket: 7584,
+        min_level: 26,
+        accept: "30829-01.htm",
+        weapon_ev: "30829-03.html",
+        assemble_ev: "30829-06.html",
+        second_ev: "30097-02.html",
+        final_ev: "30829-09.html",
+    });
+}
+
+#[test]
+fn quest_q00044_help_the_son() {
+    run_help_quest(HelpQuest {
+        q: "Q00044_HelpTheSon",
+        start_npc: 30827,  // Lundy
+        second_npc: 30505, // Drikus
+        mob: 20919,        // Maille Lizardman
+        weapon: 168,       // Work Hammer
+        piece: 7552,
+        artifact: 7553, // Gemstone
+        ticket: 7585,
+        min_level: 24,
+        accept: "30827-01.htm",
+        weapon_ev: "30827-03.html",
+        assemble_ev: "30827-06.html",
+        second_ev: "30505-02.html",
+        final_ev: "30827-09.html",
+    });
+}
