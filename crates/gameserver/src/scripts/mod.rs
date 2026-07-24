@@ -179,6 +179,7 @@ pub mod q00640_the_zero_hour;
 pub mod q00641_attack_sailren;
 pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
+pub mod q00662_a_game_of_cards;
 pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
 pub mod saga;
@@ -384,6 +385,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00640_the_zero_hour::Q00640TheZeroHour),
         Arc::new(q00327_recover_the_farmland::Q00327RecoverTheFarmland),
         Arc::new(q00348_an_arrogant_search::Q00348AnArrogantSearch),
+        Arc::new(q00662_a_game_of_cards::Q00662AGameOfCards),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),

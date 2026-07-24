@@ -19097,3 +19097,108 @@ fn quest_q00348_an_arrogant_search() {
         "the repeatable quest is forgotten on completion"
     );
 }
+
+/// Quest 662 (A Game of Cards) — chip drops, staking 50 chips to deal a hand,
+/// flipping all five cards, and scoring a pair for its prize.
+#[test]
+fn quest_q00662_a_game_of_cards() {
+    use crate::model::components::Quests;
+
+    const KLUMP: i32 = 30845;
+    const RED_GEM: i32 = 8765;
+    const BLOOD_QUEEN: i32 = 20142; // chip value 232
+    const ONE_PAIR_PRIZE: i32 = 956; // i6 == 10 pays 2× item 956
+    let q = "Q00662_AGameOfCards";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (RED_GEM, "Red Gem", true),
+            (8868, "Ziggo's Gemstone", true),
+            (ONE_PAIR_PRIZE, "Recipe", true),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(BLOOD_QUEEN);
+        t.type_name = "Monster".into();
+        t.level = 63;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let klump = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, klump, KLUMP, "Folk", 63, 100, 200, 0);
+    add_test_npc(&mut world, mob, BLOOD_QUEEN, "Monster", 63, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 61;
+
+    let ev = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{klump}_Quest {q} {e}")));
+    };
+    let get_var = |w: &World, v: &str| -> i32 {
+        w.objects
+            .get_component::<Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .and_then(|qs| qs.vars.get(v))
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0)
+    };
+
+    // Accept.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{klump}_Quest {q}")),
+    );
+    ev(&mut world, "30845-03.htm");
+
+    // A Blood Queen kill (value 232 < forced roll 999) drops a chip.
+    world.forced_rolls.push_back(999); // roll(1000) → 999 > 232
+    world.forced_rolls.push_back(0); // roll_f64 for the give
+    quests::notify_kill(&mut world, 3001, mob, BLOOD_QUEEN);
+    assert_eq!(
+        item_count(&world, 3001, RED_GEM),
+        1,
+        "a kill dropped a chip"
+    );
+
+    // Stake 50 chips and deal a forced hand: raw [1,15,2,3,4] folds to values
+    // [1,1,2,3,4] — a single pair (i1 == i2).
+    inject(&mut world, 3001, 0x0066_2000, RED_GEM, 49); // top up to 50
+    for r in [0, 14, 1, 2, 3] {
+        world.forced_rolls.push_back(r); // roll(70)+1 → the five raw cards
+    }
+    ev(&mut world, "30845-11.html");
+    assert_eq!(item_count(&world, 3001, RED_GEM), 0, "50 chips staked");
+    assert_eq!(
+        get_var(&world, "v1"),
+        3020101,
+        "hidden cards packed (i4i3i2i1)"
+    );
+    assert_eq!(get_var(&world, "ExMemoState"), 4, "the fifth card is 4");
+
+    // Flip all five cards; the fifth flip triggers scoring.
+    for card in ["turncard1", "turncard2", "turncard3", "turncard4"] {
+        ev(&mut world, card);
+    }
+    assert_eq!(
+        item_count(&world, 3001, ONE_PAIR_PRIZE),
+        0,
+        "no prize until all up"
+    );
+    ev(&mut world, "turncard5");
+    assert_eq!(
+        item_count(&world, 3001, ONE_PAIR_PRIZE),
+        2,
+        "a single pair pays 2× the prize item"
+    );
+    assert_eq!(
+        get_var(&world, "v1"),
+        0,
+        "the board is cleared after scoring"
+    );
+}
