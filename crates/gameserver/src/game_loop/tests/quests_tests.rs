@@ -19202,3 +19202,151 @@ fn quest_q00662_a_game_of_cards() {
         "the board is cleared after scoring"
     );
 }
+
+/// Quest 333 (Hunt of the Black Lion) — the core mercenary spine: take an order,
+/// hunt for trophy materials + cargo, turn the materials in to Sophya for adena,
+/// assemble a Statue of Shilen, and complete with a Black Lion Mark.
+#[test]
+fn quest_q00333_hunt_of_the_black_lion() {
+    use crate::model::components::Quests;
+
+    const SOPHYA: i32 = 30735;
+    const UNDRIAS: i32 = 30130;
+    const RUPIO: i32 = 30471;
+    const NEER_CRAWLER: i32 = 20160; // order-1 mob: ash 50%, cargo 11%
+    const BLACK_LION_MARK: i32 = 1369;
+    const ORDER_1: i32 = 3671;
+    const UNDEAD_ASH: i32 = 3848;
+    const CARGO_1: i32 = 3440;
+    const STATUE_HEAD: i32 = 3457;
+    const COMPLETE_STATUE: i32 = 3461;
+    const ADENA: i32 = 57;
+    let q = "Q00333_HuntOfTheBlackLion";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (BLACK_LION_MARK, "Black Lion Mark", true),
+            (ORDER_1, "Sophya's 1st Order", true),
+            (UNDEAD_ASH, "Undead Ash", true),
+            (CARGO_1, "Cargo Box 1st", true),
+            (STATUE_HEAD, "Statue Head", true),
+            (3458, "Statue Torso", true),
+            (3459, "Statue Arm", true),
+            (3460, "Statue Leg", true),
+            (COMPLETE_STATUE, "Complete Statue", true),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(NEER_CRAWLER);
+        t.type_name = "Monster".into();
+        t.level = 27;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let sophya = NPC_OID;
+    let undrias = NPC_OID + 1;
+    let rupio = NPC_OID + 2;
+    let mob = NPC_OID + 3;
+    add_test_npc(&mut world, sophya, SOPHYA, "Folk", 27, 100, 200, 0);
+    add_test_npc(&mut world, undrias, UNDRIAS, "Folk", 27, 110, 200, 0);
+    add_test_npc(&mut world, rupio, RUPIO, "Folk", 27, 120, 200, 0);
+    add_test_npc(&mut world, mob, NEER_CRAWLER, "Monster", 27, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 25;
+    inject(&mut world, 3001, 0x0033_3000, BLACK_LION_MARK, 1);
+
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let adena = |w: &World| item_count(w, 3001, ADENA);
+
+    // Accept and take the 1st hunting order.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sophya}_Quest {q}")),
+    );
+    ev(&mut world, sophya, "30735-04.htm");
+    ev(&mut world, sophya, "30735-10.html");
+    assert_eq!(
+        item_count(&world, 3001, ORDER_1),
+        1,
+        "took Sophya's 1st order"
+    );
+
+    // A Neer Crawler kill (order held) drops Undead Ash and a Cargo Box.
+    world.forced_rolls.push_back(0); // material roll 0 < 50
+    world.forced_rolls.push_back(0); // cargo roll 0 < 11
+    quests::notify_kill(&mut world, 3001, mob, NEER_CRAWLER);
+    assert_eq!(
+        item_count(&world, 3001, UNDEAD_ASH),
+        1,
+        "the kill dropped Undead Ash"
+    );
+    assert_eq!(item_count(&world, 3001, CARGO_1), 1, "and a Cargo Box");
+
+    // Turn the material in to Sophya (talk): 1 ash → 10 adena, ash cleared.
+    let before = adena(&world);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{sophya}_Quest {q}")),
+    );
+    assert_eq!(
+        adena(&world) - before,
+        10,
+        "1 Undead Ash turned in for 10 adena"
+    );
+    assert_eq!(
+        item_count(&world, 3001, UNDEAD_ASH),
+        0,
+        "the material is spent"
+    );
+
+    // Assemble a Statue of Shilen from four parts (forced success).
+    for p in [STATUE_HEAD, 3458, 3459, 3460] {
+        inject(&mut world, 3001, 0x0033_3100 + p, p, 1);
+    }
+    world.forced_rolls.push_back(0); // roll(100) 0 < 50 → assembly succeeds
+    ev(&mut world, rupio, "30471-03.html");
+    assert_eq!(
+        item_count(&world, 3001, COMPLETE_STATUE),
+        1,
+        "statue assembled"
+    );
+    assert_eq!(
+        item_count(&world, 3001, STATUE_HEAD),
+        0,
+        "the parts are consumed"
+    );
+
+    // Undrias buys the complete statue for 30,000 adena.
+    let before = adena(&world);
+    ev(&mut world, undrias, "30130-04.html");
+    assert_eq!(
+        adena(&world) - before,
+        30000,
+        "the statue paid 30,000 adena"
+    );
+
+    // Complete the quest with the Black Lion Mark for 12,400 adena.
+    let before = adena(&world);
+    ev(&mut world, sophya, "30735-26.html");
+    assert_eq!(
+        adena(&world) - before,
+        12400,
+        "completion paid 12,400 adena"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Quests>(&3001)
+            .is_none_or(|qc| !qc.0.contains_key(q)),
+        "the repeatable quest is forgotten on completion"
+    );
+}
