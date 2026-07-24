@@ -166,7 +166,7 @@ pub(crate) fn apply_skill_effects(
                     magic_shots_bonus,
                     failure,
                 ) * attribute_mod(world, caster_oid, target_oid, skill);
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
             // `ManaHealPercent`, `Mp`). Four Java handlers, four amount
@@ -410,7 +410,7 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
                     ss,
                 ) * attribute_mod(world, caster_oid, target_oid, skill);
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
                 use crate::model::components::Position as PosComp;
@@ -491,7 +491,7 @@ pub(crate) fn apply_skill_effects(
                 }
                 // Java passes `critical = true` to `doAttack` for every blow, so
                 // it always shows as a critical hit.
-                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit, false);
+                apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::Lethal { full_lethal, half_lethal } => {
                 // `skill.getMagicLevel() < effected.getLevel() - 6`: silently
@@ -632,7 +632,7 @@ pub(crate) fn apply_skill_effects(
                         crate::game_loop::party::notify_party_vitals(world, caster_oid);
                     }
                 }
-                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false);
+                apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::Heal { power } => {
                 let power = *power;
@@ -728,7 +728,7 @@ pub(crate) fn apply_skill_effects(
                     // damage, not healing — Java's `reduceCurrentHp` +
                     // `sendDamageMessage`, reusing the shared damage path.
                     let caster_name = caster_display_name(world, caster_oid);
-                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false, false);
+                    apply_skill_damage(world, caster_oid, target_oid, -amount, false, skill.magic_type == 1, &caster_name, false, false, skill.id);
                     continue;
                 }
                 // `isHpBlocked()`: a landed `DamageBlock` refuses a positive
@@ -857,7 +857,7 @@ pub(crate) fn apply_skill_effects(
                 ) * energy_charges_boost
                     // `EnergyAttack.instant`'s `attributeMod` term.
                     * attribute_mod(world, caster_oid, target_oid, skill);
-                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false);
+                apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
                 give_item(world, target_oid, *item_id, *item_count, *item_enchant_level);
@@ -951,7 +951,7 @@ pub(crate) fn apply_skill_effects(
                             .get_component::<crate::model::Player>(&caster_oid)
                             .map(|p| p.name.clone())
                             .unwrap_or_default();
-                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit, false);
+                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit, false, skill.id);
                     }
                 }
             }
@@ -2957,6 +2957,9 @@ pub(crate) fn apply_skill_damage(
     // Every instant-effect call site passes `false`; only
     // `handle_dam_over_time_tick` passes `true`.
     is_dot: bool,
+    // The skill driving this hit, surfaced to quest `onAttack` handlers so they
+    // can distinguish a skill from a melee swing (Java's `onAttack(..., Skill)`).
+    skill_id: i32,
 ) {
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{sm_ids, SmParam};
@@ -3033,8 +3036,12 @@ pub(crate) fn apply_skill_damage(
 
     // Victim-side application: CP soak/HP/death/cast-break for players
     // (including the C1_HAS_RECEIVED message), hate + AI wake + death for
-    // NPCs — the same receivers the auto-attack hits go through.
+    // NPCs — the same receivers the auto-attack hits go through. The skill id
+    // rides on the world for the duration of the hit so quest `onAttack` can
+    // read it (Java threads `Skill` straight into the notification).
+    world.quest_attack_skill = Some(skill_id);
     crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage, is_dot);
+    world.quest_attack_skill = None;
 }
 
 /// Land a buff on an NPC: store it (a re-cast of the same skill replaces the
@@ -3442,6 +3449,7 @@ pub(crate) fn handle_dam_over_time_tick(
                 &caster_name,
                 false,
                 true,
+                skill.id,
             );
             // A `canKill` tick can kill outright — stop then.
             if world

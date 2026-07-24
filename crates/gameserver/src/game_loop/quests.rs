@@ -268,6 +268,12 @@ pub struct QuestCtx<'w> {
     /// Involved NPC's template id, 0 when there is none.
     pub npc_id: i32,
     script: Arc<dyn QuestScript>,
+    /// `onAttack` only: the skill that struck (Java's `Skill skill`), `None`
+    /// for a melee swing. `None` in every other callback.
+    attack_skill_id: Option<i32>,
+    /// `onAttack` only: whether the blow came from the player's servitor/pet
+    /// (Java's `boolean isSummon`). `false` in every other callback.
+    attack_is_summon: bool,
 }
 
 impl<'w> QuestCtx<'w> {
@@ -290,7 +296,22 @@ impl<'w> QuestCtx<'w> {
             npc,
             npc_id,
             script,
+            attack_skill_id: None,
+            attack_is_summon: false,
         }
+    }
+
+    /// `onAttack` context: the skill that struck (Java's `Skill skill`) — `None`
+    /// for a melee swing. Meaningful only inside [`QuestScript::on_attack`].
+    pub fn attack_skill_id(&self) -> Option<i32> {
+        self.attack_skill_id
+    }
+
+    /// `onAttack` context: whether the blow came from the player's servitor/pet
+    /// (Java's `boolean isSummon`). Meaningful only inside
+    /// [`QuestScript::on_attack`].
+    pub fn attack_is_summon(&self) -> bool {
+        self.attack_is_summon
     }
 
     pub fn quest_id(&self) -> i32 {
@@ -1393,17 +1414,30 @@ pub(crate) fn notify_kill(world: &mut World, killer_oid: i32, npc_oid: i32, npc_
 
 /// The `onAttack` notification: a registered monster took damage from a
 /// player (fired from `combat::npc_receive_damage`, killing blow included).
-pub(crate) fn notify_attack(world: &mut World, attacker_oid: i32, npc_oid: i32, npc_id: i32) {
+/// `player_oid` is the quest-acting player — the attacker itself, or a
+/// servitor's owner. `skill_id` is the striking skill (`None` for melee) and
+/// `is_summon` marks a servitor/pet blow, both surfaced to `on_attack` (Java's
+/// `onAttack(npc, player, damage, isSummon, skill)`).
+pub(crate) fn notify_attack(
+    world: &mut World,
+    player_oid: i32,
+    npc_oid: i32,
+    npc_id: i32,
+    skill_id: Option<i32>,
+    is_summon: bool,
+) {
     let registry = world.quests.clone();
     let scripts = registry.attack_quests(npc_id);
     if scripts.is_empty() {
         return;
     }
-    let Some(client_id) = client_for_player(world, attacker_oid) else {
+    let Some(client_id) = client_for_player(world, player_oid) else {
         return;
     };
     for script in scripts {
-        let mut ctx = QuestCtx::new(world, client_id, attacker_oid, npc_oid, script.clone());
+        let mut ctx = QuestCtx::new(world, client_id, player_oid, npc_oid, script.clone());
+        ctx.attack_skill_id = skill_id;
+        ctx.attack_is_summon = is_summon;
         script.on_attack(&mut ctx);
     }
 }

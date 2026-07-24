@@ -1713,18 +1713,28 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     super::raid_curse::on_raid_attacked(world, npc_oid, attacker_oid);
 
     // Quest `onAttack` (Java `addAttackId` scripts, notified from
-    // `Attackable.reduceCurrentHp` before any death processing). Only
-    // players drive quests.
-    if world
+    // `Attackable.reduceCurrentHp` before any death processing). The acting
+    // player is the attacker itself, or — for a servitor/pet blow, Java's
+    // `isSummon` branch — its owner.
+    let quest_attacker = if world
         .objects
         .has_component::<crate::model::Player>(&attacker_oid)
     {
+        Some((attacker_oid, false))
+    } else {
+        world
+            .objects
+            .get_component::<crate::model::components::ServitorOf>(&attacker_oid)
+            .map(|s| (s.owner_object_id, true))
+    };
+    if let Some((player_oid, is_summon)) = quest_attacker {
         let npc_id = world
             .objects
             .get_component::<crate::model::npc::Npc>(&npc_oid)
             .map(|n| n.npc_id)
             .unwrap_or(0);
-        super::quests::notify_attack(world, attacker_oid, npc_oid, npc_id);
+        let skill_id = world.quest_attack_skill;
+        super::quests::notify_attack(world, player_oid, npc_oid, npc_id, skill_id, is_summon);
     }
     let Some(region) = world
         .objects
