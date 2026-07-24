@@ -157,6 +157,7 @@ pub mod q00416_path_of_the_orc_shaman;
 pub mod q00417_path_of_the_scavenger;
 pub mod q00418_path_of_the_artisan;
 pub mod q00420_little_wing;
+pub mod q00421_little_wings_big_adventure;
 pub mod q00606_battle_against_varka_silenos;
 pub mod q00612_battle_against_ketra_orcs;
 pub mod q00617_gather_the_flames;
@@ -359,6 +360,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00417_path_of_the_scavenger::Q00417PathOfTheScavenger),
         Arc::new(q00418_path_of_the_artisan::Q00418PathOfTheArtisan),
         Arc::new(q00420_little_wing::Q00420LittleWing),
+        Arc::new(q00421_little_wings_big_adventure::Q00421LittleWingsBigAdventure),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
