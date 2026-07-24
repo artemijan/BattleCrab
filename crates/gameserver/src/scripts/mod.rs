@@ -36,6 +36,12 @@ pub mod q00075_saga_of_the_titan;
 pub mod q00076_saga_of_the_grand_khavatari;
 pub mod q00077_saga_of_the_dominator;
 pub mod q00078_saga_of_the_doomcryer;
+pub mod q00079_saga_of_the_adventurer;
+pub mod q00080_saga_of_the_wind_rider;
+pub mod q00081_saga_of_the_ghost_hunter;
+pub mod q00082_saga_of_the_sagittarius;
+pub mod q00083_saga_of_the_moonlight_sentinel;
+pub mod q00084_saga_of_the_ghost_sentinel;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -184,6 +190,16 @@ pub fn build_registry() -> QuestRegistry {
         )),
         Arc::new(saga::SagaQuest::new(q00077_saga_of_the_dominator::saga())),
         Arc::new(saga::SagaQuest::new(q00078_saga_of_the_doomcryer::saga())),
+        Arc::new(saga::SagaQuest::new(q00079_saga_of_the_adventurer::saga())),
+        Arc::new(saga::SagaQuest::new(q00080_saga_of_the_wind_rider::saga())),
+        Arc::new(saga::SagaQuest::new(q00081_saga_of_the_ghost_hunter::saga())),
+        Arc::new(saga::SagaQuest::new(q00082_saga_of_the_sagittarius::saga())),
+        Arc::new(saga::SagaQuest::new(
+            q00083_saga_of_the_moonlight_sentinel::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(
+            q00084_saga_of_the_ghost_sentinel::saga(),
+        )),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
