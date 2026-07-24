@@ -16342,3 +16342,170 @@ fn quest_q00641_attack_sailren() {
         "repeatable exit forgets the quest"
     );
 }
+
+/// The Name of Evil - 1 (125): the Primeval Isle letter-puzzle story quest.
+/// Drives the Q124 prereq gate, the claw/bone grind, and all three Kaimu
+/// pillar puzzles through to the Epitaph of Wisdom and completion.
+#[test]
+fn quest_q00125_the_name_of_evil_1() {
+    const MUSHIKA: i32 = 32114;
+    const KARAKAWEI: i32 = 32117;
+    const ULU: i32 = 32119;
+    const BALU: i32 = 32120;
+    const CHUTA: i32 = 32121;
+    const CLAW: i32 = 8779;
+    const BONE: i32 = 8780;
+    const EPITAPH: i32 = 8781;
+    const GAZKH_FRAGMENT: i32 = 8782;
+    const ORNITHO: i32 = 22200; // 661 claw chance
+    const DEINO: i32 = 22203; // 651 bone chance
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (CLAW, "q", true),
+            (BONE, "q", true),
+            (EPITAPH, "q", true),
+            (GAZKH_FRAGMENT, "q", true),
+        ],
+    );
+    for id in [ORNITHO, DEINO] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mushika = NPC_OID;
+    let karakawei = NPC_OID + 1;
+    let ulu = NPC_OID + 2;
+    let balu = NPC_OID + 3;
+    let chuta = NPC_OID + 4;
+    for (oid, npc) in [
+        (mushika, MUSHIKA),
+        (karakawei, KARAKAWEI),
+        (ulu, ULU),
+        (balu, BALU),
+        (chuta, CHUTA),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 78, 100, 200, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00125_TheNameOfEvil1";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut rx = _rx;
+
+    // Prereq: Meeting the Elroki (124) must be complete. (Talking creates a
+    // CREATED state but does not start the quest.)
+    talk(&mut world, mushika);
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        quests
+            .0
+            .entry("Q00124_MeetingTheElroki".to_string())
+            .or_default()
+            .state = crate::model::quest::state::COMPLETED;
+    }
+
+    // Accept → Gazkh Fragment → Karakawei sends hunting.
+    ev(&mut world, mushika, "32114-05.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, mushika, "32114-08.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        1,
+        "Gazkh Fragment"
+    );
+    ev(&mut world, karakawei, "32117-09.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+
+    // Grind 2 claws + 2 bones (forced drops) → cond 4.
+    let mut mob = NPC_OID + 20;
+    for id in [ORNITHO, ORNITHO, DEINO, DEINO] {
+        mob += 1;
+        add_test_npc(&mut world, mob, id, "Monster", 78, 110, 200, 0);
+        world.forced_rolls.push_back(0); // roll(1000)==0 < chance → drop
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, CLAW), 2, "2 claws");
+    assert_eq!(item_count(&world, 3001, BONE), 2, "2 bones");
+    assert_eq!(quest_cond(&world, 3001, q), Some(4), "materials → cond 4");
+
+    // Karakawei takes the materials; then sends to the pillars.
+    talk(&mut world, karakawei); // cond 4: consumes claws+bones
+    assert_eq!(item_count(&world, 3001, CLAW), 0, "claws consumed");
+    ev(&mut world, karakawei, "32117-15.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+
+    // The puzzle sets the "Memo" quest var only on the full correct word.
+    let memo = |w: &World| -> i32 {
+        w.objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .get_int("Memo")
+    };
+    // A wrong Ulu attempt (skip letters) does not solve it.
+    ev(&mut world, ulu, "T_One");
+    ev(&mut world, ulu, "U_One"); // T and U set, but not E/P → fail
+    assert_eq!(memo(&world), 0, "an incomplete word is rejected");
+    let _ = drain(&mut rx);
+
+    // Ulu Kaimu puzzle T-E-P-U → solves, then cond 6.
+    ev(&mut world, ulu, "T_One");
+    ev(&mut world, ulu, "E_One");
+    ev(&mut world, ulu, "P_One");
+    ev(&mut world, ulu, "U_One"); // solves → Memo set
+    assert_eq!(memo(&world), 1, "the full word is accepted");
+    ev(&mut world, ulu, "32119-18.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6), "Ulu solved → cond 6");
+
+    // Balu Kaimu puzzle T-O-O2-N → cond 7.
+    ev(&mut world, balu, "T_Two");
+    ev(&mut world, balu, "O_Two");
+    ev(&mut world, balu, "O2_Two");
+    ev(&mut world, balu, "N_Two");
+    ev(&mut world, balu, "32120-17.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7), "Balu solved → cond 7");
+
+    // Chuta Kaimu puzzle W-A-G-U → Epitaph, cond 8.
+    ev(&mut world, chuta, "W_Three");
+    ev(&mut world, chuta, "A_Three");
+    ev(&mut world, chuta, "G_Three");
+    ev(&mut world, chuta, "U_Three");
+    ev(&mut world, chuta, "32121-18.html"); // Gazkh → Epitaph of Wisdom
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(8),
+        "Chuta solved → cond 8"
+    );
+    assert_eq!(item_count(&world, 3001, EPITAPH), 1, "Epitaph of Wisdom");
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        0,
+        "Gazkh consumed"
+    );
+
+    // Mushika completes the quest for the Epitaph.
+    talk(&mut world, mushika);
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "completed at Mushika");
+}
