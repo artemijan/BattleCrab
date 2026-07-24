@@ -51,6 +51,9 @@ pub enum ZoneKind {
     Swamp,
     /// Java `ScriptZone` — a named region a script addresses by id.
     Script,
+    /// Java `FishingZone` → `ZoneId.FISHING`: where a rod may be cast. Queried
+    /// by geometry (`zones_at`), never by membership mask, so it claims no bit.
+    Fishing,
 }
 
 impl ZoneKind {
@@ -72,6 +75,8 @@ impl ZoneKind {
             ZoneKind::Script => 0,
             // `ZoneId.SWAMP` — read by the speed finalizer.
             ZoneKind::Swamp => 128,
+            // Queried by geometry, not membership — no bit (like `Script`).
+            ZoneKind::Fishing => 0,
         }
     }
 }
@@ -163,6 +168,7 @@ impl ZoneData {
         for (file, kind) in [
             ("peace.xml", ZoneKind::Peace),
             ("water.xml", ZoneKind::Water),
+            ("fishing.xml", ZoneKind::Fishing),
             ("no_restart.xml", ZoneKind::NoRestart),
             // `pvp.xml` is uniformly `ArenaZone`, so the filename→kind mapping
             // is correct. `underground_coliseum.xml` mixes zone types and needs
@@ -299,6 +305,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
     Some(match ty {
         "PeaceZone" => ZoneKind::Peace,
         "WaterZone" => ZoneKind::Water,
+        "FishingZone" => ZoneKind::Fishing,
         "NoRestartZone" => ZoneKind::NoRestart,
         "ArenaZone" => ZoneKind::Pvp,
         "SiegeZone" => ZoneKind::Siege,
@@ -539,11 +546,13 @@ mod tests {
         // 1031 rather than 1032 because those files are filtered to script
         // zones: `custom_script.xml`'s stray `SiegeZone` (GainakSiege) is
         // deliberately left out (see the loader).
-        assert_eq!(data.zones.len(), 1031);
+        // 1031 → 1044: `fishing.xml`'s 13 `FishingZone`s (G32).
+        assert_eq!(data.zones.len(), 1044);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
         assert_eq!(count(ZoneKind::Water), 423);
+        assert_eq!(count(ZoneKind::Fishing), 13, "fishing.xml");
         assert_eq!(count(ZoneKind::NoRestart), 47);
         assert_eq!(count(ZoneKind::Pvp), 12);
         assert_eq!(count(ZoneKind::Siege), 9);
@@ -660,6 +669,7 @@ mod effect_zone_tests {
                         | ZoneKind::Effect
                         | ZoneKind::Damage
                         | ZoneKind::Swamp
+                        | ZoneKind::Fishing
                 ),
                 "zone {} has an unported kind",
                 z.name

@@ -109,8 +109,17 @@ fn cast_line(world: &mut World, player: i32) {
     };
     let fishing_time = (time_min - reduce).max(1000);
 
-    // The bob lands ahead of the player (heading offset — see the module TODO).
-    let (bx, by, bz, region) = bait_point(world, player);
+    // Java `castLine`: the cast fails ("you can't fish here") unless the player
+    // stands in a FishingZone *and* the bob lands on a WaterZone.
+    let region = world
+        .objects
+        .get_component::<RegionCell>(&player)
+        .map(|r| r.0);
+    let Some((bx, by, bz)) = calculate_bait_location(world, player) else {
+        // TODO(G32): send YOU_CAN_T_FISH_HERE once the sm_id is added.
+        stop_fishing(world, player, REASON_STOP);
+        return;
+    };
     let seq = world.next_request_seq();
     set_session(world, player, |f| {
         f.cast_seq = seq;
@@ -275,22 +284,34 @@ fn broadcast_end(world: &World, player: i32, reason: u8) {
     }
 }
 
-fn bait_point(world: &World, player: i32) -> (i32, i32, i32, Option<(i32, i32)>) {
-    let pos = world.objects.get_component::<Position>(&player).copied();
-    let region = world
-        .objects
-        .get_component::<RegionCell>(&player)
-        .map(|r| r.0);
-    match pos {
-        Some(p) => {
-            let dist = world.data.fishing_data.bait_distance_min as f64;
-            let angle = p.heading as f64 * (std::f64::consts::TAU / 65536.0);
-            let bx = p.x + (dist * angle.cos()) as i32;
-            let by = p.y + (dist * angle.sin()) as i32;
-            (bx, by, p.z, region)
-        }
-        None => (0, 0, 0, region),
+/// Java `Fishing.calculateBaitLocation`: the bob lands `baitDistance` ahead of
+/// the player along their heading. Fails (`None` → "you can't fish here")
+/// unless the player is in a **FishingZone** and the bob's `(x, y)` is over a
+/// **WaterZone** — whose upper Z (`getWaterZ`) is the bob's Z. Geo height checks
+/// are elided (the port has no per-cell geo in most zones).
+fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)> {
+    let p = world.objects.get_component::<Position>(&player).copied()?;
+    // The player must stand in a fishing zone.
+    let in_fishing_zone = world
+        .data
+        .zone_data
+        .zones_at(p.x, p.y, p.z)
+        .any(|z| z.kind == crate::data::zone_data::ZoneKind::Fishing);
+    if !in_fishing_zone {
+        return None;
     }
+    let dist = world.data.fishing_data.bait_distance_min as f64;
+    let angle = p.heading as f64 * (std::f64::consts::TAU / 65536.0);
+    let bx = p.x + (dist * angle.cos()) as i32;
+    let by = p.y + (dist * angle.sin()) as i32;
+    // The bob must land over water; the water surface (zone's upper Z) is its Z.
+    let water_z = world
+        .data
+        .zone_data
+        .zones_at(bx, by, p.z)
+        .find(|z| z.kind == crate::data::zone_data::ZoneKind::Water)
+        .map(|z| z.territory.max_z)?;
+    Some((bx, by, water_z))
 }
 
 fn send(world: &World, player: i32, pkt: Vec<u8>) {
