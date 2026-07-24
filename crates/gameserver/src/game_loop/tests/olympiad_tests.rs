@@ -764,6 +764,64 @@ fn point_mark_exchange_gives_marks_of_battle() {
 }
 
 #[test]
+fn match_start_strips_active_buffs() {
+    use crate::model::components::Buffs;
+    use crate::model::skill::{ActiveBuff, BuffSlot};
+    let (mut world, _tx, _db, _l) = test_world();
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    let buff = ActiveBuff {
+        skill_id: 1204, // Wind Walk
+        skill_level: 1,
+        abnormal_type_client_id: 0,
+        abnormal_type: "SPEED_UP_SHORT".into(),
+        abnormal_level: 1,
+        slot: BuffSlot::Buff,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effect_flags: 0,
+        abnormal_visuals: Vec::new(),
+        blocked_abnormals: Vec::new(),
+        effects: Vec::new(),
+    };
+    world.objects.add_components(&100, Buffs(vec![buff]));
+
+    crate::game_loop::olympiad::strip_buffs(&mut world, 100);
+
+    assert!(
+        world
+            .objects
+            .get_component::<Buffs>(&100)
+            .unwrap()
+            .0
+            .iter()
+            .all(|b| b.passive),
+        "no active buffs survive entering the arena"
+    );
+}
+
+#[test]
+fn round_end_announces_to_online_players() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    world.olympiad.period = 0;
+    world.olympiad.current_cycle = 7;
+
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+
+    assert!(
+        got_sm(
+            &drain(&mut rx),
+            crate::network::server_packets::sm_ids::ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED
+        ),
+        "the round-ended announcement reaches online players"
+    );
+}
+
+#[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();
     open_games(&mut world);

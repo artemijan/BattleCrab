@@ -12,8 +12,10 @@
 //! period flips to validation, the class leaders are crowned heroes, and after
 //! the validation day a fresh cycle begins with a clean noble table. The crown
 //! persists to the `heroes` table and re-applies on login (so it survives relogs
-//! and reaches offline heroes). The stadium instancing (needs G27) and the
-//! countdown ceremony are the remaining follow-ups.
+//! and reaches offline heroes); fighters have their buffs stripped on entering
+//! the arena, and the round's end is announced to everyone online. The stadium
+//! instancing (needs G27) and the pre-fight countdown ceremony are the
+//! remaining follow-ups.
 
 use crate::db::{DbCommand, HeroRow, OlympiadNobleRow};
 use crate::model::olympiad::{
@@ -403,8 +405,16 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
 
     // Bank each noble's exchangeable points for the mark exchange at the manager.
     store_trade_points(world);
-    // TODO(G25): broadcast ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED to all
-    // online players.
+    // Announce the round's end to everyone online.
+    let announce = sp::system_message_with(
+        sm_ids::ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED,
+        &[SmParam::Int(world.olympiad.current_cycle)],
+    );
+    for cs in world.clients.values() {
+        if matches!(cs, crate::session::ClientSession::InGame(_)) {
+            cs.send(announce.clone());
+        }
+    }
 
     let now = commons::util::now_millis();
     world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;
@@ -497,8 +507,9 @@ enum MatchResult {
 }
 
 /// Begin a match: port both fighters to the arena (remembering where they came
-/// from), then start polling for the result. TODO(G25): the Java countdown
-/// ceremony + buff strip; here the fight is live immediately.
+/// from), strip their buffs for a fair fight, then start polling for the
+/// result. TODO(G25): the Java countdown ceremony; here the fight is live
+/// immediately.
 fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
     let return_a = position_of(world, player_a);
     let return_b = position_of(world, player_b);
@@ -511,25 +522,33 @@ fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
         return_a,
         return_b,
     });
-    crate::game_loop::death::teleport_player(
-        world,
-        player_a,
-        ARENA_SPAWN_A.0,
-        ARENA_SPAWN_A.1,
-        ARENA_SPAWN_A.2,
-    );
-    crate::game_loop::death::teleport_player(
-        world,
-        player_b,
-        ARENA_SPAWN_B.0,
-        ARENA_SPAWN_B.1,
-        ARENA_SPAWN_B.2,
-    );
+    for (oid, spawn) in [(player_a, ARENA_SPAWN_A), (player_b, ARENA_SPAWN_B)] {
+        crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
+        strip_buffs(world, oid);
+    }
     tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
     world.scheduler.schedule(
         fire_at(world, MATCH_POLL_MS),
         ScheduledTask::OlympiadMatchTick { arena },
     );
+}
+
+/// `AbstractOlympiadGame.removeBuffs`: drop every active (non-passive) buff so
+/// nobody enters the arena pre-buffed.
+pub(crate) fn strip_buffs(world: &mut World, object_id: i32) {
+    let skills: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| !x.passive)
+                .map(|x| x.skill_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for skill_id in skills {
+        crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill_id);
+    }
 }
 
 /// `OlympiadGameTask` poll: a fighter who died or vanished loses; both surviving
