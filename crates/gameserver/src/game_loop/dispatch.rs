@@ -65,6 +65,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::CHARACTER_RESTORE => handle_character_restore(world, client_id, body),
         cop::CHARACTER_SELECT => handle_character_select(world, client_id, body),
         cop::ENTER_WORLD => handle_enter_world(world, client_id),
+        // Boats (G24.5): board / step off a ferry — boatId + (x, y, z).
+        cop::REQUEST_GET_ON_VEHICLE => handle_get_on_off_vehicle(world, client_id, body, true),
+        cop::REQUEST_GET_OFF_VEHICLE => handle_get_on_off_vehicle(world, client_id, body, false),
         // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
         cop::REQUEST_SKILL_COOL_TIME => {
             if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
@@ -350,6 +353,26 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_RESTART => handle_request_restart(world, client_id),
         cop::EX_PACKET => on_ex_packet(world, client_id, body),
         _ => error!("GameLoop: client {client_id} sent opcode 0x{opcode:02x}, unhandled."),
+    }
+}
+
+/// `RequestGetOnVehicle` / `RequestGetOffVehicle`: read `boatId + (x, y, z)` and
+/// board / disembark for the in-game player (G24.5).
+fn handle_get_on_off_vehicle(world: &mut World, client_id: u32, body: &[u8], boarding: bool) {
+    let Some(crate::session::ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = s.player_object_id();
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(boat_oid), Some(x), Some(y), Some(z)) =
+        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i32())
+    else {
+        return;
+    };
+    if boarding {
+        super::boats::board(world, player, boat_oid, (x, y, z));
+    } else {
+        super::boats::disembark(world, player, boat_oid, (x, y, z));
     }
 }
 

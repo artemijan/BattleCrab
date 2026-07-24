@@ -14,6 +14,9 @@ pub struct VehiclePathPoint {
     pub z: i32,
     pub move_speed: i32,
     pub rotation_speed: i32,
+    /// A harbor: the ferry anchors here for a dwell, and only while anchored can
+    /// players board or disembark (Java gates both on `!boat.isMoving()`).
+    pub dock: bool,
 }
 
 /// A ferry and its progress along a cyclic route.
@@ -25,6 +28,19 @@ pub struct Boat {
     pub leg: usize,
     /// Current facing (updated toward each waypoint).
     pub heading: i32,
+    /// Whether the boat is under way (Java `Vehicle.isMoving`). Boarding is
+    /// only allowed while `false` (anchored at a dock).
+    pub moving: bool,
+}
+
+/// A player riding a boat (Java `Player._vehicle` + `_inVehiclePosition`): the
+/// boat they're on and their seat position **relative to** the boat's origin.
+#[derive(Debug, Clone, Copy, Component)]
+pub struct InVehicle {
+    pub boat_object_id: i32,
+    pub seat_x: i32,
+    pub seat_y: i32,
+    pub seat_z: i32,
 }
 
 impl Boat {

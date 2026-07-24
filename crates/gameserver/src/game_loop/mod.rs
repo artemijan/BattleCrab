@@ -427,6 +427,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::BoatArrive { boat_object_id } => {
                 boats::handle_arrive(world, boat_object_id);
             }
+            ScheduledTask::BoatDepart { boat_object_id } => {
+                boats::handle_depart(world, boat_object_id);
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,
