@@ -5,12 +5,13 @@
 //! anchors for a dwell — a staged schedule (`DockSchedule`) of `CreatureSay`
 //! announcements ending in departure — during which players can board/disembark
 //! and ride along. All four Interlude ferries (`BoatTalkingGludin`,
-//! `BoatGiranTalking`, `BoatInnadrilTour`, `BoatRunePrimeval`) run; the flagship
-//! Talking↔Gludin route carries the full 10-minute announced cadence.
+//! `BoatGiranTalking`, `BoatInnadrilTour`, `BoatRunePrimeval`) run with their
+//! real announced cadences (the three point-to-point routes anchor 10 minutes;
+//! Rune↔Primeval anchors 3).
 //!
-//! TODO(G24.5): wire the remaining ferries' announcement schedules (they dwell
-//! silently for now); `MoveToLocationInVehicle` (walking on deck) + ticket
-//! collection (`payForRide`).
+//! TODO(G24.5): the in-transit "arriving in N minutes" shouts + busy-dock delay
+//! messages; `MoveToLocationInVehicle` (walking on deck) + ticket collection
+//! (`payForRide`).
 
 use crate::enums::ChatType;
 use crate::model::boat::{Boat, DockSchedule, DwellStage, InVehicle, VehiclePathPoint};
@@ -33,21 +34,9 @@ const fn vp(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> Veh
     }
 }
 
-/// A harbor waypoint (the ferry anchors here; boarding is allowed) with no
-/// announcement schedule — dwells silently for the default period.
-const fn dk(x: i32, y: i32, z: i32, move_speed: i32, rotation_speed: i32) -> VehiclePathPoint {
-    VehiclePathPoint {
-        x,
-        y,
-        z,
-        move_speed,
-        rotation_speed,
-        dock: true,
-        schedule: None,
-    }
-}
-
-/// A harbor waypoint with a staged departure-announcement schedule.
+/// A harbor waypoint with a staged departure-announcement schedule. (Every
+/// harbor on the four Interlude ferries has one; a dock without a schedule
+/// would fall back to a silent `DWELL_MS` dwell.)
 const fn dka(
     x: i32,
     y: i32,
@@ -67,67 +56,83 @@ const fn dka(
     }
 }
 
-/// Default dwell for a harbor that has no announcement schedule wired yet.
-/// TODO(G24.5): give the remaining ferries their real per-dock schedules; the
-/// flagship Talking↔Gludin route below carries the full 10-minute cadence.
+/// Fallback dwell for a harbor with no announcement schedule. Every Interlude
+/// ferry dock has one, so this only applies to synthetic/test routes.
 const DWELL_MS: u64 = 60_000;
 
-/// The dwell at Talking Island harbor (Java `BoatTalkingGludin` cases 17→3):
-/// arrives, anchors 10 minutes with 5-/1-minute + "soon" warnings, then leaves
-/// for Gludin. Messages 979–985 (983 = "make haste to board").
-static TALKING_DOCK_SCHED: DockSchedule = DockSchedule {
-    char_id: 801,
-    stages: &[
-        DwellStage {
-            messages: &[979, 980], // arrived at Talking + will leave for Gludin in 10 min
-            then_ms: 300_000,
-        },
-        DwellStage {
-            messages: &[981], // leave for Gludin in 5 minutes
-            then_ms: 240_000,
-        },
-        DwellStage {
-            messages: &[982, 983], // leave for Gludin in 1 minute + make haste
-            then_ms: 40_000,
-        },
-        DwellStage {
-            messages: &[984], // leaving soon for Gludin
-            then_ms: 20_000,
-        },
-        DwellStage {
-            messages: &[985], // leaving for Gludin now → depart
-            then_ms: 0,
-        },
-    ],
-};
+/// The standard 10-minute harbor dwell shared by the Talking/Gludin/Giran
+/// ferries (Java `case` cadence 5 min → 4 min → 40 s → 20 s): the "arrived"
+/// lines, then the 5-minute / 1-minute / "leaving soon" warnings, then the
+/// "leaving now" shout after which the ferry departs.
+macro_rules! ten_minute_dwell {
+    ($arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
+        DockSchedule {
+            char_id: 801,
+            stages: &[
+                DwellStage {
+                    messages: $arrival,
+                    then_ms: 300_000,
+                },
+                DwellStage {
+                    messages: $leave_5min,
+                    then_ms: 240_000,
+                },
+                DwellStage {
+                    messages: $leave_1min,
+                    then_ms: 40_000,
+                },
+                DwellStage {
+                    messages: $leaving_soon,
+                    then_ms: 20_000,
+                },
+                DwellStage {
+                    messages: $leaving_now,
+                    then_ms: 0,
+                },
+            ],
+        }
+    };
+}
 
-/// The dwell at Gludin harbor (Java `BoatTalkingGludin` cases 8→12): symmetric,
-/// leaves for Talking Island. Messages 986–991 (983 = "make haste to board").
-static GLUDIN_DOCK_SCHED: DockSchedule = DockSchedule {
-    char_id: 801,
-    stages: &[
-        DwellStage {
-            messages: &[986, 987],
-            then_ms: 300_000,
-        },
-        DwellStage {
-            messages: &[988],
-            then_ms: 240_000,
-        },
-        DwellStage {
-            messages: &[989, 983],
-            then_ms: 40_000,
-        },
-        DwellStage {
-            messages: &[990],
-            then_ms: 20_000,
-        },
-        DwellStage {
-            messages: &[991],
-            then_ms: 0,
-        },
-    ],
-};
+/// The 3-minute dwell of the Rune ↔ Primeval ferry (Java `BoatRunePrimeval`):
+/// the "arrived" lines, then after 3 minutes the "now departing" shout + depart.
+macro_rules! three_minute_dwell {
+    ($arrival:expr, $leaving:expr) => {
+        DockSchedule {
+            char_id: 801,
+            stages: &[
+                DwellStage {
+                    messages: $arrival,
+                    then_ms: 180_000,
+                },
+                DwellStage {
+                    messages: $leaving,
+                    then_ms: 0,
+                },
+            ],
+        }
+    };
+}
+
+// Talking Island ↔ Gludin (`BoatTalkingGludin`). 983 = "make haste to board".
+static TALKING_DOCK_SCHED: DockSchedule =
+    ten_minute_dwell!(&[979, 980], &[981], &[982, 983], &[984], &[985]); // leaves for Gludin
+static GLUDIN_DOCK_SCHED: DockSchedule =
+    ten_minute_dwell!(&[986, 987], &[988], &[989, 983], &[990], &[991]); // leaves for Talking
+
+// Giran ↔ Talking Island (`BoatGiranTalking`) — no "make haste" line.
+static GT_GIRAN_DOCK_SCHED: DockSchedule =
+    ten_minute_dwell!(&[992, 987], &[988], &[989], &[990], &[991]); // leaves for Talking
+static GT_TALKING_DOCK_SCHED: DockSchedule =
+    ten_minute_dwell!(&[979, 993], &[994], &[995], &[996], &[997]); // leaves for Giran
+
+// Innadril pleasure boat (`BoatInnadrilTour`) — a single-harbor scenic loop.
+static INNADRIL_DOCK_SCHED: DockSchedule =
+    ten_minute_dwell!(&[998], &[999], &[1000], &[1001], &[1002]);
+
+// Rune Harbor ↔ Primeval Isle (`BoatRunePrimeval`). 1620 = "Welcome to Rune Harbor".
+static RUNE_DOCK_SCHED: DockSchedule = three_minute_dwell!(&[1620, 1989], &[1992]); // leaves for Primeval
+static PRIMEVAL_DOCK_SCHED: DockSchedule = three_minute_dwell!(&[1988, 1991], &[1990]); // leaves for Rune
 
 /// The Talking Island ↔ Gludin ferry (Java `BoatTalkingGludin`), all legs
 /// flattened into one cycle: Talking → Gludin dock → Gludin → Talking dock.
@@ -176,7 +181,7 @@ const GIRAN_TALKING: &[VehiclePathPoint] = &[
     vp(-88344, 261660, -3610, 180, 800),
     vp(-92344, 261660, -3610, 180, 800),
     vp(-94242, 261659, -3610, 150, 800),
-    dk(-96622, 261660, -3610, 150, 800),
+    dka(-96622, 261660, -3610, 150, 800, &GT_TALKING_DOCK_SCHED), // Talking dock (→ Giran)
     vp(-113925, 261660, -3610, 150, 800),
     vp(-126107, 249116, -3610, 180, 800),
     vp(-126107, 234499, -3610, 180, 800),
@@ -194,7 +199,7 @@ const GIRAN_TALKING: &[VehiclePathPoint] = &[
     vp(40058, 195383, -3610, 180, 800),
     vp(43022, 193793, -3610, 150, 800),
     vp(45986, 192203, -3610, 150, 800),
-    dk(48950, 190613, -3610, 150, 800),
+    dka(48950, 190613, -3610, 150, 800, &GT_GIRAN_DOCK_SCHED), // Giran dock (→ Talking)
 ];
 
 /// Innadril scenic tour (`BoatInnadrilTour`) — a single-harbor loop.
@@ -230,7 +235,7 @@ const INNADRIL_TOUR: &[VehiclePathPoint] = &[
     vp(115936, 226540, -3610, 150, 800),
     vp(113628, 226240, -3610, 150, 800),
     vp(111300, 226240, -3610, 150, 800),
-    dk(111264, 226240, -3610, 150, 800),
+    dka(111264, 226240, -3610, 150, 800, &INNADRIL_DOCK_SCHED), // Innadril dock
 ];
 
 /// Rune <-> Primeval Isle ferry (`BoatRunePrimeval`).
@@ -246,7 +251,7 @@ const RUNE_PRIMEVAL: &[VehiclePathPoint] = &[
     vp(4160, -27828, -3610, 150, 1800),
     vp(5888, -27279, -3610, 150, 1800),
     vp(7000, -27279, -3610, 150, 1800),
-    dk(10342, -27279, -3610, 150, 1800),
+    dka(10342, -27279, -3610, 150, 1800, &PRIMEVAL_DOCK_SCHED), // Primeval dock (→ Rune)
     vp(15528, -27279, -3610, 180, 800),
     vp(22304, -29664, -3610, 290, 800),
     vp(33824, -26880, -3610, 290, 800),
@@ -255,7 +260,7 @@ const RUNE_PRIMEVAL: &[VehiclePathPoint] = &[
     vp(44320, -25152, -3610, 180, 1800),
     vp(40576, -31616, -3610, 250, 800),
     vp(36819, -35315, -3610, 220, 800),
-    dk(34381, -37680, -3610, 220, 800),
+    dka(34381, -37680, -3610, 220, 800, &RUNE_DOCK_SCHED), // Rune dock (→ Primeval)
 ];
 
 /// `BoatManager.load` — spawn the four Interlude ferries at boot and set them
