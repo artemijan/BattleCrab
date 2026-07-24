@@ -3,6 +3,7 @@
 //! to enter the world and display correctly. Inventory, skills, effects, and the
 //! full stat pipeline arrive in later milestones.
 
+pub mod boat;
 pub mod castle;
 pub mod clan;
 pub mod clan_entry;

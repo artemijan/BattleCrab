@@ -39,6 +39,7 @@ mod status;
 mod system_message;
 mod target;
 mod variation;
+mod vehicle;
 mod warehouse;
 
 pub use char_info::*;
@@ -70,4 +71,5 @@ pub use status::*;
 pub use system_message::*;
 pub use target::*;
 pub use variation::*;
+pub use vehicle::*;
 pub use warehouse::*;

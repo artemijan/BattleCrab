@@ -65,6 +65,9 @@ pub enum ScheduledTask {
     /// quest-spawned actors on a lifespan (quest 421's Soul of Tree Guardian
     /// ambush). A no-op if the NPC is already gone, like every dead-id task here.
     DespawnNpc { npc_oid: i32 },
+    /// Boats (G24.5): the ferry reached its current waypoint — snap there,
+    /// broadcast its position, and set sail for the next one.
+    BoatArrive { boat_object_id: i32 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
