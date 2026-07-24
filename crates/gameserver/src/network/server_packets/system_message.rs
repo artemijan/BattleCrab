@@ -412,6 +412,8 @@ pub mod sm_ids {
     pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
     pub const YOU_ARE_NOT_IN_A_PARTY: i16 = 4201;
     pub const YOU_ARE_NOT_IN_A_CLAN: i16 = 4202;
+    // Boats (G24.5)
+    pub const YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET: i16 = 402;
     // Soulshots / spiritshots
     pub const THE_SOULSHOT_YOU_ARE_ATTEMPTING_TO_USE_DOES_NOT_MATCH_THE_GRADE_OF_YOUR_EQUIPPED_WEAPON: i16 = 337;
     pub const YOU_DO_NOT_HAVE_ENOUGH_SOULSHOTS_FOR_THAT: i16 = 338;
