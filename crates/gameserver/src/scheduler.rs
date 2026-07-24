@@ -87,6 +87,9 @@ pub enum ScheduledTask {
     OlympiadCompEnd,
     /// Olympiad: the weekly refresh — add weekly points + reset weekly matches.
     OlympiadWeeklyChange,
+    /// Olympiad: the match-making sweep (Java `OlympiadGameManager`, every 30 s
+    /// while the window is open) — pair waiting nobles into stadium matches.
+    OlympiadGameManager,
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

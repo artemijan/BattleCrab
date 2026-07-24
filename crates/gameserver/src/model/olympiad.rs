@@ -18,6 +18,15 @@ pub enum CompetitionType {
     NonClassed,
 }
 
+/// A running 1v1 match (Java an `OlympiadGameNormal` attached to a stadium).
+#[derive(Debug, Clone)]
+pub struct OlympiadMatch {
+    /// The stadium index the match runs in (Java the `OlympiadGameTask` slot).
+    pub arena: usize,
+    pub player_a: i32,
+    pub player_b: i32,
+}
+
 /// A noble's persistent Olympiad record (Java `Olympiad.NOBLES` `StatSet`).
 #[derive(Debug, Clone)]
 pub struct NobleStats {
@@ -91,6 +100,12 @@ pub struct OlympiadState {
     pub non_class_registers: HashSet<i32>,
     /// Object ids waiting in each class-group queue, keyed by class group.
     pub class_registers: HashMap<i32, HashSet<i32>>,
+    /// The matches currently running, one per busy stadium (Java the
+    /// `OlympiadGameManager._tasks` with an attached game).
+    pub matches: Vec<OlympiadMatch>,
+    /// Everyone currently in a running match (Java `isInCompetition`): they
+    /// can't register or unregister while fighting.
+    pub in_competition: HashSet<i32>,
 }
 
 impl OlympiadState {
@@ -128,6 +143,12 @@ impl OlympiadState {
     pub fn remaining_weekly_matches(&self, object_id: i32) -> i32 {
         let done = self.nobles.get(&object_id).map_or(0, |n| n.comp_done_week);
         (MAX_WEEKLY_MATCHES - done).max(0)
+    }
+
+    /// Whether `object_id` is currently fighting a match (Java
+    /// `OlympiadManager.isInCompetition`).
+    pub fn is_in_competition(&self, object_id: i32) -> bool {
+        self.in_competition.contains(&object_id)
     }
 
     /// Whether `object_id` sits in either registration queue (Java

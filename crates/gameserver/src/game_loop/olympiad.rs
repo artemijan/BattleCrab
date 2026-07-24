@@ -3,12 +3,15 @@
 //!
 //! Covers: `register`/`unregister` into the waiting lists with the eligibility
 //! and timing gates; boot load / shutdown save of `olympiad_data` +
-//! `olympiad_nobles`; and the competition-window schedule (18:00 for 6 h on the
-//! weekend competition days) plus the weekly point/match refresh. Match-making,
-//! the stadiums and hero calculation are later slices.
+//! `olympiad_nobles`; the competition-window schedule (18:00 for 6 h on the
+//! weekend competition days) plus the weekly point/match refresh; and the
+//! match-making sweep that pairs waiting nobles into stadium matches. The
+//! stadium teleport, the fight/scoring and hero calculation are later slices.
 
 use crate::db::{DbCommand, OlympiadNobleRow};
-use crate::model::olympiad::{CompetitionType, NobleStats, OlympiadState, REG_CLOSE_BEFORE_END_MS};
+use crate::model::olympiad::{
+    CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
+};
 use crate::model::Player;
 use crate::network::server_packets::{self as sp, sm_ids, SmParam};
 use crate::scheduler::ScheduledTask;
@@ -28,6 +31,17 @@ const WEEKLY_POINTS: i32 = 10;
 /// `AltOlyCompetitionDays = 1,7` (Java `Calendar` Sun=1…Sat=7) → 0-indexed
 /// days-of-week Sunday (0) and Saturday (6): the Olympiad runs weekends only.
 const COMP_DAYS: &[i64] = &[0, 6];
+
+/// How often the match-making sweep runs while the window is open (Java
+/// `OlympiadGameManager` fixed rate).
+const GAME_MANAGER_PERIOD_MS: i64 = 30_000;
+/// Stadiums available for concurrent matches (Java one `OlympiadGameTask` per
+/// `OlympiadStadiumZone`; `zones/olympiad_stadium.xml` defines four).
+const NUM_ARENAS: usize = 4;
+/// `AltOlyNonClassedParticipants = 20` — the non-class queue must hold at least
+/// this many before any 1v1 matches are generated (Java
+/// `hasEnoughRegisteredNonClassed`).
+const NONCLASSED_MIN: usize = 20;
 
 /// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
 /// day 0, 1970-01-01, was a Thursday → offset 4).
@@ -105,8 +119,11 @@ fn open_comp_window(world: &mut World, now: i64) {
         .scheduler
         .schedule(world.olympiad.comp_end_tick, ScheduledTask::OlympiadCompEnd);
     tracing::info!("Olympiad: competition window open.");
-    // TODO(G25): start the match-making game manager (OlympiadGameManager) —
-    // slice 4.
+    // `OlympiadGameManager` starts sweeping for matches (Java scheduleAtFixedRate).
+    world.scheduler.schedule(
+        fire_at(world, GAME_MANAGER_PERIOD_MS),
+        ScheduledTask::OlympiadGameManager,
+    );
 }
 
 /// `OlympiadCompStart`: begin the day's competition window.
@@ -120,9 +137,11 @@ pub(crate) fn handle_comp_start(world: &mut World) {
 /// `OlympiadCompEnd`: close the window and schedule the next one.
 pub(crate) fn handle_comp_end(world: &mut World) {
     world.olympiad.in_comp_period = false;
-    // Java also clears the waiting lists at comp end.
+    // Java also clears the waiting lists (and any lingering games) at comp end.
     world.olympiad.non_class_registers.clear();
     world.olympiad.class_registers.clear();
+    world.olympiad.matches.clear();
+    world.olympiad.in_competition.clear();
     tracing::info!("Olympiad: competition window closed.");
     let now = commons::util::now_millis();
     world.scheduler.schedule(
@@ -146,6 +165,91 @@ pub(crate) fn handle_weekly_change(world: &mut World) {
         fire_at(world, WEEKLY_PERIOD_MS),
         ScheduledTask::OlympiadWeeklyChange,
     );
+}
+
+/// `OlympiadGameManager.run`: while the window is open, fill the free stadiums
+/// with 1v1 matches drawn from the non-class queue, then reschedule. Stops when
+/// the window closes.
+pub(crate) fn handle_game_manager(world: &mut World) {
+    if !world.olympiad.in_comp_period {
+        return; // window closed — the sweep stops until it reopens
+    }
+    make_matches(world);
+    world.scheduler.schedule(
+        fire_at(world, GAME_MANAGER_PERIOD_MS),
+        ScheduledTask::OlympiadGameManager,
+    );
+}
+
+/// Pair waiting nobles into the free stadiums. Only runs once the non-class
+/// queue is large enough (Java `hasEnoughRegisteredNonClassed`); then each free
+/// arena takes a 2-player game until the queue runs dry.
+fn make_matches(world: &mut World) {
+    if world.olympiad.non_class_registers.len() < NONCLASSED_MIN {
+        return;
+    }
+    // The stadium slots already busy with a running match.
+    let mut busy: Vec<bool> = vec![false; NUM_ARENAS];
+    for m in &world.olympiad.matches {
+        if let Some(slot) = busy.get_mut(m.arena) {
+            *slot = true;
+        }
+    }
+    for (arena, &is_busy) in busy.iter().enumerate() {
+        if is_busy {
+            continue;
+        }
+        let Some((player_a, player_b)) = draw_pair(world) else {
+            break; // not enough online players left in the queue
+        };
+        world.olympiad.in_competition.insert(player_a);
+        world.olympiad.in_competition.insert(player_b);
+        world.olympiad.matches.push(OlympiadMatch {
+            arena,
+            player_a,
+            player_b,
+        });
+        tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
+        // TODO(G25): teleport the pair into the stadium instance, strip buffs,
+        // run the countdown + fight + scoring — slice 5.
+    }
+}
+
+/// `OlympiadGameNormal.createListOfParticipants`: draw two distinct **online**
+/// players at random from the non-class queue, removing them. Offline entries
+/// are dropped. Returns `None` if fewer than two online players remain.
+fn draw_pair(world: &mut World) -> Option<(i32, i32)> {
+    let first = draw_online(world)?;
+    match draw_online(world) {
+        Some(second) => Some((first, second)),
+        None => {
+            // No valid opponent — put the first player back (Java re-adds it).
+            world.olympiad.non_class_registers.insert(first);
+            None
+        }
+    }
+}
+
+/// Remove and return a random online player from the non-class queue, discarding
+/// offline entries along the way. `None` when the queue empties.
+fn draw_online(world: &mut World) -> Option<i32> {
+    loop {
+        let len = world.olympiad.non_class_registers.len();
+        if len == 0 {
+            return None;
+        }
+        let idx = world.roll(len as i32) as usize;
+        let oid = *world.olympiad.non_class_registers.iter().nth(idx)?;
+        world.olympiad.non_class_registers.remove(&oid);
+        if is_online(world, oid) {
+            return Some(oid);
+        }
+        // Offline: dropped from the queue, keep drawing.
+    }
+}
+
+fn is_online(world: &World, object_id: i32) -> bool {
+    world.objects.get_component::<Player>(&object_id).is_some()
 }
 
 /// Apply the boot-loaded `olympiad_data` + `olympiad_nobles` (Java
@@ -298,7 +402,10 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
         return false;
     }
 
-    // Already waiting (Java reports which list).
+    // Already fighting a match, or already waiting (Java reports which list).
+    if world.olympiad.is_in_competition(object_id) {
+        return false;
+    }
     if world.olympiad.is_registered(object_id) {
         let sm = if world.olympiad.non_class_registers.contains(&object_id) {
             sm_ids::C1_IS_ALREADY_REGISTERED_ON_THE_WAITING_LIST_FOR_THE_ALL_CLASS_BATTLE
@@ -376,8 +483,10 @@ pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
         return false;
     }
 
-    // TODO(G25): Java also refuses if the noble is already in a running match
-    // (`isInCompetition`); no matches exist yet, so there is nothing to check.
+    // Java refuses to unregister a noble already pulled into a running match.
+    if world.olympiad.is_in_competition(object_id) {
+        return false;
+    }
 
     if world.olympiad.remove_registration(object_id).is_some() {
         send_sm(

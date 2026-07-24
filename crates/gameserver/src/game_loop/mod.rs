@@ -448,6 +448,7 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::OlympiadCompStart => olympiad::handle_comp_start(world),
             ScheduledTask::OlympiadCompEnd => olympiad::handle_comp_end(world),
             ScheduledTask::OlympiadWeeklyChange => olympiad::handle_weekly_change(world),
+            ScheduledTask::OlympiadGameManager => olympiad::handle_game_manager(world),
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,
