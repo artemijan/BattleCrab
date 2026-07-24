@@ -9,10 +9,11 @@
 //! real announced cadences (the three point-to-point routes anchor 10 minutes;
 //! Rune↔Primeval anchors 3). On departure each harbor collects the boat-ticket
 //! fare (`payForRide`): riders holding the ticket have one consumed, ticketless
-//! stowaways are told so and put ashore.
+//! stowaways are told so and put ashore. Riders can walk around on deck
+//! (`MoveToLocationInVehicle`), staying at their relative seat as the boat sails.
 //!
 //! TODO(G24.5): the in-transit "arriving in N minutes" shouts + busy-dock delay
-//! messages; `MoveToLocationInVehicle` (walking on deck).
+//! messages.
 
 use crate::enums::ChatType;
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
@@ -691,6 +692,61 @@ pub(crate) fn disembark(world: &mut World, player: i32, boat_oid: i32, exit: (i3
     }
     let pkt = sp::get_off_vehicle(player, boat_oid, exit.0, exit.1, exit.2);
     crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+}
+
+/// `RequestMoveToLocationInVehicle` → `Player.setInVehiclePosition` +
+/// `MoveToLocationInVehicle`: the player walks around on the boat's deck.
+/// `dest`/`origin` are positions relative to the boat. A no-op move (dest ==
+/// origin) just stops them; otherwise their seat is updated to `dest` so they
+/// ride at the new spot, and the walk is broadcast for everyone to see.
+pub(crate) fn move_in_vehicle(
+    world: &mut World,
+    player: i32,
+    boat_oid: i32,
+    dest: (i32, i32, i32),
+    origin: (i32, i32, i32),
+) {
+    // Must actually be aboard this boat (Java resolves/repairs the vehicle ref;
+    // we require the rider to already hold the matching InVehicle).
+    let Some(iv) = world.objects.get_component::<InVehicle>(&player).copied() else {
+        return;
+    };
+    if iv.boat_object_id != boat_oid {
+        return;
+    }
+
+    // A zero-length move is the client asking to stop where it is.
+    if dest == origin {
+        let heading = world
+            .objects
+            .get_component::<Position>(&player)
+            .map(|p| p.heading)
+            .unwrap_or(0);
+        let stop = sp::stop_move_in_vehicle(player, boat_oid, dest.0, dest.1, dest.2, heading);
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(stop);
+            }
+        }
+        return;
+    }
+
+    // Update the rider's seat so `move_passengers` keeps them at the new spot,
+    // and snap their absolute position to it now.
+    if let Some(v) = world.objects.get_component_mut::<InVehicle>(&player) {
+        v.seat_x = dest.0;
+        v.seat_y = dest.1;
+        v.seat_z = dest.2;
+    }
+    if let Some((bx, by, bz, _)) = boat_state(world, boat_oid) {
+        if let Some(p) = world.objects.get_component_mut::<Position>(&player) {
+            p.x = bx + dest.0;
+            p.y = by + dest.1;
+            p.z = bz + dest.2;
+        }
+    }
+    let mov = sp::move_to_location_in_vehicle(player, boat_oid, dest, origin);
+    crate::game_loop::helpers::broadcast_including_self(world, player, &mov);
 }
 
 /// A boat's `(x, y, z, moving)`, if the object is a boat.

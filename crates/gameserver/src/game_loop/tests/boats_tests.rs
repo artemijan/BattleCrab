@@ -317,3 +317,55 @@ fn departing_ferry_collects_tickets_and_ousts_stowaways() {
     let pos = world.objects.get_component::<Position>(&200).unwrap();
     assert_eq!((pos.x, pos.y), (900, 900), "stowaway teleported ashore");
 }
+
+/// True if `packets` contains one whose first byte is `opcode`.
+fn has_opcode(packets: &[Vec<u8>], opcode: u8) -> bool {
+    packets.iter().any(|p| p.first() == Some(&opcode))
+}
+
+#[test]
+fn walking_on_deck_moves_the_seat_and_broadcasts() {
+    use crate::network::server_packets::opcodes;
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
+
+    // Board the anchored ferry at seat origin, then drain the boarding packets.
+    let boat = crate::game_loop::boats::spawn_boat(&mut world, SCHED_ROUTE);
+    crate::game_loop::boats::board(&mut world, 100, boat, (0, 0, 0));
+    let _ = drain(&mut rx);
+
+    // Walk across the deck: seat origin (0,0,0) → (50, -20, 0).
+    crate::game_loop::boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (0, 0, 0));
+    let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
+    assert_eq!(
+        (iv.seat_x, iv.seat_y, iv.seat_z),
+        (50, -20, 0),
+        "the rider's seat moved to the new deck spot"
+    );
+    // Absolute position = boat position (1000,1000) + the new seat.
+    let pos = world.objects.get_component::<Position>(&100).unwrap();
+    assert_eq!((pos.x, pos.y), (1050, 980), "rider stands at boat + seat");
+    let p = drain(&mut rx);
+    assert!(
+        has_opcode(&p, opcodes::MOVE_TO_LOCATION_IN_VEHICLE),
+        "the on-deck walk is broadcast"
+    );
+
+    // A zero-length move is a stop request → StopMoveInVehicle, seat unchanged.
+    crate::game_loop::boats::move_in_vehicle(&mut world, 100, boat, (50, -20, 0), (50, -20, 0));
+    let iv = world.objects.get_component::<InVehicle>(&100).unwrap();
+    assert_eq!(
+        (iv.seat_x, iv.seat_y),
+        (50, -20),
+        "stop leaves the seat put"
+    );
+    let p = drain(&mut rx);
+    assert!(
+        has_opcode(&p, opcodes::STOP_MOVE_IN_VEHICLE),
+        "a no-op move stops the rider"
+    );
+    assert!(
+        !has_opcode(&p, opcodes::MOVE_TO_LOCATION_IN_VEHICLE),
+        "a stop does not broadcast a walk"
+    );
+}

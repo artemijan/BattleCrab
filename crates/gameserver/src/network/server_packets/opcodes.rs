@@ -139,6 +139,8 @@ pub const VEHICLE_INFO: u8 = 0x60;
 pub const VEHICLE_DEPARTURE: u8 = 0x6C;
 pub const GET_ON_VEHICLE: u8 = 0x6E;
 pub const GET_OFF_VEHICLE: u8 = 0x6F;
+pub const MOVE_TO_LOCATION_IN_VEHICLE: u8 = 0x7E;
+pub const STOP_MOVE_IN_VEHICLE: u8 = 0x7F;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
