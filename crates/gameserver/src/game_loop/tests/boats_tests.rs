@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::model::boat::{Boat, DockSchedule, DwellStage, VehiclePathPoint};
+use crate::model::boat::{Boat, DockSchedule, DwellStage, InVehicle, VehiclePathPoint};
 use crate::model::components::Position;
 
 /// Scan `packets` for a ferry `CreatureSay` (SAY2, `ChatType::Boat`) carrying
@@ -144,6 +144,12 @@ fn all_four_ferries_spawn_docked() {
 /// staged dwell can be driven in a handful of ticks instead of ten minutes.
 static TEST_DOCK_SCHED: DockSchedule = DockSchedule {
     char_id: 801,
+    fare: crate::model::boat::Fare {
+        ticket_item_id: 0, // free passage — no fare interaction in this test
+        oust_x: 0,
+        oust_y: 0,
+        oust_z: 0,
+    },
     stages: &[
         DwellStage {
             messages: &[7001, 7002], // arrival shout
@@ -216,4 +222,98 @@ fn dock_dwell_announces_each_stage_then_departs() {
         0,
         "departed toward the next leg (index 0)"
     );
+}
+
+/// "Boat Ticket: Talking Island to Gludin" — a real EtcItem used as the fare.
+const BOAT_TICKET: i32 = 1074;
+
+/// A route whose harbor charges a boat ticket on departure and puts ticketless
+/// riders ashore at (900, 900).
+static FARE_DOCK_SCHED: DockSchedule = DockSchedule {
+    char_id: 801,
+    fare: crate::model::boat::Fare {
+        ticket_item_id: BOAT_TICKET,
+        oust_x: 900,
+        oust_y: 900,
+        oust_z: -3600,
+    },
+    stages: &[
+        DwellStage {
+            messages: &[7001],
+            then_ms: 300,
+        },
+        DwellStage {
+            messages: &[7002],
+            then_ms: 0,
+        },
+    ],
+};
+
+const FARE_ROUTE: &[VehiclePathPoint] = &[
+    VehiclePathPoint {
+        x: 1200,
+        y: 1000,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock: false,
+        schedule: None,
+    },
+    VehiclePathPoint {
+        x: 1000,
+        y: 1000,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock: true,
+        schedule: Some(&FARE_DOCK_SCHED),
+    },
+];
+
+#[test]
+fn departing_ferry_collects_tickets_and_ousts_stowaways() {
+    let (mut world, _tx, _db, _l) = test_world();
+    // Two players board at the harbor: one holds a ticket, one is a stowaway.
+    let _rx_payer = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
+    let _rx_stow = ingame_player(&mut world, 2, 200, 1000, 1000, -3600);
+    {
+        let World { data, objects, .. } = &mut world;
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&100)
+            .unwrap()
+            .add_item(&data.item_data, 9_000_100, BOAT_TICKET, 1);
+    }
+
+    let boat = crate::game_loop::boats::spawn_boat(&mut world, FARE_ROUTE);
+    crate::game_loop::boats::board(&mut world, 100, boat, (0, 0, 0));
+    crate::game_loop::boats::board(&mut world, 200, boat, (0, 0, 0));
+    assert!(world.objects.get_component::<InVehicle>(&100).is_some());
+    assert!(world.objects.get_component::<InVehicle>(&200).is_some());
+
+    // Advance through the dwell (300 ms + final stage) → departure charges fare.
+    advance_ticks(&mut world, 5);
+    assert!(
+        world.objects.get_component::<Boat>(&boat).unwrap().moving,
+        "ferry departed"
+    );
+
+    // The ticket-holder rode on, their ticket consumed.
+    assert!(
+        world.objects.get_component::<InVehicle>(&100).is_some(),
+        "paying passenger rode on"
+    );
+    let tickets_left = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&100)
+        .unwrap()
+        .count_of(BOAT_TICKET);
+    assert_eq!(tickets_left, 0, "the ticket was collected");
+
+    // The stowaway was put ashore.
+    assert!(
+        world.objects.get_component::<InVehicle>(&200).is_none(),
+        "stowaway removed from the boat"
+    );
+    let pos = world.objects.get_component::<Position>(&200).unwrap();
+    assert_eq!((pos.x, pos.y), (900, 900), "stowaway teleported ashore");
 }

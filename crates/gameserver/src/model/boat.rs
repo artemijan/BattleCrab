@@ -17,13 +17,27 @@ pub struct DwellStage {
     pub then_ms: u64,
 }
 
+/// The fare collected when the ferry departs a harbor (Java `Vehicle.payForRide`):
+/// the boat-ticket item id and where a rider without one is put ashore.
+#[derive(Debug, Clone, Copy)]
+pub struct Fare {
+    /// The ticket item consumed on departure, or 0 for free passage (Innadril).
+    pub ticket_item_id: i32,
+    /// Where a ticketless rider is teleported (the `oust` args in the scripts).
+    pub oust_x: i32,
+    pub oust_y: i32,
+    pub oust_z: i32,
+}
+
 /// The dwell schedule for a harbor waypoint (a boat script's per-dock cadence):
-/// the `CreatureSay` sender id (Java uses 801 for every ferry) and the ordered
-/// announcement stages, starting with the "arrived" shout fired on docking.
+/// the `CreatureSay` sender id (Java uses 801 for every ferry), the ordered
+/// announcement stages starting with the "arrived" shout fired on docking, and
+/// the fare collected when the ferry finally departs.
 #[derive(Debug, Clone, Copy)]
 pub struct DockSchedule {
     pub char_id: i32,
     pub stages: &'static [DwellStage],
+    pub fare: Fare,
 }
 
 /// One waypoint of a route (Java `VehiclePathPoint`): the target position, the

@@ -7,14 +7,15 @@
 //! and ride along. All four Interlude ferries (`BoatTalkingGludin`,
 //! `BoatGiranTalking`, `BoatInnadrilTour`, `BoatRunePrimeval`) run with their
 //! real announced cadences (the three point-to-point routes anchor 10 minutes;
-//! Rune↔Primeval anchors 3).
+//! Rune↔Primeval anchors 3). On departure each harbor collects the boat-ticket
+//! fare (`payForRide`): riders holding the ticket have one consumed, ticketless
+//! stowaways are told so and put ashore.
 //!
 //! TODO(G24.5): the in-transit "arriving in N minutes" shouts + busy-dock delay
-//! messages; `MoveToLocationInVehicle` (walking on deck) + ticket collection
-//! (`payForRide`).
+//! messages; `MoveToLocationInVehicle` (walking on deck).
 
 use crate::enums::ChatType;
-use crate::model::boat::{Boat, DockSchedule, DwellStage, InVehicle, VehiclePathPoint};
+use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
@@ -65,9 +66,10 @@ const DWELL_MS: u64 = 60_000;
 /// lines, then the 5-minute / 1-minute / "leaving soon" warnings, then the
 /// "leaving now" shout after which the ferry departs.
 macro_rules! ten_minute_dwell {
-    ($arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
+    ($fare:expr, $arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
         DockSchedule {
             char_id: 801,
+            fare: $fare,
             stages: &[
                 DwellStage {
                     messages: $arrival,
@@ -97,9 +99,10 @@ macro_rules! ten_minute_dwell {
 /// The 3-minute dwell of the Rune ↔ Primeval ferry (Java `BoatRunePrimeval`):
 /// the "arrived" lines, then after 3 minutes the "now departing" shout + depart.
 macro_rules! three_minute_dwell {
-    ($arrival:expr, $leaving:expr) => {
+    ($fare:expr, $arrival:expr, $leaving:expr) => {
         DockSchedule {
             char_id: 801,
+            fare: $fare,
             stages: &[
                 DwellStage {
                     messages: $arrival,
@@ -114,25 +117,68 @@ macro_rules! three_minute_dwell {
     };
 }
 
+/// A boat-ticket fare (`payForRide(itemId, 1, oustX, oustY, oustZ)`).
+const fn fare(ticket_item_id: i32, oust_x: i32, oust_y: i32, oust_z: i32) -> Fare {
+    Fare {
+        ticket_item_id,
+        oust_x,
+        oust_y,
+        oust_z,
+    }
+}
+
 // Talking Island ↔ Gludin (`BoatTalkingGludin`). 983 = "make haste to board".
-static TALKING_DOCK_SCHED: DockSchedule =
-    ten_minute_dwell!(&[979, 980], &[981], &[982, 983], &[984], &[985]); // leaves for Gludin
-static GLUDIN_DOCK_SCHED: DockSchedule =
-    ten_minute_dwell!(&[986, 987], &[988], &[989, 983], &[990], &[991]); // leaves for Talking
+static TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
+    fare(1074, -96777, 258970, -3623),
+    &[979, 980],
+    &[981],
+    &[982, 983],
+    &[984],
+    &[985]
+); // leaves for Gludin
+static GLUDIN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
+    fare(1075, -90015, 150422, -3610),
+    &[986, 987],
+    &[988],
+    &[989, 983],
+    &[990],
+    &[991]
+); // leaves for Talking
 
 // Giran ↔ Talking Island (`BoatGiranTalking`) — no "make haste" line.
-static GT_GIRAN_DOCK_SCHED: DockSchedule =
-    ten_minute_dwell!(&[992, 987], &[988], &[989], &[990], &[991]); // leaves for Talking
-static GT_TALKING_DOCK_SCHED: DockSchedule =
-    ten_minute_dwell!(&[979, 993], &[994], &[995], &[996], &[997]); // leaves for Giran
+static GT_GIRAN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
+    fare(3946, 46763, 187041, -3451),
+    &[992, 987],
+    &[988],
+    &[989],
+    &[990],
+    &[991]
+); // leaves for Talking
+static GT_TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
+    fare(3945, -96777, 258970, -3623),
+    &[979, 993],
+    &[994],
+    &[995],
+    &[996],
+    &[997]
+); // leaves for Giran
 
-// Innadril pleasure boat (`BoatInnadrilTour`) — a single-harbor scenic loop.
-static INNADRIL_DOCK_SCHED: DockSchedule =
-    ten_minute_dwell!(&[998], &[999], &[1000], &[1001], &[1002]);
+// Innadril pleasure boat (`BoatInnadrilTour`) — a single-harbor scenic loop,
+// free passage (ticket id 0).
+static INNADRIL_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
+    fare(0, 107092, 219098, -3952),
+    &[998],
+    &[999],
+    &[1000],
+    &[1001],
+    &[1002]
+);
 
 // Rune Harbor ↔ Primeval Isle (`BoatRunePrimeval`). 1620 = "Welcome to Rune Harbor".
-static RUNE_DOCK_SCHED: DockSchedule = three_minute_dwell!(&[1620, 1989], &[1992]); // leaves for Primeval
-static PRIMEVAL_DOCK_SCHED: DockSchedule = three_minute_dwell!(&[1988, 1991], &[1990]); // leaves for Rune
+static RUNE_DOCK_SCHED: DockSchedule =
+    three_minute_dwell!(fare(8925, 34513, -38009, -3640), &[1620, 1989], &[1992]); // leaves for Primeval
+static PRIMEVAL_DOCK_SCHED: DockSchedule =
+    three_minute_dwell!(fare(8924, 10447, -24982, -3664), &[1988, 1991], &[1990]); // leaves for Rune
 
 /// The Talking Island ↔ Gludin ferry (Java `BoatTalkingGludin`), all legs
 /// flattened into one cycle: Talking → Gludin dock → Gludin → Talking dock.
@@ -395,12 +441,87 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
     );
 }
 
-/// Weigh anchor: advance to the next leg of the cycle and set sail.
+/// Weigh anchor: collect the fare from everyone aboard, then advance to the
+/// next leg of the cycle and set sail. The fare is charged while still docked
+/// (before `move_to_next` sets `moving`), matching Java's `payForRide` in the
+/// same `case` that departs.
 fn depart(world: &mut World, boat_oid: i32) {
+    if let Some(fare) = world
+        .objects
+        .get_component::<Boat>(&boat_oid)
+        .and_then(|b| b.target().schedule.map(|s| s.fare))
+    {
+        pay_for_ride(world, boat_oid, fare);
+    }
     if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
         b.advance();
     }
     move_to_next(world, boat_oid);
+}
+
+/// `Vehicle.payForRide`: charge each rider the boat ticket as the ferry leaves.
+/// A rider who holds the ticket has one consumed (free for Innadril, ticket id
+/// 0); one who does not is told so and put ashore at the harbor.
+fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
+    // The ticket item id 0 means free passage — nobody is charged or ousted.
+    if fare.ticket_item_id == 0 {
+        return;
+    }
+    let riders: Vec<i32> = collect_riders(world, boat_oid);
+    for player in riders {
+        let changes = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&player)
+            .map(|inv| inv.remove_item(fare.ticket_item_id, 1))
+            .unwrap_or_default();
+        if changes.is_empty() {
+            // No ticket: Java sends the message and teleports them off.
+            send_boat_sm(
+                world,
+                player,
+                sp::sm_ids::YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET,
+            );
+            oust_rider(world, player, boat_oid, fare);
+        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(crate::network::enter_world::inventory_update_changes(
+                    &world.data,
+                    &changes,
+                ));
+            }
+        }
+    }
+}
+
+/// Every player currently riding `boat_oid`.
+fn collect_riders(world: &mut World, boat_oid: i32) -> Vec<i32> {
+    let mut riders = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &InVehicle)>(|(p, v)| {
+            if v.boat_object_id == boat_oid {
+                riders.push(p.object_id);
+            }
+        });
+    riders
+}
+
+/// Put a ticketless rider ashore: drop them from the boat and teleport them to
+/// the harbor `oust` location.
+fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: Fare) {
+    world.objects.remove_component::<InVehicle>(&player);
+    let off = sp::get_off_vehicle(player, boat_oid, fare.oust_x, fare.oust_y, fare.oust_z);
+    crate::game_loop::helpers::broadcast_including_self(world, player, &off);
+    crate::game_loop::death::teleport_player(world, player, fare.oust_x, fare.oust_y, fare.oust_z);
+}
+
+/// Send a bare system message to a player if online.
+fn send_boat_sm(world: &World, player: i32, sm_id: i16) {
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(sp::system_message_with(sm_id, &[]));
+        }
+    }
 }
 
 /// The `BoatDepart` task (silent-dwell fallback): weigh anchor and sail on.
