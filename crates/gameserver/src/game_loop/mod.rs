@@ -32,6 +32,7 @@ mod effect_point;
 pub(crate) mod effect_zones;
 mod enchant;
 mod expertise;
+pub(crate) mod fishing;
 mod friends;
 mod grand_boss;
 mod ground_items;
@@ -420,6 +421,18 @@ fn apply_due_tasks(world: &mut World) {
                 {
                     death::despawn_npc(world, npc_oid, region);
                 }
+            }
+            ScheduledTask::FishingReel {
+                player_object_id,
+                cast_seq,
+            } => {
+                fishing::handle_reel(world, player_object_id, cast_seq);
+            }
+            ScheduledTask::FishingCast {
+                player_object_id,
+                cast_seq,
+            } => {
+                fishing::handle_cast(world, player_object_id, cast_seq);
             }
             ScheduledTask::CubicAction {
                 owner_oid,

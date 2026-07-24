@@ -65,6 +65,18 @@ pub enum ScheduledTask {
     /// quest-spawned actors on a lifespan (quest 421's Soul of Tree Guardian
     /// ambush). A no-op if the NPC is already gone, like every dead-id task here.
     DespawnNpc { npc_oid: i32 },
+    /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
+    /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
+    /// must match the player's `FishingSession` or the task is stale.
+    FishingReel {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
+    /// Fishing: the post-reel wait elapsed; cast the line again (auto-fish loop).
+    FishingCast {
+        player_object_id: i32,
+        cast_seq: u64,
+    },
     /// Java `Cubic._skillUseTask` — one action attempt by a player's cubic.
     CubicAction { owner_oid: i32, cubic_id: i32 },
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and
