@@ -17876,3 +17876,55 @@ fn saga_finale_boss_retreats_after_15_hits() {
     assert_eq!(item_count(&world, 3001, I9), 1, "finale reward granted");
     assert_eq!(quest_cond(&world, 3001, q), Some(18), "finale → cond 18");
 }
+
+/// A Saga progression step broadcasts the tablet glow (`MagicSkillUse` 4546) to
+/// the player; the class transfer broadcasts the transform flash (4339).
+#[test]
+fn saga_progression_casts_visual_fx() {
+    const START: i32 = 30849;
+    const I4: i32 = 7268; // Q70 items[4]
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(I4, "q", true)]);
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, START, "Folk", 78, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = 5;
+    }
+    let q = "Q00070_SagaOfThePhoenixKnight";
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        let qs = quests.0.entry(q.to_string()).or_default();
+        qs.state = crate::model::quest::state::STARTED;
+        qs.vars.insert("cond".to_string(), "5".to_string());
+    }
+    inject(&mut world, 3001, 0x0070_4000, I4, 1);
+
+    // A tablet step ("5-1") glows with skill 4546.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{start}_Quest {q} 5-1")),
+    );
+    let skill_of = |p: &[u8]| -> Option<i32> {
+        // MAGIC_SKILL_USE: op, i32 castbar, i32 caster, i32 target, i32 skillId..
+        if p.first() != Some(&crate::network::server_packets::opcodes::MAGIC_SKILL_USE) {
+            return None;
+        }
+        let mut r = commons::network::PacketReader::new(&p[1..]);
+        r.read_i32()?; // cast bar
+        r.read_i32()?; // caster
+        r.read_i32()?; // target
+        r.read_i32() // skill id
+    };
+    let casts: Vec<i32> = drain(&mut rx).iter().filter_map(|p| skill_of(p)).collect();
+    assert!(
+        casts.contains(&4546),
+        "the tablet glow (4546) was cast: {casts:?}"
+    );
+}
