@@ -115,6 +115,16 @@ pub struct OlympiadState {
     /// The heroes crowned for the current cycle — `(char_id, hero_class_id)`
     /// (Java the `heroes` table). Recomputed at each olympiad end.
     pub heroes: Vec<(i32, i32)>,
+    /// How many times each character has ever been a hero (Java `heroes.count`),
+    /// kept so a re-crown increments the tally.
+    pub hero_counts: HashMap<i32, i32>,
+}
+
+impl OlympiadState {
+    /// Whether `object_id` is a currently-crowned hero (Java `Hero.isHero`).
+    pub fn is_hero(&self, object_id: i32) -> bool {
+        self.heroes.iter().any(|(id, _)| *id == object_id)
+    }
 }
 
 impl OlympiadState {

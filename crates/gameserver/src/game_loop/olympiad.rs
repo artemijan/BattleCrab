@@ -10,12 +10,12 @@
 //! to a result, points transferred and win/loss/draw recorded, and everyone
 //! ported back; and the monthly round transitions — at the month end the
 //! period flips to validation, the class leaders are crowned heroes, and after
-//! the validation day a fresh cycle begins with a clean noble table. The
-//! stadium instancing (needs G27), the countdown ceremony, and persisting the
-//! hero crown to the `heroes` table (for relogs / offline heroes) are the
-//! remaining follow-ups.
+//! the validation day a fresh cycle begins with a clean noble table. The crown
+//! persists to the `heroes` table and re-applies on login (so it survives relogs
+//! and reaches offline heroes). The stadium instancing (needs G27) and the
+//! countdown ceremony are the remaining follow-ups.
 
-use crate::db::{DbCommand, OlympiadNobleRow};
+use crate::db::{DbCommand, HeroRow, OlympiadNobleRow};
 use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
 };
@@ -202,6 +202,21 @@ pub(crate) fn handle_weekly_change(world: &mut World) {
     );
 }
 
+/// Apply the boot-loaded `heroes` rows (Java `Hero.init`) into the live crown.
+pub(crate) fn apply_heroes_loaded(world: &mut World, heroes: Vec<HeroRow>) {
+    world.olympiad.heroes = heroes.iter().map(|h| (h.char_id, h.class_id)).collect();
+    world.olympiad.hero_counts = heroes.iter().map(|h| (h.char_id, h.count)).collect();
+    tracing::info!("GameLoop: loaded {} Olympiad heroes.", heroes.len());
+}
+
+/// On enter-world, apply hero status to a crowned character (Java
+/// `Player.setHero(Hero.isHero(objectId))`).
+pub(crate) fn on_enter_world(world: &mut World, object_id: i32) {
+    if world.olympiad.is_hero(object_id) {
+        crate::game_loop::admin::hero::set_hero(world, object_id, true);
+    }
+}
+
 /// `Olympiad.sortHerosToBe`: for each hero-title class (the `FOURTH_CLASS_GROUP`
 /// category), the eligible noble with the most points becomes its hero. Eligible
 /// = competitor on that class **or its parent 3rd class**, ≥ 10 matches, ≥ 1 win.
@@ -258,9 +273,32 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
         world.olympiad.current_cycle,
         world.olympiad.heroes.len()
     );
+    // Persist the crown (Java `Hero.computeNewHeroes`): bump each hero's count
+    // and replace the `heroes` table so it survives relogs and applies to
+    // offline heroes on their next login.
+    let hero_rows: Vec<HeroRow> = world
+        .olympiad
+        .heroes
+        .iter()
+        .map(|&(char_id, class_id)| {
+            let count = world
+                .olympiad
+                .hero_counts
+                .get(&char_id)
+                .copied()
+                .unwrap_or(0)
+                + 1;
+            world.olympiad.hero_counts.insert(char_id, count);
+            HeroRow {
+                char_id,
+                class_id,
+                count,
+            }
+        })
+        .collect();
+    let _ = world.db.send(DbCommand::SaveHeroes { heroes: hero_rows });
     // TODO(G25): broadcast ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED to all
-    // online players, and persist the crown to the `heroes` table so it survives
-    // relogs / applies to offline heroes on login.
+    // online players.
 
     let now = commons::util::now_millis();
     world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;

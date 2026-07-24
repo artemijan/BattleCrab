@@ -658,6 +658,50 @@ fn olympiad_end_crowns_heroes_then_validation_starts_a_new_cycle() {
 }
 
 #[test]
+fn heroes_persist_and_apply_on_login() {
+    use crate::db::{DbCommand, HeroRow};
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+
+    // Boot-load an existing hero crowned twice before.
+    crate::game_loop::olympiad::apply_heroes_loaded(
+        &mut world,
+        vec![HeroRow {
+            char_id: 100,
+            class_id: 88,
+            count: 2,
+        }],
+    );
+    assert!(world.olympiad.is_hero(100), "loaded into the crown");
+
+    // On login the crowned character regains hero status.
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    crate::game_loop::olympiad::on_enter_world(&mut world, 100);
+    assert!(
+        world.objects.get_component::<Player>(&100).unwrap().is_hero,
+        "hero status re-applied on login"
+    );
+
+    // A fresh round re-crowns them; the count increments and is persisted.
+    insert_noble(&mut world, 100, 88, 50, 15, 5);
+    world.olympiad.period = 0;
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+    let heroes = drain_db(&mut db_rx)
+        .into_iter()
+        .find_map(|c| match c {
+            DbCommand::SaveHeroes { heroes } => Some(heroes),
+            _ => None,
+        })
+        .expect("SaveHeroes emitted");
+    assert_eq!(heroes.len(), 1);
+    assert_eq!(heroes[0].char_id, 100);
+    assert_eq!(heroes[0].count, 3, "third crowning");
+}
+
+#[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();
     open_games(&mut world);

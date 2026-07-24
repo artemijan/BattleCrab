@@ -847,6 +847,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // weekly-refresh schedules now the persisted state is in place.
                 crate::game_loop::olympiad::schedule_at_boot(world);
             }
+            DbEvent::HeroesLoaded { heroes } => {
+                crate::game_loop::olympiad::apply_heroes_loaded(world, heroes);
+            }
             DbEvent::SiegeGuardsLoaded { guards } => {
                 let mut by_castle: std::collections::HashMap<
                     i32,
