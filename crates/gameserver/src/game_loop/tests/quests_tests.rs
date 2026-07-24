@@ -17770,3 +17770,97 @@ fn saga_shared_htmls_substitute_questname() {
         "no unsubstituted placeholder left"
     );
 }
+
+/// The Saga finale AI: the boss (mob[2]) is driven off after 15 hits (not
+/// killed), and only then does the companion offer the reward. Uses Q70.
+#[test]
+fn saga_finale_boss_retreats_after_15_hits() {
+    const BOSS: i32 = 27278; // Q70 mob[2]
+    const COMPANION: i32 = 31631; // Q70 npc[4]
+    const START: i32 = 30849;
+    const I9: i32 = 7423; // items[9], the finale reward
+    const I10: i32 = 7093;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(I9, "q", true), (I10, "q", true)]);
+    for id in [BOSS, COMPANION] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = if id == BOSS { "Monster" } else { "Folk" }.into();
+        t.level = 78;
+        t.base_hp_max = 100_000.0; // survives the 15 hits (it retreats, not dies)
+        world.data.npc_data.insert_for_test(t);
+    }
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, START, "Folk", 78, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = 5;
+    }
+    let q = "Q00070_SagaOfThePhoenixKnight";
+    // Seed the quest at cond 17 (the finale).
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        let qs = quests.0.entry(q.to_string()).or_default();
+        qs.state = crate::model::quest::state::STARTED;
+        qs.vars.insert("cond".to_string(), "17".to_string());
+    }
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+
+    // Summon the finale: the boss appears.
+    ev(&mut world, start, "10-1");
+    let boss = *npcs_of(&mut world, BOSS).first().expect("boss spawned");
+    let companion = *npcs_of(&mut world, COMPANION)
+        .first()
+        .expect("companion spawned");
+
+    // Before the boss is driven off, the companion refuses the reward.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{companion}_Quest {q}")),
+    );
+    let before = drain(&mut rx)
+        .iter()
+        .find_map(|p| {
+            if p[0] == crate::network::server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+        .unwrap_or_default();
+    assert!(
+        !before.contains(" 4-2\""),
+        "no reward before the boss retreats: {before}"
+    );
+
+    // 14 hits leave the boss standing (Quest0 counts from 1); the 15th drives
+    // it off.
+    for _ in 0..14 {
+        combat::npc_receive_damage(&mut world, boss, 3001, 1.0);
+    }
+    assert!(
+        !npcs_of(&mut world, BOSS).is_empty(),
+        "boss still fighting after 14 hits"
+    );
+    combat::npc_receive_damage(&mut world, boss, 3001, 1.0);
+    assert!(
+        npcs_of(&mut world, BOSS).is_empty(),
+        "boss retreats on the 15th hit"
+    );
+
+    // Now the companion offers the reward → items[9], cond 18.
+    ev(&mut world, companion, "4-2");
+    assert_eq!(item_count(&world, 3001, I9), 1, "finale reward granted");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18), "finale → cond 18");
+}

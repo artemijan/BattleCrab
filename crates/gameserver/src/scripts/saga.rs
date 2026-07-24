@@ -208,9 +208,15 @@ impl QuestScript for SagaQuest {
             "10-1" => {
                 let (bx, by, bz) = self.data.spawn[1];
                 let (cx, cy, cz) = self.data.spawn[2];
+                // The finale boss (hostile) and the companion (neutral, talked
+                // to for the reward once the boss is driven off).
                 ctx.spawn_attacker_at(self.mob(2), bx, by, bz);
-                ctx.spawn_near_npc(self.npc(4), false).or(None); // companion (neutral)
-                let _ = (cx, cy, cz); // TODO(saga): place the companion at spawn[2]
+                let _ = (cx, cy, cz); // companion spawns beside the guide (talkable)
+                ctx.spawn_near_npc(self.npc(4), false);
+                ctx.set_var("Quest0", "1"); // the boss's hit counter
+                ctx.set_var("Tab", "0"); // set once the boss retreats
+                                         // TODO(saga): the authentic timed npc[4]-vs-mob[2] duel + `_text`
+                                         // chatter; here the player drives the boss off directly.
                 Some("10-02.htm".to_string())
             }
             "11-9" => {
@@ -271,6 +277,23 @@ impl QuestScript for SagaQuest {
             ctx.take_items(self.item(3), -1);
             ctx.set_var("cond", "16");
             ctx.play_sound(quest_sounds::MIDDLE);
+        }
+    }
+
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        // The finale boss (mob[2]) is never killed — it is driven off. Java
+        // counts hits in `Quest0`; after the 15th the boss retreats (despawns)
+        // and `Tab` is set, unlocking the companion's reward.
+        if !ctx.has_qs() || ctx.cond() != 17 || ctx.npc_id != self.mob(2) {
+            return;
+        }
+        let hits = ctx.get_int("Quest0") + 1;
+        ctx.set_var("Quest0", hits.to_string());
+        if hits > 15 {
+            ctx.set_var("Quest0", "1");
+            ctx.set_var("Tab", "1");
+            ctx.delete_npc(); // the boss retreats
+                              // TODO(saga): `_text[17]` retreat chatter.
         }
     }
 
@@ -408,11 +431,14 @@ impl QuestScript for SagaQuest {
                 } else if npc_id == n(10) {
                     Some("10-01.htm")
                 } else if npc_id == n(4) {
-                    // Finale bridge: the authentic battle is AI-driven (npc[4]
-                    // duels mob[2] on timers, TODO). Until that lands, talking
-                    // the companion after the fight claims the "4-2" reward so
-                    // the quest is completable in-client.
-                    Some("4-010.htm")
+                    // The companion offers the reward only once the boss has
+                    // been driven off (Tab set by `on_attack`); otherwise it
+                    // urges the player back into the fight.
+                    if ctx.get_int("Tab") == 1 {
+                        Some("4-010.htm")
+                    } else {
+                        Some("10-02.htm")
+                    }
                 } else {
                     None
                 }
