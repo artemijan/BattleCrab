@@ -373,6 +373,10 @@ pub enum ItemHandler {
     /// `Summon.rechargeShots` when the summon swings, not by the owner.
     BeastSoulShot,
     BeastSpiritShot,
+    /// `handlers/itemhandlers/FishShots` — a fishing shot (Corroded Fishing
+    /// Shot). Charged during a cast (`rechargeShots(fish=true)`), it doubles the
+    /// fishing win chance (`ShotType::FISH_SOULSHOTS`).
+    FishShots,
 }
 
 impl ItemHandler {
@@ -389,6 +393,12 @@ impl ItemHandler {
             self,
             ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot | ItemHandler::BeastSpiritShot
         )
+    }
+
+    /// Whether this handler charges a fishing shot — the
+    /// `rechargeShots(fish=…)` category (Java `ActionType.FISHINGSHOT`).
+    pub fn is_fishshot(self) -> bool {
+        matches!(self, ItemHandler::FishShots)
     }
 }
 
@@ -1187,6 +1197,7 @@ fn make_template(
         Some("Recipes") => ItemHandler::Recipes,
         Some("BeastSoulShot") => ItemHandler::BeastSoulShot,
         Some("BeastSpiritShot") => ItemHandler::BeastSpiritShot,
+        Some("FishShots") => ItemHandler::FishShots,
         _ => ItemHandler::None,
     };
 

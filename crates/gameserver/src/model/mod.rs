@@ -373,6 +373,8 @@ pub enum ShotType {
     Soulshots = 0,
     Spiritshots = 1,
     BlessedSpiritshots = 3,
+    /// `FISH_SOULSHOTS` (ordinal 4) — doubles the fishing win chance (G32).
+    FishSoulshots = 4,
 }
 
 impl ShotType {

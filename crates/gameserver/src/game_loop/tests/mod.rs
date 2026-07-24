@@ -1770,6 +1770,51 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
     }
 }
 
+/// Register a stackable shot item with a specific `ItemHandler` (e.g. a fishing
+/// shot) and a `default_action`.
+fn add_shot_item(
+    world: &mut World,
+    item_id: i32,
+    name: &str,
+    handler: crate::data::item_data::ItemHandler,
+    default_action: crate::data::item_data::ActionType,
+) {
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            immediate_effect: false,
+            ex_immediate_effect: false,
+            default_action,
+            item_id,
+            name: name.into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            body_part: 0,
+            weight: 0,
+            is_stackable: true,
+            type1: 4,
+            type2: 5,
+            is_quest_item: false,
+            price: 0,
+            handler,
+            crystal_type: crate::data::item_data::CrystalType::None,
+            crystal_count: 0,
+            attack_radius: 40,
+            attack_angle: 0,
+            mp_consume: 0,
+            reduced_mp_consume: 0,
+            reduced_mp_consume_chance: 0,
+            capsuled_items: Vec::new(),
+            extractable_count_min: 0,
+            extractable_count_max: 0,
+            item_skills: Vec::new(),
+            etc_item_type: crate::data::item_data::EtcItemType::Other,
+            enchant_enabled: false,
+            enchant_limit: 0,
+            is_magic_weapon: false,
+        });
+}
+
 fn quest_cond(world: &World, player: i32, quest: &str) -> Option<i32> {
     world
         .objects

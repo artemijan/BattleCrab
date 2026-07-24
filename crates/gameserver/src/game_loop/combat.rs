@@ -1116,7 +1116,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         .get_component::<crate::model::Player>(&attacker_oid)
         .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots))
     {
-        super::items::recharge_shots(world, attacker_oid, true, false);
+        super::items::recharge_shots(world, attacker_oid, true, false, false);
     }
 
     // Roll the hit (`generateHit`): miss → everything else skipped.
