@@ -47,6 +47,7 @@ pub mod q00230_test_of_the_summoner;
 pub mod q00231_test_of_the_maestro;
 pub mod q00232_test_of_the_lord;
 pub mod q00233_test_of_the_war_spirit;
+pub mod q00234_fates_whisper;
 pub mod q00235_mimirs_elixir;
 pub mod q00257_the_guard_is_busy;
 pub mod q00258_bring_wolf_pelts;
@@ -225,6 +226,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00230_test_of_the_summoner::Q00230TestOfTheSummoner),
         Arc::new(q00232_test_of_the_lord::Q00232TestOfTheLord),
         Arc::new(q00233_test_of_the_war_spirit::Q00233TestOfTheWarSpirit),
+        Arc::new(q00234_fates_whisper::Q00234FatesWhisper),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
         Arc::new(q00402_path_of_the_human_knight::Q00402PathOfTheHumanKnight),
         Arc::new(q00403_path_of_the_rogue::Q00403PathOfTheRogue),
