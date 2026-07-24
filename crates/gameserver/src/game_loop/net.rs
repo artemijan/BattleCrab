@@ -843,6 +843,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     next_weekly_change,
                     nobles,
                 );
+                // `Olympiad.init` + `scheduleWeeklyChange`: arm the window and
+                // weekly-refresh schedules now the persisted state is in place.
+                crate::game_loop::olympiad::schedule_at_boot(world);
             }
             DbEvent::SiegeGuardsLoaded { guards } => {
                 let mut by_castle: std::collections::HashMap<
