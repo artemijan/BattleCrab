@@ -95,7 +95,11 @@ impl QuestScript for SagaQuest {
         self.data.name
     }
     fn html_dir(&self) -> &'static str {
-        self.data.html_dir
+        // All 31 Sagas share one generic, `%questname%`-templated html set (the
+        // authentic per-class htmls would be ~1000 files). `data.html_dir` is
+        // kept for reference / a future per-quest override.
+        let _ = self.data.html_dir;
+        "quests/_SagaShared"
     }
     fn start_npcs(&self) -> &[i32] {
         std::slice::from_ref(&self.data.npc[0])
@@ -403,6 +407,12 @@ impl QuestScript for SagaQuest {
                     Some("9-04.htm")
                 } else if npc_id == n(10) {
                     Some("10-01.htm")
+                } else if npc_id == n(4) {
+                    // Finale bridge: the authentic battle is AI-driven (npc[4]
+                    // duels mob[2] on timers, TODO). Until that lands, talking
+                    // the companion after the fight claims the "4-2" reward so
+                    // the quest is completable in-client.
+                    Some("4-010.htm")
                 } else {
                     None
                 }

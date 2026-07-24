@@ -1595,7 +1595,8 @@ fn show_result(
         let player_name = player_name_of_client(world, client_id);
         let content = res
             .replace("%objectId%", &npc_oid.to_string())
-            .replace("%playername%", &player_name);
+            .replace("%playername%", &player_name)
+            .replace("%questname%", script.name());
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::npc_html_message(npc_oid, &content));
             cs.send(server_packets::action_failed());
@@ -1627,7 +1628,10 @@ fn show_html_file(
     let player_name = player_name_of_client(world, client_id);
     let content = content
         .replace("%objectId%", &npc_oid.to_string())
-        .replace("%playername%", &player_name);
+        .replace("%playername%", &player_name)
+        // The shared Saga htmls are quest-agnostic; their bypass buttons carry
+        // `%questname%` so one html set serves all 31 Sagas.
+        .replace("%questname%", script.name());
     let id = script.id();
     if let Some(cs) = world.clients.get(&client_id) {
         if quest_window && id > 0 && id < 20000 && id != 999 {
