@@ -17120,3 +17120,173 @@ fn quest_q00032_an_obvious_lie() {
         .unwrap();
     assert!(quests.0[q].is_completed(), "one-time quest completes");
 }
+
+/// Saga of the Phoenix Knight (70): the 3rd-class engine end to end. Drives the
+/// full 20-condition ladder (item hand-ins, the Guardian-Angel kill count, the
+/// scripted mob kills, and the Archon reward) through to the class transfer
+/// (Paladin 5 → Phoenix Knight 90) — proving the shared Saga engine.
+#[test]
+fn quest_q00070_saga_of_the_phoenix_knight() {
+    const START_NPC: i32 = 30849;
+    // items[]: 0..11
+    const I0: i32 = 7080;
+    const I1: i32 = 7534;
+    const I2: i32 = 7081;
+    const MARK: i32 = 7485; // items[3] Halisha mark
+    const I4: i32 = 7268;
+    const I5: i32 = 7299;
+    const I6: i32 = 7330;
+    const I7: i32 = 7361;
+    const I8: i32 = 7392;
+    const I9: i32 = 7423;
+    const I10: i32 = 7093; // starter
+    const I11: i32 = 6482;
+    const REWARD_MARK: i32 = 6622;
+    // mobs
+    const MOB0: i32 = 27286;
+    const MOB1: i32 = 27219;
+    const MOB2: i32 = 27278;
+    const GUARDIAN: i32 = 27214;
+    const ARCHON_MINION: i32 = 21646;
+    const ARCHON_HALISHA: i32 = 18212;
+
+    let (mut world, _db, _l) = quest_test_world();
+    let ids = [
+        I0,
+        I1,
+        I2,
+        MARK,
+        I4,
+        I5,
+        I6,
+        I7,
+        I8,
+        I9,
+        I10,
+        I11,
+        REWARD_MARK,
+    ];
+    let items: Vec<(i32, &str, bool)> = ids.iter().map(|&i| (i, "q", true)).collect();
+    add_quest_items(&mut world, &items);
+    for id in [MOB0, MOB1, MOB2, GUARDIAN, ARCHON_MINION, ARCHON_HALISHA] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, START_NPC, "Folk", 78, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = 5; // Paladin (the required 2nd class)
+    }
+    let q = "Q00070_SagaOfThePhoenixKnight";
+    let ev = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
+    };
+    let cond = |w: &World| quest_cond(w, 3001, q);
+    let mut mob = NPC_OID + 20;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 78, 110, 200, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+
+    // Accept.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{start}_Quest {q}")),
+    );
+    ev(&mut world, "accept");
+    assert_eq!(cond(&world), Some(1), "started");
+    assert_eq!(item_count(&world, 3001, I10), 1, "starter item");
+
+    // The early intermediary ladder (cond 1 → 5).
+    ev(&mut world, "2-1");
+    assert_eq!(cond(&world), Some(2));
+    ev(&mut world, "1-3");
+    assert_eq!(cond(&world), Some(3));
+    inject(&mut world, 3001, 0x0070_0000, I0, 1);
+    inject(&mut world, 3001, 0x0070_0100, I11, 1);
+    ev(&mut world, "1-4");
+    assert_eq!(cond(&world), Some(4));
+    assert_eq!(item_count(&world, 3001, I0), 0, "items[0] taken");
+    assert_eq!(item_count(&world, 3001, I1), 1, "items[1] given");
+    ev(&mut world, "2-2");
+    assert_eq!(cond(&world), Some(5));
+    assert_eq!(item_count(&world, 3001, I4), 1, "items[4] given");
+
+    // Tablet 5-1 → cond 6, then 10 Guardian Angels → cond 7.
+    ev(&mut world, "5-1");
+    assert_eq!(cond(&world), Some(6));
+    for _ in 0..10 {
+        kill(&mut world, GUARDIAN);
+    }
+    assert_eq!(cond(&world), Some(7), "10 angels → cond 7");
+    assert_eq!(item_count(&world, 3001, I5), 1, "items[5] from the angels");
+
+    // 6-1 → cond 8, spawn+kill mob[0] → cond 9.
+    ev(&mut world, "6-1");
+    assert_eq!(cond(&world), Some(8));
+    ev(&mut world, "7-1"); // spawns mob[0] (ignored; we kill a synthetic one)
+    kill(&mut world, MOB0);
+    assert_eq!(cond(&world), Some(9), "mob[0] slain → cond 9");
+    assert_eq!(item_count(&world, 3001, I6), 1, "items[6] from mob[0]");
+
+    // 7-2 → cond 10, checker 3-6 → cond 11, Divine Stone → cond 13.
+    ev(&mut world, "7-2");
+    assert_eq!(cond(&world), Some(10));
+    ev(&mut world, "3-6");
+    assert_eq!(cond(&world), Some(11));
+    inject(&mut world, 3001, 0x0070_0200, I2, 1);
+    ev(&mut world, "3-8");
+    assert_eq!(cond(&world), Some(13));
+    assert_eq!(item_count(&world, 3001, I7), 1, "items[7] given");
+
+    // 8-1 → cond 14, 11-9 → cond 15, Archon farm → cond 16.
+    ev(&mut world, "8-1");
+    assert_eq!(cond(&world), Some(14));
+    ev(&mut world, "11-9");
+    assert_eq!(cond(&world), Some(15));
+    kill(&mut world, ARCHON_MINION); // → a Halisha mark
+    assert_eq!(item_count(&world, 3001, MARK), 1, "Halisha mark farmed");
+    kill(&mut world, ARCHON_HALISHA); // → items[8], take marks, cond 16
+    assert_eq!(cond(&world), Some(16), "Archon Halisha → cond 16");
+    assert_eq!(item_count(&world, 3001, I8), 1, "items[8] archon reward");
+
+    // 9-1 → cond 17, finale spawn 10-1, 4-2 → cond 18, 10-2 → cond 19.
+    ev(&mut world, "9-1");
+    assert_eq!(cond(&world), Some(17));
+    ev(&mut world, "10-1");
+    ev(&mut world, "4-2");
+    assert_eq!(cond(&world), Some(18));
+    assert_eq!(item_count(&world, 3001, I9), 1, "items[9] battle reward");
+    ev(&mut world, "10-2");
+    assert_eq!(cond(&world), Some(19));
+
+    // The quest-giver performs the class transfer.
+    ev(&mut world, "0-2");
+    assert_eq!(
+        item_count(&world, 3001, REWARD_MARK),
+        1,
+        "Mark of the class transfer"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        90,
+        "transferred to Phoenix Knight (90)"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "Saga completes on the transfer");
+}

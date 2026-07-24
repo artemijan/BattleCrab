@@ -1299,7 +1299,9 @@ fn quest_test_world() -> (
             .get(0)
             .cloned()
             .unwrap_or_default();
-        let all: Vec<_> = (0..=57)
+        // 0..=57 covers 1st/2nd class; 88..=135 are the Interlude 3rd classes
+        // (the Saga quests transfer into these, e.g. Phoenix Knight 90).
+        let all: Vec<_> = (0..=135)
             .map(|class_id| {
                 let mut t = base.clone();
                 t.class_id = class_id;
