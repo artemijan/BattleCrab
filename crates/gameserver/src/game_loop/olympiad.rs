@@ -5,10 +5,82 @@
 //! waiting lists, with the eligibility and timing gates. Match-making, the
 //! stadiums and hero calculation are later slices.
 
+use crate::db::{DbCommand, OlympiadNobleRow};
 use crate::model::olympiad::{CompetitionType, NobleStats, OlympiadState, REG_CLOSE_BEFORE_END_MS};
 use crate::model::Player;
 use crate::network::server_packets::{self as sp, sm_ids, SmParam};
 use crate::world::World;
+
+/// Apply the boot-loaded `olympiad_data` + `olympiad_nobles` (Java
+/// `Olympiad.load` / `loadNoblesRank`) into the live state.
+pub(crate) fn apply_loaded(
+    world: &mut World,
+    current_cycle: i32,
+    period: i32,
+    olympiad_end: i64,
+    validation_end: i64,
+    next_weekly_change: i64,
+    nobles: Vec<OlympiadNobleRow>,
+) {
+    let oly = &mut world.olympiad;
+    oly.current_cycle = current_cycle;
+    oly.period = period;
+    oly.olympiad_end = olympiad_end;
+    oly.validation_end = validation_end;
+    oly.next_weekly_change = next_weekly_change;
+    oly.nobles = nobles
+        .into_iter()
+        .map(|n| {
+            (
+                n.char_id,
+                NobleStats {
+                    class_id: n.class_id,
+                    // The saved name isn't in `olympiad_nobles`; it is filled in
+                    // when the noble next registers (Java reads it via a join).
+                    name: String::new(),
+                    points: n.points,
+                    comp_done: n.comp_done,
+                    comp_won: n.comp_won,
+                    comp_lost: n.comp_lost,
+                    comp_drawn: n.comp_drawn,
+                    comp_done_week: n.comp_done_week,
+                },
+            )
+        })
+        .collect();
+    tracing::info!(
+        "GameLoop: loaded Olympiad (cycle {current_cycle}, period {period}, {} nobles).",
+        world.olympiad.nobles.len()
+    );
+}
+
+/// `Olympiad.saveOlympiadStatus` + `saveNobleData` — persist the period row and
+/// every noble record. Called on shutdown (and can be called on demand).
+pub(crate) fn save_all(world: &World) {
+    let oly = &world.olympiad;
+    let nobles = oly
+        .nobles
+        .iter()
+        .map(|(&char_id, n)| OlympiadNobleRow {
+            char_id,
+            class_id: n.class_id,
+            points: n.points,
+            comp_done: n.comp_done,
+            comp_won: n.comp_won,
+            comp_lost: n.comp_lost,
+            comp_drawn: n.comp_drawn,
+            comp_done_week: n.comp_done_week,
+        })
+        .collect();
+    let _ = world.db.send(DbCommand::SaveOlympiad {
+        current_cycle: oly.current_cycle,
+        period: oly.period,
+        olympiad_end: oly.olympiad_end,
+        validation_end: oly.validation_end,
+        next_weekly_change: oly.next_weekly_change,
+        nobles,
+    });
+}
 
 /// The player fields the registration gates and the noble record need.
 struct NobleInfo {

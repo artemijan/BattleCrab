@@ -285,6 +285,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `DBSpawnManager.updateDb` — every living raid boss's current HP/MP, so a
     // restart mid-fight resumes at the HP the boss was left on.
     boss_respawn::save_all_bosses(&mut world);
+    // `Olympiad.saveOlympiadStatus` — the period row + every noble's points.
+    olympiad::save_all(&world);
 }
 
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`

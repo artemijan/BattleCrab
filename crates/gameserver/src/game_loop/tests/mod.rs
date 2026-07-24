@@ -365,6 +365,7 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::CastlesLoaded { .. }
             | DbEvent::SiegesLoaded { .. }
             | DbEvent::SiegeGuardsLoaded { .. }
+            | DbEvent::OlympiadLoaded { .. }
             | DbEvent::NpcRespawnsLoaded { .. } => continue,
             other => return other,
         }
