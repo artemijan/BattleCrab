@@ -61,12 +61,39 @@ impl QuestScript for OlyManager {
                 None
             }
             _ if event.starts_with("rank_") => Some(empty_rank_detail(ctx)),
-            // TODO(G25): calculatePoints / calculatePointsDone (the point→mark
-            // exchange) + showEquipmentReward (the reward multisell) land with
-            // scoring; the reward-related pages are otherwise reachable as the
-            // `.html` navigation links above.
+            // The point → Mark of Battle exchange.
+            "calculatePoints" => Some(if unclaimed_points(ctx) > 0 {
+                "OlyManager-calculateEnough.html".to_string()
+            } else {
+                "OlyManager-calculateNoEnough.html".to_string()
+            }),
+            "calculatePointsDone" => {
+                calculate_points_done(ctx);
+                None
+            }
+            // TODO(G25): showEquipmentReward (the reward multisell) needs the
+            // multisell wiring; the reward pages remain reachable as `.html`
+            // navigation links above.
             _ => None,
         }
+    }
+}
+
+/// The player's banked, unexchanged Olympiad points.
+fn unclaimed_points(ctx: &QuestCtx) -> i32 {
+    ctx.player_var_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0)
+}
+
+/// `calculatePointsDone`: convert the banked points to Marks of Battle
+/// (`AltOlyMarkPerPoint` each) and clear the variable.
+/// TODO(G25): Java also refuses when inventory is over 80 % of the weight/slot
+/// limit; that check is not wired yet.
+fn calculate_points_done(ctx: &mut QuestCtx) {
+    use crate::game_loop::olympiad::{MARK_ITEM, MARK_PER_POINT, UNCLAIMED_POINTS_VAR};
+    let points = unclaimed_points(ctx);
+    if points > 0 {
+        ctx.unset_player_var(UNCLAIMED_POINTS_VAR);
+        ctx.give_items(MARK_ITEM, points as i64 * MARK_PER_POINT);
     }
 }
 
