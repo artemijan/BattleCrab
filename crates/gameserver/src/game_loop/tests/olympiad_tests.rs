@@ -193,3 +193,107 @@ fn noble_unregisters_from_the_list() {
         sm_ids::YOU_HAVE_BEEN_REMOVED_FROM_THE_OLYMPIAD_WAITING_LIST
     ));
 }
+
+/// The Grand Olympiad Manager (31688) end-to-end through its `Quest OlyManager`
+/// bypasses: the join page, register, and unregister.
+#[test]
+fn oly_manager_dialog_registers_via_bypass() {
+    use crate::network::server_packets::sm_ids;
+    let (mut world, _db_rx, _link) = quest_test_world();
+    add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[2]);
+    open_games(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&100).unwrap();
+        p.class_id = 2;
+        p.base_class_id = 2;
+        p.level = 55;
+    }
+
+    // The join page substitutes the round / week / participant placeholders.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager joinMatch"),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("join page served");
+    assert!(
+        !html.contains("%olympiad_participant%"),
+        "placeholders were substituted"
+    );
+
+    // The register button enrolls the player and confirms.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager register1v1"),
+    );
+    assert!(
+        world.olympiad.non_class_registers.contains(&100),
+        "registered via the NPC"
+    );
+    assert!(got_sm(
+        &drain(&mut rx),
+        sm_ids::YOU_ARE_CURRENTLY_REGISTERED_FOR_A_1V1_CLASS_IRRELEVANT_MATCH
+    ));
+
+    // The unregister button removes the player.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager unregister"),
+    );
+    assert!(
+        !world.olympiad.is_registered(100),
+        "unregistered via the NPC"
+    );
+    assert!(got_sm(
+        &drain(&mut rx),
+        sm_ids::YOU_HAVE_BEEN_REMOVED_FROM_THE_OLYMPIAD_WAITING_LIST
+    ));
+}
+
+/// A subclass-active character is turned away at the register button.
+#[test]
+fn oly_manager_rejects_subclass() {
+    let (mut world, _db_rx, _link) = quest_test_world();
+    add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[2]);
+    open_games(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&100).unwrap();
+        p.class_id = 2;
+        p.base_class_id = 2;
+        p.level = 55;
+        p.class_index = 1; // on a subclass
+    }
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager register1v1"),
+    );
+    assert!(
+        !world.olympiad.is_registered(100),
+        "subclass character not registered"
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("a page was served");
+    assert!(
+        html.contains("While you have a subclass"),
+        "the subclass page was served"
+    );
+}

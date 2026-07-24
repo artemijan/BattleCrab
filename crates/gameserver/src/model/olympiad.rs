@@ -1,10 +1,11 @@
 //! Grand Olympiad (G25) — the state model and noble registry.
 //! Java `model/olympiad/{Olympiad, OlympiadManager}`.
 //!
-//! Slice 1 covers the noble records and the two registration queues; the daily
-//! competition-window / weekly / monthly period scheduling, DB persistence, the
-//! Grand Olympiad Manager NPC dialog, match execution and hero calculation are
-//! later slices (see `docs/PLAN_G25_OLYMPIAD.md`).
+//! Slices 1–2 cover the noble records, the registration queues and the Grand
+//! Olympiad Manager NPC dialog (`scripts/oly_manager.rs`). The daily
+//! competition-window / weekly / monthly period scheduling, DB persistence,
+//! match execution and hero calculation are later slices (see
+//! `docs/PLAN_G25_OLYMPIAD.md`).
 
 use std::collections::{HashMap, HashSet};
 
@@ -93,6 +94,27 @@ impl OlympiadState {
     /// always the base class id.
     pub fn class_group(base_class_id: i32) -> i32 {
         base_class_id
+    }
+
+    /// A noble's points, creating the record with the starting points if this
+    /// is the first time it is asked for (Java `getNoblePoints`).
+    pub fn noble_points_or_create(
+        &mut self,
+        object_id: i32,
+        base_class_id: i32,
+        name: &str,
+    ) -> i32 {
+        self.nobles
+            .entry(object_id)
+            .or_insert_with(|| NobleStats::fresh(base_class_id, name.to_string()))
+            .points
+    }
+
+    /// Java `OlympiadManager.getCountOpponents` — the non-class registrants plus
+    /// the number of populated class groups (Java sums a Set size and a Map size;
+    /// this build only uses the non-class list, so it is that count).
+    pub fn count_opponents(&self) -> usize {
+        self.non_class_registers.len() + self.class_registers.len()
     }
 
     /// Matches a noble may still enter this week (Java
