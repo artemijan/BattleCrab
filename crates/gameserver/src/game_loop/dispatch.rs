@@ -458,6 +458,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_AUTO_SOULSHOT => {
             super::items::handle_request_auto_soul_shot(world, client_id, ex_body)
         }
+        // ExRequestAutoFish (IN_GAME): toggle auto-fishing.
+        exop::REQUEST_EX_AUTO_FISH => {
+            if let Some(crate::session::ClientSession::InGame(s)) = world.clients.get(&client_id) {
+                let player = s.player_object_id();
+                super::fishing::toggle_fishing(world, player);
+            }
+        }
         exop::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM => {
             super::enchant::handle_add_scroll(world, client_id, ex_body)
         }

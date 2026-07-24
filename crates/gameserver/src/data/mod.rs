@@ -13,6 +13,7 @@ pub mod door_data;
 pub mod enchant_data;
 pub mod enchant_skill_groups;
 pub mod experience;
+pub mod fishing_data;
 pub mod henna_data;
 pub mod hit_condition_bonus;
 pub mod htm_cache;
@@ -53,6 +54,7 @@ pub use door_data::DoorData;
 pub use enchant_data::EnchantData;
 pub use enchant_skill_groups::EnchantSkillGroups;
 pub use experience::ExperienceData;
+pub use fishing_data::FishingData;
 pub use henna_data::HennaData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
@@ -156,6 +158,7 @@ pub struct GameData {
     pub skill_data: SkillData,
     pub npc_data: NpcData,
     pub cubic_data: CubicData,
+    pub fishing_data: FishingData,
     pub soul_crystal_data: SoulCrystalData,
     /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
     pub pet_data: pet_data::PetData,
@@ -223,6 +226,7 @@ impl GameData {
         let skill_data = SkillData::load_from(file_path);
         let npc_data = NpcData::load_from(file_path);
         let cubic_data = CubicData::load_from(file_path);
+        let fishing_data = FishingData::load_from(file_path);
         let soul_crystal_data = SoulCrystalData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         Self {
@@ -239,6 +243,7 @@ impl GameData {
             skill_data,
             npc_data,
             cubic_data,
+            fishing_data,
             soul_crystal_data,
             pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
@@ -295,6 +300,7 @@ impl GameData {
             skill_data: SkillData::empty(),
             npc_data: NpcData::empty(),
             cubic_data: CubicData::empty(),
+            fishing_data: FishingData::empty(),
             soul_crystal_data: SoulCrystalData::empty(),
             pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),

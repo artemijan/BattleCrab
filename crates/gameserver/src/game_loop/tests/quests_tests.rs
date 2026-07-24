@@ -19350,3 +19350,103 @@ fn quest_q00333_hunt_of_the_black_lion() {
         "the repeatable quest is forgotten on completion"
     );
 }
+
+/// Fishing (G32) — the gate line: **cast, hook, and land a fish.** With a rod
+/// equipped and a bait hooked, toggling auto-fish casts the line; after the
+/// bait's reel time the cast lands (forced win), consuming one bait and awarding
+/// a fish + XP.
+#[test]
+fn fishing_cast_hook_and_land_a_fish() {
+    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
+    use crate::data::item_data::WeaponType;
+    use crate::model::inventory::{Inventory, PaperdollSlot};
+
+    const ROD: i32 = 45492;
+    const BAIT: i32 = 47547;
+    const FISH: i32 = 47550;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (ROD, "Fishing Rod", false),
+            (BAIT, "Bait", true),
+            (FISH, "Ugly Fish", true),
+        ],
+    );
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
+    world
+        .data
+        .fishing_data
+        .insert_rod_for_test(ROD, FishingRod::default());
+    world.data.fishing_data.insert_bait_for_test(
+        BAIT,
+        FishingBait {
+            min_player_level: 1,
+            max_player_level: 100,
+            chance: 40,
+            time_min: 1000,
+            time_max: 1000,
+            wait_min: 1000,
+            wait_max: 1000,
+            premium_only: false,
+            catches: vec![FishingCatch {
+                item_id: FISH,
+                chance: 100,
+                multiplier: 1,
+            }],
+        },
+    );
+
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
+    // Equip the rod (right hand) and hook the bait (left hand), 5 baits held.
+    let inv = Inventory::from_rows(&[
+        item_row(0x4700_0001, ROD, 1, PaperdollSlot::RHand),
+        item_row(0x4700_0002, BAIT, 5, PaperdollSlot::LHand),
+    ]);
+    world.objects.add_components(&3001, inv);
+
+    // Cast: the reel is scheduled for the bait's time (1000 ms → tick +10).
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    assert_eq!(item_count(&world, 3001, FISH), 0, "no catch mid-cast");
+
+    // Force a win (roll ≤ 40) then the first catch (roll → Ugly Fish).
+    world.forced_rolls.push_back(0); // reel win roll
+    world.forced_rolls.push_back(0); // catch-table roll
+    advance_ticks(&mut world, 12); // past the 10-tick reel time
+
+    assert_eq!(item_count(&world, 3001, FISH), 1, "landed a fish");
+    assert_eq!(item_count(&world, 3001, BAIT), 4, "one bait consumed");
+}
+
+/// Build a `PAPERDOLL`-located `ItemRow` for a fishing-fixture inventory.
+fn item_row(
+    object_id: i32,
+    item_id: i32,
+    count: i64,
+    slot: crate::model::inventory::PaperdollSlot,
+) -> crate::character::ItemRow {
+    crate::character::ItemRow {
+        object_id,
+        item_id,
+        count,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: slot as i32,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    }
+}

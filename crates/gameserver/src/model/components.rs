@@ -735,6 +735,20 @@ pub struct SummonRef {
     pub pet: Option<i32>,
 }
 
+/// Java `Player._fishing` (G32): the active fishing session. `cast_seq`
+/// invalidates stale scheduled reel/cast tasks — a fresh cast (or a stop) bumps
+/// it, so an in-flight `FishingReel`/`FishingCast` from a superseded cast
+/// no-ops. The bait location is where the bob landed, echoed in the fishing
+/// packets.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct FishingSession {
+    pub is_fishing: bool,
+    pub cast_seq: u64,
+    pub bait_x: i32,
+    pub bait_y: i32,
+    pub bait_z: i32,
+}
+
 /// Every saved pet row belonging to a character, keyed by the **collar's object
 /// id** — Java's `pets` primary key (`item_obj_id`).
 ///

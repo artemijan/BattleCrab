@@ -167,6 +167,8 @@ pub mod ex_opcodes {
     pub const REQUEST_STOP_MOVE: u16 = 0xED;
     pub const EX_SEND_SELECTED_QUEST_ZONE_ID: u16 = 0xFF;
     pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
+    /// `ExRequestAutoFish` — toggle the auto-fishing loop (G32).
+    pub const REQUEST_EX_AUTO_FISH: u16 = 0x105;
     /// `RequestAllCastleInfo` / `RequestAllFortressInfo` — sent by the world
     /// map window when it opens (empty bodies).
     pub const REQUEST_ALL_CASTLE_INFO: u16 = 0x39;
