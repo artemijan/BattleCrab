@@ -32,6 +32,8 @@ pub mod q00216_trial_of_the_guildsman;
 pub mod q00217_testimony_of_trust;
 pub mod q00218_testimony_of_life;
 pub mod q00219_testimony_of_fate;
+pub mod q00220_testimony_of_glory;
+pub mod q00221_testimony_of_prosperity;
 pub mod q00222_test_of_the_duelist;
 pub mod q00223_test_of_the_champion;
 pub mod q00224_test_of_sagittarius;
@@ -210,6 +212,8 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00217_testimony_of_trust::Q00217TestimonyOfTrust),
         Arc::new(q00218_testimony_of_life::Q00218TestimonyOfLife),
         Arc::new(q00219_testimony_of_fate::Q00219TestimonyOfFate),
+        Arc::new(q00220_testimony_of_glory::Q00220TestimonyOfGlory),
+        Arc::new(q00221_testimony_of_prosperity::Q00221TestimonyOfProsperity),
         Arc::new(q00226_test_of_the_healer::Q00226TestOfTheHealer),
         Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
         Arc::new(q00229_test_of_witchcraft::Q00229TestOfWitchcraft),
