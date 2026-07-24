@@ -80,6 +80,14 @@ impl CategoryData {
         self.by_name.get(category).is_some_and(|s| s.contains(&id))
     }
 
+    /// `CategoryData.getCategoryByType(type)` — every class id in a category.
+    pub fn ids(&self, category: &str) -> Vec<i32> {
+        self.by_name
+            .get(category)
+            .map(|s| s.iter().copied().collect())
+            .unwrap_or_default()
+    }
+
     pub fn len(&self) -> usize {
         self.by_name.len()
     }
