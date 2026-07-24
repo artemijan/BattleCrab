@@ -107,6 +107,7 @@ pub mod q00271_proof_of_valor;
 pub mod q00272_wrath_of_ancestors;
 pub mod q00273_invaders_of_the_holy_land;
 pub mod q00274_skirmish_with_the_werewolves;
+pub mod q00275_dark_winged_spies;
 pub mod q00276_totem_of_the_hestui;
 pub mod q00277_gatekeepers_offering;
 pub mod q00292_brigands_sweep;
@@ -137,6 +138,7 @@ pub mod q00356_dig_up_the_sea_of_spores;
 pub mod q00358_illegitimate_child_of_the_goddess;
 pub mod q00360_plunder_their_supplies;
 pub mod q00369_collector_of_jewels;
+pub mod q00370_an_elder_sows_seeds;
 pub mod q00373_supplier_of_reagents;
 pub mod q00374_whisper_of_dreams_part1;
 pub mod q00375_whisper_of_dreams_part2;
@@ -171,6 +173,7 @@ pub mod q00622_specialty_liquor_delivery;
 pub mod q00623_the_finest_food;
 pub mod q00628_hunt_golden_ram;
 pub mod q00634_in_search_of_fragments_of_dimension;
+pub mod q00640_the_zero_hour;
 pub mod q00641_attack_sailren;
 pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
@@ -374,6 +377,9 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00350_enhance_your_weapon::Q00350EnhanceYourWeapon::new(
             soul_crystal_npc_ids,
         )),
+        Arc::new(q00275_dark_winged_spies::Q00275DarkWingedSpies),
+        Arc::new(q00370_an_elder_sows_seeds::Q00370AnElderSowsSeeds),
+        Arc::new(q00640_the_zero_hour::Q00640TheZeroHour),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),

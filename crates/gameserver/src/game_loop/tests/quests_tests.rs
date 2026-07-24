@@ -18619,3 +18619,221 @@ fn quest_q00350_enhance_your_weapon() {
         "the crystal leveled to stage 1 after a valid absorb-kill"
     );
 }
+
+/// Quest 640 (The Zero Hour) — Spiked Stakato kills drop Fangs, exchanged in
+/// fixed lots for crafting materials.
+#[test]
+fn quest_q00640_the_zero_hour() {
+    use crate::model::components::Quests;
+
+    const KAHMAN: i32 = 31554;
+    const FANG: i32 = 8085;
+    const ENRIA: i32 = 4042;
+    const STAKATO: i32 = 22617;
+    let q = "Q00640_TheZeroHour";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(FANG, "Fang of Stakato", true), (ENRIA, "Enria", false)],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(STAKATO);
+        t.type_name = "Monster".into();
+        t.level = 67;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let kahman = NPC_OID;
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, kahman, KAHMAN, "Folk", 67, 100, 200, 0);
+    add_test_npc(&mut world, mob, STAKATO, "Monster", 67, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 66;
+    // Mark Q109 (the prerequisite) completed.
+    {
+        let quests = world.objects.get_component_mut::<Quests>(&3001).unwrap();
+        let qs = quests
+            .0
+            .entry("Q00109_InSearchOfTheNest".to_string())
+            .or_default();
+        qs.state = crate::model::quest::state::COMPLETED;
+    }
+
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{kahman}_Quest {q} {e}")));
+    };
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{kahman}_Quest {q}")),
+    );
+    event(&mut world, "31554-02.htm"); // accept
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+
+    // A Stakato kill drops a fang.
+    quests::notify_kill(&mut world, 3001, mob, STAKATO);
+    assert_eq!(
+        item_count(&world, 3001, FANG),
+        1,
+        "a stakato kill drops a fang"
+    );
+
+    // Exchange 12 fangs for Enria (button "1").
+    inject(&mut world, 3001, 0x0064_0000, FANG, 11); // top up to 12
+    event(&mut world, "1");
+    assert_eq!(item_count(&world, 3001, ENRIA), 1, "12 fangs → Enria");
+    assert_eq!(item_count(&world, 3001, FANG), 0, "the 12 fangs are spent");
+}
+
+/// Quest 275 (Dark Winged Spies) — Orc-only fang collection; reaching 70 fangs
+/// flips to cond 2, then the turn-in pays 5 adena per fang.
+#[test]
+fn quest_q00275_dark_winged_spies() {
+    const TANTUS: i32 = 30567;
+    const FANG: i32 = 1478;
+    const BAT: i32 = 20316;
+    let q = "Q00275_DarkWingedSpies";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (FANG, "Darkwing Bat Fang", true),
+            (1479, "Varangka's Parasite", true),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(BAT);
+        t.type_name = "Monster".into();
+        t.level = 13;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let tantus = NPC_OID;
+    let bat = NPC_OID + 1;
+    add_test_npc(&mut world, tantus, TANTUS, "Folk", 13, 100, 200, 0);
+    add_test_npc(&mut world, bat, BAT, "Monster", 13, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 12;
+        p.race = 3; // Orc
+    }
+
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{tantus}_Quest {q} {e}")));
+    };
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{tantus}_Quest {q}")),
+    );
+    event(&mut world, "30567-03.htm"); // accept
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+
+    // Sitting at 69 fangs, one more bat kill reaches the 70 cap → cond 2.
+    inject(&mut world, 3001, 0x0027_5000, FANG, 69);
+    world.forced_rolls.push_back(0); // roll_f64 → 0.0 ≤ chance, the fang drops
+    quests::notify_kill(&mut world, 3001, bat, BAT);
+    assert_eq!(item_count(&world, 3001, FANG), 70, "the 70th fang dropped");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "70 fangs → cond 2");
+
+    // Turn in: 70 fangs × 5 adena.
+    let adena_before = item_count(&world, 3001, 57);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{tantus}_Quest {q}")),
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57) - adena_before,
+        70 * 5,
+        "turn-in pays 5 adena per fang"
+    );
+}
+
+/// Quest 370 (An Elder Sows Seeds) — ant kills drop Spellbook Pages; a matched
+/// set of four elemental Chapters cashes in for 3,600 adena each.
+#[test]
+fn quest_q00370_an_elder_sows_seeds() {
+    const CASIAN: i32 = 30612;
+    const PAGE: i32 = 5916;
+    const ANT: i32 = 20082; // MOBS_PERCENT, 9%
+    let q = "Q00370_AnElderSowsSeeds";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (PAGE, "Spellbook Page", true),
+            (5917, "Chapter of Fire", true),
+            (5918, "Chapter of Water", true),
+            (5919, "Chapter of Wind", true),
+            (5920, "Chapter of Earth", true),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(ANT);
+        t.type_name = "Monster".into();
+        t.level = 30;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let casian = NPC_OID;
+    let ant = NPC_OID + 1;
+    add_test_npc(&mut world, casian, CASIAN, "Folk", 30, 100, 200, 0);
+    add_test_npc(&mut world, ant, ANT, "Monster", 30, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 30;
+
+    let event = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{casian}_Quest {q} {e}")));
+    };
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{casian}_Quest {q}")),
+    );
+    event(&mut world, "30612-04.htm"); // accept
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED),
+        "started"
+    );
+
+    // Kill an ant: the 9% roll succeeds and a page drops.
+    world.forced_rolls.push_back(0); // roll(100)=0 < 9
+    world.forced_rolls.push_back(0); // roll_f64=0.0 ≤ chance
+    quests::notify_kill(&mut world, 3001, ant, ANT);
+    assert_eq!(
+        item_count(&world, 3001, PAGE),
+        1,
+        "an ant kill drops a page"
+    );
+
+    // A matched set of four chapters cashes in for 3,600 adena.
+    for c in [5917, 5918, 5919, 5920] {
+        inject(&mut world, 3001, 0x0037_0000 + c, c, 1);
+    }
+    let adena_before = item_count(&world, 3001, 57);
+    event(&mut world, "REWARD");
+    assert_eq!(
+        item_count(&world, 3001, 57) - adena_before,
+        3600,
+        "one matched chapter set pays 3,600 adena"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 5917),
+        0,
+        "the chapters are consumed"
+    );
+}
