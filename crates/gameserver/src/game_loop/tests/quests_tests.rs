@@ -16667,3 +16667,197 @@ fn quest_q00126_the_name_of_evil_2() {
         .unwrap();
     assert!(quests.0[q].is_completed(), "The Name of Evil - 2 complete");
 }
+
+/// Little Wing (420): the hatchling-pet quest, normal (plain Fairy Stone) path
+/// end to end — forge the stone, brew Monkshood Juice, take Exarion's scale,
+/// farm 20 eggs, hatch, and redeem a Dragonflute. Plus the Deluxe stone's
+/// `onAttack` shatter risk as a separate check.
+#[test]
+fn quest_q00420_little_wing() {
+    const COOPER: i32 = 30829;
+    const CRONOS: i32 = 30610;
+    const MARIA: i32 = 30608;
+    const BYRON: i32 = 30711;
+    const MIMYU: i32 = 30747;
+    const EXARION: i32 = 30748;
+    // Materials
+    const COAL: i32 = 1870;
+    const CHARCOAL: i32 = 1871;
+    const SILVER_NUGGET: i32 = 1873;
+    const GEMSTONE_D: i32 = 2130;
+    const TOAD_SKIN: i32 = 3820;
+    // Quest items
+    const FAIRY_STONE_LIST: i32 = 3818;
+    const FAIRY_STONE: i32 = 3816;
+    const DELUXE_FAIRY_STONE: i32 = 3817;
+    const MONKSHOOD_JUICE: i32 = 3821;
+    const EXARION_SCALE: i32 = 3822;
+    const EXARION_EGG: i32 = 3823;
+    const DRAGONFLUTE_OF_WIND: i32 = 3500;
+    // Monsters
+    const LETO_WARRIOR: i32 = 20580;
+    const FLINE: i32 = 20589; // a Deluxe-stone breaker
+
+    let (mut world, _db, _l) = quest_test_world();
+    let ids = [
+        COAL,
+        CHARCOAL,
+        SILVER_NUGGET,
+        GEMSTONE_D,
+        TOAD_SKIN,
+        FAIRY_STONE_LIST,
+        FAIRY_STONE,
+        DELUXE_FAIRY_STONE,
+        MONKSHOOD_JUICE,
+        EXARION_SCALE,
+        EXARION_EGG,
+        3499, // FAIRY_DUST
+    ];
+    let mut items: Vec<(i32, &str, bool)> = ids.iter().map(|&i| (i, "q", true)).collect();
+    items.push((DRAGONFLUTE_OF_WIND, "flute", false));
+    add_quest_items(&mut world, &items);
+    for id in [LETO_WARRIOR, FLINE] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let cooper = NPC_OID;
+    let cronos = NPC_OID + 1;
+    let maria = NPC_OID + 2;
+    let byron = NPC_OID + 3;
+    let mimyu = NPC_OID + 4;
+    let exarion = NPC_OID + 5;
+    for (oid, npc) in [
+        (cooper, COOPER),
+        (cronos, CRONOS),
+        (maria, MARIA),
+        (byron, BYRON),
+        (mimyu, MIMYU),
+        (exarion, EXARION),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 200, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 40;
+    let q = "Q00420_LittleWing";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let cond = |w: &World| quest_cond(w, 3001, q);
+
+    // Accept → Cronos → pick the plain Fairy Stone (cond 2).
+    talk(&mut world, cooper);
+    ev(&mut world, cooper, "30829-02.htm");
+    assert_eq!(cond(&world), Some(1));
+    ev(&mut world, cronos, "30610-05.html");
+    assert_eq!(cond(&world), Some(2), "plain stone chosen");
+    assert_eq!(
+        item_count(&world, 3001, FAIRY_STONE_LIST),
+        1,
+        "stone list given"
+    );
+
+    // Gather the materials, then Maria forges the Fairy Stone (cond 3).
+    inject(&mut world, 3001, 0x0420_1000, COAL, 10);
+    inject(&mut world, 3001, 0x0420_2000, CHARCOAL, 10);
+    inject(&mut world, 3001, 0x0420_3000, GEMSTONE_D, 1);
+    inject(&mut world, 3001, 0x0420_4000, SILVER_NUGGET, 3);
+    inject(&mut world, 3001, 0x0420_5000, TOAD_SKIN, 10);
+    ev(&mut world, maria, "30608-03.html");
+    assert_eq!(cond(&world), Some(3));
+    assert_eq!(
+        item_count(&world, 3001, FAIRY_STONE),
+        1,
+        "Fairy Stone forged"
+    );
+    assert_eq!(item_count(&world, 3001, COAL), 0, "materials consumed");
+
+    // Byron → Mimyu accepts the stone (cond 5) and brews Monkshood Juice.
+    ev(&mut world, byron, "30711-03.html");
+    assert_eq!(cond(&world), Some(4));
+    ev(&mut world, mimyu, "30747-02.html");
+    assert_eq!(cond(&world), Some(5));
+    assert_eq!(
+        item_count(&world, 3001, FAIRY_STONE),
+        0,
+        "stone handed to Mimyu"
+    );
+    ev(&mut world, mimyu, "30747-07.html");
+    assert_eq!(
+        item_count(&world, 3001, MONKSHOOD_JUICE),
+        1,
+        "Monkshood Juice"
+    );
+
+    // Exarion trades the juice for its Scale and a hunt (cond 6).
+    ev(&mut world, exarion, "30748-02.html");
+    assert_eq!(cond(&world), Some(6));
+    assert_eq!(item_count(&world, 3001, EXARION_SCALE), 1, "Exarion Scale");
+    assert_eq!(
+        item_count(&world, 3001, MONKSHOOD_JUICE),
+        0,
+        "juice consumed"
+    );
+
+    // Farm 20 Exarion Eggs from Leto Warriors (drake_hunt).
+    let mut mob = NPC_OID + 20;
+    for _ in 0..20 {
+        mob += 1;
+        add_test_npc(&mut world, mob, LETO_WARRIOR, "Monster", 40, 110, 200, 0);
+        world.forced_rolls.push_back(0); // give_item_randomly roll → drop
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, EXARION_EGG), 20, "20 eggs farmed");
+
+    // Exarion hatches the egg (cond 7).
+    talk(&mut world, exarion);
+    assert_eq!(cond(&world), Some(7), "egg hatched → cond 7");
+    assert_eq!(item_count(&world, 3001, EXARION_EGG), 1, "one hatched egg");
+    assert_eq!(item_count(&world, 3001, EXARION_SCALE), 0, "scale consumed");
+
+    // Mimyu redeems the egg for a Dragonflute (forced roll 0 → Wind), completing.
+    world.forced_rolls.push_back(0); // give_reward roll(100) → Wind
+    ev(&mut world, mimyu, "30747-12.html");
+    assert_eq!(
+        item_count(&world, 3001, DRAGONFLUTE_OF_WIND),
+        1,
+        "Dragonflute of Wind"
+    );
+    assert!(
+        cond(&world).is_none(),
+        "Little Wing is repeatable: the reward exit forgets the quest"
+    );
+
+    // --- Separately: a Deluxe Fairy Stone shatters when striking the fae. ---
+    let (mut w2, _db2, _l2) = quest_test_world();
+    add_quest_items(&mut w2, &[(DELUXE_FAIRY_STONE, "q", true)]);
+    add_test_npc(&mut w2, NPC_OID, FLINE, "Monster", 40, 110, 200, 0);
+    let _rx2 = ingame_player(&mut w2, 1, 3001, 100, 200, 0);
+    w2.objects.get_component_mut::<Player>(&3001).unwrap().level = 40;
+    {
+        let quests = w2
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        let qs = quests.0.entry(q.to_string()).or_default();
+        qs.state = crate::model::quest::state::STARTED;
+        qs.vars.insert("cond".to_string(), "6".to_string());
+    }
+    inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
+    w2.forced_rolls.push_back(0); // onAttack roll(100)==0 < 30 → shatter
+    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0);
+    assert_eq!(
+        item_count(&w2, 3001, DELUXE_FAIRY_STONE),
+        0,
+        "the Deluxe Fairy Stone shatters on the fae"
+    );
+}
