@@ -129,6 +129,7 @@ pub mod q00606_battle_against_varka_silenos;
 pub mod q00612_battle_against_ketra_orcs;
 pub mod q00617_gather_the_flames;
 pub mod q00619_relics_of_the_old_empire;
+pub mod q00620_four_goblets;
 pub mod q00622_specialty_liquor_delivery;
 pub mod q00623_the_finest_food;
 pub mod q00628_hunt_golden_ram;
@@ -196,6 +197,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00324_sweetest_venom::Q00324SweetestVenom),
         Arc::new(q00369_collector_of_jewels::Q00369CollectorOfJewels),
         Arc::new(q00619_relics_of_the_old_empire::Q00619RelicsOfTheOldEmpire),
+        Arc::new(q00620_four_goblets::Q00620FourGoblets),
         Arc::new(q00623_the_finest_food::Q00623TheFinestFood),
         Arc::new(q00276_totem_of_the_hestui::Q00276TotemOfTheHestui),
         Arc::new(q00292_brigands_sweep::Q00292BrigandsSweep),
