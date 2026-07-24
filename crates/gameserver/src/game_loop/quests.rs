@@ -882,6 +882,31 @@ impl<'w> QuestCtx<'w> {
         Some(spawned)
     }
 
+    /// `player.getAnyServitor()` — the acting player's summoned servitor, `None`
+    /// if none is out. The counterpart to [`attack_is_summon`], for the
+    /// servitor-duel quests (230) that pit a summon against a rival NPC.
+    ///
+    /// [`attack_is_summon`]: Self::attack_is_summon
+    pub fn owner_servitor(&self) -> Option<i32> {
+        super::servitor::servitor_of(self.world, self.player)
+    }
+
+    /// `addAttackPlayerDesire(npc, target)` on the **in-context NPC** — send it
+    /// after `target_oid` (a servitor, in quest 230's arcana duels), the mirror
+    /// of [`spawn_attacker`](Self::spawn_attacker) which seeds a *spawned* NPC.
+    pub fn make_npc_attack(&mut self, target_oid: i32) {
+        super::npc_ai::seed_attack(self.world, self.npc, target_oid);
+    }
+
+    /// Whether the object `oid` is dead (or gone). Used by the arcana-duel
+    /// `KILLED_ATTACKER` timer to tell whether the challenger's servitor fell.
+    pub fn is_oid_dead(&self, oid: i32) -> bool {
+        self.world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&oid)
+            .is_none_or(|v| v.dead)
+    }
+
     /// `addSpawn(npcId, x, y, z, …)` + `addAttackPlayerDesire` — a hostile spawn
     /// at a **fixed world position** rather than beside the in-context NPC (which
     /// is what [`spawn_attacker`](Self::spawn_attacker) does). Quest 231's

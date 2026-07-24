@@ -14586,3 +14586,177 @@ fn quest_q00227_test_of_the_reformer() {
         "one-time quest finished"
     );
 }
+
+/// The Test-of-the-Summoner (230) arcana-duel primitive, end to end: a
+/// servitor's blow reaches `on_attack` marked `is_summon`, the quest sends the
+/// rival NPC back at the servitor (`make_npc_attack`), and the servitor's kill
+/// is credited to the owner in `on_kill` (VICTORY). Proves the pieces the
+/// deferred Q230 needs — `attack_is_summon`, `owner_servitor`, `make_npc_attack`,
+/// `is_oid_dead` — cooperate over real servitor combat.
+#[test]
+fn servitor_arcana_duel_round_trip() {
+    const OPPONENT: i32 = 27102; // Pako the Cat
+    const SERVITOR_NPC: i32 = 14100; // a Cat servitor template
+    const STARTING: i32 = 3360;
+    const INPROGRESS: i32 = 3361;
+    const VICTORY: i32 = 3364;
+
+    struct ArcanaBattleTest;
+    impl quests::QuestScript for ArcanaBattleTest {
+        fn id(&self) -> i32 {
+            -30
+        }
+        fn name(&self) -> &'static str {
+            "ArcanaBattleTest"
+        }
+        fn html_dir(&self) -> &'static str {
+            ""
+        }
+        fn start_npcs(&self) -> &[i32] {
+            &[]
+        }
+        fn talk_npcs(&self) -> &[i32] {
+            &[]
+        }
+        fn attack_npcs(&self) -> &[i32] {
+            &[OPPONENT]
+        }
+        fn kill_npcs(&self) -> &[i32] {
+            &[OPPONENT]
+        }
+        fn on_talk(&self, _ctx: &mut quests::QuestCtx) -> Option<String> {
+            None
+        }
+        fn on_attack(&self, ctx: &mut quests::QuestCtx) {
+            match ctx.npc_script_value() {
+                0 => {
+                    if ctx.attack_is_summon() {
+                        if let Some(servitor) = ctx.owner_servitor() {
+                            ctx.set_npc_var_int("ATTACKER", servitor);
+                            ctx.set_npc_script_value(1);
+                            ctx.start_quest_timer("KILLED_ATTACKER", 5000);
+                            if ctx.quest_items_count(STARTING) > 0 {
+                                ctx.take_items(STARTING, -1);
+                                ctx.give_items(INPROGRESS, 1);
+                                ctx.make_npc_attack(servitor); // the rival strikes back
+                            }
+                        }
+                    }
+                }
+                1 => {
+                    // A foul: the player, or a different summon, interfered.
+                    if !ctx.attack_is_summon()
+                        || ctx.owner_servitor() != Some(ctx.npc_var_int("ATTACKER"))
+                    {
+                        ctx.set_npc_script_value(2);
+                        ctx.delete_npc();
+                    }
+                }
+                _ => {}
+            }
+        }
+        fn on_kill(&self, ctx: &mut quests::QuestCtx) {
+            if ctx.quest_items_count(INPROGRESS) > 0 {
+                ctx.take_items(INPROGRESS, -1);
+                ctx.give_items(VICTORY, 1);
+            }
+        }
+        fn on_timer(&self, ctx: &mut quests::QuestCtx, name: &str) {
+            if name == "KILLED_ATTACKER" && ctx.is_oid_dead(ctx.npc_var_int("ATTACKER")) {
+                ctx.delete_npc();
+            }
+        }
+    }
+
+    let (mut world, _db, _l) = quest_test_world();
+    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
+        ArcanaBattleTest,
+    )]));
+    add_quest_items(
+        &mut world,
+        &[
+            (STARTING, "start", true),
+            (INPROGRESS, "prog", true),
+            (VICTORY, "win", true),
+        ],
+    );
+    // A Servitor template for the owner and a quest-monster for the rival.
+    let mut st = crate::data::npc_data::default_template(SERVITOR_NPC);
+    st.type_name = "Servitor".into();
+    st.base_hp_max = 400.0;
+    st.collision_radius = 10.0;
+    world.data.npc_data.insert_for_test(st);
+    let mut ot = crate::data::npc_data::default_template(OPPONENT);
+    ot.type_name = "Monster".into();
+    ot.level = 40;
+    ot.base_hp_max = 100_000.0;
+    world.data.npc_data.insert_for_test(ot);
+
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    inject(&mut world, 3001, 0x0230_0000, STARTING, 1);
+    let servitor = crate::game_loop::servitor::summon_servitor(
+        &mut world,
+        3001,
+        SERVITOR_NPC,
+        283,
+        1200,
+        0,
+        0,
+    )
+    .expect("servitor summoned");
+    let opponent = NPC_OID + 5;
+    add_test_npc(&mut world, opponent, OPPONENT, "Monster", 40, 120, 200, 0);
+
+    // The servitor lands the first blow: reaches on_attack marked is_summon.
+    combat::npc_receive_damage(&mut world, opponent, servitor, 10.0);
+    assert_eq!(
+        item_count(&world, 3001, STARTING),
+        0,
+        "Starting crystal consumed"
+    );
+    assert_eq!(
+        item_count(&world, 3001, INPROGRESS),
+        1,
+        "In-Progress crystal granted"
+    );
+    // The rival was set on the servitor (make_npc_attack seeded its aggro).
+    let seeded = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&opponent)
+        .is_some_and(|a| a.0.contains_key(&servitor));
+    assert!(seeded, "the rival strikes back at the servitor");
+
+    // A foul: the owner (not their summon) hits the rival → it quits (deleted).
+    add_test_npc(
+        &mut world,
+        NPC_OID + 6,
+        OPPONENT,
+        "Monster",
+        40,
+        120,
+        200,
+        0,
+    );
+    combat::npc_receive_damage(&mut world, NPC_OID + 6, servitor, 1.0); // servitor engages it
+    combat::npc_receive_damage(&mut world, NPC_OID + 6, 3001, 1.0); // the OWNER interferes
+    assert!(
+        world
+            .objects
+            .get_component::<Vitals>(&(NPC_OID + 6))
+            .is_none_or(|v| v.dead),
+        "a player-struck rival fouls out and despawns"
+    );
+
+    // The servitor finishes the real duel: its kill is credited to the owner.
+    death::npc_do_die(&mut world, opponent, servitor);
+    assert_eq!(
+        item_count(&world, 3001, INPROGRESS),
+        0,
+        "In-Progress consumed on victory"
+    );
+    assert_eq!(
+        item_count(&world, 3001, VICTORY),
+        1,
+        "Victory crystal awarded to the owner"
+    );
+}
