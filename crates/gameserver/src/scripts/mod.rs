@@ -28,6 +28,14 @@ pub mod q00042_help_the_uncle;
 pub mod q00043_help_the_sister;
 pub mod q00044_help_the_son;
 pub mod q00070_saga_of_the_phoenix_knight;
+pub mod q00071_saga_of_evas_templar;
+pub mod q00072_saga_of_the_sword_muse;
+pub mod q00073_saga_of_the_duelist;
+pub mod q00074_saga_of_the_dreadnought;
+pub mod q00075_saga_of_the_titan;
+pub mod q00076_saga_of_the_grand_khavatari;
+pub mod q00077_saga_of_the_dominator;
+pub mod q00078_saga_of_the_doomcryer;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -166,6 +174,16 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(saga::SagaQuest::new(
             q00070_saga_of_the_phoenix_knight::saga(),
         )),
+        Arc::new(saga::SagaQuest::new(q00071_saga_of_evas_templar::saga())),
+        Arc::new(saga::SagaQuest::new(q00072_saga_of_the_sword_muse::saga())),
+        Arc::new(saga::SagaQuest::new(q00073_saga_of_the_duelist::saga())),
+        Arc::new(saga::SagaQuest::new(q00074_saga_of_the_dreadnought::saga())),
+        Arc::new(saga::SagaQuest::new(q00075_saga_of_the_titan::saga())),
+        Arc::new(saga::SagaQuest::new(
+            q00076_saga_of_the_grand_khavatari::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(q00077_saga_of_the_dominator::saga())),
+        Arc::new(saga::SagaQuest::new(q00078_saga_of_the_doomcryer::saga())),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
