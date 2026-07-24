@@ -17,6 +17,7 @@ pub mod elf_human_change2;
 pub mod first_class_transfer_talk;
 pub mod newbie_guide;
 pub mod npc_location_info;
+pub mod oly_manager;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
 pub mod q00032_an_obvious_lie;
@@ -392,6 +393,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
+        Arc::new(oly_manager::OlyManager),
         Arc::new(npc_location_info::NpcLocationInfo),
         Arc::new(dark_elf_change1::DarkElfChange1),
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),
