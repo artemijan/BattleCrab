@@ -131,6 +131,7 @@ pub mod q00327_recover_the_farmland;
 pub mod q00328_sense_for_business;
 pub mod q00329_curiosity_of_a_dwarf;
 pub mod q00331_arrow_of_vengeance;
+pub mod q00333_hunt_of_the_black_lion;
 pub mod q00344_1000_years_the_end_of_lamentation;
 pub mod q00348_an_arrogant_search;
 pub mod q00350_enhance_your_weapon;
@@ -386,6 +387,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(q00327_recover_the_farmland::Q00327RecoverTheFarmland),
         Arc::new(q00348_an_arrogant_search::Q00348AnArrogantSearch),
         Arc::new(q00662_a_game_of_cards::Q00662AGameOfCards),
+        Arc::new(q00333_hunt_of_the_black_lion::Q00333HuntOfTheBlackLion::new()),
         Arc::new(q00407_path_of_the_elven_scout::Q00407PathOfTheElvenScout),
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
