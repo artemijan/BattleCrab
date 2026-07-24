@@ -18,6 +18,9 @@ pub mod newbie_guide;
 pub mod npc_location_info;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
+pub mod q00042_help_the_uncle;
+pub mod q00043_help_the_sister;
+pub mod q00044_help_the_son;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -137,6 +140,9 @@ use crate::game_loop::quests::{QuestRegistry, QuestScript};
 /// constructor self-registration, collapsed into one boot-time list.
 pub fn build_registry() -> QuestRegistry {
     let scripts: Vec<Arc<dyn QuestScript>> = vec![
+        Arc::new(q00042_help_the_uncle::Q00042HelpTheUncle),
+        Arc::new(q00043_help_the_sister::Q00043HelpTheSister),
+        Arc::new(q00044_help_the_son::Q00044HelpTheSon),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
