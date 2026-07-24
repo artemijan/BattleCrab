@@ -48,6 +48,16 @@ pub mod q00087_saga_of_evas_saint;
 pub mod q00088_saga_of_the_archmage;
 pub mod q00089_saga_of_the_mystic_muse;
 pub mod q00090_saga_of_the_storm_screamer;
+pub mod q00091_saga_of_the_arcana_lord;
+pub mod q00092_saga_of_the_elemental_master;
+pub mod q00093_saga_of_the_spectral_master;
+pub mod q00094_saga_of_the_soultaker;
+pub mod q00095_saga_of_the_hell_knight;
+pub mod q00096_saga_of_the_spectral_dancer;
+pub mod q00097_saga_of_the_shillien_templar;
+pub mod q00098_saga_of_the_shillien_saint;
+pub mod q00099_saga_of_the_fortune_seeker;
+pub mod q00100_saga_of_the_maestro;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -214,6 +224,28 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(saga::SagaQuest::new(
             q00090_saga_of_the_storm_screamer::saga(),
         )),
+        Arc::new(saga::SagaQuest::new(q00091_saga_of_the_arcana_lord::saga())),
+        Arc::new(saga::SagaQuest::new(
+            q00092_saga_of_the_elemental_master::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(
+            q00093_saga_of_the_spectral_master::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(q00094_saga_of_the_soultaker::saga())),
+        Arc::new(saga::SagaQuest::new(q00095_saga_of_the_hell_knight::saga())),
+        Arc::new(saga::SagaQuest::new(
+            q00096_saga_of_the_spectral_dancer::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(
+            q00097_saga_of_the_shillien_templar::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(
+            q00098_saga_of_the_shillien_saint::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(
+            q00099_saga_of_the_fortune_seeker::saga(),
+        )),
+        Arc::new(saga::SagaQuest::new(q00100_saga_of_the_maestro::saga())),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
