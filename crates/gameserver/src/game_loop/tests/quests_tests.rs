@@ -13935,3 +13935,164 @@ fn quest_q00229_test_of_witchcraft() {
         "one-time quest finished"
     );
 }
+
+#[test]
+fn quest_q00220_testimony_of_glory() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (3204..=3237).map(|id| (id, "Q220", true)).collect();
+    items.push((3203, "Mark of Glory", false));
+    add_quest_items(&mut world, &items);
+    for id in [
+        20563, 20192, 20550, 20583, 20601, 20778, 27080, 27081, 27082, 27083, 27086,
+    ] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let vokian = NPC_OID;
+    let chianta = NPC_OID + 1;
+    let kasman = NPC_OID + 2;
+    let manakia = NPC_OID + 3;
+    let driko = NPC_OID + 4;
+    let burai = NPC_OID + 5;
+    let harak = NPC_OID + 6;
+    let voltar = NPC_OID + 7;
+    let kepra = NPC_OID + 8;
+    let tanapi = NPC_OID + 9;
+    let kakai = NPC_OID + 10;
+    for (oid, npc) in [
+        (vokian, 30514),
+        (chianta, 30642),
+        (kasman, 30501),
+        (manakia, 30515),
+        (driko, 30619),
+        (burai, 30617),
+        (harak, 30618),
+        (voltar, 30615),
+        (kepra, 30616),
+        (tanapi, 30571),
+        (kakai, 30565),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 45; // Orc Raider
+        p.race = 3; // Orc
+    }
+    world
+        .data
+        .categories
+        .insert_for_test("ORC_2ND_GROUP", &[45]);
+    let q = "Q00220_TestimonyOfGlory";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, vokian);
+    ev(&mut world, vokian, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // Vokian's three subjugation reagents → cond 2.
+    inject(&mut world, 3001, 0x0220_0000, 3205, 9);
+    kill(&mut world, 20563); // Manashen shard → 10
+    inject(&mut world, 3001, 0x0220_0001, 3206, 9);
+    kill(&mut world, 20192); // Tyrant talon → 10
+    inject(&mut world, 3001, 0x0220_0002, 3207, 9);
+    kill(&mut world, 20550); // Basilisk fang → 10, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    talk(&mut world, vokian); // → Order2 + Necklace of Authority, cond 3
+    assert_eq!(item_count(&world, 3001, 3209), 1, "Necklace of Authority");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    talk(&mut world, chianta);
+    ev(&mut world, chianta, "30642-03.html"); // → Chianta's 1st Order, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // --- Five scepter legs ---
+    // Vuku (Driko): letter → contract → 30 husks
+    ev(&mut world, kasman, "30501-02.html"); // Kasman's 1st Letter
+    ev(&mut world, driko, "30619-03.html"); // → Driko's Contract
+    inject(&mut world, 3001, 0x0220_0003, 3234, 30); // 30 stakato drone husks
+    talk(&mut world, driko); // → Scepter of Vuku
+    assert_eq!(item_count(&world, 3001, 3213), 1, "Scepter of Vuku");
+    // Turek (Burai): letter → glove → 2 makum heads
+    ev(&mut world, kasman, "30501-05.html"); // Kasman's 2nd Letter
+    ev(&mut world, burai, "30617-03.html"); // → Glove of Burai
+    kill(&mut world, 27083); // Makum head 1
+    kill(&mut world, 27083); // Makum head 2
+    talk(&mut world, burai); // → Scepter of Turek
+    assert_eq!(item_count(&world, 3001, 3214), 1, "Scepter of Turek");
+    // Tunath (Harak): letter → scepter directly
+    ev(&mut world, kasman, "30501-08.html"); // Kasman's 3rd Letter
+    ev(&mut world, harak, "30618-03.html"); // → Scepter of Tunath
+    assert_eq!(item_count(&world, 3001, 3215), 1, "Scepter of Tunath");
+    // Breka (Voltar): letter → glove → Pashika + Vultus heads
+    ev(&mut world, manakia, "30515-04.html"); // Manakia's 1st Letter
+    ev(&mut world, voltar, "30615-04.html"); // → Glove of Voltar
+    kill(&mut world, 27080); // Pashika's Head
+    kill(&mut world, 27081); // Vultus's Head
+    talk(&mut world, voltar); // → Scepter of Breka
+    assert_eq!(item_count(&world, 3001, 3211), 1, "Scepter of Breka");
+    // Enku (Kepra): letter → glove → 4 Enku heads (fifth scepter → cond 5)
+    ev(&mut world, manakia, "30515-05.html"); // Manakia's 2nd Letter
+    ev(&mut world, kepra, "30616-04.html"); // → Glove of Kepra
+    for _ in 0..4 {
+        kill(&mut world, 27082); // Enku overlord heads
+    }
+    talk(&mut world, kepra); // → Scepter of Enku, cond 5
+    assert_eq!(item_count(&world, 3001, 3212), 1, "Scepter of Enku");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    // Chianta assembles the scepters → 3rd Order.
+    talk(&mut world, chianta);
+    ev(&mut world, chianta, "30642-07.html"); // scepters → Chianta's 3rd Order, cond 6
+    assert_eq!(item_count(&world, 3001, 3217), 1, "Chianta's 3rd Order");
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    // Timak heads + Tamlin skulls → cond 7 (via Tamlin, per the faithful bug).
+    inject(&mut world, 3001, 0x0220_0004, 3219, 19); // timak heads
+    kill(&mut world, 20583); // → 20
+    inject(&mut world, 3001, 0x0220_0005, 3218, 19); // tamlin skulls
+    kill(&mut world, 20601); // → 20, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, chianta); // → Scepter Box, cond 8
+    assert_eq!(item_count(&world, 3001, 3220), 1, "Scepter Box");
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    talk(&mut world, tanapi);
+    ev(&mut world, tanapi, "30571-03.html"); // → Tanapi's Order, cond 9
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    // Ragna summons the Revenant; slay it for the Scepter of Tantos.
+    kill(&mut world, 20778); // Ragna → spawns Revenant
+    assert!(
+        !npcs_of(&mut world, 27086).is_empty(),
+        "Revenant of Tantos conjured"
+    );
+    kill(&mut world, 27086); // Revenant → Scepter of Tantos, cond 10
+    assert_eq!(item_count(&world, 3001, 3236), 1, "Scepter of Tantos");
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, tanapi); // → Ritual Box, cond 11
+    assert_eq!(item_count(&world, 3001, 3237), 1, "Ritual Box");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    // --- Completion at Kakai ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, kakai);
+    assert_eq!(item_count(&world, 3001, 3203), 1, "Mark of Glory awarded");
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 262720,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(11),
+        "one-time quest finished"
+    );
+}
