@@ -3576,3 +3576,20 @@ fn admin_announce_screen_broadcasts_a_banner() {
         "crit does not put a banner on screen"
     );
 }
+
+/// `//spawn` with no arguments must not panic (it used to index `args[0]` on an
+/// empty token list, killing the game thread) — it answers with the spawns menu
+/// and the "doesnt exist" message like an unknown id does.
+#[test]
+fn admin_spawn_without_args_does_not_panic() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("spawn"));
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        pkts.iter().any(|p| contains_utf16(p, "doesnt exist")),
+        "GM is told the (missing) NPC doesnt exist instead of the server dying"
+    );
+}

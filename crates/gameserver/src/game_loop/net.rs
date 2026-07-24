@@ -1,7 +1,7 @@
 //! Channel drains and session lifecycle: network connect/disconnect events,
 //! the login-link and DB result channels, and restart/logout/kick handling.
 
-use tracing::{debug, info, warn};
+use tracing::{debug, error, info, warn};
 
 use crate::db::{self, DbEvent, DbEventRx};
 use crate::geo::worker::PathEventRx;
@@ -31,7 +31,38 @@ pub(crate) fn drain_network(world: &mut World, net_rx: &NetEventRx) {
                 );
             }
             NetEvent::Received { client_id, data } => {
-                on_packet(world, client_id, data);
+                // Java `ExecuteThread`/`PacketHandler` catches Throwable around
+                // each packet's run(), so one bad packet (an admin command with
+                // missing args, a malformed bypass…) must not take the whole
+                // game thread down. `World` is a single-thread structure with
+                // no lock poisoning to worry about, but the handler may have
+                // died mid-mutation, so the offending client's session state is
+                // suspect: disconnect them (persist + clean removal) so they
+                // come back clean while everyone else plays on.
+                let opcode = data.first().copied();
+                if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                    on_packet(world, client_id, data);
+                }))
+                .is_err()
+                {
+                    error!(
+                        "GameLoop: panic while handling packet {:#04x?} from client {client_id}; disconnecting that client.",
+                        opcode.unwrap_or(0)
+                    );
+                    // If the save path trips over the same corrupted state,
+                    // fall back to dropping the raw session (closes the
+                    // socket, skips the store).
+                    if std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                        on_disconnect(world, client_id);
+                    }))
+                    .is_err()
+                    {
+                        error!(
+                            "GameLoop: panic in the disconnect path for client {client_id}; dropping the session unsaved."
+                        );
+                        world.clients.remove(&client_id);
+                    }
+                }
             }
             NetEvent::Disconnected { client_id } => {
                 on_disconnect(world, client_id);

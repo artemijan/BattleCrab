@@ -195,15 +195,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Java: JVM shutdown hook -> Shutdown. Also handles SIGTERM (systemd's
     // default stop signal), not just SIGINT — see commons::shutdown.
-    commons::shutdown::wait_for_signal().await;
-
-    info!("GameServer: shutting down.");
-    shutdown.request();
-    // Join the game thread so its final tick (drain + save) completes, then
-    // stop the DB thread (which flushes and closes the pool).
-    tokio::task::spawn_blocking(move || game_thread.join())
-        .await?
-        .ok();
+    // Also watch the game thread itself: if it dies without a shutdown request
+    // (a panic that escaped the per-packet guard), the process must exit
+    // nonzero so systemd's Restart=on-failure brings the server back instead
+    // of leaving a listener attached to a dead game loop.
+    let mut game_join = tokio::task::spawn_blocking(move || game_thread.join());
+    let game_result = tokio::select! {
+        _ = commons::shutdown::wait_for_signal() => {
+            info!("GameServer: shutting down.");
+            shutdown.request();
+            // Join the game thread so its final tick (drain + save) completes.
+            game_join.await?
+        }
+        res = &mut game_join => res?,
+    };
+    let crashed = game_result.is_err() || !shutdown.is_requested();
+    if crashed {
+        warn!(
+            "GameServer: game thread terminated unexpectedly; flushing DB and exiting for restart."
+        );
+    }
     // The game thread's World held the last path-request sender, so the path
     // worker is already unblocking; then flush and stop the DB thread.
     tokio::task::spawn_blocking(move || path_thread.join())
@@ -213,6 +224,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::task::spawn_blocking(move || db_thread.join())
         .await?
         .ok();
+    if crashed {
+        return Err(
+            "game thread terminated unexpectedly (panic); exiting nonzero for restart".into(),
+        );
+    }
     info!("GameServer: shutdown complete.");
     Ok(())
 }

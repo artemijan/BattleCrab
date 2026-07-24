@@ -48,7 +48,8 @@ pub(super) fn admin_spawn(world: &mut World, client_id: u32, object_id: i32, arg
     let npc_id = args.first().and_then(|token| resolve_npc_id(world, token));
     let Some(npc_id) = npc_id else {
         super::menu::show_admin_html(world, client_id, "spawns.htm");
-        send_message(world, client_id, &format!("NPC {} doesnt exist", args[0]));
+        let token = args.first().copied().unwrap_or("");
+        send_message(world, client_id, &format!("NPC {token} doesnt exist"));
         return;
     };
     let template_name = world
