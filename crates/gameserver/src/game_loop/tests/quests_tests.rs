@@ -15615,3 +15615,526 @@ fn quest_q00044_help_the_son() {
         final_ev: "30827-09.html",
     });
 }
+
+// ---------------------------------------------------------------------------
+// Formal Wear chain (Q33-Q37), restored to authentic Interlude (level 60).
+// ---------------------------------------------------------------------------
+
+/// Seed a started `Q00037_MakeFormalWear` at the given cond, so the component
+/// sub-quests (which gate on it) can be entered.
+fn seed_formal_wear(world: &mut World, player: i32, cond: i32) {
+    let q = world
+        .objects
+        .get_component_mut::<crate::model::components::Quests>(&player)
+        .unwrap();
+    let qs = q.0.entry("Q00037_MakeFormalWear".to_string()).or_default();
+    qs.state = crate::model::quest::state::STARTED;
+    qs.vars.insert("cond".to_string(), cond.to_string());
+}
+
+#[test]
+fn quest_q00037_make_formal_wear() {
+    const FORMAL_WEAR: i32 = 6408;
+    const MYSTERIOUS_CLOTH: i32 = 7076;
+    const JEWEL_BOX: i32 = 7077;
+    const SEWING_KIT: i32 = 7078;
+    const DRESS_SHOES_BOX: i32 = 7113;
+    const BOX_OF_COOKIES: i32 = 7159;
+    const ICE_WINE: i32 = 7160;
+    const SIGNET_RING: i32 = 7164;
+    const ALEXIS: i32 = 30842;
+    const LEIKAR: i32 = 31520;
+    const JEREMY: i32 = 31521;
+    const MIST: i32 = 31627;
+
+    let (mut world, _db, _l) = quest_test_world();
+    let items: Vec<(i32, &str, bool)> = [
+        (SIGNET_RING, true),
+        (ICE_WINE, true),
+        (BOX_OF_COOKIES, true),
+        (MYSTERIOUS_CLOTH, true),
+        (JEWEL_BOX, true),
+        (SEWING_KIT, true),
+        (DRESS_SHOES_BOX, true),
+        (FORMAL_WEAR, false),
+    ]
+    .iter()
+    .map(|&(id, q)| (id, "Q37", q))
+    .collect();
+    add_quest_items(&mut world, &items);
+    let alexis = NPC_OID;
+    let leikar = NPC_OID + 1;
+    let jeremy = NPC_OID + 2;
+    let mist = NPC_OID + 3;
+    for (oid, npc) in [
+        (alexis, ALEXIS),
+        (leikar, LEIKAR),
+        (jeremy, JEREMY),
+        (mist, MIST),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 200, 0);
+    }
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 59;
+    let q = "Q00037_MakeFormalWear";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
+        drain(rx).iter().find_map(|p| {
+            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == crate::network::server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
+
+    // Level gate: 59 is refused (no accept button to 30842-03).
+    talk(&mut world, alexis);
+    let html = grab_html(&mut rx).expect("greeting");
+    assert!(!html.contains("30842-03.htm"), "under-60 refused: {html}");
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+
+    // Accept, then the courier chain.
+    ev(&mut world, alexis, "30842-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, leikar, "31520-02.html"); // Signet Ring → cond 2
+    assert_eq!(item_count(&world, 3001, SIGNET_RING), 1);
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    ev(&mut world, jeremy, "31521-02.html"); // takes Signet, gives Ice Wine → cond 3
+    assert_eq!(
+        item_count(&world, 3001, SIGNET_RING),
+        0,
+        "Signet Ring surrendered"
+    );
+    assert_eq!(item_count(&world, 3001, ICE_WINE), 1);
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    ev(&mut world, mist, "31627-02.html"); // takes Ice Wine → cond 4
+    assert_eq!(item_count(&world, 3001, ICE_WINE), 0);
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    ev(&mut world, jeremy, "31521-05.html"); // Box of Cookies → cond 5
+    assert_eq!(item_count(&world, 3001, BOX_OF_COOKIES), 1);
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    ev(&mut world, leikar, "31520-05.html"); // takes Cookies → cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+
+    // The components arrive from the sub-quests; Leikar assembles them.
+    ev(&mut world, leikar, "31520-08.html"); // no components yet → stays cond 6
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(6),
+        "cannot assemble without components"
+    );
+    inject(&mut world, 3001, 0x0037_1000, MYSTERIOUS_CLOTH, 1);
+    inject(&mut world, 3001, 0x0037_2000, JEWEL_BOX, 1);
+    inject(&mut world, 3001, 0x0037_3000, SEWING_KIT, 1);
+    ev(&mut world, leikar, "31520-08.html"); // takes the 3 components → cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    assert_eq!(
+        item_count(&world, 3001, SEWING_KIT),
+        0,
+        "components consumed"
+    );
+    inject(&mut world, 3001, 0x0037_4000, DRESS_SHOES_BOX, 1);
+    ev(&mut world, leikar, "31520-12.html"); // Dress Shoes Box → Formal Wear
+    assert_eq!(
+        item_count(&world, 3001, FORMAL_WEAR),
+        1,
+        "Formal Wear crafted"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(
+        quests.0[q].is_completed(),
+        "quest completes on the Formal Wear"
+    );
+}
+
+#[test]
+fn quest_q00036_make_a_sewing_kit() {
+    const FERRIS: i32 = 30847;
+    const IRON_GOLEM: i32 = 20566;
+    const REINFORCED_STEEL: i32 = 7163;
+    const ORIHARUKON: i32 = 1893;
+    const ARTISANS_FRAME: i32 = 1891;
+    const SEWING_KIT: i32 = 7078;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (REINFORCED_STEEL, "q", true),
+            (ORIHARUKON, "q", true),
+            (ARTISANS_FRAME, "q", true),
+            (SEWING_KIT, "reward", false),
+        ],
+    );
+    let mut gt = crate::data::npc_data::default_template(IRON_GOLEM);
+    gt.type_name = "Monster".into();
+    gt.level = 60;
+    gt.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(gt);
+    let ferris = NPC_OID;
+    add_test_npc(&mut world, ferris, FERRIS, "Folk", 60, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+    let mut rx2 = _rx;
+    let q = "Q00036_MakeASewingKit";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(p)
+                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&p[1..]);
+                    r.read_i16()?;
+                    r.read_i32()?;
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default()
+    };
+
+    // Prereq: without Make Formal Wear at cond 6, Ferris offers no accept button.
+    talk(&mut world, ferris);
+    let html = grab(&mut rx2);
+    assert!(
+        !html.contains("30847-03.htm"),
+        "no accept offered without parent: {html}"
+    );
+
+    // With the parent at cond 6, accept and gather.
+    seed_formal_wear(&mut world, 3001, 6);
+    talk(&mut world, ferris);
+    ev(&mut world, ferris, "30847-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    // Five Reinforced Steel from Iron Golems (force the 50% roll).
+    let mut mob = NPC_OID + 20;
+    for _ in 0..5 {
+        mob += 1;
+        add_test_npc(&mut world, mob, IRON_GOLEM, "Monster", 60, 110, 200, 0);
+        world.forced_rolls.push_back(0); // roll(2)==0 → the peel succeeds
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(
+        item_count(&world, 3001, REINFORCED_STEEL),
+        5,
+        "5 steel scraps"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(2), "5th scrap → cond 2");
+    ev(&mut world, ferris, "30847-06.html"); // hand in 5 steel → cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    assert_eq!(
+        item_count(&world, 3001, REINFORCED_STEEL),
+        0,
+        "steel consumed"
+    );
+    // Insufficient mats: no craft.
+    ev(&mut world, ferris, "30847-09.html");
+    assert_eq!(
+        item_count(&world, 3001, SEWING_KIT),
+        0,
+        "no craft without mats"
+    );
+    inject(&mut world, 3001, 0x0036_1000, ORIHARUKON, 10);
+    inject(&mut world, 3001, 0x0036_2000, ARTISANS_FRAME, 10);
+    ev(&mut world, ferris, "30847-09.html"); // craft
+    assert_eq!(
+        item_count(&world, 3001, SEWING_KIT),
+        1,
+        "Sewing Kit crafted"
+    );
+    assert_eq!(
+        item_count(&world, 3001, ORIHARUKON),
+        0,
+        "oriharukon consumed"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed());
+}
+
+#[test]
+fn quest_q00035_find_glittering_jewelry() {
+    const ELLIE: i32 = 30091;
+    const FELTON: i32 = 30879;
+    const ALLIGATOR: i32 = 20135;
+    const ROUGH_JEWEL: i32 = 7162;
+    const ORIHARUKON: i32 = 1893;
+    const SILVER_NUGGET: i32 = 1873;
+    const THONS: i32 = 4044;
+    const JEWEL_BOX: i32 = 7077;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (ROUGH_JEWEL, "q", true),
+            (ORIHARUKON, "q", true),
+            (SILVER_NUGGET, "q", true),
+            (THONS, "q", true),
+            (JEWEL_BOX, "reward", false),
+        ],
+    );
+    let mut at = crate::data::npc_data::default_template(ALLIGATOR);
+    at.type_name = "Monster".into();
+    at.level = 60;
+    at.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(at);
+    let ellie = NPC_OID;
+    let felton = NPC_OID + 1;
+    add_test_npc(&mut world, ellie, ELLIE, "Folk", 60, 100, 200, 0);
+    add_test_npc(&mut world, felton, FELTON, "Folk", 60, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+    seed_formal_wear(&mut world, 3001, 6);
+    let q = "Q00035_FindGlitteringJewelry";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    talk(&mut world, ellie); // create the state (shows the accept page)
+    ev(&mut world, ellie, "30091-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, felton, "30879-02.html"); // → cond 2, start hunting
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    let mut mob = NPC_OID + 20;
+    for _ in 0..10 {
+        mob += 1;
+        add_test_npc(&mut world, mob, ALLIGATOR, "Monster", 60, 110, 200, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, ROUGH_JEWEL), 10, "10 rough jewels");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    ev(&mut world, ellie, "30091-07.html"); // hand in jewels → cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    ev(&mut world, ellie, "30091-11.html"); // no mats → no box
+    assert_eq!(item_count(&world, 3001, JEWEL_BOX), 0);
+    inject(&mut world, 3001, 0x0035_1000, ORIHARUKON, 5);
+    inject(&mut world, 3001, 0x0035_2000, SILVER_NUGGET, 500);
+    inject(&mut world, 3001, 0x0035_3000, THONS, 150);
+    ev(&mut world, ellie, "30091-11.html");
+    assert_eq!(item_count(&world, 3001, JEWEL_BOX), 1, "Jewel Box crafted");
+    assert_eq!(item_count(&world, 3001, THONS), 0, "thons consumed");
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed());
+}
+
+#[test]
+fn quest_q00034_in_search_of_cloth() {
+    const RADIA: i32 = 30088;
+    const RALFORD: i32 = 30165;
+    const VARAN: i32 = 30294;
+    const TRISALIM_SPIDER: i32 = 20560;
+    const SPINNERET: i32 = 7528;
+    const SPIDERSILK: i32 = 7161;
+    const SUEDE: i32 = 1866;
+    const THREAD: i32 = 1868;
+    const MYSTERIOUS_CLOTH: i32 = 7076;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (SPINNERET, "q", true),
+            (SPIDERSILK, "q", true),
+            (SUEDE, "q", true),
+            (THREAD, "q", true),
+            (MYSTERIOUS_CLOTH, "reward", false),
+        ],
+    );
+    let mut st = crate::data::npc_data::default_template(TRISALIM_SPIDER);
+    st.type_name = "Monster".into();
+    st.level = 46;
+    st.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(st);
+    let radia = NPC_OID;
+    let ralford = NPC_OID + 1;
+    let varan = NPC_OID + 2;
+    add_test_npc(&mut world, radia, RADIA, "Folk", 60, 100, 200, 0);
+    add_test_npc(&mut world, ralford, RALFORD, "Folk", 60, 100, 200, 0);
+    add_test_npc(&mut world, varan, VARAN, "Folk", 60, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+    seed_formal_wear(&mut world, 3001, 6);
+    let q = "Q00034_InSearchOfCloth";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    talk(&mut world, radia);
+    ev(&mut world, radia, "30088-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, varan, "30294-02.html"); // → cond 2
+    ev(&mut world, radia, "30088-06.html"); // → cond 3
+    ev(&mut world, ralford, "30165-02.html"); // → cond 4, hunt spiders
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    let mut mob = NPC_OID + 20;
+    for _ in 0..10 {
+        mob += 1;
+        add_test_npc(&mut world, mob, TRISALIM_SPIDER, "Monster", 46, 110, 200, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, SPINNERET), 10, "10 spinnerets");
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    ev(&mut world, ralford, "30165-05.html"); // spin into Spidersilk → cond 6
+    assert_eq!(item_count(&world, 3001, SPIDERSILK), 1, "Spidersilk spun");
+    assert_eq!(
+        item_count(&world, 3001, SPINNERET),
+        0,
+        "spinnerets consumed"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    ev(&mut world, radia, "30088-10.html"); // no cloth materials yet
+    assert_eq!(item_count(&world, 3001, MYSTERIOUS_CLOTH), 0);
+    inject(&mut world, 3001, 0x0034_1000, SUEDE, 3000);
+    inject(&mut world, 3001, 0x0034_2000, THREAD, 5000);
+    ev(&mut world, radia, "30088-10.html");
+    assert_eq!(
+        item_count(&world, 3001, MYSTERIOUS_CLOTH),
+        1,
+        "Mysterious Cloth woven"
+    );
+    assert_eq!(item_count(&world, 3001, SUEDE), 0, "suede consumed");
+    assert_eq!(
+        item_count(&world, 3001, SPIDERSILK),
+        0,
+        "spidersilk consumed"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed());
+}
+
+#[test]
+fn quest_q00033_make_a_pair_of_dress_shoes() {
+    const WOODLEY: i32 = 30838;
+    const IAN: i32 = 30164;
+    const LEIKAR: i32 = 31520;
+    const LEATHER: i32 = 1882;
+    const THREAD: i32 = 1868;
+    const ADENA: i32 = 57;
+    const DRESS_SHOES_BOX: i32 = 7113;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (LEATHER, "q", true),
+            (THREAD, "q", true),
+            (DRESS_SHOES_BOX, "reward", false),
+        ],
+    );
+    let woodley = NPC_OID;
+    let ian = NPC_OID + 1;
+    let leikar = NPC_OID + 2;
+    add_test_npc(&mut world, woodley, WOODLEY, "Folk", 60, 100, 200, 0);
+    add_test_npc(&mut world, ian, IAN, "Folk", 60, 100, 200, 0);
+    add_test_npc(&mut world, leikar, LEIKAR, "Folk", 60, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 60;
+    // Q33 gates on the parent being all the way to cond 7.
+    seed_formal_wear(&mut world, 3001, 7);
+    let q = "Q00033_MakeAPairOfDressShoes";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    talk(&mut world, woodley);
+    ev(&mut world, woodley, "30838-03.htm");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    ev(&mut world, leikar, "31520-02.html"); // → cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    ev(&mut world, woodley, "30838-06.html"); // → cond 3
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    // Ian sells 360 Leather + 90 Thread for 300k adena.
+    ev(&mut world, ian, "30164-02.html"); // no adena → refused
+    assert_eq!(
+        item_count(&world, 3001, LEATHER),
+        0,
+        "no sale without the fee"
+    );
+    inject(&mut world, 3001, 0x0033_1000, ADENA, 500_000);
+    ev(&mut world, ian, "30164-02.html");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(5),
+        "materials bought → cond 5"
+    );
+    assert_eq!(item_count(&world, 3001, LEATHER), 360, "leather bought");
+    assert_eq!(item_count(&world, 3001, THREAD), 90, "thread bought");
+    assert_eq!(item_count(&world, 3001, ADENA), 200_000, "300k paid to Ian");
+    // Woodley crafts the shoes for the remaining 200k.
+    ev(&mut world, woodley, "30838-13.html");
+    assert_eq!(
+        item_count(&world, 3001, DRESS_SHOES_BOX),
+        1,
+        "Dress Shoes Box crafted"
+    );
+    assert_eq!(item_count(&world, 3001, LEATHER), 0, "leather consumed");
+    assert_eq!(item_count(&world, 3001, ADENA), 0, "200k paid to Woodley");
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed());
+}

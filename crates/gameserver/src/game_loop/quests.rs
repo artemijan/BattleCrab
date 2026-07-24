@@ -355,6 +355,18 @@ impl<'w> QuestCtx<'w> {
         self.qs().map(|qs| qs.cond()).unwrap_or(0)
     }
 
+    /// The `cond` of a *different* quest for this player (0 if that quest is
+    /// not started or absent). The Formal Wear sub-quests (33-36) gate on
+    /// `Q037_MakeFormalWear` having reached cond 6/7.
+    pub fn other_quest_cond(&self, quest_name: &str) -> i32 {
+        self.world
+            .objects
+            .get_component::<Quests>(&self.player)
+            .and_then(|q| q.0.get(quest_name))
+            .map(|qs| qs.cond())
+            .unwrap_or(0)
+    }
+
     pub fn is_cond(&self, cond: i32) -> bool {
         self.cond() == cond
     }
