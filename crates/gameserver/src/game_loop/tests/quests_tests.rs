@@ -14271,3 +14271,159 @@ fn quest_q00221_testimony_of_prosperity() {
         "one-time quest finished"
     );
 }
+
+#[test]
+fn quest_q00214_trial_of_the_scholar() {
+    let (mut world, _db, _l) = quest_test_world();
+    let ids: Vec<i32> = (2674..=2720).filter(|&i| i != 2712).collect();
+    let mut items: Vec<(i32, &str, bool)> = ids.iter().map(|&id| (id, "Q214", true)).collect();
+    items.push((2674, "Mark of Scholar", false));
+    add_quest_items(&mut world, &items);
+    for id in [
+        20580, 20068, 20269, 20235, 20554, 20158, 20201, 20552, 20567,
+    ] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let n = |i| NPC_OID + i;
+    let (mirien, sylvain, maria, lucas, creta) = (n(0), n(1), n(2), n(3), n(4));
+    let (jurek, cronos, dieter, edroc, raut) = (n(5), n(6), n(7), n(8), n(9));
+    let (triff, valkon, poitan, casian) = (n(10), n(11), n(12), n(13));
+    for (oid, npc) in [
+        (mirien, 30461),
+        (sylvain, 30070),
+        (maria, 30608),
+        (lucas, 30071),
+        (creta, 30609),
+        (jurek, 30115),
+        (cronos, 30610),
+        (dieter, 30111),
+        (edroc, 30230),
+        (raut, 30316),
+        (triff, 30611),
+        (valkon, 30103),
+        (poitan, 30458),
+        (casian, 30612),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 11; // Wizard
+    }
+    let q = "Q00214_TrialOfTheScholar";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, mirien);
+    ev(&mut world, mirien, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // --- Symbol of Sylvain ---
+    ev(&mut world, sylvain, "30070-02.html"); // High Priest's Sigil + Sylvain's Letter, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    ev(&mut world, maria, "30608-02.html"); // Maria's 1st Letter, cond 3
+    talk(&mut world, lucas); // Lucas's Letter, cond 4
+    talk(&mut world, maria); // Maria's 2nd Letter, cond 5
+    ev(&mut world, creta, "30609-05.html"); // Creta's 1st Letter, cond 6
+    ev(&mut world, maria, "30608-08.html"); // Lucilla's Handbag, cond 7
+    ev(&mut world, creta, "30609-09.html"); // Crera's Painting1, cond 8
+    talk(&mut world, maria); // Painting2, cond 9
+    ev(&mut world, lucas, "30071-04.html"); // Painting3, cond 10
+    assert_eq!(quest_cond(&world, 3001, q), Some(10));
+    talk(&mut world, maria); // cond 11
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    inject(&mut world, 3001, 0x0214_0000, 2687, 4);
+    kill(&mut world, 20580); // Leto → 5 brown scraps, cond 12
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    ev(&mut world, maria, "30608-14.html"); // Crystal of Purity 1, cond 13
+    talk(&mut world, sylvain); // → Symbol of Sylvain, cond 14
+    assert_eq!(item_count(&world, 3001, 2693), 1, "Symbol of Sylvain");
+    talk(&mut world, mirien); // → Mirien's 2nd Sigil, cond 15
+    assert_eq!(item_count(&world, 3001, 2676), 1, "Mirien's 2nd Sigil");
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    // --- Symbol of Jurek ---
+    ev(&mut world, jurek, "30115-03.html"); // Jurek's List + Grand Magister Sigil, cond 16
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    inject(&mut world, 3001, 0x0214_0001, 2695, 4);
+    kill(&mut world, 20068); // Monster Eye skin → 5
+    inject(&mut world, 3001, 0x0214_0002, 2696, 4);
+    kill(&mut world, 20269); // Shaman's necklace → 5
+    inject(&mut world, 3001, 0x0214_0003, 2697, 1);
+    kill(&mut world, 20235); // Shackle's scalp → 2, cond 17
+    assert_eq!(quest_cond(&world, 3001, q), Some(17));
+    talk(&mut world, jurek); // → Symbol of Jurek, cond 18
+    assert_eq!(item_count(&world, 3001, 2698), 1, "Symbol of Jurek");
+    talk(&mut world, mirien);
+    ev(&mut world, mirien, "30461-10.html"); // → Mirien's 3rd Sigil, cond 19
+    assert_eq!(item_count(&world, 3001, 2677), 1, "Mirien's 3rd Sigil");
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    // --- Symbol of Cronos ---
+    ev(&mut world, cronos, "30610-10.html"); // Cronos Sigil + Letter, cond 20
+    assert_eq!(quest_cond(&world, 3001, q), Some(20));
+    ev(&mut world, dieter, "30111-05.html"); // Dieter's Key, cond 21
+    ev(&mut world, creta, "30609-14.html"); // Creta's 2nd Letter, cond 22
+    ev(&mut world, dieter, "30111-09.html"); // Dieter's Letter + Diary, cond 23
+    ev(&mut world, edroc, "30230-02.html"); // Raut's Letter Envelope, cond 24
+    ev(&mut world, raut, "30316-02.html"); // Scripture Chapter 1 + Strong Liquor, cond 25
+    ev(&mut world, triff, "30611-04.html"); // Triff's Ring, cond 26
+    assert_eq!(item_count(&world, 3001, 2705), 1, "Triff's Ring");
+    assert_eq!(quest_cond(&world, 3001, q), Some(26));
+    // Chapter 2 (Valkon/Maria)
+    ev(&mut world, valkon, "30103-04.html"); // Valkon's Request
+    talk(&mut world, maria); // → Crystal of Purity 2
+    talk(&mut world, valkon); // → Scripture Chapter 2
+    assert_eq!(item_count(&world, 3001, 2707), 1, "Scripture Chapter 2");
+    // Chapter 3 (Grandis)
+    kill(&mut world, 20554); // → Scripture Chapter 3
+    assert_eq!(item_count(&world, 3001, 2708), 1, "Scripture Chapter 3");
+    // Chapter 4 (Poitan/Casian + four reagents)
+    talk(&mut world, poitan); // Poitan's Notes
+    ev(&mut world, casian, "30612-04.html"); // Casian's List, cond 28
+    assert_eq!(quest_cond(&world, 3001, q), Some(28));
+    inject(&mut world, 3001, 0x0214_0004, 2717, 11);
+    kill(&mut world, 20158); // Medusa's Blood → 12
+    inject(&mut world, 3001, 0x0214_0005, 2716, 9);
+    kill(&mut world, 20201); // Ghoul's Skin → 10, cond 29
+    assert_eq!(quest_cond(&world, 3001, q), Some(29));
+    inject(&mut world, 3001, 0x0214_0006, 2718, 4);
+    kill(&mut world, 20552); // Fettered Soul's Ichor → 5
+    inject(&mut world, 3001, 0x0214_0007, 2719, 4);
+    kill(&mut world, 20567); // Gargoyle's Nail → 5 (total 32)
+    ev(&mut world, casian, "30612-07.html"); // → Scripture Chapter 4, cond 30
+    assert_eq!(item_count(&world, 3001, 2709), 1, "Scripture Chapter 4");
+    assert_eq!(quest_cond(&world, 3001, q), Some(30));
+    ev(&mut world, cronos, "30610-14.html"); // → Symbol of Cronos, cond 31
+    assert_eq!(item_count(&world, 3001, 2720), 1, "Symbol of Cronos");
+    assert_eq!(quest_cond(&world, 3001, q), Some(31));
+    // --- Completion at Mirien ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, mirien);
+    assert_eq!(
+        item_count(&world, 3001, 2674),
+        1,
+        "Mark of the Scholar awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 319628,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(31),
+        "one-time quest finished"
+    );
+}

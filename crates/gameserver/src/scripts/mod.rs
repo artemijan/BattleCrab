@@ -27,6 +27,7 @@ pub mod q00210_obtain_a_wolf_pet;
 pub mod q00211_trial_of_the_challenger;
 pub mod q00212_trial_of_duty;
 pub mod q00213_trial_of_the_seeker;
+pub mod q00214_trial_of_the_scholar;
 pub mod q00215_trial_of_the_pilgrim;
 pub mod q00216_trial_of_the_guildsman;
 pub mod q00217_testimony_of_trust;
@@ -207,6 +208,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00211_trial_of_the_challenger::Q00211TrialOfTheChallenger),
         Arc::new(q00212_trial_of_duty::Q00212TrialOfDuty),
         Arc::new(q00213_trial_of_the_seeker::Q00213TrialOfTheSeeker),
+        Arc::new(q00214_trial_of_the_scholar::Q00214TrialOfTheScholar),
         Arc::new(q00215_trial_of_the_pilgrim::Q00215TrialOfThePilgrim),
         Arc::new(q00216_trial_of_the_guildsman::Q00216TrialOfTheGuildsman),
         Arc::new(q00217_testimony_of_trust::Q00217TestimonyOfTrust),
