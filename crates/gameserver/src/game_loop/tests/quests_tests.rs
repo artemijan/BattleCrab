@@ -17724,3 +17724,49 @@ fn quest_summoner_dark_dwarf_sagas_q91_q100() {
         27260,
     );
 }
+
+/// The shared Saga htmls render with `%questname%` substituted, so one html set
+/// serves every Saga: talking the Q70 start NPC shows the intro page whose
+/// accept button carries this quest's own name.
+#[test]
+fn saga_shared_htmls_substitute_questname() {
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(7093, "starter", true)]);
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, 30849, "Folk", 78, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = 5; // Paladin — the Q70 prerequisite
+    }
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{start}_Quest Q00070_SagaOfThePhoenixKnight")),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| {
+            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == crate::network::server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?;
+                r.read_i32()?;
+                r.read_string()
+            } else {
+                None
+            }
+        })
+        .expect("Saga intro html");
+    // The generic 0-01.htm rendered, with %questname% replaced by Q70's name.
+    assert!(
+        html.contains("Quest Q00070_SagaOfThePhoenixKnight 0-1"),
+        "the accept button carries the substituted quest name: {html}"
+    );
+    assert!(
+        !html.contains("%questname%"),
+        "no unsubstituted placeholder left"
+    );
+}
