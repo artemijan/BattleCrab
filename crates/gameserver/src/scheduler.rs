@@ -80,6 +80,13 @@ pub enum ScheduledTask {
         boat_object_id: i32,
         messages: &'static [u32],
     },
+    /// Olympiad (G25): the daily competition window opens (18:00 on a
+    /// competition day) — registration/matches allowed until it closes.
+    OlympiadCompStart,
+    /// Olympiad: the competition window closes (6 h later); schedule the next.
+    OlympiadCompEnd,
+    /// Olympiad: the weekly refresh — add weekly points + reset weekly matches.
+    OlympiadWeeklyChange,
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

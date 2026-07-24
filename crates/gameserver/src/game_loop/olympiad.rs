@@ -1,15 +1,152 @@
-//! Grand Olympiad (G25) — noble registration into the match queues.
-//! Java `model/olympiad/OlympiadManager` (`registerNoble` / `unRegisterNoble`).
+//! Grand Olympiad (G25) — registration, persistence and the period state
+//! machine. Java `model/olympiad/{Olympiad, OlympiadManager}`.
 //!
-//! Slice 1: a qualifying character joins or leaves the class-based / non-class
-//! waiting lists, with the eligibility and timing gates. Match-making, the
-//! stadiums and hero calculation are later slices.
+//! Covers: `register`/`unregister` into the waiting lists with the eligibility
+//! and timing gates; boot load / shutdown save of `olympiad_data` +
+//! `olympiad_nobles`; and the competition-window schedule (18:00 for 6 h on the
+//! weekend competition days) plus the weekly point/match refresh. Match-making,
+//! the stadiums and hero calculation are later slices.
 
 use crate::db::{DbCommand, OlympiadNobleRow};
 use crate::model::olympiad::{CompetitionType, NobleStats, OlympiadState, REG_CLOSE_BEFORE_END_MS};
 use crate::model::Player;
 use crate::network::server_packets::{self as sp, sm_ids, SmParam};
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
+
+// --- the competition-period state machine (dist `config/Olympiad.ini`) ---
+
+const MS_PER_DAY: i64 = 86_400_000;
+/// `AltOlyStartTime = 18` (18:00), as milliseconds past midnight.
+const COMP_START_MS_OF_DAY: i64 = 18 * 3600 * 1000;
+/// `AltOlyCPeriod` — the competition window length (6 h).
+const COMP_PERIOD_MS: i64 = 21_600_000;
+/// `AltOlyWPeriod` — the weekly refresh interval (1 week).
+const WEEKLY_PERIOD_MS: i64 = 604_800_000;
+/// `AltOlyWeeklyPoints` — points added to every noble each week.
+const WEEKLY_POINTS: i32 = 10;
+/// `AltOlyCompetitionDays = 1,7` (Java `Calendar` Sun=1…Sat=7) → 0-indexed
+/// days-of-week Sunday (0) and Saturday (6): the Olympiad runs weekends only.
+const COMP_DAYS: &[i64] = &[0, 6];
+
+/// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
+/// day 0, 1970-01-01, was a Thursday → offset 4).
+fn day_of_week(now_ms: i64) -> i64 {
+    (now_ms.div_euclid(MS_PER_DAY) + 4).rem_euclid(7)
+}
+
+fn ms_of_day(now_ms: i64) -> i64 {
+    now_ms.rem_euclid(MS_PER_DAY)
+}
+
+/// Whether `now_ms` falls inside a competition window (a competition day,
+/// between 18:00 and 18:00 + 6 h).
+pub(crate) fn in_comp_window(now_ms: i64) -> bool {
+    COMP_DAYS.contains(&day_of_week(now_ms))
+        && (COMP_START_MS_OF_DAY..COMP_START_MS_OF_DAY + COMP_PERIOD_MS)
+            .contains(&ms_of_day(now_ms))
+}
+
+/// The epoch-millis instant the window covering `now_ms` closes.
+fn window_end(now_ms: i64) -> i64 {
+    now_ms - ms_of_day(now_ms) + COMP_START_MS_OF_DAY + COMP_PERIOD_MS
+}
+
+/// Milliseconds from `now_ms` to the next competition-day 18:00 strictly in the
+/// future (Java `getMillisToCompBegin` / `setNewCompBegin`).
+pub(crate) fn next_comp_start_delay_ms(now_ms: i64) -> i64 {
+    let today_start = now_ms - ms_of_day(now_ms) + COMP_START_MS_OF_DAY;
+    for d in 0..8 {
+        let candidate = today_start + d * MS_PER_DAY;
+        if candidate > now_ms && COMP_DAYS.contains(&day_of_week(candidate)) {
+            return candidate - now_ms;
+        }
+    }
+    MS_PER_DAY // unreachable (a competition day always falls within a week)
+}
+
+/// Convert a wall-clock delay to a scheduler fire tick (>= next tick).
+fn fire_at(world: &World, delay_ms: i64) -> u64 {
+    world.tick + (delay_ms.max(100) / 100) as u64
+}
+
+/// Arm the competition-window and weekly-refresh schedules at boot (Java
+/// `Olympiad.init` + `scheduleWeeklyChange`). Called once the persisted state
+/// has been applied.
+pub(crate) fn schedule_at_boot(world: &mut World) {
+    let now = commons::util::now_millis();
+
+    // Weekly refresh: at the persisted instant (or soon, if it has passed).
+    let wk_delay = world.olympiad.next_weekly_change - now;
+    world.scheduler.schedule(
+        fire_at(world, wk_delay),
+        ScheduledTask::OlympiadWeeklyChange,
+    );
+
+    // No competition window during the validation period.
+    if world.olympiad.period != 0 {
+        return;
+    }
+    if in_comp_window(now) {
+        open_comp_window(world, now);
+    } else {
+        world.scheduler.schedule(
+            fire_at(world, next_comp_start_delay_ms(now)),
+            ScheduledTask::OlympiadCompStart,
+        );
+    }
+}
+
+/// Open the window: registration/matches are allowed until it closes.
+fn open_comp_window(world: &mut World, now: i64) {
+    world.olympiad.in_comp_period = true;
+    world.olympiad.comp_end_tick = fire_at(world, window_end(now) - now);
+    world
+        .scheduler
+        .schedule(world.olympiad.comp_end_tick, ScheduledTask::OlympiadCompEnd);
+    tracing::info!("Olympiad: competition window open.");
+    // TODO(G25): start the match-making game manager (OlympiadGameManager) —
+    // slice 4.
+}
+
+/// `OlympiadCompStart`: begin the day's competition window.
+pub(crate) fn handle_comp_start(world: &mut World) {
+    if world.olympiad.period != 0 {
+        return;
+    }
+    open_comp_window(world, commons::util::now_millis());
+}
+
+/// `OlympiadCompEnd`: close the window and schedule the next one.
+pub(crate) fn handle_comp_end(world: &mut World) {
+    world.olympiad.in_comp_period = false;
+    // Java also clears the waiting lists at comp end.
+    world.olympiad.non_class_registers.clear();
+    world.olympiad.class_registers.clear();
+    tracing::info!("Olympiad: competition window closed.");
+    let now = commons::util::now_millis();
+    world.scheduler.schedule(
+        fire_at(world, next_comp_start_delay_ms(now)),
+        ScheduledTask::OlympiadCompStart,
+    );
+}
+
+/// `OlympiadWeeklyChange`: add the weekly points, reset the weekly match
+/// counters (both skipped during the validation period), and reschedule.
+pub(crate) fn handle_weekly_change(world: &mut World) {
+    if world.olympiad.period == 0 {
+        for noble in world.olympiad.nobles.values_mut() {
+            noble.points += WEEKLY_POINTS;
+            noble.comp_done_week = 0;
+        }
+    }
+    let now = commons::util::now_millis();
+    world.olympiad.next_weekly_change = now + WEEKLY_PERIOD_MS;
+    world.scheduler.schedule(
+        fire_at(world, WEEKLY_PERIOD_MS),
+        ScheduledTask::OlympiadWeeklyChange,
+    );
+}
 
 /// Apply the boot-loaded `olympiad_data` + `olympiad_nobles` (Java
 /// `Olympiad.load` / `loadNoblesRank`) into the live state.

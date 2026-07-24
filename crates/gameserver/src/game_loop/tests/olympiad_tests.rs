@@ -352,3 +352,87 @@ fn olympiad_persistence_round_trips() {
     assert_eq!(nobles[0].points, 45);
     assert_eq!(nobles[0].comp_won, 4);
 }
+
+// Epoch day 2 (1970-01-03) was a Saturday; day 4 a Monday. 18:00 UTC on each.
+const MS_PER_DAY: i64 = 86_400_000;
+const SAT_1800: i64 = 2 * MS_PER_DAY + 18 * 3600 * 1000;
+const MON_1800: i64 = 4 * MS_PER_DAY + 18 * 3600 * 1000;
+
+#[test]
+fn competition_window_is_weekends_at_1800() {
+    use crate::game_loop::olympiad::{in_comp_window, next_comp_start_delay_ms};
+
+    // Saturday inside the 18:00–00:00 window is open; before/after is not.
+    assert!(in_comp_window(SAT_1800 + 30 * 60 * 1000), "Sat 18:30 open");
+    assert!(!in_comp_window(SAT_1800 - 3600 * 1000), "Sat 17:00 closed");
+    assert!(
+        !in_comp_window(SAT_1800 + 7 * 3600 * 1000),
+        "Sun 01:00 (past the 6 h window) closed"
+    );
+    // A weekday is never a competition day.
+    assert!(
+        !in_comp_window(MON_1800 + 30 * 60 * 1000),
+        "Mon 18:30 closed"
+    );
+
+    // From Monday 18:00 the next start is Saturday 18:00 — five days off.
+    assert_eq!(next_comp_start_delay_ms(MON_1800), 5 * MS_PER_DAY);
+    // Just before Saturday's window, the next start is a few hours away.
+    assert_eq!(
+        next_comp_start_delay_ms(SAT_1800 - 3600 * 1000),
+        3600 * 1000,
+        "one hour to Saturday 18:00"
+    );
+}
+
+#[test]
+fn comp_start_opens_and_comp_end_closes_the_window() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.period = 0;
+
+    crate::game_loop::olympiad::handle_comp_start(&mut world);
+    assert!(world.olympiad.in_comp_period, "window opened");
+
+    // A registrant, then the window closes and the queue is cleared.
+    world.olympiad.non_class_registers.insert(42);
+    crate::game_loop::olympiad::handle_comp_end(&mut world);
+    assert!(!world.olympiad.in_comp_period, "window closed");
+    assert!(
+        world.olympiad.non_class_registers.is_empty(),
+        "waiting list cleared at comp end"
+    );
+}
+
+#[test]
+fn comp_start_does_nothing_in_the_validation_period() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.period = 1; // validation
+    crate::game_loop::olympiad::handle_comp_start(&mut world);
+    assert!(
+        !world.olympiad.in_comp_period,
+        "no competition during validation"
+    );
+}
+
+#[test]
+fn weekly_change_adds_points_and_resets_matches() {
+    use crate::model::olympiad::NobleStats;
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.period = 0;
+    let mut noble = NobleStats::fresh(2, "N".into()); // 10 points
+    noble.comp_done_week = 7;
+    world.olympiad.nobles.insert(500, noble);
+
+    crate::game_loop::olympiad::handle_weekly_change(&mut world);
+    let n = &world.olympiad.nobles[&500];
+    assert_eq!(n.points, 20, "weekly points added");
+    assert_eq!(n.comp_done_week, 0, "weekly matches reset");
+
+    // During validation the refresh is skipped.
+    world.olympiad.period = 1;
+    world.olympiad.nobles.get_mut(&500).unwrap().comp_done_week = 5;
+    crate::game_loop::olympiad::handle_weekly_change(&mut world);
+    let n = &world.olympiad.nobles[&500];
+    assert_eq!(n.points, 20, "no points during validation");
+    assert_eq!(n.comp_done_week, 5, "not reset during validation");
+}
