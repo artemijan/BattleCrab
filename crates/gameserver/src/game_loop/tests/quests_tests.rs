@@ -17290,3 +17290,205 @@ fn quest_q00070_saga_of_the_phoenix_knight() {
         .unwrap();
     assert!(quests.0[q].is_completed(), "Saga completes on the transfer");
 }
+
+/// Drive one Saga through the full 20-cond ladder to the class transfer, keyed
+/// only on its per-quest data (`items`, `mob[0]`, class ids) — the shared
+/// engine is proven by [`quest_q00070_saga_of_the_phoenix_knight`]; this
+/// validates each fighter Saga's data table end to end.
+fn run_fighter_saga(
+    name: &str,
+    start_npc: i32,
+    prev_class: i32,
+    class_id: i32,
+    items: [i32; 12],
+    mob0: i32,
+) {
+    const GUARDIAN: i32 = 27214;
+    const ARCHON_MINION: i32 = 21646;
+    const ARCHON_HALISHA: i32 = 18212;
+    const REWARD_MARK: i32 = 6622;
+
+    let (mut world, _db, _l) = quest_test_world();
+    let mut ids: Vec<(i32, &str, bool)> = items
+        .iter()
+        .filter(|&&i| i != 0)
+        .map(|&i| (i, "q", true))
+        .collect();
+    ids.push((REWARD_MARK, "mark", false));
+    add_quest_items(&mut world, &ids);
+    for id in [mob0, GUARDIAN, ARCHON_MINION, ARCHON_HALISHA] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let start = NPC_OID;
+    add_test_npc(&mut world, start, start_npc, "Folk", 78, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 76;
+        p.class_id = prev_class;
+    }
+    let q = name;
+    let ev = |w: &mut World, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{start}_Quest {q} {e}")));
+    };
+    let cond = |w: &World| quest_cond(w, 3001, q);
+    let mut mob = NPC_OID + 20;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 78, 110, 200, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{start}_Quest {q}")),
+    );
+    ev(&mut world, "accept");
+    assert_eq!(cond(&world), Some(1), "{name}: started");
+    ev(&mut world, "2-1");
+    ev(&mut world, "1-3");
+    assert_eq!(cond(&world), Some(3), "{name}: cond 3");
+    inject(&mut world, 3001, 0x0071_0000, items[0], 1);
+    if items[11] != 0 {
+        inject(&mut world, 3001, 0x0071_0100, items[11], 1);
+    }
+    ev(&mut world, "1-4");
+    assert_eq!(
+        item_count(&world, 3001, items[1]),
+        1,
+        "{name}: items[1] given"
+    );
+    ev(&mut world, "2-2");
+    ev(&mut world, "5-1");
+    assert_eq!(cond(&world), Some(6), "{name}: cond 6");
+    for _ in 0..10 {
+        kill(&mut world, GUARDIAN);
+    }
+    assert_eq!(cond(&world), Some(7), "{name}: angels → cond 7");
+    ev(&mut world, "6-1");
+    ev(&mut world, "7-1");
+    kill(&mut world, mob0);
+    assert_eq!(cond(&world), Some(9), "{name}: mob[0] → cond 9");
+    ev(&mut world, "7-2");
+    ev(&mut world, "3-6");
+    inject(&mut world, 3001, 0x0071_0200, items[2], 1);
+    ev(&mut world, "3-8");
+    assert_eq!(cond(&world), Some(13), "{name}: cond 13");
+    ev(&mut world, "8-1");
+    ev(&mut world, "11-9");
+    assert_eq!(cond(&world), Some(15), "{name}: cond 15");
+    kill(&mut world, ARCHON_MINION);
+    kill(&mut world, ARCHON_HALISHA);
+    assert_eq!(cond(&world), Some(16), "{name}: archon → cond 16");
+    ev(&mut world, "9-1");
+    ev(&mut world, "10-1");
+    ev(&mut world, "4-2");
+    assert_eq!(cond(&world), Some(18), "{name}: cond 18");
+    ev(&mut world, "10-2");
+    assert_eq!(cond(&world), Some(19), "{name}: cond 19");
+    ev(&mut world, "0-2");
+    assert_eq!(
+        item_count(&world, 3001, REWARD_MARK),
+        1,
+        "{name}: Mark of transfer"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .class_id,
+        class_id,
+        "{name}: transferred to class {class_id}"
+    );
+}
+
+#[test]
+fn quest_fighter_sagas_q71_q78() {
+    // (name, start npc[0], prev class, target class, items[12], mob[0])
+    run_fighter_saga(
+        "Q00071_SagaOfEvasTemplar",
+        30852,
+        20,
+        99,
+        [
+            7080, 7535, 7081, 7486, 7269, 7300, 7331, 7362, 7393, 7424, 7094, 6482,
+        ],
+        27287,
+    );
+    run_fighter_saga(
+        "Q00072_SagaOfTheSwordMuse",
+        30853,
+        21,
+        100,
+        [
+            7080, 7536, 7081, 7487, 7270, 7301, 7332, 7363, 7394, 7425, 7095, 6482,
+        ],
+        27288,
+    );
+    run_fighter_saga(
+        "Q00073_SagaOfTheDuelist",
+        30849,
+        2,
+        88,
+        [
+            7080, 7537, 7081, 7488, 7271, 7302, 7333, 7364, 7395, 7426, 7096, 7546,
+        ],
+        27289,
+    );
+    run_fighter_saga(
+        "Q00074_SagaOfTheDreadnought",
+        30850,
+        3,
+        89,
+        [
+            7080, 7538, 7081, 7489, 7272, 7303, 7334, 7365, 7396, 7427, 7097, 6480,
+        ],
+        27290,
+    );
+    run_fighter_saga(
+        "Q00075_SagaOfTheTitan",
+        31327,
+        46,
+        113,
+        [
+            7080, 7539, 7081, 7490, 7273, 7304, 7335, 7366, 7397, 7428, 7098, 0,
+        ],
+        27292,
+    );
+    run_fighter_saga(
+        "Q00076_SagaOfTheGrandKhavatari",
+        31339,
+        48,
+        114,
+        [
+            7080, 7539, 7081, 7491, 7274, 7305, 7336, 7367, 7398, 7429, 7099, 0,
+        ],
+        27293,
+    );
+    run_fighter_saga(
+        "Q00077_SagaOfTheDominator",
+        31336,
+        51,
+        115,
+        [
+            7080, 7539, 7081, 7492, 7275, 7306, 7337, 7368, 7399, 7430, 7100, 0,
+        ],
+        27294,
+    );
+    run_fighter_saga(
+        "Q00078_SagaOfTheDoomcryer",
+        31336,
+        52,
+        116,
+        [
+            7080, 7539, 7081, 7493, 7276, 7307, 7338, 7369, 7400, 7431, 7101, 0,
+        ],
+        27295,
+    );
+}
