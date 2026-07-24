@@ -81,6 +81,21 @@ fn can_fish(world: &World, player: i32) -> bool {
     let Some(bait_data) = world.data.fishing_data.bait(bait) else {
         return false;
     };
+    // Premium-only bait needs a premium account.
+    if bait_data.premium_only && !super::admin::premium::has_premium_status(world, player) {
+        return false;
+    }
+    // `isInsideZone(ZoneId.WATER)` — no fishing while swimming.
+    if let Some(pos) = world.objects.get_component::<Position>(&player).copied() {
+        let in_water = world
+            .data
+            .zone_data
+            .zones_at(pos.x, pos.y, pos.z)
+            .any(|z| z.kind == crate::data::zone_data::ZoneKind::Water);
+        if in_water {
+            return false;
+        }
+    }
     let level = world
         .objects
         .get_component::<Player>(&player)

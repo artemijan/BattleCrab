@@ -19413,20 +19413,21 @@ fn fishing_cast_hook_and_land_a_fish() {
         item_row(0x4700_0002, BAIT, 5, PaperdollSlot::LHand),
     ]);
     world.objects.add_components(&3001, inv);
-    // A fishing zone under the player and a water zone under the bob (the
-    // heading-0 cast lands 90 units east, at ~190,200).
+    // The shore fishing zone holds the player (100,200); the adjacent water zone
+    // holds the bob (the heading-0 cast lands 90 units east, at ~190,200). They
+    // must not overlap — a player standing *in* water can't fish.
     insert_zone(
         &mut world,
         crate::data::zone_data::ZoneKind::Fishing,
         0,
-        1000,
+        160,
         0,
         1000,
     );
     insert_zone(
         &mut world,
         crate::data::zone_data::ZoneKind::Water,
-        0,
+        160,
         1000,
         0,
         1000,
@@ -19484,4 +19485,106 @@ fn item_row(
         augment_option1: 0,
         augment_option2: 0,
     }
+}
+
+/// Fishing (G32) `canFish` gates: premium-only bait needs a premium account, and
+/// a player standing in water can't fish.
+#[test]
+fn fishing_premium_and_underwater_gates() {
+    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
+    use crate::data::item_data::WeaponType;
+    use crate::data::zone_data::ZoneKind;
+    use crate::model::components::Position;
+    use crate::model::inventory::{Inventory, PaperdollSlot};
+
+    const ROD: i32 = 45492;
+    const BAIT: i32 = 47547;
+    const FISH: i32 = 47550;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (ROD, "Fishing Rod", false),
+            (BAIT, "Bait", true),
+            (FISH, "Ugly Fish", true),
+        ],
+    );
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
+    world
+        .data
+        .fishing_data
+        .insert_rod_for_test(ROD, FishingRod::default());
+    let bait = |premium: bool| FishingBait {
+        min_player_level: 1,
+        max_player_level: 100,
+        chance: 40,
+        time_min: 1000,
+        time_max: 1000,
+        wait_min: 1000,
+        wait_max: 1000,
+        premium_only: premium,
+        catches: vec![FishingCatch {
+            item_id: FISH,
+            chance: 100,
+            multiplier: 1,
+        }],
+    };
+
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
+    let inv = Inventory::from_rows(&[
+        item_row(0x4700_0011, ROD, 1, PaperdollSlot::RHand),
+        item_row(0x4700_0012, BAIT, 10, PaperdollSlot::LHand),
+    ]);
+    world.objects.add_components(&3001, inv);
+    insert_zone(&mut world, ZoneKind::Fishing, 0, 160, 0, 1000);
+    insert_zone(&mut world, ZoneKind::Water, 160, 1000, 0, 1000);
+
+    // --- Gate 1: premium-only bait, no premium account → the cast never starts. ---
+    world
+        .data
+        .fishing_data
+        .insert_bait_for_test(BAIT, bait(true));
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    advance_ticks(&mut world, 12);
+    assert_eq!(item_count(&world, 3001, FISH), 0, "premium bait blocked");
+    assert_eq!(item_count(&world, 3001, BAIT), 10, "no bait consumed");
+
+    // --- Control: the same bait, non-premium, lands a fish. ---
+    world
+        .data
+        .fishing_data
+        .insert_bait_for_test(BAIT, bait(false));
+    world.forced_rolls.push_back(0); // win
+    world.forced_rolls.push_back(0); // catch
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    advance_ticks(&mut world, 12);
+    assert_eq!(
+        item_count(&world, 3001, FISH),
+        1,
+        "non-premium bait catches"
+    );
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
+
+    // --- Gate 2: standing in the water zone → can't fish. ---
+    world
+        .objects
+        .get_component_mut::<Position>(&3001)
+        .unwrap()
+        .x = 500; // inside the water zone (160..1000)
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    advance_ticks(&mut world, 12);
+    assert_eq!(
+        item_count(&world, 3001, FISH),
+        1,
+        "no fishing while in water"
+    );
 }
