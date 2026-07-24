@@ -14760,3 +14760,356 @@ fn servitor_arcana_duel_round_trip() {
         "Victory crystal awarded to the owner"
     );
 }
+
+/// Test of the Summoner (230) end to end: the class/level gate, Grocer Lara's
+/// list + token farm (with its list gating), the Beginner's Arcana turn-in, a
+/// full arcana duel driven through real servitor combat (foul path and victory
+/// path), redeeming Victory crystals for all six Summoner arcanas, and Galatea's
+/// completion reward.
+#[test]
+fn quest_q00230_test_of_the_summoner() {
+    // Item ids (see q00230_test_of_the_summoner.rs).
+    const GALATEAS_LETTER: i32 = 3352;
+    const LARAS_1ST_LIST: i32 = 3347;
+    const LETO_AMULET: i32 = 3337;
+    const SAC_OF_REDSPORES: i32 = 3338;
+    const KARUL_TOTEM: i32 = 3339;
+    const BEGINNERS_ARCANA: i32 = 3353;
+    const STARTING_1ST: i32 = 3360;
+    const INPROGRESS_1ST: i32 = 3361;
+    const FOUL_1ST: i32 = 3362;
+    const VICTORY_1ST: i32 = 3364;
+    const ALMORS_ARCANA: i32 = 3354;
+    const MARK_OF_SUMMONER: i32 = 3336;
+    // NPCs
+    const GALATEA: i32 = 30634;
+    const LARA: i32 = 30063;
+    const ALMORS: i32 = 30635;
+    const CAMONIELL: i32 = 30636;
+    const BELTHUS: i32 = 30637;
+    const BASILLA: i32 = 30638;
+    const CELESTIEL: i32 = 30639;
+    const BRYNTHEA: i32 = 30640;
+    // Monsters
+    const PAKO: i32 = 27102;
+    const LETO: i32 = 20577;
+    const KARUL: i32 = 20600;
+    const SERVITOR_NPC: i32 = 14100;
+
+    let (mut world, _db, _l) = quest_test_world();
+    // Every quest item this test moves, plus the (tradeable) reward.
+    let mut items: Vec<(i32, &str, bool)> = [
+        GALATEAS_LETTER,
+        LARAS_1ST_LIST,
+        3348,
+        3349,
+        3350,
+        3351, // lists 2..5
+        LETO_AMULET,
+        SAC_OF_REDSPORES,
+        KARUL_TOTEM,
+        BEGINNERS_ARCANA,
+        STARTING_1ST,
+        INPROGRESS_1ST,
+        FOUL_1ST,
+        3363, // DEFEAT_1ST
+        VICTORY_1ST,
+        ALMORS_ARCANA,
+        3355,
+        3356,
+        3357,
+        3358,
+        3359, // other 5 arcanas
+        3369,
+        3374,
+        3379,
+        3384,
+        3389, // VICTORY 2nd..6th
+    ]
+    .iter()
+    .map(|&id| (id, "Q230", true))
+    .collect();
+    items.push((MARK_OF_SUMMONER, "Mark of Summoner", false));
+    add_quest_items(&mut world, &items);
+
+    // A Cat servitor template for the owner; a durable Pako for the duel.
+    let mut sv = crate::data::npc_data::default_template(SERVITOR_NPC);
+    sv.type_name = "Servitor".into();
+    sv.base_hp_max = 400.0;
+    sv.collision_radius = 10.0;
+    world.data.npc_data.insert_for_test(sv);
+    for id in [PAKO, LETO, KARUL] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    let galatea = NPC_OID;
+    let lara = NPC_OID + 1;
+    let almors = NPC_OID + 2;
+    let camoniell = NPC_OID + 3;
+    let belthus = NPC_OID + 4;
+    let basilla = NPC_OID + 5;
+    let celestiel = NPC_OID + 6;
+    let brynthea = NPC_OID + 7;
+    for (oid, npc) in [
+        (galatea, GALATEA),
+        (lara, LARA),
+        (almors, ALMORS),
+        (camoniell, CAMONIELL),
+        (belthus, BELTHUS),
+        (basilla, BASILLA),
+        (celestiel, CELESTIEL),
+        (brynthea, BRYNTHEA),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 200, 0);
+    }
+
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 11; // Wizard
+    }
+    let q = "Q00230_TestOfTheSummoner";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+
+    // Grab the first HTML from a talk, whether it went out as a `.html`
+    // (`NpcHtmlMessage`) or a `.htm` (`ExNpcQuestHtmlMessage`).
+    let grab_html = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> Option<String> {
+        drain(rx).iter().find_map(|p| {
+            if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                decode_npc_html(p)
+            } else if p[0] == crate::network::server_packets::opcodes::EX {
+                let mut r = commons::network::PacketReader::new(&p[1..]);
+                r.read_i16()?; // ex opcode
+                r.read_i32()?; // npc oid
+                r.read_string()
+            } else {
+                None
+            }
+        })
+    };
+
+    // --- Class / level gate on the start NPC. ---
+    talk(&mut world, galatea);
+    let html = grab_html(&mut rx).expect("Galatea greets a Wizard");
+    // The 30634-03 offer page carries the "accept the trial" button (→30634-04).
+    assert!(
+        html.contains("30634-04.htm"),
+        "level-39 Wizard is offered the trial: {html}"
+    );
+    // A non-caster is turned away — the refusal page has no accept button.
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .class_id = 10; // Human Fighter
+    talk(&mut world, galatea);
+    let html = grab_html(&mut rx).unwrap();
+    assert!(
+        !html.contains("30634-04.htm"),
+        "a fighter is refused (no accept button): {html}"
+    );
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .class_id = 11;
+
+    // --- Accept: Galatea's Letter, quest started. ---
+    ev(&mut world, galatea, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    assert_eq!(
+        item_count(&world, 3001, GALATEAS_LETTER),
+        1,
+        "Galatea's Letter"
+    );
+
+    // --- Lara hands out a hunting list (forced to the 1st), takes the Letter. ---
+    world.forced_rolls.push_back(0); // getRandom(5) → LARAS_1ST_LIST
+    ev(&mut world, lara, "30063-02.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert_eq!(
+        item_count(&world, 3001, LARAS_1ST_LIST),
+        1,
+        "1st list granted"
+    );
+    assert_eq!(
+        item_count(&world, 3001, GALATEAS_LETTER),
+        0,
+        "Letter surrendered"
+    );
+
+    // --- Token farm: a matching kill drops, a mismatched one does not. ---
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 110, 200, 0);
+        w.forced_rolls.push_back(0); // give_item_randomly roll_f64 → 0.0 ≤ chance
+        death::npc_do_die(w, mob, 3001);
+    };
+    kill(&mut world, LETO); // list1 held → Leto Lizardman Amulet drops
+    assert!(
+        item_count(&world, 3001, LETO_AMULET) >= 1,
+        "amulet dropped while holding 1st list"
+    );
+    kill(&mut world, KARUL); // Karul needs the 2nd list → nothing
+    assert_eq!(
+        item_count(&world, 3001, KARUL_TOTEM),
+        0,
+        "no drop for a mismatched list"
+    );
+
+    // --- Turn in the 1st list: 30 + 30 tokens → two Beginner's Arcana, cond 3. ---
+    inject(&mut world, 3001, 0x0230_1000, LETO_AMULET, 30);
+    inject(&mut world, 3001, 0x0230_2000, SAC_OF_REDSPORES, 30);
+    talk(&mut world, lara);
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    assert_eq!(
+        item_count(&world, 3001, BEGINNERS_ARCANA),
+        2,
+        "two Beginner's Arcana"
+    );
+    assert_eq!(
+        item_count(&world, 3001, LARAS_1ST_LIST),
+        0,
+        "list consumed on turn-in"
+    );
+
+    // --- Summoner Almors: the offer needs an arcana; buying starts the duel. ---
+    let _ = drain(&mut rx); // clear queued html from the prior turn-in
+    ev(&mut world, almors, "30635-03.html"); // gated: shows the offer (arcana in hand)
+    let html = grab_html(&mut rx).expect("offer page");
+    assert!(
+        html.contains("30635-04.htm") || html.contains("Almors"),
+        "offer shown with an arcana in hand: {html}"
+    );
+    ev(&mut world, almors, "30635-04.html"); // Arcana → Crystal of Starting (1st)
+    assert_eq!(
+        item_count(&world, 3001, STARTING_1ST),
+        1,
+        "Crystal of Starting granted"
+    );
+    assert_eq!(
+        item_count(&world, 3001, BEGINNERS_ARCANA),
+        1,
+        "one arcana spent"
+    );
+
+    // Summon the servitor that will fight the duels.
+    let servitor = crate::game_loop::servitor::summon_servitor(
+        &mut world,
+        3001,
+        SERVITOR_NPC,
+        283,
+        1200,
+        0,
+        0,
+    )
+    .expect("servitor summoned");
+
+    // --- Foul path: servitor engages, then the *player* interferes. ---
+    let pako1 = NPC_OID + 60;
+    add_test_npc(&mut world, pako1, PAKO, "Monster", 40, 120, 200, 0);
+    combat::npc_receive_damage(&mut world, pako1, servitor, 10.0); // servitor engages
+    assert_eq!(
+        item_count(&world, 3001, INPROGRESS_1ST),
+        1,
+        "duel engaged: In-Progress"
+    );
+    assert_eq!(
+        item_count(&world, 3001, STARTING_1ST),
+        0,
+        "Starting consumed on engage"
+    );
+    combat::npc_receive_damage(&mut world, pako1, 3001, 10.0); // the OWNER fouls it
+    assert_eq!(
+        item_count(&world, 3001, FOUL_1ST),
+        1,
+        "a player strike fouls the duel"
+    );
+    assert_eq!(
+        item_count(&world, 3001, INPROGRESS_1ST),
+        0,
+        "In-Progress lost on foul"
+    );
+
+    // --- Victory path: buy a fresh Starting (clears the Foul), win by servitor. ---
+    ev(&mut world, almors, "30635-04.html");
+    assert_eq!(
+        item_count(&world, 3001, FOUL_1ST),
+        0,
+        "Foul cleared by a fresh Starting"
+    );
+    assert_eq!(item_count(&world, 3001, STARTING_1ST), 1);
+    let pako2 = NPC_OID + 61;
+    add_test_npc(&mut world, pako2, PAKO, "Monster", 40, 120, 200, 0);
+    combat::npc_receive_damage(&mut world, pako2, servitor, 10.0); // engage
+    assert_eq!(item_count(&world, 3001, INPROGRESS_1ST), 1);
+    death::npc_do_die(&mut world, pako2, servitor); // servitor kill → owner-credited
+    assert_eq!(
+        item_count(&world, 3001, VICTORY_1ST),
+        1,
+        "Victory on a servitor kill"
+    );
+    assert_eq!(
+        item_count(&world, 3001, INPROGRESS_1ST),
+        0,
+        "In-Progress consumed on victory"
+    );
+
+    // --- Redeem Victory for the Almors Arcana. ---
+    talk(&mut world, almors);
+    assert_eq!(
+        item_count(&world, 3001, ALMORS_ARCANA),
+        1,
+        "Almors Arcana earned"
+    );
+    assert_eq!(item_count(&world, 3001, VICTORY_1ST), 0, "Victory redeemed");
+
+    // --- The other five duels: inject Victory crystals and redeem each. The
+    // final redemption (all six arcanas held) advances to cond 4. ---
+    for (obj, victory, summoner) in [
+        (0x0230_3000, 3369, basilla),   // 2nd → Basillia
+        (0x0230_4000, 3374, camoniell), // 3rd → Camoniell
+        (0x0230_5000, 3379, celestiel), // 4th → Celestiel
+        (0x0230_6000, 3384, belthus),   // 5th → Belthus
+        (0x0230_7000, 3389, brynthea),  // 6th → Brynthea
+    ] {
+        inject(&mut world, 3001, obj, victory, 1);
+        talk(&mut world, summoner);
+    }
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(4),
+        "all six arcanas → cond 4"
+    );
+    for arcana in [3355, 3356, 3357, 3358, 3359] {
+        assert_eq!(
+            item_count(&world, 3001, arcana),
+            1,
+            "arcana {arcana} earned"
+        );
+    }
+
+    // --- Galatea completes the test: Mark of Summoner, exit. ---
+    talk(&mut world, galatea);
+    assert_eq!(
+        item_count(&world, 3001, MARK_OF_SUMMONER),
+        1,
+        "Mark of Summoner awarded"
+    );
+    let quests = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .unwrap();
+    assert!(quests.0[q].is_completed(), "one-time quest stays COMPLETED");
+}
