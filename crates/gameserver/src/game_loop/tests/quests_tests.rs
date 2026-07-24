@@ -16861,3 +16861,143 @@ fn quest_q00420_little_wing() {
         "the Deluxe Fairy Stone shatters on the fae"
     );
 }
+
+/// Four Goblets (620): the Imperial Tomb quest — accept, farm a tomb undead for
+/// Relics/Grave Pass/Sealed Box, slay the four bosses for their goblets, redeem
+/// them for the Antique Brooch, open a Sealed Box, and trade 1,000 Relics for a
+/// Sealed recipe.
+#[test]
+fn quest_q00620_four_goblets() {
+    const NAMELESS: i32 = 31453;
+    const WIGOTH_2: i32 = 31454;
+    const ENTRANCE_PASS: i32 = 7075;
+    const GRAVE_PASS: i32 = 7261;
+    const RELIC: i32 = 7254;
+    const SEALED_BOX: i32 = 7255;
+    const GOBLETS: [i32; 4] = [7256, 7257, 7258, 7259];
+    const ANTIQUE_BROOCH: i32 = 7262;
+    const ADENA: i32 = 57;
+    const RECIPE: i32 = 6881;
+    const TOMB_MOB: i32 = 18120;
+    const BOSSES: [i32; 4] = [25339, 25342, 25346, 25349];
+
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = [
+        ENTRANCE_PASS,
+        GRAVE_PASS,
+        RELIC,
+        SEALED_BOX,
+        GOBLETS[0],
+        GOBLETS[1],
+        GOBLETS[2],
+        GOBLETS[3],
+        ANTIQUE_BROOCH,
+    ]
+    .iter()
+    .map(|&i| (i, "q", true))
+    .collect();
+    items.push((ADENA, "adena", false));
+    items.push((RECIPE, "recipe", false));
+    add_quest_items(&mut world, &items);
+    for id in [TOMB_MOB, BOSSES[0], BOSSES[1], BOSSES[2], BOSSES[3]] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let nameless = NPC_OID;
+    let wigoth2 = NPC_OID + 1;
+    add_test_npc(&mut world, nameless, NAMELESS, "Folk", 78, 100, 200, 0);
+    add_test_npc(&mut world, wigoth2, WIGOTH_2, "Folk", 78, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00620_FourGoblets";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+
+    // Accept (level 74-80) → Entrance Pass, cond 1.
+    talk(&mut world, nameless);
+    ev(&mut world, nameless, "accept");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
+    assert_eq!(item_count(&world, 3001, ENTRANCE_PASS), 1, "Entrance Pass");
+
+    // Kill a tomb undead: Relic + Grave Pass, and (forced 15% roll) a Sealed Box.
+    add_test_npc(
+        &mut world,
+        NPC_OID + 20,
+        TOMB_MOB,
+        "Monster",
+        78,
+        110,
+        200,
+        0,
+    );
+    world.forced_rolls.push_back(0); // roll(100) < 15 → Sealed Box
+    death::npc_do_die(&mut world, NPC_OID + 20, 3001);
+    assert_eq!(item_count(&world, 3001, RELIC), 1, "Relic dropped");
+    assert_eq!(
+        item_count(&world, 3001, GRAVE_PASS),
+        1,
+        "Grave Pass dropped"
+    );
+    assert_eq!(
+        item_count(&world, 3001, SEALED_BOX),
+        1,
+        "Sealed Box dropped"
+    );
+
+    // Slay the four bosses for the four goblets.
+    let mut boss_oid = NPC_OID + 30;
+    for (i, &boss) in BOSSES.iter().enumerate() {
+        boss_oid += 1;
+        add_test_npc(&mut world, boss_oid, boss, "Monster", 78, 110, 200, 0);
+        death::npc_do_die(&mut world, boss_oid, 3001);
+        assert_eq!(
+            item_count(&world, 3001, GOBLETS[i]),
+            1,
+            "goblet {i} from its boss"
+        );
+    }
+
+    // Redeem the four goblets for the Antique Brooch (cond 2).
+    ev(&mut world, nameless, "12");
+    assert_eq!(
+        item_count(&world, 3001, ANTIQUE_BROOCH),
+        1,
+        "Antique Brooch"
+    );
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "goblets turned in → cond 2"
+    );
+    assert_eq!(item_count(&world, 3001, GOBLETS[0]), 0, "goblets consumed");
+
+    // Open the Sealed Box (forced roll 0 → the 10,000 Adena reward).
+    world.forced_rolls.push_back(0); // roll(5) == 0
+    ev(&mut world, wigoth2, "11");
+    assert_eq!(item_count(&world, 3001, SEALED_BOX), 0, "box consumed");
+    assert!(
+        item_count(&world, 3001, ADENA) >= 10000,
+        "Adena from the box"
+    );
+
+    // Trade 1,000 Relics for a Sealed recipe.
+    inject(&mut world, 3001, 0x0620_1000, RELIC, 1000);
+    ev(&mut world, wigoth2, "6881");
+    assert_eq!(
+        item_count(&world, 3001, RECIPE),
+        1,
+        "Sealed recipe for 1000 Relics"
+    );
+    assert!(item_count(&world, 3001, RELIC) <= 1, "relics consumed");
+}
