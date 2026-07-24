@@ -826,6 +826,24 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // auto-start schedule (`SiegeSchedule.xml`).
                 crate::game_loop::siege::schedule_all_at_boot(world);
             }
+            DbEvent::OlympiadLoaded {
+                current_cycle,
+                period,
+                olympiad_end,
+                validation_end,
+                next_weekly_change,
+                nobles,
+            } => {
+                crate::game_loop::olympiad::apply_loaded(
+                    world,
+                    current_cycle,
+                    period,
+                    olympiad_end,
+                    validation_end,
+                    next_weekly_change,
+                    nobles,
+                );
+            }
             DbEvent::SiegeGuardsLoaded { guards } => {
                 let mut by_castle: std::collections::HashMap<
                     i32,

@@ -79,6 +79,12 @@ pub struct OlympiadState {
     /// The game tick at which the current competition window closes; the
     /// "registration closed" gate compares against it.
     pub comp_end_tick: u64,
+    /// Persisted wall-clock milestones (Java `olympiad_data`): the current
+    /// month's end, the validation-period end, and the next weekly refresh.
+    /// Loaded/saved as-is; the window scheduler (a later slice) consumes them.
+    pub olympiad_end: i64,
+    pub validation_end: i64,
+    pub next_weekly_change: i64,
     /// Every noble who has ever registered, by character object id.
     pub nobles: HashMap<i32, NobleStats>,
     /// Object ids waiting in the class-irrelevant queue.

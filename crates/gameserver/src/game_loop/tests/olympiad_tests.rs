@@ -297,3 +297,58 @@ fn oly_manager_rejects_subclass() {
         "the subclass page was served"
     );
 }
+
+/// The boot load populates the state, and the shutdown save emits the same
+/// noble record back to the DB.
+#[test]
+fn olympiad_persistence_round_trips() {
+    use crate::db::{DbCommand, OlympiadNobleRow};
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+
+    // Boot load: period 1 of cycle 3, one noble with earned points.
+    crate::game_loop::olympiad::apply_loaded(
+        &mut world,
+        3,
+        1,
+        111,
+        222,
+        333,
+        vec![OlympiadNobleRow {
+            char_id: 500,
+            class_id: 2,
+            points: 45,
+            comp_done: 7,
+            comp_won: 4,
+            comp_lost: 3,
+            comp_drawn: 0,
+            comp_done_week: 2,
+        }],
+    );
+    assert_eq!(world.olympiad.current_cycle, 3);
+    assert_eq!(world.olympiad.period, 1);
+    assert_eq!(world.olympiad.next_weekly_change, 333);
+    let n = world.olympiad.nobles.get(&500).expect("noble loaded");
+    assert_eq!(n.points, 45);
+    assert_eq!(n.comp_won, 4);
+    assert_eq!(n.comp_done_week, 2);
+
+    // Shutdown save: the SaveOlympiad command carries the loaded state back.
+    crate::game_loop::olympiad::save_all(&world);
+    let (cycle, period, nobles) = drain_db(&mut db_rx)
+        .into_iter()
+        .find_map(|c| match c {
+            DbCommand::SaveOlympiad {
+                current_cycle,
+                period,
+                nobles,
+                ..
+            } => Some((current_cycle, period, nobles)),
+            _ => None,
+        })
+        .expect("SaveOlympiad emitted");
+    assert_eq!((cycle, period), (3, 1));
+    assert_eq!(nobles.len(), 1);
+    assert_eq!(nobles[0].char_id, 500);
+    assert_eq!(nobles[0].points, 45);
+    assert_eq!(nobles[0].comp_won, 4);
+}

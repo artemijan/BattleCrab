@@ -460,6 +460,16 @@ pub enum DbCommand {
         castle_id: i32,
         clan_id: i32,
     },
+    /// `Olympiad.saveOlympiadStatus` + `saveNobleData` — upsert the single
+    /// `olympiad_data` row and every `olympiad_nobles` record.
+    SaveOlympiad {
+        current_cycle: i32,
+        period: i32,
+        olympiad_end: i64,
+        validation_end: i64,
+        next_weekly_change: i64,
+        nobles: Vec<OlympiadNobleRow>,
+    },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel {
         clan_id: i32,
@@ -795,6 +805,16 @@ pub enum DbEvent {
     /// The `siege_clans` table (Java `Siege.loadSiegeClan`), pushed unprompted at
     /// boot after `CastlesLoaded`. Grouped into per-castle sieges on the game thread.
     SiegesLoaded { rows: Vec<SiegeClanRow> },
+    /// `olympiad_data` (the single id=0 row) + all `olympiad_nobles`
+    /// (Java `Olympiad.load`), loaded once at boot.
+    OlympiadLoaded {
+        current_cycle: i32,
+        period: i32,
+        olympiad_end: i64,
+        validation_end: i64,
+        next_weekly_change: i64,
+        nobles: Vec<OlympiadNobleRow>,
+    },
     /// The `castle_siege_guards` table (the stationed garrison, `isHired=0`),
     /// pushed unprompted at boot. `(castle_id, spawn)`; grouped by castle on the
     /// game thread.
@@ -809,6 +829,19 @@ pub struct SiegeClanRow {
     pub castle_id: i32,
     pub clan_id: i32,
     pub kind: i32,
+}
+
+/// One `olympiad_nobles` row — a noble's persisted Olympiad record.
+#[derive(Debug, Clone)]
+pub struct OlympiadNobleRow {
+    pub char_id: i32,
+    pub class_id: i32,
+    pub points: i32,
+    pub comp_done: i32,
+    pub comp_won: i32,
+    pub comp_lost: i32,
+    pub comp_drawn: i32,
+    pub comp_done_week: i32,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -958,6 +991,9 @@ async fn run(
     let _ = event_tx.send(DbEvent::SiegesLoaded {
         rows: load_siege_clans(&pool).await,
     });
+
+    // `Olympiad.load` — the period/cycle row + every noble's record.
+    let _ = event_tx.send(load_olympiad(&pool).await);
 
     // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded {
@@ -1286,6 +1322,49 @@ async fn run(
                         .bind(clan_id),
                 )
                 .await;
+            }
+            DbCommand::SaveOlympiad {
+                current_cycle,
+                period,
+                olympiad_end,
+                validation_end,
+                next_weekly_change,
+                nobles,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO olympiad_data \
+                         (id, current_cycle, period, olympiad_end, validation_end, next_weekly_change) \
+                         VALUES (0, ?, ?, ?, ?, ?)",
+                    )
+                    .bind(current_cycle)
+                    .bind(period)
+                    .bind(olympiad_end)
+                    .bind(validation_end)
+                    .bind(next_weekly_change),
+                )
+                .await;
+                for n in nobles {
+                    exec(
+                        &pool,
+                        sqlx::query(
+                            "INSERT OR REPLACE INTO olympiad_nobles \
+                             (charId, class_id, olympiad_points, competitions_done, competitions_won, \
+                             competitions_lost, competitions_drawn, competitions_done_week) \
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        )
+                        .bind(n.char_id)
+                        .bind(n.class_id)
+                        .bind(n.points)
+                        .bind(n.comp_done)
+                        .bind(n.comp_won)
+                        .bind(n.comp_lost)
+                        .bind(n.comp_drawn)
+                        .bind(n.comp_done_week),
+                    )
+                    .await;
+                }
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
                 exec(
@@ -2462,6 +2541,56 @@ async fn load_quests(
 /// `GrandBossManager.init`: every `grandboss_data` row. The NPC-template
 /// filter (`NpcData.getTemplate != null`) runs on the game thread, which owns
 /// the datapack; here we just read the table.
+/// `Olympiad.load` — the single `olympiad_data` row (defaults if absent: cycle
+/// 1, period 0) plus every `olympiad_nobles` record.
+async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
+    let data = sqlx::query(
+        "SELECT current_cycle, period, olympiad_end, validation_end, next_weekly_change \
+         FROM olympiad_data WHERE id = 0",
+    )
+    .fetch_optional(pool)
+    .await
+    .ok()
+    .flatten();
+    let (current_cycle, period, olympiad_end, validation_end, next_weekly_change) = match &data {
+        Some(r) => (
+            geti(r, "current_cycle") as i32,
+            geti(r, "period") as i32,
+            geti(r, "olympiad_end"),
+            geti(r, "validation_end"),
+            geti(r, "next_weekly_change"),
+        ),
+        None => (1, 0, 0, 0, 0),
+    };
+    let nobles = sqlx::query(
+        "SELECT charId, class_id, olympiad_points, competitions_done, competitions_won, \
+         competitions_lost, competitions_drawn, competitions_done_week FROM olympiad_nobles",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default()
+    .iter()
+    .map(|r| OlympiadNobleRow {
+        char_id: geti(r, "charId") as i32,
+        class_id: geti(r, "class_id") as i32,
+        points: geti(r, "olympiad_points") as i32,
+        comp_done: geti(r, "competitions_done") as i32,
+        comp_won: geti(r, "competitions_won") as i32,
+        comp_lost: geti(r, "competitions_lost") as i32,
+        comp_drawn: geti(r, "competitions_drawn") as i32,
+        comp_done_week: geti(r, "competitions_done_week") as i32,
+    })
+    .collect();
+    DbEvent::OlympiadLoaded {
+        current_cycle,
+        period,
+        olympiad_end,
+        validation_end,
+        next_weekly_change,
+        nobles,
+    }
+}
+
 async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {
     let rows = sqlx::query(
         "SELECT boss_id, loc_x, loc_y, loc_z, heading, respawn_time, currentHP, currentMP, status \
