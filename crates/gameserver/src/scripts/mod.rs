@@ -43,6 +43,7 @@ pub mod q00226_test_of_the_healer;
 pub mod q00227_test_of_the_reformer;
 pub mod q00228_test_of_magus;
 pub mod q00229_test_of_witchcraft;
+pub mod q00230_test_of_the_summoner;
 pub mod q00231_test_of_the_maestro;
 pub mod q00232_test_of_the_lord;
 pub mod q00233_test_of_the_war_spirit;
@@ -221,6 +222,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00227_test_of_the_reformer::Q00227TestOfTheReformer),
         Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
         Arc::new(q00229_test_of_witchcraft::Q00229TestOfWitchcraft),
+        Arc::new(q00230_test_of_the_summoner::Q00230TestOfTheSummoner),
         Arc::new(q00232_test_of_the_lord::Q00232TestOfTheLord),
         Arc::new(q00233_test_of_the_war_spirit::Q00233TestOfTheWarSpirit),
         Arc::new(q00401_path_of_the_warrior::Q00401PathOfTheWarrior),
