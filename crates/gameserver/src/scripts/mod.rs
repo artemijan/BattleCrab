@@ -31,6 +31,7 @@ pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
 pub mod q00124_meeting_the_elroki;
 pub mod q00125_the_name_of_evil_1;
+pub mod q00126_the_name_of_evil_2;
 pub mod q00127_fishing_specialists_request;
 pub mod q00210_obtain_a_wolf_pet;
 pub mod q00211_trial_of_the_challenger;
@@ -217,6 +218,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00634_in_search_of_fragments_of_dimension::Q00634InSearchOfFragmentsOfDimension),
         Arc::new(q00124_meeting_the_elroki::Q00124MeetingTheElroki),
         Arc::new(q00125_the_name_of_evil_1::Q00125TheNameOfEvil1),
+        Arc::new(q00126_the_name_of_evil_2::Q00126TheNameOfEvil2),
         Arc::new(q00325_grim_collector::Q00325GrimCollector),
         Arc::new(
             q00643_rise_and_fall_of_the_elroki_tribe::Q00643RiseAndFallOfTheElrokiTribe::new(),
