@@ -27,6 +27,7 @@ pub mod q00037_make_formal_wear;
 pub mod q00042_help_the_uncle;
 pub mod q00043_help_the_sister;
 pub mod q00044_help_the_son;
+pub mod q00070_saga_of_the_phoenix_knight;
 pub mod q00109_in_search_of_the_nest;
 pub mod q00110_to_the_primeval_isle;
 pub mod q00111_elrokian_hunters_proof;
@@ -140,6 +141,7 @@ pub mod q00642_a_powerful_primeval_creature;
 pub mod q00643_rise_and_fall_of_the_elroki_tribe;
 pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
+pub mod saga;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
 mod valakas_teleporters;
@@ -161,6 +163,9 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00042_help_the_uncle::Q00042HelpTheUncle),
         Arc::new(q00043_help_the_sister::Q00043HelpTheSister),
         Arc::new(q00044_help_the_son::Q00044HelpTheSon),
+        Arc::new(saga::SagaQuest::new(
+            q00070_saga_of_the_phoenix_knight::saga(),
+        )),
         Arc::new(q00109_in_search_of_the_nest::Q00109InSearchOfTheNest),
         Arc::new(q00210_obtain_a_wolf_pet::Q00210ObtainAWolfPet),
         Arc::new(q00257_the_guard_is_busy::Q00257TheGuardIsBusy),
