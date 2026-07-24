@@ -10,10 +10,11 @@
 //! Guardian Angels and Archon minions, and slaying three scripted spawns
 //! (`mob[0..2]`) before the quest-giver performs the class transfer.
 //!
-//! Faithful gaps (cosmetic, TODO): the NPC battle-chatter (`_text`), the
-//! `MagicSkillUse` casts (4546 progression glow, 4339 transform), and the
-//! elaborate final-battle AI where `npc[4]` duels `mob[2]` on timers — here the
-//! spawns and the cond-advancing kills/events are wired, the theatrics are not.
+//! The finale is wired: the boss and companion spawn and duel each other, trade
+//! opening lines, and the boss is driven off after 15 player hits (unlocking the
+//! reward). Faithful gaps that remain (cosmetic, TODO): the full *timed* `_text`
+//! taunt cadence (here just the opening + retreat lines, generic across all 31
+//! Sagas), and the `MagicSkillUse` casts (4546 progression glow, 4339 transform).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -46,6 +47,11 @@ const REWARD_ADENA: i64 = 5_000_000;
 const MARK_OF_SAGA: i32 = 6622;
 const ARCHON_HALISHA_NORM: [i32; 5] = [18212, 18214, 18215, 18216, 18218];
 const MIN_LEVEL: i32 = 76;
+// Finale battle chatter. The authentic `_text` lines are quest-specific (18
+// per Saga); one generic set serves all 31, in keeping with the shared htmls.
+const BOSS_TAUNT: &str = "So, another has come to be broken. You are no different from the rest!";
+const COMPANION_CALL: &str = "Steel yourself — I will stand with you against this thing!";
+const BOSS_RETREAT: &str = "Impossible... I cannot... I must withdraw!";
 
 pub struct SagaQuest {
     data: SagaData,
@@ -210,13 +216,20 @@ impl QuestScript for SagaQuest {
                 let (cx, cy, cz) = self.data.spawn[2];
                 // The finale boss (hostile) and the companion (neutral, talked
                 // to for the reward once the boss is driven off).
-                ctx.spawn_attacker_at(self.mob(2), bx, by, bz);
+                let boss = ctx.spawn_attacker_at(self.mob(2), bx, by, bz);
                 let _ = (cx, cy, cz); // companion spawns beside the guide (talkable)
-                ctx.spawn_near_npc(self.npc(4), false);
+                let companion = ctx.spawn_near_npc(self.npc(4), false);
+                // Choreography: the companion and boss set upon each other and
+                // trade opening lines. (The authentic timed taunt cadence is
+                // still simplified — TODO(saga) for the full `_text` sequence.)
+                if let (Some(b), Some(c)) = (boss, companion) {
+                    ctx.seed_npc_attack(b, c);
+                    ctx.seed_npc_attack(c, b);
+                    ctx.broadcast_npc_text(b, BOSS_TAUNT);
+                    ctx.broadcast_npc_text(c, COMPANION_CALL);
+                }
                 ctx.set_var("Quest0", "1"); // the boss's hit counter
                 ctx.set_var("Tab", "0"); // set once the boss retreats
-                                         // TODO(saga): the authentic timed npc[4]-vs-mob[2] duel + `_text`
-                                         // chatter; here the player drives the boss off directly.
                 Some("10-02.htm".to_string())
             }
             "11-9" => {
@@ -292,8 +305,8 @@ impl QuestScript for SagaQuest {
         if hits > 15 {
             ctx.set_var("Quest0", "1");
             ctx.set_var("Tab", "1");
+            ctx.npc_say_text(BOSS_RETREAT); // the boss's parting cry
             ctx.delete_npc(); // the boss retreats
-                              // TODO(saga): `_text[17]` retreat chatter.
         }
     }
 

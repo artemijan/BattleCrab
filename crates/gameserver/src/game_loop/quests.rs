@@ -920,6 +920,24 @@ impl<'w> QuestCtx<'w> {
         super::npc_ai::seed_attack(self.world, self.npc, target_oid);
     }
 
+    /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble from
+    /// the in-context NPC (e.g. the Saga finale boss's retreat cry).
+    pub fn npc_say_text(&self, text: &str) {
+        super::helpers::npc_say_text(self.world, self.npc, text);
+    }
+
+    /// The same literal-text bubble, but from an *arbitrary* npc — a spawned
+    /// finale actor rather than the in-context one.
+    pub fn broadcast_npc_text(&self, npc_oid: i32, text: &str) {
+        super::helpers::npc_say_text(self.world, npc_oid, text);
+    }
+
+    /// Seed aggro from an arbitrary npc onto a target (npc-vs-npc), for the Saga
+    /// finale where the companion and boss duel each other.
+    pub fn seed_npc_attack(&mut self, npc_oid: i32, target_oid: i32) {
+        super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
+    }
+
     /// Whether the object `oid` is dead (or gone). Used by the arcana-duel
     /// `KILLED_ATTACKER` timer to tell whether the challenger's servitor fell.
     pub fn is_oid_dead(&self, oid: i32) -> bool {

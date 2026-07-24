@@ -17820,6 +17820,18 @@ fn saga_finale_boss_retreats_after_15_hits() {
         .first()
         .expect("companion spawned");
 
+    // Choreography: the boss and its companion set upon each other.
+    let boss_targets_companion = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&boss)
+        .is_some_and(|a| a.0.contains_key(&companion));
+    let companion_targets_boss = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&companion)
+        .is_some_and(|a| a.0.contains_key(&boss));
+    assert!(boss_targets_companion, "the boss duels the companion");
+    assert!(companion_targets_boss, "the companion duels the boss");
+
     // Before the boss is driven off, the companion refuses the reward.
     handle_request_bypass_to_server(
         &mut world,
