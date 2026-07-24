@@ -135,6 +135,10 @@ fn cast_line(world: &mut World, player: i32) {
         stop_fishing(world, player, REASON_STOP);
         return;
     };
+    // Java: charge fishing shots for this cast if the player has them auto-on.
+    if !is_charged_fish_shot(world, player) {
+        super::items::recharge_shots(world, player, false, false, true);
+    }
     let seq = world.next_request_seq();
     set_session(world, player, |f| {
         f.cast_seq = seq;
@@ -205,15 +209,26 @@ pub(crate) fn handle_cast(world: &mut World, player: i32, cast_seq: u64) {
 
 fn reel_in_with_reward(world: &mut World, player: i32) {
     let bait = equipped_bait(world, player);
-    let chance = match world.data.fishing_data.bait(bait) {
+    let mut chance = match world.data.fishing_data.bait(bait) {
         Some(b) => b.chance,
         None => {
             reel_in(world, player, false, false);
             return;
         }
     };
+    // Fishing shots double the win chance.
+    if is_charged_fish_shot(world, player) {
+        chance *= 2;
+    }
     let win = world.roll(100) <= chance;
     reel_in(world, player, win, true);
+}
+
+fn is_charged_fish_shot(world: &World, player: i32) -> bool {
+    world
+        .objects
+        .get_component::<Player>(&player)
+        .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::FishSoulshots))
 }
 
 fn reel_in(world: &mut World, player: i32, win: bool, consume_bait: bool) {
@@ -258,6 +273,12 @@ fn reel_in(world: &mut World, player: i32, win: bool, consume_bait: bool) {
             if xp > 0 || sp_amt > 0 {
                 super::death::add_exp_and_sp(world, player, xp as f64, sp_amt as f64, true);
             }
+            // Java: a landed catch spends the charged fishing shot; re-charge for
+            // the next cast if the player still has shots auto-on.
+            if let Some(p) = world.objects.get_component_mut::<Player>(&player) {
+                p.uncharge_shot(crate::model::ShotType::FishSoulshots);
+            }
+            super::items::recharge_shots(world, player, false, false, true);
         } else {
             reason = REASON_LOSE;
         }

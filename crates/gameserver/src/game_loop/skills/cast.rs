@@ -1041,7 +1041,7 @@ pub(crate) fn start_casting(
     // — magic skills use the spiritshot; physical-skill soulshots aren't wired,
     // only the melee auto-attack path charges soulshots).
     if skill.magic_type == 1 {
-        crate::game_loop::items::recharge_shots(world, object_id, false, true);
+        crate::game_loop::items::recharge_shots(world, object_id, false, true, false);
     }
 
     // Register the reuse (skipped when trivially short, like Java's `> 10`),
@@ -1396,7 +1396,7 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
     // Java uncharges + recharges shots each tick; the port's shot model is
     // recharge-only, so mirror the cast-start call for magic skills.
     if skill.magic_type == 1 {
-        crate::game_loop::items::recharge_shots(world, player_object_id, false, true);
+        crate::game_loop::items::recharge_shots(world, player_object_id, false, true, false);
     }
 }
 

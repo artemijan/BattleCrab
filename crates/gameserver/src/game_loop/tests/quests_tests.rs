@@ -19588,3 +19588,107 @@ fn fishing_premium_and_underwater_gates() {
         "no fishing while in water"
     );
 }
+
+/// Fishing (G32) — fishing shots double the win chance. The *same* reel roll (41)
+/// loses at the bare 40% chance but wins at the shot-doubled 80%.
+#[test]
+fn fishing_shots_double_the_win_chance() {
+    use crate::data::fishing_data::{FishingBait, FishingCatch, FishingRod};
+    use crate::data::item_data::{ActionType, ItemHandler, WeaponType};
+    use crate::data::zone_data::ZoneKind;
+    use crate::model::inventory::{Inventory, PaperdollSlot};
+
+    const ROD: i32 = 45492;
+    const BAIT: i32 = 47547;
+    const FISH: i32 = 47550;
+    const FISH_SHOT: i32 = 6535; // Corroded Fishing Shot
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (ROD, "Fishing Rod", false),
+            (BAIT, "Bait", true),
+            (FISH, "Ugly Fish", true),
+        ],
+    );
+    add_shot_item(
+        &mut world,
+        FISH_SHOT,
+        "Corroded Fishing Shot",
+        ItemHandler::FishShots,
+        ActionType::Other,
+    );
+    world
+        .data
+        .item_data
+        .set_weapon_type_for_test(ROD, WeaponType::FishingRod);
+    world
+        .data
+        .fishing_data
+        .insert_rod_for_test(ROD, FishingRod::default());
+    world.data.fishing_data.insert_bait_for_test(
+        BAIT,
+        FishingBait {
+            min_player_level: 1,
+            max_player_level: 100,
+            chance: 40,
+            time_min: 1000,
+            time_max: 1000,
+            wait_min: 1000,
+            wait_max: 1000,
+            premium_only: false,
+            catches: vec![FishingCatch {
+                item_id: FISH,
+                chance: 100,
+                multiplier: 1,
+            }],
+        },
+    );
+
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 20;
+    let inv = Inventory::from_rows(&[
+        item_row(0x4700_0021, ROD, 1, PaperdollSlot::RHand),
+        item_row(0x4700_0022, BAIT, 5, PaperdollSlot::LHand),
+    ]);
+    world.objects.add_components(&3001, inv);
+    inject(&mut world, 3001, 0x4700_0023, FISH_SHOT, 10);
+    insert_zone(&mut world, ZoneKind::Fishing, 0, 160, 0, 1000);
+    insert_zone(&mut world, ZoneKind::Water, 160, 1000, 0, 1000);
+
+    // --- No shots: the 40% chance loses on a roll of 41. ---
+    world.forced_rolls.push_back(41); // reel win roll: 41 > 40 → lose
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    advance_ticks(&mut world, 12);
+    assert_eq!(
+        item_count(&world, 3001, FISH),
+        0,
+        "bare 40%: 41 > 40 → lose"
+    );
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001); // stop the auto-recast
+
+    // --- Fishing shots on: the chance doubles to 80%, so the same 41 wins. ---
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .auto_shots = vec![FISH_SHOT];
+    world.forced_rolls.push_back(41); // reel win roll: 41 ≤ 80 → win
+    world.forced_rolls.push_back(0); // catch-table roll
+    crate::game_loop::fishing::toggle_fishing(&mut world, 3001);
+    advance_ticks(&mut world, 12);
+    assert_eq!(
+        item_count(&world, 3001, FISH),
+        1,
+        "shot-doubled 80%: 41 ≤ 80 → win"
+    );
+    assert!(
+        item_count(&world, 3001, FISH_SHOT) < 10,
+        "the fishing shot was spent"
+    );
+}

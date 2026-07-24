@@ -628,6 +628,22 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         ItemHandler::Recipes => {
             super::crafting::learn_recipe(world, client_id, object_id, item_object_id)
         }
+        // A fishing shot used by hand charges immediately (the fishing engine
+        // otherwise charges it on cast via `rechargeShots(fish=true)`).
+        ItemHandler::FishShots => {
+            let item_id = world
+                .objects
+                .get_component::<Inventory>(&object_id)
+                .and_then(|inv| {
+                    inv.items()
+                        .iter()
+                        .find(|i| i.object_id == item_object_id)
+                        .map(|i| i.item_id)
+                });
+            if let Some(item_id) = item_id {
+                charge_fish_shot(world, object_id, item_id);
+            }
+        }
         ItemHandler::None => {}
     }
 }
@@ -823,7 +839,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             .map(|t| t.handler)
             .unwrap_or_default()
     };
-    if !handler.is_soulshot() && !handler.is_spiritshot() {
+    if !handler.is_soulshot() && !handler.is_spiritshot() && !handler.is_fishshot() {
         return;
     }
 
@@ -916,6 +932,7 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             object_id,
             handler.is_soulshot(),
             handler.is_spiritshot(),
+            handler.is_fishshot(),
         );
     } else {
         // Deactivate.
@@ -938,7 +955,13 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
 /// (re)charge it. Java runs this at the start of every attack (`physical`) and
 /// cast (`magic`). A toggled item that's no longer in the inventory is dropped
 /// from the auto set (Java's `removeAutoSoulShot` on `getItemByItemId == null`).
-pub(crate) fn recharge_shots(world: &mut World, object_id: i32, physical: bool, magic: bool) {
+pub(crate) fn recharge_shots(
+    world: &mut World,
+    object_id: i32,
+    physical: bool,
+    magic: bool,
+    fish: bool,
+) {
     let auto = world
         .objects
         .get_component::<crate::model::Player>(&object_id)
@@ -968,8 +991,51 @@ pub(crate) fn recharge_shots(world: &mut World, object_id: i32, physical: bool, 
             .unwrap_or_default();
         if (magic && handler.is_spiritshot()) || (physical && handler.is_soulshot()) {
             charge_shot(world, object_id, item_id, handler, true);
+        } else if fish && handler.is_fishshot() {
+            charge_fish_shot(world, object_id, item_id);
         }
     }
+}
+
+/// Java `FishShots` item handler: charge `FISH_SOULSHOTS` and spend one fishing
+/// shot. Unlike weapon shots it has no grade/weapon check and always consumes
+/// exactly one. Returns whether the flag flipped on.
+pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: i32) -> bool {
+    use crate::model::{Player, ShotType};
+    let already = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.is_charged_shot(ShotType::FishSoulshots));
+    if already {
+        return false;
+    }
+    let have = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .map(|inv| inv.count_of(shot_item_id))
+        .unwrap_or(0);
+    if have < 1 {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+            p.auto_shots.retain(|&id| id != shot_item_id);
+        }
+        return false;
+    }
+    let changes = world
+        .objects
+        .get_component_mut::<Inventory>(&object_id)
+        .map(|inv| inv.remove_item(shot_item_id, 1))
+        .unwrap_or_default();
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.charge_shot(ShotType::FishSoulshots);
+    }
+    if !changes.is_empty() {
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(ew::inventory_update_changes(&world.data, &changes));
+            }
+        }
+    }
+    true
 }
 
 /// `Broadcast.toSelfAndKnownPlayersInRadius(player, new MagicSkillUse(...))`:
