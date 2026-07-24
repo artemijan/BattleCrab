@@ -16138,3 +16138,207 @@ fn quest_q00033_make_a_pair_of_dress_shoes() {
         .unwrap();
     assert!(quests.0[q].is_completed());
 }
+
+// ---------------------------------------------------------------------------
+// Primeval Isle hunts (Q641 Attack Sailren, Q642 A Powerful Primeval Creature).
+// ---------------------------------------------------------------------------
+
+#[test]
+fn quest_q00642_a_powerful_primeval_creature() {
+    const DINN: i32 = 32105;
+    const TISSUE_MOB: i32 = 22196; // Velociraptor (0.309)
+    const ANCIENT_EGG: i32 = 18344;
+    const DINOSAUR_TISSUE: i32 = 8774;
+    const DINOSAUR_EGG: i32 = 8775;
+    const ADENA: i32 = 57;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(DINOSAUR_TISSUE, "q", true), (DINOSAUR_EGG, "q", true)],
+    );
+    for id in [TISSUE_MOB, ANCIENT_EGG] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 78;
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let dinn = NPC_OID;
+    add_test_npc(&mut world, dinn, DINN, "Folk", 78, 100, 200, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00642_APowerfulPrimevalCreature";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+
+    talk(&mut world, dinn);
+    ev(&mut world, dinn, "32105-05.html"); // accept
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0[q]
+            .state,
+        crate::model::quest::state::STARTED,
+        "started"
+    );
+
+    // Loot: a Velociraptor drops Tissue (0.309, forced roll 0.0 passes), the
+    // Ancient Egg always drops a Dinosaur Egg.
+    let mut mob = NPC_OID + 20;
+    for _ in 0..3 {
+        mob += 1;
+        add_test_npc(&mut world, mob, TISSUE_MOB, "Monster", 78, 110, 200, 0);
+        world.forced_rolls.push_back(0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, DINOSAUR_TISSUE), 3, "3 tissues");
+    mob += 1;
+    add_test_npc(&mut world, mob, ANCIENT_EGG, "Monster", 78, 110, 200, 0);
+    world.forced_rolls.push_back(0);
+    death::npc_do_die(&mut world, mob, 3001);
+    assert_eq!(
+        item_count(&world, 3001, DINOSAUR_EGG),
+        1,
+        "Dinosaur Egg from Ancient Egg"
+    );
+
+    // Turn in the tissue for adena (5000 each), consuming it.
+    let adena_before = item_count(&world, 3001, ADENA);
+    ev(&mut world, dinn, "32105-09.html");
+    assert_eq!(
+        item_count(&world, 3001, DINOSAUR_TISSUE),
+        0,
+        "tissue turned in"
+    );
+    assert!(
+        item_count(&world, 3001, ADENA) > adena_before,
+        "paid for tissue"
+    );
+
+    // Exit (repeatable): the quest state is removed so it can be retaken.
+    ev(&mut world, dinn, "exit");
+    assert!(
+        quest_cond(&world, 3001, q).is_none(),
+        "repeatable exit forgets the quest"
+    );
+}
+
+#[test]
+fn quest_q00641_attack_sailren() {
+    const STATUE: i32 = 32109;
+    const RAPTOR: i32 = 22196;
+    const GAZKH_FRAGMENT: i32 = 8782;
+    const GAZKH: i32 = 8784;
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[(GAZKH_FRAGMENT, "q", true), (GAZKH, "key", false)],
+    );
+    let mut rt = crate::data::npc_data::default_template(RAPTOR);
+    rt.type_name = "Monster".into();
+    rt.level = 78;
+    rt.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(rt);
+    let statue = NPC_OID;
+    add_test_npc(&mut world, statue, STATUE, "Folk", 78, 100, 200, 0);
+    let mut rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 78;
+    let q = "Q00641_AttackSailren";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let grab = |rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| -> String {
+        drain(rx)
+            .iter()
+            .find_map(|p| {
+                if p[0] == crate::network::server_packets::opcodes::NPC_HTML_MESSAGE {
+                    decode_npc_html(p)
+                } else if p[0] == crate::network::server_packets::opcodes::EX {
+                    let mut r = commons::network::PacketReader::new(&p[1..]);
+                    r.read_i16()?;
+                    r.read_i32()?;
+                    r.read_string()
+                } else {
+                    None
+                }
+            })
+            .unwrap_or_default()
+    };
+
+    // Prereq: without The Name of Evil 2 complete, the statue shows 32109-0b
+    // (no accept button to 32109-1).
+    talk(&mut world, statue);
+    let html = grab(&mut rx);
+    assert!(
+        !html.contains("32109-1.html"),
+        "no accept without prereq: {html}"
+    );
+
+    // Mark The Name of Evil 2 (126) complete → the accept page opens.
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        let qs = quests
+            .0
+            .entry("Q00126_TheNameOfEvil2".to_string())
+            .or_default();
+        qs.state = crate::model::quest::state::COMPLETED;
+    }
+    talk(&mut world, statue);
+    let html = grab(&mut rx);
+    // The 0a page (prereq met) leads on to 0c → the accept; 0b (unmet) does not.
+    assert!(
+        html.contains("32109-0c"),
+        "accept path opens with prereq: {html}"
+    );
+
+    // Accept, grind 30 Gazkh Fragments (100% per raptor).
+    ev(&mut world, statue, "32109-1.html");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1), "started at cond 1");
+    let mut mob = NPC_OID + 20;
+    for _ in 0..30 {
+        mob += 1;
+        add_test_npc(&mut world, mob, RAPTOR, "Monster", 78, 110, 200, 0);
+        death::npc_do_die(&mut world, mob, 3001);
+    }
+    assert_eq!(item_count(&world, 3001, GAZKH_FRAGMENT), 30, "30 fragments");
+    assert_eq!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "30th fragment → cond 2"
+    );
+
+    // Fuse the fragments into a Gazkh; repeatable exit.
+    ev(&mut world, statue, "32109-2a.html");
+    assert_eq!(item_count(&world, 3001, GAZKH), 1, "Gazkh forged");
+    assert_eq!(
+        item_count(&world, 3001, GAZKH_FRAGMENT),
+        0,
+        "fragments consumed on exit"
+    );
+    assert!(
+        quest_cond(&world, 3001, q).is_none(),
+        "repeatable exit forgets the quest"
+    );
+}
