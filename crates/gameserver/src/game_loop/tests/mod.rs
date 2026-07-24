@@ -39,6 +39,7 @@ mod affect_tests;
 mod antharas_tests;
 mod attribute_tests;
 mod baium_tests;
+mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;
 mod clans_tests;

@@ -134,6 +134,9 @@ pub const SHOW_BOARD: u8 = 0x7B;
 pub const RADAR_CONTROL: u8 = 0xF1;
 /// `MultiSellList` — the multisell exchange window (one packet per 40-entry page).
 pub const MULTI_SELL_LIST: u8 = 0xD0;
+/// Vehicles / boats (G24.5).
+pub const VEHICLE_INFO: u8 = 0x60;
+pub const VEHICLE_DEPARTURE: u8 = 0x6C;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;

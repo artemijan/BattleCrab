@@ -11,6 +11,7 @@ pub(crate) mod admin;
 pub(crate) mod antharas;
 mod augment;
 mod baium;
+pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
 mod bypass;
@@ -209,6 +210,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // server was down.
     grand_boss::resolve_at_boot(&mut world);
     dr_chaos::resolve_at_boot(&mut world);
+    boats::spawn_boats(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -421,6 +423,9 @@ fn apply_due_tasks(world: &mut World) {
                 {
                     death::despawn_npc(world, npc_oid, region);
                 }
+            }
+            ScheduledTask::BoatArrive { boat_object_id } => {
+                boats::handle_arrive(world, boat_object_id);
             }
             ScheduledTask::FishingReel {
                 player_object_id,
