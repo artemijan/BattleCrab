@@ -339,6 +339,20 @@ fn npc_bypass(
         // (only that script's htms emit these verbs).
         "Draw" => super::henna::handle_item_list(world, client_id),
         "Remove" => super::henna::handle_remove_list(world, client_id),
+        // `ai/others/OlyManager` (Grand Olympiad Manager): join / leave the 1v1
+        // class-irrelevant waiting list. TODO(G25): the manager's HTML dialog
+        // (`OlyManager-*.html`, info/rank pages) lands in the next slice; these
+        // verbs are the register/unregister buttons it will emit.
+        "register1v1" if is_olympiad_manager(world, npc_object_id) => {
+            super::olympiad::register(
+                world,
+                object_id,
+                crate::model::olympiad::CompetitionType::NonClassed,
+            );
+        }
+        "unregister" if is_olympiad_manager(world, npc_object_id) => {
+            super::olympiad::unregister(world, object_id);
+        }
         _ => {
             warn!("Bypass: unhandled npc bypass verb [{verb}] in [{command}].");
         }
@@ -351,4 +365,12 @@ fn is_village_master(world: &World, npc_object_id: i32) -> bool {
         .get_component::<crate::model::npc::Npc>(&npc_object_id)
         .and_then(|n| n.template(world))
         .is_some_and(|t| t.type_name.starts_with("VillageMaster"))
+}
+
+/// The Grand Olympiad Manager (`ai/others/OlyManager` NPC 31688).
+fn is_olympiad_manager(world: &World, npc_object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+        .is_some_and(|n| n.npc_id == crate::model::olympiad::OLYMPIAD_MANAGER_NPC)
 }
