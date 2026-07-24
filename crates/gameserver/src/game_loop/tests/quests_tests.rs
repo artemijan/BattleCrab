@@ -18837,3 +18837,128 @@ fn quest_q00370_an_elder_sows_seeds() {
         "the chapters are consumed"
     );
 }
+
+/// Quest 327 (Recover the Farmland) — Turek Orc kills drop tokens + relic
+/// fragments; the tokens cash out with Piotur, and the fragments feed Asha's
+/// gamble and Nestle's consumable trade.
+#[test]
+fn quest_q00327_recover_the_farmland() {
+    const PIOTUR: i32 = 30597;
+    const ASHA: i32 = 30313;
+    const NESTLE: i32 = 30314;
+    const ARCHER: i32 = 20496; // fragment drop prob 21%
+    const DOG_TAG: i32 = 1846;
+    const CLAY_FRAGMENT: i32 = 1848;
+    const ANCIENT_CLAY_URN: i32 = 1852;
+    const SOULSHOT_D: i32 = 1463;
+    const ADENA: i32 = 57;
+    let q = "Q00327_RecoverTheFarmland";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(
+        &mut world,
+        &[
+            (DOG_TAG, "Turek Dog Tag", true),
+            (1847, "Turek Medallion", true),
+            (5012, "Leikan's Letter", true),
+            (CLAY_FRAGMENT, "Clay Urn Fragment", true),
+            (ANCIENT_CLAY_URN, "Ancient Clay Urn", true),
+            (SOULSHOT_D, "Soulshot D", true),
+        ],
+    );
+    {
+        let mut t = crate::data::npc_data::default_template(ARCHER);
+        t.type_name = "Monster".into();
+        t.level = 28;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let piotur = NPC_OID;
+    let asha = NPC_OID + 1;
+    let nestle = NPC_OID + 2;
+    let mob = NPC_OID + 3;
+    add_test_npc(&mut world, piotur, PIOTUR, "Folk", 28, 100, 200, 0);
+    add_test_npc(&mut world, asha, ASHA, "Folk", 28, 110, 200, 0);
+    add_test_npc(&mut world, nestle, NESTLE, "Folk", 28, 120, 200, 0);
+    add_test_npc(&mut world, mob, ARCHER, "Monster", 28, 300, 300, 0);
+    let _rx = ingame_player(&mut world, 1, 3001, 100, 200, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 27;
+
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+
+    // --- Accept via Piotur. ---
+    talk(&mut world, piotur);
+    ev(&mut world, piotur, "30597-03.htm");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .and_then(|qc| qc.0.get(q))
+            .is_some_and(|qs| qs.state == crate::model::quest::state::STARTED),
+        "started"
+    );
+
+    // --- An Archer kill drops a Dog Tag, and (forced) a relic fragment. ---
+    world.forced_rolls.push_back(0); // roll(100)=0 < 21 → a fragment drops
+    world.forced_rolls.push_back(0); // roll(4)=0 → Clay Urn Fragment (1848)
+    quests::notify_kill(&mut world, 3001, mob, ARCHER);
+    assert_eq!(
+        item_count(&world, 3001, DOG_TAG),
+        1,
+        "the kill dropped a Dog Tag"
+    );
+    assert_eq!(
+        item_count(&world, 3001, CLAY_FRAGMENT),
+        1,
+        "and a relic fragment"
+    );
+
+    // --- Piotur cashes 10 tokens: 10×8 + 1000 bonus = 1080 adena. ---
+    inject(&mut world, 3001, 0x0032_7000, DOG_TAG, 9); // top up to 10
+    let adena_before = item_count(&world, 3001, ADENA);
+    talk(&mut world, piotur);
+    assert_eq!(
+        item_count(&world, 3001, ADENA) - adena_before,
+        10 * 8 + 1000,
+        "ten tokens pay 1080 adena"
+    );
+    assert_eq!(item_count(&world, 3001, DOG_TAG), 0, "tokens spent");
+
+    // --- Asha gambles 5 fragments into an Ancient Clay Urn (forced success).
+    // The kill already dropped one Clay fragment, so top up by four to reach 5.
+    inject(&mut world, 3001, 0x0032_7100, CLAY_FRAGMENT, 4);
+    world.forced_rolls.push_back(0); // roll(6)=0 < 5 → success
+    ev(&mut world, asha, "30313-03.html");
+    assert_eq!(
+        item_count(&world, 3001, ANCIENT_CLAY_URN),
+        1,
+        "relic assembled"
+    );
+    assert_eq!(
+        item_count(&world, 3001, CLAY_FRAGMENT),
+        0,
+        "5 fragments consumed"
+    );
+
+    // --- Nestle trades the relic for 70 Soulshot D (forced low roll). ---
+    world.forced_rolls.push_back(0); // roll(41)=0 → 70 shots
+    ev(&mut world, nestle, "30314-03.html");
+    assert_eq!(
+        item_count(&world, 3001, SOULSHOT_D),
+        70,
+        "70 Soulshot D awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, ANCIENT_CLAY_URN),
+        0,
+        "the relic is spent"
+    );
+}
