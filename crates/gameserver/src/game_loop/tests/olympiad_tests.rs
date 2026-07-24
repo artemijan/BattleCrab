@@ -597,6 +597,66 @@ fn point_transfer_is_clamped() {
     assert_eq!(world.olympiad.nobles[&200].points, 2);
 }
 
+/// Insert a noble record with the given competition record.
+fn insert_noble(world: &mut World, oid: i32, class: i32, points: i32, done: i32, won: i32) {
+    use crate::model::olympiad::NobleStats;
+    let mut n = NobleStats::fresh(class, format!("N{oid}"));
+    n.points = points;
+    n.comp_done = done;
+    n.comp_won = won;
+    world.olympiad.nobles.insert(oid, n);
+}
+
+#[test]
+fn heroes_are_the_top_eligible_noble_per_class() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    // Gladiator (2) is the parent 3rd class of Duelist (88).
+    world.data.skill_trees.set_parent_for_test(88, 2);
+
+    insert_noble(&mut world, 100, 88, 50, 15, 5); // eligible, most points
+    insert_noble(&mut world, 200, 2, 30, 12, 3); // parent-class competitor, fewer points
+    insert_noble(&mut world, 300, 88, 100, 5, 2); // too few matches (< 10)
+    insert_noble(&mut world, 400, 88, 100, 15, 0); // no wins
+
+    assert_eq!(
+        crate::game_loop::olympiad::compute_heroes(&world),
+        vec![(100, 88)],
+        "the eligible class/parent competitor with the most points is hero"
+    );
+}
+
+#[test]
+fn olympiad_end_crowns_heroes_then_validation_starts_a_new_cycle() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    insert_noble(&mut world, 100, 88, 50, 15, 5);
+    world.olympiad.current_cycle = 3;
+    world.olympiad.period = 0;
+
+    // Round ends → validation period, the hero is crowned (online).
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+    assert_eq!(world.olympiad.period, 1, "entered validation");
+    assert_eq!(world.olympiad.heroes, vec![(100, 88)]);
+    assert!(
+        world.objects.get_component::<Player>(&100).unwrap().is_hero,
+        "the online hero is crowned"
+    );
+
+    // Validation ends → new cycle, clean noble table.
+    crate::game_loop::olympiad::handle_validation_end(&mut world);
+    assert_eq!(world.olympiad.period, 0, "back to competition");
+    assert_eq!(world.olympiad.current_cycle, 4, "cycle advanced");
+    assert!(world.olympiad.nobles.is_empty(), "noble table reset");
+}
+
 #[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();

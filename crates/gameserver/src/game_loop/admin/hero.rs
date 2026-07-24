@@ -69,7 +69,7 @@ pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i3
 /// Java `Player.setHero`: grant the hero skill tree when turning hero on while
 /// on the base class (removed in every other case), set the flag, refresh the
 /// hero aura, and resend the skill list + UserInfo.
-fn set_hero(world: &mut World, target: i32, hero: bool) {
+pub(crate) fn set_hero(world: &mut World, target: i32, hero: bool) {
     let on_base = world
         .objects
         .get_component::<Player>(&target)

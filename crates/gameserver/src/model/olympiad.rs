@@ -112,6 +112,9 @@ pub struct OlympiadState {
     /// Everyone currently in a running match (Java `isInCompetition`): they
     /// can't register or unregister while fighting.
     pub in_competition: HashSet<i32>,
+    /// The heroes crowned for the current cycle — `(char_id, hero_class_id)`
+    /// (Java the `heroes` table). Recomputed at each olympiad end.
+    pub heroes: Vec<(i32, i32)>,
 }
 
 impl OlympiadState {

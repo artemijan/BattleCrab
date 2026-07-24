@@ -93,6 +93,12 @@ pub enum ScheduledTask {
     /// Olympiad: poll a running match (Java `OlympiadGameTask`) — resolve it on
     /// a death/disconnect or the battle timeout, otherwise keep watching.
     OlympiadMatchTick { arena: usize },
+    /// Olympiad: the monthly round ends (Java `OlympiadEndTask`) — enter the
+    /// validation period and crown the new heroes.
+    OlympiadEnd,
+    /// Olympiad: the validation period ends (Java `ValidationEndTask`) — start a
+    /// new cycle's competition period.
+    OlympiadValidationEnd,
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

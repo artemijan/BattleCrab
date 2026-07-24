@@ -450,6 +450,8 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::OlympiadWeeklyChange => olympiad::handle_weekly_change(world),
             ScheduledTask::OlympiadGameManager => olympiad::handle_game_manager(world),
             ScheduledTask::OlympiadMatchTick { arena } => olympiad::handle_match_tick(world, arena),
+            ScheduledTask::OlympiadEnd => olympiad::handle_olympiad_end(world),
+            ScheduledTask::OlympiadValidationEnd => olympiad::handle_validation_end(world),
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

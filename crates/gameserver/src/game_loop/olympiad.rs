@@ -8,8 +8,12 @@
 //! match-making sweep that pairs waiting nobles into stadium matches; and the
 //! match run itself — the fighters are ported to the arena, the bout is polled
 //! to a result, points transferred and win/loss/draw recorded, and everyone
-//! ported back. The stadium instancing (needs G27), the countdown ceremony and
-//! the monthly hero calculation are later slices.
+//! ported back; and the monthly round transitions — at the month end the
+//! period flips to validation, the class leaders are crowned heroes, and after
+//! the validation day a fresh cycle begins with a clean noble table. The
+//! stadium instancing (needs G27), the countdown ceremony, and persisting the
+//! hero crown to the `heroes` table (for relogs / offline heroes) are the
+//! remaining follow-ups.
 
 use crate::db::{DbCommand, OlympiadNobleRow};
 use crate::model::olympiad::{
@@ -45,6 +49,14 @@ const NUM_ARENAS: usize = 4;
 /// this many before any 1v1 matches are generated (Java
 /// `hasEnoughRegisteredNonClassed`).
 const NONCLASSED_MIN: usize = 20;
+
+/// `AltOlyMinMatchesForPoints = 10` — matches needed to be hero-eligible.
+const HERO_MIN_MATCHES: i32 = 10;
+/// `AltOlyVPeriod` — the validation period after a round ends (24 h).
+const VALIDATION_PERIOD_MS: i64 = 86_400_000;
+/// The competition month length. TODO(G25): Java's `setNewOlympiadEnd` uses the
+/// calendar month boundary; this is a 30-day approximation.
+const OLYMPIAD_PERIOD_MS: i64 = 30 * MS_PER_DAY;
 
 /// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
 /// day 0, 1970-01-01, was a Thursday → offset 4).
@@ -100,10 +112,30 @@ pub(crate) fn schedule_at_boot(world: &mut World) {
         ScheduledTask::OlympiadWeeklyChange,
     );
 
-    // No competition window during the validation period.
-    if world.olympiad.period != 0 {
-        return;
+    if world.olympiad.period == 0 {
+        // Competition period: arm the window + the month-end round transition.
+        arm_comp_schedule(world, now);
+        if world.olympiad.olympiad_end <= now {
+            // Fresh install, or the end elapsed while the server was down: set a
+            // new month boundary rather than ending instantly.
+            world.olympiad.olympiad_end = now + OLYMPIAD_PERIOD_MS;
+        }
+        world.scheduler.schedule(
+            fire_at(world, world.olympiad.olympiad_end - now),
+            ScheduledTask::OlympiadEnd,
+        );
+    } else {
+        // Validation period: only the transition back to a new cycle is armed.
+        world.scheduler.schedule(
+            fire_at(world, world.olympiad.validation_end - now),
+            ScheduledTask::OlympiadValidationEnd,
+        );
     }
+}
+
+/// Arm the daily competition window (Java `Olympiad.init`): open it now if we're
+/// inside one, otherwise schedule the next start.
+fn arm_comp_schedule(world: &mut World, now: i64) {
     if in_comp_window(now) {
         open_comp_window(world, now);
     } else {
@@ -167,6 +199,96 @@ pub(crate) fn handle_weekly_change(world: &mut World) {
     world.scheduler.schedule(
         fire_at(world, WEEKLY_PERIOD_MS),
         ScheduledTask::OlympiadWeeklyChange,
+    );
+}
+
+/// `Olympiad.sortHerosToBe`: for each hero-title class (the `FOURTH_CLASS_GROUP`
+/// category), the eligible noble with the most points becomes its hero. Eligible
+/// = competitor on that class **or its parent 3rd class**, ≥ 10 matches, ≥ 1 win.
+pub(crate) fn compute_heroes(world: &World) -> Vec<(i32, i32)> {
+    let mut heroes = Vec::new();
+    for hero_class in world.data.categories.ids("FOURTH_CLASS_GROUP") {
+        let parent = world.data.skill_trees.parent_class(hero_class);
+        let best = world
+            .olympiad
+            .nobles
+            .iter()
+            .filter(|(_, n)| {
+                (n.class_id == hero_class || Some(n.class_id) == parent)
+                    && n.comp_done >= HERO_MIN_MATCHES
+                    && n.comp_won > 0
+            })
+            .max_by(|(_, a), (_, b)| {
+                a.points
+                    .cmp(&b.points)
+                    .then(a.comp_done.cmp(&b.comp_done))
+                    .then(a.comp_won.cmp(&b.comp_won))
+            });
+        if let Some((&char_id, _)) = best {
+            heroes.push((char_id, hero_class));
+        }
+    }
+    heroes
+}
+
+/// `OlympiadEndTask`: the monthly round ends — enter the validation period,
+/// crown the new heroes, and schedule the return to a fresh cycle.
+pub(crate) fn handle_olympiad_end(world: &mut World) {
+    if world.olympiad.period != 0 {
+        return;
+    }
+    world.olympiad.period = 1;
+
+    // Uncrown the previous cycle's (online) heroes, then crown the new ones.
+    let old: Vec<i32> = world.olympiad.heroes.iter().map(|(id, _)| *id).collect();
+    for id in old {
+        if is_online(world, id) {
+            crate::game_loop::admin::hero::set_hero(world, id, false);
+        }
+    }
+    let heroes = compute_heroes(world);
+    for &(id, _) in &heroes {
+        if is_online(world, id) {
+            crate::game_loop::admin::hero::set_hero(world, id, true);
+        }
+    }
+    world.olympiad.heroes = heroes;
+    tracing::info!(
+        "Olympiad: round {} ended; {} heroes crowned.",
+        world.olympiad.current_cycle,
+        world.olympiad.heroes.len()
+    );
+    // TODO(G25): broadcast ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED to all
+    // online players, and persist the crown to the `heroes` table so it survives
+    // relogs / applies to offline heroes on login.
+
+    let now = commons::util::now_millis();
+    world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;
+    save_all(world);
+    world.scheduler.schedule(
+        fire_at(world, VALIDATION_PERIOD_MS),
+        ScheduledTask::OlympiadValidationEnd,
+    );
+}
+
+/// `ValidationEndTask`: the validation period ends — start a new cycle's
+/// competition period with a clean noble table.
+pub(crate) fn handle_validation_end(world: &mut World) {
+    world.olympiad.period = 0;
+    world.olympiad.current_cycle += 1;
+    world.olympiad.nobles.clear(); // `deleteNobles` (TRUNCATE olympiad_nobles)
+    let now = commons::util::now_millis();
+    world.olympiad.olympiad_end = now + OLYMPIAD_PERIOD_MS;
+    save_all(world);
+    tracing::info!(
+        "Olympiad: validation ended; cycle {} begins.",
+        world.olympiad.current_cycle
+    );
+    // Re-arm the competition window + the next month-end.
+    arm_comp_schedule(world, now);
+    world.scheduler.schedule(
+        fire_at(world, OLYMPIAD_PERIOD_MS),
+        ScheduledTask::OlympiadEnd,
     );
 }
 
