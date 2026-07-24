@@ -296,6 +296,12 @@ pub struct World {
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
     /// which tests can force (`forced_rolls`) for deterministic combat.
     pub rng: StdRng,
+    /// The skill id driving the damage currently being applied, so quest
+    /// `onAttack` handlers can tell a skill hit from a melee swing (Java passes
+    /// `Skill skill` to `onAttack`). Set by the skill-damage path around
+    /// `apply_physical_damage` and read by `quests::notify_attack`; `None` on
+    /// the auto-attack path. Transient — never persisted, cleared after use.
+    pub(crate) quest_attack_skill: Option<i32>,
     /// Test hook: pre-queued values returned by `roll()` before touching the
     /// RNG. Cheaper and more explicit than seed archaeology in tests.
     #[cfg(test)]
@@ -367,6 +373,7 @@ impl World {
             db,
             player_autosave_due: HashMap::new(),
             rng: StdRng::from_entropy(),
+            quest_attack_skill: None,
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),
         }

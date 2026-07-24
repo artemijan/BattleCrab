@@ -40,6 +40,7 @@ pub mod q00223_test_of_the_champion;
 pub mod q00224_test_of_sagittarius;
 pub mod q00225_test_of_the_searcher;
 pub mod q00226_test_of_the_healer;
+pub mod q00227_test_of_the_reformer;
 pub mod q00228_test_of_magus;
 pub mod q00229_test_of_witchcraft;
 pub mod q00231_test_of_the_maestro;
@@ -217,6 +218,7 @@ pub fn build_registry() -> QuestRegistry {
         Arc::new(q00220_testimony_of_glory::Q00220TestimonyOfGlory),
         Arc::new(q00221_testimony_of_prosperity::Q00221TestimonyOfProsperity),
         Arc::new(q00226_test_of_the_healer::Q00226TestOfTheHealer),
+        Arc::new(q00227_test_of_the_reformer::Q00227TestOfTheReformer),
         Arc::new(q00228_test_of_magus::Q00228TestOfMagus),
         Arc::new(q00229_test_of_witchcraft::Q00229TestOfWitchcraft),
         Arc::new(q00232_test_of_the_lord::Q00232TestOfTheLord),

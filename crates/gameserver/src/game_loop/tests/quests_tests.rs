@@ -14427,3 +14427,162 @@ fn quest_q00214_trial_of_the_scholar() {
         "one-time quest finished"
     );
 }
+
+#[test]
+fn quest_q00227_test_of_the_reformer() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = [
+        2822, 2823, 2824, 2825, 2826, 2827, 2828, 2829, 2830, 2831, 2832, 2833, 2834, 2835, 2836,
+        2837, 2838, 3037, 5567, 5568,
+    ]
+    .iter()
+    .map(|&id| (id, "Q227", true))
+    .collect();
+    items.push((2821, "Mark of Reformer", false));
+    add_quest_items(&mut world, &items);
+    for id in [27099, 27128, 27129, 27130, 27131, 27132, 20022, 20100] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        t.base_hp_max = 100_000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let pupina = NPC_OID;
+    let sla = NPC_OID + 1;
+    let katari = NPC_OID + 2;
+    let pilgrim = NPC_OID + 3;
+    let kakan = NPC_OID + 4;
+    let nyakuri = NPC_OID + 5;
+    let ramus = NPC_OID + 6;
+    for (oid, npc) in [
+        (pupina, 30118),
+        (sla, 30666),
+        (katari, 30668),
+        (pilgrim, 30732),
+        (kakan, 30669),
+        (nyakuri, 30670),
+        (ramus, 30667),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 15; // Cleric
+    }
+    let q = "Q00227_TestOfTheReformer";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 30;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    // A skill hit: stash the skill id the way the damage path does, then strike.
+    let skill_hit = |w: &mut World, npc_oid: i32, skill_id: i32| {
+        w.quest_attack_skill = Some(skill_id);
+        combat::npc_receive_damage(w, npc_oid, 3001, 10.0);
+        w.quest_attack_skill = None;
+    };
+    talk(&mut world, pupina);
+    ev(&mut world, pupina, "ACCEPT");
+    assert_eq!(quest_memo(&world, 3001, q), 1);
+    // --- Nameless Revenant: only Disrupt Undead (1031) marks it (scriptValue 1). ---
+    // Negative first: a plain melee kill drops nothing.
+    inject(&mut world, 3001, 0x0227_0000, 2831, 6); // 6 ripped diaries
+    kill(&mut world, 27099); // melee (no skill) → scriptValue stays 0 → no drop
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(2),
+        "melee kill does not reform the revenant"
+    );
+    // Now with Disrupt Undead:
+    add_test_npc(&mut world, NPC_OID + 20, 27099, "Monster", 40, 40, 0, 0);
+    skill_hit(&mut world, NPC_OID + 20, 1031); // Disrupt Undead → scriptValue 1
+    death::npc_do_die(&mut world, NPC_OID + 20, 3001); // 7th diary → spawn Araurune, cond 2
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    assert!(!npcs_of(&mut world, 27128).is_empty(), "Araurune conjured");
+    kill(&mut world, 27128); // Araurune → Huge Nail, memo 3, cond 3
+    assert_eq!(item_count(&world, 3001, 2832), 1, "Huge Nail");
+    assert_eq!(quest_cond(&world, 3001, q), Some(3));
+    ev(&mut world, pupina, "30118-06.html"); // → Letter of Introduction, memo 4, cond 4
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    ev(&mut world, sla, "30666-04.html"); // → Sla's Letter, memo 5, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, katari); // memo 6, cond 6, spawn inspector
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    kill(&mut world, 27129); // Ol Mahum Inspector → memo 7, cond 7
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    talk(&mut world, pilgrim); // Ol Mahum Money, memo 8
+    assert_eq!(item_count(&world, 3001, 2826), 1, "Ol Mahum Money");
+    talk(&mut world, katari); // memo 8, cond 8, spawn betrayer
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    kill(&mut world, 27130); // Ol Mahum Betrayer → memo 9, cond 9, Letter of Betrayer
+    assert_eq!(item_count(&world, 3001, 2833), 1, "Letter of Betrayer");
+    talk(&mut world, katari); // → Katari's Letter, memo 10, cond 10
+    assert_eq!(item_count(&world, 3001, 2827), 1, "Katari's Letter");
+    talk(&mut world, sla); // money → Greetings, memo 11, cond 11
+    assert_eq!(item_count(&world, 3001, 2825), 1, "Greetings");
+    assert_eq!(quest_cond(&world, 3001, q), Some(11));
+    talk(&mut world, kakan);
+    ev(&mut world, kakan, "30669-03.html"); // cond 12, spawn werewolf
+    assert_eq!(quest_cond(&world, 3001, q), Some(12));
+    // --- Crimson Werewolf: flees from melee, credited only to a mage attack. ---
+    add_test_npc(&mut world, NPC_OID + 21, 27131, "Monster", 40, 40, 0, 0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 21, 3001, 10.0); // melee → flees
+    assert!(
+        npcs_of(&mut world, 27131)
+            .iter()
+            .all(|&o| o != NPC_OID + 21),
+        "melee makes the werewolf flee"
+    );
+    add_test_npc(&mut world, NPC_OID + 22, 27131, "Monster", 40, 40, 0, 0);
+    skill_hit(&mut world, NPC_OID + 22, 1177); // Wind Strike → scriptValue = player
+    death::npc_do_die(&mut world, NPC_OID + 22, 3001); // → memo 12, cond 13
+    assert_eq!(quest_cond(&world, 3001, q), Some(13));
+    talk(&mut world, kakan); // → Kakan's Letter, memo 13, cond 14
+    assert_eq!(item_count(&world, 3001, 3037), 1, "Kakan's Letter");
+    talk(&mut world, nyakuri);
+    ev(&mut world, nyakuri, "30670-03.html"); // cond 15, spawn krudel
+    assert_eq!(quest_cond(&world, 3001, q), Some(15));
+    kill(&mut world, 27132); // Krudel Lizardman → memo 14, cond 16
+    assert_eq!(quest_cond(&world, 3001, q), Some(16));
+    talk(&mut world, nyakuri); // → Nyakuri's Letter, memo 15, cond 17
+    assert_eq!(item_count(&world, 3001, 2828), 1, "Nyakuri's Letter");
+    talk(&mut world, ramus); // → Undead List, memo 16, cond 18
+    assert_eq!(item_count(&world, 3001, 2829), 1, "Undead List");
+    assert_eq!(quest_cond(&world, 3001, q), Some(18));
+    // Five bone fragments → memo 17, cond 19.
+    for id in [2834, 2835, 2836, 2837] {
+        inject(&mut world, 3001, 0x0227_0100 + id, id, 1);
+    }
+    kill(&mut world, 20100); // Skeleton Archer → Bone Fragment 8 (fifth), cond 19
+    assert_eq!(quest_cond(&world, 3001, q), Some(19));
+    talk(&mut world, ramus); // bones → Ramus's Letter, memo 18, cond 20
+    assert_eq!(item_count(&world, 3001, 2830), 1, "Ramus's Letter");
+    assert_eq!(quest_cond(&world, 3001, q), Some(20));
+    // --- Completion at Sla ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, sla);
+    assert_eq!(
+        item_count(&world, 3001, 2821),
+        1,
+        "Mark of the Reformer awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 226528,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(20),
+        "one-time quest finished"
+    );
+}
