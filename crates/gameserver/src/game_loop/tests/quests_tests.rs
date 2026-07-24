@@ -14096,3 +14096,178 @@ fn quest_q00220_testimony_of_glory() {
         "one-time quest finished"
     );
 }
+
+#[test]
+fn quest_q00221_testimony_of_prosperity() {
+    let (mut world, _db, _l) = quest_test_world();
+    let mut items: Vec<(i32, &str, bool)> = (3239..=3275).map(|id| (id, "Q221", true)).collect();
+    items.push((3023, "Recipe Titan Key", true));
+    items.push((3030, "Key of Titan", true));
+    items.push((3428, "Crystal Brooch", true));
+    items.push((3238, "Mark of Prosperity", false));
+    items.push((1867, "Animal Skin", false));
+    add_quest_items(&mut world, &items);
+    for id in [20154, 20228, 20157, 20231, 20233] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = "Monster".into();
+        t.level = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let n = |i| NPC_OID + i;
+    let (parman, wilford, lilith, bright, lockirin, shari, mion, toma) =
+        (n(0), n(1), n(2), n(3), n(4), n(5), n(6), n(7));
+    let (spiron, balanki, keef, filaur, arin, maryse, bolter, torocco) =
+        (n(8), n(9), n(10), n(11), n(12), n(13), n(14), n(15));
+    let (piotur, emily, nikola, boxt) = (n(16), n(17), n(18), n(19));
+    for (oid, npc) in [
+        (parman, 30104),
+        (wilford, 30005),
+        (lilith, 30368),
+        (bright, 30466),
+        (lockirin, 30531),
+        (shari, 30517),
+        (mion, 30519),
+        (toma, 30556),
+        (spiron, 30532),
+        (balanki, 30533),
+        (keef, 30534),
+        (filaur, 30535),
+        (arin, 30536),
+        (maryse, 30553),
+        (bolter, 30554),
+        (torocco, 30555),
+        (piotur, 30597),
+        (emily, 30620),
+        (nikola, 30621),
+        (boxt, 30622),
+    ] {
+        add_test_npc(&mut world, oid, npc, "Folk", 40, 100, 0, 0);
+    }
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 40;
+        p.class_id = 54; // Scavenger
+        p.race = 4; // Dwarf
+    }
+    world
+        .data
+        .categories
+        .insert_for_test("DWARF_2ND_GROUP", &[54]);
+    let q = "Q00221_TestimonyOfProsperity";
+    let ev = |w: &mut World, npc: i32, e: &str| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q} {e}")));
+    };
+    let talk = |w: &mut World, npc: i32| {
+        handle_request_bypass_to_server(w, 1, &bypass_body(&format!("npc_{npc}_Quest {q}")));
+    };
+    let mut mob = NPC_OID + 40;
+    let mut kill = |w: &mut World, npc_id: i32| {
+        mob += 1;
+        add_test_npc(w, mob, npc_id, "Monster", 40, 30, 0, 0);
+        death::npc_do_die(w, mob, 3001);
+    };
+    talk(&mut world, parman);
+    ev(&mut world, parman, "ACCEPT");
+    assert_eq!(quest_cond(&world, 3001, q), Some(1));
+    // --- Proof 1: Blessed Seed ---
+    ev(&mut world, piotur, "30597-02.html");
+    assert_eq!(item_count(&world, 3001, 3242), 1, "Blessed Seed");
+    // --- Proof 2: Lilith's Elven Wafer ---
+    ev(&mut world, wilford, "30005-04.html"); // Crystal Brooch
+    ev(&mut world, lilith, "30368-03.html"); // → Lilith's Elven Wafer
+    assert_eq!(item_count(&world, 3001, 3244), 1, "Lilith's Elven Wafer");
+    // --- Proof 3: Emily's Recipe ---
+    ev(&mut world, bright, "30466-03.html"); // Bright's List
+    inject(&mut world, 3001, 0x0221_0000, 3265, 19);
+    kill(&mut world, 20154); // Mandragora petal → 20
+    inject(&mut world, 3001, 0x0221_0001, 3266, 9);
+    kill(&mut world, 20228); // Crimson moss → 10
+    talk(&mut world, bright); // → Mandragora Bouquet
+    assert_eq!(item_count(&world, 3001, 3267), 1, "Mandragora Bouquet");
+    ev(&mut world, emily, "30620-03.html"); // → Emily's Recipe
+    assert_eq!(item_count(&world, 3001, 3243), 1, "Emily's Recipe");
+    // --- Proof 4: Old Account Book (five guild contributions) ---
+    ev(&mut world, lockirin, "30531-03.html"); // license + 5 notices
+                                               // Receipt 1 (Spiron/Shari)
+    talk(&mut world, spiron); // takes 1st notice
+    talk(&mut world, shari); // Contribution of Shari
+    talk(&mut world, spiron); // → Receipt 1st
+    assert_eq!(item_count(&world, 3001, 3258), 1, "Receipt 1st");
+    // Receipt 2 (Balanki/Mion+Maryse)
+    talk(&mut world, balanki); // takes 2nd notice
+    talk(&mut world, mion); // Contribution of Mion
+    talk(&mut world, maryse); // Maryse's Request
+    inject(&mut world, 3001, 0x0221_0002, 1867, 10); // 10 animal skin
+    talk(&mut world, maryse); // → Contribution of Maryse
+    talk(&mut world, balanki); // → Receipt 2nd
+    assert_eq!(item_count(&world, 3001, 3259), 1, "Receipt 2nd");
+    // Receipt 3 (Keef/Torocco, 5000 adena)
+    talk(&mut world, keef); // takes 3rd notice
+    ev(&mut world, torocco, "30555-02.html"); // Procuration of Torocco
+    inject(&mut world, 3001, 0x0221_0003, 57, 5000);
+    ev(&mut world, keef, "30534-03a.html"); // 5000 adena → Receipt 3rd
+    assert_eq!(item_count(&world, 3001, 3260), 1, "Receipt 3rd");
+    // Receipt 4 (Filaur/Bolter)
+    talk(&mut world, filaur); // takes 4th notice
+    talk(&mut world, bolter); // Receipt of Bolter
+    talk(&mut world, filaur); // → Receipt 4th
+    assert_eq!(item_count(&world, 3001, 3261), 1, "Receipt 4th");
+    // Receipt 5 (Arin/Toma)
+    talk(&mut world, arin); // takes 5th notice
+    talk(&mut world, toma); // Contribution of Toma
+    talk(&mut world, arin); // → Receipt 5th
+    assert_eq!(item_count(&world, 3001, 3262), 1, "Receipt 5th");
+    talk(&mut world, lockirin); // 5 receipts → Old Account Book, cond 2
+    assert_eq!(item_count(&world, 3001, 3241), 1, "Old Account Book");
+    assert_eq!(quest_cond(&world, 3001, q), Some(2));
+    // --- Parman: First Ring → Second Ring ---
+    talk(&mut world, parman);
+    ev(&mut world, parman, "30104-08.html"); // → Ring 2nd + Parman's Letter, cond 4
+    assert_eq!(
+        item_count(&world, 3001, 3240),
+        1,
+        "Second Ring of Testimony"
+    );
+    assert_eq!(quest_cond(&world, 3001, q), Some(4));
+    // --- Phase 2: Key of Titan ---
+    talk(&mut world, nikola);
+    ev(&mut world, nikola, "30621-04.html"); // → Clay Dough, cond 5
+    assert_eq!(quest_cond(&world, 3001, q), Some(5));
+    talk(&mut world, boxt);
+    ev(&mut world, boxt, "30622-02.html"); // → Pattern of Keyhole, cond 6
+    assert_eq!(quest_cond(&world, 3001, q), Some(6));
+    talk(&mut world, nikola); // → Recipe + Nikola's List, cond 7
+    assert_eq!(item_count(&world, 3001, 3272), 1, "Nikola's List");
+    assert_eq!(quest_cond(&world, 3001, q), Some(7));
+    inject(&mut world, 3001, 0x0221_0004, 3273, 19);
+    kill(&mut world, 20157); // Stakato shell → 20
+    inject(&mut world, 3001, 0x0221_0005, 3274, 9);
+    kill(&mut world, 20231); // Toad lord sac → 10
+    inject(&mut world, 3001, 0x0221_0006, 3275, 9);
+    kill(&mut world, 20233); // Marsh spider thorn → 10, cond 8
+    assert_eq!(quest_cond(&world, 3001, q), Some(8));
+    inject(&mut world, 3001, 0x0221_0007, 3030, 1); // crafted Key of Titan
+    talk(&mut world, boxt);
+    ev(&mut world, boxt, "30622-04.html"); // key → Maphr's Tablet Fragment, cond 9
+    assert_eq!(item_count(&world, 3001, 3245), 1, "Maphr's Tablet Fragment");
+    assert_eq!(quest_cond(&world, 3001, q), Some(9));
+    // --- Completion at Parman ---
+    let a = item_count(&world, 3001, 57);
+    talk(&mut world, parman);
+    assert_eq!(
+        item_count(&world, 3001, 3238),
+        1,
+        "Mark of Prosperity awarded"
+    );
+    assert_eq!(
+        item_count(&world, 3001, 57),
+        a + 217682,
+        "final adena reward"
+    );
+    assert_ne!(
+        quest_cond(&world, 3001, q),
+        Some(9),
+        "one-time quest finished"
+    );
+}
