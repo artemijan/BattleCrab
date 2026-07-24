@@ -25,6 +25,12 @@ pub struct OlympiadMatch {
     pub arena: usize,
     pub player_a: i32,
     pub player_b: i32,
+    /// Game tick at which an undecided battle is called a draw (Java
+    /// `ALT_OLY_BATTLE`).
+    pub deadline_tick: u64,
+    /// Where each fighter was before the match, to port them back afterward.
+    pub return_a: (i32, i32, i32),
+    pub return_b: (i32, i32, i32),
 }
 
 /// A noble's persistent Olympiad record (Java `Olympiad.NOBLES` `StatSet`).

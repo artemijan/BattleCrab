@@ -90,6 +90,9 @@ pub enum ScheduledTask {
     /// Olympiad: the match-making sweep (Java `OlympiadGameManager`, every 30 s
     /// while the window is open) — pair waiting nobles into stadium matches.
     OlympiadGameManager,
+    /// Olympiad: poll a running match (Java `OlympiadGameTask`) — resolve it on
+    /// a death/disconnect or the battle timeout, otherwise keep watching.
+    OlympiadMatchTick { arena: usize },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
