@@ -702,6 +702,68 @@ fn heroes_persist_and_apply_on_login() {
 }
 
 #[test]
+fn round_end_banks_trade_points() {
+    use crate::model::components::PlayerVariables;
+    let (mut world, _tx, _db, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    // The sole classified noble → rank 1, and crowned hero.
+    insert_noble(&mut world, 100, 88, 50, 15, 5);
+    world.olympiad.period = 0;
+
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+
+    let banked = world
+        .objects
+        .get_component::<PlayerVariables>(&100)
+        .unwrap()
+        .get_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0);
+    assert_eq!(banked, 500, "hero (300) + rank-1 (200) trade points");
+}
+
+#[test]
+fn point_mark_exchange_gives_marks_of_battle() {
+    use crate::model::components::PlayerVariables;
+    use crate::model::inventory::Inventory;
+    let (mut world, _db_rx, _link) = quest_test_world();
+    add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<PlayerVariables>(&100)
+        .unwrap()
+        .set_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 10);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+    );
+
+    // 10 points × 20 marks = 200 Marks of Battle (45584); the bank is cleared.
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&100)
+            .unwrap()
+            .count_of(crate::game_loop::olympiad::MARK_ITEM),
+        200
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<PlayerVariables>(&100)
+            .unwrap()
+            .get_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0),
+        0,
+        "banked points consumed"
+    );
+}
+
+#[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();
     open_games(&mut world);

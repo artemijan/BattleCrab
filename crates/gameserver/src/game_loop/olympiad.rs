@@ -58,6 +58,18 @@ const VALIDATION_PERIOD_MS: i64 = 86_400_000;
 /// calendar month boundary; this is a 30-day approximation.
 const OLYMPIAD_PERIOD_MS: i64 = 30 * MS_PER_DAY;
 
+/// The per-character variable holding points earned this round but not yet
+/// exchanged for marks (Java `Olympiad.UNCLAIMED_OLYMPIAD_POINTS_VAR`).
+pub(crate) const UNCLAIMED_POINTS_VAR: &str = "UNCLAIMED_OLYMPIAD_POINTS";
+/// `AltOlyCompRewItem = 45584` — "Mark of Battle", the exchange reward.
+pub(crate) const MARK_ITEM: i32 = 45584;
+/// `AltOlyMarkPerPoint = 20` — marks granted per unclaimed point.
+pub(crate) const MARK_PER_POINT: i64 = 20;
+/// `AltOlyHeroPoints = 300` — trade-point bonus for being a hero.
+const HERO_TRADE_POINTS: i32 = 300;
+/// `AltOlyRank{1..5}Points` — trade-point bonus by end-of-round percentile rank.
+const RANK_TRADE_POINTS: [i32; 5] = [200, 80, 50, 30, 15];
+
 /// Day of week for an epoch-millis instant, 0 = Sunday … 6 = Saturday (epoch
 /// day 0, 1970-01-01, was a Thursday → offset 4).
 fn day_of_week(now_ms: i64) -> i64 {
@@ -246,6 +258,97 @@ pub(crate) fn compute_heroes(world: &World) -> Vec<(i32, i32)> {
     heroes
 }
 
+/// `Olympiad.loadNoblesRank`: rank the classified nobles (≥ 10 matches) by points
+/// into percentile tiers — 1 (top 1 %), 2 (10 %), 3 (25 %), 4 (50 %), 5 (rest).
+fn compute_noble_ranks(world: &World) -> std::collections::HashMap<i32, u8> {
+    let mut classified: Vec<(i32, i32)> = world
+        .olympiad
+        .nobles
+        .iter()
+        .filter(|(_, n)| n.comp_done >= HERO_MIN_MATCHES)
+        .map(|(&id, n)| (id, n.points))
+        .collect();
+    // Highest points first (Java orders the query by points DESC).
+    classified.sort_by(|a, b| b.1.cmp(&a.1));
+
+    let total = classified.len() as f64;
+    let mut r1 = (total * 0.01).round() as usize;
+    let mut r2 = (total * 0.10).round() as usize;
+    let mut r3 = (total * 0.25).round() as usize;
+    let mut r4 = (total * 0.50).round() as usize;
+    if r1 == 0 {
+        r1 = 1;
+        r2 += 1;
+        r3 += 1;
+        r4 += 1;
+    }
+
+    let mut ranks = std::collections::HashMap::new();
+    for (i, (id, _)) in classified.iter().enumerate() {
+        let place = i + 1; // 1-based, like Java's `place++`
+        let rank = if place <= r1 {
+            1
+        } else if place <= r2 {
+            2
+        } else if place <= r3 {
+            3
+        } else if place <= r4 {
+            4
+        } else {
+            5
+        };
+        ranks.insert(*id, rank);
+    }
+    ranks
+}
+
+/// `Olympiad.getOlympiadTradePoint`: the points a noble may exchange for marks —
+/// a hero bonus plus a rank bonus. Zero for the unranked or point-less.
+fn olympiad_trade_point(
+    world: &World,
+    ranks: &std::collections::HashMap<i32, u8>,
+    object_id: i32,
+) -> i32 {
+    let Some(&rank) = ranks.get(&object_id) else {
+        return 0;
+    };
+    if world
+        .olympiad
+        .nobles
+        .get(&object_id)
+        .map_or(0, |n| n.points)
+        == 0
+    {
+        return 0;
+    }
+    let hero = if world.olympiad.is_hero(object_id) {
+        HERO_TRADE_POINTS
+    } else {
+        0
+    };
+    hero + RANK_TRADE_POINTS[(rank as usize) - 1]
+}
+
+/// After a round ends, bank each noble's exchangeable points on their
+/// `UNCLAIMED_OLYMPIAD_POINTS` variable (Java `loadNoblesRank`'s reward loop).
+/// TODO(G25): Java writes `character_variables` directly for offline nobles;
+/// here only online nobles are credited.
+fn store_trade_points(world: &mut World) {
+    let ranks = compute_noble_ranks(world);
+    let ids: Vec<i32> = world.olympiad.nobles.keys().copied().collect();
+    for oid in ids {
+        let points = olympiad_trade_point(world, &ranks, oid);
+        if points > 0 {
+            if let Some(v) = world
+                .objects
+                .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+            {
+                v.set_int(UNCLAIMED_POINTS_VAR, points);
+            }
+        }
+    }
+}
+
 /// `OlympiadEndTask`: the monthly round ends — enter the validation period,
 /// crown the new heroes, and schedule the return to a fresh cycle.
 pub(crate) fn handle_olympiad_end(world: &mut World) {
@@ -297,6 +400,9 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
         })
         .collect();
     let _ = world.db.send(DbCommand::SaveHeroes { heroes: hero_rows });
+
+    // Bank each noble's exchangeable points for the mark exchange at the manager.
+    store_trade_points(world);
     // TODO(G25): broadcast ROUND_S1_OF_THE_OLYMPIAD_GAMES_HAS_NOW_ENDED to all
     // online players.
 
