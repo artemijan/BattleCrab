@@ -38,6 +38,10 @@ pub struct DockSchedule {
     pub char_id: i32,
     pub stages: &'static [DwellStage],
     pub fare: Fare,
+    /// In-transit "the ferry will arrive in ~N minutes" shouts fired after
+    /// leaving this harbor: `(delay_ms_from_departure, message_ids)`. Empty for
+    /// ferries that make no such announcement (Rune↔Primeval).
+    pub voyage: &'static [(u64, &'static [u32])],
 }
 
 /// One waypoint of a route (Java `VehiclePathPoint`): the target position, the

@@ -436,6 +436,12 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 boats::handle_dwell_stage(world, boat_object_id, stage);
             }
+            ScheduledTask::BoatVoyageShout {
+                boat_object_id,
+                messages,
+            } => {
+                boats::handle_voyage_shout(world, boat_object_id, messages);
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

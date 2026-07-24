@@ -150,6 +150,7 @@ static TEST_DOCK_SCHED: DockSchedule = DockSchedule {
         oust_y: 0,
         oust_z: 0,
     },
+    voyage: &[],
     stages: &[
         DwellStage {
             messages: &[7001, 7002], // arrival shout
@@ -237,6 +238,7 @@ static FARE_DOCK_SCHED: DockSchedule = DockSchedule {
         oust_y: 900,
         oust_z: -3600,
     },
+    voyage: &[],
     stages: &[
         DwellStage {
             messages: &[7001],
@@ -367,5 +369,84 @@ fn walking_on_deck_moves_the_seat_and_broadcasts() {
     assert!(
         !has_opcode(&p, opcodes::MOVE_TO_LOCATION_IN_VEHICLE),
         "a stop does not broadcast a walk"
+    );
+}
+
+/// A dock whose ferry, after departing, shouts an in-transit arrival message
+/// 200 ms into the voyage.
+static VOYAGE_DOCK_SCHED: DockSchedule = DockSchedule {
+    char_id: 801,
+    fare: crate::model::boat::Fare {
+        ticket_item_id: 0,
+        oust_x: 0,
+        oust_y: 0,
+        oust_z: 0,
+    },
+    voyage: &[(200, &[8001])],
+    stages: &[
+        DwellStage {
+            messages: &[7001],
+            then_ms: 100,
+        },
+        DwellStage {
+            messages: &[7002],
+            then_ms: 0,
+        },
+    ],
+};
+
+const VOYAGE_ROUTE: &[VehiclePathPoint] = &[
+    // A distant waypoint so the ferry is still sailing when the shout fires.
+    VehiclePathPoint {
+        x: 3000,
+        y: 1000,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock: false,
+        schedule: None,
+    },
+    VehiclePathPoint {
+        x: 1000,
+        y: 1000,
+        z: -3600,
+        move_speed: 200,
+        rotation_speed: 800,
+        dock: true,
+        schedule: Some(&VOYAGE_DOCK_SCHED),
+    },
+];
+
+#[test]
+fn in_transit_arrival_shout_fires_while_sailing_then_stops_once_docked() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, -3600);
+
+    let boat = crate::game_loop::boats::spawn_boat(&mut world, VOYAGE_ROUTE);
+    // Drain the arrival dwell shout; advance through the 100 ms dwell → depart.
+    let _ = drain(&mut rx);
+    advance_ticks(&mut world, 2);
+    assert!(
+        world.objects.get_component::<Boat>(&boat).unwrap().moving,
+        "ferry is sailing"
+    );
+
+    // ~200 ms into the voyage the in-transit shout fires (still sailing).
+    advance_ticks(&mut world, 3);
+    let p = drain(&mut rx);
+    assert!(
+        boat_announced(&p, 8001),
+        "the in-transit arrival shout was broadcast"
+    );
+
+    // A voyage shout that arrives after the ferry has docked is dropped.
+    if let Some(b) = world.objects.get_component_mut::<Boat>(&boat) {
+        b.moving = false;
+    }
+    crate::game_loop::boats::handle_voyage_shout(&mut world, boat, &[8002]);
+    let p = drain(&mut rx);
+    assert!(
+        !boat_announced(&p, 8002),
+        "no in-transit shout once the ferry has docked"
     );
 }

@@ -11,9 +11,12 @@
 //! fare (`payForRide`): riders holding the ticket have one consumed, ticketless
 //! stowaways are told so and put ashore. Riders can walk around on deck
 //! (`MoveToLocationInVehicle`), staying at their relative seat as the boat sails.
+//! While under way it shouts the retail "the ferry will arrive in ~N minutes"
+//! announcements (`DockSchedule.voyage`, scheduled at departure).
 //!
-//! TODO(G24.5): the in-transit "arriving in N minutes" shouts + busy-dock delay
-//! messages.
+//! TODO(G24.5): the busy-dock delay messages (`dockBusy`/`BUSY_*`) are omitted —
+//! with one boat per route a harbor is never occupied by another vehicle, so the
+//! Java `dockBusy` branch is unreachable here.
 
 use crate::enums::ChatType;
 use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, VehiclePathPoint};
@@ -62,15 +65,20 @@ const fn dka(
 /// ferry dock has one, so this only applies to synthetic/test routes.
 const DWELL_MS: u64 = 60_000;
 
+/// The `CreatureSay` sender id every ferry uses for its announcements (Java
+/// passes `801` to every `new CreatureSay(ChatType.BOAT, 801, …)`).
+const BOAT_CHAR_ID: i32 = 801;
+
 /// The standard 10-minute harbor dwell shared by the Talking/Gludin/Giran
 /// ferries (Java `case` cadence 5 min → 4 min → 40 s → 20 s): the "arrived"
 /// lines, then the 5-minute / 1-minute / "leaving soon" warnings, then the
 /// "leaving now" shout after which the ferry departs.
 macro_rules! ten_minute_dwell {
-    ($fare:expr, $arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
+    ($fare:expr, $voyage:expr, $arrival:expr, $leave_5min:expr, $leave_1min:expr, $leaving_soon:expr, $leaving_now:expr) => {
         DockSchedule {
             char_id: 801,
             fare: $fare,
+            voyage: $voyage,
             stages: &[
                 DwellStage {
                     messages: $arrival,
@@ -104,6 +112,7 @@ macro_rules! three_minute_dwell {
         DockSchedule {
             char_id: 801,
             fare: $fare,
+            voyage: &[], // Rune↔Primeval makes no in-transit announcements
             stages: &[
                 DwellStage {
                     messages: $arrival,
@@ -128,9 +137,36 @@ const fn fare(ticket_item_id: i32, oust_x: i32, oust_y: i32, oust_z: i32) -> Far
     }
 }
 
+// In-transit "arriving in ~N minutes" shouts, `(delay_from_departure, [ids])`.
+const V_TALKING_TO_GLUDIN: &[(u64, &[u32])] =
+    &[(300_000, &[1159]), (600_000, &[1160]), (840_000, &[1161])];
+const V_GLUDIN_TO_TALKING: &[(u64, &[u32])] =
+    &[(150_000, &[1191]), (450_000, &[1192]), (690_000, &[1193])];
+const V_GIRAN_TO_TALKING: &[(u64, &[u32])] = &[
+    (0, &[1162]),
+    (250_000, &[1163]),
+    (550_000, &[1164]),
+    (790_000, &[1165]),
+];
+const V_TALKING_TO_GIRAN: &[(u64, &[u32])] = &[
+    (200_000, &[1166]),
+    (500_000, &[1167]),
+    (800_000, &[1168]),
+    (1_100_000, &[1169]),
+    (1_340_000, &[1170]),
+];
+const V_INNADRIL_TOUR: &[(u64, &[u32])] = &[
+    (650_000, &[1171]),
+    (950_000, &[1172]),
+    (1_250_000, &[1173]),
+    (1_550_000, &[1174]),
+    (1_790_000, &[1175]),
+];
+
 // Talking Island ↔ Gludin (`BoatTalkingGludin`). 983 = "make haste to board".
 static TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
     fare(1074, -96777, 258970, -3623),
+    V_TALKING_TO_GLUDIN,
     &[979, 980],
     &[981],
     &[982, 983],
@@ -139,6 +175,7 @@ static TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
 ); // leaves for Gludin
 static GLUDIN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
     fare(1075, -90015, 150422, -3610),
+    V_GLUDIN_TO_TALKING,
     &[986, 987],
     &[988],
     &[989, 983],
@@ -149,6 +186,7 @@ static GLUDIN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
 // Giran ↔ Talking Island (`BoatGiranTalking`) — no "make haste" line.
 static GT_GIRAN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
     fare(3946, 46763, 187041, -3451),
+    V_GIRAN_TO_TALKING,
     &[992, 987],
     &[988],
     &[989],
@@ -157,6 +195,7 @@ static GT_GIRAN_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
 ); // leaves for Talking
 static GT_TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
     fare(3945, -96777, 258970, -3623),
+    V_TALKING_TO_GIRAN,
     &[979, 993],
     &[994],
     &[995],
@@ -168,6 +207,7 @@ static GT_TALKING_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
 // free passage (ticket id 0).
 static INNADRIL_DOCK_SCHED: DockSchedule = ten_minute_dwell!(
     fare(0, 107092, 219098, -3952),
+    V_INNADRIL_TOUR,
     &[998],
     &[999],
     &[1000],
@@ -447,17 +487,65 @@ fn schedule_depart(world: &mut World, boat_oid: i32) {
 /// (before `move_to_next` sets `moving`), matching Java's `payForRide` in the
 /// same `case` that departs.
 fn depart(world: &mut World, boat_oid: i32) {
-    if let Some(fare) = world
+    // Capture the departing dock's schedule before advancing off it.
+    let sched = world
         .objects
         .get_component::<Boat>(&boat_oid)
-        .and_then(|b| b.target().schedule.map(|s| s.fare))
-    {
+        .and_then(|b| b.target().schedule);
+    if let Some(fare) = sched.map(|s| s.fare) {
         pay_for_ride(world, boat_oid, fare);
     }
     if let Some(b) = world.objects.get_component_mut::<Boat>(&boat_oid) {
         b.advance();
     }
     move_to_next(world, boat_oid);
+    // Schedule the in-transit "arriving in ~N minutes" shouts for this leg.
+    if let Some(voyage) = sched.map(|s| s.voyage) {
+        for &(delay_ms, messages) in voyage {
+            let fire_at = world.tick + delay_ms.div_ceil(100);
+            world.scheduler.schedule(
+                fire_at,
+                ScheduledTask::BoatVoyageShout {
+                    boat_object_id: boat_oid,
+                    messages,
+                },
+            );
+        }
+    }
+}
+
+/// The `BoatVoyageShout` task: an in-transit arrival announcement. Skipped if
+/// the ferry has already docked (a late shout from the previous leg).
+pub(crate) fn handle_voyage_shout(world: &mut World, boat_oid: i32, messages: &'static [u32]) {
+    let moving = world
+        .objects
+        .get_component::<Boat>(&boat_oid)
+        .is_some_and(|b| b.moving);
+    if !moving {
+        return;
+    }
+    for &mid in messages {
+        let say = sp::creature_say_system(ChatType::Boat, BOAT_CHAR_ID, mid as i32);
+        broadcast_to_route_docks(world, boat_oid, &say);
+    }
+}
+
+/// Broadcast to the region around every harbor on the ferry's route (Java sends
+/// arrival announcements to both the source and destination docks).
+fn broadcast_to_route_docks(world: &World, boat_oid: i32, packet: &[u8]) {
+    let Some(boat) = world.objects.get_component::<Boat>(&boat_oid) else {
+        return;
+    };
+    let mut regions: Vec<(i32, i32)> = Vec::new();
+    for wp in boat.route.iter().filter(|w| w.dock) {
+        let r = region_of(wp.x, wp.y);
+        if !regions.contains(&r) {
+            regions.push(r);
+        }
+    }
+    for r in regions {
+        broadcast_near_region(world, r, packet);
+    }
 }
 
 /// `Vehicle.payForRide`: charge each rider the boat ticket as the ferry leaves.
