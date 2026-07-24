@@ -119,6 +119,20 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     // SiegeZone.onEnter/onExit — see `refresh_siege_zone_flag`.
     refresh_siege_zone_flag(world, object_id);
 
+    // FishingZone.onEnter/onExit → `ExAutoFishAvailable` (G32): light the
+    // client's auto-fish button when the player can fish here, dim it on exit.
+    let fishing_avail = super::fishing::fishing_available(world, object_id);
+    if fishing_avail != flags.fishing_available {
+        if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
+            f.fishing_available = fishing_avail;
+        }
+        if let Some(cs) =
+            client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid))
+        {
+            cs.send(server_packets::ex_auto_fish_available(fishing_avail));
+        }
+    }
+
     // Peace/NoRestart have no enter/exit side effects — membership itself is
     // the state their consumers check (`is_inside_peace_zone`; NO_RESTART has
     // no reader in this Mobius version beyond the login-inside teleport).
