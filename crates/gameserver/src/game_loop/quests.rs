@@ -938,6 +938,35 @@ impl<'w> QuestCtx<'w> {
         super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
     }
 
+    /// L2J's `Cast(npc, player, skillId, level)` — a purely visual self-cast
+    /// `MagicSkillUse` shown on **both** the in-context NPC and the player, to
+    /// everyone nearby. The Saga rite uses it for the tablet progression glow
+    /// (4546) and the final transform flash (4339).
+    pub fn cast_visual(&self, skill_id: i32, level: i32) {
+        for oid in [self.player, self.npc] {
+            let pos = self
+                .world
+                .objects
+                .get_component::<crate::model::components::Position>(&oid)
+                .copied();
+            let region = self
+                .world
+                .objects
+                .get_component::<crate::model::components::RegionCell>(&oid)
+                .map(|r| r.0);
+            if let (Some(pos), Some(region)) = (pos, region) {
+                let pkt = server_packets::magic_skill_use_raw(
+                    (oid, pos.x, pos.y, pos.z),
+                    (oid, pos.x, pos.y, pos.z),
+                    skill_id,
+                    level,
+                    6000,
+                );
+                super::helpers::broadcast_near_region(self.world, region, &pkt);
+            }
+        }
+    }
+
     /// Whether the object `oid` is dead (or gone). Used by the arcana-duel
     /// `KILLED_ATTACKER` timer to tell whether the challenger's servitor fell.
     pub fn is_oid_dead(&self, oid: i32) -> bool {

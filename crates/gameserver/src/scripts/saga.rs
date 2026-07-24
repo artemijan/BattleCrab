@@ -12,9 +12,10 @@
 //!
 //! The finale is wired: the boss and companion spawn and duel each other, trade
 //! opening lines, and the boss is driven off after 15 player hits (unlocking the
-//! reward). Faithful gaps that remain (cosmetic, TODO): the full *timed* `_text`
-//! taunt cadence (here just the opening + retreat lines, generic across all 31
-//! Sagas), and the `MagicSkillUse` casts (4546 progression glow, 4339 transform).
+//! reward). Progression glows (`MagicSkillUse` 4546) and the transform flash
+//! (4339) fire on each tablet step and the class change. The one remaining
+//! cosmetic gap: the full *timed* `_text` taunt cadence (here just the opening +
+//! retreat lines, generic across all 31 Sagas rather than per-class).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -88,8 +89,8 @@ impl SagaQuest {
         ctx.give_items(57, REWARD_ADENA);
         ctx.give_items(MARK_OF_SAGA, 1);
         ctx.set_class_id(self.data.class_id);
-        // TODO(saga): MagicSkillUse 4339 (transform FX) + the SkillTransfer
-        // "givePormanders" hand-off.
+        ctx.cast_visual(4339, 1); // the transform flash
+                                  // TODO(saga): the SkillTransfer "givePormanders" hand-off.
     }
 }
 
@@ -498,7 +499,7 @@ impl SagaQuest {
     ) -> Option<String> {
         ctx.set_var("cond", cond.to_string());
         ctx.take_items(self.item(take_item), 1);
-        // TODO(saga): MagicSkillUse 4546 progression glow.
+        ctx.cast_visual(4546, 1); // the tablet's progression glow
         ctx.play_sound(quest_sounds::MIDDLE);
         Some(html.to_string())
     }
