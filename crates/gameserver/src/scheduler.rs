@@ -71,6 +71,9 @@ pub enum ScheduledTask {
     /// Boats: the dock anchor dwell elapsed — the ferry weighs anchor and sails
     /// on (players could board/disembark while it was anchored).
     BoatDepart { boat_object_id: i32 },
+    /// Boats: run the next stage of a harbor dwell — broadcast its departure
+    /// announcements and schedule the following stage (or depart after the last).
+    BoatDwellStage { boat_object_id: i32, stage: usize },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

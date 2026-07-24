@@ -208,6 +208,9 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
+        // Server-sent only (ferry announcements); a client never legitimately
+        // originates it, so drop it.
+        ChatType::Boat => {}
     }
 }
 
