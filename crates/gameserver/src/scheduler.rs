@@ -74,6 +74,12 @@ pub enum ScheduledTask {
     /// Boats: run the next stage of a harbor dwell — broadcast its departure
     /// announcements and schedule the following stage (or depart after the last).
     BoatDwellStage { boat_object_id: i32, stage: usize },
+    /// Boats: an in-transit "the ferry will arrive in ~N minutes" shout, fired
+    /// at a fixed offset after departure (only while the boat is still sailing).
+    BoatVoyageShout {
+        boat_object_id: i32,
+        messages: &'static [u32],
+    },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
