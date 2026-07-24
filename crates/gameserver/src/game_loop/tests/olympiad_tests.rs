@@ -487,6 +487,116 @@ fn game_manager_needs_the_minimum_before_making_matches() {
     );
 }
 
+/// Stage a running match between two nobles with the given points; returns
+/// player A's outbound packet receiver.
+fn stage_match(
+    world: &mut World,
+    a: i32,
+    b: i32,
+    pts_a: i32,
+    pts_b: i32,
+) -> tokio::sync::mpsc::UnboundedReceiver<Vec<u8>> {
+    use crate::model::olympiad::{NobleStats, OlympiadMatch};
+    let rx_a = ingame_player(world, a as u32, a, 500, 500, 0);
+    let _rb = ingame_player(world, b as u32, b, 600, 600, 0);
+    for (oid, pts, name) in [(a, pts_a, "A"), (b, pts_b, "B")] {
+        let mut n = NobleStats::fresh(2, name.into());
+        n.points = pts;
+        world.olympiad.nobles.insert(oid, n);
+        world.olympiad.in_competition.insert(oid);
+    }
+    world.olympiad.matches.push(OlympiadMatch {
+        arena: 0,
+        player_a: a,
+        player_b: b,
+        deadline_tick: world.tick + 100_000,
+        return_a: (500, 500, 0),
+        return_b: (600, 600, 0),
+    });
+    rx_a
+}
+
+#[test]
+fn a_match_resolves_on_death_with_scoring() {
+    use crate::model::components::Vitals;
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = stage_match(&mut world, 100, 200, 30, 20);
+
+    // Player 200 dies → 100 wins. pointDiff = min(30,20)/5 = 4.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&200)
+        .unwrap()
+        .dead = true;
+    crate::game_loop::olympiad::handle_match_tick(&mut world, 0);
+
+    let win = &world.olympiad.nobles[&100];
+    assert_eq!(win.points, 34, "winner gains the transfer");
+    assert_eq!((win.comp_won, win.comp_done, win.comp_done_week), (1, 1, 1));
+    let lose = &world.olympiad.nobles[&200];
+    assert_eq!(lose.points, 16, "loser loses the transfer");
+    assert_eq!(
+        (lose.comp_lost, lose.comp_done, lose.comp_done_week),
+        (1, 1, 1)
+    );
+
+    assert!(
+        !world.olympiad.is_in_competition(100),
+        "match freed the winner"
+    );
+    assert!(!world.olympiad.is_in_competition(200));
+    assert!(world.olympiad.matches.is_empty(), "match cleared");
+    assert!(
+        got_sm(
+            &drain(&mut rx),
+            crate::network::server_packets::sm_ids::CONGRATULATIONS_C1_YOU_WIN_THE_MATCH
+        ),
+        "winner congratulated"
+    );
+}
+
+#[test]
+fn a_timed_out_match_is_a_draw() {
+    let (mut world, _tx, _db, _l) = test_world();
+    stage_match(&mut world, 100, 200, 30, 20);
+    // Force the deadline into the past; both stay alive.
+    world.olympiad.matches[0].deadline_tick = 0;
+
+    crate::game_loop::olympiad::handle_match_tick(&mut world, 0);
+
+    for oid in [100, 200] {
+        let n = &world.olympiad.nobles[&oid];
+        assert_eq!(n.comp_drawn, 1, "both drew");
+        assert_eq!(n.comp_done, 1);
+    }
+    assert_eq!(
+        world.olympiad.nobles[&100].points, 30,
+        "no points on a draw"
+    );
+    assert_eq!(world.olympiad.nobles[&200].points, 20);
+    assert!(world.olympiad.matches.is_empty());
+    assert!(world.olympiad.in_competition.is_empty());
+}
+
+#[test]
+fn point_transfer_is_clamped() {
+    use crate::model::components::Vitals;
+    let (mut world, _tx, _db, _l) = test_world();
+    // Both nearly broke → min/5 rounds to 0, clamped up to 1.
+    stage_match(&mut world, 100, 200, 3, 3);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&200)
+        .unwrap()
+        .dead = true;
+    crate::game_loop::olympiad::handle_match_tick(&mut world, 0);
+    assert_eq!(
+        world.olympiad.nobles[&100].points, 4,
+        "transfer floors at 1"
+    );
+    assert_eq!(world.olympiad.nobles[&200].points, 2);
+}
+
 #[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();

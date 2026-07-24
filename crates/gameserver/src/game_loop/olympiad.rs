@@ -5,8 +5,11 @@
 //! and timing gates; boot load / shutdown save of `olympiad_data` +
 //! `olympiad_nobles`; the competition-window schedule (18:00 for 6 h on the
 //! weekend competition days) plus the weekly point/match refresh; and the
-//! match-making sweep that pairs waiting nobles into stadium matches. The
-//! stadium teleport, the fight/scoring and hero calculation are later slices.
+//! match-making sweep that pairs waiting nobles into stadium matches; and the
+//! match run itself — the fighters are ported to the arena, the bout is polled
+//! to a result, points transferred and win/loss/draw recorded, and everyone
+//! ported back. The stadium instancing (needs G27), the countdown ceremony and
+//! the monthly hero calculation are later slices.
 
 use crate::db::{DbCommand, OlympiadNobleRow};
 use crate::model::olympiad::{
@@ -204,15 +207,173 @@ fn make_matches(world: &mut World) {
         };
         world.olympiad.in_competition.insert(player_a);
         world.olympiad.in_competition.insert(player_b);
-        world.olympiad.matches.push(OlympiadMatch {
-            arena,
-            player_a,
-            player_b,
-        });
-        tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
-        // TODO(G25): teleport the pair into the stadium instance, strip buffs,
-        // run the countdown + fight + scoring — slice 5.
+        start_match(world, arena, player_a, player_b);
     }
+}
+
+/// The single grassy-arena spawn points (`zones/olympiad_stadium.xml`), for
+/// player one and player two. TODO(G25): the four stadiums are separate
+/// instances (needs G27); until then matches share these coordinates.
+const ARENA_SPAWN_A: (i32, i32, i32) = (-89597, -252841, -3320);
+const ARENA_SPAWN_B: (i32, i32, i32) = (-86544, -252846, -3320);
+/// `AltOlyBattle` — the battle length (5 min); an undecided fight is a draw.
+const BATTLE_MS: i64 = 300_000;
+/// How often a running match is polled for a result.
+const MATCH_POLL_MS: i64 = 1000;
+/// `AltOlyDividerNonClassed` / `AltOlyMaxPoints` — the point-transfer formula.
+const POINT_DIVIDER: i32 = 5;
+const MAX_TRANSFER_POINTS: i32 = 10;
+
+/// The outcome of a match once it resolves.
+enum MatchResult {
+    Win { winner: i32, loser: i32 },
+    Draw,
+}
+
+/// Begin a match: port both fighters to the arena (remembering where they came
+/// from), then start polling for the result. TODO(G25): the Java countdown
+/// ceremony + buff strip; here the fight is live immediately.
+fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
+    let return_a = position_of(world, player_a);
+    let return_b = position_of(world, player_b);
+    let deadline_tick = world.tick + (BATTLE_MS / 100) as u64;
+    world.olympiad.matches.push(OlympiadMatch {
+        arena,
+        player_a,
+        player_b,
+        deadline_tick,
+        return_a,
+        return_b,
+    });
+    crate::game_loop::death::teleport_player(
+        world,
+        player_a,
+        ARENA_SPAWN_A.0,
+        ARENA_SPAWN_A.1,
+        ARENA_SPAWN_A.2,
+    );
+    crate::game_loop::death::teleport_player(
+        world,
+        player_b,
+        ARENA_SPAWN_B.0,
+        ARENA_SPAWN_B.1,
+        ARENA_SPAWN_B.2,
+    );
+    tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
+    world.scheduler.schedule(
+        fire_at(world, MATCH_POLL_MS),
+        ScheduledTask::OlympiadMatchTick { arena },
+    );
+}
+
+/// `OlympiadGameTask` poll: a fighter who died or vanished loses; both surviving
+/// past the battle deadline is a draw. Otherwise keep watching.
+pub(crate) fn handle_match_tick(world: &mut World, arena: usize) {
+    let Some(m) = world
+        .olympiad
+        .matches
+        .iter()
+        .find(|m| m.arena == arena)
+        .cloned()
+    else {
+        return; // already resolved
+    };
+    let a_gone = !is_online(world, m.player_a);
+    let b_gone = !is_online(world, m.player_b);
+    let a_dead = a_gone || is_dead(world, m.player_a);
+    let b_dead = b_gone || is_dead(world, m.player_b);
+
+    let result = match (a_dead, b_dead) {
+        (false, false) if world.tick < m.deadline_tick => {
+            // Battle still on — keep polling.
+            world.scheduler.schedule(
+                fire_at(world, MATCH_POLL_MS),
+                ScheduledTask::OlympiadMatchTick { arena },
+            );
+            return;
+        }
+        (true, true) => MatchResult::Draw, // both down (or timeout with both alive → below)
+        (true, false) => MatchResult::Win {
+            winner: m.player_b,
+            loser: m.player_a,
+        },
+        (false, true) => MatchResult::Win {
+            winner: m.player_a,
+            loser: m.player_b,
+        },
+        _ => MatchResult::Draw, // deadline reached, both alive
+    };
+    resolve_match(world, &m, &result);
+}
+
+/// Apply the result (Java `validateWinner`), port both fighters back, and clear
+/// the match.
+fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
+    match result {
+        MatchResult::Win { winner, loser } => {
+            let diff = point_transfer(world, *winner, *loser);
+            update_noble(world, *winner, |n| {
+                n.points += diff;
+                n.comp_won += 1;
+            });
+            update_noble(world, *loser, |n| {
+                n.points = (n.points - diff).max(0);
+                n.comp_lost += 1;
+            });
+            send_sm(world, *winner, sm_ids::CONGRATULATIONS_C1_YOU_WIN_THE_MATCH);
+        }
+        MatchResult::Draw => {
+            update_noble(world, m.player_a, |n| n.comp_drawn += 1);
+            update_noble(world, m.player_b, |n| n.comp_drawn += 1);
+        }
+    }
+    // Both played a match this week (Java increments COMP_DONE / COMP_DONE_WEEK
+    // for both regardless of outcome).
+    for oid in [m.player_a, m.player_b] {
+        update_noble(world, oid, |n| {
+            n.comp_done += 1;
+            n.comp_done_week += 1;
+        });
+    }
+
+    // Port the fighters back and free them.
+    for (oid, ret) in [(m.player_a, m.return_a), (m.player_b, m.return_b)] {
+        world.olympiad.in_competition.remove(&oid);
+        if is_online(world, oid) {
+            crate::game_loop::death::teleport_player(world, oid, ret.0, ret.1, ret.2);
+        }
+    }
+    world.olympiad.matches.retain(|x| x.arena != m.arena);
+    save_all(world);
+}
+
+/// `validateWinner`'s `pointDiff`: `min(winnerPts, loserPts) / divider`,
+/// clamped to `[1, ALT_OLY_MAX_POINTS]`.
+fn point_transfer(world: &World, winner: i32, loser: i32) -> i32 {
+    let wp = world.olympiad.nobles.get(&winner).map_or(0, |n| n.points);
+    let lp = world.olympiad.nobles.get(&loser).map_or(0, |n| n.points);
+    (wp.min(lp) / POINT_DIVIDER).clamp(1, MAX_TRANSFER_POINTS)
+}
+
+fn update_noble(world: &mut World, object_id: i32, f: impl FnOnce(&mut NobleStats)) {
+    if let Some(n) = world.olympiad.nobles.get_mut(&object_id) {
+        f(n);
+    }
+}
+
+fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
+    world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+        .map(|p| (p.x, p.y, p.z))
+        .unwrap_or((0, 0, 0))
+}
+
+fn is_dead(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&object_id)
+        .is_some_and(|v| v.dead)
 }
 
 /// `OlympiadGameNormal.createListOfParticipants`: draw two distinct **online**
