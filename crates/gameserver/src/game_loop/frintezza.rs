@@ -7,9 +7,11 @@
 //! per-instance doors (slice 2), the intro cinematic (slice 3), Scarlet's
 //! 80%/20% morphs → final form (slice 4), the fight loops — songs + demon/portrait
 //! ecosystem + Dewdrop suicide (slice 4b) — and the finish cinematic (Frintezza's
-//! death → doors reopen, slice 5), plus Scarlet's custom daemon-skill AI (Java
-//! `ScarletVanHalisha`). Remaining polish (`docs/PLAN_FRINTEZZA.md`): the song
-//! debuff (5008), the crawl aggro-nudge, and the 5% Dewdrop item drop.
+//! death → doors reopen, slice 5), Scarlet's custom daemon-skill AI (Java
+//! `ScarletVanHalisha`), and the crawl polish — the room aggro-nudge, the 5%
+//! Dewdrop drop, and the song debuff (5008). The only gap left is cosmetic: the
+//! exhaustive dummy-anchored `SpecialCamera` choreography is abbreviated
+//! throughout (`docs/PLAN_FRINTEZZA.md`).
 
 use rand::Rng;
 
@@ -65,7 +67,7 @@ pub(crate) fn exit(world: &mut World, player_oid: i32) {
 /// Java `onKill` for the crawl monsters — advance the room progression. Only the
 /// dungeon status machine (0→4) is handled here; the boss-fight kill branches
 /// (Scarlet2, demons, portraits) arrive with slice 4.
-pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32) {
+pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32, npc_id: i32) {
     let instance_id = instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
@@ -78,7 +80,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32)
         let spawned = instances::spawn_group(world, instance_id, "room1");
         set_monsters_count(world, instance_id, spawned.len());
         open_doors(world, instance_id, FIRST_ROOM_DOORS);
-        // TODO(frintezza slice 1+): reduceCurrentHp(1) nudge to aggro the room.
+        aggro_room(world, &spawned, killer_oid);
         return;
     }
 
@@ -101,7 +103,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32)
                 let spawned = instances::spawn_group(world, instance_id, "room2_part2");
                 set_monsters_count(world, instance_id, spawned.len());
                 open_doors(world, instance_id, SECOND_ROOM_DOORS);
-                // TODO(frintezza slice 1+): reduceCurrentHp(1) nudge to aggro.
+                aggro_room(world, &spawned, killer_oid);
             }
             3 => {
                 world.instances.set_status(instance_id, 4);
@@ -113,9 +115,35 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32)
         }
     }
 
-    // TODO(frintezza slice 4): 5% Dewdrop of Destruction drop (8556) — only
-    // useful once the portrait/demon fight exists.
+    // Java `if (getRandom(100) < 5) npc.dropItem(killer, DEWDROP, 1)` — the crawl
+    // trash sometimes yields a Dewdrop of Destruction (used on the portraits).
+    if world.roll(100) < 5 {
+        if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
+            crate::game_loop::ground_items::spawn_ground_item(
+                world,
+                DEWDROP_ITEM,
+                1,
+                0,
+                pos.x,
+                pos.y,
+                pos.z,
+                npc_oid,
+                crate::game_loop::ground_items::DropSource::Npc,
+            );
+        }
+    }
 }
+
+/// `reduceCurrentHp(1, killer, null)` on a freshly-spawned room — a nudge that
+/// makes every guard aggro the intruder at once.
+fn aggro_room(world: &mut World, room: &[i32], killer_oid: i32) {
+    for &mob in room {
+        crate::game_loop::minions::add_hate(world, mob, killer_oid, 1.0);
+    }
+}
+
+/// Dewdrop of Destruction — the portrait-slaying consumable dropped by the crawl.
+const DEWDROP_ITEM: i32 = 8556;
 
 /// Java sets `monstersCount = getAliveNpcs().size() - 1`; right after a
 /// `spawnGroup` the alive NPCs are exactly the group just spawned.
@@ -710,6 +738,8 @@ const DEMON_INTERVAL_MS: u64 = 20_000;
 /// Java `MAX_DEMONS`.
 const MAX_DEMONS: i64 = 24;
 const SONG_SKILL: i32 = 5007;
+/// The song's matching debuff (Java `skillEffect = SkillHolder(5008, random)`).
+const SONG_EFFECT_SKILL: i32 = 5008;
 const DEWDROP_SKILL: i32 = 2276;
 /// The five song names (Java `SKILL_MSG`), shown as they play.
 const SONG_NAMES: [&str; 5] = [
@@ -757,8 +787,18 @@ pub(crate) fn handle_song(world: &mut World, instance_id: i32) {
                 &server_packets::magic_skill_use_raw(src, src, SONG_SKILL, n as i32 + 1, 1000),
             );
         }
+        // Java `for player: frintezza.setTarget(player); frintezza.doCast(5008)`
+        // — the song's matching debuff lands on everyone (the animation above is
+        // the 5007 half). Applied directly, since the cast is one-per-target.
+        let level = n as i32 + 1;
+        if let Some(skill) = world.data.skill_data.get(SONG_EFFECT_SKILL, level).cloned() {
+            for player in instance_members(world, instance_id) {
+                crate::game_loop::skills::effects::apply_skill_effects(
+                    world, frintezza, player, &skill,
+                );
+            }
+        }
     }
-    // TODO(frintezza slice 4b+): apply song debuff (skill 5008) to the players.
     schedule_song(world, instance_id);
 }
 

@@ -314,7 +314,7 @@ pub(crate) fn on_assist(world: &mut World, victim_oid: i32, attacker_oid: i32) {
 }
 
 /// `addDamageHate(attacker, 0, n)` — hate without damage, plus the AI wake.
-fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate: f64) {
+pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate: f64) {
     if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
         let entry = aggro.0.entry(attacker_oid).or_insert(AggroInfo {
             hate: 0.0,
