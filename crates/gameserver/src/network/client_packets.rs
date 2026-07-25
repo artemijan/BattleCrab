@@ -45,6 +45,8 @@ pub mod opcodes {
     /// Boats (G24.5) — walk around on a ferry's deck.
     pub const REQUEST_MOVE_TO_LOCATION_IN_VEHICLE: u8 = 0x75;
     pub const REQUEST_ACTION_USE: u8 = 0x56;
+    /// `RequestJoinSiege` (G24) — a clan leader registers/cancels for a siege.
+    pub const REQUEST_JOIN_SIEGE: u8 = 0xAD;
     /// `RequestGetItemFromPet` — move an item from the pet's inventory back
     /// to the owner's.
     pub const REQUEST_GET_ITEM_FROM_PET: u8 = 0x2C;

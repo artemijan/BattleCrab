@@ -30,7 +30,14 @@ pub mod sm_ids {
     pub const S2_WAS_DROPPED_IN_THE_S1_REGION: i16 = 1817;
     pub const S1_HAS_DISAPPEARED: i16 = 1818;
     // Castle sieges (`//castlemanage`)
+    // The registration-refusal block is contiguous (anchored by the already-
+    // ported 638) in the Interlude systemmsg table.
+    pub const ONLY_CLANS_OF_LEVEL_3_OR_ABOVE_MAY_REGISTER_FOR_A_CASTLE_SIEGE: i16 = 636;
+    pub const CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE: i16 = 637;
     pub const YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE: i16 = 638;
+    pub const A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE: i16 = 639;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE: i16 = 640;
+    pub const NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE: i16 = 641;
     pub const THE_S1_SIEGE_HAS_STARTED: i16 = 711;
     pub const THE_S1_SIEGE_HAS_FINISHED: i16 = 712;
     pub const CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE: i16 = 291;

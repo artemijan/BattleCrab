@@ -207,3 +207,6 @@ pub const EX_DUEL_READY: i16 = 0x4E;
 pub const EX_DUEL_START: i16 = 0x4F;
 pub const EX_DUEL_END: i16 = 0x50;
 pub const EX_DUEL_UPDATE_USER_INFO: i16 = 0x51;
+
+/// Siege registration (`CASTLE_SIEGE_INFO`) — the register/roster window.
+pub const CASTLE_SIEGE_INFO: u8 = 0xC9;
