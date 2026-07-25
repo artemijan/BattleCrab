@@ -90,6 +90,15 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
         if npc_id == super::dr_chaos::CHAOS_GOLEM {
             super::dr_chaos::on_golem_killed(world, npc_oid);
         }
+        // Sailren's wave ladder — only *tagged* mobs advance it (the same
+        // dinosaurs also roam the open world).
+        if world
+            .objects
+            .has_component::<crate::model::components::SailrenWaveMob>(&npc_oid)
+        {
+            let killer = super::pvp::acting_player(world, killer_oid);
+            super::sailren::on_wave_kill(world, killer, npc_id);
+        }
         // Antharas's `onKill` tail: despawn the adds, drop the exit cube, and
         // arm the 15-minute lair clear (the respawn window is already set
         // above). Without it players are stranded in the lair after the kill.

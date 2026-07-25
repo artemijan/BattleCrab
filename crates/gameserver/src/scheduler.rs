@@ -31,6 +31,10 @@ pub enum ScheduledTask {
     /// Baium's archangels re-pick a target every 5 s (engage a nearby player, or
     /// regroup on Baium); they despawn once he falls.
     BaiumSelectTarget,
+    /// Sailren enters, 3 minutes after the Tyrannosaurus falls.
+    SailrenSpawn,
+    /// Sailren's intro invulnerability lifts — the fight begins.
+    SailrenAttackEnable { sailren_oid: i32 },
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;

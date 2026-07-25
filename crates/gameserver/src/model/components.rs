@@ -33,6 +33,12 @@ pub struct InstanceId(pub i32);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Immobilized;
 
+/// Marks an NPC as part of the active Sailren wave encounter (its
+/// velociraptors, pterosaur, trex, and Sailren himself). The wave mobs also
+/// spawn in the open world, so the kill-chain only advances for tagged ones.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct SailrenWaveMob;
+
 /// Per-instance door open state (G27 Frintezza slice 2). Instance door copies
 /// carry their own open/closed flag instead of the global `geo.doors` atomic —
 /// concurrent instances of the same template toggle independently. Absent on
