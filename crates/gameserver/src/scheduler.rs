@@ -90,6 +90,9 @@ pub enum ScheduledTask {
     /// A clan hall's lease check (`ClanHall.CheckPaymentTask`): charge the weekly
     /// rent from the owner's warehouse, or revoke the hall if a week overdue.
     ClanHallLeaseCheck { hall_id: i32 },
+    /// A hall function's rental expiry (`ResidenceFunction.onFunctionExpiration`):
+    /// re-pay from the clan warehouse or drop the function.
+    ClanHallFunctionExpire { hall_id: i32, func_id: i32 },
     /// Antharas's 60 s `SET_REGEN` beat: a self-heal that escalates as his HP
     /// falls (one of four regeneration skills, cast once per band).
     AntharasSetRegen { antharas_oid: i32 },

@@ -237,6 +237,10 @@ pub struct World {
     /// `hall_id → clan_id → bid`. Loaded from `clanhall_auctions_bidders`.
     pub clan_hall_bids: HashMap<i32, HashMap<i32, crate::model::clan_hall::ClanHallBid>>,
 
+    /// Active clan-hall functions (Java `ClanHall._functions`), keyed by
+    /// `hall_id → func_id → function`. Loaded from `residence_functions`.
+    pub clan_hall_functions: HashMap<i32, HashMap<i32, crate::model::clan_hall::ActiveFunction>>,
+
     /// Per-castle siege-guard spawn points (`castle_siege_guards`, the stationed
     /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
     pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
@@ -377,6 +381,7 @@ impl World {
             sieges: HashMap::new(),
             clan_halls: HashMap::new(),
             clan_hall_bids: HashMap::new(),
+            clan_hall_functions: HashMap::new(),
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
             instances: crate::model::instance::InstanceManager::default(),

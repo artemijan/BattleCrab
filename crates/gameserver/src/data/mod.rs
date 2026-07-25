@@ -30,6 +30,7 @@ pub mod pet_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
 pub mod recipe_data;
+pub mod residence_function_data;
 pub mod route_data;
 pub mod scheme_buffer;
 pub mod siege_data;
@@ -199,6 +200,8 @@ pub struct GameData {
     /// The 48 clan-hall definitions (`data/residences/clanHalls/**`), keyed by id.
     /// Static defs only; ownership is overlaid onto `World::clan_halls` at boot.
     pub clan_halls: std::collections::HashMap<i32, crate::model::clan_hall::ClanHall>,
+    /// The clan-hall function upgrade catalogue (`data/ResidenceFunctions.xml`).
+    pub residence_functions: residence_function_data::ResidenceFunctionData,
     /// Gatekeeper teleport lists (G15.5), see [`TeleporterData`].
     pub teleporters: TeleporterData,
     pub transforms: TransformData,
@@ -276,6 +279,9 @@ impl GameData {
             siege_schedule: siege_data::load_siege_schedule(file_path),
             castle_restart_points: castle_zone_data::load_castle_restart_points(file_path),
             clan_halls: clan_hall_data::load_clan_halls(file_path),
+            residence_functions: residence_function_data::ResidenceFunctionData::load_from(
+                file_path,
+            ),
             teleporters: TeleporterData::load_from(file_path),
             transforms: TransformData::load_from(file_path),
             enchant: EnchantData::load_from(file_path),
@@ -335,6 +341,7 @@ impl GameData {
             siege_schedule: std::collections::HashMap::new(),
             castle_restart_points: std::collections::HashMap::new(),
             clan_halls: std::collections::HashMap::new(),
+            residence_functions: residence_function_data::ResidenceFunctionData::default(),
             teleporters: TeleporterData::empty(),
             transforms: TransformData::empty(),
             enchant: EnchantData::empty(),

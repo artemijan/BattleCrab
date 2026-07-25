@@ -120,6 +120,7 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
             | DbEvent::SiegesLoaded { .. }
             | DbEvent::ClanHallsLoaded { .. }
             | DbEvent::ClanHallBiddersLoaded { .. }
+            | DbEvent::ResidenceFunctionsLoaded { .. }
             | DbEvent::SiegeGuardsLoaded { .. }
             | DbEvent::OlympiadLoaded { .. }
             | DbEvent::HeroesLoaded { .. }
