@@ -2,12 +2,17 @@
 
 use super::*;
 
+use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
 use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
 use crate::game_loop::frintezza;
 use crate::game_loop::helpers::instance_of;
+use crate::model::components::InstanceDoorOpen;
+use crate::model::door::Door;
 
 const HALL_ALARM: i32 = 18328;
 const TRASH: i32 = 18329;
+/// One of the FIRST_ROOM_DOORS the crawl opens when the alarm falls.
+const FIRST_ROOM_DOOR: i32 = 17130051;
 
 /// A minimal template 136 (the real one has ~50 mobs per room) with `room_size`
 /// mobs per room — 1 makes the crawl advance on a single kill per room.
@@ -23,6 +28,31 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
                 .npc_data
                 .insert_for_test(crate::data::npc_data::default_template(id));
         }
+    }
+    // A door template so the instance's FIRST_ROOM_DOOR copy resolves (closed
+    // by default; the crawl opens it).
+    if world.data.door_data.get(FIRST_ROOM_DOOR).is_none() {
+        world.data.door_data.insert_for_test(DoorTemplate {
+            id: FIRST_ROOM_DOOR,
+            name: "frintezza_door".into(),
+            node_x: [-87000; 4],
+            node_y: [-141000; 4],
+            node_z: -9168,
+            height: 150,
+            x: -87000,
+            y: -141000,
+            z: -9168,
+            hp_max: 100,
+            p_def: 0,
+            m_def: 0,
+            targetable: false,
+            show_hp: false,
+            open_by_default: false,
+            open_method: DoorOpenMethod::None,
+            open_time: 0,
+            close_time: -1,
+            random_time: 0,
+        });
     }
     let room = |name: &str| SpawnGroup {
         name: name.to_string(),
@@ -48,7 +78,7 @@ fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
             empty_destroy_min: 5,
             enter: Some((-88015, -141153, -9168)),
             exit: ExitType::Origin,
-            doors: vec![],
+            doors: vec![FIRST_ROOM_DOOR],
             groups: vec![
                 SpawnGroup {
                     name: "default".into(),
@@ -118,6 +148,40 @@ fn the_crawl_advances_room_by_room_to_status_4() {
         world.instances.status(iid),
         4,
         "final room cleared → ready for Frintezza"
+    );
+}
+
+#[test]
+fn killing_the_alarm_opens_the_first_room_doors() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_frintezza(&mut world);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    frintezza::try_enter(&mut world, 100);
+    let iid = instance_of(&world, 100);
+
+    // The instance's door copy starts closed.
+    let door = *world.instances.get(iid).unwrap().doors.first().unwrap();
+    assert!(
+        !world
+            .objects
+            .get_component::<InstanceDoorOpen>(&door)
+            .unwrap()
+            .0
+    );
+    assert_eq!(
+        world.objects.get_component::<Door>(&door).unwrap().door_id,
+        FIRST_ROOM_DOOR
+    );
+
+    // The alarm's death opens FIRST_ROOM_DOORS.
+    frintezza::on_monster_killed(&mut world, 100, HALL_ALARM);
+    assert!(
+        world
+            .objects
+            .get_component::<InstanceDoorOpen>(&door)
+            .unwrap()
+            .0,
+        "room 1 opened when the alarm fell"
     );
 }
 

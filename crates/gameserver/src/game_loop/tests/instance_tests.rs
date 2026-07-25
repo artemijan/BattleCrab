@@ -82,6 +82,7 @@ fn npcs_are_visible_only_within_their_instance() {
 use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
 use crate::game_loop::helpers::instance_of;
 use crate::game_loop::instances;
+use crate::model::door::Door;
 
 /// Register an NPC template so `spawn_npc_at` resolves it, then seed an
 /// instance template with a default group (one NPC) and a non-default group
@@ -130,6 +131,122 @@ fn seed_instance_template(world: &mut World, template_id: i32, npc_id: i32) {
                 },
             ],
         });
+}
+
+use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
+use crate::model::components::InstanceDoorOpen;
+
+const TEST_DOOR_ID: i32 = 24190001;
+
+/// Register a door template (closed by default) so instance door copies resolve
+/// their coordinates, and add it to instance template 910's doorlist.
+fn seed_door_template(world: &mut World) {
+    world.data.door_data.insert_for_test(DoorTemplate {
+        id: TEST_DOOR_ID,
+        name: "test_door".into(),
+        node_x: [1000; 4],
+        node_y: [1000; 4],
+        node_z: 0,
+        height: 150,
+        x: 1000,
+        y: 1000,
+        z: 0,
+        hp_max: 100,
+        p_def: 0,
+        m_def: 0,
+        targetable: false,
+        show_hp: false,
+        open_by_default: false,
+        open_method: DoorOpenMethod::None,
+        open_time: 0,
+        close_time: -1,
+        random_time: 0,
+    });
+}
+
+fn door_template_with_door(template_id: i32) -> InstanceTemplate {
+    InstanceTemplate {
+        id: template_id,
+        name: Some("Doored".into()),
+        max_worlds: -1,
+        duration_min: 0,
+        empty_destroy_min: 0,
+        enter: Some((1000, 1000, 0)),
+        exit: ExitType::Origin,
+        doors: vec![TEST_DOOR_ID],
+        groups: vec![],
+    }
+}
+
+#[test]
+fn instance_doors_are_private_copies_toggled_independently() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_door_template(&mut world);
+    world
+        .data
+        .instance_templates
+        .insert_for_test(door_template_with_door(910));
+
+    let a = instances::create_from_template(&mut world, 910).expect("instance a");
+    let b = instances::create_from_template(&mut world, 910).expect("instance b");
+
+    // Each instance spawned its own private door copy, tagged into it and
+    // closed by default.
+    let door_a = world.instances.get(a).unwrap().doors[0];
+    let door_b = world.instances.get(b).unwrap().doors[0];
+    assert_ne!(door_a, door_b, "distinct door objects");
+    assert_eq!(instance_of(&world, door_a), a);
+    assert!(
+        !world
+            .objects
+            .get_component::<InstanceDoorOpen>(&door_a)
+            .unwrap()
+            .0,
+        "starts closed (template default)"
+    );
+
+    // Opening A's door leaves B's — and the shared collision grid — untouched.
+    instances::open_close_door(&mut world, a, TEST_DOOR_ID, true);
+    assert!(
+        world
+            .objects
+            .get_component::<InstanceDoorOpen>(&door_a)
+            .unwrap()
+            .0,
+        "A's door opened"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<InstanceDoorOpen>(&door_b)
+            .unwrap()
+            .0,
+        "B's copy of the same door id stays closed"
+    );
+    assert!(
+        !world.geo.doors.is_open(TEST_DOOR_ID),
+        "the global collision grid is never touched by an instance door"
+    );
+}
+
+#[test]
+fn destroying_an_instance_despawns_its_doors() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_door_template(&mut world);
+    world
+        .data
+        .instance_templates
+        .insert_for_test(door_template_with_door(911));
+
+    let iid = instances::create_from_template(&mut world, 911).expect("instance");
+    let door = world.instances.get(iid).unwrap().doors[0];
+    assert!(world.objects.get_component::<Door>(&door).is_some());
+
+    instances::destroy(&mut world, iid);
+    assert!(
+        world.objects.get_component::<Door>(&door).is_none(),
+        "the instance's door copy was despawned"
+    );
 }
 
 #[test]

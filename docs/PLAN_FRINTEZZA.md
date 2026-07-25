@@ -38,8 +38,12 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    room → advance (room2_part1 → room2_part2 → status 4). CUBE (29061) talk →
    teleport out. Doors + the aggro-nudge + Dewdrop drop are TODO'd for later
    slices. Testable end-to-end with a minimal seeded template 136.
-2. **Per-instance doors**: open/close the four door groups as the crawl advances
-   and on finish; instanced door objects.
+2. **Per-instance doors** ✅ landed. Instance templates' doorlists spawn private
+   door copies on creation, each with its own `InstanceDoorOpen(bool)` (not the
+   global collision atomic); `instances::open_close_door` toggles the copy +
+   broadcasts scoped to the instance; `destroy` despawns them. The crawl opens
+   the four door groups as rooms clear. Deferred: per-instance geo *collision*
+   (copies are visual/logical; progression gates on kill-count).
 3. **Frintezza intro cinematic**: `FRINTEZZA_INTRO_START` (10 min after status 4)
    → the 20-step SpecialCamera chain, dummy/Frintezza/Scarlet/portrait spawns,
    player disable/enable, ending with the fight enabled.

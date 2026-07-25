@@ -5,9 +5,11 @@
 
 use crate::data::instance_data::ExitType;
 use crate::game_loop::helpers::instance_of;
-use crate::model::components::{InstanceId, Position};
+use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCell};
+use crate::model::door::Door;
+use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
-use crate::world::World;
+use crate::world::{region_of, World};
 
 /// `InstanceManager.createInstance` from a template: allocate the instance and
 /// spawn its default groups into it. Returns the new instance id, or `None` if
@@ -33,8 +35,108 @@ pub(crate) fn create_from_template(world: &mut World, template_id: i32) -> Optio
             }
         }
     }
-    // TODO(G27): open the instance's doors (needs per-instance door state).
+    spawn_instance_doors(world, instance_id, &template.doors);
     Some(instance_id)
+}
+
+/// Spawn this instance's private door copies from the template's doorlist (Java
+/// the instance clones its own door instances). Each copy carries its own
+/// [`InstanceDoorOpen`] state — starting at the door template's default — so
+/// concurrent instances toggle independently of the shared collision grid.
+fn spawn_instance_doors(world: &mut World, instance_id: i32, door_ids: &[i32]) {
+    for &door_id in door_ids {
+        let Some(t) = world.data.door_data.get(door_id) else {
+            continue;
+        };
+        let (x, y, z, hp, default_open) = (t.x, t.y, t.z, t.hp_max, t.open_by_default);
+        let object_id = world.next_npc_object_id;
+        world.next_npc_object_id += 1;
+        let region = region_of(x, y);
+        world.objects.spawn(
+            object_id,
+            (
+                Door {
+                    object_id,
+                    door_id,
+                    auto_close_seq: 0,
+                    current_hp: hp,
+                },
+                Position {
+                    x,
+                    y,
+                    z,
+                    heading: 0,
+                },
+                RegionCell(region),
+                InstanceId(instance_id),
+                InstanceDoorOpen(default_open),
+            ),
+        );
+        world
+            .door_regions
+            .entry(region)
+            .or_default()
+            .push(object_id);
+        world.instances.record_door(instance_id, object_id);
+    }
+}
+
+/// Open or close one of an instance's private doors (Java
+/// `Instance.openCloseDoor`): flip the copy's own state and broadcast the new
+/// look to the instance's players.
+pub(crate) fn open_close_door(world: &mut World, instance_id: i32, door_id: i32, open: bool) {
+    let Some(&door_oid) = world
+        .instances
+        .get(instance_id)
+        .map(|i| &i.doors)
+        .and_then(|doors| {
+            doors.iter().find(|&&oid| {
+                world
+                    .objects
+                    .get_component::<Door>(&oid)
+                    .is_some_and(|d| d.door_id == door_id)
+            })
+        })
+    else {
+        return;
+    };
+    if let Some(state) = world
+        .objects
+        .get_component_mut::<InstanceDoorOpen>(&door_oid)
+    {
+        state.0 = open;
+    }
+    broadcast_instance_door(world, instance_id, door_oid);
+}
+
+/// Push a door copy's `StaticObjectInfo` + `DoorStatusUpdate` to the instance.
+fn broadcast_instance_door(world: &World, instance_id: i32, door_oid: i32) {
+    let Some(door) = world.objects.get_component::<Door>(&door_oid) else {
+        return;
+    };
+    let Some(t) = world.data.door_data.get(door.door_id) else {
+        return;
+    };
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&door_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    let open = crate::game_loop::doors::door_open_state(world, door_oid, door.door_id);
+    crate::game_loop::helpers::broadcast_near_region_in(
+        world,
+        region,
+        instance_id,
+        &server_packets::static_object_info_door(door, t, open),
+    );
+    crate::game_loop::helpers::broadcast_near_region_in(
+        world,
+        region,
+        instance_id,
+        &server_packets::door_status_update(door, t, open),
+    );
 }
 
 /// Spawn a named (non-`spawnByDefault`) group into a live instance and return
@@ -163,12 +265,40 @@ pub(crate) fn destroy(world: &mut World, instance_id: i32) {
     for npc_oid in npcs {
         let region = world
             .objects
-            .get_component::<crate::model::components::RegionCell>(&npc_oid)
+            .get_component::<RegionCell>(&npc_oid)
             .map(|r| r.0)
             .unwrap_or((0, 0));
         crate::game_loop::death::despawn_npc(world, npc_oid, region);
     }
+    let doors = world
+        .instances
+        .get(instance_id)
+        .map(|i| i.doors.clone())
+        .unwrap_or_default();
+    for door_oid in doors {
+        despawn_instance_door(world, instance_id, door_oid);
+    }
     world.instances.destroy(instance_id);
+}
+
+/// Remove one instance door copy: DeleteObject to the instance, drop it from the
+/// region index, and despawn the entity.
+fn despawn_instance_door(world: &mut World, instance_id: i32, door_oid: i32) {
+    let region = world
+        .objects
+        .get_component::<RegionCell>(&door_oid)
+        .map(|r| r.0)
+        .unwrap_or((0, 0));
+    crate::game_loop::helpers::broadcast_near_region_in(
+        world,
+        region,
+        instance_id,
+        &server_packets::delete_object(door_oid),
+    );
+    if let Some(ids) = world.door_regions.get_mut(&region) {
+        ids.retain(|&id| id != door_oid);
+    }
+    world.objects.despawn(&door_oid);
 }
 
 fn position_of(world: &World, object_id: i32) -> (i32, i32, i32) {
