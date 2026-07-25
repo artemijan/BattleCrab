@@ -841,13 +841,22 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                         hall.paid_until = row.paid_until;
                     }
                 }
-                let owned = halls.values().filter(|h| h.owner_id != 0).count();
+                let owned: Vec<i32> = halls
+                    .values()
+                    .filter(|h| h.owner_id != 0)
+                    .map(|h| h.id)
+                    .collect();
                 tracing::info!(
                     "GameLoop: loaded {} clan halls ({} owned).",
                     halls.len(),
-                    owned
+                    owned.len()
                 );
                 world.clan_halls = halls;
+                // Java `ClanHall.setOwner` on load arms each owned hall's lease
+                // check; restore those timers here.
+                for hall_id in owned {
+                    crate::game_loop::clan_hall_auction::arm_lease_check(world, hall_id);
+                }
             }
             DbEvent::ClanHallBiddersLoaded { rows } => {
                 use crate::model::clan_hall::ClanHallBid;

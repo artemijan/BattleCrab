@@ -87,6 +87,9 @@ pub enum ScheduledTask {
     /// The weekly clan-hall auction close (`ClanHallAuctionManager.onEnd`):
     /// finalize every hall's auction, then re-arm for next week.
     ClanHallAuctionEnd,
+    /// A clan hall's lease check (`ClanHall.CheckPaymentTask`): charge the weekly
+    /// rent from the owner's warehouse, or revoke the hall if a week overdue.
+    ClanHallLeaseCheck { hall_id: i32 },
     /// Antharas's 60 s `SET_REGEN` beat: a self-heal that escalates as his HP
     /// falls (one of four regeneration skills, cast once per band).
     AntharasSetRegen { antharas_oid: i32 },

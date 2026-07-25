@@ -382,3 +382,94 @@ fn bids_are_restored_at_boot() {
         "the weekly auction close is armed"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The lease / rental cycle
+// ---------------------------------------------------------------------------
+
+const DAY_MS: i64 = 86_400_000;
+
+fn own_hall(world: &mut World, hall_id: i32, clan_id: i32, paid_until: i64) {
+    let h = world.clan_halls.get_mut(&hall_id).unwrap();
+    h.owner_id = clan_id;
+    h.paid_until = paid_until;
+}
+
+/// **Winning a hall starts the lease clock** — the first rent is due in a week
+/// and the payment check is armed.
+#[test]
+fn winning_a_hall_starts_the_lease_clock() {
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    fund_clan(&mut world, 10, 10_000_000);
+    place_bid(&mut world, ONYX, 10, 5_000_000, 0);
+    let before = world.scheduler.len();
+    let now = commons::util::now_millis();
+
+    crate::game_loop::clan_hall_auction::finalize_auction(&mut world, ONYX);
+
+    let hall = &world.clan_halls[&ONYX];
+    assert_eq!(hall.owner_id, 10, "clan 10 owns it");
+    assert!(hall.paid_until >= now + 6 * DAY_MS, "rent due in ~a week");
+    assert!(world.scheduler.len() > before, "the lease check is armed");
+}
+
+/// A solvent owner pays the weekly rent and keeps the hall; the clock advances.
+#[test]
+fn a_paying_owner_keeps_the_hall() {
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    fund_clan(&mut world, 10, 2_000_000);
+    let now = commons::util::now_millis();
+    own_hall(&mut world, ONYX, 10, now); // rent due now
+
+    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+
+    assert_eq!(world.clan_halls[&ONYX].owner_id, 10, "still owned");
+    assert_eq!(
+        clan_adena(&world, 10),
+        2_000_000 - 500_000,
+        "one lease (500k) was charged"
+    );
+    assert!(
+        world.clan_halls[&ONYX].paid_until >= now + 6 * DAY_MS,
+        "the clock advanced a week"
+    );
+}
+
+/// A delinquent owner who is only a little overdue gets a reminder (a retry),
+/// not eviction.
+#[test]
+fn a_delinquent_owner_gets_a_retry() {
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5)); // no adena funded
+    let now = commons::util::now_millis();
+    own_hall(&mut world, ONYX, 10, now - 2 * DAY_MS); // 2 days overdue
+    let before = world.scheduler.len();
+
+    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+
+    assert_eq!(
+        world.clan_halls[&ONYX].owner_id, 10,
+        "still owned — just a retry"
+    );
+    assert!(world.scheduler.len() > before, "a retry check was armed");
+}
+
+/// **An owner more than a week overdue loses the hall** — it returns to the free
+/// pool.
+#[test]
+fn a_week_overdue_owner_is_evicted() {
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5)); // can't pay
+    let now = commons::util::now_millis();
+    own_hall(&mut world, ONYX, 10, now - 10 * DAY_MS); // 10 days overdue
+
+    crate::game_loop::clan_hall_auction::handle_lease_check(&mut world, ONYX);
+
+    assert_eq!(world.clan_halls[&ONYX].owner_id, 0, "the hall was revoked");
+    assert_eq!(
+        world.clan_halls[&ONYX].paid_until, 0,
+        "the lease clock cleared"
+    );
+}
