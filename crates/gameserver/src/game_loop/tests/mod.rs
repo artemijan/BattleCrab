@@ -99,6 +99,7 @@ mod resurrection_tests;
 mod sailren_tests;
 mod servitor_tests;
 mod shortcuts_tests;
+mod siege_registration_tests;
 mod siege_schedule_tests;
 mod skill_enchant_tests;
 mod skills_tests;
