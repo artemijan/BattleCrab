@@ -15,6 +15,7 @@ pub mod dwarf_change2;
 pub mod elf_human_change1;
 pub mod elf_human_change2;
 pub mod first_class_transfer_talk;
+pub mod last_imperial_tomb;
 pub mod newbie_guide;
 pub mod npc_location_info;
 pub mod oly_manager;
@@ -411,6 +412,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(orc_dark_elf_change2::Change2::dark_elf()),
         Arc::new(teleport_to_race_track::TeleportToRaceTrack),
         Arc::new(antharas_heart::AntharasHeart),
+        Arc::new(last_imperial_tomb::LastImperialTomb),
         Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),

@@ -37,6 +37,39 @@ pub(crate) fn create_from_template(world: &mut World, template_id: i32) -> Optio
     Some(instance_id)
 }
 
+/// Spawn a named (non-`spawnByDefault`) group into a live instance and return
+/// the spawned NPC object ids (Java `Instance.spawnGroup`). Each NPC is tagged
+/// into the instance and recorded for teardown.
+pub(crate) fn spawn_group(world: &mut World, instance_id: i32, group_name: &str) -> Vec<i32> {
+    let Some(template_id) = world.instances.get(instance_id).map(|i| i.template_id) else {
+        return Vec::new();
+    };
+    let Some(template) = world.data.instance_templates.get(template_id).cloned() else {
+        return Vec::new();
+    };
+    let mut spawned = Vec::new();
+    for group in &template.groups {
+        if group.name != group_name {
+            continue;
+        }
+        for spawn in &group.npcs {
+            if let Some(oid) = crate::model::npc::spawn_npc_at(
+                world,
+                spawn.npc_id,
+                spawn.x,
+                spawn.y,
+                spawn.z,
+                spawn.heading,
+            ) {
+                world.objects.add_components(&oid, InstanceId(instance_id));
+                world.instances.record_npc(instance_id, oid);
+                spawned.push(oid);
+            }
+        }
+    }
+    spawned
+}
+
 /// Move a player into `instance_id` (Java `Instance.addPlayer` + the enter
 /// location), remembering where they came from for an `ORIGIN` exit.
 pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {

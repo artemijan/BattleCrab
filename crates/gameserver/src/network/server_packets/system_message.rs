@@ -161,6 +161,8 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    // Instances (G27 / Frintezza).
+    pub const YOU_DO_NOT_HAVE_ENOUGH_REQUIRED_ITEMS: i16 = 701;
     // Henna / dye symbols (G16).
     pub const THE_SYMBOL_HAS_BEEN_ADDED: i16 = 877;
     pub const THE_SYMBOL_HAS_BEEN_DELETED: i16 = 878;
