@@ -112,6 +112,10 @@ pub enum ScheduledTask {
     /// Frintezza fight beats — Scarlet's 80%/20% morphs (the second turns
     /// Scarlet into its final form).
     FrintezzaFight { instance_id: i32, step: u8 },
+    /// Frintezza plays a random song every 90 s while the fight is on.
+    FrintezzaSong { instance_id: i32 },
+    /// The portraits emit a demon every 20 s (up to 24) while the fight is on.
+    FrintezzaDemons { instance_id: i32 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

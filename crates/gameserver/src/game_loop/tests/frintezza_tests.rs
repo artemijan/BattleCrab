@@ -338,6 +338,88 @@ fn scarlet_morphs_at_eighty_then_twenty_percent_into_its_final_form() {
 }
 
 #[test]
+fn each_standing_portrait_emits_a_demon_capped_at_the_maximum() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+
+    // Four intro demons seeded the count; a spawn pass adds one per portrait.
+    assert_eq!(world.instances.get_var(iid, "demonCount"), 4);
+    frintezza::handle_demon_spawn(&mut world, iid);
+    assert_eq!(
+        world.instances.get_var(iid, "demonCount"),
+        8,
+        "each of the four portraits emitted a demon"
+    );
+
+    // At the cap, no more spawn.
+    world.instances.set_var(iid, "demonCount", 24);
+    frintezza::handle_demon_spawn(&mut world, iid);
+    assert_eq!(
+        world.instances.get_var(iid, "demonCount"),
+        24,
+        "capped at MAX_DEMONS"
+    );
+}
+
+#[test]
+fn a_downed_portrait_stops_feeding_demons() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let portrait0 = world.instances.get_var(iid, "portrait0") as i32;
+
+    frintezza::on_portrait_killed(&mut world, 100, portrait0);
+    assert_eq!(
+        world.instances.get_var(iid, "portrait0"),
+        0,
+        "its slot is cleared"
+    );
+
+    // Only the three survivors emit demons now.
+    world.instances.set_var(iid, "demonCount", 0);
+    frintezza::handle_demon_spawn(&mut world, iid);
+    assert_eq!(
+        world.instances.get_var(iid, "demonCount"),
+        3,
+        "three portraits left → three demons"
+    );
+}
+
+#[test]
+fn the_dewdrop_of_destruction_makes_a_portrait_suicide() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    let portrait0 = world.instances.get_var(iid, "portrait0") as i32;
+
+    // A normal skill does nothing; the Dewdrop (2276) kills it.
+    frintezza::on_portrait_attacked(&mut world, portrait0, 100, Some(1234));
+    assert!(
+        !world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&portrait0)
+            .unwrap()
+            .dead
+    );
+    frintezza::on_portrait_attacked(&mut world, portrait0, 100, Some(2276));
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&portrait0)
+            .unwrap()
+            .dead,
+        "the Dewdrop made the portrait suicide"
+    );
+}
+
+#[test]
+fn a_slain_demon_frees_a_slot_under_the_cap() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, _scarlet1) = arena_with_scarlet(&mut world);
+    world.instances.set_var(iid, "demonCount", 10);
+    frintezza::on_demon_killed(&mut world, 100);
+    assert_eq!(world.instances.get_var(iid, "demonCount"), 9);
+}
+
+#[test]
 fn killing_the_final_form_ends_the_encounter() {
     let (mut world, _tx, _db, _l) = test_world();
     let (iid, _scarlet1) = arena_with_scarlet(&mut world);
