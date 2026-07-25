@@ -68,10 +68,26 @@ const SOCIAL_WAKE: i32 = 2;
 const SOCIAL_STAND: i32 = 3;
 const SOCIAL_ROAR: i32 = 1;
 
+/// `HEAL_OF_BAIUM` (4135, "Baium Heal") — the self-heal the idle check casts.
+const HEAL_OF_BAIUM: i32 = 4135;
+/// The CHECK_ATTACK beat (Java 60 s).
+const CHECK_ATTACK_TICKS: u64 = 600;
+/// 30 minutes with no hit → the fight resets and Baium sleeps again.
+const RESET_IDLE_TICKS: u64 = 18_000;
+/// 5 minutes with no hit (and wounded) → Baium heals himself.
+const HEAL_IDLE_TICKS: u64 = 3_000;
+
 /// The waker, held on the live Baium so the cinematic beats can reach them.
 #[derive(bevy_ecs::component::Component, Debug, Clone, Copy)]
 pub struct BaiumWaker {
     pub player_oid: i32,
+}
+
+/// Java's static `_lastAttack` — the last tick Baium was struck, kept on the
+/// live boss so the CHECK_ATTACK beat can measure inactivity.
+#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
+pub struct BaiumCombat {
+    pub last_attack_tick: u64,
 }
 
 /// The `SELECT_TARGET` beat — the archangels re-pick every 5 s.
@@ -141,8 +157,7 @@ pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
             }
         }
         spawn_archangels(world);
-        // TODO(G23): Java also arms CHECK_ATTACK here (30-min inactivity reset +
-        // <75%-HP self-heal). Deferred to the CHECK_ATTACK slice.
+        arm_combat_watch(world, oid);
         return;
     }
 
@@ -204,9 +219,26 @@ pub(crate) fn wake_up(world: &mut World, stone_oid: i32, waker_oid: i32) -> Opti
             player_oid: waker_oid,
         },
     );
+    arm_combat_watch(world, oid);
 
     schedule_beat(world, 0, WAKEUP_DELAY_MS);
     Some(oid)
+}
+
+/// Start the inactivity clock (`_lastAttack = now`) and the CHECK_ATTACK beat —
+/// shared by a fresh wake and a crash-recovery of a live boss.
+fn arm_combat_watch(world: &mut World, baium_oid: i32) {
+    let now = world.tick;
+    world.objects.add_components(
+        &baium_oid,
+        BaiumCombat {
+            last_attack_tick: now,
+        },
+    );
+    world.scheduler.schedule(
+        world.tick + CHECK_ATTACK_TICKS,
+        ScheduledTask::BaiumCheckAttack,
+    );
 }
 
 /// One beat of the awakening. Java arms `WAKEUP_ACTION` at +50 ms and the rest
@@ -556,6 +588,12 @@ pub(crate) fn on_baium_damage(
     damage: i32,
     is_melee: bool,
 ) {
+    // `_lastAttack = System.currentTimeMillis()` — a hit resets the inactivity
+    // clock the CHECK_ATTACK beat watches for the reset and the self-heal.
+    let now = world.tick;
+    if let Some(c) = world.objects.get_component_mut::<BaiumCombat>(&baium_oid) {
+        c.last_attack_tick = now;
+    }
     super::boss_threat::on_boss_damage(world, baium_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, baium_oid);
 }
@@ -720,4 +758,87 @@ pub(crate) fn on_baium_killed(world: &mut World) {
     broadcast_to_lair(world, &roar);
     // TODO(G23): Java also arms CLEAR_ZONE at +900 s (despawn the cube and oust
     // any stragglers). Deferred with the CHECK_ATTACK decay slice.
+}
+
+// ---------------------------------------------------------------------------
+// CHECK_ATTACK — the inactivity reset and the self-heal
+// ---------------------------------------------------------------------------
+
+/// Java `CHECK_ATTACK` (60 s while Baium lives):
+///
+/// - **30 minutes without a hit** → the fight is abandoned: clear the zone
+///   (despawn the boss and angels, oust any stragglers), put the sleeping stone
+///   back and revert to `ALIVE`. The beat does not re-arm.
+/// - **5 minutes without a hit, and below 75% HP** → Baium heals himself
+///   (`HEAL_OF_BAIUM`, 4135), then the beat re-arms.
+/// - otherwise → just re-arm.
+///
+/// If Baium is already gone (killed, or a prior reset) the beat simply stops.
+pub(crate) fn handle_check_attack(world: &mut World) {
+    let Some(baium) = find_alive(world, BAIUM) else {
+        return; // Baium gone — nothing to watch
+    };
+    let idle = world
+        .objects
+        .get_component::<BaiumCombat>(&baium)
+        .map(|c| world.tick.saturating_sub(c.last_attack_tick))
+        .unwrap_or(0);
+
+    if idle >= RESET_IDLE_TICKS {
+        clear_zone(world);
+        crate::model::npc::spawn_npc_at(
+            world,
+            BAIUM_STONE,
+            BAIUM_LOC.0,
+            BAIUM_LOC.1,
+            BAIUM_LOC.2,
+            BAIUM_LOC.3,
+        );
+        if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
+            b.status = ALIVE;
+        }
+        crate::game_loop::grand_boss::persist(world, BAIUM);
+        return; // don't re-arm — the fight is over
+    }
+
+    if idle >= HEAL_IDLE_TICKS && wounded_below(world, baium, 0.75) {
+        super::boss_threat::cast_boss_skill(world, baium, baium, HEAL_OF_BAIUM, true);
+    }
+    world.scheduler.schedule(
+        world.tick + CHECK_ATTACK_TICKS,
+        ScheduledTask::BaiumCheckAttack,
+    );
+}
+
+/// Is `oid` below `fraction` of its max HP?
+fn wounded_below(world: &World, oid: i32, fraction: f64) -> bool {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .is_some_and(|v| v.cur_hp < v.max_hp as f64 * fraction)
+}
+
+/// Java `CLEAR_ZONE`: empty the lair — despawn every NPC inside it (Baium and
+/// his angels) and scatter any players back to the surface.
+fn clear_zone(world: &mut World) {
+    let mut npcs = Vec::new();
+    world
+        .objects
+        .for_each_mut::<&crate::model::npc::Npc>(|n| npcs.push(n.object_id));
+    for oid in npcs {
+        if inside_baium_zone(world, oid) {
+            despawn(world, oid);
+        }
+    }
+
+    let mut players = Vec::new();
+    world
+        .objects
+        .for_each_mut::<&crate::model::Player>(|p| players.push(p.object_id));
+    for oid in players {
+        if inside_baium_zone(world, oid) {
+            let (x, y, z) = random_exit(world);
+            crate::game_loop::death::teleport_player(world, oid, x, y, z);
+        }
+    }
 }

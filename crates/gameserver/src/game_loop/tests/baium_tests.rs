@@ -909,3 +909,137 @@ fn the_exit_scatters_to_a_surface_point() {
 
     assert_eq!((x, y, z), (113_824 + 40, 10_448 + 60, -5_164));
 }
+
+// ---------------------------------------------------------------------------
+// CHECK_ATTACK — the idle reset and the self-heal
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::baium::BaiumCombat;
+
+/// **Thirty minutes with nobody landing a hit resets the fight:** the zone is
+/// emptied, the sleeping stone goes back and Baium reverts to ALIVE (Java's
+/// CHECK_ATTACK reset). `18_000` ticks = 30 min at 10 ticks/s.
+#[test]
+fn a_thirty_minute_idle_reverts_baium_to_stone() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 2); // IN_FIGHT
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    world.objects.add_components(
+        &BAIUM_OID,
+        BaiumCombat {
+            last_attack_tick: 0,
+        },
+    );
+    world.tick = 18_001; // > 30 min since last_attack 0
+
+    crate::game_loop::baium::handle_check_attack(&mut world);
+
+    assert_eq!(
+        world.grand_bosses.get(&BAIUM).unwrap().status,
+        0,
+        "reverted to ALIVE"
+    );
+    assert_eq!(count(&mut world, BAIUM_STONE), 1, "the statue is back");
+    assert_eq!(count(&mut world, BAIUM), 0, "the live boss was cleared");
+}
+
+/// A hit within the window keeps Baium fighting and the beat re-arms.
+#[test]
+fn a_recently_hit_baium_keeps_fighting() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 2); // IN_FIGHT
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    world.tick = 10_000;
+    world.objects.add_components(
+        &BAIUM_OID,
+        BaiumCombat {
+            last_attack_tick: world.tick,
+        },
+    );
+    let before = world.scheduler.len();
+
+    crate::game_loop::baium::handle_check_attack(&mut world);
+
+    assert_eq!(
+        world.grand_bosses.get(&BAIUM).unwrap().status,
+        2,
+        "still IN_FIGHT"
+    );
+    assert_eq!(count(&mut world, BAIUM), 1, "still up");
+    assert!(world.scheduler.len() > before, "the beat re-armed");
+}
+
+/// Five idle minutes and below 75% HP → Baium heals himself (`HEAL_OF_BAIUM`),
+/// rather than resetting — the window that lets a stalled raid recover is not
+/// the same one that abandons the fight.
+#[test]
+fn a_wounded_idle_baium_heals_itself() {
+    let (mut world, _db, _l) = baium_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 4135,
+            level: 1,
+            ..Default::default()
+        });
+    insert_baium(&mut world, 2); // IN_FIGHT
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    {
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&BAIUM_OID)
+            .unwrap();
+        v.max_mp = 10_000;
+        v.cur_mp = 10_000.0;
+        v.cur_hp = v.max_hp as f64 * 0.5; // wounded, below 75%
+    }
+    world.tick = 5_000;
+    world.objects.add_components(
+        &BAIUM_OID,
+        BaiumCombat {
+            last_attack_tick: 2_000, // 3_000 ticks (5 min) idle — heal, not reset
+        },
+    );
+
+    crate::game_loop::baium::handle_check_attack(&mut world);
+
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::Casting>(&BAIUM_OID),
+        "Baium began healing himself"
+    );
+    assert_eq!(
+        world.grand_bosses.get(&BAIUM).unwrap().status,
+        2,
+        "the heal window does not reset the fight"
+    );
+}
