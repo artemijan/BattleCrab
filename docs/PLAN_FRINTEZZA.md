@@ -58,11 +58,14 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    (29047) at the same spot (frozen, then woken), and `onKill(SCARLET2)` ends the
    encounter (minimal finish: Frintezza dies + doors reopen; the cinematic is
    slice 5). Fixed a latent `set_frozen` bug — the intro hand-back now actually
-   clears Scarlet's invulnerability. **Still TODO**: Frintezza random songs
-   (5007/5008), demon spawns (29050/29051, every 20 s to 24) from portraits
-   (29048/29049), Dewdrop skill (2276) portrait suicide + demon/portrait onKill
-   tracking, and the ScarletVanHalisha custom skill AI (Scarlet fights with
-   normal attacks for now).
+   clears Scarlet's invulnerability. **Slice 4b** ✅ landed the fight loops:
+   `PLAY_RANDOM_SONG` (90 s, one of five named songs — animation 5007 + screen
+   message; the 5008 debuff is a TODO), `SPAWN_DEMONS` (20 s, each standing
+   portrait emits a demon capped at 24 alive), the Dewdrop (2276) portrait
+   suicide via `on_attack`, and the demon/portrait `onKill` bookkeeping
+   (`demonCount`, per-portrait slots). **Still TODO**: the 5008 song debuff and
+   the ScarletVanHalisha custom skill-cast AI (Scarlet fights with normal attacks
+   for now).
 5. **Finish + rewards**: Scarlet2 death → FINISH_CAMERA chain → Frintezza dies,
    doors open, teleport CUBE spawns; loot.
 

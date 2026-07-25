@@ -466,6 +466,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::FrintezzaFight { instance_id, step } => {
                 frintezza::handle_fight_step(world, instance_id, step)
             }
+            ScheduledTask::FrintezzaSong { instance_id } => {
+                frintezza::handle_song(world, instance_id)
+            }
+            ScheduledTask::FrintezzaDemons { instance_id } => {
+                frintezza::handle_demon_spawn(world, instance_id)
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

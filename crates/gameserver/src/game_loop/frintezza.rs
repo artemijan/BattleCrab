@@ -4,10 +4,13 @@
 //! mirroring Java's `LastImperialTomb extends AbstractInstance`.
 //!
 //! Landed: entry + the room-crawl progression (`onKill` status 0→4, slice 1),
-//! per-instance doors (slice 2), the intro cinematic step machine (slice 3), and
-//! Scarlet's 80%/20% morphs → final form → finish trigger (slice 4). Frintezza's
-//! songs, the demon/portrait spawn loops + Dewdrop suicide, Scarlet's custom
-//! skill AI, and the full finish cinematic are later slices (`docs/PLAN_FRINTEZZA.md`).
+//! per-instance doors (slice 2), the intro cinematic step machine (slice 3),
+//! Scarlet's 80%/20% morphs → final form → finish trigger (slice 4), and the
+//! fight loops — Frintezza's songs, the demon/portrait spawn ecosystem + Dewdrop
+//! suicide (slice 4b). Scarlet's custom skill-cast AI, the song debuff (5008),
+//! and the full finish cinematic are later slices (`docs/PLAN_FRINTEZZA.md`).
+
+use rand::Rng;
 
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
@@ -339,8 +342,12 @@ pub(crate) fn handle_intro_step(world: &mut World, instance_id: i32, step: u8) {
             }
             enable_players(world, instance_id);
             world.instances.set_var(instance_id, "fightActive", 1);
-            // TODO(frintezza slice 4): arm PLAY_RANDOM_SONG + SPAWN_DEMONS and
-            // Scarlet's morph/attack hooks.
+            // The four intro demons seed the count; the portraits emit the rest.
+            world
+                .instances
+                .set_var(instance_id, "demonCount", PORTRAIT_SPAWNS.len() as i64);
+            schedule_song(world, instance_id);
+            schedule_demons(world, instance_id);
         }
         _ => {}
     }
@@ -609,4 +616,133 @@ fn set_script_value(world: &mut World, oid: i32, value: i32) {
     {
         n.script_value = value;
     }
+}
+
+// ---------------------------------------------------------------------------
+// The fight loops (Java `PLAY_RANDOM_SONG`, `SPAWN_DEMONS`, the Dewdrop suicide
+// and the demon/portrait `onKill` bookkeeping). Slice 4b.
+// ---------------------------------------------------------------------------
+
+const SONG_INTERVAL_MS: u64 = 90_000;
+const DEMON_INTERVAL_MS: u64 = 20_000;
+/// Java `MAX_DEMONS`.
+const MAX_DEMONS: i64 = 24;
+const SONG_SKILL: i32 = 5007;
+const DEWDROP_SKILL: i32 = 2276;
+/// The five song names (Java `SKILL_MSG`), shown as they play.
+const SONG_NAMES: [&str; 5] = [
+    "Requiem of Hatred",
+    "Rondo of Solitude",
+    "Frenetic Toccata",
+    "Fugue of Jubilation",
+    "Hypnotic Mazurka",
+];
+
+fn schedule_song(world: &mut World, instance_id: i32) {
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(SONG_INTERVAL_MS as i32),
+        ScheduledTask::FrintezzaSong { instance_id },
+    );
+}
+
+fn schedule_demons(world: &mut World, instance_id: i32) {
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(DEMON_INTERVAL_MS as i32),
+        ScheduledTask::FrintezzaDemons { instance_id },
+    );
+}
+
+/// `PLAY_RANDOM_SONG`: Frintezza performs one of five songs (announced on
+/// screen), then the timer re-arms while the fight lasts. The song's debuff
+/// (skill 5008) is a TODO — only the animation + name are broadcast for now.
+pub(crate) fn handle_song(world: &mut World, instance_id: i32) {
+    if world.instances.get_var(instance_id, "fightActive") == 0 {
+        return;
+    }
+    let frintezza = var_oid(world, instance_id, "frintezza");
+    let n = world.rng.gen_range(0..SONG_NAMES.len());
+    instances::broadcast_to_instance(
+        world,
+        instance_id,
+        &server_packets::ex_show_screen_message(SONG_NAMES[n], 2, 4000),
+    );
+    if frintezza != 0 {
+        if let Some(p) = world.objects.get_component::<Position>(&frintezza).copied() {
+            let src = (frintezza, p.x, p.y, p.z);
+            instances::broadcast_to_instance(
+                world,
+                instance_id,
+                &server_packets::magic_skill_use_raw(src, src, SONG_SKILL, n as i32 + 1, 1000),
+            );
+        }
+    }
+    // TODO(frintezza slice 4b+): apply song debuff (skill 5008) to the players.
+    schedule_song(world, instance_id);
+}
+
+/// `SPAWN_DEMONS`: each still-standing portrait emits one demon (capped at
+/// `MAX_DEMONS` alive), then the timer re-arms while any portrait remains.
+pub(crate) fn handle_demon_spawn(world: &mut World, instance_id: i32) {
+    if world.instances.get_var(instance_id, "fightActive") == 0 {
+        return;
+    }
+    let mut any_portrait = false;
+    for (i, s) in PORTRAIT_SPAWNS.iter().enumerate() {
+        if var_oid(world, instance_id, &format!("portrait{i}")) == 0 {
+            continue; // that portrait is down
+        }
+        any_portrait = true;
+        if world.instances.get_var(instance_id, "demonCount") >= MAX_DEMONS {
+            break;
+        }
+        if instances::spawn_npc(world, instance_id, s[0] + 2, s[5], s[6], s[7], s[8]).is_some() {
+            let count = world.instances.get_var(instance_id, "demonCount");
+            world
+                .instances
+                .set_var(instance_id, "demonCount", count + 1);
+        }
+    }
+    if any_portrait {
+        schedule_demons(world, instance_id);
+    }
+}
+
+/// Java `onAttack`: the Dewdrop of Destruction (skill 2276) makes a portrait
+/// suicide. `on_kill` then clears its slot.
+pub(crate) fn on_portrait_attacked(
+    world: &mut World,
+    portrait_oid: i32,
+    attacker_oid: i32,
+    skill_id: Option<i32>,
+) {
+    if skill_id == Some(DEWDROP_SKILL) {
+        crate::game_loop::death::npc_do_die(world, portrait_oid, attacker_oid);
+    }
+}
+
+/// Java `onKill(PORTRAITS)`: a fallen portrait stops emitting demons.
+pub(crate) fn on_portrait_killed(world: &mut World, killer_oid: i32, portrait_oid: i32) {
+    let instance_id = instance_of(world, killer_oid);
+    if instance_id == 0 {
+        return;
+    }
+    for i in 0..PORTRAIT_SPAWNS.len() {
+        if var_oid(world, instance_id, &format!("portrait{i}")) == portrait_oid {
+            world
+                .instances
+                .set_var(instance_id, &format!("portrait{i}"), 0);
+        }
+    }
+}
+
+/// Java `onKill(DEMONS)`: one fewer demon counts against the cap.
+pub(crate) fn on_demon_killed(world: &mut World, killer_oid: i32) {
+    let instance_id = instance_of(world, killer_oid);
+    if instance_id == 0 {
+        return;
+    }
+    let count = world.instances.get_var(instance_id, "demonCount");
+    world
+        .instances
+        .set_var(instance_id, "demonCount", (count - 1).max(0));
 }
