@@ -19,6 +19,7 @@ pub mod hit_condition_bonus;
 pub mod htm_cache;
 pub mod initial_equipment;
 pub mod initial_shortcut;
+pub mod instance_data;
 pub mod item_data;
 pub mod map_region;
 pub mod multisell_data;
@@ -175,6 +176,9 @@ pub struct GameData {
     /// Multisell exchange lists (`data/multisell/*`, incl. the custom CB shop
     /// lists), see [`MultisellData`].
     pub multisells: MultisellData,
+
+    /// Instance templates (`data/instances/**/*.xml`), see [`instance_data`].
+    pub instance_templates: instance_data::InstanceData,
     /// Community-board scheme buffer available-buff table (`_availableBuffs`),
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
@@ -220,6 +224,7 @@ impl GameData {
         let item_data = ItemData::load_from(file_path);
         let buy_lists = BuyListData::load_from(file_path, &item_data);
         let multisells = MultisellData::load_from(file_path, &item_data);
+        let instance_templates = instance_data::InstanceData::load_from(file_path);
         // The NPC AI skill index buckets each template's *active* skills by
         // what the AI would use them for, so it needs both loaders done first
         // (Java does the same bucketing inline at the end of `NpcData.parse`).
@@ -256,6 +261,7 @@ impl GameData {
             static_object_data: StaticObjectData::load_from(file_path),
             buy_lists,
             multisells,
+            instance_templates,
             scheme_buffer: SchemeBufferData::load_from(file_path),
             hennas: HennaData::load_from(file_path),
             recipes: RecipeData::load_from(file_path),
@@ -313,6 +319,7 @@ impl GameData {
             static_object_data: StaticObjectData::empty(),
             buy_lists: BuyListData::empty(),
             multisells: MultisellData::empty(),
+            instance_templates: instance_data::InstanceData::empty(),
             scheme_buffer: SchemeBufferData::default(),
             hennas: HennaData::empty(),
             recipes: RecipeData::empty(),
