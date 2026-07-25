@@ -54,7 +54,7 @@ pub fn ex_npc_quest_html_message(npc_object_id: i32, html: &str, quest_id: i32) 
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_NPC_QUEST_HTML_MESSAGE);
     w.write_i32(npc_object_id);
-    w.write_string(html);
+    w.write_string(super::npc::clip_html(html));
     w.write_i32(quest_id);
     w.into_bytes()
 }

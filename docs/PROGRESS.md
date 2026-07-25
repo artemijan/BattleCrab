@@ -1309,6 +1309,12 @@ command bodies (G13.B) are next.
   - **B3 spawns** (`spawn`): `//spawn`/`//spawn_monster`/`//spawn_once`/
     `//spawnat`, spawn+npc HTML menus, `//list_spawns`/`//list_positions`/
     `//top_spawn_count`/`//spawn_debug_print`/`//scan`, `//summon`, `//delete`.
+    `//scan` re-ported to full `AdminScan` parity (2026-07-25): **3D** radius
+    (default 1000) with `id=`/`name=`/`radius=` filters and 15-row
+    `PageBuilder` pagination — the old port dumped the whole 3×3 region block
+    (every stacked ToI/Cruma floor) into one unpaginated html and crashed the
+    client. `AbstractHtmlPacket.setHtml`'s 17 200-char clip is now also in the
+    `NpcHtmlMessage`/`ExNpcQuestHtmlMessage` builders as the generic guard.
   - **B4 movement** (`teleport`): `//teleport`/`//recall`/`//teleto`,
     directional `//go*`, `//walk`/`//sendhome`/`//teleport_character`/
     `//recall_npc`, teleport HTML menus, `//gmspeed`/`//superhaste`/`//speed`.

@@ -346,7 +346,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             admin_spawn_debug_print(world, client_id, object_id)
         }
         // List NPCs visible from the GM.
-        "admin_scan" => admin_scan(world, client_id, object_id),
+        "admin_scan" => admin_scan(world, client_id, object_id, &args),
         // Delete an NPC by object id (the scan list's Delete links).
         "admin_deletenpcbyobjectid" => {
             admin_delete_npc_by_object_id(world, client_id, object_id, &args)
