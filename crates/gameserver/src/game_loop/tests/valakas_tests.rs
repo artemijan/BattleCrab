@@ -681,6 +681,7 @@ fn a_fifteen_minute_idle_resets_valakas() {
         &VALAKAS_OID,
         ValakasCombat {
             last_attack_tick: 0,
+            actual_victim: 0,
         },
     );
     world
@@ -725,6 +726,7 @@ fn a_recently_hit_valakas_keeps_fighting() {
         &VALAKAS_OID,
         ValakasCombat {
             last_attack_tick: world.tick,
+            actual_victim: 0,
         },
     );
     let before = world.scheduler.len();
@@ -737,4 +739,150 @@ fn a_recently_hit_valakas_keeps_fighting() {
         "still fighting"
     );
     assert!(world.scheduler.len() > before, "the regen beat re-arms");
+}
+
+// ---------------------------------------------------------------------------
+// skill_task — the combat skill AI
+// ---------------------------------------------------------------------------
+
+fn insert_valakas_skill(world: &mut World, id: i32, cast_range: i32) {
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id,
+            level: 1,
+            cast_range,
+            ..Default::default()
+        });
+}
+
+fn full_hp(world: &mut World, oid: i32) {
+    let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+    v.cur_hp = v.max_hp as f64;
+    v.max_mp = 100_000;
+    v.cur_mp = 100_000.0;
+}
+
+/// **Valakas picks a living lair target and breathes on it.** At full HP and
+/// unsurrounded he draws from the regular pool; the first entry (4681) is short
+/// range, floored to 600, and the target is right on top of him, so he casts.
+#[test]
+fn valakas_casts_a_skill_at_a_lair_target() {
+    let (mut world, _db, _l) = valakas_world(); // status FIGHTING
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    full_hp(&mut world, VALAKAS_OID);
+    world.objects.add_components(
+        &VALAKAS_OID,
+        ValakasCombat {
+            last_attack_tick: 0,
+            actual_victim: 0,
+        },
+    );
+    let _rx = ingame_player(&mut world, 7, PLAYER, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    insert_valakas_skill(&mut world, 4681, 40);
+    world.forced_rolls.push_back(0); // random target (only one alive)
+    world.forced_rolls.push_back(0); // regular-pool pick -> 4681
+
+    crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
+
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::Casting>(&VALAKAS_OID),
+        "Valakas cast a breath skill at the lair target"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<ValakasCombat>(&VALAKAS_OID)
+            .unwrap()
+            .actual_victim,
+        PLAYER,
+        "the target was recorded"
+    );
+}
+
+/// The beat stops once the fight is over — a dead/reset Valakas doesn't keep
+/// casting or re-arming.
+#[test]
+fn the_skill_task_stops_when_the_fight_is_over() {
+    let (mut world, _db, _l) = valakas_world();
+    world.grand_bosses.get_mut(&VALAKAS).unwrap().status = DEAD;
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    let before = world.scheduler.len();
+
+    crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
+
+    assert_eq!(world.scheduler.len(), before, "the beat did not re-arm");
+    assert!(!world
+        .objects
+        .has_component::<crate::model::components::Casting>(&VALAKAS_OID));
+}
+
+/// **A dead victim is dropped for a living one.** Valakas holds `_actualVictim`
+/// between beats, but the next beat re-picks when that victim has died.
+#[test]
+fn valakas_re_picks_a_dead_victim() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    full_hp(&mut world, VALAKAS_OID);
+    let dead_player = PLAYER;
+    let live_player = PLAYER + 1;
+    let _r1 = ingame_player(&mut world, 7, dead_player, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    let _r2 = ingame_player(&mut world, 8, live_player, IN_LAIR.0, IN_LAIR.1, IN_LAIR.2);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&dead_player)
+        .unwrap()
+        .dead = true;
+    world.objects.add_components(
+        &VALAKAS_OID,
+        ValakasCombat {
+            last_attack_tick: 0,
+            actual_victim: dead_player, // stale, now dead
+        },
+    );
+    insert_valakas_skill(&mut world, 4681, 40);
+    world.forced_rolls.push_back(0); // random target among the living
+    world.forced_rolls.push_back(0); // skill pick
+
+    crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<ValakasCombat>(&VALAKAS_OID)
+            .unwrap()
+            .actual_victim,
+        live_player,
+        "the dead victim was replaced by the living one"
+    );
 }
