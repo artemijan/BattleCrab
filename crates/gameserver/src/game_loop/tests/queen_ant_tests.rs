@@ -177,6 +177,99 @@ fn a_nurse_of_another_master_does_not_heal_this_queen() {
     );
 }
 
+/// The larva is spawned immortal and rooted — you cannot kill it or move it, so
+/// the nurses always have it to heal. That is the fight.
+#[test]
+fn the_larva_is_immobilized_and_undying() {
+    let (mut world, _db, _l) = queen_world();
+    add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
+    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    let larva = find(&mut world, LARVA).unwrap();
+    let flags = world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&larva)
+        .expect("larva has admin flags");
+    assert!(flags.undying, "the larva cannot be killed");
+    assert!(flags.paralyzed, "the larva cannot move");
+}
+
+/// When the Queen dies, her immortal larva is finally removed with her.
+#[test]
+fn the_larva_is_removed_when_the_queen_dies() {
+    let (mut world, _db, _l) = queen_world();
+    add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
+    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+    assert!(
+        find(&mut world, LARVA).is_some(),
+        "larva out during the fight"
+    );
+
+    crate::game_loop::queen_ant::on_queen_killed(&mut world);
+    assert!(
+        find(&mut world, LARVA).is_none(),
+        "the larva fell with its mistress"
+    );
+}
+
+/// Drag the Queen far from home and the leash check drops her hate (and sends
+/// her back); keep her near and it leaves her alone.
+#[test]
+fn the_leash_resets_a_dragged_queen() {
+    use crate::model::npc::{AggroInfo, AggroList};
+
+    let add_hate = |world: &mut World, oid: i32| {
+        world
+            .objects
+            .get_component_mut::<AggroList>(&oid)
+            .unwrap()
+            .0
+            .insert(
+                500,
+                AggroInfo {
+                    hate: 100.0,
+                    damage: 0.0,
+                },
+            );
+    };
+    let has_hate = |world: &World, oid: i32| {
+        !world
+            .objects
+            .get_component::<AggroList>(&oid)
+            .unwrap()
+            .0
+            .is_empty()
+    };
+
+    // Far from home (0,0,0 vs ~-21610,181594): the leash fires.
+    let (mut world, _db, _l) = queen_world();
+    add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
+    add_hate(&mut world, QUEEN_OID);
+    crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
+    assert!(
+        !has_hate(&world, QUEEN_OID),
+        "a dragged Queen drops her hate"
+    );
+
+    // At home: the leash leaves her be.
+    let (mut world, _db, _l) = queen_world();
+    add_test_npc(
+        &mut world,
+        QUEEN_OID,
+        QUEEN,
+        "GrandBoss",
+        40,
+        -21610,
+        181594,
+        -5734,
+    );
+    add_hate(&mut world, QUEEN_OID);
+    crate::game_loop::queen_ant::handle_distance_check(&mut world, QUEEN_OID);
+    assert!(
+        has_hate(&world, QUEEN_OID),
+        "a Queen at home keeps fighting"
+    );
+}
+
 /// A dead Queen ends the beat rather than rescheduling forever.
 #[test]
 fn the_heal_beat_stops_when_the_queen_dies() {

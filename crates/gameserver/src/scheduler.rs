@@ -24,6 +24,8 @@ pub enum ScheduledTask {
     GrandBossRespawn { boss_id: i32 },
     /// Queen Ant's 1 s nurse-heal beat.
     QueenAntHeal { queen_oid: i32 },
+    /// Queen Ant's 5 s leash check — drag her too far and she returns home.
+    QueenAntDistanceCheck { queen_oid: i32 },
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;

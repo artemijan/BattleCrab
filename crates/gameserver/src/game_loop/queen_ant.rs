@@ -5,7 +5,7 @@
 //! minions that keep both of them up. Killing the Queen through a working nurse
 //! rotation is the actual fight.
 
-use crate::model::components::Vitals;
+use crate::model::components::{AdminFlags, Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -21,6 +21,14 @@ const LARVA_X: i32 = -21600;
 const LARVA_Y: i32 = 179482;
 const LARVA_Z: i32 = -5846;
 
+/// The Queen's home (`QUEEN_X/Y/Z`) — the anchor the leash check pulls her back
+/// to.
+const QUEEN_HOME: (i32, i32, i32) = (-21610, 181594, -5734);
+/// Java `DISTANCE_CHECK`: dragged more than this from home, she resets.
+const LEASH_RANGE: f64 = 2000.0;
+/// The 5 s leash-check beat.
+const DISTANCE_TICK_TICKS: u64 = 50;
+
 /// `HEAL1`/`HEAL2` — both "Recovery". The larva gets either at random, the
 /// Queen only ever gets `HEAL1`.
 const HEAL1: i32 = 4020;
@@ -33,10 +41,80 @@ const HEAL_TICK_TICKS: u64 = 10;
 /// the heal beat.
 pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
     let heading = world.roll(360);
-    crate::model::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading);
+    if let Some(larva) =
+        crate::model::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading)
+    {
+        // Java `onSpawn(LARVA)`: immobilized + undying — the larva can't move and
+        // can't be killed, so the nurses always have it to heal. Burning the
+        // Queen down before the nurses out-heal her *is* the fight.
+        let mut flags = AdminFlags::default();
+        flags.paralyzed = true;
+        flags.undying = true;
+        world.objects.add_components(&larva, flags);
+    }
     world.scheduler.schedule(
         world.tick + HEAL_TICK_TICKS,
         ScheduledTask::QueenAntHeal { queen_oid },
+    );
+    world.scheduler.schedule(
+        world.tick + DISTANCE_TICK_TICKS,
+        ScheduledTask::QueenAntDistanceCheck { queen_oid },
+    );
+}
+
+/// Java `onKill(QUEEN)` tail: the immortal larva is finally removed with its
+/// mistress (the shared respawn timer is armed by `grand_boss`).
+pub(crate) fn on_queen_killed(world: &mut World) {
+    if let Some(larva) = find_alive(world, LARVA) {
+        let region = world
+            .objects
+            .get_component::<RegionCell>(&larva)
+            .map(|r| r.0)
+            .unwrap_or((0, 0));
+        crate::game_loop::death::despawn_npc(world, larva, region);
+    }
+}
+
+/// Java `DISTANCE_CHECK`: dragged more than `LEASH_RANGE` from home, the Queen
+/// drops her hate and walks back — the anti-drag rule.
+pub(crate) fn handle_distance_check(world: &mut World, queen_oid: i32) {
+    let queen_alive = world
+        .objects
+        .get_component::<Vitals>(&queen_oid)
+        .is_some_and(|v| !v.dead);
+    if !queen_alive {
+        return; // Java cancels the timer on death
+    }
+    let far = world
+        .objects
+        .get_component::<Position>(&queen_oid)
+        .is_some_and(|p| {
+            let home = Position {
+                x: QUEEN_HOME.0,
+                y: QUEEN_HOME.1,
+                z: QUEEN_HOME.2,
+                heading: 0,
+            };
+            p.distance_2d(&home) > LEASH_RANGE
+        });
+    if far {
+        if let Some(aggro) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&queen_oid)
+        {
+            aggro.0.clear();
+        }
+        crate::game_loop::npc_ai::move_npc_to(
+            world,
+            queen_oid,
+            QUEEN_HOME.0,
+            QUEEN_HOME.1,
+            QUEEN_HOME.2,
+        );
+    }
+    world.scheduler.schedule(
+        world.tick + DISTANCE_TICK_TICKS,
+        ScheduledTask::QueenAntDistanceCheck { queen_oid },
     );
 }
 
