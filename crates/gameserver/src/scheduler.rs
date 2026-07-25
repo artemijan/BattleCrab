@@ -109,6 +109,9 @@ pub enum ScheduledTask {
     /// (step 0 = the 10-min-later start; the chain spawns the boss ensemble and
     /// hands control back for the fight).
     FrintezzaIntro { instance_id: i32, step: u8 },
+    /// Frintezza fight beats — Scarlet's 80%/20% morphs (the second turns
+    /// Scarlet into its final form).
+    FrintezzaFight { instance_id: i32, step: u8 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.

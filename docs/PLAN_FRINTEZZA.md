@@ -52,10 +52,17 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    beat, then hand control back and mark `fightActive`. Player freeze +
    spawn/hand-back are faithful; the ~20-shot dummy-anchored SpecialCamera
    choreography is abbreviated to the establishing beats (TODO).
-4. **Boss fight**: Scarlet (29046) morphs at 80%/20%, second morph → doDie →
-   respawn as Scarlet2 (29047); Frintezza random songs (5007/5008); demon spawns
-   (29050/29051, every 20 s to 24) from portraits (29048/29049); Dewdrop skill
-   (2276) suicides portraits; ScarletVanHalisha AI.
+4. **Boss fight** — 🚧 partial. Scarlet's morphs ✅ landed: `on_attack(SCARLET1)`
+   crosses 80% (first-morph cast 5017) and 20% once each (`Npc.script_value`
+   gates), the second morph despawns Scarlet1 and spawns its final form Scarlet2
+   (29047) at the same spot (frozen, then woken), and `onKill(SCARLET2)` ends the
+   encounter (minimal finish: Frintezza dies + doors reopen; the cinematic is
+   slice 5). Fixed a latent `set_frozen` bug — the intro hand-back now actually
+   clears Scarlet's invulnerability. **Still TODO**: Frintezza random songs
+   (5007/5008), demon spawns (29050/29051, every 20 s to 24) from portraits
+   (29048/29049), Dewdrop skill (2276) portrait suicide + demon/portrait onKill
+   tracking, and the ScarletVanHalisha custom skill AI (Scarlet fights with
+   normal attacks for now).
 5. **Finish + rewards**: Scarlet2 death → FINISH_CAMERA chain → Frintezza dies,
    doors open, teleport CUBE spawns; loot.
 
