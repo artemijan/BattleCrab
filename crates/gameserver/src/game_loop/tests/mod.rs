@@ -319,6 +319,7 @@ async fn character_create_inserts_into_real_schema() {
         static_object_data: crate::data::StaticObjectData::empty(),
         buy_lists: crate::data::BuyListData::empty(),
         multisells: crate::data::MultisellData::empty(),
+        instance_templates: crate::data::instance_data::InstanceData::empty(),
         scheme_buffer: crate::data::SchemeBufferData::default(),
         hennas: crate::data::HennaData::empty(),
         recipes: crate::data::RecipeData::empty(),
