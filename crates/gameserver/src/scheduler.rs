@@ -34,6 +34,9 @@ pub enum ScheduledTask {
     /// One beat of Baium's wakeUp cinematic (stone → live boss): earthquake,
     /// the social-action poses, porting the waker in and the gift-skill kill.
     BaiumCinematic { step: u8 },
+    /// Baium's 60 s CHECK_ATTACK beat: 30-min-idle reset (revert to stone +
+    /// clear the zone) or a `<75%`-HP self-heal after 5 min without a hit.
+    BaiumCheckAttack,
     /// The first Velociraptors enter, 60 s after the party is admitted.
     SailrenBeginFight,
     /// Sailren enters, 3 minutes after the Tyrannosaurus falls.

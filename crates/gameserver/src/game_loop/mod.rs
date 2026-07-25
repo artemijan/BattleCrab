@@ -383,6 +383,7 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::BaiumSelectTarget => baium::handle_select_target(world),
             ScheduledTask::BaiumCinematic { step } => baium::handle_cinematic_step(world, step),
+            ScheduledTask::BaiumCheckAttack => baium::handle_check_attack(world),
             ScheduledTask::SailrenBeginFight => sailren::begin_fight(world),
             ScheduledTask::SailrenSpawn => sailren::handle_spawn_sailren(world),
             ScheduledTask::SailrenAttackEnable { sailren_oid } => {
