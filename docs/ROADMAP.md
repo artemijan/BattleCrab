@@ -955,6 +955,10 @@ landed (`PLAN_G21_NPC_PATHFINDING.md`) — mobs consulted no geodata at all
 before, so chases walked through walls. `skillTargetReconsider` landed
 (`PLAN_G21_TARGET_RECONSIDER.md`) — support mobs (1040 buffers / 305 healers)
 now help their pack. Note `FenceData` is a single "demo" fence on this dist.
+Vertical aggro/chase parity landed post-G23 (PROGRESS "Vertical aggro/chase
+geodata parity"): 3D aggro spheres, `thinkAttack`'s LOS gate, geodata-clamped
+`chase()`, `checkHate` aggro decay, teleport-home attack timeout — mobs no
+longer engage or glide between tower floors.
 
 ---
 
