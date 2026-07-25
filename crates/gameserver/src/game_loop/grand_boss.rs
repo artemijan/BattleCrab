@@ -74,9 +74,13 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
     }
     persist(world, boss_id);
 
-    // Per-boss death tails. Queen Ant removes her immortal larva.
+    // Per-boss death tails. Queen Ant removes her immortal larva; Baium drops
+    // the exit cube and roars.
     if boss_id == crate::game_loop::queen_ant::QUEEN {
         crate::game_loop::queen_ant::on_queen_killed(world);
+    }
+    if boss_id == crate::game_loop::baium::BAIUM {
+        crate::game_loop::baium::on_baium_killed(world);
     }
 
     world.scheduler.schedule(

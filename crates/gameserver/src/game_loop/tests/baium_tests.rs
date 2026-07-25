@@ -20,6 +20,7 @@ fn baium_world() -> (
         (BAIUM, "GrandBoss"),
         (ARCHANGEL, "Monster"),
         (crate::game_loop::baium::BAIUM_STONE, "Folk"),
+        (crate::game_loop::baium::TELE_CUBE, "Folk"),
     ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();
@@ -831,4 +832,80 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
             .is_none(),
         "the departed player's hate entry is dropped"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Entry (Angelic Vortex), exit (teleport cube) and the death cube
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::baium::{EntryOutcome, TELE_CUBE};
+
+/// A fabric-bearer is admitted while Baium sleeps.
+#[test]
+fn the_vortex_admits_a_fabric_bearer() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 0); // ALIVE
+    assert_eq!(
+        crate::game_loop::baium::entry_outcome(&world, true),
+        EntryOutcome::Admitted
+    );
+}
+
+/// No fabric, no crossing — the vortex is inert.
+#[test]
+fn the_vortex_is_inert_without_a_fabric() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 0); // ALIVE
+    assert_eq!(
+        crate::game_loop::baium::entry_outcome(&world, false),
+        EntryOutcome::NoFabric
+    );
+}
+
+/// **The fight's state is read before the fabric.** A player without a fabric
+/// still sees "it's busy" mid-fight and "it's over" once Baium is dead — Java's
+/// order, which a reordering would silently lose (they'd get NoFabric instead).
+#[test]
+fn state_is_reported_before_the_fabric_check() {
+    let (mut world, _db, _l) = baium_world();
+
+    insert_baium(&mut world, 2); // IN_FIGHT
+    assert_eq!(
+        crate::game_loop::baium::entry_outcome(&world, false),
+        EntryOutcome::InFight,
+        "busy beats no-fabric"
+    );
+
+    world.grand_bosses.get_mut(&BAIUM).unwrap().status = 3; // DEAD
+    assert_eq!(
+        crate::game_loop::baium::entry_outcome(&world, false),
+        EntryOutcome::Dead,
+        "over beats no-fabric"
+    );
+}
+
+/// Killing Baium drops the exit cube where the raid can find it.
+#[test]
+fn killing_baium_drops_the_exit_cube() {
+    let (mut world, _db, _l) = baium_world();
+    assert_eq!(count(&mut world, TELE_CUBE), 0);
+
+    crate::game_loop::baium::on_baium_killed(&mut world);
+
+    assert_eq!(count(&mut world, TELE_CUBE), 1, "the way out appeared");
+}
+
+/// The cube scatters people to one of three surface points, jittered — never
+/// dropping them back at a fixed, campable spot.
+#[test]
+fn the_exit_scatters_to_a_surface_point() {
+    let (mut world, _db, _l) = baium_world();
+    // roll(3) -> point 1, then the two +100 jitters.
+    world.forced_rolls.push_back(1);
+    world.forced_rolls.push_back(40);
+    world.forced_rolls.push_back(60);
+
+    let (x, y, z) = crate::game_loop::baium::random_exit(&mut world);
+
+    assert_eq!((x, y, z), (113_824 + 40, 10_448 + 60, -5_164));
 }

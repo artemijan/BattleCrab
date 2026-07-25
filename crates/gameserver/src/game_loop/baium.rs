@@ -30,17 +30,38 @@ pub const BAIUM_STONE: i32 = 29025;
 /// Archangel — five of them circle Baium.
 pub const ARCHANGEL: i32 = 29021;
 
+/// The Angelic Vortex (31862) — the entry NPC that reads the fight's state and
+/// ferries a Blooded-Fabric bearer into the lair.
+pub const ANG_VORTEX: i32 = 31862;
+/// The teleport cube (31842) spawned when Baium dies — the way out.
+pub const TELE_CUBE: i32 = 31842;
+/// Blooded Fabric (4295) — the entry ticket, consumed on a successful cross.
+pub const FABRIC: i32 = 4295;
+
 // Status ladder (`GrandBossManager` values for Baium).
 const ALIVE: i32 = 0;
 const WAITING: i32 = 1;
 const IN_FIGHT: i32 = 2;
+const DEAD: i32 = 3;
 
 /// `BAIUM_LOC` — where the statue (and, once woken, the boss) stands.
 const BAIUM_LOC: (i32, i32, i32, i32) = (116_033, 17_447, 10_107, 40_188);
 /// `BAIUM_GIFT_LOC` — the waker is ported here to receive Baium's "gift".
 const BAIUM_GIFT_LOC: (i32, i32, i32) = (115_910, 17_337, 10_105);
+/// `TELEPORT_IN_LOC` — where the vortex drops a fabric-bearer.
+const TELEPORT_IN_LOC: (i32, i32, i32) = (114_077, 15_882, 10_078);
+/// `TELEPORT_CUBIC_LOC` — where the exit cube stands after the kill.
+const TELEPORT_CUBIC_LOC: (i32, i32, i32) = (115_017, 15_549, 10_090);
+/// `TELEPORT_OUT_LOC` — the three surface points the cube scatters people to.
+const TELEPORT_OUT_LOC: [(i32, i32, i32); 3] = [
+    (108_784, 16_000, -4_928),
+    (113_824, 10_448, -5_164),
+    (115_488, 22_096, -5_168),
+];
 /// `BAIUM_PRESENT` (4136, "Baium's Gift") — the skill that greets the waker.
 const BAIUM_PRESENT: i32 = 4136;
+/// `BS01_D` — the death roar played when Baium falls.
+const DEATH_SOUND: &str = "BS01_D";
 
 /// Social-action ids Baium plays during the awakening.
 const SOCIAL_WAKE: i32 = 2;
@@ -635,4 +656,68 @@ fn choose_skill(world: &mut World, baium_oid: i32) -> i32 {
         }
     }
     BAIUM_ATTACK
+}
+
+// ---------------------------------------------------------------------------
+// Entry (Angelic Vortex) / exit (teleport cube) / the death tail
+// ---------------------------------------------------------------------------
+
+/// What the Angelic Vortex tells a would-be entrant (Java `onEvent("enter")`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EntryOutcome {
+    /// Baium is dead — the lair is empty, cross freely (`31862-03.html`). Note
+    /// the entrant still needs a fabric in Java's flow, but the dead branch is
+    /// checked first, so the html shows regardless.
+    Dead,
+    /// A fight is underway; entry is locked (`31862-02.html`).
+    InFight,
+    /// No Blooded Fabric — the vortex is inert (`31862-01.html`).
+    NoFabric,
+    /// Cross over: take the fabric and teleport in.
+    Admitted,
+}
+
+/// The vortex's decision, given whether the entrant holds a Blooded Fabric.
+///
+/// The order is Java's and matters: **dead** and **in-fight** are read before
+/// the fabric check, so a player without a fabric still sees the "it's over" or
+/// "it's busy" scene rather than the generic "you need something" one.
+pub(crate) fn entry_outcome(world: &World, has_fabric: bool) -> EntryOutcome {
+    match crate::game_loop::grand_boss::status(world, BAIUM) {
+        Some(DEAD) => EntryOutcome::Dead,
+        Some(IN_FIGHT) => EntryOutcome::InFight,
+        _ if !has_fabric => EntryOutcome::NoFabric,
+        _ => EntryOutcome::Admitted,
+    }
+}
+
+/// Where the vortex drops an admitted entrant.
+pub(crate) fn teleport_in_loc() -> (i32, i32, i32) {
+    TELEPORT_IN_LOC
+}
+
+/// A random surface exit for the teleport cube — one of three points, jittered
+/// by up to 100 on x/y (Java `dest + getRandom(100)`).
+pub(crate) fn random_exit(world: &mut World) -> (i32, i32, i32) {
+    let idx = world.roll(TELEPORT_OUT_LOC.len() as i32) as usize;
+    let (x, y, z) = TELEPORT_OUT_LOC[idx];
+    (x + world.roll(100), y + world.roll(100), z)
+}
+
+/// Baium's death tail (Java `onKill`): drop the exit cube where the raid can
+/// find it and roar. The generic `on_grand_boss_killed` has already flipped the
+/// status to DEAD and armed the respawn; this is only the Baium-specific part.
+pub(crate) fn on_baium_killed(world: &mut World) {
+    crate::model::npc::spawn_npc_at(
+        world,
+        TELE_CUBE,
+        TELEPORT_CUBIC_LOC.0,
+        TELEPORT_CUBIC_LOC.1,
+        TELEPORT_CUBIC_LOC.2,
+        0,
+    );
+    let roar = crate::network::server_packets::play_sound(DEATH_SOUND);
+    broadcast_to_lair(world, &roar);
+    // TODO(G23): Java also arms CLEAR_ZONE at +900 s (despawn the cube and oust
+    // any stragglers). Deferred with the CHECK_ATTACK decay slice.
 }
