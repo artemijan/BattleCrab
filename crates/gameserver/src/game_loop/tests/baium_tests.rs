@@ -487,3 +487,44 @@ fn a_hit_makes_baium_cast() {
         .count();
     assert_eq!(casts, 1, "the damage hook chose a skill and cast it");
 }
+
+/// A passive Archangel engages the nearest player when it re-picks its target
+/// (Java `SELECT_TARGET`) — without this the archangels never fight.
+#[test]
+fn an_archangel_engages_a_nearby_player() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 500, 100, 100, 0);
+    add_test_npc(&mut world, 601, ARCHANGEL, "Monster", 75, 150, 150, 0);
+
+    crate::game_loop::baium::handle_select_target(&mut world);
+
+    let hate = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&601)
+        .and_then(|a| a.0.get(&500))
+        .map(|h| h.hate)
+        .unwrap_or(0.0);
+    assert!(hate > 0.0, "the archangel engaged the intruder");
+}
+
+/// When Baium falls, his archangels leave with him.
+#[test]
+fn archangels_despawn_when_baium_dies() {
+    let (mut world, _db, _l) = baium_world();
+    add_test_npc(&mut world, BAIUM_OID, BAIUM, "GrandBoss", 75, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&BAIUM_OID)
+        .unwrap()
+        .dead = true;
+    add_test_npc(&mut world, 601, ARCHANGEL, "Monster", 75, 150, 150, 0);
+    assert_eq!(count(&mut world, ARCHANGEL), 1);
+
+    crate::game_loop::baium::handle_select_target(&mut world);
+    assert_eq!(
+        count(&mut world, ARCHANGEL),
+        0,
+        "the archangels left with Baium"
+    );
+}
