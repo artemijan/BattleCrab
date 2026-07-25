@@ -629,6 +629,7 @@ fn the_area_skills_are_cast_on_antharas_himself() {
 #[test]
 fn a_hit_makes_antharas_cast() {
     let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world); // the damage hook only runs mid-fight
     let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     {
@@ -667,6 +668,7 @@ fn a_hit_makes_antharas_cast() {
 #[test]
 fn a_second_hit_mid_cast_starts_nothing() {
     let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world); // the damage hook only runs mid-fight
     let mut rx = ingame_caster(&mut world, 1, ATTACKER, -800, 0);
     add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
     {
@@ -1172,5 +1174,201 @@ fn clear_zone_ousts_players_and_despawns_the_cube_through_the_loop() {
     assert!(
         cube_in_lair(&world).is_none(),
         "the cube was despawned with the zone"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// SET_REGEN + CHECK_ATTACK + the strider leg (the lifecycle/onAttack gaps)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::antharas::AntharasCombat;
+
+const AP_PLAYER: i32 = 9700;
+
+fn fighting_antharas(world: &mut World) {
+    world.grand_bosses.insert(
+        ANTHARAS,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: ANTHARAS,
+            loc_x: 0,
+            loc_y: 0,
+            loc_z: 0,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: 2, // IN_FIGHT
+        },
+    );
+}
+
+fn casting_skill(world: &World, oid: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::Casting>(&oid)
+        .map(|c| c.0.skill_id)
+}
+
+fn give_mp(world: &mut World, oid: i32) {
+    let v = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&oid)
+        .unwrap();
+    v.max_mp = 100_000;
+    v.cur_mp = 100_000.0;
+}
+
+/// **Antharas heals harder the lower his health.** At 40% HP he is in the
+/// third band, so he self-casts regen skill 4240 — not the weakest (4125).
+#[test]
+fn antharas_heals_for_his_current_hp_band() {
+    let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    give_mp(&mut world, ANTHARAS_OID);
+    wound_to(&mut world, 0.4); // < 50%, ≥ 25% -> band 2 -> 4240
+    world.objects.add_components(
+        &ANTHARAS_OID,
+        AntharasCombat {
+            last_attack_tick: world.tick,
+        },
+    );
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 4240,
+            level: 1,
+            ..Default::default()
+        });
+    let before = world.scheduler.len();
+
+    crate::game_loop::antharas::handle_set_regen(&mut world, ANTHARAS_OID);
+
+    assert_eq!(
+        casting_skill(&world, ANTHARAS_OID),
+        Some(4240),
+        "cast the band-2 regeneration"
+    );
+    assert!(world.scheduler.len() > before, "the regen beat re-armed");
+}
+
+/// The regen beat stops once the fight is over.
+#[test]
+fn the_regen_beat_stops_when_the_fight_is_over() {
+    let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world);
+    world.grand_bosses.get_mut(&ANTHARAS).unwrap().status = 3; // DEAD
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    let before = world.scheduler.len();
+
+    crate::game_loop::antharas::handle_set_regen(&mut world, ANTHARAS_OID);
+
+    assert_eq!(world.scheduler.len(), before, "no re-arm");
+    assert_eq!(casting_skill(&world, ANTHARAS_OID), None, "no cast");
+}
+
+/// **Fifteen idle minutes abandon the fight:** Antharas is parked at his resting
+/// spot and reverts to the resting (re-enterable) status.
+#[test]
+fn a_fifteen_minute_idle_resets_antharas() {
+    let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world);
+    add_test_npc(
+        &mut world,
+        ANTHARAS_OID,
+        ANTHARAS,
+        "GrandBoss",
+        85,
+        179_011,
+        114_871,
+        -7_704,
+    );
+    world.objects.add_components(
+        &ANTHARAS_OID,
+        AntharasCombat {
+            last_attack_tick: 0,
+        },
+    );
+    world.tick = 9_001; // > 15 min since last_attack 0
+
+    crate::game_loop::antharas::handle_check_attack(&mut world, ANTHARAS_OID);
+
+    assert_eq!(
+        world.grand_bosses.get(&ANTHARAS).unwrap().status,
+        0,
+        "reverted to ALIVE"
+    );
+    let p = world
+        .objects
+        .get_component::<crate::model::components::Position>(&ANTHARAS_OID)
+        .unwrap();
+    assert_eq!(
+        (p.x, p.y, p.z),
+        (185_708, 114_298, -8_221),
+        "parked at his resting spot"
+    );
+}
+
+/// A recent hit keeps Antharas fighting and re-arms the beat.
+#[test]
+fn a_recently_hit_antharas_keeps_fighting() {
+    let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    world.tick = 10_000;
+    world.objects.add_components(
+        &ANTHARAS_OID,
+        AntharasCombat {
+            last_attack_tick: world.tick,
+        },
+    );
+    let before = world.scheduler.len();
+
+    crate::game_loop::antharas::handle_check_attack(&mut world, ANTHARAS_OID);
+
+    assert_eq!(
+        world.grand_bosses.get(&ANTHARAS).unwrap().status,
+        2,
+        "still IN_FIGHT"
+    );
+    assert!(world.scheduler.len() > before, "the beat re-armed");
+}
+
+/// A strider-mounted attacker is hindered (skill 4258) — the `onAttack` leg
+/// that was missing.
+#[test]
+fn a_strider_rider_is_hindered_by_antharas() {
+    let (mut world, _db, _l) = antharas_world();
+    fighting_antharas(&mut world);
+    add_test_npc(&mut world, ANTHARAS_OID, ANTHARAS, "GrandBoss", 85, 0, 0, 0);
+    give_mp(&mut world, ANTHARAS_OID);
+    world.objects.add_components(
+        &ANTHARAS_OID,
+        AntharasCombat {
+            last_attack_tick: 0,
+        },
+    );
+    let _rx = ingame_player(&mut world, 3, AP_PLAYER, 20, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&AP_PLAYER)
+        .unwrap()
+        .mount_type = 1; // STRIDER
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 4258,
+            level: 1,
+            ..Default::default()
+        });
+
+    crate::game_loop::antharas::on_antharas_damage(&mut world, ANTHARAS_OID, AP_PLAYER, 100, true);
+
+    assert_eq!(
+        casting_skill(&world, ANTHARAS_OID),
+        Some(4258),
+        "the rider was hindered"
     );
 }

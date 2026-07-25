@@ -1,7 +1,13 @@
 //! Antharas (`ai/bosses/Antharas`) — the minion escalation.
 //!
 //! Antharas's pressure comes from adds that arrive every five minutes in
-//! **growing waves**, capped so the lair cannot be flooded without bound.
+//! **growing waves**, capped so the lair cannot be flooded without bound. He
+//! also heals himself harder the lower his health (`SET_REGEN`) and resets the
+//! whole fight if left alone for fifteen minutes (`CHECK_ATTACK`).
+//!
+//! Not ported (cosmetic / needs a spell-see hook): the `TID_FEAR` sandstorm
+//! walk with its `BOMBER`/invisible-NPC decorations, and the `onSpellFinished`
+//! 1 s `MANAGE_SKILL` re-arm (the port re-casts from the damage hook instead).
 
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -9,6 +15,31 @@ use crate::world::World;
 pub const ANTHARAS: i32 = 29068;
 const BEHEMOTH: i32 = 29069;
 const TERASQUE: i32 = 29190;
+
+/// `ANTH_ANTI_STRIDER` (4258) — a strider rider is hindered, once.
+const ANTI_STRIDER: i32 = 4258;
+/// Java `MountType.STRIDER`.
+const MOUNT_STRIDER: u8 = 1;
+
+/// The four `SET_REGEN` skills, weakest first — Antharas casts the one for his
+/// current HP band (`≥75%` → 4125, then 4239 / 4240 / 4241 as he weakens).
+const REGEN_SKILLS: [i32; 4] = [4125, 4239, 4240, 4241];
+/// The `SET_REGEN` / `CHECK_ATTACK` beats (Java 60 s).
+const MINUTE_TICKS: u64 = 600;
+/// `_lastAttack + 900000` — 15 idle minutes reset the fight.
+const RESET_IDLE_TICKS: u64 = 9_000;
+/// Where the reset parks Antharas (Java's `teleToLocation(185708, …)`), also
+/// his `CLEAR_STATUS` respawn point.
+const ANTHARAS_HOME: (i32, i32, i32) = (185_708, 114_298, -8_221);
+/// Where `onAttack` dumps someone striking Antharas in invalid conditions.
+const INVALID_ATTACK_EXIT: (i32, i32, i32) = (80_464, 152_294, -3_534);
+
+/// Java's static `_lastAttack` — the last tick Antharas was struck, kept on the
+/// boss so `CHECK_ATTACK` can measure inactivity.
+#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
+pub struct AntharasCombat {
+    pub last_attack_tick: u64,
+}
 
 /// The four-state ladder (Java `GrandBossManager` statuses for Antharas).
 /// `DORMANT` and `DEAD` have no reader yet, but the ladder is kept whole —
@@ -270,6 +301,23 @@ fn start_move(world: &mut World, antharas_oid: i32) {
     }
     // The waves only start once he is actually fighting.
     begin_waves(world, antharas_oid);
+    // The regen and inactivity beats start with the fight (Java arms SET_REGEN
+    // onSpawn and CHECK_ATTACK at START_MOVE; both are harmless before FIGHTING
+    // and gated on it here).
+    world.objects.add_components(
+        &antharas_oid,
+        AntharasCombat {
+            last_attack_tick: world.tick,
+        },
+    );
+    world.scheduler.schedule(
+        world.tick + MINUTE_TICKS,
+        ScheduledTask::AntharasSetRegen { antharas_oid },
+    );
+    world.scheduler.schedule(
+        world.tick + MINUTE_TICKS,
+        ScheduledTask::AntharasCheckAttack { antharas_oid },
+    );
 }
 
 /// The cinematic is shown to the lair, not the surrounding region — the same
@@ -681,7 +729,8 @@ pub(crate) fn manage_and_cast(world: &mut World, antharas_oid: i32) {
     );
 }
 
-/// `Antharas.onAttack` — the threat half and the skill half, in Java's order.
+/// `Antharas.onAttack` — the timer, the anti-exploit teleport, the strider
+/// debuff, then the threat/skill halves, in Java's order.
 pub(crate) fn on_antharas_damage(
     world: &mut World,
     antharas_oid: i32,
@@ -689,8 +738,167 @@ pub(crate) fn on_antharas_damage(
     damage: i32,
     is_melee: bool,
 ) {
+    // `_lastAttack = now` — a hit resets the inactivity clock CHECK_ATTACK reads.
+    let now = world.tick;
+    if let Some(c) = world
+        .objects
+        .get_component_mut::<AntharasCombat>(&antharas_oid)
+    {
+        c.last_attack_tick = now;
+    }
+
+    // Struck from outside the lair, or before the fight is live: dump the
+    // attacker at the Giran gate (Java teleports and logs, then carries on).
+    let in_fight = crate::game_loop::grand_boss::status(world, ANTHARAS) == Some(IN_FIGHT);
+    if !in_lair_zone(world, attacker_oid) || !in_fight {
+        crate::game_loop::death::teleport_player(
+            world,
+            attacker_oid,
+            INVALID_ATTACK_EXIT.0,
+            INVALID_ATTACK_EXIT.1,
+            INVALID_ATTACK_EXIT.2,
+        );
+    }
+
+    // A strider-mounted attacker is hindered, once (`!isAffectedBySkill(4258)`).
+    let on_strider = world
+        .objects
+        .get_component::<crate::model::Player>(&attacker_oid)
+        .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
+    if on_strider && !has_buff(world, attacker_oid, ANTI_STRIDER) {
+        if let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned() {
+            if crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill) {
+                crate::game_loop::npc_cast::start_cast(world, antharas_oid, attacker_oid, &skill);
+            }
+        }
+    }
+
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);
     manage_and_cast(world, antharas_oid);
+}
+
+/// Is `oid` inside Antharas's lair zone? Falls open when the zone table isn't
+/// loaded (minimal test worlds), so the anti-exploit teleport never misfires.
+fn in_lair_zone(world: &World, oid: i32) -> bool {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&oid)
+    else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(LAIR_ZONE_ID)
+        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+}
+
+fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&oid)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
+}
+
+// ---------------------------------------------------------------------------
+// SET_REGEN — the escalating self-heal
+// ---------------------------------------------------------------------------
+
+/// Java `SET_REGEN` (60 s): cast the regeneration skill for the current HP band,
+/// unless it is already active, then re-arm. The fight ending drops the beat.
+pub(crate) fn handle_set_regen(world: &mut World, antharas_oid: i32) {
+    if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(IN_FIGHT) {
+        return;
+    }
+    if let Some((cur, max)) = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&antharas_oid)
+        .map(|v| (v.cur_hp, v.max_hp as f64))
+    {
+        let skill_id = REGEN_SKILLS[regen_band(cur, max)];
+        // Java `!isAffectedBySkill`, and don't stomp an in-progress cast.
+        if !has_buff(world, antharas_oid, skill_id)
+            && !world
+                .objects
+                .has_component::<crate::model::components::Casting>(&antharas_oid)
+        {
+            super::boss_threat::cast_boss_skill(world, antharas_oid, antharas_oid, skill_id, true);
+        }
+    }
+    world.scheduler.schedule(
+        world.tick + MINUTE_TICKS,
+        ScheduledTask::AntharasSetRegen { antharas_oid },
+    );
+}
+
+/// The `REGEN_SKILLS` index for the current health: 3 below 25%, 2 below 50%,
+/// 1 below 75%, else 0.
+fn regen_band(cur: f64, max: f64) -> usize {
+    if cur < max * 0.25 {
+        3
+    } else if cur < max * 0.5 {
+        2
+    } else if cur < max * 0.75 {
+        1
+    } else {
+        0
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CHECK_ATTACK — the 15-minute inactivity reset
+// ---------------------------------------------------------------------------
+
+/// Java `CHECK_ATTACK` (60 s): if nobody has struck Antharas in fifteen minutes,
+/// abandon the fight — park him home, revert to ALIVE, despawn the adds and oust
+/// the stragglers; otherwise re-arm. (Java also decays the top-three hate here;
+/// the shared `boss_threat` table does its own decay, so that leg is a no-op.)
+pub(crate) fn handle_check_attack(world: &mut World, antharas_oid: i32) {
+    if crate::game_loop::grand_boss::status(world, ANTHARAS) != Some(IN_FIGHT) {
+        return;
+    }
+    let idle = world
+        .objects
+        .get_component::<AntharasCombat>(&antharas_oid)
+        .map(|c| world.tick.saturating_sub(c.last_attack_tick))
+        .unwrap_or(0);
+
+    if idle >= RESET_IDLE_TICKS {
+        // Park Antharas at his resting spot and forget everyone.
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&antharas_oid)
+        {
+            p.x = ANTHARAS_HOME.0;
+            p.y = ANTHARAS_HOME.1;
+            p.z = ANTHARAS_HOME.2;
+        }
+        if let Some(a) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&antharas_oid)
+        {
+            a.0.clear();
+        }
+        // Delete the adds, oust the players.
+        for oid in lair_minions(world) {
+            if let Some(region) = world
+                .objects
+                .get_component::<crate::model::components::RegionCell>(&oid)
+                .map(|r| r.0)
+            {
+                crate::game_loop::death::despawn_npc(world, oid, region);
+            }
+        }
+        for player_oid in players_in_lair_oids(world) {
+            teleport_out(world, player_oid);
+        }
+        set_status(world, DORMANT); // Java's ALIVE (0) — resting, re-enterable
+        return; // don't re-arm — the fight is abandoned
+    }
+    world.scheduler.schedule(
+        world.tick + MINUTE_TICKS,
+        ScheduledTask::AntharasCheckAttack { antharas_oid },
+    );
 }
 
 // ---------------------------------------------------------------------------
