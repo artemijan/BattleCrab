@@ -43,6 +43,15 @@ impl ResidenceFunctionData {
         self.by_id.get(&func_id).map(|d| d.func_type.as_str())
     }
 
+    /// The function id for a `ResidenceFunctionType` name (`removeFunction` names
+    /// the type, not the id).
+    pub fn id_of_type(&self, type_name: &str) -> Option<i32> {
+        self.by_id
+            .values()
+            .find(|d| d.func_type == type_name)
+            .map(|d| d.func_id)
+    }
+
     pub fn len(&self) -> usize {
         self.by_id.len()
     }

@@ -651,3 +651,12 @@ fn removing_a_function_clears_it() {
     assert!(remove_function(&mut world, ONYX, HP_REGEN));
     assert_eq!(function_level(&world, ONYX, HP_REGEN), 0, "gone");
 }
+
+/// `removeFunction` names a type, not an id — the reverse lookup the Clan Hall
+/// Manager uses to remove a function.
+#[test]
+fn a_function_id_is_found_by_its_type_name() {
+    let data = ResidenceFunctionData::load_from(DIST);
+    assert_eq!(data.id_of_type("HP_REGEN"), Some(HP_REGEN));
+    assert_eq!(data.id_of_type("NOT_A_TYPE"), None);
+}

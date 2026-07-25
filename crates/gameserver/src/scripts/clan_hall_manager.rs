@@ -1,0 +1,189 @@
+//! The Clan Hall Manager (`ai/others/ClanHallManager`) — the owning clan's
+//! console: door control and function-upgrade purchase/removal. The auction /
+//! ownership / function state lives in [`crate::game_loop::clan_hall_auction`]
+//! and [`crate::game_loop::clan_hall_function`].
+//!
+//! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, and
+//! the static function menus. Deferred (need infrastructure): `expel`
+//! (banishOthers → a ClanHallZone) and `useFunctions` (teleport / buffs / item
+//! creation → the per-type benefits).
+
+use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
+use crate::game_loop::clan_hall_function::{buy_function, remove_function, FunctionOutcome};
+use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::model::clan::{CH_OPEN_DOOR, CH_SET_FUNCTIONS};
+use crate::model::Player;
+
+/// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
+const MANAGERS: &[i32] = &[
+    35384, 35386, 35388, 35390, // Gludio
+    35400, 35392, 35394, 35396, 35398, // Gludin
+    35403, 35405, 35407, // Dion
+    35439, 35441, 35443, 35445, 35447, 35449, // Aden
+    35451, 35453, 35455, 35457, 35459, // Giran
+    35461, 35463, 35465, 35467, // Goddard
+    35566, 35568, 35570, 35572, 35574, 35576, 35578, // Rune
+    35580, 35582, 35584, 35586, // Schuttgart
+    36721, 36723, 36725, 36727, // Gludio Outskirts
+    36729, 36731, 36733, 36735, // Dion Outskirts
+    36737, 36739, // Floran Village
+];
+
+const NO_AUTHORITY: &str = "ClanHallManager-noAuthority.html";
+
+pub struct ClanHallManager;
+
+impl QuestScript for ClanHallManager {
+    fn id(&self) -> i32 {
+        -1
+    }
+    fn name(&self) -> &'static str {
+        "ClanHallManager"
+    }
+    fn html_dir(&self) -> &'static str {
+        "ai/others/ClanHallManager"
+    }
+    fn start_npcs(&self) -> &[i32] {
+        MANAGERS
+    }
+    fn talk_npcs(&self) -> &[i32] {
+        MANAGERS
+    }
+    fn first_talk_npcs(&self) -> &[i32] {
+        MANAGERS
+    }
+
+    fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
+        let owner_id = hall_ownership(ctx).map(|(o, _)| o).unwrap_or(0);
+        // Your hall's console, or the "not the owner" page.
+        Some(page(if is_owning_clan(ctx, owner_id) {
+            "01"
+        } else {
+            "03"
+        }))
+    }
+
+    fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
+        None
+    }
+
+    fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
+        let (owner_id, hall_id) = hall_ownership(ctx)?;
+        // The whole console is owner-only (Java's outer `isOwningClan` gate).
+        if !is_owning_clan(ctx, owner_id) {
+            return Some(page("03"));
+        }
+        let mut parts = event.split_whitespace();
+        match parts.next() {
+            Some("index") => Some(page("01")),
+            Some("manageDoors") => {
+                if !has_priv(ctx, CH_OPEN_DOOR) {
+                    return Some(NO_AUTHORITY.to_string());
+                }
+                match parts.next() {
+                    Some(tok) => {
+                        let open = tok == "1";
+                        open_close_hall_doors(ctx.world, hall_id, open);
+                        Some(page(if open { "05" } else { "06" }))
+                    }
+                    None => Some(page("04")),
+                }
+            }
+            Some("manageFunctions") => {
+                if !has_priv(ctx, CH_SET_FUNCTIONS) {
+                    return Some(NO_AUTHORITY.to_string());
+                }
+                self.manage_functions(ctx, hall_id, &mut parts)
+            }
+            // Deferred consoles — serve the console page rather than a dead click.
+            Some("expel") | Some("useFunctions") => Some(page("01")),
+            Some(e) if e.ends_with(".html") => Some(e.to_string()),
+            _ => Some(page("01")),
+        }
+    }
+}
+
+impl ClanHallManager {
+    fn manage_functions(
+        &self,
+        ctx: &mut QuestCtx,
+        hall_id: i32,
+        parts: &mut std::str::SplitWhitespace,
+    ) -> Option<String> {
+        match parts.next() {
+            // Buy a function level: `setFunction <funcId> <funcLv>`.
+            Some("setFunction") => {
+                let (Some(func_id), Some(level)) = (next_i32(parts), next_i32(parts)) else {
+                    return Some(page("01"));
+                };
+                let now = commons::util::now_millis();
+                let outcome = buy_function(ctx.world, hall_id, ctx.player, func_id, level, now);
+                Some(match outcome {
+                    FunctionOutcome::Bought => "ClanHallManager-manageFuncDone.html".to_string(),
+                    FunctionOutcome::NotEnough => "ClanHallManager-noAdena.html".to_string(),
+                    // AlreadyActive / NoSuchFunction → back to the console.
+                    _ => page("01"),
+                })
+            }
+            // `removeFunction confirm|remove <TYPE>`.
+            Some("removeFunction") => {
+                let act = parts.next().unwrap_or("");
+                let type_name = parts.next().unwrap_or("");
+                if act == "remove" {
+                    if let Some(func_id) = ctx.world.data.residence_functions.id_of_type(type_name)
+                    {
+                        if remove_function(ctx.world, hall_id, func_id) {
+                            return Some("ClanHallManager-removeFunctionDone.html".to_string());
+                        }
+                    }
+                    Some("ClanHallManager-removeFunctionFail.html".to_string())
+                } else {
+                    Some("ClanHallManager-removeFunctionConfirm.html".to_string())
+                }
+            }
+            // The static sub-menus (recovery / other / decor / selectFunction).
+            Some("recovery") => Some("ClanHallManager-manageFuncRecoveryBGrade.html".to_string()),
+            Some("other") => Some("ClanHallManager-manageFuncOther.html".to_string()),
+            Some("decor") => Some("ClanHallManager-manageFuncDecor.html".to_string()),
+            Some("selectFunction") => {
+                let func_id = next_i32(parts).unwrap_or(0);
+                Some(format!("ClanHallManager-funcConfirm{func_id}.html"))
+            }
+            _ => Some(page("01")),
+        }
+    }
+}
+
+fn page(n: &str) -> String {
+    format!("ClanHallManager-{n}.html")
+}
+
+fn next_i32(parts: &mut std::str::SplitWhitespace) -> Option<i32> {
+    parts.next().and_then(|t| t.parse().ok())
+}
+
+/// `(owner clan id, hall id)` for this manager's hall.
+fn hall_ownership(ctx: &QuestCtx) -> Option<(i32, i32)> {
+    let hall_id = hall_by_npc_id(ctx.world, ctx.npc_id)?;
+    let owner_id = ctx.world.clan_halls.get(&hall_id).map(|h| h.owner_id)?;
+    Some((owner_id, hall_id))
+}
+
+fn is_owning_clan(ctx: &QuestCtx, owner_id: i32) -> bool {
+    owner_id != 0
+        && ctx
+            .world
+            .objects
+            .get_component::<Player>(&ctx.player)
+            .is_some_and(|p| p.clan_id == owner_id)
+}
+
+fn has_priv(ctx: &QuestCtx, privilege: i32) -> bool {
+    let Some(p) = ctx.world.objects.get_component::<Player>(&ctx.player) else {
+        return false;
+    };
+    ctx.world
+        .clans
+        .get(&p.clan_id)
+        .is_some_and(|c| c.has_privilege(ctx.player, p.clan_privs, privilege))
+}

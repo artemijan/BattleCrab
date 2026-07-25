@@ -250,6 +250,8 @@ pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 pub const CH_OPEN_DOOR: i32 = 1 << 11;
 /// `ClanPrivilege.CH_DISMISS` (ordinal 14) — banish non-members from the hall.
 pub const CH_DISMISS: i32 = 1 << 14;
+/// `ClanPrivilege.CH_SET_FUNCTIONS` (ordinal 15) — buy/remove hall functions.
+pub const CH_SET_FUNCTIONS: i32 = 1 << 15;
 
 /// Java `CrestType` ordinals (`crests.type` column).
 pub const CREST_TYPE_PLEDGE: i32 = 1;
