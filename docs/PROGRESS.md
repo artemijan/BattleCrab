@@ -811,6 +811,18 @@ consciously stayed out.
   restart-point teleport → `Appearing` revive at 65%, and decay → respawn
   with a fresh id announced by `NpcInfo`.
 
+### Post-G23 — Archangel target picks zone-gated ✅ (2026-07-25)
+Baium's archangels locked onto players on the tower floor *below* the lobby:
+`SELECT_TARGET`'s pick measured 2D (post 4 stands ~85 from the reported 13F
+spot, ~930 z apart) and skipped Java's `zone.isInsideZone(creature)` gate on
+`baium_no_restart` (70051, z 10061–11061). Ported: 3D reach, zone gate on
+both the candidate scan and the held-target keep-check, and stale hate on
+players who left the zone is dropped at each re-pick (Java parks the mob in
+FOLLOW instead; this AI has no FOLLOW intention, so the entry must go or
+`think_attack` chases the departed player). Falls open when the zone table
+isn't loaded (test worlds). Tests: the exact 13F report (fails pre-fix) +
+abandon-on-zone-exit.
+
 ### Post-G23 — Vertical aggro/chase geodata parity ✅ (2026-07-25)
 Aggro mobs could engage and *move vertically between tower levels* (Cruma/ToI
 floors) and never dropped a target they reached by gliding — none of Java's
