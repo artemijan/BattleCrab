@@ -378,6 +378,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }
+            ScheduledTask::OrfenDistanceCheck { orfen_oid } => {
+                orfen::handle_distance_check(world, orfen_oid);
+            }
             ScheduledTask::ValakasCinematic { valakas_oid, step } => {
                 valakas::handle_cinematic_step(world, valakas_oid, step);
             }

@@ -158,6 +158,9 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     if boss_id == crate::game_loop::baium::BAIUM {
         crate::game_loop::baium::on_baium_spawned(world);
     }
+    if boss_id == crate::game_loop::orfen::ORFEN {
+        crate::game_loop::orfen::on_orfen_spawned(world, oid);
+    }
     // Antharas spawns DORMANT and stays wherever `grandboss_data` puts it —
     // the cinematic (and the minion waves its tail starts) fire from
     // `SPAWN_ANTHARAS`, twenty minutes after the first group enters through

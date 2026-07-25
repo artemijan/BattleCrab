@@ -26,6 +26,8 @@ pub enum ScheduledTask {
     QueenAntHeal { queen_oid: i32 },
     /// Queen Ant's 5 s leash check — drag her too far and she returns home.
     QueenAntDistanceCheck { queen_oid: i32 },
+    /// Orfen's 5 s leash check — dragged past 10000 from her spawn, she resets.
+    OrfenDistanceCheck { orfen_oid: i32 },
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;
