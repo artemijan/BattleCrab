@@ -103,7 +103,7 @@ impl QuestScript for LastImperialTomb {
         } else if PORTRAITS.contains(&npc_id) {
             frintezza::on_portrait_killed(ctx.world, killer, npc);
         } else {
-            frintezza::on_monster_killed(ctx.world, killer, npc_id);
+            frintezza::on_monster_killed(ctx.world, killer, npc, npc_id);
         }
     }
 }

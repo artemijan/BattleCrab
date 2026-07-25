@@ -79,8 +79,16 @@ Scarlet's template, so a `ScheduledTask::ScarletSkill` tick — armed on the fir
 blow (both forms), stopped on death/fight-end — picks a skill by the per-form
 probability table (`pick_daemon_skill`) and `start_cast`s it at a random in-range
 player, skipping while casting/invulnerable; the two ranged skills honour the
-1-minute cooldown. Remaining polish: the song debuff (5008), the crawl aggro-nudge,
-and the 5% Dewdrop item drop.
+1-minute cooldown.
+
+**Crawl polish** ✅ landed: the room **aggro-nudge** (Java `reduceCurrentHp(1)` — a
+freshly-spawned room1/room2_part2 now `add_hate`s every guard onto the intruder so
+they attack at once), the 5% **Dewdrop drop** (`world.roll(100) < 5` drops item 8556
+at the slain trash, `on_kill` now carries the mob's object id), and the **song
+debuff** (each 90 s song now applies skill 5008 at its rolled level to every player
+via `apply_skill_effects`, alongside the 5007 animation). **The only remaining gap is
+cosmetic** — the exhaustive dummy-anchored `SpecialCamera` choreography is abbreviated
+throughout.
 
 ## Interlude scope note
 

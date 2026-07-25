@@ -6,8 +6,9 @@ use crate::data::door_data::{DoorOpenMethod, DoorTemplate};
 use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
 use crate::game_loop::frintezza;
 use crate::game_loop::helpers::instance_of;
-use crate::model::components::InstanceDoorOpen;
+use crate::model::components::{GroundItem, InstanceDoorOpen};
 use crate::model::door::Door;
+use crate::model::npc::AggroList;
 
 const HALL_ALARM: i32 = 18328;
 const TRASH: i32 = 18329;
@@ -130,28 +131,89 @@ fn the_crawl_advances_room_by_room_to_status_4() {
     let iid = instance_of(&world, 100);
 
     // The alarm falls → status 1, room1 populated.
-    frintezza::on_monster_killed(&mut world, 100, HALL_ALARM);
+    frintezza::on_monster_killed(&mut world, 100, 0, HALL_ALARM);
     assert_eq!(world.instances.status(iid), 1, "alarm opened room 1");
 
     // Each cleared one-mob room advances the status.
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(
         world.instances.status(iid),
         2,
         "room1 cleared → room2_part1"
     );
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(
         world.instances.status(iid),
         3,
         "part1 cleared → room2_part2"
     );
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(
         world.instances.status(iid),
         4,
         "final room cleared → ready for Frintezza"
     );
+}
+
+/// Find a spawned room guard (a `TRASH` mob) inside the instance.
+fn a_room_guard(world: &World, iid: i32) -> i32 {
+    world
+        .instances
+        .get(iid)
+        .unwrap()
+        .npcs
+        .iter()
+        .copied()
+        .find(|&o| npc_id_of(world, o) == TRASH)
+        .expect("a room guard was spawned")
+}
+
+#[test]
+fn a_spawned_room_immediately_aggros_the_intruder() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_frintezza(&mut world);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    frintezza::try_enter(&mut world, 100);
+    let iid = instance_of(&world, 100);
+
+    frintezza::on_monster_killed(&mut world, 100, 0, HALL_ALARM); // spawn room1 + nudge
+    let mob = a_room_guard(&world, iid);
+    let hate = world
+        .objects
+        .get_component::<AggroList>(&mob)
+        .and_then(|a| a.0.get(&100))
+        .map(|h| h.hate)
+        .unwrap_or(0.0);
+    assert!(hate > 0.0, "the room woke and aggroed the intruder");
+}
+
+#[test]
+fn crawl_trash_can_drop_a_dewdrop_of_destruction() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_frintezza(&mut world);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    frintezza::try_enter(&mut world, 100);
+    let iid = instance_of(&world, 100);
+
+    frintezza::on_monster_killed(&mut world, 100, 0, HALL_ALARM); // status 1, a room1 guard
+    let mob = a_room_guard(&world, iid);
+
+    // Force the 5% drop roll to hit; the trash kill then drops item 8556.
+    world.forced_rolls.push_back(3); // < 5
+    frintezza::on_monster_killed(&mut world, 100, mob, TRASH);
+
+    let dropped = world
+        .ground_item_regions
+        .values()
+        .flatten()
+        .copied()
+        .any(|o| {
+            world
+                .objects
+                .get_component::<GroundItem>(&o)
+                .is_some_and(|g| g.item_id == 8556)
+        });
+    assert!(dropped, "the forced roll dropped a Dewdrop of Destruction");
 }
 
 #[test]
@@ -177,7 +239,7 @@ fn killing_the_alarm_opens_the_first_room_doors() {
     );
 
     // The alarm's death opens FIRST_ROOM_DOORS.
-    frintezza::on_monster_killed(&mut world, 100, HALL_ALARM);
+    frintezza::on_monster_killed(&mut world, 100, 0, HALL_ALARM);
     assert!(
         world
             .objects
@@ -532,14 +594,14 @@ fn a_room_advances_only_once_every_mob_is_dead() {
     frintezza::try_enter(&mut world, 100);
     let iid = instance_of(&world, 100);
 
-    frintezza::on_monster_killed(&mut world, 100, HALL_ALARM); // → status 1, room1 (3 mobs)
+    frintezza::on_monster_killed(&mut world, 100, 0, HALL_ALARM); // → status 1, room1 (3 mobs)
 
     // The first two kills leave two/one mobs standing → still status 1.
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(world.instances.status(iid), 1, "two mobs left");
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(world.instances.status(iid), 1, "one mob left");
     // The third clears the room → advance.
-    frintezza::on_monster_killed(&mut world, 100, TRASH);
+    frintezza::on_monster_killed(&mut world, 100, 0, TRASH);
     assert_eq!(world.instances.status(iid), 2, "room cleared → advance");
 }
