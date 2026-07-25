@@ -10,9 +10,9 @@
 //! | 2 `FIGHTING` | engaged; entry **locked** |
 //! | 3 `DEAD` | killed; entry locked |
 //!
-//! The `onAttack` rules, the entry/teleport flow, the spawn/death cinematics and
-//! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) are ported;
-//! the `skill_task` combat-skill AI (Valakas's breath attacks) is a later slice.
+//! The `onAttack` rules, the entry/teleport flow, the spawn/death cinematics,
+//! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) and the
+//! 2 s `skill_task` combat-skill AI (his breath/AoE/utility skills) are ported.
 
 use crate::model::components::{Position, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -35,12 +35,34 @@ const REGEN_TICK_TICKS: u64 = 600;
 /// Java's inactivity window: 15 min with nobody landing a hit resets the fight.
 const INACTIVITY_TICKS: u64 = 9_000;
 
-/// Java's static `_timeTracker` — the last tick a lair attacker struck Valakas,
-/// held on the boss so the regen task can measure inactivity.
+/// Java's static `_timeTracker`/`_actualVictim` — the last tick a lair attacker
+/// struck Valakas (so the regen task can measure inactivity) and the player the
+/// skill AI is currently working over (`0` = none).
 #[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
 pub struct ValakasCombat {
     pub last_attack_tick: u64,
+    pub actual_victim: i32,
 }
+
+// The skill AI's skill pools (`getRandomSkill`).
+/// `VALAKAS_LAVA_SKIN` (4680) — a reflect buff he priority-casts when hurt.
+const LAVA_SKIN: i32 = 4680;
+/// Used while above 50% HP.
+const REGULAR_SKILLS: [i32; 4] = [4681, 4682, 4683, 4689];
+/// Used at or below 50% HP — adds Meteor Storm (4690).
+const LOWHP_SKILLS: [i32; 5] = [4681, 4682, 4683, 4689, 4690];
+/// Used when he feels surrounded (≥20 players within 1200).
+const AOE_SKILLS: [i32; 7] = [4683, 4684, 4685, 4686, 4688, 4689, 4690];
+
+/// The `skill_task` cadence (Java re-arms it every 1–2 s; the port uses 2 s).
+const SKILL_TASK_TICKS: u64 = 20;
+/// `getVisibleObjectsInRange(npc, Player, 1200).size() >= 20` — "surrounded".
+const SURROUND_RANGE: f64 = 1200.0;
+const SURROUND_COUNT: usize = 20;
+/// `(skill.getCastRange() < 600) ? 600 : skill.getCastRange()` — the floor.
+const MIN_CAST_RANGE: i32 = 600;
+/// The roam jitter when he has no target (`getRandom(-1400, 1400)`).
+const ROAM_OFFSET: i32 = 1_400;
 
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
@@ -227,6 +249,188 @@ fn cast_debuff(world: &mut World, caster_oid: i32, target_oid: i32) {
 }
 
 // ---------------------------------------------------------------------------
+// skill_task — the combat skill AI (`callSkillAI`)
+// ---------------------------------------------------------------------------
+
+/// Java `skill_task` (2 s, while FIGHTING): drive one beat of the skill AI, then
+/// re-arm. The fight ending (reset or death) drops the beat.
+pub(crate) fn handle_skill_task(world: &mut World, valakas_oid: i32) {
+    if crate::game_loop::grand_boss::status(world, VALAKAS) != Some(FIGHTING) {
+        return; // fight over — stop (Java cancels the timer on reset/death)
+    }
+    call_skill_ai(world, valakas_oid);
+    world.scheduler.schedule(
+        world.tick + SKILL_TASK_TICKS,
+        ScheduledTask::ValakasSkillTask { valakas_oid },
+    );
+}
+
+/// Java `callSkillAI`: keep or re-pick a victim, then either roam (no target),
+/// cast a skill (in range) or give chase (out of range).
+fn call_skill_ai(world: &mut World, valakas_oid: i32) {
+    // Don't stomp on an in-progress cast (Java `npc.isCastingNow()`).
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&valakas_oid)
+    {
+        return;
+    }
+
+    // Re-pick a victim if the current one is gone, out of the lair, or on the
+    // 10% whim (`getRandom(10) == 0`).
+    let current = world
+        .objects
+        .get_component::<ValakasCombat>(&valakas_oid)
+        .map(|c| c.actual_victim)
+        .unwrap_or(0);
+    let keep = current != 0
+        && !is_dead(world, current)
+        && in_lair_zone(world, current)
+        && world.roll(10) != 0;
+    let victim = if keep {
+        current
+    } else {
+        random_target_in_lair(world)
+    };
+    if let Some(c) = world
+        .objects
+        .get_component_mut::<ValakasCombat>(&valakas_oid)
+    {
+        c.actual_victim = victim;
+    }
+
+    // No target: a 1-in-10 chance to roam within ±1400, else idle.
+    if victim == 0 {
+        if world.roll(10) == 0 {
+            if let Some(p) = world
+                .objects
+                .get_component::<Position>(&valakas_oid)
+                .copied()
+            {
+                let x = p.x + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
+                let y = p.y + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
+                crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, x, y, p.z);
+            }
+        }
+        return;
+    }
+
+    let skill_id = choose_skill(world, valakas_oid);
+    let cast_range = world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .map(|s| s.cast_range)
+        .unwrap_or(0)
+        .max(MIN_CAST_RANGE);
+
+    if within(world, valakas_oid, victim, cast_range as f64) {
+        super::boss_threat::cast_boss_skill(world, valakas_oid, victim, skill_id, false);
+    } else {
+        // FOLLOW — close the distance before the next beat.
+        if let Some(p) = world.objects.get_component::<Position>(&victim).copied() {
+            crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, p.x, p.y, p.z);
+        }
+    }
+}
+
+/// `getRandomSkill`: Lava Skin when hurt-and-lucky (and not already up), a mass
+/// spell when surrounded, otherwise the HP-banded pool.
+fn choose_skill(world: &mut World, valakas_oid: i32) -> i32 {
+    let (cur, max) = world
+        .objects
+        .get_component::<Vitals>(&valakas_oid)
+        .map(|v| (v.cur_hp, v.max_hp as f64))
+        .unwrap_or((1.0, 1.0));
+    let hp_ratio = (cur / max) * 100.0;
+
+    // Lava Skin has priority: below 75% HP, a 1-in-150 roll, not already active.
+    if hp_ratio < 75.0 && world.roll(150) == 0 && !has_buff(world, valakas_oid, LAVA_SKIN) {
+        return LAVA_SKIN;
+    }
+    // Surrounded (≥20 players within 1200) → a mass spell.
+    if players_within(world, valakas_oid, SURROUND_RANGE) >= SURROUND_COUNT {
+        return AOE_SKILLS[world.roll(AOE_SKILLS.len() as i32) as usize];
+    }
+    if hp_ratio > 50.0 {
+        REGULAR_SKILLS[world.roll(REGULAR_SKILLS.len() as i32) as usize]
+    } else {
+        LOWHP_SKILLS[world.roll(LOWHP_SKILLS.len() as i32) as usize]
+    }
+}
+
+/// A random living player inside the lair (Java `getRandomTarget`), or `0`.
+fn random_target_in_lair(world: &mut World) -> i32 {
+    let alive: Vec<i32> = players_in_lair_oids(world)
+        .into_iter()
+        .filter(|&oid| !is_dead(world, oid))
+        .collect();
+    if alive.is_empty() {
+        return 0;
+    }
+    alive[world.roll(alive.len() as i32) as usize]
+}
+
+/// How many players sit within `range` (2D) of Valakas.
+fn players_within(world: &World, valakas_oid: i32, range: f64) -> usize {
+    let Some(origin) = world
+        .objects
+        .get_component::<Position>(&valakas_oid)
+        .copied()
+    else {
+        return 0;
+    };
+    players_in_lair_oids(world)
+        .into_iter()
+        .filter(|&oid| {
+            world
+                .objects
+                .get_component::<Position>(&oid)
+                .is_some_and(|p| p.distance_2d(&origin) <= range)
+        })
+        .count()
+}
+
+/// Is `oid` within `range` (2D) of Valakas?
+fn within(world: &World, valakas_oid: i32, oid: i32, range: f64) -> bool {
+    let (Some(a), Some(b)) = (
+        world
+            .objects
+            .get_component::<Position>(&valakas_oid)
+            .copied(),
+        world.objects.get_component::<Position>(&oid).copied(),
+    ) else {
+        return false;
+    };
+    a.distance_2d(&b) <= range
+}
+
+fn is_dead(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .is_none_or(|v| v.dead)
+}
+
+fn in_lair_zone(world: &World, oid: i32) -> bool {
+    let Some(pos) = world.objects.get_component::<Position>(&oid) else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(BOSS_ZONE_ID)
+        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+}
+
+fn has_buff(world: &World, oid: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&oid)
+        .is_some_and(|b| b.0.iter().any(|x| x.skill_id == skill_id))
+}
+
+// ---------------------------------------------------------------------------
 // The entry cinematic
 // ---------------------------------------------------------------------------
 
@@ -341,11 +545,17 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
                 &valakas_oid,
                 ValakasCombat {
                     last_attack_tick: world.tick,
+                    actual_victim: 0,
                 },
             );
             world.scheduler.schedule(
                 world.tick + REGEN_TICK_TICKS,
                 ScheduledTask::ValakasRegen { valakas_oid },
+            );
+            // Java `spawn_10` arms both `regen_task` and `skill_task`.
+            world.scheduler.schedule(
+                world.tick + SKILL_TASK_TICKS,
+                ScheduledTask::ValakasSkillTask { valakas_oid },
             );
         }
     }

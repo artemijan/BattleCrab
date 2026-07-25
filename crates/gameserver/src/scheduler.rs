@@ -31,6 +31,9 @@ pub enum ScheduledTask {
     /// Baium's archangels re-pick a target every 5 s (engage a nearby player, or
     /// regroup on Baium); they despawn once he falls.
     BaiumSelectTarget,
+    /// Valakas's `skill_task` beat: pick a target and a breath/AoE/utility
+    /// skill by his HP band and how surrounded he is, then cast or give chase.
+    ValakasSkillTask { valakas_oid: i32 },
     /// One beat of Baium's wakeUp cinematic (stone → live boss): earthquake,
     /// the social-action poses, porting the waker in and the gift-skill kill.
     BaiumCinematic { step: u8 },
