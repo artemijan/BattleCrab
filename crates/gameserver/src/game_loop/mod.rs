@@ -375,6 +375,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
+            ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
+                queen_ant::handle_distance_check(world, queen_oid);
+            }
             ScheduledTask::ValakasCinematic { valakas_oid, step } => {
                 valakas::handle_cinematic_step(world, valakas_oid, step);
             }

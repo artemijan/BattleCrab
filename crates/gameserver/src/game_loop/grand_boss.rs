@@ -73,6 +73,11 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
     }
     persist(world, boss_id);
 
+    // Per-boss death tails. Queen Ant removes her immortal larva.
+    if boss_id == crate::game_loop::queen_ant::QUEEN {
+        crate::game_loop::queen_ant::on_queen_killed(world);
+    }
+
     world.scheduler.schedule(
         world.tick + (respawn_millis / 1000) as u64 * TICKS_PER_SECOND,
         ScheduledTask::GrandBossRespawn { boss_id },
