@@ -181,21 +181,131 @@ pub(crate) fn finalize_auction(world: &mut World, hall_id: i32) {
     let Some((winner, _)) = highest_bidder(world, hall_id) else {
         return; // no bids — the hall stays free
     };
-    let paid_until = if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
-        hall.owner_id = winner;
-        // TODO(G24): setOwner also sets paidUntil (the rental clock) — the lease
-        // cycle lands with the eviction slice; ownership persists now.
-        hall.paid_until
-    } else {
-        0
-    };
     world.clan_hall_bids.remove(&hall_id);
+    let _ = world.db.send(DbCommand::ClearClanHallBids { hall_id });
+    // `ClanHall.setOwner(clan)` — hand the hall over and start the lease clock.
+    set_hall_owner(world, hall_id, winner);
+}
+
+// ---------------------------------------------------------------------------
+// The lease / rental cycle (Java `ClanHall.setOwner` + `CheckPaymentTask`)
+// ---------------------------------------------------------------------------
+
+const DAY_MS: i64 = 86_400_000;
+/// One rental period (Java `Duration.ofDays(7)`).
+const LEASE_PERIOD_MS: i64 = 7 * DAY_MS;
+/// A week overdue (Java `getCostFailDay() > 8`) and the hall is revoked.
+const FAIL_LIMIT_DAYS: i64 = 8;
+
+/// `ClanHall.setOwner(clan)`: give the hall to a clan and (re)start its lease
+/// clock. A fresh owner's first rent is due in a week.
+pub(crate) fn set_hall_owner(world: &mut World, hall_id: i32, clan_id: i32) {
+    let now = commons::util::now_millis();
+    let paid_until = {
+        let Some(hall) = world.clan_halls.get_mut(&hall_id) else {
+            return;
+        };
+        hall.owner_id = clan_id;
+        if hall.paid_until == 0 {
+            hall.paid_until = now + LEASE_PERIOD_MS;
+        }
+        hall.paid_until
+    };
     let _ = world.db.send(DbCommand::SaveClanHall {
         id: hall_id,
-        owner_id: winner,
+        owner_id: clan_id,
         paid_until,
     });
-    let _ = world.db.send(DbCommand::ClearClanHallBids { hall_id });
+    arm_lease_check(world, hall_id);
+}
+
+/// `ClanHall.setOwner(null)`: revoke a hall — it returns to the free pool and its
+/// lease clock stops. (The pending `ClanHallLeaseCheck` finds no owner and no-ops.)
+pub(crate) fn revoke_hall(world: &mut World, hall_id: i32) {
+    if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
+        hall.owner_id = 0;
+        hall.paid_until = 0;
+    }
+    let _ = world.db.send(DbCommand::SaveClanHall {
+        id: hall_id,
+        owner_id: 0,
+        paid_until: 0,
+    });
+}
+
+/// Java `getCostFailDay` — whole days the rent is overdue (0 if not yet due).
+fn cost_fail_days(paid_until: i64, now: i64) -> i64 {
+    if now > paid_until {
+        (now - paid_until) / DAY_MS
+    } else {
+        0
+    }
+}
+
+/// Arm the next lease check at the hall's `paidUntil` (immediately if overdue).
+pub(crate) fn arm_lease_check(world: &mut World, hall_id: i32) {
+    let now = commons::util::now_millis();
+    let Some(paid_until) = world.clan_halls.get(&hall_id).map(|h| h.paid_until) else {
+        return;
+    };
+    let delay_ms = (paid_until - now).max(0).min(i32::MAX as i64) as i32;
+    world.scheduler.schedule(
+        world.tick + super::helpers::ms_to_ticks(delay_ms),
+        ScheduledTask::ClanHallLeaseCheck { hall_id },
+    );
+}
+
+/// `ClanHall.CheckPaymentTask`: charge the weekly rent from the owner's
+/// warehouse. If it can't pay, retry tomorrow — unless the rent is more than a
+/// week overdue, in which case the hall is revoked.
+pub(crate) fn handle_lease_check(world: &mut World, hall_id: i32) {
+    let now = commons::util::now_millis();
+    let Some((owner_id, paid_until, lease)) = world
+        .clan_halls
+        .get(&hall_id)
+        .filter(|h| h.owner_id != 0)
+        .map(|h| (h.owner_id, h.paid_until, h.lease))
+    else {
+        return; // no owner — nothing to charge
+    };
+
+    let can_pay = world
+        .clans
+        .get(&owner_id)
+        .is_some_and(|c| c.warehouse.0.count_of(ADENA_ID) >= lease);
+
+    if !can_pay {
+        if cost_fail_days(paid_until, now) > FAIL_LIMIT_DAYS {
+            // A week overdue → ownership revoked (Java sends SM 3? here — the
+            // clan-member broadcast is deferred, TODO(G24)).
+            revoke_hall(world, hall_id);
+        } else {
+            // Retry tomorrow (Java's daily reminder; the SM is deferred).
+            world.scheduler.schedule(
+                world.tick + super::helpers::ms_to_ticks(DAY_MS as i32),
+                ScheduledTask::ClanHallLeaseCheck { hall_id },
+            );
+        }
+        return;
+    }
+
+    // Pay the rent and advance the clock a week.
+    if let Some(clan) = world.clans.get_mut(&owner_id) {
+        clan.warehouse.0.remove_item(ADENA_ID, lease);
+    }
+    super::warehouse::persist_clan_warehouse(world, owner_id);
+    let new_paid_until = if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
+        hall.paid_until += LEASE_PERIOD_MS;
+        hall.paid_until
+    } else {
+        return;
+    };
+    let _ = world.db.send(DbCommand::SaveClanHall {
+        id: hall_id,
+        owner_id,
+        paid_until: new_paid_until,
+    });
+    arm_lease_check(world, hall_id);
 }
 
 /// The weekly close (`ClanHallAuctionManager.onEnd`): finalize every hall that
