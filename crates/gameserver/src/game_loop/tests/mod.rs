@@ -95,6 +95,7 @@ mod ranged_tests;
 mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
+mod sailren_tests;
 mod servitor_tests;
 mod shortcuts_tests;
 mod siege_schedule_tests;

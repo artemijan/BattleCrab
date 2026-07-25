@@ -62,6 +62,7 @@ mod raid_curse;
 mod ranged;
 mod reco;
 pub(crate) mod regen;
+pub(crate) mod sailren;
 mod servitor;
 mod shop;
 mod shortcuts;
@@ -382,6 +383,10 @@ fn apply_due_tasks(world: &mut World) {
                 orfen::handle_distance_check(world, orfen_oid);
             }
             ScheduledTask::BaiumSelectTarget => baium::handle_select_target(world),
+            ScheduledTask::SailrenSpawn => sailren::handle_spawn_sailren(world),
+            ScheduledTask::SailrenAttackEnable { sailren_oid } => {
+                sailren::handle_attack_enable(world, sailren_oid)
+            }
             ScheduledTask::ValakasCinematic { valakas_oid, step } => {
                 valakas::handle_cinematic_step(world, valakas_oid, step);
             }
