@@ -16,6 +16,7 @@ mod boss_respawn;
 mod boss_threat;
 mod bypass;
 mod chat;
+pub(crate) mod clan_hall_auction;
 mod clans;
 mod combat;
 mod common;
