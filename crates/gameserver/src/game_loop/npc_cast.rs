@@ -28,8 +28,8 @@ use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
-use super::helpers::broadcast_near_region;
 use super::helpers::ms_to_ticks;
+use super::helpers::{broadcast_near_region_in, instance_of};
 use super::skills::cast::set_skill_reuse;
 
 /// Java's literal cut between the SHORT_RANGE and LONG_RANGE buckets.
@@ -349,9 +349,10 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
         .get_component::<RegionCell>(&npc_oid)
         .map(|r| r.0)
     {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::magic_skill_use_raw(
                 (npc_oid, cx, cy, cz),
                 (target_oid, tx, ty, tz),
