@@ -44,9 +44,14 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    broadcasts scoped to the instance; `destroy` despawns them. The crawl opens
    the four door groups as rooms clear. Deferred: per-instance geo *collision*
    (copies are visual/logical; progression gates on kill-count).
-3. **Frintezza intro cinematic**: `FRINTEZZA_INTRO_START` (10 min after status 4)
-   → the 20-step SpecialCamera chain, dummy/Frintezza/Scarlet/portrait spawns,
-   player disable/enable, ending with the fight enabled.
+3. **Frintezza intro cinematic** ✅ landed. `FRINTEZZA_INTRO_START` (10 min after
+   status 4) → a `ScheduledTask::FrintezzaIntro` step machine: earthquake + seal
+   the doors + spawn the teleport cube, freeze the party (`AdminFlags.paralyzed`),
+   stage the spawns (Frintezza invulnerable, four immobilized demons, Scarlet,
+   four portraits — oids stored in instance vars), the Mournful Chorale Prelude
+   beat, then hand control back and mark `fightActive`. Player freeze +
+   spawn/hand-back are faithful; the ~20-shot dummy-anchored SpecialCamera
+   choreography is abbreviated to the establishing beats (TODO).
 4. **Boss fight**: Scarlet (29046) morphs at 80%/20%, second morph → doDie →
    respawn as Scarlet2 (29047); Frintezza random songs (5007/5008); demon spawns
    (29050/29051, every 20 s to 24) from portraits (29048/29049); Dewdrop skill

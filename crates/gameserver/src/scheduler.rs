@@ -105,6 +105,10 @@ pub enum ScheduledTask {
     /// Instances (G27): tear down an instance if it is still empty after its
     /// `<time empty>` grace period.
     InstanceEmptyCheck { instance_id: i32 },
+    /// Frintezza (G27 content): one beat of the intro cinematic step machine
+    /// (step 0 = the 10-min-later start; the chain spawns the boss ensemble and
+    /// hands control back for the fight).
+    FrintezzaIntro { instance_id: i32, step: u8 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
