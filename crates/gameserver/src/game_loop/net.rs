@@ -770,6 +770,12 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     "GameLoop: loaded {} grand bosses.",
                     world.grand_bosses.len()
                 );
+                // Spawn the ones that are up, arm timers for the rest, and
+                // immediately respawn any whose window elapsed while the server
+                // was down. Must run *here*, once the data has landed — the
+                // static world (`spawn_all`, geo) is already up before the loop.
+                super::grand_boss::resolve_at_boot(world);
+                super::dr_chaos::resolve_at_boot(world);
             }
             DbEvent::CursedWeaponsLoaded { rows } => {
                 // Build from the XML config, compute each skill's max level, then
