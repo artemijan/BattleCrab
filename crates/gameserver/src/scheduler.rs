@@ -31,6 +31,8 @@ pub enum ScheduledTask {
     /// Baium's archangels re-pick a target every 5 s (engage a nearby player, or
     /// regroup on Baium); they despawn once he falls.
     BaiumSelectTarget,
+    /// The first Velociraptors enter, 60 s after the party is admitted.
+    SailrenBeginFight,
     /// Sailren enters, 3 minutes after the Tyrannosaurus falls.
     SailrenSpawn,
     /// Sailren's intro invulnerability lifts — the fight begins.
