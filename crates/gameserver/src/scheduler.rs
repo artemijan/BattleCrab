@@ -28,6 +28,9 @@ pub enum ScheduledTask {
     QueenAntDistanceCheck { queen_oid: i32 },
     /// Orfen's 5 s leash check — dragged past 10000 from her spawn, she resets.
     OrfenDistanceCheck { orfen_oid: i32 },
+    /// Baium's archangels re-pick a target every 5 s (engage a nearby player, or
+    /// regroup on Baium); they despawn once he falls.
+    BaiumSelectTarget,
     /// One beat of Valakas's entry cinematic.
     ValakasCinematic { valakas_oid: i32, step: u8 },
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;

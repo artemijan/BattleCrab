@@ -8,11 +8,20 @@
 //! His threat table is the shared `boss_threat` one — Antharas keeps an
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
+use crate::model::components::{Position, Vitals};
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 pub const BAIUM: i32 = 29020;
 /// Archangel — five of them circle Baium.
 pub const ARCHANGEL: i32 = 29021;
+
+/// The `SELECT_TARGET` beat — the archangels re-pick every 5 s.
+const SELECT_TARGET_TICKS: u64 = 50;
+/// `getVisibleObjectsInRange(mob, Playable, 1000)` — the archangel's reach.
+const ARCHANGEL_REACH: f64 = 1000.0;
+/// `addDamageHate(target, 0, 999)` — the engage weight.
+const ENGAGE_HATE: f64 = 999.0;
 
 /// `ANTI_STRIDER` (4258, "Hinder Strider").
 const ANTI_STRIDER: i32 = 4258;
@@ -36,6 +45,124 @@ pub(crate) fn on_baium_spawned(world: &mut World) {
     for (x, y, z, heading) in ARCHANGEL_LOC {
         crate::model::npc::spawn_npc_at(world, ARCHANGEL, x, y, z, heading);
     }
+    world.scheduler.schedule(
+        world.tick + SELECT_TARGET_TICKS,
+        ScheduledTask::BaiumSelectTarget,
+    );
+}
+
+/// Java `SELECT_TARGET`, per archangel every 5 s. The Archangels are passive
+/// `Monster`s (no aggro range), so without this they never engage: each one
+/// keeps the player it already hates, else grabs the nearest one in reach, else
+/// regroups on Baium. When Baium falls they despawn.
+pub(crate) fn handle_select_target(world: &mut World) {
+    let Some(baium) = find_alive(world, BAIUM) else {
+        // Baium is dead — the archangels leave with him (Java's `deleteMe`).
+        for angel in archangels(world) {
+            despawn(world, angel);
+        }
+        return; // don't re-arm
+    };
+    let baium_pos = pos_of(world, baium);
+    for angel in archangels(world) {
+        // Already locked onto a living player? Leave it be.
+        if has_living_player_target(world, angel) {
+            continue;
+        }
+        match nearest_player_in_range(world, angel, ARCHANGEL_REACH) {
+            Some(player) => {
+                crate::game_loop::minions::add_hate(world, angel, player, ENGAGE_HATE);
+            }
+            None => {
+                if let Some((x, y, z)) = baium_pos {
+                    crate::game_loop::npc_ai::move_npc_to(world, angel, x, y, z);
+                }
+            }
+        }
+    }
+    world.scheduler.schedule(
+        world.tick + SELECT_TARGET_TICKS,
+        ScheduledTask::BaiumSelectTarget,
+    );
+}
+
+/// Every living Archangel.
+fn archangels(world: &mut World) -> Vec<i32> {
+    let mut out = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if n.npc_id == ARCHANGEL && !v.dead {
+                out.push(n.object_id);
+            }
+        });
+    out
+}
+
+fn find_alive(world: &mut World, npc_id: i32) -> Option<i32> {
+    let mut found = None;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Vitals)>(|(n, v)| {
+            if n.npc_id == npc_id && !v.dead {
+                found = Some(n.object_id);
+            }
+        });
+    found
+}
+
+fn pos_of(world: &World, oid: i32) -> Option<(i32, i32, i32)> {
+    world
+        .objects
+        .get_component::<Position>(&oid)
+        .map(|p| (p.x, p.y, p.z))
+}
+
+fn despawn(world: &mut World, oid: i32) {
+    let region = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&oid)
+        .map(|r| r.0)
+        .unwrap_or((0, 0));
+    crate::game_loop::death::despawn_npc(world, oid, region);
+}
+
+/// Does this archangel already hate a living player?
+fn has_living_player_target(world: &World, angel: i32) -> bool {
+    let Some(aggro) = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&angel)
+    else {
+        return false;
+    };
+    aggro.0.keys().any(|&oid| {
+        world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .is_some()
+            && world
+                .objects
+                .get_component::<Vitals>(&oid)
+                .is_some_and(|v| !v.dead)
+    })
+}
+
+/// The nearest living player within `range` of the archangel.
+fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
+    let origin = world.objects.get_component::<Position>(&angel).copied()?;
+    let mut best: Option<(i32, f64)> = None;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
+            if v.dead {
+                return;
+            }
+            let d = pos.distance_2d(&origin);
+            if d <= range && best.is_none_or(|(_, bd)| d < bd) {
+                best = Some((p.object_id, d));
+            }
+        });
+    best.map(|(oid, _)| oid)
 }
 
 /// `Baium.onAttack`'s strider clause: a strider-mounted attacker is hindered,
