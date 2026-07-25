@@ -125,6 +125,9 @@ fn admin_paralyzed(world: &World, object_id: i32) -> bool {
 
 pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
     admin_paralyzed(world, object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::Immobilized>(&object_id)
         || flags_of(world, object_id)
             & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED)
             != 0

@@ -51,8 +51,13 @@ const MINION_RESPAWN_SECS: u64 = 60;
 /// `startQuestTimer("despawn_minions", 20000, …)`.
 const DESPAWN_DELAY_SECS: u64 = 20;
 
-/// Core spawned: place its minions.
-pub(crate) fn on_core_spawned(world: &mut World) {
+/// Core spawned: it is a stationary generator (Java `onSpawn` →
+/// `setImmobilized(true)`), so it melees adjacent attackers but never chases —
+/// then it places its minions.
+pub(crate) fn on_core_spawned(world: &mut World, core_oid: i32) {
+    world
+        .objects
+        .add_components(&core_oid, crate::model::components::Immobilized);
     for (npc_id, x, y, z) in MINION_SPAWNS {
         crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, 0);
     }
