@@ -90,6 +90,9 @@ pub enum ScheduledTask {
     /// Olympiad: the match-making sweep (Java `OlympiadGameManager`, every 30 s
     /// while the window is open) — pair waiting nobles into stadium matches.
     OlympiadGameManager,
+    /// Olympiad: the pre-fight ceremony step (Java `OlympiadGameTask`'s teleport
+    /// + battle countdowns) — announce, teleport, or start the fight.
+    OlympiadCountdown { arena: usize, step: usize },
     /// Olympiad: poll a running match (Java `OlympiadGameTask`) — resolve it on
     /// a death/disconnect or the battle timeout, otherwise keep watching.
     OlympiadMatchTick { arena: usize },

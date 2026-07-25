@@ -527,6 +527,66 @@ fn stage_match(
 }
 
 #[test]
+fn pre_fight_countdown_announces_then_teleports_then_fights() {
+    use crate::model::components::{Position, Vitals};
+    use crate::model::olympiad::NobleStats;
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    let mut rx_a = ingame_player(&mut world, 1, 100, 500, 500, 0);
+    let _rx_b = ingame_player(&mut world, 2, 200, 600, 600, 0);
+    for oid in [100, 200] {
+        world
+            .olympiad
+            .nobles
+            .insert(oid, NobleStats::fresh(2, "N".into()));
+        world.olympiad.in_competition.insert(oid);
+    }
+
+    crate::game_loop::olympiad::start_match(&mut world, 0, 100, 200);
+
+    // The fighters aren't moved while the countdown runs.
+    {
+        let p = world.objects.get_component::<Position>(&100).unwrap();
+        assert_eq!(
+            (p.x, p.y),
+            (500, 500),
+            "not teleported during the countdown"
+        );
+    }
+    // The first step announces the move to the stadium.
+    advance_ticks(&mut world, 1);
+    assert!(
+        got_sm(&drain(&mut rx_a), 1492),
+        "\"moved to the stadium\" announcement"
+    );
+
+    // Through the whole ~180 s ceremony: teleported in, then the fight begins.
+    advance_ticks(&mut world, 1810);
+    {
+        let p = world.objects.get_component::<Position>(&100).unwrap();
+        assert_eq!(
+            (p.x, p.y),
+            (-89597, -252841),
+            "teleported to the arena at the end of the wait countdown"
+        );
+    }
+    assert!(
+        world.olympiad.matches[0].deadline_tick > 0,
+        "the battle has started"
+    );
+
+    // A death now resolves the match.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&200)
+        .unwrap()
+        .dead = true;
+    advance_ticks(&mut world, 11);
+    assert!(world.olympiad.matches.is_empty(), "match resolved");
+    assert_eq!(world.olympiad.nobles[&100].comp_won, 1, "the survivor won");
+}
+
+#[test]
 fn a_match_resolves_on_death_with_scoring() {
     use crate::model::components::Vitals;
     let (mut world, _tx, _db, _l) = test_world();

@@ -12,10 +12,10 @@
 //! period flips to validation, the class leaders are crowned heroes, and after
 //! the validation day a fresh cycle begins with a clean noble table. The crown
 //! persists to the `heroes` table and re-applies on login (so it survives relogs
-//! and reaches offline heroes); fighters have their buffs stripped on entering
-//! the arena, and the round's end is announced to everyone online. The stadium
-//! instancing (needs G27) and the pre-fight countdown ceremony are the
-//! remaining follow-ups.
+//! and reaches offline heroes). A match runs the full pre-fight ceremony (the
+//! teleport + battle countdowns with their announcements), strips the fighters'
+//! buffs on entry, and announces the round's end to everyone online. Only the
+//! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadNobleRow};
 use crate::model::olympiad::{
@@ -523,31 +523,119 @@ enum MatchResult {
     Draw,
 }
 
-/// Begin a match: port both fighters to the arena (remembering where they came
-/// from), strip their buffs for a fair fight, then start polling for the
-/// result. TODO(G25): the Java countdown ceremony; here the fight is live
-/// immediately.
-fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
-    let return_a = position_of(world, player_a);
-    let return_b = position_of(world, player_b);
-    let deadline_tick = world.tick + (BATTLE_MS / 100) as u64;
+/// One step of the pre-fight ceremony (Java `OlympiadGameTask`'s countdowns).
+enum CountdownStep {
+    /// Announce "moved to the stadium / match starts in `secs` seconds" (the
+    /// `sm` id) to both fighters.
+    Say { sm: i16, secs: i32 },
+    /// The teleport countdown reached zero: port both into the arena + strip.
+    Enter,
+    /// The battle countdown reached zero: the fight begins.
+    Fight,
+}
+use CountdownStep::{Enter, Fight, Say};
+
+/// `(delay_ms_since_previous_step, step)`. First the 120 s teleport countdown
+/// (`YOU_WILL_BE_MOVED…` 1492 at `AltOlyWaitTime`'s checkpoints), then the
+/// teleport, then the 60 s battle countdown (`THE_MATCH_WILL_START…` 1495).
+const COUNTDOWN: &[(u64, CountdownStep)] = &[
+    (
+        0,
+        Say {
+            sm: 1492,
+            secs: 120,
+        },
+    ),
+    (60_000, Say { sm: 1492, secs: 60 }),
+    (30_000, Say { sm: 1492, secs: 30 }),
+    (15_000, Say { sm: 1492, secs: 15 }),
+    (5_000, Say { sm: 1492, secs: 10 }),
+    (5_000, Say { sm: 1492, secs: 5 }),
+    (1_000, Say { sm: 1492, secs: 4 }),
+    (1_000, Say { sm: 1492, secs: 3 }),
+    (1_000, Say { sm: 1492, secs: 2 }),
+    (1_000, Say { sm: 1492, secs: 1 }),
+    (1_000, Enter),
+    (0, Say { sm: 1495, secs: 60 }),
+    (5_000, Say { sm: 1495, secs: 55 }),
+    (5_000, Say { sm: 1495, secs: 50 }),
+    (10_000, Say { sm: 1495, secs: 40 }),
+    (10_000, Say { sm: 1495, secs: 30 }),
+    (10_000, Say { sm: 1495, secs: 20 }),
+    (10_000, Say { sm: 1495, secs: 10 }),
+    (5_000, Say { sm: 1495, secs: 5 }),
+    (1_000, Say { sm: 1495, secs: 4 }),
+    (1_000, Say { sm: 1495, secs: 3 }),
+    (1_000, Say { sm: 1495, secs: 2 }),
+    (1_000, Say { sm: 1495, secs: 1 }),
+    (1_000, Fight),
+];
+
+/// Register a match and start its pre-fight ceremony (Java `OlympiadGameTask`
+/// from `BEGIN`): the fighters are announced, teleported in + buff-stripped
+/// after the wait countdown, and the fight begins after the battle countdown.
+pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
     world.olympiad.matches.push(OlympiadMatch {
         arena,
         player_a,
         player_b,
-        deadline_tick,
-        return_a,
-        return_b,
+        deadline_tick: 0, // set when the battle actually begins
+        return_a: position_of(world, player_a),
+        return_b: position_of(world, player_b),
     });
-    for (oid, spawn) in [(player_a, ARENA_SPAWN_A), (player_b, ARENA_SPAWN_B)] {
-        crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
-        strip_buffs(world, oid);
-    }
     tracing::info!("Olympiad: match in arena {arena}: {player_a} vs {player_b}.");
     world.scheduler.schedule(
-        fire_at(world, MATCH_POLL_MS),
-        ScheduledTask::OlympiadMatchTick { arena },
+        world.tick,
+        ScheduledTask::OlympiadCountdown { arena, step: 0 },
     );
+}
+
+/// Run one ceremony step and schedule the next.
+pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
+    let Some(m) = world
+        .olympiad
+        .matches
+        .iter()
+        .find(|m| m.arena == arena)
+        .cloned()
+    else {
+        return; // the match was resolved/aborted
+    };
+    let Some((_, action)) = COUNTDOWN.get(step) else {
+        return;
+    };
+    match action {
+        Say { sm, secs } => {
+            for oid in [m.player_a, m.player_b] {
+                send_sm_int(world, oid, *sm, *secs);
+            }
+        }
+        Enter => {
+            for (oid, spawn) in [(m.player_a, ARENA_SPAWN_A), (m.player_b, ARENA_SPAWN_B)] {
+                crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
+                strip_buffs(world, oid);
+            }
+        }
+        Fight => {
+            if let Some(mm) = world.olympiad.matches.iter_mut().find(|x| x.arena == arena) {
+                mm.deadline_tick = world.tick + (BATTLE_MS / 100) as u64;
+            }
+            world.scheduler.schedule(
+                fire_at(world, MATCH_POLL_MS),
+                ScheduledTask::OlympiadMatchTick { arena },
+            );
+            return; // the fight is on — the match tick takes over
+        }
+    }
+    if let Some((next_delay, _)) = COUNTDOWN.get(step + 1) {
+        world.scheduler.schedule(
+            fire_at(world, *next_delay as i64),
+            ScheduledTask::OlympiadCountdown {
+                arena,
+                step: step + 1,
+            },
+        );
+    }
 }
 
 /// `AbstractOlympiadGame.removeBuffs`: drop every active (non-passive) buff so
@@ -966,6 +1054,15 @@ fn send_sm(world: &World, object_id: i32, sm_id: i16) {
     if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(sp::system_message_with(sm_id, &[]));
+        }
+    }
+}
+
+/// Send a system message with a single integer argument (the countdown seconds).
+fn send_sm_int(world: &World, object_id: i32, sm_id: i16, value: i32) {
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(sp::system_message_with(sm_id, &[SmParam::Int(value)]));
         }
     }
 }
