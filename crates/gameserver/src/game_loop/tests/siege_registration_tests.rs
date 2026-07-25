@@ -265,9 +265,19 @@ fn join_body(castle_id: i32, attacker: i32, joining: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Disable the schedules so `is_registration_over` (which reads the real
+/// wall-clock in the packet handlers) is deterministically **open** — the 24 h
+/// window is exercised separately by `registration_closes_24h_before_the_siege`.
+fn keep_registration_open(world: &mut World) {
+    for e in world.data.siege_schedule.values_mut() {
+        e.enabled = false;
+    }
+}
+
 /// A clan leader with `world`, a `SiegeInfo`-capable clan and an ingame session.
 fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, _db, _l) = siege_world();
+    keep_registration_open(&mut world);
     world.clans.insert(10, mk_clan(10, 5, 0, 0));
     world.clans.get_mut(&10).unwrap().leader_id = LEADER; // the player is the leader
     let rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
@@ -334,5 +344,130 @@ fn a_member_without_the_privilege_is_refused() {
     assert!(
         attackers(&world, CASTLE).is_empty(),
         "an unauthorized member registered nothing"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Reachability — RequestConfirmSiegeWaitingList (0xAE), owner approval
+// ---------------------------------------------------------------------------
+
+/// Build a `RequestConfirmSiegeWaitingList` body: castleId, clanId, approved.
+fn confirm_body(castle_id: i32, clan_id: i32, approved: i32) -> Vec<u8> {
+    let mut w = commons::network::PacketWriter::new();
+    w.write_i32(castle_id);
+    w.write_i32(clan_id);
+    w.write_i32(approved);
+    w.into_bytes()
+}
+
+fn kind_of(world: &World, castle_id: i32, clan_id: i32) -> Option<SiegeClanType> {
+    world.sieges[&castle_id]
+        .clans
+        .iter()
+        .find(|c| c.clan_id == clan_id)
+        .map(|c| c.kind)
+}
+
+/// **The owner's leader approves a pending defender through the packet.** The
+/// pending clan becomes a full defender and the defender list (0xCB) is sent.
+#[test]
+fn the_owner_approves_a_pending_defender_through_the_packet() {
+    let (mut world, _db, _l) = siege_world();
+    keep_registration_open(&mut world);
+    // The owner clan, led by the acting player.
+    world.clans.insert(20, mk_clan(20, 5, CASTLE, 0));
+    world.clans.get_mut(&20).unwrap().leader_id = LEADER;
+    // A pending defender.
+    world.clans.insert(10, mk_clan(10, 5, 0, 0));
+    world
+        .sieges
+        .get_mut(&CASTLE)
+        .unwrap()
+        .add_clan(10, SiegeClanType::DefenderPending);
+    let mut rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&LEADER)
+        .unwrap()
+        .clan_id = 20;
+
+    crate::game_loop::siege::handle_request_confirm_siege_waiting_list(
+        &mut world,
+        5,
+        &confirm_body(CASTLE, 10, 1),
+    );
+
+    assert_eq!(
+        kind_of(&world, CASTLE, 10),
+        Some(SiegeClanType::Defender),
+        "promoted to a full defender"
+    );
+    assert!(sent_opcode(&mut rx, 0xCB), "the defender list was sent");
+}
+
+/// Rejecting (approved==0) removes the pending defender.
+#[test]
+fn the_owner_rejects_a_pending_defender_through_the_packet() {
+    let (mut world, _db, _l) = siege_world();
+    keep_registration_open(&mut world);
+    world.clans.insert(20, mk_clan(20, 5, CASTLE, 0));
+    world.clans.get_mut(&20).unwrap().leader_id = LEADER;
+    world.clans.insert(10, mk_clan(10, 5, 0, 0));
+    world
+        .sieges
+        .get_mut(&CASTLE)
+        .unwrap()
+        .add_clan(10, SiegeClanType::DefenderPending);
+    let _rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&LEADER)
+        .unwrap()
+        .clan_id = 20;
+
+    crate::game_loop::siege::handle_request_confirm_siege_waiting_list(
+        &mut world,
+        5,
+        &confirm_body(CASTLE, 10, 0),
+    );
+
+    assert_eq!(
+        kind_of(&world, CASTLE, 10),
+        None,
+        "the pending clan was removed"
+    );
+}
+
+/// A non-owner leader can't manage the defender list.
+#[test]
+fn a_non_owner_cannot_approve_defenders() {
+    let (mut world, _db, _l) = siege_world();
+    keep_registration_open(&mut world);
+    // The acting clan does NOT own CASTLE.
+    world.clans.insert(20, mk_clan(20, 5, 0, 0));
+    world.clans.get_mut(&20).unwrap().leader_id = LEADER;
+    world.clans.insert(10, mk_clan(10, 5, 0, 0));
+    world
+        .sieges
+        .get_mut(&CASTLE)
+        .unwrap()
+        .add_clan(10, SiegeClanType::DefenderPending);
+    let _rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&LEADER)
+        .unwrap()
+        .clan_id = 20;
+
+    crate::game_loop::siege::handle_request_confirm_siege_waiting_list(
+        &mut world,
+        5,
+        &confirm_body(CASTLE, 10, 1),
+    );
+
+    assert_eq!(
+        kind_of(&world, CASTLE, 10),
+        Some(SiegeClanType::DefenderPending),
+        "still pending — a non-owner changed nothing"
     );
 }

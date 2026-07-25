@@ -47,6 +47,9 @@ pub mod opcodes {
     pub const REQUEST_ACTION_USE: u8 = 0x56;
     /// `RequestJoinSiege` (G24) — a clan leader registers/cancels for a siege.
     pub const REQUEST_JOIN_SIEGE: u8 = 0xAD;
+    /// `RequestConfirmSiegeWaitingList` (G24) — the castle owner approves or
+    /// rejects a pending defender clan.
+    pub const REQUEST_CONFIRM_SIEGE_WAITING_LIST: u8 = 0xAE;
     /// `RequestGetItemFromPet` — move an item from the pet's inventory back
     /// to the owner's.
     pub const REQUEST_GET_ITEM_FROM_PET: u8 = 0x2C;

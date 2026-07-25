@@ -915,8 +915,6 @@ pub(crate) fn register(
 
 /// Java `approveSiegeDefenderClan`: the owner promotes a pending defender to a
 /// full defender. Returns whether a pending row was found and promoted.
-// Staged: wired by the `RequestConfirmSiegeWaitingList` (0xAE) follow-up slice.
-#[allow(dead_code)]
 pub(crate) fn approve_defender(world: &mut World, castle_id: i32, clan_id: i32) -> bool {
     let promoted = world.sieges.get_mut(&castle_id).is_some_and(|siege| {
         siege
@@ -1098,4 +1096,152 @@ fn send_siege_info(
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(pkt);
     }
+}
+
+/// A clan's role in a castle's siege, if registered.
+fn siege_clan_kind(world: &World, castle_id: i32, clan_id: i32) -> Option<SiegeClanType> {
+    world
+        .sieges
+        .get(&castle_id)?
+        .clans
+        .iter()
+        .find(|c| c.clan_id == clan_id)
+        .map(|c| c.kind)
+}
+
+/// `RequestConfirmSiegeWaitingList` (0xAE): the castle owner's clan leader
+/// approves (`approved==1`) a pending defender or rejects/removes a
+/// pending-or-confirmed defender, then gets the refreshed defender list.
+pub(crate) fn handle_request_confirm_siege_waiting_list(
+    world: &mut World,
+    client_id: u32,
+    body: &[u8],
+) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(castle_id), Some(clan_id), Some(approved)) =
+        (r.read_i32(), r.read_i32(), r.read_i32())
+    else {
+        return;
+    };
+
+    let Some(p) = world.objects.get_component::<Player>(&player) else {
+        return;
+    };
+    let my_clan = p.clan_id;
+    if my_clan == 0 {
+        return;
+    }
+    if !world.castles.iter().any(|c| c.id == castle_id) {
+        return;
+    }
+    // Only the owning clan's leader may manage the defender list.
+    let owner = owner_clan_id_opt(world, castle_id);
+    let is_leader = world
+        .clans
+        .get(&my_clan)
+        .is_some_and(|c| c.leader_id == player);
+    if owner != Some(my_clan) || !is_leader {
+        return;
+    }
+    // The target clan must exist.
+    if !world.clans.contains_key(&clan_id) {
+        return;
+    }
+
+    let now = commons::util::now_millis();
+    if !is_registration_over(world, castle_id, now) {
+        let kind = siege_clan_kind(world, castle_id, clan_id);
+        if approved == 1 {
+            if kind == Some(SiegeClanType::DefenderPending) {
+                approve_defender(world, castle_id, clan_id);
+            } else {
+                return; // Java returns without sending the list
+            }
+        } else if matches!(
+            kind,
+            Some(SiegeClanType::DefenderPending) | Some(SiegeClanType::Defender)
+        ) {
+            remove_registration(world, castle_id, clan_id);
+        }
+    }
+
+    send_defender_list(world, client_id, castle_id, now);
+}
+
+/// Java `new SiegeDefenderList(castle)`: the owner clan first, then confirmed
+/// defenders, then pending defenders.
+fn send_defender_list(world: &World, client_id: u32, castle_id: i32, now_millis: i64) {
+    let owner_id = owner_clan_id_opt(world, castle_id).unwrap_or(0);
+    let mut entries: Vec<server_packets::DefenderEntry> = Vec::new();
+
+    // Owner (type 1), if any.
+    if owner_id != 0 {
+        if let Some(e) = defender_entry(world, owner_id, 1) {
+            entries.push(e);
+        }
+    }
+    // Confirmed defenders (type 3), then pending (type 2) — skipping the owner.
+    if let Some(siege) = world.sieges.get(&castle_id) {
+        for &(kind, type_value) in &[
+            (SiegeClanType::Defender, 3),
+            (SiegeClanType::DefenderPending, 2),
+        ] {
+            for c in siege.clans.iter().filter(|c| c.kind == kind) {
+                if c.clan_id == owner_id {
+                    continue;
+                }
+                if let Some(e) = defender_entry(world, c.clan_id, type_value) {
+                    entries.push(e);
+                }
+            }
+        }
+    }
+
+    let valid_registration = owner_id != 0 && is_registration_over(world, castle_id, now_millis);
+    let pkt = server_packets::siege_defender_list(castle_id, valid_registration, &entries);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
+}
+
+/// Build one defender row from a clan.
+fn defender_entry(
+    world: &World,
+    clan_id: i32,
+    type_value: i32,
+) -> Option<server_packets::DefenderEntry> {
+    let clan = world.clans.get(&clan_id)?;
+    let leader_name = clan
+        .members
+        .iter()
+        .find(|m| m.char_id == clan.leader_id)
+        .map(|m| m.name.clone())
+        .unwrap_or_default();
+    // The ally leader clan shares the ally id (Java: the leader clan's own id).
+    let ally_leader_name = if clan.ally_id != 0 {
+        world
+            .clans
+            .get(&clan.ally_id)
+            .and_then(|a| a.members.iter().find(|m| m.char_id == a.leader_id))
+            .map(|m| m.name.clone())
+            .unwrap_or_default()
+    } else {
+        String::new()
+    };
+    Some(server_packets::DefenderEntry {
+        clan_id,
+        name: clan.name.clone(),
+        leader_name,
+        crest_id: clan.crest_id,
+        type_value,
+        ally_id: clan.ally_id,
+        ally_name: clan.ally_name.clone(),
+        ally_leader_name,
+        ally_crest_id: clan.ally_crest_id,
+    })
 }

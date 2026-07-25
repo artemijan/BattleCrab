@@ -44,3 +44,53 @@ pub fn siege_info(
     w.write_i32(0);
     w.into_bytes()
 }
+
+/// One row of the defender roster.
+pub struct DefenderEntry {
+    pub clan_id: i32,
+    pub name: String,
+    pub leader_name: String,
+    pub crest_id: i32,
+    /// Java `SiegeClanType.ordinal() + 1`: owner 1, defender-pending 2, defender 3.
+    pub type_value: i32,
+    pub ally_id: i32,
+    pub ally_name: String,
+    pub ally_leader_name: String,
+    pub ally_crest_id: i32,
+}
+
+/// `serverpackets/SiegeDefenderList` (`CASTLE_SIEGE_DEFENDER_LIST`, 0xCB) — the
+/// owner's defender-management list (owner + confirmed + pending defenders).
+pub fn siege_defender_list(
+    castle_id: i32,
+    valid_registration: bool,
+    defenders: &[DefenderEntry],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CASTLE_SIEGE_DEFENDER_LIST);
+    w.write_i32(castle_id);
+    w.write_i32(0); // unknown
+    w.write_i32(valid_registration as i32);
+    w.write_i32(0); // unknown
+    w.write_i32(defenders.len() as i32);
+    w.write_i32(defenders.len() as i32);
+    for d in defenders {
+        w.write_i32(d.clan_id);
+        w.write_string(&d.name);
+        w.write_string(&d.leader_name);
+        w.write_i32(d.crest_id);
+        w.write_i32(0); // signed time (seconds)
+        w.write_i32(d.type_value);
+        w.write_i32(d.ally_id);
+        if d.ally_id != 0 {
+            w.write_string(&d.ally_name);
+            w.write_string(&d.ally_leader_name);
+            w.write_i32(d.ally_crest_id);
+        } else {
+            w.write_string("");
+            w.write_string("");
+            w.write_i32(0);
+        }
+    }
+    w.into_bytes()
+}

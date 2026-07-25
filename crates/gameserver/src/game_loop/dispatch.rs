@@ -141,6 +141,13 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_JOIN_SIEGE => {
             crate::game_loop::siege::handle_request_join_siege(world, client_id, body)
         }
+        // RequestConfirmSiegeWaitingList (G24): the owner approves/rejects a
+        // pending defender clan.
+        cop::REQUEST_CONFIRM_SIEGE_WAITING_LIST => {
+            crate::game_loop::siege::handle_request_confirm_siege_waiting_list(
+                world, client_id, body,
+            )
+        }
         // RequestShowBoard (IN_GAME): the community-board button → open at
         // `BBSDefault` (`_bbshome`). Body is one unused int.
         cop::REQUEST_SHOW_BOARD => {
