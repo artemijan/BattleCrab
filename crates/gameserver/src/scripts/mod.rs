@@ -186,6 +186,7 @@ pub mod q00662_a_game_of_cards;
 pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
 pub mod saga;
+pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
 mod valakas_teleporters;
@@ -413,6 +414,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(teleport_to_race_track::TeleportToRaceTrack),
         Arc::new(antharas_heart::AntharasHeart),
         Arc::new(last_imperial_tomb::LastImperialTomb),
+        Arc::new(sailren_altar::SailrenAltar),
         Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),

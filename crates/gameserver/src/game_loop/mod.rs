@@ -382,6 +382,7 @@ fn apply_due_tasks(world: &mut World) {
                 orfen::handle_distance_check(world, orfen_oid);
             }
             ScheduledTask::BaiumSelectTarget => baium::handle_select_target(world),
+            ScheduledTask::SailrenBeginFight => sailren::begin_fight(world),
             ScheduledTask::SailrenSpawn => sailren::handle_spawn_sailren(world),
             ScheduledTask::SailrenAttackEnable { sailren_oid } => {
                 sailren::handle_attack_enable(world, sailren_oid)
