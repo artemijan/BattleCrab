@@ -29,6 +29,7 @@ pub const DEAD: i32 = 1;
 pub(crate) fn dead_status(boss_id: i32) -> i32 {
     if boss_id == crate::game_loop::antharas::ANTHARAS
         || boss_id == crate::game_loop::valakas::VALAKAS
+        || boss_id == crate::game_loop::baium::BAIUM
     {
         3
     } else {
@@ -142,6 +143,13 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     let Some(b) = world.grand_bosses.get(&boss_id).cloned() else {
         return;
     };
+    // Baium at rest is a **stone statue** (29025), not the live boss — the live
+    // boss only exists mid-fight (or on crash-recovery of one). His script owns
+    // the whole spawn, so hand off before the generic live-NPC spawn below.
+    if boss_id == crate::game_loop::baium::BAIUM {
+        crate::game_loop::baium::spawn_from_record(world, &b);
+        return;
+    }
     let Some(oid) =
         crate::model::npc::spawn_npc_at(world, boss_id, b.loc_x, b.loc_y, b.loc_z, b.heading)
     else {
@@ -154,9 +162,6 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     }
     if boss_id == crate::game_loop::core_boss::CORE {
         crate::game_loop::core_boss::on_core_spawned(world, oid);
-    }
-    if boss_id == crate::game_loop::baium::BAIUM {
-        crate::game_loop::baium::on_baium_spawned(world);
     }
     if boss_id == crate::game_loop::orfen::ORFEN {
         crate::game_loop::orfen::on_orfen_spawned(world, oid);

@@ -10,7 +10,7 @@ mod abnormal;
 pub(crate) mod admin;
 pub(crate) mod antharas;
 mod augment;
-mod baium;
+pub(crate) mod baium;
 pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
@@ -382,6 +382,7 @@ fn apply_due_tasks(world: &mut World) {
                 orfen::handle_distance_check(world, orfen_oid);
             }
             ScheduledTask::BaiumSelectTarget => baium::handle_select_target(world),
+            ScheduledTask::BaiumCinematic { step } => baium::handle_cinematic_step(world, step),
             ScheduledTask::SailrenBeginFight => sailren::begin_fight(world),
             ScheduledTask::SailrenSpawn => sailren::handle_spawn_sailren(world),
             ScheduledTask::SailrenAttackEnable { sailren_oid } => {
