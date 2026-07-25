@@ -3702,3 +3702,153 @@ fn admin_spawn_without_args_does_not_panic() {
         "GM is told the (missing) NPC doesnt exist instead of the server dying"
     );
 }
+
+// --- `//scan` (AdminScan) ---------------------------------------------------
+
+/// Spawn a scan-target NPC with a real name at an offset from the GM.
+fn scan_world() -> (
+    World,
+    db::CmdTx,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, a, b, c) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    (world, a, b, c)
+}
+
+fn scan_npc(world: &mut World, oid: i32, gm: i32, dx: i32, dy: i32, dz: i32) {
+    const SCAN_MOB: i32 = 47000;
+    if world.data.npc_data.get(SCAN_MOB).is_none() {
+        let mut t = crate::data::npc_data::default_template(SCAN_MOB);
+        t.type_name = "Monster".into();
+        t.name = "Scan Target".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&gm)
+        .copied()
+        .unwrap();
+    add_test_npc(
+        world,
+        oid,
+        SCAN_MOB,
+        "Monster",
+        20,
+        pos.x + dx,
+        pos.y + dy,
+        pos.z + dz,
+    );
+}
+
+fn scan_html(pkts: &[Vec<u8>]) -> String {
+    pkts.iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("scan html")
+}
+
+/// `//scan`'s range is a 3D sphere (Java `getVisibleObjectsInRange` measures
+/// `calculateDistance3D`, default radius 1000): an NPC on a floor 2000 z away
+/// is horizontally on top of the GM yet out of range — the Tower of Insolence
+/// stairs case, where Java returns an empty list while the old Rust port
+/// dumped every stacked floor into one client-crashing html.
+#[test]
+fn scan_range_is_a_3d_sphere() {
+    let (mut world, ..) = scan_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    scan_npc(&mut world, NPC_OID, 5001, 300, 0, 0); // 3D 300: in
+    scan_npc(&mut world, NPC_OID + 1, 5001, 200, 0, 2000); // 3D ~2010: out
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("scan")].concat(),
+    );
+    let html = scan_html(&drain(&mut gm_rx));
+    assert_eq!(
+        html.matches("admin_move_to").count(),
+        1,
+        "only the same-floor NPC is listed: {html}"
+    );
+    assert!(html.contains("Scan Target"), "{html}");
+    assert!(
+        html.contains(&format!("objectId={NPC_OID}")),
+        "delete link carries the object id: {html}"
+    );
+}
+
+/// With nothing in range the list is empty — no rows at all (what the Java
+/// version shows on the ToI 13F stairs).
+#[test]
+fn scan_with_nothing_in_range_is_empty() {
+    let (mut world, ..) = scan_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    scan_npc(&mut world, NPC_OID, 5001, 3000, 0, 0); // beyond default 1000
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("scan")].concat(),
+    );
+    let html = scan_html(&drain(&mut gm_rx));
+    assert_eq!(html.matches("admin_move_to").count(), 0, "{html}");
+}
+
+/// The list pages at 15 rows (Java `PageBuilder`): 20 NPCs in range render 15
+/// rows and a pager on the first page, and the remaining 5 on `page=1`. This
+/// (with the radius) is what keeps the dialog under the client's html limit.
+#[test]
+fn scan_paginates_at_fifteen_rows() {
+    let (mut world, ..) = scan_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    for i in 0..20 {
+        scan_npc(&mut world, NPC_OID + i, 5001, 100 + i, 0, 0);
+    }
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("scan")].concat(),
+    );
+    let html = scan_html(&drain(&mut gm_rx));
+    assert_eq!(html.matches("admin_move_to").count(), 15, "{html}");
+    assert!(html.contains("Page: 1/"), "pager rendered: {html}");
+    assert!(
+        html.contains("admin_scan page=1"),
+        "next-page bypass: {html}"
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("scan page=1"),
+        ]
+        .concat(),
+    );
+    let html = scan_html(&drain(&mut gm_rx));
+    assert_eq!(
+        html.matches("admin_move_to").count(),
+        5,
+        "second page holds the remainder: {html}"
+    );
+}
+
+/// `AbstractHtmlPacket.setHtml`'s guard, ported to the packet builder: an
+/// oversized html is clipped to 17 200 chars instead of crashing the client.
+#[test]
+fn oversized_html_is_clipped_to_java_limit() {
+    let big = "a".repeat(20_000);
+    let pkt = server_packets::npc_html_message_item(0, 1, &big);
+    let decoded = decode_npc_html(&pkt).expect("html packet");
+    assert_eq!(decoded.chars().count(), 17_200);
+
+    let small = "b".repeat(100);
+    let pkt = server_packets::npc_html_message_item(0, 1, &small);
+    assert_eq!(decode_npc_html(&pkt).unwrap(), small);
+}

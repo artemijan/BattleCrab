@@ -417,56 +417,195 @@ pub(super) fn admin_spawn_debug_print(world: &mut World, client_id: u32, object_
     );
 }
 
-/// `AdminScan`'s `//scan` — list the NPCs visible from the GM's region.
-pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(region) = world
-        .objects
-        .get_component::<RegionCell>(&object_id)
-        .map(|r| r.0)
-    else {
+/// `AdminScan.DEFAULT_RADIUS` — `//scan` only lists NPCs this close (3D).
+const SCAN_DEFAULT_RADIUS: i32 = 1000;
+/// `PageBuilder.newBuilder(…, 15, …)` — scan rows per page.
+const SCAN_PAGE_SIZE: usize = 15;
+
+/// `AdminScan`'s `//scan` (`processBypass` + `sendNpcList`) — list the NPCs
+/// within `radius` of the GM, 15 to a page.
+///
+/// The range is **3D** (`World.getVisibleObjectsInRange` measures
+/// `calculateDistance3D`) and defaults to 1000: on a stacked map (Tower of
+/// Insolence stairs, Cruma floors) the NPCs of the floors above/below are
+/// horizontally on top of the GM but hundreds of z away, and it is exactly the
+/// 3D metric that keeps them (and their hundreds of rows) out of the list.
+/// The earlier port dumped every NPC of the 3×3 region block into one
+/// unpaginated html — past `setHtml`'s 17 200-char clip, that dialog crashed
+/// the client.
+///
+/// Bypass params (Java `BypassParser`): `id=` exact npc id, `name=` name
+/// prefix (case-insensitive), `radius=`/`range=`, `page=`.
+pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let id = bypass_param(args, "id")
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0);
+    let name = bypass_param(args, "name").map(str::to_owned);
+    let radius = bypass_param(args, "radius")
+        .or_else(|| bypass_param(args, "range"))
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(SCAN_DEFAULT_RADIUS);
+    // `PageBuilder.currentPage` clamps negatives to 0.
+    let page = bypass_param(args, "page")
+        .and_then(|v| v.parse::<i32>().ok())
+        .unwrap_or(0)
+        .max(0);
+
+    let (Some(region), Some(gm_pos)) = (
+        world
+            .objects
+            .get_component::<RegionCell>(&object_id)
+            .map(|r| r.0),
+        world.objects.get_component::<Position>(&object_id).copied(),
+    ) else {
         return;
     };
-    let ids = world.npcs_visible_from(region);
-    // `scan.htm` (Java `AdminScan.getScanResult`): each NPC is a `move_to` link
-    // plus a Delete link (`admin_deletenpcbyobjectid`).
-    let mut rows = String::new();
-    for oid in ids {
-        if let Some(npc) = world.objects.get_component::<Npc>(&oid) {
-            let name = world
-                .data
-                .npc_data
-                .get(npc.npc_id)
-                .map(|t| t.name.clone())
-                .unwrap_or_default();
-            let name = if name.is_empty() {
-                "No name NPC".to_string()
-            } else {
-                name
-            };
-            let pos = world
-                .objects
-                .get_component::<Position>(&oid)
-                .copied()
-                .unwrap_or(Position {
-                    x: 0,
-                    y: 0,
-                    z: 0,
-                    heading: 0,
-                });
-            rows.push_str(&format!(
-                "<tr><td width=\"45\">{}</td>\
-                 <td><a action=\"bypass -h admin_move_to {} {} {}\">{name}</a></td>\
-                 <td width=\"54\"><a action=\"bypass -h admin_deletenpcbyobjectid objectId={oid}\"><font color=\"LEVEL\">Delete</font></a></td></tr>",
-                npc.npc_id, pos.x, pos.y, pos.z
-            ));
-        }
+    let gm_instance = crate::game_loop::helpers::instance_of(world, object_id);
+
+    struct Row {
+        oid: i32,
+        npc_id: i32,
+        name: String,
+        x: i32,
+        y: i32,
+        z: i32,
+        dist_2d: f64,
     }
+    let mut list: Vec<Row> = Vec::new();
+    for oid in world.npcs_visible_from(region) {
+        let Some(npc) = world.objects.get_component::<Npc>(&oid) else {
+            continue;
+        };
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
+        let npc_id = npc.npc_id;
+        if crate::game_loop::helpers::instance_of(world, oid) != gm_instance {
+            continue;
+        }
+        let dx = (pos.x - gm_pos.x) as f64;
+        let dy = (pos.y - gm_pos.y) as f64;
+        let dz = (pos.z - gm_pos.z) as f64;
+        if (dx * dx + dy * dy + dz * dz).sqrt() > radius as f64 {
+            continue;
+        }
+        let tname = world
+            .data
+            .npc_data
+            .get(npc_id)
+            .map(|t| t.name.clone())
+            .unwrap_or_default();
+        // `processBypass`'s condition: id beats name beats everything.
+        if id > 0 {
+            if npc_id != id {
+                continue;
+            }
+        } else if let Some(n) = &name {
+            if !tname.to_lowercase().starts_with(&n.to_lowercase()) {
+                continue;
+            }
+        }
+        list.push(Row {
+            oid,
+            npc_id,
+            name: tname,
+            x: pos.x,
+            y: pos.y,
+            z: pos.z,
+            dist_2d: (dx * dx + dy * dy).sqrt(),
+        });
+    }
+
+    // `createBypassBuilder`: the filter params survive paging and deletes.
+    let mut filter_params = String::new();
+    if id > 0 {
+        filter_params.push_str(&format!(" id={id}"));
+    } else if let Some(n) = &name {
+        filter_params.push_str(&format!(" name={n}"));
+    }
+    if radius > SCAN_DEFAULT_RADIUS {
+        filter_params.push_str(&format!(" radius={radius}"));
+    }
+
+    // `PageBuilder.build()`: pages = ceil(n / 15); the pager renders only past
+    // one page; a `page` beyond the end is clamped to the last page.
+    let pages = (list.len() / SCAN_PAGE_SIZE
+        + usize::from(!list.len().is_multiple_of(SCAN_PAGE_SIZE))) as i32;
+    let pager = if pages > 1 {
+        scan_pager(&format!("bypass -h admin_scan{filter_params}"), page, pages)
+    } else {
+        String::new()
+    };
+    let current = if page > pages { pages - 1 } else { page };
+    let start = (SCAN_PAGE_SIZE as i32 * current).max(0) as usize;
+
+    let mut rows = String::new();
+    for row in list.iter().skip(start).take(SCAN_PAGE_SIZE) {
+        let name = if row.name.is_empty() {
+            "No name NPC"
+        } else {
+            &row.name
+        };
+        rows.push_str(&format!(
+            "<tr><td width=\"45\">{}</td>\
+             <td><a action=\"bypass -h admin_move_to {} {} {}\">{name}</a></td>\
+             <td width=\"60\">{}</td>\
+             <td width=\"54\"><a action=\"bypass -h admin_deleteNpcByObjectId{filter_params} page={page} objectId={}\"><font color=\"LEVEL\">Delete</font></a></td></tr>",
+            row.npc_id,
+            row.x,
+            row.y,
+            row.z,
+            super::points::format_adena(row.dist_2d.round() as i32),
+            row.oid,
+        ));
+    }
+
+    // Java wraps the pager whenever the list is non-empty (`getPages() > 0`),
+    // even when the pager itself stayed empty at a single page.
+    let pages_html = if pages > 0 {
+        format!("<center><table width=\"100%\" cellspacing=0><tr>{pager}</tr></table></center>")
+    } else {
+        String::new()
+    };
     super::menu::show_admin_html_replace(
         world,
         client_id,
         "scan.htm",
-        &[("data", rows), ("pages", String::new())],
+        &[("data", rows), ("pages", pages_html)],
     );
+}
+
+/// `NextPrevPageHandler` + `ButtonsStyle` — the `<< | < | Page: x/y | > | >>`
+/// strip, ported verbatim including Java's off-by-one quirks (the label prints
+/// `pages + 1` and `>>` targets one page past the last; the page clamp in the
+/// list body keeps that click on the final page).
+fn scan_pager(bypass: &str, current: i32, pages: i32) -> String {
+    let button = |target: i32, label: &str, disabled: bool| -> String {
+        if disabled {
+            format!("<td>{label}</td>")
+        } else {
+            format!(
+                "<td><button action=\"{bypass} page={target}\" value=\"{label}\" \
+                 width=\"40\" height=\"15\" back=\"L2UI_CT1.Button_DF\" fore=\"L2UI_CT1.Button_DF\"></td>"
+            )
+        }
+    };
+    const SEP: &str = "<td align=center> | </td>";
+    let mut s = String::new();
+    s.push_str(&button(0, "<<", current - 1 < 0));
+    s.push_str(SEP);
+    s.push_str(&button(current - 1, "<", current <= 0));
+    s.push_str(SEP);
+    s.push_str(&format!(
+        "<td align=\"center\">Page: {}/{}</td>",
+        current + 1,
+        pages + 1
+    ));
+    s.push_str(SEP);
+    s.push_str(&button(current + 1, ">", current >= pages));
+    s.push_str(SEP);
+    s.push_str(&button(pages, ">>", current + 1 > pages));
+    s
 }
 
 /// `AdminScan`'s `//deleteNpcByObjectId objectId=<id>` — the scan list's
@@ -524,8 +663,9 @@ pub(super) fn admin_delete_npc_by_object_id(
         .unwrap_or_default();
     super::death::despawn_npc(world, target_oid, region);
     send_message(world, client_id, &format!("{name} have been deleted."));
-    // Java `processBypass` re-renders the scan list.
-    admin_scan(world, client_id, object_id);
+    // Java `processBypass` re-renders the scan list with the same parser —
+    // the page and filter params ride along.
+    admin_scan(world, client_id, object_id, args);
 }
 
 /// Extract a `key=value` bypass parameter (Java `BypassParser`). The key is

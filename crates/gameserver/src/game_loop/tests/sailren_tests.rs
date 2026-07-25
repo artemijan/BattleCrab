@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
+use crate::model::components::{AdminFlags, Immobilized, Position, SailrenWaveMob, Vitals};
 
 const SAILREN: i32 = 29065;
 const VELOCIRAPTOR: i32 = 22218;
@@ -133,4 +133,37 @@ fn felling_sailren_drops_the_exit_cube() {
     let (mut world, _db, _l) = sailren_world();
     crate::game_loop::sailren::on_wave_kill(&mut world, KILLER, SAILREN);
     assert_eq!(count(&mut world, CUBIC), 1, "the teleport cube appears");
+}
+
+/// A solo player can't start the fight — Java shows `32109-01.html`.
+#[test]
+fn a_solo_player_cannot_start_the_fight() {
+    let (mut world, _db, _l) = sailren_world();
+    let _rx = ingame_player(&mut world, 1, 100, 100, 100, 0);
+    assert_eq!(
+        crate::game_loop::sailren::entry_refusal(&mut world, 100),
+        Some("32109-01.html"),
+        "no party, no fight"
+    );
+}
+
+/// Admitting a party teleports the leader's nearby members to the nest and arms
+/// the first wave.
+#[test]
+fn admitting_a_party_teleports_members_and_arms_the_wave() {
+    let (mut world, _db, _l) = sailren_world();
+    let _a = ingame_player(&mut world, 1, 100, 26_000, -6_000, -2_000);
+    let _b = ingame_player(&mut world, 2, 200, 26_050, -6_000, -2_000);
+    make_party(&mut world, &[100, 200], LootRule::FindersKeepers);
+    let before = world.scheduler.len();
+
+    crate::game_loop::sailren::enter_party(&mut world, 100);
+
+    let pos = world.objects.get_component::<Position>(&200).unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (27549, -6638),
+        "the member is teleported in"
+    );
+    assert!(world.scheduler.len() > before, "the first wave is armed");
 }

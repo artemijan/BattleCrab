@@ -5,16 +5,17 @@
 //! Velociraptors, then a Pterosaur, then a Tyrannosaurus, then Sailren himself.
 //! Each rung spawns the next on death.
 //!
-//! Slice 1 (this): the wave progression + Sailren's guarded entrance. The
-//! kill-chain is **stateless** — it counts the living tagged mobs rather than a
-//! kill counter, so it needs no global fight state. The wave mobs also spawn in
-//! the open world, so a [`SailrenWaveMob`] marker scopes the chain to this
-//! fight. The Statue entry (party check, Gazkh, teleport-in), the zone
-//! time-out/decay and the respawn lock are a later slice.
+//! The kill-chain is **stateless** — it counts the living tagged mobs rather
+//! than a kill counter, so it needs no global fight state. The wave mobs also
+//! spawn in the open world, so a [`SailrenWaveMob`] marker scopes the chain to
+//! this fight (and doubles as the `IN_FIGHT` gate). Slice 1: the wave ladder +
+//! Sailren's guarded entrance. Slice 2: the Statue (32109) entry — leader +
+//! Gazkh + party teleport-in ([`crate::scripts::sailren_altar`]). The zone
+//! time-out/decay and the respawn lock remain a later slice.
 //!
 //! [`SailrenWaveMob`]: crate::model::components::SailrenWaveMob
 
-use crate::model::components::{AdminFlags, Immobilized, SailrenWaveMob, Vitals};
+use crate::model::components::{AdminFlags, Immobilized, Position, SailrenWaveMob, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -24,6 +25,17 @@ const PTEROSAUR: i32 = 22199;
 const TREX: i32 = 22217;
 /// Teleportation Cubic — the exit spawned when Sailren falls.
 const CUBIC: i32 = 32107;
+/// Shilen's Stone Statue — the entry NPC.
+pub(crate) const STATUE: i32 = 32109;
+/// Gazkh — the party leader's entry ticket.
+const GAZKH: i32 = 8784;
+
+/// Where the admitted party lands (Java `teleToLocation(27549, -6638, -2008)`).
+const ENTER_LOC: (i32, i32, i32) = (27549, -6638, -2008);
+/// Gather range for the leader's party (Java `isInsideRadius3D(npc, 1000)`).
+const GATHER_RANGE: f64 = 1000.0;
+/// Java delays the first wave 60 s after the party enters.
+const FIRST_WAVE_MS: u64 = 60_000;
 
 /// Where the dinosaurs enter (Java `addSpawn(..., 27313, -6766, -1975)`).
 const NEST: (i32, i32, i32) = (27313, -6766, -1975);
@@ -39,11 +51,99 @@ const ATTACK_ENABLE_MS: u64 = 24_600;
 /// The engage weight for `addAttackPlayerDesire`.
 const ENGAGE_HATE: f64 = 999.0;
 
-/// Begin the encounter: the first three Velociraptors enter the nest. Java
-/// delays this 60 s after entry.
-// TODO(sailren slice 2): the Statue (32109) entry — leader + Gazkh (8784) +
-// party teleport — is what calls this; wired next.
-#[allow(dead_code)]
+/// Java `onEvent("enter")`: the refusal html for a party that can't start (or
+/// `None` when the leader may enter). A fight is "in progress" while any wave
+/// mob is alive — the marker doubles as the `IN_FIGHT` status, so no global
+/// state is needed.
+pub(crate) fn entry_refusal(world: &mut World, leader_oid: i32) -> Option<&'static str> {
+    let Some((leader, _)) = group_of(world, leader_oid) else {
+        return Some("32109-01.html"); // not in a party
+    };
+    if fight_active(world) {
+        return Some("32109-05.html"); // a fight is already underway
+    }
+    if leader != leader_oid {
+        return Some("32109-03.html"); // only the leader may enter
+    }
+    if gazkh_count(world, leader_oid) == 0 {
+        return Some("32109-02.html"); // no Gazkh
+    }
+    None
+}
+
+/// Admit the leader's nearby party members and arm the first wave (Java teleports
+/// each member within 1000, then `SPAWN_VELOCIRAPTOR` 60 s out). The Gazkh is
+/// taken by the caller (it needs the inventory-aware `QuestCtx`).
+pub(crate) fn enter_party(world: &mut World, leader_oid: i32) {
+    let Some((_, members)) = group_of(world, leader_oid) else {
+        return;
+    };
+    // Gather the near members *before* teleporting anyone — teleporting the
+    // leader first would move the reference point and strand the rest.
+    let near: Vec<i32> = members
+        .into_iter()
+        .filter(|&m| near_leader(world, leader_oid, m))
+        .collect();
+    for member in near {
+        crate::game_loop::death::teleport_player(
+            world,
+            member,
+            ENTER_LOC.0,
+            ENTER_LOC.1,
+            ENTER_LOC.2,
+        );
+    }
+    world.scheduler.schedule(
+        world.tick + crate::game_loop::helpers::ms_to_ticks(FIRST_WAVE_MS as i32),
+        ScheduledTask::SailrenBeginFight,
+    );
+}
+
+/// A Sailren fight is underway while any tagged wave mob is alive.
+fn fight_active(world: &mut World) -> bool {
+    let mut active = false;
+    world
+        .objects
+        .for_each_mut::<(&SailrenWaveMob, &Vitals)>(|(_, v)| {
+            if !v.dead {
+                active = true;
+            }
+        });
+    active
+}
+
+/// The player's party as `(leader, members)`, or `None` when solo.
+fn group_of(world: &World, player_oid: i32) -> Option<(i32, Vec<i32>)> {
+    let party_id = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&player_oid)?
+        .0;
+    let party = world.parties.get(&party_id)?;
+    Some((party.leader(), party.members.clone()))
+}
+
+fn near_leader(world: &World, leader: i32, member: i32) -> bool {
+    if leader == member {
+        return true;
+    }
+    let (Some(a), Some(b)) = (
+        world.objects.get_component::<Position>(&leader),
+        world.objects.get_component::<Position>(&member),
+    ) else {
+        return false;
+    };
+    a.distance_2d(b) <= GATHER_RANGE
+}
+
+fn gazkh_count(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .map(|inv| inv.count_of(GAZKH))
+        .unwrap_or(0)
+}
+
+/// Begin the encounter: the first three Velociraptors enter the nest.
 pub(crate) fn begin_fight(world: &mut World) {
     for _ in 0..3 {
         let dx = world.roll(150);

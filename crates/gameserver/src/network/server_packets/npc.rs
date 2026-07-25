@@ -233,10 +233,27 @@ pub fn npc_html_message_item(npc_object_id: i32, item_id: i32, html: &str) -> Ve
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::NPC_HTML_MESSAGE);
     w.write_i32(npc_object_id);
-    w.write_string(html);
+    w.write_string(clip_html(html));
     w.write_i32(item_id);
     w.write_i32(0); // show common board
     w.into_bytes()
+}
+
+/// `AbstractHtmlPacket.setHtml`'s length guard: the client *crashes* on an
+/// oversized dialog, so Java clips anything past 17 200 chars with a warning.
+/// Counted in chars like Java's `substring` (never mid-UTF-8).
+pub(super) fn clip_html(html: &str) -> &str {
+    const HTML_MAX_CHARS: usize = 17200;
+    match html.char_indices().nth(HTML_MAX_CHARS) {
+        Some((cut, _)) => {
+            tracing::warn!(
+                "NpcHtmlMessage: html is too long ({} chars)! this will crash the client!",
+                html.chars().count()
+            );
+            &html[..cut]
+        }
+        None => html,
+    }
 }
 
 /// Port of `serverpackets/SummonInfo` (masked, same 37-bit `NpcInfoType`
