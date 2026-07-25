@@ -151,17 +151,24 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
         );
         return;
     };
+    // The clan hall this clan owns, if any (Java `ClanHall.getOwner()` reverse).
+    let clan_hall = world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.name.clone())
+        .unwrap_or_else(|| "No".into());
     let Some(clan) = world.clans.get(&clan_id) else {
         return;
     };
-    // `claninfo.htm` (Java `AdminClan.admin_clan_info`). Castle/clanhall/fort/
-    // reputation/ally aren't modelled yet → the Java "None"/0 defaults.
+    // `claninfo.htm` (Java `AdminClan.admin_clan_info`). Castle/fort/reputation/
+    // ally aren't modelled yet → the Java "None"/0 defaults.
     let r: Vec<(&str, String)> = vec![
         ("clan_name", clan.name.clone()),
         ("clan_leader", clan.leader_name().to_string()),
         ("clan_level", clan.level.to_string()),
         ("clan_has_castle", "No".into()),
-        ("clan_has_clanhall", "No".into()),
+        ("clan_has_clanhall", clan_hall),
         ("clan_has_fortress", "No".into()),
         ("clan_points", "0".into()),
         ("clan_players_count", clan.members.len().to_string()),

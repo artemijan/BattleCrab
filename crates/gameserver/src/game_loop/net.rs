@@ -832,6 +832,23 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // auto-start schedule (`SiegeSchedule.xml`).
                 crate::game_loop::siege::schedule_all_at_boot(world);
             }
+            DbEvent::ClanHallsLoaded { rows } => {
+                // Start from the static defs, then overlay persisted ownership.
+                let mut halls = world.data.clan_halls.clone();
+                for row in &rows {
+                    if let Some(hall) = halls.get_mut(&row.id) {
+                        hall.owner_id = row.owner_id;
+                        hall.paid_until = row.paid_until;
+                    }
+                }
+                let owned = halls.values().filter(|h| h.owner_id != 0).count();
+                tracing::info!(
+                    "GameLoop: loaded {} clan halls ({} owned).",
+                    halls.len(),
+                    owned
+                );
+                world.clan_halls = halls;
+            }
             DbEvent::OlympiadLoaded {
                 current_cycle,
                 period,
