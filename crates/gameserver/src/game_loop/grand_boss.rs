@@ -153,7 +153,7 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
         crate::game_loop::queen_ant::on_queen_spawned(world, oid);
     }
     if boss_id == crate::game_loop::core_boss::CORE {
-        crate::game_loop::core_boss::on_core_spawned(world);
+        crate::game_loop::core_boss::on_core_spawned(world, oid);
     }
     if boss_id == crate::game_loop::baium::BAIUM {
         crate::game_loop::baium::on_baium_spawned(world);

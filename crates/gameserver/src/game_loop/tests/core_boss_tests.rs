@@ -70,7 +70,7 @@ fn total_minions(world: &mut World) -> usize {
 #[test]
 fn core_spawns_three_minions_not_nineteen() {
     let (mut world, _db, _l) = core_world();
-    crate::game_loop::core_boss::on_core_spawned(&mut world);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
 
     assert_eq!(total_minions(&mut world), 3, "one of each type, not 19");
     for id in [29007, 29008, 29011] {
@@ -78,11 +78,29 @@ fn core_spawns_three_minions_not_nineteen() {
     }
 }
 
+/// Core is a stationary generator: it may not move (so it never chases), but
+/// its actions aren't blocked — it still melees adjacent attackers.
+#[test]
+fn core_is_immobilized_but_can_still_act() {
+    let (mut world, _db, _l) = core_world();
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 0, 0, 0);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
+
+    assert!(
+        crate::game_loop::abnormal::is_movement_disabled(&world, CORE_OID),
+        "Core is rooted to its spawn"
+    );
+    assert!(
+        !crate::game_loop::abnormal::is_control_blocked(&world, CORE_OID),
+        "but it can still fight"
+    );
+}
+
 /// A minion killed while Core lives comes back after its timer.
 #[test]
 fn a_minion_killed_while_core_lives_respawns() {
     let (mut world, _db, _l) = core_world();
-    crate::game_loop::core_boss::on_core_spawned(&mut world);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
     assert_eq!(count_of(&mut world, DEATH_KNIGHT), 1);
 
     crate::game_loop::core_boss::on_minion_killed(&mut world, DEATH_KNIGHT);
@@ -100,7 +118,7 @@ fn a_minion_killed_while_core_lives_respawns() {
 #[test]
 fn minions_do_not_respawn_once_core_is_dead() {
     let (mut world, _db, _l) = core_world();
-    crate::game_loop::core_boss::on_core_spawned(&mut world);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
     world.grand_bosses.get_mut(&CORE).unwrap().status = DEAD;
 
     let before = count_of(&mut world, DEATH_KNIGHT);
@@ -118,7 +136,7 @@ fn minions_do_not_respawn_once_core_is_dead() {
 #[test]
 fn core_dying_despawns_its_minions() {
     let (mut world, _db, _l) = core_world();
-    crate::game_loop::core_boss::on_core_spawned(&mut world);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
     add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 0, 0, 0);
     assert_eq!(total_minions(&mut world), 3);
 
@@ -131,7 +149,7 @@ fn core_dying_despawns_its_minions() {
 #[test]
 fn the_despawn_is_scheduled_rather_than_immediate() {
     let (mut world, _db, _l) = core_world();
-    crate::game_loop::core_boss::on_core_spawned(&mut world);
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
 
     crate::game_loop::core_boss::on_core_killed(&mut world);
     assert_eq!(

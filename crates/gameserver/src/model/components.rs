@@ -26,6 +26,13 @@ pub struct Position {
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InstanceId(pub i32);
 
+/// Java `Creature.setImmobilized(true)` — a **movement-only** lock. Unlike
+/// `AdminFlags.paralyzed` (which also blocks actions), an immobilized creature
+/// can still attack and cast; it simply can't move. Used by stationary bosses
+/// like Core, which melee adjacent attackers but never chase.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct Immobilized;
+
 /// Per-instance door open state (G27 Frintezza slice 2). Instance door copies
 /// carry their own open/closed flag instead of the global `geo.doors` atomic —
 /// concurrent instances of the same template toggle independently. Absent on
