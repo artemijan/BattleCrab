@@ -3,12 +3,13 @@
 //! the thin [`crate::scripts::last_imperial_tomb`] QuestScript (talk/kill hooks),
 //! mirroring Java's `LastImperialTomb extends AbstractInstance`.
 //!
-//! Landed: entry + the room-crawl progression (`onKill` status 0→4, slice 1),
-//! per-instance doors (slice 2), the intro cinematic step machine (slice 3),
-//! Scarlet's 80%/20% morphs → final form → finish trigger (slice 4), and the
-//! fight loops — Frintezza's songs, the demon/portrait spawn ecosystem + Dewdrop
-//! suicide (slice 4b). Scarlet's custom skill-cast AI, the song debuff (5008),
-//! and the full finish cinematic are later slices (`docs/PLAN_FRINTEZZA.md`).
+//! Playable end-to-end: entry + the room-crawl (`onKill` status 0→4, slice 1),
+//! per-instance doors (slice 2), the intro cinematic (slice 3), Scarlet's
+//! 80%/20% morphs → final form (slice 4), the fight loops — songs + demon/portrait
+//! ecosystem + Dewdrop suicide (slice 4b) — and the finish cinematic (Frintezza's
+//! death → doors reopen, slice 5). Remaining polish (`docs/PLAN_FRINTEZZA.md`):
+//! Scarlet's custom skill-cast AI (normal attacks for now), the song debuff
+//! (5008), the crawl aggro-nudge, and the 5% Dewdrop item drop.
 
 use rand::Rng;
 
@@ -504,35 +505,112 @@ pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32
     }
 }
 
-/// Java `onKill(SCARLET2)`: the final form falls — end the encounter.
+/// Java `onKill(SCARLET2)`: the final form falls — cut Frintezza's song and roll
+/// the finish cinematic (its death, then the doors reopen).
 pub(crate) fn on_scarlet_killed(world: &mut World, killer_oid: i32) {
     let instance_id = instance_of(world, killer_oid);
     if instance_id == 0 {
         return;
     }
-    // TODO(frintezza slice 5): the FINISH_CAMERA chain (MagicSkillCanceled on
-    // Frintezza, the death cinematic). For now, end it cleanly: Frintezza dies,
-    // the doors reopen so the party can reach the exit cube.
+    // The song loops stop the moment the fight is won.
+    world.instances.set_var(instance_id, "fightActive", 0);
     let frintezza = var_oid(world, instance_id, "frintezza");
     if frintezza != 0 {
-        set_frozen(world, frintezza, false, false); // drop invulnerability
-        let region = world
-            .objects
-            .get_component::<crate::model::components::RegionCell>(&frintezza)
-            .map(|r| r.0)
-            .unwrap_or((0, 0));
-        crate::game_loop::death::despawn_npc(world, frintezza, region);
+        instances::broadcast_to_instance(
+            world,
+            instance_id,
+            &server_packets::magic_skill_canceld(frintezza),
+        );
     }
-    for group in [
-        FIRST_ROOM_DOORS,
-        FIRST_ROUTE_DOORS,
-        SECOND_ROOM_DOORS,
-        SECOND_ROUTE_DOORS,
-    ] {
-        open_doors(world, instance_id, group);
+    schedule_finish(world, instance_id, 0, 500);
+}
+
+fn schedule_finish(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) {
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(delay_ms as i32).max(1),
+        ScheduledTask::FrintezzaFinish { instance_id, step },
+    );
+}
+
+/// The finish cinematic (Java `FINISH_CAMERA_1..5`), condensed to the functional
+/// beats: the death shot, Frintezza's death ~7.4 s in, then the doors reopen so
+/// the party can reach the exit cube. The camera choreography is abbreviated.
+pub(crate) fn handle_finish_step(world: &mut World, instance_id: i32, step: u8) {
+    if !world.instances.contains(instance_id) {
+        return;
     }
-    world.instances.set_var(instance_id, "fightActive", 0);
-    world.instances.set_var(instance_id, "cleared", 1);
+    match step {
+        // FINISH_CAMERA_1: a parting shot of the fallen Scarlet.
+        0 => {
+            let scarlet = var_oid(world, instance_id, "activeScarlet");
+            if scarlet != 0 {
+                camera(
+                    world,
+                    instance_id,
+                    scarlet,
+                    200,
+                    0,
+                    85,
+                    4000,
+                    10000,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                );
+            }
+            schedule_finish(world, instance_id, 1, 7400);
+        }
+        // FINISH_CAMERA_2/3: Frintezza dies with its guardian.
+        1 => {
+            let frintezza = var_oid(world, instance_id, "frintezza");
+            if frintezza != 0 {
+                set_frozen(world, frintezza, false, false); // its death bypasses invul
+                instances::broadcast_to_instance(
+                    world,
+                    instance_id,
+                    &server_packets::die(frintezza, false),
+                );
+                camera(
+                    world,
+                    instance_id,
+                    frintezza,
+                    100,
+                    120,
+                    5,
+                    0,
+                    7000,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                );
+                let region = world
+                    .objects
+                    .get_component::<crate::model::components::RegionCell>(&frintezza)
+                    .map(|r| r.0)
+                    .unwrap_or((0, 0));
+                crate::game_loop::death::despawn_npc(world, frintezza, region);
+            }
+            schedule_finish(world, instance_id, 2, 16_000);
+        }
+        // FINISH_CAMERA_5: reopen every door and hand control back for the exit.
+        2 => {
+            for group in [
+                FIRST_ROOM_DOORS,
+                FIRST_ROUTE_DOORS,
+                SECOND_ROOM_DOORS,
+                SECOND_ROUTE_DOORS,
+            ] {
+                open_doors(world, instance_id, group);
+            }
+            enable_players(world, instance_id);
+            world.instances.set_var(instance_id, "cleared", 1);
+        }
+        _ => {}
+    }
 }
 
 fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {

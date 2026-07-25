@@ -66,8 +66,14 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    (`demonCount`, per-portrait slots). **Still TODO**: the 5008 song debuff and
    the ScarletVanHalisha custom skill-cast AI (Scarlet fights with normal attacks
    for now).
-5. **Finish + rewards**: Scarlet2 death → FINISH_CAMERA chain → Frintezza dies,
-   doors open, teleport CUBE spawns; loot.
+5. **Finish cinematic** ✅ landed. `onKill(SCARLET2)` cuts Frintezza's song
+   (`MagicSkillCanceled`) and rolls a `ScheduledTask::FrintezzaFinish` step
+   machine: a parting shot of the fallen Scarlet, Frintezza's death ~7.4 s in
+   (invulnerability dropped, `Die` broadcast + despawn), then the doors reopen and
+   `cleared` is set so the party can reach the exit cube (already spawned in the
+   intro). Cameras abbreviated, as elsewhere. **Frintezza is playable end-to-end.**
+   Remaining polish: Scarlet's custom skill-cast AI, the song debuff (5008), the
+   crawl aggro-nudge, and the 5% Dewdrop item drop.
 
 ## Interlude scope note
 

@@ -420,25 +420,43 @@ fn a_slain_demon_frees_a_slot_under_the_cap() {
 }
 
 #[test]
-fn killing_the_final_form_ends_the_encounter() {
+fn killing_the_final_form_runs_the_finish_cinematic() {
     let (mut world, _tx, _db, _l) = test_world();
     let (iid, _scarlet1) = arena_with_scarlet(&mut world);
     let frintezza_oid = world.instances.get_var(iid, "frintezza") as i32;
 
     // Player 100 (inside the instance) lands the killing blow on Scarlet2.
     frintezza::on_scarlet_killed(&mut world, 100);
-
+    // The fight stops at once, but the encounter isn't cleared until the
+    // cinematic plays out.
+    assert_eq!(world.instances.get_var(iid, "fightActive"), 0);
     assert_eq!(
         world.instances.get_var(iid, "cleared"),
-        1,
-        "encounter cleared"
+        0,
+        "cinematic pending"
     );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&frintezza_oid)
+            .is_some(),
+        "Frintezza still stands during the opening shot"
+    );
+
+    frintezza::handle_finish_step(&mut world, iid, 0); // parting shot
+    frintezza::handle_finish_step(&mut world, iid, 1); // Frintezza dies
     assert!(
         world
             .objects
             .get_component::<crate::model::npc::Npc>(&frintezza_oid)
             .is_none(),
         "Frintezza fell with its guardian"
+    );
+    frintezza::handle_finish_step(&mut world, iid, 2); // doors reopen
+    assert_eq!(
+        world.instances.get_var(iid, "cleared"),
+        1,
+        "encounter cleared"
     );
 }
 
