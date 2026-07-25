@@ -894,6 +894,59 @@ fn round_end_announces_to_online_players() {
 }
 
 #[test]
+fn point_exchange_refused_when_inventory_over_80_percent() {
+    use crate::model::components::PlayerVariables;
+    use crate::model::inventory::Inventory;
+    let (mut world, _db_rx, _link) = quest_test_world();
+    add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    // A one-slot bag, then one item in it → over the 80 % threshold.
+    world.cfg.character.inventory_max_no_dwarf = 1;
+    {
+        let World { data, objects, .. } = &mut world;
+        objects
+            .get_component_mut::<Inventory>(&100)
+            .unwrap()
+            .add_item(&data.item_data, 9_000_100, 57, 1000); // adena (one slot)
+    }
+    world
+        .objects
+        .get_component_mut::<PlayerVariables>(&100)
+        .unwrap()
+        .set_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 10);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager calculatePointsDone"),
+    );
+
+    // Refused: no marks, points untouched, the weight/slot message sent.
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&100)
+            .unwrap()
+            .count_of(crate::game_loop::olympiad::MARK_ITEM),
+        0,
+        "no marks while the bag is full"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<PlayerVariables>(&100)
+            .unwrap()
+            .get_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0),
+        10,
+        "banked points preserved"
+    );
+    assert!(got_sm(
+        &drain(&mut rx),
+        crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT
+    ));
+}
+
+#[test]
 fn a_fighting_noble_cannot_register() {
     let (mut world, _tx, _db, _l) = test_world();
     open_games(&mut world);

@@ -94,12 +94,44 @@ fn unclaimed_points(ctx: &QuestCtx) -> i32 {
     ctx.player_var_int(crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR, 0)
 }
 
+/// `Player.isInventoryUnder80(false)`: the non-quest slot count is within 80 %
+/// of the inventory limit. An absent inventory counts as empty.
+fn inventory_under_80(ctx: &QuestCtx) -> bool {
+    let used = ctx
+        .world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&ctx.player)
+        .map_or(0, |inv| inv.non_quest_size(&ctx.world.data.item_data));
+    let race = ctx
+        .world
+        .objects
+        .get_component::<Player>(&ctx.player)
+        .map_or(0, |p| p.race);
+    let limit = ctx.world.cfg.character.inventory_limit(race);
+    used as f64 <= limit as f64 * 0.8
+}
+
+fn send_sm(ctx: &QuestCtx, sm_id: i16) {
+    if let Some(cs) = ctx.world.clients.get(&ctx.client_id) {
+        cs.send(crate::network::server_packets::system_message_with(
+            sm_id,
+            &[],
+        ));
+    }
+}
+
 /// `calculatePointsDone`: convert the banked points to Marks of Battle
-/// (`AltOlyMarkPerPoint` each) and clear the variable.
-/// TODO(G25): Java also refuses when inventory is over 80 % of the weight/slot
-/// limit; that check is not wired yet.
+/// (`AltOlyMarkPerPoint` each) and clear the variable — refused while the
+/// inventory is over 80 % full.
 fn calculate_points_done(ctx: &mut QuestCtx) {
     use crate::game_loop::olympiad::{MARK_ITEM, MARK_PER_POINT, UNCLAIMED_POINTS_VAR};
+    if !inventory_under_80(ctx) {
+        send_sm(
+            ctx,
+            crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
+        );
+        return;
+    }
     let points = unclaimed_points(ctx);
     if points > 0 {
         ctx.unset_player_var(UNCLAIMED_POINTS_VAR);
@@ -156,8 +188,13 @@ fn register_1v1(ctx: &mut QuestCtx) -> Option<String> {
     {
         return Some("OlyManager-noPoints.html".to_string());
     }
-    // TODO(G25): Java also refuses when inventory is over 80 % of the weight /
-    // slot limit (`isInventoryUnder80`); that check is not wired yet.
+    if !inventory_under_80(ctx) {
+        send_sm(
+            ctx,
+            crate::network::server_packets::sm_ids::UNABLE_TO_PROCESS_UNTIL_INVENTORY_UNDER_80_PERCENT,
+        );
+        return None;
+    }
     crate::game_loop::olympiad::register(ctx.world, ctx.player, CompetitionType::NonClassed);
     None
 }
