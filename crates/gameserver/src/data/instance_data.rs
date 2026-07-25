@@ -43,6 +43,9 @@ pub enum ExitType {
 #[derive(Debug, Clone)]
 pub struct InstanceTemplate {
     pub id: i32,
+    /// The `name` attribute, or `None` when absent (Java's field defaults to
+    /// "UnknownInstance"); cosmetic, shown only in the GM instance panel.
+    pub name: Option<String>,
     /// `maxWorlds` — concurrent copies allowed, or -1 for unlimited.
     pub max_worlds: i32,
     /// `<time duration>` — how long the instance stays up, in minutes (0 = none).
@@ -91,6 +94,11 @@ impl InstanceData {
         self.by_id.get(&id)
     }
 
+    /// Every template (unordered) — the GM instance panel sorts/filters these.
+    pub fn iter(&self) -> impl Iterator<Item = &InstanceTemplate> {
+        self.by_id.values()
+    }
+
     pub fn len(&self) -> usize {
         self.by_id.len()
     }
@@ -124,6 +132,7 @@ fn collect_xml(dir: &str, out: &mut Vec<std::path::PathBuf>) {
 fn parse(content: &str) -> Option<InstanceTemplate> {
     let mut reader = Reader::from_str(content);
     let mut id = None;
+    let mut name = None;
     let mut max_worlds = -1;
     let mut duration_min = 0;
     let mut empty_destroy_min = 0;
@@ -141,6 +150,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
                 handle_open(
                     &e,
                     &mut id,
+                    &mut name,
                     &mut max_worlds,
                     &mut duration_min,
                     &mut empty_destroy_min,
@@ -168,6 +178,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
     }
     Some(InstanceTemplate {
         id: id?,
+        name,
         max_worlds,
         duration_min,
         empty_destroy_min,
@@ -182,6 +193,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
 fn handle_open(
     e: &BytesStart,
     id: &mut Option<i32>,
+    name: &mut Option<String>,
     max_worlds: &mut i32,
     duration_min: &mut i32,
     empty_destroy_min: &mut i32,
@@ -195,6 +207,7 @@ fn handle_open(
     match e.name().as_ref() {
         b"instance" => {
             *id = attr_i32(e, b"id");
+            *name = attr_str(e, b"name").filter(|s| !s.is_empty());
             *max_worlds = attr_i32(e, b"maxWorlds").unwrap_or(-1);
         }
         b"time" => {

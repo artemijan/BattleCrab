@@ -1,0 +1,254 @@
+//! `AdminInstance` — the GM instance panel (G27). Port of the datapack
+//! `admincommandhandlers/AdminInstance`: an overview page (`//instance`), a
+//! template list + per-template detail (`//listinstances` / `//instancelist
+//! id=N`), and create / teleport / destroy, each of which redraws the detail
+//! page. The per-player instance-reuse view (`AdminInstanceZone`) is deferred
+//! with reuse-time tracking.
+
+use super::menu::show_admin_html_replace;
+use super::send_message;
+use crate::data::instance_data::InstanceTemplate;
+use crate::game_loop::instances;
+use crate::model::components::PartyRef;
+use crate::world::World;
+
+/// Templates the retail panel hides from the list — the Olympiad arenas and the
+/// Chambers of Delusion, all driven by their own managers (Java
+/// `IGNORED_TEMPLATES`).
+const IGNORED_TEMPLATES: &[i32] = &[127, 128, 129, 130, 131, 132, 147, 148, 149, 150];
+
+/// `//instance` / `//instances`: the overview page (live-instance + template
+/// counts).
+pub(super) fn admin_instance_panel(world: &World, client_id: u32) {
+    show_admin_html_replace(
+        world,
+        client_id,
+        "instances.htm",
+        &[
+            ("instCount", world.instances.len().to_string()),
+            ("tempCount", world.data.instance_templates.len().to_string()),
+        ],
+    );
+}
+
+/// `//listinstances` / `//instancelist [id=N] [page=N]`: `id>0` opens the
+/// template detail, otherwise the template list (Java `processBypass`).
+pub(super) fn admin_instance_list(world: &World, client_id: u32, args: &[&str]) {
+    let template_id = kv_int(args, "id").unwrap_or(0);
+    let page = kv_int(args, "page").unwrap_or(0);
+    if template_id > 0 {
+        send_template_details(world, client_id, template_id);
+    } else {
+        send_template_list(world, client_id, page);
+    }
+}
+
+/// `//instancecreate <templateId> [Alone|Party|CommandChannel]`: build an
+/// instance from the template and move the chosen group into it, then redraw
+/// its detail page.
+pub(super) fn admin_instance_create(world: &mut World, client_id: u32, gm_oid: i32, args: &[&str]) {
+    let Some(template_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(
+            world,
+            client_id,
+            "Usage: //instancecreate <templateId> [Alone|Party]",
+        );
+        return;
+    };
+    if world.data.instance_templates.get(template_id).is_none() {
+        send_message(world, client_id, "Wrong parameters! Please try again.");
+        return;
+    }
+    // Java's enter groups. Interlude has no command channels, so CommandChannel
+    // collapses to Party (which itself falls back to the GM alone).
+    let members: Vec<i32> = match args.get(1).copied().unwrap_or("Alone") {
+        "Alone" => vec![gm_oid],
+        "Party" | "CommandChannel" => party_members(world, gm_oid),
+        _ => {
+            send_message(
+                world,
+                client_id,
+                "Wrong enter group usage! Please use those values: Alone, Party or CommandChannel.",
+            );
+            return;
+        }
+    };
+
+    let Some(instance_id) = instances::create_from_template(world, template_id) else {
+        send_message(world, client_id, "Wrong parameters! Please try again.");
+        return;
+    };
+    for member in members {
+        instances::enter(world, member, instance_id);
+    }
+    send_template_details(world, client_id, template_id);
+}
+
+/// `//instanceteleport <instanceId>`: enter an existing instance, then redraw
+/// its detail page.
+pub(super) fn admin_instance_teleport(
+    world: &mut World,
+    client_id: u32,
+    gm_oid: i32,
+    args: &[&str],
+) {
+    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //instanceteleport <instanceId>");
+        return;
+    };
+    let Some(template_id) = world.instances.get(id).map(|i| i.template_id) else {
+        send_message(world, client_id, &format!("No instance {id}."));
+        return;
+    };
+    instances::enter(world, gm_oid, id);
+    send_template_details(world, client_id, template_id);
+}
+
+/// `//instancedestroy <instanceId>`: tear an instance down (ousting anyone
+/// inside), then redraw its template detail page.
+pub(super) fn admin_instance_destroy(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //instancedestroy <instanceId>");
+        return;
+    };
+    let Some(template_id) = world.instances.get(id).map(|i| i.template_id) else {
+        send_message(world, client_id, &format!("No instance {id}."));
+        return;
+    };
+    let count = world.instances.member_count(id);
+    // TODO(G27): Java also warns everyone inside with an ExShowScreenMessage
+    // ("destroyed by Game Master") before the teleport-out.
+    instances::destroy(world, id);
+    send_message(
+        world,
+        client_id,
+        &format!("You destroyed Instance {id} with {count} players inside."),
+    );
+    send_template_details(world, client_id, template_id);
+}
+
+/// Java `sendTemplateList`: the non-ignored templates, most-populated first.
+/// (No next/prev pager yet — the Interlude template set fits one page.)
+fn send_template_list(world: &World, client_id: u32, _page: i32) {
+    let mut templates: Vec<&InstanceTemplate> = world
+        .data
+        .instance_templates
+        .iter()
+        .filter(|t| !IGNORED_TEMPLATES.contains(&t.id))
+        .collect();
+    templates.sort_by_key(|t| std::cmp::Reverse(world.instances.world_count(t.id)));
+
+    let mut data = String::new();
+    for t in templates {
+        data.push_str(&format!(
+            "<table border=0 cellpadding=0 cellspacing=0 bgcolor=\"363636\">\
+             <tr><td align=center fixwidth=\"250\"><font color=\"LEVEL\">{name} ({id})</font></td></tr></table>\
+             <table border=0 cellpadding=0 cellspacing=0 bgcolor=\"363636\">\
+             <tr><td align=center fixwidth=\"83\">Active worlds:</td><td align=center fixwidth=\"83\"></td>\
+             <td align=center fixwidth=\"83\">{worlds}</td></tr>\
+             <tr><td align=center fixwidth=\"83\">Detailed info:</td><td align=center fixwidth=\"83\"></td>\
+             <td align=center fixwidth=\"83\"><button value=\"Show me!\" action=\"bypass -h admin_instancelist id={id}\" width=\"85\" height=\"20\" back=\"L2UI_ct1.button_df\" fore=\"L2UI_ct1.button_df\"></td></tr></table><br>",
+            name = template_name(t),
+            id = t.id,
+            worlds = fmt_worlds(world, t),
+        ));
+    }
+    show_admin_html_replace(
+        world,
+        client_id,
+        "instances_list.htm",
+        &[("pages", String::new()), ("data", data)],
+    );
+}
+
+/// Java `sendTemplateDetails`: the template's stats plus the live instances made
+/// from it, each with Teleport / Destroy buttons.
+fn send_template_details(world: &World, client_id: u32, template_id: i32) {
+    let Some(t) = world.data.instance_templates.get(template_id) else {
+        send_message(
+            world,
+            client_id,
+            &format!("Instance template with id {template_id} does not exist!"),
+        );
+        admin_instance_panel(world, client_id);
+        return;
+    };
+
+    let mut instance_list = String::from(
+        "<table border=0 cellpadding=2 cellspacing=0 bgcolor=\"363636\"><tr>\
+         <td fixwidth=\"83\"><font color=\"LEVEL\">Instance ID</font></td>\
+         <td fixwidth=\"83\"><font color=\"LEVEL\">Teleport</font></td>\
+         <td fixwidth=\"83\"><font color=\"LEVEL\">Destroy</font></td></tr></table>",
+    );
+    let mut live: Vec<(i32, usize)> = world
+        .instances
+        .iter()
+        .filter(|(_, inst)| inst.template_id == template_id)
+        .map(|(id, inst)| (id, inst.members.len()))
+        .collect();
+    live.sort_by_key(|(_, count)| *count); // Java sorts by player count
+    for (id, _) in live {
+        instance_list.push_str(&format!(
+            "<table border=0 cellpadding=2 cellspacing=0 bgcolor=\"363636\"><tr>\
+             <td fixwidth=\"83\">{id}</td>\
+             <td fixwidth=\"83\"><button value=\"Teleport!\" action=\"bypass -h admin_instanceteleport {id}\" width=75 height=18 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\"></td>\
+             <td fixwidth=\"83\"><button value=\"Destroy!\" action=\"bypass -h admin_instancedestroy {id}\" width=75 height=18 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\"></td></tr></table>",
+        ));
+    }
+
+    show_admin_html_replace(
+        world,
+        client_id,
+        "instances_detail.htm",
+        &[
+            ("templateId", template_id.to_string()),
+            ("templateName", template_name(t).to_string()),
+            ("activeWorlds", fmt_worlds(world, t)),
+            ("duration", format!("{} minutes", t.duration_min)),
+            ("emptyDuration", format!("{} minutes", t.empty_destroy_min)),
+            // Eject time and remove-buff aren't modeled yet (unused by the
+            // lifecycle); shown as their retail defaults.
+            ("ejectDuration", "0 minutes".to_string()),
+            ("removeBuff", "false".to_string()),
+            ("instanceList", instance_list),
+        ],
+    );
+}
+
+/// `"<worldCount> / <maxWorlds>"`, with -1 shown as "Unlimited".
+fn fmt_worlds(world: &World, t: &InstanceTemplate) -> String {
+    let cap = if t.max_worlds == -1 {
+        "Unlimited".to_string()
+    } else {
+        t.max_worlds.to_string()
+    };
+    format!("{} / {}", world.instances.world_count(t.id), cap)
+}
+
+/// The display name (Java's field defaults to "UnknownInstance" when the XML
+/// has no `name` attribute).
+fn template_name(t: &InstanceTemplate) -> &str {
+    t.name.as_deref().unwrap_or("UnknownInstance")
+}
+
+/// The GM's party members, or just the GM when they aren't in one.
+fn party_members(world: &World, oid: i32) -> Vec<i32> {
+    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied() {
+        if let Some(party) = world.parties.get(&pid) {
+            return party.members.clone();
+        }
+    }
+    vec![oid]
+}
+
+/// `id=N` / `page=N`-style bypass argument (Java `BypassParser`).
+fn kv_int(args: &[&str], key: &str) -> Option<i32> {
+    args.iter().find_map(|a| {
+        let (k, v) = a.split_once('=')?;
+        if k == key {
+            v.trim().parse().ok()
+        } else {
+            None
+        }
+    })
+}

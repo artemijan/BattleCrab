@@ -97,13 +97,17 @@ fn admin_unknown_vs_unimplemented() {
         "does-not-exist line"
     );
 
-    // In AdminCommands.xml (admin_instance, level 100, no confirm) but no body
-    // yet (the instance system is not ported) → not-implemented path, does not
-    // crash.
+    // In AdminCommands.xml (admin_instancezone, level 100) but no body yet (the
+    // per-player instance-reuse view is deferred with reuse-time tracking) →
+    // not-implemented path, does not crash.
     on_packet(
         &mut world,
         1,
-        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("instance")].concat(),
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("instancezone"),
+        ]
+        .concat(),
     );
     assert_eq!(
         count_system_messages(&drain(&mut rx)),
@@ -326,6 +330,111 @@ fn admin_menu_serves_main_page() {
     assert!(
         content.contains("admin_admin"),
         "menu links back through the admin_ bypass"
+    );
+}
+
+/// `//instancelist id=<t>` (G27) serves the real detail html with the live
+/// instances of that template, each carrying teleport/destroy bypasses.
+#[test]
+fn admin_instance_detail_lists_live_instances() {
+    use crate::data::instance_data::{ExitType, InstanceTemplate};
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+
+    // A template with an empty default group (no NPC data needed) + a live copy.
+    world
+        .data
+        .instance_templates
+        .insert_for_test(InstanceTemplate {
+            id: 900,
+            name: Some("Test Arena".into()),
+            max_worlds: -1,
+            duration_min: 30,
+            empty_destroy_min: 5,
+            enter: Some((100, 200, 300)),
+            exit: ExitType::Origin,
+            doors: vec![],
+            groups: vec![],
+        });
+    let iid = crate::game_loop::instances::create_from_template(&mut world, 900).expect("template");
+
+    let mut rx = ingame_player_access(&mut world, 1, 6440, 100);
+    drain(&mut rx);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("instancelist id=900"),
+        ]
+        .concat(),
+    );
+
+    let pkts = drain(&mut rx);
+    let html = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("NpcHtmlMessage");
+    let mut r = commons::network::PacketReader::new(&html[1..]);
+    r.read_i32().unwrap();
+    let content = r.read_string().unwrap();
+    assert!(
+        !content.contains("My text is missing"),
+        "the real detail htm was served"
+    );
+    assert!(
+        content.contains("Test Arena (900)"),
+        "template name + id shown"
+    );
+    assert!(
+        content.contains(&format!("admin_instanceteleport {iid}")),
+        "a Teleport button targets the live instance"
+    );
+    assert!(
+        content.contains(&format!("admin_instancedestroy {iid}")),
+        "a Destroy button targets the live instance"
+    );
+}
+
+/// `//instancecreate <t>` builds the instance and moves the GM into it (Alone).
+#[test]
+fn admin_instancecreate_enters_the_gm() {
+    use crate::data::instance_data::{ExitType, InstanceTemplate};
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world
+        .data
+        .instance_templates
+        .insert_for_test(InstanceTemplate {
+            id: 901,
+            name: Some("Solo".into()),
+            max_worlds: -1,
+            duration_min: 0,
+            empty_destroy_min: 0,
+            enter: Some((1000, 2000, 300)),
+            exit: ExitType::Origin,
+            doors: vec![],
+            groups: vec![],
+        });
+    let mut rx = ingame_player_access(&mut world, 1, 6441, 100);
+    drain(&mut rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("instancecreate 901"),
+        ]
+        .concat(),
+    );
+
+    let iid = crate::game_loop::helpers::instance_of(&world, 6441);
+    assert!(iid >= 1, "the GM entered a freshly-created instance");
+    assert_eq!(
+        world.instances.member_count(iid),
+        1,
+        "GM is the sole member"
     );
 }
 

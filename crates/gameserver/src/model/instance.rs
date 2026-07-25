@@ -85,6 +85,20 @@ impl InstanceManager {
         self.live.get(&id).map_or(0, |i| i.members.len())
     }
 
+    /// Every live instance as `(id, &Instance)` — the GM panel lists these.
+    pub fn iter(&self) -> impl Iterator<Item = (i32, &Instance)> {
+        self.live.iter().map(|(id, inst)| (*id, inst))
+    }
+
+    /// How many live instances were created from `template_id` (Java
+    /// `InstanceTemplate.getWorldCount`).
+    pub fn world_count(&self, template_id: i32) -> usize {
+        self.live
+            .values()
+            .filter(|i| i.template_id == template_id)
+            .count()
+    }
+
     pub fn contains(&self, id: i32) -> bool {
         self.live.contains_key(&id)
     }
