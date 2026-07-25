@@ -98,6 +98,7 @@ fn seed_instance_template(world: &mut World, template_id: i32, npc_id: i32) {
         .instance_templates
         .insert_for_test(InstanceTemplate {
             id: template_id,
+            name: Some("Test Instance".into()),
             max_worlds: -1,
             duration_min: 0,
             empty_destroy_min: 0,
