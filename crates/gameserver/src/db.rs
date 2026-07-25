@@ -694,6 +694,15 @@ pub enum DbCommand {
         var: String,
         value: String,
     },
+    /// Upsert a single `character_variables` row for a (possibly offline)
+    /// character — a targeted replace (delete + insert), unlike the wholesale
+    /// rewrite in the player flush. Used to bank Olympiad trade points for
+    /// offline nobles.
+    StoreCharVar {
+        char_id: i32,
+        var: String,
+        value: String,
+    },
     /// Upsert / delete an `account_premium` row (Java `PremiumManager`
     /// UPDATE/DELETE). Used by `//premium_*`.
     StorePremium {
@@ -1850,6 +1859,31 @@ async fn run(
                         .bind(account_name)
                         .bind(var)
                         .bind(value),
+                )
+                .await;
+            }
+            DbCommand::StoreCharVar {
+                char_id,
+                var,
+                value,
+            } => {
+                // The table has no unique key, so replace by delete + insert
+                // (Java `REMOVE_UNCLAIMED_POINTS` then `INSERT_UNCLAIMED_POINTS`).
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM character_variables WHERE charId=? AND var=?")
+                        .bind(char_id)
+                        .bind(&var),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO character_variables (charId, var, val) VALUES (?, ?, ?)",
+                    )
+                    .bind(char_id)
+                    .bind(var)
+                    .bind(value),
                 )
                 .await;
             }

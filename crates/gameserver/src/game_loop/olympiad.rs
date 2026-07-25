@@ -342,21 +342,28 @@ fn olympiad_trade_point(
 }
 
 /// After a round ends, bank each noble's exchangeable points on their
-/// `UNCLAIMED_OLYMPIAD_POINTS` variable (Java `loadNoblesRank`'s reward loop).
-/// TODO(G25): Java writes `character_variables` directly for offline nobles;
-/// here only online nobles are credited.
+/// `UNCLAIMED_OLYMPIAD_POINTS` variable (Java `loadNoblesRank`'s reward loop) —
+/// on the live component for online nobles, straight to `character_variables`
+/// for offline ones.
 fn store_trade_points(world: &mut World) {
     let ranks = compute_noble_ranks(world);
     let ids: Vec<i32> = world.olympiad.nobles.keys().copied().collect();
     for oid in ids {
         let points = olympiad_trade_point(world, &ranks, oid);
-        if points > 0 {
-            if let Some(v) = world
-                .objects
-                .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
-            {
-                v.set_int(UNCLAIMED_POINTS_VAR, points);
-            }
+        if points <= 0 {
+            continue;
+        }
+        if let Some(v) = world
+            .objects
+            .get_component_mut::<crate::model::components::PlayerVariables>(&oid)
+        {
+            v.set_int(UNCLAIMED_POINTS_VAR, points);
+        } else {
+            let _ = world.db.send(DbCommand::StoreCharVar {
+                char_id: oid,
+                var: UNCLAIMED_POINTS_VAR.to_string(),
+                value: points.to_string(),
+            });
         }
     }
 }

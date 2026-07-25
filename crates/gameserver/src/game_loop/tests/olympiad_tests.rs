@@ -735,6 +735,35 @@ fn round_end_banks_trade_points() {
 }
 
 #[test]
+fn round_end_banks_offline_nobles_to_the_db() {
+    use crate::db::DbCommand;
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    // An offline noble (no player object) — classified, will be hero + rank 1.
+    insert_noble(&mut world, 200, 88, 50, 15, 5);
+    world.olympiad.period = 0;
+
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+
+    let (char_id, value) = drain_db(&mut db_rx)
+        .into_iter()
+        .find_map(|c| match c {
+            DbCommand::StoreCharVar {
+                char_id,
+                var,
+                value,
+            } if var == crate::game_loop::olympiad::UNCLAIMED_POINTS_VAR => Some((char_id, value)),
+            _ => None,
+        })
+        .expect("offline noble's points written to character_variables");
+    assert_eq!(char_id, 200);
+    assert_eq!(value, "500", "hero (300) + rank-1 (200)");
+}
+
+#[test]
 fn point_mark_exchange_gives_marks_of_battle() {
     use crate::model::components::PlayerVariables;
     use crate::model::inventory::Inventory;
