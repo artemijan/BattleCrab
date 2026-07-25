@@ -1043,3 +1043,27 @@ fn a_wounded_idle_baium_heals_itself() {
         "the heal window does not reset the fight"
     );
 }
+
+/// Fifteen minutes after the kill the lair is force-emptied: the exit cube
+/// despawns and any straggler is sent to the surface (Java's post-kill
+/// `CLEAR_ZONE`).
+#[test]
+fn the_lair_is_emptied_after_the_kill() {
+    let (mut world, _db, _l) = baium_world();
+    let _rx = ingame_player(&mut world, 1, PLAYER, 116_000, 17_400, 10_107);
+    let before = world.scheduler.len();
+
+    crate::game_loop::baium::on_baium_killed(&mut world);
+    assert_eq!(count(&mut world, TELE_CUBE), 1, "the cube dropped");
+    assert!(world.scheduler.len() > before, "CLEAR_ZONE is armed");
+
+    // The 900 s timer fires: cube gone, straggler ousted to the first exit.
+    world.forced_rolls.push_back(0); // exit point 0
+    world.forced_rolls.push_back(0); // x jitter
+    world.forced_rolls.push_back(0); // y jitter
+    crate::game_loop::baium::handle_clear_zone(&mut world);
+
+    assert_eq!(count(&mut world, TELE_CUBE), 0, "the cube despawned");
+    let p = world.objects.get_component::<Position>(&PLAYER).unwrap();
+    assert_eq!((p.x, p.y), (108_784, 16_000), "the straggler was sent out");
+}

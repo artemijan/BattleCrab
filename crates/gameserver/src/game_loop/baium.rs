@@ -76,6 +76,8 @@ const CHECK_ATTACK_TICKS: u64 = 600;
 const RESET_IDLE_TICKS: u64 = 18_000;
 /// 5 minutes with no hit (and wounded) → Baium heals himself.
 const HEAL_IDLE_TICKS: u64 = 3_000;
+/// 15 minutes after the kill, the lair is force-emptied (cube + stragglers).
+const CLEAR_ZONE_TICKS: u64 = 9_000;
 
 /// The waker, held on the live Baium so the cinematic beats can reach them.
 #[derive(bevy_ecs::component::Component, Debug, Clone, Copy)]
@@ -756,8 +758,17 @@ pub(crate) fn on_baium_killed(world: &mut World) {
     );
     let roar = crate::network::server_packets::play_sound(DEATH_SOUND);
     broadcast_to_lair(world, &roar);
-    // TODO(G23): Java also arms CLEAR_ZONE at +900 s (despawn the cube and oust
-    // any stragglers). Deferred with the CHECK_ATTACK decay slice.
+    // Java arms `CLEAR_ZONE` at +900 s: the cube is a lift home for a quarter of
+    // an hour, then the lair is emptied — the cube despawns and stragglers are
+    // sent out.
+    world
+        .scheduler
+        .schedule(world.tick + CLEAR_ZONE_TICKS, ScheduledTask::BaiumClearZone);
+}
+
+/// The post-kill `CLEAR_ZONE` timer firing — empty the lair.
+pub(crate) fn handle_clear_zone(world: &mut World) {
+    clear_zone(world);
 }
 
 // ---------------------------------------------------------------------------

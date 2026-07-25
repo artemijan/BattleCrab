@@ -37,6 +37,9 @@ pub enum ScheduledTask {
     /// Baium's 60 s CHECK_ATTACK beat: 30-min-idle reset (revert to stone +
     /// clear the zone) or a `<75%`-HP self-heal after 5 min without a hit.
     BaiumCheckAttack,
+    /// 15 minutes after Baium dies: despawn the exit cube and oust any
+    /// stragglers still in the lair (Java's post-kill `CLEAR_ZONE`).
+    BaiumClearZone,
     /// The first Velociraptors enter, 60 s after the party is admitted.
     SailrenBeginFight,
     /// Sailren enters, 3 minutes after the Tyrannosaurus falls.
