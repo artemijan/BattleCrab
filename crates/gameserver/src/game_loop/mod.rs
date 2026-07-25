@@ -399,6 +399,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ValakasRemovePlayers => {
                 valakas::handle_remove_players(world);
             }
+            ScheduledTask::ValakasRegen { valakas_oid } => {
+                valakas::handle_regen(world, valakas_oid);
+            }
             ScheduledTask::DrChaosParanoia { dr_chaos_oid } => {
                 dr_chaos::handle_paranoia(world, dr_chaos_oid);
             }

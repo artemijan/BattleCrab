@@ -45,6 +45,9 @@ pub enum ScheduledTask {
     /// One beat of Valakas's death cinematic (`die_1`..`die_8`); the last beat
     /// spawns the exit cubes and arms `ValakasRemovePlayers`.
     ValakasDeathCinematic { valakas_oid: i32, step: u8 },
+    /// Valakas's 60 s regen tick: escalating self-heal, and a 15-min-idle reset
+    /// that sends him home and empties the lair.
+    ValakasRegen { valakas_oid: i32 },
     /// `remove_players` — 15 min after the death cubes appear, the lair empties.
     ValakasRemovePlayers,
     /// Dr. Chaos's paranoia tick (1 s while NORMAL) — drains the timer by the
