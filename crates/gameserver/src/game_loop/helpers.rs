@@ -127,21 +127,21 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
     }
 }
 
-/// Send `packet` to every in-game player whose region cell is adjacent to
-/// `region` — the broadcast shape for NPC-originated packets (Java
-/// `Npc.broadcastPacket`; NPCs never hold a session, so there is no
-/// self/others split).
+/// Send `packet` to every **overworld** (instance 0) in-game player whose region
+/// cell is adjacent to `region` — the broadcast shape for NPC-originated packets
+/// (Java `Npc.broadcastPacket`; NPCs never hold a session, so there is no
+/// self/others split). Every current caller broadcasts from the overworld, so
+/// instanced players (e.g. Olympiad fighters) don't receive it; an instanced
+/// source will need an instance argument here (G27 slice with instanced NPCs).
 pub(crate) fn broadcast_near_region(world: &World, region: (i32, i32), packet: &[u8]) {
     use crate::model::components::RegionCell;
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
-            let Some(p) = world
-                .objects
-                .get_component::<RegionCell>(&s.player_object_id())
-            else {
+            let oid = s.player_object_id();
+            let Some(p) = world.objects.get_component::<RegionCell>(&oid) else {
                 continue;
             };
-            if crate::world::regions_adjacent(region, p.0) {
+            if crate::world::regions_adjacent(region, p.0) && instance_of(world, oid) == 0 {
                 cs.send(packet.to_vec());
             }
         }
