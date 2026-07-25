@@ -4,9 +4,10 @@
 //! mirroring Java's `LastImperialTomb extends AbstractInstance`.
 //!
 //! Landed: entry + the room-crawl progression (`onKill` status 0→4, slice 1),
-//! per-instance doors (slice 2), and the intro cinematic step machine (slice 3).
-//! The boss fight (Scarlet morphs, songs, demons/portraits) and the finish are
-//! later slices (see `docs/PLAN_FRINTEZZA.md`).
+//! per-instance doors (slice 2), the intro cinematic step machine (slice 3), and
+//! Scarlet's 80%/20% morphs → final form → finish trigger (slice 4). Frintezza's
+//! songs, the demon/portrait spawn loops + Dewdrop suicide, Scarlet's custom
+//! skill AI, and the full finish cinematic are later slices (`docs/PLAN_FRINTEZZA.md`).
 
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
@@ -22,13 +23,6 @@ pub(crate) const GUIDE: i32 = 32011;
 pub(crate) const CUBE: i32 = 29061;
 /// The alarm whose death opens the first room (Java `HALL_ALARM`).
 const HALL_ALARM: i32 = 18328;
-
-/// Monsters whose death drives the crawl (Java `ON_KILL_MONSTERS`): the alarm,
-/// the suicidal soldier, and the room trash.
-pub(crate) const ON_KILL_MONSTERS: &[i32] = &[
-    HALL_ALARM, 18333, // HALL_KEEPER_SUICIDAL_SOLDIER
-    18329, 18330, 18331, 18334, 18335, 18336, 18337, 18338, 18339,
-];
 
 // The four door groups the crawl opens as each room is cleared.
 const FIRST_ROOM_DOORS: &[i32] = &[
@@ -138,7 +132,6 @@ fn set_monsters_count(world: &mut World, instance_id: i32, spawned: usize) {
 // ---------------------------------------------------------------------------
 
 const FRINTEZZA: i32 = 29045;
-const SCARLET1: i32 = 29046;
 /// `PORTRAIT_SPAWNS` — portrait `(id,x,y,z,heading)` then its demon (`id + 2`)
 /// `(x,y,z,heading)`.
 const PORTRAIT_SPAWNS: [[i32; 9]; 4] = [
@@ -421,14 +414,13 @@ fn spawn_frozen(
     Some(oid)
 }
 
-/// Toggle an NPC's paralyze (+ invulnerability) — Java `setImmobilized` /
-/// `disableAllSkills` (+ `setInvul`).
-fn set_frozen(world: &mut World, oid: i32, frozen: bool, invul: bool) {
+/// Set an NPC's paralyze + invulnerability directly (Java `setImmobilized` /
+/// `disableAllSkills` + `setInvul`). The hand-back clears both, so an actor
+/// spawned invulnerable actually becomes killable.
+fn set_frozen(world: &mut World, oid: i32, paralyzed: bool, invul: bool) {
     let mut flags = admin_flags(world, oid);
-    flags.paralyzed = frozen;
-    if invul {
-        flags.invul = frozen;
-    }
+    flags.paralyzed = paralyzed;
+    flags.invul = invul;
     world.objects.add_components(&oid, flags);
 }
 
@@ -450,4 +442,171 @@ fn admin_flags(world: &World, oid: i32) -> AdminFlags {
 /// Read an object-ref parameter stored as an object id (0 when unset).
 fn var_oid(world: &World, instance_id: i32, key: &str) -> i32 {
     world.instances.get_var(instance_id, key) as i32
+}
+
+// ---------------------------------------------------------------------------
+// The boss fight (Java the `SCARLET_*_MORPH` / `onKill SCARLET2` branches).
+//
+// Slice 4: Scarlet's two morphs — at 80 % HP a first-morph cast, at 20 % the
+// second morph that replaces Scarlet1 (29046) with its final form Scarlet2
+// (29047) — and the finish trigger when Scarlet2 falls. Frintezza's songs, the
+// demon/portrait spawn loops, the Dewdrop suicide and the full finish cinematic
+// are later slices.
+// ---------------------------------------------------------------------------
+
+/// Scarlet's first form (morphs) and final form (Java `SCARLET1`/`SCARLET2`).
+pub(crate) const SCARLET1: i32 = 29046;
+pub(crate) const SCARLET2: i32 = 29047;
+const FIRST_MORPH_SKILL: i32 = 5017;
+
+// (`SCARLET1` is also the intro spawn id above.)
+
+// Fight step ids.
+const STEP_FIRST_MORPH: u8 = 1;
+const STEP_SECOND_MORPH_A: u8 = 2;
+const STEP_SECOND_MORPH_B: u8 = 3;
+
+/// Java `onAttack(SCARLET1)`: cross the 80 % / 20 % HP thresholds once each,
+/// arming the morphs. `scarlet_oid` is the struck Scarlet.
+pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32) {
+    if npc_id != SCARLET1 {
+        return; // only the first form morphs
+    }
+    let instance_id = instance_of(world, scarlet_oid);
+    if instance_id == 0 {
+        return;
+    }
+    let Some((cur, max)) = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&scarlet_oid)
+        .map(|v| (v.cur_hp, v.max_hp as f64))
+    else {
+        return;
+    };
+    let sv = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&scarlet_oid)
+        .map_or(0, |n| n.script_value);
+
+    if sv == 0 && cur < max * 0.80 {
+        set_script_value(world, scarlet_oid, 1);
+        schedule_fight(world, instance_id, STEP_FIRST_MORPH, 1000);
+    } else if sv == 1 && cur < max * 0.20 {
+        set_script_value(world, scarlet_oid, 2);
+        schedule_fight(world, instance_id, STEP_SECOND_MORPH_A, 1000);
+    }
+}
+
+/// Java `onKill(SCARLET2)`: the final form falls — end the encounter.
+pub(crate) fn on_scarlet_killed(world: &mut World, killer_oid: i32) {
+    let instance_id = instance_of(world, killer_oid);
+    if instance_id == 0 {
+        return;
+    }
+    // TODO(frintezza slice 5): the FINISH_CAMERA chain (MagicSkillCanceled on
+    // Frintezza, the death cinematic). For now, end it cleanly: Frintezza dies,
+    // the doors reopen so the party can reach the exit cube.
+    let frintezza = var_oid(world, instance_id, "frintezza");
+    if frintezza != 0 {
+        set_frozen(world, frintezza, false, false); // drop invulnerability
+        let region = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&frintezza)
+            .map(|r| r.0)
+            .unwrap_or((0, 0));
+        crate::game_loop::death::despawn_npc(world, frintezza, region);
+    }
+    for group in [
+        FIRST_ROOM_DOORS,
+        FIRST_ROUTE_DOORS,
+        SECOND_ROOM_DOORS,
+        SECOND_ROUTE_DOORS,
+    ] {
+        open_doors(world, instance_id, group);
+    }
+    world.instances.set_var(instance_id, "fightActive", 0);
+    world.instances.set_var(instance_id, "cleared", 1);
+}
+
+fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
+    match step {
+        // SCARLET_FIRST_MORPH: the morph cast (cosmetic; Java also plays a song).
+        STEP_FIRST_MORPH => {
+            let scarlet = var_oid(world, instance_id, "activeScarlet");
+            if scarlet != 0 {
+                if let Some(p) = world.objects.get_component::<Position>(&scarlet).copied() {
+                    let src = (scarlet, p.x, p.y, p.z);
+                    instances::broadcast_to_instance(
+                        world,
+                        instance_id,
+                        &server_packets::magic_skill_use_raw(src, src, FIRST_MORPH_SKILL, 1, 1000),
+                    );
+                }
+            }
+            // TODO(frintezza slice 4b): playRandomSong here.
+        }
+        // SCARLET_SECOND_MORPH: freeze the party, then replace Scarlet1 with its
+        // final form at the same spot.
+        STEP_SECOND_MORPH_A => {
+            disable_players(world, instance_id);
+            let scarlet1 = var_oid(world, instance_id, "activeScarlet");
+            let (x, y, z, h) = world
+                .objects
+                .get_component::<Position>(&scarlet1)
+                .map(|p| (p.x, p.y, p.z, p.heading))
+                .unwrap_or(SCARLET_POS);
+            if scarlet1 != 0 {
+                let region = world
+                    .objects
+                    .get_component::<crate::model::components::RegionCell>(&scarlet1)
+                    .map(|r| r.0)
+                    .unwrap_or((0, 0));
+                crate::game_loop::death::despawn_npc(world, scarlet1, region);
+            }
+            if let Some(scarlet2) = spawn_frozen(world, instance_id, SCARLET2, x, y, z, h, true) {
+                world
+                    .instances
+                    .set_var(instance_id, "activeScarlet", scarlet2 as i64);
+                instances::broadcast_to_instance(
+                    world,
+                    instance_id,
+                    &server_packets::social_action(scarlet2, 2),
+                );
+            }
+            schedule_fight(world, instance_id, STEP_SECOND_MORPH_B, 9000);
+        }
+        // The final form wakes and control returns.
+        STEP_SECOND_MORPH_B => {
+            let scarlet2 = var_oid(world, instance_id, "activeScarlet");
+            if scarlet2 != 0 {
+                set_frozen(world, scarlet2, false, false);
+            }
+            enable_players(world, instance_id);
+        }
+        _ => {}
+    }
+}
+
+/// Dispatch entry (guards a torn-down instance).
+pub(crate) fn handle_fight_step(world: &mut World, instance_id: i32, step: u8) {
+    if !world.instances.contains(instance_id) {
+        return;
+    }
+    handle_fight_step_inner(world, instance_id, step);
+}
+
+fn schedule_fight(world: &mut World, instance_id: i32, step: u8, delay_ms: u64) {
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(delay_ms as i32).max(1),
+        ScheduledTask::FrintezzaFight { instance_id, step },
+    );
+}
+
+fn set_script_value(world: &mut World, oid: i32, value: i32) {
+    if let Some(n) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&oid)
+    {
+        n.script_value = value;
+    }
 }

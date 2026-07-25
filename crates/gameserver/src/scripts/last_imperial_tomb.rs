@@ -3,12 +3,20 @@
 //! the crawl kill notifications, all wired to [`crate::game_loop::frintezza`].
 //! Port of `ai/bosses/Frintezza/LastImperialTomb`'s `onTalk`/`onKill`.
 
-use crate::game_loop::frintezza::{self, CUBE, GUIDE, ON_KILL_MONSTERS};
+use crate::game_loop::frintezza::{self, CUBE, GUIDE, SCARLET1, SCARLET2};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::{self, sm_ids};
 
 /// Frintezza's Magic Force Field Removal Scroll — the entry ticket.
 const FRINTEZZA_SCROLL: i32 = 8073;
+
+/// Every NPC whose death this script reacts to: the crawl monsters (advance the
+/// rooms) plus Scarlet's final form (end the fight).
+const KILL_NPCS: &[i32] = &[
+    18328, 18333, // HALL_ALARM, HALL_KEEPER_SUICIDAL_SOLDIER
+    18329, 18330, 18331, 18334, 18335, 18336, 18337, 18338, 18339, // room trash
+    SCARLET2,
+];
 
 pub struct LastImperialTomb;
 
@@ -32,7 +40,10 @@ impl QuestScript for LastImperialTomb {
         &[GUIDE, CUBE]
     }
     fn kill_npcs(&self) -> &[i32] {
-        ON_KILL_MONSTERS
+        KILL_NPCS
+    }
+    fn attack_npcs(&self) -> &[i32] {
+        &[SCARLET1]
     }
 
     fn on_talk(&self, _ctx: &mut QuestCtx) -> Option<String> {
@@ -62,8 +73,17 @@ impl QuestScript for LastImperialTomb {
         None
     }
 
+    fn on_attack(&self, ctx: &mut QuestCtx) {
+        let (scarlet, npc_id) = (ctx.npc, ctx.npc_id);
+        frintezza::on_scarlet_attack(ctx.world, scarlet, npc_id);
+    }
+
     fn on_kill(&self, ctx: &mut QuestCtx) {
         let (killer, npc_id) = (ctx.player, ctx.npc_id);
-        frintezza::on_monster_killed(ctx.world, killer, npc_id);
+        if npc_id == SCARLET2 {
+            frintezza::on_scarlet_killed(ctx.world, killer);
+        } else {
+            frintezza::on_monster_killed(ctx.world, killer, npc_id);
+        }
     }
 }
