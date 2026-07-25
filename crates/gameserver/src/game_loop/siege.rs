@@ -705,14 +705,10 @@ pub(crate) fn handle_scheduled_siege_start(world: &mut World, castle_id: i32) {
 
 /// `dist/game/config/Siege.ini` (Interlude): a clan must be at least level 3,
 /// and each side holds up to 500 clans.
-#[allow(dead_code)]
 const SIEGE_CLAN_MIN_LEVEL: i32 = 3;
-#[allow(dead_code)]
 const ATTACKER_MAX_CLANS: usize = 500;
-#[allow(dead_code)]
 const DEFENDER_MAX_CLANS: usize = 500;
 /// Java closes registration 24 h before the siege (`getSiegeDate - 86400000`).
-#[allow(dead_code)]
 const REGISTRATION_CLOSE_BEFORE_MS: i64 = 86_400_000;
 
 /// The result of a clan trying to register for a siege — each variant is one
@@ -720,7 +716,6 @@ const REGISTRATION_CLOSE_BEFORE_MS: i64 = 86_400_000;
 /// in `registerAttacker`/`registerDefender`), so the caller can pick the right
 /// SystemMessage without re-deriving why.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)] // staged: slice 2 wires the SiegeInfo/RequestJoinSiege reachability
 pub enum RegisterOutcome {
     /// The clan may register (and, from [`register`], now has).
     Approved,
@@ -752,7 +747,6 @@ pub enum RegisterOutcome {
 /// the next scheduled siege. A castle with no (or a disabled) schedule never
 /// auto-closes — it is GM-driven, so registration stays open until the siege
 /// runs (the `in_progress` check covers that case separately).
-#[allow(dead_code)]
 pub(crate) fn is_registration_over(world: &World, castle_id: i32, now_millis: i64) -> bool {
     let Some(entry) = world.data.siege_schedule.get(&castle_id) else {
         return false;
@@ -767,7 +761,6 @@ pub(crate) fn is_registration_over(world: &World, castle_id: i32, now_millis: i6
 /// Java `checkIfAlreadyRegisteredForSameDay`: is the clan registered (in any
 /// role) for a *different* castle whose siege falls on the same weekday? A clan
 /// can only take part in one siege per day.
-#[allow(dead_code)]
 fn registered_same_day(world: &World, this_castle: i32, clan_id: i32) -> bool {
     let Some(this_weekday) = world
         .data
@@ -799,7 +792,6 @@ fn registered_same_day(world: &World, this_castle: i32, clan_id: i32) -> bool {
 /// Java `checkIfCanRegister` plus the side-specific pre-checks of
 /// `registerAttacker`/`registerDefender`, in Java's order. Pure — decides only,
 /// changes nothing.
-#[allow(dead_code)]
 pub(crate) fn check_can_register(
     world: &World,
     castle_id: i32,
@@ -868,7 +860,6 @@ pub(crate) fn check_can_register(
 }
 
 /// `(attacker count, defender+pending count)` for the side-limit checks.
-#[allow(dead_code)]
 fn side_counts(world: &World, castle_id: i32) -> (usize, usize) {
     let Some(siege) = world.sieges.get(&castle_id) else {
         return (0, 0);
@@ -895,7 +886,6 @@ fn side_counts(world: &World, castle_id: i32) -> (usize, usize) {
 /// [`RegisterOutcome::Approved`] the clan is added — attackers as `Attacker`,
 /// defenders as `DefenderPending` (awaiting the owner's approval) — and the row
 /// is persisted. Any other outcome changes nothing.
-#[allow(dead_code)]
 pub(crate) fn register(
     world: &mut World,
     castle_id: i32,
@@ -925,6 +915,7 @@ pub(crate) fn register(
 
 /// Java `approveSiegeDefenderClan`: the owner promotes a pending defender to a
 /// full defender. Returns whether a pending row was found and promoted.
+// Staged: wired by the `RequestConfirmSiegeWaitingList` (0xAE) follow-up slice.
 #[allow(dead_code)]
 pub(crate) fn approve_defender(world: &mut World, castle_id: i32, clan_id: i32) -> bool {
     let promoted = world.sieges.get_mut(&castle_id).is_some_and(|siege| {
@@ -947,7 +938,6 @@ pub(crate) fn approve_defender(world: &mut World, castle_id: i32, clan_id: i32) 
 
 /// Java `removeSiegeClan`: a clan cancels its registration. Returns whether it
 /// was registered.
-#[allow(dead_code)]
 pub(crate) fn remove_registration(world: &mut World, castle_id: i32, clan_id: i32) -> bool {
     if clan_id <= 0 {
         return false;
@@ -962,4 +952,150 @@ pub(crate) fn remove_registration(world: &mut World, castle_id: i32, clan_id: i3
             .send(DbCommand::RemoveSiegeClan { castle_id, clan_id });
     }
     removed
+}
+
+// ---------------------------------------------------------------------------
+// Reachability — `RequestJoinSiege` (0xAD) and the `SiegeInfo` response
+// ---------------------------------------------------------------------------
+
+/// Send a SystemMessage to one client.
+fn send_sm_to(world: &World, client_id: u32, id: i16) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::enter_world::system_message(id));
+    }
+}
+
+/// The SystemMessage for a refusal, or `None` when nothing is said (success, or
+/// a refusal whose Interlude message id isn't ported yet — the unchanged window
+/// is the feedback).
+fn outcome_sm(outcome: RegisterOutcome) -> Option<i16> {
+    use RegisterOutcome::*;
+    match outcome {
+        ClanTooLow => Some(sm_ids::ONLY_CLANS_OF_LEVEL_3_OR_ABOVE_MAY_REGISTER_FOR_A_CASTLE_SIEGE),
+        OwnerAutoRegistered => {
+            Some(sm_ids::CASTLE_OWNING_CLANS_ARE_AUTOMATICALLY_REGISTERED_ON_THE_DEFENDING_SIDE)
+        }
+        AlreadyRegistered => Some(sm_ids::YOU_HAVE_ALREADY_REQUESTED_A_CASTLE_SIEGE),
+        OwnsAnotherCastle => {
+            Some(sm_ids::A_CLAN_THAT_OWNS_A_CASTLE_CANNOT_PARTICIPATE_IN_ANOTHER_SIEGE)
+        }
+        AttackerSideFull => {
+            Some(sm_ids::NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_ATTACKER_SIDE)
+        }
+        DefenderSideFull => {
+            Some(sm_ids::NO_MORE_REGISTRATIONS_MAY_BE_ACCEPTED_FOR_THE_DEFENDER_SIDE)
+        }
+        // Ported message id pending (window-only feedback): RegistrationOver,
+        // SiegeInProgress, AllianceWithOwner, AlreadyRegisteredSameDay,
+        // DefendingNpcCastle. TODO(G24).
+        _ => None,
+    }
+}
+
+/// `RequestJoinSiege` (0xAD): a `CS_MANAGE_SIEGE` clan leader registers as
+/// attacker/defender (`isJoining==1`) or cancels (`isJoining==0`) for a castle
+/// siege, then gets the refreshed `SiegeInfo` window (Java `listRegisterClan`).
+pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(castle_id), Some(is_attacker), Some(is_joining)) =
+        (r.read_i32(), r.read_i32(), r.read_i32())
+    else {
+        return;
+    };
+
+    let Some(p) = world.objects.get_component::<Player>(&player) else {
+        return;
+    };
+    let clan_id = p.clan_id;
+    let privs = p.clan_privs;
+    if clan_id == 0 {
+        return;
+    }
+
+    // `hasClanPrivilege(CS_MANAGE_SIEGE)`.
+    let authorized = world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.has_privilege(player, privs, crate::model::clan::CS_MANAGE_SIEGE));
+    if !authorized {
+        send_sm_to(world, client_id, sm_ids::YOU_ARE_NOT_AUTHORIZED_TO_DO_THAT);
+        return;
+    }
+    // Unknown castle → ignore (Java's `castle != null`).
+    if !world.castles.iter().any(|c| c.id == castle_id) {
+        return;
+    }
+
+    let now = commons::util::now_millis();
+    if is_joining == 1 {
+        // A clan under a dissolution grace period may not register.
+        let grace = world
+            .clans
+            .get(&clan_id)
+            .map(|c| c.dissolving_expiry_time)
+            .unwrap_or(0);
+        if now < grace {
+            return; // Java sends SM then returns; that id isn't ported. TODO(G24).
+        }
+        let outcome = register(world, castle_id, clan_id, is_attacker == 1, now);
+        if let Some(sm) = outcome_sm(outcome) {
+            send_sm_to(world, client_id, sm);
+        }
+    } else {
+        remove_registration(world, castle_id, clan_id);
+    }
+
+    send_siege_info(world, client_id, castle_id, clan_id, player, now);
+}
+
+/// Java `Siege.listRegisterClan` → `new SiegeInfo(castle, player)`.
+fn send_siege_info(
+    world: &World,
+    client_id: u32,
+    castle_id: i32,
+    my_clan_id: i32,
+    player: i32,
+    now_millis: i64,
+) {
+    let owner_id = owner_clan_id_opt(world, castle_id).unwrap_or(0);
+    let owner = world.clans.get(&owner_id);
+    let owner_name = owner.map(|c| c.name.as_str()).unwrap_or("");
+    let owner_leader_id = owner.map(|c| c.leader_id).unwrap_or(0);
+    let owner_leader = owner
+        .and_then(|c| c.members.iter().find(|m| m.char_id == owner_leader_id))
+        .map(|m| m.name.as_str())
+        .unwrap_or("");
+    let owner_ally_id = owner.map(|c| c.ally_id).unwrap_or(0);
+    let owner_ally_name = owner.map(|c| c.ally_name.as_str()).unwrap_or("");
+
+    // `(ownerId == player.getClanId()) && player.isClanLeader()`.
+    let can_set_time = owner_id != 0 && owner_id == my_clan_id && owner_leader_id == player;
+
+    let siege_date_secs = world
+        .data
+        .siege_schedule
+        .get(&castle_id)
+        .filter(|e| e.enabled)
+        .map(|e| (next_siege_millis(now_millis, e.weekday, e.hour) / 1000) as i32)
+        .unwrap_or(0);
+
+    let pkt = server_packets::siege_info(
+        castle_id,
+        can_set_time,
+        owner_id,
+        owner_name,
+        owner_leader,
+        owner_ally_id,
+        owner_ally_name,
+        (now_millis / 1000) as i32,
+        siege_date_secs,
+    );
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
 }

@@ -137,6 +137,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::SAY2 => handle_say2(world, client_id, body),
         cop::REQUEST_BYPASS_TO_SERVER => handle_request_bypass_to_server(world, client_id, body),
+        // RequestJoinSiege (G24): a clan leader registers/cancels for a siege.
+        cop::REQUEST_JOIN_SIEGE => {
+            crate::game_loop::siege::handle_request_join_siege(world, client_id, body)
+        }
         // RequestShowBoard (IN_GAME): the community-board button → open at
         // `BBSDefault` (`_bbshome`). Body is one unused int.
         cop::REQUEST_SHOW_BOARD => {

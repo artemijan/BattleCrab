@@ -241,6 +241,11 @@ pub const CL_PLEDGE_WAR: i32 = 1 << 5;
 /// delete a clan or large crest.
 pub const CL_REGISTER_CREST: i32 = 1 << 7;
 
+/// `ClanPrivilege.CS_MANAGE_SIEGE` (ordinal 18 — after the 10 CL_ and 5 CH_
+/// entries, third of the CS_ block; `ALL_CLAN_PRIVILEGES = (1<<24)-1` confirms
+/// the 24-entry layout) — required to register the clan for a castle siege.
+pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
+
 /// Java `CrestType` ordinals (`crests.type` column).
 pub const CREST_TYPE_PLEDGE: i32 = 1;
 pub const CREST_TYPE_PLEDGE_LARGE: i32 = 2;

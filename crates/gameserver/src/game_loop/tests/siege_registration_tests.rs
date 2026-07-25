@@ -249,3 +249,90 @@ fn cancelling_removes_the_registration() {
     assert!(remove_registration(&mut world, CASTLE, 10));
     assert!(attackers(&world, CASTLE).is_empty(), "gone");
 }
+
+// ---------------------------------------------------------------------------
+// Reachability — the RequestJoinSiege (0xAD) packet handler
+// ---------------------------------------------------------------------------
+
+const LEADER: i32 = 8100;
+
+/// Build a `RequestJoinSiege` body: castleId, isAttacker, isJoining.
+fn join_body(castle_id: i32, attacker: i32, joining: i32) -> Vec<u8> {
+    let mut w = commons::network::PacketWriter::new();
+    w.write_i32(castle_id);
+    w.write_i32(attacker);
+    w.write_i32(joining);
+    w.into_bytes()
+}
+
+/// A clan leader with `world`, a `SiegeInfo`-capable clan and an ingame session.
+fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, _db, _l) = siege_world();
+    world.clans.insert(10, mk_clan(10, 5, 0, 0));
+    world.clans.get_mut(&10).unwrap().leader_id = LEADER; // the player is the leader
+    let rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
+    let p = world.objects.get_component_mut::<Player>(&LEADER).unwrap();
+    p.clan_id = 10;
+    p.clan_privs = 0; // leader, so privileges are implicit
+                      // `_db`/`_l` drop here; the world's db sends then no-op (best-effort, as in
+                      // the production path).
+    (world, rx)
+}
+
+fn sent_opcode(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, opcode: u8) -> bool {
+    let mut found = false;
+    while let Ok(p) = rx.try_recv() {
+        if p.first() == Some(&opcode) {
+            found = true;
+        }
+    }
+    found
+}
+
+/// **A clan leader registers through the packet** — the whole point of the
+/// slice: `RequestJoinSiege` lands the clan on the siege and the refreshed
+/// `SiegeInfo` window (0xC9) goes back.
+#[test]
+fn a_leader_registers_through_the_packet() {
+    let (mut world, mut rx) = world_with_leader();
+
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
+
+    assert_eq!(
+        attackers(&world, CASTLE),
+        vec![10],
+        "registered as attacker"
+    );
+    assert!(
+        sent_opcode(&mut rx, 0xC9),
+        "the SiegeInfo window was sent back"
+    );
+}
+
+/// Cancelling through the packet (`isJoining == 0`) removes the clan.
+#[test]
+fn cancelling_through_the_packet_removes_it() {
+    let (mut world, _rx) = world_with_leader();
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
+    assert_eq!(attackers(&world, CASTLE), vec![10]);
+
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 0));
+
+    assert!(attackers(&world, CASTLE).is_empty(), "cancelled");
+}
+
+/// A member without `CS_MANAGE_SIEGE` (not the leader, no privilege bit) is
+/// refused and nothing is registered.
+#[test]
+fn a_member_without_the_privilege_is_refused() {
+    let (mut world, _rx) = world_with_leader();
+    // Demote the actor: no longer the leader, and no siege-manage bit.
+    world.clans.get_mut(&10).unwrap().leader_id = 9999;
+
+    crate::game_loop::siege::handle_request_join_siege(&mut world, 5, &join_body(CASTLE, 1, 1));
+
+    assert!(
+        attackers(&world, CASTLE).is_empty(),
+        "an unauthorized member registered nothing"
+    );
+}
