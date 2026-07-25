@@ -341,9 +341,30 @@ fn broadcast_to_lair(world: &World, pkt: &[u8]) {
     }
 }
 
+/// `getZoneById(70051)` — `baium_no_restart`, the boss-room zone (z 10061 –
+/// 11061). Every archangel target pick is gated on it (Java
+/// `zone.isInsideZone(creature)`): the gate is what stops an archangel from
+/// locking onto a player on the tower floor *below* the lobby — 2D they stand
+/// ~85 apart, but the player is ~930 z down and far outside the zone.
+const BAIUM_ZONE_ID: i32 = 70051;
+
+/// Is this object inside Baium's boss zone? Falls open when the zone table
+/// isn't loaded (minimal test worlds) — the dist always carries 70051.
+fn inside_baium_zone(world: &World, oid: i32) -> bool {
+    let Some(pos) = world.objects.get_component::<Position>(&oid) else {
+        return false;
+    };
+    world
+        .data
+        .zone_data
+        .by_id(BAIUM_ZONE_ID)
+        .is_none_or(|z| z.contains(pos.x, pos.y, pos.z))
+}
+
 /// Java `SELECT_TARGET`, per archangel every 5 s. The Archangels are passive
 /// `Monster`s (no aggro range), so without this they never engage: each one
-/// keeps the player it already hates, else grabs the nearest one in reach, else
+/// keeps the player it already hates *while that player is still inside the
+/// boss zone*, else grabs the nearest in-zone player in reach (3D), else
 /// regroups on Baium. When Baium falls they despawn.
 pub(crate) fn handle_select_target(world: &mut World) {
     let Some(baium) = find_alive(world, BAIUM) else {
@@ -355,7 +376,13 @@ pub(crate) fn handle_select_target(world: &mut World) {
     };
     let baium_pos = pos_of(world, baium);
     for angel in archangels(world) {
-        // Already locked onto a living player? Leave it be.
+        // A hated player who left the zone is abandoned. Java gets the same
+        // outcome structurally — the `mostHated` keep-branch requires
+        // `zone.isInsideZone(mostHated)` and the miss-branch parks the mob in
+        // FOLLOW — but this AI has no FOLLOW intention, so the stale entry
+        // must go or `think_attack` keeps chasing the departed player.
+        drop_out_of_zone_hate(world, angel);
+        // Already locked onto a living in-zone player? Leave it be.
         if has_living_player_target(world, angel) {
             continue;
         }
@@ -434,25 +461,67 @@ fn has_living_player_target(world: &World, angel: i32) -> bool {
                 .objects
                 .get_component::<Vitals>(&oid)
                 .is_some_and(|v| !v.dead)
+            && inside_baium_zone(world, oid)
     })
 }
 
-/// The nearest living player within `range` of the archangel.
+/// The nearest living in-zone player within `range` (3D) of the archangel.
 fn nearest_player_in_range(world: &mut World, angel: i32, range: f64) -> Option<i32> {
     let origin = world.objects.get_component::<Position>(&angel).copied()?;
+    let crate::world::World { objects, data, .. } = &mut *world;
+    let zone = data.zone_data.by_id(BAIUM_ZONE_ID);
     let mut best: Option<(i32, f64)> = None;
-    world
-        .objects
-        .for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
-            if v.dead {
-                return;
-            }
-            let d = pos.distance_2d(&origin);
-            if d <= range && best.is_none_or(|(_, bd)| d < bd) {
-                best = Some((p.object_id, d));
-            }
-        });
+    objects.for_each_mut::<(&crate::model::Player, &Position, &Vitals)>(|(p, pos, v)| {
+        if v.dead {
+            return;
+        }
+        // `zone.isInsideZone(creature)` — the floor below the lobby is out.
+        if zone.is_some_and(|z| !z.contains(pos.x, pos.y, pos.z)) {
+            return;
+        }
+        // 3D, like `getVisibleObjectsInRange` (`calculateDistance3D`).
+        let dz = (pos.z - origin.z) as f64;
+        let d2 = pos.distance_2d(&origin);
+        let d = (d2 * d2 + dz * dz).sqrt();
+        if d <= range && best.is_none_or(|(_, bd)| d < bd) {
+            best = Some((p.object_id, d));
+        }
+    });
     best.map(|(oid, _)| oid)
+}
+
+/// Zero out aggro entries for players no longer inside the boss zone (the
+/// enforcement half of Java's `zone.isInsideZone(mostHated)` keep-condition).
+fn drop_out_of_zone_hate(world: &mut World, angel: i32) {
+    let Some(aggro) = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&angel)
+    else {
+        return;
+    };
+    let stale: Vec<i32> = aggro
+        .0
+        .keys()
+        .copied()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::Player>(oid)
+                .is_some()
+                && !inside_baium_zone(world, *oid)
+        })
+        .collect();
+    if stale.is_empty() {
+        return;
+    }
+    if let Some(aggro) = world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&angel)
+    {
+        for oid in stale {
+            aggro.0.remove(&oid);
+        }
+    }
 }
 
 /// `Baium.onAttack`'s strider clause: a strider-mounted attacker is hindered,

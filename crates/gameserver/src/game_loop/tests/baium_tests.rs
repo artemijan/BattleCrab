@@ -693,3 +693,142 @@ fn in_fight_status_recovers_the_live_boss() {
     assert_eq!(count(&mut world, BAIUM_STONE), 0, "no statue");
     assert_eq!(count(&mut world, ARCHANGEL), 5, "his guardians too");
 }
+
+/// The 13F report: an archangel in the lobby (z 10 136) stood ~85 *2D* units
+/// from a player on the tower floor below (z 9 208) and locked on straight
+/// through the geometry. Java gates every pick on the boss zone
+/// (`zone.isInsideZone(creature)`, `baium_no_restart` z 10 061 – 11 061) and
+/// measures the 1000 reach in 3D — the player below must be invisible to it,
+/// while a player actually in the lobby still gets engaged.
+#[test]
+fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
+    let (mut world, _db, _l) = baium_world();
+    // `baium_no_restart` (70051), simplified to a cuboid over the lobby.
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 70051,
+        name: "baium_no_restart".into(),
+        kind: crate::data::zone_data::ZoneKind::NoRestart,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: 113_000,
+                x2: 118_000,
+                y1: 14_000,
+                y2: 19_000,
+            },
+            min_z: 10_061,
+            max_z: 11_061,
+        },
+        castle_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    // The reported spot on 13F, right under archangel post 4.
+    let _below = ingame_player(&mut world, 1, 500, 114_804, 16_197, 9_208);
+    add_test_npc(
+        &mut world, 601, ARCHANGEL, "Monster", 75, 114_880, 16_236, 10_136,
+    );
+
+    crate::game_loop::baium::handle_select_target(&mut world);
+    let hate_below = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&601)
+        .and_then(|a| a.0.get(&500))
+        .map(|h| h.hate)
+        .unwrap_or(0.0);
+    assert_eq!(
+        hate_below, 0.0,
+        "a player below the boss zone must not be engaged through the floor"
+    );
+
+    // Control: a player actually inside the lobby zone is engaged.
+    let _inside = ingame_player(&mut world, 2, 501, 114_900, 16_240, 10_100);
+    crate::game_loop::baium::handle_select_target(&mut world);
+    let hate_inside = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&601)
+        .and_then(|a| a.0.get(&501))
+        .map(|h| h.hate)
+        .unwrap_or(0.0);
+    assert!(hate_inside > 0.0, "the in-zone player is still engaged");
+}
+
+/// A hated player who leaves the boss zone is abandoned on the next re-pick
+/// (Java's keep-branch requires `zone.isInsideZone(mostHated)`): the hate
+/// entry goes away, so the generic attack loop stops chasing them out of the
+/// room.
+#[test]
+fn an_archangel_abandons_a_target_that_left_the_zone() {
+    let (mut world, _db, _l) = baium_world();
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 70051,
+        name: "baium_no_restart".into(),
+        kind: crate::data::zone_data::ZoneKind::NoRestart,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: 113_000,
+                x2: 118_000,
+                y1: 14_000,
+                y2: 19_000,
+            },
+            min_z: 10_061,
+            max_z: 11_061,
+        },
+        castle_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    let _rx = ingame_player(&mut world, 1, 500, 114_900, 16_240, 10_100);
+    add_test_npc(
+        &mut world, 601, ARCHANGEL, "Monster", 75, 114_880, 16_236, 10_136,
+    );
+    crate::game_loop::baium::handle_select_target(&mut world);
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&601)
+            .and_then(|a| a.0.get(&500))
+            .is_some(),
+        "engaged while inside"
+    );
+
+    // The player jumps down to 13F.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&500)
+    {
+        p.x = 114_804;
+        p.y = 16_197;
+        p.z = 9_208;
+    }
+    crate::game_loop::baium::handle_select_target(&mut world);
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&601)
+            .and_then(|a| a.0.get(&500))
+            .is_none(),
+        "the departed player's hate entry is dropped"
+    );
+}
