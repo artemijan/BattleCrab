@@ -84,6 +84,12 @@ pub enum ScheduledTask {
     /// leaves: NPCs (the exit cube, straggler minions) despawn, players are
     /// teleported to the exit.
     AntharasClearZone,
+    /// Antharas's 60 s `SET_REGEN` beat: a self-heal that escalates as his HP
+    /// falls (one of four regeneration skills, cast once per band).
+    AntharasSetRegen { antharas_oid: i32 },
+    /// Antharas's 60 s `CHECK_ATTACK` beat: a 15-min-idle reset (home + revert
+    /// to ALIVE + empty the lair) or a threat re-evaluation.
+    AntharasCheckAttack { antharas_oid: i32 },
     /// A Core minion's 60 s respawn.
     CoreMinionRespawn { npc_id: i32 },
     /// Clearing Core's minions 20 s after it dies.

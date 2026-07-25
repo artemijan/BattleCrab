@@ -435,6 +435,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AntharasClearZone => {
                 antharas::handle_clear_zone(world);
             }
+            ScheduledTask::AntharasSetRegen { antharas_oid } => {
+                antharas::handle_set_regen(world, antharas_oid);
+            }
+            ScheduledTask::AntharasCheckAttack { antharas_oid } => {
+                antharas::handle_check_attack(world, antharas_oid);
+            }
             ScheduledTask::CoreMinionRespawn { npc_id } => {
                 core_boss::handle_minion_respawn(world, npc_id);
             }
