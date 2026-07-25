@@ -7,6 +7,7 @@
 pub mod alliance;
 pub mod alliance_master;
 pub mod antharas_heart;
+pub mod baium;
 pub mod clan_master;
 pub mod dark_elf_change1;
 mod dr_chaos_talk;
@@ -415,6 +416,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(antharas_heart::AntharasHeart),
         Arc::new(last_imperial_tomb::LastImperialTomb),
         Arc::new(sailren_altar::SailrenAltar),
+        Arc::new(baium::Baium),
         Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),

@@ -16,7 +16,11 @@ fn baium_world() -> (
     tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
 ) {
     let (mut world, db, l) = combat_test_world();
-    for (id, kind) in [(BAIUM, "GrandBoss"), (ARCHANGEL, "Monster")] {
+    for (id, kind) in [
+        (BAIUM, "GrandBoss"),
+        (ARCHANGEL, "Monster"),
+        (crate::game_loop::baium::BAIUM_STONE, "Folk"),
+    ] {
         let mut t = crate::data::npc_data::default_template(id);
         t.type_name = kind.into();
         t.level = 75;
@@ -66,7 +70,7 @@ fn has_debuff(world: &World, oid: i32) -> bool {
 #[test]
 fn baium_spawns_five_archangels() {
     let (mut world, _db, _l) = baium_world();
-    crate::game_loop::baium::on_baium_spawned(&mut world);
+    crate::game_loop::baium::spawn_archangels(&mut world);
     assert_eq!(count(&mut world, ARCHANGEL), 5);
 }
 
@@ -527,4 +531,165 @@ fn archangels_despawn_when_baium_dies() {
         0,
         "the archangels left with Baium"
     );
+}
+
+// ---------------------------------------------------------------------------
+// The sleeping stone + the wakeUp awakening
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::baium::{BaiumWaker, BAIUM_STONE};
+
+/// Give Baium a grand-boss record at the given status.
+fn insert_baium(world: &mut World, status: i32) {
+    world.grand_bosses.insert(
+        BAIUM,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: BAIUM,
+            loc_x: 116_033,
+            loc_y: 17_447,
+            loc_z: 10_107,
+            heading: 40_188,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status,
+        },
+    );
+}
+
+/// **At rest Baium is a stone statue, not the boss.** ALIVE spawns 29025, and no
+/// live Baium (29020) — the old code spawned a fully-aggressive boss at boot.
+#[test]
+fn baium_rests_as_a_stone_when_alive() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 0); // ALIVE
+    let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
+
+    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+
+    assert_eq!(count(&mut world, BAIUM_STONE), 1, "the statue is placed");
+    assert_eq!(count(&mut world, BAIUM), 0, "the live boss is not");
+}
+
+/// WAITING (server died during the entry window) folds down to ALIVE and still
+/// comes back as the statue.
+#[test]
+fn waiting_folds_to_a_stone() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 1); // WAITING
+    let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
+
+    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+
+    assert_eq!(count(&mut world, BAIUM_STONE), 1);
+    assert_eq!(
+        world.grand_bosses.get(&BAIUM).unwrap().status,
+        0,
+        "WAITING was folded to ALIVE"
+    );
+}
+
+/// **Waking the stone raises Baium.** The status flips ALIVE→IN_FIGHT (locking
+/// entry), the statue is removed, the live boss appears, and the cinematic is
+/// armed.
+#[test]
+fn waking_the_stone_raises_baium() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 0); // ALIVE
+    add_test_npc(
+        &mut world,
+        700,
+        BAIUM_STONE,
+        "Folk",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    let before = world.scheduler.len();
+
+    let raised = crate::game_loop::baium::wake_up(&mut world, 700, PLAYER);
+
+    assert!(raised.is_some(), "the wake took");
+    assert_eq!(
+        world.grand_bosses.get(&BAIUM).unwrap().status,
+        2,
+        "IN_FIGHT — entry is now locked"
+    );
+    assert_eq!(count(&mut world, BAIUM_STONE), 0, "the statue is gone");
+    assert_eq!(count(&mut world, BAIUM), 1, "the boss is up");
+    assert!(world.scheduler.len() > before, "the cinematic is armed");
+}
+
+/// A second raid cannot wake an already-woken Baium — `wake_up` is a no-op
+/// unless he is ALIVE, so two parties can't spawn two bosses.
+#[test]
+fn a_woken_baium_cannot_be_woken_again() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 2); // IN_FIGHT already
+    add_test_npc(&mut world, 700, BAIUM_STONE, "Folk", 75, 0, 0, 0);
+
+    let raised = crate::game_loop::baium::wake_up(&mut world, 700, PLAYER);
+
+    assert!(raised.is_none(), "the second wake was refused");
+    assert_eq!(count(&mut world, BAIUM), 0, "no second boss spawned");
+}
+
+/// **The cinematic's final beat starts the fight:** the archangels arrive,
+/// Baium takes his AI back (the movement pin lifts) and he engages the waker.
+#[test]
+fn the_final_beat_spawns_archangels_and_engages() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 2); // IN_FIGHT
+    let _rx = ingame_player(&mut world, 1, PLAYER, 116_000, 17_400, 10_107);
+    add_test_npc(
+        &mut world,
+        BAIUM_OID,
+        BAIUM,
+        "GrandBoss",
+        75,
+        116_033,
+        17_447,
+        10_107,
+    );
+    world
+        .objects
+        .add_components(&BAIUM_OID, crate::model::components::Immobilized);
+    world
+        .objects
+        .add_components(&BAIUM_OID, BaiumWaker { player_oid: PLAYER });
+
+    // Step 5 is SPAWN_ARCHANGEL (the last beat).
+    crate::game_loop::baium::handle_cinematic_step(&mut world, 5);
+
+    assert_eq!(count(&mut world, ARCHANGEL), 5, "the guardians arrived");
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::Immobilized>(&BAIUM_OID),
+        "Baium is free to move — his AI is back"
+    );
+    let hate = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&BAIUM_OID)
+        .and_then(|a| a.0.get(&PLAYER))
+        .map(|h| h.hate)
+        .unwrap_or(0.0);
+    assert!(hate > 0.0, "Baium engaged the waker");
+}
+
+/// A crash mid-fight recovers the **live** boss (not the statue) with his
+/// archangels, at his stored HP.
+#[test]
+fn in_fight_status_recovers_the_live_boss() {
+    let (mut world, _db, _l) = baium_world();
+    insert_baium(&mut world, 2); // IN_FIGHT
+    world.grand_bosses.get_mut(&BAIUM).unwrap().current_hp = 40_000.0;
+    let b = world.grand_bosses.get(&BAIUM).unwrap().clone();
+
+    crate::game_loop::baium::spawn_from_record(&mut world, &b);
+
+    assert_eq!(count(&mut world, BAIUM), 1, "the live boss is back");
+    assert_eq!(count(&mut world, BAIUM_STONE), 0, "no statue");
+    assert_eq!(count(&mut world, ARCHANGEL), 5, "his guardians too");
 }

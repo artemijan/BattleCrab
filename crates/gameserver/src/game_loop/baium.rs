@@ -1,20 +1,57 @@
-//! Baium (`ai/bosses/Baium`) — archangels and the strider debuff.
+//! Baium (`ai/bosses/Baium`) — the sleeping-stone awakening, archangels and the
+//! strider debuff.
 //!
-//! Baium is the only one of the three great dragons' scripts with **no
-//! cinematics at all** (`SpecialCamera` appears 19 times in Valakas and 7 in
-//! Antharas, and zero here), which is why it is portable before the camera
-//! packet is.
+//! Baium is unusual among the grand bosses: **at rest he is not a boss at all**
+//! but a stone statue (`BAIUM_STONE`, 29025). A raid enters, wakes the statue,
+//! and only then does the live Baium (29020) spawn — through a short cinematic
+//! (earthquake, two poses, the waker ported in and struck by Baium's "gift"),
+//! after which his five archangels join and the fight proper begins. So the
+//! grand-boss lifecycle spawns the **stone** at ALIVE, and the live boss only
+//! ever exists mid-fight (or when crash-recovery restores one).
+//!
+//! He uses the four-state status ladder (ALIVE 0 / WAITING 1 / IN_FIGHT 2 /
+//! DEAD 3), like Antharas and Valakas.
+//!
+//! Baium's cinematic uses **no `SpecialCamera`** (unlike Valakas's 19 and
+//! Antharas's 7) — only social actions and an earthquake — which is why it is
+//! portable before the camera packet is universally wired.
 //!
 //! His threat table is the shared `boss_threat` one — Antharas keeps an
 //! identical copy in Java. Only the skill ladder below is Baium's own.
 
-use crate::model::components::{Position, Vitals};
+use crate::model::components::{Immobilized, Position, Vitals};
+use crate::model::grand_boss::GrandBoss;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 pub const BAIUM: i32 = 29020;
+/// The sleeping statue Baium rests as — spawned at ALIVE, woken by a raid.
+pub const BAIUM_STONE: i32 = 29025;
 /// Archangel — five of them circle Baium.
 pub const ARCHANGEL: i32 = 29021;
+
+// Status ladder (`GrandBossManager` values for Baium).
+const ALIVE: i32 = 0;
+const WAITING: i32 = 1;
+const IN_FIGHT: i32 = 2;
+
+/// `BAIUM_LOC` — where the statue (and, once woken, the boss) stands.
+const BAIUM_LOC: (i32, i32, i32, i32) = (116_033, 17_447, 10_107, 40_188);
+/// `BAIUM_GIFT_LOC` — the waker is ported here to receive Baium's "gift".
+const BAIUM_GIFT_LOC: (i32, i32, i32) = (115_910, 17_337, 10_105);
+/// `BAIUM_PRESENT` (4136, "Baium's Gift") — the skill that greets the waker.
+const BAIUM_PRESENT: i32 = 4136;
+
+/// Social-action ids Baium plays during the awakening.
+const SOCIAL_WAKE: i32 = 2;
+const SOCIAL_STAND: i32 = 3;
+const SOCIAL_ROAR: i32 = 1;
+
+/// The waker, held on the live Baium so the cinematic beats can reach them.
+#[derive(bevy_ecs::component::Component, Debug, Clone, Copy)]
+pub struct BaiumWaker {
+    pub player_oid: i32,
+}
 
 /// The `SELECT_TARGET` beat — the archangels re-pick every 5 s.
 const SELECT_TARGET_TICKS: u64 = 50;
@@ -37,11 +74,11 @@ const ARCHANGEL_LOC: [(i32, i32, i32, i32); 5] = [
     (114_239, 17_168, 10_136, -1_992),
 ];
 
-/// Baium spawned: bring out his five archangels.
+/// Bring out Baium's five archangels and arm their targeting beat.
 ///
 /// Unlike Queen Ant's nurses these are **not** in a minion table — the script
 /// places them, so nothing else would.
-pub(crate) fn on_baium_spawned(world: &mut World) {
+pub(crate) fn spawn_archangels(world: &mut World) {
     for (x, y, z, heading) in ARCHANGEL_LOC {
         crate::model::npc::spawn_npc_at(world, ARCHANGEL, x, y, z, heading);
     }
@@ -49,6 +86,259 @@ pub(crate) fn on_baium_spawned(world: &mut World) {
         world.tick + SELECT_TARGET_TICKS,
         ScheduledTask::BaiumSelectTarget,
     );
+}
+
+// ---------------------------------------------------------------------------
+// Spawn / the sleeping stone
+// ---------------------------------------------------------------------------
+
+/// Baium's status-driven boot spawn (Java's constructor branch), reached from
+/// `grand_boss::spawn_from_record`.
+///
+/// - **ALIVE / WAITING**: place the sleeping **stone** (29025) at `BAIUM_LOC`.
+///   Java collapses `WAITING` to `ALIVE` here — a server that went down during
+///   the 30-minute entry window comes back with the statue, not a half-fight.
+/// - **IN_FIGHT**: crash-recovery — the server died mid-fight, so bring the
+///   **live** boss back at its stored location and HP with its archangels
+///   already circling.
+pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
+    if boss.status == IN_FIGHT {
+        let Some(oid) = crate::model::npc::spawn_npc_at(
+            world,
+            BAIUM,
+            boss.loc_x,
+            boss.loc_y,
+            boss.loc_z,
+            boss.heading,
+        ) else {
+            return;
+        };
+        if boss.current_hp > 0.0 {
+            if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+                v.cur_hp = boss.current_hp.min(v.max_hp as f64);
+                v.cur_mp = boss.current_mp.min(v.max_mp as f64);
+            }
+        }
+        spawn_archangels(world);
+        // TODO(G23): Java also arms CHECK_ATTACK here (30-min inactivity reset +
+        // <75%-HP self-heal). Deferred to the CHECK_ATTACK slice.
+        return;
+    }
+
+    // ALIVE or WAITING → the sleeping statue. Fold WAITING down to ALIVE so the
+    // stored state matches what we actually spawned.
+    if boss.status == WAITING {
+        if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
+            b.status = ALIVE;
+        }
+        crate::game_loop::grand_boss::persist(world, BAIUM);
+    }
+    crate::model::npc::spawn_npc_at(
+        world,
+        BAIUM_STONE,
+        BAIUM_LOC.0,
+        BAIUM_LOC.1,
+        BAIUM_LOC.2,
+        BAIUM_LOC.3,
+    );
+}
+
+// ---------------------------------------------------------------------------
+// wakeUp — the stone becomes the boss
+// ---------------------------------------------------------------------------
+
+/// Java `wakeUp`: a raid talks to the sleeping statue and Baium rises.
+///
+/// Flips the status to `IN_FIGHT` (locking entry), removes the stone, spawns the
+/// live boss at `BAIUM_LOC` **held still** for the cinematic (Java's
+/// `disableCoreAI(true)` — he must not wander or swing mid-scene), remembers the
+/// waker, and arms the cinematic chain. A no-op unless Baium is `ALIVE`, so two
+/// raids can't wake him twice.
+///
+/// Returns the live boss's object id when the wake took, `None` otherwise.
+pub(crate) fn wake_up(world: &mut World, stone_oid: i32, waker_oid: i32) -> Option<i32> {
+    if crate::game_loop::grand_boss::status(world, BAIUM) != Some(ALIVE) {
+        return None;
+    }
+    if let Some(b) = world.grand_bosses.get_mut(&BAIUM) {
+        b.status = IN_FIGHT;
+    }
+    crate::game_loop::grand_boss::persist(world, BAIUM);
+
+    despawn(world, stone_oid);
+
+    let oid = crate::model::npc::spawn_npc_at(
+        world,
+        BAIUM,
+        BAIUM_LOC.0,
+        BAIUM_LOC.1,
+        BAIUM_LOC.2,
+        BAIUM_LOC.3,
+    )?;
+    // `disableCoreAI(true)` — pin him while the scene plays.
+    world.objects.add_components(&oid, Immobilized);
+    world.objects.add_components(
+        &oid,
+        BaiumWaker {
+            player_oid: waker_oid,
+        },
+    );
+
+    schedule_beat(world, 0, WAKEUP_DELAY_MS);
+    Some(oid)
+}
+
+/// One beat of the awakening. Java arms `WAKEUP_ACTION` at +50 ms and the rest
+/// chain off `MANAGE_EARTHQUAKE`; the port keeps them as one relative chain.
+struct CinematicBeat {
+    /// Delay from the previous beat (ms).
+    delay_ms: u64,
+    /// A social action broadcast to the lair, if any.
+    social: Option<i32>,
+    /// An earthquake + roar sound is played this beat.
+    earthquake: bool,
+    /// The waker is ported to `BAIUM_GIFT_LOC` this beat.
+    port_waker: bool,
+    /// Baium greets the waker with his gift skill and takes his AI back.
+    strike_waker: bool,
+    /// The archangels join and the fight begins.
+    spawn_archangels: bool,
+}
+
+const WAKEUP_DELAY_MS: u64 = 50;
+const TICKS_PER_SECOND: u64 = 10;
+
+/// The six beats, in Java's order and timing (relative delays).
+const BEATS: [CinematicBeat; 6] = [
+    // WAKEUP_ACTION (+50 from wakeUp): the first pose.
+    CinematicBeat {
+        delay_ms: 0,
+        social: Some(SOCIAL_WAKE),
+        earthquake: false,
+        port_waker: false,
+        strike_waker: false,
+        spawn_archangels: false,
+    },
+    // MANAGE_EARTHQUAKE (+~2000): the ground shakes.
+    CinematicBeat {
+        delay_ms: 1_950,
+        social: None,
+        earthquake: true,
+        port_waker: false,
+        strike_waker: false,
+        spawn_archangels: false,
+    },
+    // SOCIAL_ACTION (+8000): the second pose.
+    CinematicBeat {
+        delay_ms: 8_000,
+        social: Some(SOCIAL_STAND),
+        earthquake: false,
+        port_waker: false,
+        strike_waker: false,
+        spawn_archangels: false,
+    },
+    // PLAYER_PORT (+6000): the waker is drawn to Baium's feet.
+    CinematicBeat {
+        delay_ms: 6_000,
+        social: None,
+        earthquake: false,
+        port_waker: true,
+        strike_waker: false,
+        spawn_archangels: false,
+    },
+    // PLAYER_KILL (+3000): the roar, the greeting, the gift skill.
+    CinematicBeat {
+        delay_ms: 3_000,
+        social: Some(SOCIAL_ROAR),
+        earthquake: false,
+        port_waker: false,
+        strike_waker: true,
+        spawn_archangels: false,
+    },
+    // SPAWN_ARCHANGEL (+8000): the guardians arrive; the fight is on.
+    CinematicBeat {
+        delay_ms: 8_000,
+        social: None,
+        earthquake: false,
+        port_waker: false,
+        strike_waker: false,
+        spawn_archangels: true,
+    },
+];
+
+fn schedule_beat(world: &mut World, step: u8, delay_ms: u64) {
+    world.scheduler.schedule(
+        world.tick + (delay_ms * TICKS_PER_SECOND / 1000).max(1),
+        ScheduledTask::BaiumCinematic { step },
+    );
+}
+
+/// Run one cinematic beat and arm the next. The live Baium is found by id (there
+/// is only ever one); if he has died mid-scene the chain simply stops.
+pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
+    let Some(beat) = BEATS.get(step as usize) else {
+        return;
+    };
+    let Some(baium) = find_alive(world, BAIUM) else {
+        return; // Baium gone (aborted / killed) — drop the chain
+    };
+    let waker = world
+        .objects
+        .get_component::<BaiumWaker>(&baium)
+        .map(|w| w.player_oid);
+
+    if let Some(action) = beat.social {
+        let pkt = crate::network::server_packets::social_action(baium, action);
+        broadcast_to_lair(world, &pkt);
+    }
+    if beat.earthquake {
+        if let Some((x, y, z)) = pos_of(world, baium) {
+            let quake = crate::network::server_packets::earthquake(x, y, z, 40, 10);
+            broadcast_to_lair(world, &quake);
+        }
+        let sound = crate::network::server_packets::play_sound("BS02_A");
+        broadcast_to_lair(world, &sound);
+    }
+    if beat.port_waker {
+        if let Some(p) = waker {
+            crate::game_loop::death::teleport_player(
+                world,
+                p,
+                BAIUM_GIFT_LOC.0,
+                BAIUM_GIFT_LOC.1,
+                BAIUM_GIFT_LOC.2,
+            );
+        }
+    }
+    if beat.strike_waker {
+        if let Some(p) = waker {
+            if let Some(skill) = world.data.skill_data.get(BAIUM_PRESENT, 1).cloned() {
+                super::boss_threat::cast_boss_skill(world, baium, p, skill.id, false);
+            }
+        }
+    }
+    if beat.spawn_archangels {
+        // Java `disableCoreAI(false)` — Baium takes his AI back, then the
+        // guardians arrive and he engages the waker.
+        world.objects.remove_component::<Immobilized>(&baium);
+        spawn_archangels(world);
+        if let Some(p) = waker {
+            crate::game_loop::minions::add_hate(world, baium, p, ENGAGE_HATE);
+        }
+    }
+
+    if let Some(next) = BEATS.get(step as usize + 1) {
+        schedule_beat(world, step + 1, next.delay_ms);
+    }
+}
+
+/// The awakening is shown to the lair, like the other bosses' cinematics.
+fn broadcast_to_lair(world: &World, pkt: &[u8]) {
+    for cs in world.clients.values() {
+        if let crate::session::ClientSession::InGame(_) = cs {
+            cs.send(pkt.to_vec());
+        }
+    }
 }
 
 /// Java `SELECT_TARGET`, per archangel every 5 s. The Archangels are passive
