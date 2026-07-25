@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, WAITING};
+use crate::game_loop::valakas::{AttackVerdict, ValakasCombat, DEAD, FIGHTING, VALAKAS, WAITING};
 
 const VALAKAS_OID: i32 = NPC_OID + 100;
 const PLAYER: i32 = 9990;
@@ -660,4 +660,81 @@ fn remove_players_ousts_lingering_players_through_the_loop() {
         (150_037..=150_537).contains(&p.x) && (-57_720..=-57_220).contains(&p.y),
         "the lingering player was ousted to the exit: {p:?}"
     );
+}
+
+/// Fifteen minutes with nobody landing a hit resets the fight: Valakas goes
+/// home, reverts to DORMANT and heals to full (Java `regen_task`).
+#[test]
+fn a_fifteen_minute_idle_resets_valakas() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    world.objects.add_components(
+        &VALAKAS_OID,
+        ValakasCombat {
+            last_attack_tick: 0,
+        },
+    );
+    world
+        .objects
+        .get_component_mut::<Vitals>(&VALAKAS_OID)
+        .unwrap()
+        .cur_hp = 100.0;
+    world.tick = 10_000; // > the 9000-tick idle window since last_attack 0
+
+    crate::game_loop::valakas::handle_regen(&mut world, VALAKAS_OID);
+
+    assert_eq!(
+        world.grand_bosses.get(&VALAKAS).unwrap().status,
+        DORMANT,
+        "reverted to dormant"
+    );
+    let pos = world
+        .objects
+        .get_component::<Position>(&VALAKAS_OID)
+        .unwrap();
+    assert_eq!((pos.x, pos.y), (-105_200, -253_104), "sent home");
+    let v = world.objects.get_component::<Vitals>(&VALAKAS_OID).unwrap();
+    assert_eq!(v.cur_hp, v.max_hp as f64, "healed to full");
+}
+
+/// A Valakas hit within the window keeps fighting and the regen beat re-arms.
+#[test]
+fn a_recently_hit_valakas_keeps_fighting() {
+    let (mut world, _db, _l) = valakas_world();
+    add_test_npc(
+        &mut world,
+        VALAKAS_OID,
+        VALAKAS,
+        "GrandBoss",
+        85,
+        IN_LAIR.0,
+        IN_LAIR.1,
+        IN_LAIR.2,
+    );
+    world.tick = 10_000;
+    world.objects.add_components(
+        &VALAKAS_OID,
+        ValakasCombat {
+            last_attack_tick: world.tick,
+        },
+    );
+    let before = world.scheduler.len();
+
+    crate::game_loop::valakas::handle_regen(&mut world, VALAKAS_OID);
+
+    assert_eq!(
+        world.grand_bosses.get(&VALAKAS).unwrap().status,
+        FIGHTING,
+        "still fighting"
+    );
+    assert!(world.scheduler.len() > before, "the regen beat re-arms");
 }

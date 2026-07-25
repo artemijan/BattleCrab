@@ -10,10 +10,12 @@
 //! | 2 `FIGHTING` | engaged; entry **locked** |
 //! | 3 `DEAD` | killed; entry locked |
 //!
-//! Only the `onAttack` half is ported here — the lair's entry/teleport flow and
-//! the 30-minute window are their own slice.
+//! The `onAttack` rules, the entry/teleport flow, the spawn/death cinematics and
+//! the 60 s `regen_task` (escalating self-heal + a 15-min-idle reset) are ported;
+//! the `skill_task` combat-skill AI (Valakas's breath attacks) is a later slice.
 
-use crate::model::components::Position;
+use crate::model::components::{Position, Vitals};
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 pub const VALAKAS: i32 = 29028;
@@ -23,6 +25,22 @@ const BOSS_ZONE_ID: i32 = 12010;
 
 /// `ATTACKER_REMOVE` — where a player attacking outside the fight is dumped.
 const ATTACKER_REMOVE: (i32, i32, i32) = (150_037, -57_255, -2_976);
+
+/// `VALAKAS_REGENERATION_LOC` — home, where an idle Valakas resets.
+const VALAKAS_HOME: (i32, i32, i32) = (-105_200, -253_104, -15_264);
+/// `VALAKAS_REGENERATION` (4691, "Valakas Recovery") — the escalating self-heal.
+const VALAKAS_REGENERATION: i32 = 4691;
+/// The regen beat (Java `regen_task`, 60 s).
+const REGEN_TICK_TICKS: u64 = 600;
+/// Java's inactivity window: 15 min with nobody landing a hit resets the fight.
+const INACTIVITY_TICKS: u64 = 9_000;
+
+/// Java's static `_timeTracker` — the last tick a lair attacker struck Valakas,
+/// held on the boss so the regen task can measure inactivity.
+#[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
+pub struct ValakasCombat {
+    pub last_attack_tick: u64,
+}
 
 pub const DORMANT: i32 = 0;
 pub const WAITING: i32 = 1;
@@ -91,7 +109,94 @@ pub(crate) fn on_valakas_attacked(
         cast_debuff(world, valakas_oid, attacker_oid);
     }
 
+    // `_timeTracker = System.currentTimeMillis()` — a valid hit resets the
+    // inactivity clock the regen task watches.
+    let now = world.tick;
+    if let Some(c) = world
+        .objects
+        .get_component_mut::<ValakasCombat>(&valakas_oid)
+    {
+        c.last_attack_tick = now;
+    }
+
     AttackVerdict::Allowed
+}
+
+/// Java `regen_task` (60 s while FIGHTING): a 15-minute-idle reset — Valakas
+/// goes home, reverts to `DORMANT`, heals fully and empties the lair — and,
+/// otherwise, the escalating self-heal buff (stronger the lower his health).
+pub(crate) fn handle_regen(world: &mut World, valakas_oid: i32) {
+    if crate::game_loop::grand_boss::status(world, VALAKAS) != Some(FIGHTING) {
+        return; // the fight ended — stop ticking (Java cancels the timer)
+    }
+
+    // Inactivity: nobody has landed a hit in 15 minutes → reset the encounter.
+    let idle = world
+        .objects
+        .get_component::<ValakasCombat>(&valakas_oid)
+        .is_some_and(|c| world.tick.saturating_sub(c.last_attack_tick) >= INACTIVITY_TICKS);
+    if idle {
+        if let Some(p) = world.objects.get_component_mut::<Position>(&valakas_oid) {
+            p.x = VALAKAS_HOME.0;
+            p.y = VALAKAS_HOME.1;
+            p.z = VALAKAS_HOME.2;
+        }
+        if let Some(a) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&valakas_oid)
+        {
+            a.0.clear();
+        }
+        if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
+            b.status = DORMANT;
+        }
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&valakas_oid) {
+            v.cur_hp = v.max_hp as f64;
+            v.cur_mp = v.max_mp as f64;
+        }
+        handle_remove_players(world);
+        return; // don't re-arm; the reset ends the fight
+    }
+
+    // Otherwise refresh the recovery buff at the level his health calls for.
+    if let Some((cur, max)) = world
+        .objects
+        .get_component::<Vitals>(&valakas_oid)
+        .map(|v| (v.cur_hp, v.max_hp as f64))
+    {
+        let level = regen_level(cur, max);
+        if let Some(skill) = world
+            .data
+            .skill_data
+            .get(VALAKAS_REGENERATION, level)
+            .cloned()
+        {
+            crate::game_loop::skills::effects::apply_continuous_effects(
+                world,
+                valakas_oid,
+                valakas_oid,
+                &skill,
+                None,
+            );
+        }
+    }
+    world.scheduler.schedule(
+        world.tick + REGEN_TICK_TICKS,
+        ScheduledTask::ValakasRegen { valakas_oid },
+    );
+}
+
+/// The recovery level scales with missing health (Java's HP-band ladder).
+fn regen_level(cur: f64, max: f64) -> i32 {
+    if cur < max * 0.25 {
+        4
+    } else if cur < max * 0.5 {
+        3
+    } else if cur < max * 0.75 {
+        2
+    } else {
+        1
+    }
 }
 
 fn attacker_in_lair(world: &World, attacker_oid: i32) -> bool {
@@ -227,10 +332,21 @@ pub(crate) fn handle_cinematic_step(world: &mut World, valakas_oid: i32, step: u
             broadcast_to_lair(world, &pkt);
         }
         None => {
-            // The last beat: the fight is on, and entry locks behind it.
+            // The last beat: the fight is on, and entry locks behind it. Arm
+            // the regen/inactivity task (Java `spawn_10` → `regen_task`).
             if let Some(b) = world.grand_bosses.get_mut(&VALAKAS) {
                 b.status = FIGHTING;
             }
+            world.objects.add_components(
+                &valakas_oid,
+                ValakasCombat {
+                    last_attack_tick: world.tick,
+                },
+            );
+            world.scheduler.schedule(
+                world.tick + REGEN_TICK_TICKS,
+                ScheduledTask::ValakasRegen { valakas_oid },
+            );
         }
     }
 }
