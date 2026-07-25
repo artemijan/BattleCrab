@@ -46,6 +46,48 @@ fn boss_alive_in_world(world: &mut World) -> bool {
     found
 }
 
+/// Regression: grand bosses must spawn when their `grandboss_data` row lands as
+/// a `DbEvent`, not from the pre-loop boot call (where `grand_bosses` is still
+/// empty). This is why the Queen was never in her nest.
+#[test]
+fn grand_bosses_spawn_when_their_data_arrives() {
+    let (mut world, _db, _l) = combat_test_world();
+    let mut t = crate::data::npc_data::default_template(QUEEN);
+    t.type_name = "GrandBoss".into();
+    t.base_hp_max = 100_000.0;
+    world.data.npc_data.insert_for_test(t);
+    assert!(world.grand_bosses.is_empty());
+    assert!(
+        !boss_alive_in_world(&mut world),
+        "nothing spawned before the data arrives"
+    );
+
+    // The DB delivers the row; draining the event both loads it *and* resolves
+    // the boot spawn.
+    let (tx, rx) = std::sync::mpsc::channel();
+    tx.send(crate::db::DbEvent::GrandBossesLoaded {
+        bosses: vec![crate::model::grand_boss::GrandBoss {
+            boss_id: QUEEN,
+            loc_x: -21610,
+            loc_y: 181594,
+            loc_z: -5734,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: ALIVE,
+        }],
+    })
+    .unwrap();
+    drop(tx);
+    crate::game_loop::net::drain_db(&mut world, &rx);
+
+    assert!(
+        boss_alive_in_world(&mut world),
+        "the Queen spawns once her data lands"
+    );
+}
+
 /// Killing a grand boss marks it dead and arms a respawn window — the window
 /// is randomised, so it is asserted as a range, not a value.
 #[test]

@@ -209,11 +209,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Java `DailyTaskManager`: the daily 06:30 reset (recommendations only, so
     // far). Scheduled once here; the task reschedules itself every 24 h.
     reco::schedule_initial_daily_reset(&mut world);
-    // Grand bosses: spawn the ones that are up, arm timers for the ones that
-    // aren't, and immediately respawn any whose window elapsed while the
-    // server was down.
-    grand_boss::resolve_at_boot(&mut world);
-    dr_chaos::resolve_at_boot(&mut world);
+    // Grand bosses spawn/respawn once their data lands — the `grandboss_data`
+    // table arrives asynchronously as `DbEvent::GrandBossesLoaded`, so
+    // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
+    // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
