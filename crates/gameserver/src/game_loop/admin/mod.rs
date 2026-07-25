@@ -209,6 +209,11 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             admin_admin(world, client_id, command)
         }
         "admin_serverinfo" => admin_serverinfo(world, client_id),
+        // Instances (G27) — create an instance from a template, teleport into
+        // one, or destroy it.
+        "admin_instancecreate" => admin_instance_create(world, client_id, &args),
+        "admin_instanceteleport" => admin_instance_teleport(world, client_id, object_id, &args),
+        "admin_instancedestroy" => admin_instance_destroy(world, client_id, &args),
         "admin_heal" => admin_heal(world, client_id, object_id, &args),
         "admin_kill" => admin_kill(world, client_id, object_id, &args, false),
         "admin_kill_monster" => admin_kill(world, client_id, object_id, &args, true),
@@ -748,4 +753,48 @@ pub(crate) fn send_message(world: &World, client_id: u32, text: &str) {
             &[server_packets::SmParam::Text(text.to_string())],
         ));
     }
+}
+
+/// `//instancecreate <templateId>` (Java `AdminInstance`): build an instance
+/// from a template and report its id.
+fn admin_instance_create(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(template_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //instancecreate <templateId>");
+        return;
+    };
+    match super::instances::create_from_template(world, template_id) {
+        Some(id) => send_message(
+            world,
+            client_id,
+            &format!("Created instance {id} from template {template_id}."),
+        ),
+        None => send_message(
+            world,
+            client_id,
+            &format!("Unknown instance template {template_id}."),
+        ),
+    }
+}
+
+/// `//instanceteleport <instanceId>`: enter an instance at its enter location.
+fn admin_instance_teleport(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //instanceteleport <instanceId>");
+        return;
+    };
+    if !world.instances.contains(id) {
+        send_message(world, client_id, &format!("No instance {id}."));
+        return;
+    }
+    super::instances::enter(world, object_id, id);
+}
+
+/// `//instancedestroy <instanceId>`: tear an instance down.
+fn admin_instance_destroy(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //instancedestroy <instanceId>");
+        return;
+    };
+    super::instances::destroy(world, id);
+    send_message(world, client_id, &format!("Destroyed instance {id}."));
 }

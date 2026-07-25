@@ -47,8 +47,9 @@ pub struct InstanceTemplate {
     pub max_worlds: i32,
     /// `<time duration>` — how long the instance stays up, in minutes (0 = none).
     pub duration_min: i32,
-    /// `<time empty>` — how long an emptied instance lingers before teardown.
-    pub empty_destroy_sec: i32,
+    /// `<time empty>` — how many minutes an emptied instance lingers before
+    /// teardown (Java `TimeUnit.MINUTES`).
+    pub empty_destroy_min: i32,
     /// `<enter>` location the party is teleported to.
     pub enter: Option<(i32, i32, i32)>,
     pub exit: ExitType,
@@ -125,7 +126,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
     let mut id = None;
     let mut max_worlds = -1;
     let mut duration_min = 0;
-    let mut empty_destroy_sec = 0;
+    let mut empty_destroy_min = 0;
     let mut enter = None;
     let mut exit = ExitType::Origin;
     let mut doors = Vec::new();
@@ -142,7 +143,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
                     &mut id,
                     &mut max_worlds,
                     &mut duration_min,
-                    &mut empty_destroy_sec,
+                    &mut empty_destroy_min,
                     &mut enter,
                     &mut exit,
                     &mut doors,
@@ -169,7 +170,7 @@ fn parse(content: &str) -> Option<InstanceTemplate> {
         id: id?,
         max_worlds,
         duration_min,
-        empty_destroy_sec,
+        empty_destroy_min,
         enter,
         exit,
         doors,
@@ -183,7 +184,7 @@ fn handle_open(
     id: &mut Option<i32>,
     max_worlds: &mut i32,
     duration_min: &mut i32,
-    empty_destroy_sec: &mut i32,
+    empty_destroy_min: &mut i32,
     enter: &mut Option<(i32, i32, i32)>,
     exit: &mut ExitType,
     doors: &mut Vec<i32>,
@@ -198,7 +199,7 @@ fn handle_open(
         }
         b"time" => {
             *duration_min = attr_i32(e, b"duration").unwrap_or(0);
-            *empty_destroy_sec = attr_i32(e, b"empty").unwrap_or(0);
+            *empty_destroy_min = attr_i32(e, b"empty").unwrap_or(0);
         }
         b"enter" => *in_enter = true,
         b"exit" => {

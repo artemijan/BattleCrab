@@ -102,6 +102,9 @@ pub enum ScheduledTask {
     /// Olympiad: the validation period ends (Java `ValidationEndTask`) — start a
     /// new cycle's competition period.
     OlympiadValidationEnd,
+    /// Instances (G27): tear down an instance if it is still empty after its
+    /// `<time empty>` grace period.
+    InstanceEmptyCheck { instance_id: i32 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
