@@ -12,6 +12,7 @@ pub mod cursed_weapon;
 pub mod door;
 pub mod formulas;
 pub mod grand_boss;
+pub mod instance;
 pub mod inventory;
 pub mod mob_group;
 pub mod movement;

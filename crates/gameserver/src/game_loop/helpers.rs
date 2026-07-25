@@ -91,14 +91,24 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
 
 /// Send `packet` to every in-game player that can see `from_object_id`,
 /// excluding the broadcaster — Java `Creature.broadcastPacket(packet)` via
+/// The instance (world partition) an object is in (Java
+/// `WorldObject.getInstanceId()`) — 0, the overworld, when uninstanced.
+pub(crate) fn instance_of(world: &World, object_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::InstanceId>(&object_id)
+        .map_or(0, |i| i.0)
+}
+
 /// `World.forEachVisibleObject`: only players whose world region is in the
-/// broadcaster's 3×3 surrounding-region block receive it.
+/// broadcaster's 3×3 surrounding-region block **and same instance** receive it.
 pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[u8]) {
     use crate::model::components::RegionCell;
     let Some(from) = world.objects.get_component::<RegionCell>(&from_object_id) else {
         return;
     };
     let from_region = from.0;
+    let from_instance = instance_of(world, from_object_id);
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
@@ -108,7 +118,9 @@ pub(crate) fn broadcast_to_others(world: &World, from_object_id: i32, packet: &[
             let Some(other) = world.objects.get_component::<RegionCell>(&other_id) else {
                 continue;
             };
-            if crate::world::regions_adjacent(from_region, other.0) {
+            if crate::world::regions_adjacent(from_region, other.0)
+                && instance_of(world, other_id) == from_instance
+            {
                 cs.send(packet.to_vec());
             }
         }

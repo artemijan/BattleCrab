@@ -25,6 +25,9 @@ pub struct OlympiadMatch {
     pub arena: usize,
     pub player_a: i32,
     pub player_b: i32,
+    /// The private instance this bout runs in (G27), so concurrent matches at
+    /// the same arena coordinates don't see each other.
+    pub instance_id: i32,
     /// Game tick at which an undecided battle is called a draw (Java
     /// `ALT_OLY_BATTLE`).
     pub deadline_tick: u64,

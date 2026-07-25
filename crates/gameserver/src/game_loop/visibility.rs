@@ -205,7 +205,10 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
             let Some(other_region) = player_region(world, other_id) else {
                 continue;
             };
-            if regions_adjacent(my_region, other_region) {
+            if regions_adjacent(my_region, other_region)
+                && super::helpers::instance_of(world, object_id)
+                    == super::helpers::instance_of(world, other_id)
+            {
                 send_char_info(world, cs, object_id);
                 send_char_info(world, my_session, other_id);
             }
@@ -285,8 +288,12 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(other_region) = player_region(world, other_id) else {
                 continue;
             };
-            let was = regions_adjacent(old, other_region);
-            let now = regions_adjacent(new, other_region);
+            // Different instances never see each other, so the only delta a
+            // region change can produce across instances is "still hidden".
+            let same_instance = super::helpers::instance_of(world, object_id)
+                == super::helpers::instance_of(world, other_id);
+            let was = regions_adjacent(old, other_region) && same_instance;
+            let now = regions_adjacent(new, other_region) && same_instance;
             if was != now {
                 deltas.push((other_id, cid, now));
             }

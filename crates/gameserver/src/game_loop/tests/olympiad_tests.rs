@@ -519,6 +519,7 @@ fn stage_match(
         arena: 0,
         player_a: a,
         player_b: b,
+        instance_id: 0,
         deadline_tick: world.tick + 100_000,
         return_a: (500, 500, 0),
         return_b: (600, 600, 0),
@@ -574,8 +575,21 @@ fn pre_fight_countdown_announces_then_teleports_then_fights() {
         world.olympiad.matches[0].deadline_tick > 0,
         "the battle has started"
     );
+    // The bout runs in its own instance (both fighters moved into it).
+    let inst = world.olympiad.matches[0].instance_id;
+    assert!(
+        inst >= 1 && world.instances.contains(inst),
+        "private instance"
+    );
+    for oid in [100, 200] {
+        assert_eq!(
+            crate::game_loop::helpers::instance_of(&world, oid),
+            inst,
+            "fighter is in the match instance"
+        );
+    }
 
-    // A death now resolves the match.
+    // A death now resolves the match — the fighters return to the overworld.
     world
         .objects
         .get_component_mut::<Vitals>(&200)
@@ -584,6 +598,12 @@ fn pre_fight_countdown_announces_then_teleports_then_fights() {
     advance_ticks(&mut world, 11);
     assert!(world.olympiad.matches.is_empty(), "match resolved");
     assert_eq!(world.olympiad.nobles[&100].comp_won, 1, "the survivor won");
+    assert!(!world.instances.contains(inst), "instance torn down");
+    assert_eq!(
+        crate::game_loop::helpers::instance_of(&world, 100),
+        0,
+        "winner back in the overworld"
+    );
 }
 
 #[test]

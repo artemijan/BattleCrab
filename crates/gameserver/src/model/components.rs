@@ -19,6 +19,13 @@ pub struct Position {
     pub heading: i32,
 }
 
+/// The instance (logical world partition) an object is in — Java
+/// `WorldObject.getInstanceId()`. The component is only present on objects that
+/// have left the overworld; its absence means instance 0 (the shared world).
+/// Two objects interact only when their instance ids match (G27).
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct InstanceId(pub i32);
+
 impl Position {
     /// 2D center-to-center distance (the shape every range/reach check uses).
     pub fn distance_2d(&self, other: &Position) -> f64 {
