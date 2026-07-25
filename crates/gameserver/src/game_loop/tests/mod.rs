@@ -373,6 +373,7 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::CastlesLoaded { .. }
             | DbEvent::SiegesLoaded { .. }
             | DbEvent::ClanHallsLoaded { .. }
+            | DbEvent::ClanHallBiddersLoaded { .. }
             | DbEvent::SiegeGuardsLoaded { .. }
             | DbEvent::OlympiadLoaded { .. }
             | DbEvent::HeroesLoaded { .. }

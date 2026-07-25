@@ -9,21 +9,26 @@
 //! already refunded when it was outbid, and the highest forfeits by cancelling).
 //! At finalize the highest bidder's held adena is consumed and it wins the hall.
 //!
-//! Staged: the bid/cancel entry points are wired by the Clan Hall Auctioneer NPC
-//! slice; finalize is wired by the weekly auction scheduler slice.
+//! Reachable through the Clan Hall Auctioneer NPC (bid/cancel) and the weekly
+//! [`ScheduledTask::ClanHallAuctionEnd`] close (finalize).
 
 use crate::data::item_data::ADENA_ID;
+use crate::db::DbCommand;
 use crate::model::clan_hall::{ClanHallBid, ClanHallType};
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 /// `Inventory.MAX_ADENA` — 999.9 billion.
 const MAX_ADENA: i64 = 99_900_000_000;
 /// Java: only a clan of level 2+ may bid.
 const MIN_CLAN_LEVEL: i32 = 2;
+/// The auction cycle length — one week (Java `ClanHallAuctionManager`'s
+/// `604800000` ms). The port re-arms this from boot rather than aligning to a
+/// fixed wall-clock instant (documented divergence, like the siege schedule's).
+const WEEK_TICKS: u64 = 7 * 24 * 60 * 60 * 10;
 
 /// What the auctioneer decided about a bid (each is one Java refusal branch).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
 pub enum BidOutcome {
     /// The bid was placed (and any previous highest bidder refunded).
     Accepted,
@@ -45,7 +50,6 @@ pub enum BidOutcome {
 
 /// `ClanHallAuction.getHighestBid` — the top bid, or the hall's minimum when
 /// there are none.
-#[allow(dead_code)]
 pub(crate) fn highest_bid(world: &World, hall_id: i32) -> i64 {
     let floor = world
         .clan_halls
@@ -61,7 +65,6 @@ pub(crate) fn highest_bid(world: &World, hall_id: i32) -> i64 {
 }
 
 /// `ClanHallAuction.getHighestBidder` — the top bidding clan and its amount.
-#[allow(dead_code)]
 pub(crate) fn highest_bidder(world: &World, hall_id: i32) -> Option<(i32, i64)> {
     world
         .clan_hall_bids
@@ -73,7 +76,6 @@ pub(crate) fn highest_bidder(world: &World, hall_id: i32) -> Option<(i32, i64)> 
 
 /// `ClanHallAuctionManager.checkForClanBid` — is the clan bidding on some
 /// *other* hall?
-#[allow(dead_code)]
 pub(crate) fn is_bidding_elsewhere(world: &World, hall_id: i32, clan_id: i32) -> bool {
     world
         .clan_hall_bids
@@ -86,10 +88,18 @@ fn owns_a_hall(world: &World, clan_id: i32) -> bool {
     world.clan_halls.values().any(|h| h.owner_id == clan_id)
 }
 
+/// The hall this clan is bidding on, if any (Java `getClanHallAuctionByClan`).
+pub(crate) fn clan_bid_hall(world: &World, clan_id: i32) -> Option<i32> {
+    world
+        .clan_hall_bids
+        .iter()
+        .find(|(_, bids)| bids.contains_key(&clan_id))
+        .map(|(&id, _)| id)
+}
+
 /// `processBidBypass` minus the leadership check (a per-player concern the NPC
 /// handler does): validate, take the bidder's adena, refund the previous
 /// highest, and record the bid.
-#[allow(dead_code)]
 pub(crate) fn place_bid(
     world: &mut World,
     hall_id: i32,
@@ -128,6 +138,9 @@ pub(crate) fn place_bid(
     // Refund the *previous* highest bidder, then record ours as the new highest.
     if let Some((prev_clan, prev_amount)) = highest_bidder(world, hall_id) {
         give_clan_adena(world, prev_clan, prev_amount);
+        if prev_clan != clan_id {
+            super::warehouse::persist_clan_warehouse(world, prev_clan);
+        }
     }
     world.clan_hall_bids.entry(hall_id).or_default().insert(
         clan_id,
@@ -136,33 +149,70 @@ pub(crate) fn place_bid(
             bid_time: now,
         },
     );
+    // Persist the bidder's warehouse (adena moved) and the bid row.
+    super::warehouse::persist_clan_warehouse(world, clan_id);
+    let _ = world.db.send(DbCommand::SaveClanHallBid {
+        hall_id,
+        clan_id,
+        bid: amount,
+        bid_time: now,
+    });
     BidOutcome::Accepted
 }
 
 /// `ClanHallAuction.removeBid` — cancel a clan's bid. No refund (Java), so the
 /// current highest forfeits by cancelling. Returns whether a bid was removed.
-#[allow(dead_code)]
 pub(crate) fn cancel_bid(world: &mut World, hall_id: i32, clan_id: i32) -> bool {
-    world
+    let removed = world
         .clan_hall_bids
         .get_mut(&hall_id)
-        .is_some_and(|bids| bids.remove(&clan_id).is_some())
+        .is_some_and(|bids| bids.remove(&clan_id).is_some());
+    if removed {
+        let _ = world
+            .db
+            .send(DbCommand::RemoveClanHallBid { hall_id, clan_id });
+    }
+    removed
 }
 
 /// `ClanHallAuction.finalizeAuctions` — the weekly close: the highest bidder
 /// wins the hall (its held adena is consumed), and all bids are cleared.
-#[allow(dead_code)]
 pub(crate) fn finalize_auction(world: &mut World, hall_id: i32) {
     let Some((winner, _)) = highest_bidder(world, hall_id) else {
         return; // no bids — the hall stays free
     };
-    if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
+    let paid_until = if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
         hall.owner_id = winner;
-        // TODO(G24): setOwner also sets paidUntil (the rental clock) and persists
-        // via `clanhall`; the lease cycle + ownership write land with the
-        // reachability slice.
-    }
+        // TODO(G24): setOwner also sets paidUntil (the rental clock) — the lease
+        // cycle lands with the eviction slice; ownership persists now.
+        hall.paid_until
+    } else {
+        0
+    };
     world.clan_hall_bids.remove(&hall_id);
+    let _ = world.db.send(DbCommand::SaveClanHall {
+        id: hall_id,
+        owner_id: winner,
+        paid_until,
+    });
+    let _ = world.db.send(DbCommand::ClearClanHallBids { hall_id });
+}
+
+/// The weekly close (`ClanHallAuctionManager.onEnd`): finalize every hall that
+/// has bids, then re-arm for next week.
+pub(crate) fn handle_auction_end(world: &mut World) {
+    let halls: Vec<i32> = world.clan_hall_bids.keys().copied().collect();
+    for hall_id in halls {
+        finalize_auction(world, hall_id);
+    }
+    schedule_weekly_close(world);
+}
+
+/// Arm the next weekly auction close.
+pub(crate) fn schedule_weekly_close(world: &mut World) {
+    world
+        .scheduler
+        .schedule(world.tick + WEEK_TICKS, ScheduledTask::ClanHallAuctionEnd);
 }
 
 /// Take `amount` adena from a clan's warehouse; `false` if it hasn't enough.

@@ -436,6 +436,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::AntharasClearZone => {
                 antharas::handle_clear_zone(world);
             }
+            ScheduledTask::ClanHallAuctionEnd => {
+                clan_hall_auction::handle_auction_end(world);
+            }
             ScheduledTask::AntharasSetRegen { antharas_oid } => {
                 antharas::handle_set_regen(world, antharas_oid);
             }

@@ -849,6 +849,21 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 );
                 world.clan_halls = halls;
             }
+            DbEvent::ClanHallBiddersLoaded { rows } => {
+                use crate::model::clan_hall::ClanHallBid;
+                for row in &rows {
+                    world.clan_hall_bids.entry(row.hall_id).or_default().insert(
+                        row.clan_id,
+                        ClanHallBid {
+                            amount: row.bid,
+                            bid_time: row.bid_time,
+                        },
+                    );
+                }
+                tracing::info!("GameLoop: loaded {} clan-hall auction bids.", rows.len());
+                // Arm the weekly auction close now that the bids exist.
+                crate::game_loop::clan_hall_auction::schedule_weekly_close(world);
+            }
             DbEvent::OlympiadLoaded {
                 current_cycle,
                 period,

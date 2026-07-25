@@ -302,3 +302,83 @@ fn cancelling_removes_the_bid_without_refund() {
     assert!(highest_bidder(&world, ONYX).is_none(), "bid gone");
     assert_eq!(clan_adena(&world, 10), 5_000_000, "no refund on cancel");
 }
+
+// ---------------------------------------------------------------------------
+// Reachability — weekly close, persistence, boot load
+// ---------------------------------------------------------------------------
+
+/// **The weekly close awards every hall's auction and re-arms itself.**
+#[test]
+fn the_weekly_close_finalizes_and_rearms() {
+    let mut world = auction_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    world.clans.insert(20, mk_clan(20, 5));
+    fund_clan(&mut world, 10, 10_000_000);
+    fund_clan(&mut world, 20, 20_000_000);
+    place_bid(&mut world, ONYX, 10, 5_000_000, 0);
+    place_bid(&mut world, ONYX, 20, 6_000_000, 1);
+    let before = world.scheduler.len();
+
+    crate::game_loop::clan_hall_auction::handle_auction_end(&mut world);
+
+    assert_eq!(world.clan_halls[&ONYX].owner_id, 20, "the top bidder won");
+    assert!(world.clan_hall_bids.get(&ONYX).is_none(), "bids cleared");
+    assert!(world.scheduler.len() > before, "next week's close is armed");
+}
+
+/// Placing a bid persists it (so escrowed adena stays accounted for).
+#[test]
+fn placing_a_bid_persists_it() {
+    let (mut world, mut db, _l) = combat_test_world();
+    world.id_pool = 0x3100_0000..0x3100_1000;
+    world.clan_halls = load_clan_halls(DIST);
+    world.clans.insert(10, mk_clan(10, 5));
+    fund_clan(&mut world, 10, 10_000_000);
+
+    place_bid(&mut world, ONYX, 10, 5_000_000, 42);
+
+    let saved = std::iter::from_fn(|| db.try_recv().ok()).any(|c| {
+        matches!(
+            c,
+            crate::db::DbCommand::SaveClanHallBid {
+                hall_id: 27,
+                clan_id: 10,
+                bid: 5_000_000,
+                ..
+            }
+        )
+    });
+    assert!(saved, "the bid row was persisted");
+}
+
+/// **Bids are restored at boot** and the weekly close is armed.
+#[test]
+fn bids_are_restored_at_boot() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.clan_halls = load_clan_halls(DIST);
+    assert!(world.clan_hall_bids.is_empty());
+
+    let (tx, rx) = std::sync::mpsc::channel();
+    tx.send(crate::db::DbEvent::ClanHallBiddersLoaded {
+        rows: vec![crate::db::ClanHallBidRow {
+            hall_id: ONYX,
+            clan_id: 10,
+            bid: 5_000_000,
+            bid_time: 7,
+        }],
+    })
+    .unwrap();
+    drop(tx);
+    let before = world.scheduler.len();
+    crate::game_loop::net::drain_db(&mut world, &rx);
+
+    assert_eq!(
+        highest_bidder(&world, ONYX),
+        Some((10, 5_000_000)),
+        "bid restored"
+    );
+    assert!(
+        world.scheduler.len() > before,
+        "the weekly auction close is armed"
+    );
+}
