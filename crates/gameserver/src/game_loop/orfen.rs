@@ -11,6 +11,7 @@
 //!   it teleports to its "home" spawn point, once per life.
 
 use crate::model::components::{Position, Vitals};
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 pub const ORFEN: i32 = 29014;
@@ -33,11 +34,82 @@ const DRAG_MAX: f64 = 1000.0;
 /// `getRandom(10) == 0`.
 const DRAG_CHANCE: i32 = 10;
 
+/// Java `DISTANCE_CHECK`: dragged more than this from her spawn, Orfen resets.
+const LEASH_RANGE: f64 = 10000.0;
+/// The 5 s leash-check beat.
+const DISTANCE_TICK_TICKS: u64 = 50;
+
 /// Marks an Orfen that has already used its half-HP relocation, so it happens
-/// once per life rather than on every hit below the threshold.
+/// once per life rather than on every hit below the threshold, and remembers her
+/// spawn anchor for the leash check.
 #[derive(bevy_ecs::component::Component, Debug, Clone, Copy, Default)]
 pub struct OrfenState {
     pub teleported: bool,
+    /// The spawn point the leash pulls her back to (Java `npc.getSpawn()`).
+    pub home: (i32, i32, i32),
+}
+
+/// Java's `startQuestTimer("DISTANCE_CHECK", 5000, orfen, …, true)` at spawn:
+/// remember where she started and begin the leash beat.
+pub(crate) fn on_orfen_spawned(world: &mut World, orfen_oid: i32) {
+    let home = world
+        .objects
+        .get_component::<Position>(&orfen_oid)
+        .map(|p| (p.x, p.y, p.z))
+        .unwrap_or(HOME);
+    world.objects.add_components(
+        &orfen_oid,
+        OrfenState {
+            teleported: false,
+            home,
+        },
+    );
+    world.scheduler.schedule(
+        world.tick + DISTANCE_TICK_TICKS,
+        ScheduledTask::OrfenDistanceCheck { orfen_oid },
+    );
+}
+
+/// Java `DISTANCE_CHECK`: dragged more than `LEASH_RANGE` from her spawn, Orfen
+/// drops her hate and walks back — the anti-drag rule.
+pub(crate) fn handle_distance_check(world: &mut World, orfen_oid: i32) {
+    let alive = world
+        .objects
+        .get_component::<Vitals>(&orfen_oid)
+        .is_some_and(|v| !v.dead);
+    if !alive {
+        return; // Java cancels the timer on death
+    }
+    let home = world
+        .objects
+        .get_component::<OrfenState>(&orfen_oid)
+        .map(|s| s.home)
+        .unwrap_or(HOME);
+    let far = world
+        .objects
+        .get_component::<Position>(&orfen_oid)
+        .is_some_and(|p| {
+            let anchor = Position {
+                x: home.0,
+                y: home.1,
+                z: home.2,
+                heading: 0,
+            };
+            p.distance_2d(&anchor) > LEASH_RANGE
+        });
+    if far {
+        if let Some(a) = world
+            .objects
+            .get_component_mut::<crate::model::npc::AggroList>(&orfen_oid)
+        {
+            a.0.clear();
+        }
+        crate::game_loop::npc_ai::move_npc_to(world, orfen_oid, home.0, home.1, home.2);
+    }
+    world.scheduler.schedule(
+        world.tick + DISTANCE_TICK_TICKS,
+        ScheduledTask::OrfenDistanceCheck { orfen_oid },
+    );
 }
 
 /// `Orfen.onAttack`. Called after damage lands, with the damage that landed.

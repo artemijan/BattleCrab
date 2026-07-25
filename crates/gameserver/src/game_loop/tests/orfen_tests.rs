@@ -260,3 +260,50 @@ fn a_healthy_riba_iren_does_not_heal_orfen() {
         "a healthy minion ignores a dying master"
     );
 }
+
+/// The leash: dragged more than 10000 from her spawn, Orfen drops her hate (and
+/// heads back); kept close, she keeps fighting.
+#[test]
+fn the_leash_resets_a_dragged_orfen() {
+    use crate::model::npc::{AggroInfo, AggroList};
+
+    let add_hate = |world: &mut World, oid: i32| {
+        world
+            .objects
+            .get_component_mut::<AggroList>(&oid)
+            .unwrap()
+            .0
+            .insert(
+                PLAYER,
+                AggroInfo {
+                    hate: 100.0,
+                    damage: 0.0,
+                },
+            );
+    };
+    let has_hate = |world: &World, oid: i32| {
+        !world
+            .objects
+            .get_component::<AggroList>(&oid)
+            .unwrap()
+            .0
+            .is_empty()
+    };
+
+    // Spawned at the origin → home is (0,0,0).
+    let (mut world, _db, _l) = orfen_world();
+    add_test_npc(&mut world, ORFEN_OID, ORFEN, "RaidBoss", 50, 0, 0, 0);
+    crate::game_loop::orfen::on_orfen_spawned(&mut world, ORFEN_OID);
+    add_hate(&mut world, ORFEN_OID);
+
+    // Still near home: the leash leaves her be.
+    crate::game_loop::orfen::handle_distance_check(&mut world, ORFEN_OID);
+    assert!(has_hate(&world, ORFEN_OID), "at home she keeps fighting");
+
+    // Dragged far past the 10000 leash → she drops her hate.
+    if let Some(p) = world.objects.get_component_mut::<Position>(&ORFEN_OID) {
+        p.x = 50_000;
+    }
+    crate::game_loop::orfen::handle_distance_check(&mut world, ORFEN_OID);
+    assert!(!has_hate(&world, ORFEN_OID), "dragged too far, she resets");
+}
