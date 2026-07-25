@@ -811,6 +811,50 @@ consciously stayed out.
   restart-point teleport → `Appearing` revive at 65%, and decay → respawn
   with a fresh id announced by `NpcInfo`.
 
+### Post-G23 — Vertical aggro/chase geodata parity ✅ (2026-07-25)
+Aggro mobs could engage and *move vertically between tower levels* (Cruma/ToI
+floors) and never dropped a target they reached by gliding — none of Java's
+vertical protections were in the AI layer (the geo raytracer itself was fine).
+Ported, all in `npc_ai.rs`:
+
+- **Aggro scans are 3D spheres** — Java `World.forEachVisibleObjectInRange`
+  measures `calculateDistance3D`; the monster/siege/guard scans measured 2D,
+  so a player a floor above was "in range".
+- **`thinkAttack`'s LOS gate** (AttackableAI: "Actor should be able to see
+  target"): a mob that cannot see its hated target neither calls the faction,
+  casts, chases nor swings — it issues `moveTo(target)`, an ordinary
+  geo-validated walk (clamp + path worker), i.e. it takes the stairs.
+- **`chase()` runs through the shared geodata block** (`npc_geo_move`): the
+  pawn destination is `getValidLocation`-clamped and re-routed through the
+  path worker when the straight line is cut (>30 shortfall); `MoveToPawn` is
+  broadcast only for direct moves, routed moves announce `MoveToLocation`
+  (Java `AbstractAI.moveToPawn`). Before this the chase wrote a straight-line
+  `Movement` with no geodata at all — the literal vertical glide.
+  **Deliberate divergence:** Java's "Monsters can move on ledges" exception
+  (skip the clamp when `|dz| > 100`) is *not* ported — in Mobius it lets a
+  monster with cross-floor hate move in an unchecked 3D line, which is the
+  exact reported bug; the clamp+path route is what the LOS-gated design
+  intends.
+- **`AggroInfo.checkHate`**: hate zeroes for an attacker who is dead,
+  despawned, or outside the NPC's 3×3 surrounding regions — run before every
+  most-hated pick. This is Java's actual "loses aggro" mechanism; without it
+  a departed player stayed most-hated forever.
+- **Attack-timeout parity**: on the 2-minute timeout the aggro list is *kept*
+  (Java keeps it; `checkHate` forgets departed targets), and a monster still
+  in combat stance (`has_attack_stance`) — or with no players left watching —
+  **teleports** back to its spawn (`relocate_npc` = `Npc.teleToLocation`)
+  instead of walking.
+- **`faction_call` z-band** now measures against the *target*'s z (Java
+  compares `finalTarget.getZ() - nearby.getZ()`), and the recruit range is 3D.
+
+Tests (`geo_vertical_tests.rs`, 7): 3D-sphere scan; wall = no engagement +
+path request aimed at the target; see-over fence = chase re-routes instead of
+`MoveToPawn`; **real Cruma Tower geodata** — a mob on the ground layer of a
+stacked cell neither aggros a player on the floor above nor glides up to one
+that shot it (fails against the pre-fix `npc_ai.rs`, verified by stash-swap);
+checkHate region leash; timeout teleport-home (in combat) vs stay-put (idle,
+players watching).
+
 ### Post-G9 — ECS object storage (`bevy_ecs`) ✅
 The world's object registries were refactored onto an **ECS
 (Entity–Component–System)** backbone using the standalone `bevy_ecs` crate —

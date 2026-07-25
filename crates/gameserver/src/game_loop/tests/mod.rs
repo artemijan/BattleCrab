@@ -62,6 +62,7 @@ mod effect_scope_tests;
 mod effect_zone_tests;
 mod fear_tests;
 mod frintezza_tests;
+mod geo_vertical_tests;
 mod geometric_scope_tests;
 mod grand_boss_tests;
 mod ground_channeling_tests;

@@ -3,10 +3,12 @@
 //!
 //! Idle random walk and random social animations
 //! (`RandomAnimationTaskManager`), NPC skill casting (see
-//! [`super::npc_cast`]), town-guard PK aggro and clan/faction help calls are
-//! ported. Not ported yet (see PROGRESS): minions, the archer kite and raid
-//! target-chaos moves, and Java's teleport-home on attack timeout (walking
-//! home is used instead — no teleport plumbing for NPCs).
+//! [`super::npc_cast`]), town-guard PK aggro, clan/faction help calls,
+//! `thinkAttack`'s line-of-sight gate (a mob that cannot see its target
+//! walks a geo-validated route instead of engaging), geodata-clamped
+//! chasing, `checkHate` aggro decay and the teleport-home attack timeout are
+//! ported. Not ported yet (see PROGRESS): minions' archer kite and raid
+//! target-chaos moves.
 
 use std::collections::HashSet;
 
@@ -399,6 +401,56 @@ fn stop_npc(world: &mut World, npc_oid: i32) {
     }
 }
 
+/// `AggroInfo.checkHate`, run across the aggro list before every most-hated
+/// pick (Java runs it per-entry inside `Attackable.getMostHated`): hate
+/// silently zeroes for an attacker who is dead, despawned, or no longer
+/// inside the NPC's 3×3 surrounding regions. The entry survives — only its
+/// weight drops — and this is what actually makes a mob forget a target that
+/// left the neighbourhood; without it a hated player stays "most hated"
+/// forever and the mob chases across the world.
+fn check_hate(world: &mut World, npc_oid: i32) {
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    let Some(aggro) = world.objects.get_component::<AggroList>(&npc_oid) else {
+        return;
+    };
+    let hated: Vec<i32> = aggro
+        .0
+        .iter()
+        .filter(|(_, info)| info.hate > 0.0)
+        .map(|(&id, _)| id)
+        .collect();
+    let mut expired: Vec<i32> = Vec::new();
+    for id in hated {
+        let alive_nearby = world
+            .objects
+            .get_component::<Vitals>(&id)
+            .is_some_and(|v| !v.dead)
+            && world
+                .objects
+                .get_component::<RegionCell>(&id)
+                .is_some_and(|r| regions_adjacent(region, r.0));
+        if !alive_nearby {
+            expired.push(id);
+        }
+    }
+    if expired.is_empty() {
+        return;
+    }
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        for id in expired {
+            if let Some(info) = aggro.0.get_mut(&id) {
+                info.hate = 0.0;
+            }
+        }
+    }
+}
+
 /// `AttackableAI.thinkActive`: tick `_globalAggro` toward 0, scan the aggro
 /// range, pick the most hated, or drift back home.
 fn think_active(world: &mut World, npc_oid: i32) {
@@ -464,9 +516,16 @@ fn think_active(world: &mut World, npc_oid: i32) {
             let crate::world::World { objects, geo, .. } = &mut *world;
             objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
                 |(p, pos, r, v)| {
+                    // 3D range (`World.forEachVisibleObjectInRange` uses
+                    // `calculateDistance3D`): a player a floor above is out
+                    // of a ground mob's aggro sphere even when horizontally
+                    // on top of it.
                     if !v.dead
                         && regions_adjacent(region, r.0)
-                        && (((pos.x - nx) as f64).powi(2) + ((pos.y - ny) as f64).powi(2)).sqrt()
+                        && (((pos.x - nx) as f64).powi(2)
+                            + ((pos.y - ny) as f64).powi(2)
+                            + ((pos.z - nz) as f64).powi(2))
+                        .sqrt()
                             <= aggro_range as f64
                         && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
                     {
@@ -529,8 +588,10 @@ fn think_active(world: &mut World, npc_oid: i32) {
                     |(p, pos, r, v)| {
                         if !v.dead
                             && regions_adjacent(region, r.0)
-                            && (((pos.x - nx) as f64).powi(2) + ((pos.y - ny) as f64).powi(2))
-                                .sqrt()
+                            && (((pos.x - nx) as f64).powi(2)
+                                + ((pos.y - ny) as f64).powi(2)
+                                + ((pos.z - nz) as f64).powi(2))
+                            .sqrt()
                                 <= aggro_range as f64
                             && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
                         {
@@ -553,7 +614,9 @@ fn think_active(world: &mut World, npc_oid: i32) {
         }
     }
 
-    // Chose a target from the aggro list (`getMostHated`).
+    // Chose a target from the aggro list (`getMostHated`, after the
+    // per-entry `checkHate` liveness/region test).
+    check_hate(world, npc_oid);
     let hated = world
         .objects
         .get_component::<AggroList>(&npc_oid)
@@ -676,6 +739,7 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         return;
     }
 
+    check_hate(world, npc_oid);
     let target = world
         .objects
         .get_component::<AggroList>(&npc_oid)
@@ -697,25 +761,54 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         return;
     }
 
-    // Attack timeout: give up, forget everyone, walk home (Java teleports —
-    // see the module note).
+    // Attack timeout (`thinkAttack`): give up the hunt — back to the scan
+    // loop at walking speed. Java does *not* clear the aggro list here (the
+    // `checkHate` region test is what ultimately forgets a vanished target);
+    // instead a monster still mid-combat — or one nobody is left watching —
+    // teleports straight back to its spawn
+    // (`npc.teleToLocation(npc.getSpawn(), false)`).
     if world
         .objects
         .get_component::<NpcAi>(&npc_oid)
         .is_some_and(|ai| ai.attack_timeout_tick < now)
     {
-        let spawn = {
-            if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-                aggro.0.clear();
-            }
+        set_active(world, npc_oid);
+        let Some(npc) = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+        else {
+            return;
+        };
+        let spawn = npc.spawn_loc;
+        let is_monster = npc.template(world).is_some_and(|t| t.is_monster());
+        // `npc.isInCombat()` = `AttackStanceTaskManager.hasAttackStanceTask`.
+        // Being *attacked* re-arms the attack timeout, so at this point only
+        // the mob's own recent swings can still hold the stance.
+        let in_combat = combat::has_attack_stance(world, npc_oid);
+        let players_visible = {
+            let Some(region) = world
+                .objects
+                .get_component::<RegionCell>(&npc_oid)
+                .map(|r| r.0)
+            else {
+                return;
+            };
+            let mut any = false;
             world
                 .objects
-                .get_component::<crate::model::npc::Npc>(&npc_oid)
-                .expect("checked")
-                .spawn_loc
+                .for_each_mut::<(&crate::model::Player, &RegionCell)>(|(_, r)| {
+                    any |= regions_adjacent(region, r.0);
+                });
+            any
         };
-        set_active(world, npc_oid);
-        move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
+        if is_monster && instance_of(world, npc_oid) == 0 && (in_combat || !players_visible) {
+            let heading = world
+                .objects
+                .get_component::<Position>(&npc_oid)
+                .map(|p| p.heading)
+                .unwrap_or(0);
+            super::death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
+        }
         return;
     }
 
@@ -726,6 +819,39 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         .is_some_and(|st| st.attack_end_tick > now)
     {
         return;
+    }
+
+    // "Actor should be able to see target" (`thinkAttack`'s geodata gate): a
+    // sight line cut by a wall or a tower floor means no faction call, no
+    // cast, no swing and — crucially — no straight-line chase. Java issues
+    // `moveTo(target)`, an ordinary geo-validated walk that clamps at the
+    // last walkable cell and falls back to the path worker (the stairs
+    // route), then returns. Without this gate a mob whose hated target
+    // climbed to another level engages straight through the geometry.
+    {
+        let (Some(npos), Some(tpos)) = (
+            world.objects.get_component::<Position>(&npc_oid).copied(),
+            world
+                .objects
+                .get_component::<Position>(&target_oid)
+                .copied(),
+        ) else {
+            return;
+        };
+        if !world
+            .geo
+            .can_see_target(npos.x, npos.y, npos.z, tpos.x, tpos.y, tpos.z)
+        {
+            let can_move = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .and_then(|n| n.template(world))
+                .is_some_and(|t| t.can_move);
+            if can_move {
+                move_npc_to(world, npc_oid, tpos.x, tpos.y, tpos.z);
+            }
+            return;
+        }
     }
 
     // Call the faction for help before anything else this think (Java runs the
@@ -879,7 +1005,14 @@ fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
 }
 
 /// `moveToPawn` for a chasing NPC: walk to the edge of attack reach,
-/// re-pathed every think (1 s), broadcasting `MoveToPawn`.
+/// re-pathed every think (1 s). Java funnels this through the very same
+/// `Creature.moveToLocation` geodata block as any other walk — the chase
+/// destination is clamped to the last walkable cell and re-routed through the
+/// path worker when the straight line is cut — and `AbstractAI.moveToPawn`
+/// then broadcasts `MoveToPawn` only when the move is *not* on a geodata
+/// route (a routed move announces ordinary `MoveToLocation` segments).
+/// Skipping this block was how an aggroed mob glided vertically through
+/// tower floors to a target on another level.
 fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
     let Some(mover) = combat::combatant(world, npc_oid) else {
         return;
@@ -887,72 +1020,40 @@ fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
     let Some(target) = combat::combatant(world, target_oid) else {
         return;
     };
-    let Some((dest_x, dest_y, dest_z, heading)) = combat::pawn_destination(&mover, &target, reach)
+    let Some((dest_x, dest_y, dest_z, _heading)) = combat::pawn_destination(&mover, &target, reach)
     else {
         return;
     };
-
-    let (speed, start, region) = {
-        let speed = world
-            .objects
-            .get_component::<Speeds>(&npc_oid)
-            .map(Speeds::move_speed)
-            .unwrap_or(0.0);
-        let pos = world
-            .objects
-            .get_component::<Position>(&npc_oid)
-            .expect("checked");
-        let region = world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .expect("checked")
-            .0;
-        (speed, (pos.x, pos.y, pos.z), region)
-    };
-    if speed <= 0.0 {
-        return;
-    }
-    let distance =
-        (((dest_x - start.0) as f64).powi(2) + ((dest_y - start.1) as f64).powi(2)).sqrt();
-    let total_ticks = ((10.0 * distance / speed).round() as u64).max(1);
-    let start_tick = world.tick;
-    if let Some(pos) = world.objects.get_component_mut::<Position>(&npc_oid) {
-        pos.heading = heading;
-    }
-    world.objects.add_components(
-        &npc_oid,
-        Movement(MoveData {
-            start_x: start.0,
-            start_y: start.1,
-            start_z: start.2,
-            dest_x,
-            dest_y,
-            dest_z,
-            start_tick,
-            total_ticks,
-            geo_path: None,
+    npc_geo_move(
+        world,
+        npc_oid,
+        (dest_x, dest_y, dest_z),
+        Some(PawnRef {
+            target_oid,
+            offset: reach as i32,
+            target_pos: (target.x, target.y, target.z),
         }),
     );
-    broadcast_near_region_in(
-        world,
-        region,
-        instance_of(world, npc_oid),
-        &server_packets::move_to_pawn(
-            npc_oid,
-            target_oid,
-            reach as i32,
-            start.0,
-            start.1,
-            start.2,
-            target.x,
-            target.y,
-            target.z,
-        ),
-    );
+}
+
+/// The pawn a chase move is aimed at — carried down to the broadcast so a
+/// direct (non-routed) move announces `MoveToPawn` the way Java's
+/// `AbstractAI.moveToPawn` does.
+struct PawnRef {
+    target_oid: i32,
+    offset: i32,
+    target_pos: (i32, i32, i32),
 }
 
 /// A plain destination walk (return-home) with a `MoveToLocation` broadcast.
 pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32) {
+    npc_geo_move(world, npc_oid, (x, y, z), None);
+}
+
+/// The NPC half of `Creature.moveToLocation`, shared by every NPC walk —
+/// chase, return-home, random walk (Java shares the method between players
+/// and mobs; the player half lives in `position.rs`).
+fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Option<PawnRef>) {
     // `Creature.moveToLocation` bails on `isMovementDisabled()` — a rooted mob
     // stays put (and a stunned one never gets here; `think` already returned).
     if super::abnormal::is_movement_disabled(world, npc_oid) {
@@ -984,15 +1085,22 @@ pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i3
 
     // GEODATA MOVEMENT CHECKS AND PATHFINDING — the NPC half of
     // `Creature.moveToLocation`, which Java shares between players and mobs.
-    // Until this slice NPCs moved in a straight line with no geodata at all,
-    // so a chase walked them through walls and into terrain.
-    let (mut x, mut y, mut z) = (x, y, z);
+    let (mut x, mut y, mut z) = dest;
     let (original_x, original_y, original_z) = (x, y, z);
     let original_distance = {
         let dx = (x - start.0) as f64;
         let dy = (y - start.1) as f64;
         (dx * dx + dy * dy).sqrt()
     };
+    // Deliberate divergence: Java also skips the clamp for a monster whose
+    // destination differs by more than 100 z ("Monsters can move on ledges",
+    // Creature.java) — and because the skipped clamp is also what arms the
+    // pathfinding fallback, a Mobius monster chasing across a big z gap
+    // moves in a straight unchecked 3D line, i.e. glides through tower
+    // floors. That exception is not ported: a cross-floor chase here clamps
+    // like any other walk and falls back to the path worker (stairs), which
+    // is the retail-faithful outcome the rest of Java's design (LOS-gated
+    // aggro and engagement) clearly intends.
     if world.path_finding > 0
         && original_distance <= 3000.0
         && !(start.2 - z > 300 && original_distance < 300.0)
@@ -1065,12 +1173,25 @@ pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i3
             geo_path: None,
         }),
     );
-    broadcast_near_region_in(
-        world,
-        region,
-        instance_of(world, npc_oid),
-        &server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2),
-    );
+    // `AbstractAI.moveToPawn`: a chase that ended up as a plain direct move
+    // announces `MoveToPawn`; everything else (including any routed move —
+    // handled on the path worker's reply in `start_move`) announces
+    // `MoveToLocation`.
+    let pkt = match &pawn {
+        Some(p) => server_packets::move_to_pawn(
+            npc_oid,
+            p.target_oid,
+            p.offset,
+            start.0,
+            start.1,
+            start.2,
+            p.target_pos.0,
+            p.target_pos.1,
+            p.target_pos.2,
+        ),
+        None => server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2),
+    };
+    broadcast_near_region_in(world, region, instance_of(world, npc_oid), &pkt);
 }
 
 /// `AttackableAI.isAggressiveTowards`'s playable-state gates — whether this NPC
@@ -1135,7 +1256,10 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
                 if !v.dead
                     && p.reputation < 0
                     && regions_adjacent(region, r.0)
-                    && (((pos.x - nx) as f64).powi(2) + ((pos.y - ny) as f64).powi(2)).sqrt()
+                    && (((pos.x - nx) as f64).powi(2)
+                        + ((pos.y - ny) as f64).powi(2)
+                        + ((pos.z - nz) as f64).powi(2))
+                    .sqrt()
                         <= GUARD_AGGRO_RANGE
                     && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
                 {
@@ -1227,6 +1351,13 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_oid);
+    let Some(target_pos) = world
+        .objects
+        .get_component::<Position>(&target_oid)
+        .copied()
+    else {
+        return;
+    };
 
     // Candidate clan-mates: NPCs in this and the neighbouring regions.
     let nearby: Vec<i32> = (-1..=1)
@@ -1250,8 +1381,15 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         {
             continue;
         }
-        let dist = (((opos.x - pos.x) as f64).powi(2) + ((opos.y - pos.y) as f64).powi(2)).sqrt();
-        if dist > range || (opos.z - pos.z).abs() > 600 {
+        // 3D range around the *caller* (`forEachVisibleObjectInRange`), plus
+        // Java's explicit ±600 z band against the *target* — a helper on
+        // another tower level never answers a call about a target it could
+        // only reach by crossing floors.
+        let dist = (((opos.x - pos.x) as f64).powi(2)
+            + ((opos.y - pos.y) as f64).powi(2)
+            + ((opos.z - pos.z) as f64).powi(2))
+        .sqrt();
+        if dist > range || (opos.z - target_pos.z).abs() > 600 {
             continue;
         }
         // Gate 2: only the uncommitted answer.
