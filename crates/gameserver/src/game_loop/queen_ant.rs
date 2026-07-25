@@ -40,6 +40,12 @@ const HEAL_TICK_TICKS: u64 = 10;
 /// Called when the Queen is placed in the world: bring out the larva and start
 /// the heal beat.
 pub(crate) fn on_queen_spawned(world: &mut World, queen_oid: i32) {
+    // Java `onSpawn(QUEEN)`: `getMinionList().spawnMinions("Privates")` — the
+    // six nurses and eight royal guards. The grand-boss spawn path
+    // (`spawn_npc_at`) deliberately skips a leader's `<minions>` escort, so
+    // without this the Queen stands alone: no healers, no guards, no fight.
+    crate::game_loop::minions::spawn_minions(world, queen_oid);
+
     let heading = world.roll(360);
     if let Some(larva) =
         crate::model::npc::spawn_npc_at(world, LARVA, LARVA_X, LARVA_Y, LARVA_Z, heading)
