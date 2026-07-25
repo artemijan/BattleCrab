@@ -21,7 +21,11 @@ fn seed_frintezza(world: &mut World) {
 }
 
 fn seed_frintezza_rooms(world: &mut World, room_size: usize) {
-    for id in [HALL_ALARM, TRASH] {
+    // Crawl mobs + the intro ensemble (Frintezza, Scarlet, demons, portraits,
+    // cube) so their spawns resolve.
+    for id in [
+        HALL_ALARM, TRASH, 29045, 29046, 29048, 29049, 29050, 29051, 29061,
+    ] {
         if world.data.npc_data.get(id).is_none() {
             world
                 .data
@@ -183,6 +187,62 @@ fn killing_the_alarm_opens_the_first_room_doors() {
             .0,
         "room 1 opened when the alarm fell"
     );
+}
+
+#[test]
+fn the_intro_freezes_players_then_spawns_the_ensemble_and_hands_control_back() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_frintezza(&mut world);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    frintezza::try_enter(&mut world, 100);
+    let iid = instance_of(&world, 100);
+
+    let paralyzed = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::AdminFlags>(&100)
+            .map(|f| f.paralyzed)
+            .unwrap_or(false)
+    };
+
+    // Step 1 spawns Frintezza and freezes the party for the cinematic.
+    frintezza::handle_intro_step(&mut world, iid, 0);
+    frintezza::handle_intro_step(&mut world, iid, 1);
+    assert!(paralyzed(&world), "players are frozen during the cinematic");
+    let frintezza_oid = world.instances.get_var(iid, "frintezza") as i32;
+    assert!(
+        frintezza_oid != 0
+            && world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&frintezza_oid)
+                .is_some(),
+        "Frintezza is on the field"
+    );
+
+    // Run the rest: Scarlet, the portraits, and the hand-back.
+    for step in 2..=5 {
+        frintezza::handle_intro_step(&mut world, iid, step);
+    }
+    let scarlet = world.instances.get_var(iid, "activeScarlet") as i32;
+    assert!(
+        scarlet != 0
+            && world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&scarlet)
+                .is_some(),
+        "Scarlet is fightable"
+    );
+    assert_eq!(
+        world.instances.get_var(iid, "fightActive"),
+        1,
+        "the fight is on"
+    );
+    assert!(!paralyzed(&world), "control returns to the players");
+    // All four portraits and demons were recorded.
+    for i in 0..4 {
+        assert_ne!(world.instances.get_var(iid, &format!("portrait{i}")), 0);
+        assert_ne!(world.instances.get_var(iid, &format!("demon{i}")), 0);
+    }
 }
 
 #[test]

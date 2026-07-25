@@ -172,6 +172,38 @@ pub(crate) fn spawn_group(world: &mut World, instance_id: i32, group_name: &str)
     spawned
 }
 
+/// Spawn a single NPC into a live instance (Java `addSpawn(..., instanceId)`),
+/// returning its object id. Tagged into the instance and recorded for teardown.
+pub(crate) fn spawn_npc(
+    world: &mut World,
+    instance_id: i32,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> Option<i32> {
+    let oid = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading)?;
+    world.objects.add_components(&oid, InstanceId(instance_id));
+    world.instances.record_npc(instance_id, oid);
+    Some(oid)
+}
+
+/// Send a packet to every player currently inside an instance (Java
+/// `broadcastPacket(Instance, packet)` — all members, not region-scoped).
+pub(crate) fn broadcast_to_instance(world: &World, instance_id: i32, packet: &[u8]) {
+    let Some(inst) = world.instances.get(instance_id) else {
+        return;
+    };
+    for &member in inst.members.keys() {
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(packet.to_vec());
+            }
+        }
+    }
+}
+
 /// Move a player into `instance_id` (Java `Instance.addPlayer` + the enter
 /// location), remembering where they came from for an `ORIGIN` exit.
 pub(crate) fn enter(world: &mut World, player: i32, instance_id: i32) {
