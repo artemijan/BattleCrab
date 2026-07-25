@@ -35,6 +35,7 @@ mod enchant;
 mod expertise;
 pub(crate) mod fishing;
 mod friends;
+pub(crate) mod frintezza;
 mod grand_boss;
 mod ground_items;
 mod helpers;

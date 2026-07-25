@@ -16,6 +16,11 @@ pub struct Instance {
     pub members: HashMap<i32, (i32, i32, i32)>,
     /// The game tick at which the instance emptied, for the empty-destroy timer.
     pub empty_since: Option<u64>,
+    /// Script progress marker (Java `Instance.getStatus`/`setStatus`).
+    pub status: i32,
+    /// Script scratch integers (Java `Instance.setParameter` for ints — kill
+    /// counters, flags, and object-ref parameters stored as object ids).
+    pub vars: HashMap<String, i64>,
 }
 
 /// Allocates instance ids and tracks the live instances (Java `InstanceManager`).
@@ -83,6 +88,34 @@ impl InstanceManager {
 
     pub fn member_count(&self, id: i32) -> usize {
         self.live.get(&id).map_or(0, |i| i.members.len())
+    }
+
+    /// Script progress marker (Java `Instance.getStatus`).
+    pub fn status(&self, id: i32) -> i32 {
+        self.live.get(&id).map_or(0, |i| i.status)
+    }
+
+    /// Java `Instance.setStatus`.
+    pub fn set_status(&mut self, id: i32, value: i32) {
+        if let Some(inst) = self.live.get_mut(&id) {
+            inst.status = value;
+        }
+    }
+
+    /// A scratch integer parameter, 0 when unset (Java `getInt`).
+    pub fn get_var(&self, id: i32, key: &str) -> i64 {
+        self.live
+            .get(&id)
+            .and_then(|i| i.vars.get(key))
+            .copied()
+            .unwrap_or(0)
+    }
+
+    /// Java `Instance.setParameter` (integer parameters).
+    pub fn set_var(&mut self, id: i32, key: &str, value: i64) {
+        if let Some(inst) = self.live.get_mut(&id) {
+            inst.vars.insert(key.to_string(), value);
+        }
     }
 
     /// Every live instance as `(id, &Instance)` — the GM panel lists these.
