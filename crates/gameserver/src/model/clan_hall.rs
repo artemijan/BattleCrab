@@ -49,6 +49,13 @@ impl ClanHallType {
     }
 }
 
+/// One clan's standing bid on a hall (Java `residences.Bidder`).
+#[derive(Debug, Clone, Copy)]
+pub struct ClanHallBid {
+    pub amount: i64,
+    pub bid_time: i64,
+}
+
 /// A clan hall — its static definition plus the runtime owner (0 = unowned).
 #[derive(Debug, Clone)]
 pub struct ClanHall {

@@ -1,0 +1,189 @@
+//! Clan-hall auctions (Java `model/residences/ClanHallAuction` +
+//! `ClanHallAuctionManager`) — the bid / outbid / cancel / finalize logic.
+//!
+//! **Escrow model** (from `ClanHallAuctioneer.processBidBypass`): only the
+//! *current highest* bidder's adena is ever held. A new bid takes the bidder's
+//! adena from the clan warehouse and **refunds the previous highest bidder**; so
+//! at any moment exactly one clan's adena is escrowed per hall. Cancelling only
+//! removes the map entry (Java `removeBid` — no refund; a non-highest clan was
+//! already refunded when it was outbid, and the highest forfeits by cancelling).
+//! At finalize the highest bidder's held adena is consumed and it wins the hall.
+//!
+//! Staged: the bid/cancel entry points are wired by the Clan Hall Auctioneer NPC
+//! slice; finalize is wired by the weekly auction scheduler slice.
+
+use crate::data::item_data::ADENA_ID;
+use crate::model::clan_hall::{ClanHallBid, ClanHallType};
+use crate::world::World;
+
+/// `Inventory.MAX_ADENA` — 999.9 billion.
+const MAX_ADENA: i64 = 99_900_000_000;
+/// Java: only a clan of level 2+ may bid.
+const MIN_CLAN_LEVEL: i32 = 2;
+
+/// What the auctioneer decided about a bid (each is one Java refusal branch).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(dead_code)]
+pub enum BidOutcome {
+    /// The bid was placed (and any previous highest bidder refunded).
+    Accepted,
+    /// The hall isn't up for auction (unknown, not auctionable, already owned).
+    HallUnavailable,
+    /// No clan, or a clan below level 2.
+    ClanTooLow,
+    /// The clan already owns a hall.
+    AlreadyOwnsHall,
+    /// The clan is bidding on a different hall.
+    BiddingElsewhere,
+    /// Over the 999.9-billion adena cap.
+    BidTooHigh,
+    /// Not above the current highest bid (or the minimum).
+    BidTooLow,
+    /// Not enough adena in the clan warehouse.
+    NotEnoughAdena,
+}
+
+/// `ClanHallAuction.getHighestBid` — the top bid, or the hall's minimum when
+/// there are none.
+#[allow(dead_code)]
+pub(crate) fn highest_bid(world: &World, hall_id: i32) -> i64 {
+    let floor = world
+        .clan_halls
+        .get(&hall_id)
+        .map(|h| h.min_bid)
+        .unwrap_or(0);
+    world
+        .clan_hall_bids
+        .get(&hall_id)
+        .and_then(|b| b.values().map(|x| x.amount).max())
+        .map(|top| top.max(floor))
+        .unwrap_or(floor)
+}
+
+/// `ClanHallAuction.getHighestBidder` — the top bidding clan and its amount.
+#[allow(dead_code)]
+pub(crate) fn highest_bidder(world: &World, hall_id: i32) -> Option<(i32, i64)> {
+    world
+        .clan_hall_bids
+        .get(&hall_id)?
+        .iter()
+        .max_by_key(|(_, b)| b.amount)
+        .map(|(&clan_id, b)| (clan_id, b.amount))
+}
+
+/// `ClanHallAuctionManager.checkForClanBid` — is the clan bidding on some
+/// *other* hall?
+#[allow(dead_code)]
+pub(crate) fn is_bidding_elsewhere(world: &World, hall_id: i32, clan_id: i32) -> bool {
+    world
+        .clan_hall_bids
+        .iter()
+        .any(|(&id, bids)| id != hall_id && bids.contains_key(&clan_id))
+}
+
+/// Whether this clan already owns any hall (Java `getClanHallByClan != null`).
+fn owns_a_hall(world: &World, clan_id: i32) -> bool {
+    world.clan_halls.values().any(|h| h.owner_id == clan_id)
+}
+
+/// `processBidBypass` minus the leadership check (a per-player concern the NPC
+/// handler does): validate, take the bidder's adena, refund the previous
+/// highest, and record the bid.
+#[allow(dead_code)]
+pub(crate) fn place_bid(
+    world: &mut World,
+    hall_id: i32,
+    clan_id: i32,
+    amount: i64,
+    now: i64,
+) -> BidOutcome {
+    // The hall must be a free, auctionable residence.
+    match world.clan_halls.get(&hall_id) {
+        Some(h) if h.hall_type == ClanHallType::Auctionable && h.owner_id == 0 => {}
+        _ => return BidOutcome::HallUnavailable,
+    }
+    if world
+        .clans
+        .get(&clan_id)
+        .is_none_or(|c| c.level < MIN_CLAN_LEVEL)
+    {
+        return BidOutcome::ClanTooLow;
+    }
+    if owns_a_hall(world, clan_id) {
+        return BidOutcome::AlreadyOwnsHall;
+    }
+    if is_bidding_elsewhere(world, hall_id, clan_id) {
+        return BidOutcome::BiddingElsewhere;
+    }
+    if amount > MAX_ADENA {
+        return BidOutcome::BidTooHigh;
+    }
+    if amount < highest_bid(world, hall_id) {
+        return BidOutcome::BidTooLow;
+    }
+    // Take the bid from the clan warehouse (Java `destroyItemByItemId`).
+    if !take_clan_adena(world, clan_id, amount) {
+        return BidOutcome::NotEnoughAdena;
+    }
+    // Refund the *previous* highest bidder, then record ours as the new highest.
+    if let Some((prev_clan, prev_amount)) = highest_bidder(world, hall_id) {
+        give_clan_adena(world, prev_clan, prev_amount);
+    }
+    world.clan_hall_bids.entry(hall_id).or_default().insert(
+        clan_id,
+        ClanHallBid {
+            amount,
+            bid_time: now,
+        },
+    );
+    BidOutcome::Accepted
+}
+
+/// `ClanHallAuction.removeBid` — cancel a clan's bid. No refund (Java), so the
+/// current highest forfeits by cancelling. Returns whether a bid was removed.
+#[allow(dead_code)]
+pub(crate) fn cancel_bid(world: &mut World, hall_id: i32, clan_id: i32) -> bool {
+    world
+        .clan_hall_bids
+        .get_mut(&hall_id)
+        .is_some_and(|bids| bids.remove(&clan_id).is_some())
+}
+
+/// `ClanHallAuction.finalizeAuctions` — the weekly close: the highest bidder
+/// wins the hall (its held adena is consumed), and all bids are cleared.
+#[allow(dead_code)]
+pub(crate) fn finalize_auction(world: &mut World, hall_id: i32) {
+    let Some((winner, _)) = highest_bidder(world, hall_id) else {
+        return; // no bids — the hall stays free
+    };
+    if let Some(hall) = world.clan_halls.get_mut(&hall_id) {
+        hall.owner_id = winner;
+        // TODO(G24): setOwner also sets paidUntil (the rental clock) and persists
+        // via `clanhall`; the lease cycle + ownership write land with the
+        // reachability slice.
+    }
+    world.clan_hall_bids.remove(&hall_id);
+}
+
+/// Take `amount` adena from a clan's warehouse; `false` if it hasn't enough.
+fn take_clan_adena(world: &mut World, clan_id: i32, amount: i64) -> bool {
+    let Some(clan) = world.clans.get_mut(&clan_id) else {
+        return false;
+    };
+    if clan.warehouse.0.count_of(ADENA_ID) < amount {
+        return false;
+    }
+    clan.warehouse.0.remove_item(ADENA_ID, amount);
+    true
+}
+
+/// Return `amount` adena to a clan's warehouse (an outbid refund).
+fn give_clan_adena(world: &mut World, clan_id: i32, amount: i64) {
+    let Some(oid) = world.alloc_object_id() else {
+        return;
+    };
+    let catalog = &world.data.item_data;
+    if let Some(clan) = world.clans.get_mut(&clan_id) {
+        clan.warehouse.0.add_item(catalog, oid, ADENA_ID, amount);
+    }
+}
