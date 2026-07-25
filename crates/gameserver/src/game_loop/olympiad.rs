@@ -56,9 +56,19 @@ const NONCLASSED_MIN: usize = 20;
 const HERO_MIN_MATCHES: i32 = 10;
 /// `AltOlyVPeriod` — the validation period after a round ends (24 h).
 const VALIDATION_PERIOD_MS: i64 = 86_400_000;
-/// The competition month length. TODO(G25): Java's `setNewOlympiadEnd` uses the
-/// calendar month boundary; this is a 30-day approximation.
-const OLYMPIAD_PERIOD_MS: i64 = 30 * MS_PER_DAY;
+/// `AltOlyPeriod = DAY` × `AltOlyPeriodMultiplier = 14` — the round runs for
+/// this many days (the last is the validation day), ending at noon.
+const OLYMPIAD_PERIOD_DAYS: i64 = 14;
+/// Noon, as milliseconds past midnight (Java `setNewOlympiadEnd` anchors the
+/// end at `HOUR_OF_DAY 12`).
+const NOON_MS_OF_DAY: i64 = 12 * 3600 * 1000;
+
+/// `Olympiad.setNewOlympiadEnd`'s `DAY` branch: noon today plus
+/// `(multiplier - 1)` days (the final day is reserved for validation).
+pub(crate) fn next_olympiad_end(now_ms: i64) -> i64 {
+    let noon_today = now_ms - ms_of_day(now_ms) + NOON_MS_OF_DAY;
+    noon_today + (OLYMPIAD_PERIOD_DAYS - 1) * MS_PER_DAY
+}
 
 /// The per-character variable holding points earned this round but not yet
 /// exchanged for marks (Java `Olympiad.UNCLAIMED_OLYMPIAD_POINTS_VAR`).
@@ -131,8 +141,8 @@ pub(crate) fn schedule_at_boot(world: &mut World) {
         arm_comp_schedule(world, now);
         if world.olympiad.olympiad_end <= now {
             // Fresh install, or the end elapsed while the server was down: set a
-            // new month boundary rather than ending instantly.
-            world.olympiad.olympiad_end = now + OLYMPIAD_PERIOD_MS;
+            // new period boundary rather than ending instantly.
+            world.olympiad.olympiad_end = next_olympiad_end(now);
         }
         world.scheduler.schedule(
             fire_at(world, world.olympiad.olympiad_end - now),
@@ -432,16 +442,16 @@ pub(crate) fn handle_validation_end(world: &mut World) {
     world.olympiad.current_cycle += 1;
     world.olympiad.nobles.clear(); // `deleteNobles` (TRUNCATE olympiad_nobles)
     let now = commons::util::now_millis();
-    world.olympiad.olympiad_end = now + OLYMPIAD_PERIOD_MS;
+    world.olympiad.olympiad_end = next_olympiad_end(now);
     save_all(world);
     tracing::info!(
         "Olympiad: validation ended; cycle {} begins.",
         world.olympiad.current_cycle
     );
-    // Re-arm the competition window + the next month-end.
+    // Re-arm the competition window + the next period end.
     arm_comp_schedule(world, now);
     world.scheduler.schedule(
-        fire_at(world, OLYMPIAD_PERIOD_MS),
+        fire_at(world, world.olympiad.olympiad_end - now),
         ScheduledTask::OlympiadEnd,
     );
 }

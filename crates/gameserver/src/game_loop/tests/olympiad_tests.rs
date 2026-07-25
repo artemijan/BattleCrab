@@ -386,6 +386,16 @@ fn competition_window_is_weekends_at_1800() {
 }
 
 #[test]
+fn olympiad_period_ends_at_noon_after_13_days() {
+    use crate::game_loop::olympiad::next_olympiad_end;
+    // From Saturday 18:00, the round ends at noon 13 days on (14-day period, the
+    // last day reserved for validation).
+    let end = next_olympiad_end(SAT_1800);
+    assert_eq!(end, 15 * MS_PER_DAY + 12 * 3600 * 1000, "noon, 13 days out");
+    assert!(end > SAT_1800, "always in the future");
+}
+
+#[test]
 fn comp_start_opens_and_comp_end_closes_the_window() {
     let (mut world, _tx, _db, _l) = test_world();
     world.olympiad.period = 0;
