@@ -800,6 +800,39 @@ fn match_start_strips_active_buffs() {
 }
 
 #[test]
+fn equipment_reward_opens_the_multisell() {
+    let (mut world, _db_rx, _link) = quest_test_world();
+    world
+        .data
+        .multisells
+        .insert_for_test(crate::data::multisell_data::MultisellList {
+            list_id: 3168801,
+            is_chance_multisell: false,
+            apply_taxes: false,
+            maintain_enchantment: false,
+            ingredient_multiplier: 1.0,
+            product_multiplier: 1.0,
+            entries: Vec::new(),
+            npcs_allowed: None,
+        });
+    add_test_npc(&mut world, 700, 31688, "Folk", 70, 0, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_700_Quest OlyManager showEquipmentReward"),
+    );
+
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p.first() == Some(&opcodes::MULTI_SELL_LIST)),
+        "the Olympiad reward multisell opened"
+    );
+}
+
+#[test]
 fn round_end_announces_to_online_players() {
     let (mut world, _tx, _db, _l) = test_world();
     world

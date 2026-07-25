@@ -15,6 +15,8 @@ use crate::model::Player;
 pub struct OlyManager;
 
 const NPCS: &[i32] = &[OLYMPIAD_MANAGER_NPC];
+/// The Olympiad equipment reward multisell (`OlyManager.EQUIPMENT_MULTISELL`).
+const EQUIPMENT_MULTISELL: i32 = 3168801;
 
 impl QuestScript for OlyManager {
     fn id(&self) -> i32 {
@@ -71,9 +73,17 @@ impl QuestScript for OlyManager {
                 calculate_points_done(ctx);
                 None
             }
-            // TODO(G25): showEquipmentReward (the reward multisell) needs the
-            // multisell wiring; the reward pages remain reachable as `.html`
-            // navigation links above.
+            // The Olympiad equipment reward shop (a multisell, `EQUIPMENT_MULTISELL`).
+            "showEquipmentReward" => {
+                crate::game_loop::multisell::separate_and_send(
+                    ctx.world,
+                    ctx.client_id,
+                    ctx.player,
+                    EQUIPMENT_MULTISELL,
+                    false,
+                );
+                None
+            }
             _ => None,
         }
     }
