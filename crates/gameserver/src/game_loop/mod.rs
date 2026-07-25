@@ -42,7 +42,7 @@ mod henna;
 mod items;
 mod lobby;
 pub(crate) mod minions;
-mod multisell;
+pub(crate) mod multisell;
 mod net;
 pub(crate) mod npc_ai;
 mod npc_cast;
