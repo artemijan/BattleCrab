@@ -575,10 +575,13 @@ const COUNTDOWN: &[(u64, CountdownStep)] = &[
 /// from `BEGIN`): the fighters are announced, teleported in + buff-stripped
 /// after the wait countdown, and the fight begins after the battle countdown.
 pub(crate) fn start_match(world: &mut World, arena: usize, player_a: i32, player_b: i32) {
+    // A private instance so concurrent bouts sharing arena coords stay isolated.
+    let instance_id = world.instances.create(0);
     world.olympiad.matches.push(OlympiadMatch {
         arena,
         player_a,
         player_b,
+        instance_id,
         deadline_tick: 0, // set when the battle actually begins
         return_a: position_of(world, player_a),
         return_b: position_of(world, player_b),
@@ -612,6 +615,9 @@ pub(crate) fn handle_countdown(world: &mut World, arena: usize, step: usize) {
         }
         Enter => {
             for (oid, spawn) in [(m.player_a, ARENA_SPAWN_A), (m.player_b, ARENA_SPAWN_B)] {
+                world
+                    .objects
+                    .add_components(&oid, crate::model::components::InstanceId(m.instance_id));
                 crate::game_loop::death::teleport_player(world, oid, spawn.0, spawn.1, spawn.2);
                 strip_buffs(world, oid);
             }
@@ -726,14 +732,18 @@ fn resolve_match(world: &mut World, m: &OlympiadMatch, result: &MatchResult) {
         });
     }
 
-    // Port the fighters back and free them.
+    // Port the fighters back to the overworld and free them.
     for (oid, ret) in [(m.player_a, m.return_a), (m.player_b, m.return_b)] {
         world.olympiad.in_competition.remove(&oid);
+        world
+            .objects
+            .remove_component::<crate::model::components::InstanceId>(&oid);
         if is_online(world, oid) {
             crate::game_loop::death::teleport_player(world, oid, ret.0, ret.1, ret.2);
         }
     }
     world.olympiad.matches.retain(|x| x.arena != m.arena);
+    world.instances.destroy(m.instance_id);
     save_all(world);
 }
 

@@ -236,6 +236,9 @@ pub struct World {
     /// registration queues (Java `Olympiad` + `OlympiadManager`).
     pub olympiad: crate::model::olympiad::OlympiadState,
 
+    /// Instance allocator + live-instance registry (G27, Java `InstanceManager`).
+    pub instances: crate::model::instance::InstanceManager,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -365,6 +368,7 @@ impl World {
             sieges: HashMap::new(),
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
+            instances: crate::model::instance::InstanceManager::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),
