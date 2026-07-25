@@ -460,6 +460,28 @@ pub enum DbCommand {
         castle_id: i32,
         clan_id: i32,
     },
+    /// `ClanHallAuction.addBid` — upsert a `clanhall_auctions_bidders` row.
+    SaveClanHallBid {
+        hall_id: i32,
+        clan_id: i32,
+        bid: i64,
+        bid_time: i64,
+    },
+    /// `ClanHallAuction.removeBid` — drop one clan's bid row.
+    RemoveClanHallBid {
+        hall_id: i32,
+        clan_id: i32,
+    },
+    /// `finalizeAuctions` — clear every bid row for a hall.
+    ClearClanHallBids {
+        hall_id: i32,
+    },
+    /// `ClanHall.updateDB` — upsert a hall's ownership row (`clanhall`).
+    SaveClanHall {
+        id: i32,
+        owner_id: i32,
+        paid_until: i64,
+    },
     /// `Olympiad.saveOlympiadStatus` + `saveNobleData` — upsert the single
     /// `olympiad_data` row and every `olympiad_nobles` record.
     SaveOlympiad {
@@ -822,6 +844,9 @@ pub enum DbEvent {
     /// The `clanhall` table (Java `ClanHall` ownership load) — id → owner/paidUntil.
     /// Overlaid onto the static hall defs on the game thread.
     ClanHallsLoaded { rows: Vec<ClanHallRow> },
+    /// The `clanhall_auctions_bidders` table (Java `ClanHallAuction.loadBidder`) —
+    /// the live bids per hall, restored at boot.
+    ClanHallBiddersLoaded { rows: Vec<ClanHallBidRow> },
     /// `olympiad_data` (the single id=0 row) + all `olympiad_nobles`
     /// (Java `Olympiad.load`), loaded once at boot.
     OlympiadLoaded {
@@ -856,6 +881,15 @@ pub struct ClanHallRow {
     pub id: i32,
     pub owner_id: i32,
     pub paid_until: i64,
+}
+
+/// One `clanhall_auctions_bidders` row — a clan's standing bid.
+#[derive(Debug, Clone)]
+pub struct ClanHallBidRow {
+    pub hall_id: i32,
+    pub clan_id: i32,
+    pub bid: i64,
+    pub bid_time: i64,
 }
 
 /// One `olympiad_nobles` row — a noble's persisted Olympiad record.
@@ -1031,6 +1065,11 @@ async fn run(
     // Clan-hall ownership — overlaid onto the static hall defs at boot.
     let _ = event_tx.send(DbEvent::ClanHallsLoaded {
         rows: load_clan_hall_owners(&pool).await,
+    });
+
+    // Clan-hall auction bids — restored so escrowed adena stays accounted for.
+    let _ = event_tx.send(DbEvent::ClanHallBiddersLoaded {
+        rows: load_clan_hall_bidders(&pool).await,
     });
 
     // `Olympiad.load` — the period/cycle row + every noble's record.
@@ -1366,6 +1405,59 @@ async fn run(
                     sqlx::query("DELETE FROM siege_clans WHERE castle_id=? AND clan_id=?")
                         .bind(castle_id)
                         .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::SaveClanHallBid {
+                hall_id,
+                clan_id,
+                bid,
+                bid_time,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO clanhall_auctions_bidders (clanHallId, clanId, bid, bidTime) VALUES (?, ?, ?, ?)",
+                    )
+                    .bind(hall_id)
+                    .bind(clan_id)
+                    .bind(bid)
+                    .bind(bid_time),
+                )
+                .await;
+            }
+            DbCommand::RemoveClanHallBid { hall_id, clan_id } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "DELETE FROM clanhall_auctions_bidders WHERE clanHallId=? AND clanId=?",
+                    )
+                    .bind(hall_id)
+                    .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::ClearClanHallBids { hall_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM clanhall_auctions_bidders WHERE clanHallId=?")
+                        .bind(hall_id),
+                )
+                .await;
+            }
+            DbCommand::SaveClanHall {
+                id,
+                owner_id,
+                paid_until,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO clanhall (id, ownerId, paidUntil) VALUES (?, ?, ?)",
+                    )
+                    .bind(id)
+                    .bind(owner_id)
+                    .bind(paid_until),
                 )
                 .await;
             }
@@ -2790,6 +2882,23 @@ async fn load_clan_hall_owners(pool: &SqlitePool) -> Vec<ClanHallRow> {
             id: geti(r, "id") as i32,
             owner_id: geti(r, "ownerId") as i32,
             paid_until: geti(r, "paidUntil"),
+        })
+        .collect()
+}
+
+/// The `clanhall_auctions_bidders` table — the live auction bids.
+async fn load_clan_hall_bidders(pool: &SqlitePool) -> Vec<ClanHallBidRow> {
+    let rows =
+        sqlx::query("SELECT clanHallId, clanId, bid, bidTime FROM clanhall_auctions_bidders")
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+    rows.iter()
+        .map(|r| ClanHallBidRow {
+            hall_id: geti(r, "clanHallId") as i32,
+            clan_id: geti(r, "clanId") as i32,
+            bid: geti(r, "bid"),
+            bid_time: geti(r, "bidTime"),
         })
         .collect()
 }

@@ -84,6 +84,9 @@ pub enum ScheduledTask {
     /// leaves: NPCs (the exit cube, straggler minions) despawn, players are
     /// teleported to the exit.
     AntharasClearZone,
+    /// The weekly clan-hall auction close (`ClanHallAuctionManager.onEnd`):
+    /// finalize every hall's auction, then re-arm for next week.
+    ClanHallAuctionEnd,
     /// Antharas's 60 s `SET_REGEN` beat: a self-heal that escalates as his HP
     /// falls (one of four regeneration skills, cast once per band).
     AntharasSetRegen { antharas_oid: i32 },
