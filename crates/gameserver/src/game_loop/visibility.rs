@@ -196,6 +196,7 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
     let Some(my_session) = world.clients.get(&client_id) else {
         return;
     };
+    let my_instance = super::helpers::instance_of(world, object_id);
     for cs in world.clients.values() {
         if let ClientSession::InGame(s) = cs {
             let other_id = s.player_object_id();
@@ -215,6 +216,10 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
         }
     }
     for npc_id in world.npcs_visible_from(my_region) {
+        // Only content sharing the player's instance is visible.
+        if super::helpers::instance_of(world, npc_id) != my_instance {
+            continue;
+        }
         // A servitor takes the summon packet; everything else the NPC one.
         if send_summon_info(world, my_session, npc_id, object_id) {
             continue;
@@ -224,12 +229,21 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
     // Doors render like NPCs (Java `Door.sendInfo`: StaticObjectInfo +
     // DoorStatusUpdate).
     for door_id in world.doors_visible_from(my_region) {
+        if super::helpers::instance_of(world, door_id) != my_instance {
+            continue;
+        }
         super::doors::send_door_info(world, my_session, door_id);
     }
     for so_id in world.statics_visible_from(my_region) {
+        if super::helpers::instance_of(world, so_id) != my_instance {
+            continue;
+        }
         send_static_object_info(world, my_session, so_id);
     }
     for item_id in world.ground_items_visible_from(my_region) {
+        if super::helpers::instance_of(world, item_id) != my_instance {
+            continue;
+        }
         if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
             my_session.send(server_packets::spawn_item(&view));
         }
@@ -325,12 +339,16 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     // NPCs leaving it. The npc_regions index makes this a walk over the (at
     // most) 12 cells whose adjacency changed.
     let my_client = client_for_player(world, object_id);
+    // The mover's instance is constant across a region change (instance moves go
+    // through teleport, not here); so only its own instance's content appears.
+    let my_instance = super::helpers::instance_of(world, object_id);
     if let Some(cs) = my_client.and_then(|cid| world.clients.get(&cid)) {
         for npc_id in world.npcs_visible_from(new) {
             let Some(npc_region) = world.objects.get_component::<RegionCell>(&npc_id) else {
                 continue;
             };
             if !regions_adjacent(old, npc_region.0)
+                && super::helpers::instance_of(world, npc_id) == my_instance
                 && !send_summon_info(world, cs, npc_id, object_id)
             {
                 send_npc_info(world, cs, npc_id);
@@ -349,7 +367,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(door_region) = world.objects.get_component::<RegionCell>(&door_id) else {
                 continue;
             };
-            if !regions_adjacent(old, door_region.0) {
+            if !regions_adjacent(old, door_region.0)
+                && super::helpers::instance_of(world, door_id) == my_instance
+            {
                 super::doors::send_door_info(world, cs, door_id);
             }
         }
@@ -365,7 +385,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(so_region) = world.objects.get_component::<RegionCell>(&so_id) else {
                 continue;
             };
-            if !regions_adjacent(old, so_region.0) {
+            if !regions_adjacent(old, so_region.0)
+                && super::helpers::instance_of(world, so_id) == my_instance
+            {
                 send_static_object_info(world, cs, so_id);
             }
         }
@@ -382,7 +404,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             let Some(r) = world.objects.get_component::<RegionCell>(&item_id) else {
                 continue;
             };
-            if !regions_adjacent(old, r.0) {
+            if !regions_adjacent(old, r.0)
+                && super::helpers::instance_of(world, item_id) == my_instance
+            {
                 if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
                     cs.send(server_packets::spawn_item(&view));
                 }
@@ -512,6 +536,7 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
     // Deltas are collected first so the target drop (which needs `&mut World`
     // for its TargetUnselected broadcast) can run before the DeleteObject
     // send, matching Java `switchRegion` order.
+    let npc_instance = super::helpers::instance_of(world, npc_object_id);
     let mut deltas: Vec<(u32, i32, bool)> = Vec::new(); // (client_id, player_id, appeared)
     for (&cid, cs) in &world.clients {
         if let ClientSession::InGame(s) = cs {
@@ -519,8 +544,10 @@ pub(crate) fn update_npc_region(world: &mut World, npc_object_id: i32) {
             let Some(player_region) = player_region(world, player_id) else {
                 continue;
             };
-            let was = regions_adjacent(old, player_region);
-            let now = regions_adjacent(new, player_region);
+            // A player only sees the NPC while sharing its instance.
+            let same_instance = super::helpers::instance_of(world, player_id) == npc_instance;
+            let was = regions_adjacent(old, player_region) && same_instance;
+            let now = regions_adjacent(new, player_region) && same_instance;
             if was != now {
                 deltas.push((cid, player_id, now));
             }

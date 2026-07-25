@@ -48,6 +48,35 @@ fn players_share_visibility_only_within_an_instance() {
     );
 }
 
+fn saw_npc_info(packets: &[Vec<u8>]) -> bool {
+    packets
+        .iter()
+        .any(|p| p.first() == Some(&opcodes::NPC_INFO))
+}
+
+#[test]
+fn npcs_are_visible_only_within_their_instance() {
+    let (mut world, _tx, _db, _l) = test_world();
+    add_test_npc(&mut world, 800, 30001, "Folk", 5, 1000, 1000, 0);
+    let mut rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+
+    // Player in a private instance, NPC in the overworld → NPC hidden.
+    world.objects.add_components(&100, InstanceId(3));
+    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    assert!(
+        !saw_npc_info(&drain(&mut rx)),
+        "an instanced player doesn't see overworld NPCs"
+    );
+
+    // Move the NPC into the same instance → now visible.
+    world.objects.add_components(&800, InstanceId(3));
+    crate::game_loop::visibility::on_enter_world(&world, 1, 100);
+    assert!(
+        saw_npc_info(&drain(&mut rx)),
+        "a same-instance NPC is visible"
+    );
+}
+
 #[test]
 fn broadcast_is_scoped_to_the_instance() {
     let (mut world, _tx, _db, _l) = test_world();
