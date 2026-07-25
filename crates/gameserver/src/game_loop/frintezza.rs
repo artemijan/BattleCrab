@@ -7,9 +7,9 @@
 //! per-instance doors (slice 2), the intro cinematic (slice 3), Scarlet's
 //! 80%/20% morphs → final form (slice 4), the fight loops — songs + demon/portrait
 //! ecosystem + Dewdrop suicide (slice 4b) — and the finish cinematic (Frintezza's
-//! death → doors reopen, slice 5). Remaining polish (`docs/PLAN_FRINTEZZA.md`):
-//! Scarlet's custom skill-cast AI (normal attacks for now), the song debuff
-//! (5008), the crawl aggro-nudge, and the 5% Dewdrop item drop.
+//! death → doors reopen, slice 5), plus Scarlet's custom daemon-skill AI (Java
+//! `ScarletVanHalisha`). Remaining polish (`docs/PLAN_FRINTEZZA.md`): the song
+//! debuff (5008), the crawl aggro-nudge, and the 5% Dewdrop item drop.
 
 use rand::Rng;
 
@@ -477,12 +477,16 @@ const STEP_SECOND_MORPH_B: u8 = 3;
 /// Java `onAttack(SCARLET1)`: cross the 80 % / 20 % HP thresholds once each,
 /// arming the morphs. `scarlet_oid` is the struck Scarlet.
 pub(crate) fn on_scarlet_attack(world: &mut World, scarlet_oid: i32, npc_id: i32) {
-    if npc_id != SCARLET1 {
-        return; // only the first form morphs
-    }
     let instance_id = instance_of(world, scarlet_oid);
     if instance_id == 0 {
         return;
+    }
+    // Both forms wake their skill AI on the first blow (Java `onAttack` arms the
+    // ATTACK/RANDOM_TARGET timers).
+    arm_scarlet_ai(world, instance_id);
+
+    if npc_id != SCARLET1 {
+        return; // only the first form morphs
     }
     let Some((cur, max)) = world
         .objects
@@ -823,4 +827,165 @@ pub(crate) fn on_demon_killed(world: &mut World, killer_oid: i32) {
     world
         .instances
         .set_var(instance_id, "demonCount", (count - 1).max(0));
+}
+
+// ---------------------------------------------------------------------------
+// Scarlet's combat skill AI (Java `ScarletVanHalisha`). A recurring tick, armed
+// on the first blow, picks one of the daemon skills by the per-form probability
+// table and casts it at a random in-range player. The daemon skills aren't in
+// Scarlet's template skill list, so this drives them explicitly (the generic
+// NPC AI can't).
+// ---------------------------------------------------------------------------
+
+const DAEMON_ATTACK: i32 = 5014;
+const DAEMON_CHARGE: i32 = 5015;
+const YOKE_OF_SCARLET: i32 = 5016;
+const DAEMON_MORPH: i32 = 5018;
+const DAEMON_FIELD: i32 = 5019;
+/// Java `RANGED_SKILL_MIN_COOLTIME` (1 min) between the field/morph casts.
+const RANGED_COOLDOWN_TICKS: u64 = 600;
+/// How often Scarlet re-evaluates a cast (Java's ATTACK timer is 500 ms; a
+/// slower cadence keeps the boss from skill-spamming while still feeling active).
+const SCARLET_TICK_MS: u64 = 2000;
+
+/// Arm the skill AI once (idempotent — repeated hits don't stack timers).
+fn arm_scarlet_ai(world: &mut World, instance_id: i32) {
+    if world.instances.get_var(instance_id, "scarletAi") == 1 {
+        return;
+    }
+    world.instances.set_var(instance_id, "scarletAi", 1);
+    schedule_scarlet(world, instance_id);
+}
+
+fn schedule_scarlet(world: &mut World, instance_id: i32) {
+    world.scheduler.schedule(
+        world.tick + ms_to_ticks(SCARLET_TICK_MS as i32).max(1),
+        ScheduledTask::ScarletSkill { instance_id },
+    );
+}
+
+/// Java `getSkillAI`: while engaged and not already casting, pick a daemon skill
+/// and cast it at a random in-range player, then re-arm.
+pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
+    if world.instances.get_var(instance_id, "scarletAi") == 0
+        || world.instances.get_var(instance_id, "fightActive") == 0
+    {
+        return; // the fight ended — stop ticking
+    }
+    let scarlet = var_oid(world, instance_id, "activeScarlet");
+    let dead = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&scarlet)
+        .is_none_or(|v| v.dead);
+    if scarlet == 0 || dead {
+        world.instances.set_var(instance_id, "scarletAi", 0);
+        return;
+    }
+
+    // Skip while casting or (still) invulnerable, but keep the timer alive.
+    let casting = world
+        .objects
+        .has_component::<crate::model::components::Casting>(&scarlet);
+    let invul = world
+        .objects
+        .get_component::<AdminFlags>(&scarlet)
+        .is_some_and(|f| f.invul);
+    if casting || invul {
+        schedule_scarlet(world, instance_id);
+        return;
+    }
+
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&scarlet)
+        .map_or(0, |n| n.npc_id);
+    let (skill_id, level) = pick_daemon_skill(world, instance_id, npc_id);
+    let range = skill_range(skill_id);
+    if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range) {
+        if let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() {
+            crate::game_loop::npc_cast::start_cast(world, scarlet, target, &skill);
+        }
+    }
+    schedule_scarlet(world, instance_id);
+}
+
+/// Java `getRndSkills` — the per-form probability table.
+pub(crate) fn pick_daemon_skill(world: &mut World, instance_id: i32, npc_id: i32) -> (i32, i32) {
+    let mut roll = || world.rng.gen_range(0..100);
+    if npc_id == SCARLET1 {
+        if roll() < 10 {
+            (DAEMON_CHARGE, 2)
+        } else if roll() < 10 {
+            (DAEMON_CHARGE, 5)
+        } else if roll() < 2 {
+            (YOKE_OF_SCARLET, 1)
+        } else {
+            (DAEMON_ATTACK, 2)
+        }
+    } else {
+        // SCARLET2 — richer table, with the two ranged skills gated by cooldown.
+        let ranged_ready = {
+            let last = world.instances.get_var(instance_id, "scarletRanged") as u64;
+            world.tick.saturating_sub(last) >= RANGED_COOLDOWN_TICKS
+        };
+        if roll() < 10 {
+            (DAEMON_CHARGE, 3)
+        } else if roll() < 10 {
+            (DAEMON_CHARGE, 6)
+        } else if roll() < 10 {
+            (DAEMON_CHARGE, 2)
+        } else if ranged_ready && roll() < 10 {
+            world
+                .instances
+                .set_var(instance_id, "scarletRanged", world.tick as i64);
+            (DAEMON_FIELD, 1)
+        } else if ranged_ready && roll() < 10 {
+            world
+                .instances
+                .set_var(instance_id, "scarletRanged", world.tick as i64);
+            (DAEMON_MORPH, 1)
+        } else if roll() < 2 {
+            (YOKE_OF_SCARLET, 1)
+        } else {
+            (DAEMON_ATTACK, 3)
+        }
+    }
+}
+
+/// Java `getRandomTarget`'s per-skill range.
+fn skill_range(skill_id: i32) -> f64 {
+    match skill_id {
+        DAEMON_CHARGE => 400.0,
+        YOKE_OF_SCARLET => 200.0,
+        DAEMON_MORPH | DAEMON_FIELD => 550.0,
+        _ => 150.0, // DAEMON_ATTACK
+    }
+}
+
+/// A random living instance member within `range` of Scarlet.
+fn pick_target_in_range(
+    world: &mut World,
+    instance_id: i32,
+    scarlet: i32,
+    range: f64,
+) -> Option<i32> {
+    let origin = world.objects.get_component::<Position>(&scarlet).copied()?;
+    let candidates: Vec<i32> = instance_members(world, instance_id)
+        .into_iter()
+        .filter(|&m| {
+            let alive = world
+                .objects
+                .get_component::<crate::model::components::Vitals>(&m)
+                .is_some_and(|v| !v.dead);
+            let in_range = world
+                .objects
+                .get_component::<Position>(&m)
+                .is_some_and(|p| p.distance_2d(&origin) <= range);
+            alive && in_range
+        })
+        .collect();
+    if candidates.is_empty() {
+        return None;
+    }
+    Some(candidates[world.rng.gen_range(0..candidates.len())])
 }

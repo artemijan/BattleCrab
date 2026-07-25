@@ -72,8 +72,15 @@ Home: a native `game_loop/frintezza.rs` module (state machine, like
    (invulnerability dropped, `Die` broadcast + despawn), then the doors reopen and
    `cleared` is set so the party can reach the exit cube (already spawned in the
    intro). Cameras abbreviated, as elsewhere. **Frintezza is playable end-to-end.**
-   Remaining polish: Scarlet's custom skill-cast AI, the song debuff (5008), the
-   crawl aggro-nudge, and the 5% Dewdrop item drop.
+
+**Scarlet's daemon-skill AI** ✅ landed (Java `ScarletVanHalisha`). Its daemon
+skills (5014 attack / 5015 charge / 5016 yoke / 5018 morph / 5019 field) aren't in
+Scarlet's template, so a `ScheduledTask::ScarletSkill` tick — armed on the first
+blow (both forms), stopped on death/fight-end — picks a skill by the per-form
+probability table (`pick_daemon_skill`) and `start_cast`s it at a random in-range
+player, skipping while casting/invulnerable; the two ranged skills honour the
+1-minute cooldown. Remaining polish: the song debuff (5008), the crawl aggro-nudge,
+and the 5% Dewdrop item drop.
 
 ## Interlude scope note
 

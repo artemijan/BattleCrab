@@ -119,6 +119,9 @@ pub enum ScheduledTask {
     /// One beat of the finish cinematic after Scarlet's final form falls
     /// (Frintezza's death, then the doors reopen).
     FrintezzaFinish { instance_id: i32, step: u8 },
+    /// Scarlet's combat skill AI tick (Java `ScarletVanHalisha` ATTACK timer):
+    /// pick and cast a daemon skill at a random target while engaged.
+    ScarletSkill { instance_id: i32 },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
