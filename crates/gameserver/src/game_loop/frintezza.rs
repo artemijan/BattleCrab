@@ -26,6 +26,24 @@ pub(crate) const ON_KILL_MONSTERS: &[i32] = &[
     18329, 18330, 18331, 18334, 18335, 18336, 18337, 18338, 18339,
 ];
 
+// The four door groups the crawl opens as each room is cleared.
+const FIRST_ROOM_DOORS: &[i32] = &[
+    17130051, 17130052, 17130053, 17130054, 17130055, 17130056, 17130057, 17130058,
+];
+const SECOND_ROOM_DOORS: &[i32] = &[
+    17130061, 17130062, 17130063, 17130064, 17130065, 17130066, 17130067, 17130068, 17130069,
+    17130070,
+];
+const FIRST_ROUTE_DOORS: &[i32] = &[17130042, 17130043];
+const SECOND_ROUTE_DOORS: &[i32] = &[17130045, 17130046];
+
+/// Open every door in a group for this instance (Java `world.openCloseDoor`).
+fn open_doors(world: &mut World, instance_id: i32, doors: &[i32]) {
+    for &door_id in doors {
+        instances::open_close_door(world, instance_id, door_id, true);
+    }
+}
+
 /// GUIDE talk holding the scroll: build instance 136 and move the player in
 /// (Java `onTalk` GUIDE → `enterInstance`). The default group (HALL_ALARM)
 /// spawns with the instance. Returns whether the player was let in.
@@ -57,7 +75,7 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32)
         world.instances.set_status(instance_id, 1);
         let spawned = instances::spawn_group(world, instance_id, "room1");
         set_monsters_count(world, instance_id, spawned.len());
-        // TODO(frintezza slice 2): open FIRST_ROOM_DOORS.
+        open_doors(world, instance_id, FIRST_ROOM_DOORS);
         // TODO(frintezza slice 1+): reduceCurrentHp(1) nudge to aggro the room.
         return;
     }
@@ -74,17 +92,18 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_id: i32)
                 world.instances.set_status(instance_id, 2);
                 let spawned = instances::spawn_group(world, instance_id, "room2_part1");
                 set_monsters_count(world, instance_id, spawned.len());
-                // TODO(frintezza slice 2): open FIRST_ROUTE_DOORS.
+                open_doors(world, instance_id, FIRST_ROUTE_DOORS);
             }
             2 => {
                 world.instances.set_status(instance_id, 3);
                 let spawned = instances::spawn_group(world, instance_id, "room2_part2");
                 set_monsters_count(world, instance_id, spawned.len());
-                // TODO(frintezza slice 2): open SECOND_ROOM_DOORS + aggro nudge.
+                open_doors(world, instance_id, SECOND_ROOM_DOORS);
+                // TODO(frintezza slice 1+): reduceCurrentHp(1) nudge to aggro.
             }
             3 => {
                 world.instances.set_status(instance_id, 4);
-                // TODO(frintezza slice 2): open SECOND_ROUTE_DOORS.
+                open_doors(world, instance_id, SECOND_ROUTE_DOORS);
                 // TODO(frintezza slice 3): arm FRINTEZZA_INTRO_START (10 min) →
                 // the intro cinematic.
             }

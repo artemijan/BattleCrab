@@ -26,6 +26,13 @@ pub struct Position {
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InstanceId(pub i32);
 
+/// Per-instance door open state (G27 Frintezza slice 2). Instance door copies
+/// carry their own open/closed flag instead of the global `geo.doors` atomic —
+/// concurrent instances of the same template toggle independently. Absent on
+/// the overworld boot doors (they follow the shared collision grid).
+#[derive(Component, Debug, Clone, Copy)]
+pub struct InstanceDoorOpen(pub bool);
+
 impl Position {
     /// 2D center-to-center distance (the shape every range/reach check uses).
     pub fn distance_2d(&self, other: &Position) -> f64 {

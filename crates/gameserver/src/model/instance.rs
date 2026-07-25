@@ -12,6 +12,9 @@ pub struct Instance {
     pub template_id: i32,
     /// Object ids of the NPCs spawned into this instance, torn down with it.
     pub npcs: Vec<i32>,
+    /// Object ids of this instance's private door copies (Java the instance's
+    /// own door instances), torn down with it.
+    pub doors: Vec<i32>,
     /// Members currently inside, and where each is returned to on an ORIGIN exit.
     pub members: HashMap<i32, (i32, i32, i32)>,
     /// The game tick at which the instance emptied, for the empty-destroy timer.
@@ -59,6 +62,13 @@ impl InstanceManager {
     pub fn record_npc(&mut self, id: i32, npc_oid: i32) {
         if let Some(inst) = self.live.get_mut(&id) {
             inst.npcs.push(npc_oid);
+        }
+    }
+
+    /// Record a private door copy spawned into the instance (for teardown).
+    pub fn record_door(&mut self, id: i32, door_oid: i32) {
+        if let Some(inst) = self.live.get_mut(&id) {
+            inst.doors.push(door_oid);
         }
     }
 

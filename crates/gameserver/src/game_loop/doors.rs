@@ -24,9 +24,19 @@ pub(crate) fn send_door_info(world: &World, session: &ClientSession, door_oid: i
     let Some(t) = world.data.door_data.get(door.door_id) else {
         return;
     };
-    let open = world.geo.doors.is_open(door.door_id);
+    let open = door_open_state(world, door_oid, door.door_id);
     session.send(server_packets::static_object_info_door(door, t, open));
     session.send(server_packets::door_status_update(door, t, open));
+}
+
+/// An instance door copy reads its own [`InstanceDoorOpen`] flag; every other
+/// door reads the shared collision grid (Java's single global door state).
+pub(crate) fn door_open_state(world: &World, door_oid: i32, door_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::InstanceDoorOpen>(&door_oid)
+        .map(|s| s.0)
+        .unwrap_or_else(|| world.geo.doors.is_open(door_id))
 }
 
 /// `Door.broadcastStatusUpdate()`: push the new state to everyone whose
@@ -62,10 +72,15 @@ fn broadcast_status(world: &World, door_oid: i32) {
 /// for the match — the Valakas gatekeepers name their doors by id.
 pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
     let oid = world.door_regions.values().flatten().copied().find(|&oid| {
+        // Skip instance door copies — this global path drives the shared grid.
         world
             .objects
-            .get_component::<Door>(&oid)
-            .is_some_and(|d| d.door_id == door_id)
+            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
+            .is_none()
+            && world
+                .objects
+                .get_component::<Door>(&oid)
+                .is_some_and(|d| d.door_id == door_id)
     });
     if let Some(oid) = oid {
         open_door(world, oid);
