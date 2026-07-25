@@ -475,6 +475,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::FrintezzaFinish { instance_id, step } => {
                 frintezza::handle_finish_step(world, instance_id, step)
             }
+            ScheduledTask::ScarletSkill { instance_id } => {
+                frintezza::handle_scarlet_skill(world, instance_id)
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

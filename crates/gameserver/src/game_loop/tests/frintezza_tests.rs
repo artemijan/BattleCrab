@@ -420,6 +420,70 @@ fn a_slain_demon_frees_a_slot_under_the_cap() {
 }
 
 #[test]
+fn scarlet_wakes_its_skill_ai_when_struck_and_stops_it_when_slain() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, scarlet1) = arena_with_scarlet(&mut world);
+    assert_eq!(
+        world.instances.get_var(iid, "scarletAi"),
+        0,
+        "dormant at first"
+    );
+
+    // The first blow arms the skill AI (Java's ATTACK/RANDOM_TARGET timers).
+    frintezza::on_scarlet_attack(&mut world, scarlet1, frintezza::SCARLET1);
+    assert_eq!(world.instances.get_var(iid, "scarletAi"), 1, "AI armed");
+
+    // Once Scarlet is dead, the tick shuts the AI down.
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&scarlet1)
+    {
+        v.dead = true;
+    }
+    frintezza::handle_scarlet_skill(&mut world, iid);
+    assert_eq!(
+        world.instances.get_var(iid, "scarletAi"),
+        0,
+        "the AI stops when Scarlet falls"
+    );
+}
+
+#[test]
+fn scarlets_skill_table_only_yields_its_daemon_skills() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let (iid, _s) = arena_with_scarlet(&mut world);
+
+    // First form: charge / yoke / attack only.
+    let first_form = [(5015, 2), (5015, 5), (5016, 1), (5014, 2)];
+    for _ in 0..300 {
+        let pick = frintezza::pick_daemon_skill(&mut world, iid, frintezza::SCARLET1);
+        assert!(
+            first_form.contains(&pick),
+            "unexpected first-form skill {pick:?}"
+        );
+    }
+
+    // Final form with its ranged skills off cooldown: the full table.
+    world.tick = 10_000; // past RANGED_SKILL_MIN_COOLTIME so field/morph unlock
+    let final_form = [
+        (5015, 3),
+        (5015, 6),
+        (5015, 2),
+        (5019, 1),
+        (5018, 1),
+        (5016, 1),
+        (5014, 3),
+    ];
+    for _ in 0..300 {
+        let pick = frintezza::pick_daemon_skill(&mut world, iid, frintezza::SCARLET2);
+        assert!(
+            final_form.contains(&pick),
+            "unexpected final-form skill {pick:?}"
+        );
+    }
+}
+
+#[test]
 fn killing_the_final_form_runs_the_finish_cinematic() {
     let (mut world, _tx, _db, _l) = test_world();
     let (iid, _scarlet1) = arena_with_scarlet(&mut world);

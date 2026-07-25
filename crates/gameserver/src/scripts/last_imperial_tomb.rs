@@ -25,9 +25,9 @@ const KILL_NPCS: &[i32] = &[
     29048, 29049, // portraits
 ];
 
-/// Registered for `on_attack`: Scarlet (morphs) and the portraits (Dewdrop
-/// suicide).
-const ATTACK_NPCS: &[i32] = &[SCARLET1, 29048, 29049];
+/// Registered for `on_attack`: both Scarlet forms (morphs + skill AI) and the
+/// portraits (Dewdrop suicide).
+const ATTACK_NPCS: &[i32] = &[SCARLET1, SCARLET2, 29048, 29049];
 
 pub struct LastImperialTomb;
 
@@ -86,7 +86,7 @@ impl QuestScript for LastImperialTomb {
 
     fn on_attack(&self, ctx: &mut QuestCtx) {
         let (npc, npc_id) = (ctx.npc, ctx.npc_id);
-        if npc_id == SCARLET1 {
+        if npc_id == SCARLET1 || npc_id == SCARLET2 {
             frintezza::on_scarlet_attack(ctx.world, npc, npc_id);
         } else if PORTRAITS.contains(&npc_id) {
             let (attacker, skill) = (ctx.player, ctx.attack_skill_id());
