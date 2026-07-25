@@ -39,6 +39,7 @@ mod grand_boss;
 mod ground_items;
 mod helpers;
 mod henna;
+pub(crate) mod instances;
 mod items;
 mod lobby;
 pub(crate) mod minions;
@@ -455,6 +456,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::OlympiadMatchTick { arena } => olympiad::handle_match_tick(world, arena),
             ScheduledTask::OlympiadEnd => olympiad::handle_olympiad_end(world),
             ScheduledTask::OlympiadValidationEnd => olympiad::handle_validation_end(world),
+            ScheduledTask::InstanceEmptyCheck { instance_id } => {
+                instances::handle_empty_check(world, instance_id)
+            }
             ScheduledTask::FishingReel {
                 player_object_id,
                 cast_seq,

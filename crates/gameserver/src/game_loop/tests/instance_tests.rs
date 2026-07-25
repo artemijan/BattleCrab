@@ -77,6 +77,162 @@ fn npcs_are_visible_only_within_their_instance() {
     );
 }
 
+// ---- slice 4: instance lifecycle (create → enter → exit → destroy) ----
+
+use crate::data::instance_data::{ExitType, InstanceTemplate, SpawnGroup, TemplateSpawn};
+use crate::game_loop::helpers::instance_of;
+use crate::game_loop::instances;
+
+/// Register an NPC template so `spawn_npc_at` resolves it, then seed an
+/// instance template with a default group (one NPC) and a non-default group
+/// (one NPC) — plus an enter location and an ORIGIN exit.
+fn seed_instance_template(world: &mut World, template_id: i32, npc_id: i32) {
+    if world.data.npc_data.get(npc_id).is_none() {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(npc_id));
+    }
+    world
+        .data
+        .instance_templates
+        .insert_for_test(InstanceTemplate {
+            id: template_id,
+            max_worlds: -1,
+            duration_min: 0,
+            empty_destroy_min: 0,
+            enter: Some((5000, 5000, 100)),
+            exit: ExitType::Origin,
+            doors: vec![],
+            groups: vec![
+                SpawnGroup {
+                    name: "default".into(),
+                    spawn_by_default: true,
+                    npcs: vec![TemplateSpawn {
+                        npc_id,
+                        x: 5000,
+                        y: 5000,
+                        z: 100,
+                        heading: 0,
+                    }],
+                },
+                SpawnGroup {
+                    name: "onDemand".into(),
+                    spawn_by_default: false,
+                    npcs: vec![TemplateSpawn {
+                        npc_id,
+                        x: 5100,
+                        y: 5100,
+                        z: 100,
+                        heading: 0,
+                    }],
+                },
+            ],
+        });
+}
+
+#[test]
+fn create_from_template_spawns_only_the_default_group() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_instance_template(&mut world, 900, 30001);
+
+    let iid = instances::create_from_template(&mut world, 900).expect("template exists");
+    let inst = world.instances.get(iid).expect("live");
+    // Only the spawn_by_default group populated (1 NPC, not 2).
+    assert_eq!(inst.npcs.len(), 1, "the on-demand group stays dormant");
+
+    // The spawned NPC is tagged into this instance.
+    let npc_oid = inst.npcs[0];
+    assert_eq!(
+        instance_of(&world, npc_oid),
+        iid,
+        "NPC lives in the instance"
+    );
+
+    // An unknown template id yields nothing.
+    assert!(instances::create_from_template(&mut world, 99999).is_none());
+}
+
+#[test]
+fn enter_then_exit_round_trips_position_and_membership() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_instance_template(&mut world, 900, 30001);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+
+    let iid = instances::create_from_template(&mut world, 900).expect("template");
+
+    instances::enter(&mut world, 100, iid);
+    assert_eq!(instance_of(&world, 100), iid, "player is inside");
+    assert_eq!(world.instances.member_count(iid), 1);
+    let pos = world
+        .objects
+        .get_component::<Position>(&100)
+        .expect("position");
+    assert_eq!((pos.x, pos.y), (5000, 5000), "teleported to enter location");
+
+    instances::exit(&mut world, 100);
+    assert_eq!(instance_of(&world, 100), 0, "back in the overworld");
+    assert_eq!(world.instances.member_count(iid), 0);
+    let pos = world
+        .objects
+        .get_component::<Position>(&100)
+        .expect("position");
+    assert_eq!(
+        (pos.x, pos.y),
+        (1000, 1000),
+        "ORIGIN exit returns to the entry spot"
+    );
+}
+
+#[test]
+fn destroy_ousts_members_and_despawns_npcs() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_instance_template(&mut world, 900, 30001);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+
+    let iid = instances::create_from_template(&mut world, 900).expect("template");
+    let npc_oid = world.instances.get(iid).unwrap().npcs[0];
+    instances::enter(&mut world, 100, iid);
+
+    instances::destroy(&mut world, iid);
+
+    assert!(!world.instances.contains(iid), "instance is gone");
+    assert_eq!(instance_of(&world, 100), 0, "member ousted to overworld");
+    let pos = world
+        .objects
+        .get_component::<Position>(&100)
+        .expect("position");
+    assert_eq!((pos.x, pos.y), (1000, 1000), "ousted back to entry spot");
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .is_none(),
+        "the instance's NPC was despawned"
+    );
+}
+
+#[test]
+fn empty_check_destroys_only_when_still_empty() {
+    let (mut world, _tx, _db, _l) = test_world();
+    seed_instance_template(&mut world, 900, 30001);
+    let _rx = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+
+    let iid = instances::create_from_template(&mut world, 900).expect("template");
+    instances::enter(&mut world, 100, iid);
+    instances::exit(&mut world, 100); // arms the empty check
+
+    // A member re-entered during the grace period → the check spares it.
+    instances::enter(&mut world, 100, iid);
+    instances::handle_empty_check(&mut world, iid);
+    assert!(world.instances.contains(iid), "occupied: not destroyed");
+
+    // Empty again → the check tears it down.
+    instances::exit(&mut world, 100);
+    instances::handle_empty_check(&mut world, iid);
+    assert!(!world.instances.contains(iid), "empty: destroyed");
+}
+
 #[test]
 fn broadcast_is_scoped_to_the_instance() {
     let (mut world, _tx, _db, _l) = test_world();
