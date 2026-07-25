@@ -87,6 +87,28 @@ pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
     }
 }
 
+/// Open or close the door with a given **door id** (Java
+/// `ClanHall.openCloseDoors` → `door.openMe()` / `closeMe()`).
+pub(crate) fn set_door_by_id(world: &mut World, door_id: i32, open: bool) {
+    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
+        world
+            .objects
+            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
+            .is_none()
+            && world
+                .objects
+                .get_component::<Door>(&oid)
+                .is_some_and(|d| d.door_id == door_id)
+    });
+    if let Some(oid) = oid {
+        if open {
+            open_door(world, oid);
+        } else {
+            close_door(world, oid);
+        }
+    }
+}
+
 pub(crate) fn open_door(world: &mut World, door_oid: i32) {
     let Some((door_id, seq)) = world.objects.get_component_mut::<Door>(&door_oid).map(|d| {
         d.auto_close_seq += 1;

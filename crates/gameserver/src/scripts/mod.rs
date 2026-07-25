@@ -9,6 +9,7 @@ pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;
 pub mod clan_hall_auctioneer;
+pub mod clan_hall_door_manager;
 pub mod clan_master;
 pub mod dark_elf_change1;
 mod dr_chaos_talk;
@@ -419,6 +420,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(sailren_altar::SailrenAltar),
         Arc::new(baium::Baium),
         Arc::new(clan_hall_auctioneer::ClanHallAuctioneer),
+        Arc::new(clan_hall_door_manager::ClanHallDoorManager),
         Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),

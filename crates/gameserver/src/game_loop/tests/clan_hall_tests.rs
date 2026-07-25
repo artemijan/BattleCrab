@@ -473,3 +473,37 @@ fn a_week_overdue_owner_is_evicted() {
         "the lease clock cleared"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The Clan Hall Door Manager (owner opens/closes doors)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
+
+/// An agent NPC resolves to its hall (Java `Npc.getClanHall`). Onyx Hall's
+/// `<npcs>` names 35395 (its door manager).
+#[test]
+fn a_managers_hall_is_found_by_its_npc() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.clan_halls = load_clan_halls(DIST);
+    assert_eq!(hall_by_npc_id(&world, 35395), Some(ONYX));
+    assert_eq!(hall_by_npc_id(&world, 999_999), None, "not an agent");
+}
+
+/// **Opening the hall's doors opens them; closing closes them.**
+#[test]
+fn opening_a_halls_doors_toggles_them() {
+    use crate::data::door_data::DoorOpenMethod;
+    let (mut world, _db, _l) = combat_test_world();
+    world.clan_halls = load_clan_halls(DIST);
+    let door_id = 24190001;
+    crate::model::door::spawn_door_for_test(&mut world, test_door(door_id, DoorOpenMethod::None));
+    // Pretend Onyx Hall's door is this test door.
+    world.clan_halls.get_mut(&ONYX).unwrap().doors = vec![door_id];
+
+    open_close_hall_doors(&mut world, ONYX, true);
+    assert!(world.geo.doors.is_open(door_id), "the door opened");
+
+    open_close_hall_doors(&mut world, ONYX, false);
+    assert!(!world.geo.doors.is_open(door_id), "the door closed");
+}

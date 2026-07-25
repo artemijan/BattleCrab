@@ -246,6 +246,11 @@ pub const CL_REGISTER_CREST: i32 = 1 << 7;
 /// the 24-entry layout) — required to register the clan for a castle siege.
 pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 
+/// `ClanPrivilege.CH_OPEN_DOOR` (ordinal 11) — open/close clan-hall doors.
+pub const CH_OPEN_DOOR: i32 = 1 << 11;
+/// `ClanPrivilege.CH_DISMISS` (ordinal 14) — banish non-members from the hall.
+pub const CH_DISMISS: i32 = 1 << 14;
+
 /// Java `CrestType` ordinals (`crests.type` column).
 pub const CREST_TYPE_PLEDGE: i32 = 1;
 pub const CREST_TYPE_PLEDGE_LARGE: i32 = 2;

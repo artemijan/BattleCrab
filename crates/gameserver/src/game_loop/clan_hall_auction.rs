@@ -97,6 +97,28 @@ pub(crate) fn clan_bid_hall(world: &World, clan_id: i32) -> Option<i32> {
         .map(|(&id, _)| id)
 }
 
+/// The hall an agent NPC belongs to (Java `Npc.getClanHall()`) — the hall whose
+/// `<npcs>` list names this template id.
+pub(crate) fn hall_by_npc_id(world: &World, npc_id: i32) -> Option<i32> {
+    world
+        .clan_halls
+        .values()
+        .find(|h| h.npcs.contains(&npc_id))
+        .map(|h| h.id)
+}
+
+/// `ClanHall.openCloseDoors` — open or close every door of a hall.
+pub(crate) fn open_close_hall_doors(world: &mut World, hall_id: i32, open: bool) {
+    let doors = world
+        .clan_halls
+        .get(&hall_id)
+        .map(|h| h.doors.clone())
+        .unwrap_or_default();
+    for door_id in doors {
+        super::doors::set_door_by_id(world, door_id, open);
+    }
+}
+
 /// `processBidBypass` minus the leadership check (a per-player concern the NPC
 /// handler does): validate, take the bidder's adena, refund the previous
 /// highest, and record the bid.
