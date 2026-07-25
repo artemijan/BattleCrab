@@ -873,6 +873,34 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // Arm the weekly auction close now that the bids exist.
                 crate::game_loop::clan_hall_auction::schedule_weekly_close(world);
             }
+            DbEvent::ResidenceFunctionsLoaded { rows } => {
+                use crate::model::clan_hall::ActiveFunction;
+                for row in &rows {
+                    world
+                        .clan_hall_functions
+                        .entry(row.residence_id)
+                        .or_default()
+                        .insert(
+                            row.func_id,
+                            ActiveFunction {
+                                level: row.level,
+                                expiration: row.expiration,
+                            },
+                        );
+                }
+                tracing::info!("GameLoop: loaded {} clan-hall functions.", rows.len());
+                // Re-arm each function's expiry (Java `ResidenceFunction.init`).
+                let funcs: Vec<(i32, i32)> = world
+                    .clan_hall_functions
+                    .iter()
+                    .flat_map(|(&hall, fs)| fs.keys().map(move |&f| (hall, f)))
+                    .collect();
+                for (hall_id, func_id) in funcs {
+                    crate::game_loop::clan_hall_function::arm_function_expiry(
+                        world, hall_id, func_id,
+                    );
+                }
+            }
             DbEvent::OlympiadLoaded {
                 current_cycle,
                 period,

@@ -507,3 +507,147 @@ fn opening_a_halls_doors_toggles_them() {
     open_close_hall_doors(&mut world, ONYX, false);
     assert!(!world.geo.doors.is_open(door_id), "the door closed");
 }
+
+// ---------------------------------------------------------------------------
+// Function upgrades (buy / expire / remove)
+// ---------------------------------------------------------------------------
+
+use crate::data::residence_function_data::ResidenceFunctionData;
+use crate::game_loop::clan_hall_function::{
+    buy_function, function_level, handle_function_expiry, remove_function, FunctionOutcome,
+};
+use crate::model::inventory::Inventory;
+
+const HP_REGEN: i32 = 1; // ResidenceFunctions.xml function id
+const FUNC_PLAYER: i32 = 8300;
+
+fn function_world() -> (World, db::CmdRx) {
+    let (mut world, db, _l) = combat_test_world();
+    world.id_pool = 0x3200_0000..0x3200_1000;
+    world.clan_halls = load_clan_halls(DIST);
+    world.data.residence_functions = ResidenceFunctionData::load_from(DIST);
+    (world, db)
+}
+
+fn fund_inventory(world: &mut World, oid: i32, adena: i64) {
+    let item_oid = world.alloc_object_id().unwrap();
+    let catalog = &world.data.item_data;
+    world
+        .objects
+        .get_component_mut::<Inventory>(&oid)
+        .unwrap()
+        .add_item(catalog, item_oid, ADENA_ID, adena);
+}
+
+fn inv_adena(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .unwrap()
+        .count_of(ADENA_ID)
+}
+
+/// **The function catalogue loads** — HP_REGEN level 1 costs 700 adena for a day.
+#[test]
+fn the_function_catalogue_loads() {
+    let data = ResidenceFunctionData::load_from(DIST);
+    assert!(!data.is_empty(), "functions parsed");
+    assert_eq!(data.type_of(HP_REGEN), Some("HP_REGEN"));
+    let lv1 = data.level(HP_REGEN, 1).expect("HP_REGEN lv1");
+    assert_eq!(lv1.cost_id, 57);
+    assert_eq!(lv1.cost_count, 700);
+    assert_eq!(lv1.duration_ms, 86_400_000, "1 day");
+    assert!((lv1.value - 1.2).abs() < 1e-9);
+}
+
+/// **Buying a function takes the price from the buyer's inventory and arms its
+/// expiry.**
+#[test]
+fn buying_a_function_charges_and_activates() {
+    let (mut world, _db) = function_world();
+    let _rx = ingame_player(&mut world, 9, FUNC_PLAYER, 0, 0, 0);
+    fund_inventory(&mut world, FUNC_PLAYER, 5_000);
+    let before = world.scheduler.len();
+    let now = commons::util::now_millis();
+
+    let outcome = buy_function(&mut world, ONYX, FUNC_PLAYER, HP_REGEN, 1, now);
+
+    assert_eq!(outcome, FunctionOutcome::Bought);
+    assert_eq!(
+        function_level(&world, ONYX, HP_REGEN),
+        1,
+        "active at level 1"
+    );
+    assert_eq!(inv_adena(&world, FUNC_PLAYER), 5_000 - 700, "price charged");
+    assert!(world.scheduler.len() > before, "expiry armed");
+}
+
+/// A buyer who can't pay is refused and nothing is charged.
+#[test]
+fn buying_without_the_price_is_refused() {
+    let (mut world, _db) = function_world();
+    let _rx = ingame_player(&mut world, 9, FUNC_PLAYER, 0, 0, 0);
+    fund_inventory(&mut world, FUNC_PLAYER, 100);
+    let now = commons::util::now_millis();
+
+    assert_eq!(
+        buy_function(&mut world, ONYX, FUNC_PLAYER, HP_REGEN, 1, now),
+        FunctionOutcome::NotEnough
+    );
+    assert_eq!(function_level(&world, ONYX, HP_REGEN), 0, "not activated");
+    assert_eq!(inv_adena(&world, FUNC_PLAYER), 100, "untouched");
+}
+
+/// **An expired function renews from the clan warehouse — or is dropped if the
+/// warehouse can't pay.**
+#[test]
+fn an_expired_function_renews_or_drops() {
+    let (mut world, _db) = function_world();
+    let now = commons::util::now_millis();
+    world.clan_halls.get_mut(&ONYX).unwrap().owner_id = 10;
+
+    // Solvent clan → the function renews.
+    world.clans.insert(10, mk_clan(10, 5));
+    fund_clan(&mut world, 10, 5_000);
+    crate::game_loop::clan_hall_function::set_function(&mut world, ONYX, HP_REGEN, 1, now - 1000);
+    handle_function_expiry(&mut world, ONYX, HP_REGEN);
+    assert_eq!(function_level(&world, ONYX, HP_REGEN), 1, "renewed");
+    assert!(
+        world.clan_halls[&ONYX].owner_id == 10,
+        "still owned by the paying clan"
+    );
+
+    // Now broke → the next expiry drops it.
+    world
+        .clans
+        .get_mut(&10)
+        .unwrap()
+        .warehouse
+        .0
+        .remove_item(ADENA_ID, 100_000);
+    world
+        .clan_hall_functions
+        .get_mut(&ONYX)
+        .unwrap()
+        .get_mut(&HP_REGEN)
+        .unwrap()
+        .expiration = now - 1000;
+    handle_function_expiry(&mut world, ONYX, HP_REGEN);
+    assert_eq!(
+        function_level(&world, ONYX, HP_REGEN),
+        0,
+        "dropped — couldn't pay"
+    );
+}
+
+/// Removing a function clears it.
+#[test]
+fn removing_a_function_clears_it() {
+    let (mut world, _db) = function_world();
+    let now = commons::util::now_millis();
+    crate::game_loop::clan_hall_function::set_function(&mut world, ONYX, HP_REGEN, 1, now + 1000);
+    assert_eq!(function_level(&world, ONYX, HP_REGEN), 1);
+
+    assert!(remove_function(&mut world, ONYX, HP_REGEN));
+    assert_eq!(function_level(&world, ONYX, HP_REGEN), 0, "gone");
+}

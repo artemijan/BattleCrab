@@ -482,6 +482,18 @@ pub enum DbCommand {
         owner_id: i32,
         paid_until: i64,
     },
+    /// `ClanHall.addFunction` — upsert a `residence_functions` row.
+    SaveResidenceFunction {
+        residence_id: i32,
+        func_id: i32,
+        level: i32,
+        expiration: i64,
+    },
+    /// `ClanHall.removeFunction` — drop a function's `residence_functions` row.
+    RemoveResidenceFunction {
+        residence_id: i32,
+        func_id: i32,
+    },
     /// `Olympiad.saveOlympiadStatus` + `saveNobleData` — upsert the single
     /// `olympiad_data` row and every `olympiad_nobles` record.
     SaveOlympiad {
@@ -847,6 +859,9 @@ pub enum DbEvent {
     /// The `clanhall_auctions_bidders` table (Java `ClanHallAuction.loadBidder`) —
     /// the live bids per hall, restored at boot.
     ClanHallBiddersLoaded { rows: Vec<ClanHallBidRow> },
+    /// The `residence_functions` table — active hall function upgrades, restored
+    /// at boot.
+    ResidenceFunctionsLoaded { rows: Vec<ResidenceFunctionRow> },
     /// `olympiad_data` (the single id=0 row) + all `olympiad_nobles`
     /// (Java `Olympiad.load`), loaded once at boot.
     OlympiadLoaded {
@@ -890,6 +905,15 @@ pub struct ClanHallBidRow {
     pub clan_id: i32,
     pub bid: i64,
     pub bid_time: i64,
+}
+
+/// One `residence_functions` row — an active hall function upgrade.
+#[derive(Debug, Clone)]
+pub struct ResidenceFunctionRow {
+    pub residence_id: i32,
+    pub func_id: i32,
+    pub level: i32,
+    pub expiration: i64,
 }
 
 /// One `olympiad_nobles` row — a noble's persisted Olympiad record.
@@ -1070,6 +1094,11 @@ async fn run(
     // Clan-hall auction bids — restored so escrowed adena stays accounted for.
     let _ = event_tx.send(DbEvent::ClanHallBiddersLoaded {
         rows: load_clan_hall_bidders(&pool).await,
+    });
+
+    // Active clan-hall function upgrades.
+    let _ = event_tx.send(DbEvent::ResidenceFunctionsLoaded {
+        rows: load_residence_functions(&pool).await,
     });
 
     // `Olympiad.load` — the period/cycle row + every noble's record.
@@ -1458,6 +1487,36 @@ async fn run(
                     .bind(id)
                     .bind(owner_id)
                     .bind(paid_until),
+                )
+                .await;
+            }
+            DbCommand::SaveResidenceFunction {
+                residence_id,
+                func_id,
+                level,
+                expiration,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO residence_functions (id, level, expiration, residenceId) VALUES (?, ?, ?, ?)",
+                    )
+                    .bind(func_id)
+                    .bind(level)
+                    .bind(expiration)
+                    .bind(residence_id),
+                )
+                .await;
+            }
+            DbCommand::RemoveResidenceFunction {
+                residence_id,
+                func_id,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM residence_functions WHERE residenceId=? AND id=?")
+                        .bind(residence_id)
+                        .bind(func_id),
                 )
                 .await;
             }
@@ -2899,6 +2958,22 @@ async fn load_clan_hall_bidders(pool: &SqlitePool) -> Vec<ClanHallBidRow> {
             clan_id: geti(r, "clanId") as i32,
             bid: geti(r, "bid"),
             bid_time: geti(r, "bidTime"),
+        })
+        .collect()
+}
+
+/// The `residence_functions` table — active hall function upgrades.
+async fn load_residence_functions(pool: &SqlitePool) -> Vec<ResidenceFunctionRow> {
+    let rows = sqlx::query("SELECT id, level, expiration, residenceId FROM residence_functions")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| ResidenceFunctionRow {
+            residence_id: geti(r, "residenceId") as i32,
+            func_id: geti(r, "id") as i32,
+            level: geti(r, "level") as i32,
+            expiration: geti(r, "expiration"),
         })
         .collect()
 }

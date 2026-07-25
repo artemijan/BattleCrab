@@ -56,6 +56,15 @@ pub struct ClanHallBid {
     pub bid_time: i64,
 }
 
+/// An active hall function (Java `residences.ResidenceFunction`) — a purchased
+/// upgrade level with its rental expiry.
+#[derive(Debug, Clone, Copy)]
+pub struct ActiveFunction {
+    pub level: i32,
+    /// Epoch-millis the rented function lapses.
+    pub expiration: i64,
+}
+
 /// A clan hall — its static definition plus the runtime owner (0 = unowned).
 #[derive(Debug, Clone)]
 pub struct ClanHall {

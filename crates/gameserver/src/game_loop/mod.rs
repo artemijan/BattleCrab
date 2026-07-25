@@ -17,6 +17,7 @@ mod boss_threat;
 mod bypass;
 mod chat;
 pub(crate) mod clan_hall_auction;
+pub(crate) mod clan_hall_function;
 mod clans;
 mod combat;
 mod common;
@@ -441,6 +442,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ClanHallLeaseCheck { hall_id } => {
                 clan_hall_auction::handle_lease_check(world, hall_id);
+            }
+            ScheduledTask::ClanHallFunctionExpire { hall_id, func_id } => {
+                clan_hall_function::handle_function_expiry(world, hall_id, func_id);
             }
             ScheduledTask::AntharasSetRegen { antharas_oid } => {
                 antharas::handle_set_regen(world, antharas_oid);
