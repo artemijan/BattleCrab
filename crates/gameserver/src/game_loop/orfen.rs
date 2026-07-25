@@ -52,6 +52,10 @@ pub struct OrfenState {
 /// Java's `startQuestTimer("DISTANCE_CHECK", 5000, orfen, …, true)` at spawn:
 /// remember where she started and begin the leash beat.
 pub(crate) fn on_orfen_spawned(world: &mut World, orfen_oid: i32) {
+    // Java `spawnBoss` places four Raikel Leos beside Orfen — her `<minions>`
+    // escort, which the grand-boss spawn path (`spawn_npc_at`) otherwise skips.
+    crate::game_loop::minions::spawn_minions(world, orfen_oid);
+
     let home = world
         .objects
         .get_component::<Position>(&orfen_oid)

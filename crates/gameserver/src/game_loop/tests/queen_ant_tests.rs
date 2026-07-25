@@ -88,6 +88,61 @@ fn the_queen_spawns_her_larva() {
     assert!(find(&mut world, LARVA).is_some(), "the larva is out");
 }
 
+/// Regression: the Queen must bring her **escort** — Java `spawnMinions
+/// ("Privates")` = six nurses + eight royal guards. The grand-boss spawn path
+/// skips a leader's `<minions>`, so without the script hook she stood alone
+/// (the "only guards, no Queen fight" bug).
+#[test]
+fn the_queen_spawns_her_nurses_and_royal_guards() {
+    const ROYAL_GUARD: i32 = 29005;
+    let (mut world, _db, _l) = queen_world();
+    // Declare the Queen's Privates and register the guard template.
+    let mut queen = crate::data::npc_data::default_template(QUEEN);
+    queen.type_name = "GrandBoss".into();
+    queen.base_hp_max = 100_000.0;
+    queen.minions = vec![
+        crate::data::npc_data::MinionHolder {
+            npc_id: NURSE,
+            count: 6,
+        },
+        crate::data::npc_data::MinionHolder {
+            npc_id: ROYAL_GUARD,
+            count: 8,
+        },
+    ];
+    world.data.npc_data.insert_for_test(queen);
+    let mut guard = crate::data::npc_data::default_template(ROYAL_GUARD);
+    guard.type_name = "Monster".into();
+    guard.base_hp_max = 5_000.0;
+    world.data.npc_data.insert_for_test(guard);
+
+    add_test_npc(&mut world, QUEEN_OID, QUEEN, "GrandBoss", 40, 0, 0, 0);
+    crate::game_loop::queen_ant::on_queen_spawned(&mut world, QUEEN_OID);
+
+    let count = |world: &mut World, npc_id: i32| {
+        let mut n = 0;
+        world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+            if x.npc_id == npc_id {
+                n += 1;
+            }
+        });
+        n
+    };
+    assert_eq!(count(&mut world, NURSE), 6, "six nurses at her side");
+    assert_eq!(count(&mut world, ROYAL_GUARD), 8, "eight royal guards");
+
+    // The nurses are the Queen's minions, so the heal rotation finds them.
+    let a_nurse = find(&mut world, NURSE).unwrap();
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::game_loop::minions::MinionOf>(&a_nurse)
+            .map(|m| m.0),
+        Some(QUEEN_OID),
+        "the nurses belong to the Queen"
+    );
+}
+
 /// A wounded Queen is healed by her nurses.
 #[test]
 fn nurses_heal_a_wounded_queen() {
