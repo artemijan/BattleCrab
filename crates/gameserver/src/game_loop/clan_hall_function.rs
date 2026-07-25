@@ -18,7 +18,6 @@ use crate::world::World;
 
 /// What `setFunction` decided.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[allow(dead_code)]
 pub enum FunctionOutcome {
     /// Bought (and scheduled to expire after its rental period).
     Bought,
@@ -31,7 +30,6 @@ pub enum FunctionOutcome {
 }
 
 /// The level of an active function on a hall (0 = none).
-#[allow(dead_code)]
 pub(crate) fn function_level(world: &World, hall_id: i32, func_id: i32) -> i32 {
     world
         .clan_hall_functions
@@ -44,7 +42,6 @@ pub(crate) fn function_level(world: &World, hall_id: i32, func_id: i32) -> i32 {
 /// `ClanHallManager.setFunction`: the owning-clan buyer purchases a function
 /// level, paying its cost from **their own inventory**. The function then rents
 /// for its `duration` before the expiry check.
-#[allow(dead_code)]
 pub(crate) fn buy_function(
     world: &mut World,
     hall_id: i32,
@@ -109,7 +106,6 @@ pub(crate) fn set_function(
 }
 
 /// `ClanHall.removeFunction` — drop a function. Returns whether one was present.
-#[allow(dead_code)]
 pub(crate) fn remove_function(world: &mut World, hall_id: i32, func_id: i32) -> bool {
     let removed = world
         .clan_hall_functions
