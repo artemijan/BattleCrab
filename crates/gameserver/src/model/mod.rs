@@ -7,6 +7,7 @@ pub mod boat;
 pub mod castle;
 pub mod clan;
 pub mod clan_entry;
+pub mod clan_hall;
 pub mod components;
 pub mod cursed_weapon;
 pub mod door;

@@ -819,6 +819,9 @@ pub enum DbEvent {
     /// The `siege_clans` table (Java `Siege.loadSiegeClan`), pushed unprompted at
     /// boot after `CastlesLoaded`. Grouped into per-castle sieges on the game thread.
     SiegesLoaded { rows: Vec<SiegeClanRow> },
+    /// The `clanhall` table (Java `ClanHall` ownership load) — id → owner/paidUntil.
+    /// Overlaid onto the static hall defs on the game thread.
+    ClanHallsLoaded { rows: Vec<ClanHallRow> },
     /// `olympiad_data` (the single id=0 row) + all `olympiad_nobles`
     /// (Java `Olympiad.load`), loaded once at boot.
     OlympiadLoaded {
@@ -845,6 +848,14 @@ pub struct SiegeClanRow {
     pub castle_id: i32,
     pub clan_id: i32,
     pub kind: i32,
+}
+
+/// One `clanhall` row — a hall's persisted ownership.
+#[derive(Debug, Clone)]
+pub struct ClanHallRow {
+    pub id: i32,
+    pub owner_id: i32,
+    pub paid_until: i64,
 }
 
 /// One `olympiad_nobles` row — a noble's persisted Olympiad record.
@@ -1015,6 +1026,11 @@ async fn run(
     // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
     let _ = event_tx.send(DbEvent::SiegesLoaded {
         rows: load_siege_clans(&pool).await,
+    });
+
+    // Clan-hall ownership — overlaid onto the static hall defs at boot.
+    let _ = event_tx.send(DbEvent::ClanHallsLoaded {
+        rows: load_clan_hall_owners(&pool).await,
     });
 
     // `Olympiad.load` — the period/cycle row + every noble's record.
@@ -2759,6 +2775,21 @@ async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
             castle_id: geti(r, "castle_id") as i32,
             clan_id: geti(r, "clan_id") as i32,
             kind: geti(r, "type") as i32,
+        })
+        .collect()
+}
+
+/// The `clanhall` table — persisted hall ownership (id → owner/paidUntil).
+async fn load_clan_hall_owners(pool: &SqlitePool) -> Vec<ClanHallRow> {
+    let rows = sqlx::query("SELECT id, ownerId, paidUntil FROM clanhall")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default();
+    rows.iter()
+        .map(|r| ClanHallRow {
+            id: geti(r, "id") as i32,
+            owner_id: geti(r, "ownerId") as i32,
+            paid_until: geti(r, "paidUntil"),
         })
         .collect()
 }

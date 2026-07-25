@@ -42,6 +42,7 @@ mod baium_tests;
 mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;
+mod clan_hall_tests;
 mod clans_tests;
 mod combat_tests;
 mod community_board_tests;
@@ -333,6 +334,7 @@ async fn character_create_inserts_into_real_schema() {
         siege_towers: std::collections::HashMap::new(),
         siege_schedule: std::collections::HashMap::new(),
         castle_restart_points: std::collections::HashMap::new(),
+        clan_halls: std::collections::HashMap::new(),
         teleporters: crate::data::TeleporterData::empty(),
         transforms: crate::data::TransformData::empty(),
         enchant: crate::data::EnchantData::empty(),
@@ -370,6 +372,7 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::CursedWeaponsLoaded { .. }
             | DbEvent::CastlesLoaded { .. }
             | DbEvent::SiegesLoaded { .. }
+            | DbEvent::ClanHallsLoaded { .. }
             | DbEvent::SiegeGuardsLoaded { .. }
             | DbEvent::OlympiadLoaded { .. }
             | DbEvent::HeroesLoaded { .. }

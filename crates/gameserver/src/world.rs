@@ -228,6 +228,11 @@ pub struct World {
     /// `siege_clans` table. In-progress state is runtime-only.
     pub sieges: HashMap<i32, crate::model::siege::Siege>,
 
+    /// The clan halls (Java `ClanHallData`), keyed by id — the static defs from
+    /// `GameData` with ownership overlaid at boot (`DbEvent::ClanHallsLoaded`
+    /// from the `clanhall` table).
+    pub clan_halls: HashMap<i32, crate::model::clan_hall::ClanHall>,
+
     /// Per-castle siege-guard spawn points (`castle_siege_guards`, the stationed
     /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
     pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
@@ -366,6 +371,7 @@ impl World {
             cursed_weapons: Vec::new(),
             castles: Vec::new(),
             sieges: HashMap::new(),
+            clan_halls: HashMap::new(),
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
             instances: crate::model::instance::InstanceManager::default(),
