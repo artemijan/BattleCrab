@@ -28,7 +28,7 @@ use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::{
-    broadcast_including_self, broadcast_near_region, client_for_player, ms_to_ticks,
+    broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of, ms_to_ticks,
 };
 use super::skills::cast::break_cast;
 
@@ -660,9 +660,10 @@ pub(crate) fn apply_door_damage(world: &mut World, door_oid: i32, damage: i32) {
         .get_component::<RegionCell>(&door_oid)
         .map(|r| r.0)
     {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, door_oid),
             &server_packets::status_update(
                 door_oid,
                 &[
@@ -1331,7 +1332,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         else {
             return;
         };
-        broadcast_near_region(world, region, &pkt);
+        broadcast_near_region_in(world, region, instance_of(world, attacker_oid), &pkt);
     } else {
         broadcast_including_self(world, attacker_oid, &pkt);
     }
@@ -1745,9 +1746,10 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     };
 
     if became_running {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::change_move_type(npc_oid, true),
         );
     }
@@ -1756,9 +1758,10 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         return;
     }
     // `broadcastStatusUpdate` — the HP bar for everyone targeting it.
-    broadcast_near_region(
+    broadcast_near_region_in(
         world,
         region,
+        instance_of(world, npc_oid),
         &server_packets::status_update(
             npc_oid,
             &[
@@ -1814,9 +1817,10 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
             .get_component::<RegionCell>(&npc_oid)
             .map(|r| r.0)
         {
-            broadcast_near_region(
+            broadcast_near_region_in(
                 world,
                 region,
+                instance_of(world, npc_oid),
                 &server_packets::change_move_type(npc_oid, true),
             );
         }

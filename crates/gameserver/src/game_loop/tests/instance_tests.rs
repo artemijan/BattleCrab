@@ -213,6 +213,44 @@ fn destroy_ousts_members_and_despawns_npcs() {
     );
 }
 
+fn saw_delete_object(packets: &[Vec<u8>]) -> bool {
+    packets
+        .iter()
+        .any(|p| p.first() == Some(&opcodes::DELETE_OBJECT))
+}
+
+/// An instanced NPC's despawn `DeleteObject` reaches same-instance players only
+/// — the overworld player standing on the same spot never learns of it (G27
+/// slice 6: NPC-lifecycle broadcasts are instance-scoped).
+#[test]
+fn instanced_npc_despawn_reaches_only_the_instance() {
+    let (mut world, _tx, _db, _l) = test_world();
+    add_test_npc(&mut world, 800, 30001, "Folk", 5, 1000, 1000, 0);
+    world.objects.add_components(&800, InstanceId(7));
+
+    let mut rx_in = ingame_player(&mut world, 1, 100, 1000, 1000, 0);
+    world.objects.add_components(&100, InstanceId(7));
+    let mut rx_out = ingame_player(&mut world, 2, 200, 1000, 1000, 0); // overworld
+    drain(&mut rx_in);
+    drain(&mut rx_out);
+
+    let region = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&800)
+        .expect("npc region")
+        .0;
+    crate::game_loop::death::despawn_npc(&mut world, 800, region);
+
+    assert!(
+        saw_delete_object(&drain(&mut rx_in)),
+        "the same-instance player sees the despawn"
+    );
+    assert!(
+        !saw_delete_object(&drain(&mut rx_out)),
+        "the overworld player on the same spot does not"
+    );
+}
+
 #[test]
 fn empty_check_destroys_only_when_still_empty() {
     let (mut world, _tx, _db, _l) = test_world();

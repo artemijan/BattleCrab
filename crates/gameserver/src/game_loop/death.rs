@@ -21,7 +21,9 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::{regions_adjacent, World};
 
-use super::helpers::{broadcast_including_self, broadcast_near_region, client_for_player};
+use super::helpers::{
+    broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
+};
 
 /// `Inventory.ADENA_ID`.
 pub(crate) const ADENA_ID: i32 = 57;
@@ -64,6 +66,8 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     else {
         return;
     };
+    // Scope the death packets to the corpse's instance (G27).
+    let instance = instance_of(world, npc_oid);
 
     // A grand boss dying: mark it dead, roll and persist its respawn window,
     // arm the timer. No-op for every other NPC.
@@ -144,18 +148,20 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // sliding toward its last `MoveToPawn` destination client-side, since the
     // client never learns the movement ended.
     if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance,
             &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading),
         );
     }
 
     // `setCurrentHp(0)` broadcasts the final StatusUpdate before `Die` —
     // without it the target window keeps the last non-zero HP.
-    broadcast_near_region(
+    broadcast_near_region_in(
         world,
         region,
+        instance,
         &server_packets::status_update(
             npc_oid,
             &[
@@ -164,7 +170,12 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             ],
         ),
     );
-    broadcast_near_region(world, region, &server_packets::die(npc_oid, false));
+    broadcast_near_region_in(
+        world,
+        region,
+        instance,
+        &server_packets::die(npc_oid, false),
+    );
 
     // The mob stays *selected* while its corpse lasts — a player keeps it in
     // target so corpse actions (sweep/spoil, looting) can act on it. The
@@ -258,11 +269,20 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
 /// clears — our client keeps a deleted target locked otherwise). Shared by
 /// corpse decay and the admin `//delete` path.
 pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
+    // Read the instance before despawn drops the `InstanceId` component, or the
+    // DeleteObject would fall back to the overworld and never reach the
+    // instanced players who can see the NPC (G27).
+    let instance = instance_of(world, npc_oid);
     world.objects.despawn(&npc_oid);
     if let Some(ids) = world.npc_regions.get_mut(&region) {
         ids.retain(|&id| id != npc_oid);
     }
-    broadcast_near_region(world, region, &server_packets::delete_object(npc_oid));
+    broadcast_near_region_in(
+        world,
+        region,
+        instance,
+        &server_packets::delete_object(npc_oid),
+    );
 
     let mut watchers: Vec<i32> = Vec::new();
     world
@@ -351,7 +371,12 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         if let Some(r) = world.objects.get_component_mut::<RegionCell>(&npc_oid) {
             r.0 = new_region;
         }
-        broadcast_near_region(world, old_region, &server_packets::delete_object(npc_oid));
+        broadcast_near_region_in(
+            world,
+            old_region,
+            instance_of(world, npc_oid),
+            &server_packets::delete_object(npc_oid),
+        );
     }
     introduce_npc(world, npc_oid);
 }
@@ -371,7 +396,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
         return;
     };
     let pkt = server_packets::npc_info(&v, t, &world.cfg.npc);
-    broadcast_near_region(world, region, &pkt);
+    broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
 
 // ---------------------------------------------------------------------------
@@ -2457,9 +2482,10 @@ fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32) {
         .get_component::<RegionCell>(&npc_oid)
         .map(|r| r.0)
     {
-        super::helpers::broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::system_message_with(
                 sm_ids::CONGRATULATIONS_YOUR_RAID_WAS_SUCCESSFUL,
                 &[],

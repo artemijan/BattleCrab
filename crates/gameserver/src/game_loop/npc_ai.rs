@@ -20,7 +20,7 @@ use crate::session::ClientSession;
 use crate::world::{regions_adjacent, World};
 
 use super::combat::{self, ATTACK_TIMEOUT_TICKS};
-use super::helpers::broadcast_near_region;
+use super::helpers::{broadcast_near_region_in, instance_of};
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
@@ -153,9 +153,10 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
                 .get_component::<RegionCell>(&npc_oid)
                 .map(|r| r.0)
             {
-                broadcast_near_region(
+                broadcast_near_region_in(
                     world,
                     region,
+                    instance_of(world, npc_oid),
                     &server_packets::social_action(npc_oid, action_id),
                 );
             }
@@ -389,9 +390,10 @@ fn stop_npc(world: &mut World, npc_oid: i32) {
             .get_component::<RegionCell>(&npc_oid)
             .map(|r| r.0),
     ) {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading),
         );
     }
@@ -584,9 +586,10 @@ fn think_active(world: &mut World, npc_oid: i32) {
                 flip
             };
             if became_running {
-                broadcast_near_region(
+                broadcast_near_region_in(
                     world,
                     region,
+                    instance_of(world, npc_oid),
                     &server_packets::change_move_type(npc_oid, true),
                 );
             }
@@ -773,9 +776,10 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         ) else {
             return;
         };
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::stop_move(npc_oid, pos.x, pos.y, pos.z, pos.heading),
         );
     }
@@ -807,9 +811,10 @@ pub(crate) fn set_active(world: &mut World, npc_oid: i32) {
         return;
     };
     if was_running {
-        broadcast_near_region(
+        broadcast_near_region_in(
             world,
             region,
+            instance_of(world, npc_oid),
             &server_packets::change_move_type(npc_oid, false),
         );
     }
@@ -928,9 +933,10 @@ fn chase(world: &mut World, npc_oid: i32, target_oid: i32, reach: f64) {
             geo_path: None,
         }),
     );
-    broadcast_near_region(
+    broadcast_near_region_in(
         world,
         region,
+        instance_of(world, npc_oid),
         &server_packets::move_to_pawn(
             npc_oid,
             target_oid,
@@ -1059,9 +1065,10 @@ pub(crate) fn move_npc_to(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i3
             geo_path: None,
         }),
     );
-    broadcast_near_region(
+    broadcast_near_region_in(
         world,
         region,
+        instance_of(world, npc_oid),
         &server_packets::move_to_location(npc_oid, x, y, z, start.0, start.1, start.2),
     );
 }
