@@ -1,14 +1,18 @@
-//! Monster Race Track (G26.5) — the pure race math (speed roll + winner, odds)
-//! and the `MonRaceInfo` packet shape. The race-cycle state machine, betting,
-//! and the RaceManager NPC are later slices.
+//! Monster Race Track (G26.5) — the pure race math (speed roll + winner, odds),
+//! the `MonRaceInfo` packet shape, and the 1-second race-cycle state machine.
+//! Betting + payout via the RaceManager NPC are slice 4.
+
+use super::*;
 
 use std::collections::HashMap;
 
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 
-use crate::game_loop::monster_race::{add_bet, calculate_odds, roll_speeds};
+use crate::game_loop::monster_race::{self, add_bet, calculate_odds, roll_speeds};
+use crate::model::monster_race::RaceState;
 use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
 
 #[test]
 fn roll_speeds_picks_the_fastest_lane_as_the_winner() {
@@ -64,4 +68,75 @@ fn mon_race_info_has_the_expected_wire_shape() {
     assert_eq!(pkt[0], server_packets::opcodes::MON_RACE_INFO);
     // header (op + 2 codes + count) + 8 * (8 ints + 2 doubles + 1 int + 20 bytes)
     assert_eq!(pkt.len(), 13 + 8 * (32 + 16 + 4 + 20));
+}
+
+// --- The 1-second race-cycle state machine (slice 3b) ---
+
+/// A test world with the race enabled (dist ships it off), race #1.
+fn race_world() -> World {
+    let (mut world, _tx, _rx, _link) = test_world();
+    world.cfg.general.allow_race = true;
+    world.monster_race.race_number = 1;
+    world
+}
+
+#[test]
+fn tick_at_zero_opens_a_race_with_eight_distinct_racers() {
+    let mut world = race_world();
+
+    monster_race::tick(&mut world);
+
+    assert_eq!(world.monster_race.state, RaceState::AcceptingBets);
+    assert!(world.monster_race.monsters.iter().all(|&o| o != 0));
+    let mut templates = world.monster_race.monster_templates.to_vec();
+    assert!(templates.iter().all(|&t| (31003..=31026).contains(&t)));
+    templates.sort();
+    templates.dedup();
+    assert_eq!(templates.len(), 8, "eight distinct racer templates");
+    assert!((1..=8).contains(&world.monster_race.first.0));
+    assert_eq!(world.monster_race.countdown, 1);
+    assert!(world
+        .scheduler
+        .pending_tasks_for_test()
+        .contains(&ScheduledTask::MonsterRaceTick));
+}
+
+#[test]
+fn sales_close_posts_the_odds() {
+    let mut world = race_world();
+    world.monster_race.countdown = 900;
+    world.monster_race.bets.insert(1, 100);
+    world.monster_race.bets.insert(2, 300);
+
+    monster_race::tick(&mut world);
+
+    assert_eq!(world.monster_race.state, RaceState::Waiting);
+    assert_eq!(world.monster_race.odds.len(), 8);
+    assert!((world.monster_race.odds[0] - 2.8).abs() < 1e-9); // 400*0.7/100
+}
+
+#[test]
+fn race_end_records_the_winner_clears_bets_and_advances() {
+    let mut world = race_world();
+    monster_race::tick(&mut world); // countdown 0: spawn + roll + history row
+    let (winner, runner) = (world.monster_race.first.0, world.monster_race.second.0);
+    world.monster_race.bets.insert(1, 50);
+    world.monster_race.countdown = 1115;
+
+    monster_race::tick(&mut world);
+
+    assert_eq!(world.monster_race.state, RaceState::RaceEnd);
+    let h = world.monster_race.history.last().unwrap();
+    assert_eq!(h.first, winner);
+    assert_eq!(h.second, runner);
+    assert_eq!(world.monster_race.race_number, 2);
+    assert!(world.monster_race.bets.values().all(|&v| v == 0));
+}
+
+#[test]
+fn a_disabled_race_is_inert() {
+    let (mut world, _tx, _rx, _link) = test_world(); // AllowRace defaults false
+    monster_race::tick(&mut world);
+    assert_eq!(world.monster_race.state, RaceState::RaceEnd); // unchanged default
+    assert!(world.scheduler.pending_tasks_for_test().is_empty());
 }

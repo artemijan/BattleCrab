@@ -127,12 +127,22 @@ placings); `game_loop/monster_race.rs` the pure race math ported verbatim —
 `MonRaceInfo` packet (`MON_RACE_INFO` 0x E3, `network/server_packets/games.rs`).
 4 tests, sabotage-verified.
 
-**Slice 3b (remaining):** the 1-second race-cycle state machine (the
-`_finalCountdown` 0→1200 timeline via a re-armed tick), the 8 shuffled monster
-spawns (templates 31003–31026), the `mdt_history` load/persist, and the
-**Derby-zone broadcast** — needs a `DerbyTrackZone` concept in the Rust zone
-system (the 8 `dion_monster_race*` zones in `zone.xml`, currently unparsed).
-`AllowRace` gate. **Gate:** a race runs its full cycle and animates.
+**Slice 3b (state machine) ✅ LANDED.** `ZoneKind::DerbyTrack` (geometry-queried,
+bit 0 — the u8 mask is full — mapped from `DerbyTrackZone`, so `zone.xml`'s 8
+`dion_monster_race*` zones now load); `AllowRace` config in `GeneralConfig`; the
+race-cycle state machine (`game_loop/monster_race.rs::{start,tick}` on a re-armed
+`ScheduledTask::MonsterRaceTick`, 1 s beat): countdown 0 opens a race
+(`new_race` — history row, 8 shuffled racers 31003–31026 as packet-only object
+ids, `roll_speeds`), `MonRaceInfo(SETUP)` + "tickets available"; 900 closes sales
++ posts `calculate_odds`; 1080 `MonRaceInfo(OFF)` + "they're off"; 1085
+`MonRaceInfo(MID)`; 1115 records the winner + clears bets + announces; 1140
+`DeleteObject`s the racers — all broadcast to the Derby zone (a point-in-zone
+scan of online players). Started at boot. 8 tests, sabotage-verified. **A race
+now runs its full cycle and animates.**
+
+**Deferred to slice 4:** the intermediate ticket-sale reminder cadence
+(cosmetic SMs); `mdt_history`/`mdt_bets` persistence; and betting + payout via
+the `RaceManager` NPC.
 
 ### Slice 4 — Betting + payout
 - Lane bets (items 4443–4470) at the NPC, odds from the pool, `RACE_END` payout

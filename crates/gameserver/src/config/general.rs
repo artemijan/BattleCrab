@@ -97,6 +97,10 @@ pub struct GeneralConfig {
     pub alt_lottery_3_number_rate: f64,
     /// `AltLottery2and1NumberPrize` (dist 200): flat adena for a 2-or-1 match.
     pub alt_lottery_2and1_number_prize: i64,
+
+    /// `AllowRace`: whether the Monster Race Track runs (G26.5). Dist ships
+    /// `False`; the race engine exists regardless so an operator can enable it.
+    pub allow_race: bool,
 }
 
 impl GeneralConfig {
@@ -149,6 +153,7 @@ impl GeneralConfig {
             alt_lottery_4_number_rate: p.get_float("AltLottery4NumberRate", 0.2) as f64,
             alt_lottery_3_number_rate: p.get_float("AltLottery3NumberRate", 0.2) as f64,
             alt_lottery_2and1_number_prize: p.get_int("AltLottery2and1NumberPrize", 200) as i64,
+            allow_race: p.get_bool("AllowRace", d.allow_race),
         }
     }
 }
@@ -197,6 +202,7 @@ mod tests {
             g.alt_lottery_2and1_number_prize, 200,
             "AltLottery2and1NumberPrize=200"
         );
+        assert!(!g.allow_race, "AllowRace=False on this dist");
     }
 
     /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,

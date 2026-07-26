@@ -220,6 +220,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
     // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
+    // Java `MonsterRace` starts its fixed-rate Announcement at boot (G26.5);
+    // no-op unless `AllowRace`. The Lottery starts from its DB-load event.
+    monster_race::start(&mut world);
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -672,6 +675,7 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::LotteryStart => lottery::open_round(world),
             ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
             ScheduledTask::LotteryFinish => lottery::finish_begin(world),
+            ScheduledTask::MonsterRaceTick => monster_race::tick(world),
         }
     }
 }

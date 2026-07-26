@@ -47,9 +47,13 @@ pub struct MonsterRaceState {
     pub odds: Vec<f64>,
     /// Past race records (Java `_history`).
     pub history: Vec<HistoryInfo>,
-    /// The eight spawned racer object ids (Java `_monsters`), lane `i` = index
-    /// `i`. `0` when none is spawned.
+    /// The eight racer object ids (Java `_monsters`), lane `i` = index `i`. `0`
+    /// when none is set. These are packet-only holders (Java `new Npc(template)`
+    /// is never added to the world), so an id is allocated, not a real spawn.
     pub monsters: [i32; LANES],
+    /// The eight racers' NPC template ids (Java the `_monsters[i]` template),
+    /// for the `MonRaceInfo` display id + collision dims.
+    pub monster_templates: [i32; LANES],
     /// Per-lane 20-step speed table for this race (Java `_speeds`).
     pub speeds: [[i32; 20]; LANES],
     /// `(lane, total_speed)` of the fastest / second-fastest racer, decided at

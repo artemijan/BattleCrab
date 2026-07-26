@@ -376,6 +376,9 @@ pub enum ScheduledTask {
     LotteryStopSelling,
     /// Draw the round and roll over to the next (Java `finishLottery`).
     LotteryFinish,
+    /// The Monster Race's 1-second cycle beat (Java `MonsterRace.Announcement`
+    /// at fixed 1 s rate, G26.5): advance the countdown timeline. Re-arms itself.
+    MonsterRaceTick,
 }
 
 struct Entry {
