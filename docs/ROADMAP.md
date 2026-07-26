@@ -1053,8 +1053,21 @@ autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
 [PLAN_G28_CURSED_WEAPONS.md](PLAN_G28_CURSED_WEAPONS.md)); a cursed weapon can be
 dropped by a monster kill and equipped by whoever picks it up. Deferred to a
 follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
-**Remaining for G28:** the events engine (TvT / `AbstractEvent` /
-`EventManager`) + `AdminEvents`/`//tvt_*`.
+**Progress (2026-07-26):** the **events engine — slice 1** landed
+([PLAN_G28_EVENTS_ENGINE.md](PLAN_G28_EVENTS_ENGINE.md)): the event lifecycle
+(`EventManager` on `World`, `//event_start`/`//event_stop` GM trigger — the dist
+TvT `config.xml` schedule ships commented out) + the TvT registration phase
+(manager NPC, register/cancel window, `canRegister`, the registration-close
+handler with the too-few-participants cancel). Note the "engine" here is thin:
+Java's `Event` base is just `Quest` + `eventStart`/`eventStop`, and no
+`AbstractEvent`/`EventManager` class exists in this dist — the ported engine is
+the lifecycle wrapper plus the framework hooks the event needs.
+
+**Remaining for G28:** the TvT arena stand-up + team split (slice 2), the fight /
+scoring / respawn (slice 3), end / rewards / cleanup / forfeit / logout — plus
+the `on_enter_zone`/`on_exit_zone`/`on_player_death`/`on_player_logout`
+script-framework hooks it needs (slice 4), and the optional cron auto-schedule
+(slice 5).
 
 ---
 

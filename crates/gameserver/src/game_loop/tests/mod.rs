@@ -113,6 +113,7 @@ mod symbol_tests;
 mod target_reconsider_tests;
 mod teleport_cmds_tests;
 mod trigger_skill_tests;
+mod tvt_tests;
 mod two_handed_tests;
 mod valakas_tests;
 mod visibility_tests;

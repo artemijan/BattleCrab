@@ -11,6 +11,7 @@ pub mod clan_hall;
 pub mod components;
 pub mod cursed_weapon;
 pub mod door;
+pub mod event;
 pub mod formulas;
 pub mod grand_boss;
 pub mod instance;
@@ -189,6 +190,14 @@ pub struct Player {
     /// Java `Creature._team` (`//setteam` — 0 none, 1 blue, 2 red): the aura
     /// circle color in UserInfo/CharInfo. Transient, like Java (not persisted).
     pub team: u8,
+    /// Java `Player._isOnEvent` — the player is *inside* a running event's
+    /// arena (a TvT fight, G28). Gates cancel-registration, targeting and
+    /// several event checks. Transient.
+    pub on_event: bool,
+    /// Java `Player._isRegisteredOnEvent` — the player has signed up for an
+    /// event but the fight hasn't teleported them in yet (TvT registration
+    /// window, G28). Blocks registering for a second event. Transient.
+    pub registered_on_event: bool,
     /// Inactive indices' worn hennas — dyes are per-subclass.
     pub hennas_by_index: std::collections::HashMap<i32, Vec<(i32, i32)>>,
     /// Inactive indices' shortcut bars.
@@ -859,6 +868,8 @@ impl Player {
             subclasses: c.subclasses.clone(),
             skills_by_index: c.skills_by_index.clone(),
             team: 0,
+            on_event: false,
+            registered_on_event: false,
             hennas_by_index: c.hennas_by_index.clone(),
             shortcuts_by_index: c.shortcuts_by_index.clone(),
             base_level: c.level,

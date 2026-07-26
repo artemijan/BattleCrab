@@ -53,7 +53,26 @@ and the cron `SchedulingPattern` auto-start is the last (optional) slice.
 
 ## Slice breakdown
 
-### Slice 1 — Event lifecycle + TvT registration phase  ⬅ start here
+### Slice 1 — Event lifecycle + TvT registration phase  ✅ LANDED
+
+**Landed.** `model/event.rs` (`EventManager` + `TvtState`/`TvtPhase`, a `World`
+field); `game_loop/events/{mod,tvt}.rs` (name-dispatched `start`/`stop` +
+the TvT `event_start`/`event_stop`/`teleport_to_arena` runtime); `scripts/tvt.rs`
+(the manager NPC 70010 talk/first-talk routing `Participate`/`CancelParticipation`);
+`game_loop/admin/events.rs` (`//event_start [name]` / `//event_stop [name]` —
+the config schedule ships commented out, so this is the operator trigger);
+`ScheduledTask::TvtTeleportToArena` (the registration-close timer);
+`ChatType::Announcement` (`Broadcast.toAllOnlinePlayers`); `Player.on_event` /
+`registered_on_event` flags. The 8 dist HTML files load as-is from
+`data/scripts/custom/events/TeamVsTeam/`. `canRegister` ports the gates whose
+state exists (level 76–200, already-registered, max-count, cursed weapon /
+reputation, olympiad-registration, fishing) with `TODO(G28)` at the site for the
+rest (flying/transform/inventory-80%/weight/duel/instance/siege). The
+window-close handler fully implements the **too-few-participants cancel**; the
+enough-players path is a `TODO(G28)` stub that ends the event cleanly until
+slice 2 stands up the arena. 6 tvt tests (sabotage-verified).
+
+The original slice-1 plan below.
 - `game_loop/events/mod.rs`: `GameEvent` trait (`name`, `event_start`,
   `event_stop`) + `EventManager` resource (active event + TvT runtime state:
   phase, `player_list`, `scores`, `blue`/`red`, world id).

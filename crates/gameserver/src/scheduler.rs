@@ -348,6 +348,10 @@ pub enum ScheduledTask {
     /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`
     /// guard.
     CursedWeaponExpiry { item_id: i32 },
+    /// TvT's registration window closed (`startQuestTimer("TeleportToArena",
+    /// REGISTRATION_TIME)`, G28): prune offline registrants and either stand up
+    /// the arena or cancel for too few players. A singleton event, so no key.
+    TvtTeleportToArena,
 }
 
 struct Entry {

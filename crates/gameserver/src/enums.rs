@@ -436,6 +436,9 @@ pub enum ChatType {
     Clan = 4,
     Trade = 8,
     Alliance = 9,
+    /// Server-wide announcements (`Broadcast.toAllOnlinePlayers(String)` →
+    /// `CreatureSay(ChatType.ANNOUNCEMENT, ...)`) — server-sent only (G28).
+    Announcement = 10,
     /// Ferry announcements (`CreatureSay(ChatType.BOAT, ...)`) — server-sent only.
     Boat = 11,
 }
@@ -454,6 +457,7 @@ impl ChatType {
             4 => Some(Self::Clan),
             8 => Some(Self::Trade),
             9 => Some(Self::Alliance),
+            10 => Some(Self::Announcement),
             11 => Some(Self::Boat),
             _ => None,
         }

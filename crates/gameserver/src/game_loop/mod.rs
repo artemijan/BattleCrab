@@ -34,6 +34,7 @@ pub(crate) mod duel;
 mod effect_point;
 pub(crate) mod effect_zones;
 mod enchant;
+pub(crate) mod events;
 mod expertise;
 pub(crate) mod fishing;
 mod friends;
@@ -647,6 +648,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::CursedWeaponExpiry { item_id } => {
                 cursed_weapon::handle_expiry(world, item_id);
+            }
+            ScheduledTask::TvtTeleportToArena => {
+                events::tvt::teleport_to_arena(world);
             }
         }
     }
