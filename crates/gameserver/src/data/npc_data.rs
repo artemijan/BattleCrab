@@ -223,6 +223,16 @@ impl NpcTemplate {
             .unwrap_or(default)
     }
 
+    /// A `<parameters><param>` scalar as i32 with a default — Java
+    /// `template.getParameters().getInt(name, default)` (e.g. the manor
+    /// manager's `manor_id`).
+    pub fn ai_param_i32(&self, name: &str, default: i32) -> i32 {
+        self.ai_params
+            .get(name)
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(default)
+    }
+
     /// Membership in Java's `Monster` subtree (`Npc.isMonster()` —
     /// `instanceof Monster`): the auto-attackable mob types.
     pub fn is_monster(&self) -> bool {

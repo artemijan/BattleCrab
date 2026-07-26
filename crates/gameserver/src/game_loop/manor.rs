@@ -16,6 +16,12 @@
 //! the mode through APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the daily
 //! `AltManor*` cutover times and runs the production rollover; only the economic
 //! settlement folded into Java's rollover remains `TODO(manor)`.
+//!
+//! The player-facing Manor Manager trader is [`handle_request_buy_seed`]
+//! (`RequestBuySeed`) — buy seeds from a castle's current production. Note that
+//! the reference build never sends the buy/sell *display* packets (`BuyListSeed`
+//! /`ExShowSellCropList` are dead), so the trader window is client-native; the
+//! sell half (`RequestProcureCropList`) is a later slice.
 
 use commons::network::PacketReader;
 use tracing::warn;
@@ -26,10 +32,13 @@ use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 use crate::model::npc::Npc;
 use crate::model::Player;
 use crate::network::server_packets::{
-    self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
+    self, sm_ids, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry,
+    SeedSettingEntry, SmParam,
 };
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
+
+use super::death::ADENA_ID;
 
 const MILLIS_PER_DAY: i64 = 86_400_000;
 const MILLIS_PER_HOUR: i64 = 3_600_000;
@@ -611,6 +620,150 @@ pub(crate) fn handle_request_set_crop(world: &mut World, client_id: u32, body: &
         .collect();
     world.manor.set_next_crop_procure(manor_id, list);
     let _ = world.cfg.general.alt_manor_save_all_actions;
+}
+
+const MAX_ADENA: i64 = 99_999_999_999;
+
+/// The Manor Manager's `manor_id` NPC parameter, if the player's last folk NPC
+/// is a Merchant in interaction range whose `manor_id` matches (Java's
+/// `manager instanceof Merchant && canInteract && getParameters().getInt(...)`).
+fn manor_manager_castle(world: &World, player_oid: i32) -> Option<i32> {
+    let &LastFolkNpc(npc) = world.objects.get_component::<LastFolkNpc>(&player_oid)?;
+    if !super::shop::is_merchant(world, npc) || !super::target::can_interact(world, player_oid, npc)
+    {
+        return None;
+    }
+    let castle = world
+        .objects
+        .get_component::<Npc>(&npc)
+        .and_then(|n| n.template(world))
+        .map(|t| t.ai_param_i32("manor_id", -1))?;
+    (castle >= 0).then_some(castle)
+}
+
+/// Port of `clientpackets/RequestBuySeed` — a player buys seeds from a Manor
+/// Manager's current-period production. Reads `manorId, count, [seedId, cnt]*`;
+/// validates the seeds (price/stock/adena) against `ManorState`, takes the adena
+/// and decrements the manor's stock, and hands over the seeds.
+pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &[u8]) {
+    const BATCH: usize = 4 + 8; // itemId + count
+    let mut r = PacketReader::new(body);
+    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+        return;
+    };
+    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
+        return;
+    }
+    let mut items = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let (Some(item_id), Some(cnt)) = (r.read_i32(), r.read_i64()) else {
+            return;
+        };
+        if cnt < 1 || item_id < 1 {
+            return;
+        }
+        items.push((item_id, cnt));
+    }
+
+    let player_oid = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
+        _ => return,
+    };
+    // Java gate: not under maintenance, the castle exists, and the last folk NPC
+    // is this castle's Manor Manager in range.
+    if world.manor.is_under_maintenance()
+        || !world.data.manor.manor_castle_ids().contains(&manor_id)
+        || manor_manager_castle(world, player_oid) != Some(manor_id)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    // Validate every line against the live production, summing the price.
+    let mut total_price = 0i64;
+    for &(item_id, cnt) in &items {
+        let ok = world
+            .manor
+            .seed_product(manor_id, item_id, false)
+            .is_some_and(|sp| sp.price > 0 && sp.amount >= cnt && MAX_ADENA / cnt >= sp.price);
+        if !ok {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+        let price = world
+            .manor
+            .seed_product(manor_id, item_id, false)
+            .map_or(0, |sp| sp.price);
+        total_price += price * cnt;
+        if total_price > MAX_ADENA {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    }
+    // TODO(manor): Java also validates inventory weight/capacity here
+    // (`validateWeight`/`validateCapacity`); the shop buy path skips these too.
+
+    let adena = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .map_or(0, |i| i.adena());
+    if adena < total_price {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
+                &[],
+            ));
+        }
+        return;
+    }
+    if total_price > 0
+        && !super::quests::take_items(world, client_id, player_oid, ADENA_ID, total_price)
+    {
+        return;
+    }
+
+    // Deliver: decrement each seed's stock and add it to the buyer.
+    let mut added: Vec<i32> = Vec::new();
+    for &(item_id, cnt) in &items {
+        // A concurrent overdraw can't happen on the single game thread, but the
+        // `decrease_amount` guard mirrors Java's per-line refund-on-failure.
+        if world.manor.decrease_seed_amount(manor_id, item_id, cnt) {
+            if let Some(oids) = super::items::add_inventory_item(world, player_oid, item_id, cnt) {
+                added.extend(oids);
+            }
+        }
+    }
+    // TODO(manor): Java credits the castle treasury with the sale
+    // (`castle.addToTreasuryNoTax(totalPrice)`); the treasury is unported.
+    if let (Some(inventory), Some(cs)) = (
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&player_oid),
+        world.clients.get(&client_id),
+    ) {
+        cs.send(crate::network::enter_world::inventory_update(
+            inventory,
+            &world.data,
+            &added,
+        ));
+        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+            player_oid,
+            inventory,
+            &world.data,
+        ));
+        if total_price > 0 {
+            cs.send(server_packets::system_message_with(
+                sm_ids::S1_ADENA_DISAPPEARED,
+                &[SmParam::Long(total_price)],
+            ));
+        }
+    }
 }
 
 /// Parse `…?ask=<int>&state=<int>&time=<0|1>` (Java splits on `?`, then `&`,

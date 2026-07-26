@@ -5,11 +5,144 @@
 
 use super::*;
 
+use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
 use crate::model::clan::Clan;
 use crate::model::components::LastFolkNpc;
+use crate::model::inventory::Inventory;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 use crate::model::Player;
+
+/// Register + place a Manor Manager (a Merchant with a `manor_id` param) and
+/// make it the player's last folk NPC (so the trader gate passes).
+fn add_manor_manager(world: &mut World, oid: i32, npc_id: i32, manor_id: i32) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = "Merchant".into();
+    t.level = 75;
+    t.base_hp_max = 100.0;
+    t.base_mp_max = 50.0;
+    t.ai_params.insert("manor_id".into(), manor_id.to_string());
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(world, oid, npc_id, "Merchant", 75, 0, 0, 0);
+    world.objects.add_components(&100, LastFolkNpc(oid));
+}
+
+fn inv_count(world: &World, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&100)
+        .map_or(0, |i| i.count_of(item_id))
+}
+
+/// A player buys seeds at a Manor Manager: adena leaves, the seeds arrive, and
+/// the manor's current-period stock drops by the amount bought.
+#[test]
+fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    // Gludio Manor Manager (35103), manor_id 1. Seed 5016 is a real item.
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 500,
+            price: 10,
+            start_amount: 500,
+        }],
+    );
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+
+    // Buy 5 of seed 5016 (price 10 → 50 adena).
+    let mut w = PacketWriter::new();
+    w.write_i32(1); // manor id
+    w.write_i32(1); // count
+    w.write_i32(5016);
+    w.write_i64(5);
+    crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5016), 5, "the buyer received 5 seeds");
+    assert_eq!(inv_count(&world, ADENA_ID), 950, "50 adena was taken");
+    assert_eq!(
+        world.manor.seed_product(1, 5016, false).unwrap().amount,
+        495,
+        "the manor's stock dropped by 5"
+    );
+}
+
+/// The purchase is refused (no adena taken, no stock change) when the buyer
+/// can't afford it.
+#[test]
+fn buy_seed_refused_without_adena() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 500,
+            price: 10,
+            start_amount: 500,
+        }],
+    );
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10); // far short of 50
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(1);
+    w.write_i32(5016);
+    w.write_i64(5);
+    crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5016), 0, "no seeds delivered");
+    assert_eq!(inv_count(&world, ADENA_ID), 10, "no adena taken");
+    assert_eq!(
+        world.manor.seed_product(1, 5016, false).unwrap().amount,
+        500,
+        "stock unchanged"
+    );
+}
+
+/// Buying more than the manor stocks is refused outright (Java's
+/// `sp.getAmount() < count` guard).
+#[test]
+fn buy_seed_refused_when_overdrawing_stock() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 3,
+            price: 10,
+            start_amount: 500,
+        }],
+    );
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(1);
+    w.write_i32(5016);
+    w.write_i64(10); // only 3 in stock
+    crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5016), 0, "no seeds delivered on overdraw");
+    assert_eq!(inv_count(&world, ADENA_ID), 1_000, "no adena taken");
+    assert_eq!(
+        world.manor.seed_product(1, 5016, false).unwrap().amount,
+        3,
+        "stock unchanged"
+    );
+}
 
 /// Gludio's Chamberlain of Light (35100) at the origin, plus an in-game player
 /// standing on it. Returns the world and the player's packet receiver.
