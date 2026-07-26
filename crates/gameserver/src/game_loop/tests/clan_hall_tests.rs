@@ -1019,3 +1019,85 @@ fn a_manager_serves_its_item_buylist() {
         "the buy window was sent"
     );
 }
+
+// ---------------------------------------------------------------------------
+// EXP_RESTORE benefit (respawn at the clan hall)
+// ---------------------------------------------------------------------------
+
+/// Set up a dead player (clan 42) whose clan owns Onyx Hall, respawn them "to
+/// clanhall", and return their exp/lost-exp/position afterward. `restore_level`
+/// = the EXP_RESTORE function level to buy (0 = none).
+fn respawn_at_hall(restore_level: i32, exp: i64, lost: i64) -> (i64, i64, (i32, i32, i32)) {
+    let (mut world, _db, _l) = combat_test_world();
+    world.clan_halls = load_clan_halls(DIST);
+    world.data.residence_functions = ResidenceFunctionData::load_from(DIST);
+    world.clan_halls.get_mut(&ONYX).unwrap().owner_id = 42;
+    if restore_level > 0 {
+        let exp_func = world
+            .data
+            .residence_functions
+            .id_of_type("EXP_RESTORE")
+            .unwrap();
+        set_function(&mut world, ONYX, exp_func, restore_level, i64::MAX);
+    }
+
+    let player = 8900;
+    let _rx = ingame_player(&mut world, 18, player, 100, 100, 0);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player)
+            .unwrap();
+        p.clan_id = 42;
+        p.exp = exp;
+        p.lost_exp_on_death = lost;
+    }
+    world
+        .objects
+        .get_component_mut::<Vitals>(&player)
+        .unwrap()
+        .dead = true;
+
+    handle_request_restart_point(&mut world, 18, &1i32.to_le_bytes());
+
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .unwrap();
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&player)
+        .unwrap();
+    (p.exp, p.lost_exp_on_death, (pos.x, pos.y, pos.z))
+}
+
+/// **Respawning at the hall restores lost exp** via the EXP_RESTORE function
+/// (level 1 = 5%), and lands the player at the hall's owner-restart point.
+#[test]
+fn respawning_at_the_hall_restores_exp() {
+    let restart = load_clan_halls(DIST)[&ONYX].owner_restart;
+    let (exp, lost, pos) = respawn_at_hall(1, 1000, 400);
+    assert_eq!(exp, 1020, "5% of the 400 lost exp restored");
+    assert_eq!(lost, 0, "the restore is consumed");
+    // x/y land exactly; z snaps to ground geometry.
+    assert_eq!(
+        (pos.0, pos.1),
+        (restart.0, restart.1),
+        "respawned at the hall"
+    );
+}
+
+/// **Without the EXP_RESTORE function, no exp is restored** — the player still
+/// respawns at the hall, but keeps their post-death exp.
+#[test]
+fn a_hall_without_the_function_restores_nothing() {
+    let restart = load_clan_halls(DIST)[&ONYX].owner_restart;
+    let (exp, lost, pos) = respawn_at_hall(0, 1000, 400);
+    assert_eq!(exp, 1000, "no exp restored");
+    assert_eq!(lost, 400, "the lost-exp record is untouched");
+    assert_eq!(
+        (pos.0, pos.1),
+        (restart.0, restart.1),
+        "still respawns at the hall"
+    );
+}

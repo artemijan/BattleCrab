@@ -1886,11 +1886,19 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
     } else {
         0
     };
+    // Java `RequestRestartPoint.portPlayer` case 1 ("to clanhall"): respawn at
+    // the clan's hall, and give back the EXP_RESTORE function's share of the
+    // exp the death cost before the teleport.
+    let clanhall_spawn = clanhall_restart_location(world, object_id, pkt.point_type);
+    if clanhall_spawn.is_some() {
+        restore_clanhall_exp(world, object_id);
+    }
     // The siege restart cases (Java `RequestRestartPoint.portPlayer`); everything
     // else, and a non-participant, falls through to the map-region town respawn.
     let siege_spawn = siege_restart_location(world, object_id, pkt.point_type, pick);
-    let Some((x, y, z)) =
-        siege_spawn.or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick))
+    let Some((x, y, z)) = clanhall_spawn
+        .or(siege_spawn)
+        .or_else(|| world.data.map_region.town_respawn(px, py, pz, race, pick))
     else {
         return;
     };
@@ -1901,6 +1909,80 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
         p.pending_revive = true;
     }
     teleport_player(world, object_id, x, y, z);
+}
+
+/// Java `RequestRestartPoint.portPlayer` case 1 ("to clanhall"): a player whose
+/// clan owns a hall respawns at the hall's owner-restart point
+/// (`MapRegionManager.getTeleToLocation(CLANHALL)`, which is the hall's
+/// `ownerRestartPoint`). `None` for any other restart type, a clanless player,
+/// or a clan that owns no hall.
+fn clanhall_restart_location(
+    world: &World,
+    player_oid: i32,
+    point_type: i32,
+) -> Option<(i32, i32, i32)> {
+    if point_type != 1 {
+        return None;
+    }
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)?
+        .clan_id;
+    if clan_id == 0 {
+        return None;
+    }
+    world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.owner_restart)
+}
+
+/// Java `Player.restoreExp`: when respawning at the clan hall, the hall's
+/// EXP_RESTORE function (if bought) restores that percentage of the exp the
+/// death penalty cost. The port pre-computes the lost amount into
+/// `lost_exp_on_death` (as the resurrection path does), so this reads it
+/// directly rather than `_expBeforeDeath - getExp()`.
+fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| p.clan_id)
+    else {
+        return;
+    };
+    let Some(hall_id) = world
+        .clan_halls
+        .values()
+        .find(|h| h.owner_id == clan_id)
+        .map(|h| h.id)
+    else {
+        return;
+    };
+    let Some(percent) =
+        super::clan_hall_function::active_function_value(world, hall_id, "EXP_RESTORE")
+    else {
+        return;
+    };
+    let restored = {
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&player_oid)
+        else {
+            return;
+        };
+        if p.lost_exp_on_death <= 0 {
+            return;
+        }
+        let restored = ((p.lost_exp_on_death as f64 * percent) / 100.0).round() as i64;
+        p.exp += restored;
+        p.lost_exp_on_death = 0;
+        restored
+    };
+    if restored > 0 {
+        // Java's `addExp` pushes the new exp to the client immediately.
+        super::party::broadcast_user_info(world, player_oid);
+    }
 }
 
 /// The siege restart-point cases of Java `RequestRestartPoint.portPlayer` /
