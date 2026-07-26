@@ -246,6 +246,11 @@ pub const CL_PLEDGE_WAR: i32 = 1 << 5;
 /// delete a clan or large crest.
 pub const CL_REGISTER_CREST: i32 = 1 << 7;
 
+/// `ClanPrivilege.CS_MANOR_ADMIN` (ordinal 17 — second of the CS_ block, right
+/// before [`CS_MANAGE_SIEGE`]) — required to manage the castle manor
+/// (seed/crop setup) through the chamberlain.
+pub const CS_MANOR_ADMIN: i32 = 1 << 17;
+
 /// `ClanPrivilege.CS_MANAGE_SIEGE` (ordinal 18 — after the 10 CL_ and 5 CH_
 /// entries, third of the CS_ block; `ALL_CLAN_PRIVILEGES = (1<<24)-1` confirms
 /// the 24-entry layout) — required to register the clan for a castle siege.

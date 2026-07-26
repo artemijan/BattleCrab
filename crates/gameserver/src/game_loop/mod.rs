@@ -45,6 +45,7 @@ mod henna;
 pub(crate) mod instances;
 mod items;
 mod lobby;
+pub(crate) mod manor;
 pub(crate) mod minions;
 pub(crate) mod multisell;
 mod net;

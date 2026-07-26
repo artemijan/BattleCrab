@@ -149,6 +149,7 @@ pub const EX_SEND_MANOR_LIST: i16 = 0x22;
 pub const EX_SHOW_CASTLE_INFO: i16 = 0x14;
 pub const EX_SHOW_FORTRESS_INFO: i16 = 0x15;
 pub const EX_SHOW_CROP_INFO: i16 = 0x24;
+pub const EX_SHOW_MANOR_DEFAULT_INFO: i16 = 0x25;
 pub const EX_UI_SETTING: i16 = 0x71;
 pub const EX_ASK_MODIFY_PARTY_LOOTING: i16 = 0xC0;
 pub const EX_SET_PARTY_LOOTING: i16 = 0xC1;

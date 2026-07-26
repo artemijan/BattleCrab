@@ -8,6 +8,7 @@ pub mod alliance;
 pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;
+pub mod castle_chamberlain;
 pub mod clan_hall_auctioneer;
 pub mod clan_hall_door_manager;
 pub mod clan_hall_manager;
@@ -422,6 +423,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(last_imperial_tomb::LastImperialTomb),
         Arc::new(sailren_altar::SailrenAltar),
         Arc::new(baium::Baium),
+        Arc::new(castle_chamberlain::CastleChamberlain),
         Arc::new(clan_hall_auctioneer::ClanHallAuctioneer),
         Arc::new(clan_hall_door_manager::ClanHallDoorManager),
         Arc::new(clan_hall_manager::ClanHallManager),

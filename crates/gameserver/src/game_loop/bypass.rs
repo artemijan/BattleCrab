@@ -104,6 +104,11 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         if let Ok(n) = field.trim().parse::<i32>() {
             super::olympiad::enter_observer(world, client_id, object_id, n - 1);
         }
+    } else if command.starts_with("manor_menu_select") {
+        // The chamberlain's manor.html buttons (Java `RequestBypassToServer`'s
+        // `manor_menu_select` branch → `OnNpcManorBypass`). The folk NPC and
+        // interaction range are re-derived/re-checked inside.
+        super::manor::handle_manor_menu_select(world, client_id, object_id, &command);
     } else {
         warn!("Bypass: client {client_id} sent unhandled bypass [{command}].");
     }

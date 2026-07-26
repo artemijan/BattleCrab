@@ -90,6 +90,24 @@ impl ManorData {
         ids
     }
 
+    /// The reference crop table (Java `getCrops`) — one seed per distinct crop
+    /// id across every castle, used by `ExShowManorDefaultInfo`. Java iterates
+    /// `_seeds.values()` in `HashMap` order and keeps the first seed seen for
+    /// each crop; we iterate castles in id order (then file order within a
+    /// castle) so the list is deterministic — the client doesn't rely on order.
+    pub fn all_crops(&self) -> Vec<&Seed> {
+        let mut seen = std::collections::HashSet::new();
+        let mut out = Vec::new();
+        for castle_id in self.manor_castle_ids() {
+            for seed in self.seeds_for_castle(castle_id) {
+                if seen.insert(seed.crop_id) {
+                    out.push(seed);
+                }
+            }
+        }
+        out
+    }
+
     /// The seed with a given seed id at a castle (Java `getSeed`).
     pub fn seed(&self, castle_id: i32, seed_id: i32) -> Option<&Seed> {
         self.seeds_for_castle(castle_id)

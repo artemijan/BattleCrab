@@ -637,7 +637,7 @@ fn owner_clan_id(world: &World, castle_id: i32) -> i32 {
     owner_clan_id_opt(world, castle_id).unwrap_or(0)
 }
 
-fn owner_clan_id_opt(world: &World, castle_id: i32) -> Option<i32> {
+pub(crate) fn owner_clan_id_opt(world: &World, castle_id: i32) -> Option<i32> {
     world
         .clans
         .values()

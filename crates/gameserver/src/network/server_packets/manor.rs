@@ -37,6 +37,44 @@ pub fn ex_send_manor_list(castle_ids: &[i32]) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// One reference-crop line for [`ex_show_manor_default_info`] — the static seed
+/// catalogue view (Java resolves the two reference prices from item data).
+pub struct ManorDefaultEntry {
+    pub crop_id: i32,
+    pub level: i32,
+    /// `Seed.getSeedReferencePrice()` = the seed item's reference price.
+    pub seed_reference_price: i32,
+    /// `Seed.getCropReferencePrice()` = the crop item's reference price.
+    pub crop_reference_price: i32,
+    /// `Seed.getReward(1)` / `getReward(2)` item ids.
+    pub reward1_item_id: i32,
+    pub reward2_item_id: i32,
+}
+
+/// Port of `serverpackets/ExShowManorDefaultInfo` — the "Seed/Crop reference"
+/// table the manor menu opens (`manor_menu_select` request 5). Java builds it
+/// from `CastleManorManager.getCrops()` (one seed per distinct crop id). The
+/// two per-line prices are the seed/crop items' reference prices, resolved from
+/// item data by the caller.
+pub fn ex_show_manor_default_info(crops: &[ManorDefaultEntry], hide_buttons: bool) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_MANOR_DEFAULT_INFO);
+    w.write_u8(u8::from(hide_buttons)); // hide "Seed Purchase" / "Crop Sales"
+    w.write_i32(crops.len() as i32);
+    for crop in crops {
+        w.write_i32(crop.crop_id);
+        w.write_i32(crop.level);
+        w.write_i32(crop.seed_reference_price);
+        w.write_i32(crop.crop_reference_price);
+        w.write_u8(1); // reward 1 type
+        w.write_i32(crop.reward1_item_id);
+        w.write_u8(1); // reward 2 type
+        w.write_i32(crop.reward2_item_id);
+    }
+    w.into_bytes()
+}
+
 /// One crop-procurement line for [`ex_show_crop_info`], flattening the fields
 /// Java reads from a `CropProcure` plus its resolved `Seed`. When the seed
 /// can't be resolved Java writes `seed_level = 0` and both reward item ids as

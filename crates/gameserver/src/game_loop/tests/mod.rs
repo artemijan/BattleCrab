@@ -75,6 +75,7 @@ mod lobby_tests;
 mod magic_resist_tests;
 mod mana_drain_tests;
 mod mana_restore_tests;
+mod manor_tests;
 mod melee_variants_tests;
 mod minion_tests;
 mod misc_tests;
