@@ -215,6 +215,12 @@ impl Inventory {
         self.items.iter().find(|i| i.object_id == object_id)
     }
 
+    /// The `(item_id, count)` of the instance with this object id, if held
+    /// (Java `getInventory().getItemByObjectId(objId)`).
+    pub fn item_by_object_id(&self, object_id: i32) -> Option<(i32, i64)> {
+        self.find(object_id).map(|i| (i.item_id, i.count))
+    }
+
     /// `Item.setEnchantLevel` on the first item of `item_id`; `false` if absent.
     /// The enchant-scroll path is a later milestone, but a few systems already
     /// read an item's enchant level as data — quest 421 reads a Dragonflute's

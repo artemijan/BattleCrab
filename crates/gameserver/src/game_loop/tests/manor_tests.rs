@@ -34,6 +34,23 @@ fn inv_count(world: &World, item_id: i32) -> i64 {
         .map_or(0, |i| i.count_of(item_id))
 }
 
+/// The test world's `item_data` is `empty()`; register a stackable Etc item
+/// (cloned from the always-present Adena template) so crops/rewards stack and
+/// carry a reference price.
+fn add_stackable_item(world: &mut World, item_id: i32, price: i64) {
+    let mut t = world
+        .data
+        .item_data
+        .get(ADENA_ID)
+        .cloned()
+        .expect("adena template present");
+    t.item_id = item_id;
+    t.name = format!("TestItem{item_id}");
+    t.price = price;
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+}
+
 /// A player buys seeds at a Manor Manager: adena leaves, the seeds arrive, and
 /// the manor's current-period stock drops by the amount bought.
 #[test]
@@ -141,6 +158,139 @@ fn buy_seed_refused_when_overdrawing_stock() {
         world.manor.seed_product(1, 5016, false).unwrap().amount,
         3,
         "stock unchanged"
+    );
+}
+
+/// A player sells crops at the crop's own Manor Manager: the reward item
+/// arrives, the crops leave the inventory, the procurement stock drops, and
+/// **no** cross-manor fee is charged.
+#[test]
+fn sell_crop_same_manor_pays_reward_without_fee() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1); // manager's castle = manor 1
+                                                  // Catalogue: crop 5073 yields reward item 1864 (reward type 1).
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    add_stackable_item(&mut world, 5073, 50); // the crop
+    add_stackable_item(&mut world, 1864, 20); // the reward
+    world.manor.set_crop_procure(
+        1,
+        false,
+        vec![CropProcure {
+            crop_id: 5073,
+            amount: 100,
+            price: 1_000_000,
+            start_amount: 100,
+            reward_type: 1,
+        }],
+    );
+    let crop_oid = super::items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+
+    // Sell 10 crops registered at manor 1.
+    let mut w = PacketWriter::new();
+    w.write_i32(1); // count
+    w.write_i32(crop_oid);
+    w.write_i32(5073);
+    w.write_i32(1); // item's manor
+    w.write_i64(10);
+    crate::game_loop::manor::handle_request_procure_crop_list(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5073), 10, "10 crops were sold");
+    assert!(inv_count(&world, 1864) > 0, "the reward item was paid out");
+    assert_eq!(
+        inv_count(&world, ADENA_ID),
+        10_000,
+        "no fee at the crop's own manor"
+    );
+    assert_eq!(
+        world.manor.crop_procure_for(1, 5073, false).unwrap().amount,
+        90,
+        "procurement stock dropped by 10"
+    );
+}
+
+/// Selling a crop at a *different* castle's Manor Manager charges the Java 5 %
+/// adena fee.
+#[test]
+fn sell_crop_cross_manor_charges_five_percent_fee() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1); // manager's castle = manor 1
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    add_stackable_item(&mut world, 5073, 50);
+    add_stackable_item(&mut world, 1864, 20);
+    // The crop's procurement is registered at manor 2, not the manager's 1.
+    world.manor.set_crop_procure(
+        2,
+        false,
+        vec![CropProcure {
+            crop_id: 5073,
+            amount: 100,
+            price: 1_000_000,
+            start_amount: 100,
+            reward_type: 1,
+        }],
+    );
+    let crop_oid = super::items::add_inventory_item(&mut world, 100, 5073, 20).unwrap()[0];
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000_000);
+
+    // Sell 10 crops registered at manor 2 → price 10,000,000 → fee 500,000.
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(crop_oid);
+    w.write_i32(5073);
+    w.write_i32(2); // item's manor (≠ the manager's)
+    w.write_i64(10);
+    crate::game_loop::manor::handle_request_procure_crop_list(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 5073), 10, "10 crops were sold");
+    assert!(inv_count(&world, 1864) > 0, "the reward item was paid out");
+    assert_eq!(
+        inv_count(&world, ADENA_ID),
+        500_000,
+        "the 5% cross-manor fee (500,000) was taken"
+    );
+    assert_eq!(
+        world.manor.crop_procure_for(2, 5073, false).unwrap().amount,
+        90,
+        "manor 2's procurement dropped by 10"
+    );
+}
+
+/// A sell for crops the player doesn't hold is rejected outright (no stock
+/// change), matching Java's item-validation `ActionFailed` + return.
+#[test]
+fn sell_crop_rejected_when_item_missing() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_crop_procure(
+        1,
+        false,
+        vec![CropProcure {
+            crop_id: 5073,
+            amount: 100,
+            price: 1_000_000,
+            start_amount: 100,
+            reward_type: 1,
+        }],
+    );
+    // The player holds no crops; object id 999999 is bogus.
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(999_999);
+    w.write_i32(5073);
+    w.write_i32(1);
+    w.write_i64(10);
+    crate::game_loop::manor::handle_request_procure_crop_list(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, 1864), 0, "no reward paid on a bogus sell");
+    assert_eq!(
+        world.manor.crop_procure_for(1, 5073, false).unwrap().amount,
+        100,
+        "procurement stock unchanged"
     );
 }
 

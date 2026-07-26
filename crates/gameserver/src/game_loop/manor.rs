@@ -18,10 +18,11 @@
 //! settlement folded into Java's rollover remains `TODO(manor)`.
 //!
 //! The player-facing Manor Manager trader is [`handle_request_buy_seed`]
-//! (`RequestBuySeed`) — buy seeds from a castle's current production. Note that
+//! (`RequestBuySeed`, buy seeds from a castle's current production) and
+//! [`handle_request_procure_crop_list`] (`RequestProcureCropList`, sell crops
+//! for the crop's reward item, with a 5 % adena fee across castles). Note that
 //! the reference build never sends the buy/sell *display* packets (`BuyListSeed`
-//! /`ExShowSellCropList` are dead), so the trader window is client-native; the
-//! sell half (`RequestProcureCropList`) is a later slice.
+//! /`ExShowSellCropList` are dead), so the trader window is client-native.
 
 use commons::network::PacketReader;
 use tracing::warn;
@@ -761,6 +762,170 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             cs.send(server_packets::system_message_with(
                 sm_ids::S1_ADENA_DISAPPEARED,
                 &[SmParam::Long(total_price)],
+            ));
+        }
+    }
+}
+
+/// Port of `clientpackets/RequestProcureCropList` — a player sells crops to a
+/// Manor Manager for the crop's reward item. Reads
+/// `count, [objId, cropId, manorId, cnt]*`; validates every line against the
+/// inventory + `CropProcure` state, then per line pays out
+/// `price / rewardReferencePrice` of the reward item, charging a 5 % adena fee
+/// when selling to a manor other than where the crop's procurement is set.
+pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32, body: &[u8]) {
+    use crate::model::inventory::Inventory;
+    const BATCH: usize = 4 + 4 + 4 + 8; // objId + cropId + manorId + cnt
+    let mut r = PacketReader::new(body);
+    let Some(count) = r.read_i32() else {
+        return;
+    };
+    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
+        return;
+    }
+    let mut items = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let (Some(obj_id), Some(crop_id), Some(item_manor), Some(cnt)) =
+            (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i64())
+        else {
+            return;
+        };
+        if obj_id < 1 || crop_id < 1 || item_manor < 0 || cnt < 0 {
+            return;
+        }
+        items.push((obj_id, crop_id, item_manor, cnt));
+    }
+
+    let player_oid = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
+        _ => return,
+    };
+    // Gate: not under maintenance, and the last folk NPC is a Manor Manager in
+    // range (its `manor_id` param is the manager's castle).
+    let Some(castle_id) = (if world.manor.is_under_maintenance() {
+        None
+    } else {
+        manor_manager_castle(world, player_oid)
+    }) else {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    };
+
+    // Loop 1: validate every line (any failure rejects the whole packet).
+    for &(obj_id, crop_id, item_manor, cnt) in &items {
+        let item_ok = world
+            .objects
+            .get_component::<Inventory>(&player_oid)
+            .and_then(|i| i.item_by_object_id(obj_id))
+            .is_some_and(|(id, held)| id == crop_id && held >= cnt);
+        let cp_ok = world
+            .manor
+            .crop_procure_for(item_manor, crop_id, false)
+            .is_some_and(|cp| cp.amount >= cnt);
+        if !item_ok || !cp_ok {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+    }
+
+    // Loop 2: execute, skipping (with a message) lines that can't pay out.
+    let mut crop_changes = Vec::new();
+    let mut reward_oids: Vec<i32> = Vec::new();
+    for &(obj_id, crop_id, item_manor, cnt) in &items {
+        let (price, reward_type) = world
+            .manor
+            .crop_procure_for(item_manor, crop_id, false)
+            .map(|cp| (cnt * cp.price, cp.reward_type))
+            .expect("validated in loop 1");
+        let Some(reward_id) = world
+            .data
+            .manor
+            .seed_by_crop(crop_id)
+            .map(|s| s.reward(reward_type))
+        else {
+            continue;
+        };
+        let reward_price = reference_price(world, reward_id) as i64;
+        if reward_price == 0 {
+            continue;
+        }
+        let reward_count = price / reward_price;
+        if reward_count < 1 {
+            // Java sends `FAILED_IN_TRADING_S2_OF_S1_CROPS` and skips.
+            // TODO(manor): source that SystemMessageId (not in this repo's data).
+            continue;
+        }
+        // A 5 % adena fee when selling at a manor other than the crop's own.
+        let fee = if castle_id == item_manor {
+            0
+        } else {
+            (price as f64 * 0.05) as i64
+        };
+        if fee > 0 {
+            let adena = world
+                .objects
+                .get_component::<Inventory>(&player_oid)
+                .map_or(0, |i| i.adena());
+            if adena < fee {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA,
+                        &[],
+                    ));
+                }
+                continue;
+            }
+        }
+
+        // Everything validated → decrement the procurement, take the fee, take
+        // the crops, hand over the reward.
+        if !world.manor.decrease_crop_amount(item_manor, crop_id, cnt) {
+            continue;
+        }
+        if fee > 0 {
+            super::quests::take_items(world, client_id, player_oid, ADENA_ID, fee);
+        }
+        if let Some(change) = world
+            .objects
+            .get_component_mut::<Inventory>(&player_oid)
+            .and_then(|inv| inv.remove_by_object_id(obj_id, cnt))
+        {
+            crop_changes.push(change);
+        }
+        if let Some(oids) =
+            super::items::add_inventory_item(world, player_oid, reward_id, reward_count)
+        {
+            reward_oids.extend(oids);
+        }
+    }
+
+    // Reflect the sold crops and the received rewards.
+    if !crop_changes.is_empty() {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::enter_world::inventory_update_changes(
+                &world.data,
+                &crop_changes,
+            ));
+        }
+    }
+    if !reward_oids.is_empty() {
+        if let (Some(inventory), Some(cs)) = (
+            world.objects.get_component::<Inventory>(&player_oid),
+            world.clients.get(&client_id),
+        ) {
+            cs.send(crate::network::enter_world::inventory_update(
+                inventory,
+                &world.data,
+                &reward_oids,
+            ));
+            cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+                player_oid,
+                inventory,
+                &world.data,
             ));
         }
     }

@@ -462,6 +462,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 cs.send(server_packets::ex_send_manor_list(&castle_ids));
             }
         }
+        // RequestProcureCropList (IN_GAME): a player sells crops at a Manor
+        // Manager.
+        exop::REQUEST_PROCURE_CROP_LIST if world.cfg.general.allow_manor => {
+            super::manor::handle_request_procure_crop_list(world, client_id, ex_body);
+        }
         // RequestSetSeed / RequestSetCrop (IN_GAME): the manor owner submits the
         // next-period seed/crop setup through the chamberlain's edit windows.
         // Gated on `AllowManor` (off on this dist) like the rest of the system.

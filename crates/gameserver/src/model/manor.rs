@@ -206,6 +206,15 @@ impl ManorState {
             .is_some_and(|sp| sp.decrease_amount(value))
     }
 
+    /// Decrease a current-period crop's remaining amount (a player sold `value`
+    /// of it). Same semantics as [`Self::decrease_seed_amount`].
+    pub fn decrease_crop_amount(&mut self, castle_id: i32, crop_id: i32, value: i64) -> bool {
+        self.procure
+            .get_mut(&castle_id)
+            .and_then(|list| list.iter_mut().find(|c| c.crop_id == crop_id))
+            .is_some_and(|cp| cp.decrease_amount(value))
+    }
+
     /// The daily production rollover (the data half of Java `changeMode`'s
     /// `APPROVED` case): the castle's next-period setup becomes current, and the
     /// next period is re-seeded from it with amounts reset to their start (a
