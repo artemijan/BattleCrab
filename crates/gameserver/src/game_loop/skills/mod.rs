@@ -53,10 +53,13 @@ pub(crate) fn handle_request_dispel(world: &mut World, client_id: u32, ex_body: 
     // UserInfo + AbnormalStatusUpdate) — same end state as `stopSkillEffects`.
     if pkt.object_id == object_id {
         effects::handle_buff_expire(world, object_id, skill_id);
+    } else if crate::game_loop::servitor::pet_of(world, object_id) == Some(pkt.object_id)
+        || crate::game_loop::servitor::servitor_of(world, object_id) == Some(pkt.object_id)
+    {
+        // Java's else branch: the alt-clicked object is the player's pet
+        // (`getPet()`) or servitor (`getServitor(_objectId)`) — strip it there.
+        effects::handle_buff_expire(world, pkt.object_id, skill_id);
     }
-    // TODO(G29): pet/servitor dispel — Java also strips the buff off the player's
-    // pet (`player.getPet()`) or servitor (`player.getServitor(_objectId)`) when
-    // `_objectId` is that summon's object id. Summons are not in scope yet.
 }
 
 /// Port of `clientpackets/RequestAcquireSkill.runImpl`, `AcquireSkillType::CLASS`
