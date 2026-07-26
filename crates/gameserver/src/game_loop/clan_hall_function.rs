@@ -39,6 +39,22 @@ pub(crate) fn function_level(world: &World, hall_id: i32, func_id: i32) -> i32 {
         .unwrap_or(0)
 }
 
+/// The benefit `value` of a hall's active function of a given type (Java
+/// `ResidenceFunction.getValue`), or `None` when the hall hasn't bought it. For
+/// the regen types this is the multiplier applied to a member's HP/MP regen.
+pub(crate) fn active_function_value(world: &World, hall_id: i32, type_name: &str) -> Option<f64> {
+    let func_id = world.data.residence_functions.id_of_type(type_name)?;
+    let level = function_level(world, hall_id, func_id);
+    if level == 0 {
+        return None;
+    }
+    world
+        .data
+        .residence_functions
+        .level(func_id, level)
+        .map(|l| l.value)
+}
+
 /// `ClanHallManager.setFunction`: the owning-clan buyer purchases a function
 /// level, paying its cost from **their own inventory**. The function then rents
 /// for its `duration` before the expiry check.
