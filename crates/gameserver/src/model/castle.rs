@@ -60,4 +60,13 @@ pub struct Castle {
     /// changes hands at a siege end. (The mercenary-placement system itself is
     /// a later milestone, so nothing increments it yet.)
     pub ticket_buy_count: i32,
+    /// Java `Castle._isTimeRegistrationOver` (`castle.regTimeOver`): while this
+    /// is `false` the owner may pick the siege hour (`RequestSetCastleSiegeTime`);
+    /// it defaults `true`, so the feature is dormant until an operator opens the
+    /// window. Picking an hour closes it again.
+    pub time_registration_over: bool,
+    /// Java `Castle._siegeDate` (`castle.siegeDate`): the owner-chosen siege
+    /// time (epoch-millis), 0 when none has been set — then the fixed
+    /// `SiegeSchedule.xml` slot is used.
+    pub siege_date: i64,
 }

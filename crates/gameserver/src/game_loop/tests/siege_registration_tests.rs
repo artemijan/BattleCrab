@@ -61,12 +61,16 @@ fn siege_world() -> (
             name: "Gludio".into(),
             side: CastleSide::Neutral,
             ticket_buy_count: 0,
+            time_registration_over: true,
+            siege_date: 0,
         },
         Castle {
             id: OTHER_CASTLE,
             name: "Dion".into(),
             side: CastleSide::Neutral,
             ticket_buy_count: 0,
+            time_registration_over: true,
+            siege_date: 0,
         },
     ];
     for id in [CASTLE, OTHER_CASTLE] {
@@ -541,5 +545,126 @@ fn a_list_request_for_an_unknown_castle_is_ignored() {
     assert!(
         take_packet(&mut rx, 0xCA).is_none(),
         "no attacker list for an unknown castle"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Owner set-siege-time (RequestSetCastleSiegeTime, 0xAF)
+// ---------------------------------------------------------------------------
+
+/// A `RequestSetCastleSiegeTime` body: castle id + the chosen time in seconds.
+fn set_time_body(castle_id: i32, time_secs: i32) -> Vec<u8> {
+    let mut b = Vec::new();
+    b.extend_from_slice(&castle_id.to_le_bytes());
+    b.extend_from_slice(&time_secs.to_le_bytes());
+    b
+}
+
+/// The owner leader of CASTLE with the time-registration window open, ingame.
+fn world_with_castle_owner() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, _db, _l) = siege_world();
+    world.clans.insert(10, mk_clan(10, 5, CASTLE, 0)); // clan 10 owns CASTLE
+    world.clans.get_mut(&10).unwrap().leader_id = LEADER;
+    let rx = ingame_player(&mut world, 5, LEADER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&LEADER)
+        .unwrap()
+        .clan_id = 10;
+    // Open the window (default is closed).
+    world
+        .castles
+        .iter_mut()
+        .find(|c| c.id == CASTLE)
+        .unwrap()
+        .time_registration_over = false;
+    (world, rx)
+}
+
+/// **The owner picks a valid siege hour** — it's stored, the window closes, and
+/// the refreshed `SiegeInfo` (0xC9) goes back.
+#[test]
+fn the_owner_sets_the_siege_time() {
+    use crate::game_loop::siege::next_siege_millis;
+    let (mut world, mut rx) = world_with_castle_owner();
+    let now = commons::util::now_millis();
+    let chosen = next_siege_millis(now, 6, 16); // CASTLE = Sunday 16:00 slot
+
+    crate::game_loop::siege::handle_request_set_castle_siege_time(
+        &mut world,
+        5,
+        &set_time_body(CASTLE, (chosen / 1000) as i32),
+    );
+
+    let castle = world.castles.iter().find(|c| c.id == CASTLE).unwrap();
+    assert_eq!(castle.siege_date, chosen, "the chosen siege time is stored");
+    assert!(castle.time_registration_over, "the window is now closed");
+    assert!(
+        sent_opcode(&mut rx, 0xC9),
+        "the SiegeInfo window was refreshed"
+    );
+}
+
+/// **A time that isn't one of the `SIEGE_HOUR_LIST` slots is rejected** — nothing
+/// is stored and the window stays open.
+#[test]
+fn an_invalid_siege_time_is_rejected() {
+    use crate::game_loop::siege::next_siege_millis;
+    let (mut world, _rx) = world_with_castle_owner();
+    let now = commons::util::now_millis();
+    let bad = next_siege_millis(now, 6, 16) + 123_456; // not on an allowed hour
+
+    crate::game_loop::siege::handle_request_set_castle_siege_time(
+        &mut world,
+        5,
+        &set_time_body(CASTLE, (bad / 1000) as i32),
+    );
+
+    let castle = world.castles.iter().find(|c| c.id == CASTLE).unwrap();
+    assert_eq!(castle.siege_date, 0, "no time is stored");
+    assert!(!castle.time_registration_over, "the window stays open");
+}
+
+/// **A player who isn't the owning clan's leader cannot set the time.**
+#[test]
+fn a_non_owner_cannot_set_the_siege_time() {
+    use crate::game_loop::siege::next_siege_millis;
+    let (mut world, _rx) = world_with_castle_owner();
+    // A different clan owns CASTLE now.
+    world.clans.get_mut(&10).unwrap().castle_id = 0;
+    world.clans.insert(99, mk_clan(99, 5, CASTLE, 0));
+    let now = commons::util::now_millis();
+    let chosen = next_siege_millis(now, 6, 16);
+
+    crate::game_loop::siege::handle_request_set_castle_siege_time(
+        &mut world,
+        5,
+        &set_time_body(CASTLE, (chosen / 1000) as i32),
+    );
+
+    assert_eq!(
+        world
+            .castles
+            .iter()
+            .find(|c| c.id == CASTLE)
+            .unwrap()
+            .siege_date,
+        0,
+        "a non-owner set no time"
+    );
+}
+
+/// **`SiegeInfo` offers the hour list when the window is open** — the packet
+/// carries the extra hour entries instead of the single fixed date.
+#[test]
+fn siege_info_offers_the_hour_list_when_open() {
+    use crate::network::server_packets::siege_info;
+    let with_hours = siege_info(1, true, 0, "", "", 0, "", 500, 0, &[1000, 2000]);
+    let fixed = siege_info(1, true, 0, "", "", 0, "", 500, 0, &[]);
+    // Fixed = [date, 0] (2 i32); hours = [0, count, h1, h2] (4 i32): +8 bytes.
+    assert_eq!(
+        with_hours.len(),
+        fixed.len() + 8,
+        "two hour options add 2 ints"
     );
 }

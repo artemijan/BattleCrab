@@ -156,6 +156,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 world, client_id, body,
             )
         }
+        // RequestSetCastleSiegeTime (G24): the owner picks the siege hour.
+        cop::REQUEST_SET_CASTLE_SIEGE_TIME => {
+            crate::game_loop::siege::handle_request_set_castle_siege_time(world, client_id, body)
+        }
         // RequestShowBoard (IN_GAME): the community-board button → open at
         // `BBSDefault` (`_bbshome`). Body is one unused int.
         cop::REQUEST_SHOW_BOARD => {
