@@ -959,3 +959,63 @@ fn only_listed_buffs_are_castable() {
     );
     assert!(!player_has_buff(&world, player, 1068));
 }
+
+// ---------------------------------------------------------------------------
+// Item-creation benefit (ITEM function)
+// ---------------------------------------------------------------------------
+
+/// **The item function maps to the manager's buylists** — Java's
+/// `showBuyWindow(player, npcId·"0"·(level-1))` is `npcId*100 + (level-1)`, and
+/// each tier's buylist must exist and allow the manager NPC.
+#[test]
+fn the_item_functions_map_to_the_managers_buylists() {
+    let items = crate::data::ItemData::load_from(DIST);
+    let buy_lists = crate::data::BuyListData::load_from(DIST, &items);
+    let npc_id = 35447; // Korgen (Aden)
+
+    for level in 1..=3 {
+        let list_id = npc_id * 100 + (level - 1);
+        let list = buy_lists
+            .get(list_id)
+            .unwrap_or_else(|| panic!("buylist {list_id} for item level {level}"));
+        assert!(
+            list.is_npc_allowed(npc_id),
+            "buylist {list_id} allows the manager"
+        );
+    }
+    // A 4th tier has no buylist → the manager's noFunction fallback.
+    assert!(buy_lists.get(npc_id * 100 + 3).is_none());
+}
+
+/// **A manager serves a clan-hall buylist** — the item benefit's buy window
+/// reaches the player through the shop path.
+#[test]
+fn a_manager_serves_its_item_buylist() {
+    let (mut world, _db, _l) = combat_test_world();
+    let npc = NPC_OID + 500;
+    add_test_npc(&mut world, npc, 35447, "Merchant", 70, 100, 100, 0);
+    world
+        .data
+        .buy_lists
+        .insert_for_test(crate::data::buy_list_data::BuyList {
+            list_id: 3544700, // 35447 * 100 + 0 (item level 1)
+            npcs: vec![35447],
+            products: vec![crate::data::buy_list_data::Product {
+                item_id: 6902,
+                price: 1000,
+                base_tax: 0,
+            }],
+        });
+    let player = 8800;
+    let mut rx = ingame_player(&mut world, 17, player, 120, 100, 0);
+
+    crate::game_loop::shop::show_buy_window(&mut world, 17, player, npc, 3544700);
+
+    // The ExBuySellList packet (0xFE 0xB8) reaches the client.
+    let sent = std::iter::from_fn(|| rx.try_recv().ok()).collect::<Vec<_>>();
+    assert!(
+        sent.iter()
+            .any(|p| p.first() == Some(&0xFE) && p.get(1) == Some(&0xB8)),
+        "the buy window was sent"
+    );
+}
