@@ -4163,3 +4163,46 @@ fn a_physical_skill_does_not_spend_a_spiritshot() {
         "the magic shot is still charged"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Community-board "Pet" buffer (applies a scheme to the summon)
+// ---------------------------------------------------------------------------
+
+/// **The community-board "Pet" button buffs the player's summon** (Java
+/// `getPet()`/`getServitors()`), not the player; with no summon it refuses.
+#[test]
+fn community_board_pet_buffer_targets_the_summon() {
+    use crate::model::components::Buffs;
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
+
+    // A one-buff scheme: Might (1068), a synthetic PA_UP buff in the test world.
+    world.data.scheme_buffer.insert_for_test(1068, 1);
+    world.cfg.community_board.available_buffs.insert(1068);
+    world
+        .buffer_schemes
+        .insert(OWNER, vec![("s".to_string(), vec![1068])]);
+
+    let has_buff = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<Buffs>(&oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 1068))
+    };
+
+    crate::game_loop::community_board::apply_scheme(&mut world, CID, OWNER, "s", true)
+        .expect("applied to the summon");
+    assert!(has_buff(&world, servitor), "the summon got the scheme buff");
+    assert!(
+        !has_buff(&world, OWNER),
+        "the owner was not buffed by the Pet button"
+    );
+
+    // No summon → the Pet button refuses (Java's no-pet branch).
+    unsummon_servitor(&mut world, OWNER);
+    assert!(
+        crate::game_loop::community_board::apply_scheme(&mut world, CID, OWNER, "s", true).is_err(),
+        "with no summon the Pet button refuses"
+    );
+}
