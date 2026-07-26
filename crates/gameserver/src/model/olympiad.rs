@@ -121,6 +121,16 @@ pub struct OlympiadState {
     /// How many times each character has ever been a hero (Java `heroes.count`),
     /// kept so a re-crown increments the tally.
     pub hero_counts: HashMap<i32, i32>,
+    /// A crowned hero's display data (name + clan id) for the `ExHeroList`
+    /// window — resolved even for offline heroes (Java `Hero._heroes` `StatSet`s).
+    pub hero_info: HashMap<i32, HeroInfo>,
+}
+
+/// The `ExHeroList` display fields for one hero (Java's per-hero `StatSet`).
+#[derive(Debug, Clone, Default)]
+pub struct HeroInfo {
+    pub name: String,
+    pub clan_id: i32,
 }
 
 impl OlympiadState {

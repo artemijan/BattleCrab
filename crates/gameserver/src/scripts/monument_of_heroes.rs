@@ -3,10 +3,9 @@
 //! the Hero Cloak. Port of `dist/game/data/scripts/ai/others/MonumentOfHeroes/
 //! MonumentOfHeroes.java`.
 //!
-//! The reward claims are wired here. The hero *list* (`heroList` → `ExHeroList`)
-//! and the `heroCertification`/`heroConfirm` claim flow are deferred: this port
-//! auto-crowns heroes at the Olympiad period end (there is no unclaimed-hero
-//! step to certify), and `ExHeroList` isn't ported yet — both `TODO(G25)`.
+//! The reward claims + the `heroList` roll (`ExHeroList`) are wired here. The
+//! `heroCertification`/`heroConfirm` claim flow is adapted: this port auto-crowns
+//! heroes at the Olympiad period end (there is no unclaimed-hero step to certify).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::inventory::Inventory;
@@ -78,8 +77,11 @@ impl QuestScript for MonumentOfHeroes {
             "heroCirclet" => hero_circlet(ctx),
             "receiveCloak" => receive_cloak(ctx),
             "heroCertification" => Some(hero_certification(ctx).to_string()),
-            // `heroList` → `ExHeroList` and `heroConfirm` → `claimHero` are
-            // deferred (TODO(G25), see the module doc).
+            "heroList" => {
+                crate::game_loop::olympiad::send_hero_list(ctx.world, ctx.client_id);
+                None
+            }
+            // `heroConfirm` → `claimHero` is deferred (this port auto-crowns).
             _ => None,
         }
     }
