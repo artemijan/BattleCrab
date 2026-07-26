@@ -459,6 +459,13 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `Siege.saveSiegeDate` — persist the owner-chosen siege time + that the
+    /// time-registration window has closed.
+    UpdateCastleSiegeTime {
+        castle_id: i32,
+        siege_date: i64,
+        time_registration_over: bool,
+    },
     /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
     SaveSiegeClan {
         castle_id: i32,
@@ -1436,6 +1443,24 @@ async fn run(
                     &pool,
                     sqlx::query("UPDATE castle SET ticketBuyCount=? WHERE id=?")
                         .bind(count)
+                        .bind(castle_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateCastleSiegeTime {
+                castle_id,
+                siege_date,
+                time_registration_over,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE castle SET siegeDate=?, regTimeOver=? WHERE id=?")
+                        .bind(siege_date)
+                        .bind(if time_registration_over {
+                            "true"
+                        } else {
+                            "false"
+                        })
                         .bind(castle_id),
                 )
                 .await;
@@ -3008,16 +3033,21 @@ async fn load_residence_functions(pool: &SqlitePool) -> Vec<ResidenceFunctionRow
 
 /// `CastleManager.load`: every `castle` row (id/name/side).
 async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
-    let rows = sqlx::query("SELECT id, name, side, ticketBuyCount FROM castle ORDER BY id")
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
+    let rows = sqlx::query(
+        "SELECT id, name, side, ticketBuyCount, regTimeOver, siegeDate FROM castle ORDER BY id",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
     rows.iter()
         .map(|r| crate::model::castle::Castle {
             id: geti(r, "id") as i32,
             name: gets(r, "name"),
             side: crate::model::castle::CastleSide::from_str(&gets(r, "side")).unwrap_or_default(),
             ticket_buy_count: geti(r, "ticketBuyCount") as i32,
+            // `regTimeOver` is an enum('true','false'); default (missing) is true.
+            time_registration_over: gets(r, "regTimeOver") != "false",
+            siege_date: geti(r, "siegeDate"),
         })
         .collect()
 }

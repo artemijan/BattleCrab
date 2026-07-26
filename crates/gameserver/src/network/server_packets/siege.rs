@@ -6,9 +6,10 @@ use commons::network::PacketWriter;
 use super::opcodes;
 
 /// Build the `SiegeInfo` window. `can_set_time` is Java's
-/// `(ownerId == player.getClanId()) && player.isClanLeader()` — whether the
-/// viewer may set the siege hour (that owner-only multi-hour list is a separate
-/// packet, `RequestSetCastleSiegeTime`; here we always send the fixed date).
+/// `(ownerId == player.getClanId()) && player.isClanLeader()`. When
+/// `hour_options` is non-empty (the owner-leader may still pick the hour —
+/// `!isTimeRegistrationOver()`), the packet sends the selectable siege-time list
+/// instead of a fixed date; otherwise it sends `siege_date_secs`.
 #[allow(clippy::too_many_arguments)]
 pub fn siege_info(
     castle_id: i32,
@@ -20,6 +21,7 @@ pub fn siege_info(
     owner_ally_name: &str,
     now_secs: i32,
     siege_date_secs: i32,
+    hour_options: &[i32],
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::CASTLE_SIEGE_INFO);
@@ -38,10 +40,18 @@ pub fn siege_info(
         w.write_string("");
     }
     w.write_i32(now_secs);
-    // The owner-sets-the-hour branch (Config.SIEGE_HOUR_LIST) is deferred with
-    // `RequestSetCastleSiegeTime`; always send the scheduled date.
-    w.write_i32(siege_date_secs);
-    w.write_i32(0);
+    if hour_options.is_empty() {
+        // Registration is over (or the viewer can't set time): the fixed date.
+        w.write_i32(siege_date_secs);
+        w.write_i32(0);
+    } else {
+        // `Config.SIEGE_HOUR_LIST`: the owner picks from these siege times.
+        w.write_i32(0);
+        w.write_i32(hour_options.len() as i32);
+        for &secs in hour_options {
+            w.write_i32(secs);
+        }
+    }
     w.into_bytes()
 }
 

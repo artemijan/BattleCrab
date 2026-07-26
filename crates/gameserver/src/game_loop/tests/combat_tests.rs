@@ -1242,6 +1242,8 @@ fn siege_start_evicts_non_owners_to_town() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
     }];
     world.sieges.insert(3, Siege::new(3));
     // Owner clan 500 holds castle 3.
@@ -1322,6 +1324,8 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
     }];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner); // defender/owner
@@ -1440,6 +1444,8 @@ fn siege_end_world(tickets: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: tickets,
+        time_registration_over: true,
+        siege_date: 0,
     }];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner);
@@ -1916,6 +1922,8 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
     }];
     let mut siege = Siege::new(3);
     siege.in_progress = true;

@@ -54,6 +54,8 @@ pub mod opcodes {
     /// `RequestConfirmSiegeWaitingList` (G24) — the castle owner approves or
     /// rejects a pending defender clan.
     pub const REQUEST_CONFIRM_SIEGE_WAITING_LIST: u8 = 0xAE;
+    /// `RequestSetCastleSiegeTime` (G24) — the owner picks the siege hour.
+    pub const REQUEST_SET_CASTLE_SIEGE_TIME: u8 = 0xAF;
     /// `RequestGetItemFromPet` — move an item from the pet's inventory back
     /// to the owner's.
     pub const REQUEST_GET_ITEM_FROM_PET: u8 = 0x2C;

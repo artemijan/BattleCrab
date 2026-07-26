@@ -22,6 +22,10 @@ use super::helpers::ms_to_ticks;
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
 
+/// `Config.SIEGE_HOUR_LIST` — `Feature.ini`'s `SiegeHourList = 16,20`, the hours
+/// a castle owner may choose from for their siege (via `RequestSetCastleSiegeTime`).
+const SIEGE_HOUR_LIST: &[u32] = &[16, 20];
+
 /// `Siege.startSiege` (lifecycle slice). Called only with a registered attacker
 /// (the admin path guards that).
 pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
@@ -733,11 +737,59 @@ fn arm_next_siege(world: &mut World, castle_id: i32, weekday: u32, hour: u32, no
     );
 }
 
+/// The castle's siege time (epoch-millis): the owner-chosen date when one is set
+/// for the future, else the next fixed `SiegeSchedule.xml` slot. 0 when neither.
+fn effective_siege_millis(world: &World, castle_id: i32, now_millis: i64) -> i64 {
+    let chosen = world
+        .castles
+        .iter()
+        .find(|c| c.id == castle_id)
+        .map(|c| c.siege_date)
+        .unwrap_or(0);
+    if chosen > now_millis {
+        return chosen;
+    }
+    world
+        .data
+        .siege_schedule
+        .get(&castle_id)
+        .filter(|e| e.enabled)
+        .map(|e| next_siege_millis(now_millis, e.weekday, e.hour))
+        .unwrap_or(0)
+}
+
+/// Whether the castle owner may still pick the siege hour (Java
+/// `!isTimeRegistrationOver`).
+fn can_pick_siege_time(world: &World, castle_id: i32) -> bool {
+    world
+        .castles
+        .iter()
+        .find(|c| c.id == castle_id)
+        .is_some_and(|c| !c.time_registration_over)
+}
+
 /// A scheduled siege's start time arrived: begin it, and re-arm next week so
 /// the timer perpetuates itself (whether or not this siege actually runs —
 /// a castle with no registered attackers just holds, as in Java).
 pub(crate) fn handle_scheduled_siege_start(world: &mut World, castle_id: i32) {
     start_siege(world, castle_id);
+    // The owner's one-off chosen time is spent; clear it so the SiegeInfo window
+    // and registration cut-off revert to the fixed schedule for the next cycle
+    // (Java reopens time registration for the next siege).
+    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+        if c.siege_date != 0 {
+            c.siege_date = 0;
+            let _ = world.db.send(DbCommand::UpdateCastleSiegeTime {
+                castle_id,
+                siege_date: 0,
+                time_registration_over: c.time_registration_over,
+            });
+        }
+    }
+    // TODO(G24): the auto-start still fires at the fixed `SiegeSchedule.xml`
+    // hour, not the owner's chosen one — honoring the chosen hour in the timer
+    // needs task cancellation the scheduler doesn't have yet. The choice is
+    // reflected in the SiegeInfo window and the registration cut-off.
     if let Some(e) = world.data.siege_schedule.get(&castle_id).copied() {
         if e.enabled {
             arm_next_siege(
@@ -801,13 +853,11 @@ pub enum RegisterOutcome {
 /// auto-closes — it is GM-driven, so registration stays open until the siege
 /// runs (the `in_progress` check covers that case separately).
 pub(crate) fn is_registration_over(world: &World, castle_id: i32, now_millis: i64) -> bool {
-    let Some(entry) = world.data.siege_schedule.get(&castle_id) else {
-        return false;
-    };
-    if !entry.enabled {
+    // No schedule and no chosen date → GM-driven, never auto-closes.
+    let next = effective_siege_millis(world, castle_id, now_millis);
+    if next == 0 {
         return false;
     }
-    let next = next_siege_millis(now_millis, entry.weekday, entry.hour);
     next - now_millis <= REGISTRATION_CLOSE_BEFORE_MS
 }
 
@@ -1127,13 +1177,28 @@ fn send_siege_info(
     // `(ownerId == player.getClanId()) && player.isClanLeader()`.
     let can_set_time = owner_id != 0 && owner_id == my_clan_id && owner_leader_id == player;
 
-    let siege_date_secs = world
+    // Java: when the owner-leader may still set the time (`!isTimeRegistrationOver`),
+    // send the selectable `SIEGE_HOUR_LIST` slots instead of the fixed date. The
+    // day is the castle's scheduled weekday; only the hour varies.
+    let weekday = world
         .data
         .siege_schedule
         .get(&castle_id)
         .filter(|e| e.enabled)
-        .map(|e| (next_siege_millis(now_millis, e.weekday, e.hour) / 1000) as i32)
-        .unwrap_or(0);
+        .map(|e| e.weekday);
+    let hour_options: Vec<i32> = if can_set_time && can_pick_siege_time(world, castle_id) {
+        weekday
+            .map(|wd| {
+                SIEGE_HOUR_LIST
+                    .iter()
+                    .map(|&h| (next_siege_millis(now_millis, wd, h) / 1000) as i32)
+                    .collect()
+            })
+            .unwrap_or_default()
+    } else {
+        Vec::new()
+    };
+    let siege_date_secs = (effective_siege_millis(world, castle_id, now_millis) / 1000) as i32;
 
     let pkt = server_packets::siege_info(
         castle_id,
@@ -1145,6 +1210,7 @@ fn send_siege_info(
         owner_ally_name,
         (now_millis / 1000) as i32,
         siege_date_secs,
+        &hour_options,
     );
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(pkt);
@@ -1224,6 +1290,81 @@ pub(crate) fn handle_request_confirm_siege_waiting_list(
     }
 
     send_defender_list(world, client_id, castle_id, now);
+}
+
+/// Java `RequestSetCastleSiegeTime` (client 0xAF): the castle owner's clan leader
+/// picks the siege hour from `SIEGE_HOUR_LIST`, closing the time-registration
+/// window. Announces it to everyone and refreshes the viewer's `SiegeInfo`.
+pub(crate) fn handle_request_set_castle_siege_time(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(castle_id), Some(time_secs)) = (r.read_i32(), r.read_i32()) else {
+        return;
+    };
+    let chosen_millis = time_secs as i64 * 1000;
+
+    // `getCastleById == null → return`.
+    if !world.castles.iter().any(|c| c.id == castle_id) {
+        return;
+    }
+    let owner_id = owner_clan_id_opt(world, castle_id).unwrap_or(0);
+    let Some(p) = world.objects.get_component::<crate::model::Player>(&player) else {
+        return;
+    };
+    let clan_id = p.clan_id;
+    let is_leader = world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.leader_id == player);
+    // Gates: the owner's clan (or an unowned castle) + clan leader + the window
+    // still open (Java's warnings on each failed branch, which we just drop).
+    if (owner_id != 0 && owner_id != clan_id) || !is_leader {
+        return;
+    }
+    if !can_pick_siege_time(world, castle_id) {
+        return;
+    }
+
+    // `isSiegeTimeValid`: the chosen time must be one of the `SIEGE_HOUR_LIST`
+    // slots on the castle's scheduled day.
+    let now = commons::util::now_millis();
+    let Some(weekday) = world
+        .data
+        .siege_schedule
+        .get(&castle_id)
+        .filter(|e| e.enabled)
+        .map(|e| e.weekday)
+    else {
+        return;
+    };
+    if !SIEGE_HOUR_LIST
+        .iter()
+        .any(|&h| next_siege_millis(now, weekday, h) == chosen_millis)
+    {
+        return;
+    }
+
+    // Set the date, close the window, persist, and re-arm the auto-start.
+    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+        c.siege_date = chosen_millis;
+        c.time_registration_over = true;
+    }
+    let _ = world.db.send(DbCommand::UpdateCastleSiegeTime {
+        castle_id,
+        siege_date: chosen_millis,
+        time_registration_over: true,
+    });
+
+    // "S1 has announced the next castle siege time." to everyone, then refresh.
+    broadcast_sm(
+        world,
+        sm_ids::S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME,
+        castle_id,
+    );
+    send_siege_info(world, client_id, castle_id, clan_id, player, now);
 }
 
 /// Java `new SiegeDefenderList(castle)`: the owner clan first, then confirmed
