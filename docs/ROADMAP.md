@@ -1053,8 +1053,38 @@ autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
 [PLAN_G28_CURSED_WEAPONS.md](PLAN_G28_CURSED_WEAPONS.md)); a cursed weapon can be
 dropped by a monster kill and equipped by whoever picks it up. Deferred to a
 follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
-**Remaining for G28:** the events engine (TvT / `AbstractEvent` /
-`EventManager`) + `AdminEvents`/`//tvt_*`.
+**Progress (2026-07-26):** the **events engine — slice 1** landed
+([PLAN_G28_EVENTS_ENGINE.md](PLAN_G28_EVENTS_ENGINE.md)): the event lifecycle
+(`EventManager` on `World`, `//event_start`/`//event_stop` GM trigger — the dist
+TvT `config.xml` schedule ships commented out) + the TvT registration phase
+(manager NPC, register/cancel window, `canRegister`, the registration-close
+handler with the too-few-participants cancel). Note the "engine" here is thin:
+Java's `Event` base is just `Quest` + `eventStart`/`eventStop`, and no
+`AbstractEvent`/`EventManager` class exists in this dist — the ported engine is
+the lifecycle wrapper plus the framework hooks the event needs.
+
+**Slice 2 (2026-07-26):** the TvT **arena stand-up** landed — `teleport_to_arena`
+creates the coliseum instance, shuffle-splits BLUE/RED, teleports each to their
+team spawn, spawns the buffers, broadcasts the `ExPVPMatchCCRecord` scoreboard
+(new packet), and runs the door/timer fight window through a minimal teardown, so
+**a full TvT event now runs start→finish** (minus scoring/rewards).
+
+**Slice 3 (2026-07-26):** per-kill **scoring + respawn** landed — `on_player_death`
+(hooked into `death::player_do_die`) scores cross-team kills with a running
+scoreboard (`ExPVPMatchCCRecord::UPDATE`), and killed participants respawn at
+their team spawn behind the Ghost Walking invulnerability after 10s. A TvT match
+now plays out with a real score.
+
+**Slice 4 (2026-07-26):** the real **EndFight** + forfeit + logout landed — winner
+resolution with the firework flourish + Adena reward (tie shrug), the scoreboard
+FINISH + timed teleport-out teardown, and forfeit when a logout empties a team.
+**A complete TvT match now runs end-to-end with a real winner and reward — the
+G28 events-engine gate is met.**
+
+**Remaining for G28 (polish, non-gating):** enemy-HQ zone kicks + inactivity
+timers (need `on_enter_zone`/`on_exit_zone` framework hooks + the
+`colosseum_peace1/2` zones), the manager `BuffHeal`, parties-of-7 + command
+channels, and the optional cron auto-schedule.
 
 ---
 

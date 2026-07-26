@@ -32,6 +32,8 @@ async fn user_info_test() {
         subclasses: Vec::new(),
         skills_by_index: Default::default(),
         team: 0,
+        on_event: false,
+        registered_on_event: false,
         hennas_by_index: Default::default(),
         shortcuts_by_index: Default::default(),
 

@@ -195,6 +195,7 @@ pub mod saga;
 pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
+pub mod tvt;
 mod valakas_teleporters;
 
 use std::sync::Arc;
@@ -430,6 +431,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(valakas_teleporters::ValakasTeleporters),
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),
+        Arc::new(tvt::Tvt),
     ];
     QuestRegistry::new(scripts)
 }

@@ -24,6 +24,7 @@ mod character;
 pub(crate) mod cursed_weapons;
 mod editchar;
 mod effects;
+mod events;
 mod flags;
 mod gm_util;
 mod grand_boss;
@@ -222,6 +223,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_instancecreate" => admin_instance_create(world, client_id, object_id, &args),
         "admin_instanceteleport" => admin_instance_teleport(world, client_id, object_id, &args),
         "admin_instancedestroy" => admin_instance_destroy(world, client_id, &args),
+        "admin_event_start" => events::admin_event_start(world, client_id, &args),
+        "admin_event_stop" => events::admin_event_stop(world, client_id, &args),
         "admin_heal" => admin_heal(world, client_id, object_id, &args),
         "admin_kill" => admin_kill(world, client_id, object_id, &args, false),
         "admin_kill_monster" => admin_kill(world, client_id, object_id, &args, true),

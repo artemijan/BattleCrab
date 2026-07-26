@@ -348,6 +348,27 @@ pub enum ScheduledTask {
     /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`
     /// guard.
     CursedWeaponExpiry { item_id: i32 },
+    /// TvT's registration window closed (`startQuestTimer("TeleportToArena",
+    /// REGISTRATION_TIME)`, G28): prune offline registrants and either stand up
+    /// the arena or cancel for too few players. A singleton event, so no key.
+    TvtTeleportToArena,
+    /// TvT's warm-up ended (`startQuestTimer("StartFight", WAIT_TIME)`, G28):
+    /// open the arena doors and start the fight timer.
+    TvtStartFight,
+    /// TvT's fight ended (`startQuestTimer("EndFight", FIGHT_TIME)`, G28):
+    /// resolve the winner, reward, and tear the arena down.
+    TvtEndFight,
+    /// A killed TvT participant's timed respawn (`startQuestTimer(
+    /// "ResurrectPlayer", 10000, killedPlayer)`, G28): revive at the team spawn
+    /// with the Ghost Walking invulnerability. Keyed by the victim's object id;
+    /// a stale timer no-ops via the still-dead / still-on-event guard.
+    TvtResurrect { player: i32 },
+    /// TvT's end-of-match scoreboard (`startQuestTimer("ScoreBoard", 3500)`,
+    /// G28): broadcast `ExPVPMatchCCRecord::FINISH`.
+    TvtScoreBoard,
+    /// TvT's teleport-out (`startQuestTimer("TeleportOut", 7000)`, G28): unfreeze
+    /// participants and tear the arena down.
+    TvtTeleportOut,
 }
 
 struct Entry {
