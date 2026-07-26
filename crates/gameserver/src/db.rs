@@ -526,6 +526,14 @@ pub enum DbCommand {
     SaveHeroes {
         heroes: Vec<HeroRow>,
     },
+    /// `Hero.setDiaryData` — append a `heroes_diary` row (a noble's notable
+    /// action, e.g. `ACTION_CASTLE_TAKEN`).
+    SaveHeroDiary {
+        char_id: i32,
+        time: i64,
+        action: i32,
+        param: i32,
+    },
     /// Fire-and-forget clan level persist (`Clan.changeLevel`'s single UPDATE).
     UpdateClanLevel {
         clan_id: i32,
@@ -1632,6 +1640,24 @@ async fn run(
                     )
                     .await;
                 }
+            }
+            DbCommand::SaveHeroDiary {
+                char_id,
+                time,
+                action,
+                param,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT INTO heroes_diary (charId, time, action, param) VALUES (?, ?, ?, ?)",
+                    )
+                    .bind(char_id)
+                    .bind(time)
+                    .bind(action)
+                    .bind(param),
+                )
+                .await;
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
                 exec(

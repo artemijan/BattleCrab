@@ -1550,6 +1550,55 @@ fn siege_capture_resets_ticket_count() {
     );
 }
 
+/// **When a castle is captured, the captor's online noble members get a
+/// `heroes_diary` "castle taken" entry** (Java `endSiege` → `Hero.setCastleTaken`).
+/// A non-noble member gets nothing.
+#[test]
+fn capturing_a_castle_diaries_the_captors_nobles() {
+    let (mut world, mut db_rx) = siege_end_world(0);
+    // Clan 700's member (char id 7000) is online; make it a noble.
+    let _rx = ingame_player(&mut world, 9, 7000, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&7000)
+        .unwrap()
+        .is_noble = true;
+
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+    drain_db(&mut db_rx);
+    crate::game_loop::siege::end_siege(&mut world, 3);
+
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            db::DbCommand::SaveHeroDiary {
+                char_id: 7000,
+                action: 3, // ACTION_CASTLE_TAKEN
+                param: 3,  // castle id
+                ..
+            }
+        )),
+        "the captor's noble got a castle-taken diary entry"
+    );
+}
+
+/// A non-noble captor gets no diary entry (the `isNoble` gate).
+#[test]
+fn a_non_noble_captor_gets_no_diary_entry() {
+    let (mut world, mut db_rx) = siege_end_world(0);
+    let _rx = ingame_player(&mut world, 9, 7000, 0, 0, 0); // online but not noble
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+    drain_db(&mut db_rx);
+    crate::game_loop::siege::end_siege(&mut world, 3);
+
+    assert!(
+        !drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::SaveHeroDiary { .. })),
+        "a non-noble captor is not diaried"
+    );
+}
+
 /// Castle doors during a siege: start closes the gates (full HP), a breach
 /// (damage to 0) swings a door open, and endSiege revives + closes them. Port
 /// of Castle.spawnDoor + the door-breach engine.

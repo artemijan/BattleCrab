@@ -124,8 +124,7 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
                 increase_blood_alliance(world, owner_id);
             } else {
                 reset_castle_ticket_count(world, castle_id);
-                // TODO(G25): Hero.setCastleTaken for the captor's noble members
-                // (hero/olympiad castle-taken tracking is not modelled yet).
+                record_castle_taken_for_nobles(world, owner_id, castle_id);
             }
         }
         None => broadcast_sm(
@@ -177,6 +176,35 @@ fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
         castle_id,
         count: 0,
     });
+}
+
+/// `Hero.ACTION_CASTLE_TAKEN`.
+const HERO_ACTION_CASTLE_TAKEN: i32 = 3;
+
+/// Java `endSiege`'s `Hero.setCastleTaken` loop: every online **noble** member
+/// of the capturing clan gets a `heroes_diary` "castle taken" entry (the
+/// hero-eligibility record). A player's object id is their character id, so it
+/// keys the diary row directly. The in-memory hero-diary display (only for a
+/// currently-crowned hero) isn't modelled, so only the persistent row is written.
+fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, castle_id: i32) {
+    let now = commons::util::now_millis();
+    let nobles: Vec<i32> = super::clans::online_members(world, clan_id)
+        .into_iter()
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Player>(oid)
+                .is_some_and(|p| p.is_noble)
+        })
+        .collect();
+    for char_id in nobles {
+        let _ = world.db.send(DbCommand::SaveHeroDiary {
+            char_id,
+            time: now,
+            action: HERO_ACTION_CASTLE_TAKEN,
+            param: castle_id,
+        });
+    }
 }
 
 /// Java `Castle.setOwner` (from the throne-room artifact) + `Siege.midVictory`
