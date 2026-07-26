@@ -4206,3 +4206,44 @@ fn community_board_pet_buffer_targets_the_summon() {
         "with no summon the Pet button refuses"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Fear on a summon (Java Fear.canStart's isSummon leg)
+// ---------------------------------------------------------------------------
+
+/// **A servitor can be feared** (Java `Fear.canStart`'s `isSummon()` leg) even
+/// though its NPC type isn't Attackable; a plain non-attackable NPC is not.
+#[test]
+fn a_servitor_can_be_feared() {
+    use crate::model::components::{Movement, Position};
+    use crate::model::skill::SkillEffect;
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 100, 200);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).expect("summoned");
+    // Put the servitor east of the owner so the fear shove has a clear bearing.
+    if let Some(p) = world.objects.get_component_mut::<Position>(&servitor) {
+        p.x = 500;
+    }
+    // A non-summon, non-attackable NPC (Folk) as the control.
+    add_test_npc(&mut world, 8888, 15000, "Folk", 20, 900, 0, 0);
+
+    // A Fear-only skill (built off the synthetic Might template).
+    let mut fear = world.data.skill_data.get(1068, 1).unwrap().clone();
+    fear.id = 9600;
+    fear.effects = vec![SkillEffect::Fear { ticks: 5 }];
+    world.data.skill_data.insert_for_test(fear.clone());
+
+    // The servitor is shoved (fear ran → a Movement order was set).
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &fear);
+    assert!(
+        world.objects.get_component::<Movement>(&servitor).is_some(),
+        "the servitor is feared and shoved"
+    );
+
+    // The plain non-attackable NPC is not feared.
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, 8888, &fear);
+    assert!(
+        world.objects.get_component::<Movement>(&8888).is_none(),
+        "a non-summon non-attackable NPC is not feared"
+    );
+}
