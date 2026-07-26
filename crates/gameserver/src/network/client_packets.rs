@@ -25,6 +25,9 @@ pub mod opcodes {
     pub const REQUEST_DESTROY_ITEM: u8 = 0x60;
     pub const REQUEST_CRYSTALLIZE_ITEM: u8 = 0x2F;
     pub const REQUEST_SELL_ITEM: u8 = 0x37;
+    /// `RequestBuySeed` — a player buys seeds from a Manor Manager's current
+    /// production.
+    pub const REQUEST_BUY_SEED: u8 = 0xC5;
     pub const REQUEST_PRIVATE_STORE_MANAGE_SELL: u8 = 0x30;
     pub const SET_PRIVATE_STORE_LIST_SELL: u8 = 0x31;
     pub const REQUEST_PRIVATE_STORE_QUIT_SELL: u8 = 0x96;

@@ -196,6 +196,16 @@ impl ManorState {
         self.set_crop_procure(castle_id, true, list);
     }
 
+    /// Decrease a current-period seed's remaining amount (a player bought
+    /// `value` of it). Returns `false` — leaving the amount unchanged — when the
+    /// seed is absent or the buy would overdraw (Java `SeedProduction.decreaseAmount`).
+    pub fn decrease_seed_amount(&mut self, castle_id: i32, seed_id: i32, value: i64) -> bool {
+        self.production
+            .get_mut(&castle_id)
+            .and_then(|list| list.iter_mut().find(|s| s.seed_id == seed_id))
+            .is_some_and(|sp| sp.decrease_amount(value))
+    }
+
     /// The daily production rollover (the data half of Java `changeMode`'s
     /// `APPROVED` case): the castle's next-period setup becomes current, and the
     /// next period is re-seeded from it with amounts reset to their start (a

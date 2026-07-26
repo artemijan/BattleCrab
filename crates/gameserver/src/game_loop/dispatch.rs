@@ -223,6 +223,11 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_PET_USE_ITEM => super::servitor::handle_pet_use_item(world, client_id, body),
         cop::REQUEST_BUY_ITEM => super::shop::handle_request_buy_item(world, client_id, body),
         cop::REQUEST_SELL_ITEM => super::shop::handle_request_sell_item(world, client_id, body),
+        // RequestBuySeed (IN_GAME): a player buys seeds at a Manor Manager.
+        // Gated on `AllowManor` (off on this dist) like the rest of the system.
+        cop::REQUEST_BUY_SEED if world.cfg.general.allow_manor => {
+            super::manor::handle_request_buy_seed(world, client_id, body)
+        }
         cop::MULTI_SELL_CHOOSE => {
             super::multisell::handle_multi_sell_choose(world, client_id, body)
         }
