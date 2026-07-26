@@ -54,6 +54,10 @@ pub enum ZoneKind {
     /// Java `FishingZone` → `ZoneId.FISHING`: where a rod may be cast. Queried
     /// by geometry (`zones_at`), never by membership mask, so it claims no bit.
     Fishing,
+    /// Java `ClanHallZone`: the interior of a clan hall, tying a position to its
+    /// `clanHallId` (banish scope, owner-member regen). Queried by geometry
+    /// (`clan_hall_at`), never by membership mask, so it claims no bit.
+    ClanHall,
 }
 
 impl ZoneKind {
@@ -77,6 +81,8 @@ impl ZoneKind {
             ZoneKind::Swamp => 128,
             // Queried by geometry, not membership — no bit (like `Script`).
             ZoneKind::Fishing => 0,
+            // Queried by geometry (`clan_hall_at`), no membership bit.
+            ZoneKind::ClanHall => 0,
         }
     }
 }
@@ -91,6 +97,8 @@ pub struct Zone {
     pub territory: Territory,
     /// `<stat name="castleId">` for `SiegeZone`s; 0 otherwise.
     pub castle_id: i32,
+    /// `<stat name="clanHallId">` for `ClanHallZone`s; 0 otherwise.
+    pub clan_hall_id: i32,
     /// `EffectZone` parameters; `None` for every other kind.
     pub effect: Option<EffectZoneParams>,
     /// `DamageZone` parameters; `None` for every other kind.
@@ -195,6 +203,9 @@ impl ZoneData {
             ("damage.xml", ZoneKind::Damage),
             ("castle_trap.xml", ZoneKind::Damage),
             ("swamp.xml", ZoneKind::Swamp),
+            // `clan_hall.xml` is uniformly `ClanHallZone`; each zone's
+            // `clanHallId` stat ties it to its residence.
+            ("clan_hall.xml", ZoneKind::ClanHall),
         ] {
             let before = zones.len();
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
@@ -297,6 +308,14 @@ impl ZoneData {
             .find(|zn| zn.kind == ZoneKind::Siege)
             .map(|zn| zn.castle_id)
     }
+
+    /// The clan hall whose interior contains `(x, y, z)` (Java
+    /// `ClanHallZone.getResidenceId` via `ZoneManager`), if any.
+    pub fn clan_hall_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::ClanHall)
+            .map(|zn| zn.clan_hall_id)
+    }
 }
 
 /// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
@@ -316,6 +335,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         // up **by id** from a script (`ZoneManager.getZoneById`). The grand-boss
         // scripts use it for `isInsideZone` and `movePlayersTo`; 133 ship here.
         "ScriptZone" => ZoneKind::Script,
+        "ClanHallZone" => ZoneKind::ClanHall,
         _ => return None,
     })
 }
@@ -348,6 +368,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         xs: Vec<i32>,
         ys: Vec<i32>,
         castle_id: i32,
+        clan_hall_id: i32,
         kind: ZoneKind,
         skills: Vec<(i32, i32)>,
         chance: i32,
@@ -403,6 +424,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                                     max_z: p.max_z,
                                 },
                                 castle_id: p.castle_id,
+                                clan_hall_id: p.clan_hall_id,
                                 effect,
                                 damage,
                                 swamp,
@@ -427,6 +449,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     xs: Vec::new(),
                     ys: Vec::new(),
                     castle_id: 0,
+                    clan_hall_id: 0,
                     // A zone's own `type=` wins; the filename mapping is the
                     // fallback for the single-type files.
                     kind: attr_str(&e, b"type")
@@ -477,6 +500,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                 let val = attr_str(&e, b"val").unwrap_or_default();
                 match name.as_str() {
                     "castleId" => p.castle_id = val.parse().unwrap_or(0),
+                    "clanHallId" => p.clan_hall_id = val.parse().unwrap_or(0),
                     "skillIdLvl" => p.skills = parse_skill_id_lvl(&val),
                     "chance" => p.chance = val.parse().unwrap_or(p.chance),
                     "initialDelay" => p.initial_delay = val.parse().unwrap_or(p.initial_delay),
@@ -547,8 +571,10 @@ mod tests {
         // zones: `custom_script.xml`'s stray `SiegeZone` (GainakSiege) is
         // deliberately left out (see the loader).
         // 1031 → 1044: `fishing.xml`'s 13 `FishingZone`s (G32).
-        assert_eq!(data.zones.len(), 1044);
+        // 1044 → 1092: `clan_hall.xml`'s 48 `ClanHallZone`s (G24).
+        assert_eq!(data.zones.len(), 1092);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
         assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
         assert_eq!(count(ZoneKind::Water), 423);
@@ -599,6 +625,7 @@ mod tests {
                 max_z: 100,
             },
             castle_id: 0,
+            clan_hall_id: 0,
             effect: None,
             damage: None,
             swamp: None,
@@ -670,6 +697,7 @@ mod effect_zone_tests {
                         | ZoneKind::Damage
                         | ZoneKind::Swamp
                         | ZoneKind::Fishing
+                        | ZoneKind::ClanHall
                 ),
                 "zone {} has an unported kind",
                 z.name

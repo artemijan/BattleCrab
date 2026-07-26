@@ -107,6 +107,50 @@ pub(crate) fn hall_by_npc_id(world: &World, npc_id: i32) -> Option<i32> {
         .map(|h| h.id)
 }
 
+/// `ClanHall.banishOthers` — eject every player standing inside the hall who
+/// isn't in the owning clan, to the hall's banish point. Uses the `ClanHallZone`
+/// (`clan_hall_at`) to decide who is inside.
+pub(crate) fn banish_others(world: &mut World, hall_id: i32) {
+    let Some((owner_id, banish)) = world
+        .clan_halls
+        .get(&hall_id)
+        .map(|h| (h.owner_id, h.banish))
+    else {
+        return;
+    };
+    let player_oids: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .collect();
+    let mut targets = Vec::new();
+    for oid in player_oids {
+        let Some(pos) = world
+            .objects
+            .get_component::<crate::model::components::Position>(&oid)
+        else {
+            continue;
+        };
+        if world.data.zone_data.clan_hall_at(pos.x, pos.y, pos.z) != Some(hall_id) {
+            continue;
+        }
+        let clan_id = world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .map(|p| p.clan_id)
+            .unwrap_or(0);
+        if clan_id != owner_id {
+            targets.push(oid);
+        }
+    }
+    for oid in targets {
+        crate::game_loop::death::teleport_player(world, oid, banish.0, banish.1, banish.2);
+    }
+}
+
 /// `ClanHall.openCloseDoors` — open or close every door of a hall.
 pub(crate) fn open_close_hall_doors(world: &mut World, hall_id: i32, open: bool) {
     let doors = world
