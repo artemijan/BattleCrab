@@ -457,6 +457,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 cs.send(server_packets::ex_send_manor_list(&castle_ids));
             }
         }
+        // RequestSetSeed / RequestSetCrop (IN_GAME): the manor owner submits the
+        // next-period seed/crop setup through the chamberlain's edit windows.
+        // Gated on `AllowManor` (off on this dist) like the rest of the system.
+        exop::REQUEST_SET_SEED if world.cfg.general.allow_manor => {
+            super::manor::handle_request_set_seed(world, client_id, ex_body);
+        }
+        exop::REQUEST_SET_CROP if world.cfg.general.allow_manor => {
+            super::manor::handle_request_set_crop(world, client_id, ex_body);
+        }
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client
         // tolerates no reply, so consume it silently. TODO: ExUserBanInfo.
         exop::REQUEST_USER_BAN_INFO => {}

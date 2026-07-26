@@ -8,7 +8,7 @@ use super::*;
 use crate::data::manor_data::Seed;
 use crate::model::clan::Clan;
 use crate::model::components::LastFolkNpc;
-use crate::model::manor::{CropProcure, SeedProduction};
+use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 use crate::model::Player;
 
 /// Gludio's Chamberlain of Light (35100) at the origin, plus an in-game player
@@ -322,6 +322,17 @@ fn manor_state_loads_at_boot() {
 }
 
 fn seed(castle_id: i32, seed_id: i32, crop_id: i32, level: i32) -> Seed {
+    seed_full(castle_id, seed_id, crop_id, level, 0, 0)
+}
+
+fn seed_full(
+    castle_id: i32,
+    seed_id: i32,
+    crop_id: i32,
+    level: i32,
+    limit_seeds: i32,
+    limit_crops: i32,
+) -> Seed {
     Seed {
         castle_id,
         seed_id,
@@ -331,9 +342,126 @@ fn seed(castle_id: i32, seed_id: i32, crop_id: i32, level: i32) -> Seed {
         reward1: 1864,
         reward2: 1878,
         alternative: false,
-        limit_seeds: 0,
-        limit_crops: 0,
+        limit_seeds,
+        limit_crops,
     }
+}
+
+/// **The owner setup views (requests 7/8) are gated to the modifiable period.**
+/// During the settled (`Approved`) period nothing is shown; once the manor is
+/// `Modifiable` the seed/crop setup windows are sent.
+#[test]
+fn manor_setup_views_gated_by_period() {
+    let (mut world, mut rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    // Seed id 90001 is not a real item ⇒ reference price defaults to 1.
+    world
+        .data
+        .manor
+        .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
+    world.objects.add_components(&100, LastFolkNpc(701));
+
+    // Approved (the default) → no setup window for request 7 or 8.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("manor_menu_select?ask=7&state=-1&time=0"),
+    );
+    assert!(
+        ex_packet(&mut rx, 0x26).is_none(),
+        "no seed setting during approved period"
+    );
+
+    // Modifiable → the seed setup (0x26) and crop setup (0x2B) are sent.
+    world.manor.set_mode(ManorMode::Modifiable);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("manor_menu_select?ask=7&state=-1&time=0"),
+    );
+    let pkt = ex_packet(&mut rx, 0x26).expect("ExShowSeedSetting sent when modifiable");
+    // [0xFE][0x26 0x00][manorId i32][size i32]…
+    assert_eq!(
+        i32::from_le_bytes(pkt[7..11].try_into().unwrap()),
+        1,
+        "one seed line"
+    );
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("manor_menu_select?ask=8&state=-1&time=0"),
+    );
+    assert!(
+        ex_packet(&mut rx, 0x2B).is_some(),
+        "ExShowCropSetting sent when modifiable"
+    );
+}
+
+/// **RequestSetSeed writes the owner's next-period seed setup, filtering bad
+/// lines.** A valid seed within its limit/price band is stored; an unknown
+/// seed and an over-limit sale are dropped.
+#[test]
+fn request_set_seed_writes_next_period() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.manor.set_mode(ManorMode::Modifiable);
+    world
+        .data
+        .manor
+        .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
+    own_castle(&mut world, 1);
+    world.objects.add_components(&100, LastFolkNpc(701));
+
+    // Three lines: a valid seed, an over-limit valid seed, and an unknown seed.
+    let mut w = PacketWriter::new();
+    w.write_i32(1); // manor id
+    w.write_i32(3); // count
+    w.write_i32(90001);
+    w.write_i64(500); // sales within the 8100 limit
+    w.write_i64(3); // price within [0, 10]
+    w.write_i32(90001);
+    w.write_i64(999_999); // over the limit → dropped
+    w.write_i64(3);
+    w.write_i32(88888); // unknown seed → dropped
+    w.write_i64(10);
+    w.write_i64(3);
+    crate::game_loop::manor::handle_request_set_seed(&mut world, 1, &w.into_bytes());
+
+    let next = world.manor.seed_production(1, true);
+    assert_eq!(next.len(), 1, "only the valid in-limit seed is stored");
+    assert_eq!(next[0].seed_id, 90001);
+    assert_eq!(next[0].start_amount, 500);
+    assert_eq!(next[0].amount, 500);
+    assert_eq!(next[0].price, 3);
+}
+
+/// **RequestSetSeed is refused outside the modifiable period.** In the settled
+/// period the write is dropped (Java's `!isModifiablePeriod` → ActionFailed).
+#[test]
+fn request_set_seed_refused_when_not_modifiable() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    // Mode stays Approved (the default).
+    world
+        .data
+        .manor
+        .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
+    own_castle(&mut world, 1);
+    world.objects.add_components(&100, LastFolkNpc(701));
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(1);
+    w.write_i32(90001);
+    w.write_i64(500);
+    w.write_i64(3);
+    crate::game_loop::manor::handle_request_set_seed(&mut world, 1, &w.into_bytes());
+
+    assert!(
+        world.manor.seed_production(1, true).is_empty(),
+        "no write outside the modifiable period"
+    );
 }
 
 /// Find the `ExShowManorDefaultInfo` packet (EX 0xFE, sub-op 0x25) among the

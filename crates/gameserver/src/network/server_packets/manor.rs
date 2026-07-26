@@ -37,6 +37,101 @@ pub fn ex_send_manor_list(castle_ids: &[i32]) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// One seed line for [`ex_show_seed_setting`] — the owner's editable seed setup
+/// (`ExShowSeedSetting`). The static half comes from the seed catalogue + item
+/// reference prices; `current`/`next` are the `(start_amount, price)` the owner
+/// has set for each period (`None` = unset, written as `0, 0`).
+pub struct SeedSettingEntry {
+    pub seed_id: i32,
+    pub level: i32,
+    pub reward1_item_id: i32,
+    pub reward2_item_id: i32,
+    /// `Seed.getSeedLimit` — the max sales the owner may set next period.
+    pub seed_limit: i32,
+    /// `Seed.getSeedReferencePrice` — the castle's per-unit production cost.
+    pub seed_reference_price: i32,
+    pub seed_min_price: i32,
+    pub seed_max_price: i32,
+    pub current: Option<(i64, i64)>,
+    pub next: Option<(i64, i64)>,
+}
+
+/// Port of `serverpackets/ExShowSeedSetting` — the owner's "Edit Seed Setup"
+/// window (`manor_menu_select` request 7). One line per seed the castle can
+/// farm.
+pub fn ex_show_seed_setting(manor_id: i32, seeds: &[SeedSettingEntry]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_SEED_SETTING);
+    w.write_i32(manor_id);
+    w.write_i32(seeds.len() as i32);
+    for s in seeds {
+        w.write_i32(s.seed_id);
+        w.write_i32(s.level);
+        w.write_u8(1);
+        w.write_i32(s.reward1_item_id);
+        w.write_u8(1);
+        w.write_i32(s.reward2_item_id);
+        w.write_i32(s.seed_limit);
+        w.write_i32(s.seed_reference_price);
+        w.write_i32(s.seed_min_price);
+        w.write_i32(s.seed_max_price);
+        let (cur_sales, cur_price) = s.current.unwrap_or((0, 0));
+        w.write_i64(cur_sales);
+        w.write_i64(cur_price);
+        let (next_sales, next_price) = s.next.unwrap_or((0, 0));
+        w.write_i64(next_sales);
+        w.write_i64(next_price);
+    }
+    w.into_bytes()
+}
+
+/// One crop line for [`ex_show_crop_setting`] — the owner's editable crop setup
+/// (`ExShowCropSetting`). `current`/`next` are `(start_amount, price, reward)`.
+pub struct CropSettingEntry {
+    pub crop_id: i32,
+    pub level: i32,
+    pub reward1_item_id: i32,
+    pub reward2_item_id: i32,
+    /// `Seed.getCropLimit` — the max buys the owner may set next period.
+    pub crop_limit: i32,
+    pub crop_min_price: i32,
+    pub crop_max_price: i32,
+    pub current: Option<(i64, i64, u8)>,
+    pub next: Option<(i64, i64, u8)>,
+}
+
+/// Port of `serverpackets/ExShowCropSetting` — the owner's "Edit Crop Setup"
+/// window (`manor_menu_select` request 8).
+pub fn ex_show_crop_setting(manor_id: i32, crops: &[CropSettingEntry]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_CROP_SETTING);
+    w.write_i32(manor_id);
+    w.write_i32(crops.len() as i32);
+    for c in crops {
+        w.write_i32(c.crop_id);
+        w.write_i32(c.level);
+        w.write_u8(1);
+        w.write_i32(c.reward1_item_id);
+        w.write_u8(1);
+        w.write_i32(c.reward2_item_id);
+        w.write_i32(c.crop_limit);
+        w.write_i32(0); // Java "???"
+        w.write_i32(c.crop_min_price);
+        w.write_i32(c.crop_max_price);
+        let (cur_buy, cur_price, cur_reward) = c.current.unwrap_or((0, 0, 0));
+        w.write_i64(cur_buy);
+        w.write_i64(cur_price);
+        w.write_u8(cur_reward);
+        let (next_buy, next_price, next_reward) = c.next.unwrap_or((0, 0, 0));
+        w.write_i64(next_buy);
+        w.write_i64(next_price);
+        w.write_u8(next_reward);
+    }
+    w.into_bytes()
+}
+
 /// One reference-crop line for [`ex_show_manor_default_info`] — the static seed
 /// catalogue view (Java resolves the two reference prices from item data).
 pub struct ManorDefaultEntry {
