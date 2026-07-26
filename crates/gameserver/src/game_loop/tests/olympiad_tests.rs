@@ -1137,3 +1137,85 @@ fn monument_non_hero_is_refused() {
         "the not-a-hero circlet page is served"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Observer mode (spectating matches)
+// ---------------------------------------------------------------------------
+
+/// **The observer round-trip** — a spectator enters an arena (teleported in,
+/// scoped to the match's instance, `ExOlympiadMode(3)`), then leaves (teleported
+/// back, `ExOlympiadMode(0)`, observer state dropped).
+#[test]
+fn olympiad_observer_round_trip() {
+    use crate::model::components::{InstanceId, OlympiadObserver, Position};
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    let _fighters = stage_match(&mut world, 100, 200, 10, 10);
+    world.olympiad.matches[0].instance_id = 7; // a real instance to scope into
+
+    // The spectator, standing at a known return point, not in the match.
+    let mut rx = ingame_player(&mut world, 3, 300, 1000, 1000, 0);
+    drain(&mut rx);
+
+    crate::game_loop::olympiad::enter_observer(&mut world, 3, 300, 0);
+    assert!(
+        crate::game_loop::olympiad::is_observing(&world, 300),
+        "now observing"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<OlympiadObserver>(&300)
+            .unwrap()
+            .return_pos,
+        (1000, 1000, 0),
+        "the return point was saved"
+    );
+    assert_eq!(
+        world.objects.get_component::<InstanceId>(&300).map(|i| i.0),
+        Some(7),
+        "scoped into the match's instance"
+    );
+    let pos = world.objects.get_component::<Position>(&300).unwrap();
+    assert_eq!((pos.x, pos.y), (-88070, -252843), "teleported to the stand");
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[..4] == [0xFE, 0x7D, 0x00, 0x03]),
+        "ExOlympiadMode(3) was sent"
+    );
+
+    crate::game_loop::olympiad::leave_observer(&mut world, 3, 300);
+    assert!(
+        !crate::game_loop::olympiad::is_observing(&world, 300),
+        "no longer observing"
+    );
+    assert!(
+        world.objects.get_component::<InstanceId>(&300).is_none(),
+        "back on the overworld"
+    );
+    let pos = world.objects.get_component::<Position>(&300).unwrap();
+    assert_eq!((pos.x, pos.y), (1000, 1000), "teleported back");
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[..4] == [0xFE, 0x7D, 0x00, 0x00]),
+        "ExOlympiadMode(0) was sent"
+    );
+}
+
+/// A competitor (or a queued noble) can't observe.
+#[test]
+fn a_competitor_cannot_observe() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.olympiad.in_comp_period = true;
+    let _fighters = stage_match(&mut world, 100, 200, 10, 10);
+    // Player 100 is one of the fighters (in `in_competition`).
+    let _rx = ingame_player(&mut world, 100, 100, 500, 500, 0);
+
+    crate::game_loop::olympiad::enter_observer(&mut world, 100, 100, 0);
+    assert!(
+        !crate::game_loop::olympiad::is_observing(&world, 100),
+        "a competitor is refused observer mode"
+    );
+}

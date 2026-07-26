@@ -26,6 +26,15 @@ pub struct Position {
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InstanceId(pub i32);
 
+/// Java `Player._observerMode` + `_lastLoc` — present while a player is watching
+/// an Olympiad match. Holds the location to teleport back to on exit and the
+/// arena being watched (`_olympiadGameId`).
+#[derive(Component, Debug, Clone, Copy)]
+pub struct OlympiadObserver {
+    pub return_pos: (i32, i32, i32),
+    pub arena: i32,
+}
+
 /// Java `Creature.setImmobilized(true)` — a **movement-only** lock. Unlike
 /// `AdminFlags.paralyzed` (which also blocks actions), an immobilized creature
 /// can still attack and cast; it simply can't move. Used by stationary bosses

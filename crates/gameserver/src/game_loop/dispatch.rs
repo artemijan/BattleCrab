@@ -457,6 +457,20 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}
+        // Olympiad observer mode (G25): leave observing, or (re)open the
+        // ongoing-match list. The list request/refresh just re-sends it.
+        exop::REQUEST_OLYMPIAD_OBSERVER_END => {
+            if let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) {
+                let player = session.player_object_id();
+                // Java's `if player.inObserverMode()` guard.
+                if super::olympiad::is_observing(world, player) {
+                    super::olympiad::leave_observer(world, client_id, player);
+                }
+            }
+        }
+        exop::REQUEST_OLYMPIAD_MATCH_LIST | exop::REQUEST_EX_OLYMPIAD_MATCH_LIST_REFRESH => {
+            super::olympiad::send_match_list(world, client_id);
+        }
         // RequestExMagicSkillUseGround (IN_GAME): a GROUND-target cast aimed
         // at a world position (G19).
         exop::REQUEST_EX_MAGIC_SKILL_USE_GROUND => {
