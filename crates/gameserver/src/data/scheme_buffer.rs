@@ -41,6 +41,11 @@ impl SchemeBufferData {
     pub fn contains(&self, skill_id: i32) -> bool {
         self.levels.contains_key(&skill_id)
     }
+
+    #[doc(hidden)]
+    pub fn insert_for_test(&mut self, skill_id: i32, level: i32) {
+        self.levels.insert(skill_id, level);
+    }
 }
 
 fn attr(e: &quick_xml::events::BytesStart, key: &str) -> Option<i32> {

@@ -456,7 +456,7 @@ fn scheme_delete(world: &mut World, object_id: i32, scheme_name: &str) {
 
 /// Port of `HomeBoard.applyBuffs`: re-cast every skill in a scheme onto the
 /// player, at the level from the buffer's available-buff table.
-fn apply_scheme(
+pub(crate) fn apply_scheme(
     world: &mut World,
     client_id: u32,
     object_id: i32,
@@ -470,12 +470,19 @@ fn apply_scheme(
         .map(|(_, skills)| skills.clone())
         .unwrap_or_default();
 
-    // TODO(G29): pets/servitors aren't summonable yet, so the "Pet" button
-    // always lands on Java's `player.getPet() == null && !player.hasServitors()`
-    // branch. Once summons exist, apply to pet + servitors here.
-    if is_pet {
-        return Err("You don't have a pet.".to_string());
-    }
+    // The "Pet" button buffs the player's summon (Java's `player.getPet()` /
+    // `getServitors()`); with no summon it lands on the "no pet" branch. The
+    // player still pays, so the cost checks below stay keyed to `object_id`.
+    let target = if is_pet {
+        match crate::game_loop::servitor::pet_of(world, object_id)
+            .or_else(|| crate::game_loop::servitor::servitor_of(world, object_id))
+        {
+            Some(summon) => summon,
+            None => return Err("You don't have a pet.".to_string()),
+        }
+    } else {
+        object_id
+    };
 
     let buff_price = world.cfg.community_board.buff_price;
     let cost = if buff_price > 0 {
@@ -514,7 +521,7 @@ fn apply_scheme(
             warn!("CommunityBoard: scheme buff {skill_id}/{level} missing from skill data.");
             continue;
         };
-        crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
+        crate::game_loop::skills::effects::apply_skill_effects(world, object_id, target, &skill);
     }
     Ok(())
 }
