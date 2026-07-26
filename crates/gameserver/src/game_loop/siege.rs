@@ -185,13 +185,14 @@ fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
 /// active siege calls [`try_capture_artifact`] → here.
 ///
 /// TODO(G24): teleport-attackers-to-flag, the weakened-door respawn, tower
-/// removal, residential skills and crests.
+/// removal, and castle crests.
 pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
     }
+    let old_owner = owner_clan_id_opt(world, castle_id);
     // Transfer ownership: the old owner loses `hasCastle`, the captor gains it.
-    if let Some(old) = owner_clan_id_opt(world, castle_id) {
+    if let Some(old) = old_owner {
         if let Some(c) = world.clans.get_mut(&old) {
             c.castle_id = 0;
         }
@@ -207,6 +208,17 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
         clan_id: new_clan_id,
         castle_id,
     });
+
+    // Java `Castle.setOwner`: strip the castle's residential skills from the
+    // former owner's online members, and grant them to the captor's.
+    if let Some(old) = old_owner {
+        for member in super::clans::online_members(world, old) {
+            super::clans::remove_residential_skills(world, member, castle_id);
+        }
+    }
+    for member in super::clans::online_members(world, new_clan_id) {
+        super::clans::give_residential_skills(world, member, castle_id, new_clan_id);
+    }
 
     // Reshuffle siege roles: every other side becomes an attacker, the captor
     // becomes the OWNER; then re-persist the changed rows.

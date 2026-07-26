@@ -49,7 +49,7 @@ const CLAN_ADVENT_SKILL_ID: i32 = 19009;
 const CLAN_ADVENT_SKILL_LEVEL: i32 = 1;
 
 /// The clan's member object-ids that are currently online (leader included).
-fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
+pub(crate) fn online_members(world: &World, clan_id: i32) -> Vec<i32> {
     let Some(clan) = world.clans.get(&clan_id) else {
         return Vec::new();
     };
@@ -252,16 +252,12 @@ fn clan_skill_pairs(world: &World, clan_id: i32) -> Vec<(i32, i32)> {
 /// one member, then resend their `SkillList` + the clan window's
 /// `PledgeSkillList`. Called on member login (`on_enter_world`).
 pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, member_oid: i32) {
-    let skills = clan_skill_pairs(world, clan_id);
-    if skills.is_empty() {
-        return;
-    }
     let mut applied = false;
-    for (id, level) in skills {
+    for (id, level) in clan_skill_pairs(world, clan_id) {
         // Residence skills (a castle/clan-hall benefit) are never applied through
         // the pledge-grant channel — guards against legacy rows a pre-fix grant
-        // persisted, so they don't re-apply on login. TODO(G24): residence
-        // ownership applies these through its own path.
+        // persisted, so they don't re-apply on login. Castle ownership grants
+        // them through `give_residential_skills` below instead.
         if world.data.pledge_skill_trees.is_residence_skill(id) {
             continue;
         }
@@ -269,6 +265,12 @@ pub(crate) fn apply_clan_skills_to_member(world: &mut World, clan_id: i32, membe
             apply_clan_skill_to_member(world, member_oid, id, level);
             applied = true;
         }
+    }
+    // Java `Player.enterWorld`: a member of a castle-owning clan gets that
+    // castle's residential skills on login.
+    let castle_id = world.clans.get(&clan_id).map(|c| c.castle_id).unwrap_or(0);
+    if castle_id > 0 {
+        give_residential_skills(world, member_oid, castle_id, clan_id);
     }
     if applied {
         refresh_member_skill_list(world, member_oid);
@@ -338,6 +340,70 @@ pub(crate) fn remove_clan_skills_from_member(world: &mut World, member_oid: i32)
         c.0.clear();
     }
     refresh_member_skill_list(world, member_oid);
+}
+
+// --- Residential (castle/clan-hall) skills: `AbstractResidence.give/
+// removeResidentialSkills`, granted through residence ownership rather than the
+// `//give_clan_skills` pledge grant. They ride the same transient [`ClanSkills`]
+// passive channel (never persisted), keyed by their own skill ids (590+). ---
+
+/// Java `AbstractResidence.giveResidentialSkills(player)` — grant every
+/// residential skill of `residence_id` this member's pledge class qualifies for
+/// (the `pledgeClass + 1 >= socialClass` gate, shared with clan skills).
+pub(crate) fn give_residential_skills(
+    world: &mut World,
+    member_oid: i32,
+    residence_id: i32,
+    clan_id: i32,
+) {
+    let skills: Vec<(i32, i32)> = world
+        .data
+        .pledge_skill_trees
+        .available_residential_skills(residence_id)
+        .iter()
+        .map(|l| (l.skill_id, l.skill_level))
+        .collect();
+    let mut applied = false;
+    for (id, level) in skills {
+        if member_qualifies_for_clan_skill(world, clan_id, member_oid, id, level) {
+            apply_clan_skill_to_member(world, member_oid, id, level);
+            applied = true;
+        }
+    }
+    if applied {
+        refresh_member_skill_list(world, member_oid);
+    }
+}
+
+/// Java `AbstractResidence.removeResidentialSkills(player)` — strip a residence's
+/// skills from a member (unconditionally, unlike the gated grant), reverting each
+/// passive buff the member actually holds.
+pub(crate) fn remove_residential_skills(world: &mut World, member_oid: i32, residence_id: i32) {
+    let ids: Vec<i32> = world
+        .data
+        .pledge_skill_trees
+        .available_residential_skills(residence_id)
+        .iter()
+        .map(|l| l.skill_id)
+        .collect();
+    let mut removed = false;
+    for id in ids {
+        let has = world
+            .objects
+            .get_component::<ClanSkills>(&member_oid)
+            .is_some_and(|c| c.0.contains_key(&id));
+        if !has {
+            continue;
+        }
+        crate::game_loop::skills::effects::handle_buff_expire(world, member_oid, id);
+        if let Some(c) = world.objects.get_component_mut::<ClanSkills>(&member_oid) {
+            c.0.remove(&id);
+        }
+        removed = true;
+    }
+    if removed {
+        refresh_member_skill_list(world, member_oid);
+    }
 }
 
 /// Java `Clan.addNewSkill` for one skill: store it on the clan, persist it, and

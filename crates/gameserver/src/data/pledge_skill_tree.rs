@@ -27,8 +27,11 @@ pub struct PledgeSkillLearn {
     /// then every member gets it (`skillLearn.getSocialClass() == null`).
     pub social_class: Option<u8>,
     /// Java `isResidencialSkill` — castle/clan-hall skills, excluded from
-    /// `getMaxPledgeSkills`. No entry in this dist sets it, but parsed for parity.
+    /// `getMaxPledgeSkills` and granted through residence ownership instead.
     pub residencial: bool,
+    /// Java `SkillLearn._residenceIds` — the residences (castle/clan-hall ids)
+    /// whose owner-clan members receive this residential skill.
+    pub residence_ids: Vec<i32>,
     /// Java `getLevelUpSp` — for pledge skills this is the **clan reputation**
     /// cost the leader pays at the village master (`levelUpSp` attribute).
     pub level_up_sp: i64,
@@ -131,6 +134,16 @@ impl PledgeSkillTreeData {
             .collect()
     }
 
+    /// Java `SkillTreeData.getAvailableResidentialSkills(residenceId)` — every
+    /// residential skill (id, level, socialClass gate) a residence grants its
+    /// owner-clan members.
+    pub fn available_residential_skills(&self, residence_id: i32) -> Vec<&PledgeSkillLearn> {
+        self.pledge
+            .iter()
+            .filter(|l| l.residencial && l.residence_ids.contains(&residence_id))
+            .collect()
+    }
+
     /// Java `getPledgeSkill(id, lvl)` — one pledge-tree entry (the learn
     /// request's validation + reputation cost).
     pub fn pledge_skill(&self, skill_id: i32, skill_level: i32) -> Option<&PledgeSkillLearn> {
@@ -193,6 +206,7 @@ fn new_learn(e: &quick_xml::events::BytesStart) -> PledgeSkillLearn {
         get_level: attr_i32(e, b"getLevel").unwrap_or(99),
         social_class: None,
         residencial: attr_str(e, b"residenceSkill").as_deref() == Some("true"),
+        residence_ids: Vec::new(),
         level_up_sp: attr_str(e, b"levelUpSp")
             .and_then(|s| s.parse().ok())
             .unwrap_or(0),
@@ -211,12 +225,14 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
     let mut in_tree = false;
     let mut cur: Option<PledgeSkillLearn> = None;
     let mut in_social = false;
+    let mut in_residence = false;
     loop {
         match reader.read_event() {
             Ok(Event::Start(e)) => match e.name().as_ref() {
                 b"skillTree" => in_tree = attr_str(&e, b"type").as_deref() == Some(tree_type),
                 b"skill" if in_tree => cur = Some(new_learn(&e)),
                 b"socialClass" if cur.is_some() => in_social = true,
+                b"residenceId" if cur.is_some() => in_residence = true,
                 _ => {}
             },
             Ok(Event::Empty(e)) if in_tree && e.name().as_ref() == b"skill" => {
@@ -230,8 +246,17 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
                     c.social_class = social_class_ordinal(&t.unescape().unwrap_or_default());
                 }
             }
+            Ok(Event::Text(t)) if in_residence => {
+                if let (Some(c), Ok(id)) = (
+                    cur.as_mut(),
+                    t.unescape().unwrap_or_default().trim().parse(),
+                ) {
+                    c.residence_ids.push(id);
+                }
+            }
             Ok(Event::End(e)) => match e.name().as_ref() {
                 b"socialClass" => in_social = false,
+                b"residenceId" => in_residence = false,
                 b"skill" => {
                     if let Some(c) = cur.take() {
                         if c.skill_id > 0 {
