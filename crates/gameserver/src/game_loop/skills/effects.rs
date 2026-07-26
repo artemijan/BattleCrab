@@ -2085,6 +2085,18 @@ fn fear_can_start(world: &World, target_oid: i32) -> bool {
     if t.is_raid() {
         return false;
     }
+    // Java's `isSummon()` leg: a pet/servitor is fearable like a player. (In
+    // this port a summon is an NPC entity, so it reaches the NPC branch below —
+    // which its non-Attackable "Servitor" type would otherwise reject.)
+    if world
+        .objects
+        .has_component::<crate::model::components::ServitorOf>(&target_oid)
+        || world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&target_oid)
+    {
+        return true;
+    }
     t.is_attackable_class()
         && !matches!(
             t.type_name.as_str(),
