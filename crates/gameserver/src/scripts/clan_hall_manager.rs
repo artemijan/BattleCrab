@@ -4,10 +4,10 @@
 //! and [`crate::game_loop::clan_hall_function`].
 //!
 //! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, the
-//! static function menus, `expel` (banishOthers), and the `useFunctions`
-//! benefits `teleport` (the hall's TELEPORT-level `tel<n>` list) and `buffs`
-//! (the BUFF-function support-magic menu). Deferred: the `useFunctions items`
-//! merchant window (needs the buy-window / Merchant NPC path).
+//! static function menus, `expel` (banishOthers), and all three `useFunctions`
+//! benefits — `teleport` (the hall's TELEPORT-level `tel<n>` list), `buffs`
+//! (the BUFF-function support-magic menu), and `items` (the ITEM-function
+//! merchant buy window).
 
 use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
 use crate::game_loop::clan_hall_function::{
@@ -202,7 +202,25 @@ impl ClanHallManager {
                     }
                 }
             }
-            // Item creation console is a later slice.
+            Some("items") => {
+                let func_id = ctx.world.data.residence_functions.id_of_type("ITEM")?;
+                match function_level(ctx.world, hall_id, func_id) {
+                    // Java `showBuyWindow(player, npcId·"0"·(level-1))` — the
+                    // three item-function tiers map to buylists npcId*100 + 0/1/2.
+                    level @ 1..=3 => {
+                        let list_id = ctx.npc_id * 100 + (level - 1);
+                        crate::game_loop::shop::show_buy_window(
+                            ctx.world,
+                            ctx.client_id,
+                            ctx.player,
+                            ctx.npc,
+                            list_id,
+                        );
+                        None
+                    }
+                    _ => Some("ClanHallManager-noFunction.html".to_string()),
+                }
+            }
             _ => Some(page("01")),
         }
     }

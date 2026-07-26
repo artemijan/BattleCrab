@@ -66,7 +66,7 @@ mod reco;
 pub(crate) mod regen;
 pub(crate) mod sailren;
 mod servitor;
-mod shop;
+pub(crate) mod shop;
 mod shortcuts;
 mod siege;
 mod skill_enchant;
