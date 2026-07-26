@@ -137,6 +137,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::SAY2 => handle_say2(world, client_id, body),
         cop::REQUEST_BYPASS_TO_SERVER => handle_request_bypass_to_server(world, client_id, body),
+        // RequestSiegeAttackerList / RequestSiegeDefenderList (G24): view a
+        // castle's registered attackers / owner + defenders.
+        cop::REQUEST_SIEGE_ATTACKER_LIST => {
+            crate::game_loop::siege::handle_request_siege_attacker_list(world, client_id, body)
+        }
+        cop::REQUEST_SIEGE_DEFENDER_LIST => {
+            crate::game_loop::siege::handle_request_siege_defender_list(world, client_id, body)
+        }
         // RequestJoinSiege (G24): a clan leader registers/cancels for a siege.
         cop::REQUEST_JOIN_SIEGE => {
             crate::game_loop::siege::handle_request_join_siege(world, client_id, body)

@@ -1262,6 +1262,67 @@ fn send_defender_list(world: &World, client_id: u32, castle_id: i32, now_millis:
     }
 }
 
+/// Java `RequestSiegeAttackerList` (client 0xAB): send the castle's registered
+/// attacker clans to the viewer (Java gates on nothing — any in-game player).
+pub(crate) fn handle_request_siege_attacker_list(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(castle_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    // Java `getCastleById(castleId) == null → return`.
+    if !world.castles.iter().any(|c| c.id == castle_id) {
+        return;
+    }
+    let mut entries: Vec<server_packets::AttackerEntry> = Vec::new();
+    if let Some(siege) = world.sieges.get(&castle_id) {
+        for c in siege
+            .clans
+            .iter()
+            .filter(|c| c.kind == SiegeClanType::Attacker)
+        {
+            if let Some(e) = attacker_entry(world, c.clan_id) {
+                entries.push(e);
+            }
+        }
+    }
+    let pkt = server_packets::siege_attacker_list(castle_id, &entries);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
+}
+
+/// Java `RequestSiegeDefenderList` (client 0xAC): send the castle's owner +
+/// defender roster to the viewer (reusing the owner-approval list builder).
+pub(crate) fn handle_request_siege_defender_list(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(castle_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    if !world.castles.iter().any(|c| c.id == castle_id) {
+        return;
+    }
+    send_defender_list(world, client_id, castle_id, commons::util::now_millis());
+}
+
+/// Build one attacker row from a clan (Java `SiegeAttackerList` — no type byte,
+/// and the ally-leader name is always written empty).
+fn attacker_entry(world: &World, clan_id: i32) -> Option<server_packets::AttackerEntry> {
+    let clan = world.clans.get(&clan_id)?;
+    let leader_name = clan
+        .members
+        .iter()
+        .find(|m| m.char_id == clan.leader_id)
+        .map(|m| m.name.clone())
+        .unwrap_or_default();
+    Some(server_packets::AttackerEntry {
+        clan_id,
+        name: clan.name.clone(),
+        leader_name,
+        crest_id: clan.crest_id,
+        ally_id: clan.ally_id,
+        ally_name: clan.ally_name.clone(),
+        ally_crest_id: clan.ally_crest_id,
+    })
+}
+
 /// Build one defender row from a clan.
 fn defender_entry(
     world: &World,
