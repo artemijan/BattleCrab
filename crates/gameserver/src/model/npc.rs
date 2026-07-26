@@ -83,6 +83,18 @@ pub struct Npc {
     /// count), waiting for a `Sweeper` cast. `None` until death rolls it (and
     /// again after `takeSweep` hands it out); `isSweepActive()` == `Some`.
     pub sweep_items: Option<Vec<(i32, i64)>>,
+    /// Manor seed state (Java `Attackable._seed`/`_seederObjId`/`_seeded`/
+    /// `_harvestItem`). `setSeeded(seed, player)` (the Seed item handler) sets
+    /// `seed_id`/`seeder_object_id`; a successful `Sow` effect sets
+    /// `seeded = true` and stashes `harvest_item` (crop id, count); a
+    /// `Harvesting` cast on the corpse takes it. The seed's crop/level/
+    /// alternative are resolved from the catalogue via `seed_id`.
+    /// `seeder_object_id == 0` means unsown. A fresh instance on respawn resets
+    /// it, like Java.
+    pub seed_id: i32,
+    pub seeder_object_id: i32,
+    pub seeded: bool,
+    pub harvest_item: Option<(i32, i64)>,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -303,6 +315,10 @@ impl Npc {
             vars: std::collections::HashMap::new(),
             spoiler_object_id: 0,
             sweep_items: None,
+            seed_id: 0,
+            seeder_object_id: 0,
+            seeded: false,
+            harvest_item: None,
         };
         let extra = (
             Position {
@@ -568,6 +584,10 @@ fn spawn_npc_entity(
         vars: std::collections::HashMap::new(),
         spoiler_object_id: 0,
         sweep_items: None,
+        seed_id: 0,
+        seeder_object_id: 0,
+        seeded: false,
+        harvest_item: None,
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);

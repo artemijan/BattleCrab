@@ -152,6 +152,9 @@ pub struct NpcTemplate {
     pub talkable: bool,
     pub show_name: bool,
     pub can_move: bool,
+    /// `<status canBeSown>` (Java `NpcTemplate.canBeSown`, default false) — the
+    /// monster accepts manor seeds (the `Sow` effect's `canBeSown()` gate).
+    pub can_be_sown: bool,
     pub random_walk: bool,
     /// Java `isRandomAnimationEnabled` (`randomAnimation`, default true) — the
     /// NPC plays idle social animations while standing around.
@@ -526,6 +529,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         talkable: true,
         show_name: true,
         can_move: true,
+        can_be_sown: false,
         random_walk: false,
         random_animation: true,
         is_aggressive: false,
@@ -820,6 +824,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     t.talkable = attr_bool(&e, b"talkable").unwrap_or(true);
                     t.show_name = attr_bool(&e, b"showName").unwrap_or(true);
                     t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
+                    t.can_be_sown = attr_bool(&e, b"canBeSown").unwrap_or(false);
                     if let Some(v) = attr_bool(&e, b"randomWalk") {
                         t.random_walk = v;
                     }

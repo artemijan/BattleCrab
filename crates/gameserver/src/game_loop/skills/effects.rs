@@ -924,6 +924,12 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::Sweeper => {
                 apply_sweeper(world, caster_oid, target_oid);
             }
+            SkillEffect::Sow => {
+                apply_sow(world, caster_oid, target_oid);
+            }
+            SkillEffect::Harvesting => {
+                apply_harvesting(world, caster_oid, target_oid);
+            }
             SkillEffect::ConsumeBody => {
                 apply_consume_body(world, caster_oid, target_oid);
             }
@@ -2790,6 +2796,195 @@ fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
     }
 }
 
+/// `handlers/effecthandlers/Sow.java` — the manor sow (skill 2097). The Seed
+/// item handler has already flagged the mob (`seed_id`/`seeder_object_id`); on a
+/// live `canBeSown` monster the caster sowed and hasn't yet seeded, roll
+/// `calcSuccess` and — on success — mark it seeded and stash the crop it yields.
+///
+/// Java consumes the seed item inside this effect; this port consumes it via the
+/// item-skill path that cast the sow skill (the Seed handler), so no consume
+/// here — the same one-seed cost.
+pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
+    use crate::model::npc::{Npc, NpcAi, NpcIntention};
+    use crate::model::Player;
+
+    let Some(player_level) = world
+        .objects
+        .get_component::<Player>(&caster_oid)
+        .map(|p| p.level)
+    else {
+        return;
+    };
+    if !crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
+    let Some((seed_id, seeder, seeded, can_be_sown, target_level, skill_ids)) = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|npc| {
+            let state = (npc.seed_id, npc.seeder_object_id, npc.seeded);
+            npc.template(world).map(|t| {
+                (
+                    state.0,
+                    state.1,
+                    state.2,
+                    t.can_be_sown,
+                    t.level,
+                    t.skill_list.iter().map(|(id, _)| *id).collect::<Vec<_>>(),
+                )
+            })
+        })
+    else {
+        return;
+    };
+    let dead = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.dead)
+        .unwrap_or(true);
+    // Java: dead / !canBeSown / already seeded / not this player's seed → bail.
+    if dead || !can_be_sown || seeded || seed_id == 0 || seeder != caster_oid {
+        return;
+    }
+    let Some((crop_id, seed_level, alternative)) = world
+        .data
+        .manor
+        .seed_by_id(seed_id)
+        .map(|s| (s.crop_id, s.level, s.alternative))
+    else {
+        return;
+    };
+
+    if calc_sow_success(
+        seed_level,
+        alternative,
+        player_level,
+        target_level,
+        world.roll(99),
+    ) {
+        // The crop count: a "strong type" mob (skills 4303..=4310) multiplies it
+        // ×2..×9, plus a hi-level-mob bonus, all scaled by `RateDropManor`.
+        let mut count: i64 = 1;
+        for id in &skill_ids {
+            if (4303..=4310).contains(id) {
+                count *= (*id - 4301) as i64; // 4303→×2 … 4310→×9
+            }
+        }
+        let diff = target_level - seed_level - 5;
+        if diff > 0 {
+            count += diff as i64;
+        }
+        let harvest_count = count * world.cfg.rates.rate_drop_manor as i64;
+        if let Some(npc) = world.objects.get_component_mut::<Npc>(&target_oid) {
+            npc.seeded = true;
+            npc.harvest_item = Some((crop_id, harvest_count));
+        }
+        // TODO(manor): THE_SEED_WAS_SUCCESSFULLY_SOWN — SystemMessageId not in
+        // this repo's data (the sow itself is applied).
+    }
+    // TODO(manor): the failure branch sends THE_SEED_WAS_NOT_SOWN (same reason).
+
+    // Java sets the mob's AI to IDLE after a sow attempt.
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&target_oid) {
+        ai.intention = NpcIntention::Active;
+    }
+}
+
+/// `Sow.calcSuccess`: a level-scaled chance (base 90 %, or 20 % for the
+/// alternative seed). **Java quirk kept**: its `Math.max(basicSuccess, 1)` is a
+/// discarded statement, so `basic` is never floored — a large level mismatch
+/// yields a ≤0 % (always-fail) chance.
+fn calc_sow_success(
+    seed_level: i32,
+    alternative: bool,
+    player_level: i32,
+    target_level: i32,
+    roll: i32,
+) -> bool {
+    let min = seed_level - 5;
+    let max = seed_level + 5;
+    let mut basic = if alternative { 20 } else { 90 };
+    if target_level < min {
+        basic -= 5 * (min - target_level);
+    }
+    if target_level > max {
+        basic -= 5 * (target_level - max);
+    }
+    let diff = (player_level - target_level).abs();
+    if diff > 5 {
+        basic -= 5 * (diff - 5);
+    }
+    roll < basic
+}
+
+/// `handlers/effecthandlers/Harvesting.java` — the manor harvest (skill 2098):
+/// on a dead, seeded corpse the caster sowed, roll `calcSuccess` and hand over
+/// the stashed crop (`Attackable.takeHarvest`).
+pub(crate) fn apply_harvesting(world: &mut World, caster_oid: i32, target_oid: i32) {
+    use crate::model::npc::Npc;
+    use crate::model::Player;
+
+    let Some(player_level) = world
+        .objects
+        .get_component::<Player>(&caster_oid)
+        .map(|p| p.level)
+    else {
+        return;
+    };
+    if !crate::game_loop::combat::is_npc_oid(target_oid) {
+        return;
+    }
+    let dead = world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .map(|v| v.dead)
+        .unwrap_or(false);
+    if !dead {
+        return;
+    }
+    let Some((seeder, seeded, target_level)) = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|npc| {
+            let state = (npc.seeder_object_id, npc.seeded);
+            npc.template(world).map(|t| (state.0, state.1, t.level))
+        })
+    else {
+        return;
+    };
+    if caster_oid != seeder {
+        // TODO(manor): YOU_ARE_NOT_AUTHORIZED_TO_HARVEST — sm id not in repo data.
+        return;
+    }
+    if !seeded {
+        return;
+    }
+    if calc_harvest_success(player_level, target_level, world.roll(99)) {
+        // `takeHarvest()` — read and clear the stashed crop.
+        let harvest = world
+            .objects
+            .get_component_mut::<Npc>(&target_oid)
+            .and_then(|npc| npc.harvest_item.take());
+        if let Some((crop_id, count)) = harvest {
+            grant_and_notify(world, caster_oid, &[(crop_id, count, 0)]);
+        }
+    }
+}
+
+/// `Harvesting.calcSuccess`: base 100 %, a 5 % penalty per level of gap beyond
+/// 5, floored at 1 % (this one *is* clamped, unlike [`calc_sow_success`]).
+fn calc_harvest_success(player_level: i32, target_level: i32, roll: i32) -> bool {
+    let diff = (player_level - target_level).abs();
+    let mut basic = 100;
+    if diff > 5 {
+        basic -= (diff - 5) * 5;
+    }
+    if basic < 1 {
+        basic = 1;
+    }
+    roll < basic
+}
+
 /// `handlers/effecthandlers/ConsumeBody.java`: decay the swept corpse at once
 /// (`Npc.endDecayTask` → `onDecay`). Paired after `Sweeper` on skill 42 so the
 /// body vanishes immediately. Only a dead NPC (the resolved corpse target).
@@ -3667,4 +3862,33 @@ fn caster_level(world: &World, oid: i32) -> i32 {
         .and_then(|n| n.template(world))
         .map(|t| t.level)
         .unwrap_or(1)
+}
+
+#[cfg(test)]
+mod manor_calc_tests {
+    use super::{calc_harvest_success, calc_sow_success};
+
+    #[test]
+    fn sow_success_is_level_scaled() {
+        // A well-matched sow (seed lvl 10, mob lvl 10, player lvl 10): base 90%.
+        // roll 0 succeeds, roll 89 succeeds, roll 90 fails.
+        assert!(calc_sow_success(10, false, 10, 10, 0));
+        assert!(calc_sow_success(10, false, 10, 10, 89));
+        assert!(!calc_sow_success(10, false, 10, 10, 90));
+        // The alternative seed's base is only 20%.
+        assert!(calc_sow_success(10, true, 10, 10, 19));
+        assert!(!calc_sow_success(10, true, 10, 10, 20));
+        // Java quirk: a big mismatch is NOT floored at 1% — a mob 20 levels over
+        // the seed's band drives the chance ≤0, so even roll 0 fails.
+        assert!(!calc_sow_success(10, false, 10, 40, 0));
+    }
+
+    #[test]
+    fn harvest_success_is_floored_at_one_percent() {
+        // Matched levels: 100% (any roll 0..98 succeeds).
+        assert!(calc_harvest_success(10, 10, 98));
+        // A large gap is clamped to 1% (unlike sow): roll 0 still succeeds.
+        assert!(calc_harvest_success(10, 90, 0));
+        assert!(!calc_harvest_success(10, 90, 1));
+    }
 }

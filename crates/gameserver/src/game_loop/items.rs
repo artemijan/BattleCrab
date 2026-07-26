@@ -604,6 +604,7 @@ fn use_etc_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
     match handler {
         ItemHandler::ExtractableItems => extract_item(world, client_id, object_id, item_object_id),
         ItemHandler::ItemSkills => use_item_skills(world, client_id, object_id, item_object_id),
+        ItemHandler::Seed => use_seed_item(world, client_id, object_id, item_object_id),
         ItemHandler::SoulShots | ItemHandler::SpiritShot | ItemHandler::BlessedSpiritShot => {
             let item_id = world
                 .objects
@@ -1095,6 +1096,93 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// race. `QueuedAction::Skill` replays by skill id through `use_magic_on`,
 /// which would not find an item skill on the player's skill list, so the cast
 /// branch just refuses while another cast is running instead of queueing.
+/// Port of `handlers/itemhandlers/Seed.useItem` — sow a manor seed on the
+/// player's targeted monster: validate the target, flag the mob with the seed
+/// (`Attackable.setSeeded(seed, player)`), then cast the item's Sow skill (which
+/// runs [`crate::game_loop::skills::effects`]'s `Sow`). The item is consumed by
+/// the skill cast, as with any `<skills>` item.
+///
+/// TODO(manor): Java also gates on `seed.getCastleId() == target.getTaxCastle()`
+/// (`THIS_SEED_MAY_NOT_BE_SOWN_HERE`) — the tax-zone → castle mapping is
+/// unported, so a seed may be sown on any matching monster for now.
+fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
+    use crate::model::components::TargetRef;
+    use crate::model::npc::Npc;
+    use crate::network::server_packets::sm_ids;
+
+    if !world.cfg.general.allow_manor {
+        return;
+    }
+    let item_id = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_object_id)
+                .map(|i| i.item_id)
+        });
+    let Some(item_id) = item_id else {
+        return;
+    };
+    let send = |world: &World, sm: i16| {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(sm, &[]));
+        }
+    };
+
+    // The seeded target is the player's current target.
+    let Some(target_oid) = world
+        .objects
+        .get_component::<TargetRef>(&object_id)
+        .and_then(|t| t.0)
+        .filter(|oid| crate::game_loop::combat::is_npc_oid(*oid))
+    else {
+        send(world, sm_ids::INVALID_TARGET);
+        return;
+    };
+    // Must be a live, `canBeSown` monster that isn't already seeded.
+    let can_be_sown = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.can_be_sown);
+    let dead = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&target_oid)
+        .map(|v| v.dead)
+        .unwrap_or(true);
+    let already_seeded = world
+        .objects
+        .get_component::<Npc>(&target_oid)
+        .map(|n| n.seeded)
+        .unwrap_or(false);
+    if !can_be_sown || dead {
+        // Java: THE_TARGET_IS_UNAVAILABLE_FOR_SEEDING / INVALID_TARGET.
+        send(world, sm_ids::INVALID_TARGET);
+        return;
+    }
+    if already_seeded {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    // The seed must be in the catalogue (Java `getSeed(itemId)`).
+    if world.data.manor.seed_by_id(item_id).is_none() {
+        return;
+    }
+
+    // Flag the mob (Java `setSeeded(seed, player)` — sets seed + seeder, not the
+    // seeded state; the Sow effect sets that on success).
+    if let Some(npc) = world.objects.get_component_mut::<Npc>(&target_oid) {
+        npc.seed_id = item_id;
+        npc.seeder_object_id = object_id;
+    }
+    // Cast the item's Sow skill (consumes the seed, applies the `Sow` effect).
+    use_item_skills(world, client_id, object_id, item_object_id);
+}
+
 fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::game_loop::skills::cast::{
         check_skill_reuse, resolve_cast_target, set_skill_reuse, start_casting,

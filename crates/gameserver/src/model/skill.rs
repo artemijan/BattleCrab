@@ -715,6 +715,16 @@ pub enum SkillEffect {
     /// immediately (`Npc.endDecayTask`). Paired with `Sweeper` on skill 42 so
     /// the swept body vanishes at once. Instant.
     ConsumeBody,
+    /// `handlers/effecthandlers/Sow.java` — the manor sow (skill 2097, cast via
+    /// a Seed item). On a live `canBeSown` monster the caller has flagged with
+    /// the seed, rolls `calcSuccess` and — on success — marks it seeded and
+    /// stashes the crop it will yield on harvest (`Attackable.setSeeded`).
+    /// Instant.
+    Sow,
+    /// `handlers/effecthandlers/Harvesting.java` — the manor harvest (skill
+    /// 2098). On a dead, seeded corpse the caster sowed, rolls `calcSuccess` and
+    /// hands over the stashed crop (`Attackable.takeHarvest`). Instant.
+    Harvesting,
     /// `handlers/effecthandlers/DispelBySlot.java` — instant cleanse. Stops
     /// every active buff/debuff whose originating skill's `<abnormalType>` is in
     /// the dispel set, provided the listed level is negative (dispel all levels)
