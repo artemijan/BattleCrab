@@ -721,3 +721,76 @@ fn banish_ejects_outsiders_but_not_members() {
         .unwrap();
     assert_eq!((mp.x, mp.y), (inside.0, inside.1), "the member stayed put");
 }
+
+// ---------------------------------------------------------------------------
+// HP/MP regen benefit
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::clan_hall_function::{active_function_value, set_function};
+use crate::game_loop::regen::clan_hall_regen_mult;
+
+fn regen_world_with_hall(owner_clan: i32) -> World {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.zone_data = ZoneData::load_from(DIST);
+    world.clan_halls = load_clan_halls(DIST);
+    world.data.residence_functions = ResidenceFunctionData::load_from(DIST);
+    world.clan_halls.get_mut(&23).unwrap().owner_id = owner_clan;
+    world
+}
+
+/// A bought function's `value` is what the benefit reads.
+#[test]
+fn an_active_functions_value_is_reported() {
+    let mut world = regen_world_with_hall(100);
+    let now = commons::util::now_millis();
+    set_function(&mut world, 23, HP_REGEN, 1, now + 1_000_000);
+
+    assert_eq!(active_function_value(&world, 23, "HP_REGEN"), Some(1.2));
+    assert_eq!(
+        active_function_value(&world, 23, "MP_REGEN"),
+        None,
+        "not bought"
+    );
+}
+
+/// **A member standing in their own hall gets the HP/MP regen boost.**
+#[test]
+fn a_member_in_their_own_hall_is_boosted() {
+    let mut world = regen_world_with_hall(100);
+    let now = commons::util::now_millis();
+    set_function(&mut world, 23, HP_REGEN, 1, now + 1_000_000); // value 1.2
+    let inside = (-14943, 125584, -3000);
+    let member = 8500;
+    let _r = ingame_player(&mut world, 13, member, inside.0, inside.1, inside.2);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&member)
+        .unwrap()
+        .clan_id = 100;
+
+    let (hp, mp) = clan_hall_regen_mult(&world, member);
+    assert!((hp - 1.2).abs() < 1e-9, "HP boosted by the function value");
+    assert_eq!(mp, 1.0, "no MP function → no MP boost");
+}
+
+/// A non-member (or a member in someone else's hall) gets no boost.
+#[test]
+fn an_outsider_in_the_hall_is_not_boosted() {
+    let mut world = regen_world_with_hall(100);
+    let now = commons::util::now_millis();
+    set_function(&mut world, 23, HP_REGEN, 1, now + 1_000_000);
+    let inside = (-14943, 125584, -3000);
+    let outsider = 8501;
+    let _r = ingame_player(&mut world, 14, outsider, inside.0, inside.1, inside.2);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&outsider)
+        .unwrap()
+        .clan_id = 999; // not the owner
+
+    assert_eq!(
+        clan_hall_regen_mult(&world, outsider),
+        (1.0, 1.0),
+        "not your hall — no boost"
+    );
+}

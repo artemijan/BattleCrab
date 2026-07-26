@@ -31,6 +31,8 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         // rather than cached anywhere — a player who starts running between
         // ticks regenerates at the running rate on the very next one.
         let move_type = move_type_of(world, object_id);
+        // The clan-hall regen boost (read before the mutable borrow below).
+        let (hall_hp_mult, hall_mp_mult) = clan_hall_regen_mult(world, object_id);
         let Some((player, mut vitals, mut pvitals, base, mods)) =
             world.objects.get_many_mut::<(
                 &Player,
@@ -50,6 +52,8 @@ pub(crate) fn run_regen_tick(world: &mut World) {
             mods,
             move_type,
             &world.data,
+            hall_hp_mult,
+            hall_mp_mult,
         ) else {
             continue;
         };
@@ -58,6 +62,40 @@ pub(crate) fn run_regen_tick(world: &mut World) {
         }
         super::party::notify_party_vitals(world, object_id);
     }
+}
+
+/// The clan-hall HP/MP regen multipliers for a player: `(1.0, 1.0)` unless the
+/// player is a clan member standing in **their own** hall that has bought the
+/// `HP_REGEN` / `MP_REGEN` function (Java `RegenHPFinalizer`/`RegenMPFinalizer`,
+/// whose `clanHallIndex == posChIndex` check is "you are in the hall your clan
+/// owns" — derived here from the hall's `owner_id`).
+pub(crate) fn clan_hall_regen_mult(world: &World, object_id: i32) -> (f64, f64) {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&object_id)
+    else {
+        return (1.0, 1.0);
+    };
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
+    if clan_id == 0 {
+        return (1.0, 1.0);
+    }
+    let Some(hall_id) = world.data.zone_data.clan_hall_at(pos.x, pos.y, pos.z) else {
+        return (1.0, 1.0);
+    };
+    // Only your *own* hall boosts your regen.
+    if world.clan_halls.get(&hall_id).map(|h| h.owner_id) != Some(clan_id) {
+        return (1.0, 1.0);
+    }
+    let hp =
+        super::clan_hall_function::active_function_value(world, hall_id, "HP_REGEN").unwrap_or(1.0);
+    let mp =
+        super::clan_hall_function::active_function_value(world, hall_id, "MP_REGEN").unwrap_or(1.0);
+    (hp, mp)
 }
 
 /// `Formulas.getRegeneratePeriod`'s standing-still multiplier (1.1×).
@@ -122,6 +160,7 @@ pub(crate) fn move_type_of(world: &World, object_id: i32) -> MoveType {
 /// effect in the datapack (21 learnable skills — Regeneration 1044, Song of
 /// Life 265, Focus Mind 191, Mana Regeneration 1045, …) parsed to a modifier
 /// that was pumped and then read by nobody.
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn regen_player(
     p: &Player,
     vitals: &mut Vitals,
@@ -130,6 +169,11 @@ pub(crate) fn regen_player(
     mods: &StatModifiers,
     move_type: MoveType,
     data: &GameData,
+    // Clan-hall HP/MP-regen function multipliers (1.0 = no boost) — Java's
+    // `baseValue *= func.getValue()` inside the regen finalizer, applied while a
+    // clan member stands in their own hall (`RegenHPFinalizer`/`RegenMPFinalizer`).
+    hall_hp_mult: f64,
+    hall_mp_mult: f64,
 ) -> Option<Vec<(u8, i32)>> {
     // The dead don't regenerate (`CreatureStatus.stopHpMpRegeneration` on death).
     if vitals.dead {
@@ -164,7 +208,7 @@ pub(crate) fn regen_player(
     if vitals.cur_hp < vitals.max_hp as f64 {
         let regen = finalize(
             Stat::RegenerateHpRate,
-            t.base_hp_regen(p.level) * movement * level_mod * con_bonus,
+            t.base_hp_regen(p.level) * movement * level_mod * con_bonus * hall_hp_mult,
         );
         vitals.cur_hp = (vitals.cur_hp + regen).min(vitals.max_hp as f64);
         updates.push((
@@ -175,7 +219,7 @@ pub(crate) fn regen_player(
     if vitals.cur_mp < vitals.max_mp as f64 {
         let regen = finalize(
             Stat::RegenerateMpRate,
-            t.base_mp_regen(p.level) * movement * level_mod * men_bonus,
+            t.base_mp_regen(p.level) * movement * level_mod * men_bonus * hall_mp_mult,
         );
         vitals.cur_mp = (vitals.cur_mp + regen).min(vitals.max_mp as f64);
         updates.push((
