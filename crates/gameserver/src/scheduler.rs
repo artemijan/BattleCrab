@@ -339,6 +339,10 @@ pub enum ScheduledTask {
     /// A castle's scheduled weekly siege start (`SiegeSchedule.xml`) — begins
     /// the siege and re-arms next week (G24 slice 1).
     SiegeStart { castle_id: i32 },
+    /// The castle-manor daily mode change (`CastleManorManager.changeMode`):
+    /// advances APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the wall
+    /// clock, rolls the production/procure period, and re-arms the next change.
+    ManorModeChange,
     /// A cursed weapon's expiry — the wielder's duration ran out, or a
     /// monster-dropped weapon lay un-grabbed past its disappear deadline
     /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`
