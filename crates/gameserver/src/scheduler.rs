@@ -352,6 +352,12 @@ pub enum ScheduledTask {
     /// REGISTRATION_TIME)`, G28): prune offline registrants and either stand up
     /// the arena or cancel for too few players. A singleton event, so no key.
     TvtTeleportToArena,
+    /// TvT's warm-up ended (`startQuestTimer("StartFight", WAIT_TIME)`, G28):
+    /// open the arena doors and start the fight timer.
+    TvtStartFight,
+    /// TvT's fight ended (`startQuestTimer("EndFight", FIGHT_TIME)`, G28):
+    /// resolve the winner, reward, and tear the arena down.
+    TvtEndFight,
 }
 
 struct Entry {

@@ -1,15 +1,18 @@
 //! Team vs Team — the representative event for the G28 gate. Port of
-//! `custom/events/TeamVsTeam/TvT.java`. This slice (1) covers the lifecycle
-//! skeleton and the **registration phase**: the manager NPC at Giran, the
-//! open registration window, the register/cancel talk flow, and the
-//! window-close handler (cancel for too few players). Standing the arena up,
-//! the fight, scoring and rewards are slices 2–4 (see
-//! `docs/PLAN_G28_EVENTS_ENGINE.md`), flagged `TODO(G28)` at the seams.
+//! `custom/events/TeamVsTeam/TvT.java`. Slices 1–2: the lifecycle, the
+//! **registration phase** (manager NPC, register/cancel window), and the
+//! **arena stand-up** (coliseum instance, team split + teleport, buffers,
+//! scoreboard, the fight-window door/timer chain through a minimal teardown).
+//! Per-kill **scoring**, respawn, zone kicks, and winner **rewards** are slices
+//! 3–4 (see `docs/PLAN_G28_EVENTS_ENGINE.md`), flagged `TODO(G28)` at the seams.
 
+use rand::seq::SliceRandom;
+use rand::Rng;
 use tracing::warn;
 
 use crate::enums::ChatType;
-use crate::game_loop::death::{despawn_npc, introduce_npc};
+use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
+use crate::game_loop::instances;
 use crate::model::components::{FishingSession, RegionCell};
 use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
@@ -35,10 +38,30 @@ const MANAGER_HEADING: i32 = 32938;
 
 // Java `Settings`.
 const REGISTRATION_TIME_MIN: u64 = 10;
+const WAIT_TIME_MIN: u64 = 1;
+const FIGHT_TIME_MIN: u64 = 20;
 const MINIMUM_PARTICIPANT_LEVEL: i32 = 76;
 const MAXIMUM_PARTICIPANT_LEVEL: i32 = 200;
 const MINIMUM_PARTICIPANT_COUNT: usize = 4;
 const MAXIMUM_PARTICIPANT_COUNT: usize = 24; // Scoreboard has 25 slots.
+
+// The coliseum arena (Java `INSTANCE_ID` + door/spawn `Location`s).
+const INSTANCE_ID: i32 = 3049;
+const BLUE_DOOR_ID: i32 = 24190002;
+const RED_DOOR_ID: i32 = 24190003;
+const BLUE_SPAWN: (i32, i32, i32) = (147447, 46722, -3416);
+const RED_SPAWN: (i32, i32, i32) = (151536, 46722, -3416);
+// Buffer NPCs (the manager reused): `(x, y, z, heading)`.
+const BLUE_BUFFER: (i32, i32, i32, i32) = (147450, 46913, -3400, 49000);
+const RED_BUFFER: (i32, i32, i32, i32) = (151545, 46528, -3400, 16000);
+
+// Java `Team` ordinals (`Creature._team` — 0 none / 1 blue / 2 red).
+const TEAM_NONE: u8 = 0;
+const TEAM_BLUE: u8 = 1;
+const TEAM_RED: u8 = 2;
+
+// `ExShowScreenMessage` position (Java `TOP_CENTER`).
+const TOP_CENTER: i32 = 2;
 
 /// Game-loop ticks per second (matches the rest of `game_loop`).
 const TICKS_PER_SECOND: u64 = 10;
@@ -97,14 +120,19 @@ pub(crate) fn event_stop(world: &mut World) -> bool {
         return false;
     }
     despawn_manager(world);
-    // Java clears the registration flag on every participant (the fight-state
-    // teardown — team/invul/immobilize/servitors — lands with slice 4).
+    // Clear per-participant event state (Java also un-invul / un-immobilize /
+    // re-enable skills + servitor reset — that fight-state teardown lands with
+    // slice 4, once those disables are applied at `EndFight`).
     for player in world.events.tvt.player_list.clone() {
         set_registered(world, player, false);
-        // TODO(G28): setOnEvent(false), team=NONE, un-invul/un-immobilize +
-        //   servitor reset (slice 4, once the fight state exists).
+        set_on_event(world, player, false);
+        set_team(world, player, TEAM_NONE);
     }
-    // TODO(G28): PVP_WORLD.destroy() — no instance stands up until slice 2.
+    // Tear the arena down if one is up (ousts everyone to their ORIGIN return
+    // location, despawns the arena NPCs/doors).
+    if let Some(instance_id) = world.events.tvt.world_id.take() {
+        instances::destroy(world, instance_id);
+    }
     world.events.tvt.reset();
     world.events.active = None;
     announce(world, "TvT Event: Event was canceled.");
@@ -133,16 +161,119 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
         return;
     }
 
-    // TODO(G28) slice 2: create the coliseum instance (template 3049), close
-    // doors, shuffle + split BLUE/RED, teleport participants in, form
-    // parties/command-channels, spawn the two buffers, broadcast
-    // ExPVPMatchCCRecord::INITIALIZE, then arm the StartFight countdown.
-    // Until that lands, end the event cleanly rather than strand registrants.
-    warn!(
-        "TvT: {} participants registered — arena stand-up is slice 2 (TODO(G28)); ending event.",
-        world.events.tvt.player_list.len()
+    // Enough players — stand the arena up.
+    let Some(instance_id) = instances::create_from_template(world, INSTANCE_ID) else {
+        warn!("TvT: failed to create coliseum instance {INSTANCE_ID}; canceling.");
+        announce(world, "TvT Event: Event was canceled.");
+        clear_registrations(world);
+        world.events.tvt.reset();
+        world.events.active = None;
+        return;
+    };
+    world.events.tvt.world_id = Some(instance_id);
+    // The coliseum doors default to closed (coliseum.xml), so no explicit close.
+
+    // Shuffle, then split into teams. Java alternates from a random starting
+    // side (`getRandomBoolean`), so the odd player lands on that random side.
+    let mut roster = world.events.tvt.player_list.clone();
+    roster.shuffle(&mut world.rng);
+    world.events.tvt.player_list = roster.clone();
+    let mut to_blue = world.rng.gen::<bool>();
+    for player in roster {
+        set_registered(world, player, false);
+        set_on_event(world, player, true);
+        instances::enter(world, player, instance_id);
+        if to_blue {
+            world.events.tvt.blue_team.push(player);
+            set_team(world, player, TEAM_BLUE);
+            teleport_player(world, player, BLUE_SPAWN.0, BLUE_SPAWN.1, BLUE_SPAWN.2);
+        } else {
+            world.events.tvt.red_team.push(player);
+            set_team(world, player, TEAM_RED);
+            teleport_player(world, player, RED_SPAWN.0, RED_SPAWN.1, RED_SPAWN.2);
+        }
+        to_blue = !to_blue;
+        // TODO(G28): leaveParty + party-of-7 / command-channel grouping, and
+        //   addDeathListener — both slice 3 (scoring needs a CC primitive we
+        //   don't have yet; team membership is tracked in blue/red_team here).
+    }
+
+    // The two arena buffers (the manager NPC reused).
+    instances::spawn_npc(
+        world,
+        instance_id,
+        MANAGER,
+        BLUE_BUFFER.0,
+        BLUE_BUFFER.1,
+        BLUE_BUFFER.2,
+        BLUE_BUFFER.3,
     );
-    clear_registrations(world);
+    instances::spawn_npc(
+        world,
+        instance_id,
+        MANAGER,
+        RED_BUFFER.0,
+        RED_BUFFER.1,
+        RED_BUFFER.2,
+        RED_BUFFER.3,
+    );
+
+    // Initialize the scoreboard (scores already 0 from registration).
+    broadcast_scoreboard(world, instance_id, sp::PVP_MATCH_INITIALIZE);
+
+    world.events.tvt.phase = TvtPhase::Warmup;
+    world.scheduler.schedule(
+        world.tick + WAIT_TIME_MIN * 60 * TICKS_PER_SECOND,
+        ScheduledTask::TvtStartFight,
+    );
+}
+
+/// Java `TvT.onEvent("StartFight")`: open the arena doors and start the fight.
+pub(crate) fn start_fight(world: &mut World) {
+    if world.events.tvt.phase != TvtPhase::Warmup {
+        return;
+    }
+    let Some(instance_id) = world.events.tvt.world_id else {
+        return;
+    };
+    instances::open_close_door(world, instance_id, BLUE_DOOR_ID, true);
+    instances::open_close_door(world, instance_id, RED_DOOR_ID, true);
+    broadcast_screen(world, instance_id, "The fight has began!", 5);
+    world.events.tvt.phase = TvtPhase::Fighting;
+    world.scheduler.schedule(
+        world.tick + FIGHT_TIME_MIN * 60 * TICKS_PER_SECOND,
+        ScheduledTask::TvtEndFight,
+    );
+    // TODO(G28): the 5..1 warm-up countdown screen messages (cosmetic, slice 3).
+}
+
+/// Java `TvT.onEvent("EndFight")` + `"TeleportOut"`: the fight is over. Slice 2
+/// resolves the timer, announces the end, and tears the arena down.
+pub(crate) fn end_fight(world: &mut World) {
+    if world.events.tvt.phase != TvtPhase::Fighting {
+        return;
+    }
+    let Some(instance_id) = world.events.tvt.world_id else {
+        return;
+    };
+    // TODO(G28) slice 4: close doors, freeze players + revive the dead, resolve
+    //   BLUE vs RED (firework + adena reward to the winners / social action on a
+    //   tie), broadcast ExPVPMatchCCRecord::FINISH, then a 7s delay before the
+    //   teleport-out. Scoring itself (the per-kill updates) is slice 3.
+    broadcast_screen(world, instance_id, "The event has ended!", 7);
+    teleport_out(world);
+}
+
+/// Java `TvT.onEvent("TeleportOut")`: clear per-player event state and destroy
+/// the arena (ousting everyone to their ORIGIN return location).
+fn teleport_out(world: &mut World) {
+    for player in world.events.tvt.player_list.clone() {
+        set_on_event(world, player, false);
+        set_team(world, player, TEAM_NONE);
+    }
+    if let Some(instance_id) = world.events.tvt.world_id.take() {
+        instances::destroy(world, instance_id);
+    }
     world.events.tvt.reset();
     world.events.active = None;
 }
@@ -292,6 +423,46 @@ fn set_registered(world: &mut World, player: i32, value: bool) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&player) {
         p.registered_on_event = value;
     }
+}
+
+fn set_on_event(world: &mut World, player: i32, value: bool) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player) {
+        p.on_event = value;
+    }
+}
+
+fn set_team(world: &mut World, player: i32, team: u8) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player) {
+        p.team = team;
+    }
+}
+
+/// Build the score rows (name, score) sorted by score descending — Java
+/// `Util.sortByValue(PLAYER_SCORES, true)` — and broadcast `ExPVPMatchCCRecord`
+/// to the arena.
+fn broadcast_scoreboard(world: &mut World, instance_id: i32, state: i32) {
+    let mut rows: Vec<(String, i32)> = world
+        .events
+        .tvt
+        .scores
+        .iter()
+        .filter_map(|(&oid, &score)| {
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .map(|p| (p.name.clone(), score))
+        })
+        .collect();
+    rows.sort_by(|a, b| b.1.cmp(&a.1));
+    let refs: Vec<(&str, i32)> = rows.iter().map(|(n, s)| (n.as_str(), *s)).collect();
+    let pkt = sp::ex_pvp_match_cc_record(state, &refs);
+    instances::broadcast_to_instance(world, instance_id, &pkt);
+}
+
+/// Broadcast a top-center screen banner to the arena for `secs` seconds.
+fn broadcast_screen(world: &World, instance_id: i32, text: &str, secs: i32) {
+    let pkt = sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000);
+    instances::broadcast_to_instance(world, instance_id, &pkt);
 }
 
 fn is_on_event(world: &World, player: i32) -> bool {

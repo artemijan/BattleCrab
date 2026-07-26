@@ -67,6 +67,28 @@ pub fn ex_show_screen_message(text: &str, position: i32, time: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ExPVPMatchCCRecord` states (Java constants).
+pub const PVP_MATCH_INITIALIZE: i32 = 0;
+pub const PVP_MATCH_UPDATE: i32 = 1;
+pub const PVP_MATCH_FINISH: i32 = 2;
+
+/// `ExPVPMatchCCRecord(state, players)` — the TvT / command-channel scoreboard
+/// (G28). `state` is 0 initialize / 1 update / 2 finish. `players` is
+/// `(name, score)`, capped at the client's 25 slots and pre-sorted by the caller
+/// (Java `Util.sortByValue(scores, descending)`).
+pub fn ex_pvp_match_cc_record(state: i32, players: &[(&str, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PVP_MATCH_CCRECORD);
+    w.write_i32(state); // 0 initialize, 1 update, 2 finish
+    w.write_i32(players.len().min(25) as i32);
+    for (name, score) in players.iter().take(25) {
+        w.write_string(name);
+        w.write_i32(*score);
+    }
+    w.into_bytes()
+}
+
 // `PlaySound` for the GM `//play_sound` reuses the quest-sound builder
 // (`server_packets::play_sound`) — identical wire form.
 

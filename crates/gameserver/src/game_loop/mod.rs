@@ -652,6 +652,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtTeleportToArena => {
                 events::tvt::teleport_to_arena(world);
             }
+            ScheduledTask::TvtStartFight => {
+                events::tvt::start_fight(world);
+            }
+            ScheduledTask::TvtEndFight => {
+                events::tvt::end_fight(world);
+            }
         }
     }
 }

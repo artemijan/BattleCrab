@@ -87,11 +87,27 @@ The original slice-1 plan below.
   registers; cancel works; registration window closing with < min players
   cancels cleanly.
 
-### Slice 2 — Teleport to arena, team split, instance stand-up
-- `TeleportToArena`: prune offline, min-count check, `create_from_template(3049)`,
-  close doors, shuffle + split BLUE/RED, teleport to spawn locs in the instance,
-  set `team`, add allowed; parties-of-7 (+ CC), spawn the two buffers.
-- `ExPVPMatchCCRecord::INITIALIZE` broadcast; `StartFight` countdown timers.
+### Slice 2 — Teleport to arena, team split, instance stand-up  ✅ LANDED
+
+**Landed.** `teleport_to_arena`'s enough-players branch: `create_from_template(3049)`
+(coliseum doors default closed), shuffle + strict-alternate split into BLUE/RED
+from a random start side, `instances::enter` + `teleport_player` to the team
+spawn, `team`/`on_event` flags, the two arena buffers (manager NPC reused),
+`ExPVPMatchCCRecord::INITIALIZE` (new packet + `EX_PVP_MATCH_CCRECORD` 0x8A opcode
++ `PVP_MATCH_*` state consts), then `TvtPhase::Warmup` + the `StartFight` timer.
+`start_fight` opens the BLUE/RED doors, screen-messages "The fight has began!",
+arms `EndFight`. `end_fight` (slice-2 minimal) screen-messages the end and tears
+the arena down via `instances::destroy` (ousts everyone to their ORIGIN return
+loc, despawns arena NPCs/doors) + clears `team`/`on_event`. `event_stop` now
+destroys a live arena too. New scheduler tasks `TvtStartFight`/`TvtEndFight`;
+`TvtPhase::{Warmup,Fighting}`. 4 new tests (arena stand-up + 2/2 split, door/timer
+window, teardown+free, full start→finish run), sabotage-verified.
+
+**Deferred to slice 3/4 (TODO(G28) at the sites):** parties-of-7 + command
+channels + `leaveParty` + `addDeathListener` (need a CC primitive); the 5..1 /
+10..1 countdown screen messages (cosmetic); and the real `EndFight` — freeze
+players, revive the dead, resolve BLUE vs RED (firework + adena / tie social
+action), `ExPVPMatchCCRecord::FINISH`, the 7s scoreboard delay.
 
 ### Slice 3 — Fight lifecycle + scoring + respawn
 - `StartFight` (open doors, screen countdown), **player-death listener** → team

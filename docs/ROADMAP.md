@@ -1063,11 +1063,17 @@ Java's `Event` base is just `Quest` + `eventStart`/`eventStop`, and no
 `AbstractEvent`/`EventManager` class exists in this dist — the ported engine is
 the lifecycle wrapper plus the framework hooks the event needs.
 
-**Remaining for G28:** the TvT arena stand-up + team split (slice 2), the fight /
-scoring / respawn (slice 3), end / rewards / cleanup / forfeit / logout — plus
-the `on_enter_zone`/`on_exit_zone`/`on_player_death`/`on_player_logout`
-script-framework hooks it needs (slice 4), and the optional cron auto-schedule
-(slice 5).
+**Slice 2 (2026-07-26):** the TvT **arena stand-up** landed — `teleport_to_arena`
+creates the coliseum instance, shuffle-splits BLUE/RED, teleports each to their
+team spawn, spawns the buffers, broadcasts the `ExPVPMatchCCRecord` scoreboard
+(new packet), and runs the door/timer fight window through a minimal teardown, so
+**a full TvT event now runs start→finish** (minus scoring/rewards).
+
+**Remaining for G28:** per-kill **scoring** + respawn + zone kicks (slice 3), the
+real **EndFight** — freeze / revive / winner firework+adena / tie + scoreboard
+FINISH (slice 4) — plus the `on_enter_zone`/`on_exit_zone`/`on_player_death`/
+`on_player_logout` script-framework hooks and command channels those need, and
+the optional cron auto-schedule (slice 5).
 
 ---
 

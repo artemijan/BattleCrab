@@ -16,7 +16,11 @@ pub enum TvtPhase {
     Inactive,
     /// The manager NPC is spawned and the registration window is open.
     Registration,
-    // Slice 2+ add `Warmup` / `Fighting` / `Ending`.
+    /// Teams are in the arena behind closed doors; the fight hasn't started
+    /// (Java's `WAIT_TIME` countdown between teleport and `StartFight`).
+    Warmup,
+    /// The doors are open and the fight is on (`StartFight` → `EndFight`).
+    Fighting,
 }
 
 /// TvT runtime — port of the static fields in `custom/events/TeamVsTeam/TvT.java`.
