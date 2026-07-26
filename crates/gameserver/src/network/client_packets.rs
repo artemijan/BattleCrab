@@ -160,6 +160,8 @@ pub mod opcodes {
 /// Extended (`0xD0`) client sub-opcodes.
 pub mod ex_opcodes {
     pub const REQUEST_MANOR_LIST: u16 = 0x01;
+    /// `RequestProcureCropList` — a player sells crops to a Manor Manager.
+    pub const REQUEST_PROCURE_CROP_LIST: u16 = 0x02;
     /// `RequestSetSeed` — the manor owner submits the next-period seed setup.
     pub const REQUEST_SET_SEED: u16 = 0x03;
     /// `RequestSetCrop` — the manor owner submits the next-period crop setup.
