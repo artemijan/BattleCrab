@@ -1,5 +1,6 @@
 .idea
 .claude
+.worktrees
 target/
 tools/vector-dump/out/
 *.db
