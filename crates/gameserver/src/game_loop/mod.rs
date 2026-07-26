@@ -74,7 +74,7 @@ mod skills;
 pub(crate) mod subclass;
 mod support_magic;
 mod target;
-mod teleporter;
+pub(crate) mod teleporter;
 #[cfg(test)]
 mod tests;
 mod trade;

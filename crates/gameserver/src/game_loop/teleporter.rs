@@ -52,12 +52,28 @@ pub(crate) fn handle_bypass(
         }
         "showTeleports" => {
             let list_name = tokens.next().unwrap_or("NORMAL");
-            show_teleport_list(world, client_id, object_id, npc_object_id, list_name);
+            let bypass = format!("npc_{npc_object_id}_teleport");
+            show_teleport_list(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                list_name,
+                &bypass,
+            );
             true
         }
         "showTeleportsHunting" => {
             let list_name = tokens.next().unwrap_or("HUNTING");
-            show_teleport_list(world, client_id, object_id, npc_object_id, list_name);
+            let bypass = format!("npc_{npc_object_id}_teleport");
+            show_teleport_list(
+                world,
+                client_id,
+                object_id,
+                npc_object_id,
+                list_name,
+                &bypass,
+            );
             true
         }
         "teleport" => {
@@ -142,14 +158,17 @@ fn fee_item_name(world: &World, fee_id: i32) -> String {
 }
 
 /// `TeleportHolder.showTeleportList`: build the button list into
-/// `data/html/teleporter/teleports.htm` and send it. Quest-zone priority
-/// buttons are skipped (no quest zones ported).
-fn show_teleport_list(
+/// `data/html/teleporter/teleports.htm` and send it (quest-zone priority buttons
+/// skipped — no quest zones ported). `bypass` is the button-action prefix —
+/// normally `npc_<oid>_teleport` (the gatekeeper handler), but the Clan Hall
+/// Manager passes its own quest bypass so the list routes back through it.
+pub(crate) fn show_teleport_list(
     world: &mut World,
     client_id: u32,
     object_id: i32,
     npc_object_id: i32,
     list_name: &str,
+    bypass: &str,
 ) {
     let Some(level) = world
         .objects
@@ -168,7 +187,6 @@ fn show_teleport_list(
         return;
     }
 
-    let bypass = format!("npc_{npc_object_id}_teleport");
     let mut buttons = String::new();
     for (i, loc) in holder.locations.iter().enumerate() {
         let (mut final_name, confirm_desc) = if loc.npc_string_id >= 0 {
@@ -205,7 +223,7 @@ fn show_teleport_list(
 }
 
 /// `TeleportHolder.doTeleport`: validate, charge the fee, and teleport.
-fn do_teleport(
+pub(crate) fn do_teleport(
     world: &mut World,
     client_id: u32,
     object_id: i32,

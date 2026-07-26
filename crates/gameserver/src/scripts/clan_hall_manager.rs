@@ -3,15 +3,17 @@
 //! ownership / function state lives in [`crate::game_loop::clan_hall_auction`]
 //! and [`crate::game_loop::clan_hall_function`].
 //!
-//! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, and
-//! the static function menus. Deferred (need infrastructure): `expel`
-//! (banishOthers → a ClanHallZone) and `useFunctions` (teleport / buffs / item
-//! creation → the per-type benefits).
+//! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, the
+//! static function menus, `expel` (banishOthers), and `useFunctions teleport`
+//! (the hall's TELEPORT-level `tel<n>` list). Deferred (need infrastructure):
+//! the `useFunctions` buff / item-creation benefits.
 
 use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
-use crate::game_loop::clan_hall_function::{buy_function, remove_function, FunctionOutcome};
+use crate::game_loop::clan_hall_function::{
+    buy_function, function_level, remove_function, FunctionOutcome,
+};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_SET_FUNCTIONS};
+use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
 use crate::model::Player;
 
 /// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
@@ -107,8 +109,12 @@ impl QuestScript for ClanHallManager {
                     Some(page("07"))
                 }
             }
-            // Deferred console (per-type benefits) — serve the console page.
-            Some("useFunctions") => Some(page("01")),
+            Some("useFunctions") => {
+                if !has_priv(ctx, CH_OTHER_RIGHTS) {
+                    return Some(NO_AUTHORITY.to_string());
+                }
+                self.use_functions(ctx, hall_id, &mut parts)
+            }
             Some(e) if e.ends_with(".html") => Some(e.to_string()),
             _ => Some(page("01")),
         }
@@ -116,6 +122,65 @@ impl QuestScript for ClanHallManager {
 }
 
 impl ClanHallManager {
+    /// `useFunctions` — the benefits the hall has bought. Only `teleport` is
+    /// wired so far; the buff/item consoles are later slices.
+    fn use_functions(
+        &self,
+        ctx: &mut QuestCtx,
+        hall_id: i32,
+        parts: &mut std::str::SplitWhitespace,
+    ) -> Option<String> {
+        match parts.next() {
+            Some("teleport") => {
+                // The hall's TELEPORT function level picks the `tel<level>` list.
+                let func_id = ctx.world.data.residence_functions.id_of_type("TELEPORT")?;
+                let level = function_level(ctx.world, hall_id, func_id);
+                if level == 0 {
+                    // No teleport function bought.
+                    return Some("ClanHallManager-noFunction.html".to_string());
+                }
+                match (parts.next(), parts.next()) {
+                    // A picked destination: `useFunctions teleport tel<n> <loc>`.
+                    // Java guards the list token's level against the hall's own
+                    // (`teleportLevel == funcLvl`) before teleporting.
+                    (Some(list), Some(loc)) => {
+                        let func_lvl = list.strip_prefix("tel").and_then(|n| n.parse().ok());
+                        if func_lvl == Some(level) {
+                            crate::game_loop::teleporter::do_teleport(
+                                ctx.world,
+                                ctx.client_id,
+                                ctx.player,
+                                ctx.npc,
+                                list,
+                                loc.parse().ok(),
+                            );
+                        }
+                        None
+                    }
+                    // No destination yet: show the list, routed back through us.
+                    _ => {
+                        let list = format!("tel{level}");
+                        let bypass = format!(
+                            "npc_{}_Quest ClanHallManager useFunctions teleport",
+                            ctx.npc
+                        );
+                        crate::game_loop::teleporter::show_teleport_list(
+                            ctx.world,
+                            ctx.client_id,
+                            ctx.player,
+                            ctx.npc,
+                            &list,
+                            &bypass,
+                        );
+                        None
+                    }
+                }
+            }
+            // Buffs / item creation consoles are later slices.
+            _ => Some(page("01")),
+        }
+    }
+
     fn manage_functions(
         &self,
         ctx: &mut QuestCtx,

@@ -248,6 +248,9 @@ pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 
 /// `ClanPrivilege.CH_OPEN_DOOR` (ordinal 11) — open/close clan-hall doors.
 pub const CH_OPEN_DOOR: i32 = 1 << 11;
+/// `ClanPrivilege.CH_OTHER_RIGHTS` (ordinal 12) — use hall functions
+/// (teleport / buffs / item creation).
+pub const CH_OTHER_RIGHTS: i32 = 1 << 12;
 /// `ClanPrivilege.CH_DISMISS` (ordinal 14) — banish non-members from the hall.
 pub const CH_DISMISS: i32 = 1 << 14;
 /// `ClanPrivilege.CH_SET_FUNCTIONS` (ordinal 15) — buy/remove hall functions.
