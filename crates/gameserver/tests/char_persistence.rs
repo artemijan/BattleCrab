@@ -112,6 +112,7 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
             DbEvent::IdBlock { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
+            | DbEvent::LotteryLoaded { .. }
             | DbEvent::BufferSchemesLoaded { .. }
             | DbEvent::FavoritesLoaded { .. }
             | DbEvent::GrandBossesLoaded { .. }

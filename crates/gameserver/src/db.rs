@@ -771,6 +771,25 @@ pub enum DbCommand {
     DeletePremium {
         account_name: String,
     },
+    /// Insert a fresh Lucky Lottery round (Java `Lottery.INSERT_LOTTERY`, G26.5).
+    /// `newprize` starts equal to `prize`.
+    StoreLottery {
+        idnr: i32,
+        enddate: i64,
+        prize: i64,
+    },
+    /// Mark a lottery round drawn (Java `Lottery.UPDATE_LOTTERY`): winning
+    /// numbers + per-tier prizes + the pot carried to the next round.
+    FinishLottery {
+        idnr: i32,
+        prize: i64,
+        newprize: i64,
+        number1: i32,
+        number2: i32,
+        prize1: i64,
+        prize2: i64,
+        prize3: i64,
+    },
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
@@ -850,6 +869,11 @@ pub enum DbEvent {
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
+    /// The most recent `lottery` row (Java `Lottery.SELECT_LAST_LOTTERY`), pushed
+    /// unprompted at boot. `None` when the table is empty (first ever boot).
+    LotteryLoaded {
+        row: Option<crate::model::lottery::LotteryRow>,
+    },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
     /// the available-buff table are filtered on the game thread.
@@ -1114,6 +1138,12 @@ async fn run(
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::BufferSchemesLoaded {
         entries: load_buffer_schemes(&pool).await,
+    });
+
+    // Last lottery round (Java `Lottery.startLottery`'s restore) — likewise
+    // unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::LotteryLoaded {
+        row: load_lottery(&pool).await,
     });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
@@ -2194,6 +2224,45 @@ async fn run(
                 )
                 .await;
             }
+            DbCommand::StoreLottery {
+                idnr,
+                enddate,
+                prize,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO lottery(id, idnr, enddate, prize, newprize) VALUES (1, ?, ?, ?, ?)")
+                        .bind(idnr)
+                        .bind(enddate)
+                        .bind(prize)
+                        .bind(prize),
+                )
+                .await;
+            }
+            DbCommand::FinishLottery {
+                idnr,
+                prize,
+                newprize,
+                number1,
+                number2,
+                prize1,
+                prize2,
+                prize3,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE lottery SET finished=1, prize=?, newprize=?, number1=?, number2=?, prize1=?, prize2=?, prize3=? WHERE id=1 AND idnr=?")
+                        .bind(prize)
+                        .bind(newprize)
+                        .bind(number1)
+                        .bind(number2)
+                        .bind(prize1)
+                        .bind(prize2)
+                        .bind(prize3)
+                        .bind(idnr),
+                )
+                .await;
+            }
             DbCommand::StoreBufferScheme {
                 object_id,
                 scheme_name,
@@ -2313,6 +2382,25 @@ async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
             .collect(),
         Err(_) => Vec::new(),
     }
+}
+
+/// The most recent lottery round (Java `Lottery.SELECT_LAST_LOTTERY`). `None`
+/// when the table is empty or unavailable.
+async fn load_lottery(pool: &SqlitePool) -> Option<crate::model::lottery::LotteryRow> {
+    let row = sqlx::query(
+        "SELECT idnr, prize, newprize, enddate, finished FROM lottery WHERE id = 1 ORDER BY idnr DESC LIMIT 1",
+    )
+    .fetch_optional(pool)
+    .await
+    .ok()
+    .flatten()?;
+    Some(crate::model::lottery::LotteryRow {
+        idnr: geti(&row, "idnr") as i32,
+        prize: geti(&row, "prize"),
+        newprize: geti(&row, "newprize"),
+        enddate: geti(&row, "enddate"),
+        finished: geti(&row, "finished") == 1,
+    })
 }
 
 /// One `npc_respawns` row — a raid boss's persisted state.

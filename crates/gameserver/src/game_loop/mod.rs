@@ -46,6 +46,7 @@ mod henna;
 pub(crate) mod instances;
 mod items;
 mod lobby;
+pub(crate) mod lottery;
 pub(crate) mod manor;
 pub(crate) mod minions;
 pub(crate) mod multisell;
@@ -667,6 +668,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtTeleportOut => {
                 events::tvt::teleport_out(world);
             }
+            ScheduledTask::LotteryStart => lottery::open_round(world),
+            ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
+            ScheduledTask::LotteryFinish => lottery::finish_lottery(world),
         }
     }
 }

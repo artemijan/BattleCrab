@@ -717,6 +717,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
                 world.premium = entries.into_iter().collect();
             }
+            DbEvent::LotteryLoaded { row } => {
+                super::lottery::on_loaded(world, row);
+            }
             DbEvent::BufferSchemesLoaded { entries } => {
                 // Java `SchemeBufferTable.load` drops any saved skill id no longer
                 // in `_availableBuffs`; the buffer table lives here on the game

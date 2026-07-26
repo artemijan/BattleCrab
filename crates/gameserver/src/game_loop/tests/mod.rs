@@ -72,6 +72,7 @@ mod henna_tests;
 mod instance_tests;
 mod items_tests;
 mod lobby_tests;
+mod lottery_tests;
 mod magic_resist_tests;
 mod mana_drain_tests;
 mod mana_restore_tests;

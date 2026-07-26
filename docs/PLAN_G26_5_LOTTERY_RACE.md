@@ -46,15 +46,24 @@ config-off is not a reason to skip (see [[l2r-config-disabled-still-port]]).
 
 ## Slice breakdown
 
-### Slice 1 — Lottery round lifecycle + Manager info  ⬅ start here
-- `lottery` table load/persist (via `db.rs`, the SQL-manager pattern) →
-  `LotteryState` (round id, prize, enddate, sellable/started) on `World`.
-- The weekly scheduler: `start → stopSelling (−10 min) → finish` as
-  `ScheduledTask::Lottery*` transitions (the finish *draw* is slice 2).
-- The `Loto` NPC bypass dialog skeleton: current round, pot, end date, and the
-  "sellable / not started" branches. `AllowLottery` gate.
-- **Gate:** with lottery enabled, the Manager shows the live round + pot and the
-  round rolls over on schedule.
+### Slice 1 — Lottery round lifecycle + persistence  ✅ LANDED
+
+**Landed.** `LotteryState` on `World` (`model/lottery.rs`) + `game_loop/lottery.rs`
+(the round engine): `on_loaded` (boot restore — fresh round #1 / carry a
+finished row's pot into the next / resume a live round with its draw armed),
+`open_round` (next-Sunday-19:00 draw via `siege::next_siege_millis`, insert row,
+announce), `stop_selling`, and `finish_lottery` (slice-1 rollover: **no draw**,
+whole pot carries — the number-roll + ticket-match + tiers are the `TODO(G26.5)`
+slice-2 body). Persistence: `lottery` table load (`db.rs::load_lottery` +
+`DbEvent::LotteryLoaded`, boot-pushed before `ClansLoaded`) + writes
+(`DbCommand::{StoreLottery, FinishLottery}`). Scheduler tasks
+`LotteryStart`/`StopSelling`/`Finish` (wall-clock → tick conversion like siege).
+Config: the `AltLottery*` keys in `GeneralConfig` (`AllowLottery` gate). 5 tests
+(fresh boot, disabled-inert, finished carry-over, live resume, finish rollover),
+sabotage-verified.
+
+**Deferred to slice 2:** the `Loto` NPC dialog moves here (it's mainly the
+ticket-buy UI, so it lands with purchase), along with the draw + prize claim.
 
 ### Slice 2 — Ticket purchase + draw + prize claim
 - Number-pick dialog → create ticket item 4442 (round id + bitmask), charge

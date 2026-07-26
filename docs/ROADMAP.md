@@ -1031,6 +1031,14 @@ weekly draw, prize-claim dialogs) and `MonsterRace` (the Race Track: race
 ticks, betting, `MonRaceInfo`). Niche end-game content — schedule last within
 the track. **Deps:** G15 (economy).
 
+**Slice 1 (2026-07-26):** the **Lottery round lifecycle + persistence** landed
+([PLAN_G26_5_LOTTERY_RACE.md](PLAN_G26_5_LOTTERY_RACE.md)) — the weekly round
+engine (boot restore/resume, next-Sunday-19:00 draw scheduling, pot carry-over)
+backed by the `lottery` table, config-gated on `AllowLottery` (dist off).
+**Remaining:** ticket purchase + the prize draw + the `Loto` NPC dialog (slice
+2); the whole Monster Race (state machine, `RaceManager`, `MonRaceInfo`,
+betting/payout — slices 3–4).
+
 ### G27 — Instances
 `InstanceManager` + instance worlds; instance zones; reenter timers; instance-
 scoped spawns/doors/reset; the party-enter flow. **Gate:** a party enters an

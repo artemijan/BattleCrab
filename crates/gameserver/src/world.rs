@@ -265,6 +265,9 @@ pub struct World {
     /// The event engine's runtime (TvT and future events — G28).
     pub events: crate::model::event::EventManager,
 
+    /// The weekly Lucky Lottery runtime (G26.5).
+    pub lottery: crate::model::lottery::LotteryState,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -401,6 +404,7 @@ impl World {
             olympiad: crate::model::olympiad::OlympiadState::default(),
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
+            lottery: crate::model::lottery::LotteryState::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),
