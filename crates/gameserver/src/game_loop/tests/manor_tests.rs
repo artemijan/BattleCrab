@@ -321,6 +321,78 @@ fn manor_state_loads_at_boot() {
     assert_eq!(proc[0].reward_type, 1);
 }
 
+/// **The daily mode cycle advances and rolls an owned castle's production.**
+/// APPROVED → MAINTENANCE promotes the next-period setup to current; the cycle
+/// then continues MAINTENANCE → MODIFIABLE → APPROVED.
+#[test]
+fn mode_cycle_rolls_owned_castle_production() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world
+        .data
+        .manor
+        .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
+    own_castle(&mut world, 1); // clan 500 owns Gludio
+                               // Owner set up next-period seed production; current is empty.
+    world.manor.set_next_seed_production(
+        1,
+        vec![SeedProduction {
+            seed_id: 90001,
+            amount: 500,
+            price: 3,
+            start_amount: 500,
+        }],
+    );
+    // Mode starts Approved (the settled daytime period).
+    world.manor.set_mode(ManorMode::Approved);
+    assert!(
+        world.manor.seed_production(1, false).is_empty(),
+        "current empty before roll"
+    );
+
+    // APPROVED → MAINTENANCE: the next-period setup rolls into current.
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(world.manor.mode(), ManorMode::Maintenance);
+    let cur = world.manor.seed_production(1, false);
+    assert_eq!(cur.len(), 1, "the owner's setup is now the current period");
+    assert_eq!(cur[0].seed_id, 90001);
+
+    // The cycle continues.
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(world.manor.mode(), ManorMode::Modifiable);
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(world.manor.mode(), ManorMode::Approved);
+}
+
+/// **An unowned castle's manor does not roll.** Java skips castles with no owner
+/// in `changeMode`, so a next-period setup on an ownerless castle stays put.
+#[test]
+fn mode_cycle_skips_unowned_castle() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world
+        .data
+        .manor
+        .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
+    // No clan owns castle 1.
+    world.manor.set_next_seed_production(
+        1,
+        vec![SeedProduction {
+            seed_id: 90001,
+            amount: 500,
+            price: 3,
+            start_amount: 500,
+        }],
+    );
+    world.manor.set_mode(ManorMode::Approved);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert!(
+        world.manor.seed_production(1, false).is_empty(),
+        "an unowned castle's manor is not rolled"
+    );
+}
+
 fn seed(castle_id: i32, seed_id: i32, crop_id: i32, level: i32) -> Seed {
     seed_full(castle_id, seed_id, crop_id, level, 0, 0)
 }

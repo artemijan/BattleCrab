@@ -11,23 +11,30 @@
 //! plus the `RequestSetSeed`/`RequestSetCrop` write path back into the
 //! next-period state ([`handle_request_set_seed`]/[`handle_request_set_crop`]).
 //!
-//! The setup path is gated to the manor's **modifiable** period; the wall-clock
-//! period scheduler (mode transitions + the daily production rollover) is not
-//! ported yet, so the mode stays at its default (`Approved`) until a future
-//! slice drives it.
+//! The setup path is gated to the manor's **modifiable** period. The wall-clock
+//! period scheduler ([`schedule_manor_at_boot`] + [`advance_manor_mode`]) drives
+//! the mode through APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the daily
+//! `AltManor*` cutover times and runs the production rollover; only the economic
+//! settlement folded into Java's rollover remains `TODO(manor)`.
 
 use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
-use crate::model::manor::{CropProcure, SeedProduction};
+use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 use crate::model::npc::Npc;
 use crate::model::Player;
 use crate::network::server_packets::{
     self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
 };
+use crate::scheduler::ScheduledTask;
 use crate::world::World;
+
+const MILLIS_PER_DAY: i64 = 86_400_000;
+const MILLIS_PER_HOUR: i64 = 3_600_000;
+const MILLIS_PER_MIN: i64 = 60_000;
+const TICKS_PER_SECOND: u64 = 10;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
 /// exported so scripts outside `game_loop` can gate on castle ownership without
@@ -305,6 +312,147 @@ fn reference_price(world: &World, item_id: i32) -> i32 {
         .map_or(1, |t| t.price as i32)
 }
 
+// ---------------------------------------------------------------------------
+// Period scheduler — port of `CastleManorManager`'s wall-clock mode machine.
+// ---------------------------------------------------------------------------
+
+/// The five daily cutover times (from `General.ini`), pulled off config.
+#[derive(Debug, Clone, Copy)]
+struct ModeTimes {
+    refresh_h: i32,
+    refresh_m: i32,
+    maintenance_m: i32,
+    approve_h: i32,
+    approve_m: i32,
+}
+
+fn mode_times(world: &World) -> ModeTimes {
+    let g = &world.cfg.general;
+    ModeTimes {
+        refresh_h: g.alt_manor_refresh_time,
+        refresh_m: g.alt_manor_refresh_min,
+        maintenance_m: g.alt_manor_maintenance_min,
+        approve_h: g.alt_manor_approve_time,
+        approve_m: g.alt_manor_approve_min,
+    }
+}
+
+fn daily_millis(now_millis: i64, hour: i32, minute: i32) -> i64 {
+    let day = now_millis.div_euclid(MILLIS_PER_DAY);
+    day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + minute as i64 * MILLIS_PER_MIN
+}
+
+/// Port of `CastleManorManager` init's wall-clock mode guess. The `refresh`
+/// clause's `min >= maintenanceMin` check ignores the hour (a Java quirk kept
+/// verbatim — the immediate-fire cascade in [`arm_next_mode_change`] corrects
+/// any wrong guess within a tick or two).
+fn boot_mode(now_millis: i64, t: ModeTimes) -> ManorMode {
+    let day = now_millis.div_euclid(MILLIS_PER_DAY);
+    let mins_into_day = (now_millis - day * MILLIS_PER_DAY) / MILLIS_PER_MIN;
+    let hour = (mins_into_day / 60) as i32;
+    let min = (mins_into_day % 60) as i32;
+    let maintenance_min = t.refresh_m + t.maintenance_m;
+    if (hour >= t.refresh_h && min >= maintenance_min)
+        || hour < t.approve_h
+        || (hour == t.approve_h && min <= t.approve_m)
+    {
+        ManorMode::Modifiable
+    } else if hour == t.refresh_h && min >= t.refresh_m && min < maintenance_min {
+        ManorMode::Maintenance
+    } else {
+        ManorMode::Approved
+    }
+}
+
+/// Port of `scheduleModeChange`'s next-change time for the *current* mode. Only
+/// `MODIFIABLE` gets Java's "+1 day if already past" guard; `APPROVED`/
+/// `MAINTENANCE` return today's time even when past, so a stale boot mode
+/// fires immediately and cascades to the right one (Java's `Math.max(0, …)`).
+fn next_mode_change_millis(mode: ManorMode, now_millis: i64, t: ModeTimes) -> i64 {
+    match mode {
+        ManorMode::Modifiable => {
+            let at = daily_millis(now_millis, t.approve_h, t.approve_m);
+            if at < now_millis {
+                at + MILLIS_PER_DAY
+            } else {
+                at
+            }
+        }
+        ManorMode::Maintenance => {
+            daily_millis(now_millis, t.refresh_h, t.refresh_m + t.maintenance_m)
+        }
+        // APPROVED (and the DISABLED fallback, which is never scheduled).
+        _ => daily_millis(now_millis, t.refresh_h, t.refresh_m),
+    }
+}
+
+/// Set the initial mode from the wall clock and arm the first change — the data
+/// half of `CastleManorManager` init. When the manor is disabled the mode is
+/// `DISABLED` and nothing is scheduled (Java's `else` branch). Called from the
+/// `ManorLoaded` boot handler.
+pub(crate) fn schedule_manor_at_boot(world: &mut World) {
+    if !world.cfg.general.allow_manor {
+        world.manor.set_mode(ManorMode::Disabled);
+        return;
+    }
+    let now = commons::util::now_millis();
+    let mode = boot_mode(now, mode_times(world));
+    world.manor.set_mode(mode);
+    arm_next_mode_change(world, now);
+}
+
+fn arm_next_mode_change(world: &mut World, now_millis: i64) {
+    let at = next_mode_change_millis(world.manor.mode(), now_millis, mode_times(world));
+    let delay_ticks = ((at - now_millis).max(0) / 1000) as u64 * TICKS_PER_SECOND;
+    world
+        .scheduler
+        .schedule(world.tick + delay_ticks, ScheduledTask::ManorModeChange);
+}
+
+/// Port of `CastleManorManager.changeMode` — advance the period and re-arm the
+/// next change. The mode transition + the production rollover
+/// ([`crate::model::manor::ManorState::roll_period`]) are applied; the economic
+/// settlement is deferred.
+pub(crate) fn advance_manor_mode(world: &mut World) {
+    let next_mode = match world.manor.mode() {
+        ManorMode::Approved => {
+            // Roll every owned castle's manor into the new period.
+            let owned: Vec<i32> = world
+                .data
+                .manor
+                .manor_castle_ids()
+                .into_iter()
+                .filter(|&id| castle_owner_clan_id(world, id).is_some())
+                .collect();
+            for castle_id in owned {
+                // TODO(manor): Java also settles the closing period here — pay
+                // bought crops (`getMatureId`, ×0.9) into the owner's clan
+                // warehouse and refund unused reservation to the castle treasury,
+                // then gate the next period on treasury affordability. That needs
+                // the castle treasury (unported) + warehouse item-adds; only the
+                // production rollover is applied for now.
+                world.manor.roll_period(castle_id);
+            }
+            ManorMode::Maintenance
+        }
+        ManorMode::Maintenance => {
+            // TODO(manor): Java notifies each owner's online leader with
+            // `THE_MANOR_INFORMATION_HAS_BEEN_UPDATED` here.
+            ManorMode::Modifiable
+        }
+        ManorMode::Modifiable => {
+            // TODO(manor): Java charges the manor cost / validates warehouse
+            // capacity here, clearing the next period + warning the leader when
+            // the treasury can't cover it. Deferred with the treasury economics.
+            ManorMode::Approved
+        }
+        // A disabled manor never scheduled a change; nothing to do.
+        ManorMode::Disabled => return,
+    };
+    world.manor.set_mode(next_mode);
+    arm_next_mode_change(world, commons::util::now_millis());
+}
+
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
 /// player object id when: the manor is in its **modifiable** period, the
 /// player's clan owns castle `manor_id`, they hold `CS_MANOR_ADMIN`, and they
@@ -509,5 +657,65 @@ mod tests {
         assert_eq!(chamberlain_castle_id(35555), Some(9));
         assert_eq!(chamberlain_castle_id(36661), Some(9));
         assert_eq!(chamberlain_castle_id(30001), None);
+    }
+
+    // The dist cutover times: refresh 20:00, maintenance 6 min, approve 04:30.
+    const DIST_TIMES: ModeTimes = ModeTimes {
+        refresh_h: 20,
+        refresh_m: 0,
+        maintenance_m: 6,
+        approve_h: 4,
+        approve_m: 30,
+    };
+
+    fn at(day: i64, hour: i32, min: i32) -> i64 {
+        day * MILLIS_PER_DAY + hour as i64 * MILLIS_PER_HOUR + min as i64 * MILLIS_PER_MIN
+    }
+
+    #[test]
+    fn boot_mode_matches_java_windows() {
+        let d = 20_000;
+        // Daytime (04:30–20:00) is the settled, approved period.
+        assert_eq!(boot_mode(at(d, 10, 0), DIST_TIMES), ManorMode::Approved);
+        assert_eq!(boot_mode(at(d, 4, 45), DIST_TIMES), ManorMode::Approved);
+        // Overnight (past 20:06, before 04:30) is the editable period.
+        assert_eq!(boot_mode(at(d, 2, 0), DIST_TIMES), ManorMode::Modifiable);
+        assert_eq!(boot_mode(at(d, 4, 15), DIST_TIMES), ManorMode::Modifiable);
+        assert_eq!(boot_mode(at(d, 20, 10), DIST_TIMES), ManorMode::Modifiable);
+        // The 6-minute maintenance window right at refresh time.
+        assert_eq!(boot_mode(at(d, 20, 3), DIST_TIMES), ManorMode::Maintenance);
+        // Java quirk (kept verbatim): late evening with min < 6 guesses APPROVED;
+        // the immediate-fire cascade corrects it.
+        assert_eq!(boot_mode(at(d, 22, 0), DIST_TIMES), ManorMode::Approved);
+    }
+
+    #[test]
+    fn next_mode_change_times() {
+        let d = 20_000;
+        // APPROVED → today's refresh (20:00), even when already past (cascade).
+        assert_eq!(
+            next_mode_change_millis(ManorMode::Approved, at(d, 10, 0), DIST_TIMES),
+            at(d, 20, 0)
+        );
+        assert_eq!(
+            next_mode_change_millis(ManorMode::Approved, at(d, 21, 0), DIST_TIMES),
+            at(d, 20, 0),
+            "a past refresh time is returned as-is to fire immediately"
+        );
+        // MAINTENANCE → refresh + maintenance (20:06).
+        assert_eq!(
+            next_mode_change_millis(ManorMode::Maintenance, at(d, 20, 3), DIST_TIMES),
+            at(d, 20, 6)
+        );
+        // MODIFIABLE → next approve time (04:30), +1 day when already past.
+        assert_eq!(
+            next_mode_change_millis(ManorMode::Modifiable, at(d, 2, 0), DIST_TIMES),
+            at(d, 4, 30)
+        );
+        assert_eq!(
+            next_mode_change_millis(ManorMode::Modifiable, at(d, 5, 0), DIST_TIMES),
+            at(d + 1, 4, 30),
+            "a past approve time rolls to tomorrow"
+        );
     }
 }

@@ -6,10 +6,12 @@
 //! current and next manor period.
 //!
 //! Loaded at boot from `castle_manor_production` / `castle_manor_procure`
-//! (`DbEvent::ManorLoaded`). The manor-period **mode** (APPROVED / MODIFIABLE /
-//! MAINTENANCE, driven by a wall-clock schedule) and the period rollover are
-//! not modelled yet — TODO(manor): they gate the owner *setup* views (requests
-//! 7/8) and the daily production reset, a later slice.
+//! (`DbEvent::ManorLoaded`). The manor-period [`ManorMode`] (APPROVED /
+//! MODIFIABLE / MAINTENANCE) is driven by the wall-clock scheduler in
+//! [`crate::game_loop::manor`], which also runs the daily [`ManorState::roll_period`]
+//! production rollover. The economic settlement that Java folds into the
+//! rollover (crop payout to the clan warehouse, treasury refund/charge) is still
+//! deferred — see the `TODO(manor)` in `advance_manor_mode`.
 
 use std::collections::HashMap;
 
@@ -193,6 +195,50 @@ impl ManorState {
     pub fn set_next_crop_procure(&mut self, castle_id: i32, list: Vec<CropProcure>) {
         self.set_crop_procure(castle_id, true, list);
     }
+
+    /// The daily production rollover (the data half of Java `changeMode`'s
+    /// `APPROVED` case): the castle's next-period setup becomes current, and the
+    /// next period is re-seeded from it with amounts reset to their start (a
+    /// fresh full period). Java shares the `SeedProduction`/`CropProcure` objects
+    /// between the two lists (a latent aliasing quirk); this port keeps them
+    /// independent clones, which matches the intended "next starts fresh"
+    /// semantics. The economic settlement (crop payout to the clan warehouse,
+    /// treasury refund/charge, affordability gating) is **not** applied here —
+    /// see the `TODO(manor)` at the caller.
+    pub fn roll_period(&mut self, castle_id: i32) {
+        let next_prod = self
+            .production_next
+            .get(&castle_id)
+            .cloned()
+            .unwrap_or_default();
+        let next_proc = self
+            .procure_next
+            .get(&castle_id)
+            .cloned()
+            .unwrap_or_default();
+
+        // Next → current (carrying whatever amounts the owner set up).
+        self.production.insert(castle_id, next_prod.clone());
+        self.procure.insert(castle_id, next_proc.clone());
+
+        // Re-seed next period, amounts reset to their start (full).
+        let fresh_prod = next_prod
+            .into_iter()
+            .map(|mut sp| {
+                sp.amount = sp.start_amount;
+                sp
+            })
+            .collect();
+        let fresh_proc = next_proc
+            .into_iter()
+            .map(|mut cp| {
+                cp.amount = cp.start_amount;
+                cp
+            })
+            .collect();
+        self.production_next.insert(castle_id, fresh_prod);
+        self.procure_next.insert(castle_id, fresh_proc);
+    }
 }
 
 #[cfg(test)]
@@ -236,6 +282,39 @@ mod tests {
 
         // An unknown castle is empty, not a panic.
         assert!(m.seed_production(9, false).is_empty());
+    }
+
+    #[test]
+    fn roll_period_promotes_next_and_resets() {
+        let mut m = ManorState::default();
+        // Next-period setup with a mid-period amount (300) below its start (500).
+        m.set_next_seed_production(
+            1,
+            vec![SeedProduction {
+                seed_id: 5016,
+                amount: 300,
+                price: 3,
+                start_amount: 500,
+            }],
+        );
+        assert!(
+            m.seed_production(1, false).is_empty(),
+            "current empty before roll"
+        );
+
+        m.roll_period(1);
+
+        // Next → current, carrying its amount.
+        let cur = m.seed_production(1, false);
+        assert_eq!(cur.len(), 1);
+        assert_eq!(cur[0].seed_id, 5016);
+        assert_eq!(cur[0].amount, 300, "current carries the next-period amount");
+        // Next is re-seeded with amounts reset to start (a fresh full period).
+        let next = m.seed_production(1, true);
+        assert_eq!(next.len(), 1);
+        assert_eq!(next[0].amount, 500, "next resets to its start amount");
+        // The two lists are independent (no Java-style aliasing).
+        assert_ne!(cur[0].amount, next[0].amount);
     }
 
     #[test]

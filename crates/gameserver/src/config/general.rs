@@ -63,6 +63,22 @@ pub struct GeneralConfig {
     /// lives in memory until the periodic `storeMe` (unported), so with the dist
     /// default nothing is written per-action.
     pub alt_manor_save_all_actions: bool,
+    /// `AltManorRefreshTime` (hour, dist 20) — when the daily manor cycle rolls:
+    /// the `APPROVED → MAINTENANCE` change (production rollover) fires at
+    /// `refresh_time:refresh_min`.
+    pub alt_manor_refresh_time: i32,
+    /// `AltManorRefreshMin` (minute, dist 0).
+    pub alt_manor_refresh_min: i32,
+    /// `AltManorMaintenanceMin` (dist 6) — the maintenance window length; the
+    /// `MAINTENANCE → MODIFIABLE` change fires at
+    /// `refresh_time:(refresh_min + maintenance_min)`.
+    pub alt_manor_maintenance_min: i32,
+    /// `AltManorApproveTime` (hour, dist 4) — when the owner's edit window
+    /// closes: the `MODIFIABLE → APPROVED` change fires at
+    /// `approve_time:approve_min`.
+    pub alt_manor_approve_time: i32,
+    /// `AltManorApproveMin` (minute, dist 30).
+    pub alt_manor_approve_min: i32,
 }
 
 impl GeneralConfig {
@@ -103,6 +119,11 @@ impl GeneralConfig {
             allow_manor: p.get_bool("AllowManor", d.allow_manor),
             alt_manor_save_all_actions: p
                 .get_bool("AltManorSaveAllActions", d.alt_manor_save_all_actions),
+            alt_manor_refresh_time: p.get_int("AltManorRefreshTime", 20),
+            alt_manor_refresh_min: p.get_int("AltManorRefreshMin", 0),
+            alt_manor_maintenance_min: p.get_int("AltManorMaintenanceMin", 6),
+            alt_manor_approve_time: p.get_int("AltManorApproveTime", 4),
+            alt_manor_approve_min: p.get_int("AltManorApproveMin", 30),
         }
     }
 }
@@ -129,6 +150,12 @@ mod tests {
         assert!(!g.gm_startup_diet_mode, "GMStartupDietMode=False");
         assert!(!g.gm_give_special_skills, "GMGiveSpecialSkills=False");
         assert!(!g.allow_manor, "AllowManor=False on this dist");
+        // Manor cutover times (guards the key names against a config rename).
+        assert_eq!(g.alt_manor_refresh_time, 20, "AltManorRefreshTime=20");
+        assert_eq!(g.alt_manor_refresh_min, 0, "AltManorRefreshMin=0");
+        assert_eq!(g.alt_manor_maintenance_min, 6, "AltManorMaintenanceMin=6");
+        assert_eq!(g.alt_manor_approve_time, 4, "AltManorApproveTime=4");
+        assert_eq!(g.alt_manor_approve_min, 30, "AltManorApproveMin=30");
     }
 
     /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,

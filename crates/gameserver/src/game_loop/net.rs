@@ -886,6 +886,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     procure.len()
                 );
                 world.manor = manor;
+                // Set the initial period mode from the wall clock and arm the
+                // first daily mode change (Java `CastleManorManager` init).
+                crate::game_loop::manor::schedule_manor_at_boot(world);
             }
             DbEvent::ClanHallsLoaded { rows } => {
                 // Start from the static defs, then overlay persisted ownership.

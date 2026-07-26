@@ -642,6 +642,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::SiegeStart { castle_id } => {
                 siege::handle_scheduled_siege_start(world, castle_id);
             }
+            ScheduledTask::ManorModeChange => {
+                manor::advance_manor_mode(world);
+            }
             ScheduledTask::CursedWeaponExpiry { item_id } => {
                 cursed_weapon::handle_expiry(world, item_id);
             }
