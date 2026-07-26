@@ -1069,11 +1069,17 @@ team spawn, spawns the buffers, broadcasts the `ExPVPMatchCCRecord` scoreboard
 (new packet), and runs the door/timer fight window through a minimal teardown, so
 **a full TvT event now runs start→finish** (minus scoring/rewards).
 
-**Remaining for G28:** per-kill **scoring** + respawn + zone kicks (slice 3), the
-real **EndFight** — freeze / revive / winner firework+adena / tie + scoreboard
-FINISH (slice 4) — plus the `on_enter_zone`/`on_exit_zone`/`on_player_death`/
-`on_player_logout` script-framework hooks and command channels those need, and
-the optional cron auto-schedule (slice 5).
+**Slice 3 (2026-07-26):** per-kill **scoring + respawn** landed — `on_player_death`
+(hooked into `death::player_do_die`) scores cross-team kills with a running
+scoreboard (`ExPVPMatchCCRecord::UPDATE`), and killed participants respawn at
+their team spawn behind the Ghost Walking invulnerability after 10s. A TvT match
+now plays out with a real score.
+
+**Remaining for G28:** the real **EndFight** — freeze / revive / winner
+firework+adena / tie + scoreboard FINISH — plus enemy-HQ zone kicks + inactivity
+timers + forfeit + logout (slice 4), which need the `on_enter_zone`/`on_exit_zone`/
+`on_player_logout` script-framework hooks and command channels; and the optional
+cron auto-schedule (slice 5).
 
 ---
 

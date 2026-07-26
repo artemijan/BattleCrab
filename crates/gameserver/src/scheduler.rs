@@ -358,6 +358,11 @@ pub enum ScheduledTask {
     /// TvT's fight ended (`startQuestTimer("EndFight", FIGHT_TIME)`, G28):
     /// resolve the winner, reward, and tear the arena down.
     TvtEndFight,
+    /// A killed TvT participant's timed respawn (`startQuestTimer(
+    /// "ResurrectPlayer", 10000, killedPlayer)`, G28): revive at the team spawn
+    /// with the Ghost Walking invulnerability. Keyed by the victim's object id;
+    /// a stale timer no-ops via the still-dead / still-on-event guard.
+    TvtResurrect { player: i32 },
 }
 
 struct Entry {

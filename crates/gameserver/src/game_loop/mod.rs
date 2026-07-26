@@ -658,6 +658,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtEndFight => {
                 events::tvt::end_fight(world);
             }
+            ScheduledTask::TvtResurrect { player } => {
+                events::tvt::resurrect_player(world, player);
+            }
         }
     }
 }

@@ -60,8 +60,16 @@ const TEAM_NONE: u8 = 0;
 const TEAM_BLUE: u8 = 1;
 const TEAM_RED: u8 = 2;
 
-// `ExShowScreenMessage` position (Java `TOP_CENTER`).
+// `ExShowScreenMessage` positions (Java constants).
 const TOP_CENTER: i32 = 2;
+const BOTTOM_RIGHT: i32 = 8;
+
+/// The custom Ghost Walking skill (Java `GHOST_WALKING`) — 30s of
+/// invulnerability (`DamageBlock` HP/MP) applied on respawn.
+const GHOST_WALKING: i32 = 100000;
+/// Seconds a killed participant waits before the arena respawns them (Java
+/// `startQuestTimer("ResurrectPlayer", 10000)`).
+const RESURRECT_DELAY_SECS: u64 = 10;
 
 /// Game-loop ticks per second (matches the rest of `game_loop`).
 const TICKS_PER_SECOND: u64 = 10;
@@ -276,6 +284,96 @@ fn teleport_out(world: &mut World) {
     }
     world.events.tvt.reset();
     world.events.active = None;
+}
+
+// ---------------------------------------------------------------------------
+// Scoring & respawn (Java `onPlayerDeath` + `"ResurrectPlayer"`)
+// ---------------------------------------------------------------------------
+
+/// A participant died. A cross-team kill scores for the killer's side (score
+/// message + `ExPVPMatchCCRecord::UPDATE`); the victim is queued for a timed
+/// arena respawn. Called from `death::player_do_die` for **every** player death;
+/// no-ops off-event. `killer` is already the acting player.
+pub(crate) fn on_player_death(world: &mut World, victim: i32, killer: i32) {
+    // Only participants in a live arena (Java's death listener only exists
+    // between teleport-in and teardown).
+    let Some(instance_id) = world.events.tvt.world_id else {
+        return;
+    };
+    if !is_on_event(world, victim) {
+        return;
+    }
+
+    // Score a cross-team kill (Java: BLUE kills RED, RED kills BLUE).
+    let scored = match (team_of(world, killer), team_of(world, victim)) {
+        (TEAM_BLUE, TEAM_RED) => {
+            world.events.tvt.blue_score += 1;
+            true
+        }
+        (TEAM_RED, TEAM_BLUE) => {
+            world.events.tvt.red_score += 1;
+            true
+        }
+        _ => false,
+    };
+    if scored {
+        *world.events.tvt.scores.entry(killer).or_insert(0) += 1;
+        broadcast_score_message(world, instance_id);
+        broadcast_scoreboard(world, instance_id, sp::PVP_MATCH_UPDATE);
+    }
+
+    // Queue the respawn (Java arms it for the killed player regardless of who
+    // scored). A stale timer no-ops via `resurrect_player`'s guards.
+    world.scheduler.schedule(
+        world.tick + RESURRECT_DELAY_SECS * TICKS_PER_SECOND,
+        ScheduledTask::TvtResurrect { player: victim },
+    );
+}
+
+/// The queued respawn fires: if the victim is still dead and still in the event,
+/// revive them at their team spawn behind the Ghost Walking invulnerability
+/// (Java `"ResurrectPlayer"`).
+pub(crate) fn resurrect_player(world: &mut World, player: i32) {
+    if !is_on_event(world, player) || !is_dead(world, player) {
+        return;
+    }
+    let spawn = match team_of(world, player) {
+        TEAM_BLUE => BLUE_SPAWN,
+        TEAM_RED => RED_SPAWN,
+        _ => return,
+    };
+    teleport_player(world, player, spawn.0, spawn.1, spawn.2);
+    crate::game_loop::death::do_revive(world, player);
+    // Ghost Walking: 30s of DamageBlock (HP/MP) invulnerability + speed.
+    if let Some(skill) = world.data.skill_data.get(GHOST_WALKING, 1).cloned() {
+        crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
+    }
+    // TODO(G28): resetActivityTimers — the inactivity kick timers are slice 4.
+}
+
+fn team_of(world: &World, player: i32) -> u8 {
+    world
+        .objects
+        .get_component::<Player>(&player)
+        .map_or(TEAM_NONE, |p| p.team)
+}
+
+fn is_dead(world: &World, player: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&player)
+        .is_some_and(|v| v.dead)
+}
+
+/// Java `broadcastScoreMessage()` — the running "Blue: X - Red: Y" tally in the
+/// arena's bottom-right corner.
+fn broadcast_score_message(world: &World, instance_id: i32) {
+    let text = format!(
+        "Blue: {} - Red: {}",
+        world.events.tvt.blue_score, world.events.tvt.red_score
+    );
+    let pkt = sp::ex_show_screen_message(&text, BOTTOM_RIGHT, 15_000);
+    instances::broadcast_to_instance(world, instance_id, &pkt);
 }
 
 // ---------------------------------------------------------------------------

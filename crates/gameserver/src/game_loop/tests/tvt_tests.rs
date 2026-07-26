@@ -280,3 +280,99 @@ fn a_full_event_runs_start_to_finish() {
     assert!(world.events.tvt.red_team.is_empty());
     assert_eq!(world.instances.len(), 0);
 }
+
+// ---------------------------------------------------------------------------
+// Slice 3 — scoring & respawn
+// ---------------------------------------------------------------------------
+
+/// Get to the fighting phase with `n` participants split into teams.
+fn fighting_arena(n: i32) -> (World, Vec<i32>) {
+    let (mut world, oids) = started_with_players(n);
+    tvt::teleport_to_arena(&mut world);
+    tvt::start_fight(&mut world);
+    (world, oids)
+}
+
+#[test]
+fn a_cross_team_kill_scores_and_queues_respawn() {
+    let (mut world, _oids) = fighting_arena(4);
+    let killer = world.events.tvt.blue_team[0];
+    let victim = world.events.tvt.red_team[0];
+
+    tvt::on_player_death(&mut world, victim, killer);
+
+    assert_eq!(world.events.tvt.blue_score, 1);
+    assert_eq!(world.events.tvt.red_score, 0);
+    assert_eq!(world.events.tvt.scores.get(&killer), Some(&1));
+    // The victim is queued for a timed respawn.
+    assert!(world
+        .scheduler
+        .pending_tasks_for_test()
+        .contains(&ScheduledTask::TvtResurrect { player: victim }));
+}
+
+#[test]
+fn a_same_team_kill_does_not_score() {
+    let (mut world, _oids) = fighting_arena(4);
+    let killer = world.events.tvt.blue_team[0];
+    let victim = world.events.tvt.blue_team[1];
+
+    tvt::on_player_death(&mut world, victim, killer);
+
+    assert_eq!(world.events.tvt.blue_score, 0);
+    assert_eq!(world.events.tvt.red_score, 0);
+    assert_eq!(
+        world.events.tvt.scores.get(&killer).copied().unwrap_or(0),
+        0
+    );
+}
+
+#[test]
+fn resurrect_revives_a_dead_participant_at_their_team_spawn() {
+    let (mut world, _oids) = fighting_arena(4);
+    let victim = world.events.tvt.red_team[0];
+    world
+        .objects
+        .get_component_mut::<Vitals>(&victim)
+        .unwrap()
+        .dead = true;
+
+    tvt::resurrect_player(&mut world, victim);
+
+    assert!(!world.objects.get_component::<Vitals>(&victim).unwrap().dead);
+    // Teleported to the red spawn (x is not geo-adjusted, unlike z).
+    assert_eq!(
+        world.objects.get_component::<Position>(&victim).unwrap().x,
+        151536
+    );
+}
+
+#[test]
+fn a_stale_respawn_after_teardown_is_a_no_op() {
+    let (mut world, _oids) = fighting_arena(4);
+    let victim = world.events.tvt.red_team[0];
+    world
+        .objects
+        .get_component_mut::<Vitals>(&victim)
+        .unwrap()
+        .dead = true;
+    tvt::end_fight(&mut world); // tears the arena down, clears on_event
+
+    // The queued resurrect now fires late: no revive (still dead), no panic.
+    tvt::resurrect_player(&mut world, victim);
+    assert!(world.objects.get_component::<Vitals>(&victim).unwrap().dead);
+}
+
+#[test]
+fn player_do_die_drives_tvt_scoring() {
+    // The real wire: a player death routed through `death::player_do_die` must
+    // reach TvT's scoring (the uncalled-code catcher).
+    let (mut world, _oids) = fighting_arena(4);
+    let killer = world.events.tvt.blue_team[0];
+    let victim = world.events.tvt.red_team[0];
+
+    crate::game_loop::death::player_do_die(&mut world, victim, killer);
+
+    assert_eq!(world.events.tvt.blue_score, 1);
+    assert!(world.objects.get_component::<Vitals>(&victim).unwrap().dead);
+}

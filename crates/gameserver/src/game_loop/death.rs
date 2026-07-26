@@ -1729,6 +1729,11 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
             &[(server_packets::status_update_type::CUR_HP, 0)],
         ),
     );
+
+    // TvT scoring + respawn (Java's `onPlayerDeath` `ON_CREATURE_DEATH`
+    // listener): a kill on the enemy team scores, and the victim is queued for
+    // a timed arena respawn. `killer_oid` is already the acting player.
+    super::events::tvt::on_player_death(world, player_oid, killer_oid);
 }
 
 /// `Playable.doDie`'s effect block.

@@ -109,11 +109,23 @@ channels + `leaveParty` + `addDeathListener` (need a CC primitive); the 5..1 /
 players, revive the dead, resolve BLUE vs RED (firework + adena / tie social
 action), `ExPVPMatchCCRecord::FINISH`, the 7s scoreboard delay.
 
-### Slice 3 — Fight lifecycle + scoring + respawn
-- `StartFight` (open doors, screen countdown), **player-death listener** → team
-  score + `ExPVPMatchCCRecord::UPDATE` + score screen message; `ResurrectPlayer`
-  (Ghost Walking invuln + respawn at team spawn); **zone enter/exit listeners**
-  (enemy-HQ kick + inactivity kick timers); manager `BuffHeal`.
+### Slice 3 — Scoring + respawn  ✅ LANDED
+
+**Landed.** `on_player_death` — hooked into `death::player_do_die` (after the
+death broadcast, mirroring the cursed-weapon hook), no-op off-event: a cross-team
+kill scores for the killer's side + the killer's personal tally, broadcasts the
+"Blue: X - Red: Y" bottom-right tally + `ExPVPMatchCCRecord::UPDATE`, and queues
+the victim's respawn (`ScheduledTask::TvtResurrect`, 10s). `resurrect_player` —
+still-dead + still-on-event guard, teleport to team spawn, `do_revive`, then the
+Ghost Walking skill (100000 — `DamageBlock` HP/MP invuln + Speed, already ported
+in G19) for 30s. 5 new tests incl. one driving the real `player_do_die` wire
+(sabotage-verified the hook).
+
+**Deferred to slice 4 (TODO(G28) at the site):** the **zone enter/exit
+listeners** (enemy-HQ kick + inactivity `KickPlayer` timers) — they need the
+`on_enter_zone`/`on_exit_zone` framework hooks — and the manager `BuffHeal`
+(needs `SkillCaster.triggerCast` on the in-arena manager). The 5..1/10..1
+countdown screen messages stay deferred (cosmetic).
 
 ### Slice 4 — End, rewards, cleanup, forfeit, logout
 - `EndFight` (freeze players, revive dead, winner firework + adena reward, tie
