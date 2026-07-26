@@ -241,6 +241,11 @@ pub struct World {
     /// `hall_id → func_id → function`. Loaded from `residence_functions`.
     pub clan_hall_functions: HashMap<i32, HashMap<i32, crate::model::clan_hall::ActiveFunction>>,
 
+    /// The `tick` the current clan-hall auction cycle closes (Java
+    /// `ClanHallAuctionManager.getRemainingTime`); set when the weekly close is
+    /// armed. Drives the auctioneer's countdown fields.
+    pub auction_end_tick: u64,
+
     /// Per-castle siege-guard spawn points (`castle_siege_guards`, the stationed
     /// garrison), spawned at siege start (`DbEvent::SiegeGuardsLoaded`).
     pub siege_guards: HashMap<i32, Vec<crate::model::siege::SiegeSpawn>>,
@@ -382,6 +387,7 @@ impl World {
             clan_halls: HashMap::new(),
             clan_hall_bids: HashMap::new(),
             clan_hall_functions: HashMap::new(),
+            auction_end_tick: 0,
             siege_guards: HashMap::new(),
             olympiad: crate::model::olympiad::OlympiadState::default(),
             instances: crate::model::instance::InstanceManager::default(),

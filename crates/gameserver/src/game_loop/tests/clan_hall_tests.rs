@@ -1101,3 +1101,112 @@ fn a_hall_without_the_function_restores_nothing() {
         "still respawns at the hall"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Auctioneer dynamic-page templating
+// ---------------------------------------------------------------------------
+
+use crate::model::clan_hall::ClanHallBid;
+use crate::scripts::clan_hall_auctioneer::{
+    render_bid_form, render_bidder_list, render_hall_info, render_hall_list,
+};
+
+fn put_bid(world: &mut World, hall: i32, clan: i32, amount: i64, bid_time: i64) {
+    world
+        .clan_hall_bids
+        .entry(hall)
+        .or_default()
+        .insert(clan, ClanHallBid { amount, bid_time });
+}
+
+/// An auction world whose `root` points at the dist tree so the auctioneer's
+/// html templates load.
+fn auctioneer_world() -> World {
+    let mut world = auction_world();
+    world.data.root = DIST.to_string();
+    world
+}
+
+/// **The hall list templates every free hall with its highest bid**, and omits
+/// owned halls (Java `getFreeAuctionableHall`).
+#[test]
+fn the_hall_list_lists_free_halls_with_bids() {
+    let mut world = auctioneer_world();
+    put_bid(&mut world, ONYX, 10, 6_000_000, 100);
+    world.clan_halls.get_mut(&OTHER_HALL).unwrap().owner_id = 99; // owned → excluded
+
+    let html = render_hall_list(&world);
+    assert!(!html.contains("%agitList%"), "the row template is filled");
+    assert!(!html.contains("%pages%"), "the pager placeholder is filled");
+    assert!(
+        html.contains("auctionList id=27\""),
+        "Onyx (free) is listed"
+    );
+    assert!(html.contains("6000000"), "with its highest bid");
+    assert!(
+        !html.contains("auctionList id=22\""),
+        "the owned hall is not listed"
+    );
+}
+
+/// **A hall's info page fills in its auction fields** — rent, grade, current
+/// minimum bid, and the bid count.
+#[test]
+fn the_info_page_fills_the_auction_fields() {
+    let mut world = auctioneer_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    world.clans.insert(20, mk_clan(20, 5));
+    put_bid(&mut world, ONYX, 10, 5_000_000, 100);
+    put_bid(&mut world, ONYX, 20, 6_000_000, 200);
+
+    let html = render_hall_info(&world, ONYX).expect("info page");
+    for ph in [
+        "%id%",
+        "%owner%",
+        "%rent%",
+        "%grade%",
+        "%minBid%",
+        "%bidNumber%",
+    ] {
+        assert!(!html.contains(ph), "placeholder {ph} was filled");
+    }
+    assert!(html.contains("6000000"), "the highest bid is the minimum");
+    assert!(html.contains("500000"), "Onyx's rent (lease)");
+    assert!(html.contains("30 square feet"), "grade B = 30");
+    assert!(html.contains(">2<"), "two bids counted");
+}
+
+/// **The bidder list shows every bidding clan, newest first.**
+#[test]
+fn the_bidder_list_orders_by_most_recent() {
+    let mut world = auctioneer_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    world.clans.insert(20, mk_clan(20, 5));
+    put_bid(&mut world, ONYX, 10, 5_000_000, 100); // older
+    put_bid(&mut world, ONYX, 20, 6_000_000, 200); // newer
+
+    let html = render_bidder_list(&world, ONYX).expect("bidder list");
+    assert!(!html.contains("%bidderList%"), "the rows are filled");
+    let i20 = html.find("Clan20").expect("clan 20 listed");
+    let i10 = html.find("Clan10").expect("clan 10 listed");
+    assert!(i20 < i10, "the most recent bidder is listed first");
+    assert!(html.contains("6000000") && html.contains("5000000"));
+}
+
+/// **The bid form shows the clan's warehouse adena and the current minimum.**
+#[test]
+fn the_bid_form_shows_clan_adena() {
+    let mut world = auctioneer_world();
+    world.clans.insert(10, mk_clan(10, 5));
+    fund_clan(&mut world, 10, 12_345_678);
+    put_bid(&mut world, ONYX, 20, 6_000_000, 100);
+
+    let html = render_bid_form(&world, 10, ONYX).expect("bid form");
+    assert!(!html.contains("%clanAdena%") && !html.contains("%minBid%"));
+    assert!(html.contains("12345678"), "the clan's adena");
+    assert!(html.contains("6000000"), "the current minimum bid");
+    assert!(
+        html.contains("id=27"),
+        "the hall id is baked into the bypass"
+    );
+}

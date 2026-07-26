@@ -386,9 +386,19 @@ pub(crate) fn handle_auction_end(world: &mut World) {
 
 /// Arm the next weekly auction close.
 pub(crate) fn schedule_weekly_close(world: &mut World) {
+    world.auction_end_tick = world.tick + WEEK_TICKS;
     world
         .scheduler
-        .schedule(world.tick + WEEK_TICKS, ScheduledTask::ClanHallAuctionEnd);
+        .schedule(world.auction_end_tick, ScheduledTask::ClanHallAuctionEnd);
+}
+
+/// How many clans have a standing bid on a hall (Java `getBidCount`).
+pub(crate) fn bid_count(world: &World, hall_id: i32) -> usize {
+    world
+        .clan_hall_bids
+        .get(&hall_id)
+        .map(|b| b.len())
+        .unwrap_or(0)
 }
 
 /// Take `amount` adena from a clan's warehouse; `false` if it hasn't enough.
