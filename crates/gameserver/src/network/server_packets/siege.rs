@@ -45,6 +45,42 @@ pub fn siege_info(
     w.into_bytes()
 }
 
+/// One row of the attacker roster.
+pub struct AttackerEntry {
+    pub clan_id: i32,
+    pub name: String,
+    pub leader_name: String,
+    pub crest_id: i32,
+    pub ally_id: i32,
+    pub ally_name: String,
+    pub ally_crest_id: i32,
+}
+
+/// `serverpackets/SiegeAttackerList` (`CASTLE_SIEGE_ATTACKER_LIST`, 0xCA) — the
+/// castle's registered attacker clans.
+pub fn siege_attacker_list(castle_id: i32, attackers: &[AttackerEntry]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CASTLE_SIEGE_ATTACKER_LIST);
+    w.write_i32(castle_id);
+    w.write_i32(0);
+    w.write_i32(1);
+    w.write_i32(0);
+    w.write_i32(attackers.len() as i32);
+    w.write_i32(attackers.len() as i32);
+    for a in attackers {
+        w.write_i32(a.clan_id);
+        w.write_string(&a.name);
+        w.write_string(&a.leader_name);
+        w.write_i32(a.crest_id);
+        w.write_i32(0); // signed time (seconds) — not stored
+        w.write_i32(a.ally_id);
+        w.write_string(&a.ally_name);
+        w.write_string(""); // ally leader name (Java writes "")
+        w.write_i32(a.ally_crest_id);
+    }
+    w.into_bytes()
+}
+
 /// One row of the defender roster.
 pub struct DefenderEntry {
     pub clan_id: i32,

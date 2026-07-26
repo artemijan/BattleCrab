@@ -474,3 +474,72 @@ fn a_non_owner_cannot_approve_defenders() {
         "still pending — a non-owner changed nothing"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Reachability — RequestSiegeAttackerList (0xAB) / RequestSiegeDefenderList (0xAC)
+// ---------------------------------------------------------------------------
+
+/// A single-i32 castle-id body (both list requests read just the castle id).
+fn list_body(castle_id: i32) -> Vec<u8> {
+    castle_id.to_le_bytes().to_vec()
+}
+
+/// Drain `rx` and return the last packet with the given opcode, if any.
+fn take_packet(
+    rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    opcode: u8,
+) -> Option<Vec<u8>> {
+    let mut found = None;
+    while let Ok(p) = rx.try_recv() {
+        if p.first() == Some(&opcode) {
+            found = Some(p);
+        }
+    }
+    found
+}
+
+/// **The attacker list (0xCA) answers a `RequestSiegeAttackerList` (0xAB)** with
+/// the castle's registered attacker clans.
+#[test]
+fn the_attacker_list_is_sent_on_request() {
+    let (mut world, mut rx) = world_with_leader();
+    register(&mut world, CASTLE, 10, true, OPEN_NOW); // clan 10 attacks CASTLE
+    let _ = take_packet(&mut rx, 0); // flush login/register chatter
+
+    crate::game_loop::siege::handle_request_siege_attacker_list(&mut world, 5, &list_body(CASTLE));
+
+    let pkt = take_packet(&mut rx, 0xCA).expect("attacker list sent");
+    // Layout: opcode(1) + castleId,0,1,0 (16) → the clan count at offset 17.
+    let count = i32::from_le_bytes(pkt[17..21].try_into().unwrap());
+    assert_eq!(count, 1, "the one registered attacker is listed");
+}
+
+/// **The defender list (0xCB) answers a `RequestSiegeDefenderList` (0xAC)** with
+/// the owner and the registered defenders.
+#[test]
+fn the_defender_list_is_sent_on_request() {
+    let (mut world, mut rx) = world_with_leader();
+    world.clans.get_mut(&10).unwrap().castle_id = CASTLE; // clan 10 owns CASTLE
+    world.clans.insert(20, mk_clan(20, 5, 0, 0));
+    register(&mut world, CASTLE, 20, false, OPEN_NOW); // clan 20 pending defender
+    let _ = take_packet(&mut rx, 0);
+
+    crate::game_loop::siege::handle_request_siege_defender_list(&mut world, 5, &list_body(CASTLE));
+
+    let pkt = take_packet(&mut rx, 0xCB).expect("defender list sent");
+    // Layout: opcode(1) + castleId,0,valid,0 (16) → the clan count at offset 17.
+    let count = i32::from_le_bytes(pkt[17..21].try_into().unwrap());
+    assert_eq!(count, 2, "the owner plus the one pending defender");
+}
+
+/// A request for a castle that does not exist sends nothing (Java's
+/// `getCastleById == null → return`).
+#[test]
+fn a_list_request_for_an_unknown_castle_is_ignored() {
+    let (mut world, mut rx) = world_with_leader();
+    crate::game_loop::siege::handle_request_siege_attacker_list(&mut world, 5, &list_body(99));
+    assert!(
+        take_packet(&mut rx, 0xCA).is_none(),
+        "no attacker list for an unknown castle"
+    );
+}

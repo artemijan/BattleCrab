@@ -45,6 +45,10 @@ pub mod opcodes {
     /// Boats (G24.5) — walk around on a ferry's deck.
     pub const REQUEST_MOVE_TO_LOCATION_IN_VEHICLE: u8 = 0x75;
     pub const REQUEST_ACTION_USE: u8 = 0x56;
+    /// `RequestSiegeAttackerList` (G24) — view a castle's registered attackers.
+    pub const REQUEST_SIEGE_ATTACKER_LIST: u8 = 0xAB;
+    /// `RequestSiegeDefenderList` (G24) — view a castle's owner + defenders.
+    pub const REQUEST_SIEGE_DEFENDER_LIST: u8 = 0xAC;
     /// `RequestJoinSiege` (G24) — a clan leader registers/cancels for a siege.
     pub const REQUEST_JOIN_SIEGE: u8 = 0xAD;
     /// `RequestConfirmSiegeWaitingList` (G24) — the castle owner approves or
