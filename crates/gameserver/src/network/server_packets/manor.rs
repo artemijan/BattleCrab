@@ -23,13 +23,17 @@ pub fn ex_set_compass_zone_code(code: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// Port of `serverpackets/ExSendManorList` — the castles that have a manor.
-/// TODO(G12): the real castle list from `CastleManager` (empty for now).
-pub fn ex_send_manor_list() -> Vec<u8> {
+/// Port of `serverpackets/ExSendManorList` — the castle ids that have a manor
+/// (Java writes the count then each `getResidenceId()`). Empty when manor is
+/// disabled (`AllowManor = False`).
+pub fn ex_send_manor_list(castle_ids: &[i32]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_SEND_MANOR_LIST);
-    w.write_i32(0); // castle count
+    w.write_i32(castle_ids.len() as i32);
+    for &id in castle_ids {
+        w.write_i32(id);
+    }
     w.into_bytes()
 }
 

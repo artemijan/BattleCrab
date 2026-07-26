@@ -327,6 +327,7 @@ async fn character_create_inserts_into_real_schema() {
         instance_templates: crate::data::instance_data::InstanceData::empty(),
         scheme_buffer: crate::data::SchemeBufferData::default(),
         hennas: crate::data::HennaData::empty(),
+        manor: crate::data::manor_data::ManorData::empty(),
         recipes: crate::data::RecipeData::empty(),
         routes: Default::default(),
         categories: crate::data::CategoryData::empty(),
