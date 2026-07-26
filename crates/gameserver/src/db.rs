@@ -961,6 +961,11 @@ pub struct HeroRow {
     pub class_id: i32,
     /// How many times this character has been a hero (Java `count`).
     pub count: i32,
+    /// The hero's character name + clan id (for the `ExHeroList` display),
+    /// resolved via a join at load and from the noble/player at crown time. Not
+    /// persisted — the `heroes` table has no such columns.
+    pub name: String,
+    pub clan_id: i32,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -2911,17 +2916,22 @@ async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
 
 /// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).
 async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
-    sqlx::query("SELECT charId, class_id, count FROM heroes WHERE played = 1")
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default()
-        .iter()
-        .map(|r| HeroRow {
-            char_id: geti(r, "charId") as i32,
-            class_id: geti(r, "class_id") as i32,
-            count: geti(r, "count") as i32,
-        })
-        .collect()
+    sqlx::query(
+        "SELECT h.charId, h.class_id, h.count, c.char_name, c.clanid \
+         FROM heroes h LEFT JOIN characters c ON c.charId = h.charId WHERE h.played = 1",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default()
+    .iter()
+    .map(|r| HeroRow {
+        char_id: geti(r, "charId") as i32,
+        class_id: geti(r, "class_id") as i32,
+        count: geti(r, "count") as i32,
+        name: gets(r, "char_name"),
+        clan_id: geti(r, "clanid") as i32,
+    })
+    .collect()
 }
 
 async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {

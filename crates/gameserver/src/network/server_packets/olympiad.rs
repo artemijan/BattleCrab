@@ -15,6 +15,37 @@ pub fn ex_olympiad_mode(mode: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// One hero row for [`ex_hero_list`].
+pub struct HeroListRow {
+    pub name: String,
+    pub class_id: i32,
+    pub clan_name: String,
+    pub clan_crest: i32,
+    pub ally_name: String,
+    pub ally_crest: i32,
+    pub count: i32,
+}
+
+/// `ExHeroList` (`EX_HERO_LIST`, 0xFE:0x7A): the roll of currently-crowned
+/// heroes shown by the Monument of Heroes / Olympiad Manager.
+pub fn ex_hero_list(heroes: &[HeroListRow]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(EX);
+    w.write_i16(0x7A);
+    w.write_i32(heroes.len() as i32);
+    for h in heroes {
+        w.write_string(&h.name);
+        w.write_i32(h.class_id);
+        w.write_string(&h.clan_name);
+        w.write_i32(h.clan_crest);
+        w.write_string(&h.ally_name);
+        w.write_i32(h.ally_crest);
+        w.write_i32(h.count);
+        w.write_i32(0);
+    }
+    w.into_bytes()
+}
+
 /// One ongoing match row for [`ex_olympiad_match_list`].
 pub struct OlympiadMatchRow {
     /// Stadium/arena id (arena 1 = 0).

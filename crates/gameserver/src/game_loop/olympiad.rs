@@ -230,6 +230,18 @@ pub(crate) fn handle_weekly_change(world: &mut World) {
 pub(crate) fn apply_heroes_loaded(world: &mut World, heroes: Vec<HeroRow>) {
     world.olympiad.heroes = heroes.iter().map(|h| (h.char_id, h.class_id)).collect();
     world.olympiad.hero_counts = heroes.iter().map(|h| (h.char_id, h.count)).collect();
+    world.olympiad.hero_info = heroes
+        .iter()
+        .map(|h| {
+            (
+                h.char_id,
+                crate::model::olympiad::HeroInfo {
+                    name: h.name.clone(),
+                    clan_id: h.clan_id,
+                },
+            )
+        })
+        .collect();
     tracing::info!("GameLoop: loaded {} Olympiad heroes.", heroes.len());
 }
 
@@ -390,6 +402,27 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
         }
     }
     world.olympiad.heroes = heroes;
+    // Record each new hero's display data (name from the noble, clan from the
+    // online player) for the `ExHeroList` window.
+    world.olympiad.hero_info.clear();
+    let crowned: Vec<i32> = world.olympiad.heroes.iter().map(|(id, _)| *id).collect();
+    for id in crowned {
+        let name = world
+            .olympiad
+            .nobles
+            .get(&id)
+            .map(|n| n.name.clone())
+            .unwrap_or_default();
+        let clan_id = world
+            .objects
+            .get_component::<Player>(&id)
+            .map(|p| p.clan_id)
+            .unwrap_or(0);
+        world
+            .olympiad
+            .hero_info
+            .insert(id, crate::model::olympiad::HeroInfo { name, clan_id });
+    }
     tracing::info!(
         "Olympiad: round {} ended; {} heroes crowned.",
         world.olympiad.current_cycle,
@@ -411,10 +444,14 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
                 .unwrap_or(0)
                 + 1;
             world.olympiad.hero_counts.insert(char_id, count);
+            let info = world.olympiad.hero_info.get(&char_id);
             HeroRow {
                 char_id,
                 class_id,
                 count,
+                // Not persisted (no columns), but carried for consistency.
+                name: info.map(|i| i.name.clone()).unwrap_or_default(),
+                clan_id: info.map(|i| i.clan_id).unwrap_or(0),
             }
         })
         .collect();
@@ -1214,4 +1251,44 @@ pub(crate) fn leave_observer(world: &mut World, client_id: u32, player_oid: i32)
 /// Whether the player is currently spectating a match.
 pub(crate) fn is_observing(world: &World, player_oid: i32) -> bool {
     world.objects.has_component::<OlympiadObserver>(&player_oid)
+}
+
+/// Java `ExHeroList` (`Hero.getHeroes`): send the current heroes' roll — name,
+/// class, and (resolved from the live clan registry) clan/ally names + crests +
+/// the times-been-a-hero count.
+pub(crate) fn send_hero_list(world: &World, client_id: u32) {
+    let rows: Vec<sp::HeroListRow> = world
+        .olympiad
+        .heroes
+        .iter()
+        .map(|&(char_id, class_id)| {
+            let info = world.olympiad.hero_info.get(&char_id);
+            let name = info.map(|i| i.name.clone()).unwrap_or_default();
+            let clan = info.and_then(|i| world.clans.get(&i.clan_id));
+            let (clan_name, clan_crest) = clan
+                .map(|c| (c.name.clone(), c.crest_id))
+                .unwrap_or_default();
+            let (ally_name, ally_crest) = clan
+                .filter(|c| c.ally_id != 0)
+                .map(|c| (c.ally_name.clone(), c.ally_crest_id))
+                .unwrap_or_default();
+            sp::HeroListRow {
+                name,
+                class_id,
+                clan_name,
+                clan_crest,
+                ally_name,
+                ally_crest,
+                count: world
+                    .olympiad
+                    .hero_counts
+                    .get(&char_id)
+                    .copied()
+                    .unwrap_or(0),
+            }
+        })
+        .collect();
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(sp::ex_hero_list(&rows));
+    }
 }

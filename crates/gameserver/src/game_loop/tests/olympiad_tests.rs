@@ -763,6 +763,8 @@ fn heroes_persist_and_apply_on_login() {
             char_id: 100,
             class_id: 88,
             count: 2,
+            name: "Aragorn".into(),
+            clan_id: 0,
         }],
     );
     assert!(world.olympiad.is_hero(100), "loaded into the crown");
@@ -1217,5 +1219,41 @@ fn a_competitor_cannot_observe() {
     assert!(
         !crate::game_loop::olympiad::is_observing(&world, 100),
         "a competitor is refused observer mode"
+    );
+}
+
+/// **The Monument's hero list sends `ExHeroList`** with each crowned hero's name
+/// and count — even for an offline hero (resolved from `hero_info`).
+#[test]
+fn monument_hero_list_sends_ex_hero_list() {
+    let (mut world, _db, _l, mut rx) = monument_world();
+    // Crown one hero (offline: no Player object, name comes from hero_info).
+    world.olympiad.heroes.push((555, 88));
+    world.olympiad.hero_counts.insert(555, 3);
+    world.olympiad.hero_info.insert(
+        555,
+        crate::model::olympiad::HeroInfo {
+            name: "Aragorn".into(),
+            clan_id: 0,
+        },
+    );
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes heroList"),
+    );
+
+    let pkt = drain(&mut rx)
+        .into_iter()
+        .find(|p| p.first() == Some(&0xFE) && p.get(1) == Some(&0x7A))
+        .expect("ExHeroList (0xFE 0x7A) was sent");
+    // Layout: opcode(1) + subop(2) → the hero count at offset 3.
+    let count = i32::from_le_bytes(pkt[3..7].try_into().unwrap());
+    assert_eq!(count, 1, "one hero is listed");
+    // The name is written UTF-16LE, so 'A' (0x41 0x00) appears in the row.
+    assert!(
+        pkt.windows(2).any(|w| w == [0x41, 0x00]),
+        "the hero's name is in the packet"
     );
 }
