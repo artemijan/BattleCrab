@@ -228,6 +228,11 @@ pub struct World {
     /// `siege_clans` table. In-progress state is runtime-only.
     pub sieges: HashMap<i32, crate::model::siege::Siege>,
 
+    /// Castle-manor production/procure state (Java `CastleManorManager`), loaded
+    /// at boot (`DbEvent::ManorLoaded`) from `castle_manor_production` /
+    /// `castle_manor_procure`. The static seed catalogue is on `data.manor`.
+    pub manor: crate::model::manor::ManorState,
+
     /// The clan halls (Java `ClanHallData`), keyed by id — the static defs from
     /// `GameData` with ownership overlaid at boot (`DbEvent::ClanHallsLoaded`
     /// from the `clanhall` table).
@@ -384,6 +389,7 @@ impl World {
             cursed_weapons: Vec::new(),
             castles: Vec::new(),
             sieges: HashMap::new(),
+            manor: crate::model::manor::ManorState::default(),
             clan_halls: HashMap::new(),
             clan_hall_bids: HashMap::new(),
             clan_hall_functions: HashMap::new(),

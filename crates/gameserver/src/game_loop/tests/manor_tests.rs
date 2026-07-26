@@ -8,6 +8,7 @@ use super::*;
 use crate::data::manor_data::Seed;
 use crate::model::clan::Clan;
 use crate::model::components::LastFolkNpc;
+use crate::model::manor::{CropProcure, SeedProduction};
 use crate::model::Player;
 
 /// Gludio's Chamberlain of Light (35100) at the origin, plus an in-game player
@@ -188,6 +189,138 @@ fn manor_menu_select_gated_when_disabled() {
     );
 }
 
+/// **Requests 3/4 send the castle's live seed-production / crop-procure state.**
+/// The "Seed Purchase" view (request 3) → `ExShowSeedInfo`; "Crop Sales"
+/// (request 4) → `ExShowCropInfo`, each carrying the runtime `ManorState` list.
+#[test]
+fn manor_menu_select_requests_3_and_4_send_live_state() {
+    let (mut world, mut rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    // Catalogue (for level/reward resolution) + live state for Gludio.
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 700,
+            price: 3,
+            start_amount: 1000,
+        }],
+    );
+    world.manor.set_crop_procure(
+        1,
+        false,
+        vec![CropProcure {
+            crop_id: 5073,
+            amount: 40,
+            price: 9,
+            start_amount: 50,
+            reward_type: 1,
+        }],
+    );
+    world.objects.add_components(&100, LastFolkNpc(701));
+
+    // Request 3 → ExShowSeedInfo (0x23), one seed line.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("manor_menu_select?ask=3&state=-1&time=0"),
+    );
+    let pkt = ex_packet(&mut rx, 0x23).expect("ExShowSeedInfo sent");
+    // [0xFE][0x23 0x00][hide][manorId i32][unknown i32][count i32]…
+    assert_eq!(i32::from_le_bytes(pkt[12..16].try_into().unwrap()), 1);
+    assert_eq!(
+        i32::from_le_bytes(pkt[16..20].try_into().unwrap()),
+        5016,
+        "the seed id"
+    );
+
+    // Request 4 → ExShowCropInfo (0x24), one crop line.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("manor_menu_select?ask=4&state=-1&time=0"),
+    );
+    let pkt = ex_packet(&mut rx, 0x24).expect("ExShowCropInfo sent");
+    assert_eq!(i32::from_le_bytes(pkt[12..16].try_into().unwrap()), 1);
+    assert_eq!(
+        i32::from_le_bytes(pkt[16..20].try_into().unwrap()),
+        5073,
+        "the crop id"
+    );
+}
+
+/// **The manor state loads at boot, grouped by castle/period and filtered to
+/// known ids** (Java `CastleManorManager.loadDb`'s "don't load unknown"). An
+/// unknown seed row and unknown crop row are dropped.
+#[test]
+fn manor_state_loads_at_boot() {
+    let (mut world, _db, _l) = quest_test_world();
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+
+    let (tx, rx) = std::sync::mpsc::channel();
+    tx.send(crate::db::DbEvent::ManorLoaded {
+        production: vec![
+            // Known seed, current period.
+            crate::db::ManorProductionRow {
+                castle_id: 1,
+                seed_id: 5016,
+                amount: 500,
+                start_amount: 500,
+                price: 3,
+                next_period: false,
+            },
+            // Unknown seed → dropped.
+            crate::db::ManorProductionRow {
+                castle_id: 1,
+                seed_id: 999_999,
+                amount: 1,
+                start_amount: 1,
+                price: 1,
+                next_period: false,
+            },
+        ],
+        procure: vec![
+            // Known crop, next period.
+            crate::db::ManorProcureRow {
+                castle_id: 1,
+                crop_id: 5073,
+                amount: 20,
+                start_amount: 20,
+                price: 9,
+                reward_type: 1,
+                next_period: true,
+            },
+            // Unknown crop → dropped.
+            crate::db::ManorProcureRow {
+                castle_id: 1,
+                crop_id: 999_998,
+                amount: 1,
+                start_amount: 1,
+                price: 1,
+                reward_type: 0,
+                next_period: true,
+            },
+        ],
+    })
+    .unwrap();
+    drop(tx);
+    crate::game_loop::net::drain_db(&mut world, &rx);
+
+    // The known seed is in the current period; the unknown one was dropped.
+    let prod = world.manor.seed_production(1, false);
+    assert_eq!(prod.len(), 1, "one known seed loaded, unknown dropped");
+    assert_eq!(prod[0].seed_id, 5016);
+    assert_eq!(prod[0].amount, 500);
+    // The crop was a next-period row → current period is empty.
+    assert!(world.manor.crop_procure(1, false).is_empty());
+    let proc = world.manor.crop_procure(1, true);
+    assert_eq!(proc.len(), 1, "one known crop loaded, unknown dropped");
+    assert_eq!(proc[0].crop_id, 5073);
+    assert_eq!(proc[0].reward_type, 1);
+}
+
 fn seed(castle_id: i32, seed_id: i32, crop_id: i32, level: i32) -> Seed {
     Seed {
         castle_id,
@@ -206,7 +339,13 @@ fn seed(castle_id: i32, seed_id: i32, crop_id: i32, level: i32) -> Seed {
 /// Find the `ExShowManorDefaultInfo` packet (EX 0xFE, sub-op 0x25) among the
 /// drained output.
 fn default_info_packet(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<Vec<u8>> {
+    ex_packet(rx, 0x25)
+}
+
+/// Find an EX packet (0xFE) with the given single-byte sub-op among the drained
+/// output.
+fn ex_packet(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, subop: u8) -> Option<Vec<u8>> {
     drain(rx)
         .into_iter()
-        .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == 0x25 && p[2] == 0x00)
+        .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == subop && p[2] == 0x00)
 }

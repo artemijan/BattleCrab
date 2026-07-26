@@ -75,6 +75,55 @@ pub fn ex_show_manor_default_info(crops: &[ManorDefaultEntry], hide_buttons: boo
     w.into_bytes()
 }
 
+/// One seed-production line for [`ex_show_seed_info`], flattening the fields
+/// Java reads from a `SeedProduction` plus its resolved `Seed`. Unknown seed ⇒
+/// `seed_level = 0` and both reward item ids `0` (Java's `s == null` branch).
+pub struct SeedInfoEntry {
+    pub seed_id: i32,
+    /// `SeedProduction.getAmount` — quantity left to sell.
+    pub amount: i64,
+    /// `SeedProduction.getStartAmount` — the quantity originally set up.
+    pub start_amount: i64,
+    pub price: i64,
+    pub seed_level: i32,
+    pub reward1_item_id: i32,
+    pub reward2_item_id: i32,
+}
+
+/// Port of `serverpackets/ExShowSeedInfo` — the "Seed Purchase" manor dialog
+/// (`OnNpcManorBypass` request 3), listing what the castle's manor currently
+/// sells. `seeds = None` mirrors Java's `_seeds == null` (a next-period view
+/// with no setup): the header is written with a `0` count and nothing else.
+pub fn ex_show_seed_info(
+    manor_id: i32,
+    hide_buttons: bool,
+    seeds: Option<&[SeedInfoEntry]>,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SHOW_SEED_INFO);
+    w.write_u8(u8::from(hide_buttons)); // hide "Seed Purchase" button
+    w.write_i32(manor_id);
+    w.write_i32(0); // unknown
+    let Some(seeds) = seeds else {
+        w.write_i32(0);
+        return w.into_bytes();
+    };
+    w.write_i32(seeds.len() as i32);
+    for seed in seeds {
+        w.write_i32(seed.seed_id);
+        w.write_i64(seed.amount); // left to buy
+        w.write_i64(seed.start_amount); // started amount
+        w.write_i64(seed.price); // sell price
+        w.write_i32(seed.seed_level);
+        w.write_u8(1); // reward 1 present
+        w.write_i32(seed.reward1_item_id);
+        w.write_u8(1); // reward 2 present
+        w.write_i32(seed.reward2_item_id);
+    }
+    w.into_bytes()
+}
+
 /// One crop-procurement line for [`ex_show_crop_info`], flattening the fields
 /// Java reads from a `CropProcure` plus its resolved `Seed`. When the seed
 /// can't be resolved Java writes `seed_level = 0` and both reward item ids as
@@ -99,12 +148,7 @@ pub struct CropInfoEntry {
 /// castle owner opens through the chamberlain (`OnNpcManorBypass` request 4).
 /// `crops = None` mirrors Java's `_crops == null` (next-period view while the
 /// manor isn't yet approved): the header is written without a crop count.
-///
-/// TODO(manor): nothing sends this yet — the trigger (CastleChamberlain
-/// `onNpcManorBypass` + castle ownership) and the crop data source
-/// (`CastleManorManager.getCropProcure` / `Seed`) are unported, so callers
-/// currently have no `CropInfoEntry` list to pass. Wire it once the manor
-/// system lands; the serializer itself matches `writeImpl` byte-for-byte.
+/// Sent from [`crate::game_loop::manor`] off the castle's `CropProcure` state.
 pub fn ex_show_crop_info(
     manor_id: i32,
     hide_buttons: bool,
