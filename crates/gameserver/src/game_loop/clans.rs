@@ -590,6 +590,7 @@ pub(crate) fn create_clan(world: &mut World, leader_oid: i32, name: &str) -> Opt
         crest_id: 0,
         crest_large_id: 0,
         ally_crest_id: 0,
+        blood_alliance_count: 0,
     };
     let _ = world.db.send(DbCommand::InsertClan {
         clan_id,

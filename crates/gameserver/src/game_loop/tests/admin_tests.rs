@@ -2904,6 +2904,7 @@ fn admin_castlemanage_ownership_and_side() {
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
+        ticket_buy_count: 0,
     }];
     world.clans.insert(
         500,
@@ -2939,6 +2940,7 @@ fn admin_castlemanage_ownership_and_side() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8001, 100);
@@ -3073,6 +3075,7 @@ fn admin_castlemanage_siege_registration_and_state() {
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
+        ticket_buy_count: 0,
     }];
     world.sieges.insert(3, Siege::new(3));
     world.clans.insert(
@@ -3109,6 +3112,7 @@ fn admin_castlemanage_siege_registration_and_state() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let mut rx = ingame_player_access(&mut world, 1, 8101, 100);
@@ -3311,6 +3315,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     world

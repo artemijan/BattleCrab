@@ -41,6 +41,11 @@ pub struct Clan {
     /// Java `clan_data.hasCastle` — the residence id of the castle this clan
     /// owns (0 = none). Source of truth for `Castle` ownership.
     pub castle_id: i32,
+    /// Java `Clan._bloodAllianceCount` (`clan_data.blood_alliance_count`):
+    /// incremented by `SiegeManager.getBloodAllianceReward()` each time the clan
+    /// holds its castle through a siege. The Interlude reward is 0 (Siege.ini
+    /// `BloodAllianceReward = 0`), so it stays 0 unless an admin raises it.
+    pub blood_alliance_count: i32,
     pub members: Vec<ClanMember>,
     /// The clan's learned skills (Java `Clan._skills`, `skillId → level`).
     /// Populated by `//give_clan_skills` and the boot-time `clan_skills` load;
@@ -471,6 +476,7 @@ mod pledge_class_tests {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         }
     }
 

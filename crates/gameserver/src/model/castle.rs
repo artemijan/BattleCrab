@@ -55,4 +55,9 @@ pub struct Castle {
     pub id: i32,
     pub name: String,
     pub side: CastleSide,
+    /// Java `Castle._ticketBuyCount` (`castle.ticketBuyCount`): how many
+    /// mercenary tickets the owner has placed; reset to 0 when the castle
+    /// changes hands at a siege end. (The mercenary-placement system itself is
+    /// a later milestone, so nothing increments it yet.)
+    pub ticket_buy_count: i32,
 }

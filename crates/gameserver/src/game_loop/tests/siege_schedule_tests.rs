@@ -80,11 +80,13 @@ fn schedule_world() -> (
             id: 1,
             name: "Gludio".into(),
             side: CastleSide::Neutral,
+            ticket_buy_count: 0,
         },
         Castle {
             id: 2,
             name: "Dion".into(),
             side: CastleSide::Neutral,
+            ticket_buy_count: 0,
         },
     ];
     world.sieges.insert(1, Siege::new(1));

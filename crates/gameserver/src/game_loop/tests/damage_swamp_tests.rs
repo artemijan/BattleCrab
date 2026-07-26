@@ -202,6 +202,7 @@ fn a_defender_is_spared_by_its_own_castles_trap() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let before = hp(&world);

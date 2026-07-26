@@ -215,6 +215,7 @@ fn clan_roster_notifications_and_chat() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -324,6 +325,7 @@ fn clan_warehouse_shared_deposit_withdraw_and_privilege() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -457,6 +459,7 @@ fn pledge_class_table_matches_calculate_pledge_class() {
         crest_id: 0,
         crest_large_id: 0,
         ally_crest_id: 0,
+        blood_alliance_count: 0,
     };
     // (leader, member) expected pledge class per clan level.
     for (level, leader, member) in [
@@ -593,6 +596,7 @@ fn clan_advent_aura_tracks_leader_online_state() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -717,6 +721,7 @@ fn give_clan_skills_grants_gates_and_persists() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -890,6 +895,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     world
@@ -1156,6 +1162,7 @@ fn clan_skills_move_max_hp_mp_cp() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     world
@@ -1233,6 +1240,7 @@ fn siege_skills_granted_to_level5_clan_leader_only() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for oid in [3001, 3002] {
@@ -1351,6 +1359,7 @@ fn clan_skills_reapply_on_member_login() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     world
@@ -1425,6 +1434,7 @@ fn clan_entry_queries() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
 
@@ -1543,6 +1553,7 @@ fn install_clan(world: &mut World, clan_id: i32, member_oids: &[i32]) {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     for (i, &oid) in member_oids.iter().enumerate() {

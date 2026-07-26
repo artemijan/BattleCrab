@@ -44,6 +44,7 @@ fn mk_clan(id: i32, level: i32, castle_id: i32, ally_id: i32) -> Clan {
         crest_id: 0,
         crest_large_id: 0,
         ally_crest_id: 0,
+        blood_alliance_count: 0,
     }
 }
 
@@ -59,11 +60,13 @@ fn siege_world() -> (
             id: CASTLE,
             name: "Gludio".into(),
             side: CastleSide::Neutral,
+            ticket_buy_count: 0,
         },
         Castle {
             id: OTHER_CASTLE,
             name: "Dion".into(),
             side: CastleSide::Neutral,
+            ticket_buy_count: 0,
         },
     ];
     for id in [CASTLE, OTHER_CASTLE] {

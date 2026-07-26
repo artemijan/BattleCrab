@@ -449,6 +449,16 @@ pub enum DbCommand {
         clan_id: i32,
         castle_id: i32,
     },
+    /// `Clan.updateBloodAllianceCountInDB` — persist the blood-alliance count.
+    UpdateClanBloodAlliance {
+        clan_id: i32,
+        count: i32,
+    },
+    /// `Castle.setTicketBuyCount` — persist the mercenary ticket-buy count.
+    UpdateCastleTicketCount {
+        castle_id: i32,
+        count: i32,
+    },
     /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
     SaveSiegeClan {
         castle_id: i32,
@@ -1409,6 +1419,24 @@ async fn run(
                     sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?")
                         .bind(castle_id)
                         .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanBloodAlliance { clan_id, count } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET blood_alliance_count=? WHERE clan_id=?")
+                        .bind(count)
+                        .bind(clan_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateCastleTicketCount { castle_id, count } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE castle SET ticketBuyCount=? WHERE id=?")
+                        .bind(count)
+                        .bind(castle_id),
                 )
                 .await;
             }
@@ -2980,7 +3008,7 @@ async fn load_residence_functions(pool: &SqlitePool) -> Vec<ResidenceFunctionRow
 
 /// `CastleManager.load`: every `castle` row (id/name/side).
 async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
-    let rows = sqlx::query("SELECT id, name, side FROM castle ORDER BY id")
+    let rows = sqlx::query("SELECT id, name, side, ticketBuyCount FROM castle ORDER BY id")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -2989,12 +3017,13 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
             id: geti(r, "id") as i32,
             name: gets(r, "name"),
             side: crate::model::castle::CastleSide::from_str(&gets(r, "side")).unwrap_or_default(),
+            ticket_buy_count: geti(r, "ticketBuyCount") as i32,
         })
         .collect()
 }
 
 async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
+    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, blood_alliance_count, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
         .fetch_all(pool)
         .await
         .unwrap_or_default();
@@ -3060,6 +3089,7 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             level: geti(row, "clan_level") as i32,
             reputation_score: geti(row, "reputation_score") as i32,
             castle_id: geti(row, "hasCastle") as i32,
+            blood_alliance_count: geti(row, "blood_alliance_count") as i32,
             char_penalty_expiry_time: geti(row, "char_penalty_expiry_time"),
             dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
             rank_privs,
