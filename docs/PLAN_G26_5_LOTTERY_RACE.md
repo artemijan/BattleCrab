@@ -65,10 +65,29 @@ sabotage-verified.
 **Deferred to slice 2:** the `Loto` NPC dialog moves here (it's mainly the
 ticket-buy UI, so it lands with purchase), along with the draw + prize claim.
 
-### Slice 2 — Ticket purchase + Loto NPC dialog + draw + prize claim
+### Slice 2 — Ticket purchase + Loto NPC dialog + draw + prize claim  ✅ LANDED
 
-**Design finalized (ready to build).** The whole lottery economics — the biggest,
-most parity-sensitive slice; port the arithmetic verbatim.
+**Landed.** The whole lottery economics. `loto_bypass`/`show_loto_window`
+(`bypass.rs` `"Loto"` verb → all Java value branches: number-pick toggle with
+button-HTML re-render, buy at 22, jackpot/instructions pages, the winning-numbers
+claim list at 24, direct claim at >25); `LotoPicks([i32;5])` component; the
+verbatim bitmask `encode`/`decode`/`match_count`; ticket 4442 minted with
+`custom_type1`/enchant/`custom_type2` (new `Inventory::set_lotto_fields`), adena
+charged via `remove_item`, pot grown (`increase_prize` → `DbCommand::
+IncreaseLotteryPrize`). The **two-phase faithful draw**: `finish_begin` rolls the
+5 numbers + fires `DbCommand::LoadLotteryTickets`; the DB thread replies
+`DbEvent::LotteryTicketsLoaded`; `finish_complete` merges the offline rows with a
+scan of every online inventory (**deduped by object id**), tallies the 5/4/3/1–2
+match tiers, splits the pot (`prizeN = ((prize−prize4)·rateN)/countN`, verbatim),
+persists via `FinishLottery`, and caches the result. Claim (`check_ticket`
+against the in-memory `DrawnRound` cache — the whole finished-round table is
+boot-loaded into `LotteryState.drawn`, so claim stays synchronous): a winning
+past-round ticket pays its adena and is consumed. Two new SM ids (784/930). 10
+tests (round-trip encode/decode, tier split, buy, sold-out refusal, claim),
+sabotage-verified.
+
+**Design (as built):** the whole lottery economics — the milestone's biggest,
+most parity-sensitive slice; the arithmetic is ported verbatim.
 
 - **NPC dialog** (`bypass.rs` `"Loto"` verb → `lottery::loto_bypass`; port of
   `Loto.java`, NPCs 30990–30994, htmls `data/html/default/3099X-{1..6}.htm`):

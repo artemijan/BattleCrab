@@ -171,6 +171,9 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    // Lucky Lottery (G26.5)
+    pub const TICKETS_FOR_THE_CURRENT_LOTTERY_ARE_NO_LONGER_AVAILABLE: i16 = 784;
+    pub const LOTTERY_TICKETS_ARE_NOT_CURRENTLY_BEING_SOLD: i16 = 930;
     // Instances (G27 / Frintezza).
     pub const YOU_DO_NOT_HAVE_ENOUGH_REQUIRED_ITEMS: i16 = 701;
     // Henna / dye symbols (G16).

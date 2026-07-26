@@ -717,8 +717,11 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
                 world.premium = entries.into_iter().collect();
             }
-            DbEvent::LotteryLoaded { row } => {
-                super::lottery::on_loaded(world, row);
+            DbEvent::LotteryLoaded { row, draws } => {
+                super::lottery::on_loaded(world, row, draws);
+            }
+            DbEvent::LotteryTicketsLoaded { round, rows } => {
+                super::lottery::finish_complete(world, round, rows);
             }
             DbEvent::BufferSchemesLoaded { entries } => {
                 // Java `SchemeBufferTable.load` drops any saved skill id no longer

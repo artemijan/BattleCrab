@@ -863,6 +863,13 @@ pub struct AdminFlags {
     pub untargetable: bool,
 }
 
+/// The player's in-progress Lucky Lottery number picks (Java `Player._loto[5]`,
+/// G26.5) — the five 1–20 numbers chosen through the Loto NPC dialog before a
+/// ticket is bought. Transient; presence-based (added on first pick, reset to
+/// zeros each time the buy window is (re)opened). `0` = an empty slot.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct LotoPicks(pub [i32; 5]);
+
 /// Object id of the last NPC this player clicked/talked to (Java
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
 /// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their

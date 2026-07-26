@@ -670,7 +670,7 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::LotteryStart => lottery::open_round(world),
             ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
-            ScheduledTask::LotteryFinish => lottery::finish_lottery(world),
+            ScheduledTask::LotteryFinish => lottery::finish_begin(world),
         }
     }
 }
