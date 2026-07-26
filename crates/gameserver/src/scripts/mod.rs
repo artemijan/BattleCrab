@@ -20,6 +20,7 @@ pub mod elf_human_change1;
 pub mod elf_human_change2;
 pub mod first_class_transfer_talk;
 pub mod last_imperial_tomb;
+pub mod monument_of_heroes;
 pub mod newbie_guide;
 pub mod npc_location_info;
 pub mod oly_manager;
@@ -400,6 +401,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
         Arc::new(oly_manager::OlyManager),
+        Arc::new(monument_of_heroes::MonumentOfHeroes),
         Arc::new(npc_location_info::NpcLocationInfo),
         Arc::new(dark_elf_change1::DarkElfChange1),
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),

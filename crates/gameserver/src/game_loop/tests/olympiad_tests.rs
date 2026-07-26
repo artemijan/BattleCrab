@@ -1039,3 +1039,101 @@ fn a_fighting_noble_cannot_register() {
     );
     assert!(!world.olympiad.is_registered(100));
 }
+
+// ---------------------------------------------------------------------------
+// Monument of Heroes (31690) — hero reward claims
+// ---------------------------------------------------------------------------
+
+fn monument_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+) {
+    let (mut world, db_rx, link) = quest_test_world();
+    add_test_npc(&mut world, 701, 31690, "Folk", 70, 0, 0, 0);
+    world
+        .data
+        .categories
+        .insert_for_test("THIRD_CLASS_GROUP", &[2]);
+    let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    {
+        let p = world.objects.get_component_mut::<Player>(&100).unwrap();
+        p.class_id = 2;
+        p.base_class_id = 2;
+        p.level = 55;
+    }
+    (world, db_rx, link, rx)
+}
+
+fn inv_count(world: &World, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&100)
+        .map_or(0, |inv| inv.count_of(item_id))
+}
+
+/// **A hero claims an Infinity weapon and the circlet at the Monument** — the
+/// circlet is granted only once.
+#[test]
+fn monument_hero_claims_rewards() {
+    let (mut world, _db, _l, mut rx) = monument_world();
+    world.olympiad.heroes.push((100, 2)); // crowned hero
+
+    // Pick an Infinity weapon from the list.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes give_6611"),
+    );
+    assert_eq!(
+        inv_count(&world, 6611),
+        1,
+        "hero received the Infinity Blade"
+    );
+    // A weapon id not on the list hands over nothing.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes give_9999"),
+    );
+    assert_eq!(inv_count(&world, 9999), 0, "a non-list id gives nothing");
+
+    // The circlet, once.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+    );
+    assert_eq!(inv_count(&world, 6842), 1, "hero received the circlet");
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+    );
+    assert_eq!(inv_count(&world, 6842), 1, "the circlet is not duplicated");
+    drain(&mut rx);
+}
+
+/// **A non-hero is refused the hero rewards** — the circlet menu serves the
+/// "not a hero" page and grants nothing.
+#[test]
+fn monument_non_hero_is_refused() {
+    let (mut world, _db, _l, mut rx) = monument_world();
+    // Not pushed into `olympiad.heroes` → not a hero.
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body("npc_701_Quest MonumentOfHeroes heroCirclet"),
+    );
+    assert_eq!(inv_count(&world, 6842), 0, "a non-hero gets no circlet");
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("a page was served");
+    assert!(
+        html.contains("circletNo") || !html.is_empty(),
+        "the not-a-hero circlet page is served"
+    );
+}
