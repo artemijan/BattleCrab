@@ -3274,6 +3274,7 @@ fn admin_give_clan_skills_command_grants_targeted_clan() {
             get_level: 3,
             social_class: Some(3),
             residencial: false,
+            residence_ids: Vec::new(),
             level_up_sp: 0,
         },
         false,

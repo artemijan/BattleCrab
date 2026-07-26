@@ -669,6 +669,7 @@ fn give_clan_skills_grants_gates_and_persists() {
         get_level: 3,
         social_class: Some(social),
         residencial: false,
+        residence_ids: Vec::new(),
         level_up_sp: 0,
     };
     world
@@ -836,6 +837,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
             get_level: 3,
             social_class: Some(3),
             residencial: false,
+            residence_ids: Vec::new(),
             level_up_sp: 0,
         },
         false,
@@ -847,6 +849,7 @@ fn give_clan_skills_purges_residence_and_reapplies() {
             get_level: 4,
             social_class: None,
             residencial: true,
+            residence_ids: Vec::new(),
             level_up_sp: 0,
         },
         false,
@@ -1096,6 +1099,7 @@ fn clan_skills_move_max_hp_mp_cp() {
                 get_level: 1,
                 social_class: None,
                 residencial: false,
+                residence_ids: Vec::new(),
                 level_up_sp: 0,
             },
             false,
@@ -1314,6 +1318,7 @@ fn clan_skills_reapply_on_member_login() {
             get_level: 3,
             social_class: Some(3),
             residencial: false,
+            residence_ids: Vec::new(),
             level_up_sp: 0,
         },
         false,
@@ -2066,6 +2071,7 @@ fn pledge_skill_learning_spends_reputation() {
         get_level: 3,
         social_class: None,
         residencial: false,
+        residence_ids: Vec::new(),
         level_up_sp: sp,
     };
     world
@@ -3860,4 +3866,181 @@ fn recruit_open_joining_sign_in() {
     );
     assert!(sm_ids_of(&drain(&mut c_rx))
         .contains(&server_packets::sm_ids::S1_IS_FULL_AND_CANNOT_ACCEPT_ADDITIONAL_CLAN_MEMBERS));
+}
+
+// ---------------------------------------------------------------------------
+// Residential (castle) skills
+// ---------------------------------------------------------------------------
+
+const DIST_RES: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+/// Build a clan that owns `castle` with a single online member `leader`.
+#[cfg(test)]
+fn owner_clan(id: i32, leader: i32, castle: i32) -> crate::model::clan::Clan {
+    use crate::model::clan::{Clan, ClanMember};
+    Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id: leader,
+        level: 5,
+        reputation_score: 0,
+        castle_id: castle,
+        members: vec![ClanMember {
+            char_id: leader,
+            name: format!("P{leader}"),
+            level: 40,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 1,
+            title: String::new(),
+            pledge_type: 0,
+        }],
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
+
+/// A residence skill 593 gated to residence 3, with no social-class gate.
+#[cfg(test)]
+fn residence_learn() -> crate::data::pledge_skill_tree::PledgeSkillLearn {
+    crate::data::pledge_skill_tree::PledgeSkillLearn {
+        skill_id: 593,
+        skill_level: 1,
+        get_level: 4,
+        social_class: None,
+        residencial: true,
+        residence_ids: vec![3],
+        level_up_sp: 0,
+    }
+}
+
+#[cfg(test)]
+fn has_clan_skill(world: &World, oid: i32, id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::ClanSkills>(&oid)
+        .is_some_and(|c| c.0.contains_key(&id))
+}
+
+/// **Residential skills load per residence** — castle 1 grants Residence Health
+/// (593); an unknown residence grants nothing (Java `getAvailableResidentialSkills`).
+#[test]
+fn residential_skills_load_per_castle() {
+    let trees = crate::data::pledge_skill_tree::PledgeSkillTreeData::load_from(DIST_RES);
+    let ids: Vec<i32> = trees
+        .available_residential_skills(1)
+        .iter()
+        .map(|l| l.skill_id)
+        .collect();
+    assert!(
+        ids.contains(&593),
+        "castle 1 grants Residence Health: {ids:?}"
+    );
+    assert!(
+        trees.available_residential_skills(999).is_empty(),
+        "an unknown residence grants nothing"
+    );
+}
+
+/// **A castle-owning clan's member gets the castle's residential skills on
+/// login, and loses them when the castle is gone** (Java `Player.enterWorld` +
+/// `AbstractResidence.removeResidentialSkills`).
+#[test]
+fn residential_skills_granted_on_login_and_stripped() {
+    let (mut world, mut db_rx, _link) = quest_test_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(passive_clan_test_skill(593));
+    world
+        .data
+        .pledge_skill_trees
+        .insert_for_test(residence_learn(), false);
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain_db(&mut db_rx);
+    let clan_id = 0x3000_0056;
+    world.clans.insert(clan_id, owner_clan(clan_id, 3001, 3));
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .clan_id = clan_id;
+
+    crate::game_loop::clans::apply_clan_skills_to_member(&mut world, clan_id, 3001);
+    assert!(
+        has_clan_skill(&world, 3001, 593),
+        "a castle-owning clan member gets the residential skill on login"
+    );
+
+    crate::game_loop::clans::remove_residential_skills(&mut world, 3001, 3);
+    assert!(
+        !has_clan_skill(&world, 3001, 593),
+        "losing the castle strips the residential skill"
+    );
+}
+
+/// **Capturing a castle moves its residential skills** — the former owner's
+/// online member loses them, the captor's gains them (Java `Castle.setOwner`).
+#[test]
+fn capturing_a_castle_moves_residential_skills() {
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, mut db_rx, _link) = quest_test_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(passive_clan_test_skill(593));
+    world
+        .data
+        .pledge_skill_trees
+        .insert_for_test(residence_learn(), false);
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    siege.add_clan(500, SiegeClanType::Owner);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+    // Defender clan 500 owns castle 3; attacker clan 700 owns nothing. Both
+    // leaders online.
+    let _def = ingame_player(&mut world, 1, 8002, 0, 0, 0);
+    let _atk = ingame_player(&mut world, 2, 8003, 0, 0, 0);
+    world.clans.insert(500, owner_clan(500, 8002, 3));
+    world.clans.insert(700, owner_clan(700, 8003, 0));
+    for (oid, cid) in [(8002, 500), (8003, 700)] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .unwrap()
+            .clan_id = cid;
+    }
+    // The defender already holds the skill (granted while owning).
+    crate::game_loop::clans::give_residential_skills(&mut world, 8002, 3, 500);
+    assert!(
+        has_clan_skill(&world, 8002, 593),
+        "defender holds it pre-capture"
+    );
+    drain_db(&mut db_rx);
+
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+
+    assert!(
+        !has_clan_skill(&world, 8002, 593),
+        "the former owner's member loses the residential skill"
+    );
+    assert!(
+        has_clan_skill(&world, 8003, 593),
+        "the captor's member gains it"
+    );
 }
