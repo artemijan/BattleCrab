@@ -157,6 +157,10 @@ pub mod opcodes {
 /// Extended (`0xD0`) client sub-opcodes.
 pub mod ex_opcodes {
     pub const REQUEST_MANOR_LIST: u16 = 0x01;
+    /// `RequestSetSeed` — the manor owner submits the next-period seed setup.
+    pub const REQUEST_SET_SEED: u16 = 0x03;
+    /// `RequestSetCrop` — the manor owner submits the next-period crop setup.
+    pub const REQUEST_SET_CROP: u16 = 0x04;
     pub const REQUEST_KEY_MAPPING: u16 = 0x21;
     pub const REQUEST_CHARACTER_NAME_CREATABLE: u16 = 0xA9;
     pub const REQUEST_USER_BAN_INFO: u16 = 0x138;

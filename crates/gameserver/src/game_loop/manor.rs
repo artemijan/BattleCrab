@@ -4,18 +4,29 @@
 //! buttons send `manor_menu_select?ask=<request>&state=<manorId>&time=<0|1>`;
 //! this routes each request to its `ExShow*` display packet.
 //!
-//! Slice scope (G26): the reference view — request 5
-//! (`ExShowManorDefaultInfo`), built from the static [`ManorData`] seed
-//! catalogue and item reference prices. The seed/crop **production** views
-//! (requests 3/4) and the owner **setup** views (requests 7/8) need the
-//! `CastleManorManager` runtime state (`SeedProduction`/`CropProcure`), which
-//! is unported — see the `TODO(manor)` arms below.
+//! Wired requests: 3 (`ExShowSeedInfo`) / 4 (`ExShowCropInfo`) show the
+//! castle's live production/procure ([`crate::model::manor::ManorState`]); 5
+//! (`ExShowManorDefaultInfo`) the static catalogue reference table; 7
+//! (`ExShowSeedSetting`) / 8 (`ExShowCropSetting`) the owner's editable setup,
+//! plus the `RequestSetSeed`/`RequestSetCrop` write path back into the
+//! next-period state ([`handle_request_set_seed`]/[`handle_request_set_crop`]).
+//!
+//! The setup path is gated to the manor's **modifiable** period; the wall-clock
+//! period scheduler (mode transitions + the daily production rollover) is not
+//! ported yet, so the mode stays at its default (`Approved`) until a future
+//! slice drives it.
 
+use commons::network::PacketReader;
 use tracing::warn;
 
+use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
+use crate::model::manor::{CropProcure, SeedProduction};
 use crate::model::npc::Npc;
-use crate::network::server_packets::{self, CropInfoEntry, ManorDefaultEntry, SeedInfoEntry};
+use crate::model::Player;
+use crate::network::server_packets::{
+    self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
+};
 use crate::world::World;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
@@ -113,20 +124,105 @@ pub(crate) fn handle_manor_menu_select(
                 cs.send(server_packets::ex_show_manor_default_info(&crops, true));
             }
         }
-        // TODO(manor): requests 7/8 are the owner's *editable* seed/crop setup
-        // (`ExShowSeedSetting`/`ExShowCropSetting`) — they need the manor
-        // period mode (`isManorApproved`) and the `RequestSetSeed`/
-        // `RequestSetCrop` write path, a later slice.
-        7 | 8 => {
-            warn!(
-                "Manor: setup request {request} for castle {castle_id} \
-                 (next_period={next_period}) not wired — needs the setup slice (TODO)."
-            );
+        // Request 7: the owner's "Edit Seed Setup" view (`ExShowSeedSetting`).
+        7 => {
+            if world.manor.is_manor_approved() {
+                // Java sends `A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM`
+                // then returns. TODO(manor): source that SystemMessageId from the
+                // client dat (not in this repo); the gate itself — no setup
+                // outside the modifiable period — is honored here.
+                return;
+            }
+            let seeds = seed_setting_entries(world, castle_id);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_seed_setting(castle_id, &seeds));
+            }
+        }
+        // Request 8: the owner's "Edit Crop Setup" view (`ExShowCropSetting`).
+        8 => {
+            if world.manor.is_manor_approved() {
+                return; // same approved-period guard as request 7
+            }
+            let crops = crop_setting_entries(world, castle_id);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_crop_setting(castle_id, &crops));
+            }
         }
         _ => {
             warn!("Manor: unknown manor request {request}.");
         }
     }
+}
+
+/// `Seed.getSeedReferencePrice` — the seed item's reference price (Java `Seed`
+/// resolves this from item data at load; missing item ⇒ 1).
+fn seed_reference_price(world: &World, seed_id: i32) -> i32 {
+    reference_price(world, seed_id)
+}
+
+/// `ExShowSeedSetting`'s list — every seed the castle can farm, with its
+/// catalogue limits/prices and the owner's current/next-period settings.
+fn seed_setting_entries(world: &World, castle_id: i32) -> Vec<SeedSettingEntry> {
+    let rate = world.cfg.rates.rate_drop_manor;
+    world
+        .data
+        .manor
+        .seeds_for_castle(castle_id)
+        .iter()
+        .map(|seed| {
+            let price = seed_reference_price(world, seed.seed_id);
+            SeedSettingEntry {
+                seed_id: seed.seed_id,
+                level: seed.level,
+                reward1_item_id: seed.reward1,
+                reward2_item_id: seed.reward2,
+                seed_limit: seed.limit_seeds * rate,
+                seed_reference_price: price,
+                seed_min_price: (price as f64 * 0.6) as i32,
+                seed_max_price: price * 10,
+                current: world
+                    .manor
+                    .seed_product(castle_id, seed.seed_id, false)
+                    .map(|sp| (sp.start_amount, sp.price)),
+                next: world
+                    .manor
+                    .seed_product(castle_id, seed.seed_id, true)
+                    .map(|sp| (sp.start_amount, sp.price)),
+            }
+        })
+        .collect()
+}
+
+/// `ExShowCropSetting`'s list — every crop the castle can buy, with its
+/// catalogue limits/prices and the owner's current/next-period settings.
+fn crop_setting_entries(world: &World, castle_id: i32) -> Vec<CropSettingEntry> {
+    let rate = world.cfg.rates.rate_drop_manor;
+    world
+        .data
+        .manor
+        .seeds_for_castle(castle_id)
+        .iter()
+        .map(|seed| {
+            let price = reference_price(world, seed.crop_id);
+            CropSettingEntry {
+                crop_id: seed.crop_id,
+                level: seed.level,
+                reward1_item_id: seed.reward1,
+                reward2_item_id: seed.reward2,
+                crop_limit: seed.limit_crops * rate,
+                crop_min_price: (price as f64 * 0.6) as i32,
+                crop_max_price: price * 10,
+                current: world
+                    .manor
+                    .crop_procure_for(castle_id, seed.crop_id, false)
+                    .map(|cp| (cp.start_amount, cp.price, cp.reward_type as u8)),
+                next: world
+                    .manor
+                    .crop_procure_for(castle_id, seed.crop_id, true)
+                    .map(|cp| (cp.start_amount, cp.price, cp.reward_type as u8)),
+            }
+        })
+        .collect()
 }
 
 /// `ExShowSeedInfo`'s list — the castle's live [`SeedProduction`] for the
@@ -207,6 +303,166 @@ fn reference_price(world: &World, item_id: i32) -> i32 {
         .item_data
         .get(item_id)
         .map_or(1, |t| t.price as i32)
+}
+
+/// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
+/// player object id when: the manor is in its **modifiable** period, the
+/// player's clan owns castle `manor_id`, they hold `CS_MANOR_ADMIN`, and they
+/// are in range of the chamberlain (last folk NPC). Otherwise sends
+/// `ActionFailed` and returns `None`, mirroring Java's early-outs.
+fn manor_setup_gate(world: &mut World, client_id: u32, manor_id: i32) -> Option<i32> {
+    let player_oid = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
+        _ => return None,
+    };
+    let ok = world.manor.is_modifiable_period() && {
+        let Some(p) = world.objects.get_component::<Player>(&player_oid) else {
+            return fail(world, client_id);
+        };
+        let owns = p.clan_id != 0
+            && world.clans.get(&p.clan_id).is_some_and(|c| {
+                c.castle_id == manor_id && c.has_privilege(player_oid, p.clan_privs, CS_MANOR_ADMIN)
+            });
+        // The last folk NPC (the chamberlain) must be in interaction range.
+        let in_range = world
+            .objects
+            .get_component::<LastFolkNpc>(&player_oid)
+            .is_some_and(|&LastFolkNpc(npc)| super::target::can_interact(world, player_oid, npc));
+        owns && in_range
+    };
+    if ok {
+        Some(player_oid)
+    } else {
+        fail(world, client_id)
+    }
+}
+
+/// Send `ActionFailed` and yield `None` (the gate's rejection path).
+fn fail(world: &World, client_id: u32) -> Option<i32> {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::action_failed());
+    }
+    None
+}
+
+/// Port of `clientpackets/RequestSetSeed` — the owner submits the next-period
+/// seed setup. Reads `manorId, count, [seedId, sales, price]*`; keeps only known
+/// seeds within their limit/price band; replaces the castle's next-period seed
+/// production.
+pub(crate) fn handle_request_set_seed(world: &mut World, client_id: u32, body: &[u8]) {
+    const BATCH: usize = 4 + 8 + 8; // seedId + sales + price
+    let mut r = PacketReader::new(body);
+    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+        return;
+    };
+    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
+        return;
+    }
+    let mut items = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let (Some(item_id), Some(sales), Some(price)) = (r.read_i32(), r.read_i64(), r.read_i64())
+        else {
+            return;
+        };
+        if item_id < 1 || sales < 0 || price < 0 {
+            return;
+        }
+        if sales > 0 {
+            items.push((item_id, sales, price));
+        }
+    }
+    if items.is_empty() {
+        return;
+    }
+    let Some(_player) = manor_setup_gate(world, client_id, manor_id) else {
+        return;
+    };
+    // Filter to known seeds within the setup limit/price band.
+    let rate = world.cfg.rates.rate_drop_manor;
+    let list: Vec<SeedProduction> = items
+        .into_iter()
+        .filter_map(|(seed_id, sales, price)| {
+            let seed = world.data.manor.seed_by_id(seed_id)?;
+            let ref_price = reference_price(world, seed_id);
+            let min = (ref_price as f64 * 0.6) as i64;
+            let max = ref_price as i64 * 10;
+            (sales <= (seed.limit_seeds * rate) as i64 && price >= min && price <= max).then_some(
+                SeedProduction {
+                    seed_id,
+                    amount: sales,
+                    price,
+                    start_amount: sales,
+                },
+            )
+        })
+        .collect();
+    world.manor.set_next_seed_production(manor_id, list);
+    // TODO(manor): with `AltManorSaveAllActions` (off on this dist) Java
+    // persists the next-period rows immediately; otherwise a periodic `storeMe`
+    // (unported) does. Either way the setup survives in memory this slice.
+    let _ = world.cfg.general.alt_manor_save_all_actions;
+}
+
+/// Port of `clientpackets/RequestSetCrop` — the owner submits the next-period
+/// crop setup. Like [`handle_request_set_seed`] plus a per-line reward-type
+/// byte; keeps only crops the castle farms, within their limit/price band.
+pub(crate) fn handle_request_set_crop(world: &mut World, client_id: u32, body: &[u8]) {
+    const BATCH: usize = 4 + 8 + 8 + 1; // cropId + sales + price + type
+    let mut r = PacketReader::new(body);
+    let (Some(manor_id), Some(count)) = (r.read_i32(), r.read_i32()) else {
+        return;
+    };
+    if count <= 0 || count > 1000 || r.remaining() != count as usize * BATCH {
+        return;
+    }
+    let mut items = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let (Some(item_id), Some(sales), Some(price), Some(reward_type)) =
+            (r.read_i32(), r.read_i64(), r.read_i64(), r.read_u8())
+        else {
+            return;
+        };
+        if item_id < 1 || sales < 0 || price < 0 {
+            return;
+        }
+        if sales > 0 {
+            items.push((item_id, sales, price, reward_type as i32));
+        }
+    }
+    if items.is_empty() {
+        return;
+    }
+    let Some(_player) = manor_setup_gate(world, client_id, manor_id) else {
+        return;
+    };
+    let rate = world.cfg.rates.rate_drop_manor;
+    let list: Vec<CropProcure> = items
+        .into_iter()
+        .filter_map(|(crop_id, sales, price, reward_type)| {
+            // Java `getSeedByCrop(cropId, castleId)` — the crop must be one this
+            // castle actually farms.
+            let seed = world
+                .data
+                .manor
+                .seeds_for_castle(manor_id)
+                .iter()
+                .find(|s| s.crop_id == crop_id)?;
+            let ref_price = reference_price(world, crop_id);
+            let min = (ref_price as f64 * 0.6) as i64;
+            let max = ref_price as i64 * 10;
+            (sales <= (seed.limit_crops * rate) as i64 && price >= min && price <= max).then_some(
+                CropProcure {
+                    crop_id,
+                    amount: sales,
+                    price,
+                    start_amount: sales,
+                    reward_type,
+                },
+            )
+        })
+        .collect();
+    world.manor.set_next_crop_procure(manor_id, list);
+    let _ = world.cfg.general.alt_manor_save_all_actions;
 }
 
 /// Parse `…?ask=<int>&state=<int>&time=<0|1>` (Java splits on `?`, then `&`,

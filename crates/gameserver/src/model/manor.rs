@@ -60,11 +60,26 @@ impl CropProcure {
     }
 }
 
+/// Java `enums/ManorMode` — the manor's period phase. Ordinals match Java (the
+/// mode is driven by a wall-clock schedule at boot; the scheduler + period
+/// rollover are not ported yet, so the mode stays at its default). `APPROVED`
+/// is the Java field default (`_mode = ManorMode.APPROVED`): the settled state
+/// where the manor sells/buys but the setup is locked.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ManorMode {
+    Disabled,
+    Modifiable,
+    Maintenance,
+    #[default]
+    Approved,
+}
+
 /// Per-castle manor production/procure lists for the current and next period
 /// (Java `CastleManorManager._production/_productionNext/_procure/_procureNext`,
-/// keyed by castle id).
+/// keyed by castle id), plus the period [`ManorMode`].
 #[derive(Debug, Default)]
 pub struct ManorState {
+    mode: ManorMode,
     production: HashMap<i32, Vec<SeedProduction>>,
     production_next: HashMap<i32, Vec<SeedProduction>>,
     procure: HashMap<i32, Vec<CropProcure>>,
@@ -72,6 +87,32 @@ pub struct ManorState {
 }
 
 impl ManorState {
+    /// Java `getManorMode` — the current period phase.
+    pub fn mode(&self) -> ManorMode {
+        self.mode
+    }
+
+    /// Set the period phase (Java's `scheduleModeChange` transitions; here
+    /// driven by tests / a future scheduler).
+    pub fn set_mode(&mut self, mode: ManorMode) {
+        self.mode = mode;
+    }
+
+    /// Java `isManorApproved` — the settled phase (setup locked).
+    pub fn is_manor_approved(&self) -> bool {
+        self.mode == ManorMode::Approved
+    }
+
+    /// Java `isModifiablePeriod` — the owner may edit the next-period setup.
+    pub fn is_modifiable_period(&self) -> bool {
+        self.mode == ManorMode::Modifiable
+    }
+
+    /// Java `isUnderMaintenance` — the daily production/procure rollover window.
+    pub fn is_under_maintenance(&self) -> bool {
+        self.mode == ManorMode::Maintenance
+    }
+
     /// Java `getSeedProduction(castleId, nextPeriod)`.
     pub fn seed_production(&self, castle_id: i32, next_period: bool) -> &[SeedProduction] {
         let map = if next_period {
@@ -139,6 +180,18 @@ impl ManorState {
             &mut self.procure
         };
         map.insert(castle_id, list);
+    }
+
+    /// Java `setNextSeedProduction(list, castleId)` — replace the castle's
+    /// next-period seed setup (the owner's `RequestSetSeed`).
+    pub fn set_next_seed_production(&mut self, castle_id: i32, list: Vec<SeedProduction>) {
+        self.set_seed_production(castle_id, true, list);
+    }
+
+    /// Java `setNextCropProcure(list, castleId)` — replace the castle's
+    /// next-period crop setup (the owner's `RequestSetCrop`).
+    pub fn set_next_crop_procure(&mut self, castle_id: i32, list: Vec<CropProcure>) {
+        self.set_crop_procure(castle_id, true, list);
     }
 }
 

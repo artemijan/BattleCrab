@@ -58,6 +58,11 @@ pub struct GeneralConfig {
     /// The dist ships `False`; the manor data + packets exist regardless so the
     /// feature works the moment an operator enables it.
     pub allow_manor: bool,
+    /// `AltManorSaveAllActions`: persist every manor setup change immediately
+    /// (vs. a periodic save). `False` on this dist — the owner's seed/crop setup
+    /// lives in memory until the periodic `storeMe` (unported), so with the dist
+    /// default nothing is written per-action.
+    pub alt_manor_save_all_actions: bool,
 }
 
 impl GeneralConfig {
@@ -96,6 +101,8 @@ impl GeneralConfig {
                 .filter_map(|s| s.trim().parse::<i32>().ok())
                 .collect(),
             allow_manor: p.get_bool("AllowManor", d.allow_manor),
+            alt_manor_save_all_actions: p
+                .get_bool("AltManorSaveAllActions", d.alt_manor_save_all_actions),
         }
     }
 }
