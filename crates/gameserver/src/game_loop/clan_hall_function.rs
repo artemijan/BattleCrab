@@ -13,8 +13,79 @@
 use crate::data::item_data::ADENA_ID;
 use crate::db::DbCommand;
 use crate::model::clan_hall::ActiveFunction;
+use crate::model::components::{Reuses, Vitals};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
+
+/// Java `ALLOWED_BUFFS` — the support-magic skills the BUFF function may cast
+/// (the standard NPC-buff line, skills 4342–4360).
+const ALLOWED_BUFFS: &[i32] = &[
+    4342, 4343, 4344, 4346, 4345, 4347, 4349, 4350, 4348, 4351, 4352, 4353, 4358, 4354, 4355, 4356,
+    4357, 4359, 4360,
+];
+
+/// What a buff-function cast decided (Java `ClanHallManager` `buffs` branch).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuffCastOutcome {
+    /// Buff cast on the caller.
+    Cast,
+    /// The token wasn't a `<id>_<lvl>` in `ALLOWED_BUFFS` (Java ignores it).
+    NotAllowed,
+    /// The manager NPC lacks the MP to cast it.
+    NotEnoughMp,
+    /// The skill is still on the NPC's reuse timer.
+    OnReuse,
+}
+
+/// `ClanHallManager` `useFunctions buffs <id>_<lvl>`: the manager NPC casts a
+/// support buff on the caller, gated on being an allowed buff, the NPC's MP,
+/// and the NPC's reuse timer (Java `castSkill` → `npc.doCast`).
+pub(crate) fn cast_hall_buff(
+    world: &mut World,
+    npc_oid: i32,
+    player_oid: i32,
+    token: &str,
+) -> BuffCastOutcome {
+    let Some((skill_id, skill_lvl)) = token
+        .split_once('_')
+        .and_then(|(id, lvl)| Some((id.parse().ok()?, lvl.parse::<i32>().ok()?)))
+    else {
+        return BuffCastOutcome::NotAllowed;
+    };
+    if !ALLOWED_BUFFS.contains(&skill_id) {
+        return BuffCastOutcome::NotAllowed;
+    }
+    let Some(skill) = world.data.skill_data.get(skill_id, skill_lvl).cloned() else {
+        return BuffCastOutcome::NotAllowed;
+    };
+    // Java: `npc.getCurrentMp() < (mpConsume + mpInitialConsume)`.
+    let cost = (skill.mp_consume + skill.mp_initial_consume) as f64;
+    let npc_mp = world
+        .objects
+        .get_component::<Vitals>(&npc_oid)
+        .map(|v| v.cur_mp)
+        .unwrap_or(0.0);
+    if npc_mp < cost {
+        return BuffCastOutcome::NotEnoughMp;
+    }
+    // Java `npc.isSkillDisabled` — the reuse timer.
+    let on_reuse = world
+        .objects
+        .get_component::<Reuses>(&npc_oid)
+        .and_then(|r| r.0.get(&skill.reuse_key()))
+        .is_some_and(|r| r.until_tick > world.tick);
+    if on_reuse {
+        return BuffCastOutcome::OnReuse;
+    }
+    // Trigger-cast (animation + effects), then charge the NPC's MP and arm its
+    // reuse — Java `npc.doCast` does both as part of the cast.
+    super::support_magic::cast_from_npc(world, npc_oid, player_oid, (skill_id, skill_lvl));
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
+        v.cur_mp = (v.cur_mp - cost).max(0.0);
+    }
+    super::skills::cast::set_skill_reuse(world, npc_oid, &skill);
+    BuffCastOutcome::Cast
+}
 
 /// What `setFunction` decided.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

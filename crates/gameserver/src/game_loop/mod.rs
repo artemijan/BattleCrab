@@ -70,9 +70,9 @@ mod shop;
 mod shortcuts;
 mod siege;
 mod skill_enchant;
-mod skills;
+pub(crate) mod skills;
 pub(crate) mod subclass;
-mod support_magic;
+pub(crate) mod support_magic;
 mod target;
 pub(crate) mod teleporter;
 #[cfg(test)]

@@ -837,3 +837,125 @@ fn a_hall_teleport_moves_the_player() {
         "teleported to tel1's Village Square"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Support-buff benefit (BUFF function)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::clan_hall_function::{cast_hall_buff, BuffCastOutcome};
+use crate::model::components::{Buffs, Vitals};
+
+/// Build a world with a clan-hall manager NPC and a nearby player, plus a
+/// synthetic "Wind Walk" (4342_2) branded onto the Might buff template so it
+/// lands in the player's `Buffs`. `mp` is the manager's starting MP.
+fn buff_world(
+    mp: f64,
+) -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+    i32,
+    i32,
+) {
+    let (mut world, db, l) = combat_test_world();
+    // Re-brand the Might buff (1068 → an ActiveBuff producer) as an allowed
+    // hall buff, costing 100 MP with a 5s reuse.
+    let mut buff = world.data.skill_data.get(1068, 1).unwrap().clone();
+    buff.id = 4342;
+    buff.level = 2;
+    buff.name = "Wind Walk".into();
+    buff.mp_consume = 100;
+    buff.mp_initial_consume = 0;
+    buff.reuse_delay = 5000;
+    buff.abnormal_type = "SPEED_UP".into();
+    world.data.skill_data.insert_for_test(buff);
+
+    let npc = NPC_OID + 400;
+    add_test_npc(&mut world, npc, 35447, "Merchant", 70, 100, 100, 0);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&npc)
+        .unwrap()
+        .cur_mp = mp;
+    let player = 8700;
+    let _rx = ingame_player(&mut world, 16, player, 120, 100, 0);
+    (world, db, l, npc, player)
+}
+
+fn player_has_buff(world: &World, player: i32, skill_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Buffs>(&player)
+        .is_some_and(|b| b.0.iter().any(|a| a.skill_id == skill_id))
+}
+
+/// **A hall buff is cast and paid for from the manager's MP.**
+#[test]
+fn a_hall_buff_is_cast_and_costs_the_managers_mp() {
+    let (mut world, _db, _l, npc, player) = buff_world(300.0);
+
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "4342_2"),
+        BuffCastOutcome::Cast
+    );
+    assert!(
+        player_has_buff(&world, player, 4342),
+        "the player got the buff"
+    );
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&npc).unwrap().cur_mp,
+        200.0,
+        "the manager's MP paid the 100 cost"
+    );
+}
+
+/// **A buff the manager can't afford is refused, and casts nothing.**
+#[test]
+fn a_hall_buff_needs_the_managers_mp() {
+    let (mut world, _db, _l, npc, player) = buff_world(50.0); // < 100 cost
+
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "4342_2"),
+        BuffCastOutcome::NotEnoughMp
+    );
+    assert!(!player_has_buff(&world, player, 4342), "no buff applied");
+    assert_eq!(
+        world.objects.get_component::<Vitals>(&npc).unwrap().cur_mp,
+        50.0,
+        "no MP spent on a refusal"
+    );
+}
+
+/// **The reuse timer blocks a second cast** (Java `npc.isSkillDisabled`).
+#[test]
+fn a_hall_buff_respects_the_reuse_timer() {
+    let (mut world, _db, _l, npc, player) = buff_world(1000.0);
+
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "4342_2"),
+        BuffCastOutcome::Cast
+    );
+    // Immediately again — the 5s reuse is still running.
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "4342_2"),
+        BuffCastOutcome::OnReuse
+    );
+}
+
+/// **Only skills in `ALLOWED_BUFFS` can be cast** — a real skill outside the
+/// list, and a malformed token, are both ignored.
+#[test]
+fn only_listed_buffs_are_castable() {
+    let (mut world, _db, _l, npc, player) = buff_world(1000.0);
+
+    // 1068 (Might) is a real buff but not in the clan-hall ALLOWED_BUFFS list.
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "1068_1"),
+        BuffCastOutcome::NotAllowed
+    );
+    assert_eq!(
+        cast_hall_buff(&mut world, npc, player, "not-a-skill"),
+        BuffCastOutcome::NotAllowed
+    );
+    assert!(!player_has_buff(&world, player, 1068));
+}
