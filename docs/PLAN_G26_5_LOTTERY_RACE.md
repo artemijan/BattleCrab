@@ -65,10 +65,39 @@ sabotage-verified.
 **Deferred to slice 2:** the `Loto` NPC dialog moves here (it's mainly the
 ticket-buy UI, so it lands with purchase), along with the draw + prize claim.
 
-### Slice 2 — Ticket purchase + draw + prize claim
-- Number-pick dialog → create ticket item 4442 (round id + bitmask), charge
-  adena, accrue the pot. `finishLottery` draw (5 numbers → tiers → payouts,
-  persisted). Prize check/claim: consume a winning ticket for its adena.
+### Slice 2 — Ticket purchase + Loto NPC dialog + draw + prize claim
+
+**Design finalized (ready to build).** The whole lottery economics — the biggest,
+most parity-sensitive slice; port the arithmetic verbatim.
+
+- **NPC dialog** (`bypass.rs` `"Loto"` verb → `lottery::loto_bypass`; port of
+  `Loto.java`, NPCs 30990–30994, htmls `data/html/default/3099X-{1..6}.htm`):
+  value 0 reset picks + page 1; 1–21 toggle a number pick (gated on
+  started + sellable) and re-render the button HTML, swapping the Return link to
+  "22" once 5 are picked; 22 buy; 23 jackpot; 24 prize-claim list; 25
+  instructions; >25 claim by item object id. Per-player pick buffer = a
+  `LotoPicks([i32;5])` component.
+- **Encoding (verbatim):** number `n` (1–20) → `n < 17 ? enchant |= 1<<(n-1) :
+  type2 |= 1<<(n-17)`. A ticket is item 4442 (non-stackable EtcItem) with
+  `custom_type1 = round`, `enchant_level = enchant`, `custom_type2 = type2`.
+  `decodeNumbers` reverses it; the match count is a 16-bit popcount of
+  `ticket.enchant & drawn.enchant` + `ticket.type2 & drawn.type2`.
+- **Purchase (value 22):** charge `AltLotteryTicketPrice` adena
+  (`Inventory::adena` check + `remove_item(57, price)`), `increase_prize(price)`
+  (new `DbCommand::IncreaseLotteryPrize`), create the ticket (needs a new
+  `Inventory` setter for enchant/custom fields by oid).
+- **Draw — two-phase async (faithful online + DB scan):** `LotteryFinish` fires
+  `finish_begin`, which rolls the 5 winning numbers, stores them, and sends
+  `DbCommand::LoadLotteryTickets { round }`. The DB thread replies
+  `DbEvent::LotteryTicketsLoaded { round, rows }`; `finish_complete` merges those
+  offline rows with a scan of every **online** inventory for item 4442 of this
+  round — **deduped by object id** (an online player's ticket may already be
+  flushed to the DB) — then counts tiers (5/4/3/1–2 matches → count1/2/3/4),
+  computes `prize4 = count4 * 2and1`, `prizeN = ((prize - prize4) * rateN) /
+  countN`, `newprize = prize - Σ`, and persists via `FinishLottery` before the
+  1-minute `LotteryStart` rollover.
+- **Claim (24 list / >25):** `checkTicket` reads the drawn row's numbers +
+  prize1/2/3; a winning earlier-round ticket pays its adena and is destroyed.
 
 ### Slice 3 — Monster Race state machine + board
 - `MonsterRaceState` (the 4-phase machine on a 1 s tick), 8 racer spawns +
