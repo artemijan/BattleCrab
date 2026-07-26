@@ -3764,8 +3764,8 @@ fn dispel_dance_gated_by_config() {
     );
 }
 
-/// A dispel aimed at another object id (not the player's own) is a no-op for the
-/// player's buffs — the pet/servitor branch is out of scope (TODO(G29)).
+/// A dispel aimed at a foreign object id (not the player's own, nor their
+/// summon) is a no-op for the player's buffs.
 #[test]
 fn dispel_wrong_object_id_ignored() {
     use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
@@ -3781,6 +3781,41 @@ fn dispel_wrong_object_id_ignored() {
     assert!(
         has_buff(&world, 3001, 9204),
         "dispel on a foreign object id leaves the player's buff"
+    );
+}
+
+/// **Alt+click dispel on a summon's buff strips it off the summon** (Java's
+/// `getPet()` / `getServitor(_objectId)` branch), leaving the player's own buff.
+#[test]
+fn dispel_strips_a_summon_buff() {
+    use crate::game_loop::servitor::summon_servitor;
+    use crate::game_loop::skills::{effects::apply_skill_effects, handle_request_dispel};
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // Register a servitor template and summon one.
+    let mut t = crate::data::npc_data::default_template(14799);
+    t.type_name = "Servitor".into();
+    t.base_hp_max = 400.0;
+    t.base_mp_max = 200.0;
+    world.data.npc_data.insert_for_test(t);
+    let servitor = summon_servitor(&mut world, 3001, 14799, 283, 1200, 0, 0).expect("summoned");
+
+    // Put the same buff on both the owner and the servitor.
+    let buff = synthetic_buff(9210, 1, "MYBUFF", 1, 1);
+    world.data.skill_data.insert_for_test(buff.clone());
+    apply_skill_effects(&mut world, 3001, 3001, &buff);
+    apply_skill_effects(&mut world, 3001, servitor, &buff);
+    assert!(has_buff(&world, 3001, 9210) && has_buff(&world, servitor, 9210));
+
+    // Alt+click the servitor's buff → removed from the servitor only.
+    handle_request_dispel(&mut world, 1, &dispel_body(servitor, 9210, 1, 0));
+    assert!(
+        !has_buff(&world, servitor, 9210),
+        "the summon's buff was stripped"
+    );
+    assert!(
+        has_buff(&world, 3001, 9210),
+        "the owner's own buff is untouched"
     );
 }
 
