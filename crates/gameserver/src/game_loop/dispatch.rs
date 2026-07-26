@@ -445,10 +445,16 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 }
             }
         }
-        // RequestManorList (IN_GAME): the castles that offer a manor.
+        // RequestManorList (IN_GAME): the castles that offer a manor — the seed
+        // catalogue's castles when manor is enabled, else an empty list.
         exop::REQUEST_MANOR_LIST => {
+            let castle_ids = if world.cfg.general.allow_manor {
+                world.data.manor.manor_castle_ids()
+            } else {
+                Vec::new()
+            };
             if let Some(cs @ ClientSession::InGame(_)) = world.clients.get(&client_id) {
-                cs.send(server_packets::ex_send_manor_list());
+                cs.send(server_packets::ex_send_manor_list(&castle_ids));
             }
         }
         // RequestUserBanInfo (IN_GAME): Mobius has a null handler — the client

@@ -53,6 +53,11 @@ pub struct GeneralConfig {
     /// `ListOfProtectedItems`: item ids never auto-destroyed on the ground
     /// (dist ships `0`, a non-existent id ⇒ effectively empty).
     pub protected_items: Vec<i32>,
+
+    /// `AllowManor`: whether the castle manor (seed sowing / crop harvest) runs.
+    /// The dist ships `False`; the manor data + packets exist regardless so the
+    /// feature works the moment an operator enables it.
+    pub allow_manor: bool,
 }
 
 impl GeneralConfig {
@@ -90,6 +95,7 @@ impl GeneralConfig {
                 .split(',')
                 .filter_map(|s| s.trim().parse::<i32>().ok())
                 .collect(),
+            allow_manor: p.get_bool("AllowManor", d.allow_manor),
         }
     }
 }
@@ -115,6 +121,7 @@ mod tests {
         assert!(!g.gm_startup_auto_list, "GMStartupAutoList=False");
         assert!(!g.gm_startup_diet_mode, "GMStartupDietMode=False");
         assert!(!g.gm_give_special_skills, "GMGiveSpecialSkills=False");
+        assert!(!g.allow_manor, "AllowManor=False on this dist");
     }
 
     /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,

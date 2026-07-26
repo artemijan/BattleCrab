@@ -22,6 +22,7 @@ pub mod initial_equipment;
 pub mod initial_shortcut;
 pub mod instance_data;
 pub mod item_data;
+pub mod manor_data;
 pub mod map_region;
 pub mod multisell_data;
 pub mod npc_ai_skills;
@@ -185,6 +186,8 @@ pub struct GameData {
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
     pub hennas: HennaData,
+    /// The castle-manor seed catalogue (`Seeds.xml`), see [`manor_data::ManorData`].
+    pub manor: manor_data::ManorData,
     pub recipes: RecipeData,
     /// NPC walking routes (`Routes.xml`), see [`RouteData`].
     pub routes: RouteData,
@@ -271,6 +274,7 @@ impl GameData {
             instance_templates,
             scheme_buffer: SchemeBufferData::load_from(file_path),
             hennas: HennaData::load_from(file_path),
+            manor: manor_data::ManorData::load_from(file_path),
             recipes: RecipeData::load_from(file_path),
             routes: RouteData::load_from(file_path),
             categories: CategoryData::load_from(file_path),
@@ -333,6 +337,7 @@ impl GameData {
             instance_templates: instance_data::InstanceData::empty(),
             scheme_buffer: SchemeBufferData::default(),
             hennas: HennaData::empty(),
+            manor: manor_data::ManorData::empty(),
             recipes: RecipeData::empty(),
             routes: RouteData::default(),
             categories: CategoryData::empty(),
