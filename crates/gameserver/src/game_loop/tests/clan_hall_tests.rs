@@ -660,3 +660,64 @@ fn a_function_id_is_found_by_its_type_name() {
     assert_eq!(data.id_of_type("HP_REGEN"), Some(HP_REGEN));
     assert_eq!(data.id_of_type("NOT_A_TYPE"), None);
 }
+
+// ---------------------------------------------------------------------------
+// ClanHallZone groundwork
+// ---------------------------------------------------------------------------
+
+use crate::data::zone_data::ZoneData;
+
+/// **Clan-hall zones load and resolve a position to their `clanHallId`** — the
+/// groundwork banish and the regen benefits need. The Gludio Onyx Hall zone
+/// (clanHallId 23) is a rectangle around (-14943, 125584).
+#[test]
+fn a_point_inside_a_hall_resolves_to_its_id() {
+    let zones = ZoneData::load_from(DIST);
+    assert_eq!(
+        zones.clan_hall_at(-14943, 125584, -3000),
+        Some(23),
+        "inside Gludio Onyx Hall"
+    );
+    assert_eq!(
+        zones.clan_hall_at(0, 0, 0),
+        None,
+        "the open world is not a clan hall"
+    );
+}
+
+/// **Banish ejects outsiders standing in the hall but leaves the owning clan's
+/// members** (Java `banishOthers`, scoped by the ClanHallZone).
+#[test]
+fn banish_ejects_outsiders_but_not_members() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.zone_data = ZoneData::load_from(DIST);
+    world.clan_halls = load_clan_halls(DIST);
+    world.clan_halls.get_mut(&23).unwrap().owner_id = 100;
+    let inside = (-14943, 125584, -3000);
+    let (outsider, member) = (8400, 8401);
+    let _r1 = ingame_player(&mut world, 11, outsider, inside.0, inside.1, inside.2);
+    let _r2 = ingame_player(&mut world, 12, member, inside.0, inside.1, inside.2);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&outsider)
+        .unwrap()
+        .clan_id = 999;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&member)
+        .unwrap()
+        .clan_id = 100;
+
+    crate::game_loop::clan_hall_auction::banish_others(&mut world, 23);
+
+    let op = world
+        .objects
+        .get_component::<crate::model::components::Position>(&outsider)
+        .unwrap();
+    assert_eq!((op.x, op.y), (-14684, 125655), "the outsider was banished");
+    let mp = world
+        .objects
+        .get_component::<crate::model::components::Position>(&member)
+        .unwrap();
+    assert_eq!((mp.x, mp.y), (inside.0, inside.1), "the member stayed put");
+}

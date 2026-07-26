@@ -89,6 +89,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
             max_z: 1000,
         },
         castle_id: 0,
+        clan_hall_id: 0,
         effect: Some(p),
         damage: None,
         swamp: None,

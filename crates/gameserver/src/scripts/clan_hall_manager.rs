@@ -8,10 +8,10 @@
 //! (banishOthers → a ClanHallZone) and `useFunctions` (teleport / buffs / item
 //! creation → the per-type benefits).
 
-use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
+use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
 use crate::game_loop::clan_hall_function::{buy_function, remove_function, FunctionOutcome};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::clan::{CH_OPEN_DOOR, CH_SET_FUNCTIONS};
+use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_SET_FUNCTIONS};
 use crate::model::Player;
 
 /// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
@@ -95,8 +95,20 @@ impl QuestScript for ClanHallManager {
                 }
                 self.manage_functions(ctx, hall_id, &mut parts)
             }
-            // Deferred consoles — serve the console page rather than a dead click.
-            Some("expel") | Some("useFunctions") => Some(page("01")),
+            Some("expel") => {
+                if !has_priv(ctx, CH_DISMISS) {
+                    return Some(NO_AUTHORITY.to_string());
+                }
+                // A trailing token = confirmed (Java: `st.hasMoreTokens()`).
+                if parts.next().is_some() {
+                    banish_others(ctx.world, hall_id);
+                    Some(page("08"))
+                } else {
+                    Some(page("07"))
+                }
+            }
+            // Deferred console (per-type benefits) — serve the console page.
+            Some("useFunctions") => Some(page("01")),
             Some(e) if e.ends_with(".html") => Some(e.to_string()),
             _ => Some(page("01")),
         }
