@@ -113,11 +113,16 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
                 &[SmParam::Text(owner_name), SmParam::CastleName(castle_id)],
             );
             broadcast_to_all(world, &pkt);
-            // owner_id == first_owner → the defender held; otherwise an attacker
-            // captured it. TODO(G24): increaseBloodAllianceCount (unchanged) /
-            // setTicketBuyCount(0) + Hero.setCastleTaken (captured) — the clan
-            // blood-alliance count, castle ticket count and nobles aren't modelled.
-            let _ = (owner_id, first_owner);
+            // Java: owner unchanged (`clan.getId() == _firstOwnerClanId`) → the
+            // defenders held → blood-alliance reward; owner changed → an attacker
+            // captured it → the castle's mercenary ticket count is cleared.
+            if owner_id == first_owner {
+                increase_blood_alliance(world, owner_id);
+            } else {
+                reset_castle_ticket_count(world, castle_id);
+                // TODO(G25): Hero.setCastleTaken for the captor's noble members
+                // (hero/olympiad castle-taken tracking is not modelled yet).
+            }
         }
         None => broadcast_sm(
             world,
@@ -132,6 +137,42 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     spawn_castle_doors(world, castle_id, false);
     // Despawn the siege guards (+ any towers) from the battlefield.
     despawn_siege_npcs(world, castle_id);
+}
+
+/// `SiegeManager.getBloodAllianceReward()` — `Siege.ini BloodAllianceReward = 0`
+/// on this dist, so holding a castle awards nothing in Interlude Classic. Kept
+/// as the single knob: raising it lights up the whole [`increase_blood_alliance`]
+/// path without any other change.
+pub(crate) const BLOOD_ALLIANCE_REWARD: i32 = 0;
+
+/// Java `Clan.increaseBloodAllianceCount` — the owner held its castle through
+/// the siege, so bump (and persist) its blood-alliance count by the reward.
+fn increase_blood_alliance(world: &mut World, clan_id: i32) {
+    let Some(clan) = world.clans.get_mut(&clan_id) else {
+        return;
+    };
+    clan.blood_alliance_count += BLOOD_ALLIANCE_REWARD;
+    let count = clan.blood_alliance_count;
+    let _ = world
+        .db
+        .send(DbCommand::UpdateClanBloodAlliance { clan_id, count });
+}
+
+/// Java `Castle.setTicketBuyCount(0)` — the castle changed hands, so the former
+/// owner's placed-mercenary count is cleared. A no-op (and no DB write) when it
+/// was already 0, which it always is until the mercenary system lands.
+fn reset_castle_ticket_count(world: &mut World, castle_id: i32) {
+    let Some(castle) = world.castles.iter_mut().find(|c| c.id == castle_id) else {
+        return;
+    };
+    if castle.ticket_buy_count == 0 {
+        return;
+    }
+    castle.ticket_buy_count = 0;
+    let _ = world.db.send(DbCommand::UpdateCastleTicketCount {
+        castle_id,
+        count: 0,
+    });
 }
 
 /// Java `Castle.setOwner` (from the throne-room artifact) + `Siege.midVictory`

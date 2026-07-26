@@ -122,6 +122,7 @@ fn mk_clan(id: i32, level: i32) -> Clan {
         crest_id: 0,
         crest_large_id: 0,
         ally_crest_id: 0,
+        blood_alliance_count: 0,
     }
 }
 

@@ -1241,6 +1241,7 @@ fn siege_start_evicts_non_owners_to_town() {
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
+        ticket_buy_count: 0,
     }];
     world.sieges.insert(3, Siege::new(3));
     // Owner clan 500 holds castle 3.
@@ -1278,6 +1279,7 @@ fn siege_start_evicts_non_owners_to_town() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let _o = ingame_player(&mut world, 1, 9002, 500, 500, 0); // owner-clan member in the zone
@@ -1319,6 +1321,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
+        ticket_buy_count: 0,
     }];
     let mut siege = Siege::new(3);
     siege.add_clan(500, SiegeClanType::Owner); // defender/owner
@@ -1356,6 +1359,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         crest_id: 0,
         crest_large_id: 0,
         ally_crest_id: 0,
+        blood_alliance_count: 0,
     };
     world.clans.insert(500, clan(500, "Defenders", 8002, 3)); // owns castle 3
     world.clans.insert(700, clan(700, "Attackers", 8003, 0));
@@ -1420,6 +1424,123 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         sm_ids_of(&drain(&mut rx))
             .contains(&server_packets::sm_ids::CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE),
         "victor announced"
+    );
+}
+
+/// A siege-end helper world: castle 3 (with `tickets` placed) owned by clan
+/// 500, attacker clan 700, siege started so `first_owner_clan_id == 500`.
+#[cfg(test)]
+fn siege_end_world(tickets: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver<db::DbCommand>) {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, _db_tx, db_rx, _link) = test_world();
+    world.castles = vec![Castle {
+        id: 3,
+        name: "Giran".into(),
+        side: CastleSide::Neutral,
+        ticket_buy_count: tickets,
+    }];
+    let mut siege = Siege::new(3);
+    siege.add_clan(500, SiegeClanType::Owner);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+    let clan = |id: i32, castle: i32| Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id: id * 10,
+        level: 5,
+        reputation_score: 0,
+        castle_id: castle,
+        members: vec![ClanMember {
+            char_id: id * 10,
+            name: format!("P{id}"),
+            level: 40,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 1,
+            title: String::new(),
+            pledge_type: 0,
+        }],
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    };
+    world.clans.insert(500, clan(500, 3));
+    world.clans.insert(700, clan(700, 0));
+    crate::game_loop::siege::start_siege(&mut world, 3);
+    assert_eq!(world.sieges[&3].first_owner_clan_id, 500);
+    (world, db_rx)
+}
+
+/// **When the defenders hold their castle, the owner gets the blood-alliance
+/// reward and the ticket count is left alone** (Java `endSiege`'s
+/// owner-unchanged branch). The reward is 0 on this dist, so the count stays 0;
+/// the untouched ticket count is what distinguishes this from the capture path.
+#[test]
+fn siege_defenders_hold_awards_blood_alliance() {
+    let (mut world, mut db_rx) = siege_end_world(5);
+    // No capture — clan 500 still owns castle 3 at the end.
+    crate::game_loop::siege::end_siege(&mut world, 3);
+
+    assert_eq!(
+        world.clans[&500].blood_alliance_count,
+        crate::game_loop::siege::BLOOD_ALLIANCE_REWARD,
+        "the defender was awarded the blood-alliance reward"
+    );
+    assert_eq!(
+        world.castles[0].ticket_buy_count, 5,
+        "the ticket count is untouched when the owner is unchanged"
+    );
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            db::DbCommand::UpdateClanBloodAlliance { clan_id: 500, .. }
+        )),
+        "the blood-alliance count was persisted"
+    );
+}
+
+/// **When an attacker captures the castle, its mercenary ticket count is reset
+/// to 0** (Java `endSiege`'s owner-changed branch → `setTicketBuyCount(0)`), and
+/// the captor gets no blood-alliance reward.
+#[test]
+fn siege_capture_resets_ticket_count() {
+    let (mut world, mut db_rx) = siege_end_world(5);
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+    drain_db(&mut db_rx);
+    crate::game_loop::siege::end_siege(&mut world, 3);
+
+    assert_eq!(
+        world.castles[0].ticket_buy_count, 0,
+        "the captured castle's ticket count is cleared"
+    );
+    assert_eq!(
+        world.clans[&700].blood_alliance_count, 0,
+        "the captor gets no blood-alliance reward"
+    );
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            db::DbCommand::UpdateCastleTicketCount {
+                castle_id: 3,
+                count: 0
+            }
+        )),
+        "the reset ticket count was persisted"
     );
 }
 
@@ -1794,6 +1915,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
         id: 3,
         name: "Giran".into(),
         side: CastleSide::Neutral,
+        ticket_buy_count: 0,
     }];
     let mut siege = Siege::new(3);
     siege.in_progress = true;
@@ -1833,6 +1955,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     // The Giran Holy Artifact (type Artefact) at (100, 0) inside the siege zone.
@@ -1960,6 +2083,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -2052,6 +2176,7 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     let mut siege = Siege::new(3);
@@ -2162,6 +2287,7 @@ fn attacker_clan(world: &mut World, player_oid: i32) {
             crest_id: 0,
             crest_large_id: 0,
             ally_crest_id: 0,
+            blood_alliance_count: 0,
         },
     );
     world
