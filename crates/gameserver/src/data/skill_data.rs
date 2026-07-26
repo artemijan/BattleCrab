@@ -1463,6 +1463,10 @@ fn build_skill(
                         "Sweeper" => vec![SkillEffect::Sweeper],
                         // ConsumeBody (paired with Sweeper on 42): decay the corpse.
                         "ConsumeBody" => vec![SkillEffect::ConsumeBody],
+                        // Sow (2097): the manor sow, cast via a Seed item.
+                        "Sow" => vec![SkillEffect::Sow],
+                        // Harvesting (2098): claim a sown corpse's crop.
+                        "Harvesting" => vec![SkillEffect::Harvesting],
                         // Cure Poison/Bleeding etc.: the `<dispel>` string is a
                         // per-level `"TYPE,level"` list (Java splits on ';' then ',').
                         // Falls through to an empty effect (silent no-op, like other

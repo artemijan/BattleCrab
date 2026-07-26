@@ -34,6 +34,120 @@ fn inv_count(world: &World, item_id: i32) -> i64 {
         .map_or(0, |i| i.count_of(item_id))
 }
 
+/// Register + place a sowable monster (a `canBeSown` Monster) at the origin.
+/// Uses `NPC_OID` so `is_npc_oid` (which range-checks the object id) accepts it.
+fn add_sowable_mob(world: &mut World, npc_id: i32, level: i32) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = "Monster".into();
+    t.level = level;
+    t.base_hp_max = 100.0;
+    t.base_mp_max = 30.0;
+    t.can_be_sown = true;
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(world, NPC_OID, npc_id, "Monster", level, 0, 0, 0);
+}
+
+/// **Sow a seed on a monster, then harvest the crop from its corpse.** A
+/// successful `Sow` marks the mob seeded and stashes the crop; a successful
+/// `Harvesting` on the dead mob hands it over (and clears it).
+#[test]
+fn sow_then_harvest_yields_the_crop() {
+    use crate::game_loop::skills::effects::{apply_harvesting, apply_sow};
+    use crate::model::components::Vitals;
+    use crate::model::npc::Npc;
+
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10)); // seed 5016 → crop 5073, lvl 10
+    add_stackable_item(&mut world, 5073, 50);
+    add_sowable_mob(&mut world, 45001, 10);
+
+    // The Seed item handler flags the mob (seed + seeder) before the Sow skill.
+    {
+        let npc = world.objects.get_component_mut::<Npc>(&NPC_OID).unwrap();
+        npc.seed_id = 5016;
+        npc.seeder_object_id = 100;
+    }
+    // Sow: a forced roll of 0 is under any positive chance → success.
+    world.forced_rolls.push_back(0);
+    apply_sow(&mut world, 100, NPC_OID);
+    {
+        let npc = world.objects.get_component::<Npc>(&NPC_OID).unwrap();
+        assert!(npc.seeded, "the mob is now seeded");
+        assert_eq!(
+            npc.harvest_item,
+            Some((5073, 1)),
+            "one crop stashed (RateDropManor = 1)"
+        );
+    }
+
+    // The mob dies; the seeder harvests its corpse.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&NPC_OID)
+        .unwrap()
+        .dead = true;
+    world.forced_rolls.push_back(0);
+    apply_harvesting(&mut world, 100, NPC_OID);
+    assert_eq!(
+        inv_count(&world, 5073),
+        1,
+        "the harvester received the crop"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Npc>(&NPC_OID)
+            .unwrap()
+            .harvest_item
+            .is_none(),
+        "the crop can't be harvested twice"
+    );
+}
+
+/// **Only the seeder may harvest.** A different player's `Harvesting` cast on a
+/// sown corpse yields nothing and leaves the crop stashed.
+#[test]
+fn harvest_refused_when_not_the_seeder() {
+    use crate::game_loop::skills::effects::apply_harvesting;
+    use crate::model::components::Vitals;
+    use crate::model::npc::Npc;
+
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    add_stackable_item(&mut world, 5073, 50);
+    add_sowable_mob(&mut world, 45001, 10);
+    // Already sown+seeded by player 100, and dead.
+    {
+        let npc = world.objects.get_component_mut::<Npc>(&NPC_OID).unwrap();
+        npc.seed_id = 5016;
+        npc.seeder_object_id = 100;
+        npc.seeded = true;
+        npc.harvest_item = Some((5073, 1));
+    }
+    world
+        .objects
+        .get_component_mut::<Vitals>(&NPC_OID)
+        .unwrap()
+        .dead = true;
+
+    // A different, real player (999, not the seeder) tries to harvest.
+    let _rx2 = ingame_player(&mut world, 2, 999, 0, 0, 0);
+    world.forced_rolls.push_back(0);
+    apply_harvesting(&mut world, 999, NPC_OID);
+    assert_eq!(inv_count(&world, 5073), 0, "a non-seeder harvests nothing");
+    assert!(
+        world
+            .objects
+            .get_component::<Npc>(&NPC_OID)
+            .unwrap()
+            .harvest_item
+            .is_some(),
+        "the crop is left for the seeder"
+    );
+}
+
 /// The test world's `item_data` is `empty()`; register a stackable Etc item
 /// (cloned from the always-present Adena template) so crops/rewards stack and
 /// carry a reference price.

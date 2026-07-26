@@ -353,6 +353,9 @@ pub enum ItemHandler {
     /// classes collapse to one variant: the only difference between them is
     /// an Olympiad-mode guard, and there's no Olympiad here.
     ItemSkills,
+    /// `handlers/itemhandlers/Seed` — sow a manor seed on a monster: flags the
+    /// mob with the seed, then casts the item's `<skills>` (the Sow skill).
+    Seed,
     /// `handlers/itemhandlers/SoulShots` — charges the physical-attack shot on
     /// the equipped weapon (`ShotType::SOULSHOTS`).
     SoulShots,
@@ -1190,6 +1193,7 @@ fn make_template(
     let handler = match attrs.get("handler").map(|s| s.as_str()) {
         Some("ExtractableItems") => ItemHandler::ExtractableItems,
         Some("ItemSkills") | Some("ItemSkillsTemplate") => ItemHandler::ItemSkills,
+        Some("Seed") => ItemHandler::Seed,
         Some("SoulShots") => ItemHandler::SoulShots,
         Some("SpiritShot") => ItemHandler::SpiritShot,
         Some("BlessedSpiritShot") => ItemHandler::BlessedSpiritShot,
