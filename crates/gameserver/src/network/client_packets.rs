@@ -175,6 +175,10 @@ pub mod ex_opcodes {
     pub const REQUEST_DUEL_START: u16 = 0x1B;
     pub const REQUEST_DUEL_ANSWER_START: u16 = 0x1C;
     pub const REQUEST_DUEL_SURRENDER: u16 = 0x42;
+    /// Olympiad observer mode: end / open list / refresh list.
+    pub const REQUEST_OLYMPIAD_OBSERVER_END: u16 = 0x29;
+    pub const REQUEST_OLYMPIAD_MATCH_LIST: u16 = 0x2E;
+    pub const REQUEST_EX_OLYMPIAD_MATCH_LIST_REFRESH: u16 = 0x85;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
     pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;
