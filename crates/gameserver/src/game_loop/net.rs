@@ -832,6 +832,61 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // auto-start schedule (`SiegeSchedule.xml`).
                 crate::game_loop::siege::schedule_all_at_boot(world);
             }
+            DbEvent::ManorLoaded {
+                production,
+                procure,
+            } => {
+                // Group the rows by castle + period, dropping ids not in the
+                // seed catalogue (Java's "Don't load unknown seeds/crops").
+                use crate::model::manor::{CropProcure, ManorState, SeedProduction};
+                let mut manor = ManorState::default();
+                let mut prod: std::collections::HashMap<(i32, bool), Vec<SeedProduction>> =
+                    std::collections::HashMap::new();
+                let mut proc: std::collections::HashMap<(i32, bool), Vec<CropProcure>> =
+                    std::collections::HashMap::new();
+                let mut skipped = 0;
+                for r in &production {
+                    if world.data.manor.seed_by_id(r.seed_id).is_none() {
+                        skipped += 1;
+                        continue;
+                    }
+                    prod.entry((r.castle_id, r.next_period))
+                        .or_default()
+                        .push(SeedProduction {
+                            seed_id: r.seed_id,
+                            amount: r.amount,
+                            price: r.price,
+                            start_amount: r.start_amount,
+                        });
+                }
+                for r in &procure {
+                    if world.data.manor.seed_by_crop(r.crop_id).is_none() {
+                        skipped += 1;
+                        continue;
+                    }
+                    proc.entry((r.castle_id, r.next_period))
+                        .or_default()
+                        .push(CropProcure {
+                            crop_id: r.crop_id,
+                            amount: r.amount,
+                            price: r.price,
+                            start_amount: r.start_amount,
+                            reward_type: r.reward_type,
+                        });
+                }
+                for ((castle_id, next), list) in prod {
+                    manor.set_seed_production(castle_id, next, list);
+                }
+                for ((castle_id, next), list) in proc {
+                    manor.set_crop_procure(castle_id, next, list);
+                }
+                tracing::info!(
+                    "GameLoop: loaded manor state ({} production, {} procure rows, {skipped} unknown skipped).",
+                    production.len(),
+                    procure.len()
+                );
+                world.manor = manor;
+            }
             DbEvent::ClanHallsLoaded { rows } => {
                 // Start from the static defs, then overlay persisted ownership.
                 let mut halls = world.data.clan_halls.clone();

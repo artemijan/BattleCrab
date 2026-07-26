@@ -15,7 +15,7 @@ use tracing::warn;
 
 use crate::model::components::LastFolkNpc;
 use crate::model::npc::Npc;
-use crate::network::server_packets::{self, ManorDefaultEntry};
+use crate::network::server_packets::{self, CropInfoEntry, ManorDefaultEntry, SeedInfoEntry};
 use crate::world::World;
 
 /// The clan that owns `castle_id`, if any (Java `Castle.getOwnerId()`), re-
@@ -82,6 +82,30 @@ pub(crate) fn handle_manor_menu_select(
     let castle_id = if manor_id == -1 { npc_castle } else { manor_id };
 
     match request {
+        // Request 3: the "Seed Purchase" view — the castle's live seed
+        // production (`ExShowSeedInfo`).
+        3 => {
+            let seeds = seed_info_entries(world, castle_id, next_period);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_seed_info(
+                    castle_id,
+                    true,
+                    Some(&seeds),
+                ));
+            }
+        }
+        // Request 4: the "Crop Sales" view — the castle's live crop procure
+        // (`ExShowCropInfo`).
+        4 => {
+            let crops = crop_info_entries(world, castle_id, next_period);
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::ex_show_crop_info(
+                    castle_id,
+                    true,
+                    Some(&crops),
+                ));
+            }
+        }
         // Request 5: the seed/crop reference table (static catalogue).
         5 => {
             let crops = default_entries(world);
@@ -89,20 +113,71 @@ pub(crate) fn handle_manor_menu_select(
                 cs.send(server_packets::ex_show_manor_default_info(&crops, true));
             }
         }
-        // TODO(manor): requests 3 (seed info) and 4 (crop info) show the
-        // castle's current `SeedProduction`/`CropProcure`, and 7/8 the owner's
-        // editable seed/crop setup. All need the `CastleManorManager` runtime
-        // production state (unported); wire them with the production slice.
-        3 | 4 | 7 | 8 => {
+        // TODO(manor): requests 7/8 are the owner's *editable* seed/crop setup
+        // (`ExShowSeedSetting`/`ExShowCropSetting`) — they need the manor
+        // period mode (`isManorApproved`) and the `RequestSetSeed`/
+        // `RequestSetCrop` write path, a later slice.
+        7 | 8 => {
             warn!(
-                "Manor: request {request} for castle {castle_id} (next_period={next_period}) \
-                 not wired yet — needs manor production state (TODO)."
+                "Manor: setup request {request} for castle {castle_id} \
+                 (next_period={next_period}) not wired — needs the setup slice (TODO)."
             );
         }
         _ => {
             warn!("Manor: unknown manor request {request}.");
         }
     }
+}
+
+/// `ExShowSeedInfo`'s list — the castle's live [`SeedProduction`] for the
+/// period, each line's level/rewards resolved from the seed catalogue (Java's
+/// `getSeed(seedId)`; unknown ⇒ level 0, rewards 0).
+///
+/// [`SeedProduction`]: crate::model::manor::SeedProduction
+fn seed_info_entries(world: &World, castle_id: i32, next_period: bool) -> Vec<SeedInfoEntry> {
+    world
+        .manor
+        .seed_production(castle_id, next_period)
+        .iter()
+        .map(|sp| {
+            let seed = world.data.manor.seed_by_id(sp.seed_id);
+            SeedInfoEntry {
+                seed_id: sp.seed_id,
+                amount: sp.amount,
+                start_amount: sp.start_amount,
+                price: sp.price,
+                seed_level: seed.map_or(0, |s| s.level),
+                reward1_item_id: seed.map_or(0, |s| s.reward1),
+                reward2_item_id: seed.map_or(0, |s| s.reward2),
+            }
+        })
+        .collect()
+}
+
+/// `ExShowCropInfo`'s list — the castle's live [`CropProcure`] for the period,
+/// each line's level/rewards resolved via the crop's seed (Java's
+/// `getSeedByCrop(cropId)`; unknown ⇒ level 0, rewards 0).
+///
+/// [`CropProcure`]: crate::model::manor::CropProcure
+fn crop_info_entries(world: &World, castle_id: i32, next_period: bool) -> Vec<CropInfoEntry> {
+    world
+        .manor
+        .crop_procure(castle_id, next_period)
+        .iter()
+        .map(|cp| {
+            let seed = world.data.manor.seed_by_crop(cp.crop_id);
+            CropInfoEntry {
+                crop_id: cp.crop_id,
+                amount: cp.amount,
+                start_amount: cp.start_amount,
+                price: cp.price,
+                reward: cp.reward_type as u8,
+                seed_level: seed.map_or(0, |s| s.level),
+                reward1_item_id: seed.map_or(0, |s| s.reward1),
+                reward2_item_id: seed.map_or(0, |s| s.reward2),
+            }
+        })
+        .collect()
 }
 
 /// `ExShowManorDefaultInfo`'s crop list — one line per distinct crop

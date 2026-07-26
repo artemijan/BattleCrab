@@ -375,6 +375,7 @@ async fn character_create_inserts_into_real_schema() {
             | DbEvent::CursedWeaponsLoaded { .. }
             | DbEvent::CastlesLoaded { .. }
             | DbEvent::SiegesLoaded { .. }
+            | DbEvent::ManorLoaded { .. }
             | DbEvent::ClanHallsLoaded { .. }
             | DbEvent::ClanHallBiddersLoaded { .. }
             | DbEvent::ResidenceFunctionsLoaded { .. }

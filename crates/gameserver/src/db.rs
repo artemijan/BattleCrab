@@ -905,6 +905,36 @@ pub enum DbEvent {
     SiegeGuardsLoaded {
         guards: Vec<(i32, crate::model::siege::SiegeSpawn)>,
     },
+    /// The `castle_manor_production` + `castle_manor_procure` tables (Java
+    /// `CastleManorManager.loadDb`), pushed unprompted at boot. Filtered to
+    /// known seeds/crops and grouped by castle/period on the game thread.
+    ManorLoaded {
+        production: Vec<ManorProductionRow>,
+        procure: Vec<ManorProcureRow>,
+    },
+}
+
+/// One `castle_manor_production` row — a seed the manor sells.
+#[derive(Debug, Clone)]
+pub struct ManorProductionRow {
+    pub castle_id: i32,
+    pub seed_id: i32,
+    pub amount: i64,
+    pub start_amount: i64,
+    pub price: i64,
+    pub next_period: bool,
+}
+
+/// One `castle_manor_procure` row — a crop the manor buys back.
+#[derive(Debug, Clone)]
+pub struct ManorProcureRow {
+    pub castle_id: i32,
+    pub crop_id: i32,
+    pub amount: i64,
+    pub start_amount: i64,
+    pub price: i64,
+    pub reward_type: i32,
+    pub next_period: bool,
 }
 
 /// One `siege_clans` row — a clan registered for a castle's siege.
@@ -1114,6 +1144,12 @@ async fn run(
     // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
     let _ = event_tx.send(DbEvent::SiegesLoaded {
         rows: load_siege_clans(&pool).await,
+    });
+
+    // `CastleManorManager.loadDb` — the manor production/procure state.
+    let _ = event_tx.send(DbEvent::ManorLoaded {
+        production: load_manor_production(&pool).await,
+        procure: load_manor_procure(&pool).await,
     });
 
     // Clan-hall ownership — overlaid onto the static hall defs at boot.
@@ -3015,6 +3051,51 @@ async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
             castle_id: geti(r, "castle_id") as i32,
             clan_id: geti(r, "clan_id") as i32,
             kind: geti(r, "type") as i32,
+        })
+        .collect()
+}
+
+/// `CastleManorManager.loadDb`: the `castle_manor_production` rows (seeds the
+/// manor sells). Missing table → empty (the manor is simply unset).
+async fn load_manor_production(pool: &SqlitePool) -> Vec<ManorProductionRow> {
+    let rows = sqlx::query(
+        "SELECT castle_id, seed_id, amount, start_amount, price, next_period \
+         FROM castle_manor_production",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| ManorProductionRow {
+            castle_id: geti(r, "castle_id") as i32,
+            seed_id: geti(r, "seed_id") as i32,
+            amount: geti(r, "amount"),
+            start_amount: geti(r, "start_amount"),
+            price: geti(r, "price"),
+            next_period: geti(r, "next_period") != 0,
+        })
+        .collect()
+}
+
+/// `CastleManorManager.loadDb`: the `castle_manor_procure` rows (crops the manor
+/// buys). Missing table → empty.
+async fn load_manor_procure(pool: &SqlitePool) -> Vec<ManorProcureRow> {
+    let rows = sqlx::query(
+        "SELECT castle_id, crop_id, amount, start_amount, price, reward_type, next_period \
+         FROM castle_manor_procure",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .map(|r| ManorProcureRow {
+            castle_id: geti(r, "castle_id") as i32,
+            crop_id: geti(r, "crop_id") as i32,
+            amount: geti(r, "amount"),
+            start_amount: geti(r, "start_amount"),
+            price: geti(r, "price"),
+            reward_type: geti(r, "reward_type") as i32,
+            next_period: geti(r, "next_period") != 0,
         })
         .collect()
 }

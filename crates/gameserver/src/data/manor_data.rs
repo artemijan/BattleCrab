@@ -115,6 +115,25 @@ impl ManorData {
             .find(|s| s.seed_id == seed_id)
     }
 
+    /// Java global `getSeed(seedId)` — the seed with this id, regardless of
+    /// castle (Java's `_seeds` map is keyed by seed id). Seed ids are unique
+    /// across the catalogue, so the first match is the only one.
+    pub fn seed_by_id(&self, seed_id: i32) -> Option<&Seed> {
+        self.by_castle
+            .values()
+            .flatten()
+            .find(|s| s.seed_id == seed_id)
+    }
+
+    /// Java global `getSeedByCrop(cropId)` — the first seed yielding this crop,
+    /// regardless of castle (used to resolve a procure line's level/rewards).
+    pub fn seed_by_crop(&self, crop_id: i32) -> Option<&Seed> {
+        self.by_castle
+            .values()
+            .flatten()
+            .find(|s| s.crop_id == crop_id)
+    }
+
     #[doc(hidden)]
     pub fn insert_for_test(&mut self, seed: Seed) {
         self.by_castle.entry(seed.castle_id).or_default().push(seed);
