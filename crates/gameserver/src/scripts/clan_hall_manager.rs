@@ -4,16 +4,18 @@
 //! and [`crate::game_loop::clan_hall_function`].
 //!
 //! Wired here: `manageDoors`, `manageFunctions setFunction/removeFunction`, the
-//! static function menus, `expel` (banishOthers), and `useFunctions teleport`
-//! (the hall's TELEPORT-level `tel<n>` list). Deferred (need infrastructure):
-//! the `useFunctions` buff / item-creation benefits.
+//! static function menus, `expel` (banishOthers), and the `useFunctions`
+//! benefits `teleport` (the hall's TELEPORT-level `tel<n>` list) and `buffs`
+//! (the BUFF-function support-magic menu). Deferred: the `useFunctions items`
+//! merchant window (needs the buy-window / Merchant NPC path).
 
 use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
 use crate::game_loop::clan_hall_function::{
-    buy_function, function_level, remove_function, FunctionOutcome,
+    buy_function, cast_hall_buff, function_level, remove_function, BuffCastOutcome, FunctionOutcome,
 };
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
+use crate::model::components::Vitals;
 use crate::model::Player;
 
 /// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
@@ -176,9 +178,51 @@ impl ClanHallManager {
                     }
                 }
             }
-            // Buffs / item creation consoles are later slices.
+            Some("buffs") => {
+                let func_id = ctx.world.data.residence_functions.id_of_type("BUFF")?;
+                let level = function_level(ctx.world, hall_id, func_id);
+                if level == 0 {
+                    return Some("ClanHallManager-noFunction.html".to_string());
+                }
+                match parts.next() {
+                    // No skill picked: the buff menu for this function level.
+                    None => Some(
+                        self.buff_html(ctx, &format!("ClanHallManager-funcBuffs_{level}.html")),
+                    ),
+                    // `<skillId>_<skillLevel>` from a menu button.
+                    Some(token) => {
+                        let page = match cast_hall_buff(ctx.world, ctx.npc, ctx.player, token) {
+                            // Java silently ignores an unlisted/bad skill.
+                            BuffCastOutcome::NotAllowed => return Some(page("01")),
+                            BuffCastOutcome::NotEnoughMp => "ClanHallManager-funcBuffsNoMp.html",
+                            BuffCastOutcome::OnReuse => "ClanHallManager-funcBuffsNoReuse.html",
+                            BuffCastOutcome::Cast => "ClanHallManager-funcBuffsDone.html",
+                        };
+                        Some(self.buff_html(ctx, page))
+                    }
+                }
+            }
+            // Item creation console is a later slice.
             _ => Some(page("01")),
         }
+    }
+
+    /// Read one of the buff pages and fill in `%manaLeft%` with the manager
+    /// NPC's current MP (Java replaces it on every buff page).
+    fn buff_html(&self, ctx: &QuestCtx, file: &str) -> String {
+        let mana = ctx
+            .world
+            .objects
+            .get_component::<Vitals>(&ctx.npc)
+            .map(|v| v.cur_mp as i32)
+            .unwrap_or(0);
+        crate::data::htm_cache::read_htm(format!(
+            "{}data/scripts/{}/{file}",
+            ctx.world.data.root,
+            self.html_dir()
+        ))
+        .unwrap_or_default()
+        .replace("%manaLeft%", &mana.to_string())
     }
 
     fn manage_functions(

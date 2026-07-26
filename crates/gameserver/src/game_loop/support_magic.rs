@@ -174,7 +174,7 @@ pub(crate) fn support_magic(
 /// Java `npc.setTarget(target); SkillCaster.triggerCast(npc, target, skill)`:
 /// broadcast the NPC's cast animation, then apply the skill's effects on the
 /// target (no cast bar, no MP cost — the trigger-cast path).
-fn cast_from_npc(
+pub(crate) fn cast_from_npc(
     world: &mut World,
     npc_object_id: i32,
     target_oid: i32,
