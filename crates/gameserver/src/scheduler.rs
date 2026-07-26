@@ -363,6 +363,12 @@ pub enum ScheduledTask {
     /// with the Ghost Walking invulnerability. Keyed by the victim's object id;
     /// a stale timer no-ops via the still-dead / still-on-event guard.
     TvtResurrect { player: i32 },
+    /// TvT's end-of-match scoreboard (`startQuestTimer("ScoreBoard", 3500)`,
+    /// G28): broadcast `ExPVPMatchCCRecord::FINISH`.
+    TvtScoreBoard,
+    /// TvT's teleport-out (`startQuestTimer("TeleportOut", 7000)`, G28): unfreeze
+    /// participants and tear the arena down.
+    TvtTeleportOut,
 }
 
 struct Entry {

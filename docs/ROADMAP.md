@@ -1075,11 +1075,16 @@ scoreboard (`ExPVPMatchCCRecord::UPDATE`), and killed participants respawn at
 their team spawn behind the Ghost Walking invulnerability after 10s. A TvT match
 now plays out with a real score.
 
-**Remaining for G28:** the real **EndFight** — freeze / revive / winner
-firework+adena / tie + scoreboard FINISH — plus enemy-HQ zone kicks + inactivity
-timers + forfeit + logout (slice 4), which need the `on_enter_zone`/`on_exit_zone`/
-`on_player_logout` script-framework hooks and command channels; and the optional
-cron auto-schedule (slice 5).
+**Slice 4 (2026-07-26):** the real **EndFight** + forfeit + logout landed — winner
+resolution with the firework flourish + Adena reward (tie shrug), the scoreboard
+FINISH + timed teleport-out teardown, and forfeit when a logout empties a team.
+**A complete TvT match now runs end-to-end with a real winner and reward — the
+G28 events-engine gate is met.**
+
+**Remaining for G28 (polish, non-gating):** enemy-HQ zone kicks + inactivity
+timers (need `on_enter_zone`/`on_exit_zone` framework hooks + the
+`colosseum_peace1/2` zones), the manager `BuffHeal`, parties-of-7 + command
+channels, and the optional cron auto-schedule.
 
 ---
 

@@ -21,6 +21,9 @@ pub enum TvtPhase {
     Warmup,
     /// The doors are open and the fight is on (`StartFight` → `EndFight`).
     Fighting,
+    /// The fight is over: winner resolved and rewarded, players frozen, waiting
+    /// on the scoreboard + teleport-out timers (`EndFight` → `TeleportOut`).
+    Ending,
 }
 
 /// TvT runtime — port of the static fields in `custom/events/TeamVsTeam/TvT.java`.

@@ -661,6 +661,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtResurrect { player } => {
                 events::tvt::resurrect_player(world, player);
             }
+            ScheduledTask::TvtScoreBoard => {
+                events::tvt::score_board(world);
+            }
+            ScheduledTask::TvtTeleportOut => {
+                events::tvt::teleport_out(world);
+            }
         }
     }
 }

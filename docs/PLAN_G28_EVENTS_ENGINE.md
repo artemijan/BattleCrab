@@ -127,10 +127,28 @@ listeners** (enemy-HQ kick + inactivity `KickPlayer` timers) — they need the
 (needs `SkillCaster.triggerCast` on the in-arena manager). The 5..1/10..1
 countdown screen messages stay deferred (cosmetic).
 
-### Slice 4 — End, rewards, cleanup, forfeit, logout
-- `EndFight` (freeze players, revive dead, winner firework + adena reward, tie
-  social action), `ScoreBoard` FINISH, `TeleportOut` + `destroy`, `manageForfeit`,
-  **logout listener** + `event_stop` full cleanup.
+### Slice 4 — End, rewards, forfeit, logout  ✅ LANDED
+
+**Landed.** Real `end_fight` (`TvtPhase::Ending`, idempotent): close doors, freeze
+participants (`set_invul` via `AdminFlags` — Java also immobilizes + skill-locks,
+`TODO(G28)` no flag on this port) + revive the dead, resolve BLUE vs RED — winner
+side gets the firework flourish (`MagicSkillUse` skill 5965) + cheer social
+action + Adena 57×100000 (`give_item_with_earned_message`), a tie shrugs (social
+13) — then arm `ScoreBoard` (3.5s → `ExPVPMatchCCRecord::FINISH`) and
+`TeleportOut` (7s → unfreeze + `instances::destroy` + reset). `on_player_logout`
+(hooked into `net::handle_logout` **and** `on_disconnect`, no-op off-event): drop
+the participant from every list; if that empties one team mid-arena,
+`manage_forfeit` arms an early `EndFight` (the original `FIGHT_TIME` timer's later
+firing no-ops via the `Ending` guard — no timer cancellation needed). New
+scheduler tasks `TvtScoreBoard`/`TvtTeleportOut`; `TvtPhase::Ending`. 6 new tests
+(winner reward + freeze, tie, teardown/unfreeze, forfeit-on-logout, full
+end-to-end with a winner), sabotage-verified.
+
+**Deferred (still `TODO(G28)`):** enemy-HQ zone kicks + inactivity `KickPlayer`
+timers (need the `on_enter_zone`/`on_exit_zone` framework hooks + the
+`colosseum_peace1/2` zones); the manager `BuffHeal`; parties-of-7 + command
+channels; the countdown screen messages. These are polish on top of a
+now-complete match; a follow-up or slice 5.
 
 ### Slice 5 (optional) — Auto-schedule + AdminEvents polish
 - Port `SchedulingPattern` (cron), wire `config.xml` schedule (off by default),

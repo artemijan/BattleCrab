@@ -70,6 +70,20 @@ const GHOST_WALKING: i32 = 100000;
 /// Seconds a killed participant waits before the arena respawns them (Java
 /// `startQuestTimer("ResurrectPlayer", 10000)`).
 const RESURRECT_DELAY_SECS: u64 = 10;
+/// The `ScoreBoard` delay in ticks (Java 3500 ms; 10 ticks/s → 35).
+const SCOREBOARD_DELAY_TICKS: u64 = 35;
+/// Seconds from `EndFight` to `TeleportOut` (Java 7000 ms).
+const TELEPORT_OUT_DELAY_SECS: u64 = 7;
+/// Seconds from a forfeit to the early `EndFight` (Java `manageForfeit` 10000 ms).
+const FORFEIT_DELAY_SECS: u64 = 10;
+
+/// Winner Adena reward (Java `REWARD = new ItemHolder(57, 100000)`).
+const REWARD_ADENA: i64 = 100_000;
+/// The firework flourish the winners play (Java `CommonSkill.FIREWORK`).
+const FIREWORK_SKILL: i32 = 5965;
+/// Social actions: the winners cheer (3), everyone shrugs on a tie (13).
+const SOCIAL_WIN: i32 = 3;
+const SOCIAL_TIE: i32 = 13;
 
 /// Game-loop ticks per second (matches the rest of `game_loop`).
 const TICKS_PER_SECOND: u64 = 10;
@@ -255,35 +269,108 @@ pub(crate) fn start_fight(world: &mut World) {
     // TODO(G28): the 5..1 warm-up countdown screen messages (cosmetic, slice 3).
 }
 
-/// Java `TvT.onEvent("EndFight")` + `"TeleportOut"`: the fight is over. Slice 2
-/// resolves the timer, announces the end, and tears the arena down.
+/// Java `TvT.onEvent("EndFight")`: the fight is over — close the doors, freeze +
+/// revive the participants, resolve the winner and reward them, then arm the
+/// scoreboard (3.5s) and teleport-out (7s). Runs once (the `Ending` guard also
+/// absorbs the original `FIGHT_TIME` timer firing after a forfeit's early end).
 pub(crate) fn end_fight(world: &mut World) {
-    if world.events.tvt.phase != TvtPhase::Fighting {
-        return;
-    }
     let Some(instance_id) = world.events.tvt.world_id else {
         return;
     };
-    // TODO(G28) slice 4: close doors, freeze players + revive the dead, resolve
-    //   BLUE vs RED (firework + adena reward to the winners / social action on a
-    //   tie), broadcast ExPVPMatchCCRecord::FINISH, then a 7s delay before the
-    //   teleport-out. Scoring itself (the per-kill updates) is slice 3.
-    broadcast_screen(world, instance_id, "The event has ended!", 7);
-    teleport_out(world);
+    if world.events.tvt.phase == TvtPhase::Ending {
+        return;
+    }
+    world.events.tvt.phase = TvtPhase::Ending;
+
+    instances::open_close_door(world, instance_id, BLUE_DOOR_ID, false);
+    instances::open_close_door(world, instance_id, RED_DOOR_ID, false);
+
+    // Freeze participants (invulnerable) and revive any dead one. Java also
+    // immobilizes + disables skills (incl. servitors); TODO(G28): no
+    // immobilize / skill-lock flag on this port, so the freeze is invul-only.
+    for player in world.events.tvt.player_list.clone() {
+        set_invul(world, player, true);
+        if is_dead(world, player) {
+            crate::game_loop::death::do_revive(world, player);
+        }
+    }
+
+    // Resolve the winner.
+    let (blue, red) = (world.events.tvt.blue_score, world.events.tvt.red_score);
+    if blue > red {
+        broadcast_screen(world, instance_id, "Team Blue won the event!", 7);
+        reward_team(world, TEAM_BLUE);
+    } else if red > blue {
+        broadcast_screen(world, instance_id, "Team Red won the event!", 7);
+        reward_team(world, TEAM_RED);
+    } else {
+        broadcast_screen(world, instance_id, "The event ended with a tie!", 7);
+        for player in world.events.tvt.player_list.clone() {
+            broadcast_social(world, player, SOCIAL_TIE);
+        }
+    }
+
+    world.scheduler.schedule(
+        world.tick + SCOREBOARD_DELAY_TICKS,
+        ScheduledTask::TvtScoreBoard,
+    );
+    world.scheduler.schedule(
+        world.tick + TELEPORT_OUT_DELAY_SECS * TICKS_PER_SECOND,
+        ScheduledTask::TvtTeleportOut,
+    );
 }
 
-/// Java `TvT.onEvent("TeleportOut")`: clear per-player event state and destroy
-/// the arena (ousting everyone to their ORIGIN return location).
-fn teleport_out(world: &mut World) {
+/// Java `TvT.onEvent("ScoreBoard")`: the final scoreboard.
+pub(crate) fn score_board(world: &mut World) {
+    if let Some(instance_id) = world.events.tvt.world_id {
+        broadcast_scoreboard(world, instance_id, sp::PVP_MATCH_FINISH);
+    }
+}
+
+/// Java `TvT.onEvent("TeleportOut")`: unfreeze participants, clear their event
+/// state, and destroy the arena (ousting everyone to their ORIGIN return
+/// location). Idempotent — a stale timer after `event_stop` finds nothing.
+pub(crate) fn teleport_out(world: &mut World) {
     for player in world.events.tvt.player_list.clone() {
         set_on_event(world, player, false);
         set_team(world, player, TEAM_NONE);
+        set_invul(world, player, false);
     }
     if let Some(instance_id) = world.events.tvt.world_id.take() {
         instances::destroy(world, instance_id);
     }
     world.events.tvt.reset();
     world.events.active = None;
+}
+
+/// Give every still-present member of the winning team the firework flourish,
+/// the cheer social action, and the adena reward (Java's `EndFight` winner loop,
+/// which skips anyone no longer in `PVP_WORLD`).
+fn reward_team(world: &mut World, team: u8) {
+    let Some(instance_id) = world.events.tvt.world_id else {
+        return;
+    };
+    let members = if team == TEAM_BLUE {
+        world.events.tvt.blue_team.clone()
+    } else {
+        world.events.tvt.red_team.clone()
+    };
+    for player in members {
+        if crate::game_loop::helpers::instance_of(world, player) != instance_id {
+            continue;
+        }
+        firework(world, player);
+        broadcast_social(world, player, SOCIAL_WIN);
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+            crate::game_loop::quests::give_item_with_earned_message(
+                world,
+                cid,
+                player,
+                crate::data::item_data::ADENA_ID,
+                REWARD_ADENA,
+            );
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -374,6 +461,51 @@ fn broadcast_score_message(world: &World, instance_id: i32) {
     );
     let pkt = sp::ex_show_screen_message(&text, BOTTOM_RIGHT, 15_000);
     instances::broadcast_to_instance(world, instance_id, &pkt);
+}
+
+// ---------------------------------------------------------------------------
+// Forfeit & logout (Java `onPlayerLogout` + `manageForfeit`)
+// ---------------------------------------------------------------------------
+
+/// A participant logged out (or dropped): drop them from every list, and if that
+/// empties one team mid-arena, forfeit the match to the other. Called from the
+/// logout / disconnect paths for **every** player; no-ops off-event. Java's
+/// `onPlayerLogout` `ON_PLAYER_LOGOUT` listener.
+pub(crate) fn on_player_logout(world: &mut World, player: i32) {
+    if world.events.active.is_none() {
+        return;
+    }
+    if !world.events.tvt.player_list.contains(&player) {
+        return;
+    }
+    world.events.tvt.player_list.retain(|&p| p != player);
+    world.events.tvt.scores.remove(&player);
+    world.events.tvt.blue_team.retain(|&p| p != player);
+    world.events.tvt.red_team.retain(|&p| p != player);
+
+    // Forfeit only mid-arena (a live instance), when exactly one team is now
+    // empty (Java's `(blueEmpty && !redEmpty) || (redEmpty && !blueEmpty)`).
+    if world.events.tvt.world_id.is_some()
+        && (world.events.tvt.blue_team.is_empty() != world.events.tvt.red_team.is_empty())
+    {
+        manage_forfeit(world);
+    }
+}
+
+/// Java `manageForfeit`: end the match early for the surviving team. We can't
+/// cancel the original `FIGHT_TIME` `EndFight` timer, but `end_fight`'s `Ending`
+/// guard makes the later firing a no-op, so a second, earlier `EndFight` is safe.
+fn manage_forfeit(world: &mut World) {
+    if world.events.tvt.phase == TvtPhase::Ending {
+        return;
+    }
+    if let Some(instance_id) = world.events.tvt.world_id {
+        broadcast_screen(world, instance_id, "Enemy team forfeit!", 7);
+    }
+    world.scheduler.schedule(
+        world.tick + FORFEIT_DELAY_SECS * TICKS_PER_SECOND,
+        ScheduledTask::TvtEndFight,
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -533,6 +665,42 @@ fn set_team(world: &mut World, player: i32, team: u8) {
     if let Some(p) = world.objects.get_component_mut::<Player>(&player) {
         p.team = team;
     }
+}
+
+/// Toggle a participant's invulnerability (Java `setInvul`) — the end-of-match
+/// freeze. Presence-based `AdminFlags`, added on first use.
+fn set_invul(world: &mut World, player: i32, value: bool) {
+    use crate::model::components::AdminFlags;
+    if world.objects.get_component::<AdminFlags>(&player).is_none() {
+        if !value {
+            return; // absent already means every flag false
+        }
+        world.objects.add_components(&player, AdminFlags::default());
+    }
+    if let Some(f) = world.objects.get_component_mut::<AdminFlags>(&player) {
+        f.invul = value;
+    }
+}
+
+/// The winner's firework flourish (Java `broadcastPacket(new MagicSkillUse(...))`).
+fn firework(world: &World, player: i32) {
+    let Some(pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&player)
+        .copied()
+    else {
+        return;
+    };
+    let src = (player, pos.x, pos.y, pos.z);
+    let pkt = sp::magic_skill_use_raw(src, src, FIREWORK_SKILL, 1, 500);
+    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
+}
+
+/// A player's `SocialAction` to everyone who can see them (Java
+/// `broadcastSocialAction`).
+fn broadcast_social(world: &World, player: i32, action: i32) {
+    let pkt = sp::social_action(player, action);
+    crate::game_loop::helpers::broadcast_including_self(world, player, &pkt);
 }
 
 /// Build the score rows (name, score) sorted by score descending — Java

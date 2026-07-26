@@ -475,6 +475,9 @@ pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
             let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
                 unreachable!("checked above");
             };
+            // TvT: drop a logging-out participant + forfeit if a team emptied
+            // (Java's `onPlayerLogout` listener). No-op off-event.
+            super::events::tvt::on_player_logout(world, s.player_object_id());
             store_and_remove_player(world, s.player_object_id());
             info!("GameLoop: '{}' logged out.", s.account());
             // Dropping the session closes the socket after the queued packet
@@ -497,7 +500,10 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
     // In `Entering` the Player is still held by the session, not the world.
     match world.clients.get(&client_id) {
         Some(ClientSession::InGame(s)) => {
-            store_and_remove_player(world, s.player_object_id());
+            let oid = s.player_object_id();
+            // TvT: same participant-drop / forfeit on an unexpected disconnect.
+            super::events::tvt::on_player_logout(world, oid);
+            store_and_remove_player(world, oid);
         }
         Some(ClientSession::Entering(s)) => {
             // The Player is still held by the session, not the world store, so

@@ -1,7 +1,6 @@
-//! Team vs Team event (G28) — slices 1–2: the lifecycle, the registration phase
-//! (open → register/cancel → window close), and the arena stand-up (team split
-//! + teleport, fight-window door/timer chain, teardown). Scoring and rewards are
-//! slices 3–4.
+//! Team vs Team event (G28) — the full match: registration (open →
+//! register/cancel → window close), arena stand-up (team split + teleport),
+//! scoring + respawn, and EndFight (winner reward / tie, forfeit, teardown).
 
 use super::*;
 
@@ -52,6 +51,9 @@ fn eligible_player(world: &mut World, client_id: u32, oid: i32) {
 /// The templates a full run needs, an open event, and `n` registered players.
 fn started_with_players(n: i32) -> (World, Vec<i32>) {
     let (mut world, _tx, _rx, _link) = test_world();
+    // A live object-id pool so the winner reward's `add_inventory_item` can
+    // allocate item stacks (see the cursed-weapons id-pool gotcha).
+    world.id_pool = 0x5000_0000..0x5000_1000;
     register_manager_template(&mut world);
     register_coliseum_template(&mut world);
     tvt::event_start(&mut world);
@@ -249,6 +251,7 @@ fn end_fight_tears_the_arena_down_and_frees_players() {
     tvt::start_fight(&mut world);
 
     tvt::end_fight(&mut world);
+    tvt::teleport_out(&mut world); // the 7s teleport-out timer
 
     // Event over, arena destroyed.
     assert_eq!(world.events.active, None);
@@ -266,12 +269,16 @@ fn end_fight_tears_the_arena_down_and_frees_players() {
 
 #[test]
 fn a_full_event_runs_start_to_finish() {
-    // The G28 gate, minus scoring/rewards (slices 3–4): open → register →
-    // teleport in → fight window → teardown, with no state left behind.
+    // open → register → teleport in → fight window → end (rewards) →
+    // teleport-out teardown, with no state left behind.
     let (mut world, _oids) = started_with_players(4);
     tvt::teleport_to_arena(&mut world);
     tvt::start_fight(&mut world);
     tvt::end_fight(&mut world);
+    // EndFight resolves + freezes but leaves the arena up for the scoreboard;
+    // the teleport-out timer (fired here) does the teardown.
+    assert_eq!(world.events.tvt.phase, TvtPhase::Ending);
+    tvt::teleport_out(&mut world);
 
     assert_eq!(world.events.active, None);
     assert_eq!(world.events.tvt.phase, TvtPhase::Inactive);
@@ -356,9 +363,9 @@ fn a_stale_respawn_after_teardown_is_a_no_op() {
         .get_component_mut::<Vitals>(&victim)
         .unwrap()
         .dead = true;
-    tvt::end_fight(&mut world); // tears the arena down, clears on_event
+    tvt::teleport_out(&mut world); // ends the event + clears on_event
 
-    // The queued resurrect now fires late: no revive (still dead), no panic.
+    // The queued resurrect now fires late: no revive (off-event), no panic.
     tvt::resurrect_player(&mut world, victim);
     assert!(world.objects.get_component::<Vitals>(&victim).unwrap().dead);
 }
@@ -375,4 +382,146 @@ fn player_do_die_drives_tvt_scoring() {
 
     assert_eq!(world.events.tvt.blue_score, 1);
     assert!(world.objects.get_component::<Vitals>(&victim).unwrap().dead);
+}
+
+// ---------------------------------------------------------------------------
+// Slice 4 — EndFight rewards, teardown, forfeit, logout
+// ---------------------------------------------------------------------------
+
+/// Register a stackable Adena template so the winner reward lands.
+fn register_adena(world: &mut World) {
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 57;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+}
+
+fn adena_count(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&oid)
+        .map_or(0, |inv| inv.count_of(57))
+}
+
+#[test]
+fn end_fight_rewards_the_winning_team_and_freezes_everyone() {
+    let (mut world, _oids) = fighting_arena(4);
+    register_adena(&mut world);
+    // Blue takes the lead.
+    world.events.tvt.blue_score = 3;
+    world.events.tvt.red_score = 1;
+    let blue = world.events.tvt.blue_team.clone();
+    let red = world.events.tvt.red_team.clone();
+
+    tvt::end_fight(&mut world);
+
+    assert_eq!(world.events.tvt.phase, TvtPhase::Ending);
+    // The scoreboard + teleport-out timers are armed.
+    let pending = world.scheduler.pending_tasks_for_test();
+    assert!(pending.contains(&ScheduledTask::TvtScoreBoard));
+    assert!(pending.contains(&ScheduledTask::TvtTeleportOut));
+    // Winners rewarded, losers not.
+    for oid in &blue {
+        assert_eq!(adena_count(&world, *oid), 100_000);
+    }
+    for oid in &red {
+        assert_eq!(adena_count(&world, *oid), 0);
+    }
+    // Everyone is frozen (invulnerable).
+    for oid in blue.iter().chain(red.iter()) {
+        assert!(
+            world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(oid)
+                .unwrap()
+                .invul
+        );
+    }
+}
+
+#[test]
+fn a_tie_rewards_no_one() {
+    let (mut world, _oids) = fighting_arena(4);
+    register_adena(&mut world);
+    // Scores level (both 0).
+    let everyone: Vec<i32> = world
+        .events
+        .tvt
+        .blue_team
+        .iter()
+        .chain(world.events.tvt.red_team.iter())
+        .copied()
+        .collect();
+
+    tvt::end_fight(&mut world);
+
+    assert_eq!(world.events.tvt.phase, TvtPhase::Ending);
+    for oid in &everyone {
+        assert_eq!(adena_count(&world, *oid), 0);
+    }
+}
+
+#[test]
+fn teleport_out_unfreezes_and_tears_down() {
+    let (mut world, oids) = fighting_arena(4);
+    let instance_id = world.events.tvt.world_id.unwrap();
+    tvt::end_fight(&mut world);
+
+    tvt::teleport_out(&mut world);
+
+    assert_eq!(world.events.active, None);
+    assert!(!world.instances.contains(instance_id));
+    for oid in &oids {
+        let flags = world
+            .objects
+            .get_component::<crate::model::components::AdminFlags>(oid);
+        // Invul cleared (either the flag is gone or false).
+        assert!(flags.is_none_or(|f| !f.invul));
+        assert!(world.objects.get_component::<InstanceId>(oid).is_none());
+    }
+}
+
+#[test]
+fn a_logout_that_empties_a_team_forfeits_the_match() {
+    let (mut world, _oids) = fighting_arena(4);
+    let reds = world.events.tvt.red_team.clone();
+
+    // First red leaves: red still has a member, no forfeit yet.
+    tvt::on_player_logout(&mut world, reds[0]);
+    assert!(
+        !world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtEndFight)
+            || world.events.tvt.red_team.len() == 1
+    );
+    // Second red leaves: red empty, blue not → forfeit arms an early EndFight.
+    tvt::on_player_logout(&mut world, reds[1]);
+
+    assert!(world.events.tvt.red_team.is_empty());
+    assert!(world
+        .scheduler
+        .pending_tasks_for_test()
+        .contains(&ScheduledTask::TvtEndFight));
+}
+
+#[test]
+fn a_full_event_with_a_winner_end_to_end() {
+    // The G28 gate in full: open → register → arena → a scored kill → EndFight
+    // (winner rewarded) → teleport-out, clean.
+    let (mut world, _oids) = fighting_arena(4);
+    register_adena(&mut world);
+    let killer = world.events.tvt.blue_team[0];
+    let victim = world.events.tvt.red_team[0];
+
+    tvt::on_player_death(&mut world, victim, killer);
+    assert_eq!(world.events.tvt.blue_score, 1);
+
+    tvt::end_fight(&mut world);
+    assert_eq!(adena_count(&world, killer), 100_000);
+
+    tvt::teleport_out(&mut world);
+    assert_eq!(world.events.active, None);
+    assert_eq!(world.instances.len(), 0);
 }
