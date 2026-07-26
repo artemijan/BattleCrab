@@ -794,3 +794,46 @@ fn an_outsider_in_the_hall_is_not_boosted() {
         "not your hall — no boost"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Teleport function benefit
+// ---------------------------------------------------------------------------
+
+/// **The teleport function and its lists load** — the hall's TELEPORT level
+/// picks a `tel<level>` list from the manager NPC's teleporter data.
+#[test]
+fn the_teleport_function_and_lists_load() {
+    let data = ResidenceFunctionData::load_from(DIST);
+    let tp = data.id_of_type("TELEPORT").expect("TELEPORT function");
+    assert!(data.level(tp, 1).is_some(), "TELEPORT has a level 1");
+
+    // The manager NPC's tel1/tel2 lists exist (Aden's Korgen, 35447).
+    let tele = crate::data::teleporter_data::TeleporterData::load_from(DIST);
+    assert!(tele.holder(35447, "tel1").is_some(), "tel1 list loads");
+    assert!(tele.holder(35447, "tel2").is_some(), "tel2 list loads");
+}
+
+/// **A hall teleport moves the player** — the manager's `tel1` list (loaded
+/// from the manager NPC's teleporter data) sends them to its first location.
+#[test]
+fn a_hall_teleport_moves_the_player() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.teleporters = crate::data::teleporter_data::TeleporterData::load_from(DIST);
+    let npc = NPC_OID + 300;
+    add_test_npc(&mut world, npc, 35447, "Folk", 70, 100, 100, 0); // Korgen
+    let player = 8600;
+    let _rx = ingame_player(&mut world, 15, player, 100, 100, 0);
+
+    crate::game_loop::teleporter::do_teleport(&mut world, 15, player, npc, "tel1", Some(0));
+
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&player)
+        .unwrap();
+    // x/y land exactly; z snaps to ground geometry.
+    assert_eq!(
+        (pos.x, pos.y),
+        (147450, 28081),
+        "teleported to tel1's Village Square"
+    );
+}
