@@ -118,10 +118,21 @@ most parity-sensitive slice; the arithmetic is ported verbatim.
 - **Claim (24 list / >25):** `checkTicket` reads the drawn row's numbers +
   prize1/2/3; a winning earlier-round ticket pays its adena and is destroyed.
 
-### Slice 3 — Monster Race state machine + board
-- `MonsterRaceState` (the 4-phase machine on a 1 s tick), 8 racer spawns +
-  speed tables, `MonRaceInfo` packet, the `RaceManager` NPC board + sounds.
-  `AllowRace` gate. **Gate:** a race runs its full cycle and animates.
+### Slice 3 — Monster Race foundation + state machine + board
+**Slice 3a (foundation) ✅ LANDED.** `model/monster_race.rs` (`RaceState`,
+`HistoryInfo`, `MonsterRaceState` on `World` — bets/odds/history/monsters/speeds/
+placings); `game_loop/monster_race.rs` the pure race math ported verbatim —
+`roll_speeds` (per-lane 20-step roll, winner = highest total, lane `8−i`),
+`calculate_odds` (pari-mutuel `max(1.25, pool·0.7/laneBets)`), `add_bet`; the
+`MonRaceInfo` packet (`MON_RACE_INFO` 0x E3, `network/server_packets/games.rs`).
+4 tests, sabotage-verified.
+
+**Slice 3b (remaining):** the 1-second race-cycle state machine (the
+`_finalCountdown` 0→1200 timeline via a re-armed tick), the 8 shuffled monster
+spawns (templates 31003–31026), the `mdt_history` load/persist, and the
+**Derby-zone broadcast** — needs a `DerbyTrackZone` concept in the Rust zone
+system (the 8 `dion_monster_race*` zones in `zone.xml`, currently unparsed).
+`AllowRace` gate. **Gate:** a race runs its full cycle and animates.
 
 ### Slice 4 — Betting + payout
 - Lane bets (items 4443–4470) at the NPC, odds from the pool, `RACE_END` payout

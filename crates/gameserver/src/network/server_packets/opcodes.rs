@@ -141,6 +141,8 @@ pub const GET_ON_VEHICLE: u8 = 0x6E;
 pub const GET_OFF_VEHICLE: u8 = 0x6F;
 pub const MOVE_TO_LOCATION_IN_VEHICLE: u8 = 0x7E;
 pub const STOP_MOVE_IN_VEHICLE: u8 = 0x7F;
+/// `MonRaceInfo` — the Monster Race Track board/animation (G26.5).
+pub const MON_RACE_INFO: u8 = 0xE3;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;

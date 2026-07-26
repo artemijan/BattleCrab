@@ -49,6 +49,7 @@ mod lobby;
 pub(crate) mod lottery;
 pub(crate) mod manor;
 pub(crate) mod minions;
+pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
 pub(crate) mod npc_ai;

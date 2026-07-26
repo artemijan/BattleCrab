@@ -19,6 +19,7 @@ pub mod inventory;
 pub mod lottery;
 pub mod manor;
 pub mod mob_group;
+pub mod monster_race;
 pub mod movement;
 pub mod npc;
 pub mod olympiad;

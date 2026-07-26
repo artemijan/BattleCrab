@@ -1038,8 +1038,12 @@ encoding), the faithful two-phase draw (offline DB + online inventory scan,
 deduped, tier pot-split), and prize claim. Config-gated on `AllowLottery` (dist
 off). **A lottery now runs buy → draw → payout.**
 
-**Remaining:** the whole Monster Race — the `RaceState` machine, the
-`RaceManager` NPC, `MonRaceInfo`, and lane betting/payout (slices 3–4).
+**Monster Race foundation (slice 3a) landed:** the race data model, the pure
+race math (speed roll + winner, pari-mutuel odds), and the `MonRaceInfo` packet.
+**Remaining:** the 1-second race-cycle state machine + monster spawns + the
+Derby-zone broadcast (needs a `DerbyTrackZone` in the Rust zone system) + the
+`mdt_*` DB (slice 3b), then lane betting/payout via the `RaceManager` NPC
+(slice 4).
 
 ### G27 — Instances
 `InstanceManager` + instance worlds; instance zones; reenter timers; instance-
