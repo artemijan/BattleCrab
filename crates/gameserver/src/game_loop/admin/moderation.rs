@@ -102,8 +102,8 @@ pub(super) fn admin_gmchat(world: &mut World, client_id: u32, object_id: i32, ar
 /// `AdminChangeAccessLevel`'s `//changelvl <level>` (target/self) or
 /// `//changelvl <name> <level>` — set a character's GM access level. The
 /// change is applied in memory (colors + is_gm) and persisted immediately (Java
-/// `setAccessLevel(updateInDb=true)`). The login-server `ChangeAccessLevel`
-/// relay (account-level access) is not ported.
+/// `setAccessLevel(updateInDb=true)`). This sets the *character* access level;
+/// the login-server account-level relay is `//login_ban` (G31 slice 4).
 pub(super) fn admin_changelvl(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let (target, level) = match args {
         [level_str] => {
@@ -474,6 +474,182 @@ pub(super) fn admin_unban_acc(world: &mut World, client_id: u32, args: &[&str]) 
         );
     } else {
         send_message(world, client_id, "That account is not banned.");
+    }
+}
+
+// --- Login-ban relay + IP tools (Java `Player.setAccountAccesslevel` +
+// `AdminEditChar` find_ip/find_dualbox/tracert, G31 slice 4) -----------------
+
+/// A player's live client IP (`Player.getIPAddress`), or `None` when offline.
+fn player_ip(world: &World, object_id: i32) -> Option<String> {
+    super::helpers::client_for_player(world, object_id)
+        .and_then(|cid| world.clients.get(&cid))
+        .map(|cs| cs.addr().ip().to_string())
+}
+
+/// Every online player's `(object_id, ip)` (the IP tools' shared scan).
+fn online_ips(world: &World) -> Vec<(i32, String)> {
+    world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some((s.player_object_id(), cs.addr().ip().to_string())),
+            _ => None,
+        })
+        .collect()
+}
+
+/// The online characters connected from `ip` (Java `findCharactersPerIp`).
+pub(crate) fn characters_from_ip(world: &World, ip: &str) -> Vec<i32> {
+    online_ips(world)
+        .into_iter()
+        .filter(|(_, pip)| pip == ip)
+        .map(|(oid, _)| oid)
+        .collect()
+}
+
+/// IPs with `threshold` or more online characters, most-populous first (Java
+/// `findDualbox`).
+pub(crate) fn dualbox_ips(world: &World, threshold: usize) -> Vec<(String, usize)> {
+    let mut counts: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+    for (_, ip) in online_ips(world) {
+        *counts.entry(ip).or_default() += 1;
+    }
+    let mut hits: Vec<(String, usize)> = counts
+        .into_iter()
+        .filter(|(_, c)| *c >= threshold)
+        .collect();
+    hits.sort_by(|a, b| b.1.cmp(&a.1));
+    hits
+}
+
+/// Relay an account's new access level to the login server (Java
+/// `Player.setAccountAccesslevel` → `LoginServerThread.sendAccessLevel`).
+fn relay_account_access(world: &World, account: &str, level: i32) {
+    let _ = world
+        .login
+        .link
+        .send(crate::loginlink::LoginLinkCommand::SetAccountAccessLevel {
+            account: account.to_string(),
+            level,
+        });
+}
+
+/// `//login_ban <account>` — ban an account at the login server (relay access
+/// level −1), and kick anyone on it who is currently online. This is the
+/// login-link ban, distinct from the game-side `//ban_acc` punishment.
+pub(super) fn admin_login_ban(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(account) = args.first() else {
+        send_message(world, client_id, "Usage: //login_ban <account>");
+        return;
+    };
+    relay_account_access(world, account, -1);
+    // Kick any online characters on that account (Java sets the LS level; we
+    // also drop live sessions so the ban bites immediately, not just next login).
+    let online: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => {
+                let oid = s.player_object_id();
+                world
+                    .objects
+                    .get_component::<Player>(&oid)
+                    .filter(|p| p.account == *account)
+                    .map(|_| oid)
+            }
+            _ => None,
+        })
+        .collect();
+    for oid in online {
+        disconnect_player(world, oid);
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("Login ban relayed for account '{account}'."),
+    );
+}
+
+/// `//login_unban <account>` — restore an account at the login server (relay
+/// access level 0).
+pub(super) fn admin_login_unban(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(account) = args.first() else {
+        send_message(world, client_id, "Usage: //login_unban <account>");
+        return;
+    };
+    relay_account_access(world, account, 0);
+    send_message(
+        world,
+        client_id,
+        &format!("Login ban lifted for account '{account}'."),
+    );
+}
+
+/// `AdminEditChar`'s `//find_ip <ip>` — list the online characters connected
+/// from a given IP.
+pub(super) fn admin_find_ip(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(ip) = args.first() else {
+        send_message(world, client_id, "Usage: //find_ip <a.b.c.d>");
+        return;
+    };
+    let matches = characters_from_ip(world, ip);
+    send_message(world, client_id, &format!("=== Characters from {ip} ==="));
+    if matches.is_empty() {
+        send_message(world, client_id, "None online.");
+        return;
+    }
+    for oid in matches {
+        if let Some(p) = world.objects.get_component::<Player>(&oid) {
+            send_message(world, client_id, &format!("{} (Lv {})", p.name, p.level));
+        }
+    }
+}
+
+/// `AdminEditChar`'s `//find_dualbox [n]` — IPs with `n` or more online
+/// characters (default 2). Java's default `multibox` is 2.
+pub(super) fn admin_find_dualbox(world: &mut World, client_id: u32, args: &[&str]) {
+    let threshold = args
+        .first()
+        .and_then(|a| a.parse::<usize>().ok())
+        .filter(|&n| n >= 1)
+        .unwrap_or(2);
+    let hits = dualbox_ips(world, threshold);
+    send_message(
+        world,
+        client_id,
+        &format!("=== Dualbox (>= {threshold}) ==="),
+    );
+    if hits.is_empty() {
+        send_message(world, client_id, "None found.");
+        return;
+    }
+    for (ip, count) in hits {
+        send_message(world, client_id, &format!("{ip} ({count})"));
+    }
+}
+
+/// `AdminEditChar`'s `//tracert <name>` — show a player's connecting IP (Java
+/// dumps the client's route trace; the port has only the peer address, so it
+/// reports that — a documented simplification).
+pub(super) fn admin_tracert(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    let Some(target) = target else {
+        send_message(world, client_id, "Usage: //tracert <player name>");
+        return;
+    };
+    let name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    match player_ip(world, target) {
+        Some(ip) => send_message(world, client_id, &format!("{name} — IP {ip}")),
+        None => send_message(world, client_id, "Client is null."),
     }
 }
 

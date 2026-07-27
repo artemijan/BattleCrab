@@ -33,7 +33,7 @@ mod instance;
 mod items;
 mod menu;
 mod mobgroup;
-mod moderation;
+pub(crate) mod moderation;
 mod mounts;
 mod pledge;
 mod points;
@@ -342,6 +342,12 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             }
         }
         "admin_reset_petitions" => super::petition::reset_petitions(world, object_id),
+        // Login-ban relay + IP tools (Java `AdminEditChar`/login link, G31 slice 4).
+        "admin_login_ban" => admin_login_ban(world, client_id, &args),
+        "admin_login_unban" => admin_login_unban(world, client_id, &args),
+        "admin_find_ip" => admin_find_ip(world, client_id, &args),
+        "admin_find_dualbox" => admin_find_dualbox(world, client_id, &args),
+        "admin_tracert" => admin_tracert(world, client_id, object_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

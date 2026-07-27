@@ -59,10 +59,14 @@ via the login link. **Deps:** per-client IP (already on `Session.addr`).
   `AdminPetition` (`//view_petitions`/`view_petition`/`accept`/`reject`/`reset`).
   Only feedback persists (`petition_feedback` via `StorePetitionFeedback`).
 
-### Slice 4 — Account/login admin + IP tools
-- `AdminLogin` (ban/unban via the login-link relay, `//gm*` account ops) —
-  **gate: "ban via the login link"** — plus editchar `//find_ip` /
-  `//find_dualbox` / `//tracert` off `Session.addr`.
+### Slice 4 — Account/login admin + IP tools  ✅ LANDED (gate: ban via login link met)
+- The login-link account-ban relay (Java `Player.setAccountAccesslevel` →
+  `LoginServerThread.sendAccessLevel` → `ChangeAccessLevel` 0x04):
+  `LoginLinkCommand::SetAccountAccessLevel`, `//login_ban` (relay level −1 +
+  kick online sessions on that account) / `//login_unban` (level 0). Plus the
+  editchar IP tools off `Session.addr`: `//find_ip <ip>`, `//find_dualbox [n]`,
+  `//tracert <name>` (peer-address only — Java's route-trace needs client
+  plumbing the port lacks).
 
 ### Slice 5 (polish) — HWID + fake players
 - `AdminHwid`, `AdminFakePlayers`, GM `//snoop`. Subject to the scope gate

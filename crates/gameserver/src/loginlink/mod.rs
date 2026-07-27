@@ -76,6 +76,12 @@ pub enum LoginLinkCommand {
         chars: u8,
         del_times: Vec<i64>,
     },
+    /// Java `LoginServerThread.sendAccessLevel` (G31): relay an account's new
+    /// access level to the login server. `level < 0` bans it there.
+    SetAccountAccessLevel {
+        account: String,
+        level: i32,
+    },
 }
 
 /// Events the link reports to the game thread (LS → game).
@@ -220,6 +226,9 @@ async fn session(
                     LoginLinkCommand::PlayerLogout { account } => packets::player_logout(&account),
                     LoginLinkCommand::ReplyCharacters { account, chars, del_times } => {
                         packets::reply_characters(&account, chars, &del_times)
+                    }
+                    LoginLinkCommand::SetAccountAccessLevel { account, level } => {
+                        packets::change_access_level(&account, level)
                     }
                 };
                 send(&mut write, &crypt, body).await?;

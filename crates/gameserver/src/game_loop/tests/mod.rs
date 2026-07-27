@@ -81,6 +81,7 @@ mod manor_tests;
 mod melee_variants_tests;
 mod minion_tests;
 mod misc_tests;
+mod moderation_ip_tests;
 mod monster_race_tests;
 mod move_type_tests;
 mod movement_tests;
