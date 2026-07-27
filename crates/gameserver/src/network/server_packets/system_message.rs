@@ -443,6 +443,11 @@ pub mod sm_ids {
     // Chat (G10)
     pub const THAT_PLAYER_IS_NOT_ONLINE: i16 = 145;
     pub const KEYBOARD_INPUT_SPAM_WARNING: i16 = 1078;
+    // Punishment / moderation (G31)
+    pub const CHATTING_IS_CURRENTLY_PROHIBITED: i16 = 966;
+    pub const C1_HAS_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_AND_CANNOT_JOIN_A_PARTY: i16 = 2482;
+    pub const YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_PARTICIPATING_IN_A_PARTY_IS_NOT_ALLOWED:
+        i16 = 2484;
     pub const YOU_ARE_NOT_IN_A_PARTY: i16 = 4201;
     pub const YOU_ARE_NOT_IN_A_CLAN: i16 = 4202;
     // Boats (G24.5)

@@ -65,73 +65,61 @@ pub(crate) fn on_expire(world: &mut World, punishment_id: i32) {
 }
 
 // ---------------------------------------------------------------------------
-// Jail (Java `JailHandler`)
+// Generic punishment engine (Java `PunishmentManager.startPunishment` +
+// `PunishmentTask.onStart`/`onEnd` handler dispatch)
 // ---------------------------------------------------------------------------
 
-/// Java `admin_punishment_add` for CHARACTER/JAIL: register a new jail
-/// punishment on `char_id`, persist it, arm its expiry, and (if the character
-/// is online) apply the effect immediately. `minutes == 0` jails forever.
-/// Returns `false` if the character already has an active jail (Java's
-/// "already affected" guard).
-pub(crate) fn jail_character(
+/// Java `admin_punishment_add`: register a new punishment, persist it, arm its
+/// expiry, and apply its onStart effect to every affected online player.
+/// `expiration` is absolute unix millis, or `0` for forever. Returns `false`
+/// if that exact `(key, affect, type)` is already punished (Java's "already
+/// affected" guard).
+pub(crate) fn start_punishment(
     world: &mut World,
-    char_id: i32,
-    minutes: i64,
+    key: String,
+    affect: PunishmentAffect,
+    ptype: PunishmentType,
+    expiration: i64,
     reason: String,
     punished_by: String,
 ) -> bool {
-    let key = char_id.to_string();
-    if world
-        .punishments
-        .has_punishment(&key, PunishmentAffect::Character, PunishmentType::Jail)
-    {
+    if world.punishments.has_punishment(&key, affect, ptype) {
         return false;
     }
-    let expiration = if minutes > 0 {
-        commons::util::now_millis() + minutes * 60_000
-    } else {
-        0
-    };
     let id = world.punishments.alloc_id();
     let task = Punishment {
         id,
-        key,
-        affect: PunishmentAffect::Character,
-        ptype: PunishmentType::Jail,
+        key: key.clone(),
+        affect,
+        ptype,
         expiration,
         reason: reason.clone(),
         punished_by: punished_by.clone(),
     };
     let _ = world.db.send(DbCommand::StorePunishment {
         id,
-        key: char_id.to_string(),
-        affect: task.affect.as_str().to_string(),
-        ptype: task.ptype.as_str().to_string(),
+        key,
+        affect: affect.as_str().to_string(),
+        ptype: ptype.as_str().to_string(),
         expiration,
         reason,
         punished_by,
     });
-    world.punishments.add(task);
+    world.punishments.add(task.clone());
     arm_expiry(world, id, expiration);
-
-    // Apply to the online character (Java `JailHandler.onStart`'s CHARACTER
-    // branch). Offline characters get it on their next login ([`on_enter_world`]).
-    if world.objects.has_component::<Player>(&char_id) {
-        apply_jail_to_player(world, char_id, expiration);
-    }
+    apply_effect(world, &task);
     true
 }
 
-/// Java `admin_punishment_remove` for CHARACTER/JAIL: drop the jail punishment,
-/// delete its row, and release the (online) character. Returns `false` if there
-/// was no such punishment.
-pub(crate) fn unjail_character(world: &mut World, char_id: i32) -> bool {
-    let key = char_id.to_string();
-    let Some(task) =
-        world
-            .punishments
-            .remove(&key, PunishmentAffect::Character, PunishmentType::Jail)
-    else {
+/// Java `admin_punishment_remove`: drop a punishment, delete its row, and run
+/// its onEnd effect. Returns `false` if there was no such punishment.
+pub(crate) fn stop_punishment(
+    world: &mut World,
+    key: &str,
+    affect: PunishmentAffect,
+    ptype: PunishmentType,
+) -> bool {
+    let Some(task) = world.punishments.remove(key, affect, ptype) else {
         return false;
     };
     let _ = world.db.send(DbCommand::DeletePunishment { id: task.id });
@@ -139,17 +127,74 @@ pub(crate) fn unjail_character(world: &mut World, char_id: i32) -> bool {
     true
 }
 
-/// Run a punishment's release effect on the affected online player (Java
-/// handler `onEnd`). Only JAIL has one in this slice.
-fn end_effect(world: &mut World, task: &Punishment) {
-    if task.ptype != PunishmentType::Jail {
-        return;
+/// A punishment's onStart effect on every affected online player (Java handler
+/// `onStart`). JAIL confines, BAN disconnects, CHAT_BAN informs + refreshes the
+/// chat-block icon; PARTY_BAN has no immediate effect (it is a join-time gate).
+fn apply_effect(world: &mut World, task: &Punishment) {
+    for oid in players_matching(world, task) {
+        match task.ptype {
+            PunishmentType::Jail => apply_jail_to_player(world, oid, task.expiration),
+            PunishmentType::Ban => disconnect_player(world, oid),
+            PunishmentType::ChatBan => apply_chatban_to_player(world, oid, task.expiration),
+            PunishmentType::PartyBan => {}
+        }
     }
-    // CHARACTER key is the object id; the other affects match live players by
-    // account/IP (slice-2+ ban paths), handled the same way.
-    let targets = players_matching(world, task);
-    for oid in targets {
-        remove_jail_from_player(world, oid);
+}
+
+/// A punishment's onEnd effect on every affected online player (Java handler
+/// `onEnd`). JAIL releases, CHAT_BAN lifts the notice; BAN/PARTY_BAN do nothing.
+fn end_effect(world: &mut World, task: &Punishment) {
+    for oid in players_matching(world, task) {
+        match task.ptype {
+            PunishmentType::Jail => remove_jail_from_player(world, oid),
+            PunishmentType::ChatBan => remove_chatban_from_player(world, oid),
+            PunishmentType::Ban | PunishmentType::PartyBan => {}
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Jail (Java `JailHandler`) — the type-specific wrappers stay for the admin
+// layer and the login re-apply.
+// ---------------------------------------------------------------------------
+
+/// `//jail <name> [minutes]` for an online character (CHARACTER/JAIL).
+/// `minutes == 0` jails forever.
+pub(crate) fn jail_character(
+    world: &mut World,
+    char_id: i32,
+    minutes: i64,
+    reason: String,
+    punished_by: String,
+) -> bool {
+    start_punishment(
+        world,
+        char_id.to_string(),
+        PunishmentAffect::Character,
+        PunishmentType::Jail,
+        expiration_from_minutes(minutes),
+        reason,
+        punished_by,
+    )
+}
+
+/// `//unjail <name>` — drop a character's jail.
+pub(crate) fn unjail_character(world: &mut World, char_id: i32) -> bool {
+    stop_punishment(
+        world,
+        &char_id.to_string(),
+        PunishmentAffect::Character,
+        PunishmentType::Jail,
+    )
+}
+
+/// `minutes > 0` → absolute expiry stamp; `0` → forever (Java's `admin_
+/// punishment_add`: `exp * 60 * 1000` added to now, `0` left as-is).
+pub(crate) fn expiration_from_minutes(minutes: i64) -> i64 {
+    if minutes > 0 {
+        commons::util::now_millis() + minutes * 60_000
+    } else {
+        0
     }
 }
 
@@ -245,6 +290,109 @@ fn remove_jail_from_player(world: &mut World, player_oid: i32) {
 }
 
 // ---------------------------------------------------------------------------
+// Ban (Java `BanHandler`) + chat-ban (Java `ChatBanHandler`)
+// ---------------------------------------------------------------------------
+
+/// Java `BanHandler.applyToPlayer`: `Disconnection.of(player)` — the clean
+/// logout teardown (persist, despawn, drop the session). The login gate at
+/// character-select ([`is_banned`]) then refuses re-entry.
+fn disconnect_player(world: &mut World, target: i32) {
+    let Some(tcid) = client_for_player(world, target) else {
+        return;
+    };
+    if let Some(ClientSession::InGame(session)) = world.clients.remove(&tcid) {
+        super::net::store_and_remove_player(world, target);
+        session.send(crate::network::server_packets::leave_world());
+    }
+}
+
+/// Java `ChatBanHandler.applyToPlayer`: tell the player, and refresh the
+/// chat-block icon (`EtcStatusUpdate`, whose mask now reads `is_chat_banned`).
+fn apply_chatban_to_player(world: &mut World, player_oid: i32, expiration: i64) {
+    let now = commons::util::now_millis();
+    let text = if expiration > 0 {
+        let secs = (expiration - now) / 1000;
+        if secs > 60 {
+            format!("You've been chat banned for {} minutes.", secs / 60)
+        } else {
+            format!("You've been chat banned for {secs} seconds.")
+        }
+    } else {
+        "You've been chat banned forever.".to_string()
+    };
+    send_text(world, player_oid, &text);
+    refresh_etc_status(world, player_oid);
+}
+
+/// Java `ChatBanHandler.removeFromPlayer`.
+fn remove_chatban_from_player(world: &mut World, player_oid: i32) {
+    send_text(world, player_oid, "Your Chat ban has been lifted");
+    refresh_etc_status(world, player_oid);
+}
+
+/// Drop a character-affect punishment of `ptype` (the `//un*` commands).
+pub(crate) fn stop_character_punishment(
+    world: &mut World,
+    char_id: i32,
+    ptype: PunishmentType,
+) -> bool {
+    stop_punishment(
+        world,
+        &char_id.to_string(),
+        PunishmentAffect::Character,
+        ptype,
+    )
+}
+
+// ---------------------------------------------------------------------------
+// Enforcement predicates (Java `Player.isChatBanned` / `isPartyBanned` + the
+// character-select ban gate)
+// ---------------------------------------------------------------------------
+
+/// The live IP string of a player's client (`Player.getIPAddress`), or "" when
+/// offline / unmatched.
+fn player_ip(world: &World, object_id: i32) -> String {
+    client_for_player(world, object_id)
+        .and_then(|cid| world.clients.get(&cid))
+        .map(|cs| cs.addr().ip().to_string())
+        .unwrap_or_default()
+}
+
+/// Java `Player.isChatBanned` — any of the character's affect keys carries an
+/// active CHAT_BAN.
+pub(crate) fn is_chat_banned(world: &World, object_id: i32) -> bool {
+    let account = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.account.clone())
+        .unwrap_or_default();
+    world.punishments.player_has(
+        PunishmentType::ChatBan,
+        object_id,
+        &account,
+        &player_ip(world, object_id),
+        None,
+    )
+}
+
+/// Java `Player.isPartyBanned` — **CHARACTER-affect only** (unlike the others).
+pub(crate) fn is_party_banned(world: &World, object_id: i32) -> bool {
+    world.punishments.has_punishment(
+        &object_id.to_string(),
+        PunishmentAffect::Character,
+        PunishmentType::PartyBan,
+    )
+}
+
+/// Java `CharacterSelect`'s ban gate — the chosen char id / account / IP under
+/// an active BAN. Checked before a banned character can enter the world.
+pub(crate) fn is_banned(world: &World, char_id: i32, account: &str, ip: &str) -> bool {
+    world
+        .punishments
+        .player_has(PunishmentType::Ban, char_id, account, ip, None)
+}
+
+// ---------------------------------------------------------------------------
 // Login re-apply + JailZone keep-in (Java `JailHandler.onPlayerLogin` /
 // `JailZone.onExit`)
 // ---------------------------------------------------------------------------
@@ -298,6 +446,12 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
     } else if in_zone && !is_gm {
         remove_jail_from_player(world, object_id);
     }
+
+    // Java `EnterWorld`: a chat-banned character logging in gets the chat-block
+    // icon lit (its mask reads `is_chat_banned`).
+    if is_chat_banned(world, object_id) {
+        refresh_etc_status(world, object_id);
+    }
 }
 
 /// Whether the player is currently standing in a JailZone.
@@ -347,5 +501,13 @@ fn send_text(world: &World, player_oid: i32, text: &str) {
             sm_ids::S1_TEXT,
             &[SmParam::Text(text.to_string())],
         ));
+    }
+}
+
+/// Redraw the chat-block icon (Java `sendPacket(new EtcStatusUpdate(this))`) —
+/// its mask bit reads `is_chat_banned`, so a chat-ban change must resend it.
+fn refresh_etc_status(world: &World, player_oid: i32) {
+    if let Some(cid) = client_for_player(world, player_oid) {
+        super::helpers::send_etc_status_update(world, cid, player_oid);
     }
 }

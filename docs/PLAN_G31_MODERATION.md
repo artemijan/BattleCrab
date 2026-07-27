@@ -43,9 +43,14 @@ via the login link. **Deps:** per-client IP (already on `Session.addr`).
 - **Gate for the slice:** a GM jails a player (teleported + blocked), the row
   persists, and `//unjail` (or expiry) releases them.
 
-### Slice 2 — Ban + chat-ban + party-ban
-- BAN (account/char → disconnect + refuse login relay), CHAT_BAN (block chat
-  send), PARTY_BAN. `//ban`/`//unban`/`//chatban`/`//chatunban` + expiry.
+### Slice 2 — Ban + chat-ban + party-ban  ✅ LANDED
+- BAN (account/char → disconnect on start + character-select login gate),
+  CHAT_BAN (block `Say2` unless `.`-prefixed + chat-block icon), PARTY_BAN
+  (block `RequestJoinParty` for a banned requestor or target). Generic
+  `start_punishment`/`stop_punishment` engine dispatching per-type onStart/onEnd
+  effects. Admin `//ban_char`/`//ban_acc`/`//ban_chat`/`//ban_party` (+`//un*`),
+  with the un-commands taking a name **or** a raw char id (no offline name→id
+  table). Expiry via the shared `PunishmentExpire` timer.
 
 ### Slice 3 — Petitions
 - `PetitionManager` (in-memory sessions) + the client packets

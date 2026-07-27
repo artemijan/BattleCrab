@@ -242,3 +242,201 @@ fn on_enter_world_reapplies_jail_to_a_returning_inmate() {
     assert!(world.objects.get_component::<Player>(&3001).unwrap().jailed);
     assert_eq!(pos_xy(&world, 3001), JAIL_IN);
 }
+
+// --- Slice 2: ban / chat-ban / party-ban -----------------------------------
+
+use crate::model::components::PendingRequest;
+
+fn ban(world: &mut World, key: &str, affect: PunishmentAffect, ptype: PunishmentType) -> bool {
+    punishment::start_punishment(
+        world,
+        key.to_string(),
+        affect,
+        ptype,
+        0,
+        "test".into(),
+        "gm".into(),
+    )
+}
+
+#[test]
+fn start_punishment_guards_duplicates_and_stop_lifts() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    assert!(ban(
+        &mut world,
+        "acc1",
+        PunishmentAffect::Account,
+        PunishmentType::Ban
+    ));
+    // Same (key, affect, type) again → Java's "already affected" guard.
+    assert!(!ban(
+        &mut world,
+        "acc1",
+        PunishmentAffect::Account,
+        PunishmentType::Ban
+    ));
+    assert!(world.punishments.has_punishment(
+        "acc1",
+        PunishmentAffect::Account,
+        PunishmentType::Ban
+    ));
+    assert!(punishment::stop_punishment(
+        &mut world,
+        "acc1",
+        PunishmentAffect::Account,
+        PunishmentType::Ban
+    ));
+    assert!(!world.punishments.has_punishment(
+        "acc1",
+        PunishmentAffect::Account,
+        PunishmentType::Ban
+    ));
+}
+
+#[test]
+fn ban_disconnects_the_online_player_and_flags_them() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    let _out = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    ban(
+        &mut world,
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::Ban,
+    );
+
+    // Java `BanHandler.onStart` → Disconnection: session dropped + player despawned.
+    assert!(world.clients.get(&1).is_none(), "session dropped");
+    assert!(
+        !world.objects.has_component::<Player>(&3001),
+        "player despawned"
+    );
+    // The gate reads the char id (== object id); account/IP irrelevant here.
+    assert!(punishment::is_banned(&world, 3001, "acc", "1.2.3.4"));
+}
+
+#[test]
+fn character_select_refuses_a_banned_character() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+    handle_request_restart(&mut world, 1);
+    on_characters_loaded(
+        &mut world,
+        1,
+        "bob".into(),
+        vec![dummy_char(5001, "P5001")],
+        true,
+    );
+    while out_rx.try_recv().is_ok() {}
+
+    ban(
+        &mut world,
+        "5001",
+        PunishmentAffect::Character,
+        PunishmentType::Ban,
+    );
+
+    let mut w = PacketWriter::new();
+    w.write_i32(0); // slot
+    handle_character_select(&mut world, 1, &w.into_bytes());
+
+    assert!(
+        out_rx.try_recv().is_err(),
+        "no CharSelected for a banned character"
+    );
+    assert!(world.clients.get(&1).is_none(), "connection closed");
+}
+
+#[test]
+fn chat_ban_blocks_chat_but_a_dot_command_slips_through() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 500, 0, 0);
+    ban(
+        &mut world,
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::ChatBan,
+    );
+    assert!(punishment::is_chat_banned(&world, 3001));
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // Ordinary general chat is swallowed — the in-range bystander hears nothing.
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body("hello", 0, None)].concat(),
+    );
+    assert!(drain(&mut b_rx).is_empty(), "chat-banned speech is blocked");
+
+    // A `.`-prefixed message bypasses the ban (Java `_text.charAt(0) != '.'`).
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".hi", 0, None)].concat(),
+    );
+    assert!(
+        !drain(&mut b_rx).is_empty(),
+        "a dot command is not chat-blocked"
+    );
+
+    // Lifting the chat-ban restores speech.
+    assert!(punishment::stop_punishment(
+        &mut world,
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::ChatBan
+    ));
+    assert!(!punishment::is_chat_banned(&world, 3001));
+    drain(&mut a_rx);
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body("free now", 0, None)].concat(),
+    );
+    assert!(!drain(&mut b_rx).is_empty(), "speech works after unban");
+}
+
+#[test]
+fn party_ban_blocks_a_banned_requestor_and_a_banned_target() {
+    // Banned requestor can't invite.
+    let (mut world, _tx, _rx, _link) = test_world();
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 100, 0, 0);
+    ban(
+        &mut world,
+        "3001",
+        PunishmentAffect::Character,
+        PunishmentType::PartyBan,
+    );
+    assert!(punishment::is_party_banned(&world, 3001));
+
+    let mut w = PacketWriter::new();
+    w.write_string("P3002");
+    w.write_i32(0);
+    crate::game_loop::party::handle_request_join_party(&mut world, 1, &w.into_bytes());
+    assert!(
+        !world.objects.has_component::<PendingRequest>(&3002),
+        "a party-banned requestor cannot invite"
+    );
+
+    // Banned target can't be invited.
+    let (mut world, _tx, _rx, _link) = test_world();
+    let _a = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, 3002, 100, 0, 0);
+    ban(
+        &mut world,
+        "3002",
+        PunishmentAffect::Character,
+        PunishmentType::PartyBan,
+    );
+    let mut w = PacketWriter::new();
+    w.write_string("P3002");
+    w.write_i32(0);
+    crate::game_loop::party::handle_request_join_party(&mut world, 1, &w.into_bytes());
+    assert!(
+        !world.objects.has_component::<PendingRequest>(&3002),
+        "a party-banned target cannot be invited"
+    );
+}

@@ -47,6 +47,14 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Java `Say2`: a chat-banned player can still use `.`-prefixed commands but
+    // no ordinary chat gets through (G31). The prohibition message is sent, then
+    // the message is dropped.
+    if !pkt.text.starts_with('.') && super::punishment::is_chat_banned(world, sender_oid) {
+        send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        return;
+    }
+
     let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
         return;
     };

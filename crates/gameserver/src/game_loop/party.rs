@@ -381,6 +381,30 @@ pub(crate) fn handle_request_join_party(world: &mut World, client_id: u32, body:
         );
         return;
     }
+    // Party-ban gate (Java `RequestJoinParty`, G31): a party-banned requestor
+    // can't invite, and a party-banned target can't be invited. CHARACTER-affect
+    // only (Java `isPartyBanned`).
+    if super::punishment::is_party_banned(world, requestor) {
+        send_sm_to_player(
+            world,
+            requestor,
+            sm_ids::YOU_HAVE_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_SO_PARTICIPATING_IN_A_PARTY_IS_NOT_ALLOWED,
+            &[],
+        );
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+    if super::punishment::is_party_banned(world, target) {
+        send_sm_to_player(
+            world,
+            requestor,
+            sm_ids::C1_HAS_BEEN_REPORTED_AS_AN_ILLEGAL_PROGRAM_USER_AND_CANNOT_JOIN_A_PARTY,
+            &[SmParam::Text(player_name(world, target))],
+        );
+        return;
+    }
     // (Cursed weapons / jail / olympiad / block-list / event guards skipped —
     // systems absent.)
 

@@ -315,6 +315,15 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Jail / release a player (Java `AdminPunishment`, G31).
         "admin_jail" => admin_jail(world, client_id, object_id, &args),
         "admin_unjail" => admin_unjail(world, client_id, &args),
+        // Ban / chat-ban / party-ban (Java `AdminPunishment`, G31 slice 2).
+        "admin_ban_char" | "admin_ban" => admin_ban_char(world, client_id, object_id, &args),
+        "admin_unban_char" | "admin_unban" => admin_unban_char(world, client_id, &args),
+        "admin_ban_acc" => admin_ban_acc(world, client_id, object_id, &args),
+        "admin_unban_acc" => admin_unban_acc(world, client_id, &args),
+        "admin_ban_chat" | "admin_chatban" => admin_ban_chat(world, client_id, object_id, &args),
+        "admin_unban_chat" | "admin_chatunban" => admin_unban_chat(world, client_id, &args),
+        "admin_ban_party" | "admin_partyban" => admin_ban_party(world, client_id, object_id, &args),
+        "admin_unban_party" | "admin_partyunban" => admin_unban_party(world, client_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

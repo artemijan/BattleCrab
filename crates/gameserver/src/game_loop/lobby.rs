@@ -308,6 +308,19 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     let Some(mut chr) = s.char_at(slot).cloned() else {
         return;
     };
+    // Java `CharacterSelect`'s ban gate (G31): a BAN on the chosen char id /
+    // account / IP refuses entry — Java closes the connection (`ServerClose`),
+    // which this port does by dropping the session.
+    let account = s.account().to_string();
+    let ip = s.addr.ip().to_string();
+    if super::punishment::is_banned(world, chr.object_id, &account, &ip) {
+        info!(
+            "GameLoop: refused banned character '{}' (account {account}) at select.",
+            chr.name
+        );
+        world.clients.remove(&client_id); // close(ServerClose)
+        return;
+    }
     // `ShortCuts.restoreMe`'s ITEM verification: `from_char` drops shortcuts
     // whose item left the inventory. Memory-first — the dropped shortcuts simply
     // aren't in the bundle, so the next flush's reconcile removes their rows; no

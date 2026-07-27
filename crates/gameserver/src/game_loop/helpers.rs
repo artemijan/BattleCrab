@@ -74,10 +74,13 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .get_component::<ExpertisePenalty>(&object_id)
         .copied()
         .unwrap_or_default();
+    // Java `EtcStatusUpdate._mask` bit 0x01 = message-refusal OR chat-ban OR
+    // silence; the chat-block icon is the union.
     let silence = world
         .objects
         .get_component::<AdminFlags>(&object_id)
-        .is_some_and(|f| f.silence);
+        .is_some_and(|f| f.silence)
+        || super::punishment::is_chat_banned(world, object_id);
     let charges = world
         .objects
         .get_component::<crate::model::Player>(&object_id)

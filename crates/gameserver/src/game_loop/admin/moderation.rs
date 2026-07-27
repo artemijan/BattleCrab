@@ -264,6 +264,219 @@ pub(super) fn admin_unjail(world: &mut World, client_id: u32, args: &[&str]) {
     }
 }
 
+// --- Ban / chat-ban / party-ban (Java `AdminPunishment`, G31 slice 2) --------
+
+use crate::model::punishment::{PunishmentAffect, PunishmentType};
+
+/// The GM's display name for the `punishedBy` field.
+fn gm_name(world: &World, object_id: i32) -> String {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_else(|| "System".to_string())
+}
+
+/// Resolve a character target for the un-ban commands: an online player by name,
+/// else a raw numeric char id — so a kicked/offline ban can still be lifted
+/// (this port has no offline name→id table like Java's `CharInfoTable`).
+fn resolve_char(world: &World, arg: &str) -> Option<i32> {
+    find_online_player(world, arg).or_else(|| arg.parse::<i32>().ok())
+}
+
+/// Shared body for `//ban` / `//chatban` / `//partyban` on an online character.
+fn char_punish(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+    ptype: PunishmentType,
+    verb: &str,
+) {
+    let Some(name) = args.first() else {
+        send_message(
+            world,
+            client_id,
+            &format!("Usage: //{verb} <player name> [minutes]"),
+        );
+        return;
+    };
+    let Some(target) = find_online_player(world, name) else {
+        send_message(world, client_id, &format!("Player '{name}' is not online."));
+        return;
+    };
+    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let by = gm_name(world, object_id);
+    let applied = super::super::punishment::start_punishment(
+        world,
+        target.to_string(),
+        PunishmentAffect::Character,
+        ptype,
+        super::super::punishment::expiration_from_minutes(minutes),
+        format!("{verb} by admin"),
+        by,
+    );
+    if applied {
+        send_message(
+            world,
+            client_id,
+            &format!("Player '{name}' has been {verb}ned."),
+        );
+    } else {
+        send_message(
+            world,
+            client_id,
+            "Target is already affected by that punishment.",
+        );
+    }
+}
+
+/// Shared body for `//unban` / `//chatunban` / `//partyunban`.
+fn char_unpunish(
+    world: &mut World,
+    client_id: u32,
+    args: &[&str],
+    ptype: PunishmentType,
+    verb: &str,
+) {
+    let Some(arg) = args.first() else {
+        send_message(
+            world,
+            client_id,
+            &format!("Usage: //{verb} <player name | char id>"),
+        );
+        return;
+    };
+    let Some(target) = resolve_char(world, arg) else {
+        send_message(
+            world,
+            client_id,
+            &format!(
+                "'{arg}' is not online — pass the character id to lift an offline punishment."
+            ),
+        );
+        return;
+    };
+    if super::super::punishment::stop_character_punishment(world, target, ptype) {
+        send_message(world, client_id, &format!("Punishment lifted for '{arg}'."));
+    } else {
+        send_message(
+            world,
+            client_id,
+            &format!("'{arg}' has no such active punishment."),
+        );
+    }
+}
+
+/// `//ban_char <name> [minutes]` (Java `admin_ban_char`, CHARACTER/BAN) — kicks
+/// the player and blocks re-login.
+pub(super) fn admin_ban_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    char_punish(
+        world,
+        client_id,
+        object_id,
+        args,
+        PunishmentType::Ban,
+        "ban",
+    );
+}
+
+/// `//unban_char <name | id>`.
+pub(super) fn admin_unban_char(world: &mut World, client_id: u32, args: &[&str]) {
+    char_unpunish(world, client_id, args, PunishmentType::Ban, "unban");
+}
+
+/// `//ban_chat <name> [minutes]` (Java `admin_ban_chat`, CHARACTER/CHAT_BAN).
+pub(super) fn admin_ban_chat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    char_punish(
+        world,
+        client_id,
+        object_id,
+        args,
+        PunishmentType::ChatBan,
+        "chatban",
+    );
+}
+
+/// `//unban_chat <name | id>`.
+pub(super) fn admin_unban_chat(world: &mut World, client_id: u32, args: &[&str]) {
+    char_unpunish(world, client_id, args, PunishmentType::ChatBan, "chatunban");
+}
+
+/// `//ban_party <name> [minutes]` (CHARACTER/PARTY_BAN) — a port convenience;
+/// Java only sets PARTY_BAN through the generic `admin_punishment_add` flow.
+pub(super) fn admin_ban_party(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    char_punish(
+        world,
+        client_id,
+        object_id,
+        args,
+        PunishmentType::PartyBan,
+        "partyban",
+    );
+}
+
+/// `//unban_party <name | id>`.
+pub(super) fn admin_unban_party(world: &mut World, client_id: u32, args: &[&str]) {
+    char_unpunish(
+        world,
+        client_id,
+        args,
+        PunishmentType::PartyBan,
+        "partyunban",
+    );
+}
+
+/// `//ban_acc <account> [minutes]` (Java `admin_ban_acc`, ACCOUNT/BAN).
+pub(super) fn admin_ban_acc(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(account) = args.first() else {
+        send_message(world, client_id, "Usage: //ban_acc <account> [minutes]");
+        return;
+    };
+    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let by = gm_name(world, object_id);
+    let applied = super::super::punishment::start_punishment(
+        world,
+        account.to_string(),
+        PunishmentAffect::Account,
+        PunishmentType::Ban,
+        super::super::punishment::expiration_from_minutes(minutes),
+        "ban by admin".to_string(),
+        by,
+    );
+    if applied {
+        send_message(
+            world,
+            client_id,
+            &format!("Account '{account}' has been banned."),
+        );
+    } else {
+        send_message(world, client_id, "That account is already banned.");
+    }
+}
+
+/// `//unban_acc <account>`.
+pub(super) fn admin_unban_acc(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(account) = args.first() else {
+        send_message(world, client_id, "Usage: //unban_acc <account>");
+        return;
+    };
+    if super::super::punishment::stop_punishment(
+        world,
+        account,
+        PunishmentAffect::Account,
+        PunishmentType::Ban,
+    ) {
+        send_message(
+            world,
+            client_id,
+            &format!("Account '{account}' has been unbanned."),
+        );
+    } else {
+        send_message(world, client_id, "That account is not banned.");
+    }
+}
+
 /// `AdminServerInfo` — Java opens an HTML window; we send the key figures as
 /// text lines (a documented G13.A simplification; the HTML build waits for the
 /// admin-menu work in G13.B).
