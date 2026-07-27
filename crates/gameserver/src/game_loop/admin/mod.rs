@@ -350,6 +350,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_tracert" => admin_tracert(world, client_id, object_id, &args),
         "admin_snoop" => admin_snoop(world, client_id, object_id, &args),
         "admin_hwid" | "admin_hwinfo" => admin_hwid(world, client_id, object_id, &args),
+        // Repair a broken offline character (Java `AdminRepairChar`, G33).
+        "admin_repair" | "admin_restore" => admin_repair_char(world, client_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).
