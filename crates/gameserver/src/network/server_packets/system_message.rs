@@ -12,6 +12,10 @@ pub mod sm_ids {
     // Mounts / wyvern
     pub const YOU_CANNOT_DISMOUNT_FROM_THIS_ELEVATION: i16 = 1158;
     pub const YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION: i16 = 1385;
+    /// `$s1 has been unequipped.` — the mount disarm.
+    pub const S1_HAS_BEEN_UNEQUIPPED: i16 = 417;
+    /// `The equipment, +$s1 $s2, has been removed.` — enchanted variant.
+    pub const THE_EQUIPMENT_S1_S2_HAS_BEEN_REMOVED: i16 = 1064;
     pub const YOU_MAY_CREATE_UP_TO_48_MACROS: i16 = 797;
     pub const INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS: i16 = 810;
     pub const MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS: i16 = 837;

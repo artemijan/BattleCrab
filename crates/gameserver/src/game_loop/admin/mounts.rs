@@ -13,9 +13,11 @@
 //! feeds the movement pipeline's geodata exemptions and the packet fly
 //! fields.
 
-use crate::model::components::{Collision, Position, Speeds};
+use crate::model::components::{Buffs, Collision, Position, Speeds};
+use crate::model::inventory::{Inventory, PaperdollSlot};
+use crate::model::skill::OperateType;
 use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids};
+use crate::network::server_packets::{self, sm_ids, SmParam};
 use crate::world::World;
 
 use super::{current_target, send_message, send_sm};
@@ -69,16 +71,33 @@ pub(super) fn admin_ride(world: &mut World, client_id: u32, object_id: i32, moun
     mount_player(world, target, mount.npc_id(), mount.mount_type());
 }
 
-/// The state half of Java `Player.mount(npcId, controlItemObjId, useFood)` +
-/// `setMount(npcId, getLevel())`: set the mount fields (mount level = the
-/// *rider's* level on this path), swap collision and speeds to the mount's,
-/// and broadcast `Ride` + UserInfo/CharInfo.
+/// Java `Player.mount(npcId, controlItemObjId, useFood)` +
+/// `setMount(npcId, getLevel())`: disarm both hands and stop toggles, then
+/// set the mount fields (mount level = the *rider's* level on this path),
+/// swap collision and speeds to the mount's, and broadcast `Ride` +
+/// UserInfo/CharInfo. Returns whether the mount happened (Java returns false
+/// when the weapon can't be removed or the rider is transformed).
 ///
-/// TODO(G29): Java `mount()` also disarms the weapon and shield (refusing the
-/// mount if it can't), stops all toggles, and starts the mount feed task
-/// (`startFeed` — the hunger that halves speed and force-dismounts at 0);
-/// those land with rideable pets / mount feeding.
-pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_type: u8) {
+/// TODO(G29): Java `mount()` also starts the mount feed task (`startFeed` —
+/// the hunger that halves speed and force-dismounts at 0); lands with mount
+/// feeding.
+pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_type: u8) -> bool {
+    // Java: `if (!disarmWeapons() || !disarmShield() || isTransformed())
+    // return false;` — then `getEffectList().stopAllToggles()`. The disarm is
+    // load-bearing for the client, not cosmetic: a mounted paperdoll that
+    // still carries a weapon is a state retail never produces, and the client
+    // renders it as a ghostly, non-animated mount.
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.transform_id != 0)
+    {
+        return false;
+    }
+    if !disarm_hands(world, target) {
+        return false;
+    }
+    stop_all_toggles(world, target);
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.mount_type = mount_type;
         p.mount_npc_id = npc_id;
@@ -95,6 +114,89 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, true);
     super::party::broadcast_user_info(world, target);
+    true
+}
+
+/// Java `Player.disarmWeapons()` + `disarmShield()` — unequip both hands
+/// before the `Ride` goes out, with the same client traffic as a manual
+/// unequip (InventoryUpdate/UserInfo/equip-slot via `finish_equip_change`)
+/// plus Java's per-item system message. Returns false when the weapon can't
+/// be removed: a cursed weapon refuses the whole mount (Java also refuses on
+/// an equipped Combat Flag and on force-equip weapons — neither state exists
+/// in the port yet). Java additionally calls `abortAttack()` here; the mount
+/// paths can't currently be reached mid-swing, so that leg is skipped.
+fn disarm_hands(world: &mut World, target: i32) -> bool {
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
+    {
+        return false;
+    }
+    let client_id = super::helpers::client_for_player(world, target).unwrap_or(0);
+    for slot in [PaperdollSlot::RHand, PaperdollSlot::LHand] {
+        let Some((item_object_id, item_id, enchant)) = world
+            .objects
+            .get_component::<Inventory>(&target)
+            .and_then(|inv| {
+                let oid = inv.paperdoll_object_id(slot);
+                (oid != 0).then(|| {
+                    (
+                        oid,
+                        inv.paperdoll_item_id(slot),
+                        inv.paperdoll_enchant_level(slot),
+                    )
+                })
+            })
+        else {
+            continue;
+        };
+        let changed = world
+            .objects
+            .get_component_mut::<Inventory>(&target)
+            .map(|inv| inv.unequip_item(item_object_id))
+            .unwrap_or_default();
+        crate::game_loop::items::finish_equip_change(world, client_id, target, &changed);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(if enchant > 0 {
+                server_packets::system_message_with(
+                    sm_ids::THE_EQUIPMENT_S1_S2_HAS_BEEN_REMOVED,
+                    &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+                )
+            } else {
+                server_packets::system_message_with(
+                    sm_ids::S1_HAS_BEEN_UNEQUIPPED,
+                    &[SmParam::ItemName(item_id)],
+                )
+            });
+        }
+    }
+    true
+}
+
+/// Java `EffectList.stopAllToggles()` — every live toggle drops on mount
+/// (mounted players can't keep toggles up; `Player.useMagic` blocks
+/// re-lighting them while mounted in Java).
+fn stop_all_toggles(world: &mut World, target: i32) {
+    let toggles: Vec<i32> = world
+        .objects
+        .get_component::<Buffs>(&target)
+        .map(|b| {
+            b.0.iter()
+                .map(|x| x.skill_id)
+                .filter(|&id| {
+                    world
+                        .data
+                        .skill_data
+                        .get(id, 1)
+                        .is_some_and(|s| s.operate_type == OperateType::Toggle)
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    for skill_id in toggles {
+        crate::game_loop::skills::effects::handle_buff_expire(world, target, skill_id);
+    }
 }
 
 /// Java `Player.dismount()` — refuse mid-air/over-water dismounts, then clear

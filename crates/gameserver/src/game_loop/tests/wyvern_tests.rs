@@ -5,7 +5,7 @@
 use super::*;
 
 use crate::model::clan::Clan;
-use crate::model::inventory::Inventory;
+use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::Player;
 use crate::network::server_packets::sm_ids;
 
@@ -88,6 +88,88 @@ fn admin_ride_wyvern_flies_at_ride_speed_and_gates_dismount() {
             .run_spd,
         285.0,
         "class speed restored"
+    );
+}
+
+/// **Mounting disarms the rider's hands** (Java `Player.mount` runs
+/// `disarmWeapons()`/`disarmShield()` before the `Ride` broadcast). The
+/// client renders a mounted paperdoll that still holds a weapon as a
+/// ghostly, non-animated mount, so this is part of making the wyvern render
+/// at all — and a cursed weapon refuses the whole mount.
+#[test]
+fn mounting_disarms_the_weapon_and_cursed_refuses() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8920, 100);
+
+    // Give + equip a Squire's Sword (2369).
+    world
+        .objects
+        .get_component_mut::<Inventory>(&8920)
+        .unwrap()
+        .add_item(&world.data.item_data, 991_001, 2369, 1);
+    let changed = world
+        .objects
+        .get_component_mut::<Inventory>(&8920)
+        .unwrap()
+        .equip_item(&world.data.item_data, 991_001);
+    assert!(!changed.is_empty(), "the sword equips");
+    drain(&mut gm_rx);
+
+    // A cursed weapon blocks the mount outright (Java `disarmWeapons`).
+    world
+        .objects
+        .get_component_mut::<Player>(&8920)
+        .unwrap()
+        .cursed_weapon_equipped_id = 8190;
+    on_packet(&mut world, 1, build_admin("ride_wyvern"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8920)
+            .unwrap()
+            .mount_type,
+        0,
+        "cursed weapon refuses the mount"
+    );
+    world
+        .objects
+        .get_component_mut::<Player>(&8920)
+        .unwrap()
+        .cursed_weapon_equipped_id = 0;
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("ride_wyvern"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&8920)
+            .unwrap()
+            .paperdoll_item_id(PaperdollSlot::RHand),
+        0,
+        "the weapon is disarmed by the mount"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8920)
+            .unwrap()
+            .mount_type,
+        2,
+        "mounted after the disarm"
+    );
+    let pkts = drain(&mut gm_rx);
+    assert!(
+        pkts.iter()
+            .any(|pk| pk[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && i16::from_le_bytes(pk[1..3].try_into().unwrap())
+                    == sm_ids::S1_HAS_BEEN_UNEQUIPPED),
+        "the unequip SM reaches the rider"
+    );
+    assert!(
+        pkts.iter().any(|pk| pk[0] == server_packets::opcodes::RIDE),
+        "Ride still broadcast after the disarm"
     );
 }
 
