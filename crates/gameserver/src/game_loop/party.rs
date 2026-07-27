@@ -555,6 +555,9 @@ pub(crate) fn handle_request_answer_join_party(world: &mut World, client_id: u32
                 world.objects.add_components(&requestor, PartyRef(party_id));
             }
             add_party_member(world, party_id, player);
+            // Java `RequestAnswerJoinParty`: if the inviter runs a matching
+            // room, the new party member joins that room too (G30).
+            super::party_room::on_party_invite_accepted(world, requestor, player);
         }
     } else {
         if response == -1 {
@@ -681,6 +684,9 @@ pub(crate) fn handle_request_withdrawal_party(world: &mut World, client_id: u32)
     if let Some(PartyRef(party_id)) = world.objects.get_component::<PartyRef>(&player).copied() {
         remove_party_member(world, party_id, player, LeaveType::Left);
     }
+    // Java `RequestWithDrawalParty` also drops the player from their matching
+    // room (G30).
+    super::party_room::on_party_withdraw(world, player);
 }
 
 pub(crate) fn handle_request_oust_party_member(world: &mut World, client_id: u32, body: &[u8]) {

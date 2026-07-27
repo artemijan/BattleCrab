@@ -11,7 +11,7 @@
 //! membership is derived from the room registry rather than mirrored on the
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
-use crate::model::components::{PartyRef, Position};
+use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
 use crate::model::matching_room::{MatchingMemberType, RoomLevelFilter};
 use crate::model::Player;
 use crate::network::client_packets as cp;
@@ -152,6 +152,16 @@ fn broadcast_user_info(world: &World, object_id: i32) {
     super::party::broadcast_user_info(world, object_id);
 }
 
+/// Maintain the [`InMatchingRoom`] display mirror. The registry stays the
+/// authority; this is the only writer.
+fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool) {
+    if in_room {
+        world.objects.add_components(&object_id, InMatchingRoom);
+    } else {
+        world.objects.remove_component::<InMatchingRoom>(&object_id);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // 0x7F RequestPartyMatchConfig — open the board / register as looking-for-party
 // ---------------------------------------------------------------------------
@@ -262,6 +272,7 @@ pub(crate) fn handle_request_party_match_list(world: &mut World, client_id: u32,
                 player,
             );
             world.matching_rooms.remove_from_waiting_list(player);
+            set_in_room_flag(world, player, true);
             broadcast_user_info(world, player);
 
             // Java's `onRoomCreation`: the room list, then the "created" SM.
@@ -364,4 +375,386 @@ pub(crate) fn handle_list_waiting_room(world: &mut World, client_id: u32, body: 
         player,
         server_packets::ex_list_party_matching_waiting_room(total, &rows),
     );
+}
+
+// ---------------------------------------------------------------------------
+// Membership — the shared add/remove/disband core
+// ---------------------------------------------------------------------------
+
+/// Java `MatchingRoom.addMember` + `PartyMatchingRoom.notifyNewMember`.
+/// Returns false when the room's level band or capacity refuses the joiner
+/// (the joiner is told, nothing else happens).
+fn add_member(world: &mut World, room_id: i32, player: i32) -> bool {
+    let level = level_of(world, player);
+    let accepted = world
+        .matching_rooms
+        .get(room_id)
+        .is_some_and(|r| r.accepts(level));
+    if !accepted {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_DO_NOT_MEET_THE_REQUIREMENTS_TO_ENTER_THAT_PARTY_ROOM,
+            &[],
+        );
+        return false;
+    }
+    let Some(room) = world.matching_rooms.get_mut(room_id) else {
+        return false;
+    };
+    room.members.push(player);
+    world.matching_rooms.remove_from_waiting_list(player);
+    set_in_room_flag(world, player, true);
+    broadcast_user_info(world, player);
+
+    // Everyone already in the room learns about the newcomer...
+    let name = name_of(world, player);
+    let others: Vec<i32> = world
+        .matching_rooms
+        .get(room_id)
+        .map(|r| {
+            r.all_members()
+                .into_iter()
+                .filter(|&o| o != player)
+                .collect()
+        })
+        .unwrap_or_default();
+    let views = member_views(world, room_id);
+    for oid in others {
+        let pkt =
+            server_packets::ex_party_room_member(member_type(world, room_id, oid).id(), &views);
+        send(world, oid, pkt);
+        send_sm(
+            world,
+            oid,
+            sm_ids::C1_HAS_ENTERED_THE_PARTY_ROOM,
+            &[SmParam::Text(name.clone())],
+        );
+    }
+    // ...and the newcomer gets the room window.
+    if let Some(info) = room_info_packet(world, room_id) {
+        send(world, player, info);
+    }
+    let pkt =
+        server_packets::ex_party_room_member(member_type(world, room_id, player).id(), &views);
+    send(world, player, pkt);
+    true
+}
+
+/// Java `MatchingRoom.deleteMember` + `notifyRemovedMember`. `kicked`
+/// selects the ousted-vs-left message pair.
+fn remove_member(world: &mut World, room_id: i32, player: i32, kicked: bool) {
+    let Some((leader_changed, room_deleted)) = world.matching_rooms.remove_member(room_id, player)
+    else {
+        return;
+    };
+    set_in_room_flag(world, player, false);
+    broadcast_user_info(world, player);
+    // Leaving a room puts you back on the looking-for-party list.
+    world.matching_rooms.add_to_waiting_list(player);
+
+    if !room_deleted {
+        let name = name_of(world, player);
+        let members: Vec<i32> = world
+            .matching_rooms
+            .get(room_id)
+            .map(|r| r.all_members())
+            .unwrap_or_default();
+        let views = member_views(world, room_id);
+        let info = room_info_packet(world, room_id);
+        for oid in members {
+            if let Some(info) = info.clone() {
+                send(world, oid, info);
+            }
+            let pkt =
+                server_packets::ex_party_room_member(member_type(world, room_id, oid).id(), &views);
+            send(world, oid, pkt);
+            send_sm(
+                world,
+                oid,
+                if kicked {
+                    sm_ids::C1_HAS_BEEN_KICKED_FROM_THE_PARTY_ROOM
+                } else {
+                    sm_ids::C1_HAS_LEFT_THE_PARTY_ROOM
+                },
+                &[SmParam::Text(name.clone())],
+            );
+            // Java sends this unconditionally; it is only true when the leader
+            // actually changed.
+            if leader_changed {
+                send_sm(
+                    world,
+                    oid,
+                    sm_ids::THE_LEADER_OF_THE_PARTY_ROOM_HAS_CHANGED,
+                    &[],
+                );
+            }
+        }
+    }
+
+    send_sm(
+        world,
+        player,
+        if kicked {
+            sm_ids::YOU_HAVE_BEEN_OUSTED_FROM_THE_PARTY_ROOM
+        } else {
+            sm_ids::YOU_HAVE_EXITED_THE_PARTY_ROOM
+        },
+        &[],
+    );
+    send(world, player, server_packets::ex_close_party_room());
+}
+
+/// Java `PartyMatchingRoom.disbandRoom`.
+fn disband(world: &mut World, room_id: i32) {
+    let Some(room) = world.matching_rooms.remove_room(room_id) else {
+        return;
+    };
+    for oid in room.all_members() {
+        send_sm(world, oid, sm_ids::THE_PARTY_ROOM_HAS_BEEN_DISBANDED, &[]);
+        send(world, oid, server_packets::ex_close_party_room());
+        set_in_room_flag(world, oid, false);
+        broadcast_user_info(world, oid);
+        world.matching_rooms.add_to_waiting_list(oid);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 0x81 RequestPartyMatchDetail — join a room
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_request_party_match_detail(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(pkt) = cp::RequestPartyMatchDetail::read(body) else {
+        return;
+    };
+    if world.matching_rooms.room_id_of(player).is_some() {
+        return;
+    }
+    let room_id = if pkt.room_id > 0 {
+        world.matching_rooms.get(pkt.room_id).map(|r| r.id)
+    } else {
+        world
+            .matching_rooms
+            .find_room_at(pkt.location, pkt.level, |leader| location_of(world, leader))
+    };
+    if let Some(room_id) = room_id {
+        add_member(world, room_id, player);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ex 0x09 RequestOustFromPartyRoom — the leader kicks a member
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(target) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    if target == player {
+        return;
+    }
+    let Some(room_id) = world.matching_rooms.room_id_of(player) else {
+        return;
+    };
+    if !world
+        .matching_rooms
+        .get(room_id)
+        .is_some_and(|r| r.is_leader(player) && r.contains(target))
+    {
+        return;
+    }
+
+    // "You cannot dismiss a party member by force" — a room leader may not
+    // kick someone who is in his own *party*; that has to go through the party
+    // UI. (Java reads `player.getParty()` twice here, so the rule never fires.)
+    let party_of = |w: &World, oid: i32| {
+        w.objects
+            .get_component::<PartyRef>(&oid)
+            .map(|PartyRef(id)| *id)
+    };
+    if let (Some(a), Some(b)) = (party_of(world, player), party_of(world, target)) {
+        if a == b {
+            send_sm(
+                world,
+                player,
+                sm_ids::YOU_CANNOT_DISMISS_A_PARTY_MEMBER_BY_FORCE,
+                &[],
+            );
+            return;
+        }
+    }
+    remove_member(world, room_id, target, true);
+}
+
+// ---------------------------------------------------------------------------
+// ex 0x0A RequestDismissPartyRoom — the leader disbands
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_dismiss_party_room(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    // Body is `(roomId, unused)` — Java reads and discards the second int.
+    let Some(room_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    if world
+        .matching_rooms
+        .get(room_id)
+        .is_some_and(|r| r.is_leader(player))
+    {
+        disband(world, room_id);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ex 0x0B RequestWithdrawPartyRoom — leave the room you are in
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_withdraw_party_room(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(packet_room) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(room_id) = world.matching_rooms.room_id_of(player) else {
+        return;
+    };
+    if room_id != packet_room {
+        return;
+    }
+    remove_member(world, room_id, player, false);
+}
+
+// ---------------------------------------------------------------------------
+// ex 0x2F / ex 0x30 — invite a player to the room, and their answer
+// ---------------------------------------------------------------------------
+
+pub(crate) fn handle_ask_join_party_room(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(name) = commons::network::PacketReader::new(body).read_string() else {
+        return;
+    };
+    // Java dereferences `getMatchingRoom()` inside the packet ctor without
+    // checking it — an inviter with no room NPEs there.
+    let Some(room_id) = world.matching_rooms.room_id_of(player) else {
+        return;
+    };
+
+    let Some((_, target)) = super::party::find_player_by_name(world, &name) else {
+        send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
+        return;
+    };
+    if target == player {
+        return;
+    }
+    if world.objects.has_component::<PendingRequest>(&target) {
+        send_sm(
+            world,
+            player,
+            sm_ids::C1_IS_ON_ANOTHER_TASK_PLEASE_TRY_AGAIN_LATER,
+            &[SmParam::Text(name.clone())],
+        );
+        return;
+    }
+
+    super::party::install_request(
+        world,
+        player,
+        target,
+        RequestKind::PartyRoomInvite { room_id },
+        super::party::REQUEST_TIMEOUT_TICKS,
+    );
+    let inviter = name_of(world, player);
+    let title = world
+        .matching_rooms
+        .get(room_id)
+        .map_or_else(String::new, |r| r.title.clone());
+    send(
+        world,
+        target,
+        server_packets::ex_ask_join_party_room(&inviter, &title),
+    );
+}
+
+pub(crate) fn handle_answer_join_party_room(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(answer) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+
+    // Clearing first means every path below leaves both sides free — Java has
+    // an early return that strands `_activeRequester` set forever.
+    let Some(req) = super::party::clear_linked_request(world, player) else {
+        send_sm(world, player, sm_ids::THAT_PLAYER_IS_NOT_ONLINE, &[]);
+        return;
+    };
+    let RequestKind::PartyRoomInvite { room_id } = req.kind else {
+        return;
+    };
+    if answer != 1 {
+        send_sm(
+            world,
+            req.other,
+            sm_ids::THE_RECIPIENT_OF_YOUR_INVITATION_DID_NOT_ACCEPT_THE_PARTY_MATCHING_INVITATION,
+            &[],
+        );
+        return;
+    }
+    if world.matching_rooms.get(room_id).is_none()
+        || world.matching_rooms.room_id_of(player).is_some()
+    {
+        return;
+    }
+    add_member(world, room_id, player);
+}
+
+// ---------------------------------------------------------------------------
+// Cross-system hooks
+// ---------------------------------------------------------------------------
+
+/// Logout / disconnect (`Player.deleteMe`): leave the room, then drop off the
+/// waiting list — in that order, because leaving re-adds you to it.
+pub(crate) fn on_player_leave_world(world: &mut World, object_id: i32) {
+    if let Some(room_id) = world.matching_rooms.room_id_of(object_id) {
+        remove_member(world, room_id, object_id, false);
+    }
+    world.matching_rooms.remove_from_waiting_list(object_id);
+}
+
+/// Java `RequestWithDrawalParty`: leaving your *party* also leaves the
+/// matching room.
+pub(crate) fn on_party_withdraw(world: &mut World, object_id: i32) {
+    if let Some(room_id) = world.matching_rooms.room_id_of(object_id) {
+        remove_member(world, room_id, object_id, false);
+    }
+}
+
+/// Java `RequestAnswerJoinParty`: accepting a party invite from someone who
+/// leads a matching room also puts you in that room.
+pub(crate) fn on_party_invite_accepted(world: &mut World, requestor: i32, joiner: i32) {
+    if world.matching_rooms.room_id_of(joiner).is_some() {
+        return;
+    }
+    let Some(room_id) = world.matching_rooms.room_id_of(requestor) else {
+        return;
+    };
+    add_member(world, room_id, joiner);
 }

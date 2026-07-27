@@ -607,6 +607,8 @@ pub struct PlayerView<'a> {
     pub inventory: &'a Inventory,
     /// Runtime PvP flag (0/1/2) for the SOCIAL block; 0 pre-spawn.
     pub pvp_flag: u8,
+    /// `Player.isInMatchingRoom()` for the CLAN block (G30).
+    pub in_matching_room: bool,
     /// Passive-skill stat modifiers, for storage-capacity finalizers
     /// (`Stat::InventoryNormal`/`StoragePrivate`/`TradeSell`/`TradeBuy`) that
     /// packet builders need but that don't have their own finalized field.
@@ -628,6 +630,7 @@ impl<'a> PlayerView<'a> {
             pvp_flag: objects
                 .get_component::<components::PvpState>(&object_id)
                 .map_or(0, |s| s.flag),
+            in_matching_room: objects.has_component::<components::InMatchingRoom>(&object_id),
             mods: objects.get_component::<StatModifiers>(&object_id)?,
         })
     }
@@ -646,6 +649,7 @@ impl PlayerData {
             combat: &self.combat,
             inventory: &self.inventory,
             pvp_flag: 0,
+            in_matching_room: false,
             mods: &self.stat_modifiers,
         }
     }

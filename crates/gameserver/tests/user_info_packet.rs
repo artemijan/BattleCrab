@@ -160,6 +160,7 @@ async fn user_info_test() {
         combat: &combat,
         inventory: &inventory,
         pvp_flag: 0,
+        in_matching_room: false,
         mods: &mods,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));

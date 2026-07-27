@@ -979,7 +979,19 @@ pub enum RequestKind {
     /// An `AskJoinAlly` is on the target clan leader's screen; accepting puts
     /// their whole clan into `ally_id`'s alliance.
     AllyInvite { ally_id: i32 },
+    /// An `ExAskJoinPartyRoom` is on the target's screen; accepting puts them
+    /// into the inviter's party matching room (G30).
+    PartyRoomInvite { room_id: i32 },
 }
+
+/// Display mirror of "this player is in a party matching room" (G30), for the
+/// `UserInfo`/`CharInfo` CLAN-block byte Java reads off
+/// `Player.isInMatchingRoom()`. The **authority is `World.matching_rooms`** —
+/// this component exists only because the packet builders take a component
+/// view, and it is written in exactly one place
+/// (`game_loop::party_room`'s join/leave helpers).
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct InMatchingRoom;
 
 /// The one outstanding transaction-request slot — **present only while a
 /// request is in flight**, on *both* sides (Java splits this across

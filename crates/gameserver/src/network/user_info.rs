@@ -220,7 +220,7 @@ pub fn user_info(
     w.write_u8(p.clan_leader as u8);
     w.write_i32(p.ally_id);
     w.write_i32(p.ally_crest_id);
-    w.write_u8(0); // in matching room
+    w.write_u8(v.in_matching_room as u8); // isInMatchingRoom (G30)
 
     // SOCIAL
     w.write_i16(UserInfoType::Social.block_length() as i16);

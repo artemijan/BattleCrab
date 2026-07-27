@@ -78,6 +78,7 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // deleteMe → leaveParty (DISCONNECTED semantics: leadership transfers)
     // + pending party/friend request cleanup on both sides.
     super::party::on_player_leave_world(world, player_object_id);
+    super::party_room::on_player_leave_world(world, player_object_id);
     // deleteMe → notifyFriends(MODE_OFFLINE).
     super::friends::on_leave_world(world, player_object_id);
     // A servitor does not outlive its owner's session. Java stores it in
