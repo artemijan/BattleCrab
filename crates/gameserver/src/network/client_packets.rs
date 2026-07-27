@@ -223,6 +223,9 @@ pub mod ex_opcodes {
     pub const REQUEST_DELETE_SENT_POST: u16 = 0x6A;
     pub const REQUEST_SENT_POST: u16 = 0x6B;
     pub const REQUEST_CANCEL_POST_ATTACHMENT: u16 = 0x6C;
+    /// `RequestBuySellUIClose` — the client closed a buy/sell window; the
+    /// server answers with a full inventory refresh (same as `RequestItemList`).
+    pub const REQUEST_BUY_SELL_UI_CLOSE: u16 = 0x73;
     /// `RequestOustFromPartyRoom` (G30) — the room leader kicks a member.
     pub const REQUEST_OUST_FROM_PARTY_ROOM: u16 = 0x09;
     /// `RequestDismissPartyRoom` (G30) — the room leader disbands the room.

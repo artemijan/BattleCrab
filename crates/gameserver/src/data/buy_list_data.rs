@@ -1,6 +1,7 @@
 //! Port of `data/xml/BuyListData` — every `data/buylists/*.xml` merchant
-//! list (339 files on this dist; the file name is the list id). Scoped to
-//! the G12 Buy slice:
+//! list plus `data/buylists/custom/*.xml` (the GM-shop lists opened via
+//! `//buy`; Java parses both directories). The file name is the list id.
+//! Scoped to the G12 Buy slice:
 //!
 //! - `CorrectPrices` (General.ini, **True** here) is applied at load like
 //!   Java: a declared price below the item's sell value (reference price /
@@ -60,26 +61,11 @@ impl BuyListData {
 
     pub fn load_from(file_path: &str, items: &ItemData) -> Self {
         let mut by_id = HashMap::new();
+        // Java parses "data/buylists" then "data/buylists/custom"; on an id
+        // collision the later (custom) file wins.
         let dir = format!("{file_path}{BUYLISTS_DIR}");
-        if let Ok(entries) = std::fs::read_dir(&dir) {
-            for entry in entries.flatten() {
-                let path = entry.path();
-                if path.extension().and_then(|e| e.to_str()) != Some("xml") {
-                    continue;
-                }
-                let Some(list_id) = path
-                    .file_stem()
-                    .and_then(|s| s.to_str())
-                    .and_then(|s| s.parse::<i32>().ok())
-                else {
-                    warn!("BuyListData: non-numeric buylist file {}", path.display());
-                    continue;
-                };
-                if let Some(list) = parse_file(&path, list_id, items) {
-                    by_id.insert(list_id, list);
-                }
-            }
-        }
+        load_dir(&dir, items, &mut by_id);
+        load_dir(&format!("{dir}/custom"), items, &mut by_id);
         info!("BuyListData: Loaded {} buy lists.", by_id.len());
         Self { by_id }
     }
@@ -104,6 +90,29 @@ impl BuyListData {
 
     pub fn is_empty(&self) -> bool {
         self.by_id.is_empty()
+    }
+}
+
+fn load_dir(dir: &str, items: &ItemData, by_id: &mut HashMap<i32, BuyList>) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let path = entry.path();
+        if path.extension().and_then(|e| e.to_str()) != Some("xml") {
+            continue;
+        }
+        let Some(list_id) = path
+            .file_stem()
+            .and_then(|s| s.to_str())
+            .and_then(|s| s.parse::<i32>().ok())
+        else {
+            warn!("BuyListData: non-numeric buylist file {}", path.display());
+            continue;
+        };
+        if let Some(list) = parse_file(&path, list_id, items) {
+            by_id.insert(list_id, list);
+        }
     }
 }
 
@@ -191,7 +200,15 @@ mod tests {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
         let items = ItemData::load_from(root);
         let data = BuyListData::load_from(root, &items);
-        assert_eq!(data.len(), 338);
+        // 338 regular merchant lists + 143 custom (GM shop) lists.
+        assert_eq!(data.len(), 481);
+
+        // custom/0009916.xml: GM-shop "Currency" list (`//buy 9916`). No
+        // <npcs> block — only the admin path, which skips the npc check,
+        // can open it.
+        let gm = data.get(9916).expect("GM currency buylist 9916");
+        assert!(gm.npcs.is_empty());
+        assert!(gm.product(57).is_some(), "adena line");
 
         // 3000101.xml: Weapon Trader Lector's Gludin weapon list.
         let list = data.get(3000101).expect("buylist 3000101");
