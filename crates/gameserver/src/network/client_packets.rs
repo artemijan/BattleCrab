@@ -599,6 +599,79 @@ impl WarehouseItemList {
     }
 }
 
+/// Port of `clientpackets/RequestSendPost` (G30): recipient, COD flag, subject,
+/// body, the attachment list, and the payment-request price.
+pub struct RequestSendPost {
+    pub receiver: String,
+    pub is_cod: bool,
+    pub subject: String,
+    pub text: String,
+    /// `(object id, count)` per attached item; empty when nothing is attached.
+    pub items: Vec<(i32, i64)>,
+    pub req_adena: i64,
+}
+
+impl RequestSendPost {
+    /// Java's own caps, re-checked in the handler for the ones that carry a
+    /// system message.
+    pub const MAX_ATTACHMENTS: usize = 8;
+
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let receiver = r.read_string()?;
+        let is_cod = r.read_i32()? != 0;
+        let subject = r.read_string()?;
+        let text = r.read_string()?;
+        let count = r.read_i32()?;
+        let mut items = Vec::new();
+        if count > 0 {
+            // Java rejects the whole packet when the declared count doesn't
+            // match the bytes left (`count * 12 + 8 != remaining`).
+            if count as usize > Self::MAX_ATTACHMENTS * 4 {
+                return None;
+            }
+            for _ in 0..count {
+                let object_id = r.read_i32()?;
+                let cnt = r.read_i64()?;
+                if object_id < 1 || cnt < 0 {
+                    return None;
+                }
+                items.push((object_id, cnt));
+            }
+        }
+        let req_adena = r.read_i64()?;
+        Some(Self {
+            receiver,
+            is_cod,
+            subject,
+            text,
+            items,
+            req_adena,
+        })
+    }
+}
+
+/// Port of `RequestDeleteReceivedPost` / `RequestDeleteSentPost` (G30): a
+/// count-prefixed list of message ids.
+pub struct DeletePostList {
+    pub message_ids: Vec<i32>,
+}
+
+impl DeletePostList {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let count = r.read_i32()?;
+        if count <= 0 || count > 240 {
+            return None;
+        }
+        let mut message_ids = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            message_ids.push(r.read_i32()?);
+        }
+        Some(Self { message_ids })
+    }
+}
+
 /// Port of `clientpackets/RequestPartyMatchConfig` (`ddd`, G30): the room-list
 /// page, the location (community-board region) filter, and the level-band mode
 /// (`0` = my level range, anything else = all).

@@ -3,6 +3,7 @@
 
 use super::*;
 
+use crate::model::inventory::Inventory;
 use crate::model::mail::{MailType, Message};
 use crate::network::server_packets::opcodes;
 use crate::network::server_packets::sm_ids;
@@ -302,4 +303,469 @@ fn the_boot_load_installs_messages_attachments_and_the_name_table() {
         crate::game_loop::mail::char_name_by_id(&world, 9001),
         "alice"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Slice 4 — send, read, delete
+// ---------------------------------------------------------------------------
+
+/// A world where both players are in a peace zone with real item templates and
+/// an id pool, i.e. able to actually mail each other.
+fn mail_world() -> (
+    World,
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+    db::CmdRx,
+) {
+    let (mut world, _tx, db_rx, _link) = test_world();
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    world.id_pool = 0x5000_0000..0x5000_1000;
+    let a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    for oid in [3001, 3002] {
+        world
+            .objects
+            .get_component_mut::<crate::model::components::ZoneFlags>(&oid)
+            .unwrap()
+            .mask = crate::data::zone_data::ZoneKind::Peace.bit();
+        crate::game_loop::mail::on_character_created(&mut world, &format!("P{oid}"), oid);
+    }
+    (world, a_rx, b_rx, db_rx)
+}
+
+fn send_post_body(
+    receiver: &str,
+    is_cod: bool,
+    subject: &str,
+    text: &str,
+    items: &[(i32, i64)],
+    req_adena: i64,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_string(receiver);
+    w.write_i32(is_cod as i32);
+    w.write_string(subject);
+    w.write_string(text);
+    w.write_i32(items.len() as i32);
+    for (oid, count) in items {
+        w.write_i32(*oid);
+        w.write_i64(*count);
+    }
+    w.write_i64(req_adena);
+    w.into_bytes()
+}
+
+fn adena_of(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map_or(0, |inv| inv.adena())
+}
+
+fn give_adena(world: &mut World, oid: i32, count: i64) {
+    crate::game_loop::items::add_inventory_item(world, oid, 57, count);
+}
+
+#[test]
+fn sending_a_mail_charges_the_flat_fee_and_reaches_the_recipient() {
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", false, "hi", "there", &[], 0),
+        ),
+    );
+
+    assert_eq!(adena_of(&world, 3001), 10_000 - 100, "flat 100 adena fee");
+    let inbox = world.mail.inbox(3002);
+    assert_eq!(inbox.len(), 1);
+    assert_eq!(inbox[0].subject, "hi");
+    assert_eq!(inbox[0].content, "there");
+    assert!(inbox[0].unread && !inbox[0].has_attachments);
+
+    let a_pkts = drain(&mut a_rx);
+    assert!(sm_ids_of(&a_pkts).contains(&sm_ids::MAIL_SUCCESSFULLY_SENT));
+    assert!(ex_body_of(&a_pkts, opcodes::EX_REPLY_WRITE_POST).is_some());
+    // The recipient is chimed and re-badged live.
+    let b_pkts = drain(&mut b_rx);
+    assert!(ex_body_of(&b_pkts, opcodes::EX_NOTICE_POST_ARRIVED).is_some());
+    let badge = ex_body_of(&b_pkts, opcodes::EX_UN_READ_MAIL_COUNT).unwrap();
+    assert_eq!(
+        commons::network::PacketReader::new(&badge[3..])
+            .read_i32()
+            .unwrap(),
+        1
+    );
+}
+
+#[test]
+fn each_attachment_slot_adds_a_thousand_adena_to_the_fee() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    crate::game_loop::items::add_inventory_item(&mut world, 3001, 1060, 3); // healing potions
+    let potion_oid = world
+        .objects
+        .get_component::<Inventory>(&3001)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 1060)
+        .unwrap()
+        .object_id;
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", false, "gift", "", &[(potion_oid, 2)], 0),
+        ),
+    );
+
+    assert_eq!(
+        adena_of(&world, 3001),
+        10_000 - (100 + 1000),
+        "100 flat + 1000 per attached slot"
+    );
+    let msg_id = world.mail.inbox(3002)[0].id;
+    assert!(world.mail.get(msg_id).unwrap().has_attachments);
+    let attached = world.mail.attachments.get(&msg_id).unwrap();
+    assert_eq!(attached.items().len(), 1);
+    assert_eq!(attached.items()[0].count, 2);
+    // The partial stack stays with the sender under its original object id.
+    let left = world
+        .objects
+        .get_component::<Inventory>(&3001)
+        .unwrap()
+        .item_by_object_id(potion_oid);
+    assert_eq!(left.map(|(_, c)| c), Some(1));
+}
+
+#[test]
+fn a_sender_who_cannot_cover_the_fee_is_refused() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 50); // fee is 100
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", false, "hi", "", &[], 0),
+        ),
+    );
+    assert!(world.mail.inbox(3002).is_empty());
+    assert_eq!(adena_of(&world, 3001), 50, "nothing is charged on refusal");
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+}
+
+#[test]
+fn attached_adena_cannot_also_pay_the_fee() {
+    // 1000 adena on hand, all of it attached: the 1100 fee is unpayable.
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 1000);
+    let adena_oid = world
+        .objects
+        .get_component::<Inventory>(&3001)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id;
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", false, "all of it", "", &[(adena_oid, 1000)], 0),
+        ),
+    );
+    assert!(world.mail.inbox(3002).is_empty());
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+}
+
+#[test]
+fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("Nobody", false, "hi", "", &[], 0),
+        ),
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE));
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3001", false, "hi", "", &[], 0),
+        ),
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::YOU_CANNOT_SEND_A_MAIL_TO_YOURSELF));
+    assert_eq!(adena_of(&world, 3001), 10_000);
+}
+
+#[test]
+fn mail_can_be_addressed_to_an_offline_character() {
+    // The whole reason the CharInfoTable equivalent exists.
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    crate::game_loop::mail::on_character_created(&mut world, "Ghost", 4242);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("ghost", false, "knock", "", &[], 0),
+        ),
+    );
+    assert_eq!(
+        world.mail.inbox(4242).len(),
+        1,
+        "name lookup is case-insensitive and works offline"
+    );
+}
+
+#[test]
+fn a_cod_mail_needs_a_price_and_an_item() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", true, "pay", "", &[], 0),
+        ),
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(
+        &sm_ids::WHEN_NOT_ENTERING_THE_AMOUNT_FOR_THE_PAYMENT_REQUEST_YOU_CANNOT_SEND_ANY_MAIL
+    ));
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", true, "pay", "", &[], 500),
+        ),
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM));
+    assert!(world.mail.inbox(3002).is_empty());
+}
+
+#[test]
+fn attachments_off_still_delivers_the_message_without_them() {
+    // Java coerces rather than rejecting.
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    world.cfg.general.allow_attachments = false;
+    give_adena(&mut world, 3001, 10_000);
+    let adena_oid = world
+        .objects
+        .get_component::<Inventory>(&3001)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id;
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", true, "hi", "", &[(adena_oid, 500)], 500),
+        ),
+    );
+    let inbox = world.mail.inbox(3002);
+    assert_eq!(inbox.len(), 1, "the message still goes");
+    assert!(!inbox[0].has_attachments);
+    assert_eq!(inbox[0].req_adena, 0, "the payment request is stripped too");
+    assert_eq!(adena_of(&world, 3001), 10_000 - 100, "no per-slot fee");
+}
+
+#[test]
+fn opening_an_inbox_message_marks_it_read_and_refreshes_the_badge() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "read me");
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_RECEIVED_POST, &int_body(77)),
+    );
+
+    let pkts = drain(&mut b_rx);
+    let body = ex_body_of(&pkts, opcodes::EX_SHOW_RECEIVED_POST).expect("the opened message");
+    let mut r = commons::network::PacketReader::new(&body[3..]);
+    r.read_i32().unwrap(); // mail type
+    assert_eq!(r.read_i32().unwrap(), 77);
+    r.read_i32().unwrap(); // locked
+    r.read_i32().unwrap(); // unknown
+    assert_eq!(r.read_string().unwrap(), "P3001", "sender name");
+    assert_eq!(r.read_string().unwrap(), "read me");
+    assert_eq!(r.read_string().unwrap(), "body");
+
+    assert!(!world.mail.get(77).unwrap().unread);
+    assert!(ex_body_of(&pkts, opcodes::EX_CHANGE_POST_STATE).is_some());
+    let badge = ex_body_of(&pkts, opcodes::EX_UN_READ_MAIL_COUNT).unwrap();
+    assert_eq!(
+        commons::network::PacketReader::new(&badge[3..])
+            .read_i32()
+            .unwrap(),
+        0
+    );
+}
+
+#[test]
+fn you_cannot_open_someone_elses_message() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    put_mail(&mut world, 77, 9999, 3002, "private");
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_RECEIVED_POST, &int_body(77)),
+    );
+    assert!(drain(&mut a_rx).is_empty());
+    assert!(world.mail.get(77).unwrap().unread, "still unread");
+}
+
+#[test]
+fn opening_a_sent_message_does_not_mark_it_read() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "sent");
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_SENT_POST, &int_body(77)),
+    );
+    let pkts = drain(&mut a_rx);
+    assert!(ex_body_of(&pkts, opcodes::EX_SHOW_SENT_POST).is_some());
+    assert!(
+        ex_body_of(&pkts, opcodes::EX_CHANGE_POST_STATE).is_none(),
+        "Java sends no state change for the outbox"
+    );
+    assert!(world.mail.get(77).unwrap().unread);
+}
+
+#[test]
+fn deleting_from_the_inbox_hides_it_and_keeps_the_senders_copy() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "bye");
+    drain(&mut b_rx);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(77);
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_DELETE_RECEIVED_POST,
+            &w.into_bytes(),
+        ),
+    );
+
+    let m = world.mail.get(77).expect("the row survives for the sender");
+    assert!(m.deleted_by_receiver && !m.deleted_by_sender);
+    assert!(world.mail.inbox(3002).is_empty());
+    assert_eq!(world.mail.outbox(3001).len(), 1);
+    assert!(ex_body_of(&drain(&mut b_rx), opcodes::EX_CHANGE_POST_STATE).is_some());
+}
+
+#[test]
+fn a_message_both_sides_deleted_is_dropped_entirely() {
+    let (mut world, mut a_rx, mut b_rx, mut db_rx) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "bye");
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    drain_db(&mut db_rx);
+
+    let del = |id: i32| {
+        let mut w = PacketWriter::new();
+        w.write_i32(1);
+        w.write_i32(id);
+        w.into_bytes()
+    };
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_DELETE_RECEIVED_POST, &del(77)),
+    );
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_DELETE_SENT_POST, &del(77)),
+    );
+
+    assert!(
+        world.mail.get(77).is_none(),
+        "row gone once both sides drop it"
+    );
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::DeleteMail { message_id: 77 })),
+        "and the delete is persisted"
+    );
+}
+
+#[test]
+fn a_delete_batch_aborts_on_a_message_that_still_has_attachments() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "plain");
+    put_mail(&mut world, 78, 3001, 3002, "with item");
+    world.mail.get_mut(78).unwrap().has_attachments = true;
+    drain(&mut b_rx);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(2);
+    w.write_i32(77);
+    w.write_i32(78);
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_DELETE_RECEIVED_POST,
+            &w.into_bytes(),
+        ),
+    );
+
+    // Java returns out of the whole loop, so *neither* is deleted.
+    assert!(!world.mail.get(77).unwrap().deleted_by_receiver);
+    assert!(!world.mail.get(78).unwrap().deleted_by_receiver);
+    assert!(drain(&mut b_rx).is_empty());
 }

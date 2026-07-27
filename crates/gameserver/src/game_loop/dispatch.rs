@@ -606,6 +606,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             super::mail::handle_received_post_list(world, client_id)
         }
         exop::REQUEST_SENT_POST_LIST => super::mail::handle_sent_post_list(world, client_id),
+        exop::REQUEST_SEND_POST => super::mail::handle_send_post(world, client_id, ex_body),
+        exop::REQUEST_RECEIVED_POST => super::mail::handle_received_post(world, client_id, ex_body),
+        exop::REQUEST_SENT_POST => super::mail::handle_sent_post(world, client_id, ex_body),
+        exop::REQUEST_DELETE_RECEIVED_POST => {
+            super::mail::handle_delete_received_post(world, client_id, ex_body)
+        }
+        exop::REQUEST_DELETE_SENT_POST => {
+            super::mail::handle_delete_sent_post(world, client_id, ex_body)
+        }
         exop::REQUEST_OUST_FROM_PARTY_ROOM => {
             super::party_room::handle_oust_from_party_room(world, client_id, ex_body)
         }
