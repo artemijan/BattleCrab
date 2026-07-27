@@ -912,6 +912,14 @@ pub enum DbCommand {
     /// rewritten from memory by the next autosave, so this only needs to fix
     /// the offline population.
     ResetRecommends,
+    /// The offline-population vitality refill (Java `DailyTaskManager
+    /// .resetVitalityDaily`/`resetVitalityWeekly`, G33): `weekly` sets the pool
+    /// to max, otherwise adds `MAX/4`. Online players are refilled in memory on
+    /// the game thread (rewritten by the next autosave); this fixes the offline
+    /// rows in both `characters` and `character_subclasses`.
+    ResetVitality {
+        weekly: bool,
+    },
     Shutdown,
 }
 
@@ -2656,6 +2664,25 @@ async fn run(
                     sqlx::query("UPDATE character_reco_bonus SET rec_left = 0, rec_have = MAX(rec_have - 20, 0) WHERE rec_have > 20"),
                 )
                 .await;
+            }
+            DbCommand::ResetVitality { weekly } => {
+                // Java `resetVitalityDaily`/`resetVitalityWeekly` — both the
+                // `characters` and `character_subclasses` rows. `MAX/4` is added
+                // uncapped (as Java does); the read-side clamp hides any overflow.
+                const MAX: i32 = 140_000;
+                for table in ["characters", "character_subclasses"] {
+                    let q = if weekly {
+                        format!("UPDATE {table} SET vitality_points = {MAX}")
+                    } else {
+                        format!(
+                            "UPDATE {table} SET vitality_points = \
+                             CASE WHEN vitality_points = {MAX} THEN vitality_points \
+                             ELSE vitality_points + {} END",
+                            MAX / 4
+                        )
+                    };
+                    exec(&pool, sqlx::query(&q)).await;
+                }
             }
             DbCommand::Shutdown => break,
         }

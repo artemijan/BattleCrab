@@ -339,7 +339,11 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
     // The buff half only rides along on the bundle here: a buff can't be applied
     // to a character that isn't in the world yet, so enter-world does it.
     bundle.restore_buffs(&chr);
-    let selected = server_packets::char_selected(&bundle.view(), s.play_ok1(), 0);
+    let selected = server_packets::char_selected(
+        &bundle.view(),
+        s.play_ok1(),
+        super::game_time::game_time_minutes(),
+    );
 
     // Transition InLobby → Entering, holding the built Player bundle.
     if let Some(ClientSession::InLobby(s)) = world.clients.remove(&client_id) {

@@ -330,9 +330,10 @@ pub enum ScheduledTask {
     /// match the player's `reco_give_seq` or the firing is stale (logout /
     /// relogin) and no-ops.
     RecoGive { player_object_id: i32, seq: u64 },
-    /// Java `DailyTaskManager.resetRecommends`, fired daily at 06:30: zero every
-    /// player's rec_left and decay rec_have. Reschedules itself 24 h out.
-    DailyRecoReset,
+    /// Java `DailyTaskManager.onReset`, fired daily at 06:30: the recommends
+    /// reset + the vitality daily/weekly refill (G33). Reschedules itself 24 h
+    /// out.
+    DailyReset,
     /// `Siege.ScheduleEndSiegeTask`: a castle siege's timed window elapsed —
     /// auto-end the siege.
     SiegeEnd { castle_id: i32 },

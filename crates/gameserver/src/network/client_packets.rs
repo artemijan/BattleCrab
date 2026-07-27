@@ -106,6 +106,9 @@ pub mod opcodes {
     pub const BYPASS_USER_CMD: u8 = 0xB3;
     /// `DlgAnswer` — reply to a `ConfirmDlg` (used by the admin-confirm flow).
     pub const DLG_ANSWER: u8 = 0xC6;
+    /// `RequestQuestList` (G33) — the client opening its quest journal; empty
+    /// body, the server just re-sends `QuestList`.
+    pub const REQUEST_QUEST_LIST: u8 = 0x62;
     pub const REQUEST_QUEST_ABORT: u8 = 0x63;
     /// `RequestPledgeInfo` — asks for a clan's name/ally name by clan id.
     pub const REQUEST_JOIN_PLEDGE: u8 = 0x26;

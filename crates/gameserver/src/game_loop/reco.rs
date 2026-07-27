@@ -22,11 +22,6 @@ use super::helpers::client_for_player;
 pub(crate) const RECO_GIVE_INITIAL_DELAY: u64 = 72_000;
 /// Java `RecoGiveTask` period: 1 h (`…, 3_600_000`), in 100 ms ticks.
 const RECO_GIVE_PERIOD: u64 = 36_000;
-/// 24 h between daily resets, in 100 ms ticks.
-const DAILY_RESET_PERIOD: u64 = 864_000;
-/// 06:30, as milliseconds past midnight — Java `DailyTaskManager` schedules the
-/// reset here (in server-local time; the port uses UTC — see `schedule_initial_daily_reset`).
-const DAILY_RESET_MS_OF_DAY: i64 = (6 * 3600 + 30 * 60) * 1000;
 
 /// Java `Player.setRecomHave`/`setRecomLeft`: clamp to `0..=255`.
 fn clamp_reco(value: i32) -> i32 {
@@ -298,11 +293,10 @@ pub(crate) fn start_reco_give_task(world: &mut World, player_object_id: i32) {
     );
 }
 
-/// `ScheduledTask::DailyRecoReset` — Java `DailyTaskManager.resetRecommends`.
-/// Zeroes rec_left and decays rec_have for online players (in memory, plus a
-/// packet refresh) and offline characters (via a DB command), then reschedules
-/// itself 24 h out.
-pub(crate) fn handle_daily_reco_reset(world: &mut World) {
+/// Java `DailyTaskManager.resetRecommends`: zero rec_left and decay rec_have for
+/// online players (in memory, plus a packet refresh) and offline characters (via
+/// a DB command). One sub-step of the daily reset (`daily_tasks`).
+pub(crate) fn reset_recommends(world: &mut World) {
     // Offline population (Java's two UPDATE statements).
     let _ = world.db.send(crate::db::DbCommand::ResetRecommends);
 
@@ -324,31 +318,4 @@ pub(crate) fn handle_daily_reco_reset(world: &mut World) {
         send_ex_vote(world, oid);
         super::party::broadcast_user_info(world, oid);
     }
-
-    world.scheduler.schedule(
-        world.tick + DAILY_RESET_PERIOD,
-        ScheduledTask::DailyRecoReset,
-    );
-}
-
-/// Schedule the first `DailyRecoReset` for the next 06:30 (Java
-/// `DailyTaskManager`'s constructor). Called once at game-loop start.
-///
-/// TODO(reco): fidelity gaps vs Java `DailyTaskManager` (not yet ported):
-///   * 06:30 is computed in UTC, not server-local time.
-///   * no `GlobalVariablesManager.DAILY_TASK_RESET` catch-up — a reset missed
-///     while the server was down runs at the next 06:30 rather than on boot.
-///   * `resetRecommends` is the only reset ported here; the manager also drives
-///     vitality/clan-bonus/daily-skills/etc. resets.
-pub(crate) fn schedule_initial_daily_reset(world: &mut World) {
-    let now = commons::util::now_millis();
-    let ms_of_day = now.rem_euclid(86_400_000);
-    let mut delay_ms = DAILY_RESET_MS_OF_DAY - ms_of_day;
-    if delay_ms < 0 {
-        delay_ms += 86_400_000;
-    }
-    let delay_ticks = (delay_ms / 100) as u64;
-    world
-        .scheduler
-        .schedule(world.tick + delay_ticks, ScheduledTask::DailyRecoReset);
 }
