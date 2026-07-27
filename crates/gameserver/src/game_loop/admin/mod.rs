@@ -22,6 +22,7 @@ use crate::world::World;
 mod castle;
 mod character;
 pub(crate) mod cursed_weapons;
+pub(crate) mod debug_draw;
 mod editchar;
 mod effects;
 mod events;

@@ -226,9 +226,8 @@ pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32)
 /// the `ExServerPrimitive` packet, which isn't ported — those toggles answer
 /// with a message and render as "off".
 pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    let _ = object_id;
     let Some(&sub) = args.first() else {
-        return show_debug_menu(world, client_id);
+        return show_debug_menu(world, client_id, object_id);
     };
     // The htm buttons send e.g. `admin_debug packets on menu` — the trailing
     // literal re-renders the panel (Java `command.contains("menu")`).
@@ -251,17 +250,29 @@ pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32, arg
                 ),
             );
             if menu {
-                show_debug_menu(world, client_id);
+                show_debug_menu(world, client_id, object_id);
             }
         }
         "door" | "doors" | "geo" | "geodata" | "move" | "movement" | "path" | "pathfind" => {
-            send_message(
-                world,
-                client_id,
-                "Debug drawing (ExServerPrimitive) is not implemented yet.",
-            );
+            let kind = match sub {
+                "door" | "doors" => "doors",
+                "geo" | "geodata" => "geodata",
+                _ => "movement",
+            };
+            let (doors, geo, movement) = super::debug_draw::flags(world, object_id);
+            let current = match kind {
+                "doors" => doors,
+                "geodata" => geo,
+                _ => movement,
+            };
+            let on = match args.get(1).copied() {
+                Some("on") => true,
+                Some("off") => false,
+                _ => !current,
+            };
+            super::debug_draw::set_debug(world, client_id, object_id, kind, on);
             if menu {
-                show_debug_menu(world, client_id);
+                show_debug_menu(world, client_id, object_id);
             }
         }
         _ => send_message(world, client_id, "Usage: //debug <parameter> <value>"),
@@ -270,27 +281,33 @@ pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32, arg
 
 /// Java `AdminDebug.showMenu` — `debug.htm` with each `%token%` pair swapped
 /// for the live state (`Disable`+`… off` when active, `Enable`+`… on` when
-/// not). The three drawing toggles are always off until their tasks are
-/// ported, matching Java's empty task maps.
-fn show_debug_menu(world: &World, client_id: u32) {
-    let (packets_status, packets_cmd) = if world.debug_packets {
-        ("Disable", "packets off")
-    } else {
-        ("Enable", "packets on")
+/// not).
+fn show_debug_menu(world: &World, client_id: u32, object_id: i32) {
+    let toggle = |on: bool, noun: &str| {
+        if on {
+            ("Disable", format!("{noun} off"))
+        } else {
+            ("Enable", format!("{noun} on"))
+        }
     };
+    let (doors, geo, movement) = super::debug_draw::flags(world, object_id);
+    let (packets_status, packets_cmd) = toggle(world.debug_packets, "packets");
+    let (doors_status, doors_cmd) = toggle(doors, "doors");
+    let (geo_status, geo_cmd) = toggle(geo, "geodata");
+    let (move_status, move_cmd) = toggle(movement, "movement");
     super::menu::show_admin_html_replace(
         world,
         client_id,
         "debug.htm",
         &[
             ("packets_status", packets_status.to_string()),
-            ("packets", packets_cmd.to_string()),
-            ("doors_status", "Enable".to_string()),
-            ("doors", "doors on".to_string()),
-            ("geodata_status", "Enable".to_string()),
-            ("geodata", "geodata on".to_string()),
-            ("movement_status", "Enable".to_string()),
-            ("movement", "movement on".to_string()),
+            ("packets", packets_cmd),
+            ("doors_status", doors_status.to_string()),
+            ("doors", doors_cmd),
+            ("geodata_status", geo_status.to_string()),
+            ("geodata", geo_cmd),
+            ("movement_status", move_status.to_string()),
+            ("movement", move_cmd),
         ],
     );
 }

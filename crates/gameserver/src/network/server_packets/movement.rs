@@ -173,3 +173,42 @@ pub fn move_to_location(
     w.write_i32(z);
     w.into_bytes()
 }
+
+/// Port of `serverpackets/ExServerPrimitive` (FE:11) — the debug drawing
+/// packet (`//debug` doors/geodata/movement visualizers). `name` keys the
+/// drawing client-side: re-sending the same name replaces the previous
+/// geometry, which is how a drawing is moved or cleared (a single
+/// zero-length black line at z −16000 is Java's "erase" idiom).
+pub fn ex_server_primitive(
+    name: &str,
+    x: i32,
+    y: i32,
+    z: i32,
+    lines: &[(u32, (i32, i32, i32), (i32, i32, i32))],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_SERVER_PRIMITIVE);
+    w.write_string(name);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(65535); // display range/angle (Java constant)
+    w.write_i32(65535);
+    w.write_i32(lines.len() as i32);
+    for &(rgb, (x1, y1, z1), (x2, y2, z2)) in lines {
+        w.write_u8(2); // type: line
+        w.write_string(""); // per-line name (unused)
+        w.write_i32(((rgb >> 16) & 0xFF) as i32);
+        w.write_i32(((rgb >> 8) & 0xFF) as i32);
+        w.write_i32((rgb & 0xFF) as i32);
+        w.write_i32(0); // name colored
+        w.write_i32(x1);
+        w.write_i32(y1);
+        w.write_i32(z1);
+        w.write_i32(x2);
+        w.write_i32(y2);
+        w.write_i32(z2);
+    }
+    w.into_bytes()
+}

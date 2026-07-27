@@ -339,6 +339,15 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::ServerShutdownTick => {
                 admin::server_shutdown_tick(world);
             }
+            ScheduledTask::DebugDoorTick { object_id } => {
+                admin::debug_draw::door_tick(world, object_id);
+            }
+            ScheduledTask::DebugGeoTick { object_id } => {
+                admin::debug_draw::geo_tick(world, object_id);
+            }
+            ScheduledTask::DebugMoveTick { object_id } => {
+                admin::debug_draw::move_tick(world, object_id);
+            }
             ScheduledTask::SkillLaunch {
                 player_object_id,
                 cast_seq,

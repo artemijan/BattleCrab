@@ -1028,3 +1028,20 @@ pub struct Quests(pub std::collections::HashMap<String, crate::model::quest::Que
 /// cancelling (Java's `QuestTimer.cancel`). Not persisted, like Java.
 #[derive(Component, Debug, Clone, Default)]
 pub struct QuestTimerSeqs(pub std::collections::HashMap<(&'static str, String), u64>);
+
+/// `AdminDebug`'s per-GM visualizer state (`//debug doors|geodata|movement`):
+/// which draw loops are on, the anchor the last frame was drawn from (redraw
+/// after moving > 15 units, like Java's `PLAYER_*_LOCATIONS`), the door ids
+/// currently drawn (`PLAYER_SHOWN_DOORS`), and the last movement line state.
+#[derive(Component, Debug, Clone, Default)]
+pub struct DebugDraw {
+    pub doors: bool,
+    pub geo: bool,
+    pub movement: bool,
+    pub shown_doors: Vec<i32>,
+    pub door_anchor: (i32, i32, i32),
+    pub geo_anchor: (i32, i32, i32),
+    pub move_anchor: (i32, i32, i32),
+    pub last_dest: Option<(i32, i32, i32)>,
+    pub last_path: Option<Vec<(i32, i32, i32)>>,
+}

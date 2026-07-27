@@ -194,6 +194,7 @@ pub const EX_PVP_MATCH_CCRECORD: i16 = 0x8A;
 pub const EX_ITEM_AUCTION_INFO: i16 = 0x69;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
+pub const EX_SERVER_PRIMITIVE: i16 = 0x11;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
 pub const EX_PCCAFE_POINT_INFO: i16 = 0x32;
 pub const EX_VOTE_SYSTEM_INFO: i16 = 0xCA;

@@ -4592,3 +4592,97 @@ fn reload_config_rereads_ini() {
         "ini value (False) restored by the reload"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Debug panel drawing toggles
+// ---------------------------------------------------------------------------
+
+/// **All four Debug-panel toggles are live.** The geodata toggle draws the
+/// NSWE arrow grid as `ExServerPrimitive` (FE:11) packets and redraws after
+/// the GM moves; toggling off erases; the panel reflects each state.
+#[test]
+fn debug_panel_geodata_toggle_draws_grid() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7951, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("debug geodata on menu"));
+    let pkts = drain(&mut gm_rx);
+    let prim_count = pkts
+        .iter()
+        .filter(|p| {
+            p[0] == 0xFE && p.len() > 2 && i16::from_le_bytes(p[1..3].try_into().unwrap()) == 0x11
+        })
+        .count();
+    assert!(
+        prim_count >= 42,
+        "41×41 cells / 40 per packet → 43 ExServerPrimitive frames, got {prim_count}"
+    );
+    assert!(
+        pkts.iter()
+            .filter_map(|p| decode_npc_html(p))
+            .any(|h| h.contains("geodata off")),
+        "panel shows the toggle as Disable"
+    );
+    assert!(
+        crate::game_loop::admin::debug_draw::flags(&world, 7951).1,
+        "geo flag set"
+    );
+
+    // Moving > 15 units redraws on the next beat (15 ticks).
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&7951)
+        .unwrap()
+        .x += 100;
+    drain(&mut gm_rx);
+    advance_ticks(&mut world, 16);
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| p[0] == 0xFE),
+        "grid redrawn after moving"
+    );
+
+    on_packet(&mut world, 1, build_admin("debug geodata off"));
+    assert!(
+        !crate::game_loop::admin::debug_draw::flags(&world, 7951).1,
+        "geo flag cleared"
+    );
+    assert!(
+        drain(&mut gm_rx).iter().filter(|p| p[0] == 0xFE).count() >= 42,
+        "erase frames sent for every grid packet"
+    );
+}
+
+/// **The movement toggle draws the walk line.** Enabling while standing is
+/// clean; once the GM walks, the beat sends the green destination line.
+#[test]
+fn debug_panel_movement_toggle_draws_walk_line() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7961, 100);
+    {
+        let speeds = world.objects.get_component_mut::<Speeds>(&7961).unwrap();
+        speeds.run_spd = 100.0;
+        speeds.running = true;
+    }
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("debug movement on"));
+    drain(&mut gm_rx);
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    // The test world doesn't interpolate movement — walk the position
+    // forward by hand so the beat sees >15 units from its anchor.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&7961)
+        .unwrap()
+        .x += 100;
+    advance_ticks(&mut world, 3);
+    assert!(
+        drain(&mut gm_rx).iter().any(|p| {
+            p[0] == 0xFE && p.len() > 2 && i16::from_le_bytes(p[1..3].try_into().unwrap()) == 0x11
+        }),
+        "movement line drawn while walking"
+    );
+}

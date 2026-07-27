@@ -15,31 +15,58 @@ use std::collections::BinaryHeap;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScheduledTask {
     /// Placeholder used by tests and as the template for real tasks.
-    Noop { object_id: i32 },
+    Noop {
+        object_id: i32,
+    },
     /// The `//server_shutdown|restart` countdown beat (announce marks + the
     /// final `Shutdown::request`).
     ServerShutdownTick,
+    /// `//debug doors|geodata|movement` redraw beats (Java `AdminDebug`'s
+    /// per-player fixed-rate tasks: 3000/1500/100 ms).
+    DebugDoorTick {
+        object_id: i32,
+    },
+    DebugGeoTick {
+        object_id: i32,
+    },
+    DebugMoveTick {
+        object_id: i32,
+    },
     /// Java `Servitor.run()` — the 5-second summon-upkeep tick: lifetime
     /// countdown, periodic item consumption, the remain-time packet and the
     /// far-from-owner leash. Reschedules itself while the servitor lives.
-    ServitorLifeTick { servitor_oid: i32 },
+    ServitorLifeTick {
+        servitor_oid: i32,
+    },
     /// A grand boss's respawn window elapsing (Java's `*_unlock` quest timer).
-    GrandBossRespawn { boss_id: i32 },
+    GrandBossRespawn {
+        boss_id: i32,
+    },
     /// Queen Ant's 1 s nurse-heal beat.
-    QueenAntHeal { queen_oid: i32 },
+    QueenAntHeal {
+        queen_oid: i32,
+    },
     /// Queen Ant's 5 s leash check — drag her too far and she returns home.
-    QueenAntDistanceCheck { queen_oid: i32 },
+    QueenAntDistanceCheck {
+        queen_oid: i32,
+    },
     /// Orfen's 5 s leash check — dragged past 10000 from her spawn, she resets.
-    OrfenDistanceCheck { orfen_oid: i32 },
+    OrfenDistanceCheck {
+        orfen_oid: i32,
+    },
     /// Baium's archangels re-pick a target every 5 s (engage a nearby player, or
     /// regroup on Baium); they despawn once he falls.
     BaiumSelectTarget,
     /// Valakas's `skill_task` beat: pick a target and a breath/AoE/utility
     /// skill by his HP band and how surrounded he is, then cast or give chase.
-    ValakasSkillTask { valakas_oid: i32 },
+    ValakasSkillTask {
+        valakas_oid: i32,
+    },
     /// One beat of Baium's wakeUp cinematic (stone → live boss): earthquake,
     /// the social-action poses, porting the waker in and the gift-skill kill.
-    BaiumCinematic { step: u8 },
+    BaiumCinematic {
+        step: u8,
+    },
     /// Baium's 60 s CHECK_ATTACK beat: 30-min-idle reset (revert to stone +
     /// clear the zone) or a `<75%`-HP self-heal after 5 min without a hit.
     BaiumCheckAttack,
@@ -51,38 +78,62 @@ pub enum ScheduledTask {
     /// Sailren enters, 3 minutes after the Tyrannosaurus falls.
     SailrenSpawn,
     /// Sailren's intro invulnerability lifts — the fight begins.
-    SailrenAttackEnable { sailren_oid: i32 },
+    SailrenAttackEnable {
+        sailren_oid: i32,
+    },
     /// One beat of Valakas's entry cinematic.
-    ValakasCinematic { valakas_oid: i32, step: u8 },
+    ValakasCinematic {
+        valakas_oid: i32,
+        step: u8,
+    },
     /// `"beginning"` — Valakas's wait window elapsed after the first entry;
     /// the boss takes the lair and the entry cinematic runs (G23 slice 21).
     ValakasBeginning,
     /// One beat of Valakas's death cinematic (`die_1`..`die_8`); the last beat
     /// spawns the exit cubes and arms `ValakasRemovePlayers`.
-    ValakasDeathCinematic { valakas_oid: i32, step: u8 },
+    ValakasDeathCinematic {
+        valakas_oid: i32,
+        step: u8,
+    },
     /// Valakas's 60 s regen tick: escalating self-heal, and a 15-min-idle reset
     /// that sends him home and empties the lair.
-    ValakasRegen { valakas_oid: i32 },
+    ValakasRegen {
+        valakas_oid: i32,
+    },
     /// `remove_players` — 15 min after the death cubes appear, the lair empties.
     ValakasRemovePlayers,
     /// Dr. Chaos's paranoia tick (1 s while NORMAL) — drains the timer by the
     /// nearby-player count and transforms at ≤0 (G23 slice 22).
-    DrChaosParanoia { dr_chaos_oid: i32 },
+    DrChaosParanoia {
+        dr_chaos_oid: i32,
+    },
     /// One beat of Dr. Chaos's transformation cinematic (beat 5 spawns golem).
-    DrChaosTransform { dr_chaos_oid: i32, step: u8 },
+    DrChaosTransform {
+        dr_chaos_oid: i32,
+        step: u8,
+    },
     /// The golem's 60 s idle check — reverts to Dr. Chaos after 30 idle min.
-    DrChaosGolemDespawn { golem_oid: i32 },
+    DrChaosGolemDespawn {
+        golem_oid: i32,
+    },
     /// `reset_drchaos` — the golem's death window elapsed; Dr. Chaos returns.
     DrChaosReset,
     /// One of Antharas's five-minute minion waves.
-    AntharasMinionWave { antharas_oid: i32 },
+    AntharasMinionWave {
+        antharas_oid: i32,
+    },
     /// `SPAWN_ANTHARAS` — the Heart of Warding's wait window elapsed; the
     /// boss takes the platform and the fight starts (G23 slice 20).
     AntharasSpawn,
     /// One beat of Antharas's entry cinematic.
-    AntharasCinematic { antharas_oid: i32, step: u8 },
+    AntharasCinematic {
+        antharas_oid: i32,
+        step: u8,
+    },
     /// The second social action `CAMERA_3` forks.
-    AntharasSocial { antharas_oid: i32 },
+    AntharasSocial {
+        antharas_oid: i32,
+    },
     /// `CLEAR_ZONE` — 15 min after Antharas dies, everything left in the lair
     /// leaves: NPCs (the exit cube, straggler minions) despawn, players are
     /// teleported to the exit.
@@ -92,34 +143,54 @@ pub enum ScheduledTask {
     ClanHallAuctionEnd,
     /// A clan hall's lease check (`ClanHall.CheckPaymentTask`): charge the weekly
     /// rent from the owner's warehouse, or revoke the hall if a week overdue.
-    ClanHallLeaseCheck { hall_id: i32 },
+    ClanHallLeaseCheck {
+        hall_id: i32,
+    },
     /// A hall function's rental expiry (`ResidenceFunction.onFunctionExpiration`):
     /// re-pay from the clan warehouse or drop the function.
-    ClanHallFunctionExpire { hall_id: i32, func_id: i32 },
+    ClanHallFunctionExpire {
+        hall_id: i32,
+        func_id: i32,
+    },
     /// Antharas's 60 s `SET_REGEN` beat: a self-heal that escalates as his HP
     /// falls (one of four regeneration skills, cast once per band).
-    AntharasSetRegen { antharas_oid: i32 },
+    AntharasSetRegen {
+        antharas_oid: i32,
+    },
     /// Antharas's 60 s `CHECK_ATTACK` beat: a 15-min-idle reset (home + revert
     /// to ALIVE + empty the lair) or a threat re-evaluation.
-    AntharasCheckAttack { antharas_oid: i32 },
+    AntharasCheckAttack {
+        antharas_oid: i32,
+    },
     /// A Core minion's 60 s respawn.
-    CoreMinionRespawn { npc_id: i32 },
+    CoreMinionRespawn {
+        npc_id: i32,
+    },
     /// Clearing Core's minions 20 s after it dies.
     CoreDespawnMinions,
     /// A one-shot "delete this NPC after N ms" — Java's
     /// `startQuestTimer("DESPAWN…", delay, npc, null)` / `deleteMe` pattern for
     /// quest-spawned actors on a lifespan (quest 421's Soul of Tree Guardian
     /// ambush). A no-op if the NPC is already gone, like every dead-id task here.
-    DespawnNpc { npc_oid: i32 },
+    DespawnNpc {
+        npc_oid: i32,
+    },
     /// Boats (G24.5): the ferry reached its current waypoint — snap there,
     /// broadcast its position, and set sail for the next one.
-    BoatArrive { boat_object_id: i32 },
+    BoatArrive {
+        boat_object_id: i32,
+    },
     /// Boats: the dock anchor dwell elapsed — the ferry weighs anchor and sails
     /// on (players could board/disembark while it was anchored).
-    BoatDepart { boat_object_id: i32 },
+    BoatDepart {
+        boat_object_id: i32,
+    },
     /// Boats: run the next stage of a harbor dwell — broadcast its departure
     /// announcements and schedule the following stage (or depart after the last).
-    BoatDwellStage { boat_object_id: i32, stage: usize },
+    BoatDwellStage {
+        boat_object_id: i32,
+        stage: usize,
+    },
     /// Boats: an in-transit "the ferry will arrive in ~N minutes" shout, fired
     /// at a fixed offset after departure (only while the boat is still sailing).
     BoatVoyageShout {
@@ -138,10 +209,15 @@ pub enum ScheduledTask {
     OlympiadGameManager,
     /// Olympiad: the pre-fight ceremony step (Java `OlympiadGameTask`'s teleport
     /// + battle countdowns) — announce, teleport, or start the fight.
-    OlympiadCountdown { arena: usize, step: usize },
+    OlympiadCountdown {
+        arena: usize,
+        step: usize,
+    },
     /// Olympiad: poll a running match (Java `OlympiadGameTask`) — resolve it on
     /// a death/disconnect or the battle timeout, otherwise keep watching.
-    OlympiadMatchTick { arena: usize },
+    OlympiadMatchTick {
+        arena: usize,
+    },
     /// Olympiad: the monthly round ends (Java `OlympiadEndTask`) — enter the
     /// validation period and crown the new heroes.
     OlympiadEnd,
@@ -150,24 +226,41 @@ pub enum ScheduledTask {
     OlympiadValidationEnd,
     /// Instances (G27): tear down an instance if it is still empty after its
     /// `<time empty>` grace period.
-    InstanceEmptyCheck { instance_id: i32 },
+    InstanceEmptyCheck {
+        instance_id: i32,
+    },
     /// Frintezza (G27 content): one beat of the intro cinematic step machine
     /// (step 0 = the 10-min-later start; the chain spawns the boss ensemble and
     /// hands control back for the fight).
-    FrintezzaIntro { instance_id: i32, step: u8 },
+    FrintezzaIntro {
+        instance_id: i32,
+        step: u8,
+    },
     /// Frintezza fight beats — Scarlet's 80%/20% morphs (the second turns
     /// Scarlet into its final form).
-    FrintezzaFight { instance_id: i32, step: u8 },
+    FrintezzaFight {
+        instance_id: i32,
+        step: u8,
+    },
     /// Frintezza plays a random song every 90 s while the fight is on.
-    FrintezzaSong { instance_id: i32 },
+    FrintezzaSong {
+        instance_id: i32,
+    },
     /// The portraits emit a demon every 20 s (up to 24) while the fight is on.
-    FrintezzaDemons { instance_id: i32 },
+    FrintezzaDemons {
+        instance_id: i32,
+    },
     /// One beat of the finish cinematic after Scarlet's final form falls
     /// (Frintezza's death, then the doors reopen).
-    FrintezzaFinish { instance_id: i32, step: u8 },
+    FrintezzaFinish {
+        instance_id: i32,
+        step: u8,
+    },
     /// Scarlet's combat skill AI tick (Java `ScarletVanHalisha` ATTACK timer):
     /// pick and cast a daemon skill at a random target while engaged.
-    ScarletSkill { instance_id: i32 },
+    ScarletSkill {
+        instance_id: i32,
+    },
     /// Fishing (G32): the cast's line reels in — roll the bait's win chance,
     /// consume the bait, reward a fish, then schedule the next cast. `cast_seq`
     /// must match the player's `FishingSession` or the task is stale.
@@ -181,10 +274,15 @@ pub enum ScheduledTask {
         cast_seq: u64,
     },
     /// Java `Cubic._skillUseTask` — one action attempt by a player's cubic.
-    CubicAction { owner_oid: i32, cubic_id: i32 },
+    CubicAction {
+        owner_oid: i32,
+        cubic_id: i32,
+    },
     /// Java `Pet.FeedTask` — a fixed 10 s period that burns food and
     /// auto-eats from the pet's own inventory when it gets hungry.
-    PetFeedTick { pet_oid: i32 },
+    PetFeedTick {
+        pet_oid: i32,
+    },
     /// `SkillCaster.run` phase 1 (`launchSkill`), fires `_hitTime` ms after
     /// `startCasting`. The skill/target live in the player's `CastState`;
     /// `cast_seq` must match it or the task is stale (aborted/replaced cast)
@@ -220,10 +318,14 @@ pub enum ScheduledTask {
     /// PLAN_G19_SYMBOLS.md). Re-schedules itself while the totem lives; a
     /// dead/despawned totem ends the series (Java cancels the task in
     /// `deleteMe`).
-    EffectPointCast { npc_oid: i32 },
+    EffectPointCast {
+        npc_oid: i32,
+    },
     /// `Npc.scheduleDespawn` for an `EffectPoint` totem — the seal's 15 s
     /// lifetime running out.
-    EffectPointDespawn { npc_oid: i32 },
+    EffectPointDespawn {
+        npc_oid: i32,
+    },
     /// `BuffFinishTask`: an active buff's `abnormalTime` has elapsed.
     BuffExpire {
         player_object_id: i32,
@@ -256,18 +358,26 @@ pub enum ScheduledTask {
     /// The Rust `EVT_READY_TO_ACT`: a player's swing period ended
     /// (`attack_end_tick`), releasing whatever action the swing held back
     /// (`run_queued_action`); a no-op when nothing is queued.
-    AttackFinish { object_id: i32 },
+    AttackFinish {
+        object_id: i32,
+    },
     /// An NPC's swing period ended (`CreatureAttackTaskManager` re-firing at the
     /// weapon's attack rate): re-run the AI think so it swings again without
     /// waiting for the coarse 1 s `AttackableAI` tick. A no-op if the NPC has
     /// died, lost the target, or left attack reach.
-    NpcAttackReady { npc_oid: i32 },
+    NpcAttackReady {
+        npc_oid: i32,
+    },
     /// `DecayTaskManager` firing for a dead NPC: the corpse disappears.
-    NpcDecay { npc_object_id: i32 },
+    NpcDecay {
+        npc_object_id: i32,
+    },
     /// A `dbSave` raid boss whose persisted respawn time came due — see
     /// [`crate::game_loop::boss_respawn`]. Carries the spawn definition index
     /// rather than an object id: the boss isn't in the world yet.
-    BossRespawn { spawn_ref: (usize, usize, usize) },
+    BossRespawn {
+        spawn_ref: (usize, usize, usize),
+    },
     /// A leader's killed minion is due back — see [`crate::game_loop::minions`].
     MinionRespawn {
         master_object_id: i32,
@@ -275,7 +385,9 @@ pub enum ScheduledTask {
     },
     /// `ItemsOnGroundManager` cleanup: a dropped ground item auto-destroys after
     /// its lifetime elapses.
-    GroundItemDecay { item_object_id: i32 },
+    GroundItemDecay {
+        item_object_id: i32,
+    },
     /// `RespawnTaskManager` → `Spawn.respawnNpc`: re-run the spawn line the
     /// dead NPC came from (indices into `GameData.spawn_data`).
     NpcRespawn {
@@ -287,30 +399,51 @@ pub enum ScheduledTask {
     /// scheduleRemoveClan`): destroy the clan if `dissolving_expiry_time` is
     /// still set (a `recover_clan` zeroes it → no-op). Re-armed at boot from
     /// the persisted stamp.
-    ClanDissolve { clan_id: i32 },
+    ClanDissolve {
+        clan_id: i32,
+    },
     /// A non-mutual clan war's 7-day answer window elapsed (`ClanWar.
     /// clanWarTimeout`): if still BLOOD_DECLARATION the war becomes TIE and is
     /// torn down. Re-armed at boot; a war gone MUTUAL makes this a no-op.
-    ClanWarTimeout { attacker: i32, attacked: i32 },
+    ClanWarTimeout {
+        attacker: i32,
+        attacked: i32,
+    },
     /// The post-end deletion of a finished war's row/memory (Java schedules it
     /// seconds after cancel/timeout — the 5/21-day retention in the constants
     /// is dead code in the live Java path, mirrored as-is).
-    ClanWarDelete { clan1: i32, clan2: i32 },
+    ClanWarDelete {
+        clan1: i32,
+        clan2: i32,
+    },
     /// A party/friend invite went unanswered (Java `PartyRequest.
     /// scheduleTimeout` / `_requestExpireTime`): clear the player's
     /// `PendingRequest` if `seq` still matches.
-    RequestTimeout { object_id: i32, seq: u64 },
+    RequestTimeout {
+        object_id: i32,
+        seq: u64,
+    },
     /// The 12 s `PartyMemberPosition` broadcast (Java's per-party
     /// `_positionBroadcastTask`); reschedules itself while the party lives
     /// and `seq` matches.
-    PartyPositionBroadcast { party_id: u32, seq: u64 },
+    PartyPositionBroadcast {
+        party_id: u32,
+        seq: u64,
+    },
     /// One second of a duel's pre-fight countdown.
-    DuelCountdown { duel_id: u32 },
+    DuelCountdown {
+        duel_id: u32,
+    },
     /// The per-second `checkEndDuelCondition` sweep of a running duel.
-    DuelTick { duel_id: u32 },
+    DuelTick {
+        duel_id: u32,
+    },
     /// The 15 s loot-rule-change window elapsed without unanimous approval
     /// (`Party.PARTY_DISTRIBUTION_TYPE_REQUEST_TIMEOUT`).
-    PartyLootChangeTimeout { party_id: u32, seq: u64 },
+    PartyLootChangeTimeout {
+        party_id: u32,
+        seq: u64,
+    },
     /// A `Quest.startQuestTimer` firing → `quest.notifyEvent(name, …)` →
     /// `on_timer`. `seq` is checked against the player's `QuestTimerSeqs`
     /// entry for `(quest, name)` — cancelling a timer is bumping that seq
@@ -324,25 +457,37 @@ pub enum ScheduledTask {
     },
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
-    DoorAutoClose { door_object_id: i32, seq: u64 },
+    DoorAutoClose {
+        door_object_id: i32,
+        seq: u64,
+    },
     /// `Door.TimerOpen`: a BY_TIME door's cycle toggle; reschedules itself.
-    DoorTimerToggle { door_object_id: i32 },
+    DoorTimerToggle {
+        door_object_id: i32,
+    },
     /// `RecoGiveTask` (Java's per-player `scheduleAtFixedRate`): hand out
     /// recommendations-to-give over time — 10 after the first 2 h online, then 1
     /// every hour. Reschedules itself while the player is online; `seq` must
     /// match the player's `reco_give_seq` or the firing is stale (logout /
     /// relogin) and no-ops.
-    RecoGive { player_object_id: i32, seq: u64 },
+    RecoGive {
+        player_object_id: i32,
+        seq: u64,
+    },
     /// Java `DailyTaskManager.onReset`, fired daily at 06:30: the recommends
     /// reset + the vitality daily/weekly refill (G33). Reschedules itself 24 h
     /// out.
     DailyReset,
     /// `Siege.ScheduleEndSiegeTask`: a castle siege's timed window elapsed —
     /// auto-end the siege.
-    SiegeEnd { castle_id: i32 },
+    SiegeEnd {
+        castle_id: i32,
+    },
     /// A castle's scheduled weekly siege start (`SiegeSchedule.xml`) — begins
     /// the siege and re-arms next week (G24 slice 1).
-    SiegeStart { castle_id: i32 },
+    SiegeStart {
+        castle_id: i32,
+    },
     /// The castle-manor daily mode change (`CastleManorManager.changeMode`):
     /// advances APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the wall
     /// clock, rolls the production/procure period, and re-arms the next change.
@@ -351,12 +496,16 @@ pub enum ScheduledTask {
     /// monster-dropped weapon lay un-grabbed past its disappear deadline
     /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`
     /// guard.
-    CursedWeaponExpiry { item_id: i32 },
+    CursedWeaponExpiry {
+        item_id: i32,
+    },
     /// A mail message reached its expiration (Java `MessageDeletionTaskManager`,
     /// G30): return any attachments to the sender's warehouse and drop the
     /// message. Keyed by message id; a stale timer no-ops because the message
     /// is gone or its expiration moved.
-    MailExpire { message_id: i32 },
+    MailExpire {
+        message_id: i32,
+    },
     /// TvT's registration window closed (`startQuestTimer("TeleportToArena",
     /// REGISTRATION_TIME)`, G28): prune offline registrants and either stand up
     /// the arena or cancel for too few players. A singleton event, so no key.
@@ -371,7 +520,9 @@ pub enum ScheduledTask {
     /// "ResurrectPlayer", 10000, killedPlayer)`, G28): revive at the team spawn
     /// with the Ghost Walking invulnerability. Keyed by the victim's object id;
     /// a stale timer no-ops via the still-dead / still-on-event guard.
-    TvtResurrect { player: i32 },
+    TvtResurrect {
+        player: i32,
+    },
     /// TvT's end-of-match scoreboard (`startQuestTimer("ScoreBoard", 3500)`,
     /// G28): broadcast `ExPVPMatchCCRecord::FINISH`.
     TvtScoreBoard,
@@ -391,12 +542,16 @@ pub enum ScheduledTask {
     /// An item auction's next state transition (Java `ItemAuctionInstance
     /// .ScheduleAuctionTask`, G30.5): CREATED→STARTED at its start time, then
     /// STARTED→FINISHED at its (possibly extended) end time. Keyed by auction id.
-    ItemAuctionState { auction_id: i32 },
+    ItemAuctionState {
+        auction_id: i32,
+    },
     /// A timed punishment's expiry (Java `PunishmentTask` scheduling itself at
     /// `expirationTime`, G31): drop the punishment and run its release effect
     /// (jail-out teleport). Keyed by the `punishments.id`; a stale timer (the
     /// row already removed by `//unjail`) no-ops.
-    PunishmentExpire { punishment_id: i32 },
+    PunishmentExpire {
+        punishment_id: i32,
+    },
 }
 
 struct Entry {
