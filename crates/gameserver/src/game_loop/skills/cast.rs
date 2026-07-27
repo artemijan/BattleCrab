@@ -1083,26 +1083,15 @@ pub(crate) fn start_casting(
     world.objects.remove_component::<QueuedAction>(&object_id);
 
     // Stop movement (`clientStopMoving`) — the client freezes on its own; the
-    // broadcast pins the position for everyone else. A good-skill cast saves
-    // an interrupted *manual* move to resume after (the current MOVE_TO
-    // intention becomes the next intention in `changeIntention`) — but not a
-    // chase leg: while attacking, Java's current intention is ATTACK, and the
-    // surviving `Intent` component already resumes the loop (and its chase)
-    // by itself.
-    if let Some(mv) = world.objects.get_component::<Movement>(&object_id).cloned() {
-        if !skill.is_bad() && !world.objects.has_component::<Intent>(&object_id) {
-            let (x, y, z) = match &mv.0.geo_path {
-                Some(gp) => (
-                    gp.accurate_tx,
-                    gp.accurate_ty,
-                    gp.points[gp.points.len() - 1].2,
-                ),
-                None => (mv.0.dest_x, mv.0.dest_y, mv.0.dest_z),
-            };
-            world
-                .objects
-                .add_components(&object_id, QueuedAction::Move { x, y, z });
-        }
+    // broadcast pins the position for everyone else. The interrupted manual
+    // move is NOT resumed: `PlayerAI.changeIntention` does save the MOVE_TO
+    // as `_nextIntention` when a good-skill CAST comes in, but
+    // `startCasting` immediately follows with `setIntention(IDLE)`, whose
+    // `changeIntention(IDLE)` wipes `_nextIntention` ("Also replace other
+    // intentions with idle. (Mainly done for AI_INTENTION_MOVE_TO)"). An
+    // attack loop's chase leg is different: the surviving `Intent` component
+    // resumes the loop (and its chase) by itself.
+    if world.objects.has_component::<Movement>(&object_id) {
         world.objects.remove_component::<Movement>(&object_id);
         if let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() {
             broadcast_including_self(

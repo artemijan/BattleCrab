@@ -1639,11 +1639,14 @@ fn incoming_magic_damage_can_break_precast() {
     assert_eq!(pbuffs(&world, 3002), 0);
 }
 
-/// Casting a good skill while running pauses the move and resumes it toward
-/// the original destination after the cast; an offensive skill forgets it —
-/// Java `PlayerAI.changeIntention`'s save/clear of the interrupted intention.
+/// Casting any skill while running stops the move for good — Java's
+/// `PlayerAI.changeIntention` saves the MOVE_TO as `_nextIntention` for a
+/// good-skill cast, but `SkillCaster.startCasting` immediately replaces the
+/// intention with IDLE, wiping the saved move; a bad skill clears it in
+/// `changeIntention` itself. Either way the player stands where the cast
+/// began and does not resume walking.
 #[test]
-fn good_skill_cast_pauses_and_resumes_inflight_move() {
+fn cast_discards_inflight_move() {
     use crate::model::components::QueuedAction;
 
     let (mut world, ..) = cast_test_world();
@@ -1663,31 +1666,32 @@ fn good_skill_cast_pauses_and_resumes_inflight_move() {
     assert!(world.objects.has_component::<Movement>(&3001));
     drain(&mut a_rx);
 
-    // Slow Aura (good, self): the move stops but its destination is saved.
+    // Slow Aura (good, self): the move stops and its destination is dropped.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(91, false));
     assert!(world.objects.has_component::<Casting>(&3001));
     assert!(
         !world.objects.has_component::<Movement>(&3001),
         "cast stops the move"
     );
-    match world.objects.get_component::<QueuedAction>(&3001) {
-        Some(&QueuedAction::Move { x, y, z }) => assert_eq!((x, y, z), (600, 0, 0)),
-        other => panic!("interrupted move not saved: {other:?}"),
-    }
+    assert!(
+        !world.objects.has_component::<QueuedAction>(&3001),
+        "good skill forgets the move (startCasting sets IDLE)"
+    );
 
-    // hit 9500 ms (95 ticks) + finish 5 ticks later: the move resumes.
+    // hit 9500 ms (95 ticks) + finish 5 ticks later: still standing.
     advance_ticks(&mut world, 101);
     assert!(!world.objects.has_component::<Casting>(&3001));
-    let mv = world
-        .objects
-        .get_component::<Movement>(&3001)
-        .expect("move resumed after the cast");
-    assert_eq!((mv.0.dest_x, mv.0.dest_y), (600, 0));
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "move must not resume after the cast"
+    );
 
-    // An offensive cast instead forgets the interrupted move.
+    // An offensive cast forgets the interrupted move the same way.
     let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
     drain(&mut a_rx);
     drain(&mut b_rx);
+    handle_move_backward_to_location(&mut world, 1, &move_body((600, 0, 0), (0, 0, 0), 1));
+    assert!(world.objects.has_component::<Movement>(&3001));
     handle_action(&mut world, 1, &action_body(3002, 0));
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
     assert!(world.objects.has_component::<Casting>(&3001));
