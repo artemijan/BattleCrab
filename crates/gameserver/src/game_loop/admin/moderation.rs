@@ -735,6 +735,34 @@ pub(super) fn admin_hwid(world: &mut World, client_id: u32, object_id: i32, args
     );
 }
 
+/// `AdminRepairChar`'s `//repair <name>` / `//restore <name>` (Java, G33): unstick
+/// a broken **offline** character — teleport to Giran, wipe its shortcuts, and
+/// un-equip all items. Runs entirely on the DB (`RepairCharacter`). Refused for
+/// an online character (the memory-first autosave would overwrite the fix — a
+/// documented improvement over Java's racy version).
+pub(super) fn admin_repair_char(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(name) = args.first() else {
+        send_message(world, client_id, "Usage: //repair <character name>");
+        return;
+    };
+    if find_online_player(world, name).is_some() {
+        send_message(
+            world,
+            client_id,
+            &format!("'{name}' is online — repair only affects offline characters."),
+        );
+        return;
+    }
+    let _ = world.db.send(crate::db::DbCommand::RepairCharacter {
+        char_name: name.to_string(),
+    });
+    send_message(
+        world,
+        client_id,
+        &format!("Repair queued for offline character '{name}'."),
+    );
+}
+
 /// `AdminServerInfo` — Java opens an HTML window; we send the key figures as
 /// text lines (a documented G13.A simplification; the HTML build waits for the
 /// admin-menu work in G13.B).

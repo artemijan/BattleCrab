@@ -920,6 +920,14 @@ pub enum DbCommand {
     ResetVitality {
         weekly: bool,
     },
+    /// `AdminRepairChar` (Java `//repair`/`//restore`, G33): unstick a broken
+    /// **offline** character by name — teleport to a safe spot (Giran), clear
+    /// its shortcuts (a corrupt one crashes the client), and move every item
+    /// back to the inventory (un-equip whatever is wedged). Keyed by name; a
+    /// no-op if the name doesn't exist.
+    RepairCharacter {
+        char_name: String,
+    },
     Shutdown,
 }
 
@@ -2682,6 +2690,39 @@ async fn run(
                         )
                     };
                     exec(&pool, sqlx::query(&q)).await;
+                }
+            }
+            DbCommand::RepairCharacter { char_name } => {
+                // Java `AdminRepairChar`, verbatim (SQLite uses single quotes for
+                // the string literal, not Java's double quotes). Best-effort:
+                // each statement is independent, keyed by name / resolved id.
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE characters SET x=-84318, y=244579, z=-3730 WHERE char_name=?",
+                    )
+                    .bind(&char_name),
+                )
+                .await;
+                let obj_id: Option<i64> =
+                    sqlx::query_scalar("SELECT charId FROM characters WHERE char_name=?")
+                        .bind(&char_name)
+                        .fetch_optional(&pool)
+                        .await
+                        .ok()
+                        .flatten();
+                if let Some(obj_id) = obj_id {
+                    exec(
+                        &pool,
+                        sqlx::query("DELETE FROM character_shortcuts WHERE charId=?").bind(obj_id),
+                    )
+                    .await;
+                    exec(
+                        &pool,
+                        sqlx::query("UPDATE items SET loc='INVENTORY' WHERE owner_id=?")
+                            .bind(obj_id),
+                    )
+                    .await;
                 }
             }
             DbCommand::Shutdown => break,

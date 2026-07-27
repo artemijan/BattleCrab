@@ -91,3 +91,34 @@ fn find_dualbox_reports_ips_at_or_above_the_threshold() {
     // Threshold 3 is above the pair → nothing.
     assert!(dualbox_ips(&world, 3).is_empty());
 }
+
+// --- AdminRepairChar (G33 tail) ---------------------------------------------
+
+#[test]
+fn repair_queues_a_db_command_only_for_an_offline_character() {
+    use crate::db::DbCommand;
+    let (mut world, _tx, mut db_rx, _link) = admin_world();
+    let _gm = ingame_player_access(&mut world, 1, 7401, 100);
+    drain_db(&mut db_rx);
+
+    // Offline target → a RepairCharacter command is queued.
+    on_packet(&mut world, 1, build_admin("repair Ghost"));
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            DbCommand::RepairCharacter { char_name } if char_name == "Ghost"
+        )),
+        "offline repair queued"
+    );
+
+    // Online target → guarded, nothing queued (autosave would overwrite it).
+    let _victim = ingame_player_access(&mut world, 2, 7402, 0); // name "P7402"
+    drain_db(&mut db_rx);
+    on_packet(&mut world, 1, build_admin("repair P7402"));
+    assert!(
+        !drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::RepairCharacter { .. })),
+        "online character is not repaired"
+    );
+}
