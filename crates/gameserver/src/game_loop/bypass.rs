@@ -104,6 +104,10 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         if let Ok(n) = field.trim().parse::<i32>() {
             super::olympiad::enter_observer(world, client_id, object_id, n - 1);
         }
+    } else if let Some(args) = command.strip_prefix("_diary") {
+        // The hero-diary window (Java `Hero.showHeroDiary`): a hero-list link
+        // `_diary?class=<classId>&page=<n>`.
+        super::olympiad::show_hero_diary(world, client_id, object_id, args);
     } else if command.starts_with("manor_menu_select") {
         // The chamberlain's manor.html buttons (Java `RequestBypassToServer`'s
         // `manor_menu_select` branch → `OnNpcManorBypass`). The folk NPC and

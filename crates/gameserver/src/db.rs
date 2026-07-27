@@ -1003,8 +1003,12 @@ pub enum DbEvent {
         next_weekly_change: i64,
         nobles: Vec<OlympiadNobleRow>,
     },
-    /// The current heroes (`heroes` rows with `played = 1`), loaded at boot.
-    HeroesLoaded { heroes: Vec<HeroRow> },
+    /// The current heroes (`heroes` rows with `played = 1`) + every hero-diary
+    /// entry (`heroes_diary`, `(charId, time, action, param)`), loaded at boot.
+    HeroesLoaded {
+        heroes: Vec<HeroRow>,
+        diary: Vec<(i32, i64, i8, i32)>,
+    },
     /// The `castle_siege_guards` table (the stationed garrison, `isHired=0`),
     /// pushed unprompted at boot. `(castle_id, spawn)`; grouped by castle on the
     /// game thread.
@@ -1102,6 +1106,8 @@ pub struct HeroRow {
     /// persisted — the `heroes` table has no such columns.
     pub name: String,
     pub clan_id: i32,
+    /// The hero's words (`heroes.message`), shown atop the hero diary window.
+    pub message: String,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -1298,9 +1304,10 @@ async fn run(
     // `Olympiad.load` — the period/cycle row + every noble's record.
     let _ = event_tx.send(load_olympiad(&pool).await);
 
-    // `Hero.init` — the currently-crowned heroes (`played = 1`).
+    // `Hero.init` — the currently-crowned heroes (`played = 1`) + their diaries.
     let _ = event_tx.send(DbEvent::HeroesLoaded {
         heroes: load_heroes(&pool).await,
+        diary: load_hero_diary(&pool).await,
     });
 
     // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
@@ -3383,7 +3390,7 @@ async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
 /// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).
 async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
     sqlx::query(
-        "SELECT h.charId, h.class_id, h.count, c.char_name, c.clanid \
+        "SELECT h.charId, h.class_id, h.count, h.message, c.char_name, c.clanid \
          FROM heroes h LEFT JOIN characters c ON c.charId = h.charId WHERE h.played = 1",
     )
     .fetch_all(pool)
@@ -3396,8 +3403,28 @@ async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
         count: geti(r, "count") as i32,
         name: gets(r, "char_name"),
         clan_id: geti(r, "clanid") as i32,
+        message: gets(r, "message"),
     })
     .collect()
+}
+
+/// Every hero-diary entry (Java `Hero.loadDiary` per hero, batched here into one
+/// query), oldest first: `(charId, time, action, param)`.
+async fn load_hero_diary(pool: &SqlitePool) -> Vec<(i32, i64, i8, i32)> {
+    sqlx::query("SELECT charId, time, action, param FROM heroes_diary ORDER BY time ASC")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+        .iter()
+        .map(|r| {
+            (
+                geti(r, "charId") as i32,
+                geti(r, "time"),
+                geti(r, "action") as i8,
+                geti(r, "param") as i32,
+            )
+        })
+        .collect()
 }
 
 async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {

@@ -124,6 +124,9 @@ pub struct OlympiadState {
     /// A crowned hero's display data (name + clan id) for the `ExHeroList`
     /// window — resolved even for offline heroes (Java `Hero._heroes` `StatSet`s).
     pub hero_info: HashMap<i32, HeroInfo>,
+    /// Each hero's diary entries by char id (Java `Hero.HERO_DIARY`), oldest
+    /// first — the notable-deeds log shown in the hero-diary window.
+    pub hero_diary: HashMap<i32, Vec<DiaryEntry>>,
 }
 
 /// The `ExHeroList` display fields for one hero (Java's per-hero `StatSet`).
@@ -131,6 +134,19 @@ pub struct OlympiadState {
 pub struct HeroInfo {
     pub name: String,
     pub clan_id: i32,
+    /// The hero's words (`heroes.message`), shown atop the diary window.
+    pub message: String,
+}
+
+/// One hero-diary entry (Java a `heroes_diary` row): a timestamped notable deed.
+#[derive(Debug, Clone, Copy)]
+pub struct DiaryEntry {
+    pub time: i64,
+    /// Action code (Java `ACTION_*`): 1 = raid killed, 2 = gained hero,
+    /// 3 = castle taken.
+    pub action: i8,
+    /// Action parameter (raid NPC id, or castle id), by action.
+    pub param: i32,
 }
 
 impl OlympiadState {
