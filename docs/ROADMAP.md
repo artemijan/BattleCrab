@@ -1031,6 +1031,22 @@ weekly draw, prize-claim dialogs) and `MonsterRace` (the Race Track: race
 ticks, betting, `MonRaceInfo`). Niche end-game content — schedule last within
 the track. **Deps:** G15 (economy).
 
+**Slices 1–2 (2026-07):** the **Lottery is complete** ([PLAN_G26_5_LOTTERY_RACE.md](PLAN_G26_5_LOTTERY_RACE.md))
+— the weekly round engine + `lottery`-table persistence (slice 1), then the full
+economics (slice 2): the `Loto` NPC dialog, ticket purchase (verbatim bitmask
+encoding), the faithful two-phase draw (offline DB + online inventory scan,
+deduped, tier pot-split), and prize claim. Config-gated on `AllowLottery` (dist
+off). **A lottery now runs buy → draw → payout.**
+
+**Monster Race (slices 3a–4) landed — G26.5 COMPLETE:** the race data + math +
+`MonRaceInfo` packet, the 1-second race-cycle state machine (`DerbyTrackZone`,
+the `AllowRace` gate, 8 shuffled packet-only racers, board/animation, winner),
+then `mdt_history`/`mdt_bets` persistence + the `RaceManager` NPC betting dialog
+(buy a lane ticket, view odds/history, cash a winner out at its odds). **A full
+monster race runs: bet → race → animate → payout**, and the whole G26.5
+milestone (Lottery + Monster Race) is done — only the cosmetic ticket-sale
+reminder cadence is deferred.
+
 ### G27 — Instances
 `InstanceManager` + instance worlds; instance zones; reenter timers; instance-
 scoped spawns/doors/reset; the party-enter flow. **Gate:** a party enters an

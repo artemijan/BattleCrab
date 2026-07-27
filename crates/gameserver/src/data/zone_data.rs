@@ -58,6 +58,11 @@ pub enum ZoneKind {
     /// `clanHallId` (banish scope, owner-member regen). Queried by geometry
     /// (`clan_hall_at`), never by membership mask, so it claims no bit.
     ClanHall,
+    /// Java `DerbyTrackZone`: the Monster Race Track spectator area (G26.5). The
+    /// race manager broadcasts board/animation packets to everyone standing in
+    /// it. Queried by geometry (`zones_at`), never by membership mask — the u8
+    /// mask is full — so it claims no bit.
+    DerbyTrack,
 }
 
 impl ZoneKind {
@@ -83,6 +88,8 @@ impl ZoneKind {
             ZoneKind::Fishing => 0,
             // Queried by geometry (`clan_hall_at`), no membership bit.
             ZoneKind::ClanHall => 0,
+            // Queried by geometry (`zones_at`), no membership bit (u8 mask full).
+            ZoneKind::DerbyTrack => 0,
         }
     }
 }
@@ -336,6 +343,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         // scripts use it for `isInsideZone` and `movePlayersTo`; 133 ship here.
         "ScriptZone" => ZoneKind::Script,
         "ClanHallZone" => ZoneKind::ClanHall,
+        "DerbyTrackZone" => ZoneKind::DerbyTrack,
         _ => return None,
     })
 }
@@ -572,8 +580,10 @@ mod tests {
         // deliberately left out (see the loader).
         // 1031 → 1044: `fishing.xml`'s 13 `FishingZone`s (G32).
         // 1044 → 1092: `clan_hall.xml`'s 48 `ClanHallZone`s (G24).
-        assert_eq!(data.zones.len(), 1092);
+        // 1092 → 1100: `zone.xml`'s 8 `DerbyTrackZone`s (G26.5).
+        assert_eq!(data.zones.len(), 1100);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::DerbyTrack), 8, "zone.xml derby track");
         assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
         assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
@@ -698,6 +708,7 @@ mod effect_zone_tests {
                         | ZoneKind::Swamp
                         | ZoneKind::Fishing
                         | ZoneKind::ClanHall
+                        | ZoneKind::DerbyTrack
                 ),
                 "zone {} has an unported kind",
                 z.name

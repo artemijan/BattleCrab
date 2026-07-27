@@ -273,6 +273,24 @@ impl Inventory {
         object_id
     }
 
+    /// Stamp a just-created item's Lucky-Lottery fields (Java `Item
+    /// .setCustomType1`/`setEnchantLevel`/`setCustomType2` on a fresh 4442
+    /// ticket): the round id and the two-word picked-number bitmask. No-op if the
+    /// object id is gone.
+    pub fn set_lotto_fields(
+        &mut self,
+        object_id: i32,
+        custom_type1: i32,
+        enchant: i32,
+        custom_type2: i32,
+    ) {
+        if let Some(it) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            it.custom_type1 = custom_type1;
+            it.enchant_level = enchant;
+            it.custom_type2 = custom_type2;
+        }
+    }
+
     /// Insert an item preserving its enchant level (warehouse deposit/withdraw
     /// transfers), stacking into an existing same-id stack when stackable. Unlike
     /// [`add_item`](Self::add_item) — which always starts enchant 0 — this keeps

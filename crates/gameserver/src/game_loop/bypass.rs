@@ -185,6 +185,13 @@ fn npc_bypass(
     let verb = command.split(' ').next().unwrap_or("");
     match verb {
         "Quest" => super::quests::quest_link(world, client_id, object_id, npc_object_id, command),
+        // `bypasshandlers/Loto.java` — the Lucky Lottery ticket seller dialog.
+        "Loto" => super::lottery::loto_bypass(world, client_id, object_id, npc_object_id, command),
+        // `RaceManager` NPC — the Monster Race Track betting dialog (G26.5).
+        "BuyTicket" | "ShowOdds" | "ShowInfo" | "ShowTickets" | "ShowTicket" | "CalculateWin"
+        | "ViewHistory" => {
+            super::monster_race::race_bypass(world, client_id, object_id, npc_object_id, command)
+        }
         // `bypasshandlers/ChatLink.java`: the follow-up dialog pages every
         // folk html walks through (`Chat 1` → `<npcId>-1.htm`). Java parses
         // the tail with `Integer.parseInt`, falling back to page 0.

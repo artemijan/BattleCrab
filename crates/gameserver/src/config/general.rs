@@ -79,6 +79,28 @@ pub struct GeneralConfig {
     pub alt_manor_approve_time: i32,
     /// `AltManorApproveMin` (minute, dist 30).
     pub alt_manor_approve_min: i32,
+
+    /// `AllowLottery`: whether the weekly Lucky Lottery runs (G26.5). Dist ships
+    /// `False`; the round engine + persistence exist regardless so it works the
+    /// moment an operator enables it.
+    pub allow_lottery: bool,
+    /// `AltLotteryPrize` (dist 50000): the starting jackpot of a fresh round.
+    pub alt_lottery_prize: i64,
+    /// `AltLotteryTicketPrice` (dist 2000): adena charged per ticket.
+    pub alt_lottery_ticket_price: i64,
+    /// `AltLottery5NumberRate` (dist 0.6): share of the pot paid to 5-match
+    /// (first-prize) winners.
+    pub alt_lottery_5_number_rate: f64,
+    /// `AltLottery4NumberRate` (dist 0.2): share paid to 4-match winners.
+    pub alt_lottery_4_number_rate: f64,
+    /// `AltLottery3NumberRate` (dist 0.2): share paid to 3-match winners.
+    pub alt_lottery_3_number_rate: f64,
+    /// `AltLottery2and1NumberPrize` (dist 200): flat adena for a 2-or-1 match.
+    pub alt_lottery_2and1_number_prize: i64,
+
+    /// `AllowRace`: whether the Monster Race Track runs (G26.5). Dist ships
+    /// `False`; the race engine exists regardless so an operator can enable it.
+    pub allow_race: bool,
 }
 
 impl GeneralConfig {
@@ -124,6 +146,14 @@ impl GeneralConfig {
             alt_manor_maintenance_min: p.get_int("AltManorMaintenanceMin", 6),
             alt_manor_approve_time: p.get_int("AltManorApproveTime", 4),
             alt_manor_approve_min: p.get_int("AltManorApproveMin", 30),
+            allow_lottery: p.get_bool("AllowLottery", d.allow_lottery),
+            alt_lottery_prize: p.get_int("AltLotteryPrize", 50000) as i64,
+            alt_lottery_ticket_price: p.get_int("AltLotteryTicketPrice", 2000) as i64,
+            alt_lottery_5_number_rate: p.get_float("AltLottery5NumberRate", 0.6) as f64,
+            alt_lottery_4_number_rate: p.get_float("AltLottery4NumberRate", 0.2) as f64,
+            alt_lottery_3_number_rate: p.get_float("AltLottery3NumberRate", 0.2) as f64,
+            alt_lottery_2and1_number_prize: p.get_int("AltLottery2and1NumberPrize", 200) as i64,
+            allow_race: p.get_bool("AllowRace", d.allow_race),
         }
     }
 }
@@ -156,6 +186,23 @@ mod tests {
         assert_eq!(g.alt_manor_maintenance_min, 6, "AltManorMaintenanceMin=6");
         assert_eq!(g.alt_manor_approve_time, 4, "AltManorApproveTime=4");
         assert_eq!(g.alt_manor_approve_min, 30, "AltManorApproveMin=30");
+        // Lottery (G26.5): disabled on the dist, but the economics keys load.
+        assert!(!g.allow_lottery, "AllowLottery=False on this dist");
+        assert_eq!(g.alt_lottery_prize, 50000, "AltLotteryPrize=50000");
+        assert_eq!(
+            g.alt_lottery_ticket_price, 2000,
+            "AltLotteryTicketPrice=2000"
+        );
+        // Parsed via get_float (f32) → f64, so compare with tolerance.
+        assert!(
+            (g.alt_lottery_5_number_rate - 0.6).abs() < 1e-6,
+            "AltLottery5NumberRate=0.6"
+        );
+        assert_eq!(
+            g.alt_lottery_2and1_number_prize, 200,
+            "AltLottery2and1NumberPrize=200"
+        );
+        assert!(!g.allow_race, "AllowRace=False on this dist");
     }
 
     /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,

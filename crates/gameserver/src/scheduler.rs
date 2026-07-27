@@ -369,6 +369,16 @@ pub enum ScheduledTask {
     /// TvT's teleport-out (`startQuestTimer("TeleportOut", 7000)`, G28): unfreeze
     /// participants and tear the arena down.
     TvtTeleportOut,
+    /// Open a new Lucky Lottery round (Java `Lottery.startLottery`, G26.5): begin
+    /// selling + arm the stop-selling and draw timers. Singleton, so no key.
+    LotteryStart,
+    /// Suspend ticket sales 10 min before the draw (Java `stopSellingTickets`).
+    LotteryStopSelling,
+    /// Draw the round and roll over to the next (Java `finishLottery`).
+    LotteryFinish,
+    /// The Monster Race's 1-second cycle beat (Java `MonsterRace.Announcement`
+    /// at fixed 1 s rate, G26.5): advance the countdown timeline. Re-arms itself.
+    MonsterRaceTick,
 }
 
 struct Entry {

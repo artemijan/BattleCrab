@@ -46,8 +46,10 @@ mod henna;
 pub(crate) mod instances;
 mod items;
 mod lobby;
+pub(crate) mod lottery;
 pub(crate) mod manor;
 pub(crate) mod minions;
+pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
 pub(crate) mod npc_ai;
@@ -218,6 +220,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
     // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
+    // The Monster Race (like the Lottery) starts from its DB-load event
+    // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
+    // race number from the loaded history before beginning the cycle.
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 
@@ -667,6 +672,10 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtTeleportOut => {
                 events::tvt::teleport_out(world);
             }
+            ScheduledTask::LotteryStart => lottery::open_round(world),
+            ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
+            ScheduledTask::LotteryFinish => lottery::finish_begin(world),
+            ScheduledTask::MonsterRaceTick => monster_race::tick(world),
         }
     }
 }

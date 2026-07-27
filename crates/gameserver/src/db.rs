@@ -771,6 +771,51 @@ pub enum DbCommand {
     DeletePremium {
         account_name: String,
     },
+    /// Insert a fresh Lucky Lottery round (Java `Lottery.INSERT_LOTTERY`, G26.5).
+    /// `newprize` starts equal to `prize`.
+    StoreLottery {
+        idnr: i32,
+        enddate: i64,
+        prize: i64,
+    },
+    /// Mark a lottery round drawn (Java `Lottery.UPDATE_LOTTERY`): winning
+    /// numbers + per-tier prizes + the pot carried to the next round.
+    FinishLottery {
+        idnr: i32,
+        prize: i64,
+        newprize: i64,
+        number1: i32,
+        number2: i32,
+        prize1: i64,
+        prize2: i64,
+        prize3: i64,
+    },
+    /// Grow the current round's pot after a ticket sale (Java
+    /// `Lottery.UPDATE_PRICE`).
+    IncreaseLotteryPrize {
+        idnr: i32,
+        prize: i64,
+    },
+    /// Query the sold tickets of a round for the draw (Java
+    /// `Lottery.SELECT_LOTTERY_ITEM`): the persisted item 4442 rows. Replies with
+    /// [`DbEvent::LotteryTicketsLoaded`].
+    LoadLotteryTickets {
+        round: i32,
+    },
+    /// Upsert a finished Monster Race result (Java `MonsterRace.saveHistory`).
+    SaveMdtHistory {
+        race_id: i32,
+        first: i32,
+        second: i32,
+        odd_rate: f64,
+    },
+    /// Upsert a lane's pooled bet (Java `MonsterRace.saveBet`).
+    SaveMdtBet {
+        lane: i32,
+        bet: i64,
+    },
+    /// Zero every lane's bet after a race (Java `MonsterRace.clearBets`).
+    ClearMdtBets,
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
@@ -850,6 +895,27 @@ pub enum DbEvent {
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
+    /// The most recent `lottery` row (Java `Lottery.SELECT_LAST_LOTTERY`) for the
+    /// lifecycle, plus every finished round's draw result (round id →
+    /// [`DrawnRound`](crate::model::lottery::DrawnRound)) for offline prize
+    /// claim. Pushed unprompted at boot; `row` is `None` on a first-ever boot.
+    LotteryLoaded {
+        row: Option<crate::model::lottery::LotteryRow>,
+        draws: Vec<(i32, crate::model::lottery::DrawnRound)>,
+    },
+    /// The persisted (offline) sold tickets of `round` for a draw — the reply to
+    /// [`DbCommand::LoadLotteryTickets`]. `(object_id, enchant, custom_type2)`
+    /// per ticket item 4442; the draw dedupes these against online inventories.
+    LotteryTicketsLoaded {
+        round: i32,
+        rows: Vec<(i32, i32, i32)>,
+    },
+    /// The Monster Race history + current lane bets (Java `MonsterRace
+    /// .loadHistory`/`loadBets`), pushed unprompted at boot.
+    MdtLoaded {
+        history: Vec<crate::model::monster_race::HistoryInfo>,
+        bets: Vec<(i32, i64)>,
+    },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
     /// the available-buff table are filtered on the game thread.
@@ -1114,6 +1180,20 @@ async fn run(
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::BufferSchemesLoaded {
         entries: load_buffer_schemes(&pool).await,
+    });
+
+    // Last lottery round (Java `Lottery.startLottery`'s restore) + the drawn
+    // rounds cache — likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::LotteryLoaded {
+        row: load_lottery(&pool).await,
+        draws: load_lottery_draws(&pool).await,
+    });
+
+    // Monster Race history + lane bets (Java `MonsterRace` constructor) —
+    // likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::MdtLoaded {
+        history: load_mdt_history(&pool).await,
+        bets: load_mdt_bets(&pool).await,
     });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
@@ -2194,6 +2274,104 @@ async fn run(
                 )
                 .await;
             }
+            DbCommand::StoreLottery {
+                idnr,
+                enddate,
+                prize,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO lottery(id, idnr, enddate, prize, newprize) VALUES (1, ?, ?, ?, ?)")
+                        .bind(idnr)
+                        .bind(enddate)
+                        .bind(prize)
+                        .bind(prize),
+                )
+                .await;
+            }
+            DbCommand::FinishLottery {
+                idnr,
+                prize,
+                newprize,
+                number1,
+                number2,
+                prize1,
+                prize2,
+                prize3,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE lottery SET finished=1, prize=?, newprize=?, number1=?, number2=?, prize1=?, prize2=?, prize3=? WHERE id=1 AND idnr=?")
+                        .bind(prize)
+                        .bind(newprize)
+                        .bind(number1)
+                        .bind(number2)
+                        .bind(prize1)
+                        .bind(prize2)
+                        .bind(prize3)
+                        .bind(idnr),
+                )
+                .await;
+            }
+            DbCommand::IncreaseLotteryPrize { idnr, prize } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE lottery SET prize=?, newprize=? WHERE id=1 AND idnr=?")
+                        .bind(prize)
+                        .bind(prize)
+                        .bind(idnr),
+                )
+                .await;
+            }
+            DbCommand::LoadLotteryTickets { round } => {
+                let rows = sqlx::query(
+                    "SELECT object_id, enchant_level, custom_type2 FROM items WHERE item_id = 4442 AND custom_type1 = ?",
+                )
+                .bind(round)
+                .fetch_all(&pool)
+                .await
+                .map(|rs| {
+                    rs.iter()
+                        .map(|r| {
+                            (
+                                geti(r, "object_id") as i32,
+                                geti(r, "enchant_level") as i32,
+                                geti(r, "custom_type2") as i32,
+                            )
+                        })
+                        .collect()
+                })
+                .unwrap_or_default();
+                let _ = event_tx.send(DbEvent::LotteryTicketsLoaded { round, rows });
+            }
+            DbCommand::SaveMdtHistory {
+                race_id,
+                first,
+                second,
+                odd_rate,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO mdt_history(race_id, first, second, odd_rate) VALUES (?, ?, ?, ?)")
+                        .bind(race_id)
+                        .bind(first)
+                        .bind(second)
+                        .bind(odd_rate),
+                )
+                .await;
+            }
+            DbCommand::SaveMdtBet { lane, bet } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO mdt_bets(lane_id, bet) VALUES (?, ?)")
+                        .bind(lane)
+                        .bind(bet),
+                )
+                .await;
+            }
+            DbCommand::ClearMdtBets => {
+                exec(&pool, sqlx::query("UPDATE mdt_bets SET bet = 0")).await;
+            }
             DbCommand::StoreBufferScheme {
                 object_id,
                 scheme_name,
@@ -2313,6 +2491,84 @@ async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
             .collect(),
         Err(_) => Vec::new(),
     }
+}
+
+/// The most recent lottery round (Java `Lottery.SELECT_LAST_LOTTERY`). `None`
+/// when the table is empty or unavailable.
+async fn load_lottery(pool: &SqlitePool) -> Option<crate::model::lottery::LotteryRow> {
+    let row = sqlx::query(
+        "SELECT idnr, prize, newprize, enddate, finished FROM lottery WHERE id = 1 ORDER BY idnr DESC LIMIT 1",
+    )
+    .fetch_optional(pool)
+    .await
+    .ok()
+    .flatten()?;
+    Some(crate::model::lottery::LotteryRow {
+        idnr: geti(&row, "idnr") as i32,
+        prize: geti(&row, "prize"),
+        newprize: geti(&row, "newprize"),
+        enddate: geti(&row, "enddate"),
+        finished: geti(&row, "finished") == 1,
+    })
+}
+
+/// Every finished lottery round's draw result (Java re-queries per
+/// `checkTicket`; loaded once at boot into the game-thread cache).
+async fn load_lottery_draws(pool: &SqlitePool) -> Vec<(i32, crate::model::lottery::DrawnRound)> {
+    sqlx::query(
+        "SELECT idnr, number1, number2, prize1, prize2, prize3 FROM lottery WHERE id = 1 AND finished = 1",
+    )
+    .fetch_all(pool)
+    .await
+    .map(|rs| {
+        rs.iter()
+            .map(|r| {
+                (
+                    geti(r, "idnr") as i32,
+                    crate::model::lottery::DrawnRound {
+                        number1: geti(r, "number1") as i32,
+                        number2: geti(r, "number2") as i32,
+                        prize1: geti(r, "prize1"),
+                        prize2: geti(r, "prize2"),
+                        prize3: geti(r, "prize3"),
+                    },
+                )
+            })
+            .collect()
+    })
+    .unwrap_or_default()
+}
+
+/// Every Monster Race history record, oldest first (Java `MonsterRace
+/// .loadHistory` — also fixes the current race number by the row count).
+async fn load_mdt_history(pool: &SqlitePool) -> Vec<crate::model::monster_race::HistoryInfo> {
+    sqlx::query("SELECT race_id, first, second, odd_rate FROM mdt_history ORDER BY race_id ASC")
+        .fetch_all(pool)
+        .await
+        .map(|rs| {
+            rs.iter()
+                .map(|r| crate::model::monster_race::HistoryInfo {
+                    race_id: geti(r, "race_id") as i32,
+                    first: geti(r, "first") as i32,
+                    second: geti(r, "second") as i32,
+                    odd_rate: getf(r, "odd_rate"),
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// The current lane bets (Java `MonsterRace.loadBets`): `(lane_id, bet)`.
+async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
+    sqlx::query("SELECT lane_id, bet FROM mdt_bets")
+        .fetch_all(pool)
+        .await
+        .map(|rs| {
+            rs.iter()
+                .map(|r| (geti(r, "lane_id") as i32, geti(r, "bet")))
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 /// One `npc_respawns` row — a raid boss's persisted state.
