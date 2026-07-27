@@ -254,8 +254,9 @@ pub(crate) fn handle_character_delete(world: &mut World, client_id: u32, body: &
         s.send(server_packets::char_delete_fail(1)); // UNKNOWN
         return;
     };
-    let (char_id, account) = (chr.object_id, s.account().to_string());
+    let (char_id, account, char_name) = (chr.object_id, s.account().to_string(), chr.name.clone());
     s.send(server_packets::char_delete_success());
+    super::mail::on_character_deleted(world, &char_name);
     if world.delete_days == 0 {
         let _ = world.db.send(db::DbCommand::DeleteCharacter { char_id });
         let _ = world
@@ -671,6 +672,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::olympiad::on_enter_world(world, object_id);
     // Re-apply / lift jail (Java `JailHandler.onPlayerLogin`, G31).
     super::punishment::on_enter_world(world, client_id, object_id);
+    // Unread-mail badge + the "you have mail" notice (G30).
+    super::mail::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

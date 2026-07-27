@@ -773,6 +773,32 @@ pub enum DbCommand {
     },
     /// Insert a fresh Lucky Lottery round (Java `Lottery.INSERT_LOTTERY`, G26.5).
     /// `newprize` starts equal to `prize`.
+    /// Persist a whole mail message (Java `Message.getStatement` INSERT) —
+    /// G30. Attachments are separate `items` rows, written by `StoreMailItems`.
+    StoreMail {
+        message: crate::db::MailRow,
+    },
+    /// Flip one of the message's boolean columns (Java's four one-column
+    /// UPDATEs on `messages`), or delete the row when `delete` is set.
+    UpdateMailFlags {
+        message_id: i32,
+        unread: bool,
+        has_attachments: bool,
+        deleted_by_sender: bool,
+        deleted_by_receiver: bool,
+    },
+    /// Java `MailManager.deleteMessageInDb` — drop the row *and* any attachment
+    /// item rows still parked on it.
+    DeleteMail {
+        message_id: i32,
+    },
+    /// Replace the `loc = 'MAIL'` item rows of one message (delete-then-insert,
+    /// the house style for a whole container).
+    StoreMailItems {
+        message_id: i32,
+        owner_id: i32,
+        items: Vec<crate::character::ItemRow>,
+    },
     StoreLottery {
         idnr: i32,
         enddate: i64,
@@ -999,6 +1025,14 @@ pub enum DbEvent {
         next_auction_id: i32,
         auctions: Vec<crate::model::item_auction::ItemAuction>,
     },
+    /// Every mail message + its attachments, and the offline character
+    /// name -> id table mail needs to address them (Java `MailManager.load`
+    /// + `CharInfoTable`, G30). Pushed unprompted at boot.
+    MailLoaded {
+        messages: Vec<crate::model::mail::Message>,
+        attachments: Vec<(i32, Vec<crate::character::ItemRow>)>,
+        char_ids_by_name: Vec<(String, i32)>,
+    },
     /// The active punishments (Java `PunishmentManager.load`, G31), pushed
     /// unprompted at boot. Already-expired rows are filtered out here; `next_id`
     /// seeds the game-thread id allocator past the highest loaded id.
@@ -1072,6 +1106,25 @@ pub enum DbEvent {
         production: Vec<ManorProductionRow>,
         procure: Vec<ManorProcureRow>,
     },
+}
+
+/// The `messages` columns, flattened for binding. Booleans go to the DB as the
+/// strings `'true'`/`'false'` exactly like Java (the column is an enum there).
+#[derive(Debug, Clone)]
+pub struct MailRow {
+    pub message_id: i32,
+    pub sender_id: i32,
+    pub receiver_id: i32,
+    pub subject: String,
+    pub content: String,
+    pub expiration: i64,
+    pub req_adena: i64,
+    pub has_attachments: bool,
+    pub unread: bool,
+    pub deleted_by_sender: bool,
+    pub deleted_by_receiver: bool,
+    pub send_by_system: i32,
+    pub returned: bool,
 }
 
 /// One `castle_manor_production` row — a seed the manor sells.
@@ -1298,6 +1351,15 @@ async fn run(
     let _ = event_tx.send(DbEvent::ItemAuctionsLoaded {
         next_auction_id,
         auctions,
+    });
+
+    // Mail + attachments + the offline name->id table (Java `MailManager.load`
+    // and `CharInfoTable`, G30) — likewise unprompted, before `ClansLoaded`.
+    let (messages, attachments) = load_mail(&pool).await;
+    let _ = event_tx.send(DbEvent::MailLoaded {
+        messages,
+        attachments,
+        char_ids_by_name: load_char_ids_by_name(&pool).await,
     });
 
     // Active punishments (Java `PunishmentManager.load`, G31) — likewise
@@ -2387,6 +2449,102 @@ async fn run(
                 )
                 .await;
             }
+            DbCommand::StoreMail { message } => {
+                let b = |v: bool| if v { "true" } else { "false" };
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "INSERT OR REPLACE INTO messages \
+                         (messageId, senderId, receiverId, subject, content, expiration, \
+                          reqAdena, hasAttachments, isUnread, isDeletedBySender, \
+                          isDeletedByReceiver, sendBySystem, isReturned) \
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    )
+                    .bind(message.message_id)
+                    .bind(message.sender_id)
+                    .bind(message.receiver_id)
+                    .bind(&message.subject)
+                    .bind(&message.content)
+                    .bind(message.expiration)
+                    .bind(message.req_adena)
+                    .bind(b(message.has_attachments))
+                    .bind(b(message.unread))
+                    .bind(b(message.deleted_by_sender))
+                    .bind(b(message.deleted_by_receiver))
+                    .bind(message.send_by_system)
+                    .bind(b(message.returned)),
+                )
+                .await;
+            }
+            DbCommand::UpdateMailFlags {
+                message_id,
+                unread,
+                has_attachments,
+                deleted_by_sender,
+                deleted_by_receiver,
+            } => {
+                let b = |v: bool| if v { "true" } else { "false" };
+                exec(
+                    &pool,
+                    sqlx::query(
+                        "UPDATE messages SET isUnread = ?, hasAttachments = ?, \
+                         isDeletedBySender = ?, isDeletedByReceiver = ? WHERE messageId = ?",
+                    )
+                    .bind(b(unread))
+                    .bind(b(has_attachments))
+                    .bind(b(deleted_by_sender))
+                    .bind(b(deleted_by_receiver))
+                    .bind(message_id),
+                )
+                .await;
+            }
+            DbCommand::DeleteMail { message_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM messages WHERE messageId = ?").bind(message_id),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM items WHERE loc = 'MAIL' AND loc_data = ?")
+                        .bind(message_id),
+                )
+                .await;
+            }
+            DbCommand::StoreMailItems {
+                message_id,
+                owner_id,
+                items,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM items WHERE loc = 'MAIL' AND loc_data = ?")
+                        .bind(message_id),
+                )
+                .await;
+                for it in &items {
+                    exec(
+                        &pool,
+                        sqlx::query(
+                            "INSERT INTO items \
+                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+                              custom_type1, custom_type2, mana_left, time) \
+                             VALUES (?, ?, ?, ?, ?, 'MAIL', ?, ?, ?, ?, ?)",
+                        )
+                        .bind(owner_id)
+                        .bind(it.object_id)
+                        .bind(it.item_id)
+                        .bind(it.count)
+                        .bind(it.enchant_level)
+                        .bind(message_id)
+                        .bind(it.custom_type1)
+                        .bind(it.custom_type2)
+                        .bind(it.mana_left)
+                        .bind(it.time),
+                    )
+                    .await;
+                }
+            }
             DbCommand::StoreLottery {
                 idnr,
                 enddate,
@@ -2862,6 +3020,96 @@ async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
 /// Every persisted item auction + its bids, plus the next auction id (Java
 /// `ItemAuctionManager` boot load: `MAX(auctionId)+1` and each instance's
 /// `loadAuction`). Empty on this dist.
+/// Java `MailManager.load` + the `loc = 'MAIL'` item rows, in one pass.
+/// Tolerates the tables being absent (a minimal test schema has neither).
+async fn load_mail(
+    pool: &SqlitePool,
+) -> (
+    Vec<crate::model::mail::Message>,
+    Vec<(i32, Vec<crate::character::ItemRow>)>,
+) {
+    use crate::model::mail::{MailType, Message};
+
+    let truthy = |v: String| v.eq_ignore_ascii_case("true") || v == "1";
+    let rows = sqlx::query(
+        "SELECT messageId, senderId, receiverId, subject, content, expiration, reqAdena, \
+         hasAttachments, isUnread, isDeletedBySender, isDeletedByReceiver, sendBySystem, \
+         isReturned FROM messages ORDER BY expiration",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+
+    let mut messages = Vec::with_capacity(rows.len());
+    for r in &rows {
+        messages.push(Message {
+            id: geti(r, "messageId") as i32,
+            sender_id: geti(r, "senderId") as i32,
+            receiver_id: geti(r, "receiverId") as i32,
+            subject: gets(r, "subject"),
+            content: gets(r, "content"),
+            expiration: geti(r, "expiration"),
+            req_adena: geti(r, "reqAdena"),
+            has_attachments: truthy(gets(r, "hasAttachments")),
+            unread: truthy(gets(r, "isUnread")),
+            deleted_by_sender: truthy(gets(r, "isDeletedBySender")),
+            deleted_by_receiver: truthy(gets(r, "isDeletedByReceiver")),
+            mail_type: MailType::from_id(geti(r, "sendBySystem") as i32),
+            returned: truthy(gets(r, "isReturned")),
+        });
+    }
+
+    let item_rows = sqlx::query(
+        "SELECT object_id, item_id, count, enchant_level, loc_data, custom_type1, \
+         custom_type2, mana_left, time FROM items WHERE loc = 'MAIL'",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    let mut by_message: std::collections::HashMap<i32, Vec<crate::character::ItemRow>> =
+        std::collections::HashMap::new();
+    for r in &item_rows {
+        let message_id = geti(r, "loc_data") as i32;
+        by_message
+            .entry(message_id)
+            .or_default()
+            .push(crate::character::ItemRow {
+                object_id: geti(r, "object_id") as i32,
+                item_id: geti(r, "item_id") as i32,
+                count: geti(r, "count"),
+                enchant_level: geti(r, "enchant_level") as i32,
+                loc: "MAIL".to_string(),
+                loc_data: message_id,
+                custom_type1: geti(r, "custom_type1") as i32,
+                custom_type2: geti(r, "custom_type2") as i32,
+                mana_left: geti(r, "mana_left") as i32,
+                time: geti(r, "time") as i32,
+                augment_mineral: 0,
+                augment_option1: 0,
+                augment_option2: 0,
+            });
+    }
+    (messages, by_message.into_iter().collect())
+}
+
+/// Java `CharInfoTable` — the offline character name -> id table. Mail is
+/// addressed by name to characters who need not be online; nothing else in the
+/// port needs this, so it is loaded once and maintained on creation/deletion.
+async fn load_char_ids_by_name(pool: &SqlitePool) -> Vec<(String, i32)> {
+    sqlx::query("SELECT charId, char_name FROM characters")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+        .iter()
+        .map(|r| {
+            (
+                gets(r, "char_name").to_lowercase(),
+                geti(r, "charId") as i32,
+            )
+        })
+        .collect()
+}
+
 async fn load_item_auctions(
     pool: &SqlitePool,
 ) -> (i32, Vec<crate::model::item_auction::ItemAuction>) {

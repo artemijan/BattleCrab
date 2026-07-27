@@ -601,6 +601,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         // Item auction (G30.5): bid on / request info about an auction.
+        exop::REQUEST_POST_ITEM_LIST => super::mail::handle_post_item_list(world, client_id),
+        exop::REQUEST_RECEIVED_POST_LIST => {
+            super::mail::handle_received_post_list(world, client_id)
+        }
+        exop::REQUEST_SENT_POST_LIST => super::mail::handle_sent_post_list(world, client_id),
         exop::REQUEST_OUST_FROM_PARTY_ROOM => {
             super::party_room::handle_oust_from_party_room(world, client_id, ex_body)
         }

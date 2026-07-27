@@ -77,6 +77,7 @@ mod items_tests;
 mod lobby_tests;
 mod lottery_tests;
 mod magic_resist_tests;
+mod mail_tests;
 mod mana_drain_tests;
 mod mana_restore_tests;
 mod manor_tests;
@@ -139,7 +140,12 @@ fn test_world() -> (
 ) {
     let (link_tx, link_rx) = tokio::sync::mpsc::unbounded_channel();
     let (db_tx, db_rx) = tokio::sync::mpsc::unbounded_channel();
-    let world = World::new(link_tx, 7, 3, 0, GameData::for_test(), db_tx.clone());
+    let mut world = World::new(link_tx, 7, 3, 0, GameData::for_test(), db_tx.clone());
+    // `GeneralConfig` derives `Default`, so every bool starts false; these two
+    // are `True` on the dist *and* default true in Java, so a test world that
+    // left them off would silently exercise the disabled path (G30).
+    world.cfg.general.allow_mail = true;
+    world.cfg.general.allow_attachments = true;
     (world, db_tx, db_rx, link_rx)
 }
 

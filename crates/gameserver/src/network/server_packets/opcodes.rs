@@ -155,6 +155,17 @@ pub const PARTY_ROOM_INFO: u8 = 0x9D;
 
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
+/// Mail / post (G30). `EX_REPLY_WRITE_POST` is what Java's `ExNoticePostSent`
+/// writes — the id name is Java's, the packet is the sent-confirmation.
+pub const EX_NOTICE_POST_ARRIVED: i16 = 0xAA;
+pub const EX_SHOW_RECEIVED_POST_LIST: i16 = 0xAB;
+pub const EX_SHOW_RECEIVED_POST: i16 = 0xAC;
+pub const EX_SHOW_SENT_POST_LIST: i16 = 0xAD;
+pub const EX_SHOW_SENT_POST: i16 = 0xAE;
+pub const EX_REPLY_POST_ITEM_LIST: i16 = 0xB3;
+pub const EX_CHANGE_POST_STATE: i16 = 0xB4;
+pub const EX_REPLY_WRITE_POST: i16 = 0xB5;
+pub const EX_UN_READ_MAIL_COUNT: i16 = 0x13C;
 /// `ExPartyRoomMember` — the matching room's member list (G30).
 pub const EX_PARTY_ROOM_MEMBER: i16 = 0x08;
 /// `ExClosePartyRoom` — close the matching-room window (G30).

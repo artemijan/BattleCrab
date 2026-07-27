@@ -80,6 +80,14 @@ pub struct GeneralConfig {
     /// `AltManorApproveMin` (minute, dist 30).
     pub alt_manor_approve_min: i32,
 
+    /// `AllowMail`: whether the mail/post system is available (G30). Dist and
+    /// Java default both `True`.
+    pub allow_mail: bool,
+    /// `AllowAttachments`: whether mail may carry items and COD (G30). Java
+    /// still delivers the *message* when this is off — it just strips the
+    /// attachments and the payment request.
+    pub allow_attachments: bool,
+
     /// `AllowLottery`: whether the weekly Lucky Lottery runs (G26.5). Dist ships
     /// `False`; the round engine + persistence exist regardless so it works the
     /// moment an operator enables it.
@@ -158,6 +166,8 @@ impl GeneralConfig {
             alt_manor_maintenance_min: p.get_int("AltManorMaintenanceMin", 6),
             alt_manor_approve_time: p.get_int("AltManorApproveTime", 4),
             alt_manor_approve_min: p.get_int("AltManorApproveMin", 30),
+            allow_mail: p.get_bool("AllowMail", true),
+            allow_attachments: p.get_bool("AllowAttachments", true),
             allow_lottery: p.get_bool("AllowLottery", d.allow_lottery),
             alt_lottery_prize: p.get_int("AltLotteryPrize", 50000) as i64,
             alt_lottery_ticket_price: p.get_int("AltLotteryTicketPrice", 2000) as i64,

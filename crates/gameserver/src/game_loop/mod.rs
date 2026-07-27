@@ -50,6 +50,7 @@ pub(crate) mod item_auction;
 mod items;
 mod lobby;
 pub(crate) mod lottery;
+pub(crate) mod mail;
 pub(crate) mod manor;
 pub(crate) mod minions;
 pub(crate) mod monster_race;

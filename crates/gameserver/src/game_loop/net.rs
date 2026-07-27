@@ -728,6 +728,13 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             DbEvent::MdtLoaded { history, bets } => {
                 super::monster_race::on_mdt_loaded(world, history, bets);
             }
+            DbEvent::MailLoaded {
+                messages,
+                attachments,
+                char_ids_by_name,
+            } => {
+                super::mail::on_loaded(world, messages, attachments, char_ids_by_name);
+            }
             DbEvent::ItemAuctionsLoaded {
                 next_auction_id,
                 auctions,
@@ -1101,6 +1108,13 @@ pub(crate) fn on_characters_loaded(
     chars: Vec<crate::character::CharData>,
     send_list: bool,
 ) {
+    // Top up the `CharInfoTable` equivalent (G30). This is also the create
+    // path: the client reloads its character list right after a successful
+    // creation, so a brand-new character becomes mailable here without the
+    // create command having to round-trip its freshly assigned id back.
+    for c in &chars {
+        super::mail::on_character_created(world, &c.name, c.object_id);
+    }
     let s = match world.clients.remove(&client_id) {
         Some(ClientSession::Authenticated(s)) => s.into_lobby(chars),
         Some(ClientSession::InLobby(mut s)) => {

@@ -279,6 +279,16 @@ pub struct World {
     /// party half of Java `MatchingRoomManager`.
     pub matching_rooms: crate::model::matching_room::MatchingRoomManager,
 
+    /// Every mail message in the world + their attachment containers (G30) —
+    /// Java `MailManager`. Both parties to a message can be offline, so this
+    /// is world state with write-through persistence, not a player component.
+    pub mail: crate::model::mail::MailManager,
+
+    /// Offline character name -> object id, loaded once at boot (Java
+    /// `CharInfoTable`). Mail is addressed by name to characters who need not
+    /// be online, which is the only reason this exists. Keys are lowercased.
+    pub char_ids_by_name: std::collections::HashMap<String, i32>,
+
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
@@ -428,6 +438,8 @@ impl World {
             lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
+            mail: crate::model::mail::MailManager::default(),
+            char_ids_by_name: std::collections::HashMap::new(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             punishments: crate::model::punishment::PunishmentManager::default(),
             petitions: crate::model::petition::PetitionManager::default(),

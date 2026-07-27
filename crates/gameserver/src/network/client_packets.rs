@@ -210,6 +210,19 @@ pub mod ex_opcodes {
     pub const REQUEST_EX_OLYMPIAD_MATCH_LIST_REFRESH: u16 = 0x85;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
+    /// Mail / post (G30) — `RequestPostItemList` through
+    /// `RequestCancelPostAttachment`, Java's ex 0x62..0x6C block.
+    pub const REQUEST_POST_ITEM_LIST: u16 = 0x62;
+    pub const REQUEST_SEND_POST: u16 = 0x63;
+    pub const REQUEST_RECEIVED_POST_LIST: u16 = 0x64;
+    pub const REQUEST_DELETE_RECEIVED_POST: u16 = 0x65;
+    pub const REQUEST_RECEIVED_POST: u16 = 0x66;
+    pub const REQUEST_POST_ATTACHMENT: u16 = 0x67;
+    pub const REQUEST_REJECT_POST_ATTACHMENT: u16 = 0x68;
+    pub const REQUEST_SENT_POST_LIST: u16 = 0x69;
+    pub const REQUEST_DELETE_SENT_POST: u16 = 0x6A;
+    pub const REQUEST_SENT_POST: u16 = 0x6B;
+    pub const REQUEST_CANCEL_POST_ATTACHMENT: u16 = 0x6C;
     /// `RequestOustFromPartyRoom` (G30) — the room leader kicks a member.
     pub const REQUEST_OUST_FROM_PARTY_ROOM: u16 = 0x09;
     /// `RequestDismissPartyRoom` (G30) — the room leader disbands the room.
