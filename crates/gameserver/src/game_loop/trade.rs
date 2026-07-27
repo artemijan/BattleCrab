@@ -54,6 +54,24 @@ pub(crate) fn handle_request(world: &mut World, client_id: u32, body: &[u8]) {
         }
         return;
     }
+    // `//tradeoff`: the partner refuses all trades (Java `getTradeRefusal`).
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&target)
+        .is_some_and(|p| p.trade_refusal)
+    {
+        send(
+            world,
+            from,
+            sp::system_message_with(
+                sp::sm_ids::S1_TEXT,
+                &[sp::SmParam::Text(
+                    "That person is in trade refusal mode.".to_string(),
+                )],
+            ),
+        );
+        return;
+    }
     world.objects.add_components(&target, PendingTrade { from });
     send(world, target, sp::send_trade_request(from));
 }

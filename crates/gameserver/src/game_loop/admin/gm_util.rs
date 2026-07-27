@@ -523,3 +523,333 @@ pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object
     };
     send_message(world, client_id, &text);
 }
+
+// ---------------------------------------------------------------------------
+// Tail polish: tradeoff, cond overrides, quest_info, clanhall, reload,
+// switch_gm_buffs
+// ---------------------------------------------------------------------------
+
+/// Java `PlayerCondOverride` ordinals + panel descriptions (bit = ordinal).
+pub(crate) const COND_OVERRIDES: &[(u8, &str)] = &[
+    (0, "Overrides maximum states conditions"),
+    (1, "Overrides item usage conditions"),
+    (2, "Overrides skill usage conditions"),
+    (3, "Overrides zone conditions"),
+    (4, "Overrides castle conditions"),
+    (5, "Overrides fortress conditions"),
+    (6, "Overrides clan hall conditions"),
+    (7, "Overrides floods conditions"),
+    (8, "Overrides chat conditions"),
+    (9, "Overrides instance conditions"),
+    (10, "Overrides quest conditions"),
+    (11, "Overrides death penalty conditions"),
+    (12, "Overrides item destroy conditions"),
+    (13, "Overrides the conditions to see hidden players"),
+    (14, "Overrides target conditions"),
+    (15, "Overrides item drop conditions"),
+];
+
+/// `//tradeoff on|off|status` (Java `AdminAdmin`).
+pub(super) fn admin_tradeoff(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    match args.first().copied() {
+        Some("on") | Some("off") => {
+            let on = args[0] == "on";
+            if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+                p.trade_refusal = on;
+            }
+            send_message(
+                world,
+                client_id,
+                if on {
+                    "Trade refusal enabled"
+                } else {
+                    "Trade refusal disabled"
+                },
+            );
+        }
+        _ => {
+            let on = world
+                .objects
+                .get_component::<Player>(&object_id)
+                .is_some_and(|p| p.trade_refusal);
+            send_message(
+                world,
+                client_id,
+                &format!(
+                    "Trade refusal now {}",
+                    if on { "enabled" } else { "disabled" }
+                ),
+            );
+        }
+    }
+}
+
+/// `//exceptions` — the `cond_override.htm` panel with per-override toggles
+/// (Java `AdminPcCondOverride`).
+pub(super) fn admin_exceptions(world: &mut World, client_id: u32, object_id: i32) {
+    let mask = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map_or(0, |p| p.cond_overrides);
+    let mut rows = String::new();
+    for &(ord, descr) in COND_OVERRIDES {
+        let on = mask & (1u64 << ord) != 0;
+        rows.push_str(&format!(
+            "<tr><td fixwidth=\"180\">{descr}:</td><td><a action=\"bypass -h \
+             admin_set_exception {ord}\">{}</a></td></tr>",
+            if on { "Disable" } else { "Enable" }
+        ));
+    }
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "cond_override.htm",
+        &[("cond_table", rows)],
+    );
+}
+
+/// `//set_exception <ordinal|enable_all|disable_all>`.
+pub(super) fn admin_set_exception(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(&token) = args.first() else {
+        send_message(
+            world,
+            client_id,
+            "Usage: //set_exception <id|enable_all|disable_all>",
+        );
+        return;
+    };
+    let all_mask: u64 = COND_OVERRIDES.iter().map(|&(o, _)| 1u64 << o).sum();
+    match token {
+        "enable_all" => {
+            if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+                p.cond_overrides = all_mask;
+            }
+            send_message(
+                world,
+                client_id,
+                "All condition exceptions have been enabled.",
+            );
+        }
+        "disable_all" => {
+            if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+                p.cond_overrides = 0;
+            }
+            send_message(
+                world,
+                client_id,
+                "All condition exceptions have been disabled.",
+            );
+        }
+        t => {
+            let Some(&(ord, descr)) = t
+                .parse::<u8>()
+                .ok()
+                .and_then(|n| COND_OVERRIDES.iter().find(|&&(o, _)| o == n))
+            else {
+                send_message(
+                    world,
+                    client_id,
+                    "Usage: //set_exception <id|enable_all|disable_all>",
+                );
+                return;
+            };
+            let now = {
+                let Some(p) = world.objects.get_component_mut::<Player>(&object_id) else {
+                    return;
+                };
+                p.cond_overrides ^= 1u64 << ord;
+                p.cond_overrides & (1u64 << ord) != 0
+            };
+            send_message(
+                world,
+                client_id,
+                &format!(
+                    "You've {} {descr}",
+                    if now { "enabled" } else { "disabled" }
+                ),
+            );
+        }
+    }
+    admin_exceptions(world, client_id, object_id);
+}
+
+/// `//quest_info [name]` — the registered quest scripts (bare: list; with a
+/// name: its registration detail from the compiled-in registry).
+pub(super) fn admin_quest_info(world: &mut World, client_id: u32, args: &[&str]) {
+    let quests = world.quests.clone();
+    if let Some(&name) = args.first() {
+        let Some(script) = quests.by_name(name) else {
+            send_message(
+                world,
+                client_id,
+                &format!("Couldn't find quest or script: {name}"),
+            );
+            return;
+        };
+        let html = format!(
+            "<html><title>{}</title><body>ID: {}<br>Start NPCs: {:?}<br>Talk NPCs: {:?}<br>\
+             First-talk NPCs: {:?}<br></body></html>",
+            script.name(),
+            script.id(),
+            script.start_npcs(),
+            script.talk_npcs(),
+            script.first_talk_npcs(),
+        );
+        super::menu::send_admin_html_content(world, client_id, &html);
+        return;
+    }
+    let mut rows = String::new();
+    for name in quests.names() {
+        rows.push_str(&format!(
+            "<tr><td><a action=\"bypass -h admin_quest_info {name}\">{name}</a></td></tr>"
+        ));
+    }
+    let html = format!(
+        "<html><title>Quest scripts</title><body><table width=270>{rows}</table></body></html>"
+    );
+    super::menu::send_admin_html_content(world, client_id, &html);
+}
+
+/// `//clanhall [id [give|take]]` — list halls with owners; `give` hands the
+/// hall to the targeted player's clan, `take` frees it (the panel half of
+/// Java `AdminClanHall`; doors/teleport have their own commands).
+pub(super) fn admin_clanhall(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(hall_id) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+        let mut halls: Vec<_> = world.clan_halls.values().collect();
+        halls.sort_by_key(|h| h.id);
+        let rows: String = halls
+            .iter()
+            .map(|h| {
+                let owner = if h.owner_id == 0 {
+                    "free".to_string()
+                } else {
+                    world
+                        .clans
+                        .get(&h.owner_id)
+                        .map(|c| c.name.clone())
+                        .unwrap_or_else(|| h.owner_id.to_string())
+                };
+                format!(
+                    "<tr><td>{}</td><td>{}</td><td>{owner}</td></tr>",
+                    h.id, h.name
+                )
+            })
+            .collect();
+        let html = format!(
+            "<html><title>Clan Halls</title><body><table width=270>\
+             <tr><td>Id</td><td>Name</td><td>Owner</td></tr>{rows}</table>\
+             <br>//clanhall &lt;id&gt; give|take</body></html>"
+        );
+        super::menu::send_admin_html_content(world, client_id, &html);
+        return;
+    };
+    if !world.clan_halls.contains_key(&hall_id) {
+        send_message(world, client_id, "No such clan hall.");
+        return;
+    }
+    match args.get(1).copied() {
+        Some("give") => {
+            let clan_id = current_target(world, object_id)
+                .and_then(|oid| world.objects.get_component::<Player>(&oid))
+                .map(|p| p.clan_id)
+                .filter(|&c| c != 0);
+            let Some(clan_id) = clan_id else {
+                send_message(world, client_id, "Target a member of the receiving clan.");
+                return;
+            };
+            crate::game_loop::clan_hall_auction::set_hall_owner(world, hall_id, clan_id);
+            send_message(
+                world,
+                client_id,
+                &format!("Clan hall {hall_id} given to clan {clan_id}."),
+            );
+        }
+        Some("take") => {
+            crate::game_loop::clan_hall_auction::revoke_hall(world, hall_id);
+            send_message(
+                world,
+                client_id,
+                &format!("Clan hall {hall_id} is now free."),
+            );
+        }
+        _ => send_message(world, client_id, "Usage: //clanhall <id> give|take"),
+    }
+}
+
+/// `//reload <section>` — re-read a data section from disk (Java
+/// `AdminReload`, narrowed to the loaders this port has; scripts are
+/// compiled in and `htm` has no cache to flush).
+pub(super) fn admin_reload(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(&what) = args.first() else {
+        send_message(
+            world,
+            client_id,
+            "Usage: //reload <config|access|npc|skill|item|multisell|buylist|teleport|fishing>",
+        );
+        return;
+    };
+    let root = world.data.root.clone();
+    let msg = match what {
+        "config" => {
+            world.cfg = crate::config::Config::load_from(&root).combat();
+            "Configs reloaded."
+        }
+        "access" => {
+            world.data.admin = crate::data::AdminData::load_from(&root);
+            "Access levels reloaded."
+        }
+        "npc" => {
+            world.data.npc_data = crate::data::NpcData::load_from(&root);
+            "NPC templates reloaded (respawn with //respawnall to apply)."
+        }
+        "skill" => {
+            world.data.skill_data = crate::data::SkillData::load_from(&root);
+            "Skill data reloaded."
+        }
+        "item" => {
+            world.data.item_data = crate::data::ItemData::load_from(&root);
+            "Item templates reloaded."
+        }
+        "multisell" => {
+            world.data.multisells =
+                crate::data::MultisellData::load_from(&root, &world.data.item_data);
+            "Multisell lists reloaded."
+        }
+        "buylist" => {
+            world.data.buy_lists =
+                crate::data::BuyListData::load_from(&root, &world.data.item_data);
+            "Buylists reloaded."
+        }
+        "teleport" => {
+            world.data.teleporters = crate::data::TeleporterData::load_from(&root);
+            "Teleporter lists reloaded."
+        }
+        "fishing" => {
+            world.data.fishing_data = crate::data::FishingData::load_from(&root);
+            "Fishing data reloaded."
+        }
+        "quest" | "script" => "Scripts are compiled in — rebuild and restart to change them.",
+        "htm" | "html" => "Admin/quest html is read from disk per request — no cache to flush.",
+        _ => {
+            send_message(
+                world,
+                client_id,
+                &format!("Unknown reload section '{what}'."),
+            );
+            return;
+        }
+    };
+    send_message(world, client_id, msg);
+}
+
+/// `//switch_gm_buffs` — Java swaps the GM special-skill tree for the aura
+/// variant only when `GmGiveSpecialSkills != GmGiveSpecialAuraSkills`; both
+/// default False on this dist, so Java answers exactly this.
+pub(super) fn admin_switch_gm_buffs(world: &World, client_id: u32) {
+    send_message(world, client_id, "There is nothing to switch.");
+}

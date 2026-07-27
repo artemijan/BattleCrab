@@ -393,6 +393,13 @@ pub struct Player {
     /// speed penalty in `recalculate_stats`.
     pub mount_level: i32,
 
+    /// `Player.getTradeRefusal()` — `//tradeoff`: refuse incoming trade
+    /// requests. Transient.
+    pub trade_refusal: bool,
+    /// `PlayerCondOverride` bitmask (`//exceptions`). Bit N = ordinal N of
+    /// Java's enum; `SEE_ALL_PLAYERS` (13) is consumed by the visibility
+    /// describe path. Transient (Java re-grants per access level on login).
+    pub cond_overrides: u64,
     /// `Player._transformation` id (0 = not transformed). Drives the transform
     /// speed/collision override in `recalculate_stats` and the untransform
     /// logic (`AdminRide` checks the id). Transient (admin `//transform`).
@@ -461,6 +468,11 @@ impl Player {
     /// `Player.isMounted()`.
     pub fn is_mounted(&self) -> bool {
         self.mount_type != 0
+    }
+
+    /// Java `canOverrideCond(PlayerCondOverride)` — bit = the enum ordinal.
+    pub fn can_override_cond(&self, ordinal: u8) -> bool {
+        self.cond_overrides & (1u64 << ordinal) != 0
     }
 
     /// `Creature.isFlying()` for a player. Java flips an explicit `_isFlying`
@@ -980,6 +992,8 @@ impl Player {
             mount_type: 0,
             mount_npc_id: 0,
             mount_level: 0,
+            trade_refusal: false,
+            cond_overrides: 0,
             transform_id: 0,
             transform_display_id: 0,
             store_type: 0,

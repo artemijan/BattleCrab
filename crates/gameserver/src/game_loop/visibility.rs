@@ -75,7 +75,20 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
         .get_component::<crate::model::components::AdminFlags>(&player_id)
         .is_some_and(|f| f.hidden)
     {
-        return;
+        // `isVisibleFor`: a hidden player is still described to observers
+        // holding the SEE_ALL_PLAYERS cond-override (`//exceptions`).
+        let sees_all = match observer {
+            ClientSession::InGame(s) => world
+                .objects
+                .get_component::<crate::model::Player>(&s.player_object_id())
+                .is_some_and(|p| {
+                    p.can_override_cond(crate::game_loop::admin::SEE_ALL_PLAYERS_ORDINAL)
+                }),
+            _ => false,
+        };
+        if !sees_all {
+            return;
+        }
     }
     let Some(v) = crate::model::PlayerView::of(&world.objects, player_id) else {
         return;

@@ -214,6 +214,13 @@ impl QuestRegistry {
         self.by_name.get(name).map(|&i| self.scripts[i].clone())
     }
 
+    /// Every registered script's name, sorted — the `//quest_info` listing.
+    pub fn names(&self) -> Vec<&'static str> {
+        let mut v: Vec<&'static str> = self.scripts.iter().map(|s| s.name()).collect();
+        v.sort_unstable();
+        v
+    }
+
     pub fn by_id(&self, quest_id: i32) -> Option<Arc<dyn QuestScript>> {
         self.scripts.iter().find(|s| s.id() == quest_id).cloned()
     }
