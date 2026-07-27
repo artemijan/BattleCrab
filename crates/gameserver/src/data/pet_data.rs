@@ -49,6 +49,15 @@ pub struct PetLevel {
     pub max_mp: f64,
     pub regen_hp: f64,
     pub regen_mp: f64,
+    /// `speed_on_ride` — the *rider's* speeds while mounted on this creature
+    /// (Java `PetLevelData.getSpeedOnRide`, substituted as the base value in
+    /// `SpeedFinalizer.getBaseSpeed`). The XML also carries `slowFly`/`fastFly`,
+    /// but nothing reads them: `CreatureStat.getMoveSpeed` has no flying branch
+    /// and the fly shorts in UserInfo/CharInfo echo the run/walk speeds.
+    pub ride_walk_spd: f64,
+    pub ride_run_spd: f64,
+    pub ride_slow_swim_spd: f64,
+    pub ride_fast_swim_spd: f64,
     /// `soulshot_count` / `spiritshot_count` — how many of the **owner's**
     /// Beast shots one of this pet's swings consumes (Java
     /// `Pet.getSoulShotsPerHit`). Grows with level, so a high-level pet is
@@ -106,6 +115,21 @@ impl PetTemplate {
     /// never delevels because the exp curve was retuned under it.
     pub fn exp_for_level(&self, level: i32) -> i64 {
         self.levels.get(&level).map(|l| l.exp).unwrap_or(0)
+    }
+
+    /// Java `PetDataTable.getPetLevelData(petId, petLevel)`: the exact row,
+    /// clamped down to the table's top row when `level` is past it (a level-80
+    /// lord on the wyvern's 111-row table). Below the table's floor Java
+    /// returns null and the caller keeps its own base — so `None` here.
+    pub fn level_row(&self, level: i32) -> Option<&PetLevel> {
+        self.levels.get(&level).or_else(|| {
+            let top = self.levels.keys().copied().max()?;
+            if level > top {
+                self.levels.get(&top)
+            } else {
+                None
+            }
+        })
     }
 }
 
@@ -214,10 +238,24 @@ fn parse_str(
                     b"set" => {
                         let mut key = String::new();
                         let mut val = String::new();
+                        // `speed_on_ride` is the one `<set>` whose payload is
+                        // extra attributes rather than `val` (Java parses
+                        // walk/run/slowSwim/fastSwim/slowFly/fastFly off it).
+                        let mut ride = [0.0f64; 4];
                         for a in e.attributes().flatten() {
                             match a.key.as_ref() {
                                 b"name" => key = String::from_utf8_lossy(&a.value).into_owned(),
                                 b"val" => val = String::from_utf8_lossy(&a.value).into_owned(),
+                                k @ (b"walk" | b"run" | b"slowSwim" | b"fastSwim") => {
+                                    let idx = match k {
+                                        b"walk" => 0,
+                                        b"run" => 1,
+                                        b"slowSwim" => 2,
+                                        _ => 3,
+                                    };
+                                    ride[idx] =
+                                        String::from_utf8_lossy(&a.value).parse().unwrap_or(0.0);
+                                }
                                 _ => {}
                             }
                         }
@@ -257,6 +295,12 @@ fn parse_str(
                                     row.consume_meal_in_battle = val.parse().unwrap_or(0)
                                 }
                                 "exp" => row.exp = val.parse().unwrap_or(0),
+                                "speed_on_ride" => {
+                                    row.ride_walk_spd = ride[0];
+                                    row.ride_run_spd = ride[1];
+                                    row.ride_slow_swim_spd = ride[2];
+                                    row.ride_fast_swim_spd = ride[3];
+                                }
                                 _ => {}
                             }
                         }
@@ -386,6 +430,29 @@ mod tests {
         assert!(
             wolf.levels.values().all(|l| l.max_meal > 0),
             "every level got its own max_meal"
+        );
+    }
+
+    /// The wyvern's `speed_on_ride` attributes are what make a mounted lord
+    /// move at the mount's pace instead of the class template's, and the
+    /// level lookup must clamp past the table's top (Java `getPetLevelData`).
+    #[test]
+    fn wyvern_ride_speeds_parse() {
+        let d = PetData::load_from(DIST);
+        let wyvern = d.get(12621).expect("wyvern 12621 loads");
+        let row = wyvern.level_row(1).expect("level 1 row");
+        assert_eq!(row.ride_run_spd, 250.0);
+        assert_eq!(row.ride_walk_spd, 250.0);
+        assert_eq!(row.ride_fast_swim_spd, 140.0);
+        assert_eq!(row.ride_slow_swim_spd, 140.0);
+        let top = wyvern.levels.keys().copied().max().unwrap();
+        assert!(
+            wyvern.level_row(top + 40).is_some(),
+            "past the table, the top row answers"
+        );
+        assert!(
+            wyvern.level_row(0).is_none(),
+            "below the floor Java returns null (caller keeps its base)"
         );
     }
 

@@ -197,6 +197,7 @@ mod teleport_to_race_track;
 pub mod teleport_with_charm;
 pub mod tvt;
 mod valakas_teleporters;
+pub mod wyvern_manager;
 
 use std::sync::Arc;
 
@@ -402,6 +403,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
+        Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_manager::OlyManager),
         Arc::new(monument_of_heroes::MonumentOfHeroes),
         Arc::new(npc_location_info::NpcLocationInfo),

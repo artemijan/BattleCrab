@@ -109,7 +109,7 @@ wars/sub-pledges/warehouse are verified present in code (the G33 checklist's
 | 2 | **Party matching room** | G30 🚧 | Top 0x7F/0x80/0x81 + ex 0x09/0x0A/0x0B/0x25/0x2F–0x31; nothing in Rust | High — how PUGs form |
 | 3 | **Command channels / MPCC** | *unscheduled* | Ex 0x06–0x08/0x2D + MPCC-room 0x5A–0x61; "own feature, not yet scheduled" per the G33 checklist | High — multi-party raids on the finished G23 bosses; also blocks TvT parties-of-7 polish |
 | 4 | **ai/areas zone scripts** | G22 🔨 | 15 of 16 unported (only ImperialTomb, via Frintezza): BeastFarm, DenOfEvil, DragonValley, DwarvenVillage, ForestOfTheDead, ForgeOfTheGods, FrozenLabyrinth, HotSprings, KetraOrcOutpust, LairOfAntharas, MonasteryOfSilence, PaganTemple, PlainsOfDion, PrimevalIsle, VarkaSilenosBarracks | High — hunting zones lose their signature behavior |
-| 5 | **ai/others NPC scripts** | G22 🔨 | ~25 of 39 unported: Mammons (→G26), WyvernManager, ArenaManager, OlyBuffer, CastleBlacksmith/Warehouse/Mercenary/DoorManager/SideEffect, RandomWalkingGuards, Scarecrow, FairyTrees, FleeMonsters, DivineBeast, PolymorphingAngel/OnAttack, Proclaimer, TimakOrcTroopLeader, NonLethalableNpcs, Incarnation, ToIVortex, Spawns… (CastleTeleporter, SymbolMaker, SiegeGuards, SeeThroughSilentMove, Servitors are already covered by other modules; ClassMaster is out-of-scope custom) | Medium–high, varies per script |
+| 5 | **ai/others NPC scripts** | G22 🔨 | ~24 of 39 unported: Mammons (→G26), ArenaManager, OlyBuffer, CastleBlacksmith/Warehouse/Mercenary/DoorManager/SideEffect, RandomWalkingGuards, Scarecrow, FairyTrees, FleeMonsters, DivineBeast, PolymorphingAngel/OnAttack, Proclaimer, TimakOrcTroopLeader, NonLethalableNpcs, Incarnation, ToIVortex, Spawns… (CastleTeleporter, SymbolMaker, SiegeGuards, SeeThroughSilentMove, Servitors are already covered by other modules; WyvernManager ported with wyvern flight; ClassMaster is out-of-scope custom) | Medium–high, varies per script |
 | 6 | **Private buy store** | G15 🚧 | Packets 0x99/0x9A/0x9C/0x9F + store titles 0x97/0x9D + wholesale ex 0x47; sell store exists, buy store doesn't | Medium-high — economy staple; explicitly blocks offline-trader restore (G33 close-out) |
 | 7 | **Zaken** | G23 🚧 | The 10th and last `ai/bosses/` script; only respawn-window config + deck zone exist | Medium — one endgame boss absent |
 | 8 | **Manor economics + Mammon NPCs** | G26 🔨 | Rollover treasury settlement (crop payout → clan warehouse, refund/charge) + the two Mammon merchants (`//mammon_*`) | Medium — manor income loop incomplete; Mammons gate the A-grade/SA economy |
@@ -1394,11 +1394,24 @@ command bodies (G13.B) are next.
     `SkillData::max_level`, plus the earlier `spawn_npc_at`, `SetAccessLevel`
     DB command, and `AdminFlags`.
 - **Mounts** (`admin/mounts.rs`): `//ride_strider`/`//ride_wolf`/`//ride_wyvern`
-  + `//unride*`. `Player.mount_type`/`mount_npc_id` are durable state serialized
-  into UserInfo/CharInfo (mount byte identical to the old hardcoded 0 when
-  unmounted — the real-capture byte test still passes) plus a `Ride` (0x8C)
-  broadcast. Mount speed/collision swap is a documented TODO (needs mount stat
-  data); the visual mount is complete.
+  + `//unride*`. `Player.mount_type`/`mount_npc_id`/`mount_level` are durable
+  state serialized into UserInfo/CharInfo (mount byte identical to the old
+  hardcoded 0 when unmounted — the real-capture byte test still passes) plus a
+  `Ride` (0x8C) broadcast. The mounted speed swap is real: `recalculate_stats`
+  substitutes the pet's `speed_on_ride` row (halved at a 10+ mount/rider level
+  gap; hungry-halving is TODO(G29) with mount feeding), and mounting swaps the
+  collision cylinder to the mount NPC template's. **Wyvern flight** works
+  end-to-end: `Player::is_flying` (= wyvern mount) exempts movement from the
+  geodata clamp/pathfinder and lets `ValidatePosition` trust the client Z
+  (swimming shares both floating exemptions), UserInfo/CharInfo carry the fly
+  speeds, and `Player.dismount`'s mid-air gates (z > 10000 / >300 above the
+  geo floor, water-below exception) are ported with their SMs. Player-facing:
+  action 38 + `/dismount` (user command 62) dismount; the **WyvernManager**
+  script (`scripts/wyvern_manager.rs`, 11 NPCs) trades a ridden level-55+
+  strider + 25 B-crystals for a wyvern, gated on residence ownership +
+  `Feature.ini` (`config/feature.rs`: `AllowRideWyvernAlways` False on this
+  dist keeps castle managers Dusk-blocked, exactly like Java). Pet mounting
+  itself (action 38 mount half, `/mount`) stays TODO(G29).
 - **Transforms** (`data/transform_data.rs` + `admin/transforms.rs`): a
   `TransformData` loader (174 `data/stats/transformations/*.xml`) →
   `Player.transform_id`/`transform_display_id`, serialized into CharInfo

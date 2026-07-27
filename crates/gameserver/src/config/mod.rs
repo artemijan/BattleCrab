@@ -6,6 +6,7 @@
 
 pub mod character;
 pub mod community_board;
+pub mod feature;
 pub mod general;
 pub mod geoengine;
 pub mod hexid;
@@ -17,6 +18,7 @@ pub mod server;
 
 pub use character::CharacterConfig;
 pub use community_board::CommunityBoardConfig;
+pub use feature::FeatureConfig;
 pub use general::GeneralConfig;
 pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
@@ -46,6 +48,8 @@ pub struct CombatConfig {
     pub community_board: CommunityBoardConfig,
     /// `Custom/PremiumSystem.ini` — the account-premium reward multipliers.
     pub premium: PremiumConfig,
+    /// `Feature.ini` — the wyvern-riding gates (WyvernManager reads them).
+    pub feature: FeatureConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -54,6 +58,7 @@ pub struct CombatConfig {
 pub struct Config {
     pub server: ServerConfig,
     pub character: CharacterConfig,
+    pub feature: FeatureConfig,
     pub general: GeneralConfig,
     pub geoengine: GeoEngineConfig,
     pub npc: NpcConfig,
@@ -109,6 +114,7 @@ impl Config {
     pub fn load_from(root: &str) -> Self {
         let server = ServerConfig::load_from(root);
         let character = CharacterConfig::load_from(root);
+        let feature = FeatureConfig::load_from(root);
         let general = GeneralConfig::load_from(root);
         let geoengine = GeoEngineConfig::load_from(root);
         let npc = NpcConfig::load_from(root);
@@ -121,6 +127,7 @@ impl Config {
         Self {
             server,
             character,
+            feature,
             general,
             geoengine,
             npc,
@@ -146,6 +153,7 @@ impl Config {
             general: self.general.clone(),
             community_board: self.community_board.clone(),
             premium: self.premium.clone(),
+            feature: self.feature.clone(),
         }
     }
 }

@@ -1720,6 +1720,7 @@ fn wolf_with_exp_curve(world: &mut World) {
                 // is answerable rather than vacuous.
                 soulshot_count: 1 + lvl,
                 spiritshot_count: 1 + lvl,
+                ..Default::default()
             },
         );
     }

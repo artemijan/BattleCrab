@@ -34,7 +34,7 @@ mod items;
 mod menu;
 mod mobgroup;
 pub(crate) mod moderation;
-mod mounts;
+pub(crate) mod mounts;
 mod pledge;
 mod points;
 pub(crate) mod premium;

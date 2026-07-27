@@ -121,13 +121,22 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     w.write_i32(combat.p_atk_spd);
     // Sent divided by the move multiplier (Java `_runSpd = round(getRunSpeed()
     // / _moveMultiplier)`); the client multiplies it back.
-    for spd in speeds.client_speed_fields() {
+    let client_speeds = speeds.client_speed_fields();
+    for spd in client_speeds {
         w.write_i16(spd);
     }
-    w.write_i16(0); // fly run
-    w.write_i16(0); // fly walk
-    w.write_i16(0); // fly run (repeat)
-    w.write_i16(0); // fly walk (repeat)
+    // `_flyRunSpd/_flyWalkSpd = isFlying() ? run/walk : 0`, written twice
+    // (Java sends the same pair for both fly slots) — onlookers' clients use
+    // these to animate a wyvern rider's flight.
+    let (fly_run, fly_walk) = if p.is_flying() {
+        (client_speeds[0], client_speeds[1])
+    } else {
+        (0, 0)
+    };
+    w.write_i16(fly_run);
+    w.write_i16(fly_walk);
+    w.write_i16(fly_run);
+    w.write_i16(fly_walk);
     w.write_f64(speeds.client_move_multiplier()); // Java getMovementSpeedMultiplier (leg-anim rate)
     w.write_f64(combat.client_atk_speed_multiplier()); // Java getAttackSpeedMultiplier (swing-anim rate)
     w.write_f64(collision.radius);
@@ -155,7 +164,11 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
         w.write_i16(*id as i16);
     }
     w.write_u8(0); // in matching room
-    w.write_u8(if p.mount_type == 2 { 2 } else { 0 }); // 1 water, 2 flying mount (wyvern)
+                   // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`, where
+                   // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
+                   // rider stays 0 even in Java (its flight renders via the mount npc id +
+                   // the fly speeds above). Water: TODO with water zones.
+    w.write_u8(0);
     w.write_i16(p.rec_have as i16); // recom have
     w.write_i32(if p.mount_npc_id == 0 {
         0
@@ -164,7 +177,12 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     }); // mount npc id
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)
-    w.write_u8(inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8); // weapon enchant
+                    // Java: `isMounted() ? 0 : _enchantLevel` — no weapon glow on a mount.
+    w.write_u8(if p.is_mounted() {
+        0
+    } else {
+        inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8
+    });
     w.write_u8(v.p.team); // team aura (`//setteam`)
     w.write_i32(0); // clan crest large id
     w.write_u8(0); // noble
