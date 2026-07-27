@@ -991,6 +991,30 @@ pub(crate) fn apply_skill_effects(
                 for skill_id in to_dispel {
                     handle_buff_expire(world, target_oid, skill_id);
                 }
+                // Java `DispelBySlot.instant` also dispels a *non-buff*
+                // transformation ("Dispel transformations (buff and by GM)"):
+                // a TRANSFORM entry matching the current transform id (or the
+                // catch-all negative level, e.g. Dismount 839's `TRANSFORM,-1`)
+                // calls `stopTransformation(true)`. That's the only revert path
+                // for `//transform`/`//ride_bike`, which set the transform
+                // directly with no backing buff. Buff-backed transforms are
+                // already reverted by the `handle_buff_expire` sweep above, so
+                // only act if still transformed. (Java guards the whole method
+                // with `hasAbnormalType(...)`, which would make this branch
+                // unreachable for GM transforms — an upstream quirk we don't
+                // reproduce; the dist skill data's intent is that Dismount
+                // always ends the ride.)
+                let transform_id = world
+                    .objects
+                    .get_component::<crate::model::Player>(&target_oid)
+                    .map_or(0, |p| p.transform_id);
+                if transform_id != 0
+                    && dispel
+                        .iter()
+                        .any(|(ty, lvl)| ty == "TRANSFORM" && (*lvl < 0 || *lvl == transform_id))
+                {
+                    crate::game_loop::admin::transforms::remove_transform(world, target_oid);
+                }
             }
             SkillEffect::DispelBySlotProbability { dispel, rate } => {
                 // Java `DispelBySlotProbability.instant`: the same cleanse as
