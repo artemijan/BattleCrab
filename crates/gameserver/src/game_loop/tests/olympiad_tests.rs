@@ -765,7 +765,9 @@ fn heroes_persist_and_apply_on_login() {
             count: 2,
             name: "Aragorn".into(),
             clan_id: 0,
+            message: String::new(),
         }],
+        vec![],
     );
     assert!(world.olympiad.is_hero(100), "loaded into the crown");
 
@@ -1235,6 +1237,7 @@ fn monument_hero_list_sends_ex_hero_list() {
         crate::model::olympiad::HeroInfo {
             name: "Aragorn".into(),
             clan_id: 0,
+            message: String::new(),
         },
     );
 
@@ -1255,5 +1258,43 @@ fn monument_hero_list_sends_ex_hero_list() {
     assert!(
         pkt.windows(2).any(|w| w == [0x41, 0x00]),
         "the hero's name is in the packet"
+    );
+}
+
+#[test]
+fn hero_diary_window_renders_with_the_deed_list() {
+    let (mut world, _tx, _rx, _l) = test_world();
+    // The diary template lives in the dist html tree.
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    // A crowned hero (class 88) with a "Gained Hero status" diary entry.
+    world.olympiad.heroes.push((100, 88));
+    world.olympiad.hero_info.insert(
+        100,
+        crate::model::olympiad::HeroInfo {
+            name: "Aragorn".into(),
+            message: "For Gondor".into(),
+            clan_id: 0,
+        },
+    );
+    world.olympiad.hero_diary.insert(
+        100,
+        vec![crate::model::olympiad::DiaryEntry {
+            time: 1_700_000_000_000,
+            action: 2,
+            param: 0,
+        }],
+    );
+
+    let mut rx = ingame_player(&mut world, 1, 500, 0, 0, 0);
+    drain(&mut rx);
+    add_test_npc(&mut world, 600, 31690, "Folk", 70, 0, 0, 0);
+
+    crate::game_loop::olympiad::show_hero_diary(&mut world, 1, 600, "?class=88&page=1");
+
+    let pkts = drain(&mut rx);
+    // An NpcHtmlMessage went out carrying the hero's name (UTF-16LE 'A').
+    assert!(
+        pkts.iter().any(|p| p.windows(2).any(|w| w == [0x41, 0x00])),
+        "the diary window was sent with the hero name"
     );
 }
