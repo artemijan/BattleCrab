@@ -43,6 +43,10 @@ fn level_of(world: &World, object_id: i32) -> i32 {
         .map_or(0, |p| p.level)
 }
 
+pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
+    send(world, object_id, packet);
+}
+
 fn send(world: &World, object_id: i32, packet: Vec<u8>) {
     if let Some(cid) = client_for_player(world, object_id) {
         if let Some(cs) = world.clients.get(&cid) {

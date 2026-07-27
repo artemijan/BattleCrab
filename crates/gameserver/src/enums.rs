@@ -439,6 +439,8 @@ pub enum ChatType {
     /// GM→petitioner line during a petition consultation (G31).
     PetitionGm = 7,
     Trade = 8,
+    /// `ChatType.PARTYMATCH_ROOM` — chat inside a party matching room (G30).
+    PartyMatchRoom = 14,
     Alliance = 9,
     /// `ChatType.HERO_VOICE` — used server-side for the "Petition System"
     /// broadcast to GMs (G31); also hero global chat.
@@ -468,6 +470,7 @@ impl ChatType {
             9 => Some(Self::Alliance),
             10 => Some(Self::Announcement),
             11 => Some(Self::Boat),
+            14 => Some(Self::PartyMatchRoom),
             17 => Some(Self::HeroVoice),
             _ => None,
         }

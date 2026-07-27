@@ -1018,3 +1018,36 @@ fn accepting_a_party_invite_from_a_room_leader_joins_the_room() {
         .map(|PartyRef(id)| *id);
     assert!(party_id.is_some());
 }
+
+#[test]
+fn room_chat_reaches_every_member_and_nobody_else() {
+    let (mut world, ..) = test_world();
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    let mut c_rx = ingame_player(&mut world, 3, 3003, 0, 0, 0);
+    for oid in [3001, 3002, 3003] {
+        set_level(&mut world, oid, 40);
+    }
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    drain(&mut c_rx);
+    two_player_room(&mut world);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    drain(&mut c_rx);
+
+    let mut w = PacketWriter::new();
+    w.write_string("hello room");
+    w.write_i32(crate::enums::ChatType::PartyMatchRoom.client_id());
+    on_packet(&mut world, 1, [vec![cop::SAY2], w.into_bytes()].concat());
+
+    // Both members hear it (the speaker included), the outsider does not.
+    for rx in [&mut a_rx, &mut b_rx] {
+        let pkts = drain(rx);
+        assert!(
+            has_opcode(&pkts, opcodes::SAY2),
+            "every room member hears room chat"
+        );
+    }
+    assert!(!has_opcode(&drain(&mut c_rx), opcodes::SAY2));
+}

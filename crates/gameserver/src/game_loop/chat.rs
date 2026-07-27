@@ -206,6 +206,22 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
             }
         }
+        ChatType::PartyMatchRoom => {
+            // ChatPartyMatchRoom — `CreatureSay` to every member of the room the
+            // speaker is in (speaker included), G30.
+            let say =
+                server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+            if let Some(room_id) = world.matching_rooms.room_id_of(sender_oid) {
+                let members = world
+                    .matching_rooms
+                    .get(room_id)
+                    .map(|r| r.all_members())
+                    .unwrap_or_default();
+                for oid in members {
+                    super::party_room::send_to(world, oid, say.clone());
+                }
+            }
+        }
         ChatType::Clan => {
             // ChatClan — `clan.broadcastToOnlineMembers` (speaker included).
             let clan_id = world
