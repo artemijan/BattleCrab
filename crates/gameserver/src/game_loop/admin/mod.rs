@@ -720,6 +720,24 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
         "admin_punishment_remove" => moderation::admin_punishment_remove(world, client_id, &args),
         "admin_ban_menu" => moderation::admin_ban_menu(world, client_id, object_id, &args),
+        // Category-4 sweep: spawns / clans / panels.
+        "admin_unspawnall" => spawn::admin_unspawnall(world, client_id),
+        "admin_respawnall" => spawn::admin_respawnall(world, client_id),
+        "admin_spawn_reload" => spawn::admin_spawn_reload(world, client_id),
+        "admin_clan_changeleader" => {
+            pledge::admin_clan_changeleader(world, client_id, object_id, &args)
+        }
+        "admin_add_clan_skill" => pledge::admin_add_clan_skill(world, client_id, object_id, &args),
+        "admin_play_sounds" => gm_util::admin_play_sounds(world, client_id, &args),
+        "admin_effect_menu" => gm_util::admin_effect_menu(world, client_id),
+        "admin_event_menu" | "admin_event_start_menu" | "admin_event_stop_menu" => {
+            gm_util::admin_event_menu(world, client_id)
+        }
+        "admin_bbs" => gm_util::admin_bbs(world, client_id, object_id),
+        "admin_viewblockedeffects" => {
+            gm_util::admin_viewblockedeffects(world, client_id, object_id)
+        }
+
         "admin_unban_menu" => moderation::admin_unban_menu(world, client_id, &args),
         "admin_force_peti" => {
             let text = args.join(" ");

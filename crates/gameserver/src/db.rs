@@ -445,6 +445,11 @@ pub enum DbCommand {
     },
     /// Castle ownership on the clan side (`Castle.setOwner`/`removeOwner` →
     /// `clan_data.hasCastle`).
+    /// `//clan_changeleader` — persist a forced leader swap (`clan_data.leader_id`).
+    UpdateClanLeader {
+        clan_id: i32,
+        leader_id: i32,
+    },
     UpdateClanCastle {
         clan_id: i32,
         castle_id: i32,
@@ -1728,6 +1733,15 @@ async fn run(
                     sqlx::query("UPDATE castle SET side=? WHERE id=?")
                         .bind(side)
                         .bind(castle_id),
+                )
+                .await;
+            }
+            DbCommand::UpdateClanLeader { clan_id, leader_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("UPDATE clan_data SET leader_id=? WHERE clan_id=?")
+                        .bind(leader_id)
+                        .bind(clan_id),
                 )
                 .await;
             }

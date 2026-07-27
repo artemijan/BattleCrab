@@ -449,3 +449,77 @@ fn disconnect_player(world: &mut World, target: i32) {
         session.send(server_packets::leave_world());
     }
 }
+
+// ---------------------------------------------------------------------------
+// Panel commands (category-4 sweep)
+// ---------------------------------------------------------------------------
+
+/// `AdminEffects`' `//play_sounds [page]` — the jukebox pages
+/// (`songs/songs.htm`, `songs/songs2.htm`, …); each button fires the already-
+/// wired `//play_sound <name>`.
+pub(super) fn admin_play_sounds(world: &World, client_id: u32, args: &[&str]) {
+    let page = args.first().copied().unwrap_or("");
+    let file = if page.is_empty() {
+        "songs/songs.htm".to_string()
+    } else {
+        format!("songs/songs{page}.htm")
+    };
+    super::menu::show_admin_html(world, client_id, &file);
+}
+
+/// `//effect_menu` — the effects panel (same page as `//admin3`).
+pub(super) fn admin_effect_menu(world: &World, client_id: u32) {
+    super::menu::show_admin_html(world, client_id, "effects_menu.htm");
+}
+
+/// `//event_menu` (and the start/stop menu aliases) — `gm_events.htm` with
+/// `%LIST%` filled from the registered event engines (G28), each with
+/// Start/Stop buttons routing to the wired `//event_start`/`//event_stop`.
+pub(super) fn admin_event_menu(world: &World, client_id: u32) {
+    let mut list = String::new();
+    for name in crate::game_loop::events::EVENT_NAMES {
+        list.push_str(&format!(
+            "<tr><td>{name}</td>\
+             <td><button value=\"Start\" action=\"bypass -h admin_event_start {name}\" \
+             width=65 height=21 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\"></td>\
+             <td><button value=\"Stop\" action=\"bypass -h admin_event_stop {name}\" \
+             width=65 height=21 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\"></td></tr>"
+        ));
+    }
+    super::menu::show_admin_html_replace(world, client_id, "gm_events.htm", &[("LIST", list)]);
+}
+
+/// `//bbs` — open the community board home for the GM (Java routes it into
+/// the CB parse loop).
+pub(super) fn admin_bbs(world: &mut World, client_id: u32, object_id: i32) {
+    crate::game_loop::community_board::open_home_for_admin(world, client_id, object_id);
+}
+
+/// `AdminBuffs`' `//viewblockedeffects` — list the abnormal slots currently
+/// blocked on the target by live `BlockAbnormalSlot` effects.
+pub(super) fn admin_viewblockedeffects(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id).or(Some(object_id)) else {
+        return;
+    };
+    let mut blocked: Vec<String> = Vec::new();
+    if let Some(buffs) = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&target)
+    {
+        for b in buffs.0.iter() {
+            if let Some(skill) = world.data.skill_data.get(b.skill_id, b.skill_level) {
+                for eff in &skill.effects {
+                    if let crate::model::skill::SkillEffect::BlockAbnormalSlot { slots } = eff {
+                        blocked.extend(slots.iter().cloned());
+                    }
+                }
+            }
+        }
+    }
+    let text = if blocked.is_empty() {
+        "No abnormal slots are blocked on the target.".to_string()
+    } else {
+        format!("Blocked abnormal slots: {}.", blocked.join(", "))
+    };
+    send_message(world, client_id, &text);
+}

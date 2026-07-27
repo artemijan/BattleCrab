@@ -136,6 +136,11 @@ pub(crate) fn handle_write_command(world: &mut World, client_id: u32, url: &str)
     send_cb_html(world, client_id, &html);
 }
 
+/// `//bbs` (AdminBBS) — the GM shortcut onto the board's home page.
+pub(crate) fn open_home_for_admin(world: &mut World, client_id: u32, object_id: i32) {
+    show_home(world, client_id, object_id, "_bbshome");
+}
+
 /// `HomeBoard`'s `_bbshome`/`_bbstop` branch: load the home page (custom or
 /// retail) and inject the navigation panel.
 fn show_home(world: &mut World, client_id: u32, object_id: i32, command: &str) {

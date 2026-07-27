@@ -4062,3 +4062,208 @@ fn debug_menu_renders_and_packet_toggle_works() {
     on_packet(&mut world, 1, build_admin("debug packets off"));
     assert!(!world.debug_packets, "packet debugging disabled again");
 }
+
+// ---------------------------------------------------------------------------
+// Category-4 sweep: punishment console, clan leader override, spawn controls
+// ---------------------------------------------------------------------------
+
+/// **The AdminPunishment console round-trips.** `//punishment` renders with
+/// the type/affect combos filled; `//punishment_add` starts a real punishment
+/// through the generic engine (a jail actually confines); `//punishment info`
+/// lists it; `//punishment_remove` lifts it.
+#[test]
+fn punishment_console_add_info_remove() {
+    use crate::model::punishment::{PunishmentAffect, PunishmentType};
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7501, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7502, 0);
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    on_packet(&mut world, 1, build_admin("punishment"));
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("punishment.htm served");
+    assert!(
+        html.contains("CHAT_BAN") && html.contains("HWID"),
+        "type/affect combos substituted, got: {html}"
+    );
+
+    let victim_name = world
+        .objects
+        .get_component::<Player>(&7502)
+        .unwrap()
+        .name
+        .clone();
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!(
+            "punishment_add {victim_name} CHARACTER JAIL 0 testing"
+        )),
+    );
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        world
+            .punishments
+            .has_punishment("7502", PunishmentAffect::Character, PunishmentType::Jail),
+        "the jail punishment is registered under the char id"
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!("punishment info {victim_name} CHARACTER")),
+    );
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("punishment-info.htm served");
+    assert!(html.contains("JAIL"), "the active jail is listed: {html}");
+
+    on_packet(
+        &mut world,
+        1,
+        build_admin("punishment_remove 7502 CHARACTER JAIL"),
+    );
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        !world.punishments.has_punishment(
+            "7502",
+            PunishmentAffect::Character,
+            PunishmentType::Jail
+        ),
+        "the punishment is lifted"
+    );
+}
+
+/// **`//clan_changeleader` swaps the leader immediately** — clan record,
+/// both players' leader flags/privileges, and the clan-wide SM.
+#[test]
+fn clan_changeleader_swaps_leader() {
+    use crate::model::components::TargetRef;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7601, 100);
+    let mut old_rx = ingame_player_access(&mut world, 2, 7602, 0);
+    let mut new_rx = ingame_player_access(&mut world, 3, 7603, 0);
+    // Clan 600: 7602 leads, 7603 is a member.
+    world.clans.insert(
+        600,
+        crate::model::clan::Clan {
+            id: 600,
+            name: "Swap".into(),
+            leader_id: 7602,
+            level: 3,
+            reputation_score: 0,
+            castle_id: 0,
+            members: Vec::new(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    for oid in [7602, 7603] {
+        world
+            .objects
+            .get_component_mut::<Player>(&oid)
+            .unwrap()
+            .clan_id = 600;
+    }
+    world
+        .objects
+        .get_component_mut::<Player>(&7602)
+        .unwrap()
+        .clan_leader = true;
+    world.objects.add_components(&7601, TargetRef(Some(7603)));
+    drain(&mut gm_rx);
+    drain(&mut old_rx);
+    drain(&mut new_rx);
+
+    // `admin_clan_changeleader` is confirmDlg-gated — answer "yes".
+    on_packet(&mut world, 1, build_admin("clan_changeleader"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert_eq!(
+        world.clans.get(&600).unwrap().leader_id,
+        7603,
+        "clan record"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&7603)
+            .unwrap()
+            .clan_leader,
+        "new leader flagged"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&7602)
+            .unwrap()
+            .clan_leader,
+        "old leader unflagged"
+    );
+}
+
+/// **`//unspawnall` clears every NPC and `//respawnall` puts the world
+/// back** through the boot spawn pass.
+#[test]
+fn unspawnall_and_respawnall() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7701, 100);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("unspawnall"));
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&NPC_OID),
+        "all NPCs despawned"
+    );
+
+    // The synthetic test world has an empty spawn table — respawnall reports 0.
+    on_packet(&mut world, 1, build_admin("respawnall"));
+    let msgs = drain(&mut gm_rx);
+    assert!(!msgs.is_empty(), "respawnall answers");
+}

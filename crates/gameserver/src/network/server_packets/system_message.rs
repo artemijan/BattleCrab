@@ -9,6 +9,8 @@ use super::opcodes;
 /// ~6800 — added as handlers need them; the zero-parameter welcome message
 /// keeps using `enter_world::system_message`).
 pub mod sm_ids {
+    /// `Clan leader privileges have been transferred to $c1.`
+    pub const CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1: i16 = 1798;
     // Mounts / wyvern
     pub const YOU_CANNOT_DISMOUNT_FROM_THIS_ELEVATION: i16 = 1158;
     pub const YOU_ARE_NOT_ALLOWED_TO_DISMOUNT_IN_THIS_LOCATION: i16 = 1385;

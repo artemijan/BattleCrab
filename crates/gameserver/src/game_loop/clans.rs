@@ -406,6 +406,57 @@ pub(crate) fn remove_residential_skills(world: &mut World, member_oid: i32, resi
     }
 }
 
+/// `//add_clan_skill` (Java `AdminSkill.adminAddClanSkill` -> `Clan.addNewSkill`).
+pub(crate) fn admin_add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
+    add_clan_skill(world, clan_id, skill_id, level);
+}
+
+/// Java `Clan.setNewLeader` as `//clan_changeleader` forces it: swap the
+/// leader id, move the full-privilege mask, refresh both players' flags and
+/// UserInfo, tell the clan, and persist. (The player-initiated deliberate
+/// transfer flow stays unported; this is the GM override.)
+pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32) -> bool {
+    let Some(old_leader) = world.clans.get(&clan_id).map(|c| c.leader_id) else {
+        return false;
+    };
+    if old_leader == new_leader {
+        return false;
+    }
+    if let Some(c) = world.clans.get_mut(&clan_id) {
+        c.leader_id = new_leader;
+        c.new_leader_id = 0;
+    }
+    let _ = world.db.send(DbCommand::UpdateClanLeader {
+        clan_id,
+        leader_id: new_leader,
+    });
+    for (oid, is_leader) in [(old_leader, false), (new_leader, true)] {
+        if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
+            p.clan_leader = is_leader;
+            p.clan_privs = if is_leader { i32::MAX } else { 0 };
+        }
+        if world.objects.has_component::<Player>(&oid) {
+            crate::game_loop::party::broadcast_user_info(world, oid);
+        }
+    }
+    let name = world
+        .objects
+        .get_component::<Player>(&new_leader)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    for oid in online_members(world, clan_id) {
+        if let Some(cid) = client_for_player(world, oid) {
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1,
+                    &[SmParam::Text(name.clone())],
+                ));
+            }
+        }
+    }
+    true
+}
+
 /// Java `Clan.addNewSkill` for one skill: store it on the clan, persist it, and
 /// push it to every qualifying online member (buff + skill list +
 /// `PledgeSkillListAdd` + "clan skill added" message).

@@ -724,3 +724,41 @@ pub(super) fn admin_delete(world: &mut World, client_id: u32, object_id: i32) {
     };
     super::death::despawn_npc(world, target, region);
 }
+
+// ---------------------------------------------------------------------------
+// `AdminSpawn` world-scale controls (category-4 sweep)
+// ---------------------------------------------------------------------------
+
+/// Despawn every live NPC (Java `//unspawnall`'s `deleteVisibleNpcSpawns`
+/// sweep). Grand-boss lifecycle timers keep running; a following
+/// `//respawnall` puts the world back.
+pub(super) fn admin_unspawnall(world: &mut World, client_id: u32) {
+    let all: Vec<(i32, (i32, i32))> = {
+        let mut v = Vec::new();
+        world.objects.for_each_mut::<(
+            &crate::model::npc::Npc,
+            &crate::model::components::RegionCell,
+        )>(|(n, r)| v.push((n.object_id, r.0)));
+        v
+    };
+    let count = all.len();
+    for (oid, region) in all {
+        super::death::despawn_npc(world, oid, region);
+    }
+    send_message(world, client_id, &format!("{count} NPCs deleted."));
+}
+
+/// `//respawnall` — clear the world and re-run the boot spawn pass.
+pub(super) fn admin_respawnall(world: &mut World, client_id: u32) {
+    admin_unspawnall(world, client_id);
+    let spawned = crate::model::npc::spawn_all(world);
+    send_message(world, client_id, &format!("{spawned} NPCs respawned."));
+}
+
+/// `//spawn_reload` — re-read `data/spawns/**` from disk, then respawn.
+pub(super) fn admin_spawn_reload(world: &mut World, client_id: u32) {
+    let root = world.data.root.clone();
+    world.data.spawn_data = crate::data::SpawnData::load_from(&root);
+    send_message(world, client_id, "Spawn data reloaded from disk.");
+    admin_respawnall(world, client_id);
+}

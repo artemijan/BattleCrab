@@ -232,3 +232,94 @@ pub(super) fn admin_clan_show_pending(world: &mut World, client_id: u32) {
         &[("data", String::new())],
     );
 }
+
+// ---------------------------------------------------------------------------
+// Category-4 sweep: `AdminClan` leader override + `AdminSkill` clan skill
+// ---------------------------------------------------------------------------
+
+/// `//clan_changeleader [name]` — make the (named or targeted) player their
+/// clan's leader immediately (Java `Clan.setNewLeader` via `AdminClan`).
+pub(super) fn admin_clan_changeleader(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let target = args
+        .first()
+        .and_then(|name| super::find_online_player(world, name))
+        .or_else(|| {
+            super::current_target(world, object_id)
+                .filter(|oid| world.objects.has_component::<Player>(oid))
+        });
+    let Some(target) = target else {
+        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.clan_id)
+        .filter(|&c| c != 0)
+    else {
+        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        return;
+    };
+    if crate::game_loop::clans::force_new_leader(world, clan_id, target) {
+        super::send_message(world, client_id, "Clan leader changed.");
+    } else {
+        super::send_message(world, client_id, "That player already leads the clan.");
+    }
+}
+
+/// `//add_clan_skill <id> <level>` — grant one pledge skill to the targeted
+/// leader's clan (Java `AdminSkill.adminAddClanSkill`; the target must be the
+/// clan leader).
+pub(super) fn admin_add_clan_skill(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let (Some(skill_id), Some(level)) = (
+        args.first().and_then(|a| a.parse::<i32>().ok()),
+        args.get(1).and_then(|a| a.parse::<i32>().ok()),
+    ) else {
+        super::send_message(
+            world,
+            client_id,
+            "Usage: //add_clan_skill <skillId> <level>",
+        );
+        return;
+    };
+    if world.data.skill_data.get(skill_id, level).is_none() {
+        super::send_message(world, client_id, "No such skill/level.");
+        return;
+    }
+    let Some(target) = super::current_target(world, object_id)
+        .filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        super::send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(clan_id) = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.clan_id)
+        .filter(|&c| c != 0)
+    else {
+        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        return;
+    };
+    if world
+        .clans
+        .get(&clan_id)
+        .map(|c| c.leader_id != target)
+        .unwrap_or(true)
+    {
+        super::send_sm(world, client_id, sm_ids::THE_TARGET_MUST_BE_A_CLAN_MEMBER);
+        return;
+    }
+    crate::game_loop::clans::admin_add_clan_skill(world, clan_id, skill_id, level);
+    super::send_message(world, client_id, "Clan skill added.");
+}
