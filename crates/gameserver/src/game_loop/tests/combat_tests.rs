@@ -949,6 +949,7 @@ fn player_death_penalty_and_revive_to_village() {
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 0,
+            bbs: 0,
             respawn_points: vec![(1000, 1000, 7)],
             tiles: vec![(20, 18)],
         }]);
@@ -2096,6 +2097,7 @@ fn siege_defender_respawns_at_castle_on_to_castle() {
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 0,
+            bbs: 0,
             respawn_points: vec![(1000, 1000, 7)],
             tiles: vec![(20, 18)],
         }]);

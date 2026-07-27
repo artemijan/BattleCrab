@@ -954,6 +954,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 924,
+            bbs: 0,
             respawn_points: vec![(5000, 6000, -30)],
             tiles: vec![(20, 18)],
         }]);

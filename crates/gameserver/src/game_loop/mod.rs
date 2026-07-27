@@ -61,6 +61,7 @@ mod npc_view;
 pub(crate) mod olympiad;
 mod orfen;
 mod party;
+mod party_room;
 mod passive_skills;
 pub(crate) mod petition;
 pub(crate) mod position;

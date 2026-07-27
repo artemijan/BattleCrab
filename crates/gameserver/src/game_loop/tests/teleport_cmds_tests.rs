@@ -202,6 +202,7 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 924,
+            bbs: 0,
             respawn_points: vec![(5000, 6000, -30)],
             tiles: vec![(20, 18)], // the tile containing (0,0)
         }]);
@@ -312,6 +313,7 @@ fn loc_user_command_reports_region() {
         crate::data::MapRegionData::from_regions(vec![crate::data::map_region::MapRegion {
             name: "test_town".into(),
             loc_id: 924,
+            bbs: 0,
             respawn_points: vec![(5000, 6000, -30)],
             tiles: vec![(20, 18)],
         }]);

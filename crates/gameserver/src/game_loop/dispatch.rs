@@ -303,6 +303,12 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_ANSWER_JOIN_PARTY => handle_request_answer_join_party(world, client_id, body),
         cop::REQUEST_WITH_DRAWAL_PARTY => handle_request_withdrawal_party(world, client_id),
         cop::REQUEST_OUST_PARTY_MEMBER => handle_request_oust_party_member(world, client_id, body),
+        cop::REQUEST_PARTY_MATCH_CONFIG => {
+            super::party_room::handle_request_party_match_config(world, client_id, body)
+        }
+        cop::REQUEST_PARTY_MATCH_LIST => {
+            super::party_room::handle_request_party_match_list(world, client_id, body)
+        }
         cop::REQUEST_FRIEND_INVITE => handle_request_friend_invite(world, client_id, body),
         cop::REQUEST_ANSWER_FRIEND_INVITE => {
             handle_request_answer_friend_invite(world, client_id, body)
@@ -592,6 +598,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         // Item auction (G30.5): bid on / request info about an auction.
+        exop::REQUEST_EXIT_PARTY_MATCHING_WAITING_ROOM => {
+            super::party_room::handle_exit_waiting_room(world, client_id)
+        }
+        exop::REQUEST_LIST_PARTY_MATCHING_WAITING_ROOM => {
+            super::party_room::handle_list_waiting_room(world, client_id, ex_body)
+        }
         exop::REQUEST_BID_ITEM_AUCTION => {
             super::item_auction::on_request_bid(world, client_id, ex_body)
         }

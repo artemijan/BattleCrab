@@ -95,6 +95,7 @@ mod npc_tests;
 mod olympiad_tests;
 mod orfen_tests;
 mod overhit_tests;
+mod party_room_tests;
 mod periodic_tests;
 mod petition_tests;
 mod punishment_tests;

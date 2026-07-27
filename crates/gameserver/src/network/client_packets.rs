@@ -86,6 +86,14 @@ pub mod opcodes {
     pub const REQUEST_MAKE_MACRO: u8 = 0xCD;
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
     pub const SAY2: u8 = 0x49;
+    /// `RequestPartyMatchConfig` (G30) — open the party-matching board, which
+    /// also registers the requester in the looking-for-party waiting list.
+    pub const REQUEST_PARTY_MATCH_CONFIG: u8 = 0x7F;
+    /// `RequestPartyMatchList` (G30) — create a matching room, or edit the one
+    /// the requester leads.
+    pub const REQUEST_PARTY_MATCH_LIST: u8 = 0x80;
+    /// `RequestPartyMatchDetail` (G30) — join a matching room.
+    pub const REQUEST_PARTY_MATCH_DETAIL: u8 = 0x81;
     /// `RequestPetition` (G31) — content string + petition-type int (1-9).
     pub const REQUEST_PETITION: u8 = 0x89;
     /// `RequestPetitionCancel` (G31) — no body.
@@ -202,6 +210,22 @@ pub mod ex_opcodes {
     pub const REQUEST_EX_OLYMPIAD_MATCH_LIST_REFRESH: u16 = 0x85;
     pub const REQUEST_GOTO_LOBBY: u16 = 0x33;
     pub const REQUEST_CHANGE_PARTY_LEADER: u16 = 0x0C;
+    /// `RequestOustFromPartyRoom` (G30) — the room leader kicks a member.
+    pub const REQUEST_OUST_FROM_PARTY_ROOM: u16 = 0x09;
+    /// `RequestDismissPartyRoom` (G30) — the room leader disbands the room.
+    pub const REQUEST_DISMISS_PARTY_ROOM: u16 = 0x0A;
+    /// `RequestWithdrawPartyRoom` (G30) — leave the room you are in.
+    pub const REQUEST_WITHDRAW_PARTY_ROOM: u16 = 0x0B;
+    /// `RequestExitPartyMatchingWaitingRoom` (G30) — stop advertising yourself
+    /// as looking-for-party. No body.
+    pub const REQUEST_EXIT_PARTY_MATCHING_WAITING_ROOM: u16 = 0x25;
+    /// `RequestAskJoinPartyRoom` (G30) — invite a player to your room by name.
+    pub const REQUEST_ASK_JOIN_PARTY_ROOM: u16 = 0x2F;
+    /// `AnswerJoinPartyRoom` (G30) — accept/decline a room invitation.
+    pub const ANSWER_JOIN_PARTY_ROOM: u16 = 0x30;
+    /// `RequestListPartyMatchingWaitingRoom` (G30) — browse the players who are
+    /// advertising themselves as looking-for-party.
+    pub const REQUEST_LIST_PARTY_MATCHING_WAITING_ROOM: u16 = 0x31;
     pub const REQUEST_PARTY_LOOT_MODIFICATION: u16 = 0x75;
     pub const ANSWER_PARTY_LOOT_MODIFICATION: u16 = 0x76;
     pub const REQUEST_SAVE_INVENTORY_ORDER: u16 = 0x24;
@@ -559,6 +583,119 @@ impl WarehouseItemList {
             items.push((object_id, cnt));
         }
         Some(Self { items })
+    }
+}
+
+/// Port of `clientpackets/RequestPartyMatchConfig` (`ddd`, G30): the room-list
+/// page, the location (community-board region) filter, and the level-band mode
+/// (`0` = my level range, anything else = all).
+pub struct RequestPartyMatchConfig {
+    pub page: i32,
+    pub location: i32,
+    pub level_filter: i32,
+}
+
+impl RequestPartyMatchConfig {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            page: r.read_i32()?,
+            location: r.read_i32()?,
+            level_filter: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestPartyMatchList` (`dddddS`, G30): create a room
+/// (`room_id <= 0`) or edit the one you lead.
+pub struct RequestPartyMatchList {
+    pub room_id: i32,
+    pub max_members: i32,
+    pub min_level: i32,
+    pub max_level: i32,
+    pub loot_type: i32,
+    pub title: String,
+}
+
+impl RequestPartyMatchList {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            room_id: r.read_i32()?,
+            max_members: r.read_i32()?,
+            min_level: r.read_i32()?,
+            max_level: r.read_i32()?,
+            loot_type: r.read_i32()?,
+            title: r.read_string()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestPartyMatchDetail` (`ddd`, G30): join a room by
+/// id, or — when `room_id <= 0` — the first room matching a location + level.
+pub struct RequestPartyMatchDetail {
+    pub room_id: i32,
+    pub location: i32,
+    pub level: i32,
+}
+
+impl RequestPartyMatchDetail {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            room_id: r.read_i32()?,
+            location: r.read_i32()?,
+            level: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestListPartyMatchingWaitingRoom` (`dddd(d)*(S)?`,
+/// G30): the looking-for-party browse filter.
+pub struct RequestListPartyMatchingWaitingRoom {
+    pub page: i32,
+    pub min_level: i32,
+    pub max_level: i32,
+    /// Empty means "any class" (Java leaves the list null).
+    pub class_ids: Vec<i32>,
+    /// Optional name substring; Java only reads it when bytes remain.
+    pub query: Option<String>,
+}
+
+impl RequestListPartyMatchingWaitingRoom {
+    /// Java's own bound: it only consumes the class ids when
+    /// `0 < size < 128`, which desyncs the rest of the read for a larger
+    /// count. The port consumes exactly what the count claims (capped) so the
+    /// trailing query string still lines up.
+    const MAX_CLASSES: i32 = 127;
+
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let page = r.read_i32()?;
+        let min_level = r.read_i32()?;
+        let max_level = r.read_i32()?;
+        let size = r.read_i32()?;
+        let mut class_ids = Vec::new();
+        if size > 0 {
+            if size > Self::MAX_CLASSES {
+                return None;
+            }
+            for _ in 0..size {
+                class_ids.push(r.read_i32()?);
+            }
+        }
+        let query = if r.remaining() > 0 {
+            r.read_string()
+        } else {
+            None
+        };
+        Some(Self {
+            page,
+            min_level,
+            max_level,
+            class_ids,
+            query,
+        })
     }
 }
 

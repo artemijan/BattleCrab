@@ -39,6 +39,10 @@ pub struct MapRegion {
     /// for this region (`MapRegion.getLocId`, the `/loc` user command). 0
     /// when the XML has none.
     pub loc_id: i32,
+    /// `bbs`: the community-board region code (`MapRegion.getBbs`). This is
+    /// what Java's `MapRegionManager.getBBs(loc)` returns, and it is the
+    /// "location" a party matching room is created in and filtered by (G30).
+    pub bbs: i32,
     /// Ordinary (non-chaotic, non-other) respawn points.
     pub respawn_points: Vec<(i32, i32, i32)>,
     /// `<map X= Y=/>` tile coordinates this region covers.
@@ -136,6 +140,15 @@ impl MapRegionData {
         self.regions.iter().find(|r| r.name == name)
     }
 
+    /// `MapRegionManager.getBBs(loc)` — the community-board region code at a
+    /// point, falling back to the default respawn region's code exactly like
+    /// Java (`REGIONS.get(DEFAULT_RESPAWN).getBbs()`), then to 0.
+    pub fn bbs_at(&self, x: i32, y: i32) -> i32 {
+        self.region_at(x, y)
+            .or_else(|| self.region_by_name(DEFAULT_RESPAWN))
+            .map_or(0, |r| r.bbs)
+    }
+
     /// `ZoneManager.getZone(loc, RespawnZone.class)`: the first RespawnZone
     /// whose polygon and z band contain the point.
     fn respawn_zone_at(&self, x: i32, y: i32, z: i32) -> Option<&RespawnZone> {
@@ -213,6 +226,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
                 cur = Some(MapRegion {
                     name: attr(b"name").unwrap_or_default(),
                     loc_id: attr(b"locId").and_then(|v| v.parse().ok()).unwrap_or(0),
+                    bbs: attr(b"bbs").and_then(|v| v.parse().ok()).unwrap_or(0),
                     respawn_points: Vec::new(),
                     tiles: Vec::new(),
                 });

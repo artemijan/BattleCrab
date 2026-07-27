@@ -148,8 +148,21 @@ pub const STOP_MOVE_IN_VEHICLE: u8 = 0x7F;
 /// `MonRaceInfo` — the Monster Race Track board/animation (G26.5).
 pub const MON_RACE_INFO: u8 = 0xE3;
 
+/// `ListPartyWaiting` — the party-matching room browser (G30).
+pub const LIST_PARTY_WAITING: u8 = 0x9C;
+/// `PartyRoomInfo` — a matching room's settings panel (G30).
+pub const PARTY_ROOM_INFO: u8 = 0x9D;
+
 /// Extended packets: opcode 0xFE + a 2-byte little-endian sub-opcode.
 pub const EX: u8 = 0xFE;
+/// `ExPartyRoomMember` — the matching room's member list (G30).
+pub const EX_PARTY_ROOM_MEMBER: i16 = 0x08;
+/// `ExClosePartyRoom` — close the matching-room window (G30).
+pub const EX_CLOSE_PARTY_ROOM: i16 = 0x09;
+/// `ExAskJoinPartyRoom` — matching-room invitation dialog (G30).
+pub const EX_ASK_JOIN_PARTY_ROOM: i16 = 0x35;
+/// `ExListPartyMatchingWaitingRoom` — the looking-for-party list (G30).
+pub const EX_LIST_PARTY_MATCHING_WAITING_ROOM: i16 = 0x36;
 pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
 pub const EX_SEND_MANOR_LIST: i16 = 0x22;
 pub const EX_SHOW_CASTLE_INFO: i16 = 0x14;

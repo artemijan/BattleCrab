@@ -275,6 +275,10 @@ pub struct World {
     /// The item-auction house runtime (G30.5).
     pub item_auctions: crate::model::item_auction::ItemAuctionManager,
 
+    /// Party matching rooms + the looking-for-party waiting list (G30) — the
+    /// party half of Java `MatchingRoomManager`.
+    pub matching_rooms: crate::model::matching_room::MatchingRoomManager,
+
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
@@ -423,6 +427,7 @@ impl World {
             events: crate::model::event::EventManager::default(),
             lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
+            matching_rooms: crate::model::matching_room::MatchingRoomManager::default(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             punishments: crate::model::punishment::PunishmentManager::default(),
             petitions: crate::model::petition::PetitionManager::default(),
