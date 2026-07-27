@@ -447,7 +447,8 @@ impl LauncherApp {
     }
 }
 
-/// Small square title-bar button. Tinted on hover only, so the bar stays quiet.
+/// Small square title-bar button. Tinted on hover only, so the bar stays quiet —
+/// the tint fades in and out rather than snapping.
 fn window_button(ui: &mut egui::Ui, glyph: &str, hover_colour: Color32) -> egui::Response {
     let response = ui.add(
         egui::Button::new(egui::RichText::new(glyph).size(15.0))
@@ -455,11 +456,14 @@ fn window_button(ui: &mut egui::Ui, glyph: &str, hover_colour: Color32) -> egui:
             .stroke(egui::Stroke::NONE)
             .min_size(Vec2::new(26.0, 26.0)),
     );
-    if response.hovered() {
+    let hover =
+        ui.ctx()
+            .animate_bool_with_time(response.id.with("hover"), response.hovered(), 0.12);
+    if hover > 0.0 {
         ui.painter().rect_filled(
             response.rect,
             egui::CornerRadius::same(6),
-            hover_colour.gamma_multiply(0.22),
+            hover_colour.gamma_multiply(0.22 * hover),
         );
     }
     response

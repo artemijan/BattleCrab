@@ -124,7 +124,9 @@ fn find_child(dir: &Path, name: &str) -> Option<PathBuf> {
     })
 }
 
-fn app_dir() -> PathBuf {
+/// The launcher's own data directory (`%APPDATA%\\BattleCrab` on Windows) — shared
+/// by the config file and the single-instance lock.
+pub fn app_dir() -> PathBuf {
     directories::ProjectDirs::from("", "", "BattleCrab")
         .map(|d| d.config_dir().to_path_buf())
         .unwrap_or_else(|| Path::new(".").to_path_buf())

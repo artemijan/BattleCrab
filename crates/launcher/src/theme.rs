@@ -358,25 +358,50 @@ pub fn glass_progress(ui: &mut egui::Ui, fraction: Option<f32>) {
     }
 }
 
+/// How long the hover tint eases in and out.
+const HOVER_ANIM_SECS: f32 = 0.15;
+/// How long the press squish takes — fast, so the button feels attached to the
+/// mouse rather than lagging behind it.
+const PRESS_ANIM_SECS: f32 = 0.08;
+/// Fraction of its size a fully pressed button shrinks toward its centre.
+const PRESS_SQUISH: f32 = 0.045;
+/// Lifetime of the ring that ripples outward on click.
+const FLASH_SECS: f64 = 0.4;
+
+/// Everything that distinguishes one button family from another; the motion is
+/// shared by all of them in [`animated_button`].
+struct ButtonLook {
+    fill: Color32,
+    fill_hovered: Color32,
+    stroke: Color32,
+    stroke_hovered: Color32,
+    /// Applied to the label explicitly — the style's `override_text_color` would
+    /// otherwise be baked into the galley, defeating the disabled dimming.
+    text: Color32,
+    radius: u8,
+    /// Colour of the click ripple.
+    flash: Color32,
+}
+
 /// The one prominent call to action — Play, or Install. Gold, lit, and larger than
 /// anything else on screen so there is never a question of what to click.
 pub fn primary_button(ui: &mut egui::Ui, label: &str) -> egui::Response {
-    let text = egui::RichText::new(label)
-        .size(19.0)
-        .strong()
-        .color(Color32::from_rgb(0x1A, 0x12, 0x04));
-    ui.add_sized(
-        Vec2::new(190.0, 46.0),
-        egui::Button::new(text)
-            .fill(palette::GOLD)
-            .stroke(Stroke::new(1.0, palette::GOLD_DIM))
-            .corner_radius(CornerRadius::same(10)),
-    )
+    let text = egui::RichText::new(label).size(19.0).strong();
+    let look = ButtonLook {
+        fill: palette::GOLD,
+        fill_hovered: mix(palette::GOLD, Color32::WHITE, 0.16),
+        stroke: palette::GOLD_DIM,
+        stroke_hovered: palette::GOLD,
+        text: Color32::from_rgb(0x1A, 0x12, 0x04),
+        radius: 10,
+        flash: palette::GOLD,
+    };
+    animated_button(ui, Some(Vec2::new(190.0, 46.0)), text, &look, true)
 }
 
 /// A quieter secondary action that sits on the glass without competing with it.
 pub fn ghost_button(ui: &mut egui::Ui, label: &str, enabled: bool) -> egui::Response {
-    ui.add_enabled(enabled, ghost(label))
+    animated_button(ui, None, egui::RichText::new(label), &ghost_look(), enabled)
 }
 
 /// [`ghost_button`] at an explicit size, for rows that must line up.
@@ -386,15 +411,139 @@ pub fn ghost_button_sized(
     enabled: bool,
     size: Vec2,
 ) -> egui::Response {
-    ui.add_enabled_ui(enabled, |ui| ui.add_sized(size, ghost(label)))
-        .inner
+    animated_button(
+        ui,
+        Some(size),
+        egui::RichText::new(label),
+        &ghost_look(),
+        enabled,
+    )
 }
 
-fn ghost(label: &str) -> egui::Button<'static> {
-    egui::Button::new(egui::RichText::new(label.to_owned()).color(palette::TEXT))
-        .fill(glass_fill(20))
-        .stroke(Stroke::new(1.0, glass_edge(50)))
-        .corner_radius(CornerRadius::same(8))
+fn ghost_look() -> ButtonLook {
+    ButtonLook {
+        fill: glass_fill(20),
+        fill_hovered: glass_fill(40),
+        stroke: glass_edge(50),
+        stroke_hovered: glass_edge(120),
+        text: palette::TEXT,
+        radius: 8,
+        flash: palette::GLOW,
+    }
+}
+
+/// A button that moves: the hover tint eases in and out, the whole button sinks
+/// toward its centre while held, and a ring ripples outward on click.
+///
+/// Hand-rolled rather than styling `egui::Button` because a stock widget paints
+/// itself during `add` — its visuals can only be the discrete hovered/active
+/// states, never a value partway through an animation. Allocating the rect first
+/// and painting after the interaction is what lets the visuals follow the
+/// animated state.
+///
+/// `size` of `None` sizes the button to its label plus the style's button padding.
+fn animated_button(
+    ui: &mut egui::Ui,
+    size: Option<Vec2>,
+    text: egui::RichText,
+    look: &ButtonLook,
+    enabled: bool,
+) -> egui::Response {
+    let text_colour = if enabled {
+        look.text
+    } else {
+        look.text.gamma_multiply(0.45)
+    };
+    let galley = egui::WidgetText::from(text.color(text_colour)).into_galley(
+        ui,
+        Some(egui::TextWrapMode::Extend),
+        f32::INFINITY,
+        egui::TextStyle::Button,
+    );
+    let size = size.unwrap_or_else(|| galley.size() + ui.spacing().button_padding * 2.0);
+    // A disabled button must not eat clicks — sense hover only, so `clicked()`
+    // can never fire while greyed out.
+    let sense = if enabled {
+        egui::Sense::click()
+    } else {
+        egui::Sense::hover()
+    };
+    let (rect, response) = ui.allocate_exact_size(size, sense);
+    response.widget_info(|| {
+        egui::WidgetInfo::labeled(egui::WidgetType::Button, enabled, galley.text())
+    });
+
+    let ctx = ui.ctx().clone();
+    // `animate_bool_with_time` owns the repaint scheduling for both of these.
+    let hover = ctx.animate_bool_with_time(
+        response.id.with("hover"),
+        enabled && response.hovered(),
+        HOVER_ANIM_SECS,
+    );
+    let press = ctx.animate_bool_with_time(
+        response.id.with("press"),
+        enabled && response.is_pointer_button_down_on(),
+        PRESS_ANIM_SECS,
+    );
+
+    let flash_id = response.id.with("flash");
+    let now = ui.input(|i| i.time);
+    if response.clicked() {
+        ctx.data_mut(|d| d.insert_temp(flash_id, now));
+    }
+
+    if ui.is_rect_visible(rect) {
+        let rect =
+            Rect::from_center_size(rect.center(), rect.size() * (1.0 - PRESS_SQUISH * press));
+        let cr = CornerRadius::same(look.radius);
+
+        let mut fill = mix(look.fill, look.fill_hovered, hover);
+        let mut stroke = mix(look.stroke, look.stroke_hovered, hover);
+        if !enabled {
+            fill = fill.gamma_multiply(0.45);
+            stroke = stroke.gamma_multiply(0.45);
+        }
+
+        let painter = ui.painter();
+        painter.rect_filled(rect, cr, fill);
+        painter.rect_stroke(rect, cr, Stroke::new(1.0, stroke), StrokeKind::Inside);
+
+        // The click ripple: an expanding, fading ring. Driven off the clock rather
+        // than the press animation, so it plays out in full even though the press
+        // that caused it may last a single frame.
+        if let Some(clicked_at) = ctx.data(|d| d.get_temp::<f64>(flash_id)) {
+            let t = ((now - clicked_at) / FLASH_SECS) as f32;
+            if (0.0..1.0).contains(&t) {
+                // Ease-out: the ring leaps away and coasts, like a ripple does.
+                let ease = 1.0 - (1.0 - t) * (1.0 - t);
+                let ring = rect.expand(1.0 + 6.0 * ease);
+                painter.rect_stroke(
+                    ring,
+                    CornerRadius::same(look.radius.saturating_add(3)),
+                    Stroke::new(2.0, look.flash.gamma_multiply(0.7 * (1.0 - t))),
+                    StrokeKind::Outside,
+                );
+                ctx.request_repaint();
+            } else {
+                ctx.data_mut(|d| d.remove::<f64>(flash_id));
+            }
+        }
+
+        painter.galley(rect.center() - galley.size() * 0.5, galley, text_colour);
+    }
+    response
+}
+
+/// Linear blend in premultiplied space — correct for the translucent glass
+/// colours, whose alpha changes between the resting and hovered states.
+fn mix(a: Color32, b: Color32, t: f32) -> Color32 {
+    let f = |x: u8, y: u8| (x as f32 + (y as f32 - x as f32) * t).round() as u8;
+    Color32::from_rgba_premultiplied(
+        f(a.r(), b.r()),
+        f(a.g(), b.g()),
+        f(a.b(), b.b()),
+        f(a.a(), b.a()),
+    )
 }
 
 /// Lays out a horizontal row of known width, centred in the available space.

@@ -6,6 +6,7 @@ mod app;
 mod assets;
 mod config;
 mod install;
+mod instance;
 mod launch;
 mod progress;
 mod relocate;
@@ -20,6 +21,20 @@ fn main() -> eframe::Result<()> {
                 .unwrap_or_else(|_| "launcher=info".into()),
         )
         .init();
+
+    // Two launchers racing each other over one install directory would corrupt it,
+    // so only the first instance runs. The lock is held for the whole of `main`
+    // and the OS releases it however the process ends.
+    let Some(_instance_lock) = instance::acquire() else {
+        // A silent exit would read as "the launcher is broken" to whoever
+        // double-clicked; say why nothing opened.
+        rfd::MessageDialog::new()
+            .set_level(rfd::MessageLevel::Info)
+            .set_title("BattleCrab Launcher")
+            .set_description("The launcher is already running — check your taskbar.")
+            .show();
+        return Ok(());
+    };
 
     let options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default()
