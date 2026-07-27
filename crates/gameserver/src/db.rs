@@ -840,6 +840,33 @@ pub enum DbCommand {
     DeleteItemAuction {
         auction_id: i32,
     },
+    /// Insert a punishment row (Java `PunishmentTask.onStart`'s INSERT, G31).
+    /// The `id` is allocated on the game thread so the row can be deleted by id
+    /// without waiting for a generated-key round-trip.
+    StorePunishment {
+        id: i32,
+        key: String,
+        affect: String,
+        ptype: String,
+        expiration: i64,
+        reason: String,
+        punished_by: String,
+    },
+    /// Delete a punishment row by id (Java's `onEnd` expires the row in place;
+    /// this port removes it — behaviourally identical since the load skips
+    /// expired rows anyway, and nothing reads a dead punishment).
+    DeletePunishment {
+        id: i32,
+    },
+    /// Insert a petition-feedback row (Java `RequestPetitionFeedback`, G31) — the
+    /// only petition state that persists. `rate` is 0-4.
+    StorePetitionFeedback {
+        char_name: String,
+        gm_name: String,
+        rate: i32,
+        message: String,
+        date: i64,
+    },
     /// Insert a won auction item into an **offline** winner's warehouse (Java
     /// `onAuctionFinished`'s offline branch: set owner + WAREHOUSE loc +
     /// `updateDatabase`). Online winners get it added to their live component.
@@ -955,6 +982,13 @@ pub enum DbEvent {
     ItemAuctionsLoaded {
         next_auction_id: i32,
         auctions: Vec<crate::model::item_auction::ItemAuction>,
+    },
+    /// The active punishments (Java `PunishmentManager.load`, G31), pushed
+    /// unprompted at boot. Already-expired rows are filtered out here; `next_id`
+    /// seeds the game-thread id allocator past the highest loaded id.
+    PunishmentsLoaded {
+        next_id: i32,
+        punishments: Vec<crate::model::punishment::Punishment>,
     },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
@@ -1248,6 +1282,14 @@ async fn run(
     let _ = event_tx.send(DbEvent::ItemAuctionsLoaded {
         next_auction_id,
         auctions,
+    });
+
+    // Active punishments (Java `PunishmentManager.load`, G31) — likewise
+    // unprompted, before `ClansLoaded`.
+    let (next_punishment_id, punishments) = load_punishments(&pool).await;
+    let _ = event_tx.send(DbEvent::PunishmentsLoaded {
+        next_id: next_punishment_id,
+        punishments,
     });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
@@ -2485,6 +2527,53 @@ async fn run(
                 )
                 .await;
             }
+            DbCommand::StorePunishment {
+                id,
+                key,
+                affect,
+                ptype,
+                expiration,
+                reason,
+                punished_by,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO punishments(id, `key`, affect, `type`, expiration, reason, punishedBy) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                        .bind(id)
+                        .bind(key)
+                        .bind(affect)
+                        .bind(ptype)
+                        .bind(expiration)
+                        .bind(reason)
+                        .bind(punished_by),
+                )
+                .await;
+            }
+            DbCommand::DeletePunishment { id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM punishments WHERE id=?").bind(id),
+                )
+                .await;
+            }
+            DbCommand::StorePetitionFeedback {
+                char_name,
+                gm_name,
+                rate,
+                message,
+                date,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO petition_feedback(charName, gmName, rate, message, date) VALUES (?, ?, ?, ?, ?)")
+                        .bind(char_name)
+                        .bind(gm_name)
+                        .bind(rate)
+                        .bind(message)
+                        .bind(date),
+                )
+                .await;
+            }
             DbCommand::StoreOfflineWarehouseItem {
                 owner_id,
                 object_id,
@@ -2750,6 +2839,54 @@ async fn load_item_auctions(
 
     let next_id = auctions.iter().map(|a| a.auction_id).max().unwrap_or(0) + 1;
     (next_id, auctions)
+}
+
+/// `PunishmentManager.load` (G31): every active punishment, minus the rows that
+/// have already expired (Java skips them, counting them as "expired"). Returns
+/// `(next_id, rows)` — `next_id` seeds the game-thread id allocator. Fail-open
+/// (empty) if the table is absent, like a minimal test schema.
+async fn load_punishments(pool: &SqlitePool) -> (i32, Vec<crate::model::punishment::Punishment>) {
+    use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
+
+    let now = commons::util::now_millis();
+    let rows: Vec<Punishment> = sqlx::query(
+        "SELECT id, `key`, affect, `type`, expiration, reason, punishedBy FROM punishments",
+    )
+    .fetch_all(pool)
+    .await
+    .map(|rs| {
+        rs.iter()
+            .filter_map(|r| {
+                let affect = PunishmentAffect::from_name(&gets(r, "affect"))?;
+                let ptype = PunishmentType::from_name(&gets(r, "type"))?;
+                let expiration = geti(r, "expiration");
+                // Java's `load` skips already-expired rows.
+                if expiration > 0 && now > expiration {
+                    return None;
+                }
+                Some(Punishment {
+                    id: geti(r, "id") as i32,
+                    key: gets(r, "key"),
+                    affect,
+                    ptype,
+                    expiration,
+                    reason: gets(r, "reason"),
+                    punished_by: gets(r, "punishedBy"),
+                })
+            })
+            .collect()
+    })
+    .unwrap_or_default();
+
+    // The id allocator must clear *every* persisted id, not just the still-active
+    // ones — an expired row we filtered out above may still own the max id until
+    // the operator purges it, and reusing that id would collide on INSERT.
+    let loaded_max: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(id), 0) FROM punishments")
+        .fetch_one(pool)
+        .await
+        .unwrap_or(0);
+    let next_id = (loaded_max as i32 + 1).max(1);
+    (next_id, rows)
 }
 
 /// One `npc_respawns` row — a raid boss's persisted state.

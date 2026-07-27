@@ -60,8 +60,10 @@ pub(crate) mod olympiad;
 mod orfen;
 mod party;
 mod passive_skills;
+pub(crate) mod petition;
 pub(crate) mod position;
 mod private_store;
+pub(crate) mod punishment;
 mod pvp;
 mod queen_ant;
 pub mod quests;
@@ -679,6 +681,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::MonsterRaceTick => monster_race::tick(world),
             ScheduledTask::ItemAuctionState { auction_id } => {
                 item_auction::run_state_task(world, auction_id)
+            }
+            ScheduledTask::PunishmentExpire { punishment_id } => {
+                punishment::on_expire(world, punishment_id)
             }
         }
     }

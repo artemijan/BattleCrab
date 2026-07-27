@@ -136,6 +136,13 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_MAKE_MACRO => handle_request_make_macro(world, client_id, body),
         cop::REQUEST_DELETE_MACRO => handle_request_delete_macro(world, client_id, body),
         cop::SAY2 => handle_say2(world, client_id, body),
+        cop::REQUEST_PETITION => super::petition::on_request_petition(world, client_id, body),
+        cop::REQUEST_PETITION_CANCEL => {
+            super::petition::on_request_petition_cancel(world, client_id)
+        }
+        cop::REQUEST_PETITION_FEEDBACK => {
+            super::petition::on_request_petition_feedback(world, client_id, body)
+        }
         cop::REQUEST_BYPASS_TO_SERVER => handle_request_bypass_to_server(world, client_id, body),
         // RequestSiegeAttackerList / RequestSiegeDefenderList (G24): view a
         // castle's registered attackers / owner + defenders.
@@ -482,6 +489,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}
+        // RequestHardWareInfo (G31): store the client's hardware fingerprint,
+        // then apply any HWID punishment now known to match (the packet can
+        // arrive after enter-world, so re-check here rather than only on login).
+        exop::REQUEST_HARDWARE_INFO => {
+            if let Some(hw) = cp::HardwareInfo::read(ex_body) {
+                world.hwids.insert(client_id, hw);
+                super::punishment::on_hwid_received(world, client_id);
+            }
+        }
         // Olympiad observer mode (G25): leave observing, or (re)open the
         // ongoing-match list. The list request/refresh just re-sends it.
         exop::REQUEST_OLYMPIAD_OBSERVER_END => {

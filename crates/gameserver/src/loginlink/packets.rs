@@ -68,6 +68,17 @@ pub fn player_logout(account: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// `ChangeAccessLevel` (0x04, G31): set an account's access level on the login
+/// server — a negative level bans it (`LoginController.setAccountAccessLevel`),
+/// so the login server refuses that account's next login.
+pub fn change_access_level(account: &str, level: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x04);
+    w.write_i32(level);
+    w.write_string(account);
+    w.into_bytes()
+}
+
 /// `PlayerAuthRequest` (0x05). Note the field order: playOk first, then loginOk.
 pub fn player_auth_request(account: &str, key: &SessionKey) -> Vec<u8> {
     let mut w = PacketWriter::new();

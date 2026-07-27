@@ -575,6 +575,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
         _ => {}
     }
     world.clients.remove(&client_id);
+    world.hwids.remove(&client_id); // Java `GameClient` hardware info dies with the connection (G31).
     let account = world
         .login
         .accounts_in_gameserver
@@ -731,6 +732,12 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 auctions,
             } => {
                 super::item_auction::on_loaded(world, next_auction_id, auctions);
+            }
+            DbEvent::PunishmentsLoaded {
+                next_id,
+                punishments,
+            } => {
+                super::punishment::on_loaded(world, next_id, punishments);
             }
             DbEvent::BufferSchemesLoaded { entries } => {
                 // Java `SchemeBufferTable.load` drops any saved skill id no longer

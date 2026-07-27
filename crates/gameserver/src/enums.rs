@@ -434,8 +434,15 @@ pub enum ChatType {
     Whisper = 2,
     Party = 3,
     Clan = 4,
+    /// Petitioner→GM line during a petition consultation (G31).
+    PetitionPlayer = 6,
+    /// GM→petitioner line during a petition consultation (G31).
+    PetitionGm = 7,
     Trade = 8,
     Alliance = 9,
+    /// `ChatType.HERO_VOICE` — used server-side for the "Petition System"
+    /// broadcast to GMs (G31); also hero global chat.
+    HeroVoice = 17,
     /// Server-wide announcements (`Broadcast.toAllOnlinePlayers(String)` →
     /// `CreatureSay(ChatType.ANNOUNCEMENT, ...)`) — server-sent only (G28).
     Announcement = 10,
@@ -455,10 +462,13 @@ impl ChatType {
             2 => Some(Self::Whisper),
             3 => Some(Self::Party),
             4 => Some(Self::Clan),
+            6 => Some(Self::PetitionPlayer),
+            7 => Some(Self::PetitionGm),
             8 => Some(Self::Trade),
             9 => Some(Self::Alliance),
             10 => Some(Self::Announcement),
             11 => Some(Self::Boat),
+            17 => Some(Self::HeroVoice),
             _ => None,
         }
     }

@@ -33,7 +33,7 @@ mod instance;
 mod items;
 mod menu;
 mod mobgroup;
-mod moderation;
+pub(crate) mod moderation;
 mod mounts;
 mod pledge;
 mod points;
@@ -312,6 +312,44 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_gm" => admin_gm(world, client_id, object_id),
         // Disconnect the targeted player.
         "admin_character_disconnect" => admin_character_disconnect(world, client_id, object_id),
+        // Jail / release a player (Java `AdminPunishment`, G31).
+        "admin_jail" => admin_jail(world, client_id, object_id, &args),
+        "admin_unjail" => admin_unjail(world, client_id, &args),
+        // Ban / chat-ban / party-ban (Java `AdminPunishment`, G31 slice 2).
+        "admin_ban_char" | "admin_ban" => admin_ban_char(world, client_id, object_id, &args),
+        "admin_unban_char" | "admin_unban" => admin_unban_char(world, client_id, &args),
+        "admin_ban_acc" => admin_ban_acc(world, client_id, object_id, &args),
+        "admin_unban_acc" => admin_unban_acc(world, client_id, &args),
+        "admin_ban_chat" | "admin_chatban" => admin_ban_chat(world, client_id, object_id, &args),
+        "admin_unban_chat" | "admin_chatunban" => admin_unban_chat(world, client_id, &args),
+        "admin_ban_party" | "admin_partyban" => admin_ban_party(world, client_id, object_id, &args),
+        "admin_unban_party" | "admin_partyunban" => admin_unban_party(world, client_id, &args),
+        // Petitions (Java `AdminPetition`, G31 slice 3).
+        "admin_view_petitions" => super::petition::send_pending_list(world, object_id),
+        "admin_view_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::view_petition(world, object_id, id);
+            }
+        }
+        "admin_accept_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::accept_petition(world, object_id, id);
+            }
+        }
+        "admin_reject_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::reject_petition(world, object_id, id);
+            }
+        }
+        "admin_reset_petitions" => super::petition::reset_petitions(world, object_id),
+        // Login-ban relay + IP tools (Java `AdminEditChar`/login link, G31 slice 4).
+        "admin_login_ban" => admin_login_ban(world, client_id, &args),
+        "admin_login_unban" => admin_login_unban(world, client_id, &args),
+        "admin_find_ip" => admin_find_ip(world, client_id, &args),
+        "admin_find_dualbox" => admin_find_dualbox(world, client_id, &args),
+        "admin_tracert" => admin_tracert(world, client_id, object_id, &args),
+        "admin_snoop" => admin_snoop(world, client_id, object_id, &args),
+        "admin_hwid" | "admin_hwinfo" => admin_hwid(world, client_id, object_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

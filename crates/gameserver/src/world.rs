@@ -101,6 +101,10 @@ pub struct World {
     pub scheduler: Scheduler,
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
     pub clients: HashMap<u32, ClientSession>,
+    /// Per-connection hardware fingerprint (Java `GameClient._hardwareInfo`,
+    /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
+    /// HWID punishment matching and `//hwid`. Cleared on disconnect.
+    pub hwids: HashMap<u32, crate::network::client_packets::HardwareInfo>,
     /// Every in-world object — players and NPCs — as entities in one
     /// `bevy_ecs` world, keyed by object id (stage 2 phase 6; the `Player`/
     /// `Npc` residual-core components are the kind markers). The `InGame`
@@ -274,6 +278,12 @@ pub struct World {
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
+    /// The active-punishment registry — jail/ban/chat-ban (G31).
+    pub punishments: crate::model::punishment::PunishmentManager,
+
+    /// The in-memory GM petition queue (G31).
+    pub petitions: crate::model::petition::PetitionManager,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -366,6 +376,7 @@ impl World {
             tick: 0,
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
+            hwids: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),
@@ -413,6 +424,8 @@ impl World {
             lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
+            punishments: crate::model::punishment::PunishmentManager::default(),
+            petitions: crate::model::petition::PetitionManager::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),

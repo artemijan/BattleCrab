@@ -383,6 +383,11 @@ pub enum ScheduledTask {
     /// .ScheduleAuctionTask`, G30.5): CREATED→STARTED at its start time, then
     /// STARTED→FINISHED at its (possibly extended) end time. Keyed by auction id.
     ItemAuctionState { auction_id: i32 },
+    /// A timed punishment's expiry (Java `PunishmentTask` scheduling itself at
+    /// `expirationTime`, G31): drop the punishment and run its release effect
+    /// (jail-out teleport). Keyed by the `punishments.id`; a stale timer (the
+    /// row already removed by `//unjail`) no-ops.
+    PunishmentExpire { punishment_id: i32 },
 }
 
 struct Entry {

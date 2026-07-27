@@ -47,10 +47,29 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Java `Say2`: a chat-banned player can still use `.`-prefixed commands but
+    // no ordinary chat gets through (G31). The prohibition message is sent, then
+    // the message is dropped.
+    if !pkt.text.starts_with('.') && super::punishment::is_chat_banned(world, sender_oid) {
+        send_sm(world, client_id, sm_ids::CHATTING_IS_CURRENTLY_PROHIBITED);
+        return;
+    }
+
+    // Petition consultation chat (Java `Say2` → `sendActivePetitionMessage`,
+    // G31): route the line to both participants, don't broadcast it.
+    if matches!(chat_type, ChatType::PetitionPlayer | ChatType::PetitionGm) {
+        super::petition::send_active_petition_message(world, sender_oid, &pkt.text);
+        return;
+    }
+
     let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
         return;
     };
     let (sender_name, sender_level) = (p.name.clone(), p.level);
+
+    // Java `Player.broadcastSnoop`: mirror the line to any GM snooping this
+    // speaker (G31). Fires for every chat channel the player originates.
+    broadcast_snoop(world, sender_oid, chat_type, &sender_name, &pkt.text);
 
     match chat_type {
         ChatType::General => {
@@ -208,9 +227,14 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
-        // Server-sent only (ferry announcements / event announcements); a
-        // client never legitimately originates these, so drop them.
-        ChatType::Boat | ChatType::Announcement => {}
+        // Server-sent only (ferry announcements / event announcements) or handled
+        // before the match (petition consultation chat); a client never
+        // legitimately originates these here, so drop them.
+        ChatType::Boat
+        | ChatType::Announcement
+        | ChatType::PetitionPlayer
+        | ChatType::PetitionGm
+        | ChatType::HeroVoice => {}
     }
 }
 
@@ -226,6 +250,29 @@ fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u
         0x01
     } else {
         0
+    }
+}
+
+/// Java `Player.broadcastSnoop`: send a `Snoop` line to every GM currently
+/// eavesdropping on `speaker` (`//snoop`). Offline listeners are skipped.
+fn broadcast_snoop(
+    world: &World,
+    speaker: i32,
+    chat_type: ChatType,
+    speaker_name: &str,
+    text: &str,
+) {
+    let listeners = match world.objects.get_component::<Player>(&speaker) {
+        Some(p) if !p.snoop_listeners.is_empty() => p.snoop_listeners.clone(),
+        _ => return,
+    };
+    let snoop = server_packets::snoop(speaker, speaker_name, chat_type, speaker_name, text);
+    for gm in listeners {
+        if let Some(cs) =
+            super::helpers::client_for_player(world, gm).and_then(|c| world.clients.get(&c))
+        {
+            cs.send(snoop.clone());
+        }
     }
 }
 
