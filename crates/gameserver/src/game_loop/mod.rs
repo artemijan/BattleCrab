@@ -44,6 +44,7 @@ mod ground_items;
 mod helpers;
 mod henna;
 pub(crate) mod instances;
+pub(crate) mod item_auction;
 mod items;
 mod lobby;
 pub(crate) mod lottery;

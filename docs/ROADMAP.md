@@ -1146,8 +1146,17 @@ multisell branches (no CB list uses them). The retail forum boards +
 ### G30.5 — Item auction
 *(2026-07 audit addition.)* `ItemAuctionManager` + `ItemAuctions.xml` (the
 auctioneer NPCs), `RequestBidItemAuction`/`RequestInfoItemAuction`, scheduled
-auction periods, winner delivery. **Deps:** G15 (economy); G30 if delivery
-goes via mail.
+auction periods, winner delivery. **Deps:** G15 (economy). (G30 mail *not*
+needed — Java delivers the won item to the winner's **warehouse**.)
+
+**Slice 1 (2026-07-27):** the **data + model + DB foundation** landed
+([PLAN_G30_5_ITEM_AUCTION.md](PLAN_G30_5_ITEM_AUCTION.md)) — the `ItemAuctions.xml`
+parser (empty on this dist), the auction/bid model + `ItemAuctionManager` on
+`World`, the `AuctionDateGenerator` schedule math, and `item_auction`/
+`item_auction_bid` load+persist (config-gated on `AltItemAuctionEnabled`).
+**Remaining:** the CREATED→STARTED→FINISHED lifecycle + scheduling (slice 2),
+bidding + packets + the `ItemAuctionLink` NPC dialog (slice 3), and winner→
+warehouse delivery + loser refund + expiry (slice 4).
 
 ### G31 — Moderation, accounts, petitions & HWID
 Per-client IP plumbing (needed by several); punishment/jail (`PunishmentManager`

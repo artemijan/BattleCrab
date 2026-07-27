@@ -816,6 +816,30 @@ pub enum DbCommand {
     },
     /// Zero every lane's bet after a race (Java `MonsterRace.clearBets`).
     ClearMdtBets,
+    /// Upsert an item auction's row (Java `ItemAuction.storeMe`, G30.5).
+    StoreItemAuction {
+        auction_id: i32,
+        instance_id: i32,
+        auction_item_id: i32,
+        starting_time: i64,
+        ending_time: i64,
+        state_id: i8,
+    },
+    /// Upsert one player's bid on an auction (Java `updatePlayerBid`, insert).
+    StoreItemAuctionBid {
+        auction_id: i32,
+        player_obj_id: i32,
+        bid: i64,
+    },
+    /// Delete one player's bid (Java `updatePlayerBid`, delete branch).
+    DeleteItemAuctionBid {
+        auction_id: i32,
+        player_obj_id: i32,
+    },
+    /// Delete an auction + all its bids (Java `ItemAuctionManager.deleteAuction`).
+    DeleteItemAuction {
+        auction_id: i32,
+    },
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
@@ -915,6 +939,12 @@ pub enum DbEvent {
     MdtLoaded {
         history: Vec<crate::model::monster_race::HistoryInfo>,
         bets: Vec<(i32, i64)>,
+    },
+    /// The persisted item auctions + their bids + the next auction id (Java
+    /// `ItemAuctionManager` boot load, G30.5), pushed unprompted at boot.
+    ItemAuctionsLoaded {
+        next_auction_id: i32,
+        auctions: Vec<crate::model::item_auction::ItemAuction>,
     },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
@@ -1194,6 +1224,14 @@ async fn run(
     let _ = event_tx.send(DbEvent::MdtLoaded {
         history: load_mdt_history(&pool).await,
         bets: load_mdt_bets(&pool).await,
+    });
+
+    // Item auctions + bids (Java `ItemAuctionManager` boot load, G30.5) —
+    // likewise unprompted, before `ClansLoaded`.
+    let (next_auction_id, auctions) = load_item_auctions(&pool).await;
+    let _ = event_tx.send(DbEvent::ItemAuctionsLoaded {
+        next_auction_id,
+        auctions,
     });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
@@ -2372,6 +2410,64 @@ async fn run(
             DbCommand::ClearMdtBets => {
                 exec(&pool, sqlx::query("UPDATE mdt_bets SET bet = 0")).await;
             }
+            DbCommand::StoreItemAuction {
+                auction_id,
+                instance_id,
+                auction_item_id,
+                starting_time,
+                ending_time,
+                state_id,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO item_auction(auctionId, instanceId, auctionItemId, startingTime, endingTime, auctionStateId) VALUES (?, ?, ?, ?, ?, ?)")
+                        .bind(auction_id)
+                        .bind(instance_id)
+                        .bind(auction_item_id)
+                        .bind(starting_time)
+                        .bind(ending_time)
+                        .bind(state_id),
+                )
+                .await;
+            }
+            DbCommand::StoreItemAuctionBid {
+                auction_id,
+                player_obj_id,
+                bid,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO item_auction_bid(auctionId, playerObjId, playerBid) VALUES (?, ?, ?)")
+                        .bind(auction_id)
+                        .bind(player_obj_id)
+                        .bind(bid),
+                )
+                .await;
+            }
+            DbCommand::DeleteItemAuctionBid {
+                auction_id,
+                player_obj_id,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM item_auction_bid WHERE auctionId=? AND playerObjId=?")
+                        .bind(auction_id)
+                        .bind(player_obj_id),
+                )
+                .await;
+            }
+            DbCommand::DeleteItemAuction { auction_id } => {
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM item_auction WHERE auctionId=?").bind(auction_id),
+                )
+                .await;
+                exec(
+                    &pool,
+                    sqlx::query("DELETE FROM item_auction_bid WHERE auctionId=?").bind(auction_id),
+                )
+                .await;
+            }
             DbCommand::StoreBufferScheme {
                 object_id,
                 scheme_name,
@@ -2569,6 +2665,56 @@ async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// Every persisted item auction + its bids, plus the next auction id (Java
+/// `ItemAuctionManager` boot load: `MAX(auctionId)+1` and each instance's
+/// `loadAuction`). Empty on this dist.
+async fn load_item_auctions(
+    pool: &SqlitePool,
+) -> (i32, Vec<crate::model::item_auction::ItemAuction>) {
+    use crate::model::item_auction::{AuctionState, ItemAuction, ItemAuctionBid};
+
+    let mut auctions: Vec<ItemAuction> = sqlx::query(
+        "SELECT auctionId, instanceId, auctionItemId, startingTime, endingTime, auctionStateId FROM item_auction",
+    )
+    .fetch_all(pool)
+    .await
+    .map(|rs| {
+        rs.iter()
+            .filter_map(|r| {
+                let state = AuctionState::from_state_id(geti(r, "auctionStateId") as i8)?;
+                Some(ItemAuction::new(
+                    geti(r, "auctionId") as i32,
+                    geti(r, "instanceId") as i32,
+                    geti(r, "auctionItemId") as i32,
+                    geti(r, "startingTime"),
+                    geti(r, "endingTime"),
+                    state,
+                ))
+            })
+            .collect()
+    })
+    .unwrap_or_default();
+
+    // Attach each auction's bids.
+    if let Ok(rows) = sqlx::query("SELECT auctionId, playerObjId, playerBid FROM item_auction_bid")
+        .fetch_all(pool)
+        .await
+    {
+        for r in &rows {
+            let auction_id = geti(r, "auctionId") as i32;
+            if let Some(a) = auctions.iter_mut().find(|a| a.auction_id == auction_id) {
+                a.bids.push(ItemAuctionBid {
+                    player_obj_id: geti(r, "playerObjId") as i32,
+                    last_bid: geti(r, "playerBid"),
+                });
+            }
+        }
+    }
+
+    let next_id = auctions.iter().map(|a| a.auction_id).max().unwrap_or(0) + 1;
+    (next_id, auctions)
 }
 
 /// One `npc_respawns` row — a raid boss's persisted state.

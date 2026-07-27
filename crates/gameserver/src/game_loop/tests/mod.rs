@@ -70,6 +70,7 @@ mod ground_channeling_tests;
 mod guard_aggro_tests;
 mod henna_tests;
 mod instance_tests;
+mod item_auction_tests;
 mod items_tests;
 mod lobby_tests;
 mod lottery_tests;
@@ -329,6 +330,7 @@ async fn character_create_inserts_into_real_schema() {
         buy_lists: crate::data::BuyListData::empty(),
         multisells: crate::data::MultisellData::empty(),
         instance_templates: crate::data::instance_data::InstanceData::empty(),
+        item_auctions: crate::data::item_auction_data::ItemAuctionData::empty(),
         scheme_buffer: crate::data::SchemeBufferData::default(),
         hennas: crate::data::HennaData::empty(),
         manor: crate::data::manor_data::ManorData::empty(),

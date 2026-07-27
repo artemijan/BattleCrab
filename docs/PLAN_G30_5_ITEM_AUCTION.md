@@ -51,19 +51,24 @@ by mail.
 
 ## Slice breakdown
 
-### Slice 1 — Data + model + DB foundation  ⬅ start here
-- `data/item_auction_data.rs`: parse `ItemAuctions.xml` → `AuctionInstanceCfg`
-  (NPC id, schedule) + `AuctionItem` (auctionItemId, itemId, count, initBid,
-  lengthMin, enchant). Empty on this dist — parser + a `insert_for_test`.
-- `model/item_auction.rs`: `AuctionState`, `ExtendState`, `ItemAuctionBid`,
-  `ItemAuction` (id, instance, start/end, item, bids, highest), and the
-  `ItemAuctionManager` runtime on `World`.
-- DB: `item_auction`/`item_auction_bid` load at boot (`DbEvent::ItemAuctionsLoaded`)
-  + `DbCommand::{StoreItemAuction, StoreItemAuctionBid, DeleteItemAuctionBid,
-  DeleteItemAuction}`; the `auctionId` allocator from `MAX+1`.
-- The `AuctionDateGenerator` next-occurrence math (pure, testable).
-- **Gate for the slice:** the manager boot-loads (empty on dist), a synthetic
-  instance schedules its first auction, and the date math + persistence round-trip.
+### Slice 1 — Data + model + DB foundation  ✅ LANDED
+- `data/item_auction_data.rs`: `ItemAuctions.xml` parser → `AuctionInstanceCfg`
+  (NPC id + `AuctionSchedule`) + `AuctionItem`; empty on this dist (verified by a
+  test), plus `insert_for_test`. Handles both `interval` and `day_of_week`
+  (normalized `1=Mon..7=Sun` → `Mon=0..Sun=6`), drops an item-less instance.
+- `model/item_auction.rs`: `AuctionState` (byte ids), `ExtendState`,
+  `ItemAuctionBid` (canceled = `last_bid ≤ 0`), `ItemAuction` (+ `highest_bid`
+  ignoring canceled), and the `ItemAuctionManager` runtime on `World`
+  (`enabled`, `next_auction_id` allocator, live `auctions`). Plus the pure
+  `next_date` schedule math (Java `AuctionDateGenerator`, UTC like siege).
+- DB: `item_auction`/`item_auction_bid` boot load (`DbEvent::ItemAuctionsLoaded`,
+  `auctionId` allocator from `MAX+1`, bids attached) → `item_auction::on_loaded`
+  (config-gated on `AltItemAuctionEnabled`); writes `DbCommand::{StoreItemAuction,
+  StoreItemAuctionBid, DeleteItemAuctionBid, DeleteItemAuction}`.
+- `AltItemAuctionEnabled` config in `GeneralConfig` (dist `True`).
+- 9 tests (parser: empty dist / interval / weekday-normalize / item-less drop;
+  date math interval + weekday; config gate; boot-load allocator + auctions;
+  highest-bid-ignores-canceled), the date math sabotage-verified.
 
 ### Slice 2 — Auction lifecycle + scheduling
 - `ItemAuctionInstance` current/next auction, the CREATED→STARTED→FINISHED

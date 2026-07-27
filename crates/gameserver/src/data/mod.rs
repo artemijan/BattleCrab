@@ -21,6 +21,7 @@ pub mod htm_cache;
 pub mod initial_equipment;
 pub mod initial_shortcut;
 pub mod instance_data;
+pub mod item_auction_data;
 pub mod item_data;
 pub mod manor_data;
 pub mod map_region;
@@ -182,6 +183,9 @@ pub struct GameData {
 
     /// Instance templates (`data/instances/**/*.xml`), see [`instance_data`].
     pub instance_templates: instance_data::InstanceData,
+    /// Item-auction auctioneer instances (`ItemAuctions.xml`, empty on this
+    /// dist), see [`item_auction_data::ItemAuctionData`].
+    pub item_auctions: item_auction_data::ItemAuctionData,
     /// Community-board scheme buffer available-buff table (`_availableBuffs`),
     /// see [`SchemeBufferData`].
     pub scheme_buffer: SchemeBufferData,
@@ -235,6 +239,7 @@ impl GameData {
         let buy_lists = BuyListData::load_from(file_path, &item_data);
         let multisells = MultisellData::load_from(file_path, &item_data);
         let instance_templates = instance_data::InstanceData::load_from(file_path);
+        let item_auctions = item_auction_data::ItemAuctionData::load_from(file_path);
         // The NPC AI skill index buckets each template's *active* skills by
         // what the AI would use them for, so it needs both loaders done first
         // (Java does the same bucketing inline at the end of `NpcData.parse`).
@@ -272,6 +277,7 @@ impl GameData {
             buy_lists,
             multisells,
             instance_templates,
+            item_auctions,
             scheme_buffer: SchemeBufferData::load_from(file_path),
             hennas: HennaData::load_from(file_path),
             manor: manor_data::ManorData::load_from(file_path),
@@ -335,6 +341,7 @@ impl GameData {
             buy_lists: BuyListData::empty(),
             multisells: MultisellData::empty(),
             instance_templates: instance_data::InstanceData::empty(),
+            item_auctions: item_auction_data::ItemAuctionData::empty(),
             scheme_buffer: SchemeBufferData::default(),
             hennas: HennaData::empty(),
             manor: manor_data::ManorData::empty(),

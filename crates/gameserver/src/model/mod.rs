@@ -16,6 +16,7 @@ pub mod formulas;
 pub mod grand_boss;
 pub mod instance;
 pub mod inventory;
+pub mod item_auction;
 pub mod lottery;
 pub mod manor;
 pub mod mob_group;
