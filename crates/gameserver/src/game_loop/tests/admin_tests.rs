@@ -2741,6 +2741,71 @@ fn dismount_skill_reverts_gm_ride_transform() {
     );
 }
 
+/// Transform-granted skills are session-only (Java `_transformSkills`, which
+/// `storeSkills` never writes): a flush while transformed must not persist
+/// them, and rows a pre-filter flush already leaked into `character_skills`
+/// are dropped on restore. Before the fix an autosave during `//ride_bike`
+/// wrote Dismount 839 + Dissonance 5437 as learned rows, and 5437's passive
+/// (Accuracy -50, P./M. Atk -95%) then followed the character across every
+/// relog.
+#[test]
+fn transform_skills_never_persist() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let bike_skills: Vec<i32> = world
+        .data
+        .transforms
+        .get(20001)
+        .expect("jet bike transform loaded")
+        .template(false)
+        .skills
+        .iter()
+        .map(|&(id, _)| id)
+        .collect();
+    assert!(!bike_skills.is_empty(), "bike grants skills");
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8945, 100);
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin("ride_bike"));
+    let book = world.objects.get_component::<SkillBook>(&8945).unwrap();
+    for id in &bike_skills {
+        assert!(
+            book.0.contains_key(id),
+            "skill {id} granted while transformed"
+        );
+    }
+
+    // Flush mid-transform: the snapshot must not carry the transform skills.
+    let save = super::net::build_save_data(&world, 8945).expect("save data");
+    for id in &bike_skills {
+        assert!(
+            !save.skills.iter().any(|&(sid, _, _)| sid == *id),
+            "transform skill {id} must not reach character_skills"
+        );
+    }
+
+    // Restore with rows a pre-filter flush leaked: they're dropped, learned
+    // skills survive.
+    let mut chr = dummy_char(8946, "Poisoned");
+    chr.skills = vec![(839, 1, 0), (5437, 2, 0), (1177, 1, 0)];
+    Player::from_char(&world.data, &chr).spawn_into(&mut world.objects);
+    let book = world.objects.get_component::<SkillBook>(&8946).unwrap();
+    assert!(
+        !book.0.contains_key(&839),
+        "stale Dismount dropped on restore"
+    );
+    assert!(
+        !book.0.contains_key(&5437),
+        "stale Dissonance dropped on restore"
+    );
+    assert!(book.0.contains_key(&1177), "learned skill survives restore");
+}
+
 /// `//mobgroup` lifecycle: create → spawn (members tagged Controllable) →
 /// set a state → invul → kill → remove.
 #[test]

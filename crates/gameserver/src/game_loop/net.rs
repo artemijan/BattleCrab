@@ -169,6 +169,11 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         .get_component::<SkillBook>(&object_id)
         .map(|s| {
             s.0.iter()
+                // Transform-granted skills (Dismount 839, Dissonance 5437, …)
+                // sit in the live book while transformed but are session-only
+                // (Java `_transformSkills`, never written by `storeSkills`) —
+                // a flush mid-transform must not turn them into learned rows.
+                .filter(|(id, _)| !world.data.transforms.is_transform_skill(**id))
                 .map(|(id, lvl)| (*id, *lvl, skill_enchants.get(id).copied().unwrap_or(0)))
                 .collect()
         })
@@ -250,7 +255,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         })
         .unwrap_or_default();
 
-    let (skills_by_index, hennas_by_index, shortcuts_by_index, class_index) = world
+    let (mut skills_by_index, hennas_by_index, shortcuts_by_index, class_index) = world
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map(|p| {
@@ -262,6 +267,11 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
             )
         })
         .unwrap_or_default();
+    // Same session-only filter as the active book above, for banked subclass
+    // books (a transform active at subclass-swap time would bank its skills).
+    for book in skills_by_index.values_mut() {
+        book.retain(|&(id, _, _)| !world.data.transforms.is_transform_skill(id));
+    }
 
     Some(db::PlayerSaveData {
         base,
