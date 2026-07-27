@@ -297,3 +297,77 @@ fn a_last_minute_bid_extends_the_ending_time() {
     );
     assert_eq!(a.ending_time, before + 5 * 60_000);
 }
+
+// --- Finish: delivery + expiry (slice 4) ---
+
+fn warehouse_count(world: &World, oid: i32, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Warehouse>(&oid)
+        .map_or(0, |wh| wh.0.count_of(item_id))
+}
+
+#[test]
+fn a_winning_bidder_gets_the_item_in_their_warehouse() {
+    let mut world = bidding_world(100, 500_000);
+    // Register the auctioned item (9901) so the reward can be built.
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 9901;
+    t.name = "Reward".into();
+    world.data.item_data.insert_for_test(t);
+    // Bid, then finish the auction (end is far out → no extension).
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    item_auction::run_state_task(&mut world, 1); // STARTED → FINISHED + deliver
+
+    assert_eq!(
+        world.item_auctions.auctions[&1].state,
+        AuctionState::Finished
+    );
+    assert_eq!(warehouse_count(&world, 100, 9901), 1, "reward in warehouse");
+}
+
+#[test]
+fn a_finished_auction_with_no_bids_just_closes() {
+    let mut world = bidding_world(100, 500_000);
+    item_auction::run_state_task(&mut world, 1); // no bids
+    assert_eq!(
+        world.item_auctions.auctions[&1].state,
+        AuctionState::Finished
+    );
+    assert_eq!(warehouse_count(&world, 100, 9901), 0);
+}
+
+#[test]
+fn canceled_bids_are_cleared_when_the_auction_finishes() {
+    let mut world = bidding_world(100, 500_000);
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 9901;
+    world.data.item_data.insert_for_test(t);
+    ingame_player(&mut world, 2, 200, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 200, 57, 500_000);
+    // 100 bids, 200 outbids, 100 cancels (a canceled losing bid remains as a row).
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);
+    item_auction::cancel_bid(&mut world, 1, 1, 100);
+    assert_eq!(world.item_auctions.auctions[&1].bids.len(), 2);
+
+    item_auction::run_state_task(&mut world, 1); // finish → clear canceled
+                                                 // The canceled bid is gone; the winner's bid remains.
+    let bids = &world.item_auctions.auctions[&1].bids;
+    assert_eq!(bids.len(), 1);
+    assert_eq!(bids[0].player_obj_id, 200);
+}
+
+#[test]
+fn an_expired_finished_auction_is_dropped_at_boot() {
+    let mut world = world_with_instance(31113);
+    world.cfg.general.alt_item_auction_expired_after_days = 14;
+    let now = commons::util::now_millis();
+    let old = now - 30 * DAY; // 30 days ago, past the 14-day window
+    let expired = ItemAuction::new(7, 31113, 1, old, old + HOUR, AuctionState::Finished);
+    item_auction::on_loaded(&mut world, 8, vec![expired]);
+    assert!(
+        !world.item_auctions.auctions.contains_key(&7),
+        "expired auction dropped"
+    );
+}

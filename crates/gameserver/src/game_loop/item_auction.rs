@@ -39,6 +39,24 @@ pub(crate) fn on_loaded(world: &mut World, next_auction_id: i32, auctions: Vec<I
     world.item_auctions.next_auction_id = next_auction_id.max(1);
     world.item_auctions.auctions = auctions.into_iter().map(|a| (a.auction_id, a)).collect();
 
+    // Drop finished auctions past the expiry window (Java `loadAuction` returns
+    // null → `deleteAuction` for a stale finished auction).
+    let now = commons::util::now_millis();
+    let expiry = world.cfg.general.alt_item_auction_expired_after_days as i64 * 86_400_000;
+    let expired: Vec<i32> = world
+        .item_auctions
+        .auctions
+        .values()
+        .filter(|a| a.state == AuctionState::Finished && a.starting_time < now - expiry)
+        .map(|a| a.auction_id)
+        .collect();
+    for id in expired {
+        world.item_auctions.auctions.remove(&id);
+        let _ = world
+            .db
+            .send(DbCommand::DeleteItemAuction { auction_id: id });
+    }
+
     // Each auctioneer instance (Java `ItemAuctionInstance`'s constructor tail).
     let instance_ids: Vec<i32> = world
         .data
@@ -212,14 +230,76 @@ fn reschedule_for_extend(world: &mut World, auction_id: i32) -> bool {
     true
 }
 
-/// Java `onAuctionFinished` — the winner→warehouse delivery. Slice 4; for now
-/// just announce (no bids on this dist yet) so the lifecycle is observable.
+/// Java `onAuctionFinished`: hand the won item to the highest bidder's
+/// warehouse (online → the live component; offline → a direct DB insert), then
+/// clear the canceled bids. With no bids the auction simply closes.
 fn on_auction_finished(world: &mut World, auction_id: i32) {
-    // TODO(G30.5) slice 4: deliver the item to the highest bidder's warehouse
-    //   (offline: set owner + WAREHOUSE location), clear canceled bids. With no
-    //   bids the auction simply closes.
-    info!("ItemAuction: auction {auction_id} finished.");
-    let _ = world;
+    let Some(a) = world.item_auctions.auctions.get(&auction_id) else {
+        return;
+    };
+    let Some(winner) = a.highest_bid().map(|b| b.player_obj_id) else {
+        info!("ItemAuction: auction {auction_id} finished with no bids.");
+        return;
+    };
+    let (instance_id, auction_item_id) = (a.instance_id, a.auction_item_id);
+    let Some((item_id, count, enchant)) = catalogue_item(world, instance_id, auction_item_id)
+        .map(|it| (it.item_id, it.item_count, it.enchant_level))
+    else {
+        return;
+    };
+
+    // Deliver to the winner's warehouse.
+    if world.objects.has_component::<crate::model::Player>(&winner) {
+        // Online: add to the live warehouse component (persists on next flush).
+        if let Some(oid) = world.alloc_object_id() {
+            // Disjoint field borrows: the item catalogue vs. the ECS store.
+            let data = &world.data.item_data;
+            if let Some(wh) = world
+                .objects
+                .get_component_mut::<crate::model::inventory::Warehouse>(&winner)
+            {
+                wh.0.insert_instance(data, oid, item_id, count, enchant);
+            }
+        }
+    } else if let Some(object_id) = world.alloc_object_id() {
+        // Offline: write the item row directly (Java's offline branch).
+        let _ = world.db.send(DbCommand::StoreOfflineWarehouseItem {
+            owner_id: winner,
+            object_id,
+            item_id,
+            count,
+            enchant,
+        });
+    }
+    info!("ItemAuction: auction {auction_id} finished; won by {winner}.");
+
+    clear_canceled_bids(world, auction_id);
+}
+
+/// Java `clearCanceledBids`: drop the canceled bid rows of a finished auction
+/// (memory + DB).
+fn clear_canceled_bids(world: &mut World, auction_id: i32) {
+    let canceled: Vec<i32> = world
+        .item_auctions
+        .auctions
+        .get(&auction_id)
+        .map(|a| {
+            a.bids
+                .iter()
+                .filter(|b| b.is_canceled())
+                .map(|b| b.player_obj_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for player_obj_id in canceled {
+        let _ = world.db.send(DbCommand::DeleteItemAuctionBid {
+            auction_id,
+            player_obj_id,
+        });
+    }
+    if let Some(a) = world.item_auctions.auctions.get_mut(&auction_id) {
+        a.bids.retain(|b| !b.is_canceled());
+    }
 }
 
 /// Java `createAuction(after)`: a random catalogue item, the next scheduled

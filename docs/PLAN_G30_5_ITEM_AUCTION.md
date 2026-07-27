@@ -101,9 +101,18 @@ by mail.
 - 6 bidding tests (escrow, below-init reject, raise-delta, loser refund on
   cancel, highest-can't-cancel, last-minute extend), sabotage-verified.
 
-### Slice 4 — Finish + delivery + expiry
-- `onAuctionFinished` (winner → warehouse), loser refund on cancel, the
-  expired-auction cleanup, boot resume of an in-flight auction.
+### Slice 4 — Finish + delivery + expiry  ✅ LANDED (G30.5 COMPLETE)
+- `on_auction_finished` (the slice-2 stub, now real): the highest bidder's
+  reward goes to their warehouse — the live `Warehouse` component for an online
+  winner, else a direct `items`-table insert (`DbCommand::StoreOfflineWarehouseItem`,
+  owner + `WAREHOUSE` loc) for an offline one; no bids → the auction just closes.
+- `clear_canceled_bids` on finish (drop the canceled rows, memory + DB).
+- Expiry cleanup at boot: finished auctions past `AltItemAuctionExpiredAfter`
+  (14 days) are dropped + `DeleteItemAuction`d (Java's `loadAuction`-returns-null
+  path). Boot resume of live auctions was already handled by slice 2's
+  `on_loaded` → `check_and_set`.
+- 4 tests (online winner → warehouse, no-bids close, canceled bids cleared on
+  finish, expired auction dropped at boot), sabotage-verified.
 
 ## Watch-list
 

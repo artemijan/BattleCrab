@@ -1154,12 +1154,15 @@ needed — Java delivers the won item to the winner's **warehouse**.)
 parser (empty on this dist), the auction/bid model + `ItemAuctionManager` on
 `World`, the `AuctionDateGenerator` schedule math, and `item_auction`/
 `item_auction_bid` load+persist (config-gated on `AltItemAuctionEnabled`).
-**Slices 2–3 (2026-07-27):** the auction **lifecycle + scheduling** (each
-auctioneer keeps a current + next auction, CREATED→STARTED→FINISHED on a
-per-auction task), then **bidding** — adena escrow, outbid, the ending-extend
-state machine, cancel/refund — plus the `ItemAuctionLink` NPC dialog and the
-bid/info packets. **Remaining:** winner→warehouse delivery + clear-canceled-bids
-+ expiry cleanup (slice 4).
+**Slices 2–4 (2026-07-27) — G30.5 COMPLETE:** the auction **lifecycle +
+scheduling** (each auctioneer keeps a current + next auction, CREATED→STARTED→
+FINISHED on a per-auction task), **bidding** (adena escrow, outbid, the
+ending-extend state machine, cancel/refund) + the `ItemAuctionLink` NPC dialog +
+bid/info packets, and **finish/delivery/expiry** (the winner's reward → their
+warehouse online or via a direct `items` insert offline; canceled-bid clearing;
+boot expiry cleanup). **An operator-defined auction now runs schedule → bid →
+finish → the winner gets the item** (config-enabled but `ItemAuctions.xml` ships
+empty on this dist).
 
 ### G31 — Moderation, accounts, petitions & HWID
 Per-client IP plumbing (needed by several); punishment/jail (`PunishmentManager`

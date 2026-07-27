@@ -840,6 +840,16 @@ pub enum DbCommand {
     DeleteItemAuction {
         auction_id: i32,
     },
+    /// Insert a won auction item into an **offline** winner's warehouse (Java
+    /// `onAuctionFinished`'s offline branch: set owner + WAREHOUSE loc +
+    /// `updateDatabase`). Online winners get it added to their live component.
+    StoreOfflineWarehouseItem {
+        owner_id: i32,
+        object_id: i32,
+        item_id: i32,
+        count: i64,
+        enchant: i32,
+    },
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
@@ -2465,6 +2475,24 @@ async fn run(
                 exec(
                     &pool,
                     sqlx::query("DELETE FROM item_auction_bid WHERE auctionId=?").bind(auction_id),
+                )
+                .await;
+            }
+            DbCommand::StoreOfflineWarehouseItem {
+                owner_id,
+                object_id,
+                item_id,
+                count,
+                enchant,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO items(owner_id, object_id, item_id, count, enchant_level, loc, loc_data) VALUES (?, ?, ?, ?, ?, 'WAREHOUSE', 0)")
+                        .bind(owner_id)
+                        .bind(object_id)
+                        .bind(item_id)
+                        .bind(count)
+                        .bind(enchant),
                 )
                 .await;
             }
