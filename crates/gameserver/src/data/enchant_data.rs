@@ -576,6 +576,7 @@ mod tests {
             type1: 0,
             type2,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: Default::default(),
             capsuled_items: Vec::new(),

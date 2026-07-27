@@ -575,6 +575,7 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         return;
     };
     let list = list.clone();
+    let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
     if let Some(inv) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
@@ -583,6 +584,7 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
             cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
             cs.send(crate::network::trade::ex_buy_sell_list_sell(
                 inv,
+                &refund_items,
                 &world.data,
                 false,
             ));

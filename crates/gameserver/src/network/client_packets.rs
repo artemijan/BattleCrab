@@ -223,6 +223,8 @@ pub mod ex_opcodes {
     pub const REQUEST_DELETE_SENT_POST: u16 = 0x6A;
     pub const REQUEST_SENT_POST: u16 = 0x6B;
     pub const REQUEST_CANCEL_POST_ATTACHMENT: u16 = 0x6C;
+    /// `RequestRefundItem` — buy back items from the sell window's refund tab.
+    pub const REQUEST_REFUND_ITEM: u16 = 0x72;
     /// `RequestBuySellUIClose` — the client closed a buy/sell window; the
     /// server answers with a full inventory refresh (same as `RequestItemList`).
     pub const REQUEST_BUY_SELL_UI_CLOSE: u16 = 0x73;
@@ -877,6 +879,30 @@ impl RequestSellItem {
             items.push((object_id, item_id, count));
         }
         Some(Self { list_id, items })
+    }
+}
+
+/// Port of `clientpackets/RequestRefundItem` (ex 0x72): buy back items from
+/// the refund tab — the buy-list id and the refund-list positions to reclaim.
+pub struct RequestRefundItem {
+    #[allow(dead_code)] // Java validates it against BuyListData; we don't (yet).
+    pub list_id: i32,
+    pub indexes: Vec<i32>,
+}
+
+impl RequestRefundItem {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let list_id = r.read_i32()?;
+        let count = r.read_i32()?;
+        if count <= 0 || count > 500 {
+            return None;
+        }
+        let mut indexes = Vec::with_capacity(count as usize);
+        for _ in 0..count {
+            indexes.push(r.read_i32()?);
+        }
+        Some(Self { list_id, indexes })
     }
 }
 

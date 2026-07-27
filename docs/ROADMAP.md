@@ -126,7 +126,15 @@ crystallizable item + award its grade's crystals (1458–1462), gated on the
 `Crystallize` skill (248) level vs grade (D→1 … S→5), unequip-first.
 ✅ **Sell to merchant** (`RequestSellItem` 0x37) — sell inventory items to a
 targeted merchant for reference-price/2 adena (the buy side + sell tab already
-existed; this completes the merchant shop).
+existed; this completes the merchant shop). 2026-07-28: the `is_sellable`
+template flag is now parsed and gates both the sell tab and the handler
+(non-sellable items — event Agathion bracelets, adena — no longer listed), and
+augmented items are excluded (Java `Item.isSellable`).
+✅ **Refund / buy-back** (`RequestRefundItem` 0xD0:0x72, `AllowRefund = True`) —
+sold items move to a per-player `Refund` container (12 slots, oldest dropped,
+session-only like Java's `PlayerRefund`) shown as the `ExBuySellList` refund
+tab; buying back charges the same half-price and restores the instance
+(object id / enchant preserved, stacks re-merge).
 ✅ **Private sell store** — `PrivateStore` component + `Player.store_type`
 (CharInfo/UserInfo byte, byte-test safe); manage window (0xA0), set-list (0x31),
 buyer view (0xA1) on click, `PrivateStoreMsgSell` (0xA2) title, buy transaction
@@ -257,7 +265,8 @@ effects).
 
 **Audit additions (2026-07):** multisell (`MultisellData` + `MultiSellChoose` —
 82 dist lists, the concrete deliverable behind the "multisell/sell bypasses"
-line above); refund/buyback (`RequestRefundItem`, `AllowRefund = True`); item
+line above); ~~refund/buyback (`RequestRefundItem`, `AllowRefund = True`)~~
+(landed 2026-07-28, see the ✅ above); item
 try-on (`RequestPreviewItem`, `AllowWear = True`); `RequestBuySellUIClose`;
 inventory-order persistence (`RequestSaveInventoryOrder`); and the item-
 maintenance task managers — `ItemLifeTimeTaskManager` (time-limited items),

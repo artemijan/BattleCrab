@@ -22,6 +22,7 @@ fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
         type1: 0,
         type2: 0,
         is_quest_item: false,
+        is_sellable: true,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,

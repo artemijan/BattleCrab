@@ -105,6 +105,40 @@ pub enum ItemChange {
     Removed(ItemInstance),
 }
 
+/// Port of `PlayerRefund`: the merchant buy-back window. Items sold to a
+/// merchant land here (Java `Config.ALLOW_REFUND`, on for this dist) and can
+/// be bought back at the same half-reference-price until the container
+/// overflows or the player logs out. Java never persists it (`restore()` is
+/// empty, `deleteMe` destroys the contents), so this component simply dies
+/// with the player entity.
+#[derive(Debug, Clone, Default, bevy_ecs::component::Component)]
+pub struct Refund {
+    items: Vec<ItemInstance>,
+}
+
+impl Refund {
+    /// Java `PlayerRefund` caps the container at 12 items, destroying the
+    /// oldest on overflow.
+    const CAPACITY: usize = 12;
+
+    pub fn items(&self) -> &[ItemInstance] {
+        &self.items
+    }
+
+    /// `PlayerRefund.addItem`: append, then drop the oldest past capacity.
+    pub fn push(&mut self, item: ItemInstance) {
+        self.items.push(item);
+        if self.items.len() > Self::CAPACITY {
+            self.items.remove(0);
+        }
+    }
+
+    /// Remove and return the entry at `index` (a `RequestRefundItem` slot).
+    pub fn take(&mut self, index: usize) -> Option<ItemInstance> {
+        (index < self.items.len()).then(|| self.items.remove(index))
+    }
+}
+
 /// Port of `PlayerInventory`: the flat item list plus the paperdoll (indices
 /// into that list by `object_id`, mirroring Java's paperdoll array referencing
 /// the same `Item` objects).
@@ -316,6 +350,25 @@ impl Inventory {
         let mut inst = ItemInstance::new(object_id, item_id, count);
         inst.enchant_level = enchant;
         self.items.push(inst);
+    }
+
+    /// Put a complete instance back (refund buy-back): merge into an existing
+    /// stack when stackable, otherwise re-add the instance as-is — keeping its
+    /// object id, enchant, augment, and remaining time. Returns the resulting
+    /// instance snapshot for the `InventoryUpdate`.
+    pub fn restore_instance(&mut self, catalog: &ItemData, inst: ItemInstance) -> ItemInstance {
+        let stackable = catalog
+            .get(inst.item_id)
+            .map(|t| t.is_stackable)
+            .unwrap_or(false);
+        if stackable {
+            if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == inst.item_id) {
+                existing.count += inst.count;
+                return *existing;
+            }
+        }
+        self.items.push(inst);
+        inst
     }
 
     /// Total count of an item id across all instances
@@ -767,6 +820,7 @@ mod tests {
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: item_data::ItemHandler::None,
             capsuled_items: Vec::new(),
@@ -801,6 +855,7 @@ mod tests {
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: item_data::ItemHandler::None,
             capsuled_items: Vec::new(),
@@ -939,6 +994,7 @@ mod tests {
                 type1: 0,
                 type2: 0,
                 is_quest_item: true,
+                is_sellable: true,
                 price: 0,
                 handler: item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -970,6 +1026,7 @@ mod tests {
                 type1: 0,
                 type2: 0,
                 is_quest_item: false,
+                is_sellable: true,
                 price: 0,
                 handler: item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -1014,6 +1071,7 @@ mod tests {
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,

@@ -6,7 +6,7 @@ use commons::network::PacketWriter;
 
 use crate::data::buy_list_data::BuyList;
 use crate::data::GameData;
-use crate::model::inventory::Inventory;
+use crate::model::inventory::{Inventory, ItemInstance};
 
 const EX: u8 = 0xFE;
 pub const EX_BUY_SELL_LIST: i16 = 0xB8;
@@ -51,9 +51,18 @@ pub fn buy_list(list: &BuyList, inventory: &Inventory, data: &GameData) -> Vec<u
 
 /// Port of `serverpackets/ExBuySellList` — the sell tab that accompanies
 /// every buy window (and the `done = true` refresh after a purchase).
-/// Sellable = unequipped, non-quest, non-adena (the `is_sellable` template
-/// flag and pet-control exclusions are not ported). No refund tab.
-pub fn ex_buy_sell_list_sell(inventory: &Inventory, data: &GameData, done: bool) -> Vec<u8> {
+/// Sellable = unequipped + `is_sellable` + unaugmented (Java `Item.isSellable`
+/// is `!isAugmented() && template.isSellable()`; the template flag alone
+/// already excludes adena and quest items on this dist — the extra quest gate
+/// stays as a belt-and-braces guard). Pet-control exclusion is TODO(G29).
+/// `refund` is the buy-back tab: the player's `Refund` container, addressed
+/// by list position in `RequestRefundItem`.
+pub fn ex_buy_sell_list_sell(
+    inventory: &Inventory,
+    refund: &[ItemInstance],
+    data: &GameData,
+    done: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(EX);
     w.write_i16(EX_BUY_SELL_LIST);
@@ -62,16 +71,29 @@ pub fn ex_buy_sell_list_sell(inventory: &Inventory, data: &GameData, done: bool)
     let sellable: Vec<_> = inventory
         .items()
         .iter()
-        .filter(|i| inventory.paperdoll_slot_of(i.object_id).is_none())
+        .filter(|i| inventory.paperdoll_slot_of(i.object_id).is_none() && !i.is_augmented())
         .filter_map(|i| data.item_data.get(i.item_id).map(|t| (i, t)))
-        .filter(|(i, t)| !t.is_quest_item && i.item_id != crate::data::item_data::ADENA_ID)
+        .filter(|(_, t)| t.is_sellable && !t.is_quest_item)
         .collect();
     w.write_i16(sellable.len() as i16);
     for (item, t) in sellable {
         super::enter_world::write_item_entry(&mut w, item, t, false);
         w.write_i64(t.price / 2);
     }
-    w.write_i16(0); // refund list (empty)
+    // The written index is the container position — `RequestRefundItem`
+    // addresses the `Refund` vec with it, so it must survive the template
+    // filter un-shifted.
+    let refundable: Vec<_> = refund
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, i)| data.item_data.get(i.item_id).map(|t| (idx, i, t)))
+        .collect();
+    w.write_i16(refundable.len() as i16);
+    for (idx, item, t) in refundable {
+        super::enter_world::write_item_entry(&mut w, item, t, false);
+        w.write_i32(idx as i32);
+        w.write_i64((t.price / 2) * item.count);
+    }
     w.write_u8(done as u8);
     w.into_bytes()
 }

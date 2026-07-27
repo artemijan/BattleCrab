@@ -721,6 +721,7 @@ fn party_loot_split_and_rotation() {
             type1: 4,
             type2: 5,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,

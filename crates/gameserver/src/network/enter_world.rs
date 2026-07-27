@@ -720,6 +720,7 @@ mod tests {
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
