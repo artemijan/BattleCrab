@@ -16,12 +16,10 @@
 //! `Stat` set yet, so each reads as its identity (1 / 0 / 0). When the effect
 //! breadth milestone adds them, fold them in at the two marked sites.
 //!
-//! **Not ported (`TODO(G33)`):** the daily (+25 %) and weekly (full) refills
-//! that `DailyTaskManager.resetVitalityDaily`/`resetVitalityWeekly` apply at
-//! 06:30. They need the wall-clock daily-task scheduler that G33 brings; the
-//! recommendation system's `schedule_initial_daily_reset` is the pattern to
-//! reuse. Until then vitality only ever drains, and only a fresh character (or
-//! `//set_vitality_level`) refills it.
+//! The daily (+`MAX/4`) and weekly (full) refills that
+//! `DailyTaskManager.resetVitalityDaily`/`resetVitalityWeekly` apply at 06:30
+//! land in [`reset_vitality`] (G33), driven by the `daily_tasks` scheduler — so
+//! vitality no longer only ever drains.
 
 use crate::model::components::PartyRef;
 use crate::model::{Player, MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
@@ -261,4 +259,42 @@ fn notify_party_vitality(world: &World, object_id: i32) {
         return;
     }
     super::party::notify_party_vitality_points(world, object_id);
+}
+
+/// The daily-add step (`MAX_VITALITY_POINTS / 4`, Java `resetVitalityDaily`).
+const VITALITY_DAILY_ADD: i32 = MAX_VITALITY_POINTS / 4;
+
+/// Java `DailyTaskManager.resetVitalityDaily` / `resetVitalityWeekly`: the daily
+/// refill that keeps vitality from only ever draining (G33). Called by the
+/// daily-reset task. On `weekly` the pool is set to max; otherwise `MAX/4` is
+/// added. Applies to online players (through `set_vitality_points`, so the
+/// gauge and notices update) and the offline population (a DB `CASE WHEN`).
+/// No-op unless `enable_vitality`.
+pub(crate) fn reset_vitality(world: &mut World, weekly: bool) {
+    if !world.cfg.character.enable_vitality {
+        return;
+    }
+
+    let online: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            crate::session::ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .collect();
+    for oid in online {
+        let target = if weekly {
+            MAX_VITALITY_POINTS
+        } else {
+            vitality_points(world, oid) + VITALITY_DAILY_ADD
+        };
+        // Java passes `quiet = false` — players see the vitality-increased line.
+        set_vitality_points(world, oid, target, false);
+    }
+
+    // Offline characters + every subclass row (Java's two `CASE WHEN` UPDATEs).
+    let _ = world
+        .db
+        .send(crate::db::DbCommand::ResetVitality { weekly });
 }

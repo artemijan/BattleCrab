@@ -52,6 +52,7 @@ mod crafting_tests;
 mod crit_damage_tests;
 mod cubic_tests;
 mod cursed_weapon_tests;
+mod daily_tasks_tests;
 mod damage_swamp_tests;
 mod death_buff_tests;
 mod death_drop_tests;

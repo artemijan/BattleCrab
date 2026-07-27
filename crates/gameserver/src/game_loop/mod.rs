@@ -26,6 +26,7 @@ mod core_boss;
 mod crafting;
 mod cubic;
 pub(crate) mod cursed_weapon;
+mod daily_tasks;
 pub(crate) mod death;
 mod dispatch;
 pub(crate) mod doors;
@@ -215,9 +216,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     crate::model::door::spawn_doors(&mut world);
     doors::start_time_cycles(&mut world);
     crate::model::static_object::spawn_static_objects(&mut world);
-    // Java `DailyTaskManager`: the daily 06:30 reset (recommendations only, so
-    // far). Scheduled once here; the task reschedules itself every 24 h.
-    reco::schedule_initial_daily_reset(&mut world);
+    // Java `DailyTaskManager`: the daily 06:30 reset (recommends + vitality
+    // refill). Scheduled once here; the task reschedules itself every 24 h.
+    daily_tasks::schedule_initial_daily_reset(&mut world);
     // Grand bosses spawn/respawn once their data lands — the `grandboss_data`
     // table arrives asynchronously as `DbEvent::GrandBossesLoaded`, so
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
@@ -642,8 +643,8 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 reco::handle_reco_give(world, player_object_id, seq);
             }
-            ScheduledTask::DailyRecoReset => {
-                reco::handle_daily_reco_reset(world);
+            ScheduledTask::DailyReset => {
+                daily_tasks::handle_daily_reset(world);
             }
             ScheduledTask::SiegeEnd { castle_id } => {
                 siege::end_siege(world, castle_id);
