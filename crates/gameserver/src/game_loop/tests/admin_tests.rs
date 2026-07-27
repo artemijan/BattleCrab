@@ -2674,6 +2674,73 @@ fn admin_ride_bike_transforms_and_reverts() {
     );
 }
 
+/// The transform-granted Dismount skill (839, `DispelBySlot TRANSFORM,-1` in
+/// the dist) reverts a GM `//ride_bike` transform even though no buff backs it
+/// — Java's `DispelBySlot` dispels "transformations (buff and by GM)" via
+/// `stopTransformation`, and that skill is the only in-client revert path for
+/// a ride transform. Before the fix the dispel only swept the buff list, so
+/// clicking "transform back" was a silent no-op and the player stayed a bike.
+#[test]
+fn dismount_skill_reverts_gm_ride_transform() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8935, 100);
+    drain(&mut gm_rx);
+    let base_run = world
+        .objects
+        .get_component::<Speeds>(&8935)
+        .unwrap()
+        .run_spd;
+
+    on_packet(&mut world, 1, build_admin("ride_bike"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8935)
+            .unwrap()
+            .transform_id,
+        20001,
+        "transformed into the bike"
+    );
+
+    // The dist parses 839 into a DispelBySlot with the TRANSFORM,-1 entry.
+    let dismount = world
+        .data
+        .skill_data
+        .get(839, 1)
+        .expect("Dismount 839 parsed from dist")
+        .clone();
+    assert!(
+        dismount.effects.iter().any(|e| matches!(
+            e,
+            crate::model::skill::SkillEffect::DispelBySlot { dispel }
+                if dispel.iter().any(|(ty, lvl)| ty == "TRANSFORM" && *lvl < 0)
+        )),
+        "Dismount carries DispelBySlot TRANSFORM,-1, got {:?}",
+        dismount.effects
+    );
+
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 8935, 8935, &dismount);
+    let p = world.objects.get_component::<Player>(&8935).unwrap();
+    assert_eq!(p.transform_id, 0, "transform dispelled");
+    assert_eq!(p.transform_display_id, 0, "display cleared");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Speeds>(&8935)
+            .unwrap()
+            .run_spd,
+        base_run,
+        "run speed restored"
+    );
+}
+
 /// `//mobgroup` lifecycle: create → spawn (members tagged Controllable) →
 /// set a state → invul → kill → remove.
 #[test]
