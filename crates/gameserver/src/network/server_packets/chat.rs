@@ -32,6 +32,14 @@ pub fn creature_say(
     w.into_bytes()
 }
 
+/// Port of `PetitionVotePacket` (G31) — the empty opcode-only packet that
+/// prompts the petitioner's feedback dialog once a consultation ends.
+pub fn petition_vote() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PETITION_VOTE);
+    w.into_bytes()
+}
+
 /// Port of `CreatureSay(ChatType, int charId, SystemMessageId)` — the
 /// system-message branch (no `Creature` sender, no literal text). Java writes
 /// the sender-name slot as the raw `charId` int (the `_senderName == null`

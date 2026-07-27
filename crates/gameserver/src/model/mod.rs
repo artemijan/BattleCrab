@@ -25,6 +25,7 @@ pub mod movement;
 pub mod npc;
 pub mod olympiad;
 pub mod party;
+pub mod petition;
 pub mod punishment;
 pub mod quest;
 pub mod shortcut;
@@ -350,6 +351,10 @@ pub struct Player {
     /// login/apply and cleared on release; the JailZone keep-in reads it.
     /// Not persisted — re-derived from `PunishmentManager` on enter-world.
     pub jailed: bool,
+    /// Java `Player._lastPetitionGmName`: the GM who last handled this player's
+    /// petition, set when a consultation starts. The feedback packet
+    /// (`RequestPetitionFeedback`) needs it to attribute the rating. Transient.
+    pub last_petition_gm_name: Option<String>,
     /// `Player._questZoneId` (default -1): the quest zone the client last
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
@@ -933,6 +938,7 @@ impl Player {
             pending_pet_collar: None,
             teleporting: false,
             jailed: false,
+            last_petition_gm_name: None,
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),

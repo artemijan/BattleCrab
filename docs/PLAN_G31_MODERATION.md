@@ -52,10 +52,12 @@ via the login link. **Deps:** per-client IP (already on `Session.addr`).
   with the un-commands taking a name **or** a raw char id (no offline name→id
   table). Expiry via the shared `PunishmentExpire` timer.
 
-### Slice 3 — Petitions
-- `PetitionManager` (in-memory sessions) + the client packets
-  (`RequestPetition`/`Cancel`/`Feedback`) + `AdminPetition` (view/accept/reject/
-  reset). **Gate:** a player files a petition, a GM answers it.
+### Slice 3 — Petitions  ✅ LANDED (gate: file + answer a petition met)
+- `PetitionManager` (in-memory `pending`/`completed`, no persistence) + the
+  client packets (`RequestPetition` 0x89 / `Cancel` 0x8A / `Feedback` 0xC9) +
+  petition consultation chat (`Say2` PETITION_PLAYER/GM → both participants) +
+  `AdminPetition` (`//view_petitions`/`view_petition`/`accept`/`reject`/`reset`).
+  Only feedback persists (`petition_feedback` via `StorePetitionFeedback`).
 
 ### Slice 4 — Account/login admin + IP tools
 - `AdminLogin` (ban/unban via the login-link relay, `//gm*` account ops) —

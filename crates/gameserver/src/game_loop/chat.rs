@@ -55,6 +55,13 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Petition consultation chat (Java `Say2` → `sendActivePetitionMessage`,
+    // G31): route the line to both participants, don't broadcast it.
+    if matches!(chat_type, ChatType::PetitionPlayer | ChatType::PetitionGm) {
+        super::petition::send_active_petition_message(world, sender_oid, &pkt.text);
+        return;
+    }
+
     let Some(p) = world.objects.get_component::<Player>(&sender_oid) else {
         return;
     };
@@ -216,9 +223,14 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             }
         }
         ChatType::Alliance => send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_AN_ALLIANCE),
-        // Server-sent only (ferry announcements / event announcements); a
-        // client never legitimately originates these, so drop them.
-        ChatType::Boat | ChatType::Announcement => {}
+        // Server-sent only (ferry announcements / event announcements) or handled
+        // before the match (petition consultation chat); a client never
+        // legitimately originates these here, so drop them.
+        ChatType::Boat
+        | ChatType::Announcement
+        | ChatType::PetitionPlayer
+        | ChatType::PetitionGm
+        | ChatType::HeroVoice => {}
     }
 }
 

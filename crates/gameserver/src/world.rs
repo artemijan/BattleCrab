@@ -277,6 +277,9 @@ pub struct World {
     /// The active-punishment registry — jail/ban/chat-ban (G31).
     pub punishments: crate::model::punishment::PunishmentManager,
 
+    /// The in-memory GM petition queue (G31).
+    pub petitions: crate::model::petition::PetitionManager,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -417,6 +420,7 @@ impl World {
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             punishments: crate::model::punishment::PunishmentManager::default(),
+            petitions: crate::model::petition::PetitionManager::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),

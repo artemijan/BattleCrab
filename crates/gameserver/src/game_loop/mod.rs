@@ -60,6 +60,7 @@ pub(crate) mod olympiad;
 mod orfen;
 mod party;
 mod passive_skills;
+pub(crate) mod petition;
 pub(crate) mod position;
 mod private_store;
 pub(crate) mod punishment;

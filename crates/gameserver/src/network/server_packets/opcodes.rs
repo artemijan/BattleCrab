@@ -87,6 +87,8 @@ pub const SHORT_CUT_REGISTER: u8 = 0x44;
 pub const SHORT_CUT_INIT: u8 = 0x45;
 pub const MACRO_LIST: u8 = 0xE8;
 pub const SAY2: u8 = 0x4A;
+/// `PetitionVotePacket` (G31) — the feedback prompt after a consultation ends.
+pub const PETITION_VOTE: u8 = 0xFC;
 pub const ASK_JOIN_PARTY: u8 = 0x39;
 pub const JOIN_PARTY: u8 = 0x3A;
 pub const PARTY_SMALL_WINDOW_ALL: u8 = 0x4E;

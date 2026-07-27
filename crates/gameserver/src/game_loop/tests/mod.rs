@@ -93,6 +93,7 @@ mod olympiad_tests;
 mod orfen_tests;
 mod overhit_tests;
 mod periodic_tests;
+mod petition_tests;
 mod punishment_tests;
 mod pvp_kill_tests;
 mod queen_ant_tests;

@@ -324,6 +324,24 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_unban_chat" | "admin_chatunban" => admin_unban_chat(world, client_id, &args),
         "admin_ban_party" | "admin_partyban" => admin_ban_party(world, client_id, object_id, &args),
         "admin_unban_party" | "admin_partyunban" => admin_unban_party(world, client_id, &args),
+        // Petitions (Java `AdminPetition`, G31 slice 3).
+        "admin_view_petitions" => super::petition::send_pending_list(world, object_id),
+        "admin_view_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::view_petition(world, object_id, id);
+            }
+        }
+        "admin_accept_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::accept_petition(world, object_id, id);
+            }
+        }
+        "admin_reject_petition" => {
+            if let Some(id) = args.first().and_then(|a| a.parse().ok()) {
+                super::petition::reject_petition(world, object_id, id);
+            }
+        }
+        "admin_reset_petitions" => super::petition::reset_petitions(world, object_id),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

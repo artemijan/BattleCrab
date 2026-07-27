@@ -53,6 +53,13 @@ pub struct CharacterConfig {
     /// `StartingVitalityPoints`: vitality a freshly created character gets
     /// (0 on this dist; Java's default is `MAX_VITALITY_POINTS`).
     pub starting_vitality_points: i32,
+    /// `PetitioningAllowed`: whether players may file GM petitions (True). Java
+    /// `PetitionManager.isPetitioningAllowed` (G31).
+    pub petitioning_allowed: bool,
+    /// `MaxPetitionsPerPlayer`: petitions one player may submit per period (5).
+    pub max_petitions_per_player: i32,
+    /// `MaxPetitionsPending`: total pending petitions the queue holds (25).
+    pub max_petitions_pending: i32,
     /// `RaidbossUseVitality`: whether raid-boss kills move vitality at all
     /// (False on this dist, so boss kills neither consume nor grant points).
     pub raidboss_use_vitality: bool,
@@ -209,6 +216,9 @@ impl Default for CharacterConfig {
             // switched on.
             enable_vitality: false,
             starting_vitality_points: MAX_VITALITY_POINTS,
+            petitioning_allowed: true,
+            max_petitions_per_player: 5,
+            max_petitions_pending: 25,
             raidboss_use_vitality: false,
             party_xp_cutoff_method: "level".to_string(),
             party_xp_cutoff_level: 20,
@@ -292,6 +302,10 @@ impl CharacterConfig {
             alt_party_max_members: p.get_int("AltPartyMaxMembers", 7).max(2) as usize,
             blow_rate_chance_limit: p.get_int("BlowRateChanceLimit", 80) as f64,
             alt_leave_party_leader: p.get_bool("AltLeavePartyLeader", d.alt_leave_party_leader),
+            petitioning_allowed: p.get_bool("PetitioningAllowed", d.petitioning_allowed),
+            max_petitions_per_player: p
+                .get_int("MaxPetitionsPerPlayer", d.max_petitions_per_player),
+            max_petitions_pending: p.get_int("MaxPetitionsPending", d.max_petitions_pending),
             enable_vitality: p.get_bool("EnableVitality", d.enable_vitality),
             starting_vitality_points: p
                 .get_int("StartingVitalityPoints", d.starting_vitality_points)

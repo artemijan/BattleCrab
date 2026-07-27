@@ -87,6 +87,7 @@ async fn user_info_test() {
         pending_revive: false,
         teleporting: false,
         jailed: false,
+        last_petition_gm_name: None,
         quest_zone_id: 0,
         charged_shots: 0,
         auto_shots: Vec::new(),

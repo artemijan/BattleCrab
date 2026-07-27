@@ -86,6 +86,12 @@ pub mod opcodes {
     pub const REQUEST_MAKE_MACRO: u8 = 0xCD;
     pub const REQUEST_DELETE_MACRO: u8 = 0xCE;
     pub const SAY2: u8 = 0x49;
+    /// `RequestPetition` (G31) — content string + petition-type int (1-9).
+    pub const REQUEST_PETITION: u8 = 0x89;
+    /// `RequestPetitionCancel` (G31) — no body.
+    pub const REQUEST_PETITION_CANCEL: u8 = 0x8A;
+    /// `RequestPetitionFeedback` (G31) — unused int, rate int (0-4), message.
+    pub const REQUEST_PETITION_FEEDBACK: u8 = 0xC9;
     pub const REQUEST_BYPASS_TO_SERVER: u8 = 0x23;
     /// `RequestShowBoard` — the client's community-board button. Body is one
     /// unused int; opens the board at `Config.BBSDefault`.

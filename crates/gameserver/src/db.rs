@@ -858,6 +858,15 @@ pub enum DbCommand {
     DeletePunishment {
         id: i32,
     },
+    /// Insert a petition-feedback row (Java `RequestPetitionFeedback`, G31) — the
+    /// only petition state that persists. `rate` is 0-4.
+    StorePetitionFeedback {
+        char_name: String,
+        gm_name: String,
+        rate: i32,
+        message: String,
+        date: i64,
+    },
     /// Insert a won auction item into an **offline** winner's warehouse (Java
     /// `onAuctionFinished`'s offline branch: set owner + WAREHOUSE loc +
     /// `updateDatabase`). Online winners get it added to their live component.
@@ -2544,6 +2553,24 @@ async fn run(
                 exec(
                     &pool,
                     sqlx::query("DELETE FROM punishments WHERE id=?").bind(id),
+                )
+                .await;
+            }
+            DbCommand::StorePetitionFeedback {
+                char_name,
+                gm_name,
+                rate,
+                message,
+                date,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT INTO petition_feedback(charName, gmName, rate, message, date) VALUES (?, ?, ?, ?, ?)")
+                        .bind(char_name)
+                        .bind(gm_name)
+                        .bind(rate)
+                        .bind(message)
+                        .bind(date),
                 )
                 .await;
             }
