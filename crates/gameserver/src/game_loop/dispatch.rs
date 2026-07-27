@@ -752,6 +752,11 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         // RequestDispel (IN_GAME): alt+click a buff icon to cancel the buff.
         exop::REQUEST_DISPEL => handle_request_dispel(world, client_id, ex_body),
+        // RequestBuySellUIClose: Java answers `sendItemList(true)`, i.e. the
+        // same refresh as RequestItemList.
+        // TODO(G33): Java also gates on `isInventoryDisabled()` (enchant/
+        // crystallize in progress) — unported, same gap as RequestItemList.
+        exop::REQUEST_BUY_SELL_UI_CLOSE => handle_request_item_list(world, client_id),
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {
