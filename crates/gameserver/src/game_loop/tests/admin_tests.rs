@@ -4267,3 +4267,144 @@ fn unspawnall_and_respawnall() {
     let msgs = drain(&mut gm_rx);
     assert!(!msgs.is_empty(), "respawnall answers");
 }
+
+// ---------------------------------------------------------------------------
+// Server control, olympiad manual commands, quest admin
+// ---------------------------------------------------------------------------
+
+/// **`//server_shutdown` runs a real countdown** — announce on start, marks
+/// while ticking, and the final beat requests the game-thread stop
+/// (`shutdown_signal`; a test world's `None` just skips the request).
+/// `//server_abort` cancels a pending countdown.
+#[test]
+fn server_shutdown_countdown_and_abort() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7801, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("server_shutdown 30"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(world.pending_shutdown.is_some(), "countdown armed");
+    assert!(
+        count_system_messages(&drain(&mut gm_rx)) >= 1,
+        "start announcement"
+    );
+
+    // Run past the 10s / 5..1s marks and the deadline.
+    advance_ticks(&mut world, 320);
+    assert!(
+        count_system_messages(&drain(&mut gm_rx)) >= 5,
+        "mark announcements fired while ticking"
+    );
+
+    on_packet(&mut world, 1, build_admin("server_shutdown 60"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    on_packet(&mut world, 1, build_admin("server_abort"));
+    assert!(
+        world.pending_shutdown.is_none(),
+        "abort clears the countdown"
+    );
+}
+
+/// **`//server_gm_only` pushes a `ServerStatus` over the login link.**
+#[test]
+fn server_gm_only_sends_server_status() {
+    use crate::loginlink::LoginLinkCommand;
+    let (mut world, _db, _db_rx, mut link_rx) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7811, 100);
+    drain(&mut gm_rx);
+    while link_rx.try_recv().is_ok() {}
+
+    on_packet(&mut world, 1, build_admin("server_gm_only"));
+    let mut got = false;
+    while let Ok(cmd) = link_rx.try_recv() {
+        if matches!(cmd, LoginLinkCommand::ServerStatus { .. }) {
+            got = true;
+        }
+    }
+    assert!(got, "ServerStatus command reached the login link");
+}
+
+/// **`//setcharquest` edits a quest state var and `//charquestmenu` lists
+/// it**; `state DELETE` removes the state.
+#[test]
+fn setcharquest_and_menu_roundtrip() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7821, 100);
+    let _p_rx = ingame_player_access(&mut world, 2, 7822, 0);
+    let name = world
+        .objects
+        .get_component::<Player>(&7822)
+        .unwrap()
+        .name
+        .clone();
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!(
+            "setcharquest {name} Q00101_SwordOfSolidarity cond 3"
+        )),
+    );
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!(
+            "setcharquest {name} Q00101_SwordOfSolidarity state STARTED"
+        )),
+    );
+    {
+        let q = world
+            .objects
+            .get_component::<crate::model::components::Quests>(&7822)
+            .unwrap();
+        let st = q.0.get("Q00101_SwordOfSolidarity").expect("state created");
+        assert_eq!(st.vars.get("cond").map(String::as_str), Some("3"));
+        assert_eq!(st.state, crate::model::quest::state::STARTED);
+    }
+    drain(&mut gm_rx);
+    on_packet(&mut world, 1, build_admin(&format!("charquestmenu {name}")));
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("quest panel served");
+    assert!(
+        html.contains("Q00101_SwordOfSolidarity") && html.contains("cond=3"),
+        "quest + var listed, got: {html}"
+    );
+
+    on_packet(
+        &mut world,
+        1,
+        build_admin(&format!(
+            "setcharquest {name} Q00101_SwordOfSolidarity state DELETE"
+        )),
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<crate::model::components::Quests>(&7822)
+            .unwrap()
+            .0
+            .contains_key("Q00101_SwordOfSolidarity"),
+        "state removed"
+    );
+}

@@ -204,6 +204,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         db_tx,
     );
     world.geo = geo;
+    world.shutdown_signal = Some(shutdown.clone());
     world.path = path_tx;
     world.path_finding = path_finding;
     world.cfg = cfg;
@@ -335,6 +336,9 @@ fn apply_due_tasks(world: &mut World) {
     for task in world.drain_due_tasks() {
         match task {
             ScheduledTask::Noop { .. } => {}
+            ScheduledTask::ServerShutdownTick => {
+                admin::server_shutdown_tick(world);
+            }
             ScheduledTask::SkillLaunch {
                 player_object_id,
                 cast_seq,

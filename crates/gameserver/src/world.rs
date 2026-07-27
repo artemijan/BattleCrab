@@ -167,6 +167,12 @@ pub struct World {
     /// panel (`//debug packets on|off`); `dispatch::on_packet` logs every
     /// inbound opcode at info level while set.
     pub debug_packets: bool,
+    /// The game thread's shutdown handle (`//server_shutdown`); `None` only in
+    /// tests, where requesting it is a no-op.
+    pub shutdown_signal: Option<crate::game_loop::Shutdown>,
+    /// A running `//server_shutdown|restart` countdown: (deadline tick,
+    /// restart?). Cleared by `//server_abort`.
+    pub pending_shutdown: Option<(u64, bool)>,
     /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
@@ -415,6 +421,8 @@ impl World {
             path: std::sync::mpsc::channel().0,
             path_seq: 0,
             debug_packets: false,
+            shutdown_signal: None,
+            pending_shutdown: None,
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
             clans: HashMap::new(),

@@ -35,6 +35,7 @@ mod menu;
 mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
+pub(crate) use world_cmds::server_shutdown_tick;
 mod pledge;
 mod points;
 pub(crate) mod premium;
@@ -721,6 +722,36 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_punishment_remove" => moderation::admin_punishment_remove(world, client_id, &args),
         "admin_ban_menu" => moderation::admin_ban_menu(world, client_id, object_id, &args),
         // Category-4 sweep: spawns / clans / panels.
+        // Server control (`AdminShutdown` / `AdminLogin`).
+        "admin_server_shutdown" => {
+            world_cmds::admin_server_shutdown(world, client_id, &args, false)
+        }
+        "admin_server_restart" => world_cmds::admin_server_shutdown(world, client_id, &args, true),
+        "admin_server_abort" => world_cmds::admin_server_abort(world, client_id),
+        "admin_server_gm_only"
+        | "admin_server_all"
+        | "admin_server_max_player"
+        | "admin_server_list_age"
+        | "admin_server_list_type" => {
+            world_cmds::admin_server_status(world, client_id, command, &args)
+        }
+        // Olympiad manual controls (`AdminAdmin`).
+        "admin_endolympiad" => {
+            super::olympiad::handle_olympiad_end(world);
+            send_message(world, client_id, "Heroes formed.");
+        }
+        "admin_saveolymp" => {
+            super::olympiad::save_all(world);
+            send_message(world, client_id, "Olympiad system saved.");
+        }
+        // Java `settruehero` toggles permanent hero status on the target — the
+        // port's hero grant *is* persistent, so it shares `//sethero`.
+        "admin_settruehero" => hero::admin_sethero(world, client_id, object_id),
+        // Quest admin (`AdminShowQuests`).
+        "admin_charquestmenu" | "admin_show_quests" => {
+            editchar::admin_charquestmenu(world, client_id, object_id, &args)
+        }
+        "admin_setcharquest" => editchar::admin_setcharquest(world, client_id, &args),
         "admin_unspawnall" => spawn::admin_unspawnall(world, client_id),
         "admin_respawnall" => spawn::admin_respawnall(world, client_id),
         "admin_spawn_reload" => spawn::admin_spawn_reload(world, client_id),

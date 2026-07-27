@@ -828,3 +828,122 @@ pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i
         cs.send(pkt);
     }
 }
+
+// ---------------------------------------------------------------------------
+// Quest admin (`AdminShowQuests` / `AdminQuest`, category-4 sweep)
+// ---------------------------------------------------------------------------
+
+/// Resolve `[name]`-or-target to a player for the quest commands.
+fn quest_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
+    args.first()
+        .and_then(|name| super::find_online_player(world, name))
+        .or_else(|| {
+            current_target(world, object_id)
+                .filter(|oid| world.objects.has_component::<Player>(oid))
+        })
+        .or(Some(object_id).filter(|oid| world.objects.has_component::<Player>(oid)))
+}
+
+/// `//charquestmenu [player]` / `//show_quests` — the target's quest states
+/// as a generated panel (Java builds the same table in `AdminShowQuests`).
+pub(super) fn admin_charquestmenu(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(target) = quest_target(world, object_id, args) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    let mut rows = String::new();
+    if let Some(q) = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&target)
+    {
+        let mut entries: Vec<_> = q.0.iter().collect();
+        entries.sort_by(|a, b| a.0.cmp(b.0));
+        for (quest, st) in entries {
+            let vars = st
+                .vars
+                .iter()
+                .map(|(k, v)| format!("{k}={v}"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            rows.push_str(&format!(
+                "<tr><td>{quest}</td><td>{}</td><td>{vars}</td></tr>",
+                crate::model::quest::state::name(st.state)
+            ));
+        }
+    }
+    if rows.is_empty() {
+        rows = "<tr><td>No quest states.</td></tr>".to_string();
+    }
+    let html = format!(
+        "<html><title>Quests of {name}</title><body><center>\
+         <table width=270><tr><td>Quest</td><td>State</td><td>Vars</td></tr>{rows}</table>\
+         <br>Set: //setcharquest {name} &lt;quest&gt; &lt;var&gt; &lt;value&gt;\
+         </center></body></html>"
+    );
+    super::menu::send_admin_html_content(world, client_id, &html);
+}
+
+/// `//setcharquest <player> <quest> <var> <value>` — set a quest variable on
+/// the target; var `state` sets the state (`CREATED|STARTED|COMPLETED`), and
+/// value `DELETE` with var `state` removes the quest state entirely (Java
+/// `AdminShowQuests`' edit branch).
+pub(super) fn admin_setcharquest(world: &mut World, client_id: u32, args: &[&str]) {
+    let (Some(&name), Some(&quest), Some(&var), Some(&value)) =
+        (args.first(), args.get(1), args.get(2), args.get(3))
+    else {
+        send_message(
+            world,
+            client_id,
+            "Usage: //setcharquest <player> <quest> <var> <value>",
+        );
+        return;
+    };
+    let Some(target) = super::find_online_player(world, name) else {
+        send_message(world, client_id, &format!("Player '{name}' is not online."));
+        return;
+    };
+    let Some(quests) = world
+        .objects
+        .get_component_mut::<crate::model::components::Quests>(&target)
+    else {
+        return;
+    };
+    if var == "state" && value.eq_ignore_ascii_case("DELETE") {
+        quests.0.remove(quest);
+        send_message(world, client_id, &format!("Quest {quest} state removed."));
+        return;
+    }
+    let st = quests.0.entry(quest.to_string()).or_default();
+    if var == "state" {
+        st.state = match value.to_ascii_uppercase().as_str() {
+            "CREATED" => crate::model::quest::state::CREATED,
+            "STARTED" => crate::model::quest::state::STARTED,
+            "COMPLETED" => crate::model::quest::state::COMPLETED,
+            _ => {
+                send_message(
+                    world,
+                    client_id,
+                    "State must be CREATED, STARTED, COMPLETED or DELETE.",
+                );
+                return;
+            }
+        };
+    } else {
+        st.vars.insert(var.to_string(), value.to_string());
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("Quest {quest}: {var} = {value} set on {name}."),
+    );
+}

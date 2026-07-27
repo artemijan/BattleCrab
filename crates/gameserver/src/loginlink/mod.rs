@@ -26,10 +26,11 @@ const REVISION: i32 = 0x0106;
 const MAX_PAYLOAD: usize = u16::MAX as usize;
 
 /// `ServerStatus` attribute ids / values (game-side `ServerStatus` constants).
-mod status {
+pub mod status {
     pub const SERVER_LIST_STATUS: i32 = 0x01;
     pub const SERVER_TYPE: i32 = 0x02;
     pub const SERVER_LIST_SQUARE_BRACKET: i32 = 0x03;
+    pub const MAX_PLAYERS: i32 = 0x04;
     pub const SERVER_AGE: i32 = 0x05;
 
     pub const STATUS_AUTO: i32 = 0x00;
@@ -81,6 +82,11 @@ pub enum LoginLinkCommand {
     SetAccountAccessLevel {
         account: String,
         level: i32,
+    },
+    /// `AdminLogin`'s runtime `ServerStatus` updates (`//server_gm_only`,
+    /// `//server_max_player`, `//server_list_age`, `//server_list_type`).
+    ServerStatus {
+        attrs: Vec<(i32, i32)>,
     },
 }
 
@@ -230,6 +236,7 @@ async fn session(
                     LoginLinkCommand::SetAccountAccessLevel { account, level } => {
                         packets::change_access_level(&account, level)
                     }
+                    LoginLinkCommand::ServerStatus { attrs } => packets::server_status(&attrs),
                 };
                 send(&mut write, &crypt, body).await?;
             }

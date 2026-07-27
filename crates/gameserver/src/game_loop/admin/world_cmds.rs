@@ -12,6 +12,7 @@ use crate::game_loop::doors;
 use crate::model::components::{Position, ZoneFlags};
 use crate::model::door::Door;
 use crate::model::Player;
+use crate::network::server_packets;
 use crate::network::trade;
 use crate::world::World;
 
@@ -333,5 +334,152 @@ pub(super) fn admin_geo_clientviz(world: &mut World, client_id: u32) {
         world,
         client_id,
         "The geo grid overlay / edit mode is not available; use //geoenable*/geodisable* directly.",
+    );
+}
+
+// ---------------------------------------------------------------------------
+// `AdminShutdown` + `AdminLogin` (category-4 sweep)
+// ---------------------------------------------------------------------------
+
+/// Java's `Shutdown` countdown announce marks (seconds).
+const SHUTDOWN_MARKS: &[u64] = &[
+    540, 480, 420, 360, 300, 240, 180, 120, 60, 30, 10, 5, 4, 3, 2, 1,
+];
+
+fn announce_all(world: &World, text: &str) {
+    let packet = server_packets::system_message_with(
+        server_packets::sm_ids::S1_TEXT,
+        &[server_packets::SmParam::Text(text.to_string())],
+    );
+    for cs in world.clients.values() {
+        if matches!(cs, crate::session::ClientSession::InGame(_)) {
+            cs.send(packet.clone());
+        }
+    }
+}
+
+/// `//server_shutdown [sec]` / `//server_restart [sec]` — start the countdown
+/// (Java `Shutdown.startShutdown`). The final tick requests the game thread's
+/// graceful stop, which runs the save-all path `main` already wires; under
+/// systemd a "restart" is the same stop with the service manager bringing the
+/// process back (Java's dedicated restart exit code isn't needed).
+pub(super) fn admin_server_shutdown(
+    world: &mut World,
+    client_id: u32,
+    args: &[&str],
+    restart: bool,
+) {
+    let Some(secs) = args.first().and_then(|a| a.parse::<u64>().ok()) else {
+        send_message(world, client_id, "Usage: //server_shutdown <seconds>");
+        return;
+    };
+    let deadline = world.tick + secs * 10;
+    world.pending_shutdown = Some((deadline, restart));
+    announce_all(
+        world,
+        &format!(
+            "The server will be coming down in {secs} seconds! Please find a safe place to log out."
+        ),
+    );
+    schedule_shutdown_tick(world);
+}
+
+/// `//server_abort` — cancel a running countdown (Java `Shutdown.abort`).
+pub(super) fn admin_server_abort(world: &mut World, client_id: u32) {
+    if world.pending_shutdown.take().is_some() {
+        announce_all(world, "Server aborts and continues normal operation.");
+    } else {
+        send_message(world, client_id, "No shutdown is in progress.");
+    }
+}
+
+/// Schedule the next countdown beat: the next Java announce mark, or the
+/// deadline itself.
+fn schedule_shutdown_tick(world: &mut World) {
+    let Some((deadline, _)) = world.pending_shutdown else {
+        return;
+    };
+    let remaining = deadline.saturating_sub(world.tick) / 10;
+    let next_mark = SHUTDOWN_MARKS
+        .iter()
+        .copied()
+        .find(|&m| m < remaining)
+        .unwrap_or(0);
+    let fire_at = deadline.saturating_sub(next_mark * 10).max(world.tick + 1);
+    world
+        .scheduler
+        .schedule(fire_at, crate::scheduler::ScheduledTask::ServerShutdownTick);
+}
+
+/// The countdown beat — announce the mark, or stop the server at 0.
+pub(crate) fn server_shutdown_tick(world: &mut World) {
+    let Some((deadline, restart)) = world.pending_shutdown else {
+        return; // aborted — stale beat
+    };
+    if world.tick >= deadline {
+        announce_all(world, "The server is shutting down now.");
+        if let Some(signal) = &world.shutdown_signal {
+            signal.request();
+        }
+        tracing::info!(
+            "GM {} requested — stopping the game thread (save-all runs on exit).",
+            if restart { "restart" } else { "shutdown" }
+        );
+        return;
+    }
+    let remaining = deadline.saturating_sub(world.tick) / 10;
+    announce_all(
+        world,
+        &format!("The server will be coming down in {remaining} second(s)! Please find a safe place to log out."),
+    );
+    schedule_shutdown_tick(world);
+}
+
+/// `AdminLogin`'s `ServerStatus` toggles — pushed straight over the login
+/// link. `//server_gm_only`/`//server_all` flip the listing status,
+/// `//server_max_player <n>`, `//server_list_age <0|15|18>`, and
+/// `//server_list_type <n>` set their attributes (Java's named-type parsing
+/// accepts the numeric bitmask here).
+pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, args: &[&str]) {
+    use crate::loginlink::{status, LoginLinkCommand};
+    let attrs: Vec<(i32, i32)> = match cmd {
+        "admin_server_gm_only" => vec![(status::SERVER_LIST_STATUS, status::STATUS_GM_ONLY)],
+        "admin_server_all" => vec![(status::SERVER_LIST_STATUS, status::STATUS_AUTO)],
+        "admin_server_max_player" => {
+            let Some(n) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+                send_message(world, client_id, "Format: //server_max_player <number>");
+                return;
+            };
+            vec![(status::MAX_PLAYERS, n)]
+        }
+        "admin_server_list_age" => {
+            let age = match args.first().and_then(|a| a.parse::<i32>().ok()) {
+                Some(15) => status::SERVER_AGE_15,
+                Some(18) => status::SERVER_AGE_18,
+                Some(0) => status::SERVER_AGE_ALL,
+                _ => {
+                    send_message(world, client_id, "Format: //server_list_age <0|15|18>");
+                    return;
+                }
+            };
+            vec![(status::SERVER_AGE, age)]
+        }
+        "admin_server_list_type" => {
+            let Some(n) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+                send_message(world, client_id, "Format: //server_list_type <type mask>");
+                return;
+            };
+            vec![(status::SERVER_TYPE, n)]
+        }
+        _ => return,
+    };
+    let _ = world
+        .login
+        .link
+        .send(LoginLinkCommand::ServerStatus { attrs });
+    send_message(
+        world,
+        client_id,
+        "Server status updated on the login server.",
     );
 }
