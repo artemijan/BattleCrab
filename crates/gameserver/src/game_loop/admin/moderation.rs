@@ -776,3 +776,256 @@ pub(super) fn admin_serverinfo(world: &World, client_id: u32) {
     send_message(world, client_id, &format!("Online players: {online}"));
     send_message(world, client_id, &format!("Server tick: {}", world.tick));
 }
+
+// ---------------------------------------------------------------------------
+// `AdminPunishment` panel (category-4 sweep): the generic punishment console
+// over the same `punishment::start/stop_punishment` engine the plain commands
+// use.
+// ---------------------------------------------------------------------------
+
+const PUNISHMENT_TYPES: &str = "BAN;CHAT_BAN;PARTY_BAN;JAIL";
+const PUNISHMENT_AFFECTS: &str = "ACCOUNT;CHARACTER;IP;HWID";
+
+/// Millis-epoch expiration → the panel's display string. Java renders a
+/// formatted date; without a date-time dependency the panel shows the
+/// remaining minutes, which is what a GM actually reads off it.
+fn format_expiration(expiration: i64) -> String {
+    if expiration <= 0 {
+        return "never".to_string();
+    }
+    let left = (expiration - commons::util::now_millis()) / 60_000;
+    format!("in {} min", left.max(0))
+}
+
+/// `//punishment` — the console (`punishment.htm`), `//punishment info <key>
+/// <affect>` — active punishments of one key (`punishment-info.htm`), and
+/// `//punishment player [name]` — the per-player quick page
+/// (`punishment-player.htm`).
+pub(super) fn admin_punishment(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    match args.first().copied() {
+        None => super::menu::show_admin_html_replace(
+            world,
+            client_id,
+            "punishment.htm",
+            &[
+                ("punishments", PUNISHMENT_TYPES.to_string()),
+                ("affects", PUNISHMENT_AFFECTS.to_string()),
+            ],
+        ),
+        Some("info") => {
+            let (Some(&key), Some(&af)) = (args.get(1), args.get(2)) else {
+                send_message(world, client_id, "Not enough data specified!");
+                return;
+            };
+            let Some(affect) = PunishmentAffect::from_name(af) else {
+                send_message(
+                    world,
+                    client_id,
+                    "Incorrect value specified for affect type!",
+                );
+                return;
+            };
+            // CHARACTER keys are stored by char id (Java findCharId swap).
+            let key = if affect == PunishmentAffect::Character {
+                match resolve_char(world, key) {
+                    Some(id) => id.to_string(),
+                    None => {
+                        send_message(world, client_id, &format!("Player '{key}' not found."));
+                        return;
+                    }
+                }
+            } else {
+                key.to_string()
+            };
+            let mut rows = String::new();
+            for ptype in [
+                PunishmentType::Ban,
+                PunishmentType::ChatBan,
+                PunishmentType::PartyBan,
+                PunishmentType::Jail,
+            ] {
+                if let Some(p) = world.punishments.get(&key, affect, ptype) {
+                    rows.push_str(&format!(
+                        "<tr><td>{}</td><td>{}</td><td><a action=\"bypass -h \
+                         admin_punishment_remove {key} {} {}\">Remove</a></td></tr>",
+                        ptype.as_str(),
+                        format_expiration(p.expiration),
+                        affect.as_str(),
+                        ptype.as_str(),
+                    ));
+                }
+            }
+            if rows.is_empty() {
+                rows = "<tr><td>None</td><td></td><td></td></tr>".to_string();
+            }
+            super::menu::show_admin_html_replace(
+                world,
+                client_id,
+                "punishment-info.htm",
+                &[
+                    ("affect_type", af.to_string()),
+                    ("player_name", key),
+                    ("affects", PUNISHMENT_AFFECTS.to_string()),
+                    ("punishments", rows),
+                ],
+            );
+        }
+        Some("player") => {
+            let target = args
+                .get(1)
+                .and_then(|name| find_online_player(world, name))
+                .or_else(|| {
+                    super::current_target(world, object_id)
+                        .filter(|oid| world.objects.has_component::<Player>(oid))
+                });
+            let Some(target) = target else {
+                send_message(world, client_id, "You must target player!");
+                return;
+            };
+            let (name, account) = world
+                .objects
+                .get_component::<Player>(&target)
+                .map(|p| (p.name.clone(), p.account.clone()))
+                .unwrap_or_default();
+            let ip = player_ip(world, target).unwrap_or_else(|| "Unknown".to_string());
+            let hwid = super::helpers::client_for_player(world, target)
+                .and_then(|cid| world.hwids.get(&cid))
+                .map(|h| h.mac_address.clone())
+                .unwrap_or_else(|| "Unknown".to_string());
+            super::menu::show_admin_html_replace(
+                world,
+                client_id,
+                "punishment-player.htm",
+                &[
+                    ("player_name", name.clone()),
+                    ("punishments", PUNISHMENT_TYPES.to_string()),
+                    ("acc", account),
+                    ("char", name),
+                    ("ip", ip),
+                    ("hwid", hwid),
+                ],
+            );
+        }
+        _ => send_message(world, client_id, "Usage: //punishment [info|player]"),
+    }
+}
+
+/// `//punishment_add <key> <affect> <type> <minutes> <reason…>` — Java
+/// `admin_punishment_add`; `-1`/`0` minutes = forever.
+pub(super) fn admin_punishment_add(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let (Some(&key), Some(&af), Some(&ty), Some(&exp)) =
+        (args.first(), args.get(1), args.get(2), args.get(3))
+    else {
+        send_message(world, client_id, "Please fill all the fields!");
+        return;
+    };
+    let Ok(minutes) = exp.parse::<i64>() else {
+        send_message(
+            world,
+            client_id,
+            "Incorrect value specified for expiration time!",
+        );
+        return;
+    };
+    let (Some(affect), Some(ptype)) = (
+        PunishmentAffect::from_name(af),
+        PunishmentType::from_name(ty),
+    ) else {
+        send_message(
+            world,
+            client_id,
+            "Incorrect value specified for affect/punishment type!",
+        );
+        return;
+    };
+    let reason = args[4..]
+        .join(" ")
+        .replace('<', "&lt;")
+        .replace('>', "&gt;");
+    if reason.is_empty() {
+        send_message(world, client_id, "Please fill all the fields!");
+        return;
+    }
+    let key = if affect == PunishmentAffect::Character {
+        match resolve_char(world, key) {
+            Some(id) => id.to_string(),
+            None => {
+                send_message(world, client_id, &format!("Player '{key}' not found."));
+                return;
+            }
+        }
+    } else {
+        key.to_string()
+    };
+    let expiration = super::super::punishment::expiration_from_minutes(minutes.max(0));
+    let by = gm_name(world, object_id);
+    if super::super::punishment::start_punishment(
+        world,
+        key.clone(),
+        affect,
+        ptype,
+        expiration,
+        reason,
+        by,
+    ) {
+        send_message(
+            world,
+            client_id,
+            &format!("Punishment {ty} added for {af} {key}."),
+        );
+    } else {
+        send_message(world, client_id, "That punishment is already in effect.");
+    }
+}
+
+/// `//punishment_remove <key> <affect> <type>` — Java `admin_punishment_remove`.
+pub(super) fn admin_punishment_remove(world: &mut World, client_id: u32, args: &[&str]) {
+    let (Some(&key), Some(&af), Some(&ty)) = (args.first(), args.get(1), args.get(2)) else {
+        send_message(world, client_id, "Not enough data specified!");
+        return;
+    };
+    let (Some(affect), Some(ptype)) = (
+        PunishmentAffect::from_name(af),
+        PunishmentType::from_name(ty),
+    ) else {
+        send_message(
+            world,
+            client_id,
+            "Incorrect value specified for affect/punishment type!",
+        );
+        return;
+    };
+    let key = if affect == PunishmentAffect::Character {
+        resolve_char(world, key)
+            .map(|id| id.to_string())
+            .unwrap_or_else(|| key.to_string())
+    } else {
+        key.to_string()
+    };
+    if super::super::punishment::stop_punishment(world, &key, affect, ptype) {
+        send_message(world, client_id, &format!("Punishment {ty} removed."));
+    } else {
+        send_message(world, client_id, "No such punishment is in effect.");
+    }
+}
+
+/// `AdminMenu`'s `//ban_menu <name> [min]` / `//unban_menu <name>` — run the
+/// character ban/unban, then put the char-manage panel back up.
+pub(super) fn admin_ban_menu(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    if !args.is_empty() {
+        admin_ban_char(world, client_id, object_id, args);
+    }
+    super::menu::show_admin_html(world, client_id, "charmanage.htm");
+}
+
+pub(super) fn admin_unban_menu(world: &mut World, client_id: u32, args: &[&str]) {
+    if !args.is_empty() {
+        admin_unban_char(world, client_id, args);
+    }
+    super::menu::show_admin_html(world, client_id, "charmanage.htm");
+}

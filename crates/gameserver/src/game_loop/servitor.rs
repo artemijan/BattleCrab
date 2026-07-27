@@ -1638,6 +1638,11 @@ fn level_up_pet(world: &mut World, owner_oid: i32, pet_oid: i32, max_level: i32)
 /// `getControlItem().setEnchantLevel(getLevel())` — the collar's enchant level
 /// *is* the pet's level, which is how the client shows "Wolf Collar +12" and
 /// how a traded pet advertises what it is without being summoned.
+/// Admin entry (`//summon_setlvl`) for the collar-enchant sync below.
+pub(crate) fn sync_collar_enchant_for_admin(world: &mut World, owner_oid: i32, pet_oid: i32) {
+    sync_collar_enchant(world, owner_oid, pet_oid);
+}
+
 fn sync_collar_enchant(world: &mut World, owner_oid: i32, pet_oid: i32) {
     let Some(pet) = world
         .objects

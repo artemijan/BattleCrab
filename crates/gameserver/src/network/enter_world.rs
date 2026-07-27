@@ -82,6 +82,34 @@ pub fn item_list(
     w.into_bytes()
 }
 
+/// `GMViewItemList` (0x9A) — the GM `//show_pet_inv` inventory dump. Java
+/// writes the owner-name string, the inventory limit, a constant 1, then the
+/// same item entries as `ItemList` (no quest-item filter for the GM view).
+pub fn gm_view_item_list(
+    name: &str,
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+) -> Vec<u8> {
+    let entries: Vec<_> = inventory
+        .items()
+        .iter()
+        .filter_map(|item| data.item_data.get(item.item_id).map(|t| (item, t)))
+        .collect();
+    let mut w = PacketWriter::new();
+    w.write_u8(0x9A);
+    w.write_string(name);
+    // `getInventoryLimit()` — Config.INVENTORY_MAXIMUM_PET (12 on this dist;
+    // the key isn't parsed yet).
+    w.write_i32(12);
+    w.write_i16(1); // "show window ??" (Java constant)
+    w.write_i16(entries.len() as i16);
+    for (item, template) in &entries {
+        let equipped = inventory.paperdoll_slot_of(item.object_id).is_some();
+        write_item_entry(&mut w, item, template, equipped);
+    }
+    w.into_bytes()
+}
+
 /// `InventoryUpdate` (0x21). `change=2` (modify) for every entry: equip/unequip
 /// only moves an existing `Item` between `INVENTORY`/`PAPERDOLL`, it never
 /// creates or destroys the object (matches Java's `addItems`/plain `ItemInfo`).

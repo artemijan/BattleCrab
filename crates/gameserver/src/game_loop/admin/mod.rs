@@ -704,6 +704,38 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             flags::admin_set_hidden(world, client_id, object_id, false)
         }
         "admin_setinvis" => flags::admin_setinvis(world, client_id, object_id),
+        // `AdminEditChar` pet/summon subcommands + `//rec` (category-4 sweep).
+        "admin_rec" => editchar::admin_rec(world, client_id, object_id, &args),
+        "admin_unsummon" => editchar::admin_unsummon(world, client_id, object_id),
+        "admin_summon_info" => editchar::admin_summon_info(world, client_id, object_id),
+        "admin_summon_setlvl" => editchar::admin_summon_setlvl(world, client_id, object_id, &args),
+        "admin_show_pet_inv" => editchar::admin_show_pet_inv(world, client_id, object_id, &args),
+        // Strict = plain dualbox grouping: Java narrows by IP+tracert pack,
+        // and no per-client tracert is recorded in this port.
+        "admin_strict_find_dualbox" => moderation::admin_find_dualbox(world, client_id, &args),
+        // `AdminPunishment` console + `AdminMenu` ban wrappers + `//force_peti`.
+        "admin_punishment" => moderation::admin_punishment(world, client_id, object_id, &args),
+        "admin_punishment_add" => {
+            moderation::admin_punishment_add(world, client_id, object_id, &args)
+        }
+        "admin_punishment_remove" => moderation::admin_punishment_remove(world, client_id, &args),
+        "admin_ban_menu" => moderation::admin_ban_menu(world, client_id, object_id, &args),
+        "admin_unban_menu" => moderation::admin_unban_menu(world, client_id, &args),
+        "admin_force_peti" => {
+            let text = args.join(" ");
+            match current_target(world, object_id)
+                .filter(|oid| world.objects.has_component::<Player>(oid))
+            {
+                _ if text.is_empty() => send_message(world, client_id, "Usage: //force_peti text"),
+                Some(target) => {
+                    if !super::petition::force_petition(world, object_id, target, &text) {
+                        send_message(world, client_id, "That player already has a petition.");
+                    }
+                }
+                None => send_sm(world, client_id, sm_ids::THAT_IS_AN_INCORRECT_TARGET),
+            }
+        }
+
         "admin_invis_menu" => flags::admin_invis_menu(world, client_id, object_id),
         _ => return false,
     }

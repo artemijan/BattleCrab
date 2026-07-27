@@ -609,3 +609,222 @@ pub(super) fn admin_remove_clan_penalty(world: &mut World, client_id: u32, args:
         &format!("Clan penalty successfully removed to character: {name}"),
     );
 }
+
+// ---------------------------------------------------------------------------
+// Pet / summon subcommands + `//rec` (`AdminEditChar`, category-4 sweep)
+// ---------------------------------------------------------------------------
+
+/// `//rec <n>` — set the targeted player's Recommend count (Java
+/// `setRecomHave` + `broadcastUserInfo` + both messages).
+pub(super) fn admin_rec(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(val) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //rec number");
+        return;
+    };
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let name = world
+        .objects
+        .get_component_mut::<Player>(&target)
+        .map(|p| {
+            p.rec_have = val;
+            p.name.clone()
+        })
+        .unwrap_or_default();
+    super::party::broadcast_user_info(world, target);
+    if let Some(cid) = super::helpers::client_for_player(world, target) {
+        send_message(
+            world,
+            cid,
+            &format!("A GM changed your Recommend points to {val}"),
+        );
+    }
+    send_message(
+        world,
+        client_id,
+        &format!("{name}'s Recommend changed to {val}"),
+    );
+}
+
+/// The targeted summon's (npc_oid, owner_oid), if the target is one.
+fn targeted_summon(world: &World, object_id: i32) -> Option<(i32, i32)> {
+    let target = current_target(world, object_id)?;
+    let owner = world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&target)?
+        .owner_object_id;
+    Some((target, owner))
+}
+
+/// `//unsummon` — dismiss the targeted pet/servitor (Java
+/// `Summon.unSummon(owner)`).
+pub(super) fn admin_unsummon(world: &mut World, client_id: u32, object_id: i32) {
+    let Some((_, owner)) = targeted_summon(world, object_id) else {
+        send_message(world, client_id, "Usable only with Pets/Summons");
+        return;
+    };
+    crate::game_loop::servitor::unsummon_servitor(world, owner);
+}
+
+/// `//summon_info` — the `petinfo.htm` state dump for the targeted summon
+/// (Java `gatherSummonInfo`).
+pub(super) fn admin_summon_info(world: &mut World, client_id: u32, object_id: i32) {
+    let Some((summon_oid, owner)) = targeted_summon(world, object_id) else {
+        send_message(world, client_id, "Invalid target.");
+        return;
+    };
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&summon_oid);
+    let (name, npc_level) = npc
+        .and_then(|n| n.template(world))
+        .map(|t| (t.name.clone(), t.level))
+        .unwrap_or_default();
+    let pet = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&summon_oid)
+        .copied();
+    let (cur_hp, max_hp, cur_mp, max_mp) = world
+        .objects
+        .get_component::<Vitals>(&summon_oid)
+        .map_or((0, 0, 0, 0), |v| {
+            (v.cur_hp as i32, v.max_hp, v.cur_mp as i32, v.max_mp)
+        });
+    let owner_name = world
+        .objects
+        .get_component::<Player>(&owner)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    let (level, exp) = pet.map_or((npc_level, 0), |p| (p.level, p.exp));
+    let (class, inv, food) = if let Some(p) = pet {
+        (
+            "Pet",
+            format!(" <a action=\"bypass admin_show_pet_inv {owner}\">view</a>"),
+            format!("{}/{}", p.fed, p.max_fed),
+        )
+    } else {
+        ("Servitor", "none".to_string(), "N/A".to_string())
+    };
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "petinfo.htm",
+        &[
+            ("name", name),
+            ("level", level.to_string()),
+            ("exp", exp.to_string()),
+            (
+                "owner",
+                format!(
+                    " <a action=\"bypass -h admin_character_info {owner_name}\">{owner_name}</a>"
+                ),
+            ),
+            ("class", class.to_string()),
+            ("ai", "N/A".to_string()),
+            ("hp", format!("{cur_hp}/{max_hp}")),
+            ("mp", format!("{cur_mp}/{max_mp}")),
+            ("karma", "0".to_string()),
+            ("race", "N/A".to_string()),
+            ("inv", inv),
+            // Weight isn't tracked on the pet inventory in this port.
+            ("food", food),
+            ("load", "N/A".to_string()),
+        ],
+    );
+}
+
+/// `//summon_setlvl <n>` — set the targeted *pet*'s level by moving its exp
+/// to `exp_for_level(n)` (Java add/removeExp), then re-run the per-level stat
+/// row and the collar-enchant sync.
+pub(super) fn admin_summon_setlvl(
+    world: &mut World,
+    client_id: u32,
+    object_id: i32,
+    args: &[&str],
+) {
+    let Some(level) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+        send_message(world, client_id, "Usage: //summon_setlvl level");
+        return;
+    };
+    let Some((pet_oid, owner)) = targeted_summon(world, object_id).filter(|(oid, _)| {
+        world
+            .objects
+            .has_component::<crate::model::components::PetOf>(oid)
+    }) else {
+        send_message(world, client_id, "Usable only with Pets");
+        return;
+    };
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&pet_oid)
+        .map(|n| n.npc_id)
+        .unwrap_or(0);
+    let Some((exp, max_fed)) = world.data.pet_data.get(npc_id).and_then(|t| {
+        t.level_row(level)
+            .map(|_| (t.exp_for_level(level), t.max_meal(level)))
+    }) else {
+        send_message(world, client_id, "That species has no such level.");
+        return;
+    };
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+    {
+        p.level = level;
+        p.exp = exp;
+        p.max_fed = max_fed;
+        p.fed = p.fed.min(max_fed);
+    }
+    crate::game_loop::servitor::recalculate_pet_stats(world, pet_oid);
+    crate::game_loop::servitor::sync_collar_enchant_for_admin(world, owner, pet_oid);
+    send_message(world, client_id, &format!("Pet level set to {level}."));
+}
+
+/// `//show_pet_inv [ownerObjectId]` — `GMViewItemList` of the targeted pet's
+/// own inventory (or the pet of the player with the given object id).
+pub(super) fn admin_show_pet_inv(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    // Java's argument is the *owner's* object id (`World.getPet(ownerId)`).
+    let pet_oid = args
+        .first()
+        .and_then(|a| a.parse::<i32>().ok())
+        .and_then(|owner| crate::game_loop::servitor::servitor_of(world, owner))
+        .filter(|oid| {
+            world
+                .objects
+                .has_component::<crate::model::components::PetOf>(oid)
+        })
+        .or_else(|| {
+            targeted_summon(world, object_id)
+                .map(|(oid, _)| oid)
+                .filter(|oid| {
+                    world
+                        .objects
+                        .has_component::<crate::model::components::PetOf>(oid)
+                })
+        });
+    let Some(pet_oid) = pet_oid else {
+        send_message(world, client_id, "Usable only with Pets");
+        return;
+    };
+    let name = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&pet_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.name.clone())
+        .unwrap_or_default();
+    let Some(inv) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&pet_oid)
+    else {
+        send_message(world, client_id, "This pet carries no inventory.");
+        return;
+    };
+    let pkt = crate::network::enter_world::gm_view_item_list(&name, inv, &world.data);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
+}

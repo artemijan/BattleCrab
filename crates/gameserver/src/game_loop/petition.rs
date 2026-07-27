@@ -526,3 +526,21 @@ fn end_consultation(world: &mut World, id: i32, end_state: PetitionState) {
 
     world.petitions.completed.insert(id, petition);
 }
+
+/// `AdminPetition`'s `//force_peti <text>` — submit a petition *as the
+/// targeted player* (Java type 9, "GM consultation") and immediately accept
+/// it as the issuing GM, opening the consultation chat.
+pub(crate) fn force_petition(world: &mut World, gm: i32, target: i32, text: &str) -> bool {
+    if world.petitions.is_player_petition_pending(target) {
+        return false;
+    }
+    let Some(ptype) = PetitionType::from_wire(9) else {
+        return false;
+    };
+    let name = player_name(world, target);
+    let id = world
+        .petitions
+        .submit(target, name, text.to_string(), ptype);
+    accept_petition(world, gm, id);
+    true
+}
