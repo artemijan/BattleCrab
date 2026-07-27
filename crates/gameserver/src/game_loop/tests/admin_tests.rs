@@ -4408,3 +4408,120 @@ fn setcharquest_and_menu_roundtrip() {
         "state removed"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Tail polish: tradeoff, cond overrides, reload
+// ---------------------------------------------------------------------------
+
+/// **`//tradeoff on` refuses incoming trade requests** (Java
+/// `getTradeRefusal` in `TradeRequest`).
+#[test]
+fn tradeoff_refuses_trade_requests() {
+    use crate::model::components::TargetRef;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7901, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 7902, 0);
+    world.objects.add_components(&7902, TargetRef(Some(7901)));
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+
+    on_packet(&mut world, 1, build_admin("tradeoff on"));
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&7901)
+            .unwrap()
+            .trade_refusal
+    );
+
+    // 7902 asks 7901 to trade — refused, no pending request lands.
+    let mut body = Vec::new();
+    body.extend_from_slice(&7901i32.to_le_bytes());
+    crate::game_loop::trade::handle_request(&mut world, 2, &body);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::PendingTrade>(&7901),
+        "no trade request while refusing"
+    );
+    assert!(
+        count_system_messages(&drain(&mut other_rx)) >= 1,
+        "requester told about refusal mode"
+    );
+}
+
+/// **`//exceptions`/`//set_exception` toggle cond-override bits, and
+/// SEE_ALL_PLAYERS lets its holder be described a hidden GM.**
+#[test]
+fn cond_overrides_and_see_all_players() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7911, 100);
+    let mut watcher_rx = ingame_player_access(&mut world, 2, 7912, 100);
+    drain(&mut gm_rx);
+    drain(&mut watcher_rx);
+
+    // GM 7911 hides; watcher 7912 (no override) re-enters — no CharInfo.
+    on_packet(&mut world, 1, build_admin("hide"));
+    drain(&mut watcher_rx);
+    crate::game_loop::visibility::on_enter_world(&world, 2, 7912);
+    assert!(
+        !drain(&mut watcher_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
+        "hidden GM not described without the override"
+    );
+
+    // The watcher enables SEE_ALL_PLAYERS (ordinal 13) — now described.
+    on_packet(&mut world, 2, build_admin("set_exception 13"));
+    on_packet(
+        &mut world,
+        2,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&7912)
+            .unwrap()
+            .can_override_cond(13),
+        "override bit set"
+    );
+    drain(&mut watcher_rx);
+    crate::game_loop::visibility::on_enter_world(&world, 2, 7912);
+    assert!(
+        drain(&mut watcher_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
+        "SEE_ALL_PLAYERS holder is described the hidden GM"
+    );
+}
+
+/// **`//reload config` re-reads the ini values from disk.**
+#[test]
+fn reload_config_rereads_ini() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7921, 100);
+    drain(&mut gm_rx);
+
+    world.cfg.feature.allow_ride_wyvern_always = true; // drift from the ini
+    on_packet(&mut world, 1, build_admin("reload config"));
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    assert!(
+        !world.cfg.feature.allow_ride_wyvern_always,
+        "ini value (False) restored by the reload"
+    );
+}

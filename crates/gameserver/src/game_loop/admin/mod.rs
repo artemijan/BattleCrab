@@ -36,6 +36,8 @@ mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
 pub(crate) use world_cmds::server_shutdown_tick;
+/// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
+pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
 mod pledge;
 mod points;
 pub(crate) mod premium;
@@ -752,6 +754,16 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             editchar::admin_charquestmenu(world, client_id, object_id, &args)
         }
         "admin_setcharquest" => editchar::admin_setcharquest(world, client_id, &args),
+        // Tail polish: tradeoff / cond overrides / quest info / clan halls /
+        // reload / gm-buff switch.
+        "admin_tradeoff" => gm_util::admin_tradeoff(world, client_id, object_id, &args),
+        "admin_exceptions" => gm_util::admin_exceptions(world, client_id, object_id),
+        "admin_set_exception" => gm_util::admin_set_exception(world, client_id, object_id, &args),
+        "admin_quest_info" => gm_util::admin_quest_info(world, client_id, &args),
+        "admin_clanhall" => gm_util::admin_clanhall(world, client_id, object_id, &args),
+        "admin_reload" => gm_util::admin_reload(world, client_id, &args),
+        "admin_switch_gm_buffs" => gm_util::admin_switch_gm_buffs(world, client_id),
+
         "admin_unspawnall" => spawn::admin_unspawnall(world, client_id),
         "admin_respawnall" => spawn::admin_respawnall(world, client_id),
         "admin_spawn_reload" => spawn::admin_spawn_reload(world, client_id),

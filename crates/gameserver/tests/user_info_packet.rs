@@ -96,6 +96,8 @@ async fn user_info_test() {
         mount_type: 0,
         mount_npc_id: 0,
         mount_level: 0,
+        trade_refusal: false,
+        cond_overrides: 0,
         transform_id: 0,
         transform_display_id: 0,
         store_type: 0,
