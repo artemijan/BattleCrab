@@ -870,6 +870,12 @@ pub struct AdminFlags {
 #[derive(Component, Debug, Clone, Copy, Default)]
 pub struct LotoPicks(pub [i32; 5]);
 
+/// The player's in-progress Monster Race bet (Java `Player._raceTickets[2]`,
+/// G26.5): slot 0 = the chosen lane (1–8), slot 1 = the price tier (1–8) picked
+/// through the RaceManager dialog before the ticket is bought. `0` = unset.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct RaceTicket(pub [i32; 2]);
+
 /// Object id of the last NPC this player clicked/talked to (Java
 /// `Player._lastFolkNpc`, set by `NpcAction.action`). Bare (non-`npc_`-
 /// prefixed) HTML bypasses like `Quest ClanMaster 9000-02.htm` resolve their

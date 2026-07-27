@@ -174,6 +174,11 @@ pub mod sm_ids {
     // Lucky Lottery (G26.5)
     pub const TICKETS_FOR_THE_CURRENT_LOTTERY_ARE_NO_LONGER_AVAILABLE: i16 = 784;
     pub const LOTTERY_TICKETS_ARE_NOT_CURRENTLY_BEING_SOLD: i16 = 930;
+    // Monster Race (G26.5). Reuses `ACQUIRED_S1_S2` (371) above for the ticket
+    // buy, with params `[Int(raceNum), ItemName]`.
+    pub const MONSTER_RACE_PAYOUT_INFORMATION_IS_NOT_AVAILABLE_WHILE_TICKETS_ARE_BEING_SOLD: i16 =
+        1044;
+    pub const MONSTER_RACE_TICKETS_ARE_NO_LONGER_AVAILABLE: i16 = 1046;
     // Instances (G27 / Frintezza).
     pub const YOU_DO_NOT_HAVE_ENOUGH_REQUIRED_ITEMS: i16 = 701;
     // Henna / dye symbols (G16).

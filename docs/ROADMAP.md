@@ -1038,13 +1038,14 @@ encoding), the faithful two-phase draw (offline DB + online inventory scan,
 deduped, tier pot-split), and prize claim. Config-gated on `AllowLottery` (dist
 off). **A lottery now runs buy → draw → payout.**
 
-**Monster Race (slices 3a–3b) landed:** the race data + math + `MonRaceInfo`
-packet, then the 1-second race-cycle state machine — a `DerbyTrackZone` in the
-Rust zone system, the `AllowRace` gate, 8 shuffled packet-only racers, the
-board/animation packets, and the winner — so **a race runs its full cycle and
-animates** on the Derby Track. **Remaining:** the `mdt_*` persistence + lane
-betting/payout via the `RaceManager` NPC (slice 4), plus the cosmetic
-ticket-sale reminder cadence.
+**Monster Race (slices 3a–4) landed — G26.5 COMPLETE:** the race data + math +
+`MonRaceInfo` packet, the 1-second race-cycle state machine (`DerbyTrackZone`,
+the `AllowRace` gate, 8 shuffled packet-only racers, board/animation, winner),
+then `mdt_history`/`mdt_bets` persistence + the `RaceManager` NPC betting dialog
+(buy a lane ticket, view odds/history, cash a winner out at its odds). **A full
+monster race runs: bet → race → animate → payout**, and the whole G26.5
+milestone (Lottery + Monster Race) is done — only the cosmetic ticket-sale
+reminder cadence is deferred.
 
 ### G27 — Instances
 `InstanceManager` + instance worlds; instance zones; reenter timers; instance-

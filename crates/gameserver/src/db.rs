@@ -802,6 +802,20 @@ pub enum DbCommand {
     LoadLotteryTickets {
         round: i32,
     },
+    /// Upsert a finished Monster Race result (Java `MonsterRace.saveHistory`).
+    SaveMdtHistory {
+        race_id: i32,
+        first: i32,
+        second: i32,
+        odd_rate: f64,
+    },
+    /// Upsert a lane's pooled bet (Java `MonsterRace.saveBet`).
+    SaveMdtBet {
+        lane: i32,
+        bet: i64,
+    },
+    /// Zero every lane's bet after a race (Java `MonsterRace.clearBets`).
+    ClearMdtBets,
     /// Upsert / delete a `buffer_schemes` row (Java `SchemeBufferTable`; Java
     /// bulk-rewrites the table at shutdown, this port write-throughs per change).
     /// `skills` is the comma-joined skill-id list. Used by the community board's
@@ -895,6 +909,12 @@ pub enum DbEvent {
     LotteryTicketsLoaded {
         round: i32,
         rows: Vec<(i32, i32, i32)>,
+    },
+    /// The Monster Race history + current lane bets (Java `MonsterRace
+    /// .loadHistory`/`loadBets`), pushed unprompted at boot.
+    MdtLoaded {
+        history: Vec<crate::model::monster_race::HistoryInfo>,
+        bets: Vec<(i32, i64)>,
     },
     /// The whole `buffer_schemes` table (Java `SchemeBufferTable.load`), pushed
     /// unprompted at boot. `(object_id, scheme_name, skill_ids)`; skills not in
@@ -1167,6 +1187,13 @@ async fn run(
     let _ = event_tx.send(DbEvent::LotteryLoaded {
         row: load_lottery(&pool).await,
         draws: load_lottery_draws(&pool).await,
+    });
+
+    // Monster Race history + lane bets (Java `MonsterRace` constructor) —
+    // likewise unprompted, before `ClansLoaded`.
+    let _ = event_tx.send(DbEvent::MdtLoaded {
+        history: load_mdt_history(&pool).await,
+        bets: load_mdt_bets(&pool).await,
     });
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
@@ -2317,6 +2344,34 @@ async fn run(
                 .unwrap_or_default();
                 let _ = event_tx.send(DbEvent::LotteryTicketsLoaded { round, rows });
             }
+            DbCommand::SaveMdtHistory {
+                race_id,
+                first,
+                second,
+                odd_rate,
+            } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO mdt_history(race_id, first, second, odd_rate) VALUES (?, ?, ?, ?)")
+                        .bind(race_id)
+                        .bind(first)
+                        .bind(second)
+                        .bind(odd_rate),
+                )
+                .await;
+            }
+            DbCommand::SaveMdtBet { lane, bet } => {
+                exec(
+                    &pool,
+                    sqlx::query("INSERT OR REPLACE INTO mdt_bets(lane_id, bet) VALUES (?, ?)")
+                        .bind(lane)
+                        .bind(bet),
+                )
+                .await;
+            }
+            DbCommand::ClearMdtBets => {
+                exec(&pool, sqlx::query("UPDATE mdt_bets SET bet = 0")).await;
+            }
             DbCommand::StoreBufferScheme {
                 object_id,
                 scheme_name,
@@ -2482,6 +2537,38 @@ async fn load_lottery_draws(pool: &SqlitePool) -> Vec<(i32, crate::model::lotter
             .collect()
     })
     .unwrap_or_default()
+}
+
+/// Every Monster Race history record, oldest first (Java `MonsterRace
+/// .loadHistory` — also fixes the current race number by the row count).
+async fn load_mdt_history(pool: &SqlitePool) -> Vec<crate::model::monster_race::HistoryInfo> {
+    sqlx::query("SELECT race_id, first, second, odd_rate FROM mdt_history ORDER BY race_id ASC")
+        .fetch_all(pool)
+        .await
+        .map(|rs| {
+            rs.iter()
+                .map(|r| crate::model::monster_race::HistoryInfo {
+                    race_id: geti(r, "race_id") as i32,
+                    first: geti(r, "first") as i32,
+                    second: geti(r, "second") as i32,
+                    odd_rate: getf(r, "odd_rate"),
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// The current lane bets (Java `MonsterRace.loadBets`): `(lane_id, bet)`.
+async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
+    sqlx::query("SELECT lane_id, bet FROM mdt_bets")
+        .fetch_all(pool)
+        .await
+        .map(|rs| {
+            rs.iter()
+                .map(|r| (geti(r, "lane_id") as i32, geti(r, "bet")))
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 /// One `npc_respawns` row — a raid boss's persisted state.

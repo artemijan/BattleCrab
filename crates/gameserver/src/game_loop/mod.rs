@@ -220,9 +220,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
     // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
-    // Java `MonsterRace` starts its fixed-rate Announcement at boot (G26.5);
-    // no-op unless `AllowRace`. The Lottery starts from its DB-load event.
-    monster_race::start(&mut world);
+    // The Monster Race (like the Lottery) starts from its DB-load event
+    // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
+    // race number from the loaded history before beginning the cycle.
 
     info!("GameLoop: started ({} ms tick).", TICK.as_millis());
 

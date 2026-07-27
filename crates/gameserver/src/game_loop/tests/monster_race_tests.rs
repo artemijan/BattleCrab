@@ -140,3 +140,135 @@ fn a_disabled_race_is_inert() {
     assert_eq!(world.monster_race.state, RaceState::RaceEnd); // unchanged default
     assert!(world.scheduler.pending_tasks_for_test().is_empty());
 }
+
+// --- Betting + payout + persistence (slice 4) ---
+
+use crate::model::inventory::Inventory;
+use crate::model::monster_race::HistoryInfo;
+
+fn race_world_db() -> (World, db::CmdRx) {
+    let (mut world, _tx, db_rx, _link) = test_world();
+    world.cfg.general.allow_race = true;
+    world.monster_race.race_number = 1;
+    world.id_pool = 0x8000_0000..0x8000_0100;
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 57;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    (world, db_rx)
+}
+
+fn race_adena(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map_or(0, |i| i.adena())
+}
+
+#[test]
+fn mdt_load_seeds_history_race_number_and_bets() {
+    let mut world = race_world();
+    world.monster_race.race_number = 0;
+    monster_race::on_mdt_loaded(
+        &mut world,
+        vec![
+            HistoryInfo {
+                race_id: 1,
+                first: 2,
+                second: 3,
+                odd_rate: 1.5,
+            },
+            HistoryInfo {
+                race_id: 2,
+                first: 4,
+                second: 1,
+                odd_rate: 2.0,
+            },
+        ],
+        vec![(1, 100), (3, 50)],
+    );
+    assert_eq!(world.monster_race.race_number, 3); // 2 records + 1
+    assert_eq!(world.monster_race.bets.get(&1), Some(&100));
+    assert!(world
+        .scheduler
+        .pending_tasks_for_test()
+        .contains(&ScheduledTask::MonsterRaceTick));
+}
+
+#[test]
+fn buying_a_ticket_charges_adena_pools_the_bet_and_mints_it() {
+    let (mut world, _db) = race_world_db();
+    world.monster_race.state = RaceState::AcceptingBets;
+    add_test_npc(&mut world, 600, 30995, "RaceManager", 70, 0, 0, 0);
+    ingame_player(&mut world, 1, 100, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 100, 57, 10_000);
+
+    // Pick lane 3, price tier 2 (500 adena), then confirm-buy.
+    monster_race::race_bypass(&mut world, 1, 100, 600, "BuyTicket 3");
+    monster_race::race_bypass(&mut world, 1, 100, 600, "BuyTicket 12");
+    monster_race::race_bypass(&mut world, 1, 100, 600, "BuyTicket 21");
+
+    let inv = world.objects.get_component::<Inventory>(&100).unwrap();
+    let ticket = inv
+        .items()
+        .iter()
+        .find(|i| i.item_id == 4443)
+        .expect("ticket");
+    assert_eq!(ticket.custom_type1, 3); // lane
+    assert_eq!(ticket.enchant_level, 1); // race number
+    assert_eq!(ticket.custom_type2, 5); // 500 / 100
+    assert_eq!(race_adena(&world, 100), 9_500); // 10000 - 500
+    assert_eq!(world.monster_race.bets.get(&3), Some(&500));
+}
+
+#[test]
+fn cashing_a_winning_ticket_pays_out_and_consumes_it() {
+    let (mut world, _db) = race_world_db();
+    // Race 1 was won by lane 3 at 2.0x; race 2 is current.
+    world.monster_race.history.push(HistoryInfo {
+        race_id: 1,
+        first: 3,
+        second: 5,
+        odd_rate: 2.0,
+    });
+    world.monster_race.race_number = 2;
+    add_test_npc(&mut world, 600, 30995, "RaceManager", 70, 0, 0, 0);
+    ingame_player(&mut world, 1, 100, 0, 0, 0);
+    // A race-1 ticket on lane 3, 500-adena bet (ct2 = 5).
+    let oid = super::items::add_inventory_item(&mut world, 100, 4443, 1).unwrap()[0];
+    world
+        .objects
+        .get_component_mut::<Inventory>(&100)
+        .unwrap()
+        .set_lotto_fields(oid, 3, 1, 5);
+
+    monster_race::race_bypass(&mut world, 1, 100, 600, &format!("CalculateWin {oid}"));
+
+    assert!(world
+        .objects
+        .get_component::<Inventory>(&100)
+        .unwrap()
+        .items()
+        .iter()
+        .all(|i| i.object_id != oid));
+    assert_eq!(race_adena(&world, 100), 1_000); // 500 * 2.0
+}
+
+#[test]
+fn finish_race_persists_history_and_clears_bets() {
+    let (mut world, mut db_rx) = race_world_db();
+    monster_race::tick(&mut world); // countdown 0: open race 1
+    drain_db(&mut db_rx);
+    world.monster_race.countdown = 1115;
+
+    monster_race::tick(&mut world);
+
+    let cmds = drain_db(&mut db_rx);
+    assert!(cmds
+        .iter()
+        .any(|c| matches!(c, crate::db::DbCommand::SaveMdtHistory { race_id: 1, .. })));
+    assert!(cmds
+        .iter()
+        .any(|c| matches!(c, crate::db::DbCommand::ClearMdtBets)));
+}

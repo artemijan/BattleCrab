@@ -144,9 +144,22 @@ now runs its full cycle and animates.**
 (cosmetic SMs); `mdt_history`/`mdt_bets` persistence; and betting + payout via
 the `RaceManager` NPC.
 
-### Slice 4 — Betting + payout
-- Lane bets (items 4443–4470) at the NPC, odds from the pool, `RACE_END` payout
-  to winners, `HistoryInfo`.
+### Slice 4 — Betting + payout + persistence  ✅ LANDED (G26.5 COMPLETE)
+
+**Landed.** `mdt_history`/`mdt_bets` persistence (`DbEvent::MdtLoaded` boot load →
+`on_mdt_loaded` seeds history + bets + the race number, then starts the cycle;
+`DbCommand::{SaveMdtHistory, SaveMdtBet, ClearMdtBets}` — the state machine's
+`finish_race` now persists the result + clears bets in the DB). The RaceManager
+NPC dialog (`race_bypass`, NPC 30995; the `BuyTicket`/`ShowOdds`/`ShowInfo`/
+`ShowTickets`/`ShowTicket`/`CalculateWin`/`ViewHistory` bypass verbs): `BuyTicket`
+is the multi-step lane→price→confirm→buy picker (a `RaceTicket([i32;2])` buffer),
+charging adena, minting ticket 4443 (enchant = race number, `custom_type1` =
+lane, `custom_type2` = price/100), and pooling the bet (`add_bet` + `SaveMdtBet`);
+`CalculateWin` cashes a past-race ticket out at `bet · (lane == winner ? oddRate
+: 0.01)`. 12 monster-race tests total, sabotage-verified.
+
+**Deferred (cosmetic):** the intermediate ticket-sale reminder announcements
+(Java's many 30-second `SM` cases) stay a `TODO(G26.5)`.
 
 ## Watch-list
 
