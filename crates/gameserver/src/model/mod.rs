@@ -25,6 +25,7 @@ pub mod movement;
 pub mod npc;
 pub mod olympiad;
 pub mod party;
+pub mod punishment;
 pub mod quest;
 pub mod shortcut;
 pub mod siege;
@@ -344,6 +345,11 @@ pub struct Player {
     /// Java `Creature._isTeleporting`: position pushed server-side, waiting
     /// for the client's `Appearing`.
     pub teleporting: bool,
+    /// Java `Player.isJailed()` (G31): whether a JAIL punishment currently
+    /// applies to this character (by char id, account, or IP). Cached at
+    /// login/apply and cleared on release; the JailZone keep-in reads it.
+    /// Not persisted — re-derived from `PunishmentManager` on enter-world.
+    pub jailed: bool,
     /// `Player._questZoneId` (default -1): the quest zone the client last
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
@@ -926,6 +932,7 @@ impl Player {
             revive_request: None,
             pending_pet_collar: None,
             teleporting: false,
+            jailed: false,
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),

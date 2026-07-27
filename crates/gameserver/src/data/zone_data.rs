@@ -63,6 +63,11 @@ pub enum ZoneKind {
     /// it. Queried by geometry (`zones_at`), never by membership mask — the u8
     /// mask is full — so it claims no bit.
     DerbyTrack,
+    /// Java `JailZone` → `ZoneId.JAIL`: the GM prison (`gm_room.xml`). A jailed
+    /// player is confined here — leaving triggers a teleport back (G31). Queried
+    /// by geometry (`jail_zone_at`), never by membership mask — the u8 mask is
+    /// full — so it claims no bit.
+    Jail,
 }
 
 impl ZoneKind {
@@ -90,6 +95,8 @@ impl ZoneKind {
             ZoneKind::ClanHall => 0,
             // Queried by geometry (`zones_at`), no membership bit (u8 mask full).
             ZoneKind::DerbyTrack => 0,
+            // Queried by geometry (`jail_zone_at`), no membership bit (mask full).
+            ZoneKind::Jail => 0,
         }
     }
 }
@@ -213,6 +220,9 @@ impl ZoneData {
             // `clan_hall.xml` is uniformly `ClanHallZone`; each zone's
             // `clanHallId` stat ties it to its residence.
             ("clan_hall.xml", ZoneKind::ClanHall),
+            // `gm_room.xml` is uniformly `JailZone` — the GM prison a jailed
+            // player is confined to (G31).
+            ("gm_room.xml", ZoneKind::Jail),
         ] {
             let before = zones.len();
             parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
@@ -323,6 +333,12 @@ impl ZoneData {
             .find(|zn| zn.kind == ZoneKind::ClanHall)
             .map(|zn| zn.clan_hall_id)
     }
+
+    /// Whether `(x, y, z)` is inside a `JailZone` (Java `isInsideZone(ZoneId
+    /// .JAIL)`) — the confinement check for jailed players (G31).
+    pub fn in_jail_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Jail)
+    }
 }
 
 /// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
@@ -344,6 +360,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "ScriptZone" => ZoneKind::Script,
         "ClanHallZone" => ZoneKind::ClanHall,
         "DerbyTrackZone" => ZoneKind::DerbyTrack,
+        "JailZone" => ZoneKind::Jail,
         _ => return None,
     })
 }
@@ -581,9 +598,15 @@ mod tests {
         // 1031 → 1044: `fishing.xml`'s 13 `FishingZone`s (G32).
         // 1044 → 1092: `clan_hall.xml`'s 48 `ClanHallZone`s (G24).
         // 1092 → 1100: `zone.xml`'s 8 `DerbyTrackZone`s (G26.5).
-        assert_eq!(data.zones.len(), 1100);
+        // 1100 → 1103: `gm_room.xml`'s 3 `JailZone`s (G31).
+        assert_eq!(data.zones.len(), 1103);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::DerbyTrack), 8, "zone.xml derby track");
+        assert_eq!(count(ZoneKind::Jail), 3, "gm_room.xml jail zones");
+        // The jail-in location (Java `JailZone.JAIL_IN_LOC`) is inside a jail
+        // zone; the jail-out location is not.
+        assert!(data.in_jail_zone(-114356, -249645, -2984));
+        assert!(!data.in_jail_zone(17836, 170178, -3507));
         assert_eq!(count(ZoneKind::ClanHall), 48, "clan_hall.xml");
         assert_eq!(count(ZoneKind::Script), 133, "the two ScriptZone files");
         assert_eq!(count(ZoneKind::Peace), 134);
@@ -709,6 +732,7 @@ mod effect_zone_tests {
                         | ZoneKind::Fishing
                         | ZoneKind::ClanHall
                         | ZoneKind::DerbyTrack
+                        | ZoneKind::Jail
                 ),
                 "zone {} has an unported kind",
                 z.name

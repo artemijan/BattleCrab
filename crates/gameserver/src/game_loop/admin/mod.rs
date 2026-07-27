@@ -312,6 +312,9 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_gm" => admin_gm(world, client_id, object_id),
         // Disconnect the targeted player.
         "admin_character_disconnect" => admin_character_disconnect(world, client_id, object_id),
+        // Jail / release a player (Java `AdminPunishment`, G31).
+        "admin_jail" => admin_jail(world, client_id, object_id, &args),
+        "admin_unjail" => admin_unjail(world, client_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

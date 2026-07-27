@@ -28,7 +28,7 @@ via the login link. **Deps:** per-client IP (already on `Session.addr`).
 
 ## Slice breakdown
 
-### Slice 1 — Punishment foundation + jail  ⬅ start here (gate: "jail a player")
+### Slice 1 — Punishment foundation + jail  ✅ LANDED (gate: "jail a player" met)
 - `model/punishment.rs`: `PunishmentType`/`PunishmentAffect` enums + a
   `Punishment { key, affect, type, expiration, reason, by }` + the
   `PunishmentManager` runtime on `World` (keyed set, `is_punished` lookups).

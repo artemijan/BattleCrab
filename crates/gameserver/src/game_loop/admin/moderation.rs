@@ -202,6 +202,68 @@ pub(super) fn admin_target(world: &mut World, client_id: u32, object_id: i32, ar
     super::target::set_target(world, client_id, object_id, Some(target));
 }
 
+/// `AdminPunishment`'s `//jail <name> [minutes]` — jail an online player
+/// (Java's `admin_jail` fixes CHARACTER/JAIL; the optional minutes come from the
+/// underlying `admin_punishment_add`, `0`/omitted = forever). The character's
+/// object id is the punishment key, so it survives relog.
+pub(super) fn admin_jail(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(name) = args.first() else {
+        send_message(world, client_id, "Usage: //jail <player name> [minutes]");
+        return;
+    };
+    let Some(target) = find_online_player(world, name) else {
+        send_message(world, client_id, &format!("Player '{name}' is not online."));
+        return;
+    };
+    let minutes = args.get(1).and_then(|m| m.parse::<i64>().ok()).unwrap_or(0);
+    let by = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.name.clone())
+        .unwrap_or_else(|| "System".to_string());
+    let applied = super::super::punishment::jail_character(
+        world,
+        target,
+        minutes,
+        "Jailed by admin".to_string(),
+        by,
+    );
+    if applied {
+        send_message(
+            world,
+            client_id,
+            &format!("Player '{name}' has been jailed."),
+        );
+    } else {
+        send_message(
+            world,
+            client_id,
+            "Target is already affected by that punishment.",
+        );
+    }
+}
+
+/// `AdminPunishment`'s `//unjail <name>` — release a jailed player.
+pub(super) fn admin_unjail(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(name) = args.first() else {
+        send_message(world, client_id, "Usage: //unjail <player name>");
+        return;
+    };
+    let Some(target) = find_online_player(world, name) else {
+        send_message(world, client_id, &format!("Player '{name}' is not online."));
+        return;
+    };
+    if super::super::punishment::unjail_character(world, target) {
+        send_message(
+            world,
+            client_id,
+            &format!("Player '{name}' has been released."),
+        );
+    } else {
+        send_message(world, client_id, &format!("Player '{name}' is not jailed."));
+    }
+}
+
 /// `AdminServerInfo` — Java opens an HTML window; we send the key figures as
 /// text lines (a documented G13.A simplification; the HTML build waits for the
 /// admin-menu work in G13.B).

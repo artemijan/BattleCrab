@@ -136,6 +136,10 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
     // Peace/NoRestart have no enter/exit side effects — membership itself is
     // the state their consumers check (`is_inside_peace_zone`; NO_RESTART has
     // no reader in this Mobius version beyond the login-inside teleport).
+
+    // JailZone.onExit (G31): a jailed player who has wandered out of the prison
+    // is teleported straight back. Geometry-queried (jail claims no mask bit).
+    super::punishment::enforce_jail_keep_in(world, object_id);
 }
 
 /// `SiegeZone.onEnter/onExit` for one player: a siege zone is a combat zone only

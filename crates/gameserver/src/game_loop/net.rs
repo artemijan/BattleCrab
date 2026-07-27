@@ -732,6 +732,12 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             } => {
                 super::item_auction::on_loaded(world, next_auction_id, auctions);
             }
+            DbEvent::PunishmentsLoaded {
+                next_id,
+                punishments,
+            } => {
+                super::punishment::on_loaded(world, next_id, punishments);
+            }
             DbEvent::BufferSchemesLoaded { entries } => {
                 // Java `SchemeBufferTable.load` drops any saved skill id no longer
                 // in `_availableBuffs`; the buffer table lives here on the game

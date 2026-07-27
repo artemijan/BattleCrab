@@ -274,6 +274,9 @@ pub struct World {
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
+    /// The active-punishment registry — jail/ban/chat-ban (G31).
+    pub punishments: crate::model::punishment::PunishmentManager,
+
     /// Account premium expirations (`account_name` lowercase → enddate millis),
     /// the in-memory mirror of `account_premium` (Java `PremiumManager._premiumData`).
     /// Boot-loaded from the whole table (`DbEvent::PremiumLoaded`) rather than
@@ -413,6 +416,7 @@ impl World {
             lottery: crate::model::lottery::LotteryState::default(),
             item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
+            punishments: crate::model::punishment::PunishmentManager::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),
             bbs_favorites: HashMap::new(),
