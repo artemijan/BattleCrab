@@ -57,6 +57,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         "client {client_id} → opcode 0x{opcode:02x} ({} B)",
         data.len()
     );
+    // The GM Debug panel's packet toggle (Java `Config.DEBUG_CLIENT_PACKETS`,
+    // flipped at runtime by `//debug packets on|off`).
+    if world.debug_packets {
+        tracing::info!(
+            "[packet-debug] client {client_id} → opcode 0x{opcode:02x} ({} B)",
+            data.len()
+        );
+    }
     match opcode {
         cop::AUTH_LOGIN => handle_auth_login(world, client_id, body),
         cop::NEW_CHARACTER => handle_new_character(world, client_id),

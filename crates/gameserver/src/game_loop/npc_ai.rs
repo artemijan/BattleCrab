@@ -1212,6 +1212,16 @@ fn npc_geo_move(world: &mut World, npc_oid: i32, dest: (i32, i32, i32), pawn: Op
 /// standing up), is inert on this dist: `PlayerFakeDeathUpProtection = 0`.
 pub(crate) fn notices_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
     use crate::model::skill::effect_flag;
+    // `//invis`: an invisible GM is never noticed — Java's `AttackableAI`
+    // drops invisible targets and `OnCreatureSee` never fires for them
+    // (no raid exemption, unlike SILENT_MOVE below).
+    if world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&target_oid)
+        .is_some_and(|f| f.hidden)
+    {
+        return false;
+    }
     let flags = super::abnormal::flags_of(world, target_oid);
     // `isAlikeDead()` — a fake-dead player is, for aggro purposes, a corpse.
     if flags & effect_flag::FAKE_DEATH != 0 {

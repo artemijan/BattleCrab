@@ -222,6 +222,19 @@ pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
         .get_component::<super::cubic::Cubics>(&object_id)
         .map(|c| c.ids())
         .unwrap_or_default();
+    // A hidden GM's CharInfo must not reach other players: Java's
+    // `broadcastCharInfo` checks `isVisibleFor` per recipient; the port
+    // suppresses wholesale, same as `visibility::send_char_info` (the
+    // SEE_ALL_PLAYERS cond-override isn't modeled). Without this gate any
+    // UserInfo-broadcasting action (transform, title, store, buff…) popped a
+    // hidden GM back onto every nearby client.
+    if world
+        .objects
+        .get_component::<crate::model::components::AdminFlags>(&object_id)
+        .is_some_and(|f| f.hidden)
+    {
+        return;
+    }
     let char_info = server_packets::char_info(
         &v,
         &super::abnormal::visual_effects(world, object_id),

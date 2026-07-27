@@ -163,6 +163,10 @@ pub struct World {
     /// Last issued path-request sequence number (`next_path_seq`) — replies
     /// carrying anything older than the requester's `PathWait` are stale.
     pub path_seq: u64,
+    /// `Config.DEBUG_CLIENT_PACKETS` — runtime-mutable from the GM Debug
+    /// panel (`//debug packets on|off`); `dispatch::on_packet` logs every
+    /// inbound opcode at info level while set.
+    pub debug_packets: bool,
     /// Combat/AI/reward config keys (`Character.ini`/`NPC.ini`/`Rates.ini`).
     /// Defaults (Java's, rates ×1) unless boot replaces it — same pattern as
     /// `geo`/`path_finding`.
@@ -410,6 +414,7 @@ impl World {
             path_finding: 2,
             path: std::sync::mpsc::channel().0,
             path_seq: 0,
+            debug_packets: false,
             cfg: crate::config::CombatConfig::default(),
             quests: std::sync::Arc::new(crate::scripts::build_registry(soul_crystal_npc_ids)),
             clans: HashMap::new(),

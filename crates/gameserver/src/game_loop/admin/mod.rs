@@ -537,7 +537,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         }
         "admin_html" | "admin_loadhtml" => admin_html(world, client_id, &args),
         "admin_showdoors" => admin_showdoors(world, client_id, object_id),
-        "admin_debug" => admin_debug(world, client_id, object_id),
+        "admin_debug" => admin_debug(world, client_id, object_id, &args),
         "admin_stats" => admin_stats(world, client_id),
         "admin_kick_non_gm" => admin_kick_non_gm(world, client_id),
         "admin_gmchat_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
@@ -693,12 +693,18 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_set_displayeffect" | "admin_set_displayeffect_menu" => {
             effects::admin_set_displayeffect(world, client_id, object_id, &args)
         }
-        // `//invis`/`//vis` aliases route to the same toggle as `//hide`
-        // (Java's explicit set collapses onto the toggle when the state
-        // already differs; a double-invis is a no-op message either way).
-        "admin_invis" | "admin_invisible" | "admin_setinvis" | "admin_vis" | "admin_visible" => {
-            admin_hide(world, client_id, object_id)
+        // `AdminEffects`' invisibility family: `//invis` *sets* hidden,
+        // `//vis` *sets* visible (never toggles), `//setinvis` toggles the
+        // targeted player, and the gm_menu "Invis" button toggles + re-serves
+        // the panel.
+        "admin_invis" | "admin_invisible" => {
+            flags::admin_set_hidden(world, client_id, object_id, true)
         }
+        "admin_vis" | "admin_visible" => {
+            flags::admin_set_hidden(world, client_id, object_id, false)
+        }
+        "admin_setinvis" => flags::admin_setinvis(world, client_id, object_id),
+        "admin_invis_menu" => flags::admin_invis_menu(world, client_id, object_id),
         _ => return false,
     }
     true

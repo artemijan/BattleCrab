@@ -14,7 +14,6 @@ use super::{current_target, send_message, send_sm};
 pub(super) enum GmFlag {
     Invul,
     Undying,
-    Hidden,
 }
 
 impl GmFlag {
@@ -22,7 +21,6 @@ impl GmFlag {
         match self {
             GmFlag::Invul => "Invulnerability",
             GmFlag::Undying => "Undying",
-            GmFlag::Hidden => "Hide",
         }
     }
 }
@@ -42,10 +40,6 @@ fn set_flag(world: &mut World, target: i32, flag: GmFlag) -> bool {
         GmFlag::Undying => {
             flags.undying = !flags.undying;
             flags.undying
-        }
-        GmFlag::Hidden => {
-            flags.hidden = !flags.hidden;
-            flags.hidden
         }
     };
     world.objects.add_components(&target, flags);
@@ -81,17 +75,87 @@ fn send_invisible_visual(world: &World, client_id: u32, object_id: i32, invisibl
 /// Either way the GM's own client gets the STEALTH abnormal-visual update so
 /// the invisible state shows on the character.
 pub(super) fn admin_hide(world: &mut World, client_id: u32, object_id: i32) {
-    let hidden = set_flag(world, object_id, GmFlag::Hidden);
+    let hidden = !world
+        .objects
+        .get_component::<AdminFlags>(&object_id)
+        .is_some_and(|f| f.hidden);
+    set_hidden(world, client_id, object_id, hidden);
+}
+
+/// `AdminEffects`' `admin_invis`/`admin_invisible` (`hidden = true`) and
+/// `admin_vis`/`admin_visible` (`hidden = false`) — Java *sets* the state
+/// rather than toggling, so `//vis` while visible must stay visible (the old
+/// toggle alias here hid you instead).
+pub(super) fn admin_set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
+    set_hidden(world, client_id, object_id, hidden);
+}
+
+/// The gm_menu "Invis" button (`admin_invis_menu`): Java toggles on the
+/// current state and re-serves `gm_menu.htm` so the panel stays up
+/// (`AdminEffects` → `AdminHtml.showAdminHtml("gm_menu.htm")`).
+pub(super) fn admin_invis_menu(world: &mut World, client_id: u32, object_id: i32) {
+    admin_hide(world, client_id, object_id);
+    super::menu::show_admin_html(world, client_id, "gm_menu.htm");
+}
+
+/// `admin_setinvis` — toggle invisibility on the *targeted player* (Java
+/// flips any targeted Creature; NPC invisibility isn't modeled in the port,
+/// so non-player targets are refused like Java's null-target branch).
+pub(super) fn admin_setinvis(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) =
+        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
+    else {
+        send_message(world, client_id, "Invalid target.");
+        return;
+    };
+    let hidden = !world
+        .objects
+        .get_component::<AdminFlags>(&target)
+        .is_some_and(|f| f.hidden);
+    let target_client = super::helpers::client_for_player(world, target).unwrap_or(0);
+    set_hidden(world, target_client, target, hidden);
+}
+
+/// Java `WorldObject.setInvisible` + the `admin_invis`/`admin_vis` packet
+/// tail: on hide, every player targeting the GM drops the selection (with
+/// `TargetUnselected`, same order as the visibility system's walk-away path)
+/// before the `DeleteObject` lands; on unhide the visibility exchange
+/// re-describes the GM to everyone (`broadcastInfo`). Either way the owner's
+/// client gets the STEALTH abnormal-visual update. While hidden,
+/// `visibility::send_char_info` and `party::broadcast_user_info` suppress
+/// the CharInfo, and NPC aggro skips the GM (`notices_target`). Java also
+/// aborts observers' in-flight attacks/casts and idles NPC AI on hide; the
+/// port's mobs re-validate through `notices_target` instead.
+fn set_hidden(world: &mut World, client_id: u32, object_id: i32, hidden: bool) {
+    let mut flags = world
+        .objects
+        .get_component::<AdminFlags>(&object_id)
+        .copied()
+        .unwrap_or_default();
+    flags.hidden = hidden;
+    world.objects.add_components(&object_id, flags);
     if hidden {
+        // Everyone with the GM selected loses the selection first.
+        let mut watchers: Vec<i32> = Vec::new();
+        world
+            .objects
+            .for_each_mut::<(&Player, &crate::model::components::TargetRef)>(|(p, t)| {
+                if t.0 == Some(object_id) && p.object_id != object_id {
+                    watchers.push(p.object_id);
+                }
+            });
+        for watcher in watchers {
+            crate::game_loop::target::drop_target_notify(world, watcher);
+        }
         super::helpers::broadcast_to_others(
             world,
             object_id,
             &server_packets::delete_object(object_id),
         );
-        send_message(world, client_id, "You are now hidden.");
+        send_message(world, client_id, "Now, you cannot be seen.");
     } else {
         super::visibility::on_enter_world(world, client_id, object_id);
-        send_message(world, client_id, "You are now visible.");
+        send_message(world, client_id, "Now, you can be seen.");
     }
     send_invisible_visual(world, client_id, object_id, hidden);
 }

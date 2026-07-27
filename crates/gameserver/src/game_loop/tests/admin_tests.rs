@@ -3862,3 +3862,203 @@ fn oversized_html_is_clipped_to_java_limit() {
     let pkt = server_packets::npc_html_message_item(0, 1, &small);
     assert_eq!(decode_npc_html(&pkt).unwrap(), small);
 }
+
+// ---------------------------------------------------------------------------
+// GM invisibility (`admin_invis` family) + the Debug panel
+// ---------------------------------------------------------------------------
+
+/// **The gm_menu "Invis" button works end-to-end.** `admin_invis_menu` was
+/// undispatched ("not implemented yet"): it must toggle invisibility — the
+/// observer's selection drops (TargetUnselected) before the DeleteObject —
+/// re-serve `gm_menu.htm`, suppress CharInfo rebroadcasts while hidden (the
+/// old `broadcast_user_info` leaked the GM back onto nearby clients), and
+/// re-describe the GM on the second press.
+#[test]
+fn admin_invis_menu_hides_and_reserves_panel() {
+    use crate::model::components::{AdminFlags, TargetRef};
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7101, 100);
+    let mut obs_rx = ingame_player_access(&mut world, 2, 7102, 0);
+    world.objects.add_components(&7102, TargetRef(Some(7101)));
+    drain(&mut gm_rx);
+    drain(&mut obs_rx);
+
+    on_packet(&mut world, 1, build_admin("invis_menu"));
+    assert!(
+        world
+            .objects
+            .get_component::<AdminFlags>(&7101)
+            .is_some_and(|f| f.hidden),
+        "GM hidden after the Invis button"
+    );
+    let obs = drain(&mut obs_rx);
+    assert!(
+        obs.iter()
+            .any(|p| p[0] == server_packets::opcodes::TARGET_UNSELECTED),
+        "observer's selection dropped"
+    );
+    assert!(
+        obs.iter()
+            .any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT),
+        "GM removed from the observer's client"
+    );
+    assert!(
+        drain(&mut gm_rx)
+            .iter()
+            .filter_map(|p| decode_npc_html(p))
+            .any(|h| h.contains("admin_invis_menu")),
+        "gm_menu.htm re-served to keep the panel up"
+    );
+
+    // While hidden, a UserInfo broadcast must not leak CharInfo to others.
+    crate::game_loop::party::broadcast_user_info(&world, 7101);
+    assert!(
+        !drain(&mut obs_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
+        "no CharInfo leak to the observer while hidden"
+    );
+
+    on_packet(&mut world, 1, build_admin("invis_menu"));
+    assert!(
+        !world
+            .objects
+            .get_component::<AdminFlags>(&7101)
+            .unwrap()
+            .hidden,
+        "second press unhides"
+    );
+    assert!(
+        drain(&mut obs_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::CHAR_INFO),
+        "CharInfo re-sent to the observer on unhide"
+    );
+}
+
+/// **`//vis` sets visible, never toggles.** The old alias collapsed the whole
+/// family onto the `//hide` toggle, so `//vis` while visible *hid* you.
+/// `//invis` is likewise an idempotent set.
+#[test]
+fn vis_and_invis_are_sets_not_toggles() {
+    use crate::model::components::AdminFlags;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7111, 100);
+    drain(&mut gm_rx);
+    let hidden = |world: &World| {
+        world
+            .objects
+            .get_component::<AdminFlags>(&7111)
+            .is_some_and(|f| f.hidden)
+    };
+
+    on_packet(&mut world, 1, build_admin("vis"));
+    assert!(!hidden(&world), "//vis while visible stays visible");
+
+    on_packet(&mut world, 1, build_admin("invis"));
+    assert!(hidden(&world), "//invis hides");
+    on_packet(&mut world, 1, build_admin("invis"));
+    assert!(hidden(&world), "//invis is idempotent");
+
+    on_packet(&mut world, 1, build_admin("visible"));
+    assert!(!hidden(&world), "//visible unhides");
+}
+
+/// **`//setinvis` acts on the *target*, not the GM.** The old alias hid the
+/// GM themself.
+#[test]
+fn setinvis_toggles_the_targeted_player() {
+    use crate::model::components::{AdminFlags, TargetRef};
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7121, 100);
+    let mut victim_rx = ingame_player_access(&mut world, 2, 7122, 0);
+    world.objects.add_components(&7121, TargetRef(Some(7122)));
+    drain(&mut gm_rx);
+    drain(&mut victim_rx);
+
+    on_packet(&mut world, 1, build_admin("setinvis"));
+    assert!(
+        world
+            .objects
+            .get_component::<AdminFlags>(&7122)
+            .is_some_and(|f| f.hidden),
+        "the targeted player is hidden"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<AdminFlags>(&7121)
+            .is_some_and(|f| f.hidden),
+        "the GM themself stays visible"
+    );
+}
+
+/// **Mobs don't notice an invisible GM** (Java `AttackableAI` drops invisible
+/// targets; the aggro scan must skip them, with no raid exemption).
+#[test]
+fn npc_aggro_ignores_hidden_gm() {
+    use crate::model::components::AdminFlags;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7131, 100);
+    drain(&mut gm_rx);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 10, 100, 0, 0);
+    assert!(
+        crate::game_loop::npc_ai::notices_target(&world, NPC_OID, 7131),
+        "a visible player is noticed"
+    );
+    let mut flags = world
+        .objects
+        .get_component::<AdminFlags>(&7131)
+        .copied()
+        .unwrap_or_default();
+    flags.hidden = true;
+    world.objects.add_components(&7131, flags);
+    assert!(
+        !crate::game_loop::npc_ai::notices_target(&world, NPC_OID, 7131),
+        "a hidden GM is never noticed"
+    );
+}
+
+/// **The Debug button opens the real Debug panel.** `admin_debug` used to
+/// dump chat text; Java serves `debug.htm` with every `%…_status%` token
+/// substituted. The packets toggle round-trips through `World::debug_packets`
+/// and re-renders the panel with the flipped label.
+#[test]
+fn debug_menu_renders_and_packet_toggle_works() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7141, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("debug"));
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("the Debug panel is served");
+    assert!(html.contains("Debug Menu"), "debug.htm served, got: {html}");
+    assert!(
+        !html.contains('%'),
+        "every %token% substituted, got: {html}"
+    );
+    assert!(
+        html.contains("admin_debug packets on menu"),
+        "packets button offers enabling"
+    );
+
+    on_packet(&mut world, 1, build_admin("debug packets on menu"));
+    assert!(world.debug_packets, "packet debugging enabled");
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("panel re-rendered");
+    assert!(
+        html.contains("admin_debug packets off menu"),
+        "packets button now offers disabling"
+    );
+
+    on_packet(&mut world, 1, build_admin("debug packets off"));
+    assert!(!world.debug_packets, "packet debugging disabled again");
+}

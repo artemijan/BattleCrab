@@ -215,18 +215,84 @@ pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32)
     }
 }
 
-/// `AdminDebug`'s `//debug` / `AdminTest`'s `//stats` — dump the current
-/// target's core state (or server stats when nothing is targeted).
-pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32) {
-    match current_target(world, object_id) {
-        Some(target) if world.objects.has_component::<Player>(&target) => {
-            super::admin_character_info(world, client_id, object_id, &[], false);
+/// Port of `AdminDebug` — `//debug [packets|doors|geodata|movement] [on|off]
+/// [menu]`. Bare `//debug` opens the four-toggle Debug panel (`debug.htm`,
+/// its `%…_status%` tokens filled from live state — Java `showMenu`; the old
+/// port routed this to a chat-text stat dump, so the panel was unreachable).
+/// The packets toggle drives `World::debug_packets` (Java flips
+/// `Config.DEBUG_*_PACKETS` for console packet logging). TODO(G33): the
+/// doors/geodata/movement visualizers (Java `setDoorDebugging`/
+/// `setGeodataDebugging`/`setMovementDebugging` per-player draw tasks) need
+/// the `ExServerPrimitive` packet, which isn't ported — those toggles answer
+/// with a message and render as "off".
+pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let _ = object_id;
+    let Some(&sub) = args.first() else {
+        return show_debug_menu(world, client_id);
+    };
+    // The htm buttons send e.g. `admin_debug packets on menu` — the trailing
+    // literal re-renders the panel (Java `command.contains("menu")`).
+    let menu = args.contains(&"menu");
+    match sub {
+        "packet" | "packets" => {
+            let on = match args.get(1).copied() {
+                Some("on") => true,
+                Some("off") => false,
+                // Bare `//debug packets` toggles (Java's no-token branch).
+                _ => !world.debug_packets,
+            };
+            world.debug_packets = on;
+            send_message(
+                world,
+                client_id,
+                &format!(
+                    "Packet debugging on console is {}.",
+                    if on { "enabled" } else { "disabled" }
+                ),
+            );
+            if menu {
+                show_debug_menu(world, client_id);
+            }
         }
-        Some(target) if world.objects.has_component::<Npc>(&target) => {
-            super::admin_spawn_debug_print(world, client_id, object_id);
+        "door" | "doors" | "geo" | "geodata" | "move" | "movement" | "path" | "pathfind" => {
+            send_message(
+                world,
+                client_id,
+                "Debug drawing (ExServerPrimitive) is not implemented yet.",
+            );
+            if menu {
+                show_debug_menu(world, client_id);
+            }
         }
-        _ => admin_stats(world, client_id),
+        _ => send_message(world, client_id, "Usage: //debug <parameter> <value>"),
     }
+}
+
+/// Java `AdminDebug.showMenu` — `debug.htm` with each `%token%` pair swapped
+/// for the live state (`Disable`+`… off` when active, `Enable`+`… on` when
+/// not). The three drawing toggles are always off until their tasks are
+/// ported, matching Java's empty task maps.
+fn show_debug_menu(world: &World, client_id: u32) {
+    let (packets_status, packets_cmd) = if world.debug_packets {
+        ("Disable", "packets off")
+    } else {
+        ("Enable", "packets on")
+    };
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "debug.htm",
+        &[
+            ("packets_status", packets_status.to_string()),
+            ("packets", packets_cmd.to_string()),
+            ("doors_status", "Enable".to_string()),
+            ("doors", "doors on".to_string()),
+            ("geodata_status", "Enable".to_string()),
+            ("geodata", "geodata on".to_string()),
+            ("movement_status", "Enable".to_string()),
+            ("movement", "movement on".to_string()),
+        ],
+    );
 }
 
 /// `AdminTest`'s `//stats` — server-wide counts.
