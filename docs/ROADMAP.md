@@ -56,7 +56,7 @@ out-of-scope list.
 | G27 | Instances | End-game | AdminInstance, AdminInstanceZone | G21 |
 | G28 | Events engine & cursed weapons | End-game | AdminEvents, `//tvt_*`, AdminCursedWeapons | G20 |
 | G29 | Summons, pets, servitors, cubics, agathions | Support | AdminEditChar summon/pet subcommands | G19, G20 |
-| G30 | Mail, community board & party matching | Support | AdminBBS | G18 |
+| G30 | Mail, community board & party matching 🚧 | Support | AdminBBS | G18 |
 | G30.5 | Item auction | Support | — | G15, G30 |
 | G31 | Moderation, accounts, petitions & HWID | Support | AdminPunishment, AdminLogin, AdminHwid, AdminPetition, AdminFakePlayers, editchar find_ip/dualbox/tracert | IP plumbing |
 | G32 | Fishing | Support | — | G19 |
@@ -1138,6 +1138,30 @@ Still open on the custom board: `_bbssell` (needs buylist 423, absent on this
 dist and unreachable from the shipped htmls) and the enchant/chance/special-item
 multisell branches (no CB list uses them). The retail forum boards +
 `communitybbs` core stay deferred (the custom nav never links to them).
+
+**Mail + party matching progress (2026-07-27, both gates met):** the full mail
+system (`model/mail.rs` + `game_loop/mail.rs`, ex 0x62–0x6C) — compose/send with
+the `100 + 1000/slot` fee, inbox/outbox, open/delete, attachments with
+cash-on-delivery, cancel and return-to-sender, and `ScheduledTask::MailExpire`
+in place of Java's 10 s polling `MessageDeletionTaskManager` (attachments go
+back to the sender's warehouse). Mail is world state with write-through
+persistence, since both parties can be offline — and it is what forced the
+`CharInfoTable` equivalent (`World.char_ids_by_name`) the port had gone without,
+because mail is addressed by name to characters who need not be online. Party
+**matching rooms** are complete too (`model/matching_room.rs` +
+`game_loop/party_room.rs`, top 0x7F/0x80/0x81 + ex 0x09/0x0A/0x0B/0x25/0x2F–0x31),
+including the looking-for-party waiting list, the `bbs` map-region "location"
+attribute, the `UserInfo` `isInMatchingRoom` byte, and the party/logout
+cross-hooks. Six Java defects are deliberately not reproduced (leaked solo
+rooms, the inverted level filter, the self-compared party check in the oust
+handler, the unconditional leader-change message, and two NPE/stranded-request
+paths) — each listed with its test in
+[PLAN_G30_MAIL_PARTY_MATCHING.md](PLAN_G30_MAIL_PARTY_MATCHING.md). 60 tests.
+
+**Still open on G30:** the retail forum boards + `communitybbs` core, `_bbssell`
+/ `_bbsdelevel`, and AdminBBS. **Command channels (MPCC) are not part of this
+milestone's remaining scope** — they were never scheduled under any milestone
+and are tracked as their own item in the PROGRESS remaining-ports audit.
 
 **Audit additions (2026-07):** the contact list
 (`RequestExAddContactToContactList` family) and party adena distribution

@@ -16,6 +16,11 @@ counting as handled).
 | Extended | 198 | 60 | 138 |
 | **Total** | **353** | **175** | **178** |
 
+*(Counts as of the G33 audit. G30's mail + party-matching work landed
+2026-07-27 and moved 22 opcodes — 3 top-level, 19 extended — from
+"not dispatched" to handled; the buckets below are annotated rather than
+recounted.)*
+
 Of the 178 not dispatched, the audit classified essentially all as either a
 **deferred-by-design subsystem** (a milestone that is intentionally incomplete)
 or **later-chronicle / niche** content that Interlude Classic never exposes.
@@ -26,13 +31,17 @@ The port also *handles several packets Java leaves `null`* (e.g. top-level
 ## Not-dispatched, bucketed
 
 ### Deferred-by-design subsystems (tracked by their own milestone, not a slip)
-- **Clan ranks / wars / allies / sub-pledges** (G18 s3+, pending): clan-war
+- **Clan ranks / wars / allies / sub-pledges** (G18 — *this bucket is stale*:
+  a 2026-07-27 code check found wars/allies/sub-pledges present; re-verify
+  before treating any of these as missing): clan-war
   replies 0x04/0x06/0x08, `RequestPledgeMemberList` 0x4D,
   `RequestPledgeExtendedInfo` 0x66, `RequestGiveNickName` 0x0B, ex
   `RequestPledgeSetAcademyMaster` 0x12, ex `RequestClanAskJoinByName` 0xB9.
-- **Mail / post** (G30, deferred): ex 0x62–0x6C (the whole post family).
-- **Party matching room** (G30, deferred): top 0x7F/0x80/0x81, ex
-  0x09/0x0A/0x0B/0x25/0x2F/0x30/0x31.
+- ~~**Mail / post** (G30, deferred): ex 0x62–0x6C (the whole post family).~~
+  **CLOSED 2026-07-27** — the whole family is dispatched.
+- ~~**Party matching room** (G30, deferred): top 0x7F/0x80/0x81, ex
+  0x09/0x0A/0x0B/0x25/0x2F/0x30/0x31.~~ **CLOSED 2026-07-27** — all eleven
+  opcodes are dispatched.
 - **Command Channel / MPCC** (own feature, not yet scheduled): ex
   0x06/0x07/0x08/0x2D and the MPCC-room family 0x5A–0x61.
 - **Private *buy* store** (G15 sell-store landed; buy-store not): 0x99/0x9A/0x9C/

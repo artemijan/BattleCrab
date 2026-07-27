@@ -67,6 +67,11 @@ pins the fix with a test.
 6. `RequestListPartyMatchingWaitingRoom` desyncs its read when the class-filter
    count is `>= 128` (the ints are consumed only inside the guarded branch).
 
+## Status
+
+**All five slices landed (2026-07-27); both gates met.** 60 tests
+(25 party-room + 35 mail), full suite green.
+
 ## Slices
 
 ### Slice 1 — Matching-room core: create, list, waiting list ✅
@@ -86,7 +91,7 @@ ex 0x0B withdraw, ex 0x2F ask-join + ex 0x30 answer (via a new
 byte; the logout hook in `store_and_remove_player`; the party-withdraw and
 party-invite-accept cross-hooks; `ChatType::PartyMatchRoom` (14).
 
-### Slice 3 — Mail foundation + inbox/outbox listing
+### Slice 3 — Mail foundation + inbox/outbox listing ✅
 `model/mail.rs` (`Message`, `MailType`), the `messages` table boot load
 (`DbEvent::MailLoaded`) + `DbCommand`s, a `CharInfoTable` equivalent
 (boot-loaded name→id map on `World`, needed because mail addresses *offline*
@@ -95,7 +100,7 @@ ex 0x64, `RequestSentPostList` ex 0x69 → `ExShowReceivedPostList` 0xFE 0xAB,
 `ExShowSentPostList` 0xFE 0xAD, `ExReplyPostItemList` 0xFE 0xB3,
 `ExUnReadMailCount` 0xFE 0x13C, and `ExNoticePostArrived` 0xFE 0xAA at enter-world.
 
-### Slice 4 — Send, read, delete
+### Slice 4 — Send, read, delete ✅
 `RequestSendPost` ex 0x63 (the full 25-step guard chain + the
 `100 + 1000/slot` fee), `RequestReceivedPost` ex 0x66,
 `RequestSentPost` ex 0x6B, `RequestDeleteReceivedPost` ex 0x65,
@@ -103,7 +108,7 @@ ex 0x64, `RequestSentPostList` ex 0x69 → `ExShowReceivedPostList` 0xFE 0xAB,
 `ExReplySentPost` 0xFE 0xAE, `ExChangePostState` 0xFE 0xB4,
 `ExNoticePostSent` 0xFE 0xB5 (note: writes the `EX_REPLY_WRITE_POST` id).
 
-### Slice 5 — Attachments, COD, expiry
+### Slice 5 — Attachments, COD, expiry ✅
 The `MAIL` item location + a world-level attachment container,
 `RequestPostAttachment` ex 0x67 (receive + COD payment, incl. the offline-sender
 adena row), `RequestCancelPostAttachment` ex 0x6C,
