@@ -1,6 +1,6 @@
 //! `BypassUserCmd` (0xB3) — the client `/command` bar — routed to ports of
-//! `handlers/usercommandhandlers/*` (G15.5). Handled: `/loc` (id 0) and
-//! `/unstuck` (id 52). Unknown ids answer the Java GM-only "not implemented"
+//! `handlers/usercommandhandlers/*` (G15.5). Handled: `/loc` (id 0),
+//! `/unstuck` (id 52), and `/dismount` (id 62). Unknown ids answer the Java GM-only "not implemented"
 //! message. The rest of the family (`/time` needs the game clock, `/mount`
 //! needs rideable pets, `/partyinfo`'s loot strings, …) lands with its
 //! blocking system.
@@ -13,6 +13,9 @@ use crate::world::World;
 
 const USER_CMD_LOC: i32 = 0;
 const USER_CMD_UNSTUCK: i32 = 52;
+/// `usercommandhandlers/Dismount.java` — `/dismount` (id 62). Its `/mount`
+/// sibling (id 61, `Mount.java`) is TODO(G29): it needs a rideable pet.
+const USER_CMD_DISMOUNT: i32 = 62;
 
 /// The 5-minute escape (`SkillData.getSkill(2099, 1)`) and the GM 1-second
 /// escape (2100) — both `SELF`-targeted static skills with the
@@ -32,6 +35,10 @@ pub(crate) fn handle_bypass_user_cmd(world: &mut World, client_id: u32, body: &[
     match command_id {
         USER_CMD_LOC => loc(world, client_id, object_id),
         USER_CMD_UNSTUCK => unstuck(world, client_id, object_id),
+        // Java `Dismount.useUserCommand` -> `player.dismount()` (only when
+        // riding; silently ignored otherwise, same as Java's isRentedPet=false
+        // + isMounted=false fallthrough).
+        USER_CMD_DISMOUNT => super::admin::mounts::dismount(world, object_id),
         _ => {
             // `BypassUserCmd.runImpl`'s missing-handler branch: GMs get told,
             // players get silence.

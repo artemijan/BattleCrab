@@ -461,6 +461,8 @@ pub mod action {
     pub const SERVITOR_ATTACK: i32 = 22;
     /// `ServitorStop` — cancel what you are doing.
     pub const SERVITOR_STOP: i32 = 23;
+    /// `Ride` — `/mount`, `/dismount`, `/mountdismount` → `mountPlayer`.
+    pub const RIDE: i32 = 38;
 }
 
 /// `RequestActionUse` — the servitor commands only. Other action ids (sit,
@@ -477,7 +479,7 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     if servitor_skill.is_none()
         && !matches!(
             pkt.action_id,
-            action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP
+            action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP | action::RIDE
         )
     {
         return;
@@ -495,6 +497,22 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         .is_none_or(|v| v.dead)
         || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
+        return;
+    }
+    // Action 38 (`Ride` playeraction — `/dismount`): dismounting a mounted
+    // player is live; *mounting* an owned strider/wolf is TODO(G29) with
+    // rideable pets (Java `mountPlayer(getPet())`'s level/range/combat gates
+    // need a mountable pet to exist first). TODO(G33): Java also refuses a
+    // wyvern dismount inside a NO_LANDING zone (`no_landing.xml` unloaded)
+    // and while the mount is hungry (feeding is G29).
+    if pkt.action_id == action::RIDE {
+        if world
+            .objects
+            .get_component::<crate::model::Player>(&owner_oid)
+            .is_some_and(crate::model::Player::is_mounted)
+        {
+            crate::game_loop::admin::mounts::dismount(world, owner_oid);
+        }
         return;
     }
     // Every handler opens with the same "do you even have one" check.

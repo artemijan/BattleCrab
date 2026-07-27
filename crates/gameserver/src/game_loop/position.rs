@@ -210,10 +210,25 @@ pub(crate) fn intention_move_to(
     }
     let mut distance = (dx * dx + dy * dy).sqrt();
 
+    // Java `Creature.moveToLocation` gates the whole geodata section on
+    // `!_isFlying && !isInWater` (`isInWater` = WATER zone, minus castle
+    // moats): a wyvern rider or swimmer moves in a straight 3D line — no
+    // destination clamp, no pathfinder, no "no path found" abort. Without
+    // this exemption every flight click was snapped back to the terrain.
+    let is_flying = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(Player::is_flying);
+    let floating = is_flying
+        || world
+            .objects
+            .get_component::<Speeds>(&object_id)
+            .is_some_and(|s| s.swimming);
+
     // GEODATA MOVEMENT CHECKS AND PATHFINDING (`Creature.moveToLocation`).
     let (original_x, original_y, original_z) = (target_x, target_y, target_z);
     let original_distance = distance;
-    if world.path_finding > 0 {
+    if world.path_finding > 0 && !floating {
         // A re-click onto the geo cell we're already pathing to is ignored;
         // a click elsewhere abandons route following on the in-flight move
         // (Java `isOnGeodataPath()` → same gtx/gty return / index = -1).
@@ -234,7 +249,10 @@ pub(crate) fn intention_move_to(
     // Java skips the destination correction for far clicks (> 3000: "should
     // be able to click far away and move") and for intentional falls
     // ((curZ - z) > 300 with distance < 300).
-    if world.path_finding > 0 && distance <= 3000.0 && !(cur.z - target_z > 300 && distance < 300.0)
+    if world.path_finding > 0
+        && !floating
+        && distance <= 3000.0
+        && !(cur.z - target_z > 300 && distance < 300.0)
     {
         let (vx, vy, _vz) = world
             .geo
@@ -250,7 +268,7 @@ pub(crate) fn intention_move_to(
     // The clamp shortened the move by > 30 units — hand the original
     // destination to the path worker; the move starts (or fails with
     // ActionFailed) in `handle_path_result` when the reply lands.
-    if world.path_finding > 0 && (original_distance - distance) > 30.0 {
+    if world.path_finding > 0 && !floating && (original_distance - distance) > 30.0 {
         let seq = world.next_path_seq();
         world.objects.add_components(&object_id, PathWait { seq });
         let _ = world.path.send(PathRequest {
@@ -265,8 +283,10 @@ pub(crate) fn intention_move_to(
     }
 
     // Java: `(distance < 1) && (Config.PATHFINDING > 0 || isPlayable())` —
-    // a fully clamped-away (or degenerate) move is canceled.
-    if distance < 1.0 {
+    // a fully clamped-away (or degenerate) move is canceled. Exception:
+    // `verticalMovementOnly` (flying, dx=dy=0, dz≠0) sets `distance = |dz|`
+    // first, so a straight up/down flight click goes through.
+    if distance < 1.0 && !(is_flying && target_z != cur.z) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -366,7 +386,21 @@ pub(crate) fn start_move(
     let (target_x, target_y, target_z) = dest;
     let dx = (target_x - cur.x) as f64;
     let dy = (target_y - cur.y) as f64;
-    let distance = (dx * dx + dy * dy).sqrt();
+    let mut distance = (dx * dx + dy * dy).sqrt();
+    // Java: when floating (flying / swimming) the Z leg is real travel, so it
+    // counts toward the move duration (`distance = Math.hypot(distance, dz)`).
+    let floating = world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(Player::is_flying)
+        || world
+            .objects
+            .get_component::<Speeds>(&object_id)
+            .is_some_and(|s| s.swimming);
+    if floating {
+        let dz = (target_z - cur.z) as f64;
+        distance = (distance * distance + dz * dz).sqrt();
+    }
     let (start_x, start_y, start_z) = (cur.x, cur.y, cur.z);
     let heading = crate::model::movement::calculate_heading(dx, dy);
     let Some(speed) = world
@@ -416,9 +450,10 @@ pub(crate) fn start_move(
 
 /// Port of `clientpackets/ValidatePosition.runImpl` — reconcile the client's
 /// periodic position report with the server's authoritative position.
-/// Narrowing: no vehicles, falling state, flying/water zones, observer mode,
-/// or Blink, and the trailing door-exploit check is skipped (no doors) —
-/// those branches simply can't trigger yet.
+/// Narrowing: no vehicles, falling state, observer mode, or Blink, and the
+/// trailing door-exploit check is skipped (no doors) — those branches simply
+/// can't trigger yet. Flying (wyvern) and swimming take Java's trust-the-
+/// client-Z branch below.
 pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::ValidatePosition::read(body) else {
         return;
@@ -452,7 +487,6 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     else {
         return;
     };
-    let _ = player;
 
     if pkt.x == 0 && pkt.y == 0 && pos.x != 0 {
         return;
@@ -463,9 +497,25 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     let dz = (pkt.z - pos.z) as f64;
     let diff_sq = dx * dx + dy * dy;
 
-    // "If too large, messes observation" — moderate drift only.
     let mut correction: Option<Vec<u8>> = None;
-    if diff_sq < 360_000.0 && (diff_sq > 250_000.0 || dz.abs() > 200.0) {
+    if player.is_flying() || speeds.swimming {
+        // Java: flying/swimming trusts the client's Z outright (`setXYZ(realX,
+        // realY, _z)`) — there is no floor to re-ground against — and only a
+        // large *horizontal* drift (> 300 units) gets pushed back. Without
+        // this branch the geo snap below kept yanking a climbing wyvern down
+        // to terrain height.
+        pos.z = pkt.z;
+        if diff_sq > 90_000.0 {
+            correction = Some(server_packets::validate_location(
+                object_id,
+                pos.x,
+                pos.y,
+                pos.z,
+                pos.heading,
+            ));
+        }
+    } else if diff_sq < 360_000.0 && (diff_sq > 250_000.0 || dz.abs() > 200.0) {
+        // "If too large, messes observation" — moderate drift only.
         if dz.abs() > 200.0 && dz.abs() < 1500.0 && (pkt.z - client.z).abs() < 800 {
             // Plausible stairs/slope climb: trust the client's z.
             pos.z = pkt.z;

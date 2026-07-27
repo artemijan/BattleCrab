@@ -229,8 +229,9 @@ pub(crate) fn remove_transform_state(world: &mut World, target: i32) -> bool {
 }
 
 /// Gather the stat components and re-run `recalculate_stats` so the transform
-/// speed override (in `Player::recalculate_stats`) takes effect.
-fn recompute_speeds(world: &mut World, target: i32) {
+/// or mount speed override (in `Player::recalculate_stats`) takes effect.
+/// Shared with the mount module (`mounts.rs`).
+pub(super) fn recompute_speeds(world: &mut World, target: i32) {
     let data = &world.data;
     if let Some((p, base, mods, inventory, mut speeds, mut combat)) = world.objects.get_many_mut::<(
         &Player,

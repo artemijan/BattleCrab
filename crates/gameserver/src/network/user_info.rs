@@ -185,13 +185,21 @@ pub fn user_info(
     // SPEED — sent divided by the move multiplier (Java `_runSpd = round(
     // getRunSpeed() / _moveMultiplier)`); the client multiplies it back.
     w.write_i16(UserInfoType::Speed.block_length() as i16);
-    for spd in speeds.client_speed_fields() {
+    let client_speeds = speeds.client_speed_fields();
+    for spd in client_speeds {
         w.write_i16(spd);
     }
-    w.write_i16(0); // fly run
-    w.write_i16(0); // fly walk
-    w.write_i16(0); // fly run (mount)
-    w.write_i16(0); // fly walk (mount)
+    w.write_i16(0); // _flRunSpd (never set in Java)
+    w.write_i16(0); // _flWalkSpd (never set in Java)
+                    // `_flyRunSpd/_flyWalkSpd = isFlying() ? run/walk : 0` — a wyvern rider's
+                    // client uses these for the flight animation; zeros froze it mid-air.
+    let (fly_run, fly_walk) = if p.is_flying() {
+        (client_speeds[0], client_speeds[1])
+    } else {
+        (0, 0)
+    };
+    w.write_i16(fly_run);
+    w.write_i16(fly_walk);
 
     // MULTIPLIER
     w.write_i16(UserInfoType::Multiplier.block_length() as i16);
@@ -253,7 +261,12 @@ pub fn user_info(
 
     // MOVEMENTS
     w.write_i16(UserInfoType::Movements.block_length() as i16);
-    w.write_u8(0); // 1 water, 2 flying, else 0
+    // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`. Note
+    // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
+    // rider is `isFlying()` but NOT `isFlyingMounted()`, so it stays 0 here
+    // even in Java (CharInfo's equivalent byte does show 2). Water: TODO with
+    // water zones.
+    w.write_u8(0);
     w.write_u8(speeds.running as u8);
 
     // COLOR

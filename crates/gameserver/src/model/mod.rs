@@ -386,6 +386,12 @@ pub struct Player {
     /// `Player._mountNpcId` — the ridden creature's npc id (0 when unmounted).
     /// CharInfo/`Ride` send it as `+ 1_000_000`.
     pub mount_npc_id: i32,
+    /// `Player._mountLevel` — the mount's level: the *pet's* level when
+    /// mounting an owned strider, the *rider's* level for a wyvern
+    /// (`mount(npcId, …)` → `setMount(npcId, getLevel())`). Selects the
+    /// `speed_on_ride` row and drives the "-50% when 10+ levels above you"
+    /// speed penalty in `recalculate_stats`.
+    pub mount_level: i32,
 
     /// `Player._transformation` id (0 = not transformed). Drives the transform
     /// speed/collision override in `recalculate_stats` and the untransform
@@ -450,6 +456,19 @@ impl Player {
         let was = self.is_charged_shot(shot);
         self.charged_shots &= !shot.mask();
         was
+    }
+
+    /// `Player.isMounted()`.
+    pub fn is_mounted(&self) -> bool {
+        self.mount_type != 0
+    }
+
+    /// `Creature.isFlying()` for a player. Java flips an explicit `_isFlying`
+    /// in `setMount` — true exactly for `MountType.WYVERN` — so the port
+    /// derives it from the mount type and the flag can't drift. (Gracia
+    /// flying *transformations* would also set it; none exist on Interlude.)
+    pub fn is_flying(&self) -> bool {
+        self.mount_type == 2
     }
 }
 
@@ -960,6 +979,7 @@ impl Player {
             auto_shots: Vec::new(),
             mount_type: 0,
             mount_npc_id: 0,
+            mount_level: 0,
             transform_id: 0,
             transform_display_id: 0,
             store_type: 0,
@@ -1298,25 +1318,53 @@ impl Player {
         // stats above; stored as f64 (Speeds is shared with NPCs, whose
         // templates don't take the player boost). The `as i16` in `user_info`
         // truncates for display, matching Java's `(int)` getter.
+        // `SpeedFinalizer.getBaseSpeed`: a mounted player's base speeds are the
+        // mount's `speed_on_ride` row (looked up at the *mount's* level),
+        // halved when the mount is 10+ levels above the rider — the class
+        // template only stands in when the species has no row (Java gets null
+        // back and keeps `calcWeaponPlusBaseValue`). The hungry-mount halving
+        // needs mount feeding. TODO(G29): Java also halves here on
+        // `player.isHungry()` (`PetFeedTask` drains `_curFeed` while mounted).
+        let ride = if self.is_mounted() {
+            data.pet_data
+                .get(self.mount_npc_id)
+                .and_then(|pet| pet.level_row(self.mount_level))
+        } else {
+            None
+        };
+        let level_gap_penalty = if self.mount_level - self.level >= 10 {
+            0.5
+        } else {
+            1.0
+        };
+        let base_speed = |ride_spd: Option<f64>, class_base: f64| {
+            ride_spd.map_or(class_base, |s| s * level_gap_penalty) + caps.run_spd_boost
+        };
         speeds.run_spd = finalize(
             mods,
             Stat::RunSpeed,
-            t.base_run_spd as f64 + caps.run_spd_boost,
+            base_speed(ride.map(|r| r.ride_run_spd), t.base_run_spd as f64),
         );
         speeds.walk_spd = finalize(
             mods,
             Stat::WalkSpeed,
-            t.base_walk_spd as f64 + caps.run_spd_boost,
+            base_speed(ride.map(|r| r.ride_walk_spd), t.base_walk_spd as f64),
         );
         speeds.swim_run_spd = finalize(
             mods,
             Stat::SwimRunSpeed,
-            t.base_swim_run_spd as f64 + caps.run_spd_boost,
+            base_speed(
+                ride.map(|r| r.ride_fast_swim_spd),
+                t.base_swim_run_spd as f64,
+            ),
         );
         speeds.swim_walk_spd = finalize(
             mods,
             Stat::SwimWalkSpeed,
-            t.base_swim_walk_spd as f64 + caps.run_spd_boost,
+            base_speed(
+                ride.map(|r| r.ride_slow_swim_spd),
+                t.base_swim_walk_spd as f64,
+            ),
         );
 
         // A transform replaces the class base run/walk with the template's
