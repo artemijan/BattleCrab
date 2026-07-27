@@ -796,19 +796,22 @@ pub(crate) fn use_magic_on(
     // skill (the "Transform <Monster>" scroll family). Java also refuses while
     // sitting or registered on an event; neither state is modeled on this port
     // yet (TODO(G19)/TODO(G28)), so only the legs backed by modeled state are
-    // ported: already transformed (this port also represents a horse/bike
-    // mount as a transform, so `transform_id != 0` covers Java's separate
-    // `isMounted()` leg too), in water, and cursed-weapon-equipped.
+    // ported: already transformed, mounted (a strider/wyvern rider sets
+    // `mount_type`, not `transform_id` — that leg is separate from the
+    // transform one, even though horse/bike admin rides are transforms here),
+    // in water, and cursed-weapon-equipped.
     if skill
         .effects
         .iter()
         .any(|e| matches!(e, SkillEffect::Transform { .. }))
     {
         use server_packets::sm_ids;
-        let (transform_id, cursed_weapon) = world
+        let (transform_id, mounted, cursed_weapon) = world
             .objects
             .get_component::<Player>(&object_id)
-            .map_or((0, 0), |p| (p.transform_id, p.cursed_weapon_equipped_id));
+            .map_or((0, false, 0), |p| {
+                (p.transform_id, p.is_mounted(), p.cursed_weapon_equipped_id)
+            });
         let in_water = world
             .objects
             .get_component::<crate::model::components::Speeds>(&object_id)
@@ -830,6 +833,15 @@ pub(crate) fn use_magic_on(
                 world,
                 client_id,
                 sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER,
+                &[],
+            );
+            return;
+        }
+        if mounted {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
                 &[],
             );
             return;

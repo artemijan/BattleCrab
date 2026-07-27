@@ -2576,6 +2576,44 @@ fn admin_ride_and_unride() {
     );
 }
 
+/// Java `AdminRide`'s `isMounted() || hasSummon()` gate runs before *every*
+/// `//ride_*` branch — including the transform-based `//ride_horse` — and
+/// `AdminTransform` refuses a mounted target with SM 2063: a strider rider
+/// can't stack a horse or a polymorph on top of the mount.
+#[test]
+fn admin_mounted_blocks_horse_and_transform() {
+    let (mut world, ..) = admin_world();
+    world.data.transforms = crate::data::TransformData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8925, 100);
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("ride_strider"));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&8925)
+            .unwrap()
+            .mount_type,
+        1,
+        "on the strider"
+    );
+
+    on_packet(&mut world, 1, build_admin("ride_horse"));
+    {
+        let p = world.objects.get_component::<Player>(&8925).unwrap();
+        assert_eq!(p.transform_id, 0, "horse refused while mounted");
+        assert_eq!(p.mount_type, 1, "still on the strider");
+    }
+
+    on_packet(&mut world, 1, build_admin("transform 106"));
+    let p = world.objects.get_component::<Player>(&8925).unwrap();
+    assert_eq!(p.transform_id, 0, "//transform refused while mounted");
+    assert_eq!(p.mount_type, 1, "mount untouched");
+}
+
 /// `//ride_bike` transforms the GM (transform 20001): durable transform id +
 /// display id, the run speed overridden to the template's, and the transform's
 /// skills granted; `//unride` reverts all of it.

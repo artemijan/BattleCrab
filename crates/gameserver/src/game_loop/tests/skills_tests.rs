@@ -4205,6 +4205,30 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
         "run speed restored"
     );
     assert_eq!(pbuffs(&world, 5001), 0, "buff cleared");
+
+    // Mounted refusal: a strider rider casting the scroll gets SM 2063
+    // (`ConditionPlayerCanTransform`'s `isMounted()` leg — a real mount sets
+    // `mount_type`, not `transform_id`, so the polymorph leg alone misses it).
+    crate::game_loop::admin::mounts::mount_player(&mut world, 5001, 12526, 1);
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    let refused = drain(&mut rx);
+    assert!(
+        has_system_message(
+            &refused,
+            server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET
+        ),
+        "mounted refusal sent"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&5001)
+            .unwrap()
+            .transform_id,
+        0,
+        "no transform applied while mounted"
+    );
 }
 
 /// G19 `MpConsumePerLevel` effect: the fighter-toggle upkeep half of

@@ -57,18 +57,27 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 }
 
 /// `AdminRide`'s `//ride_strider|ride_wolf|ride_wyvern` — mount the ride target
-/// on the fixed creature. Refused if already mounted.
+/// on the fixed creature. Refused if already mounted or with a summon out.
 pub(super) fn admin_ride(world: &mut World, client_id: u32, object_id: i32, mount: Mount) {
     let target = ride_target(world, object_id);
-    if world
-        .objects
-        .get_component::<Player>(&target)
-        .is_some_and(Player::is_mounted)
-    {
+    if has_mount_or_summon(world, target) {
         send_message(world, client_id, "Target already have a summon.");
         return;
     }
     mount_player(world, target, mount.npc_id(), mount.mount_type());
+}
+
+/// Java `AdminRide`'s shared refusal gate — `player.isMounted() ||
+/// player.hasSummon()` runs before *every* `//ride_*` branch, including the
+/// transform-based horse/bike rides, so a strider rider can't stack a horse on
+/// top. `hasSummon()` is either kind of summon: servitor or pet.
+pub(super) fn has_mount_or_summon(world: &World, target: i32) -> bool {
+    world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(Player::is_mounted)
+        || crate::game_loop::servitor::servitor_of(world, target).is_some()
+        || crate::game_loop::servitor::pet_of(world, target).is_some()
 }
 
 /// Java `Player.mount(npcId, controlItemObjId, useFood)` +

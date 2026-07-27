@@ -16,7 +16,7 @@ use crate::model::inventory::Inventory;
 use crate::model::Player;
 use crate::world::World;
 
-use super::{current_target, send_message};
+use super::{current_target, send_message, send_sm};
 
 /// `//transform <id>` — transform the ride target (target player or GM) into the
 /// given transform id.
@@ -46,6 +46,21 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         );
         return;
     }
+    // Java `AdminTransform`: a mounted target can't polymorph — SM 2063.
+    // TODO(G33): Java also refuses while the GM sits and while the target is
+    // in water (YOU_CANNOT_TRANSFORM_WHILE_SITTING / …_IN_WATER).
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(Player::is_mounted)
+    {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
+        );
+        return;
+    }
     apply_transform(world, target, transform_id);
 }
 
@@ -56,7 +71,9 @@ pub(super) fn admin_untransform(world: &mut World, object_id: i32) {
 }
 
 /// `AdminRide`'s transform-based rides — `//ride_horse` (106) / `//ride_bike`
-/// (20001). Refused if already transformed (Java sends the polymorph message).
+/// (20001). Refused if already mounted or with a summon out (Java's shared
+/// `isMounted() || hasSummon()` gate runs before every `//ride_*` branch), or
+/// if already transformed (Java sends the polymorph message).
 pub(super) fn admin_ride_transform(
     world: &mut World,
     client_id: u32,
@@ -64,6 +81,10 @@ pub(super) fn admin_ride_transform(
     transform_id: i32,
 ) {
     let target = ride_target(world, object_id);
+    if super::mounts::has_mount_or_summon(world, target) {
+        send_message(world, client_id, "Target already have a summon.");
+        return;
+    }
     if world
         .objects
         .get_component::<Player>(&target)
