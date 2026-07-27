@@ -107,6 +107,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
         send_message(world, client_id, &format!("Buylist {list_id} not found."));
         return;
     };
+    let refund_items = crate::game_loop::shop::refund_items_of(world, object_id);
     let Some(inventory) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
@@ -115,7 +116,12 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
     };
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(trade::buy_list(list, inventory, &world.data));
-        cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, false));
+        cs.send(trade::ex_buy_sell_list_sell(
+            inventory,
+            &refund_items,
+            &world.data,
+            false,
+        ));
     }
 }
 

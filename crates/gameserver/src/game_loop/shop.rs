@@ -61,12 +61,18 @@ pub(crate) fn show_buy_window(
         }
         return;
     }
+    let refund_items = refund_items_of(world, player);
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(trade::buy_list(list, inventory, &world.data));
-        cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, false));
+        cs.send(trade::ex_buy_sell_list_sell(
+            inventory,
+            &refund_items,
+            &world.data,
+            false,
+        ));
     }
 }
 
@@ -186,6 +192,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             added.extend(oids);
         }
     }
+    let refund_items = refund_items_of(world, player);
     if let (Some(inventory), Some(cs)) = (
         world.objects.get_component::<Inventory>(&player),
         world.clients.get(&client_id),
@@ -200,7 +207,12 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             inventory,
             &world.data,
         ));
-        cs.send(trade::ex_buy_sell_list_sell(inventory, &world.data, true));
+        cs.send(trade::ex_buy_sell_list_sell(
+            inventory,
+            &refund_items,
+            &world.data,
+            true,
+        ));
         cs.send(crate::network::enter_world::system_message(
             sm_ids::EXCHANGE_IS_SUCCESSFUL,
         ));
@@ -209,8 +221,11 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
 
 /// Port of `clientpackets/RequestSellItem.runImpl`: sell inventory items to the
 /// targeted merchant for adena (reference price / 2 each). The buy-list gate is
-/// skipped (a merchant buys anything sellable); quest/equipped items and
-/// price-0 items are refused.
+/// skipped (a merchant buys anything sellable); the sellable gate is Java's
+/// `Item.isSellable` — the `is_sellable` template flag (which already covers
+/// adena and this dist's quest items) plus unaugmented — and equipped items
+/// are refused. Sold items move to the `Refund` buy-back container (Java
+/// `Config.ALLOW_REFUND`, on for this dist).
 pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestSellItem::read(body) else {
         return;
@@ -238,9 +253,10 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
 
     let mut total_price: i64 = 0;
     let mut changes: Vec<crate::model::inventory::ItemChange> = Vec::new();
+    let mut sold: Vec<crate::model::inventory::ItemInstance> = Vec::new();
     for (obj_id, item_id, count) in pkt.items {
         // The instance must exist, match the claimed item id, and be unequipped.
-        let Some((held, equipped)) =
+        let Some((inst, equipped)) =
             world
                 .objects
                 .get_component::<Inventory>(&player)
@@ -248,7 +264,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
                     inv.items()
                         .iter()
                         .find(|it| it.object_id == obj_id && it.item_id == item_id)
-                        .map(|it| (it.count, inv.paperdoll_slot_of(obj_id).is_some()))
+                        .map(|it| (*it, inv.paperdoll_slot_of(obj_id).is_some()))
                 })
         else {
             continue;
@@ -256,10 +272,11 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         let t = world.data.item_data.get(item_id);
         let price = t.map(|t| t.price).unwrap_or(0);
         let quest = t.map(|t| t.is_quest_item).unwrap_or(false);
-        if equipped || quest || price <= 0 {
+        let sellable = t.map(|t| t.is_sellable).unwrap_or(false);
+        if equipped || quest || !sellable || inst.is_augmented() {
             continue;
         }
-        let sell = count.min(held);
+        let sell = count.min(inst.count);
         total_price = total_price
             .saturating_add((price / 2) * sell)
             .min(MAX_ADENA);
@@ -268,7 +285,42 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
             .get_component_mut::<Inventory>(&player)
             .and_then(|inv| inv.remove_by_object_id(obj_id, sell))
         {
+            // The refund entry is the sold chunk. A full removal keeps the
+            // instance's identity; a partial one (stackables) leaves the
+            // original in the inventory, so the split gets a fresh object id
+            // (Java `transferItem` splits the same way).
+            let mut refund_inst = inst;
+            refund_inst.count = sell;
+            match change {
+                crate::model::inventory::ItemChange::Removed(_) => sold.push(refund_inst),
+                crate::model::inventory::ItemChange::Modified(_) => {
+                    if let Some(new_oid) = world.alloc_object_id() {
+                        refund_inst.object_id = new_oid;
+                        sold.push(refund_inst);
+                    }
+                }
+            }
             changes.push(change);
+        }
+    }
+
+    if !sold.is_empty() {
+        if world
+            .objects
+            .get_component::<crate::model::inventory::Refund>(&player)
+            .is_none()
+        {
+            world
+                .objects
+                .add_components(&player, crate::model::inventory::Refund::default());
+        }
+        if let Some(refund) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Refund>(&player)
+        {
+            for inst in sold {
+                refund.push(inst);
+            }
         }
     }
 
@@ -292,12 +344,142 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
         return;
     }
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+    let refund_items = refund_items_of(world, player);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)
         .zip(world.objects.get_component::<Inventory>(&player))
     {
         cs.send(iu);
-        cs.send(trade::ex_buy_sell_list_sell(inv, &world.data, true));
+        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+            player,
+            inv,
+            &world.data,
+        ));
+        cs.send(trade::ex_buy_sell_list_sell(
+            inv,
+            &refund_items,
+            &world.data,
+            true,
+        ));
+    }
+}
+
+/// Snapshot of the player's refund container (empty when none exists yet).
+pub(crate) fn refund_items_of(
+    world: &World,
+    player: i32,
+) -> Vec<crate::model::inventory::ItemInstance> {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Refund>(&player)
+        .map(|r| r.items().to_vec())
+        .unwrap_or_default()
+}
+
+/// Port of `clientpackets/RequestRefundItem.runImpl` (ex 0x72): buy back items
+/// from the refund tab at the same half-reference-price. The buy-list gate is
+/// skipped like the sell path; the weight/slot capacity checks are the same
+/// G5 encumbrance deferral as `RequestBuyItem`.
+pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::RequestRefundItem::read(body) else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+
+    let target = world
+        .objects
+        .get_component::<TargetRef>(&player)
+        .copied()
+        .unwrap_or_default()
+        .0;
+    if target
+        .filter(|&t| is_merchant(world, t) && can_interact(world, player, t))
+        .is_none()
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
+
+    // Validate the requested slots against the container (Java refuses the
+    // whole request on any bad or duplicate index) and total the price.
+    let refund_items = refund_items_of(world, player);
+    let mut adena_cost: i64 = 0;
+    for (i, &idx) in pkt.indexes.iter().enumerate() {
+        if idx < 0 || idx as usize >= refund_items.len() || pkt.indexes[..i].contains(&idx) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+        let inst = &refund_items[idx as usize];
+        let price = world
+            .data
+            .item_data
+            .get(inst.item_id)
+            .map(|t| t.price)
+            .unwrap_or(0);
+        adena_cost = adena_cost.saturating_add((price / 2) * inst.count);
+    }
+
+    let held_adena = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .map(|i| i.adena())
+        .unwrap_or(0);
+    if held_adena < adena_cost
+        || (adena_cost > 0
+            && !super::quests::take_items(world, client_id, player, ADENA_ID, adena_cost))
+    {
+        send_sm_and_action_failed(world, client_id, sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA, &[]);
+        return;
+    }
+
+    // Move the bought-back items home. Indexes are taken highest-first so the
+    // remaining container positions stay valid while removing.
+    let mut indexes = pkt.indexes;
+    indexes.sort_unstable_by(|a, b| b.cmp(a));
+    let mut restored: Vec<crate::model::inventory::ItemInstance> = Vec::new();
+    for idx in indexes {
+        let Some(inst) = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Refund>(&player)
+            .and_then(|r| r.take(idx as usize))
+        else {
+            continue;
+        };
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
+            restored.push(inv.restore_instance(&world.data.item_data, inst));
+        }
+    }
+
+    let changes: Vec<crate::model::inventory::ItemChange> = restored
+        .into_iter()
+        .map(crate::model::inventory::ItemChange::Modified)
+        .collect();
+    let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+    let refund_items = refund_items_of(world, player);
+    if let Some((cs, inv)) = world
+        .clients
+        .get(&client_id)
+        .zip(world.objects.get_component::<Inventory>(&player))
+    {
+        cs.send(iu);
+        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+            player,
+            inv,
+            &world.data,
+        ));
+        cs.send(trade::ex_buy_sell_list_sell(
+            inv,
+            &refund_items,
+            &world.data,
+            true,
+        ));
     }
 }

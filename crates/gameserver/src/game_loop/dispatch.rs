@@ -765,6 +765,10 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // TODO(G33): Java also gates on `isInventoryDisabled()` (enchant/
         // crystallize in progress) — unported, same gap as RequestItemList.
         exop::REQUEST_BUY_SELL_UI_CLOSE => handle_request_item_list(world, client_id),
+        // RequestRefundItem (IN_GAME): buy back from the sell window's refund tab.
+        exop::REQUEST_REFUND_ITEM => {
+            super::shop::handle_request_refund_item(world, client_id, ex_body)
+        }
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

@@ -689,6 +689,12 @@ pub struct ItemTemplate {
     pub type1: i32,
     pub type2: i32,
     pub is_quest_item: bool,
+    /// `<set name="is_sellable">` (Java `ItemTemplate._sellable`, default
+    /// **true**) — whether a merchant buys the item; gates both the sell-tab
+    /// listing and `RequestSellItem`. Note the derived `Default` yields
+    /// `false` — test fixtures built with `..Default::default()` are
+    /// non-sellable unless they say otherwise.
+    pub is_sellable: bool,
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
     pub price: i64,
@@ -1234,6 +1240,10 @@ fn make_template(
         type1,
         type2,
         is_quest_item,
+        is_sellable: attrs
+            .get("is_sellable")
+            .map(|v| v == "true")
+            .unwrap_or(true),
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
         handler,
         capsuled_items,

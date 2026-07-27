@@ -1023,6 +1023,7 @@ fn combat_test_world() -> (
             type1: 4,
             type2: 5,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1373,6 +1374,7 @@ fn quest_test_world() -> (
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
+                is_sellable: true,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -1680,6 +1682,29 @@ fn buy_body(list_id: i32, lines: &[(i32, i64)]) -> Vec<u8> {
     w.into_bytes()
 }
 
+fn sell_body(list_id: i32, lines: &[(i32, i32, i64)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(lines.len() as i32);
+    for &(object_id, item_id, count) in lines {
+        w.write_i32(object_id);
+        w.write_i32(item_id);
+        w.write_i64(count);
+    }
+    w.into_bytes()
+}
+
+/// `RequestRefundItem` ex-packet body (after the sub-opcode).
+fn refund_body(list_id: i32, indexes: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(indexes.len() as i32);
+    for &idx in indexes {
+        w.write_i32(idx);
+    }
+    w.into_bytes()
+}
+
 /// A merchant + a two-product buylist on top of `quest_test_world`; the
 /// player holds 1000 adena and targets the merchant.
 fn shop_world() -> (
@@ -1705,6 +1730,7 @@ fn shop_world() -> (
             type1: 4,
             type2: 5,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1789,6 +1815,7 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
                 type1: 4,
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
+                is_sellable: true,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -1835,6 +1862,7 @@ fn add_shot_item(
             type1: 4,
             type2: 5,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1897,6 +1925,7 @@ fn shot_template(
         type1: 0,
         type2: 0,
         is_quest_item: false,
+        is_sellable: true,
         price: 0,
         handler,
         capsuled_items: Vec::new(),
@@ -1941,6 +1970,7 @@ fn shot_weapon(
             type1: 0,
             type2: 0,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             capsuled_items: Vec::new(),
@@ -2098,6 +2128,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
             type1: 4,
             type2: 5,
             is_quest_item: false,
+            is_sellable: true,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,

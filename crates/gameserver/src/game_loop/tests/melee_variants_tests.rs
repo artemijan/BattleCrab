@@ -34,6 +34,7 @@ fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTem
         type1: 0,
         type2: 0,
         is_quest_item: false,
+        is_sellable: true,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         capsuled_items: Vec::new(),
