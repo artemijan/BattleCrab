@@ -10,7 +10,7 @@
 //! (documented TODO — the visual model, speed, collision and skills are the
 //! parts the admin `//transform`/`//ride_horse` path needs).
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use quick_xml::events::Event;
 use quick_xml::Reader;
@@ -59,6 +59,11 @@ impl Transform {
 #[derive(Debug, Default)]
 pub struct TransformData {
     by_id: HashMap<i32, Transform>,
+    /// Every skill id any transform template grants (either gender). Transform
+    /// skills are session-only in Java (`Player._transformSkills`, which
+    /// `storeSkills` never writes), so the persistence boundary filters them
+    /// with [`Self::is_transform_skill`].
+    skill_ids: HashSet<i32>,
 }
 
 impl TransformData {
@@ -82,17 +87,32 @@ impl TransformData {
             }
         }
         info!("TransformData: Loaded {} transforms.", by_id.len());
-        Self { by_id }
+        let skill_ids = by_id
+            .values()
+            .flat_map(|t: &Transform| t.male.skills.iter().chain(t.female.skills.iter()))
+            .map(|&(id, _)| id)
+            .collect();
+        Self { by_id, skill_ids }
     }
 
     pub fn empty() -> Self {
         Self {
             by_id: HashMap::new(),
+            skill_ids: HashSet::new(),
         }
     }
 
     pub fn get(&self, id: i32) -> Option<&Transform> {
         self.by_id.get(&id)
+    }
+
+    /// Whether `id` is a transform-granted skill (Dismount 839, Dissonance
+    /// 5437, …). These live in the `SkillBook` only while the transform is
+    /// active and must never reach `character_skills` — a row that leaks there
+    /// re-applies the skill's passives (e.g. Dissonance's Accuracy -50) on
+    /// every login with no transform backing it.
+    pub fn is_transform_skill(&self, id: i32) -> bool {
+        self.skill_ids.contains(&id)
     }
 }
 

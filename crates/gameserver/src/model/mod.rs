@@ -1015,7 +1015,18 @@ impl Player {
         // armor-conditioned passives (Spellcraft/Magician's Movement) into the
         // stat maps now, so the enter-world `UserInfo` burst already carries them
         // (no separate post-spawn resend). Timed buffs aren't restored yet.
-        let skills = SkillBook(c.skills.iter().map(|&(id, lvl, _)| (id, lvl)).collect());
+        // Transform-granted skills are session-only and are filtered out of
+        // every flush (`net::build_save_data`), but rows written before that
+        // filter existed can still be in the DB — drop them here too, since a
+        // fresh login is never transformed (Dissonance 5437's Accuracy -50
+        // otherwise follows the character across relogs).
+        let skills = SkillBook(
+            c.skills
+                .iter()
+                .filter(|&&(id, _, _)| !data.transforms.is_transform_skill(id))
+                .map(|&(id, lvl, _)| (id, lvl))
+                .collect(),
+        );
         // The enchant sub-levels ride the same rows (PLAN_G19_SKILL_ENCHANT.md).
         let skill_enchants = components::SkillEnchants(
             c.skills
