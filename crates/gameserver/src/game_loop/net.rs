@@ -575,6 +575,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
         _ => {}
     }
     world.clients.remove(&client_id);
+    world.hwids.remove(&client_id); // Java `GameClient` hardware info dies with the connection (G31).
     let account = world
         .login
         .accounts_in_gameserver

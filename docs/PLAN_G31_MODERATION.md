@@ -68,9 +68,19 @@ via the login link. **Deps:** per-client IP (already on `Session.addr`).
   `//tracert <name>` (peer-address only — Java's route-trace needs client
   plumbing the port lacks).
 
-### Slice 5 (polish) — HWID + fake players
-- `AdminHwid`, `AdminFakePlayers`, GM `//snoop`. Subject to the scope gate
-  (HWID needs client plumbing that may be stubbed).
+### Slice 5 (polish) — snoop + HWID  ✅ LANDED (fake players deferred)
+- **`//snoop`**: `Player.snoop_listeners`/`snooped`, the `Snoop` packet (0xDB),
+  and a `broadcast_snoop` hook in `Say2` that mirrors a snooped player's chat.
+- **HWID**: `RequestHardWareInfo` (ex 0xAE) → a `HardwareInfo` on
+  `World.hwids` (keyed by client id, cleared on disconnect); the HWID
+  punishment affect now matches (ban/jail), the character-select gate + a
+  post-enter `on_hwid_received` re-check enforce it, and `//hwid`/`//hwinfo`
+  displays it. `EnableHardwareInfo = False` on this dist, so it is dormant
+  until enabled — ported per [[l2r-config-disabled-still-port]].
+- **Deferred:** `AdminFakePlayers` (`//fakechat`) needs the whole fake-player
+  subsystem (`FakePlayerData` + `FakePlayerChatManager` + fake-NPC spawns),
+  which the port lacks — a separate content system, not moderation. Its own
+  milestone, not G31.
 
 ## Watch-list
 - A punishment's `key` is the affected value (char name / account / ip / hwid);

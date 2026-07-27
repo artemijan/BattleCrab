@@ -489,6 +489,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // ExSendClientIni (AUTHENTICATED): the client reports its client.ini
         // after auth; Mobius registers a null handler, so consume it silently.
         exop::EX_SEND_CLIENT_INI => {}
+        // RequestHardWareInfo (G31): store the client's hardware fingerprint,
+        // then apply any HWID punishment now known to match (the packet can
+        // arrive after enter-world, so re-check here rather than only on login).
+        exop::REQUEST_HARDWARE_INFO => {
+            if let Some(hw) = cp::HardwareInfo::read(ex_body) {
+                world.hwids.insert(client_id, hw);
+                super::punishment::on_hwid_received(world, client_id);
+            }
+        }
         // Olympiad observer mode (G25): leave observing, or (re)open the
         // ongoing-match list. The list request/refresh just re-sends it.
         exop::REQUEST_OLYMPIAD_OBSERVER_END => {

@@ -348,6 +348,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_find_ip" => admin_find_ip(world, client_id, &args),
         "admin_find_dualbox" => admin_find_dualbox(world, client_id, &args),
         "admin_tracert" => admin_tracert(world, client_id, object_id, &args),
+        "admin_snoop" => admin_snoop(world, client_id, object_id, &args),
+        "admin_hwid" | "admin_hwinfo" => admin_hwid(world, client_id, object_id, &args),
         // Broadcast a message to every online player.
         "admin_announce" => admin_announce(world, client_id, &args),
         // Spawn NPC(s) at the anchor (target or GM).

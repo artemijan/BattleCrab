@@ -67,6 +67,10 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     };
     let (sender_name, sender_level) = (p.name.clone(), p.level);
 
+    // Java `Player.broadcastSnoop`: mirror the line to any GM snooping this
+    // speaker (G31). Fires for every chat channel the player originates.
+    broadcast_snoop(world, sender_oid, chat_type, &sender_name, &pkt.text);
+
     match chat_type {
         ChatType::General => {
             // ChatGeneral: everyone within 1250 units + the speaker.
@@ -246,6 +250,29 @@ fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u
         0x01
     } else {
         0
+    }
+}
+
+/// Java `Player.broadcastSnoop`: send a `Snoop` line to every GM currently
+/// eavesdropping on `speaker` (`//snoop`). Offline listeners are skipped.
+fn broadcast_snoop(
+    world: &World,
+    speaker: i32,
+    chat_type: ChatType,
+    speaker_name: &str,
+    text: &str,
+) {
+    let listeners = match world.objects.get_component::<Player>(&speaker) {
+        Some(p) if !p.snoop_listeners.is_empty() => p.snoop_listeners.clone(),
+        _ => return,
+    };
+    let snoop = server_packets::snoop(speaker, speaker_name, chat_type, speaker_name, text);
+    for gm in listeners {
+        if let Some(cs) =
+            super::helpers::client_for_player(world, gm).and_then(|c| world.clients.get(&c))
+        {
+            cs.send(snoop.clone());
+        }
     }
 }
 

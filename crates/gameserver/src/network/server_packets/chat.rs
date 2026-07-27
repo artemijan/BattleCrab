@@ -40,6 +40,27 @@ pub fn petition_vote() -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of `Snoop` (G31) — one eavesdropped chat line delivered to a snooping
+/// GM: the snooped player's id + name, the channel, and the actual speaker +
+/// text (for whispers the speaker differs from the snooped player).
+pub fn snoop(
+    snooped_object_id: i32,
+    snooped_name: &str,
+    chat_type: crate::enums::ChatType,
+    speaker_name: &str,
+    text: &str,
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::SNOOP);
+    w.write_i32(snooped_object_id);
+    w.write_string(snooped_name);
+    w.write_i32(0); // Java writes an unknown 0 here
+    w.write_i32(chat_type.client_id());
+    w.write_string(speaker_name);
+    w.write_string(text);
+    w.into_bytes()
+}
+
 /// Port of `CreatureSay(ChatType, int charId, SystemMessageId)` — the
 /// system-message branch (no `Creature` sender, no literal text). Java writes
 /// the sender-name slot as the raw `charId` int (the `_senderName == null`

@@ -101,6 +101,10 @@ pub struct World {
     pub scheduler: Scheduler,
     /// Connected clients keyed by network id, as type-state sessions (§3.1).
     pub clients: HashMap<u32, ClientSession>,
+    /// Per-connection hardware fingerprint (Java `GameClient._hardwareInfo`,
+    /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
+    /// HWID punishment matching and `//hwid`. Cleared on disconnect.
+    pub hwids: HashMap<u32, crate::network::client_packets::HardwareInfo>,
     /// Every in-world object — players and NPCs — as entities in one
     /// `bevy_ecs` world, keyed by object id (stage 2 phase 6; the `Player`/
     /// `Npc` residual-core components are the kind markers). The `InGame`
@@ -372,6 +376,7 @@ impl World {
             tick: 0,
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
+            hwids: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),

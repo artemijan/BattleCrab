@@ -311,8 +311,8 @@ fn ban_disconnects_the_online_player_and_flags_them() {
         !world.objects.has_component::<Player>(&3001),
         "player despawned"
     );
-    // The gate reads the char id (== object id); account/IP irrelevant here.
-    assert!(punishment::is_banned(&world, 3001, "acc", "1.2.3.4"));
+    // The gate reads the char id (== object id); account/IP/HWID irrelevant here.
+    assert!(punishment::is_banned(&world, 3001, "acc", "1.2.3.4", None));
 }
 
 #[test]

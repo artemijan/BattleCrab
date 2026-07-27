@@ -23,6 +23,10 @@ pub struct ServerConfig {
     pub packet_encryption: bool,
     pub request_id: i32,
     pub accept_alternate_id: bool,
+    /// `EnableHardwareInfo` (Server.ini): whether the server collects client
+    /// hardware fingerprints (False on this dist). Java gates the server-side
+    /// request on it; HWID punishments only bite when it is on (G31).
+    pub enable_hardware_info: bool,
 
     // Database.
     pub database_url: String,
@@ -103,6 +107,7 @@ impl ServerConfig {
             packet_encryption: p.get_bool("PacketEncryption", false),
             request_id: p.get_int("RequestServerID", 0),
             accept_alternate_id: p.get_bool("AcceptAlternateID", true),
+            enable_hardware_info: p.get_bool("EnableHardwareInfo", false),
 
             database_url: p.get_string("URL", "jdbc:sqlite:./data/l2jmobius.db"),
             database_login: p.get_string("Login", "root"),

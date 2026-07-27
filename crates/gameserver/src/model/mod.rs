@@ -355,6 +355,14 @@ pub struct Player {
     /// petition, set when a consultation starts. The feedback packet
     /// (`RequestPetitionFeedback`) needs it to attribute the rating. Transient.
     pub last_petition_gm_name: Option<String>,
+    /// Java `Player._snoopListener`: GM object ids currently eavesdropping on
+    /// this player's chat (`//snoop`). Each of this player's outgoing chat lines
+    /// is mirrored to them via a `Snoop` packet. Transient (offline listeners
+    /// are skipped at send time).
+    pub snoop_listeners: Vec<i32>,
+    /// Java `Player._snoopedPlayer`: the players this (GM) character is snooping
+    /// — kept so the relationship can be torn down. Transient.
+    pub snooped: Vec<i32>,
     /// `Player._questZoneId` (default -1): the quest zone the client last
     /// selected (`ExSendSelectedQuestZoneID`), read by quest teleports
     /// (`TeleportHolder`). Transient — not persisted.
@@ -939,6 +947,8 @@ impl Player {
             teleporting: false,
             jailed: false,
             last_petition_gm_name: None,
+            snoop_listeners: Vec::new(),
+            snooped: Vec::new(),
             quest_zone_id: -1,
             charged_shots: 0,
             auto_shots: Vec::new(),

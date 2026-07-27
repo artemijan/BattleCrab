@@ -179,6 +179,9 @@ pub mod ex_opcodes {
     /// Mobius registers a `null` handler (no packet class), so it is consumed
     /// and ignored.
     pub const EX_SEND_CLIENT_INI: u16 = 0x104;
+    /// `RequestHardWareInfo` (G31) — the client's hardware fingerprint (MAC,
+    /// CPU, VGA, Windows build). Sendable at any connection state.
+    pub const REQUEST_HARDWARE_INFO: u16 = 0xAE;
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
@@ -265,6 +268,62 @@ pub mod ex_opcodes {
     pub const REQUEST_PLEDGE_DRAFT_LIST_SEARCH: u16 = 0xDC;
     pub const REQUEST_PLEDGE_DRAFT_LIST_APPLY: u16 = 0xDD;
     pub const REQUEST_PLEDGE_SIGN_IN_FOR_OPEN_JOINING_METHOD: u16 = 0x111;
+}
+
+/// A client's hardware fingerprint (Java `ClientHardwareInfoHolder`, G31),
+/// reported by `RequestHardWareInfo`. Keyed off the MAC address for HWID
+/// punishments; the rest is shown by `//hwid`. Only the display-relevant fields
+/// are kept.
+#[derive(Debug, Clone, Default)]
+pub struct HardwareInfo {
+    pub mac_address: String,
+    pub windows_platform_id: i32,
+    pub windows_major_version: i32,
+    pub windows_minor_version: i32,
+    pub windows_build_number: i32,
+    pub cpu_name: String,
+    pub cpu_speed: i32,
+    pub cpu_core_count: i32,
+    pub vga_name: String,
+    pub vga_driver_version: String,
+}
+
+impl HardwareInfo {
+    /// Parse a `RequestHardWareInfo` body (the 19-field `cdddddddd…` layout).
+    pub fn read(ex_body: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(ex_body);
+        let mac_address = r.read_string()?;
+        let windows_platform_id = r.read_i32()?;
+        let windows_major_version = r.read_i32()?;
+        let windows_minor_version = r.read_i32()?;
+        let windows_build_number = r.read_i32()?;
+        r.read_i32()?; // directxVersion
+        r.read_i32()?; // directxRevision
+        let cpu_name = r.read_string()?;
+        let cpu_speed = r.read_i32()?;
+        let cpu_core_count = r.read_i32()?;
+        r.read_i32()?; // vgaCount
+        r.read_i32()?; // vgaPcxSpeed
+        r.read_i32()?; // physMemorySlot1
+        r.read_i32()?; // physMemorySlot2
+        r.read_i32()?; // physMemorySlot3
+        r.read_i32()?; // videoMemory
+        r.read_i32()?; // vgaVersion
+        let vga_name = r.read_string()?;
+        let vga_driver_version = r.read_string()?;
+        Some(Self {
+            mac_address,
+            windows_platform_id,
+            windows_major_version,
+            windows_minor_version,
+            windows_build_number,
+            cpu_name,
+            cpu_speed,
+            cpu_core_count,
+            vga_name,
+            vga_driver_version,
+        })
+    }
 }
 
 /// Split an extended-packet body (after the `0xD0` opcode) into its 2-byte LE

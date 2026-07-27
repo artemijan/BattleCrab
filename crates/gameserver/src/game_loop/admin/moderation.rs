@@ -653,6 +653,88 @@ pub(super) fn admin_tracert(world: &mut World, client_id: u32, object_id: i32, a
     }
 }
 
+/// `AdminGmChat`'s `//snoop <name>` (Java `AdminGmChat.snoop`, G31): begin
+/// eavesdropping on a player's chat — their outgoing lines are mirrored to this
+/// GM by a `Snoop` packet until they log out.
+pub(super) fn admin_snoop(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    let Some(target) = target else {
+        send_message(world, client_id, "Usage: //snoop <player name>");
+        return;
+    };
+    if target == object_id {
+        send_message(world, client_id, "You cannot snoop yourself.");
+        return;
+    }
+    // Java `player.addSnooper(gm)` + `gm.addSnooped(player)` (both dedupe).
+    if let Some(t) = world.objects.get_component_mut::<Player>(&target) {
+        if !t.snoop_listeners.contains(&object_id) {
+            t.snoop_listeners.push(object_id);
+        }
+    }
+    let name = world
+        .objects
+        .get_component::<Player>(&target)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    if let Some(gm) = world.objects.get_component_mut::<Player>(&object_id) {
+        if !gm.snooped.contains(&target) {
+            gm.snooped.push(target);
+        }
+    }
+    send_message(world, client_id, &format!("Now snooping '{name}'."));
+}
+
+/// `AdminHwid`'s `//hwid`/`//hwinfo` (Java, G31): show a target's client
+/// hardware fingerprint. Java renders `hwid.htm`; the port sends text lines.
+/// Empty unless `EnableHardwareInfo` is on and the client volunteered it.
+pub(super) fn admin_hwid(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    let Some(target) = target else {
+        send_message(world, client_id, "Select a player first.");
+        return;
+    };
+    let hw = super::helpers::client_for_player(world, target).and_then(|cid| world.hwids.get(&cid));
+    let Some(hw) = hw else {
+        send_message(world, client_id, "No hardware info for that player.");
+        return;
+    };
+    send_message(world, client_id, "=== Hardware Info ===");
+    send_message(world, client_id, &format!("MAC: {}", hw.mac_address));
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "Windows: {}.{}.{} (platform {})",
+            hw.windows_major_version,
+            hw.windows_minor_version,
+            hw.windows_build_number,
+            hw.windows_platform_id
+        ),
+    );
+    send_message(
+        world,
+        client_id,
+        &format!(
+            "CPU: {} @ {} MHz x{}",
+            hw.cpu_name, hw.cpu_speed, hw.cpu_core_count
+        ),
+    );
+    send_message(
+        world,
+        client_id,
+        &format!("VGA: {} ({})", hw.vga_name, hw.vga_driver_version),
+    );
+}
+
 /// `AdminServerInfo` — Java opens an HTML window; we send the key figures as
 /// text lines (a documented G13.A simplification; the HTML build waits for the
 /// admin-menu work in G13.B).

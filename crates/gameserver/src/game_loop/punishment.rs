@@ -235,9 +235,31 @@ fn players_matching(world: &World, task: &Punishment) -> Vec<i32> {
                 _ => None,
             })
             .collect(),
-        // HWID matching lands in G31 slice 5 (needs client hardware info).
-        PunishmentAffect::Hwid => Vec::new(),
+        // HWID (G31 slice 5): match the per-connection hardware fingerprint's
+        // MAC against the key.
+        PunishmentAffect::Hwid => world
+            .clients
+            .values()
+            .filter_map(|cs| match cs {
+                ClientSession::InGame(s)
+                    if world
+                        .hwids
+                        .get(&s.client_id)
+                        .is_some_and(|h| h.mac_address == task.key) =>
+                {
+                    Some(s.player_object_id())
+                }
+                _ => None,
+            })
+            .collect(),
     }
+}
+
+/// The MAC address the player's client reported (`RequestHardWareInfo`), if any.
+fn player_hwid(world: &World, object_id: i32) -> Option<String> {
+    client_for_player(world, object_id)
+        .and_then(|cid| world.hwids.get(&cid))
+        .map(|h| h.mac_address.clone())
 }
 
 /// Java `JailHandler.applyToPlayer`: mark the player jailed, teleport them into
@@ -371,7 +393,7 @@ pub(crate) fn is_chat_banned(world: &World, object_id: i32) -> bool {
         object_id,
         &account,
         &player_ip(world, object_id),
-        None,
+        player_hwid(world, object_id).as_deref(),
     )
 }
 
@@ -384,12 +406,47 @@ pub(crate) fn is_party_banned(world: &World, object_id: i32) -> bool {
     )
 }
 
-/// Java `CharacterSelect`'s ban gate — the chosen char id / account / IP under
-/// an active BAN. Checked before a banned character can enter the world.
-pub(crate) fn is_banned(world: &World, char_id: i32, account: &str, ip: &str) -> bool {
+/// Java `CharacterSelect`'s ban gate — the chosen char id / account / IP / HWID
+/// under an active BAN. Checked before a banned character can enter the world.
+pub(crate) fn is_banned(
+    world: &World,
+    char_id: i32,
+    account: &str,
+    ip: &str,
+    hwid: Option<&str>,
+) -> bool {
     world
         .punishments
-        .player_has(PunishmentType::Ban, char_id, account, ip, None)
+        .player_has(PunishmentType::Ban, char_id, account, ip, hwid)
+}
+
+/// The HWID-ban / HWID-jail re-check when a client's fingerprint arrives after
+/// enter-world (`RequestHardWareInfo` timing is client-driven). Kicks a
+/// HWID-banned session and jails a HWID-jailed one.
+pub(crate) fn on_hwid_received(world: &mut World, client_id: u32) {
+    let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let object_id = s.player_object_id();
+    let hwid = world.hwids.get(&client_id).map(|h| h.mac_address.clone());
+    let Some(hwid) = hwid else { return };
+    if world
+        .punishments
+        .has_punishment(&hwid, PunishmentAffect::Hwid, PunishmentType::Ban)
+    {
+        disconnect_player(world, object_id);
+        return;
+    }
+    if !world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.jailed)
+        && world
+            .punishments
+            .has_punishment(&hwid, PunishmentAffect::Hwid, PunishmentType::Jail)
+    {
+        apply_jail_to_player(world, object_id, 0);
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -400,10 +457,10 @@ pub(crate) fn is_banned(world: &World, char_id: i32, account: &str, ip: &str) ->
 /// Whether any of a player's affect keys currently carries a JAIL punishment
 /// (Java `Player.isJailed`). Needs the live account + IP, so it takes them
 /// rather than reading them back off components.
-fn is_jailed(world: &World, char_id: i32, account: &str, ip: &str) -> bool {
+fn is_jailed(world: &World, char_id: i32, account: &str, ip: &str, hwid: Option<&str>) -> bool {
     world
         .punishments
-        .player_has(PunishmentType::Jail, char_id, account, ip, None)
+        .player_has(PunishmentType::Jail, char_id, account, ip, hwid)
 }
 
 /// Java `JailHandler.onPlayerLogin`: a jailed character logging in (or one
@@ -420,7 +477,8 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
         .get(&client_id)
         .map(|cs| cs.addr().ip().to_string())
         .unwrap_or_default();
-    let jailed = is_jailed(world, object_id, &account, &ip);
+    let hwid = player_hwid(world, object_id);
+    let jailed = is_jailed(world, object_id, &account, &ip, hwid.as_deref());
     let in_zone = in_jail_zone(world, object_id);
     let is_gm = world
         .objects

@@ -309,11 +309,12 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
         return;
     };
     // Java `CharacterSelect`'s ban gate (G31): a BAN on the chosen char id /
-    // account / IP refuses entry — Java closes the connection (`ServerClose`),
-    // which this port does by dropping the session.
+    // account / IP / HWID refuses entry — Java closes the connection
+    // (`ServerClose`), which this port does by dropping the session.
     let account = s.account().to_string();
     let ip = s.addr.ip().to_string();
-    if super::punishment::is_banned(world, chr.object_id, &account, &ip) {
+    let hwid = world.hwids.get(&client_id).map(|h| h.mac_address.clone());
+    if super::punishment::is_banned(world, chr.object_id, &account, &ip, hwid.as_deref()) {
         info!(
             "GameLoop: refused banned character '{}' (account {account}) at select.",
             chr.name
