@@ -661,6 +661,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::CursedWeaponExpiry { item_id } => {
                 cursed_weapon::handle_expiry(world, item_id);
             }
+            ScheduledTask::MailExpire { message_id } => {
+                mail::handle_expiry(world, message_id);
+            }
             ScheduledTask::TvtTeleportToArena => {
                 events::tvt::teleport_to_arena(world);
             }

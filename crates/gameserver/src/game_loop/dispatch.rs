@@ -615,6 +615,15 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_DELETE_SENT_POST => {
             super::mail::handle_delete_sent_post(world, client_id, ex_body)
         }
+        exop::REQUEST_POST_ATTACHMENT => {
+            super::mail::handle_post_attachment(world, client_id, ex_body)
+        }
+        exop::REQUEST_REJECT_POST_ATTACHMENT => {
+            super::mail::handle_reject_post_attachment(world, client_id, ex_body)
+        }
+        exop::REQUEST_CANCEL_POST_ATTACHMENT => {
+            super::mail::handle_cancel_post_attachment(world, client_id, ex_body)
+        }
         exop::REQUEST_OUST_FROM_PARTY_ROOM => {
             super::party_room::handle_oust_from_party_room(world, client_id, ex_body)
         }

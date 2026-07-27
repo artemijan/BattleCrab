@@ -769,3 +769,320 @@ fn a_delete_batch_aborts_on_a_message_that_still_has_attachments() {
     assert!(!world.mail.get(78).unwrap().deleted_by_receiver);
     assert!(drain(&mut b_rx).is_empty());
 }
+
+// ---------------------------------------------------------------------------
+// Slice 5 — attachments, COD, cancel/reject, expiry
+// ---------------------------------------------------------------------------
+
+/// Put a message carrying `count` of `item_id` in `receiver`'s inbox.
+fn mail_with_item(
+    world: &mut World,
+    id: i32,
+    sender: i32,
+    receiver: i32,
+    item_id: i32,
+    count: i64,
+    req_adena: i64,
+) {
+    let mut m = Message::new_player_mail(
+        id,
+        sender,
+        receiver,
+        req_adena > 0,
+        "parcel".into(),
+        "".into(),
+        req_adena,
+        commons::util::now_millis(),
+    );
+    m.has_attachments = true;
+    world.mail.insert(m);
+    let oid = world.alloc_object_id().unwrap();
+    let catalog = &world.data.item_data;
+    world
+        .mail
+        .attachments
+        .entry(id)
+        .or_default()
+        .insert_instance(catalog, oid, item_id, count, 0);
+}
+
+fn count_of(world: &World, oid: i32, item_id: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map_or(0, |inv| inv.count_of(item_id))
+}
+
+#[test]
+fn receiving_an_attachment_moves_the_item_and_clears_the_flag() {
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 5, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+
+    assert_eq!(
+        count_of(&world, 3002, 1060),
+        5,
+        "the receiver got the items"
+    );
+    let m = world.mail.get(77).unwrap();
+    assert!(!m.has_attachments);
+    assert!(world.mail.attachments.get(&77).is_none());
+
+    let b_pkts = drain(&mut b_rx);
+    let sms = sm_ids_of(&b_pkts);
+    assert!(sms.contains(&sm_ids::YOU_HAVE_ACQUIRED_S2_S1));
+    assert!(sms.contains(&sm_ids::MAIL_SUCCESSFULLY_RECEIVED));
+    // The sender is told their parcel was collected.
+    assert!(
+        sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::S1_ACQUIRED_THE_ATTACHED_ITEM_TO_YOUR_MAIL)
+    );
+}
+
+#[test]
+fn a_cod_receiver_pays_and_the_sender_is_credited() {
+    // The G30 mail gate: mail an item COD, receiver pays, sender gets adena.
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 1, 500);
+    give_adena(&mut world, 3002, 1000);
+    let sender_before = adena_of(&world, 3001);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+
+    assert_eq!(count_of(&world, 3002, 1060), 1);
+    assert_eq!(adena_of(&world, 3002), 500, "the COD price was charged");
+    assert_eq!(
+        adena_of(&world, 3001),
+        sender_before + 500,
+        "and paid to the sender"
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL));
+}
+
+#[test]
+fn a_cod_receiver_who_cannot_pay_gets_nothing() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 1, 500);
+    give_adena(&mut world, 3002, 100);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+
+    assert_eq!(count_of(&world, 3002, 1060), 0);
+    assert_eq!(adena_of(&world, 3002), 100, "nothing was charged");
+    assert!(world.mail.get(77).unwrap().has_attachments);
+    assert!(sm_ids_of(&drain(&mut b_rx))
+        .contains(&sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+}
+
+#[test]
+fn an_offline_senders_cod_payment_is_delivered_by_mail() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    // 4242 has a name but no session/inventory: an offline sender.
+    crate::game_loop::mail::on_character_created(&mut world, "Ghost", 4242);
+    mail_with_item(&mut world, 77, 4242, 3002, 1060, 1, 500);
+    give_adena(&mut world, 3002, 1000);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+
+    assert_eq!(adena_of(&world, 3002), 500);
+    let payout = world.mail.inbox(4242);
+    assert_eq!(payout.len(), 1, "the offline sender is paid by mail");
+    assert!(payout[0].has_attachments);
+    let attached = world.mail.attachments.get(&payout[0].id).unwrap();
+    assert_eq!(attached.items()[0].item_id, 57);
+    assert_eq!(attached.items()[0].count, 500);
+}
+
+#[test]
+fn the_sender_can_cancel_and_take_the_items_back() {
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 3, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_CANCEL_POST_ATTACHMENT,
+            &int_body(77),
+        ),
+    );
+
+    assert_eq!(count_of(&world, 3001, 1060), 3, "items returned to sender");
+    assert!(world.mail.get(77).is_none(), "the mail is gone entirely");
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::MAIL_SUCCESSFULLY_CANCELLED));
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::S1_CANCELED_THE_SENT_MAIL));
+}
+
+#[test]
+fn cancelling_after_the_receiver_took_the_items_is_refused() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 3, 0);
+    // Receiver already collected.
+    world.mail.attachments.remove(&77);
+    world.mail.get_mut(77).unwrap().has_attachments = false;
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_CANCEL_POST_ATTACHMENT,
+            &int_body(77),
+        ),
+    );
+    assert!(sm_ids_of(&drain(&mut a_rx))
+        .contains(&sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT));
+    assert_eq!(count_of(&world, 3001, 1060), 0);
+}
+
+#[test]
+fn rejecting_returns_the_parcel_to_the_sender_as_a_new_message() {
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 2, 500);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_REJECT_POST_ATTACHMENT,
+            &int_body(77),
+        ),
+    );
+
+    // The original loses its items but the row stays.
+    let original = world.mail.get(77).expect("original row survives");
+    assert!(!original.has_attachments);
+    // A returned message lands in the sender's inbox holding the container.
+    let back = world.mail.inbox(3001);
+    assert_eq!(back.len(), 1);
+    assert!(back[0].returned && back[0].has_attachments);
+    let return_id = back[0].id;
+    let attached = world.mail.attachments.get(&return_id).unwrap();
+    assert_eq!(attached.items()[0].item_id, 1060);
+    assert_eq!(attached.items()[0].count, 2);
+
+    assert!(sm_ids_of(&drain(&mut b_rx)).contains(&sm_ids::MAIL_SUCCESSFULLY_RETURNED));
+    assert!(sm_ids_of(&drain(&mut a_rx)).contains(&sm_ids::S1_RETURNED_THE_MAIL));
+}
+
+#[test]
+fn attachment_actions_need_a_peace_zone() {
+    let (mut world, _a, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 1, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::components::ZoneFlags>(&3002)
+        .unwrap()
+        .mask = 0;
+    drain(&mut b_rx);
+
+    on_packet(
+        &mut world,
+        2,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+    assert_eq!(count_of(&world, 3002, 1060), 0);
+    assert!(sm_ids_of(&drain(&mut b_rx))
+        .contains(&sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION));
+}
+
+#[test]
+fn you_cannot_take_an_attachment_addressed_to_someone_else() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    mail_with_item(&mut world, 77, 9999, 3002, 1060, 1, 0);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
+    );
+    assert_eq!(count_of(&world, 3001, 1060), 0);
+    assert!(world.mail.get(77).unwrap().has_attachments);
+}
+
+#[test]
+fn an_expired_mail_is_deleted_and_its_parcel_goes_to_the_senders_warehouse() {
+    let (mut world, mut a_rx, mut b_rx, _db) = mail_world();
+    mail_with_item(&mut world, 77, 3001, 3002, 1060, 4, 0);
+    // Make it already due.
+    world.mail.get_mut(77).unwrap().expiration = commons::util::now_millis() - 1;
+    world
+        .objects
+        .add_components(&3001, crate::model::inventory::Warehouse::default());
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    crate::game_loop::mail::handle_expiry(&mut world, 77);
+
+    assert!(world.mail.get(77).is_none(), "the message is dropped");
+    let wh = world
+        .objects
+        .get_component::<crate::model::inventory::Warehouse>(&3001)
+        .unwrap();
+    assert_eq!(wh.0.count_of(1060), 4, "the parcel went to the warehouse");
+    for rx in [&mut a_rx, &mut b_rx] {
+        assert!(sm_ids_of(&drain(rx))
+            .contains(&sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME));
+    }
+}
+
+#[test]
+fn an_expiry_timer_that_fires_early_re_arms_instead_of_deleting() {
+    let (mut world, _a, _b, _db) = mail_world();
+    put_mail(&mut world, 77, 3001, 3002, "later");
+    world.mail.get_mut(77).unwrap().expiration = commons::util::now_millis() + 3_600_000;
+
+    crate::game_loop::mail::handle_expiry(&mut world, 77);
+    assert!(
+        world.mail.get(77).is_some(),
+        "a message that is not due yet must survive its timer"
+    );
+}
+
+#[test]
+fn sending_a_mail_arms_its_expiry_timer() {
+    let (mut world, mut a_rx, _b, _db) = mail_world();
+    give_adena(&mut world, 3001, 10_000);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::REQUEST_SEND_POST,
+            &send_post_body("P3002", false, "hi", "", &[], 0),
+        ),
+    );
+    let msg_id = world.mail.inbox(3002)[0].id;
+    // 15 days out, so the message must still be alive well before then.
+    let expiration = world.mail.get(msg_id).unwrap().expiration;
+    assert!(expiration > commons::util::now_millis() + 14 * 86_400_000);
+}

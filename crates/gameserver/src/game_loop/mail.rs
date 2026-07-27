@@ -43,6 +43,7 @@ pub(crate) fn on_loaded(
     );
     world.mail = mgr;
     world.char_ids_by_name = char_ids_by_name.into_iter().collect();
+    schedule_all_expiries(world);
 }
 
 /// Keep the `CharInfoTable` equivalent current as characters come and go.
@@ -579,6 +580,7 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
     if !pkt.items.is_empty() {
         persist_attachments(world, message_id);
     }
+    schedule_expiry(world, message_id);
     // Re-send the full item list rather than a delta — a partial-stack move
     // creates a new object id, which an InventoryUpdate cannot express.
     if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
@@ -860,4 +862,514 @@ fn handle_delete_post(world: &mut World, client_id: u32, body: &[u8], received: 
     if received {
         send_unread_count(world, player);
     }
+}
+
+// ---------------------------------------------------------------------------
+// Attachments — receive (ex 0x67), cancel (ex 0x6C), reject (ex 0x68)
+// ---------------------------------------------------------------------------
+
+/// Shared guard chain for the three attachment flows. `peace_sm` differs per
+/// packet in Java, so the caller supplies its trio of messages.
+fn attachment_guards(
+    world: &World,
+    player: i32,
+    peace_sm: i16,
+    exchange_sm: i16,
+    store_sm: i16,
+) -> bool {
+    if !in_peace_zone(world, player) {
+        send_sm(world, player, peace_sm, &[]);
+        return false;
+    }
+    if world.objects.has_component::<Trade>(&player) {
+        send_sm(world, player, exchange_sm, &[]);
+        return false;
+    }
+    if world
+        .objects
+        .get_component::<Player>(&player)
+        .is_some_and(|p| p.store_type != 0)
+    {
+        send_sm(world, player, store_sm, &[]);
+        return false;
+    }
+    true
+}
+
+/// Total slots the attachments will take in an inventory (Java counts a
+/// non-stackable per unit, a stackable as one slot unless already held).
+fn attachment_slots(world: &World, player: i32, message_id: i32) -> usize {
+    let Some(container) = world.mail.attachments.get(&message_id) else {
+        return 0;
+    };
+    let inv = world.objects.get_component::<Inventory>(&player);
+    container
+        .items()
+        .iter()
+        .map(|it| {
+            let stackable = world
+                .data
+                .item_data
+                .get(it.item_id)
+                .is_some_and(|t| t.is_stackable);
+            if !stackable {
+                it.count.max(1) as usize
+            } else if inv.is_some_and(|i| i.count_of(it.item_id) > 0) {
+                0
+            } else {
+                1
+            }
+        })
+        .sum()
+}
+
+fn inventory_has_room(world: &World, player: i32, slots: usize) -> bool {
+    let Some(inv) = world.objects.get_component::<Inventory>(&player) else {
+        return false;
+    };
+    let race = world
+        .objects
+        .get_component::<Player>(&player)
+        .map_or(0, |p| p.race);
+    let limit = world.cfg.character.inventory_limit(race) as usize;
+    inv.non_quest_size(&world.data.item_data) + slots <= limit
+}
+
+/// Hand every attachment of `message_id` to `player`, announcing each.
+fn grant_attachments(world: &mut World, player: i32, message_id: i32) {
+    let taken: Vec<(i32, i64, i32)> = world
+        .mail
+        .attachments
+        .get(&message_id)
+        .map(|inv| {
+            inv.items()
+                .iter()
+                .map(|it| (it.item_id, it.count, it.enchant_level))
+                .collect()
+        })
+        .unwrap_or_default();
+    for (item_id, count, enchant) in taken {
+        if let Some(oids) = super::items::add_inventory_item(world, player, item_id, count) {
+            if enchant > 0 {
+                if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
+                    for oid in &oids {
+                        inv.set_item_enchant(*oid, enchant);
+                    }
+                }
+            }
+        }
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_HAVE_ACQUIRED_S2_S1,
+            &[SmParam::ItemName(item_id), SmParam::Long(count)],
+        );
+    }
+    world.mail.attachments.remove(&message_id);
+    if let Some(m) = world.mail.get_mut(message_id) {
+        m.has_attachments = false;
+    }
+    persist_flags(world, message_id);
+    persist_attachments(world, message_id);
+    refresh_inventory(world, player);
+}
+
+fn refresh_inventory(world: &World, player: i32) {
+    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
+        let packet = crate::network::enter_world::item_list(inv, &world.data, false);
+        send(world, player, packet);
+    }
+}
+
+/// ex 0x67 `RequestPostAttachment` — take the items, paying any COD price.
+pub(crate) fn handle_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
+        return;
+    }
+    let Some(message_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    if !attachment_guards(
+        world,
+        player,
+        sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION,
+        sm_ids::YOU_CANNOT_RECEIVE_DURING_AN_EXCHANGE,
+        sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_THE_PRIVATE_STORE_OR_WORKSHOP_IS_IN_PROGRESS,
+    ) {
+        return;
+    }
+    let Some(m) = world.mail.get(message_id) else {
+        return;
+    };
+    if m.receiver_id != player || !m.has_attachments {
+        return;
+    }
+    let (sender_id, req_adena) = (m.sender_id, m.req_adena);
+
+    let slots = attachment_slots(world, player, message_id);
+    if !inventory_has_room(world, player, slots) {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_COULD_NOT_RECEIVE_BECAUSE_YOUR_INVENTORY_IS_FULL,
+            &[],
+        );
+        return;
+    }
+    // Cash on delivery: the receiver pays before anything moves.
+    if req_adena > 0 {
+        let has = world
+            .objects
+            .get_component::<Inventory>(&player)
+            .map_or(0, |inv| inv.adena());
+        if has < req_adena {
+            send_sm(
+                world,
+                player,
+                sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA,
+                &[],
+            );
+            return;
+        }
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
+            inv.remove_item(ADENA_ID, req_adena);
+        }
+    }
+
+    grant_attachments(world, player, message_id);
+
+    let receiver_name = char_name_by_id(world, player);
+    if req_adena > 0 {
+        // The sender is paid whether or not they are online — an offline
+        // sender's adena goes straight into their stored inventory.
+        pay_sender(world, sender_id, req_adena);
+        send_sm(
+            world,
+            sender_id,
+            sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL,
+            &[
+                SmParam::Long(req_adena),
+                SmParam::Text(receiver_name.clone()),
+            ],
+        );
+    } else {
+        send_sm(
+            world,
+            sender_id,
+            sm_ids::S1_ACQUIRED_THE_ATTACHED_ITEM_TO_YOUR_MAIL,
+            &[SmParam::Text(receiver_name)],
+        );
+    }
+
+    send(
+        world,
+        player,
+        server_packets::ex_change_post_state(true, &[message_id], crate::model::mail::STATE_READ),
+    );
+    send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_RECEIVED, &[]);
+}
+
+/// Credit adena to a player who may be offline. Java writes an `items` row
+/// directly for the offline case; the port routes an offline payout through a
+/// system mail instead, so it survives without a second write path into a
+/// character's stored inventory.
+fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
+    if world.objects.has_component::<Inventory>(&sender_id) {
+        super::items::add_inventory_item(world, sender_id, ADENA_ID, adena);
+        refresh_inventory(world, sender_id);
+        return;
+    }
+    let Some(message_id) = world.alloc_object_id() else {
+        return;
+    };
+    let mut msg = crate::model::mail::Message::new_system_mail(
+        message_id,
+        sender_id,
+        "Payment received".to_string(),
+        String::new(),
+        crate::model::mail::MailType::Regular,
+        commons::util::now_millis(),
+    );
+    msg.has_attachments = true;
+    world.mail.insert(msg);
+    if let Some(oid) = world.alloc_object_id() {
+        let catalog = &world.data.item_data;
+        world
+            .mail
+            .attachments
+            .entry(message_id)
+            .or_default()
+            .insert_instance(catalog, oid, ADENA_ID, adena, 0);
+    }
+    persist_message(world, message_id);
+    persist_attachments(world, message_id);
+}
+
+/// ex 0x6C `RequestCancelPostAttachment` — the sender takes it all back.
+pub(crate) fn handle_cancel_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
+        return;
+    }
+    let Some(message_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(m) = world.mail.get(message_id) else {
+        return;
+    };
+    if m.sender_id != player {
+        return;
+    }
+    if !attachment_guards(
+        world,
+        player,
+        sm_ids::YOU_CANNOT_CANCEL_IN_A_NON_PEACE_ZONE_LOCATION,
+        sm_ids::YOU_CANNOT_CANCEL_DURING_AN_EXCHANGE,
+        sm_ids::YOU_CANNOT_CANCEL_BECAUSE_THE_PRIVATE_STORE_OR_WORKSHOP_IS_IN_PROGRESS,
+    ) {
+        return;
+    }
+    let receiver_id = world.mail.get(message_id).map_or(0, |m| m.receiver_id);
+    let empty = world
+        .mail
+        .attachments
+        .get(&message_id)
+        .is_none_or(|inv| inv.items().is_empty());
+    if !world
+        .mail
+        .get(message_id)
+        .is_some_and(|m| m.has_attachments)
+        || empty
+    {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT,
+            &[],
+        );
+        return;
+    }
+    let slots = attachment_slots(world, player, message_id);
+    if !inventory_has_room(world, player, slots) {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_COULD_NOT_CANCEL_RECEIPT_BECAUSE_YOUR_INVENTORY_IS_FULL,
+            &[],
+        );
+        return;
+    }
+
+    grant_attachments(world, player, message_id);
+    let sender_name = char_name_by_id(world, player);
+    send_sm(
+        world,
+        receiver_id,
+        sm_ids::S1_CANCELED_THE_SENT_MAIL,
+        &[SmParam::Text(sender_name)],
+    );
+    send(
+        world,
+        receiver_id,
+        server_packets::ex_change_post_state(
+            true,
+            &[message_id],
+            crate::model::mail::STATE_DELETED,
+        ),
+    );
+    // A cancelled mail is gone for both sides — the fee is not refunded.
+    delete_message(world, message_id);
+    send(
+        world,
+        player,
+        server_packets::ex_change_post_state(
+            false,
+            &[message_id],
+            crate::model::mail::STATE_DELETED,
+        ),
+    );
+    send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_CANCELLED, &[]);
+}
+
+/// ex 0x68 `RequestRejectPostAttachment` — the receiver sends it back.
+pub(crate) fn handle_reject_post_attachment(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    if !world.cfg.general.allow_mail || !world.cfg.general.allow_attachments {
+        return;
+    }
+    let Some(message_id) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    if !in_peace_zone(world, player) {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_CANNOT_RECEIVE_OR_SEND_MAIL_WITH_ATTACHED_ITEMS_IN_NON_PEACE_ZONE_REGIONS,
+            &[],
+        );
+        return;
+    }
+    let Some(m) = world.mail.get(message_id) else {
+        return;
+    };
+    if m.receiver_id != player || !m.has_attachments || m.mail_type.is_system() {
+        return;
+    }
+    let sender_id = m.sender_id;
+
+    // Java builds a *new* message back to the original sender and moves the
+    // container onto it, leaving the original row behind minus its items.
+    let Some(return_id) = world.alloc_object_id() else {
+        return;
+    };
+    let mut returned = crate::model::mail::Message::new_player_mail(
+        return_id,
+        sender_id,
+        sender_id,
+        false,
+        String::new(),
+        String::new(),
+        0,
+        commons::util::now_millis(),
+    );
+    returned.returned = true;
+    returned.deleted_by_sender = true;
+    returned.has_attachments = true;
+    world.mail.insert(returned);
+    if let Some(container) = world.mail.attachments.remove(&message_id) {
+        world.mail.attachments.insert(return_id, container);
+    }
+    if let Some(m) = world.mail.get_mut(message_id) {
+        m.has_attachments = false;
+    }
+    persist_flags(world, message_id);
+    persist_attachments(world, message_id);
+    persist_message(world, return_id);
+    persist_attachments(world, return_id);
+    schedule_expiry(world, return_id);
+
+    send_sm(world, player, sm_ids::MAIL_SUCCESSFULLY_RETURNED, &[]);
+    send(
+        world,
+        player,
+        server_packets::ex_change_post_state(
+            true,
+            &[message_id],
+            crate::model::mail::STATE_REJECTED,
+        ),
+    );
+    let rejecter = char_name_by_id(world, player);
+    send_sm(
+        world,
+        sender_id,
+        sm_ids::S1_RETURNED_THE_MAIL,
+        &[SmParam::Text(rejecter)],
+    );
+    send(
+        world,
+        sender_id,
+        server_packets::ex_notice_post_arrived(true),
+    );
+    send_unread_count(world, sender_id);
+}
+
+// ---------------------------------------------------------------------------
+// Expiry — Java `MessageDeletionTaskManager`
+// ---------------------------------------------------------------------------
+
+/// Arm the deletion timer for one message.
+pub(crate) fn schedule_expiry(world: &mut World, message_id: i32) {
+    let Some(m) = world.mail.get(message_id) else {
+        return;
+    };
+    let delay_ms = (m.expiration - commons::util::now_millis()).max(0);
+    let delay_ticks = (delay_ms / 100) as u64;
+    world.scheduler.schedule(
+        world.tick + delay_ticks,
+        crate::scheduler::ScheduledTask::MailExpire { message_id },
+    );
+}
+
+/// Arm a timer for every loaded message — Java re-registers the whole table
+/// with `MessageDeletionTaskManager` at boot.
+pub(crate) fn schedule_all_expiries(world: &mut World) {
+    let ids: Vec<i32> = world.mail.messages.keys().copied().collect();
+    for id in ids {
+        schedule_expiry(world, id);
+    }
+}
+
+/// `ScheduledTask::MailExpire`: return any attachments to the sender and drop
+/// the message. A timer that fires early (the expiration moved) re-arms.
+pub(crate) fn handle_expiry(world: &mut World, message_id: i32) {
+    let Some(m) = world.mail.get(message_id) else {
+        return; // already gone
+    };
+    if !m.is_expired(commons::util::now_millis()) {
+        schedule_expiry(world, message_id);
+        return;
+    }
+    let (sender_id, receiver_id, has_attachments) = (m.sender_id, m.receiver_id, m.has_attachments);
+
+    if has_attachments {
+        // Java returns the items to the sender's *warehouse* — no inventory
+        // capacity to fail against, and it works while they are offline.
+        if let Some(container) = world.mail.attachments.remove(&message_id) {
+            return_to_warehouse(world, sender_id, container);
+        }
+        for who in [sender_id, receiver_id] {
+            send_sm(
+                world,
+                who,
+                sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME,
+                &[],
+            );
+        }
+    }
+    delete_message(world, message_id);
+    send_unread_count(world, receiver_id);
+}
+
+/// Move a message's leftover attachments into the sender's warehouse — Java
+/// `Mail.returnToWh`. The warehouse is used rather than the inventory because
+/// it has no capacity gate to fail against and the sender is usually offline.
+fn return_to_warehouse(world: &mut World, sender_id: i32, container: Inventory) {
+    let rows = container.to_rows();
+    if rows.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .has_component::<crate::model::inventory::Warehouse>(&sender_id)
+    {
+        // Online: into the live container, persisted with the owner.
+        for r in &rows {
+            let catalog = &world.data.item_data;
+            if let Some(wh) = world
+                .objects
+                .get_component_mut::<crate::model::inventory::Warehouse>(&sender_id)
+            {
+                wh.0.insert_instance(catalog, r.object_id, r.item_id, r.count, r.enchant_level);
+            }
+        }
+        return;
+    }
+    // Offline: park the rows at the warehouse location directly. Additive, so
+    // it cannot clobber the rest of their warehouse.
+    let _ = world
+        .db
+        .send(crate::db::DbCommand::StoreOfflineWarehouseItems {
+            owner_id: sender_id,
+            items: rows,
+        });
 }

@@ -792,6 +792,13 @@ pub enum DbCommand {
     DeleteMail {
         message_id: i32,
     },
+    /// Park items in an **offline** character's warehouse (G30) — how expired
+    /// mail attachments get back to a sender who is not logged in. Additive:
+    /// the owner's other warehouse rows are untouched.
+    StoreOfflineWarehouseItems {
+        owner_id: i32,
+        items: Vec<crate::character::ItemRow>,
+    },
     /// Replace the `loc = 'MAIL'` item rows of one message (delete-then-insert,
     /// the house style for a whole container).
     StoreMailItems {
@@ -2510,6 +2517,29 @@ async fn run(
                         .bind(message_id),
                 )
                 .await;
+            }
+            DbCommand::StoreOfflineWarehouseItems { owner_id, items } => {
+                for it in &items {
+                    exec(
+                        &pool,
+                        sqlx::query(
+                            "INSERT OR REPLACE INTO items \
+                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
+                              custom_type1, custom_type2, mana_left, time) \
+                             VALUES (?, ?, ?, ?, ?, 'WAREHOUSE', 0, ?, ?, ?, ?)",
+                        )
+                        .bind(owner_id)
+                        .bind(it.object_id)
+                        .bind(it.item_id)
+                        .bind(it.count)
+                        .bind(it.enchant_level)
+                        .bind(it.custom_type1)
+                        .bind(it.custom_type2)
+                        .bind(it.mana_left)
+                        .bind(it.time),
+                    )
+                    .await;
+                }
             }
             DbCommand::StoreMailItems {
                 message_id,
