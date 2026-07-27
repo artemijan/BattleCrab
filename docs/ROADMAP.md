@@ -1154,11 +1154,12 @@ needed — Java delivers the won item to the winner's **warehouse**.)
 parser (empty on this dist), the auction/bid model + `ItemAuctionManager` on
 `World`, the `AuctionDateGenerator` schedule math, and `item_auction`/
 `item_auction_bid` load+persist (config-gated on `AltItemAuctionEnabled`).
-**Slice 2 (2026-07-27):** the auction **lifecycle + scheduling** landed — each
-auctioneer instance keeps a current + next auction and drives
-CREATED→STARTED→FINISHED on a per-auction state task (`check_and_set_current_and_next`
-+ `run_state_task`). **Remaining:** bidding + packets + the `ItemAuctionLink` NPC
-dialog (slice 3), and winner→warehouse delivery + loser refund + expiry (slice 4).
+**Slices 2–3 (2026-07-27):** the auction **lifecycle + scheduling** (each
+auctioneer keeps a current + next auction, CREATED→STARTED→FINISHED on a
+per-auction task), then **bidding** — adena escrow, outbid, the ending-extend
+state machine, cancel/refund — plus the `ItemAuctionLink` NPC dialog and the
+bid/info packets. **Remaining:** winner→warehouse delivery + clear-canceled-bids
++ expiry cleanup (slice 4).
 
 ### G31 — Moderation, accounts, petitions & HWID
 Per-client IP plumbing (needed by several); punishment/jail (`PunishmentManager`

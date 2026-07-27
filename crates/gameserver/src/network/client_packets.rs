@@ -198,6 +198,9 @@ pub mod ex_opcodes {
     pub const REQUEST_AUTO_SOULSHOT: u16 = 0x0D;
     /// `ExRequestAutoFish` — toggle the auto-fishing loop (G32).
     pub const REQUEST_EX_AUTO_FISH: u16 = 0x105;
+    /// Item auction (G30.5): bid on / request info about an auctioneer's auction.
+    pub const REQUEST_BID_ITEM_AUCTION: u16 = 0x36;
+    pub const REQUEST_INFO_ITEM_AUCTION: u16 = 0x37;
     /// `RequestAllCastleInfo` / `RequestAllFortressInfo` — sent by the world
     /// map window when it opens (empty bodies).
     pub const REQUEST_ALL_CASTLE_INFO: u16 = 0x39;

@@ -165,3 +165,135 @@ fn a_started_auction_at_boot_becomes_current() {
     assert!(world.item_auctions.instances[&31113].next.is_some());
     assert!(world.item_auctions.auctions.len() >= 2);
 }
+
+// --- Bidding + cancel/refund (slice 3) ---
+
+use crate::model::inventory::Inventory;
+
+/// An enabled world with one instance, a live STARTED auction (id 1), and an
+/// in-game bidder (oid `player`) holding `adena`.
+fn bidding_world(player: i32, adena: i64) -> World {
+    let mut world = world_with_instance(31113);
+    world.id_pool = 0x9000_0000..0x9000_0100;
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 57;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    // A live auction of catalogue item 1 (init bid 100000), far from ending.
+    let now = commons::util::now_millis();
+    let a = ItemAuction::new(
+        1,
+        31113,
+        1,
+        now - HOUR,
+        now + 5 * HOUR,
+        AuctionState::Started,
+    );
+    world.item_auctions.enabled = true;
+    world.item_auctions.next_auction_id = 2;
+    world.item_auctions.auctions.insert(1, a);
+    world.item_auctions.instances.insert(
+        31113,
+        crate::model::item_auction::InstanceRuntime {
+            current: Some(1),
+            next: None,
+        },
+    );
+    ingame_player(&mut world, 1, player, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, player, 57, adena);
+    world
+}
+
+fn ia_adena(world: &World, oid: i32) -> i64 {
+    world
+        .objects
+        .get_component::<Inventory>(&oid)
+        .map_or(0, |i| i.adena())
+}
+
+#[test]
+fn a_bid_escrows_adena_and_becomes_highest() {
+    let mut world = bidding_world(100, 500_000);
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    assert_eq!(ia_adena(&world, 100), 350_000); // 500k - 150k escrowed
+    let a = &world.item_auctions.auctions[&1];
+    assert_eq!(a.highest_bid().unwrap().last_bid, 150_000);
+}
+
+#[test]
+fn a_bid_below_the_init_bid_is_rejected() {
+    let mut world = bidding_world(100, 500_000);
+    item_auction::register_bid(&mut world, 31113, 1, 100, 50_000); // < 100000 init
+    assert_eq!(ia_adena(&world, 100), 500_000); // untouched
+    assert!(world.item_auctions.auctions[&1].highest_bid().is_none());
+}
+
+#[test]
+fn raising_your_own_bid_charges_only_the_delta() {
+    let mut world = bidding_world(100, 500_000);
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    item_auction::register_bid(&mut world, 31113, 1, 100, 200_000);
+    assert_eq!(ia_adena(&world, 100), 300_000); // 500k - 150k - 50k delta
+    assert_eq!(
+        world.item_auctions.auctions[&1]
+            .highest_bid()
+            .unwrap()
+            .last_bid,
+        200_000
+    );
+}
+
+#[test]
+fn canceling_a_losing_bid_refunds_the_adena() {
+    let mut world = bidding_world(100, 500_000);
+    ingame_player(&mut world, 2, 200, 0, 0, 0);
+    super::items::add_inventory_item(&mut world, 200, 57, 500_000);
+    // 100 bids 150k, then 200 outbids with 200k → 100 is a loser.
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    item_auction::register_bid(&mut world, 31113, 1, 200, 200_000);
+    assert_eq!(ia_adena(&world, 100), 350_000);
+
+    assert!(item_auction::cancel_bid(&mut world, 1, 1, 100));
+    assert_eq!(ia_adena(&world, 100), 500_000); // fully refunded
+    assert!(world.item_auctions.auctions[&1]
+        .bid_of(100)
+        .unwrap()
+        .is_canceled());
+}
+
+#[test]
+fn the_highest_bidder_cannot_cancel() {
+    let mut world = bidding_world(100, 500_000);
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+    // Returns true (Java's reserve-not-met branch) but does not refund.
+    assert!(item_auction::cancel_bid(&mut world, 1, 1, 100));
+    assert_eq!(ia_adena(&world, 100), 350_000); // still escrowed
+    assert!(!world.item_auctions.auctions[&1]
+        .bid_of(100)
+        .unwrap()
+        .is_canceled());
+}
+
+#[test]
+fn a_last_minute_bid_extends_the_ending_time() {
+    let mut world = bidding_world(100, 500_000);
+    // Move the end to 5 minutes out (inside the 10-min extend window).
+    let now = commons::util::now_millis();
+    world
+        .item_auctions
+        .auctions
+        .get_mut(&1)
+        .unwrap()
+        .ending_time = now + 5 * 60_000;
+    let before = world.item_auctions.auctions[&1].ending_time;
+
+    item_auction::register_bid(&mut world, 31113, 1, 100, 150_000);
+
+    let a = &world.item_auctions.auctions[&1];
+    assert_eq!(
+        a.extend_state,
+        crate::model::item_auction::ExtendState::ExtendBy5Min
+    );
+    assert_eq!(a.ending_time, before + 5 * 60_000);
+}

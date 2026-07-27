@@ -85,9 +85,21 @@ by mail.
   (winner→warehouse deferred). 5 lifecycle tests (boot-creates-next, full
   CREATED→STARTED→FINISHED, started-at-boot-becomes-current), sabotage-verified.
 
-### Slice 3 — Bidding + packets + the NPC dialog
-- `RequestBid`/`RequestInfoItemAuction` + `ExItemAuctionInfoPacket`; adena
-  escrow, outbid, the ending-extend states; `ItemAuctionLink` (`show`/`cancel`).
+### Slice 3 — Bidding + packets + the NPC dialog  ✅ LANDED
+- `register_bid` — adena escrow (full new / delta on raise / full after cancel),
+  the ≥init-bid / >highest / ≤999.9 bn gates, outbid notify, and the
+  ending-extend state machine (last-10-min → +5min → +3min → config phases,
+  each past the first gated on a *different* bidder). This activates the
+  (slice-2, inert) `reschedule_for_extend` in `run_state_task`.
+- `cancel_bid` — the loser refund (+ the "you hold the highest bid, reserve not
+  met" branch, and the winner/expired refusals), persisted (delete when
+  finished, else store the canceled row).
+- `ItemAuctionLink` bypass (`ItemAuction show`/`cancel`), the two client packets
+  (`on_request_bid` 0x36 / `on_request_info` 0x37), and `ExItemAuctionInfoPacket`
+  (0xFE 0x69) reusing `write_item_entry` for a synthetic reward item.
+- 14 SM ids + config `AltItemAuctionExpiredAfter`/`AltItemAuctionTimeExtendsOnBid`.
+- 6 bidding tests (escrow, below-init reject, raise-delta, loser refund on
+  cancel, highest-can't-cancel, last-minute extend), sabotage-verified.
 
 ### Slice 4 — Finish + delivery + expiry
 - `onAuctionFinished` (winner → warehouse), loser refund on cancel, the

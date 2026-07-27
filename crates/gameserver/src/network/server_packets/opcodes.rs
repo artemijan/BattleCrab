@@ -162,6 +162,8 @@ pub const EX_SHOW_QUEST_MARK: i16 = 0x21;
 pub const EX_SHOW_SCREEN_MESSAGE: i16 = 0x39;
 /// `ExPVPMatchCCRecord` — the TvT/CC scoreboard (G28).
 pub const EX_PVP_MATCH_CCRECORD: i16 = 0x8A;
+/// `ExItemAuctionInfoPacket` — the auctioneer's current/next auction window (G30.5).
+pub const EX_ITEM_AUCTION_INFO: i16 = 0x69;
 pub const EX_NPC_QUEST_HTML_MESSAGE: i16 = 0x8E;
 pub const EX_QUEST_ITEM_LIST: i16 = 0xC7;
 pub const EX_SET_COMPASS_ZONE_CODE: i16 = 0x33;
