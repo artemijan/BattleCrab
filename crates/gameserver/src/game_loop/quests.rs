@@ -1781,6 +1781,22 @@ pub(crate) fn handle_quest_timer(
 
 /// `RequestQuestAbort` (0x63): the quest UI's Abandon button —
 /// `qs.exitQuest(true)` + `QuestList`, no sound.
+/// `RequestQuestList` (0x62, G33): the client opened its quest journal — resend
+/// the `QuestList` (Java `player.sendPacket(new QuestList(player))`). Empty body.
+pub(crate) fn handle_request_quest_list(world: &World, client_id: u32) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let Some(quests) = world.objects.get_component::<Quests>(&player) else {
+        return;
+    };
+    let pkt = ew::quest_list(quests, &world.quests);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
+}
+
 pub(crate) fn handle_request_quest_abort(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = crate::network::client_packets::RequestQuestAbort::read(body) else {
         return;

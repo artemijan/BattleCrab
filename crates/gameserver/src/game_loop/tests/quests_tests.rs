@@ -19872,3 +19872,24 @@ fn ferry_ride_board_travel_disembark() {
     );
     assert_eq!(ppos(&world), (1810, 1000), "stepped onto the far dock");
 }
+
+/// `RequestQuestList` (0x62, G33): opening the quest journal resends `QuestList`.
+#[test]
+fn request_quest_list_resends_the_journal() {
+    const QUEST_LIST_OPCODE: u8 = 0x86;
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 5001, 0, 0, 0);
+    world
+        .objects
+        .add_components(&5001, crate::model::components::Quests(Default::default()));
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, vec![cop::REQUEST_QUEST_LIST]);
+
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p.first() == Some(&QUEST_LIST_OPCODE)),
+        "QuestList resent on journal open"
+    );
+}

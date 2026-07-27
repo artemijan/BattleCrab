@@ -250,6 +250,7 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::ANSWER_TRADE_REQUEST => super::trade::handle_answer(world, client_id, body),
         cop::ADD_TRADE_ITEM => super::trade::handle_add_item(world, client_id, body),
         cop::TRADE_DONE => super::trade::handle_done(world, client_id, body),
+        cop::REQUEST_QUEST_LIST => super::quests::handle_request_quest_list(world, client_id),
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }
