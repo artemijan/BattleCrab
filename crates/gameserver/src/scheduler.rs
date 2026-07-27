@@ -379,6 +379,10 @@ pub enum ScheduledTask {
     /// The Monster Race's 1-second cycle beat (Java `MonsterRace.Announcement`
     /// at fixed 1 s rate, G26.5): advance the countdown timeline. Re-arms itself.
     MonsterRaceTick,
+    /// An item auction's next state transition (Java `ItemAuctionInstance
+    /// .ScheduleAuctionTask`, G30.5): CREATED→STARTED at its start time, then
+    /// STARTED→FINISHED at its (possibly extended) end time. Keyed by auction id.
+    ItemAuctionState { auction_id: i32 },
 }
 
 struct Entry {

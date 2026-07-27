@@ -73,7 +73,12 @@ pub struct ItemAuction {
     pub starting_time: i64,
     pub ending_time: i64,
     pub state: AuctionState,
+    /// The live ending-extend phase, advanced by bids (Java
+    /// `_auctionEndingExtendState`).
     pub extend_state: ExtendState,
+    /// The extend phase the state task last scheduled for, chasing `extend_state`
+    /// (Java `_scheduledAuctionEndingExtendState`).
+    pub scheduled_extend_state: ExtendState,
     pub bids: Vec<ItemAuctionBid>,
     /// The last player to bid, for the extend-only-on-a-different-bidder gate
     /// (Java `_lastBidPlayerObjId`).
@@ -97,6 +102,7 @@ impl ItemAuction {
             ending_time,
             state,
             extend_state: ExtendState::Initial,
+            scheduled_extend_state: ExtendState::Initial,
             bids: Vec::new(),
             last_bid_player: 0,
         }
@@ -115,6 +121,15 @@ impl ItemAuction {
     }
 }
 
+/// One auctioneer instance's live pointers (Java `ItemAuctionInstance`'s
+/// `_currentAuction`/`_nextAuction`) — the current (running/finished) and next
+/// (created) auction ids.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct InstanceRuntime {
+    pub current: Option<i32>,
+    pub next: Option<i32>,
+}
+
 /// The item-auction manager runtime (Java `ItemAuctionManager` + the live
 /// per-instance auctions). Inert unless `AltItemAuctionEnabled`.
 #[derive(Debug, Default)]
@@ -126,6 +141,8 @@ pub struct ItemAuctionManager {
     pub next_auction_id: i32,
     /// Live auctions by id (across all instances), loaded from `item_auction`.
     pub auctions: HashMap<i32, ItemAuction>,
+    /// Per-auctioneer-NPC current/next pointers (Java the per-instance fields).
+    pub instances: HashMap<i32, InstanceRuntime>,
 }
 
 impl ItemAuctionManager {

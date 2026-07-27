@@ -677,6 +677,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
             ScheduledTask::LotteryFinish => lottery::finish_begin(world),
             ScheduledTask::MonsterRaceTick => monster_race::tick(world),
+            ScheduledTask::ItemAuctionState { auction_id } => {
+                item_auction::run_state_task(world, auction_id)
+            }
         }
     }
 }

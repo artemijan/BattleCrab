@@ -70,9 +70,20 @@ by mail.
   date math interval + weekday; config gate; boot-load allocator + auctions;
   highest-bid-ignores-canceled), the date math sabotage-verified.
 
-### Slice 2 — Auction lifecycle + scheduling
-- `ItemAuctionInstance` current/next auction, the CREATED→STARTED→FINISHED
-  state machine on `ScheduledTask::ItemAuction*`, `checkAndSetCurrentAndNext`.
+### Slice 2 — Auction lifecycle + scheduling  ✅ LANDED
+- `check_and_set_current_and_next` (per instance): the 0/1/many-auction switch
+  picking current + next, creating a fresh auction when needed
+  (`START_TIME_SPACE`=1min / `FINISH_TIME_SPACE`=10min), and arming the state
+  task; `InstanceRuntime { current, next }` per auctioneer on the manager.
+- `create_auction` (random catalogue item, `next_date` start, id + `storeMe`),
+  `run_state_task` (Java `ScheduleAuctionTask.runImpl`: CREATED→STARTED then
+  re-check; STARTED→FINISHED with the bid-driven ending-extend re-arm — inert
+  until slice 3 — then `on_auction_finished` + re-check). `on_loaded` now calls
+  `check_and_set` for each configured instance.
+- New `ScheduledTask::ItemAuctionState { auction_id }`; `ItemAuction`
+  `scheduled_extend_state` field. `on_auction_finished` is a slice-4 stub
+  (winner→warehouse deferred). 5 lifecycle tests (boot-creates-next, full
+  CREATED→STARTED→FINISHED, started-at-boot-becomes-current), sabotage-verified.
 
 ### Slice 3 — Bidding + packets + the NPC dialog
 - `RequestBid`/`RequestInfoItemAuction` + `ExItemAuctionInfoPacket`; adena
