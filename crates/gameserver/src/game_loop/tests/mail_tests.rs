@@ -196,6 +196,56 @@ fn entering_the_world_sends_the_unread_badge_and_the_mail_notice() {
 }
 
 #[test]
+fn entering_the_world_with_no_mail_sends_no_indicator_at_all() {
+    // Regression: both enter-world packets were sent unconditionally, so a
+    // character with an empty mailbox got the client's mail indicator lit and
+    // found nothing behind it. Java gates both on `hasUnreadPost`.
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    crate::game_loop::mail::on_enter_world(&world, 3001);
+
+    let pkts = drain(&mut rx);
+    assert!(
+        ex_body_of(&pkts, opcodes::EX_NOTICE_POST_ARRIVED).is_none(),
+        "no mail must mean no indicator"
+    );
+    assert!(
+        ex_body_of(&pkts, opcodes::EX_UN_READ_MAIL_COUNT).is_none(),
+        "and no badge either"
+    );
+}
+
+#[test]
+fn entering_the_world_with_only_read_mail_sends_no_indicator() {
+    // The inbox is non-empty but nothing in it is unread — still no indicator.
+    let (mut world, ..) = test_world();
+    put_mail(&mut world, 1, 9001, 3001, "already read");
+    world.mail.get_mut(1).unwrap().unread = false;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    crate::game_loop::mail::on_enter_world(&world, 3001);
+    assert!(ex_body_of(&drain(&mut rx), opcodes::EX_NOTICE_POST_ARRIVED).is_none());
+}
+
+#[test]
+fn mail_deleted_by_the_receiver_does_not_light_the_indicator() {
+    // Java's `hasUnreadPost` ignores `isDeletedByReceiver` and so *would* light
+    // it here; the port uses the consistent inbox-based definition, matching
+    // what the mailbox actually shows.
+    let (mut world, ..) = test_world();
+    put_mail(&mut world, 1, 9001, 3001, "deleted");
+    world.mail.get_mut(1).unwrap().deleted_by_receiver = true;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    crate::game_loop::mail::on_enter_world(&world, 3001);
+    assert!(ex_body_of(&drain(&mut rx), opcodes::EX_NOTICE_POST_ARRIVED).is_none());
+}
+
+#[test]
 fn mail_off_suppresses_the_listings_entirely() {
     let (mut world, ..) = test_world();
     world.cfg.general.allow_mail = false;

@@ -189,18 +189,25 @@ pub(crate) fn send_unread_count(world: &World, object_id: i32) {
     );
 }
 
-/// Java `EnterWorld`: the unread count, plus a silent "you have mail" when the
-/// inbox holds anything unread.
+/// Java `EnterWorld`: the unread count and the silent "you have mail" notice.
+///
+/// **Both are gated on actually having unread mail** (Java's two
+/// `hasUnreadPost(player)` checks). `ExNoticePostArrived` is what lights the
+/// client's mail indicator, and the client keeps it lit until the player opens
+/// a message — so sending it unconditionally leaves every mail-less character
+/// with an indicator over an empty mailbox.
 pub(crate) fn on_enter_world(world: &World, object_id: i32) {
-    if !world.cfg.general.allow_mail {
+    if world.mail.unread_count(object_id) == 0 {
         return;
     }
     send_unread_count(world, object_id);
-    send(
-        world,
-        object_id,
-        server_packets::ex_notice_post_arrived(false),
-    );
+    if world.cfg.general.allow_mail {
+        send(
+            world,
+            object_id,
+            server_packets::ex_notice_post_arrived(false),
+        );
+    }
 }
 
 /// Resolve the attachment container of a message into packet-ready pairs.
