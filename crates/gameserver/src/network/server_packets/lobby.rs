@@ -315,8 +315,9 @@ pub fn ex_is_char_name_creatable(allowed: i32) -> Vec<u8> {
 }
 
 /// Port of `serverpackets/CharSelected` — the reply to `CharacterSelect` that
-/// starts the enter-world loading screen. `game_time` is minutes of the in-game
-/// day (TODO(G4): real GameTimeTaskManager clock; 0 = midnight for now).
+/// starts the enter-world loading screen. `game_time` is game-minutes of the
+/// in-game day (`game_time::game_time_minutes`, G33; the client self-advances
+/// from it).
 pub fn char_selected(v: &crate::model::PlayerView, session_id: i32, game_time: i32) -> Vec<u8> {
     let crate::model::PlayerView { p, pos, vitals, .. } = v;
     let mut w = PacketWriter::new();

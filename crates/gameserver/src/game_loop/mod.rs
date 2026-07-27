@@ -40,6 +40,7 @@ mod expertise;
 pub(crate) mod fishing;
 mod friends;
 pub(crate) mod frintezza;
+pub(crate) mod game_time;
 mod grand_boss;
 mod ground_items;
 mod helpers;
