@@ -44,6 +44,7 @@ mod ground_items;
 mod helpers;
 mod henna;
 pub(crate) mod instances;
+pub(crate) mod item_auction;
 mod items;
 mod lobby;
 pub(crate) mod lottery;
@@ -676,6 +677,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::LotteryStopSelling => lottery::stop_selling(world),
             ScheduledTask::LotteryFinish => lottery::finish_begin(world),
             ScheduledTask::MonsterRaceTick => monster_race::tick(world),
+            ScheduledTask::ItemAuctionState { auction_id } => {
+                item_auction::run_state_task(world, auction_id)
+            }
         }
     }
 }

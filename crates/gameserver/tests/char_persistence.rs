@@ -114,6 +114,7 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
             | DbEvent::PremiumLoaded { .. }
             | DbEvent::LotteryLoaded { .. }
             | DbEvent::MdtLoaded { .. }
+            | DbEvent::ItemAuctionsLoaded { .. }
             | DbEvent::BufferSchemesLoaded { .. }
             | DbEvent::FavoritesLoaded { .. }
             | DbEvent::GrandBossesLoaded { .. }

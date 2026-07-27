@@ -187,6 +187,10 @@ fn npc_bypass(
         "Quest" => super::quests::quest_link(world, client_id, object_id, npc_object_id, command),
         // `bypasshandlers/Loto.java` — the Lucky Lottery ticket seller dialog.
         "Loto" => super::lottery::loto_bypass(world, client_id, object_id, npc_object_id, command),
+        // `bypasshandlers/ItemAuctionLink.java` — the auctioneer NPC (G30.5).
+        "ItemAuction" => {
+            super::item_auction::link_bypass(world, client_id, object_id, npc_object_id, command)
+        }
         // `RaceManager` NPC — the Monster Race Track betting dialog (G26.5).
         "BuyTicket" | "ShowOdds" | "ShowInfo" | "ShowTickets" | "ShowTicket" | "CalculateWin"
         | "ViewHistory" => {

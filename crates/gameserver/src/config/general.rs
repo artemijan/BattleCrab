@@ -101,6 +101,18 @@ pub struct GeneralConfig {
     /// `AllowRace`: whether the Monster Race Track runs (G26.5). Dist ships
     /// `False`; the race engine exists regardless so an operator can enable it.
     pub allow_race: bool,
+
+    /// `AltItemAuctionEnabled`: whether the item-auction house runs (G30.5).
+    /// Dist ships `True`, but `ItemAuctions.xml` is empty, so nothing auctions
+    /// until an operator adds instances.
+    pub alt_item_auction_enabled: bool,
+    /// `AltItemAuctionExpiredAfter` (days, dist 14): how long a finished auction
+    /// + its bids linger before cleanup / after which a bid can't be canceled.
+    pub alt_item_auction_expired_after_days: i32,
+    /// `AltItemAuctionTimeExtendsOnBid` (seconds, dist 0): the extra
+    /// bid-driven ending extension past the built-in 5-/3-minute phases. `0`
+    /// disables the config phases.
+    pub alt_item_auction_time_extends_on_bid: i64,
 }
 
 impl GeneralConfig {
@@ -154,6 +166,13 @@ impl GeneralConfig {
             alt_lottery_3_number_rate: p.get_float("AltLottery3NumberRate", 0.2) as f64,
             alt_lottery_2and1_number_prize: p.get_int("AltLottery2and1NumberPrize", 200) as i64,
             allow_race: p.get_bool("AllowRace", d.allow_race),
+            alt_item_auction_enabled: p
+                .get_bool("AltItemAuctionEnabled", d.alt_item_auction_enabled),
+            alt_item_auction_expired_after_days: p.get_int("AltItemAuctionExpiredAfter", 14),
+            // Java parses seconds then converts to millis for the extend amount.
+            alt_item_auction_time_extends_on_bid: p.get_int("AltItemAuctionTimeExtendsOnBid", 0)
+                as i64
+                * 1000,
         }
     }
 }
@@ -203,6 +222,10 @@ mod tests {
             "AltLottery2and1NumberPrize=200"
         );
         assert!(!g.allow_race, "AllowRace=False on this dist");
+        assert!(
+            g.alt_item_auction_enabled,
+            "AltItemAuctionEnabled=True on this dist"
+        );
     }
 
     /// The dist ground-item auto-destroy block: NPC drops decay after 600 s,

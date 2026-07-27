@@ -268,6 +268,9 @@ pub struct World {
     /// The weekly Lucky Lottery runtime (G26.5).
     pub lottery: crate::model::lottery::LotteryState,
 
+    /// The item-auction house runtime (G30.5).
+    pub item_auctions: crate::model::item_auction::ItemAuctionManager,
+
     /// The Monster Race Track runtime (G26.5).
     pub monster_race: crate::model::monster_race::MonsterRaceState,
 
@@ -408,6 +411,7 @@ impl World {
             instances: crate::model::instance::InstanceManager::default(),
             events: crate::model::event::EventManager::default(),
             lottery: crate::model::lottery::LotteryState::default(),
+            item_auctions: crate::model::item_auction::ItemAuctionManager::default(),
             monster_race: crate::model::monster_race::MonsterRaceState::default(),
             premium: HashMap::new(),
             buffer_schemes: HashMap::new(),

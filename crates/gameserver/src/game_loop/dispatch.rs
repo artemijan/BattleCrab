@@ -574,6 +574,13 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 super::fishing::toggle_fishing(world, player);
             }
         }
+        // Item auction (G30.5): bid on / request info about an auction.
+        exop::REQUEST_BID_ITEM_AUCTION => {
+            super::item_auction::on_request_bid(world, client_id, ex_body)
+        }
+        exop::REQUEST_INFO_ITEM_AUCTION => {
+            super::item_auction::on_request_info(world, client_id, ex_body)
+        }
         exop::REQUEST_EX_ADD_ENCHANT_SCROLL_ITEM => {
             super::enchant::handle_add_scroll(world, client_id, ex_body)
         }
