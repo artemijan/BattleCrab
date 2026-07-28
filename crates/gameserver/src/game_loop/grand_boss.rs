@@ -20,6 +20,57 @@ use crate::world::World;
 pub const ALIVE: i32 = 0;
 pub const DEAD: i32 = 1;
 
+/// Zaken (29022). His entire Java script is the shared lifecycle plus the two
+/// stock roars — the file's own comments TODO the actual AI ("Skill cast?
+/// Day/Night spawn?") — so there is no `zaken` module; this constant and the
+/// roar hooks below are the whole boss.
+pub(crate) const ZAKEN: i32 = 29022;
+
+/// The bosses whose scripts play the stock roars — `BS01_A` on spawn, `BS02_D`
+/// on death: Queen Ant, Core, Orfen, Zaken. The cinematic bosses voice
+/// themselves (Baium roars `BS01_D` from his death tail, Antharas `BS01_D` and
+/// Valakas `B03_D` from theirs) and spawn silently, DORMANT.
+fn plays_stock_roars(boss_id: i32) -> bool {
+    boss_id == crate::game_loop::queen_ant::QUEEN
+        || boss_id == crate::game_loop::core_boss::CORE
+        || boss_id == crate::game_loop::orfen::ORFEN
+        || boss_id == ZAKEN
+}
+
+/// `npc.broadcastPacket(new PlaySound(1, sound, 1, oid, x, y, z))` — the roar,
+/// anchored to the boss and sent to everyone near its region.
+fn roar(world: &World, boss_oid: i32, sound: &str) {
+    use crate::model::components::{Position, RegionCell};
+    let Some(pos) = world.objects.get_component::<Position>(&boss_oid) else {
+        return;
+    };
+    let pkt = crate::network::server_packets::play_sound_at(sound, boss_oid, pos.x, pos.y, pos.z);
+    if let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&boss_oid)
+        .map(|r| r.0)
+    {
+        crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+    }
+}
+
+/// Find the boss's instance by npc id — the death path runs while the corpse
+/// is still in the world. `None` in minimal test worlds that flip status
+/// without spawning the boss; only the roar is skipped.
+fn boss_oid(world: &mut World, boss_id: i32) -> Option<i32> {
+    let mut found = None;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &crate::model::components::Position)>(
+            |(n, _)| {
+                if n.npc_id == boss_id {
+                    found = Some(n.object_id);
+                }
+            },
+        );
+    found
+}
+
 /// The stored "dead" status differs by boss family: the simple bosses use the
 /// two-state 0/1 pair, but the four-state bosses (Antharas, Valakas —
 /// DORMANT 0, WAITING 1, IN_FIGHT 2, DEAD 3) read **1 as WAITING**, so
@@ -54,6 +105,12 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
     let Some(window) = world.cfg.grand_boss.window_for(boss_id) else {
         return;
     };
+    // The stock death roar, first thing in every simple script's `onKill`.
+    if plays_stock_roars(boss_id) {
+        if let Some(oid) = boss_oid(world, boss_id) {
+            roar(world, oid, "BS02_D");
+        }
+    }
     // `getRandom(-r, r)` is inclusive on both ends.
     let spread = if window.random_hours > 0 {
         world.roll(window.random_hours * 2 + 1) - window.random_hours
@@ -159,8 +216,12 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
     else {
         return;
     };
+    // The stock spawn roar, common to the four simple scripts' `spawnBoss`.
+    if plays_stock_roars(boss_id) {
+        roar(world, oid, "BS01_A");
+    }
     // Per-boss script hooks. Queen Ant brings out her larva and starts the
-    // nurse rotation; the other nine bosses have no script yet.
+    // nurse rotation.
     if boss_id == crate::game_loop::queen_ant::QUEEN {
         crate::game_loop::queen_ant::on_queen_spawned(world, oid);
     }

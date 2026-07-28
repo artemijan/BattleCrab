@@ -20,6 +20,23 @@ pub fn play_sound(sound_file: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Port of the positioned `PlaySound` shape (`new PlaySound(1, soundFile, 1,
+/// objectId, x, y, z)`) — the grand-boss roars are anchored to the boss so the
+/// client attenuates them by distance instead of playing them flat.
+pub fn play_sound_at(sound_file: &str, object_id: i32, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(1);
+    w.write_string(sound_file);
+    w.write_i32(1);
+    w.write_i32(object_id);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
 /// The `QuestSound` file names this slice plays.
 pub mod quest_sounds {
     pub const ACCEPT: &str = "ItemSound.quest_accept";

@@ -224,6 +224,121 @@ fn boot_leaves_a_pending_boss_dead() {
     );
 }
 
+/// Zaken (29022). His whole Java script is the shared lifecycle — spawn at
+/// the deck, die, roll 60 h ± 20 h, come back — so this end-to-end pass over
+/// the generic paths *is* the boss.
+const ZAKEN: i32 = 29022;
+
+fn zaken_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = combat_test_world();
+    let mut t = crate::data::npc_data::default_template(ZAKEN);
+    t.type_name = "GrandBoss".into();
+    t.level = 60;
+    t.base_hp_max = 800_000.0;
+    world.data.npc_data.insert_for_test(t);
+    world.grand_bosses.insert(
+        ZAKEN,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: ZAKEN,
+            loc_x: 52207,
+            loc_y: 217230,
+            loc_z: -3341,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: ALIVE,
+        },
+    );
+    (world, db, l)
+}
+
+/// Zaken's full lifecycle on the generic machinery: boot spawns him on his
+/// deck, the kill arms his 60 h ± 20 h window, the timer brings him back.
+#[test]
+fn zaken_lives_and_dies_on_the_generic_lifecycle() {
+    let (mut world, _db, _l) = zaken_world();
+
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+    let mut at = None;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(n, p)| {
+            if n.npc_id == ZAKEN {
+                at = Some((p.x, p.y, p.z));
+            }
+        });
+    assert_eq!(at, Some((52207, 217230, -3341)), "spawned on his deck");
+
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ZAKEN);
+    let b = world.grand_bosses.get(&ZAKEN).unwrap();
+    assert_eq!(b.status, DEAD);
+    let hours = (b.respawn_time - commons::util::now_millis()) as f64 / 3_600_000.0;
+    assert!(
+        (40.0..=80.5).contains(&hours),
+        "respawn within 60 h ± 20 h ({hours:.1} h)"
+    );
+
+    crate::game_loop::grand_boss::handle_grand_boss_respawn(&mut world, ZAKEN);
+    assert_eq!(world.grand_bosses.get(&ZAKEN).unwrap().status, ALIVE);
+}
+
+/// The simple bosses roar: `BS01_A` broadcast on spawn, `BS02_D` on death —
+/// the two `PlaySound`s that are the only packets in Zaken's Java script.
+#[test]
+fn a_simple_boss_roars_on_spawn_and_on_death() {
+    let (mut world, _db, _l) = zaken_world();
+    let mut rx = ingame_player(&mut world, 9, 5001, 52207, 217230, -3341);
+
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+    assert!(
+        sound_names(&drain(&mut rx)).contains(&"BS01_A".to_string()),
+        "the spawn roar reaches a player on the deck"
+    );
+
+    crate::game_loop::grand_boss::on_grand_boss_killed(&mut world, ZAKEN);
+    assert!(
+        sound_names(&drain(&mut rx)).contains(&"BS02_D".to_string()),
+        "the death roar reaches a player on the deck"
+    );
+}
+
+/// The cinematic bosses do NOT get the stock roar — Antharas spawns DORMANT
+/// and silent; his sounds belong to his own cinematic and death tail.
+#[test]
+fn a_cinematic_boss_spawns_silently() {
+    let (mut world, _db, _l) = combat_test_world();
+    const ANTHARAS: i32 = 29068;
+    let mut t = crate::data::npc_data::default_template(ANTHARAS);
+    t.type_name = "GrandBoss".into();
+    world.data.npc_data.insert_for_test(t);
+    world.grand_bosses.insert(
+        ANTHARAS,
+        crate::model::grand_boss::GrandBoss {
+            boss_id: ANTHARAS,
+            loc_x: 185708,
+            loc_y: 114298,
+            loc_z: -8221,
+            heading: 0,
+            respawn_time: 0,
+            current_hp: 0.0,
+            current_mp: 0.0,
+            status: 0,
+        },
+    );
+    let mut rx = ingame_player(&mut world, 9, 5001, 185708, 114298, -8221);
+
+    crate::game_loop::grand_boss::resolve_at_boot(&mut world);
+    assert!(
+        !sound_names(&drain(&mut rx)).contains(&"BS01_A".to_string()),
+        "no stock roar for a dormant cinematic boss"
+    );
+}
+
 /// The real `GrandBoss.ini` is read — a fixture cannot catch a key rename.
 #[test]
 fn the_real_grand_boss_config_loads() {
