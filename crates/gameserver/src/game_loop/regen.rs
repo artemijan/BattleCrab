@@ -2,9 +2,9 @@
 //! `REGEN_TICK_PERIOD` ticks from the game loop.
 
 use crate::data::GameData;
+use crate::model::Player;
 use crate::model::components::{BaseStats, PlayerVitals, StatModifiers, Vitals};
 use crate::model::stats::{BaseStat, MoveType, Stat};
-use crate::model::Player;
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -323,24 +323,23 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
 
         // `broadcastStatusUpdate` — refresh the HP bar for anyone targeting it.
         // Only on an actual HP change, so a full-HP/low-MP mob doesn't spam.
-        if changed {
-            if let Some(region) = world
+        if changed
+            && let Some(region) = world
                 .objects
                 .get_component::<crate::model::components::RegionCell>(&oid)
                 .map(|r| r.0)
-            {
-                super::helpers::broadcast_near_region(
-                    world,
-                    region,
-                    &server_packets::status_update(
-                        oid,
-                        &[
-                            (server_packets::status_update_type::MAX_HP, max_hp),
-                            (server_packets::status_update_type::CUR_HP, cur_hp),
-                        ],
-                    ),
-                );
-            }
+        {
+            super::helpers::broadcast_near_region(
+                world,
+                region,
+                &server_packets::status_update(
+                    oid,
+                    &[
+                        (server_packets::status_update_type::MAX_HP, max_hp),
+                        (server_packets::status_update_type::CUR_HP, cur_hp),
+                    ],
+                ),
+            );
         }
     }
 }

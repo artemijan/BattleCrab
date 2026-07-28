@@ -16,8 +16,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::enums::Race;
@@ -205,10 +205,10 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"region" {
-                    if let Some(r) = cur.take() {
-                        out.push(r);
-                    }
+                if e.name().as_ref() == b"region"
+                    && let Some(r) = cur.take()
+                {
+                    out.push(r);
                 }
                 continue;
             }
@@ -238,22 +238,20 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<MapRegion>) {
                     let special = ["isChaotic", "isOther"]
                         .iter()
                         .any(|k| attr(k.as_bytes()).is_some_and(|v| v == "true"));
-                    if !special {
-                        if let (Some(x), Some(y), Some(z)) = (attr(b"X"), attr(b"Y"), attr(b"Z")) {
-                            if let (Ok(x), Ok(y), Ok(z)) = (x.parse(), y.parse(), z.parse()) {
-                                r.respawn_points.push((x, y, z));
-                            }
-                        }
+                    if !special
+                        && let (Some(x), Some(y), Some(z)) = (attr(b"X"), attr(b"Y"), attr(b"Z"))
+                        && let (Ok(x), Ok(y), Ok(z)) = (x.parse(), y.parse(), z.parse())
+                    {
+                        r.respawn_points.push((x, y, z));
                     }
                 }
             }
             b"map" => {
-                if let Some(r) = cur.as_mut() {
-                    if let (Some(x), Some(y)) = (attr(b"X"), attr(b"Y")) {
-                        if let (Ok(x), Ok(y)) = (x.parse(), y.parse()) {
-                            r.tiles.push((x, y));
-                        }
-                    }
+                if let Some(r) = cur.as_mut()
+                    && let (Some(x), Some(y)) = (attr(b"X"), attr(b"Y"))
+                    && let (Ok(x), Ok(y)) = (x.parse(), y.parse())
+                {
+                    r.tiles.push((x, y));
                 }
             }
             _ => {}
@@ -288,22 +286,20 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"zone" {
-                    if let Some(p) = cur.take() {
-                        if p.is_respawn {
-                            if let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad) {
-                                out.push(RespawnZone {
-                                    name: p.name,
-                                    territory: Territory {
-                                        form,
-                                        min_z: p.min_z,
-                                        max_z: p.max_z,
-                                    },
-                                    race_points: p.race_points,
-                                });
-                            }
-                        }
-                    }
+                if e.name().as_ref() == b"zone"
+                    && let Some(p) = cur.take()
+                    && p.is_respawn
+                    && let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad)
+                {
+                    out.push(RespawnZone {
+                        name: p.name,
+                        territory: Territory {
+                            form,
+                            min_z: p.min_z,
+                            max_z: p.max_z,
+                        },
+                        race_points: p.race_points,
+                    });
                 }
                 continue;
             }
@@ -351,12 +347,11 @@ fn parse_respawn_zones(path: &str) -> Vec<RespawnZone> {
                 }
             }
             b"race" => {
-                if let Some(p) = cur.as_mut() {
-                    if let (Some(name), Some(point)) = (attr(b"name"), attr(b"point")) {
-                        if let Some(race) = Race::from_name(&name) {
-                            p.race_points.insert(race, point);
-                        }
-                    }
+                if let Some(p) = cur.as_mut()
+                    && let (Some(name), Some(point)) = (attr(b"name"), attr(b"point"))
+                    && let Some(race) = Race::from_name(&name)
+                {
+                    p.race_points.insert(race, point);
                 }
             }
             _ => {}
@@ -454,15 +449,17 @@ mod tests {
         let (dx, dy, _z2) = data
             .town_respawn(40000, 31000, -3000, Race::DarkElf, 0)
             .expect("de respawn");
-        assert!(data
-            .region_by_name("elf_town")
-            .unwrap()
-            .respawn_points
-            .contains(&(ex, ey, _z)));
-        assert!(data
-            .region_by_name("darkelf_town")
-            .unwrap()
-            .respawn_points
-            .contains(&(dx, dy, _z2)));
+        assert!(
+            data.region_by_name("elf_town")
+                .unwrap()
+                .respawn_points
+                .contains(&(ex, ey, _z))
+        );
+        assert!(
+            data.region_by_name("darkelf_town")
+                .unwrap()
+                .respawn_points
+                .contains(&(dx, dy, _z2))
+        );
     }
 }

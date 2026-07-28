@@ -12,7 +12,7 @@
 use super::*;
 
 use crate::model::components::{Buffs, StatModifiers};
-use crate::model::skill::{effect_flag, SkillEffect};
+use crate::model::skill::{SkillEffect, effect_flag};
 use crate::model::stats::Stat;
 
 use crate::game_loop::skills::effects::recharge_level_penalty;

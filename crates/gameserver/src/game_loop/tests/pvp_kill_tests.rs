@@ -3,8 +3,8 @@
 use super::*;
 
 use crate::game_loop::pvp;
-use crate::model::components::{PvpState, ZoneFlags};
 use crate::model::Player;
+use crate::model::components::{PvpState, ZoneFlags};
 
 const KILLER: i32 = 2001;
 const VICTIM: i32 = 2002;

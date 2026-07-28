@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::data::siege_data::{load_siege_schedule, SiegeScheduleEntry};
+use crate::data::siege_data::{SiegeScheduleEntry, load_siege_schedule};
 use crate::game_loop::siege::next_siege_millis;
 use crate::model::castle::{Castle, CastleSide};
 use crate::model::siege::Siege;

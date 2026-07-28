@@ -6,17 +6,17 @@
 
 use std::collections::HashMap;
 
-use rand::seq::SliceRandom;
 use rand::Rng;
+use rand::seq::SliceRandom;
 
 use crate::data::zone_data::ZoneKind;
 use crate::db::DbCommand;
 use crate::enums::ChatType;
 use crate::model::components::{Position, RaceTicket};
 use crate::model::inventory::{Inventory, ItemChange};
-use crate::model::monster_race::{HistoryInfo, RaceState, LANES};
+use crate::model::monster_race::{HistoryInfo, LANES, RaceState};
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -239,7 +239,9 @@ fn finish_race(world: &mut World) {
     let n = world.monster_race.race_number;
     announce(
         world,
-        &format!("First prize goes to lane {first_lane}, second to lane {second_lane}. Monster Race #{n} is finished."),
+        &format!(
+            "First prize goes to lane {first_lane}, second to lane {second_lane}. Monster Race #{n} is finished."
+        ),
     );
     world.monster_race.race_number += 1;
 }
@@ -564,10 +566,10 @@ fn calculate_win(world: &mut World, client_id: u32, player: i32, command: &str) 
         super::items::add_inventory_item(world, player, ADENA_ID, payout);
     }
     let mut changes: Vec<ItemChange> = removed.into_iter().collect();
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-        if let Some(it) = inv.items().iter().find(|i| i.item_id == ADENA_ID) {
-            changes.push(ItemChange::Modified(*it));
-        }
+    if let Some(inv) = world.objects.get_component::<Inventory>(&player)
+        && let Some(it) = inv.items().iter().find(|i| i.item_id == ADENA_ID)
+    {
+        changes.push(ItemChange::Modified(*it));
     }
     let iu = ew::inventory_update_changes(&world.data, &changes);
     super::helpers::send_inventory_update(world, client_id, player, iu);

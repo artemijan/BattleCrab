@@ -6,8 +6,8 @@ use super::*;
 
 use std::collections::HashMap;
 
-use rand::rngs::StdRng;
 use rand::SeedableRng;
+use rand::rngs::StdRng;
 
 use crate::game_loop::monster_race::{self, add_bet, calculate_odds, roll_speeds};
 use crate::model::monster_race::RaceState;
@@ -95,10 +95,12 @@ fn tick_at_zero_opens_a_race_with_eight_distinct_racers() {
     assert_eq!(templates.len(), 8, "eight distinct racer templates");
     assert!((1..=8).contains(&world.monster_race.first.0));
     assert_eq!(world.monster_race.countdown, 1);
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::MonsterRaceTick));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::MonsterRaceTick)
+    );
 }
 
 #[test]
@@ -190,10 +192,12 @@ fn mdt_load_seeds_history_race_number_and_bets() {
     );
     assert_eq!(world.monster_race.race_number, 3); // 2 records + 1
     assert_eq!(world.monster_race.bets.get(&1), Some(&100));
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::MonsterRaceTick));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::MonsterRaceTick)
+    );
 }
 
 #[test]
@@ -245,13 +249,15 @@ fn cashing_a_winning_ticket_pays_out_and_consumes_it() {
 
     monster_race::race_bypass(&mut world, 1, 100, 600, &format!("CalculateWin {oid}"));
 
-    assert!(world
-        .objects
-        .get_component::<Inventory>(&100)
-        .unwrap()
-        .items()
-        .iter()
-        .all(|i| i.object_id != oid));
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&100)
+            .unwrap()
+            .items()
+            .iter()
+            .all(|i| i.object_id != oid)
+    );
     assert_eq!(race_adena(&world, 100), 1_000); // 500 * 2.0
 }
 
@@ -265,10 +271,12 @@ fn finish_race_persists_history_and_clears_bets() {
     monster_race::tick(&mut world);
 
     let cmds = drain_db(&mut db_rx);
-    assert!(cmds
-        .iter()
-        .any(|c| matches!(c, crate::db::DbCommand::SaveMdtHistory { race_id: 1, .. })));
-    assert!(cmds
-        .iter()
-        .any(|c| matches!(c, crate::db::DbCommand::ClearMdtBets)));
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, crate::db::DbCommand::SaveMdtHistory { race_id: 1, .. }))
+    );
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, crate::db::DbCommand::ClearMdtBets))
+    );
 }

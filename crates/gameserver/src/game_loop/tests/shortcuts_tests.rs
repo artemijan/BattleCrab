@@ -244,12 +244,14 @@ fn delete_macro_cascades_panel_slots() {
         w.write_i32(1000);
         w.into_bytes()
     });
-    assert!(world
-        .objects
-        .get_component::<Macros>(&3001)
-        .unwrap()
-        .entries
-        .is_empty());
+    assert!(
+        world
+            .objects
+            .get_component::<Macros>(&3001)
+            .unwrap()
+            .entries
+            .is_empty()
+    );
     assert!(
         player_shortcuts(&world, 3001).is_empty(),
         "macro slot cascade-deleted"
@@ -368,12 +370,16 @@ fn from_char_restores_and_prunes_shortcuts() {
     let bundle = Player::from_char(&world.data, &chr);
     let restored: Vec<_> = bundle.shortcuts.iter().copied().collect();
     assert_eq!(restored.len(), 2, "stale ITEM shortcut pruned");
-    assert!(restored
-        .iter()
-        .any(|s| s.kind == ShortcutType::Item && s.id == 500));
-    assert!(restored
-        .iter()
-        .any(|s| s.kind == ShortcutType::Skill && s.id == 1177));
+    assert!(
+        restored
+            .iter()
+            .any(|s| s.kind == ShortcutType::Item && s.id == 500)
+    );
+    assert!(
+        restored
+            .iter()
+            .any(|s| s.kind == ShortcutType::Skill && s.id == 1177)
+    );
     assert_eq!(Player::stale_item_shortcuts(&chr), vec![(1, 0)]);
     assert_eq!(bundle.macros.entries.len(), 1);
     assert_eq!(bundle.macros.entries[0].commands[0].cmd, "/loc");

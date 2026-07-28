@@ -8,8 +8,8 @@
 //! (consumed by AI scripts only, G11). `dbSave` raid persistence
 //! (`DBSpawnManager`) is ported — see [`crate::game_loop::boss_respawn`].
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const SPAWNS_DIR: &str = "data/spawns";

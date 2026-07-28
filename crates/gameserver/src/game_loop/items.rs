@@ -7,7 +7,7 @@ use crate::data::item_data::ItemHandler;
 use crate::model::inventory::Inventory;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -419,10 +419,10 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
     add_inventory_item(world, player_oid, crystal_item, total);
     // InventoryUpdate: the destroyed item + the crystal stack (as a modify).
     let mut changes = vec![removed];
-    if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) {
-        if let Some(stack) = inv.items().iter().find(|it| it.item_id == crystal_item) {
-            changes.push(crate::model::inventory::ItemChange::Modified(*stack));
-        }
+    if let Some(inv) = world.objects.get_component::<Inventory>(&player_oid)
+        && let Some(stack) = inv.items().iter().find(|it| it.item_id == crystal_item)
+    {
+        changes.push(crate::model::inventory::ItemChange::Modified(*stack));
     }
     let packet = ew::inventory_update_changes(&world.data, &changes);
     if let Some(cs) = world.clients.get(&client_id) {
@@ -677,12 +677,11 @@ pub(crate) fn charge_shot(
     };
     let client_id = crate::game_loop::helpers::client_for_player(world, object_id);
     let send = |world: &World, msg: i16| {
-        if !auto {
-            if let Some(cid) = client_id {
-                if let Some(cs) = world.clients.get(&cid) {
-                    cs.send(server_packets::system_message_with(msg, &[]));
-                }
-            }
+        if !auto
+            && let Some(cid) = client_id
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(msg, &[]));
         }
     };
 
@@ -781,12 +780,11 @@ pub(crate) fn charge_shot(
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.charge_shot(shot_type);
     }
-    if !changes.is_empty() {
-        if let Some(cid) = client_id {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(ew::inventory_update_changes(&world.data, &changes));
-            }
-        }
+    if !changes.is_empty()
+        && let Some(cid) = client_id
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(ew::inventory_update_changes(&world.data, &changes));
     }
     send(
         world,
@@ -868,10 +866,9 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
         if let Some(p) = world
             .objects
             .get_component_mut::<crate::model::Player>(&object_id)
+            && !p.auto_shots.contains(&item_id)
         {
-            if !p.auto_shots.contains(&item_id) {
-                p.auto_shots.push(item_id);
-            }
+            p.auto_shots.push(item_id);
         }
         send(
             world,
@@ -914,10 +911,10 @@ pub(crate) fn handle_request_auto_soul_shot(world: &mut World, client_id: u32, e
             return;
         }
         // Activate.
-        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
-            if !p.auto_shots.contains(&item_id) {
-                p.auto_shots.push(item_id);
-            }
+        if let Some(p) = world.objects.get_component_mut::<Player>(&object_id)
+            && !p.auto_shots.contains(&item_id)
+        {
+            p.auto_shots.push(item_id);
         }
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::ex_auto_soul_shot(item_id, true, shot_type));
@@ -1029,12 +1026,11 @@ pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: 
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.charge_shot(ShotType::FishSoulshots);
     }
-    if !changes.is_empty() {
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(ew::inventory_update_changes(&world.data, &changes));
-            }
-        }
+    if !changes.is_empty()
+        && let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(ew::inventory_update_changes(&world.data, &changes));
     }
     true
 }
@@ -1188,9 +1184,9 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
         check_skill_reuse, resolve_cast_target, set_skill_reuse, start_casting,
     };
     use crate::game_loop::skills::effects::apply_skill_effects;
+    use crate::model::Player;
     use crate::model::components::{Casting, Position, TargetRef};
     use crate::model::skill::TargetType;
-    use crate::model::Player;
 
     let (item_skills, immediate_effect, ex_immediate_effect, default_action) = {
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {

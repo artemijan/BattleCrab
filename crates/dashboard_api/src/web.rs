@@ -4,7 +4,7 @@
 //! reads them off disk, so `cargo run` works without a built frontend and
 //! `bun --hot` can own the reload loop (PLAN_DASHBOARD.md §9).
 
-use axum::http::{header, StatusCode, Uri};
+use axum::http::{StatusCode, Uri, header};
 use axum::response::{IntoResponse, Response};
 use rust_embed::RustEmbed;
 

@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::{BytesStart, Event};
 use quick_xml::Reader;
+use quick_xml::events::{BytesStart, Event};
 use tracing::info;
 
 const INSTANCE_DIR: &str = "data/instances";
@@ -76,10 +76,10 @@ impl InstanceData {
         let mut files = Vec::new();
         collect_xml(&format!("{root}{INSTANCE_DIR}"), &mut files);
         for path in files {
-            if let Ok(content) = std::fs::read_to_string(&path) {
-                if let Some(t) = parse(&content) {
-                    by_id.insert(t.id, t);
-                }
+            if let Ok(content) = std::fs::read_to_string(&path)
+                && let Some(t) = parse(&content)
+            {
+                by_id.insert(t.id, t);
             }
         }
         info!("InstanceData: Loaded {} instance templates.", by_id.len());

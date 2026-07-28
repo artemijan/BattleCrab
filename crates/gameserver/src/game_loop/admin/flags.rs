@@ -2,8 +2,8 @@
 //! in [`AdminFlags`](crate::model::components::AdminFlags) on the GM or the
 //! targeted player.
 
-use crate::model::components::AdminFlags;
 use crate::model::Player;
+use crate::model::components::AdminFlags;
 use crate::network::server_packets;
 use crate::world::World;
 

@@ -19,7 +19,7 @@ use crate::model::movement::{self, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::network::server_packets;
 use crate::session::ClientSession;
-use crate::world::{regions_adjacent, World};
+use crate::world::{World, regions_adjacent};
 
 use super::combat::{self, ATTACK_TIMEOUT_TICKS};
 use super::helpers::{broadcast_near_region_in, instance_of};
@@ -46,15 +46,14 @@ pub(crate) fn npc_ai_tick(world: &mut World) {
     // Active-region set: every cell adjacent to a player-occupied cell.
     let mut active: HashSet<(i32, i32)> = HashSet::new();
     for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            if let Some(r) = world
+        if let ClientSession::InGame(s) = cs
+            && let Some(r) = world
                 .objects
                 .get_component::<RegionCell>(&s.player_object_id())
-            {
-                for dx in -1..=1 {
-                    for dy in -1..=1 {
-                        active.insert((r.0 .0 + dx, r.0 .1 + dy));
-                    }
+        {
+            for dx in -1..=1 {
+                for dy in -1..=1 {
+                    active.insert((r.0.0 + dx, r.0.1 + dy));
                 }
             }
         }
@@ -313,10 +312,10 @@ fn controllable_think(world: &mut World, npc_oid: i32, group_id: i32) {
             }
         }
         MobGroupState::Return(commander) => {
-            if let Some((cx, cy, cz)) = position_of(world, commander) {
-                if world.objects.get_component::<Movement>(&npc_oid).is_none() {
-                    move_npc_to(world, npc_oid, cx, cy, cz);
-                }
+            if let Some((cx, cy, cz)) = position_of(world, commander)
+                && world.objects.get_component::<Movement>(&npc_oid).is_none()
+            {
+                move_npc_to(world, npc_oid, cx, cy, cz);
             }
         }
     }
@@ -572,43 +571,43 @@ fn think_active(world: &mut World, npc_oid: i32) {
     // chase machinery below. `aggro_range` comes from the template (1000 for the
     // stock guards); the enemy filter (anyone but a defender of this castle) is
     // `attackable_siege_guard`.
-    if aggro_range > 0 {
-        if let Some(_castle) = super::siege::active_siege_guard_castle(world, npc_oid) {
-            let (nx, ny, nz) = {
-                let pos = world
-                    .objects
-                    .get_component::<Position>(&npc_oid)
-                    .expect("caller checked");
-                (pos.x, pos.y, pos.z)
-            };
-            let mut in_range: Vec<i32> = Vec::new();
-            {
-                let crate::world::World { objects, geo, .. } = &mut *world;
-                objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
-                    |(p, pos, r, v)| {
-                        if !v.dead
-                            && regions_adjacent(region, r.0)
-                            && (((pos.x - nx) as f64).powi(2)
-                                + ((pos.y - ny) as f64).powi(2)
-                                + ((pos.z - nz) as f64).powi(2))
-                            .sqrt()
-                                <= aggro_range as f64
-                            && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
-                        {
-                            in_range.push(p.object_id);
-                        }
-                    },
-                );
-            }
-            // Keep only actual enemies (attackers / non-defenders).
-            in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
-            in_range.retain(|&pid| notices_target(world, npc_oid, pid));
-            if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
-                for player_oid in in_range {
-                    let entry = aggro.0.entry(player_oid).or_default();
-                    if entry.hate == 0.0 {
-                        entry.hate = 1.0;
+    if aggro_range > 0
+        && let Some(_castle) = super::siege::active_siege_guard_castle(world, npc_oid)
+    {
+        let (nx, ny, nz) = {
+            let pos = world
+                .objects
+                .get_component::<Position>(&npc_oid)
+                .expect("caller checked");
+            (pos.x, pos.y, pos.z)
+        };
+        let mut in_range: Vec<i32> = Vec::new();
+        {
+            let crate::world::World { objects, geo, .. } = &mut *world;
+            objects.for_each_mut::<(&crate::model::Player, &Position, &RegionCell, &Vitals)>(
+                |(p, pos, r, v)| {
+                    if !v.dead
+                        && regions_adjacent(region, r.0)
+                        && (((pos.x - nx) as f64).powi(2)
+                            + ((pos.y - ny) as f64).powi(2)
+                            + ((pos.z - nz) as f64).powi(2))
+                        .sqrt()
+                            <= aggro_range as f64
+                        && geo.can_see_target(nx, ny, nz, pos.x, pos.y, pos.z)
+                    {
+                        in_range.push(p.object_id);
                     }
+                },
+            );
+        }
+        // Keep only actual enemies (attackers / non-defenders).
+        in_range.retain(|&pid| super::siege::attackable_siege_guard(world, npc_oid, pid));
+        in_range.retain(|&pid| notices_target(world, npc_oid, pid));
+        if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+            for player_oid in in_range {
+                let entry = aggro.0.entry(player_oid).or_default();
+                if entry.hate == 0.0 {
+                    entry.hate = 1.0;
                 }
             }
         }
@@ -990,11 +989,9 @@ fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
     if dist <= range {
         return false;
     }
-    if restore {
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
-            v.cur_hp = v.max_hp as f64;
-            v.cur_mp = v.max_mp as f64;
-        }
+    if restore && let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
+        v.cur_hp = v.max_hp as f64;
+        v.cur_mp = v.max_mp as f64;
     }
     if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
         aggro.0.clear();

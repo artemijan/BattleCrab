@@ -10,9 +10,9 @@
 //! `net::build_save_data`, the clan one via [`persist_clan_warehouse`] on every
 //! change.
 
+use crate::model::Player;
 use crate::model::components::ActiveWarehouse;
 use crate::model::inventory::{Freight, Inventory, ItemInstance, Warehouse};
-use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;

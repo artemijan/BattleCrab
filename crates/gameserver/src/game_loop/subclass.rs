@@ -134,10 +134,10 @@ pub(crate) fn set_active_class(world: &mut World, player_oid: i32, class_index: 
             exp: cur_exp,
             sp: cur_sp,
         };
-        if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
-            if let Some(slot) = p.subclasses.iter_mut().find(|s| s.class_index == cur_index) {
-                *slot = banked;
-            }
+        if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid)
+            && let Some(slot) = p.subclasses.iter_mut().find(|s| s.class_index == cur_index)
+        {
+            *slot = banked;
         }
         persist_slot(world, player_oid, banked);
     }
@@ -614,8 +614,8 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         }
     }
     // Persist the slot's new class so the change survives a restart.
-    if index != 0 {
-        if let Some(slot) = world
+    if index != 0
+        && let Some(slot) = world
             .objects
             .get_component::<Player>(&player_oid)
             .and_then(|p| {
@@ -624,9 +624,8 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
                     .find(|s| s.class_index == index)
                     .copied()
             })
-        {
-            persist_slot(world, player_oid, slot);
-        }
+    {
+        persist_slot(world, player_oid, slot);
     }
 
     // `rewardSkills()` + the stat recompute + status/UserInfo/SkillList refresh.
@@ -638,24 +637,22 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
         .objects
         .get_component::<Position>(&player_oid)
         .copied()
-    {
-        if let Some(region) = world
+        && let Some(region) = world
             .objects
             .get_component::<RegionCell>(&player_oid)
             .map(|r| r.0)
-        {
-            super::helpers::broadcast_near_region(
-                world,
-                region,
-                &crate::network::server_packets::magic_skill_use_raw(
-                    (player_oid, pos.x, pos.y, pos.z),
-                    (player_oid, pos.x, pos.y, pos.z),
-                    CLASS_CHANGE_EFFECT_SKILL,
-                    1,
-                    0,
-                ),
-            );
-        }
+    {
+        super::helpers::broadcast_near_region(
+            world,
+            region,
+            &crate::network::server_packets::magic_skill_use_raw(
+                (player_oid, pos.x, pos.y, pos.z),
+                (player_oid, pos.x, pos.y, pos.z),
+                CLASS_CHANGE_EFFECT_SKILL,
+                1,
+                0,
+            ),
+        );
     }
     true
 }

@@ -519,14 +519,16 @@ async fn shortcuts_and_macros_persist() {
                 item_sc.id, item_oid,
                 "ITEM shortcut resolved to the created object id"
             );
-            assert!(c
-                .shortcuts
-                .iter()
-                .any(|s| s.kind == ShortcutType::Skill && s.id == 1177 && s.level == 1));
-            assert!(c
-                .shortcuts
-                .iter()
-                .any(|s| s.kind == ShortcutType::Macro && s.id == 10000));
+            assert!(
+                c.shortcuts
+                    .iter()
+                    .any(|s| s.kind == ShortcutType::Skill && s.id == 1177 && s.level == 1)
+            );
+            assert!(
+                c.shortcuts
+                    .iter()
+                    .any(|s| s.kind == ShortcutType::Macro && s.id == 10000)
+            );
             assert_eq!(c.macros.len(), 1);
             assert_eq!(
                 c.macros[0].commands, preset.commands,
@@ -741,7 +743,7 @@ async fn friendships_persist() {
 /// orphan-var filter (vars without a `<state>` row don't load).
 #[tokio::test]
 async fn quest_states_persist() {
-    use gameserver::model::quest::{state, QuestState};
+    use gameserver::model::quest::{QuestState, state};
 
     let dir = std::env::temp_dir().join(format!("l2r_g11_{}", std::process::id()));
     std::fs::create_dir_all(&dir).unwrap();

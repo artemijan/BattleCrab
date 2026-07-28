@@ -10,8 +10,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use crate::model::stats::BaseStat;
@@ -208,12 +208,11 @@ impl HennaData {
                 }
                 // `<classId>N</classId>`: the text child is the allowed class id.
                 Event::Text(t) => {
-                    if let Some(h) = cur.as_mut() {
-                        if let Ok(s) = t.unescape() {
-                            if let Ok(id) = s.trim().parse::<i32>() {
-                                h.wear_classes.push(id);
-                            }
-                        }
+                    if let Some(h) = cur.as_mut()
+                        && let Ok(s) = t.unescape()
+                        && let Ok(id) = s.trim().parse::<i32>()
+                    {
+                        h.wear_classes.push(id);
                     }
                 }
                 Event::End(e) if e.name().as_ref() == b"henna" => {

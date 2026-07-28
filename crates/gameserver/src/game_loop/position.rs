@@ -2,12 +2,12 @@
 //! `ValidatePosition`) and the path-worker reply handler (`handle_path_result`).
 
 use crate::geo::worker::{PathEvent, PathRequest};
+use crate::model::Player;
 use crate::model::components::{
     AttackState, Casting, ClientPos, Intent, Movement, PathWait, Position, QueuedAction, Speeds,
     Vitals,
 };
 use crate::model::movement::GeoPath;
-use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::session::ClientSession;
@@ -234,15 +234,14 @@ pub(crate) fn intention_move_to(
         // (Java `isOnGeodataPath()` → same gtx/gty return / index = -1).
         let gtx = world.geo.get_geo_x(original_x);
         let gty = world.geo.get_geo_y(original_y);
-        if let Some(mv) = world.objects.get_component_mut::<Movement>(&object_id) {
-            if let Some(gp) = &mv.0.geo_path {
-                if gp.has_next() {
-                    if gp.gtx == gtx && gp.gty == gty {
-                        return;
-                    }
-                    mv.0.geo_path = None;
-                }
+        if let Some(mv) = world.objects.get_component_mut::<Movement>(&object_id)
+            && let Some(gp) = &mv.0.geo_path
+            && gp.has_next()
+        {
+            if gp.gtx == gtx && gp.gty == gty {
+                return;
             }
+            mv.0.geo_path = None;
         }
     }
 
@@ -332,10 +331,8 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
     let points = match path {
         Some(p) if p.len() > 1 => p,
         _ => {
-            if is_player {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::action_failed());
-                }
+            if is_player && let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
             }
             return;
         }
@@ -347,10 +344,8 @@ pub(crate) fn handle_path_result(world: &mut World, ev: PathEvent) {
         .get_component::<Vitals>(&object_id)
         .is_some_and(|v| v.dead);
     if world.objects.has_component::<Casting>(&object_id) || is_dead {
-        if is_player {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
+        if is_player && let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
         }
         return;
     }
@@ -440,10 +435,10 @@ pub(crate) fn start_move(
     );
     // The mover's own copy (Java's `includeSelf` override on `Player`); an NPC
     // has no client, and `broadcast_to_others` covers the onlookers either way.
-    if world.objects.has_component::<Player>(&object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(move_pkt.clone());
-        }
+    if world.objects.has_component::<Player>(&object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(move_pkt.clone());
     }
     broadcast_to_others(world, object_id, &move_pkt);
 }

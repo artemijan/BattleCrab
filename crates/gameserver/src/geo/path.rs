@@ -447,7 +447,7 @@ pub fn find_path(
 mod tests {
     use super::*;
     use crate::geo::region::{REGION_CELLS_X, REGION_CELLS_Y};
-    use crate::geo::{synthetic_region, NSWE_ALL};
+    use crate::geo::{NSWE_ALL, synthetic_region};
 
     const BASE_GEO_X: i32 = 11 * REGION_CELLS_X;
     const BASE_GEO_Y: i32 = 10 * REGION_CELLS_Y;

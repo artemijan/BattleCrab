@@ -2,8 +2,8 @@
 //! ("RSA/ECB/nopadding") decrypt used by `RequestAuthLogin`.
 
 use num_bigint_dig::BigUint;
-use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::RsaPrivateKey;
+use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 
 pub struct ScrambledKeyPair {
     n: BigUint,

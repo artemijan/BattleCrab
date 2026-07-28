@@ -12,7 +12,7 @@ pub mod packets;
 
 use std::time::Duration;
 
-use commons::crypt::{gs_decrypt, gs_encrypt, NewCrypt, RsaPublicModulus, GS_STATIC_BLOWFISH_KEY};
+use commons::crypt::{GS_STATIC_BLOWFISH_KEY, NewCrypt, RsaPublicModulus, gs_decrypt, gs_encrypt};
 use commons::network::{read_frame, write_frame};
 use commons::util::generate_hex;
 use tokio::io::AsyncWrite;

@@ -240,8 +240,8 @@ fn build_pet_info(
         PetInfoKind::Default => 1,
     });
     w.write_i32(-1); // NPCString id
-                     // A servitor sends its name only when the template is server-side named;
-                     // otherwise the client uses the template's own.
+    // A servitor sends its name only when the template is server-side named;
+    // otherwise the client uses the template's own.
     w.write_string(if template.server_side_name {
         &template.name
     } else {
@@ -624,7 +624,7 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
 /// itself while the servitor lives, which is Java's `_summonLifeTask` cancelled
 /// on death/despawn.
 pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
-    use crate::network::server_packets::{sm_ids, SmParam};
+    use crate::network::server_packets::{SmParam, sm_ids};
     let Some(link) = world
         .objects
         .get_component::<ServitorOf>(&servitor_oid)
@@ -665,13 +665,13 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
                 .get_component_mut::<Inventory>(&owner)
                 .map(|inv| inv.remove_item(link.consume_item_id, link.consume_item_count))
                 .unwrap_or_default();
-            if let Some(cid) = client_for_player(world, owner) {
-                if let Some(cs) = world.clients.get(&cid) {
-                    cs.send(crate::network::enter_world::inventory_update_changes(
-                        &world.data,
-                        &changes,
-                    ));
-                }
+            if let Some(cid) = client_for_player(world, owner)
+                && let Some(cs) = world.clients.get(&cid)
+            {
+                cs.send(crate::network::enter_world::inventory_update_changes(
+                    &world.data,
+                    &changes,
+                ));
             }
             notify_owner(
                 world,
@@ -697,13 +697,13 @@ pub(crate) fn handle_life_tick(world: &mut World, servitor_oid: i32) {
     // 3. The remaining-time bar.
     if link.life_time_secs > 0 {
         let remaining = (link.expires_at_tick.saturating_sub(world.tick) / TICKS_PER_SECOND) as i32;
-        if let Some(cid) = client_for_player(world, owner) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::set_summon_remain_time(
-                    link.life_time_secs,
-                    remaining,
-                ));
-            }
+        if let Some(cid) = client_for_player(world, owner)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::set_summon_remain_time(
+                link.life_time_secs,
+                remaining,
+            ));
         }
     }
 
@@ -889,13 +889,13 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
     {
-        if let Some(cid) = client_for_player(world, owner_oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::YOU_ALREADY_HAVE_A_PET,
-                    &[],
-                ));
-            }
+        if let Some(cid) = client_for_player(world, owner_oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_ALREADY_HAVE_A_PET,
+                &[],
+            ));
         }
         return None;
     }
@@ -1027,11 +1027,11 @@ pub(crate) fn summon_pet(world: &mut World, owner_oid: i32) -> Option<i32> {
     // Java's restore marks a pet stored with `curHp < 1` as dead
     // (`setDead(true)` + `stopHpMpRegeneration()`) and summons the corpse.
     // Reachable now that pets can die (slice 14).
-    if saved.as_ref().is_some_and(|r| r.cur_hp < 1.0) {
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid) {
-            v.dead = true;
-            v.cur_hp = 0.0;
-        }
+    if saved.as_ref().is_some_and(|r| r.cur_hp < 1.0)
+        && let Some(v) = world.objects.get_component_mut::<Vitals>(&pet_oid)
+    {
+        v.dead = true;
+        v.cur_hp = 0.0;
     }
     set_summon_link(world, owner_oid, None, Some(pet_oid), true);
     // Java `Pet.spawnMe` → `startFeed()`: the food clock runs from summon.
@@ -1107,7 +1107,7 @@ pub(crate) fn apply_feed(world: &mut World, pet_oid: i32, normal: i32) {
 /// Java `Pet.FeedTask.run()` — burn one interval's food, then let the pet eat
 /// from its own inventory if it's hungry.
 pub(crate) fn handle_feed_tick(world: &mut World, pet_oid: i32) {
-    use crate::network::server_packets::{sm_ids, SmParam};
+    use crate::network::server_packets::{SmParam, sm_ids};
 
     // "dead or gone → the chain ends", the same contract the life tick uses.
     let Some(pet) = world
@@ -1545,7 +1545,7 @@ fn within(world: &World, a: i32, b: i32, range: f64) -> bool {
 /// which is a real link between the feeding loop and progression rather than
 /// an incidental check.
 pub(crate) fn add_pet_exp(world: &mut World, owner_oid: i32, exp: f64, sp: f64) {
-    use crate::network::server_packets::{sm_ids, SmParam};
+    use crate::network::server_packets::{SmParam, sm_ids};
     let Some(pet_oid) = pet_of(world, owner_oid) else {
         return;
     };
@@ -1750,21 +1750,20 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
         .objects
         .get_component::<ServitorOf>(&pet_oid)
         .map(|s| s.owner_object_id);
-    if let Some(owner) = owner {
-        if let Some(pi) = world
+    if let Some(owner) = owner
+        && let Some(pi) = world
             .objects
             .get_component::<crate::model::inventory::PetInventory>(&owner)
-        {
-            for item in pi.0.equipped_items() {
-                let Some(stats) = world.data.item_data.item_stats(item.item_id) else {
-                    continue;
-                };
-                for &(stat, val) in &stats.bonuses {
-                    match stat {
-                        crate::model::stats::Stat::PhysicalDefence => combat.p_def += val,
-                        crate::model::stats::Stat::MagicalDefence => combat.m_def += val,
-                        _ => {}
-                    }
+    {
+        for item in pi.0.equipped_items() {
+            let Some(stats) = world.data.item_data.item_stats(item.item_id) else {
+                continue;
+            };
+            for &(stat, val) in &stats.bonuses {
+                match stat {
+                    crate::model::stats::Stat::PhysicalDefence => combat.p_def += val,
+                    crate::model::stats::Stat::MagicalDefence => combat.m_def += val,
+                    _ => {}
                 }
             }
         }
@@ -2038,13 +2037,12 @@ pub(crate) fn recharge_shots(world: &mut World, summon_oid: i32, physical: bool)
             .unwrap_or(0);
         if have < per_hit {
             // Java drops the toggle when the item runs out entirely.
-            if have == 0 {
-                if let Some(p) = world
+            if have == 0
+                && let Some(p) = world
                     .objects
                     .get_component_mut::<crate::model::Player>(&owner)
-                {
-                    p.auto_shots.retain(|&id| id != item_id);
-                }
+            {
+                p.auto_shots.retain(|&id| id != item_id);
             }
             continue;
         }

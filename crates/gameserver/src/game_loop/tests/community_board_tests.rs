@@ -4,7 +4,7 @@
 
 use super::*;
 
-use crate::config::community_board::{scan_available_teleports, CommunityBoardConfig};
+use crate::config::community_board::{CommunityBoardConfig, scan_available_teleports};
 use crate::game_loop::community_board::handle_parse_command;
 use crate::model::components::{Buffs, Position, Vitals};
 use crate::model::skill::ActiveBuff;
@@ -564,8 +564,8 @@ fn delete_favorite_removes_and_writes_through() {
 
 // --- Merchant (multisell) ---------------------------------------------------
 
-use crate::data::item_data::ADENA_ID;
 use crate::data::MultisellData;
+use crate::data::item_data::ADENA_ID;
 use crate::game_loop::multisell::handle_multi_sell_choose;
 use crate::model::components::ActiveMultisell;
 use crate::model::inventory::Inventory;

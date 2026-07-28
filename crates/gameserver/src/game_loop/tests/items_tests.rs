@@ -1710,9 +1710,11 @@ fn buy_bypass_opens_buy_and_sell_tabs() {
         &bypass_body(&format!("npc_{}_Buy 3", NPC_OID + 1)),
     );
     let pkts = drain(&mut rx);
-    assert!(!pkts
-        .iter()
-        .any(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST)));
+    assert!(
+        !pkts
+            .iter()
+            .any(|p| is_ex(p, crate::network::trade::EX_BUY_SELL_LIST))
+    );
 }
 
 /// Using a soulshot with a matching-grade weapon charges the shot, consumes
@@ -1836,7 +1838,7 @@ fn soulshot_consumed_on_hit_doubles_melee_damage() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -1894,7 +1896,7 @@ fn spiritshot_doubles_magic_damage_and_is_consumed() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -1964,7 +1966,7 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2089,7 +2091,7 @@ fn auto_soulshot_toggle_activates_and_recharges() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2389,7 +2391,7 @@ fn player_ground_item_persists_when_destroy_player_dropped_off() {
 /// independent of the player-drop flag (Java `Npc.dropItem`).
 #[test]
 fn npc_ground_item_decays_regardless_of_player_flag() {
-    use crate::game_loop::ground_items::{spawn_ground_item, DropSource};
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
     let (mut world, ..) = admin_world();
     world.cfg.general.autodestroy_item_after = 600;
     world.cfg.general.destroy_dropped_player_item = false;

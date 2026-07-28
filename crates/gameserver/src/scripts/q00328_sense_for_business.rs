@@ -75,10 +75,10 @@ impl QuestScript for Q00328SenseForBusiness {
             } else if chance < l {
                 ctx.give_items(LENS, 1);
             }
-        } else if let Some(g) = basilisk_chance(ctx.npc_id) {
-            if chance < g {
-                ctx.give_items(GIZZARD, 1);
-            }
+        } else if let Some(g) = basilisk_chance(ctx.npc_id)
+            && chance < g
+        {
+            ctx.give_items(GIZZARD, 1);
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

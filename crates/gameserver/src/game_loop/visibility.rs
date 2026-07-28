@@ -6,11 +6,11 @@
 //! leaving it exchanges `DeleteObject`, and every broadcast helper is scoped
 //! by the same rule (`helpers::broadcast_to_others`).
 
-use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::model::Player;
+use crate::model::components::{Movement, Position, RegionCell, TargetRef};
 use crate::network::server_packets;
 use crate::session::ClientSession;
-use crate::world::{region_of, regions_adjacent, World};
+use crate::world::{World, region_of, regions_adjacent};
 
 use super::helpers::client_for_player;
 
@@ -419,10 +419,9 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             };
             if !regions_adjacent(old, r.0)
                 && super::helpers::instance_of(world, item_id) == my_instance
+                && let Some(view) = super::ground_items::ground_item_view(world, item_id)
             {
-                if let Some(view) = super::ground_items::ground_item_view(world, item_id) {
-                    cs.send(server_packets::spawn_item(&view));
-                }
+                cs.send(server_packets::spawn_item(&view));
             }
         }
         for item_id in world.ground_items_visible_from(old) {
@@ -614,10 +613,9 @@ pub(crate) fn movement_tick(world: &mut World) {
         if let Some(ai) = world
             .objects
             .get_component_mut::<crate::model::npc::NpcAi>(id)
+            && ai.intention == crate::model::npc::NpcIntention::MoveTo
         {
-            if ai.intention == crate::model::npc::NpcIntention::MoveTo {
-                ai.intention = crate::model::npc::NpcIntention::Active;
-            }
+            ai.intention = crate::model::npc::NpcIntention::Active;
         }
     }
     // Route advances need a `MoveToLocation` for the new segment — unlike

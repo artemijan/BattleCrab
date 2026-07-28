@@ -27,14 +27,14 @@
 use commons::network::PacketReader;
 use tracing::warn;
 
+use crate::model::Player;
 use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::components::LastFolkNpc;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
 use crate::model::npc::Npc;
-use crate::model::Player;
 use crate::network::server_packets::{
-    self, sm_ids, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry,
-    SeedSettingEntry, SmParam,
+    self, CropInfoEntry, CropSettingEntry, ManorDefaultEntry, SeedInfoEntry, SeedSettingEntry,
+    SmParam, sm_ids,
 };
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -734,10 +734,10 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     for &(item_id, cnt) in &items {
         // A concurrent overdraw can't happen on the single game thread, but the
         // `decrease_amount` guard mirrors Java's per-line refund-on-failure.
-        if world.manor.decrease_seed_amount(manor_id, item_id, cnt) {
-            if let Some(oids) = super::items::add_inventory_item(world, player_oid, item_id, cnt) {
-                added.extend(oids);
-            }
+        if world.manor.decrease_seed_amount(manor_id, item_id, cnt)
+            && let Some(oids) = super::items::add_inventory_item(world, player_oid, item_id, cnt)
+        {
+            added.extend(oids);
         }
     }
     // TODO(manor): Java credits the castle treasury with the sale
@@ -904,30 +904,30 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
     }
 
     // Reflect the sold crops and the received rewards.
-    if !crop_changes.is_empty() {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::inventory_update_changes(
-                &world.data,
-                &crop_changes,
-            ));
-        }
+    if !crop_changes.is_empty()
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(crate::network::enter_world::inventory_update_changes(
+            &world.data,
+            &crop_changes,
+        ));
     }
-    if !reward_oids.is_empty() {
-        if let (Some(inventory), Some(cs)) = (
+    if !reward_oids.is_empty()
+        && let (Some(inventory), Some(cs)) = (
             world.objects.get_component::<Inventory>(&player_oid),
             world.clients.get(&client_id),
-        ) {
-            cs.send(crate::network::enter_world::inventory_update(
-                inventory,
-                &world.data,
-                &reward_oids,
-            ));
-            cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-                player_oid,
-                inventory,
-                &world.data,
-            ));
-        }
+        )
+    {
+        cs.send(crate::network::enter_world::inventory_update(
+            inventory,
+            &world.data,
+            &reward_oids,
+        ));
+        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
+            player_oid,
+            inventory,
+            &world.data,
+        ));
     }
 }
 

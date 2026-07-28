@@ -95,11 +95,11 @@ impl QuestScript for Q00606BattleAgainstVarkaSilenos {
         if !ctx.has_qs() || !ctx.is_cond(1) {
             return;
         }
-        if let Some(chance) = mane_chance(ctx.npc_id) {
-            if ctx.roll(1000) < chance {
-                ctx.give_items(MANE, 1);
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+        if let Some(chance) = mane_chance(ctx.npc_id)
+            && ctx.roll(1000) < chance
+        {
+            ctx.give_items(MANE, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
         }
     }
 

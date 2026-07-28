@@ -7,12 +7,12 @@ mod common;
 
 use common::{login, start_server, test_config};
 use commons::crypt::NewCrypt;
-use commons::network::{read_frame, write_frame, PacketReader, PacketWriter};
-use loginserver::gs_link::packets::{gs_decrypt, gs_encrypt, GS_STATIC_BLOWFISH_KEY};
+use commons::network::{PacketReader, PacketWriter, read_frame, write_frame};
+use loginserver::gs_link::packets::{GS_STATIC_BLOWFISH_KEY, gs_decrypt, gs_encrypt};
 use loginserver::gs_table::hexid_from_string;
 use num_bigint_dig::BigUint;
-use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::net::TcpStream;
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 
 /// The stock hexid seeded in the test `gameservers` table (same as dist).
 const HEXID: &str = "-2ad66b3f483c22be097019f55c8abdf0";

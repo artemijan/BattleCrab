@@ -30,11 +30,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
-use super::item_data::{slot_mask, CrystalType, ItemTemplate};
+use super::item_data::{CrystalType, ItemTemplate, slot_mask};
 
 pub const GROUPS_FILE: &str = "data/EnchantItemGroups.xml";
 pub const ITEMS_FILE: &str = "data/EnchantItemData.xml";
@@ -373,10 +373,9 @@ impl EnchantData {
                         if let (Some(range), Some(chance)) = (
                             attr(&e, "enchant"),
                             attr(&e, "chance").and_then(|s| s.parse::<f64>().ok()),
-                        ) {
-                            if let Some((min, max)) = parse_range(&range) {
-                                cur_group.chances.push(RangeChance { min, max, chance });
-                            }
+                        ) && let Some((min, max)) = parse_range(&range)
+                        {
+                            cur_group.chances.push(RangeChance { min, max, chance });
                         }
                     }
                     b"enchantScrollGroup" => {

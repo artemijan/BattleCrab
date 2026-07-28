@@ -66,10 +66,8 @@ pub(crate) fn handle_request_short_cut_reg(world: &mut World, client_id: u32, bo
             store = false;
         }
     }
-    if store {
-        if let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) {
-            shortcuts.put(sc);
-        }
+    if store && let Some(shortcuts) = world.objects.get_component_mut::<Shortcuts>(&object_id) {
+        shortcuts.put(sc);
     }
 
     send(world, client_id, server_packets::shortcut_register(&sc));

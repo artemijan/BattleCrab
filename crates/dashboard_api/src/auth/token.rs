@@ -9,10 +9,10 @@
 //! verified by construction, replacing an `email_verified` column we have
 //! nowhere to store.
 
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 
-use super::{now_unix, SigningKey};
+use super::{SigningKey, now_unix};
 
 pub const RESET_TTL_SECS: i64 = 3600;
 pub const VERIFY_EMAIL_TTL_SECS: i64 = 24 * 3600;

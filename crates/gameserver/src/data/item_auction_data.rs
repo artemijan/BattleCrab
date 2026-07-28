@@ -5,8 +5,8 @@
 //! commented out, so it loads empty; the engine exists so an operator can add
 //! auctions (`AltItemAuctionEnabled` is already `True`).
 
-use quick_xml::events::{BytesStart, Event};
 use quick_xml::Reader;
+use quick_xml::events::{BytesStart, Event};
 use tracing::info;
 
 pub const ITEM_AUCTIONS_FILE: &str = "data/ItemAuctions.xml";
@@ -114,20 +114,20 @@ fn parse(content: &str) -> Vec<AuctionInstanceCfg> {
                 }
                 b"extra" => {
                     // `<extra enchant_level=…>` belongs to the last-parsed item.
-                    if let Some(lvl) = attr_i32(&e, b"enchant_level") {
-                        if let Some(item) = cur.as_mut().and_then(|c| c.items.last_mut()) {
-                            item.enchant_level = lvl;
-                        }
+                    if let Some(lvl) = attr_i32(&e, b"enchant_level")
+                        && let Some(item) = cur.as_mut().and_then(|c| c.items.last_mut())
+                    {
+                        item.enchant_level = lvl;
                     }
                 }
                 _ => {}
             },
             Ok(Event::End(e)) if e.name().as_ref() == b"instance" => {
                 // Java drops an instance with no items ("No items defined").
-                if let Some(cfg) = cur.take() {
-                    if !cfg.items.is_empty() {
-                        out.push(cfg);
-                    }
+                if let Some(cfg) = cur.take()
+                    && !cfg.items.is_empty()
+                {
+                    out.push(cfg);
                 }
             }
             Ok(Event::Eof) => break,

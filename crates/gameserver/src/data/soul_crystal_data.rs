@@ -8,8 +8,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 const CRYSTAL_FILE: &str = "data/LevelUpCrystalData.xml";

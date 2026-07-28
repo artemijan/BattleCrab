@@ -6,11 +6,11 @@
 //! reduce to karma (`Player.reputation`) + the runtime flag. PVP-zone (arena)
 //! exemptions land with Phase 2, when those zones are loaded.
 
-use crate::model::components::{PvpState, RegionCell, ZoneFlags};
 use crate::model::Player;
+use crate::model::components::{PvpState, RegionCell, ZoneFlags};
 use crate::network::server_packets;
 use crate::session::ClientSession;
-use crate::world::{regions_adjacent, World};
+use crate::world::{World, regions_adjacent};
 
 use super::helpers::{broadcast_including_self, client_for_player};
 

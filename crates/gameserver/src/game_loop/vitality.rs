@@ -22,7 +22,7 @@
 //! vitality no longer only ever drains.
 
 use crate::model::components::PartyRef;
-use crate::model::{Player, MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
+use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::network::server_packets::{self, sm_ids};
 use crate::world::World;
 
@@ -233,10 +233,10 @@ pub(crate) fn kill_vitality_delta(
 // ---------------------------------------------------------------------------
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 

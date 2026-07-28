@@ -13,7 +13,7 @@
 use bevy_ecs::component::Component;
 
 use crate::model::components::{Position, RegionCell};
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 /// The door residual core: identity + task bookkeeping. Open state is *not*
 /// here — the `geo::doors::DoorGrid` atomic is the single source of truth

@@ -22,8 +22,8 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const SKILL_TREES_DIR: &str = "data/skillTrees";
@@ -413,10 +413,12 @@ fn parse_tree(
                 is_class_tree = attr_str(&e, b"type").as_deref() == Some("classSkillTree");
                 current_class = attr_i32(&e, b"classId");
                 // Java `_parentClassMap`: record a real, distinct parent.
-                if let (Some(cid), Some(parent)) = (current_class, attr_i32(&e, b"parentClassId")) {
-                    if cid > -1 && parent > -1 && parent != cid {
-                        parents.entry(cid).or_insert(parent);
-                    }
+                if let (Some(cid), Some(parent)) = (current_class, attr_i32(&e, b"parentClassId"))
+                    && cid > -1
+                    && parent > -1
+                    && parent != cid
+                {
+                    parents.entry(cid).or_insert(parent);
                 }
             }
             b"skill" if is_class_tree => {
@@ -596,9 +598,10 @@ mod tests {
 
         // Non-strict (Java-faithful) 9-level grace below.
         // Within the grace (skill-2 getLevel 40, level 31 ≥ 40-9): keep.
-        assert!(data
-            .delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
+                .is_empty()
+        );
 
         // Below grace for level 2 (30 < 40-9) but still fine for level 1
         // (30 ≥ 20-9): downgrade 91 to level 1.
@@ -619,14 +622,16 @@ mod tests {
             data.delevel_skill_changes(0, 19, &known(&[(EXPERTISE_SKILL_ID, 1)]), false),
             vec![(EXPERTISE_SKILL_ID, None)]
         );
-        assert!(data
-            .delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(0, 20, &known(&[(EXPERTISE_SKILL_ID, 1)]), false)
+                .is_empty()
+        );
 
         // A skill not in this class tree is left untouched.
-        assert!(data
-            .delevel_skill_changes(0, 1, &known(&[(777, 5)]), false)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(0, 1, &known(&[(777, 5)]), false)
+                .is_empty()
+        );
     }
 
     #[test]
@@ -640,9 +645,10 @@ mod tests {
         // Strict mode drops the 9-level grace: at level 31, skill 91 @ level 2
         // (getLevel 40) is out of range (31 < 40), so it downgrades to level 1
         // (31 ≥ 20) — where non-strict keeps it (31 ≥ 40 − 9).
-        assert!(data
-            .delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), false)
+                .is_empty()
+        );
         assert_eq!(
             data.delevel_skill_changes(0, 31, &known(&[(91, 2)]), true),
             vec![(91, Some(1))]
@@ -655,9 +661,10 @@ mod tests {
         );
 
         // At level 40 the skill is exactly in range → no change.
-        assert!(data
-            .delevel_skill_changes(0, 40, &known(&[(91, 2)]), true)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(0, 40, &known(&[(91, 2)]), true)
+                .is_empty()
+        );
 
         // Real HumanMystic case that non-strict keeps but strict strips: Wind
         // Strike @ level 3 has getLevel 7; a level-1 char in strict mode
@@ -671,9 +678,10 @@ mod tests {
         );
         data.insert_for_test(10, learn(1177, 2, 7, 240));
         data.insert_for_test(10, learn(1177, 3, 7, 240));
-        assert!(data
-            .delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false)
-            .is_empty());
+        assert!(
+            data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), false)
+                .is_empty()
+        );
         assert_eq!(
             data.delevel_skill_changes(10, 1, &known(&[(1177, 3)]), true),
             vec![(1177, Some(1))]

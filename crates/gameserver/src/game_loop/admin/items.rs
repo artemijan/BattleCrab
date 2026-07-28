@@ -2,8 +2,8 @@
 //! `//give_item_to_all`, `//create_coin`, the `//itemcreate`/`//enchant` HTML
 //! menus, and `AdminDestroyItems`' inventory-wipe commands.
 
-use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::Player;
+use crate::model::inventory::{Inventory, ItemChange};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -46,24 +46,24 @@ fn create_item(world: &mut World, gm_client: u32, gm_oid: i32, target: i32, id: 
         return;
     }
     // target.sendMessage(...) only when the target is another player.
-    if target != gm_oid {
-        if let Some(tcid) = super::helpers::client_for_player(world, target) {
-            send_message(
-                world,
-                tcid,
-                &format!("Admin spawned {num} {name} in your inventory."),
-            );
-        }
+    if target != gm_oid
+        && let Some(tcid) = super::helpers::client_for_player(world, target)
+    {
+        send_message(
+            world,
+            tcid,
+            &format!("Admin spawned {num} {name} in your inventory."),
+        );
     }
     // target.sendItemList(false) + ExAdenaInvenCount.
-    if let Some(tcid) = super::helpers::client_for_player(world, target) {
-        if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-            let list = crate::network::enter_world::item_list(inv, &world.data, false);
-            let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-            if let Some(cs) = world.clients.get(&tcid) {
-                cs.send(list);
-                cs.send(adena);
-            }
+    if let Some(tcid) = super::helpers::client_for_player(world, target)
+        && let Some(inv) = world.objects.get_component::<Inventory>(&target)
+    {
+        let list = crate::network::enter_world::item_list(inv, &world.data, false);
+        let adena = crate::network::enter_world::ex_adena_inven_count(inv);
+        if let Some(cs) = world.clients.get(&tcid) {
+            cs.send(list);
+            cs.send(adena);
         }
     }
     let target_name = world

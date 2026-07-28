@@ -27,10 +27,10 @@
 //! which is the same set for every `affect_range` the dist actually uses (the
 //! largest is 2000, comfortably inside a region block).
 
+use crate::model::Player;
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::model::skill::{AffectObject, AffectScope, Skill, TargetType};
-use crate::model::Player;
-use crate::world::{regions_adjacent, World};
+use crate::world::{World, regions_adjacent};
 
 /// Resolve the full set of creatures a cast lands on.
 ///
@@ -169,13 +169,12 @@ fn sweep_radius(
         if !passes_affect_object(world, caster_oid, candidate, skill.affect_object) {
             continue;
         }
-        if let Some(from) = los_from {
-            if !world
+        if let Some(from) = los_from
+            && !world
                 .geo
                 .can_see_target(from.x, from.y, from.z, pos.x, pos.y, pos.z)
-            {
-                continue;
-            }
+        {
+            continue;
         }
         out.push(candidate);
         affected += 1;

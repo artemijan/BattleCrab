@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::valakas::{AttackVerdict, ValakasCombat, DEAD, FIGHTING, VALAKAS, WAITING};
+use crate::game_loop::valakas::{AttackVerdict, DEAD, FIGHTING, VALAKAS, ValakasCombat, WAITING};
 
 const VALAKAS_OID: i32 = NPC_OID + 100;
 const PLAYER: i32 = 9990;
@@ -833,9 +833,11 @@ fn the_skill_task_stops_when_the_fight_is_over() {
     crate::game_loop::valakas::handle_skill_task(&mut world, VALAKAS_OID);
 
     assert_eq!(world.scheduler.len(), before, "the beat did not re-arm");
-    assert!(!world
-        .objects
-        .has_component::<crate::model::components::Casting>(&VALAKAS_OID));
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::Casting>(&VALAKAS_OID)
+    );
 }
 
 /// **A dead victim is dropped for a living one.** Valakas holds `_actualVictim`

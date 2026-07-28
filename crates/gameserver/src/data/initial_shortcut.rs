@@ -6,8 +6,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, ShortcutType};
@@ -141,10 +141,11 @@ impl InitialShortcutData {
                         }
                         _ => {}
                     }
-                    if self_closing && e.name().as_ref() == b"command" {
-                        if let (Some(cmd), Some((m, _))) = (cur_cmd.take(), &mut cur_macro) {
-                            m.commands.push(cmd);
-                        }
+                    if self_closing
+                        && e.name().as_ref() == b"command"
+                        && let (Some(cmd), Some((m, _))) = (cur_cmd.take(), &mut cur_macro)
+                    {
+                        m.commands.push(cmd);
                     }
                 }
                 Ok(Event::Text(t)) => {
@@ -155,10 +156,10 @@ impl InitialShortcutData {
                 Ok(Event::End(e)) => match e.name().as_ref() {
                     b"shortcuts" => cur_class = None,
                     b"macro" => {
-                        if let Some((m, enabled)) = cur_macro.take() {
-                            if enabled {
-                                self.macro_presets.insert(m.id, m);
-                            }
+                        if let Some((m, enabled)) = cur_macro.take()
+                            && enabled
+                        {
+                            self.macro_presets.insert(m.id, m);
                         }
                     }
                     b"command" => {

@@ -60,10 +60,10 @@ impl QuestScript for Q00294CovertBusiness {
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if ctx.has_qs() && ctx.is_cond(1) {
             let roll = ctx.roll(10);
-            if let Some(count) = amount(ctx.npc_id, roll) {
-                if ctx.give_item_randomly(BAT_FANG, count, REQUIRED, 1.0, true) {
-                    ctx.set_cond(2, false);
-                }
+            if let Some(count) = amount(ctx.npc_id, roll)
+                && ctx.give_item_randomly(BAT_FANG, count, REQUIRED, 1.0, true)
+            {
+                ctx.set_cond(2, false);
             }
         }
     }

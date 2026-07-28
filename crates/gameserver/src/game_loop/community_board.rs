@@ -29,9 +29,9 @@
 
 use tracing::warn;
 
+use crate::model::Player;
 use crate::model::components::Casting;
 use crate::model::inventory::Inventory;
-use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -71,7 +71,7 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
         "bbs_add_fav" => return add_favorite(world, client_id, object_id),
         t if t.starts_with("_bbsdelfav_") => return del_favorite(world, client_id, object_id, t),
         "_bbs_search_item" | "_bbs_search_drop" | "_bbs_npc_trace" => {
-            return do_drop_search(world, client_id, command)
+            return do_drop_search(world, client_id, command);
         }
         _ => {}
     }
@@ -386,17 +386,17 @@ fn run_scheme_command(
     if !is_alphanumeric(scheme_name) {
         return Err("Please use plain alphanumeric characters.".to_string());
     }
-    if command_name == "_bbs_buff_scheme_create" {
-        if let Some(schemes) = world.buffer_schemes.get(&object_id) {
-            if schemes.len() >= MAX_SCHEMES {
-                return Err("Maximum schemes amount is already reached.".to_string());
-            }
-            if schemes
-                .iter()
-                .any(|(n, _)| n.eq_ignore_ascii_case(scheme_name))
-            {
-                return Err("The scheme name already exists.".to_string());
-            }
+    if command_name == "_bbs_buff_scheme_create"
+        && let Some(schemes) = world.buffer_schemes.get(&object_id)
+    {
+        if schemes.len() >= MAX_SCHEMES {
+            return Err("Maximum schemes amount is already reached.".to_string());
+        }
+        if schemes
+            .iter()
+            .any(|(n, _)| n.eq_ignore_ascii_case(scheme_name))
+        {
+            return Err("The scheme name already exists.".to_string());
         }
     }
 
@@ -579,16 +579,15 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
     if let Some(inv) = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
+        && let Some(cs) = world.clients.get(&client_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
-            cs.send(crate::network::trade::ex_buy_sell_list_sell(
-                inv,
-                &refund_items,
-                &world.data,
-                false,
-            ));
-        }
+        cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
+        cs.send(crate::network::trade::ex_buy_sell_list_sell(
+            inv,
+            &refund_items,
+            &world.data,
+            false,
+        ));
     }
 }
 

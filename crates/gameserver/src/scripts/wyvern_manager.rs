@@ -14,9 +14,9 @@
 //! ported.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::components::Position;
 use crate::model::Player;
-use crate::network::server_packets::{sm_ids, system_message_with, SmParam};
+use crate::model::components::Position;
+use crate::network::server_packets::{SmParam, sm_ids, system_message_with};
 
 pub struct WyvernManager;
 

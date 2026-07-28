@@ -619,10 +619,11 @@ fn admin_grandboss_status_panel_and_actions() {
         .concat(),
     );
     let m = drain(&mut rx);
-    assert!(m
-        .iter()
-        .filter_map(|p| sysmsg_text(p))
-        .any(|t| t == "Usage: //grandboss_skip Id"));
+    assert!(
+        m.iter()
+            .filter_map(|p| sysmsg_text(p))
+            .any(|t| t == "Usage: //grandboss_skip Id")
+    );
 
     on_packet(
         &mut world,
@@ -1422,11 +1423,13 @@ fn admin_gm_deactivates_own_access() {
     let (mut world, ..) = admin_world();
     let mut gm_rx = ingame_player_access(&mut world, 1, 7403, 100);
     drain(&mut gm_rx);
-    assert!(world
-        .objects
-        .get_component::<Player>(&7403)
-        .unwrap()
-        .is_gm(&world.data));
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&7403)
+            .unwrap()
+            .is_gm(&world.data)
+    );
 
     on_packet(&mut world, 1, build_admin("gm"));
     let p = world.objects.get_component::<Player>(&7403).unwrap();
@@ -1489,7 +1492,7 @@ fn admin_delete_despawns_targeted_npc() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 1, 2, 3, 100, 50);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2971,12 +2974,14 @@ fn admin_setparam_fixes_and_clears_a_stat() {
 
     // An unknown stat name is rejected without touching the overrides.
     on_packet(&mut world, 1, build_admin("setparam bogus 5"));
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::StatModifiers>(&8951)
-        .unwrap()
-        .fixed
-        .is_empty());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&8951)
+            .unwrap()
+            .fixed
+            .is_empty()
+    );
 }
 
 /// `//sethero` toggles hero status on the target: grants/removes the hero skill

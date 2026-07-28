@@ -407,10 +407,10 @@ impl QuestScript for Q00620FourGoblets {
             BOSS_4 => Some(GOBLETS[3]),
             _ => None,
         };
-        if let Some(g) = goblet {
-            if count(ctx, g) < 1 {
-                ctx.give_items(g, 1);
-            }
+        if let Some(g) = goblet
+            && count(ctx, g) < 1
+        {
+            ctx.give_items(g, 1);
         }
     }
 

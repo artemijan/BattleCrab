@@ -182,7 +182,9 @@ fn exec_exception_nfe(world: &World, client_id: u32, command: &str, args: &[&str
     send_message(
         world,
         client_id,
-        &format!("Exception during execution of  '{full}': java.lang.NumberFormatException: For input string: \"{bad}\""),
+        &format!(
+            "Exception during execution of  '{full}': java.lang.NumberFormatException: For input string: \"{bad}\""
+        ),
     );
 }
 

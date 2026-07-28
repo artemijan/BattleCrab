@@ -2,7 +2,7 @@
 
 use commons::config::PropertiesParser;
 
-use crate::geo::path::{parse_buffer_sizes, PathConfig};
+use crate::geo::path::{PathConfig, parse_buffer_sizes};
 
 pub const GEOENGINE_CONFIG_FILE: &str = "config/GeoEngine.ini";
 

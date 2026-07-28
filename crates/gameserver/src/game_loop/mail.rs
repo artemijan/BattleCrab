@@ -6,11 +6,11 @@
 //! Both parties to a message may be offline, so nothing here is memory-first:
 //! each change is followed by its `DbCommand` (the clan-warehouse discipline).
 
+use crate::model::Player;
 use crate::model::components::{Trade, ZoneFlags};
 use crate::model::inventory::{Inventory, ItemInstance};
 use crate::model::mail::{MailListRow, MailManager, Message};
-use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, MailListView, SmParam};
+use crate::network::server_packets::{self, MailListView, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -73,7 +73,7 @@ pub(crate) fn char_name_by_id(world: &World, object_id: i32) -> String {
     world
         .char_ids_by_name
         .iter()
-        .find(|(_, &id)| id == object_id)
+        .find(|(_, id)| **id == object_id)
         .map_or_else(String::new, |(name, _)| name.clone())
 }
 
@@ -152,10 +152,10 @@ pub(crate) fn delete_message(world: &mut World, message_id: i32) {
 // ---------------------------------------------------------------------------
 
 pub(crate) fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 
@@ -956,13 +956,12 @@ fn grant_attachments(world: &mut World, player: i32, message_id: i32) {
         })
         .unwrap_or_default();
     for (item_id, count, enchant) in taken {
-        if let Some(oids) = super::items::add_inventory_item(world, player, item_id, count) {
-            if enchant > 0 {
-                if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
-                    for oid in &oids {
-                        inv.set_item_enchant(*oid, enchant);
-                    }
-                }
+        if let Some(oids) = super::items::add_inventory_item(world, player, item_id, count)
+            && enchant > 0
+            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
+        {
+            for oid in &oids {
+                inv.set_item_enchant(*oid, enchant);
             }
         }
         send_sm(

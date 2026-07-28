@@ -22,8 +22,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const VARIATIONS_FILE: &str = "data/stats/augmentation/Variations.xml";
@@ -316,13 +316,13 @@ impl VariationData {
                         }
                     }
                     b"fee" => {
-                        if let Some((group_id, fee)) = cur_fee.take() {
-                            if let Some(items) = item_groups.get(&group_id) {
-                                for &item in items {
-                                    let entry = self.fees.entry(item).or_default();
-                                    for &mineral in &cur_fee_minerals {
-                                        entry.insert(mineral, fee);
-                                    }
+                        if let Some((group_id, fee)) = cur_fee.take()
+                            && let Some(items) = item_groups.get(&group_id)
+                        {
+                            for &item in items {
+                                let entry = self.fees.entry(item).or_default();
+                                for &mineral in &cur_fee_minerals {
+                                    entry.insert(mineral, fee);
                                 }
                             }
                         }

@@ -12,8 +12,8 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const TRANSFORM_DIR: &str = "data/stats/transformations";
@@ -48,11 +48,7 @@ pub struct Transform {
 impl Transform {
     /// The gender-appropriate template (Java `getTemplate(creature)`).
     pub fn template(&self, is_female: bool) -> &TransformTemplate {
-        if is_female {
-            &self.female
-        } else {
-            &self.male
-        }
+        if is_female { &self.female } else { &self.male }
     }
 }
 
@@ -79,10 +75,10 @@ impl TransformData {
                 if path.extension().and_then(|e| e.to_str()) != Some("xml") {
                     continue;
                 }
-                if let Ok(content) = std::fs::read_to_string(&path) {
-                    if let Some(t) = parse(&content) {
-                        by_id.insert(t.id, t);
-                    }
+                if let Ok(content) = std::fs::read_to_string(&path)
+                    && let Some(t) = parse(&content)
+                {
+                    by_id.insert(t.id, t);
                 }
             }
         }

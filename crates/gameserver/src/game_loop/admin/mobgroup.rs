@@ -362,10 +362,10 @@ fn alive(world: &World, group: &MobGroup) -> usize {
 /// Despawn every live member and clear the roster.
 fn despawn_members(world: &mut World, group_id: i32) {
     for oid in members(world, group_id) {
-        if world.objects.has_component::<Npc>(&oid) {
-            if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
-                super::death::despawn_npc(world, oid, region);
-            }
+        if world.objects.has_component::<Npc>(&oid)
+            && let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0)
+        {
+            super::death::despawn_npc(world, oid, region);
         }
     }
     if let Some(g) = world.mob_groups.get_mut(&group_id) {

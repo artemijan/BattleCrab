@@ -8,11 +8,11 @@
 //! milestone (TODO(G24) at the call sites).
 
 use crate::db::DbCommand;
+use crate::model::Player;
 use crate::model::components::{Position, RegionCell};
 use crate::model::door::Door;
 use crate::model::siege::{SiegeClanType, SiegeSpawn};
-use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -591,7 +591,7 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
     };
     if breached {
         super::doors::open_door(world, door_oid); // breach — the gate swings open
-                                                  // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
+        // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
     }
     breached
 }
@@ -804,30 +804,30 @@ pub(crate) fn handle_scheduled_siege_start(world: &mut World, castle_id: i32) {
     // The owner's one-off chosen time is spent; clear it so the SiegeInfo window
     // and registration cut-off revert to the fixed schedule for the next cycle
     // (Java reopens time registration for the next siege).
-    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
-        if c.siege_date != 0 {
-            c.siege_date = 0;
-            let _ = world.db.send(DbCommand::UpdateCastleSiegeTime {
-                castle_id,
-                siege_date: 0,
-                time_registration_over: c.time_registration_over,
-            });
-        }
+    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id)
+        && c.siege_date != 0
+    {
+        c.siege_date = 0;
+        let _ = world.db.send(DbCommand::UpdateCastleSiegeTime {
+            castle_id,
+            siege_date: 0,
+            time_registration_over: c.time_registration_over,
+        });
     }
     // TODO(G24): the auto-start still fires at the fixed `SiegeSchedule.xml`
     // hour, not the owner's chosen one — honoring the chosen hour in the timer
     // needs task cancellation the scheduler doesn't have yet. The choice is
     // reflected in the SiegeInfo window and the registration cut-off.
-    if let Some(e) = world.data.siege_schedule.get(&castle_id).copied() {
-        if e.enabled {
-            arm_next_siege(
-                world,
-                castle_id,
-                e.weekday,
-                e.hour,
-                commons::util::now_millis(),
-            );
-        }
+    if let Some(e) = world.data.siege_schedule.get(&castle_id).copied()
+        && e.enabled
+    {
+        arm_next_siege(
+            world,
+            castle_id,
+            e.weekday,
+            e.hour,
+            commons::util::now_millis(),
+        );
     }
 }
 
@@ -1402,10 +1402,10 @@ fn send_defender_list(world: &World, client_id: u32, castle_id: i32, now_millis:
     let mut entries: Vec<server_packets::DefenderEntry> = Vec::new();
 
     // Owner (type 1), if any.
-    if owner_id != 0 {
-        if let Some(e) = defender_entry(world, owner_id, 1) {
-            entries.push(e);
-        }
+    if owner_id != 0
+        && let Some(e) = defender_entry(world, owner_id, 1)
+    {
+        entries.push(e);
     }
     // Confirmed defenders (type 3), then pending (type 2) — skipping the owner.
     if let Some(siege) = world.sieges.get(&castle_id) {

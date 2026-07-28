@@ -8,7 +8,7 @@ use rand::Rng;
 
 use crate::data::npc_data::NpcTemplate;
 use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate, Territory};
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 /// First object id handed to spawned NPCs. Java draws NPC ids from the same
 /// `IdManager` pool as characters/items; NPCs are transient here, so they get

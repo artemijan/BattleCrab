@@ -4,9 +4,9 @@
 
 use super::*;
 
+use crate::model::Player;
 use crate::model::clan::Clan;
 use crate::model::inventory::{Inventory, PaperdollSlot};
-use crate::model::Player;
 use crate::network::server_packets::sm_ids;
 
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");

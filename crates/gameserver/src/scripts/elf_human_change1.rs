@@ -182,10 +182,10 @@ impl QuestScript for ElfHumanChange1 {
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if let Ok(class_id) = event.parse::<i32>() {
-            if self.targets().iter().any(|(to, ..)| *to == class_id) {
-                return self.class_change(ctx, class_id);
-            }
+        if let Ok(class_id) = event.parse::<i32>()
+            && self.targets().iter().any(|(to, ..)| *to == class_id)
+        {
+            return self.class_change(ctx, class_id);
         }
         // The dialog pages echo back.
         if event.ends_with(".htm")

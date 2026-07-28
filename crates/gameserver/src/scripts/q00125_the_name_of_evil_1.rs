@@ -268,13 +268,12 @@ impl QuestScript for Q00125TheNameOfEvil1 {
                 ctx.give_items(ORNITHOMIMUS_CLAW, 1);
                 ctx.play_sound(quest_sounds::ITEMGET);
             }
-        } else if let Some(chance) = bone_chance(ctx.npc_id) {
-            if ctx.quest_items_count(DEINONYCHUS_BONE) < 2
-                && (ctx.roll(1000) as f64) < chance as f64 * rate
-            {
-                ctx.give_items(DEINONYCHUS_BONE, 1);
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+        } else if let Some(chance) = bone_chance(ctx.npc_id)
+            && ctx.quest_items_count(DEINONYCHUS_BONE) < 2
+            && (ctx.roll(1000) as f64) < chance as f64 * rate
+        {
+            ctx.give_items(DEINONYCHUS_BONE, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
         }
         if ctx.quest_items_count(ORNITHOMIMUS_CLAW) == 2
             && ctx.quest_items_count(DEINONYCHUS_BONE) == 2

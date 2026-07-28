@@ -9,12 +9,12 @@
 //! to the client in `EtcStatusUpdate` so it can draw the penalty icons.
 
 use crate::data::item_data::ItemKind;
+use crate::model::Player;
 use crate::model::components::{
     BaseStats, Buffs, CombatStats, ExpertisePenalty, SkillBook, Speeds, StatModifiers,
 };
 use crate::model::inventory::Inventory;
 use crate::model::skill::{ActiveBuff, StatModifierEffect};
-use crate::model::Player;
 use crate::world::World;
 
 /// Java `CommonSkill.WEAPON_GRADE_PENALTY`.
@@ -145,28 +145,28 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
 
     // Java sends `EtcStatusUpdate` on change; the stat change (Java's
     // addSkill/removeSkill → broadcastUserInfo) also needs a fresh `UserInfo`.
-    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
-        if let Some(view) = crate::model::PlayerView::of(&world.objects, object_id) {
-            let silence = world
-                .objects
-                .get_component::<crate::model::components::AdminFlags>(&object_id)
-                .is_some_and(|f| f.silence);
-            let user_info = crate::network::user_info::user_info(
-                &view,
-                &world.data,
-                &world.cfg.character,
-                super::party::calculate_relation(world, view.p),
-            );
-            let charges = view.p.charges;
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(crate::network::enter_world::etc_status_update(
-                    charges,
-                    weapon_penalty,
-                    armor_penalty,
-                    silence,
-                ));
-                cs.send(user_info);
-            }
+    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(view) = crate::model::PlayerView::of(&world.objects, object_id)
+    {
+        let silence = world
+            .objects
+            .get_component::<crate::model::components::AdminFlags>(&object_id)
+            .is_some_and(|f| f.silence);
+        let user_info = crate::network::user_info::user_info(
+            &view,
+            &world.data,
+            &world.cfg.character,
+            super::party::calculate_relation(world, view.p),
+        );
+        let charges = view.p.charges;
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::enter_world::etc_status_update(
+                charges,
+                weapon_penalty,
+                armor_penalty,
+                silence,
+            ));
+            cs.send(user_info);
         }
     }
 }

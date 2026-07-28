@@ -84,9 +84,10 @@ fn teleporter_charges_fee_and_teleports() {
     );
     let pkts = drain(&mut rx);
     assert_eq!(adena_of(&world, 3001), 600, "9400 adena fee charged");
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION)
+    );
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y, pos.z), (1000, 2000, -25));
 
@@ -120,9 +121,11 @@ fn teleporter_charges_fee_and_teleports() {
     );
     let pkts = drain(&mut rx);
     assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA));
-    assert!(!pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(
+        !pkts
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION)
+    );
     assert_eq!(adena_of(&world, 3001), 100);
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!((pos.x, pos.y), (0, 0), "shortfall must not teleport");
@@ -271,9 +274,11 @@ fn unstuck_casts_escape_and_teleports_to_town() {
 
     // Mid-cast re-use refuses silently (Java `isCastingNow` → false).
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
-    assert!(!drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE));
+    assert!(
+        !drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+    );
 
     // 30 s (300 ticks) to launch + the 500 ms finish floor.
     advance_ticks(&mut world, 310);
@@ -284,9 +289,11 @@ fn unstuck_casts_escape_and_teleports_to_town() {
         "escaped to the town respawn (z lifted by 5)"
     );
     let landed = drain(&mut rx);
-    assert!(landed
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(
+        landed
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION)
+    );
     // `teleToLocation`'s `abortCast()`: without the cancel the client keeps
     // drawing the escape FX at the destination for skill 2099's own 5-minute
     // duration, even though the teleport already landed.

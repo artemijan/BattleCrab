@@ -8,8 +8,8 @@
 //! heroes at the Olympiad period end (there is no unclaimed-hero step to certify).
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::inventory::Inventory;
 use crate::model::Player;
+use crate::model::inventory::Inventory;
 use crate::network::server_packets::sm_ids;
 
 pub struct MonumentOfHeroes;

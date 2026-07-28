@@ -87,14 +87,13 @@ pub(super) fn admin_gmchat(world: &mut World, client_id: u32, object_id: i32, ar
     // Java passes a null sender (object id 0); the name carries the display.
     let say = server_packets::creature_say(0, crate::enums::ChatType::Alliance, &name, &text, None);
     for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            if world
+        if let ClientSession::InGame(s) = cs
+            && world
                 .objects
                 .get_component::<Player>(&s.player_object_id())
                 .is_some_and(|p| p.is_gm(&world.data))
-            {
-                cs.send(say.clone());
-            }
+        {
+            cs.send(say.clone());
         }
     }
 }
@@ -671,20 +670,20 @@ pub(super) fn admin_snoop(world: &mut World, client_id: u32, object_id: i32, arg
         return;
     }
     // Java `player.addSnooper(gm)` + `gm.addSnooped(player)` (both dedupe).
-    if let Some(t) = world.objects.get_component_mut::<Player>(&target) {
-        if !t.snoop_listeners.contains(&object_id) {
-            t.snoop_listeners.push(object_id);
-        }
+    if let Some(t) = world.objects.get_component_mut::<Player>(&target)
+        && !t.snoop_listeners.contains(&object_id)
+    {
+        t.snoop_listeners.push(object_id);
     }
     let name = world
         .objects
         .get_component::<Player>(&target)
         .map(|p| p.name.clone())
         .unwrap_or_default();
-    if let Some(gm) = world.objects.get_component_mut::<Player>(&object_id) {
-        if !gm.snooped.contains(&target) {
-            gm.snooped.push(target);
-        }
+    if let Some(gm) = world.objects.get_component_mut::<Player>(&object_id)
+        && !gm.snooped.contains(&target)
+    {
+        gm.snooped.push(target);
     }
     send_message(world, client_id, &format!("Now snooping '{name}'."));
 }

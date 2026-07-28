@@ -7,8 +7,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 
 const CASTLE_HALL_FILE: &str = "data/zones/castle_hall.xml";
 

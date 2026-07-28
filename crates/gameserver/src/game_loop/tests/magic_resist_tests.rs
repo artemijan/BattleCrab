@@ -8,7 +8,7 @@
 
 use super::*;
 
-use crate::model::formulas::{calc_magic_success_rate, MagicSuccess};
+use crate::model::formulas::{MagicSuccess, calc_magic_success_rate};
 use crate::model::stats::Stat;
 
 const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");

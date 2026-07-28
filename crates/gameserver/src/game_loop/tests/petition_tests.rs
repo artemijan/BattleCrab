@@ -5,8 +5,8 @@ use super::*;
 
 use crate::db::DbCommand;
 use crate::game_loop::petition;
-use crate::model::petition::PetitionState;
 use crate::model::Player;
+use crate::model::petition::PetitionState;
 
 const SAY2_OPCODE: u8 = 0x4A; // server CreatureSay
 const PETITION_VOTE_OPCODE: u8 = 0xFC;
@@ -194,9 +194,11 @@ fn feedback_without_a_prior_consultation_is_dropped() {
     drain_db(&mut db_rx);
     // No last_petition_gm_name → Java drops it.
     petition::on_request_petition_feedback(&mut world, 1, &feedback_body(3, "hi"));
-    assert!(!drain_db(&mut db_rx)
-        .iter()
-        .any(|c| matches!(c, DbCommand::StorePetitionFeedback { .. })));
+    assert!(
+        !drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::StorePetitionFeedback { .. }))
+    );
 }
 
 #[test]

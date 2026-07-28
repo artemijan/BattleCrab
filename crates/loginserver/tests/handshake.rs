@@ -45,8 +45,10 @@ async fn wrong_session_id_gets_login_fail() {
     assert_eq!(fail[1], 0x15, "REASON_ACCESS_FAILED");
 
     // Server closes after LoginFail (Java close(reason) semantics).
-    assert!(commons::network::read_frame(&mut read, 8192)
-        .await
-        .unwrap()
-        .is_none());
+    assert!(
+        commons::network::read_frame(&mut read, 8192)
+            .await
+            .unwrap()
+            .is_none()
+    );
 }

@@ -94,7 +94,7 @@ impl QuestScript for Q00262TradeWithTheIvoryTower {
         if ctx.is_started() {
             match ctx.cond() {
                 1 if ctx.quest_items_count(SPORE_SAC) < REQUIRED_ITEM_COUNT => {
-                    return Some("30137-04.html".to_string())
+                    return Some("30137-04.html".to_string());
                 }
                 2 if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_ITEM_COUNT => {
                     ctx.give_adena(300, true);

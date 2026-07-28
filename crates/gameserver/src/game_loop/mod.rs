@@ -98,8 +98,8 @@ pub(crate) mod walkers;
 mod warehouse;
 pub(crate) mod zones;
 
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread::JoinHandle;
 use std::time::{Duration, Instant};
 
@@ -113,7 +113,7 @@ use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
 use net::{drain_db, drain_login_link, drain_network, drain_path};
-use regen::{run_npc_regen_tick, run_regen_tick, REGEN_TICK_PERIOD};
+use regen::{REGEN_TICK_PERIOD, run_npc_regen_tick, run_regen_tick};
 use skills::cast::{handle_cast_end, handle_skill_finish, handle_skill_launch};
 use skills::effects::handle_buff_expire;
 

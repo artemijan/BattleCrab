@@ -11,15 +11,15 @@
 //! HP/time decay, drop-on-PK-death, and the login restore are a follow-up slice
 //! — `TODO(G28)`.)
 
-use crate::model::components::{Position, RegionCell};
 use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::model::components::{Position, RegionCell};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
 use super::admin::cursed_weapons::{activate, end_of_life, idx_by_item, now_millis};
-use super::ground_items::{despawn_ground_item, spawn_ground_item, DropSource};
+use super::ground_items::{DropSource, despawn_ground_item, spawn_ground_item};
 
 const TICKS_PER_SECOND: u64 = 10;
 const MILLIS_PER_MINUTE: i64 = 60_000;

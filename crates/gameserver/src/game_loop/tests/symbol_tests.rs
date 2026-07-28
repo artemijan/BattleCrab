@@ -254,7 +254,7 @@ fn walking_into_a_live_seal_gets_cursed() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _out2 = ingame_caster(&mut world, BID, BYSTANDER, 900, 0); // far away
-                                                                   // Long-lived totem for this one, so the walk-in happens mid-life.
+    // Long-lived totem for this one, so the walk-in happens mid-life.
     world.data.npc_data.insert_for_test({
         let mut t = crate::data::npc_data::default_template(TOTEM_NPC);
         t.type_name = "EffectPoint".into();

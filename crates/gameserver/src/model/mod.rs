@@ -38,9 +38,9 @@ pub mod static_object;
 pub mod stats;
 
 use crate::character::CharData;
+use crate::data::GameData;
 use crate::data::admin_data::AccessLevel;
 use crate::data::player_template::PlayerTemplate;
-use crate::data::GameData;
 
 /// Client-default name/title colors for a normal (level-0) player, matching a
 /// real UserInfo capture. See [`Player::name_color`].
@@ -768,21 +768,21 @@ impl EquippedBonuses {
 
         // Weapon-replace stats come from the right-hand slot only (Java
         // `calcWeaponBaseValue`); a two-handed weapon also lives in RHand.
-        if let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand) {
-            if let Some(stats) = data.item_data.item_stats(weapon.item_id) {
-                for &(stat, val) in &stats.bonuses {
-                    match stat {
-                        Stat::PhysicalAttack => eq.weapon_p_atk = Some(val),
-                        Stat::MagicalAttack => eq.weapon_m_atk = Some(val),
-                        Stat::PhysicalAttackSpeed => eq.weapon_p_atk_spd = Some(val),
-                        Stat::CriticalRate => eq.weapon_crit = Some(val),
-                        Stat::MagicCriticalRate => eq.weapon_m_crit = Some(val),
-                        _ => {}
-                    }
+        if let Some(weapon) = inventory.paperdoll_item(PaperdollSlot::RHand)
+            && let Some(stats) = data.item_data.item_stats(weapon.item_id)
+        {
+            for &(stat, val) in &stats.bonuses {
+                match stat {
+                    Stat::PhysicalAttack => eq.weapon_p_atk = Some(val),
+                    Stat::MagicalAttack => eq.weapon_m_atk = Some(val),
+                    Stat::PhysicalAttackSpeed => eq.weapon_p_atk_spd = Some(val),
+                    Stat::CriticalRate => eq.weapon_crit = Some(val),
+                    Stat::MagicCriticalRate => eq.weapon_m_crit = Some(val),
+                    _ => {}
                 }
-                eq.weapon_atk_range = stats.atk_range;
-                eq.weapon_random_dmg = stats.random_damage;
             }
+            eq.weapon_atk_range = stats.atk_range;
+            eq.weapon_random_dmg = stats.random_damage;
         }
 
         // Sum-add stats are summed across every equipped piece (Java's
@@ -1397,15 +1397,15 @@ impl Player {
         // `<moving>` values (Java's transform move-speed override), still folding
         // the buff modifiers on top. Absolute template speeds — the class
         // `RUN_SPD_BOOST` is not re-added (the transform values are self-tuned).
-        if self.transform_id != 0 {
-            if let Some(tf) = data.transforms.get(self.transform_id) {
-                let tmpl = tf.template(self.is_female);
-                if let Some(run) = tmpl.run_spd {
-                    speeds.run_spd = finalize(mods, Stat::RunSpeed, run);
-                }
-                if let Some(walk) = tmpl.walk_spd {
-                    speeds.walk_spd = finalize(mods, Stat::WalkSpeed, walk);
-                }
+        if self.transform_id != 0
+            && let Some(tf) = data.transforms.get(self.transform_id)
+        {
+            let tmpl = tf.template(self.is_female);
+            if let Some(run) = tmpl.run_spd {
+                speeds.run_spd = finalize(mods, Stat::RunSpeed, run);
+            }
+            if let Some(walk) = tmpl.walk_spd {
+                speeds.walk_spd = finalize(mods, Stat::WalkSpeed, walk);
             }
         }
 
@@ -1615,10 +1615,11 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
             continue;
         }
         for effect in &skill.effects {
-            if let SkillEffect::StatModifier(m) = effect {
-                if m.armor_condition == 0 && m.weapon_condition == 0 {
-                    apply_modifier(&mut mods, m);
-                }
+            if let SkillEffect::StatModifier(m) = effect
+                && m.armor_condition == 0
+                && m.weapon_condition == 0
+            {
+                apply_modifier(&mut mods, m);
             }
         }
     }

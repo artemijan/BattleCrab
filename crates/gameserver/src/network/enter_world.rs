@@ -10,11 +10,11 @@
 
 use commons::network::PacketWriter;
 
-use crate::data::item_data::ItemTemplate;
 use crate::data::GameData;
+use crate::data::item_data::ItemTemplate;
 use crate::enums::InventorySlot;
-use crate::model::inventory::ItemInstance;
 use crate::model::Player;
+use crate::model::inventory::ItemInstance;
 use crate::network::masks;
 
 const EX: u8 = 0xFE;
@@ -318,10 +318,10 @@ pub fn acquire_skill_list(
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
         w.write_u8(0); // dual class level
-                       // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
-                       // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
-                       // (item id + count) so the client shows/charges the book; we don't parse
-                       // the `<item>` id/count yet, so the required-item list stays empty.
+        // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
+        // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
+        // (item id + count) so the client shows/charges the book; we don't parse
+        // the `<item>` id/count yet, so the required-item list stays empty.
         w.write_u8(0); // required item count
         w.write_u8(0); // remove-skill count
     }
@@ -346,9 +346,9 @@ pub fn etc_status_update(
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
     w.write_u8(0); // charged souls
-                   // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
-                   // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
-                   // modeled; this is what draws the chat-block icon.
+    // Mask (Java `EtcStatusUpdate._mask`): bit 0x01 = message-refusal / silence
+    // / chat-ban, 0x02 = danger area, 0x04 = charm of courage. Only silence is
+    // modeled; this is what draws the chat-block icon.
     w.write_u8(if message_refusal { 1 } else { 0 });
     w.into_bytes()
 }

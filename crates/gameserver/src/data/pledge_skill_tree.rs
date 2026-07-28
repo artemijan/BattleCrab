@@ -7,8 +7,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const PLEDGE_SKILL_TREE_FILE: &str = "data/skillTrees/pledgeSkillTree.xml";
@@ -258,10 +258,10 @@ fn parse(path: &str, tree_type: &str) -> Vec<PledgeSkillLearn> {
                 b"socialClass" => in_social = false,
                 b"residenceId" => in_residence = false,
                 b"skill" => {
-                    if let Some(c) = cur.take() {
-                        if c.skill_id > 0 {
-                            out.push(c);
-                        }
+                    if let Some(c) = cur.take()
+                        && c.skill_id > 0
+                    {
+                        out.push(c);
                     }
                 }
                 b"skillTree" => in_tree = false,

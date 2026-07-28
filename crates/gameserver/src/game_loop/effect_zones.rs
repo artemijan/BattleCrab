@@ -204,10 +204,10 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                     false,
                 );
             }
-            if params.mp_per_tick > 0 {
-                if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-                    v.cur_mp = (v.cur_mp - params.mp_per_tick as f64).max(0.0);
-                }
+            if params.mp_per_tick > 0
+                && let Some(v) = world.objects.get_component_mut::<Vitals>(&oid)
+            {
+                v.cur_mp = (v.cur_mp - params.mp_per_tick as f64).max(0.0);
             }
         }
     }

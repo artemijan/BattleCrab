@@ -528,11 +528,7 @@ const fn on_self(skill_id: i32) -> Choice {
 /// `Util.calculateAngleFrom` — the angle from `a` to `b` in degrees, `0..360`.
 fn angle_between(ax: i32, ay: i32, bx: i32, by: i32) -> f64 {
     let deg = ((by - ay) as f64).atan2((bx - ax) as f64).to_degrees();
-    if deg < 0.0 {
-        deg + 360.0
-    } else {
-        deg
-    }
+    if deg < 0.0 { deg + 360.0 } else { deg }
 }
 
 /// **The tail sweep and curse are gated on an absolute world angle, not on
@@ -765,12 +761,12 @@ pub(crate) fn on_antharas_damage(
         .objects
         .get_component::<crate::model::Player>(&attacker_oid)
         .is_some_and(|p| p.mount_type == MOUNT_STRIDER);
-    if on_strider && !has_buff(world, attacker_oid, ANTI_STRIDER) {
-        if let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned() {
-            if crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill) {
-                crate::game_loop::npc_cast::start_cast(world, antharas_oid, attacker_oid, &skill);
-            }
-        }
+    if on_strider
+        && !has_buff(world, attacker_oid, ANTI_STRIDER)
+        && let Some(skill) = world.data.skill_data.get(ANTI_STRIDER, 1).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(world, antharas_oid, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(world, antharas_oid, attacker_oid, &skill);
     }
 
     super::boss_threat::on_boss_damage(world, antharas_oid, attacker_oid, damage, is_melee);

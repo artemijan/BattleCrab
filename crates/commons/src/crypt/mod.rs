@@ -8,7 +8,7 @@ mod password;
 mod raw_rsa;
 mod scrambled_keypair;
 
-pub use gs_link::{gs_decrypt, gs_encrypt, RsaPublicModulus, GS_STATIC_BLOWFISH_KEY};
+pub use gs_link::{GS_STATIC_BLOWFISH_KEY, RsaPublicModulus, gs_decrypt, gs_encrypt};
 pub use new_crypt::NewCrypt;
 pub use password::hash_password;
 pub use raw_rsa::RawRsaKeyPair;

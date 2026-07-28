@@ -248,7 +248,7 @@ fn melee_kill_rewards_and_decay() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -373,9 +373,11 @@ fn melee_kill_rewards_and_decay() {
     // Decay after the 2 s corpse time: DeleteObject, corpse gone, no respawn
     // scheduled (respawn_secs == 0).
     advance_world(&mut world, 20);
-    assert!(!world
-        .objects
-        .has_component::<crate::model::npc::Npc>(&npc_oid));
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&npc_oid)
+    );
     let packets = drain(&mut a_rx);
     assert!(
         packets
@@ -480,7 +482,7 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 20, 0, 0, 100_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -536,7 +538,7 @@ fn shift_attack_out_of_reach_fails_instead_of_chasing() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -609,7 +611,7 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 200, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -630,9 +632,11 @@ fn attack_out_of_reach_chases_and_monster_retaliates() {
             .any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
         "out of reach: chase starts, no swing yet"
     );
-    assert!(!packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::ATTACK));
+    assert!(
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::ATTACK)
+    );
 
     // Player run speed 115 u/s over ~170 units ⇒ in reach in ~1.5 s. Force
     // every swing in the window to a plain hit: each non-miss swing rolls
@@ -718,7 +722,7 @@ fn idle_monster_random_walks_near_spawn() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -768,7 +772,7 @@ fn idle_npc_plays_random_social_animation() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -823,7 +827,7 @@ fn moving_npc_skips_random_animation() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -891,7 +895,7 @@ fn aggressive_monster_aggros_idle_player() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 150, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -976,7 +980,7 @@ fn player_death_penalty_and_revive_to_village() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -1045,9 +1049,11 @@ fn player_death_penalty_and_revive_to_village() {
         .expect("player");
     assert!(p.teleporting && p.pending_revive && pvit(&world, 3001).dead);
     let packets = drain(&mut a_rx);
-    assert!(packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION));
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION)
+    );
 
     // Client finished loading: Appearing → revive at 65% HP.
     on_packet(&mut world, 1, vec![cp::opcodes::APPEARING]);
@@ -1059,9 +1065,11 @@ fn player_death_penalty_and_revive_to_village() {
     let v = pvit(&world, 3001);
     assert_eq!(v.cur_hp, v.max_hp as f64 * 0.65);
     let packets = drain(&mut a_rx);
-    assert!(packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::REVIVE));
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::REVIVE)
+    );
 }
 
 /// The decay → respawn loop over a real spawn line: the corpse decays
@@ -1109,17 +1117,21 @@ fn dead_monster_decays_and_respawns() {
     // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,
     // respawn pending.
     advance_world(&mut world, 21);
-    assert!(!world
-        .objects
-        .has_component::<crate::model::npc::Npc>(&npc_oid));
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&npc_oid)
+    );
     assert_eq!(
         world.objects.get_component::<TargetRef>(&3001).unwrap().0,
         None
     );
     let packets = drain(&mut a_rx);
-    assert!(packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT));
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::DELETE_OBJECT)
+    );
 
     // Respawn at +3 s more: a fresh NPC on the same spawn line, announced.
     advance_world(&mut world, 31);

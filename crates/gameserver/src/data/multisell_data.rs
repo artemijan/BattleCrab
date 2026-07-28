@@ -18,8 +18,8 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ItemData;
@@ -250,7 +250,9 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                                     maintain,
                                 });
                             } else {
-                                warn!("MultisellData: invalid ingredient id {id} count {count} in list {list_id}");
+                                warn!(
+                                    "MultisellData: invalid ingredient id {id} count {count} in list {list_id}"
+                                );
                             }
                         }
                     }
@@ -266,11 +268,13 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                             let enchant_level = attr(b"enchantmentLevel")
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0);
-                            if let Some(c) = chance {
-                                if !(0.0..=100.0).contains(&c) {
-                                    warn!("MultisellData: invalid chance {c} for item {id} in list {list_id}");
-                                    continue;
-                                }
+                            if let Some(c) = chance
+                                && !(0.0..=100.0).contains(&c)
+                            {
+                                warn!(
+                                    "MultisellData: invalid chance {c} for item {id} in list {list_id}"
+                                );
+                                continue;
                             }
                             if item_exists(id, count, items) {
                                 // A product is non-stackable if its template is
@@ -285,7 +289,9 @@ fn parse_file(path: &std::path::Path, list_id: i32, items: &ItemData) -> Option<
                                     enchant_level,
                                 });
                             } else {
-                                warn!("MultisellData: invalid product id {id} count {count} in list {list_id}");
+                                warn!(
+                                    "MultisellData: invalid product id {id} count {count} in list {list_id}"
+                                );
                             }
                         }
                     }

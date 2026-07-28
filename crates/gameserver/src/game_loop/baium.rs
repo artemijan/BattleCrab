@@ -152,11 +152,11 @@ pub(crate) fn spawn_from_record(world: &mut World, boss: &GrandBoss) {
         ) else {
             return;
         };
-        if boss.current_hp > 0.0 {
-            if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-                v.cur_hp = boss.current_hp.min(v.max_hp as f64);
-                v.cur_mp = boss.current_mp.min(v.max_mp as f64);
-            }
+        if boss.current_hp > 0.0
+            && let Some(v) = world.objects.get_component_mut::<Vitals>(&oid)
+        {
+            v.cur_hp = boss.current_hp.min(v.max_hp as f64);
+            v.cur_mp = boss.current_mp.min(v.max_mp as f64);
         }
         spawn_archangels(world);
         arm_combat_watch(world, oid);
@@ -354,23 +354,22 @@ pub(crate) fn handle_cinematic_step(world: &mut World, step: u8) {
         let sound = crate::network::server_packets::play_sound("BS02_A");
         broadcast_to_lair(world, &sound);
     }
-    if beat.port_waker {
-        if let Some(p) = waker {
-            crate::game_loop::death::teleport_player(
-                world,
-                p,
-                BAIUM_GIFT_LOC.0,
-                BAIUM_GIFT_LOC.1,
-                BAIUM_GIFT_LOC.2,
-            );
-        }
+    if beat.port_waker
+        && let Some(p) = waker
+    {
+        crate::game_loop::death::teleport_player(
+            world,
+            p,
+            BAIUM_GIFT_LOC.0,
+            BAIUM_GIFT_LOC.1,
+            BAIUM_GIFT_LOC.2,
+        );
     }
-    if beat.strike_waker {
-        if let Some(p) = waker {
-            if let Some(skill) = world.data.skill_data.get(BAIUM_PRESENT, 1).cloned() {
-                super::boss_threat::cast_boss_skill(world, baium, p, skill.id, false);
-            }
-        }
+    if beat.strike_waker
+        && let Some(p) = waker
+        && let Some(skill) = world.data.skill_data.get(BAIUM_PRESENT, 1).cloned()
+    {
+        super::boss_threat::cast_boss_skill(world, baium, p, skill.id, false);
     }
     if beat.spawn_archangels {
         // Java `disableCoreAI(false)` — Baium takes his AI back, then the

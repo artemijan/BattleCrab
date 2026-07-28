@@ -11,8 +11,8 @@ use std::io::{Read, Write};
 use std::net::{Ipv4Addr, TcpStream, ToSocketAddrs};
 use std::time::Duration;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 pub const IPCONFIG_FILE: &str = "config/ipconfig.xml";
@@ -73,13 +73,12 @@ impl IpConfig {
                     let name = e.name();
                     if name.as_ref().eq_ignore_ascii_case(b"gameserver") {
                         default_address = attr(&e, b"address").or(default_address);
-                    } else if name.as_ref().eq_ignore_ascii_case(b"define") {
-                        if let (Some(subnet), Some(address)) =
+                    } else if name.as_ref().eq_ignore_ascii_case(b"define")
+                        && let (Some(subnet), Some(address)) =
                             (attr(&e, b"subnet"), attr(&e, b"address"))
-                        {
-                            self.subnets.push(subnet);
-                            self.hosts.push(address);
-                        }
+                    {
+                        self.subnets.push(subnet);
+                        self.hosts.push(address);
                     }
                 }
                 Ok(Event::Eof) => break,

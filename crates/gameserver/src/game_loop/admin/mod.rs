@@ -12,9 +12,9 @@
 
 use tracing::{info, warn};
 
+use crate::model::Player;
 use crate::model::components::TargetRef;
 use crate::model::inventory::PaperdollSlot;
-use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
@@ -869,20 +869,19 @@ pub(super) fn creatures_in_range(
             }
         }
     }
-    if include_npcs {
-        if let Some(region) = world
+    if include_npcs
+        && let Some(region) = world
             .objects
             .get_component::<RegionCell>(&center_oid)
             .map(|c| c.0)
-        {
-            for oid in world.npcs_visible_from(region) {
-                if world
-                    .objects
-                    .get_component::<Position>(&oid)
-                    .is_some_and(|p| p.distance_2d(&center) <= r)
-                {
-                    out.push(oid);
-                }
+    {
+        for oid in world.npcs_visible_from(region) {
+            if world
+                .objects
+                .get_component::<Position>(&oid)
+                .is_some_and(|p| p.distance_2d(&center) <= r)
+            {
+                out.push(oid);
             }
         }
     }

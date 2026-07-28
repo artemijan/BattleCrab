@@ -6,8 +6,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ADENA_ID;

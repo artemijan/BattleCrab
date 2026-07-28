@@ -9,8 +9,7 @@ use crate::session::AccountInfo;
 const SELECT_ACCOUNT_INFO: &str = "SELECT login, password, CASE WHEN (? > value OR value IS NULL) THEN accessLevel ELSE -1 END AS accessLevel, lastServer \
      FROM accounts LEFT JOIN (account_data) ON (account_data.account_name=accounts.login AND account_data.var='ban_temp') WHERE login=?";
 
-const AUTOCREATE_ACCOUNT: &str =
-    "INSERT INTO accounts (login, password, lastactive, accessLevel, lastIP) values (?, ?, ?, ?, ?)";
+const AUTOCREATE_ACCOUNT: &str = "INSERT INTO accounts (login, password, lastactive, accessLevel, lastIP) values (?, ?, ?, ?, ?)";
 
 const ACCOUNT_INFO_UPDATE: &str = "UPDATE accounts SET lastactive = ?, lastIP = ? WHERE login = ?";
 

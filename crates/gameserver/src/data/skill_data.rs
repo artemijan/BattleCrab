@@ -14,8 +14,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::model::skill::{
@@ -591,23 +591,24 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                         chance: cur_group_chance,
                         items: std::mem::take(&mut cur_group_items),
                     });
-                } else if closed == "effect" && in_effects {
-                    if let Some(name) = cur_effect_name.take() {
-                        effects.push(ParsedEffect {
-                            scope: cur_scope,
-                            name,
-                            params: cur_effect_params.clone(),
-                            sub_params: std::mem::take(&mut cur_effect_sub_params),
-                            mode: cur_effect_mode.clone(),
-                            groups: std::mem::take(&mut cur_restoration_groups),
-                            armor_condition: cur_effect_armor,
-                            weapon_condition: cur_effect_weapon,
-                            from_level: cur_effect_levels.0,
-                            to_level: cur_effect_levels.1,
-                            from_sub_level: cur_effect_levels.2,
-                            to_sub_level: cur_effect_levels.3,
-                        });
-                    }
+                } else if closed == "effect"
+                    && in_effects
+                    && let Some(name) = cur_effect_name.take()
+                {
+                    effects.push(ParsedEffect {
+                        scope: cur_scope,
+                        name,
+                        params: cur_effect_params.clone(),
+                        sub_params: std::mem::take(&mut cur_effect_sub_params),
+                        mode: cur_effect_mode.clone(),
+                        groups: std::mem::take(&mut cur_restoration_groups),
+                        armor_condition: cur_effect_armor,
+                        weapon_condition: cur_effect_weapon,
+                        from_level: cur_effect_levels.0,
+                        to_level: cur_effect_levels.1,
+                        from_sub_level: cur_effect_levels.2,
+                        to_sub_level: cur_effect_levels.3,
+                    });
                 }
             }
             Ok(Event::Eof) => break,
@@ -2138,12 +2139,14 @@ mod tests {
 
         let base = sd.get(7, 40).expect("Sonic Storm 40");
         let (p0, c0, d0) = match base.effects.as_slice() {
-            [SkillEffect::EnergyAttack {
-                power,
-                critical_chance,
-                p_def_mod,
-                ..
-            }] => (*power, *critical_chance, *p_def_mod),
+            [
+                SkillEffect::EnergyAttack {
+                    power,
+                    critical_chance,
+                    p_def_mod,
+                    ..
+                },
+            ] => (*power, *critical_chance, *p_def_mod),
             other => panic!("EnergyAttack expected: {other:?}"),
         };
         assert_eq!((p0, c0, d0), (20732.0, 15.0, 1.0));
@@ -2153,12 +2156,14 @@ mod tests {
         let e1 = sd.get_enchanted(7, 40, 1001).expect("+1 power route");
         assert_eq!(e1.sub_level, 1001);
         match e1.effects.as_slice() {
-            [SkillEffect::EnergyAttack {
-                power,
-                critical_chance,
-                p_def_mod,
-                ..
-            }] => {
+            [
+                SkillEffect::EnergyAttack {
+                    power,
+                    critical_chance,
+                    p_def_mod,
+                    ..
+                },
+            ] => {
                 assert!(
                     (power - (20732.0 + 20732.0 / 100.0)).abs() < 1e-6,
                     "+1: {power}"
@@ -2182,11 +2187,13 @@ mod tests {
             .effects
             .as_slice()
         {
-            [SkillEffect::EnergyAttack {
-                power,
-                critical_chance,
-                ..
-            }] => {
+            [
+                SkillEffect::EnergyAttack {
+                    power,
+                    critical_chance,
+                    ..
+                },
+            ] => {
                 assert!((critical_chance - 15.15).abs() < 1e-6, "{critical_chance}");
                 assert_eq!(*power, 20732.0, "power keeps its base on route 2");
             }
@@ -2517,12 +2524,13 @@ mod tests {
         ));
         // Touch of Life 341 raises the healing its target receives (PER → the
         // multiplicative stat); Touch of Death 342 lowers it.
-        assert!(sd
-            .get(341, 1)
-            .expect("Touch of Life")
-            .stat_modifier_effects()
-            .iter()
-            .any(|m| m.stat == Stat::HealEffect && m.amount == 30.0));
+        assert!(
+            sd.get(341, 1)
+                .expect("Touch of Life")
+                .stat_modifier_effects()
+                .iter()
+                .any(|m| m.stat == Stat::HealEffect && m.amount == 30.0)
+        );
 
         // Guts 139 — the debuff-resistance buff: a negative `amount` on
         // `ResistAbnormalByCategory` means *more* resistant, and it must parse
@@ -2551,10 +2559,12 @@ mod tests {
         );
         // Ultimate Defense 110 resists *dispel* rather than debuffs.
         let ultimate_defense = sd.get(110, 1).expect("Ultimate Defense lvl 1");
-        assert!(ultimate_defense
-            .stat_modifier_effects()
-            .iter()
-            .any(|m| m.stat == Stat::ResistDispelBuff && m.amount == -80.0));
+        assert!(
+            ultimate_defense
+                .stat_modifier_effects()
+                .iter()
+                .any(|m| m.stat == Stat::ResistDispelBuff && m.amount == -80.0)
+        );
 
         // Prophecy of Water 1355 blocks the BUFF_SPECIAL_* slots, which is how
         // the Prophecies stay mutually exclusive.
@@ -2566,11 +2576,12 @@ mod tests {
         );
         assert_eq!(blocked.len(), 5, "all five BUFF_SPECIAL slots: {blocked:?}");
         // An ordinary buff blocks nothing.
-        assert!(sd
-            .get(1068, 1)
-            .expect("Might")
-            .blocked_abnormals()
-            .is_empty());
+        assert!(
+            sd.get(1068, 1)
+                .expect("Might")
+                .blocked_abnormals()
+                .is_empty()
+        );
 
         // Warrior Bane 1350 / Mass Warrior Bane 1344 — probabilistic dispel.
         let bane = sd.get(1350, 1).expect("Warrior Bane lvl 1");
@@ -2714,16 +2725,18 @@ mod tests {
             4,
             "Speed pumps 4 move stats"
         );
-        assert!(!sd
-            .get(4323, 1)
-            .expect("Shield")
-            .stat_modifier_effects()
-            .is_empty());
-        assert!(!sd
-            .get(4331, 1)
-            .expect("Empower")
-            .stat_modifier_effects()
-            .is_empty());
+        assert!(
+            !sd.get(4323, 1)
+                .expect("Shield")
+                .stat_modifier_effects()
+                .is_empty()
+        );
+        assert!(
+            !sd.get(4331, 1)
+                .expect("Empower")
+                .stat_modifier_effects()
+                .is_empty()
+        );
 
         // Skill 22490 "Mysterious Spiritshot d 5000" — the `Restoration`
         // effect backing the "Mysterious Blessed Spiritshot Pack (5000)
@@ -2773,10 +2786,12 @@ mod tests {
             !weapon_pen.stat_modifier_effects().is_empty(),
             "6209 must have stat effects"
         );
-        assert!(weapon_pen
-            .stat_modifier_effects()
-            .iter()
-            .any(|e| e.stat == Stat::PhysicalAttack));
+        assert!(
+            weapon_pen
+                .stat_modifier_effects()
+                .iter()
+                .any(|e| e.stat == Stat::PhysicalAttack)
+        );
         let armor_pen = sd.get(6213, 4).expect("Armor Grade Penalty lvl 4");
         assert!(
             !armor_pen.stat_modifier_effects().is_empty(),

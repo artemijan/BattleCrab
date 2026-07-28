@@ -301,16 +301,15 @@ fn call_skill_ai(world: &mut World, valakas_oid: i32) {
 
     // No target: a 1-in-10 chance to roam within ±1400, else idle.
     if victim == 0 {
-        if world.roll(10) == 0 {
-            if let Some(p) = world
+        if world.roll(10) == 0
+            && let Some(p) = world
                 .objects
                 .get_component::<Position>(&valakas_oid)
                 .copied()
-            {
-                let x = p.x + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
-                let y = p.y + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
-                crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, x, y, p.z);
-            }
+        {
+            let x = p.x + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
+            let y = p.y + world.roll(ROAM_OFFSET * 2 + 1) - ROAM_OFFSET;
+            crate::game_loop::npc_ai::move_npc_to(world, valakas_oid, x, y, p.z);
         }
         return;
     }

@@ -7,7 +7,7 @@ use crate::model::components::{
 };
 use crate::model::formulas;
 use crate::model::skill::{
-    abnormal_type_client_id, ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect,
+    ActiveBuff, BuffSlot, DispelSlot, RestorationGroup, Skill, SkillEffect, abnormal_type_client_id,
 };
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -22,7 +22,7 @@ pub(crate) fn apply_skill_effects(
     target_oid: i32,
     skill: &Skill,
 ) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     // Magic crit is rolled once per cast (Java rolls in each instant effect's
     // `instant()`; one roll covers the single instant effect skills have).
@@ -290,13 +290,12 @@ pub(crate) fn apply_skill_effects(
                 let gaussian = world.roll_gaussian();
                 if !formulas::calc_magic_affected(m_atk, defence, gaussian) {
                     // Java messages both sides and bails.
-                    if let Some(cid) = client_for_player(world, caster_oid) {
-                        if let Some(cs) = world.clients.get(&cid) {
+                    if let Some(cid) = client_for_player(world, caster_oid)
+                        && let Some(cs) = world.clients.get(&cid) {
                             cs.send(server_packets::system_message_with(sm_ids::YOUR_ATTACK_HAS_FAILED, &[]));
                         }
-                    }
-                    if let Some(cid) = client_for_player(world, target_oid) {
-                        if let Some(cs) = world.clients.get(&cid) {
+                    if let Some(cid) = client_for_player(world, target_oid)
+                        && let Some(cs) = world.clients.get(&cid) {
                             cs.send(server_packets::system_message_with(
                                 sm_ids::C1_RESISTED_C2_S_DRAIN,
                                 &[
@@ -305,7 +304,6 @@ pub(crate) fn apply_skill_effects(
                                 ],
                             ));
                         }
-                    }
                     continue;
                 }
 
@@ -352,15 +350,13 @@ pub(crate) fn apply_skill_effects(
                     }
                     drained
                 };
-                if drain_crit {
-                    if let Some(cid) = client_for_player(world, caster_oid) {
-                        if let Some(cs) = world.clients.get(&cid) {
+                if drain_crit
+                    && let Some(cid) = client_for_player(world, caster_oid)
+                        && let Some(cs) = world.clients.get(&cid) {
                             cs.send(server_packets::system_message_with(sm_ids::M_CRITICAL, &[]));
                         }
-                    }
-                }
-                if let Some(cid) = client_for_player(world, target_oid) {
-                    if let Some(cs) = world.clients.get(&cid) {
+                if let Some(cid) = client_for_player(world, target_oid)
+                    && let Some(cs) = world.clients.get(&cid) {
                         cs.send(server_packets::system_message_with(
                             sm_ids::S2_S_MP_HAS_BEEN_DRAINED_BY_C1,
                             &[
@@ -369,15 +365,13 @@ pub(crate) fn apply_skill_effects(
                             ],
                         ));
                     }
-                }
-                if let Some(cid) = client_for_player(world, caster_oid) {
-                    if let Some(cs) = world.clients.get(&cid) {
+                if let Some(cid) = client_for_player(world, caster_oid)
+                    && let Some(cs) = world.clients.get(&cid) {
                         cs.send(server_packets::system_message_with(
                             sm_ids::YOUR_OPPONENT_S_MP_WAS_REDUCED_BY_S1,
                             &[SmParam::Int(drained as i32)],
                         ));
                     }
-                }
                 broadcast_vitals(world, target_oid);
             }
             SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
@@ -484,11 +478,10 @@ pub(crate) fn apply_skill_effects(
                 damage *= attribute_mod(world, caster_oid, target_oid, skill);
                 // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
                 // (`critical_chance == None`) doesn't.
-                if let Some(cc) = critical_chance {
-                    if formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100)) {
+                if let Some(cc) = critical_chance
+                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100)) {
                         damage *= 2.0;
                     }
-                }
                 // Java passes `critical = true` to `doAttack` for every blow, so
                 // it always shows as a critical hit.
                 apply_skill_damage(world, caster_oid, target_oid, damage, true, false, &caster_name, skill.over_hit, false, skill.id);
@@ -534,47 +527,41 @@ pub(crate) fn apply_skill_effects(
                         if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
                             v.cur_hp = 1.0;
                         }
-                        if let Some(client_id) = client_for_player(world, target_oid) {
-                            if let Some(cs) = world.clients.get(&client_id) {
+                        if let Some(client_id) = client_for_player(world, target_oid)
+                            && let Some(cs) = world.clients.get(&client_id) {
                                 cs.send(server_packets::system_message_with(sm_ids::LETHAL_STRIKE, &[]));
                             }
-                        }
-                    } else if crate::game_loop::combat::is_npc_oid(target_oid) {
-                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    } else if crate::game_loop::combat::is_npc_oid(target_oid)
+                        && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
                             v.cur_hp = 1.0;
                         }
-                    }
                     broadcast_vitals(world, target_oid);
-                    if let Some(client_id) = caster_client {
-                        if let Some(cs) = world.clients.get(&client_id) {
+                    if let Some(client_id) = caster_client
+                        && let Some(cs) = world.clients.get(&client_id) {
                             cs.send(server_packets::system_message_with(sm_ids::HIT_WITH_LETHAL_STRIKE, &[]));
                         }
-                    }
                 } else if world.roll(100) < ((*half_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {
                             v.cur_cp = 1.0;
                         }
-                        if let Some(client_id) = client_for_player(world, target_oid) {
-                            if let Some(cs) = world.clients.get(&client_id) {
+                        if let Some(client_id) = client_for_player(world, target_oid)
+                            && let Some(cs) = world.clients.get(&client_id) {
                                 cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
                                 cs.send(server_packets::system_message_with(
                                     sm_ids::YOUR_CP_WAS_DRAINED_BECAUSE_YOU_WERE_HIT_WITH_A_HALF_KILL_SKILL,
                                     &[],
                                 ));
                             }
-                        }
-                    } else if crate::game_loop::combat::is_npc_oid(target_oid) {
-                        if let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    } else if crate::game_loop::combat::is_npc_oid(target_oid)
+                        && let Some(v) = world.objects.get_component_mut::<Vitals>(&target_oid) {
                             v.cur_hp *= 0.5;
                         }
-                    }
                     broadcast_vitals(world, target_oid);
-                    if let Some(client_id) = caster_client {
-                        if let Some(cs) = world.clients.get(&client_id) {
+                    if let Some(client_id) = caster_client
+                        && let Some(cs) = world.clients.get(&client_id) {
                             cs.send(server_packets::system_message_with(sm_ids::HALF_KILL, &[]));
                         }
-                    }
                 }
             }
             SkillEffect::HpDrain { power, percentage } => {
@@ -1246,14 +1233,12 @@ pub(crate) fn apply_skill_effects(
                 } else if let Some(entry) = aggro.0.get_mut(&caster_oid) {
                     entry.hate = (entry.hate + *power).max(0.0);
                 }
-                if *power > 0.0 {
-                    if let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid) {
-                        if ai.intention != crate::model::npc::NpcIntention::Attack {
+                if *power > 0.0
+                    && let Some(ai) = world.objects.get_component_mut::<crate::model::npc::NpcAi>(&target_oid)
+                        && ai.intention != crate::model::npc::NpcIntention::Attack {
                             ai.intention = crate::model::npc::NpcIntention::Attack;
                             ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
                         }
-                    }
-                }
             }
             // `DeleteHate.instant` — chance-rolled: wipe the *whole* aggro
             // list and disengage (Java `setWalking()` + `setIntention(ACTIVE)`).
@@ -1274,11 +1259,10 @@ pub(crate) fn apply_skill_effects(
                 if world.roll(100) >= *chance {
                     continue;
                 }
-                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid) {
-                    if let Some(entry) = aggro.0.get_mut(&caster_oid) {
+                if let Some(aggro) = world.objects.get_component_mut::<crate::model::npc::AggroList>(&target_oid)
+                    && let Some(entry) = aggro.0.get_mut(&caster_oid) {
                         entry.hate = 0.0;
                     }
-                }
                 crate::game_loop::npc_ai::set_active(world, target_oid);
             }
             // Periodic effects do nothing on application; their work happens on
@@ -1350,13 +1334,12 @@ pub(crate) fn apply_skill_effects(
         }
     }
     // Spend the soulshot on a physical/thrown skill (Java `unchargeShot(SOULSHOTS)`).
-    if ss {
-        if let Some(p) = world
+    if ss
+        && let Some(p) = world
             .objects
             .get_component_mut::<crate::model::Player>(&caster_oid)
-        {
-            p.uncharge_shot(crate::model::ShotType::Soulshots);
-        }
+    {
+        p.uncharge_shot(crate::model::ShotType::Soulshots);
     }
 
     apply_continuous_effects(world, caster_oid, target_oid, skill, None);
@@ -1379,7 +1362,7 @@ pub(crate) fn apply_continuous_effects(
     skill: &Skill,
     abnormal_time_override: Option<i32>,
 ) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
     let buff_effects = skill.stat_modifier_effects();
@@ -1485,13 +1468,13 @@ pub(crate) fn apply_continuous_effects(
                     skill.name, rate as i64, target_name
                 )
             };
-            if let Some(client_id) = client_for_player(world, caster_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::S1_TEXT,
-                        &[SmParam::Text(text)],
-                    ));
-                }
+            if let Some(client_id) = client_for_player(world, caster_oid)
+                && let Some(cs) = world.clients.get(&client_id)
+            {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::S1_TEXT,
+                    &[SmParam::Text(text)],
+                ));
             }
         }
         if resisted {
@@ -1626,14 +1609,13 @@ pub(crate) fn apply_continuous_effects(
             );
         }
         let now = world.tick;
-        if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(crate::network::enter_world::abnormal_status_update(
-                        buffs, now,
-                    ));
-                }
-            }
+        if let Some(client_id) = client_for_player(world, target_oid)
+            && let Some(buffs) = world.objects.get_component::<Buffs>(&target_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(crate::network::enter_world::abnormal_status_update(
+                buffs, now,
+            ));
         }
         // Max HP/MP/CP live on a separate path from `recalculate_stats`; fold
         // the buff's MaxHp/MaxMp/MaxCp modifiers into them too (e.g. a +MP buff).
@@ -2018,7 +2000,7 @@ fn target_level(world: &World, oid: i32) -> i32 {
 /// `maxMp`). **No skill on this dist grants that stat** — the `LimitMp` handler
 /// exists but nothing uses it — so the ceiling is plain `maxMp` here.
 fn restore_mp(world: &mut World, caster_oid: i32, target_oid: i32, amount: f64) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
     // `effected.isDead() || effected.isDoor() || effected.isMpBlocked()`.
     if world
         .objects
@@ -2294,18 +2276,16 @@ fn apply_block_actions_interrupt(world: &mut World, target_oid: i32) {
             .objects
             .get_component::<crate::model::components::Position>(&target_oid)
             .copied()
-        {
-            if let Some(region) = world
+            && let Some(region) = world
                 .objects
                 .get_component::<crate::model::components::RegionCell>(&target_oid)
                 .map(|r| r.0)
-            {
-                crate::game_loop::helpers::broadcast_near_region(
-                    world,
-                    region,
-                    &server_packets::stop_move(target_oid, pos.x, pos.y, pos.z, pos.heading),
-                );
-            }
+        {
+            crate::game_loop::helpers::broadcast_near_region(
+                world,
+                region,
+                &server_packets::stop_move(target_oid, pos.x, pos.y, pos.z, pos.heading),
+            );
         }
     }
     // Monsters additionally lose their chase leg; `think` will no-op while the
@@ -2386,13 +2366,13 @@ fn give_item(
     use server_packets::sm_ids;
 
     if item_id <= 0 || item_count <= 0 {
-        if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                    &[],
-                ));
-            }
+        if let Some(client_id) = client_for_player(world, target_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
+                &[],
+            ));
         }
         return;
     }
@@ -2423,13 +2403,13 @@ fn give_item_random(world: &mut World, target_oid: i32, groups: &[RestorationGro
         chance_from += group.chance;
     }
     let Some(items) = picked else {
-        if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
-                    &[],
-                ));
-            }
+        if let Some(client_id) = client_for_player(world, target_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::THERE_WAS_NOTHING_FOUND_INSIDE,
+                &[],
+            ));
         }
         return;
     };
@@ -2455,7 +2435,7 @@ fn give_item_random(world: &mut World, target_oid: i32, groups: &[RestorationGro
 /// `sendMessage` helper both `Restoration` variants duplicate).
 fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32)]) {
     use crate::model::inventory::Inventory;
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     for &(item_id, amount, enchant) in grants {
         let Some(changed_oids) =
@@ -2473,62 +2453,61 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
                 .get(item_id)
                 .map(|t| t.is_stackable)
                 .unwrap_or(false)
+            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&target_oid)
         {
-            if let Some(inv) = world.objects.get_component_mut::<Inventory>(&target_oid) {
-                for &oid in &changed_oids {
-                    inv.set_item_enchant(oid, enchant);
-                }
+            for &oid in &changed_oids {
+                inv.set_item_enchant(oid, enchant);
             }
         }
         let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else {
             continue;
         };
-        if let Some(client_id) = client_for_player(world, target_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
-                // single enchanted → "obtained a +S1 S2"; else "obtained S1".
-                let sm = if amount > 1 {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                        &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-                    )
-                } else if enchant > 0 {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
-                        &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
-                    )
-                } else {
-                    server_packets::system_message_with(
-                        sm_ids::YOU_HAVE_OBTAINED_S1,
-                        &[SmParam::ItemName(item_id)],
-                    )
-                };
-                cs.send(sm);
-                cs.send(crate::network::enter_world::inventory_update(
-                    inventory,
-                    &world.data,
-                    &changed_oids,
-                ));
-            }
+        if let Some(client_id) = client_for_player(world, target_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
+            // single enchanted → "obtained a +S1 S2"; else "obtained S1".
+            let sm = if amount > 1 {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+                )
+            } else if enchant > 0 {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
+                    &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+                )
+            } else {
+                server_packets::system_message_with(
+                    sm_ids::YOU_HAVE_OBTAINED_S1,
+                    &[SmParam::ItemName(item_id)],
+                )
+            };
+            cs.send(sm);
+            cs.send(crate::network::enter_world::inventory_update(
+                inventory,
+                &world.data,
+                &changed_oids,
+            ));
         }
     }
 }
 
 /// Send a bare (no-argument) system message to `player_oid`, if online.
 fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
-    if let Some(client_id) = client_for_player(world, player_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_id, &[]));
-        }
+    if let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(sm_id, &[]));
     }
 }
 
 /// Send a system message with parameters to `player_oid`, if online.
 fn send_sm_with(world: &World, player_oid: i32, sm_id: i16, params: &[server_packets::SmParam]) {
-    if let Some(client_id) = client_for_player(world, player_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_id, params));
-        }
+    if let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(sm_id, params));
     }
 }
 
@@ -2634,7 +2613,7 @@ fn roll_magic_failure(
     skill: &Skill,
     is_drain: bool,
 ) -> formulas::MagicFailure {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     if !world.cfg.character.magic_failures {
         return formulas::MagicFailure::None;
@@ -2829,8 +2808,8 @@ fn apply_sweeper(world: &mut World, caster_oid: i32, target_oid: i32) {
 /// item-skill path that cast the sow skill (the Seed handler), so no consume
 /// here — the same one-seed cost.
 pub(crate) fn apply_sow(world: &mut World, caster_oid: i32, target_oid: i32) {
-    use crate::model::npc::{Npc, NpcAi, NpcIntention};
     use crate::model::Player;
+    use crate::model::npc::{Npc, NpcAi, NpcIntention};
 
     let Some(player_level) = world
         .objects
@@ -2945,8 +2924,8 @@ fn calc_sow_success(
 /// on a dead, seeded corpse the caster sowed, roll `calcSuccess` and hand over
 /// the stashed crop (`Attackable.takeHarvest`).
 pub(crate) fn apply_harvesting(world: &mut World, caster_oid: i32, target_oid: i32) {
-    use crate::model::npc::Npc;
     use crate::model::Player;
+    use crate::model::npc::Npc;
 
     let Some(player_level) = world
         .objects
@@ -3154,7 +3133,7 @@ fn target_m_def(world: &World, target_oid: i32) -> f64 {
 /// `Player.sendDamageMessage`'s crit line: magic skills show `M_CRITICAL`,
 /// physical skills `C1_LANDED_A_CRITICAL_HIT` (named after the attacker).
 fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
     if is_magic {
         server_packets::system_message_with(sm_ids::M_CRITICAL, &[])
     } else {
@@ -3193,7 +3172,7 @@ pub(crate) fn apply_skill_damage(
     skill_id: i32,
 ) {
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
     // receivers) and refresh its HP bar, then report the damage to the caster.
@@ -3207,20 +3186,20 @@ pub(crate) fn apply_skill_damage(
             .and_then(|d| world.data.door_data.get(d.door_id))
             .map(|t| t.name.clone())
             .unwrap_or_default();
-        if let Some(client_id) = client_for_player(world, caster_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                if crit {
-                    cs.send(crit_message(is_magic, caster_name));
-                }
-                cs.send(server_packets::system_message_with(
-                    sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                    &[
-                        SmParam::PlayerName(caster_name.to_string()),
-                        SmParam::Text(door_name),
-                        SmParam::Int(damage as i32),
-                    ],
-                ));
+        if let Some(client_id) = client_for_player(world, caster_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            if crit {
+                cs.send(crit_message(is_magic, caster_name));
             }
+            cs.send(server_packets::system_message_with(
+                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+                &[
+                    SmParam::PlayerName(caster_name.to_string()),
+                    SmParam::Text(door_name),
+                    SmParam::Int(damage as i32),
+                ],
+            ));
         }
         crate::game_loop::combat::apply_door_damage(world, target_oid, damage as i32);
         return;
@@ -3242,27 +3221,27 @@ pub(crate) fn apply_skill_damage(
     };
     let dmg_int = damage as i32;
 
-    if let Some(client_id) = client_for_player(world, caster_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            if crit {
-                cs.send(crit_message(is_magic, caster_name));
-            }
-            cs.send(server_packets::system_message_with(
-                sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
-                &[
-                    SmParam::PlayerName(caster_name.to_string()),
-                    target_param,
-                    SmParam::Int(dmg_int),
-                    // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
-                    // — the on-screen floating damage number over the target.
-                    SmParam::Popup {
-                        target: target_oid,
-                        attacker: caster_oid,
-                        damage: -dmg_int,
-                    },
-                ],
-            ));
+    if let Some(client_id) = client_for_player(world, caster_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        if crit {
+            cs.send(crit_message(is_magic, caster_name));
         }
+        cs.send(server_packets::system_message_with(
+            sm_ids::C1_HAS_INFLICTED_S3_DAMAGE_ON_C2,
+            &[
+                SmParam::PlayerName(caster_name.to_string()),
+                target_param,
+                SmParam::Int(dmg_int),
+                // `sendDamageMessage`'s `addPopup(target, attacker, -damage)`
+                // — the on-screen floating damage number over the target.
+                SmParam::Popup {
+                    target: target_oid,
+                    attacker: caster_oid,
+                    damage: -dmg_int,
+                },
+            ],
+        ));
     }
 
     // Victim-side application: CP soak/HP/death/cast-break for players
@@ -3338,10 +3317,10 @@ pub(crate) fn broadcast_target_buffs(world: &mut World, target_oid: i32) {
             }
         });
     for oid in observers {
-        if let Some(cid) = client_for_player(world, oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt.clone());
-            }
+        if let Some(cid) = client_for_player(world, oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(pkt.clone());
         }
     }
 }
@@ -3492,21 +3471,20 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
 /// Push a periodic tick's HP/MP change to the owner and their party — the
 /// `broadcastStatusUpdate(effector)` every `onActionTime` ends with.
 fn broadcast_vitals(world: &World, target_oid: i32) {
-    if let Some(client_id) = client_for_player(world, target_oid) {
-        if let Some((v, cs)) = world
+    if let Some(client_id) = client_for_player(world, target_oid)
+        && let Some((v, cs)) = world
             .objects
             .get_component::<Vitals>(&target_oid)
             .copied()
             .zip(world.clients.get(&client_id))
-        {
-            cs.send(server_packets::status_update(
-                target_oid,
-                &[
-                    (server_packets::status_update_type::CUR_HP, v.cur_hp as i32),
-                    (server_packets::status_update_type::CUR_MP, v.cur_mp as i32),
-                ],
-            ));
-        }
+    {
+        cs.send(server_packets::status_update(
+            target_oid,
+            &[
+                (server_packets::status_update_type::CUR_HP, v.cur_hp as i32),
+                (server_packets::status_update_type::CUR_MP, v.cur_mp as i32),
+            ],
+        ));
     }
     crate::game_loop::party::notify_party_vitals(world, target_oid);
 }
@@ -3620,14 +3598,13 @@ pub(crate) fn handle_dam_over_time_tick(
                 let drain = dot_tick_damage(*power, *ticks);
                 if drain > v.cur_mp && is_toggle {
                     // Out of MP: the toggle switches itself off.
-                    if let Some(client_id) = client_for_player(world, target_oid) {
-                        if let Some(cs) = world.clients.get(&client_id) {
+                    if let Some(client_id) = client_for_player(world, target_oid)
+                        && let Some(cs) = world.clients.get(&client_id) {
                             cs.send(server_packets::system_message_with(
                                 server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
                                 &[],
                             ));
                         }
-                    }
                     deactivate_toggle = true;
                     continue;
                 }
@@ -3755,15 +3732,13 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         if let Some(b) = world.objects.get_component_mut::<Buffs>(&player_object_id) {
             b.0.retain(|x| x.skill_id != skill_id);
         }
-        if was_afraid {
-            if let Some(ai) = world
+        if was_afraid
+            && let Some(ai) = world
                 .objects
                 .get_component_mut::<crate::model::npc::NpcAi>(&player_object_id)
-            {
-                if ai.intention == crate::model::npc::NpcIntention::MoveTo {
-                    ai.intention = crate::model::npc::NpcIntention::Active;
-                }
-            }
+            && ai.intention == crate::model::npc::NpcIntention::MoveTo
+        {
+            ai.intention = crate::model::npc::NpcIntention::Active;
         }
         recompute_npc_buffed_stats(world, player_object_id);
         broadcast_target_buffs(world, player_object_id);
@@ -3848,12 +3823,12 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     let Some(client_id) = client_for_player(world, player_object_id) else {
         return;
     };
-    if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::enter_world::abnormal_status_update(
-                buffs, now,
-            ));
-        }
+    if let Some(buffs) = world.objects.get_component::<Buffs>(&player_object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(crate::network::enter_world::abnormal_status_update(
+            buffs, now,
+        ));
     }
 }
 

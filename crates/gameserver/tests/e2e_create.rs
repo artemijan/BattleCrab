@@ -7,11 +7,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use commons::crypt::NewCrypt;
-use commons::network::{read_frame, write_frame, PacketWriter};
+use commons::network::{PacketWriter, read_frame, write_frame};
 use gameserver::network::cipher::Encryption;
 use num_bigint_dig::BigUint;
-use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 use tokio::net::TcpStream;
+use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
 
 // ---------- login server + client crypto (mirrors loginserver test harness) ----------
 
@@ -71,7 +71,7 @@ fn login_config() -> loginserver::config::LoginConfig {
 
 /// Start the login server; returns (client_addr, gs_addr).
 async fn start_login() -> (std::net::SocketAddr, std::net::SocketAddr) {
-    use loginserver::controller::{spawn, ControllerSettings};
+    use loginserver::controller::{ControllerSettings, spawn};
     let pool = sqlx::SqlitePool::connect("sqlite::memory:").await.unwrap();
     setup_login_schema(&pool).await;
     let mut gs_table = loginserver::gs_table::GameServerTable::load(&pool).await;
@@ -241,8 +241,8 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
     use gameserver::db::{self, DbCommand, DbEvent};
     use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
     use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
-    use gameserver::network::connection::{self, NetworkConfig};
     use gameserver::network::NetEvent;
+    use gameserver::network::connection::{self, NetworkConfig};
 
     let (net_tx, net_rx) = std::sync::mpsc::channel::<NetEvent>();
     let (login_tx, login_rx) = std::sync::mpsc::channel::<LoginLinkEvent>();
@@ -389,7 +389,7 @@ fn parse_userinfo_hpmp(ui: &[u8]) -> (i32, i32) {
     let block_len = |b: &[u8], p: usize| u16::from_le_bytes([b[p], b[p + 1]]) as usize;
     pos += block_len(ui, pos); // BASIC_INFO
     pos += block_len(ui, pos); // BASE_STATS
-                               // MAX_HPCPMP: short(len) then maxHp, maxMp, maxCp.
+    // MAX_HPCPMP: short(len) then maxHp, maxMp, maxCp.
     let hp = i32::from_le_bytes(ui[pos + 2..pos + 6].try_into().unwrap());
     let mp = i32::from_le_bytes(ui[pos + 6..pos + 10].try_into().unwrap());
     (hp, mp)

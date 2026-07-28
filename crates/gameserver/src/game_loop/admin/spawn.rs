@@ -293,13 +293,13 @@ pub(super) fn admin_list_spawns(
     // position (Java's `spawn.getLastSpawn()`); fall back to the configured
     // point when none is alive or for `//list_spawns`.
     let resolve = |(ex, ey, ez): (i32, i32, i32)| -> (i32, i32, i32) {
-        if show_position {
-            if let Some(&(x, y, z)) = live.iter().min_by_key(|(x, y, z)| {
+        if show_position
+            && let Some(&(x, y, z)) = live.iter().min_by_key(|(x, y, z)| {
                 let (dx, dy, dz) = ((x - ex) as i64, (y - ey) as i64, (z - ez) as i64);
                 dx * dx + dy * dy + dz * dz
-            }) {
-                return (x, y, z);
-            }
+            })
+        {
+            return (x, y, z);
         }
         (ex, ey, ez)
     };
@@ -500,10 +500,10 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
             if npc_id != id {
                 continue;
             }
-        } else if let Some(n) = &name {
-            if !tname.to_lowercase().starts_with(&n.to_lowercase()) {
-                continue;
-            }
+        } else if let Some(n) = &name
+            && !tname.to_lowercase().starts_with(&n.to_lowercase())
+        {
+            continue;
         }
         list.push(Row {
             oid,

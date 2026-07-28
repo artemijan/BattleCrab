@@ -6,7 +6,7 @@ use tracing::{debug, error, info, warn};
 use crate::db::{self, DbEvent, DbEventRx};
 use crate::geo::worker::PathEventRx;
 use crate::loginlink::{LoginLinkCommand, LoginLinkEvent, LoginLinkEventRx};
-use crate::network::{server_packets, NetEvent, NetEventRx};
+use crate::network::{NetEvent, NetEventRx, server_packets};
 use crate::session::{ClientSession, Session};
 use crate::world::World;
 
@@ -591,7 +591,7 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
         .login
         .accounts_in_gameserver
         .iter()
-        .find(|(_, &id)| id == client_id)
+        .find(|(_, id)| **id == client_id)
         .map(|(a, _)| a.clone());
     if let Some(account) = account {
         world.login.accounts_in_gameserver.remove(&account);

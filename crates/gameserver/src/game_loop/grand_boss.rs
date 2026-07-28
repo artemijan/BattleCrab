@@ -106,10 +106,10 @@ pub(crate) fn on_grand_boss_killed(world: &mut World, boss_id: i32) {
         return;
     };
     // The stock death roar, first thing in every simple script's `onKill`.
-    if plays_stock_roars(boss_id) {
-        if let Some(oid) = boss_oid(world, boss_id) {
-            roar(world, oid, "BS02_D");
-        }
+    if plays_stock_roars(boss_id)
+        && let Some(oid) = boss_oid(world, boss_id)
+    {
+        roar(world, oid, "BS02_D");
     }
     // `getRandom(-r, r)` is inclusive on both ends.
     let spread = if window.random_hours > 0 {
@@ -241,14 +241,13 @@ fn spawn_from_record(world: &mut World, boss_id: i32) {
 
     // A stored HP of 0 means "was never wounded" (a fresh respawn), so only a
     // positive value overrides the template's full vitals.
-    if b.current_hp > 0.0 {
-        if let Some(v) = world
+    if b.current_hp > 0.0
+        && let Some(v) = world
             .objects
             .get_component_mut::<crate::model::components::Vitals>(&oid)
-        {
-            v.cur_hp = b.current_hp.min(v.max_hp as f64);
-            v.cur_mp = b.current_mp.min(v.max_mp as f64);
-        }
+    {
+        v.cur_hp = b.current_hp.min(v.max_hp as f64);
+        v.cur_mp = b.current_mp.min(v.max_mp as f64);
     }
 }
 

@@ -40,20 +40,20 @@ async fn main() {
 
     // Refuse to create one. If the file is absent the URL is wrong, or the
     // server was started from the wrong working directory.
-    if let (Some(path), Some(shown)) = (&db_path, &absolute) {
-        if !path.exists() {
-            eprintln!(
-                "FATAL: database file does not exist:\n  {}\n\n\
+    if let (Some(path), Some(shown)) = (&db_path, &absolute)
+        && !path.exists()
+    {
+        eprintln!(
+            "FATAL: database file does not exist:\n  {}\n\n\
                  dashboard_api will not create one — it must open the SAME SQLite file the \
                  login and game servers use.\n\
                  Run it from the directory that file lives in, or set an absolute path via \
                  DIST_GAME_CONFIG_DASHBOARD_URL.\n\
                  Current working directory: {}",
-                shown.display(),
-                std::env::current_dir().unwrap_or_default().display()
-            );
-            std::process::exit(1);
-        }
+            shown.display(),
+            std::env::current_dir().unwrap_or_default().display()
+        );
+        std::process::exit(1);
     }
 
     let pool = match commons::db::init(&config.database_url, config.database_max_connections).await

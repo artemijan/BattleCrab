@@ -9,8 +9,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 const RECIPES_FILE: &str = "data/Recipes.xml";
@@ -149,10 +149,9 @@ impl RecipeData {
                         b"ingredient" => {
                             if let (Some(r), Some(id), Some(count)) =
                                 (cur.as_mut(), num(b"id"), num(b"count"))
+                                && count > 0
                             {
-                                if count > 0 {
-                                    r.ingredients.push((id as i32, count));
-                                }
+                                r.ingredients.push((id as i32, count));
                             }
                         }
                         b"production" => {

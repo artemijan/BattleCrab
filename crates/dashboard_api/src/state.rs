@@ -2,8 +2,8 @@ use std::sync::Arc;
 
 use sqlx::SqlitePool;
 
-use crate::auth::ratelimit::RateLimiter;
 use crate::auth::SigningKey;
+use crate::auth::ratelimit::RateLimiter;
 use crate::config::DashboardConfig;
 use crate::cors::OriginPolicy;
 use crate::mail::Mailer;

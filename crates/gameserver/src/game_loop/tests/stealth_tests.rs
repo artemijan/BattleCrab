@@ -12,7 +12,7 @@ use super::*;
 
 use crate::model::components::Buffs;
 use crate::model::npc::AggroList;
-use crate::model::skill::{effect_flag, SkillEffect};
+use crate::model::skill::{SkillEffect, effect_flag};
 
 const PLAYER: i32 = 5001;
 const CID: u32 = 1;

@@ -3,8 +3,8 @@ pub mod admin;
 pub mod auth;
 pub mod status;
 
-use axum::http::HeaderMap;
 use axum::Router;
+use axum::http::HeaderMap;
 
 use crate::auth::cookie;
 use crate::config::DashboardConfig;

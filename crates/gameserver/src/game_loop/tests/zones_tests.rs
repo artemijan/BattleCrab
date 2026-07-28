@@ -40,8 +40,8 @@ fn melee_player_in_peace_zone_is_refused() {
 /// swing then flags the attacker on landing, covered by the combat path).
 #[test]
 fn melee_player_outside_peace_zone_starts_attack() {
-    use crate::model::components::Intent;
     use crate::model::PlayerIntent;
+    use crate::model::components::Intent;
     let (mut world, ..) = test_world();
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
@@ -357,9 +357,9 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
 /// distinct from UserInfo's (where the leader bit is `0x40`).
 #[test]
 fn siege_relation_carries_clan_leader_crown_bit() {
+    use crate::model::Player;
     use crate::model::components::Position;
     use crate::model::siege::Siege;
-    use crate::model::Player;
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
     world.sieges.insert(3, {
@@ -412,8 +412,8 @@ fn siege_relation_carries_clan_leader_crown_bit() {
 /// then: not for a non-participant in the same zone, and not once the siege ends.
 #[test]
 fn user_info_relation_sets_in_siege_crown_bit_for_participant() {
-    use crate::model::siege::{Siege, SiegeClanType};
     use crate::model::Player;
+    use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, ..) = cast_test_world();
     insert_siege_zone(&mut world, 3, 5000, 6000, -500, 500);
     world.sieges.insert(3, {
@@ -556,12 +556,14 @@ fn closed_door_blocks_cast_los_until_opened() {
     // Open the door: both nearby players get the status packets…
     super::doors::open_door(&mut world, door_oid);
     let pkts = drain(&mut a_rx);
-    assert!(pkts
-        .iter()
-        .any(|p| is_static_object_info(p) && door_packet_closed(p) == 0));
-    assert!(pkts
-        .iter()
-        .any(|p| is_door_status(p) && door_packet_closed(p) == 0));
+    assert!(
+        pkts.iter()
+            .any(|p| is_static_object_info(p) && door_packet_closed(p) == 0)
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| is_door_status(p) && door_packet_closed(p) == 0)
+    );
 
     // …and the cast now starts.
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));

@@ -9,7 +9,7 @@
 //! without an SES account. Production is expected to configure it; `main`
 //! warns at boot when it is not.
 
-use lettre::message::{header::ContentType, Mailbox, MultiPart, SinglePart};
+use lettre::message::{Mailbox, MultiPart, SinglePart, header::ContentType};
 use lettre::transport::smtp::authentication::Credentials;
 use lettre::{AsyncSmtpTransport, AsyncTransport, Message, Tokio1Executor};
 
@@ -378,13 +378,17 @@ mod tests {
     async fn a_disabled_mailer_succeeds_without_sending() {
         // Local development must not fail just because SMTP is unconfigured.
         let mailer = Mailer::disabled();
-        assert!(mailer
-            .send_email_verification("a@b.c", "alice", "https://x/t")
-            .await
-            .is_ok());
-        assert!(mailer
-            .send_password_reset("a@b.c", "alice", "https://x/t")
-            .await
-            .is_ok());
+        assert!(
+            mailer
+                .send_email_verification("a@b.c", "alice", "https://x/t")
+                .await
+                .is_ok()
+        );
+        assert!(
+            mailer
+                .send_password_reset("a@b.c", "alice", "https://x/t")
+                .await
+                .is_ok()
+        );
     }
 }

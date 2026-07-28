@@ -15,11 +15,11 @@ use commons::network::PacketReader;
 use tracing::warn;
 
 use crate::db::DbCommand;
-use crate::model::clan::{Clan, ClanMember, ALL_CLAN_PRIVILEGES, CL_DISMISS, CL_JOIN_CLAN};
+use crate::model::Player;
+use crate::model::clan::{ALL_CLAN_PRIVILEGES, CL_DISMISS, CL_JOIN_CLAN, Clan, ClanMember};
 use crate::model::components::ClanSkills;
 use crate::model::skill::ActiveBuff;
-use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use super::helpers::client_for_player;
@@ -230,12 +230,11 @@ fn apply_permanent_passive_buff(world: &mut World, oid: i32, buff: ActiveBuff) {
 
 /// Resend a member's merged `SkillList` (own skills + clan skills).
 fn refresh_member_skill_list(world: &World, member_oid: i32) {
-    if let Some(cid) = client_for_player(world, member_oid) {
-        if let Some(pkt) = super::helpers::skill_list_packet(world, member_oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt);
-            }
-        }
+    if let Some(cid) = client_for_player(world, member_oid)
+        && let Some(pkt) = super::helpers::skill_list_packet(world, member_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(pkt);
     }
 }
 
@@ -445,13 +444,13 @@ pub(crate) fn force_new_leader(world: &mut World, clan_id: i32, new_leader: i32)
         .map(|p| p.name.clone())
         .unwrap_or_default();
     for oid in online_members(world, clan_id) {
-        if let Some(cid) = client_for_player(world, oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1,
-                    &[SmParam::Text(name.clone())],
-                ));
-            }
+        if let Some(cid) = client_for_player(world, oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::CLAN_LEADER_PRIVILEGES_HAVE_BEEN_TRANSFERRED_TO_C1,
+                &[SmParam::Text(name.clone())],
+            ));
         }
     }
     true
@@ -481,17 +480,17 @@ fn add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
             continue;
         }
         apply_clan_skill_to_member(world, oid, skill_id, level);
-        if let Some(cid) = client_for_player(world, oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::pledge_skill_list_add(skill_id, level));
-                cs.send(server_packets::system_message_with(
-                    sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED,
-                    &[SmParam::SkillName {
-                        id: skill_id,
-                        level,
-                    }],
-                ));
-            }
+        if let Some(cid) = client_for_player(world, oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::pledge_skill_list_add(skill_id, level));
+            cs.send(server_packets::system_message_with(
+                sm_ids::THE_CLAN_SKILL_S1_HAS_BEEN_ADDED,
+                &[SmParam::SkillName {
+                    id: skill_id,
+                    level,
+                }],
+            ));
         }
         refresh_member_skill_list(world, oid);
     }
@@ -567,10 +566,10 @@ pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: b
     // Java broadcasts the full `PledgeSkillList` to online members afterward.
     let pkt = server_packets::pledge_skill_list(&clan_skill_pairs(world, clan_id));
     for oid in online_members(world, clan_id) {
-        if let Some(cid) = client_for_player(world, oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt.clone());
-            }
+        if let Some(cid) = client_for_player(world, oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(pkt.clone());
         }
     }
     // Report the clan's total (non-residence) skill count now in force, not just
@@ -790,10 +789,14 @@ pub(crate) fn set_clan_level(world: &mut World, clan_id: i32, level: i32) {
         apply_siege_skills_to_leader(world, clan_id, leader_id);
         // Java `changeLevel`: crossing level 5 tells the leader the clan can now
         // accumulate reputation.
-        if level > 4 {
-            if let Some(cid) = client_for_player(world, leader_id) {
-                send_sm(world, cid, sm_ids::NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION);
-            }
+        if level > 4
+            && let Some(cid) = client_for_player(world, leader_id)
+        {
+            send_sm(
+                world,
+                cid,
+                sm_ids::NOW_THAT_YOUR_CLAN_LEVEL_IS_ABOVE_LEVEL_5_IT_CAN_ACCUMULATE_CLAN_REPUTATION,
+            );
         }
     }
 }
@@ -864,10 +867,10 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
             // the aura and the pledge skills must drop.
             remove_clan_advent(world, *oid);
             remove_clan_skills_from_member(world, *oid);
-            if let Some(cid) = client_for_player(world, *oid) {
-                if let Some(cs) = world.clients.get(&cid) {
-                    cs.send(delete_all.clone());
-                }
+            if let Some(cid) = client_for_player(world, *oid)
+                && let Some(cs) = world.clients.get(&cid)
+            {
+                cs.send(delete_all.clone());
             }
         }
     }
@@ -1052,10 +1055,10 @@ fn notify_members(world: &World, clan_id: i32, subject: i32, online: bool) {
         if m.char_id == subject {
             continue;
         }
-        if let Some(cid) = client_for_player(world, m.char_id) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt.clone());
-            }
+        if let Some(cid) = client_for_player(world, m.char_id)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(pkt.clone());
         }
     }
 }
@@ -1067,10 +1070,10 @@ pub(crate) fn broadcast_to_clan(world: &World, clan_id: i32, pkt: &[u8]) {
         return;
     };
     for m in &clan.members {
-        if let Some(cid) = client_for_player(world, m.char_id) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt.to_vec());
-            }
+        if let Some(cid) = client_for_player(world, m.char_id)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(pkt.to_vec());
         }
     }
 }
@@ -1825,20 +1828,18 @@ pub(crate) fn handle_dissolve_clan(world: &mut World, client_id: u32, player_oid
     if let Some(pos) = world
         .objects
         .get_component::<crate::model::components::Position>(&player_oid)
-    {
-        if world
+        && world
             .data
             .zone_data
             .siege_castle_at(pos.x, pos.y, pos.z)
             .is_some()
-        {
-            send_sm(
-                world,
-                client_id,
-                sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_DURING_A_SIEGE,
-            );
-            return;
-        }
+    {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_DISSOLVE_A_CLAN_DURING_A_SIEGE,
+        );
+        return;
     }
     if clan.dissolving_expiry_time > now_millis() {
         send_sm(
@@ -2453,10 +2454,10 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
     }
     // TODO(G18.6): Java rejects academy members (SM 1754) — no academy yet.
 
-    if let Some(c) = world.clans.get_mut(&clan_id) {
-        if let Some(m) = c.members.iter_mut().find(|m| m.char_id == member.char_id) {
-            m.power_grade = grade;
-        }
+    if let Some(c) = world.clans.get_mut(&clan_id)
+        && let Some(m) = c.members.iter_mut().find(|m| m.char_id == member.char_id)
+    {
+        m.power_grade = grade;
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&member.char_id) {
         p.power_grade = grade;
@@ -2697,7 +2698,7 @@ fn send_clan_master_html(world: &World, client_id: u32, npc_oid: i32, file: &str
 
 // --- G18 slice 4: clan wars ------------------------------------------------
 
-use crate::model::clan::{ClanWar, ClanWarState, CL_PLEDGE_WAR, WAR_TIMEOUT_MS};
+use crate::model::clan::{CL_PLEDGE_WAR, ClanWar, ClanWarState, WAR_TIMEOUT_MS};
 
 /// `AltClanMembersForWar = 15` on this dist.
 const CLAN_MEMBERS_FOR_WAR: usize = 15;
@@ -3671,20 +3672,18 @@ pub(crate) fn handle_dissolve_ally(world: &mut World, client_id: u32, player_oid
     if let Some(pos) = world
         .objects
         .get_component::<crate::model::components::Position>(&player_oid)
-    {
-        if world
+        && world
             .data
             .zone_data
             .siege_castle_at(pos.x, pos.y, pos.z)
             .is_some()
-        {
-            send_sm(
-                world,
-                client_id,
-                sm_ids::CANNOT_DISSOLVE_ALLIANCE_WHILE_AFFILIATED_CLAN_IN_SIEGE,
-            );
-            return;
-        }
+    {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::CANNOT_DISSOLVE_ALLIANCE_WHILE_AFFILIATED_CLAN_IN_SIEGE,
+        );
+        return;
     }
 
     let dissolved =
@@ -4297,7 +4296,7 @@ pub(crate) fn handle_request_ally_info(world: &World, client_id: u32) {
 
 // --- G18 slice 6: sub-pledges & academy ------------------------------------
 
-use crate::model::clan::{SubPledge, SUBUNIT_ACADEMY, SUBUNIT_KNIGHT1, SUBUNIT_ROYAL1};
+use crate::model::clan::{SUBUNIT_ACADEMY, SUBUNIT_KNIGHT1, SUBUNIT_ROYAL1, SubPledge};
 
 /// `CreateRoyalGuardCost = 5000` (Feature.ini) — the reputation price of a
 /// royal-guard unit.
@@ -4684,10 +4683,10 @@ pub(crate) fn handle_assign_subpledge_leader(
         return;
     };
 
-    if let Some(c) = world.clans.get_mut(&clan_id) {
-        if let Some(sp) = c.sub_pledges.get_mut(&sub_pledge_id) {
-            sp.leader_id = member.char_id;
-        }
+    if let Some(c) = world.clans.get_mut(&clan_id)
+        && let Some(sp) = c.sub_pledges.get_mut(&sub_pledge_id)
+    {
+        sp.leader_id = member.char_id;
     }
     let _ = world.db.send(DbCommand::UpdateSubPledge {
         clan_id,
@@ -4719,7 +4718,7 @@ pub(crate) fn handle_assign_subpledge_leader(
 // --- G18 slice 7: crests ----------------------------------------------------
 
 use crate::model::clan::{
-    Crest, CL_REGISTER_CREST, CREST_TYPE_ALLY, CREST_TYPE_PLEDGE, CREST_TYPE_PLEDGE_LARGE,
+    CL_REGISTER_CREST, CREST_TYPE_ALLY, CREST_TYPE_PLEDGE, CREST_TYPE_PLEDGE_LARGE, Crest,
 };
 
 /// `CrestTable.createCrest`: allocate the next id, store the bitmap, persist.
@@ -5114,7 +5113,7 @@ pub(crate) fn handle_request_ally_crest(world: &World, client_id: u32, body: &[u
 // --- G18 slice 8: recruitment registry (ClanEntryManager) ------------------
 
 use crate::model::clan_entry::{
-    PledgeApplicantInfo, PledgeRecruitInfo, PledgeWaitingInfo, LOCK_TIME_TICKS,
+    LOCK_TIME_TICKS, PledgeApplicantInfo, PledgeRecruitInfo, PledgeWaitingInfo,
 };
 
 fn is_player_recruit_locked(world: &World, player_id: i32) -> bool {
@@ -5479,11 +5478,7 @@ pub(crate) fn handle_request_pledge_recruit_board_search(
                     .cmp(&world.clans.get(&b.clan_id).map(|c| c.level)),
                 _ => a.karma.cmp(&b.karma),
             };
-            if descending {
-                ord.reverse()
-            } else {
-                ord
-            }
+            if descending { ord.reverse() } else { ord }
         });
     }
 
@@ -5795,11 +5790,7 @@ pub(crate) fn handle_request_pledge_draft_list_search(
                 3 => a.level.cmp(&b.level),
                 _ => a.class_id.cmp(&b.class_id),
             };
-            if descending {
-                ord.reverse()
-            } else {
-                ord
-            }
+            if descending { ord.reverse() } else { ord }
         });
     }
     let out: Vec<_> = rows

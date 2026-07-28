@@ -432,10 +432,12 @@ fn real_dist_skills_parse_with_their_chances() {
 
     // Switch 12 pairs it with the already-ported TargetCancel, which must survive.
     let switch = skills.get(12, 1).expect("Switch loads");
-    assert!(switch
-        .effects
-        .iter()
-        .any(|e| matches!(e, SkillEffect::RandomizeHate { chance: 80 })));
+    assert!(
+        switch
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::RandomizeHate { chance: 80 }))
+    );
     assert!(
         switch
             .effects

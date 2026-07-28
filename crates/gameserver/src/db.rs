@@ -3807,7 +3807,7 @@ async fn load_quests(
     pool: &SqlitePool,
     owner_id: i32,
 ) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
-    use crate::model::quest::{state, QuestState, STATE_VAR};
+    use crate::model::quest::{QuestState, STATE_VAR, state};
     let rows = sqlx::query("SELECT name, var, value FROM character_quests WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
@@ -4868,7 +4868,7 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
         .execute(&mut *tx)
         .await?;
     for (name, qs) in &s.quests {
-        use crate::model::quest::{state, STATE_VAR};
+        use crate::model::quest::{STATE_VAR, state};
         if qs.state == state::CREATED && qs.vars.is_empty() {
             continue;
         }

@@ -7,7 +7,7 @@
 use bevy_ecs::component::Component;
 
 use crate::model::components::{Position, RegionCell};
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 #[derive(Debug, Clone, Component)]
 pub struct StaticObj {

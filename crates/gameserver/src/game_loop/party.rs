@@ -5,13 +5,13 @@
 //! Out of scope (PLAN_G10_SOCIAL.md): command channels, matching rooms,
 //! tactical signs, pets/servitors, duels, block list.
 
+use crate::model::Player;
 use crate::model::components::{
     PartyRef, PendingRequest, PlayerVitals, Position, RequestKind, Vitals,
 };
 use crate::model::party::{LootChangeRequest, LootRule, Party};
-use crate::model::Player;
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, sm_ids, PartyMemberView, SmParam};
+use crate::network::server_packets::{self, PartyMemberView, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -108,10 +108,10 @@ fn summon_views(
 }
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 
@@ -152,12 +152,11 @@ pub(crate) fn calculate_relation(world: &World, player: &Player) -> i32 {
         .objects
         .get_component::<PartyRef>(&player.object_id)
         .copied()
+        && let Some(party) = world.parties.get(&pid)
     {
-        if let Some(party) = world.parties.get(&pid) {
-            relation |= 0x08; // party member
-            if party.is_leader(player.object_id) {
-                relation |= 0x10; // party leader
-            }
+        relation |= 0x08; // party member
+        if party.is_leader(player.object_id) {
+            relation |= 0x10; // party leader
         }
     }
     if player.clan_id > 0 {
@@ -184,16 +183,16 @@ pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
         return 0;
     };
     let mut relation = 0;
-    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied() {
-        if world.parties.get(&pid).is_some() {
-            relation |= 0x20; // RELATION_HAS_PARTY
-            if world
-                .parties
-                .get(&pid)
-                .is_some_and(|party| party.is_leader(oid))
-            {
-                relation |= 0x10; // RELATION_PARTYLEADER
-            }
+    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied()
+        && world.parties.get(&pid).is_some()
+    {
+        relation |= 0x20; // RELATION_HAS_PARTY
+        if world
+            .parties
+            .get(&pid)
+            .is_some_and(|party| party.is_leader(oid))
+        {
+            relation |= 0x10; // RELATION_PARTYLEADER
         }
     }
     if p.clan_id > 0 {
@@ -336,10 +335,10 @@ pub(crate) fn handle_request_timeout(world: &mut World, object_id: i32, seq: u64
     };
     // An answered-side timeout for a never-attached fresh party drops it
     // (Java leaks the object to GC; our map needs the explicit remove).
-    if req.answerer {
-        if let RequestKind::PartyInvite { party_id } = req.kind {
-            drop_party_if_unborn(world, party_id);
-        }
+    if req.answerer
+        && let RequestKind::PartyInvite { party_id } = req.kind
+    {
+        drop_party_if_unborn(world, party_id);
     }
 }
 

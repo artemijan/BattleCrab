@@ -3,8 +3,8 @@
 
 use super::*;
 
-use crate::model::olympiad::{CompetitionType, DEFAULT_POINTS};
 use crate::model::Player;
+use crate::model::olympiad::{CompetitionType, DEFAULT_POINTS};
 use crate::network::server_packets::opcodes;
 
 /// True if a `SystemMessage` (0x62) with `id` was sent.

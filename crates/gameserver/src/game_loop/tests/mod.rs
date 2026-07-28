@@ -16,6 +16,7 @@ use crate::character::CharData;
 use crate::character::FriendInfo;
 use crate::db::DbEvent;
 use crate::loginlink::LoginLinkCommand;
+use crate::model::Player;
 use crate::model::components::Friends;
 use crate::model::components::{
     AdminFlags, Buffs, Casting, ClientPos, CombatStats, Intent, LastFolkNpc, Movement,
@@ -27,7 +28,6 @@ use crate::model::formulas;
 use crate::model::party::LootRule;
 use crate::model::shortcut::{Macro, MacroCmd, MacroType, Shortcut, ShortcutType};
 use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
-use crate::model::Player;
 use crate::network::client_packets::{self as cp, opcodes as cop};
 use crate::network::server_packets;
 use crate::session::{ClientSession, Session, SessionKey};
@@ -856,7 +856,7 @@ fn add_test_npc(
     let (npc, extra) = crate::model::npc::Npc::for_test(object_id, npc_id, x, y, z, 100, 50);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(object_id);
     world.objects.spawn(object_id, (npc, extra));
@@ -889,7 +889,7 @@ fn bypass_body(command: &str) -> Vec<u8> {
 /// units tall, not enterable, and the approach cells block their east
 /// exit (how real geodata encodes walls).
 fn install_wall_region(world: &mut World) {
-    use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
+    use crate::geo::{NSWE_ALL, NSWE_EAST, synthetic_region};
     // `world.geo` is shared with the path worker via `Arc` — in tests nothing
     // has cloned it yet, so it can be mutated in place.
     std::sync::Arc::get_mut(&mut world.geo)
@@ -1100,7 +1100,7 @@ fn spawn_targeted_monster(
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, x, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2099,7 +2099,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
     let (mut world, ..) = test_world();
     world.cfg.character.max_free_teleport_level = 40;
     world.id_pool = 0x5000_0000..0x5000_0100; // item oids for the seeded adena
-                                              // Adena template so `add_inventory_item`/`take_items` can stack it.
+    // Adena template so `add_inventory_item`/`take_items` can stack it.
     world
         .data
         .item_data

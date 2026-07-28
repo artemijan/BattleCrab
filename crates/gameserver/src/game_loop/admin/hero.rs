@@ -4,8 +4,8 @@
 //! path: with no unclaimed-hero list (Olympiad crowning is unported, G25) the
 //! target can never claim — Java's own outcome on a server with no crowned hero.
 
-use crate::model::components::SkillBook;
 use crate::model::Player;
+use crate::model::components::SkillBook;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 

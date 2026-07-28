@@ -11,12 +11,12 @@
 
 use crate::game_loop::clan_hall_auction::{banish_others, hall_by_npc_id, open_close_hall_doors};
 use crate::game_loop::clan_hall_function::{
-    buy_function, cast_hall_buff, function_level, remove_function, BuffCastOutcome, FunctionOutcome,
+    BuffCastOutcome, FunctionOutcome, buy_function, cast_hall_buff, function_level, remove_function,
 };
 use crate::game_loop::quests::{QuestCtx, QuestScript};
+use crate::model::Player;
 use crate::model::clan::{CH_DISMISS, CH_OPEN_DOOR, CH_OTHER_RIGHTS, CH_SET_FUNCTIONS};
 use crate::model::components::Vitals;
-use crate::model::Player;
 
 /// `CLANHALL_MANAGERS` — every clan-hall manager NPC.
 const MANAGERS: &[i32] = &[
@@ -270,10 +270,9 @@ impl ClanHallManager {
                 let type_name = parts.next().unwrap_or("");
                 if act == "remove" {
                     if let Some(func_id) = ctx.world.data.residence_functions.id_of_type(type_name)
+                        && remove_function(ctx.world, hall_id, func_id)
                     {
-                        if remove_function(ctx.world, hall_id, func_id) {
-                            return Some("ClanHallManager-removeFunctionDone.html".to_string());
-                        }
+                        return Some("ClanHallManager-removeFunctionDone.html".to_string());
                     }
                     Some("ClanHallManager-removeFunctionFail.html".to_string())
                 } else {

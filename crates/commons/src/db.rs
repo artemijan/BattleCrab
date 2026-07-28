@@ -7,8 +7,8 @@
 use std::str::FromStr;
 use std::time::Duration;
 
-use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use sqlx::SqlitePool;
+use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions};
 use tracing::info;
 
 #[derive(Debug, thiserror::Error)]
@@ -59,14 +59,15 @@ pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, Db
 
     // Fail clearly when the parent directory is missing: SQLite's "code 14" is
     // unhelpfully vague about this.
-    if let Some(parent) = resolved.parent() {
-        if !parent.as_os_str().is_empty() && !parent.exists() {
-            return Err(DbError::Open(OpenError {
-                url: jdbc_url.to_string(),
-                resolved: resolved.display().to_string(),
-                reason: format!("parent directory {} does not exist", parent.display()),
-            }));
-        }
+    if let Some(parent) = resolved.parent()
+        && !parent.as_os_str().is_empty()
+        && !parent.exists()
+    {
+        return Err(DbError::Open(OpenError {
+            url: jdbc_url.to_string(),
+            resolved: resolved.display().to_string(),
+            reason: format!("parent directory {} does not exist", parent.display()),
+        }));
     }
 
     // `filename` rather than parsing a `sqlite://` URL: the resolved path is

@@ -9,9 +9,9 @@
 
 use crate::data::zone_data::ZoneKind;
 use crate::game_loop::doors;
+use crate::model::Player;
 use crate::model::components::{Position, ZoneFlags};
 use crate::model::door::Door;
-use crate::model::Player;
 use crate::network::server_packets;
 use crate::network::trade;
 use crate::world::World;
@@ -436,7 +436,9 @@ pub(crate) fn server_shutdown_tick(world: &mut World) {
     let remaining = deadline.saturating_sub(world.tick) / 10;
     announce_all(
         world,
-        &format!("The server will be coming down in {remaining} second(s)! Please find a safe place to log out."),
+        &format!(
+            "The server will be coming down in {remaining} second(s)! Please find a safe place to log out."
+        ),
     );
     schedule_shutdown_tick(world);
 }
@@ -447,7 +449,7 @@ pub(crate) fn server_shutdown_tick(world: &mut World) {
 /// `//server_list_type <n>` set their attributes (Java's named-type parsing
 /// accepts the numeric bitmask here).
 pub(super) fn admin_server_status(world: &mut World, client_id: u32, cmd: &str, args: &[&str]) {
-    use crate::loginlink::{status, LoginLinkCommand};
+    use crate::loginlink::{LoginLinkCommand, status};
     let attrs: Vec<(i32, i32)> = match cmd {
         "admin_server_gm_only" => vec![(status::SERVER_LIST_STATUS, status::STATUS_GM_ONLY)],
         "admin_server_all" => vec![(status::SERVER_LIST_STATUS, status::STATUS_AUTO)],

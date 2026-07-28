@@ -115,9 +115,21 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
                 let count = reward_online_pccafe(world, object_id, value, range);
                 if range <= 0 {
-                    send_message(world, client_id, &format!("You increased PC Cafe point(s) of all online players ({count}) by {value}."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!(
+                            "You increased PC Cafe point(s) of all online players ({count}) by {value}."
+                        ),
+                    );
                 } else {
-                    send_message(world, client_id, &format!("You increased PC Cafe point(s) of all players ({count}) in range {range} by {value}."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!(
+                            "You increased PC Cafe point(s) of all players ({count}) in range {range} by {value}."
+                        ),
+                    );
                 }
             }
             _ => {}
@@ -249,9 +261,21 @@ pub(super) fn admin_primepoints(world: &mut World, client_id: u32, object_id: i3
                 let range = args.get(2).and_then(|s| s.parse::<i32>().ok()).unwrap_or(0);
                 let count = reward_online_prime(world, object_id, value, range);
                 if range <= 0 {
-                    send_message(world, client_id, &format!("You increased Prime Point(s) of all online players ({count}) by {value}."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!(
+                            "You increased Prime Point(s) of all online players ({count}) by {value}."
+                        ),
+                    );
                 } else {
-                    send_message(world, client_id, &format!("You increased Prime Point(s) of all players ({count}) in range {range} by {value}."));
+                    send_message(
+                        world,
+                        client_id,
+                        &format!(
+                            "You increased Prime Point(s) of all players ({count}) in range {range} by {value}."
+                        ),
+                    );
                 }
             }
             _ => {}
@@ -380,10 +404,10 @@ fn send_player_message(world: &World, target: i32, text: &str) {
 /// Push an `ExPCCafePointInfo` to the target player so the client updates its
 /// point display (`time = 1`, matching the Java admin handler).
 fn send_pccafe_packet(world: &World, target: i32, points: i32, add: i32) {
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(server_packets::ex_pccafe_point_info(points, add, 1));
-        }
+    if let Some(cid) = super::helpers::client_for_player(world, target)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(server_packets::ex_pccafe_point_info(points, add, 1));
     }
 }
 
@@ -399,11 +423,7 @@ pub(super) fn format_adena(value: i32) -> String {
         }
         out.push(ch);
     }
-    if neg {
-        format!("-{out}")
-    } else {
-        out
-    }
+    if neg { format!("-{out}") } else { out }
 }
 
 #[cfg(test)]

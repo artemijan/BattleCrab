@@ -6,7 +6,7 @@
 //! land (G21/G24/G25).
 
 use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use super::{current_target, send_message, send_sm};

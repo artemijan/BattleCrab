@@ -17,9 +17,9 @@ use tracing::warn;
 
 use crate::model::components::{LastFolkNpc, QuestTimerSeqs, Quests};
 use crate::model::inventory::Inventory;
-use crate::model::quest::{self, state, QuestState, COND_VAR, FLAGS_VAR};
+use crate::model::quest::{self, COND_VAR, FLAGS_VAR, QuestState, state};
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self, quest_sounds, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, quest_sounds, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -1579,10 +1579,10 @@ pub(crate) fn give_item_with_earned_message(
     // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
     // so the status-bar adena count refreshes on adena gains (`//create_coin`).
     super::helpers::send_inventory_update(world, client_id, player, iu);
-    if let Some(q) = quest_list {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(q);
-        }
+    if let Some(q) = quest_list
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(q);
     }
 }
 
@@ -1614,10 +1614,9 @@ pub(crate) fn take_items(
         .is_some_and(|t| t.is_quest_item);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(ew::inventory_update_changes(&world.data, &changes));
-        if is_quest_item {
-            if let Some(inventory) = world.objects.get_component::<Inventory>(&player) {
-                cs.send(ew::ex_quest_item_list(inventory, &world.data));
-            }
+        if is_quest_item && let Some(inventory) = world.objects.get_component::<Inventory>(&player)
+        {
+            cs.send(ew::ex_quest_item_list(inventory, &world.data));
         }
     }
     true

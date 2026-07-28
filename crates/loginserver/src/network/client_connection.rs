@@ -7,10 +7,10 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use commons::crypt::ScrambledKeyPair;
-use commons::network::{read_frame, write_frame, PacketReader};
+use commons::network::{PacketReader, read_frame, write_frame};
 use commons::util::rnd;
-use tokio::net::tcp::OwnedWriteHalf;
 use tokio::net::TcpStream;
+use tokio::net::tcp::OwnedWriteHalf;
 use tokio::sync::mpsc;
 use tracing::{debug, info};
 
@@ -120,10 +120,10 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
     }
 
     // onDisconnection: not joined a GS yet → free the account on the LS.
-    if let Some(account) = session.account.take() {
-        if !session.joined_gs {
-            ctx.controller.remove_authed_client(&account).await;
-        }
+    if let Some(account) = session.account.take()
+        && !session.joined_gs
+    {
+        ctx.controller.remove_authed_client(&account).await;
     }
     debug!("Client {} disconnected", session.ip);
 }

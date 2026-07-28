@@ -162,13 +162,13 @@ impl QuestScript for Tutorial {
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         match event {
             "start_newbie_tutorial" => {
-                if ctx.memo_state() < 4 {
-                    if let Some((voice, html, _, _)) = class_row(ctx.player_class_id()) {
-                        ctx.start_quest();
-                        ctx.set_memo_state(1);
-                        ctx.play_tutorial_voice(voice);
-                        ctx.tutorial_show_html_file(html);
-                    }
+                if ctx.memo_state() < 4
+                    && let Some((voice, html, _, _)) = class_row(ctx.player_class_id())
+                {
+                    ctx.start_quest();
+                    ctx.set_memo_state(1);
+                    ctx.play_tutorial_voice(voice);
+                    ctx.tutorial_show_html_file(html);
                 }
                 None
             }

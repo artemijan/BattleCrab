@@ -22,7 +22,7 @@
 
 use std::path::Path;
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 
 /// Launches `l2.exe` pointed at `server_ip`.
 ///
@@ -45,10 +45,10 @@ mod platform {
     use std::os::windows::ffi::OsStrExt;
     use std::path::Path;
 
-    use anyhow::{bail, Context};
+    use anyhow::{Context, bail};
     use windows_sys::Win32::Foundation::{CloseHandle, ERROR_CANCELLED};
     use windows_sys::Win32::UI::Shell::{
-        ShellExecuteExW, SEE_MASK_NOCLOSEPROCESS, SHELLEXECUTEINFOW,
+        SEE_MASK_NOCLOSEPROCESS, SHELLEXECUTEINFOW, ShellExecuteExW,
     };
     use windows_sys::Win32::UI::WindowsAndMessaging::SW_SHOWNORMAL;
 

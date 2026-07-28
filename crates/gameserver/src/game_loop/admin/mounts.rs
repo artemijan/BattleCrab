@@ -13,11 +13,11 @@
 //! feeds the movement pipeline's geodata exemptions and the packet fly
 //! fields.
 
+use crate::model::Player;
 use crate::model::components::{Buffs, Collision, Position, Speeds};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::OperateType;
-use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::world::World;
 
 use super::{current_target, send_message, send_sm};

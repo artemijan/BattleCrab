@@ -3,9 +3,9 @@
 //! `//sendhome`, `//walk`, `//teleport_character`, `//recall_npc`, and the
 //! teleport HTML menus).
 
+use crate::model::Player;
 use crate::model::components::{Position, RegionCell, Speeds};
 use crate::model::npc::Npc;
-use crate::model::Player;
 use crate::world::World;
 
 use super::{current_target, find_online_player, send_message, send_sm};

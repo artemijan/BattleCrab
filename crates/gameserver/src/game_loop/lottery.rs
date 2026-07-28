@@ -12,7 +12,7 @@ use crate::model::components::LotoPicks;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::model::lottery::LotteryRow;
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -419,10 +419,12 @@ fn show_loto_window(world: &mut World, client_id: u32, player: i32, npc_oid: i32
                     count += 1;
                 }
             }
-            if count < 5 && !found && value <= 20 {
-                if let Some(slot) = p.iter_mut().find(|s| **s == 0) {
-                    *slot = value;
-                }
+            if count < 5
+                && !found
+                && value <= 20
+                && let Some(slot) = p.iter_mut().find(|s| **s == 0)
+            {
+                *slot = value;
             }
             set_picks(world, player, p);
             // Highlight the pushed buttons.
@@ -620,14 +622,12 @@ fn claim_ticket(world: &mut World, client_id: u32, player: i32, item_oid: i32) {
         .and_then(|inv| inv.remove_by_object_id(item_oid, 1))
         .into_iter()
         .collect();
-    if prize > 0 {
-        if let Some(oids) = super::items::add_inventory_item(world, player, ADENA_ID, prize) {
-            if let Some(inv) = world.objects.get_component::<Inventory>(&player) {
-                if let Some(it) = inv.items().iter().find(|i| i.object_id == oids[0]) {
-                    changes.push(ItemChange::Modified(*it));
-                }
-            }
-        }
+    if prize > 0
+        && let Some(oids) = super::items::add_inventory_item(world, player, ADENA_ID, prize)
+        && let Some(inv) = world.objects.get_component::<Inventory>(&player)
+        && let Some(it) = inv.items().iter().find(|i| i.object_id == oids[0])
+    {
+        changes.push(ItemChange::Modified(*it));
     }
     let iu = ew::inventory_update_changes(&world.data, &changes);
     super::helpers::send_inventory_update(world, client_id, player, iu);

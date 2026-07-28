@@ -6,17 +6,17 @@
 //! Per-kill **scoring**, respawn, zone kicks, and winner **rewards** are slices
 //! 3–4 (see `docs/PLAN_G28_EVENTS_ENGINE.md`), flagged `TODO(G28)` at the seams.
 
-use rand::seq::SliceRandom;
 use rand::Rng;
+use rand::seq::SliceRandom;
 use tracing::warn;
 
 use crate::enums::ChatType;
 use crate::game_loop::death::{despawn_npc, introduce_npc, teleport_player};
 use crate::game_loop::instances;
+use crate::model::Player;
 use crate::model::components::{FishingSession, RegionCell};
 use crate::model::event::TvtPhase;
 use crate::model::npc::spawn_npc_at;
-use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -200,7 +200,7 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
     let mut roster = world.events.tvt.player_list.clone();
     roster.shuffle(&mut world.rng);
     world.events.tvt.player_list = roster.clone();
-    let mut to_blue = world.rng.gen::<bool>();
+    let mut to_blue = world.rng.r#gen::<bool>();
     for player in roster {
         set_registered(world, player, false);
         set_on_event(world, player, true);

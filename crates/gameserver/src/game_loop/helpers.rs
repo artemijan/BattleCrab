@@ -229,10 +229,10 @@ pub(crate) fn npc_say_text(world: &World, npc_oid: i32, text: &str) {
 /// player that can see them — Java `Creature.broadcastPacket(packet)` with
 /// `includeSelf == true`.
 pub(crate) fn broadcast_including_self(world: &World, object_id: i32, packet: &[u8]) {
-    if let Some(client_id) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(packet.to_vec());
-        }
+    if let Some(client_id) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(packet.to_vec());
     }
     broadcast_to_others(world, object_id, packet);
 }

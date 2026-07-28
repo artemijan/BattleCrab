@@ -2,9 +2,9 @@
 //! `//set_cp` EditChar vitals, and `AdminKill`. All operate on the current
 //! target (or the GM) and push the resulting `StatusUpdate`.
 
+use crate::model::Player;
 use crate::model::components::{PlayerVitals, Vitals};
 use crate::model::npc::Npc;
-use crate::model::Player;
 use crate::network::server_packets::{self, status_update_type as sut};
 use crate::world::World;
 
@@ -56,18 +56,16 @@ pub(crate) fn heal_creature(world: &mut World, target: i32) {
         (v.max_hp, v.max_mp)
     };
     let mut updates = vec![(sut::CUR_HP, max_hp), (sut::CUR_MP, max_mp)];
-    if is_player {
-        if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) {
-            pv.cur_cp = pv.max_cp as f64;
-            updates.push((sut::CUR_CP, pv.max_cp));
-        }
+    if is_player && let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&target) {
+        pv.cur_cp = pv.max_cp as f64;
+        updates.push((sut::CUR_CP, pv.max_cp));
     }
     let packet = server_packets::status_update(target, &updates);
     if is_player {
-        if let Some(cid) = super::helpers::client_for_player(world, target) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(packet);
-            }
+        if let Some(cid) = super::helpers::client_for_player(world, target)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(packet);
         }
         super::party::notify_party_vitals(world, target);
     } else if let Some(region) = world
@@ -146,30 +144,26 @@ fn res_creature(world: &mut World, target: i32) {
     if world.objects.has_component::<Player>(&target) {
         super::death::do_revive(world, target);
         full_restore(world, target);
-    } else if world.objects.has_component::<Npc>(&target) {
-        if let Some(region) = world
+    } else if world.objects.has_component::<Npc>(&target)
+        && let Some(region) = world
             .objects
             .get_component::<crate::model::components::RegionCell>(&target)
             .map(|r| r.0)
-        {
-            let max_hp = {
-                let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {
-                    return;
-                };
-                v.dead = false;
-                v.cur_hp = v.max_hp as f64;
-                v.max_hp
+    {
+        let max_hp = {
+            let Some(v) = world.objects.get_component_mut::<Vitals>(&target) else {
+                return;
             };
-            super::helpers::broadcast_near_region(world, region, &server_packets::revive(target));
-            super::helpers::broadcast_near_region(
-                world,
-                region,
-                &server_packets::status_update(
-                    target,
-                    &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)],
-                ),
-            );
-        }
+            v.dead = false;
+            v.cur_hp = v.max_hp as f64;
+            v.max_hp
+        };
+        super::helpers::broadcast_near_region(world, region, &server_packets::revive(target));
+        super::helpers::broadcast_near_region(
+            world,
+            region,
+            &server_packets::status_update(target, &[(sut::MAX_HP, max_hp), (sut::CUR_HP, max_hp)]),
+        );
     }
 }
 
@@ -194,10 +188,10 @@ fn full_restore(world: &mut World, target: i32) {
         ]
     };
     let packet = server_packets::status_update(target, &updates);
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = super::helpers::client_for_player(world, target)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
     super::party::notify_party_vitals(world, target);
 }
@@ -252,10 +246,10 @@ pub(super) fn set_vital(
         }
     };
     let packet = server_packets::status_update(target, &[update]);
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = super::helpers::client_for_player(world, target)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
     super::party::notify_party_vitals(world, target);
 }
@@ -273,23 +267,21 @@ pub(super) fn admin_kill(
 ) {
     if let Some(arg) = args.first() {
         // `//kill <name>` — a named online player (not for `//kill_monster`).
-        if !monster {
-            if let Some(named) = find_online_player(world, arg) {
-                // `//kill <name> <radius>` kills players around that player.
-                if let Some(radius) = args.get(1).and_then(|s| s.parse::<i32>().ok()) {
-                    for oid in super::creatures_in_range(world, named, radius, true, false) {
-                        kill_creature(world, oid, object_id);
-                    }
-                    send_message(
-                        world,
-                        client_id,
-                        &format!("Killed all characters within a {radius} unit radius."),
-                    );
-                    return;
+        if !monster && let Some(named) = find_online_player(world, arg) {
+            // `//kill <name> <radius>` kills players around that player.
+            if let Some(radius) = args.get(1).and_then(|s| s.parse::<i32>().ok()) {
+                for oid in super::creatures_in_range(world, named, radius, true, false) {
+                    kill_creature(world, oid, object_id);
                 }
-                kill_creature(world, named, object_id);
+                send_message(
+                    world,
+                    client_id,
+                    &format!("Killed all characters within a {radius} unit radius."),
+                );
                 return;
             }
+            kill_creature(world, named, object_id);
+            return;
         }
         let Some(radius) = arg.parse::<i32>().ok() else {
             send_message(

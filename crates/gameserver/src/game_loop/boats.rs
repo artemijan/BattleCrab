@@ -23,7 +23,7 @@ use crate::model::boat::{Boat, DockSchedule, DwellStage, Fare, InVehicle, Vehicl
 use crate::model::components::{Position, RegionCell};
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 use super::helpers::broadcast_near_region;
 
@@ -446,10 +446,10 @@ fn run_dwell_stage(world: &mut World, boat_oid: i32, stage_idx: usize) {
     for &mid in stage.messages {
         let say = sp::creature_say_system(ChatType::Boat, sched.char_id, mid as i32);
         broadcast_near_region(world, here, &say);
-        if let Some(there) = there {
-            if there != here {
-                broadcast_near_region(world, there, &say);
-            }
+        if let Some(there) = there
+            && there != here
+        {
+            broadcast_near_region(world, there, &say);
         }
     }
 
@@ -571,13 +571,13 @@ fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
                 sp::sm_ids::YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET,
             );
             oust_rider(world, player, boat_oid, fare);
-        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(crate::network::enter_world::inventory_update_changes(
-                    &world.data,
-                    &changes,
-                ));
-            }
+        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(crate::network::enter_world::inventory_update_changes(
+                &world.data,
+                &changes,
+            ));
         }
     }
 }
@@ -606,10 +606,10 @@ fn oust_rider(world: &mut World, player: i32, boat_oid: i32, fare: Fare) {
 
 /// Send a bare system message to a player if online.
 fn send_boat_sm(world: &World, player: i32, sm_id: i16) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(sp::system_message_with(sm_id, &[]));
-        }
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(sp::system_message_with(sm_id, &[]));
     }
 }
 
@@ -811,10 +811,10 @@ pub(crate) fn move_in_vehicle(
             .map(|p| p.heading)
             .unwrap_or(0);
         let stop = sp::stop_move_in_vehicle(player, boat_oid, dest.0, dest.1, dest.2, heading);
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(stop);
-            }
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(stop);
         }
         return;
     }
@@ -826,12 +826,12 @@ pub(crate) fn move_in_vehicle(
         v.seat_y = dest.1;
         v.seat_z = dest.2;
     }
-    if let Some((bx, by, bz, _)) = boat_state(world, boat_oid) {
-        if let Some(p) = world.objects.get_component_mut::<Position>(&player) {
-            p.x = bx + dest.0;
-            p.y = by + dest.1;
-            p.z = bz + dest.2;
-        }
+    if let Some((bx, by, bz, _)) = boat_state(world, boat_oid)
+        && let Some(p) = world.objects.get_component_mut::<Position>(&player)
+    {
+        p.x = bx + dest.0;
+        p.y = by + dest.1;
+        p.z = bz + dest.2;
     }
     let mov = sp::move_to_location_in_vehicle(player, boat_oid, dest, origin);
     crate::game_loop::helpers::broadcast_including_self(world, player, &mov);

@@ -3,7 +3,7 @@
 //! integer fields, appearance, and equipment enchant levels.
 
 use crate::model::inventory::{Inventory, PaperdollSlot};
-use crate::model::{Player, MAX_VITALITY_POINTS, MIN_VITALITY_POINTS};
+use crate::model::{MAX_VITALITY_POINTS, MIN_VITALITY_POINTS, Player};
 use crate::world::World;
 
 use super::{current_target, send_message, target_player};
@@ -409,13 +409,12 @@ pub(super) fn admin_set_enchant(
         send_message(world, client_id, "No item equipped in that slot.");
         return;
     };
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
-        if let Some(inv) = world.objects.get_component::<Inventory>(&target) {
-            let packet =
-                crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(packet);
-            }
+    if let Some(cid) = super::helpers::client_for_player(world, target)
+        && let Some(inv) = world.objects.get_component::<Inventory>(&target)
+    {
+        let packet = crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(packet);
         }
     }
     super::party::broadcast_user_info(world, target);
@@ -426,7 +425,7 @@ pub(super) fn admin_set_enchant(
 /// `AdminEditChar` opens a picker; the id form is what the GM panel bypasses
 /// use). With no argument, lists the target's current slots.
 pub(super) fn admin_setsubclass(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
-    use crate::game_loop::subclass::{add_subclass, AddError};
+    use crate::game_loop::subclass::{AddError, add_subclass};
 
     let target = target_player(world, object_id);
     let Some(class_id) = args.first().and_then(|s| s.parse::<i32>().ok()) else {

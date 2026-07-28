@@ -363,10 +363,11 @@ impl QuestScript for Q00420LittleWing {
                 20
             };
             ctx.give_item_randomly(TOAD_SKIN, 1, limit, 0.3, true);
-        } else if ctx.is_cond(6) && ctx.npc_id == ctx.get_int("drake_hunt") {
-            if let Some(egg) = egg_drop(ctx.npc_id) {
-                ctx.give_item_randomly(egg, 1, 20, 0.5, true);
-            }
+        } else if ctx.is_cond(6)
+            && ctx.npc_id == ctx.get_int("drake_hunt")
+            && let Some(egg) = egg_drop(ctx.npc_id)
+        {
+            ctx.give_item_randomly(egg, 1, 20, 0.5, true);
         }
     }
 

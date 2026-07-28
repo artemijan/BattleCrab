@@ -5,7 +5,7 @@ use super::*;
 
 use crate::data::item_auction_data::{AuctionInstanceCfg, AuctionItem, AuctionSchedule};
 use crate::game_loop::item_auction;
-use crate::model::item_auction::{next_date, AuctionState, ItemAuction};
+use crate::model::item_auction::{AuctionState, ItemAuction, next_date};
 use crate::scheduler::ScheduledTask;
 
 const DAY: i64 = 86_400_000;
@@ -120,10 +120,12 @@ fn boot_with_no_auctions_creates_a_next_auction_and_arms_it() {
     let rt = world.item_auctions.instances[&31113];
     assert_eq!(rt.next, Some(id));
     assert!(rt.current.is_none());
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::ItemAuctionState { auction_id: id }));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::ItemAuctionState { auction_id: id })
+    );
 }
 
 #[test]
@@ -256,10 +258,12 @@ fn canceling_a_losing_bid_refunds_the_adena() {
 
     assert!(item_auction::cancel_bid(&mut world, 1, 1, 100));
     assert_eq!(ia_adena(&world, 100), 500_000); // fully refunded
-    assert!(world.item_auctions.auctions[&1]
-        .bid_of(100)
-        .unwrap()
-        .is_canceled());
+    assert!(
+        world.item_auctions.auctions[&1]
+            .bid_of(100)
+            .unwrap()
+            .is_canceled()
+    );
 }
 
 #[test]
@@ -269,10 +273,12 @@ fn the_highest_bidder_cannot_cancel() {
     // Returns true (Java's reserve-not-met branch) but does not refund.
     assert!(item_auction::cancel_bid(&mut world, 1, 1, 100));
     assert_eq!(ia_adena(&world, 100), 350_000); // still escrowed
-    assert!(!world.item_auctions.auctions[&1]
-        .bid_of(100)
-        .unwrap()
-        .is_canceled());
+    assert!(
+        !world.item_auctions.auctions[&1]
+            .bid_of(100)
+            .unwrap()
+            .is_canceled()
+    );
 }
 
 #[test]
@@ -352,7 +358,7 @@ fn canceled_bids_are_cleared_when_the_auction_finishes() {
     assert_eq!(world.item_auctions.auctions[&1].bids.len(), 2);
 
     item_auction::run_state_task(&mut world, 1); // finish → clear canceled
-                                                 // The canceled bid is gone; the winner's bid remains.
+    // The canceled bid is gone; the winner's bid remains.
     let bids = &world.item_auctions.auctions[&1].bids;
     assert_eq!(bids.len(), 1);
     assert_eq!(bids[0].player_obj_id, 200);

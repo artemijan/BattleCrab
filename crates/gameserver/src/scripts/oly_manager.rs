@@ -9,8 +9,8 @@
 //! in later slices; they are stubbed with `TODO(G25)`.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::olympiad::{CompetitionType, OLYMPIAD_MANAGER_NPC};
 use crate::model::Player;
+use crate::model::olympiad::{CompetitionType, OLYMPIAD_MANAGER_NPC};
 
 pub struct OlyManager;
 

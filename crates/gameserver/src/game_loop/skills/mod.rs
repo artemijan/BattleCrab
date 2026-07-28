@@ -145,30 +145,30 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // module name), so this reuses it rather than a bespoke re-apply.
     super::passive_skills::recompute_conditioned_passives(world, object_id);
 
-    if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            let Some(skills) = world
-                .objects
-                .get_component::<crate::model::components::SkillBook>(&object_id)
-            else {
-                return;
-            };
-            cs.send(server_packets::acquire_skill_done());
-            if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
-                cs.send(pkt);
-            }
-            cs.send(crate::network::enter_world::acquire_skill_list(
-                v.p,
-                skills,
-                &world.data,
-            ));
-            cs.send(crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                crate::game_loop::party::calculate_relation(world, v.p),
-            ));
+    if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        let Some(skills) = world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&object_id)
+        else {
+            return;
+        };
+        cs.send(server_packets::acquire_skill_done());
+        if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
+            cs.send(pkt);
         }
+        cs.send(crate::network::enter_world::acquire_skill_list(
+            v.p,
+            skills,
+            &world.data,
+        ));
+        cs.send(crate::network::user_info::user_info(
+            &v,
+            &world.data,
+            &world.cfg.character,
+            crate::game_loop::party::calculate_relation(world, v.p),
+        ));
     }
     // `player.updateShortCuts(_id, _level, 0)` — refresh SKILL slots holding
     // the upgraded skill.

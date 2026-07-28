@@ -5,7 +5,7 @@ use super::*;
 
 use crate::db::DbCommand;
 use crate::game_loop::{daily_tasks, vitality};
-use crate::model::{Player, MAX_VITALITY_POINTS};
+use crate::model::{MAX_VITALITY_POINTS, Player};
 use crate::scheduler::ScheduledTask;
 
 fn set_vitality(world: &mut World, oid: i32, points: i32) {
@@ -73,9 +73,11 @@ fn weekly_refill_sets_the_pool_to_full() {
         MAX_VITALITY_POINTS,
         "full refill"
     );
-    assert!(drain_db(&mut db_rx)
-        .iter()
-        .any(|c| matches!(c, DbCommand::ResetVitality { weekly: true })));
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::ResetVitality { weekly: true }))
+    );
 }
 
 #[test]
@@ -107,14 +109,17 @@ fn the_daily_reset_runs_both_sub_resets_and_reschedules_itself() {
     // Vitality moved (its sub-reset ran) and both offline UPDATEs were queued.
     assert!(vitality_of(&world, 3001) > 20_000, "vitality refilled");
     let cmds = drain_db(&mut db_rx);
-    assert!(cmds
-        .iter()
-        .any(|c| matches!(c, DbCommand::ResetVitality { .. })));
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, DbCommand::ResetVitality { .. }))
+    );
     assert!(cmds.iter().any(|c| matches!(c, DbCommand::ResetRecommends)));
     // The task re-armed itself for the next day.
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .iter()
-        .any(|t| matches!(t, ScheduledTask::DailyReset)));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, ScheduledTask::DailyReset))
+    );
 }

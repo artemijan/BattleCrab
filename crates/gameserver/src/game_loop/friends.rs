@@ -4,23 +4,23 @@
 //! (PLAN_G10_SOCIAL.md §4).
 
 use crate::character::FriendInfo;
-use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::model::Player;
+use crate::model::components::{Friends, PendingRequest, RequestKind};
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, friend_status_mode, sm_ids, FriendEntry, SmParam};
+use crate::network::server_packets::{self, FriendEntry, SmParam, friend_status_mode, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
 use super::helpers::client_for_player;
 use super::party::{
-    clear_linked_request, find_player_by_name, install_request, REQUEST_TIMEOUT_TICKS,
+    REQUEST_TIMEOUT_TICKS, clear_linked_request, find_player_by_name, install_request,
 };
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 

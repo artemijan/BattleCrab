@@ -9,11 +9,11 @@
 //! combat-stat overrides, the `ExBasicActionList` swap, additional-item
 //! inventory blocks) is not applied yet — documented TODO.
 
+use crate::model::Player;
 use crate::model::components::{
     BaseStats, Collision, CombatStats, SkillBook, Speeds, StatModifiers,
 };
 use crate::model::inventory::Inventory;
-use crate::model::Player;
 use crate::world::World;
 
 use super::{current_target, send_message, send_sm};

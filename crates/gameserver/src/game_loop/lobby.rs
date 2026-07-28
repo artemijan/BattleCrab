@@ -684,10 +684,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         .objects
         .get_component::<crate::model::components::Vitals>(&object_id)
         .is_some_and(|v| v.dead)
+        && let Some(cs) = world.clients.get(&client_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::server_packets::die(object_id, true));
-        }
+        cs.send(crate::network::server_packets::die(object_id, true));
     }
 }
 

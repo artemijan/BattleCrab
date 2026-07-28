@@ -322,11 +322,11 @@ pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate:
         });
         entry.hate += hate;
     }
-    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
-        if ai.intention != NpcIntention::Attack {
-            ai.intention = NpcIntention::Attack;
-            ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;
-        }
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid)
+        && ai.intention != NpcIntention::Attack
+    {
+        ai.intention = NpcIntention::Attack;
+        ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;
     }
 }
 

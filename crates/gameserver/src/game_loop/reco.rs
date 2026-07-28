@@ -8,9 +8,9 @@
 
 use commons::network::PacketReader;
 
-use crate::model::components::TargetRef;
 use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::model::components::TargetRef;
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -29,10 +29,10 @@ fn clamp_reco(value: i32) -> i32 {
 }
 
 fn send_to_player(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 
@@ -136,10 +136,10 @@ pub(crate) fn handle_request_vote_new(world: &mut World, client_id: u32, body: &
     }
 
     // `player.giveRecom(target)`: target.incRecomHave() + player.decRecomLeft().
-    if let Some(t) = world.objects.get_component_mut::<Player>(&target) {
-        if t.rec_have < 255 {
-            t.rec_have += 1;
-        }
+    if let Some(t) = world.objects.get_component_mut::<Player>(&target)
+        && t.rec_have < 255
+    {
+        t.rec_have += 1;
     }
     let player_rec_left = {
         let p = world

@@ -9,11 +9,11 @@
 //! `<skill>` grants (none on Interlude dyes) are likewise skipped.
 
 use crate::data::henna_data::HennaStatSums;
+use crate::model::Player;
 use crate::model::components::{BaseStats, CombatStats, HennaSlots, Speeds, StatModifiers, Vitals};
 use crate::model::inventory::Inventory;
 use crate::model::stats::BaseStat;
-use crate::model::Player;
-use crate::network::server_packets::{self as sp, sm_ids, HennaStatWire, SmParam, StatPreview};
+use crate::network::server_packets::{self as sp, HennaStatWire, SmParam, StatPreview, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -321,10 +321,10 @@ pub(crate) fn handle_remove(world: &mut World, client_id: u32, symbol_id: i32) {
         h.0[slot] = None;
     }
     // Charge the cancel fee, refund the cancel count of dyes.
-    if henna.cancel_fee > 0 {
-        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&oid) {
-            inv.remove_item(ADENA_ID, henna.cancel_fee);
-        }
+    if henna.cancel_fee > 0
+        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&oid)
+    {
+        inv.remove_item(ADENA_ID, henna.cancel_fee);
     }
     if henna.cancel_count > 0 {
         super::items::add_inventory_item(world, oid, henna.dye_item_id, henna.cancel_count);

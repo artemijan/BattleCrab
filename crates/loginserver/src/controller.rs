@@ -8,8 +8,8 @@ use std::collections::HashMap;
 use crate::dao;
 use crate::enums::LoginFailReason;
 use crate::gs_table::{
-    hexid_to_string, login_server_fail, server_status, GameServerEntry, GameServerTable, GsCommand,
-    Subnet,
+    GameServerEntry, GameServerTable, GsCommand, Subnet, hexid_to_string, login_server_fail,
+    server_status,
 };
 use crate::session::SessionKey;
 use commons::crypt::hash_password;
@@ -926,12 +926,12 @@ impl Controller {
             .values()
             .find(|e| e.accounts.contains(&info.login))
         {
-            if entry.authed {
-                if let Some(link) = &entry.link {
-                    let _ = link.try_send(GsCommand::KickPlayer {
-                        account: info.login.clone(),
-                    });
-                }
+            if entry.authed
+                && let Some(link) = &entry.link
+            {
+                let _ = link.try_send(GsCommand::KickPlayer {
+                    account: info.login.clone(),
+                });
             }
             return AuthOutcome::AlreadyOnGs;
         }
@@ -958,13 +958,13 @@ impl Controller {
         // remember how many we asked so the ServerList waits for them all.
         let mut expected = 0;
         for entry in self.gs.servers.values() {
-            if entry.authed {
-                if let Some(link) = &entry.link {
-                    let _ = link.try_send(GsCommand::RequestCharacters {
-                        account: info.login.clone(),
-                    });
-                    expected += 1;
-                }
+            if entry.authed
+                && let Some(link) = &entry.link
+            {
+                let _ = link.try_send(GsCommand::RequestCharacters {
+                    account: info.login.clone(),
+                });
+                expected += 1;
             }
         }
         if let Some(entry) = self.authed_clients.get_mut(&info.login) {

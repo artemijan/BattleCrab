@@ -341,10 +341,12 @@ fn hold_toggles_following() {
         "and back to following"
     );
     servitor_follow_tick(&mut world, oid);
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::Movement>(&oid)
-        .is_some());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Movement>(&oid)
+            .is_some()
+    );
 }
 
 /// An ordered attack seeds hate on the target and switches the servitor to the
@@ -885,10 +887,12 @@ fn a_pet_follows_like_a_servitor() {
         .unwrap()
         .x = 900;
     servitor_follow_tick(&mut world, pet);
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::Movement>(&pet)
-        .is_some());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Movement>(&pet)
+            .is_some()
+    );
 }
 
 /// The collar is **taken**, not copied — Java's `removeScript`. A second
@@ -1214,12 +1218,14 @@ fn destroying_the_collar_drops_the_saved_pet() {
     park_collar(&mut world, collar);
     let _ = summon_pet(&mut world, OWNER).unwrap();
     crate::game_loop::servitor::sync_pet_row(&mut world, OWNER);
-    assert!(world
-        .objects
-        .get_component::<PlayerPets>(&OWNER)
-        .unwrap()
-        .0
-        .contains_key(&collar));
+    assert!(
+        world
+            .objects
+            .get_component::<PlayerPets>(&OWNER)
+            .unwrap()
+            .0
+            .contains_key(&collar)
+    );
 
     let mut body = Vec::new();
     body.extend_from_slice(&collar.to_le_bytes());
@@ -2340,12 +2346,14 @@ fn a_living_pet_is_not_proposed_for_resurrection() {
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
     crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
-    assert!(world
-        .objects
-        .get_component::<crate::model::Player>(&OWNER)
-        .unwrap()
-        .revive_request
-        .is_none());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&OWNER)
+            .unwrap()
+            .revive_request
+            .is_none()
+    );
 }
 
 /// Reviving the pet must not revive the *owner*: one field on the player

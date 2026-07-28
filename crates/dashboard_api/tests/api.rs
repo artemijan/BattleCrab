@@ -8,7 +8,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use axum::body::Body;
-use axum::http::{header, Request, StatusCode};
+use axum::http::{Request, StatusCode, header};
 use dashboard_api::config::DashboardConfig;
 use dashboard_api::state::App;
 use http_body_util::BodyExt;
@@ -31,8 +31,7 @@ const ACCOUNTS_DDL: &str = "CREATE TABLE accounts (
 /// The partial unique index is the only thing stopping two master accounts from
 /// sharing an address, so it belongs in the test schema — without it,
 /// `duplicate_registration_is_rejected` would pass for the wrong reason.
-const ACCOUNTS_MASTER_EMAIL_INDEX: &str =
-    "CREATE UNIQUE INDEX accounts_master_email ON accounts (email COLLATE NOCASE) \
+const ACCOUNTS_MASTER_EMAIL_INDEX: &str = "CREATE UNIQUE INDEX accounts_master_email ON accounts (email COLLATE NOCASE) \
      WHERE login IS NULL";
 
 const CHARACTERS_DDL: &str = "CREATE TABLE characters (

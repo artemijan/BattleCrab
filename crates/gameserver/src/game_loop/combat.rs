@@ -12,17 +12,17 @@
 //! system.
 
 use crate::game_loop::common::maybe_distance_too_far;
+use crate::model::PlayerIntent;
 use crate::model::components::{
     AttackState, Casting, Collision, CombatStats, Intent, Movement, PlayerVitals, Position,
     RegionCell, Speeds, Vitals,
 };
 use crate::model::formulas;
-use crate::model::movement::{self, get_position, MoveData};
+use crate::model::movement::{self, MoveData, get_position};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::model::stats::BaseStat;
-use crate::model::PlayerIntent;
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -522,21 +522,20 @@ pub(crate) fn start_attack_intent(
     // starting a chase (Java discards the flag; we honour it). The player is
     // stationary here — a chase leg or manual move ends before this — so the
     // current position is the right thing to range-check.
-    if shift {
-        if let (Some(attacker), Some(target)) = (
+    if shift
+        && let (Some(attacker), Some(target)) = (
             combatant(world, object_id),
             combatant(world, target_object_id),
-        ) {
-            if distance_2d(&attacker, &target) > attack_reach(&attacker, &target) {
-                super::helpers::send_sm_and_action_failed(
-                    world,
-                    client_id,
-                    server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE,
-                    &[],
-                );
-                return;
-            }
-        }
+        )
+        && distance_2d(&attacker, &target) > attack_reach(&attacker, &target)
+    {
+        super::helpers::send_sm_and_action_failed(
+            world,
+            client_id,
+            server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE,
+            &[],
+        );
+        return;
     }
     world.objects.add_components(
         &object_id,
@@ -1071,11 +1070,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         && world
             .objects
             .has_component::<crate::model::Player>(&attacker_oid)
+        && let Err(why) = super::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type)
     {
-        if let Err(why) = super::ranged::prepare_ranged_shot(world, attacker_oid, weapon_type) {
-            super::ranged::report_refusal(world, attacker_oid, why);
-            return;
-        }
+        super::ranged::report_refusal(world, attacker_oid, why);
+        return;
     }
 
     let time_atk = formulas::calculate_time_between_attacks(attacker.p_atk_spd);
@@ -1193,15 +1191,14 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
     };
     // Notify a shielding player their block landed (Interlude has only the
     // "succeeded" message; the perfect block reuses it).
-    if shield != formulas::SHIELD_NONE {
-        if let Some(cid) = client_for_player(world, target_oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::SHIELD_DEFENSE_SUCCEEDED,
-                    &[],
-                ));
-            }
-        }
+    if shield != formulas::SHIELD_NONE
+        && let Some(cid) = client_for_player(world, target_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(server_packets::system_message_with(
+            sm_ids::SHIELD_DEFENSE_SUCCEEDED,
+            &[],
+        ));
     }
     // `Hit.getGrade()`: the equipped weapon's crystal-grade ordinal, only when
     // a soulshot was actually spent.
@@ -1815,19 +1812,18 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
         speeds.running = true;
         !was_running
     };
-    if became_running {
-        if let Some(region) = world
+    if became_running
+        && let Some(region) = world
             .objects
             .get_component::<RegionCell>(&npc_oid)
             .map(|r| r.0)
-        {
-            broadcast_near_region_in(
-                world,
-                region,
-                instance_of(world, npc_oid),
-                &server_packets::change_move_type(npc_oid, true),
-            );
-        }
+    {
+        broadcast_near_region_in(
+            world,
+            region,
+            instance_of(world, npc_oid),
+            &server_packets::change_move_type(npc_oid, true),
+        );
     }
 }
 

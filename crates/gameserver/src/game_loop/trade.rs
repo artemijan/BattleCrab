@@ -19,10 +19,10 @@ fn player_of(world: &World, client_id: u32) -> Option<i32> {
 }
 
 fn send(world: &World, oid: i32, packet: Vec<u8>) {
-    if let Some(cid) = super::helpers::client_for_player(world, oid) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = super::helpers::client_for_player(world, oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 
@@ -311,16 +311,16 @@ fn transfer_side(world: &mut World, from: i32, to: i32) {
         if let Some(inv) = world.objects.get_component_mut::<Inventory>(&from) {
             inv.remove_by_object_id(line.object_id, n);
         }
-        if let Some(new_oid) = world.alloc_object_id() {
-            if let Some(inv) = world.objects.get_component_mut::<Inventory>(&to) {
-                inv.insert_instance(
-                    &world.data.item_data,
-                    new_oid,
-                    line.item_id,
-                    n,
-                    line.enchant,
-                );
-            }
+        if let Some(new_oid) = world.alloc_object_id()
+            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&to)
+        {
+            inv.insert_instance(
+                &world.data.item_data,
+                new_oid,
+                line.item_id,
+                n,
+                line.enchant,
+            );
         }
     }
 }
@@ -329,13 +329,12 @@ fn refresh(world: &World, oid: i32) {
     if let (Some(cid), Some(inv)) = (
         super::helpers::client_for_player(world, oid),
         world.objects.get_component::<Inventory>(&oid),
-    ) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(crate::network::enter_world::item_list(
-                inv,
-                &world.data,
-                false,
-            ));
-        }
+    ) && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::enter_world::item_list(
+            inv,
+            &world.data,
+            false,
+        ));
     }
 }

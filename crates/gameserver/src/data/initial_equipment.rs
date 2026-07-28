@@ -3,8 +3,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const INITIAL_EQUIPMENT_FILE: &str = "data/stats/initialEquipment.xml";

@@ -203,11 +203,7 @@ fn parse_config_line(raw: &str, fallback: Vec<f64>) -> Vec<f64> {
         .split(',')
         .filter_map(|v| v.trim().parse().ok())
         .collect();
-    if parsed.is_empty() {
-        fallback
-    } else {
-        parsed
-    }
+    if parsed.is_empty() { fallback } else { parsed }
 }
 
 /// `CustomMinionsRespawnTime` — `id,seconds;id,seconds;…`. Malformed pairs are

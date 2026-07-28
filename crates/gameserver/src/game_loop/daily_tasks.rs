@@ -70,7 +70,7 @@ mod tests {
         // The surrounding days are not.
         assert!(!is_weekly_reset_day(5 * MILLIS_PER_DAY)); // Tue
         assert!(!is_weekly_reset_day(7 * MILLIS_PER_DAY)); // Thu
-                                                           // A modern Wednesday: 2024-01-03.
+        // A modern Wednesday: 2024-01-03.
         assert!(is_weekly_reset_day(19725 * MILLIS_PER_DAY));
         assert!(!is_weekly_reset_day(19726 * MILLIS_PER_DAY));
     }

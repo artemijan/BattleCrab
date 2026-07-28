@@ -233,10 +233,10 @@ fn template_name(t: &InstanceTemplate) -> &str {
 
 /// The GM's party members, or just the GM when they aren't in one.
 fn party_members(world: &World, oid: i32) -> Vec<i32> {
-    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied() {
-        if let Some(party) = world.parties.get(&pid) {
-            return party.members.clone();
-        }
+    if let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&oid).copied()
+        && let Some(party) = world.parties.get(&pid)
+    {
+        return party.members.clone();
     }
     vec![oid]
 }

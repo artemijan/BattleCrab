@@ -156,18 +156,18 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     w.write_u8(0); // invisible
     w.write_u8(p.mount_type); // mount type (1 strider, 2 wyvern, 3 wolf, 0 none)
     w.write_u8(p.store_type); // private store type
-                              // Cubic count then one short per cubic id. This was hard-coded to 0, so a
-                              // summoned cubic was invisible to every other player — the same shape as
-                              // the abnormal-visual-effect count before G19 fixed it.
+    // Cubic count then one short per cubic id. This was hard-coded to 0, so a
+    // summoned cubic was invisible to every other player — the same shape as
+    // the abnormal-visual-effect count before G19 fixed it.
     w.write_i16(cubics.len() as i16);
     for id in cubics {
         w.write_i16(*id as i16);
     }
     w.write_u8(0); // in matching room
-                   // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`, where
-                   // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
-                   // rider stays 0 even in Java (its flight renders via the mount npc id +
-                   // the fly speeds above). Water: TODO with water zones.
+    // Java: `insideZone(WATER) ? 1 : isFlyingMounted() ? 2 : 0`, where
+    // `isFlyingMounted()` is *transform*-based (Gracia sky mounts) — a wyvern
+    // rider stays 0 even in Java (its flight renders via the mount npc id +
+    // the fly speeds above). Water: TODO with water zones.
     w.write_u8(0);
     w.write_i16(p.rec_have as i16); // recom have
     w.write_i32(if p.mount_npc_id == 0 {
@@ -177,7 +177,7 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     }); // mount npc id
     w.write_i32(p.class_id);
     w.write_i32(0); // TODO: Find me! (Java unknown)
-                    // Java: `isMounted() ? 0 : _enchantLevel` — no weapon glow on a mount.
+    // Java: `isMounted() ? 0 : _enchantLevel` — no weapon glow on a mount.
     w.write_u8(if p.is_mounted() {
         0
     } else {
@@ -207,10 +207,10 @@ pub fn char_info(v: &crate::model::PlayerView, visuals: &[i16], cubics: &[i32]) 
     w.write_i32(vitals.max_mp);
     w.write_i32(vitals.cur_mp.round() as i32);
     w.write_u8(0); // cBRLectureMark
-                   // `CharInfo`: the abnormal-visual list everyone nearby sees on this
-                   // character — the stun swirl, poison tint, silence mark. Java also appends
-                   // STEALTH here when a GM sees through invisibility (`_gmSeeInvis`), which
-                   // this port handles on the self-only Ex packet instead.
+    // `CharInfo`: the abnormal-visual list everyone nearby sees on this
+    // character — the stun swirl, poison tint, silence mark. Java also appends
+    // STEALTH here when a GM sees through invisibility (`_gmSeeInvis`), which
+    // this port handles on the self-only Ex packet instead.
     w.write_i32(visuals.len() as i32);
     for &id in visuals {
         w.write_i16(id);

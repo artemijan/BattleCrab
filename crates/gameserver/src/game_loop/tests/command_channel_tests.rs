@@ -85,8 +85,10 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
             &name_body("P3003"),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut rxs[1]))
-        .contains(&sm_ids::YOU_DO_NOT_HAVE_AUTHORITY_TO_INVITE_SOMEONE_TO_THE_COMMAND_CHANNEL));
+    assert!(
+        sm_ids_of(&drain(&mut rxs[1]))
+            .contains(&sm_ids::YOU_DO_NOT_HAVE_AUTHORITY_TO_INVITE_SOMEONE_TO_THE_COMMAND_CHANNEL)
+    );
 
     // With the Strategy Guide, inviting through *member* P3004: the dialog
     // goes to B's leader P3003.
@@ -106,8 +108,10 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
             .any(|p| is_ex(p, opcodes::EX_ASK_JOIN_MPCC)),
         "ExAskJoinMPCC lands on the target party's leader"
     );
-    assert!(sm_ids_of(&leader_pkts)
-        .contains(&sm_ids::C1_IS_INVITING_YOU_TO_A_COMMAND_CHANNEL_DO_YOU_ACCEPT));
+    assert!(
+        sm_ids_of(&leader_pkts)
+            .contains(&sm_ids::C1_IS_INVITING_YOU_TO_A_COMMAND_CHANNEL_DO_YOU_ACCEPT)
+    );
     assert!(
         drain(&mut rxs[3]).is_empty(),
         "the clicked member gets nothing"
@@ -129,9 +133,11 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
     let a_pkts = drain(&mut rxs[0]);
     assert!(sm_ids_of(&a_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_HAS_BEEN_FORMED));
     assert!(a_pkts.iter().any(|p| is_ex(p, opcodes::EX_OPEN_MPCC)));
-    assert!(a_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MPCC_PARTY_INFO_UPDATE)));
+    assert!(
+        a_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MPCC_PARTY_INFO_UPDATE))
+    );
     // B's side: joined SM + open window.
     let b_pkts = drain(&mut rxs[2]);
     assert!(sm_ids_of(&b_pkts).contains(&sm_ids::YOU_HAVE_JOINED_THE_COMMAND_CHANNEL));
@@ -146,8 +152,10 @@ fn ask_accept_forms_a_channel_with_the_right_packets() {
             &name_body("P3003"),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut rxs[0]))
-        .contains(&sm_ids::C1_S_PARTY_IS_ALREADY_A_MEMBER_OF_THE_COMMAND_CHANNEL));
+    assert!(
+        sm_ids_of(&drain(&mut rxs[0]))
+            .contains(&sm_ids::C1_S_PARTY_IS_ALREADY_A_MEMBER_OF_THE_COMMAND_CHANNEL)
+    );
 }
 
 #[test]
@@ -203,9 +211,11 @@ fn party_collapse_of_the_leading_party_kills_the_channel() {
     // is gone → the whole channel disbands.
     party::remove_party_member(&mut world, 1, 3002, party::LeaveType::Left);
     assert!(world.command_channels.is_empty());
-    assert!(drain(&mut rxs[2])
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_CLOSE_MPCC)));
+    assert!(
+        drain(&mut rxs[2])
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_CLOSE_MPCC))
+    );
 }
 
 #[test]
@@ -264,9 +274,11 @@ fn cc_chat_channels_gate_on_leadership() {
 
     // Channel 16: any party leader, but not a plain member.
     chat::handle_say2(&mut world, 3, &say2_body("ok", all, None));
-    assert!(drain(&mut rxs[1])
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SAY2));
+    assert!(
+        drain(&mut rxs[1])
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SAY2)
+    );
     for rx in &mut rxs {
         drain(rx);
     }
@@ -319,12 +331,16 @@ fn mpcc_room_lifecycle() {
     assert!(
         sm_ids_of(&leader_pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CREATED)
     );
-    assert!(leader_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_INFO)));
-    assert!(leader_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_MEMBER)));
+    assert!(
+        leader_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_INFO))
+    );
+    assert!(
+        leader_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_MEMBER))
+    );
     let room_id = world.matching_rooms.room_id_of(3001).expect("room exists");
     assert_eq!(
         world.matching_rooms.get(room_id).unwrap().kind,
@@ -337,15 +353,17 @@ fn mpcc_room_lifecycle() {
     );
 
     // The CC room is invisible to the party-room browser…
-    assert!(world
-        .matching_rooms
-        .find_rooms(
-            -1,
-            crate::model::matching_room::RoomLevelFilter::All,
-            1,
-            |_| 0
-        )
-        .is_empty());
+    assert!(
+        world
+            .matching_rooms
+            .find_rooms(
+                -1,
+                crate::model::matching_room::RoomLevelFilter::All,
+                1,
+                |_| 0
+            )
+            .is_empty()
+    );
 
     // …and shows in the MPCC browser (exact-location match).
     let leader_location = super::party_room::location_of(&world, 3001);
@@ -377,17 +395,25 @@ fn mpcc_room_lifecycle() {
         ),
     );
     let joiner_pkts = drain(&mut solo_rx);
-    assert!(joiner_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_INFO)));
-    assert!(joiner_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_MEMBER)));
+    assert!(
+        joiner_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_INFO))
+    );
+    assert!(
+        joiner_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MPCC_ROOM_MEMBER))
+    );
     let leader_pkts = drain(&mut rxs[0]);
-    assert!(leader_pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_MANAGE_PARTY_ROOM_MEMBER)));
-    assert!(sm_ids_of(&leader_pkts).contains(&sm_ids::C1_ENTERED_THE_COMMAND_CHANNEL_MATCHING_ROOM));
+    assert!(
+        leader_pkts
+            .iter()
+            .any(|p| is_ex(p, opcodes::EX_MANAGE_PARTY_ROOM_MEMBER))
+    );
+    assert!(
+        sm_ids_of(&leader_pkts).contains(&sm_ids::C1_ENTERED_THE_COMMAND_CHANNEL_MATCHING_ROOM)
+    );
 
     // The member-type rows: leader = 3 (CC leader), solo joiner = 6 (no party).
     let member_pkt = joiner_pkts
@@ -404,8 +430,10 @@ fn mpcc_room_lifecycle() {
         5,
         ex_packet(cp::ex_opcodes::REQUEST_EX_WITHDRAW_MPCC_ROOM, &[]),
     );
-    assert!(sm_ids_of(&drain(&mut solo_rx))
-        .contains(&sm_ids::YOU_EXITED_FROM_THE_COMMAND_CHANNEL_MATCHING_ROOM));
+    assert!(
+        sm_ids_of(&drain(&mut solo_rx))
+            .contains(&sm_ids::YOU_EXITED_FROM_THE_COMMAND_CHANNEL_MATCHING_ROOM)
+    );
     assert!(world.matching_rooms.is_waiting(3005));
     drain(&mut rxs[0]);
 
@@ -417,9 +445,10 @@ fn mpcc_room_lifecycle() {
     );
     let pkts = drain(&mut rxs[0]);
     assert!(sm_ids_of(&pkts).contains(&sm_ids::THE_COMMAND_CHANNEL_MATCHING_ROOM_WAS_CANCELLED));
-    assert!(pkts
-        .iter()
-        .any(|p| is_ex(p, opcodes::EX_DISSMISS_MPCC_ROOM)));
+    assert!(
+        pkts.iter()
+            .any(|p| is_ex(p, opcodes::EX_DISSMISS_MPCC_ROOM))
+    );
     assert!(world.matching_rooms.room_id_of(3001).is_none());
 }
 
@@ -521,21 +550,26 @@ fn raid_loot_rights_protect_the_drop_for_the_channel() {
     // An outsider may not take it: ActionFailed + SM 56, item stays.
     super::ground_items::pickup_ground_item(&mut world, 5, 3005, ground);
     let pkts = drain(&mut outsider_rx);
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL)
+    );
     assert!(sm_ids_of(&pkts).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::GroundItem>(&ground)
-        .is_some());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::GroundItem>(&ground)
+            .is_some()
+    );
 
     // A member of the *other* CC party may (isInLooterParty via the channel).
     super::ground_items::pickup_ground_item(&mut world, 4, 3004, ground);
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::GroundItem>(&ground)
-        .is_none());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::GroundItem>(&ground)
+            .is_none()
+    );
     assert_eq!(count_of_item(&world, 3004, 9550), 1);
 }
 

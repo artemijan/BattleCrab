@@ -3,8 +3,8 @@
 
 use super::*;
 
-use crate::model::components::SkillBook;
 use crate::model::Player;
+use crate::model::components::SkillBook;
 
 const PLAYER: i32 = 2001;
 const CID: u32 = 1;

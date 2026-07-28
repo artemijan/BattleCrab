@@ -379,11 +379,7 @@ fn format_amount(value: i64) -> String {
         }
         out.push(c);
     }
-    if value < 0 {
-        format!("-{out}")
-    } else {
-        out
-    }
+    if value < 0 { format!("-{out}") } else { out }
 }
 
 /// `Creature.getAttackType`: the equipped weapon's type, else `FIST`,

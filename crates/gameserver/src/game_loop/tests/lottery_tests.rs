@@ -53,9 +53,11 @@ fn fresh_boot_opens_round_one() {
     assert!(pending.contains(&ScheduledTask::LotteryFinish));
     assert!(pending.contains(&ScheduledTask::LotteryStopSelling));
     // The new round was persisted.
-    assert!(drain_db(&mut db_rx)
-        .iter()
-        .any(|c| matches!(c, crate::db::DbCommand::StoreLottery { idnr: 1, .. })));
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, crate::db::DbCommand::StoreLottery { idnr: 1, .. }))
+    );
 }
 
 #[test]
@@ -121,9 +123,11 @@ fn finish_with_no_tickets_rolls_over_and_carries_the_whole_pot() {
 
     // Phase 1: rolls the numbers + requests the tickets.
     lottery::finish_begin(&mut world);
-    assert!(drain_db(&mut db_rx)
-        .iter()
-        .any(|c| matches!(c, crate::db::DbCommand::LoadLotteryTickets { round: 1 })));
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, crate::db::DbCommand::LoadLotteryTickets { round: 1 }))
+    );
     // Phase 2: no tickets arrive → whole pot carries.
     lottery::finish_complete(&mut world, 1, vec![]);
 
@@ -139,10 +143,12 @@ fn finish_with_no_tickets_rolls_over_and_carries_the_whole_pot() {
             ..
         }
     )));
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::LotteryStart));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::LotteryStart)
+    );
 }
 
 #[test]
@@ -184,7 +190,7 @@ fn the_draw_splits_the_pot_by_tier() {
         _ => None,
     });
     assert_eq!(fin, Some((30000, 10000))); // 50000*0.6, 50000*0.2
-                                           // The result is cached for claims.
+    // The result is cached for claims.
     assert!(world.lottery.drawn.contains_key(&1));
 }
 
@@ -236,13 +242,15 @@ fn selling_closed_refuses_the_purchase() {
     lottery::loto_bypass(&mut world, 1, 100, 500, "Loto 22");
 
     // No ticket, no charge.
-    assert!(world
-        .objects
-        .get_component::<Inventory>(&100)
-        .unwrap()
-        .items()
-        .iter()
-        .all(|i| i.item_id != 4442));
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&100)
+            .unwrap()
+            .items()
+            .iter()
+            .all(|i| i.item_id != 4442)
+    );
     assert_eq!(adena(&world, 100), 10_000);
 }
 
@@ -288,12 +296,14 @@ fn claiming_a_winning_ticket_pays_out_and_consumes_it() {
     lottery::loto_bypass(&mut world, 1, 100, 500, &format!("Loto {oid}"));
 
     // Ticket consumed, 30000 adena paid.
-    assert!(world
-        .objects
-        .get_component::<Inventory>(&100)
-        .unwrap()
-        .items()
-        .iter()
-        .all(|i| i.object_id != oid));
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&100)
+            .unwrap()
+            .items()
+            .iter()
+            .all(|i| i.object_id != oid)
+    );
     assert_eq!(adena(&world, 100), 30_000);
 }

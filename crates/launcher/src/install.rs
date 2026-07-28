@@ -7,10 +7,10 @@
 use std::fs::File;
 use std::io::{BufWriter, Read, Write};
 use std::path::{Path, PathBuf};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
-use anyhow::{bail, Context};
+use anyhow::{Context, bail};
 use sevenz_rust2::{ArchiveReader, Password};
 
 use crate::progress::{Phase, Reporter};
@@ -142,10 +142,10 @@ fn download(
 
     // A truncated transfer that still returned 200 would otherwise surface later as a
     // confusing "malformed archive".
-    if let Some(total) = total {
-        if done != total {
-            bail!("download incomplete: got {done} of {total} bytes");
-        }
+    if let Some(total) = total
+        && done != total
+    {
+        bail!("download incomplete: got {done} of {total} bytes");
     }
     Ok(())
 }

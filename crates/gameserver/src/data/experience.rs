@@ -1,8 +1,8 @@
 //! Port of `data/xml/ExperienceData` — cumulative XP required per level from
 //! `data/stats/experience.xml`.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const EXPERIENCE_FILE: &str = "data/stats/experience.xml";

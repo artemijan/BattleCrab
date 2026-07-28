@@ -17,10 +17,11 @@ pub fn hexid_to_string(bytes: &[u8]) -> String {
 
 pub mod rnd {
     use super::*;
+    use rand::random;
 
     /// `Rnd.nextInt()` — full-range random i32.
     pub fn next_int() -> i32 {
-        rand::thread_rng().gen()
+        random()
     }
 
     /// `Rnd.get(n)` — random value in `[0, n)`.

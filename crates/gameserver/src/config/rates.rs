@@ -230,10 +230,10 @@ fn parse_id_multiplier_list(raw: &str) -> HashMap<i32, f64> {
     let mut out = HashMap::new();
     for entry in raw.split(';') {
         let mut it = entry.split(',');
-        if let (Some(id), Some(mult)) = (it.next(), it.next()) {
-            if let (Ok(id), Ok(mult)) = (id.trim().parse::<i32>(), mult.trim().parse::<f64>()) {
-                out.insert(id, mult);
-            }
+        if let (Some(id), Some(mult)) = (it.next(), it.next())
+            && let (Ok(id), Ok(mult)) = (id.trim().parse::<i32>(), mult.trim().parse::<f64>())
+        {
+            out.insert(id, mult);
         }
     }
     out

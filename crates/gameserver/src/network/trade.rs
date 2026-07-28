@@ -4,8 +4,8 @@
 
 use commons::network::PacketWriter;
 
-use crate::data::buy_list_data::BuyList;
 use crate::data::GameData;
+use crate::data::buy_list_data::BuyList;
 use crate::model::inventory::{Inventory, ItemInstance};
 
 const EX: u8 = 0xFE;

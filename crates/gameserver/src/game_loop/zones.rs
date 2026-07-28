@@ -68,12 +68,11 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         f.last_compass = compass;
     }
 
-    if compass_changed {
-        if let Some(cs) =
+    if compass_changed
+        && let Some(cs) =
             client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid))
-        {
-            cs.send(server_packets::ex_set_compass_zone_code(compass));
-        }
+    {
+        cs.send(server_packets::ex_set_compass_zone_code(compass));
     }
 
     // WaterZone.onEnter/onExit: flip the swim-speed branch and let everyone

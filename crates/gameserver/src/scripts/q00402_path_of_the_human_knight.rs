@@ -311,10 +311,10 @@ impl QuestScript for Q00402PathOfTheHumanKnight {
             return;
         }
         // `getRandom(10) < chance`, or no roll at all for the two that lack one.
-        if let Some(c) = chance {
-            if ctx.roll(10) >= *c {
-                return;
-            }
+        if let Some(c) = chance
+            && ctx.roll(10) >= *c
+        {
+            return;
         }
         ctx.give_items(*material, 1);
         // Java plays a sound here and, unusually, never advances the cond.

@@ -18,7 +18,7 @@ pub mod worker;
 use std::path::Path;
 
 use line::{LinePointIterator, LinePointIterator3D};
-use region::{Region, REGION_CELLS_X, REGION_CELLS_Y};
+use region::{REGION_CELLS_X, REGION_CELLS_Y, Region};
 use tracing::{info, warn};
 
 /// `geodata/Cell` NSWE bits.

@@ -7,7 +7,7 @@
 use super::*;
 
 use crate::data::cubic_data::{CubicSkill, CubicTargetType, CubicTemplate};
-use crate::game_loop::cubic::{handle_cubic_action, summon_cubic, Cubics};
+use crate::game_loop::cubic::{Cubics, handle_cubic_action, summon_cubic};
 
 const OWNER: i32 = 9911;
 const CID: u32 = 1;
@@ -425,10 +425,12 @@ fn the_caster_entity_is_cleaned_up() {
     register(&mut world, attack_template(1));
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
     let caster = world.objects.get_component::<Cubics>(&OWNER).unwrap().0[0].caster_oid;
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::CombatStats>(&caster)
-        .is_some());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::CombatStats>(&caster)
+            .is_some()
+    );
 
     crate::game_loop::cubic::remove_cubic(&mut world, OWNER, CUBIC_ID);
     assert!(

@@ -200,10 +200,12 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         out_rx.try_recv().unwrap()[0],
         server_packets::opcodes::MAGIC_SKILL_LAUNCHED
     );
-    assert!(world
-        .objects
-        .get_component::<Casting>(&2001)
-        .is_some_and(|c| c.0.launched));
+    assert!(
+        world
+            .objects
+            .get_component::<Casting>(&2001)
+            .is_some_and(|c| c.0.launched)
+    );
 
     world.tick += 5;
     apply_due_tasks(&mut world);
@@ -1071,9 +1073,9 @@ fn cast_enemy_nuke_deals_damage_and_enforces_reuse() {
         a_rx.try_recv().unwrap()[0],
         server_packets::opcodes::STATUS_UPDATE
     ); // B's CP/HP
-       // Nuking a player flags the caster (SkillCaster: bad skill on a playable →
-       // updatePvPStatus(target)): a PVP_FLAG StatusUpdate for object 3001, then
-       // the caster's own stance — both broadcast, object 3001.
+    // Nuking a player flags the caster (SkillCaster: bad skill on a playable →
+    // updatePvPStatus(target)): a PVP_FLAG StatusUpdate for object 3001, then
+    // the caster's own stance — both broadcast, object 3001.
     let a_flag = a_rx.try_recv().unwrap();
     assert_eq!(a_flag[0], server_packets::opcodes::STATUS_UPDATE);
     assert_eq!(
@@ -1622,17 +1624,23 @@ fn incoming_magic_damage_can_break_precast() {
         "victim's cast broken"
     );
     let b_packets = drain(&mut b_rx);
-    assert!(b_packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED));
-    assert!(b_packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-            && sm_id(p) == server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED));
+    assert!(
+        b_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED)
+    );
+    assert!(
+        b_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED)
+    );
     let a_packets = drain(&mut a_rx);
-    assert!(a_packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED));
+    assert!(
+        a_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_CANCELED)
+    );
 
     // B's stale launch task fires and no-ops: no buff ever lands.
     advance_ticks(&mut world, 60);
@@ -1859,7 +1867,7 @@ fn skill_mid_swing_is_queued_until_swing_end() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2081,9 +2089,11 @@ fn cast_out_of_range_walks_into_range_then_casts() {
         "chase leg stopped before casting"
     );
     let packets = drain(&mut a_rx);
-    assert!(packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE));
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+    );
 
     // Launch (35 ticks) + finish (5): the nuke lands on the walked-to monster.
     advance_world(&mut world, 45);
@@ -2231,7 +2241,7 @@ fn nuke_kills_monster_and_rewards() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 100, 0, 0, 100, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2391,7 +2401,7 @@ fn dagger_blows_deal_damage_and_backstab_requires_flank() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2474,7 +2484,7 @@ fn vampiric_touch_deals_damage_and_heals_caster() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -2526,7 +2536,7 @@ fn spawn_debuff_target(
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 40, 0, 0, 1_000_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -3377,8 +3387,8 @@ fn skill_acquire_gates_send_system_messages() {
 /// it against the current game tick — the cooldown survives the trip.
 #[test]
 fn skill_reuse_cooldown_survives_relog() {
-    use crate::model::components::Reuses;
     use crate::model::SkillReuse;
+    use crate::model::components::Reuses;
 
     let (mut world, ..) = test_world();
     let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
@@ -3423,10 +3433,12 @@ fn skill_reuse_cooldown_survives_relog() {
 
     // With the config off, nothing is persisted (and the DB rows get cleared).
     world.cfg.character.store_skill_cooltime = false;
-    assert!(super::net::build_save_data(&world, 3001)
-        .unwrap()
-        .skill_reuses
-        .is_empty());
+    assert!(
+        super::net::build_save_data(&world, 3001)
+            .unwrap()
+            .skill_reuses
+            .is_empty()
+    );
 }
 
 /// A live buff is captured into the save as its **remaining seconds** and comes
@@ -3476,10 +3488,12 @@ fn buff_survives_relog_without_offline_countdown() {
 
     // With the config off, buffs aren't persisted (and the DB rows get cleared).
     world.cfg.character.store_skill_cooltime = false;
-    assert!(super::net::build_save_data(&world, 3001)
-        .unwrap()
-        .skill_buffs
-        .is_empty());
+    assert!(
+        super::net::build_save_data(&world, 3001)
+            .unwrap()
+            .skill_buffs
+            .is_empty()
+    );
 }
 
 /// Java `storeEffect`'s skip list: a dance/song is dropped at logout unless
@@ -3868,7 +3882,7 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
     spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
     // The far monster: outside castRange 600, spawned untargeted.
     let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(far);
+    world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
@@ -3950,7 +3964,7 @@ fn far_retarget_after_target_cancel_walks_into_range() {
     let far = NPC_OID + 73;
     spawn_targeted_monster(&mut world, &mut a_rx, near, 100);
     let (npc, extra) = crate::model::npc::Npc::for_test(far, 40001, 900, 0, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(far);
+    world.npc_regions.entry(extra.1.0).or_default().push(far);
     world.objects.spawn(far, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
@@ -4024,7 +4038,7 @@ fn queued_far_retarget_with_real_datapack_timings() {
     // Real-datapack monsters (Gremlin, 20001) at 100 and 900 units.
     for (oid, x) in [(near, 100), (far, 900)] {
         let (npc, extra) = crate::model::npc::Npc::for_test(oid, 20001, x, 0, 0, 5000, 30);
-        world.npc_regions.entry(extra.1 .0).or_default().push(oid);
+        world.npc_regions.entry(extra.1.0).or_default().push(oid);
         world.objects.spawn(oid, (npc, extra));
         let cs = crate::model::npc::npc_combat_stats(
             world.data.npc_data.get(20001).unwrap(),
@@ -4692,7 +4706,7 @@ fn enemy_not_refuses_a_hostile_target() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 1000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -4798,7 +4812,7 @@ fn energy_attack_spends_charges_for_bonus_damage() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 100_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -4945,7 +4959,7 @@ fn lethal_spares_a_raid_boss() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 3404, 30, 0, 0, 1_000_000, 100);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));

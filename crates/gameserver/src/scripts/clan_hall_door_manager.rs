@@ -4,8 +4,8 @@
 
 use crate::game_loop::clan_hall_auction::{hall_by_npc_id, open_close_hall_doors};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::clan::CH_OPEN_DOOR;
 use crate::model::Player;
+use crate::model::clan::CH_OPEN_DOOR;
 
 /// `DOOR_MANAGERS` — every clan-hall door-manager NPC.
 const DOOR_MANAGERS: &[i32] = &[

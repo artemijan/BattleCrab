@@ -4,8 +4,8 @@
 //! so a leading 0x00 appears when the top bit is set.
 
 use num_bigint_dig::BigUint;
-use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 use rsa::RsaPrivateKey;
+use rsa::traits::{PrivateKeyParts, PublicKeyParts};
 
 pub struct RawRsaKeyPair {
     n: BigUint,

@@ -21,8 +21,8 @@
 //! Java's reuse-timestamp re-key (the port's reuses are keyed by skill id, so
 //! they carry across an enchant on their own).
 
-use crate::model::components::{SkillBook, SkillEnchants};
 use crate::model::Player;
+use crate::model::components::{SkillBook, SkillEnchants};
 use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -170,7 +170,7 @@ fn known_skill(world: &World, object_id: i32, skill_id: i32) -> Option<(i32, i32
 /// `RequestExEnchantSkill` (ex 0x0F: `d type, d skillId, h level, h sub`) —
 /// the transaction: validate the step, pay, roll, apply.
 pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex_body: &[u8]) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     let mut r = PacketReader::new(ex_body);
     let (Some(ty), Some(skill_id), Some(level), Some(target_sub)) =
@@ -299,13 +299,13 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
             _ => None,
         }
     };
-    if let Some(new_sub) = new_sub {
-        if let Some(ench) = world.objects.get_component_mut::<SkillEnchants>(&object_id) {
-            if new_sub > 0 {
-                ench.0.insert(skill_id, new_sub);
-            } else {
-                ench.0.remove(&skill_id);
-            }
+    if let Some(new_sub) = new_sub
+        && let Some(ench) = world.objects.get_component_mut::<SkillEnchants>(&object_id)
+    {
+        if new_sub > 0 {
+            ench.0.insert(skill_id, new_sub);
+        } else {
+            ench.0.remove(&skill_id);
         }
     }
 
@@ -344,9 +344,9 @@ pub(crate) fn handle_request_enchant_skill(world: &mut World, client_id: u32, ex
 
     // `broadcastUserInfo()` + `sendSkillList()`.
     super::party::broadcast_user_info(world, object_id);
-    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(pkt);
-        }
+    if let Some(pkt) = super::helpers::skill_list_packet(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(pkt);
     }
 }

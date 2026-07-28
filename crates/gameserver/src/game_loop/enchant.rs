@@ -406,10 +406,10 @@ pub(crate) fn handle_enchant(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
     // Consume the support item too, if present.
-    if support.is_some() {
-        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
-            inv.remove_by_object_id(support_oid, 1);
-        }
+    if support.is_some()
+        && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
+    {
+        inv.remove_by_object_id(support_oid, 1);
     }
 
     // Roll. `chance_no_bonus` is the group chance with the safe-enchant
@@ -579,10 +579,10 @@ fn apply_failure(
     let crystal_id = target_tpl.crystal_type.crystal_item_id();
     match (crystal_id, count) {
         (Some(cid), n) if n > 0 => {
-            if let Some(new_oid) = world.alloc_object_id() {
-                if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
-                    inv.add_item(&world.data.item_data, new_oid, cid, n);
-                }
+            if let Some(new_oid) = world.alloc_object_id()
+                && let Some(inv) = world.objects.get_component_mut::<Inventory>(&player)
+            {
+                inv.add_item(&world.data.item_data, new_oid, cid, n);
             }
             send(
                 world,

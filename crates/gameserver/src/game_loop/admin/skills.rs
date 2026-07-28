@@ -1,8 +1,8 @@
 //! Skill & buff commands — `AdminSkill`'s `//add_skill`/`//remove_skill` and
 //! `AdminBuffs`' `//buff`/`//getbuffs`/`//stopbuff`/`//stopallbuffs`.
 
-use crate::model::components::{Buffs, SkillBook};
 use crate::model::Player;
+use crate::model::components::{Buffs, SkillBook};
 use crate::world::World;
 
 use super::{current_target, send_message, target_player};
@@ -131,7 +131,7 @@ pub(super) fn admin_give_clan_skills(
     object_id: i32,
     include_squad: bool,
 ) {
-    use crate::network::server_packets::{sm_ids, SmParam};
+    use crate::network::server_packets::{SmParam, sm_ids};
     let Some(target) =
         current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
     else {
@@ -158,13 +158,12 @@ pub(super) fn admin_give_clan_skills(
         .get(&clan_id)
         .map(|c| c.leader_id != target)
         .unwrap_or(true)
+        && let Some(cs) = world.clients.get(&client_id)
     {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(crate::network::server_packets::system_message_with(
-                sm_ids::S1_IS_NOT_A_CLAN_LEADER,
-                &[SmParam::Text(target_name.clone())],
-            ));
-        }
+        cs.send(crate::network::server_packets::system_message_with(
+            sm_ids::S1_IS_NOT_A_CLAN_LEADER,
+            &[SmParam::Text(target_name.clone())],
+        ));
     }
     let count = crate::game_loop::clans::give_clan_skills(world, clan_id, include_squad);
     let clan_name = world
@@ -519,15 +518,14 @@ pub(super) fn admin_removereuse(world: &mut World, client_id: u32, object_id: i3
     {
         reuses.0.clear();
     }
-    if let Some(cid) = super::helpers::client_for_player(world, target) {
-        if let Some(reuses) = world
+    if let Some(cid) = super::helpers::client_for_player(world, target)
+        && let Some(reuses) = world
             .objects
             .get_component::<crate::model::components::Reuses>(&target)
-        {
-            let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(packet);
-            }
+    {
+        let packet = crate::network::server_packets::skill_cool_time(reuses, world.tick);
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(packet);
         }
     }
     let name = world

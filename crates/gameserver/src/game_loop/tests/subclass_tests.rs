@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::subclass::{add_subclass, set_active_class, AddError, BASE_SUBCLASS_LEVEL};
+use crate::game_loop::subclass::{AddError, BASE_SUBCLASS_LEVEL, add_subclass, set_active_class};
 use crate::model::Player;
 
 const PLAYER: i32 = 2001;
@@ -408,7 +408,7 @@ fn the_save_carries_hennas_and_shortcuts_for_every_slot() {
 // ---------------------------------------------------------------------------
 // The village-master flow (slice 5).
 
-use crate::game_loop::subclass::{available_subclasses, can_add_subclass, SUBCLASS_MIN_LEVEL};
+use crate::game_loop::subclass::{SUBCLASS_MIN_LEVEL, available_subclasses, can_add_subclass};
 
 #[test]
 fn adding_a_subclass_needs_level_75() {

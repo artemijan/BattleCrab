@@ -63,10 +63,10 @@ impl QuestScript for ClanMaster {
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
-        if let Some((_, no)) = LEADER_REQUIRED.iter().find(|(page, _)| *page == event) {
-            if !ctx.is_clan_leader() {
-                return Some(no.to_string());
-            }
+        if let Some((_, no)) = LEADER_REQUIRED.iter().find(|(page, _)| *page == event)
+            && !ctx.is_clan_leader()
+        {
+            return Some(no.to_string());
         }
         Some(event.to_string())
     }

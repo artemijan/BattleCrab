@@ -75,7 +75,7 @@ impl QuestScript for Q00303CollectArrowheads {
         if ctx.is_started() {
             match ctx.cond() {
                 1 if ctx.quest_items_count(ORCISH_ARROWHEAD) < REQUIRED_ITEM_COUNT => {
-                    return Some("30029-05.html".to_string())
+                    return Some("30029-05.html".to_string());
                 }
                 2 if ctx.quest_items_count(ORCISH_ARROWHEAD) >= REQUIRED_ITEM_COUNT => {
                     ctx.give_adena(500, true);

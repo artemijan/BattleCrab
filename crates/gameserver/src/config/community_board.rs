@@ -204,14 +204,14 @@ fn extract_teleports(html: &str, out: &mut HashMap<String, (i32, i32, i32)>) {
         let end = rest.find(['"', '\'']).unwrap_or(rest.len());
         let key = rest[..end].trim();
         let coords: Vec<&str> = key.split_whitespace().collect();
-        if coords.len() >= 3 {
-            if let (Ok(x), Ok(y), Ok(z)) = (
+        if coords.len() >= 3
+            && let (Ok(x), Ok(y), Ok(z)) = (
                 coords[0].parse::<i32>(),
                 coords[1].parse::<i32>(),
                 coords[2].parse::<i32>(),
-            ) {
-                out.insert(key.to_string(), (x, y, z));
-            }
+            )
+        {
+            out.insert(key.to_string(), (x, y, z));
         }
     }
 }

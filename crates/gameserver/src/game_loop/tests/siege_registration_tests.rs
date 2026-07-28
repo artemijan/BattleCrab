@@ -5,8 +5,8 @@ use super::*;
 
 use crate::data::siege_data::SiegeScheduleEntry;
 use crate::game_loop::siege::{
-    approve_defender, check_can_register, is_registration_over, register, remove_registration,
-    RegisterOutcome,
+    RegisterOutcome, approve_defender, check_can_register, is_registration_over, register,
+    remove_registration,
 };
 use crate::model::castle::{Castle, CastleSide};
 use crate::model::clan::Clan;
@@ -291,8 +291,8 @@ fn world_with_leader() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>)
     let p = world.objects.get_component_mut::<Player>(&LEADER).unwrap();
     p.clan_id = 10;
     p.clan_privs = 0; // leader, so privileges are implicit
-                      // `_db`/`_l` drop here; the world's db sends then no-op (best-effort, as in
-                      // the production path).
+    // `_db`/`_l` drop here; the world's db sends then no-op (best-effort, as in
+    // the production path).
     (world, rx)
 }
 

@@ -6,8 +6,8 @@
 //! resolved here; the rest are dispatched by hard-coded id in the game loop,
 //! because they are one-offs (sit, private store, emotes) rather than a table.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const ACTION_DATA_FILE: &str = "data/ActionData.xml";
@@ -46,11 +46,10 @@ impl ActionData {
                         continue;
                     };
                     action_ids.push(id);
-                    if attr(b"handler").as_deref() == Some("ServitorSkillUse") {
-                        if let Some(skill_id) = attr(b"option").and_then(|v| v.parse::<i32>().ok())
-                        {
-                            servitor_skills.insert(id, skill_id);
-                        }
+                    if attr(b"handler").as_deref() == Some("ServitorSkillUse")
+                        && let Some(skill_id) = attr(b"option").and_then(|v| v.parse::<i32>().ok())
+                    {
+                        servitor_skills.insert(id, skill_id);
                     }
                 }
                 Ok(Event::Eof) => break,

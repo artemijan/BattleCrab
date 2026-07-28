@@ -44,16 +44,14 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // `npc_<objectId>_<command>`: Java parses the id between the two
         // underscores and requires a command tail to act at all (the
         // ActionFailed terminator is sent regardless).
-        if let Some((id_str, npc_command)) = rest.split_once('_') {
-            if let Ok(npc_object_id) = id_str.parse::<i32>() {
-                if world
-                    .objects
-                    .has_component::<crate::model::npc::Npc>(&npc_object_id)
-                    && can_interact(world, object_id, npc_object_id)
-                {
-                    npc_bypass(world, client_id, object_id, npc_object_id, npc_command);
-                }
-            }
+        if let Some((id_str, npc_command)) = rest.split_once('_')
+            && let Ok(npc_object_id) = id_str.parse::<i32>()
+            && world
+                .objects
+                .has_component::<crate::model::npc::Npc>(&npc_object_id)
+            && can_interact(world, object_id, npc_object_id)
+        {
+            npc_bypass(world, client_id, object_id, npc_object_id, npc_command);
         }
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());

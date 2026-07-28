@@ -117,20 +117,20 @@ pub(crate) fn on_monster_killed(world: &mut World, killer_oid: i32, npc_oid: i32
 
     // Java `if (getRandom(100) < 5) npc.dropItem(killer, DEWDROP, 1)` — the crawl
     // trash sometimes yields a Dewdrop of Destruction (used on the portraits).
-    if world.roll(100) < 5 {
-        if let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied() {
-            crate::game_loop::ground_items::spawn_ground_item(
-                world,
-                DEWDROP_ITEM,
-                1,
-                0,
-                pos.x,
-                pos.y,
-                pos.z,
-                npc_oid,
-                crate::game_loop::ground_items::DropSource::Npc,
-            );
-        }
+    if world.roll(100) < 5
+        && let Some(pos) = world.objects.get_component::<Position>(&npc_oid).copied()
+    {
+        crate::game_loop::ground_items::spawn_ground_item(
+            world,
+            DEWDROP_ITEM,
+            1,
+            0,
+            pos.x,
+            pos.y,
+            pos.z,
+            npc_oid,
+            crate::game_loop::ground_items::DropSource::Npc,
+        );
     }
 }
 
@@ -650,15 +650,15 @@ fn handle_fight_step_inner(world: &mut World, instance_id: i32, step: u8) {
         // SCARLET_FIRST_MORPH: the morph cast (cosmetic; Java also plays a song).
         STEP_FIRST_MORPH => {
             let scarlet = var_oid(world, instance_id, "activeScarlet");
-            if scarlet != 0 {
-                if let Some(p) = world.objects.get_component::<Position>(&scarlet).copied() {
-                    let src = (scarlet, p.x, p.y, p.z);
-                    instances::broadcast_to_instance(
-                        world,
-                        instance_id,
-                        &server_packets::magic_skill_use_raw(src, src, FIRST_MORPH_SKILL, 1, 1000),
-                    );
-                }
+            if scarlet != 0
+                && let Some(p) = world.objects.get_component::<Position>(&scarlet).copied()
+            {
+                let src = (scarlet, p.x, p.y, p.z);
+                instances::broadcast_to_instance(
+                    world,
+                    instance_id,
+                    &server_packets::magic_skill_use_raw(src, src, FIRST_MORPH_SKILL, 1, 1000),
+                );
             }
             // TODO(frintezza slice 4b): playRandomSong here.
         }
@@ -941,10 +941,10 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
         .map_or(0, |n| n.npc_id);
     let (skill_id, level) = pick_daemon_skill(world, instance_id, npc_id);
     let range = skill_range(skill_id);
-    if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range) {
-        if let Some(skill) = world.data.skill_data.get(skill_id, level).cloned() {
-            crate::game_loop::npc_cast::start_cast(world, scarlet, target, &skill);
-        }
+    if let Some(target) = pick_target_in_range(world, instance_id, scarlet, range)
+        && let Some(skill) = world.data.skill_data.get(skill_id, level).cloned()
+    {
+        crate::game_loop::npc_cast::start_cast(world, scarlet, target, &skill);
     }
     schedule_scarlet(world, instance_id);
 }

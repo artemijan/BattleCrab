@@ -7,7 +7,7 @@
 
 use crate::model::components::{Casting, Position, Vitals};
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 

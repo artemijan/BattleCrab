@@ -116,21 +116,21 @@ pub fn send_macro_list(
     });
     w.write_u8(count as u8);
     w.write_u8(macro_.is_some() as u8);
-    if let Some(m) = macro_ {
-        if update != MacroUpdateType::Delete {
-            w.write_i32(m.id);
-            w.write_string(&m.name);
-            w.write_string(&m.descr);
-            w.write_string(&m.acronym);
-            w.write_i32(m.icon);
-            w.write_u8(m.commands.len() as u8);
-            for (i, cmd) in m.commands.iter().enumerate() {
-                w.write_u8((i + 1) as u8);
-                w.write_u8(cmd.kind.ordinal() as u8);
-                w.write_i32(cmd.d1);
-                w.write_u8(cmd.d2 as u8);
-                w.write_string(&cmd.cmd);
-            }
+    if let Some(m) = macro_
+        && update != MacroUpdateType::Delete
+    {
+        w.write_i32(m.id);
+        w.write_string(&m.name);
+        w.write_string(&m.descr);
+        w.write_string(&m.acronym);
+        w.write_i32(m.icon);
+        w.write_u8(m.commands.len() as u8);
+        for (i, cmd) in m.commands.iter().enumerate() {
+            w.write_u8((i + 1) as u8);
+            w.write_u8(cmd.kind.ordinal() as u8);
+            w.write_i32(cmd.d1);
+            w.write_u8(cmd.d2 as u8);
+            w.write_string(&cmd.cmd);
         }
     }
     w.into_bytes()
@@ -213,7 +213,7 @@ mod tests {
         w.write_i32(0);
         w.write_i32(2);
         w.write_i32(1); // C6
-                        // Slot 1: SKILL.
+        // Slot 1: SKILL.
         w.write_i32(2);
         w.write_i32(1);
         w.write_i32(1177);
@@ -222,7 +222,7 @@ mod tests {
         w.write_i32(-1); // shared reuse group
         w.write_u8(0); // C5
         w.write_i32(1); // C6
-                        // Slot 12 (page 1 slot 0): ITEM.
+        // Slot 12 (page 1 slot 0): ITEM.
         w.write_i32(1);
         w.write_i32(12);
         w.write_i32(0x1000_0005);

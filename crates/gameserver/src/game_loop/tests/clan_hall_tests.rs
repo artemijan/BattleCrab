@@ -91,7 +91,7 @@ fn a_clan_can_be_found_by_the_hall_it_owns() {
 
 use crate::data::item_data::ADENA_ID;
 use crate::game_loop::clan_hall_auction::{
-    cancel_bid, finalize_auction, highest_bidder, place_bid, BidOutcome,
+    BidOutcome, cancel_bid, finalize_auction, highest_bidder, place_bid,
 };
 use crate::model::clan::Clan;
 
@@ -515,7 +515,7 @@ fn opening_a_halls_doors_toggles_them() {
 
 use crate::data::residence_function_data::ResidenceFunctionData;
 use crate::game_loop::clan_hall_function::{
-    buy_function, function_level, handle_function_expiry, remove_function, FunctionOutcome,
+    FunctionOutcome, buy_function, function_level, handle_function_expiry, remove_function,
 };
 use crate::model::inventory::Inventory;
 
@@ -843,7 +843,7 @@ fn a_hall_teleport_moves_the_player() {
 // Support-buff benefit (BUFF function)
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::clan_hall_function::{cast_hall_buff, BuffCastOutcome};
+use crate::game_loop::clan_hall_function::{BuffCastOutcome, cast_hall_buff};
 use crate::model::components::{Buffs, Vitals};
 
 /// Build a world with a clan-hall manager NPC and a nearby player, plus a

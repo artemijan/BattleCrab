@@ -16,9 +16,9 @@
 //! G25's olympiad matches reuse this shape, which is why the audit put duels
 //! here rather than with the end-game milestones.
 
-use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
 use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::model::components::{DuelRef, PlayerVitals, Position, Vitals};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
@@ -515,10 +515,10 @@ fn player_name(world: &World, oid: i32) -> String {
 }
 
 fn send_to(world: &World, oid: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, oid) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 

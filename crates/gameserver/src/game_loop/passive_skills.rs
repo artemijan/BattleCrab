@@ -14,10 +14,10 @@
 //! the conditions as a robe is worn or removed — mirroring [`super::expertise`].
 //! No-op when the applicable set is unchanged; resends `UserInfo` when it flips.
 
+use crate::model::Player;
 use crate::model::components::{BaseStats, Buffs, CombatStats, SkillBook, Speeds, StatModifiers};
 use crate::model::inventory::Inventory;
 use crate::model::skill::StatModifierEffect;
-use crate::model::Player;
 use crate::world::World;
 
 /// Re-derive the armor-conditioned passive buffs from the player's known
@@ -122,17 +122,17 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
 /// Java's stat-pump `broadcastUserInfo` (self only here): a fresh `UserInfo` for
 /// the player's own client.
 fn send_user_info(world: &World, object_id: i32) {
-    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id) {
-        if let Some(view) = crate::model::PlayerView::of(&world.objects, object_id) {
-            let user_info = crate::network::user_info::user_info(
-                &view,
-                &world.data,
-                &world.cfg.character,
-                super::party::calculate_relation(world, view.p),
-            );
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(user_info);
-            }
+    if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(view) = crate::model::PlayerView::of(&world.objects, object_id)
+    {
+        let user_info = crate::network::user_info::user_info(
+            &view,
+            &world.data,
+            &world.cfg.character,
+            super::party::calculate_relation(world, view.p),
+        );
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(user_info);
         }
     }
 }

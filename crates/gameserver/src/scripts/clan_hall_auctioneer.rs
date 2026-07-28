@@ -8,10 +8,10 @@
 //! (`%bidderList%`), and the cancel-confirmation. `%auctionEnd%`/`%hours%`/
 //! `%minutes%` come from `World.auction_end_tick` (the weekly-close countdown).
 
-use crate::game_loop::clan_hall_auction::{self, bid_count, highest_bid, BidOutcome};
+use crate::game_loop::clan_hall_auction::{self, BidOutcome, bid_count, highest_bid};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
 use crate::model::Player;
+use crate::model::clan_hall::{ClanHallGrade, ClanHallType};
 use crate::world::World;
 
 const AUCTIONEER: i32 = 30767;

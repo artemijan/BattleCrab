@@ -6,7 +6,7 @@ use super::*;
 use crate::game_loop::abnormal;
 use crate::model::components::{Buffs, Vitals};
 use crate::model::skill::{
-    effect_flag, AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType,
+    AffectObject, AffectScope, OperateType, Skill, SkillEffect, TargetType, effect_flag,
 };
 use crate::model::stats::{Stat, StatModifierType};
 

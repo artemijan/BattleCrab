@@ -7,7 +7,7 @@
 use super::*;
 
 use crate::model::components::{Buffs, StatModifiers};
-use crate::model::skill::{effect_flag, SkillEffect};
+use crate::model::skill::{SkillEffect, effect_flag};
 use crate::model::stats::Stat;
 
 const PLAYER: i32 = 9001;
@@ -229,10 +229,12 @@ fn the_mirrors_carry_only_reflect_effects() {
 fn riposte_stance_keeps_its_other_effects() {
     let skills = dist_skills();
     let riposte = skills.get(340, 1).expect("Riposte Stance loads");
-    assert!(riposte
-        .effects
-        .iter()
-        .any(|e| matches!(e, SkillEffect::ReflectSkill { magic: false, .. })));
+    assert!(
+        riposte
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::ReflectSkill { magic: false, .. }))
+    );
     assert!(
         riposte
             .effects

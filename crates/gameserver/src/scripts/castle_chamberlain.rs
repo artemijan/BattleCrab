@@ -13,10 +13,10 @@
 
 use crate::game_loop::manor::{castle_owner_clan_id, chamberlain_castle_id};
 use crate::game_loop::quests::{QuestCtx, QuestScript};
-use crate::model::clan::CS_MANOR_ADMIN;
 use crate::model::Player;
+use crate::model::clan::CS_MANOR_ADMIN;
 use crate::network::server_packets::sm_ids;
-use crate::network::server_packets::{system_message_with, SmParam};
+use crate::network::server_packets::{SmParam, system_message_with};
 
 pub struct CastleChamberlain;
 

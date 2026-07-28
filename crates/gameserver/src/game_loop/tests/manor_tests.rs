@@ -7,11 +7,11 @@ use super::*;
 
 use crate::data::item_data::ADENA_ID;
 use crate::data::manor_data::Seed;
+use crate::model::Player;
 use crate::model::clan::Clan;
 use crate::model::components::LastFolkNpc;
 use crate::model::inventory::Inventory;
 use crate::model::manor::{CropProcure, ManorMode, SeedProduction};
-use crate::model::Player;
 
 /// Register + place a Manor Manager (a Merchant with a `manor_id` param) and
 /// make it the player's last folk NPC (so the trader gate passes).
@@ -283,7 +283,7 @@ fn sell_crop_same_manor_pays_reward_without_fee() {
     let (mut world, _rx) = chamberlain_world();
     world.cfg.general.allow_manor = true;
     add_manor_manager(&mut world, 702, 35103, 1); // manager's castle = manor 1
-                                                  // Catalogue: crop 5073 yields reward item 1864 (reward type 1).
+    // Catalogue: crop 5073 yields reward item 1864 (reward type 1).
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
     add_stackable_item(&mut world, 5073, 50); // the crop
     add_stackable_item(&mut world, 1864, 20); // the reward
@@ -551,8 +551,8 @@ fn manor_menu_select_request5_sends_default_info() {
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
     world.data.manor.insert_for_test(seed(1, 5017, 5074, 11));
     world.data.manor.insert_for_test(seed(2, 5018, 5073, 10)); // dup crop 5073
-                                                               // The manor menu resolves its NPC through the last folk NPC (the
-                                                               // chamberlain the player just clicked).
+    // The manor menu resolves its NPC through the last folk NPC (the
+    // chamberlain the player just clicked).
     world.objects.add_components(&100, LastFolkNpc(701));
 
     handle_request_bypass_to_server(
@@ -730,7 +730,7 @@ fn mode_cycle_rolls_owned_castle_production() {
         .manor
         .insert_for_test(seed_full(1, 90001, 91001, 10, 8100, 8100));
     own_castle(&mut world, 1); // clan 500 owns Gludio
-                               // Owner set up next-period seed production; current is empty.
+    // Owner set up next-period seed production; current is empty.
     world.manor.set_next_seed_production(
         1,
         vec![SeedProduction {

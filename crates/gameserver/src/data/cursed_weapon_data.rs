@@ -2,8 +2,8 @@
 //! Produces the static [`CursedWeapon`] config list; the live wielder state is
 //! overlaid at boot from the `cursed_weapons` table (see `game_loop/net.rs`).
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::model::cursed_weapon::CursedWeapon;
@@ -93,10 +93,10 @@ fn parse(content: &str) -> Vec<CursedWeapon> {
                 }
             },
             Ok(Event::End(e)) if e.name().as_ref() == b"item" => {
-                if let Some(cw) = cur.take() {
-                    if cw.item_id != 0 {
-                        out.push(cw);
-                    }
+                if let Some(cw) = cur.take()
+                    && cw.item_id != 0
+                {
+                    out.push(cw);
                 }
             }
             Ok(Event::Eof) => break,

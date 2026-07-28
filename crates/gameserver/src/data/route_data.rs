@@ -8,8 +8,8 @@
 //! (teleport to the first node) and `random` are parsed for shape but never
 //! selected by this datapack.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use std::collections::HashMap;
 use tracing::info;
 
@@ -76,12 +76,11 @@ impl RouteData {
             let e = match event {
                 Event::Start(e) | Event::Empty(e) => e,
                 Event::End(e) => {
-                    if e.name().as_ref() == b"route" {
-                        if let Some(r) = cur.take() {
-                            if !r.nodes.is_empty() {
-                                routes.push(r);
-                            }
-                        }
+                    if e.name().as_ref() == b"route"
+                        && let Some(r) = cur.take()
+                        && !r.nodes.is_empty()
+                    {
+                        routes.push(r);
                     }
                     continue;
                 }

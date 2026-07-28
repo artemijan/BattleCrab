@@ -68,12 +68,12 @@ impl QuestScript for Q00326VanquishRemnants {
         }
     }
     fn on_kill(&self, ctx: &mut QuestCtx) {
-        if ctx.has_qs() && ctx.is_started() {
-            if let Some((chance, badge)) = drop(ctx.npc_id) {
-                if ctx.roll(100) < chance {
-                    ctx.give_items(badge, 1);
-                }
-            }
+        if ctx.has_qs()
+            && ctx.is_started()
+            && let Some((chance, badge)) = drop(ctx.npc_id)
+            && ctx.roll(100) < chance
+        {
+            ctx.give_items(badge, 1);
         }
     }
     fn on_talk(&self, ctx: &mut QuestCtx) -> Option<String> {

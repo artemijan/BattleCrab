@@ -7,8 +7,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 const FISHING_FILE: &str = "data/Fishing.xml";
@@ -210,10 +210,10 @@ impl FishingData {
                     }
                 }
                 Event::End(e) => {
-                    if e.name().as_ref() == b"bait" {
-                        if let Some((id, bait)) = cur_bait.take() {
-                            self.baits.insert(id, bait);
-                        }
+                    if e.name().as_ref() == b"bait"
+                        && let Some((id, bait)) = cur_bait.take()
+                    {
+                        self.baits.insert(id, bait);
                     }
                 }
                 Event::Eof => break,
@@ -238,7 +238,7 @@ mod tests {
         assert_eq!(bait.catches.len(), 4);
         assert_eq!(bait.pick_catch(0).unwrap().item_id, 47550); // Ugly Fish (0..70)
         assert_eq!(bait.pick_catch(95).unwrap().item_id, 47552); // Powerful Fish (95..98)
-                                                                 // A time-reducing rod.
+        // A time-reducing rod.
         assert_eq!(data.rod(47557).expect("master rod").reduce_fishing_time, 10);
         assert!((data.xp_rate_min - 0.033).abs() < 1e-9);
     }

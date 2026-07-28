@@ -11,8 +11,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 const CUBICS_DIR: &str = "data/stats/cubics";
@@ -238,10 +238,10 @@ impl CubicData {
                     }
                 }
                 Ok(Event::End(e)) => {
-                    if e.name().as_ref() == b"cubic" {
-                        if let Some(t) = cur.take() {
-                            self.by_key.insert((t.id, t.level), t);
-                        }
+                    if e.name().as_ref() == b"cubic"
+                        && let Some(t) = cur.take()
+                    {
+                        self.by_key.insert((t.id, t.level), t);
                     }
                 }
                 Ok(Event::Eof) => break,

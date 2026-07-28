@@ -14,8 +14,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use super::item_data::ItemData;
@@ -228,15 +228,15 @@ mod tests {
         // CorrectPrices: no product declares a price below its sell value.
         for list in data.by_id.values() {
             for p in &list.products {
-                if p.price > -1 {
-                    if let Some(t) = items.get(p.item_id) {
-                        assert!(
-                            p.price >= t.price / 2,
-                            "buylist {} item {}",
-                            list.list_id,
-                            p.item_id
-                        );
-                    }
+                if p.price > -1
+                    && let Some(t) = items.get(p.item_id)
+                {
+                    assert!(
+                        p.price >= t.price / 2,
+                        "buylist {} item {}",
+                        list.list_id,
+                        p.item_id
+                    );
                 }
             }
         }

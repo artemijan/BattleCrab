@@ -12,8 +12,8 @@ use gameserver::data::GameData;
 use gameserver::db::{self, DbCommand, DbEvent};
 use gameserver::game_loop::{self, GameThreadChannels, Shutdown};
 use gameserver::loginlink::{self, LoginLinkConfig, LoginLinkEvent};
-use gameserver::network::connection::{self, NetworkConfig};
 use gameserver::network::NetEvent;
+use gameserver::network::connection::{self, NetworkConfig};
 use tokio::net::TcpListener;
 use tracing::{info, warn};
 

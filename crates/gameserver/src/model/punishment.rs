@@ -262,9 +262,10 @@ mod tests {
         assert!(!m.has_punishment("42", PunishmentAffect::Account, PunishmentType::Jail));
         assert!(!m.has_punishment("42", PunishmentAffect::Character, PunishmentType::Ban));
 
-        assert!(m
-            .remove("42", PunishmentAffect::Character, PunishmentType::Jail)
-            .is_some());
+        assert!(
+            m.remove("42", PunishmentAffect::Character, PunishmentType::Jail)
+                .is_some()
+        );
         assert!(!m.has_punishment("42", PunishmentAffect::Character, PunishmentType::Jail));
     }
 

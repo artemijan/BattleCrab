@@ -79,7 +79,7 @@ impl QuestScript for Q00313CollectSpores {
         if ctx.is_started() {
             match ctx.cond() {
                 1 if ctx.quest_items_count(SPORE_SAC) < REQUIRED_SAC_COUNT => {
-                    return Some("30150-06.html".to_string())
+                    return Some("30150-06.html".to_string());
                 }
                 2 if ctx.quest_items_count(SPORE_SAC) >= REQUIRED_SAC_COUNT => {
                     ctx.give_adena(500, true);

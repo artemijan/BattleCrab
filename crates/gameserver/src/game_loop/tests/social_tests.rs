@@ -494,8 +494,10 @@ fn party_loot_change_vote_and_timeout() {
     // Leader proposes Random (1): members get the FE:C0 ask, leader SM 3135.
     on_packet(&mut world, 1, ex_packet(0x75, &int_body(1)));
     assert!(ex_subs_of(&drain(&mut b_rx)).contains(&0xC0));
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&server_packets::sm_ids::REQUESTING_APPROVAL_FOR_CHANGING_PARTY_LOOT_TO_S1));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&server_packets::sm_ids::REQUESTING_APPROVAL_FOR_CHANGING_PARTY_LOOT_TO_S1)
+    );
 
     // Both members agree → applied everywhere.
     on_packet(&mut world, 2, ex_packet(0x76, &int_body(1)));
@@ -644,7 +646,7 @@ fn party_kill_splits_xp_and_sp() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -657,9 +659,9 @@ fn party_kill_splits_xp_and_sp() {
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
     world.forced_rolls.extend([0, 99, 10]); // hit, no crit, ±0 damage
-                                            // Kill the drop roll chances deterministically: level-gap gate passes
-                                            // (roll 0), drop chance fails (roll ~1.0 impossible via forced_rolls —
-                                            // use the f64 hook by clearing the drop list instead).
+    // Kill the drop roll chances deterministically: level-gap gate passes
+    // (roll 0), drop chance fails (roll ~1.0 impossible via forced_rolls —
+    // use the f64 hook by clearing the drop list instead).
     {
         let mut t = world.data.npc_data.get(40001).unwrap().clone();
         t.drop_list_death.clear();
@@ -800,8 +802,10 @@ fn friend_invite_accept_and_whisper_mask() {
         1,
         [vec![cop::REQUEST_FRIEND_INVITE], name_body("p3002")].concat(),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&server_packets::sm_ids::YOU_VE_REQUESTED_C1_TO_BE_ON_YOUR_FRIENDS_LIST));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&server_packets::sm_ids::YOU_VE_REQUESTED_C1_TO_BE_ON_YOUR_FRIENDS_LIST)
+    );
     assert!(has_opcode(
         &drain(&mut b_rx),
         server_packets::opcodes::FRIEND_ADD_REQUEST
@@ -828,8 +832,10 @@ fn friend_invite_accept_and_whisper_mask() {
         server_packets::opcodes::FRIEND_ADD_REQUEST_RESULT
     ));
     let b_pkts = drain(&mut b_rx);
-    assert!(sm_ids_of(&b_pkts)
-        .contains(&server_packets::sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST_2));
+    assert!(
+        sm_ids_of(&b_pkts)
+            .contains(&server_packets::sm_ids::S1_HAS_BEEN_ADDED_TO_YOUR_FRIENDS_LIST_2)
+    );
     assert!(has_opcode(
         &b_pkts,
         server_packets::opcodes::FRIEND_ADD_REQUEST_RESULT
@@ -904,25 +910,31 @@ fn friend_delete_and_messages() {
         [vec![cop::REQUEST_FRIEND_DEL], name_body("p3002")].concat(),
     );
     let a_pkts = drain(&mut a_rx);
-    assert!(sm_ids_of(&a_pkts)
-        .contains(&server_packets::sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2));
+    assert!(
+        sm_ids_of(&a_pkts)
+            .contains(&server_packets::sm_ids::S1_HAS_BEEN_REMOVED_FROM_YOUR_FRIENDS_LIST_2)
+    );
     assert!(has_opcode(&a_pkts, server_packets::opcodes::FRIEND_REMOVE));
     assert!(has_opcode(
         &drain(&mut b_rx),
         server_packets::opcodes::FRIEND_REMOVE
     ));
-    assert!(world
-        .objects
-        .get_component::<Friends>(&3001)
-        .unwrap()
-        .0
-        .is_empty());
-    assert!(world
-        .objects
-        .get_component::<Friends>(&3002)
-        .unwrap()
-        .0
-        .is_empty());
+    assert!(
+        world
+            .objects
+            .get_component::<Friends>(&3001)
+            .unwrap()
+            .0
+            .is_empty()
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<Friends>(&3002)
+            .unwrap()
+            .0
+            .is_empty()
+    );
     let mut saw_delete = false;
     while let Ok(cmd) = db_rx.try_recv() {
         if let db::DbCommand::DeleteFriendPair { a, b } = cmd {
@@ -949,8 +961,10 @@ fn friend_delete_and_messages() {
         1,
         [vec![cop::REQUEST_FRIEND_DEL], name_body("P3002")].concat(),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&server_packets::sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&server_packets::sm_ids::C1_IS_NOT_ON_YOUR_FRIEND_LIST)
+    );
 }
 
 /// Enter world sends the real `L2FriendList` and pings online friends with

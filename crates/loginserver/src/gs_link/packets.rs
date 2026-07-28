@@ -4,7 +4,7 @@
 
 use commons::network::PacketWriter;
 
-pub use commons::crypt::gs_link::{gs_decrypt, gs_encrypt, GS_STATIC_BLOWFISH_KEY};
+pub use commons::crypt::gs_link::{GS_STATIC_BLOWFISH_KEY, gs_decrypt, gs_encrypt};
 
 /// `InitLS`: protocol revision + RSA modulus (Java `BigInteger.toByteArray()`).
 pub fn init_ls(protocol_rev: i32, modulus_java_bytes: &[u8]) -> Vec<u8> {

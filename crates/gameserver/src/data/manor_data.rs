@@ -5,8 +5,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 const SEEDS_XML: &str = "data/Seeds.xml";

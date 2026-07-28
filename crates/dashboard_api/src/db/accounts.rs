@@ -198,7 +198,7 @@ pub async fn create_game_account(
         // Covers a login taken by *anyone*, including another master's game
         // account — the column is globally unique, as the login server needs.
         Err(sqlx::Error::Database(e)) if e.is_unique_violation() => {
-            return Err(ApiError::LoginTaken)
+            return Err(ApiError::LoginTaken);
         }
         Err(e) => return Err(e.into()),
     }

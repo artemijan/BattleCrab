@@ -398,13 +398,15 @@ fn quest_q00320_chance_drops_and_adena_reward() {
     assert_eq!(count_of(&world, 809), 0);
     assert_eq!(count_of(&world, 57), 500, "500 adena at ×1 rates");
     assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1_ADENA));
-    assert!(world
-        .objects
-        .get_component::<crate::model::components::Quests>(&3001)
-        .unwrap()
-        .0
-        .get("Q00320_BonesTellTheFuture")
-        .is_none());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Quests>(&3001)
+            .unwrap()
+            .0
+            .get("Q00320_BonesTellTheFuture")
+            .is_none()
+    );
 }
 
 /// The quest UI's Abandon button (`RequestQuestAbort` 0x63): repeatable
@@ -581,8 +583,10 @@ fn request_buy_item_purchases_and_guards() {
 
     // Non-stackable quantity > 1: SM 1036, nothing purchased.
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 2)]));
-    assert!(sm_ids_of(&drain(&mut rx))
-        .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED));
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED)
+    );
     assert_eq!(adena_of(&world, 3001), 850);
 
     // Too expensive: SM 279.
@@ -602,9 +606,10 @@ fn request_buy_item_purchases_and_guards() {
     drain(&mut rx);
     shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(1061, 1)]));
     let pkts = drain(&mut rx);
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL)
+    );
     assert_eq!(adena_of(&world, 3001), 850);
 }
 
@@ -741,9 +746,11 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
 
     // A bad slot refuses the whole request (Java: illegal-action punish).
     shop::handle_request_refund_item(&mut world, 1, &refund_body(3, &[5]));
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL)
+    );
     assert_eq!(adena_of(&world, 3001), 1100);
 
     // Buy the sword back: same object id, enchant intact, refund tab empty.
@@ -768,9 +775,11 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
     handle_request_target_canceld(&mut world, 1, &target_canceld_body(true));
     drain(&mut rx);
     shop::handle_request_refund_item(&mut world, 1, &refund_body(3, &[0]));
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL)
+    );
 }
 
 /// `PlayerRefund` capacity: the container holds 12 entries — the 13th sale
@@ -5091,9 +5100,11 @@ fn quest_q00410_full_chain_awards_the_gaze_of_abyss() {
             .unwrap();
         assert!(quests.0[Q410].is_completed());
     }
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+    );
 }
 
 /// Each drop is gated on the matching talisman: the right mob pays nothing
@@ -5306,16 +5317,20 @@ fn dark_elf_path_quest_pages_exist_in_dist() {
         "411's -06 is .html, unlike 410's"
     );
     for n in 7..=12 {
-        assert!(std::path::Path::new(&format!(
-            "{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html"
-        ))
-        .exists());
+        assert!(
+            std::path::Path::new(&format!(
+                "{DIST}Q00410_PathOfThePalusKnight/30329-{n:02}.html"
+            ))
+            .exists()
+        );
     }
     for n in 1..=6 {
-        assert!(std::path::Path::new(&format!(
-            "{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html"
-        ))
-        .exists());
+        assert!(
+            std::path::Path::new(&format!(
+                "{DIST}Q00410_PathOfThePalusKnight/30422-{n:02}.html"
+            ))
+            .exists()
+        );
     }
     for n in 6..=11 {
         assert!(
@@ -5620,9 +5635,11 @@ fn quest_q00413_full_chain_awards_the_orb_of_abyss() {
             .unwrap();
         assert!(quests.0[Q413].is_completed());
     }
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+    );
 }
 
 const Q414: &str = "Q00414_PathOfTheOrcRaider";
@@ -6255,9 +6272,11 @@ fn quest_q00416_finish_awards_the_mask_of_medium() {
             .unwrap();
         assert!(quests.0[Q416].is_completed());
     }
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+    );
 }
 
 /// The `memoState` 100+ branch is dead at both ends — third Orc quest running.
@@ -6330,10 +6349,9 @@ fn set_quest_cond(world: &mut World, player: i32, quest: &str, cond: i32) {
     if let Some(q) = world
         .objects
         .get_component_mut::<crate::model::components::Quests>(&player)
+        && let Some(qs) = q.0.get_mut(quest)
     {
-        if let Some(qs) = q.0.get_mut(quest) {
-            qs.vars.insert("cond".to_string(), cond.to_string());
-        }
+        qs.vars.insert("cond".to_string(), cond.to_string());
     }
 }
 
@@ -6508,9 +6526,11 @@ fn quest_q00418_full_chain_awards_the_final_pass() {
             .unwrap();
         assert!(quests.0[Q418].is_completed());
     }
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+    );
 }
 
 /// Fourth quest running with a route dead at both ends.
@@ -6756,9 +6776,11 @@ fn quest_q00417_torai_vanishes_and_raut_pays_the_ring() {
             .unwrap();
         assert!(quests.0[Q417].is_completed());
     }
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION)
+    );
 }
 
 fn quest_memo_ex(world: &World, player: i32, quest: &str, slot: i32) -> i32 {
@@ -14390,7 +14412,7 @@ fn quest_q00221_testimony_of_prosperity() {
     assert_eq!(item_count(&world, 3001, 3243), 1, "Emily's Recipe");
     // --- Proof 4: Old Account Book (five guild contributions) ---
     ev(&mut world, lockirin, "30531-03.html"); // license + 5 notices
-                                               // Receipt 1 (Spiron/Shari)
+    // Receipt 1 (Spiron/Shari)
     talk(&mut world, spiron); // takes 1st notice
     talk(&mut world, shari); // Contribution of Shari
     talk(&mut world, spiron); // → Receipt 1st
@@ -14830,28 +14852,24 @@ fn servitor_arcana_duel_round_trip() {
         }
         fn on_attack(&self, ctx: &mut quests::QuestCtx) {
             match ctx.npc_script_value() {
-                0 => {
-                    if ctx.attack_is_summon() {
-                        if let Some(servitor) = ctx.owner_servitor() {
-                            ctx.set_npc_var_int("ATTACKER", servitor);
-                            ctx.set_npc_script_value(1);
-                            ctx.start_quest_timer("KILLED_ATTACKER", 5000);
-                            if ctx.quest_items_count(STARTING) > 0 {
-                                ctx.take_items(STARTING, -1);
-                                ctx.give_items(INPROGRESS, 1);
-                                ctx.make_npc_attack(servitor); // the rival strikes back
-                            }
-                        }
+                0 if ctx.attack_is_summon()
+                    && let Some(servitor) = ctx.owner_servitor() =>
+                {
+                    ctx.set_npc_var_int("ATTACKER", servitor);
+                    ctx.set_npc_script_value(1);
+                    ctx.start_quest_timer("KILLED_ATTACKER", 5000);
+                    if ctx.quest_items_count(STARTING) > 0 {
+                        ctx.take_items(STARTING, -1);
+                        ctx.give_items(INPROGRESS, 1);
+                        ctx.make_npc_attack(servitor); // the rival strikes back
                     }
                 }
-                1 => {
+                1 if !ctx.attack_is_summon()
+                    || ctx.owner_servitor() != Some(ctx.npc_var_int("ATTACKER")) =>
+                {
                     // A foul: the player, or a different summon, interfered.
-                    if !ctx.attack_is_summon()
-                        || ctx.owner_servitor() != Some(ctx.npc_var_int("ATTACKER"))
-                    {
-                        ctx.set_npc_script_value(2);
-                        ctx.delete_npc();
-                    }
+                    ctx.set_npc_script_value(2);
+                    ctx.delete_npc();
                 }
                 _ => {}
             }
@@ -15335,7 +15353,7 @@ fn quest_q00234_fates_whisper() {
     const STAR_OF_DESTINY: i32 = 5011;
     const B_GRADE: i32 = 79; // Sword of Damascus
     const A_GRADE: i32 = 6580; // the upgraded weapon
-                               // NPCs
+    // NPCs
     const REORIN: i32 = 31002;
     const N30182: i32 = 30182;
     const N30847: i32 = 30847;
@@ -18255,7 +18273,7 @@ fn quest_q00421_little_wings_big_adventure() {
     const BUGLE: i32 = 4422; // Dragon Bugle of Wind
     const LEAF: i32 = 4325; // Fairy Leaf
     const HATCHLING: i32 = 12311; // stand-in pet species
-                                  // (tree npc id, min_hits, memo bit value)
+    // (tree npc id, min_hits, memo bit value)
     const TREES: [(i32, i32, i32); 4] = [
         (27185, 270, 1),
         (27186, 400, 2),
@@ -20146,9 +20164,11 @@ fn tutorial_starts_on_newbie_login() {
     // A second login while memoState < 4 re-plays the intro (Java parity).
     quests::notify_login(&mut world, 1, 3001);
     advance_ticks(&mut world, 51);
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML)
+    );
 
     // Outgrowing the tutorial: level 7+ logins queue nothing.
     world
@@ -20183,9 +20203,11 @@ fn tutorial_window_buttons_and_question_mark() {
         ]
         .concat(),
     );
-    assert!(drain(&mut rx)
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML)
+    );
 
     // The "close and show the question mark" button.
     let mut body = PacketWriter::new();
@@ -20200,12 +20222,14 @@ fn tutorial_window_buttons_and_question_mark() {
         .concat(),
     );
     let pkts = drain(&mut rx);
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK));
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_CLOSE_HTML));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK)
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_CLOSE_HTML)
+    );
 
     // Clicking the shown mark: screen message + radar + tutorial_04.
     let mut body = PacketWriter::new();
@@ -20221,12 +20245,14 @@ fn tutorial_window_buttons_and_question_mark() {
         .concat(),
     );
     let pkts = drain(&mut rx);
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL));
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL)
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML)
+    );
 }
 
 /// memoState 2: a gremlin kill rolls the Blue Gemstone onto the ground;
@@ -20280,9 +20306,10 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
     super::ground_items::pickup_ground_item(&mut world, 1, 3001, gem_oid);
     let pkts = drain(&mut rx);
     assert_eq!(tutorial_memo(&world, 3001), 3);
-    assert!(pkts
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK));
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK)
+    );
 
     // Turn-in: helper takes the gem, hands out 200 soulshots, memoState 4.
     handle_action(&mut world, 1, &action_body(NPC_OID, 0));

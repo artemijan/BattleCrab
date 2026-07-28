@@ -10,9 +10,9 @@
 //! ([`calc_attribute_bonus`]) — callers multiply it in at Java's spots.
 
 use crate::data::GameData;
+use crate::model::Player;
 use crate::model::skill::Skill;
 use crate::model::stats::{BaseStat, Stat};
-use crate::model::Player;
 
 /// `Formulas.SKILL_LAUNCH_TIME` — the floor on the launch→finish phase.
 const SKILL_LAUNCH_TIME_MS: f64 = 500.0;
@@ -221,16 +221,15 @@ pub fn calc_magic_success_rate(i: &MagicSuccess) -> i32 {
     if i.pve {
         lvl_modifier = 1.3f64.powi(i.target_level - i.effective_level);
 
-        if let Some(caster_level) = i.caster_player_level {
-            if !i.target_is_raid
-                && i.target_level >= i.min_npc_level_for_magic_penalty
-                && (i.target_level - caster_level) >= 3
-                && !i.skill_chance_penalty.is_empty()
-            {
-                let level_diff = (i.target_level - caster_level - 2) as usize;
-                target_modifier =
-                    i.skill_chance_penalty[level_diff.min(i.skill_chance_penalty.len() - 1)];
-            }
+        if let Some(caster_level) = i.caster_player_level
+            && !i.target_is_raid
+            && i.target_level >= i.min_npc_level_for_magic_penalty
+            && (i.target_level - caster_level) >= 3
+            && !i.skill_chance_penalty.is_empty()
+        {
+            let level_diff = (i.target_level - caster_level - 2) as usize;
+            target_modifier =
+                i.skill_chance_penalty[level_diff.min(i.skill_chance_penalty.len() - 1)];
         }
     } else {
         let m_acc_diff = i.magic_accuracy - i.magic_evasion;
@@ -1136,16 +1135,18 @@ mod tests {
                 < 1e-9
         );
         // pDef floors at 1.
-        assert!(calc_auto_attack_damage(
-            100.0,
-            1.0,
-            Position::Front,
-            0.0,
-            false,
-            CritDamage::default(),
-            false
-        )
-        .is_finite());
+        assert!(
+            calc_auto_attack_damage(
+                100.0,
+                1.0,
+                Position::Front,
+                0.0,
+                false,
+                CritDamage::default(),
+                false
+            )
+            .is_finite()
+        );
     }
 
     /// `calcShldUse`: no shield → never blocks; a back attack can't be blocked;

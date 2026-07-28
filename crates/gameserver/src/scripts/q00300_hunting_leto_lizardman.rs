@@ -118,7 +118,7 @@ impl QuestScript for Q00300HuntingLetoLizardman {
             match ctx.cond() {
                 1 => return Some("30126-04.html".to_string()),
                 2 if ctx.quest_items_count(BRACELET_OF_LIZARDMAN) >= REQUIRED_BRACELET_COUNT => {
-                    return Some("30126-05.html".to_string())
+                    return Some("30126-05.html".to_string());
                 }
                 _ => {}
             }

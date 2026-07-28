@@ -1,8 +1,8 @@
 //! Port of `data/xml/PlayerXpPercentLostData` — per-level XP percentage lost
 //! on death, from `data/stats/chars/playerXpPercentLost.xml`.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const XP_LOST_FILE: &str = "data/stats/chars/playerXpPercentLost.xml";
@@ -85,7 +85,7 @@ mod tests {
         ));
         assert_eq!(data.xp_percent(1), 10.0);
         assert_eq!(data.xp_percent(40), 5.125); // 10 − 39·0.125
-                                                // Above the table: Java warns and falls back to 1.0.
+        // Above the table: Java warns and falls back to 1.0.
         assert_eq!(data.xp_percent(500), 1.0);
     }
 }

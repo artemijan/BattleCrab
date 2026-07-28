@@ -284,8 +284,8 @@ async fn reset_password(
 /// Reads the subject out of a token *without* trusting it — used only to look
 /// up which account's hash to verify the signature against.
 fn decode_subject_hint(raw: &str) -> Option<String> {
-    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
     use base64::Engine;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
     let decoded = URL_SAFE_NO_PAD.decode(raw).ok()?;
     let joined = String::from_utf8(decoded).ok()?;
     joined.split('|').nth(1).map(str::to_string)

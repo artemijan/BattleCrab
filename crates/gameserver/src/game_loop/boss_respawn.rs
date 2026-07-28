@@ -166,14 +166,13 @@ pub(crate) fn is_db_saved(world: &World, spawn_ref: (usize, usize, usize)) -> bo
 /// `ScheduledTask::BossRespawn` — a boss whose stored respawn time came due
 /// while the server was running (scheduled at boot by [`resolve_boot`]).
 pub(crate) fn handle_boss_respawn(world: &mut World, spawn_ref: (usize, usize, usize)) {
-    if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2) {
-        if let Some(npc_id) = world
+    if let Some(oid) = crate::model::npc::spawn_one(world, spawn_ref.0, spawn_ref.1, spawn_ref.2)
+        && let Some(npc_id) = world
             .objects
             .get_component::<crate::model::npc::Npc>(&oid)
             .map(|n| n.npc_id)
-        {
-            persist_alive(world, npc_id, oid);
-        }
+    {
+        persist_alive(world, npc_id, oid);
     }
 }
 

@@ -6,12 +6,12 @@
 use tracing::warn;
 
 use crate::enums::ChatType;
-use crate::model::components::{Position, RegionCell};
 use crate::model::Player;
+use crate::model::components::{Position, RegionCell};
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
-use crate::world::{regions_adjacent, World};
+use crate::world::{World, regions_adjacent};
 
 /// Java `Say2`'s no-item-link cap (105 chars, "verified on official").
 const MAX_CHAT_LENGTH: usize = 105;
@@ -292,11 +292,7 @@ fn whisper_relation_mask(world: &World, sender_oid: i32, receiver_oid: i32) -> u
         .objects
         .get_component::<crate::model::components::Friends>(&receiver_oid)
         .is_some_and(|fl| fl.0.iter().any(|f| f.char_id == sender_oid));
-    if is_friend {
-        0x01
-    } else {
-        0
-    }
+    if is_friend { 0x01 } else { 0 }
 }
 
 /// Java `Player.broadcastSnoop`: send a `Snoop` line to every GM currently

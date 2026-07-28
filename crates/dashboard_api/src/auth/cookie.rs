@@ -4,10 +4,10 @@
 //! password invalidates every outstanding session — the one revocation case
 //! that actually matters after a compromise (PLAN_DASHBOARD.md §5.3).
 
-use axum::http::header::{COOKIE, SET_COOKIE};
 use axum::http::HeaderMap;
+use axum::http::header::{COOKIE, SET_COOKIE};
 
-use super::{now_unix, SigningKey};
+use super::{SigningKey, now_unix};
 
 pub const COOKIE_NAME: &str = "bc_session";
 

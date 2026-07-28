@@ -22,9 +22,9 @@ pub mod web;
 
 use std::time::Duration;
 
-use axum::http::request::Parts;
-use axum::http::{header, HeaderValue, Method};
 use axum::Router;
+use axum::http::request::Parts;
+use axum::http::{HeaderValue, Method, header};
 use tower_http::compression::CompressionLayer;
 use tower_http::cors::{AllowOrigin, CorsLayer};
 use tower_http::trace::TraceLayer;

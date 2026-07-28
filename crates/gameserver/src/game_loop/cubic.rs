@@ -246,13 +246,12 @@ pub(crate) fn handle_cubic_action(world: &mut World, owner_oid: i32, cubic_id: i
         // `maxCount` counts *actions*, not attempts — a cubic that fails its
         // success roll has not spent one of its charges.
         let mut exhausted = false;
-        if let Some(c) = world.objects.get_component_mut::<Cubics>(&owner_oid) {
-            if let Some(a) = c.0.iter_mut().find(|c| c.id == cubic_id) {
-                if a.remaining_count != i32::MAX {
-                    a.remaining_count -= 1;
-                    exhausted = a.remaining_count <= 0;
-                }
-            }
+        if let Some(c) = world.objects.get_component_mut::<Cubics>(&owner_oid)
+            && let Some(a) = c.0.iter_mut().find(|c| c.id == cubic_id)
+            && a.remaining_count != i32::MAX
+        {
+            a.remaining_count -= 1;
+            exhausted = a.remaining_count <= 0;
         }
         if exhausted {
             remove_cubic(world, owner_oid, cubic_id);
@@ -360,10 +359,9 @@ fn heal_target(world: &mut World, owner_oid: i32, _template: &CubicTemplate) -> 
         .objects
         .get_component::<crate::model::components::PartyRef>(&owner_oid)
         .copied()
+        && let Some(party) = world.parties.get(&pid)
     {
-        if let Some(party) = world.parties.get(&pid) {
-            candidates.extend(party.members.iter().copied().filter(|m| *m != owner_oid));
-        }
+        candidates.extend(party.members.iter().copied().filter(|m| *m != owner_oid));
     }
     candidates
         .into_iter()
@@ -453,10 +451,10 @@ fn cast(world: &mut World, owner_oid: i32, caster_oid: i32, target: i32, cubic_s
     }
     // The cubic floats with its owner — keep its position current so range and
     // aggro bookkeeping resolve from where the owner actually is.
-    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied() {
-        if let Some(p) = world.objects.get_component_mut::<Position>(&caster_oid) {
-            *p = pos;
-        }
+    if let Some(pos) = world.objects.get_component::<Position>(&owner_oid).copied()
+        && let Some(p) = world.objects.get_component_mut::<Position>(&caster_oid)
+    {
+        *p = pos;
     }
     // `skill.activateSkill(this, target)` — **the cubic** is the caster, so the
     // damage scales off the template's power, not the owner's m.atk.

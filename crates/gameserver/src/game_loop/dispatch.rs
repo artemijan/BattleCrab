@@ -80,23 +80,21 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_MOVE_TO_LOCATION_IN_VEHICLE => handle_move_in_vehicle(world, client_id, body),
         // RequestSkillCoolTime (IN_GAME): resend the reuse timers.
         cop::REQUEST_SKILL_COOL_TIME => {
-            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                if let Some(reuses) = world
+            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id)
+                && let Some(reuses) = world
                     .objects
                     .get_component::<crate::model::components::Reuses>(&session.player_object_id())
-                {
-                    cs.send(server_packets::skill_cool_time(reuses, world.tick));
-                }
+            {
+                cs.send(server_packets::skill_cool_time(reuses, world.tick));
             }
         }
         // RequestSkillList (IN_GAME): empty body, just `player.sendSkillList()`.
         cop::REQUEST_SKILL_LIST => {
-            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id) {
-                if let Some(pkt) =
+            if let Some(cs @ ClientSession::InGame(session)) = world.clients.get(&client_id)
+                && let Some(pkt) =
                     super::helpers::skill_list_packet(world, session.player_object_id())
-                {
-                    cs.send(pkt);
-                }
+            {
+                cs.send(pkt);
             }
         }
         cop::REQUEST_ITEM_LIST => handle_request_item_list(world, client_id),
@@ -126,10 +124,9 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             // TODO(G18.6): SUBPLEDGE squad-skill info).
             let mut r = commons::network::PacketReader::new(body);
             if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32())
+                && kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE
             {
-                if kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE {
-                    super::clans::handle_request_pledge_skill_info(world, client_id, id, level);
-                }
+                super::clans::handle_request_pledge_skill_info(world, client_id, id, level);
             }
         }
         cop::ACTION => handle_action(world, client_id, body),
@@ -190,15 +187,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         // SendBypassBuildCmd (IN_GAME): the `//command` GM bar → admin command
         // with the `admin_` prefix Java prepends.
         cop::SEND_BYPASS_BUILD_CMD => {
-            if let Some(cmd) = cp::read_build_command(body) {
-                if !cmd.is_empty() {
-                    super::admin::use_admin_command(
-                        world,
-                        client_id,
-                        &format!("admin_{cmd}"),
-                        true,
-                    );
-                }
+            if let Some(cmd) = cp::read_build_command(body)
+                && !cmd.is_empty()
+            {
+                super::admin::use_admin_command(world, client_id, &format!("admin_{cmd}"), true);
             }
         }
         // BypassUserCmd (IN_GAME): the client `/command` bar (`/loc`,
@@ -277,11 +269,11 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
             }
         }
         cop::REQUEST_TUTORIAL_QUESTION_MARK => {
-            if let Some(pkt) = cp::RequestTutorialQuestionMark::read(body) {
-                if let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) {
-                    let player = s.player_object_id();
-                    super::quests::notify_tutorial_mark(world, client_id, player, pkt.number);
-                }
+            if let Some(pkt) = cp::RequestTutorialQuestionMark::read(body)
+                && let Some(ClientSession::InGame(s)) = world.clients.get(&client_id)
+            {
+                let player = s.player_object_id();
+                super::quests::notify_tutorial_mark(world, client_id, player, pkt.number);
             }
         }
         cop::REQUEST_TUTORIAL_CLIENT_EVENT => {}
@@ -492,10 +484,10 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // RequestKeyMapping (ENTERING + IN_GAME): STORE_UI_SETTINGS is on, so
         // reply with the (empty) stored UI key mapping.
         exop::REQUEST_KEY_MAPPING => {
-            if let Some(cs) = world.clients.get(&client_id) {
-                if matches!(cs, ClientSession::Entering(_) | ClientSession::InGame(_)) {
-                    cs.send(server_packets::ex_ui_setting());
-                }
+            if let Some(cs) = world.clients.get(&client_id)
+                && matches!(cs, ClientSession::Entering(_) | ClientSession::InGame(_))
+            {
+                cs.send(server_packets::ex_ui_setting());
             }
         }
         // RequestManorList (IN_GAME): the castles that offer a manor — the seed
@@ -599,20 +591,19 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                 let player_id = session.player_object_id();
                 if let Some(&crate::model::components::PartyRef(party_id)) =
                     world.objects.get_component(&player_id)
+                    && let Some(party) = world.parties.get(&party_id)
                 {
-                    if let Some(party) = world.parties.get(&party_id) {
-                        let locations: Vec<(i32, i32, i32, i32)> = party
-                            .members
-                            .iter()
-                            .filter_map(|&m| {
-                                world
-                                    .objects
-                                    .get_component::<crate::model::components::Position>(&m)
-                                    .map(|p| (m, p.x, p.y, p.z))
-                            })
-                            .collect();
-                        cs.send(server_packets::party_member_position(&locations));
-                    }
+                    let locations: Vec<(i32, i32, i32, i32)> = party
+                        .members
+                        .iter()
+                        .filter_map(|&m| {
+                            world
+                                .objects
+                                .get_component::<crate::model::components::Position>(&m)
+                                .map(|p| (m, p.x, p.y, p.z))
+                        })
+                        .collect();
+                    cs.send(server_packets::party_member_position(&locations));
                 }
             }
         }

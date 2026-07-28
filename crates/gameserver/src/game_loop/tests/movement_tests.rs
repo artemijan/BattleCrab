@@ -62,13 +62,17 @@ fn move_click_during_cast_is_queued_and_replayed_when_cast_stops() {
         .expect("move started at cast end");
     assert_eq!((mv.0.dest_x, mv.0.dest_y), (500, 0));
     let a_packets = drain(&mut a_rx);
-    assert!(a_packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+    assert!(
+        a_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION)
+    );
     let b_packets = drain(&mut b_rx);
-    assert!(b_packets
-        .iter()
-        .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION));
+    assert!(
+        b_packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_LOCATION)
+    );
 }
 
 /// A move click mid-swing waits out the swing (Java `onIntentionMoveTo`'s
@@ -84,7 +88,7 @@ fn move_click_mid_swing_defers_to_swing_end() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -243,9 +247,11 @@ fn move_blocked_by_wall_defers_to_path_worker() {
         !world.objects.has_component::<Movement>(&4001),
         "move deferred, not started"
     );
-    assert!(world
-        .objects
-        .has_component::<crate::model::components::PathWait>(&4001));
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::PathWait>(&4001)
+    );
     assert!(
         mover_rx.try_recv().is_err(),
         "no packet until the path reply lands"
@@ -297,7 +303,7 @@ fn move_destination_is_clamped_by_geodata() {
 #[test]
 fn path_worker_round_trip_walks_around_wall() {
     use crate::geo::path::PathConfig;
-    use crate::geo::{synthetic_region, NSWE_ALL, NSWE_EAST};
+    use crate::geo::{NSWE_ALL, NSWE_EAST, synthetic_region};
     use crate::model::components::PathWait;
 
     let (mut world, ..) = test_world();
@@ -578,7 +584,7 @@ fn retarget_mid_walk_keeps_cast_intent() {
     advance_world(&mut world, 2);
     let npc_b = NPC_OID + 61;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 300, 300, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
+    world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
@@ -634,7 +640,7 @@ fn retarget_mid_walk_to_far_target_keeps_cast_intent() {
     advance_world(&mut world, 2);
     let npc_b = NPC_OID + 63;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_b, 40001, 700, 1500, 0, 5000, 30);
-    world.npc_regions.entry(extra.1 .0).or_default().push(npc_b);
+    world.npc_regions.entry(extra.1.0).or_default().push(npc_b);
     world.objects.spawn(npc_b, (npc, extra));
     let cs = crate::model::npc::npc_combat_stats(
         world.data.npc_data.get(40001).unwrap(),
@@ -683,7 +689,7 @@ fn walk_to_cast_boundary_rounding_still_casts() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 500, 500, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));
@@ -756,7 +762,7 @@ fn idle_monster_without_random_walk_stays_put() {
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 0, 0, 0, 5000, 30);
     world
         .npc_regions
-        .entry(extra.1 .0)
+        .entry(extra.1.0)
         .or_default()
         .push(npc_oid);
     world.objects.spawn(npc_oid, (npc, extra));

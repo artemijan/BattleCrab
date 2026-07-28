@@ -231,10 +231,10 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
             seller_changes.push(change);
         }
         // Buyer gets a fresh instance preserving enchant.
-        if let Some(new_oid) = world.alloc_object_id() {
-            if let Some(inv) = world.objects.get_component_mut::<Inventory>(&buyer) {
-                inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant);
-            }
+        if let Some(new_oid) = world.alloc_object_id()
+            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&buyer)
+        {
+            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant);
         }
         // Reduce the store line.
         if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&seller) {
@@ -316,14 +316,13 @@ fn refresh_inventory(world: &World, oid: i32) {
     if let (Some(cid), Some(inv)) = (
         super::helpers::client_for_player(world, oid),
         world.objects.get_component::<Inventory>(&oid),
-    ) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(crate::network::enter_world::item_list(
-                inv,
-                &world.data,
-                false,
-            ));
-        }
+    ) && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::enter_world::item_list(
+            inv,
+            &world.data,
+            false,
+        ));
     }
 }
 

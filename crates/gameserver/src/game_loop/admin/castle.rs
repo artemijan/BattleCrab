@@ -7,9 +7,9 @@
 //! the `SiegeInfo` registration window — is a later milestone (TODO(G24)).
 
 use crate::db::DbCommand;
+use crate::model::Player;
 use crate::model::castle::CastleSide;
 use crate::model::siege::SiegeClanType;
-use crate::model::Player;
 use crate::network::server_packets::sm_ids;
 use crate::world::World;
 

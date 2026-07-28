@@ -135,7 +135,7 @@ const NS_LOST_SORRY_LORD: i32 = 23008; // Mimi, on defeat
 const NS_ILL_WALK_ALL_OVER_YOU: i32 = 23009; // Silhouette Tilfo, on engage
 const NS_UGH_CAN_THIS_BE_HAPPENING: i32 = 23010; // Silhouette Tilfo, on defeat
 const NS_RULE_VIOLATION: i32 = 23011; // any, on foul
-                                      // Misc
+// Misc
 const MIN_LEVEL: i32 = 39;
 const WIZARD: i32 = 11;
 const ELVEN_WIZARD: i32 = 26;

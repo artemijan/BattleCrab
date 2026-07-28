@@ -3,8 +3,8 @@
 //! Isle dinosaurs (per-mob rate-in-threshold drops, 1–2 each): sell them at 1374
 //! adena apiece, or exchange 300 at Karakawei (32117) for 5 of a random B-grade
 //! weapon piece. Repeatable.
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;

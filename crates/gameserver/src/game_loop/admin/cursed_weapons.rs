@@ -12,10 +12,10 @@
 //! branch of `activate`.
 
 use crate::db::DbCommand;
+use crate::model::Player;
 use crate::model::components::{Position, SkillBook};
 use crate::model::inventory::Inventory;
-use crate::model::Player;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -297,10 +297,10 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     #[allow(clippy::erasing_op)]
     // Java's formula with kills=0 inlined; the shape stays greppable for parity
     let level = (1 + 0 / stage_kills.max(1)).min(skill_max_level.max(1));
-    if world.data.skill_data.get(skill_id, level).is_some() {
-        if let Some(book) = world.objects.get_component_mut::<SkillBook>(&target) {
-            book.0.insert(skill_id, level);
-        }
+    if world.data.skill_data.get(skill_id, level).is_some()
+        && let Some(book) = world.objects.get_component_mut::<SkillBook>(&target)
+    {
+        book.0.insert(skill_id, level);
     }
     super::skills::refresh_skill_list(world, target);
 
@@ -396,10 +396,9 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
                 .iter()
                 .find(|i| i.item_id == item_id)
                 .map(|i| i.object_id)
+                && inv.paperdoll_slot_of(item_oid).is_some()
             {
-                if inv.paperdoll_slot_of(item_oid).is_some() {
-                    inv.unequip_item(item_oid);
-                }
+                inv.unequip_item(item_oid);
             }
             inv.remove_item(item_id, 1);
         }
@@ -436,16 +435,16 @@ fn refresh_inventory(world: &World, client_id: u32, target: i32) {
 /// Send `pkt` to the subject's own client plus every player in visibility range
 /// (Java `broadcastPacket`).
 fn broadcast_to_visible(world: &World, subject: i32, pkt: &[u8]) {
-    if let Some(cid) = super::helpers::client_for_player(world, subject) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(pkt.to_vec());
-        }
+    if let Some(cid) = super::helpers::client_for_player(world, subject)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(pkt.to_vec());
     }
     for oid in super::creatures_in_range(world, subject, 1400, true, false) {
-        if let Some(cid) = super::helpers::client_for_player(world, oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(pkt.to_vec());
-            }
+        if let Some(cid) = super::helpers::client_for_player(world, oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(pkt.to_vec());
         }
     }
 }

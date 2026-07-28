@@ -226,18 +226,18 @@ impl QuestScript for Q00222TestOfTheDuelist {
                     ctx.set_memo_state_ex(1, 0);
                 }
             }
-        } else if let Some(trophy) = stage2_mob(ctx.npc_id) {
-            if ctx.memo_state() == 2 && ctx.quest_items_count(FINAL_ORDER) > 0 {
-                let i0 = ctx.memo_state_ex(1);
-                ctx.set_memo_state_ex(1, i0 + 1);
-                if ctx.give_item_randomly(trophy, 1, 3, 1.0, true)
-                    && total(ctx, &STAGE2_TROPHIES) == 15
-                {
-                    if i0 >= 5 {
-                        ctx.set_cond(5, false);
-                    }
-                    ctx.set_memo_state_ex(1, 0);
+        } else if let Some(trophy) = stage2_mob(ctx.npc_id)
+            && ctx.memo_state() == 2
+            && ctx.quest_items_count(FINAL_ORDER) > 0
+        {
+            let i0 = ctx.memo_state_ex(1);
+            ctx.set_memo_state_ex(1, i0 + 1);
+            if ctx.give_item_randomly(trophy, 1, 3, 1.0, true) && total(ctx, &STAGE2_TROPHIES) == 15
+            {
+                if i0 >= 5 {
+                    ctx.set_cond(5, false);
                 }
+                ctx.set_memo_state_ex(1, 0);
             }
         }
     }

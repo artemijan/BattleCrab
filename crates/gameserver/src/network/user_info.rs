@@ -33,8 +33,8 @@ pub fn ex_user_info_abnormal_visual_effect(
     w.write_i16(opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT);
     w.write_i32(object_id);
     w.write_i32(transform_display_id); // transformation id
-                                       // The buff-driven visuals, plus STEALTH when GM-invisible (Java appends it
-                                       // to the set rather than sending it alone).
+    // The buff-driven visuals, plus STEALTH when GM-invisible (Java appends it
+    // to the set rather than sending it alone).
     let extra = usize::from(invisible && !visuals.contains(&STEALTH_CLIENT_ID));
     w.write_i32((visuals.len() + extra) as i32);
     for &id in visuals {
@@ -191,8 +191,8 @@ pub fn user_info(
     }
     w.write_i16(0); // _flRunSpd (never set in Java)
     w.write_i16(0); // _flWalkSpd (never set in Java)
-                    // `_flyRunSpd/_flyWalkSpd = isFlying() ? run/walk : 0` — a wyvern rider's
-                    // client uses these for the flight animation; zeros froze it mid-air.
+    // `_flyRunSpd/_flyWalkSpd = isFlying() ? run/walk : 0` — a wyvern rider's
+    // client uses these for the flight animation; zeros froze it mid-air.
     let (fly_run, fly_walk) = if p.is_flying() {
         (client_speeds[0], client_speeds[1])
     } else {

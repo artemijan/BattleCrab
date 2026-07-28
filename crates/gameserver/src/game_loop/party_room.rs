@@ -11,12 +11,12 @@
 //! membership is derived from the room registry rather than mirrored on the
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
+use crate::model::Player;
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
 use crate::model::matching_room::{MatchingMemberType, RoomKind, RoomLevelFilter};
-use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{
-    self, sm_ids, RoomListView, RoomMemberView, SmParam, WaitingPlayerView, ROOMS_PER_PAGE,
+    self, ROOMS_PER_PAGE, RoomListView, RoomMemberView, SmParam, WaitingPlayerView, sm_ids,
 };
 use crate::session::ClientSession;
 use crate::world::World;
@@ -48,10 +48,10 @@ pub(crate) fn send_to(world: &World, object_id: i32, packet: Vec<u8>) {
 }
 
 fn send(world: &World, object_id: i32, packet: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+    if let Some(cid) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(packet);
     }
 }
 
@@ -186,26 +186,25 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
         .objects
         .get_component::<PartyRef>(&player)
         .map(|r| r.0)
+        && let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id)
     {
-        if let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id) {
-            let is_cc_leader = world
-                .command_channels
-                .get(&cc_id)
-                .is_some_and(|cc| cc.is_leader(player));
-            if is_cc_leader {
-                if world.matching_rooms.room_id_of(player).is_none() {
-                    super::command_channel::create_cc_room(world, player, party_id);
-                }
-            } else {
-                send_sm(
+        let is_cc_leader = world
+            .command_channels
+            .get(&cc_id)
+            .is_some_and(|cc| cc.is_leader(player));
+        if is_cc_leader {
+            if world.matching_rooms.room_id_of(player).is_none() {
+                super::command_channel::create_cc_room(world, player, party_id);
+            }
+        } else {
+            send_sm(
                     world,
                     player,
                     sm_ids::THE_COMMAND_CHANNEL_AFFILIATED_PARTY_S_PARTY_MEMBER_CANNOT_USE_THE_MATCHING_SCREEN,
                     &[],
                 );
-            }
-            return;
         }
+        return;
     }
 
     // Java: a party *member* may not browse — only an unpartied player or the
@@ -647,16 +646,16 @@ pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, bod
             .get_component::<PartyRef>(&oid)
             .map(|PartyRef(id)| *id)
     };
-    if let (Some(a), Some(b)) = (party_of(world, player), party_of(world, target)) {
-        if a == b {
-            send_sm(
-                world,
-                player,
-                sm_ids::YOU_CANNOT_DISMISS_A_PARTY_MEMBER_BY_FORCE,
-                &[],
-            );
-            return;
-        }
+    if let (Some(a), Some(b)) = (party_of(world, player), party_of(world, target))
+        && a == b
+    {
+        send_sm(
+            world,
+            player,
+            sm_ids::YOU_CANNOT_DISMISS_A_PARTY_MEMBER_BY_FORCE,
+            &[],
+        );
+        return;
     }
     remove_member(world, room_id, target, true);
 }

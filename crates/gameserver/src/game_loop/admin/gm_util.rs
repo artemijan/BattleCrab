@@ -9,9 +9,9 @@
 //! path — they need chat-snoop, live-config, olympiad or punishment systems the
 //! server has not ported.
 
+use crate::model::Player;
 use crate::model::components::{AdminFlags, PartyRef, Position};
 use crate::model::npc::Npc;
-use crate::model::Player;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;

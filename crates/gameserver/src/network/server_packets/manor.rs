@@ -327,7 +327,7 @@ pub fn ex_auto_soul_shot(item_id: i32, enable: bool, shot_type: i32) -> Vec<u8> 
 
 #[cfg(test)]
 mod tests {
-    use super::{ex_show_crop_info, CropInfoEntry};
+    use super::{CropInfoEntry, ex_show_crop_info};
     use crate::network::server_packets::opcodes;
     use commons::network::PacketWriter;
 

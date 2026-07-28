@@ -3,8 +3,8 @@
 
 use super::*;
 
-use crate::model::inventory::Inventory;
 use crate::model::Player;
+use crate::model::inventory::Inventory;
 
 const VICTIM: i32 = 2001;
 const KILLER: i32 = 2002;

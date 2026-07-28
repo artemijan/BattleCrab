@@ -25,14 +25,15 @@ impl HexId {
         let path = format!("{root}{HEXID_FILE}");
         if std::path::Path::new(&path).exists() {
             let p = PropertiesParser::load_rel(root, HEXID_FILE);
-            if p.contains_key("ServerID") && p.contains_key("HexID") {
-                if let Some(hex_id) = hexid_from_string(&p.get_string("HexID", "")) {
-                    return Self {
-                        hex_id,
-                        server_id: p.get_int("ServerID", 1),
-                        path,
-                    };
-                }
+            if p.contains_key("ServerID")
+                && p.contains_key("HexID")
+                && let Some(hex_id) = hexid_from_string(&p.get_string("HexID", ""))
+            {
+                return Self {
+                    hex_id,
+                    server_id: p.get_int("ServerID", 1),
+                    path,
+                };
             }
         }
         Self {

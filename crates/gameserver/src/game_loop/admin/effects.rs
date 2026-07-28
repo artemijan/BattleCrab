@@ -7,8 +7,8 @@
 //! state this server does not model yet, so those stay deferred (still gated by
 //! `AdminCommands.xml`, reaching the "not implemented" path).
 
-use crate::model::components::Position;
 use crate::model::Player;
+use crate::model::components::Position;
 use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
@@ -28,10 +28,10 @@ fn object_name(world: &World, oid: i32) -> String {
     if let Some(p) = world.objects.get_component::<Player>(&oid) {
         return p.name.clone();
     }
-    if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&oid) {
-        if let Some(t) = world.data.npc_data.get(npc.npc_id) {
-            return t.name.clone();
-        }
+    if let Some(npc) = world.objects.get_component::<crate::model::npc::Npc>(&oid)
+        && let Some(t) = world.data.npc_data.get(npc.npc_id)
+    {
+        return t.name.clone();
     }
     oid.to_string()
 }
@@ -324,11 +324,11 @@ pub(super) fn admin_clearteams(world: &mut World, client_id: u32, object_id: i32
     // sweep is fine for a GM tool.
     let targets = players_in_radius(world, &origin, 10_000.0);
     for target in targets {
-        if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
-            if p.team != 0 {
-                p.team = 0;
-                crate::game_loop::party::broadcast_user_info(world, target);
-            }
+        if let Some(p) = world.objects.get_component_mut::<Player>(&target)
+            && p.team != 0
+        {
+            p.team = 0;
+            crate::game_loop::party::broadcast_user_info(world, target);
         }
     }
     send_message(world, client_id, "Teams cleared.");

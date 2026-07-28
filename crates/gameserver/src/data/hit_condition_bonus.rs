@@ -3,8 +3,8 @@
 //! `rain` terms are parsed but never applied: there is no game-time clock or
 //! weather yet (Java's rain check is dead code upstream too).
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 
 pub const HIT_CONDITION_BONUS_FILE: &str = "data/stats/hitConditionBonus.xml";
 

@@ -5,8 +5,8 @@
 
 use std::collections::{HashMap, HashSet};
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const CATEGORY_FILE: &str = "data/CategoryData.xml";

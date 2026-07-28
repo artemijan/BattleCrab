@@ -54,7 +54,7 @@ mod tests {
         assert_eq!(game_time_minutes_at(0), 0);
         assert_eq!(game_time_minutes_at(IG_DAY_MS), 0);
         assert_eq!(game_time_minutes_at(6 * IG_DAY_MS), 0); // a real-day midnight
-                                                            // 10 real seconds = one game-minute; 600 s = 60 game-min = 01:00.
+        // 10 real seconds = one game-minute; 600 s = 60 game-min = 01:00.
         assert_eq!(game_time_minutes_at(10_000), 1);
         assert_eq!(game_time_minutes_at(600_000), 60);
         // Just before the wrap: 1439 game-min (23:59), then back to 0.

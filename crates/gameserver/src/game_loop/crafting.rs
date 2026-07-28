@@ -20,7 +20,7 @@ use crate::model::inventory::Inventory;
 use crate::model::stats::Stat;
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self as sp, sm_ids, status_update_type, SmParam};
+use crate::network::server_packets::{self as sp, SmParam, sm_ids, status_update_type};
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -709,13 +709,12 @@ fn reward(
     let mut count = recipe.count;
     // Masterwork: `(rareProdId != -1) && (rareProdId == itemId || CRAFT_MASTERWORK)`
     // then `Rnd.get(100) <= rarity`.
-    if let Some(rare) = recipe.rare {
-        if (rare.item_id == item_id || world.cfg.character.craft_masterwork)
-            && world.roll(100) <= rare.rarity
-        {
-            item_id = rare.item_id;
-            count = rare.count;
-        }
+    if let Some(rare) = recipe.rare
+        && (rare.item_id == item_id || world.cfg.character.craft_masterwork)
+        && world.roll(100) <= rare.rarity
+    {
+        item_id = rare.item_id;
+        count = rare.count;
     }
 
     super::items::add_inventory_item(world, customer, item_id, count as i64);

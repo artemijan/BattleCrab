@@ -17,8 +17,8 @@
 //! other consumers (nothing in this Mobius version reads `ZoneId.NO_RESTART`
 //! after it's set), so the zone only tracks membership for now.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use super::spawn_data::{Territory, ZoneForm};
@@ -412,50 +412,49 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         let e = match event {
             Event::Start(e) | Event::Empty(e) => e,
             Event::End(e) => {
-                if e.name().as_ref() == b"zone" {
-                    if let Some(p) = cur.take() {
-                        if let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad) {
-                            let effect = (p.kind == ZoneKind::Effect).then_some(EffectZoneParams {
-                                skills: p.skills,
-                                chance: p.chance,
-                                initial_delay: p.initial_delay,
-                                reuse: p.reuse,
-                                enabled: p.enabled,
-                                casts_on_players: p.casts_on_players,
-                                remove_effects_on_exit: p.remove_effects_on_exit,
-                            });
-                            let damage = (p.kind == ZoneKind::Damage).then_some(DamageZoneParams {
-                                hp_per_tick: p.dmg_hp,
-                                mp_per_tick: p.dmg_mp,
-                                initial_delay: p.initial_delay,
-                                // Java's DamageZone default reuse is 5000, not
-                                // the EffectZone's 30000.
-                                reuse: if p.reuse == 30_000 { 5_000 } else { p.reuse },
-                                enabled: p.enabled,
-                                castle_id: p.castle_id,
-                            });
-                            let swamp = (p.kind == ZoneKind::Swamp).then_some(SwampZoneParams {
-                                move_bonus: p.move_bonus,
-                                enabled: p.enabled,
-                                castle_id: p.castle_id,
-                            });
-                            out.push(Zone {
-                                id: p.id,
-                                name: p.name,
-                                kind: p.kind,
-                                territory: Territory {
-                                    form,
-                                    min_z: p.min_z,
-                                    max_z: p.max_z,
-                                },
-                                castle_id: p.castle_id,
-                                clan_hall_id: p.clan_hall_id,
-                                effect,
-                                damage,
-                                swamp,
-                            });
-                        }
-                    }
+                if e.name().as_ref() == b"zone"
+                    && let Some(p) = cur.take()
+                    && let Some(form) = build_form(&p.shape, p.xs, p.ys, p.rad)
+                {
+                    let effect = (p.kind == ZoneKind::Effect).then_some(EffectZoneParams {
+                        skills: p.skills,
+                        chance: p.chance,
+                        initial_delay: p.initial_delay,
+                        reuse: p.reuse,
+                        enabled: p.enabled,
+                        casts_on_players: p.casts_on_players,
+                        remove_effects_on_exit: p.remove_effects_on_exit,
+                    });
+                    let damage = (p.kind == ZoneKind::Damage).then_some(DamageZoneParams {
+                        hp_per_tick: p.dmg_hp,
+                        mp_per_tick: p.dmg_mp,
+                        initial_delay: p.initial_delay,
+                        // Java's DamageZone default reuse is 5000, not
+                        // the EffectZone's 30000.
+                        reuse: if p.reuse == 30_000 { 5_000 } else { p.reuse },
+                        enabled: p.enabled,
+                        castle_id: p.castle_id,
+                    });
+                    let swamp = (p.kind == ZoneKind::Swamp).then_some(SwampZoneParams {
+                        move_bonus: p.move_bonus,
+                        enabled: p.enabled,
+                        castle_id: p.castle_id,
+                    });
+                    out.push(Zone {
+                        id: p.id,
+                        name: p.name,
+                        kind: p.kind,
+                        territory: Territory {
+                            form,
+                            min_z: p.min_z,
+                            max_z: p.max_z,
+                        },
+                        castle_id: p.castle_id,
+                        clan_hall_id: p.clan_hall_id,
+                        effect,
+                        damage,
+                        swamp,
+                    });
                 }
                 continue;
             }
@@ -494,10 +493,10 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
-                if let Some(ty) = attr_str(&e, b"type") {
-                    if kind_from_type(&ty).is_none() {
-                        cur = None;
-                    }
+                if let Some(ty) = attr_str(&e, b"type")
+                    && kind_from_type(&ty).is_none()
+                {
+                    cur = None;
                 }
             }
             // Zone files capitalize the node attributes (`X`/`Y`), unlike

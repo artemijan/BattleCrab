@@ -2,7 +2,7 @@
 
 use super::*;
 
-use crate::game_loop::antharas::{AntharasMinions, ANTHARAS};
+use crate::game_loop::antharas::{ANTHARAS, AntharasMinions};
 
 const ANTHARAS_OID: i32 = NPC_OID + 120;
 const BEHEMOTH: i32 = 29069;

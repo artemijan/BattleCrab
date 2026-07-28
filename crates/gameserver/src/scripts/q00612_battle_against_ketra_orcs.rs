@@ -95,11 +95,11 @@ impl QuestScript for Q00612BattleAgainstKetraOrcs {
         if !ctx.has_qs() || !ctx.is_cond(1) {
             return;
         }
-        if let Some(chance) = molar_chance(ctx.npc_id) {
-            if ctx.roll(1000) < chance {
-                ctx.give_items(MOLAR, 1);
-                ctx.play_sound(quest_sounds::ITEMGET);
-            }
+        if let Some(chance) = molar_chance(ctx.npc_id)
+            && ctx.roll(1000) < chance
+        {
+            ctx.give_items(MOLAR, 1);
+            ctx.play_sound(quest_sounds::ITEMGET);
         }
     }
 

@@ -22,7 +22,7 @@ use crate::model::components::ActiveMultisell;
 use crate::model::inventory::{Inventory, ItemChange};
 use crate::network::client_packets as cp;
 use crate::network::enter_world as ew;
-use crate::network::server_packets::{self as sp, sm_ids, SmParam};
+use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 

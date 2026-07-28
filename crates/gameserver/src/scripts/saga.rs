@@ -105,7 +105,7 @@ impl SagaQuest {
         ctx.give_items(MARK_OF_SAGA, 1);
         ctx.set_class_id(self.data.class_id);
         ctx.cast_visual(4339, 1); // the transform flash
-                                  // TODO(saga): the SkillTransfer "givePormanders" hand-off.
+        // TODO(saga): the SkillTransfer "givePormanders" hand-off.
     }
 }
 

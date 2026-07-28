@@ -180,11 +180,7 @@ impl Region {
         match self.bytes.as_slice()[pos] {
             TYPE_FLAT => {
                 let height = self.i16_at(pos + 1) as i32;
-                if height <= world_z {
-                    height
-                } else {
-                    world_z
-                }
+                if height <= world_z { height } else { world_z }
             }
             TYPE_COMPLEX => {
                 cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).min(world_z)
@@ -201,11 +197,7 @@ impl Region {
                         lower = layer_z;
                     }
                 }
-                if lower == i32::MIN {
-                    world_z
-                } else {
-                    lower
-                }
+                if lower == i32::MIN { world_z } else { lower }
             }
         }
     }
@@ -217,11 +209,7 @@ impl Region {
         match self.bytes.as_slice()[pos] {
             TYPE_FLAT => {
                 let height = self.i16_at(pos + 1) as i32;
-                if height >= world_z {
-                    height
-                } else {
-                    world_z
-                }
+                if height >= world_z { height } else { world_z }
             }
             TYPE_COMPLEX => {
                 cell_height(self.i16_at(pos + 1 + Self::cell_index(geo_x, geo_y) * 2)).max(world_z)
@@ -238,11 +226,7 @@ impl Region {
                         higher = layer_z;
                     }
                 }
-                if higher == i32::MAX {
-                    world_z
-                } else {
-                    higher
-                }
+                if higher == i32::MAX { world_z } else { higher }
             }
         }
     }

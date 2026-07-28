@@ -5,8 +5,8 @@
 //! plumbing, thrones need castles — both G14+). The `texture`/`map_x/y`
 //! attributes only feed that click behavior, so they are not stored.
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const STATIC_OBJECT_FILE: &str = "data/StaticObjects.xml";

@@ -7,12 +7,12 @@ use crate::game_loop::helpers::{
     broadcast_including_self, client_for_player, ms_to_ticks, run_queued_action,
     send_sm_and_action_failed,
 };
+use crate::model::Player;
 use crate::model::components::{
     AttackState, Casting, Collision, Intent, Movement, Position, QueuedAction, Vitals,
 };
 use crate::model::formulas;
 use crate::model::skill::{OperateType, Skill, SkillEffect, TargetType};
-use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
@@ -32,7 +32,7 @@ pub(crate) fn check_skill_reuse(
     object_id: i32,
     skill: &Skill,
 ) -> bool {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     let Some(&crate::model::SkillReuse {
         until_tick,
@@ -1018,7 +1018,7 @@ pub(crate) fn start_casting(
     skill: &Skill,
     target_oid: i32,
 ) {
-    use server_packets::{sm_ids, SmParam};
+    use server_packets::{SmParam, sm_ids};
 
     let Some(player) = world
         .objects
@@ -1277,26 +1277,26 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
             return;
         };
         if vitals.cur_mp < skill.mp_per_channeling as f64 {
-            if let Some(cid) = client_id {
-                if let Some(cs) = world.clients.get(&cid) {
-                    cs.send(server_packets::system_message_with(
-                        sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
-                        &[],
-                    ));
-                }
+            if let Some(cid) = client_id
+                && let Some(cs) = world.clients.get(&cid)
+            {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+                    &[],
+                ));
             }
             abort_cast(world, player_object_id);
             return;
         }
         vitals.cur_mp -= skill.mp_per_channeling as f64;
         let mp = vitals.cur_mp as i32;
-        if let Some(cid) = client_id {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::status_update(
-                    player_object_id,
-                    &[(server_packets::status_update_type::CUR_MP, mp)],
-                ));
-            }
+        if let Some(cid) = client_id
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::status_update(
+                player_object_id,
+                &[(server_packets::status_update_type::CUR_MP, mp)],
+            ));
         }
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
@@ -1554,10 +1554,10 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         }
     }
     if !updates.is_empty() {
-        if let Some(client_id) = client_id {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::status_update(player_object_id, &updates));
-            }
+        if let Some(client_id) = client_id
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::status_update(player_object_id, &updates));
         }
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
@@ -1598,14 +1598,14 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         //   playable → attackable  ⇒ PVE
         //   playable → playable    ⇒ PVP
         //   otherwise              ⇒ neither
-        if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill) {
-            if !extra.is_empty() {
-                let scoped = Skill {
-                    effects: extra,
-                    ..skill.clone()
-                };
-                apply_skill_effects(world, player_object_id, target_oid, &scoped);
-            }
+        if let Some(extra) = matchup_effects(world, player_object_id, target_oid, &skill)
+            && !extra.is_empty()
+        {
+            let scoped = Skill {
+                effects: extra,
+                ..skill.clone()
+            };
+            apply_skill_effects(world, player_object_id, target_oid, &scoped);
         }
         // The hate/PvP consequences are unconditional: the caster still *cast*
         // a bad skill at this target, reflected or not.
@@ -1772,13 +1772,12 @@ fn apply_cast_consequences(
             // modeled yet, so every bad skill wakes.
             crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, player_object_id);
             let hate = (-skill.effect_point) as f64;
-            if hate != 0.0 {
-                if let Some(aggro) = world
+            if hate != 0.0
+                && let Some(aggro) = world
                     .objects
                     .get_component_mut::<crate::model::npc::AggroList>(&target_oid)
-                {
-                    aggro.0.entry(player_object_id).or_default().hate += hate;
-                }
+            {
+                aggro.0.entry(player_object_id).or_default().hate += hate;
             }
         }
     } else if target_oid != player_object_id {
@@ -1826,10 +1825,10 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
         object_id,
         &server_packets::magic_skill_canceld(object_id),
     );
-    if let Some(client_id) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+    if let Some(client_id) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::action_failed());
     }
     // Java `stopCasting(true)` also ends with `EVT_FINISH_CASTING`, so an
     // interrupted cast still releases the click it held back.
@@ -1865,10 +1864,10 @@ pub(crate) fn abort_cast_on_teleport(world: &mut World, object_id: i32) {
         object_id,
         &server_packets::magic_skill_canceld(object_id),
     );
-    if let Some(client_id) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::action_failed());
-        }
+    if let Some(client_id) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::action_failed());
     }
     stop_casting(world, object_id);
 }
@@ -1888,12 +1887,12 @@ pub(crate) fn break_cast(world: &mut World, object_id: i32) {
         return;
     }
     abort_cast(world, object_id);
-    if let Some(client_id) = client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
-                &[],
-            ));
-        }
+    if let Some(client_id) = client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(
+            server_packets::sm_ids::YOUR_CASTING_HAS_BEEN_INTERRUPTED,
+            &[],
+        ));
     }
 }

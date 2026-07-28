@@ -514,8 +514,10 @@ fn a_sender_who_cannot_cover_the_fee_is_refused() {
     );
     assert!(world.mail.inbox(3002).is_empty());
     assert_eq!(adena_of(&world, 3001), 50, "nothing is charged on refusal");
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
+    );
 }
 
 #[test]
@@ -543,8 +545,10 @@ fn attached_adena_cannot_also_pay_the_fee() {
         ),
     );
     assert!(world.mail.inbox(3002).is_empty());
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::YOU_CANNOT_FORWARD_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
+    );
 }
 
 #[test]
@@ -561,8 +565,10 @@ fn mail_to_an_unknown_name_or_to_yourself_is_refused() {
             &send_post_body("Nobody", false, "hi", "", &[], 0),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::WHEN_THE_RECIPIENT_DOESN_T_EXIST_SENDING_MAIL_IS_NOT_POSSIBLE)
+    );
 
     on_packet(
         &mut world,
@@ -625,8 +631,10 @@ fn a_cod_mail_needs_a_price_and_an_item() {
             &send_post_body("P3002", true, "pay", "", &[], 500),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::IT_S_A_PAYMENT_REQUEST_TRANSACTION_PLEASE_ATTACH_THE_ITEM)
+    );
     assert!(world.mail.inbox(3002).is_empty());
 }
 
@@ -918,8 +926,10 @@ fn a_cod_receiver_pays_and_the_sender_is_credited() {
         sender_before + 500,
         "and paid to the sender"
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::S2_HAS_MADE_A_PAYMENT_OF_S1_ADENA_PER_YOUR_PAYMENT_REQUEST_MAIL)
+    );
 }
 
 #[test]
@@ -938,8 +948,10 @@ fn a_cod_receiver_who_cannot_pay_gets_nothing() {
     assert_eq!(count_of(&world, 3002, 1060), 0);
     assert_eq!(adena_of(&world, 3002), 100, "nothing was charged");
     assert!(world.mail.get(77).unwrap().has_attachments);
-    assert!(sm_ids_of(&drain(&mut b_rx))
-        .contains(&sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA));
+    assert!(
+        sm_ids_of(&drain(&mut b_rx))
+            .contains(&sm_ids::YOU_CANNOT_RECEIVE_BECAUSE_YOU_DON_T_HAVE_ENOUGH_ADENA)
+    );
 }
 
 #[test]
@@ -1005,8 +1017,10 @@ fn cancelling_after_the_receiver_took_the_items_is_refused() {
             &int_body(77),
         ),
     );
-    assert!(sm_ids_of(&drain(&mut a_rx))
-        .contains(&sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT));
+    assert!(
+        sm_ids_of(&drain(&mut a_rx))
+            .contains(&sm_ids::YOU_CANNOT_CANCEL_SENT_MAIL_SINCE_THE_RECIPIENT_RECEIVED_IT)
+    );
     assert_eq!(count_of(&world, 3001, 1060), 0);
 }
 
@@ -1059,8 +1073,10 @@ fn attachment_actions_need_a_peace_zone() {
         ex_packet(cp::ex_opcodes::REQUEST_POST_ATTACHMENT, &int_body(77)),
     );
     assert_eq!(count_of(&world, 3002, 1060), 0);
-    assert!(sm_ids_of(&drain(&mut b_rx))
-        .contains(&sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION));
+    assert!(
+        sm_ids_of(&drain(&mut b_rx))
+            .contains(&sm_ids::YOU_CANNOT_RECEIVE_IN_A_NON_PEACE_ZONE_LOCATION)
+    );
 }
 
 #[test]
@@ -1099,8 +1115,10 @@ fn an_expired_mail_is_deleted_and_its_parcel_goes_to_the_senders_warehouse() {
         .unwrap();
     assert_eq!(wh.0.count_of(1060), 4, "the parcel went to the warehouse");
     for rx in [&mut a_rx, &mut b_rx] {
-        assert!(sm_ids_of(&drain(rx))
-            .contains(&sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME));
+        assert!(
+            sm_ids_of(&drain(rx))
+                .contains(&sm_ids::THE_MAIL_WAS_RETURNED_DUE_TO_THE_EXCEEDED_WAITING_TIME)
+        );
     }
 }
 

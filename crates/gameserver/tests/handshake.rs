@@ -8,10 +8,10 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use commons::network::{read_frame, write_frame, PacketReader, PacketWriter};
-use gameserver::network::cipher::Encryption;
-use gameserver::network::connection::{accept_loop, NetworkConfig};
+use commons::network::{PacketReader, PacketWriter, read_frame, write_frame};
 use gameserver::network::NetEvent;
+use gameserver::network::cipher::Encryption;
+use gameserver::network::connection::{NetworkConfig, accept_loop};
 use tokio::net::TcpStream;
 
 const PROTOCOL: i32 = 110;

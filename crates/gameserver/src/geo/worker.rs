@@ -5,14 +5,14 @@
 //! [`PathRequest`] and picks the [`PathEvent`] up on a later tick — same
 //! request → next-tick-result split as the DB thread (`db.rs`).
 
-use std::sync::mpsc::{Receiver, Sender};
 use std::sync::Arc;
+use std::sync::mpsc::{Receiver, Sender};
 use std::thread::JoinHandle;
 
 use tracing::info;
 
-use super::path::{find_path, PathConfig};
 use super::GeoEngine;
+use super::path::{PathConfig, find_path};
 
 /// One `findPath` call. `seq` pairs the reply with the newest request for an
 /// object — the game thread bumps it per request and drops stale replies

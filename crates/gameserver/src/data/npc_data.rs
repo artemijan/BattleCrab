@@ -7,8 +7,8 @@
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 pub const NPCS_DIR: &str = "data/stats/npcs";
@@ -596,10 +596,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             Event::Empty(e) => (e, true),
             Event::Text(text) => {
                 if in_corpse_time {
-                    if let Some(t) = cur.as_mut() {
-                        if let Ok(v) = String::from_utf8_lossy(&text).trim().parse() {
-                            t.corpse_time = Some(v);
-                        }
+                    if let Some(t) = cur.as_mut()
+                        && let Ok(v) = String::from_utf8_lossy(&text).trim().parse()
+                    {
+                        t.corpse_time = Some(v);
                     }
                 } else if in_clan {
                     if let Some(t) = cur.as_mut() {
@@ -609,15 +609,13 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         }
                     }
                 } else if in_ignore_npc_id {
-                    if let Some(t) = cur.as_mut() {
-                        if let Ok(v) = String::from_utf8_lossy(&text).trim().parse() {
-                            t.ignore_clan_npc_ids.push(v);
-                        }
+                    if let Some(t) = cur.as_mut()
+                        && let Ok(v) = String::from_utf8_lossy(&text).trim().parse()
+                    {
+                        t.ignore_clan_npc_ids.push(v);
                     }
-                } else if in_race {
-                    if let Some(t) = cur.as_mut() {
-                        t.race = parse_race(String::from_utf8_lossy(&text).trim());
-                    }
+                } else if in_race && let Some(t) = cur.as_mut() {
+                    t.race = parse_race(String::from_utf8_lossy(&text).trim());
                 }
                 continue;
             }
@@ -688,13 +686,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             // — but they *are* this NPC's escort list, so record them
             // on the parent before skipping the template handling.
             b"npc" if in_parameters => {
-                if in_minions {
-                    if let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
-                        t.minions.push(MinionHolder {
-                            npc_id: id,
-                            count: attr_i32(&e, b"count").unwrap_or(1),
-                        });
-                    }
+                if in_minions && let (Some(t), Some(id)) = (cur.as_mut(), attr_i32(&e, b"id")) {
+                    t.minions.push(MinionHolder {
+                        npc_id: id,
+                        count: attr_i32(&e, b"count").unwrap_or(1),
+                    });
                 }
                 continue;
             }
@@ -764,11 +760,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             // A handful of templates declare several rows; last wins,
             // matching a repeated `set` of the same base stat.
             b"attack" if in_attribute => {
-                if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type")) {
-                    if let Some(el) = crate::model::stats::Element::from_xml(&ty) {
-                        let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
-                        t.base_attack_element = Some((el, v));
-                    }
+                if let (Some(t), Some(ty)) = (cur.as_mut(), attr_str(&e, b"type"))
+                    && let Some(el) = crate::model::stats::Element::from_xml(&ty)
+                {
+                    let v = attr_f64(&e, b"value").unwrap_or(0.0) as i32;
+                    t.base_attack_element = Some((el, v));
                 }
             }
             b"attack" if !in_attribute => {
@@ -790,18 +786,18 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                 }
             }
             b"walk" => {
-                if let Some(t) = cur.as_mut() {
-                    if let Some(v) = attr_f64(&e, b"ground") {
-                        // NpcData: `groundWalk <= 0 → 0.1`.
-                        t.base_walk_spd = if v <= 0.0 { 0.1 } else { v };
-                    }
+                if let Some(t) = cur.as_mut()
+                    && let Some(v) = attr_f64(&e, b"ground")
+                {
+                    // NpcData: `groundWalk <= 0 → 0.1`.
+                    t.base_walk_spd = if v <= 0.0 { 0.1 } else { v };
                 }
             }
             b"run" => {
-                if let Some(t) = cur.as_mut() {
-                    if let Some(v) = attr_f64(&e, b"ground") {
-                        t.base_run_spd = if v <= 0.0 { 0.1 } else { v };
-                    }
+                if let Some(t) = cur.as_mut()
+                    && let Some(v) = attr_f64(&e, b"ground")
+                {
+                    t.base_run_spd = if v <= 0.0 { 0.1 } else { v };
                 }
             }
             b"acquire" => {
@@ -873,10 +869,10 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     if let Some(t) = cur.as_mut() {
                         t.drop_list_death.push(holder);
                     }
-                } else if drop_scope == DropScope::Spoil {
-                    if let Some(t) = cur.as_mut() {
-                        t.drop_list_spoil.push(holder);
-                    }
+                } else if drop_scope == DropScope::Spoil
+                    && let Some(t) = cur.as_mut()
+                {
+                    t.drop_list_spoil.push(holder);
                 }
             }
             b"radius" => {
@@ -892,10 +888,11 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             _ => {}
         }
         // Self-closing `<npc …/>` (no children) — no End event follows.
-        if self_closing && name.as_slice() == b"npc" {
-            if let Some(t) = cur.take() {
-                finish_template(t, out);
-            }
+        if self_closing
+            && name.as_slice() == b"npc"
+            && let Some(t) = cur.take()
+        {
+            finish_template(t, out);
         }
     }
 }
@@ -1056,9 +1053,10 @@ mod tests {
             lvl1.iter().any(|t| t.id == 20001),
             "Gremlin should be a level-1 Monster"
         );
-        assert!(lvl1
-            .iter()
-            .all(|t| t.level == 1 && t.type_name.eq_ignore_ascii_case("Monster")));
+        assert!(
+            lvl1.iter()
+                .all(|t| t.level == 1 && t.type_name.eq_ignore_ascii_case("Monster"))
+        );
         assert!(
             lvl1.windows(2).all(|w| w[0].id <= w[1].id),
             "monsters_of_level sorted by id"
@@ -1072,9 +1070,11 @@ mod tests {
             t_folk.iter().any(|t| t.id == 100),
             "Thomas D. Turkey should list under 'T'"
         );
-        assert!(t_folk
-            .iter()
-            .all(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with('T')));
+        assert!(
+            t_folk
+                .iter()
+                .all(|t| t.type_name.eq_ignore_ascii_case("Folk") && t.name.starts_with('T'))
+        );
     }
 
     /// The one dist file with `<group chance>` drops (Primeval Isle mobs).

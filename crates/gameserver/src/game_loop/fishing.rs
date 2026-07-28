@@ -10,9 +10,9 @@
 //! lands at a heading offset rather than a validated water point.
 
 use crate::data::item_data::WeaponType;
+use crate::model::Player;
 use crate::model::components::{FishingSession, Position, RegionCell, Vitals};
 use crate::model::inventory::{Inventory, PaperdollSlot};
-use crate::model::Player;
 use crate::network::server_packets as sp;
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
@@ -370,10 +370,10 @@ fn calculate_bait_location(world: &World, player: i32) -> Option<(i32, i32, i32)
 }
 
 fn send(world: &World, player: i32, pkt: Vec<u8>) {
-    if let Some(cid) = client_for_player(world, player) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(pkt);
-        }
+    if let Some(cid) = client_for_player(world, player)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(pkt);
     }
 }
 

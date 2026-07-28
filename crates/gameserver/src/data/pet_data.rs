@@ -13,8 +13,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 const PETS_DIR: &str = "data/stats/pets";
@@ -311,13 +311,13 @@ fn parse_str(
             Ok(Event::End(e)) => match e.name().as_ref() {
                 b"stats" => in_stats = false,
                 b"pet" => {
-                    if let Some(t) = cur.take() {
-                        if t.npc_id > 0 {
-                            if t.item_id > 0 {
-                                by_item.insert(t.item_id, t.npc_id);
-                            }
-                            by_npc.insert(t.npc_id, t);
+                    if let Some(t) = cur.take()
+                        && t.npc_id > 0
+                    {
+                        if t.item_id > 0 {
+                            by_item.insert(t.item_id, t.npc_id);
                         }
+                        by_npc.insert(t.npc_id, t);
                     }
                 }
                 _ => {}

@@ -79,10 +79,12 @@ fn event_start_opens_registration_and_arms_close_timer() {
     // Manager NPC spawned.
     assert!(world.events.tvt.manager_oid.is_some());
     // The registration-close timer is armed.
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::TvtTeleportToArena));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtTeleportToArena)
+    );
 
     // Re-entry guard: a second start refuses while one is running.
     assert!(!tvt::event_start(&mut world));
@@ -224,10 +226,12 @@ fn teleport_to_arena_stands_up_the_arena_and_splits_teams() {
         assert!(p.on_event);
     }
     // The fight-start timer is armed.
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::TvtStartFight));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtStartFight)
+    );
 }
 
 #[test]
@@ -237,10 +241,12 @@ fn start_fight_opens_the_window_and_arms_end() {
 
     tvt::start_fight(&mut world);
     assert_eq!(world.events.tvt.phase, TvtPhase::Fighting);
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::TvtEndFight));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtEndFight)
+    );
 }
 
 #[test]
@@ -312,10 +318,12 @@ fn a_cross_team_kill_scores_and_queues_respawn() {
     assert_eq!(world.events.tvt.red_score, 0);
     assert_eq!(world.events.tvt.scores.get(&killer), Some(&1));
     // The victim is queued for a timed respawn.
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::TvtResurrect { player: victim }));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtResurrect { player: victim })
+    );
 }
 
 #[test]
@@ -500,10 +508,12 @@ fn a_logout_that_empties_a_team_forfeits_the_match() {
     tvt::on_player_logout(&mut world, reds[1]);
 
     assert!(world.events.tvt.red_team.is_empty());
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .contains(&ScheduledTask::TvtEndFight));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .contains(&ScheduledTask::TvtEndFight)
+    );
 }
 
 #[test]

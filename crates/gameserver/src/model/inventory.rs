@@ -296,11 +296,9 @@ impl Inventory {
             .get(item_id)
             .map(|t| t.is_stackable)
             .unwrap_or(false);
-        if stackable {
-            if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
-                existing.count += count;
-                return existing.object_id;
-            }
+        if stackable && let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
+            existing.count += count;
+            return existing.object_id;
         }
         self.items
             .push(ItemInstance::new(object_id, item_id, count));
@@ -341,11 +339,9 @@ impl Inventory {
             .get(item_id)
             .map(|t| t.is_stackable)
             .unwrap_or(false);
-        if stackable {
-            if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
-                existing.count += count;
-                return;
-            }
+        if stackable && let Some(existing) = self.items.iter_mut().find(|i| i.item_id == item_id) {
+            existing.count += count;
+            return;
         }
         let mut inst = ItemInstance::new(object_id, item_id, count);
         inst.enchant_level = enchant;
@@ -361,11 +357,11 @@ impl Inventory {
             .get(inst.item_id)
             .map(|t| t.is_stackable)
             .unwrap_or(false);
-        if stackable {
-            if let Some(existing) = self.items.iter_mut().find(|i| i.item_id == inst.item_id) {
-                existing.count += inst.count;
-                return *existing;
-            }
+        if stackable
+            && let Some(existing) = self.items.iter_mut().find(|i| i.item_id == inst.item_id)
+        {
+            existing.count += inst.count;
+            return *existing;
         }
         self.items.push(inst);
         inst
@@ -519,11 +515,10 @@ impl Inventory {
             }
             item_data::SLOT_L_HAND => {
                 // A two-handed weapon in RHand is displaced by an off-hand item.
-                if let Some(rh) = self.paperdoll_item(PaperdollSlot::RHand) {
-                    if catalog.get(rh.item_id).map(|t| t.body_part) == Some(item_data::SLOT_LR_HAND)
-                    {
-                        changed.extend(self.clear(PaperdollSlot::RHand));
-                    }
+                if let Some(rh) = self.paperdoll_item(PaperdollSlot::RHand)
+                    && catalog.get(rh.item_id).map(|t| t.body_part) == Some(item_data::SLOT_LR_HAND)
+                {
+                    changed.extend(self.clear(PaperdollSlot::RHand));
                 }
                 changed.extend(self.clear(PaperdollSlot::LHand));
                 changed.push(self.set(PaperdollSlot::LHand, object_id));
@@ -559,13 +554,13 @@ impl Inventory {
             item_data::SLOT_LEGS => {
                 // A full-armor piece in Chest covers Legs too; equipping Legs
                 // separately displaces it.
-                if let Some(ch) = self.paperdoll_item(PaperdollSlot::Chest) {
-                    if matches!(
+                if let Some(ch) = self.paperdoll_item(PaperdollSlot::Chest)
+                    && matches!(
                         catalog.get(ch.item_id).map(|t| t.body_part),
                         Some(item_data::SLOT_FULL_ARMOR) | Some(item_data::SLOT_ALLDRESS)
-                    ) {
-                        changed.extend(self.clear(PaperdollSlot::Chest));
-                    }
+                    )
+                {
+                    changed.extend(self.clear(PaperdollSlot::Chest));
                 }
                 changed.extend(self.clear(PaperdollSlot::Legs));
                 changed.push(self.set(PaperdollSlot::Legs, object_id));

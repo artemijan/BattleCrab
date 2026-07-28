@@ -6,9 +6,9 @@
 
 use crate::db::DbCommand;
 use crate::enums::ChatType;
-use crate::model::petition::{PetitionState, PetitionType};
 use crate::model::Player;
-use crate::network::server_packets::{self as sp, sm_ids, SmParam};
+use crate::model::petition::{PetitionState, PetitionType};
+use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 use commons::network::PacketReader;
@@ -66,10 +66,10 @@ fn any_gm_online(world: &World) -> bool {
 fn broadcast_to_gms(world: &World, author: &str, text: &str) {
     let say = sp::creature_say(0, ChatType::HeroVoice, author, text, None);
     for cs in world.clients.values() {
-        if let ClientSession::InGame(s) = cs {
-            if is_gm(world, s.player_object_id()) {
-                cs.send(say.clone());
-            }
+        if let ClientSession::InGame(s) = cs
+            && is_gm(world, s.player_object_id())
+        {
+            cs.send(say.clone());
         }
     }
 }
@@ -483,33 +483,33 @@ fn end_consultation(world: &mut World, id: i32, end_state: PetitionState) {
     let petitioner_name = petition.petitioner_name.clone();
     let responder = petition.responder;
 
-    if let Some(r) = responder {
-        if is_online(world, r) {
-            if end_state == PetitionState::ResponderReject {
-                // Java sends the petitioner a plain "rejected" line here.
-                send_sm(
-                    world,
-                    petitioner,
-                    sm_ids::S1_TEXT,
-                    &[SmParam::Text(
-                        "Your petition was rejected. Please try again later.".to_string(),
-                    )],
-                );
-            } else {
+    if let Some(r) = responder
+        && is_online(world, r)
+    {
+        if end_state == PetitionState::ResponderReject {
+            // Java sends the petitioner a plain "rejected" line here.
+            send_sm(
+                world,
+                petitioner,
+                sm_ids::S1_TEXT,
+                &[SmParam::Text(
+                    "Your petition was rejected. Please try again later.".to_string(),
+                )],
+            );
+        } else {
+            send_sm(
+                world,
+                r,
+                sm_ids::PETITION_CONSULTATION_WITH_C1_HAS_ENDED,
+                &[SmParam::Text(petitioner_name)],
+            );
+            if end_state == PetitionState::PetitionerCancel {
                 send_sm(
                     world,
                     r,
-                    sm_ids::PETITION_CONSULTATION_WITH_C1_HAS_ENDED,
-                    &[SmParam::Text(petitioner_name)],
+                    sm_ids::RECEIPT_NO_S1_PETITION_CANCELLED,
+                    &[SmParam::Int(id)],
                 );
-                if end_state == PetitionState::PetitionerCancel {
-                    send_sm(
-                        world,
-                        r,
-                        sm_ids::RECEIPT_NO_S1_PETITION_CANCELLED,
-                        &[SmParam::Int(id)],
-                    );
-                }
             }
         }
     }

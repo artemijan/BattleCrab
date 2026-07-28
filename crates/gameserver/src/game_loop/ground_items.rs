@@ -11,7 +11,7 @@ use crate::network::client_packets as cp;
 use crate::network::server_packets::{self, GroundItemView};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 /// Who dropped a ground item — Java gates auto-destroy differently for the two
 /// (`Player.dropItem` vs `Npc.dropItem`).
@@ -212,7 +212,7 @@ pub(crate) fn pickup_ground_item(
         && g.owner_id != player_oid
         && !super::command_channel::is_in_looter_party(world, player_oid, g.owner_id)
     {
-        use crate::network::server_packets::{sm_ids, SmParam};
+        use crate::network::server_packets::{SmParam, sm_ids};
         let sm = if g.item_id == crate::data::item_data::ADENA_ID {
             server_packets::system_message_with(
                 sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1_ADENA,

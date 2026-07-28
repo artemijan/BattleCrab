@@ -120,12 +120,14 @@ fn a_living_player_gets_no_proposal() {
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
 
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
-    assert!(world
-        .objects
-        .get_component::<crate::model::Player>(&CORPSE)
-        .unwrap()
-        .revive_request
-        .is_none());
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .revive_request
+            .is_none()
+    );
 }
 
 // ---------------------------------------------------------------------------
@@ -264,10 +266,11 @@ fn real_dist_resurrection_skills_parse() {
     );
 
     let mass = skills.get(1254, 2).expect("Mass Resurrection loads");
-    assert!(mass
-        .effects
-        .iter()
-        .any(|e| matches!(e, SkillEffect::Resurrection { .. })));
+    assert!(
+        mass.effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::Resurrection { .. }))
+    );
 }
 
 /// Level 1 of both declares `power = 0` — the skill revives but restores no XP.

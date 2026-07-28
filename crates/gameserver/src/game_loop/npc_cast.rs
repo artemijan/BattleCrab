@@ -80,76 +80,72 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     //    it: the pack's healer looks for whoever is worst off, not just itself.
     //    The chance scales off *that* target's HP so it's certain below 33 %:
     //    `(100 - hpPercent) * 1.5`.
-    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Heal, npc_oid) {
-        if let Some(heal_target) = skill_target_reconsider(world, npc_oid, &skill, false) {
-            let hp_pct = hp_percent(world, heal_target);
-            let heal_chance = (100.0 - hp_pct) * 1.5;
-            if (rand::thread_rng().gen_range(0..100) as f64) < heal_chance
-                && check_skill_target(world, npc_oid, heal_target, &skill)
-            {
-                start_cast(world, npc_oid, heal_target, &skill);
-                return true;
-            }
+    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Heal, npc_oid)
+        && let Some(heal_target) = skill_target_reconsider(world, npc_oid, &skill, false)
+    {
+        let hp_pct = hp_percent(world, heal_target);
+        let heal_chance = (100.0 - hp_pct) * 1.5;
+        if (rand::thread_rng().gen_range(0..100) as f64) < heal_chance
+            && check_skill_target(world, npc_oid, heal_target, &skill)
+        {
+            start_cast(world, npc_oid, heal_target, &skill);
+            return true;
         }
     }
 
     // 2. Buff — same reconsider, so a support mob buffs its pack rather than
     //    only itself. Java passes `insideCastRange = true` here.
-    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Buff, npc_oid) {
-        if let Some(buff_target) = skill_target_reconsider(world, npc_oid, &skill, true) {
-            if check_skill_target(world, npc_oid, buff_target, &skill) {
-                start_cast(world, npc_oid, buff_target, &skill);
-                return true;
-            }
-        }
+    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Buff, npc_oid)
+        && let Some(buff_target) = skill_target_reconsider(world, npc_oid, &skill, true)
+        && check_skill_target(world, npc_oid, buff_target, &skill)
+    {
+        start_cast(world, npc_oid, buff_target, &skill);
+        return true;
     }
 
     // 3. Immobilize a target that's running (kiting or fleeing).
     let target_moving = world
         .objects
         .has_component::<crate::model::components::Movement>(&target_oid);
-    if target_moving {
-        if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Immobilize, npc_oid) {
-            if check_skill_target(world, npc_oid, target_oid, &skill) {
-                start_cast(world, npc_oid, target_oid, &skill);
-                return true;
-            }
-        }
+    if target_moving
+        && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Immobilize, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+    {
+        start_cast(world, npc_oid, target_oid, &skill);
+        return true;
     }
 
     // 4. Mute a target that's mid-cast (Java's COT bucket).
-    if world.objects.has_component::<Casting>(&target_oid) {
-        if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Cot, npc_oid) {
-            if check_skill_target(world, npc_oid, target_oid, &skill) {
-                start_cast(world, npc_oid, target_oid, &skill);
-                return true;
-            }
-        }
+    if world.objects.has_component::<Casting>(&target_oid)
+        && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Cot, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+    {
+        start_cast(world, npc_oid, target_oid, &skill);
+        return true;
     }
 
     // 5/6. Range-matched attack skills.
     let dist = distance_2d(world, npc_oid, target_oid).unwrap_or(f64::MAX);
-    if dist <= SHORT_RANGE {
-        if let Some(skill) = pick(world, &ai_skills, AiSkillScope::ShortRange, npc_oid) {
-            if check_skill_target(world, npc_oid, target_oid, &skill) {
-                start_cast(world, npc_oid, target_oid, &skill);
-                return true;
-            }
-        }
+    if dist <= SHORT_RANGE
+        && let Some(skill) = pick(world, &ai_skills, AiSkillScope::ShortRange, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+    {
+        start_cast(world, npc_oid, target_oid, &skill);
+        return true;
     }
-    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::LongRange, npc_oid) {
-        if check_skill_target(world, npc_oid, target_oid, &skill) {
-            start_cast(world, npc_oid, target_oid, &skill);
-            return true;
-        }
+    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::LongRange, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+    {
+        start_cast(world, npc_oid, target_oid, &skill);
+        return true;
     }
 
     // 7. Anything at all.
-    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::General, npc_oid) {
-        if check_skill_target(world, npc_oid, target_oid, &skill) {
-            start_cast(world, npc_oid, target_oid, &skill);
-            return true;
-        }
+    if let Some(skill) = pick(world, &ai_skills, AiSkillScope::General, npc_oid)
+        && check_skill_target(world, npc_oid, target_oid, &skill)
+    {
+        start_cast(world, npc_oid, target_oid, &skill);
+        return true;
     }
 
     false
@@ -224,12 +220,10 @@ fn check_use_conditions(world: &World, npc_oid: i32, skill: &Skill) -> bool {
     if let Some(reuses) = world
         .objects
         .get_component::<crate::model::components::Reuses>(&npc_oid)
+        && let Some(r) = reuses.0.get(&skill.reuse_key())
+        && r.until_tick > world.tick
     {
-        if let Some(r) = reuses.0.get(&skill.reuse_key()) {
-            if r.until_tick > world.tick {
-                return false;
-            }
-        }
+        return false;
     }
     true
 }
@@ -336,10 +330,10 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
     // `handle_skill_launch` -> `handle_skill_finish` path, which charges
     // `mp_consume` at landing exactly as it does for a player — charging it
     // here too would bill the NPC twice for one spell.
-    if skill.mp_initial_consume > 0 {
-        if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
-            v.cur_mp = (v.cur_mp - skill.mp_initial_consume as f64).max(0.0);
-        }
+    if skill.mp_initial_consume > 0
+        && let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid)
+    {
+        v.cur_mp = (v.cur_mp - skill.mp_initial_consume as f64).max(0.0);
     }
 
     set_skill_reuse(world, npc_oid, skill);

@@ -6,8 +6,11 @@
 //! operate on a slice starting at the packet payload (every Java call site
 //! passes offset 0).
 
-use blowfish::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
+use std::slice;
+
 use blowfish::Blowfish;
+use blowfish::cipher::KeyInit;
+use cipher::{Block, BlockCipherDecrypt, BlockCipherEncrypt};
 
 type BlowfishLe = Blowfish<byteorder::LE>;
 
@@ -22,18 +25,52 @@ impl NewCrypt {
         }
     }
 
-    /// `NewCrypt.crypt` — encrypt in place, 8-byte ECB blocks.
+    /// Encrypts `data` in-place using 8-byte ECB blocks.
+    ///
+    /// # Safety
+    ///
+    /// This function uses an `unsafe` transmute-style pointer cast to view `data`
+    /// as a slice of `Block<BlowfishLe>`. This is sound because:
+    /// 1. `Block<BlowfishLe>` is a `#[repr(transparent)]` wrapper over `GenericArray<u8, U8>`,
+    ///    which has the exact same memory layout and alignment as an 8-byte slice (`[u8; 8]`).
+    /// 2. `data.as_mut_ptr()` yields a valid, mutable, and properly aligned byte pointer.
+    /// 3. The slice length is strictly limited to `data.len() / 8`, guaranteeing that the
+    ///    constructed slice does not read or write past the allocation boundary of `data`.
+    /// 4. Any remaining tail bytes (`data.len() % 8`) are safely ignored and left unencrypted.
     pub fn crypt(&self, data: &mut [u8]) {
-        for block in data.chunks_exact_mut(8) {
-            self.cipher.encrypt_block(block.into());
-        }
+        assert_eq!(
+            data.len() % 8,
+            0,
+            "Data length must be a multiple of 8 bytes"
+        );
+        let num_blocks = data.len() / 8;
+        // SAFETY: `Block<BlowfishLe>` is repr(transparent) over [u8; 8].
+        // We only cast whole 8-byte blocks up to `num_blocks`.
+        let blocks = unsafe {
+            slice::from_raw_parts_mut(data.as_mut_ptr() as *mut Block<BlowfishLe>, num_blocks)
+        };
+        self.cipher.encrypt_blocks(blocks);
     }
 
-    /// `NewCrypt.decrypt` — decrypt in place, 8-byte ECB blocks.
+    /// Decrypts `data` in-place using 8-byte ECB blocks.
+    ///
+    /// # Safety
+    ///
+    /// Identical safety guarantees as [`crypt`]: reinterprets whole 8-byte chunks of
+    /// `data` as a contiguous slice of `Block<BlowfishLe>` for maximum batch processing speed.
     pub fn decrypt(&self, data: &mut [u8]) {
-        for block in data.chunks_exact_mut(8) {
-            self.cipher.decrypt_block(block.into());
-        }
+        assert_eq!(
+            data.len() % 8,
+            0,
+            "Data length must be a multiple of 8 bytes"
+        );
+        let num_blocks = data.len() / 8;
+        // SAFETY: `Block<BlowfishLe>` is repr(transparent) over [u8; 8].
+        // We only cast whole 8-byte blocks up to `num_blocks`.
+        let blocks = unsafe {
+            slice::from_raw_parts_mut(data.as_mut_ptr() as *mut Block<BlowfishLe>, num_blocks)
+        };
+        self.cipher.decrypt_blocks(blocks);
     }
 
     /// `NewCrypt.verifyChecksum` — XOR of all LE i32 words except the last,

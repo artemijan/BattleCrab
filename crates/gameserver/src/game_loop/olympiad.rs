@@ -18,11 +18,11 @@
 //! stadium instancing (needs G27) remains a follow-up.
 
 use crate::db::{DbCommand, HeroRow, OlympiadNobleRow};
+use crate::model::Player;
 use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
 };
-use crate::model::Player;
-use crate::network::server_packets::{self as sp, sm_ids, SmParam};
+use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -1123,30 +1123,30 @@ pub(crate) fn unregister(world: &mut World, object_id: i32) -> bool {
 }
 
 fn send_sm(world: &World, object_id: i32, sm_id: i16) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(sp::system_message_with(sm_id, &[]));
-        }
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(sp::system_message_with(sm_id, &[]));
     }
 }
 
 /// Send a system message with a single integer argument (the countdown seconds).
 fn send_sm_int(world: &World, object_id: i32, sm_id: i16, value: i32) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(sp::system_message_with(sm_id, &[SmParam::Int(value)]));
-        }
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(sp::system_message_with(sm_id, &[SmParam::Int(value)]));
     }
 }
 
 fn send_sm_c1(world: &World, object_id: i32, sm_id: i16, name: &str) {
-    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(sp::system_message_with(
-                sm_id,
-                &[SmParam::PlayerName(name.to_string())],
-            ));
-        }
+    if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(sp::system_message_with(
+            sm_id,
+            &[SmParam::PlayerName(name.to_string())],
+        ));
     }
 }
 

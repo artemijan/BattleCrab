@@ -147,9 +147,11 @@ fn a_timed_jail_expires_and_releases_the_player() {
         PunishmentAffect::Character,
         PunishmentType::Jail
     ));
-    assert!(drain_db(&mut db_rx)
-        .iter()
-        .any(|c| matches!(c, DbCommand::DeletePunishment { .. })));
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::DeletePunishment { .. }))
+    );
 }
 
 #[test]
@@ -210,11 +212,13 @@ fn boot_load_registers_and_re_arms_a_timed_jail() {
         PunishmentType::Jail
     ));
     assert_eq!(world.punishments.next_id, 8);
-    assert!(world
-        .scheduler
-        .pending_tasks_for_test()
-        .iter()
-        .any(|t| matches!(t, ScheduledTask::PunishmentExpire { punishment_id: 7 })));
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, ScheduledTask::PunishmentExpire { punishment_id: 7 }))
+    );
 }
 
 #[test]

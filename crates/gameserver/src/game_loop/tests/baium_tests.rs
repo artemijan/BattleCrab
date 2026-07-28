@@ -538,7 +538,7 @@ fn archangels_despawn_when_baium_dies() {
 // The sleeping stone + the wakeUp awakening
 // ---------------------------------------------------------------------------
 
-use crate::game_loop::baium::{BaiumWaker, BAIUM_STONE};
+use crate::game_loop::baium::{BAIUM_STONE, BaiumWaker};
 
 /// Give Baium a grand-boss record at the given status.
 fn insert_baium(world: &mut World, status: i32) {

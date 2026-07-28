@@ -24,15 +24,16 @@ pub async fn load(controller: &ControllerHandle) {
             continue;
         };
         let duration = match parts.next() {
-            Some(value) => {
-                match value.parse::<i64>() {
-                    Ok(d) => d,
-                    Err(_) => {
-                        warn!("Skipped: Incorrect ban duration ({value}) on (banned_ip.cfg). Line: {}", line_number + 1);
-                        continue;
-                    }
+            Some(value) => match value.parse::<i64>() {
+                Ok(d) => d,
+                Err(_) => {
+                    warn!(
+                        "Skipped: Incorrect ban duration ({value}) on (banned_ip.cfg). Line: {}",
+                        line_number + 1
+                    );
+                    continue;
                 }
-            }
+            },
             None => 0,
         };
         if address.parse::<std::net::Ipv4Addr>().is_err() {

@@ -8,15 +8,15 @@
 //! encrypted and framed here.
 
 use std::net::SocketAddr;
-use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 use commons::network::{read_frame, write_frame};
 use tokio::io::AsyncWrite;
 use tokio::net::TcpListener;
 use tracing::{debug, info, warn};
 
-use super::client_packets::{opcodes as cop, ProtocolVersion};
+use super::client_packets::{ProtocolVersion, opcodes as cop};
 use super::game_client::GameClient;
 use super::server_packets::key_packet;
 use super::{ConnectionState, NetEvent, NetEventTx};

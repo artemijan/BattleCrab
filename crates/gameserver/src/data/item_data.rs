@@ -8,8 +8,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::model::stats::Stat;
@@ -1037,17 +1037,17 @@ fn parse_file(
             }
             Ok(Event::Text(t)) if in_stats && cur_stat_type.is_some() => {
                 let ty = cur_stat_type.as_deref().unwrap();
-                if let Ok(text) = t.unescape() {
-                    if let Ok(val) = text.trim().parse::<f64>() {
-                        match ty {
-                            "pAtkRange" => cur_stats.atk_range = Some(val as i32),
-                            "randomDamage" => cur_stats.random_damage = Some(val as i32),
-                            "sDef" => cur_stats.shield_def = Some(val as i32),
-                            "rShld" => cur_stats.shield_rate = Some(val as i32),
-                            _ => {
-                                if let Some(stat) = stat_from_xml(ty) {
-                                    cur_stats.bonuses.push((stat, val));
-                                }
+                if let Ok(text) = t.unescape()
+                    && let Ok(val) = text.trim().parse::<f64>()
+                {
+                    match ty {
+                        "pAtkRange" => cur_stats.atk_range = Some(val as i32),
+                        "randomDamage" => cur_stats.random_damage = Some(val as i32),
+                        "sDef" => cur_stats.shield_def = Some(val as i32),
+                        "rShld" => cur_stats.shield_rate = Some(val as i32),
+                        _ => {
+                            if let Some(stat) = stat_from_xml(ty) {
+                                cur_stats.bonuses.push((stat, val));
                             }
                         }
                     }
@@ -1113,15 +1113,15 @@ fn parse_file(
                     {
                         stats_out.insert(item_id, stats);
                     }
-                    if let Some(at) = attrs.get("armor_type").map(|s| ArmorType::from_name(s)) {
-                        if at != ArmorType::None {
-                            armor_out.insert(item_id, at);
-                        }
+                    if let Some(at) = attrs.get("armor_type").map(|s| ArmorType::from_name(s))
+                        && at != ArmorType::None
+                    {
+                        armor_out.insert(item_id, at);
                     }
-                    if let Some(wt) = attrs.get("weapon_type").map(|s| WeaponType::from_name(s)) {
-                        if wt != WeaponType::None {
-                            weapon_out.insert(item_id, wt);
-                        }
+                    if let Some(wt) = attrs.get("weapon_type").map(|s| WeaponType::from_name(s))
+                        && wt != WeaponType::None
+                    {
+                        weapon_out.insert(item_id, wt);
                     }
                     // `Weapon._soulShotCount`/`_spiritShotCount` — only weapons
                     // declaring a non-zero count can charge that shot kind.

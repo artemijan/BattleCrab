@@ -6,8 +6,8 @@
 
 use rand::RngCore;
 
-use super::cipher::Encryption;
 use super::ConnectionState;
+use super::cipher::Encryption;
 
 pub struct GameClient {
     pub client_id: u32,
@@ -50,19 +50,19 @@ impl GameClient {
     /// Java `encrypt`: transform in place when the cipher is installed
     /// (the first call is a pass-through — see [`Encryption`]).
     pub fn encrypt(&mut self, data: &mut [u8]) {
-        if self.packet_encryption {
-            if let Some(e) = &mut self.encryption {
-                e.encrypt(data);
-            }
+        if self.packet_encryption
+            && let Some(e) = &mut self.encryption
+        {
+            e.encrypt(data);
         }
     }
 
     /// Java `decrypt`: no-op until the cipher is installed.
     pub fn decrypt(&mut self, data: &mut [u8]) {
-        if self.packet_encryption {
-            if let Some(e) = &mut self.encryption {
-                e.decrypt(data);
-            }
+        if self.packet_encryption
+            && let Some(e) = &mut self.encryption
+        {
+            e.decrypt(data);
         }
     }
 }

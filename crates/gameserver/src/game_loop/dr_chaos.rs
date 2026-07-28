@@ -267,13 +267,12 @@ fn respawn_golem_from_record(world: &mut World) {
     let Some(b) = world.grand_bosses.get(&CHAOS_GOLEM).cloned() else {
         return;
     };
-    if let Some(oid) = spawn_golem(world, b.loc_x, b.loc_y, b.loc_z, true) {
-        if b.current_hp > 0.0 {
-            if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
-                v.cur_hp = b.current_hp.min(v.max_hp as f64);
-                v.cur_mp = b.current_mp.min(v.max_mp as f64);
-            }
-        }
+    if let Some(oid) = spawn_golem(world, b.loc_x, b.loc_y, b.loc_z, true)
+        && b.current_hp > 0.0
+        && let Some(v) = world.objects.get_component_mut::<Vitals>(&oid)
+    {
+        v.cur_hp = b.current_hp.min(v.max_hp as f64);
+        v.cur_mp = b.current_mp.min(v.max_mp as f64);
     }
 }
 

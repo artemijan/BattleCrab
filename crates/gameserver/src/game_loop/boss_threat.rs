@@ -173,12 +173,12 @@ pub(crate) fn take_top_threat(world: &mut World, boss_oid: i32) -> Option<i32> {
     // *after* being chosen, so the boss does not lock onto one player for the
     // whole fight — the next-highest gets a turn. Without it he would tunnel
     // the single biggest damage dealer indefinitely.
-    if world.roll(100) < THREAT_DECAY_CHANCE {
-        if let Some(t) = world.objects.get_component_mut::<BossThreat>(&boss_oid) {
-            for slot in t.slots.iter_mut() {
-                if slot.0 == target {
-                    slot.1 = THREAT_DECAY_TO;
-                }
+    if world.roll(100) < THREAT_DECAY_CHANCE
+        && let Some(t) = world.objects.get_component_mut::<BossThreat>(&boss_oid)
+    {
+        for slot in t.slots.iter_mut() {
+            if slot.0 == target {
+                slot.1 = THREAT_DECAY_TO;
             }
         }
     }

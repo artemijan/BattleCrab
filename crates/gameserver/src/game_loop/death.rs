@@ -8,18 +8,18 @@
 //! `RequestRestartPoint`/`Appearing`/`Player.doRevive`.
 
 use crate::data::npc_data::{DropHolder, NpcTemplate};
+use crate::model::Player;
 use crate::model::components::{
     BaseStats, Buffs, CombatStats, Intent, Movement, PlayerVitals, Position, RegionCell, SkillBook,
     Speeds, StatModifiers, Vitals,
 };
 use crate::model::formulas;
 use crate::model::inventory::Inventory;
-use crate::model::Player;
 use crate::network::client_packets as cp;
-use crate::network::server_packets::{self, sm_ids, SmParam};
+use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
-use crate::world::{regions_adjacent, World};
+use crate::world::{World, regions_adjacent};
 
 use super::helpers::{
     broadcast_including_self, broadcast_near_region_in, client_for_player, instance_of,
@@ -264,10 +264,8 @@ pub(crate) fn handle_npc_decay(world: &mut World, npc_oid: i32) {
         // `DBSpawnManager.updateStatus(npc, true)`: bank the absolute due time
         // so a restart inside the (up to 24 h + 12 h random) window resumes the
         // wait instead of handing the boss back immediately.
-        if db_saved {
-            if let Some(pos) = corpse_pos {
-                super::boss_respawn::persist_death_at(world, npc.npc_id, pos, delay_secs);
-            }
+        if db_saved && let Some(pos) = corpse_pos {
+            super::boss_respawn::persist_death_at(world, npc.npc_id, pos, delay_secs);
         }
     }
 }
@@ -314,15 +312,14 @@ pub(crate) fn despawn_npc(world: &mut World, npc_oid: i32, region: (i32, i32)) {
                 .objects
                 .get_component::<Position>(&watcher_oid)
                 .copied(),
-        ) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::target_unselected(
-                    watcher_oid,
-                    pos.x,
-                    pos.y,
-                    pos.z,
-                ));
-            }
+        ) && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(server_packets::target_unselected(
+                watcher_oid,
+                pos.x,
+                pos.y,
+                pos.z,
+            ));
         }
     }
 }
@@ -589,14 +586,13 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
                     npc_oid,
                     super::ground_items::DropSource::Npc,
                 );
-                if owner_id != 0 {
-                    if let Some(g) = world
+                if owner_id != 0
+                    && let Some(g) = world
                         .objects
                         .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
-                    {
-                        g.owner_id = owner_id;
-                        g.owner_until_tick = world.tick + protect_ticks;
-                    }
+                {
+                    g.owner_id = owner_id;
+                    g.owner_until_tick = world.tick + protect_ticks;
                 }
                 continue;
             }
@@ -719,10 +715,10 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         }
         // In a CC the level-gap key is the channel's level (its highest party
         // level), not the rewarded members' max (Java lines 642-646).
-        if let Some(id) = cc_id {
-            if let Some(cc) = world.command_channels.get(&id) {
-                party_lvl = cc.level;
-            }
+        if let Some(id) = cc_id
+            && let Some(cc) = world.command_channels.get(&id)
+        {
+            party_lvl = cc.level;
         }
         processed.insert(player_oid);
         if party_dmg <= 0.0 || rewarded.is_empty() {
@@ -1056,13 +1052,12 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
             continue;
         }
         // Equipped items come off first (`unEquipItemInSlot`).
-        if equipped {
-            if let Some(inv) = world
+        if equipped
+            && let Some(inv) = world
                 .objects
                 .get_component_mut::<crate::model::inventory::Inventory>(&victim_oid)
-            {
-                inv.unequip_item(obj_id);
-            }
+        {
+            inv.unequip_item(obj_id);
         }
         if let Some(inv) = world
             .objects
@@ -1083,18 +1078,16 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         );
         dropped += 1;
     }
-    if dropped > 0 {
-        if let Some(client_id) = client_for_player(world, victim_oid) {
-            if let Some(v) = crate::model::PlayerView::of(&world.objects, victim_oid) {
-                if let Some(cs) = world.clients.get(&client_id) {
-                    cs.send(crate::network::enter_world::item_list(
-                        v.inventory,
-                        &world.data,
-                        false,
-                    ));
-                }
-            }
-        }
+    if dropped > 0
+        && let Some(client_id) = client_for_player(world, victim_oid)
+        && let Some(v) = crate::model::PlayerView::of(&world.objects, victim_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(crate::network::enter_world::item_list(
+            v.inventory,
+            &world.data,
+            false,
+        ));
     }
 }
 
@@ -1123,10 +1116,10 @@ fn overhit_bonus(world: &mut World, npc_oid: i32, attacker_oid: i32, exp: f64) -
     }
     world.objects.remove_component::<Overhit>(&npc_oid);
     let percentage = ((oh.damage * 100.0) / max_hp).min(25.0);
-    if let Some(client_id) = client_for_player(world, attacker_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(sm_ids::OVER_HIT, &[]));
-        }
+    if let Some(client_id) = client_for_player(world, attacker_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(sm_ids::OVER_HIT, &[]));
     }
     (percentage / 100.0) * exp
 }
@@ -1219,20 +1212,19 @@ pub(crate) fn add_exp_and_sp(
         p.sp = p.sp.saturating_add(sp.max(0));
         (p.level, p.exp)
     };
-    if exp > 0 || sp > 0 {
-        if let Some(client_id) = client_for_player(world, player_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4,
-                    &[
-                        SmParam::Long(exp),
-                        SmParam::Long((add_exp - base_exp).round() as i64),
-                        SmParam::Long(sp),
-                        SmParam::Long((add_sp - base_sp).round() as i64),
-                    ],
-                ));
-            }
-        }
+    if (exp > 0 || sp > 0)
+        && let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(
+            sm_ids::YOU_HAVE_ACQUIRED_S1_XP_BONUS_S2_AND_S3_SP_BONUS_S4,
+            &[
+                SmParam::Long(exp),
+                SmParam::Long((add_exp - base_exp).round() as i64),
+                SmParam::Long(sp),
+                SmParam::Long((add_sp - base_sp).round() as i64),
+            ],
+        ));
     }
 
     let new_level = level_for_exp(world, new_exp, max_level);
@@ -1410,28 +1402,28 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     );
     // Java `PlayerStat.addLevel` → `PartySmallWindowUpdate(this, true)`.
     super::party::notify_party_all(world, player_oid);
-    if let Some(client_id) = client_for_player(world, player_oid) {
-        if let (Some(v), Some(cs)) = (
+    if let Some(client_id) = client_for_player(world, player_oid)
+        && let (Some(v), Some(cs)) = (
             crate::model::PlayerView::of(&world.objects, player_oid),
             world.clients.get(&client_id),
-        ) {
-            if leveled_up {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::YOUR_LEVEL_HAS_INCREASED,
-                    &[],
-                ));
-            }
-            cs.send(crate::network::user_info::user_info(
-                &v,
-                &world.data,
-                &world.cfg.character,
-                super::party::calculate_relation(world, v.p),
+        )
+    {
+        if leveled_up {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOUR_LEVEL_HAS_INCREASED,
+                &[],
             ));
-            let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) else {
-                return;
-            };
-            cs.send(pkt);
         }
+        cs.send(crate::network::user_info::user_info(
+            &v,
+            &world.data,
+            &world.cfg.character,
+            super::party::calculate_relation(world, v.p),
+        ));
+        let Some(pkt) = super::helpers::skill_list_packet(world, player_oid) else {
+            return;
+        };
+        cs.send(pkt);
     }
 }
 
@@ -1511,28 +1503,27 @@ pub(crate) fn reward_skills(world: &mut World, player_oid: i32) {
         // pick up the level (also in-memory).
         super::shortcuts::update_skill_shortcuts(world, player_oid, id, lvl);
     }
-    if world.cfg.character.auto_learn_skills {
-        if let Some(client_id) = client_for_player(world, player_oid) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                let count = granted
-                    .iter()
-                    .map(|&(id, _)| id)
-                    .collect::<std::collections::HashSet<_>>()
-                    .len();
-                if let Some(shortcuts) = world
-                    .objects
-                    .get_component::<crate::model::components::Shortcuts>(&player_oid)
-                {
-                    cs.send(server_packets::shortcut_init(shortcuts));
-                }
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_TEXT,
-                    &[SmParam::Text(format!(
-                        "You have learned {count} new skills."
-                    ))],
-                ));
-            }
+    if world.cfg.character.auto_learn_skills
+        && let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        let count = granted
+            .iter()
+            .map(|&(id, _)| id)
+            .collect::<std::collections::HashSet<_>>()
+            .len();
+        if let Some(shortcuts) = world
+            .objects
+            .get_component::<crate::model::components::Shortcuts>(&player_oid)
+        {
+            cs.send(server_packets::shortcut_init(shortcuts));
         }
+        cs.send(server_packets::system_message_with(
+            sm_ids::S1_TEXT,
+            &[SmParam::Text(format!(
+                "You have learned {count} new skills."
+            ))],
+        ));
     }
 }
 
@@ -1630,8 +1621,8 @@ fn recompute_passives_after_skill_change(
         .iter()
         .filter_map(|&(id, action)| action.is_none().then_some(id))
         .collect();
-    if !removed.is_empty() {
-        if let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
+    if !removed.is_empty()
+        && let Some((player, base, mut mods, inventory, mut buffs, mut speeds, mut combat)) =
             world.objects.get_many_mut::<(
                 &Player,
                 &BaseStats,
@@ -1641,19 +1632,18 @@ fn recompute_passives_after_skill_change(
                 &mut Speeds,
                 &mut CombatStats,
             )>(&player_oid)
-        {
-            for skill_id in &removed {
-                player.remove_buff(
-                    &world.data,
-                    base,
-                    &mut mods,
-                    inventory,
-                    &mut buffs,
-                    &mut speeds,
-                    &mut combat,
-                    *skill_id,
-                );
-            }
+    {
+        for skill_id in &removed {
+            player.remove_buff(
+                &world.data,
+                base,
+                &mut mods,
+                inventory,
+                &mut buffs,
+                &mut speeds,
+                &mut combat,
+                *skill_id,
+            );
         }
     }
     // Re-fold conditioned passives from the corrected book (handles downgrades),
@@ -1888,13 +1878,13 @@ pub(crate) fn apply_death_exp_penalty_ex(
         // only thing a resurrection reads, so record that directly.
         p.lost_exp_on_death = lost;
     }
-    if let Some(client_id) = client_for_player(world, player_oid) {
-        if let Some(cs) = world.clients.get(&client_id) {
-            cs.send(server_packets::system_message_with(
-                sm_ids::YOUR_XP_HAS_DECREASED_BY_S1,
-                &[SmParam::Long(lost)],
-            ));
-        }
+    if let Some(client_id) = client_for_player(world, player_oid)
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(
+            sm_ids::YOUR_XP_HAS_DECREASED_BY_S1,
+            &[SmParam::Long(lost)],
+        ));
     }
     let new_level = level_for_exp(world, new_exp, max_level);
     if new_level != level {
@@ -2294,13 +2284,13 @@ pub(crate) fn revive_request(
         return;
     }
     if target.revive_request.is_some() {
-        if let Some(cid) = client_for_player(world, reviver_oid) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
-                    &[],
-                ));
-            }
+        if let Some(cid) = client_for_player(world, reviver_oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::RESURRECTION_HAS_ALREADY_BEEN_PROPOSED,
+                &[],
+            ));
         }
         return;
     }
@@ -2354,12 +2344,12 @@ pub(crate) fn revive_request(
         .get_component::<crate::model::Player>(&reviver_oid)
         .map(|p| p.name.clone())
         .unwrap_or_default();
-    if let Some(cid) = client_for_player(world, target_oid) {
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(server_packets::confirm_dlg_text(&format!(
+    if let Some(cid) = client_for_player(world, target_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(server_packets::confirm_dlg_text(&format!(
                 "{reviver_name} is attempting to resurrect you, restoring {restore_exp} XP ({restore_percent:.0}%). Accept?"
             )));
-        }
     }
 }
 
@@ -2593,7 +2583,7 @@ fn in_range_of(world: &World, from: i32, to: i32, range: f64) -> bool {
 /// - the party split uses `ALT_PARTY_RANGE` from the **corpse**, so a member
 ///   who hung back out of range earns nothing.
 fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32) {
-    use crate::network::server_packets::{sm_ids, SmParam};
+    use crate::network::server_packets::{SmParam, sm_ids};
 
     let Some(npc) = world
         .objects

@@ -4,8 +4,8 @@
 
 use std::collections::HashMap;
 
-use quick_xml::events::Event;
 use quick_xml::Reader;
+use quick_xml::events::Event;
 use tracing::info;
 
 use crate::enums::Race;
@@ -227,7 +227,7 @@ fn parse_template(path: &std::path::Path) -> Option<PlayerTemplate> {
     let mut cur_tag: Vec<u8> = Vec::new();
     let mut in_creation_points = false;
     let mut cur_level: i32 = 0; // 0 = not inside a <level>
-                                // Nested section we're inside, if any (for summed / grouped values).
+    // Nested section we're inside, if any (for summed / grouped values).
     let mut section: Option<Vec<u8>> = None;
 
     loop {

@@ -1,7 +1,7 @@
 //! Byte-for-byte parity tests against vectors dumped from the Java
 //! `loginserver/crypt` classes (`tools/vector-dump/VectorDump.java`).
 
-use commons::crypt::{hash_password, NewCrypt, ScrambledKeyPair};
+use commons::crypt::{NewCrypt, ScrambledKeyPair, hash_password};
 use num_bigint_dig::BigUint;
 
 fn vectors() -> serde_json::Value {

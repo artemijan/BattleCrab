@@ -10,18 +10,18 @@ members = [
 
 [workspace.package]
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0"
 
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "signal", "io-util"] }
 bytes = "1"
-sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
-blowfish = "0.9"
+sqlx = { version = "0.8.0", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+blowfish = "0.10.0"
 byteorder = "1"
-cipher = "0.4"
-sha1 = "0.10"
-base64 = "0.22"
+cipher = "0.5.2"
+sha1 = "0.11.0"
+base64 = "0.23.0"
 num-bigint-dig = { version = "0.8", features = ["rand"] }
 rsa = "0.9"
 num-traits = "0.2"

@@ -410,10 +410,10 @@ fn parse_skill_duration_list(raw: &str) -> HashMap<i32, i32> {
     let mut out = HashMap::new();
     for entry in raw.split(';') {
         let mut it = entry.split(',');
-        if let (Some(id), Some(secs)) = (it.next(), it.next()) {
-            if let (Ok(id), Ok(secs)) = (id.trim().parse::<i32>(), secs.trim().parse::<i32>()) {
-                out.insert(id, secs);
-            }
+        if let (Some(id), Some(secs)) = (it.next(), it.next())
+            && let (Ok(id), Ok(secs)) = (id.trim().parse::<i32>(), secs.trim().parse::<i32>())
+        {
+            out.insert(id, secs);
         }
     }
     out

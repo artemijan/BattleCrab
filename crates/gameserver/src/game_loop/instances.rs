@@ -9,7 +9,7 @@ use crate::model::components::{InstanceDoorOpen, InstanceId, Position, RegionCel
 use crate::model::door::Door;
 use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
-use crate::world::{region_of, World};
+use crate::world::{World, region_of};
 
 /// `InstanceManager.createInstance` from a template: allocate the instance and
 /// spawn its default groups into it. Returns the new instance id, or `None` if
@@ -196,10 +196,10 @@ pub(crate) fn broadcast_to_instance(world: &World, instance_id: i32, packet: &[u
         return;
     };
     for &member in inst.members.keys() {
-        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member) {
-            if let Some(cs) = world.clients.get(&cid) {
-                cs.send(packet.to_vec());
-            }
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, member)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(packet.to_vec());
         }
     }
 }

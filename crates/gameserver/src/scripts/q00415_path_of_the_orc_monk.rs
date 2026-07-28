@@ -367,19 +367,18 @@ impl QuestScript for Q00415PathOfTheOrcMonk {
         // Pouches 1-3: four trophies, and the fifth kill converts.
         if let Some(&(pouch, full, trophy, _, cond)) =
             POUCHES.iter().find(|(_, _, _, mob, _)| *mob == npc_id)
+            && self.has(ctx, pouch)
         {
-            if self.has(ctx, pouch) {
-                if ctx.quest_items_count(trophy) == 4 {
-                    ctx.take_items(pouch, 1);
-                    ctx.give_items(full, 1);
-                    ctx.take_items(trophy, -1);
-                    ctx.set_cond(cond, true);
-                } else {
-                    ctx.give_items(trophy, 1);
-                    ctx.play_sound(quest_sounds::ITEMGET);
-                }
-                return;
+            if ctx.quest_items_count(trophy) == 4 {
+                ctx.take_items(pouch, 1);
+                ctx.give_items(full, 1);
+                ctx.take_items(trophy, -1);
+                ctx.set_cond(cond, true);
+            } else {
+                ctx.give_items(trophy, 1);
+                ctx.play_sound(quest_sounds::ITEMGET);
             }
+            return;
         }
 
         // Pouch 4: three each of four trophies; the twelfth kill converts.

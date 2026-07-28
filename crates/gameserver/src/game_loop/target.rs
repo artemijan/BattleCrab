@@ -389,14 +389,13 @@ pub(crate) fn set_target(
             if let Some(buffs) = world
                 .objects
                 .get_component::<crate::model::components::Buffs>(&t)
+                && buffs.0.iter().any(|b| !b.passive)
             {
-                if buffs.0.iter().any(|b| !b.passive) {
-                    cs.send(
-                        crate::network::enter_world::ex_abnormal_status_update_from_target(
-                            t, buffs, now,
-                        ),
-                    );
-                }
+                cs.send(
+                    crate::network::enter_world::ex_abnormal_status_update_from_target(
+                        t, buffs, now,
+                    ),
+                );
             }
         }
         broadcast_to_others(

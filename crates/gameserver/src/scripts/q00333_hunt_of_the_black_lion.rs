@@ -279,11 +279,7 @@ impl Q00333HuntOfTheBlackLion {
         for i in 0..4 {
             ctx.take_items(first_part + i, 1);
         }
-        if success_roll {
-            success
-        } else {
-            fail
-        }
+        if success_roll { success } else { fail }
     }
 }
 

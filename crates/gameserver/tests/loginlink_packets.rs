@@ -3,7 +3,7 @@
 //! game side and login side agree byte-for-byte without spinning up sockets.
 
 use commons::crypt::{
-    gs_decrypt, gs_encrypt, NewCrypt, RawRsaKeyPair, RsaPublicModulus, GS_STATIC_BLOWFISH_KEY,
+    GS_STATIC_BLOWFISH_KEY, NewCrypt, RawRsaKeyPair, RsaPublicModulus, gs_decrypt, gs_encrypt,
 };
 use commons::network::PacketReader;
 use gameserver::loginlink::packets as gs;

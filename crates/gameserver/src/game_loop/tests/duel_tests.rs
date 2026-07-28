@@ -4,8 +4,8 @@
 use super::*;
 
 use crate::game_loop::duel::{self, DuelResult};
-use crate::model::components::{DuelRef, PendingDuel};
 use crate::model::Player;
+use crate::model::components::{DuelRef, PendingDuel};
 
 const A: i32 = 2001;
 const B: i32 = 2002;

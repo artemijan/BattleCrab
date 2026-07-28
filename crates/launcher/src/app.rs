@@ -18,7 +18,7 @@ use crate::install::{self, Cancel, InstallRequest};
 use crate::launch::launch_game;
 use crate::progress::{Phase, ProgressRx, Reporter};
 use crate::relocate::{self, Relocation};
-use crate::theme::{self, palette, Surfaces};
+use crate::theme::{self, Surfaces, palette};
 
 /// Native aspect ratio of the logo art (1408x768).
 const LOGO_ASPECT: f32 = 1408.0 / 768.0;
@@ -498,12 +498,14 @@ mod tests {
 
     #[test]
     fn fraction_is_none_when_total_unknown() {
-        assert!(Phase::Downloading {
-            done: 10,
-            total: None
-        }
-        .fraction()
-        .is_none());
+        assert!(
+            Phase::Downloading {
+                done: 10,
+                total: None
+            }
+            .fraction()
+            .is_none()
+        );
         assert_eq!(
             Phase::Extracting { done: 5, total: 10 }.fraction(),
             Some(0.5)

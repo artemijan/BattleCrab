@@ -10,10 +10,10 @@
 //! IP is tracked), `//setparam`/`//unsetparam` (no fixed-stat API) and
 //! `//setnoble`/`//rec` (fields not modelled) stay on the not-implemented path.
 
+use crate::model::Player;
 use crate::model::components::{
     CombatStats, PartyRef, PlayerVitals, Position, PvpState, Speeds, Vitals,
 };
-use crate::model::Player;
 use crate::session::ClientSession;
 use crate::world::World;
 
@@ -296,10 +296,10 @@ pub(super) fn admin_find_account(world: &mut World, client_id: u32, args: &[&str
         &format!("=== Account '{account}' (online) ==="),
     );
     for oid in online_players(world) {
-        if let Some(p) = world.objects.get_component::<Player>(&oid) {
-            if p.account == account {
-                send_message(world, client_id, &format!("  {} (Lv {})", p.name, p.level));
-            }
+        if let Some(p) = world.objects.get_component::<Player>(&oid)
+            && p.account == account
+        {
+            send_message(world, client_id, &format!("  {} (Lv {})", p.name, p.level));
         }
     }
 }

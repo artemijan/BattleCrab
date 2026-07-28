@@ -65,11 +65,7 @@ impl QuestScript for DarkElfChange1 {
             }
             let has_proof = ctx.quest_items_count(proof) > 0;
             let suffix = if ctx.player_level() < 20 {
-                if has_proof {
-                    low
-                } else {
-                    low_no_proof
-                }
+                if has_proof { low } else { low_no_proof }
             } else if !has_proof {
                 no_proof
             } else {

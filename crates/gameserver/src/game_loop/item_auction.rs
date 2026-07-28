@@ -10,7 +10,7 @@ use tracing::info;
 use crate::db::DbCommand;
 use crate::model::inventory::Inventory;
 use crate::model::item_auction::{AuctionState, ExtendState, ItemAuction};
-use crate::network::server_packets::{self as sp, sm_ids, SmParam};
+use crate::network::server_packets::{self as sp, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::world::World;
 
@@ -501,19 +501,18 @@ pub(crate) fn register_bid(
     });
 
     // Notify a displaced previous highest bidder (Java `onPlayerBid`).
-    if let Some(prev) = prev_highest_player {
-        if prev != player {
-            if let Some(cid) = crate::game_loop::helpers::client_for_player(world, prev) {
-                send_pkt(
-                    world,
-                    cid,
-                    sp::system_message_with(
-                        sm_ids::YOU_WERE_OUTBID_THE_NEW_HIGHEST_BID_IS_S1_ADENA,
-                        &[SmParam::Long(bid)],
-                    ),
-                );
-            }
-        }
+    if let Some(prev) = prev_highest_player
+        && prev != player
+        && let Some(cid) = crate::game_loop::helpers::client_for_player(world, prev)
+    {
+        send_pkt(
+            world,
+            cid,
+            sp::system_message_with(
+                sm_ids::YOU_WERE_OUTBID_THE_NEW_HIGHEST_BID_IS_S1_ADENA,
+                &[SmParam::Long(bid)],
+            ),
+        );
     }
 
     apply_ending_extend(world, auction_id, player);
@@ -637,10 +636,10 @@ pub(crate) fn cancel_bid(world: &mut World, auction_id: i32, client_id: u32, pla
 
     add_adena(world, player, bid.last_bid);
     let finished = matches!(state_of(world, auction_id), AuctionState::Finished);
-    if let Some(a) = world.item_auctions.auctions.get_mut(&auction_id) {
-        if let Some(b) = a.bids.iter_mut().find(|b| b.player_obj_id == player) {
-            b.last_bid = -1; // cancelBid()
-        }
+    if let Some(a) = world.item_auctions.auctions.get_mut(&auction_id)
+        && let Some(b) = a.bids.iter_mut().find(|b| b.player_obj_id == player)
+    {
+        b.last_bid = -1; // cancelBid()
     }
     if finished {
         let _ = world.db.send(DbCommand::DeleteItemAuctionBid {
@@ -779,12 +778,12 @@ fn build_info_packet(
     };
     w.write_i32(time_remaining);
     write_auction_item(world, &mut w, current_id);
-    if let Some(next_id) = next_id {
-        if let Some(next) = world.item_auctions.auctions.get(&next_id) {
-            w.write_i64(init_bid_of(world, next_id));
-            w.write_i32((next.starting_time / 1000) as i32);
-            write_auction_item(world, &mut w, next_id);
-        }
+    if let Some(next_id) = next_id
+        && let Some(next) = world.item_auctions.auctions.get(&next_id)
+    {
+        w.write_i64(init_bid_of(world, next_id));
+        w.write_i32((next.starting_time / 1000) as i32);
+        write_auction_item(world, &mut w, next_id);
     }
     w.into_bytes()
 }
