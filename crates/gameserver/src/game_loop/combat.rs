@@ -1713,6 +1713,10 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     // curse still lands.
     super::raid_curse::on_raid_attacked(world, npc_oid, attacker_oid);
 
+    // Same method's loot-privilege block: a big-enough command channel claims
+    // (or refreshes) raid looting rights with this hit.
+    super::command_channel::on_raid_attacked_loot_rights(world, npc_oid, attacker_oid);
+
     // Quest `onAttack` (Java `addAttackId` scripts, notified from
     // `Attackable.reduceCurrentHp` before any death processing). The acting
     // player is the attacker itself, or — for a servitor/pet blow, Java's

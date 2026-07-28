@@ -228,6 +228,20 @@ pub mod ex_opcodes {
     /// `RequestBuySellUIClose` — the client closed a buy/sell window; the
     /// server answers with a full inventory refresh (same as `RequestItemList`).
     pub const REQUEST_BUY_SELL_UI_CLOSE: u16 = 0x73;
+    /// Command channels (MPCC): invite / answer / oust a party, and the CC
+    /// window's party-roster query.
+    pub const REQUEST_EX_ASK_JOIN_MPCC: u16 = 0x06;
+    pub const REQUEST_EX_ACCEPT_JOIN_MPCC: u16 = 0x07;
+    pub const REQUEST_EX_OUST_FROM_MPCC: u16 = 0x08;
+    pub const REQUEST_EX_MPCC_SHOW_PARTY_MEMBERS_INFO: u16 = 0x2D;
+    /// MPCC matching rooms (the CC counterpart of the party rooms).
+    pub const REQUEST_EX_LIST_MPCC_WAITING: u16 = 0x5A;
+    pub const REQUEST_EX_MANAGE_MPCC_ROOM: u16 = 0x5B;
+    pub const REQUEST_EX_JOIN_MPCC_ROOM: u16 = 0x5C;
+    pub const REQUEST_EX_OUST_FROM_MPCC_ROOM: u16 = 0x5D;
+    pub const REQUEST_EX_DISMISS_MPCC_ROOM: u16 = 0x5E;
+    pub const REQUEST_EX_WITHDRAW_MPCC_ROOM: u16 = 0x5F;
+    pub const REQUEST_EX_MPCC_PARTYMASTER_LIST: u16 = 0x61;
     /// `RequestOustFromPartyRoom` (G30) — the room leader kicks a member.
     pub const REQUEST_OUST_FROM_PARTY_ROOM: u16 = 0x09;
     /// `RequestDismissPartyRoom` (G30) — the room leader disbands the room.
@@ -786,6 +800,140 @@ impl RequestListPartyMatchingWaitingRoom {
             max_level,
             class_ids,
             query,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExAskJoinMPCC` (`S`): invite a player's party
+/// into a command channel by the clicked player's name.
+pub struct RequestExAskJoinMpcc {
+    pub name: String,
+}
+
+impl RequestExAskJoinMpcc {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            name: r.read_string()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExAcceptJoinMPCC` (`d`): 1 = accept.
+pub struct RequestExAcceptJoinMpcc {
+    pub response: i32,
+}
+
+impl RequestExAcceptJoinMpcc {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            response: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExOustFromMPCC` (`S`): dismiss the named
+/// player's whole party from the channel.
+pub struct RequestExOustFromMpcc {
+    pub name: String,
+}
+
+impl RequestExOustFromMpcc {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            name: r.read_string()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExMPCCShowPartyMembersInfo` (`d`): the CC
+/// window queries a party's roster by its leader's object id.
+pub struct RequestExMpccShowPartyMembersInfo {
+    pub party_leader_object_id: i32,
+}
+
+impl RequestExMpccShowPartyMembersInfo {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            party_leader_object_id: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExListMpccWaiting` (`ddd`): browse CC rooms.
+pub struct RequestExListMpccWaiting {
+    pub page: i32,
+    pub location: i32,
+    pub level: i32,
+}
+
+impl RequestExListMpccWaiting {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            page: r.read_i32()?,
+            location: r.read_i32()?,
+            level: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExManageMpccRoom` (`dddddS`): edit the CC
+/// room you lead. The fifth int (party distribution type) is read and
+/// discarded, as in Java.
+pub struct RequestExManageMpccRoom {
+    pub room_id: i32,
+    pub max_members: i32,
+    pub min_level: i32,
+    pub max_level: i32,
+    pub title: String,
+}
+
+impl RequestExManageMpccRoom {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        let room_id = r.read_i32()?;
+        let max_members = r.read_i32()?;
+        let min_level = r.read_i32()?;
+        let max_level = r.read_i32()?;
+        let _loot_type = r.read_i32()?;
+        Some(Self {
+            room_id,
+            max_members,
+            min_level,
+            max_level,
+            title: r.read_string()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExJoinMpccRoom` (`d`).
+pub struct RequestExJoinMpccRoom {
+    pub room_id: i32,
+}
+
+impl RequestExJoinMpccRoom {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            room_id: r.read_i32()?,
+        })
+    }
+}
+
+/// Port of `clientpackets/RequestExOustFromMpccRoom` (`d`): kick by object id.
+pub struct RequestExOustFromMpccRoom {
+    pub object_id: i32,
+}
+
+impl RequestExOustFromMpccRoom {
+    pub fn read(body_after_opcode: &[u8]) -> Option<Self> {
+        let mut r = PacketReader::new(body_after_opcode);
+        Some(Self {
+            object_id: r.read_i32()?,
         })
     }
 }

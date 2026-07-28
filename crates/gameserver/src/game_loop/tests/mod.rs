@@ -45,6 +45,7 @@ mod boss_zone_tests;
 mod clan_hall_tests;
 mod clans_tests;
 mod combat_tests;
+mod command_channel_tests;
 mod community_board_tests;
 mod confuse_tests;
 mod core_boss_tests;

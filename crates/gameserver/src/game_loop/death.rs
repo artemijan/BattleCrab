@@ -550,12 +550,35 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .objects
             .get_component::<crate::model::components::PartyRef>(&looter)
             .map(|r| r.0);
-        let auto_loot = world.cfg.character.auto_loot;
+        // A raid's drops follow `AutoLootRaids` (off on this dist — they hit
+        // the ground even though `AutoLoot` is on), everything else `AutoLoot`
+        // (Java `Attackable.doItemDrop`).
+        let is_raid = super::raid_curse::gives_raid_curse(world, npc_oid);
+        let auto_loot = if is_raid {
+            world.cfg.character.auto_loot_raids
+        } else {
+            world.cfg.character.auto_loot
+        };
+        // Loot protection (`ItemData.createItem("loot")`): a raid drop is
+        // owned by the privileged command channel's *leader* for
+        // `RaidLootRightsInterval`; an ordinary ground drop by the killer for
+        // 15 s. A raid without an active claim is owned by nobody.
+        let (owner_id, protect_ticks) = if is_raid {
+            match super::command_channel::loot_rights_cc(world, npc_oid)
+                .and_then(|cc| world.command_channels.get(&cc))
+            {
+                Some(cc) => (
+                    cc.leader,
+                    world.cfg.character.raid_loot_rights_interval * 10,
+                ),
+                None => (0, 0),
+            }
+        } else {
+            (looter, 150)
+        };
         for (item_id, count) in drops {
             if !auto_loot {
-                // Drop onto the ground for anyone to pick up (Java's owner-based
-                // loot-window protection is simplified away).
-                super::ground_items::spawn_ground_item(
+                let ground_oid = super::ground_items::spawn_ground_item(
                     world,
                     item_id,
                     count,
@@ -566,6 +589,15 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
                     npc_oid,
                     super::ground_items::DropSource::Npc,
                 );
+                if owner_id != 0 {
+                    if let Some(g) = world
+                        .objects
+                        .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
+                    {
+                        g.owner_id = owner_id;
+                        g.owner_until_tick = world.tick + protect_ticks;
+                    }
+                }
                 continue;
             }
             match party_id {
@@ -636,12 +668,18 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
 
         // Party branch: pool every member's share; alive members within
         // `ALT_PARTY_RANGE` of the corpse are rewarded, the top rewarded
-        // level keys the level-gap multiplier and the cutoff.
-        let members = world
-            .parties
-            .get(&party_id)
-            .map(|p| p.members.clone())
-            .unwrap_or_default();
+        // level keys the level-gap multiplier and the cutoff. In a command
+        // channel the *whole channel* shares (Java `Attackable` line 621:
+        // `isInCommandChannel() ? cc.getMembers() : party.getMembers()`).
+        let cc_id = super::command_channel::cc_id_of_party(world, party_id);
+        let members = match cc_id {
+            Some(id) => super::command_channel::cc_members(world, id),
+            None => world
+                .parties
+                .get(&party_id)
+                .map(|p| p.members.clone())
+                .unwrap_or_default(),
+        };
         let share_of: std::collections::HashMap<i32, f64> = shares.iter().copied().collect();
         let mut party_dmg = 0.0;
         let mut rewarded: Vec<(i32, i32)> = Vec::new();
@@ -678,6 +716,13 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
                     .unwrap_or(0),
             ));
             party_lvl = party_lvl.max(rewarded.last().unwrap().1);
+        }
+        // In a CC the level-gap key is the channel's level (its highest party
+        // level), not the rewarded members' max (Java lines 642-646).
+        if let Some(id) = cc_id {
+            if let Some(cc) = world.command_channels.get(&id) {
+                party_lvl = cc.level;
+            }
         }
         processed.insert(player_oid);
         if party_dmg <= 0.0 || rewarded.is_empty() {
@@ -2589,18 +2634,27 @@ fn award_raid_points(world: &mut World, npc_oid: i32, earner_oid: i32) {
         );
     }
 
-    // Party members within range of the corpse, else the earner alone.
+    // Party members within range of the corpse, else the earner alone. In a
+    // command channel the split spans the whole channel (Java line 452).
     let range = world.cfg.character.alt_party_range as f64;
-    let members: Vec<i32> = match world
+    let earner_party = world
         .objects
         .get_component::<crate::model::components::PartyRef>(&earner_oid)
-        .map(|r| r.0)
-        .and_then(|pid| world.parties.get(&pid))
-    {
-        Some(party) => party
-            .members
-            .iter()
-            .copied()
+        .map(|r| r.0);
+    let group: Option<Vec<i32>> =
+        earner_party.map(
+            |pid| match super::command_channel::cc_id_of_party(world, pid) {
+                Some(cc_id) => super::command_channel::cc_members(world, cc_id),
+                None => world
+                    .parties
+                    .get(&pid)
+                    .map(|p| p.members.clone())
+                    .unwrap_or_default(),
+            },
+        );
+    let members: Vec<i32> = match group {
+        Some(g) => g
+            .into_iter()
             .filter(|m| in_range_of(world, npc_oid, *m, range))
             .collect(),
         None => vec![earner_oid],

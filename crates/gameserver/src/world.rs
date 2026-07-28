@@ -347,6 +347,10 @@ pub struct World {
     /// exist through member references; an id-keyed map is the Rust shape).
     pub parties: HashMap<u32, crate::model::party::Party>,
     pub next_party_id: u32,
+    /// Live command channels (Java `CommandChannel` objects, also
+    /// registry-less there — linked from each `Party`).
+    pub command_channels: HashMap<u32, crate::model::command_channel::CommandChannel>,
+    pub next_command_channel_id: u32,
     /// Running duels (Java `DuelManager._duels`), keyed by duel id.
     pub duels: HashMap<u32, crate::game_loop::duel::Duel>,
     pub next_duel_id: u32,
@@ -463,6 +467,8 @@ impl World {
             cb_last_bypass: HashMap::new(),
             parties: HashMap::new(),
             next_party_id: 1,
+            command_channels: HashMap::new(),
+            next_command_channel_id: 1,
             duels: HashMap::new(),
             next_duel_id: 1,
             mob_groups: HashMap::new(),

@@ -769,6 +769,43 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         exop::REQUEST_REFUND_ITEM => {
             super::shop::handle_request_refund_item(world, client_id, ex_body)
         }
+        // Command channels (MPCC).
+        exop::REQUEST_EX_ASK_JOIN_MPCC => {
+            super::command_channel::handle_request_ex_ask_join_mpcc(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_ACCEPT_JOIN_MPCC => {
+            super::command_channel::handle_request_ex_accept_join_mpcc(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_OUST_FROM_MPCC => {
+            super::command_channel::handle_request_ex_oust_from_mpcc(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_MPCC_SHOW_PARTY_MEMBERS_INFO => {
+            super::command_channel::handle_request_ex_mpcc_show_party_members_info(
+                world, client_id, ex_body,
+            )
+        }
+        // MPCC matching rooms.
+        exop::REQUEST_EX_LIST_MPCC_WAITING => {
+            super::command_channel::handle_request_ex_list_mpcc_waiting(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_MANAGE_MPCC_ROOM => {
+            super::command_channel::handle_request_ex_manage_mpcc_room(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_JOIN_MPCC_ROOM => {
+            super::command_channel::handle_request_ex_join_mpcc_room(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_OUST_FROM_MPCC_ROOM => {
+            super::command_channel::handle_request_ex_oust_from_mpcc_room(world, client_id, ex_body)
+        }
+        exop::REQUEST_EX_DISMISS_MPCC_ROOM => {
+            super::command_channel::handle_request_ex_dismiss_mpcc_room(world, client_id)
+        }
+        exop::REQUEST_EX_WITHDRAW_MPCC_ROOM => {
+            super::command_channel::handle_request_ex_withdraw_mpcc_room(world, client_id)
+        }
+        exop::REQUEST_EX_MPCC_PARTYMASTER_LIST => {
+            super::command_channel::handle_request_ex_mpcc_partymaster_list(world, client_id)
+        }
         exop::REQUEST_GOTO_LOBBY => {
             let maybe_session = world.clients.get(&client_id);
             if let Some(ClientSession::InLobby(session)) = maybe_session {

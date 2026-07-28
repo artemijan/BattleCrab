@@ -72,6 +72,23 @@ pub struct GroundItem {
     pub item_id: i32,
     pub count: i64,
     pub enchant: i32,
+    /// Loot protection (Java `Item._ownerId` + the `ResetOwner` schedule,
+    /// set by `ItemData.createItem("loot")`): while `world.tick <
+    /// owner_until_tick`, only `owner_id`, their party, or — for raid drops —
+    /// their command channel may pick the item up. `0`/`0` = unprotected.
+    /// Expiry is lazy (checked at pickup) instead of Java's scheduled task.
+    pub owner_id: i32,
+    pub owner_until_tick: u64,
+}
+
+/// Java `Attackable._firstCommandChannelAttacked` + `_commandChannelLastAttack`:
+/// the command channel that earned raid looting rights on this boss, refreshed
+/// on every hit from that channel. Expires `RaidLootRightsInterval` after the
+/// last hit — lazily (checked on read) instead of Java's 10 s polling timer.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct RaidLootRights {
+    pub cc_id: u32,
+    pub last_attack_tick: u64,
 }
 
 /// One line in a player's private sell store (Java `TradeItem`): the inventory
@@ -982,6 +999,11 @@ pub enum RequestKind {
     /// An `ExAskJoinPartyRoom` is on the target's screen; accepting puts them
     /// into the inviter's party matching room (G30).
     PartyRoomInvite { room_id: i32 },
+    /// An `ExAskJoinMPCC` is on the target party leader's screen; accepting
+    /// puts their party into the requestor's command channel (created on
+    /// accept if the requestor's party isn't in one yet — Java re-derives
+    /// everything from the requestor, so no channel id rides along).
+    CommandChannelInvite,
 }
 
 /// Display mirror of "this player is in a party matching room" (G30), for the

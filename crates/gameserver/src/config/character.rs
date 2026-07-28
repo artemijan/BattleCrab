@@ -25,6 +25,15 @@ pub struct CharacterConfig {
     /// `AutoLoot`: monster drops go straight to the killer's inventory (the
     /// ground-drop path is not ported yet — see G9 notes).
     pub auto_loot: bool,
+    /// `AutoLootRaids`: the raid counterpart of `AutoLoot` — **off** on this
+    /// dist, so raid drops fall to the ground even though `AutoLoot` is on.
+    pub auto_loot_raids: bool,
+    /// `RaidLootRightsInterval` (seconds): how long a raid drop stays owned by
+    /// the privileged command channel's leader.
+    pub raid_loot_rights_interval: u64,
+    /// `RaidLootRightsCCSize`: the minimum command-channel member count that
+    /// earns raid looting rights.
+    pub raid_loot_rights_cc_size: i32,
     /// `RespawnRestoreCP/HP/MP` (percent of max on revive).
     pub respawn_restore_cp: f64,
     pub respawn_restore_hp: f64,
@@ -202,6 +211,9 @@ impl Default for CharacterConfig {
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
+            auto_loot_raids: false,
+            raid_loot_rights_interval: 900,
+            raid_loot_rights_cc_size: 45,
             respawn_restore_cp: 0.0,
             respawn_restore_hp: 65.0,
             respawn_restore_mp: 0.0,
@@ -291,6 +303,9 @@ impl CharacterConfig {
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
+            auto_loot_raids: p.get_bool("AutoLootRaids", d.auto_loot_raids),
+            raid_loot_rights_interval: p.get_int("RaidLootRightsInterval", 900) as u64,
+            raid_loot_rights_cc_size: p.get_int("RaidLootRightsCCSize", 45),
             respawn_restore_cp: p.get_float("RespawnRestoreCP", 0.0) as f64,
             respawn_restore_hp: p.get_float("RespawnRestoreHP", 65.0) as f64,
             respawn_restore_mp: p.get_float("RespawnRestoreMP", 0.0) as f64,

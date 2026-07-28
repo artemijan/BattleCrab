@@ -441,6 +441,12 @@ pub enum ChatType {
     Trade = 8,
     /// `ChatType.PARTYMATCH_ROOM` — chat inside a party matching room (G30).
     PartyMatchRoom = 14,
+    /// `ChatType.PARTYROOM_COMMANDER` — the "Command Channel" chat line only
+    /// the CC leader may speak on; every channel member hears it.
+    PartyroomCommander = 15,
+    /// `ChatType.PARTYROOM_ALL` — the CC chat line any party leader in the
+    /// channel may speak on; every channel member hears it.
+    PartyroomAll = 16,
     Alliance = 9,
     /// `ChatType.HERO_VOICE` — used server-side for the "Petition System"
     /// broadcast to GMs (G31); also hero global chat.
@@ -471,6 +477,8 @@ impl ChatType {
             10 => Some(Self::Announcement),
             11 => Some(Self::Boat),
             14 => Some(Self::PartyMatchRoom),
+            15 => Some(Self::PartyroomCommander),
+            16 => Some(Self::PartyroomAll),
             17 => Some(Self::HeroVoice),
             _ => None,
         }

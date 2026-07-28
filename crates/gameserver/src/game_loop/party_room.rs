@@ -12,7 +12,7 @@
 //! player (Java's `Player._matchingRoom`), so the two can never disagree.
 
 use crate::model::components::{InMatchingRoom, PartyRef, PendingRequest, Position, RequestKind};
-use crate::model::matching_room::{MatchingMemberType, RoomLevelFilter};
+use crate::model::matching_room::{MatchingMemberType, RoomKind, RoomLevelFilter};
 use crate::model::Player;
 use crate::network::client_packets as cp;
 use crate::network::server_packets::{
@@ -157,8 +157,8 @@ fn broadcast_user_info(world: &World, object_id: i32) {
 }
 
 /// Maintain the [`InMatchingRoom`] display mirror. The registry stays the
-/// authority; this is the only writer.
-fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool) {
+/// authority; this is the only writer (shared with the MPCC room flows).
+pub(crate) fn set_in_room_flag(world: &mut World, object_id: i32, in_room: bool) {
     if in_room {
         world.objects.add_components(&object_id, InMatchingRoom);
     } else {
@@ -179,9 +179,37 @@ pub(crate) fn handle_request_party_match_config(world: &mut World, client_id: u3
         return;
     };
 
+    // Command-channel branch (Java `RequestPartyMatchConfig` lines 44-70): the
+    // CC leader opening the matching UI creates his MPCC room (once); any
+    // other member of a channelled party is refused the screen.
+    if let Some(party_id) = world
+        .objects
+        .get_component::<PartyRef>(&player)
+        .map(|r| r.0)
+    {
+        if let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id) {
+            let is_cc_leader = world
+                .command_channels
+                .get(&cc_id)
+                .is_some_and(|cc| cc.is_leader(player));
+            if is_cc_leader {
+                if world.matching_rooms.room_id_of(player).is_none() {
+                    super::command_channel::create_cc_room(world, player, party_id);
+                }
+            } else {
+                send_sm(
+                    world,
+                    player,
+                    sm_ids::THE_COMMAND_CHANNEL_AFFILIATED_PARTY_S_PARTY_MEMBER_CANNOT_USE_THE_MATCHING_SCREEN,
+                    &[],
+                );
+            }
+            return;
+        }
+    }
+
     // Java: a party *member* may not browse — only an unpartied player or the
-    // party leader. (The command-channel branch above it is post-Interlude and
-    // intentionally not ported.)
+    // party leader.
     let in_party_but_not_leader = world
         .objects
         .get_component::<PartyRef>(&player)
@@ -268,6 +296,7 @@ pub(crate) fn handle_request_party_match_list(world: &mut World, client_id: u32,
         None if pkt.room_id <= 0 => {
             let title = sanitize_title(&pkt.title);
             let room_id = world.matching_rooms.create_room(
+                RoomKind::Party,
                 title,
                 pkt.loot_type,
                 pkt.min_level,
@@ -288,12 +317,13 @@ pub(crate) fn handle_request_party_match_list(world: &mut World, client_id: u32,
             send_sm(world, player, sm_ids::YOU_HAVE_CREATED_A_PARTY_ROOM, &[]);
         }
         None => {}
-        // Edit — leader only, and only their own room id.
+        // Edit — leader only, and only their own (party) room id; MPCC rooms
+        // are edited through `RequestExManageMpccRoom`.
         Some(room_id) => {
             let is_leader = world
                 .matching_rooms
                 .get(room_id)
-                .is_some_and(|r| r.is_leader(player));
+                .is_some_and(|r| r.kind == RoomKind::Party && r.is_leader(player));
             if room_id != pkt.room_id || !is_leader {
                 return;
             }
@@ -385,10 +415,37 @@ pub(crate) fn handle_list_waiting_room(world: &mut World, client_id: u32, body: 
 // Membership — the shared add/remove/disband core
 // ---------------------------------------------------------------------------
 
-/// Java `MatchingRoom.addMember` + `PartyMatchingRoom.notifyNewMember`.
+/// Java `MatchingRoom.addMember` — dispatches on the room kind, so the
+/// type-agnostic hooks (party-invite pull-in, etc.) notify with the right
+/// packet family.
+fn add_member(world: &mut World, room_id: i32, player: i32) -> bool {
+    if world
+        .matching_rooms
+        .get(room_id)
+        .is_some_and(|r| r.kind == RoomKind::CommandChannel)
+    {
+        return super::command_channel::cc_room_add_member(world, room_id, player);
+    }
+    add_member_party(world, room_id, player)
+}
+
+/// Java `MatchingRoom.deleteMember` — same kind dispatch as [`add_member`].
+fn remove_member(world: &mut World, room_id: i32, player: i32, kicked: bool) {
+    if world
+        .matching_rooms
+        .get(room_id)
+        .is_some_and(|r| r.kind == RoomKind::CommandChannel)
+    {
+        super::command_channel::cc_room_remove_member(world, room_id, player, kicked);
+        return;
+    }
+    remove_member_party(world, room_id, player, kicked);
+}
+
+/// Java `PartyMatchingRoom.notifyNewMember` (the party flavor).
 /// Returns false when the room's level band or capacity refuses the joiner
 /// (the joiner is told, nothing else happens).
-fn add_member(world: &mut World, room_id: i32, player: i32) -> bool {
+fn add_member_party(world: &mut World, room_id: i32, player: i32) -> bool {
     let level = level_of(world, player);
     let accepted = world
         .matching_rooms
@@ -445,9 +502,9 @@ fn add_member(world: &mut World, room_id: i32, player: i32) -> bool {
     true
 }
 
-/// Java `MatchingRoom.deleteMember` + `notifyRemovedMember`. `kicked`
+/// Java `PartyMatchingRoom.notifyRemovedMember` (the party flavor). `kicked`
 /// selects the ousted-vs-left message pair.
-fn remove_member(world: &mut World, room_id: i32, player: i32, kicked: bool) {
+fn remove_member_party(world: &mut World, room_id: i32, player: i32, kicked: bool) {
     let Some((leader_changed, room_deleted)) = world.matching_rooms.remove_member(room_id, player)
     else {
         return;
@@ -539,7 +596,13 @@ pub(crate) fn handle_request_party_match_detail(world: &mut World, client_id: u3
         return;
     }
     let room_id = if pkt.room_id > 0 {
-        world.matching_rooms.get(pkt.room_id).map(|r| r.id)
+        // Only party rooms are joinable through the party window (the CC
+        // browser joins via `RequestExJoinMpccRoom`).
+        world
+            .matching_rooms
+            .get(pkt.room_id)
+            .filter(|r| r.kind == RoomKind::Party)
+            .map(|r| r.id)
     } else {
         world
             .matching_rooms
@@ -571,7 +634,7 @@ pub(crate) fn handle_oust_from_party_room(world: &mut World, client_id: u32, bod
     if !world
         .matching_rooms
         .get(room_id)
-        .is_some_and(|r| r.is_leader(player) && r.contains(target))
+        .is_some_and(|r| r.kind == RoomKind::Party && r.is_leader(player) && r.contains(target))
     {
         return;
     }
@@ -614,7 +677,7 @@ pub(crate) fn handle_dismiss_party_room(world: &mut World, client_id: u32, body:
     if world
         .matching_rooms
         .get(room_id)
-        .is_some_and(|r| r.is_leader(player))
+        .is_some_and(|r| r.kind == RoomKind::Party && r.is_leader(player))
     {
         disband(world, room_id);
     }
@@ -635,7 +698,12 @@ pub(crate) fn handle_withdraw_party_room(world: &mut World, client_id: u32, body
     let Some(room_id) = world.matching_rooms.room_id_of(player) else {
         return;
     };
-    if room_id != packet_room {
+    if room_id != packet_room
+        || !world
+            .matching_rooms
+            .get(room_id)
+            .is_some_and(|r| r.kind == RoomKind::Party)
+    {
         return;
     }
     remove_member(world, room_id, player, false);
