@@ -1,15 +1,26 @@
 //! Party matching rooms (G30) — port of Java `model/matching/MatchingRoom` +
-//! `PartyMatchingRoom` + the party half of `instancemanager/MatchingRoomManager`.
+//! `PartyMatchingRoom`/`CommandChannelMatchingRoom` + the registry half of
+//! `instancemanager/MatchingRoomManager`.
 //!
 //! A matching room is the "looking for party" board: a leader advertises a room
 //! with a level band and a member cap, players browse the rooms (or the
-//! complementary *waiting list* of unattached players) and join.
+//! complementary *waiting list* of unattached players) and join. MPCC rooms
+//! (the command-channel counterpart) share the registry and the id counter,
+//! exactly as Java's single manager does — [`RoomKind`] separates the two
+//! packet families.
 //!
-//! Out of scope (post-Interlude, see PLAN_G30_MAIL_PARTY_MATCHING.md):
-//! `CommandChannelMatchingRoom` and the whole MPCC-room packet family, and the
-//! Helios-era `party_matching_history` table Java writes on room creation.
+//! Out of scope: the Helios-era `party_matching_history` table Java writes on
+//! room creation.
 
 use std::collections::HashMap;
+
+/// Java `MatchingRoomType` — which packet family / browse list a room
+/// belongs to.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RoomKind {
+    Party,
+    CommandChannel,
+}
 
 /// Java `enums/MatchingMemberType`. The **ordinal is the wire value**; only
 /// 0..=2 are reachable on Interlude (3..=6 belong to command-channel rooms).
@@ -55,6 +66,7 @@ impl RoomLevelFilter {
 #[derive(Debug, Clone)]
 pub struct MatchingRoom {
     pub id: i32,
+    pub kind: RoomKind,
     pub title: String,
     /// Java `_loot` — the loot-distribution type advertised for the room. It is
     /// never applied to a real `Party` (Java doesn't either); it is display-only.
@@ -68,8 +80,10 @@ pub struct MatchingRoom {
 }
 
 impl MatchingRoom {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         id: i32,
+        kind: RoomKind,
         title: String,
         loot: i32,
         min_level: i32,
@@ -79,6 +93,7 @@ impl MatchingRoom {
     ) -> Self {
         Self {
             id,
+            kind,
             title,
             loot,
             min_level,
@@ -130,9 +145,12 @@ pub struct MatchingRoomManager {
 }
 
 impl MatchingRoomManager {
-    /// Java `addMatchingRoom` — assigns `++_id` and registers the room.
+    /// Java `addMatchingRoom` — assigns `++_id` and registers the room. The
+    /// id counter is shared between party and CC rooms, like Java's.
+    #[allow(clippy::too_many_arguments)]
     pub fn create_room(
         &mut self,
+        kind: RoomKind,
         title: String,
         loot: i32,
         min_level: i32,
@@ -144,7 +162,16 @@ impl MatchingRoomManager {
         let id = self.next_id;
         self.rooms.insert(
             id,
-            MatchingRoom::new(id, title, loot, min_level, max_level, max_members, leader),
+            MatchingRoom::new(
+                id,
+                kind,
+                title,
+                loot,
+                min_level,
+                max_level,
+                max_members,
+                leader,
+            ),
         );
         id
     }
@@ -238,11 +265,33 @@ impl MatchingRoomManager {
         let mut ids: Vec<i32> = self
             .rooms
             .values()
+            .filter(|r| r.kind == RoomKind::Party)
             .filter(|r| location < 0 || location_of(r.leader) == location)
             .filter(|r| match filter {
                 RoomLevelFilter::All => true,
                 RoomLevelFilter::MyLevelRange => r.min_level <= level && r.max_level >= level,
             })
+            .map(|r| r.id)
+            .collect();
+        ids.sort_unstable();
+        ids
+    }
+
+    /// Java `getCCMathchingRooms(location, level)` — CC rooms at an **exact**
+    /// location whose band contains the level (no any-location wildcard,
+    /// unlike the party browse).
+    pub fn find_cc_rooms(
+        &self,
+        location: i32,
+        level: i32,
+        location_of: impl Fn(i32) -> i32,
+    ) -> Vec<i32> {
+        let mut ids: Vec<i32> = self
+            .rooms
+            .values()
+            .filter(|r| r.kind == RoomKind::CommandChannel)
+            .filter(|r| location_of(r.leader) == location)
+            .filter(|r| r.min_level <= level && r.max_level >= level)
             .map(|r| r.id)
             .collect();
         ids.sort_unstable();
@@ -269,7 +318,7 @@ mod tests {
     use super::*;
 
     fn room_with(mgr: &mut MatchingRoomManager, min: i32, max: i32, cap: i32) -> i32 {
-        mgr.create_room("r".into(), 0, min, max, cap, 100)
+        mgr.create_room(RoomKind::Party, "r".into(), 0, min, max, cap, 100)
     }
 
     #[test]
@@ -329,8 +378,8 @@ mod tests {
     #[test]
     fn location_filter_uses_the_leaders_region_and_negative_means_any() {
         let mut mgr = MatchingRoomManager::default();
-        let a = mgr.create_room("a".into(), 0, 1, 80, 9, 100);
-        let b = mgr.create_room("b".into(), 0, 1, 80, 9, 200);
+        let a = mgr.create_room(RoomKind::Party, "a".into(), 0, 1, 80, 9, 100);
+        let b = mgr.create_room(RoomKind::Party, "b".into(), 0, 1, 80, 9, 200);
         let loc = |leader: i32| if leader == 100 { 7 } else { 9 };
 
         assert_eq!(mgr.find_rooms(7, RoomLevelFilter::All, 40, loc), vec![a]);

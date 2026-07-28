@@ -982,6 +982,11 @@ pub enum RequestKind {
     /// An `ExAskJoinPartyRoom` is on the target's screen; accepting puts them
     /// into the inviter's party matching room (G30).
     PartyRoomInvite { room_id: i32 },
+    /// An `ExAskJoinMPCC` is on the target party leader's screen; accepting
+    /// puts their party into the requestor's command channel (created on
+    /// accept if the requestor's party isn't in one yet — Java re-derives
+    /// everything from the requestor, so no channel id rides along).
+    CommandChannelInvite,
 }
 
 /// Display mirror of "this player is in a party matching room" (G30), for the

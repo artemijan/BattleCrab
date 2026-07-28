@@ -665,6 +665,10 @@ pub(crate) fn add_party_member(world: &mut World, party_id: u32, new_member: i32
         broadcast_user_info(world, m);
     }
 
+    // A member joining a channelled party gets the CC window opened (Java
+    // `addPartyMember`'s `ExOpenMPCC` tail).
+    super::command_channel::on_party_member_added(world, party_id, new_member);
+
     // The 12 s position broadcast starts with the first real member add
     // (Java: `_positionBroadcastTask == null`), initial delay = period / 2.
     if started_broadcast {
@@ -783,6 +787,9 @@ pub(crate) fn handle_request_change_party_leader(world: &mut World, client_id: u
         party.members.swap(0, idx);
     }
     announce_new_leader(world, party_id);
+    // CC authority follows the leading party's leadership (Java
+    // `Party.setLeader`'s CC tail, SM 1589).
+    super::command_channel::on_party_leader_changed(world, party_id, player, target);
 }
 
 /// SM 1384 + `broadcastToPartyMembersNewLeader` (window rebuild for all).
@@ -887,6 +894,11 @@ pub(crate) fn remove_party_member(
     broadcast_to_party(world, party_id, &delete, None);
     broadcast_user_info(world, leaver);
 
+    // The leaver's CC window closes (Java `removePartyMember`'s `ExCloseMPCC`
+    // tail). Java also leaves `CommandChannel._commandLeader` stale when the
+    // CC leader disconnects but their party survives — kept.
+    super::command_channel::on_party_member_removed(world, party_id, leaver);
+
     if was_leader {
         announce_new_leader(world, party_id);
     }
@@ -897,6 +909,10 @@ pub(crate) fn remove_party_member(
 /// set; the observable packets are the dissolve SM + each member's
 /// `PartySmallWindowDeleteAll`, which this sends directly.)
 pub(crate) fn disband_party(world: &mut World, party_id: u32) {
+    // A collapsing party takes its command channel down with it when it is
+    // the CC leader's party, or just detaches otherwise (Java
+    // `removePartyMember`'s size==1 branch).
+    super::command_channel::on_party_dissolving(world, party_id);
     let Some(party) = world.parties.get_mut(&party_id) else {
         return;
     };

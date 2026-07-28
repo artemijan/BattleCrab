@@ -174,6 +174,19 @@ pub const EX_CLOSE_PARTY_ROOM: i16 = 0x09;
 pub const EX_ASK_JOIN_PARTY_ROOM: i16 = 0x35;
 /// `ExListPartyMatchingWaitingRoom` — the looking-for-party list (G30).
 pub const EX_LIST_PARTY_MATCHING_WAITING_ROOM: i16 = 0x36;
+// Command channels / MPCC.
+/// `ExManageMpccRoomMember` (shares Java's `EX_MANAGE_PARTY_ROOM_MEMBER` id).
+pub const EX_MANAGE_PARTY_ROOM_MEMBER: i16 = 0x0A;
+pub const EX_OPEN_MPCC: i16 = 0x12;
+pub const EX_CLOSE_MPCC: i16 = 0x13;
+pub const EX_ASK_JOIN_MPCC: i16 = 0x1A;
+pub const EX_MPCC_SHOW_PARTY_MEMBER_INFO: i16 = 0x4C;
+pub const EX_MPCC_PARTY_INFO_UPDATE: i16 = 0x5C;
+pub const EX_MPCC_ROOM_INFO: i16 = 0x9C;
+pub const EX_LIST_MPCC_WAITING: i16 = 0x9D;
+pub const EX_DISSMISS_MPCC_ROOM: i16 = 0x9E;
+pub const EX_MPCC_ROOM_MEMBER: i16 = 0xA0;
+pub const EX_MPCC_PARTYMASTER_LIST: i16 = 0xA3;
 pub const EX_IS_CHAR_NAME_CREATABLE: i16 = 0x10B;
 pub const EX_SEND_MANOR_LIST: i16 = 0x22;
 pub const EX_SHOW_CASTLE_INFO: i16 = 0x14;

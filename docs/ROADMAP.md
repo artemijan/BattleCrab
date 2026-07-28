@@ -1168,9 +1168,20 @@ paths) — each listed with its test in
 [PLAN_G30_MAIL_PARTY_MATCHING.md](PLAN_G30_MAIL_PARTY_MATCHING.md). 60 tests.
 
 **Still open on G30:** the retail forum boards + `communitybbs` core, `_bbssell`
-/ `_bbsdelevel`, and AdminBBS. **Command channels (MPCC) are not part of this
-milestone's remaining scope** — they were never scheduled under any milestone
-and are tracked as their own item in the PROGRESS remaining-ports audit.
+/ `_bbsdelevel`, and AdminBBS. **Command channels (MPCC)** were never scheduled
+under any milestone and were tracked as their own remaining-ports-audit item —
+**landed 2026-07-28** (`model/command_channel.rs` + `game_loop/command_channel.rs`):
+form/join/oust/roster (ex 0x06–0x08/0x2D, the clan-5 / Strategy-Guide /
+Baron+Clan-Imperium forming right, invite always routed to the target party's
+leader), party-side propagation (member open/close, leader transfer SM 1589,
+leading-party collapse disbands the channel), leader-only chat 15 + party-leader
+chat 16, the MPCC matching rooms (ex 0x5A–0x61, sharing the party-room registry
+and id counter with a `RoomKind` split, CC-leader-only creation via
+`RequestPartyMatchConfig` with the hardcoded 1..leader-level/50 defaults), and
+the CC gameplay hooks (channel-wide XP/SP share keyed on the channel level,
+raid-point split). The ≥45-member raid loot-rights ownership remains a
+`TODO(CC-loot-rights)` in `death.rs` — no ground-drop ownership exists on any
+path yet.
 
 **Audit additions (2026-07):** the contact list
 (`RequestExAddContactToContactList` family) and party adena distribution

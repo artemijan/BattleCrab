@@ -206,6 +206,36 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 send_sm(world, client_id, sm_ids::YOU_ARE_NOT_IN_A_PARTY);
             }
         }
+        ChatType::PartyroomCommander | ChatType::PartyroomAll => {
+            // ChatPartyRoomCommander / ChatPartyRoomAll: command channel chat.
+            // Commander (15) — only the CC leader may speak; All (16) — any
+            // party leader in the channel. Silently ignored otherwise (Java).
+            // Every CC member receives it (the block-list skip is the same
+            // absent-system gap as the other channels, see the module header).
+            let Some(party_id) = super::command_channel::party_id_of(world, sender_oid) else {
+                return;
+            };
+            let Some(cc_id) = super::command_channel::cc_id_of_party(world, party_id) else {
+                return;
+            };
+            let may_speak = if chat_type == ChatType::PartyroomCommander {
+                world
+                    .command_channels
+                    .get(&cc_id)
+                    .is_some_and(|cc| cc.is_leader(sender_oid))
+            } else {
+                world
+                    .parties
+                    .get(&party_id)
+                    .is_some_and(|p| p.is_leader(sender_oid))
+            };
+            if !may_speak {
+                return;
+            }
+            let say =
+                server_packets::creature_say(sender_oid, chat_type, &sender_name, &pkt.text, None);
+            super::command_channel::broadcast_to_cc(world, cc_id, &say);
+        }
         ChatType::PartyMatchRoom => {
             // ChatPartyMatchRoom — `CreatureSay` to every member of the room the
             // speaker is in (speaker included), G30.

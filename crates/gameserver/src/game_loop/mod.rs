@@ -20,6 +20,7 @@ pub(crate) mod clan_hall_auction;
 pub(crate) mod clan_hall_function;
 mod clans;
 mod combat;
+pub(crate) mod command_channel;
 mod common;
 mod community_board;
 mod core_boss;

@@ -107,7 +107,7 @@ wars/sub-pledges/warehouse are verified present in code (the G33 checklist's
 |---|-----|-----------|------------------------|---------------|
 | ~~1~~ | ~~**Mail / post system**~~ | G30 ✅ | **DONE** (2026-07-27) — full ex 0x62–0x6C family, attachments, COD, expiry | — |
 | ~~2~~ | ~~**Party matching room**~~ | G30 ✅ | **DONE** (2026-07-27) — rooms, waiting list, join/kick/disband/invite | — |
-| 3 | **Command channels / MPCC** | *unscheduled* | Ex 0x06–0x08/0x2D + MPCC-room 0x5A–0x61; "own feature, not yet scheduled" per the G33 checklist | High — multi-party raids on the finished G23 bosses; also blocks TvT parties-of-7 polish |
+| ~~3~~ | ~~**Command channels / MPCC**~~ | ✅ | **DONE** (2026-07-28) — ex 0x06–0x08/0x2D (form/join/oust/roster: clan-5 / Strategy Guide 8871 / Baron+Clan Imperium forming right, party-side propagation, SM 1580–1594 family), chat channels 15/16, MPCC rooms 0x5A–0x61 sharing the matching-room registry, CC-wide XP/SP share + `partyLvl = cc.level` + raid-point split (`game_loop/command_channel.rs`; 45-member raid loot-rights ownership is a `TODO(CC-loot-rights)` — no drop-ownership infra exists on any path yet) | — |
 | 4 | **ai/areas zone scripts** | G22 🔨 | 15 of 16 unported (only ImperialTomb, via Frintezza): BeastFarm, DenOfEvil, DragonValley, DwarvenVillage, ForestOfTheDead, ForgeOfTheGods, FrozenLabyrinth, HotSprings, KetraOrcOutpust, LairOfAntharas, MonasteryOfSilence, PaganTemple, PlainsOfDion, PrimevalIsle, VarkaSilenosBarracks | High — hunting zones lose their signature behavior |
 | 5 | **ai/others NPC scripts** | G22 🔨 | ~24 of 39 unported: Mammons (→G26), ArenaManager, OlyBuffer, CastleBlacksmith/Warehouse/Mercenary/DoorManager/SideEffect, RandomWalkingGuards, Scarecrow, FairyTrees, FleeMonsters, DivineBeast, PolymorphingAngel/OnAttack, Proclaimer, TimakOrcTroopLeader, NonLethalableNpcs, Incarnation, ToIVortex, Spawns… (CastleTeleporter, SymbolMaker, SiegeGuards, SeeThroughSilentMove, Servitors are already covered by other modules; WyvernManager ported with wyvern flight; ClassMaster is out-of-scope custom) | Medium–high, varies per script |
 | 6 | **Private buy store** | G15 🚧 | Packets 0x99/0x9A/0x9C/0x9F + store titles 0x97/0x9D + wholesale ex 0x47; sell store exists, buy store doesn't | Medium-high — economy staple; explicitly blocks offline-trader restore (G33 close-out) |
@@ -121,14 +121,12 @@ Open scope decision: **mentoring** — the 2026-07 ROADMAP audit ruled it
 in-scope (→ G17), but the G33 checklist buckets its packets as
 later-chronicle skip. Settle which is right before anyone picks it up.
 
-**Rows 1 and 2 are now done** (mail + party matching, 2026-07-27 — see the G30
-row above). **Next priority: command channels** (row 3), the last fully-absent
-social system: it is what makes the finished raid content (G23 bosses, sieges,
-TvT) organizable at more than party scale, and it unblocks the deferred G28
-parties-of-7 polish. After that, the G22 `ai/areas` + `ai/others` sweep is the
-biggest remaining breadth chunk (~40 scripts, many small and uniform — good
-slice material), with private buy store and Zaken as well-bounded standalone
-slices either could interleave with.
+**Rows 1–3 are now done** (mail + party matching 2026-07-27, command channels
+2026-07-28). With the social systems complete, **next priority: the G22
+`ai/areas` + `ai/others` sweep** — the biggest remaining breadth chunk (~40
+scripts, many small and uniform — good slice material), with private buy store
+and Zaken as well-bounded standalone slices either could interleave with. The
+CC landing also unblocks the deferred G28 parties-of-7/CC TvT polish (row 10).
 
 ---
 
