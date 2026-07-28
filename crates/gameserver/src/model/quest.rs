@@ -40,6 +40,8 @@ pub const STATE_VAR: &str = "<state>";
 pub const COND_VAR: &str = "cond";
 /// The skipped-step bitset var maintained by [`updated_cond_flags`].
 pub const FLAGS_VAR: &str = "__compltdStateFlags";
+/// `QuestState.MEMO_VAR` — the Mobius scripts' step variable (Q255 Tutorial).
+pub const MEMO_VAR: &str = "memoState";
 
 /// One quest's progress on one player (`QuestState`): the state byte plus
 /// the string-keyed variable map (`cond`, `memoState`, script-specific keys).

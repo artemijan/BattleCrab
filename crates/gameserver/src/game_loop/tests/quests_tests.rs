@@ -20094,3 +20094,200 @@ fn request_quest_list_resends_the_journal() {
         "QuestList resent on journal open"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Q255 Tutorial (the newbie starting quest)
+// ---------------------------------------------------------------------------
+
+const TUTORIAL: &str = "Q00255_Tutorial";
+const BLUE_GEM: i32 = 6353;
+
+fn tutorial_memo(world: &World, player: i32) -> i32 {
+    world
+        .objects
+        .get_component::<crate::model::components::Quests>(&player)
+        .and_then(|q| q.0.get(TUTORIAL))
+        .map(|qs| qs.get_int("memoState"))
+        .unwrap_or(-1)
+}
+
+/// Login queues the 5 s intro timer; firing it starts the quest (cond 1,
+/// memoState 1) and opens the tutorial window with the class voice line. A
+/// player past level 6 gets nothing.
+#[test]
+fn tutorial_starts_on_newbie_login() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    quests::notify_login(&mut world, 1, 3001);
+    assert!(
+        drain(&mut rx).is_empty(),
+        "nothing before the 5 s timer fires"
+    );
+    advance_ticks(&mut world, 51);
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML),
+        "tutorial window opens"
+    );
+    let voice = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::PLAY_SOUND && p[1] == 2)
+        .expect("tutorial voice line (PlaySound type 2)");
+    // UTF-16LE "tutorial_voice_001a" (class 0) starts at offset 5.
+    let name: Vec<u8> = voice[5..43].to_vec();
+    let text: String = name.chunks(2).map(|c| char::from(c[0])).collect();
+    assert_eq!(text, "tutorial_voice_001a");
+    assert_eq!(quest_cond(&world, 3001, TUTORIAL), Some(1));
+    assert_eq!(tutorial_memo(&world, 3001), 1);
+
+    // A second login while memoState < 4 re-plays the intro (Java parity).
+    quests::notify_login(&mut world, 1, 3001);
+    advance_ticks(&mut world, 51);
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+
+    // Outgrowing the tutorial: level 7+ logins queue nothing.
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 7;
+    quests::notify_login(&mut world, 1, 3001);
+    advance_ticks(&mut world, 51);
+    assert!(drain(&mut rx).is_empty(), "level gate");
+}
+
+/// The tutorial-window buttons arrive as `RequestTutorialPassCmdToServer`
+/// bypasses; question mark 1 + the mark click show the radar hint.
+#[test]
+fn tutorial_window_buttons_and_question_mark() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    quests::notify_login(&mut world, 1, 3001);
+    advance_ticks(&mut world, 51);
+    drain(&mut rx);
+
+    // "Next page" button.
+    let mut body = PacketWriter::new();
+    body.write_string("Quest Q00255_Tutorial tutorial_02.html");
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cp::opcodes::REQUEST_TUTORIAL_PASS_CMD_TO_SERVER],
+            body.into_bytes(),
+        ]
+        .concat(),
+    );
+    assert!(drain(&mut rx)
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+
+    // The "close and show the question mark" button.
+    let mut body = PacketWriter::new();
+    body.write_string("Quest Q00255_Tutorial question_mark_1");
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cp::opcodes::REQUEST_TUTORIAL_PASS_CMD_TO_SERVER],
+            body.into_bytes(),
+        ]
+        .concat(),
+    );
+    let pkts = drain(&mut rx);
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK));
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_CLOSE_HTML));
+
+    // Clicking the shown mark: screen message + radar + tutorial_04.
+    let mut body = PacketWriter::new();
+    body.write_u8(0);
+    body.write_i32(1);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cp::opcodes::REQUEST_TUTORIAL_QUESTION_MARK],
+            body.into_bytes(),
+        ]
+        .concat(),
+    );
+    let pkts = drain(&mut rx);
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::RADAR_CONTROL));
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_HTML));
+}
+
+/// memoState 2: a gremlin kill rolls the Blue Gemstone onto the ground;
+/// picking it up advances to memoState 3 with question mark 5.
+#[test]
+fn tutorial_gremlin_gem_drop_and_pickup() {
+    let (mut world, _db_rx, _link_rx) = quest_test_world();
+    world.id_pool = 0x2200_0000..0x2200_1000;
+    add_quest_items(
+        &mut world,
+        &[
+            (BLUE_GEM, "Blue Gemstone", true),
+            (5789, "Soulshot: No Grade", false),
+        ],
+    );
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    quests::notify_login(&mut world, 1, 3001);
+    advance_ticks(&mut world, 51);
+    drain(&mut rx);
+
+    // Helper first-talk moves 1 → 2 (first click targets, second talks).
+    add_test_npc(&mut world, NPC_OID, 30009, "Folk", 5, 100, 0, 0);
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::TUTORIAL_CLOSE_HTML),
+        "helper closes the tutorial window"
+    );
+    assert_eq!(tutorial_memo(&world, 3001), 2);
+
+    // Gremlin kill with a forced sub-30 roll: the gem hits the ground.
+    add_test_npc(&mut world, 9200, 20001, "Monster", 5, 10, 0, 0);
+    world.forced_rolls.push_back(0);
+    quests::notify_kill(&mut world, 3001, 9200, 20001);
+    let gem_oid = world
+        .ground_item_regions
+        .values()
+        .flat_map(|v| v.iter().copied())
+        .find(|oid| {
+            world
+                .objects
+                .get_component::<crate::model::components::GroundItem>(oid)
+                .is_some_and(|g| g.item_id == BLUE_GEM)
+        })
+        .expect("gem dropped");
+    drain(&mut rx);
+
+    // Pickup: memoState 3 + question mark 5 + the voice line.
+    super::ground_items::pickup_ground_item(&mut world, 1, 3001, gem_oid);
+    let pkts = drain(&mut rx);
+    assert_eq!(tutorial_memo(&world, 3001), 3);
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::TUTORIAL_SHOW_QUESTION_MARK));
+
+    // Turn-in: helper takes the gem, hands out 200 soulshots, memoState 4.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    drain(&mut rx);
+    assert_eq!(tutorial_memo(&world, 3001), 4);
+    assert_eq!(count_of_item(&world, 3001, BLUE_GEM), 0, "gem taken");
+    assert_eq!(count_of_item(&world, 3001, 5789), 200, "soulshots given");
+}

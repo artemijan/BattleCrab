@@ -28,6 +28,9 @@ pub struct CharacterConfig {
     /// `AutoLootRaids`: the raid counterpart of `AutoLoot` — **off** on this
     /// dist, so raid drops fall to the ground even though `AutoLoot` is on.
     pub auto_loot_raids: bool,
+    /// `DisableTutorial`: skips the Q255 newbie tutorial login hook (False on
+    /// this dist).
+    pub disable_tutorial: bool,
     /// `RaidLootRightsInterval` (seconds): how long a raid drop stays owned by
     /// the privileged command channel's leader.
     pub raid_loot_rights_interval: u64,
@@ -212,6 +215,7 @@ impl Default for CharacterConfig {
             restore_servitor_on_reconnect: true,
             auto_loot: false,
             auto_loot_raids: false,
+            disable_tutorial: false,
             raid_loot_rights_interval: 900,
             raid_loot_rights_cc_size: 45,
             respawn_restore_cp: 0.0,
@@ -304,6 +308,7 @@ impl CharacterConfig {
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
             auto_loot_raids: p.get_bool("AutoLootRaids", d.auto_loot_raids),
+            disable_tutorial: p.get_bool("DisableTutorial", d.disable_tutorial),
             raid_loot_rights_interval: p.get_int("RaidLootRightsInterval", 900) as u64,
             raid_loot_rights_cc_size: p.get_int("RaidLootRightsCCSize", 45),
             respawn_restore_cp: p.get_float("RespawnRestoreCP", 0.0) as f64,

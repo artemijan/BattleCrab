@@ -195,6 +195,7 @@ pub mod saga;
 pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
+pub mod tutorial;
 pub mod tvt;
 mod valakas_teleporters;
 pub mod wyvern_manager;
@@ -403,6 +404,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(alliance_master::AllianceMaster),
         Arc::new(clan_master::ClanMaster),
         Arc::new(newbie_guide::NewbieGuide),
+        Arc::new(tutorial::Tutorial),
         Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_manager::OlyManager),
         Arc::new(monument_of_heroes::MonumentOfHeroes),

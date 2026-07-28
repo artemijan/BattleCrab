@@ -242,6 +242,8 @@ pub(crate) fn pickup_ground_item(
     );
     despawn_ground_item(world, item_oid, region);
     super::quests::give_item_with_earned_message(world, client_id, player_oid, g.item_id, g.count);
+    // Java `ON_PLAYER_ITEM_PICKUP` (the tutorial's Blue Gemstone listener).
+    super::quests::notify_item_pickup(world, client_id, player_oid, g.item_id);
 }
 
 /// Port of `clientpackets/RequestDropItem.runImpl` (narrowed): drop `count` of

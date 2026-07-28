@@ -46,15 +46,30 @@ impl QuestScript for NewbieGuide {
     }
 
     /// `onFirstTalk`: a guide only speaks to its own race; otherwise the
-    /// "go find your own people" page.
-    ///
-    /// TODO(G33): Java also advances `Q00255_Tutorial`'s memo state 5 → 6
-    /// here, handing out 200 Soulshots (or 100 Spiritshots for non-Orc
-    /// mages) with the matching `tutorial_voice_026`/`027`. The tutorial
-    /// quest is unported, so the reward branch is skipped entirely.
+    /// "go find your own people" page. A tutorial graduate (Q255 memoState 5)
+    /// gets the second batch of newbie shots on their first visit.
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
         if ctx.npc_race() != Some(ctx.player_race()) {
             return Some(format!("{}-no.htm", ctx.npc_id));
+        }
+        // Java: `Q00255_Tutorial` state exists, tutorial enabled, memoState 5
+        // → memoState 6 + 200 Soulshots (or 100 Spiritshots for a non-Orc
+        // mage) with the matching voice line.
+        if !ctx.world.cfg.character.disable_tutorial
+            && ctx.other_quest_memo_state(crate::scripts::tutorial::QUEST_NAME) == 5
+        {
+            ctx.set_other_quest_var(
+                crate::scripts::tutorial::QUEST_NAME,
+                crate::model::quest::MEMO_VAR,
+                "6",
+            );
+            if ctx.is_in_category("MAGE_GROUP") && ctx.player_race() != 3 {
+                ctx.give_items(5790, 100);
+                ctx.play_tutorial_voice("tutorial_voice_027");
+            } else {
+                ctx.give_items(5789, 200);
+                ctx.play_tutorial_voice("tutorial_voice_026");
+            }
         }
         debug_assert!(MAX_NEWBIE_BUFF_LEVEL > 0);
         Some(format!("{}.htm", ctx.npc_id))
