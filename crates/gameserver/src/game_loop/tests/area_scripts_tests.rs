@@ -466,3 +466,92 @@ fn hot_springs_disease_escalates_with_the_victims_level() {
         .map(|c| (c.0.skill_id, c.0.skill_level));
     assert_eq!(cast, Some((MALARIA, 4)), "level 3 victim gets level 4");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 3 — Den of Evil's Ragna Orcs
+// ---------------------------------------------------------------------------
+
+/// The Commander spawns his *named* escort groups: always Privates1, plus
+/// one of Privates2/3 — never all three (the flattened-groups over-spawn).
+#[test]
+fn ragna_commander_picks_named_escort_groups() {
+    let (mut world, _db, _l) = combat_test_world();
+    const COMMANDER: i32 = 22694;
+    let mut t = crate::data::npc_data::default_template(COMMANDER);
+    t.minions = vec![
+        crate::data::npc_data::MinionHolder {
+            npc_id: 22695,
+            count: 1,
+            group: "Privates1".into(),
+        },
+        crate::data::npc_data::MinionHolder {
+            npc_id: 22693,
+            count: 1,
+            group: "Privates2".into(),
+        },
+        crate::data::npc_data::MinionHolder {
+            npc_id: 22697,
+            count: 1,
+            group: "Privates3".into(),
+        },
+    ];
+    world.data.npc_data.insert_for_test(t);
+    for id in [22695, 22693, 22697] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+
+    crate::model::npc::spawn_npc_at(&mut world, COMMANDER, 0, 0, 0, 0);
+    let p1 = count_npcs(&mut world, 22695);
+    let extra = count_npcs(&mut world, 22693) + count_npcs(&mut world, 22697);
+    assert_eq!(p1, 1, "Privates1 always comes out");
+    assert_eq!(extra, 1, "exactly one of Privates2/Privates3 — not both");
+}
+
+/// The Frightened Ragna Orc's bribe: at low HP he promises 10M adena; ten
+/// seconds later the jackpot roll pays out ten owned ground stacks and he
+/// vanishes.
+#[test]
+fn frightened_orc_bribe_pays_out_and_he_vanishes() {
+    let (mut world, _db, _l) = combat_test_world();
+    const ORC: i32 = 18807;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(ORC));
+    add_test_npc(&mut world, NPC_OID, ORC, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // First hit: he starts whimpering (script value 1).
+    quests::notify_attack(&mut world, 5001, NPC_OID, ORC, None, false);
+    // Low HP + second hit: the bribe (script value 2) and the 10 s reward.
+    world
+        .objects
+        .get_component_mut::<Vitals>(&NPC_OID)
+        .unwrap()
+        .cur_hp = 1.0;
+    quests::notify_attack(&mut world, 5001, NPC_OID, ORC, None, false);
+
+    // Jackpot roll (10-in-100 000) + message coin flip.
+    world.forced_rolls.push_back(5);
+    world.forced_rolls.push_back(0);
+    advance_ticks(&mut world, 101);
+    let mut stacks = 0;
+    let mut total = 0i64;
+    world
+        .objects
+        .for_each_mut::<&crate::model::components::GroundItem>(|g| {
+            if g.item_id == 57 && g.owner_id == 5001 {
+                stacks += 1;
+                total += g.count;
+            }
+        });
+    assert_eq!(stacks, 10, "ten separate adena stacks");
+    assert_eq!(total, 10_000_000, "the promised ten million");
+
+    // The 1 s despawn: he keeps his word and disappears.
+    advance_ticks(&mut world, 15);
+    assert_eq!(count_npcs(&mut world, ORC), 0, "gone as promised");
+}

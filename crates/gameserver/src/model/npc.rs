@@ -513,8 +513,9 @@ pub(crate) fn spawn_one(
     // which deliberately doesn't run this.
     // `WalkingManager.onSpawn` — attach a walking route if this id has one.
     crate::game_loop::walkers::on_npc_spawn(world, oid, npc_id);
-    let escort = crate::game_loop::minions::spawn_minions(world, oid);
-    world.minions_placed += escort;
+    // The escort lands in `world.minions_placed` inside `spawn_minion_group`
+    // (the script-chosen named groups count themselves the same way).
+    crate::game_loop::minions::spawn_minions(world, oid);
     Some(oid)
 }
 

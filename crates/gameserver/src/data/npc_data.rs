@@ -36,11 +36,16 @@ pub struct DropGroup {
 /// port keeps the type name and derives the two subtree memberships the G8
 /// slice actually branches on.
 /// Java `model/holders/MinionHolder` — one `<npc>` row of a `<minions>` block.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct MinionHolder {
     pub npc_id: i32,
     /// How many of this minion the leader keeps alive at once.
     pub count: i32,
+    /// The `<minions name="…">` group this row belongs to. Almost every
+    /// leader uses the default `"Privates"` (the group Java's generic
+    /// `Monster.onSpawn` escort spawns); the named variants
+    /// (`Privates1`/`2`/`3` — the Ragna Orc leaders) are script-chosen.
+    pub group: String,
 }
 
 /// Java `enums/AIType` — the `<ai type="…">` attribute. This dist uses
@@ -587,6 +592,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
     // `<minions>` scope inside `<parameters>` — `<parameters>` also carries
     // unrelated `<npc>`-shaped rows, so the escort list needs its own flag.
     let mut in_minions = false;
+    let mut minion_group = String::new();
     // `<race>` text scope (Java `NpcTemplate.setRace`).
     let mut in_race = false;
 
@@ -693,6 +699,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                         t.minions.push(MinionHolder {
                             npc_id: id,
                             count: attr_i32(&e, b"count").unwrap_or(1),
+                            group: minion_group.clone(),
                         });
                     }
                 }
@@ -849,7 +856,12 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
             }
             b"corpsetime" => in_corpse_time = !self_closing,
             b"race" => in_race = !self_closing,
-            b"minions" => in_minions = !self_closing,
+            b"minions" => {
+                in_minions = !self_closing;
+                if in_minions {
+                    minion_group = attr_str(&e, b"name").unwrap_or_else(|| "Privates".to_string());
+                }
+            }
             b"clan" => in_clan = !self_closing,
             b"ignorenpcid" => in_ignore_npc_id = !self_closing,
             b"drop" => drop_scope = DropScope::Death,

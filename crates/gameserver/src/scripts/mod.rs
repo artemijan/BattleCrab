@@ -15,6 +15,7 @@ pub mod clan_hall_door_manager;
 pub mod clan_hall_manager;
 pub mod clan_master;
 pub mod dark_elf_change1;
+mod den_of_evil;
 mod dr_chaos_talk;
 pub mod dwarf_change1;
 pub mod dwarf_change2;
@@ -456,6 +457,10 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(pagan_keys::PaganKeys),
         Arc::new(hot_springs::HotSprings),
         Arc::new(plains_of_dion::PlainsOfDion),
+        // ai/areas — slice 3: Den of Evil's Ragna Orcs (the zone's own
+        // Kasha-eye script is @Disabled on this dist with no eye spawns).
+        Arc::new(den_of_evil::RagnaOrcLeaders),
+        Arc::new(den_of_evil::FrightenedRagnaOrc),
     ];
     QuestRegistry::new(scripts)
 }
