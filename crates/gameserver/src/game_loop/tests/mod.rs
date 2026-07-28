@@ -379,31 +379,18 @@ async fn character_create_inserts_into_real_schema() {
     let name = format!("Tc{}", std::process::id() % 100000);
     handle_character_create(&mut world, 1, &character_create_body(&name, 0));
 
-    // The DB thread pushes its boot-time id block and clan table first;
-    // skip them.
+    // The DB thread pushes its boot-time loads first (id block, clans, mail,
+    // lottery, …). That list grows with every milestone — enumerating it here
+    // rotted more than once — so instead skip everything that is not an event
+    // this test asserts on. A create that never answers still fails via the
+    // recv timeout.
     let next_event = || loop {
         match db_event_rx
             .recv_timeout(std::time::Duration::from_secs(5))
             .unwrap()
         {
-            DbEvent::IdBlock { .. }
-            | DbEvent::ClansLoaded { .. }
-            | DbEvent::PremiumLoaded { .. }
-            | DbEvent::BufferSchemesLoaded { .. }
-            | DbEvent::FavoritesLoaded { .. }
-            | DbEvent::GrandBossesLoaded { .. }
-            | DbEvent::CursedWeaponsLoaded { .. }
-            | DbEvent::CastlesLoaded { .. }
-            | DbEvent::SiegesLoaded { .. }
-            | DbEvent::ManorLoaded { .. }
-            | DbEvent::ClanHallsLoaded { .. }
-            | DbEvent::ClanHallBiddersLoaded { .. }
-            | DbEvent::ResidenceFunctionsLoaded { .. }
-            | DbEvent::SiegeGuardsLoaded { .. }
-            | DbEvent::OlympiadLoaded { .. }
-            | DbEvent::HeroesLoaded { .. }
-            | DbEvent::NpcRespawnsLoaded { .. } => continue,
-            other => return other,
+            e @ (DbEvent::CharacterCreated { .. } | DbEvent::CharactersLoaded { .. }) => return e,
+            _ => continue,
         }
     };
     // The DB thread must report a successful insert, then the reloaded list.
