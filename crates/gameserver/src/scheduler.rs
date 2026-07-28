@@ -455,6 +455,10 @@ pub enum ScheduledTask {
         npc: i32,
         seq: u64,
     },
+    /// `ai/areas` Toma: the 30-minute beat that despawns Toma and respawns
+    /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
+    /// itself.
+    TomaRelocate,
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

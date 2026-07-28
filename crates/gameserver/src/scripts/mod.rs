@@ -19,6 +19,7 @@ pub mod dwarf_change1;
 pub mod dwarf_change2;
 pub mod elf_human_change1;
 pub mod elf_human_change2;
+mod elroki_teleporters;
 pub mod first_class_transfer_talk;
 pub mod last_imperial_tomb;
 pub mod monument_of_heroes;
@@ -27,6 +28,7 @@ pub mod npc_location_info;
 pub mod oly_manager;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
+mod pagan_teleporters;
 pub mod q00032_an_obvious_lie;
 pub mod q00033_make_a_pair_of_dress_shoes;
 pub mod q00034_in_search_of_cloth;
@@ -195,6 +197,8 @@ pub mod saga;
 pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
+mod toma;
+mod tunatun;
 pub mod tvt;
 mod valakas_teleporters;
 pub mod wyvern_manager;
@@ -434,6 +438,11 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),
         Arc::new(tvt::Tvt),
+        // ai/areas — slice 1: talk/teleporter NPCs.
+        Arc::new(toma::Toma),
+        Arc::new(elroki_teleporters::ElrokiTeleporters),
+        Arc::new(pagan_teleporters::PaganTeleporters),
+        Arc::new(tunatun::Tunatun),
     ];
     QuestRegistry::new(scripts)
 }

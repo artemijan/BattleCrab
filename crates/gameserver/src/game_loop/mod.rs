@@ -9,6 +9,7 @@
 mod abnormal;
 pub(crate) mod admin;
 pub(crate) mod antharas;
+pub(crate) mod area_npcs;
 mod augment;
 pub(crate) mod baium;
 pub(crate) mod boats;
@@ -229,6 +230,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
     // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
+    // Script-owned area NPCs (Toma is not in the spawn data — his script
+    // places and relocates him).
+    area_npcs::spawn_at_boot(&mut world);
     // The Monster Race (like the Lottery) starts from its DB-load event
     // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
     // race number from the loaded history before beginning the cycle.
@@ -405,6 +409,7 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
+            ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }
