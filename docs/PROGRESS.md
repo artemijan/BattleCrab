@@ -99,7 +99,13 @@ A full sweep of the snapshot above + [PARITY_CHECKLIST_G33.md](PARITY_CHECKLIST_
 against the actual Rust tree, to scope the next priority. Quest porting is
 **effectively done**: 163 Rust quest engines cover every in-scope Java quest —
 the only unported ids (Q500 daily, Q933/935, Q10866, Q10993–11023) are
-off-chronicle skips already ruled out, plus **Q255 Tutorial**. G18 clan
+off-chronicle skips already ruled out. ~~Q255 Tutorial~~ landed 2026-07-28:
+the full newbie flow (login → 5 s intro timer → TutorialShowHtml window +
+voice, memoState machine through Newbie Helper / gremlin Blue Gemstone /
+shot handouts / supervisor reward / Newbie Guide second batch), the tutorial
+packet family (0xA6–0xA9 out, 0x85–0x88 in), the quest engine's
+ON_PLAYER_LOGIN/PRESS_TUTORIAL_MARK/ITEM_PICKUP global-event hooks, and
+`DisableTutorial` config. G18 clan
 wars/sub-pledges/warehouse are verified present in code (the G33 checklist's
 "G18 pending" bucket is stale). G24, G24.5, G29, G31, G32, G33 are complete.
 
@@ -1541,7 +1547,7 @@ Empty/placeholder now, to be filled in the owning milestone:
 - **Quests/scripts (post-G11/G12):** party quest sharing
   (`getRandomPartyMemberState` — kill credit is killer-only); daily quests
   (`restartTime`/reset hour); ~~`onFirstTalk` hook~~ (✅ — see below;
-  ~~onAttack/onSpawn~~ ✅ G12); tutorial (Q00255);
+  ~~onAttack/onSpawn~~ ✅ G12); ~~tutorial (Q00255)~~ (✅ 2026-07-28);
   `ExQuestNpcLogList`; the quest-window weight/inventory-90%/40-quest
   guards; the chooser's simulated-`onTalk` pre-filter; `validateHtmlAction`
   (bare bypasses resolve via `LastFolkNpc` + distance); the remaining ~188
@@ -1670,7 +1676,7 @@ of their four-entry menu.
   races (`UNDEAD`, `BEAST`, …) are `None`.
 - `scripts/newbie_guide.rs` — menu + the `-<n><m|f>.htm` advice pages
   (`MAGE_GROUP` stands in for `isMageClass()`). The Q00255 tutorial reward
-  branch is a `TODO(G33)`: the tutorial quest is unported.
+  branch (memoState 5 → 6, second shot batch) landed with the tutorial port.
 - `scripts/npc_location_info.rs` — the "NPC Location Information" submenu,
   `custom/NpcLocationInfo`: 161 whitelisted town NPCs, radar marker on the
   chosen one's spawn (`QuestCtx::any_spawn_location`/`add_radar`).

@@ -128,6 +128,28 @@ pub trait QuestScript: Send + Sync {
     fn on_skill_see(&self, ctx: &mut QuestCtx, skill_id: i32) {
         let _ = (ctx, skill_id);
     }
+    /// Whether this script subscribes to the GLOBAL_PLAYERS event stream
+    /// (Java's `@RegisterEvent` login / tutorial-mark / item-pickup
+    /// listeners). Opt-in so the enter-world path only builds a ctx for
+    /// scripts that care.
+    fn handles_global_events(&self) -> bool {
+        false
+    }
+    /// `ON_PLAYER_LOGIN` — fired at the end of the enter-world burst.
+    /// `ctx.npc` is 0.
+    fn on_login(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+    /// `ON_PLAYER_PRESS_TUTORIAL_MARK` — the player clicked a shown tutorial
+    /// question mark. The mark-id namespace is global across scripts.
+    fn on_tutorial_mark(&self, ctx: &mut QuestCtx, mark_id: i32) {
+        let _ = (ctx, mark_id);
+    }
+    /// `ON_PLAYER_ITEM_PICKUP` — the player picked `item_id` up off the
+    /// ground. `ctx.npc` is 0.
+    fn on_item_pickup(&self, ctx: &mut QuestCtx, item_id: i32) {
+        let _ = (ctx, item_id);
+    }
 }
 
 /// Java `QuestManager` + the per-`NpcTemplate` listener containers, built
@@ -143,6 +165,9 @@ pub struct QuestRegistry {
     spawn: HashMap<i32, Vec<usize>>,
     skill_see: HashMap<i32, Vec<usize>>,
     first_talk: HashMap<i32, usize>,
+    /// Scripts with `handles_global_events()` (login / tutorial-mark /
+    /// item-pickup listeners).
+    global_events: Vec<usize>,
 }
 
 impl QuestRegistry {
@@ -157,8 +182,12 @@ impl QuestRegistry {
         // One entry per NPC: the first-talk listener owns the whole chat
         // window, so two scripts claiming the same NPC is a bug, not a fan-out.
         let mut first_talk: HashMap<i32, usize> = HashMap::new();
+        let mut global_events: Vec<usize> = Vec::new();
         for (idx, s) in scripts.iter().enumerate() {
             by_name.insert(s.name(), idx);
+            if s.handles_global_events() {
+                global_events.push(idx);
+            }
             for &id in s.start_npcs() {
                 start.entry(id).or_default().push(idx);
             }
@@ -199,7 +228,16 @@ impl QuestRegistry {
             spawn,
             skill_see,
             first_talk,
+            global_events,
         }
+    }
+
+    /// Scripts subscribed to the GLOBAL_PLAYERS event stream.
+    pub fn global_event_quests(&self) -> Vec<Arc<dyn QuestScript>> {
+        self.global_events
+            .iter()
+            .map(|&i| self.scripts[i].clone())
+            .collect()
     }
 
     /// The script owning `npc_id`'s chat window, if any (Java
@@ -1320,6 +1358,160 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    // --- Tutorial window / global-event helpers (Q255) ---------------------
+
+    /// `QuestState.isMemoState`.
+    pub fn is_memo_state(&self, value: i32) -> bool {
+        self.memo_state() == value
+    }
+
+    /// Another quest's `getMemoState` (with Java's STARTED gate).
+    pub fn other_quest_memo_state(&self, quest_name: &str) -> i32 {
+        self.world
+            .objects
+            .get_component::<Quests>(&self.player)
+            .and_then(|q| q.0.get(quest_name))
+            .map(|qs| {
+                if qs.is_started() {
+                    qs.get_int(crate::model::quest::MEMO_VAR)
+                } else {
+                    0
+                }
+            })
+            .unwrap_or(0)
+    }
+
+    /// Whether the player has a quest state for another quest at all (Java
+    /// `player.getQuestState(name) != null`).
+    pub fn has_other_quest_state(&self, quest_name: &str) -> bool {
+        self.world
+            .objects
+            .get_component::<Quests>(&self.player)
+            .is_some_and(|q| q.0.contains_key(quest_name))
+    }
+
+    /// Write a var on *another* quest's state (Java
+    /// `getQuestState(name).set(...)` — the NewbieGuide advancing Q255's
+    /// memoState). No-op when the player has no state for that quest.
+    pub fn set_other_quest_var(&mut self, quest_name: &str, var: &str, value: impl Into<String>) {
+        if let Some(qs) = self
+            .world
+            .objects
+            .get_component_mut::<Quests>(&self.player)
+            .and_then(|q| q.0.get_mut(quest_name))
+        {
+            qs.vars.insert(var.to_string(), value.into());
+        }
+    }
+
+    /// `TutorialShowHtml` with the content of a file from the script's html
+    /// dir (Java `showTutorialHtml(getHtm(player, file))`).
+    pub fn tutorial_show_html_file(&mut self, filename: &str) {
+        let html = load_quest_html(self.world, &self.script, filename)
+            .unwrap_or_else(|| format!("<html><body>File {filename} not found.</body></html>"));
+        self.send(server_packets::tutorial_show_html(&html));
+    }
+
+    pub fn tutorial_show_question_mark(&mut self, mark_id: i32) {
+        self.send(server_packets::tutorial_show_question_mark(mark_id));
+    }
+
+    pub fn tutorial_close_html(&mut self) {
+        self.send(server_packets::tutorial_close_html());
+    }
+
+    /// `playTutorialVoice` — a `PlaySound(2, voice, …)` anchored at the
+    /// player's position.
+    pub fn play_tutorial_voice(&mut self, voice: &str) {
+        let Some(pos) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Position>(&self.player)
+            .copied()
+        else {
+            return;
+        };
+        self.send(server_packets::play_tutorial_voice(
+            voice, pos.x, pos.y, pos.z,
+        ));
+    }
+
+    /// `ExShowScreenMessage` (the tutorial uses TOP_CENTER = 2).
+    pub fn show_screen_message(&mut self, text: &str, position: i32, time_ms: i32) {
+        self.send(server_packets::ex_show_screen_message(
+            text, position, time_ms,
+        ));
+    }
+
+    /// The template id of whatever the player currently targets, 0 when
+    /// nothing / not an NPC (Java `player.getTarget().getId()`).
+    pub fn player_target_npc_id(&self) -> i32 {
+        self.world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&self.player)
+            .and_then(|t| t.0)
+            .and_then(|oid| {
+                self.world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&oid)
+            })
+            .map(|n| n.npc_id)
+            .unwrap_or(0)
+    }
+
+    /// `Npc.dropItem(killer, …)`: toss an item on the ground at the involved
+    /// NPC's feet (the tutorial gremlins' Blue Gemstone).
+    pub fn drop_item_from_npc(&mut self, item_id: i32, count: i64) {
+        let Some(pos) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Position>(&self.npc)
+            .copied()
+        else {
+            return;
+        };
+        let npc = self.npc;
+        super::ground_items::spawn_ground_item(
+            self.world,
+            item_id,
+            count,
+            0,
+            pos.x,
+            pos.y,
+            pos.z,
+            npc,
+            super::ground_items::DropSource::Npc,
+        );
+    }
+
+    /// Ground items of `item_id` within `radius` (2D) of the involved NPC
+    /// (Java's `World.getVisibleObjectsInRange` gem-count cap).
+    pub fn count_ground_items_near_npc(&self, item_id: i32, radius: f64) -> usize {
+        let Some(npos) = self
+            .world
+            .objects
+            .get_component::<crate::model::components::Position>(&self.npc)
+        else {
+            return 0;
+        };
+        self.world
+            .ground_item_regions
+            .values()
+            .flat_map(|v| v.iter())
+            .filter(|oid| {
+                self.world
+                    .objects
+                    .get_component::<crate::model::components::GroundItem>(oid)
+                    .is_some_and(|g| g.item_id == item_id)
+                    && self
+                        .world
+                        .objects
+                        .get_component::<crate::model::components::Position>(oid)
+                        .is_some_and(|p| npos.distance_2d(p) <= radius)
+            })
+            .count()
+    }
+
     fn send(&self, pkt: Vec<u8>) {
         if let Some(cs) = self.world.clients.get(&self.client_id) {
             cs.send(pkt);
@@ -1741,6 +1933,63 @@ pub(crate) fn notify_skill_see(
     for script in scripts {
         let mut ctx = QuestCtx::new(world, client_id, caster_oid, npc_oid, script.clone());
         script.on_skill_see(&mut ctx, skill_id);
+    }
+}
+
+/// The `ON_PLAYER_LOGIN` notification (Java `Player.onPlayerEnter` →
+/// `EventDispatcher`): fired at the end of the enter-world burst for every
+/// global-event script. `npc` is 0.
+pub(crate) fn notify_login(world: &mut World, client_id: u32, player: i32) {
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_login(&mut ctx);
+    }
+}
+
+/// The `ON_PLAYER_PRESS_TUTORIAL_MARK` notification
+/// (`RequestTutorialQuestionMark` 0x87).
+pub(crate) fn notify_tutorial_mark(world: &mut World, client_id: u32, player: i32, mark_id: i32) {
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_tutorial_mark(&mut ctx, mark_id);
+    }
+}
+
+/// The `ON_PLAYER_ITEM_PICKUP` notification (fired from
+/// `ground_items::pickup_ground_item` after the give).
+pub(crate) fn notify_item_pickup(world: &mut World, client_id: u32, player: i32, item_id: i32) {
+    let registry = world.quests.clone();
+    for script in registry.global_event_quests() {
+        let mut ctx = QuestCtx::new(world, client_id, player, 0, script.clone());
+        script.on_item_pickup(&mut ctx, item_id);
+    }
+}
+
+/// The tutorial window's `bypass`/`link` press (`RequestTutorialPassCmdToServer`
+/// 0x86 / `RequestTutorialLinkHtml` 0x85): `tutorial_close` closes the window
+/// (Java's `TutorialClose` bypass handler), a `Quest <Name> <event>` command
+/// fires the quest event with **no NPC** (this is Java's `OnPlayerBypass`
+/// path — the tutorial window has no folk NPC behind it).
+pub(crate) fn handle_tutorial_bypass(world: &mut World, client_id: u32, bypass: &str) {
+    let Some(crate::session::ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let player = session.player_object_id();
+    let bypass = bypass.trim();
+    if bypass == "tutorial_close" {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::tutorial_close_html());
+        }
+        return;
+    }
+    if let Some(rest) = bypass.strip_prefix("Quest ") {
+        let (name, event) = match rest.split_once(' ') {
+            Some((n, e)) => (n, e.trim()),
+            None => (rest, ""),
+        };
+        process_quest_event(world, client_id, player, 0, name, event);
     }
 }
 

@@ -975,7 +975,10 @@ longer engage or glide between tower floors.
 
 ### G22 — Quest & script breadth
 The remaining ~188 quests, ~14 village-master scripts and ~81 `ai/` scripts;
-daily quests (`restartTime`); the tutorial (Q00255); ~~`onFirstTalk`~~ (✅ —
+daily quests (`restartTime`); ~~the tutorial (Q00255)~~ (✅ 2026-07-28 — the
+full newbie flow, tutorial packets 0xA6–0xA9/0x85–0x88, the quest engine's
+login/tutorial-mark/item-pickup global-event hooks, `DisableTutorial`);
+~~`onFirstTalk`~~ (✅ —
 the hook and its first users, NewbieGuide + NpcLocationInfo); the
 quest-window guards; `validateHtmlAction`; the remaining bypass families
 (multisell/sell already partly in G15). Script hot-reload backs `//reload`.
@@ -984,9 +987,10 @@ kind (one-time, repeatable, daily, class-transfer, instance) completes.
 **Unblocks:** `//quest_info`/`//quest_reload`/`//script_load`/`//script_unload`,
 `//charquestmenu`/`//setcharquest`, `//reload`. **Deps:** G17, G19.
 
-**Audit additions (2026-07):** the tutorial packet family
+**Audit additions (2026-07):** ~~the tutorial packet family
 (`RequestTutorialLinkHtml`/`QuestionMark`/`ClientEvent`/`PassCmdToServer`)
-backing Q00255.
+backing Q00255~~ (✅ landed with the tutorial, 2026-07-28; `ClientEvent` is
+consumed silently — dead in the Java build too).
 
 ---
 

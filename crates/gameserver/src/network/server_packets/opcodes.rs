@@ -107,6 +107,10 @@ pub const L2_FRIEND_SAY: u8 = 0x78;
 pub const FRIEND_ADD_REQUEST: u8 = 0x83;
 pub const PLAY_SOUND: u8 = 0x9E;
 pub const QUEST_LIST: u8 = 0x86;
+// Tutorial windows (Q255 newbie tutorial).
+pub const TUTORIAL_SHOW_HTML: u8 = 0xA6;
+pub const TUTORIAL_SHOW_QUESTION_MARK: u8 = 0xA7;
+pub const TUTORIAL_CLOSE_HTML: u8 = 0xA9;
 pub const ASK_JOIN_PLEDGE: u8 = 0x2C;
 pub const MANAGE_PLEDGE_POWER: u8 = 0x2A;
 pub const SET_PLEDGE_CREST: u8 = 0x69;

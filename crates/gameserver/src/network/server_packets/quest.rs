@@ -52,6 +52,52 @@ pub mod quest_sounds {
     pub const ELROKI_SONG_FULL: &str = "EtcSound.elcroki_song_full";
 }
 
+/// Port of the tutorial-voice `PlaySound` shape (`new PlaySound(2, voice, 0,
+/// 0, x, y, z)` — Java `AbstractScript.playTutorialVoice` anchors the voice
+/// line at the player's own position).
+pub fn play_tutorial_voice(voice: &str, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PLAY_SOUND);
+    w.write_i32(2);
+    w.write_string(voice);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.write_i32(0);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TutorialShowHtml` (0xA6): the tutorial window.
+/// `type` is 1 (NORMAL_WINDOW) — the only shape Q255 uses.
+pub fn tutorial_show_html(html: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TUTORIAL_SHOW_HTML);
+    w.write_i32(1); // NORMAL_WINDOW
+    w.write_string(super::npc::clip_html(html));
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TutorialShowQuestionMark` (0xA7). This build writes
+/// a leading mark-type byte before the mark id (a later-chronicle field the
+/// Mobius build keeps; the paired client packet 0x87 reads the same layout) —
+/// Q255 always sends type 0.
+pub fn tutorial_show_question_mark(mark_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TUTORIAL_SHOW_QUESTION_MARK);
+    w.write_u8(0); // mark type
+    w.write_i32(mark_id);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/TutorialCloseHtml` (0xA9). No body.
+pub fn tutorial_close_html() -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::TUTORIAL_CLOSE_HTML);
+    w.into_bytes()
+}
+
 /// Port of `serverpackets/ExShowQuestMark` — the on-screen quest marker,
 /// sent after every cond change (Java `QuestState.setCond`).
 pub fn ex_show_quest_mark(quest_id: i32, quest_state: i32) -> Vec<u8> {

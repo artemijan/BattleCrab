@@ -262,6 +262,29 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_QUEST_ABORT => {
             super::quests::handle_request_quest_abort(world, client_id, body)
         }
+        // Tutorial windows (Q255): link clicks and bypass presses share the
+        // same router; question-mark clicks fire the global mark event; the
+        // client-event echo is dead in this build (its Java handler looks the
+        // quest up under a wrong name and always misses) — consumed silently.
+        cop::REQUEST_TUTORIAL_LINK_HTML => {
+            if let Some(pkt) = cp::RequestTutorialLinkHtml::read(body) {
+                super::quests::handle_tutorial_bypass(world, client_id, &pkt.bypass);
+            }
+        }
+        cop::REQUEST_TUTORIAL_PASS_CMD_TO_SERVER => {
+            if let Some(pkt) = cp::RequestTutorialPassCmd::read(body) {
+                super::quests::handle_tutorial_bypass(world, client_id, &pkt.bypass);
+            }
+        }
+        cop::REQUEST_TUTORIAL_QUESTION_MARK => {
+            if let Some(pkt) = cp::RequestTutorialQuestionMark::read(body) {
+                if let Some(ClientSession::InGame(s)) = world.clients.get(&client_id) {
+                    let player = s.player_object_id();
+                    super::quests::notify_tutorial_mark(world, client_id, player, pkt.number);
+                }
+            }
+        }
+        cop::REQUEST_TUTORIAL_CLIENT_EVENT => {}
         cop::REQUEST_PLEDGE_INFO => {
             super::clans::handle_request_pledge_info(world, client_id, body)
         }
