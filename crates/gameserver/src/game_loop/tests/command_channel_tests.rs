@@ -422,3 +422,152 @@ fn mpcc_room_lifecycle() {
         .any(|p| is_ex(p, opcodes::EX_DISSMISS_MPCC_ROOM)));
     assert!(world.matching_rooms.room_id_of(3001).is_none());
 }
+
+/// Register `npc_id` with one guaranteed drop of `drop_item` and spawn it.
+fn spawn_dropper(world: &mut World, npc_oid: i32, npc_id: i32, type_name: &str, drop_item: i32) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = type_name.into();
+    t.level = 20;
+    t.base_hp_max = 100.0;
+    t.base_mp_max = 50.0;
+    t.drop_groups.push(crate::data::npc_data::DropGroup {
+        chance: 100.0,
+        items: vec![crate::data::npc_data::DropHolder {
+            item_id: drop_item,
+            min: 1,
+            max: 1,
+            chance: 100.0,
+        }],
+    });
+    world.data.npc_data.insert_for_test(t);
+    world
+        .data
+        .item_data
+        .insert_for_test(crate::data::item_data::ItemTemplate {
+            item_id: drop_item,
+            name: "Raid Loot".into(),
+            kind: crate::data::item_data::ItemKind::Etc,
+            is_stackable: false,
+            is_sellable: true,
+            price: 10,
+            ..Default::default()
+        });
+    add_test_npc(world, npc_oid, npc_id, type_name, 20, 0, 0, 0);
+}
+
+fn the_ground_item(world: &World) -> i32 {
+    let ids: Vec<i32> = world
+        .ground_item_regions
+        .values()
+        .flat_map(|v| v.iter().copied())
+        .collect();
+    assert_eq!(ids.len(), 1, "exactly one ground drop expected");
+    ids[0]
+}
+
+/// A ≥`RaidLootRightsCCSize` command channel that strikes a raid boss first
+/// claims looting rights ("You have looting rights!" on channel 16), the kill
+/// drops to the ground owned by the CC leader (`AutoLootRaids` off overrides
+/// `AutoLoot` on), and only channel members may pick the drop up.
+#[test]
+fn raid_loot_rights_protect_the_drop_for_the_channel() {
+    let (mut world, ..) = test_world();
+    world.cfg.character.auto_loot = true;
+    world.cfg.character.auto_loot_raids = false;
+    world.cfg.character.raid_loot_rights_cc_size = 4;
+    let mut rxs = two_parties(&mut world);
+    form_channel(&mut world);
+    let mut outsider_rx = ingame_player(&mut world, 5, 3005, 0, 0, 0);
+    spawn_dropper(&mut world, 9100, 39100, "RaidBoss", 9550);
+    for rx in &mut rxs {
+        drain(rx);
+    }
+    drain(&mut outsider_rx);
+
+    // First CC hit: the claim + the announcement to every channel member.
+    combat::npc_receive_damage(&mut world, 9100, 3004, 10.0);
+    assert_eq!(
+        super::command_channel::loot_rights_cc(&world, 9100),
+        super::command_channel::party_id_of(&world, 3001)
+            .and_then(|pid| super::command_channel::cc_id_of_party(&world, pid)),
+        "the channel holds the claim"
+    );
+    for rx in &mut rxs {
+        let pkts = drain(rx);
+        let say = pkts
+            .iter()
+            .find(|p| p[0] == server_packets::opcodes::SAY2)
+            .expect("looting-rights announcement");
+        let (oid, ty, _, text, _) = parse_creature_say(say);
+        assert_eq!((oid, ty), (0, 16), "sender 0 on PARTYROOM_ALL");
+        assert_eq!(text, "You have looting rights!");
+    }
+
+    // Kill: the drop lands on the ground (AutoLootRaids=False beats
+    // AutoLoot=True) owned by the CC leader.
+    combat::npc_receive_damage(&mut world, 9100, 3004, 1_000_000.0);
+    let ground = the_ground_item(&world);
+    let g = world
+        .objects
+        .get_component::<crate::model::components::GroundItem>(&ground)
+        .unwrap()
+        .clone();
+    assert_eq!(g.owner_id, 3001, "owned by the CC leader");
+    assert!(g.owner_until_tick > world.tick);
+    for rx in &mut rxs {
+        drain(rx);
+    }
+
+    // An outsider may not take it: ActionFailed + SM 56, item stays.
+    super::ground_items::pickup_ground_item(&mut world, 5, 3005, ground);
+    let pkts = drain(&mut outsider_rx);
+    assert!(pkts
+        .iter()
+        .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL));
+    assert!(sm_ids_of(&pkts).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
+    assert!(world
+        .objects
+        .get_component::<crate::model::components::GroundItem>(&ground)
+        .is_some());
+
+    // A member of the *other* CC party may (isInLooterParty via the channel).
+    super::ground_items::pickup_ground_item(&mut world, 4, 3004, ground);
+    assert!(world
+        .objects
+        .get_component::<crate::model::components::GroundItem>(&ground)
+        .is_none());
+    assert_eq!(count_of_item(&world, 3004, 9550), 1);
+}
+
+/// An ordinary kill with `AutoLoot` off drops killer-owned loot: strangers are
+/// refused for 15 s, party members and the owner pass, and the protection
+/// lapses afterwards.
+#[test]
+fn ordinary_drop_is_killer_protected_for_15s() {
+    let (mut world, ..) = test_world();
+    world.cfg.character.auto_loot = false;
+    world.id_pool = 0x2100_0000..0x2100_1000;
+    let mut killer_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut stranger_rx = ingame_player(&mut world, 2, 3002, 0, 0, 0);
+    spawn_dropper(&mut world, 9101, 39101, "Monster", 9551);
+    drain(&mut killer_rx);
+    drain(&mut stranger_rx);
+
+    combat::npc_receive_damage(&mut world, 9101, 3001, 1_000_000.0);
+    let ground = the_ground_item(&world);
+    let g = world
+        .objects
+        .get_component::<crate::model::components::GroundItem>(&ground)
+        .unwrap()
+        .clone();
+    assert_eq!(g.owner_id, 3001, "killer-owned");
+    assert_eq!(g.owner_until_tick, world.tick + 150, "15 s protection");
+
+    // The stranger is refused while protected…
+    super::ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
+    assert!(sm_ids_of(&drain(&mut stranger_rx)).contains(&sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1));
+    // …and succeeds once the 15 s lapse.
+    advance_ticks(&mut world, 151);
+    super::ground_items::pickup_ground_item(&mut world, 2, 3002, ground);
+    assert_eq!(count_of_item(&world, 3002, 9551), 1);
+}

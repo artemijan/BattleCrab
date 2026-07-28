@@ -1119,3 +1119,104 @@ pub(crate) fn handle_request_ex_mpcc_partymaster_list(world: &mut World, client_
         cs.send(server_packets::ex_mpcc_partymaster_list(&names));
     }
 }
+
+// ---------------------------------------------------------------------------
+// Raid looting rights (`Attackable._firstCommandChannelAttacked` +
+// `Player.isInLooterParty` + the drop-ownership half of
+// `ItemData.createItem("loot")`)
+// ---------------------------------------------------------------------------
+
+use crate::model::components::RaidLootRights;
+
+/// `Attackable.reduceCurrentHp`'s loot-privilege block: the first command
+/// channel of `RaidLootRightsCCSize`+ members to strike a raid boss (never a
+/// minion) owns its drops; every later hit from the same channel refreshes
+/// the claim. Java polls a 10 s timer to expire it — the port expires lazily
+/// via [`loot_rights_cc`].
+pub(crate) fn on_raid_attacked_loot_rights(world: &mut World, npc_oid: i32, attacker_oid: i32) {
+    // Boss only (`!isMinion()`), and only a real raid.
+    if world
+        .objects
+        .has_component::<crate::game_loop::minions::MinionOf>(&npc_oid)
+        || !super::raid_curse::gives_raid_curse(world, npc_oid)
+    {
+        return;
+    }
+    // The acting player: a servitor/pet hit counts for its owner.
+    let player = if world.objects.has_component::<Player>(&attacker_oid) {
+        attacker_oid
+    } else if let Some(s) = world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&attacker_oid)
+    {
+        s.owner_object_id
+    } else {
+        return;
+    };
+    let Some(cc_id) = party_id_of(world, player).and_then(|pid| cc_id_of_party(world, pid)) else {
+        return;
+    };
+    if (cc_members(world, cc_id).len() as i32) < world.cfg.character.raid_loot_rights_cc_size {
+        return;
+    }
+    let now = world.tick;
+    match loot_rights_cc(world, npc_oid) {
+        // Same channel: refresh the claim.
+        Some(holder) if holder == cc_id => {
+            if let Some(r) = world.objects.get_component_mut::<RaidLootRights>(&npc_oid) {
+                r.last_attack_tick = now;
+            }
+        }
+        // Another channel still holds an unexpired claim: nothing.
+        Some(_) => {}
+        // Free (or expired): claim + announce. Java's announcement is a
+        // `CreatureSay(null, PARTYROOM_ALL, "", ...)` — object id 0, empty
+        // name (retail SM 1869/1870 are unused there).
+        None => {
+            world.objects.add_components(
+                &npc_oid,
+                RaidLootRights {
+                    cc_id,
+                    last_attack_tick: now,
+                },
+            );
+            broadcast_to_cc(
+                world,
+                cc_id,
+                &server_packets::creature_say(
+                    0,
+                    crate::enums::ChatType::PartyroomAll,
+                    "",
+                    "You have looting rights!",
+                    None,
+                ),
+            );
+        }
+    }
+}
+
+/// The command channel currently holding looting rights on this NPC, if the
+/// claim hasn't expired (`RaidLootRightsInterval` since the last hit).
+pub(crate) fn loot_rights_cc(world: &World, npc_oid: i32) -> Option<u32> {
+    let r = world.objects.get_component::<RaidLootRights>(&npc_oid)?;
+    let interval_ticks = world.cfg.character.raid_loot_rights_interval * 10;
+    (world.tick.saturating_sub(r.last_attack_tick) <= interval_ticks
+        && world.command_channels.contains_key(&r.cc_id))
+    .then_some(r.cc_id)
+}
+
+/// `Player.isInLooterParty(ownerId)` called on the picker: true when the
+/// picker's command channel (or, outside one, their party) contains the drop
+/// owner.
+pub(crate) fn is_in_looter_party(world: &World, picker: i32, owner: i32) -> bool {
+    let Some(picker_party) = party_id_of(world, picker) else {
+        return false;
+    };
+    if let Some(cc_id) = cc_id_of_party(world, picker_party) {
+        return cc_members(world, cc_id).contains(&owner);
+    }
+    world
+        .parties
+        .get(&picker_party)
+        .is_some_and(|p| p.contains(owner))
+}

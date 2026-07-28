@@ -550,19 +550,35 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             .objects
             .get_component::<crate::model::components::PartyRef>(&looter)
             .map(|r| r.0);
-        let auto_loot = world.cfg.character.auto_loot;
+        // A raid's drops follow `AutoLootRaids` (off on this dist — they hit
+        // the ground even though `AutoLoot` is on), everything else `AutoLoot`
+        // (Java `Attackable.doItemDrop`).
+        let is_raid = super::raid_curse::gives_raid_curse(world, npc_oid);
+        let auto_loot = if is_raid {
+            world.cfg.character.auto_loot_raids
+        } else {
+            world.cfg.character.auto_loot
+        };
+        // Loot protection (`ItemData.createItem("loot")`): a raid drop is
+        // owned by the privileged command channel's *leader* for
+        // `RaidLootRightsInterval`; an ordinary ground drop by the killer for
+        // 15 s. A raid without an active claim is owned by nobody.
+        let (owner_id, protect_ticks) = if is_raid {
+            match super::command_channel::loot_rights_cc(world, npc_oid)
+                .and_then(|cc| world.command_channels.get(&cc))
+            {
+                Some(cc) => (
+                    cc.leader,
+                    world.cfg.character.raid_loot_rights_interval * 10,
+                ),
+                None => (0, 0),
+            }
+        } else {
+            (looter, 150)
+        };
         for (item_id, count) in drops {
             if !auto_loot {
-                // Drop onto the ground for anyone to pick up (Java's owner-based
-                // loot-window protection is simplified away).
-                // TODO(CC-loot-rights): Java `ItemData.createItem("loot")` owns
-                // raid drops to the first ≥45-member command channel's leader
-                // for `LOOT_RAIDS_PRIVILEGE_INTERVAL` (15 min, tracked by
-                // `Attackable._firstCommandChannelAttacked` + a 10 s timer,
-                // announced "You have looting rights!" on PARTYROOM_ALL), and
-                // `Player.isInLooterParty` widens pickup to CC members. Needs
-                // per-ground-item ownership, which no drop path has yet.
-                super::ground_items::spawn_ground_item(
+                let ground_oid = super::ground_items::spawn_ground_item(
                     world,
                     item_id,
                     count,
@@ -573,6 +589,15 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
                     npc_oid,
                     super::ground_items::DropSource::Npc,
                 );
+                if owner_id != 0 {
+                    if let Some(g) = world
+                        .objects
+                        .get_component_mut::<crate::model::components::GroundItem>(&ground_oid)
+                    {
+                        g.owner_id = owner_id;
+                        g.owner_until_tick = world.tick + protect_ticks;
+                    }
+                }
                 continue;
             }
             match party_id {

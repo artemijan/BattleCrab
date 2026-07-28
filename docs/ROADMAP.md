@@ -1179,9 +1179,14 @@ chat 16, the MPCC matching rooms (ex 0x5A–0x61, sharing the party-room registr
 and id counter with a `RoomKind` split, CC-leader-only creation via
 `RequestPartyMatchConfig` with the hardcoded 1..leader-level/50 defaults), and
 the CC gameplay hooks (channel-wide XP/SP share keyed on the channel level,
-raid-point split). The ≥45-member raid loot-rights ownership remains a
-`TODO(CC-loot-rights)` in `death.rs` — no ground-drop ownership exists on any
-path yet.
+raid-point split), and **raid loot rights** — the first ownership infra on the
+ground-drop path: `GroundItem.owner_id/owner_until_tick` (lazy expiry),
+`RaidLootRights` on the boss (first ≥`RaidLootRightsCCSize` channel to strike
+claims it, refreshed per hit, "You have looting rights!" on channel 16), raid
+drops fall to the ground per `AutoLootRaids=False` (previously auto-looted —
+a parity bug) owned by the CC leader for `RaidLootRightsInterval`, ordinary
+`AutoLoot=False` drops killer-owned 15 s, and the pickup gate refuses
+non-owners outside the owner's party/channel with SM 55/56/57.
 
 **Audit additions (2026-07):** the contact list
 (`RequestExAddContactToContactList` family) and party adena distribution

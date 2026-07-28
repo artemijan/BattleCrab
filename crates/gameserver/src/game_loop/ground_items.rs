@@ -111,6 +111,8 @@ pub(crate) fn spawn_ground_item(
                 item_id,
                 count,
                 enchant,
+                owner_id: 0,
+                owner_until_tick: 0,
             },
             Position {
                 x,
@@ -201,6 +203,36 @@ pub(crate) fn pickup_ground_item(
         super::cursed_weapon::try_pickup(
             world, client_id, player_oid, item_oid, region, g.item_id, pos,
         );
+        return;
+    }
+    // Loot protection (`Player.doPickupItem`): while owned, only the owner,
+    // their party, or their command channel (raid drops) may take it.
+    if g.owner_id != 0
+        && world.tick < g.owner_until_tick
+        && g.owner_id != player_oid
+        && !super::command_channel::is_in_looter_party(world, player_oid, g.owner_id)
+    {
+        use crate::network::server_packets::{sm_ids, SmParam};
+        let sm = if g.item_id == crate::data::item_data::ADENA_ID {
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1_ADENA,
+                &[SmParam::Long(g.count)],
+            )
+        } else if g.count > 1 {
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S2_S1_S,
+                &[SmParam::ItemName(g.item_id), SmParam::Long(g.count)],
+            )
+        } else {
+            server_packets::system_message_with(
+                sm_ids::YOU_HAVE_FAILED_TO_PICK_UP_S1,
+                &[SmParam::ItemName(g.item_id)],
+            )
+        };
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+            cs.send(sm);
+        }
         return;
     }
     super::helpers::broadcast_near_region(

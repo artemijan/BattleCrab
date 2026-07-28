@@ -463,6 +463,10 @@ pub mod sm_ids {
 
     // Command channels / MPCC
     pub const YOUR_TARGET_CANNOT_BE_FOUND: i16 = 50;
+    // Loot protection (pickup refusals)
+    pub const YOU_HAVE_FAILED_TO_PICK_UP_S1_ADENA: i16 = 55;
+    pub const YOU_HAVE_FAILED_TO_PICK_UP_S1: i16 = 56;
+    pub const YOU_HAVE_FAILED_TO_PICK_UP_S2_S1_S: i16 = 57;
     pub const C1_IS_INVITING_YOU_TO_A_COMMAND_CHANNEL_DO_YOU_ACCEPT: i16 = 1529;
     pub const COMMAND_CHANNELS_CAN_ONLY_BE_FORMED_BY_A_PARTY_LEADER_WHO_IS_ALSO_THE_LEADER_OF_A_LEVEL_5_CLAN: i16 = 1574;
     pub const THE_COMMAND_CHANNEL_HAS_BEEN_FORMED: i16 = 1580;
