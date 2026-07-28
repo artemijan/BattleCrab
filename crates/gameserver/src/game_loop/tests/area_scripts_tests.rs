@@ -212,3 +212,257 @@ fn tunatun_hands_out_one_whip_at_level_82() {
     );
     assert_eq!(item_count(&world, 5001, WHIP), 1, "never a second whip");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 2 — the small combat scripts
+// ---------------------------------------------------------------------------
+
+fn count_npcs(world: &mut World, npc_id: i32) -> usize {
+    let mut n = 0;
+    world.objects.for_each_mut::<&crate::model::npc::Npc>(|x| {
+        if x.npc_id == npc_id {
+            n += 1;
+        }
+    });
+    n
+}
+
+/// Cave Maiden: a 20% kill proc swaps the corpse for a Banshee set on the
+/// killer (Pytan/Knoriks is the same script shape at 5%).
+#[test]
+fn cave_maiden_kill_can_spring_a_banshee() {
+    let (mut world, _db, _l) = combat_test_world();
+    const CAVE_MAIDEN: i32 = 20134;
+    const BANSHEE: i32 = 20412;
+    for id in [CAVE_MAIDEN, BANSHEE] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    add_test_npc(&mut world, NPC_OID, CAVE_MAIDEN, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // Roll under 20 → the proc fires.
+    world.forced_rolls.push_back(10);
+    quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN);
+    assert_eq!(count_npcs(&mut world, BANSHEE), 1, "banshee sprang");
+    assert_eq!(count_npcs(&mut world, CAVE_MAIDEN), 0, "corpse consumed");
+}
+
+/// Frozen Labyrinth: a physical *skill* blow shatters a Pronghorn into six
+/// spirits; a magic one does not.
+#[test]
+fn frozen_labyrinth_shatters_on_physical_skill_only() {
+    let (mut world, _db, _l) = combat_test_world();
+    const PRONGHORN: i32 = 22088;
+    const SPIRIT: i32 = 22087;
+    for id in [PRONGHORN, SPIRIT] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    let mut physical = passive_clan_test_skill(9001);
+    physical.magic_type = 0;
+    world.data.skill_data.insert_for_test(physical);
+    let mut magic = passive_clan_test_skill(9002);
+    magic.magic_type = 1;
+    world.data.skill_data.insert_for_test(magic);
+
+    add_test_npc(&mut world, NPC_OID, PRONGHORN, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // Magic skill: nothing happens.
+    quests::notify_attack(&mut world, 5001, NPC_OID, PRONGHORN, Some(9002), false);
+    assert_eq!(count_npcs(&mut world, SPIRIT), 0, "magic does not shatter");
+
+    // Physical skill: six spirits, original gone.
+    quests::notify_attack(&mut world, 5001, NPC_OID, PRONGHORN, Some(9001), false);
+    assert_eq!(count_npcs(&mut world, SPIRIT), 6, "six spirits");
+    assert_eq!(count_npcs(&mut world, PRONGHORN), 0, "pronghorn gone");
+}
+
+/// Pagan keys: 10% kill proc — ground drop owned by the killer with
+/// auto-loot off, straight to the bag with it on.
+#[test]
+fn pagan_keys_honor_auto_loot() {
+    let (mut world, _db, _l) = combat_test_world();
+    const ZOMBIE_WORKER: i32 = 22140;
+    const ANTEROOM_KEY: i32 = 8273;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(ZOMBIE_WORKER));
+    add_test_npc(&mut world, NPC_OID, ZOMBIE_WORKER, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // Auto-loot off: the key lands on the ground, killer-owned.
+    world.cfg.character.auto_loot = false;
+    world.forced_rolls.push_back(5);
+    quests::notify_kill(&mut world, 5001, NPC_OID, ZOMBIE_WORKER);
+    let mut ground = None;
+    world
+        .objects
+        .for_each_mut::<&crate::model::components::GroundItem>(|g| {
+            if g.item_id == ANTEROOM_KEY {
+                ground = Some((g.owner_id, g.count));
+            }
+        });
+    assert_eq!(ground, Some((5001, 1)), "killer-protected ground key");
+    assert_eq!(item_count(&world, 5001, ANTEROOM_KEY), 0);
+
+    // Auto-loot on: straight to the inventory.
+    world.cfg.character.auto_loot = true;
+    add_test_npc(
+        &mut world,
+        NPC_OID + 1,
+        ZOMBIE_WORKER,
+        "Monster",
+        40,
+        100,
+        0,
+        0,
+    );
+    world.forced_rolls.push_back(5);
+    quests::notify_kill(&mut world, 5001, NPC_OID + 1, ZOMBIE_WORKER);
+    assert_eq!(item_count(&world, 5001, ANTEROOM_KEY), 1, "auto-looted");
+}
+
+/// Plains of Dion: interrupting a duelist calls every idle clansman in help
+/// range onto the attacker — and only once per lizardman.
+#[test]
+fn plains_of_dion_calls_the_clan() {
+    let (mut world, _db, _l) = combat_test_world();
+    const SUPPLIER: i32 = 21104;
+    let mut t = crate::data::npc_data::default_template(SUPPLIER);
+    t.clan_help_range = 1000;
+    world.data.npc_data.insert_for_test(t);
+
+    add_test_npc(&mut world, NPC_OID, SUPPLIER, "Monster", 40, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, SUPPLIER, "Monster", 40, 300, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    quests::notify_attack(&mut world, 5001, NPC_OID, SUPPLIER, None, false);
+    let helper_hates = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 1))
+        .is_some_and(|a| a.0.contains_key(&5001));
+    assert!(helper_hates, "the idle clansman joins in");
+}
+
+/// Eilhalder von Hellmann: night spawns him, daybreak despawns him — unless
+/// he is mid-fight, in which case the 30 s retry keeps checking.
+#[test]
+fn eilhalder_walks_at_night_and_vanishes_by_day() {
+    let (mut world, _db, _l) = combat_test_world();
+    use crate::game_loop::area_npcs::{self, EILHALDER};
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(EILHALDER));
+
+    area_npcs::eilhalder_on_day_night_change(&mut world, true);
+    assert_eq!(count_npcs(&mut world, EILHALDER), 1, "night: he walks");
+
+    area_npcs::eilhalder_on_day_night_change(&mut world, false);
+    assert_eq!(count_npcs(&mut world, EILHALDER), 0, "day: gone");
+
+    // Night again, but this time he is fighting at daybreak.
+    area_npcs::eilhalder_on_day_night_change(&mut world, true);
+    let oid = {
+        let mut found = None;
+        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+            if n.npc_id == EILHALDER {
+                found = Some(n.object_id);
+            }
+        });
+        found.unwrap()
+    };
+    let mut aggro = crate::model::npc::AggroList::default();
+    aggro.0.insert(
+        5001,
+        crate::model::npc::AggroInfo {
+            hate: 100.0,
+            damage: 0.0,
+        },
+    );
+    world.objects.add_components(&oid, aggro);
+    area_npcs::eilhalder_on_day_night_change(&mut world, false);
+    assert_eq!(count_npcs(&mut world, EILHALDER), 1, "fighting: he stays");
+
+    // Fight over → the retry removes him.
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&oid)
+        .unwrap()
+        .0
+        .clear();
+    area_npcs::handle_eilhalder_despawn_retry(&mut world);
+    assert_eq!(
+        count_npcs(&mut world, EILHALDER),
+        0,
+        "retry finishes the job"
+    );
+}
+
+/// Hot Springs: each proc casts the disease one level above what the victim
+/// already carries.
+#[test]
+fn hot_springs_disease_escalates_with_the_victims_level() {
+    let (mut world, _db, _l) = combat_test_world();
+    const ATROX: i32 = 21321;
+    const MALARIA: i32 = 4554;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(ATROX));
+    for level in [1, 4] {
+        let mut s = passive_clan_test_skill(MALARIA);
+        s.level = level;
+        s.magic_type = 1;
+        s.operate_type = OperateType::Active;
+        world.data.skill_data.insert_for_test(s);
+    }
+    add_test_npc(&mut world, NPC_OID, ATROX, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // First proc (malaria roll hits, type roll misses): level 1.
+    world.forced_rolls.push_back(5);
+    world.forced_rolls.push_back(50);
+    quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
+    let cast = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .map(|c| (c.0.skill_id, c.0.skill_level));
+    assert_eq!(cast, Some((MALARIA, 1)), "fresh victim gets level 1");
+
+    // Victim already carries level 3 → the next proc casts level 4.
+    world
+        .objects
+        .remove_component::<crate::model::components::Casting>(&NPC_OID);
+    let mut buffs = crate::model::components::Buffs::default();
+    buffs.0.push(crate::model::skill::ActiveBuff {
+        skill_id: MALARIA,
+        skill_level: 3,
+        abnormal_type_client_id: 0,
+        abnormal_type: "NONE".to_string(),
+        abnormal_level: 0,
+        slot: crate::model::skill::BuffSlot::Uncapped,
+        expires_at_tick: u64::MAX,
+        passive: false,
+        effect_flags: 0,
+        blocked_abnormals: Vec::new(),
+        abnormal_visuals: Vec::new(),
+        effects: Vec::new(),
+    });
+    world.objects.add_components(&5001, buffs);
+    world.forced_rolls.push_back(5);
+    world.forced_rolls.push_back(50);
+    quests::notify_attack(&mut world, 5001, NPC_OID, ATROX, None, false);
+    let cast = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .map(|c| (c.0.skill_id, c.0.skill_level));
+    assert_eq!(cast, Some((MALARIA, 4)), "level 3 victim gets level 4");
+}

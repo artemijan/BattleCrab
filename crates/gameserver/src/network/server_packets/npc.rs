@@ -20,6 +20,20 @@ pub fn npc_say(npc_object_id: i32, npc_id: i32, npc_string_id: i32) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// The npc-string shape **with one `$s1` parameter** (Java `NpcSay` +
+/// `addStringParameter`) — "$s1! How dare you interrupt our fight!" with the
+/// attacker's name filled in client-side.
+pub fn npc_say_param(npc_object_id: i32, npc_id: i32, npc_string_id: i32, param: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::NPC_SAY);
+    w.write_i32(npc_object_id);
+    w.write_i32(22); // ChatType.NPC_GENERAL
+    w.write_i32(1_000_000 + npc_id);
+    w.write_i32(npc_string_id);
+    w.write_string(param);
+    w.into_bytes()
+}
+
 /// `NpcSay(npc, NPC_GENERAL, String)` — the **literal-text** variant: Java
 /// writes `_npcString = -1` then the string, which is what
 /// `broadcastSay(type, "some English line")` sends (Dr. Chaos's paranoid

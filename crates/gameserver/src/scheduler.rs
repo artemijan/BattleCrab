@@ -459,6 +459,15 @@ pub enum ScheduledTask {
     /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
     /// itself.
     TomaRelocate,
+    /// The in-game day/night watch (Java `OnDayNightChange` listeners):
+    /// fires the transition scripts when the flag flips. Reschedules itself,
+    /// carrying the last-seen state.
+    DayNightCheck {
+        was_night: bool,
+    },
+    /// Eilhalder von Hellmann's daybreak despawn retry — he only vanishes
+    /// once out of combat (Java's 30 s `"despawn"` timer).
+    EilhalderDespawnRetry,
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

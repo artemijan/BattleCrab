@@ -9,6 +9,7 @@ pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;
 pub mod castle_chamberlain;
+mod cave_maiden;
 pub mod clan_hall_auctioneer;
 pub mod clan_hall_door_manager;
 pub mod clan_hall_manager;
@@ -21,6 +22,8 @@ pub mod elf_human_change1;
 pub mod elf_human_change2;
 mod elroki_teleporters;
 pub mod first_class_transfer_talk;
+mod frozen_labyrinth;
+mod hot_springs;
 pub mod last_imperial_tomb;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
@@ -28,7 +31,10 @@ pub mod npc_location_info;
 pub mod oly_manager;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
+mod pagan_keys;
 mod pagan_teleporters;
+mod plains_of_dion;
+mod pytan;
 pub mod q00032_an_obvious_lie;
 pub mod q00033_make_a_pair_of_dress_shoes;
 pub mod q00034_in_search_of_cloth;
@@ -443,6 +449,13 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(elroki_teleporters::ElrokiTeleporters),
         Arc::new(pagan_teleporters::PaganTeleporters),
         Arc::new(tunatun::Tunatun),
+        // ai/areas — slice 2: the small combat scripts.
+        Arc::new(cave_maiden::CaveMaiden),
+        Arc::new(pytan::Pytan),
+        Arc::new(frozen_labyrinth::FrozenLabyrinth),
+        Arc::new(pagan_keys::PaganKeys),
+        Arc::new(hot_springs::HotSprings),
+        Arc::new(plains_of_dion::PlainsOfDion),
     ];
     QuestRegistry::new(scripts)
 }

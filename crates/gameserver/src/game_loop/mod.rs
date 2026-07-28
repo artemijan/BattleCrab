@@ -44,8 +44,8 @@ mod friends;
 pub(crate) mod frintezza;
 pub(crate) mod game_time;
 mod grand_boss;
-mod ground_items;
-mod helpers;
+pub(crate) mod ground_items;
+pub(crate) mod helpers;
 mod henna;
 pub(crate) mod instances;
 pub(crate) mod item_auction;
@@ -59,7 +59,7 @@ pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
 pub(crate) mod npc_ai;
-mod npc_cast;
+pub(crate) mod npc_cast;
 mod npc_view;
 pub(crate) mod olympiad;
 mod orfen;
@@ -410,6 +410,12 @@ fn apply_due_tasks(world: &mut World) {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
             ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
+            ScheduledTask::DayNightCheck { was_night } => {
+                area_npcs::handle_day_night_check(world, was_night);
+            }
+            ScheduledTask::EilhalderDespawnRetry => {
+                area_npcs::handle_eilhalder_despawn_retry(world);
+            }
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }
