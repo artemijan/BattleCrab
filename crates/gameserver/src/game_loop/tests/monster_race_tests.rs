@@ -6,9 +6,6 @@ use super::*;
 
 use std::collections::HashMap;
 
-use rand::SeedableRng;
-use rand::rngs::StdRng;
-
 use crate::game_loop::monster_race::{self, add_bet, calculate_odds, roll_speeds};
 use crate::model::monster_race::RaceState;
 use crate::network::server_packets;
@@ -16,8 +13,7 @@ use crate::scheduler::ScheduledTask;
 
 #[test]
 fn roll_speeds_picks_the_fastest_lane_as_the_winner() {
-    let mut rng = StdRng::seed_from_u64(42);
-    let (speeds, first, second) = roll_speeds(&mut rng);
+    let (speeds, first, second) = roll_speeds();
 
     // Totals per lane (monster index i → lane 8 - i).
     let totals: Vec<(i32, i32)> = (0..8)

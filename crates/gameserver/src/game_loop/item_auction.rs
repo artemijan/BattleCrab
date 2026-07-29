@@ -4,7 +4,7 @@
 //! ending-extend state machine, and cancel/refund — plus the auctioneer NPC
 //! dialog + the client packets (slice 3). Winner→warehouse delivery is slice 4.
 
-use rand::Rng;
+use commons::util::rnd;
 use tracing::info;
 
 use crate::db::DbCommand;
@@ -310,7 +310,7 @@ fn create_auction(world: &mut World, instance_id: i32, after: i64) -> i32 {
         return world.item_auctions.alloc_auction_id();
     };
     let sched = cfg.schedule;
-    let item = &cfg.items[world.rng.gen_range(0..cfg.items.len())];
+    let item = &cfg.items[rnd::get(cfg.items.len() as i32) as usize];
     let (auction_item_id, length_min) = (item.auction_item_id, item.auction_length_min);
 
     let starting_time = crate::model::item_auction::next_date(

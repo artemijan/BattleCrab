@@ -11,10 +11,12 @@ pub struct ScrambledKeyPair {
     scrambled_modulus: [u8; 0x80],
 }
 
+use crate::util::rnd;
+
 impl ScrambledKeyPair {
     /// Generates a fresh RSA-1024 pair (Java: `KeyPairGenerator` with F4).
     pub fn generate() -> Self {
-        let key = RsaPrivateKey::new(&mut rand::thread_rng(), 1024).expect("RSA keygen failed");
+        let key = RsaPrivateKey::new(&mut rnd::InternalRng, 1024).expect("RSA keygen failed");
         Self::from_parts(key.n().clone(), key.d().clone())
     }
 

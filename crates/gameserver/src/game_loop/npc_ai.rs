@@ -12,7 +12,7 @@
 
 use std::collections::HashSet;
 
-use rand::Rng;
+use commons::util::rnd;
 
 use crate::model::components::{AttackState, Movement, Position, RegionCell, Speeds, Vitals};
 use crate::model::movement::{self, MoveData};
@@ -145,7 +145,7 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
             .get_component::<NpcAi>(&npc_oid)
             .is_some_and(|ai| now.saturating_sub(ai.last_social_tick) <= SOCIAL_THROTTLE_TICKS);
         if !throttled {
-            let action_id = world.rng.gen_range(2..=3); // Rnd.get(2, 3)
+            let action_id = rnd::get_range(2, 3); // Rnd.get(2, 3)
             if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
                 ai.last_social_tick = now;
             }
@@ -170,8 +170,8 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
 }
 
 /// `Rnd.get(min, max) * 1000` ms as ticks (inclusive of `max`).
-fn animation_delay_ticks(world: &mut World, min_s: i32, max_s: i32) -> u64 {
-    let secs = world.rng.gen_range(min_s.max(0)..=max_s.max(min_s).max(0));
+fn animation_delay_ticks(_world: &mut World, min_s: i32, max_s: i32) -> u64 {
+    let secs = rnd::get_range(min_s.max(0), max_s.max(min_s).max(0));
     secs as u64 * TICKS_PER_SECOND
 }
 

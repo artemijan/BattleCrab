@@ -6,8 +6,7 @@
 
 use std::collections::HashMap;
 
-use rand::Rng;
-use rand::seq::SliceRandom;
+use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
 use crate::db::DbCommand;
@@ -39,7 +38,7 @@ const CODE_MID: (i32, i32) = (13765, -1);
 /// `second` are `(lane, total_speed)` — lane `8 - i` for monster index `i`, so
 /// index 0 is lane 8 and index 7 is lane 1. Each step is `Rnd.get(60) + 65`
 /// (65..=124), except the final step which is a flat 100.
-pub(crate) fn roll_speeds(rng: &mut impl Rng) -> ([[i32; 20]; LANES], (i32, i32), (i32, i32)) {
+pub(crate) fn roll_speeds() -> ([[i32; 20]; LANES], (i32, i32), (i32, i32)) {
     let mut speeds = [[0i32; 20]; LANES];
     let mut first = (0i32, 0i32);
     let mut second = (0i32, 0i32);
@@ -49,7 +48,7 @@ pub(crate) fn roll_speeds(rng: &mut impl Rng) -> ([[i32; 20]; LANES], (i32, i32)
             *step = if j == 19 {
                 100
             } else {
-                rng.gen_range(65..=124)
+                rnd::get_range(65, 124)
             };
             total += *step;
         }
@@ -191,7 +190,7 @@ fn new_race(world: &mut World) {
     });
 
     let mut templates: Vec<i32> = (FIRST_RACER_TEMPLATE..=LAST_RACER_TEMPLATE).collect();
-    templates.shuffle(&mut world.rng);
+    rnd::shuffle(&mut templates);
     for (lane, &template) in templates.iter().take(LANES).enumerate() {
         let oid = world.next_npc_object_id;
         world.next_npc_object_id += 1;
@@ -199,7 +198,7 @@ fn new_race(world: &mut World) {
         world.monster_race.monster_templates[lane] = template;
     }
 
-    let (speeds, first, second) = roll_speeds(&mut world.rng);
+    let (speeds, first, second) = roll_speeds();
     world.monster_race.speeds = speeds;
     world.monster_race.first = first;
     world.monster_race.second = second;

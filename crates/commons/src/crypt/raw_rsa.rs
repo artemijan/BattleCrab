@@ -13,9 +13,11 @@ pub struct RawRsaKeyPair {
     block_size: usize,
 }
 
+use crate::util::rnd;
+
 impl RawRsaKeyPair {
     pub fn generate(bits: usize) -> Self {
-        let key = RsaPrivateKey::new(&mut rand::thread_rng(), bits).expect("RSA keygen failed");
+        let key = RsaPrivateKey::new(&mut rnd::InternalRng, bits).expect("RSA keygen failed");
         Self {
             n: key.n().clone(),
             d: key.d().clone(),

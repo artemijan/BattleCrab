@@ -15,7 +15,7 @@
 //!   deliberately not "tidied".
 //! - **Either is attacked** → [`on_assist`] spreads aggro across the pack.
 
-use rand::Rng;
+use commons::util::rnd;
 
 use crate::model::components::{Position, Vitals};
 use crate::model::npc::{AggroInfo, AggroList, Npc, NpcAi, NpcIntention};
@@ -132,12 +132,8 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
         .map(|t| t.collision_radius as i32 + 30)
         .unwrap_or(30);
 
-    let mut new_x = world
-        .rng
-        .gen_range((min_radius * 2)..(SPAWN_OFFSET * 2).max(min_radius * 2 + 1));
-    let mut new_y = world
-        .rng
-        .gen_range(new_x..(SPAWN_OFFSET * 2).max(new_x + 1));
+    let mut new_x = rnd::get_range(min_radius * 2, (SPAWN_OFFSET * 2).max(min_radius * 2 + 1));
+    let mut new_y = rnd::get_range(new_x, (SPAWN_OFFSET * 2).max(new_x + 1));
     new_y = (((new_y * new_y) - (new_x * new_x)) as f64).sqrt() as i32;
 
     new_x = if new_x > (SPAWN_OFFSET + min_radius) {

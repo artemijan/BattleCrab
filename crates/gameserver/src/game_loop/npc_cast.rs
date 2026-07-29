@@ -17,7 +17,7 @@
 //! - `SUICIDE`/`RES`/`NEGATIVE` buckets are filled but unused (no skill in this
 //!   dist declares `isSuicideAttack`, and no resurrect effect is ported).
 
-use rand::Rng;
+use commons::util::rnd;
 
 use crate::data::npc_ai_skills::AiSkillScope;
 use crate::data::npc_data::AiType;
@@ -85,9 +85,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     {
         let hp_pct = hp_percent(world, heal_target);
         let heal_chance = (100.0 - hp_pct) * 1.5;
-        if (rand::thread_rng().gen_range(0..100) as f64) < heal_chance
-            && check_skill_target(world, npc_oid, heal_target, &skill)
-        {
+        if rnd::chance(heal_chance) && check_skill_target(world, npc_oid, heal_target, &skill) {
             start_cast(world, npc_oid, heal_target, &skill);
             return true;
         }
@@ -153,13 +151,8 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
 
 /// `Npc.hasSkillChance()` — `Rnd.get(100) < Rnd.get(min, max)`.
 fn has_skill_chance(min: i32, max: i32) -> bool {
-    let mut rng = rand::thread_rng();
-    let ceiling = if max > min {
-        rng.gen_range(min..=max)
-    } else {
-        min
-    };
-    rng.gen_range(0..100) < ceiling
+    let ceiling = rnd::get_range(min, max);
+    rnd::chance(ceiling as f64)
 }
 
 /// Pick a random skill from a bucket (Java `Rnd.get(list.size())`) and resolve
@@ -175,7 +168,7 @@ fn pick(
     if bucket.is_empty() {
         return None;
     }
-    let (id, level) = bucket[rand::thread_rng().gen_range(0..bucket.len())];
+    let (id, level) = bucket[rnd::get(bucket.len() as i32) as usize];
     let skill = world.data.skill_data.get(id, level)?;
     check_use_conditions(world, npc_oid, skill).then(|| skill.clone())
 }
@@ -528,7 +521,7 @@ fn skill_target_reconsider(
 fn pick_random(_world: &World, candidates: &[i32]) -> Option<i32> {
     match candidates.len() {
         0 => None,
-        n => Some(candidates[rand::thread_rng().gen_range(0..n)]),
+        n => Some(candidates[rnd::get(n as i32) as usize]),
     }
 }
 

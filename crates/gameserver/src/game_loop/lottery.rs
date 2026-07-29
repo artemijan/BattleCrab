@@ -3,7 +3,7 @@
 //! dialog. The round lifecycle + `lottery`-table persistence, ticket purchase,
 //! the two-phase draw, and prize claim.
 
-use rand::Rng;
+use commons::util::rnd;
 use tracing::info;
 
 use crate::db::DbCommand;
@@ -139,7 +139,7 @@ pub(crate) fn finish_begin(world: &mut World) {
     let mut nums = [0i32; 5];
     for i in 0..5 {
         loop {
-            let n = world.rng.gen_range(1..=20);
+            let n = rnd::get_range(1, 20);
             if !nums[..i].contains(&n) {
                 nums[i] = n;
                 break;

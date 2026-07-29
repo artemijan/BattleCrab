@@ -15,7 +15,7 @@
 //! per-creature chance roll — without the enter/exit bookkeeping. A zone with
 //! nobody in it costs one hash lookup and never advances its timer.
 
-use rand::Rng;
+use commons::util::rnd;
 
 use crate::data::zone_data::ZoneKind;
 use crate::model::components::{Position, Vitals};
@@ -87,7 +87,7 @@ pub(crate) fn effect_zone_tick(world: &mut World) {
         for oid in players {
             // Java rolls the chance once per creature, then applies every
             // skill — not once per skill.
-            if world.rng.gen_range(0..100) >= params.chance {
+            if rnd::get(100) >= params.chance {
                 continue;
             }
             for &(skill_id, skill_level) in &params.skills {

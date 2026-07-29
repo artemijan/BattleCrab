@@ -8,9 +8,6 @@
 
 use std::collections::HashMap;
 
-use rand::rngs::StdRng;
-use rand::{Rng, SeedableRng};
-
 use crate::data::GameData;
 use crate::db;
 use crate::geo::GeoEngine;
@@ -18,6 +15,7 @@ use crate::loginlink::CommandTx;
 use crate::scheduler::{ScheduledTask, Scheduler};
 use crate::session::{ClientSession, SessionKey};
 use crate::store::EntityStore;
+use rand::{Rng, SeedableRng};
 
 /// One community-board favorite row (Java `bbs_favorites`). `add_date` is the
 /// display string (`yyyy-MM-dd HH:mm:ss`, matching SQL `CURRENT_TIMESTAMP` and
@@ -375,7 +373,7 @@ pub struct World {
     pub player_autosave_due: HashMap<i32, u64>,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
     /// which tests can force (`forced_rolls`) for deterministic combat.
-    pub rng: StdRng,
+    pub rng: rand::rngs::StdRng,
     /// The skill id driving the damage currently being applied, so quest
     /// `onAttack` handlers can tell a skill hit from a melee swing (Java passes
     /// `Skill skill` to `onAttack`). Set by the skill-damage path around
@@ -477,7 +475,7 @@ impl World {
             reco_give_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
-            rng: StdRng::from_entropy(),
+            rng: rand::rngs::StdRng::from_entropy(),
             quest_attack_skill: None,
             #[cfg(test)]
             forced_rolls: std::collections::VecDeque::new(),
@@ -614,7 +612,6 @@ impl World {
     /// draw — stays disjoint; the closure mirrors [`roll_f64`] so tests can
     /// force it via `forced_rolls`.
     pub fn roll_augment(&mut self, mineral_id: i32, is_magic_weapon: bool) -> Option<(i32, i32)> {
-        use rand::Rng;
         #[cfg(test)]
         {
             let World {
@@ -627,6 +624,7 @@ impl World {
                 if let Some(v) = forced_rolls.pop_front() {
                     return v as f64 / 1_000_000.0;
                 }
+                use rand::Rng;
                 rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
             };
             data.variations
@@ -635,7 +633,10 @@ impl World {
         #[cfg(not(test))]
         {
             let World { data, rng, .. } = self;
-            let mut roll = || rng.gen_range(0..1_000_000) as f64 / 1_000_000.0;
+            let mut roll = || {
+                use rand::Rng;
+                rng.gen_range(0..1_000_000) as f64 / 1_000_000.0
+            };
             data.variations
                 .generate(mineral_id, is_magic_weapon, &mut roll)
         }

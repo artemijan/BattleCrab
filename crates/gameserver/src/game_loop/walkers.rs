@@ -17,6 +17,7 @@
 use crate::data::route_data::RepeatStyle;
 use crate::model::components::{Movement, Vitals};
 use crate::world::World;
+use commons::util::rnd;
 
 /// The sweep runs once a second, like the AI think.
 pub(crate) const WALKER_PERIOD: u64 = 10;
@@ -142,7 +143,7 @@ fn advance(
         }
         let mut next = current;
         while next == current {
-            next = rand::Rng::gen_range(&mut rand::thread_rng(), 0..count);
+            next = rnd::get(count as i32) as usize;
         }
         return Some(next);
     }

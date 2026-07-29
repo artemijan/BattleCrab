@@ -26,6 +26,7 @@ num-bigint-dig = { version = "0.8", features = ["rand"] }
 rsa = "0.9"
 num-traits = "0.2"
 rand = "0.8"
+rand_distr = "0.4"
 bevy_ecs = "0.19"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

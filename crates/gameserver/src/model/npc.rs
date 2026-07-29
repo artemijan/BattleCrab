@@ -4,7 +4,7 @@
 //! nothing can kill them until G9 brings `doDie` (the respawn delays are
 //! carried so G9's respawn scheduler has them).
 
-use rand::Rng;
+use commons::util::rnd;
 
 use crate::data::npc_data::NpcTemplate;
 use crate::data::spawn_data::{NpcSpawnDef, SpawnGroup, SpawnTemplate, Territory};
@@ -559,7 +559,7 @@ fn spawn_npc_entity(
         }
     }
     let heading = if heading < 0 {
-        world.rng.gen_range(0..RANDOM_HEADING_BOUND)
+        rnd::get(RANDOM_HEADING_BOUND)
     } else {
         heading
     };
@@ -650,7 +650,7 @@ fn resolve_location(
     } else {
         return None;
     };
-    let territory = &territories[rng.gen_range(0..territories.len())];
+    let territory = &territories[rnd::get(territories.len() as i32) as usize];
     let (x, y) = random_point_2d(rng, territory)?;
     let z = geo.get_height(x, y, territory.mid_z());
     Some((x, y, z, -1))
@@ -660,6 +660,7 @@ fn resolve_location(
 /// into the shape (Java caps the NPoly retry at 1000 and returns the last
 /// candidate regardless; same here).
 fn random_point_2d(rng: &mut rand::rngs::StdRng, territory: &Territory) -> Option<(i32, i32)> {
+    use rand::Rng;
     let (min_x, max_x, min_y, max_y) = territory.bounds();
     if min_x > max_x || min_y > max_y {
         return None;

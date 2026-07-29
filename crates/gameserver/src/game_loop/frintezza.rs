@@ -13,8 +13,6 @@
 //! exhaustive dummy-anchored `SpecialCamera` choreography is abbreviated
 //! throughout (`docs/PLAN_FRINTEZZA.md`).
 
-use rand::Rng;
-
 use crate::game_loop::helpers::{instance_of, ms_to_ticks};
 use crate::game_loop::instances;
 use crate::model::components::{AdminFlags, Movement, Position};
@@ -772,7 +770,7 @@ pub(crate) fn handle_song(world: &mut World, instance_id: i32) {
         return;
     }
     let frintezza = var_oid(world, instance_id, "frintezza");
-    let n = world.rng.gen_range(0..SONG_NAMES.len());
+    let n = world.roll(SONG_NAMES.len() as i32) as usize;
     instances::broadcast_to_instance(
         world,
         instance_id,
@@ -951,13 +949,12 @@ pub(crate) fn handle_scarlet_skill(world: &mut World, instance_id: i32) {
 
 /// Java `getRndSkills` — the per-form probability table.
 pub(crate) fn pick_daemon_skill(world: &mut World, instance_id: i32, npc_id: i32) -> (i32, i32) {
-    let mut roll = || world.rng.gen_range(0..100);
     if npc_id == SCARLET1 {
-        if roll() < 10 {
+        if world.roll(100) < 10 {
             (DAEMON_CHARGE, 2)
-        } else if roll() < 10 {
+        } else if world.roll(100) < 10 {
             (DAEMON_CHARGE, 5)
-        } else if roll() < 2 {
+        } else if world.roll(100) < 2 {
             (YOKE_OF_SCARLET, 1)
         } else {
             (DAEMON_ATTACK, 2)
@@ -968,23 +965,23 @@ pub(crate) fn pick_daemon_skill(world: &mut World, instance_id: i32, npc_id: i32
             let last = world.instances.get_var(instance_id, "scarletRanged") as u64;
             world.tick.saturating_sub(last) >= RANGED_COOLDOWN_TICKS
         };
-        if roll() < 10 {
+        if world.roll(100) < 10 {
             (DAEMON_CHARGE, 3)
-        } else if roll() < 10 {
+        } else if world.roll(100) < 10 {
             (DAEMON_CHARGE, 6)
-        } else if roll() < 10 {
+        } else if world.roll(100) < 10 {
             (DAEMON_CHARGE, 2)
-        } else if ranged_ready && roll() < 10 {
+        } else if ranged_ready && world.roll(100) < 10 {
             world
                 .instances
                 .set_var(instance_id, "scarletRanged", world.tick as i64);
             (DAEMON_FIELD, 1)
-        } else if ranged_ready && roll() < 10 {
+        } else if ranged_ready && world.roll(100) < 10 {
             world
                 .instances
                 .set_var(instance_id, "scarletRanged", world.tick as i64);
             (DAEMON_MORPH, 1)
-        } else if roll() < 2 {
+        } else if world.roll(100) < 2 {
             (YOKE_OF_SCARLET, 1)
         } else {
             (DAEMON_ATTACK, 3)
@@ -1027,5 +1024,5 @@ fn pick_target_in_range(
     if candidates.is_empty() {
         return None;
     }
-    Some(candidates[world.rng.gen_range(0..candidates.len())])
+    Some(candidates[world.roll(candidates.len() as i32) as usize])
 }

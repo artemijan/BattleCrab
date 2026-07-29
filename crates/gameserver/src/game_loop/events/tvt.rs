@@ -6,8 +6,7 @@
 //! Per-kill **scoring**, respawn, zone kicks, and winner **rewards** are slices
 //! 3–4 (see `docs/PLAN_G28_EVENTS_ENGINE.md`), flagged `TODO(G28)` at the seams.
 
-use rand::Rng;
-use rand::seq::SliceRandom;
+use commons::util::rnd;
 use tracing::warn;
 
 use crate::enums::ChatType;
@@ -198,9 +197,9 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
     // Shuffle, then split into teams. Java alternates from a random starting
     // side (`getRandomBoolean`), so the odd player lands on that random side.
     let mut roster = world.events.tvt.player_list.clone();
-    roster.shuffle(&mut world.rng);
+    rnd::shuffle(&mut roster);
     world.events.tvt.player_list = roster.clone();
-    let mut to_blue = world.rng.r#gen::<bool>();
+    let mut to_blue = rnd::chance(50.0);
     for player in roster {
         set_registered(world, player, false);
         set_on_event(world, player, true);

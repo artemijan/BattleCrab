@@ -4,7 +4,7 @@
 //! protocol state; the gameplay-facing parts of the Java `GameClient` (the bound
 //! `Player`, account, etc.) live on the game thread and are added from G2 on.
 
-use rand::RngCore;
+use commons::util::rnd;
 
 use super::ConnectionState;
 use super::cipher::Encryption;
@@ -37,7 +37,7 @@ impl GameClient {
     /// key. The caller sends the first 8 bytes in `KeyPacket`.
     pub fn enable_crypt(&mut self) -> [u8; 16] {
         let mut random8 = [0u8; 8];
-        rand::thread_rng().fill_bytes(&mut random8);
+        rnd::fill_bytes(&mut random8);
         let key = Encryption::key_from_random(&random8);
         if self.packet_encryption {
             let mut enc = Encryption::new();
