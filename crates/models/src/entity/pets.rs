@@ -10,9 +10,9 @@ pub struct Model {
     pub name: Option<String>,
     pub level: i32,
     #[sea_orm(column_name = "curHp")]
-    pub cur_hp: Option<f64>,
+    pub cur_hp: Option<crate::value::LooseF64>,
     #[sea_orm(column_name = "curMp")]
-    pub cur_mp: Option<f64>,
+    pub cur_mp: Option<crate::value::LooseF64>,
     pub exp: Option<i64>,
     pub sp: Option<i64>,
     pub fed: Option<i32>,

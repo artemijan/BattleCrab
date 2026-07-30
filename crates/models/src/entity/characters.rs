@@ -13,15 +13,15 @@ pub struct Model {
     #[sea_orm(column_name = "maxHp")]
     pub max_hp: Option<i32>,
     #[sea_orm(column_name = "curHp")]
-    pub cur_hp: Option<f64>,
+    pub cur_hp: Option<crate::value::LooseF64>,
     #[sea_orm(column_name = "maxCp")]
     pub max_cp: Option<i32>,
     #[sea_orm(column_name = "curCp")]
-    pub cur_cp: Option<f64>,
+    pub cur_cp: Option<crate::value::LooseF64>,
     #[sea_orm(column_name = "maxMp")]
     pub max_mp: Option<i32>,
     #[sea_orm(column_name = "curMp")]
-    pub cur_mp: Option<f64>,
+    pub cur_mp: Option<crate::value::LooseF64>,
     pub face: Option<i32>,
     #[sea_orm(column_name = "hairStyle")]
     pub hair_style: Option<i32>,

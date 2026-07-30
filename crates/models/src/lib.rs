@@ -21,6 +21,7 @@
 
 pub mod entity;
 pub mod repo;
+pub mod value;
 
 /// Re-exported so consumers get one SeaORM version without depending on it
 /// directly (`use models::sea_orm::EntityTrait;`).
@@ -29,6 +30,7 @@ pub use sea_orm;
 pub mod prelude {
     //! The imports a typical call site needs.
     pub use crate::entity::prelude::*;
+    pub use crate::value::LooseF64;
     pub use sea_orm::{
         ActiveModelTrait, ActiveValue::Set, ColumnTrait, ConnectionTrait, DbErr, EntityTrait,
         ModelTrait, PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, TransactionTrait,

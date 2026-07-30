@@ -22,9 +22,11 @@ from pathlib import Path
 
 # Columns the DDL declares as integers but that actually hold floating-point
 # values: Java writes doubles into them and SQLite's type affinity keeps the
-# fraction. Typing these `i32` makes the ORM truncate a wounded character's HP
-# on every load. `npc_respawns` and `grandboss_data` are already `double` /
-# `decimal(30,15)` in the DDL and need no override.
+# fraction. They get `LooseF64`, which accepts either storage class — a plain
+# `f64` field fails to decode the rows SQLite filed as INTEGER (most of them),
+# and an `i32` field would truncate a wounded character's HP on every load.
+# `npc_respawns` and `grandboss_data` are declared `double` / `decimal(30,15)`,
+# so SQLite's REAL affinity normalises them and they need no override.
 FLOAT_OVERRIDES = {
     ("characters", "curHp"),
     ("characters", "curCp"),
@@ -175,14 +177,14 @@ def normalize(path: Path, db: sqlite3.Connection) -> str:
             continue
 
         if (table, col) in FLOAT_OVERRIDES:
-            new_ty = "f64"
+            new_ty = "crate::value::LooseF64"
         elif (table, col) in INT64_OVERRIDES:
             new_ty = "i64"
         elif (table, col) in BINARY_OVERRIDES:
             new_ty = "Vec<u8>"
         else:
             new_ty = rust_type(decl)
-        has_float |= new_ty == "f64"
+        has_float |= new_ty in ("f64", "crate::value::LooseF64")
 
         keep: list[str] = []
         is_pk = "primary_key" in attr_text
