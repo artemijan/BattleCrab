@@ -14,7 +14,7 @@ use crate::gs_table::{
 use crate::session::SessionKey;
 use commons::crypt::hash_password;
 use commons::util;
-use sqlx::SqlitePool;
+use models::sea_orm::DatabaseConnection;
 use tokio::sync::{mpsc, oneshot};
 use tracing::{info, warn};
 
@@ -177,7 +177,7 @@ pub struct ControllerSettings {
 
 struct Controller {
     settings: ControllerSettings,
-    pool: SqlitePool,
+    db: DatabaseConnection,
     authed_clients: HashMap<String, AuthedEntry>,
     failed_login_attempts: HashMap<String, i32>,
     banned_ips: HashMap<String, i64>,
@@ -193,13 +193,13 @@ pub struct ControllerHandle {
 
 pub fn spawn(
     settings: ControllerSettings,
-    pool: SqlitePool,
+    db: DatabaseConnection,
     gs: GameServerTable,
 ) -> ControllerHandle {
     let (tx, mut rx) = mpsc::channel(256);
     let mut controller = Controller {
         settings,
-        pool,
+        db,
         authed_clients: HashMap::new(),
         failed_login_attempts: HashMap::new(),
         banned_ips: HashMap::new(),
@@ -607,13 +607,12 @@ impl Controller {
                 ban_time,
             } => {
                 // insert_or_update_account_data (SQLite dialect).
-                let _ = sqlx::query(
-                    "INSERT INTO account_data VALUES (?, 'ban_temp', ?) ON CONFLICT(account_name, var) DO UPDATE SET value=?",
+                let _ = models::repo::account_data::set(
+                    &self.db,
+                    &account,
+                    "ban_temp",
+                    &ban_time.to_string(),
                 )
-                .bind(&account)
-                .bind(ban_time.to_string())
-                .bind(ban_time.to_string())
-                .execute(&self.pool)
                 .await;
                 // Java quirk kept 1:1: the *absolute* ban-end timestamp is
                 // passed as a duration to addBanForAddress.
@@ -640,10 +639,7 @@ impl Controller {
                     _ => false,
                 };
                 if possible && last_server != server_id {
-                    let _ = sqlx::query("UPDATE accounts SET lastServer = ? WHERE login = ?")
-                        .bind(server_id)
-                        .bind(&account)
-                        .execute(&self.pool)
+                    let _ = models::repo::accounts::set_last_server(&self.db, &account, server_id)
                         .await;
                 }
                 let _ = reply.send(possible);
@@ -750,14 +746,12 @@ impl Controller {
             message: message.to_string(),
         };
 
-        let stored: Option<(Option<String>,)> =
-            sqlx::query_as("SELECT password FROM accounts WHERE login=?")
-                .bind(&account)
-                .fetch_optional(&self.pool)
-                .await
-                .ok()
-                .flatten();
-        let stored = stored.and_then(|(p,)| p).unwrap_or_default();
+        let stored = models::repo::accounts::find(&self.db, &account)
+            .await
+            .ok()
+            .flatten()
+            .and_then(|row| row.password)
+            .unwrap_or_default();
 
         if hash_password(&current) != stored {
             let _ = link.try_send(respond(
@@ -766,15 +760,12 @@ impl Controller {
             return;
         }
 
-        let updated = sqlx::query("UPDATE accounts SET password=? WHERE login=?")
-            .bind(hash_password(&new))
-            .bind(&account)
-            .execute(&self.pool)
-            .await
-            .map(|r| r.rows_affected())
-            .unwrap_or(0);
+        let updated =
+            models::repo::accounts::set_password(&self.db, &account, &hash_password(&new))
+                .await
+                .unwrap_or(false);
         info!("The password for account {account} has been changed.");
-        if updated > 0 {
+        if updated {
             let _ = link.try_send(respond("You have successfully changed your password!"));
         } else {
             let _ = link.try_send(respond("The password change was unsuccessful!"));
@@ -786,12 +777,13 @@ impl Controller {
             .first()
             .map(|(_, host)| host.clone())
             .unwrap_or_default();
-        let _ = sqlx::query("INSERT INTO gameservers (hexid,server_id,host) values (?,?,?)")
-            .bind(hexid_to_string(hex_id))
-            .bind(id)
-            .bind(external_host)
-            .execute(&self.pool)
-            .await;
+        let _ = models::repo::gameservers::register(
+            &self.db,
+            id,
+            &hexid_to_string(hex_id),
+            &external_host,
+        )
+        .await;
     }
 
     /// `ServerStatus` packet application.
@@ -875,7 +867,7 @@ impl Controller {
         let now = util::now_millis();
 
         // retriveAccountInfo
-        let mut info = dao::select_account_info(&self.pool, &login, now).await;
+        let mut info = dao::select_account_info(&self.db, &login, now).await;
         match &info {
             Some(acc) if !acc.check_pass_hash(&hash) => {
                 self.record_failed_login_attempt(&ip);
@@ -887,13 +879,12 @@ impl Controller {
                     self.record_failed_login_attempt(&ip);
                     return AuthOutcome::AccessFailed;
                 }
-                if let Err(e) = dao::auto_create_account(&self.pool, &login, &hash, now, &ip).await
-                {
+                if let Err(e) = dao::auto_create_account(&self.db, &login, &hash, now, &ip).await {
                     warn!("Exception while auto creating account for '{login}': {e}");
                     return AuthOutcome::AccessFailed;
                 }
                 info!("Auto created account '{login}'.");
-                info = dao::select_account_info(&self.pool, &login, now).await;
+                info = dao::select_account_info(&self.db, &login, now).await;
                 if info.is_none() {
                     return AuthOutcome::AccessFailed;
                 }
@@ -907,7 +898,7 @@ impl Controller {
         }
 
         // canCheckin: accounts_ipauth white/black lists + lastactive/lastIP update.
-        let (white, black) = dao::select_ipauth(&self.pool, &info.login).await;
+        let (white, black) = dao::select_ipauth(&self.db, &info.login).await;
         if (!white.is_empty() && !white.contains(&ip)) || (!black.is_empty() && black.contains(&ip))
         {
             warn!(
@@ -916,7 +907,7 @@ impl Controller {
             );
             return AuthOutcome::InvalidPassword;
         }
-        dao::update_account_info(&self.pool, &info.login, &ip, now).await;
+        dao::update_account_info(&self.db, &info.login, &ip, now).await;
 
         // ALREADY_ON_GS: kick from the game server (RequestAuthLogin does
         // gsi.getGameServerThread().kickPlayer(login)).

@@ -3,6 +3,8 @@
 //! creates a character — exactly the path the GUI client takes. This reproduces
 //! and regression-tests the G3 character-creation flow across both servers.
 
+use migration::MigratorTrait;
+use models::sea_orm;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -19,22 +21,10 @@ const STATIC_BLOWFISH_KEY: [u8; 16] = [
     0x6b, 0x60, 0xcb, 0x5b, 0x82, 0xce, 0x90, 0xb1, 0xcc, 0x2b, 0x6c, 0x55, 0x6c, 0x6c, 0x6c, 0x6c,
 ];
 
-async fn setup_login_schema(pool: &sqlx::SqlitePool) {
-    for stmt in [
-        "CREATE TABLE accounts (login VARCHAR(45) NOT NULL DEFAULT '', password VARCHAR(45), email VARCHAR(255) DEFAULT NULL, \
-         created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastactive BIGINT NOT NULL DEFAULT 0, \
-         accessLevel TINYINT NOT NULL DEFAULT 0, lastIP CHAR(15) NULL DEFAULT NULL, lastServer TINYINT DEFAULT 1, \
-         pcIp CHAR(15) DEFAULT NULL, hop1 CHAR(15) DEFAULT NULL, hop2 CHAR(15) DEFAULT NULL, hop3 CHAR(15) DEFAULT NULL, \
-         hop4 CHAR(15) DEFAULT NULL, PRIMARY KEY (login))",
-        "CREATE TABLE account_data (account_name VARCHAR(45) NOT NULL DEFAULT '', var VARCHAR(20) NOT NULL DEFAULT '', \
-         value VARCHAR(255), PRIMARY KEY (account_name, var))",
-        "CREATE TABLE accounts_ipauth (login VARCHAR(45) NOT NULL, ip CHAR(15) NOT NULL, type VARCHAR(10) NULL DEFAULT 'allow')",
-        "CREATE TABLE gameservers (server_id INT NOT NULL DEFAULT 0, hexid VARCHAR(50) NOT NULL DEFAULT '', host VARCHAR(50) NOT NULL DEFAULT '', PRIMARY KEY (server_id))",
-    ] {
-        sqlx::query(stmt).execute(pool).await.unwrap();
-    }
-    sqlx::query("INSERT INTO gameservers VALUES (1, '-2ad66b3f483c22be097019f55c8abdf0', '')")
-        .execute(pool)
+/// The login side of this test gets the real schema, from the migrations.
+async fn setup_login_schema(db: &sea_orm::DatabaseConnection) {
+    migration::Migrator::up(db, None).await.unwrap();
+    models::repo::gameservers::register(db, 1, "-2ad66b3f483c22be097019f55c8abdf0", "")
         .await
         .unwrap();
 }
@@ -72,9 +62,15 @@ fn login_config() -> loginserver::config::LoginConfig {
 /// Start the login server; returns (client_addr, gs_addr).
 async fn start_login() -> (std::net::SocketAddr, std::net::SocketAddr) {
     use loginserver::controller::{ControllerSettings, spawn};
-    let pool = sqlx::SqlitePool::connect("sqlite::memory:").await.unwrap();
-    setup_login_schema(&pool).await;
-    let mut gs_table = loginserver::gs_table::GameServerTable::load(&pool).await;
+    // One connection: a second one would open its own empty `:memory:`.
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
+        .await
+        .unwrap();
+    let db = sea_orm::SqlxSqliteConnector::from_sqlx_sqlite_pool(pool);
+    setup_login_schema(&db).await;
+    let mut gs_table = loginserver::gs_table::GameServerTable::load(&db).await;
     gs_table.server_names.insert(1, "Bartz".to_string());
     let config = login_config();
     let controller = spawn(
@@ -85,11 +81,11 @@ async fn start_login() -> (std::net::SocketAddr, std::net::SocketAddr) {
             show_licence: true,
             accept_new_gameserver: true,
         },
-        pool.clone(),
+        db.clone(),
         gs_table,
     );
     let ctx = Arc::new(loginserver::context::LoginContext::new(
-        config, pool, controller,
+        config, db, controller,
     ));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();

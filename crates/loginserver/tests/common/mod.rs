@@ -14,6 +14,8 @@ use loginserver::config::LoginConfig;
 use loginserver::context::LoginContext;
 use loginserver::controller::{ControllerSettings, spawn};
 use loginserver::network::client_connection;
+use migration::MigratorTrait;
+use models::sea_orm::{DatabaseConnection, SqlxSqliteConnector};
 use num_bigint_dig::BigUint;
 use tokio::net::TcpStream;
 use tokio::net::tcp::{OwnedReadHalf, OwnedWriteHalf};
@@ -51,54 +53,37 @@ pub fn test_config() -> LoginConfig {
     }
 }
 
-pub async fn setup_schema(pool: &sqlx::SqlitePool) {
-    sqlx::query(
-        "CREATE TABLE accounts (login VARCHAR(45) NOT NULL DEFAULT '', password VARCHAR(45), email VARCHAR(255) DEFAULT NULL, \
-         created_time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, lastactive BIGINT NOT NULL DEFAULT 0, \
-         accessLevel TINYINT NOT NULL DEFAULT 0, lastIP CHAR(15) NULL DEFAULT NULL, lastServer TINYINT DEFAULT 1, \
-         pcIp CHAR(15) DEFAULT NULL, hop1 CHAR(15) DEFAULT NULL, hop2 CHAR(15) DEFAULT NULL, hop3 CHAR(15) DEFAULT NULL, \
-         hop4 CHAR(15) DEFAULT NULL, PRIMARY KEY (login))",
-    )
-    .execute(pool)
-    .await
-    .unwrap();
-    sqlx::query(
-        "CREATE TABLE account_data (account_name VARCHAR(45) NOT NULL DEFAULT '', var VARCHAR(20) NOT NULL DEFAULT '', \
-         value VARCHAR(255), PRIMARY KEY (account_name, var))",
-    )
-    .execute(pool)
-    .await
-    .unwrap();
-    sqlx::query(
-        "CREATE TABLE accounts_ipauth (login VARCHAR(45) NOT NULL, ip CHAR(15) NOT NULL, type VARCHAR(10) NULL DEFAULT 'allow')",
-    )
-    .execute(pool)
-    .await
-    .unwrap();
-    sqlx::query(
-        "CREATE TABLE gameservers (server_id INT NOT NULL DEFAULT 0, hexid VARCHAR(50) NOT NULL DEFAULT '', \
-         host VARCHAR(50) NOT NULL DEFAULT '', PRIMARY KEY (server_id))",
-    )
-    .execute(pool)
-    .await
-    .unwrap();
+/// Builds the real schema, the same way a deployment does: `Migrator::up`.
+///
+/// Hand-written `CREATE TABLE`s used to live here and drifted from dist —
+/// which is the failure mode the migrations exist to end.
+pub async fn setup_schema(db: &DatabaseConnection) {
+    migration::Migrator::up(db, None).await.unwrap();
 }
 
 pub struct TestServer {
     pub addr: std::net::SocketAddr,
     pub gs_addr: std::net::SocketAddr,
+    /// The raw pool, for tests that assert with SQL. It backs `db`, so both
+    /// views see the same in-memory database.
     pub pool: sqlx::SqlitePool,
+    pub db: DatabaseConnection,
 }
 
 pub async fn start_server(config: LoginConfig) -> TestServer {
-    let pool = sqlx::SqlitePool::connect("sqlite::memory:").await.unwrap();
-    setup_schema(&pool).await;
-    // Seed the stock gameservers row + server names like dist data.
-    sqlx::query("INSERT INTO gameservers VALUES (1, '-2ad66b3f483c22be097019f55c8abdf0', '')")
-        .execute(&pool)
+    // One connection: a second one would open its own empty `:memory:`.
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
         .await
         .unwrap();
-    let mut gs_table = loginserver::gs_table::GameServerTable::load(&pool).await;
+    let db = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    setup_schema(&db).await;
+    // Seed the stock gameservers row + server names like dist data.
+    models::repo::gameservers::register(&db, 1, "-2ad66b3f483c22be097019f55c8abdf0", "")
+        .await
+        .unwrap();
+    let mut gs_table = loginserver::gs_table::GameServerTable::load(&db).await;
     gs_table.server_names.insert(1, "Bartz".to_string());
     gs_table.server_names.insert(2, "Sieghardt".to_string());
 
@@ -110,10 +95,10 @@ pub async fn start_server(config: LoginConfig) -> TestServer {
             show_licence: config.show_licence,
             accept_new_gameserver: config.accept_new_gameserver,
         },
-        pool.clone(),
+        db.clone(),
         gs_table,
     );
-    let ctx = Arc::new(LoginContext::new(config, pool.clone(), controller));
+    let ctx = Arc::new(LoginContext::new(config, db.clone(), controller));
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
@@ -130,6 +115,7 @@ pub async fn start_server(config: LoginConfig) -> TestServer {
         addr,
         gs_addr,
         pool,
+        db,
     }
 }
 

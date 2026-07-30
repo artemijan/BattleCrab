@@ -5,7 +5,7 @@
 
 use std::collections::{HashMap, HashSet};
 
-use sqlx::SqlitePool;
+use models::sea_orm::ConnectionTrait;
 use tokio::sync::mpsc;
 use tracing::{info, warn};
 
@@ -154,21 +154,21 @@ pub struct GameServerTable {
 pub const SERVER_NAME_FILE: &str = "dist/login/data/servername.xml";
 
 impl GameServerTable {
-    pub async fn load(pool: &SqlitePool) -> Self {
+    pub async fn load<C: ConnectionTrait>(db: &C) -> Self {
         let server_names = load_server_names();
         info!("Loaded {} server names.", server_names.len());
 
         let mut servers = HashMap::new();
-        let rows: Vec<(i32, String)> = sqlx::query_as("SELECT server_id, hexid FROM gameservers")
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
-        for (id, hexid) in rows {
-            match hexid_from_string(&hexid) {
+        let rows = models::repo::gameservers::all(db).await.unwrap_or_default();
+        for row in rows {
+            match hexid_from_string(&row.hexid) {
                 Some(hex) => {
-                    servers.insert(id, GameServerEntry::new(id, hex));
+                    servers.insert(row.server_id, GameServerEntry::new(row.server_id, hex));
                 }
-                None => warn!("Invalid hexid for server {id} in gameservers table."),
+                None => warn!(
+                    "Invalid hexid for server {} in gameservers table.",
+                    row.server_id
+                ),
             }
         }
         info!("Loaded {} registered Game Servers.", servers.len());

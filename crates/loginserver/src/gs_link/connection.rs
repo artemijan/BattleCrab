@@ -116,11 +116,10 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
                     // ChangeAccessLevel
                     (GameServerState::Authed, 0x04) => {
                         if let (Some(level), Some(account)) = (r.read_i32(), r.read_string()) {
-                            let _ = sqlx::query("UPDATE accounts SET accessLevel = ? WHERE login = ?")
-                                .bind(level)
-                                .bind(&account)
-                                .execute(&ctx.pool)
-                                .await;
+                            let _ = models::repo::accounts::set_access_level(
+                                &ctx.db, &account, level,
+                            )
+                            .await;
                             info!("Changed {account} access level to {level}.");
                         }
                     }
@@ -160,16 +159,12 @@ pub async fn handle(ctx: Arc<LoginContext>, stream: TcpStream, ip: String) {
                         ) else {
                             break;
                         };
-                        let _ = sqlx::query(
-                            "UPDATE accounts SET pcIp = ?, hop1 = ?, hop2 = ?, hop3 = ?, hop4 = ? WHERE login = ?",
+                        let _ = models::repo::accounts::set_tracert(
+                            &ctx.db,
+                            &account,
+                            &pc_ip,
+                            [&hop1, &hop2, &hop3, &hop4],
                         )
-                        .bind(pc_ip)
-                        .bind(hop1)
-                        .bind(hop2)
-                        .bind(hop3)
-                        .bind(hop4)
-                        .bind(account)
-                        .execute(&ctx.pool)
                         .await;
                     }
                     // ReplyCharacters

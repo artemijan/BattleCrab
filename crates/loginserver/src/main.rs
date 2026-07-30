@@ -20,10 +20,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = LoginConfig::load();
 
     // Prepare the database (Java: DatabaseFactory.init()).
-    let pool = commons::db::init(&config.database_url, config.database_max_connections).await?;
+    let db = commons::db::connect(&config.database_url, config.database_max_connections).await?;
 
     // GameServerTable: server names + registered servers.
-    let gs_table = loginserver::gs_table::GameServerTable::load(&pool).await;
+    let gs_table = loginserver::gs_table::GameServerTable::load(&db).await;
 
     // LoginController.load(): RSA + Blowfish key caches + the state actor.
     info!("Loading LoginController...");
@@ -35,7 +35,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             show_licence: config.show_licence,
             accept_new_gameserver: config.accept_new_gameserver,
         },
-        pool.clone(),
+        db.clone(),
         gs_table,
     );
     let bind = format!("{}:{}", config.login_bind_address, config.port_login);
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         &config.game_server_login_host
     };
     let gs_bind = format!("{}:{}", gs_host, config.game_server_login_port);
-    let ctx = Arc::new(LoginContext::new(config, pool, controller.clone()));
+    let ctx = Arc::new(LoginContext::new(config, db, controller.clone()));
 
     loginserver::ban_file::load(&controller).await;
 
@@ -86,7 +86,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if ctx.config.backup_database {
         backup_database(&ctx.config.database_url, &ctx.config.backup_path);
     }
-    ctx.pool.close().await;
+    let _ = ctx.db.clone().close().await;
     if restart_requested {
         std::process::exit(2);
     }

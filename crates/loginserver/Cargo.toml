@@ -6,6 +6,7 @@ license.workspace = true
 
 [dependencies]
 commons = { path = "../commons" }
+models = { path = "../models" }
 tokio.workspace = true
 bytes.workspace = true
 sqlx.workspace = true
@@ -16,6 +17,7 @@ num-bigint-dig.workspace = true
 quick-xml.workspace = true
 
 [dev-dependencies]
+migration = { path = "../migration" }
 
 [lints]
 workspace = true

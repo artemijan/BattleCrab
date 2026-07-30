@@ -8,6 +8,7 @@ license.workspace = true
 tokio.workspace = true
 bytes.workspace = true
 sqlx.workspace = true
+sea-orm.workspace = true
 blowfish.workspace = true
 byteorder.workspace = true
 cipher.workspace = true

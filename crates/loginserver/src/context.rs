@@ -6,7 +6,7 @@ use std::sync::Arc;
 
 use commons::crypt::{RawRsaKeyPair, ScrambledKeyPair};
 use commons::util::rnd;
-use sqlx::SqlitePool;
+use models::sea_orm::DatabaseConnection;
 use tracing::info;
 
 use crate::config::LoginConfig;
@@ -18,7 +18,7 @@ const GS_KEYPAIRS: usize = 10;
 
 pub struct LoginContext {
     pub config: LoginConfig,
-    pub pool: SqlitePool,
+    pub db: DatabaseConnection,
     pub controller: ControllerHandle,
     keypairs: Vec<Arc<ScrambledKeyPair>>,
     blowfish_keys: Vec<[u8; 16]>,
@@ -26,7 +26,7 @@ pub struct LoginContext {
 }
 
 impl LoginContext {
-    pub fn new(config: LoginConfig, pool: SqlitePool, controller: ControllerHandle) -> Self {
+    pub fn new(config: LoginConfig, db: DatabaseConnection, controller: ControllerHandle) -> Self {
         // Keygen is the dominant boot cost (prime hunting), so generate all
         // pairs in parallel — one thread per key, wall time ≈ the slowest
         // single key (Java generates the same caches sequentially).
@@ -63,7 +63,7 @@ impl LoginContext {
 
         Self {
             config,
-            pool,
+            db,
             controller,
             keypairs,
             blowfish_keys,

@@ -40,6 +40,21 @@ pub fn executable_dir() -> std::path::PathBuf {
         .unwrap_or_default()
 }
 
+/// The ORM handle every consumer should ask for.
+///
+/// Wraps the pool [`init`] builds rather than calling `Database::connect`, so
+/// the JDBC prefix, `journal_mode`/`busy_timeout` parameters and
+/// executable-relative path resolution keep working exactly as they did — those
+/// behaviours have tests below and are the reason one URL string serves every
+/// binary.
+pub async fn connect(
+    jdbc_url: &str,
+    max_connections: u32,
+) -> Result<sea_orm::DatabaseConnection, DbError> {
+    let pool = init(jdbc_url, max_connections).await?;
+    Ok(sea_orm::SqlxSqliteConnector::from_sqlx_sqlite_pool(pool))
+}
+
 pub async fn init(jdbc_url: &str, max_connections: u32) -> Result<SqlitePool, DbError> {
     let (path, params) = parse_jdbc_sqlite_url(jdbc_url)?;
 
