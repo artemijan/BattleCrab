@@ -281,6 +281,472 @@ fn mammon_spawn_announces_the_nearest_castle() {
     );
 }
 
+// ---------------------------------------------------------------------------
+// Slice 2 — the castle staff
+// ---------------------------------------------------------------------------
+
+use crate::model::clan::{CS_MERCENARIES, CS_OPEN_DOOR, Clan};
+use crate::model::siege::{Siege, SiegeClanType};
+
+/// Gludio's castle staff, at their real dist spawn points (inside the castle,
+/// so `nearest_castle_at` resolves castle 1).
+const GLUDIO_BLACKSMITH: i32 = 35098;
+const GLUDIO_WAREHOUSE: i32 = 35099;
+const GLUDIO_MERC_MANAGER: i32 = 35102;
+const GLUDIO_DOORMAN_OUTER: i32 = 35096;
+const BLACKSMITH_POS: (i32, i32, i32) = (-17680, 109519, -2656);
+const DOORMAN_POS: (i32, i32, i32) = (-18452, 113261, -2750);
+const GLUDIO: i32 = 1;
+
+/// A world with the real castle zones + htmls, one castle, and a clan that owns
+/// it whose leader is the test player.
+fn castle_world(
+    npc_id: i32,
+    npc_pos: (i32, i32, i32),
+) -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = quest_test_world();
+    world.data.zone_data = ZoneData::load_from(DIST);
+    world.castles = vec![castle_row(GLUDIO, "Gludio")];
+    world.sieges.insert(GLUDIO, Siege::new(GLUDIO));
+    add_test_npc(
+        &mut world, NPC_OID, npc_id, "Folk", 70, npc_pos.0, npc_pos.1, npc_pos.2,
+    );
+    (world, db, l)
+}
+
+/// The lord of the castle: clan 77 owns Gludio and `player` leads it.
+fn make_castle_lord(world: &mut World, player: i32) {
+    let mut clan = mk_test_clan(77, player);
+    clan.castle_id = GLUDIO;
+    world.clans.insert(77, clan);
+    let p = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&player)
+        .unwrap();
+    p.clan_id = 77;
+    p.clan_leader = true; // Java `isClanLeader()` = clan.leaderId == objectId
+    p.clan_privs = 0; // the leader holds every privilege regardless
+}
+
+fn mk_test_clan(id: i32, leader_id: i32) -> Clan {
+    Clan {
+        id,
+        name: format!("Clan{id}"),
+        leader_id,
+        level: 5,
+        reputation_score: 0,
+        castle_id: 0,
+        members: Vec::new(),
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    }
+}
+
+/// Click an NPC (Java's target-then-interact pair) and return the html it sent.
+fn talk_to_npc(world: &mut World, client_id: u32, rx: &mut PktRx) -> String {
+    handle_action(world, client_id, &action_body(NPC_OID, 0));
+    handle_action(world, client_id, &action_body(NPC_OID, 0));
+    drain(rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default()
+}
+
+type PktRx = tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>;
+
+/// The blacksmith serves the castle's lord and nobody else (Java `hasRights`).
+#[test]
+fn castle_blacksmith_answers_only_the_castle_lord() {
+    let (mut world, _db, _l) = castle_world(GLUDIO_BLACKSMITH, BLACKSMITH_POS);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8810,
+        BLACKSMITH_POS.0 + 40,
+        BLACKSMITH_POS.1,
+        BLACKSMITH_POS.2,
+    );
+    drain(&mut rx);
+
+    // A clanless passer-by is turned away.
+    let html = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        !html.is_empty() && !html.contains("Quest CastleBlacksmith"),
+        "the refusal page has no console buttons: {html}"
+    );
+
+    // The castle's lord gets the console.
+    make_castle_lord(&mut world, 8810);
+    let html = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        html.contains("Quest CastleBlacksmith"),
+        "the lord sees the console: {html}"
+    );
+}
+
+/// The doorman works the gates for the owning clan, refuses everyone else, and
+/// freezes while the castle is under siege.
+#[test]
+fn castle_doorman_opens_the_gates_except_during_a_siege() {
+    use crate::data::door_data::DoorOpenMethod;
+    let (mut world, _db, _l) = castle_world(GLUDIO_DOORMAN_OUTER, DOORMAN_POS);
+    // Gludio's outer gate pair, named by the doorman's template parameters.
+    let (door1, door2) = (19_210_001, 19_210_002);
+    crate::model::door::spawn_door_for_test(&mut world, test_door(door1, DoorOpenMethod::None));
+    crate::model::door::spawn_door_for_test(&mut world, test_door(door2, DoorOpenMethod::None));
+    {
+        let mut t = crate::data::npc_data::default_template(GLUDIO_DOORMAN_OUTER);
+        t.type_name = "Folk".into();
+        t.ai_params.insert("DoorId1".to_string(), door1.to_string());
+        t.ai_params.insert("DoorId2".to_string(), door2.to_string());
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8811,
+        DOORMAN_POS.0 + 40,
+        DOORMAN_POS.1,
+        DOORMAN_POS.2,
+    );
+    drain(&mut rx);
+
+    // Not the owner: the gates stay shut.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+        )),
+    );
+    assert!(!world.geo.doors.is_open(door1), "a stranger opens nothing");
+
+    // The owning clan opens both gates.
+    make_castle_lord(&mut world, 8811);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+        )),
+    );
+    assert!(world.geo.doors.is_open(door1), "gate 1 opened");
+    assert!(world.geo.doors.is_open(door2), "gate 2 opened");
+
+    // Closing works the same way.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 0"
+        )),
+    );
+    assert!(!world.geo.doors.is_open(door1), "gate 1 closed");
+
+    // With the siege running the console refuses instead of toggling.
+    world.sieges.get_mut(&GLUDIO).unwrap().in_progress = true;
+    drain(&mut rx);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!(
+            "npc_{NPC_OID}_Quest CastleDoorManager manageDoors 1"
+        )),
+    );
+    assert!(
+        !world.geo.doors.is_open(door1),
+        "the gates are frozen during a siege"
+    );
+}
+
+/// The doorman's first-talk page needs `CS_OPEN_DOOR`, which the leader holds
+/// implicitly but a plain member must be granted.
+#[test]
+fn doorman_first_talk_needs_the_open_door_privilege() {
+    let (mut world, _db, _l) = castle_world(GLUDIO_DOORMAN_OUTER, DOORMAN_POS);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8812,
+        DOORMAN_POS.0 + 40,
+        DOORMAN_POS.1,
+        DOORMAN_POS.2,
+    );
+    drain(&mut rx);
+    // A member of the owning clan (not its leader) with no privileges.
+    let mut clan = mk_test_clan(78, 9999);
+    clan.castle_id = GLUDIO;
+    world.clans.insert(78, clan);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&8812)
+            .unwrap();
+        p.clan_id = 78;
+        p.clan_privs = 0;
+    }
+    let refused = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        !refused.contains("manageDoors"),
+        "no gate controls without CS_OPEN_DOOR: {refused}"
+    );
+
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&8812)
+        .unwrap()
+        .clan_privs = CS_OPEN_DOOR;
+    let allowed = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        allowed.contains("manageDoors"),
+        "the privilege opens the console: {allowed}"
+    );
+}
+
+/// The mercenary manager's limit page names the castle through the client
+/// string `1001000 + residenceId` (Java's `%feud_name%` replacement).
+#[test]
+fn mercenary_manager_limit_page_names_the_castle() {
+    let (mut world, _db, _l) = castle_world(GLUDIO_MERC_MANAGER, BLACKSMITH_POS);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8813,
+        BLACKSMITH_POS.0 + 40,
+        BLACKSMITH_POS.1,
+        BLACKSMITH_POS.2,
+    );
+    make_castle_lord(&mut world, 8813);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleMercenaryManager limit")),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("limit page");
+    assert!(
+        html.contains("1001001"),
+        "Gludio's feud name (1001000 + 1): {html}"
+    );
+    assert!(!html.contains("%feud_name%"), "no leftover placeholder");
+}
+
+/// A plain member without `CS_MERCENARIES` is refused the console.
+#[test]
+fn mercenary_manager_needs_its_privilege() {
+    let (mut world, _db, _l) = castle_world(GLUDIO_MERC_MANAGER, BLACKSMITH_POS);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8814,
+        BLACKSMITH_POS.0 + 40,
+        BLACKSMITH_POS.1,
+        BLACKSMITH_POS.2,
+    );
+    let mut clan = mk_test_clan(79, 9999);
+    clan.castle_id = GLUDIO;
+    world.clans.insert(79, clan);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&8814)
+            .unwrap();
+        p.clan_id = 79;
+        p.clan_privs = 0;
+    }
+    drain(&mut rx);
+
+    let refused = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        !refused.contains("Quest CastleMercenaryManager"),
+        "no console without CS_MERCENARIES: {refused}"
+    );
+
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&8814)
+        .unwrap()
+        .clan_privs = CS_MERCENARIES;
+    let allowed = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        allowed.contains("Quest CastleMercenaryManager"),
+        "the privilege opens the console: {allowed}"
+    );
+}
+
+/// The warehouse keeper hands the castle's lord the Blood Alliances the clan
+/// earned defending it — once; the counter is reset with the payout.
+#[test]
+fn castle_warehouse_pays_out_blood_alliances_once() {
+    const BLOOD_ALLIANCE: i32 = 9911;
+    let (mut world, mut db, _l) = castle_world(GLUDIO_WAREHOUSE, BLACKSMITH_POS);
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8815,
+        BLACKSMITH_POS.0 + 40,
+        BLACKSMITH_POS.1,
+        BLACKSMITH_POS.2,
+    );
+    make_castle_lord(&mut world, 8815);
+    world.clans.get_mut(&77).unwrap().blood_alliance_count = 2;
+    drain(&mut rx);
+    drain_db(&mut db);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleWarehouse Receive")),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8815)
+            .map(|i| i.count_of(BLOOD_ALLIANCE))
+            .unwrap_or(0),
+        2,
+        "both Blood Alliances handed over"
+    );
+    assert_eq!(
+        world.clans.get(&77).unwrap().blood_alliance_count,
+        0,
+        "the clan's counter is spent"
+    );
+
+    // A second claim finds nothing left.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest CastleWarehouse Receive")),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8815)
+            .map(|i| i.count_of(BLOOD_ALLIANCE))
+            .unwrap_or(0),
+        2,
+        "no second payout"
+    );
+}
+
+/// The 9 `ResidenceTeleportZone`s parse with their castle ids and oust points.
+#[test]
+fn residence_teleport_zones_load_for_every_castle() {
+    let zones = ZoneData::load_from(DIST);
+    for castle_id in 1..=9 {
+        let zone = zones
+            .residence_teleport_zone(castle_id)
+            .unwrap_or_else(|| panic!("castle {castle_id} has a teleport zone"));
+        assert!(zone.castle_id == castle_id, "the zone knows its castle");
+        assert!(
+            !zones.residence_teleport_spawns(castle_id).is_empty(),
+            "castle {castle_id}'s zone carries its oust point"
+        );
+    }
+}
+
+/// `MASS_TELEPORT`: everyone standing in the owner-restart territory is pulled
+/// to the inner castle; players outside it are left alone.
+#[test]
+fn mass_teleport_ousts_only_the_restart_territory() {
+    let (mut world, _db, _l) = castle_world(35095, BLACKSMITH_POS);
+    let zone_point = (-16700, 109300, -1700); // inside Gludio's restart polygon
+    let outside = (-20000, 120000, -2000);
+    let spawn = world.data.zone_data.residence_teleport_spawns(GLUDIO)[0];
+
+    let mut rx_in = ingame_player(
+        &mut world,
+        1,
+        8816,
+        zone_point.0,
+        zone_point.1,
+        zone_point.2,
+    );
+    let mut rx_out = ingame_player(&mut world, 2, 8817, outside.0, outside.1, outside.2);
+    drain(&mut rx_in);
+    drain(&mut rx_out);
+
+    crate::game_loop::area_npcs::handle_castle_mass_teleport(&mut world, NPC_OID);
+
+    let pos_in = *world
+        .objects
+        .get_component::<Position>(&8816)
+        .expect("player position");
+    assert_eq!(
+        (pos_in.x, pos_in.y),
+        (spawn.0, spawn.1),
+        "the player inside the territory was pulled to the oust point"
+    );
+    let pos_out = *world
+        .objects
+        .get_component::<Position>(&8817)
+        .expect("player position");
+    assert_eq!(
+        (pos_out.x, pos_out.y),
+        (outside.0, outside.1),
+        "the player outside it stayed put"
+    );
+}
+
+/// A castle teleporter only serves the owning clan's defenders **while their
+/// siege runs** (Java's `getSiegeState() == 2`).
+#[test]
+fn castle_teleporter_serves_defenders_during_a_siege() {
+    let (mut world, _db, _l) = castle_world(35092, BLACKSMITH_POS);
+    let mut rx = ingame_player(
+        &mut world,
+        1,
+        8818,
+        BLACKSMITH_POS.0 + 40,
+        BLACKSMITH_POS.1,
+        BLACKSMITH_POS.2,
+    );
+    make_castle_lord(&mut world, 8818);
+    drain(&mut rx);
+
+    // Peacetime: the owner still gets the refusal page (no siege state).
+    let peace = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        !peace.contains("teleportMe"),
+        "no battlefield teleports outside a siege: {peace}"
+    );
+
+    // Siege running with the clan registered as the owner-defender.
+    {
+        let siege = world.sieges.get_mut(&GLUDIO).unwrap();
+        siege.in_progress = true;
+        siege.add_clan(77, SiegeClanType::Owner);
+    }
+    let at_war = talk_to_npc(&mut world, 1, &mut rx);
+    assert!(
+        at_war.contains("teleportMe"),
+        "defenders get the posts: {at_war}"
+    );
+}
+
 fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
     crate::model::castle::Castle {
         id,

@@ -465,6 +465,12 @@ pub enum ScheduledTask {
     MammonRelocate {
         npc_id: i32,
     },
+    /// `ai/others/CastleTeleporter`: the mass gatekeeper's armed
+    /// `MASS_TELEPORT` — pull everyone in the castle's owner-restart territory
+    /// back inside and re-arm the gatekeeper. One-shot per arming.
+    CastleMassTeleport {
+        npc_oid: i32,
+    },
     /// The in-game day/night watch (Java `OnDayNightChange` listeners):
     /// fires the transition scripts when the flag flips. Reschedules itself,
     /// carrying the last-seen state.

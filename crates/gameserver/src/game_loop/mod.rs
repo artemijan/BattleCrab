@@ -19,7 +19,7 @@ mod bypass;
 mod chat;
 pub(crate) mod clan_hall_auction;
 pub(crate) mod clan_hall_function;
-mod clans;
+pub(crate) mod clans;
 mod combat;
 pub(crate) mod command_channel;
 mod common;
@@ -82,7 +82,7 @@ pub(crate) mod sailren;
 mod servitor;
 pub(crate) mod shop;
 mod shortcuts;
-mod siege;
+pub(crate) mod siege;
 mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod subclass;
@@ -414,6 +414,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
             ScheduledTask::MammonRelocate { npc_id } => {
                 area_npcs::relocate_mammon(world, npc_id);
+            }
+            ScheduledTask::CastleMassTeleport { npc_oid } => {
+                area_npcs::handle_castle_mass_teleport(world, npc_oid);
             }
             ScheduledTask::DayNightCheck { was_night } => {
                 area_npcs::handle_day_night_check(world, was_night);

@@ -95,14 +95,34 @@ Two things because the first blocks the second.
 multisell window opens with the real `31113001` list; the 30-minute beat moves
 him to a different haunt and announces it.
 
-### Slice 2 — castle service NPCs
+### Slice 2 — castle service NPCs  ✅ LANDED 2026-07-30
 `CastleBlacksmith`, `CastleWarehouse`, `CastleMercenaryManager`,
-`CastleDoorManager`, `CastleSiegeManager`, `CastleTeleporter`, plus
-`CastleSideEffect`. One shared rights helper (clan-leader / castle-owner /
-`ClanPrivilege` / cond-override) and one engine, in the shape
-`scripts/tribe_support.rs` took for Ketra/Varka. `CastleDoorManager` and
-`CastleTeleporter` both read spawn `<parameters>` (`DoorId1`/`DoorId2`,
-`teleportLoc*`), so check what the spawn loader keeps before starting.
+`CastleDoorManager`, `CastleSiegeManager` and `CastleTeleporter` in one
+`scripts/castle_services.rs`, over a shared rights layer (`isMyLord` /
+owning clan / `ClanPrivilege` / the GM cond-override) that resolves the castle
+the way Java's `npc.getCastle()` does — `nearest_castle_at`, no id table.
+
+What the slice needed underneath:
+- The door ids and teleport posts live on the **NPC template**
+  `<parameters>` (`DoorId1`, `pos_x01`…), not the spawn entries; the template
+  parser already keeps them (`ai_param_i32`).
+- `ClanPrivilege.CS_OPEN_DOOR` (16) / `CS_MERCENARIES` (22) were unnamed. Naming
+  them exposed a bug in `RANK9_PRIVS_MASK`, which used bit 15
+  (`CH_SET_FUNCTIONS`) for `CS_OPEN_DOOR` — academy members kept hall-function
+  rights and lost the castle-door right the mask exists to grant. Fixed here.
+- `ResidenceTeleportZone` (`castle_teleport.xml`, 9 zones) now loads, giving
+  `Castle.oustAllPlayers` (`siege::oust_all_players`) its territory and oust
+  points, which the mass gatekeeper's `MASS_TELEPORT` needs.
+- `Siege.listRegisterClan` is exposed for the Siege Manager's non-owner branch —
+  it re-uses the existing `SiegeInfo` window, so **audit row 11's "siege info
+  window" is reachable from an NPC now**, not just from `RequestJoinSiege`.
+
+**`CastleSideEffect` is deliberately skipped**: it pushes `ExCastleState` (the
+Grand Crusade castle-side banner) on town-zone entry — no Interlude opcode.
+
+**Deviation:** the `MASS_TELEPORT` shout goes to the gatekeeper's broadcast
+region rather than Java's `MapRegionManager` region (no map-region table in
+this port) — same audience in practice, marked `TODO(G22)` at the site.
 
 ### Slice 3 — combat mob behaviours
 `PolymorphingOnAttack`, `PolymorphingAngel`, `TimakOrcTroopLeader`,

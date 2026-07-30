@@ -256,6 +256,14 @@ pub const CS_MANOR_ADMIN: i32 = 1 << 17;
 /// the 24-entry layout) — required to register the clan for a castle siege.
 pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 
+/// `ClanPrivilege.CS_OPEN_DOOR` (ordinal 16 — first of the CS_ block) —
+/// open/close the castle gates and use the doormen's post teleports.
+pub const CS_OPEN_DOOR: i32 = 1 << 16;
+
+/// `ClanPrivilege.CS_MERCENARIES` (ordinal 22) — the castle Mercenary
+/// Manager's console (ticket buy lists).
+pub const CS_MERCENARIES: i32 = 1 << 22;
+
 /// `ClanPrivilege.CH_OPEN_DOOR` (ordinal 11) — open/close clan-hall doors.
 pub const CH_OPEN_DOOR: i32 = 1 << 11;
 /// `ClanPrivilege.CH_OTHER_RIGHTS` (ordinal 12) — use hall functions
@@ -286,8 +294,11 @@ pub const ALLY_PENALTY_TYPE_DISMISS_CLAN: i32 = 3;
 pub const ALLY_PENALTY_TYPE_DISSOLVE_ALLY: i32 = 4;
 
 /// The only rights bestowable on rank 9 (academy): CL_VIEW_WAREHOUSE (3),
-/// CH_OPEN_DOOR (11), CS_OPEN_DOOR (15) — Java `RequestPledgePower`'s mask.
-pub const RANK9_PRIVS_MASK: i32 = (1 << 3) | (1 << 11) | (1 << 15);
+/// CH_OPEN_DOOR (11), CS_OPEN_DOOR (**16**) — Java `RequestPledgePower`'s mask.
+/// (The bit was 15 here until the G22 castle-staff slice named the CS_ block:
+/// 15 is `CH_SET_FUNCTIONS`, so academy members kept hall-function rights and
+/// lost the castle-door right the mask is supposed to grant.)
+pub const RANK9_PRIVS_MASK: i32 = CL_VIEW_WAREHOUSE | CH_OPEN_DOOR | CS_OPEN_DOOR;
 
 impl Clan {
     /// Java `getRankPrivs(rank).getBitmask()` — an unset rank is an empty mask.

@@ -9,6 +9,7 @@ pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;
 pub mod castle_chamberlain;
+mod castle_services;
 mod cave_maiden;
 pub mod clan_hall_auctioneer;
 pub mod clan_hall_door_manager;
@@ -488,6 +489,14 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(mammons::MerchantOfMammon),
         Arc::new(mammons::BlacksmithOfMammon),
         Arc::new(mammons::PriestOfMammon),
+        // ai/others — slice 2: the castle staff (CastleSideEffect is skipped —
+        // it pushes the later-chronicle `ExCastleState`).
+        Arc::new(castle_services::CastleBlacksmith),
+        Arc::new(castle_services::CastleWarehouse),
+        Arc::new(castle_services::CastleMercenaryManager),
+        Arc::new(castle_services::CastleDoorManager),
+        Arc::new(castle_services::CastleSiegeManager),
+        Arc::new(castle_services::CastleTeleporter),
     ];
     QuestRegistry::new(scripts)
 }

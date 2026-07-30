@@ -211,6 +211,81 @@ fn announce_to_all(world: &World, text: &str) {
 }
 
 // ---------------------------------------------------------------------------
+// The castle mass gatekeeper (`ai/others/CastleTeleporter`'s `MASS_TELEPORT`)
+// ---------------------------------------------------------------------------
+
+/// `NpcStringId.THE_DEFENDERS_OF_S1_CASTLE_WILL_BE_TELEPORTED_TO_THE_INNER_CASTLE`.
+const DEFENDERS_TELEPORTED_STRING_ID: i32 = 1_000_443;
+/// `ChatType.NPC_SHOUT`.
+const NPC_SHOUT: i32 = 23;
+
+/// Java `startQuestTimer("MASS_TELEPORT", time, npc, null)`. The timer is
+/// npc-anchored with **no player**, so it cannot ride `QuestTimerSeqs` (which
+/// hangs off the player) — it is a plain scheduled task, like the other beats
+/// in this module. Re-arming is prevented by the caller's `scriptValue` gate,
+/// the same way Java's is.
+pub(crate) fn arm_castle_mass_teleport(world: &mut World, npc_oid: i32, delay_ms: u64) {
+    world.scheduler.schedule(
+        world.tick + delay_ms.div_ceil(100),
+        ScheduledTask::CastleMassTeleport { npc_oid },
+    );
+}
+
+/// The `MASS_TELEPORT` event: shout the warning, oust everyone standing in the
+/// castle's owner-restart territory into the inner castle, and reset the
+/// gatekeeper so it can be armed again.
+pub(crate) fn handle_castle_mass_teleport(world: &mut World, npc_oid: i32) {
+    let Some((npc_id, x, y, z)) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .zip(
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(&npc_oid)
+                .map(|p| (p.x, p.y, p.z)),
+        )
+        .map(|(id, (x, y, z))| (id, x, y, z))
+    else {
+        return; // the gatekeeper died/despawned before the timer fired
+    };
+    let Some(castle_id) = world.data.zone_data.nearest_castle_at(x, y, z) else {
+        return;
+    };
+
+    let name = nearest_castle_name(world, x, y, z);
+    let say = server_packets::npc_say_param_typed(
+        npc_oid,
+        npc_id,
+        NPC_SHOUT,
+        DEFENDERS_TELEPORTED_STRING_ID,
+        &name,
+    );
+    // TODO(G22): Java scopes the shout to `MapRegionManager.getMapRegionLocId`
+    // — every player in the gatekeeper's map region, whether or not they can
+    // see it. This port has no map-region table, so it reaches the NPC's own
+    // broadcast region instead (a smaller radius, same audience in practice
+    // since the region is the castle).
+    if let Some(region) = world
+        .objects
+        .get_component::<crate::model::components::RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    {
+        crate::game_loop::helpers::broadcast_near_region(world, region, &say);
+    }
+
+    crate::game_loop::siege::oust_all_players(world, castle_id);
+
+    // `npc.setScriptValue(0)` — the gatekeeper is armable again.
+    if let Some(n) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+    {
+        n.script_value = 0;
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Eilhalder von Hellmann — the Forest of the Dead night raid boss
 // ---------------------------------------------------------------------------
 

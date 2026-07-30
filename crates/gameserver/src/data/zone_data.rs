@@ -68,6 +68,12 @@ pub enum ZoneKind {
     /// by geometry (`jail_zone_at`), never by membership mask — the u8 mask is
     /// full — so it claims no bit.
     Jail,
+    /// Java `ResidenceTeleportZone` (`castle_teleport.xml`): the castle's
+    /// owner-restart territory, whose `<spawn>` is where
+    /// `Castle.oustAllPlayers` (the mass gatekeeper's `MASS_TELEPORT`) drops
+    /// everyone standing in it. Queried by geometry, never by membership mask
+    /// — the u8 mask is full — so it claims no bit.
+    ResidenceTeleport,
 }
 
 impl ZoneKind {
@@ -97,6 +103,8 @@ impl ZoneKind {
             ZoneKind::DerbyTrack => 0,
             // Queried by geometry (`jail_zone_at`), no membership bit (mask full).
             ZoneKind::Jail => 0,
+            // Queried by geometry (`residence_teleport_zone`), no bit (mask full).
+            ZoneKind::ResidenceTeleport => 0,
         }
     }
 }
@@ -178,6 +186,10 @@ pub struct ZoneData {
     pub zones: Vec<Zone>,
     /// Zone-grid cell → indexes into `zones` whose bounds overlap the cell.
     grid: std::collections::HashMap<(i32, i32), Vec<u32>>,
+    /// castle id → its `ResidenceTeleportZone`'s `<spawn>` points (Java
+    /// `ZoneRespawn._spawnLocs`), kept beside the zones because only this one
+    /// kind carries them.
+    residence_teleport_spawns: std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
 }
 
 impl ZoneData {
@@ -187,6 +199,7 @@ impl ZoneData {
 
     pub fn load_from(file_path: &str) -> Self {
         let mut zones = Vec::new();
+        let mut residence_teleport_spawns = std::collections::HashMap::new();
         for (file, kind) in [
             ("peace.xml", ZoneKind::Peace),
             ("water.xml", ZoneKind::Water),
@@ -223,9 +236,19 @@ impl ZoneData {
             // `gm_room.xml` is uniformly `JailZone` — the GM prison a jailed
             // player is confined to (G31).
             ("gm_room.xml", ZoneKind::Jail),
+            // `castle_teleport.xml` is uniformly `ResidenceTeleportZone` — the
+            // owner-restart territory the mass gatekeeper ousts people from
+            // (`territory_war_teleport.xml` is the later-chronicle sibling and
+            // is deliberately not loaded).
+            ("castle_teleport.xml", ZoneKind::ResidenceTeleport),
         ] {
             let before = zones.len();
-            parse_file(&format!("{file_path}data/zones/{file}"), kind, &mut zones);
+            parse_file(
+                &format!("{file_path}data/zones/{file}"),
+                kind,
+                &mut zones,
+                &mut residence_teleport_spawns,
+            );
             // The two `ScriptZone` files are pulled in *only* for their script
             // zones. They also contain unrelated kinds — `custom_script.xml`
             // ships a stray `SiegeZone` ("GainakSiege", a later-chronicle area
@@ -246,6 +269,7 @@ impl ZoneData {
         let mut data = Self {
             zones,
             grid: Default::default(),
+            residence_teleport_spawns,
         };
         data.build_grid();
         let effects = data
@@ -349,6 +373,22 @@ impl ZoneData {
             .map(|zn| zn.castle_id)
     }
 
+    /// A castle's `ResidenceTeleportZone` (Java `Castle.getTeleZone()`) — the
+    /// owner-restart territory the mass gatekeeper ousts players from.
+    pub fn residence_teleport_zone(&self, castle_id: i32) -> Option<&Zone> {
+        self.zones
+            .iter()
+            .find(|zn| zn.kind == ZoneKind::ResidenceTeleport && zn.castle_id == castle_id)
+    }
+
+    /// That zone's `<spawn>` points — where the ousted land
+    /// (`ZoneRespawn.getSpawnLoc()` picks one at random).
+    pub fn residence_teleport_spawns(&self, castle_id: i32) -> &[(i32, i32, i32)] {
+        self.residence_teleport_spawns
+            .get(&castle_id)
+            .map_or(&[][..], |v| v.as_slice())
+    }
+
     /// The clan hall whose interior contains `(x, y, z)` (Java
     /// `ClanHallZone.getResidenceId` via `ZoneManager`), if any.
     pub fn clan_hall_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
@@ -384,6 +424,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "ClanHallZone" => ZoneKind::ClanHall,
         "DerbyTrackZone" => ZoneKind::DerbyTrack,
         "JailZone" => ZoneKind::Jail,
+        "ResidenceTeleportZone" => ZoneKind::ResidenceTeleport,
         _ => return None,
     })
 }
@@ -400,7 +441,12 @@ fn parse_skill_id_lvl(raw: &str) -> Vec<(i32, i32)> {
 
 /// `default_kind` is the filename-derived fallback for files that predate
 /// per-zone `type=` parsing; a zone's own `type=` attribute always wins.
-fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
+fn parse_file(
+    path: &str,
+    kind: ZoneKind,
+    out: &mut Vec<Zone>,
+    spawns_out: &mut std::collections::HashMap<i32, Vec<(i32, i32, i32)>>,
+) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
     };
@@ -428,6 +474,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
         dmg_hp: i32,
         dmg_mp: i32,
         move_bonus: f64,
+        spawns: Vec<(i32, i32, i32)>,
     }
     let mut cur: Option<Pending> = None;
 
@@ -463,6 +510,9 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                         enabled: p.enabled,
                         castle_id: p.castle_id,
                     });
+                    if p.kind == ZoneKind::ResidenceTeleport && p.castle_id > 0 {
+                        spawns_out.insert(p.castle_id, p.spawns.clone());
+                    }
                     out.push(Zone {
                         id: p.id,
                         name: p.name,
@@ -513,6 +563,7 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     dmg_hp: 200,
                     dmg_mp: 0,
                     move_bonus: 0.5,
+                    spawns: Vec::new(),
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -520,6 +571,23 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                     && kind_from_type(&ty).is_none()
                 {
                     cur = None;
+                }
+            }
+            // `<spawn X Y Z/>` — a `ResidenceTeleportZone`'s oust destination
+            // (Java `ZoneRespawn._spawnLocs`).
+            b"spawn" => {
+                if let Some(p) = cur.as_mut() {
+                    p.spawns.push((
+                        attr_i32(&e, b"X")
+                            .or_else(|| attr_i32(&e, b"x"))
+                            .unwrap_or(0),
+                        attr_i32(&e, b"Y")
+                            .or_else(|| attr_i32(&e, b"y"))
+                            .unwrap_or(0),
+                        attr_i32(&e, b"Z")
+                            .or_else(|| attr_i32(&e, b"z"))
+                            .unwrap_or(0),
+                    ));
                 }
             }
             // Zone files capitalize the node attributes (`X`/`Y`), unlike
@@ -547,6 +615,10 @@ fn parse_file(path: &str, kind: ZoneKind, out: &mut Vec<Zone>) {
                 let val = attr_str(&e, b"val").unwrap_or_default();
                 match name.as_str() {
                     "castleId" => p.castle_id = val.parse().unwrap_or(0),
+                    // `ResidenceTeleportZone` names its castle `residenceId`.
+                    "residenceId" if p.kind == ZoneKind::ResidenceTeleport => {
+                        p.castle_id = val.parse().unwrap_or(0);
+                    }
                     "clanHallId" => p.clan_hall_id = val.parse().unwrap_or(0),
                     "skillIdLvl" => p.skills = parse_skill_id_lvl(&val),
                     "chance" => p.chance = val.parse().unwrap_or(p.chance),
@@ -621,10 +693,18 @@ mod tests {
         // 1044 → 1092: `clan_hall.xml`'s 48 `ClanHallZone`s (G24).
         // 1092 → 1100: `zone.xml`'s 8 `DerbyTrackZone`s (G26.5).
         // 1100 → 1103: `gm_room.xml`'s 3 `JailZone`s (G31).
-        assert_eq!(data.zones.len(), 1103);
+        // 1103 → 1112: `castle_teleport.xml`'s 9 `ResidenceTeleportZone`s —
+        // one owner-restart territory per castle, where the mass gatekeeper's
+        // `MASS_TELEPORT` ousts from (G22 `ai/others`).
+        assert_eq!(data.zones.len(), 1112);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::DerbyTrack), 8, "zone.xml derby track");
         assert_eq!(count(ZoneKind::Jail), 3, "gm_room.xml jail zones");
+        assert_eq!(
+            count(ZoneKind::ResidenceTeleport),
+            9,
+            "castle_teleport.xml — one per castle"
+        );
         // The jail-in location (Java `JailZone.JAIL_IN_LOC`) is inside a jail
         // zone; the jail-out location is not.
         assert!(data.in_jail_zone(-114356, -249645, -2984));
@@ -755,6 +835,7 @@ mod effect_zone_tests {
                         | ZoneKind::ClanHall
                         | ZoneKind::DerbyTrack
                         | ZoneKind::Jail
+                        | ZoneKind::ResidenceTeleport
                 ),
                 "zone {} has an unported kind",
                 z.name

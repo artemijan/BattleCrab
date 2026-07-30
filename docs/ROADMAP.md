@@ -997,9 +997,14 @@ consumed silently — dead in the Java build too).
 [PLAN_G22_AI_OTHERS.md](PLAN_G22_AI_OTHERS.md) — slice 1 landed 2026-07-30: the
 `multisell` / `exc_multisell` **NPC bypass** (which closes the "remaining bypass
 families" note above and revives the exchange button in 97 dist htmls) and the
-three wandering Mammon merchants. Slices 2–5 cover the castle service NPCs, the
-small combat behaviours, the `dayTime`/`nightTime` spawn groups (unblocked by
-the G33 game clock) and the talk/utility tail.
+three wandering Mammon merchants. Slice 2 (2026-07-30) landed the **castle
+staff** — blacksmith / warehouse / mercenary manager / doormen / siege manager /
+battlefield teleporters — which also brought up `ResidenceTeleportZone` +
+`Castle.oustAllPlayers`, named the `CS_OPEN_DOOR`/`CS_MERCENARIES` privileges
+(fixing `RANK9_PRIVS_MASK`, which had the wrong bit), and made the `SiegeInfo`
+window reachable from the Siege Manager NPC. Slices 3–5 cover the small combat
+behaviours, the `dayTime`/`nightTime` spawn groups (unblocked by the G33 game
+clock) and the talk/utility tail.
 
 ---
 

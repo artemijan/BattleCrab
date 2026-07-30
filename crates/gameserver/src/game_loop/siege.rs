@@ -698,6 +698,54 @@ fn teleport_non_owners(world: &mut World, castle_id: i32) {
     }
 }
 
+/// Java `Castle.oustAllPlayers()` → `getTeleZone().oustAllPlayers()`: every
+/// player standing in the castle's `ResidenceTeleportZone` (the owner-restart
+/// territory) is dropped on one of the zone's `<spawn>` points — the inner
+/// castle. Used by the mass gatekeeper's `MASS_TELEPORT`.
+pub(crate) fn oust_all_players(world: &mut World, castle_id: i32) {
+    let Some(zone) = world.data.zone_data.residence_teleport_zone(castle_id) else {
+        return;
+    };
+    if world
+        .data
+        .zone_data
+        .residence_teleport_spawns(castle_id)
+        .is_empty()
+    {
+        return;
+    }
+    let (min_z, max_z) = (zone.territory.min_z, zone.territory.max_z);
+    // Collect first — teleporting mutates the world and re-runs visibility.
+    let inside: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|oid| {
+            world
+                .objects
+                .get_component::<Position>(oid)
+                .is_some_and(|p| {
+                    p.z >= min_z && p.z <= max_z && zone.territory.contains_2d(p.x, p.y)
+                })
+        })
+        .collect();
+
+    for oid in inside {
+        // `ZoneRespawn.getSpawnLoc()` picks a random point per player.
+        let spawns: Vec<(i32, i32, i32)> = world
+            .data
+            .zone_data
+            .residence_teleport_spawns(castle_id)
+            .to_vec();
+        let idx = world.roll(spawns.len() as i32) as usize;
+        let (x, y, z) = spawns[idx];
+        super::death::teleport_player(world, oid, x, y, z);
+    }
+}
+
 /// Broadcast `SystemMessage(id, castleName = castle_id)` to every online player.
 fn broadcast_sm(world: &World, message_id: i16, castle_id: i32) {
     let pkt = server_packets::system_message_with(message_id, &[SmParam::CastleName(castle_id)]);
@@ -1180,6 +1228,24 @@ pub(crate) fn handle_request_join_siege(world: &mut World, client_id: u32, body:
     }
 
     send_siege_info(world, client_id, castle_id, clan_id, player, now);
+}
+
+/// Java `Siege.listRegisterClan(player)` — the same window, opened by talking
+/// to a castle's Siege Manager NPC as a non-owner (`ai/others/
+/// CastleSiegeManager`). Resolves the caller's clan itself.
+pub(crate) fn list_register_clan(world: &World, client_id: u32, player: i32, castle_id: i32) {
+    let clan_id = world
+        .objects
+        .get_component::<Player>(&player)
+        .map_or(0, |p| p.clan_id);
+    send_siege_info(
+        world,
+        client_id,
+        castle_id,
+        clan_id,
+        player,
+        commons::util::now_millis(),
+    );
 }
 
 /// Java `Siege.listRegisterClan` → `new SiegeInfo(castle, player)`.
