@@ -20,6 +20,7 @@ async-trait = "0.1"
 # crate: commons gives the CLI the servers' URL parsing, tokio the runtime.
 commons = { path = "../commons" }
 tokio.workspace = true
+tracing-subscriber.workspace = true
 
 [dev-dependencies]
 sqlx.workspace = true

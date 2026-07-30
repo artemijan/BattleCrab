@@ -78,6 +78,16 @@ async fn connect(url: &str) -> Result<DatabaseConnection, String> {
 
 #[tokio::main]
 async fn main() -> std::process::ExitCode {
+    // SeaORM reports what it applied through `tracing`; without a subscriber
+    // the tool runs silently, which for `status` means printing nothing at all.
+    tracing_subscriber::fmt()
+        .with_target(false)
+        .without_time()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| "info".into()),
+        )
+        .init();
+
     let args = match parse_args() {
         Ok(args) => args,
         Err(message) => {

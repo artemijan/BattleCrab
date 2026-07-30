@@ -3560,6 +3560,7 @@ dependencies = [
  "sea-orm-migration",
  "sqlx",
  "tokio",
+ "tracing-subscriber",
 ]
 
 [[package]]
