@@ -84,6 +84,33 @@ pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str
     placed
 }
 
+/// `MinionList.addMinion(master, npcId)` — place **one** extra minion of the
+/// given id beside its leader, ignoring the `<minions>` count cap. The
+/// on-attack "call for help" scripts (Timak Orc Troop Leader) summon one at a
+/// time instead of topping a whole group up.
+pub(crate) fn add_minion(world: &mut World, master_oid: i32, npc_id: i32) -> bool {
+    if world
+        .objects
+        .get_component::<Vitals>(&master_oid)
+        .is_none_or(|v| v.dead)
+    {
+        return false;
+    }
+    spawn_one_minion(world, master_oid, npc_id)
+}
+
+/// `MinionList.countSpawnedMinions()` — how much of the leader's escort is
+/// alive right now.
+pub(crate) fn count_spawned_minions(world: &World, master_oid: i32) -> usize {
+    live_pack(world, master_oid).len()
+}
+
+/// Whether a minion of `npc_id` is currently out with this leader — Java's
+/// `for (Monster minion : getSpawnedMinions()) if (minion.getId() == id)` scan.
+pub(crate) fn minion_of_id_alive(world: &World, master_oid: i32, npc_id: i32) -> bool {
+    count_alive_minions(world, master_oid, npc_id) > 0
+}
+
 /// `MinionList.countSpawnedMinionsById`, over the leader's own roster.
 ///
 /// **Not** a world scan: this runs once per minion spawned, and a full

@@ -757,3 +757,276 @@ fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
         siege_date: 0,
     }
 }
+
+// ---------------------------------------------------------------------------
+// Slice 3 — the small combat behaviours
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::quests;
+
+/// Count the NPCs of a given template id in the world.
+fn npc_count(world: &mut World, npc_id: i32) -> usize {
+    let mut n = 0;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(npc, _)| {
+            if npc.npc_id == npc_id {
+                n += 1;
+            }
+        });
+    n
+}
+
+/// An Ol Mahum Transcender sheds into its next stage on the chance roll, and
+/// the new form is already hating whoever was hitting the old one.
+#[test]
+fn a_wounded_mob_polymorphs_into_its_next_form() {
+    const TRANSCENDER_1: i32 = 21261;
+    const TRANSCENDER_2: i32 = 21262;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(TRANSCENDER_2);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, TRANSCENDER_1, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8830, 60, 0, 0);
+
+    // 20% chance → a roll of 0 fires it; the bark group rolls next.
+    world.forced_rolls.extend([0, 0]);
+    quests::notify_attack(&mut world, 8830, NPC_OID, TRANSCENDER_1, None, false);
+
+    assert_eq!(
+        npc_count(&mut world, TRANSCENDER_1),
+        0,
+        "the wounded form is gone"
+    );
+    assert_eq!(
+        npc_count(&mut world, TRANSCENDER_2),
+        1,
+        "the next stage took its place"
+    );
+    // The newcomer inherited the fight.
+    let mut hating = false;
+    let mut new_oid = 0;
+    world
+        .objects
+        .for_each_mut::<(&crate::model::npc::Npc, &Position)>(|(npc, _)| {
+            if npc.npc_id == TRANSCENDER_2 {
+                new_oid = npc.object_id;
+            }
+        });
+    if let Some(aggro) = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&new_oid)
+    {
+        hating = aggro.0.iter().any(|(oid, _)| *oid == 8830);
+    }
+    assert!(hating, "the new form is set on the attacker");
+}
+
+/// The same swing with a failed chance roll changes nothing — the morph is a
+/// chance, not a threshold.
+#[test]
+fn a_failed_chance_roll_leaves_the_mob_alone() {
+    const TRANSCENDER_1: i32 = 21261;
+    let (mut world, _db, _l) = combat_test_world();
+    add_test_npc(&mut world, NPC_OID, TRANSCENDER_1, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8831, 60, 0, 0);
+
+    // chance is 20 — a roll of 20 misses.
+    world.forced_rolls.push_back(20);
+    quests::notify_attack(&mut world, 8831, NPC_OID, TRANSCENDER_1, None, false);
+
+    assert_eq!(
+        npc_count(&mut world, TRANSCENDER_1),
+        1,
+        "the mob is still itself"
+    );
+    assert_eq!(npc_count(&mut world, 21262), 0, "nothing was spawned");
+}
+
+/// Killing one angel raises its twin on the corpse.
+#[test]
+fn killing_an_angel_raises_its_twin() {
+    const ANGEL: i32 = 20830;
+    const TWIN: i32 = 20859;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(TWIN);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, ANGEL, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8832, 60, 0, 0);
+
+    quests::notify_kill(&mut world, 8832, NPC_OID, ANGEL);
+
+    assert_eq!(npc_count(&mut world, TWIN), 1, "the twin rose");
+}
+
+/// The Timak leader calls in one private per successful roll, and stops at
+/// three (Java's `countSpawnedMinions() < 3`).
+#[test]
+fn timak_leader_calls_privates_one_at_a_time() {
+    const LEADER: i32 = 20767;
+    const PRIVATE_A: i32 = 20768;
+    const PRIVATE_B: i32 = 20769;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(LEADER);
+        t.type_name = "Monster".into();
+        t.ai_params
+            .insert("SummonPrivateRate".to_string(), "100".to_string());
+        for npc_id in [PRIVATE_A, PRIVATE_B] {
+            t.minions.push(crate::data::npc_data::MinionHolder {
+                npc_id,
+                count: 1,
+                group: "Privates".to_string(),
+            });
+        }
+        world.data.npc_data.insert_for_test(t);
+        for npc_id in [PRIVATE_A, PRIVATE_B] {
+            let mut m = crate::data::npc_data::default_template(npc_id);
+            m.type_name = "Monster".into();
+            world.data.npc_data.insert_for_test(m);
+        }
+    }
+    add_test_npc(&mut world, NPC_OID, LEADER, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8833, 60, 0, 0);
+
+    // rate 100 always passes; the second roll picks the bark.
+    world.forced_rolls.extend([0, 0]);
+    quests::notify_attack(&mut world, 8833, NPC_OID, LEADER, None, false);
+    assert_eq!(npc_count(&mut world, PRIVATE_A), 1, "one private answered");
+    assert_eq!(
+        npc_count(&mut world, PRIVATE_B),
+        0,
+        "only one per swing — not the whole group"
+    );
+
+    world.forced_rolls.extend([0, 0]);
+    quests::notify_attack(&mut world, 8833, NPC_OID, LEADER, None, false);
+    assert_eq!(
+        npc_count(&mut world, PRIVATE_B),
+        1,
+        "the next swing calls the other private"
+    );
+}
+
+/// An Elpy runs directly away from whoever hit it, roughly 500 units, and
+/// commits to the walk (`MOVE_TO`) so the AI doesn't drag it back.
+#[test]
+fn an_elpy_flees_from_its_attacker() {
+    const ELPY: i32 = 20432;
+    let (mut world, _db, _l) = combat_test_world();
+    add_test_npc(&mut world, NPC_OID, ELPY, "Monster", 20, 100, 0, 0);
+    // The attacker stands to the west, so the mob should run east.
+    let _rx = ingame_player(&mut world, 1, 8834, -100, 0, 0);
+
+    quests::notify_attack(&mut world, 8834, NPC_OID, ELPY, None, false);
+
+    let intention = world
+        .objects
+        .get_component::<crate::model::npc::NpcAi>(&NPC_OID)
+        .map(|ai| ai.intention);
+    assert_eq!(
+        intention,
+        Some(crate::model::npc::NpcIntention::MoveTo),
+        "the mob commits to the flight"
+    );
+    let dest = world
+        .objects
+        .get_component::<crate::model::components::Movement>(&NPC_OID)
+        .map(|m| (m.0.dest_x, m.0.dest_y));
+    let (dx, _dy) = dest.expect("the mob is walking somewhere");
+    assert!(
+        dx > 100,
+        "it ran away from the attacker, not towards them: {dest:?}"
+    );
+}
+
+/// Felling a fairy tree from close up releases 20 guardians — on top of the
+/// 20 that quest 421 (`Little Wing's Big Adventure`) swarms the killer with,
+/// since Java registers **both** scripts on the same kill and this port now
+/// does too. Beyond 1500 units neither reacts.
+#[test]
+fn a_felled_fairy_tree_releases_its_guardians() {
+    const FAIRY_TREE: i32 = 27185;
+    const SOUL_GUARDIAN: i32 = 27189;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(SOUL_GUARDIAN);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8835, 100, 0, 0);
+
+    quests::notify_kill(&mut world, 8835, NPC_OID, FAIRY_TREE);
+    assert_eq!(
+        npc_count(&mut world, SOUL_GUARDIAN),
+        40,
+        "20 guardians from this script + quest 421's own 20"
+    );
+}
+
+#[test]
+fn a_fairy_tree_felled_from_afar_stays_quiet() {
+    const FAIRY_TREE: i32 = 27186;
+    const SOUL_GUARDIAN: i32 = 27189;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(SOUL_GUARDIAN);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 8836, 2000, 0, 0);
+
+    quests::notify_kill(&mut world, 8836, NPC_OID, FAIRY_TREE);
+    assert_eq!(
+        npc_count(&mut world, SOUL_GUARDIAN),
+        0,
+        "out of range (>1500), no revenge"
+    );
+}
+
+/// A fairy tree is rooted where it stands (Java `setImmobilized(true)` +
+/// `setRandomWalking(false)`).
+#[test]
+fn a_fairy_tree_is_immobile() {
+    const FAIRY_TREE: i32 = 27187;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(FAIRY_TREE);
+        t.type_name = "Monster".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    let oid = crate::model::npc::spawn_npc_at(&mut world, FAIRY_TREE, 0, 0, 0, 0).expect("spawned");
+    assert!(
+        crate::game_loop::abnormal::is_movement_disabled(&world, oid),
+        "the tree cannot move"
+    );
+}
+
+/// The siege Headquarters is exempt from lethal blows — its script marks it,
+/// and the `Lethal` effect honours the mark.
+#[test]
+fn the_siege_headquarters_ignores_a_lethal_blow() {
+    const HEADQUARTERS: i32 = 35062;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(HEADQUARTERS);
+        t.type_name = "Npc".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    let oid =
+        crate::model::npc::spawn_npc_at(&mut world, HEADQUARTERS, 0, 0, 0, 0).expect("spawned");
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::NotLethalable>(&oid),
+        "the spawn hook marks it non-lethalable"
+    );
+}

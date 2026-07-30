@@ -340,9 +340,37 @@ impl QuestScript for Q00421LittleWingsBigAdventure {
     fn on_kill(&self, ctx: &mut QuestCtx) {
         // Kill a Tree of Vision (rather than merely drinking from it) and its
         // Guardian Ghosts swarm the killer — 20 of them, each despawning after
-        // five minutes. The killer is in range by construction (they dealt the
-        // killing blow), so Java's ALT_PARTY_RANGE check always passes here.
+        // five minutes.
+        //
+        // Java gates this on `checkIfInRange(ALT_PARTY_RANGE, killer, npc,
+        // true)`. That check was omitted here on the grounds that the killer is
+        // "in range by construction" — which a ranged or magic kill disproves,
+        // and dodging the ambush that way is the point (the `ai/others/
+        // FairyTrees` swarm on the same trees has the same 1500-unit gate).
         if tree_data(ctx.npc_id).is_none() {
+            return;
+        }
+        let range = ctx.world.cfg.character.alt_party_range as f64;
+        let within = {
+            let npc = ctx
+                .world
+                .objects
+                .get_component::<crate::model::components::Position>(&ctx.npc)
+                .copied();
+            let killer = ctx
+                .world
+                .objects
+                .get_component::<crate::model::components::Position>(&ctx.player)
+                .copied();
+            match (npc, killer) {
+                (Some(n), Some(k)) => {
+                    let (dx, dy, dz) = ((n.x - k.x) as f64, (n.y - k.y) as f64, (n.z - k.z) as f64);
+                    (dx * dx + dy * dy + dz * dz).sqrt() <= range
+                }
+                _ => false,
+            }
+        };
+        if !within {
             return;
         }
         for _ in 0..20 {

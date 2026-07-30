@@ -42,6 +42,14 @@ pub struct OlympiadObserver {
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Immobilized;
 
+/// Java `Creature.setLethalable(false)` — this NPC cannot be finished by a
+/// lethal blow (`Lethal`/`HalfKill`). Raid bosses are immune by template; this
+/// marker is for the ones a script exempts, i.e. `ai/others/NonLethalableNpcs`'
+/// siege Headquarters (35062), which would otherwise be one Lethal Strike away
+/// from deleting a clan's whole siege investment.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct NotLethalable;
+
 /// Marks an NPC as part of the active Sailren wave encounter (its
 /// velociraptors, pterosaur, trex, and Sailren himself). The wave mobs also
 /// spawn in the open world, so the kill-chain only advances for tagged ones.

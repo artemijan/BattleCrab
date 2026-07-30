@@ -18517,16 +18517,27 @@ fn quest_q00421_guardian_ambush_despawns() {
         qs.vars.insert("cond".to_string(), "2".to_string());
     }
 
-    // Fell the tree — the ambush spawns.
+    // Fell the tree — the ambush spawns. Since the G22 `ai/others` sweep the
+    // standalone `FairyTrees` script swarms the same trees with 20 more (Java
+    // registers both scripts on this kill), so 40 appear; theirs last 30 s,
+    // this quest's 5 minutes.
     combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0);
     assert_eq!(
         npcs_of(&mut world, GUARDIAN).len(),
+        40,
+        "20 Guardian Ghosts from the quest + 20 from ai/others/FairyTrees"
+    );
+
+    // After 30 s the FairyTrees half is gone and the quest's ambush remains.
+    advance_ticks(&mut world, 301);
+    assert_eq!(
+        npcs_of(&mut world, GUARDIAN).len(),
         20,
-        "20 Guardian Ghosts swarm the killer"
+        "the FairyTrees guardians (30 s) expire first"
     );
 
     // Five minutes later, they are gone.
-    advance_ticks(&mut world, 3001); // 300_000 ms / 100 ms per tick
+    advance_ticks(&mut world, 2700); // the rest of the 300_000 ms
     assert!(
         npcs_of(&mut world, GUARDIAN).is_empty(),
         "the ambush despawns after 5 minutes"

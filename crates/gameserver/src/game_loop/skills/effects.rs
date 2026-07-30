@@ -494,14 +494,19 @@ pub(crate) fn apply_skill_effects(
                     continue;
                 }
                 // `isLethalable()`: raid bosses are immune — the same check
-                // `apply_mute_interrupt` already uses. Grand-boss/door
-                // immunity isn't modeled, so it's not checked here.
+                // `apply_mute_interrupt` already uses — as is anything a script
+                // exempted (`setLethalable(false)`: the siege Headquarters).
+                // Grand-boss/door immunity isn't modeled, so it's not checked.
                 let is_raid = world
                     .objects
                     .get_component::<crate::model::npc::Npc>(&target_oid)
                     .and_then(|n| n.template(world))
                     .is_some_and(|t| t.is_raid());
-                if is_raid {
+                if is_raid
+                    || world
+                        .objects
+                        .has_component::<crate::model::components::NotLethalable>(&target_oid)
+                {
                     continue;
                 }
                 // `isHpBlocked()` (Celestial Shield, …): a landed `DamageBlock`

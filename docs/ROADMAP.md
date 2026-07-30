@@ -1002,9 +1002,11 @@ staff** — blacksmith / warehouse / mercenary manager / doormen / siege manager
 battlefield teleporters — which also brought up `ResidenceTeleportZone` +
 `Castle.oustAllPlayers`, named the `CS_OPEN_DOOR`/`CS_MERCENARIES` privileges
 (fixing `RANK9_PRIVS_MASK`, which had the wrong bit), and made the `SiegeInfo`
-window reachable from the Siege Manager NPC. Slices 3–5 cover the small combat
-behaviours, the `dayTime`/`nightTime` spawn groups (unblocked by the G33 game
-clock) and the talk/utility tail.
+window reachable from the Siege Manager NPC. Slice 3 (2026-07-30) landed the small combat
+behaviours (polymorphing mobs, the Timak leader's privates, fleeing Elpies, the
+fairy-tree ambush, the non-lethalable siege HQ) and fixed quest 421's missing
+`ALT_PARTY_RANGE` gate. Slices 4–5 cover the `dayTime`/`nightTime` spawn groups
+(unblocked by the G33 game clock) and the talk/utility tail.
 
 ---
 

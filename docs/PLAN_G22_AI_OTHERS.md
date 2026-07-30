@@ -124,11 +124,29 @@ Grand Crusade castle-side banner) on town-zone entry — no Interlude opcode.
 region rather than Java's `MapRegionManager` region (no map-region table in
 this port) — same audience in practice, marked `TODO(G22)` at the site.
 
-### Slice 3 — combat mob behaviours
+### Slice 3 — combat mob behaviours  ✅ LANDED 2026-07-30
 `PolymorphingOnAttack`, `PolymorphingAngel`, `TimakOrcTroopLeader`,
-`FleeMonsters`, `FairyTrees`, `NonLethalableNpcs`. All small, all on hooks the
-areas sweep already landed (`on_attack`, `on_kill`, `on_spawn`,
-`minions::spawn_minion_group`).
+`FleeMonsters`, `FairyTrees`, `NonLethalableNpcs` in
+`scripts/mob_behaviours.rs`, on the hooks the areas sweep already landed.
+New underneath: `minions::add_minion` / `count_spawned_minions` /
+`minion_of_id_alive` (a leader calls **one** private per swing — the existing
+path only tops a whole group up), and a `NotLethalable` marker component read
+by the `Lethal` effect (`setLethalable(false)`, the siege Headquarters).
+
+Notes worth keeping:
+- `setRandomWalking(false)` has no per-instance equivalent here, but
+  `setImmobilized(true)` covers the fairy trees: `is_movement_disabled` (which
+  the idle random-walk branch goes through) already reads `Immobilized`.
+- The `FleeMonsters` flight reuses the Fear geometry (angle away, 500 units,
+  `MoveTo` intention so the AI doesn't re-chase); `disableCoreAI` has no port
+  equivalent and both mobs are passive anyway.
+- **Both** this script's `FairyTrees` swarm and quest 421's fire on the same
+  tree kill — 40 guardians, which is what Java does too (two registered
+  scripts). Q421's port was missing Java's `ALT_PARTY_RANGE` gate ("the killer
+  is in range by construction" — untrue for a ranged kill); **fixed here**, so
+  both swarms share the same 1500-unit radius.
+- Java's Timak guard `!monster.isTeleporting()` has no port equivalent (NPC
+  teleport state isn't modelled; nothing teleports that mob).
 
 ### Slice 4 — day/night spawn groups
 `Spawns/DayNightSpawns` + `Spawns/NoRandomActivity`: teach the spawn loader the

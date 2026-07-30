@@ -31,6 +31,7 @@ mod frozen_labyrinth;
 mod hot_springs;
 pub mod last_imperial_tomb;
 mod mammons;
+mod mob_behaviours;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
 pub mod npc_location_info;
@@ -497,6 +498,13 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(castle_services::CastleDoorManager),
         Arc::new(castle_services::CastleSiegeManager),
         Arc::new(castle_services::CastleTeleporter),
+        // ai/others — slice 3: the small combat behaviours.
+        Arc::new(mob_behaviours::PolymorphingOnAttack),
+        Arc::new(mob_behaviours::PolymorphingAngel),
+        Arc::new(mob_behaviours::TimakOrcTroopLeader),
+        Arc::new(mob_behaviours::FleeMonsters),
+        Arc::new(mob_behaviours::FairyTrees),
+        Arc::new(mob_behaviours::NonLethalableNpcs),
     ];
     QuestRegistry::new(scripts)
 }
