@@ -18,6 +18,7 @@
 //!   `email` is a copy of its master's, which is what links the two, and its
 //!   `is_verified` is NULL.
 
+use sqlx::AssertSqlSafe;
 use sqlx::SqlitePool;
 
 use crate::error::{ApiError, ApiResult};
@@ -85,11 +86,12 @@ pub fn normalize_email(email: &str) -> String {
 /// Looks up a game account by login name. Cannot return a master account:
 /// `login = ?` never matches a NULL login.
 pub async fn find_by_login(pool: &SqlitePool, login: &str) -> ApiResult<Option<Account>> {
-    let row: Option<Row> =
-        sqlx::query_as(&format!("SELECT {COLUMNS} FROM accounts WHERE login = ?"))
-            .bind(normalize_login(login))
-            .fetch_optional(pool)
-            .await?;
+    let row: Option<Row> = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT {COLUMNS} FROM accounts WHERE login = ?"
+    )))
+    .bind(normalize_login(login))
+    .fetch_optional(pool)
+    .await?;
 
     Ok(row.map(to_account))
 }
@@ -100,9 +102,9 @@ pub async fn find_by_login(pool: &SqlitePool, login: &str) -> ApiResult<Option<A
 /// accounts carry their master's address, so without it a sub-account row could
 /// be returned here and authenticated against.
 pub async fn find_master_by_email(pool: &SqlitePool, email: &str) -> ApiResult<Option<Account>> {
-    let row: Option<Row> = sqlx::query_as(&format!(
+    let row: Option<Row> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM accounts WHERE login IS NULL AND email = ? COLLATE NOCASE"
-    ))
+    )))
     .bind(normalize_email(email))
     .fetch_optional(pool)
     .await?;

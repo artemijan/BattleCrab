@@ -19,7 +19,10 @@ async fn add_accounts_table(url: &str) {
     .unwrap();
     let pool = commons::db::init(url, 1).await.unwrap();
     for stmt in sql.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-        sqlx::query(stmt).execute(&pool).await.unwrap();
+        sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+            .execute(&pool)
+            .await
+            .unwrap();
     }
     pool.close().await;
 }
@@ -152,7 +155,10 @@ async fn create_persist_delete_restore() {
     {
         let pool = commons::db::init(&url, 1).await.unwrap();
         for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-            sqlx::query(stmt).execute(&pool).await.unwrap();
+            sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                .execute(&pool)
+                .await
+                .unwrap();
         }
         pool.close().await;
     }
@@ -300,7 +306,10 @@ async fn login_char_count_excludes_expired_deletions() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -441,7 +450,10 @@ async fn shortcuts_and_macros_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -646,7 +658,10 @@ async fn friendships_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -773,7 +788,10 @@ async fn quest_states_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -916,7 +934,10 @@ async fn recommendations_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -1038,7 +1059,10 @@ async fn skill_reuse_cooldowns_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -1165,7 +1189,10 @@ async fn active_buffs_persist_with_frozen_countdown() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;
@@ -1307,7 +1334,10 @@ async fn pets_persist() {
         ] {
             let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
             for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
-                sqlx::query(stmt).execute(&pool).await.unwrap();
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
             }
         }
         pool.close().await;

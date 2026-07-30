@@ -16,7 +16,11 @@ license = "GPL-3.0"
 [workspace.dependencies]
 tokio = { version = "1", features = ["rt-multi-thread", "net", "sync", "time", "macros", "signal", "io-util"] }
 bytes = "1"
-sqlx = { version = "0.8.0", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+# Pinned to the version SeaORM 2 links: the two must agree or `SqlitePool`
+# from `commons::db` and the one inside a `DatabaseConnection` become different
+# types (docs/PLAN_ORM_MIGRATION.md §2). Raw sqlx survives only until the last
+# hand-written query is ported.
+sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
 blowfish = "0.10.0"
 byteorder = "1"
 cipher = "0.5.2"

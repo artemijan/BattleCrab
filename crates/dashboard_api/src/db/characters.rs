@@ -9,6 +9,7 @@
 //! coordinates, access level and inventory-adjacent fields that must not reach
 //! the API (§5.6).
 
+use sqlx::AssertSqlSafe;
 use sqlx::SqlitePool;
 
 use crate::error::ApiResult;
@@ -62,10 +63,10 @@ const COLUMNS: &str =
     "account_name, char_name, level, classid, race, sex, onlinetime, lastAccess, online";
 
 pub async fn list_for_account(pool: &SqlitePool, login: &str) -> ApiResult<Vec<CharacterSummary>> {
-    let rows: Vec<Row> = sqlx::query_as(&format!(
+    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM characters WHERE account_name = ? AND deletetime = 0 \
          ORDER BY lastAccess DESC"
-    ))
+    )))
     .bind(super::accounts::normalize_login(login))
     .fetch_all(pool)
     .await?;
@@ -80,11 +81,11 @@ pub async fn list_for_account(pool: &SqlitePool, login: &str) -> ApiResult<Vec<C
 /// accounts that share the address. `login IS NOT NULL` keeps the master's own
 /// row out of the subquery.
 pub async fn list_for_master(pool: &SqlitePool, email: &str) -> ApiResult<Vec<CharacterSummary>> {
-    let rows: Vec<Row> = sqlx::query_as(&format!(
+    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {COLUMNS} FROM characters WHERE deletetime = 0 AND account_name IN \
          (SELECT login FROM accounts WHERE login IS NOT NULL AND email = ? COLLATE NOCASE) \
          ORDER BY lastAccess DESC"
-    ))
+    )))
     .bind(super::accounts::normalize_email(email))
     .fetch_all(pool)
     .await?;

@@ -18,6 +18,7 @@
 //! character state is memory-first in the game server, so there is no such
 //! thing as a safe character write from here, admin or not.
 
+use sqlx::AssertSqlSafe;
 use sqlx::SqlitePool;
 
 use crate::error::{ApiError, ApiResult};
@@ -154,19 +155,20 @@ pub async fn list_masters(
 
     let pattern = like_contains(query);
 
-    let (total,): (i64,) =
-        sqlx::query_as(&format!("SELECT COUNT(*) FROM accounts a WHERE {WHERE}"))
-            .bind(query)
-            .bind(&pattern)
-            .bind(&pattern)
-            .fetch_one(pool)
-            .await?;
+    let (total,): (i64,) = sqlx::query_as(AssertSqlSafe(format!(
+        "SELECT COUNT(*) FROM accounts a WHERE {WHERE}"
+    )))
+    .bind(query)
+    .bind(&pattern)
+    .bind(&pattern)
+    .fetch_one(pool)
+    .await?;
 
     type Row = (String, Option<i64>, i32, String, i64, i64, i64);
     // `sort`/`dir` are interpolated, but only through the enums' fixed sql()
     // strings — nothing caller-supplied can reach the statement text.
     let order = format!("{} {}, a.rowid DESC", sort.sql(), dir.sql());
-    let rows: Vec<Row> = sqlx::query_as(&format!(
+    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT a.email, a.is_verified, a.accessLevel, a.created_time, a.lastactive, \
            (SELECT COUNT(*) FROM accounts g \
               WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE) AS game_accounts, \
@@ -175,7 +177,7 @@ pub async fn list_masters(
                  WHERE g.login IS NOT NULL AND g.email = a.email COLLATE NOCASE)) AS characters \
          FROM accounts a WHERE {WHERE} \
          ORDER BY {order} LIMIT ? OFFSET ?"
-    ))
+    )))
     .bind(query)
     .bind(&pattern)
     .bind(&pattern)
@@ -227,10 +229,10 @@ pub async fn game_accounts_for_master(
     pool: &SqlitePool,
     email: &str,
 ) -> ApiResult<Vec<GameAccountInfo>> {
-    let rows: Vec<GameAccountRow> = sqlx::query_as(&format!(
+    let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
          WHERE a.login IS NOT NULL AND a.email = ? COLLATE NOCASE ORDER BY a.login"
-    ))
+    )))
     .bind(super::accounts::normalize_email(email))
     .fetch_all(pool)
     .await?;
@@ -247,11 +249,11 @@ pub async fn search_game_accounts(
     query: &str,
     limit: i64,
 ) -> ApiResult<Vec<GameAccountInfo>> {
-    let rows: Vec<GameAccountRow> = sqlx::query_as(&format!(
+    let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
          WHERE a.login IS NOT NULL AND (? = '' OR a.login LIKE ? ESCAPE '\\') \
          ORDER BY a.login LIMIT ?"
-    ))
+    )))
     .bind(query)
     .bind(like_contains(query))
     .bind(limit)

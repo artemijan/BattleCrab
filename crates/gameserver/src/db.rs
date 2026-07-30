@@ -2891,7 +2891,10 @@ async fn run(
                             MAX / 4
                         )
                     };
-                    exec(&pool, sqlx::query(&q)).await;
+                    // Table name comes from the fixed array above and the
+                    // numbers are consts — nothing caller-supplied reaches the
+                    // statement text (sqlx 0.9 requires the assertion).
+                    exec(&pool, sqlx::query(sqlx::AssertSqlSafe(q))).await;
                 }
             }
             DbCommand::RepairCharacter { char_name } => {
@@ -4985,7 +4988,7 @@ async fn delete_char(pool: &SqlitePool, char_id: i32) {
 
 async fn exec<'q>(
     pool: &SqlitePool,
-    q: sqlx::query::Query<'q, sqlx::Sqlite, sqlx::sqlite::SqliteArguments<'q>>,
+    q: sqlx::query::Query<'q, sqlx::Sqlite, sqlx::sqlite::SqliteArguments>,
 ) {
     if let Err(e) = q.execute(pool).await {
         warn!("DB thread: query failed: {e}");
