@@ -119,6 +119,27 @@ pub struct PrivateStore {
     pub title: String,
 }
 
+/// One line of a private **buy** store: what the owner wants, how many are
+/// still wanted, and what they pay each. Keyed by item id — the owner doesn't
+/// hold the item yet, which is what separates this from [`StoreItem`].
+#[derive(Debug, Clone, Copy)]
+pub struct WantedItem {
+    pub item_id: i32,
+    pub count: i64,
+    pub price: i64,
+    pub enchant: i32,
+}
+
+/// A player's active private *buy* store (Java `Player._buyList` + store
+/// title). Present only while the store is open; the store *type* byte
+/// (BUY / BUY_MANAGE) lives on
+/// [`Player::store_type`](crate::model::Player::store_type).
+#[derive(Component, Debug, Clone, Default)]
+pub struct PrivateBuyStore {
+    pub items: Vec<WantedItem>,
+    pub title: String,
+}
+
 /// An in-progress player-to-player trade (Java `Player._activeTradeList`).
 /// Present on both partners while the trade window is open; `items` are this
 /// player's offered lines (`price` unused), `confirmed` is their "OK" press.

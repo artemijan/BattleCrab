@@ -334,3 +334,409 @@ pub(crate) fn is_store_owner(world: &World, oid: i32) -> bool {
         .map(|p| p.store_type)
         == Some(STORE_TYPE_SELL)
 }
+
+// ---------------------------------------------------------------------------
+// Private BUY stores (`PrivateStoreType.BUY`)
+// ---------------------------------------------------------------------------
+//
+// The mirror image of the sell store: the owner posts what they *want* and
+// sits on the adena; a customer walks up and sells into it. The wanted lines
+// are keyed by item id (the owner holds nothing yet), and the owner's adena is
+// checked when the store opens and again per sale — Java re-checks because the
+// owner can spend elsewhere while the store stands.
+
+use crate::model::components::{PrivateBuyStore, WantedItem};
+
+const STORE_TYPE_BUY: u8 = 3;
+const STORE_TYPE_BUY_MANAGE: u8 = 4;
+/// `Inventory.MAX_ADENA`.
+const MAX_ADENA: i64 = 99_900_000_000;
+
+/// `RequestPrivateStoreManageBuy` (0x99) → `Player.tryOpenPrivateBuyStore`:
+/// open the setup window (the owner's inventory as a price reference, plus
+/// whatever is already on the wanted list) and flag them BUY_MANAGE.
+pub(crate) fn open_manage_buy(world: &mut World, client_id: u32) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    // Java: an already-open buy store is torn down first (`setPrivateStoreType
+    // (NONE)`), so re-opening the manage window closes the live store.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .map(|p| p.store_type)
+        == Some(STORE_TYPE_BUY)
+    {
+        close_buy_store(world, owner);
+    }
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&owner)
+    {
+        p.store_type = STORE_TYPE_BUY_MANAGE;
+    }
+    send_manage_buy_window(world, client_id);
+}
+
+/// Re-send `PrivateStoreManageListBuy` **without** touching the store type —
+/// what Java does on every `SetPrivateStoreListBuy` refusal (the player is
+/// already in BUY_MANAGE from opening the window).
+fn send_manage_buy_window(world: &mut World, client_id: u32) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    let packet = {
+        let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
+            return;
+        };
+        let inventory: Vec<StoreLine> = inv
+            .items()
+            .iter()
+            .filter_map(|it| {
+                let t = world.data.item_data.get(it.item_id)?;
+                (!t.is_quest_item).then_some(StoreLine {
+                    item: *it,
+                    template: t,
+                    price: 0,
+                })
+            })
+            .collect();
+        let wanted = wanted_lines(world, owner);
+        sp::manage_list_buy(owner, adena(world, owner), &inventory, &wanted)
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// `SetPrivateStoreListBuy` (0x9A): open the store for business. Java's gates,
+/// in order — combat/duel, the store limit, per-line and total price overflow,
+/// and "can you actually afford everything you just asked for".
+pub(crate) fn handle_set_list_buy(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(lines) = cp::PrivateStoreItemList::read_set_list_buy(body) else {
+        // Java: a malformed list drops the store type back to NONE.
+        close_buy_store(world, owner);
+        return;
+    };
+    // `AttackStanceTaskManager.hasAttackStanceTask(player) || player.isInDuel()`.
+    if super::combat::has_attack_stance(world, owner) {
+        send_sm(
+            world,
+            client_id,
+            sp::sm_ids::WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP,
+        );
+        send_manage_buy_window(world, client_id);
+        return;
+    }
+    let limit = private_store_limit(world, owner);
+    if lines.len() as i32 > limit {
+        send_sm(
+            world,
+            client_id,
+            sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+        );
+        send_manage_buy_window(world, client_id);
+        return;
+    }
+
+    let mut items = Vec::with_capacity(lines.len());
+    let mut total: i64 = 0;
+    for line in &lines {
+        if world.data.item_data.get(line.item_id).is_none() {
+            continue;
+        }
+        // `(MAX_ADENA / count) < price` — the per-line overflow guard.
+        if line.count > 0 && (MAX_ADENA / line.count) < line.price {
+            return;
+        }
+        total = total.saturating_add(line.count.saturating_mul(line.price));
+        if total > MAX_ADENA {
+            return;
+        }
+        items.push(WantedItem {
+            item_id: line.item_id,
+            count: line.count,
+            price: line.price,
+            enchant: line.enchant,
+        });
+    }
+    if items.is_empty() {
+        close_buy_store(world, owner);
+        return;
+    }
+    // "The purchase price is higher than the amount of money that you have."
+    if total > adena(world, owner) {
+        send_sm(
+            world,
+            client_id,
+            sp::sm_ids::THE_PURCHASE_PRICE_IS_HIGHER_THAN_YOUR_MONEY,
+        );
+        send_manage_buy_window(world, client_id);
+        return;
+    }
+
+    let title = world
+        .objects
+        .get_component::<PrivateBuyStore>(&owner)
+        .map(|s| s.title.clone())
+        .unwrap_or_default();
+    world.objects.add_components(
+        &owner,
+        PrivateBuyStore {
+            items,
+            title: title.clone(),
+        },
+    );
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&owner)
+    {
+        p.store_type = STORE_TYPE_BUY;
+    }
+    // Java `sitDown()` then broadcasts the type + the title.
+    super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
+    super::party::broadcast_user_info(world, owner);
+}
+
+/// `RequestPrivateStoreQuitBuy` (0x9C).
+pub(crate) fn handle_quit_buy(world: &mut World, client_id: u32) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    close_buy_store(world, owner);
+}
+
+/// `SetPrivateStoreMsgBuy` (0x9D) / `SetPrivateStoreMsgSell` (0x97): name the
+/// store. The title is kept on the component and re-broadcast.
+pub(crate) fn handle_set_msg(world: &mut World, client_id: u32, body: &[u8], buy: bool) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    let title = commons::network::PacketReader::new(body)
+        .read_string()
+        .unwrap_or_default();
+    if buy {
+        if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
+            store.title = title.clone();
+        }
+        super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, &title));
+    } else {
+        if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&owner) {
+            store.title = title.clone();
+        }
+        super::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, &title));
+    }
+}
+
+/// A customer clicked a buy-store owner: show them what is wanted. Java sends
+/// only the lines the viewer can fill (`getAvailableItems(inventory)`).
+pub(crate) fn open_seller_view(world: &mut World, client_id: u32, viewer: i32, owner: i32) {
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .map(|p| p.store_type)
+        != Some(STORE_TYPE_BUY)
+    {
+        return;
+    }
+    let lines = wanted_lines(world, owner)
+        .into_iter()
+        .filter(|line| {
+            world
+                .objects
+                .get_component::<Inventory>(&viewer)
+                .is_some_and(|inv| {
+                    inv.items().iter().any(|it| {
+                        it.item_id == line.item.item_id
+                            && inv.paperdoll_slot_of(it.object_id).is_none()
+                    })
+                })
+        })
+        .collect::<Vec<_>>();
+    let packet = sp::list_buy(owner, adena(world, viewer), &lines);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// `RequestPrivateStoreSell` (0x9F): the customer hands items over and takes
+/// the owner's adena. Items customer → owner, adena owner → customer; the
+/// store closes once every line is filled.
+pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(pkt) = cp::PrivateStoreItemList::read_store_sell(body) else {
+        return;
+    };
+    let Some(seller) = player_of(world, client_id) else {
+        return;
+    };
+    let owner = pkt.store_player;
+    if owner == seller
+        || world
+            .objects
+            .get_component::<crate::model::Player>(&owner)
+            .map(|p| p.store_type)
+            != Some(STORE_TYPE_BUY)
+    {
+        return;
+    }
+    // Java `isInsideRadius3D(storePlayer, INTERACTION_DISTANCE)`.
+    if !super::target::can_interact(world, seller, owner) {
+        return;
+    }
+
+    // Match each offered line against a live wanted line + the seller's actual
+    // holdings, and total what the owner owes.
+    let mut sales: Vec<(i32, i32, i64, i64)> = Vec::new(); // (obj, item, count, price)
+    let mut total: i64 = 0;
+    for line in &pkt.items {
+        let Some(store) = world.objects.get_component::<PrivateBuyStore>(&owner) else {
+            return;
+        };
+        let Some(wanted) = store
+            .items
+            .iter()
+            .find(|w| w.item_id == line.item_id && w.price == line.price)
+        else {
+            continue;
+        };
+        let held = world
+            .objects
+            .get_component::<Inventory>(&seller)
+            .and_then(|inv| {
+                inv.items()
+                    .iter()
+                    .find(|it| it.object_id == line.object_id && it.item_id == line.item_id)
+                    .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
+                    .map(|it| it.count)
+            })
+            .unwrap_or(0);
+        let n = line.count.min(wanted.count).min(held);
+        if n <= 0 {
+            continue;
+        }
+        total = total.saturating_add(wanted.price * n);
+        sales.push((line.object_id, line.item_id, n, wanted.price));
+    }
+    if sales.is_empty() {
+        return;
+    }
+    // The owner may have spent their adena elsewhere since opening the store.
+    if adena(world, owner) < total {
+        send_sm(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
+        return;
+    }
+
+    for &(obj_id, item_id, n, _price) in &sales {
+        if world
+            .objects
+            .get_component_mut::<Inventory>(&seller)
+            .and_then(|inv| inv.remove_by_object_id(obj_id, n))
+            .is_none()
+        {
+            continue;
+        }
+        let enchant = world
+            .objects
+            .get_component::<PrivateBuyStore>(&owner)
+            .and_then(|s| s.items.iter().find(|w| w.item_id == item_id))
+            .map(|w| w.enchant)
+            .unwrap_or(0);
+        if let Some(new_oid) = world.alloc_object_id()
+            && let Some(inv) = world.objects.get_component_mut::<Inventory>(&owner)
+        {
+            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant);
+        }
+        if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
+            if let Some(w) = store.items.iter_mut().find(|w| w.item_id == item_id) {
+                w.count -= n;
+            }
+            store.items.retain(|w| w.count > 0);
+        }
+    }
+    // Adena owner → seller.
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&owner) {
+        inv.remove_item(ADENA_ID, total);
+    }
+    super::items::add_inventory_item(world, seller, ADENA_ID, total);
+
+    refresh_inventory(world, seller);
+    refresh_inventory(world, owner);
+
+    let empty = world
+        .objects
+        .get_component::<PrivateBuyStore>(&owner)
+        .is_none_or(|s| s.items.is_empty());
+    if empty {
+        close_buy_store(world, owner);
+    } else {
+        open_seller_view(world, client_id, seller, owner);
+    }
+}
+
+/// Whether the object is a buy-store owner (for `Action` routing).
+pub(crate) fn is_buy_store_owner(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&oid)
+        .map(|p| p.store_type)
+        == Some(STORE_TYPE_BUY)
+}
+
+/// The wanted lines as packet rows. The item block wants an instance, so each
+/// line is described by a synthetic one (object id 0 — nothing owns it yet).
+fn wanted_lines(world: &World, owner: i32) -> Vec<StoreLine<'_>> {
+    world
+        .objects
+        .get_component::<PrivateBuyStore>(&owner)
+        .map(|store| {
+            store
+                .items
+                .iter()
+                .filter_map(|w| {
+                    let t = world.data.item_data.get(w.item_id)?;
+                    Some(StoreLine {
+                        item: instance(0, w.item_id, w.count, w.enchant),
+                        template: t,
+                        price: w.price,
+                    })
+                })
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+/// `Player.getPrivateBuyStoreLimit()` — 5 lines for a Dwarf, 4 for everyone
+/// else on this dist.
+fn private_store_limit(world: &World, owner: i32) -> i32 {
+    let dwarf = world
+        .objects
+        .get_component::<crate::model::Player>(&owner)
+        .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+        .is_some_and(|r| r == crate::enums::Race::Dwarf);
+    if dwarf {
+        world.cfg.character.max_pvtstore_buy_slots_dwarf
+    } else {
+        world.cfg.character.max_pvtstore_buy_slots_other
+    }
+}
+
+fn close_buy_store(world: &mut World, owner: i32) {
+    world.objects.remove_component::<PrivateBuyStore>(&owner);
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&owner)
+    {
+        p.store_type = 0;
+    }
+    super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
+    super::party::broadcast_user_info(world, owner);
+}
+
+fn send_sm(world: &World, client_id: u32, message_id: i16) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(sp::system_message_with(message_id, &[]));
+    }
+}

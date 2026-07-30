@@ -129,6 +129,9 @@ pub mod sm_ids {
     pub const S1_DISAPPEARED: i16 = 302;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;
     pub const WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP: i16 = 1135;
+    /// "The purchase price is higher than the amount of money that you have and
+    /// so you cannot open a personal store."
+    pub const THE_PURCHASE_PRICE_IS_HIGHER_THAN_YOUR_MONEY: i16 = 720;
     pub const S2_HAS_BEEN_CREATED_FOR_C1_AFTER_THE_PAYMENT_OF_S3_ADENA_WAS_RECEIVED: i16 = 1145;
     pub const C1_CREATED_S2_AFTER_RECEIVING_S3_ADENA: i16 = 1146;
     pub const S3_S2_S_HAVE_BEEN_CREATED_FOR_C1_AT_THE_PRICE_OF_S4_ADENA: i16 = 1147;

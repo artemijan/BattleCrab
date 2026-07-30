@@ -65,6 +65,9 @@ pub const WAREHOUSE_WITHDRAW_LIST: u8 = 0x42;
 pub const PRIVATE_STORE_MANAGE_LIST: u8 = 0xA0;
 pub const PRIVATE_STORE_LIST: u8 = 0xA1;
 pub const PRIVATE_STORE_MSG: u8 = 0xA2;
+pub const PRIVATE_STORE_BUY_MANAGE_LIST: u8 = 0xBD;
+pub const PRIVATE_STORE_BUY_LIST: u8 = 0xBE;
+pub const PRIVATE_STORE_BUY_MSG: u8 = 0xBF;
 /// Player-to-player trade window.
 pub const TRADE_START: u8 = 0x14;
 pub const TRADE_OWN_ADD: u8 = 0x1A;

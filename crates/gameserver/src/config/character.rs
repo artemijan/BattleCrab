@@ -41,6 +41,11 @@ pub struct CharacterConfig {
     pub respawn_restore_cp: f64,
     pub respawn_restore_hp: f64,
     pub respawn_restore_mp: f64,
+    /// `MaxPvtStoreBuySlotsDwarf` / `MaxPvtStoreBuySlotsOther` (5 / 4 here) —
+    /// how many wanted lines a private *buy* store may carry
+    /// (`Player.getPrivateBuyStoreLimit`, race-dependent).
+    pub max_pvtstore_buy_slots_dwarf: i32,
+    pub max_pvtstore_buy_slots_other: i32,
     /// `AltPartyRange`: also the max reward distance from a killed monster.
     pub alt_party_range: i32,
     /// `Delevel` + `DelevelMinimum`: whether death XP loss can drop a level,
@@ -222,6 +227,8 @@ impl Default for CharacterConfig {
             respawn_restore_hp: 65.0,
             respawn_restore_mp: 0.0,
             alt_party_range: 1500,
+            max_pvtstore_buy_slots_dwarf: 5,
+            max_pvtstore_buy_slots_other: 4,
             player_delevel: true,
             delevel_minimum: 85,
             random_respawn_in_town: true,
@@ -314,6 +321,10 @@ impl CharacterConfig {
             respawn_restore_cp: p.get_float("RespawnRestoreCP", 0.0) as f64,
             respawn_restore_hp: p.get_float("RespawnRestoreHP", 65.0) as f64,
             respawn_restore_mp: p.get_float("RespawnRestoreMP", 0.0) as f64,
+            max_pvtstore_buy_slots_dwarf: p
+                .get_int("MaxPvtStoreBuySlotsDwarf", d.max_pvtstore_buy_slots_dwarf),
+            max_pvtstore_buy_slots_other: p
+                .get_int("MaxPvtStoreBuySlotsOther", d.max_pvtstore_buy_slots_other),
             alt_party_range: p.get_int("AltPartyRange", d.alt_party_range),
             player_delevel: p.get_bool("Delevel", d.player_delevel),
             delevel_minimum: p.get_int("DelevelMinimum", d.delevel_minimum),

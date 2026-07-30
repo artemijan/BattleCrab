@@ -3250,3 +3250,234 @@ fn augment_make_and_cancel() {
         "adena cancel fee charged"
     );
 }
+
+/// Build a `SetPrivateStoreListBuy` body: the wanted lines, keyed by item id
+/// with the client's enchant/augment/element tail.
+fn set_buy_list(lines: &[(i32, i64, i64)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SET_PRIVATE_STORE_LIST_BUY);
+    w.write_i32(lines.len() as i32);
+    for &(item_id, count, price) in lines {
+        w.write_i32(item_id);
+        w.write_i16(0); // enchant
+        w.write_i16(0); // unknown
+        w.write_i64(count);
+        w.write_i64(price);
+        w.write_i32(0); // augment option 1
+        w.write_i32(0); // augment option 2
+        for _ in 0..8 {
+            w.write_i16(0); // attack element + six defences
+        }
+        w.write_i32(0); // visual id
+    }
+    w.into_bytes()
+}
+
+/// Build a `RequestPrivateStoreSell` body: the store owner and the offered
+/// lines, with the soul-crystal/SA tails empty.
+fn store_sell_body(store_player: i32, lines: &[(i32, i32, i64, i64)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_SELL);
+    w.write_i32(store_player);
+    w.write_i32(lines.len() as i32);
+    for &(object_id, item_id, count, price) in lines {
+        w.write_i32(object_id);
+        w.write_i32(item_id);
+        w.write_i16(0); // enchant
+        w.write_i16(0); // unknown
+        w.write_i64(count);
+        w.write_i64(price);
+        w.write_i32(0); // visual
+        w.write_i32(0); // option 1
+        w.write_i32(0); // option 2
+        w.write_u8(0); // soul-crystal options
+        w.write_u8(0); // SA effects
+    }
+    w.into_bytes()
+}
+
+/// A private **buy** store: the owner posts what they want, a customer sells
+/// into it — items customer→owner, adena owner→customer.
+#[test]
+fn private_buy_store_takes_items_and_pays_out() {
+    use crate::model::inventory::Inventory;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut owner_rx = ingame_player_access(&mut world, 1, 9610, 0);
+    let mut seller_rx = ingame_player_access(&mut world, 2, 9611, 0);
+    drain(&mut owner_rx);
+    drain(&mut seller_rx);
+    // The buyer has 1000 adena to spend; the seller has 10 D-grade crystals.
+    super::items::add_inventory_item(&mut world, 9610, 57, 1000).unwrap();
+    super::items::add_inventory_item(&mut world, 9611, 1458, 10).unwrap();
+    let crystal_oid = world
+        .objects
+        .get_component::<Inventory>(&9611)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 1458)
+        .unwrap()
+        .object_id;
+
+    // Wanted: 4 crystals at 100 adena each (400 total, affordable).
+    on_packet(&mut world, 1, set_buy_list(&[(1458, 4, 100)]));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9610)
+            .unwrap()
+            .store_type,
+        3,
+        "the buy store is open"
+    );
+
+    // The customer offers ten, but only four are wanted — the rest stay put.
+    on_packet(
+        &mut world,
+        2,
+        store_sell_body(9610, &[(crystal_oid, 1458, 10, 100)]),
+    );
+    {
+        let seller_inv = world.objects.get_component::<Inventory>(&9611).unwrap();
+        assert_eq!(
+            seller_inv.count_of(1458),
+            6,
+            "only the four wanted changed hands"
+        );
+        assert_eq!(
+            seller_inv.count_of(57),
+            400,
+            "and were paid for at 100 each"
+        );
+    }
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9610)
+            .unwrap()
+            .store_type,
+        0,
+        "a filled buy store closes"
+    );
+
+    // Re-open a smaller store and fill it in two goes.
+    on_packet(&mut world, 1, set_buy_list(&[(1458, 4, 100)]));
+    on_packet(
+        &mut world,
+        2,
+        store_sell_body(9610, &[(crystal_oid, 1458, 3, 100)]),
+    );
+    let seller_inv = world.objects.get_component::<Inventory>(&9611).unwrap();
+    assert_eq!(
+        seller_inv.count_of(1458),
+        3,
+        "three more crystals handed over"
+    );
+    assert_eq!(seller_inv.count_of(57), 700, "paid 300 more adena");
+    let owner_inv = world.objects.get_component::<Inventory>(&9610).unwrap();
+    assert_eq!(owner_inv.count_of(1458), 7, "the owner received them");
+    assert_eq!(owner_inv.count_of(57), 300, "and spent 300 more");
+    // One line still wanted, so the store stays open.
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PrivateBuyStore>(&9610)
+            .unwrap()
+            .items[0]
+            .count,
+        1,
+        "one crystal still wanted"
+    );
+
+    // Filling the last one closes the store.
+    on_packet(
+        &mut world,
+        2,
+        store_sell_body(9610, &[(crystal_oid, 1458, 1, 100)]),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9610)
+            .unwrap()
+            .store_type,
+        0,
+        "a filled buy store closes"
+    );
+}
+
+/// A buy store may not ask for more than the owner can pay for.
+#[test]
+fn private_buy_store_refuses_an_unaffordable_list() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9612, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9612, 57, 100).unwrap();
+
+    // 10 × 100 = 1000 adena wanted, but only 100 in the purse.
+    on_packet(&mut world, 1, set_buy_list(&[(1458, 10, 100)]));
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9612)
+            .unwrap()
+            .store_type,
+        0,
+        "the store never opened"
+    );
+    assert!(
+        has_system_message(
+            &drain(&mut rx),
+            server_packets::sm_ids::THE_PURCHASE_PRICE_IS_HIGHER_THAN_YOUR_MONEY
+        ),
+        "and the client is told why"
+    );
+}
+
+/// The wanted list is capped by `MaxPvtStoreBuySlots*` (4 for a non-Dwarf).
+#[test]
+fn private_buy_store_enforces_the_slot_limit() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9613, 0);
+    drain(&mut rx);
+    super::items::add_inventory_item(&mut world, 9613, 57, 1_000_000).unwrap();
+
+    let five = [
+        (1458, 1, 100),
+        (1459, 1, 100),
+        (1460, 1, 100),
+        (1461, 1, 100),
+        (1462, 1, 100),
+    ];
+    on_packet(&mut world, 1, set_buy_list(&five));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9613)
+            .unwrap()
+            .store_type,
+        0,
+        "five lines is one over the limit"
+    );
+
+    on_packet(&mut world, 1, set_buy_list(&five[..4]));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9613)
+            .unwrap()
+            .store_type,
+        3,
+        "four lines is fine"
+    );
+}

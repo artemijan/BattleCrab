@@ -59,10 +59,13 @@ fn may_enchant(world: &World, object_id: i32) -> bool {
     {
         return false;
     }
-    // `getPrivateStoreType() != NONE` refusal.
+    // `getPrivateStoreType() != NONE` refusal — either kind of store counts.
     !world
         .objects
         .has_component::<crate::model::components::PrivateStore>(&object_id)
+        && !world
+            .objects
+            .has_component::<crate::model::components::PrivateBuyStore>(&object_id)
 }
 
 fn player_oid(world: &World, client_id: u32) -> Option<i32> {

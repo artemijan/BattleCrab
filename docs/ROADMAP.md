@@ -139,7 +139,11 @@ tab; buying back charges the same half-price and restores the instance
 (CharInfo/UserInfo byte, byte-test safe); manage window (0xA0), set-list (0x31),
 buyer view (0xA1) on click, `PrivateStoreMsgSell` (0xA2) title, buy transaction
 (0x83, items seller→buyer + adena buyer→seller, store closes when sold out),
-quit (0x96). Buy/manufacture stores + package sell deferred.
+quit (0x96); the **buy store** (0x99/0x9A/0x9C/0x9F + `PrivateStoreManageListBuy`/
+`ListBuy`/`MsgBuy` 0xBD-0xBF) and both store titles (0x97/0x9D) landed
+2026-07-30 with the remaining-ports audit's row 6, unblocking offline-trader
+restore. Manufacture stores are ported; package sell and its wholesale message
+(ex 0x47) stay deferred.
 ✅ **Player-to-player trade** — `Trade`/`PendingTrade` components; request (0x1A)
 → `SendTradeRequest` (0x70), answer (0x55) → `TradeStart` (0x14) both sides, add
 item (0x1B) → `TradeOwnAdd`/`TradeOtherAdd` (resets confirms), confirm/cancel

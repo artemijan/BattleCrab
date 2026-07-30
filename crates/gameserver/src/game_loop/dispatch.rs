@@ -246,6 +246,27 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         }
         cop::REQUEST_PRIVATE_STORE_QUIT_SELL => super::private_store::handle_quit(world, client_id),
         cop::REQUEST_PRIVATE_STORE_BUY => super::private_store::handle_buy(world, client_id, body),
+        // The buy-store half (G15's deferred sibling, landed with the
+        // remaining-ports audit's row 6).
+        cop::REQUEST_PRIVATE_STORE_MANAGE_BUY => {
+            super::private_store::open_manage_buy(world, client_id)
+        }
+        cop::SET_PRIVATE_STORE_LIST_BUY => {
+            super::private_store::handle_set_list_buy(world, client_id, body)
+        }
+        cop::REQUEST_PRIVATE_STORE_QUIT_BUY => {
+            super::private_store::handle_quit_buy(world, client_id)
+        }
+        cop::REQUEST_PRIVATE_STORE_SELL => {
+            super::private_store::handle_store_sell(world, client_id, body)
+        }
+        // Store titles, both kinds.
+        cop::SET_PRIVATE_STORE_MSG_SELL => {
+            super::private_store::handle_set_msg(world, client_id, body, false)
+        }
+        cop::SET_PRIVATE_STORE_MSG_BUY => {
+            super::private_store::handle_set_msg(world, client_id, body, true)
+        }
         cop::TRADE_REQUEST => super::trade::handle_request(world, client_id, body),
         cop::ANSWER_TRADE_REQUEST => super::trade::handle_answer(world, client_id, body),
         cop::ADD_TRADE_ITEM => super::trade::handle_add_item(world, client_id, body),
