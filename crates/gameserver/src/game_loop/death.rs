@@ -1722,8 +1722,8 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
 
     // Clan-war kill bookkeeping (Java `Player.doDie` → `ClanWar.onKill`):
     // only outside PVP/siege zones, killer and victim both clanned players.
-    // (Java also runs an AntiFeed check and exempts academy members —
-    // AntiFeedManager unported, academy TODO(G18.6).)
+    // (`clan_war_on_kill` itself exempts academy members, as Java does; the
+    // AntiFeed check stays unported.)
 
     // Death XP penalty — Java skips it entirely when the victim died inside a
     // PVP or siege zone (`!isLucky() && !insidePvpZone && !isOnEvent()`).

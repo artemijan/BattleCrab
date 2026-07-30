@@ -1004,10 +1004,10 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
     }
     let clan = world.clans.get(&clan_id).expect("checked above");
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::pledge_show_member_list_all(
-            clan,
-            &world.objects,
-        ));
+        // Java `sendAllTo`: one tab per sub-unit, main pledge last.
+        for pkt in server_packets::pledge_show_member_list_all_tabs(clan, &world.objects) {
+            cs.send(pkt);
+        }
     }
     notify_members(world, clan_id, object_id, true);
     // Clan Advent (skill 19009) — Java `ClanMaster.onPlayerLogin`.
@@ -1090,16 +1090,35 @@ const CLAN_DISSOLVE_DELAY_MS: i64 = 7 * 86_400_000;
 /// The game loop runs at 10 ticks/s — wall-clock millis to scheduler ticks.
 const MS_PER_TICK: i64 = 100;
 
-fn send_sm_with(world: &World, oid: i32, id: i16, params: &[SmParam]) {
+pub(crate) fn send_sm_with(world: &World, oid: i32, id: i16, params: &[SmParam]) {
     if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
         cs.send(server_packets::system_message_with(id, params));
     }
 }
 
-fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
+pub(crate) fn send_to_member(world: &World, oid: i32, pkt: Vec<u8>) {
     if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
         cs.send(pkt);
     }
+}
+
+/// Whether `oid` holds `privilege` in their clan (leader always does — the
+/// clan's `has_privilege` folds that in).
+pub(crate) fn has_clan_privilege(world: &World, oid: i32, privilege: i32) -> bool {
+    let Some(p) = world.objects.get_component::<Player>(&oid) else {
+        return false;
+    };
+    world
+        .clans
+        .get(&p.clan_id)
+        .is_some_and(|c| c.has_privilege(oid, p.clan_privs, privilege))
+}
+
+/// `Clan.removeClanMember(objectId, 0)` for a graduating academy member: the
+/// **zero** rejoin expiry is the point — a graduate may join a new clan at
+/// once, which is half of what the academy is worth to them.
+pub(crate) fn remove_clan_member_for_academy(world: &mut World, clan_id: i32, member_oid: i32) {
+    remove_clan_member(world, clan_id, member_oid, 0);
 }
 
 fn player_name(world: &World, oid: i32) -> String {
@@ -1463,8 +1482,9 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
         char_id: player_oid,
         expiry: 0,
     });
-    // TODO(G18.6b): Java also sets `lvlJoinedAcademy` for the eventual academy
-    // graduation reward (apprentice/sponsor links) — unported, no consumer yet.
+    // Java `RequestAnswerJoinPledge`: an academy invite also stamps the level
+    // the recruit joined at — the graduation reward scales off it.
+    super::academy::on_join(world, player_oid, pledge_type);
 
     send_sm_with(world, player_oid, sm_ids::ENTERED_THE_CLAN, &[]);
     let joined = server_packets::system_message_with(
@@ -1507,11 +1527,12 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
         send_to_member(world, oid, count.clone());
     }
     // "this activates the clan tab on the new member".
-    let all = server_packets::pledge_show_member_list_all(
+    for pkt in server_packets::pledge_show_member_list_all_tabs(
         world.clans.get(&clan_id).expect("inserted above"),
         &world.objects,
-    );
-    send_to_member(world, player_oid, all);
+    ) {
+        send_to_member(world, player_oid, pkt);
+    }
     super::party::broadcast_user_info(world, player_oid);
 }
 
@@ -1519,9 +1540,15 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
 /// main pledge: drop the roster row, tear the member's clan state down (online)
 /// or push the column reset (offline), and stamp the rejoin penalty. The
 /// caller sends the leave/oust messages and the roster-delete broadcasts.
-/// Apprentice/sponsor and sub-pledge-leader cleanup: TODO(G18.6); castle
-/// circlet removal and residential-skill teardown: TODO(G24).
+/// The academy trio (`lvl_joined_academy` + the apprentice/sponsor pair) is
+/// cleared here, as Java's `setClan(null)` does. Sub-pledge-leader cleanup is
+/// still TODO(G18.6); castle circlet removal and residential-skill teardown
+/// TODO(G24).
 fn remove_clan_member(world: &mut World, clan_id: i32, member_oid: i32, clan_join_expiry: i64) {
+    // Java `Player.setClan(null)` clears `lvlJoinedAcademy` + the mentorship
+    // pair; run it first, while the member is still on the roster (the
+    // mentorship lookup reads it).
+    super::academy::on_leave_clan(world, member_oid);
     let Some(clan) = world.clans.get_mut(&clan_id) else {
         return;
     };
@@ -2224,10 +2251,12 @@ fn broadcast_clan_status(world: &World, clan_id: i32) {
         return;
     };
     let delete_all = server_packets::pledge_show_member_list_delete_all();
-    let all = server_packets::pledge_show_member_list_all(clan, &world.objects);
+    let tabs = server_packets::pledge_show_member_list_all_tabs(clan, &world.objects);
     for oid in online_members(world, clan_id) {
         send_to_member(world, oid, delete_all.clone());
-        send_to_member(world, oid, all.clone());
+        for pkt in &tabs {
+            send_to_member(world, oid, pkt.clone());
+        }
     }
 }
 
@@ -2400,14 +2429,27 @@ pub(crate) fn handle_request_pledge_member_info(world: &World, client_id: u32, e
         member.title = p.title.clone();
         member.power_grade = p.power_grade;
     }
-    let clan_name = world
+    // Java: a sub-unit member's pane names the *unit*, not the clan.
+    let unit_name = world
         .clans
         .get(&clan_id)
-        .map(|c| c.name.clone())
+        .map(|c| {
+            if member.pledge_type == 0 {
+                c.name.clone()
+            } else {
+                c.sub_pledges
+                    .get(&member.pledge_type)
+                    .map(|sp| sp.name.clone())
+                    .unwrap_or_else(|| c.name.clone())
+            }
+        })
         .unwrap_or_default();
+    let partner_name = super::academy::partner_name(world, clan_id, member.char_id);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::pledge_receive_member_info(
-            &member, &clan_name,
+            &member,
+            &unit_name,
+            &partner_name,
         ));
     }
 }
@@ -2452,7 +2494,16 @@ pub(crate) fn handle_request_pledge_set_member_power_grade(
     if member.char_id == leader_id {
         return;
     }
-    // TODO(G18.6): Java rejects academy members (SM 1754) — no academy yet.
+    // Java: an academy member cannot be re-ranked out of rank 9.
+    if super::academy::member_is_academy(world, clan_id, member.char_id) {
+        send_sm_with(
+            world,
+            player,
+            sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER,
+            &[],
+        );
+        return;
+    }
 
     if let Some(c) = world.clans.get_mut(&clan_id)
         && let Some(m) = c.members.iter_mut().find(|m| m.char_id == member.char_id)
@@ -2626,7 +2677,16 @@ pub(crate) fn handle_change_clan_leader(
         );
         return;
     }
-    // TODO(G18.6): Java rejects academy members (SM 1754) — no academy yet.
+    // Java: an academy member cannot be nominated clan leader.
+    if super::academy::member_is_academy(world, clan_id, member.char_id) {
+        send_sm_with(
+            world,
+            player_oid,
+            sm_ids::THAT_PRIVILEGE_CANNOT_BE_GRANTED_TO_A_CLAN_ACADEMY_MEMBER,
+            &[],
+        );
+        return;
+    }
     let already_pending = world
         .clans
         .get(&clan_id)
@@ -3352,8 +3412,9 @@ pub(crate) fn rearm_clan_wars_at_boot(world: &mut World) {
 
 /// Java `ClanWar.onKill` — a war-relevant player kill. The caller (the death
 /// pipeline) has already checked: killer and victim are players outside
-/// PVP/siege zones, both clanned. (Java also exempts academy members —
-/// TODO(G18.6) — and runs an AntiFeed check, unported.)
+/// PVP/siege zones, both clanned. Academy members on **either** side are
+/// exempt, as in Java — a clan cannot farm war points off its own trainees.
+/// (Java also runs an AntiFeed check, unported.)
 pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i32) {
     let (killer_clan, killer_name) = match world.objects.get_component::<Player>(&killer_oid) {
         Some(p) => (p.clan_id, p.name.clone()),
@@ -3365,6 +3426,12 @@ pub(crate) fn clan_war_on_kill(world: &mut World, killer_oid: i32, victim_oid: i
             None => return,
         };
     if killer_clan == 0 || victim_clan == 0 {
+        return;
+    }
+    // Java `Player.doDie`: `!isAcademyMember() && !pk.isAcademyMember()`.
+    if super::academy::is_academy_member(world, killer_oid)
+        || super::academy::is_academy_member(world, victim_oid)
+    {
         return;
     }
     let Some(war) = war_between(world, killer_clan, victim_clan) else {

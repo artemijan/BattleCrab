@@ -7,6 +7,7 @@
 //! the game thread, keeping handler code sequential and 1:1 with Java `run()`.
 
 mod abnormal;
+pub(crate) mod academy;
 pub(crate) mod admin;
 pub(crate) mod antharas;
 pub(crate) mod area_npcs;

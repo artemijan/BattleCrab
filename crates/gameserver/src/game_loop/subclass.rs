@@ -601,6 +601,18 @@ pub(crate) fn set_class_id(world: &mut World, player_oid: i32, class_id: i32) ->
     };
     let (index, level) = (p.class_index, p.level);
 
+    // Java `Player.setClassId` opens with the academy block — **before** the
+    // class changes, so the graduate is still an academy member when the clan
+    // is paid. `THIRD_CLASS_GROUP` is CategoryData's name for the *2nd*-transfer
+    // classes (the base class is the first group).
+    if world
+        .data
+        .categories
+        .contains("THIRD_CLASS_GROUP", class_id)
+    {
+        super::academy::graduate(world, player_oid);
+    }
+
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.class_id = class_id;
         if index == 0 {

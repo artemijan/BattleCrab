@@ -309,6 +309,18 @@ pub struct Player {
     /// guard, 1001/1002/2001/2002 knight order. Drives `pledge_class_of` and
     /// the sub-pledge member caps.
     pub pledge_type: i32,
+    /// Java `Player._lvlJoinedAcademy` (`characters.lvl_joined_academy`) — the
+    /// level the character was at when it joined a clan academy, and the only
+    /// thing that makes it *an academy member* (`isAcademyMember()` is
+    /// `> 0`). The graduation reputation reward scales off it, so it must be
+    /// the joining level and not the current one.
+    pub lvl_joined_academy: i32,
+    /// Java `Player._apprentice` / `_sponsor` (`characters.apprentice` /
+    /// `sponsor`) — the two ends of an academy mentorship, each holding the
+    /// other's object id. A sponsor is a full member; an apprentice is the
+    /// academy member they took on.
+    pub apprentice: i32,
+    pub sponsor: i32,
     /// Java `clan.getCrestId()`/`getAllyCrestId()`, denormalized like
     /// `ally_id` so the store-only UserInfo/CharInfo builders can write them;
     /// synced at enter-world and whenever a crest changes.
@@ -981,6 +993,9 @@ impl Player {
             power_grade: c.power_grade,
             ally_id: 0, // synced from the clan at enter-world
             pledge_type: c.pledge_type,
+            lvl_joined_academy: c.lvl_joined_academy,
+            apprentice: c.apprentice,
+            sponsor: c.sponsor,
             clan_crest_id: 0, // synced from the clan at enter-world
             ally_crest_id: 0, // synced from the clan at enter-world
             face: c.face,

@@ -78,6 +78,9 @@ async fn user_info_test() {
         power_grade: 0,
         ally_id: 0,
         pledge_type: 0,
+        lvl_joined_academy: 0,
+        apprentice: 0,
+        sponsor: 0,
         clan_crest_id: 0,
         ally_crest_id: 0,
         face: 1,       // m.face / visualFaceId

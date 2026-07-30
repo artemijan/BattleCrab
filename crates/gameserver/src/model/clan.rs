@@ -242,6 +242,10 @@ pub const CL_MANAGE_RANKS: i32 = 1 << 4;
 /// `ClanPrivilege.CL_PLEDGE_WAR` (ordinal 5) — required to declare/stop wars.
 pub const CL_PLEDGE_WAR: i32 = 1 << 5;
 
+/// `ClanPrivilege.CL_APPRENTICE` (ordinal 8) — required to pair or unpair an
+/// academy member with a sponsor (`RequestPledgeSetAcademyMaster`).
+pub const CL_APPRENTICE: i32 = 1 << 8;
+
 /// `ClanPrivilege.CL_REGISTER_CREST` (ordinal 7) — required to register/
 /// delete a clan or large crest.
 pub const CL_REGISTER_CREST: i32 = 1 << 7;

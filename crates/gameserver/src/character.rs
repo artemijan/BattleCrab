@@ -81,6 +81,11 @@ pub struct CharData {
     pub power_grade: i32,
     /// `characters.subpledge` (sub-unit membership; 0 = main pledge).
     pub pledge_type: i32,
+    /// `characters.lvl_joined_academy` — non-zero marks an academy member.
+    pub lvl_joined_academy: i32,
+    /// `characters.apprentice` / `characters.sponsor` — the mentorship pair.
+    pub apprentice: i32,
+    pub sponsor: i32,
     pub race: i32,
     pub class_id: i32,
     pub base_class_id: i32,

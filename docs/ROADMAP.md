@@ -393,7 +393,7 @@ fuller `//setclass`, `//setsubclass`.
 `config/MentorCoins.xml` — graduation triggers off class change), per the
 scope gate.
 
-### G18 — Clans (full) ✅ COMPLETE — see [PROGRESS.md](PROGRESS.md) and [PLAN_G18_CLANS.md](PLAN_G18_CLANS.md) for the full 8-slice breakdown
+### G18 — Clans (full) ✅ COMPLETE (incl. G18.6 clan academy, 2026-07-31) — see [PROGRESS.md](PROGRESS.md) and [PLAN_G18_CLANS.md](PLAN_G18_CLANS.md) for the full 8-slice breakdown
 Everything past G11's creation slice: invite/join/leave/oust/dissolve; clan
 level-up + reputation; sub-pledges (royal guard / order of knights) + academy;
 clan skills + `PledgeSkillList`; crests (pledge/ally/large); notices; clan
