@@ -37,6 +37,12 @@ pub struct FeatureConfig {
     pub castle_sell_tax_light: i32,
     /// `SellTaxForDarkSide` (30 here).
     pub castle_sell_tax_dark: i32,
+    /// `CompleteAcademyMinPoints` (190) / `CompleteAcademyMaxPoints` (650) —
+    /// the clan-reputation reward for graduating an academy member, scaled by
+    /// the level they *joined* at: max at ≤16, min at ≥39, and
+    /// `max - (level - 16) * 20` in between (Java `Player.setClassId`).
+    pub complete_academy_min_points: i32,
+    pub complete_academy_max_points: i32,
 }
 
 impl Default for FeatureConfig {
@@ -52,6 +58,8 @@ impl Default for FeatureConfig {
             castle_sell_tax_neutral: 15,
             castle_sell_tax_light: 0,
             castle_sell_tax_dark: 30,
+            complete_academy_min_points: 190,
+            complete_academy_max_points: 650,
         }
     }
 }
@@ -77,6 +85,10 @@ impl FeatureConfig {
             castle_buy_tax_neutral: p.get_int("BuyTaxForNeutralSide", d.castle_buy_tax_neutral),
             castle_buy_tax_light: p.get_int("BuyTaxForLightSide", d.castle_buy_tax_light),
             castle_buy_tax_dark: p.get_int("BuyTaxForDarkSide", d.castle_buy_tax_dark),
+            complete_academy_min_points: p
+                .get_int("CompleteAcademyMinPoints", d.complete_academy_min_points),
+            complete_academy_max_points: p
+                .get_int("CompleteAcademyMaxPoints", d.complete_academy_max_points),
             castle_sell_tax_neutral: p.get_int("SellTaxForNeutralSide", d.castle_sell_tax_neutral),
             castle_sell_tax_light: p.get_int("SellTaxForLightSide", d.castle_sell_tax_light),
             castle_sell_tax_dark: p.get_int("SellTaxForDarkSide", d.castle_sell_tax_dark),

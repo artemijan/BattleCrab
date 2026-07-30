@@ -771,6 +771,21 @@ pub enum DbCommand {
         char_id: i32,
         pledge_type: i32,
     },
+    /// `characters.lvl_joined_academy` — set when a character joins a clan
+    /// academy, cleared on graduation and on leaving the clan. It is what makes
+    /// `isAcademyMember()` true, so it cannot ride the periodic autosave.
+    UpdateCharAcademyLevel {
+        char_id: i32,
+        lvl_joined_academy: i32,
+    },
+    /// `ClanMember.saveApprenticeAndSponsor` — both columns in one UPDATE.
+    /// Java writes this **even when the member is online**, "since both must
+    /// match", so the port keeps it a direct write too.
+    UpdateCharApprenticeSponsor {
+        char_id: i32,
+        apprentice: i32,
+        sponsor: i32,
+    },
     /// `ClanTable.storeClanWars` — upsert one `clan_wars` row (ids, despite the
     /// varchar columns — Java binds ints too).
     SaveClanWar {
@@ -2497,6 +2512,35 @@ async fn run(
                         .await,
                 );
             }
+            DbCommand::UpdateCharAcademyLevel {
+                char_id,
+                lvl_joined_academy,
+            } => {
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(
+                            characters::Column::LvlJoinedAcademy,
+                            lvl_joined_academy.into(),
+                        )
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+            }
+            DbCommand::UpdateCharApprenticeSponsor {
+                char_id,
+                apprentice,
+                sponsor,
+            } => {
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Apprentice, apprentice.into())
+                        .col_expr(characters::Column::Sponsor, sponsor.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+            }
             DbCommand::UpdateCharPledgeType {
                 char_id,
                 pledge_type,
@@ -4074,6 +4118,9 @@ async fn char_data_of(
             create_date: row.create_date.clone(),
             power_grade: row.power_grade.unwrap_or(0),
             pledge_type: row.subpledge,
+            lvl_joined_academy: row.lvl_joined_academy,
+            apprentice: row.apprentice,
+            sponsor: row.sponsor,
             race: row.race.unwrap_or(0),
             class_id: class_id_now,
             base_class_id: row.base_class,

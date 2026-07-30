@@ -45,24 +45,28 @@ pub fn pledge_info(clan: &crate::model::clan::Clan) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// Port of `serverpackets/PledgeShowMemberListAll` for the main pledge
-/// (`_pledgeId` 0): the roster of main-pledge members with per-member online
-/// status resolved live against the world registry. Java sends one of these
-/// per pledge tab (main + each sub-unit) filtered to that `_pledgeId` — the
-/// port only ever opens the main-pledge tab, so sub-unit rosters aren't shown
-/// in the clan window yet (TODO(G18.6c): per-tab `PledgeShowMemberListAll`).
-pub fn pledge_show_member_list_all(
+/// Port of `serverpackets/PledgeShowMemberListAll` — the roster of one pledge
+/// tab, with per-member online status resolved live against the world registry.
+///
+/// Java's `sendAllTo` sends **one packet per sub-unit and then one for the main
+/// pledge**, and the leading `!isSubPledge` int is what tells the client which
+/// is which — the main-pledge packet must go **last**, because the client uses
+/// it to close the set. `unit` names the sub-unit (id, name, leader name) or is
+/// `None` for the main pledge. See [`pledge_show_member_list_all_main`].
+pub fn pledge_show_member_list_all_of(
     clan: &crate::model::clan::Clan,
     objects: &crate::store::EntityStore,
+    unit: Option<(i32, &str, &str)>,
 ) -> Vec<u8> {
+    let (pledge_id, unit_name, leader_name) = unit.unwrap_or((0, &clan.name, clan.leader_name()));
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PLEDGE_SHOW_MEMBER_LIST_ALL);
-    w.write_i32(1); // !isSubPledge
+    w.write_i32(i32::from(unit.is_none())); // !isSubPledge
     w.write_i32(clan.id);
     w.write_i32(1); // Config.SERVER_ID
-    w.write_i32(0); // pledge id (main)
-    w.write_string(&clan.name);
-    w.write_string(clan.leader_name());
+    w.write_i32(pledge_id);
+    w.write_string(unit_name);
+    w.write_string(leader_name);
     w.write_i32(clan.crest_id);
     w.write_i32(clan.level);
     w.write_i32(0); // castle id
@@ -78,9 +82,13 @@ pub fn pledge_show_member_list_all(
     w.write_i32(clan.ally_crest_id);
     w.write_i32(0); // at war
     w.write_i32(0); // territory castle id
-    let main: Vec<_> = clan.members.iter().filter(|m| m.pledge_type == 0).collect();
-    w.write_i32(main.len() as i32);
-    for m in main {
+    let unit_members: Vec<_> = clan
+        .members
+        .iter()
+        .filter(|m| m.pledge_type == pledge_id)
+        .collect();
+    w.write_i32(unit_members.len() as i32);
+    for m in unit_members {
         let online = objects.has_component::<crate::model::Player>(&m.char_id);
         w.write_string(&m.name);
         w.write_i32(m.level);
@@ -88,10 +96,46 @@ pub fn pledge_show_member_list_all(
         w.write_i32(m.sex);
         w.write_i32(m.race);
         w.write_i32(if online { m.char_id } else { 0 });
-        w.write_i32(0); // has sponsor
+        // `m.getSponsor() != 0` — the client marks sponsored members.
+        let sponsored = objects
+            .get_component::<crate::model::Player>(&m.char_id)
+            .is_some_and(|p| p.sponsor != 0);
+        w.write_i32(i32::from(sponsored));
         w.write_u8(online as u8);
     }
     w.into_bytes()
+}
+
+/// The main-pledge tab — the common case, and the one that must be sent last.
+pub fn pledge_show_member_list_all(
+    clan: &crate::model::clan::Clan,
+    objects: &crate::store::EntityStore,
+) -> Vec<u8> {
+    pledge_show_member_list_all_of(clan, objects, None)
+}
+
+/// Java `PledgeShowMemberListAll.sendAllTo(player)`: every sub-unit tab, then
+/// the main pledge. A clan with no sub-units yields just the main packet, which
+/// is exactly what the port sent before sub-unit tabs existed.
+pub fn pledge_show_member_list_all_tabs(
+    clan: &crate::model::clan::Clan,
+    objects: &crate::store::EntityStore,
+) -> Vec<Vec<u8>> {
+    let mut out: Vec<Vec<u8>> = clan
+        .sub_pledges
+        .values()
+        .map(|sp| {
+            let leader = clan
+                .members
+                .iter()
+                .find(|m| m.char_id == sp.leader_id)
+                .map(|m| m.name.as_str())
+                .unwrap_or("");
+            pledge_show_member_list_all_of(clan, objects, Some((sp.id, &sp.name, leader)))
+        })
+        .collect();
+    out.push(pledge_show_member_list_all(clan, objects));
+    out
 }
 
 /// Port of `serverpackets/PledgeShowMemberListUpdate` — one member's
@@ -385,17 +429,26 @@ pub fn pledge_receive_power_info(power_grade: i32, name: &str, privs: i32) -> Ve
 }
 
 /// Port of `serverpackets/PledgeReceiveMemberInfo` — the member-detail pane of
-/// the clan window. Apprentice/sponsor stays empty (TODO(G18.6): academy).
-pub fn pledge_receive_member_info(m: &crate::model::clan::ClanMember, clan_name: &str) -> Vec<u8> {
+/// the clan window.
+///
+/// `unit_name` is the clan's name for a main-pledge member and the sub-unit's
+/// own name otherwise (Java branches on `getPledgeType() != 0`).
+/// `partner_name` is Java's `getApprenticeOrSponsorName()`: this member's
+/// apprentice if they sponsor one, else their sponsor, else empty.
+pub fn pledge_receive_member_info(
+    m: &crate::model::clan::ClanMember,
+    unit_name: &str,
+    partner_name: &str,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_PLEDGE_RECEIVE_MEMBER_INFO);
-    w.write_i32(0); // pledge type (main)
+    w.write_i32(m.pledge_type);
     w.write_string(&m.name);
     w.write_string(&m.title);
     w.write_i32(m.power_grade);
-    w.write_string(clan_name); // main pledge → the clan's own name
-    w.write_string(""); // apprentice/sponsor name
+    w.write_string(unit_name);
+    w.write_string(partner_name);
     w.into_bytes()
 }
 

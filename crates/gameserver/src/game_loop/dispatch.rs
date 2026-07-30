@@ -124,8 +124,11 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_ACQUIRE_SKILL => handle_request_acquire_skill(world, client_id, body),
         cop::REQUEST_ACQUIRE_SKILL_INFO => {
             // `RequestAcquireSkillInfo` (ddd): only the PLEDGE branch is
-            // answered (the class flow works off the enter-world skill list;
-            // TODO(G18.6): SUBPLEDGE squad-skill info).
+            // answered (the class flow works off the enter-world skill list).
+            // The SUBPLEDGE branch stays unanswered on purpose: squad skills
+            // (`subPledgeSkillTree.xml`) need clan level 8+ and Knight's
+            // Epaulettes (9910/9911), and the tree's own comment marks it
+            // "Confirmed CT2.5" — no Interlude clan can reach it.
             let mut r = commons::network::PacketReader::new(body);
             if let (Some(id), Some(level), Some(kind)) = (r.read_i32(), r.read_i32(), r.read_i32())
                 && kind == crate::network::client_packets::RequestAcquireSkill::PLEDGE
@@ -776,6 +779,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         exop::REQUEST_PLEDGE_MEMBER_POWER_INFO => {
             super::clans::handle_request_pledge_member_power_info(world, client_id, ex_body)
+        }
+        exop::REQUEST_PLEDGE_SET_ACADEMY_MASTER => {
+            super::academy::handle_set_academy_master(world, client_id, ex_body)
         }
         exop::REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE => {
             super::clans::handle_request_pledge_set_member_power_grade(world, client_id, ex_body)

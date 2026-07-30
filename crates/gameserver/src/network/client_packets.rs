@@ -345,6 +345,9 @@ pub mod ex_opcodes {
     /// list management, draft list) is the G18 `ClanEntryManager` port.
     pub const REQUEST_PLEDGE_POWER_GRADE_LIST: u16 = 0x13;
     pub const REQUEST_PLEDGE_MEMBER_POWER_INFO: u16 = 0x14;
+    /// `RequestPledgeSetAcademyMaster` — pair/unpair an academy member with a
+    /// sponsor (G18.6).
+    pub const REQUEST_PLEDGE_SET_ACADEMY_MASTER: u16 = 0x12;
     pub const REQUEST_PLEDGE_SET_MEMBER_POWER_GRADE: u16 = 0x15;
     pub const REQUEST_PLEDGE_MEMBER_INFO: u16 = 0x16;
     pub const REQUEST_PLEDGE_REORGANIZE_MEMBER: u16 = 0x2C;
