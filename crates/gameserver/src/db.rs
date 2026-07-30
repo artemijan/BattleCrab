@@ -8,16 +8,16 @@ use std::thread::JoinHandle;
 use models::entity::{
     account_gsdata, account_premium, bbs_favorites, buffer_schemes, castle, castle_manor_procure,
     castle_manor_production, castle_siege_guards, character_friends, character_hennas,
-    character_quests, character_recipebook, character_reco_bonus, character_shortcuts,
-    character_skills, character_skills_save, character_subclasses, character_summon_skills_save,
-    character_summons, character_variables, characters, clanhall, clanhall_auctions_bidders,
-    cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid, items,
-    lottery, mdt_bets, mdt_history, npc_respawns, olympiad_data, olympiad_nobles, pets,
-    punishments, residence_functions, siege_clans,
+    character_macroses, character_quests, character_recipebook, character_reco_bonus,
+    character_shortcuts, character_skills, character_skills_save, character_subclasses,
+    character_summon_skills_save, character_summons, character_variables, characters, clanhall,
+    clanhall_auctions_bidders, cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction,
+    item_auction_bid, item_variations, items, lottery, mdt_bets, mdt_history, npc_respawns,
+    olympiad_data, olympiad_nobles, pets, punishments, residence_functions, siege_clans,
 };
 use models::sea_orm::{
-    ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder,
-    QuerySelect,
+    ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
+    QueryOrder, QuerySelect,
 };
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
@@ -3381,21 +3381,18 @@ async fn load_next_id(db: &DatabaseConnection) -> i64 {
 
 /// `loadCharacterSelectInfo`: rows for an account, expired deletions purged.
 async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows =
-        match sqlx::query("SELECT * FROM characters WHERE account_name=? ORDER BY createDate")
-            .bind(account)
-            .fetch_all(pool)
-            .await
-        {
-            Ok(r) => r,
-            Err(e) => {
-                warn!("DB thread: load_characters failed: {e}");
-                return Vec::new();
-            }
-        };
+    let rows = match characters::Entity::find()
+        .filter(characters::Column::AccountName.eq(account))
+        .order_by_asc(characters::Column::CreateDate)
+        .all(db)
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            warn!("DB thread: load_characters failed: {e}");
+            return Vec::new();
+        }
+    };
 
     // Account-scoped prime (NCoin) balance — same for every char on the
     // account. Best-effort: absent table/row → 0 (Java `restoreMe` catch).
@@ -3407,8 +3404,8 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
     let now = now_millis();
     let mut out = Vec::new();
     for (slot, row) in rows.iter().enumerate() {
-        let delete_time = geti(row, "deletetime");
-        let object_id = geti(row, "charId") as i32;
+        let delete_time = row.deletetime;
+        let object_id = row.char_id;
         if delete_time > 0 && now > delete_time {
             delete_char(db, object_id).await; // restoreChar: purge expired
             continue;
@@ -3416,7 +3413,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
         let items = load_items(db, object_id).await;
         let skills_by_index = load_skills(db, object_id).await;
         let subclasses = load_subclasses(db, object_id).await;
-        let class_id_now = geti(row, "classid") as i32;
+        let class_id_now = row.classid.unwrap_or(0);
         // Java keeps the *active* class in `characters.classid`; the index is
         // whichever subclass slot carries it (0 when it's the base class).
         let active_index = subclasses
@@ -3438,44 +3435,44 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
         let (rec_have, rec_left) = load_reco_bonus(db, object_id).await;
         out.push(CharData {
             object_id,
-            name: gets(row, "char_name"),
-            account_name: gets(row, "account_name"),
-            level: geti(row, "level") as i32,
-            max_hp: geti(row, "maxHp") as i32,
-            cur_hp: getf(row, "curHp"),
-            max_mp: geti(row, "maxMp") as i32,
-            cur_mp: getf(row, "curMp"),
-            face: geti(row, "face") as i32,
-            hair_style: geti(row, "hairStyle") as i32,
-            hair_color: geti(row, "hairColor") as i32,
-            sex: geti(row, "sex") as i32,
-            x: geti(row, "x") as i32,
-            y: geti(row, "y") as i32,
-            z: geti(row, "z") as i32,
-            exp: geti(row, "exp"),
-            sp: geti(row, "sp"),
-            reputation: geti(row, "reputation") as i32,
-            pk_kills: geti(row, "pkkills") as i32,
-            raidboss_points: geti(row, "raidbossPoints") as i32,
-            pvp_kills: geti(row, "pvpkills") as i32,
+            name: row.char_name.clone(),
+            account_name: row.account_name.clone().unwrap_or_default(),
+            level: row.level.unwrap_or(0),
+            max_hp: row.max_hp.unwrap_or(0),
+            cur_hp: row.cur_hp.map(f64::from).unwrap_or(0.0),
+            max_mp: row.max_mp.unwrap_or(0),
+            cur_mp: row.cur_mp.map(f64::from).unwrap_or(0.0),
+            face: row.face.unwrap_or(0),
+            hair_style: row.hair_style.unwrap_or(0),
+            hair_color: row.hair_color.unwrap_or(0),
+            sex: row.sex.unwrap_or(0),
+            x: row.x.unwrap_or(0),
+            y: row.y.unwrap_or(0),
+            z: row.z.unwrap_or(0),
+            exp: row.exp.unwrap_or(0),
+            sp: row.sp,
+            reputation: row.reputation.unwrap_or(0),
+            pk_kills: row.pkkills.unwrap_or(0),
+            raidboss_points: row.raidboss_points,
+            pvp_kills: row.pvpkills.unwrap_or(0),
             rec_have,
             rec_left,
-            clan_id: geti(row, "clanid") as i32,
-            clan_privs: geti(row, "clan_privs") as i32,
-            clan_create_expiry_time: geti(row, "clan_create_expiry_time"),
-            clan_join_expiry_time: geti(row, "clan_join_expiry_time"),
-            power_grade: geti(row, "power_grade") as i32,
-            pledge_type: geti(row, "subpledge") as i32,
-            race: geti(row, "race") as i32,
-            class_id: geti(row, "classid") as i32,
-            base_class_id: geti(row, "base_class") as i32,
+            clan_id: row.clanid.unwrap_or(0),
+            clan_privs: row.clan_privs.unwrap_or(0),
+            clan_create_expiry_time: row.clan_create_expiry_time,
+            clan_join_expiry_time: row.clan_join_expiry_time,
+            power_grade: row.power_grade.unwrap_or(0),
+            pledge_type: row.subpledge,
+            race: row.race.unwrap_or(0),
+            class_id: class_id_now,
+            base_class_id: row.base_class,
             delete_time,
-            last_access: geti(row, "lastAccess"),
-            vitality_points: geti(row, "vitality_points") as i32,
-            pccafe_points: geti(row, "pccafe_points") as i32,
+            last_access: row.last_access,
+            vitality_points: row.vitality_points,
+            pccafe_points: row.pccafe_points,
             prime_points,
-            access_level: geti(row, "accesslevel") as i32,
-            noble: geti(row, "nobless") == 1,
+            access_level: row.accesslevel.unwrap_or(0),
+            noble: row.nobless == 1,
             subclasses,
             char_slot: slot as i32,
             items,
@@ -4227,24 +4224,21 @@ async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::clan::Clan> {
 /// A character's `character_macroses` rows (Java `MacroList.restoreMe`),
 /// commands decoded from the `type,d1,d2[,cmd];…` column encoding.
 async fn load_macros(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query(
-        "SELECT id, icon, name, descr, acronym, commands FROM character_macroses WHERE charId=?",
-    )
-    .bind(owner_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    rows.iter()
+    character_macroses::Entity::find()
+        .filter(character_macroses::Column::CharId.eq(owner_id))
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
         .map(|r| crate::model::shortcut::Macro {
-            id: geti(r, "id") as i32,
-            icon: geti(r, "icon") as i32,
-            name: gets(r, "name"),
-            descr: gets(r, "descr"),
-            acronym: gets(r, "acronym"),
-            commands: crate::model::shortcut::decode_commands(&gets(r, "commands")),
+            id: r.id,
+            icon: r.icon.unwrap_or(0),
+            name: r.name.unwrap_or_default(),
+            descr: r.descr.unwrap_or_default(),
+            acronym: r.acronym.unwrap_or_default(),
+            commands: crate::model::shortcut::decode_commands(
+                r.commands.as_deref().unwrap_or_default(),
+            ),
         })
         .collect()
 }
@@ -4306,54 +4300,39 @@ async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::s
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
 /// every row shown in `CharSelectionInfo`, not just the entered character).
 async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<ItemRow> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
     // Java `PlayerInventory.restore` orders by `loc_data` so a client's saved
     // inventory arrangement (`RequestSaveInventoryOrder`) survives relog.
-    let rows = sqlx::query("SELECT * FROM items WHERE owner_id=? ORDER BY loc_data")
-        .bind(owner_id)
-        .fetch_all(pool)
+    let rows = items::Entity::find()
+        .filter(items::Column::OwnerId.eq(owner_id))
+        .order_by_asc(items::Column::LocData)
+        .all(db)
         .await
         .unwrap_or_default();
     // Augmentations (Java `Item.restoreAttributes`): object_id → (mineral, o1, o2).
-    let var_rows = sqlx::query(
-        "SELECT mineralId, option1, option2, itemId FROM item_variations WHERE itemId IN \
-         (SELECT object_id FROM items WHERE owner_id=?)",
-    )
-    .bind(owner_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    let variations: std::collections::HashMap<i32, (i32, i32, i32)> = var_rows
-        .iter()
+    let variations: std::collections::HashMap<i32, (i32, i32, i32)> =
+        item_variations::Entity::find()
+            .filter(item_variations::Column::ItemId.is_in(rows.iter().map(|r| r.object_id)))
+            .all(db)
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|r| (r.item_id, (r.mineral_id, r.option1, r.option2)))
+            .collect();
+    rows.into_iter()
         .map(|r| {
-            (
-                geti(r, "itemId") as i32,
-                (
-                    geti(r, "mineralId") as i32,
-                    geti(r, "option1") as i32,
-                    geti(r, "option2") as i32,
-                ),
-            )
-        })
-        .collect();
-    rows.iter()
-        .map(|r| {
-            let object_id = geti(r, "object_id") as i32;
             let (augment_mineral, augment_option1, augment_option2) =
-                variations.get(&object_id).copied().unwrap_or((0, 0, 0));
+                variations.get(&r.object_id).copied().unwrap_or((0, 0, 0));
             ItemRow {
-                object_id,
-                item_id: geti(r, "item_id") as i32,
-                count: geti(r, "count"),
-                enchant_level: geti(r, "enchant_level") as i32,
-                loc: gets(r, "loc"),
-                loc_data: geti(r, "loc_data") as i32,
-                custom_type1: geti(r, "custom_type1") as i32,
-                custom_type2: geti(r, "custom_type2") as i32,
-                mana_left: geti(r, "mana_left") as i32,
-                time: geti(r, "time") as i32,
+                object_id: r.object_id,
+                item_id: r.item_id.unwrap_or(0),
+                count: r.count,
+                enchant_level: r.enchant_level.unwrap_or(0),
+                loc: r.loc.unwrap_or_default(),
+                loc_data: r.loc_data.unwrap_or(0),
+                custom_type1: r.custom_type1.unwrap_or(0),
+                custom_type2: r.custom_type2.unwrap_or(0),
+                mana_left: r.mana_left,
+                time: r.time as i32,
                 augment_mineral,
                 augment_option1,
                 augment_option2,
@@ -4364,16 +4343,18 @@ async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<ItemRow> {
 
 /// Case-insensitive character-name existence check (`getIdByName`).
 async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let n: i64 =
-        sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
-            .bind(name)
-            .fetch_one(pool)
-            .await
-            .unwrap_or(0);
-    n > 0
+    // `COLLATE NOCASE` is the point of this query — two characters may not
+    // differ only by case — and sea-query cannot attach a collation, so the
+    // comparison stays a bound custom expression.
+    characters::Entity::find()
+        .filter(models::sea_orm::sea_query::Expr::cust_with_values(
+            "char_name = ? COLLATE NOCASE",
+            [name],
+        ))
+        .count(db)
+        .await
+        .unwrap_or(0)
+        > 0
 }
 
 async fn create_character(
@@ -5024,11 +5005,6 @@ fn geti(row: &sqlx::sqlite::SqliteRow, col: &str) -> i64 {
     row.try_get::<i64, _>(col)
         .or_else(|_| row.try_get::<f64, _>(col).map(|f| f as i64))
         .unwrap_or(0)
-}
-fn getf(row: &sqlx::sqlite::SqliteRow, col: &str) -> f64 {
-    row.try_get::<f64, _>(col)
-        .or_else(|_| row.try_get::<i64, _>(col).map(|i| i as f64))
-        .unwrap_or(0.0)
 }
 fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
     row.try_get::<String, _>(col).unwrap_or_default()
