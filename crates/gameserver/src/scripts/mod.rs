@@ -31,6 +31,7 @@ mod frozen_labyrinth;
 mod hot_springs;
 pub mod last_imperial_tomb;
 mod mammons;
+mod misc_npcs;
 mod mob_behaviours;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
@@ -209,6 +210,7 @@ pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
 pub mod saga;
 pub mod sailren_altar;
+pub(crate) mod sin_eater;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
 mod toma;
@@ -505,6 +507,11 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(mob_behaviours::FleeMonsters),
         Arc::new(mob_behaviours::FairyTrees),
         Arc::new(mob_behaviours::NonLethalableNpcs),
+        // ai/others — slice 5: the talk/utility tail.
+        Arc::new(misc_npcs::ArenaManager),
+        Arc::new(misc_npcs::ToIVortex),
+        Arc::new(misc_npcs::SymbolMaker),
+        Arc::new(misc_npcs::RandomWalkingGuards),
     ];
     QuestRegistry::new(scripts)
 }

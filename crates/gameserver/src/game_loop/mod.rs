@@ -416,6 +416,12 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::MammonRelocate { npc_id } => {
                 area_npcs::relocate_mammon(world, npc_id);
             }
+            ScheduledTask::SinEaterTalk { pet_oid } => {
+                crate::scripts::sin_eater::handle_talk_beat(world, pet_oid);
+            }
+            ScheduledTask::GuardRandomWalk { npc_oid } => {
+                area_npcs::handle_guard_random_walk(world, npc_oid);
+            }
             ScheduledTask::CastleMassTeleport { npc_oid } => {
                 area_npcs::handle_castle_mass_teleport(world, npc_oid);
             }

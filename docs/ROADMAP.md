@@ -1007,8 +1007,10 @@ behaviours (polymorphing mobs, the Timak leader's privates, fleeing Elpies, the
 fairy-tree ambush, the non-lethalable siege HQ) and fixed quest 421's missing
 `ALT_PARTY_RANGE` gate. Slice 4 (2026-07-30) landed the `dayTime`/`nightTime`
 spawn groups on the G33 clock — and with them `spawnByDefault`, whose absence
-had boot placing *both* phase halves of every day/night map at once. Slice 5
-covers the talk/utility tail.
+had boot placing *both* phase halves of every day/night map at once. Slice 5 (2026-07-30) closed the sweep with the
+talk/utility tail — the arena attendants, the Tower of Insolence vortex, the
+dye NPCs' window, the wandering village guards and the Sin Eater's chatter — so
+**every `ai/others` script is ported, covered elsewhere, or a verified skip**.
 
 ---
 

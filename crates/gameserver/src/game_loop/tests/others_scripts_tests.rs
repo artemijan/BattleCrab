@@ -1246,3 +1246,225 @@ fn no_random_activity_pins_its_npcs_down() {
         "animations were not disabled, so the template flag stands"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Slice 5 — the talk/utility tail
+// ---------------------------------------------------------------------------
+
+const ADENA: i32 = 57;
+
+fn adena_of(world: &mut World, player: i32) -> i64 {
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player)
+        .map(|i| i.count_of(ADENA))
+        .unwrap_or(0)
+}
+
+fn give_adena(world: &mut World, player: i32, count: i64) {
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    give_test_item(world, player, ADENA, count);
+}
+
+fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
+    let obj = world.next_npc_object_id;
+    world.next_npc_object_id += 1;
+    let World { objects, data, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .unwrap()
+        .add_item(&data.item_data, obj, item_id, count);
+}
+
+/// The arena attendant charges for the recovery up front and casts it two
+/// seconds later; a broke customer gets the refusal and keeps their adena.
+#[test]
+fn arena_manager_charges_for_cp_recovery() {
+    const ARENA_MANAGER: i32 = 31226;
+    let (mut world, _db, _l) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, ARENA_MANAGER, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 8850, 60, 0, 0);
+    drain(&mut rx);
+
+    // Broke: nothing is taken.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager CPrecovery")),
+    );
+    assert_eq!(adena_of(&mut world, 8850), 0, "nothing to take");
+
+    give_adena(&mut world, 8850, 5_000);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager CPrecovery")),
+    );
+    assert_eq!(
+        adena_of(&mut world, 8850),
+        4_000,
+        "1000 adena for the CP recovery"
+    );
+}
+
+/// The buff package costs 2000 adena and casts all six arena buffs.
+#[test]
+fn arena_manager_sells_the_buff_package() {
+    const ARENA_MANAGER: i32 = 31225;
+    let (mut world, _db, _l) = quest_test_world();
+    world.data.skill_data = crate::data::SkillData::load_from(DIST);
+    add_test_npc(&mut world, NPC_OID, ARENA_MANAGER, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 8851, 60, 0, 0);
+    give_adena(&mut world, 8851, 5_000);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ArenaManager Buff")),
+    );
+    assert_eq!(
+        adena_of(&mut world, 8851),
+        3_000,
+        "2000 adena for the package"
+    );
+    let casts = drain(&mut rx)
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::MAGIC_SKILL_USE)
+        .count();
+    assert!(casts >= 6, "all six buffs are cast, saw {casts}");
+}
+
+/// The Tower of Insolence vortex eats one dimension stone per ride, and turns
+/// the rider away when they have none.
+#[test]
+fn toi_vortex_trades_a_stone_for_a_ride() {
+    const VORTEX: i32 = 30952;
+    const GREEN_STONE: i32 = 4404;
+    let (mut world, _db, _l) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, VORTEX, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 8852, 60, 0, 0);
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    drain(&mut rx);
+
+    // No stone: the refusal page, and no teleport.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex 1")),
+    );
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
+    assert!(!html.is_empty(), "the no-stones page is served");
+    let pos = *world.objects.get_component::<Position>(&8852).unwrap();
+    assert_eq!((pos.x, pos.y), (60, 0), "still standing at the vortex");
+
+    // With a stone: it is spent and the rider lands on floor 1.
+    give_test_item(&mut world, 8852, GREEN_STONE, 1);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex 1")),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8852)
+            .map(|i| i.count_of(GREEN_STONE))
+            .unwrap_or(0),
+        0,
+        "the stone is spent"
+    );
+    let pos = *world.objects.get_component::<Position>(&8852).unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (114356, 13423),
+        "teleported to the first floor"
+    );
+}
+
+/// The stone counter sells one green stone for 100k adena.
+#[test]
+fn toi_vortex_sells_dimension_stones() {
+    const KEPLON: i32 = 30949;
+    const GREEN_STONE: i32 = 4404;
+    let (mut world, _db, _l) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, KEPLON, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 8853, 60, 0, 0);
+    give_adena(&mut world, 8853, 150_000);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest ToIVortex GREEN")),
+    );
+    assert_eq!(adena_of(&mut world, 8853), 50_000, "100k for a stone");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&8853)
+            .map(|i| i.count_of(GREEN_STONE))
+            .unwrap_or(0),
+        1,
+        "and the stone is handed over"
+    );
+}
+
+/// The dye NPC's window opens at all — its `Draw`/`Remove` buttons were wired
+/// long ago, but nothing served the page that carries them.
+#[test]
+fn symbol_maker_opens_the_dye_window() {
+    const MARSDEN: i32 = 31046;
+    let (mut world, _db, _l) = quest_test_world();
+    add_test_npc(&mut world, NPC_OID, MARSDEN, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 8854, 60, 0, 0);
+    drain(&mut rx);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("symbol maker window");
+    assert!(
+        html.contains("Draw") || html.contains("symbol_maker"),
+        "the dye page, not the default chat window: {html}"
+    );
+}
+
+/// A village guard strolls around its post and keeps the beat going. (`Guard`
+/// NPCs have random walking off by default, which is why the script exists.)
+#[test]
+fn village_guards_stroll_around_their_post() {
+    const GUARD: i32 = 31032;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(GUARD);
+        t.type_name = "Guard".into();
+        t.can_move = true;
+        t.base_run_spd = 120.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let oid = crate::model::npc::spawn_npc_at(&mut world, GUARD, 0, 0, 0, 0).expect("spawned");
+
+    // The spawn hook armed the first stroll; fire it.
+    crate::game_loop::area_npcs::handle_guard_random_walk(&mut world, oid);
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::Movement>(&oid),
+        "the guard set off"
+    );
+    // And the beat re-armed itself: the spawn hook queued one, firing it
+    // queues the next (counting, because the first is still in the heap).
+    let armed = world
+        .scheduler
+        .pending_tasks_for_test()
+        .iter()
+        .filter(|t| **t == crate::scheduler::ScheduledTask::GuardRandomWalk { npc_oid: oid })
+        .count();
+    assert_eq!(armed, 2, "the stroll beat keeps going");
+}

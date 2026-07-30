@@ -175,10 +175,29 @@ Data notes: 50 templates carry `ai="DayNightSpawns"` but only 94 phase groups �
 the Interlude map tiles ship their day and night halves in separate files (one
 group each) and Devil's Isle has a template with two `dayTime` groups.
 
-### Slice 5 — the talk/utility tail
-`ArenaManager`, `ToIVortex`, `RandomWalkingGuards`, `SymbolMaker`'s missing
-first-talk html, `Servitors/SinEater` chatter. Then update
-`docs/PROGRESS.md` row 5 + `PARITY_CHECKLIST_G33.md`, and close the audit row.
+### Slice 5 — the talk/utility tail  ✅ LANDED 2026-07-30
+`ArenaManager`, `ToIVortex`, `SymbolMaker` and `RandomWalkingGuards` in
+`scripts/misc_npcs.rs`; `Servitors/SinEater` in `scripts/sin_eater.rs`.
+
+- `ArenaManager` — adena-priced CP/HP recovery (paid up front, cast 2 s later,
+  refused if the buyer stepped into a PVP zone meanwhile) + the six-buff
+  package.
+- `ToIVortex` — the ten Tower of Insolence floors, each eating a dimension
+  stone of its colour, and the 100k-adena stone counter.
+- `SymbolMaker` — the dye window itself. Its `Draw`/`Remove` buttons were wired
+  to `game_loop::henna` a milestone ago, but nothing served the page that
+  carries them, so the dye NPCs were mute.
+- `RandomWalkingGuards` — `Guard`-type NPCs have random walking off
+  (`t.random_walk = t.type_name != "Guard"`), which is the whole reason the
+  script exists: a 15–45 s beat (`ScheduledTask::GuardRandomWalk`, npc-anchored
+  like the other `area_npcs` beats) strolls them around their post.
+- `SinEater` — the one pet with a voice: greeting, 60 s gripe beat, on-attacked
+  and on-death lines, hooked into the existing pet-summon / damage / pet-death
+  paths. `onSummonTalk` (owner clicks their own pet) has no hook here and is a
+  `TODO(G22)` at the site.
+
+**Row 5 is closed** with this slice: every `ai/others` script is ported,
+covered by another module, or in the verified-skip table above.
 
 ## Watch-list
 

@@ -382,3 +382,54 @@ pub(crate) fn handle_eilhalder_despawn_retry(world: &mut World) {
         despawn_by_oid(world, oid);
     }
 }
+
+// ---------------------------------------------------------------------------
+// RandomWalkingGuards (`ai/others/RandomWalkingGuards`)
+// ---------------------------------------------------------------------------
+
+/// `MIN_WALK_DELAY` / `MAX_WALK_DELAY` (15–45 s) in ticks.
+const GUARD_WALK_MIN_TICKS: u64 = 150;
+const GUARD_WALK_MAX_TICKS: u64 = 450;
+
+/// Java `startQuestTimer("RANDOM_WALK", getRandom(MIN, MAX), npc, null)` — an
+/// NPC-anchored timer with no player, so it rides the scheduler directly like
+/// this module's other beats.
+pub(crate) fn arm_guard_walk(world: &mut World, npc_oid: i32) {
+    let span = (GUARD_WALK_MAX_TICKS - GUARD_WALK_MIN_TICKS) as i32;
+    let delay = GUARD_WALK_MIN_TICKS + world.roll(span + 1) as u64;
+    world.scheduler.schedule(
+        world.tick + delay,
+        ScheduledTask::GuardRandomWalk { npc_oid },
+    );
+}
+
+/// The `RANDOM_WALK` beat: a guard out of combat strolls to a random point
+/// within `MaxDriftRange` of its post, then re-arms. A guard in combat skips
+/// the stroll but keeps the beat, exactly like Java.
+pub(crate) fn handle_guard_random_walk(world: &mut World, npc_oid: i32) {
+    let Some(spawn) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.spawn_loc)
+    else {
+        return; // despawned — the beat dies with it
+    };
+    let alive = world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&npc_oid)
+        .is_some_and(|v| !v.dead);
+    if alive && !npc_in_combat(world, npc_oid) {
+        // `Util.getRandomPosition(spawnLoc, 0, MAX_DRIFT_RANGE)`: an
+        // independent offset per axis, rotated by a random angle.
+        let drift = world.cfg.npc.max_drift_range;
+        let (rx, ry) = (world.roll(drift + 1), world.roll(drift + 1));
+        let angle = (world.roll(360) as f64).to_radians();
+        let dest_x = spawn.0 + (rx as f64 * angle.cos()) as i32;
+        let dest_y = spawn.1 + (ry as f64 * angle.sin()) as i32;
+        let (vx, vy, vz) = world
+            .geo
+            .get_valid_location(spawn.0, spawn.1, spawn.2, dest_x, dest_y, spawn.2);
+        crate::game_loop::npc_ai::move_npc_to(world, npc_oid, vx, vy, vz);
+    }
+    arm_guard_walk(world, npc_oid);
+}

@@ -471,6 +471,15 @@ pub enum ScheduledTask {
     CastleMassTeleport {
         npc_oid: i32,
     },
+    /// `ai/others/RandomWalkingGuards`: a village guard's 15–45 s stroll
+    /// beat. Reschedules itself for as long as the guard stands.
+    GuardRandomWalk {
+        npc_oid: i32,
+    },
+    /// `ai/others/Servitors/SinEater`: the pet's 60 s chatter beat.
+    SinEaterTalk {
+        pet_oid: i32,
+    },
     /// The in-game day/night watch (Java `OnDayNightChange` listeners):
     /// fires the transition scripts when the flag flips. Reschedules itself,
     /// carrying the last-seen state.

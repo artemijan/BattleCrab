@@ -1627,6 +1627,9 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
     {
         return;
     }
+    // `ai/others/Servitors/SinEater`'s `ON_CREATURE_ATTACKED` bark (a no-op for
+    // every other NPC).
+    crate::scripts::sin_eater::on_attacked(world, npc_oid);
     let level = match world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
