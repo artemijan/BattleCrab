@@ -10,10 +10,12 @@ use models::entity::{
     castle_manor_production, castle_siege_guards, character_friends, character_hennas,
     character_macroses, character_quests, character_recipebook, character_reco_bonus,
     character_shortcuts, character_skills, character_skills_save, character_subclasses,
-    character_summon_skills_save, character_summons, character_variables, characters, clanhall,
-    clanhall_auctions_bidders, cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction,
-    item_auction_bid, item_variations, items, lottery, mdt_bets, mdt_history, npc_respawns,
-    olympiad_data, olympiad_nobles, pets, punishments, residence_functions, siege_clans,
+    character_summon_skills_save, character_summons, character_variables, characters, clan_data,
+    clan_privs, clan_skills, clan_subpledges, clan_wars, clanhall, clanhall_auctions_bidders,
+    crests, cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid,
+    item_variations, items, lottery, mdt_bets, mdt_history, npc_respawns, olympiad_data,
+    olympiad_nobles, pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments,
+    residence_functions, siege_clans,
 };
 use models::sea_orm::{
     ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
@@ -4118,102 +4120,92 @@ async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Cast
 }
 
 async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::clan::Clan> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, blood_alliance_count, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
+    let clan_rows = clan_data::Entity::find().all(db).await.unwrap_or_default();
     let mut out = Vec::with_capacity(clan_rows.len());
     for row in &clan_rows {
-        let clan_id = geti(row, "clan_id") as i32;
-        let member_rows = sqlx::query("SELECT charId, char_name, level, classid, sex, race, power_grade, title, subpledge FROM characters WHERE clanid=?")
-            .bind(clan_id)
-            .fetch_all(pool)
+        let clan_id = row.clan_id;
+        let member_rows = characters::Entity::find()
+            .filter(characters::Column::Clanid.eq(clan_id))
+            .all(db)
             .await
             .unwrap_or_default();
         // Clan warehouse contents (`owner_id = clan_id`, `loc = "CLANWH"`).
         let wh_rows = load_items(db, clan_id).await;
         // Clan skills (Java `Clan.restoreSkills`) — the main-pledge set
         // (`sub_pledge_id = -2`); sub-unit skills aren't modelled, so other
-        // sub_pledge ids are ignored. Missing table → empty (graceful).
-        let skill_rows = sqlx::query("SELECT skill_id, skill_level FROM clan_skills WHERE clan_id=? AND (sub_pledge_id=-2 OR sub_pledge_id=0)")
-            .bind(clan_id)
-            .fetch_all(pool)
+        // sub_pledge ids are ignored.
+        let skills = clan_skills::Entity::find()
+            .filter(clan_skills::Column::ClanId.eq(clan_id))
+            .filter(clan_skills::Column::SubPledgeId.is_in([-2, 0]))
+            .all(db)
             .await
-            .unwrap_or_default();
-        let skills = skill_rows
-            .iter()
-            .map(|s| (geti(s, "skill_id") as i32, geti(s, "skill_level") as i32))
+            .unwrap_or_default()
+            .into_iter()
+            .map(|s| (s.skill_id, s.skill_level))
             .collect();
         // Rank → privilege-mask rows (Java `restoreRankPrivs`; rank -1 skipped).
-        let priv_rows = sqlx::query("SELECT `rank`, privs FROM clan_privs WHERE clan_id=?")
-            .bind(clan_id)
-            .fetch_all(pool)
+        let rank_privs = clan_privs::Entity::find()
+            .filter(clan_privs::Column::ClanId.eq(clan_id))
+            .all(db)
             .await
-            .unwrap_or_default();
-        let rank_privs = priv_rows
-            .iter()
-            .map(|r| (geti(r, "rank") as i32, geti(r, "privs") as i32))
+            .unwrap_or_default()
+            .into_iter()
+            .map(|r| (r.rank, r.privs))
             .filter(|&(rank, _)| rank != -1)
             .collect();
         // Sub-pledges (Java `Clan.restoreSubPledges`).
-        let sub_rows = sqlx::query(
-            "SELECT sub_pledge_id, name, leader_id FROM clan_subpledges WHERE clan_id=?",
-        )
-        .bind(clan_id)
-        .fetch_all(pool)
-        .await
-        .unwrap_or_default();
-        let sub_pledges: std::collections::HashMap<i32, crate::model::clan::SubPledge> = sub_rows
-            .iter()
-            .map(|r| {
-                let id = geti(r, "sub_pledge_id") as i32;
-                (
-                    id,
-                    crate::model::clan::SubPledge {
-                        id,
-                        name: gets(r, "name"),
-                        leader_id: geti(r, "leader_id") as i32,
-                    },
-                )
-            })
-            .collect();
+        let sub_pledges: std::collections::HashMap<i32, crate::model::clan::SubPledge> =
+            clan_subpledges::Entity::find()
+                .filter(clan_subpledges::Column::ClanId.eq(clan_id))
+                .all(db)
+                .await
+                .unwrap_or_default()
+                .into_iter()
+                .map(|r| {
+                    (
+                        r.sub_pledge_id,
+                        crate::model::clan::SubPledge {
+                            id: r.sub_pledge_id,
+                            name: r.name.unwrap_or_default(),
+                            leader_id: r.leader_id,
+                        },
+                    )
+                })
+                .collect();
         out.push(crate::model::clan::Clan {
             id: clan_id,
-            name: gets(row, "clan_name"),
-            leader_id: geti(row, "leader_id") as i32,
-            level: geti(row, "clan_level") as i32,
-            reputation_score: geti(row, "reputation_score") as i32,
-            castle_id: geti(row, "hasCastle") as i32,
-            blood_alliance_count: geti(row, "blood_alliance_count") as i32,
-            char_penalty_expiry_time: geti(row, "char_penalty_expiry_time"),
-            dissolving_expiry_time: geti(row, "dissolving_expiry_time"),
+            name: row.clan_name.clone().unwrap_or_default(),
+            leader_id: row.leader_id.unwrap_or(0),
+            level: row.clan_level.unwrap_or(0),
+            reputation_score: row.reputation_score,
+            castle_id: row.has_castle.unwrap_or(0),
+            blood_alliance_count: row.blood_alliance_count,
+            char_penalty_expiry_time: row.char_penalty_expiry_time,
+            dissolving_expiry_time: row.dissolving_expiry_time,
             rank_privs,
-            new_leader_id: geti(row, "new_leader_id") as i32,
+            new_leader_id: row.new_leader_id,
             sub_pledges,
-            ally_id: geti(row, "ally_id") as i32,
-            ally_name: gets(row, "ally_name"),
-            ally_penalty_expiry_time: geti(row, "ally_penalty_expiry_time"),
-            ally_penalty_type: geti(row, "ally_penalty_type") as i32,
-            crest_id: geti(row, "crest_id") as i32,
-            crest_large_id: geti(row, "crest_large_id") as i32,
-            ally_crest_id: geti(row, "ally_crest_id") as i32,
+            ally_id: row.ally_id.unwrap_or(0),
+            ally_name: row.ally_name.clone().unwrap_or_default(),
+            ally_penalty_expiry_time: row.ally_penalty_expiry_time,
+            ally_penalty_type: row.ally_penalty_type,
+            crest_id: row.crest_id.unwrap_or(0),
+            crest_large_id: row.crest_large_id.unwrap_or(0),
+            ally_crest_id: row.ally_crest_id.unwrap_or(0),
             skills,
             warehouse: crate::model::inventory::Warehouse::from_rows(&wh_rows),
             members: member_rows
-                .iter()
+                .into_iter()
                 .map(|m| crate::model::clan::ClanMember {
-                    char_id: geti(m, "charId") as i32,
-                    name: gets(m, "char_name"),
-                    level: geti(m, "level") as i32,
-                    class_id: geti(m, "classid") as i32,
-                    sex: geti(m, "sex") as i32,
-                    race: geti(m, "race") as i32,
-                    power_grade: geti(m, "power_grade") as i32,
-                    title: gets(m, "title"),
-                    pledge_type: geti(m, "subpledge") as i32,
+                    char_id: m.char_id,
+                    name: m.char_name,
+                    level: m.level.unwrap_or(0),
+                    class_id: m.classid.unwrap_or(0),
+                    sex: m.sex.unwrap_or(0),
+                    race: m.race.unwrap_or(0),
+                    power_grade: m.power_grade.unwrap_or(0),
+                    title: m.title.unwrap_or_default(),
+                    pledge_type: m.subpledge,
                 })
                 .collect(),
         });
@@ -5013,41 +5005,43 @@ fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
 /// `ClanTable.restoreClanWars` — the `clan_wars` table (ids in the varchar
 /// columns, as Java writes them).
 async fn load_clan_wars(db: &DatabaseConnection) -> Vec<crate::model::clan::ClanWar> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query("SELECT clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state FROM clan_wars")
-        .fetch_all(pool)
+    // `clan1`/`clan2`/`winnerClan` are `varchar(35)` holding clan ids, so the
+    // stored values are text. Java reads them with `rset.getInt`, which coerces;
+    // the parse here is that coercion. (The pre-ORM code asked sqlx for an i64
+    // and silently got 0 for every row, which made every restored war a war
+    // between clan 0 and clan 0.)
+    fn id(raw: &str) -> i32 {
+        raw.trim().parse().unwrap_or(0)
+    }
+    clan_wars::Entity::find()
+        .all(db)
         .await
-        .unwrap_or_default();
-    rows.iter()
+        .unwrap_or_default()
+        .into_iter()
         .map(|r| crate::model::clan::ClanWar {
-            attacker_id: geti(r, "clan1") as i32,
-            attacked_id: geti(r, "clan2") as i32,
-            attacker_kills: geti(r, "clan1Kill") as i32,
-            attacked_kills: geti(r, "clan2Kill") as i32,
-            winner_id: geti(r, "winnerClan") as i32,
-            start_time: geti(r, "startTime"),
-            end_time: geti(r, "endTime"),
-            state: crate::model::clan::ClanWarState::from_i32(geti(r, "state") as i32),
+            attacker_id: id(&r.clan1),
+            attacked_id: id(&r.clan2),
+            attacker_kills: r.clan1_kill,
+            attacked_kills: r.clan2_kill,
+            winner_id: id(&r.winner_clan),
+            start_time: r.start_time,
+            end_time: r.end_time,
+            state: crate::model::clan::ClanWarState::from_i32(r.state),
         })
         .collect()
 }
 
 /// `CrestTable.load` — every stored crest bitmap (`crests` table).
 async fn load_crests(db: &DatabaseConnection) -> Vec<crate::model::clan::Crest> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query("SELECT crest_id, data, type FROM crests")
-        .fetch_all(pool)
+    crests::Entity::find()
+        .all(db)
         .await
-        .unwrap_or_default();
-    rows.iter()
+        .unwrap_or_default()
+        .into_iter()
         .map(|r| crate::model::clan::Crest {
-            id: geti(r, "crest_id") as i32,
-            data: r.try_get::<Vec<u8>, _>("data").unwrap_or_default(),
-            kind: geti(r, "type") as i32,
+            id: r.crest_id,
+            data: r.data,
+            kind: r.r#type,
         })
         .collect()
 }
@@ -5058,21 +5052,18 @@ async fn load_crests(db: &DatabaseConnection) -> Vec<crate::model::clan::Crest> 
 async fn load_recruit_clans(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeRecruitInfo> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query("SELECT clan_id, karma, information, detailed_information, application_type, recruit_type FROM pledge_recruit")
-        .fetch_all(pool)
+    pledge_recruit::Entity::find()
+        .all(db)
         .await
-        .unwrap_or_default();
-    rows.iter()
+        .unwrap_or_default()
+        .into_iter()
         .map(|r| crate::model::clan_entry::PledgeRecruitInfo {
-            clan_id: geti(r, "clan_id") as i32,
-            karma: geti(r, "karma") as i32,
-            information: gets(r, "information"),
-            detailed_information: gets(r, "detailed_information"),
-            application_type: geti(r, "application_type") as i32,
-            recruit_type: geti(r, "recruit_type") as i32,
+            clan_id: r.clan_id,
+            karma: r.karma,
+            information: r.information,
+            detailed_information: r.detailed_information,
+            application_type: r.application_type,
+            recruit_type: r.recruit_type,
         })
         .collect()
 }
@@ -5082,22 +5073,31 @@ async fn load_recruit_clans(
 async fn load_recruit_waiting(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query(
-        "SELECT a.char_id, a.karma, b.base_class, b.level, b.char_name          FROM pledge_waiting_list AS a LEFT JOIN characters AS b ON a.char_id = b.charId",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    rows.iter()
-        .map(|r| crate::model::clan_entry::PledgeWaitingInfo {
-            player_id: geti(r, "char_id") as i32,
-            level: geti(r, "level") as i32,
-            karma: geti(r, "karma") as i32,
-            class_id: geti(r, "base_class") as i32,
-            name: gets(r, "char_name"),
+    let waiting = pledge_waiting_list::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
+    if waiting.is_empty() {
+        return Vec::new();
+    }
+    // Java's query LEFT JOINs `characters` for the display fields; an applicant
+    // whose character is gone keeps the row with empty values.
+    let chars = characters::Entity::find()
+        .filter(characters::Column::CharId.is_in(waiting.iter().map(|w| w.char_id)))
+        .all(db)
+        .await
+        .unwrap_or_default();
+    waiting
+        .into_iter()
+        .map(|w| {
+            let c = chars.iter().find(|c| c.char_id == w.char_id);
+            crate::model::clan_entry::PledgeWaitingInfo {
+                player_id: w.char_id,
+                level: c.and_then(|c| c.level).unwrap_or(0),
+                karma: w.karma,
+                class_id: c.map(|c| c.base_class).unwrap_or(0),
+                name: c.map(|c| c.char_name.clone()).unwrap_or_default(),
+            }
         })
         .collect()
 }
@@ -5106,23 +5106,30 @@ async fn load_recruit_waiting(
 async fn load_recruit_applicants(
     db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query(
-        "SELECT a.charId, a.clanId, a.karma, a.message, b.base_class, b.level, b.char_name          FROM pledge_applicant AS a LEFT JOIN characters AS b ON a.charId = b.charId",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    rows.iter()
-        .map(|r| crate::model::clan_entry::PledgeApplicantInfo {
-            player_id: geti(r, "charId") as i32,
-            name: gets(r, "char_name"),
-            level: geti(r, "level") as i32,
-            karma: geti(r, "karma") as i32,
-            clan_id: geti(r, "clanId") as i32,
-            message: gets(r, "message"),
+    let applicants = pledge_applicant::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
+    if applicants.is_empty() {
+        return Vec::new();
+    }
+    let chars = characters::Entity::find()
+        .filter(characters::Column::CharId.is_in(applicants.iter().map(|a| a.char_id)))
+        .all(db)
+        .await
+        .unwrap_or_default();
+    applicants
+        .into_iter()
+        .map(|a| {
+            let c = chars.iter().find(|c| c.char_id == a.char_id);
+            crate::model::clan_entry::PledgeApplicantInfo {
+                player_id: a.char_id,
+                name: c.map(|c| c.char_name.clone()).unwrap_or_default(),
+                level: c.and_then(|c| c.level).unwrap_or(0),
+                karma: a.karma,
+                clan_id: a.clan_id,
+                message: a.message,
+            }
         })
         .collect()
 }
