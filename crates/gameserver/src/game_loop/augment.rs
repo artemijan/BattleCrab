@@ -267,3 +267,116 @@ fn refresh(world: &World, client_id: u32, player: i32) {
         );
     }
 }
+
+// ---------------------------------------------------------------------------
+// The augment window's confirm steps (ex 0x26 / 0x28 / 0x3F — row 11)
+// ---------------------------------------------------------------------------
+
+/// `RequestConfirmTargetItem` (ex 0x26): the player dropped a weapon into the
+/// augment window's first slot. Java validates that the item *has* fee data
+/// (i.e. is augmentable) and echoes it back; an unsuitable item gets
+/// `THIS_IS_NOT_A_SUITABLE_ITEM` and no echo.
+pub(crate) fn handle_confirm_target_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(target_obj) = PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(item_id) = item_id_of(world, player, target_obj) else {
+        return;
+    };
+    // Java `VariationData.hasFeeData(itemId)` — any mineral will do.
+    if !world.data.variations.has_fee_data(item_id) {
+        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        return;
+    }
+    send(
+        world,
+        client_id,
+        sp::ex_put_item_result_for_variation_make(target_obj, item_id),
+    );
+}
+
+/// `RequestConfirmGemStone` (ex 0x28): the player dropped the gemstone fee in.
+/// Java re-validates the whole triple (weapon, life stone, gemstone) and echoes
+/// the fee back; the port re-uses the same fee resolution the refiner step does.
+pub(crate) fn handle_confirm_gemstone(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = player_of(world, client_id) else {
+        return;
+    };
+    let mut r = PacketReader::new(body);
+    let (Some(target_obj), Some(mineral_obj), Some(fee_obj), Some(fee_count)) =
+        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i64())
+    else {
+        return;
+    };
+    let (Some(mineral_id), Some(gemstone_id)) = (
+        item_id_of(world, player, mineral_obj),
+        item_id_of(world, player, fee_obj),
+    ) else {
+        return;
+    };
+    let Some(fee) = resolve_fee(world, player, target_obj, mineral_id) else {
+        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        return;
+    };
+    // The gemstone the client offers must be the one this fee asks for, in the
+    // amount it asks for (Java's `gemStoneItem.getId() != fee.getItemId()` and
+    // count checks).
+    if gemstone_id != fee.item_id || fee_count != fee.item_count {
+        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        return;
+    }
+    send(
+        world,
+        client_id,
+        sp::ex_put_commission_result_for_variation_make(fee_obj, gemstone_id, fee_count),
+    );
+}
+
+/// `RequestConfirmCancelItem` (ex 0x3F): the player dropped an augmented item
+/// into the *cancel* window. Java refuses a non-augmented item with
+/// `AUGMENTATION_REMOVAL_CAN_ONLY_BE_DONE_ON_AN_AUGMENTED_ITEM`, else echoes it
+/// back with its two option ids and the adena price.
+pub(crate) fn handle_confirm_cancel_item(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(player) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(target_obj) = PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(item_id) = item_id_of(world, player, target_obj) else {
+        return;
+    };
+    let Some((option1, option2)) = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .and_then(|inv| inv.augmentation_of(target_obj))
+    else {
+        send_sm(
+            world,
+            client_id,
+            sp::sm_ids::AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM,
+        );
+        return;
+    };
+    let mineral_id = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .and_then(|inv| inv.augment_mineral(target_obj))
+        .unwrap_or(0);
+    let Some(price) = world.data.variations.cancel_fee(item_id, mineral_id) else {
+        send_sm(world, client_id, sp::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM);
+        return;
+    };
+    send(
+        world,
+        client_id,
+        sp::ex_put_item_result_for_variation_cancel(target_obj, item_id, option1, option2, price),
+    );
+}
+
+fn send_sm(world: &World, client_id: u32, message_id: i16) {
+    send(world, client_id, sp::system_message_with(message_id, &[]));
+}

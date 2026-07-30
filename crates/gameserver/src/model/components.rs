@@ -619,6 +619,11 @@ pub struct PlayerVariables(pub HashMap<String, String>);
 /// `Config.VITALITY_MAX_ITEMS_ALLOWED` and reported by `ExVitalityEffectInfo`.
 pub const VITALITY_ITEMS_USED: &str = "VITALITY_ITEMS_USED";
 
+/// `PlayerVariables.UI_KEY_MAPPING` — the client's saved key layout, stored as
+/// Java stores it: the raw bytes joined by tabs (`RequestSaveKeyMapping`'s
+/// `SPLIT_VAR`), replayed verbatim by `ExUISetting`.
+pub const UI_KEY_MAPPING: &str = "UI_KEY_MAPPING";
+
 impl PlayerVariables {
     /// Java `AbstractVariables.getInt(key, default)` — a non-numeric or absent
     /// value yields the default.

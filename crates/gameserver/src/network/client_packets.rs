@@ -44,6 +44,12 @@ pub mod opcodes {
     pub const ANSWER_TRADE_REQUEST: u8 = 0x55;
     /// `RequestPackageSendableItemList` — open the freight send window for the
     /// chosen account character.
+    /// `RequestSiegeInfo` — **empty in this Java build** (both `readImpl` and
+    /// `runImpl` are no-ops); the `SiegeInfo` window is pushed by the castle
+    /// Siege Manager's bypass instead.
+    pub const REQUEST_SIEGE_INFO: u8 = 0xAA;
+    /// `CannotMoveAnymore` — the client reports a blocked move.
+    pub const CANNOT_MOVE_ANYMORE: u8 = 0x47;
     pub const REQUEST_PACKAGE_SENDABLE_ITEM_LIST: u8 = 0xA7;
     /// `RequestPackageSend` — freight the listed items to that character.
     pub const REQUEST_PACKAGE_SEND: u8 = 0xA8;
@@ -213,6 +219,14 @@ pub mod ex_opcodes {
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
+    /// `RequestConfirmTargetItem` — the augment window's first slot.
+    pub const REQUEST_CONFIRM_TARGET_ITEM: u16 = 0x26;
+    /// `RequestConfirmGemStone` — the augment window's fee slot.
+    pub const REQUEST_CONFIRM_GEMSTONE: u16 = 0x28;
+    /// `RequestConfirmCancelItem` — the augment *cancel* window's slot.
+    pub const REQUEST_CONFIRM_CANCEL_ITEM: u16 = 0x3F;
+    /// `RequestSaveKeyMapping` — store the client's key layout.
+    pub const REQUEST_SAVE_KEY_MAPPING: u16 = 0x22;
     /// `RequestCursedWeaponList` — the client's cursed-weapon window opening.
     pub const REQUEST_CURSED_WEAPON_LIST: u16 = 0x2A;
     /// `RequestCursedWeaponLocation` — "where are they?" for that window.

@@ -293,11 +293,14 @@ pub fn ex_pccafe_point_info(points: i32, add_point: i32, time: i32) -> Vec<u8> {
 
 /// Port of `serverpackets/settings/ExUISetting` — the player's stored UI key
 /// mapping. TODO(G-later): load the stored mapping; null → length 0 for now.
-pub fn ex_ui_setting() -> Vec<u8> {
+pub fn ex_ui_setting(key_mapping: &[u8]) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::EX);
     w.write_i16(opcodes::EX_UI_SETTING);
-    w.write_i32(0); // no stored key-mapping
+    w.write_i32(key_mapping.len() as i32);
+    for b in key_mapping {
+        w.write_u8(*b);
+    }
     w.into_bytes()
 }
 

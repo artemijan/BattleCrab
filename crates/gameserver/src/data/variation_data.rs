@@ -189,6 +189,12 @@ impl VariationData {
         self.fees.get(&item_id)?.get(&mineral_id)
     }
 
+    /// Java `hasFeeData`: whether `item_id` can be augmented at all, whichever
+    /// mineral is used.
+    pub fn has_fee_data(&self, item_id: i32) -> bool {
+        self.fees.contains_key(&item_id)
+    }
+
     /// Java `getCancelFee`: the adena cost to remove `item_id`'s augment. Falls
     /// back to any fee for the item when the exact mineral isn't listed;
     /// `None` when the item has no fee data at all.
