@@ -205,10 +205,10 @@ impl QuestScript for FrightenedRagnaOrc {
 
 fn cast_vanish(ctx: &mut QuestCtx) {
     let npc = ctx.npc;
-    if let Some(skill) = ctx.world.data.skill_data.get(VANISH_SKILL, 1).cloned() {
-        if crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill) {
-            crate::game_loop::npc_cast::start_cast(ctx.world, npc, npc, &skill);
-        }
+    if let Some(skill) = ctx.world.data.skill_data.get(VANISH_SKILL, 1).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(ctx.world, npc, npc, &skill);
     }
 }
 

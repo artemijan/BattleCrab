@@ -509,10 +509,11 @@ fn set_room4_effect_zones(world: &mut World, sepulcher: i32, enabled: bool) {
         return;
     };
     for zone in world.data.zone_data.zones.iter_mut() {
-        if zone.effect.is_some() && zone.contains(x, y, z) {
-            if let Some(e) = zone.effect.as_mut() {
-                e.enabled = enabled;
-            }
+        if zone.effect.is_some()
+            && zone.contains(x, y, z)
+            && let Some(e) = zone.effect.as_mut()
+        {
+            e.enabled = enabled;
         }
     }
 }
@@ -527,11 +528,11 @@ pub(crate) fn disable_charm_zone(world: &mut World, killer: i32, charm_skill: i3
         if !zone.contains(pos.x, pos.y, pos.z) {
             continue;
         }
-        if let Some(e) = zone.effect.as_mut() {
-            if e.skills.iter().any(|&(id, _)| id == charm_skill) {
-                e.enabled = false;
-                break;
-            }
+        if let Some(e) = zone.effect.as_mut()
+            && e.skills.iter().any(|&(id, _)| id == charm_skill)
+        {
+            e.enabled = false;
+            break;
         }
     }
 }

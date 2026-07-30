@@ -147,10 +147,10 @@ fn on_event(ctx: &mut QuestCtx, tribe: &Tribe, event: &str) -> Option<String> {
 fn cast_buff(ctx: &mut QuestCtx, skill_id: i32) {
     let npc = ctx.npc;
     let player = ctx.player;
-    if let Some(skill) = ctx.world.data.skill_data.get(skill_id, 1).cloned() {
-        if crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill) {
-            crate::game_loop::npc_cast::start_cast(ctx.world, npc, player, &skill);
-        }
+    if let Some(skill) = ctx.world.data.skill_data.get(skill_id, 1).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(ctx.world, npc, player, &skill);
     }
     if let Some(v) = ctx
         .world

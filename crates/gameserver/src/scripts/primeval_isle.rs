@@ -217,10 +217,10 @@ fn trex_on_attack(ctx: &mut QuestCtx) {
 }
 
 fn cast(ctx: &mut QuestCtx, npc: i32, target: i32, skill_id: i32, level: i32) {
-    if let Some(skill) = ctx.world.data.skill_data.get(skill_id, level).cloned() {
-        if crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill) {
-            crate::game_loop::npc_cast::start_cast(ctx.world, npc, target, &skill);
-        }
+    if let Some(skill) = ctx.world.data.skill_data.get(skill_id, level).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(ctx.world, npc, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(ctx.world, npc, target, &skill);
     }
 }
 
@@ -265,10 +265,10 @@ pub(crate) fn handle_sprigant_trap(world: &mut crate::world::World, npc_oid: i32
     } else {
         DEADLY_POISON
     };
-    if let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() {
-        if crate::game_loop::npc_cast::check_use_conditions_pub(world, npc_oid, &skill) {
-            crate::game_loop::npc_cast::start_cast(world, npc_oid, npc_oid, &skill);
-        }
+    if let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(world, npc_oid, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(world, npc_oid, npc_oid, &skill);
     }
     world.scheduler.schedule(
         world.tick + 150,
@@ -299,10 +299,10 @@ pub(crate) fn handle_trex_attack(world: &mut crate::world::World, trex_oid: i32,
     if !close {
         return;
     }
-    if let Some(skill) = world.data.skill_data.get(LONG_RANGE_STUN, 1).cloned() {
-        if crate::game_loop::npc_cast::check_use_conditions_pub(world, trex_oid, &skill) {
-            crate::game_loop::npc_cast::start_cast(world, trex_oid, player_oid, &skill);
-        }
+    if let Some(skill) = world.data.skill_data.get(LONG_RANGE_STUN, 1).cloned()
+        && crate::game_loop::npc_cast::check_use_conditions_pub(world, trex_oid, &skill)
+    {
+        crate::game_loop::npc_cast::start_cast(world, trex_oid, player_oid, &skill);
     }
     crate::game_loop::npc_ai::seed_attack(world, trex_oid, player_oid);
 }
