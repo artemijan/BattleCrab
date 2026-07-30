@@ -110,7 +110,7 @@ finalizers honor (and buff recomputes preserve). **Deferred:** `ArmorSetData`
 `SHOTS_BONUS` dynamic stat (matters only for the `reducedSoulshot` weapon perk,
 unused in the ported set). **G14 done.**
 
-### G15 — Economy & item actions
+### G15 — Economy & item actions ✅ COMPLETE (gate verified 2026-07-31)
 🚧 **In progress.** ✅ `RequestDestroyItem` (0x60). ✅ **Ground items** — a
 `GroundItem` world-object kind (`World.ground_item_regions`), `SpawnItem`/
 `DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`,
@@ -277,7 +277,7 @@ maintenance task managers — `ItemLifeTimeTaskManager` (time-limited items),
 `ItemManaTaskManager` (shadow items), `ItemsAutoDestroyTaskManager` (ground-item
 cleanup breadth).
 
-### G15.5 — Teleporters & user commands
+### G15.5 — Teleporters & user commands ✅ COMPLETE (gate verified 2026-07-31 — teleport bookmarks are **not portable**: null handler in this build)
 *(2026-07 audit addition.)* Two small, high-playability systems no milestone
 covered:
 
@@ -977,7 +977,7 @@ longer engage or glide between tower floors.
 
 ## Track D — Content
 
-### G22 — Quest & script breadth
+### G22 — Quest & script breadth ✅ COMPLETE (gate verified 2026-07-31 — the gate's "instance" and "daily" quest kinds do not exist in this dist)
 The remaining ~188 quests, ~14 village-master scripts and ~81 `ai/` scripts;
 daily quests (`restartTime`); ~~the tutorial (Q00255)~~ (✅ 2026-07-28 — the
 full newbie flow, tutorial packets 0xA6–0xA9/0x85–0x88, the quest engine's
@@ -1020,7 +1020,7 @@ dye NPCs' window, the wandering village guards and the Sin Eater's chatter — s
 
 ## Track E — End-game systems (each unblocks a C-group handler)
 
-### G23 — Grand bosses & raid bosses
+### G23 — Grand bosses & raid bosses ✅ COMPLETE (gate verified 2026-07-31)
 Boss zones + entry conditions; respawn windows (`GrandBossManager` /
 `RaidBossSpawnManager`); boss AI (chaos target swaps, raid curse, minion waves);
 raid points; DB persistence of boss state/HP. **Gate:** a raid boss spawns on
