@@ -15,6 +15,7 @@ pub mod enchant_data;
 pub mod enchant_skill_groups;
 pub mod experience;
 pub mod fishing_data;
+pub mod four_sepulchers_data;
 pub mod henna_data;
 pub mod hit_condition_bonus;
 pub mod htm_cache;
@@ -60,6 +61,7 @@ pub use enchant_data::EnchantData;
 pub use enchant_skill_groups::EnchantSkillGroups;
 pub use experience::ExperienceData;
 pub use fishing_data::FishingData;
+pub use four_sepulchers_data::FourSepulchersData;
 pub use henna_data::HennaData;
 pub use hit_condition_bonus::HitConditionBonusData;
 pub use initial_equipment::InitialEquipmentData;
@@ -165,6 +167,7 @@ pub struct GameData {
     pub cubic_data: CubicData,
     pub fishing_data: FishingData,
     pub soul_crystal_data: SoulCrystalData,
+    pub four_sepulchers: FourSepulchersData,
     /// Pet templates (collar → npc, food, hunger) — see [`pet_data::PetData`].
     pub pet_data: pet_data::PetData,
     /// Per-template AI skill buckets — see [`NpcAiSkillIndex`].
@@ -248,6 +251,7 @@ impl GameData {
         let cubic_data = CubicData::load_from(file_path);
         let fishing_data = FishingData::load_from(file_path);
         let soul_crystal_data = SoulCrystalData::load_from(file_path);
+        let four_sepulchers = FourSepulchersData::load_from(file_path);
         let npc_ai_skills = NpcAiSkillIndex::build(&npc_data, &skill_data);
         Self {
             root: file_path.to_string(),
@@ -265,6 +269,7 @@ impl GameData {
             cubic_data,
             fishing_data,
             soul_crystal_data,
+            four_sepulchers,
             pet_data: pet_data::PetData::load_from(file_path),
             npc_ai_skills,
             spawn_data: SpawnData::load_from(file_path),
@@ -329,6 +334,7 @@ impl GameData {
             cubic_data: CubicData::empty(),
             fishing_data: FishingData::empty(),
             soul_crystal_data: SoulCrystalData::empty(),
+            four_sepulchers: FourSepulchersData::empty(),
             pet_data: Default::default(),
             npc_ai_skills: NpcAiSkillIndex::default(),
             spawn_data: SpawnData::empty(),

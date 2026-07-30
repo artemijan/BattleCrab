@@ -104,10 +104,12 @@ fn the_queen_spawns_her_nurses_and_royal_guards() {
         crate::data::npc_data::MinionHolder {
             npc_id: NURSE,
             count: 6,
+            group: "Privates".into(),
         },
         crate::data::npc_data::MinionHolder {
             npc_id: ROYAL_GUARD,
             count: 8,
+            group: "Privates".into(),
         },
     ];
     world.data.npc_data.insert_for_test(queen);

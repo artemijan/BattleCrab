@@ -9,17 +9,25 @@ pub mod alliance_master;
 pub mod antharas_heart;
 pub mod baium;
 pub mod castle_chamberlain;
+mod cave_maiden;
 pub mod clan_hall_auctioneer;
 pub mod clan_hall_door_manager;
 pub mod clan_hall_manager;
 pub mod clan_master;
 pub mod dark_elf_change1;
+mod den_of_evil;
 mod dr_chaos_talk;
 pub mod dwarf_change1;
 pub mod dwarf_change2;
 pub mod elf_human_change1;
 pub mod elf_human_change2;
+mod elroki_teleporters;
+pub mod feedable_beasts;
 pub mod first_class_transfer_talk;
+mod forge_of_the_gods;
+pub mod four_sepulchers;
+mod frozen_labyrinth;
+mod hot_springs;
 pub mod last_imperial_tomb;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
@@ -27,6 +35,11 @@ pub mod npc_location_info;
 pub mod oly_manager;
 pub mod orc_change1;
 pub mod orc_dark_elf_change2;
+mod pagan_keys;
+mod pagan_teleporters;
+mod plains_of_dion;
+pub mod primeval_isle;
+mod pytan;
 pub mod q00032_an_obvious_lie;
 pub mod q00033_make_a_pair_of_dress_shoes;
 pub mod q00034_in_search_of_cloth;
@@ -195,6 +208,9 @@ pub mod saga;
 pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
+mod toma;
+mod tribe_support;
+mod tunatun;
 pub mod tutorial;
 pub mod tvt;
 mod valakas_teleporters;
@@ -436,6 +452,36 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(dr_chaos_talk::DrChaosTalk),
         Arc::new(teleport_with_charm::TeleportWithCharm),
         Arc::new(tvt::Tvt),
+        // ai/areas — slice 1: talk/teleporter NPCs.
+        Arc::new(toma::Toma),
+        Arc::new(elroki_teleporters::ElrokiTeleporters),
+        Arc::new(pagan_teleporters::PaganTeleporters),
+        Arc::new(tunatun::Tunatun),
+        // ai/areas — slice 2: the small combat scripts.
+        Arc::new(cave_maiden::CaveMaiden),
+        Arc::new(pytan::Pytan),
+        Arc::new(frozen_labyrinth::FrozenLabyrinth),
+        Arc::new(pagan_keys::PaganKeys),
+        Arc::new(hot_springs::HotSprings),
+        Arc::new(plains_of_dion::PlainsOfDion),
+        // ai/areas — slice 3: Den of Evil's Ragna Orcs (the zone's own
+        // Kasha-eye script is @Disabled on this dist with no eye spawns).
+        Arc::new(den_of_evil::RagnaOrcLeaders),
+        Arc::new(den_of_evil::FrightenedRagnaOrc),
+        // ai/areas — slice 4: the allied-tribe service NPCs (mirror pair).
+        Arc::new(tribe_support::KetraOrcSupport),
+        Arc::new(tribe_support::VarkaSilenosSupport),
+        // ai/areas — slice 5.
+        Arc::new(forge_of_the_gods::ForgeOfTheGods),
+        // ai/areas — slice 6: the Beast Farm feeding chain (BeastFarm.java's
+        // Gracia revamp NPCs never spawn on this dist — dead content).
+        Arc::new(feedable_beasts::FeedableBeasts),
+        // ai/areas — slice 7: Primeval Isle (MonasteryOfSilence.java is dead
+        // content on this dist — none of its Gracia-era NPCs spawn).
+        Arc::new(primeval_isle::PrimevalIsle),
+        // ai/areas — slice 8: the Four Sepulchers party dungeon.
+        Arc::new(four_sepulchers::FourSepulchers),
+        Arc::new(four_sepulchers::FourSepulchersBosses),
     ];
     QuestRegistry::new(scripts)
 }

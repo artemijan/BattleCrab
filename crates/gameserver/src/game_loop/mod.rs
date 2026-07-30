@@ -9,6 +9,7 @@
 mod abnormal;
 pub(crate) mod admin;
 pub(crate) mod antharas;
+pub(crate) mod area_npcs;
 mod augment;
 pub(crate) mod baium;
 pub(crate) mod boats;
@@ -39,12 +40,13 @@ mod enchant;
 pub(crate) mod events;
 mod expertise;
 pub(crate) mod fishing;
+pub(crate) mod four_sepulchers;
 mod friends;
 pub(crate) mod frintezza;
 pub(crate) mod game_time;
 mod grand_boss;
-mod ground_items;
-mod helpers;
+pub(crate) mod ground_items;
+pub(crate) mod helpers;
 mod henna;
 pub(crate) mod instances;
 pub(crate) mod item_auction;
@@ -58,7 +60,7 @@ pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
 pub(crate) mod npc_ai;
-mod npc_cast;
+pub(crate) mod npc_cast;
 mod npc_view;
 pub(crate) mod olympiad;
 mod orfen;
@@ -85,6 +87,7 @@ mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod subclass;
 pub(crate) mod support_magic;
+pub(crate) mod tamed_beast;
 mod target;
 pub(crate) mod teleporter;
 #[cfg(test)]
@@ -229,6 +232,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // `grand_boss::resolve_at_boot` (and `dr_chaos`) run from that handler, not
     // here where `world.grand_bosses` is still empty.
     boats::spawn_boats(&mut world);
+    // Script-owned area NPCs (Toma is not in the spawn data — his script
+    // places and relocates him).
+    area_npcs::spawn_at_boot(&mut world);
     // The Monster Race (like the Lottery) starts from its DB-load event
     // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
     // race number from the loaded history before beginning the cycle.
@@ -404,6 +410,48 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::QueenAntHeal { queen_oid } => {
                 queen_ant::handle_heal_tick(world, queen_oid);
+            }
+            ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
+            ScheduledTask::DayNightCheck { was_night } => {
+                area_npcs::handle_day_night_check(world, was_night);
+            }
+            ScheduledTask::EilhalderDespawnRetry => {
+                area_npcs::handle_eilhalder_despawn_retry(world);
+            }
+            ScheduledTask::FogRefresh => area_npcs::handle_fog_refresh(world),
+            ScheduledTask::TamedBeastDuration { beast_oid } => {
+                tamed_beast::handle_duration(world, beast_oid);
+            }
+            ScheduledTask::TamedBeastFollow { beast_oid } => {
+                tamed_beast::handle_follow(world, beast_oid);
+            }
+            ScheduledTask::MadCowPolymorph {
+                cow_oid,
+                feeder_oid,
+            } => {
+                tamed_beast::handle_mad_cow_polymorph(world, cow_oid, feeder_oid);
+            }
+            ScheduledTask::SprigantTrap { npc_oid } => {
+                crate::scripts::primeval_isle::handle_sprigant_trap(world, npc_oid);
+            }
+            ScheduledTask::TrexAttack {
+                trex_oid,
+                player_oid,
+            } => {
+                crate::scripts::primeval_isle::handle_trex_attack(world, trex_oid, player_oid);
+            }
+            ScheduledTask::FsMysteriousChest { sepulcher } => {
+                four_sepulchers::handle_mysterious_chest(world, sepulcher);
+            }
+            ScheduledTask::FsWaveCheck { sepulcher } => {
+                four_sepulchers::handle_wave_check(world, sepulcher);
+            }
+            ScheduledTask::FsOust { sepulcher } => four_sepulchers::handle_oust(world, sepulcher),
+            ScheduledTask::FsVictimFlee { npc_oid } => {
+                crate::scripts::four_sepulchers::handle_victim_flee(world, npc_oid);
+            }
+            ScheduledTask::FsRemovePetrify { npc_oid } => {
+                crate::scripts::four_sepulchers::handle_remove_petrify(world, npc_oid);
             }
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);

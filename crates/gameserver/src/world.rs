@@ -122,6 +122,13 @@ pub struct World {
     /// `data.zone_data.zones` — see [`crate::game_loop::effect_zones`].
     pub effect_zone_next_tick: HashMap<usize, u64>,
     pub minions_placed: usize,
+    /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
+    /// escalation counter behind the Lavasaurus ambush tiers (Java's static
+    /// `_npcCount`).
+    pub fog_kill_count: i32,
+    /// Four Sepulchers per-hall run state (progress, entry clock, tracked
+    /// wave spawns).
+    pub four_sepulchers: crate::game_loop::four_sepulchers::FsState,
     pub pending_boss_spawns: Vec<(usize, usize, usize)>,
     /// npc id → its `dbSave` spawn definition, for the death/respawn writes
     /// (Java's `DBSpawnManager._spawns`).
@@ -407,6 +414,8 @@ impl World {
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),
             minions_placed: 0,
+            fog_kill_count: 0,
+            four_sepulchers: Default::default(),
             pending_boss_spawns: Vec::new(),
             boss_spawn_refs: HashMap::new(),
             door_regions: HashMap::new(),

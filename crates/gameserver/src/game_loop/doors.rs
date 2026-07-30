@@ -87,6 +87,40 @@ pub(crate) fn open_door_by_id(world: &mut World, door_id: i32) {
     }
 }
 
+/// Open a door by id and arm a scripted close `close_ticks` later — the
+/// `openDoor(id); startQuestTimer("Close_Door", …)` pattern (Pagan Temple's
+/// mark-gated doors). Rides the auto-close seq, so a newer open or close
+/// before the timer fires turns this close into a no-op.
+pub(crate) fn open_door_timed(world: &mut World, door_id: i32, close_ticks: u64) {
+    let oid = world.door_regions.values().flatten().copied().find(|&oid| {
+        world
+            .objects
+            .get_component::<crate::model::components::InstanceDoorOpen>(&oid)
+            .is_none()
+            && world
+                .objects
+                .get_component::<Door>(&oid)
+                .is_some_and(|d| d.door_id == door_id)
+    });
+    let Some(oid) = oid else {
+        return;
+    };
+    open_door(world, oid);
+    if let Some(seq) = world
+        .objects
+        .get_component::<Door>(&oid)
+        .map(|d| d.auto_close_seq)
+    {
+        world.scheduler.schedule(
+            world.tick + close_ticks,
+            crate::scheduler::ScheduledTask::DoorAutoClose {
+                door_object_id: oid,
+                seq,
+            },
+        );
+    }
+}
+
 /// Open or close the door with a given **door id** (Java
 /// `ClanHall.openCloseDoors` → `door.openMe()` / `closeMe()`).
 pub(crate) fn set_door_by_id(world: &mut World, door_id: i32, open: bool) {

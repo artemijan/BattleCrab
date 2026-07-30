@@ -37,6 +37,7 @@ mod abnormal_tests;
 mod admin_tests;
 mod affect_tests;
 mod antharas_tests;
+mod area_scripts_tests;
 mod attribute_tests;
 mod baium_tests;
 mod boats_tests;
@@ -353,6 +354,7 @@ async fn character_create_inserts_into_real_schema() {
         routes: Default::default(),
         categories: crate::data::CategoryData::empty(),
         cursed_weapons: crate::data::CursedWeaponData::empty(),
+        four_sepulchers: crate::data::FourSepulchersData::empty(),
         siege_towers: std::collections::HashMap::new(),
         siege_schedule: std::collections::HashMap::new(),
         castle_restart_points: std::collections::HashMap::new(),

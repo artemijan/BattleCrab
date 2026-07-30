@@ -537,13 +537,29 @@ fn think_active(world: &mut World, npc_oid: i32) {
         // sweep because the sweep closure holds `objects` mutably and the flag
         // lookup needs it shared — the same shape the siege branch below uses.
         in_range.retain(|&pid| notices_target(world, npc_oid, pid));
+        let mut newly_seen: Vec<i32> = Vec::new();
         if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
             for player_oid in in_range {
                 // `addDamageHate(t, 0, 0)` → first sight seeds 1 hate.
                 let entry = aggro.0.entry(player_oid).or_default();
                 if entry.hate == 0.0 {
                     entry.hate = 1.0;
+                    newly_seen.push(player_oid);
                 }
+            }
+        }
+        // `onAggroRangeEnter` for the scripts that registered this monster
+        // (the Primeval Isle Tyrannosaurus's curiosity pause).
+        if !newly_seen.is_empty() {
+            let npc_id = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .map(|n| n.npc_id)
+                .unwrap_or(0);
+            for player_oid in newly_seen {
+                crate::game_loop::quests::notify_aggro_range_enter(
+                    world, npc_oid, npc_id, player_oid,
+                );
             }
         }
     }

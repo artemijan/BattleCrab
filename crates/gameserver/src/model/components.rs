@@ -422,6 +422,19 @@ pub struct DrChaosGolem {
     pub last_attack_tick: u64,
 }
 
+/// A Beast Farm tamed beast (Java `TamedBeast`): the top of the feeding
+/// chain — follows its tamer and lives on a spice clock.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct TamedBeastOf {
+    /// The tamer's object id.
+    pub owner: i32,
+    /// The spice *skill* (2188 golden / 2189 crystal) this beast eats.
+    pub food_skill: i32,
+    /// Java `_remainingTime` in ticks: starts at 20 min, -60 s per duration
+    /// check, +20 s per feeding, capped at 20 min. ≤ 0 → despawn.
+    pub remaining_ticks: i32,
+}
+
 /// The one action a busy actor holds back — Java's three queue slots
 /// (`PlayerAI._nextIntention` MOVE_TO, `Player._queuedSkill`,
 /// `AbstractAI._nextAction` equip) folded into a single presence-based slot.

@@ -49,6 +49,7 @@ fn minion_world() -> (
         vec![MinionHolder {
             npc_id: MINION_ID,
             count: 3,
+            group: "Privates".into(),
         }],
     ));
     world.data.npc_data.insert_for_test(leader_template(
@@ -57,6 +58,7 @@ fn minion_world() -> (
         vec![MinionHolder {
             npc_id: MINION_ID,
             count: 2,
+            group: "Privates".into(),
         }],
     ));
     world.id_pool = 0x2200_0000..0x2200_1000;

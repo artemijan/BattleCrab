@@ -30,7 +30,17 @@ const SPAWN_OFFSET: i32 = 200;
 /// — it spawns `count - alreadyAlive`, so it doubles as the respawn top-up).
 /// Returns how many minions were actually placed, so callers that keep a
 /// spawn tally (`spawn_all`) stay consistent with the world's NPC count.
+///
+/// Only the default `"Privates"` group spawns here — that is the group Java's
+/// generic escort path asks for by name. Named groups (the Ragna Orc leaders'
+/// `Privates1`/`2`/`3`) are chosen by their scripts via
+/// [`spawn_minion_group`]; spawning them all would over-escort the leader.
 pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
+    spawn_minion_group(world, master_oid, "Privates")
+}
+
+/// `spawnMinions(npc, "<group>")` — top up one named `<minions>` group.
+pub(crate) fn spawn_minion_group(world: &mut World, master_oid: i32, group: &str) -> usize {
     if world
         .objects
         .get_component::<Vitals>(&master_oid)
@@ -45,12 +55,13 @@ pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
     else {
         return 0;
     };
-    let Some(entries) = world
-        .data
-        .npc_data
-        .get(master_npc_id)
-        .map(|t| t.minions.clone())
-    else {
+    let Some(entries) = world.data.npc_data.get(master_npc_id).map(|t| {
+        t.minions
+            .iter()
+            .filter(|m| m.group == group)
+            .cloned()
+            .collect::<Vec<_>>()
+    }) else {
         return 0;
     };
     if entries.is_empty() {
@@ -66,6 +77,10 @@ pub(crate) fn spawn_minions(world: &mut World, master_oid: i32) -> usize {
             }
         }
     }
+    // Every escort spawn lands in the boot tally here — including the ones a
+    // leader's `onSpawn` script places (which `spawn_one`'s own call cannot
+    // see); `spawn_all` folds and resets the counter once boot placement ends.
+    world.minions_placed += placed;
     placed
 }
 
