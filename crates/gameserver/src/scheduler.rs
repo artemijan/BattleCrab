@@ -459,6 +459,12 @@ pub enum ScheduledTask {
     /// him at one of his three haunts (Java `RESPAWN_TOMA`); reschedules
     /// itself.
     TomaRelocate,
+    /// `ai/others/Mammons`: the 30-minute `RESPAWN_MERCHANT` / `_BLACKSMITH` /
+    /// `_PRIEST` beat — delete the script's copy of that Mammon and place it at
+    /// another haunt. Reschedules itself; `npc_id` says which merchant.
+    MammonRelocate {
+        npc_id: i32,
+    },
     /// The in-game day/night watch (Java `OnDayNightChange` listeners):
     /// fires the transition scripts when the flag flips. Reschedules itself,
     /// carrying the last-seen state.

@@ -367,6 +367,32 @@ fn npc_bypass(
         "SupportMagicServitor" => {
             super::support_magic::support_magic(world, client_id, object_id, npc_object_id, true)
         }
+        // `bypasshandlers/Multisell.java`: the exchange windows every merchant,
+        // pet manager, fisherman and Mammon html opens (`multisell <id>` full /
+        // `exc_multisell <id>` inventory-only). Java parses the id off a fixed
+        // offset (`substring(9)`/`substring(13)`) — the token split is the same
+        // cut, and a non-numeric tail is Java's swallowed `NumberFormatException`.
+        "multisell" | "exc_multisell" => {
+            let npc_id = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_object_id)
+                .map_or(0, |n| n.npc_id);
+            if let Some(list_id) = command
+                .split_once(' ')
+                .and_then(|(_, rest)| rest.trim().parse::<i32>().ok())
+            {
+                super::multisell::separate_and_send(
+                    world,
+                    client_id,
+                    object_id,
+                    Some(npc_id),
+                    list_id,
+                    verb == "exc_multisell",
+                );
+            } else {
+                warn!("Bypass: bad multisell command [{command}].");
+            }
+        }
         // `ai/others/SymbolMaker`: the dye-symbol NPC's "Draw"/"Remove" buttons
         // (only that script's htms emit these verbs).
         "Draw" => super::henna::handle_item_list(world, client_id),

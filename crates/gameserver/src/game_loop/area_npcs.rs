@@ -1,12 +1,17 @@
-//! Global, player-less lifecycles from the `ai/areas` scripts — beats that
-//! cannot ride the quest-timer machinery because that is anchored to a
-//! player (`QuestTimerSeqs`), while these run from boot with nobody online.
+//! Global, player-less lifecycles from the `ai/areas` and `ai/others`
+//! scripts — beats that cannot ride the quest-timer machinery because that is
+//! anchored to a player (`QuestTimerSeqs`), while these run from boot with
+//! nobody online.
 //!
 //! First resident: **Toma** (`ai/areas/DwarvenVillage/Toma`). Java spawns him
 //! at one of three haunts and relocates him every 30 minutes
-//! (`RESPAWN_TOMA`); his chat window is `scripts::toma`.
+//! (`RESPAWN_TOMA`); his chat window is `scripts::toma`. The three **Mammon**
+//! merchants (`ai/others/Mammons/*`) are the same shape and live here too.
 
+use crate::enums::ChatType;
+use crate::network::server_packets;
 use crate::scheduler::ScheduledTask;
+use crate::session::ClientSession;
 use crate::world::World;
 
 pub(crate) const TOMA: i32 = 30556;
@@ -24,9 +29,13 @@ const TOMA_RELOCATE_TICKS: u64 = 30 * 60 * 10;
 /// Boot: Toma is not in the spawn data — the script owns him entirely (Java
 /// ctor fires `RESPAWN_TOMA` immediately, then every 30 minutes). Eilhalder
 /// von Hellmann's day/night watch starts here too, treating boot as a
-/// transition so a night boot spawns him right away.
+/// transition so a night boot spawns him right away. The three Mammon
+/// merchants have the same "the ctor fires the beat once" shape.
 pub(crate) fn spawn_at_boot(world: &mut World) {
     relocate_toma(world);
+    for mammon in MAMMONS {
+        relocate_mammon(world, mammon.npc_id);
+    }
     let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
     eilhalder_on_day_night_change(world, night);
     world.scheduler.schedule(
@@ -86,6 +95,119 @@ fn find_by_npc_id(world: &mut World, npc_id: i32) -> Option<i32> {
             },
         );
     found
+}
+
+// ---------------------------------------------------------------------------
+// The Mammon merchants (`ai/others/Mammons/{Merchant,Blacksmith,Priest}`)
+// ---------------------------------------------------------------------------
+
+pub(crate) const MERCHANT_OF_MAMMON: i32 = 31113;
+pub(crate) const BLACKSMITH_OF_MAMMON: i32 = 31126;
+pub(crate) const PRIEST_OF_MAMMON: i32 = 33511;
+
+/// One Mammon: which NPC, where it may appear, and the announce line Java
+/// broadcasts (`"… has been spawned near the Town of X."`).
+struct Mammon {
+    npc_id: i32,
+    /// Java's `LOCATIONS` — `(x, y, z, heading)`.
+    locations: &'static [(i32, i32, i32, i32)],
+    /// The announce sentence with `{}` where the castle name goes. The Priest's
+    /// line says "in Town of", the other two "near the Town of" — Java's
+    /// wording differs per script, so keep all three verbatim.
+    announce: &'static str,
+}
+
+/// `TELEPORT_DELAY` (30 min) in ticks — the same beat for all three.
+const MAMMON_RELOCATE_TICKS: u64 = 30 * 60 * 10;
+
+const MAMMONS: &[Mammon] = &[
+    Mammon {
+        npc_id: MERCHANT_OF_MAMMON,
+        locations: &[
+            (-52172, 78884, -4741, 0),  // Devotion
+            (-41350, 209876, -5087, 0), // Sacrifice
+            (-21657, 77164, -5173, 0),  // Patriots
+            (45029, 123802, -5413, 0),  // Pilgrims
+            (83175, 208998, -5439, 0),  // Saints
+            (111337, 173804, -5439, 0), // Worship
+            (118343, 132578, -4831, 0), // Martyrdom
+            (172373, -17833, -4901, 0), // Disciple
+        ],
+        announce: "Merchant of Mammon has been spawned near the Town of {}.",
+    },
+    Mammon {
+        npc_id: BLACKSMITH_OF_MAMMON,
+        locations: &[
+            (-19360, 13278, -4901, 0),   // Dark Omens
+            (-53131, -250502, -7909, 0), // Heretic
+            (46303, 170091, -4981, 0),   // Branded
+            (-20485, -251008, -8165, 0), // Apostate
+            (12669, -248698, -9581, 0),  // Forbidden Path
+            (140519, 79464, -5429, 0),   // Witch
+        ],
+        announce: "Blacksmith of Mammon has been spawned near the Town of {}.",
+    },
+    Mammon {
+        npc_id: PRIEST_OF_MAMMON,
+        locations: &[
+            (146882, 29665, -2264, 0),     // Aden
+            (81284, 150155, -3528, 891),   // Giran
+            (42784, -41236, -2192, 37972), // Rune
+        ],
+        announce: "Priest of Mammon has been spawned in Town of {}.",
+    },
+];
+
+/// The `RESPAWN_*` beat (Java `onEvent`): delete the copy this script placed —
+/// **not** whatever NPC of that id happens to be nearby, since the Priest also
+/// has static spawns — place a new one at a random haunt, announce it when
+/// `AnnounceMammonSpawn` is on, and re-arm 30 minutes out.
+///
+/// Java additionally passes a 30-minute despawn delay to `addSpawn`; that timer
+/// and this beat expire together, so the relocation is the despawn.
+pub(crate) fn relocate_mammon(world: &mut World, npc_id: i32) {
+    let Some(mammon) = MAMMONS.iter().find(|m| m.npc_id == npc_id) else {
+        return;
+    };
+    if let Some(oid) = world.mammon_spawns.remove(&npc_id) {
+        despawn_by_oid(world, oid);
+    }
+    let (x, y, z, heading) = mammon.locations[world.roll(mammon.locations.len() as i32) as usize];
+    if let Some(oid) = crate::model::npc::spawn_npc_at(world, npc_id, x, y, z, heading) {
+        world.mammon_spawns.insert(npc_id, oid);
+        if world.cfg.npc.announce_mammon_spawn {
+            let castle = nearest_castle_name(world, x, y, z);
+            announce_to_all(world, &mammon.announce.replace("{}", &castle));
+        }
+    }
+    world.scheduler.schedule(
+        world.tick + MAMMON_RELOCATE_TICKS,
+        ScheduledTask::MammonRelocate { npc_id },
+    );
+}
+
+/// `npc.getCastle().getName()` — the nearest castle by
+/// `CastleManager.findNearestCastle`. Java would NPE on a null castle; the
+/// castle list is loaded at boot and every Mammon haunt has one nearby, so an
+/// empty name only shows up in a test world with no castles.
+fn nearest_castle_name(world: &World, x: i32, y: i32, z: i32) -> String {
+    world
+        .data
+        .zone_data
+        .nearest_castle_at(x, y, z)
+        .and_then(|id| world.castles.iter().find(|c| c.id == id))
+        .map(|c| c.name.clone())
+        .unwrap_or_default()
+}
+
+/// Java `Broadcast.toAllOnlinePlayers(text, false)`.
+fn announce_to_all(world: &World, text: &str) {
+    let pkt = server_packets::creature_say(0, ChatType::Announcement, "", text, None);
+    for cs in world.clients.values() {
+        if let ClientSession::InGame(_) = cs {
+            cs.send(pkt.clone());
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

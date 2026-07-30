@@ -412,6 +412,9 @@ fn apply_due_tasks(world: &mut World) {
                 queen_ant::handle_heal_tick(world, queen_oid);
             }
             ScheduledTask::TomaRelocate => area_npcs::relocate_toma(world),
+            ScheduledTask::MammonRelocate { npc_id } => {
+                area_npcs::relocate_mammon(world, npc_id);
+            }
             ScheduledTask::DayNightCheck { was_night } => {
                 area_npcs::handle_day_night_check(world, was_night);
             }

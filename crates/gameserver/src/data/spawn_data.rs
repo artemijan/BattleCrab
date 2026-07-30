@@ -114,6 +114,38 @@ impl Territory {
     pub fn mid_z(&self) -> i32 {
         (self.min_z + self.max_z) / 2
     }
+
+    /// `ZoneForm.getDistanceToZone(x, y)` — 2D only, and deliberately as crude
+    /// as Java: for a polygon/cuboid it is the distance to the *nearest
+    /// corner*, not to the nearest edge (a point just outside a long wall
+    /// therefore measures far). `findNearestCastle` compares these, so the
+    /// approximation has to be reproduced, not improved.
+    pub fn distance_to_zone_2d(&self, px: i32, py: i32) -> f64 {
+        let corner_dist = |cx: i32, cy: i32| {
+            let (dx, dy) = ((cx - px) as f64, (cy - py) as f64);
+            dx * dx + dy * dy
+        };
+        match &self.form {
+            ZoneForm::NPoly { xs, ys } => xs
+                .iter()
+                .zip(ys)
+                .map(|(&x, &y)| corner_dist(x, y))
+                .fold(f64::INFINITY, f64::min)
+                .sqrt(),
+            ZoneForm::Cuboid { x1, x2, y1, y2 } => [
+                corner_dist(*x1, *y1),
+                corner_dist(*x1, *y2),
+                corner_dist(*x2, *y1),
+                corner_dist(*x2, *y2),
+            ]
+            .into_iter()
+            .fold(f64::INFINITY, f64::min)
+            .sqrt(),
+            ZoneForm::Cylinder { x, y, rad } => {
+                ((x - px) as f64).hypot((y - py) as f64) - *rad as f64
+            }
+        }
+    }
 }
 
 pub struct SpawnData {

@@ -97,6 +97,7 @@ mod npc_regen_tests;
 mod npc_tests;
 mod olympiad_tests;
 mod orfen_tests;
+mod others_scripts_tests;
 mod overhit_tests;
 mod party_room_tests;
 mod periodic_tests;

@@ -92,6 +92,10 @@ pub struct NpcConfig {
     /// term for -3 … -6 level differences, indexed by
     /// `targetLevel - casterLevel - 2` and clamped to the last entry.
     pub skill_chance_penalty_for_lvl_differences: Vec<f64>,
+    /// `AnnounceMammonSpawn` — shout a server-wide line naming the nearest
+    /// castle each time one of the three Mammon merchants relocates
+    /// (`ai/others/Mammons/*`). **True** on this dist; Java defaults it false.
+    pub announce_mammon_spawn: bool,
 }
 
 impl Default for NpcConfig {
@@ -128,6 +132,7 @@ impl Default for NpcConfig {
             // which `parseConfigLine` turns into an empty array; this dist sets
             // it explicitly, so mirror the dist value as the default.
             skill_chance_penalty_for_lvl_differences: vec![2.5, 3.0, 3.25, 3.5],
+            announce_mammon_spawn: false,
         }
     }
 }
@@ -190,6 +195,7 @@ impl NpcConfig {
                 &p.get_string("SkillChancePenaltyForLvLDifferences", ""),
                 d.skill_chance_penalty_for_lvl_differences,
             ),
+            announce_mammon_spawn: p.get_bool("AnnounceMammonSpawn", d.announce_mammon_spawn),
         }
     }
 }

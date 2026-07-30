@@ -326,6 +326,29 @@ impl ZoneData {
             .map(|zn| zn.castle_id)
     }
 
+    /// Java `CastleManager.findNearestCastle(obj)` — the castle whose
+    /// `SiegeZone` covers the point, else the castle whose zone is closest by
+    /// `Castle.getDistance` (`ZoneForm.getDistanceToZone`: 2D, corner-distance).
+    /// `Npc.getCastle()` resolves through here, so this is what names the
+    /// castle in the Mammon spawn announce and gates the castle-service NPCs.
+    ///
+    /// Zones carrying no `castleId` (the stray later-chronicle `GainakSiege`)
+    /// belong to no castle and are skipped — Java iterates castles, not zones.
+    pub fn nearest_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        if let Some(id) = self.siege_castle_at(x, y, z) {
+            return Some(id);
+        }
+        self.zones
+            .iter()
+            .filter(|zn| zn.kind == ZoneKind::Siege && zn.castle_id > 0)
+            .min_by(|a, b| {
+                a.territory
+                    .distance_to_zone_2d(x, y)
+                    .total_cmp(&b.territory.distance_to_zone_2d(x, y))
+            })
+            .map(|zn| zn.castle_id)
+    }
+
     /// The clan hall whose interior contains `(x, y, z)` (Java
     /// `ClanHallZone.getResidenceId` via `ZoneManager`), if any.
     pub fn clan_hall_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {

@@ -558,7 +558,7 @@ fn do_multisell(world: &mut World, client_id: u32, object_id: i32, command: &str
     };
     let page = opts.next().map(str::trim);
     render_merchant_page(world, client_id, object_id, page);
-    super::multisell::separate_and_send(world, client_id, object_id, list_id, exchange);
+    super::multisell::separate_and_send(world, client_id, object_id, None, list_id, exchange);
 }
 
 /// `HomeBoard`'s `_bbssell;<page>` branch: open the sell window (BuyList 423 +

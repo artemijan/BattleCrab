@@ -1,11 +1,15 @@
 //! Multisell exchange: `MultisellData.separateAndSend` (open the window) and
 //! `clientpackets/MultiSellChoose` (the purchase/exchange transaction).
 //!
-//! Scoped to the community-board shop path — `separateAndSend(id, player,
-//! null, false)`: no npc, no castle tax, no inventory-only filtering, no
-//! `maintainEnchantment`, and adena/regular ingredients → regular products.
-//! The following Java branches are **not** ported (a `TODO(G30)` marks each at
-//! its site; none is reached by the `-1`/CB lists on this dist):
+//! Reached two ways: the community board (`separateAndSend(id, player, null,
+//! …)`) and, since G22's `ai/others` sweep, the `multisell` / `exc_multisell`
+//! NPC bypass (`handlers/bypasshandlers/Multisell`), which passes the NPC so
+//! its `<npcs>` allow-list matches — every merchant exchange window in the
+//! game comes through there.
+//!
+//! No castle tax, no inventory-only filtering, no `maintainEnchantment`, and
+//! adena/regular ingredients → regular products. The following Java branches
+//! are **not** ported (a `TODO` marks each at its site):
 //!
 //! - inventory-only lists (`_bbsexcmultisell`) — the equippable-item match-up +
 //!   per-enchant entry duplication. `exc` still opens the full list here.
@@ -30,13 +34,16 @@ use crate::world::World;
 /// count math.
 const CLIENT_MAX_AMOUNT: i64 = 999_999;
 
-/// Port of `MultisellData.separateAndSend(listId, player, null, inventoryOnly)`
-/// for the npc-less community-board path: send one `MultiSellList` per page and
-/// record the open list on the player.
+/// Port of `MultisellData.separateAndSend(listId, player, npc, inventoryOnly)`:
+/// send one `MultiSellList` per page and record the open list on the player.
+///
+/// `npc_id` is the *template* id of the NPC the list was opened from (Java's
+/// `npc.getId()`), `None` for the npc-less community-board path.
 pub(crate) fn separate_and_send(
     world: &mut World,
     client_id: u32,
     player: i32,
+    npc_id: Option<i32>,
     list_id: i32,
     inventory_only: bool,
 ) {
@@ -45,12 +52,16 @@ pub(crate) fn separate_and_send(
         return;
     };
 
-    // `!isNpcAllowed(-1) && ((npc == null) && isNpcOnly())` — with no npc, an
-    // npc-only list that doesn't carry the `-1` sentinel is restricted. (The GM
-    // bypass Java grants here is omitted — CB lists carry `-1`, so this only
-    // trips a genuinely misconfigured list.)
-    if !list.is_npc_allowed(-1) && list.is_npc_only() {
-        warn!("Multisell: list {list_id} is npc-only and not CB-allowed (player {player}).");
+    // `!isNpcAllowed(-1) && (((npc != null) && !isNpcAllowed(npc.getId())) ||
+    // ((npc == null) && isNpcOnly()))` — a list without the `-1` sentinel is
+    // restricted to its `<npcs>` allow-list, and with no npc at all an npc-only
+    // list is out of reach. (The GM bypass Java grants here is omitted.)
+    let restricted = match npc_id {
+        Some(id) => !list.is_npc_allowed(id),
+        None => list.is_npc_only(),
+    };
+    if !list.is_npc_allowed(-1) && restricted {
+        warn!("Multisell: list {list_id} is not allowed from npc {npc_id:?} (player {player}).",);
         return;
     }
 

@@ -992,6 +992,15 @@ kind (one-time, repeatable, daily, class-transfer, instance) completes.
 backing Q00255~~ (✅ landed with the tutorial, 2026-07-28; `ClientEvent` is
 consumed silently — dead in the Java build too).
 
+**Script sweep (2026-07-30):** the `ai/areas` half is ✅ complete
+(remaining-ports audit row 4). The `ai/others` half runs through
+[PLAN_G22_AI_OTHERS.md](PLAN_G22_AI_OTHERS.md) — slice 1 landed 2026-07-30: the
+`multisell` / `exc_multisell` **NPC bypass** (which closes the "remaining bypass
+families" note above and revives the exchange button in 97 dist htmls) and the
+three wandering Mammon merchants. Slices 2–5 cover the castle service NPCs, the
+small combat behaviours, the `dayTime`/`nightTime` spawn groups (unblocked by
+the G33 game clock) and the talk/utility tail.
+
 ---
 
 ## Track E — End-game systems (each unblocks a C-group handler)

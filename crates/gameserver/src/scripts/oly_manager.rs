@@ -79,6 +79,7 @@ impl QuestScript for OlyManager {
                     ctx.world,
                     ctx.client_id,
                     ctx.player,
+                    Some(ctx.npc_id),
                     EQUIPMENT_MULTISELL,
                     false,
                 );

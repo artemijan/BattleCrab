@@ -29,6 +29,7 @@ pub mod four_sepulchers;
 mod frozen_labyrinth;
 mod hot_springs;
 pub mod last_imperial_tomb;
+mod mammons;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
 pub mod npc_location_info;
@@ -482,6 +483,11 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         // ai/areas — slice 8: the Four Sepulchers party dungeon.
         Arc::new(four_sepulchers::FourSepulchers),
         Arc::new(four_sepulchers::FourSepulchersBosses),
+        // ai/others — slice 1: the three wandering Mammon merchants (their
+        // 30-minute relocation beat lives in `game_loop::area_npcs`).
+        Arc::new(mammons::MerchantOfMammon),
+        Arc::new(mammons::BlacksmithOfMammon),
+        Arc::new(mammons::PriestOfMammon),
     ];
     QuestRegistry::new(scripts)
 }

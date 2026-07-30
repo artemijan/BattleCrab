@@ -126,6 +126,12 @@ pub struct World {
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
     /// `_npcCount`).
     pub fog_kill_count: i32,
+    /// The Mammon merchants' script-owned spawns (`ai/others/Mammons/*`):
+    /// npc id → the object id of the copy this script placed, i.e. Java's
+    /// `_lastSpawn`. Tracked rather than looked up by npc id because the
+    /// Priest of Mammon (33511) also has seven *static* spawns in the dist —
+    /// searching by id would relocate one of those instead.
+    pub mammon_spawns: HashMap<i32, i32>,
     /// Four Sepulchers per-hall run state (progress, entry clock, tracked
     /// wave spawns).
     pub four_sepulchers: crate::game_loop::four_sepulchers::FsState,
@@ -415,6 +421,7 @@ impl World {
             effect_zone_next_tick: HashMap::new(),
             minions_placed: 0,
             fog_kill_count: 0,
+            mammon_spawns: HashMap::new(),
             four_sepulchers: Default::default(),
             pending_boss_spawns: Vec::new(),
             boss_spawn_refs: HashMap::new(),
