@@ -1,0 +1,28 @@
+[package]
+name = "migration"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Database migrations (SeaORM) and the l2r-migrate binary"
+
+[lib]
+name = "migration"
+path = "src/lib.rs"
+
+[[bin]]
+name = "l2r-migrate"
+path = "src/main.rs"
+
+[dependencies]
+sea-orm-migration.workspace = true
+async-trait = "0.1"
+# Binary only, but Cargo has no per-target dependency for a bin in the same
+# crate: commons gives the CLI the servers' URL parsing, tokio the runtime.
+commons = { path = "../commons" }
+tokio.workspace = true
+
+[dev-dependencies]
+sqlx.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,16 @@
+[package]
+name = "models"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "SeaORM entities for the shared game/login database, plus the thin repositories over them"
+
+[dependencies]
+sea-orm.workspace = true
+
+[dev-dependencies]
+migration = { path = "../migration" }
+tokio.workspace = true
+
+[lints]
+workspace = true

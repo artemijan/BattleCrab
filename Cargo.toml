@@ -2,6 +2,8 @@
 resolver = "2"
 members = [
     "crates/commons",
+    "crates/models",
+    "crates/migration",
     "crates/loginserver",
     "crates/gameserver",
     "crates/launcher",
@@ -21,6 +23,17 @@ bytes = "1"
 # types (docs/PLAN_ORM_MIGRATION.md §2). Raw sqlx survives only until the last
 # hand-written query is ported.
 sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "sqlite", "macros"] }
+# The ORM. `default-features = false` drops the chrono/uuid/decimal value types
+# the schema does not use — every column here is an integer, real or text.
+sea-orm = { version = "2.0", default-features = false, features = [
+    "sqlx-sqlite",
+    "runtime-tokio",
+    "macros",
+] }
+sea-orm-migration = { version = "2.0", default-features = false, features = [
+    "sqlx-sqlite",
+    "runtime-tokio",
+] }
 blowfish = "0.10.0"
 byteorder = "1"
 cipher = "0.5.2"
