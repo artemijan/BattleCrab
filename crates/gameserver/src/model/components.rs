@@ -891,7 +891,7 @@ pub struct TargetRef(pub Option<i32>);
 /// itself (the community-board path uses the default 1.0), but the two fields
 /// `PreparedMultisellListHolder` derives *from the NPC* are latched here, so the
 /// exchange charges exactly the rate the window displayed.
-#[derive(Component, Debug, Clone, Copy, PartialEq)]
+#[derive(Component, Debug, Clone, PartialEq)]
 pub struct ActiveMultisell {
     pub list_id: i32,
     /// Object id of the NPC the window was opened from (Java `_npcObjectId`),
@@ -900,6 +900,25 @@ pub struct ActiveMultisell {
     /// Java `PreparedMultisellListHolder.getTaxRate()` — already 0 for a list
     /// that doesn't `applyTaxes`, and for an NPC outside every tax zone.
     pub tax_rate: f64,
+    /// The rows the window actually displayed, in order — Java's prepared
+    /// `_entries` (+ the parallel `_itemInfos`). `MultiSellChoose`'s entry id
+    /// indexes *this*, not the static list, which is what makes an
+    /// inventory-only (`exc_multisell`) window addressable.
+    pub rows: Vec<PreparedRow>,
+}
+
+/// One displayed multisell row: which entry of the static list it shows and,
+/// for an inventory-only window, which of the player's item instances it was
+/// paired with (Java `PreparedMultisellListHolder._itemInfos`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PreparedRow {
+    /// Index into `MultisellList.entries`.
+    pub entry_index: usize,
+    /// The paired inventory instance, `0` on a normal (non-inventory) window.
+    pub item_object_id: i32,
+    /// That instance's enchant level (0 when unpaired) — displayed in the
+    /// window and echoed back by the client on the choose.
+    pub enchant_level: i32,
 }
 
 /// GM-toggled state on a player (Java `Creature._isInvul`, `_isUndying`,

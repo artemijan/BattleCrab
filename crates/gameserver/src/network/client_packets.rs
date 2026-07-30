@@ -1225,6 +1225,10 @@ pub struct MultiSellChoose {
     pub list_id: i32,
     pub entry_id: i32,
     pub amount: i64,
+    /// The enchant level the client echoes back for the row it clicked. Java
+    /// refuses the exchange when it disagrees with the item the inventory-only
+    /// window paired with that row.
+    pub enchant_level: i32,
 }
 
 impl MultiSellChoose {
@@ -1233,10 +1237,11 @@ impl MultiSellChoose {
         let list_id = r.read_i32()?;
         let entry_id = r.read_i32()?;
         let amount = r.read_i64()?;
-        // enchantLevel(short), augment1(int), augment2(int), attackAttribute
-        // (short), attributePower(short), and six elemental defence shorts —
-        // consumed to keep the reader honest even though this path ignores them.
-        let _enchant_level = r.read_i16()?;
+        let enchant_level = i32::from(r.read_i16()?);
+        // augment1(int), augment2(int), attackAttribute(short), attributePower
+        // (short) and six elemental defence shorts — read to keep the reader
+        // honest; augments/attributes aren't compared on this path (no dist
+        // multisell carries them as ingredients).
         let _augment1 = r.read_i32()?;
         let _augment2 = r.read_i32()?;
         for _ in 0..8 {
@@ -1246,6 +1251,7 @@ impl MultiSellChoose {
             list_id,
             entry_id,
             amount,
+            enchant_level,
         })
     }
 }

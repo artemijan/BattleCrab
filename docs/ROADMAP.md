@@ -1068,8 +1068,11 @@ settlement** both landed 2026-07-30 — the vault, the `tax.xml` tax zones, the
 Aden/Rune liege cascade, the merchant/multisell/manor income paths, the
 chamberlain vault console, and Java's whole `changeMode` economics (crop payout
 to the clan warehouse, treasury refund/charge, next-period gating, leader
-notifications, `storeMe` persistence). Only the Mammon merchants' economics
-remain. See PROGRESS.md's G26 row.
+notifications, `storeMe` persistence). The **Mammon economics** followed the
+same day — their Ancient-Adena trade is entirely multisell-driven, so the gap
+was the inventory-only (`exc_multisell`) window, now ported with
+`maintainEnchantment`. **G26 is complete**; `//mammon_find`/`//mammon_respawn`
+have no handler class in this Java build. See PROGRESS.md's G26 row.
 
 ### G26.5 — Lottery & Monster Race
 *(2026-07 audit addition.)* `instancemanager/games/Lottery` (ticket purchase,

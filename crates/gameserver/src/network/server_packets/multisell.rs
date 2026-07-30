@@ -1,33 +1,35 @@
 //! Multisell server packets: `MultiSellList` (the exchange window, one packet
 //! per 40-entry page) and `ExMultiSellResult` (the post-exchange ack).
 //!
-//! Ported for the community-board shop path (`separateAndSend(id, player,
-//! null, false)`): npc-less, no inventory-only filtering, no
-//! `maintainEnchantment`. `itemEnchantment` is therefore always absent, so the
-//! per-item augment/elemental blocks are the null form (0 ints / 0 shorts),
-//! exactly as `AbstractItemPacket.writeItemAugment(null)` /
-//! `writeItemElemental(null)` write them.
+//! The window is written from the **prepared rows** the caller built (Java's
+//! `PreparedMultisellListHolder._entries` + `_itemInfos`): a normal window is
+//! one row per list entry, an inventory-only (`exc_multisell`) window one row
+//! per matching item the player holds, carrying that item's enchant level.
+//! Augment/elemental blocks are still the null form (0 ints / 0 shorts) — the
+//! port doesn't track item attributes, and no dist multisell keys on them.
 
 use commons::network::PacketWriter;
 
 use super::opcodes;
 use crate::data::item_data::ItemData;
 use crate::data::multisell_data::{MultisellList, PAGE_SIZE};
+use crate::model::components::PreparedRow;
 
-/// Port of `serverpackets/MultiSellList`. `index` is the first entry of this
+/// Port of `serverpackets/MultiSellList`. `index` is the first **row** of this
 /// page (0, 40, 80, …). Mirrors Java's page math: `size = min(PAGE_SIZE,
-/// entries - index)`, `finished` when this page reaches the end.
+/// rows - index)`, `finished` when this page reaches the end.
 ///
 /// `tax_rate` is the castle buy tax of the NPC the window was opened from (0 on
 /// the community-board path); it inflates the adena ingredient of a list that
 /// declares `applyTaxes`, so the price displayed is the price charged.
 pub fn multi_sell_list(
     list: &MultisellList,
+    rows: &[PreparedRow],
     index: usize,
     items: &ItemData,
     tax_rate: f64,
 ) -> Vec<u8> {
-    let total = list.entries.len();
+    let total = rows.len();
     let remaining = total.saturating_sub(index);
     let size = remaining.min(PAGE_SIZE);
     let finished = remaining <= PAGE_SIZE;
@@ -46,11 +48,15 @@ pub fn multi_sell_list(
     w.write_i32(32); // Helios — always 32
 
     for i in 0..size {
-        let entry_index = index + i;
-        let entry = &list.entries[entry_index];
-        w.write_i32(entry_index as i32 + 1); // entry id, from 1
+        let row_index = index + i;
+        let row = &rows[row_index];
+        let Some(entry) = list.entries.get(row.entry_index) else {
+            continue;
+        };
+        // The entry id addresses the *row* (Java indexes its prepared list).
+        w.write_i32(row_index as i32 + 1); // entry id, from 1
         w.write_u8(entry.stackable as u8);
-        w.write_i16(0); // enchant level (no itemEnchantment on this path)
+        w.write_i16(row.enchant_level as i16); // the paired item's enchant
         write_null_augment(&mut w);
         write_null_elemental(&mut w);
         w.write_u8(0);

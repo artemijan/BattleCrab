@@ -1469,3 +1469,253 @@ fn village_guards_stroll_around_their_post() {
         .count();
     assert_eq!(armed, 2, "the stroll beat keeps going");
 }
+
+// --- The Mammon economy: inventory-only (`exc_multisell`) exchange windows ---
+
+use crate::game_loop::multisell::handle_multi_sell_choose;
+use crate::model::inventory::Inventory;
+
+/// `MultiSellChoose` body, with the enchant level the client echoes back for an
+/// item-paired row.
+fn choose_body(list_id: i32, entry_id: i32, amount: i64, enchant: i16) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(entry_id);
+    w.write_i64(amount);
+    w.write_i16(enchant);
+    w.write_i32(0); // augment 1
+    w.write_i32(0); // augment 2
+    for _ in 0..8 {
+        w.write_i16(0);
+    }
+    w.into_bytes()
+}
+
+/// A world with the real catalogue and the Blacksmith of Mammon in front of
+/// player 8801.
+fn mammon_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, ..) = test_world();
+    load_real_multisell_data(&mut world);
+    add_test_npc(
+        &mut world,
+        NPC_OID,
+        BLACKSMITH_OF_MAMMON,
+        "Merchant",
+        70,
+        100,
+        0,
+        0,
+    );
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    let rx = ingame_player(&mut world, 1, 8801, 60, 0, 0);
+    (world, rx)
+}
+
+fn rows_of(world: &World, player: i32) -> Vec<crate::model::components::PreparedRow> {
+    world
+        .objects
+        .get_component::<ActiveMultisell>(&player)
+        .map(|a| a.rows.clone())
+        .unwrap_or_default()
+}
+
+/// **An `exc_multisell` window shows only what the player is carrying.** The
+/// Blacksmith's SA-removal list has hundreds of entries; a player holding one
+/// SA weapon (Stormbringer — Critical Anger, 4681) sees exactly the row for it,
+/// carrying that instance's enchant level. The plain `multisell` verb still
+/// opens the whole list.
+#[test]
+fn an_exchange_window_lists_only_the_players_own_items() {
+    let (mut world, mut rx) = mammon_world();
+    let oids = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
+        inv.set_item_enchant(oids[0], 5);
+    }
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_exc_multisell {BLACKSMITH_LIST}")),
+    );
+
+    let rows = rows_of(&world, 8801);
+    assert_eq!(rows.len(), 1, "only the held weapon's row is shown");
+    assert_eq!(rows[0].item_object_id, oids[0], "paired to that instance");
+    assert_eq!(rows[0].enchant_level, 5, "with its enchant level");
+
+    // The unfiltered verb still opens everything.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_multisell {BLACKSMITH_LIST}")),
+    );
+    assert!(
+        rows_of(&world, 8801).len() > 100,
+        "`multisell` is unfiltered"
+    );
+}
+
+/// **An equipped item is not offered for exchange** (Java skips
+/// `item.isEquipped()`), so a player wearing their only SA weapon sees an empty
+/// window.
+#[test]
+fn an_equipped_item_is_not_offered() {
+    let (mut world, mut rx) = mammon_world();
+    let oids = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon");
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&8801).unwrap();
+        inv.equip_item(&data.item_data, oids[0]);
+    }
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_exc_multisell {BLACKSMITH_LIST}")),
+    );
+
+    assert!(
+        rows_of(&world, 8801).is_empty(),
+        "an equipped weapon is not exchangeable"
+    );
+}
+
+/// **The exchange consumes the exact instance the row was paired with.** With
+/// two Stormbringers of different enchant in the bag, taking the row for the +0
+/// one leaves the +5 alone — the case that fails if the ingredient is taken by
+/// item id.
+#[test]
+fn the_exchange_consumes_the_paired_instance() {
+    let (mut world, mut rx) = mammon_world();
+    let plain = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("first")[0];
+    let enchanted = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("second")[0];
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8801) {
+        inv.set_item_enchant(enchanted, 5);
+    }
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_exc_multisell {BLACKSMITH_LIST}")),
+    );
+    let rows = rows_of(&world, 8801);
+    assert_eq!(rows.len(), 2, "one row per instance");
+    let plain_row = rows.iter().position(|r| r.item_object_id == plain).unwrap();
+
+    handle_multi_sell_choose(
+        &mut world,
+        1,
+        &choose_body(BLACKSMITH_LIST, plain_row as i32 + 1, 1, 0),
+    );
+
+    let inv = world.objects.get_component::<Inventory>(&8801).unwrap();
+    assert!(
+        inv.item_by_object_id(plain).is_none(),
+        "the chosen instance is gone"
+    );
+    assert!(
+        inv.item_by_object_id(enchanted).is_some(),
+        "the other one is untouched"
+    );
+    assert_eq!(inv.count_of(72), 1, "and the plain Stormbringer arrived");
+}
+
+/// **A forged choose on an item-paired row is refused.** Java compares the
+/// client's echoed stats against the paired item and drops the window; an amount
+/// above 1 is refused the same way. Neither takes anything.
+#[test]
+fn a_mismatched_echo_is_refused() {
+    let (mut world, mut rx) = mammon_world();
+    let oid = super::items::add_inventory_item(&mut world, 8801, 4681, 1).expect("SA weapon")[0];
+    drain(&mut rx);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_exc_multisell {BLACKSMITH_LIST}")),
+    );
+
+    // The row's item is +0; claim +9.
+    handle_multi_sell_choose(&mut world, 1, &choose_body(BLACKSMITH_LIST, 1, 1, 9));
+    assert!(
+        world
+            .objects
+            .get_component::<Inventory>(&8801)
+            .unwrap()
+            .item_by_object_id(oid)
+            .is_some(),
+        "nothing was taken"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<ActiveMultisell>(&8801)
+            .is_none(),
+        "and the window is dropped"
+    );
+}
+
+/// **`maintainEnchantment` carries the enchant onto the new item.** List 1005
+/// (the town blacksmiths' weapon-SA exchange) declares it, so a +7 Bow of
+/// Peril comes back out as a +7 SA version.
+#[test]
+fn maintain_enchantment_carries_the_enchant_over() {
+    let (mut world, ..) = test_world();
+    load_real_multisell_data(&mut world);
+    // Pinter (30298) is on list 1005's `<npcs>` allow-list.
+    add_test_npc(&mut world, NPC_OID, 30298, "Merchant", 70, 100, 0, 0);
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    let mut rx2 = ingame_player(&mut world, 1, 8802, 60, 0, 0);
+
+    // The list's first entry: find an ingredient the player can hold.
+    let (ingredient_id, product_id) = {
+        let list = world.data.multisells.get(1005).expect("list 1005");
+        let entry = &list.entries[0];
+        (entry.ingredients[0].id, entry.products[0].id)
+    };
+    let oid = super::items::add_inventory_item(&mut world, 8802, ingredient_id, 1)
+        .expect("ingredient")[0];
+    // Everything else the entry wants (adena and the like).
+    let extras: Vec<(i32, i64)> = {
+        let list = world.data.multisells.get(1005).expect("list 1005");
+        list.entries[0]
+            .ingredients
+            .iter()
+            .skip(1)
+            .map(|i| (i.id, i.count * 10))
+            .collect()
+    };
+    for (id, count) in extras {
+        super::items::add_inventory_item(&mut world, 8802, id, count);
+    }
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&8802) {
+        inv.set_item_enchant(oid, 7);
+    }
+    drain(&mut rx2);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_exc_multisell 1005")),
+    );
+    let rows = rows_of(&world, 8802);
+    let row = rows
+        .iter()
+        .position(|r| r.item_object_id == oid)
+        .expect("the held weapon has a row");
+
+    handle_multi_sell_choose(&mut world, 1, &choose_body(1005, row as i32 + 1, 1, 7));
+
+    let inv = world.objects.get_component::<Inventory>(&8802).unwrap();
+    let produced = inv
+        .items()
+        .iter()
+        .find(|i| i.item_id == product_id)
+        .expect("the exchanged weapon");
+    assert_eq!(
+        produced.enchant_level, 7,
+        "the enchant level came along (maintainEnchantment)"
+    );
+}
