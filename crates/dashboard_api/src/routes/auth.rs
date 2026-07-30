@@ -115,7 +115,7 @@ async fn register(
     // logs into the game, but the game accounts created under it reuse this
     // hashing, so there is one implementation for both.
     let hash = commons::crypt::hash_password(&body.password);
-    let account = accounts::create_master(&app.pool, &email, &hash).await?;
+    let account = accounts::create_master(&app.db, &email, &hash).await?;
     tracing::info!("registered master account {email}");
 
     send_verification(&app, &email).await;
@@ -146,7 +146,7 @@ async fn login(
 
     // Master lookup only: a game account shares this address, and matching one
     // here would let a sub-account password open the owner's dashboard.
-    let account = accounts::find_master_by_email(&app.pool, &email).await?;
+    let account = accounts::find_master_by_email(&app.db, &email).await?;
 
     // Verify even when the account is missing, against a dummy hash, so the
     // response time doesn't reveal which addresses exist.
@@ -228,7 +228,7 @@ async fn forgot_password(
 ) -> ApiResult<StatusCode> {
     // Always 202, whether or not the address exists — otherwise this endpoint
     // becomes an account-enumeration oracle.
-    if let Some(account) = accounts::find_master_by_email(&app.pool, &body.email).await? {
+    if let Some(account) = accounts::find_master_by_email(&app.db, &body.email).await? {
         let subject = account.subject().to_string();
         let raw = token::issue_reset(&app.key, &subject, &account.password);
         // site_base_url, not public_base_url: /reset-password is a route in the
@@ -265,7 +265,7 @@ async fn reset_password(
     // HMAC verifies against that account's *current* hash — which is what makes
     // it single-use (PLAN_DASHBOARD.md §5.4).
     let claimed = decode_subject_hint(&body.token).ok_or(ApiError::InvalidToken)?;
-    let account = accounts::find_master_by_email(&app.pool, &claimed)
+    let account = accounts::find_master_by_email(&app.db, &claimed)
         .await?
         .ok_or(ApiError::InvalidToken)?;
 
@@ -273,7 +273,7 @@ async fn reset_password(
         .ok_or(ApiError::InvalidToken)?;
 
     let hash = commons::crypt::hash_password(&body.password);
-    accounts::set_master_password(&app.pool, &subject, &hash).await?;
+    accounts::set_master_password(&app.db, &subject, &hash).await?;
     tracing::info!("password reset for {subject}");
 
     // Every outstanding session and reset link is now dead: both sign over the

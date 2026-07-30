@@ -110,7 +110,7 @@ async fn list_accounts(
     let limit = page_limit(query.limit);
     let offset = query.offset.unwrap_or(0).max(0);
     let (accounts, total) =
-        admin::list_masters(&app.pool, query.q.trim(), sort, dir, limit, offset).await?;
+        admin::list_masters(&app.db, query.q.trim(), sort, dir, limit, offset).await?;
 
     Ok(Json(MasterListResponse { total, accounts }))
 }
@@ -132,23 +132,16 @@ async fn account_detail(
 
     // Through the list query so the detail view carries the same counts and
     // fields the row it was opened from did — one projection, no drift.
-    let (mut masters, _) = admin::list_masters(
-        &app.pool,
-        &email,
-        MasterSort::default(),
-        SortDir::Desc,
-        1,
-        0,
-    )
-    .await?;
+    let (mut masters, _) =
+        admin::list_masters(&app.db, &email, MasterSort::default(), SortDir::Desc, 1, 0).await?;
     let master = masters.pop().filter(|m| {
         // list_masters searches with LIKE; the path names one exact account.
         m.email.eq_ignore_ascii_case(email.trim())
     });
     let master = master.ok_or(ApiError::NotFound)?;
 
-    let game_accounts = admin::game_accounts_for_master(&app.pool, &master.email).await?;
-    let characters = characters::list_for_master(&app.pool, &master.email).await?;
+    let game_accounts = admin::game_accounts_for_master(&app.db, &master.email).await?;
+    let characters = characters::list_for_master(&app.db, &master.email).await?;
 
     Ok(Json(AccountDetailResponse {
         master,
@@ -164,7 +157,7 @@ async fn verify_master(
 ) -> ApiResult<StatusCode> {
     let actor = require_admin(&app, &headers).await?;
 
-    let target = accounts::find_master_by_email(&app.pool, &email)
+    let target = accounts::find_master_by_email(&app.db, &email)
         .await?
         .ok_or(ApiError::NotFound)?;
     if target.is_verified() {
@@ -173,7 +166,7 @@ async fn verify_master(
         ));
     }
 
-    accounts::mark_verified(&app.pool, target.subject()).await?;
+    accounts::mark_verified(&app.db, target.subject()).await?;
     tracing::info!(
         admin = %actor.subject(),
         target = %target.subject(),
@@ -197,13 +190,13 @@ async fn set_master_access_level(
 ) -> ApiResult<StatusCode> {
     let actor = require_admin(&app, &headers).await?;
 
-    let target = accounts::find_master_by_email(&app.pool, &email)
+    let target = accounts::find_master_by_email(&app.db, &email)
         .await?
         .ok_or(ApiError::NotFound)?;
     assert_outranks(&actor, target.access_level)?;
 
     admin::set_access_level(
-        &app.pool,
+        &app.db,
         AccessLevelTarget::Master(target.subject()),
         body.level,
     )
@@ -234,7 +227,7 @@ async fn search_game_accounts(
 ) -> ApiResult<Json<Vec<GameAccountInfo>>> {
     require_admin(&app, &headers).await?;
     let rows =
-        admin::search_game_accounts(&app.pool, query.q.trim(), page_limit(query.limit)).await?;
+        admin::search_game_accounts(&app.db, query.q.trim(), page_limit(query.limit)).await?;
     Ok(Json(rows))
 }
 
@@ -260,7 +253,7 @@ async fn create_game_account(
     validate_password(&body.password, &app.config)?;
 
     let hash = commons::crypt::hash_password(&body.password);
-    admin::create_gm_game_account(&app.pool, &actor, &login, &hash).await?;
+    admin::create_gm_game_account(&app.db, &actor, &login, &hash).await?;
     tracing::info!(
         admin = %actor.subject(),
         login = %login,
@@ -278,14 +271,14 @@ async fn set_game_account_access_level(
 ) -> ApiResult<StatusCode> {
     let actor = require_admin(&app, &headers).await?;
 
-    let target = accounts::find_by_login(&app.pool, &login)
+    let target = accounts::find_by_login(&app.db, &login)
         .await?
         .ok_or(ApiError::NotFound)?;
     // A GM's game account is protected the same way their master account is.
     assert_outranks(&actor, target.access_level)?;
 
     let login = target.login.as_deref().unwrap_or_default();
-    admin::set_access_level(&app.pool, AccessLevelTarget::GameAccount(login), body.level).await?;
+    admin::set_access_level(&app.db, AccessLevelTarget::GameAccount(login), body.level).await?;
     tracing::info!(
         admin = %actor.subject(),
         target = %login,
@@ -315,7 +308,7 @@ async fn set_game_account_password(
 ) -> ApiResult<StatusCode> {
     let actor = require_admin(&app, &headers).await?;
 
-    let target = accounts::find_by_login(&app.pool, &login)
+    let target = accounts::find_by_login(&app.db, &login)
         .await?
         .ok_or(ApiError::NotFound)?;
     assert_outranks(&actor, target.access_level)?;
@@ -324,7 +317,7 @@ async fn set_game_account_password(
 
     let login = target.login.as_deref().unwrap_or_default();
     let hash = commons::crypt::hash_password(&body.password);
-    accounts::set_game_account_password(&app.pool, login, &hash).await?;
+    accounts::set_game_account_password(&app.db, login, &hash).await?;
     tracing::info!(
         admin = %actor.subject(),
         target = %login,

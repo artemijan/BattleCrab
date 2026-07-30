@@ -7,6 +7,7 @@ description = "Web dashboard REST API — account registration and management"
 
 [dependencies]
 commons = { path = "../commons" }
+models = { path = "../models" }
 tokio.workspace = true
 sqlx.workspace = true
 rand.workspace = true
@@ -37,6 +38,7 @@ lettre = { version = "0.11", default-features = false, features = [
 mime_guess = "2"
 
 [dev-dependencies]
+migration = { path = "../migration" }
 tower = { version = "0.5", features = ["util"] }
 http-body-util = "0.1"
 

@@ -38,7 +38,7 @@ pub async fn current_account(app: &AppState, headers: &HeaderMap) -> ApiResult<A
         return Err(ApiError::Unauthorized);
     }
 
-    let account = accounts::find_master_by_email(&app.pool, hint)
+    let account = accounts::find_master_by_email(&app.db, hint)
         .await?
         .ok_or(ApiError::Unauthorized)?;
 

@@ -10,7 +10,7 @@ pub mod characters;
 
 use std::path::PathBuf;
 
-use sqlx::SqlitePool;
+use models::sea_orm::{ConnectionTrait, DatabaseBackend, DbErr, Statement};
 
 /// Tables this crate cannot run without.
 pub const REQUIRED_TABLES: [&str; 2] = ["accounts", "characters"];
@@ -38,14 +38,16 @@ pub fn sqlite_path(jdbc_url: &str) -> Option<PathBuf> {
 /// wrong path does not fail, it silently produces an empty database, and every
 /// request then fails at runtime instead of at boot. Checking once at startup
 /// turns that into a single actionable error.
-pub async fn missing_tables(pool: &SqlitePool) -> Result<Vec<&'static str>, sqlx::Error> {
+pub async fn missing_tables<C: ConnectionTrait>(db: &C) -> Result<Vec<&'static str>, DbErr> {
     let mut missing = Vec::new();
     for table in REQUIRED_TABLES {
-        let found: Option<(String,)> =
-            sqlx::query_as("SELECT name FROM sqlite_master WHERE type='table' AND name=?")
-                .bind(table)
-                .fetch_optional(pool)
-                .await?;
+        let found = db
+            .query_one_raw(Statement::from_sql_and_values(
+                DatabaseBackend::Sqlite,
+                "SELECT name FROM sqlite_master WHERE type='table' AND name=?",
+                [table.into()],
+            ))
+            .await?;
         if found.is_none() {
             missing.push(table);
         }
@@ -77,22 +79,22 @@ mod tests {
 
     #[tokio::test]
     async fn reports_missing_tables() {
-        let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
+        let db = models::sea_orm::Database::connect("sqlite::memory:")
+            .await
+            .unwrap();
         assert_eq!(
-            missing_tables(&pool).await.unwrap(),
+            missing_tables(&db).await.unwrap(),
             vec!["accounts", "characters"]
         );
 
-        sqlx::query("CREATE TABLE accounts (login TEXT)")
-            .execute(&pool)
+        db.execute_unprepared("CREATE TABLE accounts (login TEXT)")
             .await
             .unwrap();
-        assert_eq!(missing_tables(&pool).await.unwrap(), vec!["characters"]);
+        assert_eq!(missing_tables(&db).await.unwrap(), vec!["characters"]);
 
-        sqlx::query("CREATE TABLE characters (char_name TEXT)")
-            .execute(&pool)
+        db.execute_unprepared("CREATE TABLE characters (char_name TEXT)")
             .await
             .unwrap();
-        assert!(missing_tables(&pool).await.unwrap().is_empty());
+        assert!(missing_tables(&db).await.unwrap().is_empty());
     }
 }

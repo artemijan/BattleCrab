@@ -56,9 +56,9 @@ async fn main() {
         std::process::exit(1);
     }
 
-    let pool = match commons::db::init(&config.database_url, config.database_max_connections).await
+    let db = match commons::db::connect(&config.database_url, config.database_max_connections).await
     {
-        Ok(pool) => pool,
+        Ok(db) => db,
         Err(e) => {
             eprintln!("FATAL: cannot open database: {e}");
             std::process::exit(1);
@@ -68,7 +68,7 @@ async fn main() {
     // The file existing is not enough — it may be an empty database created by
     // an earlier misconfigured run, which is exactly what produces a stream of
     // "no such table: characters" 500s rather than a startup failure.
-    match dashboard_api::db::missing_tables(&pool).await {
+    match dashboard_api::db::missing_tables(&db).await {
         Ok(missing) if !missing.is_empty() => {
             eprintln!(
                 "FATAL: database is missing required table(s): {}\n  {}\n\n\
@@ -102,7 +102,7 @@ async fn main() {
         );
     }
 
-    let state = Arc::new(App::new(pool, config));
+    let state = Arc::new(App::new(db, config));
 
     if !state.mailer.is_enabled() {
         // Not fatal — the API is fully usable without it — but password reset

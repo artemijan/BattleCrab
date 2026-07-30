@@ -52,7 +52,7 @@ async fn change_password(
 
     let hash = commons::crypt::hash_password(&body.new_password);
     let subject = account.subject().to_string();
-    accounts::set_master_password(&app.pool, &subject, &hash).await?;
+    accounts::set_master_password(&app.db, &subject, &hash).await?;
     tracing::info!("password changed for {subject}");
 
     // The old cookie signed over the old hash and is now dead — including this
@@ -96,11 +96,11 @@ async fn verify_email(
         crate::auth::token::verify_email(&app.key, &query.token).ok_or(ApiError::InvalidToken)?;
 
     // Confirm the account still exists at the address the token names.
-    accounts::find_master_by_email(&app.pool, &subject)
+    accounts::find_master_by_email(&app.db, &subject)
         .await?
         .ok_or(ApiError::InvalidToken)?;
 
-    accounts::mark_verified(&app.pool, &subject).await?;
+    accounts::mark_verified(&app.db, &subject).await?;
     tracing::info!("email verified for {subject}");
 
     Ok(StatusCode::NO_CONTENT)
@@ -111,7 +111,7 @@ async fn list_game_accounts(
     headers: HeaderMap,
 ) -> ApiResult<Json<Vec<String>>> {
     let account = current_account(&app, &headers).await?;
-    let logins = accounts::game_accounts_for_master(&app.pool, account.subject()).await?;
+    let logins = accounts::game_accounts_for_master(&app.db, account.subject()).await?;
     Ok(Json(logins))
 }
 
@@ -157,7 +157,7 @@ async fn create_game_account(
     let subject = account.subject().to_string();
 
     accounts::create_game_account(
-        &app.pool,
+        &app.db,
         &subject,
         &login,
         &hash,
@@ -178,6 +178,6 @@ async fn list_characters(
 ) -> ApiResult<Json<Vec<characters::CharacterSummary>>> {
     let account = current_account(&app, &headers).await?;
     // Characters hang off game accounts, not off the master account itself.
-    let chars = characters::list_for_master(&app.pool, account.subject()).await?;
+    let chars = characters::list_for_master(&app.db, account.subject()).await?;
     Ok(Json(chars))
 }

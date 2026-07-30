@@ -18,10 +18,19 @@
 //! character state is memory-first in the game server, so there is no such
 //! thing as a safe character write from here, admin or not.
 
+use models::entity::accounts::{ActiveModel, Column, Entity};
+use models::sea_orm::ActiveValue::Set;
+use models::sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, SqlErr};
 use sqlx::AssertSqlSafe;
-use sqlx::SqlitePool;
 
 use crate::error::{ApiError, ApiResult};
+
+// The three list queries below stay raw SQL on purpose. Each one carries two
+// correlated `COUNT(*)` subqueries, a `LIKE … ESCAPE`, a `COLLATE NOCASE` and a
+// whitelisted dynamic `ORDER BY`; expressing that through the query builder
+// would be a rewrite of working, audited SQL rather than a port of it. They run
+// through the pool underneath the ORM connection, so there is still one pool and
+// one database handle in the process. Everything that writes is entity-based.
 
 /// One master account row in the admin list, with ownership counts.
 #[derive(Debug, serde::Serialize)]
@@ -140,7 +149,7 @@ impl SortDir {
 /// under it — "which master owns login X" is the single most common admin
 /// lookup, and making the one search box answer it beats a second endpoint.
 pub async fn list_masters(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     query: &str,
     sort: MasterSort,
     dir: SortDir,
@@ -154,6 +163,7 @@ pub async fn list_masters(
                         WHERE g.login IS NOT NULL AND g.login LIKE ? ESCAPE '\\'))";
 
     let pattern = like_contains(query);
+    let pool = db.get_sqlite_connection_pool();
 
     let (total,): (i64,) = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT COUNT(*) FROM accounts a WHERE {WHERE}"
@@ -226,9 +236,10 @@ const GAME_ACCOUNT_COLUMNS: &str = "a.login, a.email, a.accessLevel, a.lastactiv
 
 /// Every game account under a master address, with the admin-only columns.
 pub async fn game_accounts_for_master(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     email: &str,
 ) -> ApiResult<Vec<GameAccountInfo>> {
+    let pool = db.get_sqlite_connection_pool();
     let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
          WHERE a.login IS NOT NULL AND a.email = ? COLLATE NOCASE ORDER BY a.login"
@@ -245,10 +256,11 @@ pub async fn game_accounts_for_master(
 /// The master list cannot reach a row the login server auto-created with no
 /// email — this is the only way an admin finds those.
 pub async fn search_game_accounts(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     query: &str,
     limit: i64,
 ) -> ApiResult<Vec<GameAccountInfo>> {
+    let pool = db.get_sqlite_connection_pool();
     let rows: Vec<GameAccountRow> = sqlx::query_as(AssertSqlSafe(format!(
         "SELECT {GAME_ACCOUNT_COLUMNS} FROM accounts a \
          WHERE a.login IS NOT NULL AND (? = '' OR a.login LIKE ? ESCAPE '\\') \
@@ -273,28 +285,32 @@ pub async fn search_game_accounts(
 /// `create_game_account` cap (`MaxGameAccounts`) deliberately does not apply —
 /// this is a privileged, logged path, not a farmable one.
 pub async fn create_gm_game_account(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     actor: &super::accounts::Account,
     login: &str,
     password_hash: &str,
 ) -> ApiResult<()> {
     let now_millis = crate::auth::now_unix() * 1000;
 
-    let result = sqlx::query(
-        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel, lastIP) \
-         VALUES (?, ?, ?, NULL, ?, ?, NULL)",
-    )
-    .bind(super::accounts::normalize_login(login))
-    .bind(password_hash)
-    .bind(super::accounts::normalize_email(actor.subject()))
-    .bind(now_millis)
-    .bind(actor.access_level)
-    .execute(pool)
+    let result = Entity::insert(ActiveModel {
+        login: Set(Some(super::accounts::normalize_login(login))),
+        password: Set(Some(password_hash.to_string())),
+        email: Set(Some(super::accounts::normalize_email(actor.subject()))),
+        is_verified: Set(None),
+        lastactive: Set(now_millis),
+        // Read from the actor, never from a parameter — see the module docs.
+        access_level: Set(actor.access_level),
+        last_ip: Set(None),
+        ..Default::default()
+    })
+    .exec(db)
     .await;
 
     match result {
         Ok(_) => Ok(()),
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => Err(ApiError::LoginTaken),
+        Err(e) if matches!(e.sql_err(), Some(SqlErr::UniqueConstraintViolation(_))) => {
+            Err(ApiError::LoginTaken)
+        }
         Err(e) => Err(e.into()),
     }
 }
@@ -314,7 +330,7 @@ pub enum AccessLevelTarget<'a> {
 /// future caller — however convinced it has validated — can turn this into a
 /// promotion primitive. See the module docs.
 pub async fn set_access_level(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     target: AccessLevelTarget<'_>,
     level: i32,
 ) -> ApiResult<()> {
@@ -324,27 +340,26 @@ pub async fn set_access_level(
         ));
     }
 
+    let update = Entity::update_many().col_expr(Column::AccessLevel, level.into());
     let result = match target {
         AccessLevelTarget::Master(email) => {
-            sqlx::query(
-                "UPDATE accounts SET accessLevel = ? \
-                 WHERE login IS NULL AND email = ? COLLATE NOCASE",
-            )
-            .bind(level)
-            .bind(super::accounts::normalize_email(email))
-            .execute(pool)
-            .await?
+            update
+                .filter(Column::Login.is_null())
+                .filter(super::accounts::email_eq(
+                    &super::accounts::normalize_email(email),
+                ))
+                .exec(db)
+                .await?
         }
         AccessLevelTarget::GameAccount(login) => {
-            sqlx::query("UPDATE accounts SET accessLevel = ? WHERE login = ?")
-                .bind(level)
-                .bind(super::accounts::normalize_login(login))
-                .execute(pool)
+            update
+                .filter(Column::Login.eq(super::accounts::normalize_login(login)))
+                .exec(db)
                 .await?
         }
     };
 
-    if result.rows_affected() == 0 {
+    if result.rows_affected == 0 {
         return Err(ApiError::NotFound);
     }
     Ok(())

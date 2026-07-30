@@ -72,6 +72,14 @@ pub mod anyhow_lite {
     pub struct Error(pub String);
 }
 
+impl From<models::sea_orm::DbErr> for ApiError {
+    fn from(e: models::sea_orm::DbErr) -> Self {
+        // The message is logged, never returned — it can carry SQL and paths.
+        tracing::error!("database error: {e}");
+        ApiError::Internal(anyhow_lite::Error("database error".into()))
+    }
+}
+
 impl From<sqlx::Error> for ApiError {
     fn from(e: sqlx::Error) -> Self {
         // The message is logged, never returned — it can carry SQL and paths.

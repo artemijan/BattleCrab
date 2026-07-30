@@ -22,7 +22,7 @@ pub struct ServerStatus {
 }
 
 async fn status(State(app): State<AppState>) -> ApiResult<Json<ServerStatus>> {
-    let players_online = characters::online_count(&app.pool).await?;
+    let players_online = characters::online_count(&app.db).await?;
     Ok(Json(ServerStatus {
         // TODO(D4): this reports "the DB is reachable", not "the game server is
         // up" — a crash can leave `online` flags set. An internal endpoint on

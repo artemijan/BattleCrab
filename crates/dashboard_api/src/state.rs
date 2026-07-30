@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use sqlx::SqlitePool;
+use models::sea_orm::DatabaseConnection;
 
 use crate::auth::SigningKey;
 use crate::auth::ratelimit::RateLimiter;
@@ -11,7 +11,7 @@ use crate::mail::Mailer;
 pub type AppState = Arc<App>;
 
 pub struct App {
-    pub pool: SqlitePool,
+    pub db: DatabaseConnection,
     pub config: DashboardConfig,
     pub key: SigningKey,
     /// Which browser origins may call the API (see `cors`).
@@ -27,7 +27,7 @@ pub struct App {
 }
 
 impl App {
-    pub fn new(pool: SqlitePool, config: DashboardConfig) -> Self {
+    pub fn new(db: DatabaseConnection, config: DashboardConfig) -> Self {
         let key = SigningKey::new(&config.session_secret);
         let mut origin_policy = OriginPolicy::parse(&config.allowed_origins);
         // Debug builds whitelist the local dev server, so an SPA on :3000 can
@@ -47,7 +47,7 @@ impl App {
         let register_limiter = RateLimiter::new(5, 3600);
         let secure_cookies = config.public_base_url.starts_with("https://");
         Self {
-            pool,
+            db,
             config,
             key,
             origin_policy,

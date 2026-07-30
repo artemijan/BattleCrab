@@ -18,8 +18,12 @@
 //!   `email` is a copy of its master's, which is what links the two, and its
 //!   `is_verified` is NULL.
 
-use sqlx::AssertSqlSafe;
-use sqlx::SqlitePool;
+use models::entity::accounts::{ActiveModel, Column, Entity, Model};
+use models::sea_orm::ActiveValue::Set;
+use models::sea_orm::sea_query::Expr;
+use models::sea_orm::{
+    ColumnTrait, DatabaseConnection, DbErr, EntityTrait, QueryFilter, QueryOrder, SqlErr,
+};
 
 use crate::error::{ApiError, ApiResult};
 
@@ -49,24 +53,24 @@ impl Account {
     }
 }
 
-type Row = (
-    Option<String>,
-    Option<String>,
-    Option<String>,
-    Option<i64>,
-    i32,
-);
-
-const COLUMNS: &str = "login, password, email, is_verified, accessLevel";
-
-fn to_account((login, password, email, is_verified, access_level): Row) -> Account {
+fn to_account(model: Model) -> Account {
     Account {
-        login,
-        password: password.unwrap_or_default(),
-        email,
-        is_verified,
-        access_level,
+        login: model.login,
+        password: model.password.unwrap_or_default(),
+        email: model.email,
+        is_verified: model.is_verified.map(i64::from),
+        access_level: model.access_level,
     }
+}
+
+/// `email = ? COLLATE NOCASE`.
+///
+/// Addresses are normalised to lowercase on the way in, but rows written before
+/// that rule existed — and rows the game server wrote — are not, so the
+/// collation stays. SeaORM's expression builder cannot attach a collation,
+/// hence the custom fragment; the value is still bound, not interpolated.
+pub(crate) fn email_eq(email: &str) -> Expr {
+    Expr::cust_with_values("email = ? COLLATE NOCASE", [email])
 }
 
 /// Logins are matched case-insensitively and stored lowercase, matching
@@ -85,15 +89,12 @@ pub fn normalize_email(email: &str) -> String {
 
 /// Looks up a game account by login name. Cannot return a master account:
 /// `login = ?` never matches a NULL login.
-pub async fn find_by_login(pool: &SqlitePool, login: &str) -> ApiResult<Option<Account>> {
-    let row: Option<Row> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {COLUMNS} FROM accounts WHERE login = ?"
-    )))
-    .bind(normalize_login(login))
-    .fetch_optional(pool)
-    .await?;
-
-    Ok(row.map(to_account))
+pub async fn find_by_login(db: &DatabaseConnection, login: &str) -> ApiResult<Option<Account>> {
+    Ok(Entity::find()
+        .filter(Column::Login.eq(normalize_login(login)))
+        .one(db)
+        .await?
+        .map(to_account))
 }
 
 /// Looks up the master account for an address — the dashboard's login path.
@@ -101,15 +102,16 @@ pub async fn find_by_login(pool: &SqlitePool, login: &str) -> ApiResult<Option<A
 /// The `login IS NULL` predicate is what makes this the *master* lookup. Game
 /// accounts carry their master's address, so without it a sub-account row could
 /// be returned here and authenticated against.
-pub async fn find_master_by_email(pool: &SqlitePool, email: &str) -> ApiResult<Option<Account>> {
-    let row: Option<Row> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {COLUMNS} FROM accounts WHERE login IS NULL AND email = ? COLLATE NOCASE"
-    )))
-    .bind(normalize_email(email))
-    .fetch_optional(pool)
-    .await?;
-
-    Ok(row.map(to_account))
+pub async fn find_master_by_email(
+    db: &DatabaseConnection,
+    email: &str,
+) -> ApiResult<Option<Account>> {
+    Ok(Entity::find()
+        .filter(Column::Login.is_null())
+        .filter(email_eq(&normalize_email(email)))
+        .one(db)
+        .await?
+        .map(to_account))
 }
 
 /// Creates a master account: NULL login, address as identity, unverified.
@@ -119,21 +121,24 @@ pub async fn find_master_by_email(pool: &SqlitePool, email: &str) -> ApiResult<O
 /// both succeed. (MariaDB cannot express that index — see the note in its
 /// `accounts.sql`; the dashboard only runs on SQLite today.)
 pub async fn create_master(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     email: &str,
     password_hash: &str,
 ) -> ApiResult<Account> {
     let email = normalize_email(email);
     let now_millis = crate::auth::now_unix() * 1000;
 
-    let result = sqlx::query(
-        "INSERT INTO accounts (login, password, email, is_verified, lastactive, accessLevel, lastIP) \
-         VALUES (NULL, ?, ?, 0, ?, 0, NULL)",
-    )
-    .bind(password_hash)
-    .bind(&email)
-    .bind(now_millis)
-    .execute(pool)
+    let result = Entity::insert(ActiveModel {
+        login: Set(None),
+        password: Set(Some(password_hash.to_string())),
+        email: Set(Some(email.clone())),
+        is_verified: Set(Some(0)),
+        lastactive: Set(now_millis),
+        access_level: Set(0),
+        last_ip: Set(None),
+        ..Default::default()
+    })
+    .exec(db)
     .await;
 
     match result {
@@ -144,7 +149,7 @@ pub async fn create_master(
             is_verified: Some(0),
             access_level: 0,
         }),
-        Err(sqlx::Error::Database(e)) if e.is_unique_violation() => Err(ApiError::EmailTaken),
+        Err(e) if is_unique_violation(&e) => Err(ApiError::EmailTaken),
         Err(e) => Err(e.into()),
     }
 }
@@ -159,7 +164,7 @@ pub async fn create_master(
 /// insert share one transaction because SQLite would otherwise happily let two
 /// concurrent requests both read `max - 1` and both insert.
 pub async fn create_game_account(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     master_email: &str,
     login: &str,
     password_hash: &str,
@@ -169,8 +174,12 @@ pub async fn create_game_account(
     let email = normalize_email(master_email);
     let now_millis = crate::auth::now_unix() * 1000;
 
-    // IMMEDIATE takes the write lock up front, so the count cannot be read
-    // against a snapshot that another writer is already invalidating.
+    // `BEGIN IMMEDIATE` takes the write lock up front, so the count cannot be
+    // read against a snapshot another writer is already invalidating. SeaORM's
+    // `begin()` is always DEFERRED — under which the losing request fails with
+    // a busy error instead of a clean "too many game accounts" — so this one
+    // transaction is driven through the pool underneath the connection.
+    let pool = db.get_sqlite_connection_pool();
     let mut tx = pool.begin_with("BEGIN IMMEDIATE").await?;
 
     let (existing,): (i64,) = sqlx::query_as(
@@ -210,44 +219,46 @@ pub async fn create_game_account(
 }
 
 /// Every game account belonging to a master address.
-pub async fn game_accounts_for_master(pool: &SqlitePool, email: &str) -> ApiResult<Vec<String>> {
-    let rows: Vec<(String,)> = sqlx::query_as(
-        "SELECT login FROM accounts WHERE login IS NOT NULL AND email = ? COLLATE NOCASE \
-         ORDER BY login",
-    )
-    .bind(normalize_email(email))
-    .fetch_all(pool)
-    .await?;
-
-    Ok(rows.into_iter().map(|(login,)| login).collect())
+pub async fn game_accounts_for_master(
+    db: &DatabaseConnection,
+    email: &str,
+) -> ApiResult<Vec<String>> {
+    Ok(Entity::find()
+        .filter(Column::Login.is_not_null())
+        .filter(email_eq(&normalize_email(email)))
+        .order_by_asc(Column::Login)
+        .all(db)
+        .await?
+        .into_iter()
+        .filter_map(|row| row.login)
+        .collect())
 }
 
 pub async fn set_master_password(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     email: &str,
     password_hash: &str,
 ) -> ApiResult<()> {
-    sqlx::query(
-        "UPDATE accounts SET password = ? WHERE login IS NULL AND email = ? COLLATE NOCASE",
-    )
-    .bind(password_hash)
-    .bind(normalize_email(email))
-    .execute(pool)
-    .await?;
+    Entity::update_many()
+        .col_expr(Column::Password, password_hash.into())
+        .filter(Column::Login.is_null())
+        .filter(email_eq(&normalize_email(email)))
+        .exec(db)
+        .await?;
     Ok(())
 }
 
 /// Changes a game account's password. Callers must first confirm the account
 /// belongs to the authenticated master — this helper does not check.
 pub async fn set_game_account_password(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     login: &str,
     password_hash: &str,
 ) -> ApiResult<()> {
-    sqlx::query("UPDATE accounts SET password = ? WHERE login = ?")
-        .bind(password_hash)
-        .bind(normalize_login(login))
-        .execute(pool)
+    Entity::update_many()
+        .col_expr(Column::Password, password_hash.into())
+        .filter(Column::Login.eq(normalize_login(login)))
+        .exec(db)
         .await?;
     Ok(())
 }
@@ -261,14 +272,20 @@ pub async fn set_game_account_password(
 /// Written *only* by the verification-link handler. Registration now stores the
 /// address up front, so `is_verified` — not the mere presence of `email` — is
 /// what records that the address was proven (superseding PLAN_DASHBOARD.md §5.4).
-pub async fn mark_verified(pool: &SqlitePool, email: &str) -> ApiResult<()> {
-    sqlx::query(
-        "UPDATE accounts SET is_verified = 1 WHERE login IS NULL AND email = ? COLLATE NOCASE",
-    )
-    .bind(normalize_email(email))
-    .execute(pool)
-    .await?;
+pub async fn mark_verified(db: &DatabaseConnection, email: &str) -> ApiResult<()> {
+    Entity::update_many()
+        .col_expr(Column::IsVerified, 1.into())
+        .filter(Column::Login.is_null())
+        .filter(email_eq(&normalize_email(email)))
+        .exec(db)
+        .await?;
     Ok(())
+}
+
+/// Whether a failed write was a unique-index collision — the signal that an
+/// address or login is already taken, as opposed to a real database fault.
+fn is_unique_violation(e: &DbErr) -> bool {
+    matches!(e.sql_err(), Some(SqlErr::UniqueConstraintViolation(_)))
 }
 
 #[cfg(test)]

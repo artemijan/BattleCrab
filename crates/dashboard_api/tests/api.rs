@@ -1,8 +1,9 @@
-//! End-to-end tests over the real axum stack and a real SQLite schema.
+//! End-to-end tests over the real axum stack and the real schema.
 //!
-//! The schema below is copied from the shipped `accounts`/`characters` DDL, so
-//! these tests exercise the same column names and nullability the live game DB
-//! has — a query that works here works against the real file.
+//! The schema comes from the migrations, so these tests exercise exactly the
+//! column names, nullability and indexes the live database has — including the
+//! partial unique index that is the only thing stopping two master accounts
+//! from sharing an address.
 
 use std::net::SocketAddr;
 use std::sync::Arc;
@@ -12,41 +13,10 @@ use axum::http::{Request, StatusCode, header};
 use dashboard_api::config::DashboardConfig;
 use dashboard_api::state::App;
 use http_body_util::BodyExt;
+use migration::MigratorTrait;
+use models::sea_orm::{DatabaseConnection, SqlxSqliteConnector};
 use sqlx::SqlitePool;
 use tower::ServiceExt;
-
-const ACCOUNTS_DDL: &str = "CREATE TABLE accounts (
-    login VARCHAR(45) DEFAULT NULL,
-    password VARCHAR(45),
-    email varchar(255) DEFAULT NULL,
-    is_verified TINYINT DEFAULT NULL,
-    created_time timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    lastactive bigint NOT NULL DEFAULT '0',
-    accessLevel TINYINT NOT NULL DEFAULT 0,
-    lastIP CHAR(15) NULL DEFAULT NULL,
-    lastServer TINYINT DEFAULT 1,
-    UNIQUE (login)
-)";
-
-/// The partial unique index is the only thing stopping two master accounts from
-/// sharing an address, so it belongs in the test schema — without it,
-/// `duplicate_registration_is_rejected` would pass for the wrong reason.
-const ACCOUNTS_MASTER_EMAIL_INDEX: &str = "CREATE UNIQUE INDEX accounts_master_email ON accounts (email COLLATE NOCASE) \
-     WHERE login IS NULL";
-
-const CHARACTERS_DDL: &str = "CREATE TABLE characters (
-    account_name VARCHAR(45) DEFAULT NULL,
-    charId INT NOT NULL DEFAULT 0,
-    char_name VARCHAR(35) NOT NULL,
-    level TINYINT DEFAULT NULL,
-    sex TINYINT DEFAULT NULL,
-    race TINYINT DEFAULT NULL,
-    classid TINYINT DEFAULT NULL,
-    deletetime bigint NOT NULL DEFAULT '0',
-    online TINYINT DEFAULT NULL,
-    onlinetime INT DEFAULT NULL,
-    lastAccess bigint NOT NULL DEFAULT '0'
-)";
 
 fn test_config() -> DashboardConfig {
     DashboardConfig {
@@ -80,15 +50,16 @@ fn test_config() -> DashboardConfig {
 }
 
 async fn test_app() -> (axum::Router, SqlitePool) {
-    let pool = SqlitePool::connect("sqlite::memory:").await.unwrap();
-    sqlx::query(ACCOUNTS_DDL).execute(&pool).await.unwrap();
-    sqlx::query(ACCOUNTS_MASTER_EMAIL_INDEX)
-        .execute(&pool)
+    // One connection: a second one would open its own empty `:memory:`.
+    let pool = sqlx::sqlite::SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect("sqlite::memory:")
         .await
         .unwrap();
-    sqlx::query(CHARACTERS_DDL).execute(&pool).await.unwrap();
+    let db: DatabaseConnection = SqlxSqliteConnector::from_sqlx_sqlite_pool(pool.clone());
+    migration::Migrator::up(&db, None).await.unwrap();
 
-    let state = Arc::new(App::new(pool.clone(), test_config()));
+    let state = Arc::new(App::new(db, test_config()));
     (dashboard_api::app(state), pool)
 }
 

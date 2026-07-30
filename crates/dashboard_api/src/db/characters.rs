@@ -9,8 +9,11 @@
 //! coordinates, access level and inventory-adjacent fields that must not reach
 //! the API (§5.6).
 
-use sqlx::AssertSqlSafe;
-use sqlx::SqlitePool;
+use models::entity::characters::{Column, Entity, Model};
+use models::sea_orm::sea_query::Query;
+use models::sea_orm::{
+    ColumnTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter, QueryOrder,
+};
 
 use crate::error::ApiResult;
 
@@ -31,45 +34,33 @@ pub struct CharacterSummary {
     pub online: bool,
 }
 
-type Row = (
-    String,
-    String,
-    Option<i32>,
-    Option<i32>,
-    Option<i32>,
-    Option<i32>,
-    Option<i64>,
-    i64,
-    Option<i32>,
-);
-
-fn to_summary(
-    (account_name, name, level, class_id, race, sex, online_time, last_access, online): Row,
-) -> CharacterSummary {
+/// The allowlist, as a projection over the entity: the full `Model` carries
+/// coordinates, access level and inventory-adjacent columns that must not reach
+/// the API (§5.6), so nothing here reads a field outside this function.
+fn to_summary(row: Model) -> CharacterSummary {
     CharacterSummary {
-        account_name,
-        name,
-        level: level.unwrap_or(1),
-        class_id: class_id.unwrap_or(0),
-        race: race.unwrap_or(0),
-        sex: sex.unwrap_or(0),
-        online_time: online_time.unwrap_or(0),
-        last_access,
-        online: online.unwrap_or(0) != 0,
+        account_name: row.account_name.unwrap_or_default(),
+        name: row.char_name,
+        level: row.level.unwrap_or(1),
+        class_id: row.classid.unwrap_or(0),
+        race: row.race.unwrap_or(0),
+        sex: row.sex.unwrap_or(0),
+        online_time: row.onlinetime.map(i64::from).unwrap_or(0),
+        last_access: row.last_access,
+        online: row.online.unwrap_or(0) != 0,
     }
 }
 
-const COLUMNS: &str =
-    "account_name, char_name, level, classid, race, sex, onlinetime, lastAccess, online";
-
-pub async fn list_for_account(pool: &SqlitePool, login: &str) -> ApiResult<Vec<CharacterSummary>> {
-    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {COLUMNS} FROM characters WHERE account_name = ? AND deletetime = 0 \
-         ORDER BY lastAccess DESC"
-    )))
-    .bind(super::accounts::normalize_login(login))
-    .fetch_all(pool)
-    .await?;
+pub async fn list_for_account(
+    db: &DatabaseConnection,
+    login: &str,
+) -> ApiResult<Vec<CharacterSummary>> {
+    let rows = Entity::find()
+        .filter(Column::AccountName.eq(super::accounts::normalize_login(login)))
+        .filter(Column::Deletetime.eq(0))
+        .order_by_desc(Column::LastAccess)
+        .all(db)
+        .await?;
 
     Ok(rows.into_iter().map(to_summary).collect())
 }
@@ -80,15 +71,27 @@ pub async fn list_for_account(pool: &SqlitePool, login: &str) -> ApiResult<Vec<C
 /// `characters.account_name` against directly — the join goes through the game
 /// accounts that share the address. `login IS NOT NULL` keeps the master's own
 /// row out of the subquery.
-pub async fn list_for_master(pool: &SqlitePool, email: &str) -> ApiResult<Vec<CharacterSummary>> {
-    let rows: Vec<Row> = sqlx::query_as(AssertSqlSafe(format!(
-        "SELECT {COLUMNS} FROM characters WHERE deletetime = 0 AND account_name IN \
-         (SELECT login FROM accounts WHERE login IS NOT NULL AND email = ? COLLATE NOCASE) \
-         ORDER BY lastAccess DESC"
-    )))
-    .bind(super::accounts::normalize_email(email))
-    .fetch_all(pool)
-    .await?;
+pub async fn list_for_master(
+    db: &DatabaseConnection,
+    email: &str,
+) -> ApiResult<Vec<CharacterSummary>> {
+    use models::entity::accounts;
+
+    let logins = Query::select()
+        .column(accounts::Column::Login)
+        .from(accounts::Entity)
+        .and_where(accounts::Column::Login.is_not_null())
+        .and_where(super::accounts::email_eq(
+            &super::accounts::normalize_email(email),
+        ))
+        .to_owned();
+
+    let rows = Entity::find()
+        .filter(Column::Deletetime.eq(0))
+        .filter(Column::AccountName.in_subquery(logins))
+        .order_by_desc(Column::LastAccess)
+        .all(db)
+        .await?;
 
     Ok(rows.into_iter().map(to_summary).collect())
 }
@@ -98,9 +101,10 @@ pub async fn list_for_master(pool: &SqlitePool, email: &str) -> ApiResult<Vec<Ch
 /// Caveat worth remembering: this reads persisted `online` flags, so a hard
 /// crash can leave them set — it says nothing about whether the process is up
 /// (PLAN_DASHBOARD.md §12 open question 3).
-pub async fn online_count(pool: &SqlitePool) -> ApiResult<i64> {
-    let (count,): (i64,) = sqlx::query_as("SELECT COUNT(*) FROM characters WHERE online <> 0")
-        .fetch_one(pool)
+pub async fn online_count(db: &DatabaseConnection) -> ApiResult<i64> {
+    let count = Entity::find()
+        .filter(Column::Online.ne(0))
+        .count(db)
         .await?;
-    Ok(count)
+    Ok(count as i64)
 }
