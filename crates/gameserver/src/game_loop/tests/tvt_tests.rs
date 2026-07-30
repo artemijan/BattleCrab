@@ -535,3 +535,103 @@ fn a_full_event_with_a_winner_end_to_end() {
     assert_eq!(world.events.active, None);
     assert_eq!(world.instances.len(), 0);
 }
+
+// ---------------------------------------------------------------------------
+// Row 10 — countdown screens and the in-arena manager's buff/heal
+// ---------------------------------------------------------------------------
+
+/// **Each phase arms Java's second-by-second countdown.** The warm-up gets
+/// "5".."1" and the fight "10".."1", each a one-shot task; ending the fight
+/// bumps the generation so the pending ticks from the old chain go quiet.
+#[test]
+fn each_phase_arms_a_countdown_that_the_end_cancels() {
+    let (mut world, _oids) = started_with_players(4);
+    tvt::teleport_to_arena(&mut world);
+
+    let countdowns = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::TvtCountdown { .. }))
+            .count()
+    };
+    assert_eq!(countdowns(&world), 5, "the warm-up arms 5..1");
+
+    tvt::start_fight(&mut world);
+    assert_eq!(countdowns(&world), 15, "the fight adds 10..1");
+
+    // A tick from the live chain shows its number; the seq bump at EndFight
+    // silences whatever is still queued.
+    let seq = world.events.tvt.countdown_seq;
+    tvt::end_fight(&mut world);
+    assert_ne!(
+        world.events.tvt.countdown_seq, seq,
+        "ending the fight retires the chain"
+    );
+}
+
+/// **The in-arena manager buffs and tops the participant up.** Java's
+/// `BuffHeal` casts the class-appropriate set and refills HP/MP/CP; a player
+/// in combat is refused (Java shows `manager-combat.html`).
+#[test]
+fn the_arena_manager_buffs_and_heals() {
+    use crate::model::components::{AttackState, LastFolkNpc, PlayerVitals, Vitals};
+
+    let (mut world, _oids) = fighting_arena(4);
+    let player = world.events.tvt.blue_team[0];
+    // The manager the player clicked (Java passes the npc straight through;
+    // only the *page* differs between the town and arena copies).
+    let manager = *world
+        .events
+        .tvt
+        .arena_managers
+        .first()
+        .expect("an arena manager stands in the instance");
+    world.objects.add_components(&player, LastFolkNpc(manager));
+    // Hurt them.
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&player) {
+        v.cur_hp = 1.0;
+        v.cur_mp = 1.0;
+    }
+    if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&player) {
+        pv.cur_cp = 0.0;
+    }
+
+    // In combat: refused, nothing changes.
+    world.objects.add_components(
+        &player,
+        AttackState {
+            attack_end_tick: 0,
+            stance_until_tick: world.tick + 100,
+        },
+    );
+    tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&player)
+            .unwrap()
+            .cur_hp,
+        1.0,
+        "a fighting participant is refused"
+    );
+
+    // Out of combat: full top-up.
+    world.objects.add_components(
+        &player,
+        AttackState {
+            attack_end_tick: 0,
+            stance_until_tick: 0,
+        },
+    );
+    tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
+    let v = *world.objects.get_component::<Vitals>(&player).unwrap();
+    assert_eq!(v.cur_hp, f64::from(v.max_hp), "HP topped up");
+    assert_eq!(v.cur_mp, f64::from(v.max_mp), "MP topped up");
+    let pv = *world
+        .objects
+        .get_component::<PlayerVitals>(&player)
+        .unwrap();
+    assert_eq!(pv.cur_cp, f64::from(pv.max_cp), "CP topped up");
+}

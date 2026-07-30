@@ -753,6 +753,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtResurrect { player } => {
                 events::tvt::resurrect_player(world, player);
             }
+            ScheduledTask::TvtCountdown { seconds, seq } => {
+                events::tvt::countdown(world, seconds, seq);
+            }
             ScheduledTask::TvtScoreBoard => {
                 events::tvt::score_board(world);
             }
