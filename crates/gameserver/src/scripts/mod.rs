@@ -22,6 +22,7 @@ pub mod dwarf_change2;
 pub mod elf_human_change1;
 pub mod elf_human_change2;
 mod elroki_teleporters;
+pub mod feedable_beasts;
 pub mod first_class_transfer_talk;
 mod forge_of_the_gods;
 mod frozen_labyrinth;
@@ -468,6 +469,9 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(tribe_support::VarkaSilenosSupport),
         // ai/areas — slice 5.
         Arc::new(forge_of_the_gods::ForgeOfTheGods),
+        // ai/areas — slice 6: the Beast Farm feeding chain (BeastFarm.java's
+        // Gracia revamp NPCs never spawn on this dist — dead content).
+        Arc::new(feedable_beasts::FeedableBeasts),
     ];
     QuestRegistry::new(scripts)
 }

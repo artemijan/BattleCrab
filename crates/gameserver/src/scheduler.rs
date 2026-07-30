@@ -471,6 +471,22 @@ pub enum ScheduledTask {
     /// Forge of the Gods: the 15 s `"refresh"` beat that resets the
     /// Lavasaurus escalation counter; reschedules itself.
     FogRefresh,
+    /// A tamed beast's 60 s spice clock (Java `CheckDuration`): consume the
+    /// owner's spice to stay, starve out otherwise. Reschedules itself.
+    TamedBeastDuration {
+        beast_oid: i32,
+    },
+    /// A tamed beast's 1 s follow beat — trot after the tamer, vanish if
+    /// they are gone. Reschedules itself.
+    TamedBeastFollow {
+        beast_oid: i32,
+    },
+    /// Beast Farm: a "mad cow" reverts to the plain top-stage animal 10 s
+    /// after emerging, keeping its grudge against the feeder.
+    MadCowPolymorph {
+        cow_oid: i32,
+        feeder_oid: i32,
+    },
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

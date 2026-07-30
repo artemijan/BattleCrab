@@ -710,3 +710,136 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
         "cooled: no second eruption"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Slice 6 — the Beast Farm feeding chain
+// ---------------------------------------------------------------------------
+
+/// Golden spice on a hatchling: it grows into the next stage (level 0 grows
+/// on every meal), and the wrong spice does nothing.
+#[test]
+fn spice_grows_the_beast_and_wrong_spice_does_not() {
+    let (mut world, _db, _l) = combat_test_world();
+    const HATCHLING: i32 = 21451; // level 0
+    const GOLD_STAGE_1: i32 = 21452; // eats golden only
+    for id in [HATCHLING, GOLD_STAGE_1, 21453, 21454, 21455, 21460, 21462] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    add_test_npc(
+        &mut world,
+        NPC_OID + 900,
+        HATCHLING,
+        "Monster",
+        40,
+        100,
+        0,
+        0,
+    );
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // talk roll (miss), growth roll (hit), stage pick (index 0 = 21452).
+    for r in [1, 0, 0] {
+        world.forced_rolls.push_back(r);
+    }
+    quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, HATCHLING, 2188);
+    assert_eq!(count_npcs(&mut world, HATCHLING), 0, "hatchling grew up");
+    assert_eq!(count_npcs(&mut world, GOLD_STAGE_1), 1, "into stage one");
+
+    // Stage one eats ONLY golden spice — crystal is consumed with no effect.
+    let grown = {
+        let mut found = 0;
+        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+            if n.npc_id == GOLD_STAGE_1 {
+                found = n.object_id;
+            }
+        });
+        found
+    };
+    quests::notify_skill_see(&mut world, 5001, grown, GOLD_STAGE_1, 2189);
+    assert_eq!(
+        count_npcs(&mut world, GOLD_STAGE_1),
+        1,
+        "crystal does nothing"
+    );
+}
+
+/// The top of the chain: a level-2 beast fed by a fighter tames into that
+/// species' fighter beast, which follows its owner on a spice clock.
+#[test]
+fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
+    let (mut world, _db, _l) = combat_test_world();
+    const TOP: i32 = 21460; // kookaburra level 2, golden
+    const TAMED_FIGHTER: i32 = 16017;
+    for id in [TOP, TAMED_FIGHTER] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    add_test_npc(&mut world, NPC_OID + 900, TOP, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // talk (miss), growth 0<25 (hit), tame coin 0 (tamed), rare chat (miss).
+    for r in [1, 0, 0, 1] {
+        world.forced_rolls.push_back(r);
+    }
+    quests::notify_skill_see(&mut world, 5001, NPC_OID + 900, TOP, 2188);
+    assert_eq!(count_npcs(&mut world, TOP), 0, "the wild one is gone");
+    let beast = {
+        let mut found = None;
+        world.objects.for_each_mut::<(
+            &crate::model::npc::Npc,
+            &crate::model::components::TamedBeastOf,
+        )>(|(n, t)| {
+            if n.npc_id == TAMED_FIGHTER {
+                found = Some((n.object_id, t.owner, t.food_skill));
+            }
+        });
+        found
+    };
+    let (beast_oid, owner, food) = beast.expect("a tamed beast spawned");
+    assert_eq!(
+        (owner, food),
+        (5001, 2188),
+        "owned by the feeder, eats golden"
+    );
+
+    // Feeding the tamed beast extends its stay (capped at 20 min).
+    world
+        .objects
+        .get_component_mut::<crate::model::components::TamedBeastOf>(&beast_oid)
+        .unwrap()
+        .remaining_ticks = 5000;
+    world.forced_rolls.push_back(7); // bark pick (2031, no $s1)
+    quests::notify_skill_see(&mut world, 5001, beast_oid, TAMED_FIGHTER, 2188);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TamedBeastOf>(&beast_oid)
+            .unwrap()
+            .remaining_ticks,
+        5200,
+        "a meal buys 20 more seconds"
+    );
+
+    // With spice in the bag the duration check consumes one and feeds.
+    give_test_item(&mut world, 5001, 6643, 1);
+    crate::game_loop::tamed_beast::handle_duration(&mut world, beast_oid);
+    assert_eq!(item_count(&world, 5001, 6643), 0, "one spice consumed");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TamedBeastOf>(&beast_oid)
+            .unwrap()
+            .remaining_ticks,
+        5000 - 600 + 200 + 200,
+        "minute down, meal back"
+    );
+
+    // Pouch empty and past the newcomer grace: the beast leaves.
+    crate::game_loop::tamed_beast::handle_duration(&mut world, beast_oid);
+    assert_eq!(count_npcs(&mut world, TAMED_FIGHTER), 0, "starved out");
+}

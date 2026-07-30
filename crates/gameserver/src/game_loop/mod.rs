@@ -86,6 +86,7 @@ mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod subclass;
 pub(crate) mod support_magic;
+pub(crate) mod tamed_beast;
 mod target;
 pub(crate) mod teleporter;
 #[cfg(test)]
@@ -417,6 +418,18 @@ fn apply_due_tasks(world: &mut World) {
                 area_npcs::handle_eilhalder_despawn_retry(world);
             }
             ScheduledTask::FogRefresh => area_npcs::handle_fog_refresh(world),
+            ScheduledTask::TamedBeastDuration { beast_oid } => {
+                tamed_beast::handle_duration(world, beast_oid);
+            }
+            ScheduledTask::TamedBeastFollow { beast_oid } => {
+                tamed_beast::handle_follow(world, beast_oid);
+            }
+            ScheduledTask::MadCowPolymorph {
+                cow_oid,
+                feeder_oid,
+            } => {
+                tamed_beast::handle_mad_cow_polymorph(world, cow_oid, feeder_oid);
+            }
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }
