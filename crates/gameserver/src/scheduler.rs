@@ -609,6 +609,16 @@ pub enum ScheduledTask {
     TvtResurrect {
         player: i32,
     },
+    /// A TvT participant's inactivity clock (Java's `KickPlayer<oid>` /
+    /// `KickPlayerWarning<oid>` quest timers): half-way through, a screen
+    /// warning; at the end, the player is ejected from the arena. Re-armed on
+    /// every headquarters entry, cancelled on exit — `seq` is the player's
+    /// generation, so a re-arm silences the previous pair.
+    TvtInactivity {
+        player: i32,
+        warning: bool,
+        seq: u64,
+    },
     /// One tick of TvT's second-by-second countdown (Java's `"10"`…`"1"`
     /// quest timers): show the number on the arena's screen. `seq` is the
     /// chain's generation — a forfeit or early end bumps it and every pending

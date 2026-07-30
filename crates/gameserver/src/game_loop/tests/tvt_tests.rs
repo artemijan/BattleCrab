@@ -635,3 +635,132 @@ fn the_arena_manager_buffs_and_heals() {
         .unwrap();
     assert_eq!(pv.cur_cp, f64::from(pv.max_cp), "CP topped up");
 }
+
+// ---------------------------------------------------------------------------
+// Row 10 — headquarters zones: the enemy kick and the inactivity clock
+// ---------------------------------------------------------------------------
+
+/// Put a real `colosseum_peace1|2` pair into the test world's zone data so the
+/// named-zone lookup resolves (the fixtures load no zone files).
+fn register_hq_zones(world: &mut World) {
+    use crate::data::spawn_data::{Territory, ZoneForm};
+    use crate::data::zone_data::{Zone, ZoneKind};
+    for (name, x1, x2) in [
+        ("colosseum_peace1", 147_000, 148_000),
+        ("colosseum_peace2", 151_000, 152_000),
+    ] {
+        world.data.zone_data.insert(Zone {
+            id: 0,
+            name: name.into(),
+            kind: ZoneKind::Peace,
+            territory: Territory {
+                form: ZoneForm::Cuboid {
+                    x1,
+                    x2,
+                    y1: 46_000,
+                    y2: 47_000,
+                },
+                min_z: -4000,
+                max_z: -3000,
+            },
+            castle_id: 0,
+            clan_hall_id: 0,
+            effect: None,
+            damage: None,
+            swamp: None,
+        });
+    }
+}
+
+/// **Walking into the enemy headquarters bounces you home.** Java's
+/// `onEnterZone` teleports the intruder to their own spawn with a screen
+/// message; their own headquarters instead starts the inactivity clock.
+#[test]
+fn the_enemy_headquarters_kicks_intruders_out() {
+    use crate::game_loop::zones::revalidate_zone;
+    use crate::model::components::Position;
+
+    let (mut world, _oids) = fighting_arena(4);
+    register_hq_zones(&mut world);
+    let blue = world.events.tvt.blue_team[0];
+
+    // Blue player walks into the *red* headquarters.
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 151_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+
+    let pos = *world.objects.get_component::<Position>(&blue).unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (147_447, 46_722),
+        "bounced back to the blue spawn"
+    );
+}
+
+/// **Idling in your own headquarters arms the kick clock, and leaving cancels
+/// it.** The kick itself strips the participant and announces it.
+#[test]
+fn idling_in_your_headquarters_eventually_kicks_you() {
+    use crate::game_loop::zones::revalidate_zone;
+    use crate::model::components::Position;
+
+    let (mut world, _oids) = fighting_arena(4);
+    register_hq_zones(&mut world);
+    let blue = world.events.tvt.blue_team[0];
+
+    let pending = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::TvtInactivity { player, .. } if *player == blue))
+            .count()
+    };
+
+    // Stand in the blue headquarters → warning + kick armed.
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 147_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+    assert_eq!(pending(&world), 2, "warning + kick armed");
+    let seq = *world.events.tvt.inactivity_seq.get(&blue).unwrap();
+
+    // Walk out → the pair is retired (the tasks stay queued but go quiet).
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 149_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+    assert_ne!(
+        *world.events.tvt.inactivity_seq.get(&blue).unwrap(),
+        seq,
+        "leaving retires the clock"
+    );
+    tvt::inactivity_tick(&mut world, blue, false, seq);
+    assert!(
+        world.events.tvt.player_list.contains(&blue),
+        "the retired kick does nothing"
+    );
+
+    // A live kick removes the participant.
+    let live_seq = *world.events.tvt.inactivity_seq.get(&blue).unwrap();
+    tvt::inactivity_tick(&mut world, blue, false, live_seq);
+    assert!(
+        !world.events.tvt.player_list.contains(&blue),
+        "the inactive player is removed from the event"
+    );
+    assert!(!world.events.tvt.blue_team.contains(&blue));
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&blue)
+            .unwrap()
+            .on_event
+    );
+}

@@ -1002,6 +1002,12 @@ pub struct ZoneFlags {
     /// availability packet only fires on a real transition (G32). FishingZone
     /// has no membership bit, so this can't ride the plain mask either.
     pub fishing_available: bool,
+    /// Which TvT headquarters peace zone the player was last inside — `1` blue
+    /// (`colosseum_peace1`), `2` red (`colosseum_peace2`), `0` neither. The
+    /// event's `onEnterZone`/`onExitZone` hooks are edge-triggered off this;
+    /// the zone mask is per *kind*, so a named-zone transition needs its own
+    /// field.
+    pub tvt_hq_zone: u8,
 }
 
 impl Default for ZoneFlags {
@@ -1013,6 +1019,7 @@ impl Default for ZoneFlags {
             last_validate: (i32::MIN, i32::MIN, i32::MIN),
             last_compass: 0,
             in_active_siege: false,
+            tvt_hq_zone: 0,
             fishing_available: false,
         }
     }

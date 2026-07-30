@@ -753,6 +753,13 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::TvtResurrect { player } => {
                 events::tvt::resurrect_player(world, player);
             }
+            ScheduledTask::TvtInactivity {
+                player,
+                warning,
+                seq,
+            } => {
+                events::tvt::inactivity_tick(world, player, warning, seq);
+            }
             ScheduledTask::TvtCountdown { seconds, seq } => {
                 events::tvt::countdown(world, seconds, seq);
             }

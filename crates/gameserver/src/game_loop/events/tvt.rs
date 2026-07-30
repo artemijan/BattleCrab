@@ -455,7 +455,10 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     if let Some(skill) = world.data.skill_data.get(GHOST_WALKING, 1).cloned() {
         crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
     }
-    // TODO(G28): resetActivityTimers — the inactivity kick timers are slice 4.
+    // Java resets the clock here too — a player who died *inside* their own
+    // headquarters never crosses the zone edge on respawn, so the enter hook
+    // would not re-arm it.
+    reset_activity_timers(world, player);
 }
 
 fn team_of(world: &World, player: i32) -> u8 {
@@ -549,6 +552,158 @@ pub(crate) fn on_manager_first_talk(world: &World, player: i32, npc: i32) -> Opt
         return Some(count_page(world, "manager-cancel.html"));
     }
     Some(count_page(world, "manager-register.html"))
+}
+
+// ---------------------------------------------------------------------------
+// Headquarters zones — Java `onEnterZone` / `onExitZone` (row 10)
+// ---------------------------------------------------------------------------
+
+/// Java `INACTIVITY_TIME` — minutes a participant may idle in their own
+/// headquarters before being kicked; the warning lands at half that.
+const INACTIVITY_TIME_MIN: u64 = 2;
+
+/// Java `TvT.onEnterZone`/`onExitZone` for `colosseum_peace1|2`, fired from
+/// [`crate::game_loop::zones::revalidate_zone`] when the named zone changes.
+///
+/// - Walking into the **enemy** headquarters bounces you back to your own spawn
+///   with a screen message ("Entering the enemy headquarters is prohibited!").
+/// - Standing in **your own** starts the inactivity clock; leaving cancels it.
+pub(crate) fn on_hq_zone_change(world: &mut World, player: i32, from: u8, to: u8) {
+    if !is_on_event(world, player) {
+        return;
+    }
+    // Exit: cancel the clock (Java also strips the respawn invulnerability,
+    // which this port models as the `set_invul` flag).
+    if from != 0 && to == 0 {
+        cancel_inactivity(world, player);
+        set_invul(world, player, false);
+        return;
+    }
+    if to == 0 {
+        return;
+    }
+    let team = team_of(world, player);
+    if team == 0 {
+        return;
+    }
+    if to != team {
+        // Enemy headquarters — bounce them home.
+        let spawn = if team == 1 { BLUE_SPAWN } else { RED_SPAWN };
+        teleport_player(world, player, spawn.0, spawn.1, spawn.2);
+        send_screen(
+            world,
+            player,
+            "Entering the enemy headquarters is prohibited!",
+            10,
+        );
+        return;
+    }
+    // Own headquarters — (re)start the inactivity clock.
+    reset_activity_timers(world, player);
+}
+
+/// Java `resetActivityTimers`: cancel the pending pair and arm a fresh one. The
+/// clock is longer while the arena doors are still shut (the warm-up), exactly
+/// as Java adds `WAIT_TIME` in that branch.
+pub(crate) fn reset_activity_timers(world: &mut World, player: i32) {
+    let seq = {
+        let e = world.events.tvt.inactivity_seq.entry(player).or_insert(0);
+        *e += 1;
+        *e
+    };
+    let warmup_extra = if world.events.tvt.phase == TvtPhase::Fighting {
+        0
+    } else {
+        WAIT_TIME_MIN * 60 * TICKS_PER_SECOND
+    };
+    let kick_at = INACTIVITY_TIME_MIN * 60 * TICKS_PER_SECOND + warmup_extra;
+    let warn_at = (INACTIVITY_TIME_MIN / 2) * 60 * TICKS_PER_SECOND + warmup_extra;
+    world.scheduler.schedule(
+        world.tick + warn_at,
+        ScheduledTask::TvtInactivity {
+            player,
+            warning: true,
+            seq,
+        },
+    );
+    world.scheduler.schedule(
+        world.tick + kick_at,
+        ScheduledTask::TvtInactivity {
+            player,
+            warning: false,
+            seq,
+        },
+    );
+}
+
+/// Retire this player's inactivity pair (Java's two `cancelQuestTimer`s).
+fn cancel_inactivity(world: &mut World, player: i32) {
+    *world.events.tvt.inactivity_seq.entry(player).or_insert(0) += 1;
+}
+
+/// One inactivity tick — the warning banner, or the kick itself.
+pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq: u64) {
+    if world.events.tvt.inactivity_seq.get(&player) != Some(&seq) {
+        return; // a re-arm (or a cancel) retired this pair
+    }
+    if !is_on_event(world, player) || world.events.tvt.world_id.is_none() {
+        return;
+    }
+    if warning {
+        send_screen(world, player, "You have been marked as inactive!", 10);
+        return;
+    }
+    // Kick: strip the participant, oust them from the arena, and either forfeit
+    // the match (their team is now empty) or announce the kick.
+    let name = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    set_team(world, player, 0);
+    crate::game_loop::instances::exit(world, player);
+    world.events.tvt.player_list.retain(|&p| p != player);
+    world.events.tvt.scores.remove(&player);
+    world.events.tvt.blue_team.retain(|&p| p != player);
+    world.events.tvt.red_team.retain(|&p| p != player);
+    set_on_event(world, player, false);
+    send_message(world, player, "You have been kicked for been inactive.");
+
+    let (blue_empty, red_empty) = (
+        world.events.tvt.blue_team.is_empty(),
+        world.events.tvt.red_team.is_empty(),
+    );
+    if blue_empty != red_empty {
+        manage_forfeit(world);
+    } else if let Some(instance_id) = world.events.tvt.world_id {
+        broadcast_screen(
+            world,
+            instance_id,
+            &format!("Player {name} was kicked for been inactive!"),
+            7,
+        );
+    }
+}
+
+/// A screen banner for one player (Java `sendScreenMessage`).
+fn send_screen(world: &World, player: i32, text: &str, secs: i32) {
+    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000));
+    }
+}
+
+/// Java `player.sendMessage(...)` — the plain white chat line.
+fn send_message(world: &World, player: i32, text: &str) {
+    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(sp::system_message_with(
+            sp::sm_ids::S1_TEXT,
+            &[sp::SmParam::Text(text.to_string())],
+        ));
+    }
 }
 
 /// Java `TvT.onEvent(event, npc, player)` for the manager's bypass buttons.
