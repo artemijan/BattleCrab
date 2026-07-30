@@ -5,9 +5,14 @@
 
 use std::thread::JoinHandle;
 
-use models::entity::{account_gsdata, account_premium, lottery, mdt_bets, mdt_history};
+use models::entity::{
+    account_gsdata, account_premium, bbs_favorites, buffer_schemes, character_subclasses,
+    characters, item_auction, item_auction_bid, items, lottery, mdt_bets, mdt_history,
+    npc_respawns, punishments,
+};
 use models::sea_orm::{
     ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder,
+    QuerySelect,
 };
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
@@ -3147,66 +3152,49 @@ async fn load_mail(
 /// addressed by name to characters who need not be online; nothing else in the
 /// port needs this, so it is loaded once and maintained on creation/deletion.
 async fn load_char_ids_by_name(db: &DatabaseConnection) -> Vec<(String, i32)> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    sqlx::query("SELECT charId, char_name FROM characters")
-        .fetch_all(pool)
+    characters::Entity::find()
+        .all(db)
         .await
         .unwrap_or_default()
-        .iter()
-        .map(|r| {
-            (
-                gets(r, "char_name").to_lowercase(),
-                geti(r, "charId") as i32,
-            )
-        })
+        .into_iter()
+        .map(|row| (row.char_name.to_lowercase(), row.char_id))
         .collect()
 }
 
 async fn load_item_auctions(
     db: &DatabaseConnection,
 ) -> (i32, Vec<crate::model::item_auction::ItemAuction>) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
     use crate::model::item_auction::{AuctionState, ItemAuction, ItemAuctionBid};
 
-    let mut auctions: Vec<ItemAuction> = sqlx::query(
-        "SELECT auctionId, instanceId, auctionItemId, startingTime, endingTime, auctionStateId FROM item_auction",
-    )
-    .fetch_all(pool)
-    .await
-    .map(|rs| {
-        rs.iter()
-            .filter_map(|r| {
-                let state = AuctionState::from_state_id(geti(r, "auctionStateId") as i8)?;
-                Some(ItemAuction::new(
-                    geti(r, "auctionId") as i32,
-                    geti(r, "instanceId") as i32,
-                    geti(r, "auctionItemId") as i32,
-                    geti(r, "startingTime"),
-                    geti(r, "endingTime"),
-                    state,
-                ))
-            })
-            .collect()
-    })
-    .unwrap_or_default();
+    let mut auctions: Vec<ItemAuction> = item_auction::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|row| {
+            let state = AuctionState::from_state_id(row.auction_state_id as i8)?;
+            Some(ItemAuction::new(
+                row.auction_id,
+                row.instance_id,
+                row.auction_item_id,
+                row.starting_time,
+                row.ending_time,
+                state,
+            ))
+        })
+        .collect();
 
     // Attach each auction's bids.
-    if let Ok(rows) = sqlx::query("SELECT auctionId, playerObjId, playerBid FROM item_auction_bid")
-        .fetch_all(pool)
+    for bid in item_auction_bid::Entity::find()
+        .all(db)
         .await
+        .unwrap_or_default()
     {
-        for r in &rows {
-            let auction_id = geti(r, "auctionId") as i32;
-            if let Some(a) = auctions.iter_mut().find(|a| a.auction_id == auction_id) {
-                a.bids.push(ItemAuctionBid {
-                    player_obj_id: geti(r, "playerObjId") as i32,
-                    last_bid: geti(r, "playerBid"),
-                });
-            }
+        if let Some(a) = auctions.iter_mut().find(|a| a.auction_id == bid.auction_id) {
+            a.bids.push(ItemAuctionBid {
+                player_obj_id: bid.player_obj_id,
+                last_bid: bid.player_bid,
+            });
         }
     }
 
@@ -3221,49 +3209,41 @@ async fn load_item_auctions(
 async fn load_punishments(
     db: &DatabaseConnection,
 ) -> (i32, Vec<crate::model::punishment::Punishment>) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
     use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
 
     let now = commons::util::now_millis();
-    let rows: Vec<Punishment> = sqlx::query(
-        "SELECT id, `key`, affect, `type`, expiration, reason, punishedBy FROM punishments",
-    )
-    .fetch_all(pool)
-    .await
-    .map(|rs| {
-        rs.iter()
-            .filter_map(|r| {
-                let affect = PunishmentAffect::from_name(&gets(r, "affect"))?;
-                let ptype = PunishmentType::from_name(&gets(r, "type"))?;
-                let expiration = geti(r, "expiration");
-                // Java's `load` skips already-expired rows.
-                if expiration > 0 && now > expiration {
-                    return None;
-                }
-                Some(Punishment {
-                    id: geti(r, "id") as i32,
-                    key: gets(r, "key"),
-                    affect,
-                    ptype,
-                    expiration,
-                    reason: gets(r, "reason"),
-                    punished_by: gets(r, "punishedBy"),
-                })
+    let all = punishments::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
+    let rows: Vec<Punishment> = all
+        .iter()
+        .filter_map(|row| {
+            let affect = PunishmentAffect::from_name(&row.affect)?;
+            let ptype = PunishmentType::from_name(&row.r#type)?;
+            // Java's `load` skips already-expired rows.
+            if row.expiration > 0 && now > row.expiration {
+                return None;
+            }
+            Some(Punishment {
+                id: row.id,
+                key: row.key.clone(),
+                affect,
+                ptype,
+                expiration: row.expiration,
+                reason: row.reason.clone(),
+                punished_by: row.punished_by.clone(),
             })
-            .collect()
-    })
-    .unwrap_or_default();
+        })
+        .collect();
 
     // The id allocator must clear *every* persisted id, not just the still-active
     // ones — an expired row we filtered out above may still own the max id until
     // the operator purges it, and reusing that id would collide on INSERT.
-    let loaded_max: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(id), 0) FROM punishments")
-        .fetch_one(pool)
-        .await
-        .unwrap_or(0);
-    let next_id = (loaded_max as i32 + 1).max(1);
+    // `all` (not `rows`) on purpose: an expired row we filtered out still owns
+    // its id.
+    let loaded_max = all.iter().map(|row| row.id).max().unwrap_or(0);
+    let next_id = (loaded_max + 1).max(1);
     (next_id, rows)
 }
 
@@ -3284,58 +3264,42 @@ pub struct NpcRespawnRow {
 
 /// `RESTORE_CHAR_SUBCLASSES` — a character's subclass slots.
 async fn load_subclasses(db: &DatabaseConnection, char_id: i32) -> Vec<crate::model::SubClass> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    match sqlx::query(
-        "SELECT class_id, exp, sp, level, class_index FROM character_subclasses \
-         WHERE charId=? ORDER BY class_index",
-    )
-    .bind(char_id)
-    .fetch_all(pool)
-    .await
-    {
-        Ok(rows) => rows
-            .iter()
-            .map(|r| crate::model::SubClass {
-                class_id: geti(r, "class_id") as i32,
-                class_index: geti(r, "class_index") as i32,
-                level: geti(r, "level") as i32,
-                exp: geti(r, "exp"),
-                sp: geti(r, "sp"),
-            })
-            .collect(),
-        Err(_) => Vec::new(),
-    }
+    character_subclasses::Entity::find()
+        .filter(character_subclasses::Column::CharId.eq(char_id))
+        .order_by_asc(character_subclasses::Column::ClassIndex)
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| crate::model::SubClass {
+            class_id: row.class_id,
+            class_index: row.class_index,
+            level: row.level,
+            exp: row.exp,
+            sp: row.sp,
+        })
+        .collect()
 }
 
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
 async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawnRow> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    match sqlx::query(
-        "SELECT id, x, y, z, heading, respawnTime, currentHp, currentMp FROM npc_respawns",
-    )
-    .fetch_all(pool)
-    .await
-    {
-        Ok(rows) => rows
-            .iter()
-            .map(|r| NpcRespawnRow {
-                npc_id: geti(r, "id") as i32,
-                x: geti(r, "x") as i32,
-                y: geti(r, "y") as i32,
-                z: geti(r, "z") as i32,
-                heading: geti(r, "heading") as i32,
-                respawn_time: geti(r, "respawnTime"),
-                cur_hp: getf(r, "currentHp"),
-                cur_mp: getf(r, "currentMp"),
-            })
-            .collect(),
-        Err(_) => Vec::new(),
-    }
+    npc_respawns::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| NpcRespawnRow {
+            npc_id: row.id,
+            x: row.x,
+            y: row.y,
+            z: row.z,
+            heading: row.heading,
+            respawn_time: row.respawn_time,
+            cur_hp: row.current_hp,
+            cur_mp: row.current_mp,
+        })
+        .collect()
 }
 
 /// Boot load of the whole `buffer_schemes` table (Java `SchemeBufferTable.load`).
@@ -3343,25 +3307,20 @@ async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawnRow> {
 /// filtering (skills still in the buffer table) happens on the game thread,
 /// where the datapack lives. Missing table → empty.
 async fn load_buffer_schemes(db: &DatabaseConnection) -> Vec<(i32, String, Vec<i32>)> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    match sqlx::query("SELECT object_id, scheme_name, skills FROM buffer_schemes")
-        .fetch_all(pool)
+    buffer_schemes::Entity::find()
+        .all(db)
         .await
-    {
-        Ok(rows) => rows
-            .iter()
-            .map(|r| {
-                let skills = gets(r, "skills")
-                    .split(',')
-                    .filter_map(|s| s.trim().parse::<i32>().ok())
-                    .collect();
-                (geti(r, "object_id") as i32, gets(r, "scheme_name"), skills)
-            })
-            .collect(),
-        Err(_) => Vec::new(),
-    }
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| {
+            let skills = row
+                .skills
+                .split(',')
+                .filter_map(|s| s.trim().parse::<i32>().ok())
+                .collect();
+            (row.object_id, row.scheme_name, skills)
+        })
+        .collect()
 }
 
 /// Boot load of the whole `bbs_favorites` table (Java `FavoriteBoard` loads it
@@ -3369,27 +3328,22 @@ async fn load_buffer_schemes(db: &DatabaseConnection) -> Vec<(i32, String, Vec<i
 /// buffer schemes). `ORDER BY favAddDate DESC` matches Java's list order.
 /// Missing table → empty.
 async fn load_favorites(db: &DatabaseConnection) -> Vec<(i32, i32, String, String, String)> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    match sqlx::query("SELECT playerId, favId, favTitle, favBypass, favAddDate FROM bbs_favorites ORDER BY favAddDate DESC")
-        .fetch_all(pool)
+    bbs_favorites::Entity::find()
+        .order_by_desc(bbs_favorites::Column::FavAddDate)
+        .all(db)
         .await
-    {
-        Ok(rows) => rows
-            .iter()
-            .map(|r| {
-                (
-                    geti(r, "playerId") as i32,
-                    geti(r, "favId") as i32,
-                    gets(r, "favTitle"),
-                    gets(r, "favBypass"),
-                    gets(r, "favAddDate"),
-                )
-            })
-            .collect(),
-        Err(_) => Vec::new(),
-    }
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| {
+            (
+                row.player_id,
+                row.fav_id,
+                row.fav_title,
+                row.fav_bypass,
+                row.fav_add_date,
+            )
+        })
+        .collect()
 }
 
 /// Java's `IdManager` hands out ids from a single pool shared by every
@@ -3397,16 +3351,25 @@ async fn load_favorites(db: &DatabaseConnection) -> Vec<(i32, i32, String, Strin
 /// every table that stores one — not just `characters` (a fresh id here that
 /// collides with an existing `items.object_id` fails its INSERT silently).
 async fn load_next_id(db: &DatabaseConnection) -> i64 {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let max_char: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(charId), 0) FROM characters")
-        .fetch_one(pool)
+    let max_char = characters::Entity::find()
+        .select_only()
+        .column_as(characters::Column::CharId.max(), "m")
+        .into_tuple::<Option<i64>>()
+        .one(db)
         .await
+        .ok()
+        .flatten()
+        .flatten()
         .unwrap_or(0);
-    let max_item: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(object_id), 0) FROM items")
-        .fetch_one(pool)
+    let max_item = items::Entity::find()
+        .select_only()
+        .column_as(items::Column::ObjectId.max(), "m")
+        .into_tuple::<Option<i64>>()
+        .one(db)
         .await
+        .ok()
+        .flatten()
+        .flatten()
         .unwrap_or(0);
     (max_char.max(max_item) + 1).max(FIRST_OID)
 }
