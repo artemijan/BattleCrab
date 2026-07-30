@@ -659,3 +659,54 @@ fn ketra_teleporter_serves_only_level_four_allies() {
         .count();
     assert_eq!(htmls, 1, "level 4 gets the teleport list");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 5 — Forge of the Gods
+// ---------------------------------------------------------------------------
+
+/// A hot kill streak in the upper forge erupts a Newborn Lavasaurus onto
+/// the killer; the 15 s refresh beat cools the streak back down.
+#[test]
+fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
+    let (mut world, _db, _l) = combat_test_world();
+    const WORKER: i32 = 22634;
+    const NEWBORN: i32 = 18799;
+    for id in [WORKER, NEWBORN] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // Place ALL fixtures before any eruption: `add_test_npc` advances the
+    // runtime allocator past its oid, so a fixture added *after* a runtime
+    // spawn can land exactly on it and clobber it (the fixture/allocator
+    // collision, third sighting).
+    let w = |i: i32| NPC_OID + 500 + i;
+    for i in 0..4 {
+        add_test_npc(&mut world, w(i), WORKER, "Monster", 40, 100, 0, 0);
+    }
+    // Kills 1 and 2: under MOBCOUNT_BONUS_MIN, nothing erupts even on a
+    // lucky roll.
+    for i in 0..2 {
+        world.forced_rolls.push_back(5);
+        quests::notify_kill(&mut world, 5001, w(i), WORKER);
+    }
+    assert_eq!(count_npcs(&mut world, NEWBORN), 0, "streak too short");
+
+    // Kill 3 with rand <= 20: the Newborn erupts, hating the killer.
+    world.forced_rolls.push_back(5);
+    quests::notify_kill(&mut world, 5001, w(2), WORKER);
+    assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
+
+    // The refresh beat resets the streak: the next lucky kill is kill #1.
+    crate::game_loop::area_npcs::handle_fog_refresh(&mut world);
+    world.forced_rolls.push_back(5);
+    quests::notify_kill(&mut world, 5001, w(3), WORKER);
+    assert_eq!(
+        count_npcs(&mut world, NEWBORN),
+        1,
+        "cooled: no second eruption"
+    );
+}

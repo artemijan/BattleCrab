@@ -468,6 +468,9 @@ pub enum ScheduledTask {
     /// Eilhalder von Hellmann's daybreak despawn retry — he only vanishes
     /// once out of combat (Java's 30 s `"despawn"` timer).
     EilhalderDespawnRetry,
+    /// Forge of the Gods: the 15 s `"refresh"` beat that resets the
+    /// Lavasaurus escalation counter; reschedules itself.
+    FogRefresh,
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

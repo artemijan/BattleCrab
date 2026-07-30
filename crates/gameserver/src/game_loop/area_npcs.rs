@@ -33,6 +33,20 @@ pub(crate) fn spawn_at_boot(world: &mut World) {
         world.tick + DAY_NIGHT_CHECK_TICKS,
         ScheduledTask::DayNightCheck { was_night: night },
     );
+    world
+        .scheduler
+        .schedule(world.tick + FOG_REFRESH_TICKS, ScheduledTask::FogRefresh);
+}
+
+/// Forge of the Gods: the 15 s escalation-counter reset (Java's repeating
+/// `"refresh"` quest timer).
+const FOG_REFRESH_TICKS: u64 = 150;
+
+pub(crate) fn handle_fog_refresh(world: &mut World) {
+    world.fog_kill_count = 0;
+    world
+        .scheduler
+        .schedule(world.tick + FOG_REFRESH_TICKS, ScheduledTask::FogRefresh);
 }
 
 /// The `RESPAWN_TOMA` beat: despawn the old Toma, spawn him at a random

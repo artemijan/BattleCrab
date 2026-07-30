@@ -416,6 +416,7 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::EilhalderDespawnRetry => {
                 area_npcs::handle_eilhalder_despawn_retry(world);
             }
+            ScheduledTask::FogRefresh => area_npcs::handle_fog_refresh(world),
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }

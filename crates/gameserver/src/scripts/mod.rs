@@ -23,6 +23,7 @@ pub mod elf_human_change1;
 pub mod elf_human_change2;
 mod elroki_teleporters;
 pub mod first_class_transfer_talk;
+mod forge_of_the_gods;
 mod frozen_labyrinth;
 mod hot_springs;
 pub mod last_imperial_tomb;
@@ -465,6 +466,8 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         // ai/areas — slice 4: the allied-tribe service NPCs (mirror pair).
         Arc::new(tribe_support::KetraOrcSupport),
         Arc::new(tribe_support::VarkaSilenosSupport),
+        // ai/areas — slice 5.
+        Arc::new(forge_of_the_gods::ForgeOfTheGods),
     ];
     QuestRegistry::new(scripts)
 }
