@@ -498,6 +498,28 @@ pub enum ScheduledTask {
         trex_oid: i32,
         player_oid: i32,
     },
+    /// Four Sepulchers: the 3-minute entry delay elapsed — the first
+    /// mysterious chest appears in the hall.
+    FsMysteriousChest {
+        sepulcher: i32,
+    },
+    /// Four Sepulchers: the 5 s wave-defeated poll for waves 2 and 5.
+    FsWaveCheck {
+        sepulcher: i32,
+    },
+    /// Four Sepulchers: the 60-minute bell — oust everyone, sweep the hall.
+    FsOust {
+        sepulcher: i32,
+    },
+    /// Four Sepulchers: the room-3 victim's flee-and-cry beat (3 s).
+    FsVictimFlee {
+        npc_oid: i32,
+    },
+    /// Four Sepulchers: the room-5 statue guards shed their petrification
+    /// five minutes after spawning.
+    FsRemovePetrify {
+        npc_oid: i32,
+    },
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

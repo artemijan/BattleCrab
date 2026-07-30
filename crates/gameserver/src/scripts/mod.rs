@@ -25,6 +25,7 @@ mod elroki_teleporters;
 pub mod feedable_beasts;
 pub mod first_class_transfer_talk;
 mod forge_of_the_gods;
+pub mod four_sepulchers;
 mod frozen_labyrinth;
 mod hot_springs;
 pub mod last_imperial_tomb;
@@ -476,6 +477,9 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         // ai/areas — slice 7: Primeval Isle (MonasteryOfSilence.java is dead
         // content on this dist — none of its Gracia-era NPCs spawn).
         Arc::new(primeval_isle::PrimevalIsle),
+        // ai/areas — slice 8: the Four Sepulchers party dungeon.
+        Arc::new(four_sepulchers::FourSepulchers),
+        Arc::new(four_sepulchers::FourSepulchersBosses),
     ];
     QuestRegistry::new(scripts)
 }

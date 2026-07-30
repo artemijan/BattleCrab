@@ -40,6 +40,7 @@ mod enchant;
 pub(crate) mod events;
 mod expertise;
 pub(crate) mod fishing;
+pub(crate) mod four_sepulchers;
 mod friends;
 pub(crate) mod frintezza;
 pub(crate) mod game_time;
@@ -438,6 +439,19 @@ fn apply_due_tasks(world: &mut World) {
                 player_oid,
             } => {
                 crate::scripts::primeval_isle::handle_trex_attack(world, trex_oid, player_oid);
+            }
+            ScheduledTask::FsMysteriousChest { sepulcher } => {
+                four_sepulchers::handle_mysterious_chest(world, sepulcher);
+            }
+            ScheduledTask::FsWaveCheck { sepulcher } => {
+                four_sepulchers::handle_wave_check(world, sepulcher);
+            }
+            ScheduledTask::FsOust { sepulcher } => four_sepulchers::handle_oust(world, sepulcher),
+            ScheduledTask::FsVictimFlee { npc_oid } => {
+                crate::scripts::four_sepulchers::handle_victim_flee(world, npc_oid);
+            }
+            ScheduledTask::FsRemovePetrify { npc_oid } => {
+                crate::scripts::four_sepulchers::handle_remove_petrify(world, npc_oid);
             }
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);

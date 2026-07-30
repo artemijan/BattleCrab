@@ -1004,3 +1004,243 @@ fn sprigant_casts_its_trap() {
         .map(|c| c.0.skill_id);
     assert_eq!(cast, Some(5085), "the trap fires");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 8 — Four Sepulchers
+// ---------------------------------------------------------------------------
+
+/// The hall coordinates the test zone must cover (sepulcher 1).
+const FS_HALL: (i32, i32) = (182000, -85500);
+
+fn fs_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = combat_test_world();
+    // Sepulcher 1's script zone, generously covering the whole hall strip.
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 200221,
+        name: "royal_rush_script_1".into(),
+        kind: crate::data::zone_data::ZoneKind::Script,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: 179000,
+                x2: 192000,
+                y1: -87000,
+                y2: -84000,
+            },
+            min_z: -8000,
+            max_z: -6000,
+        },
+        castle_id: 0,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
+    for id in [
+        crate::game_loop::four_sepulchers::CONQUEROR_MANAGER,
+        crate::game_loop::four_sepulchers::MYSTERIOUS_CHEST,
+        crate::game_loop::four_sepulchers::KEY_CHEST,
+        crate::game_loop::four_sepulchers::TELEPORTER,
+        18120, // wave rewarder
+        25346, // Conqueror boss
+    ] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    // A one-row wave table for sepulcher 1: wave 2 spawns one rewarder.
+    world
+        .data
+        .four_sepulchers
+        .insert_for_test(crate::data::four_sepulchers_data::FsSpawn {
+            sepulcher: 1,
+            wave: 2,
+            npc_id: 18120,
+            x: FS_HALL.0,
+            y: FS_HALL.1,
+            z: -7218,
+            heading: 0,
+        });
+    (world, db, l)
+}
+
+fn fs_party(
+    world: &mut World,
+    oids: [i32; 4],
+) -> Vec<tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>> {
+    let mut rxs = Vec::new();
+    for (i, oid) in oids.into_iter().enumerate() {
+        rxs.push(ingame_player(
+            world,
+            10 + i as u32,
+            oid,
+            100 + i as i32 * 30,
+            0,
+            0,
+        ));
+        let mut quests = crate::model::components::Quests::default();
+        quests.0.insert(
+            "Q00620_FourGoblets".into(),
+            crate::model::quest::QuestState {
+                state: crate::model::quest::state::STARTED,
+                vars: Default::default(),
+            },
+        );
+        world.objects.add_components(&oid, quests);
+        world
+            .objects
+            .add_components(&oid, crate::model::components::PartyRef(77));
+        give_test_item(
+            world,
+            oid,
+            crate::game_loop::four_sepulchers::ENTRANCE_PASS,
+            1,
+        );
+    }
+    let mut party =
+        crate::model::party::Party::new(oids[0], crate::model::party::LootRule::FindersKeepers, 1);
+    party.members = oids.to_vec();
+    world.parties.insert(77, party);
+    rxs
+}
+
+/// The admission ritual: a 4-player party with passes and the quest gets
+/// teleported into the hall, passes collected, used passes issued; the
+/// 3-minute chest and 60-minute bell are armed.
+#[test]
+fn four_sepulchers_admission_and_first_wave() {
+    use crate::game_loop::four_sepulchers as fs;
+    let (mut world, _db, _l) = fs_world();
+    add_test_npc(
+        &mut world,
+        NPC_OID + 800,
+        fs::CONQUEROR_MANAGER,
+        "Folk",
+        70,
+        130,
+        0,
+        0,
+    );
+    let _rxs = fs_party(&mut world, [5001, 5002, 5003, 5004]);
+
+    match fs::try_enter(&mut world, NPC_OID + 800, 5001) {
+        fs::EnterOutcome::Ok => {}
+        _ => panic!("the ritual should admit them"),
+    }
+    for oid in [5001, 5002, 5003, 5004] {
+        let pos = world.objects.get_component::<Position>(&oid).unwrap();
+        assert!(pos.x > 179000, "teleported into the hall");
+        assert_eq!(
+            item_count(&world, oid, fs::ENTRANCE_PASS),
+            0,
+            "pass collected"
+        );
+        assert_eq!(
+            item_count(&world, oid, fs::USED_PASS),
+            1,
+            "used pass issued"
+        );
+    }
+    // Re-entry is barred while the window runs.
+    match fs::try_enter(&mut world, NPC_OID + 800, 5001) {
+        fs::EnterOutcome::Full | fs::EnterOutcome::NotTime => {}
+        _ => panic!("second entry must be refused"),
+    }
+
+    // The 3-minute chest appears...
+    advance_ticks(&mut world, 3 * 60 * 10 + 5);
+    assert_eq!(count_npcs(&mut world, fs::MYSTERIOUS_CHEST), 1, "chest up");
+
+    // ...the party opens it: wave 1 has no rows in this fixture, so advance
+    // progress manually to wave 2 and pour it.
+    world.four_sepulchers.progress[0] = 2;
+    fs::spawn_next_wave(&mut world, 1);
+    assert_eq!(count_npcs(&mut world, 18120), 1, "wave 2 spawned");
+
+    // Clearing the wave pays a key chest at the last corpse.
+    let mob = {
+        let mut found = 0;
+        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+            if n.npc_id == 18120 {
+                found = n.object_id;
+            }
+        });
+        found
+    };
+    world
+        .objects
+        .get_component_mut::<Vitals>(&mob)
+        .unwrap()
+        .dead = true;
+    advance_ticks(&mut world, 60);
+    assert_eq!(
+        count_npcs(&mut world, fs::KEY_CHEST),
+        1,
+        "key chest paid out"
+    );
+}
+
+/// The boss falls: every partied goblet-quester nearby gets the hall's
+/// goblet, and the exit teleporter rises from the corpse.
+#[test]
+fn four_sepulchers_boss_pays_goblets() {
+    use crate::game_loop::four_sepulchers as fs;
+    let (mut world, _db, _l) = fs_world();
+    let _rxs = fs_party(&mut world, [5001, 5002, 5003, 5004]);
+    // Stand the party in the hall.
+    for oid in [5001, 5002, 5003, 5004] {
+        let p = world.objects.get_component_mut::<Position>(&oid).unwrap();
+        p.x = FS_HALL.0;
+        p.y = FS_HALL.1;
+        p.z = -7218;
+    }
+    add_test_npc(
+        &mut world,
+        NPC_OID + 801,
+        25346,
+        "RaidBoss",
+        80,
+        FS_HALL.0,
+        FS_HALL.1,
+        -7218,
+    );
+
+    quests::notify_kill(&mut world, 5001, NPC_OID + 801, 25346);
+    for oid in [5001, 5002, 5003, 5004] {
+        assert_eq!(item_count(&world, oid, 7256), 1, "sepulcher 1 goblet");
+    }
+    assert_eq!(
+        count_npcs(&mut world, fs::TELEPORTER),
+        1,
+        "exit teleporter up"
+    );
+}
+
+/// The real spawn table parses — the whole dungeon is data-driven, so an
+/// XML rename or schema drift must fail loudly here.
+#[test]
+fn four_sepulchers_real_spawn_table_loads() {
+    let data = crate::data::four_sepulchers_data::FourSepulchersData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    assert!(
+        data.spawns.len() > 700,
+        "expected the full wave table, got {}",
+        data.spawns.len()
+    );
+    for sep in 1..=4 {
+        for wave in 1..=7 {
+            assert!(
+                data.spawns
+                    .iter()
+                    .any(|r| r.sepulcher == sep && r.wave == wave),
+                "sepulcher {sep} wave {wave} has no rows"
+            );
+        }
+    }
+}
