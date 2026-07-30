@@ -199,6 +199,10 @@ pub struct CharacterConfig {
     /// `AltKarmaPlayerCanUseGK`: whether a negative-reputation character may
     /// use gatekeepers (False — Java default and this dist).
     pub alt_karma_player_can_use_gk: bool,
+    /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
+    /// a castle town whose siege is running? **False** on this dist (Java's
+    /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
+    pub teleport_while_siege_in_progress: bool,
     /// `UnstuckInterval` (seconds): the `/unstuck` escape cast time (30 on
     /// this dist, Java default 300 = the stock 5-minute escape skill).
     pub unstuck_interval: i32,
@@ -293,6 +297,7 @@ impl Default for CharacterConfig {
             dance_cancel_buff: false,
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
+            teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             calculate_magic_success_by_skill_magic_level: true,
             magic_failures: true,
@@ -414,6 +419,10 @@ impl CharacterConfig {
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
             alt_karma_player_can_use_gk: p
                 .get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
+            teleport_while_siege_in_progress: p.get_bool(
+                "TeleportWhileSiegeInProgress",
+                d.teleport_while_siege_in_progress,
+            ),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
             calculate_magic_success_by_skill_magic_level: p.get_bool(
                 "CalculateMagicSuccessBySkillMagicLevel",

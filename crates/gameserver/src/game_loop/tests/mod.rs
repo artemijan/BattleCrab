@@ -2154,6 +2154,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
                 npc_string_id: 1010004,
                 fee_id: 57,
                 fee_count: 9400,
+                castle_ids: Vec::new(),
             }],
         },
     );

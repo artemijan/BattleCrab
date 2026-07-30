@@ -555,6 +555,20 @@ pub(crate) fn show_chat_window(world: &mut World, client_id: u32, npc_object_id:
     {
         return;
     }
+    // `Teleporter.showChatWindow`: a gatekeeper standing on castle ground has
+    // three landing pages — the owner clan's, the "busy" page while that
+    // castle's siege runs, and the "no" page for everyone else.
+    let viewer = match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => s.player_object_id(),
+        _ => 0,
+    };
+    if t.type_name == "Teleporter"
+        && value == 0
+        && let Some(file) = super::teleporter::castle_landing_page(world, npc_object_id, viewer)
+    {
+        super::teleporter::send_landing_page(world, client_id, npc_object_id, &file);
+        return;
+    }
     let html = load_chat_window_html(&world.data.root, &t.type_name, t.id, value)
         .unwrap_or_else(|| "<html><body>My Text is missing:<br></body></html>".to_string())
         .replace("%objectId%", &npc_object_id.to_string())

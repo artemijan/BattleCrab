@@ -62,6 +62,10 @@ pub struct TeleportLocation {
     pub npc_string_id: i32,
     pub fee_id: i32,
     pub fee_count: i64,
+    /// `castleId` — the castle(s) whose siege blocks this destination
+    /// (Java `TeleportLocation._castleId`, a `;`-separated list). Empty for
+    /// most lines.
+    pub castle_ids: Vec<i32>,
 }
 
 /// Java `TeleportHolder` minus the html/teleport behavior (game-loop side).
@@ -221,6 +225,13 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, HashMap<String, Tel
                                 z: z as i32,
                                 name: attr(b"name"),
                                 npc_string_id: num(b"npcStringId").unwrap_or(-1) as i32,
+                                castle_ids: attr(b"castleId")
+                                    .map(|v| {
+                                        v.split(';')
+                                            .filter_map(|p| p.trim().parse::<i32>().ok())
+                                            .collect()
+                                    })
+                                    .unwrap_or_default(),
                                 fee_id: num(b"feeId").unwrap_or(ADENA_ID as i64) as i32,
                                 fee_count: num(b"feeCount").unwrap_or(0),
                             });
