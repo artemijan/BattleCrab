@@ -28,11 +28,12 @@ pub fn manage_list_sell(
     owner_adena: i64,
     sellable: &[StoreLine],
     in_store: &[StoreLine],
+    packaged: bool,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_MANAGE_LIST);
     w.write_i32(owner_object_id);
-    w.write_i32(0); // package sell
+    w.write_i32(i32::from(packaged));
     w.write_i64(owner_adena);
     w.write_i32(sellable.len() as i32);
     for line in sellable {
@@ -49,11 +50,16 @@ pub fn manage_list_sell(
 }
 
 /// `PrivateStoreListSell` (0xA1): a customer's view of `seller`'s store.
-pub fn list_sell(seller_object_id: i32, buyer_adena: i64, items: &[StoreLine]) -> Vec<u8> {
+pub fn list_sell(
+    seller_object_id: i32,
+    buyer_adena: i64,
+    items: &[StoreLine],
+    packaged: bool,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_LIST);
     w.write_i32(seller_object_id);
-    w.write_i32(0); // packaged
+    w.write_i32(i32::from(packaged));
     w.write_i64(buyer_adena);
     w.write_i32(0);
     w.write_i32(items.len() as i32);
@@ -130,6 +136,17 @@ pub fn list_buy(owner_object_id: i32, viewer_adena: i64, items: &[StoreLine]) ->
 pub fn msg_buy(owner_object_id: i32, title: &str) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::PRIVATE_STORE_BUY_MSG);
+    w.write_i32(owner_object_id);
+    w.write_string(title);
+    w.into_bytes()
+}
+
+/// `ExPrivateStoreSetWholeMsg` (0xFE:0x81) — the package store's title, the
+/// package-sell counterpart of `PrivateStoreMsgSell`.
+pub fn ex_private_store_whole_msg(owner_object_id: i32, title: &str) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_PRIVATE_STORE_WHOLE_MSG);
     w.write_i32(owner_object_id);
     w.write_string(title);
     w.into_bytes()

@@ -208,6 +208,8 @@ pub mod ex_opcodes {
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
+    /// `SetPrivateStoreWholeMsg` — the package-sell store's title.
+    pub const SET_PRIVATE_STORE_WHOLE_MSG: u16 = 0x47;
     /// Skill enchanting (G19, PLAN_G19_SKILL_ENCHANT.md).
     pub const REQUEST_EX_ENCHANT_SKILL_INFO: u16 = 0x0E;
     pub const REQUEST_EX_ENCHANT_SKILL: u16 = 0x0F;
@@ -1000,10 +1002,12 @@ pub struct PrivateStoreItemList {
 
 impl PrivateStoreItemList {
     /// `SetPrivateStoreListSell`: `packageSale(int)` then the item lines.
-    pub fn read_set_list(body_after_opcode: &[u8]) -> Option<Self> {
+    /// Returns the leading **package-sale** flag alongside the lines: `1` opens
+    /// a `PACKAGE_SELL` store (Java `SetPrivateStoreListSell._packageSale`).
+    pub fn read_set_list(body_after_opcode: &[u8]) -> Option<(bool, Self)> {
         let mut r = PacketReader::new(body_after_opcode);
-        let _package = r.read_i32()?;
-        Self::read_lines(&mut r, 0)
+        let packaged = r.read_i32()? == 1;
+        Self::read_lines(&mut r, 0).map(|lines| (packaged, lines))
     }
 
     /// `RequestPrivateStoreBuy`: `storePlayerId(int)` then the item lines.

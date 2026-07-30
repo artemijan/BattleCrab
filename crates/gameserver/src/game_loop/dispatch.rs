@@ -568,6 +568,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         // RequestExMagicSkillUseGround (IN_GAME): a GROUND-target cast aimed
         // at a world position (G19).
+        exop::SET_PRIVATE_STORE_WHOLE_MSG => {
+            super::private_store::handle_set_whole_msg(world, client_id, ex_body)
+        }
         exop::REQUEST_EX_MAGIC_SKILL_USE_GROUND => {
             super::skills::cast::handle_request_magic_skill_use_ground(world, client_id, ex_body)
         }

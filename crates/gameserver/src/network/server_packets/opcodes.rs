@@ -192,6 +192,8 @@ pub const EX_MPCC_PARTY_INFO_UPDATE: i16 = 0x5C;
 pub const EX_MULTI_PARTY_COMMAND_CHANNEL_INFO: i16 = 0x31;
 /// `ExInzoneWaiting` — the instance re-enter window (`/instancezone`).
 pub const EX_INZONE_WAITING_INFO: i16 = 0x11E;
+/// `ExPrivateStoreSetWholeMsg` — the package-sell store title.
+pub const EX_PRIVATE_STORE_WHOLE_MSG: i16 = 0x81;
 pub const EX_MPCC_ROOM_INFO: i16 = 0x9C;
 pub const EX_LIST_MPCC_WAITING: i16 = 0x9D;
 pub const EX_DISSMISS_MPCC_ROOM: i16 = 0x9E;

@@ -1,8 +1,13 @@
-//! Private sell stores (`PrivateStoreType.SELL`): a player opens a manage
-//! window, sets a list of items+prices, and sits with a titled store; other
-//! players click the owner to see the store and buy from it. Items stay in the
-//! owner's inventory until sold. Buy/manufacture stores and package sell are out
-//! of scope.
+//! Private sell and buy stores: a player opens a manage window, sets a list of
+//! items+prices, and sits with a titled store; other players click the owner to
+//! see the store and trade with it. Items stay in the owner's inventory until
+//! sold.
+//!
+//! Three of Java's `PrivateStoreType`s live here — `SELL` (1), `BUY` (3) and
+//! **`PACKAGE_SELL` (8)**, the `/packagesale` store whose whole list is one lot:
+//! the client must buy every line at once, the window carries a "packaged" flag,
+//! and its title rides `ExPrivateStoreSetWholeMsg` instead of
+//! `PrivateStoreMsgSell`. Manufacture (workshop) stores belong to `crafting`.
 
 use crate::model::components::{PrivateStore, StoreItem};
 use crate::model::inventory::{Inventory, ItemInstance};
@@ -13,6 +18,14 @@ use crate::world::World;
 
 const ADENA_ID: i32 = 57;
 const STORE_TYPE_SELL: u8 = 1;
+/// Java `PrivateStoreType.PACKAGE_SELL` — the whole list sells as one lot.
+const STORE_TYPE_PACKAGE_SELL: u8 = 8;
+
+/// Either kind of sell store (the buyer-facing paths accept both, like Java's
+/// `RequestPrivateStoreBuy`).
+fn is_sell_store(store_type: u8) -> bool {
+    store_type == STORE_TYPE_SELL || store_type == STORE_TYPE_PACKAGE_SELL
+}
 
 fn player_of(world: &World, client_id: u32) -> Option<i32> {
     match world.clients.get(&client_id) {
@@ -45,9 +58,22 @@ fn instance(object_id: i32, item_id: i32, count: i64, enchant: i32) -> ItemInsta
     }
 }
 
-/// `RequestPrivateStoreManageSell` (0x30): open the setup window — the owner's
-/// sellable inventory items plus any already in the store.
+/// `RequestPrivateStoreManageSell` (0x30) / the `PrivateStore` player action:
+/// open the setup window — the owner's sellable inventory items plus any
+/// already in the store. `packaged` opens it in **package** mode
+/// (`/packagesale`, action 61), which the client renders differently and
+/// echoes back in `SetPrivateStoreListSell`.
 pub(crate) fn open_manage(world: &mut World, client_id: u32) {
+    open_manage_kind(world, client_id, false);
+}
+
+/// The package-sell manage window (Java `PrivateStoreManageListSell(player,
+/// true)`).
+pub(crate) fn open_manage_package(world: &mut World, client_id: u32) {
+    open_manage_kind(world, client_id, true);
+}
+
+fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
     let Some(owner) = player_of(world, client_id) else {
         return;
     };
@@ -68,7 +94,7 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
         })
         .collect();
     let in_store = store_lines(world, owner);
-    let packet = sp::manage_list_sell(owner, adena(world, owner), &sellable, &in_store);
+    let packet = sp::manage_list_sell(owner, adena(world, owner), &sellable, &in_store, packaged);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
@@ -78,7 +104,7 @@ pub(crate) fn open_manage(world: &mut World, client_id: u32) {
 /// items+prices (validated against the owner's inventory). An empty list is a
 /// no-op; a valid list sits the owner with a titled store visible to others.
 pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
-    let Some(pkt) = cp::PrivateStoreItemList::read_set_list(body) else {
+    let Some((packaged, pkt)) = cp::PrivateStoreItemList::read_set_list(body) else {
         return;
     };
     let Some(owner) = player_of(world, client_id) else {
@@ -124,15 +150,23 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
         PrivateStore {
             items,
             title: title.clone(),
+            packaged,
         },
     );
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&owner)
     {
-        p.store_type = STORE_TYPE_SELL;
+        p.store_type = if packaged {
+            STORE_TYPE_PACKAGE_SELL
+        } else {
+            STORE_TYPE_SELL
+        };
     }
-    broadcast_store(world, owner, &title);
+    // Java broadcasts `ExPrivateStoreSetWholeMsg` for a package store and
+    // `PrivateStoreMsgSell` for a normal one — the two title packets the client
+    // renders above the seller's head.
+    broadcast_store(world, owner, &title, packaged);
 }
 
 /// `RequestPrivateStoreQuitSell` (0x96): close the store.
@@ -145,16 +179,19 @@ pub(crate) fn handle_quit(world: &mut World, client_id: u32) {
 
 /// A customer clicked the store owner (`Action`): show them the store.
 pub(crate) fn open_buyer_view(world: &mut World, client_id: u32, buyer: i32, seller: i32) {
-    if world
+    if !world
         .objects
         .get_component::<crate::model::Player>(&seller)
-        .map(|p| p.store_type)
-        != Some(STORE_TYPE_SELL)
+        .is_some_and(|p| is_sell_store(p.store_type))
     {
         return;
     }
+    let packaged = world
+        .objects
+        .get_component::<PrivateStore>(&seller)
+        .is_some_and(|s| s.packaged);
     let lines = store_lines(world, seller);
-    let packet = sp::list_sell(seller, adena(world, buyer), &lines);
+    let packet = sp::list_sell(seller, adena(world, buyer), &lines, packaged);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(packet);
     }
@@ -171,12 +208,24 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     };
     let seller = pkt.target_object_id;
     if seller == buyer
-        || world
+        || !world
             .objects
             .get_component::<crate::model::Player>(&seller)
-            .map(|p| p.store_type)
-            != Some(STORE_TYPE_SELL)
+            .is_some_and(|p| is_sell_store(p.store_type))
     {
+        return;
+    }
+    // Java: a package store is all-or-nothing — asking for fewer lines than it
+    // holds is refused outright (Java treats it as a bot signature and punishes;
+    // the port just refuses).
+    let package_short = world
+        .objects
+        .get_component::<PrivateStore>(&seller)
+        .is_some_and(|s| s.packaged && s.items.len() > pkt.items.len());
+    if package_short {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(sp::action_failed());
+        }
         return;
     }
     // Match each requested line against the live store + verify the seller still
@@ -293,8 +342,13 @@ fn store_lines(world: &World, owner: i32) -> Vec<StoreLine<'_>> {
 
 /// Activate the store visually: the store title to self + nearby, and a CharInfo
 /// re-send so the store byte / sitting shows on other clients.
-fn broadcast_store(world: &World, owner: i32, title: &str) {
-    super::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, title));
+fn broadcast_store(world: &World, owner: i32, title: &str, packaged: bool) {
+    let packet = if packaged {
+        sp::ex_private_store_whole_msg(owner, title)
+    } else {
+        sp::msg_sell(owner, title)
+    };
+    super::helpers::broadcast_including_self(world, owner, &packet);
     super::party::broadcast_user_info(world, owner);
 }
 
@@ -528,6 +582,37 @@ pub(crate) fn handle_set_msg(world: &mut World, client_id: u32, body: &[u8], buy
             store.title = title.clone();
         }
         super::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, &title));
+    }
+}
+
+/// `SetPrivateStoreWholeMsg` (ex 0x47): the **package** store's title. Java
+/// stores it on the sell list and echoes `ExPrivateStoreSetWholeMsg` to the
+/// owner only (the broadcast to bystanders happens when the store opens).
+pub(crate) fn handle_set_whole_msg(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(owner) = player_of(world, client_id) else {
+        return;
+    };
+    let title = commons::network::PacketReader::new(body)
+        .read_string()
+        .unwrap_or_default();
+    // Java's `MAX_MSG_LENGTH` overflow check punishes; the port just clamps out
+    // an over-long title by refusing it.
+    if title.chars().count() > 29 {
+        return;
+    }
+    if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&owner) {
+        store.title = title.clone();
+    } else {
+        world.objects.add_components(
+            &owner,
+            PrivateStore {
+                title: title.clone(),
+                ..Default::default()
+            },
+        );
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(sp::ex_private_store_whole_msg(owner, &title));
     }
 }
 

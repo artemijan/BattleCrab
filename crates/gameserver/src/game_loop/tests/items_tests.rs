@@ -3596,3 +3596,180 @@ fn augment_options_apply_while_the_item_is_equipped() {
     );
     assert_eq!(pcs(&world, 3001).p_atk, base_p_atk, "and so does P.Atk");
 }
+
+/// **A package store sells its whole list as one lot.** `/packagesale` (player
+/// action 61) opens the manage window in package mode; the store then reports
+/// `PACKAGE_SELL` (8), and a buyer who asks for fewer lines than it holds is
+/// refused outright — Java's anti-bot check. Taking every line goes through.
+#[test]
+fn package_store_is_all_or_nothing() {
+    use crate::model::components::PrivateStore;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4300_0000..0x4300_0200;
+    let mut seller_rx = ingame_player_access(&mut world, 1, 9700, 0);
+    let mut buyer_rx = ingame_player_access(&mut world, 2, 9701, 0);
+    // Two distinct items so the package has two lines.
+    super::items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
+    super::items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
+    super::items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
+    let oid = |w: &World, item: i32| {
+        w.objects
+            .get_component::<Inventory>(&9700)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.item_id == item)
+            .unwrap()
+            .object_id
+    };
+    let (a, b) = (oid(&world, 1458), oid(&world, 1459));
+    drain(&mut seller_rx);
+    drain(&mut buyer_rx);
+
+    // `/packagesale` → the manage window opens with the package flag set.
+    let mut act = PacketWriter::new();
+    act.write_u8(cop::REQUEST_ACTION_USE);
+    act.write_i32(61);
+    act.write_i32(0);
+    act.write_u8(0);
+    on_packet(&mut world, 1, act.into_bytes());
+    let manage = drain(&mut seller_rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_MANAGE_LIST)
+        .expect("the manage window");
+    assert_eq!(
+        i32::from_le_bytes([manage[5], manage[6], manage[7], manage[8]]),
+        1,
+        "the window is flagged as a package sale"
+    );
+
+    // Open the package store with both lines.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SET_PRIVATE_STORE_LIST_SELL);
+    w.write_i32(1); // package sale
+    w.write_i32(2);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    w.write_i32(b);
+    w.write_i64(5);
+    w.write_i64(200);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9700)
+            .unwrap()
+            .store_type,
+        8,
+        "PACKAGE_SELL"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<PrivateStore>(&9700)
+            .unwrap()
+            .packaged
+    );
+
+    // Buying only one of the two lines is refused — nothing moves.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_BUY);
+    w.write_i32(9700);
+    w.write_i32(1);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    on_packet(&mut world, 2, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9701)
+            .unwrap()
+            .count_of(57),
+        10_000,
+        "a partial package purchase pays nothing"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9701)
+            .unwrap()
+            .count_of(1458),
+        0,
+        "…and delivers nothing"
+    );
+
+    // Taking the whole package works: 5×100 + 5×200 = 1500 adena.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_BUY);
+    w.write_i32(9700);
+    w.write_i32(2);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    w.write_i32(b);
+    w.write_i64(5);
+    w.write_i64(200);
+    on_packet(&mut world, 2, w.into_bytes());
+
+    let buyer = world.objects.get_component::<Inventory>(&9701).unwrap();
+    assert_eq!(buyer.count_of(1458), 5, "first line delivered");
+    assert_eq!(buyer.count_of(1459), 5, "second line delivered");
+    assert_eq!(
+        buyer.count_of(57),
+        10_000 - 1_500,
+        "and paid for as one lot"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9700)
+            .unwrap()
+            .store_type,
+        0,
+        "the emptied store closes"
+    );
+}
+
+/// **`SetPrivateStoreWholeMsg` (ex 0x47) titles the package store** and echoes
+/// `ExPrivateStoreSetWholeMsg` back — the package-sell counterpart of
+/// `PrivateStoreMsgSell`, which was missing entirely.
+#[test]
+fn package_store_title_round_trips() {
+    use crate::model::components::PrivateStore;
+
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 9702, 0);
+    drain(&mut rx);
+
+    let mut body = PacketWriter::new();
+    body.write_string("Whole lot!");
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::SET_PRIVATE_STORE_WHOLE_MSG,
+            &body.into_bytes(),
+        ),
+    );
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<PrivateStore>(&9702)
+            .map(|s| s.title.clone()),
+        Some("Whole lot!".to_string())
+    );
+    assert!(
+        drain(&mut rx).iter().any(|p| p.len() >= 3
+            && p[0] == 0xFE
+            && i16::from_le_bytes([p[1], p[2]])
+                == server_packets::opcodes::EX_PRIVATE_STORE_WHOLE_MSG),
+        "the title is echoed back"
+    );
+}

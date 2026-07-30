@@ -463,6 +463,10 @@ pub mod action {
     pub const SERVITOR_STOP: i32 = 23;
     /// `Ride` — `/mount`, `/dismount`, `/mountdismount` → `mountPlayer`.
     pub const RIDE: i32 = 38;
+    /// `PrivateStore` option 8 — `/packagesale`, the package-sell manage window.
+    /// (Its siblings 10 `/vendor` and 28 `/buy` reach the port through the
+    /// dedicated `RequestPrivateStore*` packets the client also sends.)
+    pub const PACKAGE_SALE: i32 = 61;
 }
 
 /// `RequestActionUse` — the servitor commands only. Other action ids (sit,
@@ -479,7 +483,11 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     if servitor_skill.is_none()
         && !matches!(
             pkt.action_id,
-            action::SERVITOR_HOLD | action::SERVITOR_ATTACK | action::SERVITOR_STOP | action::RIDE
+            action::SERVITOR_HOLD
+                | action::SERVITOR_ATTACK
+                | action::SERVITOR_STOP
+                | action::RIDE
+                | action::PACKAGE_SALE
         )
     {
         return;
@@ -497,6 +505,13 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         .is_none_or(|v| v.dead)
         || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
+        return;
+    }
+    // Action 61 (`PrivateStore` playeraction, option 8 — `/packagesale`): the
+    // only private-store action that has no client packet of its own, so the
+    // manage window has to open from here (Java `PrivateStore.useAction`).
+    if pkt.action_id == action::PACKAGE_SALE {
+        crate::game_loop::private_store::open_manage_package(world, client_id);
         return;
     }
     // Action 38 (`Ride` playeraction — `/dismount`): dismounting a mounted

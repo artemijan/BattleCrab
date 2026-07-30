@@ -117,6 +117,10 @@ pub struct StoreItem {
 pub struct PrivateStore {
     pub items: Vec<StoreItem>,
     pub title: String,
+    /// Java `TradeList.isPackaged()` — a **package** store (`/packagesale`,
+    /// `PrivateStoreType.PACKAGE_SELL`): the whole list is sold as one lot, so
+    /// a buyer must take every line at once.
+    pub packaged: bool,
 }
 
 /// One line of a private **buy** store: what the owner wants, how many are
