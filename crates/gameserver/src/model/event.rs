@@ -47,6 +47,17 @@ pub struct TvtState {
     /// The PvP instance world id, once the arena stands up (Java `PVP_WORLD`;
     /// slice 2).
     pub world_id: Option<i32>,
+    /// The two arena manager copies (Java's `addSpawn(MANAGER, …_BUFFER_SPAWN_LOC,
+    /// …, PVP_WORLD)`), which serve the in-arena buff/heal window. Cleared with
+    /// the arena.
+    pub arena_managers: Vec<i32>,
+    /// Per-player generation of the inactivity clock (Java cancels the
+    /// `KickPlayer<oid>` timers by name; the port bumps this instead).
+    pub inactivity_seq: std::collections::HashMap<i32, u64>,
+    /// Generation of the running countdown chain (Java cancels its `"10"`…`"1"`
+    /// timers by name; the port bumps this instead). Ticks carrying a stale
+    /// value are dropped.
+    pub countdown_seq: u64,
 }
 
 impl TvtState {

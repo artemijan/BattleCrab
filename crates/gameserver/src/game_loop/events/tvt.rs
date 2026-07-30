@@ -219,25 +219,14 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
         //   don't have yet; team membership is tracked in blue/red_team here).
     }
 
-    // The two arena buffers (the manager NPC reused).
-    instances::spawn_npc(
-        world,
-        instance_id,
-        MANAGER,
-        BLUE_BUFFER.0,
-        BLUE_BUFFER.1,
-        BLUE_BUFFER.2,
-        BLUE_BUFFER.3,
-    );
-    instances::spawn_npc(
-        world,
-        instance_id,
-        MANAGER,
-        RED_BUFFER.0,
-        RED_BUFFER.1,
-        RED_BUFFER.2,
-        RED_BUFFER.3,
-    );
+    // The two arena buffers (the manager NPC reused). Their object ids are kept
+    // so the in-arena buff/heal window can be told from the town manager's.
+    world.events.tvt.arena_managers = [BLUE_BUFFER, RED_BUFFER]
+        .into_iter()
+        .filter_map(|(x, y, z, heading)| {
+            instances::spawn_npc(world, instance_id, MANAGER, x, y, z, heading)
+        })
+        .collect();
 
     // Initialize the scoreboard (scores already 0 from registration).
     broadcast_scoreboard(world, instance_id, sp::PVP_MATCH_INITIALIZE);
@@ -247,6 +236,8 @@ pub(crate) fn teleport_to_arena(world: &mut World) {
         world.tick + WAIT_TIME_MIN * 60 * TICKS_PER_SECOND,
         ScheduledTask::TvtStartFight,
     );
+    // Java arms "5".."1" against the same `WAIT_TIME` deadline.
+    schedule_countdown(world, WAIT_TIME_MIN * 60 * TICKS_PER_SECOND, 5);
 }
 
 /// Java `TvT.onEvent("StartFight")`: open the arena doors and start the fight.
@@ -265,7 +256,34 @@ pub(crate) fn start_fight(world: &mut World) {
         world.tick + FIGHT_TIME_MIN * 60 * TICKS_PER_SECOND,
         ScheduledTask::TvtEndFight,
     );
-    // TODO(G28): the 5..1 warm-up countdown screen messages (cosmetic, slice 3).
+    // Java arms ten one-shot timers named "10".."1" at `FIGHT_TIME - Ns`; the
+    // port arms the same ten ticks with the number as the payload.
+    schedule_countdown(world, FIGHT_TIME_MIN * 60 * TICKS_PER_SECOND, 10);
+}
+
+/// Java's `startQuestTimer("<n>", <phase end> - n*1000)` chain: one screen
+/// banner per second for the last `from` seconds of a phase.
+fn schedule_countdown(world: &mut World, phase_end_ticks: u64, from: i32) {
+    let seq = world.events.tvt.countdown_seq;
+    for n in 1..=from {
+        let at = phase_end_ticks.saturating_sub(n as u64 * TICKS_PER_SECOND);
+        world.scheduler.schedule(
+            world.tick + at,
+            ScheduledTask::TvtCountdown { seconds: n, seq },
+        );
+    }
+}
+
+/// One countdown tick — Java `case "10" … case "1": broadcastScreenMessage`.
+/// A tick from a cancelled chain (forfeit, early end) is dropped by the seq.
+pub(crate) fn countdown(world: &mut World, seconds: i32, seq: u64) {
+    if seq != world.events.tvt.countdown_seq {
+        return;
+    }
+    let Some(instance_id) = world.events.tvt.world_id else {
+        return;
+    };
+    broadcast_screen(world, instance_id, &seconds.to_string(), 4);
 }
 
 /// Java `TvT.onEvent("EndFight")`: the fight is over — close the doors, freeze +
@@ -280,6 +298,9 @@ pub(crate) fn end_fight(world: &mut World) {
         return;
     }
     world.events.tvt.phase = TvtPhase::Ending;
+    // Java `manageForfeit`/`EndFight` cancel every pending "10".."1" timer;
+    // bumping the generation drops them all.
+    world.events.tvt.countdown_seq += 1;
 
     instances::open_close_door(world, instance_id, BLUE_DOOR_ID, false);
     instances::open_close_door(world, instance_id, RED_DOOR_ID, false);
@@ -434,7 +455,10 @@ pub(crate) fn resurrect_player(world: &mut World, player: i32) {
     if let Some(skill) = world.data.skill_data.get(GHOST_WALKING, 1).cloned() {
         crate::game_loop::skills::effects::apply_skill_effects(world, player, player, &skill);
     }
-    // TODO(G28): resetActivityTimers — the inactivity kick timers are slice 4.
+    // Java resets the clock here too — a player who died *inside* their own
+    // headquarters never crosses the zone edge on respawn, so the enter hook
+    // would not re-arm it.
+    reset_activity_timers(world, player);
 }
 
 fn team_of(world: &World, player: i32) -> u8 {
@@ -514,16 +538,205 @@ fn manage_forfeit(world: &mut World) {
 /// Java `TvT.onFirstTalk(npc, player)`: the manager's chat window during
 /// registration. Returns the html to show (`None` shows nothing, as when the
 /// event isn't active).
-pub(crate) fn on_manager_first_talk(world: &World, player: i32) -> Option<String> {
+pub(crate) fn on_manager_first_talk(world: &World, player: i32, npc: i32) -> Option<String> {
     if !world.events.tvt.is_active() {
         return None;
     }
     if world.events.tvt.player_list.contains(&player) {
-        // TODO(G28): when the manager is the in-arena copy (npc in the PVP
-        //   instance), Java shows "manager-buffheal.html" — slice 3.
+        // Java: the manager copy standing *inside* the arena offers the buff/
+        // heal service instead of the cancel window.
+        let in_arena = world.events.tvt.arena_managers.contains(&npc);
+        if in_arena {
+            return Some("manager-buffheal.html".to_string());
+        }
         return Some(count_page(world, "manager-cancel.html"));
     }
     Some(count_page(world, "manager-register.html"))
+}
+
+/// Java `TvT.loadConfig()`: the `<schedule pattern="…"/>` entries of
+/// `data/scripts/custom/events/TeamVsTeam/config.xml`. **This dist ships them
+/// commented out**, so the list is normally empty and nothing auto-starts.
+pub(crate) fn load_schedule(root: &str) -> Vec<String> {
+    let path = format!("{root}data/scripts/custom/events/TeamVsTeam/config.xml");
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    let mut reader = quick_xml::Reader::from_str(&text);
+    reader.config_mut().trim_text(true);
+    let mut buf = Vec::new();
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Ok(quick_xml::events::Event::Start(e)) | Ok(quick_xml::events::Event::Empty(e)) => {
+                if e.name().as_ref() == b"schedule"
+                    && let Some(pattern) = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| a.key.as_ref() == b"pattern")
+                        .and_then(|a| String::from_utf8(a.value.to_vec()).ok())
+                {
+                    out.push(pattern);
+                }
+            }
+            Ok(quick_xml::events::Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+        buf.clear();
+    }
+    out
+}
+
+// ---------------------------------------------------------------------------
+// Headquarters zones — Java `onEnterZone` / `onExitZone` (row 10)
+// ---------------------------------------------------------------------------
+
+/// Java `INACTIVITY_TIME` — minutes a participant may idle in their own
+/// headquarters before being kicked; the warning lands at half that.
+const INACTIVITY_TIME_MIN: u64 = 2;
+
+/// Java `TvT.onEnterZone`/`onExitZone` for `colosseum_peace1|2`, fired from
+/// [`crate::game_loop::zones::revalidate_zone`] when the named zone changes.
+///
+/// - Walking into the **enemy** headquarters bounces you back to your own spawn
+///   with a screen message ("Entering the enemy headquarters is prohibited!").
+/// - Standing in **your own** starts the inactivity clock; leaving cancels it.
+pub(crate) fn on_hq_zone_change(world: &mut World, player: i32, from: u8, to: u8) {
+    if !is_on_event(world, player) {
+        return;
+    }
+    // Exit: cancel the clock (Java also strips the respawn invulnerability,
+    // which this port models as the `set_invul` flag).
+    if from != 0 && to == 0 {
+        cancel_inactivity(world, player);
+        set_invul(world, player, false);
+        return;
+    }
+    if to == 0 {
+        return;
+    }
+    let team = team_of(world, player);
+    if team == 0 {
+        return;
+    }
+    if to != team {
+        // Enemy headquarters — bounce them home.
+        let spawn = if team == 1 { BLUE_SPAWN } else { RED_SPAWN };
+        teleport_player(world, player, spawn.0, spawn.1, spawn.2);
+        send_screen(
+            world,
+            player,
+            "Entering the enemy headquarters is prohibited!",
+            10,
+        );
+        return;
+    }
+    // Own headquarters — (re)start the inactivity clock.
+    reset_activity_timers(world, player);
+}
+
+/// Java `resetActivityTimers`: cancel the pending pair and arm a fresh one. The
+/// clock is longer while the arena doors are still shut (the warm-up), exactly
+/// as Java adds `WAIT_TIME` in that branch.
+pub(crate) fn reset_activity_timers(world: &mut World, player: i32) {
+    let seq = {
+        let e = world.events.tvt.inactivity_seq.entry(player).or_insert(0);
+        *e += 1;
+        *e
+    };
+    let warmup_extra = if world.events.tvt.phase == TvtPhase::Fighting {
+        0
+    } else {
+        WAIT_TIME_MIN * 60 * TICKS_PER_SECOND
+    };
+    let kick_at = INACTIVITY_TIME_MIN * 60 * TICKS_PER_SECOND + warmup_extra;
+    let warn_at = (INACTIVITY_TIME_MIN / 2) * 60 * TICKS_PER_SECOND + warmup_extra;
+    world.scheduler.schedule(
+        world.tick + warn_at,
+        ScheduledTask::TvtInactivity {
+            player,
+            warning: true,
+            seq,
+        },
+    );
+    world.scheduler.schedule(
+        world.tick + kick_at,
+        ScheduledTask::TvtInactivity {
+            player,
+            warning: false,
+            seq,
+        },
+    );
+}
+
+/// Retire this player's inactivity pair (Java's two `cancelQuestTimer`s).
+fn cancel_inactivity(world: &mut World, player: i32) {
+    *world.events.tvt.inactivity_seq.entry(player).or_insert(0) += 1;
+}
+
+/// One inactivity tick — the warning banner, or the kick itself.
+pub(crate) fn inactivity_tick(world: &mut World, player: i32, warning: bool, seq: u64) {
+    if world.events.tvt.inactivity_seq.get(&player) != Some(&seq) {
+        return; // a re-arm (or a cancel) retired this pair
+    }
+    if !is_on_event(world, player) || world.events.tvt.world_id.is_none() {
+        return;
+    }
+    if warning {
+        send_screen(world, player, "You have been marked as inactive!", 10);
+        return;
+    }
+    // Kick: strip the participant, oust them from the arena, and either forfeit
+    // the match (their team is now empty) or announce the kick.
+    let name = world
+        .objects
+        .get_component::<Player>(&player)
+        .map(|p| p.name.clone())
+        .unwrap_or_default();
+    set_team(world, player, 0);
+    crate::game_loop::instances::exit(world, player);
+    world.events.tvt.player_list.retain(|&p| p != player);
+    world.events.tvt.scores.remove(&player);
+    world.events.tvt.blue_team.retain(|&p| p != player);
+    world.events.tvt.red_team.retain(|&p| p != player);
+    set_on_event(world, player, false);
+    send_message(world, player, "You have been kicked for been inactive.");
+
+    let (blue_empty, red_empty) = (
+        world.events.tvt.blue_team.is_empty(),
+        world.events.tvt.red_team.is_empty(),
+    );
+    if blue_empty != red_empty {
+        manage_forfeit(world);
+    } else if let Some(instance_id) = world.events.tvt.world_id {
+        broadcast_screen(
+            world,
+            instance_id,
+            &format!("Player {name} was kicked for been inactive!"),
+            7,
+        );
+    }
+}
+
+/// A screen banner for one player (Java `sendScreenMessage`).
+fn send_screen(world: &World, player: i32, text: &str, secs: i32) {
+    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(sp::ex_show_screen_message(text, TOP_CENTER, secs * 1000));
+    }
+}
+
+/// Java `player.sendMessage(...)` — the plain white chat line.
+fn send_message(world: &World, player: i32, text: &str) {
+    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(sp::system_message_with(
+            sp::sm_ids::S1_TEXT,
+            &[sp::SmParam::Text(text.to_string())],
+        ));
+    }
 }
 
 /// Java `TvT.onEvent(event, npc, player)` for the manager's bypass buttons.
@@ -562,13 +775,102 @@ pub(crate) fn on_manager_event(
             Some("registration-canceled.html".to_string())
         }
         "BuffHeal" => {
-            // TODO(G28): in-arena buff + full heal (slice 3 — needs the fight
-            //   state and SkillCaster.triggerCast on the manager).
+            buff_heal(world, player);
             None
         }
         _ => None,
     }
 }
+
+/// Java `TvT.onEvent("BuffHeal")` — the in-arena manager's service: the
+/// class-appropriate buff set plus a full HP/MP/CP top-up, refused in combat
+/// (`manager-combat.html`). Available to participants and GMs.
+fn buff_heal(world: &mut World, player: i32) {
+    if !is_on_event(world, player)
+        && !world
+            .objects
+            .get_component::<Player>(&player)
+            .is_some_and(|p| p.is_gm(&world.data))
+    {
+        return;
+    }
+    if in_combat(world, player) {
+        return;
+    }
+    let Some(manager) = arena_manager_near(world, player) else {
+        return;
+    };
+    let class_id = world
+        .objects
+        .get_component::<Player>(&player)
+        .map_or(0, |p| p.class_id);
+    let is_mage = world.data.categories.contains("BEGINNER_MAGE", class_id);
+    for &skill in if is_mage { MAGE_BUFFS } else { FIGHTER_BUFFS } {
+        crate::game_loop::support_magic::cast_from_npc(world, manager, player, skill);
+    }
+    // `setCurrentHp/Mp/Cp(max)` — the heal half. CP lives on its own
+    // player-only component.
+    let mut updates = Vec::new();
+    if let Some(vitals) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&player)
+    {
+        vitals.cur_hp = f64::from(vitals.max_hp);
+        vitals.cur_mp = f64::from(vitals.max_mp);
+        updates.push((sp::status_update_type::CUR_HP, vitals.max_hp));
+        updates.push((sp::status_update_type::CUR_MP, vitals.max_mp));
+    }
+    if let Some(pv) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVitals>(&player)
+    {
+        pv.cur_cp = f64::from(pv.max_cp);
+        updates.push((sp::status_update_type::CUR_CP, pv.max_cp));
+    }
+    if let Some(cs) = crate::game_loop::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(sp::status_update(player, &updates));
+    }
+    crate::game_loop::party::notify_party_vitals(world, player);
+}
+
+/// The in-arena manager copy nearest the player — the NPC whose buffs these
+/// are (Java passes the clicked `npc` straight through).
+fn arena_manager_near(world: &World, player: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::LastFolkNpc>(&player)
+        .map(|&crate::model::components::LastFolkNpc(npc)| npc)
+}
+
+/// `Creature.isInCombat()` — an attack stance is up.
+fn in_combat(world: &World, player: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&player)
+        .is_some_and(|a| a.stance_until_tick > world.tick)
+}
+
+/// Java's `FIGHTER_BUFFS` / `MAGE_BUFFS` (the event manager's service set).
+const FIGHTER_BUFFS: &[(i32, i32)] = &[
+    (4322, 1), // Wind Walk
+    (4323, 1), // Shield
+    (5637, 1), // Magic Barrier
+    (4324, 1), // Bless the Body
+    (4325, 1), // Vampiric Rage
+    (4326, 1), // Regeneration
+    (5632, 1), // Haste
+];
+const MAGE_BUFFS: &[(i32, i32)] = &[
+    (4322, 1), // Wind Walk
+    (4323, 1), // Shield
+    (5637, 1), // Magic Barrier
+    (4328, 1), // Bless the Soul
+    (4329, 1), // Acumen
+    (4330, 1), // Concentration
+    (4331, 1), // Empower
+];
 
 // ---------------------------------------------------------------------------
 // Registration eligibility (Java `canRegister`)

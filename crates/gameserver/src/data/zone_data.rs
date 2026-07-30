@@ -414,6 +414,20 @@ impl ZoneData {
         self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Jail)
     }
 
+    /// Which TvT headquarters peace zone covers `(x, y, z)` — `1` for
+    /// `colosseum_peace1` (blue), `2` for `colosseum_peace2` (red), `0` for
+    /// neither. Java holds the two `ZoneType`s by name and compares identity;
+    /// the port resolves the same two names by geometry.
+    pub fn tvt_hq_zone_at(&self, x: i32, y: i32, z: i32) -> u8 {
+        self.zones_at(x, y, z)
+            .find_map(|zn| match zn.name.as_str() {
+                "colosseum_peace1" => Some(1),
+                "colosseum_peace2" => Some(2),
+                _ => None,
+            })
+            .unwrap_or(0)
+    }
+
     /// The castle whose `TaxZone` covers `(x, y, z)` — Java `Npc.getTaxCastle()`
     /// via the zone the NPC stands in. `None` outside every tax zone, which is
     /// where most of the map is (only the nine castle territories are covered).

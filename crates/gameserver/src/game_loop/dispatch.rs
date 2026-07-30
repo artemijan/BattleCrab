@@ -572,6 +572,12 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         // RequestExMagicSkillUseGround (IN_GAME): a GROUND-target cast aimed
         // at a world position (G19).
+        exop::REQUEST_CURSED_WEAPON_LIST => {
+            super::cursed_weapon::handle_request_list(world, client_id)
+        }
+        exop::REQUEST_CURSED_WEAPON_LOCATION => {
+            super::cursed_weapon::handle_request_location(world, client_id)
+        }
         exop::SET_PRIVATE_STORE_WHOLE_MSG => {
             super::private_store::handle_set_whole_msg(world, client_id, ex_body)
         }

@@ -535,3 +535,266 @@ fn a_full_event_with_a_winner_end_to_end() {
     assert_eq!(world.events.active, None);
     assert_eq!(world.instances.len(), 0);
 }
+
+// ---------------------------------------------------------------------------
+// Row 10 — countdown screens and the in-arena manager's buff/heal
+// ---------------------------------------------------------------------------
+
+/// **Each phase arms Java's second-by-second countdown.** The warm-up gets
+/// "5".."1" and the fight "10".."1", each a one-shot task; ending the fight
+/// bumps the generation so the pending ticks from the old chain go quiet.
+#[test]
+fn each_phase_arms_a_countdown_that_the_end_cancels() {
+    let (mut world, _oids) = started_with_players(4);
+    tvt::teleport_to_arena(&mut world);
+
+    let countdowns = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::TvtCountdown { .. }))
+            .count()
+    };
+    assert_eq!(countdowns(&world), 5, "the warm-up arms 5..1");
+
+    tvt::start_fight(&mut world);
+    assert_eq!(countdowns(&world), 15, "the fight adds 10..1");
+
+    // A tick from the live chain shows its number; the seq bump at EndFight
+    // silences whatever is still queued.
+    let seq = world.events.tvt.countdown_seq;
+    tvt::end_fight(&mut world);
+    assert_ne!(
+        world.events.tvt.countdown_seq, seq,
+        "ending the fight retires the chain"
+    );
+}
+
+/// **The in-arena manager buffs and tops the participant up.** Java's
+/// `BuffHeal` casts the class-appropriate set and refills HP/MP/CP; a player
+/// in combat is refused (Java shows `manager-combat.html`).
+#[test]
+fn the_arena_manager_buffs_and_heals() {
+    use crate::model::components::{AttackState, LastFolkNpc, PlayerVitals, Vitals};
+
+    let (mut world, _oids) = fighting_arena(4);
+    let player = world.events.tvt.blue_team[0];
+    // The manager the player clicked (Java passes the npc straight through;
+    // only the *page* differs between the town and arena copies).
+    let manager = *world
+        .events
+        .tvt
+        .arena_managers
+        .first()
+        .expect("an arena manager stands in the instance");
+    world.objects.add_components(&player, LastFolkNpc(manager));
+    // Hurt them.
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&player) {
+        v.cur_hp = 1.0;
+        v.cur_mp = 1.0;
+    }
+    if let Some(pv) = world.objects.get_component_mut::<PlayerVitals>(&player) {
+        pv.cur_cp = 0.0;
+    }
+
+    // In combat: refused, nothing changes.
+    world.objects.add_components(
+        &player,
+        AttackState {
+            attack_end_tick: 0,
+            stance_until_tick: world.tick + 100,
+        },
+    );
+    tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&player)
+            .unwrap()
+            .cur_hp,
+        1.0,
+        "a fighting participant is refused"
+    );
+
+    // Out of combat: full top-up.
+    world.objects.add_components(
+        &player,
+        AttackState {
+            attack_end_tick: 0,
+            stance_until_tick: 0,
+        },
+    );
+    tvt::on_manager_event(&mut world, 1, player, "BuffHeal");
+    let v = *world.objects.get_component::<Vitals>(&player).unwrap();
+    assert_eq!(v.cur_hp, f64::from(v.max_hp), "HP topped up");
+    assert_eq!(v.cur_mp, f64::from(v.max_mp), "MP topped up");
+    let pv = *world
+        .objects
+        .get_component::<PlayerVitals>(&player)
+        .unwrap();
+    assert_eq!(pv.cur_cp, f64::from(pv.max_cp), "CP topped up");
+}
+
+// ---------------------------------------------------------------------------
+// Row 10 — headquarters zones: the enemy kick and the inactivity clock
+// ---------------------------------------------------------------------------
+
+/// Put a real `colosseum_peace1|2` pair into the test world's zone data so the
+/// named-zone lookup resolves (the fixtures load no zone files).
+fn register_hq_zones(world: &mut World) {
+    use crate::data::spawn_data::{Territory, ZoneForm};
+    use crate::data::zone_data::{Zone, ZoneKind};
+    for (name, x1, x2) in [
+        ("colosseum_peace1", 147_000, 148_000),
+        ("colosseum_peace2", 151_000, 152_000),
+    ] {
+        world.data.zone_data.insert(Zone {
+            id: 0,
+            name: name.into(),
+            kind: ZoneKind::Peace,
+            territory: Territory {
+                form: ZoneForm::Cuboid {
+                    x1,
+                    x2,
+                    y1: 46_000,
+                    y2: 47_000,
+                },
+                min_z: -4000,
+                max_z: -3000,
+            },
+            castle_id: 0,
+            clan_hall_id: 0,
+            effect: None,
+            damage: None,
+            swamp: None,
+        });
+    }
+}
+
+/// **Walking into the enemy headquarters bounces you home.** Java's
+/// `onEnterZone` teleports the intruder to their own spawn with a screen
+/// message; their own headquarters instead starts the inactivity clock.
+#[test]
+fn the_enemy_headquarters_kicks_intruders_out() {
+    use crate::game_loop::zones::revalidate_zone;
+    use crate::model::components::Position;
+
+    let (mut world, _oids) = fighting_arena(4);
+    register_hq_zones(&mut world);
+    let blue = world.events.tvt.blue_team[0];
+
+    // Blue player walks into the *red* headquarters.
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 151_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+
+    let pos = *world.objects.get_component::<Position>(&blue).unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (147_447, 46_722),
+        "bounced back to the blue spawn"
+    );
+}
+
+/// **Idling in your own headquarters arms the kick clock, and leaving cancels
+/// it.** The kick itself strips the participant and announces it.
+#[test]
+fn idling_in_your_headquarters_eventually_kicks_you() {
+    use crate::game_loop::zones::revalidate_zone;
+    use crate::model::components::Position;
+
+    let (mut world, _oids) = fighting_arena(4);
+    register_hq_zones(&mut world);
+    let blue = world.events.tvt.blue_team[0];
+
+    let pending = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::TvtInactivity { player, .. } if *player == blue))
+            .count()
+    };
+
+    // Stand in the blue headquarters → warning + kick armed.
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 147_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+    assert_eq!(pending(&world), 2, "warning + kick armed");
+    let seq = *world.events.tvt.inactivity_seq.get(&blue).unwrap();
+
+    // Walk out → the pair is retired (the tasks stay queued but go quiet).
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&blue) {
+        pos.x = 149_500;
+        pos.y = 46_500;
+        pos.z = -3400;
+    }
+    revalidate_zone(&mut world, blue, true);
+    assert_ne!(
+        *world.events.tvt.inactivity_seq.get(&blue).unwrap(),
+        seq,
+        "leaving retires the clock"
+    );
+    tvt::inactivity_tick(&mut world, blue, false, seq);
+    assert!(
+        world.events.tvt.player_list.contains(&blue),
+        "the retired kick does nothing"
+    );
+
+    // A live kick removes the participant.
+    let live_seq = *world.events.tvt.inactivity_seq.get(&blue).unwrap();
+    tvt::inactivity_tick(&mut world, blue, false, live_seq);
+    assert!(
+        !world.events.tvt.player_list.contains(&blue),
+        "the inactive player is removed from the event"
+    );
+    assert!(!world.events.tvt.blue_team.contains(&blue));
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&blue)
+            .unwrap()
+            .on_event
+    );
+}
+
+/// **The event's cron schedule arms itself and re-arms on firing.** This dist
+/// ships the pattern commented out, so the loader reads an empty list — the
+/// mechanism is exercised with a pattern directly.
+#[test]
+fn a_cron_schedule_starts_the_event_and_re_arms() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    world.id_pool = 0x5100_0000..0x5100_1000;
+    register_manager_template(&mut world);
+    register_coliseum_template(&mut world);
+
+    // The dist's own config: every schedule line is commented out.
+    let dist = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    assert!(
+        tvt::load_schedule(dist).is_empty(),
+        "this dist ships no active TvT schedule"
+    );
+
+    // Arm a slot by hand and fire it: the event opens and the slot re-arms.
+    crate::game_loop::events::arm_schedule(&mut world, 0, "0 20 * * *");
+    let armed = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::EventSchedule { .. }))
+            .count()
+    };
+    assert_eq!(armed(&world), 1, "the slot is armed");
+
+    crate::game_loop::events::on_schedule_fired(&mut world, 0, "0 20 * * *".to_string());
+    assert_eq!(world.events.active, Some(tvt::NAME), "the event started");
+    assert_eq!(armed(&world), 2, "…and the slot re-armed for tomorrow");
+}

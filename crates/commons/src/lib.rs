@@ -2,6 +2,7 @@
 //! game servers.
 
 pub mod config;
+pub mod cron;
 pub mod crypt;
 pub mod db;
 pub mod network;

@@ -41,7 +41,7 @@ impl QuestScript for Tvt {
     }
 
     fn on_first_talk(&self, ctx: &mut QuestCtx) -> Option<String> {
-        tvt::on_manager_first_talk(ctx.world, ctx.player)
+        tvt::on_manager_first_talk(ctx.world, ctx.player, ctx.npc)
     }
 
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {

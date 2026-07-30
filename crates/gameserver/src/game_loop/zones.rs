@@ -115,6 +115,17 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         super::party::broadcast_user_info(world, object_id);
     }
 
+    // The TvT event's `onEnterZone`/`onExitZone` for the two colosseum
+    // headquarters (enemy kick + the inactivity clock). Edge-triggered: the
+    // hook only runs when the named zone actually changes.
+    let hq = world.data.zone_data.tvt_hq_zone_at(pos.x, pos.y, pos.z);
+    if hq != flags.tvt_hq_zone {
+        if let Some(f) = world.objects.get_component_mut::<ZoneFlags>(&object_id) {
+            f.tvt_hq_zone = hq;
+        }
+        super::events::tvt::on_hq_zone_change(world, object_id, flags.tvt_hq_zone, hq);
+    }
+
     // SiegeZone.onEnter/onExit — see `refresh_siege_zone_flag`.
     refresh_siege_zone_flag(world, object_id);
 

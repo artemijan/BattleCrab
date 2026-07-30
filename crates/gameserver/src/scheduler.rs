@@ -609,6 +609,31 @@ pub enum ScheduledTask {
     TvtResurrect {
         player: i32,
     },
+    /// A cron schedule slot fired (Java's `Schedule<n>` event timer): start the
+    /// event and re-arm the slot for its next occurrence. The pattern rides the
+    /// task so the re-arm needs no registry lookup.
+    EventSchedule {
+        index: usize,
+        pattern: String,
+    },
+    /// A TvT participant's inactivity clock (Java's `KickPlayer<oid>` /
+    /// `KickPlayerWarning<oid>` quest timers): half-way through, a screen
+    /// warning; at the end, the player is ejected from the arena. Re-armed on
+    /// every headquarters entry, cancelled on exit — `seq` is the player's
+    /// generation, so a re-arm silences the previous pair.
+    TvtInactivity {
+        player: i32,
+        warning: bool,
+        seq: u64,
+    },
+    /// One tick of TvT's second-by-second countdown (Java's `"10"`…`"1"`
+    /// quest timers): show the number on the arena's screen. `seq` is the
+    /// chain's generation — a forfeit or early end bumps it and every pending
+    /// tick from the old chain is dropped.
+    TvtCountdown {
+        seconds: i32,
+        seq: u64,
+    },
     /// TvT's end-of-match scoreboard (`startQuestTimer("ScoreBoard", 3500)`,
     /// G28): broadcast `ExPVPMatchCCRecord::FINISH`.
     TvtScoreBoard,

@@ -40,3 +40,34 @@ pub fn mon_race_info(
     }
     w.into_bytes()
 }
+
+/// `ExCursedWeaponList` — every cursed-weapon item id the server knows (the
+/// client's window uses it to label the entries).
+pub fn ex_cursed_weapon_list(item_ids: &[i32]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_CURSED_WEAPON_LIST);
+    w.write_i32(item_ids.len() as i32);
+    for id in item_ids {
+        w.write_i32(*id);
+    }
+    w.into_bytes()
+}
+
+/// `ExCursedWeaponLocation` — one entry per *live* cursed weapon: its item id,
+/// whether it is currently wielded (`1`) or lying on the ground (`0`), and
+/// where. Java sends nothing at all when the list is empty.
+pub fn ex_cursed_weapon_location(entries: &[(i32, i32, i32, i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_CURSED_WEAPON_LOCATION);
+    w.write_i32(entries.len() as i32);
+    for (item_id, activated, x, y, z) in entries {
+        w.write_i32(*item_id);
+        w.write_i32(*activated);
+        w.write_i32(*x);
+        w.write_i32(*y);
+        w.write_i32(*z);
+    }
+    w.into_bytes()
+}
