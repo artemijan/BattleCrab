@@ -6,6 +6,7 @@ license.workspace = true
 
 [dependencies]
 commons = { path = "../commons" }
+models = { path = "../models" }
 rand.workspace = true
 tokio.workspace = true
 bytes.workspace = true

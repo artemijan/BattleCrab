@@ -35,6 +35,19 @@ FLOAT_OVERRIDES = {
 
 BINARY_OVERRIDES = {("crests", "data")}
 
+# Columns the DDL declares 32-bit that the game code reads as `i64`. SQLite
+# stores whatever fits regardless of the declared type, so a lottery prize or a
+# race bet that grew past 2^31 would decode-fail against an `i32` field. Where
+# the Rust side already treats a column as 64-bit, the entity follows it.
+INT64_OVERRIDES = {
+    ("lottery", "prize"),
+    ("lottery", "newprize"),
+    ("lottery", "prize1"),
+    ("lottery", "prize2"),
+    ("lottery", "prize3"),
+    ("mdt_bets", "bet"),
+}
+
 # Tables whose only candidate key is nullable, so the entity keys off SQLite's
 # implicit `rowid` instead. `accounts.login` is NULL on a dashboard master
 # account (PLAN_DASHBOARD.md §15) and therefore cannot be a primary key; the
@@ -163,6 +176,8 @@ def normalize(path: Path, db: sqlite3.Connection) -> str:
 
         if (table, col) in FLOAT_OVERRIDES:
             new_ty = "f64"
+        elif (table, col) in INT64_OVERRIDES:
+            new_ty = "i64"
         elif (table, col) in BINARY_OVERRIDES:
             new_ty = "Vec<u8>"
         else:

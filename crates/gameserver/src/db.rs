@@ -5,6 +5,10 @@
 
 use std::thread::JoinHandle;
 
+use models::entity::{account_gsdata, account_premium, lottery, mdt_bets, mdt_history};
+use models::sea_orm::{
+    ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, QueryFilter, QueryOrder,
+};
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
 
@@ -1266,15 +1270,17 @@ pub fn spawn(
 /// `characters` and `accounts` are the two tables the server cannot run without
 /// and that no other database on the box would have together, which makes them
 /// a cheap and unambiguous fingerprint.
-async fn verify_schema(pool: &sqlx::SqlitePool) -> Result<(), String> {
+async fn verify_schema(db: &DatabaseConnection) -> Result<(), String> {
     let mut missing = Vec::new();
     for table in ["characters", "accounts"] {
-        let found: Option<(String,)> =
-            sqlx::query_as("SELECT name FROM sqlite_master WHERE type='table' AND name = ?")
-                .bind(table)
-                .fetch_optional(pool)
-                .await
-                .map_err(|e| format!("cannot inspect database schema: {e}"))?;
+        let found = db
+            .query_one_raw(models::sea_orm::Statement::from_sql_and_values(
+                models::sea_orm::DatabaseBackend::Sqlite,
+                "SELECT name FROM sqlite_master WHERE type='table' AND name = ?",
+                [table.into()],
+            ))
+            .await
+            .map_err(|e| format!("cannot inspect database schema: {e}"))?;
         if found.is_none() {
             missing.push(table);
         }
@@ -1295,13 +1301,17 @@ async fn run(
     mut cmd_rx: CmdRx,
     event_tx: EventTx,
 ) {
-    let pool = match commons::db::init(&url, max_connections).await {
-        Ok(p) => p,
+    // The ORM handle is what new code uses; `pool` is the same connection pool
+    // underneath it, kept while the remaining hand-written queries are ported
+    // (docs/PLAN_ORM_MIGRATION.md §7). One pool, two views — never two pools.
+    let db = match commons::db::connect(&url, max_connections).await {
+        Ok(db) => db,
         Err(e) => {
             error!("DB thread: failed to open database: {e}");
             return;
         }
     };
+    let pool = db.get_sqlite_connection_pool().clone();
 
     // `create_if_missing(true)` means a wrong path does not fail — SQLite
     // happily makes an empty database, and the server then runs against it,
@@ -1312,7 +1322,7 @@ async fn run(
     // resolved against the executable's directory, so the database belongs
     // beside the binary — not in the datapack, and not in whatever directory
     // the unit file happened to start the process in.
-    if let Err(e) = verify_schema(&pool).await {
+    if let Err(e) = verify_schema(&db).await {
         error!(
             "DB thread: {e}\n  URL = {url}\n  relative paths resolve next to the executable, in {}\n\
              This is not the game database. Put it beside the binary (the same file the login \
@@ -1322,7 +1332,7 @@ async fn run(
         return;
     }
 
-    let mut next_id = load_next_id(&pool).await;
+    let mut next_id = load_next_id(&db).await;
 
     // Hand the game thread its initial runtime-id block unprompted (it can't
     // ask before it knows the DB thread is up; see `DbCommand::ReserveIds`).
@@ -1335,31 +1345,31 @@ async fn run(
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
     let _ = event_tx.send(DbEvent::PremiumLoaded {
-        entries: load_premium(&pool).await,
+        entries: load_premium(&db).await,
     });
 
     // `SchemeBufferTable.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::BufferSchemesLoaded {
-        entries: load_buffer_schemes(&pool).await,
+        entries: load_buffer_schemes(&db).await,
     });
 
     // Last lottery round (Java `Lottery.startLottery`'s restore) + the drawn
     // rounds cache — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::LotteryLoaded {
-        row: load_lottery(&pool).await,
-        draws: load_lottery_draws(&pool).await,
+        row: load_lottery(&db).await,
+        draws: load_lottery_draws(&db).await,
     });
 
     // Monster Race history + lane bets (Java `MonsterRace` constructor) —
     // likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::MdtLoaded {
-        history: load_mdt_history(&pool).await,
-        bets: load_mdt_bets(&pool).await,
+        history: load_mdt_history(&db).await,
+        bets: load_mdt_bets(&db).await,
     });
 
     // Item auctions + bids (Java `ItemAuctionManager` boot load, G30.5) —
     // likewise unprompted, before `ClansLoaded`.
-    let (next_auction_id, auctions) = load_item_auctions(&pool).await;
+    let (next_auction_id, auctions) = load_item_auctions(&db).await;
     let _ = event_tx.send(DbEvent::ItemAuctionsLoaded {
         next_auction_id,
         auctions,
@@ -1367,16 +1377,16 @@ async fn run(
 
     // Mail + attachments + the offline name->id table (Java `MailManager.load`
     // and `CharInfoTable`, G30) — likewise unprompted, before `ClansLoaded`.
-    let (messages, attachments) = load_mail(&pool).await;
+    let (messages, attachments) = load_mail(&db).await;
     let _ = event_tx.send(DbEvent::MailLoaded {
         messages,
         attachments,
-        char_ids_by_name: load_char_ids_by_name(&pool).await,
+        char_ids_by_name: load_char_ids_by_name(&db).await,
     });
 
     // Active punishments (Java `PunishmentManager.load`, G31) — likewise
     // unprompted, before `ClansLoaded`.
-    let (next_punishment_id, punishments) = load_punishments(&pool).await;
+    let (next_punishment_id, punishments) = load_punishments(&db).await;
     let _ = event_tx.send(DbEvent::PunishmentsLoaded {
         next_id: next_punishment_id,
         punishments,
@@ -1384,90 +1394,90 @@ async fn run(
 
     // `FavoriteBoard` favorites cache — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::FavoritesLoaded {
-        entries: load_favorites(&pool).await,
+        entries: load_favorites(&db).await,
     });
 
     // `DBSpawnManager.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::NpcRespawnsLoaded {
-        rows: load_npc_respawns(&pool).await,
+        rows: load_npc_respawns(&db).await,
     });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::GrandBossesLoaded {
-        bosses: load_grandboss_data(&pool).await,
+        bosses: load_grandboss_data(&db).await,
     });
 
     // `CursedWeaponsManager.restore` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::CursedWeaponsLoaded {
-        rows: load_cursed_weapons(&pool).await,
+        rows: load_cursed_weapons(&db).await,
     });
 
     // `CastleManager.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::CastlesLoaded {
-        castles: load_castles(&pool).await,
+        castles: load_castles(&db).await,
     });
 
     // `Siege.loadSiegeClan` — after castles (the game loop keys sieges off them).
     let _ = event_tx.send(DbEvent::SiegesLoaded {
-        rows: load_siege_clans(&pool).await,
+        rows: load_siege_clans(&db).await,
     });
 
     // `CastleManorManager.loadDb` — the manor production/procure state.
     let _ = event_tx.send(DbEvent::ManorLoaded {
-        production: load_manor_production(&pool).await,
-        procure: load_manor_procure(&pool).await,
+        production: load_manor_production(&db).await,
+        procure: load_manor_procure(&db).await,
     });
 
     // Clan-hall ownership — overlaid onto the static hall defs at boot.
     let _ = event_tx.send(DbEvent::ClanHallsLoaded {
-        rows: load_clan_hall_owners(&pool).await,
+        rows: load_clan_hall_owners(&db).await,
     });
 
     // Clan-hall auction bids — restored so escrowed adena stays accounted for.
     let _ = event_tx.send(DbEvent::ClanHallBiddersLoaded {
-        rows: load_clan_hall_bidders(&pool).await,
+        rows: load_clan_hall_bidders(&db).await,
     });
 
     // Active clan-hall function upgrades.
     let _ = event_tx.send(DbEvent::ResidenceFunctionsLoaded {
-        rows: load_residence_functions(&pool).await,
+        rows: load_residence_functions(&db).await,
     });
 
     // `Olympiad.load` — the period/cycle row + every noble's record.
-    let _ = event_tx.send(load_olympiad(&pool).await);
+    let _ = event_tx.send(load_olympiad(&db).await);
 
     // `Hero.init` — the currently-crowned heroes (`played = 1`) + their diaries.
     let _ = event_tx.send(DbEvent::HeroesLoaded {
-        heroes: load_heroes(&pool).await,
-        diary: load_hero_diary(&pool).await,
+        heroes: load_heroes(&db).await,
+        diary: load_hero_diary(&db).await,
     });
 
     // `SiegeGuardManager` — the stationed siege guards, spawned at siege start.
     let _ = event_tx.send(DbEvent::SiegeGuardsLoaded {
-        guards: load_siege_guards(&pool).await,
+        guards: load_siege_guards(&db).await,
     });
 
     // `ClanTable`'s boot restore, likewise unprompted.
     let _ = event_tx.send(DbEvent::ClansLoaded {
-        clans: load_clans(&pool).await,
-        wars: load_clan_wars(&pool).await,
-        crests: load_crests(&pool).await,
-        recruit_clans: load_recruit_clans(&pool).await,
-        recruit_waiting: load_recruit_waiting(&pool).await,
-        recruit_applicants: load_recruit_applicants(&pool).await,
+        clans: load_clans(&db).await,
+        wars: load_clan_wars(&db).await,
+        crests: load_crests(&db).await,
+        recruit_clans: load_recruit_clans(&db).await,
+        recruit_waiting: load_recruit_waiting(&db).await,
+        recruit_applicants: load_recruit_applicants(&db).await,
     });
 
     while let Some(cmd) = cmd_rx.recv().await {
         match cmd {
             DbCommand::LoadCharacters { client_id, account } => {
-                reload(&pool, &event_tx, client_id, account, true).await;
+                reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::CreateCharacter { client_id, data } => {
-                let result = create_character(&pool, &mut next_id, max_characters, &data).await;
+                let result = create_character(&db, &mut next_id, max_characters, &data).await;
                 let _ = event_tx.send(DbEvent::CharacterCreated { client_id, result });
                 if result == CreateResult::Ok {
                     // Java caches the list after creation but does not re-send it.
-                    reload(&pool, &event_tx, client_id, data.account, false).await;
+                    reload(&db, &event_tx, client_id, data.account, false).await;
                 }
             }
             DbCommand::MarkDelete {
@@ -1483,7 +1493,7 @@ async fn run(
                         .bind(char_id),
                 )
                 .await;
-                reload(&pool, &event_tx, client_id, account, true).await;
+                reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::RestoreCharacter {
                 client_id,
@@ -1495,10 +1505,10 @@ async fn run(
                     sqlx::query("UPDATE characters SET deletetime=0 WHERE charId=?").bind(char_id),
                 )
                 .await;
-                reload(&pool, &event_tx, client_id, account, true).await;
+                reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
-                delete_char(&pool, char_id).await;
+                delete_char(&db, char_id).await;
             }
             DbCommand::StoreGrandBoss { boss } => {
                 let _ = sqlx::query(
@@ -1524,7 +1534,7 @@ async fn run(
                     .await;
             }
             DbCommand::CountCharacters { account } => {
-                let (count, del_times) = count_characters(&pool, &account).await;
+                let (count, del_times) = count_characters(&db, &account).await;
                 let _ = event_tx.send(DbEvent::CharCount {
                     account,
                     count,
@@ -1534,7 +1544,7 @@ async fn run(
             DbCommand::CheckNameCreatable { client_id, name } => {
                 // RequestCharacterNameCreatable: NAME_ALREADY_EXISTS=2,
                 // INVALID_LENGTH=3, creatable=-1 (validity was checked already).
-                let result = if name_exists(&pool, &name).await {
+                let result = if name_exists(&db, &name).await {
                     2
                 } else if name.chars().count() > 16 {
                     3
@@ -1544,7 +1554,7 @@ async fn run(
                 let _ = event_tx.send(DbEvent::NameCreatable { client_id, result });
             }
             DbCommand::StorePlayer { save } => {
-                store_player(&pool, &save).await;
+                store_player(&db, &save).await;
             }
             DbCommand::ReserveIds { count } => {
                 let _ = event_tx.send(DbEvent::IdBlock {
@@ -2939,13 +2949,13 @@ async fn run(
 }
 
 async fn reload(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     event_tx: &EventTx,
     client_id: u32,
     account: String,
     send_list: bool,
 ) {
-    let chars = load_characters(pool, &account).await;
+    let chars = load_characters(db, &account).await;
     let _ = event_tx.send(DbEvent::CharactersLoaded {
         client_id,
         account,
@@ -2958,110 +2968,101 @@ async fn reload(
 /// `AccountVariables.restoreMe`). Returns `None` on a missing row or any error
 /// (e.g. the table absent in a minimal test schema), mirroring Java's
 /// catch-and-default-empty behaviour.
-async fn load_account_var(pool: &SqlitePool, account: &str, var: &str) -> Option<String> {
-    sqlx::query_scalar::<_, String>(
-        "SELECT value FROM account_gsdata WHERE account_name=? AND var=?",
-    )
-    .bind(account)
-    .bind(var)
-    .fetch_optional(pool)
-    .await
-    .ok()
-    .flatten()
+async fn load_account_var(db: &DatabaseConnection, account: &str, var: &str) -> Option<String> {
+    account_gsdata::Entity::find_by_id((account.to_string(), var.to_string()))
+        .one(db)
+        .await
+        .ok()
+        .flatten()
+        .map(|row| row.value)
 }
 
 /// Best-effort boot load of the whole `account_premium` table (Java
 /// `PremiumManager` has no table-wide load; this port caches all rows so the
 /// admin `//premium_*` commands work for offline accounts). Missing table → empty.
-async fn load_premium(pool: &SqlitePool) -> Vec<(String, i64)> {
-    match sqlx::query("SELECT account_name, enddate FROM account_premium")
-        .fetch_all(pool)
+async fn load_premium(db: &DatabaseConnection) -> Vec<(String, i64)> {
+    account_premium::Entity::find()
+        .all(db)
         .await
-    {
-        Ok(rows) => rows
-            .iter()
-            .map(|r| (gets(r, "account_name").to_lowercase(), geti(r, "enddate")))
-            .collect(),
-        Err(_) => Vec::new(),
-    }
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| (row.account_name.to_lowercase(), row.enddate))
+        .collect()
 }
 
 /// The most recent lottery round (Java `Lottery.SELECT_LAST_LOTTERY`). `None`
 /// when the table is empty or unavailable.
-async fn load_lottery(pool: &SqlitePool) -> Option<crate::model::lottery::LotteryRow> {
-    let row = sqlx::query(
-        "SELECT idnr, prize, newprize, enddate, finished FROM lottery WHERE id = 1 ORDER BY idnr DESC LIMIT 1",
-    )
-    .fetch_optional(pool)
-    .await
-    .ok()
-    .flatten()?;
+async fn load_lottery(db: &DatabaseConnection) -> Option<crate::model::lottery::LotteryRow> {
+    let row = lottery::Entity::find()
+        .filter(lottery::Column::Id.eq(1))
+        .order_by_desc(lottery::Column::Idnr)
+        .one(db)
+        .await
+        .ok()
+        .flatten()?;
     Some(crate::model::lottery::LotteryRow {
-        idnr: geti(&row, "idnr") as i32,
-        prize: geti(&row, "prize"),
-        newprize: geti(&row, "newprize"),
-        enddate: geti(&row, "enddate"),
-        finished: geti(&row, "finished") == 1,
+        idnr: row.idnr,
+        prize: row.prize,
+        newprize: row.newprize,
+        enddate: row.enddate,
+        finished: row.finished == 1,
     })
 }
 
 /// Every finished lottery round's draw result (Java re-queries per
 /// `checkTicket`; loaded once at boot into the game-thread cache).
-async fn load_lottery_draws(pool: &SqlitePool) -> Vec<(i32, crate::model::lottery::DrawnRound)> {
-    sqlx::query(
-        "SELECT idnr, number1, number2, prize1, prize2, prize3 FROM lottery WHERE id = 1 AND finished = 1",
-    )
-    .fetch_all(pool)
-    .await
-    .map(|rs| {
-        rs.iter()
-            .map(|r| {
-                (
-                    geti(r, "idnr") as i32,
-                    crate::model::lottery::DrawnRound {
-                        number1: geti(r, "number1") as i32,
-                        number2: geti(r, "number2") as i32,
-                        prize1: geti(r, "prize1"),
-                        prize2: geti(r, "prize2"),
-                        prize3: geti(r, "prize3"),
-                    },
-                )
-            })
-            .collect()
-    })
-    .unwrap_or_default()
+async fn load_lottery_draws(
+    db: &DatabaseConnection,
+) -> Vec<(i32, crate::model::lottery::DrawnRound)> {
+    lottery::Entity::find()
+        .filter(lottery::Column::Id.eq(1))
+        .filter(lottery::Column::Finished.eq(1))
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|row| {
+            (
+                row.idnr,
+                crate::model::lottery::DrawnRound {
+                    number1: row.number1,
+                    number2: row.number2,
+                    prize1: row.prize1,
+                    prize2: row.prize2,
+                    prize3: row.prize3,
+                },
+            )
+        })
+        .collect()
 }
 
 /// Every Monster Race history record, oldest first (Java `MonsterRace
 /// .loadHistory` — also fixes the current race number by the row count).
-async fn load_mdt_history(pool: &SqlitePool) -> Vec<crate::model::monster_race::HistoryInfo> {
-    sqlx::query("SELECT race_id, first, second, odd_rate FROM mdt_history ORDER BY race_id ASC")
-        .fetch_all(pool)
+async fn load_mdt_history(db: &DatabaseConnection) -> Vec<crate::model::monster_race::HistoryInfo> {
+    mdt_history::Entity::find()
+        .order_by_asc(mdt_history::Column::RaceId)
+        .all(db)
         .await
-        .map(|rs| {
-            rs.iter()
-                .map(|r| crate::model::monster_race::HistoryInfo {
-                    race_id: geti(r, "race_id") as i32,
-                    first: geti(r, "first") as i32,
-                    second: geti(r, "second") as i32,
-                    odd_rate: getf(r, "odd_rate"),
-                })
-                .collect()
-        })
         .unwrap_or_default()
+        .into_iter()
+        .map(|row| crate::model::monster_race::HistoryInfo {
+            race_id: row.race_id,
+            first: row.first.unwrap_or(0),
+            second: row.second.unwrap_or(0),
+            odd_rate: row.odd_rate.unwrap_or(0.0),
+        })
+        .collect()
 }
 
 /// The current lane bets (Java `MonsterRace.loadBets`): `(lane_id, bet)`.
-async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
-    sqlx::query("SELECT lane_id, bet FROM mdt_bets")
-        .fetch_all(pool)
+async fn load_mdt_bets(db: &DatabaseConnection) -> Vec<(i32, i64)> {
+    mdt_bets::Entity::find()
+        .all(db)
         .await
-        .map(|rs| {
-            rs.iter()
-                .map(|r| (geti(r, "lane_id") as i32, geti(r, "bet")))
-                .collect()
-        })
         .unwrap_or_default()
+        .into_iter()
+        .map(|row| (row.lane_id, row.bet.unwrap_or(0)))
+        .collect()
 }
 
 /// Every persisted item auction + its bids, plus the next auction id (Java
@@ -3070,11 +3071,14 @@ async fn load_mdt_bets(pool: &SqlitePool) -> Vec<(i32, i64)> {
 /// Java `MailManager.load` + the `loc = 'MAIL'` item rows, in one pass.
 /// Tolerates the tables being absent (a minimal test schema has neither).
 async fn load_mail(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
 ) -> (
     Vec<crate::model::mail::Message>,
     Vec<(i32, Vec<crate::character::ItemRow>)>,
 ) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     use crate::model::mail::{MailType, Message};
 
     let truthy = |v: String| v.eq_ignore_ascii_case("true") || v == "1";
@@ -3142,7 +3146,10 @@ async fn load_mail(
 /// Java `CharInfoTable` — the offline character name -> id table. Mail is
 /// addressed by name to characters who need not be online; nothing else in the
 /// port needs this, so it is loaded once and maintained on creation/deletion.
-async fn load_char_ids_by_name(pool: &SqlitePool) -> Vec<(String, i32)> {
+async fn load_char_ids_by_name(db: &DatabaseConnection) -> Vec<(String, i32)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     sqlx::query("SELECT charId, char_name FROM characters")
         .fetch_all(pool)
         .await
@@ -3158,8 +3165,11 @@ async fn load_char_ids_by_name(pool: &SqlitePool) -> Vec<(String, i32)> {
 }
 
 async fn load_item_auctions(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
 ) -> (i32, Vec<crate::model::item_auction::ItemAuction>) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     use crate::model::item_auction::{AuctionState, ItemAuction, ItemAuctionBid};
 
     let mut auctions: Vec<ItemAuction> = sqlx::query(
@@ -3208,7 +3218,12 @@ async fn load_item_auctions(
 /// have already expired (Java skips them, counting them as "expired"). Returns
 /// `(next_id, rows)` — `next_id` seeds the game-thread id allocator. Fail-open
 /// (empty) if the table is absent, like a minimal test schema.
-async fn load_punishments(pool: &SqlitePool) -> (i32, Vec<crate::model::punishment::Punishment>) {
+async fn load_punishments(
+    db: &DatabaseConnection,
+) -> (i32, Vec<crate::model::punishment::Punishment>) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     use crate::model::punishment::{Punishment, PunishmentAffect, PunishmentType};
 
     let now = commons::util::now_millis();
@@ -3268,7 +3283,10 @@ pub struct NpcRespawnRow {
 }
 
 /// `RESTORE_CHAR_SUBCLASSES` — a character's subclass slots.
-async fn load_subclasses(pool: &SqlitePool, char_id: i32) -> Vec<crate::model::SubClass> {
+async fn load_subclasses(db: &DatabaseConnection, char_id: i32) -> Vec<crate::model::SubClass> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     match sqlx::query(
         "SELECT class_id, exp, sp, level, class_index FROM character_subclasses \
          WHERE charId=? ORDER BY class_index",
@@ -3293,7 +3311,10 @@ async fn load_subclasses(pool: &SqlitePool, char_id: i32) -> Vec<crate::model::S
 
 /// Boot load of the whole `npc_respawns` table (Java `DBSpawnManager.load`).
 /// Missing table → empty, like the other boot loads.
-async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
+async fn load_npc_respawns(db: &DatabaseConnection) -> Vec<NpcRespawnRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     match sqlx::query(
         "SELECT id, x, y, z, heading, respawnTime, currentHp, currentMp FROM npc_respawns",
     )
@@ -3321,7 +3342,10 @@ async fn load_npc_respawns(pool: &SqlitePool) -> Vec<NpcRespawnRow> {
 /// `skills` is stored comma-joined; parse it here, drop empties. Availability
 /// filtering (skills still in the buffer table) happens on the game thread,
 /// where the datapack lives. Missing table → empty.
-async fn load_buffer_schemes(pool: &SqlitePool) -> Vec<(i32, String, Vec<i32>)> {
+async fn load_buffer_schemes(db: &DatabaseConnection) -> Vec<(i32, String, Vec<i32>)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     match sqlx::query("SELECT object_id, scheme_name, skills FROM buffer_schemes")
         .fetch_all(pool)
         .await
@@ -3344,7 +3368,10 @@ async fn load_buffer_schemes(pool: &SqlitePool) -> Vec<(i32, String, Vec<i32>)> 
 /// per-player on `_bbsgetfav`; this port caches all rows at boot like the
 /// buffer schemes). `ORDER BY favAddDate DESC` matches Java's list order.
 /// Missing table → empty.
-async fn load_favorites(pool: &SqlitePool) -> Vec<(i32, i32, String, String, String)> {
+async fn load_favorites(db: &DatabaseConnection) -> Vec<(i32, i32, String, String, String)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     match sqlx::query("SELECT playerId, favId, favTitle, favBypass, favAddDate FROM bbs_favorites ORDER BY favAddDate DESC")
         .fetch_all(pool)
         .await
@@ -3369,7 +3396,10 @@ async fn load_favorites(pool: &SqlitePool) -> Vec<(i32, i32, String, String, Str
 /// world-object type, so the next free id must clear the high-water mark of
 /// every table that stores one — not just `characters` (a fresh id here that
 /// collides with an existing `items.object_id` fails its INSERT silently).
-async fn load_next_id(pool: &SqlitePool) -> i64 {
+async fn load_next_id(db: &DatabaseConnection) -> i64 {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let max_char: i64 = sqlx::query_scalar("SELECT COALESCE(MAX(charId), 0) FROM characters")
         .fetch_one(pool)
         .await
@@ -3382,7 +3412,10 @@ async fn load_next_id(pool: &SqlitePool) -> i64 {
 }
 
 /// `loadCharacterSelectInfo`: rows for an account, expired deletions purged.
-async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
+async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows =
         match sqlx::query("SELECT * FROM characters WHERE account_name=? ORDER BY createDate")
             .bind(account)
@@ -3398,7 +3431,7 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
 
     // Account-scoped prime (NCoin) balance — same for every char on the
     // account. Best-effort: absent table/row → 0 (Java `restoreMe` catch).
-    let prime_points = load_account_var(pool, account, "PRIME_POINTS")
+    let prime_points = load_account_var(db, account, "PRIME_POINTS")
         .await
         .and_then(|v| v.parse::<i32>().ok())
         .unwrap_or(0);
@@ -3409,12 +3442,12 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
         let delete_time = geti(row, "deletetime");
         let object_id = geti(row, "charId") as i32;
         if delete_time > 0 && now > delete_time {
-            delete_char(pool, object_id).await; // restoreChar: purge expired
+            delete_char(db, object_id).await; // restoreChar: purge expired
             continue;
         }
-        let items = load_items(pool, object_id).await;
-        let skills_by_index = load_skills(pool, object_id).await;
-        let subclasses = load_subclasses(pool, object_id).await;
+        let items = load_items(db, object_id).await;
+        let skills_by_index = load_skills(db, object_id).await;
+        let subclasses = load_subclasses(db, object_id).await;
         let class_id_now = geti(row, "classid") as i32;
         // Java keeps the *active* class in `characters.classid`; the index is
         // whichever subclass slot carries it (0 when it's the base class).
@@ -3423,18 +3456,18 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
             .find(|s| s.class_id == class_id_now)
             .map(|s| s.class_index)
             .unwrap_or(0);
-        let hennas_by_index = load_hennas(pool, object_id).await;
-        let recipe_book = load_recipe_book(pool, object_id).await;
-        let variables = load_variables(pool, object_id).await;
-        let pets = load_pets(pool, object_id).await;
-        let summons = load_summons(pool, object_id).await;
-        let shortcuts_by_index = load_shortcuts(pool, object_id).await;
-        let macros = load_macros(pool, object_id).await;
-        let friends = load_friends(pool, object_id).await;
-        let quests = load_quests(pool, object_id).await;
-        let skill_reuses = load_skill_reuses(pool, object_id, active_index).await;
-        let skill_buffs = load_skill_buffs(pool, object_id, active_index).await;
-        let (rec_have, rec_left) = load_reco_bonus(pool, object_id).await;
+        let hennas_by_index = load_hennas(db, object_id).await;
+        let recipe_book = load_recipe_book(db, object_id).await;
+        let variables = load_variables(db, object_id).await;
+        let pets = load_pets(db, object_id).await;
+        let summons = load_summons(db, object_id).await;
+        let shortcuts_by_index = load_shortcuts(db, object_id).await;
+        let macros = load_macros(db, object_id).await;
+        let friends = load_friends(db, object_id).await;
+        let quests = load_quests(db, object_id).await;
+        let skill_reuses = load_skill_reuses(db, object_id, active_index).await;
+        let skill_buffs = load_skill_buffs(db, object_id, active_index).await;
+        let (rec_have, rec_left) = load_reco_bonus(db, object_id).await;
         out.push(CharData {
             object_id,
             name: gets(row, "char_name"),
@@ -3520,9 +3553,12 @@ async fn load_characters(pool: &SqlitePool, account: &str) -> Vec<CharData> {
 /// called for every row shown in `CharSelectionInfo` — same treatment as
 /// `load_items`).
 async fn load_skills(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<(i32, i32, i32)>> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT skill_id, skill_level, skill_sub_level, class_index FROM character_skills WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
@@ -3543,9 +3579,12 @@ async fn load_skills(
 /// A character's `character_hennas` rows (Java `Player.restoreHenna`) as
 /// `(slot, symbol_id)`. `class_index = 0` — no subclasses on this dist.
 async fn load_hennas(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<(i32, i32)>> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows =
         sqlx::query("SELECT slot, symbol_id, class_index FROM character_hennas WHERE charId=?")
             .bind(owner_id)
@@ -3568,7 +3607,10 @@ async fn load_hennas(
 /// as recipe-*list* ids. The dwarven/common split (the `type` column) is
 /// re-derived from `RecipeData` on the game thread, so the DB layer just
 /// returns the ids. `classIndex = 0` — no subclasses on this dist.
-async fn load_recipe_book(pool: &SqlitePool, owner_id: i32) -> Vec<i32> {
+async fn load_recipe_book(db: &DatabaseConnection, owner_id: i32) -> Vec<i32> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT id FROM character_recipebook WHERE charId=? AND classIndex=0")
         .bind(owner_id)
         .fetch_all(pool)
@@ -3580,7 +3622,10 @@ async fn load_recipe_book(pool: &SqlitePool, owner_id: i32) -> Vec<i32> {
 /// A character's `character_variables` rows (Java `PlayerVariables.restoreMe`)
 /// as `(var, val)` pairs. Values stay strings — the component parses on read,
 /// like Java's `StatSet` getters.
-async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String)> {
+async fn load_variables(db: &DatabaseConnection, owner_id: i32) -> Vec<(String, String)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT var, val FROM character_variables WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
@@ -3597,7 +3642,10 @@ async fn load_variables(pool: &SqlitePool, owner_id: i32) -> Vec<(String, String
 /// thread and costs one extra query per login.
 /// The servitor this character had out at logout, if any (Java
 /// `CharSummonTable.LOAD_SUMMON`).
-async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
+async fn load_summons(db: &DatabaseConnection, owner_id: i32) -> Vec<SummonRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT summonSkillId, curHp, curMp, time FROM character_summons WHERE ownerId=?",
     )
@@ -3613,7 +3661,7 @@ async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
             cur_hp: geti(r, "curHp") as i32,
             cur_mp: geti(r, "curMp") as i32,
             remaining_secs: geti(r, "time") as i32,
-            buffs: load_summon_buffs(pool, owner_id, summon_skill_id).await,
+            buffs: load_summon_buffs(db, owner_id, summon_skill_id).await,
         });
     }
     out
@@ -3623,10 +3671,13 @@ async fn load_summons(pool: &SqlitePool, owner_id: i32) -> Vec<SummonRow> {
 /// `buff_index` so they come back in the order they were applied — which
 /// matters for the buff-slot cap.
 async fn load_summon_buffs(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
     summon_skill_id: i32,
 ) -> Vec<SkillBuffRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, remaining_time FROM character_summon_skills_save \
          WHERE ownerId=? AND ownerClassIndex=0 AND summonSkillId=? ORDER BY buff_index ASC",
@@ -3645,7 +3696,10 @@ async fn load_summon_buffs(
         .collect()
 }
 
-async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
+async fn load_pets(db: &DatabaseConnection, owner_id: i32) -> Vec<PetRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT item_obj_id, name, level, curHp, curMp, exp, sp, fed, restore FROM pets WHERE ownerId=?",
     )
@@ -3674,10 +3728,13 @@ async fn load_pets(pool: &SqlitePool, owner_id: i32) -> Vec<PetRow> {
 /// converts it to a game tick when the character enters the world. Buff rows
 /// (restore_type 0) are loaded separately by [`load_skill_buffs`].
 async fn load_skill_reuses(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
     class_index: i32,
 ) -> Vec<SkillReuseRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let now = now_millis();
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, reuse_delay, systime FROM character_skills_save \
@@ -3710,7 +3767,14 @@ async fn load_skill_reuses(
 /// is offline, so there is no elapsed time to compare against. Rows with a
 /// non-positive remaining time are dropped since they'd restore an
 /// already-dead buff.
-async fn load_skill_buffs(pool: &SqlitePool, owner_id: i32, class_index: i32) -> Vec<SkillBuffRow> {
+async fn load_skill_buffs(
+    db: &DatabaseConnection,
+    owner_id: i32,
+    class_index: i32,
+) -> Vec<SkillBuffRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT skill_id, skill_level, remaining_time FROM character_skills_save \
          WHERE charId=? AND class_index=? AND restore_type=0 ORDER BY buff_index ASC",
@@ -3736,7 +3800,10 @@ async fn load_skill_buffs(pool: &SqlitePool, owner_id: i32, class_index: i32) ->
 /// Returns `(rec_have, rec_left)`; `(0, 0)` when the row is absent, matching
 /// Java's field defaults for a character whose `character_reco_bonus` row
 /// hasn't been written yet.
-async fn load_reco_bonus(pool: &SqlitePool, owner_id: i32) -> (i32, i32) {
+async fn load_reco_bonus(db: &DatabaseConnection, owner_id: i32) -> (i32, i32) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     match sqlx::query("SELECT rec_have, rec_left FROM character_reco_bonus WHERE charId=?")
         .bind(owner_id)
         .fetch_optional(pool)
@@ -3753,9 +3820,12 @@ async fn load_reco_bonus(pool: &SqlitePool, owner_id: i32) -> (i32, i32) {
 /// like Java. `shared_reuse_group` starts at the -1 default; `from_char`
 /// fills it for EtcItem shortcuts.
 async fn load_shortcuts(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<i32, Vec<crate::model::shortcut::Shortcut>> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT slot, page, type, shortcut_id, level, class_index FROM character_shortcuts WHERE charId=?")
         .bind(owner_id)
         .fetch_all(pool)
@@ -3782,7 +3852,10 @@ async fn load_shortcuts(
 /// A character's `character_friends` rows joined with each friend's
 /// character row — the name/level/class snapshot Java reads through
 /// `CharInfoTable` on demand (`relation`/`memo` unused).
-async fn load_friends(pool: &SqlitePool, owner_id: i32) -> Vec<crate::character::FriendInfo> {
+async fn load_friends(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::character::FriendInfo> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT f.friendId, c.char_name, c.level, c.classid FROM character_friends f \
          JOIN characters c ON c.charId = f.friendId WHERE f.charId=?",
@@ -3807,9 +3880,12 @@ async fn load_friends(pool: &SqlitePool, owner_id: i32) -> Vec<crate::character:
 /// state row are orphans — Java warns (or deletes with
 /// `AUTODELETE_INVALID_QUEST_DATA`); we drop them from the load.
 async fn load_quests(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     owner_id: i32,
 ) -> std::collections::HashMap<String, crate::model::quest::QuestState> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     use crate::model::quest::{QuestState, STATE_VAR, state};
     let rows = sqlx::query("SELECT name, var, value FROM character_quests WHERE charId=?")
         .bind(owner_id)
@@ -3839,7 +3915,10 @@ async fn load_quests(
 /// the datapack; here we just read the table.
 /// `Olympiad.load` — the single `olympiad_data` row (defaults if absent: cycle
 /// 1, period 0) plus every `olympiad_nobles` record.
-async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
+async fn load_olympiad(db: &DatabaseConnection) -> DbEvent {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let data = sqlx::query(
         "SELECT current_cycle, period, olympiad_end, validation_end, next_weekly_change \
          FROM olympiad_data WHERE id = 0",
@@ -3888,7 +3967,10 @@ async fn load_olympiad(pool: &SqlitePool) -> DbEvent {
 }
 
 /// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).
-async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
+async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     sqlx::query(
         "SELECT h.charId, h.class_id, h.count, h.message, c.char_name, c.clanid \
          FROM heroes h LEFT JOIN characters c ON c.charId = h.charId WHERE h.played = 1",
@@ -3910,7 +3992,10 @@ async fn load_heroes(pool: &SqlitePool) -> Vec<HeroRow> {
 
 /// Every hero-diary entry (Java `Hero.loadDiary` per hero, batched here into one
 /// query), oldest first: `(charId, time, action, param)`.
-async fn load_hero_diary(pool: &SqlitePool) -> Vec<(i32, i64, i8, i32)> {
+async fn load_hero_diary(db: &DatabaseConnection) -> Vec<(i32, i64, i8, i32)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     sqlx::query("SELECT charId, time, action, param FROM heroes_diary ORDER BY time ASC")
         .fetch_all(pool)
         .await
@@ -3927,7 +4012,10 @@ async fn load_hero_diary(pool: &SqlitePool) -> Vec<(i32, i64, i8, i32)> {
         .collect()
 }
 
-async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss::GrandBoss> {
+async fn load_grandboss_data(db: &DatabaseConnection) -> Vec<crate::model::grand_boss::GrandBoss> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT boss_id, loc_x, loc_y, loc_z, heading, respawn_time, currentHP, currentMP, status \
          FROM grandboss_data ORDER BY boss_id",
@@ -3951,7 +4039,10 @@ async fn load_grandboss_data(pool: &SqlitePool) -> Vec<crate::model::grand_boss:
 }
 
 /// `CursedWeaponsManager.restore`: every `cursed_weapons` state row.
-async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
+async fn load_cursed_weapons(db: &DatabaseConnection) -> Vec<CursedWeaponRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT itemId, charId, playerReputation, playerPkKills, nbKills, endTime FROM cursed_weapons",
     )
@@ -3974,7 +4065,10 @@ async fn load_cursed_weapons(pool: &SqlitePool) -> Vec<CursedWeaponRow> {
 /// from `characters WHERE clanid=?` (Java `Clan.restore`).
 /// The stationed siege guards (`castle_siege_guards WHERE isHired=0`) — the
 /// non-mercenary garrison spawned at siege start.
-async fn load_siege_guards(pool: &SqlitePool) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
+async fn load_siege_guards(db: &DatabaseConnection) -> Vec<(i32, crate::model::siege::SiegeSpawn)> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT castleId, npcId, x, y, z, heading FROM castle_siege_guards WHERE isHired=0",
     )
@@ -3998,7 +4092,10 @@ async fn load_siege_guards(pool: &SqlitePool) -> Vec<(i32, crate::model::siege::
 }
 
 /// `Siege.loadSiegeClan`: every `siege_clans` row.
-async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
+async fn load_siege_clans(db: &DatabaseConnection) -> Vec<SiegeClanRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT castle_id, clan_id, type FROM siege_clans")
         .fetch_all(pool)
         .await
@@ -4014,7 +4111,10 @@ async fn load_siege_clans(pool: &SqlitePool) -> Vec<SiegeClanRow> {
 
 /// `CastleManorManager.loadDb`: the `castle_manor_production` rows (seeds the
 /// manor sells). Missing table → empty (the manor is simply unset).
-async fn load_manor_production(pool: &SqlitePool) -> Vec<ManorProductionRow> {
+async fn load_manor_production(db: &DatabaseConnection) -> Vec<ManorProductionRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT castle_id, seed_id, amount, start_amount, price, next_period \
          FROM castle_manor_production",
@@ -4036,7 +4136,10 @@ async fn load_manor_production(pool: &SqlitePool) -> Vec<ManorProductionRow> {
 
 /// `CastleManorManager.loadDb`: the `castle_manor_procure` rows (crops the manor
 /// buys). Missing table → empty.
-async fn load_manor_procure(pool: &SqlitePool) -> Vec<ManorProcureRow> {
+async fn load_manor_procure(db: &DatabaseConnection) -> Vec<ManorProcureRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT castle_id, crop_id, amount, start_amount, price, reward_type, next_period \
          FROM castle_manor_procure",
@@ -4058,7 +4161,10 @@ async fn load_manor_procure(pool: &SqlitePool) -> Vec<ManorProcureRow> {
 }
 
 /// The `clanhall` table — persisted hall ownership (id → owner/paidUntil).
-async fn load_clan_hall_owners(pool: &SqlitePool) -> Vec<ClanHallRow> {
+async fn load_clan_hall_owners(db: &DatabaseConnection) -> Vec<ClanHallRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT id, ownerId, paidUntil FROM clanhall")
         .fetch_all(pool)
         .await
@@ -4073,7 +4179,10 @@ async fn load_clan_hall_owners(pool: &SqlitePool) -> Vec<ClanHallRow> {
 }
 
 /// The `clanhall_auctions_bidders` table — the live auction bids.
-async fn load_clan_hall_bidders(pool: &SqlitePool) -> Vec<ClanHallBidRow> {
+async fn load_clan_hall_bidders(db: &DatabaseConnection) -> Vec<ClanHallBidRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows =
         sqlx::query("SELECT clanHallId, clanId, bid, bidTime FROM clanhall_auctions_bidders")
             .fetch_all(pool)
@@ -4090,7 +4199,10 @@ async fn load_clan_hall_bidders(pool: &SqlitePool) -> Vec<ClanHallBidRow> {
 }
 
 /// The `residence_functions` table — active hall function upgrades.
-async fn load_residence_functions(pool: &SqlitePool) -> Vec<ResidenceFunctionRow> {
+async fn load_residence_functions(db: &DatabaseConnection) -> Vec<ResidenceFunctionRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT id, level, expiration, residenceId FROM residence_functions")
         .fetch_all(pool)
         .await
@@ -4106,7 +4218,10 @@ async fn load_residence_functions(pool: &SqlitePool) -> Vec<ResidenceFunctionRow
 }
 
 /// `CastleManager.load`: every `castle` row (id/name/side).
-async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
+async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Castle> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT id, name, side, ticketBuyCount, regTimeOver, siegeDate FROM castle ORDER BY id",
     )
@@ -4126,7 +4241,10 @@ async fn load_castles(pool: &SqlitePool) -> Vec<crate::model::castle::Castle> {
         .collect()
 }
 
-async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
+async fn load_clans(db: &DatabaseConnection) -> Vec<crate::model::clan::Clan> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let clan_rows = sqlx::query("SELECT clan_id, clan_name, clan_level, reputation_score, hasCastle, blood_alliance_count, leader_id, char_penalty_expiry_time, dissolving_expiry_time, new_leader_id, ally_id, ally_name, ally_penalty_expiry_time, ally_penalty_type, crest_id, crest_large_id, ally_crest_id FROM clan_data")
         .fetch_all(pool)
         .await
@@ -4140,7 +4258,7 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
             .await
             .unwrap_or_default();
         // Clan warehouse contents (`owner_id = clan_id`, `loc = "CLANWH"`).
-        let wh_rows = load_items(pool, clan_id).await;
+        let wh_rows = load_items(db, clan_id).await;
         // Clan skills (Java `Clan.restoreSkills`) — the main-pledge set
         // (`sub_pledge_id = -2`); sub-unit skills aren't modelled, so other
         // sub_pledge ids are ignored. Missing table → empty (graceful).
@@ -4229,7 +4347,10 @@ async fn load_clans(pool: &SqlitePool) -> Vec<crate::model::clan::Clan> {
 
 /// A character's `character_macroses` rows (Java `MacroList.restoreMe`),
 /// commands decoded from the `type,d1,d2[,cmd];…` column encoding.
-async fn load_macros(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
+async fn load_macros(db: &DatabaseConnection, owner_id: i32) -> Vec<crate::model::shortcut::Macro> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT id, icon, name, descr, acronym, commands FROM character_macroses WHERE charId=?",
     )
@@ -4250,7 +4371,7 @@ async fn load_macros(pool: &SqlitePool, owner_id: i32) -> Vec<crate::model::shor
 }
 
 async fn upsert_shortcut(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     char_id: i32,
     slot: i32,
     page: i32,
@@ -4258,6 +4379,9 @@ async fn upsert_shortcut(
     shortcut_id: i32,
     level: i32,
 ) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     exec(
         pool,
         sqlx::query(
@@ -4276,7 +4400,10 @@ async fn upsert_shortcut(
     .await;
 }
 
-async fn upsert_macro(pool: &SqlitePool, char_id: i32, m: &crate::model::shortcut::Macro) {
+async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::shortcut::Macro) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     exec(
         pool,
         sqlx::query(
@@ -4299,7 +4426,10 @@ async fn upsert_macro(pool: &SqlitePool, char_id: i32, m: &crate::model::shortcu
 
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
 /// every row shown in `CharSelectionInfo`, not just the entered character).
-async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
+async fn load_items(db: &DatabaseConnection, owner_id: i32) -> Vec<ItemRow> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     // Java `PlayerInventory.restore` orders by `loc_data` so a client's saved
     // inventory arrangement (`RequestSaveInventoryOrder`) survives relog.
     let rows = sqlx::query("SELECT * FROM items WHERE owner_id=? ORDER BY loc_data")
@@ -4354,7 +4484,10 @@ async fn load_items(pool: &SqlitePool, owner_id: i32) -> Vec<ItemRow> {
 }
 
 /// Case-insensitive character-name existence check (`getIdByName`).
-async fn name_exists(pool: &SqlitePool, name: &str) -> bool {
+async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let n: i64 =
         sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE char_name=? COLLATE NOCASE")
             .bind(name)
@@ -4365,12 +4498,15 @@ async fn name_exists(pool: &SqlitePool, name: &str) -> bool {
 }
 
 async fn create_character(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
     next_id: &mut i64,
     max_characters: i32,
     data: &NewCharacter,
 ) -> CreateResult {
-    if name_exists(pool, &data.name).await {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
+    if name_exists(db, &data.name).await {
         return CreateResult::NameExists;
     }
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE account_name=?")
@@ -4488,7 +4624,7 @@ async fn create_character(
                     sc.id
                 };
                 upsert_shortcut(
-                    pool,
+                    db,
                     char_id as i32,
                     sc.slot,
                     sc.page,
@@ -4499,7 +4635,7 @@ async fn create_character(
                 .await;
             }
             for m in &data.macros {
-                upsert_macro(pool, char_id as i32, m).await;
+                upsert_macro(db, char_id as i32, m).await;
             }
             info!(
                 "Created character '{}' ({}) for account {} with {} initial skill(s), {} item(s).",
@@ -4531,8 +4667,8 @@ async fn create_character(
 /// longer in memory is gone from the DB after the flush. On any error the
 /// transaction is dropped (rolled back) and logged, leaving the last good save
 /// intact.
-async fn store_player(pool: &SqlitePool, s: &PlayerSaveData) {
-    if let Err(e) = store_player_tx(pool, s).await {
+async fn store_player(db: &DatabaseConnection, s: &PlayerSaveData) {
+    if let Err(e) = store_player_tx(db, s).await {
         error!(
             "store_player: flush for char {} failed (rolled back): {e}",
             s.base.object_id
@@ -4540,7 +4676,10 @@ async fn store_player(pool: &SqlitePool, s: &PlayerSaveData) {
     }
 }
 
-async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sqlx::Error> {
+async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<(), sqlx::Error> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let b = &s.base;
     let char_id = b.object_id;
     let mut tx = pool.begin().await?;
@@ -4955,7 +5094,10 @@ async fn store_player_tx(pool: &SqlitePool, s: &PlayerSaveData) -> Result<(), sq
 /// purged and excluded, so the login server-select count never exceeds the
 /// char-select list the client sees on entry (the port has no separate global
 /// expired-char sweep, so counting raw rows would over-report).
-async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {
+async fn count_characters(db: &DatabaseConnection, account: &str) -> (u8, Vec<i64>) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT charId, deletetime FROM characters WHERE account_name=?")
         .bind(account)
         .fetch_all(pool)
@@ -4967,7 +5109,7 @@ async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {
     for row in &rows {
         let delete_time = geti(row, "deletetime");
         if delete_time > 0 && now > delete_time {
-            delete_char(pool, geti(row, "charId") as i32).await; // restoreChar: purge expired
+            delete_char(db, geti(row, "charId") as i32).await; // restoreChar: purge expired
             continue;
         }
         count += 1;
@@ -4978,7 +5120,10 @@ async fn count_characters(pool: &SqlitePool, account: &str) -> (u8, Vec<i64>) {
     (count, del_times)
 }
 
-async fn delete_char(pool: &SqlitePool, char_id: i32) {
+async fn delete_char(db: &DatabaseConnection, char_id: i32) {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     exec(
         pool,
         sqlx::query("DELETE FROM characters WHERE charId=?").bind(char_id),
@@ -5012,7 +5157,10 @@ fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
 
 /// `ClanTable.restoreClanWars` — the `clan_wars` table (ids in the varchar
 /// columns, as Java writes them).
-async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
+async fn load_clan_wars(db: &DatabaseConnection) -> Vec<crate::model::clan::ClanWar> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state FROM clan_wars")
         .fetch_all(pool)
         .await
@@ -5032,7 +5180,10 @@ async fn load_clan_wars(pool: &SqlitePool) -> Vec<crate::model::clan::ClanWar> {
 }
 
 /// `CrestTable.load` — every stored crest bitmap (`crests` table).
-async fn load_crests(pool: &SqlitePool) -> Vec<crate::model::clan::Crest> {
+async fn load_crests(db: &DatabaseConnection) -> Vec<crate::model::clan::Crest> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT crest_id, data, type FROM crests")
         .fetch_all(pool)
         .await
@@ -5049,7 +5200,12 @@ async fn load_crests(pool: &SqlitePool) -> Vec<crate::model::clan::Crest> {
 /// `ClanEntryManager.load`'s `pledge_recruit` half (the boot-time removal of
 /// entries for clans that no longer exist is done by the caller, which
 /// already has the loaded clan set).
-async fn load_recruit_clans(pool: &SqlitePool) -> Vec<crate::model::clan_entry::PledgeRecruitInfo> {
+async fn load_recruit_clans(
+    db: &DatabaseConnection,
+) -> Vec<crate::model::clan_entry::PledgeRecruitInfo> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query("SELECT clan_id, karma, information, detailed_information, application_type, recruit_type FROM pledge_recruit")
         .fetch_all(pool)
         .await
@@ -5069,8 +5225,11 @@ async fn load_recruit_clans(pool: &SqlitePool) -> Vec<crate::model::clan_entry::
 /// `ClanEntryManager.load`'s `pledge_waiting_list` half (joined with
 /// `characters` for the display fields, as Java's own query does).
 async fn load_recruit_waiting(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeWaitingInfo> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT a.char_id, a.karma, b.base_class, b.level, b.char_name          FROM pledge_waiting_list AS a LEFT JOIN characters AS b ON a.char_id = b.charId",
     )
@@ -5090,8 +5249,11 @@ async fn load_recruit_waiting(
 
 /// `ClanEntryManager.load`'s `pledge_applicant` half.
 async fn load_recruit_applicants(
-    pool: &SqlitePool,
+    db: &DatabaseConnection,
 ) -> Vec<crate::model::clan_entry::PledgeApplicantInfo> {
+    // Not yet ported to the ORM: the same pool, borrowed back out of the
+    // connection (docs/PLAN_ORM_MIGRATION.md §7).
+    let pool = db.get_sqlite_connection_pool();
     let rows = sqlx::query(
         "SELECT a.charId, a.clanId, a.karma, a.message, b.base_class, b.level, b.char_name          FROM pledge_applicant AS a LEFT JOIN characters AS b ON a.charId = b.charId",
     )
