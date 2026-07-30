@@ -180,6 +180,8 @@ pub mod sm_ids {
     pub const YOU_NEED_S2_MORE_S1_S: i16 = 854;
     pub const YOU_FAILED_AT_MIXING_THE_ITEM: i16 = 719;
     pub const S1_DISAPPEARED: i16 = 302;
+    /// "Summoning your pet…" — the pet-manager evolve/restore flows (G29).
+    pub const SUMMONING_YOUR_PET: i16 = 547;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;
     pub const WHILE_YOU_ARE_ENGAGED_IN_COMBAT_YOU_CANNOT_OPERATE_A_PRIVATE_STORE_OR_PRIVATE_WORKSHOP: i16 = 1135;
     /// "The purchase price is higher than the amount of money that you have and
