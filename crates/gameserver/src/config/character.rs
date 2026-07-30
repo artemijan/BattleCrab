@@ -23,6 +23,11 @@ pub struct CharacterConfig {
     /// the castle treasury's clamp (`Castle.addToTreasuryNoTax`) — the shop and
     /// private-store paths still carry their own hard-coded ceilings.
     pub max_adena: i64,
+    /// `MaximumWarehouseSlotsForClan` (**200** here; Java's default is 150) —
+    /// `Config.WAREHOUSE_SLOTS_CLAN`, the clan warehouse's slot ceiling, read by
+    /// `ClanWarehouse.validateCapacity` when the manor checks whether its next
+    /// period's crops would fit.
+    pub warehouse_slots_clan: i32,
     /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
     /// was out at logout comes back on the next login. **Both True on this
     /// dist**, so the reconnect path is live content, not an opt-in.
@@ -223,6 +228,7 @@ impl Default for CharacterConfig {
             delete_days: 1,
             starting_adena: 0,
             max_adena: 99_900_000_000,
+            warehouse_slots_clan: 150,
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
@@ -323,6 +329,7 @@ impl CharacterConfig {
                 v if v < 0 => i64::MAX,
                 v => v,
             },
+            warehouse_slots_clan: p.get_int("MaximumWarehouseSlotsForClan", d.warehouse_slots_clan),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),

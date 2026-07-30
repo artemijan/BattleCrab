@@ -1076,3 +1076,273 @@ fn insert_tax_zone_for(world: &mut World, castle_id: i32) {
         swamp: None,
     });
 }
+
+// --- The rollover settlement (Java `CastleManorManager.changeMode`) ----------
+
+const MATURE_ID: i32 = 91101;
+
+/// A seed line whose crop matures into [`MATURE_ID`].
+fn seed_with_mature(castle_id: i32, seed_id: i32, crop_id: i32) -> Seed {
+    Seed {
+        mature_id: MATURE_ID,
+        ..seed_full(castle_id, seed_id, crop_id, 10, 8100, 8100)
+    }
+}
+
+/// A world holding Gludio (owned by player 100's clan), the mature-crop item
+/// template, and a closing period whose crops were partly sold.
+fn settlement_world(
+    sold: i64,
+    left: i64,
+    price: i64,
+) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_gludio(&mut world);
+    own_castle(&mut world, 1);
+    world
+        .data
+        .manor
+        .insert_for_test(seed_with_mature(1, 90001, 91001));
+    add_stackable_item(&mut world, MATURE_ID, 1);
+    world.manor.set_crop_procure(
+        1,
+        false,
+        vec![CropProcure {
+            crop_id: 91001,
+            amount: left,
+            price,
+            start_amount: sold + left,
+            reward_type: 1,
+        }],
+    );
+    world.manor.set_mode(ManorMode::Approved);
+    (world, rx)
+}
+
+fn clan_wh_count(world: &World, clan_id: i32, item_id: i32) -> i64 {
+    world
+        .clans
+        .get(&clan_id)
+        .map_or(0, |c| c.warehouse.0.count_of(item_id))
+}
+
+/// **The closing period pays the owner and refunds the vault.** Crops players
+/// sold are paid into the clan warehouse as *mature* crops at 90 %, and the
+/// adena still reserved for crops nobody sold goes back to the treasury.
+#[test]
+fn rollover_pays_crops_to_the_warehouse_and_refunds_the_treasury() {
+    // 60 of 100 crops sold at 7 adena, 40 still reserved.
+    let (mut world, _rx) = settlement_world(60, 40, 7);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+
+    assert_eq!(
+        clan_wh_count(&world, 500, MATURE_ID),
+        54,
+        "60 sold × 0.9 matured crops reached the clan warehouse"
+    );
+    assert_eq!(
+        crate::game_loop::castle::treasury(&world, 1),
+        40 * 7,
+        "the unspent reservation went back to the vault"
+    );
+}
+
+/// **A payout that rounds to nothing is Java's 90 % consolation item.** One crop
+/// sold gives `(1 × 0.9) = 0`, which becomes 1 when `Rnd.get(99) < 90` — and
+/// stays 0 on the other roll.
+#[test]
+fn a_rounded_down_payout_is_one_item_ninety_percent_of_the_time() {
+    let (mut world, _rx) = settlement_world(1, 0, 7);
+    world.forced_rolls.push_back(0); // < 90 → consolation item
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 1, "consolation item");
+
+    let (mut world, _rx) = settlement_world(1, 0, 7);
+    world.forced_rolls.push_back(95); // ≥ 90 → nothing at all
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 0, "no payout");
+}
+
+/// **A line that was never set up is skipped whole** (Java's
+/// `startAmount > 0` guard) — no payout, no refund.
+#[test]
+fn an_unset_crop_line_settles_nothing() {
+    let (mut world, _rx) = settlement_world(0, 0, 7);
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(clan_wh_count(&world, 500, MATURE_ID), 0);
+    assert_eq!(crate::game_loop::castle::treasury(&world, 1), 0);
+}
+
+/// **The next period is wiped when the treasury can't cover the one just
+/// promoted.** With a full vault the setup survives the rollover.
+#[test]
+fn the_next_period_is_gated_on_the_treasury() {
+    // A next-period crop setup worth 100 × 7 = 700 adena.
+    let setup = |world: &mut World| {
+        world.manor.set_crop_procure(
+            1,
+            true,
+            vec![CropProcure {
+                crop_id: 91001,
+                amount: 100,
+                price: 7,
+                start_amount: 100,
+                reward_type: 1,
+            }],
+        );
+    };
+
+    // Empty vault (the closing period refunds nothing): next is cleared.
+    let (mut world, _rx) = settlement_world(0, 0, 7);
+    setup(&mut world);
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert!(
+        world.manor.crop_procure(1, true).is_empty(),
+        "a castle that can't afford the promoted period loses its next setup"
+    );
+
+    // Same setup, but the vault covers the promoted period's 700 adena.
+    let (mut world, _rx) = settlement_world(0, 0, 7);
+    setup(&mut world);
+    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 700);
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+    assert_eq!(
+        world.manor.crop_procure(1, true).len(),
+        1,
+        "an affordable period keeps its next setup"
+    );
+}
+
+/// **The rollover is written through.** Java `storeMe()`s after the APPROVED
+/// transition; the port sends one `StoreManor` per rolled castle carrying both
+/// periods.
+#[test]
+fn the_rollover_persists_the_manor() {
+    let (mut world, _db, _link) = quest_test_world();
+    world.cfg.general.allow_manor = true;
+    add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    add_gludio(&mut world);
+    own_castle(&mut world, 1);
+    world
+        .data
+        .manor
+        .insert_for_test(seed_with_mature(1, 90001, 91001));
+    world.manor.set_next_seed_production(
+        1,
+        vec![SeedProduction {
+            seed_id: 90001,
+            amount: 500,
+            price: 3,
+            start_amount: 500,
+        }],
+    );
+    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 10_000_000);
+    world.manor.set_mode(ManorMode::Approved);
+    let mut db = _db;
+    drain_db(&mut db);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+
+    let stored = drain_db(&mut db).into_iter().find_map(|c| match c {
+        db::DbCommand::StoreManor {
+            castle_id: 1,
+            production,
+            ..
+        } => Some(production),
+        _ => None,
+    });
+    let production = stored.expect("the rolled castle was stored");
+    assert_eq!(production.len(), 2, "both periods are written");
+    assert!(
+        production.iter().any(|r| !r.next_period) && production.iter().any(|r| r.next_period),
+        "one current row and one next row"
+    );
+}
+
+/// **Maintenance tells the owner's online leader the manor was updated**
+/// (SM 884).
+#[test]
+fn maintenance_notifies_the_online_clan_leader() {
+    let (mut world, mut rx) = settlement_world(0, 0, 7);
+    world.manor.set_mode(ManorMode::Maintenance);
+    drain(&mut rx);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::THE_MANOR_INFORMATION_HAS_BEEN_UPDATED),
+        "the leader is told the manor information has been updated"
+    );
+}
+
+/// **Approving the new period charges its cost to the treasury.**
+#[test]
+fn approving_charges_the_manor_cost() {
+    let (mut world, _rx) = settlement_world(0, 0, 7);
+    world.manor.set_crop_procure(
+        1,
+        true,
+        vec![CropProcure {
+            crop_id: 91001,
+            amount: 100,
+            price: 7,
+            start_amount: 100,
+            reward_type: 1,
+        }],
+    );
+    crate::game_loop::castle::add_to_treasury_no_tax(&mut world, 1, 1_000);
+    world.manor.set_mode(ManorMode::Modifiable);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+
+    assert_eq!(world.manor.mode(), ManorMode::Approved);
+    assert_eq!(
+        crate::game_loop::castle::treasury(&world, 1),
+        300,
+        "1000 − the period's 700 adena cost"
+    );
+    assert_eq!(
+        world.manor.crop_procure(1, true).len(),
+        1,
+        "the setup stands"
+    );
+}
+
+/// **A castle that can neither pay nor store loses the period and is warned.**
+/// Java's gate is `!validateCapacity(slots) && treasury < cost` — *both* must
+/// fail, so the warehouse is filled to its slot ceiling here.
+#[test]
+fn a_castle_that_cannot_pay_or_store_loses_its_setup() {
+    let (mut world, mut rx) = settlement_world(0, 0, 7);
+    world.manor.set_crop_procure(
+        1,
+        true,
+        vec![CropProcure {
+            crop_id: 91001,
+            amount: 100,
+            price: 7,
+            start_amount: 100,
+            reward_type: 1,
+        }],
+    );
+    // Vault can't cover the 700, and the warehouse is at its ceiling.
+    world.cfg.character.warehouse_slots_clan = 0;
+    world.manor.set_mode(ManorMode::Modifiable);
+    drain(&mut rx);
+
+    crate::game_loop::manor::advance_manor_mode(&mut world);
+
+    assert!(
+        world.manor.crop_procure(1, true).is_empty(),
+        "the unaffordable setup is cleared"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR),
+        "and the leader is warned"
+    );
+}

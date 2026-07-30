@@ -9,9 +9,9 @@
 //! (`DbEvent::ManorLoaded`). The manor-period [`ManorMode`] (APPROVED /
 //! MODIFIABLE / MAINTENANCE) is driven by the wall-clock scheduler in
 //! [`crate::game_loop::manor`], which also runs the daily [`ManorState::roll_period`]
-//! production rollover. The economic settlement that Java folds into the
-//! rollover (crop payout to the clan warehouse, treasury refund/charge) is still
-//! deferred — see the `TODO(manor)` in `advance_manor_mode`.
+//! production rollover and the economic settlement Java folds into it (crop
+//! payout to the clan warehouse, treasury refund/charge) — see
+//! `advance_manor_mode`.
 
 use std::collections::HashMap;
 
@@ -221,9 +221,10 @@ impl ManorState {
     /// fresh full period). Java shares the `SeedProduction`/`CropProcure` objects
     /// between the two lists (a latent aliasing quirk); this port keeps them
     /// independent clones, which matches the intended "next starts fresh"
-    /// semantics. The economic settlement (crop payout to the clan warehouse,
-    /// treasury refund/charge, affordability gating) is **not** applied here —
-    /// see the `TODO(manor)` at the caller.
+    /// semantics — and is observably equivalent, since a setup always writes
+    /// `amount == startAmount` and only the *current* lists are decremented by
+    /// players. The economic settlement around this call (crop payout, treasury
+    /// refund/charge, affordability gating) lives at the caller.
     pub fn roll_period(&mut self, castle_id: i32) {
         let next_prod = self
             .production_next

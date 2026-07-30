@@ -1099,8 +1099,7 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// the skill cast, as with any `<skills>` item.
 ///
 /// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
-/// honored now that tax zones load; only its `THIS_SEED_MAY_NOT_BE_SOWN_HERE`
-/// message is still missing (`TODO(manor)`, the id is not in this repo's data).
+/// honored, `THIS_SEED_MAY_NOT_BE_SOWN_HERE` included.
 fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::model::components::TargetRef;
     use crate::model::npc::Npc;
@@ -1169,10 +1168,9 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         return;
     };
     // …and it may only be sown inside its own castle's territory (Java
-    // `(taxCastle == null) || (seed.getCastleId() != taxCastle.getResidenceId())`
-    // → `THIS_SEED_MAY_NOT_BE_SOWN_HERE`, whose SystemMessageId is not in this
-    // repo's data — TODO(manor); the gate itself is honored).
+    // `(taxCastle == null) || (seed.getCastleId() != taxCastle.getResidenceId())`).
     if crate::game_loop::castle::npc_tax_castle(world, target_oid) != Some(seed_castle) {
+        send(world, sm_ids::THIS_SEED_MAY_NOT_BE_SOWN_HERE);
         return;
     }
 

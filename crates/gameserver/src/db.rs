@@ -482,6 +482,15 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `CastleManorManager.storeMe` for one castle — replace both manor tables'
+    /// rows for it (all four period lists) in one shot. Java rewrites every
+    /// castle's rows after the daily rollover; the port stores the castle it
+    /// just rolled, which is the same end state with a narrower delete.
+    StoreManor {
+        castle_id: i32,
+        production: Vec<ManorProductionRow>,
+        procure: Vec<ManorProcureRow>,
+    },
     /// `Castle.addToTreasuryNoTax` — persist the castle vault. Java writes the
     /// row on every change (tax income, manor seed sale, chamberlain deposit or
     /// withdrawal), so this is sent from each of those paths.
@@ -1869,6 +1878,55 @@ async fn run(
                         .exec(&db)
                         .await,
                 );
+            }
+            DbCommand::StoreManor {
+                castle_id,
+                production,
+                procure,
+            } => {
+                warn_err(
+                    castle_manor_production::Entity::delete_many()
+                        .filter(castle_manor_production::Column::CastleId.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+                for r in &production {
+                    warn_err(
+                        castle_manor_production::Entity::insert(
+                            castle_manor_production::ActiveModel {
+                                castle_id: Set(r.castle_id),
+                                seed_id: Set(r.seed_id),
+                                amount: Set(r.amount as i32),
+                                start_amount: Set(r.start_amount as i32),
+                                price: Set(r.price as i32),
+                                next_period: Set(i32::from(r.next_period)),
+                            },
+                        )
+                        .exec(&db)
+                        .await,
+                    );
+                }
+                warn_err(
+                    castle_manor_procure::Entity::delete_many()
+                        .filter(castle_manor_procure::Column::CastleId.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+                for r in &procure {
+                    warn_err(
+                        castle_manor_procure::Entity::insert(castle_manor_procure::ActiveModel {
+                            castle_id: Set(r.castle_id),
+                            crop_id: Set(r.crop_id),
+                            amount: Set(r.amount as i32),
+                            start_amount: Set(r.start_amount as i32),
+                            price: Set(r.price as i32),
+                            reward_type: Set(r.reward_type),
+                            next_period: Set(i32::from(r.next_period)),
+                        })
+                        .exec(&db)
+                        .await,
+                    );
+                }
             }
             DbCommand::UpdateCastleTreasury {
                 castle_id,

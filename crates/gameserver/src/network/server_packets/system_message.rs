@@ -22,6 +22,18 @@ pub mod sm_ids {
     pub const INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS: i16 = 810;
     pub const MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS: i16 = 837;
     pub const ENTER_THE_NAME_OF_THE_MACRO: i16 = 838;
+    // Manor (G26). The ids come from `SystemMessageId.java`'s `@ClientString`
+    // annotations — earlier manor slices assumed they weren't available here.
+    /// `The manor information has been updated.`
+    pub const THE_MANOR_INFORMATION_HAS_BEEN_UPDATED: i16 = 884;
+    /// `You do not have enough funds in the clan warehouse for the Manor to operate.`
+    pub const NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR: i16 = 935;
+    /// `This seed may not be sown here.`
+    pub const THIS_SEED_MAY_NOT_BE_SOWN_HERE: i16 = 872;
+    /// `A manor cannot be set up between 4:30 am and 8 pm.`
+    pub const A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM: i16 = 1675;
+    /// `Failed in trading $s2 of $s1 crops.`
+    pub const FAILED_IN_TRADING_S2_OF_S1_CROPS: i16 = 1491;
     // Community board (G30)
     pub const THE_COMMUNITY_SERVER_IS_CURRENTLY_OFFLINE: i16 = 938;
     // Clans (G11)
