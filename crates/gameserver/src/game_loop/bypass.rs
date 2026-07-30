@@ -140,7 +140,10 @@ const VALID_LINKS: &[&str] = &[
     "fortress/foreman.htm",
     "petmanager/evolve.htm",
     "petmanager/exchange.htm",
+    "petmanager/evolve_no.htm",
+    "petmanager/exchange_no.htm",
     "petmanager/instructions.htm",
+    "petmanager/restore_no.htm",
     "warehouse/clanwh.htm",
     "warehouse/privatewh.htm",
 ];
@@ -389,6 +392,18 @@ fn npc_bypass(
             } else {
                 warn!("Bypass: bad multisell command [{command}].");
             }
+        }
+        // `PetManager.onBypassFeedback` — the pet manager's three verbs. Its
+        // `evolve.htm`/`exchange.htm` pages are already in the Link whitelist
+        // above, so without these the buttons render and do nothing.
+        "exchange" => {
+            super::pet_evolve::handle_exchange(world, client_id, object_id, npc_object_id, command)
+        }
+        "evolve" => {
+            super::pet_evolve::handle_evolve(world, client_id, object_id, npc_object_id, command)
+        }
+        "restore" => {
+            super::pet_evolve::handle_restore(world, client_id, object_id, npc_object_id, command)
         }
         // `ai/others/SymbolMaker`: the dye-symbol NPC's "Draw"/"Remove" buttons
         // (only that script's htms emit these verbs).

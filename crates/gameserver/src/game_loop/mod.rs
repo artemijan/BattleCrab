@@ -71,6 +71,7 @@ mod orfen;
 mod party;
 mod party_room;
 mod passive_skills;
+pub(crate) mod pet_evolve;
 pub(crate) mod petition;
 pub(crate) mod position;
 mod private_store;

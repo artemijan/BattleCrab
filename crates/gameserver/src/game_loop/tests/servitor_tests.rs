@@ -4256,3 +4256,397 @@ fn a_servitor_can_be_feared() {
         "a non-summon non-attackable NPC is not feared"
     );
 }
+
+// --- Pet evolution / exchange / restore (PetManager + Evolve) --------------
+
+const GREAT_WOLF_NPC: i32 = 16025;
+const GREAT_WOLF_COLLAR: i32 = 9882;
+/// Wolf → Great Wolf is `evolve 1`, and it wants level 55.
+const EVOLVE_MIN_LEVEL: i32 = 55;
+
+/// Register the Great Wolf so the evolution has somewhere to land, with a
+/// two-entry level table (min level 55, then 56) so a level can be *read back*
+/// from carried exp.
+fn add_great_wolf(world: &mut World) {
+    let mut t = crate::data::npc_data::default_template(GREAT_WOLF_NPC);
+    t.type_name = "Pet".into();
+    t.name = "Great Wolf".into();
+    t.level = 55;
+    t.base_hp_max = 900.0;
+    t.base_mp_max = 300.0;
+    t.collision_radius = 10.0;
+    world.data.npc_data.insert_for_test(t);
+    let lvl = |exp: i64| crate::data::pet_data::PetLevel {
+        max_meal: 300,
+        consume_meal_in_normal: 10,
+        consume_meal_in_battle: 15,
+        exp,
+        ..Default::default()
+    };
+    world
+        .data
+        .pet_data
+        .insert_for_test(crate::data::pet_data::PetTemplate {
+            npc_id: GREAT_WOLF_NPC,
+            item_id: GREAT_WOLF_COLLAR,
+            food_item_id: 2515,
+            hungry_limit: 55,
+            load: 54_510,
+            levels: [(55, lvl(1_000_000)), (56, lvl(1_200_000))]
+                .into_iter()
+                .collect(),
+        });
+}
+
+/// Put a summoned wolf at `level`/`exp` so the evolve gates can be exercised.
+fn set_pet_level(world: &mut World, pet: i32, level: i32, exp: i64) {
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::PetOf>(&pet)
+    {
+        p.level = level;
+        p.exp = exp;
+    }
+}
+
+/// **The evolve button works, and carries the pet across.** A qualifying wolf
+/// becomes a Great Wolf: the old collar and its saved row are gone, the new
+/// collar is in the inventory with the new pet's level stamped on it, and the
+/// pet is out again carrying its experience.
+#[test]
+fn a_qualifying_pet_evolves_and_keeps_its_experience() {
+    let (mut world, mut db_rx, _l) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 30, 30827, "Lundy", 5, 60, 0, 0);
+    add_great_wolf(&mut world);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+    set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 1_250_000);
+    // A name to carry across.
+    if let Some(pets) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerPets>(&OWNER)
+    {
+        pets.0.insert(
+            collar,
+            crate::db::PetRow {
+                collar_object_id: collar,
+                name: "Rex".into(),
+                level: EVOLVE_MIN_LEVEL,
+                cur_hp: 1.0,
+                cur_mp: 1.0,
+                exp: 1_250_000,
+                sp: 0,
+                fed: 10,
+                restore: true,
+            },
+        );
+    }
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        CID,
+        &bypass_body(&format!("npc_{}_evolve 1", NPC_OID + 30)),
+    );
+
+    let inv = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap();
+    assert_eq!(inv.count_of(WOLF_COLLAR), 0, "the old collar is destroyed");
+    let new_collar = inv
+        .items()
+        .iter()
+        .find(|i| i.item_id == GREAT_WOLF_COLLAR)
+        .expect("the evolved collar");
+    assert_eq!(
+        new_collar.enchant_level, 56,
+        "the collar records the pet's level — which is what a later restore reads"
+    );
+    let new_pet = pet_of(&world, OWNER).expect("the evolved pet is out");
+    let link = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&new_pet)
+        .unwrap();
+    assert_eq!(link.exp, 1_250_000, "the experience came across");
+    assert_eq!(
+        link.level, 56,
+        "…and the level is re-derived from it on the new curve"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&new_pet)
+            .unwrap()
+            .npc_id,
+        GREAT_WOLF_NPC
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerPets>(&OWNER)
+            .unwrap()
+            .0
+            .get(&new_collar.object_id)
+            .map(|r| r.name.as_str()),
+        Some("Rex"),
+        "the pet keeps its name (the html promises it)"
+    );
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::DeletePetRow { collar_object_id } if *collar_object_id == collar)),
+        "the old collar's saved row is deleted, not left to haunt the new pet"
+    );
+}
+
+/// **The exp floor is why an evolution doesn't demote the pet.** A wolf that
+/// only just made level 55 carries less exp than the Great Wolf curve wants for
+/// 55, and Java floors it — otherwise the reward for evolving would be a
+/// level-1 pet.
+#[test]
+fn evolving_floors_the_experience_at_the_new_species_curve() {
+    let (mut world, ..) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 30, 30827, "Lundy", 5, 60, 0, 0);
+    add_great_wolf(&mut world);
+    // A table that starts at level 10, *below* the button's min level of 55.
+    // Without Java's explicit floor the carried 4,000 exp would derive level 10
+    // and the summon path would happily floor at level 10's own exp — the pet
+    // would survive the evolution 45 levels down.
+    if let Some(t) = world.data.pet_data.by_item_id(GREAT_WOLF_COLLAR).cloned() {
+        let mut t = t;
+        t.levels.insert(
+            10,
+            crate::data::pet_data::PetLevel {
+                max_meal: 300,
+                exp: 1_000,
+                ..Default::default()
+            },
+        );
+        world.data.pet_data.insert_for_test(t);
+    }
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).unwrap();
+    // Far below the Great Wolf's 1,000,000 for level 55, but above level 10's.
+    set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 4_000);
+
+    pet_evolve::handle_evolve(&mut world, CID, OWNER, NPC_OID + 30, "evolve 1");
+
+    let new_pet = pet_of(&world, OWNER).expect("evolved");
+    let link = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&new_pet)
+        .unwrap();
+    assert_eq!(link.exp, 1_000_000, "floored at the new curve's level 55");
+    assert_eq!(link.level, 55, "so it lands at 55, not at level 1");
+}
+
+/// The gates: too low a level, the wrong species, no pet out, and a dead pet
+/// are each refused — with Java's `evolve_no.htm`, no system message.
+#[test]
+fn the_evolve_gates_refuse_and_change_nothing() {
+    let (mut world, ..) = servitor_world();
+    let mut rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    add_great_wolf(&mut world);
+
+    let held = |w: &World| {
+        w.objects
+            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap()
+            .count_of(GREAT_WOLF_COLLAR)
+    };
+
+    // No pet out at all.
+    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    assert_eq!(held(&world), 0, "nothing handed out");
+
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).unwrap();
+
+    // Level 54 — one short.
+    set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL - 1, 900_000);
+    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    assert_eq!(held(&world), 0, "one level short is still short");
+    assert!(pet_of(&world, OWNER).is_some(), "and the pet is still out");
+
+    // Right level, wrong button: `evolve 3` is the Baby Buffalo line. The
+    // buffalo has to *exist* in pet data, or the refusal would come from the
+    // missing lookup rather than from the species check.
+    world
+        .data
+        .pet_data
+        .insert_for_test(crate::data::pet_data::PetTemplate {
+            npc_id: 12780,
+            item_id: 6648,
+            food_item_id: 2515,
+            hungry_limit: 55,
+            load: 54_510,
+            levels: [(
+                55,
+                crate::data::pet_data::PetLevel {
+                    max_meal: 300,
+                    exp: 1_000_000,
+                    ..Default::default()
+                },
+            )]
+            .into_iter()
+            .collect(),
+        });
+    world
+        .data
+        .pet_data
+        .insert_for_test(crate::data::pet_data::PetTemplate {
+            npc_id: 16034,
+            item_id: 10311,
+            food_item_id: 2515,
+            hungry_limit: 55,
+            load: 54_510,
+            levels: [(
+                55,
+                crate::data::pet_data::PetLevel {
+                    max_meal: 300,
+                    exp: 1_000_000,
+                    ..Default::default()
+                },
+            )]
+            .into_iter()
+            .collect(),
+        });
+    set_pet_level(&mut world, pet, EVOLVE_MIN_LEVEL, 1_150_000);
+    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 3");
+    assert_eq!(held(&world), 0, "a wolf is not a buffalo");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap()
+            .count_of(10311),
+        0,
+        "…and no improved buffalo collar either"
+    );
+
+    // Dead pet — Java calls this an exploit attempt.
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&pet)
+    {
+        v.dead = true;
+    }
+    drain(&mut rx);
+    pet_evolve::handle_evolve(&mut world, CID, OWNER, 0, "evolve 1");
+    assert_eq!(held(&world), 0, "a dead pet cannot evolve");
+    assert!(
+        sm_ids_of(&drain(&mut rx)).is_empty(),
+        "Java answers with evolve_no.htm and no system message"
+    );
+}
+
+/// The exchange counter: a ticket becomes a collar, and without the ticket
+/// nothing is handed out.
+#[test]
+fn a_pet_ticket_exchanges_for_a_collar() {
+    let (mut world, ..) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4500_0000..0x4500_0100;
+
+    // No ticket → nothing.
+    pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
+    let count_of = |w: &World, id: i32| {
+        w.objects
+            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap()
+            .count_of(id)
+    };
+    assert_eq!(count_of(&world, 6650), 0);
+
+    // Kookaburra ticket 7585 → collar 6650.
+    super::items::add_inventory_item(&mut world, OWNER, 7585, 1).unwrap();
+    pet_evolve::handle_exchange(&mut world, CID, OWNER, 0, "exchange 1");
+    assert_eq!(count_of(&world, 7585), 0, "the ticket is taken");
+    assert_eq!(count_of(&world, 6650), 1, "the collar is given");
+}
+
+/// Restore works off an **item**, not a live pet, and reads the pet's level out
+/// of the collar's enchant — the one place it was recorded.
+#[test]
+fn restore_reads_the_level_off_the_collar_enchant() {
+    let (mut world, ..) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    add_great_wolf(&mut world);
+    // The Great Snow Wolf collar (10307) restores to the Great Wolf (9882).
+    let mut t = crate::data::npc_data::default_template(GREAT_WOLF_NPC + 12);
+    t.type_name = "Pet".into();
+    t.name = "Great Snow Wolf".into();
+    t.level = 55;
+    t.base_hp_max = 900.0;
+    t.collision_radius = 10.0;
+    world.data.npc_data.insert_for_test(t);
+    world
+        .data
+        .pet_data
+        .insert_for_test(crate::data::pet_data::PetTemplate {
+            npc_id: GREAT_WOLF_NPC + 12,
+            item_id: 10307,
+            food_item_id: 2515,
+            hungry_limit: 55,
+            load: 54_510,
+            levels: [(
+                55,
+                crate::data::pet_data::PetLevel {
+                    max_meal: 300,
+                    exp: 1_000_000,
+                    ..Default::default()
+                },
+            )]
+            .into_iter()
+            .collect(),
+        });
+    let World { data, objects, .. } = &mut world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .add_item(&data.item_data, 7_100_055, 10307, 1);
+    let snow = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|i| i.item_id == 10307)
+        .unwrap()
+        .object_id;
+    // The collar remembers a level-56 pet.
+    if let Some(inv) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+    {
+        inv.set_item_enchant(snow, 56);
+    }
+
+    pet_evolve::handle_restore(&mut world, CID, OWNER, 0, "restore 1");
+
+    let inv = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&OWNER)
+        .unwrap();
+    assert_eq!(inv.count_of(10307), 0, "the seasonal collar is consumed");
+    assert_eq!(inv.count_of(GREAT_WOLF_COLLAR), 1, "the base one is given");
+    let pet = pet_of(&world, OWNER).expect("and the pet is summoned");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PetOf>(&pet)
+            .unwrap()
+            .level,
+        56,
+        "at the level the collar's enchant recorded, not the minimum"
+    );
+}
