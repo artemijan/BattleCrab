@@ -16,6 +16,7 @@ pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;
 mod bypass;
+pub(crate) mod castle;
 mod chat;
 pub(crate) mod clan_hall_auction;
 pub(crate) mod clan_hall_function;

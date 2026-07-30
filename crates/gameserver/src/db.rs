@@ -482,6 +482,13 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `Castle.addToTreasuryNoTax` — persist the castle vault. Java writes the
+    /// row on every change (tax income, manor seed sale, chamberlain deposit or
+    /// withdrawal), so this is sent from each of those paths.
+    UpdateCastleTreasury {
+        castle_id: i32,
+        treasury: i64,
+    },
     /// `Siege.saveSiegeDate` — persist the owner-chosen siege time + that the
     /// time-registration window has closed.
     UpdateCastleSiegeTime {
@@ -1858,6 +1865,18 @@ async fn run(
                 warn_err(
                     castle::Entity::update_many()
                         .col_expr(castle::Column::TicketBuyCount, count.into())
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+            }
+            DbCommand::UpdateCastleTreasury {
+                castle_id,
+                treasury,
+            } => {
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(castle::Column::Treasury, treasury.into())
                         .filter(castle::Column::Id.eq(castle_id))
                         .exec(&db)
                         .await,
@@ -4474,6 +4493,7 @@ async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Cast
             // `regTimeOver` is an enum('true','false'); default (missing) is true.
             time_registration_over: r.reg_time_over != "false",
             siege_date: r.siege_date,
+            treasury: r.treasury,
         })
         .collect()
 }

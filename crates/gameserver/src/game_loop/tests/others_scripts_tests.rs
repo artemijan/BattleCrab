@@ -755,6 +755,7 @@ fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
         ticket_buy_count: 0,
         time_registration_over: true,
         siege_date: 0,
+        treasury: 0,
     }
 }
 

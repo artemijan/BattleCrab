@@ -4,9 +4,11 @@
 //! (`clan_data.hasCastle`), resolved against `World.clans`.
 //!
 //! Scope: the `//castlemanage` admin surface — the castle roster, owner/side
-//! display, and the ownership actions (set/take owner, switch side). The siege
-//! engine, taxes, functions, residential skills and crests are later milestones
-//! (TODO(G24) at their sites).
+//! display, the ownership actions (set/take owner, switch side) — plus the
+//! **treasury** (Java `Castle._treasury` / `castle.treasury`) and the tax
+//! percent its side implies. The functions, residential skills and crests are
+//! later milestones (TODO(G24) at their sites). The treasury's arithmetic and
+//! persistence live in [`crate::game_loop::castle`].
 
 /// Java `enums/CastleSide`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -69,4 +71,24 @@ pub struct Castle {
     /// time (epoch-millis), 0 when none has been set — then the fixed
     /// `SiegeSchedule.xml` slot is used.
     pub siege_date: i64,
+    /// Java `Castle._treasury` (`castle.treasury`): the castle vault, in adena.
+    /// Fed by the tax on purchases made inside the castle's tax zone, by manor
+    /// seed sales and by the owner's chamberlain deposits; drained by
+    /// chamberlain withdrawals and the manor's period costs. Only ever moved
+    /// through [`crate::game_loop::castle::add_to_treasury_no_tax`], which
+    /// persists every change like Java's per-call `UPDATE castle SET treasury`.
+    pub treasury: i64,
+}
+
+/// Java `enums/TaxType`. `SELL` has no caller anywhere in this Java build — the
+/// sell-side keys exist in `Feature.ini` and are read by nothing — so it is
+/// carried for completeness, not because a path uses it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TaxType {
+    Buy,
+    #[allow(
+        dead_code,
+        reason = "no Java path reads the sell tax either; kept so the config keys have a home"
+    )]
+    Sell,
 }

@@ -887,12 +887,19 @@ pub struct TargetRef(pub Option<i32>);
 /// The multisell list the player currently has open (Java
 /// `Player._currentMultiSell` / `setMultiSell`), player-only. Presence-based:
 /// added when a `MultiSellList` is sent, read/validated by `MultiSellChoose`,
-/// removed on a stale/forged choose. Only the list id is retained — the
-/// community-board path uses default (1.0) multipliers and no npc/tax, so the
-/// `PreparedMultisellListHolder` collapses to a lookup by id.
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+/// removed on a stale/forged choose. The multipliers still come off the list
+/// itself (the community-board path uses the default 1.0), but the two fields
+/// `PreparedMultisellListHolder` derives *from the NPC* are latched here, so the
+/// exchange charges exactly the rate the window displayed.
+#[derive(Component, Debug, Clone, Copy, PartialEq)]
 pub struct ActiveMultisell {
     pub list_id: i32,
+    /// Object id of the NPC the window was opened from (Java `_npcObjectId`),
+    /// 0 for the npc-less community-board path. Tax is paid to its castle.
+    pub npc_oid: i32,
+    /// Java `PreparedMultisellListHolder.getTaxRate()` — already 0 for a list
+    /// that doesn't `applyTaxes`, and for an NPC outside every tax zone.
+    pub tax_rate: f64,
 }
 
 /// GM-toggled state on a player (Java `Creature._isInvul`, `_isUndying`,

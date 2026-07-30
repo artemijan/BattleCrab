@@ -17,6 +17,12 @@ pub struct CharacterConfig {
     pub delete_days: i32,
     /// `StartingAdena`: adena a freshly created character receives.
     pub starting_adena: i64,
+    /// `MaxAdena` (Java `Config.MAX_ADENA` → `Inventory.MAX_ADENA`): the ceiling
+    /// on a single adena pile. **9 999 999 999 999 on this dist**, not the Java
+    /// default 99 900 000 000; a negative value means `Long.MAX_VALUE`. Read by
+    /// the castle treasury's clamp (`Castle.addToTreasuryNoTax`) — the shop and
+    /// private-store paths still carry their own hard-coded ceilings.
+    pub max_adena: i64,
     /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
     /// was out at logout comes back on the next login. **Both True on this
     /// dist**, so the reconnect path is live content, not an opt-in.
@@ -216,6 +222,7 @@ impl Default for CharacterConfig {
         Self {
             delete_days: 1,
             starting_adena: 0,
+            max_adena: 99_900_000_000,
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
@@ -311,6 +318,11 @@ impl CharacterConfig {
         Self {
             delete_days: p.get_int("DeleteCharAfterDays", 1),
             starting_adena: p.get_int("StartingAdena", 0) as i64,
+            // Java: `if (MAX_ADENA < 0) MAX_ADENA = Long.MAX_VALUE;`
+            max_adena: match p.get_long("MaxAdena", d.max_adena) {
+                v if v < 0 => i64::MAX,
+                v => v,
+            },
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),

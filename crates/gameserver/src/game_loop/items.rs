@@ -1098,9 +1098,9 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// runs [`crate::game_loop::skills::effects`]'s `Sow`). The item is consumed by
 /// the skill cast, as with any `<skills>` item.
 ///
-/// TODO(manor): Java also gates on `seed.getCastleId() == target.getTaxCastle()`
-/// (`THIS_SEED_MAY_NOT_BE_SOWN_HERE`) — the tax-zone → castle mapping is
-/// unported, so a seed may be sown on any matching monster for now.
+/// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
+/// honored now that tax zones load; only its `THIS_SEED_MAY_NOT_BE_SOWN_HERE`
+/// message is still missing (`TODO(manor)`, the id is not in this repo's data).
 fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::model::components::TargetRef;
     use crate::model::npc::Npc;
@@ -1164,8 +1164,15 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         }
         return;
     }
-    // The seed must be in the catalogue (Java `getSeed(itemId)`).
-    if world.data.manor.seed_by_id(item_id).is_none() {
+    // The seed must be in the catalogue (Java `getSeed(itemId)`)…
+    let Some(seed_castle) = world.data.manor.seed_by_id(item_id).map(|s| s.castle_id) else {
+        return;
+    };
+    // …and it may only be sown inside its own castle's territory (Java
+    // `(taxCastle == null) || (seed.getCastleId() != taxCastle.getResidenceId())`
+    // → `THIS_SEED_MAY_NOT_BE_SOWN_HERE`, whose SystemMessageId is not in this
+    // repo's data — TODO(manor); the gate itself is honored).
+    if crate::game_loop::castle::npc_tax_castle(world, target_oid) != Some(seed_castle) {
         return;
     }
 

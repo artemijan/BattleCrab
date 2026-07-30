@@ -740,8 +740,12 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             added.extend(oids);
         }
     }
-    // TODO(manor): Java credits the castle treasury with the sale
-    // (`castle.addToTreasuryNoTax(totalPrice)`); the treasury is unported.
+    // Java: the sale price goes to the castle's vault, untaxed. An unowned
+    // castle takes nothing (`addToTreasuryNoTax` returns false on `_ownerId <= 0`),
+    // so the adena the buyer just paid simply leaves the economy.
+    if total_price > 0 {
+        super::castle::add_to_treasury_no_tax(world, manor_id, total_price);
+    }
     if let (Some(inventory), Some(cs)) = (
         world
             .objects

@@ -17,7 +17,16 @@ use crate::data::multisell_data::{MultisellList, PAGE_SIZE};
 /// Port of `serverpackets/MultiSellList`. `index` is the first entry of this
 /// page (0, 40, 80, …). Mirrors Java's page math: `size = min(PAGE_SIZE,
 /// entries - index)`, `finished` when this page reaches the end.
-pub fn multi_sell_list(list: &MultisellList, index: usize, items: &ItemData) -> Vec<u8> {
+///
+/// `tax_rate` is the castle buy tax of the NPC the window was opened from (0 on
+/// the community-board path); it inflates the adena ingredient of a list that
+/// declares `applyTaxes`, so the price displayed is the price charged.
+pub fn multi_sell_list(
+    list: &MultisellList,
+    index: usize,
+    items: &ItemData,
+    tax_rate: f64,
+) -> Vec<u8> {
     let total = list.entries.len();
     let remaining = total.saturating_sub(index);
     let size = remaining.min(PAGE_SIZE);
@@ -83,7 +92,7 @@ pub fn multi_sell_list(list: &MultisellList, index: usize, items: &ItemData) -> 
                     w.write_i16(65535u16 as i16);
                 }
             }
-            w.write_i64(list.ingredient_count(ingredient));
+            w.write_i64(list.ingredient_count_taxed(ingredient, tax_rate));
             w.write_i16(ingredient.enchant_level);
             write_null_augment(&mut w);
             write_null_elemental(&mut w);

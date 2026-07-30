@@ -1062,6 +1062,13 @@ production/procure); the Mammon merchants (Blacksmith/Merchant of Mammon).
 advances. **Unblocks:** `//manor`, `//mammon_find`/`//mammon_respawn`. **Deps:**
 G24 (siege/castle tie-in), G15 (manor economy).
 
+*Seven Signs is absent from this dist (no Java class survives), so G26 reduces
+to Manor + Mammon.* The **castle treasury** landed 2026-07-30 — the vault, the
+`tax.xml` tax zones, the Aden/Rune liege cascade, the merchant/multisell/manor
+income paths and the chamberlain vault console — which unblocks the manor's
+rollover settlement, the last piece of the milestone besides the Mammon
+economics. See PROGRESS.md's G26 row.
+
 ### G26.5 — Lottery & Monster Race
 *(2026-07 audit addition.)* `instancemanager/games/Lottery` (ticket purchase,
 weekly draw, prize-claim dialogs) and `MonsterRace` (the Race Track: race

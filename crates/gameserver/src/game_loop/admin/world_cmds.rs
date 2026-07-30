@@ -115,7 +115,8 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(trade::buy_list(list, inventory, &world.data));
+        // Java `AdminShop`: `new BuyList(buyList, activeChar, 0)` — no castle tax.
+        cs.send(trade::buy_list(list, inventory, &world.data, 0.0));
         cs.send(trade::ex_buy_sell_list_sell(
             inventory,
             &refund_items,

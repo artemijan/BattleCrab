@@ -366,19 +366,22 @@ impl QuestScript for CastleMercenaryManager {
                         .replace("%feud_name%", &(1_001_000 + id).to_string()),
                 )
             }
-            // `buy <n>` → the merchant buy list `<npcId><n>` (Java notes these
-            // lists are not castle-taxed; the port applies no tax anyway).
+            // `buy <n>` → the merchant buy list `<npcId><n>`, opened with
+            // `applyCastleTax = false` ("Not affected by Castle Taxes, baseTax
+            // is 20% (done in merchant buylists)"). Java only drops the tax from
+            // the *window*; the purchase itself still pays the castle rate.
             "buy" => {
                 if let Some(list_id) = tokens
                     .next()
                     .and_then(|n| format!("{}{}", ctx.npc_id, n.trim()).parse::<i32>().ok())
                 {
-                    crate::game_loop::shop::show_buy_window(
+                    crate::game_loop::shop::show_buy_window_taxed(
                         ctx.world,
                         ctx.client_id,
                         ctx.player,
                         ctx.npc,
                         list_id,
+                        false,
                     );
                 }
                 None

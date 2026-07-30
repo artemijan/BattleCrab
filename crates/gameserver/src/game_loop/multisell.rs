@@ -37,16 +37,27 @@ const CLIENT_MAX_AMOUNT: i64 = 999_999;
 /// Port of `MultisellData.separateAndSend(listId, player, npc, inventoryOnly)`:
 /// send one `MultiSellList` per page and record the open list on the player.
 ///
-/// `npc_id` is the *template* id of the NPC the list was opened from (Java's
-/// `npc.getId()`), `None` for the npc-less community-board path.
+/// `npc_oid` is the **object** id of the NPC the list was opened from (Java's
+/// `Npc npc`), `None` for the npc-less community-board path. Its template id
+/// checks the `<npcs>` allow-list and its position resolves the castle tax.
 pub(crate) fn separate_and_send(
     world: &mut World,
     client_id: u32,
     player: i32,
-    npc_id: Option<i32>,
+    npc_oid: Option<i32>,
     list_id: i32,
     inventory_only: bool,
 ) {
+    let npc_id = npc_oid.map(|oid| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .map_or(0, |n| n.npc_id)
+    });
+    // Java `PreparedMultisellListHolder`: the rate is captured when the window
+    // opens and reused for the exchange, so a castle changing hands mid-window
+    // can't change the price the player was quoted.
+    let tax_rate = npc_oid.map_or(0.0, |oid| super::castle::npc_tax_rate(world, oid));
     let Some(list) = world.data.multisells.get(list_id) else {
         warn!("Multisell: list {list_id} not found (player {player}).");
         return;
@@ -73,24 +84,33 @@ pub(crate) fn separate_and_send(
         warn!("Multisell: inventory-only list {list_id} opened as full list (unported filter).");
     }
 
-    let pages = build_pages(list, &world.data.item_data);
+    let pages = build_pages(list, &world.data.item_data, tax_rate);
     if let Some(cs) = world.clients.get(&client_id) {
         for page in pages {
             cs.send(page);
         }
     }
-    world
-        .objects
-        .add_components(&player, ActiveMultisell { list_id });
+    world.objects.add_components(
+        &player,
+        ActiveMultisell {
+            list_id,
+            npc_oid: npc_oid.unwrap_or(0),
+            tax_rate,
+        },
+    );
 }
 
 /// Build every `MultiSellList` page (Java's `do … while index < size` loop —
 /// at least one page, even for an empty list).
-fn build_pages(list: &MultisellList, items: &crate::data::item_data::ItemData) -> Vec<Vec<u8>> {
+fn build_pages(
+    list: &MultisellList,
+    items: &crate::data::item_data::ItemData,
+    tax_rate: f64,
+) -> Vec<Vec<u8>> {
     let mut pages = Vec::new();
     let mut index = 0;
     loop {
-        pages.push(sp::multi_sell_list(list, index, items));
+        pages.push(sp::multi_sell_list(list, index, items, tax_rate));
         index += PAGE_SIZE;
         if index >= list.entries.len() {
             break;
@@ -144,12 +164,15 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         return;
     };
     let entry: MultisellEntry = entry.clone();
-    let (ing_mult, prod_mult) = world
+    let (ing_mult, prod_mult, apply_taxes) = world
         .data
         .multisells
         .get(active.list_id)
-        .map(|l| (l.ingredient_multiplier, l.product_multiplier))
-        .unwrap_or((1.0, 1.0));
+        .map(|l| (l.ingredient_multiplier, l.product_multiplier, l.apply_taxes))
+        .unwrap_or((1.0, 1.0, false));
+    // Java `PreparedMultisellListHolder.getTaxRate()`: 0 unless the list applies
+    // taxes. The rate itself was latched when the window opened.
+    let tax_rate = if apply_taxes { active.tax_rate } else { 0.0 };
 
     // `!entry.isStackable() && (_amount > 1)`.
     if !entry.stackable && pkt.amount > 1 {
@@ -207,7 +230,10 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         if ing.maintain {
             continue; // not consumed, so no presence requirement
         }
-        let Some(total) = mul(ingredient_count(ing.count, ing_mult), pkt.amount) else {
+        let Some(total) = mul(
+            ingredient_count(ing.id, ing.count, ing_mult, tax_rate),
+            pkt.amount,
+        ) else {
             send_sm(
                 world,
                 client_id,
@@ -303,11 +329,32 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         cs.send(ew::inventory_update_changes(&world.data, &changes));
         cs.send(ew::ex_user_info_inven_weight(player, inv, &world.data));
     }
+
+    // "Finally, give the tax to the castle": the tax slice of every adena
+    // ingredient, times the amount exchanged. Only the *tax* part is paid —
+    // the rest of the price is the exchange's own cost and simply vanishes.
+    if active.npc_oid != 0 && tax_rate > 0.0 {
+        let tax_paid: i64 = entry
+            .ingredients
+            .iter()
+            .filter(|ing| ing.id == crate::data::item_data::ADENA_ID)
+            .map(|ing| {
+                ((ing.count as f64 * ing_mult * tax_rate).round() as i64).saturating_mul(pkt.amount)
+            })
+            .sum();
+        super::castle::handle_tax_payment(world, active.npc_oid, tax_paid);
+    }
 }
 
-/// `PreparedMultisellListHolder.getIngredientCount` (no tax on this path).
-fn ingredient_count(count: i64, multiplier: f64) -> i64 {
-    (count as f64 * multiplier).round() as i64
+/// `PreparedMultisellListHolder.getIngredientCount` — the castle tax rides on
+/// the adena ingredient only. `tax_rate` has already been zeroed for a list
+/// that doesn't apply taxes.
+fn ingredient_count(item_id: i32, count: i64, multiplier: f64, tax_rate: f64) -> i64 {
+    if item_id == crate::data::item_data::ADENA_ID {
+        (count as f64 * multiplier * (1.0 + tax_rate)).round() as i64
+    } else {
+        (count as f64 * multiplier).round() as i64
+    }
 }
 
 /// `PreparedMultisellListHolder.getProductCount`.

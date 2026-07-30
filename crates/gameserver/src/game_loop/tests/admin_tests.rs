@@ -3082,6 +3082,7 @@ fn admin_castlemanage_ownership_and_side() {
         ticket_buy_count: 0,
         time_registration_over: true,
         siege_date: 0,
+        treasury: 0,
     }];
     world.clans.insert(
         500,
@@ -3255,6 +3256,7 @@ fn admin_castlemanage_siege_registration_and_state() {
         ticket_buy_count: 0,
         time_registration_over: true,
         siege_date: 0,
+        treasury: 0,
     }];
     world.sieges.insert(3, Siege::new(3));
     world.clans.insert(

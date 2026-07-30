@@ -27,6 +27,19 @@ fn add_manor_manager(world: &mut World, oid: i32, npc_id: i32, manor_id: i32) {
     world.objects.add_components(&100, LastFolkNpc(oid));
 }
 
+/// Put Gludio (castle 1) on the world so the manor sale has a vault to pay.
+fn add_gludio(world: &mut World) {
+    world.castles = vec![crate::model::castle::Castle {
+        id: 1,
+        name: "Gludio".into(),
+        side: crate::model::castle::CastleSide::Neutral,
+        ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
+        treasury: 0,
+    }];
+}
+
 fn inv_count(world: &World, item_id: i32) -> i64 {
     world
         .objects
@@ -171,6 +184,9 @@ fn add_stackable_item(world: &mut World, item_id: i32, price: i64) {
 fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
     let (mut world, _rx) = chamberlain_world();
     world.cfg.general.allow_manor = true;
+    // The sale needs a castle with an owner for the vault to exist.
+    add_gludio(&mut world);
+    own_castle(&mut world, 1);
     // Gludio Manor Manager (35103), manor_id 1. Seed 5016 is a real item.
     add_manor_manager(&mut world, 702, 35103, 1);
     world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
@@ -201,6 +217,44 @@ fn buy_seed_trades_adena_for_seeds_and_decrements_stock() {
         495,
         "the manor's stock dropped by 5"
     );
+    assert_eq!(
+        crate::game_loop::castle::treasury(&world, 1),
+        50,
+        "and the sale went into the castle's vault (addToTreasuryNoTax)"
+    );
+}
+
+/// **Seed money paid at a castle nobody owns leaves the economy.** Java's
+/// `addToTreasuryNoTax` returns early on `_ownerId <= 0`, so the buyer is still
+/// charged and the stock still drops — the adena just goes nowhere.
+#[test]
+fn buy_seed_at_an_unowned_castle_banks_nothing() {
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    add_gludio(&mut world); // …but no owning clan
+    add_manor_manager(&mut world, 702, 35103, 1);
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 5016,
+            amount: 500,
+            price: 10,
+            start_amount: 500,
+        }],
+    );
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 1_000);
+
+    let mut w = PacketWriter::new();
+    w.write_i32(1);
+    w.write_i32(1);
+    w.write_i32(5016);
+    w.write_i64(5);
+    crate::game_loop::manor::handle_request_buy_seed(&mut world, 1, &w.into_bytes());
+
+    assert_eq!(inv_count(&world, ADENA_ID), 950, "the buyer still paid");
+    assert_eq!(crate::game_loop::castle::treasury(&world, 1), 0);
 }
 
 /// The purchase is refused (no adena taken, no stock change) when the buyer
@@ -945,4 +999,80 @@ fn ex_packet(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>, subop: u8) 
     drain(rx)
         .into_iter()
         .find(|p| p.len() >= 8 && p[0] == 0xFE && p[1] == subop && p[2] == 0x00)
+}
+
+/// **A seed may only be sown inside its own castle's territory.** Java's Seed
+/// item handler refuses when the target's `TaxZone` doesn't name the seed's
+/// castle (`THIS_SEED_MAY_NOT_BE_SOWN_HERE`); the mob is left unflagged, so the
+/// Sow skill never runs. Inside the right territory the same use flags it.
+#[test]
+fn sowing_is_gated_on_the_seeds_own_territory() {
+    use crate::model::npc::Npc;
+
+    let (mut world, _rx) = chamberlain_world();
+    world.cfg.general.allow_manor = true;
+    world.data.manor.insert_for_test(seed(1, 5016, 5073, 10)); // a Gludio seed
+    add_sowable_mob(&mut world, 45001, 10);
+    // The seed item itself, carrying Java's `Seed` item handler.
+    add_stackable_item(&mut world, 5016, 10);
+    {
+        let mut t = world.data.item_data.get(5016).cloned().unwrap();
+        t.handler = crate::data::item_data::ItemHandler::Seed;
+        world.data.item_data.insert_for_test(t);
+    }
+    // Give the player the seed item and target the mob.
+    let seed_oid =
+        super::items::add_inventory_item(&mut world, 100, 5016, 1).expect("the seed was added")[0];
+    world
+        .objects
+        .add_components(&100, crate::model::components::TargetRef(Some(NPC_OID)));
+
+    // The mob stands in *Dion's* tax territory — wrong castle, refused.
+    insert_tax_zone_for(&mut world, 2);
+    crate::game_loop::items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Npc>(&NPC_OID)
+            .map(|n| n.seed_id),
+        Some(0),
+        "the mob was never flagged with the seed"
+    );
+
+    // Re-home the zone to Gludio: the same use now flags the mob.
+    world.data.zone_data = crate::data::zone_data::ZoneData::empty();
+    insert_tax_zone_for(&mut world, 1);
+    crate::game_loop::items::handle_use_item(&mut world, 1, &use_item_body(seed_oid));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Npc>(&NPC_OID)
+            .map(|n| n.seed_id),
+        Some(5016),
+        "sown inside its own castle's territory"
+    );
+}
+
+/// A `TaxZone` around the origin paying `castle_id`.
+fn insert_tax_zone_for(world: &mut World, castle_id: i32) {
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 0,
+        name: format!("test_tax_{castle_id}"),
+        kind: crate::data::zone_data::ZoneKind::Tax,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -500,
+                x2: 500,
+                y1: -500,
+                y2: 500,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
 }

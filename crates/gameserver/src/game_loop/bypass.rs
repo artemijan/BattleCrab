@@ -373,10 +373,6 @@ fn npc_bypass(
         // offset (`substring(9)`/`substring(13)`) — the token split is the same
         // cut, and a non-numeric tail is Java's swallowed `NumberFormatException`.
         "multisell" | "exc_multisell" => {
-            let npc_id = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&npc_object_id)
-                .map_or(0, |n| n.npc_id);
             if let Some(list_id) = command
                 .split_once(' ')
                 .and_then(|(_, rest)| rest.trim().parse::<i32>().ok())
@@ -385,7 +381,7 @@ fn npc_bypass(
                     world,
                     client_id,
                     object_id,
-                    Some(npc_id),
+                    Some(npc_object_id),
                     list_id,
                     verb == "exc_multisell",
                 );
