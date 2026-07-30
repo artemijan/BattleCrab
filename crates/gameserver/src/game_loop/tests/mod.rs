@@ -130,6 +130,7 @@ mod teleport_cmds_tests;
 mod trigger_skill_tests;
 mod tvt_tests;
 mod two_handed_tests;
+mod user_command_tests;
 mod valakas_tests;
 mod visibility_tests;
 mod vitality_tests;
@@ -228,6 +229,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         clan_privs: 0,
         clan_create_expiry_time: 0,
         clan_join_expiry_time: 0,
+        create_date: "2026-01-15".to_string(),
         power_grade: 0,
         pledge_type: 0,
         race: 0,

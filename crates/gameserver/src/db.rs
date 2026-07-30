@@ -3899,6 +3899,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
             clan_privs: row.clan_privs.unwrap_or(0),
             clan_create_expiry_time: row.clan_create_expiry_time,
             clan_join_expiry_time: row.clan_join_expiry_time,
+            create_date: row.create_date.clone(),
             power_grade: row.power_grade.unwrap_or(0),
             pledge_type: row.subpledge,
             race: row.race.unwrap_or(0),
@@ -4808,21 +4809,7 @@ async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
 /// `characters.createDate` is a `date` column SQLite fills with `date('now')`;
 /// the entity carries it as text, so the value is formatted here.
 fn today() -> String {
-    let secs = commons::util::now_millis() / 1000;
-    let days = secs / 86_400;
-    // Civil-from-days (Howard Hinnant's algorithm), which avoids a chrono
-    // dependency for the one date column in the schema.
-    let z = days + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z.rem_euclid(146_097);
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
-    format!("{y:04}-{m:02}-{d:02}")
+    commons::util::format_date(commons::util::now_millis())
 }
 
 /// Runs an insert that the caller treats as best-effort, logging a failure the

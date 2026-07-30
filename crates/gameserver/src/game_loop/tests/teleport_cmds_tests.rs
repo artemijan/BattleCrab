@@ -340,8 +340,9 @@ fn loc_user_command_reports_region() {
         vec![server_packets::sm_ids::CURRENT_LOCATION_S1]
     );
 
-    // Unknown command id: silence for a non-GM.
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(77));
+    // Unknown command id: silence for a non-GM. (255 is unregistered — 77 is
+    // `/time` since the user-command sweep.)
+    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(255));
     assert!(
         drain(&mut rx).is_empty(),
         "unknown user command must be silent"

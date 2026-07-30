@@ -232,3 +232,21 @@ pub fn ex_set_party_looting(result: i32, loot_rule_id: i32) -> Vec<u8> {
     w.write_i32(loot_rule_id);
     w.into_bytes()
 }
+
+/// `ExInzoneWaiting` — the `/instancezone` re-enter window: the template id of
+/// the instance the player is standing in (`-1` for the overworld) and one
+/// `(templateId, secondsLeft)` pair per instance still on cooldown. Java's
+/// leading byte is `!hide`, and the command always passes `hide = false`.
+pub fn ex_inzone_waiting(current_template_id: i32, reuse: &[(i32, i32)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::EX);
+    w.write_i16(opcodes::EX_INZONE_WAITING_INFO);
+    w.write_u8(1); // !hide
+    w.write_i32(current_template_id);
+    w.write_i32(reuse.len() as i32);
+    for (template_id, seconds) in reuse {
+        w.write_i32(*template_id);
+        w.write_i32(*seconds);
+    }
+    w.into_bytes()
+}

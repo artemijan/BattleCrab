@@ -290,6 +290,9 @@ pub struct Player {
     /// `characters.clan_join_expiry_time` — the 1-day rejoin penalty after
     /// leaving/being ousted from a clan (`Player.getClanJoinExpiryTime`).
     pub clan_join_expiry_time: i64,
+    /// `characters.create_date` (`YYYY-MM-DD`) — Java `Player.getCreateDate()`,
+    /// shown by `/mybirthday`.
+    pub create_date: String,
     /// Java `Player._powerGrade` — the clan rank (1 leader … 9 academy);
     /// fixed up at enter-world (leader → 1, unset → 5) alongside `clan_privs`.
     pub power_grade: i32,
@@ -969,6 +972,7 @@ impl Player {
             pledge_class: 0,    // recomputed with clan_leader from World.clans
             clan_create_expiry_time: c.clan_create_expiry_time,
             clan_join_expiry_time: c.clan_join_expiry_time,
+            create_date: c.create_date.clone(),
             power_grade: c.power_grade,
             ally_id: 0, // synced from the clan at enter-world
             pledge_type: c.pledge_type,

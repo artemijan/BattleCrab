@@ -68,6 +68,10 @@ impl NobleStats {
 
 // Tunables — dist `config/Olympiad.ini` (authoritative). Hard-coded here in
 // slice 1; live-config plumbing is a later concern.
+/// `OlympiadEnabled` — **True** on this dist. Java's `Config.OLYMPIAD_ENABLED`
+/// gates `/olympiadstat` (and the manager's registration menus).
+pub const OLYMPIAD_ENABLED: bool = true;
+
 /// `AltOlyStartPoints` — a noble's starting Olympiad points.
 pub const DEFAULT_POINTS: i32 = 10;
 /// `AltOlyMaxWeeklyMatches` — matches a noble may enter per week.
