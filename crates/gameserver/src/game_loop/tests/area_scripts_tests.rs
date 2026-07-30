@@ -555,3 +555,107 @@ fn frightened_orc_bribe_pays_out_and_he_vanishes() {
     advance_ticks(&mut world, 15);
     assert_eq!(count_npcs(&mut world, ORC), 0, "gone as promised");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 4 — the allied-tribe service NPCs (Ketra / Varka mirror pair)
+// ---------------------------------------------------------------------------
+
+fn give_test_item(world: &mut World, player: i32, item_id: i32, count: i64) {
+    let World { data, objects, .. } = world;
+    objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&player)
+        .unwrap()
+        .add_item(&data.item_data, 8_100_000 + item_id, item_id, count);
+}
+
+/// Asefa trades Buffalo Horns for war buffs: three horns buy Might, an
+/// empty pouch buys nothing.
+#[test]
+fn ketra_buffer_charges_horns_for_buffs() {
+    let (mut world, _db, _l) = combat_test_world();
+    const ASEFA: i32 = 31372;
+    const HORN: i32 = 7186;
+    const MIGHT: i32 = 4345;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(ASEFA));
+    let mut might = passive_clan_test_skill(MIGHT);
+    might.operate_type = OperateType::Active;
+    world.data.skill_data.insert_for_test(might);
+    add_test_npc(&mut world, NPC_OID, ASEFA, "Folk", 70, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+    give_test_item(&mut world, 5001, HORN, 3);
+
+    // Buff 3 = Might, 3 horns.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport 3")),
+    );
+    assert_eq!(item_count(&world, 5001, HORN), 0, "three horns spent");
+    let cast = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&NPC_OID)
+        .map(|c| c.0.skill_id);
+    assert_eq!(cast, Some(MIGHT), "Asefa casts Might on the visitor");
+
+    // Broke: no cast, no debt.
+    world
+        .objects
+        .remove_component::<crate::model::components::Casting>(&NPC_OID);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport 3")),
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Casting>(&NPC_OID)
+            .is_none(),
+        "no horns, no buff"
+    );
+}
+
+/// Kurfa's teleport menu is alliance-gated: level 4 gets the list, an
+/// outsider gets nothing.
+#[test]
+fn ketra_teleporter_serves_only_level_four_allies() {
+    let (mut world, _db, _l) = combat_test_world();
+    const KURFA: i32 = 31376;
+    const MARK_4: i32 = 7214;
+    // Serve the real script htmls — the html IS the observable here.
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(KURFA));
+    add_test_npc(&mut world, NPC_OID, KURFA, "Folk", 70, 100, 0, 0);
+    let mut rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // Outsider: the Teleport event yields no window.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport Teleport")),
+    );
+    let htmls = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .count();
+    assert_eq!(htmls, 0, "no alliance, no destinations");
+
+    // Level-4 ally: the destination window opens.
+    give_test_item(&mut world, 5001, MARK_4, 1);
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest KetraOrcSupport Teleport")),
+    );
+    let htmls = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .count();
+    assert_eq!(htmls, 1, "level 4 gets the teleport list");
+}

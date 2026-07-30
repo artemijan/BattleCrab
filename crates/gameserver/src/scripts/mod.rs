@@ -205,6 +205,7 @@ pub mod sailren_altar;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
 mod toma;
+mod tribe_support;
 mod tunatun;
 pub mod tvt;
 mod valakas_teleporters;
@@ -461,6 +462,9 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         // Kasha-eye script is @Disabled on this dist with no eye spawns).
         Arc::new(den_of_evil::RagnaOrcLeaders),
         Arc::new(den_of_evil::FrightenedRagnaOrc),
+        // ai/areas — slice 4: the allied-tribe service NPCs (mirror pair).
+        Arc::new(tribe_support::KetraOrcSupport),
+        Arc::new(tribe_support::VarkaSilenosSupport),
     ];
     QuestRegistry::new(scripts)
 }
