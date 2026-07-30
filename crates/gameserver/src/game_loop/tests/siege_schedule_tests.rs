@@ -83,6 +83,7 @@ fn schedule_world() -> (
             ticket_buy_count: 0,
             time_registration_over: true,
             siege_date: 0,
+            treasury: 0,
         },
         Castle {
             id: 2,
@@ -91,6 +92,7 @@ fn schedule_world() -> (
             ticket_buy_count: 0,
             time_registration_over: true,
             siege_date: 0,
+            treasury: 0,
         },
     ];
     world.sieges.insert(1, Siege::new(1));

@@ -17,6 +17,26 @@ pub struct CharacterConfig {
     pub delete_days: i32,
     /// `StartingAdena`: adena a freshly created character receives.
     pub starting_adena: i64,
+    /// `MaxAdena` (Java `Config.MAX_ADENA` → `Inventory.MAX_ADENA`): the ceiling
+    /// on a single adena pile. **9 999 999 999 999 on this dist**, not the Java
+    /// default 99 900 000 000; a negative value means `Long.MAX_VALUE`. Read by
+    /// the castle treasury's clamp (`Castle.addToTreasuryNoTax`) — the shop and
+    /// private-store paths still carry their own hard-coded ceilings.
+    pub max_adena: i64,
+    /// `MaximumWarehouseSlotsForClan` (**200** here; Java's default is 150) —
+    /// `Config.WAREHOUSE_SLOTS_CLAN`, the clan warehouse's slot ceiling, read by
+    /// `ClanWarehouse.validateCapacity` when the manor checks whether its next
+    /// period's crops would fit.
+    pub warehouse_slots_clan: i32,
+    /// `AltKarmaPlayerCanUseWareHouse` (**True** here, Java's default) —
+    /// whether a negative-reputation character may use the warehouse/freight.
+    pub alt_karma_player_can_use_warehouse: bool,
+    /// `FreightPrice` (**1000** here) — adena charged per item *slot* sent
+    /// through the freight (Java `Config.ALT_FREIGHT_PRICE`).
+    pub freight_price: i32,
+    /// `MaximumFreightSlots` (**200** here) — the recipient freight's ceiling
+    /// (Java `PlayerFreight.validateCapacity`).
+    pub freight_slots: i32,
     /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
     /// was out at logout comes back on the next login. **Both True on this
     /// dist**, so the reconnect path is live content, not an opt-in.
@@ -188,6 +208,10 @@ pub struct CharacterConfig {
     /// `AltKarmaPlayerCanUseGK`: whether a negative-reputation character may
     /// use gatekeepers (False — Java default and this dist).
     pub alt_karma_player_can_use_gk: bool,
+    /// `TeleportWhileSiegeInProgress`: may a gatekeeper send anyone to (or from)
+    /// a castle town whose siege is running? **False** on this dist (Java's
+    /// default is true), so both gates in `TeleportHolder.doTeleport` are live.
+    pub teleport_while_siege_in_progress: bool,
     /// `UnstuckInterval` (seconds): the `/unstuck` escape cast time (30 on
     /// this dist, Java default 300 = the stock 5-minute escape skill).
     pub unstuck_interval: i32,
@@ -216,6 +240,11 @@ impl Default for CharacterConfig {
         Self {
             delete_days: 1,
             starting_adena: 0,
+            max_adena: 99_900_000_000,
+            warehouse_slots_clan: 150,
+            alt_karma_player_can_use_warehouse: true,
+            freight_price: 1000,
+            freight_slots: 200,
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
@@ -280,6 +309,7 @@ impl Default for CharacterConfig {
             dance_cancel_buff: false,
             max_free_teleport_level: 99,
             alt_karma_player_can_use_gk: false,
+            teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
             calculate_magic_success_by_skill_magic_level: true,
             magic_failures: true,
@@ -311,6 +341,18 @@ impl CharacterConfig {
         Self {
             delete_days: p.get_int("DeleteCharAfterDays", 1),
             starting_adena: p.get_int("StartingAdena", 0) as i64,
+            // Java: `if (MAX_ADENA < 0) MAX_ADENA = Long.MAX_VALUE;`
+            max_adena: match p.get_long("MaxAdena", d.max_adena) {
+                v if v < 0 => i64::MAX,
+                v => v,
+            },
+            warehouse_slots_clan: p.get_int("MaximumWarehouseSlotsForClan", d.warehouse_slots_clan),
+            alt_karma_player_can_use_warehouse: p.get_bool(
+                "AltKarmaPlayerCanUseWareHouse",
+                d.alt_karma_player_can_use_warehouse,
+            ),
+            freight_price: p.get_int("FreightPrice", d.freight_price),
+            freight_slots: p.get_int("MaximumFreightSlots", d.freight_slots),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),
@@ -395,6 +437,10 @@ impl CharacterConfig {
             max_free_teleport_level: p.get_int("MaxFreeTeleportLevel", d.max_free_teleport_level),
             alt_karma_player_can_use_gk: p
                 .get_bool("AltKarmaPlayerCanUseGK", d.alt_karma_player_can_use_gk),
+            teleport_while_siege_in_progress: p.get_bool(
+                "TeleportWhileSiegeInProgress",
+                d.teleport_while_siege_in_progress,
+            ),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
             calculate_magic_success_by_skill_magic_level: p.get_bool(
                 "CalculateMagicSuccessBySkillMagicLevel",

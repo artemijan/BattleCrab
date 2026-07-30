@@ -176,6 +176,7 @@ fn teleporter_rejects_malformed_and_wrong_npc() {
                 npc_string_id: -1,
                 fee_id: 57,
                 fee_count: 0,
+                castle_ids: Vec::new(),
             }],
         },
     );
@@ -340,10 +341,224 @@ fn loc_user_command_reports_region() {
         vec![server_packets::sm_ids::CURRENT_LOCATION_S1]
     );
 
-    // Unknown command id: silence for a non-GM.
-    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(77));
+    // Unknown command id: silence for a non-GM. (255 is unregistered — 77 is
+    // `/time` since the user-command sweep.)
+    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(255));
     assert!(
         drain(&mut rx).is_empty(),
         "unknown user command must be silent"
+    );
+}
+
+// --- Row 9: the gatekeeper tails ------------------------------------------
+
+/// **A subclass pays even below the free-teleport level.** Java's
+/// `shouldPayFee`/`calculateFee` both add `isSubClassActive()`, so a level-20
+/// character on a subclass is charged the full fare a base-class one rides free.
+#[test]
+fn a_subclass_pays_the_teleport_fee() {
+    let (mut world, mut rx) = teleporter_world(20_000);
+    {
+        let p = world.objects.get_component_mut::<Player>(&3001).unwrap();
+        p.level = 20; // below MaxFreeTeleportLevel (40)
+        p.base_class_id = 0;
+        p.class_id = 0;
+    }
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
+    drain(&mut rx);
+    assert_eq!(adena_of(&world, 3001), 20_000, "a base class rides free");
+
+    // Same level, but playing a subclass: the fare is charged. (The free ride
+    // moved the player, so put them back in front of the gatekeeper first.)
+    {
+        let pos = world.objects.get_component_mut::<Position>(&3001).unwrap();
+        pos.x = 0;
+        pos.y = 0;
+        pos.z = 0;
+    }
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .class_id = 88;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
+    drain(&mut rx);
+    assert_eq!(
+        adena_of(&world, 3001),
+        20_000 - 9_400,
+        "a subclass pays the full fee"
+    );
+}
+
+/// **Monday/Tuesday from 20:00 is half price** (Java's `Calendar` branch,
+/// evaluated in UTC here). Epoch day 0 was a Thursday, so day 4 is a Monday.
+#[test]
+fn the_monday_tuesday_evening_window_halves_the_fee() {
+    use crate::game_loop::teleporter::is_half_price_window;
+
+    const DAY: i64 = 86_400_000;
+    const HOUR: i64 = 3_600_000;
+    // Monday (epoch day 4) at 20:00 and 19:59.
+    assert!(is_half_price_window(4 * DAY + 20 * HOUR));
+    assert!(!is_half_price_window(4 * DAY + 19 * HOUR + 59 * 60_000));
+    // Tuesday 23:00 yes, Wednesday 20:00 no, Sunday 20:00 no.
+    assert!(is_half_price_window(5 * DAY + 23 * HOUR));
+    assert!(!is_half_price_window(6 * DAY + 20 * HOUR));
+    assert!(!is_half_price_window(3 * DAY + 20 * HOUR));
+
+    // …and the fee actually halves inside the window.
+    let (mut world, _rx) = teleporter_world(0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 80;
+    let holder = world
+        .data
+        .teleporters
+        .holder(30001, "NORMAL")
+        .expect("the fixture list")
+        .clone();
+    let loc = holder.locations[0].clone();
+    let fee_at = |world: &World, now: i64| {
+        crate::game_loop::teleporter::calculate_fee_at(world, 80, 3001, &holder, &loc, now)
+    };
+    assert_eq!(
+        fee_at(&world, 6 * DAY + 20 * HOUR),
+        9_400,
+        "Wednesday: full"
+    );
+    assert_eq!(
+        fee_at(&world, 4 * DAY + 20 * HOUR),
+        4_700,
+        "Monday 20:00: half"
+    );
+}
+
+/// **A destination whose castle is under siege is refused** — the dist ships
+/// `TeleportWhileSiegeInProgress = False`.
+#[test]
+fn a_besieged_destination_is_refused() {
+    let (mut world, mut rx) = teleporter_world(20_000);
+    world.cfg.character.teleport_while_siege_in_progress = false;
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 80;
+    // Tie the destination to castle 1 and start its siege.
+    world.data.teleporters.insert_for_test(
+        30001,
+        crate::data::teleporter_data::TeleportHolder {
+            name: "NORMAL".into(),
+            teleport_type: crate::data::teleporter_data::TeleportType::Normal,
+            locations: vec![crate::data::teleporter_data::TeleportLocation {
+                x: 1000,
+                y: 2000,
+                z: -30,
+                name: None,
+                npc_string_id: 1010004,
+                fee_id: 57,
+                fee_count: 9400,
+                castle_ids: vec![1],
+            }],
+        },
+    );
+    let mut siege = crate::model::siege::Siege::new(1);
+    siege.in_progress = true;
+    world.sieges.insert(1, siege);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
+
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE)
+    );
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y), (0, 0), "and nobody moved");
+    assert_eq!(adena_of(&world, 3001), 20_000, "nothing was charged");
+}
+
+/// **Carrying a siege ward blocks the gatekeeper** (Java
+/// `isCombatFlagEquipped`).
+#[test]
+fn a_ward_carrier_cannot_teleport() {
+    let (mut world, mut rx) = teleporter_world(20_000);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 80;
+    // The combat flag (9819) in the bag.
+    let mut flag = world.data.item_data.get(57).cloned().unwrap();
+    flag.item_id = 9819;
+    flag.name = "Combat Flag".into();
+    world.data.item_data.insert_for_test(flag);
+    super::items::add_inventory_item(&mut world, 3001, 9819, 1);
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_teleport NORMAL 0")),
+    );
+
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD)
+    );
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!((pos.x, pos.y), (0, 0));
+}
+
+/// **`showNoblesSelect` serves the noble page only to nobles.**
+#[test]
+fn the_noble_list_page_gates_on_nobless() {
+    let (mut world, mut rx) = teleporter_world(0);
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_showNoblesSelect")),
+    );
+    let page = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
+    assert!(
+        !page.contains("showTeleports NOBLE"),
+        "a non-noble gets the refusal page: {page}"
+    );
+
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .is_noble = true;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_showNoblesSelect")),
+    );
+    let page = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("the noble page");
+    assert!(
+        page.contains("showTeleports"),
+        "a noble gets the destination menu: {page}"
     );
 }

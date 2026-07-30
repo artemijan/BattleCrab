@@ -3,18 +3,19 @@
 //! the `Teleporter.onBypassFeedback` verb routing. Data side:
 //! [`crate::data::teleporter_data`].
 //!
-//! Deliberate narrowings (documented per the plan):
-//! - Castle-siege gates (`TELEPORT_WHILE_SIEGE_IN_PROGRESS`, the
-//!   `castleteleporter-busy.htm` branch, `castleId` checks) — no sieges (G24).
-//! - The Mon/Tue 20:00–24:00 half-price window (`calculateFee`'s Calendar
-//!   branch) — needs server-local wall-clock plumbing (G33's game clock).
-//! - Noblesse lists check the player's nobless (G17); non-nobles are refused —
-//!   behavior Java shows a non-noble.
-//! - `isSubClassActive()` in the free-teleport check — no subclasses (G17).
-//! - The combat-flag gate (SM 2348) — no combat flags (G24).
+//! The G15.5 narrowings are closed by the row-9 tail: the siege gates
+//! (`TeleportWhileSiegeInProgress` = **False** here, so a destination whose
+//! `castleId` is under siege is refused, and a castle gatekeeper serves
+//! `castleteleporter-busy.htm` while its own castle is besieged), the Mon/Tue
+//! 20:00+ half-price window, `isSubClassActive()` in the free-teleport check,
+//! the combat-flag gate, and the noble page.
+//!
+//! Still narrowed:
 //! - Fee consumption sends `InventoryUpdate` but not Java's
 //!   `destroyItemByItemId` "disappeared" system message — none of the ported
 //!   consume paths (quest takes, buy) send those yet.
+//! - The Mon/Tue window is evaluated in **UTC**, like the port's other
+//!   wall-clock work (`daily_tasks`), where Java uses server-local time.
 
 use tracing::warn;
 
@@ -46,8 +47,12 @@ pub(crate) fn handle_bypass(
     let mut tokens = command.split_whitespace();
     match tokens.next().unwrap_or("") {
         "showNoblesSelect" => {
-            // No nobless status yet (G17): everyone gets the refusal page.
-            send_teleporter_html(world, client_id, npc_object_id, "not_nobles.htm");
+            let file = if is_noble(world, object_id) {
+                "nobles_select.htm"
+            } else {
+                "not_nobles.htm"
+            };
+            send_teleporter_html(world, client_id, npc_object_id, file);
             true
         }
         "showTeleports" => {
@@ -117,27 +122,93 @@ fn holder<'a>(world: &'a World, npc_object_id: i32, list_name: &str) -> Option<&
 fn should_pay_fee(
     world: &World,
     level: i32,
+    object_id: i32,
     holder: &TeleportHolder,
     loc: &TeleportLocation,
 ) -> bool {
     !holder.is_normal_teleport()
-        || (level > world.cfg.character.max_free_teleport_level
+        || ((level > world.cfg.character.max_free_teleport_level
+            || is_subclass_active(world, object_id))
             && loc.fee_id != 0
             && loc.fee_count > 0)
 }
 
-/// `TeleportHolder.calculateFee` minus the Mon/Tue evening discount (see
-/// module docs).
+/// `TeleportHolder.calculateFee`: free below the level cap (unless a subclass is
+/// active), and **half price from 20:00 on Monday and Tuesday** — Java's
+/// `Calendar` branch, evaluated in UTC here.
 fn calculate_fee(
     world: &World,
     level: i32,
+    object_id: i32,
     holder: &TeleportHolder,
     loc: &TeleportLocation,
 ) -> i64 {
-    if holder.is_normal_teleport() && level <= world.cfg.character.max_free_teleport_level {
-        return 0;
+    calculate_fee_at(
+        world,
+        level,
+        object_id,
+        holder,
+        loc,
+        commons::util::now_millis(),
+    )
+}
+
+/// [`calculate_fee`] with the clock injected, so the Mon/Tue window is testable.
+pub(crate) fn calculate_fee_at(
+    world: &World,
+    level: i32,
+    object_id: i32,
+    holder: &TeleportHolder,
+    loc: &TeleportLocation,
+    now_millis: i64,
+) -> i64 {
+    if holder.is_normal_teleport() {
+        if !is_subclass_active(world, object_id)
+            && level <= world.cfg.character.max_free_teleport_level
+        {
+            return 0;
+        }
+        if is_half_price_window(now_millis) {
+            return loc.fee_count / 2;
+        }
     }
     loc.fee_count
+}
+
+/// Java's `(hour >= 20) && (dayOfWeek >= MONDAY && dayOfWeek <= TUESDAY)` —
+/// the 20:00–24:00 Monday/Tuesday discount. Epoch day 0 (1970-01-01) was a
+/// Thursday, so `((days + 4) % 7)` is 0 = Sunday … 1 = Monday, 2 = Tuesday.
+pub(crate) fn is_half_price_window(now_millis: i64) -> bool {
+    let days = now_millis.div_euclid(86_400_000);
+    let weekday = (days + 4).rem_euclid(7);
+    let hour = now_millis.div_euclid(3_600_000).rem_euclid(24);
+    hour >= 20 && (weekday == 1 || weekday == 2)
+}
+
+/// Java `Player.isSubClassActive()` — the character is playing a subclass, not
+/// their base class. Such a character pays the teleport fee at any level.
+fn is_subclass_active(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.class_id != p.base_class_id)
+}
+
+/// Java `Player.isCombatFlagEquipped()` — carrying a siege ward (item 9819)
+/// blocks gatekeeper teleports.
+fn has_combat_flag(world: &World, object_id: i32) -> bool {
+    const COMBAT_FLAG: i32 = 9819;
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .is_some_and(|inv| inv.count_of(COMBAT_FLAG) > 0)
+}
+
+/// Whether any of `castle_ids` has a siege running (Java's destination check).
+fn any_siege_in_progress(world: &World, castle_ids: &[i32]) -> bool {
+    castle_ids
+        .iter()
+        .any(|id| world.sieges.get(id).is_some_and(|s| s.in_progress))
 }
 
 /// `TeleportHolder.getItemName(feeId, fstring)` — the fee suffix on the list
@@ -198,8 +269,8 @@ pub(crate) fn show_teleport_list(
             let name = loc.name.clone().unwrap_or_default();
             (name.clone(), name)
         };
-        if should_pay_fee(world, level, holder, loc) {
-            let fee = calculate_fee(world, level, holder, loc);
+        if should_pay_fee(world, level, object_id, holder, loc) {
+            let fee = calculate_fee(world, level, object_id, holder, loc);
             if fee != 0 {
                 final_name.push_str(&format!(" - {fee} {}", fee_item_name(world, loc.fee_id)));
             }
@@ -252,14 +323,46 @@ pub(crate) fn do_teleport(
         return;
     };
     let is_normal = holder.is_normal_teleport();
-    let pay = should_pay_fee(world, level, holder, &loc);
-    let fee = calculate_fee(world, level, holder, &loc);
+    let pay = should_pay_fee(world, level, object_id, holder, &loc);
+    let fee = calculate_fee(world, level, object_id, holder, &loc);
 
-    // NORMAL-list conditions (`doTeleport`'s isNormalTeleport block): the
-    // karma gate; siege/combat-flag gates skipped (see module docs).
-    if is_normal && !world.cfg.character.alt_karma_player_can_use_gk && reputation < 0 {
-        super::admin::send_message(world, client_id, "Go away, you're not welcome here.");
+    // A destination whose castle is under siege is refused outright
+    // (`TeleportWhileSiegeInProgress` is False on this dist).
+    if !world.cfg.character.teleport_while_siege_in_progress
+        && any_siege_in_progress(world, &loc.castle_ids)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE,
+                &[],
+            ));
+        }
         return;
+    }
+
+    // NORMAL-list conditions (`doTeleport`'s isNormalTeleport block).
+    if is_normal {
+        // The gatekeeper's own castle under siege: the busy page.
+        let npc_castle = npc_castle_id(world, npc_object_id);
+        if !world.cfg.character.teleport_while_siege_in_progress
+            && npc_castle.is_some_and(|id| any_siege_in_progress(world, &[id]))
+        {
+            send_teleporter_html(world, client_id, npc_object_id, "castleteleporter-busy.htm");
+            return;
+        }
+        if !world.cfg.character.alt_karma_player_can_use_gk && reputation < 0 {
+            super::admin::send_message(world, client_id, "Go away, you're not welcome here.");
+            return;
+        }
+        if has_combat_flag(world, object_id) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD,
+                    &[],
+                ));
+            }
+            return;
+        }
     }
 
     // Fee charge — Java `destroyItemByItemId` checks the full amount before
@@ -330,4 +433,43 @@ fn is_noble(world: &World, player_object_id: i32) -> bool {
         .objects
         .get_component::<crate::model::Player>(&player_object_id)
         .is_some_and(|p| p.is_noble)
+}
+
+/// `CastleManager.getCastle(npc)` for a gatekeeper — the castle whose territory
+/// it stands in, if any.
+fn npc_castle_id(world: &World, npc_object_id: i32) -> Option<i32> {
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&npc_object_id)?;
+    world.data.zone_data.nearest_castle_at(pos.x, pos.y, pos.z)
+}
+
+/// `Teleporter.showChatWindow`'s castle branch. `None` when the gatekeeper does
+/// not stand on castle ground (Java falls back to `super.showChatWindow`);
+/// otherwise the page file, relative to `data/html/teleporter/`, except the
+/// owner case which returns `None` so the normal `<id>.htm` lookup runs.
+pub(crate) fn castle_landing_page(
+    world: &World,
+    npc_object_id: i32,
+    player_object_id: i32,
+) -> Option<String> {
+    let castle_id = npc_castle_id(world, npc_object_id)?;
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&player_object_id)
+        .map_or(0, |p| p.clan_id);
+    if clan_id != 0 && super::siege::owner_clan_id_opt(world, castle_id) == Some(clan_id) {
+        return None; // the owner sees the gatekeeper's own page
+    }
+    Some(if any_siege_in_progress(world, &[castle_id]) {
+        "castleteleporter-busy.htm".to_string()
+    } else {
+        "castleteleporter-no.htm".to_string()
+    })
+}
+
+/// Send one of the fixed `data/html/teleporter/` pages (the castle landing
+/// pages), with Java's `%objectId%`/`%npcname%` replacements.
+pub(crate) fn send_landing_page(world: &World, client_id: u32, npc_object_id: i32, file: &str) {
+    send_teleporter_html(world, client_id, npc_object_id, file);
 }

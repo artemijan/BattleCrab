@@ -22,6 +22,54 @@ pub mod sm_ids {
     pub const INVALID_MACRO_REFER_TO_THE_HELP_FILE_FOR_INSTRUCTIONS: i16 = 810;
     pub const MACRO_DESCRIPTIONS_MAY_CONTAIN_UP_TO_32_CHARACTERS: i16 = 837;
     pub const ENTER_THE_NAME_OF_THE_MACRO: i16 = 838;
+    // User commands (`/time`, `/partyinfo`, `/channelinfo`, …) — G15.5 tail.
+    /// `The current time is $s1:$s2.` (day) and its night variant.
+    pub const THE_CURRENT_TIME_IS_S1_S2: i16 = 927;
+    pub const THE_CURRENT_TIME_IS_S1_S2_NIGHT: i16 = 928;
+    pub const PARTY_INFORMATION: i16 = 1030;
+    pub const LOOTING_METHOD_FINDERS_KEEPERS: i16 = 1031;
+    pub const LOOTING_METHOD_RANDOM: i16 = 1032;
+    pub const LOOTING_METHOD_RANDOM_INCLUDING_SPOIL: i16 = 1033;
+    pub const LOOTING_METHOD_BY_TURN: i16 = 1034;
+    pub const LOOTING_METHOD_BY_TURN_INCLUDING_SPOIL: i16 = 1035;
+    pub const CLANS_YOU_VE_DECLARED_WAR_ON: i16 = 1571;
+    pub const CLANS_THAT_HAVE_DECLARED_WAR_ON_YOU: i16 = 1572;
+    pub const NOT_JOINED_IN_ANY_CLAN: i16 = 238;
+    /// `$s1 ($s2 alliance)` / `$s1 (no alliance exists)` — one clan-war row.
+    pub const S1_S2_ALLIANCE: i16 = 1200;
+    pub const S1_NO_ALLIANCE_EXISTS: i16 = 1202;
+    pub const ONLY_A_PARTY_LEADER_CAN_LEAVE_A_COMMAND_CHANNEL: i16 = 1683;
+    pub const ONLY_A_NOBLE_CLAN_LEADER_CAN_VIEW_THE_SIEGE_STATUS: i16 = 1694;
+    pub const COMMAND_AVAILABLE_AFTER_THE_2ND_CLASS_TRANSFER: i16 = 1674;
+    pub const FOR_THE_CURRENT_OLYMPIAD_YOU_HAVE_PARTICIPATED: i16 = 1673;
+    pub const THE_MATCHES_THIS_WEEK_ARE_ALL_CLASS_BATTLES: i16 = 3261;
+    pub const C1_S_BIRTHDAY_IS_S3_S4_S2: i16 = 2450;
+    // `/mount` — the strider gate ladder (Java `Player.mountPlayer`).
+    pub const A_HUNGRY_STRIDER_CANNOT_BE_MOUNTED_OR_DISMOUNTED: i16 = 1008;
+    pub const A_STRIDER_CANNOT_BE_RIDDEN_WHEN_DEAD: i16 = 1009;
+    pub const A_DEAD_STRIDER_CANNOT_BE_RIDDEN: i16 = 1010;
+    pub const A_STRIDER_IN_BATTLE_CANNOT_BE_RIDDEN: i16 = 1011;
+    pub const A_STRIDER_CANNOT_BE_RIDDEN_WHILE_IN_BATTLE: i16 = 1012;
+    pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
+    pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
+    /// `That character does not exist.` — the freight send with no other
+    /// character on the account.
+    pub const THAT_CHARACTER_DOES_NOT_EXIST: i16 = 873;
+    // Gatekeeper teleports (G15.5 tail).
+    pub const YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE: i16 = 707;
+    pub const YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD: i16 = 2778;
+    // Manor (G26). The ids come from `SystemMessageId.java`'s `@ClientString`
+    // annotations — earlier manor slices assumed they weren't available here.
+    /// `The manor information has been updated.`
+    pub const THE_MANOR_INFORMATION_HAS_BEEN_UPDATED: i16 = 884;
+    /// `You do not have enough funds in the clan warehouse for the Manor to operate.`
+    pub const NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR: i16 = 935;
+    /// `This seed may not be sown here.`
+    pub const THIS_SEED_MAY_NOT_BE_SOWN_HERE: i16 = 872;
+    /// `A manor cannot be set up between 4:30 am and 8 pm.`
+    pub const A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM: i16 = 1675;
+    /// `Failed in trading $s2 of $s1 crops.`
+    pub const FAILED_IN_TRADING_S2_OF_S1_CROPS: i16 = 1491;
     // Community board (G30)
     pub const THE_COMMUNITY_SERVER_IS_CURRENTLY_OFFLINE: i16 = 938;
     // Clans (G11)
@@ -475,6 +523,8 @@ pub mod sm_ids {
     pub const THE_COMMAND_CHANNEL_HAS_BEEN_FORMED: i16 = 1580;
     pub const THE_COMMAND_CHANNEL_HAS_BEEN_DISBANDED: i16 = 1581;
     pub const YOU_HAVE_JOINED_THE_COMMAND_CHANNEL: i16 = 1582;
+    pub const YOU_HAVE_QUIT_THE_COMMAND_CHANNEL: i16 = 1586;
+    pub const C1_S_PARTY_HAS_LEFT_THE_COMMAND_CHANNEL: i16 = 1587;
     pub const YOU_WERE_DISMISSED_FROM_THE_COMMAND_CHANNEL: i16 = 1583;
     pub const C1_S_PARTY_HAS_BEEN_DISMISSED_FROM_THE_COMMAND_CHANNEL: i16 = 1584;
     pub const COMMAND_CHANNEL_AUTHORITY_HAS_BEEN_TRANSFERRED_TO_C1: i16 = 1589;

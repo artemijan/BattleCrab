@@ -482,6 +482,30 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `RequestPackageSend` to an **offline** recipient — insert the freighted
+    /// items straight into their `items` rows (`loc = FREIGHT`), since there is
+    /// no live `Freight` component to write through. An online recipient's
+    /// component is updated instead, so the two paths never both fire.
+    AddFreightItems {
+        owner_id: i32,
+        items: Vec<FreightItemRow>,
+    },
+    /// `CastleManorManager.storeMe` for one castle — replace both manor tables'
+    /// rows for it (all four period lists) in one shot. Java rewrites every
+    /// castle's rows after the daily rollover; the port stores the castle it
+    /// just rolled, which is the same end state with a narrower delete.
+    StoreManor {
+        castle_id: i32,
+        production: Vec<ManorProductionRow>,
+        procure: Vec<ManorProcureRow>,
+    },
+    /// `Castle.addToTreasuryNoTax` — persist the castle vault. Java writes the
+    /// row on every change (tax income, manor seed sale, chamberlain deposit or
+    /// withdrawal), so this is sent from each of those paths.
+    UpdateCastleTreasury {
+        castle_id: i32,
+        treasury: i64,
+    },
     /// `Siege.saveSiegeDate` — persist the owner-chosen siege time + that the
     /// time-registration window has closed.
     UpdateCastleSiegeTime {
@@ -1155,6 +1179,16 @@ pub struct MailRow {
     pub deleted_by_receiver: bool,
     pub send_by_system: i32,
     pub returned: bool,
+}
+
+/// One freighted item destined for an **offline** character's `items` rows
+/// (`loc = FREIGHT`) — the cross-character package send.
+#[derive(Debug, Clone)]
+pub struct FreightItemRow {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub enchant_level: i32,
 }
 
 /// One `castle_manor_production` row — a seed the manor sells.
@@ -1858,6 +1892,89 @@ async fn run(
                 warn_err(
                     castle::Entity::update_many()
                         .col_expr(castle::Column::TicketBuyCount, count.into())
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+            }
+            DbCommand::AddFreightItems { owner_id, items } => {
+                for it in &items {
+                    warn_err(
+                        items::Entity::insert(items::ActiveModel {
+                            owner_id: Set(Some(owner_id)),
+                            object_id: Set(it.object_id),
+                            item_id: Set(Some(it.item_id)),
+                            count: Set(it.count),
+                            enchant_level: Set(Some(it.enchant_level)),
+                            loc: Set(Some("FREIGHT".to_string())),
+                            loc_data: Set(Some(0)),
+                            custom_type1: Set(Some(0)),
+                            custom_type2: Set(Some(0)),
+                            mana_left: Set(-1),
+                            time: Set(0),
+                            ..Default::default()
+                        })
+                        .exec(&db)
+                        .await,
+                    );
+                }
+            }
+            DbCommand::StoreManor {
+                castle_id,
+                production,
+                procure,
+            } => {
+                warn_err(
+                    castle_manor_production::Entity::delete_many()
+                        .filter(castle_manor_production::Column::CastleId.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+                for r in &production {
+                    warn_err(
+                        castle_manor_production::Entity::insert(
+                            castle_manor_production::ActiveModel {
+                                castle_id: Set(r.castle_id),
+                                seed_id: Set(r.seed_id),
+                                amount: Set(r.amount as i32),
+                                start_amount: Set(r.start_amount as i32),
+                                price: Set(r.price as i32),
+                                next_period: Set(i32::from(r.next_period)),
+                            },
+                        )
+                        .exec(&db)
+                        .await,
+                    );
+                }
+                warn_err(
+                    castle_manor_procure::Entity::delete_many()
+                        .filter(castle_manor_procure::Column::CastleId.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
+                for r in &procure {
+                    warn_err(
+                        castle_manor_procure::Entity::insert(castle_manor_procure::ActiveModel {
+                            castle_id: Set(r.castle_id),
+                            crop_id: Set(r.crop_id),
+                            amount: Set(r.amount as i32),
+                            start_amount: Set(r.start_amount as i32),
+                            price: Set(r.price as i32),
+                            reward_type: Set(r.reward_type),
+                            next_period: Set(i32::from(r.next_period)),
+                        })
+                        .exec(&db)
+                        .await,
+                    );
+                }
+            }
+            DbCommand::UpdateCastleTreasury {
+                castle_id,
+                treasury,
+            } => {
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(castle::Column::Treasury, treasury.into())
                         .filter(castle::Column::Id.eq(castle_id))
                         .exec(&db)
                         .await,
@@ -3822,6 +3939,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
             clan_privs: row.clan_privs.unwrap_or(0),
             clan_create_expiry_time: row.clan_create_expiry_time,
             clan_join_expiry_time: row.clan_join_expiry_time,
+            create_date: row.create_date.clone(),
             power_grade: row.power_grade.unwrap_or(0),
             pledge_type: row.subpledge,
             race: row.race.unwrap_or(0),
@@ -4474,6 +4592,7 @@ async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Cast
             // `regTimeOver` is an enum('true','false'); default (missing) is true.
             time_registration_over: r.reg_time_over != "false",
             siege_date: r.siege_date,
+            treasury: r.treasury,
         })
         .collect()
 }
@@ -4730,21 +4849,7 @@ async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
 /// `characters.createDate` is a `date` column SQLite fills with `date('now')`;
 /// the entity carries it as text, so the value is formatted here.
 fn today() -> String {
-    let secs = commons::util::now_millis() / 1000;
-    let days = secs / 86_400;
-    // Civil-from-days (Howard Hinnant's algorithm), which avoids a chrono
-    // dependency for the one date column in the schema.
-    let z = days + 719_468;
-    let era = z.div_euclid(146_097);
-    let doe = z.rem_euclid(146_097);
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
-    format!("{y:04}-{m:02}-{d:02}")
+    commons::util::format_date(commons::util::now_millis())
 }
 
 /// Runs an insert that the caller treats as best-effort, logging a failure the

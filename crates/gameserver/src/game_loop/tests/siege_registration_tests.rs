@@ -63,6 +63,7 @@ fn siege_world() -> (
             ticket_buy_count: 0,
             time_registration_over: true,
             siege_date: 0,
+            treasury: 0,
         },
         Castle {
             id: OTHER_CASTLE,
@@ -71,6 +72,7 @@ fn siege_world() -> (
             ticket_buy_count: 0,
             time_registration_over: true,
             siege_date: 0,
+            treasury: 0,
         },
     ];
     for id in [CASTLE, OTHER_CASTLE] {

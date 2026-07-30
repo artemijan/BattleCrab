@@ -68,6 +68,12 @@ pub enum ZoneKind {
     /// by geometry (`jail_zone_at`), never by membership mask — the u8 mask is
     /// full — so it claims no bit.
     Jail,
+    /// Java `TaxZone` (`tax.xml`): the territory whose merchant trade feeds a
+    /// castle's treasury. Its `<stat name="domainId">` is the castle id, held in
+    /// [`Zone::castle_id`]. Java latches the zone onto every NPC standing in it
+    /// (`Npc.setTaxZone`) and reads it back at sale time; the port queries it by
+    /// geometry (`tax_castle_at`), so it claims no membership bit.
+    Tax,
     /// Java `ResidenceTeleportZone` (`castle_teleport.xml`): the castle's
     /// owner-restart territory, whose `<spawn>` is where
     /// `Castle.oustAllPlayers` (the mass gatekeeper's `MASS_TELEPORT`) drops
@@ -105,6 +111,8 @@ impl ZoneKind {
             ZoneKind::Jail => 0,
             // Queried by geometry (`residence_teleport_zone`), no bit (mask full).
             ZoneKind::ResidenceTeleport => 0,
+            // Queried by geometry (`tax_castle_at`), no bit (mask full).
+            ZoneKind::Tax => 0,
         }
     }
 }
@@ -241,6 +249,9 @@ impl ZoneData {
             // (`territory_war_teleport.xml` is the later-chronicle sibling and
             // is deliberately not loaded).
             ("castle_teleport.xml", ZoneKind::ResidenceTeleport),
+            // `tax.xml` is uniformly `TaxZone` — the trade territory whose
+            // purchases pay tax into `domainId`'s castle treasury.
+            ("tax.xml", ZoneKind::Tax),
         ] {
             let before = zones.len();
             parse_file(
@@ -402,6 +413,15 @@ impl ZoneData {
     pub fn in_jail_zone(&self, x: i32, y: i32, z: i32) -> bool {
         self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Jail)
     }
+
+    /// The castle whose `TaxZone` covers `(x, y, z)` — Java `Npc.getTaxCastle()`
+    /// via the zone the NPC stands in. `None` outside every tax zone, which is
+    /// where most of the map is (only the nine castle territories are covered).
+    pub fn tax_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::Tax)
+            .map(|zn| zn.castle_id)
+    }
 }
 
 /// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
@@ -425,6 +445,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "DerbyTrackZone" => ZoneKind::DerbyTrack,
         "JailZone" => ZoneKind::Jail,
         "ResidenceTeleportZone" => ZoneKind::ResidenceTeleport,
+        "TaxZone" => ZoneKind::Tax,
         _ => return None,
     })
 }
@@ -619,6 +640,11 @@ fn parse_file(
                     "residenceId" if p.kind == ZoneKind::ResidenceTeleport => {
                         p.castle_id = val.parse().unwrap_or(0);
                     }
+                    // `TaxZone` names its castle `domainId` (Java
+                    // `TaxZone.setParameter` → `CastleManager.getCastleById`).
+                    "domainId" if p.kind == ZoneKind::Tax => {
+                        p.castle_id = val.parse().unwrap_or(0);
+                    }
                     "clanHallId" => p.clan_hall_id = val.parse().unwrap_or(0),
                     "skillIdLvl" => p.skills = parse_skill_id_lvl(&val),
                     "chance" => p.chance = val.parse().unwrap_or(p.chance),
@@ -696,8 +722,23 @@ mod tests {
         // 1103 → 1112: `castle_teleport.xml`'s 9 `ResidenceTeleportZone`s —
         // one owner-restart territory per castle, where the mass gatekeeper's
         // `MASS_TELEPORT` ousts from (G22 `ai/others`).
-        assert_eq!(data.zones.len(), 1112);
+        // 1112 → 1234: `tax.xml`'s 122 `TaxZone`s — the trade territories whose
+        // purchases pay into `domainId`'s castle treasury.
+        assert_eq!(data.zones.len(), 1234);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::Tax), 122, "tax.xml");
+        // Every tax zone names a castle (1..=9) through `domainId`.
+        assert!(
+            data.zones
+                .iter()
+                .filter(|z| z.kind == ZoneKind::Tax)
+                .all(|z| (1..=9).contains(&z.castle_id)),
+            "every TaxZone carries a castle id"
+        );
+        // Gludio's town center is inside gludio's tax territory (domainId 1).
+        assert_eq!(data.tax_castle_at(-14000, 123000, -3100), Some(1));
+        // The middle of the ocean is in none.
+        assert_eq!(data.tax_castle_at(-280000, 180000, -4000), None);
         assert_eq!(count(ZoneKind::DerbyTrack), 8, "zone.xml derby track");
         assert_eq!(count(ZoneKind::Jail), 3, "gm_room.xml jail zones");
         assert_eq!(
@@ -836,6 +877,7 @@ mod effect_zone_tests {
                         | ZoneKind::DerbyTrack
                         | ZoneKind::Jail
                         | ZoneKind::ResidenceTeleport
+                        | ZoneKind::Tax
                 ),
                 "zone {} has an unported kind",
                 z.name

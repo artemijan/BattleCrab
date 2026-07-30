@@ -6,8 +6,9 @@
 //! `ExMPCCPartymasterList` (0xA3), `ExManageMpccRoomMember` (0x0A, sharing
 //! Java's `EX_MANAGE_PARTY_ROOM_MEMBER` id with the party-room variant).
 //!
-//! `ExMultiPartyCommandChannelInfo` (0x31) is dead code in the Java build
-//! (never constructed) and is deliberately not ported.
+//! `ExMultiPartyCommandChannelInfo` (0x31) *is* constructed — by the
+//! `/channelinfo` user command (`usercommandhandlers/ChannelInfo`), which the
+//! G15.5 user-command sweep wired; an earlier note here called it dead code.
 
 use commons::network::PacketWriter;
 
@@ -191,6 +192,27 @@ pub fn ex_mpcc_partymaster_list(names: &[String]) -> Vec<u8> {
     w.write_i32(names.len() as i32);
     for n in names {
         w.write_string(n);
+    }
+    w.into_bytes()
+}
+
+/// `ExMultiPartyCommandChannelInfo` — the `/channelinfo` window: the channel
+/// leader, its total member count, and one row per party (leader name, leader
+/// object id, member count). The loot int is Java's hard-coded 0.
+pub fn ex_multi_party_command_channel_info(
+    leader_name: &str,
+    member_count: i32,
+    parties: &[(String, i32, i32)],
+) -> Vec<u8> {
+    let mut w = ex(opcodes::EX_MULTI_PARTY_COMMAND_CHANNEL_INFO);
+    w.write_string(leader_name);
+    w.write_i32(0); // channel loot (Java writes 0)
+    w.write_i32(member_count);
+    w.write_i32(parties.len() as i32);
+    for (name, leader_oid, count) in parties {
+        w.write_string(name);
+        w.write_i32(*leader_oid);
+        w.write_i32(*count);
     }
     w.into_bytes()
 }

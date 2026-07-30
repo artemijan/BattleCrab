@@ -73,6 +73,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             type2: 0,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -167,6 +168,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 type2: 0,
                 is_quest_item: false,
                 is_sellable: true,
+                is_freightable: false,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -290,6 +292,7 @@ fn equipping_gear_updates_combat_stats() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
@@ -403,6 +406,7 @@ fn equipping_gear_updates_max_hp_mp() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
@@ -482,6 +486,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -528,6 +533,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -613,6 +619,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -650,6 +657,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -755,6 +763,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -877,6 +886,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1023,6 +1033,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1167,6 +1178,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1199,6 +1211,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1355,6 +1368,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1387,6 +1401,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1511,6 +1526,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1543,6 +1559,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -3479,5 +3496,632 @@ fn private_buy_store_enforces_the_slot_limit() {
             .store_type,
         3,
         "four lines is fine"
+    );
+}
+
+/// **An augmented weapon's options pump the wearer's stats while it is worn.**
+/// Java's equip listener calls `VariationInstance.applyBonus` before the stat
+/// recompute, and the unequip listener `removeBonus` — so the two option ids
+/// behave like a pair of passive buffs tied to the item.
+#[test]
+fn augment_options_apply_while_the_item_is_equipped() {
+    use crate::data::item_data::{
+        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_R_HAND,
+    };
+    use crate::data::option_data::OptionEntry;
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::StatModifierEffect;
+    use crate::model::stats::{Stat, StatModifierType};
+
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+
+    // A plain weapon…
+    let template = ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
+        item_id: 600,
+        name: "Augmented Blade".into(),
+        kind: ItemKind::Weapon,
+        body_part: SLOT_R_HAND,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        is_sellable: true,
+        is_freightable: false,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    };
+    world.data.item_data.insert_for_test(template);
+    world.data.item_data.set_item_stats_for_test(
+        600,
+        ItemStats {
+            bonuses: vec![(Stat::PhysicalAttack, 100.0)],
+            ..Default::default()
+        },
+    );
+    // …and two options: +200 P.Def flat, and +100 P.Atk flat.
+    let option = |id: i32, stat: Stat, amount: f64| OptionEntry {
+        id,
+        effects: vec![StatModifierEffect {
+            stat,
+            mode: StatModifierType::Diff,
+            amount,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        }],
+        ..Default::default()
+    };
+    world
+        .data
+        .options
+        .insert_for_test(option(4001, Stat::PhysicalDefence, 200.0));
+    world
+        .data
+        .options
+        .insert_for_test(option(4002, Stat::PhysicalAttack, 100.0));
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9500, 600, 1);
+        inv.set_augmentation(9500, 8723, 4001, 4002);
+    }
+    drain(&mut rx);
+
+    let base_p_def = pcs(&world, 3001).p_def;
+    let base_p_atk = pcs(&world, 3001).p_atk;
+
+    // Equip: both options land.
+    items::handle_use_item(&mut world, 1, &use_item_body(9500));
+    let equipped_p_def = pcs(&world, 3001).p_def;
+    let equipped_p_atk = pcs(&world, 3001).p_atk;
+    assert!(
+        equipped_p_def >= base_p_def + 200.0,
+        "the +200 P.Def option applied (was {base_p_def}, now {equipped_p_def})"
+    );
+    assert!(
+        equipped_p_atk >= base_p_atk + 100.0,
+        "…and the +100 P.Atk one (was {base_p_atk}, now {equipped_p_atk})"
+    );
+
+    // Unequip: both come back off, exactly.
+    items::handle_use_item(&mut world, 1, &use_item_body(9500));
+    assert_eq!(
+        pcs(&world, 3001).p_def,
+        base_p_def,
+        "P.Def returns to its unaugmented value"
+    );
+    assert_eq!(pcs(&world, 3001).p_atk, base_p_atk, "and so does P.Atk");
+}
+
+/// **A package store sells its whole list as one lot.** `/packagesale` (player
+/// action 61) opens the manage window in package mode; the store then reports
+/// `PACKAGE_SELL` (8), and a buyer who asks for fewer lines than it holds is
+/// refused outright — Java's anti-bot check. Taking every line goes through.
+#[test]
+fn package_store_is_all_or_nothing() {
+    use crate::model::components::PrivateStore;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4300_0000..0x4300_0200;
+    let mut seller_rx = ingame_player_access(&mut world, 1, 9700, 0);
+    let mut buyer_rx = ingame_player_access(&mut world, 2, 9701, 0);
+    // Two distinct items so the package has two lines.
+    super::items::add_inventory_item(&mut world, 9700, 1458, 5).unwrap(); // Crystal (D)
+    super::items::add_inventory_item(&mut world, 9700, 1459, 5).unwrap(); // Crystal (C)
+    super::items::add_inventory_item(&mut world, 9701, 57, 10_000).unwrap();
+    let oid = |w: &World, item: i32| {
+        w.objects
+            .get_component::<Inventory>(&9700)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.item_id == item)
+            .unwrap()
+            .object_id
+    };
+    let (a, b) = (oid(&world, 1458), oid(&world, 1459));
+    drain(&mut seller_rx);
+    drain(&mut buyer_rx);
+
+    // `/packagesale` → the manage window opens with the package flag set.
+    let mut act = PacketWriter::new();
+    act.write_u8(cop::REQUEST_ACTION_USE);
+    act.write_i32(61);
+    act.write_i32(0);
+    act.write_u8(0);
+    on_packet(&mut world, 1, act.into_bytes());
+    let manage = drain(&mut seller_rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::PRIVATE_STORE_MANAGE_LIST)
+        .expect("the manage window");
+    assert_eq!(
+        i32::from_le_bytes([manage[5], manage[6], manage[7], manage[8]]),
+        1,
+        "the window is flagged as a package sale"
+    );
+
+    // Open the package store with both lines.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::SET_PRIVATE_STORE_LIST_SELL);
+    w.write_i32(1); // package sale
+    w.write_i32(2);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    w.write_i32(b);
+    w.write_i64(5);
+    w.write_i64(200);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9700)
+            .unwrap()
+            .store_type,
+        8,
+        "PACKAGE_SELL"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<PrivateStore>(&9700)
+            .unwrap()
+            .packaged
+    );
+
+    // Buying only one of the two lines is refused — nothing moves.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_BUY);
+    w.write_i32(9700);
+    w.write_i32(1);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    on_packet(&mut world, 2, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9701)
+            .unwrap()
+            .count_of(57),
+        10_000,
+        "a partial package purchase pays nothing"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9701)
+            .unwrap()
+            .count_of(1458),
+        0,
+        "…and delivers nothing"
+    );
+
+    // Taking the whole package works: 5×100 + 5×200 = 1500 adena.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PRIVATE_STORE_BUY);
+    w.write_i32(9700);
+    w.write_i32(2);
+    w.write_i32(a);
+    w.write_i64(5);
+    w.write_i64(100);
+    w.write_i32(b);
+    w.write_i64(5);
+    w.write_i64(200);
+    on_packet(&mut world, 2, w.into_bytes());
+
+    let buyer = world.objects.get_component::<Inventory>(&9701).unwrap();
+    assert_eq!(buyer.count_of(1458), 5, "first line delivered");
+    assert_eq!(buyer.count_of(1459), 5, "second line delivered");
+    assert_eq!(
+        buyer.count_of(57),
+        10_000 - 1_500,
+        "and paid for as one lot"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&9700)
+            .unwrap()
+            .store_type,
+        0,
+        "the emptied store closes"
+    );
+}
+
+/// **`SetPrivateStoreWholeMsg` (ex 0x47) titles the package store** and echoes
+/// `ExPrivateStoreSetWholeMsg` back — the package-sell counterpart of
+/// `PrivateStoreMsgSell`, which was missing entirely.
+#[test]
+fn package_store_title_round_trips() {
+    use crate::model::components::PrivateStore;
+
+    let (mut world, ..) = admin_world();
+    let mut rx = ingame_player_access(&mut world, 1, 9702, 0);
+    drain(&mut rx);
+
+    let mut body = PacketWriter::new();
+    body.write_string("Whole lot!");
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(
+            cp::ex_opcodes::SET_PRIVATE_STORE_WHOLE_MSG,
+            &body.into_bytes(),
+        ),
+    );
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<PrivateStore>(&9702)
+            .map(|s| s.title.clone()),
+        Some("Whole lot!".to_string())
+    );
+    assert!(
+        drain(&mut rx).iter().any(|p| p.len() >= 3
+            && p[0] == 0xFE
+            && i16::from_le_bytes([p[1], p[2]])
+                == server_packets::opcodes::EX_PRIVATE_STORE_WHOLE_MSG),
+        "the title is echoed back"
+    );
+}
+
+/// **Freighting items to another character on the account.** `package_deposit`
+/// offers the account's other characters, the send window lists only
+/// `is_freightable` items, and the send itself charges `FreightPrice` per slot
+/// and writes the items to the (offline) recipient's freight rows.
+#[test]
+fn freight_send_delivers_to_an_offline_character() {
+    use crate::model::components::LastFolkNpc;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, mut db, _link) = quest_test_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4400_0000..0x4400_0200;
+
+    // The sender, with a second character (9902 "Alt") on the account.
+    let chr = dummy_char(9901, "Sender");
+    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")])
+        .into_entering(bundle);
+    let (session, bundle) = session.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world
+        .clients
+        .insert(1, crate::session::ClientSession::InGame(session));
+
+    // A freight manager in range (the send checks the last folk NPC).
+    add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
+    world.objects.add_components(&9901, LastFolkNpc(NPC_OID));
+
+    // **No item below id 10000 declares `is_freightable` on this dist** — every
+    // one of the 3416 that do is later-chronicle (10649+). Java's gate is the
+    // same, so the freight can only ever carry those; 10649 (Feather of
+    // Blessing) is the lowest and stands in for the mechanism here.
+    const FREIGHTABLE: i32 = 10649;
+    assert!(
+        world
+            .data
+            .item_data
+            .get(FREIGHTABLE)
+            .unwrap()
+            .is_freightable,
+        "fixture assumption: 10649 is freightable"
+    );
+    super::items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
+    super::items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
+    let crystal = world
+        .objects
+        .get_component::<Inventory>(&9901)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == FREIGHTABLE)
+        .unwrap()
+        .object_id;
+    drain(&mut rx);
+
+    // `package_deposit` → the account's other characters.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_package_deposit")),
+    );
+    let list = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::PACKAGE_TO_LIST)
+        .expect("the send-to list");
+    assert_eq!(
+        i32::from_le_bytes([list[1], list[2], list[3], list[4]]),
+        1,
+        "one other character on the account"
+    );
+
+    // The send window lists the freightable item.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SENDABLE_ITEM_LIST);
+    w.write_i32(9902);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::PACKAGE_SENDABLE_LIST),
+        "the sendable-item window opens"
+    );
+
+    // Send 4 crystals: they leave the inventory, the 1000-adena slot fee is
+    // charged, and the delivery is written to the offline recipient's rows.
+    drain_db(&mut db);
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(9902);
+    w.write_i32(1);
+    w.write_i32(crystal);
+    w.write_i64(4);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    let inv = world.objects.get_component::<Inventory>(&9901).unwrap();
+    assert_eq!(inv.count_of(FREIGHTABLE), 6, "4 items left the sender");
+    assert_eq!(inv.count_of(57), 4_000, "the 1000-adena fee was charged");
+    let delivered = drain_db(&mut db).into_iter().find_map(|c| match c {
+        db::DbCommand::AddFreightItems {
+            owner_id: 9902,
+            items,
+        } => Some(items),
+        _ => None,
+    });
+    let items = delivered.expect("the freight rows were written");
+    assert_eq!(items.len(), 1);
+    assert_eq!((items[0].item_id, items[0].count), (FREIGHTABLE, 4));
+}
+
+/// **The freight refuses what it may not carry.** A non-freightable item and a
+/// recipient who isn't on the account both leave everything where it is.
+#[test]
+fn freight_send_refuses_bad_items_and_strangers() {
+    use crate::model::components::LastFolkNpc;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _db, _link) = quest_test_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4500_0000..0x4500_0200;
+    let chr = dummy_char(9903, "Sender");
+    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")])
+        .into_entering(bundle);
+    let (session, bundle) = session.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world
+        .clients
+        .insert(1, crate::session::ClientSession::InGame(session));
+    add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
+    world.objects.add_components(&9903, LastFolkNpc(NPC_OID));
+
+    // Adena — like every other Interlude-range item on this dist — is not
+    // freightable; 10649 is, and stands in for a legal cargo below.
+    super::items::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
+    super::items::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
+    assert!(
+        !world.data.item_data.get(1458).unwrap().is_freightable,
+        "Crystal (D) — an Interlude item — may not be freighted"
+    );
+    let (adena_oid, crystal) = {
+        let inv = world.objects.get_component::<Inventory>(&9903).unwrap();
+        (
+            inv.items()
+                .iter()
+                .find(|it| it.item_id == 57)
+                .unwrap()
+                .object_id,
+            inv.items()
+                .iter()
+                .find(|it| it.item_id == 10649)
+                .unwrap()
+                .object_id,
+        )
+    };
+    drain(&mut rx);
+
+    // A non-freightable line aborts the whole send.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(9904);
+    w.write_i32(1);
+    w.write_i32(adena_oid);
+    w.write_i64(100);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9903)
+            .unwrap()
+            .count_of(57),
+        5_000,
+        "a non-freightable item is refused, fee included"
+    );
+
+    // A recipient who isn't on the account is refused too.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(7777);
+    w.write_i32(1);
+    w.write_i32(crystal);
+    w.write_i64(5);
+    on_packet(&mut world, 1, w.into_bytes());
+    let inv = world.objects.get_component::<Inventory>(&9903).unwrap();
+    assert_eq!(inv.count_of(10649), 5, "nothing was sent to a stranger");
+    assert_eq!(inv.count_of(57), 5_000, "and no fee was taken");
+}
+
+/// **A `SKILL_REDUCE_ON_SKILL_SUCCESS` item is spent when the cast lands, not
+/// when it is used.** Java's `SkillCaster.finishSkill` destroys the triggering
+/// item; the port used to take it up front (a documented safe-side deviation),
+/// so an interrupted cast still cost the item. Interlude's pair is 8058/8060
+/// (Lockup Research Report / Key of Enigma → skill 2260).
+#[test]
+fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::components::Casting;
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4600_0000..0x4600_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.data.skill_data.insert_for_test(Skill {
+        id: 2260,
+        level: 1,
+        name: "Key of Enigma".into(),
+        operate_type: OperateType::Active,
+        is_continuous: false,
+        target_type: TargetType::Self_,
+        magic_type: 2, // static: hitTime used verbatim
+        magic_level: 0,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 5_000,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        without_action: false,
+        item_consume_id: 8058,
+        item_consume_count: 1,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        over_hit: false,
+        abnormal_visuals: Vec::new(),
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
+        can_be_dispelled: true,
+        is_debuff: false,
+        stay_after_death: false,
+        effects: Vec::new(),
+        ..Default::default()
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduceOnSkillSuccess,
+        item_id: 8058,
+        name: "Lockup Research Report".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        is_sellable: true,
+        is_freightable: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(2260, 1)],
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    });
+    // The finish phase re-checks HP (`cur_hp <= hp_consume` aborts), and the
+    // bare fixture player starts at 0.
+    if let Some(vitals) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&3001)
+    {
+        vitals.cur_hp = 100.0;
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9100, 8058, 2);
+    }
+    drain(&mut rx);
+
+    // --- Interrupted cast: the item survives. ---
+    items::handle_use_item(&mut world, 1, &use_item_body(9100));
+    assert!(world.objects.has_component::<Casting>(&3001), "casting");
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        2,
+        "nothing is taken at use time"
+    );
+    crate::game_loop::skills::cast::abort_cast(&mut world, 3001);
+    advance_ticks(&mut world, 60);
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        2,
+        "an aborted cast costs nothing"
+    );
+
+    // --- Completed cast: exactly one is spent. ---
+    drain(&mut rx);
+    items::handle_use_item(&mut world, 1, &use_item_body(9100));
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "casting again"
+    );
+    advance_ticks(&mut world, 60); // 5 s hit time + the finish floor
+    assert!(
+        !world.objects.has_component::<Casting>(&3001),
+        "the cast finished"
+    );
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        1,
+        "one spent when the cast landed"
     );
 }

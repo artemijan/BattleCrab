@@ -500,6 +500,24 @@ pub(crate) fn finish_equip_change(
     if changed.is_empty() {
         return;
     }
+    // Java's equip/unequip listeners fire the augment bonuses first
+    // (`Inventory.equipItem`: "Apply augmentation bonuses on equip";
+    // `unEquipItemInBodySlot`: "Remove augmentation bonuses on unequip"), and
+    // *then* recalculate stats — so an option's modifiers are already in the
+    // maps when the recompute below runs. `changed` carries the object ids
+    // whose paperdoll slot moved either way; which direction it went is read
+    // off the inventory here.
+    for &item_oid in changed {
+        let equipped = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
+        if equipped {
+            super::options::apply_item_options(world, object_id, item_oid);
+        } else {
+            super::options::remove_item_options(world, object_id, item_oid);
+        }
+    }
     // Memory-first: the paperdoll change already lives in the `Inventory`
     // component; the new `loc`/`loc_data` of each changed slot persists on the
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
@@ -1098,9 +1116,8 @@ fn broadcast_shot_visual(world: &mut World, object_id: i32, skills: &[(i32, i32)
 /// runs [`crate::game_loop::skills::effects`]'s `Sow`). The item is consumed by
 /// the skill cast, as with any `<skills>` item.
 ///
-/// TODO(manor): Java also gates on `seed.getCastleId() == target.getTaxCastle()`
-/// (`THIS_SEED_MAY_NOT_BE_SOWN_HERE`) — the tax-zone → castle mapping is
-/// unported, so a seed may be sown on any matching monster for now.
+/// The sow-location gate (`seed.getCastleId() == target.getTaxCastle()`) is
+/// honored, `THIS_SEED_MAY_NOT_BE_SOWN_HERE` included.
 fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::model::components::TargetRef;
     use crate::model::npc::Npc;
@@ -1164,8 +1181,14 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
         }
         return;
     }
-    // The seed must be in the catalogue (Java `getSeed(itemId)`).
-    if world.data.manor.seed_by_id(item_id).is_none() {
+    // The seed must be in the catalogue (Java `getSeed(itemId)`)…
+    let Some(seed_castle) = world.data.manor.seed_by_id(item_id).map(|s| s.castle_id) else {
+        return;
+    };
+    // …and it may only be sown inside its own castle's territory (Java
+    // `(taxCastle == null) || (seed.getCastleId() != taxCastle.getResidenceId())`).
+    if crate::game_loop::castle::npc_tax_castle(world, target_oid) != Some(seed_castle) {
+        send(world, sm_ids::THIS_SEED_MAY_NOT_BE_SOWN_HERE);
         return;
     }
 
@@ -1283,6 +1306,16 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
             }
             // `start_casting` registers the reuse itself.
             start_casting(world, client_id, object_id, &skill, target_oid);
+            // Java `SkillCaster(caster, target, skill, item, …)`: a
+            // `SKILL_REDUCE_ON_SKILL_SUCCESS` item rides the cast and is spent
+            // by `finishSkill` only if it lands.
+            if default_action == crate::data::item_data::ActionType::SkillReduceOnSkillSuccess {
+                crate::game_loop::skills::cast::set_cast_trigger_item(
+                    world,
+                    object_id,
+                    item_object_id,
+                );
+            }
         }
         used = true;
     }
@@ -1305,13 +1338,10 @@ fn check_consume(
         // then falls out of the switch to `return hasConsumeSkill`.
         ActionType::Capsule | ActionType::SkillReduce => has_consume_skill || immediate_effect,
         // Java returns false: these are destroyed by `SkillCaster.finishSkill`
-        // when the cast actually lands (`SkillCaster.java:524`) instead.
-        // TODO(G15): that path needs the triggering item threaded through the
-        // cast so the finish phase can find it, which `Casting` does not carry
-        // yet. Consuming here keeps the deviation on the safe side — returning
-        // false today would let these be used without ever being spent. Only
-        // items 8058/8060 are in the Interlude range.
-        ActionType::SkillReduceOnSkillSuccess => true,
+        // when the cast actually *lands* — the cast carries the item
+        // (`CastState.trigger_item_object_id`) and the finish phase spends
+        // `itemConsumeCount` of it, so an interrupted cast costs nothing.
+        ActionType::SkillReduceOnSkillSuccess => false,
         // Summon shots are never consumed by a direct item-use: they are spent
         // by `servitor::recharge_shots` when the summon swings, in the count
         // the pet's level demands. Using one by hand does nothing.

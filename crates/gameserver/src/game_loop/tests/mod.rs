@@ -43,6 +43,7 @@ mod baium_tests;
 mod boats_tests;
 mod boss_respawn_tests;
 mod boss_zone_tests;
+mod castle_treasury_tests;
 mod clan_hall_tests;
 mod clans_tests;
 mod combat_tests;
@@ -129,6 +130,7 @@ mod teleport_cmds_tests;
 mod trigger_skill_tests;
 mod tvt_tests;
 mod two_handed_tests;
+mod user_command_tests;
 mod valakas_tests;
 mod visibility_tests;
 mod vitality_tests;
@@ -227,6 +229,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         clan_privs: 0,
         clan_create_expiry_time: 0,
         clan_join_expiry_time: 0,
+        create_date: "2026-01-15".to_string(),
         power_grade: 0,
         pledge_type: 0,
         race: 0,
@@ -366,6 +369,7 @@ async fn character_create_inserts_into_real_schema() {
         enchant: crate::data::EnchantData::empty(),
         enchant_skill_groups: crate::data::EnchantSkillGroups::empty(),
         variations: crate::data::VariationData::empty(),
+        options: crate::data::OptionData::empty(),
         admin: crate::data::AdminData::empty(),
         combat_caps: crate::data::CombatCaps::default(),
         gm: crate::data::GmSettings::default(),
@@ -1015,6 +1019,7 @@ fn combat_test_world() -> (
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1366,6 +1371,7 @@ fn quest_test_world() -> (
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
                 is_sellable: true,
+                is_freightable: false,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -1722,6 +1728,7 @@ fn shop_world() -> (
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1807,6 +1814,7 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
                 type2: if is_quest_item { 3 } else { 5 },
                 is_quest_item,
                 is_sellable: true,
+                is_freightable: false,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -1854,6 +1862,7 @@ fn add_shot_item(
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -1917,6 +1926,7 @@ fn shot_template(
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler,
         capsuled_items: Vec::new(),
@@ -1962,6 +1972,7 @@ fn shot_weapon(
             type2: 0,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             capsuled_items: Vec::new(),
@@ -2120,6 +2131,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -2151,6 +2163,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
                 npc_string_id: 1010004,
                 fee_id: 57,
                 fee_count: 9400,
+                castle_ids: Vec::new(),
             }],
         },
     );

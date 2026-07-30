@@ -14,8 +14,11 @@
 //! The setup path is gated to the manor's **modifiable** period. The wall-clock
 //! period scheduler ([`schedule_manor_at_boot`] + [`advance_manor_mode`]) drives
 //! the mode through APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the daily
-//! `AltManor*` cutover times and runs the production rollover; only the economic
-//! settlement folded into Java's rollover remains `TODO(manor)`.
+//! `AltManor*` cutover times, runs the production rollover **and its economic
+//! settlement** (crops sold are paid into the owner clan's warehouse, unspent
+//! crop reservations return to the castle treasury, the next period is gated on
+//! and charged to that treasury, and the state is written back with
+//! `storeMe`).
 //!
 //! The player-facing Manor Manager trader is [`handle_request_buy_seed`]
 //! (`RequestBuySeed`, buy seeds from a castle's current production) and
@@ -144,10 +147,13 @@ pub(crate) fn handle_manor_menu_select(
         // Request 7: the owner's "Edit Seed Setup" view (`ExShowSeedSetting`).
         7 => {
             if world.manor.is_manor_approved() {
-                // Java sends `A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM`
-                // then returns. TODO(manor): source that SystemMessageId from the
-                // client dat (not in this repo); the gate itself — no setup
-                // outside the modifiable period — is honored here.
+                // Java: no setup outside the modifiable period.
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM,
+                        &[],
+                    ));
+                }
                 return;
             }
             let seeds = seed_setting_entries(world, castle_id);
@@ -158,7 +164,14 @@ pub(crate) fn handle_manor_menu_select(
         // Request 8: the owner's "Edit Crop Setup" view (`ExShowCropSetting`).
         8 => {
             if world.manor.is_manor_approved() {
-                return; // same approved-period guard as request 7
+                // Same approved-period guard (and message) as request 7.
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::A_MANOR_CANNOT_BE_SET_UP_BETWEEN_4_30_AM_AND_8_PM,
+                        &[],
+                    ));
+                }
+                return;
             }
             let crops = crop_setting_entries(world, castle_id);
             if let Some(cs) = world.clients.get(&client_id) {
@@ -419,41 +432,45 @@ fn arm_next_mode_change(world: &mut World, now_millis: i64) {
         .schedule(world.tick + delay_ticks, ScheduledTask::ManorModeChange);
 }
 
-/// Port of `CastleManorManager.changeMode` — advance the period and re-arm the
-/// next change. The mode transition + the production rollover
-/// ([`crate::model::manor::ManorState::roll_period`]) are applied; the economic
-/// settlement is deferred.
+/// Port of `CastleManorManager.changeMode` — advance the period, run the
+/// settlement that rides on each transition, and re-arm the next change.
+///
+/// - **APPROVED → MAINTENANCE**: settle the closing period (crops bought get
+///   paid into the owner's clan warehouse, unspent crop reservations go back to
+///   the treasury), roll next → current, then gate the *new* next period on the
+///   treasury covering it. Java `storeMe()`s afterwards; so does the port.
+/// - **MAINTENANCE → MODIFIABLE**: tell each owner's online leader the manor
+///   information was updated.
+/// - **MODIFIABLE → APPROVED**: charge the next period's manor cost, or clear
+///   the setup and warn the leader when it can't be afforded *and* the
+///   warehouse has no room.
 pub(crate) fn advance_manor_mode(world: &mut World) {
     let next_mode = match world.manor.mode() {
         ManorMode::Approved => {
-            // Roll every owned castle's manor into the new period.
-            let owned: Vec<i32> = world
-                .data
-                .manor
-                .manor_castle_ids()
-                .into_iter()
-                .filter(|&id| castle_owner_clan_id(world, id).is_some())
-                .collect();
-            for castle_id in owned {
-                // TODO(manor): Java also settles the closing period here — pay
-                // bought crops (`getMatureId`, ×0.9) into the owner's clan
-                // warehouse and refund unused reservation to the castle treasury,
-                // then gate the next period on treasury affordability. That needs
-                // the castle treasury (unported) + warehouse item-adds; only the
-                // production rollover is applied for now.
+            for castle_id in owned_manor_castles(world) {
+                settle_closing_period(world, castle_id);
                 world.manor.roll_period(castle_id);
+                gate_next_period_on_treasury(world, castle_id);
+                store_manor(world, castle_id);
             }
             ManorMode::Maintenance
         }
         ManorMode::Maintenance => {
-            // TODO(manor): Java notifies each owner's online leader with
-            // `THE_MANOR_INFORMATION_HAS_BEEN_UPDATED` here.
+            for castle_id in owned_manor_castles(world) {
+                notify_leader(
+                    world,
+                    castle_id,
+                    sm_ids::THE_MANOR_INFORMATION_HAS_BEEN_UPDATED,
+                );
+            }
             ManorMode::Modifiable
         }
         ManorMode::Modifiable => {
-            // TODO(manor): Java charges the manor cost / validates warehouse
-            // capacity here, clearing the next period + warning the leader when
-            // the treasury can't cover it. Deferred with the treasury economics.
+            for castle_id in owned_manor_castles(world) {
+                charge_next_period(world, castle_id);
+            }
+            // Java only `storeMe()`s here under `ALT_MANOR_SAVE_ALL_ACTIONS`
+            // (off on this dist), so nothing is written.
             ManorMode::Approved
         }
         // A disabled manor never scheduled a change; nothing to do.
@@ -461,6 +478,232 @@ pub(crate) fn advance_manor_mode(world: &mut World) {
     };
     world.manor.set_mode(next_mode);
     arm_next_mode_change(world, commons::util::now_millis());
+}
+
+/// The manor castles that currently have an owning clan — Java skips the rest
+/// (`if (owner == null) continue`).
+fn owned_manor_castles(world: &World) -> Vec<i32> {
+    world
+        .data
+        .manor
+        .manor_castle_ids()
+        .into_iter()
+        .filter(|&id| castle_owner_clan_id(world, id).is_some())
+        .collect()
+}
+
+/// The settlement half of Java's `APPROVED` case, run **before** the rollover so
+/// it reads the closing period's procure list:
+///
+/// - crops players actually sold (`startAmount - amount`) are paid to the owner
+///   clan's warehouse as **mature** crops at 90 %, with Java's consolation
+///   rounding: a payout that rounds to 0 becomes 1 item 90 % of the time.
+/// - the adena still reserved for crops nobody sold (`amount × price`) goes back
+///   into the castle treasury.
+///
+/// A line whose `startAmount` is 0 (nothing was ever set up) is skipped whole.
+fn settle_closing_period(world: &mut World, castle_id: i32) {
+    let Some(clan_id) = castle_owner_clan_id(world, castle_id) else {
+        return;
+    };
+    let closing: Vec<CropProcure> = world.manor.crop_procure(castle_id, false).to_vec();
+    for crop in closing {
+        if crop.start_amount <= 0 {
+            continue;
+        }
+        if crop.start_amount != crop.amount {
+            let sold = crop.start_amount - crop.amount;
+            let mut count = (sold as f64 * 0.9) as i64;
+            // Java: `if ((count < 1) && (Rnd.get(99) < 90)) count = 1;`
+            if count < 1 && world.roll(99) < 90 {
+                count = 1;
+            }
+            if count > 0
+                && let Some(mature_id) = world
+                    .data
+                    .manor
+                    .seed_by_crop(crop.crop_id)
+                    .map(|s| s.mature_id)
+            {
+                add_to_clan_warehouse(world, clan_id, mature_id, count);
+            }
+        }
+        // Reserved-but-unused money goes back to the vault, untaxed.
+        if crop.amount > 0 {
+            super::castle::add_to_treasury_no_tax(world, castle_id, crop.amount * crop.price);
+        }
+    }
+}
+
+/// Java's post-rollover check: if the treasury can't cover the period that was
+/// just promoted to *current*, the castle's **next** setup is wiped, so the
+/// manor closes after this one. (Nothing is charged here — that happens at the
+/// MODIFIABLE → APPROVED step.)
+fn gate_next_period_on_treasury(world: &mut World, castle_id: i32) {
+    if super::castle::treasury(world, castle_id) < manor_cost(world, castle_id, false) {
+        world.manor.set_seed_production(castle_id, true, Vec::new());
+        world.manor.set_crop_procure(castle_id, true, Vec::new());
+    }
+}
+
+/// Java's `MODIFIABLE` case: charge the next period's cost to the treasury, or —
+/// when the warehouse has no room for the crops **and** the treasury can't pay —
+/// clear the setup and warn the leader.
+///
+/// Note Java's `&&`: a castle with warehouse room is charged even if the vault
+/// is short, and `addToTreasuryNoTax` then refuses the debit, so that period
+/// runs free. Kept verbatim.
+fn charge_next_period(world: &mut World, castle_id: i32) {
+    let Some(clan_id) = castle_owner_clan_id(world, castle_id) else {
+        return;
+    };
+    // Slots the next period's crops would need: one per crop line that is set up
+    // and has no mature stack in the warehouse already.
+    let slots = world
+        .manor
+        .crop_procure(castle_id, true)
+        .iter()
+        .filter(|c| c.start_amount > 0)
+        .filter_map(|c| {
+            world
+                .data
+                .manor
+                .seed_by_crop(c.crop_id)
+                .map(|s| s.mature_id)
+        })
+        .filter(|&mature_id| {
+            world
+                .clans
+                .get(&clan_id)
+                .is_none_or(|clan| clan.warehouse.0.count_of(mature_id) == 0)
+        })
+        .count() as i32;
+    let fits = world.clans.get(&clan_id).is_some_and(|clan| {
+        (clan.warehouse.size() as i32 + slots) <= world.cfg.character.warehouse_slots_clan
+    });
+    let cost = manor_cost(world, castle_id, true);
+    if !fits && super::castle::treasury(world, castle_id) < cost {
+        world.manor.set_seed_production(castle_id, true, Vec::new());
+        world.manor.set_crop_procure(castle_id, true, Vec::new());
+        notify_leader(
+            world,
+            castle_id,
+            sm_ids::NOT_ENOUGH_FUNDS_IN_CLAN_WAREHOUSE_FOR_MANOR,
+        );
+    } else {
+        super::castle::add_to_treasury_no_tax(world, castle_id, -cost);
+    }
+}
+
+/// Java `getManorCost(castleId, nextPeriod)` — what a period costs its castle:
+/// each seed line at its reference price × start amount (an unknown seed counts
+/// as 1), plus each crop line's reserved buy-back money (price × start amount).
+fn manor_cost(world: &World, castle_id: i32, next_period: bool) -> i64 {
+    let seeds: i64 = world
+        .manor
+        .seed_production(castle_id, next_period)
+        .iter()
+        .map(|sp| match world.data.manor.seed_by_id(sp.seed_id) {
+            None => 1,
+            Some(_) => i64::from(seed_reference_price(world, sp.seed_id)) * sp.start_amount,
+        })
+        .sum();
+    let crops: i64 = world
+        .manor
+        .crop_procure(castle_id, next_period)
+        .iter()
+        .map(|cp| cp.price * cp.start_amount)
+        .sum();
+    seeds + crops
+}
+
+/// `cwh.addItem("Manor", matureId, count, null, null)` — drop the payout into
+/// the clan warehouse (merging into an existing stack) and persist it.
+fn add_to_clan_warehouse(world: &mut World, clan_id: i32, item_id: i32, count: i64) {
+    let stackable = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.is_stackable);
+    let has_stack = world
+        .clans
+        .get(&clan_id)
+        .is_some_and(|c| c.warehouse.0.count_of(item_id) > 0);
+    // A new stack/instance needs an object id; a merge doesn't use one.
+    let object_id = if stackable && has_stack {
+        0
+    } else {
+        match world.alloc_object_id() {
+            Some(id) => id,
+            None => return,
+        }
+    };
+    let World { clans, data, .. } = world;
+    if let Some(clan) = clans.get_mut(&clan_id) {
+        clan.warehouse
+            .0
+            .add_item(&data.item_data, object_id, item_id, count);
+    }
+    super::warehouse::persist_clan_warehouse(world, clan_id);
+}
+
+/// `CastleManorManager.storeMe` for one castle — write all four period lists.
+fn store_manor(world: &World, castle_id: i32) {
+    let mut production = Vec::new();
+    let mut procure = Vec::new();
+    for next_period in [false, true] {
+        production.extend(
+            world
+                .manor
+                .seed_production(castle_id, next_period)
+                .iter()
+                .map(|sp| crate::db::ManorProductionRow {
+                    castle_id,
+                    seed_id: sp.seed_id,
+                    amount: sp.amount,
+                    start_amount: sp.start_amount,
+                    price: sp.price,
+                    next_period,
+                }),
+        );
+        procure.extend(
+            world
+                .manor
+                .crop_procure(castle_id, next_period)
+                .iter()
+                .map(|cp| crate::db::ManorProcureRow {
+                    castle_id,
+                    crop_id: cp.crop_id,
+                    amount: cp.amount,
+                    start_amount: cp.start_amount,
+                    price: cp.price,
+                    reward_type: cp.reward_type,
+                    next_period,
+                }),
+        );
+    }
+    let _ = world.db.send(crate::db::DbCommand::StoreManor {
+        castle_id,
+        production,
+        procure,
+    });
+}
+
+/// Java's `clanLeader.isOnline()` notification — send `message_id` to the owner
+/// clan's leader if they are logged in.
+fn notify_leader(world: &World, castle_id: i32, message_id: i16) {
+    let Some(leader_oid) = castle_owner_clan_id(world, castle_id)
+        .and_then(|clan_id| world.clans.get(&clan_id))
+        .map(|clan| clan.leader_id)
+        .filter(|&oid| oid != 0)
+    else {
+        return;
+    };
+    if let Some(cs) = super::helpers::client_for_player(world, leader_oid)
+        .and_then(|client_id| world.clients.get(&client_id))
+    {
+        cs.send(server_packets::system_message_with(message_id, &[]));
+    }
 }
 
 /// Java `RequestSetSeed`/`RequestSetCrop`'s shared owner gate. Returns the
@@ -740,8 +983,12 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
             added.extend(oids);
         }
     }
-    // TODO(manor): Java credits the castle treasury with the sale
-    // (`castle.addToTreasuryNoTax(totalPrice)`); the treasury is unported.
+    // Java: the sale price goes to the castle's vault, untaxed. An unowned
+    // castle takes nothing (`addToTreasuryNoTax` returns false on `_ownerId <= 0`),
+    // so the adena the buyer just paid simply leaves the economy.
+    if total_price > 0 {
+        super::castle::add_to_treasury_no_tax(world, manor_id, total_price);
+    }
     if let (Some(inventory), Some(cs)) = (
         world
             .objects
@@ -855,8 +1102,13 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
         }
         let reward_count = price / reward_price;
         if reward_count < 1 {
-            // Java sends `FAILED_IN_TRADING_S2_OF_S1_CROPS` and skips.
-            // TODO(manor): source that SystemMessageId (not in this repo's data).
+            // Java reports the line and skips it.
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::FAILED_IN_TRADING_S2_OF_S1_CROPS,
+                    &[SmParam::ItemName(crop_id), SmParam::Long(cnt)],
+                ));
+            }
             continue;
         }
         // A 5 % adena fee when selling at a manor other than the crop's own.

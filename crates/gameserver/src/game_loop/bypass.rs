@@ -323,10 +323,11 @@ fn npc_bypass(
         // `bypasshandlers/ClanWarehouse.java`: the shared clan warehouse.
         "WithdrawC" => super::warehouse::open_clan(world, client_id, object_id, true),
         "DepositC" => super::warehouse::open_clan(world, client_id, object_id, false),
-        // `bypasshandlers/Freight.java`: the account-package warehouse. Only
-        // the withdraw half is wired; `package_deposit` (the cross-character
-        // send) needs the account char list and offline freight writes.
+        // `bypasshandlers/Freight.java`: the account-package warehouse — the
+        // withdraw half, and the cross-character send (`package_deposit` →
+        // `PackageToList` → `RequestPackageSend`).
         "package_withdraw" => super::warehouse::open_freight_withdraw(world, client_id),
+        "package_deposit" => super::warehouse::open_freight_send(world, client_id),
         // `bypasshandlers/Augment.java`: `Augment 1` = make window, `Augment 2`
         // = cancel window.
         "Augment" => {
@@ -373,10 +374,6 @@ fn npc_bypass(
         // offset (`substring(9)`/`substring(13)`) — the token split is the same
         // cut, and a non-numeric tail is Java's swallowed `NumberFormatException`.
         "multisell" | "exc_multisell" => {
-            let npc_id = world
-                .objects
-                .get_component::<crate::model::npc::Npc>(&npc_object_id)
-                .map_or(0, |n| n.npc_id);
             if let Some(list_id) = command
                 .split_once(' ')
                 .and_then(|(_, rest)| rest.trim().parse::<i32>().ok())
@@ -385,7 +382,7 @@ fn npc_bypass(
                     world,
                     client_id,
                     object_id,
-                    Some(npc_id),
+                    Some(npc_object_id),
                     list_id,
                     verb == "exc_multisell",
                 );

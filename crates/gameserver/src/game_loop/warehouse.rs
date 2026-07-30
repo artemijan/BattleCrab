@@ -416,3 +416,255 @@ fn send_inventory(world: &World, client_id: u32, player_oid: i32) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Freight send — `package_deposit` → `PackageToList` → `RequestPackageSendable
+// ItemList` → `RequestPackageSend` (Java `bypasshandlers/Freight` + the two
+// `RequestPackage*` packets).
+// ---------------------------------------------------------------------------
+
+/// `bypasshandlers/Freight`'s `package_deposit`: offer the account's other
+/// characters as freight recipients. Java refuses when the account has none.
+pub(crate) fn open_freight_send(world: &mut World, client_id: u32) {
+    let chars = account_chars(world, client_id);
+    let packet = if chars.is_empty() {
+        sp::system_message_with(sp::sm_ids::THAT_CHARACTER_DOES_NOT_EXIST, &[])
+    } else {
+        sp::package_to_list(&chars)
+    };
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// `RequestPackageSendableItemList` (0xA7): the sender's freightable items, for
+/// the recipient they picked. Java sends the window for any object id; the
+/// recipient is validated when the send actually arrives.
+pub(crate) fn handle_package_sendable_list(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some(recipient) = commons::network::PacketReader::new(body).read_i32() else {
+        return;
+    };
+    let Some(player_oid) = player_of(world, client_id) else {
+        return;
+    };
+    let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) else {
+        return;
+    };
+    let items: Vec<(&ItemInstance, &crate::data::item_data::ItemTemplate)> = inv
+        .items()
+        .iter()
+        .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
+        .filter_map(|it| {
+            let t = world.data.item_data.get(it.item_id)?;
+            t.is_freightable.then_some((it, t))
+        })
+        .collect();
+    let packet = sp::package_sendable_list(recipient, inv.adena(), &items);
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(packet);
+    }
+}
+
+/// `RequestPackageSend` (0xA8): freight the listed items to another character
+/// on the account. Java's gate ladder, in order — the recipient must be one of
+/// the account's characters, the freight NPC must be in range, a negative
+/// reputation is refused (`AltKarmaPlayerCanUseWarehouse`), the destination
+/// freight must have room, and the `FreightPrice`-per-slot fee must be paid
+/// *before* anything moves.
+///
+/// The recipient is usually **offline**, so the items are written straight to
+/// their `items` rows (`loc = FREIGHT`) through the DB thread. When they happen
+/// to be online, their live `Freight` component is updated instead — writing
+/// both would double the delivery, since a component flushes on its own.
+pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]) {
+    let Some((recipient, lines)) = read_package_send(body) else {
+        return;
+    };
+    let Some(player_oid) = player_of(world, client_id) else {
+        return;
+    };
+    if !account_chars(world, client_id)
+        .iter()
+        .any(|(id, _)| *id == recipient)
+    {
+        return;
+    }
+    // Java: the freight manager must be the last folk NPC and in talk range.
+    let manager_in_range = world
+        .objects
+        .get_component::<crate::model::components::LastFolkNpc>(&player_oid)
+        .is_some_and(|&crate::model::components::LastFolkNpc(npc)| {
+            super::target::can_interact(world, player_oid, npc)
+        });
+    if !manager_in_range {
+        return;
+    }
+    if !world.cfg.character.alt_karma_player_can_use_warehouse
+        && world
+            .objects
+            .get_component::<Player>(&player_oid)
+            .is_some_and(|p| p.reputation < 0)
+    {
+        return;
+    }
+
+    // Resolve each line against the inventory: freightable, not equipped, held.
+    let mut moving: Vec<(i32, i32, i64, i32)> = Vec::new(); // (obj, item, count, enchant)
+    {
+        let Some(inv) = world.objects.get_component::<Inventory>(&player_oid) else {
+            return;
+        };
+        for (object_id, count) in &lines {
+            let Some(item) = inv.items().iter().find(|it| it.object_id == *object_id) else {
+                return; // Java aborts the whole send on an invalid line
+            };
+            let freightable = world
+                .data
+                .item_data
+                .get(item.item_id)
+                .is_some_and(|t| t.is_freightable);
+            if !freightable || inv.paperdoll_slot_of(*object_id).is_some() || *count > item.count {
+                return;
+            }
+            moving.push((*object_id, item.item_id, *count, item.enchant_level));
+        }
+    }
+    if moving.is_empty() {
+        return;
+    }
+
+    // Slot check against the destination freight, then the fee.
+    let slots = destination_slots(world, recipient, &moving);
+    if slots > world.cfg.character.freight_slots {
+        send_sm(
+            world,
+            client_id,
+            sp::sm_ids::YOU_HAVE_EXCEEDED_THE_QUANTITY_THAT_CAN_BE_INPUTTED,
+        );
+        return;
+    }
+    let fee = i64::from(world.cfg.character.freight_price) * moving.len() as i64;
+    let adena_after_send: i64 = world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map_or(0, |inv| inv.adena())
+        - moving
+            .iter()
+            .filter(|(_, item_id, _, _)| *item_id == ADENA_ID)
+            .map(|(_, _, count, _)| *count)
+            .sum::<i64>();
+    if adena_after_send < fee {
+        send_sm(world, client_id, sp::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA);
+        return;
+    }
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player_oid) {
+        inv.remove_item(ADENA_ID, fee);
+    }
+
+    // Move the items out of the sender…
+    let mut rows = Vec::new();
+    for &(object_id, item_id, count, enchant) in &moving {
+        if world
+            .objects
+            .get_component_mut::<Inventory>(&player_oid)
+            .and_then(|inv| inv.remove_by_object_id(object_id, count))
+            .is_none()
+        {
+            continue;
+        }
+        rows.push((item_id, count, enchant));
+    }
+    // …and into the recipient's freight, live if they're online, else on disk.
+    let online = super::helpers::client_for_player(world, recipient).is_some();
+    if online {
+        for &(item_id, count, enchant) in &rows {
+            let Some(new_oid) = world.alloc_object_id() else {
+                break;
+            };
+            let World { objects, data, .. } = world;
+            if let Some(freight) = objects.get_component_mut::<Freight>(&recipient) {
+                freight
+                    .0
+                    .insert_instance(&data.item_data, new_oid, item_id, count, enchant);
+            }
+        }
+    } else {
+        let mut items = Vec::new();
+        for &(item_id, count, enchant) in &rows {
+            let Some(object_id) = world.alloc_object_id() else {
+                break;
+            };
+            items.push(crate::db::FreightItemRow {
+                object_id,
+                item_id,
+                count,
+                enchant_level: enchant,
+            });
+        }
+        let _ = world.db.send(crate::db::DbCommand::AddFreightItems {
+            owner_id: recipient,
+            items,
+        });
+    }
+    send_inventory(world, client_id, player_oid);
+}
+
+/// `RequestPackageSend`'s body: the recipient's object id, then `(objectId,
+/// count)` pairs.
+fn read_package_send(body: &[u8]) -> Option<(i32, Vec<(i32, i64)>)> {
+    let mut r = commons::network::PacketReader::new(body);
+    let recipient = r.read_i32()?;
+    let count = r.read_i32()?;
+    if !(1..=500).contains(&count) {
+        return None;
+    }
+    let mut lines = Vec::with_capacity(count as usize);
+    for _ in 0..count {
+        let object_id = r.read_i32()?;
+        let cnt = r.read_i64()?;
+        if object_id < 1 || cnt < 0 {
+            return None;
+        }
+        lines.push((object_id, cnt));
+    }
+    Some((recipient, lines))
+}
+
+/// The account's other characters (Java `Player.getAccountChars()`), snapshotted
+/// on the session at character select.
+fn account_chars(world: &World, client_id: u32) -> Vec<(i32, String)> {
+    match world.clients.get(&client_id) {
+        Some(ClientSession::InGame(s)) => s.account_chars().to_vec(),
+        _ => Vec::new(),
+    }
+}
+
+/// Java's slot math against the destination container: a non-stackable line
+/// costs one slot per unit, a stackable one costs a slot only when the freight
+/// doesn't already hold that item, and adena costs none.
+fn destination_slots(world: &World, recipient: i32, moving: &[(i32, i32, i64, i32)]) -> i32 {
+    let existing = world.objects.get_component::<Freight>(&recipient);
+    let mut slots = 0;
+    for &(_, item_id, count, _) in moving {
+        if item_id == ADENA_ID {
+            continue;
+        }
+        let stackable = world
+            .data
+            .item_data
+            .get(item_id)
+            .is_some_and(|t| t.is_stackable);
+        if !stackable {
+            slots += count as i32;
+        } else if existing.is_none_or(|f| f.0.count_of(item_id) == 0) {
+            slots += 1;
+        }
+    }
+    slots
+}
+
+fn send_sm(world: &World, client_id: u32, message_id: i16) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(sp::system_message_with(message_id, &[]));
+    }
+}

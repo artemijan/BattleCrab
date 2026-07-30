@@ -21,6 +21,22 @@ pub struct FeatureConfig {
     /// `AllowRideMountsDuringSiege` — the strider/wolf equivalent, read by
     /// Java `Player.mount(pet)`. TODO(G29): consumed when pet mounting lands.
     pub allow_ride_mounts_during_siege: bool,
+    /// `BuyTaxForNeutralSide` (15 here) — the percent a castle takes off every
+    /// taxed purchase made inside its tax zone while it is `NEUTRAL`.
+    /// Java `Config.CASTLE_BUY_TAX_NEUTRAL`, read by `Castle.getTaxPercent`.
+    pub castle_buy_tax_neutral: i32,
+    /// `BuyTaxForLightSide` (0 here).
+    pub castle_buy_tax_light: i32,
+    /// `BuyTaxForDarkSide` (30 here).
+    pub castle_buy_tax_dark: i32,
+    /// `SellTaxForNeutralSide` (15 here). `TaxType.SELL` has **no consumer** in
+    /// this Java build (nothing calls `getTaxPercent(SELL)`), so the sell keys
+    /// are parsed for completeness and drive nothing — same as Java.
+    pub castle_sell_tax_neutral: i32,
+    /// `SellTaxForLightSide` (0 here).
+    pub castle_sell_tax_light: i32,
+    /// `SellTaxForDarkSide` (30 here).
+    pub castle_sell_tax_dark: i32,
 }
 
 impl Default for FeatureConfig {
@@ -30,6 +46,12 @@ impl Default for FeatureConfig {
             allow_ride_wyvern_always: false,
             allow_ride_wyvern_during_siege: true,
             allow_ride_mounts_during_siege: false,
+            castle_buy_tax_neutral: 15,
+            castle_buy_tax_light: 0,
+            castle_buy_tax_dark: 30,
+            castle_sell_tax_neutral: 15,
+            castle_sell_tax_light: 0,
+            castle_sell_tax_dark: 30,
         }
     }
 }
@@ -52,6 +74,12 @@ impl FeatureConfig {
                 "AllowRideMountsDuringSiege",
                 d.allow_ride_mounts_during_siege,
             ),
+            castle_buy_tax_neutral: p.get_int("BuyTaxForNeutralSide", d.castle_buy_tax_neutral),
+            castle_buy_tax_light: p.get_int("BuyTaxForLightSide", d.castle_buy_tax_light),
+            castle_buy_tax_dark: p.get_int("BuyTaxForDarkSide", d.castle_buy_tax_dark),
+            castle_sell_tax_neutral: p.get_int("SellTaxForNeutralSide", d.castle_sell_tax_neutral),
+            castle_sell_tax_light: p.get_int("SellTaxForLightSide", d.castle_sell_tax_light),
+            castle_sell_tax_dark: p.get_int("SellTaxForDarkSide", d.castle_sell_tax_dark),
         }
     }
 }

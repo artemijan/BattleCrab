@@ -14,8 +14,17 @@ pub const EX_BUY_SELL_LIST: i16 = 0xB8;
 /// Port of `serverpackets/BuyList` — the buy tab. Product entries reuse the
 /// `AbstractItemPacket.writeItem` layout with `ItemInfo(Product)`'s fixed
 /// fields (object id 0, count 0 = unlimited, nothing enchanted/equipped).
-/// Castle tax is 0 (no castles); `baseTax` still applies.
-pub fn buy_list(list: &BuyList, inventory: &Inventory, data: &GameData) -> Vec<u8> {
+///
+/// `castle_tax_rate` is the merchant's castle buy-tax fraction (Java
+/// `Merchant.showBuyWindow` passes `getCastleTaxRate(BUY)`, or 0 when the caller
+/// asks for an untaxed window — the mercenary manager's lists do). It is added
+/// to the product's own `baseTax` before the price is written.
+pub fn buy_list(
+    list: &BuyList,
+    inventory: &Inventory,
+    data: &GameData,
+    castle_tax_rate: f64,
+) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(EX);
     w.write_i16(EX_BUY_SELL_LIST);
@@ -44,7 +53,9 @@ pub fn buy_list(list: &BuyList, inventory: &Inventory, data: &GameData) -> Vec<u
         w.write_i32(0); // mana
         w.write_i32(0); // time
         w.write_u8(1); // available
-        w.write_i64((p.price as f64 * (1.0 + p.base_tax as f64 / 100.0)) as i64);
+        w.write_i64(
+            (p.price as f64 * (1.0 + castle_tax_rate + f64::from(p.base_tax) / 100.0)) as i64,
+        );
     }
     w.into_bytes()
 }

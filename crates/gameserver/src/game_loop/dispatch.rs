@@ -109,6 +109,10 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_DROP_ITEM => {
             super::ground_items::handle_request_drop_item(world, client_id, body)
         }
+        cop::REQUEST_PACKAGE_SENDABLE_ITEM_LIST => {
+            super::warehouse::handle_package_sendable_list(world, client_id, body)
+        }
+        cop::REQUEST_PACKAGE_SEND => super::warehouse::handle_package_send(world, client_id, body),
         cop::SEND_WARE_HOUSE_DEPOSIT_LIST => {
             super::warehouse::handle_deposit(world, client_id, body)
         }
@@ -568,6 +572,9 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         }
         // RequestExMagicSkillUseGround (IN_GAME): a GROUND-target cast aimed
         // at a world position (G19).
+        exop::SET_PRIVATE_STORE_WHOLE_MSG => {
+            super::private_store::handle_set_whole_msg(world, client_id, ex_body)
+        }
         exop::REQUEST_EX_MAGIC_SKILL_USE_GROUND => {
             super::skills::cast::handle_request_magic_skill_use_ground(world, client_id, ex_body)
         }

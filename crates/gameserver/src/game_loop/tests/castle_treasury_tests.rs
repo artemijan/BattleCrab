@@ -1,0 +1,518 @@
+//! The castle treasury (`Castle.addToTreasury` / `addToTreasuryNoTax`) and the
+//! paths that move money through it: merchant/multisell tax inside a `TaxZone`,
+//! manor seed sales, and the chamberlain's vault console.
+
+use super::*;
+
+use crate::data::item_data::ADENA_ID;
+use crate::data::multisell_data::{Ingredient, MultisellEntry, MultisellList, Product};
+use crate::data::zone_data::{Zone, ZoneKind};
+use crate::game_loop::castle::{
+    add_to_treasury, add_to_treasury_no_tax, npc_tax_castle, tax_percent, treasury,
+};
+use crate::model::castle::{Castle, CastleSide, TaxType};
+use crate::model::clan::Clan;
+use crate::model::components::ActiveMultisell;
+
+const GLUDIO: i32 = 1;
+const ADEN: i32 = 5;
+
+fn castle(id: i32, name: &str, side: CastleSide) -> Castle {
+    Castle {
+        id,
+        name: name.into(),
+        side,
+        ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
+        treasury: 0,
+    }
+}
+
+/// Gludio + Aden — the vassal/liege pair Java's `addToTreasury` switch names.
+fn with_castles(world: &mut World) {
+    world.castles = vec![
+        castle(GLUDIO, "Gludio", CastleSide::Neutral),
+        castle(ADEN, "Aden", CastleSide::Neutral),
+    ];
+}
+
+/// Give a castle an owner clan (Java `_ownerId > 0`), without touching any
+/// player's membership — the treasury only cares that *someone* holds it.
+fn own(world: &mut World, castle_id: i32, clan_id: i32) {
+    world.clans.insert(
+        clan_id,
+        Clan {
+            id: clan_id,
+            name: format!("Owners{clan_id}"),
+            leader_id: 0,
+            level: 5,
+            reputation_score: 0,
+            castle_id,
+            members: Vec::new(),
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+}
+
+/// A `TaxZone` paying `castle_id`, covering the whole test neighbourhood.
+fn insert_tax_zone(world: &mut World, castle_id: i32) {
+    world.data.zone_data.insert(Zone {
+        id: 0,
+        name: format!("test_tax_{castle_id}"),
+        kind: ZoneKind::Tax,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -500,
+                x2: 500,
+                y1: -500,
+                y2: 500,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
+}
+
+// ------------------------------------------------------------------- vault
+
+/// **An unowned castle has no vault.** Java returns early on `_ownerId <= 0`,
+/// so income aimed at a castle nobody holds is lost — the balance doesn't move.
+#[test]
+fn an_unowned_castle_takes_nothing() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+
+    assert!(!add_to_treasury_no_tax(&mut world, GLUDIO, 1_000));
+    assert_eq!(treasury(&world, GLUDIO), 0);
+
+    own(&mut world, GLUDIO, 500);
+    assert!(add_to_treasury_no_tax(&mut world, GLUDIO, 1_000));
+    assert_eq!(treasury(&world, GLUDIO), 1_000, "an owned castle banks it");
+}
+
+/// **A withdrawal larger than the balance changes nothing.** Java's negative
+/// branch returns before touching `_treasury`; one the vault can cover goes
+/// through.
+#[test]
+fn overdrawing_the_vault_is_refused() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    add_to_treasury_no_tax(&mut world, GLUDIO, 1_000);
+
+    assert!(!add_to_treasury_no_tax(&mut world, GLUDIO, -1_001));
+    assert_eq!(treasury(&world, GLUDIO), 1_000, "nothing was taken");
+
+    assert!(add_to_treasury_no_tax(&mut world, GLUDIO, -1_000));
+    assert_eq!(treasury(&world, GLUDIO), 0);
+}
+
+/// **A credit past `MaxAdena` clamps instead of failing.** Java's overflow
+/// branch assigns the ceiling and still reports success.
+#[test]
+fn a_credit_over_the_ceiling_clamps() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    let max = world.cfg.character.max_adena;
+    add_to_treasury_no_tax(&mut world, GLUDIO, max - 10);
+
+    assert!(add_to_treasury_no_tax(&mut world, GLUDIO, 1_000));
+    assert_eq!(treasury(&world, GLUDIO), max, "clamped to MaxAdena");
+}
+
+/// **Every accepted change is persisted, and only those.** Java writes
+/// `UPDATE castle SET treasury` per call; a refused call writes nothing.
+#[test]
+fn each_change_writes_the_row() {
+    let (mut world, mut db, _link) = quest_test_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    drain_db(&mut db);
+
+    add_to_treasury_no_tax(&mut world, GLUDIO, 700);
+    add_to_treasury_no_tax(&mut world, GLUDIO, -5_000); // refused: overdraw
+
+    let writes: Vec<i64> = drain_db(&mut db)
+        .into_iter()
+        .filter_map(|c| match c {
+            db::DbCommand::UpdateCastleTreasury {
+                castle_id,
+                treasury,
+            } if castle_id == GLUDIO => Some(treasury),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(writes, vec![700], "one write; the refusal wrote nothing");
+}
+
+/// **Tax income pays the liege castle first.** Gludio feeds Aden (Java's name
+/// `switch`), so a neutral Aden's 15 % takes 150 of a 1000 income and Gludio
+/// keeps 850. `addToTreasuryNoTax` bypasses the cascade entirely.
+#[test]
+fn tax_income_pays_the_liege_castle() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    own(&mut world, ADEN, 501);
+
+    add_to_treasury(&mut world, GLUDIO, 1_000);
+    assert_eq!(treasury(&world, ADEN), 150, "Aden's 15% off the top");
+    assert_eq!(treasury(&world, GLUDIO), 850);
+
+    add_to_treasury_no_tax(&mut world, GLUDIO, 1_000);
+    assert_eq!(
+        treasury(&world, ADEN),
+        150,
+        "the no-tax path skips the liege"
+    );
+    assert_eq!(treasury(&world, GLUDIO), 1_850);
+}
+
+/// **An unowned liege still takes its cut out of circulation.** Java subtracts
+/// `adenTax` from the vassal's income *outside* the `getOwnerId() > 0` check,
+/// so the money disappears rather than staying with the vassal — kept verbatim.
+#[test]
+fn an_unowned_liege_still_takes_its_cut() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500); // Aden stays unowned
+
+    add_to_treasury(&mut world, GLUDIO, 1_000);
+
+    assert_eq!(treasury(&world, ADEN), 0, "an unowned Aden banks nothing");
+    assert_eq!(
+        treasury(&world, GLUDIO),
+        850,
+        "and Gludio keeps only 850 — the cut is gone"
+    );
+}
+
+/// **The tax percent follows the castle's side** (`Feature.ini`: neutral 15,
+/// light 0, dark 30), and an unknown castle taxes nothing.
+#[test]
+fn tax_percent_follows_the_castle_side() {
+    let (mut world, ..) = quest_test_world();
+    with_castles(&mut world);
+    assert_eq!(tax_percent(&world, GLUDIO, TaxType::Buy), 15, "neutral");
+
+    world.castles[0].side = CastleSide::Light;
+    assert_eq!(tax_percent(&world, GLUDIO, TaxType::Buy), 0, "light");
+
+    world.castles[0].side = CastleSide::Dark;
+    assert_eq!(tax_percent(&world, GLUDIO, TaxType::Buy), 30, "dark");
+
+    assert_eq!(tax_percent(&world, 42, TaxType::Buy), 0, "unknown castle");
+}
+
+// ------------------------------------------------------------ merchant tax
+
+/// **A purchase from a merchant inside a tax zone feeds that castle's vault**,
+/// through the liege cascade. `shop_world`'s merchant sits at (100, 0, 0) and
+/// item 41 costs 100, so at Gludio's neutral 15 %:
+///
+/// - charged `(long)(100 × 1.15)` = **114** — Java's `(long)` cast truncates,
+///   and `100 × 1.15` is `114.99999999999999` in double, so the buyer pays 114
+///   rather than the arithmetically expected 115. Quirk kept deliberately.
+/// - taxed `(long)(114 × 0.15)` = **17**, of which Aden (Gludio's liege) takes
+///   `(long)(17 × 0.15)` = **2** and Gludio keeps **15**.
+#[test]
+fn a_purchase_in_a_tax_zone_feeds_the_treasury() {
+    let (mut world, _db, _rx) = shop_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    own(&mut world, ADEN, 501);
+    insert_tax_zone(&mut world, GLUDIO);
+    assert_eq!(npc_tax_castle(&world, NPC_OID), Some(GLUDIO));
+
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1)]));
+
+    assert_eq!(adena_of(&world, 3001), 1_000 - 114, "the taxed price");
+    assert_eq!(count_of_item(&world, 3001, 41), 1);
+    assert_eq!(treasury(&world, GLUDIO), 15, "the castle banked its tax");
+    assert_eq!(treasury(&world, ADEN), 2, "and its liege took a cut");
+}
+
+/// **Outside every tax zone the same purchase is untaxed.** This is the case
+/// that fails if the tax rate is taken from a nearest-castle lookup instead of
+/// the zone the merchant actually stands in.
+#[test]
+fn a_purchase_outside_a_tax_zone_is_untaxed() {
+    let (mut world, _db, _rx) = shop_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    // No tax zone.
+
+    assert_eq!(npc_tax_castle(&world, NPC_OID), None);
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1)]));
+
+    assert_eq!(adena_of(&world, 3001), 900, "the bare price");
+    assert_eq!(treasury(&world, GLUDIO), 0);
+}
+
+/// **An unowned castle's tax zone charges nothing extra to nobody's benefit —
+/// the price is still taxed.** Java computes the rate off the *side* and only
+/// checks ownership when banking it, so the buyer pays the same either way.
+#[test]
+fn tax_is_charged_even_when_the_castle_is_unowned() {
+    let (mut world, _db, _rx) = shop_world();
+    with_castles(&mut world);
+    insert_tax_zone(&mut world, GLUDIO); // nobody owns Gludio
+
+    shop::handle_request_buy_item(&mut world, 1, &buy_body(3, &[(41, 1)]));
+
+    assert_eq!(adena_of(&world, 3001), 886, "still the taxed price");
+    assert_eq!(treasury(&world, GLUDIO), 0, "but nobody banks it");
+}
+
+// ----------------------------------------------------------- multisell tax
+
+/// A one-entry list: `adena_cost` adena → one item 41.
+fn insert_taxed_multisell(world: &mut World, list_id: i32, adena_cost: i64, apply_taxes: bool) {
+    world.data.multisells.insert_for_test(MultisellList {
+        list_id,
+        is_chance_multisell: false,
+        apply_taxes,
+        maintain_enchantment: false,
+        ingredient_multiplier: 1.0,
+        product_multiplier: 1.0,
+        entries: vec![MultisellEntry {
+            ingredients: vec![Ingredient {
+                id: ADENA_ID,
+                count: adena_cost,
+                enchant_level: 0,
+                maintain: false,
+            }],
+            products: vec![Product {
+                id: 41,
+                count: 1,
+                chance: None,
+                enchant_level: 0,
+            }],
+            stackable: false,
+        }],
+        npcs_allowed: None,
+    });
+}
+
+fn multisell_choose_body(list_id: i32, entry_id: i32, amount: i64) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(list_id);
+    w.write_i32(entry_id);
+    w.write_i64(amount);
+    w.write_i16(0); // enchant level
+    w.write_i32(0); // augment 1
+    w.write_i32(0); // augment 2
+    for _ in 0..8 {
+        w.write_i16(0); // attack element + six defences
+    }
+    w.into_bytes()
+}
+
+/// **A taxed multisell charges the castle's cut on its adena ingredient and
+/// pays it into the vault.** Java rounds here (`Math.round`) instead of
+/// truncating like the shop, so 100 adena at Gludio's neutral 15 % costs
+/// **115** and the tax is **15** — of which Aden takes 2 and Gludio keeps 13.
+/// The remaining 100 is the exchange's own price and simply vanishes: Java
+/// banks the tax slice only.
+#[test]
+fn a_taxed_multisell_feeds_the_treasury() {
+    let (mut world, _db, _rx) = shop_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    own(&mut world, ADEN, 501);
+    insert_tax_zone(&mut world, GLUDIO);
+    insert_taxed_multisell(&mut world, 9001, 100, true);
+
+    crate::game_loop::multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9001, false);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<ActiveMultisell>(&3001)
+            .map(|a| a.tax_rate),
+        Some(0.15),
+        "the window latched the rate it displayed"
+    );
+
+    crate::game_loop::multisell::handle_multi_sell_choose(
+        &mut world,
+        1,
+        &multisell_choose_body(9001, 1, 1),
+    );
+
+    assert_eq!(
+        adena_of(&world, 3001),
+        1_000 - 115,
+        "taxed ingredient count"
+    );
+    assert_eq!(count_of_item(&world, 3001, 41), 1, "the product arrived");
+    assert_eq!(treasury(&world, GLUDIO), 13, "only the tax slice is banked");
+    assert_eq!(treasury(&world, ADEN), 2, "the liege's cut of that tax");
+}
+
+/// **A list that doesn't `applyTaxes` is untaxed even inside a tax zone.**
+/// Java's `getTaxRate()` returns 0 for such a list whatever the NPC's castle
+/// charges.
+#[test]
+fn a_multisell_without_apply_taxes_is_untaxed() {
+    let (mut world, _db, _rx) = shop_world();
+    with_castles(&mut world);
+    own(&mut world, GLUDIO, 500);
+    insert_tax_zone(&mut world, GLUDIO);
+    insert_taxed_multisell(&mut world, 9002, 100, false);
+
+    crate::game_loop::multisell::separate_and_send(&mut world, 1, 3001, Some(NPC_OID), 9002, false);
+    crate::game_loop::multisell::handle_multi_sell_choose(
+        &mut world,
+        1,
+        &multisell_choose_body(9002, 1, 1),
+    );
+
+    assert_eq!(adena_of(&world, 3001), 900, "the bare ingredient count");
+    assert_eq!(treasury(&world, GLUDIO), 0);
+}
+
+// ------------------------------------------------------ the chamberlain vault
+
+/// A world with Gludio's chamberlain (35100, object 701) and player 100 in
+/// front of it.
+fn chamberlain_vault_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, _db, _link) = quest_test_world();
+    with_castles(&mut world);
+    add_test_npc(&mut world, 701, 35100, "Merchant", 75, 0, 0, 0);
+    let rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+    (world, rx)
+}
+
+/// Make player 100 the leader of the clan that owns `castle_id` — a leader
+/// holds every clan privilege, including `CS_TAXES`.
+fn own_as_leader(world: &mut World, castle_id: i32, clan_id: i32) {
+    own(world, castle_id, clan_id);
+    world.clans.get_mut(&clan_id).unwrap().leader_id = 100;
+    let p = world
+        .objects
+        .get_component_mut::<crate::model::Player>(&100)
+        .unwrap();
+    p.clan_id = clan_id;
+}
+
+fn chamberlain(world: &mut World, event: &str) {
+    handle_request_bypass_to_server(
+        world,
+        1,
+        &bypass_body(&format!("npc_701_Quest CastleChamberlain {event}")),
+    );
+}
+
+fn served_html(rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) -> Option<String> {
+    drain(rx).iter().find_map(|p| decode_npc_html(p))
+}
+
+/// **Deposit then withdraw through the chamberlain.** The adena moves both
+/// ways, and the vault page shows the balance grouped into thousands
+/// (`Util.formatAdena`).
+#[test]
+fn the_chamberlain_deposits_and_withdraws() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 200_000);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "deposit 150000");
+    assert_eq!(treasury(&world, GLUDIO), 150_000, "the vault took it");
+    assert_eq!(adena_of(&world, 100), 50_000, "and the player paid it");
+
+    let page = served_html(&mut rx).unwrap_or_default();
+    assert!(
+        page.contains("CastleChamberlain manage_vault"),
+        "the console main page comes back: {page}"
+    );
+
+    chamberlain(&mut world, "manage_vault");
+    let page = served_html(&mut rx).expect("the vault page");
+    assert!(
+        page.contains("150,000"),
+        "the balance is shown grouped: {page}"
+    );
+
+    chamberlain(&mut world, "withdraw 50000");
+    assert_eq!(treasury(&world, GLUDIO), 100_000);
+    assert_eq!(adena_of(&world, 100), 100_000, "the adena came back");
+}
+
+/// **Withdrawing more than the vault holds serves the "not enough balance"
+/// page and moves nothing.**
+#[test]
+fn withdrawing_over_the_balance_is_refused() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    add_to_treasury_no_tax(&mut world, GLUDIO, 1_000);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "withdraw 5000");
+
+    let page = served_html(&mut rx).expect("a page is served");
+    assert!(
+        page.contains("1,000") && page.contains("5,000"),
+        "the balance and the request are both shown: {page}"
+    );
+    assert_eq!(treasury(&world, GLUDIO), 1_000, "nothing left the vault");
+    assert_eq!(adena_of(&world, 100), 0, "and nothing reached the player");
+}
+
+/// **A depositor who can't cover the amount is refused** — no adena taken, no
+/// credit, and Java's "not enough adena" message instead.
+#[test]
+fn depositing_more_than_you_hold_is_refused() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, GLUDIO, 500);
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 100);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "deposit 5000");
+
+    assert_eq!(treasury(&world, GLUDIO), 0, "the vault is untouched");
+    assert_eq!(adena_of(&world, 100), 100, "and so is the purse");
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ADENA),
+        "the shortfall is reported"
+    );
+}
+
+/// **The vault is gated on owning *this* castle.** A clan leader who owns Dion
+/// gets the refusal page at Gludio's chamberlain, and no adena moves.
+#[test]
+fn the_vault_gates_on_ownership() {
+    let (mut world, mut rx) = chamberlain_vault_world();
+    own_as_leader(&mut world, 2, 500); // Dion, not Gludio
+    own(&mut world, GLUDIO, 501); // Gludio belongs to someone else
+    super::items::add_inventory_item(&mut world, 100, ADENA_ID, 10_000);
+    drain(&mut rx);
+
+    chamberlain(&mut world, "deposit 5000");
+
+    assert_eq!(treasury(&world, GLUDIO), 0, "a stranger can't deposit");
+    assert_eq!(adena_of(&world, 100), 10_000);
+    let page = served_html(&mut rx).unwrap_or_default();
+    assert!(!page.is_empty(), "the refusal page is served");
+}

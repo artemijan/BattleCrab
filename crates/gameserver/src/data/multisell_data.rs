@@ -94,7 +94,20 @@ impl MultisellList {
     /// `PreparedMultisellListHolder.getIngredientCount` for the no-npc/no-tax
     /// community-board case (tax rate 0): apply the ingredient multiplier.
     pub fn ingredient_count(&self, ing: &Ingredient) -> i64 {
-        (ing.count as f64 * self.ingredient_multiplier).round() as i64
+        self.ingredient_count_taxed(ing, 0.0)
+    }
+
+    /// `PreparedMultisellListHolder.getIngredientCount` — the castle's buy tax
+    /// rides on the **adena** ingredient only, and only for a list that declares
+    /// `applyTaxes` (Java's `getTaxRate()` returns 0 otherwise, whatever the
+    /// NPC's castle charges).
+    pub fn ingredient_count_taxed(&self, ing: &Ingredient, tax_rate: f64) -> i64 {
+        let tax = if self.apply_taxes { tax_rate } else { 0.0 };
+        if ing.id == super::item_data::ADENA_ID {
+            (ing.count as f64 * self.ingredient_multiplier * (1.0 + tax)).round() as i64
+        } else {
+            (ing.count as f64 * self.ingredient_multiplier).round() as i64
+        }
     }
 
     /// `PreparedMultisellListHolder.getProductCount`.

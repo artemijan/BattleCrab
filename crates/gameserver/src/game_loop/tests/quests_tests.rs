@@ -675,6 +675,7 @@ fn sell_list_hides_unsellable_and_refund_round_trips() {
                 kind: crate::data::item_data::ItemKind::Etc,
                 is_stackable: stackable,
                 is_sellable: sellable,
+                is_freightable: false,
                 price,
                 ..Default::default()
             });
@@ -796,6 +797,7 @@ fn refund_container_caps_at_twelve() {
             kind: crate::data::item_data::ItemKind::Etc,
             is_stackable: true,
             is_sellable: true,
+            is_freightable: false,
             price: 60,
             ..Default::default()
         });
@@ -1357,6 +1359,7 @@ fn request_sell_item_pays_adena() {
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 200, // sells for 100 each
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,

@@ -581,7 +581,14 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         .get_component::<crate::model::inventory::Inventory>(&object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(crate::network::trade::buy_list(&list, inv, &world.data));
+        // Java `HomeBoard`: `new BuyList(…, player, 0)` — the board shop is
+        // npc-less, so no castle takes a cut.
+        cs.send(crate::network::trade::buy_list(
+            &list,
+            inv,
+            &world.data,
+            0.0,
+        ));
         cs.send(crate::network::trade::ex_buy_sell_list_sell(
             inv,
             &refund_items,

@@ -15,6 +15,7 @@ use crate::network::trade;
 use crate::session::ClientSession;
 use crate::world::World;
 
+use super::castle::{handle_tax_payment, npc_tax_rate as merchant_tax_rate};
 use super::helpers::send_sm_and_action_failed;
 use super::target::can_interact;
 
@@ -42,6 +43,22 @@ pub(crate) fn show_buy_window(
     npc_oid: i32,
     list_id: i32,
 ) {
+    show_buy_window_taxed(world, client_id, player, npc_oid, list_id, true);
+}
+
+/// `Merchant.showBuyWindow(player, listId, applyCastleTax)` — the mercenary
+/// manager opens its ticket lists with `applyCastleTax = false` ("baseTax is 20%
+/// (done in merchant buylists)"). Note Java only skips the tax in the *window*:
+/// `RequestBuyItem` still charges (and pays out) the castle rate, so an untaxed
+/// display does not mean an untaxed purchase. Kept as-is.
+pub(crate) fn show_buy_window_taxed(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    list_id: i32,
+    apply_castle_tax: bool,
+) {
     let npc_id = world
         .objects
         .get_component::<crate::model::npc::Npc>(&npc_oid)
@@ -61,12 +78,17 @@ pub(crate) fn show_buy_window(
         }
         return;
     }
+    let tax_rate = if apply_castle_tax {
+        merchant_tax_rate(world, npc_oid)
+    } else {
+        0.0
+    };
     let refund_items = refund_items_of(world, player);
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(trade::buy_list(list, inventory, &world.data));
+        cs.send(trade::buy_list(list, inventory, &world.data, tax_rate));
         cs.send(trade::ex_buy_sell_list_sell(
             inventory,
             &refund_items,
@@ -77,8 +99,9 @@ pub(crate) fn show_buy_window(
 }
 
 /// Port of `clientpackets/RequestBuyItem.runImpl`, minus the systems that
-/// don't exist: karma gate, GM bypasses, castle tax, limited stock, and the
-/// weight/slot capacity checks (no encumbrance enforcement yet).
+/// don't exist: karma gate, GM bypasses, limited stock, and the weight/slot
+/// capacity checks (no encumbrance enforcement yet). Castle tax is applied and
+/// paid into the merchant's castle treasury.
 pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestBuyItem::read(body) else {
         return;
@@ -123,6 +146,9 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         return;
     }
 
+    // Java `merchant.getCastleTaxRate(TaxType.BUY)`: 0 outside a tax zone.
+    let castle_tax_rate = merchant_tax_rate(world, merchant_oid);
+
     // Validate every line and total the price (Java's first pass).
     let mut sub_total: i64 = 0;
     for line in &pkt.items {
@@ -160,7 +186,10 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
         if MAX_ADENA / line.count < product.price {
             return;
         }
-        let price = (product.price as f64 * (1.0 + product.base_tax as f64 / 100.0)) as i64;
+        // Java: per-item price with tax first, then multiply by the count.
+        let price = (product.price as f64
+            * (1.0 + castle_tax_rate + f64::from(product.base_tax) / 100.0))
+            as i64;
         sub_total += line.count * price;
         if sub_total > MAX_ADENA {
             return;
@@ -192,6 +221,15 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             added.extend(oids);
         }
     }
+    // Java `merchant.handleTaxPayment(subTotal * castleTaxRate)` — the castle
+    // whose tax zone the merchant stands in takes its cut, after the buyer has
+    // already paid the taxed price.
+    handle_tax_payment(
+        world,
+        merchant_oid,
+        (sub_total as f64 * castle_tax_rate) as i64,
+    );
+
     let refund_items = refund_items_of(world, player);
     if let (Some(inventory), Some(cs)) = (
         world.objects.get_component::<Inventory>(&player),

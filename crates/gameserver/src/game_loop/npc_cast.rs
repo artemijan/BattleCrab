@@ -376,6 +376,8 @@ pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill
             // effects immediately after.
             cancel_ms: 0,
             cool_ms,
+            // NPCs cast no item skills.
+            trigger_item_object_id: 0,
         }),
     );
     world.scheduler.schedule(

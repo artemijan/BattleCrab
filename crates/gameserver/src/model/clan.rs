@@ -260,6 +260,10 @@ pub const CS_MANAGE_SIEGE: i32 = 1 << 18;
 /// open/close the castle gates and use the doormen's post teleports.
 pub const CS_OPEN_DOOR: i32 = 1 << 16;
 
+/// `ClanPrivilege.CS_TAXES` (ordinal 21) — the chamberlain's castle vault:
+/// view the balance, deposit and withdraw.
+pub const CS_TAXES: i32 = 1 << 21;
+
 /// `ClanPrivilege.CS_MERCENARIES` (ordinal 22) — the castle Mercenary
 /// Manager's console (ticket buy lists).
 pub const CS_MERCENARIES: i32 = 1 << 22;

@@ -102,7 +102,7 @@ pub(crate) fn broadcast_to_cc(world: &World, cc_id: u32, packet: &[u8]) {
     }
 }
 
-fn broadcast_sm_to_cc(world: &World, cc_id: u32, message_id: i16, params: &[SmParam]) {
+pub(crate) fn broadcast_sm_to_cc(world: &World, cc_id: u32, message_id: i16, params: &[SmParam]) {
     broadcast_to_cc(
         world,
         cc_id,

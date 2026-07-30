@@ -1221,6 +1221,7 @@ pub(crate) fn start_casting(
             launched: false,
             cancel_ms,
             cool_ms,
+            trigger_item_object_id: 0,
         }),
     );
     world.scheduler.schedule(
@@ -1562,6 +1563,35 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         crate::game_loop::party::notify_party_vitals(world, player_object_id);
     }
 
+    // Java `SkillCaster.finishSkill`'s item consume, between the MP/HP spend and
+    // the effects: a `SKILL_REDUCE_ON_SKILL_SUCCESS` item is spent *here*, and
+    // a failed spend (someone dropped/traded it mid-cast) aborts the cast with
+    // no effects at all — Java's `return false`.
+    if cast.trigger_item_object_id != 0 && skill.item_consume_id > 0 && skill.item_consume_count > 0
+    {
+        let taken = world
+            .objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&player_object_id)
+            .and_then(|inv| {
+                inv.remove_by_object_id(
+                    cast.trigger_item_object_id,
+                    i64::from(skill.item_consume_count),
+                )
+            });
+        let Some(change) = taken else {
+            stop_casting(world, player_object_id);
+            return;
+        };
+        if let Some(client_id) = client_id
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(crate::network::enter_world::inventory_update_changes(
+                &world.data,
+                &[change],
+            ));
+        }
+    }
+
     // `Skill.forEachTargetAffected` — expand the primary target through the
     // skill's affect scope, then run `callSkill` per affected creature. A
     // single-target skill resolves to exactly the primary target, so this is
@@ -1821,6 +1851,16 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
             skill_id,
             target,
         );
+    }
+}
+
+/// Java `SkillCaster._item`: mark the running cast as started by this item
+/// instance, so `finishSkill` can spend it if the cast lands. Called right
+/// after [`start_casting`] by the item-skill path — nothing runs in between on
+/// the game thread, so this is the same as Java setting it in the constructor.
+pub(crate) fn set_cast_trigger_item(world: &mut World, object_id: i32, item_object_id: i32) {
+    if let Some(cast) = world.objects.get_component_mut::<Casting>(&object_id) {
+        cast.0.trigger_item_object_id = item_object_id;
     }
 }
 

@@ -74,6 +74,7 @@ async fn user_info_test() {
         pledge_class: 0,
         clan_create_expiry_time: 0,
         clan_join_expiry_time: 0,
+        create_date: String::new(),
         power_grade: 0,
         ally_id: 0,
         pledge_type: 0,

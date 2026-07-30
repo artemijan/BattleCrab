@@ -74,6 +74,9 @@ pub struct CharData {
     /// `characters.clan_join_expiry_time` (1-day rejoin penalty after
     /// leaving/being ousted from a clan).
     pub clan_join_expiry_time: i64,
+    /// `characters.create_date` (`YYYY-MM-DD`) — the character's birthday,
+    /// read by the `/mybirthday` user command.
+    pub create_date: String,
     /// `characters.power_grade` (clan rank; 0 = never set → 5 at login).
     pub power_grade: i32,
     /// `characters.subpledge` (sub-unit membership; 0 = main pledge).

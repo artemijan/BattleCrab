@@ -77,3 +77,35 @@ pub fn warehouse_withdrawal_list(
     }
     w.into_bytes()
 }
+
+/// `serverpackets/PackageToList` — the freight "send to" chooser: every other
+/// character on the account, by object id and name.
+pub fn package_to_list(chars: &[(i32, String)]) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PACKAGE_TO_LIST);
+    w.write_i32(chars.len() as i32);
+    for (object_id, name) in chars {
+        w.write_i32(*object_id);
+        w.write_string(name);
+    }
+    w.into_bytes()
+}
+
+/// `serverpackets/PackageSendableList` — the sender's freightable items and
+/// adena, for the character chosen in [`package_to_list`].
+pub fn package_sendable_list(
+    recipient_object_id: i32,
+    adena: i64,
+    items: &[(&ItemInstance, &ItemTemplate)],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::PACKAGE_SENDABLE_LIST);
+    w.write_i32(recipient_object_id);
+    w.write_i64(adena);
+    w.write_i32(items.len() as i32);
+    for (item, template) in items {
+        write_item_entry(&mut w, item, template, false);
+        w.write_i32(item.object_id);
+    }
+    w.into_bytes()
+}

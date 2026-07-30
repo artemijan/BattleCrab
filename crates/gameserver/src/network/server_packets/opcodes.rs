@@ -60,6 +60,10 @@ pub const GET_ITEM: u8 = 0x17;
 /// Personal/clan warehouse deposit + withdraw list windows.
 pub const WAREHOUSE_DEPOSIT_LIST: u8 = 0x41;
 pub const WAREHOUSE_WITHDRAW_LIST: u8 = 0x42;
+/// `PackageToList` — the account's other characters, the freight "send to" list.
+pub const PACKAGE_TO_LIST: u8 = 0xC8;
+/// `PackageSendableList` — the items that may be freighted to that character.
+pub const PACKAGE_SENDABLE_LIST: u8 = 0xD2;
 /// Private store: the owner's manage window, a buyer's view, and the title
 /// message shown above a store owner.
 pub const PRIVATE_STORE_MANAGE_LIST: u8 = 0xA0;
@@ -189,6 +193,11 @@ pub const EX_CLOSE_MPCC: i16 = 0x13;
 pub const EX_ASK_JOIN_MPCC: i16 = 0x1A;
 pub const EX_MPCC_SHOW_PARTY_MEMBER_INFO: i16 = 0x4C;
 pub const EX_MPCC_PARTY_INFO_UPDATE: i16 = 0x5C;
+pub const EX_MULTI_PARTY_COMMAND_CHANNEL_INFO: i16 = 0x31;
+/// `ExInzoneWaiting` — the instance re-enter window (`/instancezone`).
+pub const EX_INZONE_WAITING_INFO: i16 = 0x11E;
+/// `ExPrivateStoreSetWholeMsg` — the package-sell store title.
+pub const EX_PRIVATE_STORE_WHOLE_MSG: i16 = 0x81;
 pub const EX_MPCC_ROOM_INFO: i16 = 0x9C;
 pub const EX_LIST_MPCC_WAITING: i16 = 0x9D;
 pub const EX_DISSMISS_MPCC_ROOM: i16 = 0x9E;
