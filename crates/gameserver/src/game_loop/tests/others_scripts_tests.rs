@@ -1030,3 +1030,219 @@ fn the_siege_headquarters_ignores_a_lethal_blow() {
         "the spawn hook marks it non-lethalable"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Slice 4 — day/night spawn groups + NoRandomActivity
+// ---------------------------------------------------------------------------
+
+use crate::data::spawn_data::{NpcSpawnDef, SpawnData, SpawnGroup, SpawnTemplate};
+use crate::game_loop::spawn_scripts;
+
+/// The dist really does ship the two spawn-script families this slice serves.
+#[test]
+fn the_dist_ships_day_night_templates_and_non_default_groups() {
+    let spawns = SpawnData::load_from(DIST);
+    let day_night = spawns
+        .spawns
+        .iter()
+        .filter(|t| t.ai.as_deref() == Some("DayNightSpawns"))
+        .count();
+    assert_eq!(day_night, 50, "DayNightSpawns templates");
+    // Not 2 groups apiece: the Interlude map tiles ship their day and night
+    // halves in separate files (one group each), and Devil's Isle has a
+    // template with two `dayTime` groups. `manageSpawns` works per group, so
+    // both shapes are fine.
+    let phase_groups = spawns
+        .spawns
+        .iter()
+        .flat_map(|t| &t.groups)
+        .filter(|g| matches!(g.name.as_deref(), Some("dayTime") | Some("nightTime")))
+        .count();
+    assert_eq!(phase_groups, 94, "dayTime + nightTime groups");
+    let non_default = spawns
+        .spawns
+        .iter()
+        .flat_map(|t| &t.groups)
+        .filter(|g| !g.spawn_by_default)
+        .count();
+    assert_eq!(
+        non_default, 95,
+        "groups a script owns rather than the boot pass"
+    );
+    assert!(
+        spawns
+            .spawns
+            .iter()
+            .any(|t| t.ai.as_deref() == Some("NoRandomActivity")
+                && t.parameters.get("disableRandomWalk").map(String::as_str) == Some("true")),
+        "the Chapel Guards template keeps its parameters"
+    );
+}
+
+/// Build a template with the two phase groups, both `spawnByDefault=false`.
+fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
+    let line = |npc_id: i32| NpcSpawnDef {
+        npc_id,
+        count: 1,
+        loc: Some(crate::data::spawn_data::FixedLoc {
+            x: 100,
+            y: 100,
+            z: 0,
+            heading: 0,
+        }),
+        respawn_secs: 60,
+        respawn_random_secs: 0,
+        db_save: false,
+    };
+    SpawnTemplate {
+        name: Some("test-day-night".to_string()),
+        ai: Some("DayNightSpawns".to_string()),
+        parameters: Default::default(),
+        territories: Vec::new(),
+        groups: vec![
+            SpawnGroup {
+                name: Some("dayTime".to_string()),
+                spawn_by_default: false,
+                territories: Vec::new(),
+                npcs: vec![line(day_npc)],
+            },
+            SpawnGroup {
+                name: Some("nightTime".to_string()),
+                spawn_by_default: false,
+                territories: Vec::new(),
+                npcs: vec![line(night_npc)],
+            },
+        ],
+    }
+}
+
+fn register_monster(world: &mut World, npc_id: i32) {
+    let mut t = crate::data::npc_data::default_template(npc_id);
+    t.type_name = "Monster".into();
+    world.data.npc_data.insert_for_test(t);
+}
+
+/// The phase swap: exactly one half stands at a time, and a transition
+/// replaces it rather than stacking.
+#[test]
+fn only_the_in_phase_half_of_a_day_night_template_stands() {
+    const DAY_MOB: i32 = 24052;
+    const NIGHT_MOB: i32 = 24055;
+    let (mut world, _db, _l) = combat_test_world();
+    register_monster(&mut world, DAY_MOB);
+    register_monster(&mut world, NIGHT_MOB);
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
+
+    // Nightfall: the night half spawns, the day half is absent.
+    spawn_scripts::on_day_night_change(&mut world, true);
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 1, "night mob is out");
+    assert_eq!(npc_count(&mut world, DAY_MOB), 0, "day mob is not");
+
+    // Daybreak: they trade places — no stacking.
+    spawn_scripts::on_day_night_change(&mut world, false);
+    assert_eq!(npc_count(&mut world, DAY_MOB), 1, "day mob took over");
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 0, "night mob went away");
+
+    // And back again, still one apiece.
+    spawn_scripts::on_day_night_change(&mut world, true);
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 1);
+    assert_eq!(npc_count(&mut world, DAY_MOB), 0);
+}
+
+/// The boot pass leaves both halves alone — before this slice it placed *both*,
+/// so every day/night map stood with a double population.
+#[test]
+fn the_boot_pass_skips_groups_a_script_owns() {
+    const DAY_MOB: i32 = 24052;
+    const NIGHT_MOB: i32 = 24055;
+    let (mut world, _db, _l) = combat_test_world();
+    register_monster(&mut world, DAY_MOB);
+    register_monster(&mut world, NIGHT_MOB);
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
+
+    crate::model::npc::spawn_all(&mut world);
+
+    assert_eq!(npc_count(&mut world, DAY_MOB), 0, "day half waits");
+    assert_eq!(npc_count(&mut world, NIGHT_MOB), 0, "night half waits");
+}
+
+/// A mob killed just before its phase ended does not climb back out during the
+/// other half: the scheduled respawn is refused while out of phase.
+#[test]
+fn an_out_of_phase_respawn_is_refused() {
+    const DAY_MOB: i32 = 24052;
+    const NIGHT_MOB: i32 = 24055;
+    let (mut world, _db, _l) = combat_test_world();
+    register_monster(&mut world, DAY_MOB);
+    register_monster(&mut world, NIGHT_MOB);
+    world
+        .data
+        .spawn_data
+        .spawns
+        .push(day_night_test_template(DAY_MOB, NIGHT_MOB));
+    let template_idx = world.data.spawn_data.spawns.len() - 1;
+
+    // Which half is in phase depends on the wall clock, so ask it.
+    let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
+    let (in_phase_group, out_of_phase_group) = if night { (1, 0) } else { (0, 1) };
+    let (in_phase_mob, out_of_phase_mob) = if night {
+        (NIGHT_MOB, DAY_MOB)
+    } else {
+        (DAY_MOB, NIGHT_MOB)
+    };
+
+    crate::game_loop::death::handle_npc_respawn(&mut world, template_idx, out_of_phase_group, 0);
+    assert_eq!(
+        npc_count(&mut world, out_of_phase_mob),
+        0,
+        "the out-of-phase respawn is dropped"
+    );
+
+    crate::game_loop::death::handle_npc_respawn(&mut world, template_idx, in_phase_group, 0);
+    assert_eq!(
+        npc_count(&mut world, in_phase_mob),
+        1,
+        "the in-phase one still respawns"
+    );
+}
+
+/// `NoRandomActivity`: the template's `disableRandomWalk` overrides the NPC
+/// template's own flag, per spawned NPC.
+#[test]
+fn no_random_activity_pins_its_npcs_down() {
+    const GUARD: i32 = 22138;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(GUARD);
+        t.type_name = "Monster".into();
+        t.random_walk = true;
+        t.random_animation = true;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mut template = day_night_test_template(GUARD, GUARD);
+    template.ai = Some("NoRandomActivity".to_string());
+    template
+        .parameters
+        .insert("disableRandomWalk".to_string(), "true".to_string());
+    template.groups[0].spawn_by_default = true;
+    world.data.spawn_data.spawns.push(template);
+    let template_idx = world.data.spawn_data.spawns.len() - 1;
+
+    let oid = crate::model::npc::spawn_one(&mut world, template_idx, 0, 0).expect("spawned");
+    assert!(
+        !spawn_scripts::random_walk_enabled(&world, oid, true),
+        "the guard does not wander"
+    );
+    assert!(
+        spawn_scripts::random_animation_enabled(&world, oid, true),
+        "animations were not disabled, so the template flag stands"
+    );
+}

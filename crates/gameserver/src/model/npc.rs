@@ -410,6 +410,15 @@ pub fn spawn_all(world: &mut World) -> usize {
     // spawn definitions are read-only — walk indices instead of iterators.
     for spawn_idx in 0..world.data.spawn_data.spawns.len() {
         for group_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups.len() {
+            // Java `SpawnTemplate.spawnAll` = `spawn(SpawnGroup::
+            // isSpawningByDefault)`: a `spawnByDefault="false"` group waits for
+            // the script that owns it. 95 groups on this dist — the day/night
+            // halves, placed by [`crate::game_loop::spawn_scripts`]. Boot
+            // used to place them all, so every day/night map stood with *both*
+            // populations at once.
+            if !world.data.spawn_data.spawns[spawn_idx].groups[group_idx].spawn_by_default {
+                continue;
+            }
             for npc_idx in 0..world.data.spawn_data.spawns[spawn_idx].groups[group_idx]
                 .npcs
                 .len()
@@ -511,6 +520,9 @@ pub(crate) fn spawn_one(
     // rather than in `spawn_npc_entity` so a minion that itself declares
     // minions can't recurse — minions are placed through `spawn_npc_at`,
     // which deliberately doesn't run this.
+    // `SpawnTemplate.notifySpawnNpc` — the template's own `ai=` script
+    // (`NoRandomActivity` pins its NPCs down).
+    crate::game_loop::spawn_scripts::apply_spawn_ai(world, oid, spawn_idx);
     // `WalkingManager.onSpawn` — attach a walking route if this id has one.
     crate::game_loop::walkers::on_npc_spawn(world, oid, npc_id);
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`

@@ -17,12 +17,27 @@ pub const SPAWNS_DIR: &str = "data/spawns";
 /// One `<spawn>` element (Java `SpawnTemplate`).
 pub struct SpawnTemplate {
     pub name: Option<String>,
+    /// `ai="…"` — the script that owns this template's lifecycle
+    /// (`DayNightSpawns`, `NoRandomActivity`, `ClassMaster`). Java resolves it
+    /// through `SpawnData`'s script map; here the consumers match on the name.
+    pub ai: Option<String>,
+    /// `<parameters><param name value/>` on the template (Java
+    /// `SpawnTemplate.getParameters()`) — only `NoRandomActivity`'s
+    /// `disableRandomWalk` / `disableRandomAnimation` are used on this dist.
+    pub parameters: std::collections::HashMap<String, String>,
     pub territories: Vec<Territory>,
     pub groups: Vec<SpawnGroup>,
 }
 
 /// One `<group>` (or the implicit default group for bare `<npc>` children).
 pub struct SpawnGroup {
+    /// `<group name="…">` — `dayTime`/`nightTime` for the day/night templates,
+    /// absent for the rest.
+    pub name: Option<String>,
+    /// `spawnByDefault` (Java `SpawnGroup.isSpawningByDefault`, default true):
+    /// a `false` group is **not** placed by the boot pass — its owning script
+    /// spawns it (the day/night halves). 95 groups on this dist.
+    pub spawn_by_default: bool,
     pub territories: Vec<Territory>,
     pub npcs: Vec<NpcSpawnDef>,
 }
@@ -272,6 +287,8 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
             b"spawn" => {
                 cur_spawn = Some(SpawnTemplate {
                     name: attr_str(&e, b"name"),
+                    ai: attr_str(&e, b"ai"),
+                    parameters: std::collections::HashMap::new(),
                     territories: Vec::new(),
                     groups: Vec::new(),
                 });
@@ -279,6 +296,10 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
             b"group" => {
                 in_group = true;
                 cur_group = Some(SpawnGroup {
+                    name: attr_str(&e, b"name"),
+                    spawn_by_default: attr_str(&e, b"spawnByDefault")
+                        .map(|v| v != "false")
+                        .unwrap_or(true),
                     territories: Vec::new(),
                     npcs: Vec::new(),
                 });
@@ -294,6 +315,17 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                 });
                 if self_closing {
                     finish_territory(&mut cur_territory, &mut cur_spawn, &mut cur_group, in_group);
+                }
+            }
+            // `<parameters><param name value/>` — kept only at template level,
+            // which is where this dist puts them.
+            b"param" => {
+                if let (Some(sp), Some(name), Some(value)) = (
+                    cur_spawn.as_mut(),
+                    attr_str(&e, b"name"),
+                    attr_str(&e, b"value"),
+                ) {
+                    sp.parameters.insert(name, value);
                 }
             }
             b"node" => {
@@ -337,6 +369,8 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                 } else {
                     default_group
                         .get_or_insert_with(|| SpawnGroup {
+                            name: None,
+                            spawn_by_default: true,
                             territories: Vec::new(),
                             npcs: Vec::new(),
                         })

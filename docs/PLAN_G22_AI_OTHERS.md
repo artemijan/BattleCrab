@@ -148,12 +148,32 @@ Notes worth keeping:
 - Java's Timak guard `!monster.isTeleporting()` has no port equivalent (NPC
   teleport state isn't modelled; nothing teleports that mob).
 
-### Slice 4 — day/night spawn groups
-`Spawns/DayNightSpawns` + `Spawns/NoRandomActivity`: teach the spawn loader the
-`ai=` attribute and the `dayTime`/`nightTime` group names, and drive
-spawn/despawn off the G33 clock (`game_time::is_night_at`, already polled every
-real minute by `ScheduledTask::DayNightCheck`). 50 templates on this dist —
-this is the one item in row 5 with real world-population impact.
+### Slice 4 — day/night spawn groups  ✅ LANDED 2026-07-30
+`Spawns/DayNightSpawns` + `Spawns/NoRandomActivity` in
+`game_loop/spawn_scripts.rs`, over three new pieces of spawn data: the
+template's `ai=` attribute and `<parameters>`, and each group's `name=` +
+`spawnByDefault`.
+
+**The bug this found:** `spawnByDefault="false"` was not parsed, so the boot
+pass placed **both** halves of every day/night template — 95 groups, i.e. every
+Devil's Isle and Interlude day/night tile stood with a double population, day
+mobs and night mobs side by side. Boot now skips those groups (Java
+`spawnAll(SpawnGroup::isSpawningByDefault)`) and `activate_at_boot` places the
+half that matches the clock.
+
+- The transition rides the existing minute beat
+  (`area_npcs::handle_day_night_check` → `on_day_night_change`), which already
+  drove Eilhalder von Hellmann.
+- A mob killed just before its phase ends must not climb back out during the
+  other half: `respawn_is_in_phase` filters the scheduled respawn (Java's
+  `despawnAll` stops the spawn itself, which this port's task can't).
+- `NoRandomActivity` needs a *per-NPC* random-walk/animation override, since
+  both flags are otherwise read off the shared template — hence the
+  `SpawnActivity` component, applied from the spawn path.
+
+Data notes: 50 templates carry `ai="DayNightSpawns"` but only 94 phase groups —
+the Interlude map tiles ship their day and night halves in separate files (one
+group each) and Devil's Isle has a template with two `dayTime` groups.
 
 ### Slice 5 — the talk/utility tail
 `ArenaManager`, `ToIVortex`, `RandomWalkingGuards`, `SymbolMaker`'s missing

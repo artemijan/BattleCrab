@@ -332,6 +332,12 @@ pub(crate) fn handle_npc_respawn(
     group_idx: usize,
     npc_idx: usize,
 ) {
+    // A `dayTime`/`nightTime` mob killed near the end of its phase must not
+    // climb back out during the other half of the day (Java's `despawnAll`
+    // stops the spawn outright; here the scheduled task outlives the despawn).
+    if !super::spawn_scripts::respawn_is_in_phase(world, spawn_idx, group_idx) {
+        return;
+    }
     let Some(object_id) = crate::model::npc::spawn_one(world, spawn_idx, group_idx, npc_idx) else {
         return;
     };

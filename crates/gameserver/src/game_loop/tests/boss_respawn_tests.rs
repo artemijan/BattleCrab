@@ -29,7 +29,11 @@ fn boss_world() -> (
         .spawn_data
         .spawns
         .push(crate::data::spawn_data::SpawnTemplate {
+            ai: None,
+            parameters: Default::default(),
             groups: vec![crate::data::spawn_data::SpawnGroup {
+                name: None,
+                spawn_by_default: true,
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id: BOSS_ID,
                     count: 1,

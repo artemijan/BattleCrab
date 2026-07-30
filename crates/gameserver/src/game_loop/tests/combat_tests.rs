@@ -1080,9 +1080,13 @@ fn dead_monster_decays_and_respawns() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     world.data.spawn_data = crate::data::SpawnData {
         spawns: vec![crate::data::spawn_data::SpawnTemplate {
+            ai: None,
+            parameters: Default::default(),
             name: None,
             territories: vec![],
             groups: vec![crate::data::spawn_data::SpawnGroup {
+                name: None,
+                spawn_by_default: true,
                 territories: vec![],
                 npcs: vec![crate::data::spawn_data::NpcSpawnDef {
                     npc_id: 40001,

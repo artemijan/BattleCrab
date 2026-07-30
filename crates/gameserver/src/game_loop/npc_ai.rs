@@ -95,7 +95,8 @@ fn random_animation_think(world: &mut World, npc_oid: i32) {
     };
     let Some(t) = npc.template(world) else { return };
     let attackable = t.attackable;
-    let enabled = t.random_animation;
+    let enabled =
+        super::spawn_scripts::random_animation_enabled(world, npc_oid, t.random_animation);
     let (min_s, max_s) = if attackable {
         (
             world.cfg.npc.min_monster_animation,
@@ -693,6 +694,8 @@ fn think_active(world: &mut World, npc_oid: i32) {
         // Java `isRandomWalkingEnabled()`: the template flag (minions/walking-
         // route targets that clear it at runtime aren't in the monster slice).
         let random_walk = t.map(|t| t.random_walk).unwrap_or(false);
+        // `ai/others/Spawns/NoRandomActivity` can clear it per NPC.
+        let random_walk = super::spawn_scripts::random_walk_enabled(world, npc_oid, random_walk);
         (
             pos.x,
             pos.y,
