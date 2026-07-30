@@ -17,9 +17,11 @@ use models::entity::{
     olympiad_nobles, pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments,
     residence_functions, siege_clans,
 };
+use models::sea_orm::ActiveValue::{Set, Unchanged};
+use models::sea_orm::sea_query::OnConflict;
 use models::sea_orm::{
-    ColumnTrait, ConnectionTrait, DatabaseConnection, EntityTrait, PaginatorTrait, QueryFilter,
-    QueryOrder, QuerySelect,
+    ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DbErr, EntityTrait,
+    PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, TransactionTrait,
 };
 use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
@@ -4244,49 +4246,68 @@ async fn upsert_shortcut(
     shortcut_id: i32,
     level: i32,
 ) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    exec(
-        pool,
-        sqlx::query(
-            "INSERT INTO character_shortcuts (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
-             VALUES (?, ?, ?, ?, ?, ?, 0, 0) \
-             ON CONFLICT(charId, slot, page, class_index) DO UPDATE SET \
-             type=excluded.type, shortcut_id=excluded.shortcut_id, level=excluded.level",
+    let row = character_shortcuts::ActiveModel {
+        char_id: Set(char_id),
+        slot: Set(slot),
+        page: Set(page),
+        r#type: Set(Some(kind)),
+        shortcut_id: Set(Some(shortcut_id.into())),
+        level: Set(Some(level)),
+        sub_level: Set(0),
+        class_index: Set(0),
+    };
+    let res = character_shortcuts::Entity::insert(row)
+        .on_conflict(
+            OnConflict::columns([
+                character_shortcuts::Column::CharId,
+                character_shortcuts::Column::Slot,
+                character_shortcuts::Column::Page,
+                character_shortcuts::Column::ClassIndex,
+            ])
+            .update_columns([
+                character_shortcuts::Column::Type,
+                character_shortcuts::Column::ShortcutId,
+                character_shortcuts::Column::Level,
+            ])
+            .to_owned(),
         )
-        .bind(char_id)
-        .bind(slot)
-        .bind(page)
-        .bind(kind)
-        .bind(shortcut_id)
-        .bind(level),
-    )
-    .await;
+        .exec(db)
+        .await;
+    if let Err(e) = res {
+        warn!("DB thread: upsert_shortcut failed: {e}");
+    }
 }
 
 async fn upsert_macro(db: &DatabaseConnection, char_id: i32, m: &crate::model::shortcut::Macro) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    exec(
-        pool,
-        sqlx::query(
-            "INSERT INTO character_macroses (charId, id, icon, name, descr, acronym, commands) \
-             VALUES (?, ?, ?, ?, ?, ?, ?) \
-             ON CONFLICT(charId, id) DO UPDATE SET \
-             icon=excluded.icon, name=excluded.name, descr=excluded.descr, \
-             acronym=excluded.acronym, commands=excluded.commands",
+    let row = character_macroses::ActiveModel {
+        char_id: Set(char_id),
+        id: Set(m.id),
+        icon: Set(Some(m.icon)),
+        name: Set(Some(m.name.clone())),
+        descr: Set(Some(m.descr.clone())),
+        acronym: Set(Some(m.acronym.clone())),
+        commands: Set(Some(crate::model::shortcut::encode_commands(&m.commands))),
+    };
+    let res = character_macroses::Entity::insert(row)
+        .on_conflict(
+            OnConflict::columns([
+                character_macroses::Column::CharId,
+                character_macroses::Column::Id,
+            ])
+            .update_columns([
+                character_macroses::Column::Icon,
+                character_macroses::Column::Name,
+                character_macroses::Column::Descr,
+                character_macroses::Column::Acronym,
+                character_macroses::Column::Commands,
+            ])
+            .to_owned(),
         )
-        .bind(char_id)
-        .bind(m.id)
-        .bind(m.icon)
-        .bind(&m.name)
-        .bind(&m.descr)
-        .bind(&m.acronym)
-        .bind(crate::model::shortcut::encode_commands(&m.commands)),
-    )
-    .await;
+        .exec(db)
+        .await;
+    if let Err(e) = res {
+        warn!("DB thread: upsert_macro failed: {e}");
+    }
 }
 
 /// A character's `items` rows (Java: `PlayerInventory.restore`, called for
@@ -4349,161 +4370,199 @@ async fn name_exists(db: &DatabaseConnection, name: &str) -> bool {
         > 0
 }
 
+/// `characters.createDate` is a `date` column SQLite fills with `date('now')`;
+/// the entity carries it as text, so the value is formatted here.
+fn today() -> String {
+    let secs = commons::util::now_millis() / 1000;
+    let days = secs / 86_400;
+    // Civil-from-days (Howard Hinnant's algorithm), which avoids a chrono
+    // dependency for the one date column in the schema.
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z.rem_euclid(146_097);
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if m <= 2 { y + 1 } else { y };
+    format!("{y:04}-{m:02}-{d:02}")
+}
+
+/// Runs an insert that the caller treats as best-effort, logging a failure the
+/// way the old `exec` helper did.
+async fn insert_or_warn<A: models::sea_orm::ActiveModelTrait>(
+    db: &DatabaseConnection,
+    insert: models::sea_orm::Insert<A>,
+) {
+    if let Err(e) = insert.exec(db).await {
+        warn!("DB thread: insert failed: {e}");
+    }
+}
+
 async fn create_character(
     db: &DatabaseConnection,
     next_id: &mut i64,
     max_characters: i32,
     data: &NewCharacter,
 ) -> CreateResult {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
     if name_exists(db, &data.name).await {
         return CreateResult::NameExists;
     }
-    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM characters WHERE account_name=?")
-        .bind(&data.account)
-        .fetch_one(pool)
+    let count = characters::Entity::find()
+        .filter(characters::Column::AccountName.eq(&data.account))
+        .count(db)
         .await
-        .unwrap_or(0);
+        .unwrap_or(0) as i64;
     if max_characters > 0 && count >= max_characters as i64 {
         return CreateResult::TooMany;
     }
 
     let char_id = *next_id;
     *next_id += 1;
-    let res = sqlx::query(
-        "INSERT INTO characters \
-         (account_name, charId, char_name, level, maxHp, curHp, maxCp, curCp, maxMp, curMp, \
-          face, hairStyle, hairColor, sex, heading, x, y, z, exp, sp, reputation, \
-          race, classid, base_class, deletetime, title, accesslevel, online, char_slot, lastAccess, createDate, \
-          vitality_points) \
-         VALUES (?, ?, ?, 1, ?, ?, 0, 0, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, 0, 0, 0, ?, ?, ?, 0, '', 0, 0, ?, ?, date('now'), \
-          ?)",
+    // Columns the template does not set keep their DDL defaults, exactly as the
+    // old INSERT's column list did. `createDate` is SQLite's `date('now')`.
+    let row = characters::ActiveModel {
+        account_name: Set(Some(data.account.clone())),
+        char_id: Set(char_id as i32),
+        char_name: Set(data.name.clone()),
+        level: Set(Some(1)),
+        max_hp: Set(Some(data.max_hp)),
+        cur_hp: Set(Some(f64::from(data.max_hp).into())),
+        max_cp: Set(Some(0)),
+        cur_cp: Set(Some(0.0.into())),
+        max_mp: Set(Some(data.max_mp)),
+        cur_mp: Set(Some(f64::from(data.max_mp).into())),
+        face: Set(Some(data.face)),
+        hair_style: Set(Some(data.hair_style)),
+        hair_color: Set(Some(data.hair_color)),
+        sex: Set(Some(data.sex)),
+        heading: Set(Some(0)),
+        x: Set(Some(data.x)),
+        y: Set(Some(data.y)),
+        z: Set(Some(data.z)),
+        exp: Set(Some(0)),
+        sp: Set(0),
+        reputation: Set(Some(0)),
+        race: Set(Some(data.race)),
+        classid: Set(Some(data.class_id)),
+        base_class: Set(data.class_id),
+        deletetime: Set(0),
+        title: Set(Some(String::new())),
+        accesslevel: Set(Some(0)),
+        online: Set(Some(0)),
+        char_slot: Set(Some(count as i32)),
+        last_access: Set(now_millis()),
+        create_date: Set(today()),
+        vitality_points: Set(data.vitality_points),
+        ..Default::default()
+    };
+    if let Err(e) = characters::Entity::insert(row).exec(db).await {
+        error!("DB thread: character insert failed: {e}");
+        return CreateResult::Fail;
+    }
+
+    // Seed the recommendation row: Java `Player.create` grants rec_left=20,
+    // persisted to `character_reco_bonus` when the freshly-created character
+    // disconnects back to the lobby.
+    insert_or_warn(
+        db,
+        character_reco_bonus::Entity::insert(character_reco_bonus::ActiveModel {
+            char_id: Set(char_id as i32),
+            rec_have: Set(0),
+            rec_left: Set(20),
+            time_left: Set(0),
+        }),
     )
-    .bind(&data.account)
-    .bind(char_id)
-    .bind(&data.name)
-    .bind(data.max_hp)
-    .bind(data.max_hp) // curHp = maxHp
-    .bind(data.max_mp)
-    .bind(data.max_mp) // curMp = maxMp
-    .bind(data.face)
-    .bind(data.hair_style)
-    .bind(data.hair_color)
-    .bind(data.sex)
-    .bind(data.x)
-    .bind(data.y)
-    .bind(data.z)
-    .bind(data.race)
-    .bind(data.class_id)
-    .bind(data.class_id) // base_class = classid
-    .bind(count as i32) // char_slot
-    .bind(now_millis())
-    .bind(data.vitality_points)
-    .execute(pool)
     .await;
 
-    match res {
-        Ok(_) => {
-            // Seed the recommendation row: Java `Player.create` grants
-            // rec_left=20, persisted to `character_reco_bonus` when the
-            // freshly-created character disconnects back to the lobby.
-            exec(
-                pool,
-                sqlx::query("INSERT INTO character_reco_bonus (charId, rec_have, rec_left, time_left) VALUES (?, 0, 20, 0)")
-                    .bind(char_id),
-            )
-            .await;
-            // Initial skills (character_skills).
-            for (skill_id, skill_level) in &data.skills {
-                exec(
-                    pool,
-                    sqlx::query(
-                        "INSERT INTO character_skills (charId, skill_id, skill_level, skill_sub_level, class_index) \
-                         VALUES (?, ?, ?, 0, 0)",
-                    )
-                    .bind(char_id)
-                    .bind(skill_id)
-                    .bind(skill_level),
-                )
-                .await;
-            }
-            // Initial equipment + starting adena. The item_id → object_id
-            // map feeds ITEM shortcut resolution below (first occurrence
-            // wins, like Java `getItemByItemId`).
-            let mut item_object_ids: std::collections::HashMap<i32, i64> =
-                std::collections::HashMap::new();
-            for item in &data.items {
-                let item_object_id = *next_id;
-                *next_id += 1;
-                item_object_ids
-                    .entry(item.item_id)
-                    .or_insert(item_object_id);
-                let (loc, loc_data) = match item.paperdoll_index {
-                    Some(slot) => ("PAPERDOLL", slot as i32),
-                    None => ("INVENTORY", 0),
-                };
-                exec(
-                    pool,
-                    sqlx::query(
-                        "INSERT INTO items \
-                         (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-                          custom_type1, custom_type2, mana_left, time) \
-                         VALUES (?, ?, ?, ?, 0, ?, ?, 0, 0, -1, 0)",
-                    )
-                    .bind(char_id)
-                    .bind(item_object_id)
-                    .bind(item.item_id)
-                    .bind(item.count)
-                    .bind(loc)
-                    .bind(loc_data),
-                )
-                .await;
-            }
-            // Initial shortcuts + macro presets (`InitialShortcutData.
-            // registerAllShortcuts` — persistence only; there's no in-world
-            // session to echo packets to at creation).
-            for sc in &data.shortcuts {
-                let shortcut_id = if sc.kind == crate::model::shortcut::ShortcutType::Item {
-                    // ITEM entries reference an item id; skip ones the new
-                    // character didn't actually receive (Java `continue`s).
-                    match item_object_ids.get(&sc.id) {
-                        Some(&object_id) => object_id as i32,
-                        None => continue,
-                    }
-                } else {
-                    sc.id
-                };
-                upsert_shortcut(
-                    db,
-                    char_id as i32,
-                    sc.slot,
-                    sc.page,
-                    sc.kind.ordinal(),
-                    shortcut_id,
-                    sc.level,
-                )
-                .await;
-            }
-            for m in &data.macros {
-                upsert_macro(db, char_id as i32, m).await;
-            }
-            info!(
-                "Created character '{}' ({}) for account {} with {} initial skill(s), {} item(s).",
-                data.name,
-                char_id,
-                data.account,
-                data.skills.len(),
-                data.items.len()
-            );
-            CreateResult::Ok
-        }
-        Err(e) => {
-            error!("DB thread: character insert failed: {e}");
-            CreateResult::Fail
-        }
+    // Initial skills (character_skills).
+    for (skill_id, skill_level) in &data.skills {
+        insert_or_warn(
+            db,
+            character_skills::Entity::insert(character_skills::ActiveModel {
+                char_id: Set(char_id as i32),
+                skill_id: Set(*skill_id),
+                skill_level: Set(*skill_level),
+                skill_sub_level: Set(0),
+                class_index: Set(0),
+            }),
+        )
+        .await;
     }
+
+    // Initial equipment + starting adena. The item_id → object_id map feeds
+    // ITEM shortcut resolution below (first occurrence wins, like Java
+    // `getItemByItemId`).
+    let mut item_object_ids: std::collections::HashMap<i32, i64> = std::collections::HashMap::new();
+    for item in &data.items {
+        let item_object_id = *next_id;
+        *next_id += 1;
+        item_object_ids
+            .entry(item.item_id)
+            .or_insert(item_object_id);
+        let (loc, loc_data) = match item.paperdoll_index {
+            Some(slot) => ("PAPERDOLL", slot as i32),
+            None => ("INVENTORY", 0),
+        };
+        insert_or_warn(
+            db,
+            items::Entity::insert(items::ActiveModel {
+                owner_id: Set(Some(char_id as i32)),
+                object_id: Set(item_object_id as i32),
+                item_id: Set(Some(item.item_id)),
+                count: Set(item.count),
+                enchant_level: Set(Some(0)),
+                loc: Set(Some(loc.to_string())),
+                loc_data: Set(Some(loc_data)),
+                custom_type1: Set(Some(0)),
+                custom_type2: Set(Some(0)),
+                mana_left: Set(-1),
+                time: Set(0),
+                ..Default::default()
+            }),
+        )
+        .await;
+    }
+
+    // Initial shortcuts + macro presets (`InitialShortcutData.
+    // registerAllShortcuts` — persistence only; there's no in-world session to
+    // echo packets to at creation).
+    for sc in &data.shortcuts {
+        let shortcut_id = if sc.kind == crate::model::shortcut::ShortcutType::Item {
+            // ITEM entries reference an item id; skip ones the new character
+            // didn't actually receive (Java `continue`s).
+            match item_object_ids.get(&sc.id) {
+                Some(&object_id) => object_id as i32,
+                None => continue,
+            }
+        } else {
+            sc.id
+        };
+        upsert_shortcut(
+            db,
+            char_id as i32,
+            sc.slot,
+            sc.page,
+            sc.kind.ordinal(),
+            shortcut_id,
+            sc.level,
+        )
+        .await;
+    }
+    for m in &data.macros {
+        upsert_macro(db, char_id as i32, m).await;
+    }
+    info!(
+        "Created character '{}' ({}) for account {} with {} initial skill(s), {} item(s).",
+        data.name,
+        char_id,
+        data.account,
+        data.skills.len(),
+        data.items.len()
+    );
+    CreateResult::Ok
 }
 
 /// Java `Player.storeCharBase` (narrowed to the tracked columns, see
@@ -4528,411 +4587,402 @@ async fn store_player(db: &DatabaseConnection, s: &PlayerSaveData) {
     }
 }
 
-async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<(), sqlx::Error> {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
+async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<(), DbErr> {
     let b = &s.base;
     let char_id = b.object_id;
-    let mut tx = pool.begin().await?;
+    let tx = db.begin().await?;
 
-    // characters row (Java storeCharBase). online stays 0: the port never sets
-    // it to 1, and char-select doesn't read it — a periodic save of an online
-    // player must not diverge from that.
-    sqlx::query(
-        "UPDATE characters SET level=?, maxHp=?, curHp=?, maxCp=?, curCp=?, maxMp=?, curMp=?, \
-         face=?, hairStyle=?, hairColor=?, sex=?, heading=?, x=?, y=?, z=?, exp=?, sp=?, \
-         reputation=?, pvpkills=?, pkkills=?, raidbossPoints=?, race=?, classid=?, base_class=?, \
-         vitality_points=?, pccafe_points=?, nobless=?, online=0, lastAccess=? WHERE charId=?",
-    )
-    .bind(b.level)
-    .bind(b.max_hp)
-    .bind(b.cur_hp)
-    .bind(b.max_cp)
-    .bind(b.cur_cp)
-    .bind(b.max_mp)
-    .bind(b.cur_mp)
-    .bind(b.face)
-    .bind(b.hair_style)
-    .bind(b.hair_color)
-    .bind(b.sex)
-    .bind(b.heading)
-    .bind(b.x)
-    .bind(b.y)
-    .bind(b.z)
-    .bind(b.exp)
-    .bind(b.sp)
-    .bind(b.reputation)
-    .bind(b.pvp_kills)
-    .bind(b.pk_kills)
-    .bind(b.raidboss_points)
-    .bind(b.race)
-    .bind(b.class_id)
-    .bind(b.base_class_id)
-    .bind(b.vitality_points)
-    .bind(b.pccafe_points)
-    .bind(if b.noble { 1 } else { 0 })
-    .bind(now_millis())
-    .bind(char_id)
-    .execute(&mut *tx)
+    // characters row (Java storeCharBase). `online` stays 0: the port never
+    // sets it to 1, and char-select doesn't read it — a periodic save of an
+    // online player must not diverge from that. Columns left `NotSet` keep
+    // their stored values, which is what the old UPDATE's column list did.
+    characters::ActiveModel {
+        char_id: Unchanged(char_id),
+        level: Set(Some(b.level)),
+        max_hp: Set(Some(b.max_hp)),
+        cur_hp: Set(Some(b.cur_hp.into())),
+        max_cp: Set(Some(b.max_cp)),
+        cur_cp: Set(Some(b.cur_cp.into())),
+        max_mp: Set(Some(b.max_mp)),
+        cur_mp: Set(Some(b.cur_mp.into())),
+        face: Set(Some(b.face)),
+        hair_style: Set(Some(b.hair_style)),
+        hair_color: Set(Some(b.hair_color)),
+        sex: Set(Some(b.sex)),
+        heading: Set(Some(b.heading)),
+        x: Set(Some(b.x)),
+        y: Set(Some(b.y)),
+        z: Set(Some(b.z)),
+        exp: Set(Some(b.exp)),
+        sp: Set(b.sp),
+        reputation: Set(Some(b.reputation)),
+        pvpkills: Set(Some(b.pvp_kills)),
+        pkkills: Set(Some(b.pk_kills)),
+        raidboss_points: Set(b.raidboss_points),
+        race: Set(Some(b.race)),
+        classid: Set(Some(b.class_id)),
+        base_class: Set(b.base_class_id),
+        vitality_points: Set(b.vitality_points),
+        pccafe_points: Set(b.pccafe_points),
+        nobless: Set(if b.noble { 1 } else { 0 }),
+        online: Set(Some(0)),
+        last_access: Set(now_millis()),
+        ..Default::default()
+    }
+    .update(&tx)
     .await?;
 
-    // character_reco_bonus (Java `Player.storeRecommendations`, an
-    // insert-or-update on charId). `time_left` is always 0 here — the reco
-    // bonus timer (bonusTime/bonusVal/bonusType in ExVoteSystemInfo) isn't
-    // used in Interlude Classic. The unique index on charId makes this an
-    // upsert.
-    sqlx::query(
-        "INSERT INTO character_reco_bonus (charId, rec_have, rec_left, time_left) VALUES (?, ?, ?, 0) \
-         ON CONFLICT(charId) DO UPDATE SET rec_have=excluded.rec_have, rec_left=excluded.rec_left, time_left=excluded.time_left",
+    // character_reco_bonus (Java `Player.storeRecommendations`). `time_left` is
+    // always 0 — the reco bonus timer isn't used in Interlude Classic.
+    character_reco_bonus::Entity::insert(character_reco_bonus::ActiveModel {
+        char_id: Set(char_id),
+        rec_have: Set(b.rec_have),
+        rec_left: Set(b.rec_left),
+        time_left: Set(0),
+    })
+    .on_conflict(
+        OnConflict::column(character_reco_bonus::Column::CharId)
+            .update_columns([
+                character_reco_bonus::Column::RecHave,
+                character_reco_bonus::Column::RecLeft,
+                character_reco_bonus::Column::TimeLeft,
+            ])
+            .to_owned(),
     )
-    .bind(char_id)
-    .bind(b.rec_have)
-    .bind(b.rec_left)
-    .execute(&mut *tx)
+    .exec(&tx)
     .await?;
 
     // items (inventory + equipped): `Inventory::to_rows` is the whole owned set.
-    sqlx::query("DELETE FROM items WHERE owner_id=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    items::Entity::delete_many()
+        .filter(items::Column::OwnerId.eq(char_id))
+        .exec(&tx)
         .await?;
     for it in &s.items {
-        sqlx::query(
-            "INSERT INTO items \
-             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-              custom_type1, custom_type2, mana_left, time) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(char_id)
-        .bind(it.object_id)
-        .bind(it.item_id)
-        .bind(it.count)
-        .bind(it.enchant_level)
-        .bind(&it.loc)
-        .bind(it.loc_data)
-        .bind(it.custom_type1)
-        .bind(it.custom_type2)
-        .bind(it.mana_left)
-        .bind(it.time)
-        .execute(&mut *tx)
+        items::Entity::insert(items::ActiveModel {
+            owner_id: Set(Some(char_id)),
+            object_id: Set(it.object_id),
+            item_id: Set(Some(it.item_id)),
+            count: Set(it.count),
+            enchant_level: Set(Some(it.enchant_level)),
+            loc: Set(Some(it.loc.clone())),
+            loc_data: Set(Some(it.loc_data)),
+            custom_type1: Set(Some(it.custom_type1)),
+            custom_type2: Set(Some(it.custom_type2)),
+            mana_left: Set(it.mana_left),
+            time: Set(it.time.into()),
+            ..Default::default()
+        })
+        .exec(&tx)
         .await?;
     }
 
-    // Augmentations (`item_variations`, keyed by item object id). Scoped to the
-    // just-reinserted owner items, then reinsert the augmented ones.
-    sqlx::query("DELETE FROM item_variations WHERE itemId IN (SELECT object_id FROM items WHERE owner_id=?)")
-        .bind(char_id)
-        .execute(&mut *tx)
+    // Augmentations, keyed to the item rows just written (the old statement
+    // sub-selected the same set).
+    item_variations::Entity::delete_many()
+        .filter(item_variations::Column::ItemId.is_in(s.items.iter().map(|it| it.object_id)))
+        .exec(&tx)
         .await?;
     for it in s
         .items
         .iter()
         .filter(|it| it.augment_option1 != 0 || it.augment_option2 != 0)
     {
-        sqlx::query(
-            "INSERT INTO item_variations (itemId, mineralId, option1, option2) VALUES (?, ?, ?, ?)",
-        )
-        .bind(it.object_id)
-        .bind(it.augment_mineral)
-        .bind(it.augment_option1)
-        .bind(it.augment_option2)
-        .execute(&mut *tx)
+        item_variations::Entity::insert(item_variations::ActiveModel {
+            item_id: Set(it.object_id),
+            mineral_id: Set(it.augment_mineral),
+            option1: Set(it.augment_option1),
+            option2: Set(it.augment_option2),
+        })
+        .exec(&tx)
         .await?;
     }
 
-    // Learned skills, per class index (G17): every slot is rewritten, so a
-    // subclass keeps its own book rather than inheriting the active one.
-    sqlx::query("DELETE FROM character_skills WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_skills::Entity::delete_many()
+        .filter(character_skills::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
 
-    // worn henna dyes (Java stores per add/remove; here delete+reinsert on flush,
-    // memory-first like items/skills). Per class index since G17.
-    sqlx::query("DELETE FROM character_hennas WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_hennas::Entity::delete_many()
+        .filter(character_hennas::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
     let mut henna_idx: Vec<(i32, &Vec<(i32, i32)>)> =
         s.hennas_by_index.iter().map(|(i, v)| (*i, v)).collect();
     henna_idx.push((s.class_index, &s.hennas));
     for (class_index, hennas) in henna_idx {
         for (slot, symbol_id) in hennas {
-            sqlx::query(
-                "INSERT OR REPLACE INTO character_hennas (charId, symbol_id, slot, class_index) \
-                 VALUES (?, ?, ?, ?)",
+            character_hennas::Entity::insert(character_hennas::ActiveModel {
+                char_id: Set(char_id),
+                symbol_id: Set(Some(*symbol_id)),
+                slot: Set(*slot),
+                class_index: Set(class_index),
+            })
+            .on_conflict(
+                OnConflict::columns([
+                    character_hennas::Column::CharId,
+                    character_hennas::Column::Slot,
+                    character_hennas::Column::ClassIndex,
+                ])
+                .update_column(character_hennas::Column::SymbolId)
+                .to_owned(),
             )
-            .bind(char_id)
-            .bind(symbol_id)
-            .bind(slot)
-            .bind(class_index)
-            .execute(&mut *tx)
+            .exec(&tx)
             .await?;
         }
     }
-    // The active index's book comes from `skills`; the rest from the banked
-    // per-index map.
     let mut per_index: Vec<(i32, &Vec<(i32, i32, i32)>)> =
         s.skills_by_index.iter().map(|(i, v)| (*i, v)).collect();
     per_index.push((s.class_index, &s.skills));
     for (class_index, skills) in per_index {
         for (skill_id, level, sub_level) in skills {
-            sqlx::query(
-                "INSERT OR REPLACE INTO character_skills \
-                 (charId, skill_id, skill_level, skill_sub_level, class_index) \
-                 VALUES (?, ?, ?, ?, ?)",
+            character_skills::Entity::insert(character_skills::ActiveModel {
+                char_id: Set(char_id),
+                skill_id: Set(*skill_id),
+                skill_level: Set(*level),
+                skill_sub_level: Set(*sub_level),
+                class_index: Set(class_index),
+            })
+            .on_conflict(
+                OnConflict::columns([
+                    character_skills::Column::CharId,
+                    character_skills::Column::SkillId,
+                    character_skills::Column::ClassIndex,
+                ])
+                .update_columns([
+                    character_skills::Column::SkillLevel,
+                    character_skills::Column::SkillSubLevel,
+                ])
+                .to_owned(),
             )
-            .bind(char_id)
-            .bind(skill_id)
-            .bind(level)
-            .bind(sub_level)
-            .bind(class_index)
-            .execute(&mut *tx)
+            .exec(&tx)
             .await?;
         }
     }
 
-    // registered recipes (Java saves per-registration; here delete+reinsert
-    // with the persist flush, memory-first like items/skills). `type` = 1
-    // dwarven / 0 common; `classIndex` 0.
-    sqlx::query("DELETE FROM character_recipebook WHERE charId=? AND classIndex=0")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_recipebook::Entity::delete_many()
+        .filter(character_recipebook::Column::CharId.eq(char_id))
+        .filter(character_recipebook::Column::ClassIndex.eq(0))
+        .exec(&tx)
         .await?;
     for (list_id, is_dwarven) in &s.recipe_book {
-        sqlx::query(
-            "INSERT INTO character_recipebook (charId, id, classIndex, type) VALUES (?, ?, 0, ?)",
-        )
-        .bind(char_id)
-        .bind(list_id)
-        .bind(if *is_dwarven { 1 } else { 0 })
-        .execute(&mut *tx)
+        character_recipebook::Entity::insert(character_recipebook::ActiveModel {
+            char_id: Set(char_id),
+            id: Set((*list_id).into()),
+            class_index: Set(0),
+            r#type: Set(if *is_dwarven { 1 } else { 0 }),
+        })
+        .exec(&tx)
         .await?;
     }
 
-    // character variables (Java `PlayerVariables.storeMe` does exactly this
-    // delete-then-reinsert, guarded by a dirty flag we don't need — the flush
-    // is already batched).
-    sqlx::query("DELETE FROM character_variables WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_variables::Entity::delete_many()
+        .filter(character_variables::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
     for (var, val) in &s.variables {
-        sqlx::query("INSERT INTO character_variables (charId, var, val) VALUES (?, ?, ?)")
-            .bind(char_id)
-            .bind(var)
-            .bind(val)
-            .execute(&mut *tx)
-            .await?;
-    }
-
-    // pets — upsert per row, no delete sweep. Java's `Pet.storeMe` picks
-    // INSERT or UPDATE off its `_respawned` flag; `INSERT OR REPLACE` on the
-    // `item_obj_id` primary key collapses both. A pet row is deleted only when
-    // its collar is (Java `RequestDestroyItem`), never by this flush, so a
-    // traded-away collar keeps the pet it carries.
-    for pet in &s.pets {
-        sqlx::query(
-            "INSERT OR REPLACE INTO pets \
-             (item_obj_id, name, level, curHp, curMp, exp, sp, fed, ownerId, restore) \
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(pet.collar_object_id)
-        .bind(&pet.name)
-        .bind(pet.level)
-        .bind(pet.cur_hp)
-        .bind(pet.cur_mp)
-        .bind(pet.exp)
-        .bind(pet.sp)
-        .bind(pet.fed)
-        .bind(char_id)
-        // Java writes the flag as the literal string "true"/"false".
-        .bind(if pet.restore { "true" } else { "false" })
-        .execute(&mut *tx)
+        character_variables::Entity::insert(character_variables::ActiveModel {
+            char_id: Set(char_id),
+            var: Set(var.clone()),
+            val: Set(val.clone()),
+        })
+        .exec(&tx)
         .await?;
     }
 
-    // character_summons — a servitor row is keyed by its **owner**, not by a
-    // tradeable item, so unlike `pets` this is a delete-then-insert set
-    // (Java `removeServitor` + insert on store).
-    //
-    // Errors are swallowed rather than propagated with `?`: this is the newest
-    // table in the flush, and a `?` here would abort the *entire* character
-    // save on any schema that lacks it — losing items, skills and position over
-    // an absent servitor row. Same best-effort rationale as `load_account_var`,
-    // applied to a write because a write inside the transaction takes
-    // everything else down with it.
-    let _ = sqlx::query("DELETE FROM character_summons WHERE ownerId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
-        .await;
-    for s in &s.summons {
-        let _ = sqlx::query(
-            "INSERT INTO character_summons \
-             (ownerId, summonId, summonSkillId, curHp, curMp, time) VALUES (?, 0, ?, ?, ?, ?)",
+    for pet in &s.pets {
+        pets::Entity::insert(pets::ActiveModel {
+            item_obj_id: Set(pet.collar_object_id),
+            name: Set(Some(pet.name.clone())),
+            level: Set(pet.level),
+            cur_hp: Set(Some(pet.cur_hp.into())),
+            cur_mp: Set(Some(pet.cur_mp.into())),
+            exp: Set(Some(pet.exp)),
+            sp: Set(Some(pet.sp)),
+            fed: Set(Some(pet.fed)),
+            owner_id: Set(char_id),
+            restore: Set(if pet.restore { "true" } else { "false" }.to_string()),
+        })
+        .on_conflict(
+            OnConflict::column(pets::Column::ItemObjId)
+                .update_columns([
+                    pets::Column::Name,
+                    pets::Column::Level,
+                    pets::Column::CurHp,
+                    pets::Column::CurMp,
+                    pets::Column::Exp,
+                    pets::Column::Sp,
+                    pets::Column::Fed,
+                    pets::Column::OwnerId,
+                    pets::Column::Restore,
+                ])
+                .to_owned(),
         )
-        .bind(char_id)
-        .bind(s.summon_skill_id)
-        .bind(s.cur_hp)
-        .bind(s.cur_mp)
-        .bind(s.remaining_secs)
-        .execute(&mut *tx)
+        .exec(&tx)
+        .await?;
+    }
+
+    // Summons are best-effort, as they were before: a servitor that fails to
+    // persist costs a resummon, and must not roll back the character save.
+    let _ = character_summons::Entity::delete_many()
+        .filter(character_summons::Column::OwnerId.eq(char_id))
+        .exec(&tx)
         .await;
-        // The servitor's own buffs. Best-effort for the same reason as the row
-        // above: a missing table must not cost the character everything else.
-        let _ = sqlx::query(
-            "DELETE FROM character_summon_skills_save WHERE ownerId=? AND ownerClassIndex=0 AND summonSkillId=?",
-        )
-        .bind(char_id)
-        .bind(s.summon_skill_id)
-        .execute(&mut *tx)
+    for summon in &s.summons {
+        let _ = character_summons::Entity::insert(character_summons::ActiveModel {
+            owner_id: Set(char_id),
+            summon_id: Set(0),
+            summon_skill_id: Set(summon.summon_skill_id),
+            cur_hp: Set(Some(summon.cur_hp)),
+            cur_mp: Set(Some(summon.cur_mp)),
+            time: Set(summon.remaining_secs),
+        })
+        .exec(&tx)
         .await;
-        for (i, b) in s.buffs.iter().enumerate() {
-            let _ = sqlx::query(
-                "INSERT INTO character_summon_skills_save \
-                 (ownerId, ownerClassIndex, summonSkillId, skill_id, skill_level, skill_sub_level, remaining_time, buff_index) \
-                 VALUES (?, 0, ?, ?, ?, 0, ?, ?)",
+        let _ = character_summon_skills_save::Entity::delete_many()
+            .filter(character_summon_skills_save::Column::OwnerId.eq(char_id))
+            .filter(character_summon_skills_save::Column::OwnerClassIndex.eq(0))
+            .filter(character_summon_skills_save::Column::SummonSkillId.eq(summon.summon_skill_id))
+            .exec(&tx)
+            .await;
+        for (i, buff) in summon.buffs.iter().enumerate() {
+            let _ = character_summon_skills_save::Entity::insert(
+                character_summon_skills_save::ActiveModel {
+                    owner_id: Set(char_id),
+                    owner_class_index: Set(0),
+                    summon_skill_id: Set(summon.summon_skill_id),
+                    skill_id: Set(buff.skill_id),
+                    skill_level: Set(buff.skill_level),
+                    skill_sub_level: Set(0),
+                    remaining_time: Set(buff.remaining_time_secs),
+                    buff_index: Set(i as i32),
+                },
             )
-            .bind(char_id)
-            .bind(s.summon_skill_id)
-            .bind(b.skill_id)
-            .bind(b.skill_level)
-            .bind(b.remaining_time_secs)
-            .bind(i as i32)
-            .execute(&mut *tx)
+            .exec(&tx)
             .await;
         }
     }
 
-    // shortcuts (Java's delete+insert, here scoped to the transaction).
-    sqlx::query("DELETE FROM character_shortcuts WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_shortcuts::Entity::delete_many()
+        .filter(character_shortcuts::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
     let mut sc_idx: Vec<(i32, &Vec<crate::model::shortcut::Shortcut>)> =
         s.shortcuts_by_index.iter().map(|(i, v)| (*i, v)).collect();
     sc_idx.push((s.class_index, &s.shortcuts));
     for (class_index, shortcuts) in sc_idx {
         for sc in shortcuts {
-            sqlx::query(
-                "INSERT OR REPLACE INTO character_shortcuts \
-                 (charId, slot, page, type, shortcut_id, level, sub_level, class_index) \
-                 VALUES (?, ?, ?, ?, ?, ?, 0, ?)",
+            character_shortcuts::Entity::insert(character_shortcuts::ActiveModel {
+                char_id: Set(char_id),
+                slot: Set(sc.slot),
+                page: Set(sc.page),
+                r#type: Set(Some(sc.kind.ordinal())),
+                shortcut_id: Set(Some(sc.id.into())),
+                level: Set(Some(sc.level)),
+                sub_level: Set(0),
+                class_index: Set(class_index),
+            })
+            .on_conflict(
+                OnConflict::columns([
+                    character_shortcuts::Column::CharId,
+                    character_shortcuts::Column::Slot,
+                    character_shortcuts::Column::Page,
+                    character_shortcuts::Column::ClassIndex,
+                ])
+                .update_columns([
+                    character_shortcuts::Column::Type,
+                    character_shortcuts::Column::ShortcutId,
+                    character_shortcuts::Column::Level,
+                ])
+                .to_owned(),
             )
-            .bind(char_id)
-            .bind(sc.slot)
-            .bind(sc.page)
-            .bind(sc.kind.ordinal())
-            .bind(sc.id)
-            .bind(sc.level)
-            .bind(class_index)
-            .execute(&mut *tx)
+            .exec(&tx)
             .await?;
         }
     }
 
-    // macros.
-    sqlx::query("DELETE FROM character_macroses WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_macroses::Entity::delete_many()
+        .filter(character_macroses::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
     for m in &s.macros {
-        sqlx::query(
-            "INSERT INTO character_macroses (charId, id, icon, name, descr, acronym, commands) \
-             VALUES (?, ?, ?, ?, ?, ?, ?)",
-        )
-        .bind(char_id)
-        .bind(m.id)
-        .bind(m.icon)
-        .bind(&m.name)
-        .bind(&m.descr)
-        .bind(&m.acronym)
-        .bind(crate::model::shortcut::encode_commands(&m.commands))
-        .execute(&mut *tx)
+        character_macroses::Entity::insert(character_macroses::ActiveModel {
+            char_id: Set(char_id),
+            id: Set(m.id),
+            icon: Set(Some(m.icon)),
+            name: Set(Some(m.name.clone())),
+            descr: Set(Some(m.descr.clone())),
+            acronym: Set(Some(m.acronym.clone())),
+            commands: Set(Some(crate::model::shortcut::encode_commands(&m.commands))),
+        })
+        .exec(&tx)
         .await?;
     }
 
-    // quests: one `<state>` row per quest + a row per var (the shape
-    // `load_quests` reconstructs). Skip freshly-`CREATED` quests with no vars —
-    // Java never wrote a row for those, and a touched-but-untouched quest state
-    // must not start persisting where Java wouldn't.
-    sqlx::query("DELETE FROM character_quests WHERE charId=?")
-        .bind(char_id)
-        .execute(&mut *tx)
+    character_quests::Entity::delete_many()
+        .filter(character_quests::Column::CharId.eq(char_id))
+        .exec(&tx)
         .await?;
     for (name, qs) in &s.quests {
         use crate::model::quest::{STATE_VAR, state};
         if qs.state == state::CREATED && qs.vars.is_empty() {
             continue;
         }
-        sqlx::query("INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)")
-            .bind(char_id)
-            .bind(name)
-            .bind(STATE_VAR)
-            .bind(state::name(qs.state))
-            .execute(&mut *tx)
-            .await?;
+        character_quests::Entity::insert(character_quests::ActiveModel {
+            char_id: Set(char_id),
+            name: Set(name.clone()),
+            var: Set(STATE_VAR.to_string()),
+            value: Set(Some(state::name(qs.state).to_string())),
+        })
+        .exec(&tx)
+        .await?;
         for (var, value) in &qs.vars {
-            sqlx::query(
-                "INSERT INTO character_quests (charId, name, var, value) VALUES (?, ?, ?, ?)",
-            )
-            .bind(char_id)
-            .bind(name)
-            .bind(var)
-            .bind(value)
-            .execute(&mut *tx)
+            character_quests::Entity::insert(character_quests::ActiveModel {
+                char_id: Set(char_id),
+                name: Set(name.clone()),
+                var: Set(var.clone()),
+                value: Set(Some(value.clone())),
+            })
+            .exec(&tx)
             .await?;
         }
     }
 
-    // Active buffs (restore_type 0) + skill reuse cooldowns (restore_type 1),
-    // both in `character_skills_save` under the *active* class index (Java
-    // `storeEffect` writes one batch for both). Always delete first so an
-    // emptied set (or `StoreSkillCooltime` turned off, which makes both vectors
-    // empty) clears stale rows.
-    //
-    // Buff rows carry the relative `remaining_time` and a zero `systime`: a
-    // buff's countdown is frozen while offline, so there is no absolute end
-    // instant to record. Reuse rows are the mirror image — `remaining_time` is
-    // -1 and only `systime` is read back — because cooldowns *do* decay offline.
-    // `buff_index` is a single sequence across both kinds, matching Java's
-    // shared `++buffIndex` counter.
-    sqlx::query("DELETE FROM character_skills_save WHERE charId=? AND class_index=?")
-        .bind(char_id)
-        .bind(s.class_index)
-        .execute(&mut *tx)
+    character_skills_save::Entity::delete_many()
+        .filter(character_skills_save::Column::CharId.eq(char_id))
+        .filter(character_skills_save::Column::ClassIndex.eq(s.class_index))
+        .exec(&tx)
         .await?;
     for (i, b) in s.skill_buffs.iter().enumerate() {
-        sqlx::query(
-            "INSERT INTO character_skills_save \
-             (charId, skill_id, skill_level, skill_sub_level, remaining_time, reuse_delay, systime, restore_type, class_index, buff_index) \
-             VALUES (?, ?, ?, 0, ?, 0, 0, 0, ?, ?)",
-        )
-        .bind(char_id)
-        .bind(b.skill_id)
-        .bind(b.skill_level)
-        .bind(b.remaining_time_secs)
-        .bind(s.class_index)
-        .bind(i as i32 + 1)
-        .execute(&mut *tx)
+        character_skills_save::Entity::insert(character_skills_save::ActiveModel {
+            char_id: Set(char_id),
+            skill_id: Set(b.skill_id),
+            skill_level: Set(b.skill_level),
+            skill_sub_level: Set(0),
+            remaining_time: Set(b.remaining_time_secs),
+            reuse_delay: Set(0),
+            systime: Set(0),
+            restore_type: Set(0),
+            class_index: Set(s.class_index),
+            buff_index: Set(i as i32 + 1),
+        })
+        .exec(&tx)
         .await?;
     }
     let buff_rows = s.skill_buffs.len() as i32;
     for (i, r) in s.skill_reuses.iter().enumerate() {
-        sqlx::query(
-            "INSERT INTO character_skills_save \
-             (charId, skill_id, skill_level, skill_sub_level, remaining_time, reuse_delay, systime, restore_type, class_index, buff_index) \
-             VALUES (?, ?, ?, 0, -1, ?, ?, 1, ?, ?)",
-        )
-        .bind(char_id)
-        .bind(r.reuse_key)
-        .bind(r.skill_level)
-        .bind(r.reuse_delay)
-        .bind(r.systime_ms)
-        .bind(s.class_index)
-        .bind(buff_rows + i as i32 + 1)
-        .execute(&mut *tx)
+        character_skills_save::Entity::insert(character_skills_save::ActiveModel {
+            char_id: Set(char_id),
+            skill_id: Set(r.reuse_key),
+            skill_level: Set(r.skill_level),
+            skill_sub_level: Set(0),
+            remaining_time: Set(-1),
+            reuse_delay: Set(r.reuse_delay),
+            systime: Set(r.systime_ms),
+            restore_type: Set(1),
+            class_index: Set(s.class_index),
+            buff_index: Set(buff_rows + i as i32 + 1),
+        })
+        .exec(&tx)
         .await?;
     }
 
@@ -4947,40 +4997,31 @@ async fn store_player_tx(db: &DatabaseConnection, s: &PlayerSaveData) -> Result<
 /// char-select list the client sees on entry (the port has no separate global
 /// expired-char sweep, so counting raw rows would over-report).
 async fn count_characters(db: &DatabaseConnection, account: &str) -> (u8, Vec<i64>) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    let rows = sqlx::query("SELECT charId, deletetime FROM characters WHERE account_name=?")
-        .bind(account)
-        .fetch_all(pool)
+    let rows = characters::Entity::find()
+        .filter(characters::Column::AccountName.eq(account))
+        .all(db)
         .await
         .unwrap_or_default();
     let now = now_millis();
     let mut count: u8 = 0;
     let mut del_times = Vec::new();
     for row in &rows {
-        let delete_time = geti(row, "deletetime");
-        if delete_time > 0 && now > delete_time {
-            delete_char(db, geti(row, "charId") as i32).await; // restoreChar: purge expired
+        if row.deletetime > 0 && now > row.deletetime {
+            delete_char(db, row.char_id).await; // restoreChar: purge expired
             continue;
         }
         count += 1;
-        if delete_time != 0 {
-            del_times.push(delete_time); // still counting down toward deletion
+        if row.deletetime != 0 {
+            del_times.push(row.deletetime); // still counting down toward deletion
         }
     }
     (count, del_times)
 }
 
 async fn delete_char(db: &DatabaseConnection, char_id: i32) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
-    exec(
-        pool,
-        sqlx::query("DELETE FROM characters WHERE charId=?").bind(char_id),
-    )
-    .await;
+    if let Err(e) = characters::Entity::delete_by_id(char_id).exec(db).await {
+        warn!("DB thread: delete_char failed: {e}");
+    }
 }
 
 async fn exec<'q>(
