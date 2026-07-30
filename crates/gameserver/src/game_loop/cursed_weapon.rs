@@ -243,3 +243,53 @@ fn broadcast_to_all(world: &World, pkt: &[u8]) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// The client's cursed-weapon window (`RequestCursedWeaponList` /
+// `RequestCursedWeaponLocation`, ex 0x2A / 0x2B — row 10)
+// ---------------------------------------------------------------------------
+
+/// `RequestCursedWeaponList` → `ExCursedWeaponList`: every cursed-weapon item
+/// id the server knows, live or not (Java sends `getCursedWeaponsIds()`).
+pub(crate) fn handle_request_list(world: &World, client_id: u32) {
+    let ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::server_packets::ex_cursed_weapon_list(&ids));
+    }
+}
+
+/// `RequestCursedWeaponLocation` → `ExCursedWeaponLocation`: where each *live*
+/// weapon is — the wielder's position when it is being carried, the ground
+/// item's when it has been dropped. Java skips inactive ones and **sends
+/// nothing at all** when none are live; kept.
+pub(crate) fn handle_request_location(world: &World, client_id: u32) {
+    let entries: Vec<(i32, i32, i32, i32, i32)> = world
+        .cursed_weapons
+        .iter()
+        // Java's explicit `if (!cw.isActive()) continue`. Mirrored for clarity;
+        // the position lookup below already excludes a retired weapon, whose
+        // holder ids are cleared when it leaves the world.
+        .filter(|cw| cw.is_active())
+        .filter_map(|cw| {
+            // Java `CursedWeapon.getWorldPosition()`: the player's position
+            // while wielded, the dropped item's while on the ground.
+            let holder = if cw.is_activated {
+                cw.player_id
+            } else {
+                cw.dropped_item_oid
+            };
+            let pos = world
+                .objects
+                .get_component::<crate::model::components::Position>(&holder)?;
+            Some((cw.item_id, i32::from(cw.is_activated), pos.x, pos.y, pos.z))
+        })
+        .collect();
+    if entries.is_empty() {
+        return;
+    }
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(crate::network::server_packets::ex_cursed_weapon_location(
+            &entries,
+        ));
+    }
+}

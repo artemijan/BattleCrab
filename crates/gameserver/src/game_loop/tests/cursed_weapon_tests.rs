@@ -371,3 +371,78 @@ fn death_path_triggers_drop() {
     );
     assert_eq!(ground_item_count(&world), 1, "on the ground");
 }
+
+// ---------------------------------------------------------------------------
+// The client's cursed-weapon window (ex 0x2A / 0x2B — row 10)
+// ---------------------------------------------------------------------------
+
+/// **The window lists every cursed weapon and locates the live ones.** Java's
+/// `ExCursedWeaponList` carries all known ids; `ExCursedWeaponLocation` carries
+/// only the *active* ones — and is not sent at all when none are live.
+#[test]
+fn the_cursed_weapon_window_lists_and_locates() {
+    use crate::game_loop::cursed_weapon::{handle_request_list, handle_request_location};
+
+    let (mut world, ..) = test_world();
+    load_cursed_weapons(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 6100, 1000, 2000, -30);
+    drain(&mut rx);
+
+    // The list is the full catalogue, live or not.
+    handle_request_list(&world, 1);
+    let list = drain(&mut rx)
+        .into_iter()
+        .find(|p| {
+            p.len() >= 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]])
+                    == server_packets::opcodes::EX_CURSED_WEAPON_LIST
+        })
+        .expect("the list packet");
+    assert_eq!(
+        i32::from_le_bytes([list[3], list[4], list[5], list[6]]),
+        world.cursed_weapons.len() as i32,
+        "every known cursed weapon is listed"
+    );
+
+    // Nothing is live yet → Java sends no location packet at all.
+    handle_request_location(&world, 1);
+    assert!(
+        !drain(&mut rx).iter().any(|p| p.len() >= 3
+            && p[0] == 0xFE
+            && i16::from_le_bytes([p[1], p[2]])
+                == server_packets::opcodes::EX_CURSED_WEAPON_LOCATION),
+        "no location packet while none are active"
+    );
+
+    // Put Zariche in the player's hands: now it has a position to report. The
+    // other weapon stays inactive and is left out.
+    let idx = cw_idx(&world, ZARICHE);
+    world.cursed_weapons[idx].is_activated = true;
+    world.cursed_weapons[idx].player_id = 6100;
+    handle_request_location(&world, 1);
+    let loc = drain(&mut rx)
+        .into_iter()
+        .find(|p| {
+            p.len() >= 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]])
+                    == server_packets::opcodes::EX_CURSED_WEAPON_LOCATION
+        })
+        .expect("the location packet");
+    assert_eq!(
+        i32::from_le_bytes([loc[3], loc[4], loc[5], loc[6]]),
+        1,
+        "one live weapon"
+    );
+    assert_eq!(
+        i32::from_le_bytes([loc[7], loc[8], loc[9], loc[10]]),
+        ZARICHE,
+        "…and it is Zariche"
+    );
+    assert_eq!(
+        i32::from_le_bytes([loc[15], loc[16], loc[17], loc[18]]),
+        1000,
+        "reported at the wielder's position"
+    );
+}

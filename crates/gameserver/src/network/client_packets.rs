@@ -213,6 +213,10 @@ pub mod ex_opcodes {
     /// `RequestExMagicSkillUseGround` — a GROUND-target cast aimed at a world
     /// position (G19, PLAN_G19_GROUND_CHANNELING.md).
     pub const REQUEST_EX_MAGIC_SKILL_USE_GROUND: u16 = 0x41;
+    /// `RequestCursedWeaponList` — the client's cursed-weapon window opening.
+    pub const REQUEST_CURSED_WEAPON_LIST: u16 = 0x2A;
+    /// `RequestCursedWeaponLocation` — "where are they?" for that window.
+    pub const REQUEST_CURSED_WEAPON_LOCATION: u16 = 0x2B;
     /// `SetPrivateStoreWholeMsg` — the package-sell store's title.
     pub const SET_PRIVATE_STORE_WHOLE_MSG: u16 = 0x47;
     /// Skill enchanting (G19, PLAN_G19_SKILL_ENCHANT.md).
