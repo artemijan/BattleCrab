@@ -85,6 +85,11 @@ pub struct CastState {
     /// mid-cast stat change can't shift the already-announced timing.
     pub cancel_ms: i32,
     pub cool_ms: i32,
+    /// Java `SkillCaster._item` — the inventory instance whose item-skill
+    /// started this cast, when that item is a `SKILL_REDUCE_ON_SKILL_SUCCESS`
+    /// one (spent by `finishSkill` if the cast lands, not at use). `0`
+    /// otherwise, which is every other cast.
+    pub trigger_item_object_id: i32,
 }
 
 /// The player's current AI intention beyond standing/moving (Java

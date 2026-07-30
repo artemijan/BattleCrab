@@ -1306,6 +1306,16 @@ fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_objec
             }
             // `start_casting` registers the reuse itself.
             start_casting(world, client_id, object_id, &skill, target_oid);
+            // Java `SkillCaster(caster, target, skill, item, …)`: a
+            // `SKILL_REDUCE_ON_SKILL_SUCCESS` item rides the cast and is spent
+            // by `finishSkill` only if it lands.
+            if default_action == crate::data::item_data::ActionType::SkillReduceOnSkillSuccess {
+                crate::game_loop::skills::cast::set_cast_trigger_item(
+                    world,
+                    object_id,
+                    item_object_id,
+                );
+            }
         }
         used = true;
     }
@@ -1328,13 +1338,10 @@ fn check_consume(
         // then falls out of the switch to `return hasConsumeSkill`.
         ActionType::Capsule | ActionType::SkillReduce => has_consume_skill || immediate_effect,
         // Java returns false: these are destroyed by `SkillCaster.finishSkill`
-        // when the cast actually lands (`SkillCaster.java:524`) instead.
-        // TODO(G15): that path needs the triggering item threaded through the
-        // cast so the finish phase can find it, which `Casting` does not carry
-        // yet. Consuming here keeps the deviation on the safe side — returning
-        // false today would let these be used without ever being spent. Only
-        // items 8058/8060 are in the Interlude range.
-        ActionType::SkillReduceOnSkillSuccess => true,
+        // when the cast actually *lands* — the cast carries the item
+        // (`CastState.trigger_item_object_id`) and the finish phase spends
+        // `itemConsumeCount` of it, so an interrupted cast costs nothing.
+        ActionType::SkillReduceOnSkillSuccess => false,
         // Summon shots are never consumed by a direct item-use: they are spent
         // by `servitor::recharge_shots` when the summon swings, in the count
         // the pet's level demands. Using one by hand does nothing.

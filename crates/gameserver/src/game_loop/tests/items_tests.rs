@@ -3986,3 +3986,142 @@ fn freight_send_refuses_bad_items_and_strangers() {
     assert_eq!(inv.count_of(10649), 5, "nothing was sent to a stranger");
     assert_eq!(inv.count_of(57), 5_000, "and no fee was taken");
 }
+
+/// **A `SKILL_REDUCE_ON_SKILL_SUCCESS` item is spent when the cast lands, not
+/// when it is used.** Java's `SkillCaster.finishSkill` destroys the triggering
+/// item; the port used to take it up front (a documented safe-side deviation),
+/// so an interrupted cast still cost the item. Interlude's pair is 8058/8060
+/// (Lockup Research Report / Key of Enigma → skill 2260).
+#[test]
+fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
+    use crate::data::item_data::{ItemHandler, ItemKind, ItemTemplate};
+    use crate::model::components::Casting;
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.id_pool = 0x4600_0000..0x4600_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.data.skill_data.insert_for_test(Skill {
+        id: 2260,
+        level: 1,
+        name: "Key of Enigma".into(),
+        operate_type: OperateType::Active,
+        is_continuous: false,
+        target_type: TargetType::Self_,
+        magic_type: 2, // static: hitTime used verbatim
+        magic_level: 0,
+        effect_point: 0,
+        cast_range: 0,
+        effect_range: 0,
+        hit_time: 5_000,
+        hit_cancel_time: 0.0,
+        cool_time: 0,
+        reuse_delay: 0,
+        reuse_delay_group: -1,
+        mp_consume: 0,
+        mp_initial_consume: 0,
+        hp_consume: 0,
+        without_action: false,
+        item_consume_id: 8058,
+        item_consume_count: 1,
+        abnormal_time: 0,
+        abnormal_level: 0,
+        abnormal_type: "NONE".into(),
+        activate_rate: -1,
+        lvl_bonus_rate: 0,
+        over_hit: false,
+        abnormal_visuals: Vec::new(),
+        toggle_group_id: 0,
+        affect_scope: AffectScope::Single,
+        affect_object: AffectObject::All,
+        affect_range: 0,
+        affect_limit: (0, 0),
+        can_be_dispelled: true,
+        is_debuff: false,
+        stay_after_death: false,
+        effects: Vec::new(),
+        ..Default::default()
+    });
+    world.data.item_data.insert_for_test(ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::SkillReduceOnSkillSuccess,
+        item_id: 8058,
+        name: "Lockup Research Report".into(),
+        kind: ItemKind::Etc,
+        body_part: 0,
+        weight: 0,
+        is_stackable: true,
+        type1: 4,
+        type2: 5,
+        is_quest_item: false,
+        is_sellable: true,
+        is_freightable: false,
+        price: 0,
+        handler: ItemHandler::ItemSkills,
+        crystal_type: crate::data::item_data::CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: vec![(2260, 1)],
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    });
+    // The finish phase re-checks HP (`cur_hp <= hp_consume` aborts), and the
+    // bare fixture player starts at 0.
+    if let Some(vitals) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&3001)
+    {
+        vitals.cur_hp = 100.0;
+    }
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9100, 8058, 2);
+    }
+    drain(&mut rx);
+
+    // --- Interrupted cast: the item survives. ---
+    items::handle_use_item(&mut world, 1, &use_item_body(9100));
+    assert!(world.objects.has_component::<Casting>(&3001), "casting");
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        2,
+        "nothing is taken at use time"
+    );
+    crate::game_loop::skills::cast::abort_cast(&mut world, 3001);
+    advance_ticks(&mut world, 60);
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        2,
+        "an aborted cast costs nothing"
+    );
+
+    // --- Completed cast: exactly one is spent. ---
+    drain(&mut rx);
+    items::handle_use_item(&mut world, 1, &use_item_body(9100));
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "casting again"
+    );
+    advance_ticks(&mut world, 60); // 5 s hit time + the finish floor
+    assert!(
+        !world.objects.has_component::<Casting>(&3001),
+        "the cast finished"
+    );
+    assert_eq!(
+        count_of_item(&world, 3001, 8058),
+        1,
+        "one spent when the cast landed"
+    );
+}
