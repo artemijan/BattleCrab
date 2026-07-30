@@ -64,6 +64,7 @@ pub(crate) mod npc_ai;
 pub(crate) mod npc_cast;
 mod npc_view;
 pub(crate) mod olympiad;
+mod options;
 mod orfen;
 mod party;
 mod party_room;

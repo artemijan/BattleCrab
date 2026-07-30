@@ -35,6 +35,16 @@ pub const SKILLS_DIR: &str = "data/stats/skills";
 /// Java `Fear.getTicks()` — hard-coded, not a datapack param.
 const FEAR_TICKS: i32 = 5;
 
+/// The `<effect name>` → [`Stat`] lookup behind [`EFFECT_REGISTRY`], shared with
+/// the augment-option loader (`data/stats/augmentation/options/*` uses the same
+/// effect names as skills).
+pub fn stat_for_effect_name(name: &str) -> Option<Stat> {
+    EFFECT_REGISTRY
+        .iter()
+        .find(|(n, _)| *n == name)
+        .map(|(_, s)| *s)
+}
+
 const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("PAtk", Stat::PhysicalAttack),
     ("PhysicalDefence", Stat::PhysicalDefence),

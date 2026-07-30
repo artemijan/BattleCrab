@@ -500,6 +500,24 @@ pub(crate) fn finish_equip_change(
     if changed.is_empty() {
         return;
     }
+    // Java's equip/unequip listeners fire the augment bonuses first
+    // (`Inventory.equipItem`: "Apply augmentation bonuses on equip";
+    // `unEquipItemInBodySlot`: "Remove augmentation bonuses on unequip"), and
+    // *then* recalculate stats — so an option's modifiers are already in the
+    // maps when the recompute below runs. `changed` carries the object ids
+    // whose paperdoll slot moved either way; which direction it went is read
+    // off the inventory here.
+    for &item_oid in changed {
+        let equipped = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some());
+        if equipped {
+            super::options::apply_item_options(world, object_id, item_oid);
+        } else {
+            super::options::remove_item_options(world, object_id, item_oid);
+        }
+    }
     // Memory-first: the paperdoll change already lives in the `Inventory`
     // component; the new `loc`/`loc_data` of each changed slot persists on the
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB

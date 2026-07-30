@@ -3481,3 +3481,118 @@ fn private_buy_store_enforces_the_slot_limit() {
         "four lines is fine"
     );
 }
+
+/// **An augmented weapon's options pump the wearer's stats while it is worn.**
+/// Java's equip listener calls `VariationInstance.applyBonus` before the stat
+/// recompute, and the unequip listener `removeBonus` — so the two option ids
+/// behave like a pair of passive buffs tied to the item.
+#[test]
+fn augment_options_apply_while_the_item_is_equipped() {
+    use crate::data::item_data::{
+        CrystalType, ItemHandler, ItemKind, ItemStats, ItemTemplate, SLOT_R_HAND,
+    };
+    use crate::data::option_data::OptionEntry;
+    use crate::model::inventory::Inventory;
+    use crate::model::skill::StatModifierEffect;
+    use crate::model::stats::{Stat, StatModifierType};
+
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.id_pool = 0x4200_0000..0x4200_0100;
+
+    // A plain weapon…
+    let template = ItemTemplate {
+        immediate_effect: false,
+        ex_immediate_effect: false,
+        default_action: crate::data::item_data::ActionType::Other,
+        item_id: 600,
+        name: "Augmented Blade".into(),
+        kind: ItemKind::Weapon,
+        body_part: SLOT_R_HAND,
+        weight: 0,
+        is_stackable: false,
+        type1: 0,
+        type2: 0,
+        is_quest_item: false,
+        is_sellable: true,
+        price: 0,
+        handler: ItemHandler::None,
+        crystal_type: CrystalType::None,
+        crystal_count: 0,
+        attack_radius: 40,
+        attack_angle: 0,
+        mp_consume: 0,
+        reduced_mp_consume: 0,
+        reduced_mp_consume_chance: 0,
+        capsuled_items: Vec::new(),
+        extractable_count_min: 0,
+        extractable_count_max: 0,
+        item_skills: Vec::new(),
+        etc_item_type: crate::data::item_data::EtcItemType::Other,
+        enchant_enabled: false,
+        enchant_limit: 0,
+        is_magic_weapon: false,
+    };
+    world.data.item_data.insert_for_test(template);
+    world.data.item_data.set_item_stats_for_test(
+        600,
+        ItemStats {
+            bonuses: vec![(Stat::PhysicalAttack, 100.0)],
+            ..Default::default()
+        },
+    );
+    // …and two options: +200 P.Def flat, and +100 P.Atk flat.
+    let option = |id: i32, stat: Stat, amount: f64| OptionEntry {
+        id,
+        effects: vec![StatModifierEffect {
+            stat,
+            mode: StatModifierType::Diff,
+            amount,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        }],
+        ..Default::default()
+    };
+    world
+        .data
+        .options
+        .insert_for_test(option(4001, Stat::PhysicalDefence, 200.0));
+    world
+        .data
+        .options
+        .insert_for_test(option(4002, Stat::PhysicalAttack, 100.0));
+    {
+        let World { objects, data, .. } = &mut world;
+        let inv = objects.get_component_mut::<Inventory>(&3001).unwrap();
+        inv.add_item(&data.item_data, 9500, 600, 1);
+        inv.set_augmentation(9500, 8723, 4001, 4002);
+    }
+    drain(&mut rx);
+
+    let base_p_def = pcs(&world, 3001).p_def;
+    let base_p_atk = pcs(&world, 3001).p_atk;
+
+    // Equip: both options land.
+    items::handle_use_item(&mut world, 1, &use_item_body(9500));
+    let equipped_p_def = pcs(&world, 3001).p_def;
+    let equipped_p_atk = pcs(&world, 3001).p_atk;
+    assert!(
+        equipped_p_def >= base_p_def + 200.0,
+        "the +200 P.Def option applied (was {base_p_def}, now {equipped_p_def})"
+    );
+    assert!(
+        equipped_p_atk >= base_p_atk + 100.0,
+        "…and the +100 P.Atk one (was {base_p_atk}, now {equipped_p_atk})"
+    );
+
+    // Unequip: both come back off, exactly.
+    items::handle_use_item(&mut world, 1, &use_item_body(9500));
+    assert_eq!(
+        pcs(&world, 3001).p_def,
+        base_p_def,
+        "P.Def returns to its unaugmented value"
+    );
+    assert_eq!(pcs(&world, 3001).p_atk, base_p_atk, "and so does P.Atk");
+}

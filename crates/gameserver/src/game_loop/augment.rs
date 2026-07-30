@@ -239,6 +239,10 @@ pub(crate) fn handle_refine_cancel(world: &mut World, client_id: u32, body: &[u8
         fail(world);
         return;
     }
+    // Java `Item.setAugmentation(null)` removes the bonuses first — read the
+    // option ids off the item *before* they are wiped, or nothing is removed
+    // and the modifiers linger on an item that is no longer augmented.
+    super::options::remove_item_options(world, player, target_obj);
     if let Some(inv) = world.objects.get_component_mut::<Inventory>(&player) {
         inv.remove_item(ADENA_ID, price);
         inv.remove_augmentation(target_obj);

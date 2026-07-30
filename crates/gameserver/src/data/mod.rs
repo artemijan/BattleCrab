@@ -29,6 +29,7 @@ pub mod map_region;
 pub mod multisell_data;
 pub mod npc_ai_skills;
 pub mod npc_data;
+pub mod option_data;
 pub mod pet_data;
 pub mod player_template;
 pub mod pledge_skill_tree;
@@ -71,6 +72,7 @@ pub use map_region::MapRegionData;
 pub use multisell_data::MultisellData;
 pub use npc_ai_skills::{AiSkillScope, NpcAiSkillIndex, NpcAiSkills};
 pub use npc_data::NpcData;
+pub use option_data::OptionData;
 pub use player_template::PlayerTemplateData;
 pub use pledge_skill_tree::PledgeSkillTreeData;
 pub use recipe_data::RecipeData;
@@ -222,6 +224,8 @@ pub struct GameData {
     /// Augmentation roll engine (life stone → option pair + fees), see
     /// [`VariationData`].
     pub variations: VariationData,
+    /// Augment option bonuses (`data/stats/augmentation/options`).
+    pub options: OptionData,
     /// GM access-level table + per-command access rights (G13).
     pub admin: AdminData,
     /// Stat ceilings + run-speed boost, from `Character.ini` (see [`CombatCaps`]).
@@ -302,6 +306,7 @@ impl GameData {
             enchant: EnchantData::load_from(file_path),
             enchant_skill_groups: EnchantSkillGroups::load_from(file_path),
             variations: VariationData::load_from(file_path),
+            options: OptionData::load_from(file_path),
             admin: AdminData::load_from(file_path),
             // Overwritten from the parsed `CharacterConfig` at boot (`main.rs`);
             // the default is this dist's Character.ini values.
@@ -365,6 +370,7 @@ impl GameData {
             enchant: EnchantData::empty(),
             enchant_skill_groups: EnchantSkillGroups::empty(),
             variations: VariationData::empty(),
+            options: OptionData::empty(),
             admin: AdminData::empty(),
             combat_caps: CombatCaps::default(),
             gm: GmSettings::default(),
