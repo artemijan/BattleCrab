@@ -60,6 +60,10 @@ pub const GET_ITEM: u8 = 0x17;
 /// Personal/clan warehouse deposit + withdraw list windows.
 pub const WAREHOUSE_DEPOSIT_LIST: u8 = 0x41;
 pub const WAREHOUSE_WITHDRAW_LIST: u8 = 0x42;
+/// `PackageToList` — the account's other characters, the freight "send to" list.
+pub const PACKAGE_TO_LIST: u8 = 0xC8;
+/// `PackageSendableList` — the items that may be freighted to that character.
+pub const PACKAGE_SENDABLE_LIST: u8 = 0xD2;
 /// Private store: the owner's manage window, a buyer's view, and the title
 /// message shown above a store owner.
 pub const PRIVATE_STORE_MANAGE_LIST: u8 = 0xA0;

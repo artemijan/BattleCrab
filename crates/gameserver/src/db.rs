@@ -482,6 +482,14 @@ pub enum DbCommand {
         castle_id: i32,
         count: i32,
     },
+    /// `RequestPackageSend` to an **offline** recipient — insert the freighted
+    /// items straight into their `items` rows (`loc = FREIGHT`), since there is
+    /// no live `Freight` component to write through. An online recipient's
+    /// component is updated instead, so the two paths never both fire.
+    AddFreightItems {
+        owner_id: i32,
+        items: Vec<FreightItemRow>,
+    },
     /// `CastleManorManager.storeMe` for one castle — replace both manor tables'
     /// rows for it (all four period lists) in one shot. Java rewrites every
     /// castle's rows after the daily rollover; the port stores the castle it
@@ -1171,6 +1179,16 @@ pub struct MailRow {
     pub deleted_by_receiver: bool,
     pub send_by_system: i32,
     pub returned: bool,
+}
+
+/// One freighted item destined for an **offline** character's `items` rows
+/// (`loc = FREIGHT`) — the cross-character package send.
+#[derive(Debug, Clone)]
+pub struct FreightItemRow {
+    pub object_id: i32,
+    pub item_id: i32,
+    pub count: i64,
+    pub enchant_level: i32,
 }
 
 /// One `castle_manor_production` row — a seed the manor sells.
@@ -1878,6 +1896,28 @@ async fn run(
                         .exec(&db)
                         .await,
                 );
+            }
+            DbCommand::AddFreightItems { owner_id, items } => {
+                for it in &items {
+                    warn_err(
+                        items::Entity::insert(items::ActiveModel {
+                            owner_id: Set(Some(owner_id)),
+                            object_id: Set(it.object_id),
+                            item_id: Set(Some(it.item_id)),
+                            count: Set(it.count),
+                            enchant_level: Set(Some(it.enchant_level)),
+                            loc: Set(Some("FREIGHT".to_string())),
+                            loc_data: Set(Some(0)),
+                            custom_type1: Set(Some(0)),
+                            custom_type2: Set(Some(0)),
+                            mana_left: Set(-1),
+                            time: Set(0),
+                            ..Default::default()
+                        })
+                        .exec(&db)
+                        .await,
+                    );
+                }
             }
             DbCommand::StoreManor {
                 castle_id,

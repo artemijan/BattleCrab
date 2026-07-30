@@ -28,6 +28,15 @@ pub struct CharacterConfig {
     /// `ClanWarehouse.validateCapacity` when the manor checks whether its next
     /// period's crops would fit.
     pub warehouse_slots_clan: i32,
+    /// `AltKarmaPlayerCanUseWareHouse` (**True** here, Java's default) —
+    /// whether a negative-reputation character may use the warehouse/freight.
+    pub alt_karma_player_can_use_warehouse: bool,
+    /// `FreightPrice` (**1000** here) — adena charged per item *slot* sent
+    /// through the freight (Java `Config.ALT_FREIGHT_PRICE`).
+    pub freight_price: i32,
+    /// `MaximumFreightSlots` (**200** here) — the recipient freight's ceiling
+    /// (Java `PlayerFreight.validateCapacity`).
+    pub freight_slots: i32,
     /// `RestorePetOnReconnect` / `RestoreServitorOnReconnect` — a summon that
     /// was out at logout comes back on the next login. **Both True on this
     /// dist**, so the reconnect path is live content, not an opt-in.
@@ -233,6 +242,9 @@ impl Default for CharacterConfig {
             starting_adena: 0,
             max_adena: 99_900_000_000,
             warehouse_slots_clan: 150,
+            alt_karma_player_can_use_warehouse: true,
+            freight_price: 1000,
+            freight_slots: 200,
             restore_pet_on_reconnect: true,
             restore_servitor_on_reconnect: true,
             auto_loot: false,
@@ -335,6 +347,12 @@ impl CharacterConfig {
                 v => v,
             },
             warehouse_slots_clan: p.get_int("MaximumWarehouseSlotsForClan", d.warehouse_slots_clan),
+            alt_karma_player_can_use_warehouse: p.get_bool(
+                "AltKarmaPlayerCanUseWareHouse",
+                d.alt_karma_player_can_use_warehouse,
+            ),
+            freight_price: p.get_int("FreightPrice", d.freight_price),
+            freight_slots: p.get_int("MaximumFreightSlots", d.freight_slots),
             restore_pet_on_reconnect: p.get_bool("RestorePetOnReconnect", true),
             restore_servitor_on_reconnect: p.get_bool("RestoreServitorOnReconnect", true),
             auto_loot: p.get_bool("AutoLoot", d.auto_loot),

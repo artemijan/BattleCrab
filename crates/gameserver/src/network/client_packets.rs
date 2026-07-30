@@ -42,6 +42,11 @@ pub mod opcodes {
     pub const ADD_TRADE_ITEM: u8 = 0x1B;
     pub const TRADE_DONE: u8 = 0x1C;
     pub const ANSWER_TRADE_REQUEST: u8 = 0x55;
+    /// `RequestPackageSendableItemList` — open the freight send window for the
+    /// chosen account character.
+    pub const REQUEST_PACKAGE_SENDABLE_ITEM_LIST: u8 = 0xA7;
+    /// `RequestPackageSend` — freight the listed items to that character.
+    pub const REQUEST_PACKAGE_SEND: u8 = 0xA8;
     pub const SEND_WARE_HOUSE_DEPOSIT_LIST: u8 = 0x3B;
     pub const SEND_WARE_HOUSE_WITH_DRAW_LIST: u8 = 0x3C;
     pub const ACTION: u8 = 0x1F;

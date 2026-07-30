@@ -52,6 +52,9 @@ pub mod sm_ids {
     pub const A_STRIDER_CANNOT_BE_RIDDEN_WHILE_IN_BATTLE: i16 = 1012;
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
     pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
+    /// `That character does not exist.` — the freight send with no other
+    /// character on the account.
+    pub const THAT_CHARACTER_DOES_NOT_EXIST: i16 = 873;
     // Gatekeeper teleports (G15.5 tail).
     pub const YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE: i16 = 707;
     pub const YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD: i16 = 2778;

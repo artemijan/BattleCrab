@@ -103,6 +103,7 @@ fn items_tests_template() -> crate::data::item_data::ItemTemplate {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         capsuled_items: Vec::new(),

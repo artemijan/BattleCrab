@@ -34,6 +34,7 @@ fn template(item_id: i32, name: &str, kind: ItemKind, body_part: i32) -> ItemTem
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: crate::data::item_data::ItemHandler::None,
         capsuled_items: Vec::new(),

@@ -2488,6 +2488,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,

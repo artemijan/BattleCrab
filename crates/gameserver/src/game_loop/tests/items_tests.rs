@@ -73,6 +73,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
             type2: 0,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: crate::data::item_data::ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -167,6 +168,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
                 type2: 0,
                 is_quest_item: false,
                 is_sellable: true,
+                is_freightable: false,
                 price: 0,
                 handler: crate::data::item_data::ItemHandler::None,
                 crystal_type: crate::data::item_data::CrystalType::None,
@@ -290,6 +292,7 @@ fn equipping_gear_updates_combat_stats() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
@@ -403,6 +406,7 @@ fn equipping_gear_updates_max_hp_mp() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
@@ -482,6 +486,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -528,6 +533,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
             type2: 5,
             is_quest_item: false,
             is_sellable: true,
+            is_freightable: false,
             price: 0,
             handler: ItemHandler::None,
             crystal_type: crate::data::item_data::CrystalType::None,
@@ -613,6 +619,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -650,6 +657,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -755,6 +763,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ExtractableItems,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -877,6 +886,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1023,6 +1033,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1167,6 +1178,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1199,6 +1211,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1355,6 +1368,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1387,6 +1401,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1511,6 +1526,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -1543,6 +1559,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         type2: 5,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::ItemSkills,
         crystal_type: crate::data::item_data::CrystalType::None,
@@ -3515,6 +3532,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
         type2: 0,
         is_quest_item: false,
         is_sellable: true,
+        is_freightable: false,
         price: 0,
         handler: ItemHandler::None,
         crystal_type: CrystalType::None,
@@ -3772,4 +3790,199 @@ fn package_store_title_round_trips() {
                 == server_packets::opcodes::EX_PRIVATE_STORE_WHOLE_MSG),
         "the title is echoed back"
     );
+}
+
+/// **Freighting items to another character on the account.** `package_deposit`
+/// offers the account's other characters, the send window lists only
+/// `is_freightable` items, and the send itself charges `FreightPrice` per slot
+/// and writes the items to the (offline) recipient's freight rows.
+#[test]
+fn freight_send_delivers_to_an_offline_character() {
+    use crate::model::components::LastFolkNpc;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, mut db, _link) = quest_test_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4400_0000..0x4400_0200;
+
+    // The sender, with a second character (9902 "Alt") on the account.
+    let chr = dummy_char(9901, "Sender");
+    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![dummy_char(9901, "Sender"), dummy_char(9902, "Alt")])
+        .into_entering(bundle);
+    let (session, bundle) = session.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world
+        .clients
+        .insert(1, crate::session::ClientSession::InGame(session));
+
+    // A freight manager in range (the send checks the last folk NPC).
+    add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
+    world.objects.add_components(&9901, LastFolkNpc(NPC_OID));
+
+    // **No item below id 10000 declares `is_freightable` on this dist** — every
+    // one of the 3416 that do is later-chronicle (10649+). Java's gate is the
+    // same, so the freight can only ever carry those; 10649 (Feather of
+    // Blessing) is the lowest and stands in for the mechanism here.
+    const FREIGHTABLE: i32 = 10649;
+    assert!(
+        world
+            .data
+            .item_data
+            .get(FREIGHTABLE)
+            .unwrap()
+            .is_freightable,
+        "fixture assumption: 10649 is freightable"
+    );
+    super::items::add_inventory_item(&mut world, 9901, FREIGHTABLE, 10).unwrap();
+    super::items::add_inventory_item(&mut world, 9901, 57, 5_000).unwrap();
+    let crystal = world
+        .objects
+        .get_component::<Inventory>(&9901)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == FREIGHTABLE)
+        .unwrap()
+        .object_id;
+    drain(&mut rx);
+
+    // `package_deposit` → the account's other characters.
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_package_deposit")),
+    );
+    let list = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::PACKAGE_TO_LIST)
+        .expect("the send-to list");
+    assert_eq!(
+        i32::from_le_bytes([list[1], list[2], list[3], list[4]]),
+        1,
+        "one other character on the account"
+    );
+
+    // The send window lists the freightable item.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SENDABLE_ITEM_LIST);
+    w.write_i32(9902);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::PACKAGE_SENDABLE_LIST),
+        "the sendable-item window opens"
+    );
+
+    // Send 4 crystals: they leave the inventory, the 1000-adena slot fee is
+    // charged, and the delivery is written to the offline recipient's rows.
+    drain_db(&mut db);
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(9902);
+    w.write_i32(1);
+    w.write_i32(crystal);
+    w.write_i64(4);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    let inv = world.objects.get_component::<Inventory>(&9901).unwrap();
+    assert_eq!(inv.count_of(FREIGHTABLE), 6, "4 items left the sender");
+    assert_eq!(inv.count_of(57), 4_000, "the 1000-adena fee was charged");
+    let delivered = drain_db(&mut db).into_iter().find_map(|c| match c {
+        db::DbCommand::AddFreightItems {
+            owner_id: 9902,
+            items,
+        } => Some(items),
+        _ => None,
+    });
+    let items = delivered.expect("the freight rows were written");
+    assert_eq!(items.len(), 1);
+    assert_eq!((items[0].item_id, items[0].count), (FREIGHTABLE, 4));
+}
+
+/// **The freight refuses what it may not carry.** A non-freightable item and a
+/// recipient who isn't on the account both leave everything where it is.
+#[test]
+fn freight_send_refuses_bad_items_and_strangers() {
+    use crate::model::components::LastFolkNpc;
+    use crate::model::inventory::Inventory;
+
+    let (mut world, _db, _link) = quest_test_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4500_0000..0x4500_0200;
+    let chr = dummy_char(9903, "Sender");
+    let bundle = crate::model::Player::from_char(&world.data, &chr);
+    let (out_tx, mut rx) = tokio::sync::mpsc::unbounded_channel();
+    let session = crate::session::Session::new(1, out_tx, "127.0.0.1:1".parse().unwrap())
+        .into_authenticated("bob".into(), SessionKey::new(1, 2, 3, 4))
+        .into_lobby(vec![dummy_char(9903, "Sender"), dummy_char(9904, "Alt")])
+        .into_entering(bundle);
+    let (session, bundle) = session.into_ingame();
+    bundle.spawn_into(&mut world.objects);
+    world
+        .clients
+        .insert(1, crate::session::ClientSession::InGame(session));
+    add_test_npc(&mut world, NPC_OID, 30001, "Warehouse", 70, 0, 0, 0);
+    world.objects.add_components(&9903, LastFolkNpc(NPC_OID));
+
+    // Adena — like every other Interlude-range item on this dist — is not
+    // freightable; 10649 is, and stands in for a legal cargo below.
+    super::items::add_inventory_item(&mut world, 9903, 57, 5_000).unwrap();
+    super::items::add_inventory_item(&mut world, 9903, 10649, 5).unwrap();
+    assert!(
+        !world.data.item_data.get(1458).unwrap().is_freightable,
+        "Crystal (D) — an Interlude item — may not be freighted"
+    );
+    let (adena_oid, crystal) = {
+        let inv = world.objects.get_component::<Inventory>(&9903).unwrap();
+        (
+            inv.items()
+                .iter()
+                .find(|it| it.item_id == 57)
+                .unwrap()
+                .object_id,
+            inv.items()
+                .iter()
+                .find(|it| it.item_id == 10649)
+                .unwrap()
+                .object_id,
+        )
+    };
+    drain(&mut rx);
+
+    // A non-freightable line aborts the whole send.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(9904);
+    w.write_i32(1);
+    w.write_i32(adena_oid);
+    w.write_i64(100);
+    on_packet(&mut world, 1, w.into_bytes());
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&9903)
+            .unwrap()
+            .count_of(57),
+        5_000,
+        "a non-freightable item is refused, fee included"
+    );
+
+    // A recipient who isn't on the account is refused too.
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_PACKAGE_SEND);
+    w.write_i32(7777);
+    w.write_i32(1);
+    w.write_i32(crystal);
+    w.write_i64(5);
+    on_packet(&mut world, 1, w.into_bytes());
+    let inv = world.objects.get_component::<Inventory>(&9903).unwrap();
+    assert_eq!(inv.count_of(10649), 5, "nothing was sent to a stranger");
+    assert_eq!(inv.count_of(57), 5_000, "and no fee was taken");
 }

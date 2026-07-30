@@ -323,10 +323,11 @@ fn npc_bypass(
         // `bypasshandlers/ClanWarehouse.java`: the shared clan warehouse.
         "WithdrawC" => super::warehouse::open_clan(world, client_id, object_id, true),
         "DepositC" => super::warehouse::open_clan(world, client_id, object_id, false),
-        // `bypasshandlers/Freight.java`: the account-package warehouse. Only
-        // the withdraw half is wired; `package_deposit` (the cross-character
-        // send) needs the account char list and offline freight writes.
+        // `bypasshandlers/Freight.java`: the account-package warehouse — the
+        // withdraw half, and the cross-character send (`package_deposit` →
+        // `PackageToList` → `RequestPackageSend`).
         "package_withdraw" => super::warehouse::open_freight_withdraw(world, client_id),
+        "package_deposit" => super::warehouse::open_freight_send(world, client_id),
         // `bypasshandlers/Augment.java`: `Augment 1` = make window, `Augment 2`
         // = cancel window.
         "Augment" => {

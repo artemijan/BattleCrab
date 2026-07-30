@@ -153,6 +153,16 @@ impl Session<InLobby> {
     /// `CharacterSelect`: a character is chosen and its `Player` built; move to
     /// the loading screen (Java `ConnectionState.ENTERING`).
     pub fn into_entering(self, player: crate::model::PlayerData) -> Session<Entering> {
+        // Java `Player.restore` reads the account's *other* characters into
+        // `_chars` — the freight's "send to" list. The lobby already holds them.
+        let selected = player.player.object_id;
+        let account_chars = self
+            .state
+            .chars
+            .iter()
+            .filter(|c| c.object_id != selected)
+            .map(|c| (c.object_id, c.name.clone()))
+            .collect();
         Session {
             client_id: self.client_id,
             out: self.out,
@@ -161,6 +171,7 @@ impl Session<InLobby> {
                 account: self.state.account,
                 session_key: self.state.session_key,
                 player,
+                account_chars,
             },
         }
     }
@@ -173,6 +184,9 @@ pub struct Entering {
     pub account: String,
     pub session_key: SessionKey,
     pub player: crate::model::PlayerData,
+    /// The account's *other* characters (id, name) — Java `Player._chars`,
+    /// the freight "send to" list.
+    pub account_chars: Vec<(i32, String)>,
 }
 
 /// State: in the world. The `Player` lives in the `World` object registry; this
@@ -181,6 +195,9 @@ pub struct InGame {
     pub account: String,
     pub session_key: SessionKey,
     pub player_object_id: i32,
+    /// The account's other characters (id, name) — Java `Player.getAccountChars()`,
+    /// which the freight send validates its recipient against.
+    pub account_chars: Vec<(i32, String)>,
     /// Java `Player._adminConfirmCmd` + `PlayerAction.ADMIN_COMMAND`: the full
     /// admin command awaiting a `ConfirmDlg` "yes" (`None` = no pending
     /// confirm). Consumed by the `DlgAnswer` reply.
@@ -209,6 +226,7 @@ impl Session<Entering> {
                 account: self.state.account,
                 session_key: self.state.session_key,
                 player_object_id: object_id,
+                account_chars: self.state.account_chars,
                 pending_admin_confirm: None,
             },
         };
@@ -222,6 +240,11 @@ impl Session<InGame> {
     }
     pub fn player_object_id(&self) -> i32 {
         self.state.player_object_id
+    }
+
+    /// Java `Player.getAccountChars()` — the account's other characters.
+    pub fn account_chars(&self) -> &[(i32, String)] {
+        &self.state.account_chars
     }
 
     /// Java `Player.setAdminConfirmCmd` — stash a command awaiting confirm.

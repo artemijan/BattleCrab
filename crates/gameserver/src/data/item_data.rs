@@ -695,6 +695,11 @@ pub struct ItemTemplate {
     /// `false` — test fixtures built with `..Default::default()` are
     /// non-sellable unless they say otherwise.
     pub is_sellable: bool,
+    /// `<set name="is_freightable">` (Java `ItemTemplate._freightable`, default
+    /// **false**) — whether the item may be sent to another character on the
+    /// account through the freight (`RequestPackageSend`). 3457 items declare
+    /// it on this dist; everything else is refused.
+    pub is_freightable: bool,
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
     pub price: i64,
@@ -1244,6 +1249,7 @@ fn make_template(
             .get("is_sellable")
             .map(|v| v == "true")
             .unwrap_or(true),
+        is_freightable: attrs.get("is_freightable").map(|v| v == "true") == Some(true),
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
         handler,
         capsuled_items,

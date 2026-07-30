@@ -478,6 +478,7 @@ fn spawn_dropper(world: &mut World, npc_oid: i32, npc_id: i32, type_name: &str, 
             kind: crate::data::item_data::ItemKind::Etc,
             is_stackable: false,
             is_sellable: true,
+            is_freightable: false,
             price: 10,
             ..Default::default()
         });
