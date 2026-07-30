@@ -269,7 +269,13 @@ pub const EX_PUT_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x83;
 pub const EX_REMOVE_ENCHANT_SUPPORT_ITEM_RESULT: i16 = 0x153;
 pub const EX_SHOW_VARIATION_MAKE_WINDOW: i16 = 0x52;
 pub const EX_SHOW_VARIATION_CANCEL_WINDOW: i16 = 0x53;
+/// `ExPutItemResultForVariationMake` — the augment window's target-item echo.
+pub const EX_PUT_ITEM_RESULT_FOR_VARIATION_MAKE: i16 = 0x54;
 pub const EX_PUT_INTENSIVE_RESULT_FOR_VARIATION_MAKE: i16 = 0x55;
+/// `ExPutCommissionResultForVariationMake` — the gemstone-fee echo.
+pub const EX_PUT_COMMISSION_RESULT_FOR_VARIATION_MAKE: i16 = 0x56;
+/// `ExPutItemResultForVariationCancel` — the cancel window's item echo.
+pub const EX_PUT_ITEM_RESULT_FOR_VARIATION_CANCEL: i16 = 0x58;
 pub const EX_VARIATION_RESULT: i16 = 0x57;
 pub const EX_VARIATION_CANCEL_RESULT: i16 = 0x59;
 

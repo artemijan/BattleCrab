@@ -46,7 +46,11 @@ The port also *handles several packets Java leaves `null`* (e.g. top-level
   0x06/0x07/0x08/0x2D and the MPCC-room family 0x5A–0x61.
 - **Private *buy* store** (G15 sell-store landed; buy-store not): 0x99/0x9A/0x9C/
   0x9F + titles 0x97/0x9D, wholesale `SetPrivateStoreWholeMsg` ex 0x47.
-- **Siege UI** (G24 combat landed; info window not): `RequestSiegeInfo` 0xAA.
+- ~~**Siege UI** (G24 combat landed; info window not): `RequestSiegeInfo` 0xAA.~~
+  **CLOSED 2026-07-30 — and it was never a gap**: 0xAA's `readImpl` and
+  `runImpl` are both empty in this Java build. The `SiegeInfo` window is pushed
+  by the castle Siege Manager's bypass (ported), so the feature is reachable;
+  the opcode is now a documented empty dispatch arm.
 - **Cursed-weapon info UI** (G28 loop landed; the list/locate window not): ex
   0x2A/0x2B.
 
@@ -64,15 +68,19 @@ family, GM/anti-cheat (GameGuard) — ~130 opcodes, none reachable on this dist.
 - **`RequestQuestList` 0x62** — CLOSED this slice. Quests are fully ported and
   the port already builds `QuestList`; the journal-open request was the only
   missing piece (empty body → resend `QuestList`, Java verbatim).
-- **`CannotMoveAnymore` 0x47** — left open (documented). Java fires the AI
-  `EVT_ARRIVED_BLOCKED` event; this port's player movement doesn't use that AI
-  event path, and the client self-stops, so it is not a clean cheap port.
-- **`ExRequestSaveKeyMapping` ex 0x22** — the port handles `REQUEST_KEY_MAPPING`
-  ex 0x21 but not the save sibling. Cosmetic (client-side key layout); low value.
-- **Augment confirm dialog** ex 0x26/0x28/0x3F — the augment *refine* flow is
-  ported; whether these confirm-dialog packets are needed depends on the
-  client's exact augment UX. Not confirmed as reachable; left for a targeted
-  check if augment UI issues surface.
+- ~~**`CannotMoveAnymore` 0x47**~~ **CLOSED 2026-07-30** —
+  `position::handle_cannot_move_anymore` does what `EVT_ARRIVED_BLOCKED` does:
+  drops the in-flight move + pending path request, falls a `MOVE_TO`/`CAST`
+  intention back to ACTIVE, plants the player at the client-reported spot, and
+  broadcasts `StopMove` including the mover.
+- ~~**`ExRequestSaveKeyMapping` ex 0x22**~~ **CLOSED 2026-07-30** — stored
+  tab-joined (signed bytes, Java's `SPLIT_VAR`) in the `UI_KEY_MAPPING` player
+  variable and replayed by both ex 0x21 and the enter-world burst. Not purely
+  cosmetic after all: `ExUISetting` was hard-coded to an empty payload, so a
+  saved layout was lost on every relogin.
+- ~~**Augment confirm dialog** ex 0x26/0x28/0x3F~~ **CLOSED 2026-07-30** — the
+  three confirm steps echo the weapon / gemstone fee / augmented item back to
+  the client and refuse unsuitable ones with the Java system messages.
 
 ## Conclusion
 

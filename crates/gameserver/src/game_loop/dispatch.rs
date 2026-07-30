@@ -140,6 +140,14 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
         cop::REQUEST_TARGET_CANCELD => handle_request_target_canceld(world, client_id, body),
         cop::MOVE_BACKWARD_TO_LOCATION => handle_move_backward_to_location(world, client_id, body),
         cop::VALIDATE_POSITION => handle_validate_position(world, client_id, body),
+        cop::CANNOT_MOVE_ANYMORE => {
+            super::position::handle_cannot_move_anymore(world, client_id, body)
+        }
+        // `RequestSiegeInfo` is an **empty handler** in this Java build (both
+        // `readImpl` and `runImpl` are no-ops) — the `SiegeInfo` window is
+        // pushed by the castle Siege Manager's bypass instead. Accepted and
+        // dropped, exactly as Java does.
+        cop::REQUEST_SIEGE_INFO => {}
         cop::REQUEST_SHORT_CUT_REG => handle_request_short_cut_reg(world, client_id, body),
         cop::REQUEST_SHORT_CUT_DEL => handle_request_short_cut_del(world, client_id, body),
         cop::REQUEST_MAKE_MACRO => handle_request_make_macro(world, client_id, body),
@@ -509,11 +517,27 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
         // RequestKeyMapping (ENTERING + IN_GAME): STORE_UI_SETTINGS is on, so
         // reply with the (empty) stored UI key mapping.
         exop::REQUEST_KEY_MAPPING => {
+            // `STORE_UI_SETTINGS` is on for this dist, so the stored layout (if
+            // any) is replayed; a character who never saved one gets Java's
+            // empty payload.
+            let mapping = super::settings::stored_key_mapping(world, client_id);
             if let Some(cs) = world.clients.get(&client_id)
                 && matches!(cs, ClientSession::Entering(_) | ClientSession::InGame(_))
             {
-                cs.send(server_packets::ex_ui_setting());
+                cs.send(server_packets::ex_ui_setting(&mapping));
             }
+        }
+        exop::REQUEST_SAVE_KEY_MAPPING => {
+            super::settings::handle_save_key_mapping(world, client_id, ex_body)
+        }
+        exop::REQUEST_CONFIRM_TARGET_ITEM => {
+            super::augment::handle_confirm_target_item(world, client_id, ex_body)
+        }
+        exop::REQUEST_CONFIRM_GEMSTONE => {
+            super::augment::handle_confirm_gemstone(world, client_id, ex_body)
+        }
+        exop::REQUEST_CONFIRM_CANCEL_ITEM => {
+            super::augment::handle_confirm_cancel_item(world, client_id, ex_body)
         }
         // RequestManorList (IN_GAME): the castles that offer a manor — the seed
         // catalogue's castles when manor is enabled, else an empty list.

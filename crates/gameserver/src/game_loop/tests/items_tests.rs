@@ -4125,3 +4125,203 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         "one spent when the cast landed"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Row 11 — the augment window's confirm steps (ex 0x26 / 0x28 / 0x3F)
+// ---------------------------------------------------------------------------
+
+/// **The augment window's three confirm steps echo what the player dropped in**
+/// — the weapon, the gemstone fee, and (in the cancel window) the augmented
+/// item with its options and price. An unsuitable item is refused instead.
+#[test]
+fn the_augment_window_confirms_each_slot() {
+    use crate::model::inventory::Inventory;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.variations = crate::data::VariationData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.id_pool = 0x4700_0000..0x4700_0200;
+    let mut rx = ingame_player_access(&mut world, 1, 9910, 0);
+    super::items::add_inventory_item(&mut world, 9910, 2551, 1).unwrap(); // Crimson Sword
+    super::items::add_inventory_item(&mut world, 9910, 8723, 1).unwrap(); // Life Stone 46
+    super::items::add_inventory_item(&mut world, 9910, 2130, 20).unwrap(); // Gemstone D
+    super::items::add_inventory_item(&mut world, 9910, 1458, 1).unwrap(); // Crystal (D)
+    let oid = |w: &World, item: i32| {
+        w.objects
+            .get_component::<Inventory>(&9910)
+            .unwrap()
+            .items()
+            .iter()
+            .find(|it| it.item_id == item)
+            .unwrap()
+            .object_id
+    };
+    let (weapon, lifestone, gem, crystal) = (
+        oid(&world, 2551),
+        oid(&world, 8723),
+        oid(&world, 2130),
+        oid(&world, 1458),
+    );
+    let is_ex = |p: &[u8], sub: i16| {
+        p.len() >= 3 && p[0] == 0xFE && i16::from_le_bytes([p[1], p[2]]) == sub
+    };
+    drain(&mut rx);
+
+    // (1) target item: an augmentable weapon echoes back.
+    let mut w = PacketWriter::new();
+    w.write_i32(weapon);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_TARGET_ITEM, &w.into_bytes()),
+    );
+    assert!(
+        drain(&mut rx).iter().any(|p| is_ex(
+            p,
+            server_packets::opcodes::EX_PUT_ITEM_RESULT_FOR_VARIATION_MAKE
+        )),
+        "the weapon is accepted"
+    );
+
+    // …a Crystal is not a weapon: refused with the system message, no echo.
+    let mut w = PacketWriter::new();
+    w.write_i32(crystal);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_TARGET_ITEM, &w.into_bytes()),
+    );
+    let pkts = drain(&mut rx);
+    assert!(
+        !pkts.iter().any(|p| is_ex(
+            p,
+            server_packets::opcodes::EX_PUT_ITEM_RESULT_FOR_VARIATION_MAKE
+        )),
+        "an unsuitable item is not echoed"
+    );
+    assert!(sm_ids_of(&pkts).contains(&server_packets::sm_ids::THIS_IS_NOT_A_SUITABLE_ITEM));
+
+    // (2) gemstone: the fee the refiner step quoted is echoed back.
+    let mut w = PacketWriter::new();
+    w.write_i32(weapon);
+    w.write_i32(lifestone);
+    w.write_i32(gem);
+    w.write_i64(20);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_GEMSTONE, &w.into_bytes()),
+    );
+    assert!(
+        drain(&mut rx).iter().any(|p| is_ex(
+            p,
+            server_packets::opcodes::EX_PUT_COMMISSION_RESULT_FOR_VARIATION_MAKE
+        )),
+        "the gemstone fee is accepted"
+    );
+
+    // (3) cancel window: an unaugmented item is refused…
+    let mut w = PacketWriter::new();
+    w.write_i32(weapon);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_CANCEL_ITEM, &w.into_bytes()),
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM)
+    );
+
+    // …and an augmented one echoes with its options.
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&9910) {
+        inv.set_augmentation(weapon, 8723, 4001, 4002);
+    }
+    let mut w = PacketWriter::new();
+    w.write_i32(weapon);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_CONFIRM_CANCEL_ITEM, &w.into_bytes()),
+    );
+    let echo = drain(&mut rx)
+        .into_iter()
+        .find(|p| {
+            is_ex(
+                p,
+                server_packets::opcodes::EX_PUT_ITEM_RESULT_FOR_VARIATION_CANCEL,
+            )
+        })
+        .expect("the cancel echo");
+    assert_eq!(
+        i32::from_le_bytes([echo[11], echo[12], echo[13], echo[14]]),
+        4001,
+        "…carrying the first option id"
+    );
+}
+
+/// **The client's key layout survives a relogin.** `RequestSaveKeyMapping`
+/// stores the blob in a player variable (Java's `UI_KEY_MAPPING`), and
+/// `RequestKeyMapping` replays it verbatim.
+#[test]
+fn the_saved_key_mapping_round_trips() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut rx);
+
+    // Nothing saved yet: Java's empty payload.
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_KEY_MAPPING, &[]),
+    );
+    let empty = drain(&mut rx)
+        .into_iter()
+        .find(|p| {
+            p.len() >= 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
+        })
+        .expect("the UI setting packet");
+    assert_eq!(
+        i32::from_le_bytes([empty[3], empty[4], empty[5], empty[6]]),
+        0,
+        "no stored layout"
+    );
+
+    // Save three bytes, then ask for them back.
+    let mut w = PacketWriter::new();
+    w.write_i32(3);
+    for b in [7u8, 0, 200] {
+        w.write_u8(b);
+    }
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_SAVE_KEY_MAPPING, &w.into_bytes()),
+    );
+    drain(&mut rx);
+    on_packet(
+        &mut world,
+        1,
+        ex_packet(cp::ex_opcodes::REQUEST_KEY_MAPPING, &[]),
+    );
+    let stored = drain(&mut rx)
+        .into_iter()
+        .find(|p| {
+            p.len() >= 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
+        })
+        .expect("the UI setting packet");
+    assert_eq!(
+        i32::from_le_bytes([stored[3], stored[4], stored[5], stored[6]]),
+        3,
+        "three bytes come back"
+    );
+    assert_eq!(&stored[7..10], &[7, 0, 200], "…verbatim, high bytes intact");
+}

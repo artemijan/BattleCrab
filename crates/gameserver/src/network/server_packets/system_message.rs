@@ -55,6 +55,11 @@ pub mod sm_ids {
     /// `That character does not exist.` — the freight send with no other
     /// character on the account.
     pub const THAT_CHARACTER_DOES_NOT_EXIST: i16 = 873;
+    // Augment window confirm steps (row 11).
+    /// `This is not a suitable item.`
+    pub const THIS_IS_NOT_A_SUITABLE_ITEM: i16 = 1960;
+    /// `Augmentation removal can only be done on an augmented item.`
+    pub const AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM: i16 = 1964;
     // Gatekeeper teleports (G15.5 tail).
     pub const YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE: i16 = 707;
     pub const YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD: i16 = 2778;

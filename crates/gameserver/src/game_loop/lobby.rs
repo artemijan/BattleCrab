@@ -515,7 +515,15 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
             world.cfg.rates.vitality_max_items_allowed,
         ));
     }
-    session.send(server_packets::ex_ui_setting());
+    // The character's saved key layout rides the enter-world burst, like Java's
+    // `ExUISetting` there (it reads the same player variable).
+    let key_mapping = super::settings::decode_key_mapping(
+        bundle
+            .variables
+            .0
+            .get(crate::model::components::UI_KEY_MAPPING),
+    );
+    session.send(server_packets::ex_ui_setting(&key_mapping));
     // `MacroList.sendAllMacros` — one packet per stored macro (or one empty
     // LIST packet), in Java's position before the bookmark/item lists.
     for pkt in server_packets::send_all_macros(&bundle.macros) {

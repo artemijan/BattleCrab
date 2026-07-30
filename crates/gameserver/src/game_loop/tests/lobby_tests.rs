@@ -339,3 +339,41 @@ fn enter_world_exchanges_char_info_with_nearby_players_only() {
         .collect();
     assert_eq!(char_infos, vec![6001]);
 }
+
+/// **The key layout survives the relogin, not just the session.** A character
+/// whose stored variables carry `UI_KEY_MAPPING` gets it back in the
+/// enter-world burst (Java sends `ExUISetting` there from the same variable).
+#[test]
+fn enter_world_replays_the_saved_key_layout() {
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let mut out_rx = ingame_player(&mut world, 1, 5001, 100, 200, 0);
+    handle_request_restart(&mut world, 1);
+    let mut ch = dummy_char(5001, "P5001");
+    // 200 stored the way Java stores it: as the signed byte -56.
+    ch.variables = vec![(
+        crate::model::components::UI_KEY_MAPPING.to_string(),
+        "7\t0\t-56".to_string(),
+    )];
+    on_characters_loaded(&mut world, 1, "bob".into(), vec![ch], true);
+    while out_rx.try_recv().is_ok() {}
+
+    let mut w = PacketWriter::new();
+    w.write_i32(0);
+    handle_character_select(&mut world, 1, &w.into_bytes());
+    handle_enter_world(&mut world, 1);
+
+    let ui = drain(&mut out_rx)
+        .into_iter()
+        .find(|p| {
+            p.len() >= 3
+                && p[0] == 0xFE
+                && i16::from_le_bytes([p[1], p[2]]) == server_packets::opcodes::EX_UI_SETTING
+        })
+        .expect("the enter-world burst carries ExUISetting");
+    assert_eq!(
+        i32::from_le_bytes([ui[3], ui[4], ui[5], ui[6]]),
+        3,
+        "the stored layout, not an empty one"
+    );
+    assert_eq!(&ui[7..10], &[7, 0, 200], "…decoded back to the raw bytes");
+}

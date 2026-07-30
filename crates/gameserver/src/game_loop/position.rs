@@ -560,3 +560,58 @@ pub(crate) fn handle_validate_position(world: &mut World, client_id: u32, body: 
     super::visibility::update_region(world, object_id);
     super::zones::revalidate_zone(world, object_id, false);
 }
+
+/// Port of `clientpackets/CannotMoveAnymore.runImpl` → the AI's
+/// `EVT_ARRIVED_BLOCKED`: the client reports that the move it was walking is
+/// blocked, at the location it actually reached.
+///
+/// Java's `CreatureAI.onEvtArrivedBlocked` drops a `MOVE_TO`/`CAST` intention
+/// back to `ACTIVE`, stops the movement server- and client-side at that
+/// location, and re-thinks. The port does the same: the in-flight move (and any
+/// pending path request) is dropped, the intent is cleared for those two kinds,
+/// the player is placed where the client says it stopped, and `StopMove` goes
+/// out to everyone including the mover.
+pub(crate) fn handle_cannot_move_anymore(world: &mut World, client_id: u32, body: &[u8]) {
+    let mut r = commons::network::PacketReader::new(body);
+    let (Some(x), Some(y), Some(z), Some(heading)) =
+        (r.read_i32(), r.read_i32(), r.read_i32(), r.read_i32())
+    else {
+        return;
+    };
+    let Some(ClientSession::InGame(session)) = world.clients.get(&client_id) else {
+        return;
+    };
+    let object_id = session.player_object_id();
+
+    world.objects.remove_component::<Movement>(&object_id);
+    world.objects.remove_component::<PathWait>(&object_id);
+    // `if (getIntention() == MOVE_TO || getIntention() == CAST) setIntention(ACTIVE)`
+    // — an attack or interact intention survives, and its own think re-issues
+    // the walk.
+    let clear = matches!(
+        world
+            .objects
+            .get_component::<crate::model::components::Intent>(&object_id)
+            .map(|i| i.0),
+        Some(crate::model::PlayerIntent::Cast { .. })
+    );
+    if clear {
+        world
+            .objects
+            .remove_component::<crate::model::components::Intent>(&object_id);
+    }
+
+    // `clientStopMoving(location)`: land where the client says it stopped.
+    if let Some(pos) = world.objects.get_component_mut::<Position>(&object_id) {
+        pos.x = x;
+        pos.y = y;
+        pos.z = z;
+        pos.heading = heading;
+    }
+    super::zones::revalidate_zone(world, object_id, true);
+    broadcast_including_self(
+        world,
+        object_id,
+        &server_packets::stop_move(object_id, x, y, z, heading),
+    );
+}

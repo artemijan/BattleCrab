@@ -789,3 +789,80 @@ fn idle_monster_without_random_walk_stays_put() {
         "no wander broadcast"
     );
 }
+
+/// **The client reports it walked into a wall.** `CannotMoveAnymore` (0x47)
+/// drops the server-side walk, plants the player where the client says it
+/// stopped, and tells everyone (including the mover — Java's
+/// `broadcastPacket` on `StopMove` from `clientStopMoving`) to stop the
+/// animation. A pending cast intention is dropped with it.
+#[test]
+fn a_client_stuck_report_stops_the_walk_where_it_says() {
+    let (mut world, ..) = cast_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    for oid in [3001, 3002] {
+        let sp = world.objects.get_component_mut::<Speeds>(&oid).unwrap();
+        sp.run_spd = 100.0;
+        sp.running = true;
+    }
+
+    handle_move_backward_to_location(&mut world, 1, &move_body((5000, 0, 0), (0, 0, 0), 1));
+    assert!(world.objects.has_component::<Movement>(&3001), "walking");
+    world.objects.add_components(
+        &3001,
+        Intent(crate::model::PlayerIntent::Cast {
+            skill_id: 1177,
+            ctrl: false,
+            shift: false,
+            target_object_id: 3002,
+        }),
+    );
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+
+    // The client got 300 units along and hit geometry.
+    let mut w = PacketWriter::new();
+    for v in [300, 0, 0, 16384] {
+        w.write_i32(v);
+    }
+    let mut body = vec![cp::opcodes::CANNOT_MOVE_ANYMORE];
+    body.extend_from_slice(&w.into_bytes());
+    on_packet(&mut world, 1, body);
+
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "the walk is dropped, not resumed toward 5000"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "the queued cast intention goes with it"
+    );
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!(
+        (pos.x, pos.y, pos.z, pos.heading),
+        (300, 0, 0, 16384),
+        "the player lands where the client reported"
+    );
+
+    // Both the mover and the onlooker see the stop.
+    for (who, rx) in [("mover", &mut a_rx), ("onlooker", &mut b_rx)] {
+        let stop = drain(rx)
+            .into_iter()
+            .find(|p| p[0] == server_packets::opcodes::STOP_MOVE)
+            .unwrap_or_else(|| panic!("{who} is told to stop"));
+        assert_eq!(
+            i32::from_le_bytes([stop[1], stop[2], stop[3], stop[4]]),
+            3001
+        );
+        assert_eq!(
+            i32::from_le_bytes([stop[5], stop[6], stop[7], stop[8]]),
+            300,
+            "…at the reported spot"
+        );
+    }
+
+    // The walk really is over: ticking does not creep toward the old target.
+    advance_ticks(&mut world, 5);
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!(pos.x, 300, "no drift after the stop");
+}

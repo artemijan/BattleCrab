@@ -82,6 +82,7 @@ mod reco;
 pub(crate) mod regen;
 pub(crate) mod sailren;
 mod servitor;
+mod settings;
 pub(crate) mod shop;
 mod shortcuts;
 pub(crate) mod siege;
