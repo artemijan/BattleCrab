@@ -55,6 +55,14 @@ pub trait QuestScript: Send + Sync {
     }
     /// NPCs that notify this quest when they *witness* a skill (`addSkillSeeId`)
     /// — quest 350's Soul Crystal absorb.
+    fn aggro_enter_npcs(&self) -> &[i32] {
+        &[]
+    }
+
+    fn spell_finished_npcs(&self) -> &[i32] {
+        &[]
+    }
+
     fn skill_see_npcs(&self) -> &[i32] {
         &[]
     }
@@ -125,6 +133,18 @@ pub trait QuestScript: Send + Sync {
     }
     /// A registered NPC witnessed `skill_id` being cast (`onSkillSee`).
     /// `ctx.npc` is the witnessing NPC and `ctx.player` the caster.
+    /// `onAggroRangeEnter` — a player walked into this monster's aggro
+    /// range and the scan just noticed them (first hate seeded).
+    fn on_aggro_range_enter(&self, ctx: &mut QuestCtx) {
+        let _ = ctx;
+    }
+
+    /// `onSpellFinished` — this NPC finished casting `skill_id` (fires at
+    /// Java's `EVT_FINISH_CASTING`, after the cast bar completes).
+    fn on_spell_finished(&self, ctx: &mut QuestCtx, skill_id: i32) {
+        let _ = (ctx, skill_id);
+    }
+
     fn on_skill_see(&self, ctx: &mut QuestCtx, skill_id: i32) {
         let _ = (ctx, skill_id);
     }
@@ -142,6 +162,8 @@ pub struct QuestRegistry {
     attack: HashMap<i32, Vec<usize>>,
     spawn: HashMap<i32, Vec<usize>>,
     skill_see: HashMap<i32, Vec<usize>>,
+    aggro_enter: HashMap<i32, Vec<usize>>,
+    spell_finished: HashMap<i32, Vec<usize>>,
     first_talk: HashMap<i32, usize>,
 }
 
@@ -154,6 +176,8 @@ impl QuestRegistry {
         let mut attack: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut spawn: HashMap<i32, Vec<usize>> = HashMap::new();
         let mut skill_see: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut aggro_enter: HashMap<i32, Vec<usize>> = HashMap::new();
+        let mut spell_finished: HashMap<i32, Vec<usize>> = HashMap::new();
         // One entry per NPC: the first-talk listener owns the whole chat
         // window, so two scripts claiming the same NPC is a bug, not a fan-out.
         let mut first_talk: HashMap<i32, usize> = HashMap::new();
@@ -177,6 +201,12 @@ impl QuestRegistry {
             for &id in s.skill_see_npcs() {
                 skill_see.entry(id).or_default().push(idx);
             }
+            for &id in s.aggro_enter_npcs() {
+                aggro_enter.entry(id).or_default().push(idx);
+            }
+            for &id in s.spell_finished_npcs() {
+                spell_finished.entry(id).or_default().push(idx);
+            }
             for &id in s.first_talk_npcs() {
                 if let Some(&prev) = first_talk.get(&id) {
                     warn!(
@@ -198,6 +228,8 @@ impl QuestRegistry {
             attack,
             spawn,
             skill_see,
+            aggro_enter,
+            spell_finished,
             first_talk,
         }
     }
@@ -256,6 +288,22 @@ impl QuestRegistry {
     /// Scripts listing `npc_id` as a skill-see NPC.
     pub fn skill_see_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
         self.skill_see
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as an aggro-range-enter NPC.
+    pub fn aggro_enter_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.aggro_enter
+            .get(&npc_id)
+            .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
+            .unwrap_or_default()
+    }
+
+    /// Scripts listing `npc_id` as a spell-finished NPC.
+    pub fn spell_finished_quests(&self, npc_id: i32) -> Vec<Arc<dyn QuestScript>> {
+        self.spell_finished
             .get(&npc_id)
             .map(|v| v.iter().map(|&i| self.scripts[i].clone()).collect())
             .unwrap_or_default()
@@ -1670,6 +1718,61 @@ pub(crate) fn notify_first_talk(
     };
     show_result(world, client_id, npc_oid, &script, res);
     true
+}
+
+/// `onAggroRangeEnter`: the aggro scan just seeded first hate on a player
+/// inside a registered monster's range.
+pub(crate) fn notify_aggro_range_enter(
+    world: &mut World,
+    npc_oid: i32,
+    npc_id: i32,
+    player_oid: i32,
+) {
+    let registry = world.quests.clone();
+    let scripts = registry.aggro_enter_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let Some(client_id) = client_for_player(world, player_oid) else {
+        return;
+    };
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, player_oid, npc_oid, script.clone());
+        script.on_aggro_range_enter(&mut ctx);
+    }
+}
+
+/// `onSpellFinished`: a registered NPC's cast completed. The in-context
+/// player is the cast's target when that target is a player (Java passes it
+/// along); handlers that only touch the NPC work either way.
+pub(crate) fn notify_spell_finished(
+    world: &mut World,
+    npc_oid: i32,
+    npc_id: i32,
+    skill_id: i32,
+    target_oid: i32,
+) {
+    let registry = world.quests.clone();
+    let scripts = registry.spell_finished_quests(npc_id);
+    if scripts.is_empty() {
+        return;
+    }
+    let is_player_target = world
+        .objects
+        .get_component::<crate::model::Player>(&target_oid)
+        .is_some();
+    let (player, client_id) = if is_player_target {
+        match client_for_player(world, target_oid) {
+            Some(c) => (target_oid, c),
+            None => (target_oid, 0),
+        }
+    } else {
+        (0, 0)
+    };
+    for script in scripts {
+        let mut ctx = QuestCtx::new(world, client_id, player, npc_oid, script.clone());
+        script.on_spell_finished(&mut ctx, skill_id);
+    }
 }
 
 /// `Attackable` kill → registered kill quests' `onKill`. Called from

@@ -1803,10 +1803,26 @@ fn apply_cast_consequences(
 
 /// `SkillCaster.run`'s terminal `stopCasting(false)` — the cool phase ended.
 pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq: u64) {
-    if live_cast(world, player_object_id, cast_seq).is_none() {
+    let Some(cast) = live_cast(world, player_object_id, cast_seq) else {
         return;
-    }
+    };
+    let (skill_id, target) = (cast.skill_id, cast.target_object_id);
     stop_casting(world, player_object_id);
+    // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
+    // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
+    let npc_id = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&player_object_id)
+        .map(|n| n.npc_id);
+    if let Some(npc_id) = npc_id {
+        crate::game_loop::quests::notify_spell_finished(
+            world,
+            player_object_id,
+            npc_id,
+            skill_id,
+            target,
+        );
+    }
 }
 
 /// Port of `Creature.abortCast` → `stopCasting(aborted == true)`: only casts

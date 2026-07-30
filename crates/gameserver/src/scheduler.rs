@@ -487,6 +487,17 @@ pub enum ScheduledTask {
         cow_oid: i32,
         feeder_oid: i32,
     },
+    /// A Primeval Isle Sprigant's 15 s trap cast (Anesthesia / Deadly
+    /// Poison); reschedules itself while the plant lives.
+    SprigantTrap {
+        npc_oid: i32,
+    },
+    /// The Tyrannosaurus finished sizing a wanderer up (Java `TREX_ATTACK`,
+    /// 6 s after `onAggroRangeEnter`): still close → stun + charge.
+    TrexAttack {
+        trex_oid: i32,
+        player_oid: i32,
+    },
     /// `Door.AutoClose`: a script-opened door's `closeTime` elapsed. Stale
     /// (superseded by a newer open/close → `auto_close_seq` mismatch) = no-op.
     DoorAutoClose {

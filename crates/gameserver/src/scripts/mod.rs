@@ -37,6 +37,7 @@ pub mod orc_dark_elf_change2;
 mod pagan_keys;
 mod pagan_teleporters;
 mod plains_of_dion;
+pub mod primeval_isle;
 mod pytan;
 pub mod q00032_an_obvious_lie;
 pub mod q00033_make_a_pair_of_dress_shoes;
@@ -472,6 +473,9 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         // ai/areas — slice 6: the Beast Farm feeding chain (BeastFarm.java's
         // Gracia revamp NPCs never spawn on this dist — dead content).
         Arc::new(feedable_beasts::FeedableBeasts),
+        // ai/areas — slice 7: Primeval Isle (MonasteryOfSilence.java is dead
+        // content on this dist — none of its Gracia-era NPCs spawn).
+        Arc::new(primeval_isle::PrimevalIsle),
     ];
     QuestRegistry::new(scripts)
 }

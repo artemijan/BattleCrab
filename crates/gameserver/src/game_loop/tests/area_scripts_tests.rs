@@ -843,3 +843,164 @@ fn top_stage_feeding_tames_a_beast_that_starves_without_spice() {
     crate::game_loop::tamed_beast::handle_duration(&mut world, beast_oid);
     assert_eq!(count_npcs(&mut world, TAMED_FIGHTER), 0, "starved out");
 }
+
+// ---------------------------------------------------------------------------
+// Slice 7 — Primeval Isle (the aggro-enter / spell-finished hooks)
+// ---------------------------------------------------------------------------
+
+fn trex_template() -> crate::data::npc_data::NpcTemplate {
+    let mut t = crate::data::npc_data::default_template(22215);
+    t.type_name = "Monster".into();
+    t.level = 76;
+    t.base_hp_max = 50_000.0;
+    t.is_aggressive = true;
+    t.aggro_range = 450;
+    t.collision_radius = 10.0;
+    t
+}
+
+/// A wanderer entering the Tyrannosaurus's range triggers the curiosity
+/// pause (the new aggro-range-enter hook), and only after the 6 s
+/// `TREX_ATTACK` does it charge.
+#[test]
+fn trex_sizes_you_up_before_charging() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.npc_data.insert_for_test(trex_template());
+    let mut stun = passive_clan_test_skill(5120);
+    stun.operate_type = OperateType::Active;
+    world.data.skill_data.insert_for_test(stun);
+    add_test_npc(&mut world, NPC_OID + 700, 22215, "Monster", 76, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 200, 0, 0);
+
+    // The scan warms up (global_aggro -10 → 0) and notices the player: the
+    // curiosity gate trips instead of an immediate charge.
+    advance_world(&mut world, 130);
+    let sv = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+        .unwrap()
+        .script_value;
+    assert_eq!(sv, 1, "noticed — and paused, not charging");
+
+    // Six seconds later the sizing-up ends: state resets and he commits.
+    advance_world(&mut world, 100);
+    let (sv, hate) = {
+        let n = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+            .unwrap();
+        let h = world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+            .and_then(|a| a.0.get(&5001).map(|i| i.hate))
+            .unwrap_or(0.0);
+        (n.script_value, h)
+    };
+    assert_eq!(sv, 0, "the pause is over");
+    assert!(hate > 0.0, "and the charge is on");
+}
+
+/// The spell-finished hook: a Berserk that lands under 60% HP locks the
+/// ladder (script value 3) and slams 555 hate onto the most hated.
+#[test]
+fn trex_berserk_locks_the_ladder() {
+    let (mut world, _db, _l) = combat_test_world();
+    world.data.npc_data.insert_for_test(trex_template());
+    add_test_npc(&mut world, NPC_OID + 700, 22215, "Monster", 76, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 200, 0, 0);
+    {
+        let v = world
+            .objects
+            .get_component_mut::<Vitals>(&(NPC_OID + 700))
+            .unwrap();
+        v.cur_hp = v.max_hp as f64 * 0.4;
+    }
+    let mut aggro = crate::model::npc::AggroList::default();
+    aggro.0.insert(
+        5001,
+        crate::model::npc::AggroInfo {
+            hate: 100.0,
+            damage: 0.0,
+        },
+    );
+    world.objects.add_components(&(NPC_OID + 700), aggro);
+
+    quests::notify_spell_finished(&mut world, NPC_OID + 700, 22215, 5087, NPC_OID + 700);
+    let n = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&(NPC_OID + 700))
+        .unwrap();
+    assert_eq!(n.script_value, 3, "ladder locked");
+    // The +555 lands, then `seed_attack` (the port's addAttackPlayerDesire)
+    // stacks its own attack-desire hate on top — the floor is what matters.
+    let hate = world
+        .objects
+        .get_component::<crate::model::npc::AggroList>(&(NPC_OID + 700))
+        .unwrap()
+        .0[&5001]
+        .hate;
+    assert!(hate >= 655.0, "hate slammed on the most hated ({hate})");
+}
+
+/// Striking an Ancient Egg wakes the jungle — nearby monsters coin-flip
+/// onto the striker.
+#[test]
+fn ancient_egg_wakes_the_jungle() {
+    let (mut world, _db, _l) = combat_test_world();
+    const EGG: i32 = 18344;
+    for id in [EGG, 22198] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    add_test_npc(&mut world, NPC_OID + 700, EGG, "Monster", 40, 100, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 701, 22198, "Monster", 40, 300, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 702, 22198, "Monster", 40, 5000, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+
+    // 80% roll hits; the one near raptor flips heads, the far one is out of
+    // range entirely.
+    world.forced_rolls.push_back(10);
+    world.forced_rolls.push_back(0);
+    quests::notify_attack(&mut world, 5001, NPC_OID + 700, EGG, None, false);
+    let hates = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&oid)
+            .is_some_and(|a| a.0.contains_key(&5001))
+    };
+    assert!(hates(&world, NPC_OID + 701), "the jungle answers");
+    assert!(!hates(&world, NPC_OID + 702), "but not from a screen away");
+}
+
+/// Sprigants cast their trap on a 15 s cycle.
+#[test]
+fn sprigant_casts_its_trap() {
+    let (mut world, _db, _l) = combat_test_world();
+    const SPRIGANT: i32 = 18345;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(SPRIGANT));
+    let mut trap = passive_clan_test_skill(5085);
+    trap.operate_type = OperateType::Active;
+    world.data.skill_data.insert_for_test(trap);
+    add_test_npc(
+        &mut world,
+        NPC_OID + 700,
+        SPRIGANT,
+        "Monster",
+        40,
+        100,
+        0,
+        0,
+    );
+
+    crate::scripts::primeval_isle::handle_sprigant_trap(&mut world, NPC_OID + 700);
+    let cast = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&(NPC_OID + 700))
+        .map(|c| c.0.skill_id);
+    assert_eq!(cast, Some(5085), "the trap fires");
+}

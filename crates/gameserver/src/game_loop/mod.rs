@@ -430,6 +430,15 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 tamed_beast::handle_mad_cow_polymorph(world, cow_oid, feeder_oid);
             }
+            ScheduledTask::SprigantTrap { npc_oid } => {
+                crate::scripts::primeval_isle::handle_sprigant_trap(world, npc_oid);
+            }
+            ScheduledTask::TrexAttack {
+                trex_oid,
+                player_oid,
+            } => {
+                crate::scripts::primeval_isle::handle_trex_attack(world, trex_oid, player_oid);
+            }
             ScheduledTask::QueenAntDistanceCheck { queen_oid } => {
                 queen_ant::handle_distance_check(world, queen_oid);
             }
