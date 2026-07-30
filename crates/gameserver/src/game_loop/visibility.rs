@@ -228,6 +228,22 @@ pub(crate) fn on_enter_world(world: &World, client_id: u32, object_id: i32) {
             }
         }
     }
+    // The unattended shops: no session, so the loop above never reaches them,
+    // but they are standing right there and must be drawn (Java's knownlist is
+    // registry-driven and does not care whether a client is attached).
+    for &trader_id in world.offline_traders.keys() {
+        if trader_id == object_id {
+            continue;
+        }
+        let Some(trader_region) = player_region(world, trader_id) else {
+            continue;
+        };
+        if regions_adjacent(my_region, trader_region)
+            && super::helpers::instance_of(world, trader_id) == my_instance
+        {
+            send_char_info(world, my_session, trader_id);
+        }
+    }
     for npc_id in world.npcs_visible_from(my_region) {
         // Only content sharing the player's instance is visible.
         if super::helpers::instance_of(world, npc_id) != my_instance {
@@ -430,6 +446,29 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
             };
             if !regions_adjacent(new, r.0) {
                 cs.send(server_packets::delete_object(item_id));
+            }
+        }
+        // Unattended shops, same shape: they have no session so the `deltas`
+        // scan above never sees them, and they never move — only the mover's
+        // own screen changes.
+        for &trader_id in world.offline_traders.keys() {
+            if trader_id == object_id {
+                continue;
+            }
+            let Some(r) = world.objects.get_component::<RegionCell>(&trader_id) else {
+                continue;
+            };
+            let was = regions_adjacent(old, r.0);
+            let now = regions_adjacent(new, r.0);
+            if was == now {
+                continue;
+            }
+            if now {
+                if super::helpers::instance_of(world, trader_id) == my_instance {
+                    send_char_info(world, cs, trader_id);
+                }
+            } else {
+                cs.send(server_packets::delete_object(trader_id));
             }
         }
     }

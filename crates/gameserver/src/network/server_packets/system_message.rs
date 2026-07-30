@@ -236,6 +236,9 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ADENA: i16 = 279;
+    // Offline shops (G33)
+    pub const DO_YOU_WISH_TO_EXIT_THE_GAME: i16 = 125;
+    pub const PRIVATE_STORE_ALREADY_CLOSED: i16 = 349;
     // Lucky Lottery (G26.5)
     pub const TICKETS_FOR_THE_CURRENT_LOTTERY_ARE_NO_LONGER_AVAILABLE: i16 = 784;
     pub const LOTTERY_TICKETS_ARE_NOT_CURRENTLY_BEING_SOLD: i16 = 930;
@@ -802,6 +805,19 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
 /// uses, echoed back by the client in `DlgAnswer` so the reply can be matched
 /// to its request.
 pub const S1_3_MESSAGE_ID: i32 = 1987;
+
+/// `ConfirmDlg` with a bare system message and no parameters — the shape the
+/// `.offline` command uses (`new ConfirmDlg(SystemMessageId.…)`). The client
+/// echoes `message_id` back in `DlgAnswer`, which is how the reply is routed.
+pub fn confirm_dlg(message_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::CONFIRM_DLG);
+    w.write_i32(message_id);
+    w.write_i32(0); // parameter count
+    w.write_i32(0); // time
+    w.write_i32(0); // requesterId
+    w.into_bytes()
+}
 
 /// Port of `serverpackets/ConfirmDlg` for the admin-confirm case: an
 /// `S1_3` message with a single text param (the "Are you sure…?" prompt).

@@ -314,6 +314,9 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     } else {
         open_buyer_view(world, client_id, buyer, seller);
     }
+    // Java `RequestPrivateStoreBuy`: `onTransaction(storePlayer, itemCount == 0,
+    // false)` — an unattended shop's rows follow every sale.
+    super::offline_trade::on_transaction(world, seller);
 }
 
 // --- helpers ---
@@ -363,6 +366,9 @@ fn close_store(world: &mut World, owner: i32) {
     }
     super::helpers::broadcast_including_self(world, owner, &sp::msg_sell(owner, ""));
     super::party::broadcast_user_info(world, owner);
+    // Java `Player.setPrivateStoreType(NONE)` → `OFFLINE_DISCONNECT_FINISHED`:
+    // an unattended shop that sold out leaves the world.
+    super::offline_trade::on_store_type_cleared(world, owner);
 }
 
 /// Resend a player's inventory window after a store transaction.
@@ -759,6 +765,8 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     } else {
         open_seller_view(world, client_id, seller, owner);
     }
+    // `RequestPrivateStoreSell`'s `onTransaction(storePlayer, …)`.
+    super::offline_trade::on_transaction(world, owner);
 }
 
 /// Whether the object is a buy-store owner (for `Action` routing).
@@ -818,6 +826,7 @@ fn close_buy_store(world: &mut World, owner: i32) {
     }
     super::helpers::broadcast_including_self(world, owner, &sp::msg_buy(owner, ""));
     super::party::broadcast_user_info(world, owner);
+    super::offline_trade::on_store_type_cleared(world, owner);
 }
 
 fn send_sm(world: &World, client_id: u32, message_id: i16) {

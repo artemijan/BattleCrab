@@ -447,6 +447,13 @@ pub(crate) fn handle_request_restart(world: &mut World, client_id: u32) {
         s.send(server_packets::action_failed());
         return;
     }
+    // Java: `if (!enteredOfflineMode(player)) { storeMe().deleteMe(); }` — a
+    // player with a store open stays behind as an unattended shop. Java then
+    // still writes RestartResponse/CharSelectionInfo to the now-closed client;
+    // the port simply stops here, which is the same observable outcome.
+    if super::offline_trade::enter_offline_mode(world, client_id) {
+        return;
+    }
     let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
         unreachable!("checked above");
     };
@@ -483,6 +490,11 @@ pub(crate) fn handle_logout(world: &mut World, client_id: u32) {
                 s.send(server_packets::action_failed());
                 return;
             }
+            // Java `Logout`: a player with a store open becomes an offline
+            // shop instead of leaving the world.
+            if super::offline_trade::enter_offline_mode(world, client_id) {
+                return;
+            }
             let Some(ClientSession::InGame(s)) = world.clients.remove(&client_id) else {
                 unreachable!("checked above");
             };
@@ -512,9 +524,15 @@ pub(crate) fn on_disconnect(world: &mut World, client_id: u32) {
     match world.clients.get(&client_id) {
         Some(ClientSession::InGame(s)) => {
             let oid = s.player_object_id();
-            // TvT: same participant-drop / forfeit on an unexpected disconnect.
-            super::events::tvt::on_player_logout(world, oid);
-            store_and_remove_player(world, oid);
+            // Java `GameClient.onDisconnection`: the account logout is sent
+            // either way, but a player already in offline mode is *not*
+            // deleted. The session is gone before the socket event in the
+            // port's own offline path, so this only guards a redundant event.
+            if !super::offline_trade::is_offline_trader(world, oid) {
+                // TvT: same participant-drop / forfeit on an unexpected disconnect.
+                super::events::tvt::on_player_logout(world, oid);
+                store_and_remove_player(world, oid);
+            }
         }
         Some(ClientSession::Entering(s)) => {
             // The Player is still held by the session, not the world store, so
@@ -802,6 +820,10 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 // Settle the `dbSave` spawns the static pass deferred (Java's
                 // `DBSpawnManager.load` + the `spawnNpc` hand-off).
                 super::boss_respawn::resolve_boot(world, rows);
+            }
+            DbEvent::OfflineTradersLoaded { traders } => {
+                // `GameServer.main`'s `OfflineTraderTable.restoreOfflineTraders()`.
+                super::offline_trade::restore_offline_traders(world, traders);
             }
             DbEvent::GrandBossesLoaded { bosses } => {
                 // Java skips rows whose NPC template is missing (`NpcData
@@ -1125,6 +1147,11 @@ pub(crate) fn on_characters_loaded(
     for c in &chars {
         super::mail::on_character_created(world, &c.name, c.object_id);
     }
+    // Java `CharSelectionInfo.loadCharacterSelectInfo`'s
+    // `OFFLINE_DISCONNECT_SAME_ACCOUNT` branch: seeing the list for an account
+    // evicts that account's unattended shops. Off on this dist.
+    let ids: Vec<i32> = chars.iter().map(|c| c.object_id).collect();
+    super::offline_trade::on_character_list(world, &ids);
     let s = match world.clients.remove(&client_id) {
         Some(ClientSession::Authenticated(s)) => s.into_lobby(chars),
         Some(ClientSession::InLobby(mut s)) => {
