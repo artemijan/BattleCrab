@@ -685,6 +685,9 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `Player.onPlayerEnter` → `ON_PLAYER_LOGIN` listeners — the Q255
     // newbie tutorial's entry point (it queues its own 5 s timer).
     super::quests::notify_login(world, client_id, object_id);
+    // Java `EnterWorld`'s `onTransaction(player, true, false)`: this character
+    // is back for real, so whatever offline-shop rows it left behind go away.
+    super::offline_trade::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

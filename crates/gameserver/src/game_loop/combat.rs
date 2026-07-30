@@ -1845,6 +1845,12 @@ pub(crate) fn player_receive_damage(
     if super::duel::duel_lethal_guard(world, attacker_oid, player_oid, damage) {
         return;
     }
+    // `PlayerStatus.reduceHp`'s `OFFLINE_MODE_NO_DAMAGE` gate: an unattended
+    // shop cannot be hurt at all. Java's condition also re-checks the store
+    // type, which is what `is_damage_immune` folds in.
+    if super::offline_trade::is_damage_immune(world, player_oid) {
+        return;
+    }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     // GM `//invul`/`//undying` (Java `isInvul`/`isUndying`): invul ignores the
     // hit entirely; undying lets damage apply but floors HP at 1.

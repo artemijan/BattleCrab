@@ -56,7 +56,11 @@ checklist complete. Delivered slice-by-slice, highest leverage first.
   packet family that slipped a milestone. Close the file-by-file checklist.
 
 ### Later slices (as scope allows)
-- Offline-trader restore; `//geosave` binary-region serializer; the niche admin
+- ~~Offline-trader restore~~ **DONE 2026-07-31** (`game_loop/offline_trade.rs` +
+  `config/offline_trade.rs`): logout/`.offline` leaves the shop standing, it
+  keeps trading through `world.offline_traders`, and `DbEvent::
+  OfflineTradersLoaded` brings it back at boot.
+- `//geosave` binary-region serializer; the niche admin
   tools (AdminFightCalculator / AdminRepairChar / AdminPForge / AdminMissingHtmls
   / AdminPcCondOverride); precautionary/scheduled restart + deadlock detector;
   `NpcNameLocalisationData` / multilang; Dockerfile parity.

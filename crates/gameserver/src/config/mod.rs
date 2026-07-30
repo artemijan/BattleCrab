@@ -12,6 +12,7 @@ pub mod geoengine;
 pub mod hexid;
 pub mod ipconfig;
 pub mod npc;
+pub mod offline_trade;
 pub mod premium;
 pub mod rates;
 pub mod server;
@@ -24,6 +25,7 @@ pub use geoengine::GeoEngineConfig;
 pub use hexid::HexId;
 pub use ipconfig::IpConfig;
 pub use npc::NpcConfig;
+pub use offline_trade::OfflineTradeConfig;
 pub use premium::PremiumConfig;
 pub mod grand_boss;
 pub use grand_boss::GrandBossConfig;
@@ -50,6 +52,8 @@ pub struct CombatConfig {
     pub premium: PremiumConfig,
     /// `Feature.ini` — the wyvern-riding gates (WyvernManager reads them).
     pub feature: FeatureConfig,
+    /// `Custom/OfflineTrade.ini` — the offline-shop lifecycle.
+    pub offline_trade: OfflineTradeConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -66,6 +70,7 @@ pub struct Config {
     pub grand_boss: GrandBossConfig,
     pub community_board: CommunityBoardConfig,
     pub premium: PremiumConfig,
+    pub offline_trade: OfflineTradeConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -122,6 +127,7 @@ impl Config {
         let grand_boss = GrandBossConfig::load_from(root);
         let community_board = CommunityBoardConfig::load_from(root);
         let premium = PremiumConfig::load_from(root);
+        let offline_trade = OfflineTradeConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -135,6 +141,7 @@ impl Config {
             grand_boss,
             community_board,
             premium,
+            offline_trade,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -154,6 +161,7 @@ impl Config {
             community_board: self.community_board.clone(),
             premium: self.premium.clone(),
             feature: self.feature.clone(),
+            offline_trade: self.offline_trade.clone(),
         }
     }
 }

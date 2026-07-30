@@ -71,6 +71,20 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     // speaker (G31). Fires for every chat channel the player originates.
     broadcast_snoop(world, sender_oid, chat_type, &sender_name, &pkt.text);
 
+    // `ChatGeneral`: a `.`-prefixed line is a voiced command, not chat — the
+    // handler runs and the text is never broadcast. Only `.offline` is ported;
+    // the rest of `MasterHandler`'s voiced list (`.online`, `.premium`,
+    // `.password`, banking, auto-play/potions) is TODO(G33).
+    if chat_type == ChatType::General
+        && let Some(rest) = pkt.text.strip_prefix('.')
+    {
+        let command = rest.split_whitespace().next().unwrap_or("");
+        if command == "offline" {
+            super::offline_trade::handle_voiced_offline(world, client_id);
+            return;
+        }
+    }
+
     match chat_type {
         ChatType::General => {
             // ChatGeneral: everyone within 1250 units + the speaker.

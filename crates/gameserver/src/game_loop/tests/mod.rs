@@ -96,6 +96,7 @@ mod npc_cast_tests;
 mod npc_path_tests;
 mod npc_regen_tests;
 mod npc_tests;
+mod offline_trade_tests;
 mod olympiad_tests;
 mod orfen_tests;
 mod others_scripts_tests;

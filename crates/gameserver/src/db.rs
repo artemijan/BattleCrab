@@ -8,14 +8,15 @@ use std::thread::JoinHandle;
 use models::entity::{
     account_gsdata, account_premium, bbs_favorites, buffer_schemes, castle, castle_manor_procure,
     castle_manor_production, castle_siege_guards, character_friends, character_hennas,
-    character_macroses, character_quests, character_recipebook, character_reco_bonus,
-    character_shortcuts, character_skills, character_skills_save, character_subclasses,
-    character_summon_skills_save, character_summons, character_variables, characters, clan_data,
-    clan_privs, clan_skills, clan_subpledges, clan_wars, clanhall, clanhall_auctions_bidders,
-    crests, cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid,
-    item_variations, items, lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data,
-    olympiad_nobles, petition_feedback, pets, pledge_applicant, pledge_recruit,
-    pledge_waiting_list, punishments, residence_functions, siege_clans,
+    character_macroses, character_offline_trade, character_offline_trade_items, character_quests,
+    character_recipebook, character_reco_bonus, character_shortcuts, character_skills,
+    character_skills_save, character_subclasses, character_summon_skills_save, character_summons,
+    character_variables, characters, clan_data, clan_privs, clan_skills, clan_subpledges,
+    clan_wars, clanhall, clanhall_auctions_bidders, crests, cursed_weapons, grandboss_data, heroes,
+    heroes_diary, item_auction, item_auction_bid, item_variations, items, lottery, mdt_bets,
+    mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles, petition_feedback, pets,
+    pledge_applicant, pledge_recruit, pledge_waiting_list, punishments, residence_functions,
+    siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
@@ -489,6 +490,27 @@ pub enum DbCommand {
     AddFreightItems {
         owner_id: i32,
         items: Vec<FreightItemRow>,
+    },
+    /// `OfflineTraderTable.onTransaction(trader, false, true)` — rewrite one
+    /// unattended shop's two tables (status row + its item lines). Sent when a
+    /// shop goes offline, after every transaction against it (realtime mode),
+    /// and by the shutdown sweep.
+    StoreOfflineTrader {
+        char_id: i32,
+        /// Java `Player.getOfflineStartTime()`.
+        time: i64,
+        /// `PrivateStoreType.getId()`.
+        store_type: i32,
+        title: String,
+        /// `(item, count, price)` — `item` is the *object* id for a sell store
+        /// and the *item* id for a buy store (Java writes both into the same
+        /// column), or the recipe id for a manufacture store.
+        items: Vec<(i32, i64, i64)>,
+    },
+    /// `OfflineTraderTable.removeTrader` / `onTransaction(trader, true, …)` —
+    /// drop one character's offline-shop rows (sold out, logged back in).
+    ClearOfflineTrader {
+        char_id: i32,
     },
     /// `CastleManorManager.storeMe` for one castle — replace both manor tables'
     /// rows for it (all four period lists) in one shot. Java rewrites every
@@ -1049,6 +1071,11 @@ pub enum DbEvent {
     /// The whole `npc_respawns` table (Java `DBSpawnManager.load`), pushed
     /// unprompted at boot. See [`NpcRespawnRow`].
     NpcRespawnsLoaded { rows: Vec<NpcRespawnRow> },
+    /// `OfflineTraderTable.restoreOfflineTraders`' two queries, already joined:
+    /// every stored shop with its full character and its item lines. Pushed
+    /// unprompted at boot (before `ClansLoaded`), like the other restores; the
+    /// game thread applies the config gates and `OfflineMaxDays`.
+    OfflineTradersLoaded { traders: Vec<OfflineTraderRow> },
     /// The whole `account_premium` table (Java `PremiumManager` cache),
     /// pushed unprompted at boot. `(account_name lowercase, enddate millis)`.
     PremiumLoaded { entries: Vec<(String, i64)> },
@@ -1444,6 +1471,13 @@ async fn run(
     // `DBSpawnManager.load` — likewise unprompted, before `ClansLoaded`.
     let _ = event_tx.send(DbEvent::NpcRespawnsLoaded {
         rows: load_npc_respawns(&db).await,
+    });
+
+    // `OfflineTraderTable.restoreOfflineTraders` — the stored shops. The rows
+    // are always read (the config lives on the game thread), which also means a
+    // server that turned the feature off still gets to clear them.
+    let _ = event_tx.send(DbEvent::OfflineTradersLoaded {
+        traders: load_offline_traders(&db).await,
     });
 
     // `GrandBossManager.init` — likewise unprompted, before `ClansLoaded`.
@@ -1918,6 +1952,66 @@ async fn run(
                         .await,
                     );
                 }
+            }
+            DbCommand::StoreOfflineTrader {
+                char_id,
+                time,
+                store_type,
+                title,
+                items,
+            } => {
+                // Java rewrites both tables for this trader (`onTransaction`
+                // clears the item rows first, then re-inserts).
+                warn_err(
+                    character_offline_trade_items::Entity::delete_many()
+                        .filter(character_offline_trade_items::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_offline_trade::Entity::delete_many()
+                        .filter(character_offline_trade::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_offline_trade::Entity::insert(character_offline_trade::ActiveModel {
+                        char_id: Set(char_id),
+                        time: Set(time),
+                        r#type: Set(store_type),
+                        title: Set(Some(title)),
+                    })
+                    .exec(&db)
+                    .await,
+                );
+                for (item, count, price) in &items {
+                    warn_err(
+                        character_offline_trade_items::Entity::insert(
+                            character_offline_trade_items::ActiveModel {
+                                char_id: Set(char_id),
+                                item: Set(*item),
+                                count: Set(*count),
+                                price: Set(*price),
+                            },
+                        )
+                        .exec(&db)
+                        .await,
+                    );
+                }
+            }
+            DbCommand::ClearOfflineTrader { char_id } => {
+                warn_err(
+                    character_offline_trade_items::Entity::delete_many()
+                        .filter(character_offline_trade_items::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_offline_trade::Entity::delete_many()
+                        .filter(character_offline_trade::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreManor {
                 castle_id,
@@ -3730,6 +3824,20 @@ async fn load_punishments(
     (next_id, rows)
 }
 
+/// One row of `character_offline_trade` with its `character_offline_trade_items`
+/// lines and the full character behind it.
+#[derive(Debug, Clone)]
+pub struct OfflineTraderRow {
+    pub char: CharData,
+    /// `time` — when the shop first went offline.
+    pub time: i64,
+    /// `type` — a `PrivateStoreType` id.
+    pub store_type: i32,
+    pub title: String,
+    /// `(item, count, price)` — see [`DbCommand::StoreOfflineTrader`].
+    pub items: Vec<(i32, i64, i64)>,
+}
+
 /// One `npc_respawns` row — a raid boss's persisted state.
 #[derive(Debug, Clone, Copy)]
 pub struct NpcRespawnRow {
@@ -3888,6 +3996,30 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
             delete_char(db, object_id).await; // restoreChar: purge expired
             continue;
         }
+        out.push(char_data_of(db, row, slot as i32, prime_points).await);
+    }
+    // Characters marked for deletion are listed last in the lobby; the stable
+    // sort keeps createDate order within each group. Slots are the list
+    // positions the client will send back, so renumber after sorting.
+    out.sort_by_key(|c| c.delete_time > 0);
+    for (slot, c) in out.iter_mut().enumerate() {
+        c.char_slot = slot as i32;
+    }
+    out
+}
+
+/// Everything hanging off one `characters` row, as the `CharData` the lobby and
+/// the offline-shop restore both consume. Split out of `load_characters` so a
+/// single character can be loaded by id without going through an account.
+async fn char_data_of(
+    db: &DatabaseConnection,
+    row: &characters::Model,
+    slot: i32,
+    prime_points: i32,
+) -> CharData {
+    {
+        let object_id = row.char_id;
+        let delete_time = row.deletetime;
         let items = load_items(db, object_id).await;
         let skills_by_index = load_skills(db, object_id).await;
         let subclasses = load_subclasses(db, object_id).await;
@@ -3911,7 +4043,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
         let skill_reuses = load_skill_reuses(db, object_id, active_index).await;
         let skill_buffs = load_skill_buffs(db, object_id, active_index).await;
         let (rec_have, rec_left) = load_reco_bonus(db, object_id).await;
-        out.push(CharData {
+        CharData {
             object_id,
             name: row.char_name.clone(),
             account_name: row.account_name.clone().unwrap_or_default(),
@@ -3953,7 +4085,7 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
             access_level: row.accesslevel.unwrap_or(0),
             noble: row.nobless == 1,
             subclasses,
-            char_slot: slot as i32,
+            char_slot: slot,
             items,
             // The active class index is whichever subclass row matches the
             // `characters.classid` we just loaded; base class → 0.
@@ -3981,16 +4113,62 @@ async fn load_characters(db: &DatabaseConnection, account: &str) -> Vec<CharData
             quests,
             skill_reuses,
             skill_buffs,
+        }
+    }
+}
+
+/// `LOAD_OFFLINE_STATUS` + `LOAD_OFFLINE_ITEMS`, joined per trader. A row whose
+/// character no longer exists is dropped (Java's `Player.load` returning null
+/// lands in its catch block).
+async fn load_offline_traders(db: &DatabaseConnection) -> Vec<OfflineTraderRow> {
+    let rows = character_offline_trade::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
+    let mut out = Vec::new();
+    for row in rows {
+        let items = character_offline_trade_items::Entity::find()
+            .filter(character_offline_trade_items::Column::CharId.eq(row.char_id))
+            .all(db)
+            .await
+            .unwrap_or_default();
+        let Some(char) = load_character(db, row.char_id).await else {
+            warn!(
+                "DB thread: offline shop for missing character {}; skipped.",
+                row.char_id
+            );
+            continue;
+        };
+        out.push(OfflineTraderRow {
+            char,
+            time: row.time,
+            store_type: row.r#type,
+            title: row.title.unwrap_or_default(),
+            items: items
+                .into_iter()
+                .map(|i| (i.item, i.count, i.price))
+                .collect(),
         });
     }
-    // Characters marked for deletion are listed last in the lobby; the stable
-    // sort keeps createDate order within each group. Slots are the list
-    // positions the client will send back, so renumber after sorting.
-    out.sort_by_key(|c| c.delete_time > 0);
-    for (slot, c) in out.iter_mut().enumerate() {
-        c.char_slot = slot as i32;
-    }
     out
+}
+
+/// One character by id, with every child collection — the offline-shop restore
+/// needs a full `CharData` for a character it reaches through
+/// `character_offline_trade`, not through an account's list.
+async fn load_character(db: &DatabaseConnection, char_id: i32) -> Option<CharData> {
+    let row = characters::Entity::find_by_id(char_id)
+        .one(db)
+        .await
+        .ok()??;
+    let prime_points = match row.account_name.as_deref() {
+        Some(account) => load_account_var(db, account, "PRIME_POINTS")
+            .await
+            .and_then(|v| v.parse::<i32>().ok())
+            .unwrap_or(0),
+        None => 0,
+    };
+    Some(char_data_of(db, &row, 0, prime_points).await)
 }
 
 /// A character's `character_skills` rows (Java: `Player.restoreSkills`,

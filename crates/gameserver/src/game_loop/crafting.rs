@@ -447,6 +447,7 @@ pub(crate) fn handle_manage_quit(world: &mut World, client_id: u32) {
     set_store_type(world, oid, 0);
     super::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, ""));
     super::party::broadcast_user_info(world, oid);
+    super::offline_trade::on_store_type_cleared(world, oid);
 }
 
 /// A customer clicked a manufacture-store owner (`Action`): show their list.

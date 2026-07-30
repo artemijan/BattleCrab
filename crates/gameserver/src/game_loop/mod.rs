@@ -63,6 +63,7 @@ mod net;
 pub(crate) mod npc_ai;
 pub(crate) mod npc_cast;
 mod npc_view;
+pub(crate) mod offline_trade;
 pub(crate) mod olympiad;
 mod options;
 mod orfen;
@@ -314,6 +315,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // ahead of the `DbCommand::Shutdown` `main` sends only after this thread
     // joins, so the DB thread drains them first.
     net::save_all_players(&mut world);
+    // `Shutdown` → `OfflineTraderTable.storeOffliners()` — only meaningful with
+    // realtime storing off; with it on (this dist) the rows are already current
+    // and Java skips the sweep entirely.
+    offline_trade::store_offliners(&world);
     // `DBSpawnManager.updateDb` — every living raid boss's current HP/MP, so a
     // restart mid-fight resumes at the HP the boss was left on.
     boss_respawn::save_all_bosses(&mut world);

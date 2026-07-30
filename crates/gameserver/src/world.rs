@@ -103,6 +103,12 @@ pub struct World {
     /// G31), keyed by client id — reported by `RequestHardWareInfo`, read by the
     /// HWID punishment matching and `//hwid`. Cleared on disconnect.
     pub hwids: HashMap<u32, crate::network::client_packets::HardwareInfo>,
+    /// The unattended private shops (Java: players whose `GameClient` is
+    /// *detached*), keyed by player object id. They are the only players in
+    /// `objects` with no entry in `clients`, so the visibility scans — which
+    /// enumerate players through `clients` — read this as a second source of
+    /// subjects. See `game_loop::offline_trade`.
+    pub offline_traders: HashMap<i32, crate::game_loop::offline_trade::OfflineTrader>,
     /// Every in-world object — players and NPCs — as entities in one
     /// `bevy_ecs` world, keyed by object id (stage 2 phase 6; the `Player`/
     /// `Npc` residual-core components are the kind markers). The `InGame`
@@ -416,6 +422,7 @@ impl World {
             scheduler: Scheduler::new(),
             clients: HashMap::new(),
             hwids: HashMap::new(),
+            offline_traders: HashMap::new(),
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),

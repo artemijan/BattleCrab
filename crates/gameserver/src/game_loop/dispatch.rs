@@ -222,7 +222,16 @@ pub(crate) fn on_packet(world: &mut World, client_id: u32, data: Vec<u8>) {
                 };
                 let claimed = oid.is_some_and(|oid| {
                     super::death::handle_revive_answer(world, oid, answer.answer == 1)
-                });
+                })
+                // `.offline`'s "Do you wish to exit the game?" — matched by the
+                // echoed message id, as Java's `DlgAnswer` does.
+                || (answer.message_id
+                    == server_packets::sm_ids::DO_YOU_WISH_TO_EXIT_THE_GAME as i32
+                    && super::offline_trade::handle_exit_game_answer(
+                        world,
+                        client_id,
+                        answer.answer == 1,
+                    ));
                 if !claimed {
                     super::admin::handle_dlg_answer(world, client_id, answer);
                 }
