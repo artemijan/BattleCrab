@@ -609,6 +609,13 @@ pub enum ScheduledTask {
     TvtResurrect {
         player: i32,
     },
+    /// A cron schedule slot fired (Java's `Schedule<n>` event timer): start the
+    /// event and re-arm the slot for its next occurrence. The pattern rides the
+    /// task so the re-arm needs no registry lookup.
+    EventSchedule {
+        index: usize,
+        pattern: String,
+    },
     /// A TvT participant's inactivity clock (Java's `KickPlayer<oid>` /
     /// `KickPlayerWarning<oid>` quest timers): half-way through, a screen
     /// warning; at the end, the player is ejected from the arena. Re-armed on

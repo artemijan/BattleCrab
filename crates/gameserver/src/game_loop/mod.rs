@@ -238,6 +238,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     // Script-owned area NPCs (Toma is not in the spawn data — his script
     // places and relocates him).
     area_npcs::spawn_at_boot(&mut world);
+    // Each event's `config.xml` cron schedule (Java's per-event `loadConfig`).
+    events::schedule_at_boot(&mut world);
     // The Monster Race (like the Lottery) starts from its DB-load event
     // (`DbEvent::MdtLoaded` → `monster_race::on_mdt_loaded`), which seeds the
     // race number from the loaded history before beginning the cycle.
@@ -752,6 +754,9 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::TvtResurrect { player } => {
                 events::tvt::resurrect_player(world, player);
+            }
+            ScheduledTask::EventSchedule { index, pattern } => {
+                events::on_schedule_fired(world, index, pattern);
             }
             ScheduledTask::TvtInactivity {
                 player,

@@ -764,3 +764,37 @@ fn idling_in_your_headquarters_eventually_kicks_you() {
             .on_event
     );
 }
+
+/// **The event's cron schedule arms itself and re-arms on firing.** This dist
+/// ships the pattern commented out, so the loader reads an empty list — the
+/// mechanism is exercised with a pattern directly.
+#[test]
+fn a_cron_schedule_starts_the_event_and_re_arms() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    world.id_pool = 0x5100_0000..0x5100_1000;
+    register_manager_template(&mut world);
+    register_coliseum_template(&mut world);
+
+    // The dist's own config: every schedule line is commented out.
+    let dist = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    assert!(
+        tvt::load_schedule(dist).is_empty(),
+        "this dist ships no active TvT schedule"
+    );
+
+    // Arm a slot by hand and fire it: the event opens and the slot re-arms.
+    crate::game_loop::events::arm_schedule(&mut world, 0, "0 20 * * *");
+    let armed = |world: &World| {
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .filter(|t| matches!(t, ScheduledTask::EventSchedule { .. }))
+            .count()
+    };
+    assert_eq!(armed(&world), 1, "the slot is armed");
+
+    crate::game_loop::events::on_schedule_fired(&mut world, 0, "0 20 * * *".to_string());
+    assert_eq!(world.events.active, Some(tvt::NAME), "the event started");
+    assert_eq!(armed(&world), 2, "…and the slot re-armed for tomorrow");
+}

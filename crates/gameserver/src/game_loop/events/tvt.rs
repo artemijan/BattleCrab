@@ -554,6 +554,39 @@ pub(crate) fn on_manager_first_talk(world: &World, player: i32, npc: i32) -> Opt
     Some(count_page(world, "manager-register.html"))
 }
 
+/// Java `TvT.loadConfig()`: the `<schedule pattern="…"/>` entries of
+/// `data/scripts/custom/events/TeamVsTeam/config.xml`. **This dist ships them
+/// commented out**, so the list is normally empty and nothing auto-starts.
+pub(crate) fn load_schedule(root: &str) -> Vec<String> {
+    let path = format!("{root}data/scripts/custom/events/TeamVsTeam/config.xml");
+    let Ok(text) = std::fs::read_to_string(&path) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    let mut reader = quick_xml::Reader::from_str(&text);
+    reader.config_mut().trim_text(true);
+    let mut buf = Vec::new();
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Ok(quick_xml::events::Event::Start(e)) | Ok(quick_xml::events::Event::Empty(e)) => {
+                if e.name().as_ref() == b"schedule"
+                    && let Some(pattern) = e
+                        .attributes()
+                        .flatten()
+                        .find(|a| a.key.as_ref() == b"pattern")
+                        .and_then(|a| String::from_utf8(a.value.to_vec()).ok())
+                {
+                    out.push(pattern);
+                }
+            }
+            Ok(quick_xml::events::Event::Eof) | Err(_) => break,
+            _ => {}
+        }
+        buf.clear();
+    }
+    out
+}
+
 // ---------------------------------------------------------------------------
 // Headquarters zones — Java `onEnterZone` / `onExitZone` (row 10)
 // ---------------------------------------------------------------------------
