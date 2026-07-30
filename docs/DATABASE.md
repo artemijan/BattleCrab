@@ -115,7 +115,10 @@ instead, and applies the handful of overrides that the DDL cannot express:
 
 * `characters.curHp/curCp/curMp` and `pets.curHp/curMp` are declared as
   integers but hold doubles (Java writes them that way and SQLite keeps the
-  fraction). Typed `i32`, they would silently truncate a wounded character's HP.
+  fraction). They become `models::value::LooseF64`: `i32` would truncate a
+  wounded character's HP, and a plain `f64` fails to decode outright, because
+  sqlx 0.9 refuses to read a float out of a value SQLite filed as INTEGER —
+  which is what happens whenever the HP lands on a whole number.
 * Sixteen tables declare no primary key; SeaORM needs one, so the script
   supplies a logical key per table. This changes no schema — migrations come
   from the DDL, not from entities.
@@ -124,8 +127,10 @@ instead, and applies the handful of overrides that the DDL cannot express:
 
 ## Backup and rollback
 
-`deploy.sh` takes a copy of the database before it runs `l2r-migrate up`. To go
-back a step, `l2r-migrate down -n 1`; to go back to a known-good file, stop the
+Back the file up before every `up` — `deploy.sh` (untracked, per-operator) is
+the natural place for `cp interlude_classic.db interlude_classic.db.bak-$(date
++%Y%m%d)` followed by `l2r-migrate up`, before the services start. To go back a
+step, `l2r-migrate down -n 1`; to go back to a known-good file, stop the
 services and restore the copy. Note that rolling back
 `m20260801_000003_master_accounts` **drops every master account** — they have no
 `login`, and the pre-dashboard schema has nowhere to put them.

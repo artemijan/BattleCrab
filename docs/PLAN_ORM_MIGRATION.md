@@ -6,7 +6,15 @@ lives in the Java repo (`dist/db_installer/sql/{sqlite,mariadb,postgresql}`)
 into **Rust migrations** that any of the three binaries — and any future tool —
 can run.
 
-Status: **not started**. This document is the plan; nothing below has landed.
+Status: **done** — slices 0-13 landed on `feat/sea-orm-migration`. Every
+hand-written statement in the login server and the game server is gone; the
+dashboard keeps four documented raw queries (§8.5, §8 note on `BEGIN
+IMMEDIATE`). What actually shipped differs from the plan in three places, each
+noted in the relevant commit: entities for all 100 tables landed in one slice
+rather than login-then-game; migrations use the dist column types verbatim
+rather than portable sea-query types (§6.2 — parity with the authoritative DDL
+won over a Postgres path nobody has asked for); and `LooseF64` had to be
+invented for the int-declared/float-valued HP columns (§8.1).
 
 ---
 

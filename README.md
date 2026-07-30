@@ -29,6 +29,23 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 - `crates/commons` — shared infrastructure (network core, L2 crypto, config, SQLite), reused by both servers
 - `crates/loginserver` — the login server binary
 - `crates/gameserver` — the game server binary
+- `crates/models` — SeaORM entities for every table, plus the shared repositories
+- `crates/migration` — the schema as migrations, and the `l2r-migrate` binary
+
+## Database
+
+The schema lives in `crates/migration` as SeaORM migrations; entities are in
+`crates/models`. Provision or upgrade a database with the `l2r-migrate` binary:
+
+```sh
+cargo build --release -p migration
+./target/release/l2r-migrate up -u jdbc:sqlite:interlude_classic.db
+```
+
+Running it against an existing database is safe — every statement is
+`IF NOT EXISTS` — so it records the migrations as applied and changes nothing.
+See [docs/DATABASE.md](docs/DATABASE.md) for fresh installs, adopting a live
+database, adding a migration and regenerating entities.
 
 ## Build & run
 

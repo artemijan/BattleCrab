@@ -9,7 +9,6 @@ commons = { path = "../commons" }
 models = { path = "../models" }
 tokio.workspace = true
 bytes.workspace = true
-sqlx.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 thiserror.workspace = true
@@ -17,6 +16,9 @@ num-bigint-dig.workspace = true
 quick-xml.workspace = true
 
 [dev-dependencies]
+# Tests still assert with SQL and build fixtures; the crate itself no longer
+# speaks it — every statement goes through `models`.
+sqlx.workspace = true
 migration = { path = "../migration" }
 
 [lints]

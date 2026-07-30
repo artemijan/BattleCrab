@@ -13,17 +13,17 @@ use models::entity::{
     character_summon_skills_save, character_summons, character_variables, characters, clan_data,
     clan_privs, clan_skills, clan_subpledges, clan_wars, clanhall, clanhall_auctions_bidders,
     crests, cursed_weapons, grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid,
-    item_variations, items, lottery, mdt_bets, mdt_history, npc_respawns, olympiad_data,
-    olympiad_nobles, pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments,
-    residence_functions, siege_clans,
+    item_variations, items, lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data,
+    olympiad_nobles, petition_feedback, pets, pledge_applicant, pledge_recruit,
+    pledge_waiting_list, punishments, residence_functions, siege_clans,
 };
-use models::sea_orm::ActiveValue::{Set, Unchanged};
-use models::sea_orm::sea_query::OnConflict;
+use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
+use models::sea_orm::Condition;
+use models::sea_orm::sea_query::{CaseStatement, Expr, OnConflict};
 use models::sea_orm::{
     ActiveModelTrait, ColumnTrait, ConnectionTrait, DatabaseConnection, DbErr, EntityTrait,
     PaginatorTrait, QueryFilter, QueryOrder, QuerySelect, TransactionTrait,
 };
-use sqlx::{Row, SqlitePool};
 use tracing::{error, info, warn};
 
 use crate::character::{CharData, ItemRow};
@@ -1315,9 +1315,6 @@ async fn run(
     mut cmd_rx: CmdRx,
     event_tx: EventTx,
 ) {
-    // The ORM handle is what new code uses; `pool` is the same connection pool
-    // underneath it, kept while the remaining hand-written queries are ported
-    // (docs/PLAN_ORM_MIGRATION.md §7). One pool, two views — never two pools.
     let db = match commons::db::connect(&url, max_connections).await {
         Ok(db) => db,
         Err(e) => {
@@ -1325,7 +1322,6 @@ async fn run(
             return;
         }
     };
-    let pool = db.get_sqlite_connection_pool().clone();
 
     // `create_if_missing(true)` means a wrong path does not fail — SQLite
     // happily makes an empty database, and the server then runs against it,
@@ -1500,13 +1496,13 @@ async fn run(
                 char_id,
                 delete_time,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET deletetime=? WHERE charId=?")
-                        .bind(delete_time)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Deletetime, delete_time.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
                 reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::RestoreCharacter {
@@ -1514,38 +1510,39 @@ async fn run(
                 account,
                 char_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET deletetime=0 WHERE charId=?").bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Deletetime, 0.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
                 reload(&db, &event_tx, client_id, account, true).await;
             }
             DbCommand::DeleteCharacter { char_id } => {
                 delete_char(&db, char_id).await;
             }
             DbCommand::StoreGrandBoss { boss } => {
-                let _ = sqlx::query(
-                    "UPDATE grandboss_data SET loc_x=?, loc_y=?, loc_z=?, heading=?, \
-                     respawn_time=?, currentHP=?, currentMP=?, status=? WHERE boss_id=?",
-                )
-                .bind(boss.loc_x)
-                .bind(boss.loc_y)
-                .bind(boss.loc_z)
-                .bind(boss.heading)
-                .bind(boss.respawn_time)
-                .bind(boss.current_hp)
-                .bind(boss.current_mp)
-                .bind(boss.status)
-                .bind(boss.boss_id)
-                .execute(&pool)
-                .await;
+                warn_err(
+                    grandboss_data::Entity::update_many()
+                        .col_expr(grandboss_data::Column::LocX, boss.loc_x.into())
+                        .col_expr(grandboss_data::Column::LocY, boss.loc_y.into())
+                        .col_expr(grandboss_data::Column::LocZ, boss.loc_z.into())
+                        .col_expr(grandboss_data::Column::Heading, boss.heading.into())
+                        .col_expr(
+                            grandboss_data::Column::RespawnTime,
+                            boss.respawn_time.into(),
+                        )
+                        .col_expr(grandboss_data::Column::CurrentHp, boss.current_hp.into())
+                        .col_expr(grandboss_data::Column::CurrentMp, boss.current_mp.into())
+                        .col_expr(grandboss_data::Column::Status, boss.status.into())
+                        .filter(grandboss_data::Column::BossId.eq(boss.boss_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::DeletePetRow { collar_object_id } => {
-                let _ = sqlx::query("DELETE FROM pets WHERE item_obj_id=?")
-                    .bind(collar_object_id)
-                    .execute(&pool)
-                    .await;
+                warn_err(pets::Entity::delete_by_id(collar_object_id).exec(&db).await);
             }
             DbCommand::CountCharacters { account } => {
                 let (count, del_times) = count_characters(&db, &account).await;
@@ -1578,59 +1575,93 @@ async fn run(
                 next_id += count;
             }
             DbCommand::InsertFriendPair { a, b } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR IGNORE INTO character_friends (charId, friendId, relation) VALUES (?, ?, 0), (?, ?, 0)")
-                        .bind(a)
-                        .bind(b)
-                        .bind(b)
-                        .bind(a),
-                )
-                .await;
+                // Both directions in one statement, as Java's two-row INSERT does.
+                warn_err(
+                    character_friends::Entity::insert_many([
+                        character_friends::ActiveModel {
+                            char_id: Set(a),
+                            friend_id: Set(b),
+                            relation: Set(0),
+                            memo: NotSet,
+                        },
+                        character_friends::ActiveModel {
+                            char_id: Set(b),
+                            friend_id: Set(a),
+                            relation: Set(0),
+                            memo: NotSet,
+                        },
+                    ])
+                    .on_conflict(
+                        OnConflict::columns([
+                            character_friends::Column::CharId,
+                            character_friends::Column::FriendId,
+                        ])
+                        .do_nothing()
+                        .to_owned(),
+                    )
+                    .exec_without_returning(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteFriendPair { a, b } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_friends WHERE (charId=? AND friendId=?) OR (charId=? AND friendId=?)")
-                        .bind(a)
-                        .bind(b)
-                        .bind(b)
-                        .bind(a),
-                )
-                .await;
+                warn_err(
+                    character_friends::Entity::delete_many()
+                        .filter(
+                            Condition::any()
+                                .add(
+                                    Condition::all()
+                                        .add(character_friends::Column::CharId.eq(a))
+                                        .add(character_friends::Column::FriendId.eq(b)),
+                                )
+                                .add(
+                                    Condition::all()
+                                        .add(character_friends::Column::CharId.eq(b))
+                                        .add(character_friends::Column::FriendId.eq(a)),
+                                ),
+                        )
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::InsertClan {
                 clan_id,
                 name,
                 leader_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO clan_data (clan_id, clan_name, clan_level, hasCastle, \
-                         blood_alliance_count, blood_oath_count, ally_id, ally_name, leader_id, \
-                         crest_id, crest_large_id, ally_crest_id, new_leader_id) \
-                         VALUES (?, ?, 0, 0, 0, 0, 0, NULL, ?, 0, 0, 0, 0)",
-                    )
-                    .bind(clan_id)
-                    .bind(name)
-                    .bind(leader_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::insert(clan_data::ActiveModel {
+                        clan_id: Set(clan_id),
+                        clan_name: Set(Some(name)),
+                        clan_level: Set(Some(0)),
+                        has_castle: Set(Some(0)),
+                        blood_alliance_count: Set(0),
+                        blood_oath_count: Set(0),
+                        ally_id: Set(Some(0)),
+                        ally_name: Set(None),
+                        leader_id: Set(Some(leader_id)),
+                        crest_id: Set(Some(0)),
+                        crest_large_id: Set(Some(0)),
+                        ally_crest_id: Set(Some(0)),
+                        new_leader_id: Set(0),
+                        ..Default::default()
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdateCharClan {
                 char_id,
                 clan_id,
                 clan_privs,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET clanid=?, clan_privs=? WHERE charId=?")
-                        .bind(clan_id)
-                        .bind(clan_privs)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Clanid, clan_id.into())
+                        .col_expr(characters::Column::ClanPrivs, clan_privs.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveClanSkill {
                 clan_id,
@@ -1638,28 +1669,38 @@ async fn run(
                 skill_level,
                 skill_name,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO clan_skills \
-                         (clan_id, skill_id, skill_level, skill_name, sub_pledge_id) \
-                         VALUES (?, ?, ?, ?, -2)",
+                warn_err(
+                    clan_skills::Entity::insert(clan_skills::ActiveModel {
+                        clan_id: Set(clan_id),
+                        skill_id: Set(skill_id),
+                        skill_level: Set(skill_level),
+                        skill_name: Set(Some(skill_name)),
+                        sub_pledge_id: Set(-2),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            clan_skills::Column::ClanId,
+                            clan_skills::Column::SkillId,
+                            clan_skills::Column::SubPledgeId,
+                        ])
+                        .update_columns([
+                            clan_skills::Column::SkillLevel,
+                            clan_skills::Column::SkillName,
+                        ])
+                        .to_owned(),
                     )
-                    .bind(clan_id)
-                    .bind(skill_id)
-                    .bind(skill_level)
-                    .bind(skill_name),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteClanSkill { clan_id, skill_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM clan_skills WHERE clan_id=? AND skill_id=?")
-                        .bind(clan_id)
-                        .bind(skill_id),
-                )
-                .await;
+                warn_err(
+                    clan_skills::Entity::delete_many()
+                        .filter(clan_skills::Column::ClanId.eq(clan_id))
+                        .filter(clan_skills::Column::SkillId.eq(skill_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreCursedWeapon {
                 item_id,
@@ -1669,21 +1710,29 @@ async fn run(
                 nb_kills,
                 end_time,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO cursed_weapons \
-                         (itemId, charId, playerReputation, playerPkKills, nbKills, endTime) \
-                         VALUES (?, ?, ?, ?, ?, ?)",
+                warn_err(
+                    cursed_weapons::Entity::insert(cursed_weapons::ActiveModel {
+                        item_id: Set(item_id),
+                        char_id: Set(char_id),
+                        player_reputation: Set(Some(reputation)),
+                        player_pk_kills: Set(Some(pk_kills)),
+                        nb_kills: Set(Some(nb_kills)),
+                        end_time: Set(end_time),
+                    })
+                    .on_conflict(
+                        OnConflict::column(cursed_weapons::Column::ItemId)
+                            .update_columns([
+                                cursed_weapons::Column::CharId,
+                                cursed_weapons::Column::PlayerReputation,
+                                cursed_weapons::Column::PlayerPkKills,
+                                cursed_weapons::Column::NbKills,
+                                cursed_weapons::Column::EndTime,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(item_id)
-                    .bind(char_id)
-                    .bind(reputation)
-                    .bind(pk_kills)
-                    .bind(nb_kills)
-                    .bind(end_time),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreNpcRespawn {
                 npc_id,
@@ -1695,23 +1744,33 @@ async fn run(
                 cur_hp,
                 cur_mp,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO npc_respawns \
-                         (id, x, y, z, heading, respawnTime, currentHp, currentMp) \
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                warn_err(
+                    npc_respawns::Entity::insert(npc_respawns::ActiveModel {
+                        id: Set(npc_id),
+                        x: Set(x),
+                        y: Set(y),
+                        z: Set(z),
+                        heading: Set(heading),
+                        respawn_time: Set(respawn_time),
+                        current_hp: Set(cur_hp),
+                        current_mp: Set(cur_mp),
+                    })
+                    .on_conflict(
+                        OnConflict::column(npc_respawns::Column::Id)
+                            .update_columns([
+                                npc_respawns::Column::X,
+                                npc_respawns::Column::Y,
+                                npc_respawns::Column::Z,
+                                npc_respawns::Column::Heading,
+                                npc_respawns::Column::RespawnTime,
+                                npc_respawns::Column::CurrentHp,
+                                npc_respawns::Column::CurrentMp,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(npc_id)
-                    .bind(x)
-                    .bind(y)
-                    .bind(z)
-                    .bind(heading)
-                    .bind(respawn_time)
-                    .bind(cur_hp)
-                    .bind(cur_mp),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreSubClass {
                 char_id,
@@ -1721,123 +1780,144 @@ async fn run(
                 exp,
                 sp,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO character_subclasses \
-                         (charId, class_id, exp, sp, level, vitality_points, class_index, dual_class) \
-                         VALUES (?, ?, ?, ?, ?, 0, ?, 0)",
+                warn_err(
+                    character_subclasses::Entity::insert(character_subclasses::ActiveModel {
+                        char_id: Set(char_id),
+                        class_id: Set(class_id),
+                        exp: Set(exp),
+                        sp: Set(sp),
+                        level: Set(level),
+                        vitality_points: Set(0),
+                        class_index: Set(class_index),
+                        dual_class: Set(0),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            character_subclasses::Column::CharId,
+                            character_subclasses::Column::ClassId,
+                        ])
+                        .update_columns([
+                            character_subclasses::Column::Exp,
+                            character_subclasses::Column::Sp,
+                            character_subclasses::Column::Level,
+                            character_subclasses::Column::ClassIndex,
+                        ])
+                        .to_owned(),
                     )
-                    .bind(char_id)
-                    .bind(class_id)
-                    .bind(exp)
-                    .bind(sp)
-                    .bind(level)
-                    .bind(class_index),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteNpcRespawn { npc_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM npc_respawns WHERE id=?").bind(npc_id),
-                )
-                .await;
+                warn_err(npc_respawns::Entity::delete_by_id(npc_id).exec(&db).await);
             }
             DbCommand::RemoveCursedWeapon { item_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM cursed_weapons WHERE itemId=?").bind(item_id),
-                )
-                .await;
+                warn_err(
+                    cursed_weapons::Entity::delete_by_id(item_id)
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateCastleSide { castle_id, side } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE castle SET side=? WHERE id=?")
-                        .bind(side)
-                        .bind(castle_id),
-                )
-                .await;
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(castle::Column::Side, side.into())
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanLeader { clan_id, leader_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET leader_id=? WHERE clan_id=?")
-                        .bind(leader_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::LeaderId, leader_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanCastle { clan_id, castle_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET hasCastle=? WHERE clan_id=?")
-                        .bind(castle_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::HasCastle, castle_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanBloodAlliance { clan_id, count } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET blood_alliance_count=? WHERE clan_id=?")
-                        .bind(count)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::BloodAllianceCount, count.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateCastleTicketCount { castle_id, count } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE castle SET ticketBuyCount=? WHERE id=?")
-                        .bind(count)
-                        .bind(castle_id),
-                )
-                .await;
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(castle::Column::TicketBuyCount, count.into())
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateCastleSiegeTime {
                 castle_id,
                 siege_date,
                 time_registration_over,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE castle SET siegeDate=?, regTimeOver=? WHERE id=?")
-                        .bind(siege_date)
-                        .bind(if time_registration_over {
-                            "true"
-                        } else {
-                            "false"
-                        })
-                        .bind(castle_id),
-                )
-                .await;
+                // `regTimeOver` is an enum('true','false') stored as text.
+                let flag = if time_registration_over {
+                    "true"
+                } else {
+                    "false"
+                };
+                warn_err(
+                    castle::Entity::update_many()
+                        .col_expr(castle::Column::SiegeDate, siege_date.into())
+                        .col_expr(castle::Column::RegTimeOver, flag.into())
+                        .filter(castle::Column::Id.eq(castle_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveSiegeClan {
                 castle_id,
                 clan_id,
                 kind,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO siege_clans (clan_id, castle_id, type, castle_owner) VALUES (?, ?, ?, 0)",
+                warn_err(
+                    siege_clans::Entity::insert(siege_clans::ActiveModel {
+                        clan_id: Set(clan_id),
+                        castle_id: Set(castle_id),
+                        r#type: Set(Some(kind)),
+                        castle_owner: Set(Some(0)),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            siege_clans::Column::ClanId,
+                            siege_clans::Column::CastleId,
+                        ])
+                        .update_columns([
+                            siege_clans::Column::Type,
+                            siege_clans::Column::CastleOwner,
+                        ])
+                        .to_owned(),
                     )
-                    .bind(clan_id)
-                    .bind(castle_id)
-                    .bind(kind),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::RemoveSiegeClan { castle_id, clan_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM siege_clans WHERE castle_id=? AND clan_id=?")
-                        .bind(castle_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    siege_clans::Entity::delete_many()
+                        .filter(siege_clans::Column::CastleId.eq(castle_id))
+                        .filter(siege_clans::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveClanHallBid {
                 hall_id,
@@ -1845,52 +1925,67 @@ async fn run(
                 bid,
                 bid_time,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO clanhall_auctions_bidders (clanHallId, clanId, bid, bidTime) VALUES (?, ?, ?, ?)",
+                warn_err(
+                    clanhall_auctions_bidders::Entity::insert(
+                        clanhall_auctions_bidders::ActiveModel {
+                            clan_hall_id: Set(hall_id),
+                            clan_id: Set(clan_id),
+                            bid: Set(bid),
+                            bid_time: Set(bid_time),
+                        },
                     )
-                    .bind(hall_id)
-                    .bind(clan_id)
-                    .bind(bid)
-                    .bind(bid_time),
-                )
-                .await;
+                    .on_conflict(
+                        OnConflict::columns([
+                            clanhall_auctions_bidders::Column::ClanHallId,
+                            clanhall_auctions_bidders::Column::ClanId,
+                        ])
+                        .update_columns([
+                            clanhall_auctions_bidders::Column::Bid,
+                            clanhall_auctions_bidders::Column::BidTime,
+                        ])
+                        .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::RemoveClanHallBid { hall_id, clan_id } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "DELETE FROM clanhall_auctions_bidders WHERE clanHallId=? AND clanId=?",
-                    )
-                    .bind(hall_id)
-                    .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clanhall_auctions_bidders::Entity::delete_by_id((hall_id, clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::ClearClanHallBids { hall_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM clanhall_auctions_bidders WHERE clanHallId=?")
-                        .bind(hall_id),
-                )
-                .await;
+                warn_err(
+                    clanhall_auctions_bidders::Entity::delete_many()
+                        .filter(clanhall_auctions_bidders::Column::ClanHallId.eq(hall_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveClanHall {
                 id,
                 owner_id,
                 paid_until,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO clanhall (id, ownerId, paidUntil) VALUES (?, ?, ?)",
+                warn_err(
+                    clanhall::Entity::insert(clanhall::ActiveModel {
+                        id: Set(id),
+                        owner_id: Set(owner_id),
+                        paid_until: Set(paid_until),
+                    })
+                    .on_conflict(
+                        OnConflict::column(clanhall::Column::Id)
+                            .update_columns([
+                                clanhall::Column::OwnerId,
+                                clanhall::Column::PaidUntil,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(id)
-                    .bind(owner_id)
-                    .bind(paid_until),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::SaveResidenceFunction {
                 residence_id,
@@ -1898,29 +1993,37 @@ async fn run(
                 level,
                 expiration,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO residence_functions (id, level, expiration, residenceId) VALUES (?, ?, ?, ?)",
+                warn_err(
+                    residence_functions::Entity::insert(residence_functions::ActiveModel {
+                        id: Set(func_id),
+                        level: Set(level),
+                        expiration: Set(expiration),
+                        residence_id: Set(residence_id),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            residence_functions::Column::Id,
+                            residence_functions::Column::Level,
+                            residence_functions::Column::ResidenceId,
+                        ])
+                        .update_column(residence_functions::Column::Expiration)
+                        .to_owned(),
                     )
-                    .bind(func_id)
-                    .bind(level)
-                    .bind(expiration)
-                    .bind(residence_id),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::RemoveResidenceFunction {
                 residence_id,
                 func_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM residence_functions WHERE residenceId=? AND id=?")
-                        .bind(residence_id)
-                        .bind(func_id),
-                )
-                .await;
+                warn_err(
+                    residence_functions::Entity::delete_many()
+                        .filter(residence_functions::Column::ResidenceId.eq(residence_id))
+                        .filter(residence_functions::Column::Id.eq(func_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveOlympiad {
                 current_cycle,
@@ -1930,56 +2033,85 @@ async fn run(
                 next_weekly_change,
                 nobles,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO olympiad_data \
-                         (id, current_cycle, period, olympiad_end, validation_end, next_weekly_change) \
-                         VALUES (0, ?, ?, ?, ?, ?)",
+                warn_err(
+                    olympiad_data::Entity::insert(olympiad_data::ActiveModel {
+                        id: Set(0),
+                        current_cycle: Set(current_cycle),
+                        period: Set(period),
+                        olympiad_end: Set(olympiad_end),
+                        validation_end: Set(validation_end),
+                        next_weekly_change: Set(next_weekly_change),
+                    })
+                    .on_conflict(
+                        OnConflict::column(olympiad_data::Column::Id)
+                            .update_columns([
+                                olympiad_data::Column::CurrentCycle,
+                                olympiad_data::Column::Period,
+                                olympiad_data::Column::OlympiadEnd,
+                                olympiad_data::Column::ValidationEnd,
+                                olympiad_data::Column::NextWeeklyChange,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(current_cycle)
-                    .bind(period)
-                    .bind(olympiad_end)
-                    .bind(validation_end)
-                    .bind(next_weekly_change),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
                 for n in nobles {
-                    exec(
-                        &pool,
-                        sqlx::query(
-                            "INSERT OR REPLACE INTO olympiad_nobles \
-                             (charId, class_id, olympiad_points, competitions_done, competitions_won, \
-                             competitions_lost, competitions_drawn, competitions_done_week) \
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    warn_err(
+                        olympiad_nobles::Entity::insert(olympiad_nobles::ActiveModel {
+                            char_id: Set(n.char_id),
+                            class_id: Set(n.class_id),
+                            olympiad_points: Set(n.points),
+                            competitions_done: Set(n.comp_done),
+                            competitions_won: Set(n.comp_won),
+                            competitions_lost: Set(n.comp_lost),
+                            competitions_drawn: Set(n.comp_drawn),
+                            competitions_done_week: Set(n.comp_done_week),
+                        })
+                        .on_conflict(
+                            OnConflict::column(olympiad_nobles::Column::CharId)
+                                .update_columns([
+                                    olympiad_nobles::Column::ClassId,
+                                    olympiad_nobles::Column::OlympiadPoints,
+                                    olympiad_nobles::Column::CompetitionsDone,
+                                    olympiad_nobles::Column::CompetitionsWon,
+                                    olympiad_nobles::Column::CompetitionsLost,
+                                    olympiad_nobles::Column::CompetitionsDrawn,
+                                    olympiad_nobles::Column::CompetitionsDoneWeek,
+                                ])
+                                .to_owned(),
                         )
-                        .bind(n.char_id)
-                        .bind(n.class_id)
-                        .bind(n.points)
-                        .bind(n.comp_done)
-                        .bind(n.comp_won)
-                        .bind(n.comp_lost)
-                        .bind(n.comp_drawn)
-                        .bind(n.comp_done_week),
-                    )
-                    .await;
+                        .exec(&db)
+                        .await,
+                    );
                 }
             }
             DbCommand::SaveHeroes { heroes } => {
                 // `Hero.computeNewHeroes` replaces the active crown.
-                exec(&pool, sqlx::query("DELETE FROM heroes")).await;
+                warn_err(heroes::Entity::delete_many().exec(&db).await);
                 for h in heroes {
-                    exec(
-                        &pool,
-                        sqlx::query(
-                            "INSERT OR REPLACE INTO heroes \
-                             (charId, class_id, count, played, claimed) VALUES (?, ?, ?, 1, 'false')",
+                    warn_err(
+                        heroes::Entity::insert(heroes::ActiveModel {
+                            char_id: Set(h.char_id),
+                            class_id: Set(h.class_id),
+                            count: Set(h.count),
+                            played: Set(1),
+                            claimed: Set("false".to_string()),
+                            ..Default::default()
+                        })
+                        .on_conflict(
+                            OnConflict::column(heroes::Column::CharId)
+                                .update_columns([
+                                    heroes::Column::ClassId,
+                                    heroes::Column::Count,
+                                    heroes::Column::Played,
+                                    heroes::Column::Claimed,
+                                ])
+                                .to_owned(),
                         )
-                        .bind(h.char_id)
-                        .bind(h.class_id)
-                        .bind(h.count),
-                    )
-                    .await;
+                        .exec(&db)
+                        .await,
+                    );
                 }
             }
             DbCommand::SaveHeroDiary {
@@ -1988,100 +2120,117 @@ async fn run(
                 action,
                 param,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO heroes_diary (charId, time, action, param) VALUES (?, ?, ?, ?)",
-                    )
-                    .bind(char_id)
-                    .bind(time)
-                    .bind(action)
-                    .bind(param),
-                )
-                .await;
+                warn_err(
+                    heroes_diary::Entity::insert(heroes_diary::ActiveModel {
+                        char_id: Set(char_id),
+                        time: Set(time),
+                        action: Set(action),
+                        param: Set(param),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdateClanLevel { clan_id, level } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET clan_level=? WHERE clan_id=?")
-                        .bind(level)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::ClanLevel, level.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanReputation {
                 clan_id,
                 reputation,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET reputation_score=? WHERE clan_id=?")
-                        .bind(reputation)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::ReputationScore, reputation.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanPenalties {
                 clan_id,
                 char_penalty_expiry_time,
                 dissolving_expiry_time,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE clan_data SET char_penalty_expiry_time=?, dissolving_expiry_time=? WHERE clan_id=?",
-                    )
-                    .bind(char_penalty_expiry_time)
-                    .bind(dissolving_expiry_time)
-                    .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(
+                            clan_data::Column::CharPenaltyExpiryTime,
+                            char_penalty_expiry_time.into(),
+                        )
+                        .col_expr(
+                            clan_data::Column::DissolvingExpiryTime,
+                            dissolving_expiry_time.into(),
+                        )
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::RemoveClanMember {
                 char_id,
                 clan_join_expiry,
                 clan_create_expiry,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE characters SET clanid=0, title='', clan_privs=0, \
-                         clan_join_expiry_time=?, clan_create_expiry_time=? WHERE charId=?",
-                    )
-                    .bind(clan_join_expiry)
-                    .bind(clan_create_expiry)
-                    .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Clanid, 0.into())
+                        .col_expr(characters::Column::Title, "".into())
+                        .col_expr(characters::Column::ClanPrivs, 0.into())
+                        .col_expr(
+                            characters::Column::ClanJoinExpiryTime,
+                            clan_join_expiry.into(),
+                        )
+                        .col_expr(
+                            characters::Column::ClanCreateExpiryTime,
+                            clan_create_expiry.into(),
+                        )
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveClanRankPrivs {
                 clan_id,
                 rank,
                 privs,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO clan_privs (clan_id, `rank`, party, privs) VALUES (?, ?, 0, ?) \
-                         ON CONFLICT(clan_id, `rank`, party) DO UPDATE SET privs=excluded.privs",
+                warn_err(
+                    clan_privs::Entity::insert(clan_privs::ActiveModel {
+                        clan_id: Set(clan_id),
+                        rank: Set(rank),
+                        party: Set(0),
+                        privs: Set(privs),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            clan_privs::Column::ClanId,
+                            clan_privs::Column::Rank,
+                            clan_privs::Column::Party,
+                        ])
+                        .update_column(clan_privs::Column::Privs)
+                        .to_owned(),
                     )
-                    .bind(clan_id)
-                    .bind(rank)
-                    .bind(privs),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdateCharPowerGrade {
                 char_id,
                 power_grade,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET power_grade=? WHERE charId=?")
-                        .bind(power_grade)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::PowerGrade, power_grade.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanAlly {
                 clan_id,
@@ -2090,18 +2239,19 @@ async fn run(
                 penalty_expiry,
                 penalty_type,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE clan_data SET ally_id=?, ally_name=?, ally_penalty_expiry_time=?, ally_penalty_type=? WHERE clan_id=?",
-                    )
-                    .bind(ally_id)
-                    .bind(ally_name)
-                    .bind(penalty_expiry)
-                    .bind(penalty_type)
-                    .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::AllyId, ally_id.into())
+                        .col_expr(clan_data::Column::AllyName, ally_name.into())
+                        .col_expr(
+                            clan_data::Column::AllyPenaltyExpiryTime,
+                            penalty_expiry.into(),
+                        )
+                        .col_expr(clan_data::Column::AllyPenaltyType, penalty_type.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::InsertSubPledge {
                 clan_id,
@@ -2109,15 +2259,16 @@ async fn run(
                 name,
                 leader_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT INTO clan_subpledges (clan_id, sub_pledge_id, name, leader_id) VALUES (?, ?, ?, ?)")
-                        .bind(clan_id)
-                        .bind(pledge_type)
-                        .bind(name)
-                        .bind(leader_id),
-                )
-                .await;
+                warn_err(
+                    clan_subpledges::Entity::insert(clan_subpledges::ActiveModel {
+                        clan_id: Set(clan_id),
+                        sub_pledge_id: Set(pledge_type),
+                        name: Set(Some(name)),
+                        leader_id: Set(leader_id),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdateSubPledge {
                 clan_id,
@@ -2125,89 +2276,91 @@ async fn run(
                 name,
                 leader_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_subpledges SET leader_id=?, name=? WHERE clan_id=? AND sub_pledge_id=?")
-                        .bind(leader_id)
-                        .bind(name)
-                        .bind(clan_id)
-                        .bind(pledge_type),
-                )
-                .await;
+                warn_err(
+                    clan_subpledges::Entity::update_many()
+                        .col_expr(clan_subpledges::Column::LeaderId, leader_id.into())
+                        .col_expr(clan_subpledges::Column::Name, name.into())
+                        .filter(clan_subpledges::Column::ClanId.eq(clan_id))
+                        .filter(clan_subpledges::Column::SubPledgeId.eq(pledge_type))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateCharPledgeType {
                 char_id,
                 pledge_type,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET subpledge=? WHERE charId=?")
-                        .bind(pledge_type)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Subpledge, pledge_type.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::InsertCrest { id, data, kind } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT INTO crests (crest_id, data, type) VALUES (?, ?, ?)")
-                        .bind(id)
-                        .bind(data)
-                        .bind(kind),
-                )
-                .await;
+                warn_err(
+                    crests::Entity::insert(crests::ActiveModel {
+                        crest_id: Set(id),
+                        data: Set(data),
+                        r#type: Set(kind),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteCrest { id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM crests WHERE crest_id=?").bind(id),
-                )
-                .await;
+                warn_err(
+                    crests::Entity::delete_many()
+                        .filter(crests::Column::CrestId.eq(id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanCrest { clan_id, crest_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET crest_id=? WHERE clan_id=?")
-                        .bind(crest_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::CrestId, crest_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanCrestLarge {
                 clan_id,
                 crest_large_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET crest_large_id=? WHERE clan_id=?")
-                        .bind(crest_large_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::CrestLargeId, crest_large_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanAllyCrestSelf {
                 clan_id,
                 ally_crest_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE clan_id=?")
-                        .bind(ally_crest_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::AllyCrestId, ally_crest_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateAllyCrestForAlliance {
                 ally_id,
                 ally_crest_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET ally_crest_id=? WHERE ally_id=?")
-                        .bind(ally_crest_id)
-                        .bind(ally_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::AllyCrestId, ally_crest_id.into())
+                        .filter(clan_data::Column::AllyId.eq(ally_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpsertPledgeApplicant {
                 player_id,
@@ -2215,43 +2368,52 @@ async fn run(
                 karma,
                 message,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO pledge_applicant (charId, clanId, karma, message) VALUES (?, ?, ?, ?) \
-                         ON CONFLICT(charId, clanId) DO UPDATE SET karma=excluded.karma, message=excluded.message",
+                warn_err(
+                    pledge_applicant::Entity::insert(pledge_applicant::ActiveModel {
+                        char_id: Set(player_id),
+                        clan_id: Set(clan_id),
+                        karma: Set(karma),
+                        message: Set(message),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            pledge_applicant::Column::CharId,
+                            pledge_applicant::Column::ClanId,
+                        ])
+                        .update_columns([
+                            pledge_applicant::Column::Karma,
+                            pledge_applicant::Column::Message,
+                        ])
+                        .to_owned(),
                     )
-                    .bind(player_id)
-                    .bind(clan_id)
-                    .bind(karma)
-                    .bind(message),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeletePledgeApplicant { player_id, clan_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM pledge_applicant WHERE charId=? AND clanId=?")
-                        .bind(player_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    pledge_applicant::Entity::delete_by_id((player_id, clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::InsertPledgeWaiting { player_id, karma } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT INTO pledge_waiting_list (char_id, karma) VALUES (?, ?)")
-                        .bind(player_id)
-                        .bind(karma),
-                )
-                .await;
+                warn_err(
+                    pledge_waiting_list::Entity::insert(pledge_waiting_list::ActiveModel {
+                        char_id: Set(player_id),
+                        karma: Set(karma),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeletePledgeWaiting { player_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM pledge_waiting_list WHERE char_id=?").bind(player_id),
-                )
-                .await;
+                warn_err(
+                    pledge_waiting_list::Entity::delete_many()
+                        .filter(pledge_waiting_list::Column::CharId.eq(player_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::InsertPledgeRecruit {
                 clan_id,
@@ -2261,20 +2423,18 @@ async fn run(
                 application_type,
                 recruit_type,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO pledge_recruit (clan_id, karma, information, detailed_information, application_type, recruit_type) \
-                         VALUES (?, ?, ?, ?, ?, ?)",
-                    )
-                    .bind(clan_id)
-                    .bind(karma)
-                    .bind(information)
-                    .bind(detailed_information)
-                    .bind(application_type)
-                    .bind(recruit_type),
-                )
-                .await;
+                warn_err(
+                    pledge_recruit::Entity::insert(pledge_recruit::ActiveModel {
+                        clan_id: Set(clan_id),
+                        karma: Set(karma),
+                        information: Set(information),
+                        detailed_information: Set(detailed_information),
+                        application_type: Set(application_type),
+                        recruit_type: Set(recruit_type),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdatePledgeRecruit {
                 clan_id,
@@ -2284,26 +2444,31 @@ async fn run(
                 application_type,
                 recruit_type,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE pledge_recruit SET karma=?, information=?, detailed_information=?, application_type=?, recruit_type=? WHERE clan_id=?",
-                    )
-                    .bind(karma)
-                    .bind(information)
-                    .bind(detailed_information)
-                    .bind(application_type)
-                    .bind(recruit_type)
-                    .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    pledge_recruit::Entity::update_many()
+                        .col_expr(pledge_recruit::Column::Karma, karma.into())
+                        .col_expr(pledge_recruit::Column::Information, information.into())
+                        .col_expr(
+                            pledge_recruit::Column::DetailedInformation,
+                            detailed_information.into(),
+                        )
+                        .col_expr(
+                            pledge_recruit::Column::ApplicationType,
+                            application_type.into(),
+                        )
+                        .col_expr(pledge_recruit::Column::RecruitType, recruit_type.into())
+                        .filter(pledge_recruit::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::DeletePledgeRecruit { clan_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM pledge_recruit WHERE clan_id=?").bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    pledge_recruit::Entity::delete_many()
+                        .filter(pledge_recruit::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveClanWar {
                 attacker,
@@ -2315,139 +2480,172 @@ async fn run(
                 end_time,
                 state,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO clan_wars (clan1, clan2, clan1Kill, clan2Kill, winnerClan, startTime, endTime, state) \
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?) \
-                         ON CONFLICT(clan1, clan2) DO UPDATE SET clan1Kill=excluded.clan1Kill, \
-                         clan2Kill=excluded.clan2Kill, winnerClan=excluded.winnerClan, \
-                         startTime=excluded.startTime, endTime=excluded.endTime, state=excluded.state",
+                // The clan-id columns are `varchar(35)`; SQLite stored the bound
+                // integers as text anyway, and `load_clan_wars` parses them back.
+                warn_err(
+                    clan_wars::Entity::insert(clan_wars::ActiveModel {
+                        clan1: Set(attacker.to_string()),
+                        clan2: Set(attacked.to_string()),
+                        clan1_kill: Set(attacker_kills),
+                        clan2_kill: Set(attacked_kills),
+                        winner_clan: Set(winner.to_string()),
+                        start_time: Set(start_time),
+                        end_time: Set(end_time),
+                        state: Set(state),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([clan_wars::Column::Clan1, clan_wars::Column::Clan2])
+                            .update_columns([
+                                clan_wars::Column::Clan1Kill,
+                                clan_wars::Column::Clan2Kill,
+                                clan_wars::Column::WinnerClan,
+                                clan_wars::Column::StartTime,
+                                clan_wars::Column::EndTime,
+                                clan_wars::Column::State,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(attacker)
-                    .bind(attacked)
-                    .bind(attacker_kills)
-                    .bind(attacked_kills)
-                    .bind(winner)
-                    .bind(start_time)
-                    .bind(end_time)
-                    .bind(state),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteClanWar { clan1, clan2 } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM clan_wars WHERE (clan1=? AND clan2=?) OR (clan1=? AND clan2=?)")
-                        .bind(clan1)
-                        .bind(clan2)
-                        .bind(clan2)
-                        .bind(clan1),
-                )
-                .await;
+                let (a, b) = (clan1.to_string(), clan2.to_string());
+                warn_err(
+                    clan_wars::Entity::delete_many()
+                        .filter(
+                            Condition::any()
+                                .add(
+                                    Condition::all()
+                                        .add(clan_wars::Column::Clan1.eq(a.clone()))
+                                        .add(clan_wars::Column::Clan2.eq(b.clone())),
+                                )
+                                .add(
+                                    Condition::all()
+                                        .add(clan_wars::Column::Clan1.eq(b))
+                                        .add(clan_wars::Column::Clan2.eq(a)),
+                                ),
+                        )
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateClanNewLeader {
                 clan_id,
                 new_leader_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE clan_data SET new_leader_id=? WHERE clan_id=?")
-                        .bind(new_leader_id)
-                        .bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::update_many()
+                        .col_expr(clan_data::Column::NewLeaderId, new_leader_id.into())
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::UpdateCharClanJoinExpiry { char_id, expiry } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET clan_join_expiry_time=? WHERE charId=?")
-                        .bind(expiry)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::ClanJoinExpiryTime, expiry.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::DestroyClan {
                 clan_id,
                 leader_id,
                 leader_expiry,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM clan_data WHERE clan_id=?").bind(clan_id),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM clan_skills WHERE clan_id=?").bind(clan_id),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET clanid=0, clan_privs=0 WHERE clanid=?")
-                        .bind(clan_id),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET clan_create_expiry_time=? WHERE charId=?")
-                        .bind(leader_expiry)
-                        .bind(leader_id),
-                )
-                .await;
+                warn_err(
+                    clan_data::Entity::delete_many()
+                        .filter(clan_data::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    clan_skills::Entity::delete_many()
+                        .filter(clan_skills::Column::ClanId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Clanid, 0.into())
+                        .col_expr(characters::Column::ClanPrivs, 0.into())
+                        .filter(characters::Column::Clanid.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(
+                            characters::Column::ClanCreateExpiryTime,
+                            leader_expiry.into(),
+                        )
+                        .filter(characters::Column::CharId.eq(leader_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreClanWarehouse { clan_id, items } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM items WHERE owner_id=?").bind(clan_id),
-                )
-                .await;
+                warn_err(
+                    items::Entity::delete_many()
+                        .filter(items::Column::OwnerId.eq(clan_id))
+                        .exec(&db)
+                        .await,
+                );
                 for it in &items {
-                    exec(
-                        &pool,
-                        sqlx::query(
-                            "INSERT INTO items \
-                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-                              custom_type1, custom_type2, mana_left, time) \
-                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        )
-                        .bind(clan_id)
-                        .bind(it.object_id)
-                        .bind(it.item_id)
-                        .bind(it.count)
-                        .bind(it.enchant_level)
-                        .bind(&it.loc)
-                        .bind(it.loc_data)
-                        .bind(it.custom_type1)
-                        .bind(it.custom_type2)
-                        .bind(it.mana_left)
-                        .bind(it.time),
-                    )
-                    .await;
+                    warn_err(
+                        items::Entity::insert(items::ActiveModel {
+                            owner_id: Set(Some(clan_id)),
+                            object_id: Set(it.object_id),
+                            item_id: Set(Some(it.item_id)),
+                            count: Set(it.count),
+                            enchant_level: Set(Some(it.enchant_level)),
+                            loc: Set(Some(it.loc.clone())),
+                            loc_data: Set(Some(it.loc_data)),
+                            custom_type1: Set(Some(it.custom_type1)),
+                            custom_type2: Set(Some(it.custom_type2)),
+                            mana_left: Set(it.mana_left),
+                            time: Set(it.time.into()),
+                            ..Default::default()
+                        })
+                        .exec(&db)
+                        .await,
+                    );
                 }
             }
             DbCommand::SetAccessLevel { char_id, level } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE characters SET accesslevel=? WHERE charId=?")
-                        .bind(level)
-                        .bind(char_id),
-                )
-                .await;
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Accesslevel, level.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreAccountVar {
                 account_name,
                 var,
                 value,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO account_gsdata (account_name, var, value) VALUES (?, ?, ?)")
-                        .bind(account_name)
-                        .bind(var)
-                        .bind(value),
-                )
-                .await;
+                warn_err(
+                    account_gsdata::Entity::insert(account_gsdata::ActiveModel {
+                        account_name: Set(account_name),
+                        var: Set(var),
+                        value: Set(value),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            account_gsdata::Column::AccountName,
+                            account_gsdata::Column::Var,
+                        ])
+                        .update_column(account_gsdata::Column::Value)
+                        .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreCharVar {
                 char_id,
@@ -2456,70 +2654,89 @@ async fn run(
             } => {
                 // The table has no unique key, so replace by delete + insert
                 // (Java `REMOVE_UNCLAIMED_POINTS` then `INSERT_UNCLAIMED_POINTS`).
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM character_variables WHERE charId=? AND var=?")
-                        .bind(char_id)
-                        .bind(&var),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT INTO character_variables (charId, var, val) VALUES (?, ?, ?)",
-                    )
-                    .bind(char_id)
-                    .bind(var)
-                    .bind(value),
-                )
-                .await;
+                warn_err(
+                    character_variables::Entity::delete_many()
+                        .filter(character_variables::Column::CharId.eq(char_id))
+                        .filter(character_variables::Column::Var.eq(var.clone()))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_variables::Entity::insert(character_variables::ActiveModel {
+                        char_id: Set(char_id),
+                        var: Set(var),
+                        val: Set(value),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StorePremium {
                 account_name,
                 enddate,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO account_premium (account_name, enddate) VALUES (?, ?)")
-                        .bind(account_name)
-                        .bind(enddate),
-                )
-                .await;
+                warn_err(
+                    account_premium::Entity::insert(account_premium::ActiveModel {
+                        account_name: Set(account_name),
+                        enddate: Set(enddate),
+                    })
+                    .on_conflict(
+                        OnConflict::column(account_premium::Column::AccountName)
+                            .update_column(account_premium::Column::Enddate)
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeletePremium { account_name } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM account_premium WHERE account_name=?")
-                        .bind(account_name),
-                )
-                .await;
+                warn_err(
+                    account_premium::Entity::delete_by_id(account_name)
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreMail { message } => {
-                let b = |v: bool| if v { "true" } else { "false" };
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO messages \
-                         (messageId, senderId, receiverId, subject, content, expiration, \
-                          reqAdena, hasAttachments, isUnread, isDeletedBySender, \
-                          isDeletedByReceiver, sendBySystem, isReturned) \
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                // The boolean-ish columns are enum('true','false') text.
+                let b = |v: bool| if v { "true" } else { "false" }.to_string();
+                warn_err(
+                    messages::Entity::insert(messages::ActiveModel {
+                        message_id: Set(message.message_id),
+                        sender_id: Set(message.sender_id),
+                        receiver_id: Set(message.receiver_id),
+                        subject: Set(Some(message.subject.clone())),
+                        content: Set(Some(message.content.clone())),
+                        expiration: Set(message.expiration),
+                        req_adena: Set(message.req_adena),
+                        has_attachments: Set(b(message.has_attachments)),
+                        is_unread: Set(b(message.unread)),
+                        is_deleted_by_sender: Set(b(message.deleted_by_sender)),
+                        is_deleted_by_receiver: Set(b(message.deleted_by_receiver)),
+                        send_by_system: Set(message.send_by_system),
+                        is_returned: Set(b(message.returned)),
+                        ..Default::default()
+                    })
+                    .on_conflict(
+                        OnConflict::column(messages::Column::MessageId)
+                            .update_columns([
+                                messages::Column::SenderId,
+                                messages::Column::ReceiverId,
+                                messages::Column::Subject,
+                                messages::Column::Content,
+                                messages::Column::Expiration,
+                                messages::Column::ReqAdena,
+                                messages::Column::HasAttachments,
+                                messages::Column::IsUnread,
+                                messages::Column::IsDeletedBySender,
+                                messages::Column::IsDeletedByReceiver,
+                                messages::Column::SendBySystem,
+                                messages::Column::IsReturned,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(message.message_id)
-                    .bind(message.sender_id)
-                    .bind(message.receiver_id)
-                    .bind(&message.subject)
-                    .bind(&message.content)
-                    .bind(message.expiration)
-                    .bind(message.req_adena)
-                    .bind(b(message.has_attachments))
-                    .bind(b(message.unread))
-                    .bind(b(message.deleted_by_sender))
-                    .bind(b(message.deleted_by_receiver))
-                    .bind(message.send_by_system)
-                    .bind(b(message.returned)),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::UpdateMailFlags {
                 message_id,
@@ -2529,54 +2746,69 @@ async fn run(
                 deleted_by_receiver,
             } => {
                 let b = |v: bool| if v { "true" } else { "false" };
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE messages SET isUnread = ?, hasAttachments = ?, \
-                         isDeletedBySender = ?, isDeletedByReceiver = ? WHERE messageId = ?",
-                    )
-                    .bind(b(unread))
-                    .bind(b(has_attachments))
-                    .bind(b(deleted_by_sender))
-                    .bind(b(deleted_by_receiver))
-                    .bind(message_id),
-                )
-                .await;
+                warn_err(
+                    messages::Entity::update_many()
+                        .col_expr(messages::Column::IsUnread, b(unread).into())
+                        .col_expr(messages::Column::HasAttachments, b(has_attachments).into())
+                        .col_expr(
+                            messages::Column::IsDeletedBySender,
+                            b(deleted_by_sender).into(),
+                        )
+                        .col_expr(
+                            messages::Column::IsDeletedByReceiver,
+                            b(deleted_by_receiver).into(),
+                        )
+                        .filter(messages::Column::MessageId.eq(message_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::DeleteMail { message_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM messages WHERE messageId = ?").bind(message_id),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM items WHERE loc = 'MAIL' AND loc_data = ?")
-                        .bind(message_id),
-                )
-                .await;
+                warn_err(messages::Entity::delete_by_id(message_id).exec(&db).await);
+                warn_err(
+                    items::Entity::delete_many()
+                        .filter(items::Column::Loc.eq("MAIL"))
+                        .filter(items::Column::LocData.eq(message_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreOfflineWarehouseItems { owner_id, items } => {
                 for it in &items {
-                    exec(
-                        &pool,
-                        sqlx::query(
-                            "INSERT OR REPLACE INTO items \
-                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-                              custom_type1, custom_type2, mana_left, time) \
-                             VALUES (?, ?, ?, ?, ?, 'WAREHOUSE', 0, ?, ?, ?, ?)",
+                    warn_err(
+                        items::Entity::insert(items::ActiveModel {
+                            owner_id: Set(Some(owner_id)),
+                            object_id: Set(it.object_id),
+                            item_id: Set(Some(it.item_id)),
+                            count: Set(it.count),
+                            enchant_level: Set(Some(it.enchant_level)),
+                            loc: Set(Some("WAREHOUSE".to_string())),
+                            loc_data: Set(Some(0)),
+                            custom_type1: Set(Some(it.custom_type1)),
+                            custom_type2: Set(Some(it.custom_type2)),
+                            mana_left: Set(it.mana_left),
+                            time: Set(it.time.into()),
+                            ..Default::default()
+                        })
+                        .on_conflict(
+                            OnConflict::column(items::Column::ObjectId)
+                                .update_columns([
+                                    items::Column::OwnerId,
+                                    items::Column::ItemId,
+                                    items::Column::Count,
+                                    items::Column::EnchantLevel,
+                                    items::Column::Loc,
+                                    items::Column::LocData,
+                                    items::Column::CustomType1,
+                                    items::Column::CustomType2,
+                                    items::Column::ManaLeft,
+                                    items::Column::Time,
+                                ])
+                                .to_owned(),
                         )
-                        .bind(owner_id)
-                        .bind(it.object_id)
-                        .bind(it.item_id)
-                        .bind(it.count)
-                        .bind(it.enchant_level)
-                        .bind(it.custom_type1)
-                        .bind(it.custom_type2)
-                        .bind(it.mana_left)
-                        .bind(it.time),
-                    )
-                    .await;
+                        .exec(&db)
+                        .await,
+                    );
                 }
             }
             DbCommand::StoreMailItems {
@@ -2584,33 +2816,32 @@ async fn run(
                 owner_id,
                 items,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM items WHERE loc = 'MAIL' AND loc_data = ?")
-                        .bind(message_id),
-                )
-                .await;
+                warn_err(
+                    items::Entity::delete_many()
+                        .filter(items::Column::Loc.eq("MAIL"))
+                        .filter(items::Column::LocData.eq(message_id))
+                        .exec(&db)
+                        .await,
+                );
                 for it in &items {
-                    exec(
-                        &pool,
-                        sqlx::query(
-                            "INSERT INTO items \
-                             (owner_id, object_id, item_id, count, enchant_level, loc, loc_data, \
-                              custom_type1, custom_type2, mana_left, time) \
-                             VALUES (?, ?, ?, ?, ?, 'MAIL', ?, ?, ?, ?, ?)",
-                        )
-                        .bind(owner_id)
-                        .bind(it.object_id)
-                        .bind(it.item_id)
-                        .bind(it.count)
-                        .bind(it.enchant_level)
-                        .bind(message_id)
-                        .bind(it.custom_type1)
-                        .bind(it.custom_type2)
-                        .bind(it.mana_left)
-                        .bind(it.time),
-                    )
-                    .await;
+                    warn_err(
+                        items::Entity::insert(items::ActiveModel {
+                            owner_id: Set(Some(owner_id)),
+                            object_id: Set(it.object_id),
+                            item_id: Set(Some(it.item_id)),
+                            count: Set(it.count),
+                            enchant_level: Set(Some(it.enchant_level)),
+                            loc: Set(Some("MAIL".to_string())),
+                            loc_data: Set(Some(message_id)),
+                            custom_type1: Set(Some(it.custom_type1)),
+                            custom_type2: Set(Some(it.custom_type2)),
+                            mana_left: Set(it.mana_left),
+                            time: Set(it.time.into()),
+                            ..Default::default()
+                        })
+                        .exec(&db)
+                        .await,
+                    );
                 }
             }
             DbCommand::StoreLottery {
@@ -2618,15 +2849,27 @@ async fn run(
                 enddate,
                 prize,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO lottery(id, idnr, enddate, prize, newprize) VALUES (1, ?, ?, ?, ?)")
-                        .bind(idnr)
-                        .bind(enddate)
-                        .bind(prize)
-                        .bind(prize),
-                )
-                .await;
+                warn_err(
+                    lottery::Entity::insert(lottery::ActiveModel {
+                        id: Set(1),
+                        idnr: Set(idnr),
+                        enddate: Set(enddate),
+                        prize: Set(prize),
+                        newprize: Set(prize),
+                        ..Default::default()
+                    })
+                    .on_conflict(
+                        OnConflict::columns([lottery::Column::Id, lottery::Column::Idnr])
+                            .update_columns([
+                                lottery::Column::Enddate,
+                                lottery::Column::Prize,
+                                lottery::Column::Newprize,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::FinishLottery {
                 idnr,
@@ -2638,49 +2881,51 @@ async fn run(
                 prize2,
                 prize3,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE lottery SET finished=1, prize=?, newprize=?, number1=?, number2=?, prize1=?, prize2=?, prize3=? WHERE id=1 AND idnr=?")
-                        .bind(prize)
-                        .bind(newprize)
-                        .bind(number1)
-                        .bind(number2)
-                        .bind(prize1)
-                        .bind(prize2)
-                        .bind(prize3)
-                        .bind(idnr),
-                )
-                .await;
+                warn_err(
+                    lottery::Entity::update_many()
+                        .col_expr(lottery::Column::Finished, 1.into())
+                        .col_expr(lottery::Column::Prize, prize.into())
+                        .col_expr(lottery::Column::Newprize, newprize.into())
+                        .col_expr(lottery::Column::Number1, number1.into())
+                        .col_expr(lottery::Column::Number2, number2.into())
+                        .col_expr(lottery::Column::Prize1, prize1.into())
+                        .col_expr(lottery::Column::Prize2, prize2.into())
+                        .col_expr(lottery::Column::Prize3, prize3.into())
+                        .filter(lottery::Column::Id.eq(1))
+                        .filter(lottery::Column::Idnr.eq(idnr))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::IncreaseLotteryPrize { idnr, prize } => {
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE lottery SET prize=?, newprize=? WHERE id=1 AND idnr=?")
-                        .bind(prize)
-                        .bind(prize)
-                        .bind(idnr),
-                )
-                .await;
+                warn_err(
+                    lottery::Entity::update_many()
+                        .col_expr(lottery::Column::Prize, prize.into())
+                        .col_expr(lottery::Column::Newprize, prize.into())
+                        .filter(lottery::Column::Id.eq(1))
+                        .filter(lottery::Column::Idnr.eq(idnr))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::LoadLotteryTickets { round } => {
-                let rows = sqlx::query(
-                    "SELECT object_id, enchant_level, custom_type2 FROM items WHERE item_id = 4442 AND custom_type1 = ?",
-                )
-                .bind(round)
-                .fetch_all(&pool)
-                .await
-                .map(|rs| {
-                    rs.iter()
-                        .map(|r| {
-                            (
-                                geti(r, "object_id") as i32,
-                                geti(r, "enchant_level") as i32,
-                                geti(r, "custom_type2") as i32,
-                            )
-                        })
-                        .collect()
-                })
-                .unwrap_or_default();
+                // Lottery tickets are ordinary items (id 4442) whose
+                // `custom_type1` is the round they were bought in.
+                let rows = items::Entity::find()
+                    .filter(items::Column::ItemId.eq(4442))
+                    .filter(items::Column::CustomType1.eq(round))
+                    .all(&db)
+                    .await
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|r| {
+                        (
+                            r.object_id,
+                            r.enchant_level.unwrap_or(0),
+                            r.custom_type2.unwrap_or(0),
+                        )
+                    })
+                    .collect();
                 let _ = event_tx.send(DbEvent::LotteryTicketsLoaded { round, rows });
             }
             DbCommand::SaveMdtHistory {
@@ -2689,27 +2934,48 @@ async fn run(
                 second,
                 odd_rate,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO mdt_history(race_id, first, second, odd_rate) VALUES (?, ?, ?, ?)")
-                        .bind(race_id)
-                        .bind(first)
-                        .bind(second)
-                        .bind(odd_rate),
-                )
-                .await;
+                warn_err(
+                    mdt_history::Entity::insert(mdt_history::ActiveModel {
+                        race_id: Set(race_id),
+                        first: Set(Some(first)),
+                        second: Set(Some(second)),
+                        odd_rate: Set(Some(odd_rate)),
+                    })
+                    .on_conflict(
+                        OnConflict::column(mdt_history::Column::RaceId)
+                            .update_columns([
+                                mdt_history::Column::First,
+                                mdt_history::Column::Second,
+                                mdt_history::Column::OddRate,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::SaveMdtBet { lane, bet } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO mdt_bets(lane_id, bet) VALUES (?, ?)")
-                        .bind(lane)
-                        .bind(bet),
-                )
-                .await;
+                warn_err(
+                    mdt_bets::Entity::insert(mdt_bets::ActiveModel {
+                        lane_id: Set(lane),
+                        bet: Set(Some(bet)),
+                    })
+                    .on_conflict(
+                        OnConflict::column(mdt_bets::Column::LaneId)
+                            .update_column(mdt_bets::Column::Bet)
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::ClearMdtBets => {
-                exec(&pool, sqlx::query("UPDATE mdt_bets SET bet = 0")).await;
+                warn_err(
+                    mdt_bets::Entity::update_many()
+                        .col_expr(mdt_bets::Column::Bet, 0.into())
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreItemAuction {
                 auction_id,
@@ -2719,55 +2985,75 @@ async fn run(
                 ending_time,
                 state_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO item_auction(auctionId, instanceId, auctionItemId, startingTime, endingTime, auctionStateId) VALUES (?, ?, ?, ?, ?, ?)")
-                        .bind(auction_id)
-                        .bind(instance_id)
-                        .bind(auction_item_id)
-                        .bind(starting_time)
-                        .bind(ending_time)
-                        .bind(state_id),
-                )
-                .await;
+                warn_err(
+                    item_auction::Entity::insert(item_auction::ActiveModel {
+                        auction_id: Set(auction_id),
+                        instance_id: Set(instance_id),
+                        auction_item_id: Set(auction_item_id),
+                        starting_time: Set(starting_time),
+                        ending_time: Set(ending_time),
+                        auction_state_id: Set(state_id.into()),
+                    })
+                    .on_conflict(
+                        OnConflict::column(item_auction::Column::AuctionId)
+                            .update_columns([
+                                item_auction::Column::InstanceId,
+                                item_auction::Column::AuctionItemId,
+                                item_auction::Column::StartingTime,
+                                item_auction::Column::EndingTime,
+                                item_auction::Column::AuctionStateId,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreItemAuctionBid {
                 auction_id,
                 player_obj_id,
                 bid,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO item_auction_bid(auctionId, playerObjId, playerBid) VALUES (?, ?, ?)")
-                        .bind(auction_id)
-                        .bind(player_obj_id)
-                        .bind(bid),
-                )
-                .await;
+                warn_err(
+                    item_auction_bid::Entity::insert(item_auction_bid::ActiveModel {
+                        auction_id: Set(auction_id),
+                        player_obj_id: Set(player_obj_id),
+                        player_bid: Set(bid),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            item_auction_bid::Column::AuctionId,
+                            item_auction_bid::Column::PlayerObjId,
+                        ])
+                        .update_column(item_auction_bid::Column::PlayerBid)
+                        .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteItemAuctionBid {
                 auction_id,
                 player_obj_id,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM item_auction_bid WHERE auctionId=? AND playerObjId=?")
-                        .bind(auction_id)
-                        .bind(player_obj_id),
-                )
-                .await;
+                warn_err(
+                    item_auction_bid::Entity::delete_by_id((auction_id, player_obj_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::DeleteItemAuction { auction_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM item_auction WHERE auctionId=?").bind(auction_id),
-                )
-                .await;
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM item_auction_bid WHERE auctionId=?").bind(auction_id),
-                )
-                .await;
+                warn_err(
+                    item_auction::Entity::delete_by_id(auction_id)
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    item_auction_bid::Entity::delete_many()
+                        .filter(item_auction_bid::Column::AuctionId.eq(auction_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StorePunishment {
                 id,
@@ -2778,25 +3064,34 @@ async fn run(
                 reason,
                 punished_by,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO punishments(id, `key`, affect, `type`, expiration, reason, punishedBy) VALUES (?, ?, ?, ?, ?, ?, ?)")
-                        .bind(id)
-                        .bind(key)
-                        .bind(affect)
-                        .bind(ptype)
-                        .bind(expiration)
-                        .bind(reason)
-                        .bind(punished_by),
-                )
-                .await;
+                warn_err(
+                    punishments::Entity::insert(punishments::ActiveModel {
+                        id: Set(id),
+                        key: Set(key),
+                        affect: Set(affect),
+                        r#type: Set(ptype),
+                        expiration: Set(expiration),
+                        reason: Set(reason),
+                        punished_by: Set(punished_by),
+                    })
+                    .on_conflict(
+                        OnConflict::column(punishments::Column::Id)
+                            .update_columns([
+                                punishments::Column::Key,
+                                punishments::Column::Affect,
+                                punishments::Column::Type,
+                                punishments::Column::Expiration,
+                                punishments::Column::Reason,
+                                punishments::Column::PunishedBy,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeletePunishment { id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM punishments WHERE id=?").bind(id),
-                )
-                .await;
+                warn_err(punishments::Entity::delete_by_id(id).exec(&db).await);
             }
             DbCommand::StorePetitionFeedback {
                 char_name,
@@ -2805,16 +3100,17 @@ async fn run(
                 message,
                 date,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT INTO petition_feedback(charName, gmName, rate, message, date) VALUES (?, ?, ?, ?, ?)")
-                        .bind(char_name)
-                        .bind(gm_name)
-                        .bind(rate)
-                        .bind(message)
-                        .bind(date),
-                )
-                .await;
+                warn_err(
+                    petition_feedback::Entity::insert(petition_feedback::ActiveModel {
+                        char_name: Set(char_name),
+                        gm_name: Set(gm_name),
+                        rate: Set(rate),
+                        message: Set(message),
+                        date: Set(date),
+                    })
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreOfflineWarehouseItem {
                 owner_id,
@@ -2823,42 +3119,65 @@ async fn run(
                 count,
                 enchant,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO items(owner_id, object_id, item_id, count, enchant_level, loc, loc_data) VALUES (?, ?, ?, ?, ?, 'WAREHOUSE', 0)")
-                        .bind(owner_id)
-                        .bind(object_id)
-                        .bind(item_id)
-                        .bind(count)
-                        .bind(enchant),
-                )
-                .await;
+                warn_err(
+                    items::Entity::insert(items::ActiveModel {
+                        owner_id: Set(Some(owner_id)),
+                        object_id: Set(object_id),
+                        item_id: Set(Some(item_id)),
+                        count: Set(count),
+                        enchant_level: Set(Some(enchant)),
+                        loc: Set(Some("WAREHOUSE".to_string())),
+                        loc_data: Set(Some(0)),
+                        ..Default::default()
+                    })
+                    .on_conflict(
+                        OnConflict::column(items::Column::ObjectId)
+                            .update_columns([
+                                items::Column::OwnerId,
+                                items::Column::ItemId,
+                                items::Column::Count,
+                                items::Column::EnchantLevel,
+                                items::Column::Loc,
+                                items::Column::LocData,
+                            ])
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::StoreBufferScheme {
                 object_id,
                 scheme_name,
                 skills,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("INSERT OR REPLACE INTO buffer_schemes (object_id, scheme_name, skills) VALUES (?, ?, ?)")
-                        .bind(object_id)
-                        .bind(scheme_name)
-                        .bind(skills),
-                )
-                .await;
+                warn_err(
+                    buffer_schemes::Entity::insert(buffer_schemes::ActiveModel {
+                        object_id: Set(object_id),
+                        scheme_name: Set(scheme_name),
+                        skills: Set(skills),
+                    })
+                    .on_conflict(
+                        OnConflict::columns([
+                            buffer_schemes::Column::ObjectId,
+                            buffer_schemes::Column::SchemeName,
+                        ])
+                        .update_column(buffer_schemes::Column::Skills)
+                        .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteBufferScheme {
                 object_id,
                 scheme_name,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM buffer_schemes WHERE object_id=? AND scheme_name=?")
-                        .bind(object_id)
-                        .bind(scheme_name),
-                )
-                .await;
+                warn_err(
+                    buffer_schemes::Entity::delete_by_id((object_id, scheme_name))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::StoreFavorite {
                 fav_id,
@@ -2867,98 +3186,144 @@ async fn run(
                 bypass,
                 add_date,
             } => {
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "INSERT OR REPLACE INTO bbs_favorites (favId, playerId, favTitle, favBypass, favAddDate) VALUES (?, ?, ?, ?, ?)",
+                warn_err(
+                    bbs_favorites::Entity::insert(bbs_favorites::ActiveModel {
+                        fav_id: Set(fav_id),
+                        player_id: Set(player_id),
+                        fav_title: Set(title),
+                        fav_bypass: Set(bypass),
+                        fav_add_date: Set(add_date),
+                    })
+                    .on_conflict(
+                        OnConflict::column(bbs_favorites::Column::FavId)
+                            .update_columns([
+                                bbs_favorites::Column::PlayerId,
+                                bbs_favorites::Column::FavTitle,
+                                bbs_favorites::Column::FavBypass,
+                                bbs_favorites::Column::FavAddDate,
+                            ])
+                            .to_owned(),
                     )
-                    .bind(fav_id)
-                    .bind(player_id)
-                    .bind(title)
-                    .bind(bypass)
-                    .bind(add_date),
-                )
-                .await;
+                    .exec(&db)
+                    .await,
+                );
             }
             DbCommand::DeleteFavorite { player_id, fav_id } => {
-                exec(
-                    &pool,
-                    sqlx::query("DELETE FROM bbs_favorites WHERE playerId=? AND favId=?")
-                        .bind(player_id)
-                        .bind(fav_id),
-                )
-                .await;
+                warn_err(
+                    bbs_favorites::Entity::delete_many()
+                        .filter(bbs_favorites::Column::PlayerId.eq(player_id))
+                        .filter(bbs_favorites::Column::FavId.eq(fav_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::ResetRecommends => {
                 // Java `DailyTaskManager.resetRecommends`: rec_left → 0 for
                 // everyone; rec_have → 0 for those at/under 20, else -20.
-                exec(&pool, sqlx::query("UPDATE character_reco_bonus SET rec_left = 0, rec_have = 0 WHERE rec_have <= 20")).await;
-                exec(
-                    &pool,
-                    sqlx::query("UPDATE character_reco_bonus SET rec_left = 0, rec_have = MAX(rec_have - 20, 0) WHERE rec_have > 20"),
-                )
-                .await;
+                warn_err(
+                    character_reco_bonus::Entity::update_many()
+                        .col_expr(character_reco_bonus::Column::RecLeft, 0.into())
+                        .col_expr(character_reco_bonus::Column::RecHave, 0.into())
+                        .filter(character_reco_bonus::Column::RecHave.lte(20))
+                        .exec(&db)
+                        .await,
+                );
+                // `ExprTrait` is imported here rather than at module scope: it
+                // adds `min`/`max`/`add` to *every* type, which shadows the
+                // `Ord` ones everywhere else in this file.
+                use models::sea_orm::sea_query::ExprTrait as _;
+                warn_err(
+                    character_reco_bonus::Entity::update_many()
+                        .col_expr(character_reco_bonus::Column::RecLeft, 0.into())
+                        .col_expr(
+                            character_reco_bonus::Column::RecHave,
+                            Expr::col(character_reco_bonus::Column::RecHave).sub(20),
+                        )
+                        .filter(character_reco_bonus::Column::RecHave.gt(20))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::ResetVitality { weekly } => {
                 // Java `resetVitalityDaily`/`resetVitalityWeekly` — both the
                 // `characters` and `character_subclasses` rows. `MAX/4` is added
                 // uncapped (as Java does); the read-side clamp hides any overflow.
                 const MAX: i32 = 140_000;
-                for table in ["characters", "character_subclasses"] {
-                    let q = if weekly {
-                        format!("UPDATE {table} SET vitality_points = {MAX}")
+                // `ExprTrait` is imported here rather than at module scope: it
+                // adds `min`/`max`/`add` to *every* type, which shadows the
+                // `Ord` ones everywhere else in this file.
+                use models::sea_orm::sea_query::ExprTrait as _;
+                // Daily adds a quarter of the cap unless the pool is already
+                // full; weekly refills it outright.
+                fn refill<C: models::sea_orm::ColumnTrait>(col: C, weekly: bool) -> Expr {
+                    if weekly {
+                        Expr::value(MAX)
                     } else {
-                        format!(
-                            "UPDATE {table} SET vitality_points = \
-                             CASE WHEN vitality_points = {MAX} THEN vitality_points \
-                             ELSE vitality_points + {} END",
-                            MAX / 4
-                        )
-                    };
-                    // Table name comes from the fixed array above and the
-                    // numbers are consts — nothing caller-supplied reaches the
-                    // statement text (sqlx 0.9 requires the assertion).
-                    exec(&pool, sqlx::query(sqlx::AssertSqlSafe(q))).await;
+                        CaseStatement::new()
+                            .case(Expr::col(col).eq(MAX), Expr::col(col))
+                            .finally(Expr::col(col).add(MAX / 4))
+                            .into()
+                    }
                 }
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(
+                            characters::Column::VitalityPoints,
+                            refill(characters::Column::VitalityPoints, weekly),
+                        )
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    character_subclasses::Entity::update_many()
+                        .col_expr(
+                            character_subclasses::Column::VitalityPoints,
+                            refill(character_subclasses::Column::VitalityPoints, weekly),
+                        )
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::RepairCharacter { char_name } => {
-                // Java `AdminRepairChar`, verbatim (SQLite uses single quotes for
-                // the string literal, not Java's double quotes). Best-effort:
-                // each statement is independent, keyed by name / resolved id.
-                exec(
-                    &pool,
-                    sqlx::query(
-                        "UPDATE characters SET x=-84318, y=244579, z=-3730 WHERE char_name=?",
-                    )
-                    .bind(&char_name),
-                )
-                .await;
-                let obj_id: Option<i64> =
-                    sqlx::query_scalar("SELECT charId FROM characters WHERE char_name=?")
-                        .bind(&char_name)
-                        .fetch_optional(&pool)
-                        .await
-                        .ok()
-                        .flatten();
+                // Java `AdminRepairChar`, verbatim. Best-effort: each statement
+                // is independent, keyed by name / resolved id.
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::X, (-84318).into())
+                        .col_expr(characters::Column::Y, 244579.into())
+                        .col_expr(characters::Column::Z, (-3730).into())
+                        .filter(characters::Column::CharName.eq(&char_name))
+                        .exec(&db)
+                        .await,
+                );
+                let obj_id = characters::Entity::find()
+                    .filter(characters::Column::CharName.eq(&char_name))
+                    .one(&db)
+                    .await
+                    .ok()
+                    .flatten()
+                    .map(|c| c.char_id);
                 if let Some(obj_id) = obj_id {
-                    exec(
-                        &pool,
-                        sqlx::query("DELETE FROM character_shortcuts WHERE charId=?").bind(obj_id),
-                    )
-                    .await;
-                    exec(
-                        &pool,
-                        sqlx::query("UPDATE items SET loc='INVENTORY' WHERE owner_id=?")
-                            .bind(obj_id),
-                    )
-                    .await;
+                    warn_err(
+                        character_shortcuts::Entity::delete_many()
+                            .filter(character_shortcuts::Column::CharId.eq(obj_id))
+                            .exec(&db)
+                            .await,
+                    );
+                    warn_err(
+                        items::Entity::update_many()
+                            .col_expr(items::Column::Loc, "INVENTORY".into())
+                            .filter(items::Column::OwnerId.eq(obj_id))
+                            .exec(&db)
+                            .await,
+                    );
                 }
             }
             DbCommand::Shutdown => break,
         }
     }
 
-    pool.close().await;
+    let _ = db.close().await;
     info!("DB thread: stopped.");
 }
 
@@ -3090,65 +3455,57 @@ async fn load_mail(
     Vec<crate::model::mail::Message>,
     Vec<(i32, Vec<crate::character::ItemRow>)>,
 ) {
-    // Not yet ported to the ORM: the same pool, borrowed back out of the
-    // connection (docs/PLAN_ORM_MIGRATION.md §7).
-    let pool = db.get_sqlite_connection_pool();
     use crate::model::mail::{MailType, Message};
 
-    let truthy = |v: String| v.eq_ignore_ascii_case("true") || v == "1";
-    let rows = sqlx::query(
-        "SELECT messageId, senderId, receiverId, subject, content, expiration, reqAdena, \
-         hasAttachments, isUnread, isDeletedBySender, isDeletedByReceiver, sendBySystem, \
-         isReturned FROM messages ORDER BY expiration",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    // The flag columns are enum('true','false') text; older rows may carry '1'.
+    let truthy = |v: &str| v.eq_ignore_ascii_case("true") || v == "1";
+    let messages = messages::Entity::find()
+        .order_by_asc(messages::Column::Expiration)
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|r| Message {
+            id: r.message_id,
+            sender_id: r.sender_id,
+            receiver_id: r.receiver_id,
+            subject: r.subject.unwrap_or_default(),
+            content: r.content.unwrap_or_default(),
+            expiration: r.expiration,
+            req_adena: r.req_adena,
+            has_attachments: truthy(&r.has_attachments),
+            unread: truthy(&r.is_unread),
+            deleted_by_sender: truthy(&r.is_deleted_by_sender),
+            deleted_by_receiver: truthy(&r.is_deleted_by_receiver),
+            mail_type: MailType::from_id(r.send_by_system),
+            returned: truthy(&r.is_returned),
+        })
+        .collect();
 
-    let mut messages = Vec::with_capacity(rows.len());
-    for r in &rows {
-        messages.push(Message {
-            id: geti(r, "messageId") as i32,
-            sender_id: geti(r, "senderId") as i32,
-            receiver_id: geti(r, "receiverId") as i32,
-            subject: gets(r, "subject"),
-            content: gets(r, "content"),
-            expiration: geti(r, "expiration"),
-            req_adena: geti(r, "reqAdena"),
-            has_attachments: truthy(gets(r, "hasAttachments")),
-            unread: truthy(gets(r, "isUnread")),
-            deleted_by_sender: truthy(gets(r, "isDeletedBySender")),
-            deleted_by_receiver: truthy(gets(r, "isDeletedByReceiver")),
-            mail_type: MailType::from_id(geti(r, "sendBySystem") as i32),
-            returned: truthy(gets(r, "isReturned")),
-        });
-    }
-
-    let item_rows = sqlx::query(
-        "SELECT object_id, item_id, count, enchant_level, loc_data, custom_type1, \
-         custom_type2, mana_left, time FROM items WHERE loc = 'MAIL'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
     let mut by_message: std::collections::HashMap<i32, Vec<crate::character::ItemRow>> =
         std::collections::HashMap::new();
-    for r in &item_rows {
-        let message_id = geti(r, "loc_data") as i32;
+    for r in items::Entity::find()
+        .filter(items::Column::Loc.eq("MAIL"))
+        .all(db)
+        .await
+        .unwrap_or_default()
+    {
+        // Attachments hang off the message through `loc_data`.
+        let message_id = r.loc_data.unwrap_or(0);
         by_message
             .entry(message_id)
             .or_default()
             .push(crate::character::ItemRow {
-                object_id: geti(r, "object_id") as i32,
-                item_id: geti(r, "item_id") as i32,
-                count: geti(r, "count"),
-                enchant_level: geti(r, "enchant_level") as i32,
+                object_id: r.object_id,
+                item_id: r.item_id.unwrap_or(0),
+                count: r.count,
+                enchant_level: r.enchant_level.unwrap_or(0),
                 loc: "MAIL".to_string(),
                 loc_data: message_id,
-                custom_type1: geti(r, "custom_type1") as i32,
-                custom_type2: geti(r, "custom_type2") as i32,
-                mana_left: geti(r, "mana_left") as i32,
-                time: geti(r, "time") as i32,
+                custom_type1: r.custom_type1.unwrap_or(0),
+                custom_type2: r.custom_type2.unwrap_or(0),
+                mana_left: r.mana_left,
+                time: r.time as i32,
                 augment_mineral: 0,
                 augment_option1: 0,
                 augment_option2: 0,
@@ -4401,6 +4758,16 @@ async fn insert_or_warn<A: models::sea_orm::ActiveModelTrait>(
     }
 }
 
+/// Logs a failed fire-and-forget write, the way the old `exec` helper did.
+///
+/// The DB thread must not stop for one bad statement: the game thread has
+/// already applied the change in memory and is not waiting for a reply.
+fn warn_err<T>(res: Result<T, DbErr>) {
+    if let Err(e) = res {
+        warn!("DB thread: query failed: {e}");
+    }
+}
+
 async fn create_character(
     db: &DatabaseConnection,
     next_id: &mut i64,
@@ -5022,25 +5389,6 @@ async fn delete_char(db: &DatabaseConnection, char_id: i32) {
     if let Err(e) = characters::Entity::delete_by_id(char_id).exec(db).await {
         warn!("DB thread: delete_char failed: {e}");
     }
-}
-
-async fn exec<'q>(
-    pool: &SqlitePool,
-    q: sqlx::query::Query<'q, sqlx::Sqlite, sqlx::sqlite::SqliteArguments>,
-) {
-    if let Err(e) = q.execute(pool).await {
-        warn!("DB thread: query failed: {e}");
-    }
-}
-
-// SQLite is dynamically typed; fetch numeric columns leniently.
-fn geti(row: &sqlx::sqlite::SqliteRow, col: &str) -> i64 {
-    row.try_get::<i64, _>(col)
-        .or_else(|_| row.try_get::<f64, _>(col).map(|f| f as i64))
-        .unwrap_or(0)
-}
-fn gets(row: &sqlx::sqlite::SqliteRow, col: &str) -> String {
-    row.try_get::<String, _>(col).unwrap_or_default()
 }
 
 /// `ClanTable.restoreClanWars` — the `clan_wars` table (ids in the varchar
