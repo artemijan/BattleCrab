@@ -121,7 +121,10 @@ pub fn ex_teleport_to_location_activate(
 
 /// Port of `serverpackets/Ride` — mount / dismount broadcast. `ride_type` is the
 /// `MountType` ordinal (0 none, 1 strider, 2 wyvern, 3 wolf); `mount_npc_id` is
-/// sent as `+ 1_000_000` (0 stays 0), matching Java.
+/// sent as `+ 1_000_000` *unconditionally* — Java's ctor is a bare
+/// `player.getMountNpcId() + 1000000`, so a dismount (npc id 0) puts 1000000 on
+/// the wire, not 0. The `CharInfo` mount field, by contrast, does have Java's
+/// `== 0 ? 0` guard; the two are not the same expression.
 pub fn ride(
     object_id: i32,
     mounted: bool,
@@ -136,11 +139,7 @@ pub fn ride(
     w.write_i32(object_id);
     w.write_i32(mounted as i32);
     w.write_i32(ride_type as i32);
-    w.write_i32(if mount_npc_id == 0 {
-        0
-    } else {
-        mount_npc_id + 1_000_000
-    });
+    w.write_i32(mount_npc_id + 1_000_000);
     w.write_i32(x);
     w.write_i32(y);
     w.write_i32(z);

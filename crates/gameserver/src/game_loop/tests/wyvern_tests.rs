@@ -455,3 +455,167 @@ fn wyvern_manager_exchanges_strider_and_crystals_for_wyvern() {
         "wyvernmanager-04 (success) served"
     );
 }
+
+/// The hero-glow byte's offset in a captured packet, found by clearing the
+/// flag and re-building the same packet: exactly one byte moves, and that is
+/// the glow (Java `CharInfo`/`UserInfo`'s `isHero() || (isGM() &&
+/// GM_HERO_AURA)`). Located rather than hard-coded so the assertions survive
+/// a layout change.
+fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
+    let build = |world: &World| {
+        let v = crate::model::PlayerView::of(&world.objects, oid).unwrap();
+        let relation = crate::game_loop::party::calculate_relation(world, v.p);
+        (
+            crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
+            server_packets::char_info(&v, &[], &[]),
+        )
+    };
+    let was = world
+        .objects
+        .get_component::<Player>(&oid)
+        .unwrap()
+        .hero_aura;
+    world
+        .objects
+        .get_component_mut::<Player>(&oid)
+        .unwrap()
+        .hero_aura = true;
+    let (ui_on, ci_on) = build(world);
+    world
+        .objects
+        .get_component_mut::<Player>(&oid)
+        .unwrap()
+        .hero_aura = false;
+    let (ui_off, ci_off) = build(world);
+    world
+        .objects
+        .get_component_mut::<Player>(&oid)
+        .unwrap()
+        .hero_aura = was;
+    let only_diff = |a: &[u8], b: &[u8]| {
+        let d: Vec<usize> = a
+            .iter()
+            .zip(b)
+            .enumerate()
+            .filter(|(_, (x, y))| x != y)
+            .map(|(i, _)| i)
+            .collect();
+        assert_eq!(d.len(), 1, "the glow flag moves exactly one byte");
+        d[0]
+    };
+    (only_diff(&ui_on, &ui_off), only_diff(&ci_on, &ci_off))
+}
+
+/// **The hero glow survives mounting.** Java writes the glow byte as
+/// `isHero() || (isGM() && GM_HERO_AURA)` in *both* `UserInfo` (the rider's
+/// own client) and `CharInfo` (everyone else's), and `Player.mount` neither
+/// touches the flag nor suppresses the byte while mounted — so a hero (or a
+/// GM with `GMHeroAura=True`) keeps the glow on a wyvern and after landing.
+/// Regression test for a field report of the glow vanishing on a wyvern: the
+/// flag is on the wire in every state, mounted included.
+#[test]
+fn hero_glow_survives_mount_for_gm_and_hero() {
+    let (mut world, ..) = admin_world();
+    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    world.data.npc_data = crate::data::npc_data::NpcData::load_from(DIST);
+    world.data.gm.hero_aura = true;
+
+    // The GM (glow from GMHeroAura) and a plain player crowned hero, plus an
+    // onlooker whose client receives their CharInfo.
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8940, 100);
+    let mut hero_rx = ingame_player_access(&mut world, 2, 8941, 0);
+    let mut ob_rx = ingame_player_access(&mut world, 3, 8942, 0);
+    crate::game_loop::admin::hero::set_hero(&mut world, 8941, true);
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&8941)
+            .unwrap()
+            .hero_aura,
+        "a crowned hero glows without being a GM"
+    );
+    drain(&mut gm_rx);
+    drain(&mut hero_rx);
+    drain(&mut ob_rx);
+
+    // The GM rides via `//ride_wyvern`; the hero has no admin rights, so they
+    // take the script path the WyvernManager uses (Java `Player.mount`).
+    for (is_gm, oid, own_rx) in [(true, 8940i32, &mut gm_rx), (false, 8941, &mut hero_rx)] {
+        let (ui_off, ci_off) = glow_offsets(&mut world, oid);
+        // Unmounted baseline.
+        crate::game_loop::party::broadcast_user_info(&world, oid);
+        let (ui, ci) = (
+            drain(own_rx).into_iter().find(|p| p[0] == 0x32).unwrap(),
+            drain(&mut ob_rx)
+                .into_iter()
+                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+                .unwrap(),
+        );
+        assert_eq!((ui[ui_off], ci[ci_off]), (1, 1), "{oid}: glows on foot");
+
+        // On the wyvern: the mount swaps speeds/collision, the glow stays.
+        if is_gm {
+            on_packet(&mut world, 1, build_admin("ride_wyvern"));
+        } else {
+            crate::game_loop::admin::mounts::mount_player(&mut world, oid, 12621, 2);
+        }
+        assert!(
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .unwrap()
+                .is_flying(),
+            "{oid}: on the wyvern"
+        );
+        let (ui, ci) = (
+            drain(own_rx)
+                .into_iter()
+                .rev()
+                .find(|p| p[0] == 0x32)
+                .unwrap(),
+            drain(&mut ob_rx)
+                .into_iter()
+                .rev()
+                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+                .unwrap(),
+        );
+        assert_eq!(
+            (ui[ui_off], ci[ci_off]),
+            (1, 1),
+            "{oid}: the glow byte is still set while mounted"
+        );
+
+        // And after landing.
+        if is_gm {
+            on_packet(&mut world, 1, build_admin("unride"));
+        } else {
+            crate::game_loop::admin::mounts::dismount(&mut world, oid);
+        }
+        assert_eq!(
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .unwrap()
+                .mount_type,
+            0,
+            "{oid}: dismounted"
+        );
+        let (ui, ci) = (
+            drain(own_rx)
+                .into_iter()
+                .rev()
+                .find(|p| p[0] == 0x32)
+                .unwrap(),
+            drain(&mut ob_rx)
+                .into_iter()
+                .rev()
+                .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+                .unwrap(),
+        );
+        assert_eq!(
+            (ui[ui_off], ci[ci_off]),
+            (1, 1),
+            "{oid}: the glow byte survives the dismount"
+        );
+    }
+}

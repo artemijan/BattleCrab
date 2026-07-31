@@ -206,6 +206,16 @@ pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
 
 /// `Player.broadcastUserInfo()` — fresh `UserInfo` to self, `CharInfo` to
 /// everyone who can see them.
+///
+/// TODO(G33): Java's `broadcastCharInfo` does not send the `CharInfo` inline —
+/// it schedules `_broadcastCharInfoTask` **50 ms out** and coalesces every
+/// call made in that window into one packet. This port sends it immediately,
+/// so onlookers get the `CharInfo` in the same batch as whatever packet
+/// preceded it (e.g. `Ride` on a mount) instead of 50 ms later, and a burst of
+/// updates sends a `CharInfo` each. Suspected relevance: a client that is
+/// still swapping in the mount actor when the `CharInfo` lands may drop
+/// per-actor render state (hero glow) that Java's delayed packet would apply
+/// afterwards.
 pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
     let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else {
         return;
