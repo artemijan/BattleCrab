@@ -143,6 +143,28 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Book-gated skill learning 2026-07-31.** Found by auditing the skill trees'
+XML against what the parser keeps: `data/skill_tree.rs` reduced each `<skill>`'s
+`<item id count/>` children to a **boolean** `requires_item`, so the manual
+learn path had nothing to charge and `AcquireSkillList` wrote a hard-zero
+required-item count. Net effect: **Divine Inspiration (1405) was learnable for
+SP alone**, its Ancient Book (8618–8621) neither shown by the client nor taken.
+Now parsed into `SkillLearn.required_items` (Java's `ItemHolder` list — the
+parser had to grow an `</skill>` end-event so children can accumulate),
+written into `AcquireSkillList`, and verified + consumed by
+`RequestAcquireSkill`: the whole list is checked before anything is destroyed
+(`YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL`, sm 276), then each book is
+taken with its disappear message. New config `DivineInspirationSpBookNeeded`
+(Java default `True`, **`False` on this dist**), and with it a **Java quirk kept
+verbatim**: `checkPlayerSkill`'s early `return true` for 1405 sits *above* the
+SP deduction, so waiving the book waives the SP cost too — on this dist Divine
+Inspiration is now free of both (the "enough SP?" gate above it still applies).
+**Measured against the datapack:** every `<item>` in the class trees belongs to
+1405, so this one skill is the whole of the required-item leg — except Sorcerer
+(12), which hands out level 2 as a book-less `autoGet` at 52; the test pins that
+quirk instead of asserting the tidy iff. 4 tests, 6 mechanisms
+sabotage-verified. Closes three `TODO(G6)` markers (173 left, from 176).
+
 **`NpcInfo`'s abnormal visuals 2026-07-31.** The same stub, one packet over: the
 `ABNORMALS` component was never emitted, so **a stunned, poisoned or feared mob
 looked completely untouched to every client** — the exact shape `CharInfo` had

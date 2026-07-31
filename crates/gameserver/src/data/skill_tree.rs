@@ -12,13 +12,14 @@
 //! that union; all the per-class queries below run through it.
 //!
 //! The only `<skill>` child present is `<item>` (a book required to learn some
-//! 2nd/3rd-class skills, e.g. Divine Inspiration) — flagged as `requires_item`
-//! and honored by the auto-learn gates (`AutoLearnSkillsWithoutItems`,
-//! `AutoLearnDivineInspiration`). Parsing the item id/count for the manual
-//! learn path (cost display + consumption) is still TODO(G6); no `preReqSkill`,
-//! `learnedByFS`, or `removeSkill` entries exist in these trees, so those Java
-//! code paths stay out of scope — every entry is gated by `getLevel`/`levelUpSp`
-//! (plus the optional book) alone.
+//! 2nd/3rd-class skills) — parsed into [`SkillLearn::required_items`] (Java
+//! `SkillLearn.getRequiredItems`), honored by the auto-learn gates
+//! (`AutoLearnSkillsWithoutItems`, `AutoLearnDivineInspiration`), written into
+//! `AcquireSkillList`, and verified + consumed by the manual learn path. In
+//! these trees every `<item>` belongs to **Divine Inspiration** (1405, Ancient
+//! Books 8618–8621); no `preReqSkill`, `learnedByFS`, or `removeSkill` entries
+//! exist, so those Java code paths stay out of scope — every entry is gated by
+//! `getLevel`/`levelUpSp` (plus the optional book) alone.
 
 use std::collections::{HashMap, HashSet};
 
@@ -42,8 +43,9 @@ pub const NOBLE_SKILL_TREE_FILE: &str = "data/skillTrees/nobleSkillTree.xml";
 const EXPERTISE_SKILL_ID: i32 = 239;
 
 /// Java `CommonSkill.DIVINE_INSPIRATION` (1405): an item-gated class skill the
-/// auto-learn path withholds unless `AutoLearnDivineInspiration` is set.
-const DIVINE_INSPIRATION_SKILL_ID: i32 = 1405;
+/// auto-learn path withholds unless `AutoLearnDivineInspiration` is set, and
+/// the one skill `DivineInspirationSpBookNeeded` can waive the book for.
+pub const DIVINE_INSPIRATION_SKILL_ID: i32 = 1405;
 
 /// A skill a character knows: `(skill_id, skill_level)`.
 pub type Skill = (i32, i32);
@@ -60,11 +62,20 @@ pub struct SkillLearn {
     /// SP cost (0 for autoGet skills, which are granted free at creation).
     pub level_up_sp: i64,
     pub auto_get: bool,
-    /// True when the `<skill>` carries an `<item>` child, i.e. learning it also
-    /// consumes a book (Java `SkillLearn.getRequiredItems`). The `AutoLearnSkills`
-    /// path skips these unless `AutoLearnSkillsWithoutItems` is set; the manual
-    /// `RequestAcquireSkill` path still lists them (item cost enforced there).
-    pub requires_item: bool,
+    /// The `<item id count/>` children — books learning this entry consumes
+    /// (Java `SkillLearn.getRequiredItems`, an `ItemHolder` list). The
+    /// `AutoLearnSkills` path skips entries with any, unless
+    /// `AutoLearnSkillsWithoutItems`; the manual `RequestAcquireSkill` path
+    /// lists them in `AcquireSkillList` and verifies + consumes them.
+    pub required_items: Vec<(i32, i64)>,
+}
+
+impl SkillLearn {
+    /// Whether learning this entry costs a book (Java
+    /// `!getRequiredItems().isEmpty()`).
+    pub fn requires_item(&self) -> bool {
+        !self.required_items.is_empty()
+    }
 }
 
 pub struct SkillTreeData {
@@ -269,7 +280,7 @@ impl SkillTreeData {
             .into_iter()
             .filter(|s| s.get_level <= level)
         {
-            if !include_required_items && s.requires_item {
+            if !include_required_items && s.requires_item() {
                 continue;
             }
             if s.skill_id == DIVINE_INSPIRATION_SKILL_ID && !include_divine_inspiration {
@@ -398,13 +409,26 @@ fn parse_tree(
     // tree, `None` for the common tree; `is_class_tree` gates non-class blocks.
     let mut current_class: Option<i32> = None;
     let mut is_class_tree = false;
+    // The `<skill …>` whose `<item>` children are still being read — Java's
+    // parser fills each node's `ItemHolder` list before adding the `SkillLearn`,
+    // so an entry with children is only pushed at its `</skill>`. `None` between
+    // entries and for self-closing `<skill …/>`, which is pushed on sight.
+    let mut pending: Option<SkillLearn> = None;
     loop {
-        // `has_children` distinguishes `<skill …>…</skill>` (an `<item>`
-        // requirement, the only child these trees carry) from self-closing
-        // `<skill …/>` — see the required-item note on `SkillLearn`.
-        let (e, has_children) = match reader.read_event() {
-            Ok(Event::Start(e)) => (e, true),
-            Ok(Event::Empty(e)) => (e, false),
+        // `self_closing` distinguishes `<skill …/>` (no book) from
+        // `<skill …>…</skill>` (an `<item>` requirement, the only child these
+        // trees carry) — see the required-item note on `SkillLearn`.
+        let (e, self_closing) = match reader.read_event() {
+            Ok(Event::Start(e)) => (e, false),
+            Ok(Event::Empty(e)) => (e, true),
+            Ok(Event::End(e)) => {
+                if e.name().as_ref() == b"skill"
+                    && let Some(learn) = pending.take()
+                {
+                    push_learn(learn, current_class, out, common);
+                }
+                continue;
+            }
             Ok(Event::Eof) | Err(_) => break,
             _ => continue,
         };
@@ -437,16 +461,42 @@ fn parse_tree(
                         get_level,
                         level_up_sp,
                         auto_get,
-                        requires_item: has_children,
+                        required_items: Vec::new(),
                     };
-                    match current_class {
-                        Some(class_id) => out.entry(class_id).or_default().push(learn),
-                        None => common.push(learn),
+                    if self_closing {
+                        push_learn(learn, current_class, out, common);
+                    } else {
+                        pending = Some(learn);
                     }
+                }
+            }
+            // Java `<item id count/>` → `SkillLearn.addRequiredItem`. Attached to
+            // the `<skill>` still being read; a stray `<item>` outside one is
+            // ignored rather than mis-assigned.
+            b"item" if is_class_tree => {
+                if let Some(learn) = pending.as_mut()
+                    && let Some(item_id) = attr_i32(&e, b"id")
+                {
+                    let count = attr_i64(&e, b"count").unwrap_or(1);
+                    learn.required_items.push((item_id, count));
                 }
             }
             _ => {}
         }
+    }
+}
+
+/// File a finished `<skill>` entry under its `<skillTree classId=…>` — or the
+/// common tree when the block carries no `classId` (`Commons.xml`).
+fn push_learn(
+    learn: SkillLearn,
+    current_class: Option<i32>,
+    out: &mut HashMap<i32, Vec<SkillLearn>>,
+    common: &mut Vec<SkillLearn>,
+) {
+    match current_class {
+        Some(class_id) => out.entry(class_id).or_default().push(learn),
+        None => common.push(learn),
     }
 }
 
@@ -501,7 +551,7 @@ mod tests {
             get_level,
             level_up_sp,
             auto_get: false,
-            requires_item: false,
+            required_items: Vec::new(),
         }
     }
 
@@ -735,7 +785,7 @@ mod tests {
         data.insert_for_test(
             0,
             SkillLearn {
-                requires_item: true,
+                required_items: vec![(8618, 1)],
                 ..learn(60, 1, 5, 100)
             },
         ); // book-gated
@@ -793,5 +843,64 @@ mod tests {
             warlord.len(),
             base.len()
         );
+    }
+
+    /// Against the real datapack: the `<item>` children parse into
+    /// `required_items`. Every one in these trees belongs to Divine Inspiration
+    /// (1405) — its four Ancient Books, one per skill level — and nothing else
+    /// in a class tree costs an item.
+    #[test]
+    fn dist_divine_inspiration_carries_its_ancient_books() {
+        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        // The books, in skill-level order (8618/8619 in 2ndClass, 8620/8621 in
+        // 3rdClass — the same skill re-declared per class tree).
+        const BOOKS: [i32; 4] = [8618, 8619, 8620, 8621];
+
+        let data = SkillTreeData::load_from(DIST);
+        // Warlord (3) reaches Divine Inspiration through the 2nd-class tree.
+        let di: Vec<&SkillLearn> = data
+            .complete_entries(3)
+            .into_iter()
+            .filter(|s| s.skill_id == DIVINE_INSPIRATION_SKILL_ID)
+            .collect();
+        assert!(!di.is_empty(), "Divine Inspiration is in the Warlord tree");
+        for entry in &di {
+            assert_eq!(
+                entry.required_items.len(),
+                1,
+                "level {} carries exactly one book",
+                entry.skill_level
+            );
+            let (item_id, count) = entry.required_items[0];
+            assert!(
+                BOOKS.contains(&item_id),
+                "level {} wants an Ancient Book, got {item_id}",
+                entry.skill_level
+            );
+            assert_eq!(count, 1);
+        }
+        // Nothing *but* Divine Inspiration costs an item anywhere in the class
+        // trees — so the required-item leg of the learn path is reachable only
+        // through 1405, which is what makes `DivineInspirationSpBookNeeded` the
+        // whole of the feature on this dist.
+        let mut book_less_di = 0;
+        for class_id in 0..=136 {
+            for entry in data.complete_entries(class_id) {
+                if entry.requires_item() {
+                    assert_eq!(
+                        entry.skill_id, DIVINE_INSPIRATION_SKILL_ID,
+                        "class {class_id} skill {} ({}) costs an item",
+                        entry.skill_id, entry.name
+                    );
+                } else if entry.skill_id == DIVINE_INSPIRATION_SKILL_ID {
+                    // The converse does *not* hold: Sorcerer (12) hands out
+                    // Divine Inspiration level 2 as a free `autoGet` at 52, with
+                    // no book. Datapack quirk, pinned so it stays visible.
+                    assert!(entry.auto_get, "class {class_id} DI level 2 is autoGet");
+                    book_less_di += 1;
+                }
+            }
+        }
+        assert!(book_less_di > 0, "the Sorcerer autoGet entry is reachable");
     }
 }

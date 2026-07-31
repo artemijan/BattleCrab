@@ -48,7 +48,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
             get_level: 5,
             level_up_sp: 100,
             auto_get: false,
-            requires_item: false,
+            required_items: Vec::new(),
         },
     );
     data.skill_data.insert_for_test(Skill {
@@ -747,7 +747,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
                 get_level: 1,
                 level_up_sp: 0,
                 auto_get: true,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         data.skill_trees.insert_for_test(
@@ -759,7 +759,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
                 get_level: 5,
                 level_up_sp: 100,
                 auto_get: false,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         data.skill_trees.insert_for_test(
@@ -771,7 +771,7 @@ fn auto_learn_grants_all_reachable_class_skills() {
                 get_level: 10,
                 level_up_sp: 200,
                 auto_get: false,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         data
@@ -848,7 +848,7 @@ fn delevel_downgrades_then_removes_skills() {
                 get_level: 20,
                 level_up_sp: 100,
                 auto_get: false,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         data.skill_trees.insert_for_test(
@@ -860,7 +860,7 @@ fn delevel_downgrades_then_removes_skills() {
                 get_level: 40,
                 level_up_sp: 200,
                 auto_get: false,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         // Skill 92: a single level @ getLevel 7 — used to show the strict flag
@@ -874,7 +874,7 @@ fn delevel_downgrades_then_removes_skills() {
                 get_level: 7,
                 level_up_sp: 100,
                 auto_get: false,
-                requires_item: false,
+                required_items: Vec::new(),
             },
         );
         data
@@ -3548,7 +3548,7 @@ fn skill_acquire_gates_send_system_messages() {
             get_level: 10,
             level_up_sp: 0,
             auto_get: false,
-            requires_item: false,
+            required_items: Vec::new(),
         },
     );
     // Reachable level, but costs more SP than the player has (sp 0).
@@ -3561,7 +3561,7 @@ fn skill_acquire_gates_send_system_messages() {
             get_level: 1,
             level_up_sp: 100,
             auto_get: false,
-            requires_item: false,
+            required_items: Vec::new(),
         },
     );
 
@@ -3591,6 +3591,247 @@ fn skill_acquire_gates_send_system_messages() {
         .get_component::<crate::model::components::SkillBook>(&3001)
         .unwrap();
     assert!(!book.0.contains_key(&1001) && !book.0.contains_key(&1002));
+}
+
+/// `checkPlayerSkill`'s required-item leg: a book-gated entry (the class trees'
+/// `<item id count/>` children) is refused without the book, and consumes it
+/// with the disappear message when the player has it.
+#[test]
+fn skill_acquire_requires_and_consumes_the_book() {
+    use crate::data::skill_tree::SkillLearn;
+    use crate::model::inventory::Inventory;
+
+    const BOOK: i32 = 8618; // Ancient Book: Divine Inspiration (Modern Language)
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.cfg.character.divine_inspiration_sp_book_needed = true;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .sp = 500;
+    world.data.skill_trees.insert_for_test(
+        0,
+        SkillLearn {
+            skill_id: 1003,
+            skill_level: 1,
+            name: "Book Gated".into(),
+            get_level: 1,
+            level_up_sp: 100,
+            auto_get: false,
+            required_items: vec![(BOOK, 1)],
+        },
+    );
+    drain(&mut rx);
+
+    // No book in the bag → `YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL`,
+    // and neither the skill nor the SP moves.
+    handle_request_acquire_skill(
+        &mut world,
+        1,
+        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+    );
+    assert_eq!(
+        sm_ids_of(&drain(&mut rx)),
+        vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL],
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&3001)
+            .unwrap()
+            .0
+            .contains_key(&1003),
+        "book-gated skill not learned without the book"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&3001)
+            .unwrap()
+            .sp,
+        500,
+        "SP untouched when the item gate refuses"
+    );
+
+    // With the book: learned, book destroyed, `S1_DISAPPEARED` (count 1), SP paid.
+    let World { objects, data, .. } = &mut world;
+    objects
+        .get_component_mut::<Inventory>(&3001)
+        .unwrap()
+        .add_item(&data.item_data, 9100, BOOK, 1);
+    handle_request_acquire_skill(
+        &mut world,
+        1,
+        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&3001)
+            .unwrap()
+            .0
+            .get(&1003),
+        Some(&1)
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&3001)
+            .unwrap()
+            .count_of(BOOK),
+        0,
+        "the book is consumed"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&3001)
+            .unwrap()
+            .sp,
+        400,
+        "500 SP - levelUpSp(100)"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(&server_packets::sm_ids::S1_DISAPPEARED),
+        "the disappear message for the consumed book"
+    );
+}
+
+/// `AcquireSkillList`'s per-entry required-item block (Java writes
+/// `getRequiredItems()` as `count` then `(int id, long count)` each) — it was a
+/// hard-coded zero, so the client never showed the book beside the skill.
+#[test]
+fn acquire_skill_list_carries_the_required_book() {
+    use crate::data::skill_tree::SkillLearn;
+
+    const BOOK: i32 = 8618;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.data.skill_trees.insert_for_test(
+        0,
+        SkillLearn {
+            skill_id: 1003,
+            skill_level: 1,
+            name: "Book Gated".into(),
+            get_level: 1,
+            level_up_sp: 100,
+            auto_get: false,
+            required_items: vec![(BOOK, 2)],
+        },
+    );
+
+    let view = crate::model::PlayerView::of_world(&world, 3001).expect("view");
+    let skills = world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&3001)
+        .unwrap();
+    let pkt = crate::network::enter_world::acquire_skill_list(view.p, skills, &world.data);
+
+    // 0x90, i16 entry count, then: i32 id, i16 level, i64 sp, u8 getLevel,
+    // u8 dualClass, u8 reqCount, (i32 itemId, i64 count)…, u8 removeCount.
+    assert_eq!(pkt[0], 0x90);
+    assert_eq!(
+        i16::from_le_bytes([pkt[1], pkt[2]]),
+        1,
+        "one learnable skill"
+    );
+    assert_eq!(i32::from_le_bytes(pkt[3..7].try_into().unwrap()), 1003);
+    assert_eq!(pkt[19], 1, "one required item");
+    assert_eq!(i32::from_le_bytes(pkt[20..24].try_into().unwrap()), BOOK);
+    assert_eq!(i64::from_le_bytes(pkt[24..32].try_into().unwrap()), 2);
+    assert_eq!(pkt[32], 0, "no remove-skills");
+    assert_eq!(pkt.len(), 33);
+}
+
+/// `DivineInspirationSpBookNeeded = False` (this dist): `checkPlayerSkill`
+/// returns early for skill 1405, so it needs no book — and because that `return`
+/// sits above Java's SP deduction, no SP either. Only 1405 is waived.
+#[test]
+fn divine_inspiration_book_waiver_also_waives_sp() {
+    use crate::data::skill_tree::{DIVINE_INSPIRATION_SKILL_ID, SkillLearn};
+
+    const BOOK: i32 = 8618;
+
+    let (mut world, _db_tx, _db_rx, _link_rx) = test_world();
+    world.cfg.character.divine_inspiration_sp_book_needed = false;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .sp = 500;
+    world.data.skill_trees.insert_for_test(
+        0,
+        SkillLearn {
+            skill_id: DIVINE_INSPIRATION_SKILL_ID,
+            skill_level: 1,
+            name: "Divine Inspiration".into(),
+            get_level: 1,
+            level_up_sp: 100,
+            auto_get: false,
+            required_items: vec![(BOOK, 1)],
+        },
+    );
+    // A second book-gated skill that is *not* Divine Inspiration — the waiver is
+    // keyed to skill 1405, not to "has required items".
+    world.data.skill_trees.insert_for_test(
+        0,
+        SkillLearn {
+            skill_id: 1003,
+            skill_level: 1,
+            name: "Book Gated".into(),
+            get_level: 1,
+            level_up_sp: 100,
+            auto_get: false,
+            required_items: vec![(BOOK, 1)],
+        },
+    );
+    drain(&mut rx);
+
+    handle_request_acquire_skill(
+        &mut world,
+        1,
+        &acquire_skill_body(
+            DIVINE_INSPIRATION_SKILL_ID,
+            1,
+            cp::RequestAcquireSkill::CLASS,
+        ),
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&3001)
+            .unwrap()
+            .0
+            .get(&DIVINE_INSPIRATION_SKILL_ID),
+        Some(&1),
+        "learned with no book in the bag"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&3001)
+            .unwrap()
+            .sp,
+        500,
+        "Java's early return skips the SP deduction too"
+    );
+
+    // The other book-gated skill is still refused.
+    drain(&mut rx);
+    handle_request_acquire_skill(
+        &mut world,
+        1,
+        &acquire_skill_body(1003, 1, cp::RequestAcquireSkill::CLASS),
+    );
+    assert_eq!(
+        sm_ids_of(&drain(&mut rx)),
+        vec![server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL],
+        "the waiver is keyed to skill 1405 alone"
+    );
 }
 
 /// `StoreSkillCooltime` round-trip: a live cooldown is captured into the save
