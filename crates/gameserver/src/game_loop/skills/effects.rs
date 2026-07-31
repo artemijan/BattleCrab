@@ -87,11 +87,31 @@ pub(crate) fn apply_skill_effects(
 
     for effect in &skill.effects {
         match effect {
-            // Pet food. The generic cast path never reaches this — a pet eats
-            // through `servitor::apply_food_skill`, which targets the pet
-            // rather than the caster — so it is a no-op here rather than a
-            // second, divergent implementation.
-            SkillEffect::Feed { .. } => {}
+            // Pet food. Java branches on the *effected*: a pet's own bar is
+            // filled through `servitor::apply_food_skill` (which targets the
+            // pet, so it never arrives here), while a **player** — necessarily
+            // a mounted one, since that is the only player-side food bar —
+            // tops up the mount's gauge, by the `wyvern` param on a wyvern and
+            // `ride` on anything else.
+            SkillEffect::Feed { ride, wyvern, .. } => {
+                let mount_type = world
+                    .objects
+                    .get_component::<crate::model::Player>(&target_oid)
+                    .map_or(0, |p| p.mount_type);
+                if mount_type != 0 {
+                    // `MountType.WYVERN` is ordinal 2 (see `mounts::Mount`).
+                    let amount = if mount_type == 2 { *wyvern } else { *ride };
+                    let current = world
+                        .objects
+                        .get_component::<crate::model::Player>(&target_oid)
+                        .map_or(0, |p| p.mount_feed);
+                    crate::game_loop::admin::mounts::set_current_feed(
+                        world,
+                        target_oid,
+                        current + amount,
+                    );
+                }
+            }
             SkillEffect::SummonCubic { cubic_id, cubic_level } => {
                 crate::game_loop::cubic::summon_cubic(world, target_oid, *cubic_id, *cubic_level);
             }

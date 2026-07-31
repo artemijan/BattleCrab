@@ -1271,7 +1271,11 @@ fn register_food(world: &mut World, restores: i32) {
     let skill = crate::model::skill::Skill {
         id: WOLF_FOOD_SKILL,
         level: 1,
-        effects: vec![crate::model::skill::SkillEffect::Feed { normal: restores }],
+        effects: vec![crate::model::skill::SkillEffect::Feed {
+            normal: restores,
+            ride: 0,
+            wyvern: 0,
+        }],
         ..Default::default()
     };
     world.data.skill_data.insert_for_test(skill);
@@ -1615,7 +1619,7 @@ fn the_real_wolf_food_skill_parses_its_feed_value() {
         .effects
         .iter()
         .find_map(|e| match e {
-            crate::model::skill::SkillEffect::Feed { normal } => Some(*normal),
+            crate::model::skill::SkillEffect::Feed { normal, .. } => Some(*normal),
             _ => None,
         })
         .expect("Wolf Food carries a Feed effect");

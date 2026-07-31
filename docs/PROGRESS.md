@@ -143,6 +143,43 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Mount feeding 2026-08-01.** The item deferred from the last tranche, and the
+last of the mount markers. Java `Player.startFeed` + `PetFeedTask`: riding
+burns the mount's feed every 10 s (`consume_meal_in_battle` while swinging,
+else `consume_meal_in_normal`), and the tick that cannot cover the cost
+**force-dismounts** with "You are out of feed. Mount status canceled." The bar
+refills by using the mount's food while riding — that is what the `Feed`
+effect's `ride`/`wyvern` params are for, and they were parsed away: the port
+carried only `normal` (the pet's share), so the rider half of the same food
+item did nothing.
+
+The starting value is a Java subtlety worth keeping: `mount(Summon pet)` calls
+`startFeed` **before** unsummoning the pet, so mounting your own half-starved
+strider hands you a half-empty bar, while every pet-less path (admin `//ride_*`,
+the wyvern manager, the enter-world restore) starts full.
+
+**`isHungry()` is inert in this Java build, and that is now recorded rather than
+guessed at.** The predicate reads `hasPet() && …`, but `mount()` unsummons the
+pet one line after starting the feed — so a *rider* never has one, and both
+consumers are dead code: the `SpeedFinalizer`'s -50 % hungry-mount halving and
+the "a hungry strider cannot be mounted or dismounted" refusal. The refusal is
+ported anyway, for shape, at the `/dismount` action; the speed site cannot reach
+the pet registry from `recalculate_stats` and says so instead of leaving a bare
+gap. Reading `isHungry` as live would have been a divergence *in the port's
+favour* — exactly the kind the [[l2r-port-behaviour-not-intent]] lesson is about.
+
+**One Java bug deliberately not reproduced.** All four feed `SetupGauge` call
+sites read `new SetupGauge(3, cur, max)` — the *three*-argument constructor,
+whose first parameter is the **object id**. Mobius added `objectId` to that
+signature and never updated these lines, so retail-Mobius sends
+`objectId = 3, colour = cur`: a packet the client cannot draw. Every other
+`SetupGauge` call site in the tree passes `getObjectId()` first. The port sends
+the four-argument form with the rider's id and colour 3 (green), with the bug
+documented at the site. 2 tests, 4 mechanisms sabotage-verified. Markers:
+163 → 158 (the feed markers plus three stale mount ones:
+`AllowRideMountsDuringSiege`'s "when pet mounting lands", the `/dismount`
+action's "mounting is TODO", and the speed finalizer's hunger note).
+
 **Olympiad leaderboard, siege mounts, TvT dualbox 2026-07-31.** The next three
 markers from the staleness sweep, each waiting on a subsystem that had since
 landed:

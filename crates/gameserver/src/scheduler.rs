@@ -283,6 +283,12 @@ pub enum ScheduledTask {
     PetFeedTick {
         pet_oid: i32,
     },
+    /// Java `PetFeedTask` — the *rider's* copy of the same 10 s clock: a mount
+    /// burns feed while ridden and force-dismounts when the bar empties. Keyed
+    /// by the rider, and self-cancelling once they are no longer mounted.
+    MountFeedTick {
+        player_oid: i32,
+    },
     /// `SkillCaster.run` phase 1 (`launchSkill`), fires `_hitTime` ms after
     /// `startCasting`. The skill/target live in the player's `CastState`;
     /// `cast_seq` must match it or the task is stale (aborted/replaced cast)

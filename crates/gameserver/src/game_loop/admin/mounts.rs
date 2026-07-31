@@ -87,9 +87,8 @@ pub(super) fn has_mount_or_summon(world: &World, target: i32) -> bool {
 /// UserInfo/CharInfo. Returns whether the mount happened (Java returns false
 /// when the weapon can't be removed or the rider is transformed).
 ///
-/// TODO(G29): Java `mount()` also starts the mount feed task (`startFeed` —
-/// the hunger that halves speed and force-dismounts at 0); lands with mount
-/// feeding.
+/// Java also starts the feed clock here ([`start_feed`]) — the gauge that
+/// drains every 10 s and force-dismounts at zero.
 pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_type: u8) -> bool {
     // Java's first gate: `if (!ALLOW_MOUNTS_DURING_SIEGE && isInsideZone(SIEGE))
     // return false;` — silent, no message. **False** on this dist, so a rider
@@ -126,6 +125,17 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
             .objects
             .add_components(&target, Collision { radius, height });
     }
+    // `startFeed(pet.getId())` runs *before* Java unsummons the pet, so a live
+    // pet's own food carries onto the mount's gauge; with no pet out (the
+    // admin rides, the wyvern manager) the bar starts full.
+    let inherited = crate::game_loop::servitor::pet_of(world, target)
+        .and_then(|pet| {
+            world
+                .objects
+                .get_component::<crate::model::components::PetOf>(&pet)
+        })
+        .map(|p| p.fed);
+    start_feed(world, target, inherited);
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, true);
     super::party::broadcast_user_info(world, target);
@@ -223,11 +233,14 @@ fn stop_all_toggles(world: &mut World, target: i32) {
 /// mounted. The `//unride*` commands route here through the transform module's
 /// combined dismount-or-untransform path.
 ///
-/// TODO(G29): Java also clears the feed gauge (`SetupGauge(3, 0, 0)`), stops
-/// the feed task, persists the leftover feed (`storePetFood`), and removes the
-/// Wyvern Breath skill (4289) — feed lands with mount feeding, and Wyvern
-/// Breath is never granted yet (Java's own `setMount` only grants the strider
-/// skill, so 4289 exists solely to be removed here).
+/// Java also clears the feed gauge and stops its task here; the port's task
+/// self-cancels on the next tick once `is_mounted()` is false, so only the
+/// gauge needs sending.
+///
+/// TODO(G29): Java additionally persists the leftover feed onto the control
+/// item (`storePetFood`) and removes the Wyvern Breath skill (4289) — the
+/// former needs the mount's control-item link, and Java's own `setMount` only
+/// ever grants the strider skill, so 4289 exists solely to be removed here.
 pub(crate) fn dismount(world: &mut World, target: i32) {
     if !world
         .objects
@@ -274,6 +287,15 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         p.mount_type = 0;
         p.mount_npc_id = 0;
         p.mount_level = 0;
+        p.mount_feed = 0;
+    }
+    // `stopFeed()` + `SetupGauge(3, 0, 0)`: blank the bar. Sent by hand rather
+    // than through `set_current_feed`, which needs the (now cleared) mount to
+    // resolve its level row.
+    if let Some(cs) =
+        super::helpers::client_for_player(world, target).and_then(|cid| world.clients.get(&cid))
+    {
+        cs.send(server_packets::setup_gauge_range(target, GAUGE_GREEN, 0, 0));
     }
     // Restore the class-template collision (same shape as untransform).
     let (class_id, base_class_id) = world
@@ -335,4 +357,174 @@ pub(crate) fn in_active_siege(world: &World, object_id: i32) -> bool {
         .objects
         .get_component::<crate::model::components::ZoneFlags>(&object_id)
         .is_some_and(|f| f.in_active_siege)
+}
+
+// ---------------------------------------------------------------------------
+// Mount feeding (Java `Player.startFeed`/`stopFeed` + `PetFeedTask`)
+// ---------------------------------------------------------------------------
+
+/// Java `ThreadPool.scheduleAtFixedRate(new PetFeedTask(this), 10000, 10000)`.
+const FEED_TICK_SECS: u64 = 10;
+/// Game-loop ticks per second.
+const TICKS_PER_SECOND: u64 = 10;
+/// `SetupGauge`'s green bar — the colour the feed gauge uses.
+const GAUGE_GREEN: i32 = 3;
+
+/// Java `Player.startFeed(npcId)`: fill the gauge, show it, and start the 10 s
+/// clock. `inherited` is the food a **live pet** brings to the mount — Java
+/// calls `startFeed` while `hasPet()` is still true (the pet is unsummoned one
+/// line later), so mounting your own half-starved strider gives you a
+/// half-empty bar; every other path (admin `//ride_*`, the wyvern manager,
+/// the enter-world restore) has no pet and starts full.
+pub(crate) fn start_feed(world: &mut World, target: i32, inherited: Option<i32>) {
+    let Some(max) = max_feed(world, target) else {
+        // Java: `getPetData(npcId) == null` → the task stops itself on the
+        // first tick. Nothing to drain, so don't arm it at all.
+        return;
+    };
+    let feed = inherited.unwrap_or(max).clamp(0, max);
+    set_current_feed(world, target, feed);
+    world.scheduler.schedule(
+        world.tick + FEED_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::MountFeedTick { player_oid: target },
+    );
+}
+
+/// Java `Player.setCurrentFeed(num)` — clamp to the maximum and re-send the
+/// gauge. (Java also re-broadcasts UserInfo when `isHungry()` flips; that
+/// predicate is inert here — see [`is_hungry`].)
+pub(crate) fn set_current_feed(world: &mut World, target: i32, feed: i32) {
+    let Some(max) = max_feed(world, target) else {
+        return;
+    };
+    let feed = feed.min(max);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
+        p.mount_feed = feed;
+    }
+    send_feed_gauge(world, target, feed, max);
+}
+
+/// The gauge, in the milliseconds-of-riding-left the client draws: each unit of
+/// feed buys one 10 s tick, so `feed * 10000 / consume` ms.
+fn send_feed_gauge(world: &World, target: i32, feed: i32, max: i32) {
+    let consume = feed_consume(world, target).max(1);
+    let Some(cs) =
+        super::helpers::client_for_player(world, target).and_then(|cid| world.clients.get(&cid))
+    else {
+        return;
+    };
+    // **Java bug, not reproduced.** All four feed call sites read
+    // `new SetupGauge(3, cur, max)` — the *three*-argument constructor, whose
+    // first parameter is the **object id**. Mobius added `objectId` to the
+    // signature and never updated these lines, so retail-Mobius sends
+    // `objectId = 3, colour = cur`: garbage the client cannot draw. Every other
+    // `SetupGauge` call site passes `getObjectId()` first, which is what the
+    // four-argument form here does.
+    cs.send(server_packets::setup_gauge_range(
+        target,
+        GAUGE_GREEN,
+        feed * 10000 / consume,
+        max * 10000 / consume,
+    ));
+}
+
+/// Java `PetFeedTask.run`: burn one tick's feed, or force-dismount when the bar
+/// cannot cover it. Self-cancelling — a rider who has dismounted (or whose
+/// mount has no pet data) simply stops re-arming, which is Java's `stopFeed`.
+pub(crate) fn handle_mount_feed_tick(world: &mut World, target: i32) {
+    if !world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(Player::is_mounted)
+    {
+        return;
+    }
+    if max_feed(world, target).is_none() {
+        return;
+    }
+    let consume = feed_consume(world, target);
+    let feed = world
+        .objects
+        .get_component::<Player>(&target)
+        .map_or(0, |p| p.mount_feed);
+    if feed > consume {
+        set_current_feed(world, target, feed - consume);
+    } else {
+        // "You are out of feed. Mount status canceled."
+        set_current_feed(world, target, 0);
+        dismount(world, target);
+        send_sm(
+            world,
+            super::helpers::client_for_player(world, target).unwrap_or(0),
+            sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED,
+        );
+        return;
+    }
+    world.scheduler.schedule(
+        world.tick + FEED_TICK_SECS * TICKS_PER_SECOND,
+        crate::scheduler::ScheduledTask::MountFeedTick { player_oid: target },
+    );
+}
+
+/// Java `Player.getFeedConsume()` — the battle rate while swinging, else the
+/// normal one, from the mount's level row.
+fn feed_consume(world: &World, target: i32) -> i32 {
+    let attacking = world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&target)
+        .is_some_and(|a| a.attack_end_tick > world.tick);
+    mount_level_row(world, target).map_or(1, |row| {
+        if attacking {
+            row.consume_meal_in_battle
+        } else {
+            row.consume_meal_in_normal
+        }
+    })
+}
+
+/// Java `Player.getMaxFeed()` — the level row's `max_meal`. `None` when the
+/// ridden species has no pet data (Java's `getPetData(...) == null` guard).
+fn max_feed(world: &World, target: i32) -> Option<i32> {
+    mount_level_row(world, target).map(|row| row.max_meal)
+}
+
+/// The mount's `<level>` row, at the *mount's* level (Java `getPetLevelData`).
+fn mount_level_row(world: &World, target: i32) -> Option<&crate::data::pet_data::PetLevel> {
+    let p = world.objects.get_component::<Player>(&target)?;
+    world
+        .data
+        .pet_data
+        .get(p.mount_npc_id)
+        .and_then(|pet| pet.level_row(p.mount_level))
+}
+
+/// Java `Player.isHungry()` — **inert, and faithfully so**: the predicate reads
+/// `hasPet() && _canFeed && _curFeed < hungryLimit% * maxFeed`, but `mount()`
+/// unsummons the pet immediately after starting the feed, so a rider never has
+/// one. Both consumers — the `SpeedFinalizer` halving and the "a hungry strider
+/// cannot be dismounted" refusal — are therefore dead code in this Java build.
+/// Kept as a named function so the two call sites can point at the reason
+/// rather than silently omitting a branch.
+pub(crate) fn is_hungry(world: &World, target: i32) -> bool {
+    if crate::game_loop::servitor::pet_of(world, target).is_none() {
+        return false;
+    }
+    let Some(limit) = world
+        .objects
+        .get_component::<Player>(&target)
+        .and_then(|p| world.data.pet_data.get(p.mount_npc_id))
+        .map(|t| t.hungry_limit)
+    else {
+        return false;
+    };
+    let (Some(feed), Some(max)) = (
+        world
+            .objects
+            .get_component::<Player>(&target)
+            .map(|p| p.mount_feed),
+        max_feed(world, target),
+    ) else {
+        return false;
+    };
+    (feed as f64) < (limit as f64 / 100.0) * max as f64
 }

@@ -106,6 +106,7 @@ async fn user_info_test() {
         mount_type: 0,
         mount_npc_id: 0,
         mount_level: 0,
+        mount_feed: 0,
         trade_refusal: false,
         cond_overrides: 0,
         transform_id: 0,

@@ -559,12 +559,14 @@ pub enum SkillEffect {
         power: f64,
     },
 
-    /// `Feed` — restores a pet's food bar (Java `effecthandlers/Feed`). The
-    /// `ride`/`wyvern` params feed a *mounted player's* bar instead; mounts are
-    /// not ported, so only `normal` is carried.
-    /// TODO(G29): apply `ride`/`wyvern` when mounts land.
+    /// `Feed` — restores a food bar (Java `effecthandlers/Feed`). Which of the
+    /// three params applies is decided by *who is fed*: `normal` for a pet,
+    /// and for a player `wyvern` while riding one, else `ride`. The same food
+    /// item therefore serves a summoned strider and a ridden one.
     Feed {
         normal: i32,
+        ride: i32,
+        wyvern: i32,
     },
 
     /// `SummonCubic` — attaches a cubic to the caster (see `game_loop/cubic`).
