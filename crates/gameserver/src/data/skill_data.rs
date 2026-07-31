@@ -1992,7 +1992,22 @@ fn build_skill(
                         // the doc comment on `SkillEffect::AttackTrait`), so this
                         // carries an icon-only marker like `DefenceTrait`/
                         // `VampiricAttack` rather than the per-trait param map.
-                        "AttackTrait" => vec![SkillEffect::AttackTrait],
+                        // Same shape as `DefenceTrait`: every param is a trait
+                        // name → percent, divided by 100.
+                        "AttackTrait" => {
+                            let traits: Vec<(crate::model::skill::TraitType, f64)> = params
+                                .keys()
+                                .filter_map(|key| {
+                                    let raw = value_at(params, key, level)?;
+                                    let pct: f64 = raw.parse().ok()?;
+                                    Some((
+                                        crate::model::skill::TraitType::from_xml(key),
+                                        pct / 100.0,
+                                    ))
+                                })
+                                .collect();
+                            vec![SkillEffect::AttackTrait { traits }]
+                        }
                         // Celestial Shield (1418), Flames of Invincibility (1427),
                         // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
                         // skill carries two of these, one `BLOCK_HP` and one
