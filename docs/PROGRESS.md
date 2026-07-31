@@ -143,6 +143,25 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G20 vampiric absorb + damage reflect 2026-07-31 (12 → 9).** The two on-hit
+reactions in Java's `Creature.doAttack`, both of which had been landing as
+icon-only markers: **Vampiric Rage healed nothing and Reflect Damage bounced
+nothing** (7 and 6 learnable carriers). Java `pump`s both as ordinary additive
+stats, so they now ride `stat_modifier_effects` — `VampiricAttack` grants a
+*pair* (`ABSORB_DAMAGE_PERCENT = amount/100` and the `amount · chance` term
+`VampiricChanceFinalizer` divides back out), `DamageShield` a single
+`REFLECT_DAMAGE_PERCENT`. A new `apply_attack_damage` layer sits above
+`apply_physical_damage`, which stays the raw `reduceCurrentHp` analog so a
+`DamageZone` tick neither feeds a vampire nor gets reflected.
+**Java's gates, all live:** a **bow drains nothing** ("do not absorb if weapon
+is ranged"); `VampiricAttackWorkWithSkills` is **False** here, so Vampiric Rage
+feeds off auto-attacks only; the absorb is capped by the victim's remaining HP;
+and the reflect is skipped on a DoT, on reflected damage itself, and — the one
+that is easy to miss — **on a killing blow** ("when killing blow is made, the
+target doesn't reflect"). The bounce is capped by the reflector's own defence,
+`pDef` or `mDef · 1.5` for a magic skill, and Java's `int` truncation there is
+load-bearing. 13 tests, 16 mechanisms sabotage-verified.
+
 **G20 shield block + ranged skill damage 2026-07-31 (14 → 12).** Two gaps that
 touched every shield user and every archer. **`calcShldUse` was ported for
 auto-attacks and mana drains but consulted by none of the three *skill* damage

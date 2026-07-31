@@ -1555,7 +1555,9 @@ pub(crate) fn handle_attack_hit(
         }
     }
 
-    apply_physical_damage(world, attacker, target, damage as f64, false);
+    // The auto-attack path is `doAttack` proper: vampiric absorb + reflect ride
+    // along (`skill_magic = None` — there is no skill).
+    apply_attack_damage(world, attacker, target, damage as f64, false, None);
 
     // Java `OnCreatureDamageDealt` — the event `TriggerSkillByAttack` listens
     // on. Fired after the damage lands, and only for a *normal* attack (this
@@ -1592,6 +1594,178 @@ fn target_display_param(world: &World, target: i32) -> SmParam {
 /// casts / killing at 0 HP. `is_dot` is Java `CreatureStatus.reduceHp`'s
 /// `isDOT` — the one exemption from `HP_BLOCK` (Celestial Shield, …) besides
 /// a skill's own HP cost, which never reaches this shared path at all.
+/// Java `Creature.doAttack`'s tail — the on-hit reactions that wrap the plain
+/// HP reduction: the attacker's **vampiric absorb** before the damage lands,
+/// and the target's **damage reflect** after.
+///
+/// Separate from [`apply_physical_damage`] because that is the
+/// `reduceCurrentHp` analog, and Java's own non-attack damage sources (a
+/// `DamageZone` tick) call *that* directly — a lava pool neither feeds a
+/// vampire nor gets reflected.
+///
+/// `skill_magic` is `None` for an auto-attack and `Some(is_magic)` for a skill
+/// hit; both gates need it (`skill == null` for the absorb,
+/// `skill.isMagic()` for the reflect's defence cap).
+pub(crate) fn apply_attack_damage(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    is_dot: bool,
+    skill_magic: Option<bool>,
+) {
+    absorb_damage_to_hp(world, attacker, target, damage, is_dot, skill_magic);
+    apply_physical_damage(world, attacker, target, damage, is_dot);
+    reflect_damage(world, attacker, target, damage, is_dot, skill_magic);
+}
+
+/// `Creature.doAttack`'s "Absorb HP from the damage inflicted" block.
+///
+/// Java's gates, in order: **not with a ranged weapon** ("Do not absorb if
+/// weapon is ranged"), not in PvP unless `VampiricAttackAffectsPvP`, and not on
+/// a skill unless `VampiricAttackWorkWithSkills` — **False** on this dist, so
+/// Vampiric Rage feeds off auto-attacks only.
+///
+/// The absorbed amount is clamped three times: by the healer's missing HP, by
+/// the victim's *current* HP (you cannot drain more than is there), and by the
+/// victim's `ABSORB_DAMAGE_DEFENCE` multiplier.
+fn absorb_damage_to_hp(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    is_dot: bool,
+    skill_magic: Option<bool>,
+) {
+    use crate::model::components::{StatModifiers, Vitals};
+    use crate::model::stats::Stat;
+    if is_dot || damage <= 0.0 {
+        return;
+    }
+    if skill_magic.is_some() && !world.cfg.character.vampiric_attack_works_with_skills {
+        return;
+    }
+    // "Do not absorb if weapon is ranged" — a bow drains nothing.
+    if super::ranged::is_ranged(
+        super::ranged::equipped_weapon_type(world, attacker).unwrap_or_default(),
+    ) {
+        return;
+    }
+    // `isPvP` here is Java's narrow one: a *playable* hitting a *playable*.
+    let is_pvp = !is_npc_oid(attacker) && !is_npc_oid(target);
+    if is_pvp && !world.cfg.character.vampiric_attack_affects_pvp {
+        return;
+    }
+
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&attacker) else {
+        return;
+    };
+    let absorb_percent = crate::model::finalize(mods, Stat::AbsorbDamagePercent, 0.0);
+    if absorb_percent <= 0.0 {
+        return;
+    }
+    let vampiric_sum = crate::model::finalize(mods, Stat::VampiricSum, 0.0);
+    // `VampiricChanceFinalizer`: `min(1, vampiricSum / (absorbPercent·100) / 100)`.
+    let chance = (vampiric_sum / (absorb_percent * 100.0) / 100.0).min(1.0);
+    if world.roll_f64() >= chance {
+        return;
+    }
+
+    let Some(healer) = world.objects.get_component::<Vitals>(&attacker) else {
+        return;
+    };
+    let missing = healer.max_hp as f64 - healer.cur_hp;
+    let victim_hp = world
+        .objects
+        .get_component::<Vitals>(&target)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0);
+    // Java truncates to `int` at each step, so the two `min`s are integer ones.
+    let mut absorbed = (absorb_percent * damage).min(missing).trunc();
+    absorbed = absorbed.min(victim_hp.trunc());
+    // Java also multiplies by the victim's `ABSORB_DAMAGE_DEFENCE`; no skill on
+    // this dist grants that stat, so it is its 1.0 identity and is not folded.
+    if absorbed <= 0.0 {
+        return;
+    }
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
+        v.cur_hp = (v.cur_hp + absorbed).min(v.max_hp as f64);
+    }
+    super::skills::effects::broadcast_vitals_for(world, attacker);
+}
+
+/// `Creature.doAttack`'s reflect block: the target bounces
+/// `REFLECT_DAMAGE_PERCENT`% of what it just took back at the attacker.
+///
+/// **"When killing blow is made, the target doesn't reflect"** — Java skips the
+/// whole block when the target died, and skips DoT ticks and reflected damage
+/// itself (no infinite ping-pong). The bounced amount is capped by the target's
+/// max HP and then by its own defence: `mDef · 1.5` for a magic skill, `pDef`
+/// otherwise.
+fn reflect_damage(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    is_dot: bool,
+    skill_magic: Option<bool>,
+) {
+    use crate::model::components::{CombatStats, StatModifiers, Vitals};
+    use crate::model::stats::Stat;
+    if is_dot || damage <= 0.0 {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<Vitals>(&target)
+        .is_none_or(|v| v.dead)
+    {
+        return;
+    }
+    let target_is_player = !is_npc_oid(target);
+    let limit = if target_is_player {
+        world.cfg.character.player_reflect_percent_limit
+    } else {
+        world.cfg.character.non_player_reflect_percent_limit
+    };
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&target) else {
+        return;
+    };
+    let percent = crate::model::finalize(mods, Stat::ReflectDamagePercent, 0.0);
+    // Java subtracts the *attacker's* `REFLECT_DAMAGE_PERCENT_DEFENSE` before
+    // the clamp; no skill on this dist grants it, so it is the 0 default.
+    let percent = percent.min(limit);
+    if percent <= 0.0 {
+        return;
+    }
+    let mut reflected = ((percent / 100.0) * damage).trunc();
+    let (max_hp, p_def, m_def) = {
+        let v = world.objects.get_component::<Vitals>(&target);
+        let cs = world.objects.get_component::<CombatStats>(&target);
+        (
+            v.map(|v| v.max_hp as f64).unwrap_or(0.0),
+            cs.map(|c| c.p_def).unwrap_or(0.0),
+            cs.map(|c| c.m_def).unwrap_or(0.0),
+        )
+    };
+    reflected = reflected.min(max_hp);
+    // Java holds `reflectedDamage` in an `int`, so the magic cap's
+    // `(int) Math.min(reflectedDamage, mDef * 1.5)` truncates the fractional
+    // half — a 25.06 mDef caps at 37, not 37.59.
+    reflected = if skill_magic == Some(true) {
+        reflected.min(m_def * 1.5)
+    } else {
+        reflected.min(p_def)
+    }
+    .trunc();
+    if reflected <= 0.0 {
+        return;
+    }
+    // `target.doAttack(reflectedDamage, this, …, reflect = true)` — the
+    // `reflect` flag is what stops this from bouncing back again.
+    apply_physical_damage(world, target, attacker, reflected, false);
+}
+
 pub(crate) fn apply_physical_damage(
     world: &mut World,
     attacker: i32,
