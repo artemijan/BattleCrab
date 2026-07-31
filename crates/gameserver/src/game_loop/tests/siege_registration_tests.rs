@@ -843,3 +843,95 @@ fn a_spoiled_corpse_is_marked_sweepable_in_its_die_packet() {
     assert_eq!(die_flag(false), 0, "an unspoiled corpse is not sweepable");
     assert_eq!(die_flag(true), 1, "a spoiled one is");
 }
+
+/// `BuildCampSkillCondition`'s last gate: a headquarters may only be planted
+/// inside one of the battlefield's marked HQ patches (`castle_hq.xml`, 19 of
+/// them across the castles). The zone kind was never parsed, so a base camp
+/// could previously go up anywhere on the field.
+#[test]
+fn a_headquarters_needs_an_hq_zone() {
+    use crate::data::zone_data::{Zone, ZoneKind};
+
+    const LEADER: i32 = 8810;
+    const CASTLE: i32 = 1;
+    const CLAN: i32 = 700;
+
+    fn zone(name: &str, kind: ZoneKind, castle_id: i32, x1: i32, x2: i32) -> Zone {
+        Zone {
+            id: 0,
+            name: name.into(),
+            kind,
+            territory: crate::data::spawn_data::Territory {
+                form: crate::data::spawn_data::ZoneForm::Cuboid {
+                    x1,
+                    x2,
+                    y1: -500,
+                    y2: 500,
+                },
+                min_z: -1000,
+                max_z: 1000,
+            },
+            castle_id,
+            clan_hall_id: 0,
+            effect: None,
+            damage: None,
+            swamp: None,
+        }
+    }
+
+    let (mut world, _tx, _db, _l) = test_world();
+    world.id_pool = 0x6000_0000..0x6000_1000;
+    // The battlefield spans x −500..500; only its right half is HQ ground.
+    world
+        .data
+        .zone_data
+        .insert(zone("battlefield", ZoneKind::Siege, CASTLE, -500, 500));
+    world
+        .data
+        .zone_data
+        .insert(zone("hq_patch", ZoneKind::Hq, CASTLE, 100, 500));
+    // A live siege the clan is registered to attack.
+    let mut siege = Siege::new(CASTLE);
+    siege.in_progress = true;
+    siege.add_clan(CLAN, SiegeClanType::Attacker);
+    world.sieges.insert(CASTLE, siege);
+    // The HQ flag NPC template.
+    let mut t = crate::data::npc_data::default_template(35062);
+    t.type_name = "Npc".into();
+    t.base_hp_max = 100.0;
+    world.data.npc_data.insert_for_test(t);
+
+    let mut rx = ingame_player(&mut world, 1, LEADER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&LEADER)
+        .unwrap()
+        .clan_id = CLAN;
+    let mut clan = mk_clan(CLAN, 5, 0, 0);
+    clan.leader_id = LEADER;
+    world.clans.insert(CLAN, clan);
+    drain(&mut rx);
+
+    // Outside the HQ patch (x = 0): refused, with the message that names why.
+    assert!(
+        !crate::game_loop::siege::place_siege_flag(&mut world, LEADER),
+        "no camp outside an HQ zone"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_CAN_T_BUILD_HEADQUARTERS_HERE),
+        "and the client is told why"
+    );
+    assert_eq!(world.sieges[&CASTLE].flag_count(CLAN), 0);
+
+    // Step onto the patch (x = 200) and it goes up.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&LEADER)
+        .unwrap()
+        .x = 200;
+    assert!(crate::game_loop::siege::place_siege_flag(
+        &mut world, LEADER
+    ));
+    assert_eq!(world.sieges[&CASTLE].flag_count(CLAN), 1, "camp planted");
+}

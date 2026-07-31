@@ -1632,6 +1632,26 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
     });
 }
 
+/// The `HqZone` patch an attacker must stand in to plant a base camp
+/// (`castle_hq.xml`). Siege fixtures that build a headquarters need one.
+fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, y2: i32) {
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 0,
+        name: format!("test_hq_{castle_id}"),
+        kind: crate::data::zone_data::ZoneKind::Hq,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid { x1, x2, y1, y2 },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+    });
+}
+
 fn compass_code(pkt: &[u8]) -> Option<i32> {
     (pkt[0] == server_packets::opcodes::EX
         && i16::from_le_bytes(pkt[1..3].try_into().unwrap())

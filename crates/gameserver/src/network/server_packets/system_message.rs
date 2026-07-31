@@ -53,6 +53,10 @@ pub mod sm_ids {
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
     /// "You cannot transform while sitting."
     pub const YOU_CANNOT_TRANSFORM_WHILE_SITTING: i16 = 2283;
+    /// "You can't build headquarters here." — `BuildCampSkillCondition`'s
+    /// `isInsideZone(ZoneId.HQ)` gate, the only one of its branches with a
+    /// message of its own.
+    pub const YOU_CAN_T_BUILD_HEADQUARTERS_HERE: i16 = 290;
     /// "You can't fish here." — `Fishing.castLine` with no FishingZone/WaterZone.
     pub const YOU_CAN_T_FISH_HERE: i16 = 1457;
     pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
