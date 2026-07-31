@@ -213,6 +213,8 @@ pub(crate) fn apply_skill_effects(
                     *hp_percent,
                     *mp_percent,
                     *cp_percent,
+                    skill.id,
+                    skill.affect_range,
                 );
             }
             // `Summon.instant` — bring out a servitor. Java re-summons over any

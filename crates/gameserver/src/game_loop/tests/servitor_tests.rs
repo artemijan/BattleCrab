@@ -2261,7 +2261,7 @@ fn reviving_a_pet_asks_its_owner() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
 
     let req = world
         .objects
@@ -2286,7 +2286,7 @@ fn accepting_revives_the_pet_and_restores_its_exp() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
     assert!(crate::game_loop::death::handle_revive_answer(
         &mut world, OWNER, true
     ));
@@ -2312,7 +2312,7 @@ fn declining_leaves_the_pet_dead() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
     assert!(crate::game_loop::death::handle_revive_answer(
         &mut world, OWNER, false
     ));
@@ -2345,7 +2345,7 @@ fn a_living_pet_is_not_proposed_for_resurrection() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
     assert!(
         world
             .objects
@@ -2373,7 +2373,7 @@ fn a_pet_revival_does_not_revive_the_owner() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
     crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true);
 
     assert!(
@@ -2485,7 +2485,7 @@ fn resurrecting_before_decay_saves_the_pet() {
 
     let reviver = OWNER + 5;
     let _rx2 = ingame_caster(&mut world, CID + 5, reviver, 50, 0);
-    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0);
+    crate::game_loop::death::revive_request(&mut world, reviver, pet_oid, 100, 70, 70, 0, 1016, 0);
     crate::game_loop::death::handle_revive_answer(&mut world, OWNER, true);
 
     // The decay task fires regardless; it must be a no-op now.

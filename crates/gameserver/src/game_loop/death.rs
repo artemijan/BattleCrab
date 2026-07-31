@@ -2329,6 +2329,59 @@ pub(crate) fn resurrect_restore_percent(base: f64, wit_bonus: f64) -> f64 {
 /// "Resurrection has already been proposed" notice, which is what stops two
 /// clerics from racing.
 #[allow(clippy::too_many_arguments)]
+/// Java `ConditionPlayerCanResurrect.testImpl`'s siege block — the part that
+/// decides whether a resurrection may even be *proposed* on a battlefield.
+///
+/// **Every branch refuses.** Inside a siege in progress, a normal resurrection
+/// skill never works; the control-tower count and the attacker's flag count
+/// only pick which of three rejection messages the caster reads. That is why
+/// `Siege.control_tower_count` looked cosmetic — it is, but the *refusal* it
+/// sits behind was missing entirely, so a Bishop could freely raise defenders
+/// mid-siege.
+///
+/// Returns the system-message id to send, or `None` when the resurrection may
+/// go ahead.
+fn siege_resurrect_refusal(world: &World, corpse_oid: i32, skill_id: i32) -> Option<i16> {
+    use crate::network::server_packets::sm_ids;
+    // Java: `skill.getId() != 2393` — the Blessed Scroll of Resurrection
+    // (Battleground) is the one thing that works on a battlefield.
+    if skill_id == BATTLEGROUND_RESURRECTION_SKILL_ID {
+        return None;
+    }
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&corpse_oid)?;
+    let castle_id = world.data.zone_data.siege_castle_at(pos.x, pos.y, pos.z)?;
+    let siege = world.sieges.get(&castle_id)?;
+    if !siege.in_progress {
+        return None;
+    }
+    let clan_id = world
+        .objects
+        .get_component::<crate::model::Player>(&corpse_oid)
+        .map(|p| p.clan_id)
+        .unwrap_or(0);
+    // Java keeps this branch separate from the fallthrough below, but both send
+    // the same generic line — it is redundant upstream too, and kept only
+    // because the shape mirrors the reference. No test can tell them apart.
+    if clan_id == 0 {
+        return Some(sm_ids::IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS);
+    }
+    if siege.is_defender(clan_id) && siege.control_tower_count == 0 {
+        return Some(
+            sm_ids::THE_GUARDIAN_TOWER_HAS_BEEN_DESTROYED_AND_RESURRECTION_IS_NOT_POSSIBLE,
+        );
+    }
+    if siege.is_attacker(clan_id) && !siege.flags.iter().any(|(owner, _)| *owner == clan_id) {
+        return Some(sm_ids::IF_A_BASE_CAMP_DOES_NOT_EXIST_RESURRECTION_IS_NOT_POSSIBLE);
+    }
+    Some(sm_ids::IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS)
+}
+
+/// Java `2393` — "Blessed Scroll of Resurrection (Battleground)".
+const BATTLEGROUND_RESURRECTION_SKILL_ID: i32 = 2393;
+
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn revive_request(
     world: &mut World,
     reviver_oid: i32,
@@ -2337,8 +2390,31 @@ pub(crate) fn revive_request(
     hp_percent: i32,
     mp_percent: i32,
     cp_percent: i32,
+    // The casting skill: its id picks out the battleground scroll, and its
+    // `affectRange` is Java's blanket bypass (see below).
+    skill_id: i32,
+    affect_range: i32,
 ) {
     use crate::network::server_packets::sm_ids;
+    let send_to_reviver = |world: &World, id: i16| {
+        if let Some(cid) = client_for_player(world, reviver_oid)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(id, &[]));
+        }
+    };
+    // **Java's first clause skips the whole condition for an AoE resurrection**
+    // — `if (skill.getAffectRange() > 0) return true;`, carrying the comment
+    // "Need skill rework for fix that properly". So Mass Resurrection (1254)
+    // ignores the siege block, the already-proposed check and everything else.
+    // An upstream shortcut, but a load-bearing one: it is the only normal
+    // resurrection that works on a battlefield.
+    if affect_range <= 0
+        && let Some(refusal) = siege_resurrect_refusal(world, target_oid, skill_id)
+    {
+        send_to_reviver(world, refusal);
+        return;
+    }
     // `isResurrectionBlocked()` — Java also ORs `isInvul()`; the flag is the
     // ported half (`BlockResurrection` has no learnable source on this dist).
     if crate::game_loop::abnormal::flags_of(world, target_oid)

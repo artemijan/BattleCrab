@@ -70,7 +70,7 @@ fn a_proposal_does_not_revive_by_itself() {
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
     kill(&mut world, CORPSE, 10_000);
 
-    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
 
     assert!(is_dead(&world, CORPSE), "still dead until they accept");
     assert!(
@@ -93,13 +93,13 @@ fn a_second_proposal_is_refused_while_one_is_pending() {
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
     kill(&mut world, CORPSE, 10_000);
 
-    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
     let first = world
         .objects
         .get_component::<crate::model::Player>(&CORPSE)
         .unwrap()
         .revive_request;
-    revive_request(&mut world, REVIVER, CORPSE, 90, 10, 10, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 90, 10, 10, 0, 1016, 0);
     let second = world
         .objects
         .get_component::<crate::model::Player>(&CORPSE)
@@ -119,7 +119,7 @@ fn a_living_player_gets_no_proposal() {
     let _r = ingame_caster(&mut world, CID, REVIVER, 0, 0);
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
 
-    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
     assert!(
         world
             .objects
@@ -177,7 +177,7 @@ fn declining_leaves_the_corpse_dead() {
     let _r = ingame_caster(&mut world, CID, REVIVER, 0, 0);
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
     kill(&mut world, CORPSE, 10_000);
-    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
 
     assert!(
         handle_revive_answer(&mut world, CORPSE, false),
@@ -215,7 +215,7 @@ fn accepting_after_already_respawning_does_nothing() {
     let _r = ingame_caster(&mut world, CID, REVIVER, 0, 0);
     let _c = ingame_caster(&mut world, TCID, CORPSE, 40, 0);
     kill(&mut world, CORPSE, 10_000);
-    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0);
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
 
     // They respawned by themselves first.
     world
@@ -290,4 +290,171 @@ fn level_one_resurrection_restores_no_xp() {
         0.0,
         "and the formula short-circuits on it"
     );
+}
+
+// ---------------------------------------------------------------------------
+// The siege battlefield (G24)
+// ---------------------------------------------------------------------------
+
+/// A point inside castle 1's `SiegeZone`, and the castle it belongs to.
+const SIEGE_POS: (i32, i32, i32) = (-17964, 110730, -1000);
+const SIEGE_CASTLE: i32 = 1;
+
+/// A world with a siege in progress over castle 1 and both actors standing in
+/// its zone.
+fn battlefield() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    use crate::model::siege::{Siege, SiegeClanType};
+    let (mut world, _db, _l) = cast_test_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(DIST);
+    let (x, y, z) = SIEGE_POS;
+    let r = ingame_caster(&mut world, CID, REVIVER, x, y);
+    let _c = ingame_caster(&mut world, TCID, CORPSE, x, y);
+    for oid in [REVIVER, CORPSE] {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&oid)
+            .unwrap();
+        p.z = z;
+    }
+    assert_eq!(
+        world.data.zone_data.siege_castle_at(x, y, z),
+        Some(SIEGE_CASTLE),
+        "the fixture really stands on a battlefield"
+    );
+    let mut siege = Siege::new(SIEGE_CASTLE);
+    siege.in_progress = true;
+    siege.add_clan(500, SiegeClanType::Owner);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    siege.control_tower_count = 2;
+    world.sieges.insert(SIEGE_CASTLE, siege);
+    kill(&mut world, CORPSE, 10_000);
+    (world, r)
+}
+
+fn set_clan(world: &mut World, oid: i32, clan_id: i32) {
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&oid)
+        .unwrap()
+        .clan_id = clan_id;
+}
+
+fn proposed(world: &World) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&CORPSE)
+        .unwrap()
+        .revive_request
+        .is_some()
+}
+
+/// **A normal resurrection never works on a battlefield.** Java's
+/// `ConditionPlayerCanResurrect` refuses in *every* branch once a siege is in
+/// progress — the tower/flag counts only pick the message. Before this, a
+/// Bishop could freely raise defenders mid-siege.
+#[test]
+fn a_normal_resurrection_is_refused_during_a_siege() {
+    let (mut world, _rx) = battlefield();
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
+    assert!(
+        !proposed(&world),
+        "no dialog was put in front of the corpse"
+    );
+}
+
+/// Which message depends on the corpse's side: no clan and "some other case"
+/// both read the generic battleground line, a defender with **no control
+/// towers** left reads the guardian-tower one, and an attacker with **no base
+/// camp** reads that one.
+#[test]
+fn the_refusal_message_depends_on_the_side_and_the_towers() {
+    use crate::network::server_packets::sm_ids;
+
+    let refusal = |setup: &dyn Fn(&mut World)| {
+        let (mut world, mut rx) = battlefield();
+        setup(&mut world);
+        drain(&mut rx);
+        revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
+        sm_ids_of(&drain(&mut rx))
+    };
+
+    // Clanless corpse → the generic line.
+    assert!(refusal(&|_w| {}).contains(&sm_ids::IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS));
+
+    // A defender whose towers are all down.
+    assert!(
+        refusal(&|w| {
+            set_clan(w, CORPSE, 500);
+            w.sieges.get_mut(&SIEGE_CASTLE).unwrap().control_tower_count = 0;
+        })
+        .contains(&sm_ids::THE_GUARDIAN_TOWER_HAS_BEEN_DESTROYED_AND_RESURRECTION_IS_NOT_POSSIBLE)
+    );
+
+    // …but a defender who still holds a tower gets the generic line, and is
+    // refused all the same.
+    assert!(
+        refusal(&|w| set_clan(w, CORPSE, 500))
+            .contains(&sm_ids::IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS)
+    );
+
+    // An attacker with no planted flag.
+    assert!(
+        refusal(&|w| set_clan(w, CORPSE, 700))
+            .contains(&sm_ids::IF_A_BASE_CAMP_DOES_NOT_EXIST_RESURRECTION_IS_NOT_POSSIBLE)
+    );
+
+    // With a base camp planted, the generic refusal again.
+    assert!(
+        refusal(&|w| {
+            set_clan(w, CORPSE, 700);
+            w.sieges
+                .get_mut(&SIEGE_CASTLE)
+                .unwrap()
+                .flags
+                .push((700, 1));
+        })
+        .contains(&sm_ids::IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS)
+    );
+}
+
+/// **Two things get through**: the Blessed Scroll of Resurrection
+/// (Battleground) skill 2393, and — because Java's condition opens with
+/// `if (skill.getAffectRange() > 0) return true;` — *any* AoE resurrection,
+/// which on this dist means Mass Resurrection 1254.
+#[test]
+fn the_battleground_scroll_and_mass_resurrection_still_work() {
+    let (mut world, _rx) = battlefield();
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 2393, 0);
+    assert!(proposed(&world), "the battleground scroll is the exception");
+
+    let (mut world, _rx) = battlefield();
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1254, 400);
+    assert!(
+        proposed(&world),
+        "an affectRange > 0 skips the whole condition — Java's own shortcut"
+    );
+}
+
+/// Off the battlefield, or before the siege starts, nothing is refused.
+#[test]
+fn a_resurrection_outside_a_running_siege_is_untouched() {
+    // Siege registered but not started.
+    let (mut world, _rx) = battlefield();
+    world.sieges.get_mut(&SIEGE_CASTLE).unwrap().in_progress = false;
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
+    assert!(proposed(&world), "a pending siege blocks nothing");
+
+    // In progress, but the corpse is nowhere near the castle.
+    let (mut world, _rx) = battlefield();
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&CORPSE)
+            .unwrap();
+        p.x = 0;
+        p.y = 0;
+        p.z = 0;
+    }
+    revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
+    assert!(proposed(&world), "the block is the *zone*, not the siege");
 }

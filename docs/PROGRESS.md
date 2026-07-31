@@ -143,6 +143,24 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G24 siege resurrection 2026-07-31 (27 → 24).** A stale marker again, and it
+hid a real siege bug: `Siege.control_tower_count`'s doc said "no effect until
+the resurrection subsystem lands" — that subsystem landed in G19, and nothing
+had gone back. So `ConditionPlayerCanResurrect`'s **whole siege block was
+missing** and a Bishop could freely raise defenders mid-siege.
+Ported in full. **Every branch of Java's condition refuses** once a siege is in
+progress; the control-tower count and the attacker's flag count only pick which
+of three messages the caster reads (guardian-tower destroyed / no base camp /
+the generic battleground line). **Two things get through**: the Blessed Scroll
+of Resurrection (Battleground) skill **2393**, and — because the condition opens
+with `if (skill.getAffectRange() > 0) return true;`, carrying Java's own "Need
+skill rework for fix that properly" — *any* AoE resurrection, which on this dist
+means Mass Resurrection 1254. That shortcut is load-bearing, not decoration.
+Also corrected: the castle mass gatekeeper's comment had its timings inverted
+(it is **30 s normally, 8 minutes once the towers are down** — the real cost of
+losing them; the code was right, the comment was not). 4 tests, 8 mechanisms
+sabotage-verified.
+
 **G20 trait damage 2026-07-31 (9 → 7).** The *damage* consumers of the trait
 tables the G16 slice built, which until now only fed the **landing roll**:
 `calcWeaponTraitBonus`, `calcWeaknessBonus` and `calcAttackTraitBonus`, plus the

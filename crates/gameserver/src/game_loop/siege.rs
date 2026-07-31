@@ -82,9 +82,11 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // registered clan learns which side they are on.
     update_player_siege_state_flags(world, castle_id, false);
 
-    // TODO(G24): the control-tower destruction mechanic (destroying towers
-    // weakens the defenders' respawn). `Castle.getZone().setActive` is modelled
-    // by the in-progress flag the siege-zone PvP check reads.
+    // The control-tower consequences are both live now: the guardian-tower
+    // resurrection refusal (`death::siege_resurrect_refusal`) and the mass
+    // gatekeeper's 8-minute evacuation delay once the towers are gone.
+    // `Castle.getZone().setActive` is modelled by the in-progress flag the
+    // siege-zone PvP check reads.
 }
 
 /// Port of `Siege.updatePlayerSiegeStateFlags(clear)`: stamp (or wipe) the
@@ -417,10 +419,13 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     };
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.control_tower_count = (siege.control_tower_count - 1).max(0);
-        // The count has no gameplay outcome in Interlude Classic (see the field
-        // doc on `Siege.control_tower_count`): a normal resurrection is blocked
-        // in a siege regardless, and the count only selects the rejection
-        // message. TODO(G24): honor that message once resurrection is ported.
+        // The count picks the *rejection message* a normal resurrection gets
+        // during a siege — every branch of `ConditionPlayerCanResurrect`
+        // refuses, so the count never decides whether the revive happens, only
+        // what the caster is told (`death::siege_resurrect_refusal`). It does
+        // **not** gate the restart-point respawn; the tower consequence that
+        // does bite is the mass gatekeeper's 8-minute delay
+        // (`scripts::castle_services`).
     }
 }
 
