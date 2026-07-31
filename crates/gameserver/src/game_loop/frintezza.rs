@@ -600,7 +600,7 @@ pub(crate) fn handle_finish_step(world: &mut World, instance_id: i32, step: u8) 
                 instances::broadcast_to_instance(
                     world,
                     instance_id,
-                    &server_packets::die(frintezza, false),
+                    &server_packets::die(frintezza, Default::default()),
                 );
                 camera(
                     world,

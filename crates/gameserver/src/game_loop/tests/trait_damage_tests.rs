@@ -413,12 +413,17 @@ fn a_real_auto_attack_is_softened_by_the_weapon_trait() {
             .get_component_mut::<Vitals>(&npc_oid)
             .unwrap()
             .cur_hp = max;
-        // No random spread, so the two swings differ only by the trait.
+        // No random spread, and every roll the swing takes forced, so the two
+        // swings differ **only** by the trait. Leaving the miss/crit rolls to
+        // the RNG made this compare two independently-rolled swings, which is
+        // flaky by construction — it failed roughly one full-suite run in ten.
+        // Order: miss(1000), shield rate(100), shield perfect(100), crit(100).
         world
             .objects
             .get_component_mut::<crate::model::components::CombatStats>(&ATTACKER)
             .unwrap()
             .random_dmg = 0;
+        world.forced_rolls.extend([0, 99, 99, 99]);
         crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, npc_oid);
         advance_ticks(&mut world, 40);
         max - world

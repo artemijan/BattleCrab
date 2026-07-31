@@ -702,7 +702,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
         .is_some_and(|v| v.dead)
         && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(crate::network::server_packets::die(object_id, true));
+        // Java re-sends the same `Die` the death itself built, so a character
+        // who logged out dead comes back to the *same* restart buttons.
+        let opts = super::death::die_options(world, object_id);
+        cs.send(crate::network::server_packets::die(object_id, opts));
     }
 }
 

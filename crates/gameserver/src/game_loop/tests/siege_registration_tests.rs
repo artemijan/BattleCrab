@@ -672,3 +672,174 @@ fn siege_info_offers_the_hour_list_when_open() {
         "two hour options add 2 ints"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The death window's restart buttons (Java `Die`'s constructor)
+// ---------------------------------------------------------------------------
+
+/// **The client only sends a `RequestRestartPoint` for a button it was told
+/// exists.** Every flag in the `Die` packet was a hard-coded 0, which made
+/// `clanhall_restart_location` and `siege_restart_location` — both fully
+/// implemented — unreachable in play: a defender could never pick "to castle",
+/// an attacker never "to siege HQ".
+#[test]
+fn the_death_window_offers_the_siege_restart_buttons() {
+    use crate::game_loop::death::die_options;
+    use crate::model::siege::{Siege, SiegeClanType};
+
+    const DEF: i32 = 8801;
+    const ATK: i32 = 8802;
+    // Inside castle 1's siege zone.
+    const POS: (i32, i32, i32) = (-17964, 110730, -1000);
+
+    let (mut world, _tx, _db, _l) = test_world();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let (x, y, z) = POS;
+    let _d = ingame_player(&mut world, 1, DEF, x, y, z);
+    let _a = ingame_player(&mut world, 2, ATK, x, y, z);
+    for oid in [DEF, ATK] {
+        world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&oid)
+            .unwrap()
+            .z = z;
+    }
+    world
+        .objects
+        .get_component_mut::<Player>(&DEF)
+        .unwrap()
+        .clan_id = 500;
+    world
+        .objects
+        .get_component_mut::<Player>(&ATK)
+        .unwrap()
+        .clan_id = 700;
+
+    // No siege yet: neither button.
+    assert!(!die_options(&world, DEF).to_castle);
+    assert!(!die_options(&world, ATK).to_outpost);
+
+    let mut siege = Siege::new(1);
+    siege.in_progress = true;
+    siege.add_clan(500, SiegeClanType::Defender);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(1, siege);
+
+    // The defender is offered the castle even though their clan owns none.
+    let d = die_options(&world, DEF);
+    assert!(d.to_castle, "a registered defender restarts at the castle");
+    assert!(!d.to_outpost);
+
+    // The attacker gets the HQ button **only while a flag stands** — Java reads
+    // `!siegeClan.getFlag().isEmpty()`, so a razed base camp removes it rather
+    // than offering a respawn that would fail.
+    assert!(
+        !die_options(&world, ATK).to_outpost,
+        "no base camp, no button"
+    );
+    world.sieges.get_mut(&1).unwrap().flags.push((700, 90_001));
+    let a = die_options(&world, ATK);
+    assert!(a.to_outpost, "with a flag planted, the HQ button appears");
+    assert!(!a.to_castle, "and an attacker is not offered the castle");
+}
+
+/// The non-siege flags: `to_village` unless a revive is already proposed (the
+/// player answers the dialog instead), `to_clan_hall` when the clan owns a
+/// hall, `to_castle` when it owns a castle anywhere on the map.
+#[test]
+fn the_death_window_offers_the_ordinary_restart_buttons() {
+    use crate::game_loop::death::die_options;
+
+    const OID: i32 = 8803;
+    let (mut world, _tx, _db, _l) = test_world();
+    let _p = ingame_player(&mut world, 1, OID, 0, 0, 0);
+
+    let base = die_options(&world, OID);
+    assert!(base.to_village, "the village button is the default");
+    assert!(!base.to_clan_hall && !base.to_castle);
+
+    // A pending resurrection proposal hides "to village".
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .revive_request = Some(crate::model::ReviveRequest {
+        reviver: 1,
+        restore_percent: 50.0,
+        hp_percent: 70,
+        mp_percent: 70,
+        cp_percent: 0,
+        is_pet: false,
+    });
+    assert!(
+        !die_options(&world, OID).to_village,
+        "canRevive() && !isPendingRevive()"
+    );
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .revive_request = None;
+
+    // Owning a castle lights the castle button anywhere on the map.
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .clan_id = 500;
+    world.clans.insert(500, mk_clan(500, 5, 3, 0));
+    assert!(die_options(&world, OID).to_castle);
+
+    // …and owning a clan hall lights that one.
+    assert!(!die_options(&world, OID).to_clan_hall);
+    let mut halls = crate::data::clan_hall_data::load_clan_halls(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let first = *halls.keys().next().expect("the dist has clan halls");
+    halls.get_mut(&first).unwrap().owner_id = 500;
+    world.clan_halls = halls;
+    assert!(
+        die_options(&world, OID).to_clan_hall,
+        "the clan owns a hall, so the hideout button appears"
+    );
+}
+
+/// **A spoiled corpse advertises itself as sweepable.** Java's
+/// `_isSweepable = isAttackable() && isSweepActive()`; the port wrote a hard 0,
+/// so the client never knew the loot was there.
+#[test]
+fn a_spoiled_corpse_is_marked_sweepable_in_its_die_packet() {
+    const KILLER: i32 = 8804;
+    const MOB: i32 = 0x4000_0777;
+
+    // The `sweepable` dword sits after the opcode, object id and the three
+    // village/hall/castle/outpost flags.
+    let sweepable_of = |pkts: &[Vec<u8>]| -> Option<i32> {
+        pkts.iter()
+            .find(|p| p[0] == server_packets::opcodes::DIE)
+            .map(|p| i32::from_le_bytes(p[21..25].try_into().unwrap()))
+    };
+
+    let die_flag = |spoiled: bool| {
+        let (mut world, _tx, _db, _l) = test_world();
+        let mut rx = ingame_player(&mut world, 1, KILLER, 0, 0, 0);
+        add_test_npc(&mut world, MOB, 20001, "Monster", 5, 0, 0, 0);
+        if spoiled {
+            world
+                .objects
+                .get_component_mut::<crate::model::npc::Npc>(&MOB)
+                .unwrap()
+                .spoiler_object_id = KILLER;
+        }
+        drain(&mut rx);
+        crate::game_loop::death::npc_do_die(&mut world, MOB, KILLER);
+        sweepable_of(&drain(&mut rx)).expect("a Die packet was broadcast")
+    };
+
+    assert_eq!(die_flag(false), 0, "an unspoiled corpse is not sweepable");
+    assert_eq!(die_flag(true), 1, "a spoiled one is");
+}
