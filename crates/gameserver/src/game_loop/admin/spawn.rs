@@ -580,12 +580,55 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
     );
 }
 
+/// `DefaultPageHandler` (offset 2) + `ButtonsStyle` — `PageBuilder`'s *default*
+/// pager, the numbered strip `1 | 2 3 4 | 9 10`: the two pages either side of
+/// the current one, plus the first two and last two when they fall outside that
+/// window, and the current page as plain text rather than a button.
+///
+/// Java's `IBypassFormatter` here is `DefaultFormatter`, which appends
+/// `" " + page` to the bypass.
+pub(super) fn default_pager(bypass: &str, current: i32, pages: i32) -> String {
+    const SEP: &str = "<td align=center> | </td>";
+    const OFFSET: i32 = 2;
+    let entry = |i: i32| -> String {
+        if i == current {
+            format!("<td>{}</td>", i + 1)
+        } else {
+            format!(
+                "<td><button action=\"{bypass} {i}\" value=\"{}\" width=\"40\" height=\"15\" \
+                 back=\"L2UI_CT1.Button_DF\" fore=\"L2UI_CT1.Button_DF\"></td>",
+                i + 1
+            )
+        }
+    };
+    let pager_start = (current - OFFSET).max(0);
+    let pager_finish = (current + OFFSET + 1).min(pages);
+    let mut s = String::new();
+    // The leading pages, once the window has moved past them.
+    if pager_start > OFFSET {
+        for i in 0..OFFSET {
+            s.push_str(&entry(i));
+        }
+        s.push_str(SEP);
+    }
+    for i in pager_start..pager_finish {
+        s.push_str(&entry(i));
+    }
+    // ...and the trailing ones, while the window has not reached them.
+    if pages > pager_finish {
+        s.push_str(SEP);
+        for i in (pages - OFFSET).max(0)..pages {
+            s.push_str(&entry(i));
+        }
+    }
+    s
+}
+
 /// `NextPrevPageHandler` + `ButtonsStyle` — the
 /// `First | Prev | Page: x/y | Next | Last` strip.
 ///
 /// `page_prefix` is Java's `IBypassFormatter`: `DefaultFormatter` appends
-/// `" " + page` (what `//ave_abnormal` parses), while the scan list reads a
-/// `page=<n>` bypass param.
+/// `" " + page`, while the scan list reads a `page=<n>` bypass param.
 ///
 /// **Two deliberate deviations from Java, because its pager renders broken on
 /// this client:**

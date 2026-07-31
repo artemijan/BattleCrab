@@ -79,6 +79,26 @@ the pinned ones need their own home: an `AdminVisuals` component, folded first
 in `visual_effects` so a pinned effect shows even on a buff-less creature and is
 independent of any buff coming or going.
 
+### The menu
+
+With no argument — or a numeric one — the command instead serves the effect list
+into `data/html/admin/ave_abnormal.htm`, and that page renders exactly as Java's
+`PageBuilder` builds it: **100** effects per page (206 → 3 pages), each the body
+handler's `<button action="bypass admin_ave_abnormal NAME" align=left
+icon=teleport>NAME(id)</button>` with no table around them, and the pager from
+`DefaultPageHandler` (offset 2) + `ButtonsStyle` — numbered pages, the current
+one as plain `<td>n</td>`, the others as 40×15 buttons.
+
+Two mistakes are worth naming, because the port made both. `AdminEffects` never
+calls `PageBuilder.pageHandler()`, so the pager is the builder's **default**
+numbered one, *not* `NextPrevPageHandler`'s `<< < > >>` strip — that strip's
+bare-`<` labels and `pages + 1` count are real Java bugs, but bugs of a handler
+this page never uses. And the `align=left icon=…` button form is not
+"newer-client markup" to be avoided: the port already emits it in `teleporter.rs`
+and `quests.rs`. A full page of it is ~11k characters, well under the ~17k a
+`NpcHtmlMessage` may not exceed, so there is no size argument for paging smaller
+than Java either.
+
 ## 6. Tests
 
 Parse assertions against real skills: Shield Stun 92 → `STUN(7)`, Bleed 96 →
