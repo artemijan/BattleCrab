@@ -2684,6 +2684,87 @@ fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
     );
 }
 
+/// **A resisted DoT does not burst.** Java puts the magic-crit burst in
+/// `DamOverTime.onStart`, which `EffectList.add(info)` only reaches when
+/// `calcEffectSuccess` passed — so a resisted poison deals nothing at all,
+/// crit or no crit. The port used to apply the burst in the *instant* effect
+/// pass, before the land roll, so a resisted debuff still hit for `power * 10`.
+///
+/// (Java carries an inline `// TODO: M.Crit can occur even if this skill is
+/// resisted` at that exact spot. It is aspirational — the shipped code does
+/// not do it, and neither does this.)
+#[test]
+fn a_magic_crit_dot_bursts_only_when_the_debuff_lands() {
+    let dot_skill = |world: &World| {
+        let mut s = world.data.skill_data.get(1160, 1).expect("fixture").clone();
+        s.id = 9610;
+        s.name = "Test Poison".into();
+        s.magic_type = 1;
+        s.effects = vec![crate::model::skill::SkillEffect::DamOverTime {
+            power: 5.0,
+            ticks: 5,
+            can_kill: false,
+        }];
+        s
+    };
+    let hp = |w: &World, oid: i32| {
+        w.objects
+            .get_component::<crate::model::components::Vitals>(&oid)
+            .unwrap()
+            .cur_hp
+    };
+    // `Npc::for_test` seeds a 1 000 000 HP pool, but the damage path's stat
+    // recalculation clamps it to template 40001's real 100 — which alone would
+    // read as 999 900 "damage". Start at that real max so the before/after
+    // difference is the burst and nothing else.
+    let normalise = |w: &mut World, oid: i32| {
+        w.objects
+            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .unwrap()
+            .cur_hp = 100.0;
+    };
+    // The crit roll reads the *caster's* `m_crit_hit`; the fixture player has
+    // none, so nothing would ever crit.
+    let make_critter = |w: &mut World| {
+        w.objects
+            .get_component_mut::<crate::model::components::CombatStats>(&3001)
+            .unwrap()
+            .m_crit_hit = 200.0;
+    };
+
+    // --- resisted: crit rolled, land roll lost ---
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+    let skill = dot_skill(&world);
+    make_critter(&mut world);
+    normalise(&mut world, npc_oid);
+    let before = hp(&world, npc_oid);
+    world.forced_rolls.extend([0, 90]); // crit, then 90 >= the 90 rate -> resisted
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    assert_eq!(
+        hp(&world, npc_oid),
+        before,
+        "a resisted DoT deals no burst, even on a magic crit"
+    );
+
+    // --- landed: the same crit now bursts for power * 10 ---
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+    let skill = dot_skill(&world);
+    make_critter(&mut world);
+    normalise(&mut world, npc_oid);
+    let before = hp(&world, npc_oid);
+    world.forced_rolls.extend([0, 0]); // crit, then 0 < 90 -> lands
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    assert_eq!(
+        before - hp(&world, npc_oid),
+        50.0,
+        "power 5 x 10 on the magic crit"
+    );
+}
+
 /// Regression: casting a *bad* skill at a monster must aggro it — the mob's AI
 /// wakes and switches to the attack intention — **even when the debuff is
 /// resisted**. Java `SkillCaster.callSkill` runs `addDamageHate(caster, 0,
@@ -2850,6 +2931,79 @@ mod hate_effects {
                 .hate,
             0.0,
             "floored at 0, not negative"
+        );
+    }
+
+    /// **An aggro-shedding skill must not wake the mob it just calmed.** Java
+    /// gates `callSkill`'s `EVT_ATTACKED` notify on
+    /// `!skill.hasEffectType(HATE)`; the port used to skip the gate (its TODO
+    /// claimed no HATE effect was modelled, which stopped being true when
+    /// `DeleteHate`/`DeleteHateOfMe` landed). The result was Bluff and Forget
+    /// re-aggroing the mob on the same cast that made it forget you.
+    ///
+    /// The hate *addition* is not gated — Bluff really does carry
+    /// `effectPoint -1`, so 1 hate is still added. Only the wake is skipped.
+    #[test]
+    fn a_hate_shedding_skill_does_not_wake_the_mob() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+        // An idle mob, and a Bluff-shaped skill: DeleteHateOfMe + effectPoint -1.
+        let mut bluff = hate_skill(
+            &world,
+            9600,
+            "Bluff",
+            SkillEffect::DeleteHateOfMe { chance: 0 },
+        );
+        bluff.effect_point = -1;
+        assert!(bluff.has_hate_effect());
+        assert!(bluff.is_bad(), "still a bad skill, so it reaches the gate");
+
+        crate::game_loop::skills::cast::apply_bad_skill_aggro_for_test(
+            &mut world, 3001, npc_oid, &bluff,
+        );
+
+        let ai = world.objects.get_component::<NpcAi>(&npc_oid).unwrap();
+        assert_ne!(
+            ai.intention,
+            NpcIntention::Attack,
+            "the mob was not woken by the skill that calmed it"
+        );
+        // The -effectPoint hate still landed.
+        assert_eq!(
+            world
+                .objects
+                .get_component::<AggroList>(&npc_oid)
+                .unwrap()
+                .0[&3001]
+                .hate,
+            1.0,
+            "only the AI wake is suppressed, not the hate"
+        );
+    }
+
+    /// The control: the very same call with an ordinary debuff *does* wake it.
+    #[test]
+    fn an_ordinary_bad_skill_still_wakes_the_mob() {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+        let mut plain = hate_skill(&world, 9601, "Plain Debuff", SkillEffect::Root);
+        plain.effect_point = -1;
+        assert!(!plain.has_hate_effect());
+
+        crate::game_loop::skills::cast::apply_bad_skill_aggro_for_test(
+            &mut world, 3001, npc_oid, &plain,
+        );
+        assert_eq!(
+            world
+                .objects
+                .get_component::<NpcAi>(&npc_oid)
+                .unwrap()
+                .intention,
+            NpcIntention::Attack,
         );
     }
 

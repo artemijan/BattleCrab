@@ -7,8 +7,7 @@
 //! `game_loop::pc_cafe` is the subsystem that reads it.
 //!
 //! Only the keys the ported subsystems read are loaded. Not here (no backing
-//! subsystem yet): `PremiumOnlyFishing` (G32) and the per-item-id drop tables
-//! (`PremiumRateDropChanceByItemId` / `…AmountByItemId`) — TODO(G16) below.
+//! subsystem yet): `PremiumOnlyFishing` (G32).
 
 use commons::config::PropertiesParser;
 
@@ -32,6 +31,18 @@ pub struct PremiumConfig {
     /// `PremiumRateSpoilChance` / `PremiumRateSpoilAmount` (1 / 2).
     pub rate_spoil_chance: f64,
     pub rate_spoil_amount: f64,
+    /// `PremiumRateQuestXp` / `PremiumRateQuestSp` — quest turn-in rewards for a
+    /// premium character (**1 / 1** on this dist, so inert here).
+    pub rate_quest_xp: f64,
+    pub rate_quest_sp: f64,
+    /// `PremiumRateDropChanceByItemId` / `PremiumRateDropAmountByItemId` — the
+    /// per-item overrides that **replace** the flat rate above rather than
+    /// stacking with it. The dist declares both as
+    /// `57,2;6656,1;…;10314,1`, so adena doubles while the listed jewels are
+    /// pinned to **×1** — a premium killer gets *no* bonus on them, which the
+    /// flat ×2 amount would otherwise have given.
+    pub rate_drop_chance_by_id: std::collections::HashMap<i32, f64>,
+    pub rate_drop_amount_by_id: std::collections::HashMap<i32, f64>,
 
     // --- PC-café (PA) points -------------------------------------------
     /// `PcCafeEnabled` — master switch for earning PA points. **False on this
@@ -88,6 +99,10 @@ impl Default for PremiumConfig {
             rate_drop_amount: 1.0,
             rate_spoil_chance: 2.0,
             rate_spoil_amount: 1.0,
+            rate_quest_xp: 1.0,
+            rate_quest_sp: 1.0,
+            rate_drop_chance_by_id: std::collections::HashMap::new(),
+            rate_drop_amount_by_id: std::collections::HashMap::new(),
             pc_cafe_enabled: false,
             pc_cafe_only_premium: false,
             pc_cafe_retail_like: true,
@@ -131,6 +146,14 @@ impl PremiumConfig {
                 as f64,
             rate_spoil_amount: p.get_float("PremiumRateSpoilAmount", d.rate_spoil_amount as f32)
                 as f64,
+            rate_quest_xp: p.get_float("PremiumRateQuestXp", d.rate_quest_xp as f32) as f64,
+            rate_quest_sp: p.get_float("PremiumRateQuestSp", d.rate_quest_sp as f32) as f64,
+            rate_drop_chance_by_id: super::rates::parse_id_multiplier_list(
+                &p.get_string("PremiumRateDropChanceByItemId", ""),
+            ),
+            rate_drop_amount_by_id: super::rates::parse_id_multiplier_list(
+                &p.get_string("PremiumRateDropAmountByItemId", ""),
+            ),
             pc_cafe_enabled: p.get_bool("PcCafeEnabled", d.pc_cafe_enabled),
             pc_cafe_only_premium: p.get_bool("PcCafeOnlyPremium", d.pc_cafe_only_premium),
             pc_cafe_retail_like: p.get_bool("PcCafeRetailLike", d.pc_cafe_retail_like),
@@ -163,11 +186,6 @@ impl PremiumConfig {
             pc_cafe_low_exp_kills_chance: p
                 .get_int("RewardLowExpKillsChance", d.pc_cafe_low_exp_kills_chance)
                 .clamp(0, 100),
-            // TODO(G16): Java also reads PremiumRateDropChanceByItemId /
-            // PremiumRateDropAmountByItemId into per-item override maps
-            // (`Config.PREMIUM_RATE_DROP_CHANCE_BY_ID`), consulted ahead of the
-            // flat rates in `Attackable.calculateDrops`. The flat rates are
-            // ported here; the per-item overrides are not.
         }
     }
 }

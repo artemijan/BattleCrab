@@ -925,34 +925,11 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::ConsumeBody => {
                 apply_consume_body(world, caster_oid, target_oid);
             }
-            SkillEffect::DamOverTime { power, ticks, can_kill } => {
-                // `DamOverTime.onStart`: a magic (non-toggle) DoT bursts for
-                // `power * 10` on a magic-crit roll ("10 times HP DOT is taken
-                // during magic critical"), clamped to leave the target alive
-                // unless `canKill`. The periodic ticks are armed once below via
-                // `schedule_dam_over_time`, after the buff lands.
-                // TODO(G16): Java notes m.crit can land even when the debuff is
-                // resisted — the port has no land-rate/resist roll yet, so the
-                // two are tied here.
-                if skill.magic_type == 1 && mcrit && *ticks > 0 {
-                    let mut damage = *power * 10.0;
-                    if !*can_kill {
-                        let cur_hp =
-                            world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp).unwrap_or(0.0);
-                        if damage >= cur_hp - 1.0 {
-                            damage = cur_hp - 1.0;
-                        }
-                    }
-                    if damage > 0.0 {
-                        let caster_name = world
-                            .objects
-                            .get_component::<crate::model::Player>(&caster_oid)
-                            .map(|p| p.name.clone())
-                            .unwrap_or_default();
-                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit, false, skill.id);
-                    }
-                }
-            }
+            // `DamOverTime`'s magic-crit burst is **not** an instant effect:
+            // Java puts it in `onStart`, which only runs once the effect is
+            // added to the effect list — i.e. only if the debuff landed. It is
+            // applied after `apply_continuous_effects` reports that, below.
+            SkillEffect::DamOverTime { .. } => {}
             SkillEffect::DispelBySlot { dispel } => {
                 // Java `DispelBySlot.instant`: stop each active effect whose
                 // originating skill's `<abnormalType>` is in the dispel set and
@@ -1348,7 +1325,77 @@ pub(crate) fn apply_skill_effects(
         p.uncharge_shot(crate::model::ShotType::Soulshots);
     }
 
-    apply_continuous_effects(world, caster_oid, target_oid, skill, None);
+    if apply_continuous_effects(world, caster_oid, target_oid, skill, None) {
+        dam_over_time_crit_burst(world, caster_oid, target_oid, skill, mcrit);
+    }
+}
+
+/// `DamOverTime.onStart` — a magic (non-toggle) DoT bursts for `power * 10` on
+/// a magic-crit ("Tests show that 10 times HP DOT is taken during magic
+/// critical"), clamped to leave the target alive unless `canKill`.
+///
+/// **Only on a debuff that landed.** `onStart` is driven by
+/// `EffectList.add(info)`, which `Skill.applyEffects` reaches only when
+/// `addContinuousEffects` — i.e. `calcEffectSuccess` — was true. Java carries
+/// an inline `// TODO: M.Crit can occur even if this skill is resisted` at that
+/// very spot, but that is aspirational: the shipped code does not burst on a
+/// resist, and neither does this.
+///
+/// (Java re-rolls the crit inside `onStart` rather than reusing the cast's;
+/// the port passes the cast's roll through, which keeps one roll per cast.)
+fn dam_over_time_crit_burst(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    mcrit: bool,
+) {
+    if skill.magic_type != 1 || !mcrit {
+        return;
+    }
+    for effect in &skill.effects {
+        let SkillEffect::DamOverTime {
+            power,
+            ticks,
+            can_kill,
+        } = effect
+        else {
+            continue;
+        };
+        if *ticks <= 0 {
+            continue;
+        }
+        let mut damage = *power * 10.0;
+        if !*can_kill {
+            let cur_hp = world
+                .objects
+                .get_component::<Vitals>(&target_oid)
+                .map(|v| v.cur_hp)
+                .unwrap_or(0.0);
+            if damage >= cur_hp - 1.0 {
+                damage = cur_hp - 1.0;
+            }
+        }
+        if damage > 0.0 {
+            let caster_name = world
+                .objects
+                .get_component::<crate::model::Player>(&caster_oid)
+                .map(|p| p.name.clone())
+                .unwrap_or_default();
+            apply_skill_damage(
+                world,
+                caster_oid,
+                target_oid,
+                damage,
+                true,
+                true,
+                &caster_name,
+                skill.over_hit,
+                false,
+                skill.id,
+            );
+        }
+    }
 }
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
@@ -1367,7 +1414,7 @@ pub(crate) fn apply_continuous_effects(
     target_oid: i32,
     skill: &Skill,
     abnormal_time_override: Option<i32>,
-) {
+) -> bool {
     use server_packets::{SmParam, sm_ids};
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
@@ -1417,7 +1464,7 @@ pub(crate) fn apply_continuous_effects(
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
-        return;
+        return false;
     }
 
     // Debuff landing roll — Java `Formulas.calcEffectSuccess`. A bad skill with
@@ -1430,8 +1477,6 @@ pub(crate) fn apply_continuous_effects(
     // through. `activateRate == -1` is filtered here so those consume no roll
     // (keeps the ordering of the remaining rolls stable). Both lines are
     // single-target only so an AoE debuff doesn't spam one line per target.
-    // TODO(G16): a magic-crit `DamOverTime` burst is applied in the effect loop
-    // above before this roll — Java gates that burst on landing too.
     if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
@@ -1485,7 +1530,7 @@ pub(crate) fn apply_continuous_effects(
             }
         }
         if resisted {
-            return;
+            return false;
         }
     }
     // Java `EffectList` only schedules a stop task when the effect's time is
@@ -1501,7 +1546,7 @@ pub(crate) fn apply_continuous_effects(
         && caster_oid != target_oid
         && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid)
     {
-        return;
+        return false;
     }
 
     // `EffectList.addActive`'s blocked-slot gate: a buff whose abnormal type is
@@ -1517,7 +1562,7 @@ pub(crate) fn apply_continuous_effects(
                     .any(|x| x.blocked_abnormals.contains(&skill.abnormal_type))
             });
         if blocked {
-            return;
+            return false;
         }
     }
 
@@ -1583,7 +1628,10 @@ pub(crate) fn apply_continuous_effects(
                 },
             );
         }
-        return;
+        // The NPC branch is the *success* tail, not a guard: the buff was
+        // applied, so an `onStart` side effect keyed on landing (the DoT
+        // magic-crit burst) is due.
+        return true;
     }
     {
         let landed =
@@ -1615,7 +1663,7 @@ pub(crate) fn apply_continuous_effects(
         // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
         // shared skill id would drop the surviving buff early) or rebroadcast.
         if !landed {
-            return;
+            return false;
         }
         if !permanent {
             world.scheduler.schedule(
@@ -1668,6 +1716,7 @@ pub(crate) fn apply_continuous_effects(
             crate::game_loop::admin::transforms::refresh_transform_visuals(world, target_oid);
         }
     }
+    true
 }
 
 /// Java `Player.restoreEffects` (buff half): re-apply the buffs a character was

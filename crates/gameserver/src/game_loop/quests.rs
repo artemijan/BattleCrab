@@ -393,6 +393,33 @@ pub struct QuestCtx<'w> {
     attack_is_summon: bool,
 }
 
+/// `AbstractScript.addExpAndSp` — quest XP/SP with the premium and server
+/// reward rates, then the PA-point award the Java method closes with.
+///
+/// A free function so the rate arithmetic is reachable without a live script
+/// `Arc`; [`QuestCtx::add_exp_and_sp`] is the thin wrapper quests call.
+pub(crate) fn add_quest_exp_and_sp(world: &mut World, player: i32, exp: i64, sp: i64) {
+    // `PremiumRateQuestXp`/`Sp` apply **first**, before the server rate — Java
+    // multiplies `addExp` by the premium rate and only then by
+    // `RATE_QUEST_REWARD_XP`. Both are 1 on this dist, so the ordering is
+    // currently unobservable, but it is what decides the rounding.
+    let (mut exp, mut sp) = (exp as f64, sp as f64);
+    if world.cfg.premium.enabled && super::admin::premium::has_premium_status(world, player) {
+        exp *= world.cfg.premium.rate_quest_xp;
+        sp *= world.cfg.premium.rate_quest_sp;
+    }
+    let exp = (exp * world.cfg.rates.rate_quest_reward_xp) as i64;
+    let sp = (sp * world.cfg.rates.rate_quest_reward_sp) as i64;
+    // Java routes quest rewards through `Player.addExpAndSp(exp, sp)`, the
+    // two-arg overload — `useBonuses = false`, so vitality neither boosts the
+    // reward nor is spent on it.
+    super::death::add_exp_and_sp(world, player, exp as f64, sp as f64, false);
+    // `AbstractScript.addExpAndSp` closes with
+    // `givePcCafePoint(player, addExp * RATE_QUEST_REWARD_XP)` — the premium-
+    // and rate-multiplied value, which is exactly `exp` here.
+    super::pc_cafe::give_point(world, player, exp as f64);
+}
+
 impl<'w> QuestCtx<'w> {
     fn new(
         world: &'w mut World,
@@ -740,20 +767,7 @@ impl<'w> QuestCtx<'w> {
     /// `AbstractScript.addExpAndSp` — quest XP/SP with the
     /// `RateQuestRewardXP/SP` multipliers.
     pub fn add_exp_and_sp(&mut self, exp: i64, sp: i64) {
-        let exp = (exp as f64 * self.world.cfg.rates.rate_quest_reward_xp) as i64;
-        let sp = (sp as f64 * self.world.cfg.rates.rate_quest_reward_sp) as i64;
-        // Java routes quest rewards through `Player.addExpAndSp(exp, sp)`, the
-        // two-arg overload — `useBonuses = false`, so vitality neither boosts
-        // the reward nor is spent on it.
-        super::death::add_exp_and_sp(self.world, self.player, exp as f64, sp as f64, false);
-        // `AbstractScript.addExpAndSp` closes with
-        // `givePcCafePoint(player, addExp * RATE_QUEST_REWARD_XP)` — the
-        // rate-multiplied value, which is exactly `exp` here.
-        //
-        // TODO(G16): Java multiplies quest exp by `PREMIUM_RATE_QUEST_XP/SP`
-        // for a premium player *before* this, which the port doesn't apply
-        // yet — so a premium character's award is short by that factor.
-        super::pc_cafe::give_point(self.world, self.player, exp as f64);
+        add_quest_exp_and_sp(self.world, self.player, exp, sp);
     }
 
     // --- misc --------------------------------------------------------------

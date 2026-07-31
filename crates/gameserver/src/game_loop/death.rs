@@ -757,6 +757,24 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
 /// level-gap gates, per-item rate multipliers, and the max-occurrence cap.
 /// The temporary "replace highest-chance random drop" reshuffling Java does
 /// when the cap is hit mid-list is simplified to a hard stop at the cap.
+#[cfg(test)]
+pub(crate) fn roll_spoil_drops_for_test(
+    world: &mut World,
+    t: &NpcTemplate,
+    killer_oid: i32,
+) -> Vec<(i32, i64)> {
+    roll_spoil_drops(world, t, killer_oid)
+}
+
+#[cfg(test)]
+pub(crate) fn roll_drops_for_test(
+    world: &mut World,
+    t: &NpcTemplate,
+    killer_oid: i32,
+) -> Vec<(i32, i64)> {
+    roll_drops(world, t, killer_oid)
+}
+
 fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, i64)> {
     let Some(killer) = world
         .objects
@@ -785,6 +803,11 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
     let amount_mult = r.death_drop_amount_multiplier;
     let by_id_chance = r.drop_chance_by_id.clone();
     let by_id_amount = r.drop_amount_by_id.clone();
+    // `NpcTemplate.calculateDrops`' premium block, which multiplies the rate
+    // that the branch above already picked.
+    let premium =
+        super::admin::premium::has_premium_status(world, killer_oid) && world.cfg.premium.enabled;
+    let is_raid = t.is_raid();
 
     let mut out = Vec::new();
     let mut lists: Vec<(f64, &[DropHolder])> = Vec::new();
@@ -809,19 +832,27 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
                 continue;
             }
             // Chance roll (grouped items fold the group chance in).
-            let rate_chance = by_id_chance
+            let mut rate_chance = by_id_chance
                 .get(&drop.item_id)
                 .copied()
                 .unwrap_or(chance_mult);
+            if premium {
+                rate_chance *=
+                    premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Chance);
+            }
             let chance = drop.chance * (group_chance / 100.0) * rate_chance;
             if world.roll_f64() * 100.0 >= chance {
                 continue;
             }
             // Amount.
-            let rate_amount = by_id_amount
+            let mut rate_amount = by_id_amount
                 .get(&drop.item_id)
                 .copied()
                 .unwrap_or(amount_mult);
+            if premium {
+                rate_amount *=
+                    premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Amount);
+            }
             let base = if drop.max > drop.min {
                 drop.min + world.roll((drop.max - drop.min + 1) as i32) as i64
             } else {
@@ -835,6 +866,53 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
         }
     }
     out
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(super) enum PremiumDropRate {
+    Chance,
+    Amount,
+}
+
+/// The premium half of `calculateGroupDrop`/`calculateUngroupedDrop`'s rate
+/// chain, for a killer already known to hold premium status.
+///
+/// **The per-item map replaces the flat rate, it does not stack with it** —
+/// Java's chain is `if (byId != null) … else if (herb) {} else if (raid) {}
+/// else flat`. That matters on this dist: the flat amount rate is ×2 but the
+/// listed jewels (6656-6662, 8191, 10170, 10314) are pinned to ×1, so premium
+/// buys nothing on them.
+///
+/// **The herb and raid arms are empty in Java** — a premium killer gets no
+/// bonus at all on a herb or a raid drop unless the item is in the map. The
+/// two `// TODO: Premium herb chance? :)` comments upstream are Java's own,
+/// and returning 1.0 here is what the shipped code does.
+pub(super) fn premium_drop_mult(
+    world: &World,
+    item_id: i32,
+    is_raid: bool,
+    which: PremiumDropRate,
+) -> f64 {
+    let cfg = &world.cfg.premium;
+    let by_id = match which {
+        PremiumDropRate::Chance => &cfg.rate_drop_chance_by_id,
+        PremiumDropRate::Amount => &cfg.rate_drop_amount_by_id,
+    };
+    if let Some(mult) = by_id.get(&item_id) {
+        return *mult;
+    }
+    let is_herb = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|i| i.ex_immediate_effect);
+    if is_herb || is_raid {
+        return 1.0;
+    }
+    match which {
+        PremiumDropRate::Chance => cfg.rate_drop_chance,
+        PremiumDropRate::Amount => cfg.rate_drop_amount,
+    }
 }
 
 /// `NpcTemplate.calculateDrops(DropType.SPOIL)` — the `<spoil>` list only
@@ -863,8 +941,14 @@ fn roll_spoil_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<
         100.0,
     );
     let mut occurrences = r.drop_max_occurrences_normal;
-    let chance_mult = r.spoil_drop_chance_multiplier;
-    let amount_mult = r.spoil_drop_amount_multiplier;
+    let mut chance_mult = r.spoil_drop_chance_multiplier;
+    let mut amount_mult = r.spoil_drop_amount_multiplier;
+    // The SPOIL branch's premium block is the flat pair only — no per-item
+    // overrides, no herb/raid special-casing.
+    if world.cfg.premium.enabled && super::admin::premium::has_premium_status(world, killer_oid) {
+        chance_mult *= world.cfg.premium.rate_spoil_chance;
+        amount_mult *= world.cfg.premium.rate_spoil_amount;
+    }
 
     let mut out = Vec::new();
     for drop in &t.drop_list_spoil {

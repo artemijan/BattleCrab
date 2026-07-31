@@ -105,6 +105,7 @@ mod party_room_tests;
 mod pc_cafe_tests;
 mod periodic_tests;
 mod petition_tests;
+mod premium_rates_tests;
 mod punishment_tests;
 mod pvp_kill_tests;
 mod queen_ant_tests;

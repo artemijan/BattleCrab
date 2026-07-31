@@ -1590,6 +1590,37 @@ impl Skill {
 
     /// The continuous stat-pump subset of `effects` — what lands as an
     /// `ActiveBuff` (instant effects never enter a buff).
+    /// Java `Skill.hasEffectType(EffectType.HATE)` — whether any of this
+    /// skill's effects is an aggro-management one (`DeleteHate`,
+    /// `DeleteHateOfMe`, `DeleteTopAgro`).
+    ///
+    /// `hasEffectType` scans **every** effect scope (`_effectLists.values()`),
+    /// not just `<effects>`, so this does too. The one gate that reads it is
+    /// `SkillCaster.callSkill`'s `EVT_ATTACKED` notify: a skill that exists to
+    /// *shed* aggro must not wake the mob it was cast at. The hate *addition*
+    /// beside it (`addDamageHate(caster, 0, -effectPoint)`) is **not** gated —
+    /// only the AI wake is.
+    ///
+    /// `DeleteTopAgro` has no port variant: its sole carrier is Mischief
+    /// (10526), an off-chronicle skill no class learns.
+    pub fn has_hate_effect(&self) -> bool {
+        [
+            &self.effects,
+            &self.self_effects,
+            &self.pve_effects,
+            &self.pvp_effects,
+            &self.channeling_effects,
+        ]
+        .into_iter()
+        .flatten()
+        .any(|e| {
+            matches!(
+                e,
+                SkillEffect::DeleteHate { .. } | SkillEffect::DeleteHateOfMe { .. }
+            )
+        })
+    }
+
     /// OR of the [`effect_flag`] bits this skill's effects contribute — Java's
     /// `AbstractEffect.getEffectFlags()` summed over the effect list.
     pub fn effect_flags(&self) -> u32 {
