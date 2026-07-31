@@ -143,6 +143,26 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**The `Die` packet's restart buttons 2026-07-31.** Found by a third audit
+pattern — hard-coded `0` counts and flags in packet writers ([[stubbed
+counts]]'s lesson) — and the largest single find of the day. **Every flag in
+`Die` was a literal 0**, and the client only sends a `RequestRestartPoint` for
+a button it was told exists. So `clanhall_restart_location` and
+`siege_restart_location` — both fully implemented, both tested — were
+**unreachable in play**: a siege defender could never choose "to castle", an
+attacker never "to siege HQ", and no one could restart at their clan hall.
+All of Java's `Die` constructor is now ported: `to_village` (hidden while a
+resurrection is already proposed), `to_clan_hall`, `to_castle` (owning a castle
+*or* defending one), `to_outpost` (an attacker **with a base camp still
+standing** — Java reads `!getFlag().isEmpty()`, so a razed camp removes the
+button rather than offering a respawn that fails), and `sweepable` on a spoiled
+corpse. Fortress and feather flags stay false — off-chronicle and no Interlude
+item family respectively.
+Also fixed: a test from this morning's trait slice compared two auto-attacks
+whose miss/crit rolls were left to the RNG. It passed in isolation and failed
+about one full-suite run in ten; every roll in the swing is forced now.
+4 tests, 8 mechanisms sabotage-verified.
+
 **Expired-assumption sweep 2026-07-31.** Acting on the pattern the previous
 slice exposed: a grep for helpers whose simplification is justified by a stat's
 *absence* ("trait mods 1.0", "no traits/attributes", "unported"). Today's own

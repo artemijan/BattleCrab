@@ -77,18 +77,42 @@ pub fn attack(
     w.into_bytes()
 }
 
-/// Port of `serverpackets/Die` — broadcast on any creature's death. Every
-/// revive-destination flag is written explicitly; for NPCs they are all
-/// false. `to_village` = `canRevive() && !isPendingRevive()` for players.
-pub fn die(object_id: i32, to_village: bool) -> Vec<u8> {
+/// Which restart buttons the death window offers (Java `Die`'s constructor).
+///
+/// These are not cosmetic: the client only *sends* a `RequestRestartPoint` for
+/// a button it was told exists, so a flag left false makes the matching branch
+/// of `death::handle_request_restart_point` unreachable — which is exactly what
+/// had happened to the siege ones.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct DieOptions {
+    /// `canRevive() && !isPendingRevive()`.
+    pub to_village: bool,
+    /// `clan != null && clan.getHideoutId() > 0`.
+    pub to_clan_hall: bool,
+    /// `(clan != null && clan.getCastleId() > 0) || isInCastleDefense`.
+    pub to_castle: bool,
+    /// `siegeClan != null && !isInCastleDefense && !siegeClan.getFlag().isEmpty()`
+    /// — an attacker with a base camp still standing.
+    pub to_outpost: bool,
+    /// `isAttackable() && isSweepActive()` — the corpse carries spoiled loot.
+    pub sweepable: bool,
+}
+
+/// Port of `serverpackets/Die` — broadcast on any creature's death.
+///
+/// Fortress destinations stay false (forts are off-chronicle here), as do the
+/// feather/adventurer's-song flags: `haveItemForSelfResurrection` needs the
+/// Feather of Blessing item family, none of which is in this dist's Interlude
+/// range.
+pub fn die(object_id: i32, opts: DieOptions) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::DIE);
     w.write_i32(object_id);
-    w.write_i32(to_village as i32); // to village
-    w.write_i32(0); // to clan hall
-    w.write_i32(0); // to castle
-    w.write_i32(0); // to outpost / siege HQ
-    w.write_i32(0); // sweepable
+    w.write_i32(opts.to_village as i32);
+    w.write_i32(opts.to_clan_hall as i32);
+    w.write_i32(opts.to_castle as i32);
+    w.write_i32(opts.to_outpost as i32); // siege HQ / base camp
+    w.write_i32(opts.sweepable as i32);
     w.write_i32(0); // use feather
     w.write_i32(0); // to fortress
     w.write_i32(0); // disables feather button timer

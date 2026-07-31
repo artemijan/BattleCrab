@@ -182,11 +182,23 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             ],
         ),
     );
+    // `_isSweepable = isAttackable() && isSweepActive()` — a spoiled corpse
+    // tells the client its loot can still be swept.
+    let sweepable = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .is_some_and(|n| n.spoiler_object_id != 0);
     broadcast_near_region_in(
         world,
         region,
         instance,
-        &server_packets::die(npc_oid, false),
+        &server_packets::die(
+            npc_oid,
+            server_packets::DieOptions {
+                sweepable,
+                ..Default::default()
+            },
+        ),
     );
 
     // The mob stays *selected* while its corpse lasts — a player keeps it in
@@ -1852,7 +1864,8 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         apply_death_exp_penalty_ex(world, player_oid, at_war);
     }
 
-    broadcast_including_self(world, player_oid, &server_packets::die(player_oid, true));
+    let opts = die_options(world, player_oid);
+    broadcast_including_self(world, player_oid, &server_packets::die(player_oid, opts));
     broadcast_including_self(
         world,
         player_oid,
@@ -2052,6 +2065,69 @@ pub(crate) fn handle_request_restart_point(world: &mut World, client_id: u32, bo
 /// clan owns a hall respawns at the hall's owner-restart point
 /// (`MapRegionManager.getTeleToLocation(CLANHALL)`, which is the hall's
 /// `ownerRestartPoint`). `None` for any other restart type, a clanless player,
+/// Java `Die`'s constructor: which restart buttons this corpse is offered.
+///
+/// **The client only sends a `RequestRestartPoint` for a button it was told
+/// exists**, so these flags are what makes `clanhall_restart_location` and
+/// `siege_restart_location` reachable at all — both were fully implemented and
+/// entirely unreachable, because every flag here was a hard-coded 0.
+///
+/// `to_village` is `canRevive() && !isPendingRevive()`; a revive already
+/// proposed hides the button so the player answers the dialog instead.
+pub(crate) fn die_options(world: &World, player_oid: i32) -> server_packets::DieOptions {
+    use crate::model::siege::SiegeClanType;
+    let mut opts = server_packets::DieOptions {
+        to_village: world
+            .objects
+            .get_component::<crate::model::Player>(&player_oid)
+            .is_some_and(|p| p.revive_request.is_none()),
+        ..Default::default()
+    };
+    let Some(clan_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .map(|p| p.clan_id)
+        .filter(|&id| id != 0)
+    else {
+        return opts;
+    };
+    opts.to_clan_hall = world.clan_halls.values().any(|h| h.owner_id == clan_id);
+    opts.to_castle = world.clans.get(&clan_id).is_some_and(|c| c.castle_id > 0);
+
+    // The siege half needs the corpse to be standing on a battlefield.
+    let Some(castle_id) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .and_then(|p| world.data.zone_data.siege_castle_at(p.x, p.y, p.z))
+    else {
+        return opts;
+    };
+    let Some(siege) = world.sieges.get(&castle_id).filter(|s| s.in_progress) else {
+        return opts;
+    };
+    let role = siege
+        .clans
+        .iter()
+        .find(|c| c.clan_id == clan_id)
+        .map(|c| c.kind);
+    let is_castle_defence = role != Some(SiegeClanType::Attacker)
+        && (siege.is_defender(clan_id)
+            || world
+                .clans
+                .get(&clan_id)
+                .is_some_and(|c| c.castle_id == castle_id));
+    // `_toCastle = (clan.getCastleId() > 0) || isInCastleDefense` — a defender
+    // gets the button even for a castle they do not own.
+    opts.to_castle |= is_castle_defence;
+    // `_toOutpost` needs an attacker **with a flag still standing**: Java reads
+    // `!siegeClan.getFlag().isEmpty()`, so a razed base camp removes the button
+    // rather than offering a respawn that would fail.
+    opts.to_outpost = role == Some(SiegeClanType::Attacker)
+        && !is_castle_defence
+        && siege.flag_of(clan_id).is_some();
+    opts
+}
+
 /// or a clan that owns no hall.
 fn clanhall_restart_location(
     world: &World,
