@@ -143,6 +143,23 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`NpcInfo`'s abnormal visuals 2026-07-31.** The same stub, one packet over: the
+`ABNORMALS` component was never emitted, so **a stunned, poisoned or feared mob
+looked completely untouched to every client** — the exact shape `CharInfo` had
+before G19 fixed it for players. The state was already there
+(`abnormal::visual_effects` reads an NPC's buffs the same way it reads a
+player's); only the packet never carried it.
+**Two flaky tests fixed with it, both my own regressions from earlier today.**
+`physical_skill_damages_monster_and_soulshot_doubles` forced two rolls per cast,
+but the G20 shield slice inserted two more ahead of the crit roll — the crit
+then fell through to real RNG and the two casts could disagree, failing about
+two full-suite runs in three while passing in isolation. And
+`target_cancel_clears_the_target_and_aborts` stopped being deterministic when
+`TargetCancel` moved onto `calcProbability`, whose threshold is below 100 even
+for a 100-chance skill. *Adding a roll upstream silently shifts every forced
+sequence downstream* — the suite was run four times clean to confirm.
+1 test, 3 mechanisms sabotage-verified.
+
 **`UserInfo`'s last three stubbed fields 2026-07-31.** Finishing the same
 sweep, this time by walking `UserInfo` against Java's block by block. Three
 fields wrote a hard 0 while the state behind them existed: the **large clan

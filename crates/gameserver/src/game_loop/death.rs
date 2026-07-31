@@ -422,7 +422,8 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
     let Some(t) = v.npc.template(world) else {
         return;
     };
-    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc);
+    let visuals = super::abnormal::visual_effects(world, object_id);
+    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &visuals);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
 

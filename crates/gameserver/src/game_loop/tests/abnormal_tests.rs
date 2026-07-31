@@ -545,6 +545,11 @@ fn target_cancel_clears_the_target_and_aborts() {
     assert!(world.objects.has_component::<Casting>(&VICTIM));
     drain(&mut vout);
 
+    // `TargetCancel` rolls through `calcProbability` (`magicLevel + chance −
+    // targetLevel`), so even a 100-chance skill has a threshold below 100 and
+    // an unforced roll makes this flaky. Force the magic-crit throwaway and a
+    // winning probability roll.
+    world.forced_rolls.extend([0, 0]);
     land(&mut world, TCANCEL_ID, VICTIM);
     assert_eq!(
         world
@@ -886,5 +891,76 @@ fn an_element_resistance_lowers_the_target_cancel_chance() {
         cancel(true),
         Some(NPC_OID),
         "the fire resistance scaled the threshold under the same roll"
+    );
+}
+
+/// **A stunned mob shows its icon.** `NpcInfo`'s `ABNORMALS` component was
+/// never emitted — the same shape as `CharInfo`'s abnormal-visual count before
+/// G19 fixed it, but for NPCs — so a mob under a visible abnormal looked
+/// completely untouched to every client.
+#[test]
+fn npc_info_carries_the_mobs_abnormal_visuals() {
+    use crate::model::npc::NpcView;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+
+    let build = |world: &World| {
+        let v = NpcView::of(&world.objects, NPC_OID).expect("a live mob");
+        let t = v.npc.template(world).expect("its template");
+        crate::network::server_packets::npc_info(
+            &v,
+            t,
+            &world.cfg.npc,
+            &crate::game_loop::abnormal::visual_effects(world, NPC_OID),
+        )
+    };
+
+    let clean = build(&world);
+
+    // Land a stun on the mob: `apply_buff_to_npc` stores its visual ids.
+    world.data.skill_data.insert_for_test({
+        let mut s = cc_skill(9330, SkillEffect::Root, "STUN");
+        s.abnormal_visuals = vec![1]; // AbnormalVisualEffect.DOT_BLEEDING-ish id
+        s
+    });
+    land(&mut world, 9330, NPC_OID);
+    assert_eq!(
+        crate::game_loop::abnormal::visual_effects(&world, NPC_OID),
+        vec![1],
+        "the mob really is carrying a visual"
+    );
+
+    let stunned = build(&world);
+    assert!(
+        stunned.len() > clean.len(),
+        "the ABNORMALS block adds a count plus one short: {} vs {}",
+        stunned.len(),
+        clean.len()
+    );
+    assert_eq!(
+        stunned.len() - clean.len(),
+        4,
+        "an i16 count and one i16 id"
+    );
+    // The tail carries the count and the id, little-endian.
+    let tail = &stunned[stunned.len() - 5..];
+    assert_eq!(i16::from_le_bytes([tail[0], tail[1]]), 1, "one effect");
+    assert_eq!(i16::from_le_bytes([tail[2], tail[3]]), 1, "its client id");
+
+    // And the visibility path — the one that actually reaches a client — sends
+    // that same packet rather than a bare one.
+    let mut rx = ingame_caster(&mut world, 9, 3099, 0, 0);
+    drain(&mut rx);
+    crate::game_loop::visibility::on_enter_world(&world, 9, 3099);
+    let sent = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_INFO)
+        .expect("the observer was told about the mob");
+    assert_eq!(
+        sent.len(),
+        stunned.len(),
+        "the observer's NpcInfo carries the abnormal block too"
     );
 }

@@ -2014,11 +2014,19 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
     drain(&mut a_rx);
 
     let start_hp = nvit(&world, npc_oid).cur_hp;
-    // Two forced high rolls per cast: the unconditional top-of-cast magic-crit
-    // roll (unused for a physical skill) then the physical-skill crit roll —
-    // both fail, so damage is the non-crit base.
+    // **Four** forced high rolls per cast, in the order the path draws them:
+    // the unconditional top-of-cast magic-crit roll (unused for a physical
+    // skill), the two `calcShldUse` rolls, then the physical-skill crit roll.
+    // All fail, so damage is the non-crit, unblocked base.
+    //
+    // The shield pair arrived with the G20 shield slice and silently shifted
+    // this queue: with only two values forced, the crit roll fell through to
+    // the real RNG and the two casts could disagree — the test then failed
+    // about two full-suite runs in three while still passing in isolation.
     // Control cast (no shot).
-    world.forced_rolls.extend([999_999, 999_999]);
+    world
+        .forced_rolls
+        .extend([999_999, 999_999, 999_999, 999_999]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let base = start_hp - nvit(&world, npc_oid).cur_hp;
     assert!(
@@ -2037,7 +2045,9 @@ fn physical_skill_damages_monster_and_soulshot_doubles() {
         .get_component_mut::<Player>(&3001)
         .unwrap()
         .charge_shot(ShotType::Soulshots);
-    world.forced_rolls.extend([999_999, 999_999]);
+    world
+        .forced_rolls
+        .extend([999_999, 999_999, 999_999, 999_999]);
     crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
     let ss = start_hp - nvit(&world, npc_oid).cur_hp;
 
