@@ -143,6 +143,34 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G19 sweep done 2026-07-31 (27 → 21).** Ranked by *learnable* carriers
+first — the lesson from the earlier effects work — which is what made the
+cluster tractable. Of the six unported affect scopes, **exactly one has a
+learnable skill**: `DEAD_PLEDGE` carries the Bishop's **Mass Resurrection
+(1254)**, which was falling back to single-target on a `SELF` cast and so
+**did nothing at all**. The `DEAD_*` family is now ported
+(`DEAD_PLEDGE`/`DEAD_PARTY`/`DEAD_UNION`): mirror images of PLEDGE/PARTY with
+the liveness test inverted, and — the part that is easy to get wrong — the
+**origin is filtered rather than assumed in**, because the caster of a SELF
+mass-res is alive and must not appear in their own resurrection; the affect
+limit therefore counts from 0, not 1. The other five scopes have **zero**
+learnable carriers and stay documented fallbacks.
+**Verified inert, not gaps:** `Stat.VITALITY_CONSUME_RATE` and
+`Stat.BONUS_EXP`/`BONUS_SP` — a sweep of `data/stats/skills` finds **no skill
+on this dist granting any of the three**, so they can never leave their
+identity values and the two arithmetic sites are exact. The TODOs are replaced
+with that fact.
+Also landed: a **per-instance NPC title** (`Npc.title_override`) so an
+`EffectPoint` seal wears its caster's name (Java `setTitle`) — with the
+matching finding that `NpcInfo` only emits the TITLE block for a template with
+`usingServerSideTitle`, which no EffectPoint on this dist sets, so **Java
+stores it and never transmits it either**; and the transform gate's
+**registered-on-event** leg, which G28's TvT roster unblocked (the sitting leg
+alone remains, and has no state to read). 3 tests; **one initially passed
+under sabotage** — the transform refusal was the skill's *cooldown* talking,
+not the event gate, until the reuse was cleared first. 6 mechanisms
+sabotage-verified.
+
 **G22 sweep done 2026-07-31 (30 → 15).** The cluster's dominant shape was
 `getSummonedNpcCount()` guards — 10 sites across six class-transfer quests,
 all blocked on one missing mechanism. `Creature._summonedNpcs` is now a

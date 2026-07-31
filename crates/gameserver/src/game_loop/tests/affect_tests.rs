@@ -425,3 +425,116 @@ fn aoe_nuke_damages_the_whole_cluster() {
         "the mob outside the sweep was untouched"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The DEAD_* family — mass resurrection (G19 sweep)
+// ---------------------------------------------------------------------------
+
+/// **`DEAD_PLEDGE` is the Bishop's Mass Resurrection**, and it is the only
+/// learnable skill in the whole previously-unported scope set. It picks up the
+/// caster's *dead* clan mates in range — and nobody else.
+///
+/// The three things that make it different from `PLEDGE` are all asserted
+/// here: the living are skipped, the origin (a `SELF` cast by a living caster)
+/// is filtered out rather than assumed in, and outsiders' corpses don't count.
+#[test]
+fn dead_pledge_scope_gathers_only_the_clans_corpses() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let dead_mate = 2002;
+    let live_mate = 2003;
+    let dead_outsider = 2004;
+    let _o2 = ingame_caster(&mut world, 2, dead_mate, 100, 0);
+    let _o3 = ingame_caster(&mut world, 3, live_mate, 150, 0);
+    let _o4 = ingame_caster(&mut world, 4, dead_outsider, 200, 0);
+    for oid in [CASTER, dead_mate, live_mate] {
+        world
+            .objects
+            .get_component_mut::<crate::model::Player>(&oid)
+            .unwrap()
+            .clan_id = 77;
+    }
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&dead_outsider)
+        .unwrap()
+        .clan_id = 88;
+    for oid in [dead_mate, dead_outsider] {
+        world
+            .objects
+            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .unwrap()
+            .dead = true;
+    }
+
+    let mut skill = aoe_skill(1254, AffectScope::DeadPledge, AffectObject::All, 1000);
+    skill.target_type = TargetType::Self_;
+    skill.effect_point = 290; // a good skill
+
+    let hit = targets_affected(&mut world, CASTER, CASTER, &skill);
+    assert_eq!(
+        hit,
+        vec![dead_mate],
+        "only the dead clan mate: the caster is alive, the live mate is alive, \
+         and the outsider's corpse is another clan's problem"
+    );
+
+    // Out of range → nothing at all, and the caster is still not in the list.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&dead_mate)
+        .unwrap()
+        .x = 5000;
+    assert!(
+        targets_affected(&mut world, CASTER, CASTER, &skill).is_empty(),
+        "a corpse beyond affect_range is out of reach"
+    );
+}
+
+/// `DEAD_PARTY` is the same shape over the party, and the affect limit counts
+/// corpses from zero (there is no "primary target" occupying the first slot).
+#[test]
+fn dead_party_scope_respects_the_affect_limit() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let a = 2002;
+    let b = 2003;
+    let _o2 = ingame_caster(&mut world, 2, a, 100, 0);
+    let _o3 = ingame_caster(&mut world, 3, b, 150, 0);
+    // One party of three — `put_in_party` mints a *new* party per call, so
+    // calling it twice would split them.
+    put_in_party(&mut world, CASTER, a);
+    {
+        use crate::model::components::PartyRef;
+        let pid = world
+            .objects
+            .get_component::<PartyRef>(&CASTER)
+            .map(|r| r.0)
+            .unwrap();
+        world.parties.get_mut(&pid).unwrap().members.push(b);
+        world.objects.add_components(&b, PartyRef(pid));
+    }
+    for oid in [a, b] {
+        world
+            .objects
+            .get_component_mut::<crate::model::components::Vitals>(&oid)
+            .unwrap()
+            .dead = true;
+    }
+
+    let mut skill = aoe_skill(9020, AffectScope::DeadParty, AffectObject::All, 1000);
+    skill.target_type = TargetType::Self_;
+    skill.effect_point = 100;
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill).len(),
+        2,
+        "both fallen party mates"
+    );
+
+    skill.affect_limit = (1, 1);
+    assert_eq!(
+        targets_affected(&mut world, CASTER, CASTER, &skill).len(),
+        1,
+        "the limit counts corpses from zero, so 1 means 1"
+    );
+}

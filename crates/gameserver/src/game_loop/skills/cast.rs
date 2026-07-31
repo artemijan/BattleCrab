@@ -793,13 +793,13 @@ pub(crate) fn use_magic_on(
     }
 
     // `ConditionPlayerCanTransform` — the cast-time gate on a `Transformation`
-    // skill (the "Transform <Monster>" scroll family). Java also refuses while
-    // sitting or registered on an event; neither state is modeled on this port
-    // yet (TODO(G19)/TODO(G28)), so only the legs backed by modeled state are
-    // ported: already transformed, mounted (a strider/wyvern rider sets
-    // `mount_type`, not `transform_id` — that leg is separate from the
-    // transform one, even though horse/bike admin rides are transforms here),
-    // in water, and cursed-weapon-equipped.
+    // skill (the "Transform <Monster>" scroll family). Ported: already
+    // transformed, mounted (a strider/wyvern rider sets `mount_type`, not
+    // `transform_id` — that leg is separate from the transform one, even
+    // though horse/bike admin rides are transforms here), in water,
+    // cursed-weapon-equipped, and **registered on an event** (the TvT roster,
+    // since G28 landed). The sitting leg has no state to read: `ChangeWaitType`
+    // is unported, so nothing can be sitting (TODO(G14)).
     if skill
         .effects
         .iter()
@@ -844,6 +844,20 @@ pub(crate) fn use_magic_on(
                 sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
                 &[],
             );
+            return;
+        }
+        // `isRegisteredOnEvent()` — Java sends a plain text line here, not a
+        // SystemMessage, and this leg sits *after* the mount one.
+        if world.events.tvt.player_list.contains(&object_id) {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(
+                    sm_ids::S1_TEXT,
+                    &[server_packets::SmParam::Text(
+                        "You cannot transform while registered on an event.".into(),
+                    )],
+                ));
+                cs.send(server_packets::action_failed());
+            }
             return;
         }
         if cursed_weapon != 0 {

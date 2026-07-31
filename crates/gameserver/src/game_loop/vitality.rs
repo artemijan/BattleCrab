@@ -10,11 +10,14 @@
 //! `Attackable` (how much a given kill costs); both live here, since the Rust
 //! `Player` is a plain component rather than an object with a stat sub-object.
 //!
-//! **Not ported (`TODO(G19)`):** `Stat.VITALITY_CONSUME_RATE` (a per-player
-//! multiplier on the consumed amount) and `Stat.BONUS_EXP`/`BONUS_SP` (skill- and
-//! item-granted flat exp/sp bonuses) — none of the three is in the modelled
-//! `Stat` set yet, so each reads as its identity (1 / 0 / 0). When the effect
-//! breadth milestone adds them, fold them in at the two marked sites.
+//! **Verified inert, not a gap:** `Stat.VITALITY_CONSUME_RATE` (a per-player
+//! multiplier on the consumed amount) and `Stat.BONUS_EXP`/`BONUS_SP` (skill-
+//! and item-granted flat exp/sp bonuses) are not in the modelled `Stat` set, so
+//! each reads as its identity (1 / 0 / 0). **That is exact on this dist**: a
+//! sweep of `data/stats/skills` finds **zero** skills granting any of the
+//! three, so nothing could ever move them off their identity. They are noted
+//! at the two arithmetic sites for whoever ports a later chronicle, not left
+//! as TODOs — there is no work here to do.
 //!
 //! The daily (+`MAX/4`) and weekly (full) refills that
 //! `DailyTaskManager.resetVitalityDaily`/`resetVitalityWeekly` apply at 06:30
@@ -73,8 +76,9 @@ pub(crate) fn exp_bonus_multiplier(world: &World, object_id: i32) -> f64 {
     if vitality > 1.0 {
         bonus += vitality - 1.0;
     }
-    // TODO(G19): Java adds `(1 + getValue(Stat.BONUS_EXP, 0) / 100) - 1` here
-    // (and `BONUS_SP` in the sp twin) — neither stat is modelled yet.
+    // Java adds `(1 + getValue(Stat.BONUS_EXP, 0) / 100) - 1` here (and
+    // `BONUS_SP` in the sp twin). Neither stat is modelled — and **no skill on
+    // this dist grants either**, so the term is identically 0.
     bonus.max(1.0)
 }
 
@@ -168,10 +172,10 @@ pub(crate) fn update_vitality_points(
             return false;
         }
         if points < 0.0 {
-            // TODO(G19): Java scales by `getMul(Stat.VITALITY_CONSUME_RATE, 1)`
-            // here and bails out entirely when that rate is <= 0; the stat is
-            // unmodelled, so the rate is its identity (1) and the bail-out is
-            // unreachable.
+            // Java scales by `getMul(Stat.VITALITY_CONSUME_RATE, 1)` here and
+            // bails out entirely when that rate is <= 0. The stat is unmodelled
+            // and **no skill on this dist grants it**, so the rate is its
+            // identity (1) and the bail-out is unreachable — not an omission.
             points *= 1.0;
         }
         // Java's two branches read `points > 0` *after* the consume scaling, so

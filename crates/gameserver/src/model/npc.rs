@@ -74,6 +74,12 @@ pub struct Npc {
     /// `HashMap` does not allocate until the first insert, so idle NPCs pay
     /// only the struct size. A fresh instance on respawn resets it, like Java.
     pub vars: std::collections::HashMap<String, i32>,
+    /// Java `Npc.setTitle` — a per-*instance* title that wins over the
+    /// template's (and over the `ShowNpcLevel`/`ShowNpcAggression` decoration).
+    /// The seal/totem an `EffectPoint` skill plants shows its **caster's name**
+    /// this way, which is how a bystander tells whose symbol it is.
+    /// `None` = use the template.
+    pub title_override: Option<String>,
     /// `Attackable._spoilerObjectId` — object id of the player who landed the
     /// Spoil skill on this mob (0 = not spoiled). Set by the `Spoil` effect,
     /// checked on death to roll the sweep list. A fresh instance on respawn
@@ -313,6 +319,7 @@ impl Npc {
             spawn_ref: (0, 0, 0),
             script_value: 0,
             vars: std::collections::HashMap::new(),
+            title_override: None,
             spoiler_object_id: 0,
             sweep_items: None,
             seed_id: 0,
@@ -595,6 +602,7 @@ fn spawn_npc_entity(
         spawn_ref,
         script_value: 0,
         vars: std::collections::HashMap::new(),
+        title_override: None,
         spoiler_object_id: 0,
         sweep_items: None,
         seed_id: 0,

@@ -32,10 +32,19 @@ pub(crate) fn spawn_effect_point(
     world
         .objects
         .add_components(&npc_oid, SummonerRef(owner_oid));
-    // TODO(G19): Java `effectPoint.setTitle(player.getName())` — the seal
-    // shows its owner's name. The port's NPC titles are template-derived at
-    // packet-build time (`npc_title`); a per-instance override needs its own
-    // NpcInfo plumbing. Cosmetic only.
+    // `effectPoint.setTitle(player.getName())` — the seal shows whose it is,
+    // which is the only way a bystander can tell one totem from another.
+    let owner_name = world
+        .objects
+        .get_component::<crate::model::Player>(&owner_oid)
+        .map(|p| p.name.clone());
+    if let Some(name) = owner_name
+        && let Some(npc) = world
+            .objects
+            .get_component_mut::<crate::model::npc::Npc>(&npc_oid)
+    {
+        npc.title_override = Some(name);
+    }
 
     let Some(template) = world.data.npc_data.get(npc_id) else {
         return;
