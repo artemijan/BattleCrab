@@ -240,6 +240,61 @@ pub enum WeaponTrait {
 }
 
 impl TraitType {
+    /// Java's `TraitType.getAllWeakness()` — the group-2 members, in Java's own
+    /// order (the product is commutative, but the list is the authority on
+    /// *which* traits count as a weakness).
+    pub const ALL_WEAKNESS: [TraitType; 18] = {
+        use WeaknessTrait as W;
+        [
+            TraitType::Weakness(W::Bug),
+            TraitType::Weakness(W::Animal),
+            TraitType::Weakness(W::Plant),
+            TraitType::Weakness(W::Beast),
+            TraitType::Weakness(W::Dragon),
+            TraitType::Weakness(W::Giant),
+            TraitType::Weakness(W::Construct),
+            TraitType::Weakness(W::Valakas),
+            TraitType::Weakness(W::Anesthesia),
+            TraitType::Weakness(W::Demonic),
+            TraitType::Weakness(W::Divine),
+            TraitType::Weakness(W::Elemental),
+            TraitType::Weakness(W::Fairy),
+            TraitType::Weakness(W::Human),
+            TraitType::Weakness(W::Humanoid),
+            TraitType::Weakness(W::Undead),
+            TraitType::Weakness(W::Embryo),
+            TraitType::Weakness(W::Spirit),
+        ]
+    };
+
+    /// Java `WeaponType.getTraitType()` — every weapon type *is* a trait, which
+    /// is what `calcWeaponTraitBonus` looks the target's defence up by. The
+    /// types Java maps to `NONE` (fishing rod, flag) stay `None`.
+    pub fn of_weapon(weapon: crate::data::item_data::WeaponType) -> Self {
+        use crate::data::item_data::WeaponType as W;
+        use WeaponTrait as P;
+        match weapon {
+            W::Sword => Self::Weapon(P::Sword),
+            W::Blunt => Self::Weapon(P::Blunt),
+            W::Dagger => Self::Weapon(P::Dagger),
+            W::Pole => Self::Weapon(P::Pole),
+            W::DualFist => Self::Weapon(P::DualFist),
+            W::Bow => Self::Weapon(P::Bow),
+            W::Dual => Self::Weapon(P::Dual),
+            W::DualBlunt => Self::Weapon(P::DualBlunt),
+            W::Fist => Self::Weapon(P::Fist),
+            W::Rapier => Self::Weapon(P::Rapier),
+            W::Crossbow => Self::Weapon(P::Crossbow),
+            W::AncientSword => Self::Weapon(P::AncientSword),
+            W::DualDagger => Self::Weapon(P::DualDagger),
+            W::TwoHandCrossbow => Self::Weapon(P::TwoHandCrossbow),
+            // Java's `NONE`/`FISHINGROD`/`FLAG` map to `TraitType.NONE`, and
+            // the port folds bare-handed into `WeaponType::None` too — an
+            // unarmed swing carries no weapon trait, so nothing defends it.
+            W::None | W::FishingRod => Self::None,
+        }
+    }
+
     /// Java's `TraitType._type`.
     pub fn group(self) -> u8 {
         match self {
@@ -1019,19 +1074,13 @@ pub enum SkillEffect {
     /// the attacker-side counterpart of [`SkillEffect::DefenceTrait`]'s
     /// `mergeDefenceTrait`.
     ///
-    /// Lands as an icon-only timed `ActiveBuff`: the attack-trait accumulator
-    /// has no consumer here yet.
+    /// Merges `amount / 100` onto the caster's [`AttackTraits`] table for each
+    /// named trait, which `calcWeaknessBonus` / `calcAttackTraitBonus` read
+    /// against the *target's* matching `DefenceTrait`.
     ///
-    /// TODO(G20): the target side **does** exist — the race skill `Undead`
-    /// (4416) sits on 13 549 NPCs and merges negative `*_WEAKNESS` defence
-    /// traits, which `DefenceTrait` now stores. What is missing is the
-    /// attacker-side accumulator (`mergeAttackTrait`/`removeAttackTrait`,
-    /// additive per `TraitType`) **and** its consumers in the physical damage
-    /// formula (`Formulas.calcWeaknessBonus`,
-    /// `calcAttackTraitBonus`/`calcWeaponTraitBonus`). The landing-roll path
-    /// is unaffected: `calcGeneralTraitBonus`'s group-2 branch bails to 1.0
-    /// while `hasAttackTrait` is false, which is what it does here.
-    AttackTrait,
+    AttackTrait {
+        traits: Vec<(TraitType, f64)>,
+    },
     /// `handlers/effecthandlers/DamageBlock.java` — one `<effect>` instance
     /// per block kind (a skill carrying both writes two separate elements,
     /// e.g. Celestial Shield 1418's `BLOCK_HP` + `BLOCK_MP`). Carries no stat

@@ -1177,6 +1177,9 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         let dmg = if shield == formulas::SHIELD_PERFECT {
             1.0
         } else {
+            // `calcAutoAttackDamage`'s own `damage *= calcAttackTraitBonus(...)`
+            // — the weapon trait plus every group-2 weakness, which is what
+            // makes the Hunter's "Detect … Weakness" line pay off.
             formulas::calc_auto_attack_damage(
                 attacker.p_atk,
                 formulas::random_damage_multiplier(rand_roll),
@@ -1185,7 +1188,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 crit,
                 crit_damage_auto(world, attacker_oid, target_oid, position),
                 ss,
-            )
+            ) * super::skills::effects::calc_attack_trait_bonus(world, attacker_oid, target_oid)
         };
         (crit, dmg as i32, ss, shield)
     };

@@ -133,6 +133,7 @@ mod subclass_tests;
 mod symbol_tests;
 mod target_reconsider_tests;
 mod teleport_cmds_tests;
+mod trait_damage_tests;
 mod trigger_skill_tests;
 mod tvt_tests;
 mod two_handed_tests;

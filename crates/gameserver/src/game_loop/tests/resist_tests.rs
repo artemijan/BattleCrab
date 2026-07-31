@@ -8,6 +8,9 @@ use crate::model::skill::{
 };
 use crate::model::stats::{Stat, StatModifierType};
 
+/// A stand-in attacker with no `AttackTraits` of its own — these tests are
+/// about the *defence* side, and Java's `getAttackTrait` identity is 1.0.
+const ATTACKER_NO_TRAITS: i32 = 2999;
 const CASTER: i32 = 2001;
 const VICTIM: i32 = 2002;
 const CID: u32 = 1;
@@ -333,7 +336,7 @@ fn stun_resistance_lowers_a_shock_debuffs_land_rate() {
     let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     // No buff → no resistance.
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Shock),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Shock, false),
         1.0,
         "an unprotected target resists nothing"
     );
@@ -342,12 +345,15 @@ fn stun_resistance_lowers_a_shock_debuffs_land_rate() {
     let traits = [(TraitType::Shock, 0.30)];
     merge_defence_traits(&mut world, 3001, &traits);
     assert!(
-        (calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.70).abs() < 1e-9,
+        (calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Shock, false)
+            - 0.70)
+            .abs()
+            < 1e-9,
         "a SHOCK debuff lands at 70% of its chance"
     );
     // …and only against that trait.
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Sleep),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Sleep, false),
         1.0,
         "resisting stuns does nothing against sleep"
     );
@@ -355,7 +361,7 @@ fn stun_resistance_lowers_a_shock_debuffs_land_rate() {
     // The resistance goes when the buff does.
     remove_defence_traits(&mut world, 3001, &traits);
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Shock),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Shock, false),
         1.0
     );
 }
@@ -376,17 +382,25 @@ fn defence_traits_stack_and_100_means_invulnerable() {
     merge_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.30)]);
     merge_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.20)]);
     assert!(
-        (calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.50).abs() < 1e-9,
+        (calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Shock, false)
+            - 0.50)
+            .abs()
+            < 1e-9,
         "30% + 20% = 50%"
     );
     // Removing one leaves the other.
     remove_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.20)]);
-    assert!((calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.70).abs() < 1e-9);
+    assert!(
+        (calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Shock, false)
+            - 0.70)
+            .abs()
+            < 1e-9
+    );
 
     // Invulnerability is its own branch (`>= 1.0` → `mergeInvulnerableTrait`).
     merge_defence_traits(&mut world, 3001, &[(TraitType::Hold, 1.0)]);
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Hold),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Hold, false),
         0.0,
         "invulnerable, not merely resistant"
     );
@@ -412,16 +426,25 @@ fn only_the_resistable_trait_group_is_scaled() {
         ],
     );
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Weakness(WeaknessTrait::Beast)),
+        calc_general_trait_bonus(
+            &world,
+            ATTACKER_NO_TRAITS,
+            3001,
+            TraitType::Weakness(WeaknessTrait::Beast),
+            false
+        ),
         1.0,
         "group 2 needs the attacker's AttackTrait, which nothing here grants"
     );
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Other),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::Other, false),
         1.0,
         "group 1 (weapon types) is never resisted through this path"
     );
-    assert_eq!(calc_general_trait_bonus(&world, 3001, TraitType::None), 1.0);
+    assert_eq!(
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, 3001, TraitType::None, false),
+        1.0
+    );
 
     // …but **invulnerability** is tested before the group switch, so it does
     // reach a group-2 trait. Java's clause order, not an accident.
@@ -431,7 +454,13 @@ fn only_the_resistable_trait_group_is_scaled() {
         &[(TraitType::Weakness(WeaknessTrait::Beast), 1.0)],
     );
     assert_eq!(
-        calc_general_trait_bonus(&world, 3001, TraitType::Weakness(WeaknessTrait::Beast)),
+        calc_general_trait_bonus(
+            &world,
+            ATTACKER_NO_TRAITS,
+            3001,
+            TraitType::Weakness(WeaknessTrait::Beast),
+            false
+        ),
         0.0,
         "invulnerability is checked ahead of the group gate"
     );
@@ -498,21 +527,26 @@ fn a_defence_trait_buff_installs_and_removes_its_resistance() {
         has_buff(&world, CASTER, 9410),
         "an effect-less DefenceTrait buff still lands as a timed buff"
     );
-    assert!((calc_general_trait_bonus(&world, CASTER, TraitType::Shock) - 0.70).abs() < 1e-9);
+    assert!(
+        (calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, CASTER, TraitType::Shock, false)
+            - 0.70)
+            .abs()
+            < 1e-9
+    );
     assert_eq!(
-        calc_general_trait_bonus(&world, CASTER, TraitType::Sleep),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, CASTER, TraitType::Sleep, false),
         0.0
     );
 
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9410);
     assert!(!has_buff(&world, CASTER, 9410));
     assert_eq!(
-        calc_general_trait_bonus(&world, CASTER, TraitType::Shock),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, CASTER, TraitType::Shock, false),
         1.0,
         "the resistance leaves with the buff"
     );
     assert_eq!(
-        calc_general_trait_bonus(&world, CASTER, TraitType::Sleep),
+        calc_general_trait_bonus(&world, ATTACKER_NO_TRAITS, CASTER, TraitType::Sleep, false),
         1.0
     );
 }

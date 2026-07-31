@@ -143,6 +143,27 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G20 trait damage 2026-07-31 (9 → 7).** The *damage* consumers of the trait
+tables the G16 slice built, which until now only fed the **landing roll**:
+`calcWeaponTraitBonus`, `calcWeaknessBonus` and `calcAttackTraitBonus`, plus the
+attacker-side `AttackTrait` accumulator all three read. **Deflect Arrow now
+deflects arrows** (BOW 16-40 %), Provoke's POLE **−10** really does make pole
+hits land harder, and the Hunter/Slayer "Detect … Weakness" line (7 learnable)
+finally pays off against the race skills that make it reachable — `Undead`
+(4416) sits on **13 547** NPC templates carrying negative `*_WEAKNESS` defence
+traits.
+**The attack table's identity is 1.0, not 0** — the opposite of the defence
+table — because the pair is consumed as `attackTrait − defenceTrait`; and
+`hasAttackTrait` (membership) is a *different* question from the value, which
+the group-2 branch gates on separately. `calcGeneralTraitBonus` gained Java's
+`ignoreResistance` flag: the damage formulas pass **true** (a stun resistance
+does not soften a stun's *damage*), the landing roll passes false. Wired into
+the auto-attack, both magic-damage paths, `PhysicalAttack`, `EnergyAttack` and
+`calcBlowDamage` — the last four through one `skill_trait_mod` helper that keeps
+Java's `generalTraitMod == 0 ? 1` guard, which is what stops an invulnerable
+trait from zeroing *damage* as well as the roll. 12 tests, 14 mechanisms
+sabotage-verified.
+
 **G20 vampiric absorb + damage reflect 2026-07-31 (12 → 9).** The two on-hit
 reactions in Java's `Creature.doAttack`, both of which had been landing as
 icon-only markers: **Vampiric Rage healed nothing and Reflect Damage bounced

@@ -165,7 +165,8 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -418,6 +419,7 @@ pub(crate) fn apply_skill_effects(
                             ss,
                             ranged,
                         ) * attribute_mod(world, caster_oid, target_oid, skill)
+                            * skill_trait_mod(world, caster_oid, target_oid, skill, true)
                     }
                 };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
@@ -502,8 +504,9 @@ pub(crate) fn apply_skill_effects(
                             formulas::random_damage_multiplier(rand_roll),
                             ss,
                         );
-                        // `calcBlowDamage`'s `attributeMod` term.
+                        // `calcBlowDamage`'s `attributeMod` + trait terms.
                         d *= attribute_mod(world, caster_oid, target_oid, skill);
+                        d *= skill_trait_mod(world, caster_oid, target_oid, skill, true);
                         d
                     }
                 };
@@ -624,7 +627,8 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -890,8 +894,9 @@ pub(crate) fn apply_skill_effects(
                             // its `weaponMod` is a flat 77.
                             false,
                         ) * energy_charges_boost
-                            // `EnergyAttack.instant`'s `attributeMod` term.
+                            // `EnergyAttack.instant`'s `attributeMod` + trait terms.
                             * attribute_mod(world, caster_oid, target_oid, skill)
+                            * skill_trait_mod(world, caster_oid, target_oid, skill, true)
                     }
                 };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
@@ -1334,7 +1339,7 @@ pub(crate) fn apply_skill_effects(
             // (TODO(G20) on its doc comment).
             SkillEffect::DefenceTrait { .. }
             | SkillEffect::VampiricAttack { .. }
-            | SkillEffect::AttackTrait => {}
+            | SkillEffect::AttackTrait { .. } => {}
             // `MagicMpCost`/`Reuse` have no *instant* action: their rates are
             // merged when the buff lands (`apply_continuous_effects`) and
             // unmerged at expiry, exactly like `DefenceTrait`. `DamageShield`
@@ -1505,7 +1510,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::Reuse { .. }
                 | SkillEffect::DamageShield { .. }
                 | SkillEffect::Transform { .. }
-                | SkillEffect::AttackTrait
+                | SkillEffect::AttackTrait { .. }
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
@@ -1547,7 +1552,7 @@ pub(crate) fn apply_continuous_effects(
             // `calcEffectSuccess`'s `elementMod` — an elemental debuff lands
             // more easily on a target weak to its element.
             attribute_mod(world, caster_oid, target_oid, skill),
-            calc_general_trait_bonus(world, target_oid, skill.trait_type),
+            calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
@@ -1648,8 +1653,12 @@ pub(crate) fn apply_continuous_effects(
     // here, above the NPC/player split, because a resisted mob is as real as a
     // resisted player.
     for effect in &skill.effects {
-        if let SkillEffect::DefenceTrait { traits } = effect {
-            merge_defence_traits(world, target_oid, traits);
+        match effect {
+            SkillEffect::DefenceTrait { traits } => merge_defence_traits(world, target_oid, traits),
+            // `AttackTrait.onStart` — the attacker-side twin. Note it merges
+            // onto the **effected**, which for these self-buffs is the caster.
+            SkillEffect::AttackTrait { traits } => merge_attack_traits(world, target_oid, traits),
+            _ => {}
         }
     }
     // `MagicMpCost.onStart` / `Reuse.onStart` — same place, same reasoning.
@@ -3175,6 +3184,32 @@ fn target_p_def(world: &World, target_oid: i32) -> f64 {
     1.0
 }
 
+/// The trait term every damage formula multiplies in, as one call.
+///
+/// Java spells it out per handler as three separate factors —
+/// `weaponTraitMod · (generalTraitMod == 0 ? 1 : generalTraitMod) · weaknessMod`
+/// — and the **`== 0 ? 1`** guard is not decoration: an invulnerable trait
+/// zeroes `calcGeneralTraitBonus`, and the damage formulas deliberately treat
+/// that as "no modifier" rather than "no damage" (the landing roll is where
+/// invulnerability actually bites). `physical` picks whether the weapon term
+/// applies: the magic formulas (`calcMagicDam`) have no weapon trait at all.
+pub(crate) fn skill_trait_mod(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    physical: bool,
+) -> f64 {
+    let weapon = if physical {
+        calc_weapon_trait_bonus(world, caster_oid, target_oid)
+    } else {
+        1.0
+    };
+    let general = calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, true);
+    let general = if general == 0.0 { 1.0 } else { general };
+    weapon * general * calc_weakness_bonus(world, caster_oid, target_oid, skill.trait_type)
+}
+
 /// `Formulas.calcAttributeBonus(attacker, target, skill)` — the elemental
 /// damage/land-rate multiplier (PLAN_G19_ATTRIBUTES.md). With a skill element
 /// (Volcano FIRE 20): attacker's matching POWER stat + the skill's value vs
@@ -3873,8 +3908,14 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .map(|s| s.effects.clone())
     {
         for effect in &effects {
-            if let SkillEffect::DefenceTrait { traits } = effect {
-                remove_defence_traits(world, player_object_id, traits);
+            match effect {
+                SkillEffect::DefenceTrait { traits } => {
+                    remove_defence_traits(world, player_object_id, traits)
+                }
+                SkillEffect::AttackTrait { traits } => {
+                    remove_attack_traits(world, player_object_id, traits)
+                }
+                _ => {}
             }
         }
     }
@@ -4066,16 +4107,15 @@ fn caster_level(world: &World, oid: i32) -> i32 {
 /// for anyone without an `AttackTrait` buff, which makes Java's
 /// `max(attackTrait − defenceTrait, 0.05)` exactly `max(1 − defence, 0.05)`.
 ///
-/// TODO(G20): the *damage* consumers of the same tables — `calcWeaknessBonus`
-/// and `calcAttackTraitBonus`/`calcWeaponTraitBonus` — are unported. They are
-/// live on this dist (the race skill `Undead` 4416 sits on 13 549 NPCs and
-/// carries negative `*_WEAKNESS` defence traits, which is what makes the
-/// Hunter's "Detect … Weakness" line matter), but they belong to the physical
-/// damage formula, not the landing roll.
+/// `ignore_resistance` is Java's fourth argument: the **damage** formulas pass
+/// `true` (group 3 short-circuits to 1.0 — a stun resistance does not soften
+/// the stun's damage), the landing roll passes `false`.
 pub(crate) fn calc_general_trait_bonus(
     world: &World,
+    attacker_oid: i32,
     target_oid: i32,
     trait_type: crate::model::skill::TraitType,
+    ignore_resistance: bool,
 ) -> f64 {
     use crate::model::components::DefenceTraits;
     use crate::model::skill::TraitType;
@@ -4090,13 +4130,120 @@ pub(crate) fn calc_general_trait_bonus(
     if traits.invulnerable.contains(&trait_type) {
         return 0.0;
     }
-    if trait_type.group() != 3 {
-        return 1.0;
+    match trait_type.group() {
+        // The `*_WEAKNESS` family needs **both** sides: the attacker's
+        // `AttackTrait` and the target's `DefenceTrait`.
+        2 => {
+            if !has_attack_trait(world, attacker_oid, trait_type)
+                || !traits.resist.contains_key(&trait_type)
+            {
+                return 1.0;
+            }
+        }
+        3 => {
+            if ignore_resistance {
+                return 1.0;
+            }
+        }
+        _ => return 1.0,
     }
     let defence = traits.resist.get(&trait_type).copied().unwrap_or(0.0);
     // A *negative* defence trait is a vulnerability (4416's -15), so this can
     // legitimately exceed 1.0 — Java only floors it.
-    (1.0 - defence).max(0.05)
+    (attack_trait(world, attacker_oid, trait_type) - defence).max(0.05)
+}
+
+/// Java `getAttackTrait` — **1.0** for anyone without a matching `AttackTrait`
+/// buff (the table's identity), which is what makes the group-3 case read as
+/// the plain `1 − defence`.
+fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .and_then(|at| at.values.get(&trait_type).copied())
+        .unwrap_or(1.0)
+}
+
+/// Java `hasAttackTrait` — membership, which is a *different* question from the
+/// value: an unbuffed attacker's value is 1.0 but `hasAttackTrait` is false, and
+/// the group-2 branch gates on the latter.
+fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .is_some_and(|at| at.values.contains_key(&trait_type))
+}
+
+/// `Formulas.calcWeaponTraitBonus` — `max(0.22, 1 − defenceTrait(weaponType))`.
+///
+/// The attacker's *weapon type* is itself a `TraitType` (SWORD, DAGGER, BOW …),
+/// and the dist's armour buffs really do grant those defence traits (19 skills
+/// name SWORD, 24 DAGGER, 45 BOW…). The 0.22 floor is Java's, and note there is
+/// no `hasDefenceTrait` gate here — the raw table value is read, so an absent
+/// entry is a clean 1.0.
+pub(crate) fn calc_weapon_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
+    let weapon_trait = crate::model::skill::TraitType::of_weapon(
+        crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
+    );
+    let defence = world
+        .objects
+        .get_component::<crate::model::components::DefenceTraits>(&target_oid)
+        .and_then(|d| d.resist.get(&weapon_trait).copied())
+        .unwrap_or(0.0);
+    (1.0 - defence).max(0.22)
+}
+
+/// `Formulas.calcWeaknessBonus` — the product over every `*_WEAKNESS` trait the
+/// attacker carries *and* the target is weak to, **excluding the skill's own**
+/// trait (that one is already counted by `calcGeneralTraitBonus`).
+///
+/// Java's invulnerability test in here reads `isInvulnerableTrait(traitType)` —
+/// the **skill's** trait, not the loop variable. That looks like a slip, but it
+/// is what the reference server does, so it is reproduced.
+pub(crate) fn calc_weakness_bonus(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    skill_trait: crate::model::skill::TraitType,
+) -> f64 {
+    use crate::model::components::DefenceTraits;
+    let Some(defence) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
+        return 1.0;
+    };
+    if defence.invulnerable.contains(&skill_trait) {
+        return 1.0;
+    }
+    let mut result = 1.0;
+    for weakness in crate::model::skill::TraitType::ALL_WEAKNESS {
+        if weakness == skill_trait {
+            continue;
+        }
+        let Some(def) = defence.resist.get(&weakness).copied() else {
+            continue;
+        };
+        if !has_attack_trait(world, attacker_oid, weakness) {
+            continue;
+        }
+        result *= (attack_trait(world, attacker_oid, weakness) - def).max(0.05);
+    }
+    result
+}
+
+/// `Formulas.calcAttackTraitBonus` — the auto-attack's whole trait term: the
+/// weapon bonus times every group-2 weakness, floored at 0.05.
+pub(crate) fn calc_attack_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
+    let weapon = calc_weapon_trait_bonus(world, attacker_oid, target_oid);
+    if weapon == 0.0 {
+        return 0.0;
+    }
+    let mut weakness = 1.0;
+    for t in crate::model::skill::TraitType::ALL_WEAKNESS {
+        weakness *= calc_general_trait_bonus(world, attacker_oid, target_oid, t, true);
+        if weakness == 0.0 {
+            return 0.0;
+        }
+    }
+    (weapon * weakness).max(0.05)
 }
 
 /// `DefenceTrait.onStart` — merge this buff's resistances into the bearer.
@@ -4129,6 +4276,56 @@ pub(crate) fn merge_defence_traits(
                 *dt.resist.entry(t).or_insert(0.0) += value;
             } else {
                 dt.invulnerable.insert(t);
+            }
+        }
+    }
+}
+
+/// `AttackTrait.onStart` — `mergeAttackTrait(trait, value)` onto a table whose
+/// identity is **1.0**, so a `<BEAST_WEAKNESS>30</BEAST_WEAKNESS>` reads as
+/// 1.30.
+pub(crate) fn merge_attack_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::AttackTraits;
+    if traits.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<AttackTraits>(&target_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&target_oid, AttackTraits::default());
+    }
+    if let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) {
+        for &(t, value) in traits {
+            *at.values.entry(t).or_insert(1.0) += value;
+        }
+    }
+}
+
+/// `AttackTrait.onExit`. Java's `removeAttackTrait` drops the trait from the
+/// *set* once the value is back to 1 — i.e. `hasAttackTrait` goes false again —
+/// which is exactly what removing the map entry does here.
+pub(crate) fn remove_attack_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::AttackTraits;
+    let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) else {
+        return;
+    };
+    for &(t, value) in traits {
+        if let Some(cur) = at.values.get_mut(&t) {
+            *cur -= value;
+            if (*cur - 1.0).abs() < 1e-9 {
+                at.values.remove(&t);
             }
         }
     }
