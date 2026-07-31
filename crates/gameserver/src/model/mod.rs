@@ -347,6 +347,10 @@ pub struct Player {
     /// `ally_id` so the store-only UserInfo/CharInfo builders can write them;
     /// synced at enter-world and whenever a crest changes.
     pub clan_crest_id: i32,
+    /// `Clan.getCrestLargeId()` — the **large** crest, shown in the clan
+    /// window. Mirrored onto the player alongside `clan_crest_id` because the
+    /// `UserInfo` builder has no access to `World.clans`.
+    pub clan_crest_large_id: i32,
     pub ally_crest_id: i32,
 
     pub face: i32,
@@ -698,6 +702,10 @@ pub struct PlayerView<'a> {
     /// The learned-skill map, for the STATUS block's craft byte
     /// (`hasDwarvenCraft() || getSkillLevel(248) > 0`).
     pub skills: &'a SkillBook,
+    /// `isCursedWeaponEquipped() ? CursedWeaponsManager.getLevel(id) : 0` — the
+    /// INVENTORY_LIMIT block's trailing byte. Resolved by the caller because
+    /// the level lives on `World.cursed_weapons`, not on the player.
+    pub cursed_weapon_level: u8,
 }
 
 impl<'a> PlayerView<'a> {
@@ -718,7 +726,28 @@ impl<'a> PlayerView<'a> {
             in_matching_room: objects.has_component::<components::InMatchingRoom>(&object_id),
             mods: objects.get_component::<StatModifiers>(&object_id)?,
             skills: objects.get_component::<SkillBook>(&object_id)?,
+            cursed_weapon_level: 0,
         })
+    }
+
+    /// [`Self::of`] plus the fields that need the world rather than the entity
+    /// store — currently the cursed-weapon stage, which lives on
+    /// `World.cursed_weapons`.
+    ///
+    /// Every `UserInfo` builder goes through this; `of` alone would silently
+    /// report an unwielded weapon.
+    pub fn of_world(world: &'a crate::world::World, object_id: i32) -> Option<Self> {
+        let mut v = Self::of(&world.objects, object_id)?;
+        let equipped = v.p.cursed_weapon_equipped_id;
+        if equipped != 0 {
+            v.cursed_weapon_level = world
+                .cursed_weapons
+                .iter()
+                .find(|c| c.item_id == equipped)
+                .map(|c| c.level() as u8)
+                .unwrap_or(0);
+        }
+        Some(v)
     }
 }
 
@@ -738,6 +767,7 @@ impl PlayerData {
             in_matching_room: false,
             mods: &self.stat_modifiers,
             skills: &self.skills,
+            cursed_weapon_level: 0,
         }
     }
 }
@@ -1035,6 +1065,7 @@ impl Player {
             apprentice: c.apprentice,
             sponsor: c.sponsor,
             clan_crest_id: 0, // synced from the clan at enter-world
+            clan_crest_large_id: 0,
             ally_crest_id: 0, // synced from the clan at enter-world
             face: c.face,
             hair_style: c.hair_style,

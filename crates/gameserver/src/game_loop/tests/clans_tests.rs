@@ -4601,3 +4601,39 @@ fn residential_skills_follow_joining_and_leaving() {
         "and leaving takes it back"
     );
 }
+
+/// **The large crest reaches `UserInfo` too.** It is mirrored onto the player
+/// alongside the small one — `refresh_clan_crest_on_members` and the two
+/// join/enter-world syncs — because the `UserInfo` builder cannot reach
+/// `World.clans`. Before this the packet wrote a hard 0 and the field had no
+/// source at all.
+#[test]
+fn the_large_clan_crest_is_mirrored_onto_online_members() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let _a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    drain_db(&mut db_rx);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .clan_crest_large_id,
+        0,
+        "no crest yet"
+    );
+
+    // Set it on the clan and run the same refresh the crest handlers use.
+    world.clans.get_mut(&5000).unwrap().crest_large_id = 0x4243_4445;
+    clans::refresh_clan_crest_on_members_for_test(&mut world, 5000);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .clan_crest_large_id,
+        0x4243_4445,
+        "the member now carries the large crest"
+    );
+}

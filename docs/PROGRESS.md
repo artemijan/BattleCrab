@@ -143,6 +143,18 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`UserInfo`'s last three stubbed fields 2026-07-31.** Finishing the same
+sweep, this time by walking `UserInfo` against Java's block by block. Three
+fields wrote a hard 0 while the state behind them existed: the **large clan
+crest** (`getClanCrestLargeId`), the **raid-boss points**, and the
+**cursed-weapon stage** — Java's `isCursedWeaponEquipped() ? getLevel(id) : 0`,
+which is what colours a wielder's name. The crest is mirrored onto the player
+beside the small one (the builder cannot reach `World.clans`), and the stage
+needs the world rather than the entity store, so `PlayerView::of_world` now
+resolves it for every `UserInfo` caller.
+**Checked and left alone:** `ATK_ELEMENTAL` and the vitality bonus byte are
+Java's own hard zeros, not port stubs. 2 tests, 5 mechanisms sabotage-verified.
+
 **`UserInfo`'s craft byte 2026-07-31.** Same audit, same shape as the `Die`
 find: the STATUS block's third byte is Java's
 `hasDwarvenCraft() || getSkillLevel(248) > 0` and **it is what opens the

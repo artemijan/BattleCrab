@@ -217,7 +217,7 @@ pub(crate) fn relation_changed_base(world: &World, oid: i32) -> i32 {
 /// per-actor render state (hero glow) that Java's delayed packet would apply
 /// afterwards.
 pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
-    let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else {
+    let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
         return;
     };
     let relation = calculate_relation(world, v.p);

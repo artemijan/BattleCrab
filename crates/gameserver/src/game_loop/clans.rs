@@ -996,17 +996,18 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
             (grade, c.rank_privs_of(grade))
         })
     };
-    let (ally_id, ally_crest_id, clan_crest_id) = world
+    let (ally_id, ally_crest_id, clan_crest_id, clan_crest_large_id) = world
         .clans
         .get(&clan_id)
-        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id))
-        .unwrap_or((0, 0, 0));
+        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id, c.crest_large_id))
+        .unwrap_or((0, 0, 0, 0));
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.clan_leader = is_leader;
         p.pledge_class = pledge_class;
         p.ally_id = ally_id;
         p.ally_crest_id = ally_crest_id;
         p.clan_crest_id = clan_crest_id;
+        p.clan_crest_large_id = clan_crest_large_id;
         if is_leader {
             p.clan_privs = ALL_CLAN_PRIVILEGES;
             p.power_grade = 1;
@@ -1468,11 +1469,11 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
     let pledge_class = clan.pledge_class_of(player_oid);
     // Java `player.setClanPrivileges(clan.getRankPrivs(player.getPowerGrade()))`.
     let privs = clan.rank_privs_of(grade);
-    let (ally_id, ally_crest_id, clan_crest_id) = world
+    let (ally_id, ally_crest_id, clan_crest_id, clan_crest_large_id) = world
         .clans
         .get(&clan_id)
-        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id))
-        .unwrap_or((0, 0, 0));
+        .map(|c| (c.ally_id, c.ally_crest_id, c.crest_id, c.crest_large_id))
+        .unwrap_or((0, 0, 0, 0));
     if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
         p.clan_id = clan_id;
         p.clan_privs = privs;
@@ -1483,6 +1484,7 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
         p.ally_id = ally_id;
         p.ally_crest_id = ally_crest_id;
         p.clan_crest_id = clan_crest_id;
+        p.clan_crest_large_id = clan_crest_large_id;
         p.clan_join_expiry_time = 0; // Java `setClanJoinExpiryTime(0)`
     }
     let _ = world.db.send(DbCommand::UpdateCharClan {
@@ -4842,14 +4844,24 @@ fn remove_crest(world: &mut World, crest_id: i32) {
     let _ = world.db.send(DbCommand::DeleteCrest { id: crest_id });
 }
 
-/// Sync every online member's denormalized `Player.clan_crest_id` with the
-/// clan and re-broadcast their UserInfo/CharInfo — the small-crest half of
-/// `Clan.changeClanCrest`'s `for (member : getOnlineMembers()) broadcastUserInfo()`.
+/// Sync every online member's denormalized `Player.clan_crest_id` /
+/// `clan_crest_large_id` with the clan and re-broadcast their
+/// UserInfo/CharInfo — `Clan.changeClanCrest`'s `for (member : getOnlineMembers()) broadcastUserInfo()`.
+#[cfg(test)]
+pub(crate) fn refresh_clan_crest_on_members_for_test(world: &mut World, clan_id: i32) {
+    refresh_clan_crest_on_members(world, clan_id);
+}
+
 fn refresh_clan_crest_on_members(world: &mut World, clan_id: i32) {
-    let crest_id = world.clans.get(&clan_id).map(|c| c.crest_id).unwrap_or(0);
+    let (crest_id, crest_large_id) = world
+        .clans
+        .get(&clan_id)
+        .map(|c| (c.crest_id, c.crest_large_id))
+        .unwrap_or((0, 0));
     for oid in online_members(world, clan_id) {
         if let Some(p) = world.objects.get_component_mut::<Player>(&oid) {
             p.clan_crest_id = crest_id;
+            p.clan_crest_large_id = crest_large_id;
         }
         super::party::broadcast_user_info(world, oid);
     }

@@ -450,7 +450,7 @@ pub(crate) fn apply_henna_change(world: &mut World, client_id: u32, oid: i32) {
         vitals.cur_mp = vitals.cur_mp.min(vitals.max_mp as f64);
     }
 
-    if let Some(v) = crate::model::PlayerView::of(&world.objects, oid) {
+    if let Some(v) = crate::model::PlayerView::of_world(world, oid) {
         send(
             world,
             client_id,

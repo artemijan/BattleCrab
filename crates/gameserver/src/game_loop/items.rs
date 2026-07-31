@@ -569,7 +569,7 @@ pub(crate) fn finish_equip_change(
         cs.send(crate::network::enter_world::ex_user_info_equip_slot(
             object_id, inventory,
         ));
-        if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) {
+        if let Some(v) = crate::model::PlayerView::of_world(world, object_id) {
             cs.send(crate::network::user_info::user_info(
                 &v,
                 &world.data,

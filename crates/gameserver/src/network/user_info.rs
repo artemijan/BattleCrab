@@ -230,14 +230,14 @@ pub fn user_info(
     w.write_u8(0);
     w.write_i16(0);
 
-    // CLAN (+ title*2). TODO(G33): the large crest id needs the clan row
-    // (Java `getClanCrestLargeId()`), which this builder cannot reach —
-    // `CharInfo` carries it via `CharInfoState`.
+    // CLAN (+ title*2). The large crest is mirrored onto the player at
+    // enter-world (and on every crest change), because this builder has no
+    // access to `World.clans` — the same reason `clan_crest_id` lives there.
     w.write_i16((UserInfoType::Clan.block_length() + title_units * 2) as i16);
     w.write_sized_string(&p.title);
     w.write_i16(p.pledge_type as i16); // Java getPledgeType (0 = main clan)
     w.write_i32(p.clan_id);
-    w.write_i32(0); // clan crest large
+    w.write_i32(p.clan_crest_large_id);
     w.write_i32(p.clan_crest_id); // Java getClanCrestId
     w.write_i32(p.clan_privs);
     w.write_u8(p.clan_leader as u8);
@@ -262,7 +262,7 @@ pub fn user_info(
     w.write_i32(p.vitality_points);
     w.write_u8(0); // vita bonus
     w.write_i32(p.fame);
-    w.write_i32(0); // raidboss points
+    w.write_i32(p.raidboss_points);
 
     // SLOTS — TODO(G6): talisman/brooch slots from inventory. Byte 3 is the
     // team aura (`//setteam`); the tail four stay Java's zeros.
@@ -298,7 +298,9 @@ pub fn user_info(
         crate::model::stats::Stat::InventoryNormal,
         cfg.inventory_limit(p.race) as f64,
     ) as i16);
-    w.write_u8(0);
+    // Java: `isCursedWeaponEquipped() ? getLevel(cursedWeaponEquippedId) : 0` —
+    // the wielder's stage, which is what colours the name in the client.
+    w.write_u8(v.cursed_weapon_level);
 
     // TRUE_HERO — Java `isTrueHero() ? 100 : 0`, a hero flag of its own
     // (`//settruehero`), independent of the SOCIAL glow byte above.
