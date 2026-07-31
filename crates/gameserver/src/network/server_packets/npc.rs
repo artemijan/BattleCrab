@@ -97,9 +97,9 @@ pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
 
 /// Port of `serverpackets/NpcInfo` (masked, 5 mask bytes / "mask_bits_37").
 /// Component selection follows the Java constructor with the not-yet-modeled
-/// state at its defaults: no summon animation, no water/fly/team/enchant/
-/// clone/transform/abnormals, no clan, reputation 0, pvp flag 0. The
-/// localisation pass (`MULTILANG_ENABLE`) is skipped.
+/// state at its defaults: no summon animation, no water/fly/team/clone/
+/// transform/abnormals, no clan, reputation 0, pvp flag 0. The localisation
+/// pass (`MULTILANG_ENABLE`) is skipped.
 pub fn npc_info(
     v: &crate::model::npc::NpcView,
     t: &NpcTemplate,
@@ -173,6 +173,12 @@ pub fn npc_info(
     if t.server_side_title || (t.is_monster() && (cfg.show_npc_level || cfg.show_npc_aggression)) {
         add(&mut mask_bytes, T::Title);
     }
+    // Java `if (npc.getEnchantEffect() > 0)` — the weapon glow. Rolled per
+    // instance at spawn (`EnableRandomEnchantEffect`), so it rides along on
+    // every `NpcInfo` for this NPC's whole life.
+    if npc.enchant_effect > 0 {
+        add(&mut mask_bytes, T::Enchant);
+    }
     add(&mut mask_bytes, T::PetEvolutionId);
     // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
     let mut status_mask = 0u8;
@@ -228,6 +234,11 @@ pub fn npc_info(
     }
     w.write_u8(1); // STOP_MODE: !isDead
     w.write_u8(speeds.running as u8); // MOVE_MODE
+    // ENCHANT sits between MOVE_MODE and PET_EVOLUTION_ID in Java's write
+    // order (after the SWIM_OR_FLY/TEAM blocks this port never sets).
+    if contains(T::Enchant) {
+        w.write_i32(npc.enchant_effect);
+    }
     w.write_i32(0); // PET_EVOLUTION_ID
     if contains(T::CurrentHp) {
         w.write_i32(vitals.cur_hp as i32);
@@ -300,7 +311,10 @@ pub(super) fn clip_html(html: &str) -> &str {
 /// * `SUMMONED` marks the spawn animation.
 ///
 /// Not modelled and left at Java's defaults: clan crests (the owner's), team,
-/// reputation, water/fly, enchant and transformation.
+/// reputation, water/fly and transformation. The weapon glow reads the
+/// **template's** `weaponEnchant` here — Java's `SummonInfo` does not use the
+/// random per-instance roll `NpcInfo` does, so a servitor only glows if its
+/// template says so (nothing in this dist does).
 #[allow(clippy::too_many_arguments)]
 pub fn summon_info(
     object_id: i32,
@@ -364,6 +378,9 @@ pub fn summon_info(
     if summoned {
         add(&mut mask_bytes, T::Summoned);
     }
+    if t.weapon_enchant > 0 {
+        add(&mut mask_bytes, T::Enchant);
+    }
     add(&mut mask_bytes, T::PetEvolutionId);
     // 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 always.
     let mut status_mask = 0x08u8;
@@ -411,6 +428,9 @@ pub fn summon_info(
     }
     w.write_u8(u8::from(!vitals.dead)); // STOP_MODE
     w.write_u8(speeds.running as u8); // MOVE_MODE
+    if contains(T::Enchant) {
+        w.write_i32(t.weapon_enchant);
+    }
     w.write_i32(0); // PET_EVOLUTION_ID
     if contains(T::CurrentHp) {
         w.write_i32(vitals.cur_hp as i32);
@@ -571,6 +591,68 @@ mod tests {
         w.write_i32(50); // max mp
         w.write_string("Gina");
         w.write_u8(0x0C); // visual state: targetable | show name
+        let expected = w.into_bytes();
+
+        assert_eq!(
+            super::npc_info(&v, &t, &crate::config::NpcConfig::default()),
+            expected
+        );
+    }
+
+    /// `EnableRandomEnchantEffect`: an NPC whose weapon glows adds Java's
+    /// `ENCHANT` block (component 0x10 → high bit of mask byte 2) and writes
+    /// the level between `MOVE_MODE` and `PET_EVOLUTION_ID`. Same NPC as
+    /// [`npc_info_layout_matches_java`], so the diff is only the glow.
+    #[test]
+    fn npc_info_carries_the_weapon_enchant_glow() {
+        let mut t = crate::data::npc_data::default_template(30001);
+        t.name = "Gina".into();
+        t.server_side_name = true;
+        t.level = 5;
+        t.base_hp_max = 100.0;
+        t.base_mp_max = 50.0;
+        let (mut npc, (mut pos, _region, vitals, speeds, _collision, _attack, _ai, _aggro, _buffs)) =
+            crate::model::npc::Npc::for_test(0x4000_0001, 30001, 100, 200, -300, 100, 50);
+        pos.heading = 4000;
+        npc.enchant_effect = 12;
+        let v = crate::model::npc::NpcView {
+            npc: &npc,
+            pos: &pos,
+            vitals: &vitals,
+            speeds: &speeds,
+        };
+
+        let mut w = PacketWriter::new();
+        w.write_u8(0x0C); // NPC_INFO
+        w.write_i32(0x4000_0001);
+        w.write_u8(0);
+        w.write_i16(37);
+        // Byte 2 gains 0x80 over the no-glow layout: ENCHANT is component
+        // 0x10, i.e. bit 0 of byte 2, and the mask order is reversed.
+        w.write_bytes(&[0xFD, 0xBC, 0x9C, 0xF0, 0x04]);
+        w.write_u8(5);
+        w.write_u8(0);
+        w.write_i32(0);
+        w.write_i16(73); // block 2 size: 69 + the 4-byte ENCHANT block
+        w.write_i32(1_030_001);
+        w.write_i32(100);
+        w.write_i32(200);
+        w.write_i32(-300);
+        w.write_i32(4000);
+        w.write_i32(300);
+        w.write_i32(333);
+        w.write_f32(1.0);
+        w.write_f32(1.0);
+        w.write_u8(1); // stop mode
+        w.write_u8(0); // move mode
+        w.write_i32(12); // ENCHANT — before pet evolution id, like Java
+        w.write_i32(0); // pet evolution id
+        w.write_i32(100);
+        w.write_i32(50);
+        w.write_i32(100);
+        w.write_i32(50);
+        w.write_string("Gina");
+        w.write_u8(0x0C);
         let expected = w.into_bytes();
 
         assert_eq!(

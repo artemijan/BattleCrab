@@ -150,6 +150,10 @@ pub struct NpcTemplate {
     // <equipment>
     pub rhand: i32,
     pub lhand: i32,
+    /// `<equipment weaponEnchant>` — the *visual* enchant glow on the NPC's
+    /// weapon. No npc in this dist sets it (it is 0 everywhere), but Java reads
+    /// it and it is what shows when `EnableRandomEnchantEffect` is off.
+    pub weapon_enchant: i32,
 
     // <status> flags (NpcTemplate.set defaults).
     pub attackable: bool,
@@ -529,6 +533,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         drop_list_spoil: Vec::new(),
         rhand: 0,
         lhand: 0,
+        weapon_enchant: 0,
         attackable: true,
         targetable: true,
         talkable: true,
@@ -818,6 +823,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                 if let Some(t) = cur.as_mut() {
                     set_i32(&e, b"rhand", &mut t.rhand);
                     set_i32(&e, b"lhand", &mut t.lhand);
+                    set_i32(&e, b"weaponEnchant", &mut t.weapon_enchant);
                 }
             }
             b"status" => {
