@@ -102,6 +102,7 @@ mod orfen_tests;
 mod others_scripts_tests;
 mod overhit_tests;
 mod party_room_tests;
+mod pc_cafe_tests;
 mod periodic_tests;
 mod petition_tests;
 mod punishment_tests;

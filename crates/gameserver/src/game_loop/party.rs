@@ -1219,9 +1219,11 @@ pub(crate) fn distribute_xp_and_sp(
             }
         }
         super::death::add_exp_and_sp(world, member, xp, sp, true);
-        // Java charges each rewarded member's vitality on the post-cutoff xp.
+        // Java charges each rewarded member's vitality on the post-cutoff xp,
+        // and awards that member's PA points from the same value.
         if xp > 0.0 {
             super::death::consume_kill_vitality(world, member, level, target, xp);
+            super::pc_cafe::give_point(world, member, xp);
         }
     }
 }

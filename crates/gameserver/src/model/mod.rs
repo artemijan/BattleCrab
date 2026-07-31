@@ -277,6 +277,10 @@ pub struct Player {
     /// a stale task left over from a previous session no-ops. See
     /// `World::next_reco_give_seq`.
     pub reco_give_seq: u64,
+    /// The same guard for the retail-like `PcCafeReward` task
+    /// (`game_loop::pc_cafe`). Re-stamped by every `run`, so an earlier
+    /// schedule goes stale instead of stacking a second payout timer.
+    pub pc_cafe_seq: u64,
 
     // Clan membership (G11 — creation/display slice). The `Clan` itself
     // lives in `World.clans`; these are the per-player fields the
@@ -1002,6 +1006,7 @@ impl Player {
             rec_left: c.rec_left,
             reco_two_hours_given: false,
             reco_give_seq: 0,
+            pc_cafe_seq: 0,
             clan_id: c.clan_id,
             clan_privs: c.clan_privs,
             clan_leader: false, // fixed up at enter-world from World.clans

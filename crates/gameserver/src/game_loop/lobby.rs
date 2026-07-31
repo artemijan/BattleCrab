@@ -691,6 +691,8 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Java `EnterWorld`'s `onTransaction(player, true, false)`: this character
     // is back for real, so whatever offline-shop rows it left behind go away.
     super::offline_trade::on_enter_world(world, object_id);
+    // `PcCafePointsManager.run(player)` — arm the retail-like PA-point timer.
+    super::pc_cafe::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.
