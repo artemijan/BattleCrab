@@ -2531,6 +2531,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
     // land on a level-5 mob), and the Sweeper skill (Sweeper then ConsumeBody).
     let make = |id: i32, target_type, magic_level, effects| Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

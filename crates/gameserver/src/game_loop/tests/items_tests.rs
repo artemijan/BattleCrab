@@ -833,6 +833,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
 
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 2031,
@@ -999,6 +1000,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 9909,
         item_consume_count: 1,
         abnormal_time: 0,
@@ -1121,6 +1123,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
 
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 22490,
@@ -1285,6 +1288,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
 
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 323,
@@ -1462,6 +1466,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
 
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 324,
@@ -4023,6 +4028,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         mp_initial_consume: 0,
         hp_consume: 0,
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 8058,
         item_consume_count: 1,
         abnormal_time: 0,

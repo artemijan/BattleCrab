@@ -395,7 +395,7 @@ fn real_dist_stat_by_move_type_skills_parse() {
             .unwrap()
             .effects
             .iter()
-            .any(|e| matches!(e, SkillEffect::DefenceTrait)),
+            .any(|e| matches!(e, SkillEffect::DefenceTrait { .. })),
         "Esprit keeps its DefenceTrait"
     );
 }

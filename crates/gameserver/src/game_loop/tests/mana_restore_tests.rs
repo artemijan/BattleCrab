@@ -42,6 +42,7 @@ fn cast(
     use crate::model::skill::{AffectObject, AffectScope, OperateType, Skill, TargetType};
     let skill = Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: skill_id,

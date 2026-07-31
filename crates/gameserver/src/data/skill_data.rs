@@ -992,6 +992,11 @@ fn build_skill(
                     .is_some_and(|v| v.trim().eq_ignore_ascii_case("true"))
             });
         let toggle_group_id = get_i("toggleGroupId", 0);
+        // `<trait>` — the debuff's own trait, matched against the target's
+        // `DefenceTrait` resistances when it lands.
+        let trait_type = value_at(values, "trait", level)
+            .map(crate::model::skill::TraitType::from_xml)
+            .unwrap_or_default();
         // `affectScope` defaults to SINGLE when absent (Java's Skill ctor).
         let affect_scope = match value_at(values, "affectScope", level) {
             Some("RANGE") => AffectScope::Range,
@@ -1936,13 +1941,26 @@ fn build_skill(
                                 .collect()
                         }
                         // Mental Shield (1035) / Stun Resistance ("Resist Shock",
-                        // 1259): Java `DefenceTrait` raises per-`TraitType` resistance
-                        // (HOLD/SLEEP/SHOCK…) — not a single `Stat`, and its params
-                        // are the trait names, not `amount`. The trait-defense math
-                        // isn't modeled yet, so carry a marker (like
-                        // `ProtectionBlessing`) so the buff still lands icon-only
-                        // instead of being dropped whole.
-                        "DefenceTrait" => vec![SkillEffect::DefenceTrait],
+                        // 1259): Java `DefenceTrait` raises per-`TraitType`
+                        // resistance (HOLD/SLEEP/SHOCK…). Its params are the trait
+                        // *names*, not `amount`, so they are read straight off the
+                        // param map rather than through the usual `amount` lookup.
+                        "DefenceTrait" => {
+                            // Every param is a trait name → percent; Java
+                            // divides by 100 and treats >= 1.0 as invulnerable.
+                            let traits: Vec<(crate::model::skill::TraitType, f64)> = params
+                                .keys()
+                                .filter_map(|key| {
+                                    let raw = value_at(params, key, level)?;
+                                    let pct: f64 = raw.parse().ok()?;
+                                    Some((
+                                        crate::model::skill::TraitType::from_xml(key),
+                                        pct / 100.0,
+                                    ))
+                                })
+                                .collect();
+                            vec![SkillEffect::DefenceTrait { traits }]
+                        }
                         // Vampiric Rage (1268): Java `VampiricAttack` grants a chance
                         // to absorb a % of melee damage as HP. The melee-absorb path
                         // isn't modeled, so carry an icon-only marker rather than
@@ -2046,6 +2064,7 @@ fn build_skill(
             abnormal_visuals,
             toggle_group_id,
             affect_scope,
+            trait_type,
             affect_object,
             affect_range,
             affect_limit,
@@ -2922,13 +2941,13 @@ mod tests {
         let mental_shield = sd.get(1035, 1).expect("Mental Shield lvl 1");
         assert!(matches!(
             mental_shield.effects.as_slice(),
-            [SkillEffect::DefenceTrait]
+            [SkillEffect::DefenceTrait { .. }]
         ));
         assert_eq!(mental_shield.abnormal_time, 1200);
         let resist_shock = sd.get(1259, 1).expect("Stun Resistance lvl 1");
         assert!(matches!(
             resist_shock.effects.as_slice(),
-            [SkillEffect::DefenceTrait]
+            [SkillEffect::DefenceTrait { .. }]
         ));
         let vampiric_rage = sd.get(1268, 1).expect("Vampiric Rage lvl 1");
         assert!(matches!(

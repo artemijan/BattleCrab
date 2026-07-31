@@ -143,6 +143,31 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G16 sweep done 2026-07-31 (14 → 11).** The cluster's real content was
+**trait resistance** — the pairing of a debuff's `<trait>` tag with the
+`DefenceTrait` effect. It is the largest unported effect cluster on this dist
+(**899 skills, 34 of them learnable**, against `AttackTrait`'s 7 and `Reuse`'s
+8), and until now the whole Stun/Mental/Poison-resistance line landed as an
+icon and changed nothing. Ported: a `TraitType` enum with Java's numeric
+groups, `<trait>` parsing on the skill, the `DefenceTrait` params (percent over
+100, per level), a `DefenceTraits` component merged at `onStart` and unmerged at
+`onExit`, and `calcGeneralTraitBonus` folded into the landing roll as a fourth
+multiplier. **Two Java details are load-bearing and were both got wrong first
+time round:** invulnerability is tested **before** the group switch (so a
+weapon- or weakness-trait immunity zeroes the chance too), and it then
+**skips the clamp** — `finalRate = traitMod > 0 ? constrain(rate, 10, 90) : 0`
+— so an immune target refuses the debuff outright instead of taking it one roll
+in ten. Note also that a *negative* defence trait is a **vulnerability**, which
+is how the race skill `Undead` (4416, on 13 549 NPCs) works.
+**Verified not a gap:** the group-2 `*_WEAKNESS` branch of the landing roll —
+five skills declare such a `<trait>`, but Java's own guard needs the attacker to
+carry a matching `AttackTrait`, and nothing grants one, so the branch returns
+1.0 on the reference server too. Left as a `TODO(G20)`: the *damage*-side
+consumers of the same tables (`calcWeaknessBonus`,
+`calcAttackTraitBonus`/`calcWeaponTraitBonus`), which is where the Hunter's
+"Detect … Weakness" line and the weapon-type resistances actually pay off.
+6 tests, 11 mechanisms sabotage-verified.
+
 **G21 sweep done 2026-07-31 (16 → 12).** Three real fixes and one
 verified non-gap. **Herbs now run their own auto-destroy clock**: the TODO
 claimed the item template carried no herb flag, but `ex_immediate_effect` has

@@ -275,8 +275,10 @@ fn java_round_float(v: f64) -> i32 {
 /// `magicLevel <= -1` falls back to `targetLevel + 3` (Java). `activateRate == -1`
 /// means the debuff always lands → 100. The 10/90 clamp is dist `Character.ini`'s
 /// Min/MaxAbnormalStateSuccessRate (no Interlude skill overrides minChance/maxChance).
-/// TODO(G16): fold in the trait/`ABNORMAL_RESIST_*`/`BasicPropertyResist`
-/// bonuses once those stats land (element + `RESIST_ABNORMAL_DEBUFF` are in).
+/// The trait bonus rides in through `trait_mod` (see
+/// [`calc_general_trait_bonus`]). `ABNORMAL_RESIST_*` and `BasicPropertyResist`
+/// stay at their identity values — **no skill on this dist grants either**, so
+/// nothing could move them.
 pub fn calc_effect_land_rate(
     magic_level: i32,
     activate_rate: i32,
@@ -291,6 +293,10 @@ pub fn calc_effect_land_rate(
     // an elemental debuff lands more easily on a target weak to its element.
     // 1.0 when neither side carries the element.
     element_mod: f64,
+    // `calcGeneralTraitBonus` — 1.0 with no matching resistance, `< 1` when the
+    // target resists this debuff's trait, `> 1` when the trait is a
+    // *vulnerability*, and **0** when they are invulnerable to it.
+    trait_mod: f64,
 ) -> f64 {
     if activate_rate == -1 {
         return 100.0;
@@ -301,11 +307,18 @@ pub fn calc_effect_land_rate(
         magic_level
     };
     let base_mod = (magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30;
-    // Java multiplies the raw rate by the mods and clamps *after*
+    // Invulnerability is *not* clamped: Java's
+    // `finalRate = traitMod > 0 ? constrain(rate, min, max) : 0` short-circuits
+    // past the 10 floor, so an immune target refuses the debuff outright rather
+    // than taking it one roll in ten.
+    if trait_mod <= 0.0 {
+        return 0.0;
+    }
+    // Otherwise Java multiplies the raw rate by the mods and clamps *after*
     // (`constrain(baseMod * elementMod * … * buffDebuffMod, minChance,
     // maxChance)`), so heavy resistance can pull an otherwise-capped debuff
     // below the 90 ceiling but never under the 10 floor.
-    (base_mod as f64 * element_mod * debuff_resist_mod).clamp(10.0, 90.0)
+    (base_mod as f64 * element_mod * debuff_resist_mod * trait_mod).clamp(10.0, 90.0)
 }
 
 /// `Formulas.calcAttributeBonus`'s arithmetic tail (PLAN_G19_ATTRIBUTES.md):
@@ -965,14 +978,39 @@ mod tests {
     #[test]
     fn effect_land_rate_clamps_and_special_cases() {
         // (35 - 5 + 3)·30 + 80 + 30 = 1100 → clamp to 90.
-        assert!((calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0) - 90.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0, 1.0) - 90.0).abs() < 1e-9);
         // (35 - 80 + 3)·30 + 80 + 30 = -1150 → clamp to 10.
-        assert!((calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0) - 10.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0, 1.0) - 10.0).abs() < 1e-9);
         // activateRate -1 → guaranteed.
-        assert!((calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0) - 100.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0) - 100.0).abs() < 1e-9);
         // magicLevel <= -1 falls back to targetLevel + 3, so the level term is
         // (23 - 20 + 3) = 6: 6·5 + 10 + 30 = 70.
-        assert!((calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0) - 70.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0, 1.0) - 70.0).abs() < 1e-9);
+    }
+
+    /// The trait multiplier is folded in **before** the clamp, alongside the
+    /// element and debuff-resist mods, so Stun Resistance 3 (30 %) takes a
+    /// mid-range stun from 50 to 35. **Invulnerability is the exception**: it
+    /// skips the clamp entirely (`traitMod > 0 ? constrain(…) : 0`), so an
+    /// immune target refuses the debuff outright instead of taking it at the
+    /// 10 % floor. And a *negative* defence trait is a vulnerability, which
+    /// pushes the rate up into the ceiling.
+    #[test]
+    fn effect_land_rate_folds_the_trait_bonus_in_before_clamping() {
+        // (20 - 20 + 3)·5 + 5 + 30 = 50 unresisted.
+        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.0) - 50.0).abs() < 1e-9);
+        // 30 % trait resistance → 0.70 → 35.
+        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.70) - 35.0).abs() < 1e-9);
+        // Invulnerable → 0, not the 10 floor.
+        assert_eq!(calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.0), 0.0);
+        // A vulnerability (defence -15 → 1.15) raises it: 50 · 1.15 = 57.5.
+        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.15) - 57.5).abs() < 1e-9);
+        // It composes with the other two mods rather than replacing them.
+        assert!((calc_effect_land_rate(20, 5, 5, 20, 0.8, 1.25, 0.70) - 35.0).abs() < 1e-9);
+        // The always-lands escape hatch is checked first, so even immunity
+        // cannot stop an `activateRate == -1` debuff (Java returns true before
+        // computing any mod).
+        assert_eq!(calc_effect_land_rate(20, -1, 5, 20, 1.0, 1.0, 0.0), 100.0);
     }
 
     /// Good skills cap the per-mille rate at 320, bad skills at 200; the

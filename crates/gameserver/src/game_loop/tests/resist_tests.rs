@@ -16,6 +16,7 @@ const VICTIM_CID: u32 = 2;
 fn base_skill(id: i32, effects: Vec<SkillEffect>) -> Skill {
     Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -118,27 +119,27 @@ fn resist_multiplier_lowers_the_landing_rate() {
 
     // magic_level 40 vs target level 40, activate_rate 50, lvl_bonus 0
     // → base_mod = 3*0 + 50 + 30 = 80.
-    let unresisted = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0);
+    let unresisted = calc_effect_land_rate(40, 50, 0, 40, 1.0, 1.0, 1.0);
     assert!((unresisted - 80.0).abs() < 1e-9, "got {unresisted}");
 
     // Guts (x0.5): 80 * 0.5 = 40.
-    let resisted = calc_effect_land_rate(40, 50, 0, 40, 0.5, 1.0);
+    let resisted = calc_effect_land_rate(40, 50, 0, 40, 0.5, 1.0, 1.0);
     assert!((resisted - 40.0).abs() < 1e-9, "got {resisted}");
 
     // Touch of Death (x1.3): 80 * 1.3 = 104, clamped down to the 90 ceiling.
-    let vulnerable = calc_effect_land_rate(40, 50, 0, 40, 1.3, 1.0);
+    let vulnerable = calc_effect_land_rate(40, 50, 0, 40, 1.3, 1.0, 1.0);
     assert!(
         (vulnerable - 90.0).abs() < 1e-9,
         "clamped after the multiply, got {vulnerable}"
     );
 
     // The 10 floor still holds under a crushing resistance.
-    let crushed = calc_effect_land_rate(40, 50, 0, 40, 0.01, 1.0);
+    let crushed = calc_effect_land_rate(40, 50, 0, 40, 0.01, 1.0, 1.0);
     assert!((crushed - 10.0).abs() < 1e-9, "got {crushed}");
 
     // An always-lands debuff (`activate_rate == -1`) ignores resistance
     // entirely, as in Java (the early return precedes the whole formula).
-    assert_eq!(calc_effect_land_rate(40, -1, 0, 40, 0.01, 1.0), 100.0);
+    assert_eq!(calc_effect_land_rate(40, -1, 0, 40, 0.01, 1.0, 1.0), 100.0);
 }
 
 // ---------------------------------------------------------------------------
@@ -309,4 +310,209 @@ fn zero_rate_dispel_strips_nothing() {
     land(&mut world, 9420, VICTIM);
     assert!(has_buff(&world, VICTIM, 9421), "a 0% Bane strips nothing");
     assert!(has_buff(&world, VICTIM, 9422));
+}
+
+// ---------------------------------------------------------------------------
+// Trait resistances (G16 sweep) — `DefenceTrait` vs a debuff's `<trait>`
+// ---------------------------------------------------------------------------
+
+/// **Stun Resistance actually resists stuns now.** The dist pairs a debuff's
+/// `<trait>` (304 skills declare `SHOCK`) with `DefenceTrait`'s per-trait
+/// percentages; before this the buff landed icon-only and changed nothing.
+///
+/// Levels 1..4 of Stun Resistance (1259) grant 15/20/30/40 %, and the bonus is
+/// Java's `max(1.0 - defence, 0.05)` multiplier on the landing chance.
+#[test]
+fn stun_resistance_lowers_a_shock_debuffs_land_rate() {
+    use crate::game_loop::skills::effects::{
+        calc_general_trait_bonus, merge_defence_traits, remove_defence_traits,
+    };
+    use crate::model::skill::TraitType;
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    // No buff → no resistance.
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Shock),
+        1.0,
+        "an unprotected target resists nothing"
+    );
+
+    // Stun Resistance level 3 = 30 %.
+    let traits = [(TraitType::Shock, 0.30)];
+    merge_defence_traits(&mut world, 3001, &traits);
+    assert!(
+        (calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.70).abs() < 1e-9,
+        "a SHOCK debuff lands at 70% of its chance"
+    );
+    // …and only against that trait.
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Sleep),
+        1.0,
+        "resisting stuns does nothing against sleep"
+    );
+
+    // The resistance goes when the buff does.
+    remove_defence_traits(&mut world, 3001, &traits);
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Shock),
+        1.0
+    );
+}
+
+/// Two resistance buffs **stack additively** (Java `mergeDefenceTrait` sums),
+/// and a value of 100+ in the XML is not "100 % resist" but outright
+/// invulnerability — which is a different code path, and returns 0.
+#[test]
+fn defence_traits_stack_and_100_means_invulnerable() {
+    use crate::game_loop::skills::effects::{
+        calc_general_trait_bonus, merge_defence_traits, remove_defence_traits,
+    };
+    use crate::model::skill::TraitType;
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    merge_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.30)]);
+    merge_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.20)]);
+    assert!(
+        (calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.50).abs() < 1e-9,
+        "30% + 20% = 50%"
+    );
+    // Removing one leaves the other.
+    remove_defence_traits(&mut world, 3001, &[(TraitType::Shock, 0.20)]);
+    assert!((calc_general_trait_bonus(&world, 3001, TraitType::Shock) - 0.70).abs() < 1e-9);
+
+    // Invulnerability is its own branch (`>= 1.0` → `mergeInvulnerableTrait`).
+    merge_defence_traits(&mut world, 3001, &[(TraitType::Hold, 1.0)]);
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Hold),
+        0.0,
+        "invulnerable, not merely resistant"
+    );
+}
+
+/// Only Java's **group 3** traits are resisted this way. A weapon-type trait
+/// (group 1) and the `*_WEAKNESS` family (group 2, which needs a matching
+/// attacker-side `AttackTrait`) pass through at 1.0 — which is why "Detect
+/// Beast Weakness" is inert on this dist.
+#[test]
+fn only_the_resistable_trait_group_is_scaled() {
+    use crate::game_loop::skills::effects::{calc_general_trait_bonus, merge_defence_traits};
+    use crate::model::skill::{TraitType, WeaknessTrait};
+
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    merge_defence_traits(
+        &mut world,
+        3001,
+        &[
+            (TraitType::Weakness(WeaknessTrait::Beast), 0.50),
+            (TraitType::Other, 0.50),
+        ],
+    );
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Weakness(WeaknessTrait::Beast)),
+        1.0,
+        "group 2 needs the attacker's AttackTrait, which nothing here grants"
+    );
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Other),
+        1.0,
+        "group 1 (weapon types) is never resisted through this path"
+    );
+    assert_eq!(calc_general_trait_bonus(&world, 3001, TraitType::None), 1.0);
+
+    // …but **invulnerability** is tested before the group switch, so it does
+    // reach a group-2 trait. Java's clause order, not an accident.
+    merge_defence_traits(
+        &mut world,
+        3001,
+        &[(TraitType::Weakness(WeaknessTrait::Beast), 1.0)],
+    );
+    assert_eq!(
+        calc_general_trait_bonus(&world, 3001, TraitType::Weakness(WeaknessTrait::Beast)),
+        0.0,
+        "invulnerability is checked ahead of the group gate"
+    );
+}
+
+/// The dist parse: Stun Resistance's real XML yields a `SHOCK` `DefenceTrait`
+/// whose value is the percentage over 100, per level.
+#[test]
+fn stun_resistance_parses_its_per_level_percentages() {
+    use crate::model::skill::{SkillEffect, TraitType};
+    let sd = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    for (level, pct) in [(1, 0.15), (2, 0.20), (3, 0.30), (4, 0.40)] {
+        let s = sd.get(1259, level).expect("Stun Resistance");
+        let traits = s
+            .effects
+            .iter()
+            .find_map(|e| match e {
+                SkillEffect::DefenceTrait { traits } => Some(traits.clone()),
+                _ => None,
+            })
+            .expect("a DefenceTrait effect");
+        assert_eq!(traits.len(), 1);
+        assert_eq!(traits[0].0, TraitType::Shock);
+        assert!(
+            (traits[0].1 - pct).abs() < 1e-9,
+            "level {level} is {pct}, got {}",
+            traits[0].1
+        );
+    }
+    // And a stun declares the matching trait, which is what pairs them.
+    let stun = sd.get(100, 1).expect("Stun Attack");
+    assert_eq!(stun.trait_type, TraitType::Shock);
+}
+
+/// End to end: casting a `DefenceTrait` buff **installs** the resistance and
+/// letting it expire **takes it back**. Java does this in
+/// `DefenceTrait.onStart`/`onExit` (`mergeDefenceTrait` / `removeDefenceTrait`),
+/// and the buff carries no stat modifier of its own — so it also has to survive
+/// the empty-effects guard that drops icon-only buffs.
+#[test]
+fn a_defence_trait_buff_installs_and_removes_its_resistance() {
+    use crate::game_loop::skills::effects::calc_general_trait_bonus;
+    use crate::model::skill::TraitType;
+
+    let (mut world, _db, _l) = cast_test_world();
+    let mut buff = base_skill(
+        9410,
+        vec![SkillEffect::DefenceTrait {
+            traits: vec![(TraitType::Shock, 0.30), (TraitType::Sleep, 1.0)],
+        }],
+    );
+    buff.name = "Stun Resistance".into();
+    buff.target_type = TargetType::Self_;
+    buff.effect_point = 100;
+    buff.is_continuous = true;
+    world.data.skill_data.insert_for_test(buff);
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    land(&mut world, 9410, CASTER);
+    assert!(
+        has_buff(&world, CASTER, 9410),
+        "an effect-less DefenceTrait buff still lands as a timed buff"
+    );
+    assert!((calc_general_trait_bonus(&world, CASTER, TraitType::Shock) - 0.70).abs() < 1e-9);
+    assert_eq!(
+        calc_general_trait_bonus(&world, CASTER, TraitType::Sleep),
+        0.0
+    );
+
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9410);
+    assert!(!has_buff(&world, CASTER, 9410));
+    assert_eq!(
+        calc_general_trait_bonus(&world, CASTER, TraitType::Shock),
+        1.0,
+        "the resistance leaves with the buff"
+    );
+    assert_eq!(
+        calc_general_trait_bonus(&world, CASTER, TraitType::Sleep),
+        1.0
+    );
 }

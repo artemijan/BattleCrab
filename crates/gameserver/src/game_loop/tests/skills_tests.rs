@@ -53,6 +53,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     );
     data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 91,
@@ -2633,6 +2634,55 @@ fn single_target_debuff_resisted_leaves_target_and_reports() {
     );
 }
 
+/// **The debuff's `<trait>` meets the target's `DefenceTrait`.** The dist's
+/// stuns (Stun Attack 100, Shield Bash 352, …) declare `<trait>SHOCK`, which
+/// the parse test above pins; here the fixture debuff borrows that trait so the
+/// *consumption* side is visible. Against an unprotected mob the rate
+/// constrains to the 90 cap, but a target made invulnerable to SHOCK drags the
+/// same cast down to **0** — invulnerability skips the clamp, so the reported
+/// chance drops all the way out of the retail range. That number is the proof
+/// that `calcGeneralTraitBonus` reaches the landing roll.
+#[test]
+fn a_shock_debuff_is_scaled_by_the_targets_shock_defence() {
+    use crate::game_loop::skills::effects::merge_defence_traits;
+    use crate::model::skill::TraitType;
+
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+
+    let mut skill = world
+        .data
+        .skill_data
+        .get(1160, 1)
+        .expect("Decrease Speed")
+        .clone();
+    skill.trait_type = TraitType::Shock;
+
+    // Unprotected: (35 - 5 + 3)·30 + 80 + 30 clamps to the 90 cap.
+    world.forced_rolls.extend([0, 95]); // magic-crit roll, then a losing land roll
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let msgs = drain(&mut a_rx);
+    assert!(
+        msgs.iter()
+            .any(|p| sysmsg_text(p).as_deref()
+                == Some("Test Gremlin has resisted Decrease Speed: 90%")),
+        "unprotected, the stun is offered at the 90 cap",
+    );
+
+    // Invulnerable to SHOCK: the same cast is offered at the 10 floor.
+    merge_defence_traits(&mut world, npc_oid, &[(TraitType::Shock, 1.0)]);
+    world.forced_rolls.extend([0, 95]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+    let msgs = drain(&mut a_rx);
+    assert!(
+        msgs.iter()
+            .any(|p| sysmsg_text(p).as_deref()
+                == Some("Test Gremlin has resisted Decrease Speed: 0%")),
+        "SHOCK invulnerability refuses the debuff outright",
+    );
+}
+
 /// Regression: casting a *bad* skill at a monster must aggro it — the mob's AI
 /// wakes and switches to the attack intention — **even when the debuff is
 /// resisted**. Java `SkillCaster.callSkill` runs `addDamageHate(caster, 0,
@@ -2946,6 +2996,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 129,
@@ -3004,6 +3055,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 1012,
@@ -3121,6 +3173,7 @@ mod dispel_by_category {
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
             without_action: false,
+            trait_type: crate::model::skill::TraitType::None,
             item_consume_id: 0,
             item_consume_count: 0,
             id,
@@ -3547,6 +3600,7 @@ fn synthetic_buff(
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
