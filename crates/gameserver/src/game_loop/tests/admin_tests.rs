@@ -602,9 +602,16 @@ fn admin_grandboss_status_panel_and_actions() {
         "dead status + red color"
     );
     assert!(an.contains("2023-11-14 22:13:20"), "formatted respawn time");
+    // Antharas has a nest zone (`NoRestartZone` 70050), so the panel shows a
+    // **count** — 0 here, with nobody in the lair. The "Zone not found!"
+    // fallback is for the four panel bosses Java pairs with no zone at all.
     assert!(
-        an.contains("Zone not found!"),
-        "boss-zone player count unported (G21)"
+        an.contains("<font color=FF9900>0</font>") || an.contains(">0<"),
+        "the nest's occupancy is counted, not stubbed"
+    );
+    assert!(
+        !an.contains("Zone not found!"),
+        "…and the not-found fallback is gone for a boss that has a zone"
     );
 
     // Action buttons: no arg → Usage; unsupported id → Wrong ID; supported id →

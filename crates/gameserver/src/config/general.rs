@@ -42,6 +42,13 @@ pub struct GeneralConfig {
     /// NPC drops unconditionally and to player drops only when
     /// [`Self::destroy_dropped_player_item`] is set.
     pub autodestroy_item_after: u64,
+    /// `AutoDestroyHerbTime` (seconds, **60** here): the same clock for herbs —
+    /// items with `ex_immediate_effect`, which are consumed by walking over
+    /// them. A tenth of the ordinary 600 s, because a battlefield would
+    /// otherwise be carpeted in them. Gated **independently** of
+    /// `AutoDestroyDroppedItemAfter`: Java schedules a herb whenever *this* is
+    /// non-zero, even with the ordinary destroyer switched off.
+    pub herb_auto_destroy_time: u64,
     /// `DestroyPlayerDroppedItem`: whether **player**-dropped items are subject
     /// to auto-destroy at all. Java default `false` (and the dist value) — so a
     /// player's drop persists until pickup/restart, unlike an NPC drop.
@@ -148,6 +155,7 @@ impl GeneralConfig {
             gm_give_special_aura_skills: p
                 .get_bool("GMGiveSpecialAuraSkills", d.gm_give_special_aura_skills),
             autodestroy_item_after: p.get_int("AutoDestroyDroppedItemAfter", 0).max(0) as u64,
+            herb_auto_destroy_time: p.get_int("AutoDestroyHerbTime", 60).max(0) as u64,
             destroy_dropped_player_item: p
                 .get_bool("DestroyPlayerDroppedItem", d.destroy_dropped_player_item),
             destroy_equipable_player_item: p

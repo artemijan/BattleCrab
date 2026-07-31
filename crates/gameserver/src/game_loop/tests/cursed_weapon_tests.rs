@@ -446,3 +446,57 @@ fn the_cursed_weapon_window_lists_and_locates() {
         "reported at the wielder's position"
     );
 }
+
+/// **A GM-granted cursed weapon still expires.** Java's `reActivate()` arms the
+/// `RemoveTask` alongside setting the end time; without it the duration
+/// argument would be decorative and the weapon would be permanent.
+#[test]
+fn a_gm_granted_cursed_weapon_arms_its_expiry() {
+    let (mut world, _db, mut db_rx, _l) = test_world();
+    load_cursed_weapons(&mut world);
+    world.data.admin =
+        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut gm_rx = ingame_player_access(&mut world, 1, KILLER_OID, 100);
+    drain(&mut gm_rx);
+    while db_rx.try_recv().is_ok() {}
+
+    // `//cw_add <itemid>` on the GM themselves (no target → falls back to the
+    // caster, as Java does).
+    let id_arg = ZARICHE.to_string();
+    crate::game_loop::admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
+    let idx = cw_idx(&world, ZARICHE);
+    assert!(
+        world.cursed_weapons[idx].is_activated,
+        "the GM now wields it"
+    );
+
+    // The `RemoveTask` is armed. `handle_expiry` guards on the **wall clock**,
+    // not the tick, so the check that bites is "a task exists for this weapon";
+    // firing it early is the `premature_expiry_is_ignored` case above.
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, crate::scheduler::ScheduledTask::CursedWeaponExpiry { item_id } if *item_id == ZARICHE)),
+        "reActivate arms the removal task — without it the duration is decorative"
+    );
+
+    // Wind the weapon's own end time back and the armed task ends it.
+    world.cursed_weapons[idx].end_time = now_millis_test() - 1;
+    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+    assert!(
+        !world.cursed_weapons[idx].is_activated,
+        "the duration actually runs out"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&KILLER_OID)
+            .unwrap()
+            .cursed_weapon_equipped_id,
+        0,
+        "and the wielder is freed"
+    );
+}

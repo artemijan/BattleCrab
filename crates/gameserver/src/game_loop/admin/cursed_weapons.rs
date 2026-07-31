@@ -220,7 +220,7 @@ pub(super) fn admin_cw_remove(world: &mut World, client_id: u32, args: &[&str]) 
 /// `//cw_add <id|name>` — give the weapon to the GM's target (or the GM) and
 /// activate it (Java: `addItem` → `CursedWeaponsManager.activate` +
 /// `setEndTime` + `reActivate`).
-pub(super) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
+pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32, args: &[&str]) {
     let Some(idx) = args.first().and_then(|a| resolve(world, a)) else {
         send_message(
             world,
@@ -354,7 +354,10 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         &[SmParam::SysString(0), SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
-    // TODO(G21): reActivate() also schedules the hungry decay/RemoveTask.
+    // `reActivate()` also (re)schedules the `RemoveTask` — without it a
+    // GM-activated weapon would never expire, which is the one thing the
+    // duration argument is for.
+    super::super::cursed_weapon::arm_expiry(world, idx);
 }
 
 /// Port of `CursedWeapon.endOfLife` for an activated (online) or not-in-world

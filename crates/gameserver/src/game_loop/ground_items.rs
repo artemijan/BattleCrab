@@ -31,17 +31,35 @@ pub(crate) enum DropSource {
 
 /// The auto-destroy delay (seconds) for a freshly dropped item, or `None` when
 /// it should never be scheduled — the port of the `ItemsAutoDestroyTaskManager.
-/// addItem` gates in `Player.dropItem` / `Npc.dropItem`. Herb-specific timing
-/// (`AutoDestroyHerbTime`) is a TODO(G21): the item template carries no
-/// immediate-effect/herb flag yet.
+/// addItem` gates in `Player.dropItem` / `Npc.dropItem`.
+///
+/// **Herbs run their own clock.** Java's gate is
+/// `((AUTODESTROY_ITEM_AFTER > 0) && !hasExImmediateEffect()) ||
+/// ((HERB_AUTO_DESTROY_TIME > 0) && hasExImmediateEffect())` — an *either/or*,
+/// so a herb is scheduled off `AutoDestroyHerbTime` (60 s) whether or not the
+/// ordinary destroyer is on, and never off the 600 s one.
 fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option<u64> {
     let g = &world.cfg.general;
-    if g.autodestroy_item_after == 0 || g.protected_items.contains(&item_id) {
+    if g.protected_items.contains(&item_id) {
+        return None;
+    }
+    // `hasExImmediateEffect()` — the herb flag.
+    let herb = world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.ex_immediate_effect);
+    let delay = if herb {
+        g.herb_auto_destroy_time
+    } else {
+        g.autodestroy_item_after
+    };
+    if delay == 0 {
         return None;
     }
     match source {
         DropSource::CursedWeapon => None,
-        DropSource::Npc => Some(g.autodestroy_item_after),
+        DropSource::Npc => Some(delay),
         DropSource::Player => {
             if !g.destroy_dropped_player_item {
                 return None;
@@ -54,7 +72,7 @@ fn auto_destroy_delay(world: &World, item_id: i32, source: DropSource) -> Option
             if equipable && !g.destroy_equipable_player_item {
                 return None;
             }
-            Some(g.autodestroy_item_after)
+            Some(delay)
         }
     }
 }
