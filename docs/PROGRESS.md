@@ -143,6 +143,27 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G21 sweep done 2026-07-31 (16 → 12).** Three real fixes and one
+verified non-gap. **Herbs now run their own auto-destroy clock**: the TODO
+claimed the item template carried no herb flag, but `ex_immediate_effect` has
+been parsed since G15 — so the marker was stale and herbs were lying on the
+ground for the ordinary 600 s instead of `AutoDestroyHerbTime`'s 60. Java's
+gate is an **either/or** (`(AUTODESTROY > 0 && !herb) || (HERB_TIME > 0 &&
+herb)`), so a herb is swept even with the ordinary destroyer switched off —
+the port's single early-return got that wrong too, and both halves are now
+pinned. **The `//grandboss` panel counts the nest's occupants** (Antharas
+70050 / Baium 70051) instead of always printing "Zone not found!"; that
+string is Java's fallback for the four panel bosses with no zone, and an
+existing test asserted the stub. **`//cw_add` arms the removal task**
+(`reActivate`'s other half) — without it a GM-granted cursed weapon never
+expired and the duration argument was decorative.
+**Verified not a gap:** the `//grandboss_skip|respawn|minions|abort` buttons.
+`AdminGrandBoss.antharasAi()` and `baiumAi()` are literally `return null;` in
+this build (the `QuestManager` lookup beneath them is commented out), so every
+one of those buttons NPEs in Java whatever the boss AI does — the port
+reproduces the NPE rather than wiring its (ported) Antharas/Baium AI behind a
+button that is dead upstream. 3 tests, 3 mechanisms sabotage-verified.
+
 **G29 sweep done 2026-07-31 (18 → 16, and it reached across five milestones).**
 The cluster's real content was **sitting**, which the port had never modelled —
 a gap that had left TODOs in G14 (`/mount`), G15.7 (the manufacture store),

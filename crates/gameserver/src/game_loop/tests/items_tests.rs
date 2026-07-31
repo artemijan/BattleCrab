@@ -4325,3 +4325,73 @@ fn the_saved_key_mapping_round_trips() {
     );
     assert_eq!(&stored[7..10], &[7, 0, 200], "…verbatim, high bytes intact");
 }
+
+/// **Herbs run their own auto-destroy clock.** Java's gate is an *either/or*:
+/// `(AUTODESTROY_ITEM_AFTER > 0 && !hasExImmediateEffect()) ||
+/// (HERB_AUTO_DESTROY_TIME > 0 && hasExImmediateEffect())`. So a herb vanishes
+/// on `AutoDestroyHerbTime` (60 s) rather than the ordinary 600 s — and it is
+/// scheduled even when the ordinary destroyer is switched off entirely.
+#[test]
+fn herbs_decay_on_their_own_shorter_clock() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::model::components::GroundItem;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.cfg.general.autodestroy_item_after = 600;
+    world.cfg.general.herb_auto_destroy_time = 60;
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let _rx = ingame_player_access(&mut world, 1, 9300, 0);
+
+    // 8600 "Herb of Life" carries `ex_immediate_effect`; 57 adena does not.
+    let herb = spawn_ground_item(&mut world, 8600, 1, 0, 100, 200, 0, 0, DropSource::Npc);
+    let coin = spawn_ground_item(&mut world, 57, 100, 0, 100, 200, 0, 0, DropSource::Npc);
+
+    // Past 60 s: the herb is gone, the coin is not.
+    world.tick += 60 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(
+        !world.objects.has_component::<GroundItem>(&herb),
+        "the herb is swept on the 60 s herb clock"
+    );
+    assert!(
+        world.objects.has_component::<GroundItem>(&coin),
+        "…while an ordinary drop still has its 600 s"
+    );
+
+    // Past 600 s the coin goes too.
+    world.tick += 600 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(!world.objects.has_component::<GroundItem>(&coin));
+}
+
+/// The herb clock is gated **independently** of the ordinary one: with
+/// `AutoDestroyDroppedItemAfter = 0` a herb is still swept, because Java's two
+/// conditions are alternatives rather than nested.
+#[test]
+fn herbs_decay_even_with_the_ordinary_destroyer_off() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    use crate::model::components::GroundItem;
+
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.cfg.general.autodestroy_item_after = 0; // ordinary destroyer off
+    world.cfg.general.herb_auto_destroy_time = 60;
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let _rx = ingame_player_access(&mut world, 1, 9300, 0);
+
+    let herb = spawn_ground_item(&mut world, 8600, 1, 0, 100, 200, 0, 0, DropSource::Npc);
+    let coin = spawn_ground_item(&mut world, 57, 100, 0, 100, 200, 0, 0, DropSource::Npc);
+    world.tick += 60 * 10 + 1;
+    apply_due_tasks(&mut world);
+    assert!(
+        !world.objects.has_component::<GroundItem>(&herb),
+        "the herb clock stands on its own"
+    );
+    assert!(
+        world.objects.has_component::<GroundItem>(&coin),
+        "and the coin is never scheduled at all"
+    );
+}
