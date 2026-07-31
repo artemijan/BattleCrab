@@ -91,6 +91,12 @@ pub(super) fn has_mount_or_summon(world: &World, target: i32) -> bool {
 /// the hunger that halves speed and force-dismounts at 0); lands with mount
 /// feeding.
 pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_type: u8) -> bool {
+    // Java's first gate: `if (!ALLOW_MOUNTS_DURING_SIEGE && isInsideZone(SIEGE))
+    // return false;` — silent, no message. **False** on this dist, so a rider
+    // standing in a live siege zone simply cannot mount.
+    if !world.cfg.feature.allow_ride_mounts_during_siege && in_active_siege(world, target) {
+        return false;
+    }
     // Java: `if (!disarmWeapons() || !disarmShield() || isTransformed())
     // return false;` — then `getEffectList().stopAllToggles()`. The disarm is
     // load-bearing for the client, not cosmetic: a mounted paperdoll that
@@ -318,4 +324,15 @@ fn broadcast_ride(world: &World, target: i32, mounted: bool) {
         pos.z,
     );
     super::helpers::broadcast_including_self(world, target, &packet);
+}
+
+/// Java `isInsideZone(ZoneId.SIEGE)` for a player — the zone flag the
+/// `SiegeZone` sets while its castle's siege is running (`ZoneFlags`, kept
+/// separately from the plain membership mask because a siege zone is only a
+/// combat zone while active).
+pub(crate) fn in_active_siege(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .is_some_and(|f| f.in_active_siege)
 }

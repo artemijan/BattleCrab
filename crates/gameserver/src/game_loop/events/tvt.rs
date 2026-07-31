@@ -752,8 +752,11 @@ pub(crate) fn on_manager_event(
     match event {
         "Participate" => {
             if can_register(world, client_id, player) {
-                // TODO(G28): AntiFeedManager dualbox-per-IP cap
-                //   (registration-ip.html) — needs the IP plumbing (G31).
+                // `AntiFeedManager.tryAddPlayer(L2EVENT_ID, player, max)` — the
+                // dualbox cap, with its own refusal page.
+                if !ip_slot_available(world, player) {
+                    return Some("registration-ip.html".to_string());
+                }
                 world.events.tvt.player_list.push(player);
                 world.events.tvt.scores.insert(player, 0);
                 set_registered(world, player, true);
@@ -1118,4 +1121,39 @@ fn announce(world: &World, text: &str) {
             cs.send(pkt.clone());
         }
     }
+}
+
+/// `AntiFeedManager.tryAddPlayer(L2EVENT_ID, player, DUALBOX_CHECK_MAX_L2EVENT_
+/// PARTICIPANTS_PER_IP)` — is there room for one more entrant from this
+/// player's IP? `0` means unlimited and Java skips the call entirely.
+///
+/// Java keeps its own per-event IP counter, incremented here and decremented on
+/// `CancelParticipation`; the port instead **counts the live roster**, which
+/// cannot drift out of step with it (Java's counter leaks a slot when a
+/// registrant disconnects without cancelling). An offline or session-less
+/// player contributes nothing, as it does not in Java either.
+fn ip_slot_available(world: &World, player: i32) -> bool {
+    let max = world.cfg.dualbox.max_event_participants_per_ip;
+    if max <= 0 {
+        return true;
+    }
+    let Some(ip) = player_ip(world, player) else {
+        // Java: `tryAddClient` returns false with no client — no IP, no entry.
+        return false;
+    };
+    let taken = world
+        .events
+        .tvt
+        .player_list
+        .iter()
+        .filter(|&&p| player_ip(world, p).as_deref() == Some(ip.as_str()))
+        .count();
+    (taken as i32) < world.cfg.dualbox.event_limit_for(&ip)
+}
+
+/// A registered player's live client IP, or `None` if they have no session.
+fn player_ip(world: &World, player: i32) -> Option<String> {
+    super::super::helpers::client_for_player(world, player)
+        .and_then(|cid| world.clients.get(&cid))
+        .map(|cs| cs.addr().ip().to_string())
 }

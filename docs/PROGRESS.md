@@ -143,6 +143,47 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Olympiad leaderboard, siege mounts, TvT dualbox 2026-07-31.** The next three
+markers from the staleness sweep, each waiting on a subsystem that had since
+landed:
+
+- **The Olympiad Manager's class rank pages were blank by construction.** Java
+  freezes the cycle's nobles into `olympiad_nobles_eom` at the round end
+  (`updateMonthlyData`, run right after `saveOlympiadStatus`) and
+  `getClassLeaderBoard` reads *that* — `AltOlyShowMonthlyWinners = True` here,
+  so the board is the **last completed** cycle, not the live one. The table was
+  in the schema but nothing ever wrote it. Now `handle_olympiad_end` snapshots
+  it in memory and over a new `DbCommand::SnapshotOlympiadEom` (Java's
+  TRUNCATE + `INSERT … SELECT`, ordered behind `SaveOlympiad` on the same
+  channel so it copies rows already written), boot restores it beside the live
+  nobles, and `olympiad::class_leader_board` ranks by points → matches → wins
+  with Java's `LIMIT 10` and `AltOlyMinMatchesForPoints` floor. The page has
+  fifteen rows, so five are always blank — as they are in Java.
+- **`AllowRideMountsDuringSiege` had no consumer.** It has three in Java, two
+  reachable here: `Player.mount` refuses outright inside a live siege zone, and
+  `SiegeZone.onEnter` **dismounts** a rider who walks in — plus untransforms one
+  wearing a `RIDING_MODE` transformation, so `TransformData` gained a `riding`
+  flag off the `type` attribute it was already reading for `FLYING`. Both legs
+  are silent in Java. (The wyvern leg beside them is gated on
+  `AllowRideWyvernDuringSiege`, True here, so it never fires.)
+- **TvT had no dualbox cap.** `AntiFeedManager.tryAddPlayer` with
+  `DualboxCheckMaxL2EventParticipantsPerIP` — **1** on this dist, so a second
+  character from one address is turned away with its own `registration-ip.html`.
+  New `config/dualbox.rs` reads `Custom/DualboxCheck.ini` including the
+  `address,extra;…` whitelist that raises the cap per address. **The port counts
+  the live roster rather than keeping Java's own per-event IP counter**, which
+  cannot drift: Java's counter leaks a slot when a registrant disconnects
+  without cancelling. `0` means unlimited, and Java skips the check rather than
+  reading it as a cap of zero — a test pins that, since getting it backwards
+  would lock everyone out.
+
+Deferred with its marker intact: the **mounted feed gauge** (Java
+`Player.mount` → `startFeed`, the hunger that halves speed and force-dismounts
+at 0). The `Feed` effect's `ride`/`wyvern` params feed exactly that gauge, so
+the two are one feature and neither is a stale marker — the pet half is ported,
+the rider half is not. 5 tests, 6 mechanisms sabotage-verified. Markers: 165 →
+163.
+
 **The stale-marker sweep 2026-07-31.** The `TODO(G…)` markers are the port's
 own work estimate, so a batch of them was re-read **against the code they name**
 rather than against their own prose — the [[l2r-verify-milestone-status]]

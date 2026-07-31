@@ -793,3 +793,68 @@ fn mounting_and_dismounting_resend_the_visual_effects() {
         );
     }
 }
+
+/// `AllowRideMountsDuringSiege = False` (this dist) has three consumers, two of
+/// which are reachable here: `Player.mount` refuses inside a live siege zone,
+/// and `SiegeZone.onEnter` dismounts a rider who walks in. Both are silent.
+#[test]
+fn a_siege_zone_refuses_and_strips_mounts() {
+    use crate::model::components::ZoneFlags;
+
+    let (mut world, _tx, _db, _l) = test_world();
+    world.cfg.feature.allow_ride_mounts_during_siege = false;
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    // Give the strider a template so the mount's collision swap resolves.
+    let mut t = crate::data::npc_data::default_template(12526);
+    t.type_name = "Npc".into();
+    t.level = 55;
+    world.data.npc_data.insert_for_test(t);
+
+    // Inside a live siege zone the mount is simply refused.
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&3001)
+        .unwrap()
+        .in_active_siege = true;
+    assert!(
+        !crate::game_loop::admin::mounts::mount_player(&mut world, 3001, 12526, 1),
+        "no mounting inside a siege"
+    );
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .is_mounted(),
+        "and nothing was applied"
+    );
+
+    // Outside it, the same mount works…
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&3001)
+        .unwrap()
+        .in_active_siege = false;
+    assert!(crate::game_loop::admin::mounts::mount_player(
+        &mut world, 3001, 12526, 1
+    ));
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .is_mounted()
+    );
+
+    // …until the siege catches up with the rider, which dismounts them
+    // (`SiegeZone.onEnter`, reached from `refresh_siege_zone_flag`).
+    crate::game_loop::zones::dismount_for_siege(&mut world, 3001);
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .is_mounted(),
+        "SiegeZone.onEnter dismounts"
+    );
+}

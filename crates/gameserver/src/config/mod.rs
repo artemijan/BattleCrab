@@ -6,6 +6,7 @@
 
 pub mod character;
 pub mod community_board;
+pub mod dualbox;
 pub mod feature;
 pub mod general;
 pub mod geoengine;
@@ -19,6 +20,7 @@ pub mod server;
 
 pub use character::CharacterConfig;
 pub use community_board::CommunityBoardConfig;
+pub use dualbox::DualboxConfig;
 pub use feature::FeatureConfig;
 pub use general::GeneralConfig;
 pub use geoengine::GeoEngineConfig;
@@ -54,6 +56,8 @@ pub struct CombatConfig {
     pub feature: FeatureConfig,
     /// `Custom/OfflineTrade.ini` — the offline-shop lifecycle.
     pub offline_trade: OfflineTradeConfig,
+    /// `Custom/DualboxCheck.ini` — the per-IP participation caps.
+    pub dualbox: DualboxConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -71,6 +75,7 @@ pub struct Config {
     pub community_board: CommunityBoardConfig,
     pub premium: PremiumConfig,
     pub offline_trade: OfflineTradeConfig,
+    pub dualbox: DualboxConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -128,6 +133,7 @@ impl Config {
         let community_board = CommunityBoardConfig::load_from(root);
         let premium = PremiumConfig::load_from(root);
         let offline_trade = OfflineTradeConfig::load_from(root);
+        let dualbox = DualboxConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -142,6 +148,7 @@ impl Config {
             community_board,
             premium,
             offline_trade,
+            dualbox,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -162,6 +169,7 @@ impl Config {
             premium: self.premium.clone(),
             feature: self.feature.clone(),
             offline_trade: self.offline_trade.clone(),
+            dualbox: self.dualbox.clone(),
         }
     }
 }

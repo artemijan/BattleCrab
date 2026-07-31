@@ -323,6 +323,7 @@ fn olympiad_persistence_round_trips() {
             comp_drawn: 0,
             comp_done_week: 2,
         }],
+        Vec::new(),
     );
     assert_eq!(world.olympiad.current_cycle, 3);
     assert_eq!(world.olympiad.period, 1);
@@ -1428,4 +1429,48 @@ fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
         p.clan_id = clan_id;
     }
     clan_id
+}
+
+/// `Olympiad.updateMonthlyData` + `getClassLeaderBoard`: the round end freezes
+/// the nobles into `olympiad_nobles_eom`, and the Olympiad Manager's rank page
+/// reads *that* snapshot — `AltOlyShowMonthlyWinners = True` on this dist, so
+/// the board shows the last completed cycle rather than the live one.
+#[test]
+fn the_round_end_snapshots_the_class_leaderboard() {
+    use crate::db::DbCommand;
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+
+    // Four class-88 nobles: two qualify (≥ 10 matches), ranked by points; one is
+    // short of the match minimum; one is a different class.
+    insert_noble(&mut world, 100, 88, 90, 12, 8);
+    insert_noble(&mut world, 101, 88, 120, 11, 9);
+    insert_noble(&mut world, 102, 88, 500, 9, 9); // 9 matches — not ranked
+    insert_noble(&mut world, 103, 89, 999, 20, 20); // another class
+    world.olympiad.period = 0;
+
+    // Before the round ends the board is empty — the snapshot is the source.
+    assert!(crate::game_loop::olympiad::class_leader_board(&world, 88).is_empty());
+
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+
+    assert_eq!(
+        crate::game_loop::olympiad::class_leader_board(&world, 88),
+        vec!["N101".to_string(), "N100".to_string()],
+        "ranked by points, descending; the sub-minimum noble is excluded"
+    );
+    assert_eq!(
+        crate::game_loop::olympiad::class_leader_board(&world, 89),
+        vec!["N103".to_string()],
+        "each class has its own board"
+    );
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::SnapshotOlympiadEom)),
+        "the snapshot is persisted too"
+    );
 }
