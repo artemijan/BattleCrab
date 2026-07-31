@@ -386,7 +386,7 @@ fn a_seal_is_titled_with_its_casters_name() {
     let wire_title = |world: &World| {
         let view = crate::model::npc::NpcView::of(&world.objects, totem).unwrap();
         let template = world.data.npc_data.get(TOTEM_NPC).unwrap();
-        let pkt = server_packets::npc_info(&view, template, &world.cfg.npc);
+        let pkt = server_packets::npc_info(&view, template, &world.cfg.npc, &[]);
         // The name rides as UTF-16LE somewhere inside a mixed packet, so look
         // for its byte sequence rather than decoding the whole buffer (whose
         // string fields are not 2-byte aligned from offset 0).

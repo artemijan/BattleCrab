@@ -100,10 +100,15 @@ pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
 /// state at its defaults: no summon animation, no water/fly/team/clone/
 /// transform/abnormals, no clan, reputation 0, pvp flag 0. The localisation
 /// pass (`MULTILANG_ENABLE`) is skipped.
+/// `abnormal_visuals` are the mob's live `AbnormalVisualEffect` client ids
+/// (`abnormal::visual_effects`). Java adds the `ABNORMALS` component whenever
+/// that list is non-empty, and the block is a count plus one short each — the
+/// same shape `CharInfo` needed before a stunned *player* was visible.
 pub fn npc_info(
     v: &crate::model::npc::NpcView,
     t: &NpcTemplate,
     cfg: &crate::config::NpcConfig,
+    abnormal_visuals: &[i16],
 ) -> Vec<u8> {
     let crate::model::npc::NpcView {
         npc,
@@ -188,6 +193,12 @@ pub fn npc_info(
     if t.show_name {
         status_mask |= 0x08;
     }
+    // Java: `if (!_abnormalVisualEffects.isEmpty() || npc.isInvisible())`.
+    // Declared before VISUAL_STATE because that is the order the blocks are
+    // written in below, and the client reads them positionally.
+    if !abnormal_visuals.is_empty() {
+        add(&mut mask_bytes, T::Abnormals);
+    }
     if status_mask != 0 {
         add(&mut mask_bytes, T::VisualState);
     }
@@ -254,6 +265,12 @@ pub fn npc_info(
     }
     if contains(T::Name) {
         w.write_string(&t.name);
+    }
+    if contains(T::Abnormals) {
+        w.write_i16(abnormal_visuals.len() as i16);
+        for id in abnormal_visuals {
+            w.write_i16(*id);
+        }
     }
     if contains(T::VisualState) {
         w.write_u8(status_mask);
@@ -594,7 +611,7 @@ mod tests {
         let expected = w.into_bytes();
 
         assert_eq!(
-            super::npc_info(&v, &t, &crate::config::NpcConfig::default()),
+            super::npc_info(&v, &t, &crate::config::NpcConfig::default(), &[]),
             expected
         );
     }
@@ -656,7 +673,7 @@ mod tests {
         let expected = w.into_bytes();
 
         assert_eq!(
-            super::npc_info(&v, &t, &crate::config::NpcConfig::default()),
+            super::npc_info(&v, &t, &crate::config::NpcConfig::default(), &[]),
             expected
         );
     }
