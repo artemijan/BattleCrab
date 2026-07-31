@@ -1428,6 +1428,11 @@ fn build_skill(
                                 p_atk_mod: param("pAtkMod").unwrap_or(1.0),
                                 p_def_mod: param("pDefMod").unwrap_or(1.0),
                                 critical_chance: param("criticalChance").unwrap_or(10.0),
+                                ignore_shield_defence: value_at(
+                                    params,
+                                    "ignoreShieldDefence",
+                                    level,
+                                ) == Some("true"),
                             }]
                         }
                         "Heal" => vec![SkillEffect::Heal {
@@ -1463,6 +1468,8 @@ fn build_skill(
                             charge_consume: value_at(values, "chargeConsume", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
+                            ignore_shield_defence: value_at(params, "ignoreShieldDefence", level)
+                                == Some("true"),
                         }],
                         // Pet food (Wolf Food 2048, etc.). Without this arm the
                         // food item was consumed and restored nothing.
@@ -1975,14 +1982,32 @@ fn build_skill(
                         // to absorb a % of melee damage as HP. The melee-absorb path
                         // isn't modeled, so carry an icon-only marker rather than
                         // dropping the buff.
-                        "VampiricAttack" => vec![SkillEffect::VampiricAttack],
+                        "VampiricAttack" => vec![SkillEffect::VampiricAttack {
+                            amount: param("amount").unwrap_or(0.0),
+                            chance: param("chance").unwrap_or(0.0),
+                        }],
                         // "Detect <Category> Weakness" (75/80/87/88/104, 359/360):
                         // Java `AttackTrait` merges a `*_WEAKNESS` bonus onto the
                         // caster — genuinely inert in the reference server too (see
                         // the doc comment on `SkillEffect::AttackTrait`), so this
                         // carries an icon-only marker like `DefenceTrait`/
                         // `VampiricAttack` rather than the per-trait param map.
-                        "AttackTrait" => vec![SkillEffect::AttackTrait],
+                        // Same shape as `DefenceTrait`: every param is a trait
+                        // name → percent, divided by 100.
+                        "AttackTrait" => {
+                            let traits: Vec<(crate::model::skill::TraitType, f64)> = params
+                                .keys()
+                                .filter_map(|key| {
+                                    let raw = value_at(params, key, level)?;
+                                    let pct: f64 = raw.parse().ok()?;
+                                    Some((
+                                        crate::model::skill::TraitType::from_xml(key),
+                                        pct / 100.0,
+                                    ))
+                                })
+                                .collect();
+                            vec![SkillEffect::AttackTrait { traits }]
+                        }
                         // Celestial Shield (1418), Flames of Invincibility (1427),
                         // Dance of Medusa (367), Sonic/Force Barrier (442/443): a
                         // skill carries two of these, one `BLOCK_HP` and one
@@ -2026,7 +2051,9 @@ fn build_skill(
                         // (like `VampiricAttack`) rather than dropping the buff
                         // whole at the empty-effects guard — it must still show
                         // and expire.
-                        "DamageShield" => vec![SkillEffect::DamageShield],
+                        "DamageShield" => vec![SkillEffect::DamageShield {
+                            amount: param("amount").unwrap_or(0.0),
+                        }],
                         // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven
                         // Craft (1368-1372, the craftsman-guild storage passives):
                         // Java `EnlargeSlot extends AbstractStatEffect` reads
@@ -2356,7 +2383,7 @@ mod tests {
         let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
         assert!(matches!(
             power_strike.effects.as_slice(),
-            [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance }]
+            [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
                 if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
         ));
 
@@ -2979,7 +3006,7 @@ mod tests {
         let vampiric_rage = sd.get(1268, 1).expect("Vampiric Rage lvl 1");
         assert!(matches!(
             vampiric_rage.effects.as_slice(),
-            [SkillEffect::VampiricAttack]
+            [SkillEffect::VampiricAttack { amount, chance }] if *amount == 6.0 && *chance == 80.0
         ));
     }
 
@@ -3202,8 +3229,8 @@ mod tests {
         );
         let sov = out.skills.get(&(305, 1)).expect("Song of Vengeance parsed");
         assert!(
-            matches!(sov.effects.as_slice(), [SkillEffect::DamageShield]),
-            "DamageShield is not dropped"
+            matches!(sov.effects.as_slice(), [SkillEffect::DamageShield { amount }] if *amount == 20.0),
+            "DamageShield carries its reflect percentage"
         );
     }
 

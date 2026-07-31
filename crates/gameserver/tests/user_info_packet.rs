@@ -60,6 +60,7 @@ async fn user_info_test() {
         charges: 0,
         vitality_points: 0,
         pccafe_points: 0,
+        pc_cafe_seq: 0,
         prime_points: 0,
         fame: 0,
         // The golden packet below was captured with recom-left/have = 0.

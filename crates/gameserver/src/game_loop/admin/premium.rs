@@ -80,9 +80,24 @@ fn add_premium(world: &mut World, client_id: u32, months: i64, args: &[&str]) {
             format_datetime(enddate)
         ),
     );
-    // TODO(G16): Java also runs PcCafePointsManager.run(player) here when
-    // Config.PC_CAFE_RETAIL_LIKE and the account is online; that manager is
-    // unported.
+    // Java re-arms the PA-point timer for that account's online character, if
+    // any. Note the `break`: the first match wins, so a dual-boxed account only
+    // gets one of its characters re-armed. `pc_cafe::run` re-checks
+    // `PC_CAFE_RETAIL_LIKE` itself.
+    let online = world.clients.values().find_map(|cs| match cs {
+        crate::session::ClientSession::InGame(s) => {
+            let oid = s.player_object_id();
+            world
+                .objects
+                .get_component::<crate::model::Player>(&oid)
+                .filter(|p| p.account == account)
+                .map(|_| oid)
+        }
+        _ => None,
+    });
+    if let Some(oid) = online {
+        super::super::pc_cafe::run(world, oid);
+    }
 }
 
 /// `AdminPremium.viewPremiumInfo`.

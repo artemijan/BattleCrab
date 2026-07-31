@@ -98,12 +98,15 @@ mod npc_regen_tests;
 mod npc_tests;
 mod offline_trade_tests;
 mod olympiad_tests;
+mod onhit_tests;
 mod orfen_tests;
 mod others_scripts_tests;
 mod overhit_tests;
 mod party_room_tests;
+mod pc_cafe_tests;
 mod periodic_tests;
 mod petition_tests;
+mod premium_rates_tests;
 mod punishment_tests;
 mod pvp_kill_tests;
 mod queen_ant_tests;
@@ -120,6 +123,7 @@ mod siege_registration_tests;
 mod siege_schedule_tests;
 mod skill_enchant_tests;
 mod skill_rate_tests;
+mod skill_shield_tests;
 mod skills_tests;
 mod snoop_tests;
 mod social_tests;
@@ -129,6 +133,7 @@ mod subclass_tests;
 mod symbol_tests;
 mod target_reconsider_tests;
 mod teleport_cmds_tests;
+mod trait_damage_tests;
 mod trigger_skill_tests;
 mod tvt_tests;
 mod two_handed_tests;
@@ -614,6 +619,7 @@ fn cast_test_world() -> (
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 10.0,
+            ignore_shield_defence: false,
         }],
         ..base.clone()
     });

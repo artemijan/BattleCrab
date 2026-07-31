@@ -240,6 +240,61 @@ pub enum WeaponTrait {
 }
 
 impl TraitType {
+    /// Java's `TraitType.getAllWeakness()` — the group-2 members, in Java's own
+    /// order (the product is commutative, but the list is the authority on
+    /// *which* traits count as a weakness).
+    pub const ALL_WEAKNESS: [TraitType; 18] = {
+        use WeaknessTrait as W;
+        [
+            TraitType::Weakness(W::Bug),
+            TraitType::Weakness(W::Animal),
+            TraitType::Weakness(W::Plant),
+            TraitType::Weakness(W::Beast),
+            TraitType::Weakness(W::Dragon),
+            TraitType::Weakness(W::Giant),
+            TraitType::Weakness(W::Construct),
+            TraitType::Weakness(W::Valakas),
+            TraitType::Weakness(W::Anesthesia),
+            TraitType::Weakness(W::Demonic),
+            TraitType::Weakness(W::Divine),
+            TraitType::Weakness(W::Elemental),
+            TraitType::Weakness(W::Fairy),
+            TraitType::Weakness(W::Human),
+            TraitType::Weakness(W::Humanoid),
+            TraitType::Weakness(W::Undead),
+            TraitType::Weakness(W::Embryo),
+            TraitType::Weakness(W::Spirit),
+        ]
+    };
+
+    /// Java `WeaponType.getTraitType()` — every weapon type *is* a trait, which
+    /// is what `calcWeaponTraitBonus` looks the target's defence up by. The
+    /// types Java maps to `NONE` (fishing rod, flag) stay `None`.
+    pub fn of_weapon(weapon: crate::data::item_data::WeaponType) -> Self {
+        use crate::data::item_data::WeaponType as W;
+        use WeaponTrait as P;
+        match weapon {
+            W::Sword => Self::Weapon(P::Sword),
+            W::Blunt => Self::Weapon(P::Blunt),
+            W::Dagger => Self::Weapon(P::Dagger),
+            W::Pole => Self::Weapon(P::Pole),
+            W::DualFist => Self::Weapon(P::DualFist),
+            W::Bow => Self::Weapon(P::Bow),
+            W::Dual => Self::Weapon(P::Dual),
+            W::DualBlunt => Self::Weapon(P::DualBlunt),
+            W::Fist => Self::Weapon(P::Fist),
+            W::Rapier => Self::Weapon(P::Rapier),
+            W::Crossbow => Self::Weapon(P::Crossbow),
+            W::AncientSword => Self::Weapon(P::AncientSword),
+            W::DualDagger => Self::Weapon(P::DualDagger),
+            W::TwoHandCrossbow => Self::Weapon(P::TwoHandCrossbow),
+            // Java's `NONE`/`FISHINGROD`/`FLAG` map to `TraitType.NONE`, and
+            // the port folds bare-handed into `WeaponType::None` too — an
+            // unarmed swing carries no weapon trait, so nothing defends it.
+            W::None | W::FishingRod => Self::None,
+        }
+    }
+
     /// Java's `TraitType._type`.
     pub fn group(self) -> u8 {
         match self {
@@ -697,12 +752,17 @@ pub enum SkillEffect {
     /// soul mAtk-style boost is ×1 until charges are modeled). The dagger-blow
     /// skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different `calcBlowDamage`
     /// formula and are NOT routed here.
-    /// TODO(G20): ranged (bow) weaponMod 70 branch; shield-block `pDef` add.
+    ///
+    /// `ignore_shield_defence` is `<ignoreShieldDefence>` (55 skills on this
+    /// dist declare it): when false, `calcShldUse` runs and a normal block adds
+    /// the shield's `sDef` to the divisor while a perfect block cuts the hit to
+    /// **1**.
     PhysicalAttack {
         power: f64,
         p_atk_mod: f64,
         p_def_mod: f64,
         critical_chance: f64,
+        ignore_shield_defence: bool,
     },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
@@ -750,13 +810,12 @@ pub enum SkillEffect {
     /// `charge_consume` is a **skill-level** `<chargeConsume>` tag, not an
     /// `<effect>` child — Java's effect constructors read the skill's whole
     /// merged param set, not just their own element's children.
-    /// TODO(G20): shield-block `pDef` add / perfect-block-to-1-damage, same
-    /// gap `PhysicalAttack` already has — not modeled for either.
     EnergyAttack {
         power: f64,
         critical_chance: f64,
         p_def_mod: f64,
         charge_consume: i32,
+        ignore_shield_defence: bool,
     },
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
@@ -764,7 +823,8 @@ pub enum SkillEffect {
     /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
     /// charged-soul boost is ×1 until charges land). `backstab` requires the
     /// caster to be outside the target's front arc.
-    /// TODO(G20): SoulBlow charged-soul boost.
+    /// TODO(G20): SoulBlow charged-soul boost (no learnable carrier — the sole
+    /// `SoulBlow` skill on this dist is off-chronicle).
     Blow {
         power: f64,
         chance_boost: f64,
@@ -998,8 +1058,15 @@ pub enum SkillEffect {
     /// `vampiricSum`). The melee HP-absorb path isn't modeled yet, so like
     /// `ProtectionBlessing` this carries no stat modifier and lands as an
     /// icon-only timed `ActiveBuff` (abnormal + duration honored).
-    /// TODO(G20): honor the actual HP absorb-on-hit in the melee combat path.
-    VampiricAttack,
+    ///
+    /// Java `pump`s two values: `ABSORB_DAMAGE_PERCENT += amount/100` and
+    /// `vampiricSum += amount · chance`. The pair is what
+    /// `VampiricChanceFinalizer` turns into a roll chance, so both ride the
+    /// ordinary stat pipeline here (see [`Stat::VampiricSum`]).
+    VampiricAttack {
+        amount: f64,
+        chance: f64,
+    },
     /// `handlers/effecthandlers/AttackTrait.java` — the "Detect &lt;Category&gt;
     /// Weakness" family (Insect/Beast/Animal/Dragon/Plant 75/80/87/88/104, Eye
     /// of Hunter/Slayer 359/360): raises the caster's bonus damage against a
@@ -1007,19 +1074,13 @@ pub enum SkillEffect {
     /// the attacker-side counterpart of [`SkillEffect::DefenceTrait`]'s
     /// `mergeDefenceTrait`.
     ///
-    /// Lands as an icon-only timed `ActiveBuff`: the attack-trait accumulator
-    /// has no consumer here yet.
+    /// Merges `amount / 100` onto the caster's [`AttackTraits`] table for each
+    /// named trait, which `calcWeaknessBonus` / `calcAttackTraitBonus` read
+    /// against the *target's* matching `DefenceTrait`.
     ///
-    /// TODO(G20): the target side **does** exist — the race skill `Undead`
-    /// (4416) sits on 13 549 NPCs and merges negative `*_WEAKNESS` defence
-    /// traits, which `DefenceTrait` now stores. What is missing is the
-    /// attacker-side accumulator (`mergeAttackTrait`/`removeAttackTrait`,
-    /// additive per `TraitType`) **and** its consumers in the physical damage
-    /// formula (`Formulas.calcWeaknessBonus`,
-    /// `calcAttackTraitBonus`/`calcWeaponTraitBonus`). The landing-roll path
-    /// is unaffected: `calcGeneralTraitBonus`'s group-2 branch bails to 1.0
-    /// while `hasAttackTrait` is false, which is what it does here.
-    AttackTrait,
+    AttackTrait {
+        traits: Vec<(TraitType, f64)>,
+    },
     /// `handlers/effecthandlers/DamageBlock.java` — one `<effect>` instance
     /// per block kind (a skill carrying both writes two separate elements,
     /// e.g. Celestial Shield 1418's `BLOCK_HP` + `BLOCK_MP`). Carries no stat
@@ -1064,8 +1125,13 @@ pub enum SkillEffect {
     /// Vengeance (305). The combat damage-reflect path isn't modeled yet, so this
     /// carries no stat modifier and lands as an icon-only timed `ActiveBuff`
     /// (abnormal + duration honored).
-    /// TODO(G20): reflect `amount`% of received damage in the combat path.
-    DamageShield,
+    ///
+    /// A plain additive `REFLECT_DAMAGE_PERCENT` grant (Java's handler is an
+    /// `AbstractStatEffect` in all but name), read off the **target** by
+    /// `Creature.doAttack`.
+    DamageShield {
+        amount: f64,
+    },
     /// `handlers/effecthandlers/Transformation.java` — polymorph the caster
     /// into `transformation_id` (Java `TransformData.getTransform`), backing
     /// the "Transform <Monster>" scroll family (541-558, 617-674: Grail
@@ -1768,6 +1834,37 @@ impl Skill {
 
     /// The continuous stat-pump subset of `effects` — what lands as an
     /// `ActiveBuff` (instant effects never enter a buff).
+    /// Java `Skill.hasEffectType(EffectType.HATE)` — whether any of this
+    /// skill's effects is an aggro-management one (`DeleteHate`,
+    /// `DeleteHateOfMe`, `DeleteTopAgro`).
+    ///
+    /// `hasEffectType` scans **every** effect scope (`_effectLists.values()`),
+    /// not just `<effects>`, so this does too. The one gate that reads it is
+    /// `SkillCaster.callSkill`'s `EVT_ATTACKED` notify: a skill that exists to
+    /// *shed* aggro must not wake the mob it was cast at. The hate *addition*
+    /// beside it (`addDamageHate(caster, 0, -effectPoint)`) is **not** gated —
+    /// only the AI wake is.
+    ///
+    /// `DeleteTopAgro` has no port variant: its sole carrier is Mischief
+    /// (10526), an off-chronicle skill no class learns.
+    pub fn has_hate_effect(&self) -> bool {
+        [
+            &self.effects,
+            &self.self_effects,
+            &self.pve_effects,
+            &self.pvp_effects,
+            &self.channeling_effects,
+        ]
+        .into_iter()
+        .flatten()
+        .any(|e| {
+            matches!(
+                e,
+                SkillEffect::DeleteHate { .. } | SkillEffect::DeleteHateOfMe { .. }
+            )
+        })
+    }
+
     /// OR of the [`effect_flag`] bits this skill's effects contribute — Java's
     /// `AbstractEffect.getEffectFlags()` summed over the effect list.
     pub fn effect_flags(&self) -> u32 {
@@ -1811,30 +1908,47 @@ impl Skill {
     }
 
     pub fn stat_modifier_effects(&self) -> Vec<StatModifierEffect> {
+        let one = |stat, amount| StatModifierEffect {
+            stat,
+            mode: StatModifierType::Diff,
+            amount,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        };
         self.effects
             .iter()
-            .filter_map(|e| match e {
-                SkillEffect::StatModifier(m) => Some(*m),
+            .flat_map(|e| match e {
+                SkillEffect::StatModifier(m) => vec![*m],
+                // `VampiricAttack.pump` grants **two** values, which is why this
+                // is a `flat_map`: the absorb percentage (Java stores
+                // `amount / 100`) and the `amount · chance` term the chance
+                // finalizer divides back out.
+                SkillEffect::VampiricAttack { amount, chance } => vec![
+                    one(Stat::AbsorbDamagePercent, amount / 100.0),
+                    one(Stat::VampiricSum, amount * chance),
+                ],
                 // `ReflectSkill.pump` is `mergeAdd(stat, amount)` — an ordinary
                 // additive stat contribution that happens to have its own
                 // handler class in Java rather than being an
                 // `AbstractStatEffect`. Expressed here as the equivalent
                 // `StatModifierEffect` so it rides the existing buff/passive
                 // pipeline instead of needing its own plumbing.
-                SkillEffect::ReflectSkill { magic, amount } => Some(StatModifierEffect {
-                    stat: if *magic {
+                // `DamageShield`/`VampiricAttack` are the same shape: Java
+                // handlers that only `pump` additive stats.
+                SkillEffect::DamageShield { amount } => {
+                    vec![one(Stat::ReflectDamagePercent, *amount)]
+                }
+                SkillEffect::ReflectSkill { magic, amount } => vec![one(
+                    if *magic {
                         Stat::ReflectSkillMagic
                     } else {
                         Stat::ReflectSkillPhysic
                     },
-                    mode: StatModifierType::Diff,
-                    amount: *amount,
-                    armor_condition: 0,
-                    weapon_condition: 0,
-                    qualifier: None,
-                    two_handed: false,
-                }),
-                _ => None,
+                    *amount,
+                )],
+                _ => Vec::new(),
             })
             .collect()
     }

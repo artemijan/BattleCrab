@@ -5,10 +5,11 @@
 //! HTML windows as Java (`charinfo`/`charlist`/`charfind`/`charedit.htm`), with
 //! stats not yet computed in the port defaulted. `//fullfood` is wired as a
 //! pet-blocked stub (see [`admin_fullfood`]); the other pet/summon subcommands
-//! (`//summon_info`, `//show_pet_inv`, `//summon_setlvl`, `//unsummon`), the
-//! IP/dualbox tools (`//find_ip`, `//find_dualbox`, `//tracert` — no per-client
-//! IP is tracked), `//setparam`/`//unsetparam` (no fixed-stat API) and
-//! `//setnoble`/`//rec` (fields not modelled) stay on the not-implemented path.
+//! (`//summon_info`, `//show_pet_inv`, `//summon_setlvl`, `//unsummon`),
+//! `//setparam`/`//unsetparam` (no fixed-stat API) and `//setnoble`/`//rec`
+//! (fields not modelled) stay on the not-implemented path. The IP/dualbox tools
+//! (`//find_ip`, `//find_dualbox`, `//tracert`) live in [`super::moderation`]
+//! since G31.
 
 use crate::model::Player;
 use crate::model::components::{
@@ -132,14 +133,48 @@ pub(super) fn admin_character_info(
     } else {
         p.clan_id.to_string()
     };
-    // Fill `charinfo.htm`. Stats not computed in the port yet (regen/load/hwid/
+    // Java `gatherCharacterInfo` reads the IP/HWID off the target's `GameClient`
+    // and falls back to "N/A"/"Unknown" when there is none (client null or
+    // detached), telling the GM which case it was. An offline trader is the
+    // port's detached client — its session is gone but the `Player` stays.
+    let (ip, hwid) = match super::super::helpers::client_for_player(world, target) {
+        Some(cid) => (
+            world
+                .clients
+                .get(&cid)
+                .map(|cs| cs.addr().ip().to_string())
+                .unwrap_or_else(|| "N/A".into()),
+            world
+                .hwids
+                .get(&cid)
+                .map(|h| h.mac_address.clone())
+                .unwrap_or_else(|| "Unknown".into()),
+        ),
+        None => {
+            let detached = super::super::offline_trade::is_offline_trader(world, target);
+            send_message(
+                world,
+                client_id,
+                if detached {
+                    "Client is detached."
+                } else {
+                    "Client is null."
+                },
+            );
+            ("N/A".to_string(), "Unknown".to_string())
+        }
+    };
+    // Fill `charinfo.htm`. Stats not computed in the port yet (regen/load/
     // ai/instance) default to `0`/`N/A`; class is the numeric id (no client-code
     // table ported).
+    // TODO(G33): `%protocol%` — the client's protocol version lives on the
+    // connection-side `GameClient`, not in the game loop, so Java's
+    // `client.getProtocolVersion()` has nothing to read here yet.
     let r: Vec<(&str, String)> = vec![
         ("name", p.name.clone()),
         ("account", p.account.clone()),
-        ("ip", "N/A".into()),
-        ("hwid", "N/A".into()),
+        ("ip", ip),
+        ("hwid", hwid),
         ("protocol", "0".into()),
         ("level", p.level.to_string()),
         ("class", p.class_id.to_string()),

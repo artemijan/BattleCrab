@@ -69,14 +69,30 @@ pub fn calc_magic_dam(
 ///        - getAbnormalResist(...)) * calcAttributeBonus(...) * calcGeneralTraitBonus(...));
 /// ```
 ///
-/// The attribute and trait bonuses are 1.0 and the abnormal resist 0 for every
-/// actor this port models, leaving `magicLevel + chance - targetLevel` — so a
-/// target far above the skill's level shrugs it off, and the threshold can go
-/// negative (never lands) or above 100 (always lands), exactly as Java's
-/// unclamped comparison does. Java's `Double.isNaN(baseChance)` branch is
-/// unreachable here: the parser defaults a missing `<chance>` to 100.
-pub fn calc_probability(magic_level: i32, base_chance: i32, target_level: i32, roll: i32) -> bool {
-    roll < (magic_level + base_chance - target_level)
+/// The level term is the heart of it: a target far above the skill's level
+/// shrugs it off, and the threshold is **unclamped**, so it can go negative
+/// (never lands) or above 100 (always lands) exactly as Java's comparison does.
+///
+/// `attribute_mod` and `trait_mod` are `calcAttributeBonus` and
+/// `calcGeneralTraitBonus(…, ignoreResistance = false)`. Both used to be 1.0
+/// for every actor this port modelled, and this function said so — that stopped
+/// being true when the attribute and trait tables landed, so they are passed in
+/// now rather than assumed.
+///
+/// `getAbnormalResist(basicProperty, target)` stays 0: `BasicPropertyResist` is
+/// granted by no skill on this dist (see `calc_effect_land_rate`'s note), so it
+/// can never leave its identity. Java's `Double.isNaN(baseChance)` branch is
+/// unreachable here — the parser defaults a missing `<chance>` to 100.
+pub fn calc_probability(
+    magic_level: i32,
+    base_chance: i32,
+    target_level: i32,
+    attribute_mod: f64,
+    trait_mod: f64,
+    roll: i32,
+) -> bool {
+    let threshold = (magic_level + base_chance - target_level) as f64 * attribute_mod * trait_mod;
+    (roll as f64) < threshold
 }
 
 /// `Formulas.calcManaDam` — the MP-drain damage formula, which is *not* the
@@ -686,14 +702,23 @@ pub fn calc_physical_skill_crit(critical_chance: f64, str_bonus: f64, roll: i32)
 /// `handlers/effecthandlers/PhysicalAttack.java` `instant()`, melee/shotless
 /// narrowing — the same dropped-terms rationale as `calc_auto_attack_damage`
 /// (soulshots handled via `ss`; trait/weakness/attribute/pvp-pve mods 1.0,
-/// `SKILL_POWER_ADD` 0, `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0). The
-/// ranged branch (`weaponMod` 70 with the `+pAtk+power` bonus) is deferred with
-/// bows (G20); this uses the melee `weaponMod` 77. Shield defence is folded into
-/// `p_def` by the caller (perfect block → caller passes damage-1 path).
+/// `SKILL_POWER_ADD` 0, `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0).
+/// Shield defence is folded into `p_def` by the caller (a perfect block never
+/// reaches here — the caller shortcuts to 1 damage).
 ///
-/// `damage = 77·((pAtk·pAtkMod)·levelMod + power) / (pDef·pDefMod) · ssMod ·
-/// critMod · randomMod`, where `ssMod = ss ? 2 : 1`, `critMod` = `calcCritDamage`'s
-/// physical-skill value (2 with default crit-damage stats).
+/// `ranged` picks Java's second formula. A bow/crossbow uses **`weaponMod` 70**
+/// *and* adds a second `pAtk + power` term inside the bracket, which is why an
+/// archer's skill is not simply `70/77` of a swordsman's:
+///
+/// - melee:  `77·((pAtk·pAtkMod)·levelMod + power) / pDef`
+/// - ranged: `70·((pAtk·pAtkMod)·levelMod + power + pAtk + power) / pDef`
+///
+/// …then `· ssMod · critMod · randomMod`, where `ssMod = ss ? 2 : 1` and
+/// `critMod` is `calcCritDamage`'s physical-skill value (2 with default
+/// crit-damage stats).
+///
+/// **Java's `rangedBonus` reads the raw `attack`, not `attack · levelMod`** —
+/// the level modifier applies only to the first term.
 #[allow(clippy::too_many_arguments)]
 pub fn calc_physical_skill_damage(
     p_atk: f64,
@@ -706,13 +731,15 @@ pub fn calc_physical_skill_damage(
     crit: bool,
     crit_mul: f64,
     ss: bool,
+    ranged: bool,
 ) -> f64 {
     let attack = p_atk * p_atk_mod;
     let defence = (p_def * p_def_mod).max(1.0);
-    let weapon_mod = 77.0;
+    let weapon_mod = if ranged { 70.0 } else { 77.0 };
+    let ranged_bonus = if ranged { attack + power } else { 0.0 };
     let ss_mod = if ss { 2.0 } else { 1.0 };
     let crit_mod = if crit { crit_mul } else { 1.0 };
-    let base_mod = (weapon_mod * ((attack * level_mod) + power)) / defence;
+    let base_mod = (weapon_mod * ((attack * level_mod) + power + ranged_bonus)) / defence;
     (base_mod * ss_mod * crit_mod * random_mul).max(0.0)
 }
 
@@ -1229,32 +1256,60 @@ mod tests {
     #[test]
     fn physical_skill_damage_matches_java() {
         let lm = level_mod(40);
-        let base =
-            calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false);
+        let base = calc_physical_skill_damage(
+            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, false,
+        );
         assert!((base - (77.0 * ((100.0 * 1.29) + 50.0) / 60.0)).abs() < 1e-9);
         assert!(
-            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false)
-                - base * 2.0)
+            (calc_physical_skill_damage(
+                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, true, 2.0, false, false
+            ) - base * 2.0)
                 .abs()
                 < 1e-9
         );
         assert!(
-            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true)
-                - base * 2.0)
+            (calc_physical_skill_damage(
+                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, true, false
+            ) - base * 2.0)
                 .abs()
                 < 1e-9
         );
         assert!(
-            (calc_physical_skill_damage(100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false)
-                - base * 1.1)
+            (calc_physical_skill_damage(
+                100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.1, false, 2.0, false, false
+            ) - base * 1.1)
                 .abs()
                 < 1e-9
         );
         // pAtkMod/pDefMod scale attack and defence; defence floors at 1.
         assert!(
-            calc_physical_skill_damage(100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false)
-                .is_finite()
+            calc_physical_skill_damage(
+                100.0, 1.0, 0.0, 0.0, 50.0, lm, 1.0, false, 2.0, false, false
+            )
+            .is_finite()
         );
+    }
+
+    /// The **ranged** branch is not `70/77` of the melee one: it also adds a
+    /// second `pAtk + power` inside the bracket, and that bonus reads the raw
+    /// `pAtk` — the level modifier applies only to the first term.
+    /// `70·((100·1.29) + 50 + 100 + 50) / 60`.
+    #[test]
+    fn ranged_physical_skill_damage_adds_its_bonus_term() {
+        let lm = level_mod(40);
+        let melee = calc_physical_skill_damage(
+            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, false,
+        );
+        let ranged = calc_physical_skill_damage(
+            100.0, 1.0, 60.0, 1.0, 50.0, lm, 1.0, false, 2.0, false, true,
+        );
+        assert!((ranged - (70.0 * ((100.0 * 1.29) + 50.0 + 100.0 + 50.0) / 60.0)).abs() < 1e-9);
+        assert!(
+            ranged > melee,
+            "the bonus term outweighs the smaller weaponMod: {ranged} vs {melee}"
+        );
+        // Not simply the weaponMod ratio.
+        assert!((ranged - melee * 70.0 / 77.0).abs() > 1.0);
     }
 
     /// Physical skill crit: `critChance · strBonus` clamped [5, 90] vs Rnd(100).

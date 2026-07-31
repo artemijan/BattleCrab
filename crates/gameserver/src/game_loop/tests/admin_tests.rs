@@ -497,6 +497,16 @@ fn admin_editchar_info_commands_use_html() {
         !info.contains("%name%") && !info.contains("%level%"),
         "charinfo tokens replaced"
     );
+    // Java `gatherCharacterInfo` shows the target's live client IP (the fixture
+    // connects everyone from 127.0.0.1) — the port used to hardcode "N/A".
+    assert!(
+        info.contains("127.0.0.1"),
+        "charinfo shows the client IP, got: {info}"
+    );
+    assert!(
+        info.contains("admin_find_ip 127.0.0.1"),
+        "the IP is a working find_ip link"
+    );
 }
 
 /// `//grandboss` opens the boss menu; `//grandboss <id>` shows one boss's live

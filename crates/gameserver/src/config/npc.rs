@@ -34,6 +34,12 @@ pub struct NpcConfig {
     /// `ShowNpcAggression` — append `[A]` (aggressive) / `[G]` (calls clan
     /// help) to every monster's title. True on this dist.
     pub show_npc_aggression: bool,
+    /// `EnableRandomEnchantEffect` — a custom rule giving every NPC's weapon a
+    /// random *visual* enchant level, i.e. the glow on a mob's blade (Java
+    /// `Npc` ctor: `Rnd.get(4, 21)`, rolled once per instance). Off in Java's
+    /// own default, **True on this dist**. When off the NPC shows its
+    /// template's `<equipment weaponEnchant>` instead.
+    pub enable_random_enchant_effect: bool,
     /// `AggroDistanceCheckEnabled` — the chase leash (`AttackableAI.thinkAttack`):
     /// a monster dragged farther than the range below from its spawn drops
     /// aggro and returns home. Disabled by default on this dist.
@@ -110,6 +116,7 @@ impl Default for NpcConfig {
             alt_game_view_npc: false,
             show_npc_level: false,
             show_npc_aggression: false,
+            enable_random_enchant_effect: false,
             aggro_distance_check_enabled: true,
             aggro_distance_check_range: 1500,
             aggro_distance_check_raids: false,
@@ -157,6 +164,8 @@ impl NpcConfig {
             alt_game_view_npc: p.get_bool("AltGameViewNpc", d.alt_game_view_npc),
             show_npc_level: p.get_bool("ShowNpcLevel", d.show_npc_level),
             show_npc_aggression: p.get_bool("ShowNpcAggression", d.show_npc_aggression),
+            enable_random_enchant_effect: p
+                .get_bool("EnableRandomEnchantEffect", d.enable_random_enchant_effect),
             aggro_distance_check_enabled: p
                 .get_bool("AggroDistanceCheckEnabled", d.aggro_distance_check_enabled),
             aggro_distance_check_range: p
@@ -221,4 +230,26 @@ fn parse_minion_respawn_overrides(raw: &str) -> std::collections::HashMap<i32, i
             Some((id.trim().parse().ok()?, secs.trim().parse().ok()?))
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// The real dist `NPC.ini`: the weapon-glow rule is ON here, unlike Java's
+    /// own default. Guards the key name — a typo would silently fall back to
+    /// the default and turn every mob's blade dull again.
+    #[test]
+    fn loads_dist_random_enchant_effect() {
+        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let cfg = NpcConfig::load_from(root);
+        assert!(
+            cfg.enable_random_enchant_effect,
+            "EnableRandomEnchantEffect=True on this dist"
+        );
+        // Sanity: the same parser run picks up its neighbours in the file, so
+        // a `true` above can't come from a mis-read file.
+        assert!(cfg.show_npc_level, "ShowNpcLevel=True");
+        assert!(cfg.show_npc_aggression, "ShowNpcAggression=True");
+    }
 }

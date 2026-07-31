@@ -143,6 +143,163 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G19 `TargetCancel`'s chance gate 2026-07-31.** Not a missing effect —
+`TargetCancel` (10 learnable carriers: Shield Bash/Slam, Stun Blast/Shot/Stomp,
+Earthquake, Aura Flash, Trick, Switch, Bluff) was ported — but its **gate was
+wrong in two ways**. Java rolls it through `Formulas.calcProbability`, so the
+victim's *level* counts; the port compared a flat percentage, and a level-100
+target was as easy to shake off its mark as a level-1 one. And
+`TargetCancel.calcSuccess` vetoes outright on `ABNORMAL_INVINCIBILITY` /
+`INVINCIBILITY_SPECIAL` / `INVINCIBILITY`, which was missing entirely.
+**A self-correction rides along:** `calc_probability` dropped Java's attribute
+and trait multipliers with the justification "both are 1.0 for every actor this
+port models". That was true when it was written and stopped being true when the
+attribute (G19) and trait (G20, today) tables landed — a claim invalidated by
+later work, with nothing to make it fail. Both are now real inputs, so a victim
+resisting the skill's element or trait is correspondingly harder to disarm.
+5 tests, 7 mechanisms sabotage-verified.
+
+**G24 mid-victory's tail 2026-07-31.** `Siege.midVictory` does far more than
+swap the deed, and the port stopped at the deed. Now also ported: the **new**
+attackers (the clans that were defending a second ago) are evicted from the
+castle; `removeDefenderFlags()` runs *after* the role reshuffle, so the base
+camp it tears down is the **captor's own** — you do not keep a siege HQ once the
+castle is yours; and the control/flame towers are removed and rebuilt with
+`_controlTowerCount = 0` in between ("each new siege midvictory CT are
+completely respawned"). That count reset is load-bearing: without it the
+respawn adds to a stale count and the guardian-tower resurrection message can
+never fire again. The 50 %-HP door respawn and the state-flag re-push were
+already there, so those two clauses of the old TODO were stale.
+**Verified not portable:** `Castle.removeUpgrade()` — castle upgrades (the
+door/trap tiers bought from the chamberlain) are not modelled at all, so there
+is nothing to strip; noted at the site. 1 test, 6 mechanisms sabotage-verified.
+
+**G24 siege resurrection 2026-07-31 (27 → 24).** A stale marker again, and it
+hid a real siege bug: `Siege.control_tower_count`'s doc said "no effect until
+the resurrection subsystem lands" — that subsystem landed in G19, and nothing
+had gone back. So `ConditionPlayerCanResurrect`'s **whole siege block was
+missing** and a Bishop could freely raise defenders mid-siege.
+Ported in full. **Every branch of Java's condition refuses** once a siege is in
+progress; the control-tower count and the attacker's flag count only pick which
+of three messages the caster reads (guardian-tower destroyed / no base camp /
+the generic battleground line). **Two things get through**: the Blessed Scroll
+of Resurrection (Battleground) skill **2393**, and — because the condition opens
+with `if (skill.getAffectRange() > 0) return true;`, carrying Java's own "Need
+skill rework for fix that properly" — *any* AoE resurrection, which on this dist
+means Mass Resurrection 1254. That shortcut is load-bearing, not decoration.
+Also corrected: the castle mass gatekeeper's comment had its timings inverted
+(it is **30 s normally, 8 minutes once the towers are down** — the real cost of
+losing them; the code was right, the comment was not). 4 tests, 8 mechanisms
+sabotage-verified.
+
+**G20 trait damage 2026-07-31 (9 → 7).** The *damage* consumers of the trait
+tables the G16 slice built, which until now only fed the **landing roll**:
+`calcWeaponTraitBonus`, `calcWeaknessBonus` and `calcAttackTraitBonus`, plus the
+attacker-side `AttackTrait` accumulator all three read. **Deflect Arrow now
+deflects arrows** (BOW 16-40 %), Provoke's POLE **−10** really does make pole
+hits land harder, and the Hunter/Slayer "Detect … Weakness" line (7 learnable)
+finally pays off against the race skills that make it reachable — `Undead`
+(4416) sits on **13 547** NPC templates carrying negative `*_WEAKNESS` defence
+traits.
+**The attack table's identity is 1.0, not 0** — the opposite of the defence
+table — because the pair is consumed as `attackTrait − defenceTrait`; and
+`hasAttackTrait` (membership) is a *different* question from the value, which
+the group-2 branch gates on separately. `calcGeneralTraitBonus` gained Java's
+`ignoreResistance` flag: the damage formulas pass **true** (a stun resistance
+does not soften a stun's *damage*), the landing roll passes false. Wired into
+the auto-attack, both magic-damage paths, `PhysicalAttack`, `EnergyAttack` and
+`calcBlowDamage` — the last four through one `skill_trait_mod` helper that keeps
+Java's `generalTraitMod == 0 ? 1` guard, which is what stops an invulnerable
+trait from zeroing *damage* as well as the roll. 12 tests, 14 mechanisms
+sabotage-verified.
+
+**G20 vampiric absorb + damage reflect 2026-07-31 (12 → 9).** The two on-hit
+reactions in Java's `Creature.doAttack`, both of which had been landing as
+icon-only markers: **Vampiric Rage healed nothing and Reflect Damage bounced
+nothing** (7 and 6 learnable carriers). Java `pump`s both as ordinary additive
+stats, so they now ride `stat_modifier_effects` — `VampiricAttack` grants a
+*pair* (`ABSORB_DAMAGE_PERCENT = amount/100` and the `amount · chance` term
+`VampiricChanceFinalizer` divides back out), `DamageShield` a single
+`REFLECT_DAMAGE_PERCENT`. A new `apply_attack_damage` layer sits above
+`apply_physical_damage`, which stays the raw `reduceCurrentHp` analog so a
+`DamageZone` tick neither feeds a vampire nor gets reflected.
+**Java's gates, all live:** a **bow drains nothing** ("do not absorb if weapon
+is ranged"); `VampiricAttackWorkWithSkills` is **False** here, so Vampiric Rage
+feeds off auto-attacks only; the absorb is capped by the victim's remaining HP;
+and the reflect is skipped on a DoT, on reflected damage itself, and — the one
+that is easy to miss — **on a killing blow** ("when killing blow is made, the
+target doesn't reflect"). The bounce is capped by the reflector's own defence,
+`pDef` or `mDef · 1.5` for a magic skill, and Java's `int` truncation there is
+load-bearing. 13 tests, 16 mechanisms sabotage-verified.
+
+**G20 shield block + ranged skill damage 2026-07-31 (14 → 12).** Two gaps that
+touched every shield user and every archer. **`calcShldUse` was ported for
+auto-attacks and mana drains but consulted by none of the three *skill* damage
+paths** — `PhysicalAttack`, `EnergyAttack` and `calcBlowDamage` all open on the
+same shield switch, so a shield did nothing at all against a skill. All three
+now go through one `defence_after_shield` helper: a normal block adds the
+shield's `sDef` to the divisor, a perfect block cuts the hit to a flat **1**
+(Java's `defence = -1` / `return 1`). `<ignoreShieldDefence>` is parsed (55
+skills, **14 learnable** — Triple Slash, Armor Crush, Hammer Crush, …) and skips
+the switch **and its two rolls**. Note the ordering: Java folds `pDefMod` in
+*before* the add, so the shield's own sDef is never scaled by it.
+**The ranged branch of the physical-skill formula** is the other half: a
+bow/crossbow uses `weaponMod` **70** *and* adds a second `pAtk + power` term
+inside the bracket, so an archer's skill hits **harder**, not `70/77` as hard —
+and that bonus reads the raw `pAtk`, with the level modifier applying only to
+the first term. 6 tests, 9 mechanisms sabotage-verified.
+
+**G16 CLOSED 2026-07-31 (6 → 0).** The residual four clusters, three of which
+turned out to be larger than their markers claimed.
+**Premium drops were entirely inert:** `PremiumRateDropChance/Amount` were
+parsed and read by *nobody*, so a premium killer's loot was identical to
+everyone else's — the marker only promised the missing *per-item* maps. Both
+halves are now applied in `roll_drops`, plus the spoil pair in
+`roll_spoil_drops`. Java's chain is `byId → herb → raid → flat` with the **herb
+and raid arms empty**, so premium buys nothing on a herb or a raid drop; and the
+per-item map **replaces** the flat rate rather than stacking, which is what
+pins this dist's jewels (6656-6662, 8191, 10170, 10314) to ×1 against a flat ×2.
+**`PremiumRateQuestXp/Sp`** now apply, before the server's `RateQuestReward*`.
+**The `hasEffectType(HATE)` marker was stale** — it claimed no HATE effect was
+modelled, which stopped being true when `DeleteHate`/`DeleteHateOfMe` landed in
+G19. So Bluff, Forget, Trick, Repose, Peace and Eva's Serenade were waking the
+very mob they had just made forget the caster. Java gates **only** the
+`EVT_ATTACKED` notify on it; the `-effectPoint` hate beside it is ungated, and
+Bluff really does carry `effectPoint -1`.
+**The magic-crit `DamOverTime` burst moved behind the land roll.** Java puts it
+in `onStart`, which `EffectList.add` only reaches once `calcEffectSuccess`
+passed — so a resisted poison deals nothing at all. The port had it in the
+instant pass, bursting for `power × 10` on a debuff that was about to be
+resisted. (Java's inline `// TODO: M.Crit can occur even if this skill is
+resisted` at that spot is aspirational, not shipped.) 12 tests, 17 mechanisms
+sabotage-verified. **No `TODO(G16)` markers remain.**
+
+**G16 PC-café (PA) points done 2026-07-31 (8 → 6).** The *store* was already
+there — `characters.pccafe_points`, the `//pccafepoints` GM command,
+`ExPCCafePointInfo` — but no way to **earn**. `PcCafePointsManager` is now
+ported as `game_loop::pc_cafe`, with all five Java call sites wired: `run` at
+enter-world, on a community-board premium purchase and on `//premium_add`;
+`givePcCafePoint` on a solo kill, on each party member's share, and on a quest
+XP reward. The two modes are **mutually exclusive** — `givePcCafePoint`'s first
+guard is `PC_CAFE_RETAIL_LIKE`, which this dist sets, so it is the 5-minute
+timer or nothing.
+**Two upstream bugs are reproduced rather than fixed**, because they are what a
+player on the reference server actually sees: `givePcCafePoint` sends the
+*double-points* string on **both** branches of its if/else (its sibling
+`giveRetailPcCafePont` gets it right), and `giveRetailPcCafePont`'s max check
+compares the **award** to the ceiling instead of the player's balance, so a
+capped player is told they earned points while the clamp hands them zero. Both
+are pinned by tests that say so.
+**One divergence is deliberate and the dist data decides it:**
+`Config.PC_CAFE_REWARD_TIME` is declared in Java and **never assigned**, so it
+is 0 and `scheduleAtFixedRate(…, 0, 0)` throws — the reference server's
+retail-like timer never starts at all. `PremiumSystem.ini` declares
+`PcCafeRewardTime = 300000`, and the dist is the specification, so the port
+reads it. (Relatedly: `Custom/PcCafe.ini` exists on this dist and **no Java
+constant names it** — its `PcCafeEnabled = True` is inert, and the
+`//pccafepoints` ceiling that used to be inlined from it now comes from
+`PremiumSystem.ini`.) 17 tests, 20 mechanisms sabotage-verified.
+
 **G16 MP-cost / reuse rates done 2026-07-31 (11 → 8).** The next-largest G16
 cluster after trait resistance: `MagicMpCost` (277 skills, **18 learnable**) and
 `Reuse` (126 / **8**), both of which had been landing as icon-only markers —

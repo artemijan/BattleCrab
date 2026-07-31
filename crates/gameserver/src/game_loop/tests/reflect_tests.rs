@@ -239,8 +239,8 @@ fn riposte_stance_keeps_its_other_effects() {
         riposte
             .effects
             .iter()
-            .any(|e| matches!(e, SkillEffect::DamageShield)),
-        "its DamageShield marker survives"
+            .any(|e| matches!(e, SkillEffect::DamageShield { .. })),
+        "its DamageShield grant survives"
     );
     assert!(
         riposte

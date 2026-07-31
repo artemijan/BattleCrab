@@ -319,6 +319,17 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
     /// "Resurrection has already been proposed."
     pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
+    /// "$s1 cannot be used due to unsuitable terms."
+    pub const S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS: i16 = 113;
+    /// "Reject resurrection."
+    pub const REJECT_RESURRECTION: i16 = 356;
+    /// "If a base camp does not exist, resurrection is not possible."
+    pub const IF_A_BASE_CAMP_DOES_NOT_EXIST_RESURRECTION_IS_NOT_POSSIBLE: i16 = 716;
+    /// "The guardian tower has been destroyed and resurrection is not possible."
+    pub const THE_GUARDIAN_TOWER_HAS_BEEN_DESTROYED_AND_RESURRECTION_IS_NOT_POSSIBLE: i16 = 717;
+    /// "It is not possible to resurrect in battlegrounds where a siege war is
+    /// taking place."
+    pub const IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS: i16 = 1053;
     /// "$s1 MP has been restored." — a self-cast recharge.
     pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1067;
     /// "$s2 MP has been restored by $c1." — someone else recharged you.
@@ -675,6 +686,12 @@ pub mod sm_ids {
     pub const YOUR_SELECTED_TARGET_CAN_NO_LONGER_RECEIVE_A_RECOMMENDATION: i16 = 1188;
     pub const YOU_ARE_OUT_OF_RECOMMENDATIONS_TRY_AGAIN_LATER: i16 = 3206;
     pub const YOU_OBTAINED_S1_RECOMMENDATION_S: i16 = 3207;
+    /// "You earned $s1 PA Point(s)."
+    pub const YOU_EARNED_S1_PA_POINT_S: i16 = 1707;
+    /// "Double points! You earned $s1 PA Point(s)."
+    pub const DOUBLE_POINTS_YOU_EARNED_S1_PA_POINT_S: i16 = 1708;
+    /// "You have earned the maximum number of PA Points."
+    pub const YOU_HAVE_EARNED_THE_MAXIMUM_NUMBER_OF_PA_POINTS: i16 = 2389;
     /// "Your skill was deactivated due to lack of MP." — a toggle's MP upkeep
     /// tick failing (`ManaDamOverTime`).
     pub const YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP: i16 = 140;

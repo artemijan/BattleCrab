@@ -71,6 +71,7 @@ mod orfen;
 mod party;
 mod party_room;
 mod passive_skills;
+pub(crate) mod pc_cafe;
 pub(crate) mod pet_evolve;
 pub(crate) mod petition;
 pub(crate) mod position;
@@ -736,6 +737,12 @@ fn apply_due_tasks(world: &mut World) {
                 seq,
             } => {
                 reco::handle_reco_give(world, player_object_id, seq);
+            }
+            ScheduledTask::PcCafeReward {
+                player_object_id,
+                seq,
+            } => {
+                pc_cafe::handle_reward(world, player_object_id, seq);
             }
             ScheduledTask::DailyReset => {
                 daily_tasks::handle_daily_reset(world);

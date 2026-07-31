@@ -82,9 +82,11 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
     // registered clan learns which side they are on.
     update_player_siege_state_flags(world, castle_id, false);
 
-    // TODO(G24): the control-tower destruction mechanic (destroying towers
-    // weakens the defenders' respawn). `Castle.getZone().setActive` is modelled
-    // by the in-progress flag the siege-zone PvP check reads.
+    // The control-tower consequences are both live now: the guardian-tower
+    // resurrection refusal (`death::siege_resurrect_refusal`) and the mass
+    // gatekeeper's 8-minute evacuation delay once the towers are gone.
+    // `Castle.getZone().setActive` is modelled by the in-progress flag the
+    // siege-zone PvP check reads.
 }
 
 /// Port of `Siege.updatePlayerSiegeStateFlags(clear)`: stamp (or wipe) the
@@ -272,8 +274,9 @@ fn record_castle_taken_for_nobles(world: &mut World, clan_id: i32, castle_id: i3
 /// 35063) is a permanent castle spawn, so an attacker touching it during an
 /// active siege calls [`try_capture_artifact`] → here.
 ///
-/// TODO(G24): teleport-attackers-to-flag, the weakened-door respawn, tower
-/// removal, and castle crests.
+/// TODO(G24): castle crests, and `Castle.removeUpgrade()` — castle upgrades
+/// (door/trap tiers bought from the chamberlain) are not modelled at all, so
+/// there is nothing to strip.
 pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if !world.sieges.get(&castle_id).is_some_and(|s| s.in_progress) {
         return;
@@ -346,11 +349,163 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
         c.first_mid_victory = true;
     }
+    // `teleportPlayer(Attacker, SIEGEFLAG)` — the *new* attackers (the clans
+    // that were defending a moment ago) are thrown out of the castle. Java
+    // aims them at their siege flag, which an ex-defender has never had, so
+    // `getTeleToLocation` falls through to the town respawn either way.
+    teleport_side_out(world, castle_id, SiegeClanType::Attacker);
+
+    // `removeDefenderFlags()` — run *after* the reshuffle, so it strips the
+    // **captor's** own base camp: you do not keep a siege HQ once the castle is
+    // yours.
+    remove_flags_of_defenders(world, castle_id);
+
     // `_castle.spawnDoor(true)` — respawn the (now the captor's) gates at 50% HP.
     spawn_castle_doors(world, castle_id, true);
+
+    // `removeTowers()` then `spawnControlTower()`/`spawnFlameTower()` with
+    // `_controlTowerCount = 0` in between — "each new siege midvictory CT are
+    // completely respawned". The count reset matters: without it the respawn
+    // would add to a stale count and the guardian-tower resurrection message
+    // would never fire again.
+    respawn_siege_towers(world, castle_id);
+
     // `updatePlayerSiegeStateFlags(false)` — every side just changed, so every
     // member's icon and attackability has to be re-pushed.
     update_player_siege_state_flags(world, castle_id, false);
+}
+
+/// `removeDefenderFlags()` — drop every HQ flag belonging to a clan currently
+/// registered as a defender (owner included), despawning the flag NPC with it.
+fn remove_flags_of_defenders(world: &mut World, castle_id: i32) {
+    let doomed: Vec<(i32, i32)> = match world.sieges.get(&castle_id) {
+        Some(siege) => siege
+            .flags
+            .iter()
+            .filter(|(clan_id, _)| siege.is_defender(*clan_id))
+            .copied()
+            .collect(),
+        None => Vec::new(),
+    };
+    for (clan_id, flag_oid) in doomed {
+        if let Some(region) = world
+            .objects
+            .get_component::<RegionCell>(&flag_oid)
+            .map(|r| r.0)
+        {
+            super::death::despawn_npc(world, flag_oid, region);
+        }
+        if let Some(siege) = world.sieges.get_mut(&castle_id) {
+            siege
+                .flags
+                .retain(|(owner, oid)| !(*owner == clan_id && *oid == flag_oid));
+        }
+    }
+}
+
+/// `removeTowers()` + `spawnControlTower()` / `spawnFlameTower()`: tear down the
+/// castle's control and flame towers and put a fresh set up for the new owner.
+///
+/// Only the *towers* are recycled — the stationed siege guards are left alone,
+/// matching Java (`midVictory` never touches `spawnSiegeGuard`).
+fn respawn_siege_towers(world: &mut World, castle_id: i32) {
+    let towers: Vec<i32> = world
+        .sieges
+        .get(&castle_id)
+        .map(|s| {
+            s.spawned_npcs
+                .iter()
+                .copied()
+                .filter(|&oid| is_siege_tower(world, oid))
+                .collect()
+        })
+        .unwrap_or_default();
+    for oid in towers {
+        if let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) {
+            super::death::despawn_npc(world, oid, region);
+        }
+        if let Some(siege) = world.sieges.get_mut(&castle_id) {
+            siege.spawned_npcs.retain(|&o| o != oid);
+        }
+    }
+    if let Some(siege) = world.sieges.get_mut(&castle_id) {
+        siege.control_tower_count = 0;
+    }
+    let spawns = world
+        .data
+        .siege_towers
+        .get(&castle_id)
+        .cloned()
+        .unwrap_or_default();
+    spawn_siege_npcs(world, castle_id, &spawns);
+}
+
+/// A control or flame tower, by template type.
+fn is_siege_tower(world: &World, npc_oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| matches!(t.type_name.as_str(), "ControlTower" | "FlameTower"))
+}
+
+/// `teleportPlayer(<side>, …)` — evict every online member of the clans
+/// registered on one side of the siege.
+fn teleport_side_out(world: &mut World, castle_id: i32, side: SiegeClanType) {
+    let clans: Vec<i32> = match world.sieges.get(&castle_id) {
+        Some(siege) => siege
+            .clans
+            .iter()
+            .filter(|c| c.kind == side)
+            .map(|c| c.clan_id)
+            .collect(),
+        None => Vec::new(),
+    };
+    if clans.is_empty() {
+        return;
+    }
+    let targets: Vec<i32> = world
+        .clients
+        .values()
+        .filter_map(|cs| match cs {
+            ClientSession::InGame(s) => Some(s.player_object_id()),
+            _ => None,
+        })
+        .filter(|&oid| {
+            world
+                .objects
+                .get_component::<Player>(&oid)
+                .is_some_and(|p| clans.contains(&p.clan_id) && !p.is_gm(&world.data))
+        })
+        .collect();
+    for oid in targets {
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
+        let race = world
+            .objects
+            .get_component::<Player>(&oid)
+            .and_then(|p| crate::enums::Race::from_ordinal(p.race))
+            .unwrap_or(crate::enums::Race::Human);
+        if let Some((x, y, z)) = world
+            .data
+            .map_region
+            .town_respawn(pos.x, pos.y, pos.z, race, 0)
+        {
+            super::death::teleport_player(world, oid, x, y, z);
+        }
+    }
+}
+
+#[cfg(test)]
+pub(crate) fn spawn_towers_for_test(world: &mut World, castle_id: i32) {
+    let towers = world
+        .data
+        .siege_towers
+        .get(&castle_id)
+        .cloned()
+        .unwrap_or_default();
+    spawn_siege_npcs(world, castle_id, &towers);
 }
 
 /// Spawn a set of siege NPCs (the stationed guards / control + flame towers)
@@ -417,10 +572,13 @@ pub(crate) fn killed_control_tower(world: &mut World, npc_oid: i32) {
     };
     if let Some(siege) = world.sieges.get_mut(&castle_id) {
         siege.control_tower_count = (siege.control_tower_count - 1).max(0);
-        // The count has no gameplay outcome in Interlude Classic (see the field
-        // doc on `Siege.control_tower_count`): a normal resurrection is blocked
-        // in a siege regardless, and the count only selects the rejection
-        // message. TODO(G24): honor that message once resurrection is ported.
+        // The count picks the *rejection message* a normal resurrection gets
+        // during a siege — every branch of `ConditionPlayerCanResurrect`
+        // refuses, so the count never decides whether the revive happens, only
+        // what the caster is told (`death::siege_resurrect_refusal`). It does
+        // **not** gate the restart-point respawn; the tower consequence that
+        // does bite is the mass gatekeeper's 8-minute delay
+        // (`scripts::castle_services`).
     }
 }
 

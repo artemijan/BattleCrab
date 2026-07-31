@@ -571,6 +571,14 @@ pub enum ScheduledTask {
         player_object_id: i32,
         seq: u64,
     },
+    /// `PcCafePointsManager.run`'s fixed-rate award (Java's per-player
+    /// `scheduleAtFixedRate`): pay the flat retail-like PA points every
+    /// `PcCafeRewardTime`. Reschedules itself; `seq` must match the player's
+    /// `pc_cafe_seq` or the firing is stale and no-ops.
+    PcCafeReward {
+        player_object_id: i32,
+        seq: u64,
+    },
     /// Java `DailyTaskManager.onReset`, fired daily at 06:30: the recommends
     /// reset + the vitality daily/weekly refill (G33). Reschedules itself 24 h
     /// out.

@@ -1790,6 +1790,16 @@ fn matchup_effects(
     attackable.then(|| skill.pve_effects.clone())
 }
 
+#[cfg(test)]
+pub(crate) fn apply_bad_skill_aggro_for_test(
+    world: &mut World,
+    player_object_id: i32,
+    target_oid: i32,
+    skill: &Skill,
+) {
+    apply_cast_consequences(world, player_object_id, target_oid, skill);
+}
+
 fn apply_cast_consequences(
     world: &mut World,
     player_object_id: i32,
@@ -1822,10 +1832,15 @@ fn apply_cast_consequences(
             // primitive (hate += 1 + switch to the attack intention); the explicit
             // `-effectPoint` hate is added on top, matching `addDamageHate`
             // (`-effect_point` is positive since a bad skill has `effect_point < 0`).
-            // TODO(G16): Java skips the wake when the skill `hasEffectType(HATE)`
-            // (aggro-reduction skills manage their own hate); no HATE effect is
-            // modeled yet, so every bad skill wakes.
-            crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, player_object_id);
+            // Java gates *only this notify* on `!skill.hasEffectType(HATE)`:
+            // an aggro-shedding skill (Bluff, Forget, Trick, Repose, Peace,
+            // Eva's Serenade) must not wake the very mob it just made forget
+            // you. The `-effectPoint` hate below is **not** gated, and Bluff
+            // (358) really does carry `effectPoint -1`, so it still adds 1
+            // hate — it is the AI wake, not the hate, that Java suppresses.
+            if !skill.has_hate_effect() {
+                crate::game_loop::combat::npc_wake_on_attacked(world, target_oid, player_object_id);
+            }
             let hate = (-skill.effect_point) as f64;
             if hate != 0.0
                 && let Some(aggro) = world

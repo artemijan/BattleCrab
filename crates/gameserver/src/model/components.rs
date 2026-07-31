@@ -901,6 +901,20 @@ pub struct DefenceTraits {
     pub invulnerable: std::collections::HashSet<crate::model::skill::TraitType>,
 }
 
+/// Java `CreatureStat._attackTraitValues` / `_attackTraits` — the attacker-side
+/// twin of [`DefenceTraits`], merged by the `AttackTrait` effect ("Detect
+/// &lt;Category&gt; Weakness" 75/80/87/88/104, Eye of Hunter/Slayer 359/360).
+///
+/// **The table's identity is 1.0, not 0** (`Arrays.fill(_attackTraitValues, 1)`)
+/// — the opposite of the defence table — because the pair is consumed as
+/// `attackTrait − defenceTrait`. Presence in the map is Java's
+/// `hasAttackTrait`, which several formulas gate on separately from the value.
+#[derive(Component, Debug, Clone, Default)]
+pub struct AttackTraits {
+    /// trait → `1.0 + Σ(amount / 100)`.
+    pub values: std::collections::HashMap<crate::model::skill::TraitType, f64>,
+}
+
 /// Java `CreatureStat._mpConsumeStat` / `_reuseStat` — the per-`magicType`
 /// **multiplicative** rates that `MagicMpCost` and `Reuse` buffs merge in.
 ///

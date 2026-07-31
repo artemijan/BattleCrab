@@ -12,11 +12,17 @@ use crate::world::World;
 
 use super::{menu::show_admin_html_replace, send_message, target_player};
 
-/// `Config.PC_CAFE_MAX_POINTS` — the stored-value ceiling. Sourced from this
-/// dist's `config/Custom/PcCafe.ini` (`MaxPcCafePoints = 200000`, the Java
-/// default); a dedicated PcCafe config loader is not ported, so the authoritative
-/// dist value is inlined here (matching the "dist data is the spec" rule).
-const PC_CAFE_MAX_POINTS: i32 = 200_000;
+/// `Config.PC_CAFE_MAX_POINTS` — the stored-value ceiling, read from
+/// `config/Custom/PremiumSystem.ini` alongside the rest of the PC-café block.
+///
+/// It used to be inlined here as 200 000 with a comment crediting
+/// `config/Custom/PcCafe.ini`. That file exists on this dist but **no Java
+/// constant names it**, so nothing reads it — `CUSTOM_PREMIUM_SYSTEM_CONFIG_FILE`
+/// is the only PC-café config path. Both files happen to say 200 000, so the
+/// value was right and the provenance was not.
+fn max_points(world: &World) -> i32 {
+    world.cfg.premium.pc_cafe_max_points
+}
 
 /// `AdminPcCafePoints` — the `//pccafepoints [action] [value] [range]` command
 /// and the `pccafe.htm` menu it renders. `action` ∈ `set`/`increase`/`decrease`
@@ -37,12 +43,12 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
         let cur = points_of(world, target);
         match action {
             "set" => {
-                if value > PC_CAFE_MAX_POINTS {
+                if value > max_points(world) {
                     show_pccafe_menu(world, client_id, object_id);
                     send_message(
                         world,
                         client_id,
-                        &format!("You cannot set more than {PC_CAFE_MAX_POINTS} PC points!"),
+                        &format!("You cannot set more than {} PC points!", max_points(world)),
                     );
                     return;
                 }
@@ -61,7 +67,7 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                 send_pccafe_packet(world, target, value, value);
             }
             "increase" => {
-                if cur == PC_CAFE_MAX_POINTS {
+                if cur == max_points(world) {
                     show_pccafe_menu(world, client_id, object_id);
                     send_message(
                         world,
@@ -71,7 +77,7 @@ pub(super) fn admin_pccafepoints(world: &mut World, client_id: u32, object_id: i
                     return;
                 }
                 let new_count =
-                    (cur as i64 + value as i64).clamp(0, PC_CAFE_MAX_POINTS as i64) as i32;
+                    (cur as i64 + value as i64).clamp(0, max_points(world) as i64) as i32;
                 set_points(world, target, new_count);
                 send_player_message(
                     world,
@@ -162,7 +168,7 @@ fn reward_online_pccafe(world: &mut World, gm_oid: i32, value: i32, range: i32) 
         else {
             continue;
         };
-        let new_count = (cur as i64 + value as i64).clamp(0, PC_CAFE_MAX_POINTS as i64) as i32;
+        let new_count = (cur as i64 + value as i64).clamp(0, max_points(world) as i64) as i32;
         set_points(world, t, new_count);
         send_player_message(
             world,
@@ -380,8 +386,9 @@ fn points_of(world: &World, target: i32) -> i32 {
 
 /// Java `Player.setPcCafePoints` — store the value capped at the max.
 fn set_points(world: &mut World, target: i32, value: i32) {
+    let capped = value.min(max_points(world));
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
-        p.pccafe_points = value.min(PC_CAFE_MAX_POINTS);
+        p.pccafe_points = capped;
     }
 }
 

@@ -165,7 +165,8 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -212,6 +213,8 @@ pub(crate) fn apply_skill_effects(
                     *hp_percent,
                     *mp_percent,
                     *cp_percent,
+                    skill.id,
+                    skill.affect_range,
                 );
             }
             // `Summon.instant` — bring out a servitor. Java re-summons over any
@@ -243,7 +246,7 @@ pub(crate) fn apply_skill_effects(
             // Java's player-side gate lives behind the `CONFUSED` flag, which
             // is unreachable on this dist (see `effect_flag::CONFUSED`).
             SkillEffect::Confuse { chance } => {
-                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 let Some(victim) = random_bystander(world, target_oid, caster_oid, false) else { continue };
@@ -257,7 +260,7 @@ pub(crate) fn apply_skill_effects(
                 if target_oid == caster_oid || !crate::game_loop::combat::is_npc_oid(target_oid) {
                     continue;
                 }
-                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 // The exclusions are wider here than for `Confuse`: never the
@@ -374,7 +377,7 @@ pub(crate) fn apply_skill_effects(
                     }
                 broadcast_vitals(world, target_oid);
             }
-            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
+            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
                 // Java), not the once-per-cast magic roll above.
                 let (p_atk, level, str_bonus, random_dmg, caster_name) = {
@@ -388,22 +391,39 @@ pub(crate) fn apply_skill_effects(
                         .unwrap_or(1.0);
                     (p_atk, caster_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
                 };
-                let p_def = target_p_def(world, target_oid);
+                // Java folds `pDefMod` in *before* the shield add, so the
+                // shield's own sDef is never scaled by it.
+                let base_defence = target_p_def(world, target_oid) * *p_def_mod;
+                let defence = defence_after_shield(world, target_oid, base_defence, *ignore_shield_defence);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
                 let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
-                // `PhysicalAttack.instant`'s `attributeMod` term.
-                let damage = formulas::calc_physical_skill_damage(
-                    p_atk,
-                    *p_atk_mod,
-                    p_def,
-                    *p_def_mod,
-                    *power,
-                    formulas::level_mod(level),
-                    formulas::random_damage_multiplier(rand_roll),
-                    crit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                    ss,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                // A perfect block is a flat 1, whatever the rest would say.
+                let damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        // `weaponMod` is **70 with a `+pAtk+power` bonus term**
+                        // for a ranged weapon, 77 for melee — the difference
+                        // between an archer's skill and a swordsman's.
+                        let ranged = crate::game_loop::ranged::is_ranged(
+                            crate::game_loop::ranged::equipped_weapon_type(world, caster_oid)
+                                .unwrap_or_default(),
+                        );
+                        formulas::calc_physical_skill_damage(
+                            p_atk,
+                            *p_atk_mod,
+                            defence,
+                            1.0, // already folded into `defence` above
+                            *power,
+                            formulas::level_mod(level),
+                            formulas::random_damage_multiplier(rand_roll),
+                            crit,
+                            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
+                            ss,
+                            ranged,
+                        ) * attribute_mod(world, caster_oid, target_oid, skill)
+                            * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                    }
+                };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
@@ -464,22 +484,43 @@ pub(crate) fn apply_skill_effects(
                     continue;
                 }
 
-                let p_def = target_p_def(world, target_oid);
-                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
-                let mut damage = formulas::calc_blow_damage(
-                    p_atk,
-                    *power,
-                    p_def,
-                    position,
-                    formulas::random_damage_multiplier(rand_roll),
-                    ss,
+                // `calcBlowDamage` opens on the shield switch: a normal block
+                // adds the shield's sDef, a perfect one `return 1` outright.
+                // Blows carry no `ignoreShieldDefence` — the parameter does not
+                // exist on this formula, so the roll always happens.
+                let defence = defence_after_shield(
+                    world,
+                    target_oid,
+                    target_p_def(world, target_oid),
+                    false,
                 );
-                // `calcBlowDamage`'s `attributeMod` term.
-                damage *= attribute_mod(world, caster_oid, target_oid, skill);
+                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
+                let mut damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        let mut d = formulas::calc_blow_damage(
+                            p_atk,
+                            *power,
+                            defence,
+                            position,
+                            formulas::random_damage_multiplier(rand_roll),
+                            ss,
+                        );
+                        // `calcBlowDamage`'s `attributeMod` + trait terms.
+                        d *= attribute_mod(world, caster_oid, target_oid, skill);
+                        d *= skill_trait_mod(world, caster_oid, target_oid, skill, true);
+                        d
+                    }
+                };
                 // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
-                // (`critical_chance == None`) doesn't.
+                // (`critical_chance == None`) doesn't. Java rolls this *after*
+                // the perfect-block shortcut, but on that path the 1 is
+                // returned before the crit is ever consulted — so the roll is
+                // kept here (it stays in the RNG stream either way) and simply
+                // has nothing to double.
                 if let Some(cc) = critical_chance
-                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100)) {
+                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100))
+                    && defence.is_some() {
                         damage *= 2.0;
                     }
                 // Java passes `critical = true` to `doAttack` for every blow, so
@@ -588,7 +629,8 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
                     magic_shots_bonus,
                     failure,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false);
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -807,7 +849,7 @@ pub(crate) fn apply_skill_effects(
                 }
                 crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
             }
-            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume } => {
+            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => {
                 // `charge = min(chargeConsume, player.charges)` — pre-clamped,
                 // so Java's `decreaseCharges` (which only fails when asked to
                 // remove more than the player has) never actually refuses here.
@@ -830,25 +872,35 @@ pub(crate) fn apply_skill_effects(
                         .unwrap_or(1.0);
                     (p_atk, caster_level(world, caster_oid), str_bonus, caster_display_name(world, caster_oid))
                 };
-                let p_def = target_p_def(world, target_oid);
+                let base_defence = target_p_def(world, target_oid) * *p_def_mod;
+                let defence = defence_after_shield(world, target_oid, base_defence, *ignore_shield_defence);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
                 // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
                 // per charge spent, the whole point of building Force first.
                 let energy_charges_boost = 1.0 + charge as f64 * 0.1;
-                let damage = formulas::calc_physical_skill_damage(
-                    p_atk,
-                    1.0, // no separate pAtkMod term in Java's EnergyAttack formula
-                    p_def,
-                    *p_def_mod,
-                    *power,
-                    formulas::level_mod(level),
-                    1.0, // no random-damage term in Java's EnergyAttack formula
-                    crit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                    ss,
-                ) * energy_charges_boost
-                    // `EnergyAttack.instant`'s `attributeMod` term.
-                    * attribute_mod(world, caster_oid, target_oid, skill);
+                let damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        formulas::calc_physical_skill_damage(
+                            p_atk,
+                            1.0, // no separate pAtkMod term in Java's EnergyAttack formula
+                            defence,
+                            1.0, // already folded into `defence` above
+                            *power,
+                            formulas::level_mod(level),
+                            1.0, // no random-damage term in Java's EnergyAttack formula
+                            crit,
+                            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
+                            ss,
+                            // Java's EnergyAttack has no ranged branch at all —
+                            // its `weaponMod` is a flat 77.
+                            false,
+                        ) * energy_charges_boost
+                            // `EnergyAttack.instant`'s `attributeMod` + trait terms.
+                            * attribute_mod(world, caster_oid, target_oid, skill)
+                            * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                    }
+                };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
@@ -925,34 +977,11 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::ConsumeBody => {
                 apply_consume_body(world, caster_oid, target_oid);
             }
-            SkillEffect::DamOverTime { power, ticks, can_kill } => {
-                // `DamOverTime.onStart`: a magic (non-toggle) DoT bursts for
-                // `power * 10` on a magic-crit roll ("10 times HP DOT is taken
-                // during magic critical"), clamped to leave the target alive
-                // unless `canKill`. The periodic ticks are armed once below via
-                // `schedule_dam_over_time`, after the buff lands.
-                // TODO(G16): Java notes m.crit can land even when the debuff is
-                // resisted — the port has no land-rate/resist roll yet, so the
-                // two are tied here.
-                if skill.magic_type == 1 && mcrit && *ticks > 0 {
-                    let mut damage = *power * 10.0;
-                    if !*can_kill {
-                        let cur_hp =
-                            world.objects.get_component::<Vitals>(&target_oid).map(|v| v.cur_hp).unwrap_or(0.0);
-                        if damage >= cur_hp - 1.0 {
-                            damage = cur_hp - 1.0;
-                        }
-                    }
-                    if damage > 0.0 {
-                        let caster_name = world
-                            .objects
-                            .get_component::<crate::model::Player>(&caster_oid)
-                            .map(|p| p.name.clone())
-                            .unwrap_or_default();
-                        apply_skill_damage(world, caster_oid, target_oid, damage, true, true, &caster_name, skill.over_hit, false, skill.id);
-                    }
-                }
-            }
+            // `DamOverTime`'s magic-crit burst is **not** an instant effect:
+            // Java puts it in `onStart`, which only runs once the effect is
+            // added to the effect list — i.e. only if the debuff landed. It is
+            // applied after `apply_continuous_effects` reports that, below.
+            SkillEffect::DamOverTime { .. } => {}
             SkillEffect::DispelBySlot { dispel } => {
                 // Java `DispelBySlot.instant`: stop each active effect whose
                 // originating skill's `<abnormalType>` is in the dispel set and
@@ -1191,7 +1220,29 @@ pub(crate) fn apply_skill_effects(
             // to IDLE; the ported AI reaches the same state once the intent is
             // cleared).
             SkillEffect::TargetCancel { chance } => {
-                if world.roll(100) >= *chance {
+                // `calcSuccess`: an invincible target is never shaken off its
+                // mark. Java names the three abnormal types directly rather
+                // than going through an effect flag, so this reads the live
+                // buffs' `abnormalType` the same way.
+                const INVINCIBLE: [&str; 3] = [
+                    "ABNORMAL_INVINCIBILITY",
+                    "INVINCIBILITY_SPECIAL",
+                    "INVINCIBILITY",
+                ];
+                if world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .is_some_and(|b| {
+                        b.0.iter()
+                            .any(|x| INVINCIBLE.contains(&x.abnormal_type.as_str()))
+                    })
+                {
+                    continue;
+                }
+                // Java gates this on `Formulas.calcProbability`, not on the raw
+                // percentage — so the victim's **level** counts, and Shield
+                // Bash slides off a target well above the skill's magic level.
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 // `setTarget(null)` — the Player override broadcasts
@@ -1304,23 +1355,23 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock), VampiricAttack
             // (Vampiric Rage), and AttackTrait ("Detect <Category> Weakness"):
-            // no instant action — they land purely as an icon-only timed buff
-            // (kept off the empty-`buff_effects` bail via `has_iconless_buff`).
-            // DefenceTrait's resistances are merged when the *buff* lands
-            // (`apply_continuous_effects`), not here — this is the instant
-            // pass. VampiricAttack's melee HP absorb is still unmodelled
-            // (TODO(G20)); AttackTrait is inert on the real server too (see its
-            // doc comment) — nothing to model.
+            // no instant action. `DefenceTrait`'s resistances are merged when
+            // the *buff* lands (`apply_continuous_effects`), not here — this is
+            // the instant pass; `VampiricAttack` rides the ordinary stat
+            // pipeline (`stat_modifier_effects`) and is read back by the melee
+            // damage path; `AttackTrait`'s accumulator has no consumer yet
+            // (TODO(G20) on its doc comment).
             SkillEffect::DefenceTrait { .. }
-            | SkillEffect::VampiricAttack
-            | SkillEffect::AttackTrait => {}
+            | SkillEffect::VampiricAttack { .. }
+            | SkillEffect::AttackTrait { .. } => {}
             // `MagicMpCost`/`Reuse` have no *instant* action: their rates are
             // merged when the buff lands (`apply_continuous_effects`) and
-            // unmerged at expiry, exactly like `DefenceTrait`. Song of
-            // Vengeance's damage reflect is still unmodelled (TODO(G20)).
+            // unmerged at expiry, exactly like `DefenceTrait`. `DamageShield`
+            // is a plain additive stat grant, read off the target when it takes
+            // a hit.
             SkillEffect::MagicMpCost { .. }
             | SkillEffect::Reuse { .. }
-            | SkillEffect::DamageShield => {}
+            | SkillEffect::DamageShield { .. } => {}
         }
     }
 
@@ -1348,7 +1399,77 @@ pub(crate) fn apply_skill_effects(
         p.uncharge_shot(crate::model::ShotType::Soulshots);
     }
 
-    apply_continuous_effects(world, caster_oid, target_oid, skill, None);
+    if apply_continuous_effects(world, caster_oid, target_oid, skill, None) {
+        dam_over_time_crit_burst(world, caster_oid, target_oid, skill, mcrit);
+    }
+}
+
+/// `DamOverTime.onStart` — a magic (non-toggle) DoT bursts for `power * 10` on
+/// a magic-crit ("Tests show that 10 times HP DOT is taken during magic
+/// critical"), clamped to leave the target alive unless `canKill`.
+///
+/// **Only on a debuff that landed.** `onStart` is driven by
+/// `EffectList.add(info)`, which `Skill.applyEffects` reaches only when
+/// `addContinuousEffects` — i.e. `calcEffectSuccess` — was true. Java carries
+/// an inline `// TODO: M.Crit can occur even if this skill is resisted` at that
+/// very spot, but that is aspirational: the shipped code does not burst on a
+/// resist, and neither does this.
+///
+/// (Java re-rolls the crit inside `onStart` rather than reusing the cast's;
+/// the port passes the cast's roll through, which keeps one roll per cast.)
+fn dam_over_time_crit_burst(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    mcrit: bool,
+) {
+    if skill.magic_type != 1 || !mcrit {
+        return;
+    }
+    for effect in &skill.effects {
+        let SkillEffect::DamOverTime {
+            power,
+            ticks,
+            can_kill,
+        } = effect
+        else {
+            continue;
+        };
+        if *ticks <= 0 {
+            continue;
+        }
+        let mut damage = *power * 10.0;
+        if !*can_kill {
+            let cur_hp = world
+                .objects
+                .get_component::<Vitals>(&target_oid)
+                .map(|v| v.cur_hp)
+                .unwrap_or(0.0);
+            if damage >= cur_hp - 1.0 {
+                damage = cur_hp - 1.0;
+            }
+        }
+        if damage > 0.0 {
+            let caster_name = world
+                .objects
+                .get_component::<crate::model::Player>(&caster_oid)
+                .map(|p| p.name.clone())
+                .unwrap_or_default();
+            apply_skill_damage(
+                world,
+                caster_oid,
+                target_oid,
+                damage,
+                true,
+                true,
+                &caster_name,
+                skill.over_hit,
+                false,
+                skill.id,
+            );
+        }
+    }
 }
 
 /// The continuous half of Java `Skill.applyEffects` — everything that turns a
@@ -1367,7 +1488,7 @@ pub(crate) fn apply_continuous_effects(
     target_oid: i32,
     skill: &Skill,
     abnormal_time_override: Option<i32>,
-) {
+) -> bool {
     use server_packets::{SmParam, sm_ids};
 
     // Continuous effects → one ActiveBuff on the target (`applyEffects`).
@@ -1408,16 +1529,16 @@ pub(crate) fn apply_continuous_effects(
             e,
             SkillEffect::ProtectionBlessing
                 | SkillEffect::DefenceTrait { .. }
-                | SkillEffect::VampiricAttack
+                | SkillEffect::VampiricAttack { .. }
                 | SkillEffect::MagicMpCost { .. }
                 | SkillEffect::Reuse { .. }
-                | SkillEffect::DamageShield
+                | SkillEffect::DamageShield { .. }
                 | SkillEffect::Transform { .. }
-                | SkillEffect::AttackTrait
+                | SkillEffect::AttackTrait { .. }
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
-        return;
+        return false;
     }
 
     // Debuff landing roll — Java `Formulas.calcEffectSuccess`. A bad skill with
@@ -1430,8 +1551,6 @@ pub(crate) fn apply_continuous_effects(
     // through. `activateRate == -1` is filtered here so those consume no roll
     // (keeps the ordering of the remaining rolls stable). Both lines are
     // single-target only so an AoE debuff doesn't spam one line per target.
-    // TODO(G16): a magic-crit `DamOverTime` burst is applied in the effect loop
-    // above before this roll — Java gates that burst on landing too.
     if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
@@ -1457,7 +1576,7 @@ pub(crate) fn apply_continuous_effects(
             // `calcEffectSuccess`'s `elementMod` — an elemental debuff lands
             // more easily on a target weak to its element.
             attribute_mod(world, caster_oid, target_oid, skill),
-            calc_general_trait_bonus(world, target_oid, skill.trait_type),
+            calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
@@ -1485,7 +1604,7 @@ pub(crate) fn apply_continuous_effects(
             }
         }
         if resisted {
-            return;
+            return false;
         }
     }
     // Java `EffectList` only schedules a stop task when the effect's time is
@@ -1501,7 +1620,7 @@ pub(crate) fn apply_continuous_effects(
         && caster_oid != target_oid
         && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid)
     {
-        return;
+        return false;
     }
 
     // `EffectList.addActive`'s blocked-slot gate: a buff whose abnormal type is
@@ -1517,7 +1636,7 @@ pub(crate) fn apply_continuous_effects(
                     .any(|x| x.blocked_abnormals.contains(&skill.abnormal_type))
             });
         if blocked {
-            return;
+            return false;
         }
     }
 
@@ -1558,8 +1677,12 @@ pub(crate) fn apply_continuous_effects(
     // here, above the NPC/player split, because a resisted mob is as real as a
     // resisted player.
     for effect in &skill.effects {
-        if let SkillEffect::DefenceTrait { traits } = effect {
-            merge_defence_traits(world, target_oid, traits);
+        match effect {
+            SkillEffect::DefenceTrait { traits } => merge_defence_traits(world, target_oid, traits),
+            // `AttackTrait.onStart` — the attacker-side twin. Note it merges
+            // onto the **effected**, which for these self-buffs is the caster.
+            SkillEffect::AttackTrait { traits } => merge_attack_traits(world, target_oid, traits),
+            _ => {}
         }
     }
     // `MagicMpCost.onStart` / `Reuse.onStart` — same place, same reasoning.
@@ -1583,7 +1706,10 @@ pub(crate) fn apply_continuous_effects(
                 },
             );
         }
-        return;
+        // The NPC branch is the *success* tail, not a guard: the buff was
+        // applied, so an `onStart` side effect keyed on landing (the DoT
+        // magic-crit burst) is due.
+        return true;
     }
     {
         let landed =
@@ -1615,7 +1741,7 @@ pub(crate) fn apply_continuous_effects(
         // changes nothing — don't schedule its expiry (a stale `BuffExpire` on a
         // shared skill id would drop the surviving buff early) or rebroadcast.
         if !landed {
-            return;
+            return false;
         }
         if !permanent {
             world.scheduler.schedule(
@@ -1668,6 +1794,7 @@ pub(crate) fn apply_continuous_effects(
             crate::game_loop::admin::transforms::refresh_transform_visuals(world, target_oid);
         }
     }
+    true
 }
 
 /// Java `Player.restoreEffects` (buff half): re-apply the buffs a character was
@@ -1889,10 +2016,19 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
-fn confuse_chance_passes(world: &mut World, target_oid: i32, skill: &Skill, chance: i32) -> bool {
+fn confuse_chance_passes(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) -> bool {
     let level = target_level(world, target_oid);
+    let attribute = attribute_mod(world, caster_oid, target_oid, skill);
+    let trait_mod =
+        calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false);
     let roll = world.roll(100);
-    formulas::calc_probability(skill.magic_level, chance, level, roll)
+    formulas::calc_probability(skill.magic_level, chance, level, attribute, trait_mod, roll)
 }
 
 /// Java's `forEachVisibleObject(effected, Creature.class, …)` plus each
@@ -3026,6 +3162,43 @@ fn apply_consume_body(world: &mut World, _caster_oid: i32, target_oid: i32) {
     crate::game_loop::death::handle_npc_decay(world, target_oid);
 }
 
+/// `calcShldUse` applied to a **skill's** defence term (Java's
+/// `PhysicalAttack`/`EnergyAttack`/`calcBlowDamage` all share this shape).
+///
+/// Returns `None` on a **perfect block**, which the callers turn into a flat
+/// **1** damage — Java expresses it as `defence = -1` and then skips the whole
+/// damage branch, or `return 1` in `calcBlowDamage`. Otherwise the (possibly
+/// shield-augmented) defence.
+///
+/// The two rolls are consumed even when the target has no shield, matching
+/// `calc_shield_use`'s own early return — it is the *rate* that is zero, not
+/// the roll that is skipped.
+pub(crate) fn defence_after_shield(
+    world: &mut World,
+    target_oid: i32,
+    base_defence: f64,
+    ignore_shield_defence: bool,
+) -> Option<f64> {
+    if ignore_shield_defence {
+        return Some(base_defence);
+    }
+    let (shield_def, shield_rate, con_bonus) =
+        crate::game_loop::combat::shield_stats(world, target_oid);
+    let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
+    match formulas::calc_shield_use(
+        shield_rate,
+        con_bonus,
+        false,
+        false,
+        rate_roll,
+        perfect_roll,
+    ) {
+        formulas::SHIELD_PERFECT => None,
+        formulas::SHIELD_SUCCEED => Some(base_defence + shield_def),
+        _ => Some(base_defence),
+    }
+}
+
 /// The target-side `mDef` for the magic damage formula — players through
 /// their stat pipeline, NPCs through the `MDefenseFinalizer` shape
 /// (base × MEN bonus × level mod).
@@ -3042,6 +3215,32 @@ fn target_p_def(world: &World, target_oid: i32) -> f64 {
         return p_def;
     }
     1.0
+}
+
+/// The trait term every damage formula multiplies in, as one call.
+///
+/// Java spells it out per handler as three separate factors —
+/// `weaponTraitMod · (generalTraitMod == 0 ? 1 : generalTraitMod) · weaknessMod`
+/// — and the **`== 0 ? 1`** guard is not decoration: an invulnerable trait
+/// zeroes `calcGeneralTraitBonus`, and the damage formulas deliberately treat
+/// that as "no modifier" rather than "no damage" (the landing roll is where
+/// invulnerability actually bites). `physical` picks whether the weapon term
+/// applies: the magic formulas (`calcMagicDam`) have no weapon trait at all.
+pub(crate) fn skill_trait_mod(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    physical: bool,
+) -> f64 {
+    let weapon = if physical {
+        calc_weapon_trait_bonus(world, caster_oid, target_oid)
+    } else {
+        1.0
+    };
+    let general = calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, true);
+    let general = if general == 0.0 { 1.0 } else { general };
+    weapon * general * calc_weakness_bonus(world, caster_oid, target_oid, skill.trait_type)
 }
 
 /// `Formulas.calcAttributeBonus(attacker, target, skill)` — the elemental
@@ -3268,7 +3467,14 @@ pub(crate) fn apply_skill_damage(
     // rides on the world for the duration of the hit so quest `onAttack` can
     // read it (Java threads `Skill` straight into the notification).
     world.quest_attack_skill = Some(skill_id);
-    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage, is_dot);
+    crate::game_loop::combat::apply_attack_damage(
+        world,
+        caster_oid,
+        target_oid,
+        damage,
+        is_dot,
+        Some(is_magic),
+    );
     world.quest_attack_skill = None;
 }
 
@@ -3488,6 +3694,10 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
 
 /// Push a periodic tick's HP/MP change to the owner and their party — the
 /// `broadcastStatusUpdate(effector)` every `onActionTime` ends with.
+pub(crate) fn broadcast_vitals_for(world: &World, target_oid: i32) {
+    broadcast_vitals(world, target_oid);
+}
+
 fn broadcast_vitals(world: &World, target_oid: i32) {
     if let Some(client_id) = client_for_player(world, target_oid)
         && let Some((v, cs)) = world
@@ -3731,8 +3941,14 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .map(|s| s.effects.clone())
     {
         for effect in &effects {
-            if let SkillEffect::DefenceTrait { traits } = effect {
-                remove_defence_traits(world, player_object_id, traits);
+            match effect {
+                SkillEffect::DefenceTrait { traits } => {
+                    remove_defence_traits(world, player_object_id, traits)
+                }
+                SkillEffect::AttackTrait { traits } => {
+                    remove_attack_traits(world, player_object_id, traits)
+                }
+                _ => {}
             }
         }
     }
@@ -3924,16 +4140,15 @@ fn caster_level(world: &World, oid: i32) -> i32 {
 /// for anyone without an `AttackTrait` buff, which makes Java's
 /// `max(attackTrait − defenceTrait, 0.05)` exactly `max(1 − defence, 0.05)`.
 ///
-/// TODO(G20): the *damage* consumers of the same tables — `calcWeaknessBonus`
-/// and `calcAttackTraitBonus`/`calcWeaponTraitBonus` — are unported. They are
-/// live on this dist (the race skill `Undead` 4416 sits on 13 549 NPCs and
-/// carries negative `*_WEAKNESS` defence traits, which is what makes the
-/// Hunter's "Detect … Weakness" line matter), but they belong to the physical
-/// damage formula, not the landing roll.
+/// `ignore_resistance` is Java's fourth argument: the **damage** formulas pass
+/// `true` (group 3 short-circuits to 1.0 — a stun resistance does not soften
+/// the stun's damage), the landing roll passes `false`.
 pub(crate) fn calc_general_trait_bonus(
     world: &World,
+    attacker_oid: i32,
     target_oid: i32,
     trait_type: crate::model::skill::TraitType,
+    ignore_resistance: bool,
 ) -> f64 {
     use crate::model::components::DefenceTraits;
     use crate::model::skill::TraitType;
@@ -3948,13 +4163,120 @@ pub(crate) fn calc_general_trait_bonus(
     if traits.invulnerable.contains(&trait_type) {
         return 0.0;
     }
-    if trait_type.group() != 3 {
-        return 1.0;
+    match trait_type.group() {
+        // The `*_WEAKNESS` family needs **both** sides: the attacker's
+        // `AttackTrait` and the target's `DefenceTrait`.
+        2 => {
+            if !has_attack_trait(world, attacker_oid, trait_type)
+                || !traits.resist.contains_key(&trait_type)
+            {
+                return 1.0;
+            }
+        }
+        3 => {
+            if ignore_resistance {
+                return 1.0;
+            }
+        }
+        _ => return 1.0,
     }
     let defence = traits.resist.get(&trait_type).copied().unwrap_or(0.0);
     // A *negative* defence trait is a vulnerability (4416's -15), so this can
     // legitimately exceed 1.0 — Java only floors it.
-    (1.0 - defence).max(0.05)
+    (attack_trait(world, attacker_oid, trait_type) - defence).max(0.05)
+}
+
+/// Java `getAttackTrait` — **1.0** for anyone without a matching `AttackTrait`
+/// buff (the table's identity), which is what makes the group-3 case read as
+/// the plain `1 − defence`.
+fn attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .and_then(|at| at.values.get(&trait_type).copied())
+        .unwrap_or(1.0)
+}
+
+/// Java `hasAttackTrait` — membership, which is a *different* question from the
+/// value: an unbuffed attacker's value is 1.0 but `hasAttackTrait` is false, and
+/// the group-2 branch gates on the latter.
+fn has_attack_trait(world: &World, oid: i32, trait_type: crate::model::skill::TraitType) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::AttackTraits>(&oid)
+        .is_some_and(|at| at.values.contains_key(&trait_type))
+}
+
+/// `Formulas.calcWeaponTraitBonus` — `max(0.22, 1 − defenceTrait(weaponType))`.
+///
+/// The attacker's *weapon type* is itself a `TraitType` (SWORD, DAGGER, BOW …),
+/// and the dist's armour buffs really do grant those defence traits (19 skills
+/// name SWORD, 24 DAGGER, 45 BOW…). The 0.22 floor is Java's, and note there is
+/// no `hasDefenceTrait` gate here — the raw table value is read, so an absent
+/// entry is a clean 1.0.
+pub(crate) fn calc_weapon_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
+    let weapon_trait = crate::model::skill::TraitType::of_weapon(
+        crate::game_loop::ranged::equipped_weapon_type(world, attacker_oid).unwrap_or_default(),
+    );
+    let defence = world
+        .objects
+        .get_component::<crate::model::components::DefenceTraits>(&target_oid)
+        .and_then(|d| d.resist.get(&weapon_trait).copied())
+        .unwrap_or(0.0);
+    (1.0 - defence).max(0.22)
+}
+
+/// `Formulas.calcWeaknessBonus` — the product over every `*_WEAKNESS` trait the
+/// attacker carries *and* the target is weak to, **excluding the skill's own**
+/// trait (that one is already counted by `calcGeneralTraitBonus`).
+///
+/// Java's invulnerability test in here reads `isInvulnerableTrait(traitType)` —
+/// the **skill's** trait, not the loop variable. That looks like a slip, but it
+/// is what the reference server does, so it is reproduced.
+pub(crate) fn calc_weakness_bonus(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    skill_trait: crate::model::skill::TraitType,
+) -> f64 {
+    use crate::model::components::DefenceTraits;
+    let Some(defence) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
+        return 1.0;
+    };
+    if defence.invulnerable.contains(&skill_trait) {
+        return 1.0;
+    }
+    let mut result = 1.0;
+    for weakness in crate::model::skill::TraitType::ALL_WEAKNESS {
+        if weakness == skill_trait {
+            continue;
+        }
+        let Some(def) = defence.resist.get(&weakness).copied() else {
+            continue;
+        };
+        if !has_attack_trait(world, attacker_oid, weakness) {
+            continue;
+        }
+        result *= (attack_trait(world, attacker_oid, weakness) - def).max(0.05);
+    }
+    result
+}
+
+/// `Formulas.calcAttackTraitBonus` — the auto-attack's whole trait term: the
+/// weapon bonus times every group-2 weakness, floored at 0.05.
+pub(crate) fn calc_attack_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
+    let weapon = calc_weapon_trait_bonus(world, attacker_oid, target_oid);
+    if weapon == 0.0 {
+        return 0.0;
+    }
+    let mut weakness = 1.0;
+    for t in crate::model::skill::TraitType::ALL_WEAKNESS {
+        weakness *= calc_general_trait_bonus(world, attacker_oid, target_oid, t, true);
+        if weakness == 0.0 {
+            return 0.0;
+        }
+    }
+    (weapon * weakness).max(0.05)
 }
 
 /// `DefenceTrait.onStart` — merge this buff's resistances into the bearer.
@@ -3987,6 +4309,56 @@ pub(crate) fn merge_defence_traits(
                 *dt.resist.entry(t).or_insert(0.0) += value;
             } else {
                 dt.invulnerable.insert(t);
+            }
+        }
+    }
+}
+
+/// `AttackTrait.onStart` — `mergeAttackTrait(trait, value)` onto a table whose
+/// identity is **1.0**, so a `<BEAST_WEAKNESS>30</BEAST_WEAKNESS>` reads as
+/// 1.30.
+pub(crate) fn merge_attack_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::AttackTraits;
+    if traits.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<AttackTraits>(&target_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&target_oid, AttackTraits::default());
+    }
+    if let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) {
+        for &(t, value) in traits {
+            *at.values.entry(t).or_insert(1.0) += value;
+        }
+    }
+}
+
+/// `AttackTrait.onExit`. Java's `removeAttackTrait` drops the trait from the
+/// *set* once the value is back to 1 — i.e. `hasAttackTrait` goes false again —
+/// which is exactly what removing the map entry does here.
+pub(crate) fn remove_attack_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::AttackTraits;
+    let Some(at) = world.objects.get_component_mut::<AttackTraits>(&target_oid) else {
+        return;
+    };
+    for &(t, value) in traits {
+        if let Some(cur) = at.values.get_mut(&t) {
+            *cur -= value;
+            if (*cur - 1.0).abs() < 1e-9 {
+                at.values.remove(&t);
             }
         }
     }
