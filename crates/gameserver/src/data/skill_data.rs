@@ -1428,6 +1428,11 @@ fn build_skill(
                                 p_atk_mod: param("pAtkMod").unwrap_or(1.0),
                                 p_def_mod: param("pDefMod").unwrap_or(1.0),
                                 critical_chance: param("criticalChance").unwrap_or(10.0),
+                                ignore_shield_defence: value_at(
+                                    params,
+                                    "ignoreShieldDefence",
+                                    level,
+                                ) == Some("true"),
                             }]
                         }
                         "Heal" => vec![SkillEffect::Heal {
@@ -1463,6 +1468,8 @@ fn build_skill(
                             charge_consume: value_at(values, "chargeConsume", level)
                                 .and_then(|v| v.parse().ok())
                                 .unwrap_or(0),
+                            ignore_shield_defence: value_at(params, "ignoreShieldDefence", level)
+                                == Some("true"),
                         }],
                         // Pet food (Wolf Food 2048, etc.). Without this arm the
                         // food item was consumed and restored nothing.
@@ -2356,7 +2363,7 @@ mod tests {
         let power_strike = sd.get(3, 1).expect("Power Strike lvl 1");
         assert!(matches!(
             power_strike.effects.as_slice(),
-            [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance }]
+            [SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, .. }]
                 if *power == 30.0 && *p_atk_mod == 1.0 && *p_def_mod == 1.0 && *critical_chance == 10.0
         ));
 

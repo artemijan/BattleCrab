@@ -374,7 +374,7 @@ pub(crate) fn apply_skill_effects(
                     }
                 broadcast_vitals(world, target_oid);
             }
-            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance } => {
+            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
                 // Java), not the once-per-cast magic roll above.
                 let (p_atk, level, str_bonus, random_dmg, caster_name) = {
@@ -388,22 +388,38 @@ pub(crate) fn apply_skill_effects(
                         .unwrap_or(1.0);
                     (p_atk, caster_level(world, caster_oid), str_bonus, random_dmg, caster_display_name(world, caster_oid))
                 };
-                let p_def = target_p_def(world, target_oid);
+                // Java folds `pDefMod` in *before* the shield add, so the
+                // shield's own sDef is never scaled by it.
+                let base_defence = target_p_def(world, target_oid) * *p_def_mod;
+                let defence = defence_after_shield(world, target_oid, base_defence, *ignore_shield_defence);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
                 let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
-                // `PhysicalAttack.instant`'s `attributeMod` term.
-                let damage = formulas::calc_physical_skill_damage(
-                    p_atk,
-                    *p_atk_mod,
-                    p_def,
-                    *p_def_mod,
-                    *power,
-                    formulas::level_mod(level),
-                    formulas::random_damage_multiplier(rand_roll),
-                    crit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                    ss,
-                ) * attribute_mod(world, caster_oid, target_oid, skill);
+                // A perfect block is a flat 1, whatever the rest would say.
+                let damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        // `weaponMod` is **70 with a `+pAtk+power` bonus term**
+                        // for a ranged weapon, 77 for melee — the difference
+                        // between an archer's skill and a swordsman's.
+                        let ranged = crate::game_loop::ranged::is_ranged(
+                            crate::game_loop::ranged::equipped_weapon_type(world, caster_oid)
+                                .unwrap_or_default(),
+                        );
+                        formulas::calc_physical_skill_damage(
+                            p_atk,
+                            *p_atk_mod,
+                            defence,
+                            1.0, // already folded into `defence` above
+                            *power,
+                            formulas::level_mod(level),
+                            formulas::random_damage_multiplier(rand_roll),
+                            crit,
+                            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
+                            ss,
+                            ranged,
+                        ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    }
+                };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
@@ -464,22 +480,42 @@ pub(crate) fn apply_skill_effects(
                     continue;
                 }
 
-                let p_def = target_p_def(world, target_oid);
-                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
-                let mut damage = formulas::calc_blow_damage(
-                    p_atk,
-                    *power,
-                    p_def,
-                    position,
-                    formulas::random_damage_multiplier(rand_roll),
-                    ss,
+                // `calcBlowDamage` opens on the shield switch: a normal block
+                // adds the shield's sDef, a perfect one `return 1` outright.
+                // Blows carry no `ignoreShieldDefence` — the parameter does not
+                // exist on this formula, so the roll always happens.
+                let defence = defence_after_shield(
+                    world,
+                    target_oid,
+                    target_p_def(world, target_oid),
+                    false,
                 );
-                // `calcBlowDamage`'s `attributeMod` term.
-                damage *= attribute_mod(world, caster_oid, target_oid, skill);
+                let rand_roll = if random_dmg > 0 { world.roll(2 * random_dmg + 1) - random_dmg } else { 0 };
+                let mut damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        let mut d = formulas::calc_blow_damage(
+                            p_atk,
+                            *power,
+                            defence,
+                            position,
+                            formulas::random_damage_multiplier(rand_roll),
+                            ss,
+                        );
+                        // `calcBlowDamage`'s `attributeMod` term.
+                        d *= attribute_mod(world, caster_oid, target_oid, skill);
+                        d
+                    }
+                };
                 // FatalBlow/Backstab double on a `calcCrit` roll; SoulBlow
-                // (`critical_chance == None`) doesn't.
+                // (`critical_chance == None`) doesn't. Java rolls this *after*
+                // the perfect-block shortcut, but on that path the 1 is
+                // returned before the crit is ever consulted — so the roll is
+                // kept here (it stays in the RNG stream either way) and simply
+                // has nothing to double.
                 if let Some(cc) = critical_chance
-                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100)) {
+                    && formulas::calc_physical_skill_crit(*cc, str_bonus, world.roll(100))
+                    && defence.is_some() {
                         damage *= 2.0;
                     }
                 // Java passes `critical = true` to `doAttack` for every blow, so
@@ -807,7 +843,7 @@ pub(crate) fn apply_skill_effects(
                 }
                 crate::game_loop::helpers::send_etc_status_update(world, client_id, target_oid);
             }
-            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume } => {
+            SkillEffect::EnergyAttack { power, critical_chance, p_def_mod, charge_consume, ignore_shield_defence } => {
                 // `charge = min(chargeConsume, player.charges)` — pre-clamped,
                 // so Java's `decreaseCharges` (which only fails when asked to
                 // remove more than the player has) never actually refuses here.
@@ -830,25 +866,34 @@ pub(crate) fn apply_skill_effects(
                         .unwrap_or(1.0);
                     (p_atk, caster_level(world, caster_oid), str_bonus, caster_display_name(world, caster_oid))
                 };
-                let p_def = target_p_def(world, target_oid);
+                let base_defence = target_p_def(world, target_oid) * *p_def_mod;
+                let defence = defence_after_shield(world, target_oid, base_defence, *ignore_shield_defence);
                 let crit = formulas::calc_physical_skill_crit(*critical_chance, str_bonus, world.roll(100));
                 // `energyChargesBoost = 1 + (charge * 0.1)` — 10% bonus damage
                 // per charge spent, the whole point of building Force first.
                 let energy_charges_boost = 1.0 + charge as f64 * 0.1;
-                let damage = formulas::calc_physical_skill_damage(
-                    p_atk,
-                    1.0, // no separate pAtkMod term in Java's EnergyAttack formula
-                    p_def,
-                    *p_def_mod,
-                    *power,
-                    formulas::level_mod(level),
-                    1.0, // no random-damage term in Java's EnergyAttack formula
-                    crit,
-                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
-                    ss,
-                ) * energy_charges_boost
-                    // `EnergyAttack.instant`'s `attributeMod` term.
-                    * attribute_mod(world, caster_oid, target_oid, skill);
+                let damage = match defence {
+                    None => 1.0,
+                    Some(defence) => {
+                        formulas::calc_physical_skill_damage(
+                            p_atk,
+                            1.0, // no separate pAtkMod term in Java's EnergyAttack formula
+                            defence,
+                            1.0, // already folded into `defence` above
+                            *power,
+                            formulas::level_mod(level),
+                            1.0, // no random-damage term in Java's EnergyAttack formula
+                            crit,
+                            crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, false),
+                            ss,
+                            // Java's EnergyAttack has no ranged branch at all —
+                            // its `weaponMod` is a flat 77.
+                            false,
+                        ) * energy_charges_boost
+                            // `EnergyAttack.instant`'s `attributeMod` term.
+                            * attribute_mod(world, caster_oid, target_oid, skill)
+                    }
+                };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
             SkillEffect::GiveItem { item_id, item_count, item_enchant_level } => {
@@ -3073,6 +3118,43 @@ fn apply_consume_body(world: &mut World, _caster_oid: i32, target_oid: i32) {
     // `endDecayTask()` runs `onDecay` now; the corpse's originally-scheduled
     // `NpcDecay` task then becomes a no-op (the entity is already despawned).
     crate::game_loop::death::handle_npc_decay(world, target_oid);
+}
+
+/// `calcShldUse` applied to a **skill's** defence term (Java's
+/// `PhysicalAttack`/`EnergyAttack`/`calcBlowDamage` all share this shape).
+///
+/// Returns `None` on a **perfect block**, which the callers turn into a flat
+/// **1** damage — Java expresses it as `defence = -1` and then skips the whole
+/// damage branch, or `return 1` in `calcBlowDamage`. Otherwise the (possibly
+/// shield-augmented) defence.
+///
+/// The two rolls are consumed even when the target has no shield, matching
+/// `calc_shield_use`'s own early return — it is the *rate* that is zero, not
+/// the roll that is skipped.
+pub(crate) fn defence_after_shield(
+    world: &mut World,
+    target_oid: i32,
+    base_defence: f64,
+    ignore_shield_defence: bool,
+) -> Option<f64> {
+    if ignore_shield_defence {
+        return Some(base_defence);
+    }
+    let (shield_def, shield_rate, con_bonus) =
+        crate::game_loop::combat::shield_stats(world, target_oid);
+    let (rate_roll, perfect_roll) = (world.roll(100), world.roll(100));
+    match formulas::calc_shield_use(
+        shield_rate,
+        con_bonus,
+        false,
+        false,
+        rate_roll,
+        perfect_roll,
+    ) {
+        formulas::SHIELD_PERFECT => None,
+        formulas::SHIELD_SUCCEED => Some(base_defence + shield_def),
+        _ => Some(base_defence),
+    }
 }
 
 /// The target-side `mDef` for the magic damage formula — players through

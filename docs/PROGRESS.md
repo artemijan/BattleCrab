@@ -143,6 +143,23 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G20 shield block + ranged skill damage 2026-07-31 (14 → 12).** Two gaps that
+touched every shield user and every archer. **`calcShldUse` was ported for
+auto-attacks and mana drains but consulted by none of the three *skill* damage
+paths** — `PhysicalAttack`, `EnergyAttack` and `calcBlowDamage` all open on the
+same shield switch, so a shield did nothing at all against a skill. All three
+now go through one `defence_after_shield` helper: a normal block adds the
+shield's `sDef` to the divisor, a perfect block cuts the hit to a flat **1**
+(Java's `defence = -1` / `return 1`). `<ignoreShieldDefence>` is parsed (55
+skills, **14 learnable** — Triple Slash, Armor Crush, Hammer Crush, …) and skips
+the switch **and its two rolls**. Note the ordering: Java folds `pDefMod` in
+*before* the add, so the shield's own sDef is never scaled by it.
+**The ranged branch of the physical-skill formula** is the other half: a
+bow/crossbow uses `weaponMod` **70** *and* adds a second `pAtk + power` term
+inside the bracket, so an archer's skill hits **harder**, not `70/77` as hard —
+and that bonus reads the raw `pAtk`, with the level modifier applying only to
+the first term. 6 tests, 9 mechanisms sabotage-verified.
+
 **G16 CLOSED 2026-07-31 (6 → 0).** The residual four clusters, three of which
 turned out to be larger than their markers claimed.
 **Premium drops were entirely inert:** `PremiumRateDropChance/Amount` were
