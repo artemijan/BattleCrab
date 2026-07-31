@@ -424,6 +424,14 @@ pub(crate) fn schedule_manor_at_boot(world: &mut World) {
     arm_next_mode_change(world, now);
 }
 
+/// The wall-clock instant the current mode is scheduled to end — Java
+/// `CastleManorManager._nextModeChange`, which it keeps as a field. The port
+/// derives it instead, from the same function that arms the timer, so the two
+/// cannot drift apart.
+pub(crate) fn next_mode_change_at(world: &World, now_millis: i64) -> i64 {
+    next_mode_change_millis(world.manor.mode(), now_millis, mode_times(world))
+}
+
 fn arm_next_mode_change(world: &mut World, now_millis: i64) {
     let at = next_mode_change_millis(world.manor.mode(), now_millis, mode_times(world));
     let delay_ticks = ((at - now_millis).max(0) / 1000) as u64 * TICKS_PER_SECOND;
@@ -598,7 +606,7 @@ fn charge_next_period(world: &mut World, castle_id: i32) {
 /// Java `getManorCost(castleId, nextPeriod)` — what a period costs its castle:
 /// each seed line at its reference price × start amount (an unknown seed counts
 /// as 1), plus each crop line's reserved buy-back money (price × start amount).
-fn manor_cost(world: &World, castle_id: i32, next_period: bool) -> i64 {
+pub(crate) fn manor_cost(world: &World, castle_id: i32, next_period: bool) -> i64 {
     let seeds: i64 = world
         .manor
         .seed_production(castle_id, next_period)

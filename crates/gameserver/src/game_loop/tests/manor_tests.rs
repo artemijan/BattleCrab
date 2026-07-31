@@ -1346,3 +1346,86 @@ fn a_castle_that_cannot_pay_or_store_loses_its_setup() {
         "and the leader is warned"
     );
 }
+
+/// **`//manor` shows the period state and each castle's bill.** Java's
+/// `AdminManor` is a read-only page; the parts worth pinning are that the two
+/// costs come from the *current* and *next* period lists (they differ), the
+/// castles are listed in id order, and the mode name is the bare enum constant.
+#[test]
+fn the_manor_admin_page_reports_the_period_and_the_costs() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 5001, 100);
+    // The page is a real dist html, so the datapack root has to be set.
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.cfg.general.allow_manor = true;
+    // Two castles, deliberately inserted out of id order.
+    let castle = |id: i32, name: &str| crate::model::castle::Castle {
+        id,
+        name: name.into(),
+        side: crate::model::castle::CastleSide::Neutral,
+        ticket_buy_count: 0,
+        time_registration_over: true,
+        siege_date: 0,
+        treasury: 0,
+    };
+    world.castles = vec![castle(5, "Aden"), castle(1, "Gludio")];
+    // Seed id 90001 is not a real item ⇒ its reference price defaults to 1, so
+    // the cost is just the start amount — 30 now, 70 next period. The two must
+    // not be read off the same list.
+    world.data.manor.insert_for_test(seed(1, 90001, 91001, 10));
+    world.manor.set_seed_production(
+        1,
+        false,
+        vec![SeedProduction {
+            seed_id: 90001,
+            amount: 30,
+            start_amount: 30,
+            price: 1,
+        }],
+    );
+    world.manor.set_seed_production(
+        1,
+        true,
+        vec![SeedProduction {
+            seed_id: 90001,
+            amount: 70,
+            start_amount: 70,
+            price: 1,
+        }],
+    );
+    world.manor.set_mode(ManorMode::Approved);
+    drain(&mut gm_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SEND_BYPASS_BUILD_CMD], build_cmd_body("manor")].concat(),
+    );
+
+    let page = drain(&mut gm_rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .map(|p| String::from_utf8_lossy(&p).replace('\0', ""))
+        .expect("the manor page");
+    assert!(
+        page.contains("APPROVED"),
+        "the bare enum name, as Java sends"
+    );
+    assert!(page.contains("30 Adena"), "the current period's cost");
+    assert!(
+        page.contains("70 Adena"),
+        "and the next period's, separately"
+    );
+    assert!(page.contains("Gludio") && page.contains("Aden"));
+    assert!(
+        page.find("Gludio").unwrap() < page.find("Aden").unwrap(),
+        "castles are listed in id order, not in map order"
+    );
+    // The next-change stamp is `dd/MM HH:mm:ss` — no year (Java's format).
+    assert!(
+        page.contains(&commons::util::format_day_month_time(
+            crate::game_loop::manor::next_mode_change_at(&world, commons::util::now_millis())
+        )),
+        "the page carries the scheduled next mode change"
+    );
+}

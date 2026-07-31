@@ -370,3 +370,72 @@ fn stop_siege(world: &mut World, client_id: u32, idx: usize) {
     }
     show_castle_menu(world, client_id, idx);
 }
+
+// ---------------------------------------------------------------------------
+// `AdminManor` — `//manor`
+// ---------------------------------------------------------------------------
+
+/// Port of `admincommandhandlers/AdminManor`: a read-only status page — the
+/// manor's current period mode, when it next changes, and each castle's current
+/// and next-period seed/crop cost.
+///
+/// Java builds the castle block into a `StringBuilder` and drops it into
+/// `%castleInfo%`; the four `<tr>` rows per castle (name, current cost, next
+/// cost, separator) are reproduced verbatim, colours included, because the page
+/// is a fixed-width table and the client renders it as authored.
+pub(super) fn admin_manor(world: &mut World, client_id: u32) {
+    use crate::model::manor::ManorMode;
+
+    let now = commons::util::now_millis();
+    // Java `getCurrentModeName()` is `ManorMode.toString()` — the bare enum
+    // constant, upper-case.
+    let status = match world.manor.mode() {
+        ManorMode::Disabled => "DISABLED",
+        ManorMode::Modifiable => "MODIFIABLE",
+        ManorMode::Maintenance => "MAINTENANCE",
+        ManorMode::Approved => "APPROVED",
+    };
+    // `getNextModeChange()` formats `_nextModeChange` as `dd/MM HH:mm:ss`.
+    let change =
+        commons::util::format_day_month_time(super::super::manor::next_mode_change_at(world, now));
+
+    // Java iterates `CastleManager.getCastles()`, which is id-ordered.
+    let mut castles: Vec<(i32, String)> = world
+        .castles
+        .iter()
+        .map(|c| (c.id, c.name.clone()))
+        .collect();
+    castles.sort_by_key(|(id, _)| *id);
+
+    let mut info = String::with_capacity(3400);
+    for (castle_id, name) in castles {
+        let current = super::super::manor::manor_cost(world, castle_id, false);
+        let next = super::super::manor::manor_cost(world, castle_id, true);
+        info.push_str(&format!(
+            "<tr><td>Name:</td><td><font color=008000>{name}</font></td></tr>"
+        ));
+        info.push_str(&format!(
+            "<tr><td>Current period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
+            super::super::castle::format_adena(current)
+        ));
+        info.push_str(&format!(
+            "<tr><td>Next period cost:</td><td><font color=FF9900>{} Adena</font></td></tr>",
+            super::super::castle::format_adena(next)
+        ));
+        info.push_str(
+            "<tr><td><font color=808080>--------------------------</font></td>\
+             <td><font color=808080>--------------------------</font></td></tr>",
+        );
+    }
+
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "manor.htm",
+        &[
+            ("status", status.to_string()),
+            ("change", change),
+            ("castleInfo", info),
+        ],
+    );
+}

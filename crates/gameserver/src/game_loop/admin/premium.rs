@@ -170,24 +170,14 @@ pub(crate) fn add_premium_time(world: &mut World, account: &str, duration_millis
 
 /// Format a UTC epoch-millis timestamp as `dd.MM.yyyy HH:mm` (Java uses
 /// `SimpleDateFormat` in the server's local zone; UTC here, as no time-zone crate
-/// is pulled in — a documented cosmetic deviation). Civil date via Howard
-/// Hinnant's `civil_from_days`.
+/// is pulled in — a documented cosmetic deviation).
 pub(crate) fn format_datetime(millis: i64) -> String {
     let secs = millis.div_euclid(1000);
     let days = secs.div_euclid(86_400);
     let tod = secs.rem_euclid(86_400);
     let (hour, minute) = (tod / 3600, (tod % 3600) / 60);
 
-    let z = days + 719_468;
-    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
-    let doe = z - era * 146_097; // [0, 146096]
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365; // [0, 399]
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100); // [0, 365]
-    let mp = (5 * doy + 2) / 153; // [0, 11]
-    let day = doy - (153 * mp + 2) / 5 + 1; // [1, 31]
-    let month = if mp < 10 { mp + 3 } else { mp - 9 }; // [1, 12]
-    let year = yoe + era * 400 + i64::from(month <= 2);
-
+    let (year, month, day) = commons::util::civil_from_days(days);
     format!("{day:02}.{month:02}.{year:04} {hour:02}:{minute:02}")
 }
 

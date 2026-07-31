@@ -125,20 +125,37 @@ pub fn now_millis() -> i64 {
         .unwrap_or(0)
 }
 
-/// Format epoch milliseconds as `YYYY-MM-DD` (Java `SimpleDateFormat
-/// ("yyyy-MM-dd")`), via civil-from-days (Howard Hinnant) so no date crate is
-/// needed for the handful of date columns and UI strings that want one.
-pub fn format_date(millis: i64) -> String {
-    let days = millis.div_euclid(86_400_000);
+/// Howard Hinnant's `civil_from_days`: days-since-epoch → `(year, month, day)`.
+/// The port pulls in no date crate, so this is the one place the calendar math
+/// lives; every date/time formatter below is expressed on top of it.
+pub fn civil_from_days(days: i64) -> (i64, i64, i64) {
     let z = days + 719_468;
     let era = z.div_euclid(146_097);
-    let doe = z.rem_euclid(146_097);
-    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
-    let y = yoe + era * 400;
-    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    let mp = (5 * doy + 2) / 153;
-    let d = doy - (153 * mp + 2) / 5 + 1;
-    let m = if mp < 10 { mp + 3 } else { mp - 9 };
-    let y = if m <= 2 { y + 1 } else { y };
+    let doe = z.rem_euclid(146_097); // [0, 146096]
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365; // [0, 399]
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100); // [0, 365]
+    let mp = (5 * doy + 2) / 153; // [0, 11]
+    let day = doy - (153 * mp + 2) / 5 + 1; // [1, 31]
+    let month = if mp < 10 { mp + 3 } else { mp - 9 }; // [1, 12]
+    let year = yoe + era * 400 + i64::from(month <= 2);
+    (year, month, day)
+}
+
+/// Format epoch milliseconds as `YYYY-MM-DD` (Java `SimpleDateFormat
+/// ("yyyy-MM-dd")`).
+pub fn format_date(millis: i64) -> String {
+    let (y, m, d) = civil_from_days(millis.div_euclid(86_400_000));
     format!("{y:04}-{m:02}-{d:02}")
+}
+
+/// Format epoch milliseconds as `dd/MM HH:mm:ss` — Java
+/// `CastleManorManager.getNextModeChange`'s `SimpleDateFormat("dd/MM HH:mm:ss")`.
+/// No year, by Java's choice: the manor's next mode change is always within a
+/// day. UTC here, like the port's other formatters.
+pub fn format_day_month_time(millis: i64) -> String {
+    let secs = millis.div_euclid(1000);
+    let (_, month, day) = civil_from_days(secs.div_euclid(86_400));
+    let tod = secs.rem_euclid(86_400);
+    let (h, mi, s) = (tod / 3600, (tod % 3600) / 60, tod % 60);
+    format!("{day:02}/{month:02} {h:02}:{mi:02}:{s:02}")
 }
