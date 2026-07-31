@@ -399,6 +399,9 @@ fn apply_due_tasks(world: &mut World) {
             ScheduledTask::EffectPointDespawn { npc_oid } => {
                 effect_point::handle_effect_point_despawn(world, npc_oid);
             }
+            ScheduledTask::RefreshVisuals { object_id } => {
+                abnormal::refresh_visuals(world, object_id);
+            }
             ScheduledTask::BuffExpire {
                 player_object_id,
                 skill_id,

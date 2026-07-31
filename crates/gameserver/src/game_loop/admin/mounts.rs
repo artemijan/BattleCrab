@@ -123,10 +123,10 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, true);
     super::party::broadcast_user_info(world, target);
-    // Onlookers get the visual list inside that CharInfo, but the rider's own
-    // client only learns it from the Ex packet — without this the custom
-    // `HeroAuraOnMounts` aura would show to everyone *except* the rider.
-    super::transforms::refresh_transform_visuals(world, target);
+    // The visual list has to follow *after* the client has rebuilt the actor
+    // around the mount model, or it is dropped with the old one — Java's
+    // `updateAbnormalVisualEffects` schedules it 50 ms out for the same reason.
+    crate::game_loop::abnormal::schedule_visual_refresh(world, target);
     true
 }
 
@@ -292,9 +292,11 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, false);
     super::party::broadcast_user_info(world, target);
-    // Same on the way down: clear the mounted stand-in aura on the rider's own
-    // client (the real hero glow takes over again on the human mesh).
-    super::transforms::refresh_transform_visuals(world, target);
+    // Same on the way down, and this leg is a *fix*, not a port: Java's
+    // `dismount()` sends `Ride` + `broadcastUserInfo()` and never refreshes the
+    // visuals, so a GM who dismounts stays invisible with no STEALTH glow and
+    // any other abnormal visual silently missing from their own view.
+    crate::game_loop::abnormal::schedule_visual_refresh(world, target);
 }
 
 /// Broadcast the `Ride` packet (mount/dismount) to the rider and everyone

@@ -145,6 +145,11 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
     apply_transform_state(world, target, transform_id);
     broadcast_transform(world, target);
+    // Java `Transform.onTransform` ends with the delayed
+    // `updateAbnormalVisualEffects` ("you need to broadcast this to trigger the
+    // transformation client-side"): the inline packets above reach the actor
+    // that is being replaced, so the visual list has to arrive a tick later.
+    crate::game_loop::abnormal::schedule_visual_refresh(world, target);
 }
 
 /// The state half of [`apply_transform`], without the broadcast: set the
@@ -187,6 +192,10 @@ pub(crate) fn apply_transform_state(world: &mut World, target: i32, transform_id
 pub(crate) fn remove_transform(world: &mut World, target: i32) {
     if remove_transform_state(world, target) {
         broadcast_transform(world, target);
+        // Untransforming swaps the model back, so the visual list needs the
+        // same delayed resend — otherwise an invisible GM loses the STEALTH
+        // glow reverting, exactly as on dismount.
+        crate::game_loop::abnormal::schedule_visual_refresh(world, target);
     }
 }
 

@@ -331,6 +331,17 @@ pub enum ScheduledTask {
         player_object_id: i32,
         skill_id: i32,
     },
+    /// Java `Player.updateAbnormalVisualEffects`'s `_abnormalVisualEffectTask`:
+    /// resend the character's visual-effect list **50 ms later**, never inline.
+    /// The delay is load-bearing — after a model swap (mount, dismount,
+    /// transform) the client rebuilds the actor and drops its per-actor visual
+    /// state, so a list arriving in the same batch as the swap is discarded
+    /// along with the old actor. Java leans on the same delay: the call at the
+    /// end of `Transform.onTransform` carries the comment "you need to
+    /// broadcast this to trigger the transformation client-side".
+    RefreshVisuals {
+        object_id: i32,
+    },
     /// A `DamOverTime` effect's periodic tick (Java `EffectTickTask`, armed by
     /// `BuffInfo` via `scheduleAtFixedRate` at `ticks * EFFECT_TICK_RATIO` ms).
     /// Deals the per-tick poison/bleed damage from `caster` to `target` and

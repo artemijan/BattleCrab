@@ -782,7 +782,11 @@ fn hero_aura_on_mounts_substitutes_a_visual_effect() {
         "the effect id is in the CharInfo visual list"
     );
     // …and the rider's own Ex packet, which is the only way their client sees
-    // it (CharInfo never describes you to yourself).
+    // it (CharInfo never describes you to yourself). It arrives a tick after
+    // the mount, never in the same batch: the client is still rebuilding the
+    // actor around the mount model and would drop it (Java schedules its own
+    // visual refresh 50 ms out for exactly this reason).
+    advance_ticks(&mut world, 1);
     assert!(
         drain(&mut gm_rx).iter().any(|p| {
             p[0] == server_packets::opcodes::EX
@@ -811,4 +815,57 @@ fn hero_aura_on_mounts_substitutes_a_visual_effect() {
     // With the feature off (the default) nothing is ever added.
     world.data.gm.hero_aura_on_mounts = None;
     assert!(!visuals(&world).contains(&AURA_BUFF), "opt-in only");
+}
+
+/// **A model swap must not eat the character's visual effects.** Field report:
+/// a hidden GM who mounts a strider and dismounts is still invisible, but the
+/// STEALTH glow is gone from their own view — and Java does the same, because
+/// `Player.dismount()` sends `Ride` + `broadcastUserInfo()` and never calls
+/// `updateAbnormalVisualEffects`. The client rebuilds the actor around the new
+/// model and starts it with no visuals, so the list has to be *re-sent, and
+/// late* — Java schedules its own refresh 50 ms out rather than inline.
+#[test]
+fn mounting_and_dismounting_resend_the_visual_effects() {
+    use crate::model::skill::STEALTH_CLIENT_ID;
+    let (mut world, ..) = admin_world();
+    world.data.pet_data = crate::data::pet_data::PetData::load_from(DIST);
+    world.data.npc_data = crate::data::npc_data::NpcData::load_from(DIST);
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8980, 100);
+
+    // Hide: the GM is invisible and their client knows to draw STEALTH.
+    on_packet(&mut world, 1, build_admin("hide"));
+    drain(&mut gm_rx);
+
+    let stealth_packet = |pkts: &[Vec<u8>]| {
+        pkts.iter().any(|p| {
+            p[0] == server_packets::opcodes::EX
+                && i16::from_le_bytes(p[1..3].try_into().unwrap())
+                    == server_packets::opcodes::EX_USER_INFO_ABNORMAL_VISUAL_EFFECT
+                && p.windows(2).any(|w| w == STEALTH_CLIENT_ID.to_le_bytes())
+        })
+    };
+
+    for step in ["ride_strider", "unride"] {
+        on_packet(&mut world, 1, build_admin(step));
+        // Nothing in the same batch as the model swap — that packet would be
+        // applied to the actor the client is tearing down.
+        let immediate = drain(&mut gm_rx);
+        assert!(
+            !stealth_packet(&immediate),
+            "{step}: the visual list must not ride along with the swap"
+        );
+        // One tick later (Java's 50 ms) it arrives.
+        advance_ticks(&mut world, 1);
+        assert!(
+            stealth_packet(&drain(&mut gm_rx)),
+            "{step}: the visual list is re-sent after the actor is rebuilt"
+        );
+        assert!(
+            world
+                .objects
+                .get_component::<crate::model::components::AdminFlags>(&8980)
+                .is_some_and(|f| f.hidden),
+            "{step}: still invisible throughout"
+        );
+    }
 }
