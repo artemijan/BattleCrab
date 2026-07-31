@@ -92,11 +92,16 @@ pub mod sm_ids {
     pub const YOU_MUST_WAIT_10_DAYS_BEFORE_CREATING_A_NEW_CLAN: i16 = 230;
     pub const CLAN_NAME_IS_INVALID: i16 = 261;
     pub const CLAN_NAME_S_LENGTH_IS_INCORRECT: i16 = 262;
-    // Cursed weapons (`//cw_*`)
+    // Cursed weapons (`//cw_*`). Ids straight off Java's `@ClientString`
+    // annotations — 1815 is the *drop* line and 1817 the *login* one; they are
+    // easy to swap by counting up from 1816, which is what a first pass here
+    // did (the drop announce rendered as "…'s owner has logged into…").
     pub const YOU_HAVE_EQUIPPED_YOUR_S1: i16 = 49;
     pub const EMPTY_3: i16 = 490;
+    pub const S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING: i16 = 1814;
+    pub const S2_WAS_DROPPED_IN_THE_S1_REGION: i16 = 1815;
     pub const THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION: i16 = 1816;
-    pub const S2_WAS_DROPPED_IN_THE_S1_REGION: i16 = 1817;
+    pub const S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION: i16 = 1817;
     pub const S1_HAS_DISAPPEARED: i16 = 1818;
     // Castle sieges (`//castlemanage`)
     // The registration-refusal block is contiguous (anchored by the already-

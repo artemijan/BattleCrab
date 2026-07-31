@@ -73,6 +73,9 @@ use mounts::*;
 use pledge::*;
 use points::*;
 use premium::*;
+// `SkillList` resends aren't admin-only either: the cursed-weapon login restore
+// (`game_loop::cursed_weapon`) grants a skill outside any GM command.
+pub(crate) use skills::refresh_skill_list;
 use skills::*;
 use spawn::*;
 use teleport::*;

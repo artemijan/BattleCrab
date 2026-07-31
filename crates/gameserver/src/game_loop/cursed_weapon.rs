@@ -7,12 +7,14 @@
 //! (`CursedWeaponsManager.checkDrop` → `CursedWeapon.checkDrop`), a player who
 //! **picks it up** becomes cursed (reusing `activate`), and the weapon
 //! **expires** when its life runs out — the `RemoveTask` deadline for both the
-//! un-grabbed drop and the wielder. (The kill-count level-up, the "hungry"
-//! HP/time decay, drop-on-PK-death, and the login restore are a follow-up slice
-//! — `TODO(G28)`.)
+//! un-grabbed drop and the wielder — and a wielder who relogs comes back
+//! **still cursed** ([`on_enter_world`]). (The kill-count level-up, the
+//! "hungry" HP/time decay and drop-on-PK-death are a follow-up slice —
+//! `TODO(G28)`.)
 
 use crate::model::Player;
-use crate::model::components::{Position, RegionCell};
+use crate::model::components::{Position, RegionCell, SkillBook};
+use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
@@ -183,6 +185,151 @@ pub(crate) fn try_pickup(
     // life is one `duration`); the reset grants the ground-lying time back.
     activate(world, idx, player_oid);
     arm_expiry(world, idx);
+}
+
+// ---------------------------------------------------------------------------
+// Login restore — `CursedWeaponsManager.checkPlayer` + `CursedWeapon.cursedOnLogin`
+// ---------------------------------------------------------------------------
+
+/// The curse survives a relog. Java splits this across two call sites:
+/// `Player.restore` → `CursedWeaponsManager.checkPlayer` re-binds the weapon to
+/// the freshly loaded character (`cursedWeaponEquippedId` + `giveSkill` + the
+/// time-left notice), and `EnterWorld.runImpl` → `CursedWeapon.cursedOnLogin`
+/// then re-applies the transform, re-grants the skill and announces the login.
+/// Both halves land here, at Java's `EnterWorld` position — right after
+/// `spawnMe`.
+///
+/// Without it a relog quietly *lifted* the curse: the character came back
+/// holding an ordinary-looking sword, un-transformed and without the cursed
+/// skill, and every `isCursedWeaponEquipped()` gate downstream (weapon swap,
+/// party join, Olympiad, mounts, support magic) read `false`.
+///
+/// The `None` tail is `EnterWorld`'s "Remove demonic weapon if character is not
+/// cursed weapon equipped" sweep — the safety net for a weapon whose life ran
+/// out while its owner was offline, which leaves the item behind in their bag.
+pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(idx) = world
+        .cursed_weapons
+        .iter()
+        .position(|cw| cw.is_activated && cw.player_id == object_id)
+    else {
+        destroy_stray_cursed_items(world, client_id, object_id);
+        return;
+    };
+    let item_id = world.cursed_weapons[idx].item_id;
+
+    // `checkPlayer`: re-bind the weapon to this character. Everything that
+    // gates on the curse reads this field, so it goes first.
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.cursed_weapon_equipped_id = item_id;
+    }
+    // `cursedOnLogin`: doTransform + giveSkill.
+    do_transform(world, object_id, item_id);
+    give_skill(world, idx, object_id);
+
+    // "$s2's owner has logged into the $s1 region." to everyone. The region
+    // SysString renders blank — the same TODO(G28) the drop/appear announces
+    // carry (MapRegion has no sysstring id yet).
+    let announce = server_packets::system_message_with(
+        sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION,
+        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+    );
+    broadcast_to_all(world, &announce);
+
+    // "$s1 has $s2 minute(s) of usage time remaining." to the wielder alone.
+    let minutes = (world.cursed_weapons[idx].time_left(now_millis()) / MILLIS_PER_MINUTE) as i32;
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::system_message_with(
+            sm_ids::S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING,
+            &[SmParam::ItemName(item_id), SmParam::Int(minutes)],
+        ));
+    }
+}
+
+/// `CursedWeapon.doTransform` — Zariche (8190) becomes transform 301, Akamanah
+/// (8689) transform 302. Java stops an existing transform and re-transforms
+/// 500 ms later (the client needs the two model swaps separated); the state
+/// swap here is synchronous, so the revert runs inline and the apply's own
+/// delayed visual refresh carries the new model.
+pub(crate) fn do_transform(world: &mut World, target: i32, item_id: i32) {
+    let transform_id = if item_id == 8689 { 302 } else { 301 };
+    if world
+        .objects
+        .get_component::<Player>(&target)
+        .is_some_and(|p| p.transform_id != 0)
+    {
+        super::admin::transforms::remove_transform(world, target);
+    }
+    super::admin::transforms::apply_transform(world, target, transform_id);
+}
+
+/// `CursedWeapon.giveSkill` — the weapon's own skill at Java's
+/// `1 + kills/stageKills` (clamped to the skill's max level), then a refreshed
+/// skill list. Java additionally adds Void Burst / Void Flow as *transform*
+/// skills; on this dist the 301/302 transform templates already list both
+/// (3630/3631), so [`do_transform`] grants them.
+///
+/// Written against `nb_kills` rather than `CursedWeapon::level()` on purpose:
+/// `level()` returns 0 until `is_activated` is set, and `activate` grants the
+/// skill before flipping that flag.
+pub(crate) fn give_skill(world: &mut World, idx: usize, target: i32) {
+    let (skill_id, level) = {
+        let cw = &world.cursed_weapons[idx];
+        (
+            cw.skill_id,
+            (1 + cw.nb_kills / cw.stage_kills.max(1)).min(cw.skill_max_level.max(1)),
+        )
+    };
+    if world.data.skill_data.get(skill_id, level).is_some()
+        && let Some(book) = world.objects.get_component_mut::<SkillBook>(&target)
+    {
+        book.0.insert(skill_id, level);
+    }
+    super::admin::refresh_skill_list(world, target);
+}
+
+/// `EnterWorld`'s "Remove demonic weapon if character is not cursed weapon
+/// equipped": a Zariche/Akamanah sitting in the bag of someone the manager does
+/// *not* consider cursed is a leftover (its life ended while they were offline)
+/// and is destroyed on sight. Java names the two ids inline; iterating the
+/// config is the same set on this dist and stays right if it ever changes.
+fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32) {
+    let item_ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
+    let mut removed = false;
+    for item_id in item_ids {
+        let Some(item_oid) = world
+            .objects
+            .get_component::<Inventory>(&object_id)
+            .and_then(|inv| inv.items().iter().find(|i| i.item_id == item_id))
+            .map(|i| i.object_id)
+        else {
+            continue;
+        };
+        if let Some(inv) = world.objects.get_component_mut::<Inventory>(&object_id) {
+            if inv.paperdoll_slot_of(item_oid).is_some() {
+                inv.unequip_item(item_oid);
+            }
+            inv.remove_item(item_id, 1);
+            removed = true;
+        }
+    }
+    if !removed {
+        return;
+    }
+    // Java's `destroyItem(…, sendMessage = true)` refreshes the client's bag;
+    // the weight/adena footers ride along (see `helpers::send_inventory_update`).
+    if let Some(inv) = world.objects.get_component::<Inventory>(&object_id) {
+        let list = crate::network::enter_world::item_list(inv, &world.data, false);
+        let adena = crate::network::enter_world::ex_adena_inven_count(inv);
+        let weight =
+            crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data);
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(list);
+            cs.send(adena);
+            cs.send(weight);
+        }
+    }
+    super::party::broadcast_user_info(world, object_id);
 }
 
 /// Arm the expiry timer at the weapon's current `end_time` (the wielder's

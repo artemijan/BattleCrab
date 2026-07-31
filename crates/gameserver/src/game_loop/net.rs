@@ -862,12 +862,23 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                         cw.player_pk_kills = row.player_pk_kills;
                         cw.nb_kills = row.nb_kills;
                         cw.end_time = row.end_time;
-                        // Java `reActivate()`; the decay/expiry task is deferred (G21).
                         cw.is_activated = true;
                     }
                 }
                 tracing::info!("GameLoop: loaded {} cursed weapons.", weapons.len());
                 world.cursed_weapons = weapons;
+                // Java `restore()` → `reActivate()`: a weapon that survived a
+                // restart gets its `RemoveTask` armed again. Without this the
+                // restored curse is immortal — the wielder keeps it forever,
+                // since only this timer ever calls `endOfLife`. One whose
+                // deadline passed while the server was down fires immediately
+                // (`arm_expiry` clamps the delay at 0, `handle_expiry`
+                // re-checks `end_time`).
+                for idx in 0..world.cursed_weapons.len() {
+                    if world.cursed_weapons[idx].is_activated {
+                        super::cursed_weapon::arm_expiry(world, idx);
+                    }
+                }
             }
             DbEvent::CastlesLoaded { castles } => {
                 tracing::info!("GameLoop: loaded {} castles.", castles.len());

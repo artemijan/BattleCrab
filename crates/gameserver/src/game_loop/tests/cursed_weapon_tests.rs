@@ -500,3 +500,296 @@ fn a_gm_granted_cursed_weapon_arms_its_expiry() {
         "and the wielder is freed"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Login restore + the equip locks it depends on
+// ---------------------------------------------------------------------------
+
+const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+const AKAMANAH: i32 = 8689; // Blood Sword Akamanah
+/// Squire's Sword — an ordinary one-hand weapon to try swapping to.
+const SQUIRES_SWORD: i32 = 7816;
+
+/// Load the data the login restore actually reads: skills (the cursed skill and
+/// its max level), transforms (301/302) and items (body parts for the equip
+/// gates).
+fn load_curse_data(world: &mut World) {
+    load_cursed_weapons(world);
+    world.data.skill_data = crate::data::SkillData::load_from(DIST);
+    world.data.transforms = crate::data::TransformData::load_from(DIST);
+    world.data.item_data = crate::data::ItemData::load_from(DIST);
+    for cw in &mut world.cursed_weapons {
+        cw.skill_max_level = (1..=100)
+            .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+            .last()
+            .unwrap_or(1);
+    }
+}
+
+/// The object id of `item_id` in `owner`'s bag, but only when it is worn.
+fn equipped_oid(world: &World, owner: i32, item_id: i32) -> Option<i32> {
+    let inv = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&owner)?;
+    let oid = inv.items().iter().find(|i| i.item_id == item_id)?.object_id;
+    inv.paperdoll_slot_of(oid).map(|_| oid)
+}
+
+/// Put `world` in the state a server restart leaves behind: the `cursed_weapons`
+/// row is loaded and flagged activated for `owner`, who is online but not yet
+/// restored.
+fn restore_activated_on(world: &mut World, item_id: i32, owner: i32) -> usize {
+    let idx = cw_idx(world, item_id);
+    let cw = &mut world.cursed_weapons[idx];
+    cw.is_activated = true;
+    cw.player_id = owner;
+    cw.nb_kills = 0;
+    cw.end_time = now_millis_test() + 300 * 60_000; // a fresh 300-minute life
+    idx
+}
+
+/// The bug this slice fixes: a character who logs back in wielding a cursed
+/// weapon must come back **cursed** — Java's `CursedWeaponsManager.checkPlayer`
+/// (the flag + skill) plus `CursedWeapon.cursedOnLogin` (the transform + the
+/// announce). Before the fix the relog silently lifted the curse: the sword
+/// stayed in hand as an ordinary weapon and the character was not transformed.
+#[test]
+fn relog_restores_transform_and_curse() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let mut rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let idx = restore_activated_on(&mut world, ZARICHE, PICKER_OID);
+    let skill_id = world.cursed_weapons[idx].skill_id;
+    drain(&mut rx);
+
+    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+
+    let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
+    assert_eq!(
+        p.cursed_weapon_equipped_id, ZARICHE,
+        "the curse flag every gate reads is back"
+    );
+    assert_eq!(p.transform_id, 301, "Zariche transforms into 301");
+    assert_eq!(
+        p.transform_display_id, 301,
+        "and the client is told which model to draw"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&PICKER_OID)
+            .unwrap()
+            .0
+            .contains_key(&skill_id),
+        "giveSkill re-grants the weapon's skill"
+    );
+
+    let pkts = drain(&mut rx);
+    let sms = sm_ids_of(&pkts);
+    assert!(
+        sms.contains(&server_packets::sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION),
+        "the login is announced"
+    );
+    assert!(
+        sms.contains(&server_packets::sm_ids::S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING),
+        "and the wielder is told how long is left"
+    );
+}
+
+/// Akamanah takes the other transform — the two ids are easy to swap.
+#[test]
+fn relog_restores_akamanah_transform() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    restore_activated_on(&mut world, AKAMANAH, PICKER_OID);
+
+    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&PICKER_OID)
+            .unwrap()
+            .transform_id,
+        302,
+        "Akamanah transforms into 302"
+    );
+}
+
+/// Someone else's cursed weapon must not curse *this* character on login.
+#[test]
+fn relog_of_a_bystander_restores_nothing() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    restore_activated_on(&mut world, ZARICHE, KILLER_OID); // owned by someone else
+
+    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+
+    let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
+    assert_eq!(p.cursed_weapon_equipped_id, 0, "not this character's curse");
+    assert_eq!(p.transform_id, 0, "and no transform");
+}
+
+/// `EnterWorld`'s "Remove demonic weapon if character is not cursed weapon
+/// equipped" sweep: a Zariche left in the bag of someone the manager no longer
+/// considers cursed (its life ran out while they were offline) is destroyed.
+#[test]
+fn relog_destroys_a_stray_cursed_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    super::items::add_inventory_item(&mut world, PICKER_OID, ZARICHE, 1)
+        .expect("the leftover sword is in the bag");
+
+    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .unwrap()
+            .items()
+            .iter()
+            .all(|i| i.item_id != ZARICHE),
+        "the orphaned cursed weapon is destroyed"
+    );
+}
+
+/// The curse is not something you can take off: `RequestUnEquipItem` on the
+/// two-hand slot is refused outright while cursed (Java tests the requested
+/// slot, not the item).
+#[test]
+fn cursed_wielder_cannot_unequip_the_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    assert!(
+        equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
+        "activate equipped the weapon"
+    );
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&crate::data::item_data::SLOT_LR_HAND.to_le_bytes());
+    crate::game_loop::items::handle_request_un_equip_item(&mut world, 1, &body);
+
+    assert!(
+        equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
+        "the cursed weapon stays in hand"
+    );
+}
+
+/// …and you cannot swap it out by equipping something else either: `UseItem` on
+/// any hand-slot item is refused while cursed.
+#[test]
+fn cursed_wielder_cannot_equip_another_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    let sword_oid = super::items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+        .expect("spare sword added")[0];
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&sword_oid.to_le_bytes());
+    body.extend_from_slice(&0i32.to_le_bytes()); // ctrlPressed
+    crate::game_loop::items::handle_use_item(&mut world, 1, &body);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .unwrap()
+            .paperdoll_slot_of(sword_oid)
+            .is_none(),
+        "the swap is refused — the spare sword never reaches the paperdoll"
+    );
+    assert!(
+        equipped_oid(&world, PICKER_OID, ZARICHE).is_some(),
+        "and the cursed weapon is still equipped"
+    );
+}
+
+/// The same gate must not lock an *un*-cursed character out of their own
+/// weapons — the zero case for the check above.
+#[test]
+fn uncursed_player_can_still_equip_a_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let sword_oid = super::items::add_inventory_item(&mut world, PICKER_OID, SQUIRES_SWORD, 1)
+        .expect("sword added")[0];
+
+    let mut body = Vec::new();
+    body.extend_from_slice(&sword_oid.to_le_bytes());
+    body.extend_from_slice(&0i32.to_le_bytes());
+    crate::game_loop::items::handle_use_item(&mut world, 1, &body);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .unwrap()
+            .paperdoll_slot_of(sword_oid)
+            .is_some(),
+        "an ordinary player equips normally"
+    );
+}
+
+/// A curse that runs out while its owner is logged off must still free them.
+/// Java's offline `endOfLife` branch does the restore in the database; the
+/// boot-armed expiry task makes this genuinely reachable, and without it the
+/// character comes back holding the sword with reputation pinned at -9999999.
+#[test]
+fn offline_expiry_restores_the_owner_in_the_db() {
+    let (mut world, _db, mut db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    // The owner is NOT online — no `ingame_player_access` for them.
+    const OFFLINE_OWNER: i32 = 7003;
+    let idx = restore_activated_on(&mut world, ZARICHE, OFFLINE_OWNER);
+    let skill_id = world.cursed_weapons[idx].skill_id;
+    world.cursed_weapons[idx].player_reputation = 4242;
+    world.cursed_weapons[idx].player_pk_kills = 7;
+    world.cursed_weapons[idx].end_time = now_millis_test() - 1;
+    while db_rx.try_recv().is_ok() {}
+
+    crate::game_loop::cursed_weapon::handle_expiry(&mut world, ZARICHE);
+
+    let restore = drain_db(&mut db_rx).into_iter().find_map(|c| match c {
+        db::DbCommand::RestoreOfflineCursedOwner {
+            char_id,
+            item_id,
+            reputation,
+            pk_kills,
+            skill_ids,
+        } => Some((char_id, item_id, reputation, pk_kills, skill_ids)),
+        _ => None,
+    });
+    let (char_id, item_id, reputation, pk_kills, skill_ids) =
+        restore.expect("the offline wielder is restored in the database");
+    assert_eq!(char_id, OFFLINE_OWNER);
+    assert_eq!(item_id, ZARICHE, "the weapon item row is deleted");
+    assert_eq!(reputation, 4242, "the saved reputation comes back");
+    assert_eq!(pk_kills, 7, "and the saved pk-kill count");
+    assert!(
+        skill_ids.contains(&skill_id),
+        "the weapon's own skill is dropped"
+    );
+    assert!(
+        skill_ids.contains(&3630) && skill_ids.contains(&3631),
+        "and so are the transform's Void Burst / Void Flow — this port persists \
+         the whole SkillBook, unlike Java's non-storing addSkill"
+    );
+    assert!(
+        !world.cursed_weapons[idx].is_activated,
+        "the weapon leaves the world"
+    );
+}

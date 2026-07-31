@@ -1122,6 +1122,24 @@ autonomous drop → pickup → expiry loop landed (`game_loop/cursed_weapon.rs`,
 [PLAN_G28_CURSED_WEAPONS.md](PLAN_G28_CURSED_WEAPONS.md)); a cursed weapon can be
 dropped by a monster kill and equipped by whoever picks it up. Deferred to a
 follow-up: kill-count level-up, hungry decay, drop-on-PK-death, login restore.
+
+**Progress (2026-08-01):** the **login restore** landed
+(`cursed_weapon::on_enter_world`) — Java's `CursedWeaponsManager.checkPlayer` +
+`CursedWeapon.cursedOnLogin`, wired into `lobby::handle_enter_world` at Java's
+post-`spawnMe` position. Until now a relog silently *lifted* the curse: the
+character came back holding the sword as an ordinary weapon, un-transformed and
+without the cursed skill, and every `isCursedWeaponEquipped()` gate downstream
+read `false`. Landing with it: the `RemoveTask` is re-armed at boot
+(`reActivate` — a restored curse was otherwise immortal), `EnterWorld`'s
+"remove demonic weapon if not cursed weapon equipped" sweep, the
+`UseItem`/`RequestUnEquipItem` hand-slot locks (a cursed wielder could just swap
+to another sword), and a fixed `S2_WAS_DROPPED_IN_THE_S1_REGION` id (1815, not
+1817 — the drop announce was rendering the *login* line), and the **offline
+`endOfLife` branch** the boot-armed timer makes reachable: a curse that runs
+out while its owner is away restores their reputation/pk-kills and deletes the
+weapon + the cursed/transform skills straight in the DB (the skill half is
+Rust-only — Java's `addSkill(…, false)` never persists them). Still deferred:
+kill-count level-up, hungry decay, drop-on-PK-death.
 **Progress (2026-07-26):** the **events engine — slice 1** landed
 ([PLAN_G28_EVENTS_ENGINE.md](PLAN_G28_EVENTS_ENGINE.md)): the event lifecycle
 (`EventManager` on `World`, `//event_start`/`//event_stop` GM trigger — the dist

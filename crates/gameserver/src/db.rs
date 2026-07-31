@@ -457,6 +457,20 @@ pub enum DbCommand {
     RemoveCursedWeapon {
         item_id: i32,
     },
+    /// `CursedWeapon.endOfLife`'s **offline** branch — the wielder isn't logged
+    /// in, so their restore is done straight in the database: delete the weapon
+    /// item and put back the reputation/pk-kills the curse overwrote. Java's
+    /// two statements (`DELETE FROM items …` + `UPDATE characters SET
+    /// reputation, pkkills …`) plus `skill_ids`, which has no Java counterpart:
+    /// Java grants the cursed/transform skills with `addSkill(…, false)` so
+    /// they never reach the DB, while this port persists the whole `SkillBook`.
+    RestoreOfflineCursedOwner {
+        char_id: i32,
+        item_id: i32,
+        reputation: i32,
+        pk_kills: i32,
+        skill_ids: Vec<i32>,
+    },
     /// `Castle.setSide`/`switchSide` — persist a castle's side.
     UpdateCastleSide {
         castle_id: i32,
@@ -1931,6 +1945,38 @@ async fn run(
                         .exec(&db)
                         .await,
                 );
+            }
+            DbCommand::RestoreOfflineCursedOwner {
+                char_id,
+                item_id,
+                reputation,
+                pk_kills,
+                skill_ids,
+            } => {
+                warn_err(
+                    items::Entity::delete_many()
+                        .filter(items::Column::OwnerId.eq(char_id))
+                        .filter(items::Column::ItemId.eq(item_id))
+                        .exec(&db)
+                        .await,
+                );
+                warn_err(
+                    characters::Entity::update_many()
+                        .col_expr(characters::Column::Reputation, reputation.into())
+                        .col_expr(characters::Column::Pkkills, pk_kills.into())
+                        .filter(characters::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
+                if !skill_ids.is_empty() {
+                    warn_err(
+                        character_skills::Entity::delete_many()
+                            .filter(character_skills::Column::CharId.eq(char_id))
+                            .filter(character_skills::Column::SkillId.is_in(skill_ids))
+                            .exec(&db)
+                            .await,
+                    );
+                }
             }
             DbCommand::UpdateCastleSide { castle_id, side } => {
                 warn_err(

@@ -6,10 +6,10 @@
 //!
 //! The autonomous half of the system — drop-from-monster, pickup, and the
 //! expiry `RemoveTask` — now lives in [`crate::game_loop::cursed_weapon`] (G28),
-//! which calls back into `activate` / `end_of_life` here. Still deferred
-//! (TODO(G28)): drop-on-PK-death, the "hungry" HP-drain / decay task, the login
-//! restore, and the "already wields another cursed weapon" stage-kill bonus
-//! branch of `activate`.
+//! which calls back into `activate` / `end_of_life` here, and owns the login
+//! restore (`on_enter_world`). Still deferred (TODO(G28)): drop-on-PK-death,
+//! the "hungry" HP-drain / decay task, and the "already wields another cursed
+//! weapon" stage-kill bonus branch of `activate`.
 
 use crate::db::DbCommand;
 use crate::model::Player;
@@ -254,15 +254,9 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
 /// Port of `CursedWeapon.activate` (via `addItem`) + the admin `setEndTime`/
 /// `reActivate` tail. `target` holds no cursed weapon (checked by the caller).
 pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
-    let (item_id, skill_id, duration, skill_max_level, stage_kills) = {
+    let (item_id, duration) = {
         let cw = &world.cursed_weapons[idx];
-        (
-            cw.item_id,
-            cw.skill_id,
-            cw.duration,
-            cw.skill_max_level,
-            cw.stage_kills,
-        )
+        (cw.item_id, cw.duration)
     };
     let target_client = super::helpers::client_for_player(world, target);
 
@@ -288,21 +282,12 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         p.cursed_weapon_equipped_id = item_id;
     }
 
-    // doTransform: Zariche(8190) → 301, Akamanah(8689) → 302.
-    let transform_id = if item_id == 8689 { 302 } else { 301 };
-    super::transforms::apply_transform(world, target, transform_id);
-
-    // giveSkill: cursed-weapon skill at level `1 + kills/stageKills` (kills = 0
-    // on a fresh grant → level 1), clamped to the skill max.
-    #[allow(clippy::erasing_op)]
-    // Java's formula with kills=0 inlined; the shape stays greppable for parity
-    let level = (1 + 0 / stage_kills.max(1)).min(skill_max_level.max(1));
-    if world.data.skill_data.get(skill_id, level).is_some()
-        && let Some(book) = world.objects.get_component_mut::<SkillBook>(&target)
-    {
-        book.0.insert(skill_id, level);
-    }
-    super::skills::refresh_skill_list(world, target);
+    // doTransform + giveSkill — shared with the login restore
+    // (`cursed_weapon::on_enter_world`), which runs the same two Java calls.
+    // `nb_kills` is still whatever the caller left on the weapon (0 on a fresh
+    // grant), so `give_skill` picks Java's level for it either way.
+    crate::game_loop::cursed_weapon::do_transform(world, target, item_id);
+    crate::game_loop::cursed_weapon::give_skill(world, idx, target);
 
     // Equip the weapon (recalc + broadcast) — the freshly-added item is
     // unequipped, so `use_equipable_item` equips it.
@@ -409,6 +394,27 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
             refresh_inventory(world, tc, player_id);
         }
         crate::game_loop::party::broadcast_user_info(world, player_id);
+    } else if is_activated {
+        // Java's offline branch of `endOfLife`: the wielder isn't logged in, so
+        // the restore happens straight in the database — otherwise they come
+        // back still holding the sword with reputation pinned at -9999999,
+        // which nothing later would ever undo. Reachable since the expiry task
+        // is armed at boot, so a curse really can run out while its owner is
+        // away.
+        //
+        // The skill list is a Rust-only addition to Java's two statements:
+        // Java grants the cursed and transform skills with `addSkill(…, false)`
+        // / `addTransformSkill`, which never touch the DB, whereas here the
+        // `SkillBook` is persisted wholesale — so they have to be deleted or
+        // the freed character keeps the weapon's skill and Void Burst forever.
+        let skill_ids = curse_granted_skill_ids(world, idx, item_id);
+        let _ = world.db.send(DbCommand::RestoreOfflineCursedOwner {
+            char_id: player_id,
+            item_id,
+            reputation: saved_rep,
+            pk_kills: saved_pk,
+            skill_ids,
+        });
     }
 
     // Drop the DB row + announce the disappearance to everyone.
@@ -421,6 +427,22 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
     let _ = name;
 
     world.cursed_weapons[idx].reset();
+}
+
+/// Every skill wearing the curse hands out: the weapon's own skill plus the
+/// 301/302 transform template's (Void Burst / Void Flow and the demon attacks),
+/// both genders since only the wielder's is granted but either may be stored.
+fn curse_granted_skill_ids(world: &World, idx: usize, item_id: i32) -> Vec<i32> {
+    let mut ids = vec![world.cursed_weapons[idx].skill_id];
+    let transform_id = if item_id == 8689 { 302 } else { 301 };
+    if let Some(tf) = world.data.transforms.get(transform_id) {
+        for female in [false, true] {
+            ids.extend(tf.template(female).skills.iter().map(|(id, _)| *id));
+        }
+    }
+    ids.sort_unstable();
+    ids.dedup();
+    ids
 }
 
 /// Send the target's item list + adena counter (Java `sendItemList(false)`).

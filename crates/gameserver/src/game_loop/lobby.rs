@@ -662,6 +662,11 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // the pet's spawn packets go out.
     super::servitor::restore_pet_on_login(world, object_id);
     super::servitor::restore_servitor_on_login(world, object_id);
+    // Java `EnterWorld`, immediately after `spawnMe`: a character who logged
+    // out wielding a cursed weapon comes back cursed — transform, skill and the
+    // `isCursedWeaponEquipped()` flag every gate reads. Also sweeps a leftover
+    // Zariche/Akamanah out of the bag of someone no longer cursed.
+    super::cursed_weapon::on_enter_world(world, client_id, object_id);
     // Schedule the first periodic autosave (Java `PlayerAutoSaveTaskManager.add`)
     // one interval out; `game_loop::autosave_tick` flushes and reschedules it.
     let due = world.tick + world.cfg.character.character_data_store_interval_ticks;

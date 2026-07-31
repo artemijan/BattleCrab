@@ -129,8 +129,51 @@ pub(crate) fn handle_use_item(world: &mut World, client_id: u32, body: &[u8]) {
         }
         return;
     }
+    if cursed_weapon_blocks_equip(world, object_id, pkt.object_id) {
+        return; // Java returns with no packet at all.
+    }
     use_equipable_item(world, client_id, object_id, pkt.object_id);
 }
+
+/// The cursed-weapon half of `UseItem.runImpl`'s equipable branch: a wielder of
+/// Zariche/Akamanah may neither put on formal wear (6408) nor touch a hand slot
+/// — the curse locks the weapon in place, so the "just swap to another sword"
+/// escape hatch does not exist.
+///
+/// Deliberately sits in the *packet* handler rather than in
+/// [`use_equipable_item`], mirroring Java: `CursedWeapon.activate` equips the
+/// weapon through `getInventory().equipItem(…)`, well below this check, and the
+/// queued-while-busy replay re-enters at `useEquippableItem`, past it too.
+/// Moving the gate down would make the curse unable to equip itself.
+fn cursed_weapon_blocks_equip(world: &World, object_id: i32, item_object_id: i32) -> bool {
+    use crate::data::item_data::{SLOT_L_HAND, SLOT_LR_HAND, SLOT_R_HAND};
+
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_none_or(|p| p.cursed_weapon_equipped_id == 0)
+    {
+        return false;
+    }
+    let Some((item_id, body_part)) = world
+        .objects
+        .get_component::<Inventory>(&object_id)
+        .and_then(|inv| {
+            inv.items()
+                .iter()
+                .find(|i| i.object_id == item_object_id)
+                .map(|i| i.item_id)
+        })
+        .map(|id| (id, world.data.item_data.get(id).map_or(0, |t| t.body_part)))
+    else {
+        return false;
+    };
+    // "Don't allow to put formal wear while a cursed weapon is equipped."
+    item_id == FORMAL_WEAR_ITEM_ID || matches!(body_part, SLOT_LR_HAND | SLOT_L_HAND | SLOT_R_HAND)
+}
+
+/// Formal Wear — Java `UseItem` names the id inline in the cursed-weapon guard.
+const FORMAL_WEAR_ITEM_ID: i32 = 6408;
 
 /// The equipable branch of `UseItem.runImpl`, entered from the packet handler
 /// and from the queued replay (`run_queued_action`): while busy, Java defers
@@ -201,8 +244,8 @@ pub(crate) fn use_equipable_item(
     finish_equip_change(world, client_id, object_id, &changed);
 }
 
-/// Port of `clientpackets/RequestUnEquipItem.runImpl` (combat/cursed-weapon
-/// guards are skipped — there's no combat system yet).
+/// Port of `clientpackets/RequestUnEquipItem.runImpl` (the mid-attack /
+/// mid-cast guards are still skipped).
 pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(body_part) = cp::read_char_slot(body) else {
         return;
@@ -211,6 +254,19 @@ pub(crate) fn handle_request_un_equip_item(world: &mut World, client_id: u32, bo
         return;
     };
     let object_id = session.player_object_id();
+    // "Prevent of unequipping a cursed weapon." Java tests the *requested slot*
+    // (`_slot == SLOT_LR_HAND`), not the item, so the two-hand slot is frozen
+    // outright while cursed. (`isCombatFlagEquipped` shares the branch; the
+    // combat flag isn't modelled yet.) Without it a cursed player could simply
+    // take the sword off and walk away un-transformed.
+    if body_part == crate::data::item_data::SLOT_LR_HAND
+        && world
+            .objects
+            .get_component::<crate::model::Player>(&object_id)
+            .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
+    {
+        return;
+    }
     let Some(inventory) = world
         .objects
         .get_component_mut::<crate::model::inventory::Inventory>(&object_id)

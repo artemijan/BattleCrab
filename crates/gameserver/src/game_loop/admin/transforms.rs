@@ -142,7 +142,8 @@ fn ride_target(world: &World, object_id: i32) -> i32 {
 /// (`game_loop::skills::effects`) instead calls [`apply_transform_state`]
 /// directly and lets the buff-landing path own the broadcast, since it's
 /// already sending `UserInfo`/`CharInfo` for the buff that carries this.
-pub(super) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
+/// `game_loop::cursed_weapon` also calls it for `CursedWeapon.doTransform`.
+pub(crate) fn apply_transform(world: &mut World, target: i32, transform_id: i32) {
     apply_transform_state(world, target, transform_id);
     broadcast_transform(world, target);
     // Java `Transform.onTransform` ends with the delayed
