@@ -119,6 +119,7 @@ mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
 mod skill_enchant_tests;
+mod skill_rate_tests;
 mod skills_tests;
 mod snoop_tests;
 mod social_tests;
@@ -509,6 +510,7 @@ fn cast_test_world() -> (
     let base = Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 0,
@@ -1416,6 +1418,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -1487,6 +1490,7 @@ fn clan_advent_test_skill() -> Skill {
     Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 19009,

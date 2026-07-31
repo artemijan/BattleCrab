@@ -189,6 +189,11 @@ pub struct CharacterConfig {
     /// `MaxDanceAmount`: the dance/song slot cap (Java `DANCES_MAX_AMOUNT`; 12
     /// on this dist). Dances/songs are counted separately from buffs.
     pub max_dance_count: i32,
+    /// `DanceConsumeAdditionalMP` (Java `DANCE_CONSUME_ADDITIONAL_MP`): each
+    /// dance already running adds `ceil(mpConsume / 2)` to the next dance's MP
+    /// cost. **False on this dist**, so the surcharge is off — but
+    /// `CreatureStat.getMpConsume` reads the flag, so the port does too.
+    pub dance_consume_additional_mp: bool,
     /// `StoreSkillCooltime`: persist active buffs *and* skill reuse cooldowns to
     /// `character_skills_save` on flush and restore them on login (Java
     /// `Player.storeEffect`/`restoreEffects` — the one flag gates both halves).
@@ -304,6 +309,7 @@ impl Default for CharacterConfig {
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
+            dance_consume_additional_mp: false,
             store_skill_cooltime: true,
             alt_store_dances: false,
             dance_cancel_buff: false,
@@ -431,6 +437,8 @@ impl CharacterConfig {
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
+            dance_consume_additional_mp: p
+                .get_bool("DanceConsumeAdditionalMP", d.dance_consume_additional_mp),
             store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
             alt_store_dances: p.get_bool("AltStoreDances", d.alt_store_dances),
             dance_cancel_buff: p.get_bool("DanceCancelBuff", d.dance_cancel_buff),

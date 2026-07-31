@@ -54,6 +54,7 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
     data.skill_data.insert_for_test(Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 91,
@@ -2997,6 +2998,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     let poison = |level: i32, abnormal_level: i32| Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 129,
@@ -3056,6 +3058,7 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 1012,
@@ -3174,6 +3177,7 @@ mod dispel_by_category {
         Skill {
             without_action: false,
             trait_type: crate::model::skill::TraitType::None,
+            static_reuse: false,
             item_consume_id: 0,
             item_consume_count: 0,
             id,
@@ -3601,6 +3605,7 @@ fn synthetic_buff(
     Skill {
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
+        static_reuse: false,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

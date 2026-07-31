@@ -143,6 +143,31 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G16 MP-cost / reuse rates done 2026-07-31 (11 → 8).** The next-largest G16
+cluster after trait resistance: `MagicMpCost` (277 skills, **18 learnable**) and
+`Reuse` (126 / **8**), both of which had been landing as icon-only markers —
+Arcane Wisdom, Zealot, Clarity, Song of Meditation and Quick Recovery all cost
+and saved exactly nothing. Java keeps two `magicType → factor` maps on
+`CreatureStat` (`_mpConsumeStat` / `_reuseStat`); the handlers merge
+`amount/100 + 1` with **`mul`** on start and **`div`** on exit, and
+`getMpConsume(skill)` / `getReuseTime(skill)` read the bucket matching the
+*cast* skill's own `magicType`. All of that is now ported as a `SkillRateStats`
+component plus the two accessors, wired into `use_magic`'s precheck,
+`handle_skill_finish`'s consume and `set_skill_reuse`.
+**Three details worth keeping:** the bucket is the **effect's** `<magicType>`,
+not the carrying skill's (Zealot is a physical-bucket discount on a magic-ish
+buff); the merge is multiplicative, so two −10 % songs are 0.81 rather than
+0.80; and `getReuseTime` returns **before** the multiply for `staticReuse` or
+`isMagic == 2` skills — `<staticReuse>` was unparsed here despite **1 297**
+skills declaring it, which would have let Super Haste's −99 % loose on fixed
+cooldowns. Java's `> 10 ms` cooldown gate is applied to the *scaled* delay, so
+a large discount can take a skill out of the reuse map entirely. Also ported:
+`DanceConsumeAdditionalMP` (the dance-stacking surcharge in the same Java
+method) — **False on this dist**, so wired to the flag rather than assumed away.
+The stale `AttackTrait` note claiming no monster carries a `*_WEAKNESS`
+`DefenceTrait` is corrected: the race skill `Undead` (4416) does, on 13 549
+NPCs. 10 tests, 14 mechanisms sabotage-verified.
+
 **G16 sweep done 2026-07-31 (14 → 11).** The cluster's real content was
 **trait resistance** — the pairing of a debuff's `<trait>` tag with the
 `DefenceTrait` effect. It is the largest unported effect cluster on this dist
