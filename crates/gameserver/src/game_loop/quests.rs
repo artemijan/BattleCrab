@@ -1016,8 +1016,21 @@ impl<'w> QuestCtx<'w> {
     /// `random_offset` reproduces Java's `Rnd.get(50, 100)` per axis with an
     /// independent sign, so a group of ambushers doesn't stack on one point.
     pub fn spawn_attacker(&mut self, npc_id: i32, random_offset: bool) -> Option<i32> {
+        let target = self.player;
+        self.spawn_attacker_on(npc_id, random_offset, target)
+    }
+
+    /// As [`spawn_attacker`](Self::spawn_attacker) but aims the newcomer at a
+    /// specific playable — `addAttackPlayerDesire(spawned, attacker)` where
+    /// Java picked the summon over its owner.
+    pub fn spawn_attacker_on(
+        &mut self,
+        npc_id: i32,
+        random_offset: bool,
+        target_oid: i32,
+    ) -> Option<i32> {
         let spawned = self.spawn_near_npc(npc_id, random_offset)?;
-        super::npc_ai::seed_attack(self.world, spawned, self.player);
+        super::npc_ai::seed_attack(self.world, spawned, target_oid);
         Some(spawned)
     }
 
@@ -1041,6 +1054,20 @@ impl<'w> QuestCtx<'w> {
             .objects
             .get_component::<crate::model::components::PetOf>(&pet)
             .map(|p| p.collar_object_id)
+    }
+
+    /// Java's `isSummon ? killer.getServitors()…orElse(getPet()) : killer` —
+    /// the **Playable** that actually landed the blow, which is what the
+    /// ambush scripts set their spawn on. Falls back to the player when the
+    /// summon has already gone (Java's `orElse` chain can yield null; a null
+    /// target there simply means no desire is set).
+    pub fn killing_playable(&self) -> i32 {
+        if !self.attack_is_summon {
+            return self.player;
+        }
+        super::servitor::servitor_of(self.world, self.player)
+            .or_else(|| super::servitor::pet_of(self.world, self.player))
+            .unwrap_or(self.player)
     }
 
     /// `player.hasSummon()` — a pet or a servitor is out.
@@ -1233,6 +1260,7 @@ impl<'w> QuestCtx<'w> {
     pub fn spawn_attacker_at(&mut self, npc_id: i32, x: i32, y: i32, z: i32) -> Option<i32> {
         let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         super::death::introduce_npc(self.world, spawned);
+        self.link_summoned(spawned);
         super::npc_ai::seed_attack(self.world, spawned, self.player);
         Some(spawned)
     }
@@ -1257,7 +1285,48 @@ impl<'w> QuestCtx<'w> {
         }
         let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         super::death::introduce_npc(self.world, spawned);
+        self.link_summoned(spawned);
         Some(spawned)
+    }
+
+    /// `summoner.addSummonedNpc(npc)` — record that the *talking* NPC spawned
+    /// this one, so [`summoned_npc_count`](Self::summoned_npc_count) can cap
+    /// repeat spawns.
+    ///
+    /// [`Self::summoned_npc_count`]: Self::summoned_npc_count
+    fn link_summoned(&mut self, spawned: i32) {
+        use crate::model::components::SummonedNpcs;
+        let npc = self.npc;
+        match self.world.objects.get_component_mut::<SummonedNpcs>(&npc) {
+            Some(list) => list.0.push(spawned),
+            None => self
+                .world
+                .objects
+                .add_components(&npc, SummonedNpcs(vec![spawned])),
+        }
+    }
+
+    /// Java `npc.getSummonedNpcCount()` — how many of the NPCs this one spawned
+    /// are still in the world. Scripts gate re-spawns on it (`< 1`, `< 5`,
+    /// `< 10`, …) so a repeatedly-clicked dialog doesn't flood the map.
+    ///
+    /// Dead-but-undecayed children still count: Java unlinks at `onDecay`, and
+    /// a corpse is still an object here too.
+    pub fn summoned_npc_count(&self) -> usize {
+        use crate::model::components::SummonedNpcs;
+        self.world
+            .objects
+            .get_component::<SummonedNpcs>(&self.npc)
+            .map(|l| {
+                l.0.iter()
+                    .filter(|oid| {
+                        self.world
+                            .objects
+                            .has_component::<crate::model::npc::Npc>(oid)
+                    })
+                    .count()
+            })
+            .unwrap_or(0)
     }
 
     /// `npc.getVariables().getInt(key)` — 0 when unset, as in Java.
@@ -1969,7 +2038,13 @@ pub(crate) fn notify_spell_finished(
 /// `Attackable` kill → registered kill quests' `onKill`. Called from
 /// `death::npc_do_die` after combat rewards; killer-only (the
 /// `getRandomPartyMemberState` party sharing is a documented deviation).
-pub(crate) fn notify_kill(world: &mut World, killer_oid: i32, npc_oid: i32, npc_id: i32) {
+pub(crate) fn notify_kill(
+    world: &mut World,
+    killer_oid: i32,
+    npc_oid: i32,
+    npc_id: i32,
+    is_summon: bool,
+) {
     let registry = world.quests.clone();
     let scripts = registry.kill_quests(npc_id);
     if scripts.is_empty() {
@@ -1980,6 +2055,10 @@ pub(crate) fn notify_kill(world: &mut World, killer_oid: i32, npc_oid: i32, npc_
     };
     for script in scripts {
         let mut ctx = QuestCtx::new(world, client_id, killer_oid, npc_oid, script.clone());
+        // Java's `onKill(npc, killer, isSummon)` third argument — a handful of
+        // scripts set the newly-spawned avenger on the *pet* that landed the
+        // blow rather than on its owner.
+        ctx.attack_is_summon = is_summon;
         script.on_kill(&mut ctx);
     }
 }

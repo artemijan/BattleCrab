@@ -38,9 +38,10 @@ impl QuestScript for CaveMaiden {
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if ctx.roll(100) < 20 {
-            // TODO(G22): Java sets the banshee on the killing *Playable* (the
-            // pet/servitor if one landed the kill); this seeds on the owner.
-            if let Some(banshee) = ctx.spawn_attacker(BANSHEE, false) {
+            // `isSummon ? killer.getServitors()… : killer` — the avenger goes
+            // after whatever actually landed the kill, pet included.
+            let target = ctx.killing_playable();
+            if let Some(banshee) = ctx.spawn_attacker_on(BANSHEE, false, target) {
                 ctx.schedule_despawn(banshee, BANSHEE_LIFE_MS);
             }
             ctx.delete_npc();

@@ -147,7 +147,10 @@ pub(crate) fn npc_do_die(world: &mut World, npc_oid: i32, killer_oid: i32) {
             // Quest kill credit also follows the acting player: a pet's kill
             // has to advance its owner's quest.
             let quest_killer = crate::game_loop::pvp::acting_player(world, killer_oid);
-            super::quests::notify_kill(world, quest_killer, npc_oid, npc_id);
+            // Java's `isSummon`: the blow came from a pet/servitor, not the
+            // player themselves.
+            let is_summon = quest_killer != killer_oid;
+            super::quests::notify_kill(world, quest_killer, npc_oid, npc_id, is_summon);
         }
     }
 

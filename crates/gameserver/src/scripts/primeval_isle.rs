@@ -157,9 +157,11 @@ fn egg_on_attack(ctx: &mut QuestCtx) {
             }
         });
     for mob in nearby {
-        // TODO(G22): Java targets the killing Playable (pet included).
+        // `isSummon ? killer.getServitors()… : killer` — the newcomer goes for
+        // whatever landed the kill, pet included.
         if ctx.roll(2) == 0 {
-            crate::game_loop::npc_ai::seed_attack(ctx.world, mob, ctx.player);
+            let target = ctx.killing_playable();
+            crate::game_loop::npc_ai::seed_attack(ctx.world, mob, target);
         }
     }
 }

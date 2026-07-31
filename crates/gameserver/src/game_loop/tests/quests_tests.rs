@@ -12287,6 +12287,37 @@ fn quest_q00225_test_of_the_searcher() {
         !npcs_of(&mut world, 30628).is_empty(),
         "the tree conjures a Strong Wooden Chest"
     );
+    // Java's `if (npc.getSummonedNpcCount() < 5)` wraps the whole block: the
+    // tree stops after five chests, and a sixth attempt hands out no key
+    // either. Re-enter the dialog until the cap bites. (The fixture also
+    // places a *static* chest as a dialog target, so count what the tree
+    // itself conjured, not every 30628 in the world.)
+    for _ in 0..6 {
+        ev(&mut world, tree, "30627-01a.html");
+    }
+    let conjured = world
+        .objects
+        .get_component::<crate::model::components::SummonedNpcs>(&tree)
+        .map(|l| l.0.len())
+        .unwrap_or(0);
+    assert_eq!(
+        conjured, 5,
+        "the tree caps itself at five chests, however often it is asked"
+    );
+    // The guard wraps the key hand-out too, so those five attempts also paid
+    // out five keys — take the surplus back so the walkthrough below reads the
+    // ordinary one-key case.
+    assert_eq!(
+        item_count(&world, 3001, 2806),
+        5,
+        "one key per allowed spawn"
+    );
+    if let Some(inv) = world
+        .objects
+        .get_component_mut::<crate::model::inventory::Inventory>(&3001)
+    {
+        inv.remove_item(2806, 4);
+    }
     talk(&mut world, chest);
     ev(&mut world, chest, "30628-01a.html"); // key → 20 Gold Bars, cond 18, chest deleted
     assert_eq!(item_count(&world, 3001, 2807), 20, "20 Gold Bars");
@@ -18598,7 +18629,7 @@ fn quest_q00605_alliance_with_ketra_orcs() {
     };
     let kill = |w: &mut World, roll: i32| {
         w.forced_rolls.push_back(roll);
-        quests::notify_kill(w, 3001, mob, RECRUIT);
+        quests::notify_kill(w, 3001, mob, RECRUIT, false);
     };
 
     // --- Accept: the ladder starts at cond 1. ---
@@ -18728,7 +18759,7 @@ fn quest_q00611_varka_mirror_and_exclusion() {
     );
 
     world.forced_rolls.push_back(0);
-    quests::notify_kill(&mut world, 3001, mob, FOOTMAN);
+    quests::notify_kill(&mut world, 3001, mob, FOOTMAN, false);
     assert_eq!(
         item_count(&world, 3001, KETRA_BADGE_SOLDIER),
         1,
@@ -18823,7 +18854,7 @@ fn quest_q00350_enhance_your_weapon() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "quest started");
 
     // --- A skill-needed mob killed WITHOUT absorbing does not level. ---
-    quests::notify_kill(&mut world, 3001, mob, MOB);
+    quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
         item_count(&world, 3001, RED0),
         1,
@@ -18840,7 +18871,7 @@ fn quest_q00350_enhance_your_weapon() {
         .cur_hp = 40.0; // ≤ half HP, the absorb condition
     quests::notify_skill_see(&mut world, 3001, mob, MOB, SOUL_CRYSTAL_SKILL);
     world.forced_rolls.push_back(0); // roll(100)=0 <= chance 100 → success
-    quests::notify_kill(&mut world, 3001, mob, MOB);
+    quests::notify_kill(&mut world, 3001, mob, MOB, false);
     assert_eq!(
         item_count(&world, 3001, RED0),
         0,
@@ -18908,7 +18939,7 @@ fn quest_q00640_the_zero_hour() {
     assert_eq!(quest_cond(&world, 3001, q), Some(1), "started");
 
     // A Stakato kill drops a fang.
-    quests::notify_kill(&mut world, 3001, mob, STAKATO);
+    quests::notify_kill(&mut world, 3001, mob, STAKATO, false);
     assert_eq!(
         item_count(&world, 3001, FANG),
         1,
@@ -18970,7 +19001,7 @@ fn quest_q00275_dark_winged_spies() {
     // Sitting at 69 fangs, one more bat kill reaches the 70 cap → cond 2.
     inject(&mut world, 3001, 0x0027_5000, FANG, 69);
     world.forced_rolls.push_back(0); // roll_f64 → 0.0 ≤ chance, the fang drops
-    quests::notify_kill(&mut world, 3001, bat, BAT);
+    quests::notify_kill(&mut world, 3001, bat, BAT, false);
     assert_eq!(item_count(&world, 3001, FANG), 70, "the 70th fang dropped");
     assert_eq!(quest_cond(&world, 3001, q), Some(2), "70 fangs → cond 2");
 
@@ -19046,7 +19077,7 @@ fn quest_q00370_an_elder_sows_seeds() {
     // Kill an ant: the 9% roll succeeds and a page drops.
     world.forced_rolls.push_back(0); // roll(100)=0 < 9
     world.forced_rolls.push_back(0); // roll_f64=0.0 ≤ chance
-    quests::notify_kill(&mut world, 3001, ant, ANT);
+    quests::notify_kill(&mut world, 3001, ant, ANT, false);
     assert_eq!(
         item_count(&world, 3001, PAGE),
         1,
@@ -19142,7 +19173,7 @@ fn quest_q00327_recover_the_farmland() {
     // --- An Archer kill drops a Dog Tag, and (forced) a relic fragment. ---
     world.forced_rolls.push_back(0); // roll(100)=0 < 21 → a fragment drops
     world.forced_rolls.push_back(0); // roll(4)=0 → Clay Urn Fragment (1848)
-    quests::notify_kill(&mut world, 3001, mob, ARCHER);
+    quests::notify_kill(&mut world, 3001, mob, ARCHER, false);
     assert_eq!(
         item_count(&world, 3001, DOG_TAG),
         1,
@@ -19264,7 +19295,7 @@ fn quest_q00348_an_arrogant_search() {
 
     // A Drake kill (forced coin-flip) → Shell of Monsters, cond 3.
     world.forced_rolls.push_back(0); // roll(2)=0 → the coin flip lands
-    quests::notify_kill(&mut world, 3001, drake, DRAKE);
+    quests::notify_kill(&mut world, 3001, drake, DRAKE, false);
     assert_eq!(
         item_count(&world, 3001, SHELL),
         1,
@@ -19285,7 +19316,7 @@ fn quest_q00348_an_arrogant_search() {
         .expect("Ezekiel summoned");
 
     // Slay Ezekiel → Book of Saint, cond 6.
-    quests::notify_kill(&mut world, 3001, ezekiel, EZEKIEL);
+    quests::notify_kill(&mut world, 3001, ezekiel, EZEKIEL, false);
     assert_eq!(
         item_count(&world, 3001, BOOK),
         1,
@@ -19307,7 +19338,7 @@ fn quest_q00348_an_arrogant_search() {
     // 100 White Cloth from the Platinum Tribe → cond 10.
     inject(&mut world, 3001, 0x0034_8100, WHITE_CLOTH_PLATINUM, 99); // top up to 100 on the kill
     world.forced_rolls.push_back(0); // roll_f64 → the cloth drops
-    quests::notify_kill(&mut world, 3001, platinum, PLATINUM);
+    quests::notify_kill(&mut world, 3001, platinum, PLATINUM, false);
     assert_eq!(
         item_count(&world, 3001, WHITE_CLOTH_PLATINUM),
         100,
@@ -19392,7 +19423,7 @@ fn quest_q00662_a_game_of_cards() {
     // A Blood Queen kill (value 232 < forced roll 999) drops a chip.
     world.forced_rolls.push_back(999); // roll(1000) → 999 > 232
     world.forced_rolls.push_back(0); // roll_f64 for the give
-    quests::notify_kill(&mut world, 3001, mob, BLOOD_QUEEN);
+    quests::notify_kill(&mut world, 3001, mob, BLOOD_QUEEN, false);
     assert_eq!(
         item_count(&world, 3001, RED_GEM),
         1,
@@ -19515,7 +19546,7 @@ fn quest_q00333_hunt_of_the_black_lion() {
     // A Neer Crawler kill (order held) drops Undead Ash and a Cargo Box.
     world.forced_rolls.push_back(0); // material roll 0 < 50
     world.forced_rolls.push_back(0); // cargo roll 0 < 11
-    quests::notify_kill(&mut world, 3001, mob, NEER_CRAWLER);
+    quests::notify_kill(&mut world, 3001, mob, NEER_CRAWLER, false);
     assert_eq!(
         item_count(&world, 3001, UNDEAD_ASH),
         1,
@@ -20302,7 +20333,7 @@ fn tutorial_gremlin_gem_drop_and_pickup() {
     // Gremlin kill with a forced sub-30 roll: the gem hits the ground.
     add_test_npc(&mut world, 9200, 20001, "Monster", 5, 10, 0, 0);
     world.forced_rolls.push_back(0);
-    quests::notify_kill(&mut world, 3001, 9200, 20001);
+    quests::notify_kill(&mut world, 3001, 9200, 20001, false);
     let gem_oid = world
         .ground_item_regions
         .values()

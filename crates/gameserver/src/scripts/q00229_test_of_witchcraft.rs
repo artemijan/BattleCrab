@@ -312,8 +312,11 @@ impl QuestScript for Q00229TestOfWitchcraft {
             "30633-02.htm" => {
                 ctx.give_items(BRIMSTONE_2ND, 1);
                 ctx.set_cond(9, true);
-                // TODO(G22): getSummonedNpcCount()<1 guard; spawn Zeruel.
-                ctx.spawn_attacker(DREVANUL_PRINCE_ZERUEL, true);
+                // `if (npc.getSummonedNpcCount() < 1)` — one Zeruel at a
+                // time, however often the dialog is re-entered.
+                if ctx.summoned_npc_count() < 1 {
+                    ctx.spawn_attacker(DREVANUL_PRINCE_ZERUEL, true);
+                }
                 Some(event.to_string())
             }
             _ => None,
@@ -721,8 +724,10 @@ fn evert_talk(ctx: &mut QuestCtx) -> String {
         && has(ctx, BRIMSTONE_2ND)
         && !has(ctx, ZERUEL_BIND_CRYSTAL)
     {
-        // TODO(G22): getSummonedNpcCount()<1 guard; spawn Zeruel.
-        ctx.spawn_attacker(DREVANUL_PRINCE_ZERUEL, true);
+        // `if (npc.getSummonedNpcCount() < 1)`.
+        if ctx.summoned_npc_count() < 1 {
+            ctx.spawn_attacker(DREVANUL_PRINCE_ZERUEL, true);
+        }
         "30633-02.htm".to_string()
     } else if has(ctx, ZERUEL_BIND_CRYSTAL)
         && !has(ctx, SOULTRAP_CRYSTAL)

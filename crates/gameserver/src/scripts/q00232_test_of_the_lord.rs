@@ -251,8 +251,10 @@ impl QuestScript for Q00232TestOfTheLord {
                 None
             }
             "30649-07.html" => {
-                // TODO(G22): getSummonedNpcCount()<1 guard; spawn First Orc.
-                ctx.spawn_near_npc(FIRST_ORC, false);
+                // `if (npc.getSummonedNpcCount() < 1)`.
+                if ctx.summoned_npc_count() < 1 {
+                    ctx.spawn_near_npc(FIRST_ORC, false);
+                }
                 Some(event.to_string())
             }
             _ => None,
@@ -664,8 +666,10 @@ fn martankus_talk(ctx: &mut QuestCtx) -> String {
         ctx.set_cond(6, true);
         "30649-06.html".to_string()
     } else if has(ctx, IMMORTAL_FLAME) {
-        // TODO(G22): getSummonedNpcCount()<1 guard; spawn First Orc.
-        ctx.spawn_near_npc(FIRST_ORC, false);
+        // `if (npc.getSummonedNpcCount() < 1)`.
+        if ctx.summoned_npc_count() < 1 {
+            ctx.spawn_near_npc(FIRST_ORC, false);
+        }
         "30649-08.html".to_string()
     } else {
         ctx.no_quest_html()

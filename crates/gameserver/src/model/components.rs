@@ -873,6 +873,19 @@ pub struct PlayerPets(pub HashMap<i32, crate::db::PetRow>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct PlayerSummons(pub Vec<crate::db::SummonRow>);
 
+/// Java `Creature._summonedNpcs` — the NPCs *this* NPC has spawned through a
+/// script `addSpawn(summoner, …)`. Scripts read its size (`getSummonedNpcCount`)
+/// to stop a talk/attack handler re-spawning the same guardian every time it is
+/// triggered.
+///
+/// Only the parent's half of the link is kept. Java also back-links the child
+/// (`npc.setSummoner`) so the child can unlink itself on decay; the port prunes
+/// dead children when the count is read instead, which needs no despawn hook
+/// and gives the same answer — a *corpse* still counts, exactly as in Java,
+/// because `removeSummonedNpc` fires at `onDecay`, not at death.
+#[derive(Component, Debug, Clone, Default)]
+pub struct SummonedNpcs(pub Vec<i32>);
+
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
 /// Player-only; registry logic in `model/shortcut.rs`.

@@ -188,10 +188,16 @@ impl QuestScript for Q00227TestOfTheReformer {
             }
             "30669-03.html" => {
                 ctx.set_cond(12, true);
-                // TODO(G22): getSummonedNpcCount()<1 guard + the decoy pilgrim
-                // the werewolf is scripted to fight; we conjure the werewolf on
-                // the player so it can be engaged.
-                ctx.spawn_attacker(CRIMSON_WEREWOLF, true);
+                // `if (npc.getSummonedNpcCount() < 1)`.
+                //
+                // TODO(G22): Java spawns a decoy Ol Mahum Pilgrim at a fixed
+                // spot and points the werewolf at *it* (`addDamageHate` 99999);
+                // the port conjures the werewolf onto the player instead, so it
+                // can be engaged at all. The fight is winnable either way, but
+                // the staged duel is missing.
+                if ctx.summoned_npc_count() < 1 {
+                    ctx.spawn_attacker(CRIMSON_WEREWOLF, true);
+                }
                 Some(event.to_string())
             }
             "30670-03.html" => {
