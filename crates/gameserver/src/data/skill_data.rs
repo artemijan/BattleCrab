@@ -3558,4 +3558,46 @@ mod tests {
             "enchanted level adds to base"
         );
     }
+
+    /// **Every `abnormalVisualEffect` name the dist's own skills use resolves.**
+    /// The name→client-id table used to stop at id 38 while the datapack
+    /// references 133 distinct names, so 102 of them (`AURA_BUFF`,
+    /// `ABSORB_SHIELD`, the grade-change glows…) parsed into nothing and the
+    /// visual never reached the client. The table is now generated from Java's
+    /// enum in full, so every name the dist uses resolves.
+    #[test]
+    fn every_datapack_abnormal_visual_name_resolves() {
+        use crate::model::skill::abnormal_visual_client_id;
+        const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let dir = format!("{ROOT}data/stats/skills");
+        let mut names = std::collections::BTreeSet::new();
+        for entry in std::fs::read_dir(&dir).expect("skills dir").flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|e| e.to_str()) != Some("xml") {
+                continue;
+            }
+            let xml = std::fs::read_to_string(&path).unwrap_or_default();
+            for chunk in xml.split("abnormalVisualEffect>").skip(1) {
+                let Some(value) = chunk.split('<').next() else {
+                    continue;
+                };
+                for n in value.split(';').map(str::trim).filter(|n| !n.is_empty()) {
+                    names.insert(n.to_string());
+                }
+            }
+        }
+        assert!(names.len() > 100, "the dist really does use many of them");
+        let unresolved: Vec<&String> = names
+            .iter()
+            .filter(|n| abnormal_visual_client_id(n).is_none())
+            .collect();
+        assert!(
+            unresolved.is_empty(),
+            "every name the dist skills use must resolve, missing: {unresolved:?}"
+        );
+        // Spot-check a few that the truncated table used to drop.
+        assert_eq!(abnormal_visual_client_id("AURA_BUFF"), Some(57));
+        assert_eq!(abnormal_visual_client_id("CHANGE_HAIR_B"), Some(39));
+        assert_eq!(abnormal_visual_client_id("ABSORB_SHIELD"), Some(152));
+    }
 }
