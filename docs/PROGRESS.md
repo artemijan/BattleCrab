@@ -143,6 +143,21 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Expired-assumption sweep 2026-07-31.** Acting on the pattern the previous
+slice exposed: a grep for helpers whose simplification is justified by a stat's
+*absence* ("trait mods 1.0", "no traits/attributes", "unported"). Today's own
+work had invalidated six such claims and left **one real behaviour gap**:
+`Lethal`'s `chanceMultiplier` is
+`calcAttributeBonus · calcGeneralTraitBonus(…, false)` and the port applied only
+the attribute half, under a comment reading "its trait half stays unported with
+the trait system". The trait system landed hours earlier. Backstab/Lethal
+Blow/Deadly Blow now respect a victim's trait resistance when rolling their
+kill chance. The other five were doc-only (`formulas`' module header,
+`calc_magic_dam`, `calc_physical_skill_damage`, `calc_blow_damage`,
+`TraitType::Weapon`, and a resist test claiming "Detect Beast Weakness is inert
+on this dist" — it is not, since the damage side landed). 1 test,
+1 mechanism sabotage-verified.
+
 **G19 `TargetCancel`'s chance gate 2026-07-31.** Not a missing effect —
 `TargetCancel` (10 learnable carriers: Shield Bash/Slam, Stun Blast/Shot/Stomp,
 Earthquake, Aura Flash, Trick, Switch, Bluff) was ported — but its **gate was

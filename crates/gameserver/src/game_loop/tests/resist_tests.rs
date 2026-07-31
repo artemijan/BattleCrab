@@ -406,10 +406,12 @@ fn defence_traits_stack_and_100_means_invulnerable() {
     );
 }
 
-/// Only Java's **group 3** traits are resisted this way. A weapon-type trait
-/// (group 1) and the `*_WEAKNESS` family (group 2, which needs a matching
-/// attacker-side `AttackTrait`) pass through at 1.0 — which is why "Detect
-/// Beast Weakness" is inert on this dist.
+/// Only Java's **group 3** traits are resisted *through the landing roll*. A
+/// weapon-type trait (group 1) passes through at 1.0 here, and so does the
+/// `*_WEAKNESS` family (group 2) unless the attacker carries the matching
+/// `AttackTrait`. Both groups do bite elsewhere — the damage formulas read them
+/// through `calcWeaponTraitBonus`/`calcWeaknessBonus` — this is only about the
+/// landing roll.
 #[test]
 fn only_the_resistable_trait_group_is_scaled() {
     use crate::game_loop::skills::effects::{calc_general_trait_bonus, merge_defence_traits};
