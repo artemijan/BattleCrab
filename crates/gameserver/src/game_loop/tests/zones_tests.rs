@@ -296,10 +296,17 @@ fn siege_zone_combat_messages_and_leave_flag() {
     );
 }
 
-/// Entering an active siege zone broadcasts the attackable siege relation
-/// (`RelationChanged` INSIEGE|ENEMY + auto-attackable) both ways with everyone
-/// already in the zone — without it the client never shows combatants as
-/// attackable.
+/// Entering an active siege zone broadcasts the attackable relation both ways
+/// with everyone already in the zone — without it the client never shows
+/// combatants as attackable.
+///
+/// **The siege *icon* is a different question from attackability.** Java's
+/// `getRelation` sets INSIEGE off the viewer's own `_siegeState`, which only a
+/// registered participant has, while `isAutoAttackable` makes the whole active
+/// siege zone hostile (its "siege PvP zone" arm). So two clanless bystanders
+/// caught in the battlefield *are* attackable but carry **no** siege bits —
+/// which is what this asserts, and what the port used to get wrong by deriving
+/// the icon from the zone.
 #[test]
 fn siege_zone_broadcasts_attackable_relation_on_enter() {
     use crate::model::components::Position;
@@ -331,24 +338,43 @@ fn siege_zone_broadcasts_attackable_relation_on_enter() {
         .0 = crate::world::region_of(5500, 0);
     super::zones::revalidate_zone(&mut world, 3002, false);
 
-    let is_attackable_rc = |pkts: &[Vec<u8>], about: i32| {
-        pkts.iter().any(|p| {
-            p[0] == server_packets::opcodes::RELATION_CHANGED
-                && i32::from_le_bytes(p[2..6].try_into().unwrap()) == about
-                && p[10] == 1 // auto-attackable
-                && {
-                    let rel = i32::from_le_bytes(p[6..10].try_into().unwrap());
-                    rel & 0x200 != 0 && rel & 0x1000 != 0 // INSIEGE | ENEMY
-                }
+    // (auto-attackable, relation bits) for the RelationChanged about `about`.
+    let rc = |pkts: &[Vec<u8>], about: i32| -> Option<(u8, i32)> {
+        pkts.iter().find_map(|p| {
+            (p[0] == server_packets::opcodes::RELATION_CHANGED
+                && i32::from_le_bytes(p[2..6].try_into().unwrap()) == about)
+                .then(|| (p[10], i32::from_le_bytes(p[6..10].try_into().unwrap())))
         })
     };
-    assert!(
-        is_attackable_rc(&drain(&mut a_rx), 3002),
-        "A sees B as an attackable siege enemy"
+    let (a_attackable, a_rel) = rc(&drain(&mut a_rx), 3002).expect("A is told about B");
+    let (b_attackable, b_rel) = rc(&drain(&mut b_rx), 3001).expect("B is told about A");
+    assert_eq!(a_attackable, 1, "A sees B as attackable");
+    assert_eq!(b_attackable, 1, "B sees A as attackable");
+    assert_eq!(
+        a_rel & (0x200 | 0x1000),
+        0,
+        "…but with no siege bits: neither is registered for this siege"
     );
-    assert!(
-        is_attackable_rc(&drain(&mut b_rx), 3001),
-        "B sees A as an attackable siege enemy"
+    assert_eq!(b_rel & (0x200 | 0x1000), 0);
+
+    // Give them opposing sides and the icon appears: INSIEGE both ways, ENEMY
+    // because the states differ, and ATTACKER on the besieger's own crown.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .siege_state = 2;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3002)
+        .unwrap()
+        .siege_state = 1;
+    super::pvp::broadcast_siege_relation(&world, 3002);
+    let (_, rel) = rc(&drain(&mut a_rx), 3002).expect("A is told about B again");
+    assert_eq!(
+        rel & (0x200 | 0x1000 | 0x400),
+        0x200 | 0x1000 | 0x400,
+        "INSIEGE | ENEMY | ATTACKER for an attacker seen by a defender"
     );
 }
 

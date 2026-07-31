@@ -1259,6 +1259,7 @@ fn siege_start_evicts_non_owners_to_town() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,
@@ -1342,6 +1343,7 @@ fn siege_capture_transfers_ownership_and_endsiege_declares_victor() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,
@@ -1463,6 +1465,7 @@ fn siege_end_world(tickets: i32) -> (World, tokio::sync::mpsc::UnboundedReceiver
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: tickets,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,
@@ -1991,6 +1994,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
         name: "Giran".into(),
         side: CastleSide::Neutral,
         ticket_buy_count: 0,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,
@@ -2616,4 +2620,153 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
             .has_component::<crate::model::npc::Npc>(&npc_oid),
         "ConsumeBody decayed the corpse immediately"
     );
+}
+
+// --- G24 sweep: siege sides ------------------------------------------------
+
+/// Put two clanned players on castle 3's active battlefield, registered with
+/// the given siege roles. Returns the world ready for an attackability check.
+#[cfg(test)]
+fn siege_sides_world(
+    a_kind: crate::model::siege::SiegeClanType,
+    b_kind: crate::model::siege::SiegeClanType,
+) -> World {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::Clan;
+    use crate::model::siege::Siege;
+
+    let (mut world, ..) = test_world();
+    insert_siege_zone(&mut world, 3, 0, 1000, 0, 1000);
+    world.castles = vec![Castle {
+        id: 3,
+        name: "Giran".into(),
+        side: CastleSide::Neutral,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_date: 0,
+        treasury: 0,
+    }];
+    let mut siege = Siege::new(3);
+    siege.add_clan(500, a_kind);
+    siege.add_clan(700, b_kind);
+    siege.in_progress = true;
+    world.sieges.insert(3, siege);
+    for (id, leader) in [(500, 4001), (700, 4002)] {
+        let clan = Clan {
+            id,
+            name: format!("Clan{id}"),
+            leader_id: leader,
+            level: 5,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![crate::model::clan::ClanMember {
+                char_id: leader,
+                name: format!("P{leader}"),
+                level: 40,
+                class_id: 0,
+                sex: 0,
+                race: 0,
+                power_grade: 1,
+                title: String::new(),
+                pledge_type: 0,
+            }],
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        };
+        world.clans.insert(id, clan);
+    }
+    let _a = ingame_player(&mut world, 1, 4001, 500, 500, 0);
+    let _b = ingame_player(&mut world, 2, 4002, 510, 510, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&4001)
+        .unwrap()
+        .clan_id = 500;
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&4002)
+        .unwrap()
+        .clan_id = 700;
+    world
+}
+
+/// **Same-side clans don't fight.** Java's `isAutoAttackable` siege block:
+/// two defender clans are never attackable to each other, and two *attacker*
+/// clans only become attackable once the castle has been engraved once
+/// (`isFirstMidVictory`) — until then the besiegers are allies.
+#[test]
+fn siege_sides_decide_who_may_attack_whom() {
+    use crate::model::siege::SiegeClanType::{Attacker, Defender, Owner};
+    let attackable = |w: &World| crate::game_loop::pvp::is_player_auto_attackable(w, 4001, 4002);
+
+    // Attacker vs defender — the ordinary case, hostile.
+    assert!(attackable(&siege_sides_world(Attacker, Defender)));
+    assert!(attackable(&siege_sides_world(Attacker, Owner)));
+
+    // Two defenders never fight.
+    assert!(
+        !attackable(&siege_sides_world(Defender, Defender)),
+        "two defender clans are on the same side"
+    );
+    assert!(
+        !attackable(&siege_sides_world(Owner, Defender)),
+        "the owner counts as a defender"
+    );
+
+    // Two attackers: allies until the castle is engraved…
+    let mut world = siege_sides_world(Attacker, Attacker);
+    assert!(
+        !attackable(&world),
+        "besiegers are allies before the first mid victory"
+    );
+    // …and enemies after.
+    world
+        .castles
+        .iter_mut()
+        .find(|c| c.id == 3)
+        .unwrap()
+        .first_mid_victory = true;
+    assert!(
+        attackable(&world),
+        "once someone has engraved the castle, attackers may fight each other"
+    );
+}
+
+/// **A siege stamps its side on every online member, and takes it back.** The
+/// flags drive the relation icon: same state → the blue ALLY bit, different →
+/// red ENEMY, and a besieger additionally carries ATTACKER.
+#[test]
+fn a_siege_stamps_and_clears_each_members_side() {
+    use crate::model::siege::SiegeClanType::{Attacker, Owner};
+    let mut world = siege_sides_world(Owner, Attacker);
+    // The fixture pre-set `in_progress`; run the real start-of-siege update.
+    let state = |w: &World, oid: i32| {
+        w.objects
+            .get_component::<crate::model::Player>(&oid)
+            .map(|p| (p.siege_state, p.siege_side))
+            .unwrap()
+    };
+    assert_eq!(state(&world, 4001), (0, 0), "no side before the update");
+
+    crate::game_loop::siege::update_player_siege_state_flags(&mut world, 3, false);
+    assert_eq!(state(&world, 4001), (2, 3), "the owner defends castle 3");
+    assert_eq!(state(&world, 4002), (1, 3), "the other clan attacks it");
+
+    crate::game_loop::siege::update_player_siege_state_flags(&mut world, 3, true);
+    assert_eq!(state(&world, 4001), (0, 0), "cleared when the siege ends");
+    assert_eq!(state(&world, 4002), (0, 0));
 }

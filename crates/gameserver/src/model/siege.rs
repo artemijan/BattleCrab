@@ -122,6 +122,35 @@ impl Siege {
         self.flags.len() != before
     }
 
+    /// Java `checkIsDefender(clan)` — registered as OWNER or DEFENDER. The
+    /// *pending* defenders are deliberately not counted: Java's
+    /// `getDefenderClans()` holds only approved ones, and an unapproved
+    /// applicant is a spectator on the field, not a side.
+    pub fn is_defender(&self, clan_id: i32) -> bool {
+        self.clans.iter().any(|c| {
+            c.clan_id == clan_id && matches!(c.kind, SiegeClanType::Owner | SiegeClanType::Defender)
+        })
+    }
+
+    /// Java `checkIsAttacker(clan)`.
+    pub fn is_attacker(&self, clan_id: i32) -> bool {
+        self.clans
+            .iter()
+            .any(|c| c.clan_id == clan_id && c.kind == SiegeClanType::Attacker)
+    }
+
+    /// Java `Player.getSiegeState()` for a member of `clan_id`: 1 attacker,
+    /// 2 defender, 0 uninvolved.
+    pub fn side_of(&self, clan_id: i32) -> u8 {
+        if self.is_attacker(clan_id) {
+            1
+        } else if self.is_defender(clan_id) {
+            2
+        } else {
+            0
+        }
+    }
+
     /// Any clan registered as an ATTACKER (`getAttackerClans().isEmpty()`).
     pub fn has_attackers(&self) -> bool {
         self.clans.iter().any(|c| c.kind == SiegeClanType::Attacker)

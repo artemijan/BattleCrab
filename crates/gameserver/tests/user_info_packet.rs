@@ -77,6 +77,8 @@ async fn user_info_test() {
         create_date: String::new(),
         power_grade: 0,
         ally_id: 0,
+        siege_state: 0,
+        siege_side: 0,
         pledge_type: 0,
         lvl_joined_academy: 0,
         apprentice: 0,

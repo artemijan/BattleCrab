@@ -78,10 +78,59 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
         .unwrap_or_default();
     spawn_siege_npcs(world, castle_id, &guards);
 
-    // TODO(G24): updatePlayerSiegeStateFlags; the control-tower destruction
-    // mechanic (destroying towers weakens the defenders' respawn). The
-    // Castle.getZone().setActive is modelled by the in-progress flag the
-    // siege-zone PvP check reads.
+    // `updatePlayerSiegeStateFlags(false)` — every online member of a
+    // registered clan learns which side they are on.
+    update_player_siege_state_flags(world, castle_id, false);
+
+    // TODO(G24): the control-tower destruction mechanic (destroying towers
+    // weakens the defenders' respawn). `Castle.getZone().setActive` is modelled
+    // by the in-progress flag the siege-zone PvP check reads.
+}
+
+/// Port of `Siege.updatePlayerSiegeStateFlags(clear)`: stamp (or wipe) the
+/// per-member siege side on every **online** member of every registered clan,
+/// then re-push their appearance so nearby clients recolour them.
+///
+/// The side is a *clan* property projected onto its members, and it is
+/// deliberately **not** "is standing in the siege zone": a registered attacker
+/// carries state 1 wherever they are, which is what makes two attacker clans
+/// unable to fight each other anywhere on the map for the duration.
+///
+/// TODO(G24): Java also starts/stops a **fame task** for members inside the
+/// zone (`startFameTask`). Fame has no earning path anywhere in this port, so
+/// there is nothing to start.
+pub(crate) fn update_player_siege_state_flags(world: &mut World, castle_id: i32, clear: bool) {
+    let Some(siege) = world.sieges.get(&castle_id) else {
+        return;
+    };
+    // (clan_id, side) for every clan with a side — owner/defender = 2,
+    // attacker = 1. Pending defenders have no side, as in Java.
+    let sides: Vec<(i32, u8)> = siege
+        .clans
+        .iter()
+        .map(|c| (c.clan_id, siege.side_of(c.clan_id)))
+        .filter(|&(_, side)| side != 0)
+        .collect();
+    let mut touched = Vec::new();
+    for (clan_id, side) in sides {
+        for member in super::clans::online_members(world, clan_id) {
+            if let Some(p) = world
+                .objects
+                .get_component_mut::<crate::model::Player>(&member)
+            {
+                p.siege_state = if clear { 0 } else { side };
+                p.siege_side = if clear { 0 } else { castle_id };
+            }
+            touched.push(member);
+        }
+    }
+    // `member.updateUserInfo()` + the `RelationChanged` sweep: the port's
+    // `broadcast_user_info` carries both (UserInfo to self, CharInfo to the
+    // neighbours), and the relation refresh rides the same path.
+    for member in touched {
+        super::party::broadcast_user_info(world, member);
+        super::pvp::broadcast_siege_relation(world, member);
+    }
 }
 
 /// `Siege.endSiege` — announce the finish, declare the winner (or a draw), and
@@ -96,8 +145,15 @@ pub(crate) fn end_siege(world: &mut World, castle_id: i32) {
     };
 
     // Java `updatePlayerSiegeStateFlags(true)`: the siege is over, so clear the
-    // in-siege crown/icon from everyone who was on the (now inactive) field.
+    // side off every registered clan's members (and the in-siege crown/icon
+    // from everyone on the now-inactive field). Runs **before** the ownership
+    // bookkeeping below, while the roster still names the clans that fought.
+    update_player_siege_state_flags(world, castle_id, true);
     super::zones::refresh_siege_zone_for_all(world);
+    // `_castle.setFirstMidVictory(false)`.
+    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+        c.first_mid_victory = false;
+    }
 
     broadcast_sm(world, sm_ids::THE_S1_SIEGE_HAS_FINISHED, castle_id);
     broadcast_to_all(world, &server_packets::play_sound("systemmsg_eu.18"));
@@ -244,13 +300,9 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
     // Java `Castle.setOwner`: strip the castle's residential skills from the
     // former owner's online members, and grant them to the captor's.
     if let Some(old) = old_owner {
-        for member in super::clans::online_members(world, old) {
-            super::clans::remove_residential_skills(world, member, castle_id);
-        }
+        super::clans::strip_residential_skills_from_clan(world, old, castle_id);
     }
-    for member in super::clans::online_members(world, new_clan_id) {
-        super::clans::give_residential_skills(world, member, castle_id, new_clan_id);
-    }
+    super::clans::grant_residential_skills_to_clan(world, new_clan_id, castle_id);
 
     // Reshuffle siege roles: every other side becomes an attacker, the captor
     // becomes the OWNER; then re-persist the changed rows.
@@ -288,8 +340,17 @@ pub(crate) fn capture(world: &mut World, castle_id: i32, new_clan_id: i32) {
         });
     }
 
+    // `_castle.setFirstMidVictory(true)` — the castle has now been engraved
+    // once, which is what finally lets two *attacker* clans fight each other
+    // (`isAutoAttackable`'s siege block reads this).
+    if let Some(c) = world.castles.iter_mut().find(|c| c.id == castle_id) {
+        c.first_mid_victory = true;
+    }
     // `_castle.spawnDoor(true)` — respawn the (now the captor's) gates at 50% HP.
     spawn_castle_doors(world, castle_id, true);
+    // `updatePlayerSiegeStateFlags(false)` — every side just changed, so every
+    // member's icon and attackability has to be re-pushed.
+    update_player_siege_state_flags(world, castle_id, false);
 }
 
 /// Spawn a set of siege NPCs (the stationed guards / control + flame towers)
@@ -1249,7 +1310,7 @@ pub(crate) fn list_register_clan(world: &World, client_id: u32, player: i32, cas
 }
 
 /// Java `Siege.listRegisterClan` → `new SiegeInfo(castle, player)`.
-fn send_siege_info(
+pub(crate) fn send_siege_info(
     world: &World,
     client_id: u32,
     castle_id: i32,

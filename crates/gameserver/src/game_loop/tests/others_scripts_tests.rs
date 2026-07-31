@@ -753,6 +753,7 @@ fn castle_row(id: i32, name: &str) -> crate::model::castle::Castle {
         name: name.into(),
         side: Default::default(),
         ticket_buy_count: 0,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,
