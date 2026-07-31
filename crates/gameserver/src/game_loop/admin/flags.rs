@@ -302,52 +302,47 @@ pub(super) fn toggle_flag_on_target(
     );
 }
 
-/// Entries per page of the effect list.
-///
-/// Java passes 100 to `PageBuilder`, but its buttons use the newer client's
-/// markup (`<button action=… align=left icon=teleport>label</button>`) — a form
-/// that appears in **no** htm of this dist, whose every button is the classic
-/// `<button value=… action=… width= height= back= fore=>`. Rendering the
-/// classic form costs ~50% more markup per entry, and a `NpcHtmlMessage` past
-/// ~17k characters breaks this client, so the page holds fewer entries instead.
-const AVE_PAGE_SIZE: usize = 40;
+/// Entries per page of the effect list — Java's `PageBuilder.newBuilder(…, 100,
+/// …)`. The 206 effects page as 100/100/6, and a full page of Java's markup
+/// renders to ~11k characters, clear of the ~17k a `NpcHtmlMessage` may not
+/// exceed.
+const AVE_PAGE_SIZE: usize = 100;
 
 /// The `//ave_abnormal` menu — `data/html/admin/ave_abnormal.htm` filled with a
 /// button per `AbnormalVisualEffect` (Java pages `AbnormalVisualEffect.values()`
-/// through `PageBuilder` + `NextPrevPageHandler`/`ButtonsStyle`). Each button
+/// through `PageBuilder` + `DefaultPageHandler`/`ButtonsStyle`). Each button
 /// re-enters the command with the effect name, which toggles it.
+///
+/// `AdminEffects` never calls `PageBuilder.pageHandler()`, so the pager is the
+/// builder's default — **numbered** page buttons, not the `<< < > >>` strip of
+/// `NextPrevPageHandler`, which this page never uses.
 fn show_ave_menu(world: &World, client_id: u32, page: i32) {
     let all = crate::model::skill::ABNORMAL_VISUAL_EFFECTS;
-    // Java `PageBuilder.build()`: pages = ceil(n / size), clamp an overshooting
-    // page to the last one, and render the pager only past a single page.
+    // Java `PageBuilder.build()`: pages = ceil(n / size), render the pager only
+    // past a single page, then clamp the page.
     let pages =
         (all.len() / AVE_PAGE_SIZE + usize::from(!all.len().is_multiple_of(AVE_PAGE_SIZE))) as i32;
     let pager = if pages > 1 {
-        super::spawn::next_prev_pager("bypass -h admin_ave_abnormal", page, pages, " ")
+        super::spawn::default_pager("bypass -h admin_ave_abnormal", page, pages)
     } else {
         String::new()
     };
-    let current = page.clamp(0, (pages - 1).max(0));
+    // Faithful to Java's `if (_currentPage > pages) _currentPage = pages - 1`:
+    // the clamp tests `>`, not `>=`, so a hand-typed page *equal* to the count
+    // (`//ave_abnormal 3` of 3) runs off the end and lists nothing. No pager
+    // button can reach it — they only ever link 0..pages-1.
+    let current = if page > pages { pages - 1 } else { page.max(0) };
     let start = (AVE_PAGE_SIZE as i32 * current).max(0) as usize;
 
-    // Two buttons per row: 260-wide table, the width the other admin pages use.
-    let mut body = String::from("<table width=260>");
-    for (i, (name, id)) in all.iter().skip(start).take(AVE_PAGE_SIZE).enumerate() {
-        if i % 2 == 0 {
-            body.push_str("<tr>");
-        }
+    // Java's body handler: one full-width button per effect, no table around
+    // them — the htm's own `<center>` lays them out.
+    let mut body = String::new();
+    for (name, id) in all.iter().skip(start).take(AVE_PAGE_SIZE) {
         body.push_str(&format!(
-            "<td><button value=\"{name}({id})\" action=\"bypass -h admin_ave_abnormal {name}\" \
-             width=125 height=21 back=\"L2UI_CT1.Button_DF_Down\" fore=\"L2UI_CT1.Button_DF\"></td>"
+            "<button action=\"bypass admin_ave_abnormal {name}\" align=left icon=teleport>\
+             {name}({id})</button>"
         ));
-        if i % 2 == 1 {
-            body.push_str("</tr>");
-        }
     }
-    if all.iter().skip(start).take(AVE_PAGE_SIZE).count() % 2 == 1 {
-        body.push_str("<td></td></tr>");
-    }
-    body.push_str("</table>");
     // Java wraps the pager whenever the list is non-empty (`getPages() > 0`).
     let pages_html = if pages > 0 {
         format!("<table width=280 cellspacing=0><tr>{pager}</tr></table>")
