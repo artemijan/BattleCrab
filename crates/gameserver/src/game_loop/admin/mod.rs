@@ -749,9 +749,11 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             super::olympiad::save_all(world);
             send_message(world, client_id, "Olympiad system saved.");
         }
-        // Java `settruehero` toggles permanent hero status on the target — the
-        // port's hero grant *is* persistent, so it shares `//sethero`.
-        "admin_settruehero" => hero::admin_sethero(world, client_id, object_id),
+        // Java `settruehero` is NOT a synonym for `sethero`: it toggles
+        // `Player._trueHero`, a separate flag with its own `100 : 0` byte in
+        // both CharInfo and UserInfo (`isTrueHero()`), and touches neither the
+        // hero skill tree nor the `isHero()` glow byte.
+        "admin_settruehero" => hero::admin_settruehero(world, client_id, object_id),
         // Quest admin (`AdminShowQuests`).
         "admin_charquestmenu" | "admin_show_quests" => {
             editchar::admin_charquestmenu(world, client_id, object_id, &args)

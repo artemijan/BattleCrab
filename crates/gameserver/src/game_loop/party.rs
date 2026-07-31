@@ -248,8 +248,45 @@ pub(crate) fn broadcast_user_info(world: &World, object_id: i32) {
         &v,
         &super::abnormal::visual_effects(world, object_id),
         &cubics,
+        &char_info_state(world, object_id),
     );
     broadcast_to_others(world, object_id, &char_info);
+}
+
+/// Gather the manager-sourced `CharInfo` fields Java reads inside the packet
+/// ctor (`CursedWeaponsManager`, `AttackStanceTaskManager`, the clan, death,
+/// the fishing session) — see [`server_packets::CharInfoState`].
+pub(crate) fn char_info_state(world: &World, object_id: i32) -> server_packets::CharInfoState {
+    let p = world.objects.get_component::<Player>(&object_id);
+    let clan = p
+        .filter(|p| p.clan_id != 0)
+        .and_then(|p| world.clans.get(&p.clan_id));
+    server_packets::CharInfoState {
+        in_combat: super::combat::has_attack_stance(world, object_id),
+        // Java gates the byte on `!isInOlympiadMode()` so a downed Olympiad
+        // fighter keeps standing until the match ends.
+        alike_dead: !world.olympiad.is_in_competition(object_id)
+            && world
+                .objects
+                .get_component::<crate::model::components::Vitals>(&object_id)
+                .is_some_and(|v| v.dead),
+        cursed_weapon_level: p
+            .filter(|p| p.cursed_weapon_equipped_id != 0)
+            .and_then(|p| {
+                world
+                    .cursed_weapons
+                    .iter()
+                    .find(|w| w.item_id == p.cursed_weapon_equipped_id)
+            })
+            .map_or(0, |w| w.level() as u8),
+        clan_crest_large_id: clan.map_or(0, |c| c.crest_large_id),
+        clan_reputation: clan.map_or(0, |c| c.reputation_score),
+        fishing_bait: world
+            .objects
+            .get_component::<crate::model::components::FishingSession>(&object_id)
+            .filter(|f| f.is_fishing)
+            .map(|f| (f.bait_x, f.bait_y, f.bait_z)),
+    }
 }
 
 fn player_name(world: &World, object_id: i32) -> String {

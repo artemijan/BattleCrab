@@ -102,6 +102,7 @@ fn send_char_info(world: &World, observer: &ClientSession, player_id: i32) {
         &v,
         &super::abnormal::visual_effects(world, player_id),
         &cubics,
+        &super::party::char_info_state(world, player_id),
     ));
     // Java `Player.sendInfo` pairs each CharInfo with a RelationChanged, so the
     // viewer learns the relation bits CharInfo can't carry — notably the

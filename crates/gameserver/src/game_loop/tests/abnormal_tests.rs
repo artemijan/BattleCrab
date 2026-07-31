@@ -674,6 +674,7 @@ fn char_info_carries_the_visual_list() {
             &v,
             &crate::game_loop::abnormal::visual_effects(world, VICTIM),
             &[],
+            &Default::default(),
         )
     };
 

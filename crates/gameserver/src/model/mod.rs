@@ -222,6 +222,12 @@ pub struct Player {
     /// fresh session starts `false`; `//sethero` toggles it (grant/remove the
     /// hero skill tree + refresh the aura).
     pub is_hero: bool,
+    /// Java `Player._trueHero` — a *second*, independent hero flag with its own
+    /// `100 : 0` byte in both `CharInfo` and `UserInfo`, separate from the
+    /// `hero_aura` byte above. Java only ever sets it from `//settruehero`
+    /// (`AdminAdmin`) and never persists it, so it is transient here too.
+    /// The port had the byte hard-coded to 0, which made the flag untestable.
+    pub true_hero: bool,
 
     pub level: i32,
     pub class_id: i32,
@@ -975,6 +981,7 @@ impl Player {
             base_exp: c.exp,
             base_sp: c.sp,
             is_hero: false,
+            true_hero: false,
             level: c.level,
             class_id: c.class_id,
             base_class_id: c.base_class_id,

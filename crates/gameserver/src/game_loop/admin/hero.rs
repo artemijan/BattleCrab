@@ -36,6 +36,33 @@ pub(super) fn admin_sethero(world: &mut World, client_id: u32, gm_object_id: i32
     set_hero(world, target, !now);
 }
 
+/// `//settruehero` — toggle the target's `isTrueHero()` flag (Java
+/// `AdminAdmin`: `target.setTrueHero(!target.isTrueHero()); broadcastUserInfo()`).
+/// This is a *different* flag from `//sethero`: it grants no skills and does
+/// not touch the hero glow byte — it drives its own `100 : 0` byte at the tail
+/// of `CharInfo`/`UserInfo`. Transient, exactly as in Java.
+pub(super) fn admin_settruehero(world: &mut World, client_id: u32, gm_object_id: i32) {
+    let Some(target) = hero_target(world, gm_object_id) else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+    let Some(p) = world.objects.get_component_mut::<Player>(&target) else {
+        return;
+    };
+    p.true_hero = !p.true_hero;
+    let now = p.true_hero;
+    crate::game_loop::party::broadcast_user_info(world, target);
+    send_message(
+        world,
+        client_id,
+        if now {
+            "True hero status is now on."
+        } else {
+            "True hero status is now off."
+        },
+    );
+}
+
 /// `//givehero` (confirmDlg) — the Olympiad hero-claim path.
 pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i32) {
     let Some(target) = hero_target(world, gm_object_id) else {
