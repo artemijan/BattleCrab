@@ -176,6 +176,29 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
     // (`isMagic=2`), so the overridden hitTime is used verbatim.
     let unstuck_ms = interval * 1000;
     skill.hit_time = unstuck_ms;
+    // The cast goes FIRST. Java's `SkillCaster.castSkill` runs phase 0
+    // synchronously (`skillCaster.run()`), so `startCasting`'s YOU_USE_S1 +
+    // SetupGauge reach the client *before* the handler's own chat line — the
+    // player reads "You use Escape (5-minute)." (the client's own name for
+    // skill 2099; the 5 minutes is a lie, the forced hit time is 30 s) and
+    // then "You use Escape: 30 seconds." Sending the chat line first inverts
+    // the pair.
+    super::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
+    // ...and the chat line is gated on the cast having started: Java answers a
+    // null `SkillCaster` with ActionFailed + `setIntention(AI_INTENTION_ACTIVE)`
+    // and *no* message, so a refused escape never claims to have worked.
+    // `start_casting` returns `()`, but it is the only thing that adds
+    // `Casting` and the guard at the top of this fn already proved the slot
+    // was empty — so the component is the "cast started" signal.
+    if !world.objects.has_component::<Casting>(&object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        world
+            .objects
+            .remove_component::<crate::model::components::Intent>(&object_id);
+        return;
+    }
     if interval > 100 {
         super::admin::send_message(
             world,
@@ -189,7 +212,6 @@ fn unstuck(world: &mut World, client_id: u32, object_id: i32) {
             &format!("You use Escape: {} seconds.", unstuck_ms / 1000),
         );
     }
-    super::skills::cast::start_casting(world, client_id, object_id, &skill, object_id);
 }
 
 /// Port of `usercommandhandlers/Time.java` — the in-game clock, in the client's
