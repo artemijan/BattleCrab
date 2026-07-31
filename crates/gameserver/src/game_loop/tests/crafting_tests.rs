@@ -464,3 +464,47 @@ fn enlarge_slot_expand_dwarven_craft_raises_recipe_limit() {
         "registered once the passive raises the limit past the book's current size"
     );
 }
+
+/// **The `UserInfo` STATUS block's craft byte opens the client's create-item
+/// window**, and it was hard-coded 0 — so the whole (ported) crafting subsystem
+/// was unreachable from the UI. Java's condition is
+/// `hasDwarvenCraft() || getSkillLevel(248) > 0`: Create Item (172), or
+/// Crystallize (248) for a non-Dwarf.
+///
+/// Rather than hard-code a byte offset into a block-structured packet, this
+/// builds the same `UserInfo` twice and asserts the *only* difference is one
+/// byte flipping 0 → 1.
+#[test]
+fn user_info_advertises_the_craft_window_to_a_crafter() {
+    const OID: i32 = 7401;
+
+    let build = |world: &World| {
+        let v = crate::model::PlayerView::of(&world.objects, OID).expect("a live player");
+        crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, 0)
+    };
+
+    for skill_id in [172, 248] {
+        let (mut world, ..) = cast_test_world();
+        let _rx = ingame_caster(&mut world, 1, OID, 0, 0);
+        let before = build(&world);
+
+        world
+            .objects
+            .get_component_mut::<SkillBook>(&OID)
+            .unwrap()
+            .0
+            .insert(skill_id, 1);
+        let after = build(&world);
+
+        assert_eq!(before.len(), after.len(), "same packet shape");
+        let diffs: Vec<usize> = (0..before.len())
+            .filter(|&i| before[i] != after[i])
+            .collect();
+        assert_eq!(
+            diffs.len(),
+            1,
+            "skill {skill_id} flips exactly one byte, got {diffs:?}"
+        );
+        assert_eq!((before[diffs[0]], after[diffs[0]]), (0, 1));
+    }
+}

@@ -46,6 +46,12 @@ pub fn ex_user_info_abnormal_visual_effect(
     w.into_bytes()
 }
 
+/// `CommonSkill.CREATE_DWARVEN` — the Dwarven "Create Item" ability.
+const CREATE_DWARVEN_SKILL_ID: i32 = 172;
+/// Crystallize; Java ORs it in so a non-Dwarf who can crystallize also gets the
+/// window.
+const CRYSTALLIZE_SKILL_ID: i32 = 248;
+
 pub fn user_info(
     v: &crate::model::PlayerView,
     data: &GameData,
@@ -53,6 +59,7 @@ pub fn user_info(
     relation: i32,
 ) -> Vec<u8> {
     let crate::model::PlayerView {
+        skills,
         p,
         pos,
         vitals,
@@ -149,7 +156,14 @@ pub fn user_info(
     w.write_i16(UserInfoType::Status.block_length() as i16);
     w.write_u8(p.mount_type); // mount type (0 none, 1 strider, 2 wyvern, 3 wolf)
     w.write_u8(p.store_type); // private store type
-    w.write_u8(0); // dwarven craft / crafting
+    // Java: `hasDwarvenCraft() || getSkillLevel(248) > 0` — i.e. Create Item
+    // (172) or Crystallize (248). **This byte is what opens the client's
+    // create-item window**, so hard-coding it 0 left the whole (ported)
+    // crafting subsystem unreachable from the UI.
+    let can_craft = [CREATE_DWARVEN_SKILL_ID, CRYSTALLIZE_SKILL_ID]
+        .iter()
+        .any(|id| skills.0.get(id).is_some_and(|&lvl| lvl > 0));
+    w.write_u8(can_craft as u8);
     w.write_u8(0);
 
     // STATS — base values (TODO(G7): full combat-stat calc).

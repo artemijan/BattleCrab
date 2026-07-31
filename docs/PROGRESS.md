@@ -143,6 +143,18 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`UserInfo`'s craft byte 2026-07-31.** Same audit, same shape as the `Die`
+find: the STATUS block's third byte is Java's
+`hasDwarvenCraft() || getSkillLevel(248) > 0` and **it is what opens the
+client's create-item window**. The port wrote a hard 0, so the entire crafting
+subsystem (G15.7, fully ported and tested) had no way in from the UI. Now read
+from the skill book — Create Item (172), or Crystallize (248) for a non-Dwarf.
+`PlayerView` gained the skill book to make it reachable.
+**Noted, not ported:** `EtcStatusUpdate`'s `getWeightPenalty()` is also a hard
+0, but inventory weight/overload is not modelled at all (only
+`GMStartupDietMode` exists), so that is a feature rather than a stub. 1 test,
+3 mechanisms sabotage-verified.
+
 **The `Die` packet's restart buttons 2026-07-31.** Found by a third audit
 pattern — hard-coded `0` counts and flags in packet writers ([[stubbed
 counts]]'s lesson) — and the largest single find of the day. **Every flag in
