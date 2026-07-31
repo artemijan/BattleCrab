@@ -41,7 +41,7 @@ pub(crate) fn door_open_state(world: &World, door_oid: i32, door_id: i32) -> boo
 
 /// `Door.broadcastStatusUpdate()`: push the new state to everyone whose
 /// region block contains the door.
-fn broadcast_status(world: &World, door_oid: i32) {
+pub(crate) fn broadcast_status(world: &World, door_oid: i32) {
     let Some(door) = world.objects.get_component::<Door>(&door_oid) else {
         return;
     };

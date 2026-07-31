@@ -17,7 +17,7 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::helpers::ms_to_ticks;
+use super::helpers::{client_for_player, ms_to_ticks};
 
 /// `SiegeManager.getSiegeLength()` — `SiegeLength = 120` (minutes) in Siege.ini.
 const SIEGE_LENGTH_MIN: i32 = 120;
@@ -56,9 +56,10 @@ pub(crate) fn start_siege(world: &mut World, castle_id: i32) {
         .scheduler
         .schedule(fire_at, ScheduledTask::SiegeEnd { castle_id });
 
-    // `teleportPlayer(NotOwner, TOWN)` — clear the battlefield of everyone but
-    // the owning clan. TODO(G24): attackers/defenders re-enter through their
-    // siege HQ / flags (unported), so for now they're simply evicted too.
+    // `teleportPlayer(NotOwner, TOWN)` — Java clears the battlefield of
+    // everyone but the owning clan at the bell, attackers included; they walk
+    // back in and an attacker leader plants a headquarters
+    // (`build_headquarters`) to respawn there instead of in town.
     teleport_non_owners(world, castle_id);
 
     // `_castle.spawnDoor()` — close the castle gates at full HP for the battle.
@@ -611,7 +612,7 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
         return false;
     }
     // `BuildCampSkillCondition`: an active siege at this spot where the clan is
-    // registered as an attacker. TODO(G24): also require the `ZoneId.HQ` sub-zone.
+    // registered as an attacker.
     let Some(castle_id) = world.data.zone_data.siege_castle_at(x, y, z) else {
         return false;
     };
@@ -623,6 +624,21 @@ pub(crate) fn place_siege_flag(world: &mut World, player_oid: i32) -> bool {
             && s.flag_count(clan_id) < FLAG_MAX_COUNT // getNumFlags < MaxFlags
     });
     if !ok {
+        return false;
+    }
+    // …and its **last** gate, which is the one with its own message: the camp
+    // may only go up inside the battlefield's marked headquarters areas
+    // (`isInsideZone(ZoneId.HQ)`, `castle_hq.xml` — 19 patches across the
+    // castles). Without it a base camp could be planted in the courtyard.
+    if world.data.zone_data.hq_castle_at(x, y, z) != Some(castle_id) {
+        if let Some(cs) =
+            client_for_player(world, player_oid).and_then(|cid| world.clients.get(&cid))
+        {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_CAN_T_BUILD_HEADQUARTERS_HERE,
+                &[],
+            ));
+        }
         return false;
     }
     // Plant it at z+50 (Java `spawnMe(x, y, z + 50)`) and register it.
@@ -809,8 +825,14 @@ pub(crate) fn damage_door(world: &mut World, door_oid: i32, damage: i32) -> bool
         d.current_hp == 0
     };
     if breached {
+        // `open_door` broadcasts the new state itself, HP included.
         super::doors::open_door(world, door_oid); // breach — the gate swings open
-        // TODO(G24): broadcast the reduced HP too (DoorStatusUpdate showHp).
+    } else {
+        // Java `Door.reduceCurrentHp` → `broadcastStatusUpdate`: the gate's HP
+        // and its 0..6 crack grade go out on **every** hit, which is what makes
+        // a gate under attack visibly fall apart. Only the breach was announced
+        // before, so a besieged gate looked untouched until it burst open.
+        super::doors::broadcast_status(world, door_oid);
     }
     breached
 }

@@ -68,6 +68,13 @@ pub enum ZoneKind {
     /// by geometry (`jail_zone_at`), never by membership mask — the u8 mask is
     /// full — so it claims no bit.
     Jail,
+    /// Java `HqZone` → `ZoneId.HQ` (`castle_hq.xml`): the marked-out patches of
+    /// a castle's battlefield where an attacking clan may plant its
+    /// headquarters. `BuildCampSkillCondition` refuses the cast anywhere else,
+    /// so without these a base camp could go up in the middle of the courtyard.
+    /// Its `<stat name="castleId">` is held in [`Zone::castle_id`]; queried by
+    /// geometry (`hq_castle_at`), so it claims no membership bit.
+    Hq,
     /// Java `TaxZone` (`tax.xml`): the territory whose merchant trade feeds a
     /// castle's treasury. Its `<stat name="domainId">` is the castle id, held in
     /// [`Zone::castle_id`]. Java latches the zone onto every NPC standing in it
@@ -111,6 +118,8 @@ impl ZoneKind {
             ZoneKind::Jail => 0,
             // Queried by geometry (`residence_teleport_zone`), no bit (mask full).
             ZoneKind::ResidenceTeleport => 0,
+            // Queried by geometry (`hq_castle_at`), no membership bit (mask full).
+            ZoneKind::Hq => 0,
             // Queried by geometry (`tax_castle_at`), no bit (mask full).
             ZoneKind::Tax => 0,
         }
@@ -252,6 +261,11 @@ impl ZoneData {
             // `tax.xml` is uniformly `TaxZone` — the trade territory whose
             // purchases pay tax into `domainId`'s castle treasury.
             ("tax.xml", ZoneKind::Tax),
+            // `castle_hq.xml` is uniformly `HqZone` — the patches of each
+            // battlefield where an attacker may plant its headquarters.
+            // (`fortress_hq.xml` and `territory_war_hq.xml` are the fort-siege
+            // and territory-war siblings, neither of which exists here.)
+            ("castle_hq.xml", ZoneKind::Hq),
         ] {
             let before = zones.len();
             parse_file(
@@ -436,6 +450,14 @@ impl ZoneData {
             .find(|zn| zn.kind == ZoneKind::Tax)
             .map(|zn| zn.castle_id)
     }
+
+    /// Java `isInsideZone(ZoneId.HQ)` — the castle whose headquarters area
+    /// covers this point, if any (`BuildCampSkillCondition`'s last gate).
+    pub fn hq_castle_at(&self, x: i32, y: i32, z: i32) -> Option<i32> {
+        self.zones_at(x, y, z)
+            .find(|zn| zn.kind == ZoneKind::Hq)
+            .map(|zn| zn.castle_id)
+    }
 }
 
 /// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
@@ -460,6 +482,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "JailZone" => ZoneKind::Jail,
         "ResidenceTeleportZone" => ZoneKind::ResidenceTeleport,
         "TaxZone" => ZoneKind::Tax,
+        "HqZone" => ZoneKind::Hq,
         _ => return None,
     })
 }
@@ -738,7 +761,9 @@ mod tests {
         // `MASS_TELEPORT` ousts from (G22 `ai/others`).
         // 1112 → 1234: `tax.xml`'s 122 `TaxZone`s — the trade territories whose
         // purchases pay into `domainId`'s castle treasury.
-        assert_eq!(data.zones.len(), 1234);
+        // 1234 → 1253: `castle_hq.xml`'s 19 `HqZone`s — the patches of each
+        // battlefield where an attacker may plant its headquarters.
+        assert_eq!(data.zones.len(), 1253);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
         assert_eq!(count(ZoneKind::Tax), 122, "tax.xml");
         // Every tax zone names a castle (1..=9) through `domainId`.
@@ -881,6 +906,7 @@ mod effect_zone_tests {
                         | ZoneKind::Peace
                         | ZoneKind::Water
                         | ZoneKind::NoRestart
+                        | ZoneKind::Hq
                         | ZoneKind::Pvp
                         | ZoneKind::Siege
                         | ZoneKind::Effect
@@ -923,5 +949,33 @@ impl Zone {
     /// Java `ZoneType.isInsideZone(x, y, z)`.
     pub fn contains(&self, x: i32, y: i32, z: i32) -> bool {
         z >= self.territory.min_z && z <= self.territory.max_z && self.territory.contains_2d(x, y)
+    }
+}
+
+#[cfg(test)]
+mod hq_zone_tests {
+    use super::*;
+
+    /// `castle_hq.xml` loads: the marked headquarters patches an attacker must
+    /// stand in to plant a base camp. The file was never in the load list, so
+    /// the gate that reads it had nothing to find.
+    #[test]
+    fn dist_castle_hq_zones_load_with_their_castle_ids() {
+        const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+        let data = ZoneData::load_from(DIST);
+        let hq: Vec<&Zone> = data
+            .zones
+            .iter()
+            .filter(|z| z.kind == ZoneKind::Hq)
+            .collect();
+        assert_eq!(hq.len(), 19, "every HQ patch in castle_hq.xml");
+        assert!(
+            hq.iter().all(|z| z.castle_id > 0),
+            "each names the castle it belongs to"
+        );
+        // Gludio (1) owns the first two patches; one of its nodes is inside.
+        assert_eq!(data.hq_castle_at(-18000, 115000, 0), Some(1));
+        // A point far outside every patch is in none.
+        assert_eq!(data.hq_castle_at(0, 0, 0), None);
     }
 }

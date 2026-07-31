@@ -143,6 +143,35 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Siege HQ zones + gate damage 2026-08-01.** The G24 cluster was the largest
+left (22 markers), so it got the same read-against-the-code treatment. Most of
+it is honest skips — fame has no earning path anywhere in Interlude, castle
+upgrades aren't modelled, `AttackerRespawn = 0` on this dist — but three
+markers were **stale prose** (the HQ-flag and artifact-capture mechanics they
+said were "unported" had since landed) and two were real:
+
+- **The headquarters zones were never loaded.** `BuildCampSkillCondition`'s
+  last gate — the one with its own message — is `isInsideZone(ZoneId.HQ)`:
+  an attacker may plant a base camp only on the battlefield's marked patches.
+  `castle_hq.xml` ships **19** of them, but `HqZone` was not a parsed kind, so
+  the file was skipped and the gate had nothing to consult: a camp could go up
+  anywhere in the siege zone, courtyard included. New `ZoneKind::Hq` +
+  `hq_castle_at`, and the cast now refuses elsewhere with
+  `YOU_CAN_T_BUILD_HEADQUARTERS_HERE`. A pre-existing HQ-flag test started
+  failing on the new gate — correctly, its fixture had no patch — which is the
+  [[l2r-census-tests]] discipline paying off twice in one run (the zone count
+  moved 1234 → 1253 in the same pass).
+- **A besieged gate looked untouched until it burst.** `DoorStatusUpdate` wrote
+  `damage = 0` and `currentHp = maxHp` unconditionally, and the port only
+  broadcast on the *breach*. Java re-broadcasts on every hit through
+  `Door.reduceCurrentHp`, carrying the real HP and `getDamage()` — the 0..6
+  **crack grade** the client draws on the gate mesh. Both are real now. The
+  grade is a sixth rather than a percentage (`6 - ceil(cur/max * 6)`), so the
+  first crack only appears below 5/6 HP and a gate on one HP still shows 5 —
+  the test pins that shape, because the intuitive reading is wrong.
+
+3 tests, 3 mechanisms sabotage-verified. Markers: 158 → 153 (G24: 22 → 17).
+
 **Mount feeding 2026-08-01.** The item deferred from the last tranche, and the
 last of the mount markers. Java `Player.startFeed` + `PetFeedTask`: riding
 burns the mount's feed every 10 s (`consume_meal_in_battle` while swinging,
