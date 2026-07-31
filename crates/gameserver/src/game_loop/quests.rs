@@ -746,6 +746,14 @@ impl<'w> QuestCtx<'w> {
         // two-arg overload — `useBonuses = false`, so vitality neither boosts
         // the reward nor is spent on it.
         super::death::add_exp_and_sp(self.world, self.player, exp as f64, sp as f64, false);
+        // `AbstractScript.addExpAndSp` closes with
+        // `givePcCafePoint(player, addExp * RATE_QUEST_REWARD_XP)` — the
+        // rate-multiplied value, which is exactly `exp` here.
+        //
+        // TODO(G16): Java multiplies quest exp by `PREMIUM_RATE_QUEST_XP/SP`
+        // for a premium player *before* this, which the port doesn't apply
+        // yet — so a premium character's award is short by that factor.
+        super::pc_cafe::give_point(self.world, self.player, exp as f64);
     }
 
     // --- misc --------------------------------------------------------------

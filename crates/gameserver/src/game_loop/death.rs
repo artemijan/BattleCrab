@@ -667,6 +667,11 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             // `addExpAndSp`.
             if exp > 0.0 {
                 consume_kill_vitality(world, player_oid, player_level, &t, exp);
+                // Java pairs the PA-point award with `updateVitalityPoints`
+                // inside `if (useVitalityRate())` — but it is *not* behind
+                // `Config.ENABLE_VITALITY`, which `consume_kill_vitality`
+                // early-returns on, so it has to sit out here.
+                super::pc_cafe::give_point(world, player_oid, exp);
             }
             continue;
         };
@@ -1157,9 +1162,8 @@ pub(crate) fn consume_kill_vitality(
     let delta =
         super::vitality::kill_vitality_delta(world, t.level, t.exp, player_level, exp, is_boss);
     super::vitality::update_vitality_points(world, player_oid, delta, true, false);
-    // TODO(G16): Java also calls `PcCafePointsManager.givePcCafePoint(attacker,
-    // exp)` right here (PC_CAFE_RETAIL_LIKE); the points store exists
-    // (`//pccafepoints`) but the earn-per-kill manager is unported.
+    // (Java's `givePcCafePoint` sits beside this call in `Attackable.onKill`,
+    // but outside the vitality-enabled guard above — see the two call sites.)
 }
 
 /// `PlayerStat.addExpAndSp(addToExp, addToSp, useBonuses)`.

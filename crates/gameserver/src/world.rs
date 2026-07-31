@@ -382,6 +382,8 @@ pub struct World {
     /// Generation counter for the per-player `RecoGive` task (stale firings
     /// left over from a previous session no-op on mismatch).
     pub reco_give_seq: u64,
+    /// Same, for the per-player `PcCafeReward` task.
+    pub pc_cafe_seq: u64,
     /// Command channel to the DB thread.
     pub db: db::CmdTx,
     /// Staggered periodic-autosave schedule (Java `PlayerAutoSaveTaskManager`):
@@ -496,6 +498,7 @@ impl World {
             ground_item_regions: HashMap::new(),
             request_seq: 0,
             reco_give_seq: 0,
+            pc_cafe_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
             rng: rand::rngs::StdRng::from_entropy(),
@@ -521,6 +524,12 @@ impl World {
     pub fn next_reco_give_seq(&mut self) -> u64 {
         self.reco_give_seq += 1;
         self.reco_give_seq
+    }
+
+    /// Next `PcCafeReward` task generation (see `pc_cafe_seq`).
+    pub fn next_pc_cafe_seq(&mut self) -> u64 {
+        self.pc_cafe_seq += 1;
+        self.pc_cafe_seq
     }
 
     /// Object ids of every NPC whose region cell lies in `region`'s 3×3

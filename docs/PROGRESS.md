@@ -143,6 +143,32 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G16 PC-café (PA) points done 2026-07-31 (8 → 6).** The *store* was already
+there — `characters.pccafe_points`, the `//pccafepoints` GM command,
+`ExPCCafePointInfo` — but no way to **earn**. `PcCafePointsManager` is now
+ported as `game_loop::pc_cafe`, with all five Java call sites wired: `run` at
+enter-world, on a community-board premium purchase and on `//premium_add`;
+`givePcCafePoint` on a solo kill, on each party member's share, and on a quest
+XP reward. The two modes are **mutually exclusive** — `givePcCafePoint`'s first
+guard is `PC_CAFE_RETAIL_LIKE`, which this dist sets, so it is the 5-minute
+timer or nothing.
+**Two upstream bugs are reproduced rather than fixed**, because they are what a
+player on the reference server actually sees: `givePcCafePoint` sends the
+*double-points* string on **both** branches of its if/else (its sibling
+`giveRetailPcCafePont` gets it right), and `giveRetailPcCafePont`'s max check
+compares the **award** to the ceiling instead of the player's balance, so a
+capped player is told they earned points while the clamp hands them zero. Both
+are pinned by tests that say so.
+**One divergence is deliberate and the dist data decides it:**
+`Config.PC_CAFE_REWARD_TIME` is declared in Java and **never assigned**, so it
+is 0 and `scheduleAtFixedRate(…, 0, 0)` throws — the reference server's
+retail-like timer never starts at all. `PremiumSystem.ini` declares
+`PcCafeRewardTime = 300000`, and the dist is the specification, so the port
+reads it. (Relatedly: `Custom/PcCafe.ini` exists on this dist and **no Java
+constant names it** — its `PcCafeEnabled = True` is inert, and the
+`//pccafepoints` ceiling that used to be inlined from it now comes from
+`PremiumSystem.ini`.) 17 tests, 20 mechanisms sabotage-verified.
+
 **G16 MP-cost / reuse rates done 2026-07-31 (11 → 8).** The next-largest G16
 cluster after trait resistance: `MagicMpCost` (277 skills, **18 learnable**) and
 `Reuse` (126 / **8**), both of which had been landing as icon-only markers —
