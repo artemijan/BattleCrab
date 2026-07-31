@@ -62,6 +62,16 @@ pub struct Castle {
     /// changes hands at a siege end. (The mercenary-placement system itself is
     /// a later milestone, so nothing increments it yet.)
     pub ticket_buy_count: i32,
+    /// Java `Castle._isFirstMidVictory` — set when an attacker first engraves
+    /// the castle mid-siege (`Siege.midVictory`), cleared at `endSiege`. It is
+    /// the *only* thing that lets two attacker clans fight each other, and it
+    /// makes every side a "siege friend" while still false.
+    ///
+    /// Runtime-only (Java never persists it). **Nothing sets it true yet**: the
+    /// engrave skill (`Siege.midVictory`) is unported, so the port behaves as a
+    /// siege where no one has engraved — which is Java's own behaviour up to
+    /// that moment, not a divergence.
+    pub first_mid_victory: bool,
     /// Java `Castle._isTimeRegistrationOver` (`castle.regTimeOver`): while this
     /// is `false` the owner may pick the siege hour (`RequestSetCastleSiegeTime`);
     /// it defaults `true`, so the feature is dormant until an operator opens the

@@ -3,8 +3,9 @@
 //! owner, switch side), and the siege *registration + state* actions
 //! (add/remove attacker/defender, start/stop siege) over the
 //! [`crate::model::siege`] slice. The siege *combat* — control towers, flags,
-//! guards, zone PvP, teleport, the timed window and ownership-on-victory, plus
-//! the `SiegeInfo` registration window — is a later milestone (TODO(G24)).
+//! guards, zone PvP, teleport, the timed window and ownership-on-victory — has
+//! since landed; what is left of this module's TODO(G24)s is listed at their
+//! sites (castle crests, the control-tower/weakened-door mechanics).
 
 use crate::db::DbCommand;
 use crate::model::Player;
@@ -199,8 +200,9 @@ fn set_owner(world: &mut World, client_id: u32, gm_object_id: i32, idx: usize, r
         clan_id: target_clan_id,
         castle_id,
     });
-    // TODO(G24): grant residential skills to the clan, set the castle crest,
-    // and the siege-side bookkeeping (Castle.setOwner).
+    // `Castle.setOwner`'s skill half — the new owner's online members get the
+    // castle's residential skills at once. TODO(G24): the castle crest.
+    super::super::clans::grant_residential_skills_to_clan(world, target_clan_id, castle_id);
     show_castle_menu(world, client_id, idx);
 }
 
@@ -222,11 +224,23 @@ fn take_castle(world: &mut World, client_id: u32, idx: usize) {
                 castle_id,
                 side: CastleSide::Neutral.as_db().to_string(),
             });
-            // TODO(G24): remove residential skills + crest (Castle.removeOwner).
+            // `Castle.removeOwner`'s skill half. TODO(G24): the crest.
+            super::super::clans::strip_residential_skills_from_clan(world, clan_id, castle_id);
         }
         None => send_message(world, client_id, "Error during removing castle!"),
     }
     show_castle_menu(world, client_id, idx);
+}
+
+/// `(player object id, clan id)` of the GM behind `client_id`.
+fn clan_of_client(world: &World, client_id: u32) -> (i32, i32) {
+    match world.clients.get(&client_id) {
+        Some(crate::session::ClientSession::InGame(s)) => {
+            let oid = s.player_object_id();
+            (oid, clan_of(world, oid))
+        }
+        _ => (0, 0),
+    }
 }
 
 /// The clan id of a player (0 = none).
@@ -238,10 +252,21 @@ fn clan_of(world: &World, oid: i32) -> i32 {
         .unwrap_or(0)
 }
 
-/// `showRegWindow` → Java `Siege.listRegisterClan` (the `SiegeInfo` window).
-/// TODO(G24): port `SiegeInfo`; a roster summary stands in for the GM.
+/// `showRegWindow` → Java `Siege.listRegisterClan`: the real `SiegeInfo` window
+/// (which the castle Siege Manager already serves to players), followed by the
+/// roster summary the GM panel wants — `SiegeInfo` shows the castle's schedule
+/// and owner, not who is registered.
 fn show_reg_window(world: &mut World, client_id: u32, idx: usize) {
     let castle_id = world.castles[idx].id;
+    let gm = clan_of_client(world, client_id);
+    super::super::siege::send_siege_info(
+        world,
+        client_id,
+        castle_id,
+        gm.1,
+        gm.0,
+        commons::util::now_millis(),
+    );
     let name = world.castles[idx].name.clone();
     let summary = world
         .sieges

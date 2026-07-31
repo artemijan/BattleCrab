@@ -305,6 +305,18 @@ pub struct Player {
     /// store-only UserInfo/CharInfo builders can write it; synced at
     /// enter-world and on every ally change.
     pub ally_id: i32,
+    /// Java `Player._siegeState` — **1 attacker, 2 defender, 0 uninvolved**.
+    /// Set for every online member of a registered clan when a siege starts
+    /// (`Siege.updatePlayerSiegeStateFlags`) and cleared when it ends. Drives
+    /// the `RelationChanged` siege bits (INSIEGE / ENEMY-vs-ALLY / ATTACKER).
+    ///
+    /// Note it is a *clan* property projected onto the member, and it is not
+    /// the same test as "standing in the siege zone" — a registered attacker
+    /// carries state 1 across the whole world while their siege runs.
+    pub siege_state: u8,
+    /// Java `Player._siegeSide` — the residence id of the siege the member is
+    /// registered for, so two simultaneous sieges don't bleed into each other.
+    pub siege_side: i32,
     /// Java `Player._pledgeType` — 0 main pledge, -1 academy, 100/200 royal
     /// guard, 1001/1002/2001/2002 knight order. Drives `pledge_class_of` and
     /// the sub-pledge member caps.
@@ -992,6 +1004,8 @@ impl Player {
             create_date: c.create_date.clone(),
             power_grade: c.power_grade,
             ally_id: 0, // synced from the clan at enter-world
+            siege_state: 0,
+            siege_side: 0,
             pledge_type: c.pledge_type,
             lvl_joined_academy: c.lvl_joined_academy,
             apprentice: c.apprentice,

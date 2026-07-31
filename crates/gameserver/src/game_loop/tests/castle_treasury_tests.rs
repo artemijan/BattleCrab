@@ -23,6 +23,7 @@ fn castle(id: i32, name: &str, side: CastleSide) -> Castle {
         name: name.into(),
         side,
         ticket_buy_count: 0,
+        first_mid_victory: false,
         time_registration_over: true,
         siege_date: 0,
         treasury: 0,

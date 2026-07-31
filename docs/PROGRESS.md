@@ -143,6 +143,33 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G24 sweep done 2026-07-31 (30 → 25).** The cluster's coherent half was
+**siege sides**, which nothing modelled: `Player.siege_state` (1 attacker /
+2 defender) + `siege_side` (the castle), stamped on every online member of a
+registered clan by the new `siege::update_player_siege_state_flags` at siege
+start, cleared at end, and re-pushed on a mid-siege capture. With them,
+**same-side clans stop being able to attack each other** (Java
+`isAutoAttackable`'s siege block: two defenders never fight; two attackers only
+after the castle's **first mid victory**, which `capture` now sets), and the
+`RelationChanged` siege icon becomes Java's — INSIEGE off the *subject's* own
+state, ENEMY vs ALLY by comparing the two, ATTACKER on a besieger.
+**Two latent bugs fell out of it**: (a) the port showed the siege crown to
+*any* two players in an active zone, clanless bystanders included, because the
+icon was derived from the zone rather than from registration — the existing
+test asserted the wrong thing and was corrected; (b) `siege_relation_bits`'s
+call sites passed viewer-then-subject, which was harmless while the function
+was symmetric and wrong the moment it stopped being. Also: residential skills
+now follow a member **joining** a castle-owning clan (not just logging in) and
+the GM `//castlemanage` set/take-owner actions; `showRegWindow` serves the real
+`SiegeInfo` packet, which had landed since the TODO was written. **Verified
+not-a-gap**: leaving a clan needs no residential teardown — those skills ride
+the same transient `ClanSkills` component the general clan-skill strip already
+clears (a sabotage proved the added code was dead, and it was removed rather
+than kept as belt-and-braces). 3 tests, 6 mechanisms sabotage-verified. The
+remaining 25 are the genuinely bigger pieces — control-tower destruction,
+weakened-door respawn, teleport-to-flag, castle crests, the HQ sub-zone — plus
+the resurrection-blocked ones.
+
 ---
 
 ## Remaining-ports audit (2026-07-27)

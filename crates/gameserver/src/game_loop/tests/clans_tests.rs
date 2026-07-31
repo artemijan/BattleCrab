@@ -4557,3 +4557,47 @@ fn leaving_the_clan_clears_the_academy_state() {
         "…on the sponsor's side too"
     );
 }
+
+/// **Residential skills follow clan membership, not just login.** A member who
+/// joins a castle-owning clan gets them at once (Java `addClanMember` →
+/// `addSkillEffects`), and a member who leaves loses them with the clan
+/// (`setClan(null)` → `removeResidentialSkills`) — otherwise a one-day
+/// membership would leave the buff on them for good.
+#[test]
+fn residential_skills_follow_joining_and_leaving() {
+    let (mut world, mut db_rx, _link) = quest_test_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(passive_clan_test_skill(593));
+    world
+        .data
+        .pledge_skill_trees
+        .insert_for_test(residence_learn(), false);
+    let _leader = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _recruit = ingame_player(&mut world, 2, 3003, 0, 0, 0);
+    install_clan(&mut world, 5000, &[3001]);
+    // The clan owns castle 3.
+    world.clans.get_mut(&5000).unwrap().castle_id = 3;
+    drain_db(&mut db_rx);
+
+    assert!(
+        !has_clan_skill(&world, 3003, 593),
+        "an outsider has nothing"
+    );
+
+    // Join.
+    clans::handle_request_join_pledge(&mut world, 1, &invite_body(3003, 0));
+    clans::handle_request_answer_join_pledge(&mut world, 2, &answer_body(1));
+    assert!(
+        has_clan_skill(&world, 3003, 593),
+        "joining a castle-owning clan grants the residential skill immediately"
+    );
+
+    // Leave.
+    clans::handle_request_withdrawal_pledge(&mut world, 2);
+    assert!(
+        !has_clan_skill(&world, 3003, 593),
+        "and leaving takes it back"
+    );
+}

@@ -18,6 +18,12 @@ use super::helpers::{broadcast_including_self, client_for_player};
 const RELATION_INSIEGE: i32 = 0x200;
 /// `RelationChanged.RELATION_ENEMY` (0x1000) — the red, attackable siege icon.
 const RELATION_ENEMY: i32 = 0x1000;
+/// `RelationChanged.RELATION_ALLY` (0x800) — the blue same-side siege icon.
+const RELATION_ALLY: i32 = 0x800;
+/// `RelationChanged.RELATION_ATTACKER` (0x400) — set on a besieger's own crown.
+const RELATION_ATTACKER: i32 = 0x400;
+/// `Player.getSiegeState()`'s attacker value.
+const ATTACKER_SIDE: u8 = 1;
 
 /// `Config.PVP_NORMAL_TIME` (PvPVsNormalTime, 120 s) in 100 ms ticks — how long
 /// the flag lasts after a hostile action toward a *clean* target.
@@ -158,10 +164,33 @@ pub(crate) fn is_player_auto_attackable(world: &World, attacker_oid: i32, target
     if in_pvp_zone(world, attacker_oid) && in_pvp_zone(world, target_oid) {
         return true;
     }
-    // Siege: both in the same castle's active siege zone → freely attackable.
-    // TODO(G24): exempt same-side (attacker/attacker, defender/defender) clans
-    // once siege-side relations land; for now the whole battlefield is hostile.
-    if in_active_siege_together(world, attacker_oid, target_oid) {
+    // Siege: both in the same castle's active siege zone → freely attackable,
+    // **except** for same-side clans (Java `isAutoAttackable`'s siege block,
+    // which reads the *clan's* registration rather than the player flag):
+    //
+    // - two DEFENDER clans never fight;
+    // - two ATTACKER clans fight only once the castle has had its **first mid
+    //   victory** — until someone engraves it, the besiegers are allies.
+    //
+    // Same clan falls through: a clanmate is not auto-attackable anyway.
+    if let Some(castle_id) = both_in_same_active_siege(world, attacker_oid, target_oid) {
+        let (a_clan, t_clan) = (clan_of(world, attacker_oid), clan_of(world, target_oid));
+        if a_clan != 0
+            && t_clan != 0
+            && a_clan != t_clan
+            && let Some(siege) = world.sieges.get(&castle_id)
+        {
+            if siege.is_defender(a_clan) && siege.is_defender(t_clan) {
+                return false;
+            }
+            if siege.is_attacker(a_clan) && siege.is_attacker(t_clan) {
+                return world
+                    .castles
+                    .iter()
+                    .find(|c| c.id == castle_id)
+                    .is_some_and(|c| c.first_mid_victory);
+            }
+        }
         return true;
     }
     // Mutual clan war → freely attackable (Java `isAutoAttackable`'s
@@ -255,16 +284,58 @@ pub(crate) fn update_pvp_status_target(world: &mut World, object_id: i32, target
     set_flag_lasts(world, object_id, ticks);
 }
 
-/// Siege relation bits from `viewer`'s view onto `target` — the battlefield is
-/// mutually hostile, so a pair sharing an active siege zone shows the red
-/// INSIEGE|ENEMY icon. TODO(G24): same-side (attacker/attacker, defender/
-/// defender) pairs should be INSIEGE|ALLY once per-player siege side is tracked.
-fn siege_relation_bits(world: &World, viewer_oid: i32, target_oid: i32) -> i32 {
-    if in_active_siege_together(world, viewer_oid, target_oid) {
-        RELATION_INSIEGE | RELATION_ENEMY
-    } else {
-        0
+/// Siege relation bits for `subject` as `other` sees them — Java
+/// `Player.getRelation(target)`'s `_siegeState != 0` block, where `this` is the
+/// subject the packet describes.
+///
+/// **Argument order is load-bearing.** The bits describe the *subject*: INSIEGE
+/// appears only if the subject is a registered participant, ATTACKER only if
+/// the subject is a besieger. Only the ENEMY-vs-ALLY choice is symmetric. The
+/// previous zone-derived implementation *was* symmetric, so the call sites
+/// could pass either order; they can't now.
+fn siege_relation_bits(world: &World, subject_oid: i32, other_oid: i32) -> i32 {
+    let subject_state = siege_state_of(world, subject_oid);
+    if subject_state == 0 {
+        return 0;
     }
+    let mut bits = RELATION_INSIEGE;
+    if subject_state == siege_state_of(world, other_oid) {
+        bits |= RELATION_ALLY;
+    } else {
+        bits |= RELATION_ENEMY;
+    }
+    if subject_state == ATTACKER_SIDE {
+        bits |= RELATION_ATTACKER;
+    }
+    bits
+}
+
+/// Java `Player.getSiegeState()`.
+fn siege_state_of(world: &World, object_id: i32) -> u8 {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.siege_state)
+        .unwrap_or(0)
+}
+
+/// The castle whose *active* siege zone both players stand in, if any.
+fn both_in_same_active_siege(world: &World, a_oid: i32, b_oid: i32) -> Option<i32> {
+    match (
+        active_siege_castle(world, a_oid),
+        active_siege_castle(world, b_oid),
+    ) {
+        (Some(a), Some(b)) if a == b => Some(a),
+        _ => None,
+    }
+}
+
+fn clan_of(world: &World, object_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .map(|p| p.clan_id)
+        .unwrap_or(0)
 }
 
 /// Java `Player.sendInfo`'s `RelationChanged` half: how `subject` relates to
@@ -279,7 +350,7 @@ pub(crate) fn sendinfo_relation_changed(
     viewer_oid: i32,
 ) -> Vec<u8> {
     let base = super::party::relation_changed_base(world, subject_oid);
-    let siege = siege_relation_bits(world, viewer_oid, subject_oid);
+    let siege = siege_relation_bits(world, subject_oid, viewer_oid);
     let war = super::clans::war_relation_bits(world, subject_oid, viewer_oid);
     let reputation = world
         .objects
@@ -345,7 +416,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
         cs.send(server_packets::relation_changed(
             object_id,
             my_relation
-                | siege_relation_bits(world, viewer, object_id)
+                | siege_relation_bits(world, object_id, viewer)
                 | super::clans::war_relation_bits(world, object_id, viewer),
             is_player_auto_attackable(world, viewer, object_id),
             my_rep,
@@ -357,7 +428,7 @@ pub(crate) fn broadcast_siege_relation(world: &World, object_id: i32) {
             mc.send(server_packets::relation_changed(
                 viewer,
                 v_rel
-                    | siege_relation_bits(world, object_id, viewer)
+                    | siege_relation_bits(world, viewer, object_id)
                     | super::clans::war_relation_bits(world, viewer, object_id),
                 is_player_auto_attackable(world, object_id, viewer),
                 v_rep,

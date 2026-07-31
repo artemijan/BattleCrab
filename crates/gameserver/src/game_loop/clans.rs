@@ -405,6 +405,26 @@ pub(crate) fn remove_residential_skills(world: &mut World, member_oid: i32, resi
     }
 }
 
+/// `Castle.setOwner`'s skill half, clan-wide: grant a residence's skills to
+/// every **online** member. (Offline members pick them up at login, through
+/// `apply_clan_skills_to_member`.)
+pub(crate) fn grant_residential_skills_to_clan(world: &mut World, clan_id: i32, residence_id: i32) {
+    for member in online_members(world, clan_id) {
+        give_residential_skills(world, member, residence_id, clan_id);
+    }
+}
+
+/// `Castle.removeOwner`'s skill half, clan-wide.
+pub(crate) fn strip_residential_skills_from_clan(
+    world: &mut World,
+    clan_id: i32,
+    residence_id: i32,
+) {
+    for member in online_members(world, clan_id) {
+        remove_residential_skills(world, member, residence_id);
+    }
+}
+
 /// `//add_clan_skill` (Java `AdminSkill.adminAddClanSkill` -> `Clan.addNewSkill`).
 pub(crate) fn admin_add_clan_skill(world: &mut World, clan_id: i32, skill_id: i32, level: i32) {
     add_clan_skill(world, clan_id, skill_id, level);
@@ -507,8 +527,8 @@ pub(crate) fn give_clan_skills(world: &mut World, clan_id: i32, include_squad: b
     // `residenceSkill` attribute) may have stored residence skills on the clan.
     // Those belong to castle/clan-hall ownership, never this grant — strip them
     // from the clan, revert them on online members, and delete the DB rows so a
-    // relog doesn't re-apply them. TODO(G24): residence ownership grants these
-    // through its own channel, not the pledge tree.
+    // relog doesn't re-apply them. Residence ownership grants these through its
+    // own channel (`give_residential_skills`), never the pledge tree.
     let residence: Vec<i32> = world
         .clans
         .get(&clan_id)
@@ -1493,10 +1513,10 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
     );
     broadcast_to_clan(world, clan_id, &joined);
 
-    // TODO(G24): Java gives castle/fort residential skills here when the clan
-    // owns a residence, then `player.sendSkillList()`.
     // Clan skills + the merged skill list (Java `addClanMember` →
-    // `addSkillEffects(player)` + `PledgeSkillList`).
+    // `addSkillEffects(player)` + `PledgeSkillList`). This also grants the
+    // clan's castle residential skills, so a member who joins mid-ownership
+    // gets them now rather than only at their next login.
     apply_clan_skills_to_member(world, clan_id, player_oid);
     // Clan Advent — Java fires ON_PLAYER_CLAN_JOIN, the ClanMaster script
     // lights the aura on the joiner when the leader is online.
@@ -1541,9 +1561,12 @@ fn add_clan_member(world: &mut World, clan_id: i32, player_oid: i32, pledge_type
 /// or push the column reset (offline), and stamp the rejoin penalty. The
 /// caller sends the leave/oust messages and the roster-delete broadcasts.
 /// The academy trio (`lvl_joined_academy` + the apprentice/sponsor pair) is
-/// cleared here, as Java's `setClan(null)` does. Sub-pledge-leader cleanup is
-/// still TODO(G18.6); castle circlet removal and residential-skill teardown
-/// TODO(G24).
+/// cleared here, as Java's `setClan(null)` does. **The residential skills need
+/// no separate teardown**: they ride the same transient `ClanSkills` component
+/// as the pledge skills, which `remove_clan_skills_from_member` below clears
+/// wholesale — Java has to name them separately only because it keeps them in a
+/// different collection. Sub-pledge-leader cleanup is still TODO(G18.6); the
+/// castle circlet is TODO(G24).
 fn remove_clan_member(world: &mut World, clan_id: i32, member_oid: i32, clan_join_expiry: i64) {
     // Java `Player.setClan(null)` clears `lvlJoinedAcademy` + the mentorship
     // pair; run it first, while the member is still on the roster (the
