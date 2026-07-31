@@ -2771,3 +2771,144 @@ fn a_siege_stamps_and_clears_each_members_side() {
     assert_eq!(state(&world, 4001), (0, 0), "cleared when the siege ends");
     assert_eq!(state(&world, 4002), (0, 0));
 }
+
+/// **Mid-victory's tail** (Java `Siege.midVictory`): the capture does not just
+/// swap ownership. The new attackers are thrown out of the castle, the captor's
+/// own base camp comes down (`removeDefenderFlags` runs *after* the reshuffle,
+/// so the flags it strips are the new defenders' — i.e. the captor's), and the
+/// control/flame towers are torn down and rebuilt with the count reset to 0.
+#[test]
+fn siege_capture_evicts_the_new_attackers_and_rebuilds_the_towers() {
+    use crate::model::castle::{Castle, CastleSide};
+    use crate::model::clan::{Clan, ClanMember};
+    use crate::model::siege::{Siege, SiegeClanType, SiegeSpawn};
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    let (mut world, _db_tx, mut db_rx, _link) = test_world();
+    // The eviction lands the player in a town, so the real region table has to
+    // be there — an empty one resolves no respawn point and nobody moves.
+    world.data.map_region = crate::data::MapRegionData::load_from(ROOT);
+    world.castles = vec![Castle {
+        id: 3,
+        name: "Giran".into(),
+        side: CastleSide::Neutral,
+        ticket_buy_count: 0,
+        first_mid_victory: false,
+        time_registration_over: true,
+        siege_date: 0,
+        treasury: 0,
+    }];
+    let clan = |id: i32, name: &str, leader: i32, castle: i32| Clan {
+        id,
+        name: name.into(),
+        leader_id: leader,
+        level: 5,
+        members: vec![ClanMember {
+            char_id: leader,
+            name: format!("P{leader}"),
+            level: 40,
+            class_id: 0,
+            sex: 0,
+            race: 0,
+            power_grade: 1,
+            title: String::new(),
+            pledge_type: 0,
+        }],
+        reputation_score: 0,
+        castle_id: castle,
+        skills: Default::default(),
+        warehouse: Default::default(),
+        char_penalty_expiry_time: 0,
+        dissolving_expiry_time: 0,
+        rank_privs: Default::default(),
+        new_leader_id: 0,
+        sub_pledges: Default::default(),
+        ally_id: 0,
+        ally_name: String::new(),
+        ally_penalty_expiry_time: 0,
+        ally_penalty_type: 0,
+        crest_id: 0,
+        crest_large_id: 0,
+        ally_crest_id: 0,
+        blood_alliance_count: 0,
+    };
+    world.clans.insert(500, clan(500, "Defenders", 8002, 3));
+    world.clans.insert(700, clan(700, "Attackers", 8003, 0));
+
+    // One control tower and one flame tower for castle 3.
+    let tower = |npc_id: i32| SiegeSpawn {
+        npc_id,
+        x: 100,
+        y: 100,
+        z: 0,
+        heading: 0,
+    };
+    for (npc_id, ty) in [(13007, "ControlTower"), (13004, "FlameTower")] {
+        let mut t = crate::data::npc_data::default_template(npc_id);
+        t.type_name = ty.into();
+        t.base_hp_max = 1000.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    world
+        .data
+        .siege_towers
+        .insert(3, vec![tower(13007), tower(13004)]);
+
+    let mut siege = Siege::new(3);
+    siege.in_progress = true;
+    siege.add_clan(500, SiegeClanType::Owner);
+    siege.add_clan(700, SiegeClanType::Attacker);
+    world.sieges.insert(3, siege);
+    // A tower set is standing, and the attacker has a base camp planted.
+    crate::game_loop::siege::spawn_towers_for_test(&mut world, 3);
+    let before: Vec<i32> = world.sieges[&3].spawned_npcs.clone();
+    assert_eq!(before.len(), 2, "two towers stand");
+    assert_eq!(world.sieges[&3].control_tower_count, 1);
+    // Leave a *stale, non-zero* count going in: only an explicit reset to 0
+    // before the respawn brings it back to one tower rather than adding to it.
+    world.sieges.get_mut(&3).unwrap().control_tower_count = 5;
+    world.sieges.get_mut(&3).unwrap().flags.push((700, 91_001));
+
+    let mut rx = ingame_player(&mut world, 1, 8003, 0, 0, 0); // the captor's leader
+    world
+        .objects
+        .get_component_mut::<Player>(&8003)
+        .unwrap()
+        .clan_id = 700;
+    let mut def_rx = ingame_player(&mut world, 2, 8002, 0, 0, 0); // a defender, inside
+    world
+        .objects
+        .get_component_mut::<Player>(&8002)
+        .unwrap()
+        .clan_id = 500;
+    drain(&mut rx);
+    drain(&mut def_rx);
+    drain_db(&mut db_rx);
+
+    crate::game_loop::siege::capture(&mut world, 3, 700);
+
+    // The captor's base camp is gone — you don't keep an HQ once you own the
+    // castle.
+    assert!(
+        world.sieges[&3].flags.is_empty(),
+        "removeDefenderFlags stripped the captor's flag"
+    );
+    // Towers rebuilt, and the count restarted from 0 rather than accumulating.
+    let after: Vec<i32> = world.sieges[&3].spawned_npcs.clone();
+    assert_eq!(after.len(), 2, "a fresh tower set stands");
+    assert!(
+        after.iter().all(|oid| !before.contains(oid)),
+        "they are new objects, not the old ones: {before:?} vs {after:?}"
+    );
+    assert_eq!(
+        world.sieges[&3].control_tower_count, 1,
+        "the count was reset to 0 before the respawn, not added to"
+    );
+    // The ex-defender (now an attacker) was evicted.
+    assert!(
+        drain(&mut def_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::TELEPORT_TO_LOCATION),
+        "the new attackers are teleported out"
+    );
+}
