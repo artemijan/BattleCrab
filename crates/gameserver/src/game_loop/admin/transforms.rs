@@ -46,9 +46,9 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
         );
         return;
     }
-    // Java `AdminTransform`: a mounted target can't polymorph — SM 2063.
-    // TODO(G33): Java also refuses while the GM sits and while the target is
-    // in water (YOU_CANNOT_TRANSFORM_WHILE_SITTING / …_IN_WATER).
+    // Java `AdminTransform`: a mounted target can't polymorph — SM 2063 — and
+    // neither can a seated one. TODO(G33): the in-water leg
+    // (`…_TRANSFORM_IN_WATER`) still has no reader here.
     if world
         .objects
         .get_component::<Player>(&target)
@@ -58,6 +58,14 @@ pub(super) fn admin_transform(world: &mut World, client_id: u32, object_id: i32,
             world,
             client_id,
             crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
+        );
+        return;
+    }
+    if crate::game_loop::sit_stand::is_sitting(world, target) {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
         );
         return;
     }

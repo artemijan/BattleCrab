@@ -93,6 +93,7 @@ async fn user_info_test() {
         pending_revive: false,
         teleporting: false,
         jailed: false,
+        sitting: false,
         last_petition_gm_name: None,
         snoop_listeners: Vec::new(),
         snooped: Vec::new(),

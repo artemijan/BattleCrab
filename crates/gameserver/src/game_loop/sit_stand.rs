@@ -1,0 +1,187 @@
+//! Sitting — `Player.sitDown()` / `standUp()` plus the `SitStand` player
+//! action (`ActionData.xml` id 0, the `/sit` and `/stand` commands).
+//!
+//! The port had no seated state at all, which left a trail of TODOs across five
+//! milestones: the regen bonus (`MoveType::Sitting`), the `/mount` refusal, the
+//! crafting `sitDown()`, the transform condition's sitting leg and the offline
+//! shop's. This is the one mechanism behind all of them.
+//!
+//! **Sitting is two-phase, and the two phases are not the same predicate.**
+//! Java's `sitDown` flips `_waitTypeSitting` *immediately* and blocks actions
+//! for 2.5 s while the animation plays; `standUp` broadcasts first and only
+//! clears the flag 2.5 s later, from `StandUpTask`. So there is a window where
+//! a character is seated but already un-blocked, and another where they are
+//! standing up but still count as sitting. Anything reading "is seated" (regen,
+//! the cast/mount refusals) follows the **flag**; anything asking "may they
+//! act" follows the block.
+//!
+//! Not ported: the **chair** branch (`ChairSit` on a type-1 `StaticObject`) —
+//! `SitStand` only takes it when the player has such an object targeted and in
+//! range, and no throne/bench is interactive on this dist; and the queued
+//! sit-on-arrival `NextAction`, which needs an AI next-action slot.
+
+use crate::model::Player;
+use crate::model::components::Position;
+use crate::network::server_packets;
+use crate::scheduler::ScheduledTask;
+use crate::world::World;
+
+/// `ChangeWaitType.WT_SITTING` / `WT_STANDING`.
+const WT_SITTING: i32 = 0;
+const WT_STANDING: i32 = 1;
+
+/// Java schedules both `SitDownTask` and `StandUpTask` 2500 ms out; the loop
+/// runs at 10 ticks/s.
+const ANIMATION_TICKS: u64 = 25;
+
+/// Java `Player.isSitting()`.
+pub(crate) fn is_sitting(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(|p| p.sitting)
+}
+
+/// The `SitStand` player action (id 0) — Java's `useSit`, minus the chair
+/// branch: toggle between seated and standing.
+pub(crate) fn handle_sit_stand(world: &mut World, object_id: i32) {
+    // `if (player.getMountType() != MountType.NONE) return false;` — a rider
+    // cannot sit, and the toggle does nothing at all rather than dismounting.
+    if world
+        .objects
+        .get_component::<Player>(&object_id)
+        .is_some_and(Player::is_mounted)
+    {
+        return;
+    }
+    // `if (player.isFakeDeath()) stopEffects(FAKE_DEATH)` — the toggle is how
+    // a rogue gets up off the floor, and it does *not* also sit them down.
+    if super::abnormal::flags_of(world, object_id) & crate::model::skill::effect_flag::FAKE_DEATH
+        != 0
+    {
+        super::skills::effects::stop_fake_death(world, object_id);
+        return;
+    }
+    if is_sitting(world, object_id) {
+        stand_up(world, object_id);
+    } else {
+        sit_down(world, object_id);
+    }
+}
+
+/// Java `Player.sitDown(checkCast = true)`.
+pub(crate) fn sit_down(world: &mut World, object_id: i32) {
+    // "Cannot sit while casting." — a plain message, not a SystemMessage.
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&object_id)
+    {
+        if let Some(cid) = super::helpers::client_for_player(world, object_id)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::S1_TEXT,
+                &[server_packets::SmParam::Text(
+                    "Cannot sit while casting.".into(),
+                )],
+            ));
+        }
+        return;
+    }
+    // `!_waitTypeSitting && !isAttackDisabled() && !isControlBlocked() &&
+    // !isImmobilized() && !isFishing()`.
+    if is_sitting(world, object_id)
+        || super::abnormal::is_blocked_from_actions(world, object_id)
+        || world
+            .objects
+            .has_component::<crate::model::components::FishingSession>(&object_id)
+    {
+        return;
+    }
+
+    // `breakAttack()` — sitting cancels the swing you were winding up, and the
+    // standing intention with it.
+    world
+        .objects
+        .remove_component::<crate::model::components::AttackState>(&object_id);
+    world
+        .objects
+        .remove_component::<crate::model::components::Intent>(&object_id);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.sitting = true;
+    }
+    // `AI_INTENTION_REST`: the port models "resting" as simply not moving and
+    // not attacking, which the stop above and the action block below produce.
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&object_id);
+    broadcast_wait_type(world, object_id, WT_SITTING);
+    // `setBlockActions(true)` for the 2.5 s animation.
+    set_action_block(world, object_id, true);
+    world.scheduler.schedule(
+        world.tick + ANIMATION_TICKS,
+        ScheduledTask::SitDownFinish { object_id },
+    );
+}
+
+/// Java `Player.standUp()`.
+pub(crate) fn stand_up(world: &mut World, object_id: i32) {
+    // `_waitTypeSitting && !isInStoreMode() && !isAlikeDead()` — a private
+    // store keeps its owner seated; closing the store is what stands them up.
+    let refuses = !is_sitting(world, object_id)
+        || world
+            .objects
+            .get_component::<Player>(&object_id)
+            .is_some_and(|p| p.store_type != 0)
+        || world
+            .objects
+            .get_component::<crate::model::components::Vitals>(&object_id)
+            .is_some_and(|v| v.dead);
+    if refuses {
+        return;
+    }
+    // TODO(G29): Java also stops any `RELAXING` effect here (the Relax toggle
+    // that only runs while seated). No learnable Relax skill exists on this
+    // dist, so there is nothing to stop.
+    broadcast_wait_type(world, object_id, WT_STANDING);
+    // The flag clears only when the animation finishes, not now.
+    world.scheduler.schedule(
+        world.tick + ANIMATION_TICKS,
+        ScheduledTask::StandUpFinish { object_id },
+    );
+}
+
+/// `SitDownTask` — the animation is over, actions unblock. The character stays
+/// seated.
+pub(crate) fn handle_sit_down_finish(world: &mut World, object_id: i32) {
+    set_action_block(world, object_id, false);
+}
+
+/// `StandUpTask` — now they are really up.
+pub(crate) fn handle_stand_up_finish(world: &mut World, object_id: i32) {
+    if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
+        p.sitting = false;
+    }
+    // Standing changes the regen move-type, so the client's status needs a
+    // refresh (Java's AI intention change broadcasts one).
+    super::party::broadcast_user_info(world, object_id);
+}
+
+/// Java `Player.setBlockActions` — the port keeps the seated block as its own
+/// flag rather than an abnormal, since no buff grants it.
+fn set_action_block(world: &mut World, object_id: i32, blocked: bool) {
+    use crate::model::components::SitBlock;
+    if blocked {
+        world.objects.add_components(&object_id, SitBlock);
+    } else {
+        world.objects.remove_component::<SitBlock>(&object_id);
+    }
+}
+
+fn broadcast_wait_type(world: &World, object_id: i32, wait_type: i32) {
+    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+        return;
+    };
+    let pkt = server_packets::change_wait_type(object_id, wait_type, pos.x, pos.y, pos.z);
+    super::helpers::broadcast_including_self(world, object_id, &pkt);
+}

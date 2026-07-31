@@ -433,8 +433,10 @@ pub(crate) fn handle_list_set(world: &mut World, client_id: u32, lines: Vec<cp::
         }
     };
     set_store_type(world, oid, STORE_TYPE_MANUFACTURE);
-    // TODO(G15.7): Java also `sitDown()`s here — sitting isn't modelled (the
-    // private sell store skips it too); the store byte alone renders the shop.
+    // Java `sitDown()`s the manufacturer — a shop owner sits behind their
+    // wares, and `standUp` refuses while the store is open, so they stay put
+    // until they close it.
+    super::sit_stand::sit_down(world, oid);
     super::helpers::broadcast_including_self(world, oid, &sp::recipe_shop_msg(oid, &title));
     super::party::broadcast_user_info(world, oid);
 }

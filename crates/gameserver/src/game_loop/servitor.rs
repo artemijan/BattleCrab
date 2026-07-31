@@ -455,6 +455,8 @@ pub(crate) fn servitor_toggle_follow(world: &mut World, owner_oid: i32) -> Optio
 
 /// Java action ids for the servitor commands (`dist/game/data/ActionData.xml`).
 pub mod action {
+    /// `SitStand` — `/sit`, `/stand` and the action-bar toggle.
+    pub const SIT_STAND: i32 = 0;
     /// `ServitorHold` — follow me / hold your ground.
     pub const SERVITOR_HOLD: i32 = 21;
     /// `ServitorAttack` — attack my target.
@@ -483,7 +485,8 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
     if servitor_skill.is_none()
         && !matches!(
             pkt.action_id,
-            action::SERVITOR_HOLD
+            action::SIT_STAND
+                | action::SERVITOR_HOLD
                 | action::SERVITOR_ATTACK
                 | action::SERVITOR_STOP
                 | action::RIDE
@@ -505,6 +508,11 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         .is_none_or(|v| v.dead)
         || crate::game_loop::abnormal::is_control_blocked(world, owner_oid)
     {
+        return;
+    }
+    // Action 0 (`SitStand` playeraction — `/sit`, `/stand`): the seated toggle.
+    if pkt.action_id == action::SIT_STAND {
+        crate::game_loop::sit_stand::handle_sit_stand(world, owner_oid);
         return;
     }
     // Action 61 (`PrivateStore` playeraction, option 8 — `/packagesale`): the

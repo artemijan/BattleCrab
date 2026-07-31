@@ -128,9 +128,14 @@ pub(crate) fn movement_regen_multiplier(move_type: MoveType) -> f64 {
 }
 
 /// Java `Creature.getMoveType`, with `Player`'s sitting override folded in.
-/// Sitting is not modeled on this port (`TODO(G29)`), so the seated branch has
-/// no source yet and the result is one of walking/running/standing.
+///
+/// The sitting branch wins over everything: Java's `Player.getMoveType`
+/// short-circuits on `_waitTypeSitting` before it looks at movement at all,
+/// which is what makes the seated regen bonus the largest one.
 pub(crate) fn move_type_of(world: &World, object_id: i32) -> MoveType {
+    if super::sit_stand::is_sitting(world, object_id) {
+        return MoveType::Sitting;
+    }
     let moving = world
         .objects
         .has_component::<crate::model::components::Movement>(&object_id);

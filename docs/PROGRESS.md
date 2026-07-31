@@ -143,6 +143,28 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G29 sweep done 2026-07-31 (18 → 16, and it reached across five milestones).**
+The cluster's real content was **sitting**, which the port had never modelled —
+a gap that had left TODOs in G14 (`/mount`), G15.7 (the manufacture store),
+G19 (the transform condition), G29 (the regen move-type, `ChangeWaitType`) and
+G33 (offline shops, `//transform`). One mechanism closed all of them.
+`game_loop/sit_stand.rs` ports `Player.sitDown()`/`standUp()` plus the
+`SitStand` player action (`ActionData.xml` id 0 = `/sit`, `/stand`).
+**Sitting is two-phase and the phases are different predicates** — `sitDown`
+flips the flag immediately and blocks actions for the 2.5 s animation, while
+`standUp` broadcasts first and only clears the flag 2.5 s later, so "is
+seated" (regen, the refusals) and "may act" (the block) are separate reads.
+The seated `MoveType` now has a source, so the ×1.5 regen bonus finally
+applies; `/mount` refuses a seated rider (SM 1013); `//transform` refuses a
+seated target (SM 2283); the manufacture store and the offline shop both sit
+their owner down, and `standUp` refuses while a store is open, which is what
+keeps a vendor behind their wares. **Taking a hit stands you up** and clears
+the store (Java `PlayerStatus.reduceHp`) — which, with
+`OfflineDisconnectFinished`, means a damageable unattended shop is ended by
+the first blow; an existing offline-shop test asserted the old outcome and was
+corrected. 4 tests, 5 mechanisms sabotage-verified. The 16 left are mount
+feeding, pet mounting, cubic-count, and per-site summon plumbing.
+
 **G19 sweep done 2026-07-31 (27 → 21).** Ranked by *learnable* carriers
 first — the lesson from the earlier effects work — which is what made the
 cluster tractable. Of the six unported affect scopes, **exactly one has a

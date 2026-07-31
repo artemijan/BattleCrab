@@ -386,6 +386,13 @@ pub struct Player {
     /// login/apply and cleared on release; the JailZone keep-in reads it.
     /// Not persisted — re-derived from `PunishmentManager` on enter-world.
     pub jailed: bool,
+    /// Java `Player._waitTypeSitting` — the character is seated. Sitting is a
+    /// **two-step** state on both ends: `sitDown` flips this immediately and
+    /// blocks actions for 2.5 s while the animation plays, while `standUp`
+    /// broadcasts first and only clears the flag 2.5 s later. So "seated" and
+    /// "can act" are not the same predicate, and the regen bonus follows this
+    /// flag rather than the block.
+    pub sitting: bool,
     /// Java `Player._lastPetitionGmName`: the GM who last handled this player's
     /// petition, set when a consultation starts. The feedback packet
     /// (`RequestPetitionFeedback`) needs it to attribute the rating. Transient.
@@ -1022,6 +1029,7 @@ impl Player {
             pending_pet_collar: None,
             teleporting: false,
             jailed: false,
+            sitting: false,
             last_petition_gm_name: None,
             snoop_listeners: Vec::new(),
             snooped: Vec::new(),

@@ -886,6 +886,12 @@ pub struct PlayerSummons(pub Vec<crate::db::SummonRow>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct SummonedNpcs(pub Vec<i32>);
 
+/// Java `Player.setBlockActions(true)` during the 2.5 s sit-down animation.
+/// A marker rather than a flag on `Player`: it is presence-based state with a
+/// scheduled clear, exactly like `Casting`/`Movement`.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct SitBlock;
+
 /// Panel shortcuts (Java `Player._shortCuts`), keyed by
 /// `slot + page * 12` — a `BTreeMap` so `ShortCutInit` order is stable.
 /// Player-only; registry logic in `model/shortcut.rs`.

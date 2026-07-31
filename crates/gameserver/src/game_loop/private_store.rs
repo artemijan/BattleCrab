@@ -356,6 +356,22 @@ fn broadcast_store(world: &World, owner: i32, title: &str, packaged: bool) {
 }
 
 /// Clear the store, drop the store byte, and re-broadcast.
+/// `setPrivateStoreType(NONE)` from outside the store handlers — the seated
+/// shopkeeper who just took a hit (Java `PlayerStatus.reduceHp`). Routes to
+/// whichever store kind is actually open so the right close packet goes out.
+pub(crate) fn close_any_store(world: &mut World, owner: i32) {
+    if is_buy_store_owner(world, owner)
+        || world
+            .objects
+            .get_component::<crate::model::Player>(&owner)
+            .is_some_and(|p| p.store_type == STORE_TYPE_BUY_MANAGE)
+    {
+        close_buy_store(world, owner);
+    } else {
+        close_store(world, owner);
+    }
+}
+
 fn close_store(world: &mut World, owner: i32) {
     world.objects.remove_component::<PrivateStore>(&owner);
     if let Some(p) = world

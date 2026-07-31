@@ -327,18 +327,20 @@ fn an_unattended_shop_takes_no_damage() {
         "the hit is nullified"
     );
 
-    // With the config off the same hit lands.
+    // With the config off the same hit lands — and Java's `reduceHp` then runs
+    // its "attacked players in craft/shops stand up" branch, which clears the
+    // store type; with `OfflineDisconnectFinished` that takes the whole
+    // unattended shop out of the world. So one hit ends it.
     world.cfg.offline_trade.mode_no_damage = false;
     super::combat::player_receive_damage(&mut world, 5001, 5002, 300.0);
     assert!(
         world
             .objects
-            .get_component::<crate::model::components::Vitals>(&5001)
-            .unwrap()
-            .cur_hp
-            < 500.0,
-        "…only because the config asked for it"
+            .get_component::<crate::model::Player>(&5001)
+            .is_none(),
+        "a damageable shop is closed and sent home by the first hit"
     );
+    assert!(!world.offline_traders.contains_key(&5001));
 }
 
 /// **The `.offline` command**: it asks for confirmation, and only the "yes"

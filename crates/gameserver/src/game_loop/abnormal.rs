@@ -39,6 +39,12 @@ pub(crate) fn flags_of(world: &World, object_id: i32) -> u32 {
 /// attacking, casting **and** moving.
 pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
     admin_paralyzed(world, object_id)
+        // Java `hasBlockActions()` is `_blockActions || BLOCK_ACTIONS || …`, and
+        // `_blockActions` is exactly what `sitDown` sets for its 2.5 s
+        // animation — so a character mid-sit is action-blocked here too.
+        || world
+            .objects
+            .has_component::<crate::model::components::SitBlock>(&object_id)
         || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 

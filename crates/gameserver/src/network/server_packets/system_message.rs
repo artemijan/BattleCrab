@@ -51,6 +51,8 @@ pub mod sm_ids {
     pub const A_STRIDER_IN_BATTLE_CANNOT_BE_RIDDEN: i16 = 1011;
     pub const A_STRIDER_CANNOT_BE_RIDDEN_WHILE_IN_BATTLE: i16 = 1012;
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
+    /// "You cannot transform while sitting."
+    pub const YOU_CANNOT_TRANSFORM_WHILE_SITTING: i16 = 2283;
     pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
     /// `That character does not exist.` — the freight send with no other
     /// character on the account.
