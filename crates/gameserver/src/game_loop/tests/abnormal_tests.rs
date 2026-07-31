@@ -964,3 +964,73 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
         "the observer's NpcInfo carries the abnormal block too"
     );
 }
+
+/// **An NPC's team aura and display effect ride `NpcInfo`.** Both were
+/// broadcast-only or not modelled at all, so `//setteam` on a mob did nothing
+/// visible and `//set_displayeffect` was lost on anyone who arrived after the
+/// change — Java stores both on the NPC precisely so a late observer sees them.
+#[test]
+fn npc_info_carries_the_team_and_display_effect() {
+    use crate::model::npc::{Npc, NpcView};
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+
+    let build = |world: &World| {
+        let v = NpcView::of(&world.objects, NPC_OID).expect("a live mob");
+        let t = v.npc.template(world).expect("its template");
+        crate::network::server_packets::npc_info(&v, t, &world.cfg.npc, &[])
+    };
+    let clean = build(&world);
+
+    // Blue team → one extra byte (`NpcInfoType::TEAM`, block length 1).
+    world
+        .objects
+        .get_component_mut::<Npc>(&NPC_OID)
+        .unwrap()
+        .team = 1;
+    let teamed = build(&world);
+    assert_eq!(teamed.len() - clean.len(), 1, "the TEAM block is one byte");
+
+    // Display effect → four more (`DISPLAY_EFFECT`, block length 4).
+    world
+        .objects
+        .get_component_mut::<Npc>(&NPC_OID)
+        .unwrap()
+        .display_effect = 3;
+    let both = build(&world);
+    assert_eq!(
+        both.len() - teamed.len(),
+        4,
+        "the DISPLAY_EFFECT block is four"
+    );
+
+    // Back to Java's defaults: neither block is emitted.
+    {
+        let n = world.objects.get_component_mut::<Npc>(&NPC_OID).unwrap();
+        n.team = 0;
+        n.display_effect = 0;
+    }
+    assert_eq!(build(&world).len(), clean.len(), "defaults emit nothing");
+
+    // And an observer arriving *after* the change is told (the whole point of
+    // storing it rather than only broadcasting the change packet).
+    {
+        let n = world.objects.get_component_mut::<Npc>(&NPC_OID).unwrap();
+        n.team = 2;
+        n.display_effect = 7;
+    }
+    let mut rx = ingame_caster(&mut world, 9, 3098, 0, 0);
+    drain(&mut rx);
+    crate::game_loop::visibility::on_enter_world(&world, 9, 3098);
+    let sent = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == crate::network::server_packets::opcodes::NPC_INFO)
+        .expect("the observer was told about the mob");
+    assert_eq!(
+        sent.len(),
+        clean.len() + 5,
+        "a late observer gets both blocks"
+    );
+}

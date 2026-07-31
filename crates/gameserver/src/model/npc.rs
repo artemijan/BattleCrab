@@ -108,6 +108,15 @@ pub struct Npc {
     /// otherwise takes the template's `weaponEnchant`. A respawn is a fresh
     /// instance, so it re-rolls — the same mob glows differently each life.
     pub enchant_effect: i32,
+    /// Java `Creature._team` — the blue/red aura the client draws (0 none,
+    /// 1 blue, 2 red). Set by `//setteam` and by an event that splits NPCs
+    /// between sides; carried in `NpcInfo`'s `TEAM` block.
+    pub team: u8,
+    /// Java `Npc._displayEffect` — the per-NPC visual state the client swaps
+    /// the model into (`ExChangeNpcState`, e.g. a lit/unlit brazier). Stored so
+    /// a client that meets the NPC *after* the change still sees it, which is
+    /// why Java carries it in `NpcInfo` rather than only in the event packet.
+    pub display_effect: i32,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -334,6 +343,8 @@ impl Npc {
             seeded: false,
             harvest_item: None,
             enchant_effect: 0,
+            team: 0,
+            display_effect: 0,
         };
         let extra = (
             Position {
@@ -617,6 +628,8 @@ fn spawn_npc_entity(
         seeder_object_id: 0,
         seeded: false,
         harvest_item: None,
+        team: 0,
+        display_effect: 0,
         // Java `Npc` ctor: the visual weapon glow, rolled once per instance.
         enchant_effect: if world.cfg.npc.enable_random_enchant_effect {
             rnd::get_range(4, 21)

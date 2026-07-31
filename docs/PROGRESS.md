@@ -143,6 +143,41 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G19 affect-scope audit + NpcInfo's team/display blocks 2026-08-01.** Next
+cluster down (20 markers). The headline question was the **unported affect
+scopes**, which silently fall back to *single-target* — a skill that should hit
+a group quietly hitting one is exactly the kind of gap that doesn't announce
+itself. Each was checked against the datapack the
+[[l2r-abnormal-resist-dispel]] way, by carrier rather than by count:
+
+| scope | skills | carrier |
+|---|---|---|
+| `SUMMON_EXCEPT_MASTER` | 22 | all id 11269+ — the Freya-era summoner revamp, in no skill tree |
+| `PARTY_PLEDGE` | 5 | the Pa'agrio clan buffs (1534–1563), in no skill tree |
+| `RANGE_SORT_BY_HP` | 4 | Chain Heal + later-chronicle heals, likewise |
+| `STATIC_OBJECT_SCOPE` | 2 | Nornil's Power and `Test - …` debug skills |
+| `WYVERN_SCOPE`/`BALAKAS_SCOPE` | 5 | boss scripting |
+
+**None is reachable** — not in a class tree, not on an NPC, not on an item. So
+the narrowing is honest, and the comments describing it are now accurate: they
+had gone stale in both directions, listing `RING_RANGE` and the whole `DEAD_*`
+family as unported when both had landed, and blaming `SUMMON_EXCEPT_MASTER` on
+missing summons when summons arrived at G29 and the real reason is that the
+skills are off-chronicle.
+
+The one real gap in the cluster was in `NpcInfo`: the **`TEAM` and
+`DISPLAY_EFFECT`** blocks were never emitted, and the display effect was not
+even stored — `//set_displayeffect` broadcast `ExChangeNpcState` and nothing
+else, so the change was lost on anyone who walked up afterwards, and
+`//setteam` refused NPC targets outright because there was no field to carry.
+Java stores both on the NPC precisely so a late observer sees them. Both blocks
+are emitted now, in Java's positional order (`SWIM_OR_FLY`, **`TEAM`**,
+`ENCHANT`, `FLYING`, `CLONE`, `PET_EVOLUTION_ID`, **`DISPLAY_EFFECT`**), and
+`//setteam` takes a `Creature` like Java's single-target form does. Player
+teams were already fine — `CharInfo`/`UserInfo` have carried the byte since
+G28, so TvT's colours were never affected. 1 test, 3 mechanisms
+sabotage-verified. Markers: 154 → 151.
+
 **Siege HQ zones + gate damage 2026-08-01.** The G24 cluster was the largest
 left (22 markers), so it got the same read-against-the-code treatment. Most of
 it is honest skips — fame has no earning path anywhere in Interlude, castle

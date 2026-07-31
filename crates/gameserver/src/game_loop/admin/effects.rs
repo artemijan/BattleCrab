@@ -274,8 +274,9 @@ pub(super) fn admin_play_sound(world: &mut World, client_id: u32, object_id: i32
 // ---------------------------------------------------------------------------
 
 /// `//setteam <none|blue|red>` (current target) and `//setteam_close <team>
-/// [radius=400]` (players around the GM). Player targets only — the port's
-/// NpcInfo doesn't model the team block yet (TODO(G19)).
+/// [radius=400]` (players around the GM). Java's single-target form takes any
+/// `Creature`, so an **NPC** target gets the aura too (`NpcInfo`'s `TEAM`
+/// block); the `_close` sweep is players-only, as it is in Java.
 pub(super) fn admin_setteam(
     world: &mut World,
     client_id: u32,
@@ -310,9 +311,17 @@ pub(super) fn admin_setteam(
             p.team = team;
             set += 1;
             crate::game_loop::party::broadcast_user_info(world, target);
+        } else if let Some(n) = world
+            .objects
+            .get_component_mut::<crate::model::npc::Npc>(&target)
+        {
+            n.team = team;
+            set += 1;
+            // The aura rides `NpcInfo`, so the whole packet is re-sent.
+            super::super::death::introduce_npc(world, target);
         }
     }
-    send_message(world, client_id, &format!("Team set on {set} player(s)."));
+    send_message(world, client_id, &format!("Team set on {set} target(s)."));
 }
 
 /// `//clearteams` — every visible player back to NONE.
@@ -490,9 +499,10 @@ pub(super) fn admin_event_trigger(
     super::helpers::broadcast_including_self(world, object_id, &pkt);
 }
 
-/// `//set_displayeffect <state>` — an NPC target's display-effect state
-/// (`ExChangeNpcState`). Broadcast-only: the state isn't stored, so a fresh
-/// observer won't see it (TODO(G19) — needs an NpcInfo field).
+/// `//set_displayeffect <state>` — an NPC target's display-effect state. Java
+/// stores it on the NPC (`setDisplayEffect`) *and* broadcasts
+/// `ExChangeNpcState`, so the change reaches everyone watching now **and**
+/// anyone who walks up later (`NpcInfo`'s `DISPLAY_EFFECT` block).
 pub(super) fn admin_set_displayeffect(
     world: &mut World,
     client_id: u32,
@@ -513,6 +523,12 @@ pub(super) fn admin_set_displayeffect(
     {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
+    }
+    if let Some(n) = world
+        .objects
+        .get_component_mut::<crate::model::npc::Npc>(&target)
+    {
+        n.display_effect = state;
     }
     let pkt = crate::network::enter_world::ex_change_npc_state(target, state);
     super::helpers::broadcast_including_self(world, object_id, &pkt);
