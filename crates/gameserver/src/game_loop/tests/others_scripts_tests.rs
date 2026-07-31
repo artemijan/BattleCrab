@@ -862,7 +862,7 @@ fn killing_an_angel_raises_its_twin() {
     add_test_npc(&mut world, NPC_OID, ANGEL, "Monster", 40, 100, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8832, 60, 0, 0);
 
-    quests::notify_kill(&mut world, 8832, NPC_OID, ANGEL);
+    quests::notify_kill(&mut world, 8832, NPC_OID, ANGEL, false);
 
     assert_eq!(npc_count(&mut world, TWIN), 1, "the twin rose");
 }
@@ -965,7 +965,7 @@ fn a_felled_fairy_tree_releases_its_guardians() {
     add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8835, 100, 0, 0);
 
-    quests::notify_kill(&mut world, 8835, NPC_OID, FAIRY_TREE);
+    quests::notify_kill(&mut world, 8835, NPC_OID, FAIRY_TREE, false);
     assert_eq!(
         npc_count(&mut world, SOUL_GUARDIAN),
         40,
@@ -986,7 +986,7 @@ fn a_fairy_tree_felled_from_afar_stays_quiet() {
     add_test_npc(&mut world, NPC_OID, FAIRY_TREE, "Monster", 40, 0, 0, 0);
     let _rx = ingame_player(&mut world, 1, 8836, 2000, 0, 0);
 
-    quests::notify_kill(&mut world, 8836, NPC_OID, FAIRY_TREE);
+    quests::notify_kill(&mut world, 8836, NPC_OID, FAIRY_TREE, false);
     assert_eq!(
         npc_count(&mut world, SOUL_GUARDIAN),
         0,

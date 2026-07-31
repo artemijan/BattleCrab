@@ -143,6 +143,33 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G22 sweep done 2026-07-31 (30 → 15).** The cluster's dominant shape was
+`getSummonedNpcCount()` guards — 10 sites across six class-transfer quests,
+all blocked on one missing mechanism. `Creature._summonedNpcs` is now a
+`SummonedNpcs` component on the *parent* NPC, written by the quest spawn
+helpers (`addSpawn(summoner, …)`) and read as `ctx.summoned_npc_count()`;
+dead children are pruned on read rather than unhooked at despawn, which needs
+no despawn hook and gives Java's answer — a **corpse still counts**, because
+`removeSummonedNpc` fires at `onDecay`, not at death. The caps now bite in
+Q225 (<5), Q226 (<1/<4/<36), Q227, Q229, Q232 (<1). **Java's guard placement
+is not decoration**: in Q225 it wraps the key hand-out and the cond bump too
+(a sixth attempt gets nothing), while in Q226 the cond bump sits *outside* it
+(a 37th ambush still advances the quest) — both kept as written.
+Second group: **`onKill`'s `isSummon`**, which the port never carried. The
+notification now passes it and `ctx.killing_playable()` resolves Java's
+`isSummon ? killer.getServitors()…orElse(getPet()) : killer`, so the Cave
+Maiden's banshee, Pytan's Knoriks and the Primeval Isle ambusher go after the
+**pet that landed the kill** instead of its owner across the map.
+**Verified not-a-gap:** Q211's three "spawn caps" are
+`SpawnTable.getSpawns(npc.getId()).size() < 10` — the number of spawn *points*
+the killed mob has, not how many chests exist. Shyslassys, Baraham and the
+Queen of Succubus have **one each** on this dist, so the condition is always
+true and the port's unconditional spawn was already exact; the TODOs are
+replaced with that explanation. 2 tests, 3 mechanisms sabotage-verified. The
+remaining 15 are single-site tails (four-sepulcher persistence, the tamed
+beast's buff task, NpcStringId chatter ids, `isDeleteAbnormalOnLeave`) or
+blocked on unported subsystems.
+
 **G24 sweep done 2026-07-31 (30 → 25).** The cluster's coherent half was
 **siege sides**, which nothing modelled: `Player.siege_state` (1 attacker /
 2 defender) + `siege_side` (the castle), stamped on every online member of a

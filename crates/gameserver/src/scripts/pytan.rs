@@ -37,8 +37,9 @@ impl QuestScript for Pytan {
 
     fn on_kill(&self, ctx: &mut QuestCtx) {
         if ctx.roll(100) < 5 {
-            // TODO(G22): Java targets the killing Playable (pet included).
-            if let Some(knoriks) = ctx.spawn_attacker(KNORIKS, false) {
+            // `isSummon ? killer.getServitors()… : killer`.
+            let target = ctx.killing_playable();
+            if let Some(knoriks) = ctx.spawn_attacker_on(KNORIKS, false, target) {
                 ctx.schedule_despawn(knoriks, KNORIKS_LIFE_MS);
             }
             ctx.delete_npc();

@@ -245,7 +245,7 @@ fn cave_maiden_kill_can_spring_a_banshee() {
 
     // Roll under 20 → the proc fires.
     world.forced_rolls.push_back(10);
-    quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN);
+    quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, false);
     assert_eq!(count_npcs(&mut world, BANSHEE), 1, "banshee sprang");
     assert_eq!(count_npcs(&mut world, CAVE_MAIDEN), 0, "corpse consumed");
 }
@@ -300,7 +300,7 @@ fn pagan_keys_honor_auto_loot() {
     // Auto-loot off: the key lands on the ground, killer-owned.
     world.cfg.character.auto_loot = false;
     world.forced_rolls.push_back(5);
-    quests::notify_kill(&mut world, 5001, NPC_OID, ZOMBIE_WORKER);
+    quests::notify_kill(&mut world, 5001, NPC_OID, ZOMBIE_WORKER, false);
     let mut ground = None;
     world
         .objects
@@ -325,7 +325,7 @@ fn pagan_keys_honor_auto_loot() {
         0,
     );
     world.forced_rolls.push_back(5);
-    quests::notify_kill(&mut world, 5001, NPC_OID + 1, ZOMBIE_WORKER);
+    quests::notify_kill(&mut world, 5001, NPC_OID + 1, ZOMBIE_WORKER, false);
     assert_eq!(item_count(&world, 5001, ANTEROOM_KEY), 1, "auto-looted");
 }
 
@@ -691,19 +691,19 @@ fn forge_kill_streak_erupts_a_lavasaurus_and_refresh_cools_it() {
     // lucky roll.
     for i in 0..2 {
         world.forced_rolls.push_back(5);
-        quests::notify_kill(&mut world, 5001, w(i), WORKER);
+        quests::notify_kill(&mut world, 5001, w(i), WORKER, false);
     }
     assert_eq!(count_npcs(&mut world, NEWBORN), 0, "streak too short");
 
     // Kill 3 with rand <= 20: the Newborn erupts, hating the killer.
     world.forced_rolls.push_back(5);
-    quests::notify_kill(&mut world, 5001, w(2), WORKER);
+    quests::notify_kill(&mut world, 5001, w(2), WORKER, false);
     assert_eq!(count_npcs(&mut world, NEWBORN), 1, "the forge answers");
 
     // The refresh beat resets the streak: the next lucky kill is kill #1.
     crate::game_loop::area_npcs::handle_fog_refresh(&mut world);
     world.forced_rolls.push_back(5);
-    quests::notify_kill(&mut world, 5001, w(3), WORKER);
+    quests::notify_kill(&mut world, 5001, w(3), WORKER, false);
     assert_eq!(
         count_npcs(&mut world, NEWBORN),
         1,
@@ -1209,7 +1209,7 @@ fn four_sepulchers_boss_pays_goblets() {
         -7218,
     );
 
-    quests::notify_kill(&mut world, 5001, NPC_OID + 801, 25346);
+    quests::notify_kill(&mut world, 5001, NPC_OID + 801, 25346, false);
     for oid in [5001, 5002, 5003, 5004] {
         assert_eq!(item_count(&world, oid, 7256), 1, "sepulcher 1 goblet");
     }
@@ -1243,4 +1243,102 @@ fn four_sepulchers_real_spawn_table_loads() {
             );
         }
     }
+}
+
+/// **A pet's kill sends the avenger after the pet, not its owner.** Java's
+/// `onKill(npc, killer, isSummon)` picks
+/// `isSummon ? killer.getServitors()… : killer` for `addAttackPlayerDesire`;
+/// aiming at the owner instead would send the banshee across the map at
+/// whoever was standing behind the pet.
+#[test]
+fn a_summons_kill_points_the_avenger_at_the_summon() {
+    use crate::model::npc::AggroList;
+    const CAVE_MAIDEN: i32 = 20134;
+    const BANSHEE: i32 = 20412;
+    let (mut world, _db, _l) = combat_test_world();
+    for id in [CAVE_MAIDEN, BANSHEE] {
+        world
+            .data
+            .npc_data
+            .insert_for_test(crate::data::npc_data::default_template(id));
+    }
+    add_test_npc(&mut world, NPC_OID, CAVE_MAIDEN, "Monster", 40, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, 5001, 60, 0, 0);
+    // Give the player a servitor standing further off. The link is what
+    // `killing_playable` resolves through; the NPC only has to exist.
+    const SERVITOR_NPC: i32 = 14870;
+    world
+        .data
+        .npc_data
+        .insert_for_test(crate::data::npc_data::default_template(SERVITOR_NPC));
+    add_test_npc(
+        &mut world,
+        NPC_OID + 5,
+        SERVITOR_NPC,
+        "Servitor",
+        40,
+        300,
+        0,
+        0,
+    );
+    let servitor = NPC_OID + 5;
+    world.objects.add_components(
+        &5001,
+        crate::model::components::SummonRef {
+            servitor: Some(servitor),
+            pet: None,
+        },
+    );
+
+    world.forced_rolls.push_back(10); // under 20 → the proc fires
+    quests::notify_kill(&mut world, 5001, NPC_OID, CAVE_MAIDEN, true);
+
+    let oids_of = |world: &mut World, npc_id: i32| {
+        let mut out = Vec::new();
+        world.objects.for_each_mut::<&crate::model::npc::Npc>(|n| {
+            if n.npc_id == npc_id {
+                out.push(n.object_id);
+            }
+        });
+        out
+    };
+    let banshee = *oids_of(&mut world, BANSHEE)
+        .first()
+        .expect("banshee sprang");
+    // `addAttackPlayerDesire` seeds the hate list, which is what the AI reads.
+    let hated = |world: &World, npc: i32| -> Vec<i32> {
+        world
+            .objects
+            .get_component::<AggroList>(&npc)
+            .map(|a| a.0.keys().copied().collect())
+            .unwrap_or_default()
+    };
+    assert_eq!(
+        hated(&world, banshee),
+        vec![servitor],
+        "the banshee goes for the servitor that landed the kill, not its owner"
+    );
+
+    // The same kill by the player themselves targets the player.
+    add_test_npc(
+        &mut world,
+        NPC_OID + 1,
+        CAVE_MAIDEN,
+        "Monster",
+        40,
+        100,
+        0,
+        0,
+    );
+    world.forced_rolls.push_back(10);
+    quests::notify_kill(&mut world, 5001, NPC_OID + 1, CAVE_MAIDEN, false);
+    let second = oids_of(&mut world, BANSHEE)
+        .into_iter()
+        .find(|&o| o != banshee)
+        .expect("a second banshee");
+    assert_eq!(
+        hated(&world, second),
+        vec![5001],
+        "…and after the player when the player struck"
+    );
 }

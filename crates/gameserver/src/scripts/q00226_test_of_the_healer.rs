@@ -7,8 +7,9 @@
 //!
 //! `memoState`-driven (states 1..10). Whether the healer hands over or keeps the
 //! Golden Statue splits the ending reward (Bandellos pays more to the one who
-//! returns it). Several spawns keep Java's `getSummonedNpcCount`/
-//! `isSimulatingTalking` guards only as `TODO(G22)` — cosmetic spam caps.
+//! returns it). The ambush spawns carry Java's `getSummonedNpcCount` caps;
+//! `isSimulatingTalking` (a client-side dialog *preview*, which this port never
+//! simulates) has nothing to gate and is deliberately omitted.
 
 use crate::game_loop::quests::{QuestCtx, QuestScript};
 use crate::network::server_packets::quest_sounds;
@@ -157,8 +158,10 @@ impl QuestScript for Q00226TestOfTheHealer {
             "30428-02.html" => {
                 if memo == 1 && has(ctx, REPORT_OF_PERRIN) {
                     ctx.set_cond(2, true);
-                    // TODO(G22): Java gates on getSummonedNpcCount() < 1.
-                    ctx.spawn_attacker(TATOMA, true);
+                    // `if (npc.getSummonedNpcCount() < 1)`.
+                    if ctx.summoned_npc_count() < 1 {
+                        ctx.spawn_attacker(TATOMA, true);
+                    }
                 }
                 Some(event.to_string())
             }
@@ -393,12 +396,17 @@ impl QuestScript for Q00226TestOfTheHealer {
             MYSTERIOUS_DARK_ELF => {
                 if memo == 8 {
                     if has(ctx, SECRET_LETTER1) && !has(ctx, SECRET_LETTER2) {
-                        // TODO(G22): getSummonedNpcCount()<36 / isSimulatingTalking guard.
-                        ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
-                        ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
-                        ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
-                        ctx.play_sound(quest_sounds::BEFORE_BATTLE);
-                        ctx.delete_npc();
+                        // `if ((npc.getSummonedNpcCount() < 36) &&
+                        // !player.isSimulatingTalking())`. The cond bump sits
+                        // **outside** the guard in Java, so a 37th ambush still
+                        // advances the quest — kept.
+                        if ctx.summoned_npc_count() < 36 {
+                            ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
+                            ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
+                            ctx.spawn_near_npc(LERO_LIZARDMAN_ASSASSIN, true);
+                            ctx.play_sound(quest_sounds::BEFORE_BATTLE);
+                            ctx.delete_npc();
+                        }
                         ctx.set_cond(14, false);
                         Some("30661-01.html".to_string())
                     } else if has(ctx, SECRET_LETTER1)
@@ -451,9 +459,12 @@ impl QuestScript for Q00226TestOfTheHealer {
                     if has(ctx, ORDER_OF_SORIUS) {
                         Some("30674-01.html".to_string())
                     } else if !has(ctx, SECRET_LETTER1) && !has(ctx, ORDER_OF_SORIUS) {
-                        // TODO(G22): getSummonedNpcCount()<4 / isSimulatingTalking guard.
-                        ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
-                        ctx.spawn_near_npc(LERO_LIZARDMAN_LEADER, true);
+                        // `if ((npc.getSummonedNpcCount() < 4) &&
+                        // !player.isSimulatingTalking())`.
+                        if ctx.summoned_npc_count() < 4 {
+                            ctx.spawn_near_npc(LERO_LIZARDMAN_AGENT, true);
+                            ctx.spawn_near_npc(LERO_LIZARDMAN_LEADER, true);
+                        }
                         Some("30674-02a.html".to_string())
                     } else if has(ctx, SECRET_LETTER1) {
                         ctx.set_memo_state(8);

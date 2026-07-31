@@ -181,13 +181,14 @@ impl QuestScript for Q00225TestOfTheSearcher {
                 None
             }
             "30627-01a.html" => {
-                // TODO(G22): Java gates on `npc.getSummonedNpcCount() < 5` so the
-                // tree can't spawn an unbounded pile of chests; we skip the count
-                // guard (the talk gate already blocks re-entry once the key is
-                // held) and always conjure one chest beside the tree.
-                ctx.give_items(RUSTED_KEY, 1);
-                ctx.spawn_near_npc(STRONG_WOODEN_CHEST, true);
-                ctx.set_cond(17, true);
+                // `if (npc.getSummonedNpcCount() < 5)` — note the guard wraps
+                // the **whole** block in Java, so a sixth attempt gets neither
+                // the key nor the chest nor the cond bump.
+                if ctx.summoned_npc_count() < 5 {
+                    ctx.give_items(RUSTED_KEY, 1);
+                    ctx.spawn_near_npc(STRONG_WOODEN_CHEST, true);
+                    ctx.set_cond(17, true);
+                }
                 Some(event.to_string())
             }
             "30628-01a.html" => {

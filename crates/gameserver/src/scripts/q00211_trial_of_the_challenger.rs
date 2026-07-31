@@ -231,8 +231,12 @@ impl QuestScript for Q00211TrialOfTheChallenger {
         match ctx.npc_id {
             SHYSLASSYS => {
                 if ctx.cond() == 1 {
-                    // TODO(G22): Java caps the chest spawns at
-                    // `getSpawns(SHYSLASSYS).size() < 10`; we always conjure one.
+                    // **Not a missing cap.** Java's guard is
+                    // `SpawnTable.getSpawns(npc.getId()).size() < 10` — the
+                    // number of spawn *points* the killed mob itself has, not
+                    // how many chests exist. Shyslassys has **one** spawn point
+                    // on this dist, so the condition is always true and the
+                    // unconditional spawn is exact.
                     ctx.spawn_near_npc(CHEST_OF_SHYSLASSYS, false);
                     ctx.give_items(SCROLL_OF_SHYSLASSYS, 1);
                     ctx.give_items(BROKEN_KEY, 1);
@@ -247,7 +251,8 @@ impl QuestScript for Q00211TrialOfTheChallenger {
             }
             BARAHAM => {
                 if ctx.cond() == 6 {
-                    // TODO(G22): Java caps the Raldo spawns at size < 10.
+                    // Same vacuous `getSpawns(BARAHAM).size() < 10` guard —
+                    // Baraham has one spawn point here.
                     ctx.spawn_near_npc(RALDO, false);
                     ctx.give_items(WATCHERS_EYE2, 1);
                     ctx.set_cond(7, true);
@@ -255,7 +260,7 @@ impl QuestScript for Q00211TrialOfTheChallenger {
             }
             QUEEN_OF_SUCCUBUS => {
                 if ctx.cond() == 9 {
-                    // TODO(G22): Java caps the Raldo spawns at size < 10.
+                    // Same vacuous guard — the Queen has one spawn point here.
                     ctx.spawn_near_npc(RALDO, false);
                     ctx.set_cond(10, true);
                 }
