@@ -18,6 +18,7 @@ const MOB_HEAL: i32 = 8402;
 fn npc_skill(id: i32, name: &str, effects: Vec<SkillEffect>) -> Skill {
     Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,

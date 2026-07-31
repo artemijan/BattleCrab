@@ -136,6 +136,195 @@ pub enum AffectScope {
     Other,
 }
 
+/// Java `enums/TraitType` — the tag a debuff carries (`<trait>`) and the tag a
+/// resistance buff raises (`DefenceTrait`'s params). The numeric group is
+/// Java's `_type`, and it decides how `calcGeneralTraitBonus` treats the pair:
+///
+/// - **3** (`SHOCK`, `HOLD`, `SLEEP`, `POISON`, `DERANGEMENT`, `PARALYZE`,
+///   `BLEED`, `DEATH`, …) — a plain resistance: the target's defence applies
+///   with no attacker-side requirement. **This is the group the dist uses**:
+///   304 skills carry `<trait>SHOCK</trait>`, 194 `DERANGEMENT`, and the
+///   learnable Stun/Mental/Poison resistances defend exactly these.
+/// - **2** (the `*_WEAKNESS` family) — needs the *attacker* to carry a matching
+///   `AttackTrait` as well, which is why "Detect Beast Weakness" is inert on
+///   this dist (nothing gives a monster the paired `DefenceTrait`).
+/// - **1** (weapon types) and **0** (`NONE`) — never resisted this way.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum TraitType {
+    #[default]
+    None,
+    /// Group 3 — the resistable debuff traits this dist actually uses.
+    Poison,
+    Hold,
+    Bleed,
+    Sleep,
+    Shock,
+    Derangement,
+    Paralyze,
+    Death,
+    Boss,
+    CriticalPoison,
+    RootPhysically,
+    RootMagically,
+    TurnStone,
+    Gust,
+    PhysicalBlockade,
+    Target,
+    PhysicalWeakness,
+    MagicalWeakness,
+    Knockback,
+    Knockdown,
+    Pull,
+    Hate,
+    Aggression,
+    Airbind,
+    Disarm,
+    Deport,
+    Changebody,
+    Zone,
+    Psychic,
+    /// Group 2 — the creature-category weaknesses (attacker-gated).
+    Weakness(WeaknessTrait),
+    /// Group 1 — the weapon types (and `ETC`). Kept as distinct values so a
+    /// bearer's SWORD and DAGGER resistances can't fold into one bucket; the
+    /// consumer (`calcWeaponTraitBonus`) is unported, see
+    /// `calc_general_trait_bonus`.
+    Weapon(WeaponTrait),
+    /// Anything unrecognised — treated as group 1, i.e. never resisted.
+    Other,
+}
+
+/// The `*_WEAKNESS` members of `TraitType`, kept as one variant so the enum
+/// stays small; they all share group 2 and the same attacker-gated rule.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum WeaknessTrait {
+    Bug,
+    Animal,
+    Plant,
+    Beast,
+    Dragon,
+    Giant,
+    Construct,
+    Valakas,
+    Anesthesia,
+    Demonic,
+    Divine,
+    Elemental,
+    Fairy,
+    Human,
+    Humanoid,
+    Undead,
+    Embryo,
+    Spirit,
+}
+
+/// Java's group-1 `TraitType` members: the weapon types a `DefenceTrait` can
+/// name, plus `ETC` (which 61 skills declare as their `<trait>`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum WeaponTrait {
+    Sword,
+    Blunt,
+    Dagger,
+    Pole,
+    Fist,
+    Bow,
+    Etc,
+    Dual,
+    DualFist,
+    Rapier,
+    Crossbow,
+    AncientSword,
+    DualDagger,
+    DualBlunt,
+    TwoHandCrossbow,
+}
+
+impl TraitType {
+    /// Java's `TraitType._type`.
+    pub fn group(self) -> u8 {
+        match self {
+            Self::None => 0,
+            Self::Weakness(_) => 2,
+            Self::Weapon(_) | Self::Other => 1,
+            _ => 3,
+        }
+    }
+
+    /// Parse a `<trait>` tag or a `DefenceTrait` param name. Unknown names fall
+    /// to [`TraitType::Other`] (group 1) rather than being dropped, so a later
+    /// chronicle's trait can't silently read as `None` and skip the gate.
+    pub fn from_xml(name: &str) -> Self {
+        use WeaknessTrait as W;
+        use WeaponTrait as P;
+        match name {
+            "NONE" => Self::None,
+            "POISON" => Self::Poison,
+            "HOLD" => Self::Hold,
+            "BLEED" => Self::Bleed,
+            "SLEEP" => Self::Sleep,
+            "SHOCK" => Self::Shock,
+            "DERANGEMENT" => Self::Derangement,
+            "PARALYZE" => Self::Paralyze,
+            "DEATH" => Self::Death,
+            "BOSS" => Self::Boss,
+            "CRITICAL_POISON" => Self::CriticalPoison,
+            "ROOT_PHYSICALLY" => Self::RootPhysically,
+            "ROOT_MAGICALLY" => Self::RootMagically,
+            "TURN_STONE" => Self::TurnStone,
+            "GUST" => Self::Gust,
+            "PHYSICAL_BLOCKADE" => Self::PhysicalBlockade,
+            "TARGET" => Self::Target,
+            "PHYSICAL_WEAKNESS" => Self::PhysicalWeakness,
+            "MAGICAL_WEAKNESS" => Self::MagicalWeakness,
+            "KNOCKBACK" => Self::Knockback,
+            "KNOCKDOWN" => Self::Knockdown,
+            "PULL" => Self::Pull,
+            "HATE" => Self::Hate,
+            "AGGRESSION" => Self::Aggression,
+            "AIRBIND" => Self::Airbind,
+            "DISARM" => Self::Disarm,
+            "DEPORT" => Self::Deport,
+            "CHANGEBODY" => Self::Changebody,
+            "ZONE" => Self::Zone,
+            "PSYCHIC" => Self::Psychic,
+            "BUG_WEAKNESS" => Self::Weakness(W::Bug),
+            "ANIMAL_WEAKNESS" => Self::Weakness(W::Animal),
+            "PLANT_WEAKNESS" => Self::Weakness(W::Plant),
+            "BEAST_WEAKNESS" => Self::Weakness(W::Beast),
+            "DRAGON_WEAKNESS" => Self::Weakness(W::Dragon),
+            "GIANT_WEAKNESS" => Self::Weakness(W::Giant),
+            "CONSTRUCT_WEAKNESS" => Self::Weakness(W::Construct),
+            "VALAKAS" => Self::Weakness(W::Valakas),
+            "ANESTHESIA" => Self::Weakness(W::Anesthesia),
+            "DEMONIC_WEAKNESS" => Self::Weakness(W::Demonic),
+            "DIVINE_WEAKNESS" => Self::Weakness(W::Divine),
+            "ELEMENTAL_WEAKNESS" => Self::Weakness(W::Elemental),
+            "FAIRY_WEAKNESS" => Self::Weakness(W::Fairy),
+            "HUMAN_WEAKNESS" => Self::Weakness(W::Human),
+            "HUMANOID_WEAKNESS" => Self::Weakness(W::Humanoid),
+            "UNDEAD_WEAKNESS" => Self::Weakness(W::Undead),
+            "EMBRYO_WEAKNESS" => Self::Weakness(W::Embryo),
+            "SPIRIT_WEAKNESS" => Self::Weakness(W::Spirit),
+            "SWORD" => Self::Weapon(P::Sword),
+            "BLUNT" => Self::Weapon(P::Blunt),
+            "DAGGER" => Self::Weapon(P::Dagger),
+            "POLE" => Self::Weapon(P::Pole),
+            "FIST" => Self::Weapon(P::Fist),
+            "BOW" => Self::Weapon(P::Bow),
+            "ETC" => Self::Weapon(P::Etc),
+            "DUAL" => Self::Weapon(P::Dual),
+            "DUALFIST" => Self::Weapon(P::DualFist),
+            "RAPIER" => Self::Weapon(P::Rapier),
+            "CROSSBOW" => Self::Weapon(P::Crossbow),
+            "ANCIENTSWORD" => Self::Weapon(P::AncientSword),
+            "DUALDAGGER" => Self::Weapon(P::DualDagger),
+            "DUALBLUNT" => Self::Weapon(P::DualBlunt),
+            "TWOHANDCROSSBOW" => Self::Weapon(P::TwoHandCrossbow),
+            _ => Self::Other,
+        }
+    }
+}
+
 /// Java `AffectObject` (`handlers/targethandlers/affectobject/*`) — the
 /// friend/foe filter applied to each candidate an [`AffectScope`] sweeps up.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -793,12 +982,17 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/DefenceTrait.java` — raises the target's
     /// resistance to a set of `TraitType`s (Mental Shield's HOLD/SLEEP/
     /// DERANGEMENT, Stun Resistance's SHOCK, …) via `mergeDefenceTrait`. The
-    /// per-trait resistances aren't a single `Stat` and the trait-defense math
-    /// isn't modeled yet, so this carries no stat modifier and lands as an
-    /// icon-only timed `ActiveBuff` (like `ProtectionBlessing`) — the abnormal +
-    /// duration are honored so the buff shows and expires correctly.
-    /// TODO(G16): apply the trait-defense resistances in the debuff land math.
-    DefenceTrait,
+    /// per-trait resistances are not a single `Stat`, so they live in their own
+    /// [`DefenceTraits`](crate::model::components::DefenceTraits) component,
+    /// merged on buff start and unmerged on expiry, and are read by
+    /// `calc_general_trait_bonus` in the debuff-landing roll.
+    DefenceTrait {
+        /// `(trait, resistance)` — Java divides the XML percent by 100, so
+        /// `<SHOCK>30</SHOCK>` is 0.30. A value **≥ 1.0** is not a 100 %
+        /// resistance but an *invulnerability* (Java branches to
+        /// `mergeInvulnerableTrait`), which makes the debuff simply never land.
+        traits: Vec<(TraitType, f64)>,
+    },
     /// `handlers/effecthandlers/VampiricAttack.java` — Vampiric Rage: a chance to
     /// recover a % of melee damage dealt as HP (`ABSORB_DAMAGE_PERCENT` +
     /// `vampiricSum`). The melee HP-absorb path isn't modeled yet, so like
@@ -1087,6 +1281,11 @@ pub struct Skill {
     /// Java `affectScope` — how the primary target expands into the affected
     /// set (`Skill.forEachTargetAffected`). Defaults to `SINGLE`.
     pub affect_scope: AffectScope,
+    /// `<trait>` — the debuff's own `TraitType`, matched against the target's
+    /// `DefenceTrait` resistances when it tries to land. `NONE` for most
+    /// skills; the dist's stuns declare `SHOCK`, its fear/confuse
+    /// `DERANGEMENT`, and so on.
+    pub trait_type: TraitType,
     /// Java `affectObject` — the friend/foe filter each swept-up candidate must
     /// pass. Defaults to `ALL` (Java's "no handler" = no filtering).
     pub affect_object: AffectObject,
@@ -1235,6 +1434,7 @@ impl Default for Skill {
     /// zero/absent values.
     fn default() -> Self {
         Self {
+            trait_type: TraitType::None,
             id: 0,
             level: 1,
             name: String::new(),

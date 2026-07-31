@@ -886,6 +886,21 @@ pub struct PlayerSummons(pub Vec<crate::db::SummonRow>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct SummonedNpcs(pub Vec<i32>);
 
+/// Java `CreatureStat._defenceTraits` / `_invulnerableTraits` — the per-trait
+/// debuff resistances a `DefenceTrait` buff merges in, and the traits it makes
+/// the bearer outright immune to.
+///
+/// Kept as its own component rather than as `Stat` entries because a trait
+/// resistance is *per trait*, not a single scalar, and Java merges/unmerges it
+/// by hand on effect start/exit rather than through the stat recalculation.
+#[derive(Component, Debug, Clone, Default)]
+pub struct DefenceTraits {
+    /// trait → summed resistance (0.30 = 30 % harder to land).
+    pub resist: std::collections::HashMap<crate::model::skill::TraitType, f64>,
+    /// Traits the bearer cannot be affected by at all (Java's XML value ≥ 100).
+    pub invulnerable: std::collections::HashSet<crate::model::skill::TraitType>,
+}
+
 /// Java `Player.setBlockActions(true)` during the 2.5 s sit-down animation.
 /// A marker rather than a flag on `Player`: it is presence-based state with a
 /// scheduled clear, exactly like `Casting`/`Movement`.

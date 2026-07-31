@@ -508,6 +508,7 @@ fn cast_test_world() -> (
 
     let base = Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 0,
@@ -1414,6 +1415,7 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id,
@@ -1484,6 +1486,7 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
         without_action: false,
+        trait_type: crate::model::skill::TraitType::None,
         item_consume_id: 0,
         item_consume_count: 0,
         id: 19009,

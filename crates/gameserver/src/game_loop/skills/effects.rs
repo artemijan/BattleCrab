@@ -1306,11 +1306,14 @@ pub(crate) fn apply_skill_effects(
             // (Vampiric Rage), and AttackTrait ("Detect <Category> Weakness"):
             // no instant action — they land purely as an icon-only timed buff
             // (kept off the empty-`buff_effects` bail via `has_iconless_buff`).
-            // DefenceTrait/VampiricAttack's real mechanics (trait resistances /
-            // melee HP absorb) aren't modeled yet; AttackTrait is inert on the
-            // real server too (see its doc comment) — nothing to model.
-            // TODO(G16/G20): honor the trait-defense and HP-absorb effects.
-            SkillEffect::DefenceTrait | SkillEffect::VampiricAttack | SkillEffect::AttackTrait => {}
+            // DefenceTrait's resistances are merged when the *buff* lands
+            // (`apply_continuous_effects`), not here — this is the instant
+            // pass. VampiricAttack's melee HP absorb is still unmodelled
+            // (TODO(G20)); AttackTrait is inert on the real server too (see its
+            // doc comment) — nothing to model.
+            SkillEffect::DefenceTrait { .. }
+            | SkillEffect::VampiricAttack
+            | SkillEffect::AttackTrait => {}
             // Community-board dance/song buffs (Song of Champion/Renewal/
             // Vengeance, Gift of Seraphim): no instant action — they land
             // purely as icon-only timed buffs (kept off the empty-`buff_effects`
@@ -1406,7 +1409,7 @@ pub(crate) fn apply_continuous_effects(
         matches!(
             e,
             SkillEffect::ProtectionBlessing
-                | SkillEffect::DefenceTrait
+                | SkillEffect::DefenceTrait { .. }
                 | SkillEffect::VampiricAttack
                 | SkillEffect::MagicMpCost
                 | SkillEffect::Reuse
@@ -1456,6 +1459,7 @@ pub(crate) fn apply_continuous_effects(
             // `calcEffectSuccess`'s `elementMod` — an elemental debuff lands
             // more easily on a target weak to its element.
             attribute_mod(world, caster_oid, target_oid, skill),
+            calc_general_trait_bonus(world, target_oid, skill.trait_type),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
@@ -1551,6 +1555,15 @@ pub(crate) fn apply_continuous_effects(
     // self-terminates once this buff's `BuffExpire` removes it or the target
     // dies; done here so it covers both NPC and player targets.
     schedule_dam_over_time(world, caster_oid, target_oid, skill);
+
+    // `DefenceTrait.onStart` — merge the buff's per-trait resistances. Done
+    // here, above the NPC/player split, because a resisted mob is as real as a
+    // resisted player.
+    for effect in &skill.effects {
+        if let SkillEffect::DefenceTrait { traits } = effect {
+            merge_defence_traits(world, target_oid, traits);
+        }
+    }
 
     // NPC target: buffs modify the mob's server-side stats (no buff icons —
     // those are self-only — and no NpcInfo re-broadcast, so a speed change
@@ -3708,6 +3721,21 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
     if !still_active {
         return;
     }
+    // `DefenceTrait.onExit` — unmerge before the buff row goes, while the skill
+    // is still resolvable. Covers the NPC branch below as well as the player
+    // one, and every removal route (timeout, dispel, death) funnels here.
+    if let Some(effects) = world
+        .data
+        .skill_data
+        .get(skill_id, buff_level(world, player_object_id, skill_id))
+        .map(|s| s.effects.clone())
+    {
+        for effect in &effects {
+            if let SkillEffect::DefenceTrait { traits } = effect {
+                remove_defence_traits(world, player_object_id, traits);
+            }
+        }
+    }
     // Did the buff about to go carry a visual? If not, the set can't change and
     // no `ExUserInfoAbnormalVisualEffect` is due (Java's same rule).
     let had_visuals = world
@@ -3865,6 +3893,136 @@ fn caster_level(world: &World, oid: i32) -> i32 {
         .get_component::<crate::model::npc::Npc>(&oid)
         .and_then(|n| n.template(world))
         .map(|t| t.level)
+        .unwrap_or(1)
+}
+
+/// Java `Formulas.calcGeneralTraitBonus(attacker, target, traitType, false)` —
+/// how much a debuff's landing chance is scaled by the target's resistance to
+/// its trait. **The clause order is Java's and is load-bearing:** `NONE` first,
+/// then *invulnerability* — which applies to every group, not just the
+/// resistable one — and only then the group gate.
+///
+/// - **group 3** (the resistable debuff traits: SHOCK, HOLD, SLEEP, POISON,
+///   DERANGEMENT, PARALYZE, BLEED, …) is what the dist's `<trait>` tags almost
+///   entirely declare, and what the learnable resistances defend.
+/// - **group 2** (`*_WEAKNESS`, declared by 5 skills here) additionally needs
+///   the *attacker* to carry a matching `AttackTrait`. Nothing is ported that
+///   grants one, so `hasAttackTrait` is always false and Java's own guard
+///   returns 1.0 — the branch is a no-op rather than a gap.
+/// - **group 1** (weapon types, plus `ETC`) and `NONE` are never scaled here.
+///
+/// The attacker side is otherwise omitted because `getAttackTrait` is **1.0**
+/// for anyone without an `AttackTrait` buff, which makes Java's
+/// `max(attackTrait − defenceTrait, 0.05)` exactly `max(1 − defence, 0.05)`.
+///
+/// TODO(G20): the *damage* consumers of the same tables — `calcWeaknessBonus`
+/// and `calcAttackTraitBonus`/`calcWeaponTraitBonus` — are unported. They are
+/// live on this dist (the race skill `Undead` 4416 sits on 13 549 NPCs and
+/// carries negative `*_WEAKNESS` defence traits, which is what makes the
+/// Hunter's "Detect … Weakness" line matter), but they belong to the physical
+/// damage formula, not the landing roll.
+pub(crate) fn calc_general_trait_bonus(
+    world: &World,
+    target_oid: i32,
+    trait_type: crate::model::skill::TraitType,
+) -> f64 {
+    use crate::model::components::DefenceTraits;
+    use crate::model::skill::TraitType;
+    if trait_type == TraitType::None {
+        return 1.0;
+    }
+    let Some(traits) = world.objects.get_component::<DefenceTraits>(&target_oid) else {
+        return 1.0;
+    };
+    // Java tests invulnerability *before* the group switch, so a weapon- or
+    // weakness-trait immunity zeroes the chance too.
+    if traits.invulnerable.contains(&trait_type) {
+        return 0.0;
+    }
+    if trait_type.group() != 3 {
+        return 1.0;
+    }
+    let defence = traits.resist.get(&trait_type).copied().unwrap_or(0.0);
+    // A *negative* defence trait is a vulnerability (4416's -15), so this can
+    // legitimately exceed 1.0 — Java only floors it.
+    (1.0 - defence).max(0.05)
+}
+
+/// `DefenceTrait.onStart` — merge this buff's resistances into the bearer.
+pub(crate) fn merge_defence_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::DefenceTraits;
+    if traits.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<DefenceTraits>(&target_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&target_oid, DefenceTraits::default());
+    }
+    if let Some(dt) = world
+        .objects
+        .get_component_mut::<DefenceTraits>(&target_oid)
+    {
+        for &(t, value) in traits {
+            // Java: `< 1.0` merges a resistance, otherwise it is outright
+            // invulnerability — a 100 in the XML is not "100 % resist".
+            if value < 1.0 {
+                *dt.resist.entry(t).or_insert(0.0) += value;
+            } else {
+                dt.invulnerable.insert(t);
+            }
+        }
+    }
+}
+
+/// `DefenceTrait.onExit` — unmerge them again.
+pub(crate) fn remove_defence_traits(
+    world: &mut World,
+    target_oid: i32,
+    traits: &[(crate::model::skill::TraitType, f64)],
+) {
+    use crate::model::components::DefenceTraits;
+    let Some(dt) = world
+        .objects
+        .get_component_mut::<DefenceTraits>(&target_oid)
+    else {
+        return;
+    };
+    for &(t, value) in traits {
+        if value < 1.0 {
+            if let Some(cur) = dt.resist.get_mut(&t) {
+                *cur -= value;
+                // Float subtraction can leave a hair above zero; drop the entry
+                // rather than leaving a phantom 1e-17 resistance behind.
+                if *cur <= 1e-9 {
+                    dt.resist.remove(&t);
+                }
+            }
+        } else {
+            dt.invulnerable.remove(&t);
+        }
+    }
+}
+
+/// The level a live buff was cast at, so its effect list can be looked back up
+/// on expiry (a resistance's value is per level).
+fn buff_level(world: &World, object_id: i32, skill_id: i32) -> i32 {
+    world
+        .objects
+        .get_component::<Buffs>(&object_id)
+        .and_then(|b| {
+            b.0.iter()
+                .find(|x| x.skill_id == skill_id)
+                .map(|x| x.skill_level)
+        })
         .unwrap_or(1)
 }
 
