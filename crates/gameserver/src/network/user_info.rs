@@ -216,14 +216,15 @@ pub fn user_info(
     w.write_u8(0);
     w.write_i16(0);
 
-    // CLAN (+ title*2) — id/privileges/leader real as of G11; crests and
-    // ally wait for their systems.
+    // CLAN (+ title*2). TODO(G33): the large crest id needs the clan row
+    // (Java `getClanCrestLargeId()`), which this builder cannot reach —
+    // `CharInfo` carries it via `CharInfoState`.
     w.write_i16((UserInfoType::Clan.block_length() + title_units * 2) as i16);
     w.write_sized_string(&p.title);
-    w.write_i16(0); // pledge type (main clan)
+    w.write_i16(p.pledge_type as i16); // Java getPledgeType (0 = main clan)
     w.write_i32(p.clan_id);
     w.write_i32(0); // clan crest large
-    w.write_i32(0); // clan crest
+    w.write_i32(p.clan_crest_id); // Java getClanCrestId
     w.write_i32(p.clan_privs);
     w.write_u8(p.clan_leader as u8);
     w.write_i32(p.ally_id);
@@ -234,7 +235,7 @@ pub fn user_info(
     w.write_i16(UserInfoType::Social.block_length() as i16);
     w.write_u8(v.pvp_flag); // pvp flag
     w.write_i32(p.reputation);
-    w.write_u8(0); // noble
+    w.write_u8(p.is_noble as u8); // noble (Java isNoble) — the nobless sparkle
     w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))
     w.write_u8(p.pledge_class); // clan rank → on-head crown (calculatePledgeClass)
     w.write_i32(p.pk_kills);
@@ -285,11 +286,12 @@ pub fn user_info(
     ) as i16);
     w.write_u8(0);
 
-    // TRUE_HERO
+    // TRUE_HERO — Java `isTrueHero() ? 100 : 0`, a hero flag of its own
+    // (`//settruehero`), independent of the SOCIAL glow byte above.
     w.write_i16(UserInfoType::TrueHero.block_length() as i16);
     w.write_i32(0);
     w.write_i16(0);
-    w.write_u8(0);
+    w.write_u8(if p.true_hero { 100 } else { 0 });
 
     w.into_bytes()
 }

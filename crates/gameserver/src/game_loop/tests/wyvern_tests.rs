@@ -467,7 +467,7 @@ fn glow_offsets(world: &mut World, oid: i32) -> (usize, usize) {
         let relation = crate::game_loop::party::calculate_relation(world, v.p);
         (
             crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, relation),
-            server_packets::char_info(&v, &[], &[]),
+            server_packets::char_info(&v, &[], &[], &Default::default()),
         )
     };
     let was = world
@@ -618,4 +618,125 @@ fn hero_glow_survives_mount_for_gm_and_hero() {
             "{oid}: the glow byte survives the dismount"
         );
     }
+}
+
+/// **`//settruehero` drives its own packet byte, separate from `//sethero`.**
+/// Java's `AdminAdmin` has two distinct commands: `sethero` flips `isHero()`
+/// (skill tree + the SOCIAL glow byte) while `settruehero` flips `isTrueHero()`
+/// — a second flag written as `100 : 0` at the tail of both `CharInfo` and
+/// `UserInfo`. The port had aliased the two commands and hard-coded the true
+/// hero byte to 0, so the flag could never reach the client.
+#[test]
+fn settruehero_is_a_separate_flag_from_sethero() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8950, 100);
+    let mut ob_rx = ingame_player_access(&mut world, 2, 8951, 0);
+    drain(&mut gm_rx);
+    drain(&mut ob_rx);
+    // Java's `settruehero` needs a target (INVALID_TARGET otherwise); self.
+    world
+        .objects
+        .add_components(&8950, crate::model::components::TargetRef(Some(8950)));
+
+    let true_hero_byte = |pk: &[u8]| pk[pk.len() - 3]; // …trueHero, hairAccessory, abilityPoints
+    crate::game_loop::party::broadcast_user_info(&world, 8950);
+    let before = drain(&mut ob_rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+        .unwrap();
+    assert_eq!(true_hero_byte(&before), 0, "off by default, as in Java");
+
+    on_packet(&mut world, 1, build_admin("settruehero"));
+    {
+        let p = world.objects.get_component::<Player>(&8950).unwrap();
+        assert!(p.true_hero, "the flag flipped");
+        assert!(!p.is_hero, "and it did NOT touch isHero()");
+    }
+    let after = drain(&mut ob_rx)
+        .into_iter()
+        .rev()
+        .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+        .unwrap();
+    assert_eq!(true_hero_byte(&after), 100, "Java writes 100, not 1");
+
+    // Toggling back clears it (Java `setTrueHero(!isTrueHero())`).
+    on_packet(&mut world, 1, build_admin("settruehero"));
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&8950)
+            .unwrap()
+            .true_hero
+    );
+}
+
+/// **`CharInfo` carries the states an onlooker can only learn from it.** Java
+/// fills sitting / in-combat / dead / pvp-flag / noble / cursed-weapon /
+/// clan-crest / clan-reputation from live state inside the packet ctor; the
+/// port had them hard-coded to 0, so a player who walked into view of someone
+/// sitting, flagged or dead saw them standing, clean and alive.
+#[test]
+fn char_info_reflects_live_player_state() {
+    let (mut world, ..) = admin_world();
+    let _gm = ingame_player_access(&mut world, 1, 8960, 100);
+    let mut ob_rx = ingame_player_access(&mut world, 2, 8961, 0);
+    drain(&mut ob_rx);
+
+    let snapshot = |world: &World, rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>| {
+        crate::game_loop::party::broadcast_user_info(world, 8960);
+        drain(rx)
+            .into_iter()
+            .rev()
+            .find(|p| p[0] == server_packets::opcodes::CHAR_INFO)
+            .expect("CharInfo")
+    };
+    let base = snapshot(&world, &mut ob_rx);
+
+    // Sit down + flag for PvP: both bytes must move.
+    {
+        let p = world.objects.get_component_mut::<Player>(&8960).unwrap();
+        p.sitting = true;
+        p.is_noble = true;
+    }
+    world.objects.add_components(
+        &8960,
+        crate::model::components::PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
+    let sitting = snapshot(&world, &mut ob_rx);
+    let moved: Vec<usize> = base
+        .iter()
+        .zip(&sitting)
+        .enumerate()
+        .filter(|(_, (a, b))| a != b)
+        .map(|(i, _)| i)
+        .collect();
+    assert_eq!(
+        moved.len(),
+        3,
+        "exactly the sitting, pvp-flag and noble bytes changed"
+    );
+    assert!(
+        moved.iter().all(|&i| sitting[i] == 1 || base[i] == 1),
+        "each flipped between 0 and 1"
+    );
+
+    // Dying flips the alike-dead byte (Java `isAlikeDead`).
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&8960)
+        .unwrap()
+        .dead = true;
+    let dead = snapshot(&world, &mut ob_rx);
+    let dead_moved: Vec<usize> = sitting
+        .iter()
+        .zip(&dead)
+        .enumerate()
+        .filter(|(_, (a, b))| a != b)
+        .map(|(i, _)| i)
+        .collect();
+    assert_eq!(dead_moved.len(), 1, "only the alike-dead byte changed");
+    assert_eq!(dead[dead_moved[0]], 1);
 }

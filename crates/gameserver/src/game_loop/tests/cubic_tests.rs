@@ -308,8 +308,8 @@ fn char_info_carries_the_cubic_ids() {
     summon_cubic(&mut world, OWNER, CUBIC_ID, 1);
 
     let v = crate::model::PlayerView::of(&world.objects, OWNER).unwrap();
-    let with = crate::network::server_packets::char_info(&v, &[], &[CUBIC_ID]);
-    let without = crate::network::server_packets::char_info(&v, &[], &[]);
+    let with = crate::network::server_packets::char_info(&v, &[], &[CUBIC_ID], &Default::default());
+    let without = crate::network::server_packets::char_info(&v, &[], &[], &Default::default());
     assert_eq!(
         with.len(),
         without.len() + 2,
