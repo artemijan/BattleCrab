@@ -892,9 +892,8 @@ pub enum SkillEffect {
     /// `game_loop::skills::cast` for the already-transformed, in-water and
     /// cursed-weapon-equipped legs (mounted collapses into "already
     /// transformed" on this port, since a horse/bike mount is itself a
-    /// transform) and the registered-on-event leg (the TvT roster). Only the
-    /// **sitting** leg is unported — `ChangeWaitType` does not exist here, so
-    /// nothing can be sitting to refuse (TODO(G14)).
+    /// transform), the registered-on-event leg (the TvT roster) and the
+    /// **sitting** leg.
     Transform {
         transformation_id: i32,
     },

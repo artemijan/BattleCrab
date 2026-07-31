@@ -776,9 +776,11 @@ pub(crate) fn mount(world: &mut World, client_id: u32, object_id: i32) {
         refuse(world, sm_ids::A_STRIDER_CANNOT_BE_RIDDEN_WHILE_IN_BATTLE);
         return;
     }
-    // TODO(G14): Java also refuses while *sitting*
-    // (`A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING`) — the port models no
-    // sit/stand state (`ChangeWaitType` unported), so there is nothing to read.
+    // A seated rider is refused with its own message.
+    if crate::game_loop::sit_stand::is_sitting(world, object_id) {
+        refuse(world, sm_ids::A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING);
+        return;
+    }
     //
     // Fishing and transformation refuse with a bare `ActionFailed`, as in Java.
     if world

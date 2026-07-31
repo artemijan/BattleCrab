@@ -299,11 +299,10 @@ impl Stat {
 pub enum MoveType {
     Walking,
     Running,
-    /// No source on this port yet — sitting isn't modeled — and the only skill
-    /// in this dist that conditions on it is a non-learnable belt-item skill
-    /// (13200). Parsed anyway so the datapack round-trips completely instead of
-    /// silently discarding those effects. TODO(G29): derive this once sitting
-    /// exists, and the effects start applying with no further work.
+    /// Derived from `Player.sitting` (the seated branch wins over movement, as
+    /// in Java). The only skill in this dist that *conditions* on it is a
+    /// non-learnable belt-item skill (13200), but the move-type also drives the
+    /// seated regen bonus, which every character gets.
     Sitting,
     Standing,
 }

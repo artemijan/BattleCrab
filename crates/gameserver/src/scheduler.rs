@@ -578,6 +578,16 @@ pub enum ScheduledTask {
     /// advances APPROVED → MAINTENANCE → MODIFIABLE → APPROVED on the wall
     /// clock, rolls the production/procure period, and re-arms the next change.
     ManorModeChange,
+    /// `SitDownTask` — 2.5 s after sitting, the animation is over and actions
+    /// unblock (Java `setBlockActions(false)`).
+    SitDownFinish {
+        object_id: i32,
+    },
+    /// `StandUpTask` — 2.5 s after the stand-up broadcast, the character is
+    /// really on their feet (`setSitting(false)`).
+    StandUpFinish {
+        object_id: i32,
+    },
     /// A cursed weapon's expiry — the wielder's duration ran out, or a
     /// monster-dropped weapon lay un-grabbed past its disappear deadline
     /// (G28). Keyed by item id; a stale timer no-ops via the `end_time`

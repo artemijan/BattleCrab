@@ -866,3 +866,141 @@ fn a_client_stuck_report_stops_the_walk_where_it_says() {
     let pos = world.objects.get_component::<Position>(&3001).unwrap();
     assert_eq!(pos.x, 300, "no drift after the stop");
 }
+
+// ---------------------------------------------------------------------------
+// Sitting (G29 sweep) — `sitDown`/`standUp` + the SitStand player action
+// ---------------------------------------------------------------------------
+
+fn sit_action_body(action_id: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_i32(action_id);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_u8(0);
+    w.into_bytes()
+}
+
+/// **Sitting is two-phase, and the phases are different predicates.** Sitting
+/// down flips the flag at once but blocks actions for the 2.5 s animation;
+/// standing up broadcasts first and only clears the flag when the animation
+/// ends. A port that collapsed either into one step would let a player act
+/// mid-animation, or stand instantly.
+#[test]
+fn sitting_down_and_standing_up_each_take_an_animation() {
+    let (mut world, ..) = cast_test_world();
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    drain(&mut rx);
+    let seated = |w: &World| crate::game_loop::sit_stand::is_sitting(w, 3001);
+    let blocked = |w: &World| crate::game_loop::abnormal::is_blocked_from_actions(w, 3001);
+
+    super::servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    assert!(seated(&world), "seated the instant the toggle is used");
+    assert!(blocked(&world), "…and blocked while the animation plays");
+    let wt = drain(&mut rx)
+        .into_iter()
+        .find(|p| p[0] == server_packets::opcodes::CHANGE_WAIT_TYPE)
+        .expect("ChangeWaitType broadcast");
+    assert_eq!(
+        i32::from_le_bytes([wt[5], wt[6], wt[7], wt[8]]),
+        0,
+        "WT_SITTING"
+    );
+
+    advance_ticks(&mut world, 26); // past 2.5 s
+    assert!(seated(&world), "still seated after the animation");
+    assert!(!blocked(&world), "but free to act again");
+
+    // Stand: the flag survives until the stand animation finishes.
+    super::servitor::handle_request_action_use(&mut world, 1, &sit_action_body(0));
+    assert!(
+        seated(&world),
+        "standing up is not instant — the flag holds through the animation"
+    );
+    advance_ticks(&mut world, 26);
+    assert!(!seated(&world), "on their feet");
+}
+
+/// **The seated regen bonus is the point of sitting**: `MoveType::Sitting`
+/// wins over standing/running, and it is the largest multiplier.
+#[test]
+fn sitting_selects_the_seated_regen_multiplier() {
+    use crate::model::stats::MoveType;
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+
+    assert_eq!(
+        crate::game_loop::regen::move_type_of(&world, 3001),
+        MoveType::Standing
+    );
+    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    assert_eq!(
+        crate::game_loop::regen::move_type_of(&world, 3001),
+        MoveType::Sitting,
+        "the seated branch wins"
+    );
+    assert!(
+        crate::game_loop::regen::movement_regen_multiplier(MoveType::Sitting)
+            > crate::game_loop::regen::movement_regen_multiplier(MoveType::Standing),
+        "and it regenerates faster than standing"
+    );
+}
+
+/// **You cannot sit-tank.** Java's `PlayerStatus.reduceHp` stands a seated
+/// victim up on any hit — and takes their shop down with them.
+#[test]
+fn taking_a_hit_stands_a_seated_player_up() {
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let _rx2 = ingame_caster(&mut world, 2, 3002, 60, 0);
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::Vitals>(&3001)
+    {
+        v.cur_hp = 500.0;
+    }
+    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    advance_ticks(&mut world, 26);
+    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+
+    crate::game_loop::combat::player_receive_damage(&mut world, 3001, 3002, 50.0);
+    // The stand-up is scheduled, as any other is.
+    advance_ticks(&mut world, 26);
+    assert!(
+        !crate::game_loop::sit_stand::is_sitting(&world, 3001),
+        "a hit puts them back on their feet"
+    );
+}
+
+/// A shopkeeper stays seated while their store is open — Java's `standUp`
+/// refuses outright for `isInStoreMode()`, which is what keeps a vendor sitting
+/// behind their wares.
+#[test]
+fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    advance_ticks(&mut world, 26);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .store_type = 1;
+
+    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    advance_ticks(&mut world, 26);
+    assert!(
+        crate::game_loop::sit_stand::is_sitting(&world, 3001),
+        "the store keeps them seated"
+    );
+
+    // Close the store and they can get up.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&3001)
+        .unwrap()
+        .store_type = 0;
+    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    advance_ticks(&mut world, 26);
+    assert!(!crate::game_loop::sit_stand::is_sitting(&world, 3001));
+}

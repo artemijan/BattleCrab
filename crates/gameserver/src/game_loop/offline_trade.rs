@@ -166,8 +166,8 @@ pub(crate) fn enter_offline_mode(world: &mut World, client_id: u32) -> bool {
     // Everyone nearby re-renders the shop with its new name colour.
     super::visibility::refresh_char_info(world, object_id);
 
-    // TODO(G33): Java also `sitDown()`s the trader; the port has no sit/stand
-    // state (`ChangeWaitType` unported), so the shop stands up.
+    // Java `sitDown()`s the trader — an unattended shop sits behind its wares.
+    super::sit_stand::sit_down(world, object_id);
 
     let start_time_millis = now_millis();
     world

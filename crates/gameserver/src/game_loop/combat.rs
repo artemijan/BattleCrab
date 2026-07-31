@@ -1851,6 +1851,19 @@ pub(crate) fn player_receive_damage(
     if super::offline_trade::is_damage_immune(world, player_oid) {
         return;
     }
+    // `PlayerStatus.reduceHp`: being hit stands a seated victim up — and a
+    // crafter/shopkeeper loses their store with it. This is why you cannot
+    // sit-tank.
+    if super::sit_stand::is_sitting(world, player_oid) {
+        if world
+            .objects
+            .get_component::<crate::model::Player>(&player_oid)
+            .is_some_and(|p| p.store_type != 0)
+        {
+            super::private_store::close_any_store(world, player_oid);
+        }
+        super::sit_stand::stand_up(world, player_oid);
+    }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
     // GM `//invul`/`//undying` (Java `isInvul`/`isUndying`): invul ignores the
     // hit entirely; undying lets damage apply but floors HP at 1.

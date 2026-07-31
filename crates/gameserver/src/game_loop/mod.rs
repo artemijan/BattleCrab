@@ -89,6 +89,7 @@ mod settings;
 pub(crate) mod shop;
 mod shortcuts;
 pub(crate) mod siege;
+mod sit_stand;
 mod skill_enchant;
 pub(crate) mod skills;
 pub(crate) mod spawn_scripts;
@@ -744,6 +745,12 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ManorModeChange => {
                 manor::advance_manor_mode(world);
+            }
+            ScheduledTask::SitDownFinish { object_id } => {
+                sit_stand::handle_sit_down_finish(world, object_id);
+            }
+            ScheduledTask::StandUpFinish { object_id } => {
+                sit_stand::handle_stand_up_finish(world, object_id);
             }
             ScheduledTask::CursedWeaponExpiry { item_id } => {
                 cursed_weapon::handle_expiry(world, item_id);
