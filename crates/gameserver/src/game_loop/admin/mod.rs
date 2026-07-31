@@ -216,6 +216,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             admin_admin(world, client_id, command)
         }
         "admin_serverinfo" => admin_serverinfo(world, client_id),
+        // `AdminManor` — the manor status page (`game_menu.htm`'s "Manor info").
+        "admin_manor" => castle::admin_manor(world, client_id),
         // Instances (G27) — the `AdminInstance` panel: overview, template list /
         // detail, and create / teleport / destroy.
         "admin_instance" | "admin_instances" => admin_instance_panel(world, client_id),
