@@ -280,7 +280,7 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
             continue;
         };
         let is_raid = matches!(t.type_name.as_str(), "RaidBoss" | "GrandBoss");
-        let (hp_mul, mp_mul) = if is_raid {
+        let (mut hp_mul, mp_mul) = if is_raid {
             (
                 world.cfg.npc.raid_hp_regen_multiplier,
                 world.cfg.npc.raid_mp_regen_multiplier,
@@ -291,6 +291,18 @@ pub(crate) fn run_npc_regen_tick(world: &mut World) {
                 world.cfg.npc.mp_regen_multiplier,
             )
         };
+        // `RegenHPFinalizer`: `baseValue *= CHAMPION_HP_REGEN` right after the
+        // raid/normal multiplier and before everything else. There is no
+        // champion **MP** regen key — Java's `RegenMPFinalizer` has no champion
+        // arm at all, so `mp_mul` is deliberately left alone.
+        if world.cfg.champion.enable
+            && world
+                .objects
+                .get_component::<Npc>(&oid)
+                .is_some_and(|n| n.champion)
+        {
+            hp_mul *= world.cfg.champion.hp_regen;
+        }
         // Java `RegenHPFinalizer`/`RegenMPFinalizer` pet branch: a pet regens
         // from its **per-level pet row**, under its own multipliers — the same
         // "substitute the base, keep the pipeline" shape as every other pet

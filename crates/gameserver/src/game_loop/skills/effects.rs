@@ -3574,6 +3574,16 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
     let Some(t) = world.data.npc_data.get(npc_id) else {
         return;
     };
+    // Read the champion flag out before the multi-borrow below: a champion's
+    // recomputed stats must keep their multipliers, or the first buff cast on
+    // one would quietly strip them back to the ordinary template values.
+    let champion_mods = crate::model::ChampionStatMods::of(
+        &world.cfg.champion,
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&target_oid)
+            .is_some_and(|n| n.champion),
+    );
     if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
         &Buffs,
         &mut CombatStats,
@@ -3585,6 +3595,7 @@ fn recompute_npc_buffed_stats(world: &mut World, target_oid: i32) {
             &world.data,
             t,
             buffs,
+            champion_mods,
             &mut combat,
             &mut speeds,
             &mut vitals,

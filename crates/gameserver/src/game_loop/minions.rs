@@ -199,6 +199,7 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
     ) {
         Some(oid) => {
             world.objects.add_components(&oid, MinionOf(master_oid));
+            clear_champion_for_raid_minion(world, master_oid, oid);
             // Keep the leader's roster in step (Java `onMinionSpawn`).
             match world.objects.get_component_mut::<Minions>(&master_oid) {
                 Some(roster) => roster.0.push(oid),
@@ -209,6 +210,58 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
             true
         }
         None => false,
+    }
+}
+
+/// Java `MinionList.initializeNpcInstance` sets `minion.setIsRaidMinion(true)`
+/// for a raid boss's minions, and `Attackable.onRespawn`'s champion guard
+/// chain then rejects on `!_isRaidMinion`. The port has no raid-minion flag —
+/// the relationship only exists as the `MinionOf` component written just
+/// above — so the roll is undone here instead. Nothing has observed the minion
+/// between the two points (it has not been introduced to any client yet), so
+/// this is the same outcome, including the team aura the roll would have set.
+fn clear_champion_for_raid_minion(world: &mut World, master_oid: i32, minion_oid: i32) {
+    let master_is_raid = world
+        .objects
+        .get_component::<Npc>(&master_oid)
+        .and_then(|n| n.template(world))
+        .is_some_and(|t| t.is_raid());
+    if !master_is_raid {
+        return;
+    }
+    let Some(npc_id) = world
+        .objects
+        .get_component_mut::<Npc>(&minion_oid)
+        .map(|npc| {
+            npc.champion = false;
+            npc.npc_id
+        })
+    else {
+        return;
+    };
+    // The spawn already finalized the stats *with* the champion multipliers,
+    // so undoing the flag alone would leave a raid minion swinging at
+    // `ChampionAtk`× — recompute off the plain template. A just-spawned minion
+    // carries no buffs, so this lands back on the template values exactly.
+    let Some(t) = world.data.npc_data.get(npc_id).cloned() else {
+        return;
+    };
+    if let Some((buffs, mut combat, mut speeds, mut vitals)) = world.objects.get_many_mut::<(
+        &crate::model::components::Buffs,
+        &mut crate::model::components::CombatStats,
+        &mut crate::model::components::Speeds,
+        &mut crate::model::components::Vitals,
+    )>(&minion_oid)
+    {
+        crate::model::recompute_npc_stats_from_buffs(
+            &world.data,
+            &t,
+            buffs,
+            crate::model::ChampionStatMods::default(),
+            &mut combat,
+            &mut speeds,
+            &mut vitals,
+        );
     }
 }
 

@@ -1216,6 +1216,10 @@ pub(crate) fn distribute_xp_and_sp(
     // The killed monster's template — needed for the per-member vitality
     // charge (`target.getVitalityPoints(...)` in Java's loop).
     target: &crate::data::npc_data::NpcTemplate,
+    // Java `Attackable.useVitalityRate()` — false for a champion unless
+    // `ChampionEnableVitality`. It gates three things at once: the bonus
+    // multiplier inside `addExpAndSp`, the vitality charge, and the PA points.
+    use_vitality_rate: bool,
 ) {
     let cfg = &world.cfg.character;
     let valid = crate::model::party::valid_members(
@@ -1265,10 +1269,11 @@ pub(crate) fn distribute_xp_and_sp(
                 None => continue, // outside every gap range: nothing at all
             }
         }
-        super::death::add_exp_and_sp(world, member, xp, sp, true);
+        super::death::add_exp_and_sp(world, member, xp, sp, use_vitality_rate);
         // Java charges each rewarded member's vitality on the post-cutoff xp,
-        // and awards that member's PA points from the same value.
-        if xp > 0.0 {
+        // and awards that member's PA points from the same value — both inside
+        // the same `if (useVitalityRate())`.
+        if xp > 0.0 && use_vitality_rate {
             super::death::consume_kill_vitality(world, member, level, target, xp);
             super::pc_cafe::give_point(world, member, xp);
         }

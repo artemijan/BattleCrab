@@ -913,6 +913,7 @@ fn npc_info_carries_the_mobs_abnormal_visuals() {
             &v,
             t,
             &world.cfg.npc,
+            &world.cfg.champion,
             &crate::game_loop::abnormal::visual_effects(world, NPC_OID),
         )
     };

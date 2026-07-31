@@ -61,13 +61,35 @@ pub fn npc_say_text(npc_object_id: i32, npc_id: i32, text: &str) -> Vec<u8> {
     w.into_bytes()
 }
 
+/// Java `enums/Team`: `NONE(0)`, `BLUE(1)`, `RED(2)`. Only the two the
+/// champion aura needs are named here.
+const TEAM_NONE: u8 = 0;
+const TEAM_RED: u8 = 2;
+
 /// Port of `Creature.getTitle()`'s monster branch: with `ShowNpcLevel` /
 /// `ShowNpcAggression` on, a monster's title becomes `Lv <level>` plus `[A]`
 /// (template aggressive) / `[G]` (has a clan list and a clan-help range, i.e.
-/// calls faction help), with the template title appended after. The champion
-/// and trap branches are skipped — neither is modeled yet.
-pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
+/// calls faction help), with the template title appended after. The trap
+/// branch is skipped — traps are not modeled.
+///
+/// `champion_title` is `Some(ChampionTitle)` for a champion and `None`
+/// otherwise — the config string travels in rather than the flag, because the
+/// title lives in `ChampionMonsters.ini` while `cfg` here is `NpcConfig`.
+/// Java has **two** champion arms and they
+/// behave differently: inside the decorated-monster branch the title is
+/// `"Champion " + decorated`, but the plain branch *replaces* the title with
+/// `CHAMP_TITLE` outright rather than prefixing it. Both are reproduced.
+pub fn npc_title(
+    t: &NpcTemplate,
+    cfg: &crate::config::NpcConfig,
+    champion_title: Option<&str>,
+) -> String {
     if !t.is_monster() || (!cfg.show_npc_level && !cfg.show_npc_aggression) {
+        // Java: `if (isChampion()) return Config.CHAMP_TITLE;` — the template
+        // title is dropped, not prefixed.
+        if let Some(champ) = champion_title {
+            return champ.to_string();
+        }
         return t.title.clone();
     }
     let mut title = String::new();
@@ -92,6 +114,11 @@ pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
         title.push(' ');
         title.push_str(&t.title);
     }
+    // Java: `return isChampion() ? Config.CHAMP_TITLE + " " + t1 : t1;` — here
+    // it *is* a prefix, unlike the plain branch above.
+    if let Some(champ) = champion_title {
+        return format!("{champ} {title}");
+    }
     title
 }
 
@@ -108,6 +135,7 @@ pub fn npc_info(
     v: &crate::model::npc::NpcView,
     t: &NpcTemplate,
     cfg: &crate::config::NpcConfig,
+    champion_cfg: &crate::config::ChampionConfig,
     abnormal_visuals: &[i16],
 ) -> Vec<u8> {
     let crate::model::npc::NpcView {
@@ -118,11 +146,23 @@ pub fn npc_info(
     } = v;
     use NpcInfoType as T;
 
+    // `Config.CHAMPION_ENABLE && isChampion()` — every champion consumer in
+    // Java repeats the master gate rather than trusting the stored flag.
+    let is_champion = npc.champion && champion_cfg.enable;
+    let champion_title = is_champion.then_some(champion_cfg.title.as_str());
+    // `Attackable.onRespawn`: `setTeam(champion ? RED : NONE)`, and only when
+    // `ChampionAura` is on — an operator can run champions invisibly.
+    let team = if is_champion && champion_cfg.aura {
+        TEAM_RED
+    } else {
+        TEAM_NONE
+    };
+
     // A per-instance `setTitle` (an EffectPoint seal naming its caster) wins
     // over the template + level/aggression decoration.
     let title = match &npc.title_override {
         Some(custom) => custom.clone(),
-        None => npc_title(t, cfg),
+        None => npc_title(t, cfg, champion_title),
     };
 
     // Java `NpcInfo._masks` starts with the two unnamed always-on component
@@ -183,6 +223,12 @@ pub fn npc_info(
     // every `NpcInfo` for this NPC's whole life.
     if npc.enchant_effect > 0 {
         add(&mut mask_bytes, T::Enchant);
+    }
+    // Java `if (npc.getTeam() != Team.NONE)`. The only thing that sets a team
+    // on a monster in this port is the champion aura, which
+    // `Attackable.onRespawn` applies as `setTeam(RED)` under `ChampionAura`.
+    if team != TEAM_NONE {
+        add(&mut mask_bytes, T::Team);
     }
     add(&mut mask_bytes, T::PetEvolutionId);
     // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
@@ -245,8 +291,11 @@ pub fn npc_info(
     }
     w.write_u8(1); // STOP_MODE: !isDead
     w.write_u8(speeds.running as u8); // MOVE_MODE
-    // ENCHANT sits between MOVE_MODE and PET_EVOLUTION_ID in Java's write
-    // order (after the SWIM_OR_FLY/TEAM blocks this port never sets).
+    // TEAM sits between MOVE_MODE and ENCHANT in Java's write order (the
+    // SWIM_OR_FLY block between them is still never set).
+    if contains(T::Team) {
+        w.write_u8(team);
+    }
     if contains(T::Enchant) {
         w.write_i32(npc.enchant_effect);
     }
@@ -611,7 +660,13 @@ mod tests {
         let expected = w.into_bytes();
 
         assert_eq!(
-            super::npc_info(&v, &t, &crate::config::NpcConfig::default(), &[]),
+            super::npc_info(
+                &v,
+                &t,
+                &crate::config::NpcConfig::default(),
+                &crate::config::ChampionConfig::default(),
+                &[]
+            ),
             expected
         );
     }
@@ -673,7 +728,13 @@ mod tests {
         let expected = w.into_bytes();
 
         assert_eq!(
-            super::npc_info(&v, &t, &crate::config::NpcConfig::default(), &[]),
+            super::npc_info(
+                &v,
+                &t,
+                &crate::config::NpcConfig::default(),
+                &crate::config::ChampionConfig::default(),
+                &[]
+            ),
             expected
         );
     }
@@ -689,23 +750,23 @@ mod tests {
         t.clan_help_range = 300;
 
         let mut cfg = crate::config::NpcConfig::default();
-        assert_eq!(super::npc_title(&t, &cfg), ""); // both off → template title
+        assert_eq!(super::npc_title(&t, &cfg, None), ""); // both off → template title
         cfg.show_npc_level = true;
         cfg.show_npc_aggression = true;
-        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 [A][G]");
+        assert_eq!(super::npc_title(&t, &cfg, None), "Lv 20 [A][G]");
 
         t.is_aggressive = false;
         t.clan_help_range = 0;
         // Java writes the separator space even when no flag follows.
-        assert_eq!(super::npc_title(&t, &cfg), "Lv 20 ");
+        assert_eq!(super::npc_title(&t, &cfg, None), "Lv 20 ");
 
         cfg.show_npc_level = false;
         t.is_aggressive = true;
         t.title = "Raid Fighter".into();
-        assert_eq!(super::npc_title(&t, &cfg), "[A] Raid Fighter");
+        assert_eq!(super::npc_title(&t, &cfg, None), "[A] Raid Fighter");
 
         // Non-monsters keep their template title untouched.
         t.type_name = "Folk".into();
-        assert_eq!(super::npc_title(&t, &cfg), "Raid Fighter");
+        assert_eq!(super::npc_title(&t, &cfg, None), "Raid Fighter");
     }
 }

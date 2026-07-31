@@ -189,7 +189,13 @@ fn send_npc_info(world: &World, session: &ClientSession, npc_id: i32) {
         return;
     };
     let visuals = super::abnormal::visual_effects(world, npc_id);
-    session.send(server_packets::npc_info(&v, t, &world.cfg.npc, &visuals));
+    session.send(server_packets::npc_info(
+        &v,
+        t,
+        &world.cfg.npc,
+        &world.cfg.champion,
+        &visuals,
+    ));
 }
 
 /// The region cell a player is registered in (`None` once they're gone).

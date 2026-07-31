@@ -423,7 +423,7 @@ pub(crate) fn introduce_npc(world: &mut World, object_id: i32) {
         return;
     };
     let visuals = super::abnormal::visual_effects(world, object_id);
-    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &visuals);
+    let pkt = server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &visuals);
     broadcast_near_region_in(world, region, instance_of(world, object_id), &pkt);
 }
 
@@ -458,6 +458,15 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
         };
         (pos.x, pos.y, pos.z)
     };
+    // `Config.CHAMPION_ENABLE && _champion` — multiplies the drops below and
+    // the exp/sp further down, and decides `useVitalityRate()`, which gates
+    // whether this kill charges vitality and pays PA points at all.
+    let is_champion = world.cfg.champion.enable
+        && world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .is_some_and(|n| n.champion);
+    let use_vitality_rate = world.cfg.champion.uses_vitality_rate(is_champion);
 
     // Damage shares (players only, > 1 damage, still within reward range —
     // `Util.checkIfInRange(ALT_PARTY_RANGE, …)`).
@@ -564,7 +573,7 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             }
         }
 
-        let drops = roll_drops(world, &t, looter);
+        let drops = roll_drops(world, &t, looter, is_champion);
         let party_id = world
             .objects
             .get_component::<crate::model::components::PartyRef>(&looter)
@@ -634,6 +643,11 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
     // share × level-gap multiplier. Attackers in a party pool their shares
     // once (the Java party branch); the rest reward solo.
     let (rate_xp, rate_sp) = (world.cfg.rates.rate_xp, world.cfg.rates.rate_sp);
+    let champion_exp_sp = if is_champion {
+        world.cfg.champion.rewards_exp_sp
+    } else {
+        1.0
+    };
     let mut processed: std::collections::HashSet<i32> = std::collections::HashSet::new();
     for &(player_oid, damage) in &shares {
         if processed.contains(&player_oid) {
@@ -664,21 +678,26 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             let player_level = p.level;
             let gap = formulas::exp_sp_level_gap_multiplier(player_level, t.level);
             let mut exp = (t.exp * rate_xp * damage / total_damage * gap).max(0.0);
+            let mut sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
+            // Java multiplies both by `CHAMPION_REWARDS_EXP_SP` here — before
+            // the over-hit bonus and before the premium rates.
+            exp *= champion_exp_sp;
+            sp *= champion_exp_sp;
             // `Attackable.onKill`: the over-hit bonus rides on this attacker's
             // share, but only for whoever actually landed the killing blow.
             exp += overhit_bonus(world, npc_oid, player_oid, exp);
-            let mut sp = (t.sp * rate_sp * damage / total_damage * gap).max(0.0);
             // `Attackable.onKill`: premium rates apply *before* the vitality /
             // skill bonus multiplier `addExpAndSp` folds in.
             if super::admin::premium::has_premium_status(world, player_oid) {
                 exp *= world.cfg.premium.rate_xp;
                 sp *= world.cfg.premium.rate_sp;
             }
-            add_exp_and_sp(world, player_oid, exp, sp, true);
+            add_exp_and_sp(world, player_oid, exp, sp, use_vitality_rate);
             // Java consumes vitality only when `exp > 0`, and keys the amount on
             // the *pre-bonus* exp — the same value it just handed to
-            // `addExpAndSp`.
-            if exp > 0.0 {
+            // `addExpAndSp`. A champion kill skips the whole block unless
+            // `ChampionEnableVitality` (Java `useVitalityRate()`).
+            if exp > 0.0 && use_vitality_rate {
                 consume_kill_vitality(world, player_oid, player_level, &t, exp);
                 // Java pairs the PA-point award with `updateVitalityPoints`
                 // inside `if (useVitalityRate())` — but it is *not* behind
@@ -760,9 +779,21 @@ fn calculate_rewards(world: &mut World, npc_oid: i32, killer_oid: i32) {
             1.0
         };
         let gap = formulas::exp_sp_level_gap_multiplier(party_lvl, t.level);
-        let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0) * party_mul;
-        let sp = (t.sp * rate_sp * party_dmg / total_damage * gap).max(0.0) * party_mul;
-        super::party::distribute_xp_and_sp(world, &rewarded, party_lvl, exp, sp, &t);
+        let exp = (t.exp * rate_xp * party_dmg / total_damage * gap).max(0.0)
+            * party_mul
+            * champion_exp_sp;
+        let sp = (t.sp * rate_sp * party_dmg / total_damage * gap).max(0.0)
+            * party_mul
+            * champion_exp_sp;
+        super::party::distribute_xp_and_sp(
+            world,
+            &rewarded,
+            party_lvl,
+            exp,
+            sp,
+            &t,
+            use_vitality_rate,
+        );
     }
 }
 
@@ -785,16 +816,31 @@ pub(crate) fn roll_drops_for_test(
     t: &NpcTemplate,
     killer_oid: i32,
 ) -> Vec<(i32, i64)> {
-    roll_drops(world, t, killer_oid)
+    roll_drops(world, t, killer_oid, false)
 }
 
-fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, i64)> {
+#[cfg(test)]
+pub(crate) fn roll_champion_drops_for_test(
+    world: &mut World,
+    t: &NpcTemplate,
+    killer_oid: i32,
+) -> Vec<(i32, i64)> {
+    roll_drops(world, t, killer_oid, true)
+}
+
+fn roll_drops(
+    world: &mut World,
+    t: &NpcTemplate,
+    killer_oid: i32,
+    champion: bool,
+) -> Vec<(i32, i64)> {
     let Some(killer) = world
         .objects
         .get_component::<crate::model::Player>(&killer_oid)
     else {
         return Vec::new();
     };
+    let killer_level = killer.level;
     let level_diff = (t.level - killer.level) as f64;
     let r = &world.cfg.rates;
     let adena_gap_chance = formulas::map_range(
@@ -811,6 +857,7 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
         r.drop_item_min_level_gap_chance,
         100.0,
     );
+    let champion_cfg = world.cfg.champion.clone();
     let mut occurrences = r.drop_max_occurrences_normal;
     let chance_mult = r.death_drop_chance_multiplier;
     let amount_mult = r.death_drop_amount_multiplier;
@@ -845,10 +892,31 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
                 continue;
             }
             // Chance roll (grouped items fold the group chance in).
-            let mut rate_chance = by_id_chance
-                .get(&drop.item_id)
-                .copied()
-                .unwrap_or(chance_mult);
+            //
+            // Java keeps the champion multiplier in **two different arms**:
+            // `CHAMPION_ADENAS_REWARDS_CHANCE` only fires inside the per-item
+            // `RATE_DROP_CHANCE_BY_ID` branch (so a server with no per-id adena
+            // rate never sees it), while `CHAMPION_REWARDS_CHANCE` rides the
+            // flat death-drop rate in the `else`. Collapsing them to one
+            // multiplier would silently change the payout on this dist, where
+            // adena *does* carry a per-id rate.
+            let mut rate_chance = match by_id_chance.get(&drop.item_id) {
+                Some(&by_id) => {
+                    if champion && drop.item_id == ADENA_ID {
+                        by_id * champion_cfg.adenas_rewards_chance
+                    } else {
+                        by_id
+                    }
+                }
+                None => {
+                    chance_mult
+                        * if champion {
+                            champion_cfg.rewards_chance
+                        } else {
+                            1.0
+                        }
+                }
+            };
             if premium {
                 rate_chance *=
                     premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Chance);
@@ -857,11 +925,24 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
             if world.roll_f64() * 100.0 >= chance {
                 continue;
             }
-            // Amount.
-            let mut rate_amount = by_id_amount
-                .get(&drop.item_id)
-                .copied()
-                .unwrap_or(amount_mult);
+            // Amount — the same two-arm split as the chance above.
+            let mut rate_amount = match by_id_amount.get(&drop.item_id) {
+                Some(&by_id) => {
+                    if champion && drop.item_id == ADENA_ID {
+                        by_id * champion_cfg.adenas_rewards_amount
+                    } else {
+                        by_id
+                    }
+                }
+                None => {
+                    amount_mult
+                        * if champion {
+                            champion_cfg.rewards_amount
+                        } else {
+                            1.0
+                        }
+                }
+            };
             if premium {
                 rate_amount *=
                     premium_drop_mult(world, drop.item_id, is_raid, PremiumDropRate::Amount);
@@ -876,6 +957,28 @@ fn roll_drops(world: &mut World, t: &NpcTemplate, killer_oid: i32) -> Vec<(i32, 
                 occurrences -= 1;
             }
             out.push((drop.item_id, count));
+        }
+    }
+    // `calculateDrops`' champion tail: a flat `ChampionRewardItems` payout on
+    // top of the rolled list, unless the level-based suppression fires.
+    //
+    // The guard is Java's verbatim `if (!calculatedDrops.containsAll(ITEMS))
+    // calculatedDrops.addAll(ITEMS)` — an **all-or-nothing** test on the whole
+    // configured list, not a per-item one, and `ItemHolder` compares id *and*
+    // count. So a champion that happened to roll `(6393, 1)` from its own drop
+    // list adds nothing, while one that rolled only *some* of a multi-item
+    // reward list gets the entire list appended, duplicating the one it
+    // already had. Faithful to the quirk rather than to the intent.
+    if champion {
+        let roll = world.roll(100);
+        if !champion_cfg.suppresses_reward_items(t.level, killer_level, roll) {
+            let contains_all = champion_cfg
+                .reward_items
+                .iter()
+                .all(|reward| out.contains(reward));
+            if !contains_all {
+                out.extend_from_slice(&champion_cfg.reward_items);
+            }
         }
     }
     out
@@ -1266,9 +1369,9 @@ pub(crate) fn consume_kill_vitality(
 /// `PlayerStat.addExpAndSp(addToExp, addToSp, useBonuses)`.
 ///
 /// `use_bonuses` is Java's third argument: the kill path passes
-/// `Attackable.useVitalityRate()` (always true here — champion monsters aren't
-/// ported), while quest rewards and `//add_exp_sp` go through the two-argument
-/// overload, which passes **false**. When set, the vitality/skill exp bonus
+/// `Attackable.useVitalityRate()` — true for an ordinary mob, and false for a
+/// champion unless `ChampionEnableVitality` — while quest rewards and
+/// `//add_exp_sp` go through the two-argument overload, which passes **false**. When set, the vitality/skill exp bonus
 /// multiplies the reward and the acquisition message reports the surplus in its
 /// "bonus" slots — which is where the client's floating "+N XP bonus" comes
 /// from.
