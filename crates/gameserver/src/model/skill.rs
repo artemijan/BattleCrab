@@ -1003,8 +1003,15 @@ pub enum SkillEffect {
     /// `vampiricSum`). The melee HP-absorb path isn't modeled yet, so like
     /// `ProtectionBlessing` this carries no stat modifier and lands as an
     /// icon-only timed `ActiveBuff` (abnormal + duration honored).
-    /// TODO(G20): honor the actual HP absorb-on-hit in the melee combat path.
-    VampiricAttack,
+    ///
+    /// Java `pump`s two values: `ABSORB_DAMAGE_PERCENT += amount/100` and
+    /// `vampiricSum += amount · chance`. The pair is what
+    /// `VampiricChanceFinalizer` turns into a roll chance, so both ride the
+    /// ordinary stat pipeline here (see [`Stat::VampiricSum`]).
+    VampiricAttack {
+        amount: f64,
+        chance: f64,
+    },
     /// `handlers/effecthandlers/AttackTrait.java` — the "Detect &lt;Category&gt;
     /// Weakness" family (Insect/Beast/Animal/Dragon/Plant 75/80/87/88/104, Eye
     /// of Hunter/Slayer 359/360): raises the caster's bonus damage against a
@@ -1069,8 +1076,13 @@ pub enum SkillEffect {
     /// Vengeance (305). The combat damage-reflect path isn't modeled yet, so this
     /// carries no stat modifier and lands as an icon-only timed `ActiveBuff`
     /// (abnormal + duration honored).
-    /// TODO(G20): reflect `amount`% of received damage in the combat path.
-    DamageShield,
+    ///
+    /// A plain additive `REFLECT_DAMAGE_PERCENT` grant (Java's handler is an
+    /// `AbstractStatEffect` in all but name), read off the **target** by
+    /// `Creature.doAttack`.
+    DamageShield {
+        amount: f64,
+    },
     /// `handlers/effecthandlers/Transformation.java` — polymorph the caster
     /// into `transformation_id` (Java `TransformData.getTransform`), backing
     /// the "Transform <Monster>" scroll family (541-558, 617-674: Grail
@@ -1847,30 +1859,47 @@ impl Skill {
     }
 
     pub fn stat_modifier_effects(&self) -> Vec<StatModifierEffect> {
+        let one = |stat, amount| StatModifierEffect {
+            stat,
+            mode: StatModifierType::Diff,
+            amount,
+            armor_condition: 0,
+            weapon_condition: 0,
+            qualifier: None,
+            two_handed: false,
+        };
         self.effects
             .iter()
-            .filter_map(|e| match e {
-                SkillEffect::StatModifier(m) => Some(*m),
+            .flat_map(|e| match e {
+                SkillEffect::StatModifier(m) => vec![*m],
+                // `VampiricAttack.pump` grants **two** values, which is why this
+                // is a `flat_map`: the absorb percentage (Java stores
+                // `amount / 100`) and the `amount · chance` term the chance
+                // finalizer divides back out.
+                SkillEffect::VampiricAttack { amount, chance } => vec![
+                    one(Stat::AbsorbDamagePercent, amount / 100.0),
+                    one(Stat::VampiricSum, amount * chance),
+                ],
                 // `ReflectSkill.pump` is `mergeAdd(stat, amount)` — an ordinary
                 // additive stat contribution that happens to have its own
                 // handler class in Java rather than being an
                 // `AbstractStatEffect`. Expressed here as the equivalent
                 // `StatModifierEffect` so it rides the existing buff/passive
                 // pipeline instead of needing its own plumbing.
-                SkillEffect::ReflectSkill { magic, amount } => Some(StatModifierEffect {
-                    stat: if *magic {
+                // `DamageShield`/`VampiricAttack` are the same shape: Java
+                // handlers that only `pump` additive stats.
+                SkillEffect::DamageShield { amount } => {
+                    vec![one(Stat::ReflectDamagePercent, *amount)]
+                }
+                SkillEffect::ReflectSkill { magic, amount } => vec![one(
+                    if *magic {
                         Stat::ReflectSkillMagic
                     } else {
                         Stat::ReflectSkillPhysic
                     },
-                    mode: StatModifierType::Diff,
-                    amount: *amount,
-                    armor_condition: 0,
-                    weapon_condition: 0,
-                    qualifier: None,
-                    two_handed: false,
-                }),
-                _ => None,
+                    *amount,
+                )],
+                _ => Vec::new(),
             })
             .collect()
     }

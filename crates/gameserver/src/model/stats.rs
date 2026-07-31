@@ -142,6 +142,26 @@ pub enum Stat {
     /// defender.
     ReflectSkillPhysic,
     ReflectSkillMagic,
+    /// Java `Stat.REFLECT_DAMAGE_PERCENT` — the percentage of *damage taken*
+    /// bounced back at the attacker, granted by `DamageShield` (Reflect Damage
+    /// 86, Riposte Stance 340, Blazing/Freezing Skin 1232/1238, Chant of
+    /// Revenge 1284, Song of Vengeance 305). Additive, read off the **target**
+    /// in `Creature.doAttack` — not to be confused with
+    /// [`Stat::ReflectSkillPhysic`], which bounces a whole *debuff* rather than
+    /// damage.
+    ReflectDamagePercent,
+    /// Java `Stat.ABSORB_DAMAGE_PERCENT` — the share of melee damage dealt that
+    /// comes back as HP (`VampiricAttack`: Vampiric Rage 1268, Dance of the
+    /// Vampire 310, Chant of Vampire 1310, Prophecy of Wind 1357). Java stores
+    /// the effect's `amount / 100`, so a `<amount>8</amount>` reads as 0.08.
+    AbsorbDamagePercent,
+    /// Java's `CreatureStat._vampiricSum` — **not** a `Stat` upstream but a
+    /// hand-managed accumulator fed by the same effect (`amount · chance`).
+    /// Kept here so both halves ride the ordinary modifier machinery; the pair
+    /// is what `VampiricChanceFinalizer` turns into an actual chance:
+    /// `min(1, vampiricSum / (absorbPercent · 100) / 100)`, i.e. the
+    /// absorb-weighted mean of the contributing buffs' own chances.
+    VampiricSum,
     /// Java `Stat.MANA_CHARGE` ("manaCharge") — a flat bonus on the amount a
     /// *recharge* skill restores, granted by Higher Mana Gain 285 (`ManaCharge`,
     /// `mode=DIFF`, +22..81 by level). Read off the **recipient** by

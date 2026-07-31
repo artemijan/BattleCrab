@@ -1326,23 +1326,23 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::ProtectionBlessing => {}
             // DefenceTrait (Mental Shield / Resist Shock), VampiricAttack
             // (Vampiric Rage), and AttackTrait ("Detect <Category> Weakness"):
-            // no instant action — they land purely as an icon-only timed buff
-            // (kept off the empty-`buff_effects` bail via `has_iconless_buff`).
-            // DefenceTrait's resistances are merged when the *buff* lands
-            // (`apply_continuous_effects`), not here — this is the instant
-            // pass. VampiricAttack's melee HP absorb is still unmodelled
-            // (TODO(G20)); AttackTrait is inert on the real server too (see its
-            // doc comment) — nothing to model.
+            // no instant action. `DefenceTrait`'s resistances are merged when
+            // the *buff* lands (`apply_continuous_effects`), not here — this is
+            // the instant pass; `VampiricAttack` rides the ordinary stat
+            // pipeline (`stat_modifier_effects`) and is read back by the melee
+            // damage path; `AttackTrait`'s accumulator has no consumer yet
+            // (TODO(G20) on its doc comment).
             SkillEffect::DefenceTrait { .. }
-            | SkillEffect::VampiricAttack
+            | SkillEffect::VampiricAttack { .. }
             | SkillEffect::AttackTrait => {}
             // `MagicMpCost`/`Reuse` have no *instant* action: their rates are
             // merged when the buff lands (`apply_continuous_effects`) and
-            // unmerged at expiry, exactly like `DefenceTrait`. Song of
-            // Vengeance's damage reflect is still unmodelled (TODO(G20)).
+            // unmerged at expiry, exactly like `DefenceTrait`. `DamageShield`
+            // is a plain additive stat grant, read off the target when it takes
+            // a hit.
             SkillEffect::MagicMpCost { .. }
             | SkillEffect::Reuse { .. }
-            | SkillEffect::DamageShield => {}
+            | SkillEffect::DamageShield { .. } => {}
         }
     }
 
@@ -1500,10 +1500,10 @@ pub(crate) fn apply_continuous_effects(
             e,
             SkillEffect::ProtectionBlessing
                 | SkillEffect::DefenceTrait { .. }
-                | SkillEffect::VampiricAttack
+                | SkillEffect::VampiricAttack { .. }
                 | SkillEffect::MagicMpCost { .. }
                 | SkillEffect::Reuse { .. }
-                | SkillEffect::DamageShield
+                | SkillEffect::DamageShield { .. }
                 | SkillEffect::Transform { .. }
                 | SkillEffect::AttackTrait
         )
@@ -3399,7 +3399,14 @@ pub(crate) fn apply_skill_damage(
     // rides on the world for the duration of the hit so quest `onAttack` can
     // read it (Java threads `Skill` straight into the notification).
     world.quest_attack_skill = Some(skill_id);
-    crate::game_loop::combat::apply_physical_damage(world, caster_oid, target_oid, damage, is_dot);
+    crate::game_loop::combat::apply_attack_damage(
+        world,
+        caster_oid,
+        target_oid,
+        damage,
+        is_dot,
+        Some(is_magic),
+    );
     world.quest_attack_skill = None;
 }
 
@@ -3619,6 +3626,10 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
 
 /// Push a periodic tick's HP/MP change to the owner and their party — the
 /// `broadcastStatusUpdate(effector)` every `onActionTime` ends with.
+pub(crate) fn broadcast_vitals_for(world: &World, target_oid: i32) {
+    broadcast_vitals(world, target_oid);
+}
+
 fn broadcast_vitals(world: &World, target_oid: i32) {
     if let Some(client_id) = client_for_player(world, target_oid)
         && let Some((v, cs)) = world

@@ -189,7 +189,7 @@ fn is_attack(e: &SkillEffect) -> bool {
             | SkillEffect::MagicalAttack { .. }
             | SkillEffect::HpDrain { .. }
             | SkillEffect::Blow { .. }
-            | SkillEffect::VampiricAttack
+            | SkillEffect::VampiricAttack { .. }
     )
 }
 fn is_sleep(_e: &SkillEffect) -> bool {

@@ -189,6 +189,21 @@ pub struct CharacterConfig {
     /// `MaxDanceAmount`: the dance/song slot cap (Java `DANCES_MAX_AMOUNT`; 12
     /// on this dist). Dances/songs are counted separately from buffs.
     pub max_dance_count: i32,
+    /// `VampiricAttackWorkWithSkills` (**False** on this dist) — whether the
+    /// `VampiricAttack` HP absorb fires on skill damage as well as melee. Java
+    /// gates it as `skill == null || VAMPIRIC_ATTACK_WORKS_WITH_SKILLS`, so with
+    /// it off Vampiric Rage only feeds off auto-attacks.
+    pub vampiric_attack_works_with_skills: bool,
+    /// `VampiricAttackAffectsPvP` — lives in **PVP.ini**, not Character.ini
+    /// (**True** here). With it off, `isPlayable()` attacker + playable target
+    /// absorbs nothing.
+    pub vampiric_attack_affects_pvp: bool,
+    /// `PlayerReflectPercentLimit` / `NonPlayerReflectPercentLimit` (**100**
+    /// each) — the ceiling `Creature.doAttack` clamps
+    /// `REFLECT_DAMAGE_PERCENT` to, chosen by whether the *reflecting* side is
+    /// a player.
+    pub player_reflect_percent_limit: f64,
+    pub non_player_reflect_percent_limit: f64,
     /// `DanceConsumeAdditionalMP` (Java `DANCE_CONSUME_ADDITIONAL_MP`): each
     /// dance already running adds `ceil(mpConsume / 2)` to the next dance's MP
     /// cost. **False on this dist**, so the surcharge is off — but
@@ -309,6 +324,10 @@ impl Default for CharacterConfig {
             max_buff_count: 24,
             max_subclass: 5,
             max_dance_count: 12,
+            vampiric_attack_works_with_skills: true,
+            vampiric_attack_affects_pvp: false,
+            player_reflect_percent_limit: 100.0,
+            non_player_reflect_percent_limit: 100.0,
             dance_consume_additional_mp: false,
             store_skill_cooltime: true,
             alt_store_dances: false,
@@ -437,6 +456,22 @@ impl CharacterConfig {
             max_buff_count: p.get_int("MaxBuffAmount", 24),
             max_subclass: p.get_int("MaxSubclass", 5),
             max_dance_count: p.get_int("MaxDanceAmount", 12),
+            vampiric_attack_works_with_skills: p.get_bool(
+                "VampiricAttackWorkWithSkills",
+                d.vampiric_attack_works_with_skills,
+            ),
+            // Java reads this one out of PVP.ini (`pvpConfig`), not the
+            // character block — same split `karma_pk_limit` already lives with.
+            vampiric_attack_affects_pvp: PropertiesParser::load_rel(root, "config/PVP.ini")
+                .get_bool("VampiricAttackAffectsPvP", d.vampiric_attack_affects_pvp),
+            player_reflect_percent_limit: p.get_float(
+                "PlayerReflectPercentLimit",
+                d.player_reflect_percent_limit as f32,
+            ) as f64,
+            non_player_reflect_percent_limit: p.get_float(
+                "NonPlayerReflectPercentLimit",
+                d.non_player_reflect_percent_limit as f32,
+            ) as f64,
             dance_consume_additional_mp: p
                 .get_bool("DanceConsumeAdditionalMP", d.dance_consume_additional_mp),
             store_skill_cooltime: p.get_bool("StoreSkillCooltime", d.store_skill_cooltime),
