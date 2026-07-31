@@ -2220,7 +2220,8 @@ fn restore_clanhall_exp(world: &mut World, player_oid: i32) {
 /// Classic that count has no respawn/resurrection outcome at all (it only picks
 /// a rejection message for a normal res skill during a siege — see
 /// `Siege.control_tower_count`). The attacker respawn delay
-/// (`getAttackerRespawnDelay`) is deferred (TODO(G24)).
+/// (`getAttackerRespawnDelay`) is **0** on this dist
+/// (`Siege.ini: AttackerRespawn = 0`), so there is no delay to apply.
 fn siege_restart_location(
     world: &World,
     player_oid: i32,

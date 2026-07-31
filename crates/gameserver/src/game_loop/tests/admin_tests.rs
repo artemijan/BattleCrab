@@ -4841,14 +4841,13 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
         "ave_abnormal.htm was loaded"
     );
     assert!(
-        page0.contains("bypass -h admin_ave_abnormal STUN") && page0.contains("STUN(7)"),
+        page0.contains("bypass admin_ave_abnormal STUN") && page0.contains("STUN(7)"),
         "each effect is a button that re-enters the command by name"
     );
     assert!(
-        !page0.contains("bypass -h admin_ave_abnormal AURA_BUFF"),
-        "AURA_BUFF sits at enum index 56, so it belongs to page 2 (40 per page)"
+        !page0.contains("bypass admin_ave_abnormal YOGI\""),
+        "YOGI sits at enum index 100, so it opens page 2 (100 per page)"
     );
-    assert!(page0.contains("Page: 1/"), "the pager is rendered");
 
     // The pager's links carry a bare page number (Java's DefaultFormatter),
     // which the command parses as a page rather than an effect name.
@@ -4863,11 +4862,11 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
         .next()
         .expect("page 2 html");
     assert!(
-        page1.contains("bypass -h admin_ave_abnormal AURA_BUFF"),
-        "page 2 holds the next 40 effects"
+        page1.contains("bypass admin_ave_abnormal YOGI\""),
+        "page 2 holds the next 100 effects"
     );
     assert!(
-        !page1.contains("bypass -h admin_ave_abnormal STUN"),
+        !page1.contains("bypass admin_ave_abnormal STUN"),
         "and not the first page's"
     );
 
@@ -4951,14 +4950,13 @@ fn effects_panel_menu_commands_reserve_their_pages() {
     );
 }
 
-/// **The pager renders as markup the client can parse.** Java's `ButtonsStyle`
-/// emits a *disabled* arrow as bare text — `<td><<</td>` — which the client
-/// reads as the start of a tag, wrecking the strip on the first page; and its
-/// `NextPrevPageHandler` prints `pages + 1` as the total while pointing the
-/// last-page button one page past the end. Word labels and the true count
-/// instead.
+/// **The pager is `PageBuilder`'s default, numbered one.** `AdminEffects` never
+/// calls `pageHandler()`, so `//ave_abnormal` gets `DefaultPageHandler` +
+/// `ButtonsStyle`: a numbered strip whose current page is plain text and whose
+/// others are buttons. The port had rendered `NextPrevPageHandler`'s
+/// `First | Prev | Page: x/y | Next | Last` strip, which this page never uses.
 #[test]
-fn ave_menu_pager_is_parseable_and_counts_pages_correctly() {
+fn ave_menu_pager_is_the_numbered_default_handler() {
     const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
     let (mut world, ..) = admin_world();
     world.data.root = ROOT.to_string();
@@ -4971,37 +4969,49 @@ fn ave_menu_pager_is_parseable_and_counts_pages_correctly() {
         .filter_map(|p| decode_npc_html(p))
         .next()
         .expect("menu html");
+    // 206 effects at 100 per page = 3 pages, all three linked from page one
+    // (`DefaultPageHandler`'s window is the current page ± 2).
     assert!(
-        !page0.contains("<td><<</td>") && !page0.contains("<td><</td>"),
-        "no bare angle brackets where the client expects markup"
+        page0.contains("<td>1</td>"),
+        "the current page is plain text, not a button: {page0}"
+    );
+    for page in ["1", "2"] {
+        assert!(
+            page0.contains(&format!(
+                "<button action=\"bypass -h admin_ave_abnormal {page}\" value=\"{}\" ",
+                page.parse::<i32>().unwrap() + 1
+            )),
+            "page {page} is a numbered button"
+        );
+    }
+    assert!(
+        !page0.contains("admin_ave_abnormal 3"),
+        "no link past the last page (index 2)"
     );
     assert!(
-        page0.contains(">First</td>") || page0.contains("align=center>First</td>"),
-        "the disabled first-page label is plain readable text"
+        !page0.contains("Page: 1/") && !page0.contains("value=\"Last\""),
+        "not the next/prev strip"
     );
-    // 206 effects at 40 per page = 6 pages, and the html stays well under the
-    // ~17k the client chokes on.
-    assert!(page0.contains("Page: 1/6"), "true page count: {page0}");
+    // The fullest page must stay under the ~17k the client chokes on.
     assert!(
         page0.len() < 17_000,
         "page html is {} chars — over the client's limit",
         page0.len()
     );
-    assert!(
-        page0.contains("value=\"Last\" ") && page0.contains("admin_ave_abnormal 5"),
-        "Last targets the final real page (index 5), not one past it"
-    );
 
-    // The final page is populated — Java's off-by-one landed on an empty one.
-    on_packet(&mut world, 1, build_admin("ave_abnormal 5"));
+    // The final page is reachable and populated.
+    on_packet(&mut world, 1, build_admin("ave_abnormal 2"));
     let last = drain(&mut rx)
         .iter()
         .filter_map(|p| decode_npc_html(p))
         .next()
         .expect("last page html");
     assert!(
-        last.contains("bypass -h admin_ave_abnormal BR_Y_3_ACCESSORY_NECKRACE"),
+        last.contains("bypass admin_ave_abnormal BR_Y_3_ACCESSORY_NECKRACE"),
         "the last page holds the tail of the enum"
     );
-    assert!(last.contains("Page: 6/6"));
+    assert!(
+        last.contains("<td>3</td>") && last.contains("admin_ave_abnormal 0"),
+        "and pages back to the first"
+    );
 }

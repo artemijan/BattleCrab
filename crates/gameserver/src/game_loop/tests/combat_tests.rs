@@ -2234,6 +2234,8 @@ fn siege_attacker_hq_flag_is_respawn_point_and_destructible() {
     use crate::model::siege::{Siege, SiegeClanType};
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     insert_siege_zone(&mut world, 3, -1000, 1000, -1000, 1000);
+    // `BuildCampSkillCondition`'s HQ patch — the camp may only go up in one.
+    insert_hq_zone(&mut world, 3, -1000, 1000, -1000, 1000);
     // The HQ flag NPC (35062) template.
     let mut t = crate::data::npc_data::default_template(35062);
     t.type_name = "Folk".into();

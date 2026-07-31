@@ -263,9 +263,23 @@ fn unstuck_casts_escape_and_teleports_to_town() {
 
     super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
     let pkts = drain(&mut rx);
+    // Both lines are sent, in Java's order: `SkillCaster.castSkill` runs phase 0
+    // synchronously (`skillCaster.run()` → `startCasting`), so the skill's
+    // YOU_USE_S1 ("You use Escape (5-minute).", named by the *client* after
+    // skill 2099) reaches the player before the handler's own
+    // "You use Escape: 30 seconds." chat line on `Unstuck.java:147`.
+    let sms = sm_ids_of(&pkts);
+    let use_s1 = sms
+        .iter()
+        .position(|id| *id == server_packets::sm_ids::YOU_USE_S1)
+        .expect("YOU_USE_S1 for the escape skill");
+    let chat = sms
+        .iter()
+        .position(|id| *id == server_packets::sm_ids::S1_TEXT)
+        .expect("'You use Escape: 30 seconds.' chat line");
     assert!(
-        sm_ids_of(&pkts).contains(&server_packets::sm_ids::S1_TEXT),
-        "'You use Escape' message"
+        use_s1 < chat,
+        "the skill's YOU_USE_S1 precedes the handler's chat line (sms: {sms:?})"
     );
     assert!(
         pkts.iter()
@@ -308,6 +322,53 @@ fn unstuck_casts_escape_and_teleports_to_town() {
     assert!(
         !world.objects.has_component::<Casting>(&3001),
         "cast slot freed by the abort"
+    );
+}
+
+/// **A refused escape must not claim it worked.** Java gates the
+/// "You use Escape: 30 seconds." line on `SkillCaster.castSkill` returning a
+/// caster — a null answer gets `ActionFailed` +
+/// `setIntention(AI_INTENTION_ACTIVE)` and no message at all
+/// (`Unstuck.java:135-141`). Here the escape carries an initial MP cost the
+/// player cannot pay, so the cast bails before the `Casting` slot is taken.
+#[test]
+fn unstuck_says_nothing_when_the_cast_is_refused() {
+    let (mut world, ..) = test_world();
+    world.cfg.character.unstuck_interval = 30;
+    world.data.skill_data.insert_for_test(Skill {
+        id: 2099,
+        level: 1,
+        name: "Escape".into(),
+        operate_type: OperateType::Active,
+        target_type: TargetType::Self_,
+        magic_type: 2, // static: the forced hit time is used verbatim
+        hit_time: 300_000,
+        mp_initial_consume: 50,
+        effects: vec![crate::model::skill::SkillEffect::EscapeToTown],
+        ..Default::default()
+    });
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    {
+        let vitals = world.objects.get_component_mut::<Vitals>(&3001).unwrap();
+        vitals.cur_hp = 100.0;
+        vitals.cur_mp = 0.0; // cannot pay the initial consume
+    }
+    drain(&mut rx);
+
+    super::user_commands::handle_bypass_user_cmd(&mut world, 1, &user_cmd_body(52));
+    let pkts = drain(&mut rx);
+    assert!(
+        !world.objects.has_component::<Casting>(&3001),
+        "the cast must not have started"
+    );
+    assert!(
+        !sm_ids_of(&pkts).contains(&server_packets::sm_ids::S1_TEXT),
+        "no 'You use Escape' line when the escape was refused"
+    );
+    assert!(
+        pkts.iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "Java answers the refusal with ActionFailed"
     );
 }
 
