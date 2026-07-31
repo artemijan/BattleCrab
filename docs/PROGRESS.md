@@ -2310,6 +2310,18 @@ clanless mob titles as `"Lv 20 "`.
   to the funnel; regression asserted in `combat_tests::melee_kill_rewards_and_decay`.
   **When adding any new inventory mutation, send through the helper, not
   `cs.send(inventory_update…)`.**
+- **A persisted column is only persisted once *both* ends carry it (2026-07-31):**
+  `characters.curCp` was written by `store_player_tx` on every flush but never
+  read back — `char_data_of` had no `cur_cp` field to map it into, and
+  `Player::from_char` hard-coded `cur_cp: 0.0`. Every login therefore started at
+  0 CP and visibly regenerated up, while the DB held the right value the whole
+  time. The write side passing review is not evidence the round trip works:
+  when adding a column to `PlayerSnapshot`, add the matching field to `CharData`
+  + `char_data_of` + the `from_char` component it feeds, and assert the reload
+  (`char_persistence::current_cp_persists`,
+  `misc_tests::stored_cp_is_restored_on_login`). Java's `Player.restore` reads
+  `curCp`/`curHp`/`curMp` together and replays them through the `setCurrentX`
+  clamps after stats are recomputed — the port mirrors that clamp order.
 - **Panic policy (2026-07-24):** a panic in a packet handler is caught per-packet
   in `drain_network` (`catch_unwind`, Java-parity with `ExecuteThread`'s
   catch-Throwable) — the offending client is disconnected (their mid-mutation

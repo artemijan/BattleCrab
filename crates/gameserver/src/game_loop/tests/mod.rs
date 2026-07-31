@@ -217,6 +217,7 @@ fn dummy_char(object_id: i32, name: &str) -> CharData {
         cur_hp: 80.0,
         max_mp: 30,
         cur_mp: 30.0,
+        cur_cp: 0.0,
         face: 0,
         hair_style: 0,
         hair_color: 0,

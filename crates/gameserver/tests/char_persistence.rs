@@ -61,8 +61,10 @@ fn save_from(c: &gameserver::character::CharData) -> db::PlayerSaveData {
             level: c.level,
             max_hp: c.max_hp,
             cur_hp: c.cur_hp,
+            // `CharData` carries no max CP (it is recomputed from the template
+            // at spawn); current CP round-trips, so feed it back through.
             max_cp: 0,
-            cur_cp: 0.0,
+            cur_cp: c.cur_cp,
             max_mp: c.max_mp,
             cur_mp: c.cur_mp,
             face: c.face,
@@ -1467,6 +1469,102 @@ async fn pets_persist() {
             assert_eq!(chars[0].pets[0].fed, 30);
             assert_eq!(chars[0].pets[0].level, 6);
             assert!(!chars[0].pets[0].restore, "and it can be cleared again");
+        }
+        _ => panic!("expected CharactersLoaded"),
+    }
+
+    cmd_tx.send(DbCommand::Shutdown).unwrap();
+    tokio::task::spawn_blocking(move || handle.join())
+        .await
+        .unwrap()
+        .unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// Current CP round-trips through `characters.curCp` (Java `storeCharBase`
+/// writes it, `Player.restore` reads it back). The loader used to drop the
+/// column entirely, so a flushed CP value was written and then ignored on the
+/// next login.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn current_cp_persists() {
+    let dir = std::env::temp_dir().join(format!("l2r_cp_{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let db_path = dir.join("test.db");
+    let url = format!("jdbc:sqlite:{}", db_path.display());
+
+    let sql_root = concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/db_installer/sql/sqlite/game"
+    );
+    {
+        let pool = commons::db::init(&url, 1).await.unwrap();
+        for table in [
+            "characters",
+            "items",
+            "item_variations",
+            "character_skills",
+            "character_skills_save",
+            "character_shortcuts",
+            "character_macroses",
+            "character_reco_bonus",
+            "character_quests",
+            "character_hennas",
+            "character_recipebook",
+            "character_variables",
+        ] {
+            let schema = std::fs::read_to_string(format!("{sql_root}/{table}.sql")).unwrap();
+            for stmt in schema.split(';').map(str::trim).filter(|s| !s.is_empty()) {
+                sqlx::query(sqlx::AssertSqlSafe(stmt.to_string()))
+                    .execute(&pool)
+                    .await
+                    .unwrap();
+            }
+        }
+        pool.close().await;
+    }
+
+    let (cmd_tx, cmd_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (event_tx, event_rx) = std::sync::mpsc::channel();
+    add_accounts_table(&url).await;
+    let handle = db::spawn(url.clone(), 1, 7, cmd_rx, event_tx);
+
+    cmd_tx
+        .send(DbCommand::CreateCharacter {
+            client_id: 1,
+            data: new_char("Cepe"),
+        })
+        .unwrap();
+    assert!(matches!(
+        recv(&event_rx),
+        DbEvent::CharacterCreated {
+            result: CreateResult::Ok,
+            ..
+        }
+    ));
+    let loaded = match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            // Java stores a fresh character's `curCp` as the status default, 0.
+            assert_eq!(chars[0].cur_cp, 0.0, "new character starts at 0 CP");
+            chars[0].clone()
+        }
+        _ => panic!("expected CharactersLoaded"),
+    };
+
+    // Log out with a partly-drained CP bar.
+    let mut save = save_from(&loaded);
+    save.base.max_cp = 210;
+    save.base.cur_cp = 137.5;
+    cmd_tx.send(DbCommand::StorePlayer { save }).unwrap();
+
+    cmd_tx
+        .send(DbCommand::LoadCharacters {
+            client_id: 1,
+            account: "acc".into(),
+        })
+        .unwrap();
+    match recv(&event_rx) {
+        DbEvent::CharactersLoaded { chars, .. } => {
+            assert_eq!(chars[0].cur_cp, 137.5, "flushed CP survives the reload");
         }
         _ => panic!("expected CharactersLoaded"),
     }
