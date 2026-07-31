@@ -4841,16 +4841,12 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
         "ave_abnormal.htm was loaded"
     );
     assert!(
-        page0.contains("bypass admin_ave_abnormal STUN") && page0.contains("STUN(7)"),
+        page0.contains("bypass -h admin_ave_abnormal STUN") && page0.contains("STUN(7)"),
         "each effect is a button that re-enters the command by name"
     );
     assert!(
-        page0.contains("bypass admin_ave_abnormal AURA_BUFF"),
-        "AURA_BUFF sits at enum index 56, so it is on the first page"
-    );
-    assert!(
-        !page0.contains("bypass admin_ave_abnormal SAYHA_FURY"),
-        "index 120 belongs to the second page — 100 entries per page"
+        !page0.contains("bypass -h admin_ave_abnormal AURA_BUFF"),
+        "AURA_BUFF sits at enum index 56, so it belongs to page 2 (40 per page)"
     );
     assert!(page0.contains("Page: 1/"), "the pager is rendered");
 
@@ -4867,11 +4863,11 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
         .next()
         .expect("page 2 html");
     assert!(
-        page1.contains("bypass admin_ave_abnormal SAYHA_FURY"),
-        "page 2 holds the later effects"
+        page1.contains("bypass -h admin_ave_abnormal AURA_BUFF"),
+        "page 2 holds the next 40 effects"
     );
     assert!(
-        !page1.contains("bypass admin_ave_abnormal STUN"),
+        !page1.contains("bypass -h admin_ave_abnormal STUN"),
         "and not the first page's"
     );
 
@@ -4884,4 +4880,128 @@ fn ave_abnormal_without_args_serves_the_paged_effect_list() {
         crate::game_loop::abnormal::visual_effects(&world, 7501).contains(&57),
         "clicking a button applies the effect"
     );
+}
+
+/// **The Effects panel's buttons come back with a page.** Java ends
+/// `AdminEffects.useAdminCommand` with `if (command.contains("menu"))
+/// showMainPage(...)`, which re-serves `effects_menu.htm` — or `social.htm`
+/// for the social commands, the panel's own sub-page. The port ran the action
+/// and sent nothing, so every button press dropped the panel and "Social"
+/// opened nothing at all. `//transform_menu` belongs to `AdminTransform` and
+/// has its own page (`transform.htm`), not the main GM menu the port served.
+#[test]
+fn effects_panel_menu_commands_reserve_their_pages() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 7510, 100);
+    world
+        .objects
+        .add_components(&7510, crate::model::components::TargetRef(Some(7510)));
+    drain(&mut rx);
+
+    let click = |world: &mut World,
+                 rx: &mut tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>,
+                 cmd: &str|
+     -> String {
+        on_packet(world, 1, build_admin(cmd));
+        drain(rx)
+            .iter()
+            .filter_map(|p| decode_npc_html(p))
+            .next_back()
+            .unwrap_or_default()
+    };
+
+    assert!(
+        click(&mut world, &mut rx, "social_menu 2").contains("Social Menu"),
+        "social lands on social.htm"
+    );
+    assert!(
+        click(&mut world, &mut rx, "effect_menu").contains("Effects Menu"),
+        "effect_menu serves the panel"
+    );
+    for cmd in [
+        "para_menu",
+        "unpara_menu",
+        "para_all_menu",
+        "unpara_all_menu",
+    ] {
+        assert!(
+            click(&mut world, &mut rx, cmd).contains("Effects Menu"),
+            "{cmd} leaves the panel up"
+        );
+    }
+    assert!(
+        click(&mut world, &mut rx, "earthquake_menu 20 10").contains("Effects Menu"),
+        "earthquake_menu leaves the panel up"
+    );
+    assert!(
+        click(&mut world, &mut rx, "transform_menu").contains("Transform"),
+        "transform_menu opens the transform sub-page, not gm_menu"
+    );
+    // A non-menu command must NOT drag a page in.
+    on_packet(&mut world, 1, build_admin("para"));
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .filter_map(|p| decode_npc_html(p))
+            .next()
+            .is_none(),
+        "the bare command sends no html, as in Java"
+    );
+}
+
+/// **The pager renders as markup the client can parse.** Java's `ButtonsStyle`
+/// emits a *disabled* arrow as bare text — `<td><<</td>` — which the client
+/// reads as the start of a tag, wrecking the strip on the first page; and its
+/// `NextPrevPageHandler` prints `pages + 1` as the total while pointing the
+/// last-page button one page past the end. Word labels and the true count
+/// instead.
+#[test]
+fn ave_menu_pager_is_parseable_and_counts_pages_correctly() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 7511, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("ave_abnormal"));
+    let page0 = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("menu html");
+    assert!(
+        !page0.contains("<td><<</td>") && !page0.contains("<td><</td>"),
+        "no bare angle brackets where the client expects markup"
+    );
+    assert!(
+        page0.contains(">First</td>") || page0.contains("align=center>First</td>"),
+        "the disabled first-page label is plain readable text"
+    );
+    // 206 effects at 40 per page = 6 pages, and the html stays well under the
+    // ~17k the client chokes on.
+    assert!(page0.contains("Page: 1/6"), "true page count: {page0}");
+    assert!(
+        page0.len() < 17_000,
+        "page html is {} chars — over the client's limit",
+        page0.len()
+    );
+    assert!(
+        page0.contains("value=\"Last\" ") && page0.contains("admin_ave_abnormal 5"),
+        "Last targets the final real page (index 5), not one past it"
+    );
+
+    // The final page is populated — Java's off-by-one landed on an empty one.
+    on_packet(&mut world, 1, build_admin("ave_abnormal 5"));
+    let last = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("last page html");
+    assert!(
+        last.contains("bypass -h admin_ave_abnormal BR_Y_3_ACCESSORY_NECKRACE"),
+        "the last page holds the tail of the enum"
+    );
+    assert!(last.contains("Page: 6/6"));
 }

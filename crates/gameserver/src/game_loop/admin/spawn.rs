@@ -580,18 +580,30 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
     );
 }
 
-/// `NextPrevPageHandler` + `ButtonsStyle` — the `<< | < | Page: x/y | > | >>`
-/// strip, ported verbatim including Java's off-by-one quirks (the label prints
-/// `pages + 1` and `>>` targets one page past the last; the page clamp in the
-/// list body keeps that click on the final page).
+/// `NextPrevPageHandler` + `ButtonsStyle` — the
+/// `First | Prev | Page: x/y | Next | Last` strip.
 ///
 /// `page_prefix` is Java's `IBypassFormatter`: `DefaultFormatter` appends
 /// `" " + page` (what `//ave_abnormal` parses), while the scan list reads a
 /// `page=<n>` bypass param.
+///
+/// **Two deliberate deviations from Java, because its pager renders broken on
+/// this client:**
+///   * Java labels the arrows `<<`/`<`/`>`/`>>`, and a *disabled* arrow is
+///     emitted as bare text (`<td><<</td>`). The client parses that `<` as the
+///     start of a tag and the strip falls apart, which is exactly how the
+///     first page renders (both left arrows disabled). Word labels avoid the
+///     escaping question entirely — no dist html has an angle bracket in a
+///     button label, so there is no known-good escaping to copy.
+///   * Java prints `pages + 1` as the total and points `>>` at index `pages`,
+///     one past the last real page — so a 3-page list reads "Page: 1/4" and
+///     the last click lands on an empty page. The count and the target are
+///     the real ones here.
 pub(super) fn next_prev_pager(bypass: &str, current: i32, pages: i32, page_prefix: &str) -> String {
+    let last = (pages - 1).max(0);
     let button = |target: i32, label: &str, disabled: bool| -> String {
         if disabled {
-            format!("<td>{label}</td>")
+            format!("<td align=center>{label}</td>")
         } else {
             format!(
                 "<td><button action=\"{bypass}{page_prefix}{target}\" value=\"{label}\" \
@@ -601,19 +613,19 @@ pub(super) fn next_prev_pager(bypass: &str, current: i32, pages: i32, page_prefi
     };
     const SEP: &str = "<td align=center> | </td>";
     let mut s = String::new();
-    s.push_str(&button(0, "<<", current - 1 < 0));
+    s.push_str(&button(0, "First", current <= 0));
     s.push_str(SEP);
-    s.push_str(&button(current - 1, "<", current <= 0));
+    s.push_str(&button(current - 1, "Prev", current <= 0));
     s.push_str(SEP);
     s.push_str(&format!(
         "<td align=\"center\">Page: {}/{}</td>",
         current + 1,
-        pages + 1
+        pages.max(1)
     ));
     s.push_str(SEP);
-    s.push_str(&button(current + 1, ">", current >= pages));
+    s.push_str(&button(current + 1, "Next", current >= last));
     s.push_str(SEP);
-    s.push_str(&button(pages, ">>", current + 1 > pages));
+    s.push_str(&button(last, "Last", current >= last));
     s
 }
 
