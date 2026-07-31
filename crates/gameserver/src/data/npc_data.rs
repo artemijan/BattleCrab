@@ -164,6 +164,10 @@ pub struct NpcTemplate {
     /// `<status canBeSown>` (Java `NpcTemplate.canBeSown`, default false) — the
     /// monster accepts manor seeds (the `Sow` effect's `canBeSown()` gate).
     pub can_be_sown: bool,
+    /// `<status undying>` (Java `NpcTemplate.isUndying`, default false) — the
+    /// NPC cannot be killed. 681 NPCs carry it on this dist. Read by the
+    /// champion-monster lottery, which must never pick one.
+    pub undying: bool,
     pub random_walk: bool,
     /// Java `isRandomAnimationEnabled` (`randomAnimation`, default true) — the
     /// NPC plays idle social animations while standing around.
@@ -303,6 +307,14 @@ impl NpcTemplate {
     /// auto-attack karma players, which don't exist yet).
     pub fn is_auto_attackable(&self) -> bool {
         self.is_monster()
+    }
+
+    /// Java `NpcTemplate.isQuestMonster()`, which is computed in the ctor as
+    /// `_title.contains("Quest")` — not an XML flag. Quest mobs are excluded
+    /// from the champion lottery so a quest chain's kill count cannot be
+    /// gated behind a 10×-HP version of the target.
+    pub fn is_quest_monster(&self) -> bool {
+        self.title.contains("Quest")
     }
 
     /// `Npc.isRaid()` — `instanceof RaidBoss` (which `GrandBoss` extends).
@@ -540,6 +552,7 @@ pub fn default_template(id: i32) -> NpcTemplate {
         show_name: true,
         can_move: true,
         can_be_sown: false,
+        undying: false,
         random_walk: false,
         random_animation: true,
         is_aggressive: false,
@@ -834,6 +847,7 @@ fn parse_file(path: &std::path::Path, out: &mut HashMap<i32, NpcTemplate>) {
                     t.show_name = attr_bool(&e, b"showName").unwrap_or(true);
                     t.can_move = attr_bool(&e, b"canMove").unwrap_or(true);
                     t.can_be_sown = attr_bool(&e, b"canBeSown").unwrap_or(false);
+                    t.undying = attr_bool(&e, b"undying").unwrap_or(false);
                     if let Some(v) = attr_bool(&e, b"randomWalk") {
                         t.random_walk = v;
                     }
