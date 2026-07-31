@@ -899,7 +899,7 @@ impl Player {
     /// Build a `Player` (+ its extracted components, as a `PlayerData`)
     /// from a stored character row + its class template.
     /// Max HP/MP/CP are recomputed (not read from the DB) so they display
-    /// correctly; current HP/MP come from the row, clamped to the max.
+    /// correctly; current HP/MP/CP come from the row, clamped to the max.
     pub fn from_char(data: &GameData, c: &CharData) -> PlayerData {
         // The active class's template (base classes only in G4).
         let t = data
@@ -961,9 +961,12 @@ impl Player {
             cur_mp: c.cur_mp.min(max_mp),
             dead: c.cur_hp < 0.5,
         };
+        // Java `Player.restore`: `setCurrentCp(currentCp)` replays the stored
+        // `curCp`, clamped to the freshly computed max — the same treatment
+        // `curHp`/`curMp` get just above.
         let mut player_vitals = PlayerVitals {
             max_cp: max_cp as i32,
-            cur_cp: 0.0,
+            cur_cp: c.cur_cp.min(max_cp),
         };
         let mut speeds = Speeds {
             run_spd: t.base_run_spd as f64,

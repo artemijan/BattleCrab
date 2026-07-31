@@ -47,6 +47,11 @@ pub struct CharData {
     pub cur_hp: f64,
     pub max_mp: i32,
     pub cur_mp: f64,
+    /// `characters.curCp` — Java `Player.restore` reads `curCp` alongside
+    /// `curHp`/`curMp` and replays it through `setCurrentCp` once stats are
+    /// initialized. `maxCp` is recomputed from the template at spawn, so only
+    /// the current value is restored here.
+    pub cur_cp: f64,
     pub face: i32,
     pub hair_style: i32,
     pub hair_color: i32,

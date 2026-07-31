@@ -4160,6 +4160,7 @@ async fn char_data_of(
             cur_hp: row.cur_hp.map(f64::from).unwrap_or(0.0),
             max_mp: row.max_mp.unwrap_or(0),
             cur_mp: row.cur_mp.map(f64::from).unwrap_or(0.0),
+            cur_cp: row.cur_cp.map(f64::from).unwrap_or(0.0),
             face: row.face.unwrap_or(0),
             hair_style: row.hair_style.unwrap_or(0),
             hair_color: row.hair_color.unwrap_or(0),
