@@ -435,13 +435,27 @@ fn is_noble(world: &World, player_object_id: i32) -> bool {
         .is_some_and(|p| p.is_noble)
 }
 
-/// `CastleManager.getCastle(npc)` for a gatekeeper — the castle whose territory
-/// it stands in, if any.
+/// `CastleManager.getCastle(npc)` for a gatekeeper — the castle whose
+/// `SiegeZone` actually **contains** the gatekeeper, if any.
+///
+/// This is `CastleManager.getCastle(x, y, z)` (a `checkIfInZone` scan over the
+/// castle list), **not** `Npc.getCastle()` / `findNearestCastle`: only
+/// `Teleporter.showChatWindow` reaches for the strict containment form, and the
+/// difference is load-bearing. `findNearestCastle` falls back to the closest
+/// castle at *any* distance, so resolving through it makes every town
+/// gatekeeper in the world (Roxxy in Talking Island, …) "stand on castle
+/// ground" and answer with `castleteleporter-no.htm`.
 fn npc_castle_id(world: &World, npc_object_id: i32) -> Option<i32> {
     let pos = world
         .objects
         .get_component::<crate::model::components::Position>(&npc_object_id)?;
-    world.data.zone_data.nearest_castle_at(pos.x, pos.y, pos.z)
+    world
+        .data
+        .zone_data
+        .siege_castle_at(pos.x, pos.y, pos.z)
+        // Java iterates castles, so a `SiegeZone` carrying no castle id (the
+        // stray later-chronicle `GainakSiege`) belongs to no castle.
+        .filter(|&id| id > 0)
 }
 
 /// `Teleporter.showChatWindow`'s castle branch. `None` when the gatekeeper does

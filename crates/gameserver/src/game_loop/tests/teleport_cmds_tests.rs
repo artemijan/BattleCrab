@@ -563,3 +563,87 @@ fn the_noble_list_page_gates_on_nobless() {
         "a noble gets the destination menu: {page}"
     );
 }
+
+// ---------------------------------------------------------------------------
+// `Teleporter.showChatWindow` — the castle-ground gate
+// ---------------------------------------------------------------------------
+
+const TELE_DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+/// Roxxy's real Talking Island spawn (`spawns/Gludio/Gludio.xml`).
+const ROXXY: (i32, i32, i32) = (-84108, 244604, -3729);
+/// Inside Gludio castle's `SiegeZone` (the blacksmith's dist spawn).
+const IN_GLUDIO_CASTLE: (i32, i32, i32) = (-17680, 109519, -2656);
+
+/// `Teleporter.showChatWindow` resolves its castle through
+/// `CastleManager.getCastle(this)` — strict `checkIfInZone` containment — not
+/// `Npc.getCastle()`/`findNearestCastle`, which falls back to the closest
+/// castle at *any* distance. Resolving through the nearest-castle form put
+/// every town gatekeeper in the world on "castle ground", so Roxxy answered
+/// `castleteleporter-no.htm` ("How dare you talk to me!") instead of her own
+/// page and no one could teleport.
+#[test]
+fn town_gatekeeper_is_not_on_castle_ground() {
+    let (mut world, mut rx) = teleporter_world(0);
+    world.data.root = TELE_DIST.to_string();
+    world.data.zone_data = crate::data::zone_data::ZoneData::load_from(TELE_DIST);
+
+    let roxxy = NPC_OID + 50;
+    add_test_npc(
+        &mut world,
+        roxxy,
+        30006,
+        "Teleporter",
+        70,
+        ROXXY.0,
+        ROXXY.1,
+        ROXXY.2,
+    );
+    // The nearest-castle form does claim her — that is exactly the trap.
+    assert!(
+        world
+            .data
+            .zone_data
+            .nearest_castle_at(ROXXY.0, ROXXY.1, ROXXY.2)
+            .is_some(),
+        "findNearestCastle has no distance bound, so it answers for Talking Island too"
+    );
+    assert_eq!(
+        crate::game_loop::teleporter::castle_landing_page(&world, roxxy, 3001),
+        None,
+        "Roxxy stands in no castle's siege zone: Java falls through to super.showChatWindow"
+    );
+
+    crate::game_loop::target::show_chat_window(&mut world, 1, roxxy, 0);
+    let page = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("Roxxy's landing page");
+    assert!(
+        !page.contains("How dare you talk to me"),
+        "no castle refusal for a town gatekeeper: {page}"
+    );
+    assert!(
+        page.contains("showTeleports"),
+        "she offers the teleport menu: {page}"
+    );
+
+    // A gatekeeper actually standing inside a castle still gets the refusal:
+    // the clan owns nothing and no siege is running.
+    let castle_gk = NPC_OID + 51;
+    add_test_npc(
+        &mut world,
+        castle_gk,
+        30006,
+        "Teleporter",
+        70,
+        IN_GLUDIO_CASTLE.0,
+        IN_GLUDIO_CASTLE.1,
+        IN_GLUDIO_CASTLE.2,
+    );
+    assert_eq!(
+        crate::game_loop::teleporter::castle_landing_page(&world, castle_gk, 3001),
+        Some("castleteleporter-no.htm".to_string()),
+        "inside the siege zone the castle branch still runs"
+    );
+}
