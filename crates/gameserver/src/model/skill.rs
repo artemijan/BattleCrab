@@ -185,10 +185,10 @@ pub enum TraitType {
     Psychic,
     /// Group 2 — the creature-category weaknesses (attacker-gated).
     Weakness(WeaknessTrait),
-    /// Group 1 — the weapon types (and `ETC`). Kept as distinct values so a
-    /// bearer's SWORD and DAGGER resistances can't fold into one bucket; the
-    /// consumer (`calcWeaponTraitBonus`) is unported, see
-    /// `calc_general_trait_bonus`.
+    /// Group 1 — the weapon types (and `ETC`). Distinct values so a bearer's
+    /// SWORD and DAGGER resistances can't fold into one bucket, which
+    /// `calcWeaponTraitBonus` reads to soften hits from that weapon type
+    /// (Deflect Arrow's BOW, Provoke's negative POLE).
     Weapon(WeaponTrait),
     /// Anything unrecognised — treated as group 1, i.e. never resisted.
     Other,
@@ -841,8 +841,8 @@ pub enum SkillEffect {
     /// Java's `AttackTrait` effect, this constructor doesn't `/100` these).
     /// A landed full-lethal sets HP (and CP, for a player) to 1; a half-kill
     /// sets a player's CP to 1 or halves a monster's HP. Java's
-    /// `chanceMultiplier` (attribute/general-trait bonus) is 1.0 here — no
-    /// trait/attribute math is modeled anywhere on this port. Raid bosses are
+    /// `chanceMultiplier` (`calcAttributeBonus * calcGeneralTraitBonus`) scales
+    /// both kill chances, and both halves are real. Raid bosses are
     /// immune (`isLethalable()`, mirroring the same raid-immunity check
     /// `Mute`'s cast-interrupt already has); `INSTANT_KILL_RESIST` isn't
     /// rolled at all — like `MAX_MOMENTUM`, no skill/item/npc in this

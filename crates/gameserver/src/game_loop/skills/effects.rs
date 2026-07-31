@@ -562,9 +562,19 @@ pub(crate) fn apply_skill_effects(
                 // parameters (`"Lethal Strike!"`, `"Half-Kill!"`, …).
                 let caster_client = client_for_player(world, caster_oid);
                 let is_player_target = world.objects.get_component::<crate::model::Player>(&target_oid).is_some();
-                // `Lethal.instant`'s `chanceMultiplier` — the attribute half
-                // (its trait half stays unported with the trait system).
-                let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill);
+                // `Lethal.instant`'s `chanceMultiplier` — **both** halves:
+                // `calcAttributeBonus * calcGeneralTraitBonus(…, false)`. It
+                // scales the full- and half-kill chances alike, so a victim
+                // resisting the skill's element or trait is correspondingly
+                // harder to execute.
+                let lethal_amod = attribute_mod(world, caster_oid, target_oid, skill)
+                    * calc_general_trait_bonus(
+                        world,
+                        caster_oid,
+                        target_oid,
+                        skill.trait_type,
+                        false,
+                    );
                 if world.roll(100) < ((*full_lethal) * lethal_amod) as i32 {
                     if is_player_target {
                         if let Some(v) = world.objects.get_component_mut::<crate::model::components::PlayerVitals>(&target_oid) {

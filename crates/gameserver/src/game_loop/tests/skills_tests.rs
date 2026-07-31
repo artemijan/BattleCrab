@@ -5361,3 +5361,62 @@ fn damage_block_refuses_incoming_hp_damage_except_a_dot() {
         "a DoT tick still lands through HP_BLOCK"
     );
 }
+
+/// **A trait resistance makes you harder to execute.** Java's `Lethal` scales
+/// both kill chances by `calcAttributeBonus * calcGeneralTraitBonus(…, false)`;
+/// the port applied only the attribute half, with a comment saying the trait
+/// half "stays unported with the trait system". The trait system landed, and
+/// nothing existed to make that claim fail.
+#[test]
+fn a_trait_resistance_lowers_the_lethal_chance() {
+    use crate::model::skill::{SkillEffect, TraitType};
+
+    let lethal = |resist: bool| {
+        let (mut world, _db_rx, _link_rx) = combat_test_world();
+        let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+        let npc_oid = spawn_debuff_target(&mut world, &mut a_rx);
+        let max = world
+            .objects
+            .get_component::<Vitals>(&npc_oid)
+            .unwrap()
+            .max_hp as f64;
+        world
+            .objects
+            .get_component_mut::<Vitals>(&npc_oid)
+            .unwrap()
+            .cur_hp = max;
+
+        let mut skill = world.data.skill_data.get(1160, 1).expect("fixture").clone();
+        skill.id = 9900;
+        skill.magic_type = 0;
+        skill.activate_rate = -1;
+        skill.magic_level = 80; // well above the mob, so the level gate passes
+        skill.trait_type = TraitType::Shock;
+        skill.effects = vec![SkillEffect::Lethal {
+            full_lethal: 100.0,
+            half_lethal: 0.0,
+        }];
+        if resist {
+            crate::game_loop::skills::effects::merge_defence_traits(
+                &mut world,
+                npc_oid,
+                &[(TraitType::Shock, 0.5)],
+            );
+        }
+        // magic-crit throwaway, then the full-lethal roll: 60 is under the
+        // unresisted 100 but over the halved 50.
+        world.forced_rolls.extend([0, 60]);
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, npc_oid, &skill);
+        world
+            .objects
+            .get_component::<Vitals>(&npc_oid)
+            .unwrap()
+            .cur_hp
+    };
+
+    assert_eq!(lethal(false), 1.0, "unresisted, the lethal lands");
+    assert!(
+        lethal(true) > 1.0,
+        "a 50% SHOCK resistance halves the kill chance and the same roll misses"
+    );
+}
