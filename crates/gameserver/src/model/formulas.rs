@@ -1,13 +1,17 @@
 //! Port of `model/stats/Formulas.java`, scoped to what the single-target cast
 //! pipeline needs: magic damage, magic crit, cast timing, heal, and the
 //! cast-break-on-hit roll. Every function documents the Java method it ports
-//! and which terms are dropped. The dropped terms are identity values for
-//! an unarmed, shotless player with no trait stats: `SHOTS_BONUS`/spiritshots
-//! (1.0/absent), trait/weakness mods (1.0), `SKILL_POWER_ADD` (0),
-//! `RANDOM_DAMAGE` (weapon-supplied, unarmed = 0 → randomMod 1.0),
-//! pvp/pve config multipliers (1.0 by default), `MAGICAL_SKILL_POWER` (1.0).
-//! The **attribute mod is real** since the G19 attributes slice
-//! ([`calc_attribute_bonus`]) — callers multiply it in at Java's spots.
+//! and which terms are dropped. The dropped terms are identity values for an
+//! unarmed, shotless player: `SHOTS_BONUS`/spiritshots (1.0/absent),
+//! `SKILL_POWER_ADD` (0), `RANDOM_DAMAGE` (weapon-supplied, unarmed = 0 →
+//! randomMod 1.0), pvp/pve config multipliers (1.0 by default),
+//! `MAGICAL_SKILL_POWER` (1.0).
+//!
+//! The **attribute** mod is real since the G19 attributes slice
+//! ([`calc_attribute_bonus`]) and the **trait** mods since the G20 trait slice
+//! (`skills::effects::skill_trait_mod`) — callers multiply both in at Java's
+//! spots rather than this module folding them, which is why the signatures
+//! stop short of them.
 
 use crate::data::GameData;
 use crate::model::Player;
@@ -42,8 +46,9 @@ pub enum MagicFailure {
 ///
 /// `failure` is the `ALT_GAME_MAGICFAILURES` verdict. Java mutates `damage`
 /// inside the failure block and only then multiplies by `critMod` and the
-/// trait/attribute/random/pvpPve mods (all 1.0 here), so the halving and the
-/// `damage = 1` floor are applied here *ahead* of `mcrit`.
+/// trait/attribute/random/pvpPve mods, so the halving and the `damage = 1`
+/// floor are applied here *ahead* of `mcrit`. (The trait and attribute mods are
+/// real and applied by the caller; only random/pvpPve are still identities.)
 pub fn calc_magic_dam(
     m_atk: f64,
     m_def: f64,
@@ -701,8 +706,9 @@ pub fn calc_physical_skill_crit(critical_chance: f64, str_bonus: f64, roll: i32)
 
 /// `handlers/effecthandlers/PhysicalAttack.java` `instant()`, melee/shotless
 /// narrowing — the same dropped-terms rationale as `calc_auto_attack_damage`
-/// (soulshots handled via `ss`; trait/weakness/attribute/pvp-pve mods 1.0,
-/// `SKILL_POWER_ADD` 0, `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0).
+/// (soulshots handled via `ss`; pvp-pve mods 1.0, `SKILL_POWER_ADD` 0,
+/// `PHYSICAL_SKILL_POWER` 1, abnormal/race mods 1.0). The trait/weakness and
+/// attribute mods are **real** and multiplied in by the caller.
 /// Shield defence is folded into `p_def` by the caller (a perfect block never
 /// reaches here — the caller shortcuts to 1 damage).
 ///
@@ -749,10 +755,10 @@ pub fn level_mod(level: i32) -> f64 {
 }
 
 /// `Formulas.calcBlowDamage` (dagger blows: FatalBlow/Backstab/SoulBlow),
-/// melee/identity-simplified. The crit-damage/trait/attribute/pvp-pve
-/// multipliers are all identity for the actors that exist (default crit-damage
-/// stats, no traits/attributes) → `cdMult = 1`, `cdPatk = 0`, so only the base
-/// blow term survives. `position` adds 20% (back) / 5% (side) of `(power+pAtk)`
+/// melee/identity-simplified. The crit-damage and pvp-pve multipliers are
+/// identity for the actors that exist (default crit-damage stats) →
+/// `cdMult = 1`, `cdPatk = 0`, so only the base blow term survives; the trait
+/// and attribute mods are **real** and multiplied in by the caller. `position` adds 20% (back) / 5% (side) of `(power+pAtk)`
 /// before the ×77. Shield is folded into `p_def` by the caller (perfect block →
 /// the caller shortcuts to 1). `SKILL_POWER_ADD` is 0.
 ///
