@@ -14,6 +14,22 @@ pub struct GeneralConfig {
     /// `GMHeroAura`: give GMs the Hero glow on login (CharInfo/UserInfo hero
     /// byte = `isHero() || (isGM() && GMHeroAura)`).
     pub gm_hero_aura: bool,
+    /// `HeroAuraOnMounts` — **custom, no Java counterpart.** The client binds
+    /// both hero glows (the `isHero()` byte and `isTrueHero()`) to the human
+    /// character mesh, so they vanish the moment the actor becomes a mount or
+    /// a transform model; Java behaves identically and has no field left to
+    /// flip. Abnormal *visual* effects do render on those models (they render
+    /// on NPC meshes generally, field-confirmed on a wyvern), so with this on
+    /// the server keeps a hero's aura visible while mounted/transformed by
+    /// pushing the AVE named in
+    /// [`hero_aura_on_mounts_effect`](Self::hero_aura_on_mounts_effect).
+    /// With the key absent the port behaves exactly like Java.
+    pub hero_aura_on_mounts: bool,
+    /// `HeroAuraOnMountsEffect` — which `AbnormalVisualEffect` stands in for
+    /// the aura (default `AURA_BUFF`, the one field-tested on a wyvern). Any
+    /// name from the enum works, so the look can be swapped without a rebuild;
+    /// an unknown name disables the feature.
+    pub hero_aura_on_mounts_effect: String,
     /// `GMStartupBuilderHide`: hide the GM on login (retail builder default).
     /// When set, Java **skips** the invul/invis/silence/diet block below.
     pub gm_startup_builder_hide: bool,
@@ -145,6 +161,11 @@ impl GeneralConfig {
         let d = Self::default();
         Self {
             gm_hero_aura: p.get_bool("GMHeroAura", d.gm_hero_aura),
+            hero_aura_on_mounts: p.get_bool("HeroAuraOnMounts", d.hero_aura_on_mounts),
+            hero_aura_on_mounts_effect: p
+                .get_string("HeroAuraOnMountsEffect", "AURA_BUFF")
+                .trim()
+                .to_string(),
             gm_startup_builder_hide: p.get_bool("GMStartupBuilderHide", d.gm_startup_builder_hide),
             gm_startup_invulnerable: p.get_bool("GMStartupInvulnerable", d.gm_startup_invulnerable),
             gm_startup_invisible: p.get_bool("GMStartupInvisible", d.gm_startup_invisible),
@@ -209,6 +230,15 @@ mod tests {
         );
         let g = GeneralConfig::from_parser(&PropertiesParser::load(path));
         assert!(g.gm_hero_aura, "GMHeroAura=True");
+        // Custom keys (no Java counterpart): shipped on, with the effect name
+        // that is known to render on a mount.
+        assert!(g.hero_aura_on_mounts, "HeroAuraOnMounts=True");
+        assert_eq!(g.hero_aura_on_mounts_effect, "AURA_BUFF");
+        assert_eq!(
+            crate::model::skill::abnormal_visual_client_id(&g.hero_aura_on_mounts_effect),
+            Some(57),
+            "the configured effect name must resolve, or the feature is dead"
+        );
         assert!(g.gm_startup_builder_hide, "GMStartupBuilderHide=True");
         assert!(g.gm_startup_invulnerable, "GMStartupInvulnerable=True");
         assert!(g.gm_startup_invisible, "GMStartupInvisible=True");

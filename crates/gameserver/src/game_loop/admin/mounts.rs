@@ -123,6 +123,10 @@ pub(crate) fn mount_player(world: &mut World, target: i32, npc_id: i32, mount_ty
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, true);
     super::party::broadcast_user_info(world, target);
+    // Onlookers get the visual list inside that CharInfo, but the rider's own
+    // client only learns it from the Ex packet — without this the custom
+    // `HeroAuraOnMounts` aura would show to everyone *except* the rider.
+    super::transforms::refresh_transform_visuals(world, target);
     true
 }
 
@@ -288,6 +292,9 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
     super::transforms::recompute_speeds(world, target);
     broadcast_ride(world, target, false);
     super::party::broadcast_user_info(world, target);
+    // Same on the way down: clear the mounted stand-in aura on the rider's own
+    // client (the real hero glow takes over again on the human mesh).
+    super::transforms::refresh_transform_visuals(world, target);
 }
 
 /// Broadcast the `Ride` packet (mount/dismount) to the rider and everyone

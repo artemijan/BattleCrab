@@ -71,7 +71,33 @@ pub(crate) fn visual_effects(world: &World, object_id: i32) -> Vec<i16> {
             }
         }
     }
+    if let Some(id) = mounted_hero_aura(world, object_id)
+        && !out.contains(&id)
+    {
+        out.push(id);
+    }
     out
+}
+
+/// Custom `HeroAuraOnMounts` (General.ini) — the stand-in aura for a hero on a
+/// mount or in a transform. **This one is not Java.**
+///
+/// The client hangs both hero glows (the `isHero()` byte and `isTrueHero()`)
+/// off the human character mesh: swap the actor for a mount or a transform
+/// model and they are gone, with every packet field still correctly set. Java
+/// behaves the same and has nothing left to send. Abnormal *visual* effects,
+/// though, do render on those models — field-confirmed with `AURA_BUFF` on a
+/// wyvern — so when the feature is enabled whoever would carry the hero glow
+/// on foot keeps an aura in the air too. `None` when the toggle is off, the
+/// character is on their own two feet, or they have no glow to carry.
+fn mounted_hero_aura(world: &World, object_id: i32) -> Option<i16> {
+    let id = world.data.gm.hero_aura_on_mounts?;
+    let p = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)?;
+    let glowing = p.hero_aura || p.true_hero;
+    let model_swapped = p.is_mounted() || p.transform_display_id != 0;
+    (glowing && model_swapped).then_some(id)
 }
 
 /// Java `Creature.isMuted()` — silenced against **magic** skills.
