@@ -58,18 +58,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // the same data bundle the enter-world flow and UserInfo read.
     data.gm = gameserver::data::GmSettings {
         hero_aura: config.general.gm_hero_aura,
-        // Custom `HeroAuraOnMounts`: resolve the stand-in effect name once at
-        // boot. Toggle off, or a name the enum doesn't have, leaves it `None`
-        // — i.e. the Java behaviour.
-        hero_aura_on_mounts: config
-            .general
-            .hero_aura_on_mounts
-            .then(|| {
-                gameserver::model::skill::abnormal_visual_client_id(
-                    &config.general.hero_aura_on_mounts_effect.to_uppercase(),
-                )
-            })
-            .flatten(),
         startup_builder_hide: config.general.gm_startup_builder_hide,
         startup_invulnerable: config.general.gm_startup_invulnerable,
         startup_invisible: config.general.gm_startup_invisible,

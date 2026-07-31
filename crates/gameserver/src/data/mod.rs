@@ -145,12 +145,6 @@ impl Default for CombatCaps {
 #[derive(Debug, Clone, Copy, Default)]
 pub struct GmSettings {
     pub hero_aura: bool,
-    /// Custom `HeroAuraOnMounts` (General.ini): the abnormal-visual client id
-    /// that stands in for the hero glow while the character is mounted or
-    /// transformed — the client drops the real glow there because it hangs off
-    /// the human mesh, and no packet field is left to flip. `None` (the
-    /// default, and what tests use) is the Java behaviour: no substitute.
-    pub hero_aura_on_mounts: Option<i16>,
     pub startup_builder_hide: bool,
     pub startup_invulnerable: bool,
     pub startup_invisible: bool,
