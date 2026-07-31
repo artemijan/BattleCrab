@@ -595,6 +595,11 @@ pub enum DbCommand {
     SaveHeroes {
         heroes: Vec<HeroRow>,
     },
+    /// `Hero.claimHero`'s persistence half (Java re-runs `updateHeroes`, which
+    /// rewrites the row): flip `heroes.claimed` for one crowned character.
+    ClaimHero {
+        char_id: i32,
+    },
     /// `Hero.setDiaryData` — append a `heroes_diary` row (a noble's notable
     /// action, e.g. `ACTION_CASTLE_TAKEN`).
     SaveHeroDiary {
@@ -1317,6 +1322,11 @@ pub struct HeroRow {
     pub clan_id: i32,
     /// The hero's words (`heroes.message`), shown atop the hero diary window.
     pub message: String,
+    /// `heroes.claimed` (a `'true'`/`'false'` string column): whether the crowned
+    /// character has collected the status at the Monument of Heroes. Java's
+    /// `Hero.isHero` — the predicate that grants hero status at login — is
+    /// crowned **and** claimed; `isUnclaimedHero` is crowned and not.
+    pub claimed: bool,
 }
 
 /// One `cursed_weapons` row — the persisted wielder state of a cursed weapon.
@@ -2322,7 +2332,7 @@ async fn run(
                             class_id: Set(h.class_id),
                             count: Set(h.count),
                             played: Set(1),
-                            claimed: Set("false".to_string()),
+                            claimed: Set(if h.claimed { "true" } else { "false" }.to_string()),
                             ..Default::default()
                         })
                         .on_conflict(
@@ -2339,6 +2349,15 @@ async fn run(
                         .await,
                     );
                 }
+            }
+            DbCommand::ClaimHero { char_id } => {
+                warn_err(
+                    heroes::Entity::update_many()
+                        .col_expr(heroes::Column::Claimed, "true".into())
+                        .filter(heroes::Column::CharId.eq(char_id))
+                        .exec(&db)
+                        .await,
+                );
             }
             DbCommand::SaveHeroDiary {
                 char_id,
@@ -4617,6 +4636,9 @@ async fn load_heroes(db: &DatabaseConnection) -> Vec<HeroRow> {
                 name: c.map(|c| c.char_name.clone()).unwrap_or_default(),
                 clan_id: c.and_then(|c| c.clanid).unwrap_or(0),
                 message: h.message,
+                // Java `Boolean.parseBoolean(rset.getString(CLAIMED))` — anything
+                // but "true" reads false.
+                claimed: h.claimed == "true",
             }
         })
         .collect()

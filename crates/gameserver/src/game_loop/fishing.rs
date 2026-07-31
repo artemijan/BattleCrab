@@ -150,7 +150,21 @@ fn cast_line(world: &mut World, player: i32) {
         .get_component::<RegionCell>(&player)
         .map(|r| r.0);
     let Some((bx, by, bz)) = calculate_bait_location(world, player) else {
-        // TODO(G32): send YOU_CAN_T_FISH_HERE once the sm_id is added.
+        // Java's branch splits on `_isFishing`: a *fresh* cast in a bad spot is
+        // told why, a re-cast mid-session only gets `ActionFailed` (its commented
+        // -out "attempt cancelled" line stays commented out here too).
+        let already_fishing = world
+            .objects
+            .get_component::<FishingSession>(&player)
+            .is_some_and(|f| f.is_fishing);
+        if !already_fishing {
+            send(
+                world,
+                player,
+                sp::system_message_with(sp::sm_ids::YOU_CAN_T_FISH_HERE, &[]),
+            );
+        }
+        send(world, player, sp::action_failed());
         stop_fishing(world, player, REASON_STOP);
         return;
     };

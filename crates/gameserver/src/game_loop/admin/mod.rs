@@ -575,6 +575,7 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // setlevel / dismiss / rep), plus AdminClan's pending-leader listing.
         "admin_pledge" => admin_pledge(world, client_id, object_id, &args),
         "admin_clan_show_pending" => admin_clan_show_pending(world, client_id),
+        "admin_clan_force_pending" => pledge::admin_clan_force_pending(world, client_id, &args),
         // AdminGrandBoss — the Game panel's "Grand Boss Info" button. Status
         // display is live; the skip/respawn/minions/abort actions await the
         // grand-boss AI (G21).

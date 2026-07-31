@@ -220,11 +220,10 @@ pub(super) fn admin_showdoors(world: &mut World, client_id: u32, object_id: i32)
 /// its `%…_status%` tokens filled from live state — Java `showMenu`; the old
 /// port routed this to a chat-text stat dump, so the panel was unreachable).
 /// The packets toggle drives `World::debug_packets` (Java flips
-/// `Config.DEBUG_*_PACKETS` for console packet logging). TODO(G33): the
+/// `Config.DEBUG_*_PACKETS` for console packet logging); the
 /// doors/geodata/movement visualizers (Java `setDoorDebugging`/
-/// `setGeodataDebugging`/`setMovementDebugging` per-player draw tasks) need
-/// the `ExServerPrimitive` packet, which isn't ported — those toggles answer
-/// with a message and render as "off".
+/// `setGeodataDebugging`/`setMovementDebugging` per-player draw tasks) run
+/// through `admin::debug_draw` over `ExServerPrimitive`, landed since.
 pub(super) fn admin_debug(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let Some(&sub) = args.first() else {
         return show_debug_menu(world, client_id, object_id);

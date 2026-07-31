@@ -818,3 +818,36 @@ fn npc_trace_without_a_spawn_messages_the_player() {
         "the player is told no spawn was found"
     );
 }
+
+/// Java's `_bbsheal` tops up the owner's pet and servitors alongside the
+/// player. The leg was deferred while summons didn't exist; it is live now.
+#[test]
+fn heal_action_also_restores_the_pet() {
+    use crate::model::components::SummonRef;
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let _rx = ingame_player(&mut world, 1, 7003, 0, 0, 0);
+    add_test_npc(&mut world, 7100, 12077, "Pet", 20, 0, 0, 0);
+    world.objects.add_components(
+        &7003,
+        SummonRef {
+            servitor: None,
+            pet: Some(7100),
+        },
+    );
+    // Wound both.
+    for oid in [7003, 7100] {
+        let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+        v.cur_hp = 1.0;
+        v.cur_mp = 1.0;
+    }
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+
+    let pet = world.objects.get_component::<Vitals>(&7100).unwrap();
+    assert_eq!(
+        pet.cur_hp, pet.max_hp as f64,
+        "the pet's HP is restored too"
+    );
+    assert_eq!(pet.cur_mp, pet.max_mp as f64, "and its MP");
+}

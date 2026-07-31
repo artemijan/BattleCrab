@@ -264,14 +264,17 @@ pub(crate) fn apply_gm_startup(world: &mut World, client_id: u32, object_id: i32
 
 /// Java `AdminData.addGm(player, hidden)`: register the live GM with a
 /// hidden-from-`//gmlist` flag of
-/// `!GMStartupAutoList || !hasAccess("admin_gmliston")`. There is no `//gmlist`
-/// consumer yet (GMs are derived on demand from `is_gm` — see
-/// `admin::moderation::admin_gmchat`), so nothing tracks the flag today.
-/// TODO(G14): keep the hidden flag once `//gmlist`/`//gmliston` land.
+/// `!GMStartupAutoList || !hasAccess("admin_gmliston")`.
+///
+/// **Verified skip, not a gap.** The flag is inert in this Java build too:
+/// every `getAllGms` call site passes `includeHidden = true`
+/// (`broadcastToGMs`, `broadcastMessageToGMs`, `AdminServerInfo`), and there
+/// is no `//gmlist` command at all — `//gmliston`/`//gmlistoff` only flip a
+/// value nothing reads. The port derives GMs on demand from `is_gm` (see
+/// `admin::moderation::admin_gmchat`), which is observably identical.
 fn register_gm(world: &World, _object_id: i32, access_level: i32) {
     let _hidden = !world.data.gm.startup_auto_list
         || !world.data.admin.has_access("admin_gmliston", access_level);
-    // No-op until the GM list exists.
 }
 
 /// `//setinvul` / `//setundying` — toggle the flag on the targeted player.

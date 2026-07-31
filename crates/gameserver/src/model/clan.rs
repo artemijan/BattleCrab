@@ -73,7 +73,7 @@ pub struct Clan {
     pub rank_privs: std::collections::HashMap<i32, i32>,
     /// Java `_newLeaderId` (`clan_data.new_leader_id`): a pending delegated
     /// leader transfer (`AltClanLeaderInstantActivation = False` flow). Applied
-    /// at the daily reset — TODO(G33): `DailyTaskManager.onClanLeaderChange`.
+    /// at the Wednesday daily reset (Java `DailyTaskManager.clanLeaderApply`).
     pub new_leader_id: i32,
     /// Java `_subPledges` (`clan_subpledges` table): the academy + up to 2
     /// royal-guard + up to 4 knight-order sub-units this clan has founded,

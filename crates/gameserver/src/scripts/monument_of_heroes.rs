@@ -77,11 +77,11 @@ impl QuestScript for MonumentOfHeroes {
             "heroCirclet" => hero_circlet(ctx),
             "receiveCloak" => receive_cloak(ctx),
             "heroCertification" => Some(hero_certification(ctx).to_string()),
+            "heroConfirm" => Some(hero_confirm(ctx).to_string()),
             "heroList" => {
                 crate::game_loop::olympiad::send_hero_list(ctx.world, ctx.client_id);
                 None
             }
-            // `heroConfirm` → `claimHero` is deferred (this port auto-crowns).
             _ => None,
         }
     }
@@ -192,13 +192,35 @@ fn receive_cloak(ctx: &mut QuestCtx) -> Option<String> {
     None
 }
 
-/// `heroCertification`: this port auto-crowns heroes at the Olympiad end, so a
-/// hero always sees the "already certified" page and everyone else the "not a
-/// hero" page (there is no unclaimed-hero certification step to run).
+/// `heroCertification`: the crowned-but-unclaimed noble is offered the
+/// certification, an already-claimed hero the "already certified" page, and
+/// everyone else the "not a hero" page.
 fn hero_certification(ctx: &QuestCtx) -> &'static str {
-    if is_hero(ctx) {
+    if ctx.world.olympiad.is_unclaimed_hero(ctx.player) {
+        "MonumentOfHeroes-heroCertification.html"
+    } else if is_hero(ctx) {
         "MonumentOfHeroes-heroCertificationAlready.html"
     } else {
         "MonumentOfHeroes-heroCertificationNo.html"
     }
+}
+
+/// `heroConfirm` — the button on `MonumentOfHeroes-heroCertification.html`: a
+/// crowned-but-unclaimed noble on their **base** class, level 55+, collects
+/// hero status here (Java `Hero.claimHero` plus its fanfare).
+fn hero_confirm(ctx: &mut QuestCtx) -> &'static str {
+    if !ctx.world.olympiad.is_unclaimed_hero(ctx.player) {
+        return "MonumentOfHeroes-heroCertificationNo.html";
+    }
+    if ctx.is_subclass_active() {
+        return "MonumentOfHeroes-heroCertificationSub.html";
+    }
+    if ctx.player_level() < 55 {
+        return "MonumentOfHeroes-heroCertificationLevel.html";
+    }
+    crate::game_loop::olympiad::claim_hero(ctx.world, ctx.player);
+    // Java also shows an on-screen `NpcStringId` keyed by class
+    // (`13357 + classId`); that table isn't ported, so only the fanfare plays.
+    ctx.play_sound("ns01_f");
+    "MonumentOfHeroes-heroCertificationsDone.html"
 }

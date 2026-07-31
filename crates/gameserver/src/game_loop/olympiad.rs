@@ -54,6 +54,10 @@ const NONCLASSED_MIN: usize = 20;
 
 /// `AltOlyMinMatchesForPoints = 10` — matches needed to be hero-eligible.
 const HERO_MIN_MATCHES: i32 = 10;
+/// The hero animation played on claiming (Java `new SocialAction(id, 20016)`).
+const HERO_SOCIAL_ACTION: i32 = 20016;
+/// Java `Hero.ACTION_HERO_GAINED` — the diary entry written by `setHeroGained`.
+const HERO_ACTION_GAINED_HERO: i32 = 2;
 /// `AltOlyVPeriod` — the validation period after a round ends (24 h).
 const VALIDATION_PERIOD_MS: i64 = 86_400_000;
 /// `AltOlyPeriod = DAY` × `AltOlyPeriodMultiplier = 14` — the round runs for
@@ -234,6 +238,11 @@ pub(crate) fn apply_heroes_loaded(
 ) {
     world.olympiad.heroes = heroes.iter().map(|h| (h.char_id, h.class_id)).collect();
     world.olympiad.hero_counts = heroes.iter().map(|h| (h.char_id, h.count)).collect();
+    world.olympiad.claimed_heroes = heroes
+        .iter()
+        .filter(|h| h.claimed)
+        .map(|h| h.char_id)
+        .collect();
     world.olympiad.hero_info = heroes
         .iter()
         .map(|h| {
@@ -265,11 +274,65 @@ pub(crate) fn apply_heroes_loaded(
 }
 
 /// On enter-world, apply hero status to a crowned character (Java
-/// `Player.setHero(Hero.isHero(objectId))`).
+/// `Player.setHero(Hero.isHero(objectId))` — crowned **and** claimed, so a
+/// hero who has not visited the monument yet logs in without the status).
 pub(crate) fn on_enter_world(world: &mut World, object_id: i32) {
     if world.olympiad.is_hero(object_id) {
         crate::game_loop::admin::hero::set_hero(world, object_id, true);
     }
+}
+
+/// Java `Hero.claimHero`: the crowned character collects the status — at the
+/// Monument of Heroes, or through a GM's `//givehero`. Marks the crown claimed
+/// (in memory and in `heroes.claimed`), pays the clan its reputation, grants
+/// hero status/skills, plays the hero animation, and logs the deed in the diary.
+///
+/// The caller is responsible for the eligibility gate
+/// ([`OlympiadState::is_unclaimed_hero`]); Java's `claimHero` itself would
+/// happily crown a non-hero, and both of its call sites check first.
+pub(crate) fn claim_hero(world: &mut World, object_id: i32) {
+    world.olympiad.claimed_heroes.insert(object_id);
+    let _ = world.db.send(DbCommand::ClaimHero { char_id: object_id });
+
+    // "Clan member $c1 was named a hero. $s2 points have been added to your Clan
+    // Reputation." — clan level 3+ only, and the reputation is the clan's, not
+    // the hero's.
+    let (clan_id, name) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map(|p| (p.clan_id, p.name.clone()))
+        .unwrap_or((0, String::new()));
+    let points = world.cfg.feature.hero_points;
+    if clan_id != 0 && world.clans.get(&clan_id).is_some_and(|c| c.level >= 3) {
+        super::clans::add_clan_reputation(world, clan_id, points);
+        let sm = sp::system_message_with(
+            sm_ids::CLAN_MEMBER_C1_WAS_NAMED_A_HERO_S2_POINTS_HAVE_BEEN_ADDED_TO_YOUR_CLAN_REPUTATION,
+            &[SmParam::Text(name), SmParam::Int(points)],
+        );
+        for member in super::clans::online_members(world, clan_id) {
+            if let Some(cid) = super::helpers::client_for_player(world, member)
+                && let Some(cs) = world.clients.get(&cid)
+            {
+                cs.send(sm.clone());
+            }
+        }
+    }
+
+    crate::game_loop::admin::hero::set_hero(world, object_id, true);
+    // `broadcastPacket(new SocialAction(objectId, 20016))` — the hero animation.
+    super::helpers::broadcast_including_self(
+        world,
+        object_id,
+        &sp::social_action(object_id, HERO_SOCIAL_ACTION),
+    );
+    super::party::broadcast_user_info(world, object_id);
+    // `setHeroGained` — the diary's "gained hero" entry.
+    let _ = world.db.send(DbCommand::SaveHeroDiary {
+        char_id: object_id,
+        time: commons::util::now_millis(),
+        action: HERO_ACTION_GAINED_HERO,
+        param: 0,
+    });
 }
 
 /// `Olympiad.sortHerosToBe`: for each hero-title class (the `FOURTH_CLASS_GROUP`
@@ -364,7 +427,10 @@ fn olympiad_trade_point(
     {
         return 0;
     }
-    let hero = if world.olympiad.is_hero(object_id) {
+    // Java `isHero(objectId) || isUnclaimedHero(objectId)` — the trade bonus
+    // rides the crown, not the claim, so a hero who has not been to the monument
+    // yet still exchanges at the hero rate.
+    let hero = if world.olympiad.is_crowned(object_id) {
         HERO_TRADE_POINTS
     } else {
         0
@@ -414,12 +480,10 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
             crate::game_loop::admin::hero::set_hero(world, id, false);
         }
     }
+    // The new crown grants **no** status yet: Java's `computeNewHeroes` writes
+    // `claimed = false` and stops, so each hero must collect the title at the
+    // Monument of Heroes (`claim_hero`) before `setHero` runs.
     let heroes = compute_heroes(world);
-    for &(id, _) in &heroes {
-        if is_online(world, id) {
-            crate::game_loop::admin::hero::set_hero(world, id, true);
-        }
-    }
     world.olympiad.heroes = heroes;
     // Record each new hero's display data (name from the noble, clan from the
     // online player) for the `ExHeroList` window.
@@ -477,9 +541,14 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
                 name: info.map(|i| i.name.clone()).unwrap_or_default(),
                 clan_id: info.map(|i| i.clan_id).unwrap_or(0),
                 message: info.map(|i| i.message.clone()).unwrap_or_default(),
+                // Java `computeNewHeroes` writes `claimed = false` for both the
+                // re-crowned and the newly crowned: a fresh cycle must be
+                // collected again at the monument.
+                claimed: false,
             }
         })
         .collect();
+    world.olympiad.claimed_heroes.clear();
     let _ = world.db.send(DbCommand::SaveHeroes { heroes: hero_rows });
 
     // Bank each noble's exchangeable points for the mark exchange at the manager.
