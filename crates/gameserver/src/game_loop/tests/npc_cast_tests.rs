@@ -168,6 +168,7 @@ fn short_range_nuke_buckets_as_short_range() {
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 0.0,
+            ignore_shield_defence: false,
         }],
     );
     skill.cast_range = 40;

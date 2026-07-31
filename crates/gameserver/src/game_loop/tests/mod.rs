@@ -122,6 +122,7 @@ mod siege_registration_tests;
 mod siege_schedule_tests;
 mod skill_enchant_tests;
 mod skill_rate_tests;
+mod skill_shield_tests;
 mod skills_tests;
 mod snoop_tests;
 mod social_tests;
@@ -616,6 +617,7 @@ fn cast_test_world() -> (
             p_atk_mod: 1.0,
             p_def_mod: 1.0,
             critical_chance: 10.0,
+            ignore_shield_defence: false,
         }],
         ..base.clone()
     });

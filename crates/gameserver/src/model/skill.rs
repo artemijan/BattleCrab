@@ -697,12 +697,17 @@ pub enum SkillEffect {
     /// soul mAtk-style boost is ×1 until charges are modeled). The dagger-blow
     /// skills (`FatalBlow`/`Backstab`/`SoulBlow`) use a different `calcBlowDamage`
     /// formula and are NOT routed here.
-    /// TODO(G20): ranged (bow) weaponMod 70 branch; shield-block `pDef` add.
+    ///
+    /// `ignore_shield_defence` is `<ignoreShieldDefence>` (55 skills on this
+    /// dist declare it): when false, `calcShldUse` runs and a normal block adds
+    /// the shield's `sDef` to the divisor while a perfect block cuts the hit to
+    /// **1**.
     PhysicalAttack {
         power: f64,
         p_atk_mod: f64,
         p_def_mod: f64,
         critical_chance: f64,
+        ignore_shield_defence: bool,
     },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
@@ -750,13 +755,12 @@ pub enum SkillEffect {
     /// `charge_consume` is a **skill-level** `<chargeConsume>` tag, not an
     /// `<effect>` child — Java's effect constructors read the skill's whole
     /// merged param set, not just their own element's children.
-    /// TODO(G20): shield-block `pDef` add / perfect-block-to-1-damage, same
-    /// gap `PhysicalAttack` already has — not modeled for either.
     EnergyAttack {
         power: f64,
         critical_chance: f64,
         p_def_mod: f64,
         charge_consume: i32,
+        ignore_shield_defence: bool,
     },
     /// Dagger blow skills (`FatalBlow`/`Backstab`/`SoulBlow`) — instant physical
     /// damage via `Formulas.calcBlowDamage`, gated by a `calcBlowSuccess` land
@@ -764,7 +768,8 @@ pub enum SkillEffect {
     /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
     /// charged-soul boost is ×1 until charges land). `backstab` requires the
     /// caster to be outside the target's front arc.
-    /// TODO(G20): SoulBlow charged-soul boost.
+    /// TODO(G20): SoulBlow charged-soul boost (no learnable carrier — the sole
+    /// `SoulBlow` skill on this dist is off-chronicle).
     Blow {
         power: f64,
         chance_boost: f64,
