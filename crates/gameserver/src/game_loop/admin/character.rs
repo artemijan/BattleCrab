@@ -410,12 +410,12 @@ pub(super) fn admin_set_enchant(
         return;
     };
     if let Some(cid) = super::helpers::client_for_player(world, target)
-        && let Some(inv) = world.objects.get_component::<Inventory>(&target)
+        && let Some(packet) = world
+            .objects
+            .get_component::<Inventory>(&target)
+            .map(|inv| crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]))
     {
-        let packet = crate::network::enter_world::inventory_update(inv, &world.data, &[item_oid]);
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(packet);
-        }
+        super::helpers::send_inventory_update(world, cid, target, packet);
     }
     super::party::broadcast_user_info(world, target);
     send_message(world, client_id, &format!("Enchant set to +{value}."));

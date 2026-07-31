@@ -571,13 +571,9 @@ fn pay_for_ride(world: &mut World, boat_oid: i32, fare: Fare) {
                 sp::sm_ids::YOU_DO_NOT_POSSESS_THE_CORRECT_TICKET,
             );
             oust_rider(world, player, boat_oid, fare);
-        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player)
-            && let Some(cs) = world.clients.get(&cid)
-        {
-            cs.send(crate::network::enter_world::inventory_update_changes(
-                &world.data,
-                &changes,
-            ));
+        } else if let Some(cid) = crate::game_loop::helpers::client_for_player(world, player) {
+            let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
+            crate::game_loop::helpers::send_inventory_update(world, cid, player, iu);
         }
     }
 }

@@ -997,28 +997,22 @@ pub(crate) fn handle_request_buy_seed(world: &mut World, client_id: u32, body: &
     if total_price > 0 {
         super::castle::add_to_treasury_no_tax(world, manor_id, total_price);
     }
-    if let (Some(inventory), Some(cs)) = (
-        world
-            .objects
-            .get_component::<crate::model::inventory::Inventory>(&player_oid),
-        world.clients.get(&client_id),
-    ) {
-        cs.send(crate::network::enter_world::inventory_update(
-            inventory,
-            &world.data,
-            &added,
+    let iu = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .map(|inventory| {
+            crate::network::enter_world::inventory_update(inventory, &world.data, &added)
+        });
+    if let Some(iu) = iu {
+        super::helpers::send_inventory_update(world, client_id, player_oid, iu);
+    }
+    if total_price > 0
+        && let Some(cs) = world.clients.get(&client_id)
+    {
+        cs.send(server_packets::system_message_with(
+            sm_ids::S1_ADENA_DISAPPEARED,
+            &[SmParam::Long(total_price)],
         ));
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-            player_oid,
-            inventory,
-            &world.data,
-        ));
-        if total_price > 0 {
-            cs.send(server_packets::system_message_with(
-                sm_ids::S1_ADENA_DISAPPEARED,
-                &[SmParam::Long(total_price)],
-            ));
-        }
     }
 }
 
@@ -1164,30 +1158,20 @@ pub(crate) fn handle_request_procure_crop_list(world: &mut World, client_id: u32
     }
 
     // Reflect the sold crops and the received rewards.
-    if !crop_changes.is_empty()
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(crate::network::enter_world::inventory_update_changes(
-            &world.data,
-            &crop_changes,
-        ));
+    if !crop_changes.is_empty() {
+        let iu = crate::network::enter_world::inventory_update_changes(&world.data, &crop_changes);
+        super::helpers::send_inventory_update(world, client_id, player_oid, iu);
     }
-    if !reward_oids.is_empty()
-        && let (Some(inventory), Some(cs)) = (
-            world.objects.get_component::<Inventory>(&player_oid),
-            world.clients.get(&client_id),
-        )
-    {
-        cs.send(crate::network::enter_world::inventory_update(
-            inventory,
-            &world.data,
-            &reward_oids,
-        ));
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-            player_oid,
-            inventory,
-            &world.data,
-        ));
+    if !reward_oids.is_empty() {
+        let iu = world
+            .objects
+            .get_component::<Inventory>(&player_oid)
+            .map(|inventory| {
+                crate::network::enter_world::inventory_update(inventory, &world.data, &reward_oids)
+            });
+        if let Some(iu) = iu {
+            super::helpers::send_inventory_update(world, client_id, player_oid, iu);
+        }
     }
 }
 

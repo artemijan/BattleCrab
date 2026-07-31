@@ -363,6 +363,21 @@ fn melee_kill_rewards_and_decay() {
                 && sm_id(p) == server_packets::sm_ids::YOU_HAVE_OBTAINED_S1_ADENA),
         "obtained-adena message"
     );
+    // Java `Player.addItem` → `PlayerInventory.addItem` → `sendInventoryUpdate`,
+    // which never sends the `InventoryUpdate` alone: the status-bar adena
+    // counter and weight bar ride along, so the bar tracks the loot live.
+    assert!(
+        packets.iter().any(|p| p[0] == 0x21),
+        "auto-loot InventoryUpdate"
+    );
+    assert!(
+        packets.iter().any(|p| super::is_ex(p, 0x13E)),
+        "auto-loot refreshes the status-bar adena counter (ExAdenaInvenCount)"
+    );
+    assert!(
+        packets.iter().any(|p| super::is_ex(p, 0x166)),
+        "auto-loot refreshes the weight bar (ExUserInfoInvenWeight)"
+    );
     // Memory-first: loot lands in the Inventory component (adena count asserted
     // above); it persists on the next flush, not on pickup.
 

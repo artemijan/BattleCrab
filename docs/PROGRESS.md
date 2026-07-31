@@ -2296,6 +2296,20 @@ clanless mob titles as `"Lv 20 "`.
   ids are the only foreign key (`Entity` never leaves `store.rs`).
 - Masked packets use the reversed `DEFAULT_FLAG_ARRAY` bit order — get this right
   or the client desyncs (root cause of the earlier UserInfo mask fix).
+- **`InventoryUpdate` never travels alone (2026-07-31):** Java funnels *every*
+  player-facing inventory change through `Player.sendInventoryUpdate`, which
+  sends `InventoryUpdate` + `ExAdenaInvenCount` (0x13E) + `ExUserInfoInvenWeight`
+  (0x166) — that trio is what drives the client's horizontal **status bar**
+  (adena / inventory-slot counter / weight). `PlayerInventory.addItem` and
+  `Player.destroyItem` call it internally, so the invariant holds even at call
+  sites that look like they only touch the container; `sendItemList` sends the
+  same footers. The Rust port had a `helpers::send_inventory_update` funnel but
+  ~25 sites still sent the bare `InventoryUpdate`, so the status bar went stale
+  on auto-looted mob drops, pickups, drops, shop/multisell trades, crafting,
+  shot consumption, pet transfers and more until the next relog. All converted
+  to the funnel; regression asserted in `combat_tests::melee_kill_rewards_and_decay`.
+  **When adding any new inventory mutation, send through the helper, not
+  `cs.send(inventory_update…)`.**
 - **Panic policy (2026-07-24):** a panic in a packet handler is caught per-packet
   in `drain_network` (`catch_unwind`, Java-parity with `ExecuteThread`'s
   catch-Throwable) — the offending client is disconnected (their mid-mutation

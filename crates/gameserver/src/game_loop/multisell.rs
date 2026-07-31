@@ -453,14 +453,9 @@ pub(crate) fn handle_multi_sell_choose(world: &mut World, client_id: u32, body: 
         }
     }
 
-    // One InventoryUpdate + weight refresh for the whole exchange.
-    if let (Some(inv), Some(cs)) = (
-        world.objects.get_component::<Inventory>(&player),
-        world.clients.get(&client_id),
-    ) {
-        cs.send(ew::inventory_update_changes(&world.data, &changes));
-        cs.send(ew::ex_user_info_inven_weight(player, inv, &world.data));
-    }
+    // One InventoryUpdate + adena/weight refresh for the whole exchange.
+    let iu = ew::inventory_update_changes(&world.data, &changes);
+    super::helpers::send_inventory_update(world, client_id, player, iu);
 
     // "Finally, give the tax to the castle": the tax slice of every adena
     // ingredient, times the amount exchanged. Only the *tax* part is paid —

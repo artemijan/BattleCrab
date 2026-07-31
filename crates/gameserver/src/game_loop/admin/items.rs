@@ -226,9 +226,7 @@ pub(super) fn admin_destroy_items(
         return;
     }
     let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    super::helpers::send_inventory_update(world, client_id, object_id, packet);
     // Equipment/appearance may have changed (equipped gear destroyed).
     super::party::broadcast_user_info(world, object_id);
     send_message(

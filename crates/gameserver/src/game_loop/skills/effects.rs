@@ -2626,33 +2626,34 @@ fn grant_and_notify(world: &mut World, target_oid: i32, grants: &[(i32, i64, i32
         let Some(inventory) = world.objects.get_component::<Inventory>(&target_oid) else {
             continue;
         };
-        if let Some(client_id) = client_for_player(world, target_oid)
-            && let Some(cs) = world.clients.get(&client_id)
-        {
-            // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
-            // single enchanted → "obtained a +S1 S2"; else "obtained S1".
-            let sm = if amount > 1 {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S2_S1,
-                    &[SmParam::ItemName(item_id), SmParam::Long(amount)],
-                )
-            } else if enchant > 0 {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
-                    &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
-                )
-            } else {
-                server_packets::system_message_with(
-                    sm_ids::YOU_HAVE_OBTAINED_S1,
-                    &[SmParam::ItemName(item_id)],
-                )
-            };
-            cs.send(sm);
-            cs.send(crate::network::enter_world::inventory_update(
+        if let Some(client_id) = client_for_player(world, target_oid) {
+            let iu = crate::network::enter_world::inventory_update(
                 inventory,
                 &world.data,
                 &changed_oids,
-            ));
+            );
+            if let Some(cs) = world.clients.get(&client_id) {
+                // Java `RestorationRandom.sendMessage`: count>1 → "obtained S2 S1";
+                // single enchanted → "obtained a +S1 S2"; else "obtained S1".
+                let sm = if amount > 1 {
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+                        &[SmParam::ItemName(item_id), SmParam::Long(amount)],
+                    )
+                } else if enchant > 0 {
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_A_S1_S2,
+                        &[SmParam::Int(enchant), SmParam::ItemName(item_id)],
+                    )
+                } else {
+                    server_packets::system_message_with(
+                        sm_ids::YOU_HAVE_OBTAINED_S1,
+                        &[SmParam::ItemName(item_id)],
+                    )
+                };
+                cs.send(sm);
+            }
+            crate::game_loop::helpers::send_inventory_update(world, client_id, target_oid, iu);
         }
     }
 }
