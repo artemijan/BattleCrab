@@ -70,14 +70,19 @@ pub struct Siege {
     /// Object ids of the NPCs (siege guards / towers) spawned for this siege,
     /// despawned at `endSiege`.
     pub spawned_npcs: Vec<i32>,
-    /// Java `_controlTowerCount` — live control towers. Set on spawn, decremented
-    /// as attackers destroy them. Faithful bookkeeping with no gameplay outcome
-    /// in Interlude Classic: its only use is picking the *rejection message*
-    /// (`ConditionPlayerCanResurrect`) when someone casts a normal resurrection
-    /// skill on a corpse during a siege — which is blocked regardless of the
-    /// count (the Battlefield Resurrection scroll, a separate condition, always
-    /// works). No effect until the resurrection subsystem lands (TODO(G24)); it
-    /// does **not** gate the restart-point respawn.
+    /// Java `_controlTowerCount` — live control towers. Set on spawn,
+    /// decremented as attackers destroy them.
+    ///
+    /// Two things read it. `ConditionPlayerCanResurrect` uses it to pick the
+    /// *rejection message* when a normal resurrection is cast on a corpse
+    /// during a siege — the revive is refused whatever the count says, so this
+    /// only chooses between "the guardian tower has been destroyed…" and the
+    /// generic battleground line (the Battleground Resurrection scroll 2393 and
+    /// any AoE resurrection bypass the whole condition). And the castle mass
+    /// gatekeeper stretches its evacuation timer from 30 s to **8 minutes**
+    /// once the count hits 0, which is the real cost of losing the towers.
+    ///
+    /// It does **not** gate the restart-point respawn.
     pub control_tower_count: i32,
     /// Java attacker `SiegeClan.getFlag()` — HQ flags planted during the siege
     /// (owning clan id + flag npc oid). A flag is an attacker's respawn point

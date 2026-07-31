@@ -319,6 +319,17 @@ pub mod sm_ids {
     pub const YOU_DO_NOT_HAVE_A_SERVITOR: i16 = 2310;
     /// "Resurrection has already been proposed."
     pub const RESURRECTION_HAS_ALREADY_BEEN_PROPOSED: i16 = 1512;
+    /// "$s1 cannot be used due to unsuitable terms."
+    pub const S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS: i16 = 113;
+    /// "Reject resurrection."
+    pub const REJECT_RESURRECTION: i16 = 356;
+    /// "If a base camp does not exist, resurrection is not possible."
+    pub const IF_A_BASE_CAMP_DOES_NOT_EXIST_RESURRECTION_IS_NOT_POSSIBLE: i16 = 716;
+    /// "The guardian tower has been destroyed and resurrection is not possible."
+    pub const THE_GUARDIAN_TOWER_HAS_BEEN_DESTROYED_AND_RESURRECTION_IS_NOT_POSSIBLE: i16 = 717;
+    /// "It is not possible to resurrect in battlegrounds where a siege war is
+    /// taking place."
+    pub const IT_IS_NOT_POSSIBLE_TO_RESURRECT_IN_BATTLEGROUNDS: i16 = 1053;
     /// "$s1 MP has been restored." — a self-cast recharge.
     pub const S1_MP_HAS_BEEN_RESTORED: i16 = 1067;
     /// "$s2 MP has been restored by $c1." — someone else recharged you.

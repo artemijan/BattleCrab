@@ -679,8 +679,10 @@ impl QuestScript for CastleTeleporter {
     fn on_event(&self, ctx: &mut QuestCtx, event: &str) -> Option<String> {
         let mut tokens = event.split(' ');
         match tokens.next().unwrap_or("") {
-            // Arming the mass teleport: 8 minutes normally, 30 seconds once the
-            // control towers are gone (Java's `MASS_TELEPORT` timer).
+            // Arming the mass teleport: 30 seconds normally, but **8 minutes
+            // once the control towers are gone** — losing the towers is what
+            // delays the defenders' evacuation (Java's `MASS_TELEPORT` timer:
+            // `(inProgress && controlTowerCount == 0) ? 480000 : 30000`).
             "CastleTeleporter-06.html" => {
                 if ctx.npc_script_value() == 0 {
                     let towers_down = castle_id(ctx).is_some_and(|id| {
