@@ -101,6 +101,13 @@ pub struct Npc {
     pub seeder_object_id: i32,
     pub seeded: bool,
     pub harvest_item: Option<(i32, i64)>,
+    /// Java `Npc._currentEnchant` (`getEnchantEffect()`) — the *visual* enchant
+    /// level of the weapon in the NPC's hand, i.e. how brightly the blade
+    /// glows. Fixed for the instance's life: the ctor rolls
+    /// `Rnd.get(4, 21)` when `EnableRandomEnchantEffect` is on (this dist) and
+    /// otherwise takes the template's `weaponEnchant`. A respawn is a fresh
+    /// instance, so it re-rolls — the same mob glows differently each life.
+    pub enchant_effect: i32,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -326,6 +333,7 @@ impl Npc {
             seeder_object_id: 0,
             seeded: false,
             harvest_item: None,
+            enchant_effect: 0,
         };
         let extra = (
             Position {
@@ -609,6 +617,12 @@ fn spawn_npc_entity(
         seeder_object_id: 0,
         seeded: false,
         harvest_item: None,
+        // Java `Npc` ctor: the visual weapon glow, rolled once per instance.
+        enchant_effect: if world.cfg.npc.enable_random_enchant_effect {
+            rnd::get_range(4, 21)
+        } else {
+            t.weapon_enchant
+        },
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);

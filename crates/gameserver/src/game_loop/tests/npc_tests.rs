@@ -709,3 +709,55 @@ fn shift_click_via_action_packet_does_not_move() {
         "a non-shift click engages (and will chase)"
     );
 }
+
+/// `EnableRandomEnchantEffect` (True on this dist): every NPC instance rolls
+/// its own visual weapon-enchant level in Java's `Rnd.get(4, 21)` range at
+/// spawn, so mobs' blades glow. With the config off the template's
+/// `<equipment weaponEnchant>` shows instead. Java `Npc` ctor:
+/// `_currentEnchant = Config.ENABLE_RANDOM_ENCHANT_EFFECT ? Rnd.get(4, 21)
+/// : getTemplate().getWeaponEnchant()`.
+#[test]
+fn npc_weapon_glow_rolls_per_instance_when_enabled() {
+    const GLOWY: i32 = 20001;
+    let (mut world, _db, _l) = combat_test_world();
+    {
+        let mut t = crate::data::npc_data::default_template(GLOWY);
+        t.type_name = "Monster".into();
+        t.rhand = 2; // a weapon to glow on
+        t.weapon_enchant = 3;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    // Config off → the template value, verbatim.
+    world.cfg.npc.enable_random_enchant_effect = false;
+    let plain = crate::model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&plain)
+            .unwrap()
+            .enchant_effect,
+        3,
+        "config off falls back to <equipment weaponEnchant>"
+    );
+
+    // Config on → a per-instance roll inside Java's inclusive 4..=21.
+    world.cfg.npc.enable_random_enchant_effect = true;
+    let mut seen = std::collections::HashSet::new();
+    for _ in 0..60 {
+        let oid = crate::model::npc::spawn_npc_at(&mut world, GLOWY, 0, 0, 0, 0).expect("spawned");
+        let e = world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .unwrap()
+            .enchant_effect;
+        assert!(
+            (4..=21).contains(&e),
+            "roll {e} outside Java's Rnd.get(4, 21)"
+        );
+        seen.insert(e);
+    }
+    // Rolled per instance, not once per template: 60 draws over 18 values
+    // practically never collapse to one (p < 18 * (1/18)^59).
+    assert!(seen.len() > 1, "each instance rolls its own glow");
+}
