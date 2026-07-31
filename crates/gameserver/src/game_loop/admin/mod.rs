@@ -270,7 +270,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // AdminTransform.
         "admin_transform" => admin_transform(world, client_id, object_id, &args),
         "admin_untransform" => admin_untransform(world, object_id),
-        "admin_transform_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
+        // `AdminTransform`: the Effects panel's "Transform" button opens the
+        // transform sub-page, not the main GM menu (Java
+        // `AdminHtml.showAdminHtml(activeChar, "transform.htm")`).
+        "admin_transform_menu" => menu::show_admin_html(world, client_id, "transform.htm"),
         // "Teleport" main-menu button: coords → teleport, empty → teleports.htm.
         "admin_move_to" => admin_move_to(world, client_id, object_id, &args),
         // Self-teleport to explicit coordinates.
@@ -805,7 +808,47 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_invis_menu" => flags::admin_invis_menu(world, client_id, object_id),
         _ => return false,
     }
+    show_effects_main_page(world, client_id, command);
     true
+}
+
+/// The `AdminEffects` commands carrying the `_menu` suffix — the ones the
+/// Effects panel's buttons fire. Java ends its handler with
+/// `if (command.contains("menu")) showMainPage(activeChar, command);`, but that
+/// tail belongs to `AdminEffects` alone; the port has a single dispatcher for
+/// every handler, so the set is spelled out instead of matched on the
+/// substring (`//invis_menu` re-serves `gm_menu.htm` from its own branch and
+/// must not be overwritten, and other handlers have `_menu` commands of their
+/// own).
+const EFFECTS_PANEL_MENU_COMMANDS: &[&str] = &[
+    "admin_earthquake_menu",
+    "admin_para_menu",
+    "admin_unpara_menu",
+    "admin_para_all_menu",
+    "admin_unpara_all_menu",
+    "admin_effect_menu",
+    "admin_social_menu",
+    "admin_atmosphere_menu",
+    "admin_set_displayeffect_menu",
+];
+
+/// Java `AdminEffects.showMainPage` — after an Effects-panel `*_menu` command
+/// the panel is served again, so the GM keeps clicking instead of being left
+/// staring at the world. Social gets its own sub-page (`social.htm`);
+/// everything else returns to `effects_menu.htm`.
+///
+/// Without this the panel vanished on every button press, and "Social" never
+/// opened its page at all.
+fn show_effects_main_page(world: &mut World, client_id: u32, command: &str) {
+    if !EFFECTS_PANEL_MENU_COMMANDS.contains(&command) {
+        return;
+    }
+    let file = if command.contains("social") {
+        "social.htm"
+    } else {
+        "effects_menu.htm"
+    };
+    menu::show_admin_html(world, client_id, file);
 }
 
 /// EditChar target = the current target if it's a player, else the GM.
