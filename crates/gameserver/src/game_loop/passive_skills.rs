@@ -123,7 +123,7 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
 /// the player's own client.
 fn send_user_info(world: &World, object_id: i32) {
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(view) = crate::model::PlayerView::of(&world.objects, object_id)
+        && let Some(view) = crate::model::PlayerView::of_world(world, object_id)
     {
         let user_info = crate::network::user_info::user_info(
             &view,

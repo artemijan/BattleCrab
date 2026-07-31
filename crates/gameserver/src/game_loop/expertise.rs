@@ -146,7 +146,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
     // Java sends `EtcStatusUpdate` on change; the stat change (Java's
     // addSkill/removeSkill → broadcastUserInfo) also needs a fresh `UserInfo`.
     if let Some(client_id) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(view) = crate::model::PlayerView::of(&world.objects, object_id)
+        && let Some(view) = crate::model::PlayerView::of_world(world, object_id)
     {
         let silence = world
             .objects

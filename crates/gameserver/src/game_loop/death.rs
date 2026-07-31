@@ -1190,7 +1190,7 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     }
     if dropped > 0
         && let Some(client_id) = client_for_player(world, victim_oid)
-        && let Some(v) = crate::model::PlayerView::of(&world.objects, victim_oid)
+        && let Some(v) = crate::model::PlayerView::of_world(world, victim_oid)
         && let Some(cs) = world.clients.get(&client_id)
     {
         cs.send(crate::network::enter_world::item_list(
@@ -1342,7 +1342,7 @@ pub(crate) fn add_exp_and_sp(
     } else if let Some(client_id) = client_for_player(world, player_oid) {
         // Exp bar refresh (`player.updateUserInfo()`).
         if let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of(&world.objects, player_oid),
+            crate::model::PlayerView::of_world(world, player_oid),
             world.clients.get(&client_id),
         ) {
             cs.send(crate::network::user_info::user_info(
@@ -1377,7 +1377,7 @@ pub(crate) fn remove_exp_and_sp(world: &mut World, player_oid: i32, exp: i64, sp
     } else if let Some(client_id) = client_for_player(world, player_oid) {
         // Exp bar refresh (`player.updateUserInfo()`), no level change.
         if let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of(&world.objects, player_oid),
+            crate::model::PlayerView::of_world(world, player_oid),
             world.clients.get(&client_id),
         ) {
             cs.send(crate::network::user_info::user_info(
@@ -1513,7 +1513,7 @@ pub(crate) fn set_level(world: &mut World, player_oid: i32, new_level: i32) {
     super::party::notify_party_all(world, player_oid);
     if let Some(client_id) = client_for_player(world, player_oid)
         && let (Some(v), Some(cs)) = (
-            crate::model::PlayerView::of(&world.objects, player_oid),
+            crate::model::PlayerView::of_world(world, player_oid),
             world.clients.get(&client_id),
         )
     {
@@ -2362,7 +2362,7 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     // Java `onTeleported` → `revalidateZone(true)`.
     super::zones::revalidate_zone(world, object_id, true);
     if let (Some(v), Some(cs)) = (
-        crate::model::PlayerView::of(&world.objects, object_id),
+        crate::model::PlayerView::of_world(world, object_id),
         world.clients.get(&client_id),
     ) {
         cs.send(crate::network::user_info::user_info(

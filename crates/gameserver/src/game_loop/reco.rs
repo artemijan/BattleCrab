@@ -47,7 +47,7 @@ fn send_sm(world: &World, object_id: i32, message_id: i16, params: &[SmParam]) {
 /// Java `Player.updateUserInfo()` — a fresh `UserInfo` to the player themselves
 /// (no `CharInfo` broadcast; that's `broadcastUserInfo`).
 fn update_user_info(world: &World, object_id: i32) {
-    let Some(v) = crate::model::PlayerView::of(&world.objects, object_id) else {
+    let Some(v) = crate::model::PlayerView::of_world(world, object_id) else {
         return;
     };
     let relation = super::party::calculate_relation(world, v.p);

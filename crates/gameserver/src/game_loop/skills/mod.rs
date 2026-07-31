@@ -145,7 +145,7 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
     // module name), so this reuses it rather than a bespoke re-apply.
     super::passive_skills::recompute_conditioned_passives(world, object_id);
 
-    if let Some(v) = crate::model::PlayerView::of(&world.objects, object_id)
+    if let Some(v) = crate::model::PlayerView::of_world(world, object_id)
         && let Some(cs) = world.clients.get(&client_id)
     {
         let Some(skills) = world

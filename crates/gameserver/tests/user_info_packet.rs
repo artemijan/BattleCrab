@@ -86,6 +86,7 @@ async fn user_info_test() {
         apprentice: 0,
         sponsor: 0,
         clan_crest_id: 0,
+        clan_crest_large_id: 0,
         ally_crest_id: 0,
         face: 1,       // m.face / visualFaceId
         hair_style: 3, // visualHairStyleId
@@ -176,6 +177,7 @@ async fn user_info_test() {
         in_matching_room: false,
         mods: &mods,
         skills: &skills,
+        cursed_weapon_level: 0,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();

@@ -508,3 +508,86 @@ fn user_info_advertises_the_craft_window_to_a_crafter() {
         assert_eq!((before[diffs[0]], after[diffs[0]]), (0, 1));
     }
 }
+
+/// Three more `UserInfo` fields that were hard-coded 0 while the state backing
+/// them existed: the **large clan crest** (mirrored onto the player like the
+/// small one, because the builder cannot reach `World.clans`), the **raid-boss
+/// points**, and the **cursed-weapon stage** that colours a wielder's name.
+///
+/// Same diff technique as the craft byte — build the packet twice and compare —
+/// so no byte offsets are baked in.
+#[test]
+fn user_info_carries_the_crest_raid_points_and_cursed_stage() {
+    const OID: i32 = 7402;
+
+    let build = |world: &World| {
+        let v = crate::model::PlayerView::of_world(world, OID).expect("a live player");
+        crate::network::user_info::user_info(&v, &world.data, &world.cfg.character, 0)
+    };
+    let one_byte_diff = |before: &[u8], after: &[u8]| -> Vec<usize> {
+        assert_eq!(before.len(), after.len(), "same packet shape");
+        (0..before.len())
+            .filter(|&i| before[i] != after[i])
+            .collect()
+    };
+
+    // --- the large clan crest ---
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, OID, 0, 0);
+    let before = build(&world);
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .clan_crest_large_id = 0x0A0B_0C0D;
+    assert_eq!(
+        one_byte_diff(&before, &build(&world)).len(),
+        4,
+        "the large crest is a dword of its own"
+    );
+
+    // --- raid-boss points ---
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, OID, 0, 0);
+    let before = build(&world);
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .raidboss_points = 0x1112_1314;
+    assert_eq!(one_byte_diff(&before, &build(&world)).len(), 4);
+
+    // --- the cursed-weapon stage ---
+    let (mut world, ..) = cast_test_world();
+    let _rx = ingame_caster(&mut world, 1, OID, 0, 0);
+    let before = build(&world);
+    world
+        .objects
+        .get_component_mut::<Player>(&OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = 8190;
+    // Equipped but the weapon is not in the world's list yet → still stage 0.
+    assert!(
+        one_byte_diff(&before, &build(&world)).is_empty(),
+        "an unknown cursed weapon reports no stage"
+    );
+    // Load the real Zariche/Akamanah definitions, then mark one wielded.
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    world.cursed_weapons = world.data.cursed_weapons.weapons.clone();
+    let cw = world
+        .cursed_weapons
+        .iter_mut()
+        .find(|c| c.item_id == 8190)
+        .expect("Zariche 8190 is in the dist");
+    cw.is_activated = true;
+    cw.nb_kills = 12;
+    cw.stage_kills = 3;
+    cw.skill_max_level = 10;
+    let diffs = one_byte_diff(&before, &build(&world));
+    assert_eq!(diffs.len(), 1, "the stage is a single byte");
+    let after = build(&world);
+    assert_eq!(after[diffs[0]], 5, "1 + 12/3 = stage 5");
+}
