@@ -901,6 +901,22 @@ pub struct DefenceTraits {
     pub invulnerable: std::collections::HashSet<crate::model::skill::TraitType>,
 }
 
+/// Java `CreatureStat._mpConsumeStat` / `_reuseStat` — the per-`magicType`
+/// **multiplicative** rates that `MagicMpCost` and `Reuse` buffs merge in.
+///
+/// Both are keyed by the *effect's* `magicType` bucket (0 physical, 1 magic,
+/// 3 dance) and consumed against the *cast skill's* own `magic_type`. Java
+/// merges with `mul` on start and `div` on exit, which is why a stack of two
+/// −10 % songs is 0.81 rather than 0.80 — and why the unmerge is exact even
+/// out of order.
+#[derive(Component, Debug, Clone, Default)]
+pub struct SkillRateStats {
+    /// magicType → MP-consume factor (0.70 = costs 30 % less).
+    pub mp_consume: std::collections::HashMap<i32, f64>,
+    /// magicType → reuse factor (0.80 = 20 % shorter cooldown).
+    pub reuse: std::collections::HashMap<i32, f64>,
+}
+
 /// Java `Player.setBlockActions(true)` during the 2.5 s sit-down animation.
 /// A marker rather than a flag on `Player`: it is presence-based state with a
 /// scheduled clear, exactly like `Casting`/`Movement`.

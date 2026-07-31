@@ -100,10 +100,14 @@ pub(crate) fn check_skill_reuse(
 /// `ItemSkills` item handler (immediate-effect items never enter
 /// `start_casting`).
 pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) {
-    if skill.reuse_delay <= 10 {
+    // Java gates on the **computed** delay (`getReuseTime`), not the raw one,
+    // so a −99 % Super Haste can take a skill under the 10 ms floor and out of
+    // the cooldown map entirely.
+    let reuse_delay = super::effects::reuse_time_for(world, object_id, skill);
+    if reuse_delay <= 10 {
         return;
     }
-    let until_tick = world.tick + ms_to_ticks(skill.reuse_delay);
+    let until_tick = world.tick + ms_to_ticks(reuse_delay);
     // Players are given `Reuses` at load; **NPCs were not**, so this write was
     // a silent no-op for them and `npc_cast`'s check — which treats an absent
     // component as "ready" — always passed. NPC skill cooldowns therefore
@@ -130,7 +134,7 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
             crate::model::SkillReuse {
                 skill_level: skill.level,
                 until_tick,
-                total_ms: skill.reuse_delay,
+                total_ms: reuse_delay,
             },
         );
     }
@@ -937,10 +941,13 @@ pub(crate) fn use_magic_on(
     }
 
     // MP/HP prechecks (`checkUseConditions`).
+    // Java `checkUseConditions`: `getMpConsume(skill) + getMpInitialConsume(skill)`
+    // — the consume is rate-scaled, the *initial* consume is not.
+    let scaled_mp_consume = super::effects::mp_consume_for(world, object_id, &skill);
     let Some(v) = world.objects.get_component::<Vitals>(&object_id) else {
         return;
     };
-    if v.cur_mp < (skill.mp_initial_consume + skill.mp_consume) as f64 {
+    if v.cur_mp < (skill.mp_initial_consume + scaled_mp_consume) as f64 {
         send_sm_and_action_failed(world, client_id, sm_ids::NOT_ENOUGH_MP, &[]);
         return;
     }
@@ -1533,10 +1540,11 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     let client_id = client_for_player(world, player_object_id);
 
     // MP/HP re-check at landing (no refund of the initial consume).
+    let scaled_mp_consume = super::effects::mp_consume_for(world, player_object_id, &skill);
     let Some(v) = world.objects.get_component::<Vitals>(&player_object_id) else {
         return;
     };
-    let insufficient_mp = v.cur_mp < skill.mp_consume as f64;
+    let insufficient_mp = v.cur_mp < scaled_mp_consume as f64;
     let insufficient_hp = v.cur_hp <= skill.hp_consume as f64;
     if insufficient_mp || insufficient_hp {
         if let Some(client_id) = client_id {
@@ -1553,8 +1561,11 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
 
     let mut updates = Vec::new();
     if let Some(vitals) = world.objects.get_component_mut::<Vitals>(&player_object_id) {
+        // Java keys the branch off the *raw* cost (`_skill.getMpConsume() > 0
+        // ? getStat().getMpConsume(_skill) : 0`), so a skill that costs
+        // nothing stays free however the rates move.
         if skill.mp_consume > 0 {
-            vitals.cur_mp = (vitals.cur_mp - skill.mp_consume as f64).max(0.0);
+            vitals.cur_mp = (vitals.cur_mp - scaled_mp_consume as f64).max(0.0);
             updates.push((
                 server_packets::status_update_type::CUR_MP,
                 vitals.cur_mp as i32,

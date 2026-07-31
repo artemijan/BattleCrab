@@ -250,6 +250,16 @@ fn value_at<'a>(values: &'a LeveledValues, field: &str, level: i32) -> Option<&'
         .map(String::as_str)
 }
 
+/// The `<magicType>` **param of an effect** — Java's
+/// `params.getInt("magicType", 0)`, the bucket a `MagicMpCost`/`Reuse` rate
+/// applies to. Not to be confused with the *skill's* `<isMagic>`, which is
+/// what picks the bucket at cast time.
+fn effect_magic_type(values: &LeveledValues, level: i32) -> i32 {
+    value_at(values, "magicType", level)
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0)
+}
+
 fn parse_file(path: &std::path::Path, out: &mut ParsedSkills) {
     let Ok(content) = std::fs::read_to_string(path) else {
         return;
@@ -1988,18 +1998,34 @@ fn build_skill(
                                 block_mp: ty == Some("BLOCK_MP"),
                             }]
                         }
-                        // Community-board dance/song buffs whose combat/cost math
-                        // isn't modeled yet — Song of Champion/Renewal
-                        // (`MagicMpCost`/`Reuse`), Gift of Seraphim (4703, `Reuse`),
-                        // Song of Vengeance (305, `DamageShield`). Each maps to a
-                        // per-magic-type stat the port doesn't have, so carry an
-                        // icon-only marker (like `DefenceTrait`) rather than
-                        // dropping the buff whole at the empty-effects guard — the
-                        // buff must show and expire. (`AttackAttribute` graduated
-                        // to a real element-POWER modifier in the G19 attributes
-                        // slice; its arm above wins.)
-                        "MagicMpCost" => vec![SkillEffect::MagicMpCost],
-                        "Reuse" => vec![SkillEffect::Reuse],
+                        // `MagicMpCost` / `Reuse` — a percentage on one
+                        // `magicType` bucket. Java's handlers read `magicType`
+                        // (default 0 = physical) and `amount`; the `<mode>PER`
+                        // that every carrier also declares is decorative, the
+                        // handlers never read it. `amount` can be per level
+                        // (Clarity 1397, Quick Recovery 164), hence `value_at`.
+                        //
+                        // A missing/unparsable `amount` yields a factor of 1
+                        // downstream rather than dropping the buff — `Holy
+                        // Squad` (615) really does carry `0` for its first two
+                        // levels.
+                        "MagicMpCost" => vec![SkillEffect::MagicMpCost {
+                            magic_type: effect_magic_type(params, level),
+                            amount: value_at(params, "amount", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0.0),
+                        }],
+                        "Reuse" => vec![SkillEffect::Reuse {
+                            magic_type: effect_magic_type(params, level),
+                            amount: value_at(params, "amount", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0.0),
+                        }],
+                        // Song of Vengeance (305): the combat damage-reflect
+                        // path isn't modeled, so carry an icon-only marker
+                        // (like `VampiricAttack`) rather than dropping the buff
+                        // whole at the empty-effects guard — it must still show
+                        // and expire.
                         "DamageShield" => vec![SkillEffect::DamageShield],
                         // Expand Inventory/Warehouse/Trade/Common Craft/Dwarven
                         // Craft (1368-1372, the craftsman-guild storage passives):
@@ -2070,6 +2096,7 @@ fn build_skill(
             affect_limit,
             fan_range,
             magic_type: get_i("isMagic", 0),
+            static_reuse: value_at(values, "staticReuse", level) == Some("true"),
             magic_level: get_i("magicLevel", 0),
             activate_rate: get_i("activateRate", -1),
             lvl_bonus_rate: get_i("lvlBonusRate", 0),
@@ -3154,12 +3181,24 @@ mod tests {
             dol.effects
         );
         let soc = out.skills.get(&(8547, 1)).expect("Song of Champion parsed");
+        // Both carry their bucket and percentage; `<mode>PER</mode>` is
+        // decorative (Java's handlers read only `magicType` and `amount`).
         assert!(
             matches!(
                 soc.effects.as_slice(),
-                [SkillEffect::MagicMpCost, SkillEffect::Reuse]
+                [
+                    SkillEffect::MagicMpCost {
+                        magic_type: 0,
+                        amount: a
+                    },
+                    SkillEffect::Reuse {
+                        magic_type: 0,
+                        amount: b
+                    }
+                ] if *a == -20.0 && *b == -10.0
             ),
-            "MagicMpCost/Reuse are not dropped"
+            "MagicMpCost/Reuse carry their magicType and amount: {:?}",
+            soc.effects
         );
         let sov = out.skills.get(&(305, 1)).expect("Song of Vengeance parsed");
         assert!(

@@ -1314,14 +1314,12 @@ pub(crate) fn apply_skill_effects(
             SkillEffect::DefenceTrait { .. }
             | SkillEffect::VampiricAttack
             | SkillEffect::AttackTrait => {}
-            // Community-board dance/song buffs (Song of Champion/Renewal/
-            // Vengeance, Gift of Seraphim): no instant action — they land
-            // purely as icon-only timed buffs (kept off the empty-`buff_effects`
-            // bail via `has_iconless_buff`). Their real mechanics (MP-consume
-            // rate / reuse rate / damage reflect) aren't modeled yet.
-            // TODO(G16/G20): honor the MP-cost/reuse/reflect effects.
-            SkillEffect::MagicMpCost
-            | SkillEffect::Reuse
+            // `MagicMpCost`/`Reuse` have no *instant* action: their rates are
+            // merged when the buff lands (`apply_continuous_effects`) and
+            // unmerged at expiry, exactly like `DefenceTrait`. Song of
+            // Vengeance's damage reflect is still unmodelled (TODO(G20)).
+            SkillEffect::MagicMpCost { .. }
+            | SkillEffect::Reuse { .. }
             | SkillEffect::DamageShield => {}
         }
     }
@@ -1411,8 +1409,8 @@ pub(crate) fn apply_continuous_effects(
             SkillEffect::ProtectionBlessing
                 | SkillEffect::DefenceTrait { .. }
                 | SkillEffect::VampiricAttack
-                | SkillEffect::MagicMpCost
-                | SkillEffect::Reuse
+                | SkillEffect::MagicMpCost { .. }
+                | SkillEffect::Reuse { .. }
                 | SkillEffect::DamageShield
                 | SkillEffect::Transform { .. }
                 | SkillEffect::AttackTrait
@@ -1564,6 +1562,8 @@ pub(crate) fn apply_continuous_effects(
             merge_defence_traits(world, target_oid, traits);
         }
     }
+    // `MagicMpCost.onStart` / `Reuse.onStart` — same place, same reasoning.
+    merge_skill_rates(world, target_oid, skill);
 
     // NPC target: buffs modify the mob's server-side stats (no buff icons —
     // those are self-only — and no NpcInfo re-broadcast, so a speed change
@@ -3736,6 +3736,15 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
             }
         }
     }
+    // `MagicMpCost.onExit` / `Reuse.onExit`.
+    if let Some(skill) = world
+        .data
+        .skill_data
+        .get(skill_id, buff_level(world, player_object_id, skill_id))
+        .cloned()
+    {
+        remove_skill_rates(world, player_object_id, &skill);
+    }
     // Did the buff about to go carry a visual? If not, the set can't change and
     // no `ExUserInfoAbnormalVisualEffect` is due (Java's same rule).
     let had_visuals = world
@@ -4010,6 +4019,150 @@ pub(crate) fn remove_defence_traits(
             dt.invulnerable.remove(&t);
         }
     }
+}
+
+/// `MagicMpCost.onStart` / `Reuse.onStart` — merge this buff's rates into the
+/// bearer's per-`magicType` tables. Java merges with `mul`, so overlapping
+/// songs compound rather than add.
+pub(crate) fn merge_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
+    use crate::model::components::SkillRateStats;
+    let rates = skill_rate_factors(skill);
+    if rates.is_empty() {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<SkillRateStats>(&target_oid)
+        .is_none()
+    {
+        world
+            .objects
+            .add_components(&target_oid, SkillRateStats::default());
+    }
+    if let Some(rs) = world
+        .objects
+        .get_component_mut::<SkillRateStats>(&target_oid)
+    {
+        for (kind, magic_type, factor) in rates {
+            let table = match kind {
+                RateKind::MpConsume => &mut rs.mp_consume,
+                RateKind::Reuse => &mut rs.reuse,
+            };
+            *table.entry(magic_type).or_insert(1.0) *= factor;
+        }
+    }
+}
+
+/// `MagicMpCost.onExit` / `Reuse.onExit` — Java's `div`, the exact inverse of
+/// the `mul` above, so unmerging out of order still lands back on 1.
+pub(crate) fn remove_skill_rates(world: &mut World, target_oid: i32, skill: &Skill) {
+    use crate::model::components::SkillRateStats;
+    let rates = skill_rate_factors(skill);
+    if rates.is_empty() {
+        return;
+    }
+    let Some(rs) = world
+        .objects
+        .get_component_mut::<SkillRateStats>(&target_oid)
+    else {
+        return;
+    };
+    for (kind, magic_type, factor) in rates {
+        let table = match kind {
+            RateKind::MpConsume => &mut rs.mp_consume,
+            RateKind::Reuse => &mut rs.reuse,
+        };
+        if let Some(cur) = table.get_mut(&magic_type) {
+            *cur /= factor;
+            // Back to the identity → drop the entry, so a bearer with no live
+            // rate buff reads as "no component state" rather than 0.999999.
+            if (*cur - 1.0).abs() < 1e-9 {
+                table.remove(&magic_type);
+            }
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum RateKind {
+    MpConsume,
+    Reuse,
+}
+
+/// The `(table, magicType, factor)` triples a skill's effects contribute.
+/// Java's factor is `amount / 100 + 1`, so −30 → 0.70 and +200 → 3.0. A factor
+/// of exactly 1 (Holy Squad 615's first two levels carry `amount` 0) is dropped
+/// — merging it would be a no-op that still forces the component into
+/// existence.
+fn skill_rate_factors(skill: &Skill) -> Vec<(RateKind, i32, f64)> {
+    skill
+        .effects
+        .iter()
+        .filter_map(|e| match e {
+            SkillEffect::MagicMpCost { magic_type, amount } => {
+                Some((RateKind::MpConsume, *magic_type, amount / 100.0 + 1.0))
+            }
+            SkillEffect::Reuse { magic_type, amount } => {
+                Some((RateKind::Reuse, *magic_type, amount / 100.0 + 1.0))
+            }
+            _ => None,
+        })
+        .filter(|(_, _, factor)| (factor - 1.0).abs() > 1e-9)
+        .collect()
+}
+
+/// Java `CreatureStat.getMpConsume(skill)` — the skill's raw cost scaled by the
+/// caster's rate for that skill's own `magicType`, **truncated** to an int as
+/// Java's `(int)` cast does.
+///
+/// The dance-stacking surcharge is the other half of Java's method: each dance
+/// already running adds `ceil(mpConsume / 2)`. It is gated on
+/// `DanceConsumeAdditionalMP`, which this dist sets to **False**, so it stays
+/// off here — but it is wired to the config rather than assumed away.
+pub(crate) fn mp_consume_for(world: &World, caster_oid: i32, skill: &Skill) -> i32 {
+    let mut mp_consume = skill.mp_consume as f64;
+    if skill.is_dance() && world.cfg.character.dance_consume_additional_mp {
+        let dances = world
+            .objects
+            .get_component::<Buffs>(&caster_oid)
+            .map(|b| {
+                b.0.iter()
+                    .filter(|x| x.slot == crate::model::skill::BuffSlot::Dance)
+                    .count()
+            })
+            .unwrap_or(0);
+        if dances > 0 {
+            mp_consume += dances as f64 * (skill.mp_consume as f64 / 2.0).ceil();
+        }
+    }
+    (mp_consume * skill_rate(world, caster_oid, skill, RateKind::MpConsume)) as i32
+}
+
+/// Java `CreatureStat.getReuseTime(skill)` — the raw delay scaled by the
+/// caster's reuse rate for that skill's `magicType`. **Static and static-reuse
+/// skills return before the multiply**, which is what keeps Super Haste's −99 %
+/// off the fixed cooldowns.
+pub(crate) fn reuse_time_for(world: &World, caster_oid: i32, skill: &Skill) -> i32 {
+    if skill.static_reuse || skill.is_static() {
+        return skill.reuse_delay;
+    }
+    (skill.reuse_delay as f64 * skill_rate(world, caster_oid, skill, RateKind::Reuse)) as i32
+}
+
+/// `getMpConsumeTypeValue` / `getReuseTypeValue`: the bearer's factor for the
+/// bucket this skill belongs to, defaulting to 1.
+fn skill_rate(world: &World, caster_oid: i32, skill: &Skill, kind: RateKind) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::SkillRateStats>(&caster_oid)
+        .and_then(|rs| {
+            let table = match kind {
+                RateKind::MpConsume => &rs.mp_consume,
+                RateKind::Reuse => &rs.reuse,
+            };
+            table.get(&skill.magic_type).copied()
+        })
+        .unwrap_or(1.0)
 }
 
 /// The level a live buff was cast at, so its effect list can be looked back up

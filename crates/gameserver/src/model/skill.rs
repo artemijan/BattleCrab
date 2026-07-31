@@ -1007,25 +1007,18 @@ pub enum SkillEffect {
     /// the attacker-side counterpart of [`SkillEffect::DefenceTrait`]'s
     /// `mergeDefenceTrait`.
     ///
-    /// Unlike every other icon-only effect on this port, this one turns out
-    /// to be **functionally inert in the real Java server too, not just
-    /// unported here**: `Formulas.calcWeaknessBonus` only applies a
-    /// `*_WEAKNESS` bonus when the *target* also carries a matching
-    /// `DefenceTrait` (`target.getStat().hasDefenceTrait(trait)`), and
-    /// nothing in this datapack — no NPC template, no skill, no Java
-    /// call site outside `CreatureStat`'s own definition — ever calls
-    /// `mergeDefenceTrait` for any monster. So even on the reference server,
-    /// landing "Detect Beast Weakness" changes nothing observable; a
-    /// completely faithful port is exactly as inert. Carries no stat
-    /// modifier and no state of its own (unlike `DefenceTrait`/
-    /// `VampiricAttack`, there's nothing worth storing if nothing would ever
-    /// read it), so it lands as an icon-only timed `ActiveBuff` like its
-    /// siblings.
-    /// TODO: if NPC-side `DefenceTrait`/creature-category resistance data
-    /// ever lands, this needs an actual per-creature attack-trait
-    /// accumulator (Java: `mergeAttackTrait`/`removeAttackTrait`, additive
-    /// per `TraitType`) and a real multiplier in `calcWeaknessBonus`'s
-    /// callers — until then there is nothing to wire it to.
+    /// Lands as an icon-only timed `ActiveBuff`: the attack-trait accumulator
+    /// has no consumer here yet.
+    ///
+    /// TODO(G20): the target side **does** exist — the race skill `Undead`
+    /// (4416) sits on 13 549 NPCs and merges negative `*_WEAKNESS` defence
+    /// traits, which `DefenceTrait` now stores. What is missing is the
+    /// attacker-side accumulator (`mergeAttackTrait`/`removeAttackTrait`,
+    /// additive per `TraitType`) **and** its consumers in the physical damage
+    /// formula (`Formulas.calcWeaknessBonus`,
+    /// `calcAttackTraitBonus`/`calcWeaponTraitBonus`). The landing-roll path
+    /// is unaffected: `calcGeneralTraitBonus`'s group-2 branch bails to 1.0
+    /// while `hasAttackTrait` is false, which is what it does here.
     AttackTrait,
     /// `handlers/effecthandlers/DamageBlock.java` — one `<effect>` instance
     /// per block kind (a skill carrying both writes two separate elements,
@@ -1041,22 +1034,31 @@ pub enum SkillEffect {
         block_hp: bool,
         block_mp: bool,
     },
-    /// `handlers/effecthandlers/MagicMpCost.java` — multiplies the target's
-    /// MP-consume rate for a given `magicType` (`mergeMpConsumeTypeValue`, factor
-    /// `amount/100 + 1`). Backs the MP-cost-reduction songs (Song of Champion
-    /// 8547, Song of Renewal 349). The cast MP-consume path reads `skill.mp_consume`
-    /// raw (no per-type stat multiplier), so this carries no stat modifier and
-    /// lands as an icon-only timed `ActiveBuff` (abnormal + duration honored).
-    /// TODO(G16): route MP consume through a per-magic-type consume-rate stat.
-    MagicMpCost,
-    /// `handlers/effecthandlers/Reuse.java` — multiplies the target's skill-reuse
-    /// rate for a given `magicType` (`mergeReuseTypeValue`, factor `amount/100 + 1`).
-    /// Backs the reuse-reduction buffs (Song of Champion 8547, Song of Renewal 349,
-    /// Gift of Seraphim 4703). The reuse path uses `skill.reuse_delay` raw (no
-    /// per-type stat multiplier), so this carries no stat modifier and lands as an
-    /// icon-only timed `ActiveBuff` (abnormal + duration honored).
-    /// TODO(G16): route reuse through a per-magic-type reuse-rate stat.
-    Reuse,
+    /// `handlers/effecthandlers/MagicMpCost.java` — scales the bearer's
+    /// MP-consume rate for **one** `magicType` bucket: `onStart` merges
+    /// `amount/100 + 1` into `_mpConsumeStat` with `mul`, `onExit` with `div`,
+    /// and `CreatureStat.getMpConsume` multiplies the skill's raw cost by the
+    /// bucket for that skill's own `magicType`.
+    ///
+    /// The bucket is the effect's own `<magicType>` param (defaulting to 0),
+    /// **not** the carrying skill's: Arcane Wisdom (336, −30) and Clarity
+    /// (1397) discount magic (1), Zealot (420, −50) and Champion Song (364)
+    /// discount physical (0), Inner Rhythm (428) discounts dances (3). A
+    /// positive amount is a *penalty* — Magical Backfire (1396) triples magic
+    /// cost at +200.
+    MagicMpCost {
+        magic_type: i32,
+        amount: f64,
+    },
+    /// `handlers/effecthandlers/Reuse.java` — the same shape for skill reuse
+    /// (`mergeReuseTypeValue` / `CreatureStat.getReuseTime`). Quick Recovery
+    /// (164) and Song of Renewal (349) shorten physical cooldowns, Arcane
+    /// Agility (338) magical ones; Seal of Suspension (1248) trebles them at
+    /// +200. Static-reuse skills bypass it entirely — see [`Skill::static_reuse`].
+    Reuse {
+        magic_type: i32,
+        amount: f64,
+    },
     /// `handlers/effecthandlers/DamageShield.java` — `Stat.REFLECT_DAMAGE_PERCENT`:
     /// reflects `amount`% of received damage back at the attacker. Backs Song of
     /// Vengeance (305). The combat damage-reflect path isn't modeled yet, so this
@@ -1335,6 +1337,12 @@ pub struct Skill {
     /// share one cooldown. Sent raw in `MagicSkillUse`/`SkillList` — the
     /// client treats 0 as "every skill", so ungrouped must stay -1.
     pub reuse_delay_group: i32,
+    /// `<staticReuse>` (Java `Skill._staticReuse`, default false; **1297
+    /// skills on this dist set it**). A static-reuse skill's cooldown is its
+    /// raw `reuse_delay` — `CreatureStat.getReuseTime` returns before applying
+    /// the per-magic-type reuse rate — so no [`SkillEffect::Reuse`] buff can
+    /// shorten it.
+    pub static_reuse: bool,
     pub mp_consume: i32,
     pub mp_initial_consume: i32,
     pub hp_consume: i32,
@@ -1435,6 +1443,7 @@ impl Default for Skill {
     fn default() -> Self {
         Self {
             trait_type: TraitType::None,
+            static_reuse: false,
             id: 0,
             level: 1,
             name: String::new(),
@@ -1537,6 +1546,17 @@ impl Skill {
         } else {
             0
         }
+    }
+
+    /// Java `Skill.isStatic()` — `isMagic == 2`. A static skill's cast time and
+    /// reuse are fixed (no attack-speed scaling, no reuse-rate buff).
+    pub fn is_static(&self) -> bool {
+        self.magic_type == 2
+    }
+
+    /// Java `Skill.isDance()` — `isMagic == 3`, the dance/song pool.
+    pub fn is_dance(&self) -> bool {
+        self.magic_type == 3
     }
 
     /// Java `Skill.getBuffType()` collapsed to the [`BuffSlot`] pools: a
