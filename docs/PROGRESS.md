@@ -143,6 +143,31 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G16 CLOSED 2026-07-31 (6 → 0).** The residual four clusters, three of which
+turned out to be larger than their markers claimed.
+**Premium drops were entirely inert:** `PremiumRateDropChance/Amount` were
+parsed and read by *nobody*, so a premium killer's loot was identical to
+everyone else's — the marker only promised the missing *per-item* maps. Both
+halves are now applied in `roll_drops`, plus the spoil pair in
+`roll_spoil_drops`. Java's chain is `byId → herb → raid → flat` with the **herb
+and raid arms empty**, so premium buys nothing on a herb or a raid drop; and the
+per-item map **replaces** the flat rate rather than stacking, which is what
+pins this dist's jewels (6656-6662, 8191, 10170, 10314) to ×1 against a flat ×2.
+**`PremiumRateQuestXp/Sp`** now apply, before the server's `RateQuestReward*`.
+**The `hasEffectType(HATE)` marker was stale** — it claimed no HATE effect was
+modelled, which stopped being true when `DeleteHate`/`DeleteHateOfMe` landed in
+G19. So Bluff, Forget, Trick, Repose, Peace and Eva's Serenade were waking the
+very mob they had just made forget the caster. Java gates **only** the
+`EVT_ATTACKED` notify on it; the `-effectPoint` hate beside it is ungated, and
+Bluff really does carry `effectPoint -1`.
+**The magic-crit `DamOverTime` burst moved behind the land roll.** Java puts it
+in `onStart`, which `EffectList.add` only reaches once `calcEffectSuccess`
+passed — so a resisted poison deals nothing at all. The port had it in the
+instant pass, bursting for `power × 10` on a debuff that was about to be
+resisted. (Java's inline `// TODO: M.Crit can occur even if this skill is
+resisted` at that spot is aspirational, not shipped.) 12 tests, 17 mechanisms
+sabotage-verified. **No `TODO(G16)` markers remain.**
+
 **G16 PC-café (PA) points done 2026-07-31 (8 → 6).** The *store* was already
 there — `characters.pccafe_points`, the `//pccafepoints` GM command,
 `ExPCCafePointInfo` — but no way to **earn**. `PcCafePointsManager` is now

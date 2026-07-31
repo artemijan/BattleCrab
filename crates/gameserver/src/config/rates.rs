@@ -226,7 +226,7 @@ impl RatesConfig {
 
 /// Java `Config`'s `id,mult;id,mult;…` list shape (used by both per-item drop
 /// multiplier keys). Malformed entries are skipped like Java's try/catch.
-fn parse_id_multiplier_list(raw: &str) -> HashMap<i32, f64> {
+pub(crate) fn parse_id_multiplier_list(raw: &str) -> HashMap<i32, f64> {
     let mut out = HashMap::new();
     for entry in raw.split(';') {
         let mut it = entry.split(',');
