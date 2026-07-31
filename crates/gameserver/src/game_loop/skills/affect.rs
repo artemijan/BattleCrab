@@ -14,11 +14,20 @@
 //! Sonic Buster, Force Burst, Wild Sweep, Wrath, Frost Wall), `SQUARE`/
 //! `SQUARE_PB` (35+17) and `RING_RANGE` (18), which read the `<fanRange>`
 //! tuple for their arc/rect/annulus geometry.
-//! **Not ported (`TODO(G19)`), all falling back to single-target:**
-//! `RANGE_SORT_BY_HP` (4); `SUMMON_EXCEPT_MASTER`
-//! (22) and `WYVERN_SCOPE`/`BALAKAS_SCOPE`, which need summons (G29) or boss
-//! scripting (G23); the `DEAD_*` family (mass resurrect — needs the res flow);
-//! `PARTY_PLEDGE` (5); and `STATIC_OBJECT_SCOPE`.
+//! …plus the `DEAD_*` family (`DEAD_PLEDGE`/`DEAD_PARTY`/`DEAD_UNION`, the
+//! mass-resurrect sweeps, 1 skill each).
+//!
+//! **Not ported, all falling back to single-target — and every one of them
+//! verified to have no carrier a character on this dist can reach** (checked
+//! against the skill trees and the whole datapack, the
+//! [[l2r-abnormal-resist-dispel]] "rank by learnable usage" discipline):
+//! `SUMMON_EXCEPT_MASTER` (22 skills, all id 11269+ — the Freya-era summoner
+//! revamp, none learnable); `PARTY_PLEDGE` (5 — the Pa'agrio clan buffs 1534
+//! -1563, in no skill tree); `RANGE_SORT_BY_HP` (4 — Chain Heal and later
+//! -chronicle heals, likewise); `STATIC_OBJECT_SCOPE` (2 — Nornil's Power and
+//! `Test - …` debug skills); and `WYVERN_SCOPE`/`BALAKAS_SCOPE` (boss
+//! scripting). Note the first of these is **not** blocked on summons any more
+//! — servitors and pets landed at G29; it is blocked on being off-chronicle.
 //!
 //! **Deviation worth knowing:** Java sweeps `World.forEachVisibleObjectInRange`,
 //! which walks the region grid and so is bounded by *visibility*, not just the

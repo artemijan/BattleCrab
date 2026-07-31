@@ -97,8 +97,8 @@ pub fn npc_title(t: &NpcTemplate, cfg: &crate::config::NpcConfig) -> String {
 
 /// Port of `serverpackets/NpcInfo` (masked, 5 mask bytes / "mask_bits_37").
 /// Component selection follows the Java constructor with the not-yet-modeled
-/// state at its defaults: no summon animation, no water/fly/team/clone/
-/// transform/abnormals, no clan, reputation 0, pvp flag 0. The localisation
+/// state at its defaults: no summon animation, no water/fly/clone/transform,
+/// no clan, reputation 0, pvp flag 0. The localisation
 /// pass (`MULTILANG_ENABLE`) is skipped.
 /// `abnormal_visuals` are the mob's live `AbnormalVisualEffect` client ids
 /// (`abnormal::visual_effects`). Java adds the `ABNORMALS` component whenever
@@ -184,6 +184,16 @@ pub fn npc_info(
     if npc.enchant_effect > 0 {
         add(&mut mask_bytes, T::Enchant);
     }
+    // Java `if (npc.getTeam() != Team.NONE)` / `if (npc.getDisplayEffect() > 0)`
+    // — the blue/red aura and the model's visual state. Both are *stored* on the
+    // NPC, so an observer who arrives later still sees them; broadcasting only
+    // the change packet would leave them out of sync.
+    if npc.team != 0 {
+        add(&mut mask_bytes, T::Team);
+    }
+    if npc.display_effect > 0 {
+        add(&mut mask_bytes, T::DisplayEffect);
+    }
     add(&mut mask_bytes, T::PetEvolutionId);
     // Status mask: 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 show name.
     let mut status_mask = 0u8;
@@ -245,12 +255,20 @@ pub fn npc_info(
     }
     w.write_u8(1); // STOP_MODE: !isDead
     w.write_u8(speeds.running as u8); // MOVE_MODE
-    // ENCHANT sits between MOVE_MODE and PET_EVOLUTION_ID in Java's write
-    // order (after the SWIM_OR_FLY/TEAM blocks this port never sets).
+    // Java's write order through here: SWIM_OR_FLY (never set — no NPC water/
+    // fly state), TEAM, ENCHANT, FLYING, CLONE, PET_EVOLUTION_ID,
+    // DISPLAY_EFFECT. The client reads them positionally, so the order matters
+    // more than the individual fields.
+    if contains(T::Team) {
+        w.write_u8(npc.team);
+    }
     if contains(T::Enchant) {
         w.write_i32(npc.enchant_effect);
     }
     w.write_i32(0); // PET_EVOLUTION_ID
+    if contains(T::DisplayEffect) {
+        w.write_i32(npc.display_effect);
+    }
     if contains(T::CurrentHp) {
         w.write_i32(vitals.cur_hp as i32);
     }

@@ -88,14 +88,12 @@ pub enum TargetType {
 /// skills — `RANGE` (820 skills), `POINT_BLANK` (785), `PARTY` (272), `PLEDGE`
 /// (44) — and the geometric family (plan: PLAN_G19_GEOMETRIC_SCOPES.md) —
 /// `FAN`/`FAN_PB` (163+16, 5 learnable), `SQUARE`/`SQUARE_PB` (35+17),
-/// `RING_RANGE` (18). Still unported (`TODO(G19)`), reading as
-/// [`AffectScope::Other`] and falling back to single-target:
-/// `SUMMON_EXCEPT_MASTER` (22, needs G29), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
-/// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), the `DEAD_*` family
-/// `PARTY_PLEDGE` (5), `STATIC_OBJECT_SCOPE`. The `DEAD_*` family
-/// (`DEAD_PLEDGE`/`DEAD_PARTY`/`DEAD_UNION`) **is** ported — it carries the
-/// Bishop's Mass Resurrection (1254), the one learnable skill in the whole
-/// unported set.
+/// `RING_RANGE` (18) and the `DEAD_*` family. Reading as
+/// [`AffectScope::Other`] and falling back to single-target — each verified to
+/// have no reachable carrier on this dist (see `skills::affect`'s header):
+/// `SUMMON_EXCEPT_MASTER` (22, off-chronicle), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
+/// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), `PARTY_PLEDGE` (5) and
+/// `STATIC_OBJECT_SCOPE` (2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AffectScope {
     /// `SINGLE` (and the `NONE`/absent default): only the primary target.
