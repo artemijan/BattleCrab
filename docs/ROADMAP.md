@@ -948,7 +948,11 @@ NPC random social animations (`RandomAnimationTaskManager`), and
 casts" gate clause. 4831 templates carry castable skills; 73 % of those
 attachments resolve to fully-ported effects. Town-guard PK aggro + faction
 help calls landed (`PLAN_G21_GUARD_AGGRO.md`) — the `<clanList>` faction data
-(3760 templates) wasn't parsed at all before, so mobs fought alone. Remaining
+(3760 templates) wasn't parsed at all before, so mobs fought alone. Follow-up
+(2026-08): Java calls the faction from *two* sites and only `thinkAttack`'s had
+been ported; `Creature.doDie`'s "clan help range aggro on kill" is now ported
+too, which is the only one that fires when a mob is one-shot (a `[G]` pack
+farmed by an over-levelled character never retaliated). Remaining
 gate clause: raid HP across restart (`DBSpawnManager`); minions parse but
 never spawn. Raid-boss persistence landed (`PLAN_G21_BOSS_PERSISTENCE.md`) —
 `DBSpawnManager`/`npc_respawns`, covering the last gate clause, so **G21's gate

@@ -79,6 +79,39 @@ Java also splits the hate: a *playable* target gets `EVT_AGGRESSION … 1` (a
 nudge; the recruit picks its own target), anything else inherits the caller's
 full hate. Both are ported.
 
+## Follow-up (2026-08): the *second* faction-call site
+
+Java calls the faction from **two** places, and only `thinkAttack`'s was
+ported. The other is `Creature.doDie` — the "Clan help range aggro on kill"
+block — and it is the one that matters when a mob is **one-shot**: the AI
+think tick runs once a second, so a monster killed before its first think in
+`AI_INTENTION_ATTACK` never reaches `faction_call` and its pack never
+retaliates. Reported from live play against Cave Blade Spiders (npc 20462,
+`clanHelpRange="300"`, `<clan>ALL</clan>` — hence the `[G]` in the title): a
+high-level character farming them pulled nothing, because every kill skipped
+the only ported call site.
+
+`faction_call_on_kill` (`npc_ai.rs`, wired from `death.rs::npc_do_die` right
+after `calculate_rewards`, matching Java's position inside `Creature.doDie`)
+ports the block. The scan itself is now shared with `thinkAttack` via
+`faction_recruits`; Java's two sites differ in three ways, all mirrored:
+
+| | `thinkAttack` | `doDie` |
+|---|---|---|
+| Precondition | target is in `getAttackByList` | killer is a **non-GM playable** |
+| Scan range | `clanHelpRange + collisionRadius` | bare `clanHelpRange` |
+| `ignoreNpcId` | honoured | **not** consulted |
+
+The `[G]` marker itself is `Creature.getTitle()` (`ShowNpcAggression`): a
+template with a non-empty clan list *and* `clanHelpRange > 0`. So `[G]`
+promises exactly what these two call sites deliver — if a `[G]` mob's pack sits
+still, one of the two is missing.
+
+**Lesson:** a ported behaviour can have more than one trigger site in Java.
+Grepping for the *helper* (`getClanHelpRange`) rather than the feature found
+both; porting from the one call site the feature is "obviously" in left a hole
+that only shows up in a specific play pattern (over-levelled farming).
+
 ## `Guard` had to be let into the AI at all
 
 `think()` gated on `is_monster()`, and `Guard` isn't in the monster subtree —
@@ -115,6 +148,14 @@ doesn't inherit the rule) and eight on faction calls (mate pulled in; different
 faction isn't; no call without a real attack; out of range; `ignoreNpcId`;
 `ALL` matches anything; a busy mate is left alone), plus the dist-backed parse
 test in `npc_data.rs`.
+
+The 2026-08 follow-up adds five more, all one-shotting the mob through
+`npc_do_die` with **no** think tick in between, so `thinkAttack`'s call
+provably can't be what they observe: the clan is still called; a different
+faction ignores it; the scan stops at the bare `clanHelpRange` (mate at 310,
+inside `thinkAttack`'s 320); a GM kill calls nobody; an NPC killer calls
+nobody. Sabotage-verified — commenting the call out fails the first of them.
+**2325 gameserver tests green**, `clippy --all-targets -D warnings` clean.
 
 **647 lib tests green**, `char_persistence` 7/7, `e2e_create` 1/1.
 

@@ -345,3 +345,118 @@ fn a_clan_mate_already_fighting_is_left_alone() {
         "a clan-mate already in the fight must not have the call's hate stacked on top"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Faction calls on death (`Creature.doDie`'s "Clan help range aggro on kill").
+//
+// The distinguishing scenario for all of these: the mob is killed *outright*,
+// with no think tick in between, so `thinkAttack`'s faction call cannot have
+// run. That is what a high-level character farming low-level `[G]` mobs sees,
+// and before this block existed such a pack never retaliated.
+
+/// Place a mob and a clan-mate, then one-shot the mob through the real death
+/// path. No `advance_world` — the victim never reaches a think.
+fn one_shot_kill(world: &mut World, mate_npc_id: i32, mate_x: i32, killer: i32) {
+    add_test_npc(world, GUARD_OID, ORC_A_ID, "Monster", 10, 100, 0, 0);
+    add_test_npc(world, MATE_OID, mate_npc_id, "Monster", 10, mate_x, 0, 0);
+    crate::game_loop::death::npc_do_die(world, GUARD_OID, killer);
+}
+
+#[test]
+fn a_one_shot_mob_still_calls_its_clan() {
+    let (mut world, _db, _l) = guard_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    one_shot_kill(&mut world, ORC_B_ID, 200, PLAYER);
+
+    assert!(
+        hate_on(&world, MATE_OID, PLAYER) > 0.0,
+        "the clan-mate of a mob killed before its first think must still aggro the killer"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<NpcAi>(&MATE_OID)
+            .unwrap()
+            .intention,
+        NpcIntention::Attack,
+        "the recruit switches to the attack loop"
+    );
+}
+
+#[test]
+fn a_different_faction_ignores_a_death_call() {
+    let (mut world, _db, _l) = guard_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    one_shot_kill(&mut world, LONER_ID, 200, PLAYER);
+
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "LIZARDMAN doesn't answer a dying ORC either"
+    );
+}
+
+#[test]
+fn a_death_call_does_not_reach_past_the_bare_help_range() {
+    // Java's `doDie` block scans `getClanHelpRange()` flat — unlike
+    // `thinkAttack`, it does *not* widen by the caller's collision radius. The
+    // mate sits at 310 from the corpse: inside thinkAttack's 300 + 10 + 10, but
+    // outside the death call's 300.
+    let (mut world, _db, _l) = guard_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    one_shot_kill(&mut world, ORC_B_ID, 410, PLAYER);
+
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "the on-death scan is the bare clanHelpRange"
+    );
+}
+
+#[test]
+fn a_gm_kill_calls_nobody() {
+    // `!killer.getActingPlayer().isGM()` — a GM clearing a spawn must not leave
+    // the whole camp aggroed behind them.
+    let (mut world, _db, _l) = guard_world();
+    world.data.admin =
+        crate::data::AdminData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&PLAYER)
+        .unwrap()
+        .access_level = 70;
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::Player>(&PLAYER)
+            .unwrap()
+            .is_gm(&world.data),
+        "fixture precondition: access level 70 is a GM"
+    );
+
+    one_shot_kill(&mut world, ORC_B_ID, 200, PLAYER);
+
+    assert_eq!(
+        hate_on(&world, MATE_OID, PLAYER),
+        0.0,
+        "a GM's kill calls no clan"
+    );
+}
+
+#[test]
+fn a_monster_killing_a_monster_calls_nobody() {
+    // `killer.isPlayable()` — the killer here is another NPC (a summoned mob
+    // finishing off a faction-mate, a scripted execution), which in Java calls
+    // nobody.
+    let (mut world, _db, _l) = guard_world();
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 5, LONER_ID, "Monster", 10, 120, 0, 0);
+    one_shot_kill(&mut world, ORC_B_ID, 200, NPC_OID + 5);
+
+    assert_eq!(
+        hate_on(&world, MATE_OID, NPC_OID + 5),
+        0.0,
+        "an NPC killer is not playable, so the faction is not called"
+    );
+}

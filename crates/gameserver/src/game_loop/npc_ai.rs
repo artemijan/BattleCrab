@@ -1310,15 +1310,14 @@ fn guard_aggro_scan(world: &mut World, npc_oid: i32, region: (i32, i32)) {
 /// Java `AttackableAI.thinkAttack`'s faction block: an engaged NPC drags its
 /// nearby clan-mates into the fight.
 ///
-/// Three gates are easy to drop and each one matters:
-/// 1. **Only if the target actually attacked *this* NPC.** Java checks
-///    `getAttackByList`; the port's proxy is a non-zero `damage` entry in the
-///    aggro list. Without it, walking up to one mob of a faction and hitting
-///    *nothing* would still pull the whole camp.
-/// 2. **Only idle/active clan-mates answer.** One already attacking or casting
-///    is left alone, so a fight doesn't continually re-target everyone in it.
-/// 3. **`ignoreNpcId`** — 82 templates on this dist refuse calls from specific
-///    faction-mates.
+/// The gate that is easy to drop: **only if the target actually attacked *this*
+/// NPC.** Java checks `getAttackByList`; the port's proxy is a non-zero `damage`
+/// entry in the aggro list. Without it, walking up to one mob of a faction and
+/// hitting *nothing* would still pull the whole camp. The rest of the scan lives
+/// in [`faction_recruits`].
+///
+/// This runs from the think tick, so it never fires for a mob that dies before
+/// its first think — [`faction_call_on_kill`] is the site that covers that.
 ///
 /// `TODO(G21)`: Java fires `EVT_AGGRESSION` (a `Summon`-aware event) and an
 /// `OnAttackableFactionCall` script hook; the port seeds hate directly and has
@@ -1358,16 +1357,6 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         return;
     }
 
-    let range = help_range as f64 + collision;
-    let (Some(pos), Some(region)) = (
-        world.objects.get_component::<Position>(&npc_oid).copied(),
-        world
-            .objects
-            .get_component::<RegionCell>(&npc_oid)
-            .map(|r| r.0),
-    ) else {
-        return;
-    };
     let hate = world
         .objects
         .get_component::<AggroList>(&npc_oid)
@@ -1385,18 +1374,136 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         return;
     };
 
+    // `thinkAttack` widens the scan by the caller's collision radius and honours
+    // `ignoreClanNpcIds`; `doDie` (see [`faction_call_on_kill`]) does neither.
+    let recruits = faction_recruits(
+        world,
+        npc_oid,
+        help_range as f64 + collision,
+        target_pos.z,
+        true,
+    );
+
+    for other in recruits {
+        // Java: a *playable* target gets `EVT_AGGRESSION … 1` (a nudge — the
+        // recruit picks its own target), anything else inherits the caller's
+        // full hate. Either way the recruit switches to the attack loop.
+        let added = if target_is_player { 1.0 } else { hate };
+        recruit_to_attack(world, other, target_oid, added);
+    }
+}
+
+/// Java `Creature.doDie`'s "Clan help range aggro on kill" block: the clan-mates
+/// of a monster that just *died* aggro its killer.
+///
+/// This is the second of Java's two faction-call sites and is not a nicety — it
+/// is the only one that fires when a player one-shots a mob. [`faction_call`]
+/// runs from the AI think tick, so a monster killed before its first think in
+/// `AI_INTENTION_ATTACK` never gets to call anyone; without this block a
+/// high-level character farming low-level `[G]` mobs (Cave Blade Spiders, say)
+/// would never pull the pack, which reads as group aggro being broken.
+///
+/// Java's version deliberately differs from `thinkAttack`'s in three ways, all
+/// mirrored here: the killer must be a **non-GM playable**, the scan range is
+/// the bare `clanHelpRange` (no collision radius added), and
+/// `ignoreClanNpcIds` is *not* consulted.
+///
+/// `TODO(G21)`: as with [`faction_call`], Java fires `EVT_AGGRESSION` plus an
+/// `OnAttackableFactionCall` script hook; the port seeds hate directly.
+pub(crate) fn faction_call_on_kill(world: &mut World, npc_oid: i32, killer_oid: i32) {
+    // `killer.isPlayable()` — a player or a summon, not another NPC.
+    let killer_is_playable = world
+        .objects
+        .has_component::<crate::model::Player>(&killer_oid)
+        || world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&killer_oid);
+    if !killer_is_playable {
+        return;
+    }
+    // `!killer.getActingPlayer().isGM()` — a GM cleaning up a spawn is ignored.
+    let actor = super::pvp::acting_player(world, killer_oid);
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&actor)
+        .is_some_and(|p| p.is_gm(&world.data))
+    {
+        return;
+    }
+
+    let Some(help_range) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .map(|n| n.npc_id)
+        .and_then(|id| world.data.npc_data.get(id))
+        .filter(|t| !t.clans.is_empty())
+        .map(|t| t.clan_help_range)
+    else {
+        return;
+    };
+    if help_range <= 0 {
+        return;
+    }
+
+    let Some(killer_pos) = world
+        .objects
+        .get_component::<Position>(&killer_oid)
+        .copied()
+    else {
+        return;
+    };
+
+    // Java: `notifyEvent(EVT_AGGRESSION, killer, 1)` — hate on the *killer*
+    // object (a summon aggroes the pack on itself, exactly as in Java).
+    for other in faction_recruits(world, npc_oid, help_range as f64, killer_pos.z, false) {
+        recruit_to_attack(world, other, killer_oid, 1.0);
+    }
+}
+
+/// The recruit scan shared by Java's two faction-call sites.
+///
+/// Returns the clan-mates of `caller_oid` that would answer a call about a
+/// target at `target_z`. Three gates are easy to drop and each one matters:
+/// alive-and-in-range, **only idle/active clan-mates answer** (one already
+/// attacking is left alone, so a fight doesn't continually re-target everyone
+/// in it), and same-faction. `honor_ignore_list` covers `ignoreClanNpcIds` —
+/// 82 templates on this dist refuse calls from specific faction-mates — which
+/// only `thinkAttack` consults.
+fn faction_recruits(
+    world: &World,
+    caller_oid: i32,
+    range: f64,
+    target_z: i32,
+    honor_ignore_list: bool,
+) -> Vec<i32> {
+    let (Some(caller_id), Some(pos), Some(region)) = (
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&caller_oid)
+            .map(|n| n.npc_id),
+        world
+            .objects
+            .get_component::<Position>(&caller_oid)
+            .copied(),
+        world
+            .objects
+            .get_component::<RegionCell>(&caller_oid)
+            .map(|r| r.0),
+    ) else {
+        return Vec::new();
+    };
+
     // Candidate clan-mates: NPCs in this and the neighbouring regions.
     let nearby: Vec<i32> = (-1..=1)
         .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
         .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
         .flatten()
         .copied()
-        .filter(|&other| other != npc_oid)
+        .filter(|&other| other != caller_oid)
         .collect();
 
     let mut recruits: Vec<i32> = Vec::new();
     for other in nearby {
-        // Alive, and within the faction range in 2D with Java's ±600 z band.
         let Some(opos) = world.objects.get_component::<Position>(&other).copied() else {
             continue;
         };
@@ -1415,10 +1522,10 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
             + ((opos.y - pos.y) as f64).powi(2)
             + ((opos.z - pos.z) as f64).powi(2))
         .sqrt();
-        if dist > range || (opos.z - target_pos.z).abs() > 600 {
+        if dist > range || (opos.z - target_z).abs() > 600 {
             continue;
         }
-        // Gate 2: only the uncommitted answer.
+        // Only the uncommitted answer.
         if world
             .objects
             .get_component::<NpcAi>(&other)
@@ -1426,7 +1533,7 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
         {
             continue;
         }
-        // Gate 3: same faction, and not on either side's ignore list.
+        // Same faction, and not on the recruit's ignore list.
         let Some(other_id) = world
             .objects
             .get_component::<crate::model::npc::Npc>(&other)
@@ -1435,29 +1542,30 @@ fn faction_call(world: &mut World, npc_oid: i32, target_oid: i32) {
             continue;
         };
         let (Some(mine), Some(theirs)) = (
-            world.data.npc_data.get(npc_id),
+            world.data.npc_data.get(caller_id),
             world.data.npc_data.get(other_id),
         ) else {
             continue;
         };
-        if !mine.shares_clan_with(theirs) || theirs.ignore_clan_npc_ids.contains(&npc_id) {
+        if !mine.shares_clan_with(theirs)
+            || (honor_ignore_list && theirs.ignore_clan_npc_ids.contains(&caller_id))
+        {
             continue;
         }
         recruits.push(other);
     }
+    recruits
+}
 
-    for other in recruits {
-        // Java: a *playable* target gets `EVT_AGGRESSION … 1` (a nudge — the
-        // recruit picks its own target), anything else inherits the caller's
-        // full hate. Either way the recruit switches to the attack loop.
-        let added = if target_is_player { 1.0 } else { hate };
-        if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&other) {
-            let entry = aggro.0.entry(target_oid).or_default();
-            entry.hate += added;
-        }
-        if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&other) {
-            ai.intention = NpcIntention::Attack;
-            ai.attack_timeout_tick = world.tick + ATTACK_TIMEOUT_TICKS;
-        }
+/// A faction-mate answering a call: seed hate on the target and switch it into
+/// the attack loop.
+fn recruit_to_attack(world: &mut World, recruit_oid: i32, target_oid: i32, hate: f64) {
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&recruit_oid) {
+        let entry = aggro.0.entry(target_oid).or_default();
+        entry.hate += hate;
+    }
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&recruit_oid) {
+        ai.intention = NpcIntention::Attack;
+        ai.attack_timeout_tick = world.tick + ATTACK_TIMEOUT_TICKS;
     }
 }
