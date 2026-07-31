@@ -4197,6 +4197,38 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
 
     // Expiry (natural `BuffExpire`, dispel, or death all route through this).
     crate::game_loop::skills::effects::handle_buff_expire(&mut world, 5001, 618);
+    // A TvT entrant cannot transform at all — Java's `isRegisteredOnEvent()`
+    // leg, which sends a plain text line rather than a SystemMessage.
+    {
+        let p = world.objects.get_component::<Player>(&5001).unwrap();
+        assert_eq!(p.transform_id, 0, "reverted before the event check");
+    }
+    // Clear the reuse the first cast left, or the refusal below would be the
+    // cooldown talking rather than the event gate (it was, on the first
+    // attempt at this test — the sabotage caught it).
+    if let Some(r) = world
+        .objects
+        .get_component_mut::<crate::model::components::Reuses>(&5001)
+    {
+        r.0.clear();
+    }
+    world.events.tvt.player_list.push(5001);
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    assert!(
+        !world.objects.has_component::<Casting>(&5001),
+        "an event entrant's transform click never starts a cast"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&5001)
+            .unwrap()
+            .transform_id,
+        0,
+        "…and they stay themselves"
+    );
+    world.events.tvt.player_list.clear();
     let p = world.objects.get_component::<Player>(&5001).unwrap();
     assert_eq!(p.transform_id, 0, "reverted");
     assert_eq!(p.transform_display_id, 0, "display cleared");

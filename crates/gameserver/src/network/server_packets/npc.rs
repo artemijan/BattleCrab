@@ -113,7 +113,12 @@ pub fn npc_info(
     } = v;
     use NpcInfoType as T;
 
-    let title = npc_title(t, cfg);
+    // A per-instance `setTitle` (an EffectPoint seal naming its caster) wins
+    // over the template + level/aggression decoration.
+    let title = match &npc.title_override {
+        Some(custom) => custom.clone(),
+        None => npc_title(t, cfg),
+    };
 
     // Java `NpcInfo._masks` starts with the two unnamed always-on component
     // pairs (0x0C/0x0D and 0x14/0x15) pre-set.

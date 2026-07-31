@@ -80,6 +80,15 @@ pub(crate) fn targets_affected(
             sweep_square(world, caster_oid, target_oid, skill, limit)
         }
         AffectScope::RingRange => sweep_ring(world, caster_oid, target_oid, skill, limit),
+        AffectScope::DeadPledge => {
+            sweep_dead_group(world, caster_oid, target_oid, skill, limit, Group::Clan)
+        }
+        AffectScope::DeadParty => {
+            sweep_dead_group(world, caster_oid, target_oid, skill, limit, Group::Party)
+        }
+        AffectScope::DeadUnion => {
+            sweep_dead_group(world, caster_oid, target_oid, skill, limit, Group::Alliance)
+        }
     }
 }
 
@@ -95,6 +104,9 @@ enum Centre {
 enum Group {
     Party,
     Clan,
+    /// `DEAD_UNION`'s membership: the target's party, or any party sharing
+    /// their command channel.
+    Alliance,
 }
 
 /// `Range.java` / `PointBlank.java` — every creature within `affect_range` of
@@ -204,6 +216,9 @@ fn sweep_group(
     let range = skill.affect_range;
 
     let members: Vec<i32> = match group {
+        // `Alliance` is only reachable from the DEAD_* sweep, which never
+        // calls this helper.
+        Group::Alliance => vec![target_oid],
         Group::Party => world
             .objects
             .get_component::<crate::model::components::PartyRef>(&target_oid)
@@ -254,6 +269,105 @@ fn sweep_group(
             continue;
         }
         out.push(member);
+        affected += 1;
+    }
+    out
+}
+
+/// `DeadPledge.java` / `DeadParty.java` / `DeadUnion.java` — the mass-resurrect
+/// fan-out: the **corpses** of the target's group within `affect_range`.
+///
+/// Three things separate it from [`sweep_group`], and each one matters:
+/// - a candidate qualifies **because** it is dead (`!p.isDead()` → drop);
+/// - the **origin itself is filtered**, not assumed in. Mass Resurrection is
+///   `targetType SELF`, so the origin is the living caster, who fails the
+///   dead test and is correctly left out of their own resurrection;
+/// - the affect limit therefore counts from 0, not from 1.
+fn sweep_dead_group(
+    world: &World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    limit: i32,
+    group: Group,
+) -> Vec<i32> {
+    let Some(origin) = world
+        .objects
+        .get_component::<Position>(&target_oid)
+        .copied()
+    else {
+        return Vec::new();
+    };
+    let range = skill.affect_range;
+
+    let same_group = |oid: i32| -> bool {
+        if oid == target_oid {
+            return true;
+        }
+        match group {
+            Group::Clan => {
+                let clan_of = |o: i32| {
+                    world
+                        .objects
+                        .get_component::<Player>(&o)
+                        .map(|p| p.clan_id)
+                        .unwrap_or(0)
+                };
+                let c = clan_of(target_oid);
+                c != 0 && clan_of(oid) == c
+            }
+            Group::Party | Group::Alliance => {
+                let party_of = |o: i32| {
+                    world
+                        .objects
+                        .get_component::<crate::model::components::PartyRef>(&o)
+                        .map(|r| r.0)
+                };
+                let (a, b) = (party_of(target_oid), party_of(oid));
+                match (a, b) {
+                    (Some(a), Some(b)) if a == b => true,
+                    // A command channel widens DEAD_UNION past the single party
+                    // (Java compares the two parties' `getCommandChannel()`).
+                    (Some(a), Some(b)) if group == Group::Alliance => {
+                        let channel_of = |pid: u32| {
+                            world
+                                .command_channels
+                                .iter()
+                                .find(|(_, cc)| cc.parties.contains(&pid))
+                                .map(|(&id, _)| id)
+                        };
+                        matches!(
+                            (channel_of(a), channel_of(b)),
+                            (Some(x), Some(y)) if x == y
+                        )
+                    }
+                    _ => false,
+                }
+            }
+        }
+    };
+
+    let mut out = Vec::new();
+    let mut affected = 0;
+    for oid in in_game_players(world) {
+        if limit > 0 && affected >= limit {
+            break;
+        }
+        if !is_dead(world, oid) || !same_group(oid) {
+            continue;
+        }
+        let Some(pos) = world.objects.get_component::<Position>(&oid).copied() else {
+            continue;
+        };
+        // Java measures from the *origin playable* (the caster, for a SELF
+        // cast) and lets the origin itself through without a range test.
+        if oid != target_oid && range > 0 && !within(&origin, &pos, range) {
+            continue;
+        }
+        if !passes_affect_object(world, caster_oid, oid, skill.affect_object) {
+            continue;
+        }
+        out.push(oid);
         affected += 1;
     }
     out

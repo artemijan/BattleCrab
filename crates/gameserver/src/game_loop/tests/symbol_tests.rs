@@ -341,3 +341,76 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
         "250 away is outside the 200 gate"
     );
 }
+
+/// **A seal wears its caster's name.** Java's `SummonNpc` handler calls
+/// `effectPoint.setTitle(player.getName())`, which is the only way a bystander
+/// can tell whose totem they are standing next to. The port's NPC titles are
+/// template-derived, so this needs a per-instance override that wins over the
+/// template *and* over the `ShowNpcLevel`/`ShowNpcAggression` decoration.
+#[test]
+fn a_seal_is_titled_with_its_casters_name() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 400, 0);
+    register_totem_template(&mut world);
+    world.data.skill_data.insert_for_test(aura_skill());
+    learn(&mut world, CASTER, &symbol_skill());
+    let caster_name = world
+        .objects
+        .get_component::<crate::model::Player>(&CASTER)
+        .unwrap()
+        .name
+        .clone();
+
+    crate::game_loop::skills::cast::handle_request_magic_skill_use_ground(
+        &mut world,
+        CID,
+        &ground_body(500, 0, 0, SYMBOL_SKILL),
+    );
+    advance_ticks(&mut world, 8);
+    let totem = totem_at(&mut world).expect("the totem spawned");
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&totem)
+            .and_then(|n| n.title_override.clone()),
+        Some(caster_name.clone()),
+        "the seal records whose it is"
+    );
+    // **Whether the client ever sees it is a separate gate**, and Java has the
+    // same one: `NpcInfo` only emits the TITLE component for a template with
+    // `usingServerSideTitle` (or a monster under ShowNpcLevel/Aggression). No
+    // `EffectPoint` template on this dist sets that flag, so in Java the title
+    // is stored and never transmitted either — the port matches, including the
+    // pointlessness.
+    let wire_title = |world: &World| {
+        let view = crate::model::npc::NpcView::of(&world.objects, totem).unwrap();
+        let template = world.data.npc_data.get(TOTEM_NPC).unwrap();
+        let pkt = server_packets::npc_info(&view, template, &world.cfg.npc);
+        // The name rides as UTF-16LE somewhere inside a mixed packet, so look
+        // for its byte sequence rather than decoding the whole buffer (whose
+        // string fields are not 2-byte aligned from offset 0).
+        let needle: Vec<u8> = caster_name
+            .encode_utf16()
+            .flat_map(|u| u.to_le_bytes())
+            .collect();
+        pkt.windows(needle.len()).any(|w| w == needle)
+    };
+    assert!(
+        !wire_title(&world),
+        "a plain EffectPoint template sends no title block, as in Java"
+    );
+
+    // Opt the template in and the override is what goes out — not the
+    // template's own title.
+    {
+        let mut t = world.data.npc_data.get(TOTEM_NPC).unwrap().clone();
+        t.server_side_title = true;
+        t.title = "Not This".into();
+        world.data.npc_data.insert_for_test(t);
+    }
+    assert!(
+        wire_title(&world),
+        "with serverSideTitle on, NpcInfo carries the per-instance title"
+    );
+}

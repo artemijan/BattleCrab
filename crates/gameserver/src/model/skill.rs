@@ -92,7 +92,10 @@ pub enum TargetType {
 /// [`AffectScope::Other`] and falling back to single-target:
 /// `SUMMON_EXCEPT_MASTER` (22, needs G29), `BALAKAS_SCOPE`/`WYVERN_SCOPE`
 /// (boss/wyvern scripting), `RANGE_SORT_BY_HP` (4), the `DEAD_*` family
-/// (mass-res fan-out), `PARTY_PLEDGE` (5), `STATIC_OBJECT_SCOPE`.
+/// `PARTY_PLEDGE` (5), `STATIC_OBJECT_SCOPE`. The `DEAD_*` family
+/// (`DEAD_PLEDGE`/`DEAD_PARTY`/`DEAD_UNION`) **is** ported — it carries the
+/// Bishop's Mass Resurrection (1254), the one learnable skill in the whole
+/// unported set.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AffectScope {
     /// `SINGLE` (and the `NONE`/absent default): only the primary target.
@@ -121,6 +124,14 @@ pub enum AffectScope {
     /// but outside `fan_range[2]`. The epicenter target itself is never
     /// affected (that is the donut hole).
     RingRange,
+    /// `DEAD_PLEDGE` / `DEAD_PARTY` / `DEAD_UNION`: the **corpses** of the
+    /// target's clan / party / alliance within `affect_range` — the mass-
+    /// resurrect fan-out. Mirror images of `Pledge`/`Party` with the liveness
+    /// test inverted, and the only scope family where a *dead* candidate is
+    /// the one that qualifies.
+    DeadPledge,
+    DeadParty,
+    DeadUnion,
     /// Any scope not ported yet — treated as [`AffectScope::Single`].
     Other,
 }
@@ -881,8 +892,9 @@ pub enum SkillEffect {
     /// `game_loop::skills::cast` for the already-transformed, in-water and
     /// cursed-weapon-equipped legs (mounted collapses into "already
     /// transformed" on this port, since a horse/bike mount is itself a
-    /// transform); TODO(G19): the sitting and registered-on-event legs have
-    /// no modeled state on this port yet.
+    /// transform) and the registered-on-event leg (the TvT roster). Only the
+    /// **sitting** leg is unported — `ChangeWaitType` does not exist here, so
+    /// nothing can be sitting to refuse (TODO(G14)).
     Transform {
         transformation_id: i32,
     },
