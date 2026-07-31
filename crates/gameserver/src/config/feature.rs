@@ -43,6 +43,9 @@ pub struct FeatureConfig {
     /// `max - (level - 16) * 20` in between (Java `Player.setClassId`).
     pub complete_academy_min_points: i32,
     pub complete_academy_max_points: i32,
+    /// `HeroPoints` (1000) — the clan reputation a clan of level ≥ 3 earns when
+    /// one of its members claims hero status (Java `Hero.claimHero`).
+    pub hero_points: i32,
 }
 
 impl Default for FeatureConfig {
@@ -60,6 +63,7 @@ impl Default for FeatureConfig {
             castle_sell_tax_dark: 30,
             complete_academy_min_points: 190,
             complete_academy_max_points: 650,
+            hero_points: 1000,
         }
     }
 }
@@ -85,6 +89,7 @@ impl FeatureConfig {
             castle_buy_tax_neutral: p.get_int("BuyTaxForNeutralSide", d.castle_buy_tax_neutral),
             castle_buy_tax_light: p.get_int("BuyTaxForLightSide", d.castle_buy_tax_light),
             castle_buy_tax_dark: p.get_int("BuyTaxForDarkSide", d.castle_buy_tax_dark),
+            hero_points: p.get_int("HeroPoints", d.hero_points),
             complete_academy_min_points: p
                 .get_int("CompleteAcademyMinPoints", d.complete_academy_min_points),
             complete_academy_max_points: p

@@ -4729,6 +4729,35 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
         0,
         "no transform applied while mounted"
     );
+    crate::game_loop::admin::mounts::dismount(&mut world, 5001);
+
+    // Sitting refusal: `ConditionPlayerCanTransform`'s `isSitting()` leg (SM
+    // 2283), which sits above the polymorph one. It was written as vacuous
+    // ("nothing can be sitting") before the `SitStand` state landed.
+    world
+        .objects
+        .get_component_mut::<Player>(&5001)
+        .unwrap()
+        .sitting = true;
+    drain(&mut rx);
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    let refused = drain(&mut rx);
+    assert!(
+        has_system_message(
+            &refused,
+            server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING
+        ),
+        "sitting refusal sent"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&5001)
+            .unwrap()
+            .transform_id,
+        0,
+        "no transform applied while sitting"
+    );
 }
 
 /// G19 `MpConsumePerLevel` effect: the fighter-toggle upkeep half of

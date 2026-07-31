@@ -195,8 +195,17 @@ fn do_heal(world: &mut World, client_id: u32, object_id: i32, command: &str) {
         return;
     }
     super::admin::vitals::heal_creature(world, object_id);
-    // TODO(G30): Java also restores the player's pet/servitors (not summonable
-    // until G29).
+    // Java tops up `getPet()` and every `getServitors()` entry alongside the
+    // owner — both summonable since G29, so the leg is live now.
+    for summon in [
+        super::servitor::pet_of(world, object_id),
+        super::servitor::servitor_of(world, object_id),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        super::admin::vitals::heal_creature(world, summon);
+    }
     send_message(world, client_id, "You used heal!");
     serve_page(
         world,

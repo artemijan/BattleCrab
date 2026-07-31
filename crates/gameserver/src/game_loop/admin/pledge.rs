@@ -220,17 +220,54 @@ pub(super) fn admin_pledge(world: &mut World, client_id: u32, gm_object_id: i32,
     show_main_page(world, client_id);
 }
 
-/// `AdminClan`'s `//clan_show_pending` — the "Pen. leaders" button. Lists clans
-/// with a pending leadership transfer. The port has no delayed leader-change
-/// mechanism (`setNewLeader`/`new_leader_id` unported), so no clan is ever
-/// pending and the list renders empty — the panel itself still shows correctly.
+/// `AdminClan`'s `//clan_show_pending` — the "Pen. leaders" button: one row per
+/// clan carrying a `new_leader_id` (stamped by the village master's delegated
+/// transfer, applied at the Wednesday reset), with a Force link that runs the
+/// transfer now.
 pub(super) fn admin_clan_show_pending(world: &mut World, client_id: u32) {
-    super::menu::show_admin_html_replace(
-        world,
-        client_id,
-        "clanchanges.htm",
-        &[("data", String::new())],
-    );
+    let mut clans: Vec<&crate::model::clan::Clan> = world
+        .clans
+        .values()
+        .filter(|c| c.new_leader_id != 0)
+        .collect();
+    // Java iterates `ClanTable.getClans()`; sort by id so the panel is stable.
+    clans.sort_by_key(|c| c.id);
+    let mut data = String::new();
+    for clan in clans {
+        // Java `getNewLeaderName()` reads the member roster, so a nominee who
+        // has left the clan renders blank — the same row Java would draw.
+        let new_leader = clan
+            .members
+            .iter()
+            .find(|m| m.char_id == clan.new_leader_id)
+            .map(|m| m.name.as_str())
+            .unwrap_or("");
+        data.push_str(&format!(
+            "<tr><td>{}</td><td>{new_leader}</td><td><a action=\"bypass -h admin_clan_force_pending {}\">Force</a></td></tr>",
+            clan.name, clan.id
+        ));
+    }
+    super::menu::show_admin_html_replace(world, client_id, "clanchanges.htm", &[("data", data)]);
+}
+
+/// `AdminClan`'s `//clan_force_pending <clanId>` — run a pending transfer at
+/// once instead of waiting for Wednesday. Java bails silently on a non-numeric
+/// argument, an unknown clan, or a nominee who is no longer a member.
+pub(super) fn admin_clan_force_pending(world: &mut World, client_id: u32, args: &[&str]) {
+    let Some(clan_id) = args.first().and_then(|a| a.parse::<i32>().ok()) else {
+        return;
+    };
+    let Some(new_leader) = world
+        .clans
+        .get(&clan_id)
+        .filter(|c| c.new_leader_id != 0)
+        .filter(|c| c.members.iter().any(|m| m.char_id == c.new_leader_id))
+        .map(|c| c.new_leader_id)
+    else {
+        return;
+    };
+    super::super::clans::force_new_leader(world, clan_id, new_leader);
+    super::send_message(world, client_id, "Task have been forcely executed.");
 }
 
 // ---------------------------------------------------------------------------

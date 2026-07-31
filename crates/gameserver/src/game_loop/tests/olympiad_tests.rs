@@ -735,9 +735,16 @@ fn olympiad_end_crowns_heroes_then_validation_starts_a_new_cycle() {
     crate::game_loop::olympiad::handle_olympiad_end(&mut world);
     assert_eq!(world.olympiad.period, 1, "entered validation");
     assert_eq!(world.olympiad.heroes, vec![(100, 88)]);
+    // The crown alone grants nothing — Java's `computeNewHeroes` never calls
+    // `setHero(true)`; the title comes from claiming it at the monument.
+    assert!(
+        !world.objects.get_component::<Player>(&100).unwrap().is_hero,
+        "crowned but unclaimed carries no status"
+    );
+    crate::game_loop::olympiad::claim_hero(&mut world, 100);
     assert!(
         world.objects.get_component::<Player>(&100).unwrap().is_hero,
-        "the online hero is crowned"
+        "claiming grants it"
     );
 
     // Validation ends → new cycle, clean noble table.
@@ -766,6 +773,9 @@ fn heroes_persist_and_apply_on_login() {
             name: "Aragorn".into(),
             clan_id: 0,
             message: String::new(),
+            // Collected at the monument in an earlier session — only a *claimed*
+            // crown carries hero status across a login.
+            claimed: true,
         }],
         vec![],
     );
@@ -793,6 +803,14 @@ fn heroes_persist_and_apply_on_login() {
     assert_eq!(heroes.len(), 1);
     assert_eq!(heroes[0].char_id, 100);
     assert_eq!(heroes[0].count, 3, "third crowning");
+    assert!(
+        !heroes[0].claimed,
+        "a re-crown must be collected again at the monument"
+    );
+    assert!(
+        world.olympiad.is_unclaimed_hero(100) && !world.olympiad.is_hero(100),
+        "the live crown is unclaimed too"
+    );
 }
 
 #[test]
@@ -1083,6 +1101,8 @@ fn inv_count(world: &World, item_id: i32) -> i64 {
 fn monument_hero_claims_rewards() {
     let (mut world, _db, _l, mut rx) = monument_world();
     world.olympiad.heroes.push((100, 2)); // crowned hero
+    // The hero rewards gate on `isHero`, i.e. a *claimed* crown.
+    world.olympiad.claimed_heroes.insert(100);
 
     // Pick an Infinity weapon from the list.
     handle_request_bypass_to_server(
@@ -1297,4 +1317,115 @@ fn hero_diary_window_renders_with_the_deed_list() {
         pkts.iter().any(|p| p.windows(2).any(|w| w == [0x41, 0x00])),
         "the diary window was sent with the hero name"
     );
+}
+
+/// Java `Hero.isHero` is *crowned and claimed*: a hero who has not been to the
+/// Monument of Heroes logs in without the status. `claimHero` (the monument's
+/// `heroConfirm`, or a GM's `//givehero`) is what turns the crown into the
+/// title — and pays the clan its `HeroPoints`.
+#[test]
+fn a_crowned_hero_has_no_status_until_they_claim_it() {
+    use crate::db::DbCommand;
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world
+        .data
+        .categories
+        .insert_for_test("FOURTH_CLASS_GROUP", &[88]);
+    let mut rx = ingame_player(&mut world, 1, 100, 0, 0, 0);
+
+    // Crown them, as the round end does.
+    insert_noble(&mut world, 100, 88, 50, 15, 5);
+    world.olympiad.period = 0;
+    crate::game_loop::olympiad::handle_olympiad_end(&mut world);
+    assert!(world.olympiad.is_unclaimed_hero(100), "crowned, unclaimed");
+    assert!(!world.olympiad.is_hero(100), "not a hero yet");
+
+    // Logging in grants nothing while the crown is unclaimed.
+    crate::game_loop::olympiad::on_enter_world(&mut world, 100);
+    assert!(
+        !world.objects.get_component::<Player>(&100).unwrap().is_hero,
+        "an unclaimed crown carries no hero status"
+    );
+
+    // A clan of level 3+ is paid the hero reputation on the claim.
+    let clan_id = hero_clan(&mut world, 100, 3);
+    let before = world.clans[&clan_id].reputation_score;
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    crate::game_loop::olympiad::claim_hero(&mut world, 100);
+
+    assert!(world.olympiad.is_hero(100), "claimed");
+    assert!(
+        world.objects.get_component::<Player>(&100).unwrap().is_hero,
+        "hero status granted"
+    );
+    assert_eq!(
+        world.clans[&clan_id].reputation_score,
+        before + world.cfg.feature.hero_points,
+        "the clan is paid HeroPoints"
+    );
+    let cmds = drain_db(&mut db_rx);
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, DbCommand::ClaimHero { char_id: 100 })),
+        "the claim is persisted"
+    );
+    assert!(
+        cmds.iter()
+            .any(|c| matches!(c, DbCommand::SaveHeroDiary { char_id: 100, .. })),
+        "the diary records the deed"
+    );
+    let out = drain(&mut rx);
+    assert!(
+        out.iter()
+            .any(|p| p[0] == server_packets::opcodes::SOCIAL_ACTION),
+        "the hero animation is broadcast"
+    );
+}
+
+/// A level-`level` clan holding `member`, returning its id.
+fn hero_clan(world: &mut World, member: i32, level: i32) -> i32 {
+    let clan_id = 0x4200_0001;
+    world.clans.insert(
+        clan_id,
+        crate::model::clan::Clan {
+            id: clan_id,
+            name: "Heroes".into(),
+            leader_id: member,
+            level,
+            reputation_score: 0,
+            castle_id: 0,
+            members: vec![crate::model::clan::ClanMember {
+                char_id: member,
+                name: format!("P{member}"),
+                level: 80,
+                class_id: 88,
+                sex: 0,
+                race: 0,
+                power_grade: 1,
+                title: String::new(),
+                pledge_type: 0,
+            }],
+            skills: Default::default(),
+            warehouse: Default::default(),
+            char_penalty_expiry_time: 0,
+            dissolving_expiry_time: 0,
+            rank_privs: Default::default(),
+            new_leader_id: 0,
+            sub_pledges: Default::default(),
+            ally_id: 0,
+            ally_name: String::new(),
+            ally_penalty_expiry_time: 0,
+            ally_penalty_type: 0,
+            crest_id: 0,
+            crest_large_id: 0,
+            ally_crest_id: 0,
+            blood_alliance_count: 0,
+        },
+    );
+    if let Some(p) = world.objects.get_component_mut::<Player>(&member) {
+        p.clan_id = clan_id;
+    }
+    clan_id
 }

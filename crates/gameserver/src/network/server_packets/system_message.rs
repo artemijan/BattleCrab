@@ -53,6 +53,8 @@ pub mod sm_ids {
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
     /// "You cannot transform while sitting."
     pub const YOU_CANNOT_TRANSFORM_WHILE_SITTING: i16 = 2283;
+    /// "You can't fish here." — `Fishing.castLine` with no FishingZone/WaterZone.
+    pub const YOU_CAN_T_FISH_HERE: i16 = 1457;
     pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
     /// `That character does not exist.` — the freight send with no other
     /// character on the account.
@@ -235,6 +237,10 @@ pub mod sm_ids {
     // Siege zone (combat zone) enter/exit
     pub const YOU_HAVE_ENTERED_A_COMBAT_ZONE: i16 = 283;
     pub const YOU_HAVE_LEFT_A_COMBAT_ZONE: i16 = 284;
+    /// "Clan member $c1 was named a hero. $s2 points have been added to your
+    /// Clan Reputation." — `Hero.claimHero`, broadcast to the hero's clan.
+    pub const CLAN_MEMBER_C1_WAS_NAMED_A_HERO_S2_POINTS_HAVE_BEEN_ADDED_TO_YOUR_CLAN_REPUTATION:
+        i16 = 1776;
     // Skill acquisition (G13.9)
     pub const YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL: i16 = 276;
     pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL: i16 = 278;

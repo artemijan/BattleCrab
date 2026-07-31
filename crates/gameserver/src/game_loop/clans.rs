@@ -2662,9 +2662,9 @@ pub(crate) fn handle_request_pledge_reorganize_member(
 
 /// `VillageMaster`'s `change_clan_leader <name>` bypass — the delegated
 /// transfer flow (`AltClanLeaderInstantActivation = False` on this dist):
-/// stamp `new_leader_id` + the confirmation html. The actual `setNewLeader`
-/// application runs at the daily reset — TODO(G33): `DailyTaskManager.
-/// onClanLeaderChange` (no daily scheduler yet, so the stamp waits).
+/// stamp `new_leader_id` + the confirmation html. The `setNewLeader` half runs
+/// at the **Wednesday** daily reset (`daily_tasks::clan_leader_apply`, Java
+/// `DailyTaskManager.clanLeaderApply`), so the stamp can wait up to a week.
 pub(crate) fn handle_change_clan_leader(
     world: &mut World,
     client_id: u32,

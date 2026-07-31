@@ -28,15 +28,49 @@ fn is_weekly_reset_day(now: i64) -> bool {
 /// `ScheduledTask::DailyReset` → Java `DailyTaskManager.onReset`: run each daily
 /// sub-reset, then re-arm 24 h out.
 pub(crate) fn handle_daily_reset(world: &mut World) {
-    // Wednesday → full vitality; any other day → the daily add (Java's
-    // `Calendar.DAY_OF_WEEK == WEDNESDAY` branch).
-    let weekly = is_weekly_reset_day(commons::util::now_millis());
-    super::vitality::reset_vitality(world, weekly);
-    super::reco::reset_recommends(world);
+    // Wednesday → clan-leader transfers + full vitality; any other day → the
+    // daily vitality add (Java's `Calendar.DAY_OF_WEEK == WEDNESDAY` branch).
+    run_reset(world, is_weekly_reset_day(commons::util::now_millis()));
 
     world
         .scheduler
         .schedule(world.tick + DAILY_RESET_PERIOD, ScheduledTask::DailyReset);
+}
+
+/// The sub-resets themselves, with the weekday decided by the caller — split
+/// out so a test can run either branch without moving the wall clock.
+pub(crate) fn run_reset(world: &mut World, weekly: bool) {
+    if weekly {
+        clan_leader_apply(world);
+    }
+    super::vitality::reset_vitality(world, weekly);
+    super::reco::reset_recommends(world);
+}
+
+/// Java `DailyTaskManager.clanLeaderApply`: every clan carrying a pending
+/// `new_leader_id` hands leadership over, provided the nominee is still a
+/// member (Java `getClanMember(newLeaderId) == null → continue`, so a nominee
+/// who left keeps the clan's stamp rather than clearing it — the transfer just
+/// never fires).
+///
+/// This is the delivery half of the delegated transfer stamped by the village
+/// master's `change_clan_leader` bypass; `clans::force_new_leader` is the port's
+/// `Clan.setNewLeader`, so it also clears the stamp and persists the row.
+fn clan_leader_apply(world: &mut World) {
+    let pending: Vec<(i32, i32)> = world
+        .clans
+        .values()
+        .filter(|c| c.new_leader_id != 0)
+        .filter(|c| c.members.iter().any(|m| m.char_id == c.new_leader_id))
+        .map(|c| (c.id, c.new_leader_id))
+        .collect();
+    let applied = pending.len();
+    for (clan_id, new_leader) in pending {
+        super::clans::force_new_leader(world, clan_id, new_leader);
+    }
+    if applied > 0 {
+        tracing::info!("DailyTaskManager: {applied} clan leader(s) have been updated.");
+    }
 }
 
 /// Schedule the first `DailyReset` for the next 06:30 UTC (Java

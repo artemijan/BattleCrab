@@ -82,15 +82,17 @@ pub(super) fn admin_givehero(world: &mut World, client_id: u32, gm_object_id: i3
         );
         return;
     }
-    // Java: `!Hero.isUnclaimedHero(objectId)` → cannot claim. The unclaimed-hero
-    // list is Olympiad-crowned (unported, G25), so it is always empty and this
-    // branch always fires — the same result Java gives with no crowned hero.
-    // TODO(G25): `Hero.claimHero(target)` once the Olympiad hero list exists.
-    send_message(
-        world,
-        client_id,
-        "This player cannot claim the hero status.",
-    );
+    // Java: `!Hero.isUnclaimedHero(objectId)` → cannot claim. Anyone off the
+    // current Olympiad crown lands here.
+    if !world.olympiad.is_unclaimed_hero(target) {
+        send_message(
+            world,
+            client_id,
+            "This player cannot claim the hero status.",
+        );
+        return;
+    }
+    crate::game_loop::olympiad::claim_hero(world, target);
 }
 
 /// Java `Player.setHero`: grant the hero skill tree when turning hero on while

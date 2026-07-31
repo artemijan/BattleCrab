@@ -122,6 +122,12 @@ pub struct OlympiadState {
     /// The heroes crowned for the current cycle — `(char_id, hero_class_id)`
     /// (Java the `heroes` table). Recomputed at each olympiad end.
     pub heroes: Vec<(i32, i32)>,
+    /// Which of them have collected the status at the Monument of Heroes
+    /// (`heroes.claimed`). A crown alone does **not** make a hero: Java's
+    /// `Hero.isHero` — the predicate `EnterWorld` reads to call `setHero` —
+    /// requires the claim, so a crowned-but-unclaimed character logs in as an
+    /// ordinary noble until they visit the monument.
+    pub claimed_heroes: HashSet<i32>,
     /// How many times each character has ever been a hero (Java `heroes.count`),
     /// kept so a re-crown increments the tally.
     pub hero_counts: HashMap<i32, i32>,
@@ -154,8 +160,21 @@ pub struct DiaryEntry {
 }
 
 impl OlympiadState {
-    /// Whether `object_id` is a currently-crowned hero (Java `Hero.isHero`).
+    /// Whether `object_id` holds hero status — crowned **and** claimed (Java
+    /// `Hero.isHero`).
     pub fn is_hero(&self, object_id: i32) -> bool {
+        self.is_crowned(object_id) && self.claimed_heroes.contains(&object_id)
+    }
+
+    /// Whether `object_id` was crowned this cycle but has not collected the
+    /// status yet (Java `Hero.isUnclaimedHero`).
+    pub fn is_unclaimed_hero(&self, object_id: i32) -> bool {
+        self.is_crowned(object_id) && !self.claimed_heroes.contains(&object_id)
+    }
+
+    /// Membership of the current crown, claimed or not (Java
+    /// `HEROES.containsKey`).
+    pub fn is_crowned(&self, object_id: i32) -> bool {
         self.heroes.iter().any(|(id, _)| *id == object_id)
     }
 }

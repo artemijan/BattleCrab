@@ -797,32 +797,52 @@ pub(crate) fn use_magic_on(
     }
 
     // `ConditionPlayerCanTransform` — the cast-time gate on a `Transformation`
-    // skill (the "Transform <Monster>" scroll family). Ported: already
-    // transformed, mounted (a strider/wyvern rider sets `mount_type`, not
-    // `transform_id` — that leg is separate from the transform one, even
-    // though horse/bike admin rides are transforms here), in water,
-    // cursed-weapon-equipped, and **registered on an event** (the TvT roster,
-    // since G28 landed). The sitting leg has no state to read: `ChangeWaitType`
-    // is unported, so nothing can be sitting (TODO(G14)).
+    // skill (the "Transform <Monster>" scroll family). Every leg is ported now,
+    // in Java's own order: cursed-weapon-equipped (silent, sharing the
+    // `isAlikeDead` branch), **sitting** (the `SitStand` state landed after this
+    // gate was written, so the leg is live rather than vacuous), already
+    // transformed, in water, mounted (a strider/wyvern rider sets `mount_type`,
+    // not `transform_id` — that leg is separate from the transform one, even
+    // though horse/bike admin rides are transforms here), and **registered on an
+    // event** (the TvT roster, since G28 landed).
     if skill
         .effects
         .iter()
         .any(|e| matches!(e, SkillEffect::Transform { .. }))
     {
         use server_packets::sm_ids;
-        let (transform_id, mounted, cursed_weapon) = world
+        let (transform_id, mounted, cursed_weapon, sitting) = world
             .objects
             .get_component::<Player>(&object_id)
-            .map_or((0, false, 0), |p| {
-                (p.transform_id, p.is_mounted(), p.cursed_weapon_equipped_id)
+            .map_or((0, false, 0, false), |p| {
+                (
+                    p.transform_id,
+                    p.is_mounted(),
+                    p.cursed_weapon_equipped_id,
+                    p.sitting,
+                )
             });
         let in_water = world
             .objects
             .get_component::<crate::model::components::Speeds>(&object_id)
             .is_some_and(|s| s.swimming);
-        // Java sends a SystemMessage for the transformed/water legs but not the
-        // cursed-weapon one (`ConditionPlayerCanTransform`'s final `else`
-        // branches fall through with no packet) — cast just silently fails.
+        // The cursed-weapon leg shares Java's first branch with `isAlikeDead`
+        // and sends **no** packet — the cast just silently fails.
+        if cursed_weapon != 0 {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::action_failed());
+            }
+            return;
+        }
+        if sitting {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
+                &[],
+            );
+            return;
+        }
         if transform_id != 0 {
             send_sm_and_action_failed(
                 world,
@@ -860,12 +880,6 @@ pub(crate) fn use_magic_on(
                         "You cannot transform while registered on an event.".into(),
                     )],
                 ));
-                cs.send(server_packets::action_failed());
-            }
-            return;
-        }
-        if cursed_weapon != 0 {
-            if let Some(cs) = world.clients.get(&client_id) {
                 cs.send(server_packets::action_failed());
             }
             return;
