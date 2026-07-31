@@ -143,6 +143,21 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G24 mid-victory's tail 2026-07-31.** `Siege.midVictory` does far more than
+swap the deed, and the port stopped at the deed. Now also ported: the **new**
+attackers (the clans that were defending a second ago) are evicted from the
+castle; `removeDefenderFlags()` runs *after* the role reshuffle, so the base
+camp it tears down is the **captor's own** — you do not keep a siege HQ once the
+castle is yours; and the control/flame towers are removed and rebuilt with
+`_controlTowerCount = 0` in between ("each new siege midvictory CT are
+completely respawned"). That count reset is load-bearing: without it the
+respawn adds to a stale count and the guardian-tower resurrection message can
+never fire again. The 50 %-HP door respawn and the state-flag re-push were
+already there, so those two clauses of the old TODO were stale.
+**Verified not portable:** `Castle.removeUpgrade()` — castle upgrades (the
+door/trap tiers bought from the chamberlain) are not modelled at all, so there
+is nothing to strip; noted at the site. 1 test, 6 mechanisms sabotage-verified.
+
 **G24 siege resurrection 2026-07-31 (27 → 24).** A stale marker again, and it
 hid a real siege bug: `Siege.control_tower_count`'s doc said "no effect until
 the resurrection subsystem lands" — that subsystem landed in G19, and nothing
