@@ -143,6 +143,22 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**G19 `TargetCancel`'s chance gate 2026-07-31.** Not a missing effect —
+`TargetCancel` (10 learnable carriers: Shield Bash/Slam, Stun Blast/Shot/Stomp,
+Earthquake, Aura Flash, Trick, Switch, Bluff) was ported — but its **gate was
+wrong in two ways**. Java rolls it through `Formulas.calcProbability`, so the
+victim's *level* counts; the port compared a flat percentage, and a level-100
+target was as easy to shake off its mark as a level-1 one. And
+`TargetCancel.calcSuccess` vetoes outright on `ABNORMAL_INVINCIBILITY` /
+`INVINCIBILITY_SPECIAL` / `INVINCIBILITY`, which was missing entirely.
+**A self-correction rides along:** `calc_probability` dropped Java's attribute
+and trait multipliers with the justification "both are 1.0 for every actor this
+port models". That was true when it was written and stopped being true when the
+attribute (G19) and trait (G20, today) tables landed — a claim invalidated by
+later work, with nothing to make it fail. Both are now real inputs, so a victim
+resisting the skill's element or trait is correspondingly harder to disarm.
+5 tests, 7 mechanisms sabotage-verified.
+
 **G24 mid-victory's tail 2026-07-31.** `Siege.midVictory` does far more than
 swap the deed, and the port stopped at the deed. Now also ported: the **new**
 attackers (the clans that were defending a second ago) are evicted from the

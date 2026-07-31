@@ -141,12 +141,27 @@ fn cast(
 #[test]
 fn calc_probability_is_magic_level_plus_chance_minus_target_level() {
     // 40 + 80 - 20 = 100 → every roll 0..99 lands.
-    assert!(formulas::calc_probability(40, 80, 20, 99));
+    assert!(formulas::calc_probability(40, 80, 20, 1.0, 1.0, 99));
     // 40 + 80 - 120 = 0 → nothing lands, not even roll 0.
-    assert!(!formulas::calc_probability(40, 80, 120, 0));
+    assert!(!formulas::calc_probability(40, 80, 120, 1.0, 1.0, 0));
     // Boundary: threshold 50, roll 49 lands and 50 does not (strict `<`).
-    assert!(formulas::calc_probability(30, 40, 20, 49));
-    assert!(!formulas::calc_probability(30, 40, 20, 50));
+    assert!(formulas::calc_probability(30, 40, 20, 1.0, 1.0, 49));
+    assert!(!formulas::calc_probability(30, 40, 20, 1.0, 1.0, 50));
+}
+
+/// The attribute and trait bonuses scale that threshold. They used to be 1.0
+/// for everyone this port modelled — that stopped being true once the attribute
+/// and trait tables landed, so they are real inputs now.
+#[test]
+fn calc_probability_scales_by_the_attribute_and_trait_bonuses() {
+    // Threshold 50. A 1.25 attribute bonus lifts it to 62.5, so roll 62 lands…
+    assert!(formulas::calc_probability(30, 40, 20, 1.25, 1.0, 62));
+    assert!(!formulas::calc_probability(30, 40, 20, 1.25, 1.0, 63));
+    // …and a 0.5 trait resistance halves it to 25.
+    assert!(formulas::calc_probability(30, 40, 20, 1.0, 0.5, 24));
+    assert!(!formulas::calc_probability(30, 40, 20, 1.0, 0.5, 25));
+    // They compose, and an invulnerable trait (0) means nothing ever lands.
+    assert!(!formulas::calc_probability(30, 40, 20, 1.25, 0.0, 0));
 }
 
 /// The gate is real end to end: an out-of-reach target is never confused.

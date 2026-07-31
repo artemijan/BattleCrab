@@ -69,14 +69,30 @@ pub fn calc_magic_dam(
 ///        - getAbnormalResist(...)) * calcAttributeBonus(...) * calcGeneralTraitBonus(...));
 /// ```
 ///
-/// The attribute and trait bonuses are 1.0 and the abnormal resist 0 for every
-/// actor this port models, leaving `magicLevel + chance - targetLevel` — so a
-/// target far above the skill's level shrugs it off, and the threshold can go
-/// negative (never lands) or above 100 (always lands), exactly as Java's
-/// unclamped comparison does. Java's `Double.isNaN(baseChance)` branch is
-/// unreachable here: the parser defaults a missing `<chance>` to 100.
-pub fn calc_probability(magic_level: i32, base_chance: i32, target_level: i32, roll: i32) -> bool {
-    roll < (magic_level + base_chance - target_level)
+/// The level term is the heart of it: a target far above the skill's level
+/// shrugs it off, and the threshold is **unclamped**, so it can go negative
+/// (never lands) or above 100 (always lands) exactly as Java's comparison does.
+///
+/// `attribute_mod` and `trait_mod` are `calcAttributeBonus` and
+/// `calcGeneralTraitBonus(…, ignoreResistance = false)`. Both used to be 1.0
+/// for every actor this port modelled, and this function said so — that stopped
+/// being true when the attribute and trait tables landed, so they are passed in
+/// now rather than assumed.
+///
+/// `getAbnormalResist(basicProperty, target)` stays 0: `BasicPropertyResist` is
+/// granted by no skill on this dist (see `calc_effect_land_rate`'s note), so it
+/// can never leave its identity. Java's `Double.isNaN(baseChance)` branch is
+/// unreachable here — the parser defaults a missing `<chance>` to 100.
+pub fn calc_probability(
+    magic_level: i32,
+    base_chance: i32,
+    target_level: i32,
+    attribute_mod: f64,
+    trait_mod: f64,
+    roll: i32,
+) -> bool {
+    let threshold = (magic_level + base_chance - target_level) as f64 * attribute_mod * trait_mod;
+    (roll as f64) < threshold
 }
 
 /// `Formulas.calcManaDam` — the MP-drain damage formula, which is *not* the

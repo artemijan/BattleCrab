@@ -716,3 +716,175 @@ fn buffs_without_a_visual_send_no_visual_packet() {
         "a visual-less buff pushes no ExUserInfoAbnormalVisualEffect"
     );
 }
+
+/// **An invincible target is never shaken off its mark.** Java's
+/// `TargetCancel.calcSuccess` vetoes on `ABNORMAL_INVINCIBILITY`,
+/// `INVINCIBILITY_SPECIAL` or `INVINCIBILITY` *before* the chance is rolled —
+/// so no amount of Shield Bash moves a target under Celestial Shield.
+#[test]
+fn an_invincible_target_ignores_target_cancel() {
+    for abnormal in [
+        "ABNORMAL_INVINCIBILITY",
+        "INVINCIBILITY_SPECIAL",
+        "INVINCIBILITY",
+    ] {
+        let (mut world, _db, _l) = cc2_world();
+        let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+        let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+        add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+        world
+            .objects
+            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0 = Some(NPC_OID);
+
+        // A buff whose only relevant property is its abnormal type.
+        world
+            .data
+            .skill_data
+            .insert_for_test(cc_skill(9320, SkillEffect::BlockControl, abnormal));
+        land(&mut world, 9320, VICTIM);
+
+        land(&mut world, TCANCEL_ID, VICTIM);
+        assert_eq!(
+            world
+                .objects
+                .get_component::<crate::model::components::TargetRef>(&VICTIM)
+                .unwrap()
+                .0,
+            Some(NPC_OID),
+            "{abnormal} vetoes the cancel"
+        );
+    }
+}
+
+/// **The victim's level counts.** Java rolls `TargetCancel` through
+/// `Formulas.calcProbability` (`magicLevel + chance − targetLevel`), not
+/// against the raw percentage — so the same 100 %-on-paper Shield Bash slides
+/// off a target far above the skill's magic level.
+#[test]
+fn target_cancel_slides_off_a_much_higher_level_target() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+    world
+        .objects
+        .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+        .unwrap()
+        .0 = Some(NPC_OID);
+    // `cc_skill` carries `magic_level: 0` and the fixture chance is 100, so the
+    // threshold is `0 + 100 - level`: put the victim past it.
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&VICTIM)
+        .unwrap()
+        .level = 100;
+
+    land(&mut world, TCANCEL_ID, VICTIM);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0,
+        Some(NPC_OID),
+        "a level-100 target keeps its mark against a magic-level-0 skill"
+    );
+}
+
+/// **The trait resistance reaches the roll.** `calcProbability` multiplies the
+/// threshold by `calcGeneralTraitBonus(…, ignoreResistance = false)`, so a
+/// victim resisting the skill's trait shrugs off a `TargetCancel` that would
+/// otherwise land. (`calcAttributeBonus` rides the same call, on the line
+/// above.)
+#[test]
+fn a_trait_resistance_lowers_the_target_cancel_chance() {
+    use crate::model::skill::TraitType;
+
+    let cancel = |resist: bool| {
+        let (mut world, _db, _l) = cc2_world();
+        let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+        let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+        add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+        world
+            .objects
+            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0 = Some(NPC_OID);
+        // Give the cancel a trait the victim can resist.
+        let mut skill = world.data.skill_data.get(TCANCEL_ID, 1).unwrap().clone();
+        skill.trait_type = TraitType::Shock;
+        world.data.skill_data.insert_for_test(skill.clone());
+        if resist {
+            crate::game_loop::skills::effects::merge_defence_traits(
+                &mut world,
+                VICTIM,
+                &[(TraitType::Shock, 0.5)],
+            );
+        }
+        // Threshold is `0 + 100 - level` (~99 here); halve it and a 60 roll
+        // stops landing.
+        world.forced_rolls.extend([0, 60]);
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0
+    };
+
+    assert_eq!(cancel(false), None, "unresisted, the cancel lands");
+    assert_eq!(
+        cancel(true),
+        Some(NPC_OID),
+        "a 50% SHOCK resistance halves the threshold and the same roll misses"
+    );
+}
+
+/// And so does the **attribute** bonus, the sibling term: a victim resisting
+/// the skill's element pulls the same threshold down.
+#[test]
+fn an_element_resistance_lowers_the_target_cancel_chance() {
+    use crate::model::stats::{Element, Stat};
+
+    let cancel = |resist: bool| {
+        let (mut world, _db, _l) = cc2_world();
+        let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+        let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
+        add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 60, 0, 0);
+        world
+            .objects
+            .get_component_mut::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0 = Some(NPC_OID);
+        let mut skill = world.data.skill_data.get(TCANCEL_ID, 1).unwrap().clone();
+        skill.attribute_type = Some(Element::Fire);
+        skill.attribute_value = 20;
+        world.data.skill_data.insert_for_test(skill.clone());
+        if resist {
+            // A heavy fire resistance drags `calcAttributeBonus` below 1.
+            let mods = world
+                .objects
+                .get_component_mut::<crate::model::components::StatModifiers>(&VICTIM)
+                .unwrap();
+            *mods.add.entry(Stat::FireRes).or_insert(0.0) += 300.0;
+        }
+        // `calcAttributeBonus` floors at 0.75, so the resisted threshold is
+        // ~74 against ~99 unresisted — a roll of 80 separates them.
+        world.forced_rolls.extend([0, 80]);
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, VICTIM, &skill);
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&VICTIM)
+            .unwrap()
+            .0
+    };
+
+    assert_eq!(cancel(false), None, "unresisted, the cancel lands");
+    assert_eq!(
+        cancel(true),
+        Some(NPC_OID),
+        "the fire resistance scaled the threshold under the same roll"
+    );
+}

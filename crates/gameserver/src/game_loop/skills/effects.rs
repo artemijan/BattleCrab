@@ -246,7 +246,7 @@ pub(crate) fn apply_skill_effects(
             // Java's player-side gate lives behind the `CONFUSED` flag, which
             // is unreachable on this dist (see `effect_flag::CONFUSED`).
             SkillEffect::Confuse { chance } => {
-                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 let Some(victim) = random_bystander(world, target_oid, caster_oid, false) else { continue };
@@ -260,7 +260,7 @@ pub(crate) fn apply_skill_effects(
                 if target_oid == caster_oid || !crate::game_loop::combat::is_npc_oid(target_oid) {
                     continue;
                 }
-                if !confuse_chance_passes(world, target_oid, skill, *chance) {
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 // The exclusions are wider here than for `Confuse`: never the
@@ -1220,7 +1220,29 @@ pub(crate) fn apply_skill_effects(
             // to IDLE; the ported AI reaches the same state once the intent is
             // cleared).
             SkillEffect::TargetCancel { chance } => {
-                if world.roll(100) >= *chance {
+                // `calcSuccess`: an invincible target is never shaken off its
+                // mark. Java names the three abnormal types directly rather
+                // than going through an effect flag, so this reads the live
+                // buffs' `abnormalType` the same way.
+                const INVINCIBLE: [&str; 3] = [
+                    "ABNORMAL_INVINCIBILITY",
+                    "INVINCIBILITY_SPECIAL",
+                    "INVINCIBILITY",
+                ];
+                if world
+                    .objects
+                    .get_component::<Buffs>(&target_oid)
+                    .is_some_and(|b| {
+                        b.0.iter()
+                            .any(|x| INVINCIBLE.contains(&x.abnormal_type.as_str()))
+                    })
+                {
+                    continue;
+                }
+                // Java gates this on `Formulas.calcProbability`, not on the raw
+                // percentage — so the victim's **level** counts, and Shield
+                // Bash slides off a target well above the skill's magic level.
+                if !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
                     continue;
                 }
                 // `setTarget(null)` — the Player override broadcasts
@@ -1994,10 +2016,19 @@ fn attacker_weapon_allowed(world: &World, attacker_oid: i32, mask: u32) -> bool 
 
 /// `Formulas.calcProbability` against the *effected* creature's level — the
 /// shared chance gate on `Confuse` and `RandomizeHate`.
-fn confuse_chance_passes(world: &mut World, target_oid: i32, skill: &Skill, chance: i32) -> bool {
+fn confuse_chance_passes(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+    chance: i32,
+) -> bool {
     let level = target_level(world, target_oid);
+    let attribute = attribute_mod(world, caster_oid, target_oid, skill);
+    let trait_mod =
+        calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false);
     let roll = world.roll(100);
-    formulas::calc_probability(skill.magic_level, chance, level, roll)
+    formulas::calc_probability(skill.magic_level, chance, level, attribute, trait_mod, roll)
 }
 
 /// Java's `forEachVisibleObject(effected, Creature.class, …)` plus each
