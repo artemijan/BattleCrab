@@ -4815,3 +4815,73 @@ fn debug_panel_movement_toggle_draws_walk_line() {
         "movement line drawn while walking"
     );
 }
+
+/// **`//ave_abnormal` with no argument opens the effect list.** Java's
+/// `AdminEffects` treats a missing (or numeric) first token as "show the menu"
+/// and pages `AbnormalVisualEffect.values()` 100 at a time into
+/// `data/html/admin/ave_abnormal.htm`; only a non-numeric token toggles an
+/// effect. The port only printed a usage line, so the Game panel's "Abnormal
+/// Visual Effects" button opened nothing.
+#[test]
+fn ave_abnormal_without_args_serves_the_paged_effect_list() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, ..) = admin_world();
+    world.data.root = ROOT.to_string();
+    let mut rx = ingame_player_access(&mut world, 1, 7501, 100);
+    drain(&mut rx);
+
+    on_packet(&mut world, 1, build_admin("ave_abnormal"));
+    let page0 = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("the menu html is served");
+    assert!(
+        page0.contains("Abnormal Visual Effects"),
+        "ave_abnormal.htm was loaded"
+    );
+    assert!(
+        page0.contains("bypass admin_ave_abnormal STUN") && page0.contains("STUN(7)"),
+        "each effect is a button that re-enters the command by name"
+    );
+    assert!(
+        page0.contains("bypass admin_ave_abnormal AURA_BUFF"),
+        "AURA_BUFF sits at enum index 56, so it is on the first page"
+    );
+    assert!(
+        !page0.contains("bypass admin_ave_abnormal SAYHA_FURY"),
+        "index 120 belongs to the second page — 100 entries per page"
+    );
+    assert!(page0.contains("Page: 1/"), "the pager is rendered");
+
+    // The pager's links carry a bare page number (Java's DefaultFormatter),
+    // which the command parses as a page rather than an effect name.
+    assert!(
+        page0.contains("bypass -h admin_ave_abnormal 1"),
+        "next-page link is `<bypass> <page>`"
+    );
+    on_packet(&mut world, 1, build_admin("ave_abnormal 1"));
+    let page1 = drain(&mut rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("page 2 html");
+    assert!(
+        page1.contains("bypass admin_ave_abnormal SAYHA_FURY"),
+        "page 2 holds the later effects"
+    );
+    assert!(
+        !page1.contains("bypass admin_ave_abnormal STUN"),
+        "and not the first page's"
+    );
+
+    // A name still toggles, so the buttons work.
+    world
+        .objects
+        .add_components(&7501, crate::model::components::TargetRef(Some(7501)));
+    on_packet(&mut world, 1, build_admin("ave_abnormal AURA_BUFF"));
+    assert!(
+        crate::game_loop::abnormal::visual_effects(&world, 7501).contains(&57),
+        "clicking a button applies the effect"
+    );
+}

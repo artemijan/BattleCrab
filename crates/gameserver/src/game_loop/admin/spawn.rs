@@ -532,7 +532,12 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
     let pages = (list.len() / SCAN_PAGE_SIZE
         + usize::from(!list.len().is_multiple_of(SCAN_PAGE_SIZE))) as i32;
     let pager = if pages > 1 {
-        scan_pager(&format!("bypass -h admin_scan{filter_params}"), page, pages)
+        next_prev_pager(
+            &format!("bypass -h admin_scan{filter_params}"),
+            page,
+            pages,
+            " page=",
+        )
     } else {
         String::new()
     };
@@ -579,13 +584,17 @@ pub(super) fn admin_scan(world: &mut World, client_id: u32, object_id: i32, args
 /// strip, ported verbatim including Java's off-by-one quirks (the label prints
 /// `pages + 1` and `>>` targets one page past the last; the page clamp in the
 /// list body keeps that click on the final page).
-fn scan_pager(bypass: &str, current: i32, pages: i32) -> String {
+///
+/// `page_prefix` is Java's `IBypassFormatter`: `DefaultFormatter` appends
+/// `" " + page` (what `//ave_abnormal` parses), while the scan list reads a
+/// `page=<n>` bypass param.
+pub(super) fn next_prev_pager(bypass: &str, current: i32, pages: i32, page_prefix: &str) -> String {
     let button = |target: i32, label: &str, disabled: bool| -> String {
         if disabled {
             format!("<td>{label}</td>")
         } else {
             format!(
-                "<td><button action=\"{bypass} page={target}\" value=\"{label}\" \
+                "<td><button action=\"{bypass}{page_prefix}{target}\" value=\"{label}\" \
                  width=\"40\" height=\"15\" back=\"L2UI_CT1.Button_DF\" fore=\"L2UI_CT1.Button_DF\"></td>"
             )
         }

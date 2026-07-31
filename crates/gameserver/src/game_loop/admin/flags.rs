@@ -299,6 +299,52 @@ pub(super) fn toggle_flag_on_target(
     );
 }
 
+/// `PageBuilder`'s page size for the effect list (Java passes 100).
+const AVE_PAGE_SIZE: usize = 100;
+
+/// The `//ave_abnormal` menu — `data/html/admin/ave_abnormal.htm` filled with a
+/// button per `AbnormalVisualEffect` (Java pages `AbnormalVisualEffect.values()`
+/// 100 at a time through `PageBuilder` + `NextPrevPageHandler`/`ButtonsStyle`).
+/// Each button re-enters the command with the effect name, which toggles it.
+fn show_ave_menu(world: &World, client_id: u32, page: i32) {
+    let all = crate::model::skill::ABNORMAL_VISUAL_EFFECTS;
+    // Java `PageBuilder.build()`: pages = ceil(n / size), clamp an overshooting
+    // page to the last one, and render the pager only past a single page.
+    let pages =
+        (all.len() / AVE_PAGE_SIZE + usize::from(!all.len().is_multiple_of(AVE_PAGE_SIZE))) as i32;
+    let pager = if pages > 1 {
+        super::spawn::next_prev_pager("bypass -h admin_ave_abnormal", page, pages, " ")
+    } else {
+        String::new()
+    };
+    let current = if page > pages { pages - 1 } else { page };
+    let start = (AVE_PAGE_SIZE as i32 * current).max(0) as usize;
+
+    let mut body = String::new();
+    for (name, id) in all.iter().skip(start).take(AVE_PAGE_SIZE) {
+        body.push_str(&format!(
+            "<button action=\"bypass admin_ave_abnormal {name}\" align=left icon=teleport>{name}({id})</button>"
+        ));
+    }
+    // Java wraps the pager whenever the list is non-empty (`getPages() > 0`).
+    let pages_html = if pages > 0 {
+        format!("<table width=280 cellspacing=0><tr>{pager}</tr></table>")
+    } else {
+        String::new()
+    };
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "ave_abnormal.htm",
+        &[("abnormals", body), ("pages", pages_html)],
+    );
+    send_message(
+        world,
+        client_id,
+        "Usage: //ave_abnormal <AbnormalVisualEffect> [radius]",
+    );
+}
+
 /// `AdminEffects`' `//ave_abnormal <NAME> [radius]` — **toggle** an abnormal
 /// visual effect on the current target (or self when untargeted), or on
 /// everyone within `radius`. Java's `performAbnormalVisualEffect` starts the
@@ -310,14 +356,20 @@ pub(super) fn toggle_flag_on_target(
 pub(super) fn admin_ave_abnormal(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     use crate::model::components::AdminVisuals;
 
-    let Some(&name) = args.first() else {
-        send_message(
-            world,
-            client_id,
-            "Usage: //ave_abnormal <EFFECT_NAME> [radius]",
-        );
-        return;
+    // Java: `if ((param1 != null) && !Util.isDigit(param1))` applies the
+    // effect; anything else — no argument at all, or a page number from the
+    // pager — opens the menu. The port only ever printed a usage line, so the
+    // Game panel's "Abnormal Visual Effects" button led to a dead end.
+    let first = args.first().copied();
+    let page = match first {
+        None => Some(0),
+        Some(a) => a.parse::<i32>().ok(),
     };
+    if let Some(page) = page {
+        show_ave_menu(world, client_id, page);
+        return;
+    }
+    let name = first.unwrap_or_default();
     let Some(ave) = crate::model::skill::abnormal_visual_client_id(&name.to_uppercase()) else {
         send_message(
             world,
