@@ -236,6 +236,7 @@ pub mod sm_ids {
     pub const YOU_HAVE_ENTERED_A_COMBAT_ZONE: i16 = 283;
     pub const YOU_HAVE_LEFT_A_COMBAT_ZONE: i16 = 284;
     // Skill acquisition (G13.9)
+    pub const YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL: i16 = 276;
     pub const YOU_DO_NOT_HAVE_ENOUGH_SP_TO_LEARN_THIS_SKILL: i16 = 278;
     pub const YOU_DO_NOT_MEET_THE_SKILL_LEVEL_REQUIREMENTS: i16 = 2208;
     // Shop (G12)

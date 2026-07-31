@@ -300,7 +300,8 @@ pub fn ex_enchant_skill_result(success: bool) -> Vec<u8> {
 /// learn (Java `SkillTreeData.getAvailableSkills`, `CLASS` type only — see
 /// `data/skill_tree.rs::available_skills`). No entry carries remove-skills or
 /// dual-class gates (confirmed absent from the class trees), so those two
-/// counts are always zero.
+/// counts are always zero; the required-item block is real (Divine Inspiration's
+/// Ancient Books are the only `<item>` children in these trees).
 pub fn acquire_skill_list(
     p: &Player,
     skills: &crate::model::components::SkillBook,
@@ -318,11 +319,15 @@ pub fn acquire_skill_list(
         w.write_i64(s.level_up_sp);
         w.write_u8(s.get_level as u8);
         w.write_u8(0); // dual class level
-        // TODO(G6): 2nd/3rd-class trees have book-gated skills (`s.requires_item`,
-        // e.g. Divine Inspiration). Java writes the `getRequiredItems` list here
-        // (item id + count) so the client shows/charges the book; we don't parse
-        // the `<item>` id/count yet, so the required-item list stays empty.
-        w.write_u8(0); // required item count
+        // `getRequiredItems()` — the books the client lists beside the skill.
+        // Java writes them unconditionally here (unlike `AcquireSkillInfo`, which
+        // drops Divine Inspiration's when `DivineInspirationSpBookNeeded` is
+        // off), so they go out verbatim even on a dist that waives the cost.
+        w.write_u8(s.required_items.len() as u8);
+        for &(item_id, count) in &s.required_items {
+            w.write_i32(item_id);
+            w.write_i64(count);
+        }
         w.write_u8(0); // remove-skill count
     }
     w.into_bytes()

@@ -144,6 +144,13 @@ pub struct CharacterConfig {
     /// from `AutoLearnSkills` unless this is set (or the learner is a GM) — Java
     /// `getAvailableSkills`' explicit `CommonSkill.DIVINE_INSPIRATION` guard.
     pub auto_learn_divine_inspiration: bool,
+    /// `DivineInspirationSpBookNeeded` (Java `Config.DIVINE_SP_BOOK_NEEDED`,
+    /// default `true`, **`False` on this dist**): whether learning Divine
+    /// Inspiration costs its Ancient Book. When false, `checkPlayerSkill`
+    /// returns early for skill 1405 — which skips the book *and*, because that
+    /// return sits above the SP deduction, makes the skill free of SP too (the
+    /// earlier "enough SP?" gate still applies). Java quirk, kept verbatim.
+    pub divine_inspiration_sp_book_needed: bool,
     /// `ExpertisePenalty`: when true, equipping a weapon/armor whose grade
     /// exceeds the character's expertise level applies the grade-penalty debuff
     /// skills (Java `Player.refreshExpertisePenalty`, gated on this flag).
@@ -308,6 +315,7 @@ impl Default for CharacterConfig {
             auto_learn_skills: false,
             auto_learn_skills_without_items: true,
             auto_learn_divine_inspiration: false,
+            divine_inspiration_sp_book_needed: true,
             expertise_penalty: true,
             decrease_skill_level: true,
             strict_delevel_skill_removal: true,
@@ -435,6 +443,10 @@ impl CharacterConfig {
             auto_learn_divine_inspiration: p.get_bool(
                 "AutoLearnDivineInspiration",
                 d.auto_learn_divine_inspiration,
+            ),
+            divine_inspiration_sp_book_needed: p.get_bool(
+                "DivineInspirationSpBookNeeded",
+                d.divine_inspiration_sp_book_needed,
             ),
             expertise_penalty: p.get_bool("ExpertisePenalty", d.expertise_penalty),
             decrease_skill_level: p.get_bool("DecreaseSkillOnDelevel", d.decrease_skill_level),

@@ -117,12 +117,71 @@ pub(crate) fn handle_request_acquire_skill(world: &mut World, client_id: u32, bo
         }
         return;
     }
-    // TODO(G6): 2nd/3rd-class trees add book-gated skills (`learn.requires_item`,
-    // e.g. Divine Inspiration). Java's `checkPlayerSkill` also verifies and
-    // consumes `getRequiredItems` here (ITEM_MISSING_TO_LEARN_SKILL on failure);
-    // we don't parse the item id/count yet, so such skills are learned for free.
-    let (skill_id, skill_level, level_up_sp) =
+    let (skill_id, skill_level, mut level_up_sp) =
         (learn.skill_id, learn.skill_level, learn.level_up_sp);
+    // Java's `<item id count/>` children (`SkillLearn.getRequiredItems`) — on
+    // this dist only Divine Inspiration (1405) carries any, its four Ancient
+    // Books. Cloned out of `world.data` so the consumption below can take
+    // `&mut world`.
+    let required_items = learn.required_items.clone();
+
+    // `if (!Config.DIVINE_SP_BOOK_NEEDED && (_id == DIVINE_INSPIRATION)) return true;`
+    // — and that `return` sits *above* Java's SP deduction, so waiving the book
+    // also waives the SP cost (the "enough SP?" gate above still applied). Kept
+    // verbatim; `DivineInspirationSpBookNeeded = False` on this dist, so this is
+    // the live branch for 1405.
+    let book_waived = !world.cfg.character.divine_inspiration_sp_book_needed
+        && skill_id == crate::data::skill_tree::DIVINE_INSPIRATION_SKILL_ID;
+    if book_waived {
+        level_up_sp = 0;
+    } else if !required_items.is_empty() {
+        // Java checks the whole list first, then consumes — a player short on the
+        // second book keeps the first.
+        let Some(inv) = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+        else {
+            return;
+        };
+        if required_items
+            .iter()
+            .any(|&(item_id, count)| inv.count_of(item_id) < count)
+        {
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(server_packets::system_message_with(
+                    server_packets::sm_ids::YOU_DO_NOT_HAVE_ENOUGH_ITEMS_TO_LEARN_THIS_SKILL,
+                    &[],
+                ));
+            }
+            return;
+        }
+        // `destroyItemByItemId("SkillLearn", …, sendMessage = true)`: the
+        // `InventoryUpdate` plus the disappear message per book. The message
+        // rides the destroy's success, as it does inside Java's helper — the
+        // check above means it always succeeds, but a failure must stay silent
+        // rather than announce an item that never left the bag.
+        for &(item_id, count) in &required_items {
+            if !super::quests::take_items(world, client_id, object_id, item_id, count) {
+                continue;
+            }
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(if count > 1 {
+                    server_packets::system_message_with(
+                        server_packets::sm_ids::S2_S1_S_DISAPPEARED,
+                        &[
+                            server_packets::SmParam::ItemName(item_id),
+                            server_packets::SmParam::Long(count),
+                        ],
+                    )
+                } else {
+                    server_packets::system_message_with(
+                        server_packets::sm_ids::S1_DISAPPEARED,
+                        &[server_packets::SmParam::ItemName(item_id)],
+                    )
+                });
+            }
+        }
+    }
 
     if let Some(player) = world
         .objects
