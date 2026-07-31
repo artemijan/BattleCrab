@@ -1475,6 +1475,8 @@ fn build_skill(
                         // food item was consumed and restored nothing.
                         "Feed" => vec![SkillEffect::Feed {
                             normal: param("normal").unwrap_or(0.0) as i32,
+                            ride: param("ride").unwrap_or(0.0) as i32,
+                            wyvern: param("wyvern").unwrap_or(0.0) as i32,
                         }],
                         "SummonCubic" => vec![SkillEffect::SummonCubic {
                             cubic_id: param("cubicId").unwrap_or(-1.0) as i32,

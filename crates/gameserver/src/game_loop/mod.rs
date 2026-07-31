@@ -640,6 +640,9 @@ fn apply_due_tasks(world: &mut World) {
             } => {
                 cubic::handle_cubic_action(world, owner_oid, cubic_id);
             }
+            ScheduledTask::MountFeedTick { player_oid } => {
+                admin::mounts::handle_mount_feed_tick(world, player_oid);
+            }
             ScheduledTask::PetFeedTick { pet_oid } => {
                 servitor::handle_feed_tick(world, pet_oid);
             }

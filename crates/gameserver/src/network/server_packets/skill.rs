@@ -79,12 +79,18 @@ pub fn magic_skill_canceld(object_id: i32) -> Vec<u8> {
 
 /// Port of `serverpackets/SetupGauge` (the cast-bar packet). `color`: 0 = blue.
 pub fn setup_gauge(object_id: i32, color: i32, time_ms: i32) -> Vec<u8> {
+    setup_gauge_range(object_id, color, time_ms, time_ms)
+}
+
+/// `SetupGauge(objectId, color, currentTime, maxTime)` — the four-argument form,
+/// for a bar that starts part-full (the mount's feed gauge, `color` 3 = green).
+pub fn setup_gauge_range(object_id: i32, color: i32, current_ms: i32, max_ms: i32) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(opcodes::SETUP_GAUGE);
     w.write_i32(object_id);
     w.write_i32(color);
-    w.write_i32(time_ms);
-    w.write_i32(time_ms);
+    w.write_i32(current_ms);
+    w.write_i32(max_ms);
     w.into_bytes()
 }
 

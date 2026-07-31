@@ -56,6 +56,9 @@ pub mod sm_ids {
     /// "You can't fish here." — `Fishing.castLine` with no FishingZone/WaterZone.
     pub const YOU_CAN_T_FISH_HERE: i16 = 1457;
     pub const YOU_ARE_TOO_FAR_AWAY_FROM_YOUR_MOUNT_TO_RIDE: i16 = 1846;
+    /// "You are out of feed. Mount status canceled." — the mount feed task's
+    /// force-dismount when the gauge empties.
+    pub const YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED: i16 = 1248;
     /// `That character does not exist.` — the freight send with no other
     /// character on the account.
     pub const THAT_CHARACTER_DOES_NOT_EXIST: i16 = 873;

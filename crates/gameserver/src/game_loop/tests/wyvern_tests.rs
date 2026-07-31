@@ -858,3 +858,123 @@ fn a_siege_zone_refuses_and_strips_mounts() {
         "SiegeZone.onEnter dismounts"
     );
 }
+
+/// A strider template with a feed row, so the mount feed clock has data.
+fn register_strider_with_feed(world: &mut World, max_meal: i32, normal: i32, battle: i32) {
+    let mut t = crate::data::npc_data::default_template(12526);
+    t.type_name = "Npc".into();
+    t.level = 55;
+    world.data.npc_data.insert_for_test(t);
+
+    let mut levels = std::collections::HashMap::new();
+    levels.insert(
+        55,
+        crate::data::pet_data::PetLevel {
+            max_meal,
+            consume_meal_in_normal: normal,
+            consume_meal_in_battle: battle,
+            ride_run_spd: 180.0,
+            ride_walk_spd: 90.0,
+            ..Default::default()
+        },
+    );
+    world
+        .data
+        .pet_data
+        .insert_for_test(crate::data::pet_data::PetTemplate {
+            npc_id: 12526,
+            hungry_limit: 55,
+            levels,
+            ..Default::default()
+        });
+}
+
+/// Java `Player.startFeed` + `PetFeedTask`: mounting fills the gauge, each 10 s
+/// tick burns `consume_meal_in_normal`, and the tick that cannot cover the cost
+/// force-dismounts with "You are out of feed."
+#[test]
+fn the_mount_feed_gauge_drains_and_force_dismounts() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    // `setMount(npcId, getLevel())` on this path, so the rider's level selects
+    // the mount's feed row.
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 55;
+    // 25 meal, 10 per tick: full → 15 → 5 → out of feed on the third tick.
+    register_strider_with_feed(&mut world, 25, 10, 20);
+
+    assert!(crate::game_loop::admin::mounts::mount_player(
+        &mut world, 3001, 12526, 1
+    ));
+    let feed = |w: &World| w.objects.get_component::<Player>(&3001).unwrap().mount_feed;
+    assert_eq!(feed(&world), 25, "the bar starts full with no pet out");
+    // The gauge goes out with the mount.
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SETUP_GAUGE),
+        "SetupGauge sent on mounting"
+    );
+
+    crate::game_loop::admin::mounts::handle_mount_feed_tick(&mut world, 3001);
+    assert_eq!(feed(&world), 15, "one tick burns the normal rate");
+    crate::game_loop::admin::mounts::handle_mount_feed_tick(&mut world, 3001);
+    assert_eq!(feed(&world), 5);
+
+    // 5 left, 10 needed → the mount is cancelled.
+    drain(&mut rx);
+    crate::game_loop::admin::mounts::handle_mount_feed_tick(&mut world, 3001);
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .is_mounted(),
+        "out of feed → dismounted"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&server_packets::sm_ids::YOU_ARE_OUT_OF_FEED_MOUNT_STATUS_CANCELED),
+        "the cancellation message is sent"
+    );
+}
+
+/// The `Feed` effect's `ride` param tops up a **rider's** gauge (its `normal`
+/// param feeds a summoned pet instead), clamped to the mount's maximum.
+#[test]
+fn mount_food_refills_the_riders_gauge() {
+    let (mut world, _tx, _db, _l) = test_world();
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .level = 55;
+    register_strider_with_feed(&mut world, 25, 10, 20);
+    crate::game_loop::admin::mounts::mount_player(&mut world, 3001, 12526, 1);
+    crate::game_loop::admin::mounts::handle_mount_feed_tick(&mut world, 3001);
+    crate::game_loop::admin::mounts::handle_mount_feed_tick(&mut world, 3001);
+    let feed = |w: &World| w.objects.get_component::<Player>(&3001).unwrap().mount_feed;
+    assert_eq!(feed(&world), 5, "two ticks burned");
+
+    // The food item's skill: `<effect name="Feed" normal=… ride=… wyvern=…/>`.
+    let food = crate::model::skill::Skill {
+        id: 9100,
+        level: 1,
+        effects: vec![crate::model::skill::SkillEffect::Feed {
+            normal: 100,
+            ride: 12,
+            wyvern: 99,
+        }],
+        ..Default::default()
+    };
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &food);
+    assert_eq!(feed(&world), 17, "the `ride` param, not `normal`");
+
+    // A second helping clamps at the maximum rather than overfilling.
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, 3001, 3001, &food);
+    assert_eq!(feed(&world), 25, "clamped to max_meal");
+}

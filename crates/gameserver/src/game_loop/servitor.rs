@@ -523,17 +523,30 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         return;
     }
     // Action 38 (`Ride` playeraction — `/dismount`): dismounting a mounted
-    // player is live; *mounting* an owned strider/wolf is TODO(G29) with
-    // rideable pets (Java `mountPlayer(getPet())`'s level/range/combat gates
-    // need a mountable pet to exist first). TODO(G33): Java also refuses a
-    // wyvern dismount inside a NO_LANDING zone (`no_landing.xml` unloaded)
-    // and while the mount is hungry (feeding is G29).
+    // player is live; *mounting* an owned strider/wolf runs through the
+    // `/mount` user command (`user_commands`, Java `mountPlayer(getPet())`
+    // with its level/range/combat gates). TODO(G33): Java also refuses a wyvern
+    // dismount inside a NO_LANDING zone (`no_landing.xml` unloaded).
     if pkt.action_id == action::RIDE {
         if world
             .objects
             .get_component::<crate::model::Player>(&owner_oid)
             .is_some_and(crate::model::Player::is_mounted)
         {
+            // Java's other refusal, ported for shape: a hungry mount cannot be
+            // dismounted. The branch never fires — `isHungry()` requires a live
+            // pet and `mount()` unsummons it (see `mounts::is_hungry`) — but a
+            // silently-omitted branch is how parity bugs start.
+            if crate::game_loop::admin::mounts::is_hungry(world, owner_oid) {
+                if let Some(cs) = world.clients.get(&client_id) {
+                    cs.send(server_packets::action_failed());
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::A_HUNGRY_STRIDER_CANNOT_BE_MOUNTED_OR_DISMOUNTED,
+                        &[],
+                    ));
+                }
+                return;
+            }
             crate::game_loop::admin::mounts::dismount(world, owner_oid);
         }
         return;
@@ -1275,7 +1288,7 @@ fn apply_food_skill(world: &mut World, pet_oid: i32, skill_id: i32, skill_level:
         return;
     };
     for effect in skill.effects.clone() {
-        if let crate::model::skill::SkillEffect::Feed { normal } = effect {
+        if let crate::model::skill::SkillEffect::Feed { normal, .. } = effect {
             apply_feed(world, pet_oid, normal);
         }
     }

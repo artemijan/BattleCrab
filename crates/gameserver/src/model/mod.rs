@@ -446,6 +446,11 @@ pub struct Player {
     /// `speed_on_ride` row and drives the "-50% when 10+ levels above you"
     /// speed penalty in `recalculate_stats`.
     pub mount_level: i32,
+    /// `Player._curFeed` — the ridden creature's food gauge, drained every 10 s
+    /// by the mount feed task and refilled by using its food item while
+    /// mounted (the `Feed` effect's `ride`/`wyvern` params). Hitting zero
+    /// force-dismounts. Transient, like the rest of the mount state.
+    pub mount_feed: i32,
 
     /// `Player.getTradeRefusal()` — `//tradeoff`: refuse incoming trade
     /// requests. Transient.
@@ -1090,6 +1095,7 @@ impl Player {
             mount_type: 0,
             mount_npc_id: 0,
             mount_level: 0,
+            mount_feed: 0,
             trade_refusal: false,
             cond_overrides: 0,
             transform_id: 0,
@@ -1445,9 +1451,13 @@ impl Player {
         // mount's `speed_on_ride` row (looked up at the *mount's* level),
         // halved when the mount is 10+ levels above the rider — the class
         // template only stands in when the species has no row (Java gets null
-        // back and keeps `calcWeaponPlusBaseValue`). The hungry-mount halving
-        // needs mount feeding. TODO(G29): Java also halves here on
-        // `player.isHungry()` (`PetFeedTask` drains `_curFeed` while mounted).
+        // back and keeps `calcWeaponPlusBaseValue`).
+        //
+        // Java halves again on `player.isHungry()`, which is **inert** for a
+        // rider — the predicate requires `hasPet()` and `mount()` unsummons the
+        // pet a line after starting the feed, so it can never be true. See
+        // `game_loop::admin::mounts::is_hungry`; omitted here deliberately
+        // rather than "not ported".
         let ride = if self.is_mounted() {
             data.pet_data
                 .get(self.mount_npc_id)

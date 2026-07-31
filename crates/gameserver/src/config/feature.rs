@@ -18,8 +18,10 @@ pub struct FeatureConfig {
     /// its residence's siege is active or the player is inside an active siege
     /// zone. **True** on this dist.
     pub allow_ride_wyvern_during_siege: bool,
-    /// `AllowRideMountsDuringSiege` — the strider/wolf equivalent, read by
-    /// Java `Player.mount(pet)`. TODO(G29): consumed when pet mounting lands.
+    /// `AllowRideMountsDuringSiege` (**False** here) — the strider/wolf
+    /// equivalent, read by `Player.mount` (which refuses inside a live siege
+    /// zone) and by `SiegeZone.onEnter` (which dismounts / untransforms a rider
+    /// who walks in).
     pub allow_ride_mounts_during_siege: bool,
     /// `BuyTaxForNeutralSide` (15 here) — the percent a castle takes off every
     /// taxed purchase made inside its tax zone while it is `NEUTRAL`.
