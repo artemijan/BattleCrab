@@ -1034,6 +1034,7 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                 validation_end,
                 next_weekly_change,
                 nobles,
+                eom,
             } => {
                 crate::game_loop::olympiad::apply_loaded(
                     world,
@@ -1043,6 +1044,7 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     validation_end,
                     next_weekly_change,
                     nobles,
+                    eom,
                 );
                 // `Olympiad.init` + `scheduleWeeklyChange`: arm the window and
                 // weekly-refresh schedules now the persisted state is in place.

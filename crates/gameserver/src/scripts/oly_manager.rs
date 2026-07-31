@@ -62,7 +62,7 @@ impl QuestScript for OlyManager {
                 crate::game_loop::olympiad::unregister(ctx.world, ctx.player);
                 None
             }
-            _ if event.starts_with("rank_") => Some(empty_rank_detail(ctx)),
+            _ if event.starts_with("rank_") => Some(rank_detail(ctx, event)),
             // The point → Mark of Battle exchange.
             "calculatePoints" => Some(if unclaimed_points(ctx) > 0 {
                 "OlyManager-calculateEnough.html".to_string()
@@ -215,16 +215,26 @@ fn base_class_and_name(ctx: &QuestCtx) -> (i32, String) {
         .unwrap_or((0, String::new()))
 }
 
-/// The class-rank detail page with an empty board.
-/// TODO(G25): fill from the persisted `olympiad_nobles` leaderboard once nobles
-/// are stored (slice 3/5); until then every rank row is blanked, like Java does
-/// for classes with no ranked players.
-fn empty_rank_detail(ctx: &mut QuestCtx) -> String {
+/// `rank_<classId>` — the class leaderboard: `Olympiad.getClassLeaderBoard`'s
+/// names filled into the first rows, the rest blanked. Java's page has fifteen
+/// rows and the query returns at most ten, so the last five are always blank;
+/// a class with nobody ranked blanks all fifteen.
+fn rank_detail(ctx: &mut QuestCtx, event: &str) -> String {
+    let names = event
+        .strip_prefix("rank_")
+        .and_then(|s| s.parse::<i32>().ok())
+        .map(|class_id| crate::game_loop::olympiad::class_leader_board(ctx.world, class_id))
+        .unwrap_or_default();
     let mut html = ctx.get_htm("OlyManager-rankDetail.html");
     for index in 1..=15 {
+        let (rank, name) = match names.get(index - 1) {
+            // Java writes the rank number only for a row that has a name.
+            Some(name) => (index.to_string(), name.clone()),
+            None => (String::new(), String::new()),
+        };
         html = html
-            .replace(&format!("%Rank{index}%"), "")
-            .replace(&format!("%Name{index}%"), "");
+            .replace(&format!("%Rank{index}%"), &rank)
+            .replace(&format!("%Name{index}%"), &name);
     }
     html
 }

@@ -41,6 +41,10 @@ pub struct Transform {
     /// sets `displayId`, so this equals `id`.
     pub display_id: i32,
     pub flying: bool,
+    /// Java `Transform.isRiding()` — `type="RIDING_MODE"` (34 of them on this
+    /// dist: the horse/bike rides). `AllowRideMountsDuringSiege = False` makes
+    /// a siege zone untransform them, the same way it dismounts a strider.
+    pub riding: bool,
     pub male: TransformTemplate,
     pub female: TransformTemplate,
 }
@@ -124,6 +128,7 @@ fn parse(content: &str) -> Option<Transform> {
     let mut reader = Reader::from_str(content);
     let mut id = None;
     let mut flying = false;
+    let mut riding = false;
     let mut male = TransformTemplate::default();
     let mut female = TransformTemplate::default();
     // 0 = male, 1 = female; which gender block we're inside.
@@ -164,7 +169,9 @@ fn parse(content: &str) -> Option<Transform> {
             Ok(Event::Start(e)) | Ok(Event::Empty(e)) => match e.name().as_ref() {
                 b"transform" => {
                     id = attr(&e, "id").and_then(|s| s.parse().ok());
-                    flying = attr(&e, "type").as_deref() == Some("FLYING");
+                    let kind = attr(&e, "type");
+                    flying = kind.as_deref() == Some("FLYING");
+                    riding = kind.as_deref() == Some("RIDING_MODE");
                 }
                 b"Male" => {
                     gender = 0;
@@ -192,6 +199,7 @@ fn parse(content: &str) -> Option<Transform> {
         id,
         display_id: id,
         flying,
+        riding,
         male,
         female,
     })

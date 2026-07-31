@@ -14,9 +14,9 @@ use models::entity::{
     character_variables, characters, clan_data, clan_privs, clan_skills, clan_subpledges,
     clan_wars, clanhall, clanhall_auctions_bidders, crests, cursed_weapons, grandboss_data, heroes,
     heroes_diary, item_auction, item_auction_bid, item_variations, items, lottery, mdt_bets,
-    mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles, petition_feedback, pets,
-    pledge_applicant, pledge_recruit, pledge_waiting_list, punishments, residence_functions,
-    siege_clans,
+    mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles, olympiad_nobles_eom,
+    petition_feedback, pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments,
+    residence_functions, siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
@@ -600,6 +600,11 @@ pub enum DbCommand {
     ClaimHero {
         char_id: i32,
     },
+    /// `Olympiad.updateMonthlyData` — replace `olympiad_nobles_eom` with a copy
+    /// of the live `olympiad_nobles`, run at the round end right after the
+    /// nobles themselves are saved (so it must stay ordered behind
+    /// `SaveOlympiad` on this channel).
+    SnapshotOlympiadEom,
     /// `Hero.setDiaryData` — append a `heroes_diary` row (a noble's notable
     /// action, e.g. `ACTION_CASTLE_TAKEN`).
     SaveHeroDiary {
@@ -1187,6 +1192,9 @@ pub enum DbEvent {
         validation_end: i64,
         next_weekly_change: i64,
         nobles: Vec<OlympiadNobleRow>,
+        /// The last completed cycle's snapshot (`olympiad_nobles_eom`) — what
+        /// the Olympiad Manager's class leaderboard shows.
+        eom: Vec<OlympiadEomRow>,
     },
     /// The current heroes (`heroes` rows with `played = 1`) + every hero-diary
     /// entry (`heroes_diary`, `(charId, time, action, param)`), loaded at boot.
@@ -1306,6 +1314,19 @@ pub struct OlympiadNobleRow {
     pub comp_lost: i32,
     pub comp_drawn: i32,
     pub comp_done_week: i32,
+}
+
+/// One `olympiad_nobles_eom` row — the end-of-cycle snapshot the Grand Olympiad
+/// Manager's class leaderboard reads (`AltOlyShowMonthlyWinners = True` here, so
+/// the board shows the *last completed* cycle rather than the live one). `name`
+/// comes from the `characters` join Java's query does.
+#[derive(Debug, Clone)]
+pub struct OlympiadEomRow {
+    pub class_id: i32,
+    pub name: String,
+    pub points: i32,
+    pub comp_done: i32,
+    pub comp_won: i32,
 }
 
 /// One `heroes` row (`played = 1`) — a currently-crowned hero.
@@ -2345,6 +2366,30 @@ async fn run(
                                 ])
                                 .to_owned(),
                         )
+                        .exec(&db)
+                        .await,
+                    );
+                }
+            }
+            DbCommand::SnapshotOlympiadEom => {
+                // Java runs `TRUNCATE olympiad_nobles_eom` then
+                // `INSERT INTO olympiad_nobles_eom SELECT … FROM olympiad_nobles`.
+                warn_err(olympiad_nobles_eom::Entity::delete_many().exec(&db).await);
+                let live = olympiad_nobles::Entity::find()
+                    .all(&db)
+                    .await
+                    .unwrap_or_default();
+                for n in live {
+                    warn_err(
+                        olympiad_nobles_eom::Entity::insert(olympiad_nobles_eom::ActiveModel {
+                            char_id: Set(n.char_id),
+                            class_id: Set(n.class_id),
+                            olympiad_points: Set(n.olympiad_points),
+                            competitions_done: Set(n.competitions_done),
+                            competitions_won: Set(n.competitions_won),
+                            competitions_lost: Set(n.competitions_lost),
+                            competitions_drawn: Set(n.competitions_drawn),
+                        })
                         .exec(&db)
                         .await,
                     );
@@ -4605,7 +4650,41 @@ async fn load_olympiad(db: &DatabaseConnection) -> DbEvent {
         validation_end,
         next_weekly_change,
         nobles,
+        eom: load_olympiad_eom(db).await,
     }
+}
+
+/// `Olympiad.getClassLeaderBoard`'s source table — the previous cycle's
+/// snapshot, joined to `characters` for the display names exactly as Java's
+/// `GET_EACH_CLASS_LEADER` does. Ranking happens in memory at read time.
+async fn load_olympiad_eom(db: &DatabaseConnection) -> Vec<OlympiadEomRow> {
+    let rows = olympiad_nobles_eom::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default();
+    if rows.is_empty() {
+        return Vec::new();
+    }
+    let chars = characters::Entity::find()
+        .filter(characters::Column::CharId.is_in(rows.iter().map(|r| r.char_id)))
+        .all(db)
+        .await
+        .unwrap_or_default();
+    rows.into_iter()
+        .map(|r| OlympiadEomRow {
+            class_id: r.class_id,
+            // Java's join drops a row whose character is gone; an empty name is
+            // the same thing one step later, and keeps the count honest.
+            name: chars
+                .iter()
+                .find(|c| c.char_id == r.char_id)
+                .map(|c| c.char_name.clone())
+                .unwrap_or_default(),
+            points: r.olympiad_points,
+            comp_done: r.competitions_done,
+            comp_won: r.competitions_won,
+        })
+        .collect()
 }
 
 /// `Hero.init` — the currently-crowned heroes (`heroes` rows with `played = 1`).

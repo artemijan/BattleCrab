@@ -17,7 +17,7 @@
 //! buffs on entry, and announces the round's end to everyone online. Only the
 //! stadium instancing (needs G27) remains a follow-up.
 
-use crate::db::{DbCommand, HeroRow, OlympiadNobleRow};
+use crate::db::{DbCommand, HeroRow, OlympiadEomRow, OlympiadNobleRow};
 use crate::model::Player;
 use crate::model::olympiad::{
     CompetitionType, NobleStats, OlympiadMatch, OlympiadState, REG_CLOSE_BEFORE_END_MS,
@@ -54,6 +54,9 @@ const NONCLASSED_MIN: usize = 20;
 
 /// `AltOlyMinMatchesForPoints = 10` — matches needed to be hero-eligible.
 const HERO_MIN_MATCHES: i32 = 10;
+/// Java's `LIMIT 10` on every class-leaderboard query. The page has fifteen
+/// rows; the rest are blanked.
+const LEADER_BOARD_LIMIT: usize = 10;
 /// The hero animation played on claiming (Java `new SocialAction(id, 20016)`).
 const HERO_SOCIAL_ACTION: i32 = 20016;
 /// Java `Hero.ACTION_HERO_GAINED` — the diary entry written by `setHeroGained`.
@@ -567,10 +570,56 @@ pub(crate) fn handle_olympiad_end(world: &mut World) {
     let now = commons::util::now_millis();
     world.olympiad.validation_end = now + VALIDATION_PERIOD_MS;
     save_all(world);
+    // `updateMonthlyData`, which Java runs right after `saveOlympiadStatus`:
+    // freeze this cycle's nobles as the leaderboard the Olympiad Manager shows
+    // until the next round ends. The DB half rides the same channel behind
+    // `save_all`'s `SaveOlympiad`, so it copies rows that are already written.
+    snapshot_eom(world);
     world.scheduler.schedule(
         fire_at(world, VALIDATION_PERIOD_MS),
         ScheduledTask::OlympiadValidationEnd,
     );
+}
+
+/// Java `Olympiad.updateMonthlyData` — replace the end-of-cycle snapshot with a
+/// copy of the live nobles, in memory and in `olympiad_nobles_eom`.
+fn snapshot_eom(world: &mut World) {
+    world.olympiad.eom_nobles = world
+        .olympiad
+        .nobles
+        .values()
+        .map(|n| OlympiadEomRow {
+            class_id: n.class_id,
+            name: n.name.clone(),
+            points: n.points,
+            comp_done: n.comp_done,
+            comp_won: n.comp_won,
+        })
+        .collect();
+    let _ = world.db.send(DbCommand::SnapshotOlympiadEom);
+}
+
+/// Java `Olympiad.getClassLeaderBoard(classId)` — the top ten of the last
+/// completed cycle for one class: at least `AltOlyMinMatchesForPoints` matches,
+/// ordered by points, then matches played, then wins, all descending. The
+/// Soulhound branch (class 132/133) is Kamael-only and unreachable here.
+pub(crate) fn class_leader_board(world: &World, class_id: i32) -> Vec<String> {
+    let mut rows: Vec<&OlympiadEomRow> = world
+        .olympiad
+        .eom_nobles
+        .iter()
+        .filter(|n| n.class_id == class_id && n.comp_done >= HERO_MIN_MATCHES)
+        .collect();
+    rows.sort_by(|a, b| {
+        b.points
+            .cmp(&a.points)
+            .then(b.comp_done.cmp(&a.comp_done))
+            .then(b.comp_won.cmp(&a.comp_won))
+    });
+    rows.into_iter()
+        .take(LEADER_BOARD_LIMIT)
+        .map(|n| n.name.clone())
+        .collect()
 }
 
 /// `ValidationEndTask`: the validation period ends — start a new cycle's
@@ -954,8 +1003,10 @@ pub(crate) fn apply_loaded(
     validation_end: i64,
     next_weekly_change: i64,
     nobles: Vec<OlympiadNobleRow>,
+    eom: Vec<crate::db::OlympiadEomRow>,
 ) {
     let oly = &mut world.olympiad;
+    oly.eom_nobles = eom;
     oly.current_cycle = current_cycle;
     oly.period = period;
     oly.olympiad_end = olympiad_end;

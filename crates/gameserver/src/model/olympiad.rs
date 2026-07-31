@@ -119,6 +119,11 @@ pub struct OlympiadState {
     /// Everyone currently in a running match (Java `isInCompetition`): they
     /// can't register or unregister while fighting.
     pub in_competition: HashSet<i32>,
+    /// The **previous** cycle's noble snapshot (`olympiad_nobles_eom`), which is
+    /// what the Olympiad Manager's class leaderboard shows —
+    /// `AltOlyShowMonthlyWinners = True` on this dist, so the board is the last
+    /// completed cycle, not the live one. Refreshed at each round end.
+    pub eom_nobles: Vec<crate::db::OlympiadEomRow>,
     /// The heroes crowned for the current cycle — `(char_id, hero_class_id)`
     /// (Java the `heroes` table). Recomputed at each olympiad end.
     pub heroes: Vec<(i32, i32)>,

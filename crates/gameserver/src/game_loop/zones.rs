@@ -179,12 +179,45 @@ pub(crate) fn refresh_siege_zone_flag(world: &mut World, object_id: i32) {
     if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
         cs.send(server_packets::system_message_with(msg, &[]));
     }
+    if now_active_siege {
+        dismount_for_siege(world, object_id);
+    }
     // UserInfo — the in-siege crown bit (0x80) toggles with zone presence.
     super::party::broadcast_user_info(world, object_id);
     // RelationChanged — the attackable siege icon vs everyone nearby.
     super::pvp::broadcast_siege_relation(world, object_id);
     if !now_active_siege {
         super::pvp::start_pvp_flag_on_siege_exit(world, object_id);
+    }
+}
+
+/// `SiegeZone.onEnter`'s two mount legs, both gated on
+/// `AllowRideMountsDuringSiege` (**False** on this dist): a mounted player is
+/// **dismounted**, and one wearing a `RIDING_MODE` transformation (the
+/// horse/bike rides) is **untransformed**. Silent in Java — neither sends a
+/// message.
+///
+/// The wyvern leg above them is gated on `AllowRideWyvernDuringSiege`, True
+/// here, so it never fires.
+pub(crate) fn dismount_for_siege(world: &mut World, object_id: i32) {
+    if world.cfg.feature.allow_ride_mounts_during_siege {
+        return;
+    }
+    let (mounted, transform_id) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map_or((false, 0), |p| (p.is_mounted(), p.transform_id));
+    if mounted {
+        super::admin::mounts::dismount(world, object_id);
+    }
+    if transform_id != 0
+        && world
+            .data
+            .transforms
+            .get(transform_id)
+            .is_some_and(|t| t.riding)
+    {
+        super::admin::transforms::remove_transform(world, object_id);
     }
 }
 

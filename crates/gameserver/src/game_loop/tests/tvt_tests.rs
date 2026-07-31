@@ -798,3 +798,61 @@ fn a_cron_schedule_starts_the_event_and_re_arms() {
     assert_eq!(world.events.active, Some(tvt::NAME), "the event started");
     assert_eq!(armed(&world), 2, "…and the slot re-armed for tomorrow");
 }
+
+/// `AntiFeedManager.tryAddPlayer` — `DualboxCheckMaxL2EventParticipantsPerIP`
+/// is **1** on this dist, so a second character from the same address is turned
+/// away with its own page and never joins the roster.
+#[test]
+fn a_second_entrant_from_one_ip_is_refused() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    register_manager_template(&mut world);
+    world.cfg.dualbox.max_event_participants_per_ip = 1;
+    tvt::event_start(&mut world);
+    // Both test sessions come from 127.0.0.1.
+    eligible_player(&mut world, 1, 100);
+    eligible_player(&mut world, 2, 101);
+
+    assert_eq!(
+        tvt::on_manager_event(&mut world, 1, 100, "Participate").as_deref(),
+        Some("registration-success.html")
+    );
+    assert_eq!(
+        tvt::on_manager_event(&mut world, 2, 101, "Participate").as_deref(),
+        Some("registration-ip.html"),
+        "the dualbox cap has its own refusal page"
+    );
+    assert_eq!(world.events.tvt.player_list, vec![100], "roster unchanged");
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&101)
+            .unwrap()
+            .registered_on_event,
+        "the refused player is not flagged"
+    );
+
+    // Cancelling frees the slot again (Java `removePlayer` decrements; the port
+    // derives the count from the roster, so the removal is enough).
+    tvt::on_manager_event(&mut world, 1, 100, "CancelParticipation");
+    assert_eq!(
+        tvt::on_manager_event(&mut world, 2, 101, "Participate").as_deref(),
+        Some("registration-success.html"),
+        "the freed slot is reusable"
+    );
+}
+
+/// `0` means unlimited — Java skips the check rather than treating it as a cap
+/// of zero, so nobody could register if the port got this backwards.
+#[test]
+fn a_zero_cap_means_unlimited() {
+    let (mut world, _tx, _rx, _link) = test_world();
+    register_manager_template(&mut world);
+    world.cfg.dualbox.max_event_participants_per_ip = 0;
+    tvt::event_start(&mut world);
+    eligible_player(&mut world, 1, 100);
+    eligible_player(&mut world, 2, 101);
+
+    tvt::on_manager_event(&mut world, 1, 100, "Participate");
+    tvt::on_manager_event(&mut world, 2, 101, "Participate");
+    assert_eq!(world.events.tvt.player_list, vec![100, 101]);
+}
