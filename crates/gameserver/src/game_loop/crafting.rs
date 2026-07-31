@@ -276,11 +276,8 @@ pub(crate) fn learn_recipe(world: &mut World, client_id: u32, object_id: i32, it
         .get_component_mut::<Inventory>(&object_id)
         .and_then(|inv| inv.remove_by_object_id(item_object_id, 1))
     {
-        send_to_client(
-            world,
-            client_id,
-            ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed)),
-        );
+        let iu = ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed));
+        super::helpers::send_inventory_update(world, client_id, object_id, iu);
     }
     send(
         world,

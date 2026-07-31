@@ -1015,6 +1015,7 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
     else {
         return;
     };
+    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, &changed_oids);
     if let Some(cs) = world.clients.get(&client_id) {
         let sm = if item_id == ADENA_ID {
             server_packets::system_message_with(
@@ -1033,12 +1034,12 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
             )
         };
         cs.send(sm);
-        cs.send(crate::network::enter_world::inventory_update(
-            inventory,
-            &world.data,
-            &changed_oids,
-        ));
     }
+    // Java `Player.addItem` funnels through `PlayerInventory.addItem` →
+    // `sendInventoryUpdate`, so the status-bar adena counter and weight bar
+    // refresh with the loot. Sending the bare `InventoryUpdate` left the bar
+    // stale until the next relog/item-list.
+    super::helpers::send_inventory_update(world, client_id, player_oid, iu);
 }
 
 // ---------------------------------------------------------------------------

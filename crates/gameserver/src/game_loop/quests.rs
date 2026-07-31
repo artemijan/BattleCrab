@@ -1751,12 +1751,13 @@ pub(crate) fn take_items(
         .item_data
         .get(item_id)
         .is_some_and(|t| t.is_quest_item);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(ew::inventory_update_changes(&world.data, &changes));
-        if is_quest_item && let Some(inventory) = world.objects.get_component::<Inventory>(&player)
-        {
-            cs.send(ew::ex_quest_item_list(inventory, &world.data));
-        }
+    let iu = ew::inventory_update_changes(&world.data, &changes);
+    super::helpers::send_inventory_update(world, client_id, player, iu);
+    if is_quest_item
+        && let Some(cs) = world.clients.get(&client_id)
+        && let Some(inventory) = world.objects.get_component::<Inventory>(&player)
+    {
+        cs.send(ew::ex_quest_item_list(inventory, &world.data));
     }
     true
 }

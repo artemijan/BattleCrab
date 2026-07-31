@@ -231,20 +231,19 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
     );
 
     let refund_items = refund_items_of(world, player);
+    let iu = world
+        .objects
+        .get_component::<Inventory>(&player)
+        .map(|inventory| {
+            crate::network::enter_world::inventory_update(inventory, &world.data, &added)
+        });
+    if let Some(iu) = iu {
+        super::helpers::send_inventory_update(world, client_id, player, iu);
+    }
     if let (Some(inventory), Some(cs)) = (
         world.objects.get_component::<Inventory>(&player),
         world.clients.get(&client_id),
     ) {
-        cs.send(crate::network::enter_world::inventory_update(
-            inventory,
-            &world.data,
-            &added,
-        ));
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-            player,
-            inventory,
-            &world.data,
-        ));
         cs.send(trade::ex_buy_sell_list_sell(
             inventory,
             &refund_items,
@@ -383,17 +382,12 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     }
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
+    super::helpers::send_inventory_update(world, client_id, player, iu);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)
         .zip(world.objects.get_component::<Inventory>(&player))
     {
-        cs.send(iu);
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-            player,
-            inv,
-            &world.data,
-        ));
         cs.send(trade::ex_buy_sell_list_sell(
             inv,
             &refund_items,
@@ -502,17 +496,12 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .collect();
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
+    super::helpers::send_inventory_update(world, client_id, player, iu);
     if let Some((cs, inv)) = world
         .clients
         .get(&client_id)
         .zip(world.objects.get_component::<Inventory>(&player))
     {
-        cs.send(iu);
-        cs.send(crate::network::enter_world::ex_user_info_inven_weight(
-            player,
-            inv,
-            &world.data,
-        ));
         cs.send(trade::ex_buy_sell_list_sell(
             inv,
             &refund_items,

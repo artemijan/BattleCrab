@@ -335,9 +335,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         return;
     };
     let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    super::helpers::send_inventory_update(world, client_id, player_oid, packet);
     spawn_ground_item(
         world,
         item_id,

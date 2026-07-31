@@ -315,9 +315,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         return;
     };
     let packet = ew::inventory_update_changes(&world.data, &[change]);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    super::helpers::send_inventory_update(world, client_id, object_id, packet);
 }
 
 /// The `Crystallize` common skill (`CommonSkill.CRYSTALLIZE`).
@@ -425,9 +423,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
         changes.push(crate::model::inventory::ItemChange::Modified(*stack));
     }
     let packet = ew::inventory_update_changes(&world.data, &changes);
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(packet);
-    }
+    super::helpers::send_inventory_update(world, client_id, player_oid, packet);
 }
 
 /// Send a bare `$s1` system-message line to one client.
@@ -565,6 +561,7 @@ pub(crate) fn finish_equip_change(
     else {
         return;
     };
+    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::ex_user_info_equip_slot(
             object_id, inventory,
@@ -577,12 +574,10 @@ pub(crate) fn finish_equip_change(
                 super::party::calculate_relation(world, v.p),
             ));
         }
-        cs.send(crate::network::enter_world::inventory_update(
-            inventory,
-            &world.data,
-            changed,
-        ));
     }
+    // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
+    // adena counter and weight bar it always drags along.
+    super::helpers::send_inventory_update(world, client_id, object_id, iu);
     // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
     // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
     // (or one just removed) changes the grade penalty. Runs last so the borrow
@@ -800,9 +795,9 @@ pub(crate) fn charge_shot(
     }
     if !changes.is_empty()
         && let Some(cid) = client_id
-        && let Some(cs) = world.clients.get(&cid)
     {
-        cs.send(ew::inventory_update_changes(&world.data, &changes));
+        let iu = ew::inventory_update_changes(&world.data, &changes);
+        super::helpers::send_inventory_update(world, cid, object_id, iu);
     }
     send(
         world,
@@ -1046,9 +1041,9 @@ pub(crate) fn charge_fish_shot(world: &mut World, object_id: i32, shot_item_id: 
     }
     if !changes.is_empty()
         && let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
-        && let Some(cs) = world.clients.get(&cid)
     {
-        cs.send(ew::inventory_update_changes(&world.data, &changes));
+        let iu = ew::inventory_update_changes(&world.data, &changes);
+        super::helpers::send_inventory_update(world, cid, object_id, iu);
     }
     true
 }
@@ -1363,12 +1358,8 @@ fn destroy_used_item(world: &mut World, client_id: u32, object_id: i32, item_obj
     };
     // Memory-first: the count decrement / removal already applied to the
     // `Inventory` component; it persists on the next flush.
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(ew::inventory_update_changes(
-            &world.data,
-            std::slice::from_ref(&destroyed),
-        ));
-    }
+    let iu = ew::inventory_update_changes(&world.data, std::slice::from_ref(&destroyed));
+    super::helpers::send_inventory_update(world, client_id, object_id, iu);
 }
 
 /// Port of `handlers/itemhandlers/ExtractableItems.useItem`: destroys the
@@ -1474,6 +1465,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
         let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
             continue;
         };
+        let iu = ew::inventory_update(inventory, &world.data, &changed_oids);
         if let Some(cs) = world.clients.get(&client_id) {
             let sm = if amount > 1 {
                 server_packets::system_message_with(
@@ -1487,7 +1479,7 @@ fn extract_item(world: &mut World, client_id: u32, object_id: i32, item_object_i
                 )
             };
             cs.send(sm);
-            cs.send(ew::inventory_update(inventory, &world.data, &changed_oids));
         }
+        super::helpers::send_inventory_update(world, client_id, object_id, iu);
     }
 }
