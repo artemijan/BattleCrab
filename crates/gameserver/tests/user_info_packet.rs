@@ -161,6 +161,7 @@ async fn user_info_test() {
     };
     let inventory = gameserver::model::inventory::Inventory::default();
     let mods = StatModifiers::default();
+    let skills = gameserver::model::components::SkillBook::default();
     let view = PlayerView {
         p: &player,
         pos: &position,
@@ -174,6 +175,7 @@ async fn user_info_test() {
         pvp_flag: 0,
         in_matching_room: false,
         mods: &mods,
+        skills: &skills,
     };
     let gd = GameData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
     let cfg = CharacterConfig::default();

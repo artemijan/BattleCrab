@@ -695,6 +695,9 @@ pub struct PlayerView<'a> {
     /// (`Stat::InventoryNormal`/`StoragePrivate`/`TradeSell`/`TradeBuy`) that
     /// packet builders need but that don't have their own finalized field.
     pub mods: &'a StatModifiers,
+    /// The learned-skill map, for the STATUS block's craft byte
+    /// (`hasDwarvenCraft() || getSkillLevel(248) > 0`).
+    pub skills: &'a SkillBook,
 }
 
 impl<'a> PlayerView<'a> {
@@ -714,6 +717,7 @@ impl<'a> PlayerView<'a> {
                 .map_or(0, |s| s.flag),
             in_matching_room: objects.has_component::<components::InMatchingRoom>(&object_id),
             mods: objects.get_component::<StatModifiers>(&object_id)?,
+            skills: objects.get_component::<SkillBook>(&object_id)?,
         })
     }
 }
@@ -733,6 +737,7 @@ impl PlayerData {
             pvp_flag: 0,
             in_matching_room: false,
             mods: &self.stat_modifiers,
+            skills: &self.skills,
         }
     }
 }
