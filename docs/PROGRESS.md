@@ -2420,7 +2420,14 @@ command bodies (G13.B) are next.
     `//online`/`//targetsay`/`//msg`/`//kick`/`//kick_non_gm`/
     `//character_disconnect`, `//html`/`//loadhtml`/`//showdoors`/`//debug`/
     `//stats`, the `//admin` menu + AdminMenu action buttons (goto/recall
-    char/party/clan, kick/kill menu).
+    char/party/clan, kick/kill menu). The Character panel's **name-carrying**
+    buttons — "Go To" (`admin_goto_char_menu`), "Get Party"
+    (`admin_recall_party_menu`) and "Get Clan" (`admin_recall_clan_menu`) — now
+    resolve the character already chosen on the previous page (`%name%` /
+    `$qbox`, Java `World.getPlayer(command.substring(n))`) instead of demanding
+    a live GM target: "Go To" used to be a bare alias of `//teleto`, so it
+    answered "Select a target first." on a character picked from the roster.
+    The GM's own selection is now only the blank-QuickBox fallback.
   - **B6 world** (`world_cmds`): `//open`/`//close`/`//openall`/`//closeall`,
     `//zones`/`//zone_check`, `//buy`/`//gmshop`, `//clan_info`, and the
     read-only geo queries `//geo_pos`/`//geo_spawn_pos`/`//geo_can_move`/

@@ -592,6 +592,7 @@ pub mod sm_ids {
 
     // Command channels / MPCC
     pub const YOUR_TARGET_CANNOT_BE_FOUND: i16 = 50;
+    pub const YOU_CANNOT_USE_THIS_ON_YOURSELF: i16 = 51;
     // Loot protection (pickup refusals)
     pub const YOU_HAVE_FAILED_TO_PICK_UP_S1_ADENA: i16 = 55;
     pub const YOU_HAVE_FAILED_TO_PICK_UP_S1: i16 = 56;

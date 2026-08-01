@@ -123,6 +123,53 @@ pub(super) fn admin_teleto(world: &mut World, client_id: u32, object_id: i32) {
     super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
 }
 
+/// `AdminMenu`'s `admin_goto_char_menu <name>` — the "Go To" button on
+/// `charinfo.htm` / `char_menu.htm` / `charmanage.htm`, which passes the already
+/// chosen character's name (`%name%` / `$qbox`). Java resolves that name via
+/// `World.getPlayer(name)` and never consults the GM's target, so this must NOT
+/// delegate to `//teleto`; only the empty-name case (blank QuickBox) falls back
+/// to the current target. Mirrors Java `AdminMenu.teleportToCharacter`: a
+/// non-player resolves to `INVALID_TARGET`, self to
+/// `YOU_CANNOT_USE_THIS_ON_YOURSELF`, otherwise teleport + confirmation, and in
+/// the latter two cases the char-manage page is reopened (`showMainPage`).
+pub(super) fn admin_goto_char(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let target = match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
+    };
+    // Java: `!target.isPlayer()` → INVALID_TARGET, and no main page.
+    let Some(target) = target else {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::INVALID_TARGET,
+        );
+        return;
+    };
+    if target == object_id {
+        send_sm(
+            world,
+            client_id,
+            crate::network::server_packets::sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF,
+        );
+    } else if let Some(&pos) = world.objects.get_component::<Position>(&target) {
+        let name = world
+            .objects
+            .get_component::<Player>(&target)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
+        super::death::teleport_player(world, object_id, pos.x, pos.y, pos.z);
+        send_message(
+            world,
+            client_id,
+            &format!("You're teleporting yourself to character {name}"),
+        );
+    }
+    // Java `showMainPage` — always back to `charmanage.htm`.
+    super::menu::show_admin_html(world, client_id, "charmanage.htm");
+}
+
 /// `AdminTeleport`'s directional `//gonorth|gosouth|goeast|gowest|goup|godown
 /// [offset]` — nudge the GM by `offset` (default 150) units along one axis
 /// (Java: north = -y, south = +y, east = +x, west = -x, up = +z, down = -z).

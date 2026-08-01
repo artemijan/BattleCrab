@@ -555,10 +555,10 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_gmchat_menu" => menu::show_admin_html(world, client_id, "gm_menu.htm"),
         // --- AdminMenu action buttons — delegate to the underlying handlers ---
         "admin_char_manage" => admin_character_info(world, client_id, object_id, &args, false),
-        "admin_goto_char_menu" => admin_teleto(world, client_id, object_id),
+        "admin_goto_char_menu" => admin_goto_char(world, client_id, object_id, &args),
         "admin_recall_char_menu" => admin_recall(world, client_id, object_id, &args),
-        "admin_recall_party_menu" => admin_recall_party(world, client_id, object_id),
-        "admin_recall_clan_menu" => admin_recall_clan(world, client_id, object_id),
+        "admin_recall_party_menu" => admin_recall_party(world, client_id, object_id, &args),
+        "admin_recall_clan_menu" => admin_recall_clan(world, client_id, object_id, &args),
         "admin_kick_menu" => admin_kick(world, client_id, object_id, &args),
         "admin_kill_menu" => admin_kill(world, client_id, object_id, &args, false),
         "admin_teleport_character_to_menu" => {

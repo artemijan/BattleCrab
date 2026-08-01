@@ -1179,6 +1179,58 @@ fn admin_recall_brings_player_to_gm() {
     );
 }
 
+/// The Character panel's "Go To" button (`admin_goto_char_menu <name>`) sends
+/// the GM to the character already picked on the previous page — it must resolve
+/// the name argument (Java `World.getPlayer(command.substring(21))`) and never
+/// demand a live target, which is what the `//teleto` alias used to do.
+#[test]
+fn admin_goto_char_menu_uses_the_named_character_not_the_target() {
+    use crate::model::components::Position;
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7305, 100);
+    let mut other_rx = ingame_player_access(&mut world, 2, 7306, 0);
+    drain(&mut gm_rx);
+    drain(&mut other_rx);
+
+    if let Some(p) = world.objects.get_component_mut::<Position>(&7306) {
+        p.x = 1500;
+        p.y = 1600;
+        p.z = 1700;
+    }
+    // Nothing selected on the GM: the button follows the name, not a target.
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&7305)
+            .is_none_or(|t| t.0.is_none()),
+        "GM has no target selected"
+    );
+    on_packet(&mut world, 1, build_admin("goto_char_menu P7306"));
+    let pos = *world.objects.get_component::<Position>(&7305).unwrap();
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (1500, 1600, 1705),
+        "GM teleported to the named character (+5 collision adjustment)"
+    );
+
+    // A stale target must not win over the name argument either.
+    if let Some(p) = world.objects.get_component_mut::<Position>(&7306) {
+        p.x = 2500;
+        p.y = 2600;
+        p.z = 2700;
+    }
+    world
+        .objects
+        .add_components(&7305, crate::model::components::TargetRef(Some(7305)));
+    on_packet(&mut world, 1, build_admin("goto_char_menu P7306"));
+    let pos = *world.objects.get_component::<Position>(&7305).unwrap();
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (2500, 2600, 2705),
+        "the name argument beats the GM's own selection"
+    );
+}
+
 /// `//create_item 57 1000` puts 1000 adena in the GM's inventory.
 #[test]
 fn admin_create_item_adds_to_gm_inventory() {

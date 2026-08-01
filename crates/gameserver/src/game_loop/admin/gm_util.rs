@@ -16,7 +16,7 @@ use crate::network::server_packets::{self, sm_ids};
 use crate::session::ClientSession;
 use crate::world::World;
 
-use super::{current_target, send_message, send_sm};
+use super::{current_target, find_online_player, send_message, send_sm};
 
 /// `AdminAdmin`'s `//gmliston` / `//gmlistoff` — register/unregister from the GM
 /// list. There is no `//gmlist` consumer yet, so this messages + re-shows the GM
@@ -356,17 +356,31 @@ pub(super) fn admin_kick_non_gm(world: &mut World, client_id: u32) {
     send_message(world, client_id, &format!("Kicked {n} non-GM player(s)."));
 }
 
-/// `AdminMenu`'s `//recall_party_menu` — recall the target's whole party to the
-/// GM.
-pub(super) fn admin_recall_party(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+/// The `AdminMenu` character-panel convention: the button carries the name of
+/// the character already chosen on the previous page, so the name argument wins
+/// and the GM's own selection is only a fallback for a blank QuickBox.
+fn resolve_named_or_target(world: &World, object_id: i32, args: &[&str]) -> Option<i32> {
+    match args.first() {
+        Some(name) => find_online_player(world, name),
+        None => current_target(world, object_id)
+            .filter(|oid| world.objects.has_component::<Player>(oid)),
+    }
+}
+
+/// `AdminMenu`'s `//recall_party_menu <name>` — recall the named character's
+/// whole party to the GM. Like the "Go To" button, the Character panel passes
+/// the character chosen on the previous page (`$qbox`), and Java resolves it
+/// with `World.getPlayer(command.substring(24))`; only a blank name falls back
+/// to the GM's current target. A character with no party is simply recalled
+/// alone (Java sends "Player is not in party." and still teleports them).
+pub(super) fn admin_recall_party(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(target) = resolve_named_or_target(world, object_id, args) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
     let Some(PartyRef(pid)) = world.objects.get_component::<PartyRef>(&target).copied() else {
-        send_message(world, client_id, "Target is not in a party.");
+        send_message(world, client_id, "Player is not in party.");
+        recall_all(world, object_id, &[target]);
         return;
     };
     let members = world
@@ -382,12 +396,12 @@ pub(super) fn admin_recall_party(world: &mut World, client_id: u32, object_id: i
     );
 }
 
-/// `AdminMenu`'s `//recall_clan_menu` — recall the target's online clan members
-/// to the GM.
-pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i32) {
-    let Some(target) =
-        current_target(world, object_id).filter(|oid| world.objects.has_component::<Player>(oid))
-    else {
+/// `AdminMenu`'s `//recall_clan_menu <name>` — recall the named character's
+/// online clan members to the GM. Name resolution matches
+/// [`admin_recall_party`] (Java `command.substring(23)`), and a clanless
+/// character is recalled alone.
+pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    let Some(target) = resolve_named_or_target(world, object_id, args) else {
         send_sm(world, client_id, sm_ids::INVALID_TARGET);
         return;
     };
@@ -397,7 +411,8 @@ pub(super) fn admin_recall_clan(world: &mut World, client_id: u32, object_id: i3
         .map(|p| p.clan_id)
         .filter(|&c| c != 0)
     else {
-        send_message(world, client_id, "Target is not in a clan.");
+        send_message(world, client_id, "Player is not in a clan.");
+        recall_all(world, object_id, &[target]);
         return;
     };
     let members: Vec<i32> = world
