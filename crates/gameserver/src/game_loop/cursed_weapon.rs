@@ -119,11 +119,12 @@ fn drop_weapon(world: &mut World, idx: usize, killer: i32, x: i32, y: i32, z: i3
         cw.nb_kills = 0;
         cw.end_time = deadline;
     }
-    // "$s2 was dropped in the $s1 region." — region SysString is a TODO(G28)
-    // (MapRegion carries no sysstring id yet), so the region renders blank.
+    // "$s2 was dropped in the $s1 region." Java `addZoneName(x, y, z)`: the
+    // client resolves the region from the coordinates, so the drop point is
+    // all the server sends.
     let announce = server_packets::system_message_with(
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
-        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+        &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
     arm_expiry(world, idx);
@@ -382,9 +383,14 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     }
     super::admin::cursed_weapons::save_data(world, idx);
 
+    // Java's `dropIt` announces the region the *wielder* fell in.
+    let (x, y, z) = world
+        .objects
+        .get_component::<Position>(&victim_oid)
+        .map_or((0, 0, 0), |p| (p.x, p.y, p.z));
     let announce = server_packets::system_message_with(
         sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
-        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+        &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
 }
@@ -429,12 +435,15 @@ pub(crate) fn on_enter_world(world: &mut World, client_id: u32, object_id: i32) 
     do_transform(world, object_id, item_id);
     give_skill(world, idx, object_id);
 
-    // "$s2's owner has logged into the $s1 region." to everyone. The region
-    // SysString renders blank — the same TODO(G28) the drop/appear announces
-    // carry (MapRegion has no sysstring id yet).
+    // "$s2's owner has logged into the $s1 region." to everyone — the region
+    // the owner logged in at (Java `cursedOnLogin`'s `addZoneName`).
+    let (x, y, z) = world
+        .objects
+        .get_component::<Position>(&object_id)
+        .map_or((0, 0, 0), |p| (p.x, p.y, p.z));
     let announce = server_packets::system_message_with(
         sm_ids::S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION,
-        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+        &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
 

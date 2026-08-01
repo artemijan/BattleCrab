@@ -807,6 +807,13 @@ pub enum SmParam {
     ItemName(i32),
     /// `TYPE_CASTLE_NAME` (5) — `addCastleId` (the client resolves the name).
     CastleName(i32),
+    /// `TYPE_ZONE_NAME` (7) — `addZoneName(x, y, z)`.
+    ///
+    /// The **client** resolves the region name from the coordinates; there is
+    /// no server-side lookup and no sysstring id involved. Several sites here
+    /// used to send `SysString(0)` instead, which is a different parameter type
+    /// (13) carrying a system-string id of zero — hence the blank region name.
+    ZoneName { x: i32, y: i32, z: i32 },
     /// `TYPE_LONG_NUMBER` (6) — `addLong`.
     Long(i64),
     /// `TYPE_PLAYER_NAME` (12) — `addPcName`.
@@ -863,6 +870,12 @@ pub fn system_message_with(message_id: i16, params: &[SmParam]) -> Vec<u8> {
             SmParam::Long(v) => {
                 w.write_u8(6);
                 w.write_i64(*v);
+            }
+            SmParam::ZoneName { x, y, z } => {
+                w.write_u8(7);
+                w.write_i32(*x);
+                w.write_i32(*y);
+                w.write_i32(*z);
             }
             SmParam::PlayerName(s) => {
                 w.write_u8(12);
