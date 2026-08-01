@@ -582,6 +582,48 @@ pub(crate) fn finish_equip_change(
     // next flush (`Inventory::to_rows`), so equip/unequip spam can't drive DB
     // writes.
 
+    refresh_equip_state(world, client_id, object_id);
+
+    let Some(inventory) = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+    else {
+        return;
+    };
+    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
+    // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
+    // adena counter and weight bar it always drags along.
+    super::helpers::send_inventory_update(world, client_id, object_id, iu);
+    // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
+    // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
+    // (or one just removed) changes the grade penalty. Runs last so the borrow
+    // of `inventory` above is released; it sends its own EtcStatusUpdate +
+    // UserInfo when the penalty actually changed.
+    crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
+    // Java re-pumps passive skill effects on the same equip listeners: an
+    // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
+    // robe is worn or removed. Resends its own UserInfo when the set changed.
+    crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
+}
+
+/// The stat-and-paperdoll half of [`finish_equip_change`]: recompute the
+/// wearer's stats, then push the client's own paperdoll snapshot
+/// (`ExUserInfoEquipSlot`) and `UserInfo`.
+///
+/// Java emits `ExUserInfoEquipSlot` from inside `Inventory.setPaperdollItem`,
+/// the single choke point *every* paperdoll mutation goes through — including
+/// the implicit ones, where nobody called "unequip" at all: `ItemContainer`'s
+/// `removeItem` is overridden by `Inventory.removeItem` to unequip whatever it
+/// is about to take out of the bag, so dropping, destroying or transferring a
+/// worn item refreshes the paperdoll for free. Here the paperdoll lives in a
+/// plain data component that cannot reach the client, so each of those paths
+/// has to call this itself.
+///
+/// Forgetting it is not a cosmetic inventory-window bug: `UserInfo` carries
+/// only the right-hand *enchant level*, never the paperdoll item ids, so the
+/// client keeps rendering a weapon the character no longer owns while the
+/// inventory window correctly shows nothing equipped.
+pub(crate) fn refresh_equip_state(world: &mut World, client_id: u32, object_id: i32) {
     // Recompute combat stats now that the paperdoll changed: a newly equipped
     // weapon's pAtk / armor's pDef must reach the `UserInfo` below (Java
     // `Inventory.equipItem`/`unEquipItemInBodySlot` → `Creature.recalculateStats`
@@ -624,7 +666,6 @@ pub(crate) fn finish_equip_change(
     else {
         return;
     };
-    let iu = crate::network::enter_world::inventory_update(inventory, &world.data, changed);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::ex_user_info_equip_slot(
             object_id, inventory,
@@ -638,19 +679,6 @@ pub(crate) fn finish_equip_change(
             ));
         }
     }
-    // …and finally Java's `sendInventoryUpdate` — the `InventoryUpdate` plus the
-    // adena counter and weight bar it always drags along.
-    super::helpers::send_inventory_update(world, client_id, object_id, iu);
-    // Java `Inventory.equipItem`/`unEquipItemInBodySlot` fire
-    // `refreshExpertisePenalty` on the owner: a newly equipped over-grade item
-    // (or one just removed) changes the grade penalty. Runs last so the borrow
-    // of `inventory` above is released; it sends its own EtcStatusUpdate +
-    // UserInfo when the penalty actually changed.
-    crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
-    // Java re-pumps passive skill effects on the same equip listeners: an
-    // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
-    // robe is worn or removed. Resends its own UserInfo when the set changed.
-    crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
 }
 
 /// The `EtcItem` branch of `UseItem.runImpl` (Java:

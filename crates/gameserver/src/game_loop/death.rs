@@ -1246,6 +1246,7 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     };
 
     let mut dropped = 0;
+    let mut dropped_equipped = false;
     for (obj_id, item_id, count, enchant) in candidates {
         if limit > 0 && dropped >= limit {
             break;
@@ -1280,6 +1281,7 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
                 .get_component_mut::<crate::model::inventory::Inventory>(&victim_oid)
         {
             inv.unequip_item(obj_id);
+            dropped_equipped = true;
         }
         if let Some(inv) = world
             .objects
@@ -1302,14 +1304,22 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     }
     if dropped > 0
         && let Some(client_id) = client_for_player(world, victim_oid)
-        && let Some(v) = crate::model::PlayerView::of_world(world, victim_oid)
-        && let Some(cs) = world.clients.get(&client_id)
     {
-        cs.send(crate::network::enter_world::item_list(
-            v.inventory,
-            &world.data,
-            false,
-        ));
+        if let Some(v) = crate::model::PlayerView::of_world(world, victim_oid)
+            && let Some(cs) = world.clients.get(&client_id)
+        {
+            cs.send(crate::network::enter_world::item_list(
+                v.inventory,
+                &world.data,
+                false,
+            ));
+        }
+        // Anything that came off the paperdoll needs the client's own equip
+        // snapshot resent, or the corpse keeps rendering gear it just scattered
+        // on the ground (`ExUserInfoEquipSlot`, not `ItemList`, drives it).
+        if dropped_equipped {
+            crate::game_loop::items::refresh_equip_state(world, client_id, victim_oid);
+        }
     }
 }
 

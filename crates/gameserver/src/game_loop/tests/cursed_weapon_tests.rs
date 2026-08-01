@@ -46,6 +46,30 @@ fn ground_item_count(world: &World) -> usize {
     world.ground_item_regions.values().map(|v| v.len()).sum()
 }
 
+/// `(object_id, item_id)` reported for one paperdoll slot by the most recent
+/// `ExUserInfoEquipSlot` (Ex 0x156) in `packets` — the packet that actually
+/// paints the client's own paperdoll. `None` when no such packet was sent.
+fn equip_slot(packets: &[Vec<u8>], want: crate::enums::InventorySlot) -> Option<(i32, i32)> {
+    let pkt = packets
+        .iter()
+        .rev()
+        .find(|p| p.len() > 2 && p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0x156)?;
+    // 1 (Ex) + 2 (sub) + 4 (object id) + 2 (slot count) + 5 (mask) = 14.
+    let mut offset = 14usize;
+    let mut found = None;
+    for slot in crate::enums::InventorySlot::VALUES {
+        let block_len = u16::from_le_bytes([pkt[offset], pkt[offset + 1]]) as usize;
+        if slot == want {
+            found = Some((
+                i32::from_le_bytes(pkt[offset + 2..offset + 6].try_into().unwrap()),
+                i32::from_le_bytes(pkt[offset + 6..offset + 10].try_into().unwrap()),
+            ));
+        }
+        offset += block_len; // the written length covers its own 2 bytes
+    }
+    found
+}
+
 /// A monster killed by an un-cursed player, with the drop roll forced to hit,
 /// puts a cursed weapon on the ground: a `RedSky`/`Earthquake`/drop-announce to
 /// everyone, the ground item spawned at the kill site, and the weapon's state
@@ -948,6 +972,55 @@ fn wielder_death_drops_the_weapon() {
         "lying on the ground again"
     );
     assert_eq!(ground_item_count(&world), 1, "dropped at the corpse");
+}
+
+/// The client paints its *own* character from `ExUserInfoEquipSlot`, never
+/// from `UserInfo` (which carries only the right-hand enchant level) and never
+/// from `ItemList`. Java gets this for free — `dropItem` → `removeItem`
+/// unequips inside `Inventory.setPaperdollItem`, which sends the packet — so
+/// dropping the curse on death has to send it here too. Without it the corpse
+/// goes on wielding a sword that is already lying on the ground, while the
+/// inventory window correctly shows nothing equipped.
+#[test]
+fn wielder_death_resends_the_paperdoll_snapshot() {
+    use crate::enums::InventorySlot;
+
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut v_rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+
+    // Pre-condition: the curse really is on the paperdoll, or the assertion
+    // below would pass against an empty slot for the wrong reason.
+    let weapon_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+        .and_then(|inv| inv.items().iter().find(|i| i.item_id == ZARICHE).copied())
+        .expect("the curse put Zariche in the bag")
+        .object_id;
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .unwrap()
+            .paperdoll_slot_of(weapon_oid)
+            .is_some(),
+        "activate equips the weapon"
+    );
+    drain(&mut v_rx);
+
+    world.forced_rolls.push_back(51); // 51 > disapearChance → drops, not destroyed
+    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+
+    let packets = drain(&mut v_rx);
+    assert_eq!(
+        equip_slot(&packets, InventorySlot::RHand),
+        Some((0, 0)),
+        "ExUserInfoEquipSlot resent with an empty right hand"
+    );
 }
 
 /// The same death with the disappear roll hitting: the weapon leaves the world

@@ -348,13 +348,18 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
     }
     super::admin::transforms::remove_transform(world, victim_oid);
     super::admin::refresh_skill_list(world, victim_oid);
-    if let Some(cid) = super::helpers::client_for_player(world, victim_oid)
-        && let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid)
-    {
-        let list = crate::network::enter_world::item_list(inv, &world.data, false);
-        if let Some(cs) = world.clients.get(&cid) {
-            cs.send(list);
+    if let Some(cid) = super::helpers::client_for_player(world, victim_oid) {
+        if let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid) {
+            let list = crate::network::enter_world::item_list(inv, &world.data, false);
+            if let Some(cs) = world.clients.get(&cid) {
+                cs.send(list);
+            }
         }
+        // The bag list alone leaves the *model* holding the sword: the client
+        // reads its own paperdoll from `ExUserInfoEquipSlot`, which Java emits
+        // from `setPaperdollItem` inside the `dropItem` → `removeItem` →
+        // unequip chain. See `items::refresh_equip_state`.
+        super::items::refresh_equip_state(world, cid, victim_oid);
     }
     super::party::broadcast_user_info(world, victim_oid);
 
@@ -529,6 +534,10 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
             cs.send(weight);
         }
     }
+    // A stray weapon can still be *worn* — and `EnterWorld` already sent its
+    // `ExUserInfoEquipSlot` before this sweep runs, so the client would render
+    // the sword the sweep just deleted until the next equip change.
+    super::items::refresh_equip_state(world, client_id, object_id);
     super::party::broadcast_user_info(world, object_id);
 }
 
