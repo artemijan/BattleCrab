@@ -12,11 +12,11 @@ use models::entity::{
     character_recipebook, character_reco_bonus, character_shortcuts, character_skills,
     character_skills_save, character_subclasses, character_summon_skills_save, character_summons,
     character_variables, characters, clan_data, clan_privs, clan_skills, clan_subpledges,
-    clan_wars, clanhall, clanhall_auctions_bidders, crests, cursed_weapons, grandboss_data, heroes,
-    heroes_diary, item_auction, item_auction_bid, item_variations, items, lottery, mdt_bets,
-    mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles, olympiad_nobles_eom,
-    petition_feedback, pets, pledge_applicant, pledge_recruit, pledge_waiting_list, punishments,
-    residence_functions, siege_clans,
+    clan_wars, clanhall, clanhall_auctions_bidders, crests, cursed_weapons, custom_mail,
+    grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid, item_variations, items,
+    lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles,
+    olympiad_nobles_eom, petition_feedback, pets, pledge_applicant, pledge_recruit,
+    pledge_waiting_list, punishments, residence_functions, siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
@@ -940,6 +940,16 @@ pub enum DbCommand {
     /// Query the sold tickets of a round for the draw (Java
     /// `Lottery.SELECT_LOTTERY_ITEM`): the persisted item 4442 rows. Replies with
     /// [`DbEvent::LotteryTicketsLoaded`].
+    /// `CustomMailManager`'s poll: read every pending `custom_mail` row. The
+    /// rows an operator (or a web shop) writes straight into the table are the
+    /// whole interface — the game server only ever reads and deletes them.
+    LoadCustomMail,
+    /// Delete one delivered `custom_mail` row, keyed as Java keys it: the
+    /// `(date, receiver)` pair, which is the table's composite primary key.
+    DeleteCustomMail {
+        date: String,
+        receiver: i32,
+    },
     LoadLotteryTickets {
         round: i32,
     },
@@ -1127,6 +1137,8 @@ pub enum DbEvent {
         draws: Vec<(i32, crate::model::lottery::DrawnRound)>,
     },
     /// The persisted (offline) sold tickets of `round` for a draw — the reply to
+    /// [`DbCommand::LoadCustomMail`] — the pending rows, in table order.
+    CustomMailLoaded { rows: Vec<CustomMailRow> },
     /// [`DbCommand::LoadLotteryTickets`]. `(object_id, enchant, custom_type2)`
     /// per ticket item 4442; the draw dedupes these against online inventories.
     LotteryTicketsLoaded {
@@ -1328,6 +1340,20 @@ pub struct OlympiadNobleRow {
     pub comp_lost: i32,
     pub comp_drawn: i32,
     pub comp_done_week: i32,
+}
+
+/// One pending `custom_mail` row — the table an operator writes into to hand a
+/// character mail from outside the game.
+#[derive(Debug, Clone)]
+pub struct CustomMailRow {
+    /// The timestamp column, half of the composite key. Kept as the string the
+    /// DB returns so the delete matches byte-for-byte.
+    pub date: String,
+    pub receiver: i32,
+    pub subject: String,
+    pub message: String,
+    /// `itemId count enchant;itemId count;itemId…` — see `parse_item_list`.
+    pub items: String,
 }
 
 /// One `olympiad_nobles_eom` row — the end-of-cycle snapshot the Grand Olympiad
@@ -3269,6 +3295,31 @@ async fn run(
                         .col_expr(lottery::Column::Newprize, prize.into())
                         .filter(lottery::Column::Id.eq(1))
                         .filter(lottery::Column::Idnr.eq(idnr))
+                        .exec(&db)
+                        .await,
+                );
+            }
+            DbCommand::LoadCustomMail => {
+                let rows = custom_mail::Entity::find()
+                    .all(&db)
+                    .await
+                    .unwrap_or_default()
+                    .into_iter()
+                    .map(|r| CustomMailRow {
+                        date: r.date,
+                        receiver: r.receiver,
+                        subject: r.subject,
+                        message: r.message,
+                        items: r.items,
+                    })
+                    .collect();
+                let _ = event_tx.send(DbEvent::CustomMailLoaded { rows });
+            }
+            DbCommand::DeleteCustomMail { date, receiver } => {
+                warn_err(
+                    custom_mail::Entity::delete_many()
+                        .filter(custom_mail::Column::Date.eq(date))
+                        .filter(custom_mail::Column::Receiver.eq(receiver))
                         .exec(&db)
                         .await,
                 );

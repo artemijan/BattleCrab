@@ -28,7 +28,7 @@ pub use champion::ChampionConfig;
 pub use character::CharacterConfig;
 pub use community_board::CommunityBoardConfig;
 pub use custom_misc::{
-    AllowedRacesConfig, BankingConfig, BossAnnouncementsConfig, CustomMiscConfig,
+    AllowedRacesConfig, BankingConfig, BossAnnouncementsConfig, CustomMailConfig, CustomMiscConfig,
 };
 pub use custom_pvp::{CustomNpcConfig, PvpRewardConfig, PvpTitleColorConfig, RandomSpawnsConfig};
 pub use dualbox::DualboxConfig;
@@ -94,6 +94,8 @@ pub struct CombatConfig {
     pub sell_buffs: SellBuffsConfig,
     /// `Custom/AutoPotions.ini` — the `.apon` self-healing loop.
     pub auto_potions: AutoPotionsConfig,
+    /// `Custom/CustomMailManager.ini` — the inbound mail table poll.
+    pub custom_mail: CustomMailConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -123,6 +125,7 @@ pub struct Config {
     pub custom_npc: CustomNpcConfig,
     pub sell_buffs: SellBuffsConfig,
     pub auto_potions: AutoPotionsConfig,
+    pub custom_mail: CustomMailConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -192,6 +195,7 @@ impl Config {
         let custom_npc = CustomNpcConfig::load_from(root);
         let sell_buffs = SellBuffsConfig::load_from(root);
         let auto_potions = AutoPotionsConfig::load_from(root);
+        let custom_mail = CustomMailConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -218,6 +222,7 @@ impl Config {
             custom_npc,
             sell_buffs,
             auto_potions,
+            custom_mail,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -250,6 +255,7 @@ impl Config {
             custom_npc: self.custom_npc.clone(),
             sell_buffs: self.sell_buffs.clone(),
             auto_potions: self.auto_potions.clone(),
+            custom_mail: self.custom_mail.clone(),
         }
     }
 }

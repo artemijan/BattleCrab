@@ -271,7 +271,37 @@ entirely, so reviving does not resume it — `.apon` has to be typed again.
 
 6 tests, 5 mechanisms sabotage-verified.
 
+## Slice 6 — custom mail manager
+
+The `custom_mail` table is an **inbound** interface: an operator, a web shop or
+a support tool writes a row, and the server polls every
+`DatabaseQueryDelay` seconds (30 here), turns each row into an ordinary
+in-game message with attachments, and deletes it. Nothing in the game ever
+writes to the table.
+
+Ported as a `DbCommand::LoadCustomMail` / `DbEvent::CustomMailLoaded` round
+trip plus `DbCommand::DeleteCustomMail`, keyed on Java's own composite
+`(date, receiver)`.
+
+Two behaviours worth stating:
+
+- **An offline recipient's row is left alone** — not delivered, not deleted —
+  so a gift waits rather than vanishing. Java looks the player up in `World`
+  and skips the row entirely, which means the delete only ever happens on the
+  pass that delivers.
+- **The item list has three shapes** (`id count enchant`, `id count`, bare
+  `id`), and anything unparseable is skipped rather than failing the row. All
+  four cases are pinned by a test, because a silently-dropped attachment is
+  invisible to whoever wrote the row.
+
+One documented narrowing: Java tags a row *with* items as `PRIME_SHOP_GIFT`,
+a Kamael-era `MailType` outside this port's enum. Since the enum's ordinals are
+the wire values, inventing one would send this client a number it does not
+know — so a gift arrives as `REGULAR`, differing only in the client's icon.
+
+4 tests, 4 mechanisms sabotage-verified.
+
 ## Remaining slices
 
-Two features: custom mail manager (a DB poll loop) and auto-play (Classic
-auto-hunt, its own packet family — the largest single item in the audit).
+One feature: **auto-play** (Classic auto-hunt, its own packet family — the
+largest single item in the audit).

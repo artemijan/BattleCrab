@@ -1154,3 +1154,106 @@ fn sending_a_mail_arms_its_expiry_timer() {
     let expiration = world.mail.get(msg_id).unwrap().expiration;
     assert!(expiration > commons::util::now_millis() + 14 * 86_400_000);
 }
+
+// ---------------------------------------------------------------------------
+// Custom mail manager (`Custom/CustomMailManager.ini`)
+// ---------------------------------------------------------------------------
+
+fn custom_row(receiver: i32, items: &str) -> crate::db::CustomMailRow {
+    crate::db::CustomMailRow {
+        date: "2026-08-01 12:00:00".into(),
+        receiver,
+        subject: "A gift".into(),
+        message: "Enjoy.".into(),
+        items: items.into(),
+    }
+}
+
+/// A row for an **online** character becomes a real message with attachments,
+/// and the row is deleted. The recipient gets the arrival chime.
+#[test]
+fn a_custom_mail_row_is_delivered_and_deleted() {
+    use crate::db::DbCommand;
+
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world.id_pool = 0x4C00_0000..0x4C00_0100;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = 57;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(3001, "57 1000")]);
+
+    let msg = world
+        .mail
+        .messages
+        .values()
+        .find(|m| m.receiver_id == 3001)
+        .expect("a message was created");
+    assert_eq!(msg.subject, "A gift");
+    assert!(msg.has_attachments, "the item list makes it an attachment");
+    let attached = world.mail.attachments.get(&msg.id).expect("attachments");
+    assert_eq!(attached.items().len(), 1);
+    assert_eq!(attached.items()[0].item_id, 57);
+    assert_eq!(attached.items()[0].count, 1000);
+
+    // The row is removed, keyed by (date, receiver) like Java.
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            DbCommand::DeleteCustomMail { receiver: 3001, date } if date == "2026-08-01 12:00:00"
+        )),
+        "the delivered row is deleted"
+    );
+    assert!(
+        !drain(&mut rx).is_empty(),
+        "the recipient is told mail arrived"
+    );
+}
+
+/// **An offline recipient's row is left alone** — not delivered, not deleted —
+/// so the gift waits for them to log in.
+#[test]
+fn an_offline_recipient_keeps_their_row() {
+    use crate::db::DbCommand;
+
+    let (mut world, _tx, mut db_rx, _l) = test_world();
+    world.id_pool = 0x4C00_0200..0x4C00_0300;
+    drain_db(&mut db_rx);
+
+    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(9999, "57 1000")]);
+
+    assert!(
+        world.mail.messages.is_empty(),
+        "nothing delivered to an offline character"
+    );
+    assert!(
+        !drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, DbCommand::DeleteCustomMail { .. })),
+        "and the row survives for a later poll"
+    );
+}
+
+/// A row with no items is an ordinary letter: delivered, no attachments.
+#[test]
+fn a_row_without_items_is_a_plain_letter() {
+    let (mut world, _tx, _db, _l) = test_world();
+    world.id_pool = 0x4C00_0400..0x4C00_0500;
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    crate::game_loop::custom_mail::apply_loaded(&mut world, vec![custom_row(3001, "")]);
+
+    let msg = world
+        .mail
+        .messages
+        .values()
+        .find(|m| m.receiver_id == 3001)
+        .expect("delivered");
+    assert!(!msg.has_attachments);
+    assert!(world.mail.attachments.get(&msg.id).is_none());
+}
