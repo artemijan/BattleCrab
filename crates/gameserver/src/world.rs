@@ -392,6 +392,9 @@ pub struct World {
     /// cleared on logout (where the final flush happens instead). The
     /// memory-first model's timer that bounds how much a crash can lose.
     pub player_autosave_due: HashMap<i32, u64>,
+    /// Java `AutoPotionTaskManager.PLAYERS` — who has `.apon` switched on.
+    /// Transient: a relog needs the command again, as it does in Java.
+    pub auto_potion_players: std::collections::HashSet<i32>,
     /// Game RNG (Java `Rnd`) — owned here so handlers roll through `roll()`,
     /// which tests can force (`forced_rolls`) for deterministic combat.
     pub rng: rand::rngs::StdRng,
@@ -501,6 +504,7 @@ impl World {
             pc_cafe_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
+            auto_potion_players: std::collections::HashSet::new(),
             rng: rand::rngs::StdRng::from_entropy(),
             quest_attack_skill: None,
             #[cfg(test)]

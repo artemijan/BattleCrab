@@ -143,6 +143,25 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 5 — auto potions 2026-08-01.** `.apon`/`.apoff` plus the
+one-second sweep: three pools (HP/CP/MP), each with a threshold and an **ordered**
+potion list the loop walks as a preference ranking. Drinking reuses the ordinary
+item-skill path, so cast, cooldown and consumption match drinking by hand.
+
+Two Java behaviours kept deliberately, both pinned by tests: the **"out of
+potions" line fires every tick** for a player carrying none, even at full health
+(Java's `success` flag tracks *carrying* a potion, not drinking one); and the
+sweep **drops** rather than skips — dead, offline or in the Olympiad removes the
+player from the loop, so reviving does not resume it.
+
+A fixture detail worth remembering: the port only consumes an item when
+`default_action`/`immediate_effect` say the *handler* owns the destruction. My
+first potion fixture omitted them and the loop appeared to do nothing —
+the dist's real potions carry `SKILL_REDUCE` + `immediate_effect`.
+
+6 tests, 5 mechanisms sabotage-verified. **14 of the audit's 17 features are
+done**; two remain (custom mail manager, auto-play).
+
 **`Custom/*.ini` slice 4 — sell buffs 2026-08-01.** The player buff shop, ported
 whole: the `SellBuffData.xml` whitelist (149 skills, **99 of them learnable**
 here, so the feature is genuinely reachable), the nine `sellbuff*` bypasses, the

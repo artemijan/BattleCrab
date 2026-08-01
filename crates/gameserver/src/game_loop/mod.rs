@@ -12,6 +12,7 @@ pub(crate) mod admin;
 pub(crate) mod antharas;
 pub(crate) mod area_npcs;
 mod augment;
+pub(crate) mod auto_potions;
 pub(crate) mod baium;
 pub(crate) mod boats;
 mod boss_respawn;
@@ -292,6 +293,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
             run_npc_regen_tick(&mut world);
+        }
+        if world.tick.is_multiple_of(auto_potions::TICK_PERIOD) {
+            auto_potions::tick(&mut world);
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
             autosave_tick(&mut world);
