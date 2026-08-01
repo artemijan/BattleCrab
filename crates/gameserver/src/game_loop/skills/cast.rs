@@ -1287,16 +1287,11 @@ pub(crate) fn start_casting(
 /// re-resolve the target and **re-sweep the affect scope** (a mob that walked
 /// into the volcano mid-channel burns; one that left stops), then apply the
 /// CHANNELING effect scope per target behind Java's `effectRange` + LOS gate.
-/// TODO(G19): the `channelingSkillId > 0` branch — while channeling, Java
-/// applies the *named* skill to each target as a stacking "channelized" buff
-/// (`SkillChannelizer.run`), so the effect builds up for as long as the cast is
-/// held rather than landing once at the end.
-///
-/// **This is reachable, contrary to what this comment used to claim.** Battle
-/// Stance 426 (`channelingSkillId` 5104) and Spell Stance 427 (5105) are
-/// learnable at level 77 — 427 by thirteen classes — so both currently channel
-/// their MP upkeep and apply nothing. The other carriers (3600-range Capture
-/// states, 14559 Soul Drain) are off-chronicle.
+/// The `channelingSkillId > 0` branch applies a *named* skill to each target
+/// instead of channeling effects, at a level equal to how many casters are
+/// channeling it — see [`apply_channeled_skill`]. Battle Stance 426 (→ Battle
+/// Force 5104) and Spell Stance 427 (→ 5105) are the reachable carriers; the
+/// 3600-range Capture states and 14559 Soul Drain are off-chronicle.
 pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, cast_seq: u64) {
     use server_packets::sm_ids;
 
@@ -1383,8 +1378,30 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         }
     };
     let affected = super::affect::targets_affected(world, player_object_id, target_oid, &skill);
-    if affected.is_empty() || skill.channeling_effects.is_empty() {
+    // A `channelingSkillId` skill carries **no** `<channelingEffects>` — it
+    // applies a named skill instead — so the emptiness check must not gate it.
+    // Battle Stance 426 / Spell Stance 427 are exactly this shape, and bailing
+    // here is what left them channeling MP upkeep while applying nothing.
+    let channels_a_skill = skill.channeling_skill_id > 0;
+    if affected.is_empty() || (skill.channeling_effects.is_empty() && !channels_a_skill) {
         return;
+    }
+    // Java registers the channelizer inside `forEachTargetAffected`, i.e. for
+    // every affected target — *before* the per-target range/LOS filter below,
+    // which only gates application.
+    if channels_a_skill {
+        for &target in &affected {
+            if target == player_object_id {
+                continue;
+            }
+            world
+                .channelized
+                .entry(target)
+                .or_default()
+                .entry(skill.channeling_skill_id)
+                .or_default()
+                .insert(player_object_id);
+        }
     }
     let Some(caster_pos) = world
         .objects
@@ -1430,6 +1447,10 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
         ) {
             continue;
         }
+        if channels_a_skill {
+            apply_channeled_skill(world, player_object_id, target, &skill);
+            continue;
+        }
         // Just `applyChannelingEffects` — Java's simple path runs **no**
         // per-tick `callSkill` consequences (no flat `-effectPoint` hate, no
         // PvP flag; those fire once, at cast finish, through the normal
@@ -1445,6 +1466,68 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
     }
 }
 
+/// Java's `channelingSkillId > 0` branch of `SkillChannelizer.run`.
+///
+/// The level is **how many distinct channelers** are holding this skill on the
+/// target, capped at the channeled skill's max level: one Warcryer on Battle
+/// Stance gives Battle Force 5104 level 1, two give level 2. That is the entire
+/// mechanic — the registry size *is* the level.
+///
+/// Re-applied only when the target has no such buff or a weaker one, so a
+/// steady two-channeler stack refreshes at level 2 rather than flickering.
+fn apply_channeled_skill(world: &mut World, channelizer: i32, target: i32, skill: &Skill) {
+    let channeled_id = skill.channeling_skill_id;
+    let count = world
+        .channelized
+        .get(&target)
+        .and_then(|m| m.get(&channeled_id))
+        .map_or(0, |s| s.len()) as i32;
+    let level = count.min(world.data.skill_data.max_level(channeled_id));
+    if level <= 0 {
+        return;
+    }
+    // `getBuffInfoBySkillId(...)` — skip while an equal-or-stronger stack is up.
+    let current = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&target)
+        .and_then(|b| {
+            b.0.iter()
+                .find(|a| a.skill_id == channeled_id)
+                .map(|a| a.skill_level)
+        });
+    if current.is_some_and(|lvl| lvl >= level) {
+        return;
+    }
+    let Some(channeled) = world.data.skill_data.get(channeled_id, level).cloned() else {
+        // Java logs and aborts the cast on a missing channeled skill.
+        tracing::warn!(
+            "Channeling: skill {} names a non-existent channeling skill {channeled_id}.",
+            skill.id
+        );
+        abort_cast(world, channelizer);
+        return;
+    };
+    // Java `updatePvPStatus(creature)` before the apply, when both are playable.
+    if world.objects.has_component::<Player>(&target) {
+        crate::game_loop::pvp::update_pvp_status_target(world, channelizer, target);
+    }
+    apply_skill_effects(world, channelizer, target, &channeled);
+}
+
+/// Java `SkillChannelizer.stopChanneling` → `removeChannelizer`: drop this
+/// caster from every target's registry, so the stack it was contributing to
+/// shrinks by one (and the channeled buff re-lands a level lower on the next
+/// surviving channeler's tick, or simply expires).
+pub(crate) fn stop_channelizing(world: &mut World, channelizer: i32) {
+    world.channelized.retain(|_, per_skill| {
+        per_skill.retain(|_, set| {
+            set.remove(&channelizer);
+            !set.is_empty()
+        });
+        !per_skill.is_empty()
+    });
+}
+
 /// Every cast-stop path funnels here — Java `SkillCaster.stopCasting`: free
 /// the casting slot, then fire whatever the cast held back (the queued skill
 /// `useMagic` replay, or `EVT_FINISH_CASTING` → the saved MOVE_TO / pending
@@ -1452,6 +1535,8 @@ pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, c
 /// also cleared in `player_do_die`).
 pub(crate) fn stop_casting(world: &mut World, object_id: i32) {
     world.objects.remove_component::<Casting>(&object_id);
+    // Java `stopChanneling()` runs off the same stop path.
+    stop_channelizing(world, object_id);
     run_queued_action(world, object_id);
 }
 

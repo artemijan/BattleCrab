@@ -2182,6 +2182,7 @@ fn build_skill(
             // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
             // default is the skill's own mpConsume, not 0.
             mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),
+            channeling_skill_id: get_i("channelingSkillId", 0),
             // XML values are seconds; Java stores ms (`getFloat × 1000`).
             channeling_tick_ms: (get_f("channelingTickInterval", 0.0) * 1000.0) as i32,
             channeling_start_ms: (get_f("channelingStart", 0.0) * 1000.0) as i32,
