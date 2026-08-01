@@ -21,6 +21,12 @@ pub enum ScheduledTask {
     /// The `//server_shutdown|restart` countdown beat (announce marks + the
     /// final `Shutdown::request`).
     ServerShutdownTick,
+    /// `Player.dismount()`'s 1.5 s post-dismount `broadcastUserInfo()`, armed
+    /// only when there is water below — the client needs the swim speeds once
+    /// the rider has actually gone under.
+    DismountWaterUserInfo {
+        object_id: i32,
+    },
     /// `//debug doors|geodata|movement` redraw beats (Java `AdminDebug`'s
     /// per-player fixed-rate tasks: 3000/1500/100 ms).
     DebugDoorTick {

@@ -113,6 +113,7 @@ mod visibility;
 mod vitality;
 pub(crate) mod walkers;
 mod warehouse;
+pub(crate) mod water;
 pub(crate) mod zones;
 
 use std::sync::Arc;
@@ -316,6 +317,10 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(death::TELEPORT_WATCHDOG_PERIOD) {
             death::teleport_watchdog_tick(&mut world);
         }
+        // `WaterTask`'s 1 s fixed-rate beat (Java schedules one future per
+        // drowning player; the port sweeps the component instead). Every tick,
+        // because each player's clock starts when *they* went under.
+        water::drown_tick(&mut world);
         // 5. Flush outbound packets / DB commands — added in G3+.
 
         let elapsed = tick_start.elapsed();
@@ -448,6 +453,14 @@ fn apply_due_tasks(world: &mut World) {
             }
             ScheduledTask::ServitorLifeTick { servitor_oid } => {
                 servitor::handle_life_tick(world, servitor_oid);
+            }
+            ScheduledTask::DismountWaterUserInfo { object_id } => {
+                // `if (isInWater()) broadcastUserInfo()` — the drowning task is
+                // Java's predicate here, so a rider who landed on the bank
+                // (or `AllowWater = False`) gets nothing, as in Java.
+                if water::is_drowning_task_active(world, object_id) {
+                    party::broadcast_user_info(world, object_id);
+                }
             }
             ScheduledTask::GrandBossRespawn { boss_id } => {
                 grand_boss::handle_grand_boss_respawn(world, boss_id);

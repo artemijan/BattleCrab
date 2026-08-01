@@ -257,6 +257,15 @@ pub struct Speeds {
     /// the object's lifetime; used only as the denominator of
     /// [`Speeds::client_move_multiplier`], never in the movement math.
     pub base_run_spd: f64,
+    /// The other three raw template bases, for the same denominator. Java's
+    /// `getMovementSpeedMultiplier` picks between all four by
+    /// `isInsideZone(WATER)` and `isRunning()`, so a swimming (or walking)
+    /// character needs its *own* base or the animation rate is scaled against
+    /// the wrong yardstick — this is why entering water left the legs running
+    /// at land cadence.
+    pub base_walk_spd: f64,
+    pub base_swim_run_spd: f64,
+    pub base_swim_walk_spd: f64,
     /// `Creature._isRunning` — players spawn running; NPCs walk until AI
     /// flips to run on aggro.
     pub running: bool,
@@ -278,18 +287,26 @@ impl Speeds {
     }
 
     /// Java `CreatureStat.getMovementSpeedMultiplier`: current move speed ÷ the
-    /// raw template base speed. This is the value the client uses to set the
-    /// **leg-animation playback rate**, so it must be *derived* from the
-    /// finalized speed — not a standalone field. Stat-based speed buffs (Super
-    /// Haste, Wind Walk, …) raise `run_spd` without touching `move_multiplier`;
-    /// sending a bare `move_multiplier` there made the character glide at the
-    /// buffed speed while its legs animated at the base cadence. Falls back to
-    /// `1.0` if the base is unknown (0), so a zero-template object is unchanged.
+    /// raw template base speed for the movement mode in effect — swim bases
+    /// while `isInsideZone(WATER)`, walk bases while walking. This is the value
+    /// the client uses to set the **leg-animation playback rate**, so it must be
+    /// *derived* from the finalized speed — not a standalone field. Stat-based
+    /// speed buffs (Super Haste, Wind Walk, …) raise `run_spd` without touching
+    /// `move_multiplier`; sending a bare `move_multiplier` there made the
+    /// character glide at the buffed speed while its legs animated at the base
+    /// cadence. Falls back to `1.0` if the base is unknown (0), so a
+    /// zero-template object (every NPC, whose swim bases are 0) is unchanged.
     pub fn client_move_multiplier(&self) -> f64 {
-        if self.base_run_spd <= 0.0 {
+        let base = match (self.swimming, self.running) {
+            (true, true) => self.base_swim_run_spd,
+            (true, false) => self.base_swim_walk_spd,
+            (false, true) => self.base_run_spd,
+            (false, false) => self.base_walk_spd,
+        };
+        if base <= 0.0 {
             return 1.0;
         }
-        self.move_speed() * (1.0 / self.base_run_spd)
+        self.move_speed() * (1.0 / base)
     }
 
     /// The four speed shorts `UserInfo`/`CharInfo` carry, in wire order. Java
@@ -298,6 +315,15 @@ impl Speeds {
     /// so the finalized speeds must be sent *divided*, or the buff scale is
     /// counted twice (Super Haste 4 showed ~3100 on the client while the
     /// server moved at ~630).
+    ///
+    /// The first two slots are **water-aware**: Java fills them from
+    /// `getRunSpeed()`/`getWalkSpeed()`, and both of those return the *swim*
+    /// stat while `isInsideZone(WATER)`. The client drives its own prediction
+    /// and leg animation off the run slot, so sending the land speed there is
+    /// what made entering water feel like no slowdown at all — the server
+    /// swam at 50 while the client kept running at 120. Slots 3/4 stay the raw
+    /// `getSwimRunSpeed()`/`getSwimWalkSpeed()`, which is why they duplicate
+    /// slots 1/2 while submerged (Java does exactly this).
     pub fn client_speed_fields(&self) -> [i16; 4] {
         let mult = self.client_move_multiplier();
         let div = |v: f64| {
@@ -307,9 +333,14 @@ impl Speeds {
                 v as i16
             }
         };
+        let (run, walk) = if self.swimming {
+            (self.swim_run_spd, self.swim_walk_spd)
+        } else {
+            (self.run_spd, self.walk_spd)
+        };
         [
-            div(self.run_spd),
-            div(self.walk_spd),
+            div(run),
+            div(walk),
             div(self.swim_run_spd),
             div(self.swim_walk_spd),
         ]
@@ -1145,6 +1176,19 @@ impl Default for ZoneFlags {
             fishing_available: false,
         }
     }
+}
+
+/// Java `Player._taskWater` — the drowning clock, present exactly while
+/// `Player.isInWater()` is true. Java holds a `ScheduledFuture` whose initial
+/// delay is the breath gauge and whose period is 1 s; the port keeps the tick
+/// the next damage beat is due on and lets
+/// [`game_loop::water`](crate::game_loop::water) sweep it, so "cancel the
+/// task" is just removing the component.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct WaterTask {
+    /// `world.tick` the next 1 s drowning beat lands on. Seeded to
+    /// `now + breath`, so nothing happens at all until the gauge runs out.
+    pub next_damage_tick: u64,
 }
 
 impl ZoneFlags {

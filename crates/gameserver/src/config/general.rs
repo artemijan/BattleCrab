@@ -61,6 +61,12 @@ pub struct GeneralConfig {
     /// (dist ships `0`, a non-existent id ⇒ effectively empty).
     pub protected_items: Vec<i32>,
 
+    /// `AllowWater` (dist `True`): whether swimming can drown you. Java gates
+    /// only `Player.checkWaterState()` on it inside `revalidateZone` — the
+    /// swim-speed switch in `WaterZone.onEnter` is unconditional, so turning
+    /// this off makes water slow but harmless, not inert.
+    pub allow_water: bool,
+
     /// `AllowManor`: whether the castle manor (seed sowing / crop harvest) runs.
     /// The dist ships `False`; the manor data + packets exist regardless so the
     /// feature works the moment an operator enables it.
@@ -166,6 +172,9 @@ impl GeneralConfig {
                 .split(',')
                 .filter_map(|s| s.trim().parse::<i32>().ok())
                 .collect(),
+            // Java's code default is `true` (not `d.allow_water`, which the
+            // derived `Default` would make `false` — the opposite meaning).
+            allow_water: p.get_bool("AllowWater", true),
             allow_manor: p.get_bool("AllowManor", d.allow_manor),
             alt_manor_save_all_actions: p
                 .get_bool("AltManorSaveAllActions", d.alt_manor_save_all_actions),

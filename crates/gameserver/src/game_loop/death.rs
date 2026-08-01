@@ -1942,6 +1942,11 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
     // Noblesse Blessing is up — then only the blessing goes.
     stop_effects_on_death(world, player_oid);
 
+    // `Player.doDie`'s `stopWaterTask()`: a corpse doesn't drown. Without this
+    // the breath gauge would keep ticking damage into a dead body, and the bar
+    // would still be on screen at the death dialog.
+    super::water::stop_water_task(world, player_oid);
+
     // `Player.doDie`'s reputation block: a player killer takes the PvP/PK
     // consequences (counters, karma) for this death.
     if world

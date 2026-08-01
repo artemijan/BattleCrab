@@ -941,7 +941,8 @@ NPC skill casting (`AISkillScope` lists); minions; guard/faction/clan-help aggro
 (needs karma); NPC pathfinding (chase/return-home + closest-reachable grid, the
 G7.85 worker for NPCs) and NPC regen; ground drops + spoil/sweep; `DBSpawnManager`
 persistence (raid HP across restart); `HtmCache`; walker routes; the other ~33
-zone types (damage/effect/boss/jail/water-breath/no-store/arena…) + fence checks
+zone types (damage/effect/boss/jail/~~water-breath~~/no-store/arena…; water-breath
+landed 2026-08-01, `feat/water-parity`) + fence checks
 + the `ValidatePosition` door-exploit tail. **Gate:** a mob casts, a guard aggros
 a PK, a spoiled corpse can be swept, a boss keeps its HP across restart.
 **Deps:** G20.
