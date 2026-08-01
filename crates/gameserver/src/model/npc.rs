@@ -561,6 +561,7 @@ pub(crate) fn spawn_one(
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
     crate::game_loop::minions::spawn_minions(world, oid);
+    announce_boss_spawn(world, oid);
     Some(oid)
 }
 
@@ -570,6 +571,27 @@ pub(crate) fn spawn_one(
 /// `respawn_secs == 0` (see `handle_npc_decay`). Returns the object id, or
 /// `None` if `npc_id` is unknown.
 pub(crate) fn spawn_npc_at(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> Option<i32> {
+    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0));
+    if let Some(oid) = oid {
+        announce_boss_spawn(world, oid);
+    }
+    oid
+}
+
+/// [`spawn_npc_at`] without the boss announcement — for a **minion**, which
+/// Java excludes from the spawn lines (`!isMinion() && !isRaidMinion()`).
+/// It needs its own entry point because `MinionOf` can only be attached once
+/// the entity exists, so an announcement inside the spawn itself would fire
+/// before anything could suppress it. Same reason `clear_champion_for_raid_
+/// minion` runs at the call site.
+pub(crate) fn spawn_minion_npc_at(
     world: &mut World,
     npc_id: i32,
     x: i32,
@@ -773,6 +795,69 @@ fn random_point_2d(rng: &mut rand::rngs::StdRng, territory: &Territory) -> Optio
         tries += 1;
     }
     Some((x, y))
+}
+
+/// `Npc.onSpawn`'s custom boss announcement (`Custom/BossAnnouncements.ini`):
+/// a server-wide chat line **and** an on-screen one when a raid or grand boss
+/// appears. Minions and raid minions are excluded, and an instanced spawn only
+/// counts under the matching `…InstanceAnnouncements` flag.
+///
+/// Both defeat flags ship `false` here, so only the spawn arm exists. Java
+/// looks the name up through `NpcData` rather than using the instance's title,
+/// so a champion prefix or a script's `setTitle` never leaks into the line.
+fn announce_boss_spawn(world: &World, object_id: i32) {
+    let cfg = &world.cfg.boss_announcements;
+    if !cfg.raidboss_spawn && !cfg.grandboss_spawn {
+        return;
+    }
+    let Some(t) = world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+    else {
+        return;
+    };
+    let grand = t.type_name == "GrandBoss";
+    let (enabled, in_instance_ok) = if grand {
+        (cfg.grandboss_spawn, cfg.grandboss_instance)
+    } else if t.is_raid() {
+        (cfg.raidboss_spawn, cfg.raidboss_instance)
+    } else {
+        return;
+    };
+    if !enabled {
+        return;
+    }
+    // `!isInInstance() || …InstanceAnnouncements`.
+    let in_instance = world
+        .objects
+        .get_component::<crate::model::components::InstanceId>(&object_id)
+        .is_some_and(|i| i.0 != 0);
+    if in_instance && !in_instance_ok {
+        return;
+    }
+    // Java's `!isMinion() && !isRaidMinion()` is handled at the call site
+    // instead: minions spawn through [`spawn_minion_npc_at`], which does not
+    // announce. Checking `MinionOf` here would be dead code — the tag is
+    // attached after the entity exists.
+    if t.name.is_empty() {
+        return; // Java: `if (name != null)`.
+    }
+    let text = format!("{} has spawned!", t.name);
+    let say = crate::network::server_packets::creature_say(
+        0,
+        crate::enums::ChatType::Announcement,
+        "",
+        &text,
+        None,
+    );
+    let screen = crate::network::server_packets::ex_show_screen_message(&text, 2, 5000);
+    for cs in world.clients.values() {
+        if matches!(cs, crate::session::ClientSession::InGame(_)) {
+            cs.send(say.clone());
+            cs.send(screen.clone());
+        }
+    }
 }
 
 #[cfg(test)]

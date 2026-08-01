@@ -39,7 +39,7 @@ pub(super) fn admin_character_disconnect(world: &mut World, client_id: u32, obje
 
 /// The clean logout teardown for a player (Java `Disconnection.of`): persist,
 /// despawn, and drop the session.
-fn disconnect_player(world: &mut World, target: i32) {
+pub(crate) fn disconnect_player(world: &mut World, target: i32) {
     let Some(tcid) = super::helpers::client_for_player(world, target) else {
         return;
     };

@@ -77,6 +77,9 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
     let Some(owner) = player_of(world, client_id) else {
         return;
     };
+    if !can_open_private_store(world, client_id, owner) {
+        return;
+    }
     let Some(inv) = world.objects.get_component::<Inventory>(&owner) else {
         return;
     };
@@ -848,5 +851,106 @@ fn close_buy_store(world: &mut World, owner: i32) {
 fn send_sm(world: &World, client_id: u32, message_id: i16) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(sp::system_message_with(message_id, &[]));
+    }
+}
+
+/// Java `Player.canOpenPrivateStore` — the shared gate on every
+/// `tryOpenPrivateXStore`. Its first half is the `Custom/PrivateStoreRange.ini`
+/// spacing rule: nothing within 1000 units may have a **minimum shop distance**
+/// that the owner is standing inside. Java gets that number from
+/// `getMinShopDistance()`, which is `ShopMinRangeFromNpc` for any NPC and
+/// `ShopMinRangeFromPlayer` for a player **only while seated** — i.e. one who
+/// already has a store up — so the rule spaces shops apart rather than blocking
+/// on any passer-by.
+///
+/// The second half is the state check. `_isSellingBuffs` has no port
+/// equivalent (sell-buffs is a later slice of this same audit) and the
+/// `NO_STORE` zone kind is not loaded, so those two legs are absent; the rest
+/// are here.
+pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) -> bool {
+    let cfg = &world.cfg.custom_misc;
+    if cfg.shop_min_range_from_npc > 0 || cfg.shop_min_range_from_player > 0 {
+        let Some(pos) = world
+            .objects
+            .get_component::<crate::model::components::Position>(&owner)
+            .copied()
+        else {
+            return false;
+        };
+        let too_close = |other: i32, min_distance: i32| {
+            if min_distance <= 0 {
+                return false;
+            }
+            world
+                .objects
+                .get_component::<crate::model::components::Position>(&other)
+                .is_some_and(|o| {
+                    let (dx, dy, dz) = (
+                        (o.x - pos.x) as i64,
+                        (o.y - pos.y) as i64,
+                        (o.z - pos.z) as i64,
+                    );
+                    let d = min_distance as i64;
+                    dx * dx + dy * dy + dz * dz <= d * d
+                })
+        };
+        // Java sweeps `getVisibleObjectsInRange(this, Creature.class, 1000)`;
+        // the port's equivalent neighbourhood is the 3×3 region block, the same
+        // sweep the NPC AI uses for its own range queries.
+        let Some(region) = world
+            .objects
+            .get_component::<crate::model::components::RegionCell>(&owner)
+            .map(|r| r.0)
+        else {
+            return false;
+        };
+        let nearby_npcs: Vec<i32> = (-1..=1)
+            .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+            .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
+            .flatten()
+            .copied()
+            .collect();
+        for npc in nearby_npcs {
+            if too_close(npc, cfg.shop_min_range_from_npc) {
+                send_cannot_open_here(world, client_id);
+                return false;
+            }
+        }
+        for cs in world.clients.values() {
+            let crate::session::ClientSession::InGame(s) = cs else {
+                continue;
+            };
+            let other = s.player_object_id();
+            // `Player.getMinShopDistance()` is non-zero only while seated.
+            let seated = world
+                .objects
+                .get_component::<crate::model::Player>(&other)
+                .is_some_and(|p| p.sitting);
+            if other != owner && seated && too_close(other, cfg.shop_min_range_from_player) {
+                send_cannot_open_here(world, client_id);
+                return false;
+            }
+        }
+    }
+    world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&owner)
+        .is_some_and(|v| !v.dead)
+        && !world
+            .objects
+            .get_component::<crate::model::Player>(&owner)
+            .is_some_and(crate::model::Player::is_mounted)
+        && !world.olympiad.in_competition.contains(&owner)
+        && !world
+            .objects
+            .has_component::<crate::model::components::Casting>(&owner)
+}
+
+fn send_cannot_open_here(world: &World, client_id: u32) {
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(sp::system_message_with(
+            sp::sm_ids::YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE,
+            &[],
+        ));
     }
 }

@@ -47,6 +47,21 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // `Config.L2WALKER_PROTECTION` — the L2Walker bot client drives the game by
+    // *whispering* its own verbs, so a whisper opening with one is taken as
+    // proof of an emulator. Java punishes with `DEFAULT_PUNISH` (`KICK` on this
+    // dist) and drops the line.
+    if world.cfg.custom_misc.walker_protection
+        && chat_type == ChatType::Whisper
+        && crate::config::custom_misc::WALKER_COMMAND_LIST
+            .iter()
+            .any(|c| pkt.text.starts_with(c))
+    {
+        tracing::warn!("Client Emulator Detect: object {sender_oid} using L2Walker; kicking.");
+        super::admin::moderation::disconnect_player(world, sender_oid);
+        return;
+    }
+
     // Java `Say2`: a chat-banned player can still use `.`-prefixed commands but
     // no ordinary chat gets through (G31). The prohibition message is sent, then
     // the message is dropped.
@@ -72,16 +87,29 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
     broadcast_snoop(world, sender_oid, chat_type, &sender_name, &pkt.text);
 
     // `ChatGeneral`: a `.`-prefixed line is a voiced command, not chat — the
-    // handler runs and the text is never broadcast. Only `.offline` is ported;
-    // the rest of `MasterHandler`'s voiced list (`.online`, `.premium`,
-    // `.password`, banking, auto-play/potions) is TODO(G33).
+    // handler runs and the text is never broadcast. Java's `MasterHandler`
+    // registers each handler only when its `Custom/*.ini` flag is on, so an
+    // unregistered command falls through to being *said*; the gates below keep
+    // that shape. Still unported: `.premium`, `.password`, auto-play/potions
+    // (`TODO(G33)`).
     if chat_type == ChatType::General
         && let Some(rest) = pkt.text.strip_prefix('.')
     {
         let command = rest.split_whitespace().next().unwrap_or("");
-        if command == "offline" {
-            super::offline_trade::handle_voiced_offline(world, client_id);
-            return;
+        match command {
+            "offline" => {
+                super::offline_trade::handle_voiced_offline(world, client_id);
+                return;
+            }
+            "online" if world.cfg.custom_misc.online_command => {
+                handle_voiced_online(world, client_id);
+                return;
+            }
+            "bank" | "deposit" | "withdraw" if world.cfg.banking.enabled => {
+                handle_voiced_banking(world, client_id, sender_oid, command);
+                return;
+            }
+            _ => {}
         }
     }
 
@@ -335,5 +363,85 @@ fn broadcast_snoop(
 fn send_sm(world: &World, client_id: u32, message_id: i16) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::system_message_with(message_id, &[]));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// `Custom/*.ini` voiced commands (G33 audit)
+// ---------------------------------------------------------------------------
+
+/// Java's `Goldbar` item — what `.deposit` pays out and `.withdraw` consumes.
+const GOLDBAR_ITEM_ID: i32 = 3470;
+/// Adena.
+const ADENA_ITEM_ID: i32 = 57;
+
+/// `handlers/voicedcommandhandlers/Online` — `.online`, the player count.
+/// Java's singular/plural split is verbatim; the count is every in-game
+/// session, which includes an offline shop still standing (`World.getPlayers`
+/// keeps them, and so does the port's `clients` map plus `offline_traders`).
+fn handle_voiced_online(world: &World, client_id: u32) {
+    let count = world
+        .clients
+        .values()
+        .filter(|cs| matches!(cs, ClientSession::InGame(_)))
+        .count()
+        + world.offline_traders.len();
+    let text = if count > 1 {
+        format!("There are {count} players online!")
+    } else {
+        "There is 1 player online!".to_string()
+    };
+    crate::game_loop::admin::send_message(world, client_id, &text);
+}
+
+/// `handlers/voicedcommandhandlers/Banking` — `.bank` explains the rate,
+/// `.deposit` turns `BankingAdenaCount` adena into `BankingGoldbarCount`
+/// goldbars, `.withdraw` reverses it. Java messages the shortfall rather than
+/// refusing silently, and its `updateDatabase()` call is a no-op here: the port
+/// is memory-first and the inventory flushes on the next autosave.
+fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, command: &str) {
+    let (adena, goldbars) = (world.cfg.banking.adena, world.cfg.banking.goldbars);
+    let count_of = |world: &World, item_id: i32| {
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&player_oid)
+            .map_or(0, |inv| inv.count_of(item_id))
+    };
+    match command {
+        "bank" => {
+            let text = format!(
+                ".deposit ({adena} Adena = {goldbars} Goldbar) / \
+                 .withdraw ({goldbars} Goldbar = {adena} Adena)"
+            );
+            crate::game_loop::admin::send_message(world, client_id, &text);
+        }
+        "deposit" => {
+            if count_of(world, ADENA_ITEM_ID) < adena {
+                let text = format!(
+                    "You do not have enough Adena to convert to Goldbar(s), \
+                     you need {adena} Adena."
+                );
+                crate::game_loop::admin::send_message(world, client_id, &text);
+                return;
+            }
+            super::quests::take_items(world, client_id, player_oid, ADENA_ITEM_ID, adena);
+            super::items::add_inventory_item(world, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            let text =
+                format!("Thank you, you now have {goldbars} Goldbar(s), and {adena} less adena.");
+            crate::game_loop::admin::send_message(world, client_id, &text);
+        }
+        "withdraw" => {
+            if count_of(world, GOLDBAR_ITEM_ID) < goldbars {
+                let text = format!("You do not have any Goldbars to turn into {adena} Adena.");
+                crate::game_loop::admin::send_message(world, client_id, &text);
+                return;
+            }
+            super::quests::take_items(world, client_id, player_oid, GOLDBAR_ITEM_ID, goldbars);
+            super::items::add_inventory_item(world, player_oid, ADENA_ITEM_ID, adena);
+            let text =
+                format!("Thank you, you now have {adena} Adena, and {goldbars} less Goldbar(s).");
+            crate::game_loop::admin::send_message(world, client_id, &text);
+        }
+        _ => {}
     }
 }

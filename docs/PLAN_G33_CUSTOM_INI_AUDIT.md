@@ -138,13 +138,51 @@ to `Attack`, so the second tick ran the attack loop instead of the aggro scan
 and the assert held no matter what the champion gate did. Resetting the
 intention to `Active` makes it real — it now fails under sabotage.
 
+## Slice 2 — the six cheap features
+
+All six of tier 1, in one `config/custom_misc.rs` (none is more than a handful
+of keys):
+
+- **`.online`** (`EnableOnlineCommand`) — the population line, Java's
+  singular/plural split kept. Counts in-game sessions **plus standing offline
+  shops**, which is what `World.getPlayers()` returns in Java.
+- **Banking** (`BankingEnabled`) — `.bank` / `.deposit` / `.withdraw`, adena ↔
+  goldbar at 1 000 000 000 : 1 here. Java's `updateDatabase()` has no
+  equivalent: the port is memory-first and the inventory rides the autosave.
+- **L2Walker protection** — a **whisper** opening with one of the eight bot
+  verbs kicks the sender (`DefaultPunish = KICK`). Gated on `ChatType.WHISPER`
+  like Java, so the same text said aloud is ordinary chat.
+- **Boss announcements** — the spawn line, in chat **and** on screen, for a
+  raid or grand boss. Both defeat flags ship `false`, so only the spawn arm
+  exists; the name comes from `NpcData` rather than the instance's title, so a
+  champion prefix never leaks into it.
+- **Private store range** — the port had no `canOpenPrivateStore` gate at all.
+  Added, with the spacing rule as its first half: `ShopMinRangeFromNpc` from any
+  NPC, `ShopMinRangeFromPlayer` from another **seated** player only (Java's
+  `getMinShopDistance` returns 0 unless sitting, so the rule spaces shops apart
+  rather than blocking on a passer-by). `_isSellingBuffs` and the `NO_STORE`
+  zone are the two legs still absent — the former is this audit's sell-buffs
+  slice, the latter a zone kind the port does not load.
+- **Allowed player races** — the per-race `switch` in `CharacterCreate`. All
+  five are `True` here, so it is inert; it exists so an operator turning one off
+  is obeyed rather than ignored.
+
+**One design note.** Java announces a boss from `Npc.onSpawn`, and excludes
+minions with `!isMinion() && !isRaidMinion()`. The port cannot test that at the
+same point: `MinionOf` is attached *after* the entity exists, so a check inside
+the spawn would be dead code. Suppression therefore lives at the call site —
+minions spawn through a new `spawn_minion_npc_at`, which does not announce. The
+champion code two lines away has the same shape for the same reason.
+
+8 tests, 5 mechanisms sabotage-verified.
+
 ## Remaining slices
 
-The 16 features above, still unported. Rough order by cost:
+Ten features, rough order by cost:
 
-1. **Cheap, self-contained:** private store range, boss announcements,
-   `.online`, banking, allowed player races, L2Walker protection.
-2. **Moderate:** PvP reward item, PvP title colour, dualbox check, random
-   spawns, chat moderation, nobless master.
-3. **Larger:** sell buffs (a new store type), custom mail manager (a DB poll
+1. **Moderate:** PvP reward item, PvP title colour, dualbox check (the
+   `CharacterSelect` per-IP cap — the *event* cap and the whole
+   `DualboxCheck.ini` parse already landed with the TvT anti-feed slice),
+   random spawns, chat moderation, nobless master.
+2. **Larger:** sell buffs (a new store type), custom mail manager (a DB poll
    loop), auto-play + auto-potions (Classic auto-hunt, its own packet family).

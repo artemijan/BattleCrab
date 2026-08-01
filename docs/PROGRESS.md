@@ -143,6 +143,31 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 2 — the six cheap features 2026-08-01.** Working the
+audit's own queue ([PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md))
+rather than the TODO clusters. All of tier 1 in one `config/custom_misc.rs`:
+`.online`, banking (`.bank`/`.deposit`/`.withdraw`), L2Walker protection, the
+boss spawn announcements, the private-store spacing rule and the allowed-races
+gate. Two are worth noting beyond the list:
+
+- **The port had no `canOpenPrivateStore` gate at all** — every Java caller
+  runs one, and the port opened the manage window unconditionally. Added, with
+  the `Custom/PrivateStoreRange.ini` spacing as its first half and the state
+  checks (dead / mounted / olympiad / casting) as its second. The player half
+  of the spacing only counts **seated** players, because Java's
+  `getMinShopDistance` returns 0 while standing — it spaces shops apart, it
+  does not block on a passer-by. Getting that backwards would have made a
+  crowded town unshoppable.
+- **The boss announcement could not be placed where Java puts it.** Java
+  announces from `Npc.onSpawn` and excludes minions with `!isMinion()`; the
+  port attaches `MinionOf` *after* the entity exists, so the same check inside
+  the spawn would be dead code — the shape I keep finding in other people's
+  work, caught here in my own before it shipped. Suppression moved to the call
+  site (`spawn_minion_npc_at`), matching what the champion lottery beside it
+  already does.
+
+8 tests, 5 mechanisms sabotage-verified.
+
 **G19 affect-scope audit + NpcInfo's team/display blocks 2026-08-01.** Next
 cluster down (20 markers). The headline question was the **unported affect
 scopes**, which silently fall back to *single-target* — a skill that should hit

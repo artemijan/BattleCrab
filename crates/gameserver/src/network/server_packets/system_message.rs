@@ -53,6 +53,9 @@ pub mod sm_ids {
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
     /// "You cannot transform while sitting."
     pub const YOU_CANNOT_TRANSFORM_WHILE_SITTING: i16 = 2283;
+    /// "You cannot open a Private Store here." — `canOpenPrivateStore`'s
+    /// `Custom/PrivateStoreRange.ini` spacing rule.
+    pub const YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE: i16 = 1296;
     /// "You can't build headquarters here." — `BuildCampSkillCondition`'s
     /// `isInsideZone(ZoneId.HQ)` gate, the only one of its branches with a
     /// message of its own.
