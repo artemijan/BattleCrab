@@ -76,12 +76,40 @@ fn set_clamps_and_announces() {
     assert!(has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_INCREASED));
     assert!(has_sm(&packets, sm_ids::YOUR_VITALITY_IS_AT_MAXIMUM));
 
-    // Down to empty: the decrease + exhausted pair.
+    // Down to empty: only the exhausted line. Java would also send
+    // `YOUR_VITALITY_HAS_DECREASED` here; it is suppressed on purpose (it would
+    // fire on nearly every monster kill), so this pins its absence.
     assert!(vitality::set_vitality_points(&mut world, OID, -50, false));
     assert_eq!(points(&world, OID), MIN_VITALITY_POINTS);
     let packets = drain(&mut out);
-    assert!(has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_DECREASED));
+    assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_DECREASED));
     assert!(has_sm(&packets, sm_ids::YOUR_VITALITY_IS_FULLY_EXHAUSTED));
+}
+
+/// A plain drain that doesn't reach zero is now completely silent — no
+/// decrease line, and no edge line either. This is the case that mattered:
+/// every monster kill calls `updateVitalityPoints` with a negative delta.
+#[test]
+fn ordinary_drain_sends_no_system_message() {
+    let (mut world, _tx, _rx, _l) = vitality_world();
+    let mut out = ingame_player(&mut world, CID, OID, 0, 0, 0);
+    set_points(&mut world, OID, 50_000);
+    drain(&mut out);
+
+    assert!(vitality::set_vitality_points(
+        &mut world, OID, 49_000, false
+    ));
+    let packets = drain(&mut out);
+    assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_HAS_DECREASED));
+    assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_IS_FULLY_EXHAUSTED));
+    assert!(!has_sm(&packets, sm_ids::YOUR_VITALITY_IS_AT_MAXIMUM));
+    // The gauge still updates, so the client shows the drain.
+    assert!(
+        packets
+            .iter()
+            .any(|p| p[0] == 0xFE && u16::from_le_bytes([p[1], p[2]]) == 0xA1),
+        "expected ExVitalityPointInfo"
+    );
 }
 
 /// `quiet = true` (what `//set_vitality` uses) suppresses the system messages

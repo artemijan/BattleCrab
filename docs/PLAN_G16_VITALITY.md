@@ -46,10 +46,15 @@ The pool is `characters.vitality_points`, clamped to `0..=140_000`
 `model/mod.rs` so the config loader and the stat code agree).
 
 - `set_vitality_points(value, quiet)` — clamp, store, and notify: the
-  increased/decreased line, the at-maximum / fully-exhausted edge line (both
+  increased line, the at-maximum / fully-exhausted edge line (both
   suppressed when `quiet`), then — *regardless* of `quiet`, as in Java —
   `ExVitalityPointInfo`, `broadcastUserInfo`, and the party window's
   `VITALITY_POINTS` field.
+  **Deliberate deviation (2026-08-01, operator request):** Java's
+  `YOUR_VITALITY_HAS_DECREASED` line is **never sent**. Every monster kill
+  drains the pool, so it fired on essentially every kill and read as chat spam.
+  The increase line and both edge lines still fire, and the gauge / UserInfo /
+  party updates are untouched, so the client still shows the drain.
 - `update_vitality_points(delta, use_rates, quiet)` — the signed-delta entry
   point, through `RateVitalityGain`/`RateVitalityLost`, with Java's
   `isLucky()` exemption (level ≤ 9 + the Lucky skill 194) and the

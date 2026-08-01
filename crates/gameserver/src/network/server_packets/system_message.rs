@@ -767,6 +767,8 @@ pub mod sm_ids {
     // Vitality (G16): the four `PlayerStat.setVitalityPoints` notices.
     pub const YOUR_VITALITY_IS_AT_MAXIMUM: i16 = 2314;
     pub const YOUR_VITALITY_HAS_INCREASED: i16 = 2315;
+    /// Kept for the record only — deliberately **never sent** (it would fire on
+    /// nearly every monster kill); see `game_loop::vitality::set_vitality_points`.
     pub const YOUR_VITALITY_HAS_DECREASED: i16 = 2316;
     pub const YOUR_VITALITY_IS_FULLY_EXHAUSTED: i16 = 2317;
     // Transformation (G19): `ConditionPlayerCanTransform`'s cast refusals.
