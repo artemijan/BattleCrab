@@ -251,6 +251,21 @@ fn clear_geo_grid(world: &mut World, client_id: u32, object_id: i32) {
     }
 }
 
+/// `AdminGeodata`'s `//geogrid [off]` — Java's one-shot `GeoUtils.debugGrid` /
+/// `hideDebugGrid`, the same 41×41 NSWE arrow grid the Debug panel draws, but
+/// drawn once: no redraw loop is armed and the panel's `geodata` flag is left
+/// alone. That is Java's own layering — `AdminDebug.setGeodataDebugging` runs
+/// its refresh by re-issuing `admin_geogrid` / `admin_geogrid off` on a timer,
+/// so the two share one renderer and one set of `DebugGrid_<n>` drawing names.
+pub(super) fn admin_geogrid(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    // Java: any argument other than "off" (and no argument at all) draws.
+    if args.first().is_some_and(|a| a.eq_ignore_ascii_case("off")) {
+        clear_geo_grid(world, client_id, object_id);
+    } else {
+        draw_geo_grid(world, client_id, object_id);
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Movement line (Java `drawMoveLine`/`clearMoveLine`)
 // ---------------------------------------------------------------------------

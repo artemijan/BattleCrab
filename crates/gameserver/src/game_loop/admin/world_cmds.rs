@@ -333,15 +333,16 @@ pub(super) fn admin_geosave(world: &mut World, client_id: u32) {
     );
 }
 
-/// `AdminGeodata`'s `//geoedit` / `//geogrid` — Java toggles a client-side
-/// geo-edit mode / debug grid overlay (`GeoUtils.debugGrid`, `ExServerPrimitive`
-/// packets). That client visualization is not ported; the NSWE edit commands
-/// work directly.
+/// `AdminGeodata`'s `//geoedit` / `//ge` — Java's community-board cell editor
+/// (`geoedit.htm` + `geoedit_cell.htm`, heading-rotated, one button per cell).
+/// The html panel is not ported; the grid *overlay* is (`//geogrid`, see
+/// [`super::debug_draw::admin_geogrid`]) and the NSWE edit commands work
+/// directly.
 pub(super) fn admin_geo_clientviz(world: &mut World, client_id: u32) {
     send_message(
         world,
         client_id,
-        "The geo grid overlay / edit mode is not available; use //geoenable*/geodisable* directly.",
+        "The geo edit panel is not available; use //geogrid to view and //geoenable*/geodisable* to edit.",
     );
 }
 

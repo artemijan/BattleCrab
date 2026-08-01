@@ -4947,6 +4947,70 @@ fn debug_panel_geodata_toggle_draws_grid() {
     );
 }
 
+/// **`//geogrid` draws the NSWE grid, `//geogrid off` erases it.** Java's
+/// `AdminGeodata.admin_geogrid` is one-shot (`GeoUtils.debugGrid` /
+/// `hideDebugGrid`): it arms no redraw beat and leaves the Debug panel's
+/// `geodata` flag untouched. Draw frames carry 40 cells × 16 arrow lines;
+/// the erase frames carry one zero-length line, so the two are told apart by
+/// packet size, not just by count.
+#[test]
+fn admin_geogrid_draws_and_erases_grid() {
+    let (mut world, ..) = admin_world();
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7955, 100);
+    drain(&mut gm_rx);
+
+    let prims = |pkts: &[Vec<u8>]| -> Vec<usize> {
+        pkts.iter()
+            .filter(|p| {
+                p[0] == 0xFE
+                    && p.len() > 2
+                    && i16::from_le_bytes(p[1..3].try_into().unwrap()) == 0x11
+            })
+            .map(|p| p.len())
+            .collect()
+    };
+
+    on_packet(&mut world, 1, build_admin("geogrid"));
+    let drawn = prims(&drain(&mut gm_rx));
+    assert!(
+        drawn.len() >= 42,
+        "41×41 cells / 40 per packet → 43 ExServerPrimitive frames, got {}",
+        drawn.len()
+    );
+    assert!(
+        drawn.iter().take(drawn.len() - 1).all(|&n| n > 1000),
+        "full grid frames carry 640 arrow lines: {drawn:?}"
+    );
+    assert!(
+        !crate::game_loop::admin::debug_draw::flags(&world, 7955).1,
+        "one-shot draw must not set the Debug panel's geodata flag"
+    );
+
+    // No redraw loop: moving and letting the geo beat (15 ticks) pass is quiet.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&7955)
+        .unwrap()
+        .x += 500;
+    advance_ticks(&mut world, 20);
+    assert!(
+        prims(&drain(&mut gm_rx)).is_empty(),
+        "//geogrid arms no redraw task (Java's is one-shot)"
+    );
+
+    on_packet(&mut world, 1, build_admin("geogrid off"));
+    let erased = prims(&drain(&mut gm_rx));
+    assert!(
+        erased.len() >= 42,
+        "erase frame per grid packet, got {}",
+        erased.len()
+    );
+    assert!(
+        erased.iter().all(|&n| n < 200),
+        "erase frames are a single zero-length black line: {erased:?}"
+    );
+}
+
 /// **The movement toggle draws the walk line.** Enabling while standing is
 /// clean; once the GM walks, the beat sends the green destination line.
 #[test]

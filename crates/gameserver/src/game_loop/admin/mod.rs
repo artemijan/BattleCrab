@@ -640,7 +640,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
             admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, false)
         }
         "admin_geosave" | "admin_geosaveall" => admin_geosave(world, client_id),
-        "admin_geoedit" | "admin_geogrid" => admin_geo_clientviz(world, client_id),
+        "admin_geogrid" => debug_draw::admin_geogrid(world, client_id, object_id, &args),
+        "admin_geoedit" => admin_geo_clientviz(world, client_id),
 
         // --- AdminMobGroup (B8) ---
         "admin_mobmenu" => admin_mobmenu(world, client_id),
