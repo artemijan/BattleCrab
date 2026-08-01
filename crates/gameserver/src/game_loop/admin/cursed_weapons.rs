@@ -388,12 +388,15 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     }
     save_data(world, idx);
 
-    // announce THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION to everyone.
-    // TODO(G21): the S1 region SysString (`addZoneName`) isn't modelled — the
-    // region name renders blank until MapRegion carries its sysstring id.
+    // announce THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION to everyone,
+    // naming the region the new owner is standing in (Java `addZoneName`).
+    let (x, y, z) = world
+        .objects
+        .get_component::<Position>(&target)
+        .map_or((0, 0, 0), |p| (p.x, p.y, p.z));
     let announce = server_packets::system_message_with(
         sm_ids::THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION,
-        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+        &[SmParam::ZoneName { x, y, z }, SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
     // Arming the `RemoveTask` is the caller's job (Java `reActivate`), since it

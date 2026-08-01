@@ -1429,3 +1429,57 @@ fn enter_world_scrubs_a_cursed_skill_with_no_curse_behind_it() {
         "and the CP bar is back to the class value"
     );
 }
+
+/// The drop announce names the **region**, and does it Java's way.
+///
+/// The port used to send `SysString(0)` here — parameter type 13 carrying a
+/// system-string id of zero, which the client renders as nothing. Java sends
+/// `addZoneName(x, y, z)`: parameter type **7** with the coordinates, and the
+/// *client* resolves the region name. So the marker on these sites ("MapRegion
+/// carries no sysstring id yet") had the mechanism wrong — no server-side
+/// region table is involved at all.
+///
+/// Decoding the parameter rather than just the message id is the point: the
+/// wrong-type version passed an id-only assertion perfectly happily.
+#[test]
+fn the_drop_announce_carries_the_zone_coordinates() {
+    let (mut world, _db, mut _db_rx, _l) = test_world();
+    load_cursed_weapons(&mut world);
+    let mut killer_rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
+    drain(&mut killer_rx);
+    // The drop point is the *monster's* position — that is what Java hands to
+    // `addZoneName`, so the coordinates below are deliberately distinctive.
+    add_test_npc(
+        &mut world,
+        MONSTER_OID,
+        900001,
+        "Monster",
+        20,
+        1234,
+        5678,
+        -90,
+    );
+    world.forced_rolls.push_back(0);
+
+    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+
+    let pkt = drain(&mut killer_rx)
+        .into_iter()
+        .find(|p| {
+            p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && i16::from_le_bytes([p[1], p[2]])
+                    == server_packets::sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION
+        })
+        .expect("the drop announce");
+
+    // Layout: opcode(1) id(i16) count(u8) then params; the first is the zone.
+    assert_eq!(pkt[3], 2, "two parameters: the zone and the item name");
+    assert_eq!(pkt[4], 7, "TYPE_ZONE_NAME, not TYPE_SYSTEM_STRING (13)");
+    let coord =
+        |off: usize| i32::from_le_bytes([pkt[off], pkt[off + 1], pkt[off + 2], pkt[off + 3]]);
+    assert_eq!(
+        (coord(5), coord(9), coord(13)),
+        (1234, 5678, -90),
+        "the drop point, which is what the client resolves the region from"
+    );
+}
