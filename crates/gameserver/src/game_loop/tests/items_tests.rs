@@ -4526,3 +4526,68 @@ fn herbs_decay_even_with_the_ordinary_destroyer_off() {
         "and the coin is never scheduled at all"
     );
 }
+
+/// `UserInfo`'s STATS block leads with the character's physical attack range —
+/// Java's `getActiveWeaponItem() != null ? 40 : 20`. The client walks to that
+/// distance before swinging, so an armed player reporting the unarmed 20 closes
+/// further than they need to.
+///
+/// It was hard-coded to 20. The branch is weapon *presence*, not type.
+///
+/// Asserted by **diffing** the armed and unarmed packets rather than seeking a
+/// byte offset: a first draft searched for the STATS block length (56) and
+/// matched a coincidental `[56, 0]` in an earlier field, reading 51.
+#[test]
+fn the_user_info_stats_block_reports_weapon_attack_range() {
+    let (mut world, ..) = test_world();
+    let _rx = ingame_player(&mut world, 1, 8300, 0, 0, 0);
+
+    let packet = |world: &World| -> Vec<u8> {
+        let view = crate::model::PlayerView::of(&world.objects, 8300).unwrap();
+        crate::network::user_info::user_info(&view, &world.data, &world.cfg.character, 0)
+    };
+
+    let unarmed = packet(&world);
+
+    let weapon = crate::character::ItemRow {
+        object_id: 8_300_001,
+        item_id: 1, // a Short Sword; any right-hand item takes the branch
+        count: 1,
+        enchant_level: 0,
+        loc: "PAPERDOLL".into(),
+        loc_data: crate::model::inventory::PaperdollSlot::RHand as i32,
+        custom_type1: 0,
+        custom_type2: 0,
+        mana_left: -1,
+        time: 0,
+        augment_mineral: 0,
+        augment_option1: 0,
+        augment_option2: 0,
+    };
+    world.objects.add_components(
+        &8300,
+        crate::model::inventory::Inventory::from_rows(&[weapon]),
+    );
+    let armed = packet(&world);
+
+    assert_eq!(unarmed.len(), armed.len(), "same layout either way");
+    let diffs: Vec<usize> = (0..unarmed.len())
+        .filter(|&i| unarmed[i] != armed[i])
+        .collect();
+    // Equipping also fills the paperdoll and enchant blocks, so isolate the
+    // one i16 that flips 20 -> 40.
+    let range_at = diffs
+        .iter()
+        .copied()
+        .find(|&i| {
+            i + 1 < unarmed.len()
+                && i16::from_le_bytes([unarmed[i], unarmed[i + 1]]) == 20
+                && i16::from_le_bytes([armed[i], armed[i + 1]]) == 40
+        })
+        .expect("an i16 that reads 20 unarmed and 40 armed");
+    assert_eq!(
+        i16::from_le_bytes([armed[range_at], armed[range_at + 1]]),
+        40,
+        "the armed attack range reaches the client"
+    );
+}
