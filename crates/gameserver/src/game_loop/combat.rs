@@ -1797,6 +1797,18 @@ pub(crate) fn apply_physical_damage(
         return;
     }
     if is_npc_oid(target) {
+        // `CreatureStatus.reduceHp`: `if (!isDOT && !isHPConsumption) { if
+        // (awake) creature.stopEffectsOnDamage(); … }` — a slept mob wakes on
+        // the first blow, but a DoT tick alone will not rouse it. (The player
+        // twin below is deliberately *not* DoT-gated; see there.)
+        //
+        // Java's `awake` is `(skill == null) || !skill.isToggle()`. No ported
+        // damage source is a toggle — the toggles that cost HP drain `Vitals`
+        // directly as `isHPConsumption`, which never reaches this path — so it
+        // is always true here and is not threaded through.
+        if !is_dot {
+            super::skills::effects::stop_effects_on_damage(world, target);
+        }
         npc_receive_damage(world, target, attacker, damage);
     } else {
         // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
@@ -2081,6 +2093,16 @@ pub(crate) fn player_receive_damage_ex(
     if super::offline_trade::is_damage_immune(world, player_oid) {
         return;
     }
+    // `PlayerStatus.reduceHp`: `if (!isHPConsumption) { if (awake)
+    // stopEffectsOnDamage(); … }` — being hit strips every `<removedOnDamage>`
+    // buff, which is what wakes a slept player and un-hides a hidden one.
+    //
+    // Note this is *not* gated on `isDOT` the way the NPC twin in
+    // `apply_physical_damage` is: Java puts the player's `stopEffectsOnDamage`
+    // above the `if (!isDOT)` block that guards the stun/real-target breaks, so
+    // a poison tick wakes a sleeping player even though it would not wake a
+    // sleeping mob. Sits above the stand-up below because Java runs it first.
+    super::skills::effects::stop_effects_on_damage(world, player_oid);
     // `PlayerStatus.reduceHp`: being hit stands a seated victim up — and a
     // crafter/shopkeeper loses their store with it. This is why you cannot
     // sit-tank.

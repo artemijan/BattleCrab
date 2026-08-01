@@ -111,6 +111,57 @@ Parsing is asserted against real datapack skills in `skill_data`: Shield Stun 92
 Thunder Storm 48 — which is both a `POINT_BLANK` sweep and a stun, so it
 exercises both slices at once.
 
+## 6b. `<removedOnDamage>` — waking a slept target (2026-08-01 fix)
+
+`BlockActions` gave sleep its lock but nothing ever took the lock back off
+early, so a mob could sleep a player and then beat on them for the buff's full
+duration without waking them. In Java the wake is not part of the effect at all:
+it is a **skill-level tag**, `<removedOnDamage>`, read by
+`EffectList.stopEffectsOnDamage()` off `CreatureStatus`/`PlayerStatus
+.reduceHp`. The tag was simply unparsed here — `Skill` had no field for it and
+no damage path called anything like it.
+
+36 skills carry the tag on this dist. Most are `SLEEP` (the player skills 981 /
+1069 / 1072 / 1097 / 1394 and the mob casts 4046 / 4185 / 4201 / 4640 /
+4660-4662 / 5735 / 6853), the rest `HIDE` (922, 6093, …) and
+`FORCE_MEDITATION` (441, 1430) — so the same fix also makes a hit break stealth
+and meditation.
+
+Ported as:
+
+- `Skill::removed_on_damage`, parsed in `skill_data` with the same loose
+  `true`/`True` compare `stay_after_death` uses.
+- `skills::effects::stop_effects_on_damage` — expires every live buff whose
+  skill declares the tag. It resolves `(skill_id, skill_level)` back through the
+  skill table per buff rather than stamping a bool on `ActiveBuff`, which is
+  what Java does too (`info.getSkill().isRemovedOnDamage()`); nothing to keep in
+  sync, and DB-restored buffs behave like freshly-cast ones.
+- Two call sites in `game_loop::combat`, mirroring Java's two `reduceHp`
+  overrides. **They differ on `isDOT` and that is deliberate**: `CreatureStatus`
+  wraps the whole wake block in `if (!isDOT && !isHPConsumption)`, while
+  `PlayerStatus` puts `stopEffectsOnDamage()` *above* its `if (!isDOT)` guard —
+  so a poison tick wakes a sleeping **player** but not a sleeping **mob**. The
+  NPC call therefore sits in `apply_physical_damage`'s `is_npc_oid` branch under
+  `!is_dot`; the player call sits ungated at the top of
+  `player_receive_damage_ex`, above the sit/store stand-up, where Java has it.
+
+Java's `awake` argument (`(skill == null) || !skill.isToggle()`) is not threaded
+through: no ported damage source is a toggle. Toggles that cost HP drain
+`Vitals` directly as Java's `isHPConsumption`, which never reaches this path.
+
+Not ported alongside it: `Formulas.calcStunBreak` (a 14 % chance for a hit to
+break a *stun*) is gated on `Config.ALT_GAME_STUN_BREAK` ← `BreakStun`, which
+neither `dist/game/config` nor Java's default sets — so it is dead on this dist
+and a stun correctly survives being hit. `calcRealTargetBreak`'s
+`REAL_TARGET` abnormal has no Interlude source either.
+
+Tests: `abnormal_tests::a_hit_wakes_a_slept_player_but_leaves_a_stun_alone`
+(with the stun as the control, so the removal is proven to key off the tag
+rather than clearing crowd control wholesale),
+`a_hit_wakes_a_slept_monster`, and
+`a_dot_tick_wakes_a_slept_player_but_not_a_slept_mob` for the asymmetry above.
+All three were confirmed to fail with the two call sites disabled.
+
 ## 7. What is still missing
 
 Immediately adjacent, all still inert: `BlockControl` (81 — Java's confusion /

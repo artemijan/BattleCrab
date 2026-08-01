@@ -2173,6 +2173,10 @@ fn build_skill(
             // is case-insensitive, so compare loosely.
             stay_after_death: value_at(values, "stayAfterDeath", level)
                 .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+            // Java `set.getBoolean("removedOnDamage", false)` — same loose
+            // compare as above, the dist writes `true` and `True` both.
+            removed_on_damage: value_at(values, "removedOnDamage", level)
+                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
             effects: skill_effects,
             self_effects,
             pve_effects,

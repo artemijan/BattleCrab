@@ -2314,6 +2314,42 @@ pub(crate) fn break_fake_death_on_damage(world: &mut World, object_id: i32) {
     }
 }
 
+/// Java `EffectList.stopEffectsOnDamage()` — drop every live buff whose skill
+/// declares `<removedOnDamage>`, called from `CreatureStatus.reduceHp` /
+/// `PlayerStatus.reduceHp` the moment the holder takes a hit.
+///
+/// This is what wakes a slept character: `Sleep` (1069, 1072, 1394, the mob
+/// casts 4046/4185/4201/4660-4662, …) applies `BlockActions`, and the tag is
+/// the *only* thing that takes it back off before the timer. Same tag breaks
+/// `Hide` (922) and `Force Meditation` (441).
+///
+/// Java reads the flag off the `BuffInfo`'s skill (`info.getSkill()
+/// .isRemovedOnDamage()`) rather than off a cached copy, so the buff's
+/// `(skill_id, skill_level)` is resolved back through the skill table here for
+/// the same reason — nothing to keep in sync, and buffs restored from the DB on
+/// relog behave identically to freshly-cast ones.
+pub(crate) fn stop_effects_on_damage(world: &mut World, object_id: i32) {
+    let skill_ids: Vec<i32> = world
+        .objects
+        .get_component::<Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| {
+                    world
+                        .data
+                        .skill_data
+                        .get(x.skill_id, x.skill_level)
+                        .is_some_and(|s| s.removed_on_damage)
+                })
+                .map(|x| x.skill_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for skill_id in skill_ids {
+        handle_buff_expire(world, object_id, skill_id);
+    }
+}
+
 /// How far one fear shove throws the victim — Java `Fear.FEAR_RANGE`.
 const FEAR_RANGE: f64 = 500.0;
 

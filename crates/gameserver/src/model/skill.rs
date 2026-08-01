@@ -1646,6 +1646,14 @@ pub struct Skill {
     /// tag is parsed here yet, so this is the plain `<stayAfterDeath>` value.
     /// TODO: fold in `<irreplacableBuff>`/`<isNecessaryToggle>` when parsed.
     pub stay_after_death: bool,
+    /// Java `Skill.isRemovedOnDamage()` (`<removedOnDamage>`, default false) —
+    /// the buff drops the moment its holder takes damage
+    /// (`CreatureStatus.reduceHp` → `EffectList.stopEffectsOnDamage`). This is
+    /// what makes **sleep** a one-hit crowd control: 36 skills carry the tag on
+    /// this dist and most of them are `SLEEP`, the rest `HIDE`,
+    /// `FORCE_MEDITATION` and a few transforms. Without it a slept player stays
+    /// action-blocked while the mob beats on them.
+    pub removed_on_damage: bool,
     pub effects: Vec<SkillEffect>,
     /// Java `EffectScope.SELF` (`<selfEffects>`) — applied to the **caster**,
     /// as a separate `applyEffects(caster, caster, …)` after the target loop.
@@ -1762,6 +1770,7 @@ impl Default for Skill {
             is_debuff: false,
             shared_with_summon: true,
             stay_after_death: false,
+            removed_on_damage: false,
             effects: Vec::new(),
             self_effects: Vec::new(),
             pve_effects: Vec::new(),
