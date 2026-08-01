@@ -31,6 +31,7 @@ mod core_boss;
 mod crafting;
 mod cubic;
 pub(crate) mod cursed_weapon;
+pub(crate) mod custom_mail;
 mod daily_tasks;
 pub(crate) mod death;
 mod dispatch;
@@ -296,6 +297,12 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         }
         if world.tick.is_multiple_of(auto_potions::TICK_PERIOD) {
             auto_potions::tick(&mut world);
+        }
+        if world
+            .tick
+            .is_multiple_of(custom_mail::poll_period_ticks(&world))
+        {
+            custom_mail::poll(&mut world);
         }
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
             autosave_tick(&mut world);

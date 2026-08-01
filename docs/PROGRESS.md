@@ -143,6 +143,26 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 6 — custom mail manager 2026-08-01.** The `custom_mail`
+table as an inbound interface: an operator or web shop writes a row, the server
+polls every 30 s, converts it into a real message with attachments, and deletes
+it. A `LoadCustomMail`/`CustomMailLoaded` round trip plus a `DeleteCustomMail`
+keyed on Java's composite `(date, receiver)`.
+
+**An offline recipient's row is left alone** — not delivered, not deleted — so
+a gift waits for them instead of vanishing; the delete only happens on the pass
+that delivers. The item list's three shapes (`id count enchant`, `id count`,
+bare `id`) are pinned by a test, since a silently-dropped attachment is
+invisible to whoever wrote the row.
+
+Documented narrowing: Java tags a row with items as `PRIME_SHOP_GIFT`, a
+Kamael-era `MailType` outside this port's enum — and because those ordinals are
+the wire values, inventing one would send the client a number it does not know.
+A gift therefore arrives as `REGULAR`, differing only in the icon.
+
+4 tests, 4 mechanisms sabotage-verified. **15 of the audit's 17 features are
+done**; only auto-play remains (plus champion monsters, which landed first).
+
 **`Custom/*.ini` slice 5 — auto potions 2026-08-01.** `.apon`/`.apoff` plus the
 one-second sweep: three pools (HP/CP/MP), each with a threshold and an **ordered**
 potion list the loop walks as a preference ranking. Drinking reuses the ordinary

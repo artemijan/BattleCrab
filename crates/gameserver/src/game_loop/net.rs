@@ -1044,6 +1044,9 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
                     );
                 }
             }
+            DbEvent::CustomMailLoaded { rows } => {
+                super::custom_mail::apply_loaded(world, rows);
+            }
             DbEvent::OlympiadLoaded {
                 current_cycle,
                 period,

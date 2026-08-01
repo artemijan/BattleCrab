@@ -14,6 +14,37 @@ pub const BOSS_ANNOUNCEMENTS_CONFIG_FILE: &str = "config/Custom/BossAnnouncement
 pub const ONLINE_INFO_CONFIG_FILE: &str = "config/Custom/OnlineInfo.ini";
 pub const PRIVATE_STORE_RANGE_CONFIG_FILE: &str = "config/Custom/PrivateStoreRange.ini";
 pub const WALKER_BOT_PROTECTION_CONFIG_FILE: &str = "config/Custom/WalkerBotProtection.ini";
+pub const CUSTOM_MAIL_MANAGER_CONFIG_FILE: &str = "config/Custom/CustomMailManager.ini";
+
+/// `Custom/CustomMailManager.ini` — the inbound `custom_mail` table poll.
+#[derive(Debug, Clone)]
+pub struct CustomMailConfig {
+    /// `CustomMailManagerEnabled` (**True** here).
+    pub enabled: bool,
+    /// `DatabaseQueryDelay` (30) — seconds between polls. Java multiplies it by
+    /// 1000 for its millisecond scheduler; kept in seconds here.
+    pub query_delay_secs: i32,
+}
+
+impl Default for CustomMailConfig {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            query_delay_secs: 30,
+        }
+    }
+}
+
+impl CustomMailConfig {
+    pub fn load_from(root: &str) -> Self {
+        let d = Self::default();
+        let p = PropertiesParser::load_rel(root, CUSTOM_MAIL_MANAGER_CONFIG_FILE);
+        Self {
+            enabled: p.get_bool("CustomMailManagerEnabled", d.enabled),
+            query_delay_secs: p.get_int("DatabaseQueryDelay", d.query_delay_secs),
+        }
+    }
+}
 
 /// `Custom/AllowedPlayerRaces.ini` — which races may be created. All five are
 /// `True` on this dist, so the gate is a no-op today; it is ported because an
