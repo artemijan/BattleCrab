@@ -424,6 +424,11 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
         }
         if let Some(tc) = target_client {
             refresh_inventory(world, tc, player_id);
+            // The bag list is only half of `unEquipItemInBodySlot` +
+            // `destroyItemByItemId`: the client's own paperdoll rides
+            // `ExUserInfoEquipSlot`, so without this the freed player keeps
+            // rendering the weapon that was just taken away.
+            crate::game_loop::items::refresh_equip_state(world, tc, player_id);
         }
         crate::game_loop::party::broadcast_user_info(world, player_id);
     } else if is_activated {

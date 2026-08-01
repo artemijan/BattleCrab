@@ -227,7 +227,12 @@ pub(super) fn admin_destroy_items(
     }
     let packet = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     super::helpers::send_inventory_update(world, client_id, object_id, packet);
-    // Equipment/appearance may have changed (equipped gear destroyed).
+    // Equipment/appearance may have changed (equipped gear destroyed). The
+    // GM's own paperdoll comes from `ExUserInfoEquipSlot`, which neither the
+    // `InventoryUpdate` above nor `broadcastUserInfo` carries.
+    if include_equipped {
+        crate::game_loop::items::refresh_equip_state(world, client_id, object_id);
+    }
     super::party::broadcast_user_info(world, object_id);
     send_message(
         world,

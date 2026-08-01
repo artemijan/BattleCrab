@@ -2564,6 +2564,27 @@ clanless mob titles as `"Lv 20 "`.
   to the funnel; regression asserted in `combat_tests::melee_kill_rewards_and_decay`.
   **When adding any new inventory mutation, send through the helper, not
   `cs.send(inventory_update…)`.**
+- **The client's own paperdoll rides `ExUserInfoEquipSlot`, not `UserInfo`
+  (2026-08-01):** `UserInfo` carries only the right-hand *enchant level*; the
+  equipped item ids live in `ExUserInfoEquipSlot` (Ex 0x156). Java sends it from
+  inside `Inventory.setPaperdollItem` — the choke point *every* paperdoll change
+  goes through, including the implicit ones: `ItemContainer.removeItem` is
+  overridden by `Inventory.removeItem` to unequip whatever it takes out of the
+  bag, so dropping/destroying/transferring a worn item refreshes the paperdoll
+  for free. The port's paperdoll is a plain data component that can't reach the
+  client, so `items::finish_equip_change` sent the packet and four paths that
+  bypass it did not: cursed-weapon drop-on-death, cursed-weapon `endOfLife` on a
+  logged-in wielder, the stray-cursed-item sweep in `EnterWorld` (which runs
+  *after* the enter-world snapshot) and the ordinary death item scatter
+  (`onDieDropItem`). Reported symptom: die holding Akamanah → the sword is on
+  the ground and the inventory window shows nothing equipped, but the character
+  goes on rendering it. All four now call `items::refresh_equip_state` (stat
+  recompute + `ExUserInfoEquipSlot` + `UserInfo`, extracted from
+  `finish_equip_change`); regression in
+  `cursed_weapon_tests::wielder_death_resends_the_paperdoll_snapshot`, verified
+  by sabotage. Trade/warehouse/mail/private-store/shop/multisell are safe only
+  because they refuse equipped items — **a new path that removes a worn item
+  must call `refresh_equip_state`, and `ItemList` is not a substitute.**
 - **A persisted column is only persisted once *both* ends carry it (2026-07-31):**
   `characters.curCp` was written by `store_player_tx` on every flush but never
   read back — `char_data_of` had no `cur_cp` field to map it into, and
