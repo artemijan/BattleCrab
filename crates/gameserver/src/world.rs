@@ -392,6 +392,14 @@ pub struct World {
     /// cleared on logout (where the final flush happens instead). The
     /// memory-first model's timer that bounds how much a crash can lose.
     pub player_autosave_due: HashMap<i32, u64>,
+    /// Java `Player._teleportWatchdog` (`TeleportWatchdogTask`): player object
+    /// id → the tick its teleport is force-completed on if the client's
+    /// `Appearing` never arrives. One entry per in-flight teleport; armed by
+    /// `death::teleport_player` when `TeleportWatchdogTimeout > 0`, and removed
+    /// on completion (`Appearing`) or logout — Java's `ScheduledFuture` handle
+    /// and its `cancel(false)` calls, expressed as a map rather than a
+    /// scheduler entry precisely because it has to be cancellable.
+    pub teleport_watchdog_due: HashMap<i32, u64>,
     /// Java `AutoPotionTaskManager.PLAYERS` — who has `.apon` switched on.
     /// Transient: a relog needs the command again, as it does in Java.
     pub auto_potion_players: std::collections::HashSet<i32>,
@@ -507,6 +515,7 @@ impl World {
             pc_cafe_seq: 0,
             db,
             player_autosave_due: HashMap::new(),
+            teleport_watchdog_due: HashMap::new(),
             auto_potion_players: std::collections::HashSet::new(),
             auto_play_idle: HashMap::new(),
             rng: rand::rngs::StdRng::from_entropy(),

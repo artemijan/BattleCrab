@@ -2460,6 +2460,8 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
     {
         p.teleporting = true;
     }
+    // Java `Player.setTeleporting(true)` arms the watchdog here.
+    arm_teleport_watchdog(world, player_oid);
     if let Some(pos) = world.objects.get_component_mut::<Position>(&player_oid) {
         pos.x = x;
         pos.y = y;
@@ -2476,6 +2478,12 @@ pub(crate) fn teleport_player(world: &mut World, player_oid: i32, x: i32, y: i32
             player_oid, x, y, z, heading,
         ));
     }
+    // TODO(G33): Java completes the teleport inline for anyone with no live
+    // client to answer with `Appearing` ("Allow recall of the detached
+    // characters": `if (!isPlayer() || client.isDetached()) onTeleported()`).
+    // Offline traders are the case that reaches this in practice; here they
+    // stay `teleporting` until they log back in, and the watchdog above skips
+    // them too because `on_teleported` has no session to send to.
 }
 
 /// Port of `clientpackets/Appearing`: the client finished loading after a
@@ -2493,6 +2501,19 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
     {
         return;
     }
+    on_teleported(world, client_id, object_id);
+}
+
+/// `Creature.onTeleported` + `Player.onTeleported`: leave the teleporting
+/// state, become visible again at the destination, and refresh the client.
+///
+/// Split out of [`handle_appearing`] because the client's packet is not the
+/// only way in — [`teleport_watchdog_tick`] calls this too when the client
+/// never answers, exactly as Java's `TeleportWatchdogTask` calls the same
+/// `onTeleported`. The caller has already checked `teleporting`.
+fn on_teleported(world: &mut World, client_id: u32, object_id: i32) {
+    // Java `setTeleporting(false)` — which also cancels the watchdog.
+    world.teleport_watchdog_due.remove(&object_id);
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::Player>(&object_id)
@@ -2520,6 +2541,84 @@ pub(crate) fn handle_appearing(world: &mut World, client_id: u32) {
             &world.cfg.character,
             super::party::calculate_relation(world, v.p),
         ));
+    }
+}
+
+/// How often [`teleport_watchdog_tick`] sweeps for expired teleports — 1 s,
+/// well under any sane `TeleportWatchdogTimeout` (the ini recommends ≥ 60 s),
+/// so the sweep granularity is noise next to the timeout itself.
+pub(crate) const TELEPORT_WATCHDOG_PERIOD: u64 = 10;
+
+/// Java `Player.setTeleporting(true)`'s watchdog arm:
+///
+/// ```java
+/// if ((_teleportWatchdog == null) && (Config.TELEPORT_WATCHDOG_TIMEOUT > 0))
+///     _teleportWatchdog = ThreadPool.schedule(new TeleportWatchdogTask(this), TIMEOUT * 1000L);
+/// ```
+///
+/// The `== null` guard is why this is `or_insert` and not a plain insert: a
+/// second teleport that starts before the first completed keeps the *original*
+/// deadline rather than pushing it out. `0` leaves the feature off, in which
+/// case a stuck client stays stuck until it relogs — Java's default too.
+fn arm_teleport_watchdog(world: &mut World, player_oid: i32) {
+    let timeout = world.cfg.character.teleport_watchdog_timeout_ticks;
+    if timeout == 0 {
+        return;
+    }
+    let due = world.tick + timeout;
+    world.teleport_watchdog_due.entry(player_oid).or_insert(due);
+}
+
+/// Java `TeleportWatchdogTask.run()`, swept for every armed player:
+///
+/// ```java
+/// if ((_player == null) || !_player.isTeleporting()) return;
+/// _player.onTeleported();
+/// ```
+///
+/// A teleport only ends when the client answers `ExTeleportToLocationActivate`
+/// with `Appearing`. If it never does — hung zone load, dropped packet, a
+/// client that crashed on the loading screen — the character stays decayed out
+/// of the world: invisible to everyone, its `ValidatePosition` reports ignored
+/// (`position.rs`), recoverable only by relogging. This forces the teleport
+/// through server-side instead.
+///
+/// The `isTeleporting()` re-check is Java's and it still matters here: an entry
+/// can outlive the teleport it was armed for (removal races a same-tick
+/// completion), and a fired watchdog must not disturb a player who has already
+/// arrived.
+pub(crate) fn teleport_watchdog_tick(world: &mut World) {
+    if world.teleport_watchdog_due.is_empty() {
+        return;
+    }
+    let due: Vec<i32> = world
+        .teleport_watchdog_due
+        .iter()
+        .filter(|&(_, &at)| world.tick >= at)
+        .map(|(&oid, _)| oid)
+        .collect();
+    for oid in due {
+        world.teleport_watchdog_due.remove(&oid);
+        if !world
+            .objects
+            .get_component::<crate::model::Player>(&oid)
+            .is_some_and(|p| p.teleporting)
+        {
+            continue; // Java's `_player == null || !isTeleporting()` bail.
+        }
+        // `onTeleported` → `spawnMe` needs a session to send the visibility
+        // exchange and `UserInfo` to. A player with no client left (logout
+        // raced the sweep) has nothing to be made visible *to*; the logout
+        // path despawns them regardless.
+        let Some(client_id) = client_for_player(world, oid) else {
+            continue;
+        };
+        tracing::warn!(
+            "TeleportWatchdog: forcing teleport completion for player {} (no Appearing within {} s).",
+            oid,
+            world.cfg.character.teleport_watchdog_timeout_ticks / 10
+        );
+        on_teleported(world, client_id, oid);
     }
 }
 

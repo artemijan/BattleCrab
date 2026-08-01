@@ -242,6 +242,21 @@ pub struct CharacterConfig {
     /// `UnstuckInterval` (seconds): the `/unstuck` escape cast time (30 on
     /// this dist, Java default 300 = the stock 5-minute escape skill).
     pub unstuck_interval: i32,
+    /// `TeleportWatchdogTimeout` (seconds → 100 ms game ticks, **0 = off**):
+    /// how long a character may sit in the teleporting state before the server
+    /// finishes the teleport for them (Java `Config.TELEPORT_WATCHDOG_TIMEOUT`
+    /// / `TeleportWatchdogTask`).
+    ///
+    /// A teleport only completes when the client answers
+    /// `ExTeleportToLocationActivate` with `Appearing`; until then the
+    /// character is decayed out of the world and invisible to everyone. A
+    /// client that never answers — hung zone load, dropped packet, crash
+    /// mid-teleport — leaves a ghost that only a relog clears. The watchdog is
+    /// the escape hatch. Off by default (Java's default and this dist), i.e.
+    /// the client is trusted; the ini warns against values below ~60 s,
+    /// because firing before a slow client finishes loading spawns the
+    /// character in early and desyncs instead of curing anything.
+    pub teleport_watchdog_timeout_ticks: u64,
     /// `CalculateMagicSuccessBySkillMagicLevel`: when true (dist default), the
     /// magic-hit level modifier in `Formulas.calcMagicSuccess` uses the skill's
     /// own `magicLevel` instead of the caster's level. Drives the Spoil landing
@@ -344,6 +359,7 @@ impl Default for CharacterConfig {
             alt_karma_player_can_use_gk: false,
             teleport_while_siege_in_progress: true,
             unstuck_interval: 300,
+            teleport_watchdog_timeout_ticks: 0,
             calculate_magic_success_by_skill_magic_level: true,
             magic_failures: true,
             enable_modify_skill_duration: false,
@@ -497,6 +513,11 @@ impl CharacterConfig {
                 d.teleport_while_siege_in_progress,
             ),
             unstuck_interval: p.get_int("UnstuckInterval", d.unstuck_interval),
+            // Java: `characterConfig.getInt("TeleportWatchdogTimeout", 0)`,
+            // scheduled as `timeout * 1000` ms — here 10 ticks per second.
+            // Negatives would wrap the `as u64`, so clamp at 0 = disabled.
+            teleport_watchdog_timeout_ticks: p.get_int("TeleportWatchdogTimeout", 0).max(0) as u64
+                * 10,
             calculate_magic_success_by_skill_magic_level: p.get_bool(
                 "CalculateMagicSuccessBySkillMagicLevel",
                 d.calculate_magic_success_by_skill_magic_level,

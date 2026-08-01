@@ -109,6 +109,10 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // Stop tracking the player for the periodic autosave; the logout flush below
     // is the final save.
     world.player_autosave_due.remove(&player_object_id);
+    // Java `Player.stopAllTasks()` cancels `_teleportWatchdog` on disconnection:
+    // a teleport still in flight dies with the session rather than firing at a
+    // despawned (or re-used) object id.
+    world.teleport_watchdog_due.remove(&player_object_id);
     // Gather everything persistence needs before despawn — components drop
     // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
     if let Some(save) = build_save_data(world, player_object_id) {

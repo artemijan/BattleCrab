@@ -1332,7 +1332,9 @@ The residuals: game-time clock (CharSelected/UserInfo use 0 today); the
 wall-clock **`DailyTaskManager`** and the resets riding on it — notably the
 vitality daily (+25 %) / weekly (full) refills deferred from G16, without which
 **vitality only ever drains** (`reco.rs`'s `schedule_initial_daily_reset` is the
-pattern); `AutoSaveManager` periodic save cadence; precautionary/scheduled restart +
+pattern); `AutoSaveManager` periodic save cadence; ~~the teleport watchdog
+(`TeleportWatchdogTimeout` / `TeleportWatchdogTask`)~~ (done 2026-08-01 — ships
+disabled at `0`, Java's default); precautionary/scheduled restart +
 deadlock detector; ~~offline-trader restore~~ (done 2026-07-31); the `//geosave` binary-region
 serializer; `NpcNameLocalisationData`/multilang; remaining packets and the last
 data loaders; the niche admin tools (AdminFightCalculator, AdminRepairChar,
