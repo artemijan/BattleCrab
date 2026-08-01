@@ -614,6 +614,44 @@ pub struct AdminVisuals(pub Vec<i16>);
 #[derive(Component, Debug, Clone, Default)]
 pub struct PlayerVariables(pub HashMap<String, String>);
 
+/// Java `AutoPlaySettings` + the auto-attack half of `AutoUseSettings` — the
+/// `.play` panel's state. Persisted through `PlayerVariables` at logout
+/// (`AUTO_USE_SETTINGS`), so the panel survives a relog; whether the *loop*
+/// restarts is `ResumeAutoPlay`'s call.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AutoPlaySettings {
+    /// The loop is running.
+    pub active: bool,
+    /// `AutoUseSettings.getAutoActions().contains(2)` — the auto-attack box.
+    /// Java calls the inverse `isMageCaster`: with it off the loop acquires a
+    /// target but never swings.
+    pub auto_attack: bool,
+    /// `doPickup()` — walk to and take nearby loot.
+    pub pickup: bool,
+    /// `isRespectfulHunting()` — skip a mob already fighting somebody else.
+    pub respectful_hunting: bool,
+    /// `isShortRange()` — 600 units instead of 1400.
+    pub short_range: bool,
+    /// 0 any / 1 monster / 2 characters / 3 npc.
+    pub next_target_mode: i32,
+    /// The HP percentage the auto-potion half drinks at (slice 2).
+    pub potion_percent: i32,
+}
+
+impl Default for AutoPlaySettings {
+    fn default() -> Self {
+        Self {
+            active: false,
+            auto_attack: true,
+            pickup: false,
+            respectful_hunting: false,
+            short_range: false,
+            next_target_mode: 0,
+            potion_percent: 0,
+        }
+    }
+}
+
 /// `PlayerVariables.VITALITY_ITEMS_USED_VARIABLE_NAME` — how many
 /// vitality-restoring items the character has consumed this week, capped by
 /// `Config.VITALITY_MAX_ITEMS_ALLOWED` and reported by `ExVitalityEffectInfo`.

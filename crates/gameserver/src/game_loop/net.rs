@@ -102,6 +102,7 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // `.apon` does not survive a logout — Java's task manager holds `Player`
     // references and drops anyone offline on its next sweep.
     super::auto_potions::remove(world, player_object_id);
+    super::auto_play::remove(world, player_object_id);
     // A buff shop dies with its seller — the flag also gates `canOpenPrivateStore`,
     // so a stale one would follow the character into their next session.
     super::sell_buffs::clear(world, player_object_id);

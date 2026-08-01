@@ -167,6 +167,29 @@ Merchant sell already honoured `is_sellable`.
 Net effect for a bound box: use, warehouse or destroy — nothing else. 3 tests,
 the drop paths sabotage-verified.
 
+**`Custom/*.ini` slice 7 — auto play, part 1 2026-08-01.** The audit's last
+feature, and **much smaller than its name suggests**: this build registers **no
+Classic auto-hunt packet family** (`ExClientPackets` has no `ExAutoPlay*`
+opcode, and nothing in `java/` reads one). The whole thing hangs off a voiced
+command and an html panel, so the port adds no opcodes at all. Plan:
+[PLAN_G33_AUTO_PLAY.md](PLAN_G33_AUTO_PLAY.md).
+
+This slice: `config/auto_play.rs`, the `AutoPlaySettings` component, the
+`.play` panel with its toggles (auto-attack, loot, respect, range, the four
+target modes, potion percent), and `AutoPlayTaskManager`'s loop — validate the
+held target, else acquire the **nearest** reachable creature within 600/1400
+units honouring the mode filter and respectful hunting, attack it, and pick up
+loot within 200. Java's idle-count nudge (after ten idle passes, step past the
+target so a wedged melee unsticks) is ported; the loop runs every 3 ticks,
+Java's 300 ms.
+
+`isMageCaster` is a misnomer worth keeping in mind: it means auto-attack is
+**off**, so an unticked box acquires a target and never swings — that is the
+intended "let the skills do it" mode, not a bug.
+
+7 tests, 5 mechanisms sabotage-verified. Auto-use (the buff/skill/supply-item
+and potion loops, and the three sub-pages that choose them) is slice 2.
+
 **`Custom/*.ini` slice 6 — custom mail manager 2026-08-01.** The `custom_mail`
 table as an inbound interface: an operator or web shop writes a row, the server
 polls every 30 s, converts it into a real message with attachments, and deletes
