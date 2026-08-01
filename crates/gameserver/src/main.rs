@@ -146,6 +146,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             path_tx,
             path_rx,
             path_finding: config.geoengine.path_finding,
+            path_cfg: config.geoengine.path.clone(),
+            geoedit_path: config.geoengine.geoedit_path.clone(),
             max_characters_per_account: config.server.max_characters_number_per_account,
             delete_days: config.character.delete_days,
             starting_adena: config.character.starting_adena,

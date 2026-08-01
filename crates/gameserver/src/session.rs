@@ -315,4 +315,18 @@ impl ClientSession {
             ClientSession::InGame(s) => s.send(body),
         }
     }
+
+    /// A clone of this client's outbound queue, for the rare job that has to
+    /// keep talking to one client from a worker thread (`//geosaveall`). The
+    /// queue is unbounded and its receiver lives in the connection task, so a
+    /// disconnect just drops the sends.
+    pub fn outbound(&self) -> OutboundTx {
+        match self {
+            ClientSession::Connecting(s) => s.out.clone(),
+            ClientSession::Authenticated(s) => s.out.clone(),
+            ClientSession::InLobby(s) => s.out.clone(),
+            ClientSession::Entering(s) => s.out.clone(),
+            ClientSession::InGame(s) => s.out.clone(),
+        }
+    }
 }

@@ -184,6 +184,11 @@ pub struct GameThreadChannels {
     pub path_tx: crate::geo::worker::PathReqTx,
     pub path_rx: crate::geo::worker::PathEventRx,
     pub path_finding: i32,
+    /// `GeoEngine.ini`'s pathfinding tuning + geo-editor output dir, for the
+    /// two admin commands that use them on the game thread (`//path_find`,
+    /// `//geosave*`).
+    pub path_cfg: crate::geo::path::PathConfig,
+    pub geoedit_path: String,
     pub max_characters_per_account: i32,
     pub delete_days: i32,
     pub starting_adena: i64,
@@ -212,6 +217,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         path_tx,
         path_rx,
         path_finding,
+        path_cfg,
+        geoedit_path,
         max_characters_per_account,
         delete_days,
         starting_adena,
@@ -229,6 +236,8 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     world.shutdown_signal = Some(shutdown.clone());
     world.path = path_tx;
     world.path_finding = path_finding;
+    world.path_cfg = path_cfg;
+    world.geoedit_path = geoedit_path;
     world.cfg = cfg;
     // Held until `DbEvent::ClansLoaded` arrives; then the login-link task is
     // released to connect (Java: `LoginServerThread.start()` after `ClanTable`).

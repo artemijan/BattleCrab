@@ -1,6 +1,8 @@
 //! World-feature commands — `AdminDoorControl` (open/close doors),
-//! `AdminZone`/`AdminZones` (zone inspection), `AdminShop` (`//buy`/`//gmshop`)
-//! and `AdminClan`'s `//clan_info`.
+//! `AdminZone`/`AdminZones` (zone inspection), `AdminShop` (`//buy`/`//gmshop`),
+//! `AdminClan`'s `//clan_info`, `AdminGeodata`'s read-only queries and
+//! `AdminPathNode`'s `//path_find`. The geodata *editor* half lives in
+//! [`super::geo_editor`].
 //!
 //! `AdminFence` needs a spawnable-fence runtime the server has not ported;
 //! quest-script reload / clan leadership ops / pledge editing likewise need
@@ -190,8 +192,7 @@ pub(super) fn admin_clan_info(world: &mut World, client_id: u32, object_id: i32)
 
 /// `AdminGeodata`'s read-only queries: `//geo_pos` / `//geo_spawn_pos` (report
 /// the GM's geo coordinates + height) and `//geo_can_move` / `//geo_can_see`
-/// (line-of-sight from the GM to the current target). The geo-editor / grid /
-/// save commands mutate geodata and stay on the not-implemented path.
+/// (line-of-sight from the GM to the current target).
 pub(super) fn admin_geo_pos(world: &mut World, client_id: u32, object_id: i32, spawn: bool) {
     let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
         return;
@@ -275,75 +276,38 @@ pub(super) fn admin_geocell(world: &mut World, client_id: u32, object_id: i32) {
     );
 }
 
-/// `AdminGeodata`'s `//geoenable<dir>` / `//geodisable<dir>` — set or clear one
-/// NSWE passability bit on the GM's nearest cell (Java `setNearestNswe` /
-/// `unsetNearestNswe`). The edit layers over the immutable base geodata and
-/// takes effect immediately for movement/pathfinding.
-pub(super) fn admin_geo_nswe(
-    world: &mut World,
-    client_id: u32,
-    object_id: i32,
-    nswe: u8,
-    enable: bool,
-) {
-    let Some(pos) = world.objects.get_component::<Position>(&object_id).copied() else {
+/// `AdminPathNode`'s `//path_find` — run the cell pathfinder from the GM to
+/// their target and dump every node of the route, Java's `PathFinding.findPath`
+/// with `playable = true`.
+pub(super) fn admin_path_find(world: &mut World, client_id: u32, object_id: i32) {
+    if world.path_finding < 1 {
+        send_message(world, client_id, "PathFinding is disabled.");
+        return;
+    }
+    let Some(target) = current_target(world, object_id) else {
+        send_message(world, client_id, "No Target!");
         return;
     };
-    let (gx, gy) = (world.geo.get_geo_x(pos.x), world.geo.get_geo_y(pos.y));
-    if !world.geo.has_geo_pos(gx, gy) {
-        send_message(world, client_id, "There is no geodata at this position.");
+    let (Some(from), Some(to)) = (
+        world.objects.get_component::<Position>(&object_id).copied(),
+        world.objects.get_component::<Position>(&target).copied(),
+    ) else {
         return;
-    }
-    if enable {
-        world.geo.set_nearest_nswe(gx, gy, pos.z, nswe);
-    } else {
-        world.geo.unset_nearest_nswe(gx, gy, pos.z, nswe);
-    }
-    send_message(
-        world,
-        client_id,
-        &format!(
-            "Cell {gx},{gy}: {} {}.",
-            dir_name(nswe),
-            if enable { "enabled" } else { "disabled" }
-        ),
+    };
+    let path = crate::geo::path::find_path(
+        &world.geo,
+        &world.path_cfg,
+        (from.x, from.y, from.z),
+        (to.x, to.y, to.z),
+        true,
     );
-}
-
-fn dir_name(nswe: u8) -> &'static str {
-    match nswe {
-        crate::geo::NSWE_NORTH => "north",
-        crate::geo::NSWE_SOUTH => "south",
-        crate::geo::NSWE_EAST => "east",
-        crate::geo::NSWE_WEST => "west",
-        _ => "direction",
+    let Some(path) = path else {
+        send_message(world, client_id, "No Route!");
+        return;
+    };
+    for (x, y, z) in path {
+        send_message(world, client_id, &format!("x:{x} y:{y} z:{z}"));
     }
-}
-
-/// `AdminGeodata`'s `//geosave` / `//geosaveall` — Java writes the edited region
-/// back to the geoedit output dir in the L2 binary format. That serializer is
-/// not ported; runtime edits live in memory (`GeoEngine` override map) and
-/// apply until restart. Reports how many edits are pending.
-pub(super) fn admin_geosave(world: &mut World, client_id: u32) {
-    let n = world.geo.override_count();
-    send_message(
-        world,
-        client_id,
-        &format!("{n} runtime geo edit(s) active (in memory; binary region save is not ported)."),
-    );
-}
-
-/// `AdminGeodata`'s `//geoedit` / `//ge` — Java's community-board cell editor
-/// (`geoedit.htm` + `geoedit_cell.htm`, heading-rotated, one button per cell).
-/// The html panel is not ported; the grid *overlay* is (`//geogrid`, see
-/// [`super::debug_draw::admin_geogrid`]) and the NSWE edit commands work
-/// directly.
-pub(super) fn admin_geo_clientviz(world: &mut World, client_id: u32) {
-    send_message(
-        world,
-        client_id,
-        "The geo edit panel is not available; use //geogrid to view and //geoenable*/geodisable* to edit.",
-    );
 }
 
 // ---------------------------------------------------------------------------
