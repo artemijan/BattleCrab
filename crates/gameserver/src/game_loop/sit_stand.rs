@@ -140,15 +140,49 @@ pub(crate) fn stand_up(world: &mut World, object_id: i32) {
     if refuses {
         return;
     }
-    // TODO(G29): Java also stops any `RELAXING` effect here (the Relax toggle
-    // that only runs while seated). No learnable Relax skill exists on this
-    // dist, so there is nothing to stop.
+    // Java `stopEffects(EffectFlag.RELAXING)` — standing up ends the Relax
+    // toggle (226), which only runs while seated. The tick's own "not sitting"
+    // gate would also catch this, but not until the next tick fires: without
+    // this the player keeps paying MP upkeep for up to a full interval after
+    // standing, and the buff icon lingers that long too.
+    stop_relaxing(world, object_id);
     broadcast_wait_type(world, object_id, WT_STANDING);
     // The flag clears only when the animation finishes, not now.
     world.scheduler.schedule(
         world.tick + ANIMATION_TICKS,
         ScheduledTask::StandUpFinish { object_id },
     );
+}
+
+/// End any active Relax-style toggle (Java's `EffectFlag.RELAXING`).
+///
+/// The port has no effect-flag index over live buffs, so membership is decided
+/// the same way the tick does: by looking for the effect on the buff's skill.
+fn stop_relaxing(world: &mut World, object_id: i32) {
+    let relaxing: Vec<i32> = world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&object_id)
+        .map(|b| {
+            b.0.iter()
+                .filter(|a| !a.passive)
+                .filter(|a| {
+                    world
+                        .data
+                        .skill_data
+                        .get(a.skill_id, a.skill_level)
+                        .is_some_and(|s| {
+                            s.effects.iter().any(|e| {
+                                matches!(e, crate::model::skill::SkillEffect::Relax { .. })
+                            })
+                        })
+                })
+                .map(|a| a.skill_id)
+                .collect()
+        })
+        .unwrap_or_default();
+    for skill_id in relaxing {
+        crate::game_loop::skills::effects::handle_buff_expire(world, object_id, skill_id);
+    }
 }
 
 /// `SitDownTask` — the animation is over, actions unblock. The character stays

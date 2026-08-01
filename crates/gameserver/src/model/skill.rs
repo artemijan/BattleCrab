@@ -739,7 +739,8 @@ pub enum SkillEffect {
     /// branch (PLAN_G19_SYMBOLS.md): drop a totem NPC at the aimed ground
     /// point that pulses its template's `union_skill` every `skill_delay`
     /// seconds until `despawn_time`. The `Decoy` and default-spawn branches
-    /// are TODO(G19) (no learnable carriers); `despawn_delay` is the effect's
+    /// are not ported — Decoy's only carrier (525) is in no skill tree, and
+    /// every reachable carrier is an `EffectPoint` symbol; `despawn_delay` is the effect's
     /// fallback when the template declares no `despawn_time`.
     SummonNpc {
         npc_id: i32,
@@ -823,8 +824,8 @@ pub enum SkillEffect {
     /// (rolls `calcCrit` to double the hit) and `None` for SoulBlow (whose
     /// charged-soul boost is ×1 until charges land). `backstab` requires the
     /// caster to be outside the target's front arc.
-    /// TODO(G20): SoulBlow charged-soul boost (no learnable carrier — the sole
-    /// `SoulBlow` skill on this dist is off-chronicle).
+    /// SoulBlow's charged-soul boost is not ported: its only carrier here is
+    /// skill 505, which appears in no skill tree.
     Blow {
         power: f64,
         chance_boost: f64,
@@ -899,6 +900,19 @@ pub enum SkillEffect {
     /// paying MP upkeep; when a tick's drain exceeds current MP the toggle is
     /// switched off (Java returns `false`, which cancels a toggle).
     ManaDamOverTime {
+        power: f64,
+        ticks: i32,
+    },
+    /// `handlers/effecthandlers/Relax.java` — the Relax toggle (skill **226**,
+    /// learnable at level 5 by Human and Orc Fighters, so this is early-game
+    /// content rather than a curiosity).
+    ///
+    /// Sits the caster down on start, then drains `power` MP per tick while
+    /// they stay seated. Java stops it — via the toggle-cancelling `false`
+    /// return — on three conditions the plain MP-upkeep effects do not have:
+    /// the holder stood up, their HP came back to full (with its own message),
+    /// or the drain exceeds current MP.
+    Relax {
         power: f64,
         ticks: i32,
     },

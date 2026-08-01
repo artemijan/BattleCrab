@@ -1287,8 +1287,16 @@ pub(crate) fn start_casting(
 /// re-resolve the target and **re-sweep the affect scope** (a mob that walked
 /// into the volcano mid-channel burns; one that left stops), then apply the
 /// CHANNELING effect scope per target behind Java's `effectRange` + LOS gate.
-/// The `channelingSkillId > 0` branch (stacking "channelized" buffs — hero
-/// stances 426/427) is TODO(G19); no reachable channeler on this dist uses it.
+/// TODO(G19): the `channelingSkillId > 0` branch — while channeling, Java
+/// applies the *named* skill to each target as a stacking "channelized" buff
+/// (`SkillChannelizer.run`), so the effect builds up for as long as the cast is
+/// held rather than landing once at the end.
+///
+/// **This is reachable, contrary to what this comment used to claim.** Battle
+/// Stance 426 (`channelingSkillId` 5104) and Spell Stance 427 (5105) are
+/// learnable at level 77 — 427 by thirteen classes — so both currently channel
+/// their MP upkeep and apply nothing. The other carriers (3600-range Capture
+/// states, 14559 Soul Drain) are off-chronicle.
 pub(crate) fn handle_channeling_tick(world: &mut World, player_object_id: i32, cast_seq: u64) {
     use server_packets::sm_ids;
 
