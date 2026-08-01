@@ -115,6 +115,7 @@ mod vitality;
 pub(crate) mod walkers;
 mod warehouse;
 pub(crate) mod water;
+pub(crate) mod weight;
 pub(crate) mod zones;
 
 use std::sync::Arc;
@@ -298,6 +299,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(REGEN_TICK_PERIOD) {
             run_regen_tick(&mut world);
             run_npc_regen_tick(&mut world);
+            weight::sweep(&mut world);
         }
         if world.tick.is_multiple_of(auto_play::TICK_PERIOD) {
             auto_play::tick(&mut world);

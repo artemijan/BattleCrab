@@ -508,6 +508,7 @@ fn restore_one(world: &mut World, row: crate::db::OfflineTraderRow, store_type: 
     // to a client: the stat pumps must run or the shop stands with raw base
     // stats, and `restoreEffects` is in Java's restore path too.
     super::expertise::refresh_expertise_penalty(world, object_id);
+    super::weight::refresh_weight_penalty(world, object_id);
     super::passive_skills::refresh_conditioned_passives(world, object_id);
     super::skills::effects::restore_persisted_buffs(world, object_id, &pending_buffs);
     super::zones::revalidate_zone(world, object_id, true);

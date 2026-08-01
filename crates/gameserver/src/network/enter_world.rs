@@ -333,12 +333,13 @@ pub fn acquire_skill_list(
     w.into_bytes()
 }
 
-/// `EtcStatusUpdate` (0xF9). Weight/death-penalty/souls are still 0 (not
-/// modeled yet); `charges` (G19, `Player.charges` — the Force resource) and
-/// the weapon/armor grade-penalty bytes (`refresh_expertise_penalty`) carry
-/// real state.
+/// `EtcStatusUpdate` (0xF9). Death-penalty and charged-souls are still 0 (not
+/// modeled); `charges` (G19, `Player.charges` — the Force resource), the
+/// weight penalty (`refresh_weight_penalty`) and the weapon/armor grade-penalty
+/// bytes (`refresh_expertise_penalty`) all carry real state.
 pub fn etc_status_update(
     charges: i32,
+    weight_penalty: i32,
     weapon_grade_penalty: i32,
     armor_grade_penalty: i32,
     message_refusal: bool,
@@ -346,7 +347,7 @@ pub fn etc_status_update(
     let mut w = PacketWriter::new();
     w.write_u8(0xF9);
     w.write_u8(charges as u8);
-    w.write_i32(0); // weight penalty
+    w.write_i32(weight_penalty); // 0-4, drives the overweight icon
     w.write_u8(weapon_grade_penalty as u8); // weapon grade penalty [1-4]
     w.write_u8(armor_grade_penalty as u8); // armor grade penalty [1-4]
     w.write_u8(0); // death penalty
@@ -583,12 +584,15 @@ pub fn ex_subjob_info(p: &Player) -> Vec<u8> {
     w.into_bytes()
 }
 
-/// `ExUserInfoInvenWeight` (0x166). Max load stays a placeholder — encumbrance
-/// enforcement is out of scope.
+/// `ExUserInfoInvenWeight` (0x166) — the client's weight bar: carried over
+/// limit. `max_load` comes from `weight::max_load`; it used to be a hard-coded
+/// 80000, so the bar was drawn against the wrong denominator for every
+/// character regardless of CON.
 pub fn ex_user_info_inven_weight(
     object_id: i32,
     inventory: &crate::model::inventory::Inventory,
     data: &GameData,
+    max_load: i32,
 ) -> Vec<u8> {
     let load: i64 = inventory
         .items()
@@ -602,7 +606,7 @@ pub fn ex_user_info_inven_weight(
     let mut w = ex(0x166);
     w.write_i32(object_id);
     w.write_i32(load as i32);
-    w.write_i32(80_000); // max load (placeholder)
+    w.write_i32(max_load);
     w.into_bytes()
 }
 

@@ -112,8 +112,13 @@ pub struct CharacterConfig {
     /// inventory-slot cap (`Player.getInventoryLimit`). GM/belt bonuses
     /// aren't wired — no access-level or `Stat.INVENTORY_NORMAL` on the live
     /// player model yet.
+    /// `AltWeightLimit` — a multiplier on Java's CON-derived carry limit.
+    /// **3** on this dist.
+    pub alt_weight_limit: f64,
     pub inventory_max_no_dwarf: i32,
     pub inventory_max_dwarf: i32,
+    /// `MaximumSlotsForGMPlayer` — GMs get their own, larger cap.
+    pub inventory_max_gm: i32,
     /// `MaximumSlotsForQuestItems` (`Player.getQuestInventoryLimit`): quest
     /// items are checked against this separate cap, never the ordinary one
     /// (`PlayerInventory.validateCapacity`'s `questItem` branch).
@@ -319,8 +324,10 @@ impl Default for CharacterConfig {
             party_xp_cutoff_percent: 3.0,
             party_xp_cutoff_gaps: vec![(0, 9), (10, 14), (15, 99)],
             party_xp_cutoff_gap_percents: vec![100, 30, 0],
+            alt_weight_limit: 1.0,
             inventory_max_no_dwarf: 80,
             inventory_max_dwarf: 100,
+            inventory_max_gm: 250,
             inventory_max_quest_items: 100,
             crafting_enabled: true,
             dwarf_recipe_limit: 100,
@@ -442,8 +449,10 @@ impl CharacterConfig {
                 .split(';')
                 .filter_map(|v| v.trim().parse().ok())
                 .collect(),
+            alt_weight_limit: p.get_float("AltWeightLimit", d.alt_weight_limit as f32) as f64,
             inventory_max_no_dwarf: p.get_int("MaximumSlotsForNoDwarf", d.inventory_max_no_dwarf),
             inventory_max_dwarf: p.get_int("MaximumSlotsForDwarf", d.inventory_max_dwarf),
+            inventory_max_gm: p.get_int("MaximumSlotsForGMPlayer", d.inventory_max_gm),
             inventory_max_quest_items: p
                 .get_int("MaximumSlotsForQuestItems", d.inventory_max_quest_items),
             crafting_enabled: p.get_bool("CraftingEnabled", d.crafting_enabled),
