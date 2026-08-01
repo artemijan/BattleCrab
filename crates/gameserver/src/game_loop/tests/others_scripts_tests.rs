@@ -1094,6 +1094,7 @@ fn day_night_test_template(day_npc: i32, night_npc: i32) -> SpawnTemplate {
         }),
         respawn_secs: 60,
         respawn_random_secs: 0,
+        chase_range: 0,
         db_save: false,
     };
     SpawnTemplate {

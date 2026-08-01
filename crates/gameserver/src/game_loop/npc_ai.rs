@@ -762,10 +762,9 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     let now = world.tick;
 
     // Chase leash (`AttackableAI.thinkAttack` `AGGRO_DISTANCE_CHECK`): a monster
-    // dragged farther than the configured range from its spawn drops all aggro
-    // and walks home (healed to full when configured). Off by default on this
-    // dist. Guards/defenders (not `isMonster`) and grand bosses are exempt,
-    // matching Java.
+    // dragged farther than the configured range from its spawn drops all aggro,
+    // heals to full and teleports home with its escort. On (2000/4000 units) on
+    // this dist. Guards/defenders, route walkers and grand bosses are exempt.
     if world.cfg.npc.aggro_distance_check_enabled && npc_leash_return_home(world, npc_oid) {
         return;
     }
@@ -979,49 +978,80 @@ pub(crate) fn set_active(world: &mut World, npc_oid: i32) {
 
 /// `AttackableAI.thinkAttack`'s AggroDistanceCheck leash body: if `npc_oid` is
 /// a leashable monster now beyond its configured range from spawn, forget every
-/// target, optionally heal to full, and walk it home. Returns whether the leash
-/// fired (the caller then aborts the swing this think). Guards/defenders (not
-/// `isMonster`) and grand bosses are exempt, and raids only leash when
-/// `AggroDistanceCheckRaids` is set — matching Java.
+/// target, heal to full when `AggroDistanceCheckRestoreLife` is set, and send it
+/// — plus its whole escort — back to the spawn point. Returns whether the leash
+/// fired (the caller then aborts the swing this think).
+///
+/// **Deliberate deviation from Java:** Java issues `AI_INTENTION_MOVE_TO` and
+/// lets the mob *walk* home (only the AI-less branch teleports), which leaves it
+/// jogging across the map for tens of seconds, re-aggroable and re-pullable the
+/// whole way — the exact drag-train the leash exists to stop. The operator asked
+/// for the snap-back behaviour, so this port teleports instead
+/// (`Npc.teleToLocation(spawn, true)`, the same relocate the attack-timeout path
+/// already uses). Everything else in the block is Java's.
 fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
-    let (spawn, is_monster, is_grandboss, is_raid) = {
-        let Some(npc) = world
-            .objects
-            .get_component::<crate::model::npc::Npc>(&npc_oid)
-        else {
-            return false;
-        };
-        let spawn = npc.spawn_loc;
-        let Some(t) = npc.template(world) else {
-            return false;
-        };
-        (
-            spawn,
-            t.is_monster(),
-            t.type_name == "GrandBoss",
-            t.is_raid(),
-        )
-    };
-    if !is_monster || is_grandboss {
+    let Some(spawn) = leash_home_point(world, npc_oid) else {
         return false;
+    };
+    leash_send_home(world, npc_oid, spawn);
+    // "Minions should return as well" — Java walks the leader's escort back to
+    // the *leader's* spawn point, not each minion's own.
+    for minion_oid in super::minions::live_pack(world, npc_oid) {
+        leash_send_home(world, minion_oid, spawn);
+    }
+    true
+}
+
+/// The leash gate: `Some(spawn point)` when this NPC is over its leash radius
+/// and every exemption in Java's condition lets it through. Guards/defenders
+/// (not `isMonster`), route walkers (`isWalker`) and grand bosses are exempt;
+/// raids only leash under `AggroDistanceCheckRaids`, instanced monsters only
+/// under `AggroDistanceCheckInstances`.
+fn leash_home_point(world: &World, npc_oid: i32) -> Option<(i32, i32, i32)> {
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)?;
+    let spawn = npc.spawn_loc;
+    let chase_range = npc.chase_range;
+    let t = npc.template(world)?;
+    if !t.is_monster() || t.type_name == "GrandBoss" {
+        return None;
+    }
+    let is_raid = t.is_raid();
+    // `!npc.isWalker()` — a route NPC's "home" is wherever its route has it.
+    if world
+        .objects
+        .has_component::<super::walkers::WalkState>(&npc_oid)
+    {
+        return None;
     }
     if is_raid && !world.cfg.npc.aggro_distance_check_raids {
-        return false;
+        return None;
     }
-    let range = (if is_raid {
+    if instance_of(world, npc_oid) != 0 && !world.cfg.npc.aggro_distance_check_instances {
+        return None;
+    }
+    // `spawn.getChaseRange() > 0 ? max(MAX_DRIFT_RANGE, chaseRange) : …`
+    let range = if chase_range > 0 {
+        chase_range.max(world.cfg.npc.max_drift_range)
+    } else if is_raid {
         world.cfg.npc.aggro_distance_check_raid_range
     } else {
         world.cfg.npc.aggro_distance_check_range
-    }) as f64;
-    let restore = world.cfg.npc.aggro_distance_check_restore_life;
-    let Some(pos) = world.objects.get_component::<Position>(&npc_oid) else {
-        return false;
-    };
+    } as f64;
+    let pos = world.objects.get_component::<Position>(&npc_oid)?;
     let dist = (((spawn.0 - pos.x) as f64).powi(2) + ((spawn.1 - pos.y) as f64).powi(2)).sqrt();
-    if dist <= range {
-        return false;
-    }
-    if restore && let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid) {
+    (dist > range).then_some(spawn)
+}
+
+/// One leashed mob's trip home: full HP/MP (when configured), an emptied aggro
+/// list — the port's stand-in for Java's `clearAggroList()` *and*
+/// `getAttackByList().clear()`, which share one structure here — back to the
+/// `ACTIVE` scan loop at walking speed, and a teleport onto the spawn point.
+fn leash_send_home(world: &mut World, npc_oid: i32, spawn: (i32, i32, i32)) {
+    if world.cfg.npc.aggro_distance_check_restore_life
+        && let Some(v) = world.objects.get_component_mut::<Vitals>(&npc_oid)
+    {
         v.cur_hp = v.max_hp as f64;
         v.cur_mp = v.max_mp as f64;
     }
@@ -1029,8 +1059,15 @@ fn npc_leash_return_home(world: &mut World, npc_oid: i32) -> bool {
         aggro.0.clear();
     }
     set_active(world, npc_oid);
-    move_npc_to(world, npc_oid, spawn.0, spawn.1, spawn.2);
-    true
+    // Drop the in-flight chase before relocating, or the movement sweep keeps
+    // interpolating from the old position and drags the mob straight back out.
+    stop_npc(world, npc_oid);
+    let heading = world
+        .objects
+        .get_component::<Position>(&npc_oid)
+        .map(|p| p.heading)
+        .unwrap_or(0);
+    super::death::relocate_npc(world, npc_oid, spawn.0, spawn.1, spawn.2, heading);
 }
 
 /// `moveToPawn` for a chasing NPC: walk to the edge of attack reach,

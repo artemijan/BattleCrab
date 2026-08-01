@@ -1114,6 +1114,7 @@ fn dead_monster_decays_and_respawns() {
                     }),
                     respawn_secs: 3,
                     respawn_random_secs: 0,
+                    chase_range: 0,
                     db_save: false,
                 }],
             }],

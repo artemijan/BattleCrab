@@ -2,7 +2,7 @@
 //! SpawnGroup / NpcSpawnTemplate) + the `ZoneForm` shapes territory spawns
 //! randomize inside, scoped to what this dist's `data/spawns/**` actually
 //! uses: fixed-location spawns, `count`, `respawnTime`/`respawnRandom`
-//! (sec/min/hour), and `<territories>` on the spawn or group. Unused-by-data
+//! (sec/min/hour), `chaseRange` and `<territories>` on the spawn or group. Unused-by-data
 //! features are not ported: `zone=`/`banned_territory`/`<locations>`/
 //! `<minions>`/`respawnPattern` (0 occurrences each), `<parameters>`
 //! (consumed by AI scripts only, G11). `dbSave` raid persistence
@@ -52,6 +52,13 @@ pub struct NpcSpawnDef {
     pub loc: Option<FixedLoc>,
     pub respawn_secs: i32,
     pub respawn_random_secs: i32,
+    /// `chaseRange="…"` (Java `Spawn.getChaseRange()`) — a per-spawn-line
+    /// override of the `AggroDistanceCheckRange` leash radius, used where the
+    /// designers want a mob to follow further than the global default (Silent
+    /// Valley and Tower of Insolence on this dist). `0` = unset, use the global.
+    /// Java takes `max(MaxDriftRange, chaseRange)` so the override can never
+    /// shrink the leash below the mob's own random-walk radius.
+    pub chase_range: i32,
     /// `dbSave="true"` (Java `NpcSpawnTemplate.hasDBSave`) — this NPC's live
     /// HP/MP and pending respawn time survive a server restart, via the
     /// `npc_respawns` table and `DBSpawnManager`. 225 spawns on this dist, all
@@ -360,6 +367,7 @@ fn parse_file(path: &std::path::Path, out: &mut Vec<SpawnTemplate>) {
                         .as_deref()
                         .and_then(parse_duration_secs)
                         .unwrap_or(0),
+                    chase_range: attr_i32(&e, b"chaseRange").unwrap_or(0),
                     db_save: attr_str(&e, b"dbSave").as_deref() == Some("true"),
                 };
                 if in_group {

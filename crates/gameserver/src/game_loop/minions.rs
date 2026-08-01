@@ -138,7 +138,7 @@ fn count_alive_minions(world: &World, master_oid: i32, npc_id: i32) -> i32 {
 }
 
 /// Live members of a leader's escort, from its roster.
-fn live_pack(world: &World, master_oid: i32) -> Vec<i32> {
+pub(crate) fn live_pack(world: &World, master_oid: i32) -> Vec<i32> {
     let Some(roster) = world.objects.get_component::<Minions>(&master_oid) else {
         return Vec::new();
     };

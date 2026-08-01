@@ -45,6 +45,7 @@ fn boss_world() -> (
                     }),
                     respawn_secs: 86_400,
                     respawn_random_secs: 0,
+                    chase_range: 0,
                     db_save: true,
                 }],
                 territories: Vec::new(),
