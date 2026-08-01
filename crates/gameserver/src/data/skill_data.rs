@@ -21,7 +21,7 @@ use tracing::{info, warn};
 
 use crate::model::skill::{
     AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill,
-    SkillEffect, StatModifierEffect, TargetType,
+    SkillCondition, SkillEffect, StatModifierEffect, TargetType,
 };
 use crate::model::stats::{Stat, StatModifierType};
 
@@ -410,15 +410,24 @@ fn ranged_bounds(e: &quick_xml::events::BytesStart) -> Option<RangedRow> {
 }
 
 /// Coverage record for one `<condition name>` (PLAN_G34 §S0), keyed
-/// `"<block>/<name>"`. `conditions/OpExistNpc` is the single enforced
-/// condition and is the only one skipped — everything else parses and is then
-/// ignored, so the skill fires where Java would refuse it.
-fn record_condition(gaps: &mut SkillGaps, block: &str, name: Option<&str>, skill_id: i32) {
-    let Some(name) = name else { return };
-    if block == "conditions" && name == "OpExistNpc" {
-        return;
-    }
-    SkillGaps::record(&mut gaps.conditions, &format!("{block}/{name}"), skill_id);
+/// `"<block>/<name>"`.
+///
+/// Called **only when [`build_condition`] returned `None`** — i.e. the name has
+/// no [`SkillCondition`] variant and the condition will therefore not be
+/// enforced. Tying the record to the builder rather than to the parse is what
+/// makes the census shrink when a condition lands: there is no second list of
+/// "ported names" to keep in step.
+fn record_unported_condition(gaps: &mut SkillGaps, c: &ParsedCondition, skill_id: i32) {
+    let block = match c.scope {
+        CondScope::General => "conditions",
+        CondScope::Target => "targetConditions",
+        CondScope::Passive => "passiveConditions",
+    };
+    SkillGaps::record(
+        &mut gaps.conditions,
+        &format!("{block}/{}", c.name),
+        skill_id,
+    );
 }
 
 /// Coverage record for an effect declared in an `<*Effects>` block this port
@@ -454,20 +463,18 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
         (None, None, None, None);
     let mut in_effects = false;
     let mut cur_scope = EffectScope::General;
-    let mut in_conditions = false;
     // Which `<*onditions>` block is open, for the coverage record: Java's three
     // `SkillConditionScope`s (`conditions`/`targetConditions`/
     // `passiveConditions`). `in_conditions` above stays GENERAL-only, since
     // that is the only block `op_exist_npc` may be read from.
     let mut cond_block: Option<String> = None;
-    // The one parsed skill condition: `OpExistNpc` (see `Skill::op_exist_npc`).
-    // Everything else under `<conditions>` is still skipped.
+    // Conditions collected for the current skill, all three scopes.
+    let mut conditions: Vec<ParsedCondition> = Vec::new();
+    let mut cur_cond_params: LeveledValues = HashMap::new();
+    let mut cur_cond_sub_params: HashMap<String, Vec<RangedRow>> = HashMap::new();
+    let mut cur_cond_lists: HashMap<String, Vec<String>> = HashMap::new();
     let mut cur_cond_name: Option<String> = None;
     let mut cur_cond_field = String::new();
-    let mut cur_cond_npc_ids: Vec<i32> = Vec::new();
-    let mut cur_cond_range: i32 = 0;
-    let mut cur_cond_is_around = false;
-    let mut op_exist_npc: Option<crate::model::skill::OpExistNpcCondition> = None;
     // Ranged `<value>` rows (fromLevel/fromSubLevel bounds) — collected raw
     // per skill field / effect param, resolved at finalize.
     let mut pending_range: Option<RangedRow> = None;
@@ -508,12 +515,20 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     && e.name().as_ref() == b"condition"
                     && let Some(block) = &cond_block
                 {
-                    record_condition(
-                        &mut out.gaps.borrow_mut(),
-                        block,
-                        attr_str(&e, b"name").as_deref(),
-                        skill_id,
-                    );
+                    // No Start/End pair fires for an `Empty`, so the param-less
+                    // condition has to be pushed here or it is lost — which is
+                    // most of them (`CanSummon`, `EquipShield`, `OpCanEscape`…).
+                    if let (Some(scope), Some(name)) =
+                        (CondScope::from_xml(block), attr_str(&e, b"name"))
+                    {
+                        conditions.push(ParsedCondition {
+                            scope,
+                            name,
+                            params: HashMap::new(),
+                            sub_params: HashMap::new(),
+                            lists: HashMap::new(),
+                        });
+                    }
                 }
                 // Self-closing leaf (e.g. an attribute-only tag with no text).
                 // Not pushed onto `path` since no matching `End` event follows
@@ -576,17 +591,6 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 // of the three scopes, ported or not; `record_condition` drops
                 // the one that *is* enforced. Sits ahead of the branch chain
                 // because the chain only descends into the GENERAL block.
-                if path.len() == 2
-                    && name == "condition"
-                    && let Some(block) = &cond_block
-                {
-                    record_condition(
-                        &mut out.gaps.borrow_mut(),
-                        block,
-                        attr_str(&e, b"name").as_deref(),
-                        skill_id,
-                    );
-                }
 
                 if path.is_empty() {
                     if name != "skill" {
@@ -600,9 +604,9 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     to_level = attr_i32(&e, b"toLevel").unwrap_or(1).max(1);
                     values.clear();
                     effects.clear();
+                    conditions.clear();
+                    cond_block = None;
                     in_effects = false;
-                    in_conditions = false;
-                    op_exist_npc = None;
                     field_rows.clear();
                     pending_range = None;
                 } else if path.len() == 1 {
@@ -614,17 +618,19 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                         cur_scope = EffectScope::from_xml(&name);
                     } else if name.ends_with("onditions") {
                         cond_block = Some(name.clone());
-                        in_conditions = name == "conditions";
                     }
-                } else if path.len() == 2 && name == "value" && !in_effects && !in_conditions {
+                } else if path.len() == 2 && name == "value" && !in_effects && cond_block.is_none()
+                {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
                     pending_range = ranged_bounds(&e);
-                } else if path.len() == 2 && in_conditions && name == "condition" {
+                } else if path.len() == 2 && cond_block.is_some() && name == "condition" {
                     cur_cond_name = attr_str(&e, b"name");
-                    cur_cond_npc_ids = Vec::new();
-                    cur_cond_range = 0;
-                    cur_cond_is_around = false;
-                } else if path.len() == 3 && in_conditions {
+                } else if path.len() == 4 && cond_block.is_some() && name == "value" {
+                    // `<condition><amount><value level="2">…` — same shape as an
+                    // effect param one level shallower.
+                    pending_level = attr_i32(&e, b"level").unwrap_or(0);
+                    pending_range = ranged_bounds(&e);
+                } else if path.len() == 3 && cond_block.is_some() {
                     cur_cond_field = name.clone();
                 } else if path.len() == 2 && in_effects && name == "effect" {
                     if cur_scope == EffectScope::Other {
@@ -665,17 +671,40 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 if text.is_empty() {
                     continue;
                 }
-                if in_conditions {
-                    // Only `OpExistNpc`'s fields are read; every other
-                    // condition is still skipped (see module docs).
-                    match (path.len(), cur_cond_field.as_str()) {
-                        (4, "range") => cur_cond_range = text.parse().unwrap_or(0),
-                        (4, "isAround") => cur_cond_is_around = text.eq_ignore_ascii_case("true"),
-                        // `<npcIds><item>13018</item>…`
-                        (5, "npcIds") => {
-                            if let Ok(v) = text.parse() {
-                                cur_cond_npc_ids.push(v);
-                            }
+                if cond_block.is_some() {
+                    match path.len() {
+                        // `<condition><range>10</range>` — a plain scalar param,
+                        // stored at level 0 so `value_at`'s fallback finds it at
+                        // every level.
+                        4 => {
+                            cur_cond_params
+                                .entry(cur_cond_field.clone())
+                                .or_default()
+                                .insert(0, text.to_string());
+                        }
+                        // `<condition><weaponType><item>DUAL</item>…` — the two
+                        // list-valued params in this datapack.
+                        5 if path.last().is_some_and(|t| t == "item") => {
+                            cur_cond_lists
+                                .entry(cur_cond_field.clone())
+                                .or_default()
+                                .push(text.to_string());
+                        }
+                        // `<condition><amount><value …>` — level table, with
+                        // ranged rows resolved per (level, sub) at finalize.
+                        5 if pending_range.is_some() => {
+                            let mut row = pending_range.take().expect("checked");
+                            row.text = text.to_string();
+                            cur_cond_sub_params
+                                .entry(cur_cond_field.clone())
+                                .or_default()
+                                .push(row);
+                        }
+                        5 => {
+                            cur_cond_params
+                                .entry(cur_cond_field.clone())
+                                .or_default()
+                                .insert(pending_level, text.to_string());
                         }
                         _ => {}
                     }
@@ -760,23 +789,27 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                         &values,
                         &effects,
                         &field_rows,
-                        &op_exist_npc,
+                        &conditions,
                         out,
                     );
                     skill_id = -1;
                 } else if closed.ends_with("ffects") {
                     in_effects = false;
                 } else if closed.ends_with("onditions") {
-                    in_conditions = false;
                     cond_block = None;
-                } else if closed == "condition" && in_conditions {
-                    if cur_cond_name.take().as_deref() == Some("OpExistNpc") {
-                        op_exist_npc = Some(crate::model::skill::OpExistNpcCondition {
-                            npc_ids: std::mem::take(&mut cur_cond_npc_ids),
-                            range: cur_cond_range,
-                            is_around: cur_cond_is_around,
+                } else if closed == "condition" {
+                    if let (Some(block), Some(name)) = (&cond_block, &cur_cond_name)
+                        && let Some(scope) = CondScope::from_xml(block)
+                    {
+                        conditions.push(ParsedCondition {
+                            scope,
+                            name: name.clone(),
+                            params: std::mem::take(&mut cur_cond_params),
+                            sub_params: std::mem::take(&mut cur_cond_sub_params),
+                            lists: std::mem::take(&mut cur_cond_lists),
                         });
                     }
+                    cur_cond_name = None;
                 } else if closed == "item" && in_effects && cur_effect_field == "items" {
                     // Closes a `RestorationRandom` group (the inner
                     // `<item id=".." count=".."/>` is self-closing, so this
@@ -884,6 +917,42 @@ impl EffectScope {
     }
 }
 
+/// Java `SkillConditionScope` — which `<*onditions>` block a condition was
+/// declared in. Java keys `Skill._conditionLists` by this.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum CondScope {
+    General,
+    Target,
+    Passive,
+}
+
+impl CondScope {
+    fn from_xml(node: &str) -> Option<Self> {
+        match node {
+            "conditions" => Some(Self::General),
+            "targetConditions" => Some(Self::Target),
+            "passiveConditions" => Some(Self::Passive),
+            _ => None,
+        }
+    }
+}
+
+/// One `<condition name="…">` element as parsed. Structurally the same shape as
+/// [`ParsedEffect`] — conditions carry per-level `<value level="N">` tables and
+/// ranged rows too (`OpEnergyMax`'s `amount` is a 7-level table; `RemainHpPer`'s
+/// uses `fromLevel`/`toLevel` *and* enchant sub-level rows), which is why they
+/// cannot be read as flat scalars.
+#[derive(Clone)]
+struct ParsedCondition {
+    scope: CondScope,
+    name: String,
+    params: LeveledValues,
+    sub_params: HashMap<String, Vec<RangedRow>>,
+    /// List-valued params — `<weaponType><item>DUAL</item>…` and
+    /// `<npcIds><item>13018</item>…`. Never level-tabled in this datapack.
+    lists: HashMap<String, Vec<String>>,
+}
+
 /// One `<effect>` element as parsed, before it is resolved into a per-level
 /// [`Skill`]. Java's `SkillData.NamedParamInfo`.
 #[derive(Clone)]
@@ -949,7 +1018,7 @@ fn finalize_skill(
     values: &LeveledValues,
     effects: &[ParsedEffect],
     field_rows: &HashMap<String, Vec<RangedRow>>,
-    op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
+    conditions: &[ParsedCondition],
     out: &mut ParsedSkills,
 ) {
     if id < 0 {
@@ -961,7 +1030,7 @@ fn finalize_skill(
         let effs = patched_effects(effects, level, 0);
         out.skills.insert(
             (id, level),
-            build_skill(id, name, level, 0, &vals, &effs, op_exist_npc, &out.gaps),
+            build_skill(id, name, level, 0, &vals, &effs, conditions, &out.gaps),
         );
 
         // The enchanted variants — one instance per declared sub-level, like
@@ -977,7 +1046,7 @@ fn finalize_skill(
                 let effs = patched_effects(effects, level, sub);
                 out.enchanted.insert(
                     (id, level, sub),
-                    build_skill(id, name, level, sub, &vals, &effs, op_exist_npc, &out.gaps),
+                    build_skill(id, name, level, sub, &vals, &effs, conditions, &out.gaps),
                 );
             }
         }
@@ -1141,6 +1210,168 @@ fn declared_sub_ranges(
     buckets.into_values().collect()
 }
 
+/// `<condition name="X">` → [`SkillCondition`] for one (level, sub) — the
+/// counterpart of the effect match, and the single place a condition name
+/// becomes enforceable (PLAN_G34_SKILL_PARITY.md §S1).
+///
+/// Returns `None` for a name this port doesn't implement. That is the
+/// **fail-open** path Java has no equivalent of: the condition simply isn't
+/// enforced and the skill casts where Java would refuse it. Every `None` is
+/// already recorded by [`SkillGaps::conditions`] at parse time, so the census
+/// test names it — do not add a name here without also striking it off there.
+fn build_condition(c: &ParsedCondition, level: i32, sub: i32) -> Option<SkillCondition> {
+    use crate::model::skill::{AffectType, MountKind, PercentType, Vital};
+
+    // Ranged rows (`RemainHpPer`'s `fromLevel`/`fromSubLevel` amounts) are
+    // resolved the same way effect params are.
+    let params = patched_condition_params(c, level, sub);
+    let num = |key: &str| -> Option<i32> {
+        value_at(&params, key, level).and_then(|v| v.parse::<f64>().ok().map(|f| f as i32))
+    };
+    let flag = |key: &str, default: bool| -> bool {
+        value_at(&params, key, level).map_or(default, |v| v.eq_ignore_ascii_case("true"))
+    };
+    let percent =
+        || value_at(&params, "percentType", level).map_or(PercentType::More, PercentType::from_xml);
+    let affect =
+        || value_at(&params, "affectType", level).map_or(AffectType::Caster, AffectType::from_xml);
+    let weapon_mask = || {
+        c.lists.get("weaponType").map_or(0, |types| {
+            types.iter().fold(0u32, |acc, t| {
+                acc | crate::data::item_data::WeaponType::from_name(t).mask_bit()
+            })
+        })
+    };
+    let remain = |vital: Vital| {
+        Some(SkillCondition::RemainVital {
+            vital,
+            amount: num("amount").unwrap_or(0),
+            percent: percent(),
+            affect: affect(),
+        })
+    };
+
+    match c.name.as_str() {
+        "EquipWeapon" => Some(SkillCondition::EquipWeapon {
+            mask: weapon_mask(),
+        }),
+        "EquipShield" => Some(SkillCondition::EquipShield),
+        "Op1hWeapon" => Some(SkillCondition::HandedWeapon {
+            mask: weapon_mask(),
+            two_handed: false,
+        }),
+        "Op2hWeapon" => Some(SkillCondition::HandedWeapon {
+            mask: weapon_mask(),
+            two_handed: true,
+        }),
+        "OpEncumbered" => Some(SkillCondition::Encumbered {
+            weight_percent: num("weightPercent").unwrap_or(0),
+            slots_percent: num("slotsPercent").unwrap_or(0),
+        }),
+        "RemainHpPer" => remain(Vital::Hp),
+        "RemainMpPer" => remain(Vital::Mp),
+        "RemainCpPer" => remain(Vital::Cp),
+        "EnergySaved" => Some(SkillCondition::EnergySaved {
+            amount: num("amount").unwrap_or(0),
+        }),
+        "OpEnergyMax" => Some(SkillCondition::EnergyMax {
+            amount: num("amount").unwrap_or(0),
+        }),
+        // `Creature.getRace()` — the NPC template race for a monster, the
+        // character race for a player. An unknown name would silently match
+        // nothing, so a bad value drops the condition instead.
+        "TargetRace" => value_at(&params, "race", level)
+            .and_then(crate::enums::Race::from_name)
+            .map(|race| SkillCondition::TargetRace { race }),
+        "TargetMyParty" => Some(SkillCondition::TargetMyParty {
+            include_me: flag("includeMe", false),
+        }),
+        "ConsumeBody" => Some(SkillCondition::ConsumeBody),
+        "OpCanEscape" => Some(SkillCondition::CanEscape),
+        "OpResurrection" => Some(SkillCondition::Resurrection),
+        "OpUnlock" => Some(SkillCondition::Unlock),
+        "OpTargetPc" => Some(SkillCondition::TargetPc),
+        "OpCallPc" => Some(SkillCondition::CallPc),
+        "CanTransform" => Some(SkillCondition::CanTransform),
+        "CanSummon" => Some(SkillCondition::CanSummon),
+        "CanSummonCubic" => Some(SkillCondition::CanSummonCubic),
+        "CanSummonSiegeGolem" => Some(SkillCondition::CanSummonSiegeGolem),
+        // Two Java classes, one body.
+        "CanUseInBattlefield" | "OpSiegeHammer" => Some(SkillCondition::InsideSiegeZone),
+        "OpSocialClass" => Some(SkillCondition::SocialClass {
+            social_class: num("socialClass").unwrap_or(-1),
+        }),
+        "BuildCamp" => Some(SkillCondition::BuildCamp),
+        "OpSkillAcquire" => num("skillId").map(|skill_id| SkillCondition::SkillAcquire {
+            skill_id,
+            has_learned: flag("hasLearned", false),
+        }),
+        "OpStrider" => Some(SkillCondition::Mounted {
+            kind: MountKind::Strider,
+        }),
+        "OpWyvern" => Some(SkillCondition::Mounted {
+            kind: MountKind::Wyvern,
+        }),
+        "NotInUnderwater" => Some(SkillCondition::NotInUnderwater),
+        "CheckLevel" => Some(SkillCondition::CheckLevel {
+            min: num("minLevel").unwrap_or(i32::MIN),
+            max: num("maxLevel").unwrap_or(i32::MAX),
+            affect: affect(),
+        }),
+        // The symbol/totem gate. Before G34 S1 this had its **own** field on
+        // `Skill` and its own inline check in `cast.rs`; it now goes through the
+        // generic parse like every other condition, so there is one
+        // representation instead of two that could drift.
+        "OpExistNpc" => Some(SkillCondition::ExistNpc(
+            crate::model::skill::OpExistNpcCondition {
+                npc_ids: c
+                    .lists
+                    .get("npcIds")
+                    .map(|ids| ids.iter().filter_map(|v| v.parse().ok()).collect())
+                    .unwrap_or_default(),
+                range: num("range").unwrap_or(0),
+                is_around: flag("isAround", false),
+            },
+        )),
+        "CheckSex" => Some(SkillCondition::CheckSex {
+            // Java `params.getBoolean("isFemale")`.
+            is_female: flag("isFemale", false),
+        }),
+        _ => None,
+    }
+}
+
+/// [`patched_effects`] for one condition: resolve its ranged `<value>` rows
+/// into the level table before reading params off it.
+fn patched_condition_params(c: &ParsedCondition, level: i32, sub: i32) -> LeveledValues {
+    if c.sub_params.is_empty() {
+        return c.params.clone();
+    }
+    let mut out = c.params.clone();
+    for pass_sub in [false, true] {
+        if pass_sub && sub == 0 {
+            break;
+        }
+        for (field, rows) in &c.sub_params {
+            for r in rows {
+                let is_sub_row = r.from_sub > 0;
+                if is_sub_row != pass_sub || !(r.from_level <= level && level <= r.to_level) {
+                    continue;
+                }
+                if is_sub_row && !(r.from_sub <= sub && sub <= r.to_sub) {
+                    continue;
+                }
+                if let Some(resolved) = resolve_row(&out, field, r, level, sub) {
+                    out.entry(field.clone())
+                        .or_default()
+                        .insert(level, resolved);
+                }
+            }
+        }
+    }
+    out
+}
+
 fn build_skill(
     id: i32,
     name: &str,
@@ -1148,7 +1379,7 @@ fn build_skill(
     sub: i32,
     values: &LeveledValues,
     effects: &[ParsedEffect],
-    op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
+    conditions: &[ParsedCondition],
     gaps: &RefCell<SkillGaps>,
 ) -> Skill {
     {
@@ -1292,6 +1523,21 @@ fn build_skill(
             })
             .unwrap_or([0; 4]);
 
+        // Java keeps one condition list per `SkillConditionScope`; unported
+        // names drop out here (see `build_condition`'s fail-open note).
+        let cond_scope = |want: CondScope| -> Vec<SkillCondition> {
+            conditions
+                .iter()
+                .filter(|c| c.scope == want)
+                .filter_map(|c| {
+                    let built = build_condition(c, level, sub);
+                    if built.is_none() {
+                        record_unported_condition(&mut gaps.borrow_mut(), c, id);
+                    }
+                    built
+                })
+                .collect()
+        };
         let build_scope = |want: EffectScope| {
             effects
                 .iter()
@@ -2426,7 +2672,9 @@ fn build_skill(
             pve_effects,
             pvp_effects,
             channeling_effects,
-            op_exist_npc: op_exist_npc.clone(),
+            conditions: cond_scope(CondScope::General),
+            target_conditions: cond_scope(CondScope::Target),
+            passive_conditions: cond_scope(CondScope::Passive),
             // Java `set.getInt("mpPerChanneling", _mpConsume)` — the
             // default is the skill's own mpConsume, not 0.
             mp_per_channeling: get_i("mpPerChanneling", get_i("mpConsume", 0)),
@@ -4065,42 +4313,16 @@ mod coverage_census {
     const EFFECT_SCOPES: &[(&str, usize)] = &[("endEffects/CallSkill", 1)];
 
     /// `<condition>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 111 name(s), 215 learnable
-    /// skill(s) affected, 2934 reachable.
-    const CONDITIONS: &[(&str, usize)] = &[
-        ("conditions/EquipWeapon", 88),
-        ("conditions/CanTransform", 32),
-        ("conditions/CanSummon", 24),
-        ("conditions/CanSummonCubic", 12),
-        ("conditions/TargetMyParty", 11),
-        ("conditions/EnergySaved", 10),
-        ("conditions/TargetRace", 7),
-        ("conditions/EquipShield", 6),
-        ("conditions/ConsumeBody", 5),
-        ("conditions/OpEncumbered", 5),
-        ("conditions/RemainHpPer", 5),
-        ("conditions/CanSummonSiegeGolem", 3),
-        ("conditions/CanUseInBattlefield", 2),
-        ("conditions/OpCallPc", 2),
-        ("conditions/OpCanEscape", 2),
-        ("conditions/OpEnergyMax", 2),
-        ("conditions/OpResurrection", 2),
-        ("conditions/OpSocialClass", 2),
-        ("conditions/RemainCpPer", 2),
-        ("conditions/BuildCamp", 1),
-        ("conditions/NotInUnderwater", 1),
-        ("conditions/Op2hWeapon", 1),
-        ("conditions/OpSkillAcquire", 1),
-        ("conditions/OpStrider", 1),
-        ("conditions/OpSweeper", 1),
-        ("conditions/OpTargetPc", 1),
-        ("conditions/OpUnlock", 1),
-        ("conditions/OpWyvern", 1),
-        ("conditions/RemainMpPer", 1),
-        ("passiveConditions/EquipWeapon", 1),
-        ("passiveConditions/TargetMyParty", 1),
-        ("targetConditions/OpSiegeHammer", 1),
-    ];
+    /// the work list, worst first. Category totals: 69 name(s), 1 learnable
+    /// skill(s) affected, 916 reachable.
+    ///
+    /// **G34 S1 took this from 111 names / 215 learnable skills down to this.**
+    /// The single learnable hold-out is `OpSweeper`, left out on purpose: Java's
+    /// version re-runs the skill's whole affect-scope sweep and asks each corpse
+    /// about spoil ownership, corpse age and the sweeper's free inventory — all
+    /// of which `effects::sweep` already does at *apply* time with the right
+    /// per-corpse messages. Gating the cast on it too would double every one.
+    const CONDITIONS: &[(&str, usize)] = &[("conditions/OpSweeper", 1)];
 
     /// `<targetType>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 11 name(s), 4 learnable
@@ -4153,7 +4375,7 @@ mod coverage_census {
         for (label, map, expected, names, learn_hit, reach_hit) in [
             ("effect", &gaps.effects, EFFECTS, 216, 77, 1902),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
-            ("condition", &gaps.conditions, CONDITIONS, 111, 215, 2934),
+            ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
             ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
             (
@@ -4197,9 +4419,10 @@ mod coverage_census {
         wrong.extend(affected(&gaps.conditions, &learn));
         assert_eq!(
             wrong.len(),
-            275,
+            79,
             "learnable skills carrying an unhandled effect or an unenforced condition \
-             (36% of {}) — G34's headline gap",
+             (was 275/758 before G34 S1 landed the condition engine; the residue is \
+             now almost entirely unhandled *effects*, out of {}) — G34's headline gap",
             learn.len()
         );
     }

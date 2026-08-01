@@ -1,6 +1,7 @@
 # PLAN_G34 — Skills, effects & abnormal-state parity (epic)
 
-**Status:** 🚧 **S0 landed** (branch `feat/g34-skill-census`) · **Milestone:**
+**Status:** 🚧 **S0 + S1 landed** (branches `feat/g34-skill-census`,
+`feat/g34-skill-conditions`) · **Milestone:**
 G34 (follows G33) · **Kind:** epic (9 slices, each a landable branch with its
 own gate + sabotage-verified regression test).
 
@@ -48,7 +49,7 @@ War content outside Interlude's reach.
 |---|---|---|---|
 | Effect handler names used by dist skills | **335** | 119 | **216 unhandled** (1 902 reachable skills, **54 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
-| Skill conditions (`<conditions>` etc.) | **121 handlers** | **1** (`conditions/OpExistNpc`) | **111 `block/name` pairs unported** |
+| Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 15 | **23 missing** |
 | `TargetType` | 23 | 10 + catch-all | 11 unhandled (532 reachable skills; `OTHERS` 3 + `DOOR_TREASURE` 1 learnable) |
 | `AffectScope` | 21 | 13 + catch-all | 7 unhandled (3 reachable, **0 learnable** — deferral confirmed) |
@@ -60,10 +61,10 @@ War content outside Interlude's reach.
 
 - **77** carry at least one unhandled effect (+1 more loses an effect to an
   unbuilt scope) → the skill fires and part or all of it does nothing.
-- **215** carry at least one unported condition → the skill fires when Java
-  would have refused it.
-- **275 of 758 (36 %)** are wrong in at least one of those ways. This is the
-  epic's headline number and S0's gate assertion.
+- ~~**215**~~ **1** carries an unported condition (`OpSweeper`, deliberately —
+  see S1) → S1 closed this axis.
+- ~~**275**~~ **79 of 758 (10 %)** are wrong in at least one of those ways —
+  S0's gate assertion, and now almost entirely the unhandled-effect axis.
 - The unhandled-effect tail is *shallow*: 54 names over 77 skills, and only
   `StatUp` (9, out of scope) and `WeightLimit` (3) reach more than two skills.
   That shape dictates the slicing below — batch by *mechanism family*, not by
@@ -360,41 +361,75 @@ reach; the learnable column is the one to rank by.
 
 ---
 
-### S1 — The skill-condition engine  *(largest slice; 4 sub-slices)*
+### S1 — The skill-condition engine ✅ **DONE** (`feat/g34-skill-conditions`)
 
-**S1a — Engine + weapon/armor conditions.** Parse `<conditions>`,
-`<targetConditions>`, `<passiveConditions>` into a `Vec<SkillCondition>` per
-scope on `Skill`. Evaluate `GENERAL` then `TARGET` at cast, in Java's order,
-before MP/HP consumption; refuse with
-`S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS` **except** self-targeted `isBad()`
-skills, which send nothing. `PASSIVE` conditions gate whether a passive skill's
-stat modifiers apply at all (recompute on equip change). First conditions:
-`EquipWeapon` (88 general + 1 passive), `EquipShield` (6), `Op1hWeapon`/`Op2hWeapon`, `EquipArmor`,
-`EquipSigil`.
+`<conditions>` / `<targetConditions>` / `<passiveConditions>` now parse into a
+`Vec<SkillCondition>` per Java `SkillConditionScope`, and
+`skills::conditions::check_cast` evaluates GENERAL then TARGET from
+`use_magic_on` — **after target resolution**, exactly where
+`Player.useMagic` calls `skill.checkCondition(this, target)`.
 
-**S1b — Resource & character-state conditions.** `RemainHpPer`/`RemainMpPer`/
-`RemainCpPer`, `EnergySaved`/`OpEnergyMax`/`SoulSaved`/`OpSoulMax`,
-`OpEncumbered`, `CheckLevel`, `CheckSex`, `TargetRace`, `OpAlignment`,
-`OpSocialClass`, `OpPkcount`, `OpMainjob`/`OpSubjob`, `NotInUnderwater`,
-`OpStrider`, `OpWyvern`, `OpPeacezone`/`OpNotInPeacezone`, `OpHome`,
-`OpPledge`, `OpNotOlympiad`, `OpNotCursed`.
+**Result: unported conditions on learnable skills went from 215 skills / 111
+`block/name` pairs to 1 skill / 69 pairs**, and the epic's headline number from
+**275 → 79**. The residue is now almost entirely unhandled *effects* (S4).
 
-**S1c — Summon / transform / target-kind conditions.** `CanSummon`,
-`CanSummonPet`, `CanSummonCubic`, `CanSummonSiegeGolem`, `CanTransform`
-(**fold the existing ad-hoc gate in `cast.rs` into the engine rather than
-keeping two**), `CanUntransform`, `CannotUseInTransform`, `ConsumeBody`,
-`TargetMyParty`, `TargetMyPledge`, `OpTargetNpc`/`OpTargetPc`/`OpTargetDoor`,
-`OpResurrection`, `OpCanEscape`, `OpSweeper`, `OpUnlock`, `OpCheckCastRange`,
-`OpCheckClass`/`OpCheckClassList`, `OpCheckAbnormal`, `OpCheckSkill(List)`.
+Landed:
 
-**S1d — `checkUseConditions` leftovers.** `useWeaponSkillsOnly`,
-`blockedInOlympiad`, the itemConsume shortfall messages (with the
-summon-specific variant), `famePointConsume`, `clanRepConsume`, mounted +
-`isBad()`, `isFlyType() && isMovementDisabled()`, observer mode.
+- **Parsing.** Conditions carry per-level `<value level="N">` tables *and*
+  ranged `fromLevel`/`fromSubLevel` rows, exactly like effect params
+  (`OpEnergyMax`'s `amount` is a 7-level table; `RemainHpPer`'s uses both), so
+  they reuse the effect machinery rather than being read as flat scalars.
+  `targetConditions`/`passiveConditions` were not even *entered* by the old
+  parser.
+- **28 condition kinds**, covering every one with a learnable source:
+  `EquipWeapon` (88 skills), `CanTransform` (32), `CanSummon` (24),
+  `CanSummonCubic` (12), `TargetMyParty` (11), `EnergySaved` (10),
+  `TargetRace` (7), `EquipShield` (6), `ConsumeBody`/`OpEncumbered`/
+  `RemainHpPer` (5 each), `CanSummonSiegeGolem` (3), and the 1–2-skill tail
+  (`OpCanEscape`, `OpResurrection`, `OpUnlock`, `OpTargetPc`, `OpCallPc`,
+  `OpSocialClass`, `OpEnergyMax`, `RemainCpPer`/`RemainMpPer`, `Op2hWeapon`,
+  `OpSkillAcquire`, `OpStrider`, `OpWyvern`, `NotInUnderwater`, `BuildCamp`,
+  `CanUseInBattlefield`/`OpSiegeHammer`, `CheckLevel`, `CheckSex`).
+- **Refusal semantics.** Java sends the failing handler's own message **and**
+  then `S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS`, suppressing the generic one
+  only when the caster aimed a *bad* skill at themselves. The GM bypass
+  (`PlayerCondOverride.SKILL_CONDITIONS`, `GM_SKILL_RESTRICTION` off on this
+  dist) and the mounted-and-bad refusal are ported with it.
+- **Both ad-hoc gates folded in.** `OpExistNpc` lost its dedicated `Skill`
+  field and inline check; `CanTransform` lost its inline block. One
+  representation each, no drift.
+- **The census is now driven by the builder**, not the parse: a condition is
+  recorded as a gap only when `build_condition` returns `None`. Porting a
+  condition shrinks the census automatically — there is no second "ported
+  names" list to keep in step.
 
-**Gate per sub-slice:** the named skills are refused with the right message and
-consume nothing (no MP, no reuse, no animation) — verify *all four*, since a
-half-refusal that still burns reuse is its own bug.
+Deliberately **not** ported, and recorded rather than hidden:
+
+- **`OpSweeper`** (1 learnable skill) — Java re-runs the skill's whole affect
+  scope and asks each corpse about spoil ownership, corpse age and the
+  sweeper's free inventory. `effects::sweep` already does all of it at *apply*
+  time with the right per-corpse messages; gating the cast too would double
+  every message.
+- **`<passiveConditions>` is wired but inert on this dist.** Both learnable
+  users are covered elsewhere — Sword/Blunt Weapon Mastery (205) has the same
+  `<weaponType>` on its own `PAtk` effect, and Inner Rhythm (428) declares
+  `TargetMyParty` in a passive block, which Java answers `false` to (no
+  target), disabling the passive outright; not reproduced, since that reads as
+  datapack noise and matching it would nerf a learnable skill on a guess.
+- **One deliberate deviation kept:** Java has *two* transform gates —
+  `ConditionPlayerCanTransform` (the item-condition system) ends with a
+  registered-on-an-event leg, `CanTransformSkillCondition` (what a skill
+  actually resolves to) does not. The port keeps the stricter leg on the skill
+  path, documented in one place instead of implied by a merged block.
+
+**Four fixtures were wrong and are now right** — Sonic Focus, Sonic Blaster and
+both Lethal Blow tests cast bare-handed (`EquipWeapon`), and the Revival test
+cast at 20 % HP when the skill's own `RemainHpPer` is `LESS 10`. They passed
+only because nothing was enforced.
+
+**Gate met:** the named skills are refused with the right messages and consume
+nothing. Regressions in `skill_condition_tests`, sabotage-verified (disabling
+`check_cast` fails three of the four plus the symbol-gate test).
 
 ---
 
@@ -563,7 +598,7 @@ gap.
 | Slice | Rough size | Depends on |
 |---|---|---|
 | S0 harness ✅ | S | — |
-| S1 condition engine (a–d) | XL | S0 |
+| S1 condition engine ✅ | XL | S0 |
 | S2 basicProperty / BasicPropertyResist | M | S0 |
 | S3 EffectFlag breadth + lifecycle tags | L | S0 |
 | S4 learnable effect sweep (a–e) | XL | S0, S3 (for flag-backed effects) |

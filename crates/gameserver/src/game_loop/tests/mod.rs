@@ -129,6 +129,7 @@ mod shadow_weapons_tests;
 mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
+mod skill_condition_tests;
 mod skill_enchant_tests;
 mod skill_rate_tests;
 mod skill_shield_tests;
@@ -525,6 +526,9 @@ fn cast_test_world() -> (
     data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![template]);
 
     let base = Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         static_reuse: false,
@@ -562,7 +566,6 @@ fn cast_test_world() -> (
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -1443,6 +1446,9 @@ fn passive_clan_test_skill(id: i32) -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         static_reuse: false,
@@ -1480,7 +1486,6 @@ fn passive_clan_test_skill(id: i32) -> Skill {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -1518,6 +1523,9 @@ fn clan_advent_test_skill() -> Skill {
     use crate::model::skill::{SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         trait_type: crate::model::skill::TraitType::None,
         static_reuse: false,
@@ -1555,7 +1563,6 @@ fn clan_advent_test_skill() -> Skill {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,

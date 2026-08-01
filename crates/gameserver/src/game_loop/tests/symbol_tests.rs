@@ -7,7 +7,8 @@ use super::*;
 
 use crate::model::components::{Buffs, Casting, SummonerRef};
 use crate::model::skill::{
-    AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillEffect, TargetType,
+    AffectObject, AffectScope, OpExistNpcCondition, OperateType, Skill, SkillCondition,
+    SkillEffect, TargetType,
 };
 use crate::model::stats::{Stat, StatModifierType};
 
@@ -154,14 +155,18 @@ fn day_of_doom_parses_with_its_totem_and_gate() {
         "SummonNpc totem 13028: {:?}",
         dod.effects
     );
-    let gate = dod.op_exist_npc.as_ref().expect("OpExistNpc parsed");
+    // G34 S1: the gate is now a `SkillCondition` in the skill's GENERAL
+    // condition list rather than a dedicated `Skill` field — one
+    // representation, evaluated by `skills::conditions` with every other
+    // condition.
     assert_eq!(
-        gate,
-        &OpExistNpcCondition {
+        dod.conditions,
+        vec![SkillCondition::ExistNpc(OpExistNpcCondition {
             npc_ids: vec![13018, 13019, 13020, 13021, 13022, 13023, 13024],
             range: 200,
             is_around: false,
-        }
+        })],
+        "OpExistNpc parsed into the condition list"
     );
 
     let npcs = crate::data::NpcData::load_from(DIST);
@@ -306,11 +311,11 @@ fn op_exist_npc_gates_recasting_next_to_a_seal() {
     register_totem_template(&mut world);
     world.data.skill_data.insert_for_test(aura_skill());
     let mut skill = symbol_skill();
-    skill.op_exist_npc = Some(OpExistNpcCondition {
+    skill.conditions = vec![SkillCondition::ExistNpc(OpExistNpcCondition {
         npc_ids: vec![TOTEM_NPC],
         range: 200,
         is_around: false,
-    });
+    })];
     learn(&mut world, CASTER, &skill);
 
     // A live listed totem 150 from the caster.

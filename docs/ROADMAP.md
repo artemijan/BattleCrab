@@ -1348,7 +1348,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 landed**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 + S1 landed**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1358,9 +1358,12 @@ Java would have refused it. Measured 2026-08-01 against the 758 learnable skill
 ids in `skillTrees/**`: **217 of 335** effect names used by the dist are
 unhandled (55 with a learnable source), **~137** skill conditions are unported,
 **23 of 38** `EffectFlag`s are missing, and **275 of 758 learnable skills
-(36 %)** are wrong in at least one of those two ways — all of it now asserted by
-a checked-in census (`datapack_skill_coverage_census`), so the gap can only move
-deliberately.
+(36 %)** were wrong in at least one of those two ways — all of it asserted by a
+checked-in census (`datapack_skill_coverage_census`), so the gap can only move
+deliberately. **S1 landed the condition engine** (28 condition kinds across
+Java's three `SkillConditionScope`s, evaluated where `Player.useMagic` calls
+`checkCondition`), taking the condition axis from 215 affected learnable skills
+to 1 and the headline from **275 → 79**.
 
 Nine slices: a coverage-census test + fail-loud parse warnings (nothing else is
 measurable without it); the **skill-condition engine** (largest single hole and

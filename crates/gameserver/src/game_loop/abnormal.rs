@@ -48,6 +48,13 @@ pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
         || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
+/// Java `Creature.cannotEscape()` — read by the `OpCanEscape` skill condition
+/// and the escape/teleport paths. See [`effect_flag::CANNOT_ESCAPE`] for why
+/// nothing raises it yet.
+pub(crate) fn cannot_escape(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::CANNOT_ESCAPE != 0
+}
+
 /// Java `EffectList.getCurrentAbnormalVisualEffects()` — every visual effect
 /// the creature's live buffs contribute, de-duplicated (two poisons draw one
 /// tint). Order is the buff order, which is what Java's `LinkedHashSet`

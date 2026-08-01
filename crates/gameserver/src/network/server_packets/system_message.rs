@@ -785,6 +785,10 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    /// "You cannot use summoning or teleporting in this area."
+    pub const YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA: i16 = 1899;
+    /// "A user participating in the Olympiad cannot use summoning or teleporting."
+    pub const A_USER_PARTICIPATING_IN_THE_OLYMPIAD_CANNOT_USE_SUMMONING_OR_TELEPORTING: i16 = 1911;
     // Lethal (G19): `Lethal.instant`'s outcome messages.
     pub const LETHAL_STRIKE: i16 = 1667;
     pub const HIT_WITH_LETHAL_STRIKE: i16 = 1668;
