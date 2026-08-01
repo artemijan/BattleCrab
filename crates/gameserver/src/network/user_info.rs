@@ -166,9 +166,15 @@ pub fn user_info(
     w.write_u8(can_craft as u8);
     w.write_u8(0);
 
-    // STATS — base values (TODO(G7): full combat-stat calc).
+    // STATS — the finalized combat stats.
+    //
+    // The leading short is Java's `getActiveWeaponItem() != null ? 40 : 20`:
+    // the character's physical attack range, which the client uses to decide
+    // how close to walk before swinging. It was hard-coded to the **unarmed**
+    // 20, so an armed player reported the shorter reach.
     w.write_i16(UserInfoType::Stats.block_length() as i16);
-    w.write_i16(20); // no weapon equipped (40 with weapon)
+    let armed = inventory.paperdoll_item_id(PaperdollSlot::RHand) != 0;
+    w.write_i16(if armed { 40 } else { 20 });
     w.write_i32(combat.p_atk as i32);
     w.write_i32(combat.p_atk_spd);
     w.write_i32(combat.p_def as i32);
@@ -183,7 +189,10 @@ pub fn user_info(
     w.write_i32(combat.magic_accuracy);
     w.write_i32(combat.m_crit_hit as i32);
 
-    // ELEMENTALS — TODO(G6): attribute attack/defense.
+    // ELEMENTALS — six zeros, which is **Java's own block**: its writer emits
+    // `writeShort(0)` six times rather than reading the attribute stats. The
+    // port models the attributes themselves (`Stat::FirePower`…), so this is a
+    // deliberate match, not a gap.
     w.write_i16(UserInfoType::Elementals.block_length() as i16);
     for _ in 0..6 {
         w.write_i16(0);
@@ -264,8 +273,10 @@ pub fn user_info(
     w.write_i32(p.fame);
     w.write_i32(p.raidboss_points);
 
-    // SLOTS — TODO(G6): talisman/brooch slots from inventory. Byte 3 is the
-    // team aura (`//setteam`); the tail four stay Java's zeros.
+    // SLOTS. Talisman and brooch-jewel slots are 0 because nothing in this
+    // datapack grants `talismanSlots`/`broochJewels` — both are post-Interlude
+    // stats, so Java's `getTalismanSlots()` would return 0 here too. Byte 3 is
+    // the team aura (`//setteam`); the tail four stay Java's zeros.
     w.write_i16(UserInfoType::Slots.block_length() as i16);
     w.write_u8(0); // talisman slots
     w.write_u8(0); // brooch jewel slots
