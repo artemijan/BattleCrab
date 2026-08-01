@@ -176,10 +176,12 @@ pub fn char_info(
     w.write_i32(p.hair_color);
     w.write_i32(p.face);
     w.write_string(&p.title);
-    w.write_i32(p.clan_id);
-    w.write_i32(p.clan_crest_id);
-    w.write_i32(p.ally_id);
-    w.write_i32(p.ally_crest_id);
+    // Java reads these through `PlayerAppearance.getVisible*`, which blanks the
+    // whole pledge identity while a cursed weapon is held.
+    w.write_i32(p.visible_clan_id());
+    w.write_i32(p.visible_clan_crest_id());
+    w.write_i32(p.visible_ally_id());
+    w.write_i32(p.visible_ally_crest_id());
     w.write_u8(!p.sitting as u8); // Java `!isSitting()`
     w.write_u8(speeds.running as u8);
     w.write_u8(state.in_combat as u8); // Java isInCombat — sword drawn
@@ -215,7 +217,11 @@ pub fn char_info(
         inventory.paperdoll_enchant_level(PaperdollSlot::RHand) as u8
     });
     w.write_u8(v.p.team); // team aura (`//setteam`)
-    w.write_i32(state.clan_crest_large_id);
+    w.write_i32(if p.cursed_weapon_equipped_id != 0 {
+        0 // `getVisibleClanLargeCrestId()` — blanked with the rest.
+    } else {
+        state.clan_crest_large_id
+    });
     w.write_u8(p.is_noble as u8); // noble (Java isNoble) — the nobless sparkle
     w.write_u8(p.hero_aura as u8); // hero (isHero || (isGM && GMHeroAura))
     let (bait_x, bait_y, bait_z) = state.fishing_bait.unwrap_or((0, 0, 0));

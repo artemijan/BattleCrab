@@ -209,6 +209,10 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(buyer) = player_of(world, client_id) else {
         return;
     };
+    // Java `RequestPrivateStoreBuy`: a cursed wielder can't buy from a store.
+    if super::cursed_weapon::is_cursed(world, buyer) {
+        return;
+    }
     let seller = pkt.target_object_id;
     if seller == buyer
         || !world
@@ -682,6 +686,10 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
     let Some(seller) = player_of(world, client_id) else {
         return;
     };
+    // Java `RequestPrivateStoreSell`: nor sell into a buy-store.
+    if super::cursed_weapon::is_cursed(world, seller) {
+        return;
+    }
     let owner = pkt.store_player;
     if owner == seller
         || world

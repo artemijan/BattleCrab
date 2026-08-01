@@ -320,6 +320,13 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
     }
+    // Java `RequestDestroyItem`: `CursedWeaponsManager.isCursed(itemId)` is
+    // OR'd into the non-destroyable test — you cannot delete your way out of
+    // the curse, which would otherwise strand the manager's row forever.
+    if crate::game_loop::cursed_weapon::is_cursed_item(world, item_id) {
+        send_item_message(world, client_id, "This item cannot be destroyed.");
+        return;
+    }
     // A non-stackable item can only be destroyed one at a time (Java returns).
     if !is_stackable && pkt.count > 1 {
         return;

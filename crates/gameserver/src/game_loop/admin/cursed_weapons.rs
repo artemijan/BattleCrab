@@ -29,6 +29,21 @@ pub(crate) fn now_millis() -> i64 {
         .unwrap_or(0)
 }
 
+/// `CursedWeapon.saveData` — upsert this weapon's wielder row. Java calls it
+/// from `activate`, `increaseKills` and `CursedWeaponsManager.saveData` (the
+/// shutdown hook), so it is shared rather than inlined at the one site.
+pub(crate) fn save_data(world: &World, idx: usize) {
+    let cw = &world.cursed_weapons[idx];
+    let _ = world.db.send(DbCommand::StoreCursedWeapon {
+        item_id: cw.item_id,
+        char_id: cw.player_id,
+        reputation: cw.player_reputation,
+        pk_kills: cw.player_pk_kills,
+        nb_kills: cw.nb_kills,
+        end_time: cw.end_time,
+    });
+}
+
 /// Resolve the `<itemid|name>` argument to a cursed-weapon index in
 /// `world.cursed_weapons` (Java: digit → item id, else case-insensitive name
 /// substring). `None` when unmatched.
@@ -249,6 +264,12 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
         return;
     }
     activate(world, idx, target);
+    // Java `//cw_add`: `cw.setEndTime(now + duration*60000); cw.reActivate();`
+    // — a GM-granted weapon starts a full-length life of its own.
+    let duration = world.cursed_weapons[idx].duration as i64;
+    world.cursed_weapons[idx].end_time = now_millis() + duration * 60_000;
+    save_data(world, idx);
+    super::super::cursed_weapon::arm_expiry(world, idx);
 }
 
 /// Port of `CursedWeapon.activate` (via `addItem`) + the admin `setEndTime`/
@@ -282,6 +303,22 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         p.cursed_weapon_equipped_id = item_id;
     }
 
+    // Java `activate`: `if (_player.isInParty()) getParty().removePartyMember(
+    // _player, PartyMessageType.EXPELLED)` — the curse is a solo affair, so the
+    // new wielder is thrown out of their group the moment they pick it up.
+    if let Some(crate::model::components::PartyRef(party_id)) = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&target)
+        .copied()
+    {
+        crate::game_loop::party::remove_party_member(
+            world,
+            party_id,
+            target,
+            crate::game_loop::party::LeaveType::Expelled,
+        );
+    }
+
     // doTransform + giveSkill — shared with the login restore
     // (`cursed_weapon::on_enter_world`), which runs the same two Java calls.
     // `nb_kills` is still whatever the caller left on the weapon (0 on a fresh
@@ -309,9 +346,12 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
     let social = server_packets::social_action(target, 17);
     broadcast_to_visible(world, target, &social);
 
-    // Update the weapon's runtime state + persist (Java saveData) + setEndTime.
-    let now = now_millis();
-    let end_time = now + (duration as i64) * 60000;
+    // Java `activate` deliberately does **not** touch `_endTime`: the clock was
+    // started by whoever put the weapon into the world. A mob drop set it in
+    // `checkDrop` (now + full duration), so a player who picks the sword up
+    // inherits however much of that life is left rather than resetting it —
+    // leaving a weapon on the ground does not buy the next owner a fresh 300
+    // minutes. `//cw_add` is the one caller that sets it, right after this.
     {
         let cw = &mut world.cursed_weapons[idx];
         cw.is_activated = true;
@@ -320,16 +360,8 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         cw.player_reputation = saved_rep;
         cw.player_pk_kills = saved_pk;
         cw.nb_kills = 0;
-        cw.end_time = end_time;
     }
-    let _ = world.db.send(DbCommand::StoreCursedWeapon {
-        item_id,
-        char_id: target,
-        reputation: saved_rep,
-        pk_kills: saved_pk,
-        nb_kills: 0,
-        end_time,
-    });
+    save_data(world, idx);
 
     // announce THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION to everyone.
     // TODO(G21): the S1 region SysString (`addZoneName`) isn't modelled — the
@@ -339,10 +371,10 @@ pub(crate) fn activate(world: &mut World, idx: usize, target: i32) {
         &[SmParam::SysString(0), SmParam::ItemName(item_id)],
     );
     broadcast_to_all(world, &announce);
-    // `reActivate()` also (re)schedules the `RemoveTask` — without it a
-    // GM-activated weapon would never expire, which is the one thing the
-    // duration argument is for.
-    super::super::cursed_weapon::arm_expiry(world, idx);
+    // Arming the `RemoveTask` is the caller's job (Java `reActivate`), since it
+    // must happen *after* `//cw_add` has set the end time — arming here would
+    // schedule against a stale (or zero) deadline and fire immediately.
+    let _ = duration;
 }
 
 /// Port of `CursedWeapon.endOfLife` for an activated (online) or not-in-world

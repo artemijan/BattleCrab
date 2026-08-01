@@ -62,6 +62,24 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
         return;
     }
 
+    // Java `Say2`: the curse silences the two *broadcast* channels — a cursed
+    // wielder can't hide behind Trade or Shout to bait victims from off-screen.
+    // Ordinary/party/clan chat is untouched. Sits *after* the L2Walker check,
+    // as in Java, where the emulator kick precedes the cursed-weapon guard.
+    if matches!(chat_type, ChatType::Trade | ChatType::Shout)
+        && world
+            .objects
+            .get_component::<crate::model::Player>(&sender_oid)
+            .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
+    {
+        send_sm(
+            world,
+            client_id,
+            sm_ids::SHOUT_AND_TRADE_CHATTING_CANNOT_BE_USED_WHILE_POSSESSING_A_CURSED_WEAPON,
+        );
+        return;
+    }
+
     // Java `Say2`: a chat-banned player can still use `.`-prefixed commands but
     // no ordinary chat gets through (G31). The prohibition message is sent, then
     // the message is dropped.

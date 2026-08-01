@@ -329,6 +329,11 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
     boss_respawn::save_all_bosses(&mut world);
     // `Olympiad.saveOlympiadStatus` — the period row + every noble's points.
     olympiad::save_all(&world);
+    // `Shutdown` → `CursedWeaponsManager.saveData()`: every live weapon's row.
+    // Only `activate`/`increaseKills` write it during play, so without this the
+    // kill tally and the time already burned off a wielded weapon are lost on
+    // restart — it would come back with its count and deadline as of pickup.
+    cursed_weapon::save_all(&world);
 }
 
 /// Staggered periodic player flush — the port of `PlayerAutoSaveTaskManager.run`

@@ -793,3 +793,409 @@ fn offline_expiry_restores_the_owner_in_the_db() {
         "the weapon leaves the world"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Java parity: kills, death-drop, and the gates
+// ---------------------------------------------------------------------------
+
+/// `increaseKills`: a cursed wielder killing a player scores the weapon — the
+/// tally overwrites the PK counter, the remaining life shrinks by
+/// `durationLost` minutes, and the row is persisted.
+#[test]
+fn cursed_kill_scores_and_burns_time() {
+    let (mut world, _db, mut db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _k = ingame_player_access(&mut world, 1, KILLER_OID, 0);
+    let _v = ingame_player_access(&mut world, 2, PICKER_OID, 0);
+    let idx = restore_activated_on(&mut world, ZARICHE, KILLER_OID);
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER_OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = ZARICHE;
+    let before_end = world.cursed_weapons[idx].end_time;
+    let duration_lost = world.cursed_weapons[idx].duration_lost as i64;
+    while db_rx.try_recv().is_ok() {}
+
+    let handled =
+        crate::game_loop::cursed_weapon::on_player_kill(&mut world, KILLER_OID, PICKER_OID);
+
+    assert!(handled, "the cursed branch claims the kill");
+    assert_eq!(world.cursed_weapons[idx].nb_kills, 1, "kill counted");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&KILLER_OID)
+            .unwrap()
+            .pk_kills,
+        1,
+        "Java shows the cursed tally in the PK counter"
+    );
+    assert_eq!(
+        world.cursed_weapons[idx].end_time,
+        before_end - duration_lost * 60_000,
+        "each kill burns durationLost minutes off the life"
+    );
+    assert!(
+        drain_db(&mut db_rx)
+            .iter()
+            .any(|c| matches!(c, db::DbCommand::StoreCursedWeapon { .. })),
+        "increaseKills persists (Java saveData)"
+    );
+}
+
+/// A cursed kill must **not** run the ordinary PvP/PK reputation path — Java
+/// returns out of `onPlayerKill` before it. Without the early exit the wielder
+/// would also rack up pvp kills or karma on top of the weapon's tally.
+#[test]
+fn cursed_kill_skips_normal_pvp_reputation() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _k = ingame_player_access(&mut world, 1, KILLER_OID, 0);
+    let _v = ingame_player_access(&mut world, 2, PICKER_OID, 0);
+    restore_activated_on(&mut world, ZARICHE, KILLER_OID);
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER_OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = ZARICHE;
+
+    crate::game_loop::pvp::on_kill_update_pvp_reputation(&mut world, KILLER_OID, PICKER_OID);
+
+    let p = world.objects.get_component::<Player>(&KILLER_OID).unwrap();
+    assert_eq!(p.pvp_kills, 0, "no pvp kill credited");
+    assert_eq!(
+        p.pk_kills, 1,
+        "pk_kills is the weapon's tally, not a PK penalty"
+    );
+    assert!(
+        p.reputation >= 0 || p.reputation == -9_999_999,
+        "no karma added on top"
+    );
+}
+
+/// The stage boundary levels the weapon's skill: with `stageKills` reached, the
+/// wielder's cursed skill steps up a level.
+#[test]
+fn stage_boundary_levels_the_skill() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _k = ingame_player_access(&mut world, 1, KILLER_OID, 0);
+    let idx = restore_activated_on(&mut world, ZARICHE, KILLER_OID);
+    world
+        .objects
+        .get_component_mut::<Player>(&KILLER_OID)
+        .unwrap()
+        .cursed_weapon_equipped_id = ZARICHE;
+    let (skill_id, stage) = {
+        let cw = &world.cursed_weapons[idx];
+        (cw.skill_id, cw.stage_kills)
+    };
+    assert!(stage > 1, "fixture assumes a multi-kill stage");
+    // One short of the boundary: still level 1.
+    world.cursed_weapons[idx].nb_kills = stage - 2;
+    crate::game_loop::cursed_weapon::increase_kills(&mut world, idx);
+    let lvl_before = *world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&KILLER_OID)
+        .unwrap()
+        .0
+        .get(&skill_id)
+        .unwrap_or(&1);
+
+    crate::game_loop::cursed_weapon::increase_kills(&mut world, idx); // hits the boundary
+
+    let lvl_after = *world
+        .objects
+        .get_component::<crate::model::components::SkillBook>(&KILLER_OID)
+        .unwrap()
+        .0
+        .get(&skill_id)
+        .expect("skill granted at the stage boundary");
+    assert!(
+        lvl_after > lvl_before,
+        "crossing stageKills levels the cursed skill ({lvl_before} -> {lvl_after})"
+    );
+}
+
+/// The wielder dies and the disappear roll misses: the weapon drops at the
+/// corpse for the next taker, and the dead player is freed — reputation and
+/// pk-kills restored, curse flag cleared, transform reverted.
+#[test]
+fn wielder_death_drops_the_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    world.cursed_weapons[idx].player_reputation = 1234;
+    world.cursed_weapons[idx].player_pk_kills = 5;
+
+    // dropRate roll: disapearChance is 50 and Java tests `<= 50`, so 51 misses.
+    world.forced_rolls.push_back(51);
+    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+
+    let p = world.objects.get_component::<Player>(&PICKER_OID).unwrap();
+    assert_eq!(p.cursed_weapon_equipped_id, 0, "curse lifted");
+    assert_eq!(p.reputation, 1234, "saved reputation restored");
+    assert_eq!(p.pk_kills, 5, "saved pk-kills restored");
+    assert_eq!(p.transform_id, 0, "back to their own body");
+    let cw = &world.cursed_weapons[idx];
+    assert!(
+        cw.is_dropped && !cw.is_activated,
+        "lying on the ground again"
+    );
+    assert_eq!(ground_item_count(&world), 1, "dropped at the corpse");
+}
+
+/// The same death with the disappear roll hitting: the weapon leaves the world
+/// entirely rather than dropping.
+#[test]
+fn wielder_death_can_destroy_the_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+
+    world.forced_rolls.push_back(0); // 0 <= disapearChance → destroyed
+    crate::game_loop::cursed_weapon::on_wielder_death(&mut world, PICKER_OID, KILLER_OID);
+
+    assert!(
+        !world.cursed_weapons[idx].is_active(),
+        "the weapon is gone from the world"
+    );
+    assert_eq!(ground_item_count(&world), 0, "and not on the ground");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&PICKER_OID)
+            .unwrap()
+            .cursed_weapon_equipped_id,
+        0,
+        "the dead wielder is freed either way"
+    );
+}
+
+/// A wielder's clan identity is hidden while cursed — Java blanks clan id,
+/// both crests, ally id and ally crest in `PlayerAppearance`.
+#[test]
+fn curse_hides_the_pledge_identity() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let _p = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    {
+        let p = world
+            .objects
+            .get_component_mut::<Player>(&PICKER_OID)
+            .unwrap();
+        p.clan_id = 77;
+        p.clan_crest_id = 88;
+        p.clan_crest_large_id = 99;
+        p.ally_id = 111;
+        p.ally_crest_id = 222;
+        assert_eq!(p.visible_clan_id(), 77, "shown normally when un-cursed");
+        p.cursed_weapon_equipped_id = ZARICHE;
+        assert_eq!(p.visible_clan_id(), 0, "clan hidden while cursed");
+        assert_eq!(p.visible_clan_crest_id(), 0);
+        assert_eq!(p.visible_clan_crest_large_id(), 0);
+        assert_eq!(p.visible_ally_id(), 0);
+        assert_eq!(p.visible_ally_crest_id(), 0);
+    }
+}
+
+/// The death wire itself, driven through the real `player_do_die` rather than
+/// calling the cursed helper directly — the drop must actually be reachable
+/// from a kill, and a cursed wielder must drop *the weapon* instead of
+/// scattering their bag (Java's if/else-if against `onDieDropItem`).
+#[test]
+fn real_death_path_drops_the_cursed_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    let _k = ingame_player_access(&mut world, 2, KILLER_OID, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    assert!(world.cursed_weapons[idx].is_activated, "wielded to start");
+
+    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, KILLER_OID);
+
+    assert!(
+        world.cursed_weapons[idx].is_dropped,
+        "dying with a cursed weapon drops it — reached through player_do_die"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&PICKER_OID)
+            .unwrap()
+            .cursed_weapon_equipped_id,
+        0,
+        "and the corpse is freed of the curse"
+    );
+}
+
+/// Java `activate` never touches `_endTime`, so picking a weapon off the ground
+/// **inherits** the drop's remaining life instead of restarting the clock —
+/// letting one lie around must not buy the finder a fresh 300 minutes.
+#[test]
+fn pickup_inherits_the_drops_deadline() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut killer_rx = ingame_player_access(&mut world, 1, KILLER_OID, 0);
+    let _picker = ingame_player_access(&mut world, 2, PICKER_OID, 0);
+    add_test_npc(&mut world, MONSTER_OID, 900001, "Monster", 20, 500, 600, 0);
+    world.forced_rolls.push_back(0);
+    crate::game_loop::cursed_weapon::on_monster_killed(&mut world, MONSTER_OID, KILLER_OID);
+    drain(&mut killer_rx);
+
+    let idx = cw_idx(&world, ZARICHE);
+    // Pretend the sword lay on the ground a while: wind its deadline in.
+    let inherited = now_millis_test() + 42 * 60_000;
+    world.cursed_weapons[idx].end_time = inherited;
+    let ground_oid = world.cursed_weapons[idx].dropped_item_oid;
+
+    crate::game_loop::ground_items::pickup_ground_item(&mut world, 2, PICKER_OID, ground_oid);
+
+    assert!(world.cursed_weapons[idx].is_activated, "picker is cursed");
+    assert_eq!(
+        world.cursed_weapons[idx].end_time, inherited,
+        "the drop's deadline carries through the pickup — not reset to now+duration"
+    );
+}
+
+/// …whereas `//cw_add` *does* start a fresh life (Java sets `endTime` itself
+/// right after the grant), so the GM path is unaffected by the change above.
+#[test]
+fn gm_grant_starts_a_fresh_life() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut gm_rx = ingame_player_access(&mut world, 1, KILLER_OID, 100);
+    drain(&mut gm_rx);
+
+    let id_arg = ZARICHE.to_string();
+    crate::game_loop::admin::cursed_weapons::admin_cw_add(&mut world, 1, KILLER_OID, &[&id_arg]);
+
+    let idx = cw_idx(&world, ZARICHE);
+    let duration_ms = world.cursed_weapons[idx].duration as i64 * 60_000;
+    let left = world.cursed_weapons[idx].end_time - now_millis_test();
+    assert!(
+        left > duration_ms - 60_000 && left <= duration_ms,
+        "a GM grant runs the full duration (left = {left} ms of {duration_ms})"
+    );
+    assert!(
+        world
+            .scheduler
+            .pending_tasks_for_test()
+            .iter()
+            .any(|t| matches!(t, crate::scheduler::ScheduledTask::CursedWeaponExpiry { item_id } if *item_id == ZARICHE)),
+        "and its removal task is armed against that deadline"
+    );
+}
+
+/// The character-selection screen shows the demon form for a character who
+/// logged out holding a cursed weapon, so the owner can tell at a glance that
+/// the curse is still on them before entering the world.
+///
+/// This is a **deliberate deviation from Java**, which hard-codes 0 into the
+/// transform field with the comment "on retail when you are on character select
+/// you don't see your transformation". The field itself is the one the client
+/// reads for a polymorphed model — L2J just declines to fill it.
+#[test]
+fn char_selection_shows_the_cursed_transform() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    let chars = vec![dummy_char(PICKER_OID, "Cursed")];
+
+    let plain = crate::network::server_packets::char_selection_info(
+        "acct",
+        1,
+        &chars,
+        -1,
+        7,
+        &world.data.experience,
+        &[],
+    );
+
+    restore_activated_on(&mut world, AKAMANAH, PICKER_OID);
+    let cursed = crate::network::server_packets::char_selection_info(
+        "acct",
+        1,
+        &chars,
+        -1,
+        7,
+        &world.data.experience,
+        &world.cursed_weapons,
+    );
+
+    assert_eq!(
+        plain.len(),
+        cursed.len(),
+        "only a field value changes, never the layout"
+    );
+    let diffs: Vec<usize> = (0..plain.len())
+        .filter(|&i| plain[i] != cursed[i])
+        .collect();
+    assert!(
+        !diffs.is_empty(),
+        "the cursed character's selection entry must differ — a hard 0 would \
+         make these packets identical and the screen would look un-cursed"
+    );
+    // The differing bytes are one little-endian i32 holding Akamanah's
+    // transform (302); locate it rather than hard-coding a packet offset.
+    let at = diffs[0];
+    let field = i32::from_le_bytes([cursed[at], cursed[at + 1], cursed[at + 2], cursed[at + 3]]);
+    assert_eq!(field, 302, "Akamanah's transform id is sent");
+    assert_eq!(
+        i32::from_le_bytes([plain[at], plain[at + 1], plain[at + 2], plain[at + 3]]),
+        0,
+        "and an un-cursed character still gets 0, as Java always does"
+    );
+}
+
+/// Killed by an **NPC** (a guard) rather than a player — the reported case.
+/// `on_wielder_death` only uses the killer for a fallback drop position, so a
+/// non-player killer must strip the curse just the same. Without this the
+/// player-killer test above would pass while guard kills silently kept the
+/// weapon.
+#[test]
+fn guard_kill_also_drops_the_cursed_weapon() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _v = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    add_test_npc(&mut world, MONSTER_OID, 900003, "Guard", 40, 500, 600, 0);
+    let idx = cw_idx(&world, ZARICHE);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+
+    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&PICKER_OID)
+            .unwrap()
+            .cursed_weapon_equipped_id,
+        0,
+        "an NPC kill lifts the curse too"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&PICKER_OID)
+            .unwrap()
+            .items()
+            .iter()
+            .all(|i| i.item_id != ZARICHE),
+        "and the weapon actually leaves the bag — the reported symptom"
+    );
+    assert!(world.cursed_weapons[idx].is_dropped, "it is on the ground");
+}

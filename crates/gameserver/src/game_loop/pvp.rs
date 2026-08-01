@@ -578,6 +578,14 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
     if killer_oid == victim_oid || !world.objects.has_component::<Player>(&killer_oid) {
         return;
     }
+    // Java `onPlayerKill`'s **first** branch, ahead of the olympiad, duel,
+    // siege and PVP-zone bails: a cursed-weapon wielder scores the weapon and
+    // `return`s, so the kill never awards pvp kills, never adds karma and
+    // never counts as a PK. Placed here for that ordering — moving it below the
+    // zone check would silently stop cursed kills scoring inside an arena.
+    if super::cursed_weapon::on_player_kill(world, killer_oid, victim_oid) {
+        return;
+    }
     if in_pvp_zone(world, killer_oid) || in_pvp_zone(world, victim_oid) {
         return; // "Do nothing when in PVP zone."
     }
