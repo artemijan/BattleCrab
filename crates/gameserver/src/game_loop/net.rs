@@ -1187,6 +1187,7 @@ pub(crate) fn on_characters_loaded(
             -1,
             world.max_characters_per_account,
             &world.data.experience,
+            &world.cursed_weapons,
         );
         s.send(body);
     }
