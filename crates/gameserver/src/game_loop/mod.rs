@@ -311,6 +311,9 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         if world.tick.is_multiple_of(AUTOSAVE_CHECK_PERIOD) {
             autosave_tick(&mut world);
         }
+        if world.tick.is_multiple_of(death::TELEPORT_WATCHDOG_PERIOD) {
+            death::teleport_watchdog_tick(&mut world);
+        }
         // 5. Flush outbound packets / DB commands — added in G3+.
 
         let elapsed = tick_start.elapsed();

@@ -2649,3 +2649,29 @@ clanless mob titles as `"Lv 20 "`.
   nonzero, so systemd's `Restart=on-failure` restarts the server (previously the
   listener stayed up with a dead game loop and nothing restarted). Trigger was
   `//spawn` with no args indexing `args[0]` (also fixed + regression test).
+- **Teleport completion depends on a client packet — `TeleportWatchdogTimeout`
+  is the escape hatch (2026-08-01):** `Creature.teleToLocation` deliberately
+  stops half-way: `setTeleporting(true)` → `decayMe()` → `TeleportToLocation` →
+  `ExTeleportToLocationActivate`, and `spawnMe` only happens when the *client*
+  answers with `Appearing` (0x30). A client that never answers — hung zone load,
+  dropped packet, crash on the loading screen — leaves the character decayed out
+  of the world: invisible to everyone, `ValidatePosition` ignored, fixable only
+  by relogging. Java's escape hatch is `TeleportWatchdogTask`, armed by
+  `Player.setTeleporting(true)` when `TELEPORT_WATCHDOG_TIMEOUT > 0` and
+  cancelled by `setTeleporting(false)` / `stopAllTasks()`; on expiry it calls
+  `onTeleported()` server-side. Ported as `world.teleport_watchdog_due`
+  (oid → due tick, swept once a second by `death::teleport_watchdog_tick`) —
+  a **map rather than a `scheduler` entry precisely because it must be
+  cancellable**; the `Scheduler` has no cancel, and a stale entry firing into a
+  *later* teleport would spawn a character in before their client had loaded.
+  The `Appearing` path and the watchdog now share one `death::on_teleported`.
+  **Ships off (`0`), Java's default and this dist's** — the Rust dist ini had
+  drifted to `10`, which is both a divergence from the authoritative Java dist
+  and below the ~60 s the ini itself recommends, so it was reset to `0`.
+  Regressions: `movement_tests::teleport_watchdog_{off_by_default,
+  forces_completion_when_appearing_never_arrives}` +
+  `appearing_cancels_the_watchdog_so_the_next_teleport_arms_fresh`, all verified
+  by sabotage (drop the arm → two fail; drop the cancel → the third fails).
+  Known gap, same as Java's: a player with no live session (logout raced the
+  sweep) is skipped rather than spawned, since the visibility exchange needs a
+  client to send to.

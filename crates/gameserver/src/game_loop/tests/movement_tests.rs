@@ -534,6 +534,115 @@ fn validate_position_ignored_while_teleporting() {
     );
 }
 
+/// `TeleportWatchdogTimeout = 0` (Java's default and this dist) leaves the
+/// feature off: nothing is armed, and a client that never sends `Appearing`
+/// stays in the teleporting state indefinitely — retail behaviour, which is
+/// exactly what the watchdog exists to opt out of.
+#[test]
+fn teleport_watchdog_off_by_default() {
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    let _rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
+    assert_eq!(world.cfg.character.teleport_watchdog_timeout_ticks, 0);
+
+    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    assert!(
+        world.teleport_watchdog_due.is_empty(),
+        "nothing armed while the feature is disabled"
+    );
+
+    world.tick += 10_000; // ~16 minutes
+    super::death::teleport_watchdog_tick(&mut world);
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&4001)
+            .unwrap()
+            .teleporting,
+        "still waiting on the client — the server never steps in"
+    );
+}
+
+/// Java `TeleportWatchdogTask`: with a timeout configured, a teleport whose
+/// `Appearing` never arrives is completed server-side once the deadline
+/// passes, instead of leaving the character decayed out of the world forever.
+#[test]
+fn teleport_watchdog_forces_completion_when_appearing_never_arrives() {
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    world.cfg.character.teleport_watchdog_timeout_ticks = 600; // 60 s
+    let mut rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
+
+    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    assert_eq!(
+        world.teleport_watchdog_due.get(&4001),
+        Some(&(world.tick + 600)),
+        "armed for tick + timeout"
+    );
+    let _ = drain(&mut rx);
+
+    // One tick short of the deadline: still the client's turn.
+    world.tick += 599;
+    super::death::teleport_watchdog_tick(&mut world);
+    assert!(
+        world
+            .objects
+            .get_component::<Player>(&4001)
+            .unwrap()
+            .teleporting,
+        "watchdog must not fire early"
+    );
+
+    world.tick += 1;
+    super::death::teleport_watchdog_tick(&mut world);
+    assert!(
+        !world
+            .objects
+            .get_component::<Player>(&4001)
+            .unwrap()
+            .teleporting,
+        "watchdog completed the teleport (Java onTeleported)"
+    );
+    assert!(
+        world.teleport_watchdog_due.is_empty(),
+        "the fired entry is retired, not left to fire again"
+    );
+    // `onTeleported` → spawnMe + fresh UserInfo (0x32), same as the Appearing
+    // path — the client is what would otherwise still be on a black screen.
+    assert!(
+        drain(&mut rx).iter().any(|p| p[0] == 0x32),
+        "the player is told about themselves at the destination"
+    );
+}
+
+/// The client answering in time cancels the watchdog (Java
+/// `setTeleporting(false)` → `_teleportWatchdog.cancel(false)`). Without the
+/// cancel a stale entry would fire into the *next* teleport and complete it
+/// early, spawning the character in before their client had loaded.
+#[test]
+fn appearing_cancels_the_watchdog_so_the_next_teleport_arms_fresh() {
+    let (mut world, ..) = test_world();
+    install_wall_region(&mut world);
+    world.cfg.character.teleport_watchdog_timeout_ticks = 600;
+    let _rx = ingame_player(&mut world, 1, 4001, 1000, 1000, 0);
+
+    super::death::teleport_player(&mut world, 4001, 48765, 248461, -6160);
+    super::death::handle_appearing(&mut world, 1);
+    assert!(
+        world.teleport_watchdog_due.is_empty(),
+        "completed teleport leaves no armed watchdog"
+    );
+
+    // A second teleport 30 s later gets its own full window, not the remains
+    // of the first one's.
+    world.tick += 300;
+    super::death::teleport_player(&mut world, 4001, 1000, 1000, 0);
+    assert_eq!(
+        world.teleport_watchdog_due.get(&4001),
+        Some(&(world.tick + 600))
+    );
+}
+
 /// A move click while walking to cast abandons the cast intention (Java: the
 /// new MOVE_TO intention replaces CAST) — the player never casts.
 #[test]
