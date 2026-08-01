@@ -112,6 +112,16 @@ pub mod sm_ids {
     // easy to swap by counting up from 1816, which is what a first pass here
     // did (the drop announce rendered as "…'s owner has logged into…").
     pub const YOU_HAVE_EQUIPPED_YOUR_S1: i16 = 49;
+    // Shadow-item mana countdown (`Item.decreaseMana`) — the warnings a worn
+    // shadow weapon prints as its charge runs out, then its farewell.
+    /// `$s1's remaining Mana is now 10.`
+    pub const S1_S_REMAINING_MANA_IS_NOW_10: i16 = 1979;
+    /// `$s1's remaining Mana is now 5.`
+    pub const S1_S_REMAINING_MANA_IS_NOW_5: i16 = 1980;
+    /// `$s1's remaining Mana is now 1. It will disappear soon.`
+    pub const S1_S_REMAINING_MANA_IS_NOW_1_IT_WILL_DISAPPEAR_SOON: i16 = 1981;
+    /// `$s1's remaining Mana is now 0, and the item has disappeared.`
+    pub const S1_S_REMAINING_MANA_IS_NOW_0_AND_THE_ITEM_HAS_DISAPPEARED: i16 = 1982;
     pub const EMPTY_3: i16 = 490;
     pub const S1_HAS_S2_MINUTE_S_OF_USAGE_TIME_REMAINING: i16 = 1814;
     pub const S2_WAS_DROPPED_IN_THE_S1_REGION: i16 = 1815;

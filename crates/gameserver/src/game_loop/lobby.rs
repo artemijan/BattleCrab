@@ -742,6 +742,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::offline_trade::on_enter_world(world, object_id);
     // `PcCafePointsManager.run(player)` — arm the retail-like PA-point timer.
     super::pc_cafe::on_enter_world(world, object_id);
+    // Java `EnterWorld`'s inventory sweep: every *worn* shadow item spends a
+    // point of mana on login and re-arms its 60 s beat, so a shadow weapon
+    // can't be parked at the character screen to make it last forever.
+    super::item_mana::on_enter_world(world, object_id);
 
     // Java `EnterWorld`: a character that logged out dead comes back dead —
     // re-open the death dialog.

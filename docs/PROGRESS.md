@@ -2314,6 +2314,56 @@ command bodies (G13.B) are next.
 
 ---
 
+### Post-G33 — Shadow Weapon Exchange Coupons + shadow-item mana ✅ (2026-08-01)
+
+Plan: [PLAN_SHADOW_WEAPONS.md](PLAN_SHADOW_WEAPONS.md). Reported as "I can't use
+shadow coupons" — every class transfer paid out 15 Shadow Item Exchange Coupons
+(8869/8870) and nothing in the port ever took one back.
+
+- **The exchange desk was missing from the dist, not just the port.** This dist
+  ships no `custom/ShadowWeapons/` script, none of the three exchange multisells
+  (306893001/2/3), and has the `<Button … _Quest ShadowWeapons>` line
+  **commented out** in all 81 `html/villagemaster/*.htm` — the Java reference
+  server dead-ends the same way. Restored from the authentic Interlude datapack
+  (`L2J_Mobius_CT_0_Interlude`): the three multisells, the four `exchange_*.html`
+  pages, and `scripts/shadow_weapons.rs` (Java's `onTalk` — coupons held pick
+  one of four pages, each carrying its multisell link, 1 coupon → 1 weapon).
+  Every id was re-validated against *this* dist first (19 products, 2
+  ingredients, 80 npcs all resolve). The button is uncommented for the 78
+  masters on both the script's list and this dist's htmls; the three whose
+  master is in no multisell allow-list (30508/30594/31279) stay commented rather
+  than become buttons whose exchange link refuses.
+- **Shadow-item mana was entirely unported**, which would have made the coupon
+  pay out a *permanent* free weapon. `<set name="duration">` is now parsed into
+  `ItemTemplate.duration`, `Inventory::add_item` stamps it into `mana_left`
+  (Java: `_mana = _itemTemplate.getDuration()`, and `isShadowItem()` is just
+  `mana >= 0`), and `game_loop/item_mana.rs` is `Item.decreaseMana` +
+  `ItemManaTaskManager`: one point per minute **while worn**, warnings at
+  10/5/1, unequip + destroy at 0, consumed at all three Java sites (equip, the
+  60 s beat, the `EnterWorld` sweep). `mana_left` was a persisted column nothing
+  ever wrote — the same stubbed-field shape as the old `curCp`.
+- **`Inventory::insert_instance` gained a `mana` parameter.** It rebuilds the
+  instance rather than moving Java's `Item` object, so a transfer had to carry
+  mana explicitly: re-deriving it from the template would have **refilled** a
+  worn shadow weapon on every private-warehouse round trip (the one container
+  that accepts a bound item). Trade/store/mail pass `-1` under a comment — all
+  demand tradability, which no shadow item has.
+- **Two exploit guards became reachable only once mana was real** and are now
+  enforced: `RequestCrystallizeItem`'s `isShadowItem()` refusal and
+  `AbstractRefinePacket.isValid`'s.
+- **Upstream quirk kept deliberately:** the task manager passes
+  `decreaseMana(item.isEquipped())`, so an item taken off before its beat lands
+  still spends the point but never re-arms — and since nothing clears
+  `_consumingMana` again, it stops draining for the rest of its life.
+  Reproduced and documented at the site.
+- 8 tests against the real dist catalog + multisell loader; the `duration` stamp
+  and the crystallize guard sabotage-verified. One test was **rewritten after
+  passing vacuously**: shadow weapons declare no `crystal_count`, so the
+  crystallize case was already refused by an unrelated branch — the subject is
+  now a crystallizable Bastard Sword with a `duration` stamped on.
+
+---
+
 ## Deferred TODOs (by system)
 
 Empty/placeholder now, to be filled in the owning milestone:

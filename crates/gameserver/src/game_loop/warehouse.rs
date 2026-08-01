@@ -252,10 +252,10 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
             c.items()
                 .iter()
                 .find(|it| it.object_id == obj_id)
-                .map(|it| (it.item_id, it.count, it.enchant_level))
+                .map(|it| (it.item_id, it.count, it.enchant_level, it.mana_left))
         })
     };
-    let Some((item_id, held, enchant)) = src_facts else {
+    let Some((item_id, held, enchant, mana)) = src_facts else {
         return false;
     };
     // Depositing: `Item.isDepositable(isPrivateWareHouse)` — never equipped,
@@ -332,6 +332,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
                 item_id,
                 move_count,
                 enchant,
+                mana,
                 dst_oid,
                 deposit,
             );
@@ -345,7 +346,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
                 return false;
             };
             apply_move(
-                &mut inv, &mut wh.0, catalog, obj_id, item_id, move_count, enchant, dst_oid,
+                &mut inv, &mut wh.0, catalog, obj_id, item_id, move_count, enchant, mana, dst_oid,
                 deposit,
             );
         }
@@ -358,7 +359,7 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
                 return false;
             };
             apply_move(
-                &mut inv, &mut fr.0, catalog, obj_id, item_id, move_count, enchant, dst_oid,
+                &mut inv, &mut fr.0, catalog, obj_id, item_id, move_count, enchant, mana, dst_oid,
                 deposit,
             );
         }
@@ -378,15 +379,16 @@ fn apply_move(
     item_id: i32,
     move_count: i64,
     enchant: i32,
+    mana: i32,
     dst_oid: i32,
     deposit: bool,
 ) {
     if deposit {
         inv.remove_by_object_id(obj_id, move_count);
-        container.insert_instance(catalog, dst_oid, item_id, move_count, enchant);
+        container.insert_instance(catalog, dst_oid, item_id, move_count, enchant, mana);
     } else {
         container.remove_by_object_id(obj_id, move_count);
-        inv.insert_instance(catalog, dst_oid, item_id, move_count, enchant);
+        inv.insert_instance(catalog, dst_oid, item_id, move_count, enchant, mana);
     }
 }
 
@@ -589,7 +591,9 @@ pub(crate) fn handle_package_send(world: &mut World, client_id: u32, body: &[u8]
             if let Some(freight) = objects.get_component_mut::<Freight>(&recipient) {
                 freight
                     .0
-                    .insert_instance(&data.item_data, new_oid, item_id, count, enchant);
+                    // `mana` -1: the freight demands `is_freightable`, which no
+                    // shadow item declares.
+                    .insert_instance(&data.item_data, new_oid, item_id, count, enchant, -1);
             }
         }
     } else {

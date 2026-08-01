@@ -657,7 +657,9 @@ fn move_to_attachments(
         .attachments
         .entry(message_id)
         .or_default()
-        .insert_instance(catalog, dst_oid, item_id, moved, enchant);
+        // `mana` -1: mail attachments demand tradability, which no shadow
+        // item has.
+        .insert_instance(catalog, dst_oid, item_id, moved, enchant, -1);
 }
 
 // ---------------------------------------------------------------------------
@@ -1107,7 +1109,7 @@ fn pay_sender(world: &mut World, sender_id: i32, adena: i64) {
             .attachments
             .entry(message_id)
             .or_default()
-            .insert_instance(catalog, oid, ADENA_ID, adena, 0);
+            .insert_instance(catalog, oid, ADENA_ID, adena, 0, -1);
     }
     persist_message(world, message_id);
     persist_attachments(world, message_id);
@@ -1363,7 +1365,14 @@ fn return_to_warehouse(world: &mut World, sender_id: i32, container: Inventory) 
                 .objects
                 .get_component_mut::<crate::model::inventory::Warehouse>(&sender_id)
             {
-                wh.0.insert_instance(catalog, r.object_id, r.item_id, r.count, r.enchant_level);
+                wh.0.insert_instance(
+                    catalog,
+                    r.object_id,
+                    r.item_id,
+                    r.count,
+                    r.enchant_level,
+                    r.mana_left,
+                );
             }
         }
         return;

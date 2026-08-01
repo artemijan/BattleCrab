@@ -25,6 +25,7 @@ fn gear(item_id: i32, kind: ItemKind, body_part: i32) -> ItemTemplate {
     ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: ActionType::Other,

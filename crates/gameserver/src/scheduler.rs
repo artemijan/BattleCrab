@@ -38,6 +38,15 @@ pub enum ScheduledTask {
     ServitorLifeTick {
         servitor_oid: i32,
     },
+    /// `ItemManaTaskManager`'s 60-second beat for one worn shadow item: burn a
+    /// point of mana, warn at 10/5/1, and unequip+destroy at 0. Java keys the
+    /// manager by `Item` object and re-adds from `decreaseMana`; here the
+    /// entry is (owner, item object id) and re-arms the same way.
+    /// See [`crate::game_loop::item_mana`].
+    ItemManaTick {
+        player_object_id: i32,
+        item_object_id: i32,
+    },
     /// A grand boss's respawn window elapsing (Java's `*_unlock` quest timer).
     GrandBossRespawn {
         boss_id: i32,

@@ -75,6 +75,12 @@ fn resolve_fee(
     if target.is_augmented() {
         return None;
     }
+    // `AbstractRefinePacket.isValid`: a shadow item is refused outright — its
+    // own description says so ("cannot … be granted functions besides
+    // enchantment"), and the augment would evaporate with the item anyway.
+    if super::item_mana::is_shadow_item(target.mana_left) {
+        return None;
+    }
     let template = world.data.item_data.get(target.item_id)?;
     if template.kind != crate::data::item_data::ItemKind::Weapon {
         return None;

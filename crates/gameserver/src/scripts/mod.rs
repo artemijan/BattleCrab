@@ -211,6 +211,7 @@ pub mod q00688_defeat_the_elrokian_raiders;
 pub mod quest_common;
 pub mod saga;
 pub mod sailren_altar;
+pub mod shadow_weapons;
 pub(crate) mod sin_eater;
 mod teleport_to_race_track;
 pub mod teleport_with_charm;
@@ -431,6 +432,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(oly_manager::OlyManager),
         Arc::new(monument_of_heroes::MonumentOfHeroes),
         Arc::new(nobless_master::NoblessMaster),
+        Arc::new(shadow_weapons::ShadowWeapons),
         Arc::new(npc_location_info::NpcLocationInfo),
         Arc::new(dark_elf_change1::DarkElfChange1),
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),

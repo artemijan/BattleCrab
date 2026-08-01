@@ -292,7 +292,9 @@ pub(crate) fn handle_buy(world: &mut World, client_id: u32, body: &[u8]) {
         if let Some(new_oid) = world.alloc_object_id()
             && let Some(inv) = world.objects.get_component_mut::<Inventory>(&buyer)
         {
-            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant);
+            // `mana` -1: a private store only moves tradable items, and every
+            // shadow item is `is_tradable="false"`, so none can reach here.
+            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant, -1);
         }
         // Reduce the store line.
         if let Some(store) = world.objects.get_component_mut::<PrivateStore>(&seller) {
@@ -781,7 +783,9 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
         if let Some(new_oid) = world.alloc_object_id()
             && let Some(inv) = world.objects.get_component_mut::<Inventory>(&owner)
         {
-            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant);
+            // `mana` -1: a private store only moves tradable items, and every
+            // shadow item is `is_tradable="false"`, so none can reach here.
+            inv.insert_instance(&world.data.item_data, new_oid, item_id, n, enchant, -1);
         }
         if let Some(store) = world.objects.get_component_mut::<PrivateBuyStore>(&owner) {
             if let Some(w) = store.items.iter_mut().find(|w| w.item_id == item_id) {

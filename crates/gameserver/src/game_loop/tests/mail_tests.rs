@@ -861,7 +861,7 @@ fn mail_with_item(
         .attachments
         .entry(id)
         .or_default()
-        .insert_instance(catalog, oid, item_id, count, 0);
+        .insert_instance(catalog, oid, item_id, count, 0, -1);
 }
 
 fn count_of(world: &World, oid: i32, item_id: i32) -> i64 {

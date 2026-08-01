@@ -62,6 +62,7 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -159,6 +160,7 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
             .insert_for_test(crate::data::item_data::ItemTemplate {
                 trade_flags: Default::default(),
                 time: -1,
+                duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -285,6 +287,7 @@ fn equipping_gear_updates_combat_stats() {
     let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -401,6 +404,7 @@ fn equipping_gear_updates_max_hp_mp() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -483,6 +487,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -532,6 +537,7 @@ fn extractable_pack_item_unpacks_into_its_contents() {
         world.data.item_data.insert_for_test(ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -620,6 +626,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -660,6 +667,7 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -768,6 +776,7 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -894,6 +903,7 @@ fn item_skill_potion_heals_and_enforces_reuse() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1044,6 +1054,7 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1192,6 +1203,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1227,6 +1239,7 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1387,6 +1400,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1422,6 +1436,7 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1550,6 +1565,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1585,6 +1601,7 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -3628,6 +3645,7 @@ fn augment_options_apply_while_the_item_is_equipped() {
     let template = ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -4156,6 +4174,7 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
     world.data.item_data.insert_for_test(ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduceOnSkillSuccess,
