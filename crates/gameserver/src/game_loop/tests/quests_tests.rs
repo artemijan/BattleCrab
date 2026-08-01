@@ -4195,6 +4195,89 @@ fn q404_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     (world, rx)
 }
 
+/// `QuestLink`'s simulated-`onTalk` filter: a finished Q404 must vanish from
+/// Parina's quest window rather than be listed as a grey "(Done)" button.
+///
+/// Parina carries two talk quests (404 and 228, whose start NPC is Bard
+/// Rukal), so the window took the chooser branch and rendered the completed
+/// 404 as `<fstring>40403</fstring>` — a client string that does not exist
+/// (`NpcStringId` ships 40401 and 40402 only), i.e. a blank button that
+/// answered `noquest.htm` when clicked. Java probes `onTalk` first and drops
+/// every quest with nothing to say here, leaving the plain no-quest html.
+#[test]
+fn quest_window_drops_a_finished_quest_with_nothing_to_say() {
+    let (mut world, mut rx) = q404_world();
+    {
+        let quests = world
+            .objects
+            .get_component_mut::<crate::model::components::Quests>(&3001)
+            .unwrap();
+        quests.0.entry(Q404.to_string()).or_default().state = crate::model::quest::state::COMPLETED;
+    }
+    drain(&mut rx);
+
+    // The bare `Quest` bypass — the "Quest" link on Parina's chat window.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
+    assert!(
+        !html.contains("<button") && !html.contains("fstring"),
+        "no quest button at all, got: {html}"
+    );
+    assert!(
+        html.contains("not on a quest"),
+        "plain noquest.htm, got: {html}"
+    );
+}
+
+/// The same probe must not *cost* the player anything. Java leaves
+/// `AbstractScript.takeItems`/`giveItems` unguarded under simulation, so the
+/// filter's `onTalk` probe strips all four trinkets and hands out the Bead
+/// while the swallowed `exitQuest` leaves the quest started — and the real
+/// `onTalk` that follows then finds an empty inventory and answers "go
+/// collect them" (30391-05). The simulated context here is inert, so
+/// clicking Parina's `Quest` link with the four trinkets in hand completes
+/// the quest exactly as talking to her directly does.
+#[test]
+fn quest_window_probe_does_not_consume_the_turn_in_items() {
+    let (mut world, mut rx) = q404_world();
+    for id in TRINKETS_Q404 {
+        super::items::add_inventory_item(&mut world, 3001, id, 1);
+    }
+    drain(&mut rx);
+
+    // The bare `Quest` bypass probes every quest at Parina, then talks.
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body(&format!("npc_{NPC_OID}_Quest")));
+
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .unwrap_or_default();
+    assert!(
+        !html.contains("30391-05"),
+        "the probe did not eat the trinkets, got: {html}"
+    );
+    assert_eq!(item_count(&world, 3001, 1292), 1, "Bead of Season awarded");
+    for id in TRINKETS_Q404 {
+        assert_eq!(item_count(&world, 3001, id), 0, "trinket {id} handed in");
+    }
+    let state = world
+        .objects
+        .get_component::<crate::model::components::Quests>(&3001)
+        .and_then(|q| q.0.get(Q404).map(|qs| qs.state));
+    assert_eq!(
+        state,
+        Some(crate::model::quest::state::COMPLETED),
+        "quest finished"
+    );
+}
+
+/// Flame Earring, Wind Bangle, Water Necklace, Earth Ring.
+const TRINKETS_Q404: [i32; 4] = [1282, 1285, 1288, 1291];
+
 /// The whole elemental chain: Fire → Wind → Water → Earth → the Bead of
 /// Season. Exercises the branch table in order, including the conds.
 #[test]

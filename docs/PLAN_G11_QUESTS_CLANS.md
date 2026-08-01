@@ -44,6 +44,20 @@ Quest picks (repeatable, no timers/memoState, near starter towns; both
   short-circuits); `Quest <Name>` → `notifyTalk` (weight/40-quest guards);
   `Quest <Name> <event>` → `player.processQuestEvent` → `onEvent` (the
   event string is usually the target html filename).
+- Both quest-window routes first probe every candidate with a **simulated**
+  `onTalk` (`Quest.onTalk(npc, player, true)`) and drop the quests whose
+  only answer would be `noquest.htm` — a quest with nothing to say at this
+  NPC gets no button. Ported 2026-08 (`talk_shows_no_quest` +
+  `QuestCtx::new_simulated`): without it a *completed* one-time quest was
+  listed as `<fstring>{questId}03</fstring>`, and the class-change quests
+  ship no `03` string client-side (`NpcStringId` has 40401/40402 but no
+  40403), so a finished Q404 rendered a blank grey button at Parina that
+  answered `noquest.htm` when clicked. Deliberate deviation inside the
+  probe: Java guards only the `QuestState` setters and leaves
+  `giveItems`/`takeItems`/`addExpAndSp` live, so probing Q404 while the
+  player holds all four trinkets *eats them* and swallows the `exitQuest`;
+  our simulated `QuestCtx` suppresses items, XP, packets, spawns, timers
+  and teleports as well, so a probe can never cost a player anything.
 - The ClanMaster htmls use *bare* `Quest ClanMaster 9000-XX.htm` bypasses
   (origin NPC recovered from the validateHtmlAction record) and
   `npc_%objectId%_create_clan $name` (the `$name` edit-box variable is
