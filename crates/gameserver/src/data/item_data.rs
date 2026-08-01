@@ -656,6 +656,46 @@ pub struct ItemStats {
     pub shield_rate: Option<i32>,
 }
 
+/// The datapack's per-item transfer restrictions (Java `ItemTemplate`'s
+/// `_dropable` / `_tradeable` / `_destroyable` / `_depositable`). Every flag
+/// defaults to **true** in Java — `set.getBoolean("is_dropable", true)` — so an
+/// item is fully transferable unless its XML says otherwise; `Default` here
+/// mirrors that, which also keeps `..Default::default()` test fixtures
+/// permissive.
+///
+/// Time-limited reward boxes such as *Mage Class Equipment Set (10-day)*
+/// (15195) declare all three of `is_tradable`/`is_dropable`/`is_sellable` as
+/// `false`: they may only be used, warehoused or destroyed.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TradeFlags {
+    /// `<set name="is_dropable">` — may be dropped on the ground
+    /// (`RequestDropItem`) and scattered by `Player.onDieDropItem`.
+    pub dropable: bool,
+    /// `<set name="is_tradable">` — may change owner: player trade, private
+    /// store (buy and sell), mail attachment.
+    pub tradable: bool,
+    /// `<set name="is_destroyable">` — may be destroyed (`RequestDestroyItem`).
+    pub destroyable: bool,
+    /// `<set name="is_depositable">` — may be put in a warehouse. Java forces
+    /// this to `!is_questitem` for quest items; for everything else it reads
+    /// the tag (default true). Note `Item.isDepositable(isPrivateWareHouse)`
+    /// only additionally demands tradability for the *clan* warehouse and
+    /// freight — a private warehouse takes untradable items, which is why a
+    /// bound reward box can still be stored.
+    pub depositable: bool,
+}
+
+impl Default for TradeFlags {
+    fn default() -> Self {
+        Self {
+            dropable: true,
+            tradable: true,
+            destroyable: true,
+            depositable: true,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ItemTemplate {
     pub item_id: i32,
@@ -700,6 +740,18 @@ pub struct ItemTemplate {
     /// account through the freight (`RequestPackageSend`). 3457 items declare
     /// it on this dist; everything else is refused.
     pub is_freightable: bool,
+    /// `is_dropable` / `is_tradable` / `is_destroyable` / `is_depositable` —
+    /// see [`TradeFlags`]. Grouped into a sub-struct so the derived `Default`
+    /// on `ItemTemplate` yields Java's permissive defaults (everything allowed)
+    /// instead of `false` (everything forbidden).
+    pub trade_flags: TradeFlags,
+    /// `<set name="time">` — lifetime in minutes for a time-limited item
+    /// (Java `ItemTemplate.getTime()`, `-1`/absent = permanent). Only the
+    /// "is this time-limited at all" question is modelled: expiry itself is not
+    /// ported yet, but Java's `Player.onDieDropItem` refuses to scatter such
+    /// items and that guard is honoured.
+    /// TODO(G33): actual expiry (`Item.scheduleLifeTimeTask`) is unported.
+    pub time: i32,
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
     pub price: i64,
@@ -756,6 +808,37 @@ impl ItemTemplate {
     /// (the `Config.ENCHANT_BLACKLIST` check isn't modelled).
     pub fn is_enchantable(&self) -> bool {
         self.enchant_enabled
+    }
+
+    /// `Item.isDropable` — droppable on the ground and by a death drop.
+    /// (Java also refuses augmented / visual-transformed items; neither is a
+    /// state this port carries on the ground-drop path.)
+    pub fn is_dropable(&self) -> bool {
+        self.trade_flags.dropable
+    }
+
+    /// `Item.isTradeable` — may change owner (trade, private store, mail).
+    pub fn is_tradable(&self) -> bool {
+        self.trade_flags.tradable
+    }
+
+    /// `Item.isDestroyable` — may be destroyed by the player.
+    pub fn is_destroyable(&self) -> bool {
+        self.trade_flags.destroyable
+    }
+
+    /// `Item.isDepositable(isPrivateWareHouse)` minus the equipped check (the
+    /// caller owns that, since it needs the inventory). A private warehouse
+    /// accepts any depositable item; the clan warehouse and freight also
+    /// require tradability.
+    pub fn is_depositable(&self, private_warehouse: bool) -> bool {
+        self.trade_flags.depositable && (private_warehouse || self.is_tradable())
+    }
+
+    /// `Item.isTimeLimitedItem` — the template declares a `time` lifetime, so
+    /// the item expires. Java refuses to scatter such items on death.
+    pub fn is_time_limited(&self) -> bool {
+        self.time > 0
     }
 }
 
@@ -1250,6 +1333,28 @@ fn make_template(
             .map(|v| v == "true")
             .unwrap_or(true),
         is_freightable: attrs.get("is_freightable").map(|v| v == "true") == Some(true),
+        trade_flags: TradeFlags {
+            dropable: attrs
+                .get("is_dropable")
+                .map(|v| v == "true")
+                .unwrap_or(true),
+            tradable: attrs
+                .get("is_tradable")
+                .map(|v| v == "true")
+                .unwrap_or(true),
+            destroyable: attrs
+                .get("is_destroyable")
+                .map(|v| v == "true")
+                .unwrap_or(true),
+            // Java: quest items are never depositable (barring the
+            // `CustomDepositableQuestItems` config, which this dist leaves off).
+            depositable: !is_quest_item
+                && attrs
+                    .get("is_depositable")
+                    .map(|v| v == "true")
+                    .unwrap_or(true),
+        },
+        time: attrs.get("time").and_then(|v| v.parse().ok()).unwrap_or(-1),
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
         handler,
         capsuled_items,
@@ -1440,6 +1545,45 @@ mod tests {
             .expect("item 23762 (High-grade Elixir Pack)");
         assert_eq!(box_item.extractable_count_min, 1);
         assert_eq!(box_item.extractable_count_max, 1);
+    }
+
+    /// The datapack's transfer restrictions: *Mage Class Equipment Set
+    /// (10-day)* (15195) is bound — untradable, undroppable, unsellable and
+    /// time-limited — while an ordinary item declares none of the tags and so
+    /// inherits Java's permissive defaults.
+    #[test]
+    fn parses_bound_item_trade_flags() {
+        let data = ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        let bound = data
+            .get(15195)
+            .expect("item 15195 (Mage Class Equipment Set, 10-day)");
+        assert!(!bound.is_dropable(), "is_dropable=false in the XML");
+        assert!(!bound.is_tradable(), "is_tradable=false in the XML");
+        assert!(!bound.is_sellable, "is_sellable=false in the XML");
+        assert!(bound.is_time_limited(), "time=14400 makes it expire");
+        // Storing and destroying stay available: a private warehouse takes
+        // untradable items, and nothing marks the box undestroyable.
+        assert!(bound.is_depositable(true), "a private warehouse takes it");
+        assert!(!bound.is_depositable(false), "the clan warehouse does not");
+        assert!(bound.is_destroyable(), "it can still be deleted");
+
+        // An ordinary item declares none of the tags → all defaults true.
+        let sword = data.get(1).expect("item 1 (Short Sword)");
+        assert!(sword.is_dropable());
+        assert!(sword.is_tradable());
+        assert!(sword.is_destroyable());
+        assert!(sword.is_depositable(false));
+        assert!(!sword.is_time_limited());
+
+        // Quest items are never depositable (Java forces the flag off).
+        let quest = data
+            .all()
+            .find(|t| t.is_quest_item)
+            .expect("at least one quest item");
+        assert!(
+            !quest.is_depositable(true),
+            "quest items stay out of the WH"
+        );
     }
 
     #[test]

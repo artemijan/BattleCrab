@@ -15,6 +15,8 @@ const SWORD_ID: i32 = 8202;
 
 fn weapon_template(item_id: i32, name: &str, radius: i32, angle: i32) -> ItemTemplate {
     ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,

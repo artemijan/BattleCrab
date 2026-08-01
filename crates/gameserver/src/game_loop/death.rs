@@ -1168,9 +1168,12 @@ pub(crate) fn give_item(world: &mut World, player_oid: i32, item_id: i32, count:
 /// Nothing drops inside a PVP zone when a player did the killing (arena deaths
 /// are free), and GMs are exempt.
 ///
-/// Not modelled: shadow / time-limited items (no ported source), pet control
-/// items (G29), the `KarmaListNonDroppableItems` whitelists, and the clan-war
-/// exemption (`TODO(G18)` — warring clans don't make each other drop).
+/// Items the datapack marks `is_dropable="false"` and time-limited items are
+/// skipped, per Java's filter.
+///
+/// Not modelled: shadow items (mana-fuelled gear, absent from this dist), pet
+/// control items (G29), the `KarmaListNonDroppableItems` whitelists, and the
+/// clan-war exemption (`TODO(G18)` — warring clans don't make each other drop).
 fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
     use crate::data::item_data;
 
@@ -1253,8 +1256,15 @@ fn on_die_drop_item(world: &mut World, victim_oid: i32, killer_oid: i32) {
         let Some(t) = world.data.item_data.get(item_id) else {
             continue;
         };
-        // Adena and quest items never drop.
-        if item_id == item_data::ADENA_ID || t.is_quest_item || t.type2 == item_data::TYPE2_QUEST {
+        // Adena, quest items, items the datapack marks non-droppable, and
+        // time-limited items never drop (Java: `isShadowItem() ||
+        // isTimeLimitedItem() || !isDropable() || ADENA || TYPE2_QUEST`).
+        if item_id == item_data::ADENA_ID
+            || t.is_quest_item
+            || t.type2 == item_data::TYPE2_QUEST
+            || !t.is_dropable()
+            || t.is_time_limited()
+        {
             continue;
         }
         let equipped = world

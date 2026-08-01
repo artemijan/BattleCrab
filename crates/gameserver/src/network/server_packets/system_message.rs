@@ -74,6 +74,14 @@ pub mod sm_ids {
     pub const THIS_IS_NOT_A_SUITABLE_ITEM: i16 = 1960;
     /// `Augmentation removal can only be done on an augmented item.`
     pub const AUGMENTATION_REMOVAL_ONLY_ON_AN_AUGMENTED_ITEM: i16 = 1964;
+    // Datapack transfer restrictions (`is_dropable` / `is_tradable` /
+    // `is_destroyable`), the refusals Java's item handlers send.
+    /// `That item cannot be discarded.` (Java `RequestDropItem`.)
+    pub const THAT_ITEM_CANNOT_BE_DISCARDED: i16 = 729;
+    /// `This item cannot be traded or sold.` (Java's trade/store/mail refusal.)
+    pub const THIS_ITEM_CANNOT_BE_TRADED_OR_SOLD: i16 = 99;
+    /// `This item cannot be destroyed.` (Java `RequestDestroyItem`.)
+    pub const THIS_ITEM_CANNOT_BE_DESTROYED: i16 = 98;
     // Gatekeeper teleports (G15.5 tail).
     pub const YOU_CANNOT_TELEPORT_TO_A_VILLAGE_THAT_IS_IN_A_SIEGE: i16 = 707;
     pub const YOU_CANNOT_TELEPORT_WHILE_IN_POSSESSION_OF_A_WARD: i16 = 2778;

@@ -10,6 +10,8 @@ const DYE_ID: i32 = 1;
 
 fn etc_template(item_id: i32, name: &str) -> ItemTemplate {
     ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,

@@ -294,7 +294,7 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
         return;
     }
     // Locate the item + its template facts.
-    let Some((item_id, held, is_stackable, is_quest)) = world
+    let Some((item_id, held, is_stackable, undestroyable)) = world
         .objects
         .get_component::<Inventory>(&object_id)
         .and_then(|inv| {
@@ -309,14 +309,17 @@ pub(crate) fn handle_request_destroy_item(world: &mut World, client_id: u32, bod
                 id,
                 cnt,
                 t.map(|t| t.is_stackable).unwrap_or(false),
-                t.map(|t| t.is_quest_item).unwrap_or(false),
+                // Java's guard is `!isDestroyable()` — quest items are one case
+                // of it, `is_destroyable="false"` in the datapack is the other.
+                t.map(|t| t.is_quest_item || !t.is_destroyable())
+                    .unwrap_or(false),
             )
         })
     else {
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
     };
-    if is_quest {
+    if undestroyable {
         send_item_message(world, client_id, "This item cannot be destroyed.");
         return;
     }

@@ -60,6 +60,8 @@ fn equip_click_during_cast_is_deferred_to_cast_end() {
         .data
         .item_data
         .insert_for_test(crate::data::item_data::ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -155,6 +157,8 @@ fn equip_swap_resends_ex_user_info_equip_slot_with_correct_slots() {
             .data
             .item_data
             .insert_for_test(crate::data::item_data::ItemTemplate {
+                trade_flags: Default::default(),
+                time: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -279,6 +283,8 @@ fn equipping_gear_updates_combat_stats() {
     let _a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
 
     let template = |item_id: i32, kind: ItemKind, body_part: i32| ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -393,6 +399,8 @@ fn equipping_gear_updates_max_hp_mp() {
 
     // A necklace granting +100 Max MP.
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -473,6 +481,8 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -520,6 +530,8 @@ fn extractable_pack_item_unpacks_into_its_contents() {
     });
     for item_id in [15230, 15270] {
         world.data.item_data.insert_for_test(ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -606,6 +618,8 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
     let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -644,6 +658,8 @@ fn extractable_pack_item_splits_non_stackable_multi_count_capsule() {
         is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -750,6 +766,8 @@ fn extractable_pack_item_blocked_when_inventory_is_over_80_percent() {
     );
 
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -874,6 +892,8 @@ fn item_skill_potion_heals_and_enforces_reuse() {
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1022,6 +1042,8 @@ fn non_immediate_item_skill_casts_instead_of_firing_instantly() {
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1168,6 +1190,8 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1201,6 +1225,8 @@ fn item_skill_give_item_grants_reward_and_consumes_pack() {
         is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1359,6 +1385,8 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1392,6 +1420,8 @@ fn item_skill_give_item_random_grants_one_weighted_group() {
         is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -1518,6 +1548,8 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
     });
     // The reward is a non-stackable weapon so it carries an enchant.
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -1551,6 +1583,8 @@ fn item_skill_give_item_random_rolls_enchant_on_created_item() {
         is_magic_weapon: false,
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: true,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduce,
@@ -2351,6 +2385,64 @@ fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) ->
     w.write_i32(-3000);
     on_packet(world, client_id, w.into_bytes());
     item_oid
+}
+
+/// Datapack parity: *Mage Class Equipment Set (10-day)* (15195) declares
+/// `is_dropable="false"`, so `RequestDropItem` must refuse it with
+/// `THAT_ITEM_CANNOT_BE_DISCARDED` and leave it in the inventory — Java's
+/// first guard in `RequestDropItem.runImpl`.
+#[test]
+fn bound_item_cannot_be_discarded() {
+    const BOUND_BOX: i32 = 15195;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+
+    super::items::add_inventory_item(&mut world, 9300, BOUND_BOX, 1).expect("bound box");
+    let box_oid = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&9300)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == BOUND_BOX)
+        .unwrap()
+        .object_id;
+    let would_be_ground_oid = world.next_npc_object_id;
+
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_DROP_ITEM);
+    w.write_i32(box_oid);
+    w.write_i64(1);
+    w.write_i32(100);
+    w.write_i32(200);
+    w.write_i32(-3000);
+    on_packet(&mut world, 1, w.into_bytes());
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&9300)
+            .unwrap()
+            .items()
+            .iter()
+            .any(|it| it.item_id == BOUND_BOX),
+        "the bound box stays in the inventory"
+    );
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&would_be_ground_oid),
+        "nothing reached the ground"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        "the client is told the item cannot be discarded"
+    );
 }
 
 /// A ground item left un-picked-up auto-destroys after its lifetime
@@ -3534,6 +3626,8 @@ fn augment_options_apply_while_the_item_is_equipped() {
 
     // A plain weapon…
     let template = ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -4060,6 +4154,8 @@ fn skill_reduce_on_success_item_is_spent_only_when_the_cast_lands() {
         ..Default::default()
     });
     world.data.item_data.insert_for_test(ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::SkillReduceOnSkillSuccess,

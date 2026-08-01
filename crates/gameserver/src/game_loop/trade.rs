@@ -134,7 +134,9 @@ fn open_window(world: &World, viewer: i32, partner: i32) {
                 .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
                 .filter_map(|it| {
                     let t = world.data.item_data.get(it.item_id)?;
-                    (!t.is_quest_item).then_some((*it, t))
+                    // Java `TradeList.addItem` refuses untradable items, so the
+                    // window never lists them either.
+                    (!t.is_quest_item && t.is_tradable()).then_some((*it, t))
                 })
                 .collect()
         })
@@ -172,12 +174,20 @@ pub(crate) fn handle_add_item(world: &mut World, client_id: u32, body: &[u8]) {
     else {
         return;
     };
+    // Java `TradeList.addItem`: `!item.isTradeable() || item.isQuestItem()` is
+    // refused outright — a bound item can never be handed to another player.
     if world
         .data
         .item_data
         .get(item_id)
-        .is_some_and(|t| t.is_quest_item)
+        .is_some_and(|t| t.is_quest_item || !t.is_tradable())
     {
+        crate::game_loop::helpers::send_sm_and_action_failed(
+            world,
+            client_id,
+            sp::sm_ids::THIS_ITEM_CANNOT_BE_TRADED_OR_SOLD,
+            &[],
+        );
         return;
     }
     let already = world

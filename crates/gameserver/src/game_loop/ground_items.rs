@@ -265,9 +265,10 @@ pub(crate) fn pickup_ground_item(
 }
 
 /// Port of `clientpackets/RequestDropItem.runImpl` (narrowed): drop `count` of
-/// an inventory item onto the ground at the player's feet. Quest items are
-/// protected; a worn item is unequipped first. Java's precise drop-location /
-/// distance / weight guards are simplified (drop at the player's position).
+/// an inventory item onto the ground at the player's feet. Quest items and
+/// items the datapack marks `is_dropable="false"` are protected; a worn item is
+/// unequipped first. Java's precise drop-location / distance / weight guards
+/// are simplified (drop at the player's position).
 pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestDropItem::read(body) else {
         return;
@@ -279,7 +280,7 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     if pkt.count <= 0 {
         return;
     }
-    let Some((item_id, held, enchant, is_stackable, is_quest)) = world
+    let Some((item_id, held, enchant, is_stackable, is_quest, dropable)) = world
         .objects
         .get_component::<Inventory>(&player_oid)
         .and_then(|inv| {
@@ -296,11 +297,23 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
                 ench,
                 t.map(|t| t.is_stackable).unwrap_or(false),
                 t.map(|t| t.is_quest_item).unwrap_or(false),
+                t.map(|t| t.is_dropable()).unwrap_or(false),
             )
         })
     else {
         return;
     };
+    // Java refuses `!item.isDropable()` with `THAT_ITEM_CANNOT_BE_DISCARDED`;
+    // bound reward boxes (`is_dropable="false"`) never reach the ground.
+    if !dropable {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED,
+                &[],
+            ));
+        }
+        return;
+    }
     if is_quest || (!is_stackable && pkt.count > 1) {
         return;
     }

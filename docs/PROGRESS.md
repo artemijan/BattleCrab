@@ -143,6 +143,30 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**Item transfer restrictions — `is_dropable` / `is_tradable` / `is_destroyable`
+/ `is_depositable` 2026-08-01.** Live bug report: a bound reward box (*Mage
+Class Equipment Set (10-day)*, 15195 — the XML declares all of `is_tradable`,
+`is_dropable`, `is_sellable` false) **dropped on a PK death**. Root cause: the
+item parser never read any of those tags — `ItemTemplate` carried only
+`is_sellable`/`is_freightable`, and every transfer path used `is_quest_item` as
+its stand-in for "bound". So merchant selling was the *only* restriction the
+datapack could actually express.
+
+The four tags now parse into `ItemTemplate::trade_flags` (a sub-struct, so the
+derived `Default` keeps Java's permissive defaults instead of flipping every
+`..Default::default()` fixture to "forbidden"), alongside `time` for
+time-limited items. Enforced at: `onDieDropItem` (also skipping time-limited
+items, per Java), `RequestDropItem` (refused with
+`THAT_ITEM_CANNOT_BE_DISCARDED`), player trade — window listing *and*
+`AddTradeItem` — private store sell/manage lists and the sell-into-a-buy-store
+path, mail attachments (this closes an explicit `TODO(G30+)`), warehouse
+deposit (`isDepositable(isPrivateWareHouse)`: a **private** warehouse still
+takes bound items, the clan warehouse and freight do not) and `RequestDestroyItem`.
+Merchant sell already honoured `is_sellable`.
+
+Net effect for a bound box: use, warehouse or destroy — nothing else. 3 tests,
+the drop paths sabotage-verified.
+
 **`Custom/*.ini` slice 4 — sell buffs 2026-08-01.** The player buff shop, ported
 whole: the `SellBuffData.xml` whitelist (149 skills, **99 of them learnable**
 here, so the feature is genuinely reachable), the nine `sellbuff*` bypasses, the
