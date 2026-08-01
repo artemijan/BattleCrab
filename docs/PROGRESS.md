@@ -167,6 +167,24 @@ Merchant sell already honoured `is_sellable`.
 Net effect for a bound box: use, warehouse or destroy — nothing else. 3 tests,
 the drop paths sabotage-verified.
 
+**`Custom/*.ini` slice 8 — auto use, and the audit closes 2026-08-01.**
+`AutoUseTaskManager`'s four loops (supply items, healing potion, buffs, attack
+skills) plus the `.playskills` / `.playitems` / `.playpotion` pages. **Buffs run
+in town and everything else does not** — that asymmetry is what the peace-zone
+gate is for. A configured entry the player no longer has is *dropped from the
+list*, not merely skipped, so the panel self-cleans.
+
+**Slice 2 caught a real bug in slice 1.** `AutoPlayConfig` derived `Default`, so
+`EnableAutoPotion`/`EnableAutoSkill`/`EnableAutoItem` fell back to `false` while
+**Java's defaults are `true`**. The dist ships the ini so it was invisible
+there; only a missing file — or a test world — would have shown it, silently
+disabling all three sub-panels. `Default` is now Java's, pinned by its own test.
+The lesson generalises: a derived `Default` on a config struct is only right
+when every Java default is the zero value.
+
+7 tests, 5 mechanisms sabotage-verified. **The G33 `Custom/*.ini` audit is
+complete — all 17 features ported across 8 slices.**
+
 **`Custom/*.ini` slice 7 — auto play, part 1 2026-08-01.** The audit's last
 feature, and **much smaller than its name suggests**: this build registers **no
 Classic auto-hunt packet family** (`ExClientPackets` has no `ExAutoPlay*`

@@ -638,6 +638,21 @@ pub struct AutoPlaySettings {
     pub potion_percent: i32,
 }
 
+/// Java `AutoUseSettings` — what the three sub-pages choose: buffs to keep up,
+/// attack skills to fire, supply items to use, and the one healing potion.
+/// Persisted alongside [`AutoPlaySettings`] so the panel survives a relog.
+#[derive(Component, Debug, Clone, Default, PartialEq, Eq)]
+pub struct AutoUseSettings {
+    /// Self-target skills, cast **even in town**.
+    pub buffs: Vec<i32>,
+    /// Offensive skills, cast at the current target outside a peace zone.
+    pub skills: Vec<i32>,
+    /// Shots, scrolls and the like, used outside a peace zone.
+    pub supply_items: Vec<i32>,
+    /// The single healing potion slot (`0` = none).
+    pub potion_item: i32,
+}
+
 impl Default for AutoPlaySettings {
     fn default() -> Self {
         Self {

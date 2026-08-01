@@ -14,6 +14,7 @@ pub(crate) mod area_npcs;
 mod augment;
 pub(crate) mod auto_play;
 pub(crate) mod auto_potions;
+pub(crate) mod auto_use;
 pub(crate) mod baium;
 pub(crate) mod boats;
 mod boss_respawn;
@@ -298,6 +299,7 @@ fn run(shutdown: Shutdown, ch: GameThreadChannels) {
         }
         if world.tick.is_multiple_of(auto_play::TICK_PERIOD) {
             auto_play::tick(&mut world);
+            auto_use::tick(&mut world);
         }
         if world.tick.is_multiple_of(auto_potions::TICK_PERIOD) {
             auto_potions::tick(&mut world);

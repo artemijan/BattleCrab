@@ -44,7 +44,8 @@ pub(crate) fn handle_voiced(
         return;
     }
     if command != "play" {
-        // The sub-panels arrive with slice 2 (auto use).
+        // The three sub-panels are auto-use's.
+        super::auto_use::handle_voiced(world, client_id, player_oid, command, args);
         return;
     }
     apply_toggle(world, player_oid, args);
@@ -115,9 +116,37 @@ fn send_panel(world: &World, client_id: u32, player_oid: i32) {
         .replace("%mode2%", radio(s.next_target_mode == 2))
         .replace("%mode3%", radio(s.next_target_mode == 3))
         .replace("%percent%", &s.potion_percent.to_string());
-    // The three sub-panel buttons are config-gated; slice 2 fills them in.
-    for token in ["%skill_button%", "%item_button%", "%potion_button%"] {
-        html = html.replace(token, "");
+    // Each sub-panel button exists only when its own config flag is on, which
+    // is how Java hides a disabled half of the feature.
+    for (token, on, cmd, label) in [
+        (
+            "%skill_button%",
+            world.cfg.auto_play.skill,
+            "playskills",
+            "Select Skills",
+        ),
+        (
+            "%item_button%",
+            world.cfg.auto_play.item,
+            "playitems",
+            "Select Supply Items",
+        ),
+        (
+            "%potion_button%",
+            world.cfg.auto_play.potion,
+            "playpotion",
+            "Select Healing Potion",
+        ),
+    ] {
+        let button = if on {
+            format!(
+                "<button action=\"bypass voice .{cmd}\" value=\"{label}\" \
+                 width=240 height=31>"
+            )
+        } else {
+            String::new()
+        };
+        html = html.replace(token, &button);
     }
     let status = if s.active {
         "<button action=\"bypass voice .play stop\" value=\"Stop\" width=240 height=31>"
