@@ -496,7 +496,7 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
 /// Every skill wearing the curse hands out: the weapon's own skill plus the
 /// 301/302 transform template's (Void Burst / Void Flow and the demon attacks),
 /// both genders since only the wielder's is granted but either may be stored.
-fn curse_granted_skill_ids(world: &World, idx: usize, item_id: i32) -> Vec<i32> {
+pub(crate) fn curse_granted_skill_ids(world: &World, idx: usize, item_id: i32) -> Vec<i32> {
     let mut ids = vec![world.cursed_weapons[idx].skill_id];
     let transform_id = if item_id == 8689 { 302 } else { 301 };
     if let Some(tf) = world.data.transforms.get(transform_id) {

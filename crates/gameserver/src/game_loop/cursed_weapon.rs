@@ -502,7 +502,37 @@ pub(crate) fn give_skill(world: &mut World, idx: usize, target: i32) {
 /// *not* consider cursed is a leftover (its life ended while they were offline)
 /// and is destroyed on sight. Java names the two ids inline; iterating the
 /// config is the same set on this dist and stays right if it ever changes.
+///
+/// The **skill** half has no Java counterpart, for the same reason
+/// `RestoreOfflineCursedOwner` carries a skill list: Java grants the cursed and
+/// transform skills with `addSkill(…, false)` / `addTransformSkill`, which never
+/// touch the DB, whereas this port persists the whole `SkillBook`. Any row that
+/// escaped into `character_skills` — from an older build, or a crash between the
+/// removal and the next flush — would otherwise re-arm the curse's passive pumps
+/// (Akamanah 3629 is `MaxCp` ×11.5 +1300) on every single login, with no weapon
+/// in sight to explain it. Scrub them here, where the manager has just said this
+/// character is not cursed.
 fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32) {
+    let stale_skills: Vec<i32> = (0..world.cursed_weapons.len())
+        .flat_map(|idx| {
+            let item_id = world.cursed_weapons[idx].item_id;
+            super::admin::cursed_weapons::curse_granted_skill_ids(world, idx, item_id)
+        })
+        .filter(|id| {
+            world
+                .objects
+                .get_component::<SkillBook>(&object_id)
+                .is_some_and(|b| b.0.contains_key(id))
+        })
+        .collect();
+    if !stale_skills.is_empty() {
+        for skill_id in stale_skills {
+            super::skills::remove_player_skill(world, object_id, skill_id);
+        }
+        super::admin::refresh_skill_list(world, object_id);
+        super::party::broadcast_user_info(world, object_id);
+    }
+
     let item_ids: Vec<i32> = world.cursed_weapons.iter().map(|cw| cw.item_id).collect();
     let mut removed = false;
     for item_id in item_ids {

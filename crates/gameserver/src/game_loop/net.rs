@@ -266,7 +266,7 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
         })
         .unwrap_or_default();
 
-    let (mut skills_by_index, hennas_by_index, shortcuts_by_index, class_index) = world
+    let (mut skills_by_index, mut hennas_by_index, mut shortcuts_by_index, class_index) = world
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map(|p| {
@@ -282,6 +282,29 @@ pub(crate) fn build_save_data(world: &World, object_id: i32) -> Option<db::Playe
     // books (a transform active at subclass-swap time would bank its skills).
     for book in skills_by_index.values_mut() {
         book.retain(|&(id, _, _)| !world.data.transforms.is_transform_skill(id));
+    }
+    // The banked maps are a **login-time** snapshot, refreshed only when a
+    // subclass swap banks the outgoing slot (`subclass::do_switch`) — so the
+    // entry for the class currently being played is stale from the moment
+    // anything changes. `store_player` sweeps the child tables and then inserts
+    // *both* lists, so a stale entry silently re-adds whatever the live
+    // component no longer has: the cursed-weapon passive after `//cw_remove`
+    // (`3629` came back with its `MaxCp` pump on the next relog), a skill lost
+    // to a delevel, a cleared henna slot, a deleted shortcut. The live
+    // component is authoritative for the active index — drop the banked copy
+    // whenever that component is actually present (absent, the banked list is
+    // all we have and must survive).
+    if world.objects.has_component::<SkillBook>(&object_id) {
+        skills_by_index.remove(&class_index);
+    }
+    if world
+        .objects
+        .has_component::<crate::model::components::HennaSlots>(&object_id)
+    {
+        hennas_by_index.remove(&class_index);
+    }
+    if world.objects.has_component::<Shortcuts>(&object_id) {
+        shortcuts_by_index.remove(&class_index);
     }
 
     Some(db::PlayerSaveData {

@@ -1370,3 +1370,62 @@ fn death_drop_takes_the_cursed_cp_back() {
         "the drop-on-death path unmerges the pump too"
     );
 }
+
+/// Self-heal on login: a character the manager does *not* consider cursed must
+/// not keep the curse's skills.
+///
+/// Java can't hit this — `giveSkill` uses `addSkill(…, false)`, so 3629 never
+/// reaches `character_skills`. This port persists the whole `SkillBook`, so a
+/// row that escaped (an older build, or a crash between `//cw_remove` and the
+/// next flush) came back on every login and re-armed the `MaxCp` ×11.5 +1300
+/// pump with no weapon anywhere to explain it. `EnterWorld`'s stray-weapon
+/// sweep now scrubs the skills too.
+#[test]
+fn enter_world_scrubs_a_cursed_skill_with_no_curse_behind_it() {
+    use crate::model::components::SkillBook;
+
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    give_cp_template(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+
+    let base_cp = pcp(&world, PICKER_OID).max_cp;
+    assert!(base_cp > 0, "the template gives the class a CP bar to grow");
+
+    // The bad state: 3629 restored from `character_skills` at login, while no
+    // cursed weapon is activated on anyone.
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&PICKER_OID)
+        .unwrap()
+        .0
+        .insert(3629, 1);
+    crate::game_loop::passive_skills::refresh_conditioned_passives(&mut world, PICKER_OID);
+    assert_eq!(
+        pcp(&world, PICKER_OID).max_cp,
+        (11.5 * f64::from(base_cp) + 1300.0) as i32,
+        "the stale row really does re-arm the cursed CP pump"
+    );
+    assert!(
+        world.cursed_weapons.iter().all(|cw| !cw.is_activated),
+        "and nothing in the world justifies it"
+    );
+
+    crate::game_loop::cursed_weapon::on_enter_world(&mut world, 1, PICKER_OID);
+
+    assert!(
+        !world
+            .objects
+            .get_component::<SkillBook>(&PICKER_OID)
+            .unwrap()
+            .0
+            .contains_key(&3629),
+        "the orphaned cursed skill is scrubbed"
+    );
+    assert_eq!(
+        pcp(&world, PICKER_OID).max_cp,
+        base_cp,
+        "and the CP bar is back to the class value"
+    );
+}
