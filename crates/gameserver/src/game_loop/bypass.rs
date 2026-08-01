@@ -84,6 +84,12 @@ pub(crate) fn handle_request_bypass_to_server(world: &mut World, client_id: u32,
         // Admin HTML-menu buttons (Java `RequestBypassToServer`'s `admin_`
         // branch) → the same entry as the `//command` bar, confirm enabled.
         super::admin::use_admin_command(world, client_id, &command, true);
+    } else if command.starts_with("sellbuff") {
+        // `custom/SellBuff`'s bypass family — the buff shop's own menus. Java
+        // registers these only when `SellBuffEnable` is on, which
+        // `sell_buffs::handle_bypass` re-checks.
+        let (cmd, rest) = command.split_once(' ').unwrap_or((command.as_str(), ""));
+        super::sell_buffs::handle_bypass(world, client_id, object_id, cmd, rest);
     } else if command.starts_with("_bbs") {
         // Community-board buttons (`RequestBypassToServer`'s
         // `isCommunityBoardCommand` branch) — home, buffs, heal, teleport, …

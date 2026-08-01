@@ -1159,7 +1159,7 @@ fn send_message(world: &World, client_id: u32, text: &str) {
 /// Port of `Util.sendCBHtml`: split the html into ≤3 chunks tagged 101/102/103
 /// and send each as a `ShowBoard`. Split by char boundaries (htmls are ASCII,
 /// so this matches Java's UTF-16-length branches for the content we serve).
-fn send_cb_html(world: &World, client_id: u32, html: &str) {
+pub(crate) fn send_cb_html(world: &World, client_id: u32, html: &str) {
     let Some(cs) = world.clients.get(&client_id) else {
         return;
     };

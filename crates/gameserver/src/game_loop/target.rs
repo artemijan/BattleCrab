@@ -118,7 +118,15 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             .unwrap_or_default()
             .0
             == Some(pkt.object_id);
+        // Java `Player.onActionRequest` tests the sell-buff shop *before* the
+        // ordinary store, because a buff seller wears the `PACKAGE_SELL` type
+        // and would otherwise open an empty package-sale window.
         if already_targeted
+            && pkt.object_id != object_id
+            && super::sell_buffs::on_action(world, client_id, object_id, pkt.object_id)
+        {
+            // handled — the buff menu went out
+        } else if already_targeted
             && pkt.object_id != object_id
             && super::private_store::is_store_owner(world, pkt.object_id)
         {

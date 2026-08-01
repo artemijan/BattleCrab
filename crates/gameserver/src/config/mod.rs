@@ -19,6 +19,7 @@ pub mod npc;
 pub mod offline_trade;
 pub mod premium;
 pub mod rates;
+pub mod sell_buffs;
 pub mod server;
 
 pub use champion::ChampionConfig;
@@ -37,6 +38,7 @@ pub use ipconfig::IpConfig;
 pub use npc::NpcConfig;
 pub use offline_trade::OfflineTradeConfig;
 pub use premium::PremiumConfig;
+pub use sell_buffs::SellBuffsConfig;
 pub mod grand_boss;
 pub use grand_boss::GrandBossConfig;
 pub use rates::RatesConfig;
@@ -86,6 +88,8 @@ pub struct CombatConfig {
     pub random_spawns: RandomSpawnsConfig,
     /// `Custom/ChatModeration.ini` + `Custom/NoblessMaster.ini`.
     pub custom_npc: CustomNpcConfig,
+    /// `Custom/SellBuffs.ini` — the player buff shop.
+    pub sell_buffs: SellBuffsConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -113,6 +117,7 @@ pub struct Config {
     pub pvp_title_color: PvpTitleColorConfig,
     pub random_spawns: RandomSpawnsConfig,
     pub custom_npc: CustomNpcConfig,
+    pub sell_buffs: SellBuffsConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -180,6 +185,7 @@ impl Config {
         let pvp_title_color = PvpTitleColorConfig::load_from(root);
         let random_spawns = RandomSpawnsConfig::load_from(root);
         let custom_npc = CustomNpcConfig::load_from(root);
+        let sell_buffs = SellBuffsConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -204,6 +210,7 @@ impl Config {
             pvp_title_color,
             random_spawns,
             custom_npc,
+            sell_buffs,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -234,6 +241,7 @@ impl Config {
             pvp_title_color: self.pvp_title_color.clone(),
             random_spawns: self.random_spawns.clone(),
             custom_npc: self.custom_npc.clone(),
+            sell_buffs: self.sell_buffs.clone(),
         }
     }
 }

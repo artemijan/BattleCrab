@@ -143,6 +143,27 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 4 — sell buffs 2026-08-01.** The player buff shop, ported
+whole: the `SellBuffData.xml` whitelist (149 skills, **99 of them learnable**
+here, so the feature is genuinely reachable), the nine `sellbuff*` bypasses, the
+community-board menus, and the transaction. Details in
+[PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md).
+
+The shop rides the `PACKAGE_SELL` store type for its label and seat, so
+clicking a seller must check the buff shop **before** the ordinary store or the
+buyer opens an empty package-sale window. Buying is asymmetric on purpose: the
+buyer pays the price, the **seller** pays the MP, and the seller casts the buff
+on the buyer.
+
+It also closes the `_isSellingBuffs` leg of `canOpenPrivateStore` that slice 2
+left open — and that leg is why one test failed first time round: a
+`python`-driven edit had silently not matched, so the check was never inserted.
+The test was asserting exactly that behaviour, which is the only reason it
+surfaced instead of shipping as a quiet gap.
+
+5 tests, 5 mechanisms sabotage-verified. **13 of the audit's 17 features are
+done**; three remain (custom mail manager, auto-play, auto-potions).
+
 **`Custom/*.ini` slice 3 — the six moderate features 2026-08-01.** PvP reward
 item (300 000 adena a kill here), the PvP title/colour ladder, random spawn
 jitter, the `.banchat` family, the Noblesse Master NPC, and the character-select

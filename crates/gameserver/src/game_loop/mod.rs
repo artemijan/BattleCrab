@@ -85,6 +85,7 @@ mod ranged;
 mod reco;
 pub(crate) mod regen;
 pub(crate) mod sailren;
+pub(crate) mod sell_buffs;
 mod servitor;
 mod settings;
 pub(crate) mod shop;

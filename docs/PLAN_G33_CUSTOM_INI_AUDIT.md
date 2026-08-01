@@ -213,8 +213,41 @@ champion code two lines away has the same shape for the same reason.
 
 7 tests, 5 mechanisms sabotage-verified.
 
+## Slice 4 — sell buffs
+
+The player buff shop: a character sits down, lists casts of their own buffs at
+a price each, and passers-by buy one. Ported whole — `config/sell_buffs.rs`,
+`data/sell_buff_data.rs` (the `SellBuffData.xml` whitelist), and
+`game_loop/sell_buffs.rs` for the manager and the nine `sellbuff*` bypasses.
+
+**Reachable, not decorative:** of the whitelist's 149 skills, **99 are
+learnable** from this dist's class trees. The rest are later-chronicle ISS
+buffs no character here can know.
+
+Shape worth knowing:
+
+- The shop rides the **`PACKAGE_SELL`** private-store type, so other clients
+  draw the usual shop label and the seller sits — but the list, the menus and
+  the bypasses are all its own. Clicking a seller therefore has to test the
+  buff shop *before* the ordinary store, or a buyer opens an empty package-sale
+  window.
+- The menus are **community-board html**, not `NpcHtmlMessage`, so they go out
+  through the chunked board sender.
+- The transaction is asymmetric: the **buyer** pays the price in `PaymentID`,
+  the **seller** pays the MP, and the skill is cast *by the seller* on the
+  buyer, so the buff is attributed like any other cast. A seller short on mana
+  is refused with a message rather than the cast quietly failing.
+- This closes the `_isSellingBuffs` leg of `canOpenPrivateStore` that slice 2
+  had to leave open.
+
+**Java quirks kept:** `sellbuffchangeprice` does **not** re-check the min/max
+bounds — only `sellbuffaddskill` does — so a seller can re-price outside them.
+And the title cap counts the `"BUFF SELL: "` prefix, so the message promising
+29 characters is enforced at 40 including it.
+
+5 tests, 5 mechanisms sabotage-verified.
+
 ## Remaining slices
 
-Four features, all in the **larger** tier: sell buffs (a new store type),
-custom mail manager (a DB poll loop), auto-play and auto-potions (Classic
-auto-hunt, its own packet family).
+Three features, all in the **larger** tier: custom mail manager (a DB poll
+loop), auto-play and auto-potions (Classic auto-hunt, its own packet family).

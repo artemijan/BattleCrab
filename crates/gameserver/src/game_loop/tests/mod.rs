@@ -118,6 +118,7 @@ mod reflect_tests;
 mod resist_tests;
 mod resurrection_tests;
 mod sailren_tests;
+mod sell_buffs_tests;
 mod servitor_tests;
 mod shortcuts_tests;
 mod siege_registration_tests;
@@ -339,6 +340,7 @@ async fn character_create_inserts_into_real_schema() {
         experience: crate::data::ExperienceData::empty(),
         player_templates: crate::data::PlayerTemplateData::from_vec(vec![human_fighter_template()]),
         skill_trees: crate::data::SkillTreeData::empty(),
+        sell_buff_data: crate::data::sell_buff_data::SellBuffData::default(),
         pledge_skill_trees: crate::data::PledgeSkillTreeData::empty(),
         stat_bonus: crate::data::StatBonus::empty(),
         action_data: crate::data::ActionData::empty(),
