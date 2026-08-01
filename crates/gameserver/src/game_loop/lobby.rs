@@ -104,6 +104,13 @@ pub(crate) fn handle_character_create(world: &mut World, client_id: u32, body: &
     let Some(race) = crate::data::player_template::creatable_race(pkt.class_id) else {
         return send(world, fail(0));
     };
+    // `Custom/AllowedPlayerRaces.ini` — Java's per-race `switch` in
+    // `CharacterCreate`, each arm sending `REASON_CREATION_FAILED`. All five
+    // races are allowed on this dist, so the gate is inert here; it exists so
+    // an operator turning one off is actually obeyed.
+    if !world.cfg.allowed_races.allows(race as i32) {
+        return send(world, fail(0));
+    }
     let Some(template) = world.data.player_templates.get(pkt.class_id) else {
         return send(world, fail(0));
     };
