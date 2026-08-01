@@ -143,6 +143,29 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 3 — the six moderate features 2026-08-01.** PvP reward
+item (300 000 adena a kill here), the PvP title/colour ladder, random spawn
+jitter, the `.banchat` family, the Noblesse Master NPC, and the character-select
+dualbox cap. Details in
+[PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md); two things worth
+repeating here:
+
+- **A sabotage run caught a real bug in my own code.** The PvP reward first hung
+  off `on_kill_update_pvp_reputation` — which returns early inside a PvP zone,
+  so `DisableRewardsInPvpZones` could never be reached and the config key was
+  meaningless. Removing the guard *didn't* fail the test, which is what exposed
+  it: the assertion was passing for the wrong reason. Java puts the reward
+  beside the reputation block in `doDie`, not inside it; so does the port now,
+  and the test asserts both directions.
+- **The Noblesse Master has no spawn on this dist** — template present, no
+  spawn file places it, so `//spawn 1003000` is the only way to meet him. Java
+  is identical, so it is parity rather than a gap, but "flag on + script exists"
+  would otherwise read as a working feature.
+
+7 tests, 5 mechanisms sabotage-verified. **12 of the audit's 17 features are
+done**; the four left are the large tier (sell buffs, custom mail manager,
+auto-play, auto-potions).
+
 **`Custom/*.ini` slice 2 — the six cheap features 2026-08-01.** Working the
 audit's own queue ([PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md))
 rather than the TODO clusters. All of tier 1 in one `config/custom_misc.rs`:

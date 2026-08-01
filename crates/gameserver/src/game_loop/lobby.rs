@@ -330,6 +330,39 @@ pub(crate) fn handle_character_select(world: &mut World, client_id: u32, body: &
         world.clients.remove(&client_id); // close(ServerClose)
         return;
     }
+    // `Config.DUALBOX_CHECK_MAX_PLAYERS_PER_IP` (2 here) —
+    // `AntiFeedManager.tryAddClient(GAME_ID, …)`: only so many characters from
+    // one address may be *in game* at once. Java answers with
+    // `html/mods/IPRestriction.htm` and returns, leaving the player at the
+    // character list rather than closing the connection.
+    //
+    // Like the TvT cap, the count is derived from the live session list rather
+    // than kept in a parallel counter — a crashed client cannot leak a slot.
+    let max_per_ip = world.cfg.dualbox.max_players_per_ip;
+    if max_per_ip > 0 {
+        let limit = max_per_ip + world.cfg.dualbox.whitelist.get(&ip).copied().unwrap_or(0);
+        let in_game = world
+            .clients
+            .values()
+            .filter(|cs| matches!(cs, ClientSession::InGame(_)))
+            .filter(|cs| cs.addr().ip().to_string() == ip)
+            .count();
+        if in_game as i32 >= limit {
+            let html = crate::data::htm_cache::read_htm(format!(
+                "{}data/html/mods/IPRestriction.htm",
+                world.data.root
+            ))
+            .unwrap_or_else(|| {
+                "<html><body>Maximum %max% connection(s) per IP address allowed.</body></html>"
+                    .to_string()
+            })
+            .replace("%max%", &limit.to_string());
+            if let Some(cs) = world.clients.get(&client_id) {
+                cs.send(crate::network::server_packets::npc_html_message(0, &html));
+            }
+            return;
+        }
+    }
     // `ShortCuts.restoreMe`'s ITEM verification: `from_char` drops shortcuts
     // whose item left the inventory. Memory-first — the dropped shortcuts simply
     // aren't in the bundle, so the next flush's reconcile removes their rows; no
@@ -693,6 +726,10 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     super::academy::notify_partner_on_login(world, object_id);
     // Re-apply Olympiad hero status to a crowned character.
     super::olympiad::on_enter_world(world, object_id);
+    // `EnterWorld`: `player.updatePvpTitleAndColor(false)` — a returning player
+    // wears the rung their PvP count already earned, without a broadcast (the
+    // enter-world burst carries it).
+    super::pvp::update_pvp_title_and_color(world, object_id, false);
     // Re-apply / lift jail (Java `JailHandler.onPlayerLogin`, G31).
     super::punishment::on_enter_world(world, client_id, object_id);
     // Unread-mail badge + the "you have mail" notice (G30).

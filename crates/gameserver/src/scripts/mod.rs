@@ -35,6 +35,7 @@ mod misc_npcs;
 mod mob_behaviours;
 pub mod monument_of_heroes;
 pub mod newbie_guide;
+pub mod nobless_master;
 pub mod npc_location_info;
 pub mod oly_manager;
 pub mod orc_change1;
@@ -429,6 +430,7 @@ pub fn build_registry(soul_crystal_npc_ids: Vec<i32>) -> QuestRegistry {
         Arc::new(wyvern_manager::WyvernManager),
         Arc::new(oly_manager::OlyManager),
         Arc::new(monument_of_heroes::MonumentOfHeroes),
+        Arc::new(nobless_master::NoblessMaster),
         Arc::new(npc_location_info::NpcLocationInfo),
         Arc::new(dark_elf_change1::DarkElfChange1),
         Arc::new(first_class_transfer_talk::FirstClassTransferTalk),
