@@ -301,7 +301,14 @@ know — so a gift arrives as `REGULAR`, differing only in the client's icon.
 
 4 tests, 4 mechanisms sabotage-verified.
 
-## Remaining slices
+## Slice 7–8 — auto play
 
-One feature: **auto-play** (Classic auto-hunt, its own packet family — the
-largest single item in the audit).
+See [PLAN_G33_AUTO_PLAY.md](PLAN_G33_AUTO_PLAY.md). Much smaller than its name:
+this build has **no Classic auto-hunt packet family**, so the feature is a
+voiced command and an html panel, and the port added no opcodes.
+
+## Done
+
+**All 17 features are ported**, across eight slices. The ROADMAP's
+`config/Custom/*` scope gate is now settled: every flag this dist enables is
+live in the port, and every one it disables is documented as a deliberate skip.

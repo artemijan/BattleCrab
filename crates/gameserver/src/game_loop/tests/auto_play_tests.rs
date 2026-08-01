@@ -3,7 +3,7 @@
 
 use super::*;
 
-use crate::model::components::{AutoPlaySettings, TargetRef, Vitals};
+use crate::model::components::{AutoPlaySettings, Casting, TargetRef, Vitals};
 
 const PLAYER: i32 = 3001;
 
@@ -258,4 +258,297 @@ fn loot_in_reach_is_picked_up() {
         100,
         "the loop looted it"
     );
+}
+
+// ---------------------------------------------------------------------------
+// Auto use (slice 2)
+// ---------------------------------------------------------------------------
+
+use crate::model::components::{AutoUseSettings, Buffs, SkillBook};
+use crate::model::inventory::Inventory;
+
+const SHOT: i32 = 1835;
+const POTION: i32 = 1540;
+const BUFF_SKILL: i32 = 1204;
+const ATTACK_SKILL: i32 = 3;
+
+fn use_world() -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
+    let (mut world, rx) = play_world();
+    for (item_id, skill_id) in [(SHOT, 9201), (POTION, 9202)] {
+        let mut t = crate::data::item_data::ItemTemplate::default();
+        t.item_id = item_id;
+        t.name = format!("Item {item_id}");
+        t.is_stackable = true;
+        t.handler = crate::data::item_data::ItemHandler::ItemSkills;
+        t.item_skills = vec![(skill_id, 1)];
+        t.default_action = crate::data::item_data::ActionType::SkillReduce;
+        t.immediate_effect = true;
+        world.data.item_data.insert_for_test(t);
+        world
+            .data
+            .skill_data
+            .insert_for_test(crate::model::skill::Skill {
+                id: skill_id,
+                level: 1,
+                name: format!("Effect {skill_id}"),
+                ..Default::default()
+            });
+    }
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&PLAYER).unwrap();
+        v.max_hp = 1000;
+        v.cur_hp = 1000.0;
+    }
+    (world, rx)
+}
+
+fn give(world: &mut World, item_id: i32, count: i64, obj_id: i32) {
+    let World { objects, data, .. } = world;
+    objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .unwrap()
+        .add_item(&data.item_data, obj_id, item_id, count);
+}
+
+fn auto_use(world: &World) -> AutoUseSettings {
+    crate::game_loop::auto_use::settings(world, PLAYER)
+}
+
+/// A supply item is used; one the player no longer carries is **dropped from
+/// the list** rather than retried forever.
+#[test]
+fn supply_items_are_used_and_missing_ones_forgotten() {
+    let (mut world, _rx) = use_world();
+    give(&mut world, SHOT, 2, 0x4D00_0010);
+    set(&mut world, |s| s.active = true);
+    world.objects.add_components(
+        &PLAYER,
+        AutoUseSettings {
+            supply_items: vec![SHOT],
+            ..Default::default()
+        },
+    );
+
+    crate::game_loop::auto_use::tick(&mut world);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .map_or(0, |i| i.count_of(SHOT)),
+        1,
+        "one was used"
+    );
+
+    // Run the bag dry, then tick again: the id leaves the list.
+    world
+        .objects
+        .get_component_mut::<Inventory>(&PLAYER)
+        .unwrap()
+        .remove_item(SHOT, 1);
+    crate::game_loop::auto_use::tick(&mut world);
+    assert!(
+        auto_use(&world).supply_items.is_empty(),
+        "a vanished item is forgotten, not retried"
+    );
+}
+
+/// The potion drinks below the configured percentage, and the slot clears when
+/// the potion runs out.
+#[test]
+fn the_potion_drinks_below_the_threshold() {
+    let (mut world, _rx) = use_world();
+    give(&mut world, POTION, 1, 0x4D00_0020);
+    set(&mut world, |s| {
+        s.active = true;
+        s.potion_percent = 70;
+    });
+    world.objects.add_components(
+        &PLAYER,
+        AutoUseSettings {
+            potion_item: POTION,
+            ..Default::default()
+        },
+    );
+
+    // Full HP: nothing happens.
+    crate::game_loop::auto_use::tick(&mut world);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .map_or(0, |i| i.count_of(POTION)),
+        1
+    );
+
+    world
+        .objects
+        .get_component_mut::<Vitals>(&PLAYER)
+        .unwrap()
+        .cur_hp = 500.0;
+    crate::game_loop::auto_use::tick(&mut world);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .map_or(0, |i| i.count_of(POTION)),
+        0,
+        "drunk at 50 % of 1000"
+    );
+
+    // With none left, the slot empties itself.
+    crate::game_loop::auto_use::tick(&mut world);
+    assert_eq!(auto_use(&world).potion_item, 0);
+}
+
+/// **Buffs run in town; supply items do not.** That asymmetry is the point of
+/// the peace-zone gate — pre-buff at the fountain, shots only in the field.
+#[test]
+fn a_peace_zone_stops_items_but_not_buffs() {
+    let (mut world, _rx) = use_world();
+    give(&mut world, SHOT, 2, 0x4D00_0030);
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: BUFF_SKILL,
+            level: 1,
+            name: "Wind Walk".into(),
+            target_type: crate::model::skill::TargetType::Self_,
+            ..Default::default()
+        });
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&PLAYER)
+        .unwrap()
+        .0
+        .insert(BUFF_SKILL, 1);
+    set(&mut world, |s| s.active = true);
+    world.objects.add_components(
+        &PLAYER,
+        AutoUseSettings {
+            buffs: vec![BUFF_SKILL],
+            supply_items: vec![SHOT],
+            ..Default::default()
+        },
+    );
+    world
+        .objects
+        .get_component_mut::<crate::model::components::ZoneFlags>(&PLAYER)
+        .unwrap()
+        .mask |= crate::data::zone_data::ZoneKind::Peace.bit();
+
+    crate::game_loop::auto_use::tick(&mut world);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Inventory>(&PLAYER)
+            .map_or(0, |i| i.count_of(SHOT)),
+        2,
+        "no shots in town"
+    );
+    assert!(
+        world.objects.has_component::<Casting>(&PLAYER)
+            || world
+                .objects
+                .get_component::<Buffs>(&PLAYER)
+                .is_some_and(|b| !b.0.is_empty()),
+        "but the buff still goes up"
+    );
+}
+
+/// A buff already up is skipped, and a skill the player has forgotten leaves
+/// the list.
+#[test]
+fn a_running_buff_is_skipped_and_unknown_skills_forgotten() {
+    let (mut world, _rx) = use_world();
+    set(&mut world, |s| s.active = true);
+    world.objects.add_components(
+        &PLAYER,
+        AutoUseSettings {
+            buffs: vec![BUFF_SKILL],
+            skills: vec![ATTACK_SKILL],
+            ..Default::default()
+        },
+    );
+
+    // Neither skill is known → both lists self-clean.
+    crate::game_loop::auto_use::tick(&mut world);
+    assert!(auto_use(&world).buffs.is_empty(), "unknown buff forgotten");
+}
+
+/// `.playskills <id>` files a **self-target** skill under buffs and everything
+/// else under attack skills, and a second press removes it.
+#[test]
+fn the_skill_page_sorts_buffs_from_attack_skills() {
+    let (mut world, _rx) = use_world();
+    for (id, target) in [
+        (BUFF_SKILL, crate::model::skill::TargetType::Self_),
+        (ATTACK_SKILL, crate::model::skill::TargetType::Enemy),
+    ] {
+        world
+            .data
+            .skill_data
+            .insert_for_test(crate::model::skill::Skill {
+                id,
+                level: 1,
+                name: format!("Skill {id}"),
+                target_type: target,
+                ..Default::default()
+            });
+        world
+            .objects
+            .get_component_mut::<SkillBook>(&PLAYER)
+            .unwrap()
+            .0
+            .insert(id, 1);
+    }
+    let play = |world: &mut World, text: &str| {
+        on_packet(
+            world,
+            1,
+            [vec![cop::SAY2], say2_body(text, 0, None)].concat(),
+        );
+    };
+
+    play(&mut world, &format!(".playskills {BUFF_SKILL}"));
+    assert_eq!(
+        auto_use(&world).buffs,
+        vec![BUFF_SKILL],
+        "self-target → buff"
+    );
+    assert!(auto_use(&world).skills.is_empty());
+
+    play(&mut world, &format!(".playskills {ATTACK_SKILL}"));
+    assert_eq!(
+        auto_use(&world).skills,
+        vec![ATTACK_SKILL],
+        "→ attack skill"
+    );
+
+    // Pressing the same row again removes it.
+    play(&mut world, &format!(".playskills {BUFF_SKILL}"));
+    assert!(auto_use(&world).buffs.is_empty(), "toggled back off");
+}
+
+/// The potion page is a single slot: choosing a second potion replaces the
+/// first, and choosing the current one clears it.
+#[test]
+fn the_potion_page_is_one_slot() {
+    let (mut world, _rx) = use_world();
+    give(&mut world, POTION, 1, 0x4D00_0040);
+    give(&mut world, SHOT, 1, 0x4D00_0041);
+    let play = |world: &mut World, text: &str| {
+        on_packet(
+            world,
+            1,
+            [vec![cop::SAY2], say2_body(text, 0, None)].concat(),
+        );
+    };
+
+    play(&mut world, &format!(".playpotion {POTION}"));
+    assert_eq!(auto_use(&world).potion_item, POTION);
+    play(&mut world, &format!(".playpotion {SHOT}"));
+    assert_eq!(auto_use(&world).potion_item, SHOT, "replaced, not added");
+    play(&mut world, &format!(".playpotion {SHOT}"));
+    assert_eq!(auto_use(&world).potion_item, 0, "same row clears it");
 }
