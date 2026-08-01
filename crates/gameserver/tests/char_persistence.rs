@@ -115,6 +115,7 @@ fn recv(rx: &std::sync::mpsc::Receiver<DbEvent>) -> DbEvent {
             // Boot-time pushes (id reservation, premium/grand-boss/cursed-weapon/
             // clan tables), not part of any exchange.
             DbEvent::IdBlock { .. }
+            | DbEvent::GlobalVariablesLoaded { .. }
             | DbEvent::ClansLoaded { .. }
             | DbEvent::PremiumLoaded { .. }
             | DbEvent::LotteryLoaded { .. }

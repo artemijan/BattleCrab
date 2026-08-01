@@ -50,6 +50,7 @@ pub(crate) mod four_sepulchers;
 mod friends;
 pub(crate) mod frintezza;
 pub(crate) mod game_time;
+pub(crate) mod global_vars;
 mod grand_boss;
 pub(crate) mod ground_items;
 pub(crate) mod helpers;

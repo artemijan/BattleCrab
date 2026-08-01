@@ -382,6 +382,13 @@ pub struct World {
     /// bookkeeping: it is the mechanic. Entries are added every channeling tick
     /// and dropped by `stop_channelizing` when a cast ends.
     pub channelized: HashMap<i32, HashMap<i32, std::collections::HashSet<i32>>>,
+    /// Java `GlobalVariablesManager` — the `global_variables` table, in memory.
+    ///
+    /// A flat string map on purpose: Java's is the same, and its keys are
+    /// composed at the call site (`"FourSepulchers" + npcId`). Read through
+    /// [`crate::game_loop::global_vars`], which owns the typed accessors and
+    /// the write-through to the DB.
+    pub global_vars: HashMap<String, String>,
     pub duels: HashMap<u32, crate::game_loop::duel::Duel>,
     pub next_duel_id: u32,
     /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
@@ -521,6 +528,7 @@ impl World {
             command_channels: HashMap::new(),
             next_command_channel_id: 1,
             channelized: HashMap::new(),
+            global_vars: HashMap::new(),
             duels: HashMap::new(),
             next_duel_id: 1,
             mob_groups: HashMap::new(),

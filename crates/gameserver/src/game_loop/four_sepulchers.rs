@@ -4,9 +4,10 @@
 //! attack; waves spawn behind mysterious chests, key chests open the next
 //! chapel gate, and the hall boss pays each member a sepulcher goblet.
 //!
-//! World state is [`FsState`] on [`World`]. TODO(G22): Java persists each
-//! sepulcher's last entry time in `GlobalVariablesManager`; the port's clock
-//! resets on restart (an early re-entry after a reboot, nothing worse).
+//! World state is [`FsState`] on [`World`], with each hall's last entry time
+//! persisted to `global_variables` exactly as Java keys it
+//! (`"FourSepulchers" + managerNpcId`) and rehydrated at boot, so the
+//! 60-minute re-entry gate survives a restart.
 
 use crate::model::components::{Position, RegionCell, Vitals};
 use crate::scheduler::ScheduledTask;
@@ -121,6 +122,32 @@ pub struct FsState {
 impl FsState {
     fn idx(sepulcher: i32) -> usize {
         (sepulcher.clamp(1, 4) - 1) as usize
+    }
+}
+
+/// The manager NPC whose key holds a hall's entry stamp — Java keys the global
+/// variable by *manager id*, not by hall index, so the mapping is part of the
+/// storage format rather than an internal detail.
+fn manager_npc_id_of(sepulcher: i32) -> i32 {
+    match sepulcher {
+        1 => CONQUEROR_MANAGER,
+        2 => EMPEROR_MANAGER,
+        3 => GREAT_SAGES_MANAGER,
+        _ => JUDGE_MANAGER,
+    }
+}
+
+/// Reload the per-hall entry stamps from `global_variables` at boot.
+///
+/// Without this the 60-minute re-entry gate reset on every restart. Java has no
+/// explicit restore step because its check reads the variable directly; this
+/// port keeps the stamps in [`FsState`] for the rest of the run, so they are
+/// hydrated once here.
+pub(crate) fn restore_entry_times(world: &mut World) {
+    for sepulcher in 1..=4 {
+        let key = super::global_vars::four_sepulchers_key(manager_npc_id_of(sepulcher));
+        let stamp = super::global_vars::get_i64(world, &key, 0);
+        world.four_sepulchers.last_entry_ms[FsState::idx(sepulcher)] = stamp;
     }
 }
 
@@ -256,6 +283,14 @@ pub(crate) fn try_enter(world: &mut World, manager_oid: i32, player: i32) -> Ent
 
     let idx = FsState::idx(sepulcher);
     world.four_sepulchers.last_entry_ms[idx] = now;
+    // Java `vars.set("FourSepulchers" + npcId, currentTimeMillis())` — the
+    // 60-minute re-entry gate has to survive a restart, or a reboot hands
+    // everyone a free re-entry.
+    super::global_vars::set(
+        world,
+        &super::global_vars::four_sepulchers_key(manager_npc_id_of(sepulcher)),
+        now,
+    );
     world.four_sepulchers.progress[idx] = 1;
     world.four_sepulchers.wave_spawns[idx].clear();
     world.scheduler.schedule(
