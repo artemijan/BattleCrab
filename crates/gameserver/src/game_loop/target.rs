@@ -79,6 +79,26 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
 /// an NPC → the `NpcViewMod` info window (`npc_view::send_npc_view`), else a
 /// plain select. Always terminates with `ActionFailed`, matching
 /// `WorldObject.onAction`.
+/// Java `PlayerAction`'s `CURSED_WEAPON_VICTIM_MIN_LEVEL` pair: an attack is
+/// refused when either side wields a cursed weapon and the *other* is below
+/// level 21. Only applies player-vs-player; a monster has no such protection.
+fn cursed_weapon_blocks_attack(world: &World, attacker: i32, target: i32) -> bool {
+    /// `PlayerAction.CURSED_WEAPON_VICTIM_MIN_LEVEL`.
+    const CURSED_WEAPON_VICTIM_MIN_LEVEL: i32 = 21;
+
+    let Some(a) = world
+        .objects
+        .get_component::<crate::model::Player>(&attacker)
+    else {
+        return false;
+    };
+    let Some(t) = world.objects.get_component::<crate::model::Player>(&target) else {
+        return false;
+    };
+    (t.cursed_weapon_equipped_id != 0 && a.level < CURSED_WEAPON_VICTIM_MIN_LEVEL)
+        || (a.cursed_weapon_equipped_id != 0 && t.level < CURSED_WEAPON_VICTIM_MIN_LEVEL)
+}
+
 pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::Action::read(body) else {
         return;
@@ -193,7 +213,20 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         );
         if already_targeted && !shift && z_ok && is_auto_attackable(world, object_id, pkt.object_id)
         {
-            super::combat::start_attack_intent(world, client_id, object_id, pkt.object_id, false);
+            // Java `PlayerAction`: a cursed-weapon wielder and anyone under
+            // level 21 are mutually untouchable — the newbie can't attack the
+            // demon, and the demon can't farm newbies. Java answers with a bare
+            // ActionFailed (sent unconditionally at the end of this handler),
+            // so the click is simply swallowed.
+            if !cursed_weapon_blocks_attack(world, object_id, pkt.object_id) {
+                super::combat::start_attack_intent(
+                    world,
+                    client_id,
+                    object_id,
+                    pkt.object_id,
+                    false,
+                );
+            }
         } else {
             set_target(world, client_id, object_id, Some(pkt.object_id));
         }

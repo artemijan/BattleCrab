@@ -1931,9 +1931,20 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
     }
 
-    // `onDieDropItem` — a PK (or anyone a monster killed) can scatter part of
-    // their inventory on the ground. Runs before the XP penalty, as in Java.
-    on_die_drop_item(world, player_oid, killer_oid);
+    // Java `Player.doDie`: losing a cursed weapon on death is an if/else-if
+    // chain with the ordinary item drop — a cursed wielder drops *the weapon*
+    // (or it vanishes on the disappear roll) and never scatters their bag.
+    let was_cursed = world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.cursed_weapon_equipped_id != 0);
+    if was_cursed {
+        super::cursed_weapon::on_wielder_death(world, player_oid, killer_oid);
+    } else {
+        // `onDieDropItem` — a PK (or anyone a monster killed) can scatter part
+        // of their inventory on the ground. Runs before the XP penalty.
+        on_die_drop_item(world, player_oid, killer_oid);
+    }
 
     // Clan-war kill bookkeeping (Java `Player.doDie` → `ClanWar.onKill`):
     // only outside PVP/siege zones, killer and victim both clanned players.

@@ -236,13 +236,13 @@ pub fn user_info(
     w.write_i16((UserInfoType::Clan.block_length() + title_units * 2) as i16);
     w.write_sized_string(&p.title);
     w.write_i16(p.pledge_type as i16); // Java getPledgeType (0 = main clan)
-    w.write_i32(p.clan_id);
-    w.write_i32(p.clan_crest_large_id);
-    w.write_i32(p.clan_crest_id); // Java getClanCrestId
+    w.write_i32(p.visible_clan_id());
+    w.write_i32(p.visible_clan_crest_large_id());
+    w.write_i32(p.visible_clan_crest_id()); // Java getClanCrestId
     w.write_i32(p.clan_privs);
     w.write_u8(p.clan_leader as u8);
-    w.write_i32(p.ally_id);
-    w.write_i32(p.ally_crest_id);
+    w.write_i32(p.visible_ally_id());
+    w.write_i32(p.visible_ally_crest_id());
     w.write_u8(v.in_matching_room as u8); // isInMatchingRoom (G30)
 
     // SOCIAL

@@ -107,6 +107,8 @@ pub mod sm_ids {
     pub const THE_OWNER_OF_S2_HAS_APPEARED_IN_THE_S1_REGION: i16 = 1816;
     pub const S2_S_OWNER_HAS_LOGGED_INTO_THE_S1_REGION: i16 = 1817;
     pub const S1_HAS_DISAPPEARED: i16 = 1818;
+    pub const C1_DOES_NOT_MEET_THE_PARTICIPATION_REQUIREMENTS_THE_OWNER_OF_S2_CANNOT_PARTICIPATE_IN_THE_OLYMPIAD: i16 = 1750;
+    pub const SHOUT_AND_TRADE_CHATTING_CANNOT_BE_USED_WHILE_POSSESSING_A_CURSED_WEAPON: i16 = 2085;
     // Castle sieges (`//castlemanage`)
     // The registration-refusal block is contiguous (anchored by the already-
     // ported 638) in the Interlude systemmsg table.
