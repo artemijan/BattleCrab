@@ -35,7 +35,8 @@ pub(super) fn admin_gmlist(world: &mut World, client_id: u32, on: bool) {
 }
 
 /// `AdminAdmin`'s `//diet on|off` — toggle weight-overload immunity
-/// (`AdminFlags.diet`; honored once the overload calc lands).
+/// (`AdminFlags.diet`). Stored and echoed only — this port models no carried
+/// weight, so there is no overload for the flag to suppress.
 pub(super) fn admin_diet(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     let mut flags = world
         .objects

@@ -94,6 +94,7 @@ pub(crate) fn show_buy_window_taxed(
             &refund_items,
             &world.data,
             false,
+            crate::game_loop::servitor::active_pet_collar(world, player),
         ));
     }
 }
@@ -249,6 +250,7 @@ pub(crate) fn handle_request_buy_item(world: &mut World, client_id: u32, body: &
             &refund_items,
             &world.data,
             true,
+            crate::game_loop::servitor::active_pet_collar(world, player),
         ));
         cs.send(crate::network::enter_world::system_message(
             sm_ids::EXCHANGE_IS_SUCCESSFUL,
@@ -382,6 +384,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
     }
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
+    let collar = crate::game_loop::servitor::active_pet_collar(world, player);
     super::helpers::send_inventory_update(world, client_id, player, iu);
     if let Some((cs, inv)) = world
         .clients
@@ -393,6 +396,7 @@ pub(crate) fn handle_request_sell_item(world: &mut World, client_id: u32, body: 
             &refund_items,
             &world.data,
             true,
+            collar,
         ));
     }
 }
@@ -496,6 +500,7 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
         .collect();
     let iu = crate::network::enter_world::inventory_update_changes(&world.data, &changes);
     let refund_items = refund_items_of(world, player);
+    let collar = crate::game_loop::servitor::active_pet_collar(world, player);
     super::helpers::send_inventory_update(world, client_id, player, iu);
     if let Some((cs, inv)) = world
         .clients
@@ -507,6 +512,7 @@ pub(crate) fn handle_request_refund_item(world: &mut World, client_id: u32, body
             &refund_items,
             &world.data,
             true,
+            collar,
         ));
     }
 }

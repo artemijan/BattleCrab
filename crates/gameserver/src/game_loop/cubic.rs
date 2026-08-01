@@ -18,7 +18,8 @@ const TICKS_PER_SECOND: u64 = 10;
 /// Java `Stat.MAX_CUBIC`'s default. **Nothing in this datapack sets
 /// `cubicCount`** — Cubic Mastery does not exist on Interlude Classic — so the
 /// allowance is always 1 and a second cubic always displaces the first.
-/// `TODO(G29)`: read the stat if a `cubicCount` skill ever appears.
+/// Not a deferral — there is no work pending behind this. Read the stat if a
+/// `cubicCount` carrier is ever added to the datapack.
 const MAX_CUBIC: usize = 1;
 
 /// One live cubic on a player.

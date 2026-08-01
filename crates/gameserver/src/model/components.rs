@@ -1091,10 +1091,16 @@ pub struct AdminFlags {
     /// `isInvisible` — hidden from other players (`//hide`).
     pub hidden: bool,
     /// `isSilenceMode` — GM refuses incoming whispers/PMs. Set by
-    /// `GMStartupSilence`; TODO(G14): honored once whisper delivery exists.
+    /// `GMStartupSilence` and `//silence`; honored in `chat.rs`'s `Whisper` arm,
+    /// which answers the sender `THAT_PERSON_IS_IN_MESSAGE_REFUSAL_MODE` and
+    /// delivers nothing.
     pub silence: bool,
-    /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`;
-    /// TODO(G14): honored once the overload calc exists.
+    /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`
+    /// and `//diet`. Read by nothing, and cannot be: **this port models no
+    /// carried weight at all** — no inventory weight total, no slot limit, no
+    /// `getWeightPenalty()`. There is no overload to be immune to, so the flag
+    /// is stored and echoed to the GM only. Wire it up with the weight calc,
+    /// not before.
     pub diet: bool,
     /// `//para`'s `setBlockActions(true)` + `startParalyze()` — ORed into
     /// `abnormal::is_action_blocked`/`is_movement_disabled` beside the buff

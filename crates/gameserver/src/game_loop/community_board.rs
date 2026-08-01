@@ -669,6 +669,7 @@ fn do_sell(world: &mut World, client_id: u32, object_id: i32, command: &str) {
             &refund_items,
             &world.data,
             false,
+            crate::game_loop::servitor::active_pet_collar(world, object_id),
         ));
     }
 }

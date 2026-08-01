@@ -65,7 +65,19 @@ pub fn buy_list(
 /// Sellable = unequipped + `is_sellable` + unaugmented (Java `Item.isSellable`
 /// is `!isAugmented() && template.isSellable()`; the template flag alone
 /// already excludes adena and quest items on this dist — the extra quest gate
-/// stays as a belt-and-braces guard). Pet-control exclusion is TODO(G29).
+/// stays as a belt-and-braces guard).
+///
+/// `active_pet_collar` is the object id of the collar that summoned the player's
+/// currently-out pet, if any — Java's `(pet == null) || (item.getObjectId() !=
+/// pet.getControlObjectId())`, which keeps you from selling the collar out from
+/// under a summoned pet. It is the **object** id, not the item id: a second
+/// collar of the same kind in the bag stays sellable.
+///
+/// Note this exclusion is presentational. Java's `RequestSellItem` re-checks
+/// only `isSellable()`, so a hand-built packet can still sell the collar there;
+/// the port matches that rather than "fixing" it, since diverging on the
+/// handler would change what a client can do, not just what it can see.
+///
 /// `refund` is the buy-back tab: the player's `Refund` container, addressed
 /// by list position in `RequestRefundItem`.
 pub fn ex_buy_sell_list_sell(
@@ -73,6 +85,7 @@ pub fn ex_buy_sell_list_sell(
     refund: &[ItemInstance],
     data: &GameData,
     done: bool,
+    active_pet_collar: Option<i32>,
 ) -> Vec<u8> {
     let mut w = PacketWriter::new();
     w.write_u8(EX);
@@ -83,6 +96,7 @@ pub fn ex_buy_sell_list_sell(
         .items()
         .iter()
         .filter(|i| inventory.paperdoll_slot_of(i.object_id).is_none() && !i.is_augmented())
+        .filter(|i| Some(i.object_id) != active_pet_collar)
         .filter_map(|i| data.item_data.get(i.item_id).map(|t| (i, t)))
         .filter(|(_, t)| t.is_sellable && !t.is_quest_item)
         .collect();

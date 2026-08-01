@@ -43,14 +43,50 @@ fn online_players(world: &World) -> Vec<i32> {
 }
 
 /// `//current_player` / `//character_info [name]` — dump a player's key fields.
-/// `AdminEditChar`'s `//fullfood` — fill the targeted *pet*'s food bar. Pets are
-/// not modelled yet (G29), so no target can resolve as a pet; this always replies
-/// `INVALID_TARGET`, matching Java's non-pet-target branch.
-pub(super) fn admin_fullfood(world: &mut World, client_id: u32) {
-    // TODO(G29): when pets/summons exist, if the current target is a pet, set
-    // its CurrentFed to MaxFed and broadcast a StatusUpdate (Java
-    // `targetPet.setCurrentFed(targetPet.getMaxFed()); targetPet.broadcastStatusUpdate()`).
-    send_sm(world, client_id, sm_ids::INVALID_TARGET);
+/// `AdminEditChar`'s `//fullfood` — fill the targeted **pet**'s food bar.
+///
+/// Java's gate is `target.isPet()`, which is narrower than "an owned summon": a
+/// skill-summoned servitor has no food bar at all (its `PetInfo` fed slot
+/// carries its remaining lifetime instead), so targeting one is `INVALID_TARGET`
+/// exactly like targeting a player.
+pub(super) fn admin_fullfood(world: &mut World, client_id: u32, gm_object_id: i32) {
+    let pet = super::current_target(world, gm_object_id).filter(|oid| {
+        world
+            .objects
+            .has_component::<crate::model::components::PetOf>(oid)
+    });
+    let Some(pet_oid) = pet else {
+        send_sm(world, client_id, sm_ids::INVALID_TARGET);
+        return;
+    };
+
+    // Java `setCurrentFed(getMaxFed())`.
+    let owner = {
+        let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::components::PetOf>(&pet_oid)
+        else {
+            send_sm(world, client_id, sm_ids::INVALID_TARGET);
+            return;
+        };
+        p.fed = p.max_fed;
+        world
+            .objects
+            .get_component::<crate::model::components::ServitorOf>(&pet_oid)
+            .map(|s| s.owner_object_id)
+    };
+
+    // Java `broadcastStatusUpdate()`. The food bar rides in `PetInfo`, not in a
+    // `StatusUpdate`, and only the owner has a pet window to refresh — so this
+    // is the packet that actually moves the bar the GM just filled.
+    if let Some(owner_oid) = owner {
+        crate::game_loop::servitor::send_pet_info(
+            world,
+            owner_oid,
+            pet_oid,
+            crate::game_loop::servitor::PetInfoKind::Default,
+        );
+    }
 }
 
 pub(super) fn admin_character_info(
