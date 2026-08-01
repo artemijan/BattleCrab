@@ -10,6 +10,29 @@ use crate::network::server_packets;
 use crate::session::ClientSession;
 use crate::world::World;
 
+/// Java `Player.removeSkill(id)` — take the skill out of the book **and** stop
+/// what it landed (`Creature.removeSkill` → `EffectList.stopSkillEffects`).
+///
+/// Dropping the `SkillBook` entry on its own is not enough: a passive skill's
+/// stat effects live on as a hidden `passive` buff, and
+/// [`super::passive_skills::recompute_conditioned_passives`] deliberately only
+/// manages passive buffs whose skill is *still in the book* (clan skills and
+/// the expertise penalties are passive buffs with no book entry and must not be
+/// swept), so a skill that has just left it is invisible to that diff and its
+/// modifiers would stay applied for the rest of the session.
+pub(crate) fn remove_player_skill(world: &mut World, object_id: i32, skill_id: i32) {
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&object_id)
+    {
+        book.0.remove(&skill_id);
+    }
+    // A no-op when the skill landed nothing (an active skill, or a passive with
+    // no stat effects); otherwise it unmerges the modifiers, recomputes the max
+    // vitals and rebroadcasts, exactly as a dispel of the same buff would.
+    effects::handle_buff_expire(world, object_id, skill_id);
+}
+
 /// Port of `clientpackets/RequestDispel.runImpl` — the client's alt+click
 /// buff-cancel on a buff icon (ex-opcode `0xD0:0x0048`). Strips one buff off the
 /// player (forced removal, reverting its stats and refreshing the icons), gated

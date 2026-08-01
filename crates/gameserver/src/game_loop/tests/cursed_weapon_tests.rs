@@ -1272,3 +1272,101 @@ fn guard_kill_also_drops_the_cursed_weapon() {
     );
     assert!(world.cursed_weapons[idx].is_dropped, "it is on the ground");
 }
+
+/// Give the test class a CP table so `calc_max_cp` has a base to multiply —
+/// `GameData::for_test` ships empty templates, which would make the curse's
+/// `PER` pump invisible (0 × anything is 0) and leave only the flat `DIFF`.
+fn give_cp_template(world: &mut World) {
+    let mut t = world
+        .data
+        .player_templates
+        .get(0)
+        .cloned()
+        .unwrap_or_default();
+    t.class_id = 0;
+    t.cp_table = vec![200.0; 90];
+    world.data.player_templates = crate::data::PlayerTemplateData::from_vec(vec![t]);
+}
+
+/// The cursed weapon's own skill (Akamanah 3629 / Zariche 3603) is a *passive*
+/// whose effects include two `MaxCp` pumps — `PER 1050` (Java `mergeMul`
+/// `amount/100 + 1` → ×11.5) and `DIFF 1300`. Java applies them in
+/// `giveSkill()`'s `addSkill` and unmerges them in `removeSkill()`
+/// (`EffectList.stopSkillEffects`), so the CP bar swells while cursed and is
+/// exactly back to normal once the weapon is gone.
+///
+/// Both halves were broken: taking the curse never recomputed the vitals (the
+/// pumps sat in `StatModifiers` while `PlayerVitals.max_cp` kept the class
+/// value), and ending it dropped the skill from the `SkillBook` without
+/// removing the passive buff — so the *next* recompute (`remove_transform`)
+/// finally folded the pumps in and the freed player was left with the cursed
+/// CP bar forever. Reported as "lost Akamanah, untransformed, still MAX CP
+/// 3844".
+#[test]
+fn cursed_weapon_moves_max_cp_and_gives_it_back() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    give_cp_template(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+
+    let base_cp = pcp(&world, PICKER_OID).max_cp;
+    assert!(base_cp > 0, "the template gives the class a CP bar to grow");
+
+    let idx = cw_idx(&world, AKAMANAH);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+
+    let expected = (11.5 * f64::from(base_cp) + 1300.0) as i32;
+    let cursed_cp = pcp(&world, PICKER_OID).max_cp;
+    assert_eq!(
+        cursed_cp, expected,
+        "Akamanah 3629 L1 pumps MaxCp ×11.5 +1300 the moment it is taken"
+    );
+    assert_eq!(
+        pcp(&world, PICKER_OID).cur_cp as i32,
+        cursed_cp,
+        "and Java's `setCurrentCp(getMaxCp())` fills the grown bar"
+    );
+
+    crate::game_loop::admin::cursed_weapons::end_of_life(&mut world, idx);
+
+    assert_eq!(
+        pcp(&world, PICKER_OID).max_cp,
+        base_cp,
+        "losing the weapon takes the whole pump back with it"
+    );
+    assert!(
+        pcp(&world, PICKER_OID).cur_cp as i32 <= base_cp,
+        "and the current value is clamped into the shrunk bar"
+    );
+}
+
+/// The other way a curse ends: the wielder is killed and the weapon drops off
+/// the corpse (`CursedWeapon.dropIt`, which runs the same `removeSkill()`).
+/// Same pump, same cleanup — this is the second Java call site.
+#[test]
+fn death_drop_takes_the_cursed_cp_back() {
+    let (mut world, _db, _db_rx, _l) = test_world();
+    load_curse_data(&mut world);
+    give_cp_template(&mut world);
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let _rx = ingame_player_access(&mut world, 1, PICKER_OID, 0);
+    add_test_npc(&mut world, MONSTER_OID, 900004, "Guard", 40, 500, 600, 0);
+
+    let base_cp = pcp(&world, PICKER_OID).max_cp;
+    let idx = cw_idx(&world, AKAMANAH);
+    crate::game_loop::admin::cursed_weapons::activate(&mut world, idx, PICKER_OID);
+    assert!(
+        pcp(&world, PICKER_OID).max_cp > base_cp,
+        "cursed CP is up while the sword is held"
+    );
+
+    world.forced_rolls.push_back(51); // miss the disappear roll → it drops
+    crate::game_loop::death::player_do_die(&mut world, PICKER_OID, MONSTER_OID);
+
+    assert_eq!(
+        pcp(&world, PICKER_OID).max_cp,
+        base_cp,
+        "the drop-on-death path unmerges the pump too"
+    );
+}

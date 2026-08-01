@@ -116,6 +116,14 @@ pub(crate) fn recompute_conditioned_passives(world: &mut World, object_id: i32) 
             buff,
         );
     }
+    // Max HP/MP/CP live on a separate path from `recalculate_stats` (they are
+    // cached on `Vitals`/`PlayerVitals` rather than derived per read), so a
+    // passive carrying `MaxHp`/`MaxMp`/`MaxCp` only reaches the bar through
+    // this call — the same follow-up `apply_skill_effects` and the clan-skill
+    // pump already make. Without it the modifier sits in `StatModifiers`
+    // unnoticed until some *other* recompute folds it in, which is how a
+    // cursed weapon's `+MaxCp` first appeared at the moment the curse *ended*.
+    crate::game_loop::skills::effects::recompute_max_vitals(world, object_id);
     true
 }
 
