@@ -407,6 +407,13 @@ pub struct Player {
     /// "can act" are not the same predicate, and the regen bonus follows this
     /// flag rather than the block.
     pub sitting: bool,
+    /// Java `Player._isSellingBuffs` — this character's buff shop is open. It
+    /// rides the `PACKAGE_SELL` private-store type (so other clients render the
+    /// shop label) but has its own list and its own bypasses.
+    pub selling_buffs: bool,
+    /// Java `Player._sellingBuffs` — the shop's `(skill id, price)` lines.
+    /// Transient: Java never persists them, so a relog empties the shop.
+    pub sell_buff_list: Vec<(i32, i64)>,
     /// Java `Player._lastPetitionGmName`: the GM who last handled this player's
     /// petition, set when a consultation starts. The feedback packet
     /// (`RequestPetitionFeedback`) needs it to attribute the rating. Transient.
@@ -1086,6 +1093,8 @@ impl Player {
             teleporting: false,
             jailed: false,
             sitting: false,
+            selling_buffs: false,
+            sell_buff_list: Vec::new(),
             last_petition_gm_name: None,
             snoop_listeners: Vec::new(),
             snooped: Vec::new(),

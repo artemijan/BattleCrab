@@ -99,6 +99,9 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
+    // A buff shop dies with its seller — the flag also gates `canOpenPrivateStore`,
+    // so a stale one would follow the character into their next session.
+    super::sell_buffs::clear(world, player_object_id);
     // Stop tracking the player for the periodic autosave; the logout flush below
     // is the final save.
     world.player_autosave_due.remove(&player_object_id);

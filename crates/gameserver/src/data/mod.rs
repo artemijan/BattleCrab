@@ -37,6 +37,7 @@ pub mod recipe_data;
 pub mod residence_function_data;
 pub mod route_data;
 pub mod scheme_buffer;
+pub mod sell_buff_data;
 pub mod siege_data;
 pub mod skill_data;
 pub mod skill_expr;
@@ -157,6 +158,8 @@ pub struct GameData {
     pub experience: ExperienceData,
     pub player_templates: PlayerTemplateData,
     pub skill_trees: SkillTreeData,
+    /// `SellBuffData.xml` — the skills a player buff shop may list.
+    pub sell_buff_data: sell_buff_data::SellBuffData,
     /// Clan (pledge/sub-pledge) skill trees — see [`PledgeSkillTreeData`].
     pub pledge_skill_trees: PledgeSkillTreeData,
     pub stat_bonus: StatBonus,
@@ -262,6 +265,7 @@ impl GameData {
             experience: ExperienceData::load_from(file_path),
             player_templates: PlayerTemplateData::load_from(file_path),
             skill_trees: SkillTreeData::load_from(file_path),
+            sell_buff_data: sell_buff_data::SellBuffData::load_from(file_path),
             pledge_skill_trees: PledgeSkillTreeData::load_from(file_path),
             stat_bonus: StatBonus::load_from(file_path),
             action_data: ActionData::load_from(file_path),
@@ -328,6 +332,7 @@ impl GameData {
             experience: ExperienceData::empty(),
             player_templates: PlayerTemplateData::empty(),
             skill_trees: SkillTreeData::empty(),
+            sell_buff_data: sell_buff_data::SellBuffData::default(),
             pledge_skill_trees: PledgeSkillTreeData::empty(),
             stat_bonus: StatBonus::empty(),
             action_data: ActionData::empty(),

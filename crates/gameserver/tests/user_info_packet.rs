@@ -97,6 +97,8 @@ async fn user_info_test() {
         teleporting: false,
         jailed: false,
         sitting: false,
+        selling_buffs: false,
+        sell_buff_list: Vec::new(),
         last_petition_gm_name: None,
         snoop_listeners: Vec::new(),
         snooped: Vec::new(),

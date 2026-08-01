@@ -863,11 +863,15 @@ fn send_sm(world: &World, client_id: u32, message_id: i16) {
 /// already has a store up — so the rule spaces shops apart rather than blocking
 /// on any passer-by.
 ///
-/// The second half is the state check. `_isSellingBuffs` has no port
-/// equivalent (sell-buffs is a later slice of this same audit) and the
-/// `NO_STORE` zone kind is not loaded, so those two legs are absent; the rest
-/// are here.
+/// The second half is the state check. The `NO_STORE` zone kind is not loaded,
+/// so that one leg is absent; the rest — including `_isSellingBuffs`, which
+/// landed with the sell-buffs slice — are here.
 pub(crate) fn can_open_private_store(world: &World, client_id: u32, owner: i32) -> bool {
+    // Java `!_isSellingBuffs` — a buff shop and an ordinary store are mutually
+    // exclusive, and both ride the same `PACKAGE_SELL` store type.
+    if super::sell_buffs::is_selling(world, owner) {
+        return false;
+    }
     let cfg = &world.cfg.custom_misc;
     if cfg.shop_min_range_from_npc > 0 || cfg.shop_min_range_from_player > 0 {
         let Some(pos) = world
