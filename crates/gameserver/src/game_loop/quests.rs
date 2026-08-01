@@ -391,6 +391,12 @@ pub struct QuestCtx<'w> {
     /// `onAttack` only: whether the blow came from the player's servitor/pet
     /// (Java's `boolean isSummon`). `false` in every other callback.
     attack_is_summon: bool,
+    /// Java's `QuestState.setSimulated` / `Player.setSimulatedTalking`: this
+    /// context only *probes* what a callback would return — the quest-window
+    /// filter runs `on_talk` purely to learn whether the quest has anything
+    /// to say at this NPC — so nothing it does may be observable. See
+    /// [`QuestCtx::new_simulated`].
+    simulated: bool,
 }
 
 /// `AbstractScript.addExpAndSp` — quest XP/SP with the premium and server
@@ -442,6 +448,33 @@ impl<'w> QuestCtx<'w> {
             script,
             attack_skill_id: None,
             attack_is_summon: false,
+            simulated: false,
+        }
+    }
+
+    /// `Quest.onTalk(npc, player, true)`: a context whose writes are all
+    /// suppressed, used by the quest-window filter to see *which html* a
+    /// script would answer with without actually talking to it.
+    ///
+    /// Java suppresses only the `QuestState` mutators (`_simulated` guards
+    /// every setter, `exitQuest` included) and leaves `AbstractScript`'s
+    /// `giveItems`/`takeItems`/`addExpAndSp` unguarded — which means merely
+    /// *opening* Parina's quest window with all four elemental trinkets in
+    /// hand strips them and awards the Bead of Season while `exitQuest` is
+    /// swallowed, leaving the quest unfinishable. Deliberate deviation: the
+    /// simulated context is inert here — items, XP, packets, spawns and
+    /// teleports are all suppressed too, so a probe can never cost a player
+    /// anything.
+    fn new_simulated(
+        world: &'w mut World,
+        client_id: u32,
+        player: i32,
+        npc: i32,
+        script: Arc<dyn QuestScript>,
+    ) -> Self {
+        Self {
+            simulated: true,
+            ..Self::new(world, client_id, player, npc, script)
         }
     }
 
@@ -555,6 +588,14 @@ impl<'w> QuestCtx<'w> {
     // --- QuestState writes (each mirrors to the DB like Java) -------------
 
     fn with_qs_mut<R>(&mut self, f: impl FnOnce(&mut QuestState) -> R) -> R {
+        // Java's `_simulated` early-returns out of every `QuestState` setter,
+        // so the write lands nowhere and later reads still see the old value.
+        // Running `f` against a throwaway clone reproduces that (and keeps the
+        // return value the callers destructure).
+        if self.simulated {
+            let mut scratch = self.qs().cloned().unwrap_or_default();
+            return f(&mut scratch);
+        }
         let quests = self
             .world
             .objects
@@ -638,7 +679,9 @@ impl<'w> QuestCtx<'w> {
     /// repeatable, else all but `<state>`), then either forget the quest or
     /// mark it COMPLETED.
     pub fn exit_quest(&mut self, repeatable: bool, play_exit_quest: bool) {
-        if !self.is_started() {
+        // Java guards the whole of `QuestState.exitQuest` with `_simulated`,
+        // registered quest items included.
+        if self.simulated || !self.is_started() {
             return;
         }
         let quest_items: Vec<i32> = self.script.quest_items().to_vec();
@@ -676,7 +719,7 @@ impl<'w> QuestCtx<'w> {
 
     /// `AbstractScript.giveItems(player, id, count, playSound=false)`.
     pub fn give_items(&mut self, item_id: i32, count: i64) {
-        if count <= 0 {
+        if self.simulated || count <= 0 {
             return;
         }
         give_item_with_earned_message(self.world, self.client_id, self.player, item_id, count);
@@ -686,7 +729,7 @@ impl<'w> QuestCtx<'w> {
     /// multipliers (`RateQuestRewardAdena` for adena, `RateQuestReward`
     /// otherwise; the per-EtcItem-type multiplier split is unported).
     pub fn reward_items(&mut self, item_id: i32, count: i64) {
-        if count <= 0 {
+        if self.simulated || count <= 0 {
             return;
         }
         let rate = if item_id == ADENA_ID {
@@ -725,6 +768,9 @@ impl<'w> QuestCtx<'w> {
         chance: f64,
         play_sound: bool,
     ) -> bool {
+        if self.simulated {
+            return false;
+        }
         let current = self.quest_items_count(item_id);
         if limit > 0 && current >= limit {
             return true;
@@ -761,12 +807,18 @@ impl<'w> QuestCtx<'w> {
     /// `AbstractScript.takeItems` (negative count = all). Returns whether
     /// anything was taken.
     pub fn take_items(&mut self, item_id: i32, count: i64) -> bool {
+        if self.simulated {
+            return false;
+        }
         take_items(self.world, self.client_id, self.player, item_id, count)
     }
 
     /// `AbstractScript.addExpAndSp` — quest XP/SP with the
     /// `RateQuestRewardXP/SP` multipliers.
     pub fn add_exp_and_sp(&mut self, exp: i64, sp: i64) {
+        if self.simulated {
+            return;
+        }
         add_quest_exp_and_sp(self.world, self.player, exp, sp);
     }
 
@@ -904,6 +956,9 @@ impl<'w> QuestCtx<'w> {
     /// the base class only when the player is on it. Persisted immediately
     /// through the regular `StorePlayer` snapshot.
     pub fn set_class_id(&mut self, class_id: i32) {
+        if self.simulated {
+            return;
+        }
         // Was an unconditional `base_class_id = class_id`, which since G17
         // would rewrite the character's *base* class if a quest transfer ran
         // while a subclass was active. The shared mechanic moves the active
@@ -914,6 +969,9 @@ impl<'w> QuestCtx<'w> {
 
     /// `player.teleToLocation(loc)` (TeleportWithCharm and friends).
     pub fn teleport_to(&mut self, x: i32, y: i32, z: i32) {
+        if self.simulated {
+            return;
+        }
         super::death::teleport_player(self.world, self.player, x, y, z);
     }
 
@@ -933,6 +991,9 @@ impl<'w> QuestCtx<'w> {
     /// `player.getVariables().set(key, value)` (memory-first — flushed with
     /// the character like every other persisted field).
     pub fn set_player_var_int(&mut self, key: &str, value: i32) {
+        if self.simulated {
+            return;
+        }
         if let Some(v) = self
             .world
             .objects
@@ -944,6 +1005,9 @@ impl<'w> QuestCtx<'w> {
 
     /// `player.getVariables().remove(key)`.
     pub fn unset_player_var(&mut self, key: &str) {
+        if self.simulated {
+            return;
+        }
         if let Some(v) = self
             .world
             .objects
@@ -965,6 +1029,9 @@ impl<'w> QuestCtx<'w> {
     }
 
     pub fn set_npc_script_value(&mut self, value: i32) {
+        if self.simulated {
+            return;
+        }
         if let Some(n) = self
             .world
             .objects
@@ -1019,6 +1086,9 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.deleteMe()` — remove the involved NPC from the world.
     pub fn delete_npc(&mut self) {
+        if self.simulated {
+            return;
+        }
         let Some(region) = self
             .world
             .objects
@@ -1135,6 +1205,9 @@ impl<'w> QuestCtx<'w> {
     ///
     /// [`start_quest_timer`]: Self::start_quest_timer
     pub fn schedule_despawn(&mut self, npc_oid: i32, delay_ms: u64) {
+        if self.simulated {
+            return;
+        }
         let fire_at = self.world.tick + delay_ms.div_ceil(100);
         self.world
             .scheduler
@@ -1145,6 +1218,9 @@ impl<'w> QuestCtx<'w> {
     /// after `target_oid` (a servitor, in quest 230's arcana duels), the mirror
     /// of [`spawn_attacker`](Self::spawn_attacker) which seeds a *spawned* NPC.
     pub fn make_npc_attack(&mut self, target_oid: i32) {
+        if self.simulated {
+            return;
+        }
         super::npc_ai::seed_attack(self.world, self.npc, target_oid);
     }
 
@@ -1152,6 +1228,9 @@ impl<'w> QuestCtx<'w> {
     /// of the in-context NPC, tagged with the NPC's HP **right now** (quest
     /// 350's Soul Crystal cast). A repeat cast overwrites, as in Java's map.
     pub fn add_absorber(&mut self) {
+        if self.simulated {
+            return;
+        }
         let Some(hp) = self
             .world
             .objects
@@ -1222,18 +1301,27 @@ impl<'w> QuestCtx<'w> {
     /// `npc.broadcastSay(NPC_GENERAL, text)` — a literal-text chat bubble from
     /// the in-context NPC (e.g. the Saga finale boss's retreat cry).
     pub fn npc_say_text(&self, text: &str) {
+        if self.simulated {
+            return;
+        }
         super::helpers::npc_say_text(self.world, self.npc, text);
     }
 
     /// The same literal-text bubble, but from an *arbitrary* npc — a spawned
     /// finale actor rather than the in-context one.
     pub fn broadcast_npc_text(&self, npc_oid: i32, text: &str) {
+        if self.simulated {
+            return;
+        }
         super::helpers::npc_say_text(self.world, npc_oid, text);
     }
 
     /// Seed aggro from an arbitrary npc onto a target (npc-vs-npc), for the Saga
     /// finale where the companion and boss duel each other.
     pub fn seed_npc_attack(&mut self, npc_oid: i32, target_oid: i32) {
+        if self.simulated {
+            return;
+        }
         super::npc_ai::seed_attack(self.world, npc_oid, target_oid);
     }
 
@@ -1242,6 +1330,9 @@ impl<'w> QuestCtx<'w> {
     /// everyone nearby. The Saga rite uses it for the tablet progression glow
     /// (4546) and the final transform flash (4339).
     pub fn cast_visual(&self, skill_id: i32, level: i32) {
+        if self.simulated {
+            return;
+        }
         for oid in [self.player, self.npc] {
             let pos = self
                 .world
@@ -1280,6 +1371,9 @@ impl<'w> QuestCtx<'w> {
     /// is what [`spawn_attacker`](Self::spawn_attacker) does). Quest 231's
     /// teleport ambush conjures its King Bugbears at the arrival spot.
     pub fn spawn_attacker_at(&mut self, npc_id: i32, x: i32, y: i32, z: i32) -> Option<i32> {
+        if self.simulated {
+            return None;
+        }
         let spawned = crate::model::npc::spawn_npc_at(self.world, npc_id, x, y, z, -1)?;
         super::death::introduce_npc(self.world, spawned);
         self.link_summoned(spawned);
@@ -1293,6 +1387,9 @@ impl<'w> QuestCtx<'w> {
     /// dead spider and does *not* set it on the player, unlike quest 414's
     /// Kuruka. Keep the two apart; aggroing here would be an invention.
     pub fn spawn_near_npc(&mut self, npc_id: i32, random_offset: bool) -> Option<i32> {
+        if self.simulated {
+            return None;
+        }
         let (mut x, mut y, z) = self
             .world
             .objects
@@ -1362,6 +1459,9 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.getVariables().set(key, value)`.
     pub fn set_npc_var_int(&mut self, key: &str, value: i32) {
+        if self.simulated {
+            return;
+        }
         if let Some(n) = self
             .world
             .objects
@@ -1398,6 +1498,9 @@ impl<'w> QuestCtx<'w> {
 
     /// `npc.broadcastPacket(new NpcSay(npc, NPC_GENERAL, npcStringId))`.
     pub fn npc_say(&mut self, npc_string_id: i32) {
+        if self.simulated {
+            return;
+        }
         super::helpers::npc_say(self.world, self.npc, npc_string_id);
     }
 
@@ -1453,6 +1556,9 @@ impl<'w> QuestCtx<'w> {
     /// (Java refuses duplicates instead; superseding is the safer default
     /// for the seq scheme and no shipped script relies on the refusal).
     pub fn start_quest_timer(&mut self, name: &str, delay_ms: u64) {
+        if self.simulated {
+            return;
+        }
         let seq = self.world.next_request_seq();
         let quest = self.script.name();
         {
@@ -1652,6 +1758,12 @@ impl<'w> QuestCtx<'w> {
     }
 
     fn send(&self, pkt: Vec<u8>) {
+        // A simulated probe must stay invisible to the client: Java's
+        // `_simulated` guards sit in front of the `QuestList` /
+        // `ExShowQuestMark` / quest-sound sends for the same reason.
+        if self.simulated {
+            return;
+        }
         if let Some(cs) = self.world.clients.get(&self.client_id) {
             cs.send(pkt);
         }
@@ -1791,9 +1903,9 @@ pub(crate) fn quest_link(
 
 /// `QuestLink.showQuestWindow(player, npc)`: gather the NPC's talk quests →
 /// chooser when several, straight to the single one, `noquest.htm` when
-/// none. (Java pre-filters quests whose simulated `onTalk` would show the
-/// no-quest message — the simulation machinery is unported; the chooser may
-/// list a quest that then shows `noquest.htm`, which is harmless.)
+/// none. Quests whose simulated `onTalk` would only show the no-quest
+/// message are dropped first, exactly as Java does — see
+/// [`talk_shows_no_quest`].
 fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid: i32) {
     let npc_id = world
         .objects
@@ -1817,15 +1929,55 @@ fn show_quest_window_all(world: &mut World, client_id: u32, player: i32, npc_oid
             return;
         }
     }
-    let quests: Vec<_> = registry
+    let candidates: Vec<_> = registry
         .talk_quests(npc_id)
         .into_iter()
         .filter(|q| q.id() > 0 && q.id() < 20000 && q.id() != 255)
         .collect();
+    let mut quests = Vec::with_capacity(candidates.len());
+    for q in candidates {
+        if !talk_shows_no_quest(world, client_id, player, npc_oid, &q) {
+            quests.push(q);
+        }
+    }
     match quests.len() {
         0 => send_no_quest_html(world, client_id, npc_oid),
         1 => show_quest_window(world, client_id, player, npc_oid, quests[0].name()),
         _ => show_quest_choose_window(world, client_id, player, npc_oid, &quests),
+    }
+}
+
+/// Java's `Quest.getNoQuestMsg(player).equals(quest.onTalk(npc, player,
+/// true))` probe: run the script's talk handler on a [simulated] context and
+/// report whether all it would produce is `noquest.htm`. Both quest-window
+/// routes drop such quests — a quest that has nothing to say at this NPC is
+/// not listed at all.
+///
+/// This is not cosmetic. The chooser labels its buttons with the client
+/// strings `<questId>01/02/03`, and the one-time class-change quests only
+/// ship `01` ("Path of the Human Wizard") and `02` ("… (In Progress)") —
+/// there is no `40403` for the completed state. Listing a finished Q404 at
+/// Parina therefore rendered a *blank* grey button that answered
+/// `noquest.htm` when clicked. Java never reaches that button because this
+/// filter removes the quest first.
+///
+/// A script returning `None` is kept, matching Java: `equals(null)` is false.
+///
+/// [simulated]: QuestCtx::new_simulated
+fn talk_shows_no_quest(
+    world: &mut World,
+    client_id: u32,
+    player: i32,
+    npc_oid: i32,
+    script: &Arc<dyn QuestScript>,
+) -> bool {
+    let res = {
+        let mut ctx = QuestCtx::new_simulated(world, client_id, player, npc_oid, script.clone());
+        script.on_talk(&mut ctx)
+    };
+    match res {
+        Some(html) => html == no_quest_html(world),
+        None => false,
     }
 }
 
@@ -1883,6 +2035,10 @@ fn show_quest_choose_window(
                     button(&mut cant_start, "a62f31", "01");
                 }
             }
+            // Java's `else if (getNoQuestMsg(player).equals(quest.onTalk(npc,
+            // player, true))) continue;` sits ahead of both remaining arms: a
+            // quest with nothing to say at this NPC gets no button at all.
+            _ if talk_shows_no_quest(world, client_id, player, npc_oid, q) => continue,
             Some((_, true)) => {
                 start_count += 1;
                 start_quest = Some(q.name());
