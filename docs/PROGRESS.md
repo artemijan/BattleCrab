@@ -726,7 +726,10 @@ they wait on landed, and three of those were hiding real behaviour gaps:
   nothing can be sitting") — true when it was written, false since `SitStand`
   landed. Ported with SM 2283, and the cursed-weapon leg moved to Java's own
   position (first, silent, sharing the `isAlikeDead` branch) while the order
-  was being corrected.
+  was being corrected. **Superseded 2026-08-01:** `Player.useMagic` refuses a
+  seated caster with SM 31 long before `checkCondition` runs, so this leg is
+  unreachable down the cast path — in Java as much as here. It is kept (Java
+  keeps it) and answers only for transforms that skip `useMagic`.
 
 Smaller: the community board's `_bbsheal` now tops up the **pet/servitor** too
 (summonable since G29), and `Fishing.castLine` sends **`YOU_CAN_T_FISH_HERE`**
@@ -1086,6 +1089,38 @@ the store (Java `PlayerStatus.reduceHp`) — which, with
 the first blow; an existing offline-shop test asserted the old outcome and was
 corrected. 4 tests, 5 mechanisms sabotage-verified. The 16 left are mount
 feeding, pet mounting, cubic-count, and per-site summon plumbing.
+
+**Seated refusals + the stuck combat stance (fix, 2026-08-01, reported from
+live play: "sit while in combat and the character still casts and does stuff,
+and the stance never comes off").** Two bugs, both in the sitting slice above.
+(1) The only thing refusing actions to a seated player was the **2.5 s
+`SitBlock`** — an *animation* block that lapses while the character stays in
+the chair. Java refuses on the seat itself, from places none of which had been
+ported: `Player.useMagic`'s `_waitTypeSitting` branch (**SM 31**, checked
+*before* `usedSkill.checkCondition` — which is why the transform condition's
+own SM 2283 sitting leg is unreachable down the cast path in Java too, so an
+existing test asserting 2283 was corrected),
+`PlayableAI.onIntentionAttack`'s `isSitting()` early return (**silent** — no
+packet at all), `CreatureAI`'s `AI_INTENTION_REST` branch on `MOVE_TO`,
+`PICK_UP` and `INTERACT` (`clientActionFailed`), and `Npc.canInteract`'s
+sitting leg. The port has no REST intention slot, so `sit_stand::is_resting`
+stands in for it: `sitDown` and `StandUpTask` set and clear the seated flag at
+exactly the moments Java enters and leaves REST. `sit_down` also does the rest
+of `PlayerAI.onIntentionRest` now (`setTarget(null)` → `TargetUnselected`), and
+its refusal condition gained the two missing legs of
+`!isAttackDisabled() && !isControlBlocked()` (mid-swing, control-blocked).
+(2) **Sitting killed the combat stance permanently.** `sit_down` removed the
+whole `AttackState` component to model `breakAttack()` — but that component
+also carries `stance_until_tick`, so the player left the 1 s stance sweep for
+good: `AutoAttackStop` never fired (sword drawn forever, matching the report)
+and `refresh_attack_stance`'s `if let Some` write silently no-opped from then
+on, so no later fight could re-arm the stance either. Java's `breakAttack` →
+`abortAttack` ends **only the current swing**; `AttackStanceTaskManager` is a
+separate map that `sitDown` never touches. Only `attack_end_tick` is cleared
+now. *Another conditional-component write failing open — and a second lesson:
+when one component carries two lifetimes, removing it to end one ends both.*
+2 new tests (`movement_tests`), both sabotage-verified; **2479 gameserver
+tests green**, clippy clean.
 
 **G19 sweep done 2026-07-31 (27 → 21).** Ranked by *learnable* carriers
 first — the lesson from the earlier effects work — which is what made the

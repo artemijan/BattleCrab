@@ -48,10 +48,17 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
         || super::siege::attackable_siege_guard(world, target_oid, attacker_oid)
 }
 
-/// `Npc.canInteract(player)`: plain 3D distance vs `INTERACTION_DISTANCE`
-/// between two world objects. Shared by the interact path here and the
-/// bypass router (Java re-checks it on every `npc_…` bypass).
+/// `Npc.canInteract(player)`: 3D distance vs `INTERACTION_DISTANCE` between two
+/// world objects, plus the seated refusal. Shared by the interact path here and
+/// the bypass router (Java re-checks it on every `npc_…` bypass).
 pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: i32) -> bool {
+    // `else if (player.isSitting()) return false;` — you talk to nobody from a
+    // chair. `combat::start_interact_intent` refuses the walk-over that a
+    // failed `canInteract` would otherwise trigger, so the click is inert
+    // rather than turning into an approach.
+    if super::sit_stand::is_resting(world, player_object_id) {
+        return false;
+    }
     let (Some(ppos), Some(npos)) = (
         world.objects.get_component::<Position>(&player_object_id),
         world.objects.get_component::<Position>(&npc_object_id),

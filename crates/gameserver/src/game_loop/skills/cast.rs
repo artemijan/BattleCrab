@@ -659,6 +659,25 @@ pub(crate) fn use_magic_on(
         }
         return;
     }
+    // `Player.useMagic`: "Check if the caster is sitting" — a seated player may
+    // cast nothing at all, passive-or-not, toggle-or-not, and is told so.
+    // This gate is *not* the 2.5 s `SitBlock` animation block checked above:
+    // that one expires while the character stays seated, which is why a sitting
+    // player could cast freely a couple of seconds after sitting down.
+    //
+    // Java runs this check one step later, after the reuse-timer message, so a
+    // seated player whose skill is also on cooldown hears about the cooldown
+    // there and the chair here; ours always names the chair. Every other
+    // ordering (passive first, toggles after) matches.
+    if super::super::sit_stand::is_resting(world, object_id) {
+        send_sm_and_action_failed(
+            world,
+            client_id,
+            sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING,
+            &[],
+        );
+        return;
+    }
     // `Player.useMagic`'s toggle branch, ahead of every other check: recasting
     // a live toggle switches it **off** and casts nothing; otherwise a toggle
     // in a group first stops the others in that group, then casts normally.

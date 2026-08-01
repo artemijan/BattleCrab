@@ -1113,3 +1113,173 @@ fn a_shopkeeper_cannot_stand_while_the_store_is_open() {
     advance_ticks(&mut world, 26);
     assert!(!crate::game_loop::sit_stand::is_sitting(&world, 3001));
 }
+
+/// **The seated *state* is what refuses actions, not the sit animation.** The
+/// `SitBlock` that `sitDown` raises covers 2.5 s and then lapses while the
+/// character stays in the chair — so every gate that reads only
+/// `hasBlockActions()` goes quiet after two and a half seconds. Java refuses on
+/// the seat itself, in three separate places: `Player.useMagic`'s
+/// `_waitTypeSitting` branch (SM 31), `PlayableAI.onIntentionAttack`'s
+/// `isSitting()` early return (silent — no packet at all), and
+/// `CreatureAI.onIntentionMoveTo`'s `AI_INTENTION_REST` branch
+/// (`clientActionFailed`). Without them a player who sat down mid-fight kept
+/// casting, swinging and running from the chair.
+#[test]
+fn a_seated_player_cannot_cast_attack_or_move_once_the_animation_lapses() {
+    use crate::model::components::{Intent, Movement};
+
+    let (mut world, ..) = combat_test_world();
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let mut b_rx = ingame_caster(&mut world, 2, 3002, 100, 0);
+    let npc_oid = NPC_OID + 22;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    world
+        .npc_regions
+        .entry(extra.1.0)
+        .or_default()
+        .push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
+    world.objects.add_components(&npc_oid, cs);
+
+    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    advance_ticks(&mut world, 26); // past the 2.5 s sit animation
+    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(
+        !crate::game_loop::abnormal::is_blocked_from_actions(&world, 3001),
+        "the animation block has lapsed — only the seated state is left to say no"
+    );
+    drain(&mut rx);
+    drain(&mut b_rx);
+
+    // Cast: SM 31, and nothing starts.
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(
+        has_system_message(
+            &drain(&mut rx),
+            server_packets::sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING
+        ),
+        "told to get up first"
+    );
+    assert!(
+        !world.objects.has_component::<Casting>(&3001),
+        "no cast from the chair"
+    );
+
+    // Attack: refused silently — Java's `onIntentionAttack` just returns.
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "no attack intent from the chair"
+    );
+
+    // Move: ActionFailed, no movement, no drift.
+    drain(&mut rx);
+    handle_move_backward_to_location(&mut world, 1, &move_body((500, 0, 0), (0, 0, 0), 1));
+    assert_eq!(
+        drain(&mut rx).first().map(|p| p[0]),
+        Some(server_packets::opcodes::ACTION_FAIL),
+        "the click is answered with ActionFailed and nothing else"
+    );
+    assert!(
+        !world.objects.has_component::<Movement>(&3001),
+        "no move started"
+    );
+    advance_world(&mut world, 5);
+    assert_eq!(
+        world.objects.get_component::<Position>(&3001).unwrap().x,
+        0,
+        "and no drift"
+    );
+
+    // Positive control: on their feet again, the very same clicks work.
+    crate::game_loop::sit_stand::stand_up(&mut world, 3001);
+    advance_ticks(&mut world, 26);
+    assert!(!crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    drain(&mut rx);
+    handle_action(&mut world, 1, &action_body(3002, 0));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(1177, true));
+    assert!(
+        world.objects.has_component::<Casting>(&3001),
+        "standing, the cast goes through"
+    );
+}
+
+/// **Sitting down must not cancel the combat stance — only the swing.** Java's
+/// `sitDown` calls `breakAttack()` → `abortAttack()`, which ends the current
+/// swing and nothing else; the 15 s stance lives in a separate
+/// `AttackStanceTaskManager` map that sitting never touches, so it expires on
+/// its own schedule and broadcasts `AutoAttackStop`.
+///
+/// The port used to drop the whole `AttackState` component here, and that
+/// component carries `stance_until_tick` — so a player who sat down while in
+/// stance left the stance sweep for good: `AutoAttackStop` never went out (the
+/// client held the sword drawn forever) and `refresh_attack_stance`'s `if let
+/// Some` write silently no-opped from then on, so no later fight could put them
+/// back in stance either.
+#[test]
+fn sitting_down_keeps_the_combat_stance_ticking_toward_its_own_expiry() {
+    let (mut world, ..) = combat_test_world();
+    let mut rx = ingame_caster(&mut world, 1, 3001, 0, 0);
+    let npc_oid = NPC_OID + 23;
+    let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 40001, 30, 0, 0, 100_000, 30);
+    world
+        .npc_regions
+        .entry(extra.1.0)
+        .or_default()
+        .push(npc_oid);
+    world.objects.spawn(npc_oid, (npc, extra));
+    let cs = crate::model::npc::npc_combat_stats(
+        world.data.npc_data.get(40001).unwrap(),
+        &world.data.stat_bonus,
+    );
+    world.objects.add_components(&npc_oid, cs);
+
+    handle_action(&mut world, 1, &action_body(npc_oid, 0));
+    world.forced_rolls.extend([0, 99, 10]);
+    handle_attack_request(&mut world, 1, &attack_request_body(npc_oid));
+    assert!(
+        crate::game_loop::combat::has_attack_stance(&world, 3001),
+        "swinging draws the sword"
+    );
+
+    // Sit mid-fight: the swing is cut, the stance is not.
+    world.objects.remove_component::<Casting>(&3001);
+    if let Some(st) = world
+        .objects
+        .get_component_mut::<crate::model::components::AttackState>(&3001)
+    {
+        st.attack_end_tick = 0; // let the sit request past `isAttackingNow()`
+    }
+    crate::game_loop::sit_stand::sit_down(&mut world, 3001);
+    assert!(crate::game_loop::sit_stand::is_sitting(&world, 3001));
+    assert!(
+        crate::game_loop::combat::has_attack_stance(&world, 3001),
+        "sitting does not sheathe the sword — Java's breakAttack only ends the swing"
+    );
+    drain(&mut rx);
+
+    // …and it still runs out on its own, 15 s after the last swing. Advance
+    // with the timer-only helper and drive the stance sweep by hand: under the
+    // full world tick the monster swings back, and every hit it lands re-arms
+    // the stance (and stands its victim up) — which is precisely the state this
+    // assertion must not be measuring.
+    advance_ticks(
+        &mut world,
+        crate::game_loop::combat::COMBAT_STANCE_TICKS + 1,
+    );
+    crate::game_loop::combat::stance_tick(&mut world);
+    assert!(
+        !crate::game_loop::combat::has_attack_stance(&world, 3001),
+        "the stance expires on schedule instead of hanging forever"
+    );
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::AUTO_ATTACK_STOP),
+        "and the client is told to sheathe it"
+    );
+}

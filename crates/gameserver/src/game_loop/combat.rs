@@ -477,6 +477,14 @@ pub(crate) fn start_attack_intent(
     target_object_id: i32,
     shift: bool,
 ) {
+    // `PlayableAI.onIntentionAttack`'s very first line: `if
+    // (getActingPlayer().isSitting()) return;`. A seated player never engages,
+    // and Java sends **nothing** back — not even `clientActionFailed()` — so
+    // the click is swallowed whole. (The `Action` click path does end with an
+    // unconditional `ActionFailed` of its own; the `AttackRequest` one doesn't.)
+    if super::sit_stand::is_resting(world, object_id) {
+        return;
+    }
     let target_is_player = world
         .objects
         .has_component::<crate::model::Player>(&target_object_id);
@@ -965,6 +973,15 @@ pub(crate) fn player_cast_think(world: &mut World, object_id: i32) {
 /// turns into an immediate `moveToPawn` — mirrored here by setting the intent
 /// and thinking it once synchronously, same as `start_attack_intent`.
 pub(crate) fn start_interact_intent(world: &mut World, object_id: i32, target_object_id: i32) {
+    // `CreatureAI.onIntentionInteract`'s REST branch — a seated player doesn't
+    // walk over. Paired with the sitting leg of `target::can_interact`
+    // (`Npc.canInteract`), this reproduces Java exactly: sitting fails
+    // `canInteract`, so the click falls through to `AI_INTENTION_INTERACT`,
+    // which REST then refuses. Net effect — clicking an NPC while seated does
+    // nothing at all, near or far.
+    if super::sit_stand::is_resting(world, object_id) {
+        return;
+    }
     world.objects.add_components(
         &object_id,
         Intent(PlayerIntent::Interact { target_object_id }),

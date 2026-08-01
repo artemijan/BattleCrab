@@ -89,6 +89,18 @@ pub(crate) fn handle_move_backward_to_location(world: &mut World, client_id: u32
         }
         return;
     }
+    // `PlayerAI.onIntentionMoveTo`'s first branch: `if (getIntention() ==
+    // AI_INTENTION_REST) { clientActionFailed(); return; }` — a seated player
+    // stays put, and stays seated: Java neither stands them up nor moves them,
+    // it just drops the click. The refusal outlives the 2.5 s sit animation and
+    // covers the 2.5 s stand-up animation too, since REST is only released by
+    // `StandUpTask` (which clears the seated flag in the same breath).
+    if super::sit_stand::is_resting(world, object_id) {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     // Dead players can't move at all (`isMovementDisabled`).
     if world
         .objects

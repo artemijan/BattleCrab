@@ -42,6 +42,23 @@ pub(crate) fn is_sitting(world: &World, object_id: i32) -> bool {
         .is_some_and(|p| p.sitting)
 }
 
+/// Java's `AI_INTENTION_REST` gate — true while the player's AI intention is
+/// REST, i.e. from `sitDown` until `StandUpTask` sets IDLE 2.5 s after the
+/// stand-up broadcast. That window is exactly the seated flag's lifetime
+/// (`sitDown` sets both, `StandUpTask` clears both), so the flag stands in for
+/// the intention the port doesn't model.
+///
+/// `CreatureAI` refuses `MOVE_TO`, `FOLLOW`, `PICK_UP`, `INTERACT` and (magic)
+/// `CAST` outright while resting, each with a bare `clientActionFailed()`;
+/// `PlayableAI.onIntentionAttack` refuses `ATTACK` on `isSitting()` with **no**
+/// packet at all; and `Player.useMagic` refuses every skill on
+/// `_waitTypeSitting` with a system message. Without these the port let a
+/// seated player cast, swing and run the moment the 2.5 s `SitBlock` animation
+/// block expired.
+pub(crate) fn is_resting(world: &World, object_id: i32) -> bool {
+    is_sitting(world, object_id)
+}
+
 /// The `SitStand` player action (id 0) — Java's `useSit`, minus the chair
 /// branch: toggle between seated and standing.
 pub(crate) fn handle_sit_stand(world: &mut World, object_id: i32) {
@@ -90,8 +107,21 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     }
     // `!_waitTypeSitting && !isAttackDisabled() && !isControlBlocked() &&
     // !isImmobilized() && !isFishing()`.
+    //
+    // `isAttackDisabled()` is `isAttackingNow() || isDisabled()`, and only the
+    // second half was ported: mid-swing counts too, so the request is dropped
+    // until the swing lands rather than sitting the attacker down out from
+    // under it. `isImmobilized()` reads Java's `_isImmobilized` flag, which
+    // nothing sets on a player (the port's `Immobilized` component is
+    // NPC-only — Core, Baium, Sailren), so it has no leg here.
+    let mid_swing = world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&object_id)
+        .is_some_and(|st| st.attack_end_tick > world.tick);
     if is_sitting(world, object_id)
+        || mid_swing
         || super::abnormal::is_blocked_from_actions(world, object_id)
+        || super::abnormal::is_control_blocked(world, object_id)
         || world
             .objects
             .has_component::<crate::model::components::FishingSession>(&object_id)
@@ -100,21 +130,38 @@ pub(crate) fn sit_down(world: &mut World, object_id: i32) {
     }
 
     // `breakAttack()` — sitting cancels the swing you were winding up, and the
-    // standing intention with it.
-    world
+    // standing intention with it. It calls `abortAttack()`, which ends *the
+    // current swing only*: the 15 s combat stance in `AttackStanceTaskManager`
+    // is a separate map that `sitDown` never touches, so a player who sits
+    // mid-fight keeps their sword drawn until the stance times out normally.
+    //
+    // Clearing `attack_end_tick` rather than dropping the whole `AttackState`
+    // is load-bearing: that component *also* carries `stance_until_tick`, and
+    // removing it took the player out of the stance sweep for good — the 15 s
+    // `AutoAttackStop` never fired (stance stuck on the client forever) and
+    // `refresh_attack_stance`'s `if let Some` write silently no-opped from
+    // then on, so no later fight could put them back in stance either.
+    if let Some(st) = world
         .objects
-        .remove_component::<crate::model::components::AttackState>(&object_id);
+        .get_component_mut::<crate::model::components::AttackState>(&object_id)
+    {
+        st.attack_end_tick = 0;
+    }
     world
         .objects
         .remove_component::<crate::model::components::Intent>(&object_id);
     if let Some(p) = world.objects.get_component_mut::<Player>(&object_id) {
         p.sitting = true;
     }
-    // `AI_INTENTION_REST`: the port models "resting" as simply not moving and
-    // not attacking, which the stop above and the action block below produce.
+    // `AI_INTENTION_REST`, which for a player is `PlayerAI.onIntentionRest`:
+    // `changeIntention(REST)` + `setTarget(null)` + `clientStopMoving(null)`.
+    // The port has no intention slot for REST, so the seated flag *is* the
+    // intention: `is_resting` below reads it, and every intention Java refuses
+    // while resting is gated on it.
     world
         .objects
         .remove_component::<crate::model::components::Movement>(&object_id);
+    super::target::drop_target_notify(world, object_id);
     broadcast_wait_type(world, object_id, WT_SITTING);
     // `setBlockActions(true)` for the 2.5 s animation.
     set_action_block(world, object_id, true);

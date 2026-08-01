@@ -53,6 +53,10 @@ pub mod sm_ids {
     pub const A_STRIDER_CAN_BE_RIDDEN_ONLY_WHEN_STANDING: i16 = 1013;
     /// "You cannot transform while sitting."
     pub const YOU_CANNOT_TRANSFORM_WHILE_SITTING: i16 = 2283;
+    /// "You cannot use actions and skills while the character is sitting." —
+    /// `Player.useMagic`'s `_waitTypeSitting` refusal, the blanket "stand up
+    /// first" line rather than the transform-specific one above.
+    pub const YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING: i16 = 31;
     /// "You cannot open a Private Store here." — `canOpenPrivateStore`'s
     /// `Custom/PrivateStoreRange.ini` spacing rule.
     pub const YOU_CANNOT_OPEN_A_PRIVATE_STORE_HERE: i16 = 1296;

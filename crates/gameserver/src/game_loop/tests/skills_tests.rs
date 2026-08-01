@@ -4741,9 +4741,13 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     );
     crate::game_loop::admin::mounts::dismount(&mut world, 5001);
 
-    // Sitting refusal: `ConditionPlayerCanTransform`'s `isSitting()` leg (SM
-    // 2283), which sits above the polymorph one. It was written as vacuous
-    // ("nothing can be sitting") before the `SitStand` state landed.
+    // Sitting refusal — note *which* message. `Player.useMagic` turns away
+    // every skill from a seated caster with SM 31, and it does so long before
+    // it reaches `usedSkill.checkCondition`, so `ConditionPlayerCanTransform`'s
+    // own `isSitting()` leg (SM 2283) is unreachable down the cast path in Java
+    // too; it only answers for transforms that skip `useMagic` (the admin
+    // `//transform`, gated separately). This assertion named 2283 while the
+    // blanket seated-cast gate was still missing from the port.
     world
         .objects
         .get_component_mut::<Player>(&5001)
@@ -4755,7 +4759,7 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
     assert!(
         has_system_message(
             &refused,
-            server_packets::sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING
+            server_packets::sm_ids::YOU_CANNOT_USE_ACTIONS_AND_SKILLS_WHILE_THE_CHARACTER_IS_SITTING
         ),
         "sitting refusal sent"
     );
