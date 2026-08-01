@@ -217,7 +217,17 @@ pub fn npc_info(
     if t.server_side_name {
         add(&mut mask_bytes, T::Name);
     }
-    if t.server_side_title || (t.is_monster() && (cfg.show_npc_level || cfg.show_npc_aggression)) {
+    // Java: `isUsingServerSideTitle() || (isMonster() && (SHOW_NPC_LEVEL ||
+    // SHOW_NPC_AGGRESSION)) || npc.isChampion() || npc.isTrap()`. The champion
+    // arm is load-bearing on its own: `npc_title` above has already resolved
+    // the `Champion` prefix, but without the component the string is never
+    // written, so an operator who turns both `ShowNpc*` flags off gets
+    // champions that are mechanically 10×-tough yet titled like any other mob.
+    // (`isTrap()` has no counterpart — traps are not modelled.)
+    if t.server_side_title
+        || (t.is_monster() && (cfg.show_npc_level || cfg.show_npc_aggression))
+        || is_champion
+    {
         add(&mut mask_bytes, T::Title);
     }
     // Java `if (npc.getEnchantEffect() > 0)` — the weapon glow. Rolled per

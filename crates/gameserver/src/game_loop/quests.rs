@@ -756,10 +756,44 @@ impl<'w> QuestCtx<'w> {
         }
     }
 
+    /// The champion arm of `AbstractScript.giveItemRandomly` as a
+    /// `(chance multiplier, amount multiplier)` pair — `(1.0, 1.0)` whenever
+    /// the notifying NPC is absent, is not a champion, or the master gate is
+    /// off. Adena and ancient adena take the `ADENAS_` pair, everything else
+    /// the plain one; Java splits them because a 10× adena rate on a normal
+    /// item would dwarf the intended reward.
+    fn champion_quest_drop_mods(&self, item_id: i32) -> (f64, f64) {
+        const ANCIENT_ADENA_ID: i32 = 5575;
+        let cfg = &self.world.cfg.champion;
+        // `npc != null` — `self.npc` is 0 for the script-driven calls that
+        // have no NPC (timers, bypass handlers), and the component lookup also
+        // fails once the corpse has decayed.
+        let is_champion = cfg.enable
+            && self
+                .world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&self.npc)
+                .is_some_and(|n| n.champion);
+        if !is_champion {
+            return (1.0, 1.0);
+        }
+        if item_id == ADENA_ID || item_id == ANCIENT_ADENA_ID {
+            (cfg.adenas_rewards_chance, cfg.adenas_rewards_amount)
+        } else {
+            (cfg.rewards_chance, cfg.rewards_amount)
+        }
+    }
+
     /// `AbstractScript.giveItemRandomly(player, npc, id, amount, limit,
     /// chance, playSound)`: chance and amount ×`RateQuestDrop`, capped at
     /// `limit`; returns true when the limit is (already) reached — the
     /// "collection finished" signal quests key `setCond` off.
+    ///
+    /// A champion kill multiplies both on top of the quest rate, exactly as
+    /// the death-drop path does — Java repeats the whole champion arm here
+    /// because quest items never pass through `NpcTemplate.calculateDrops`.
+    /// Without it a champion was a pure penalty on a collection quest: ten
+    /// times the HP for the same drop rate.
     pub fn give_item_randomly(
         &mut self,
         item_id: i32,
@@ -776,8 +810,15 @@ impl<'w> QuestCtx<'w> {
             return true;
         }
         let rate = self.world.cfg.rates.rate_quest_drop;
+        // Java truncates to `long` *before* the champion multiply and again
+        // after (`long *= double` is a narrowing compound assignment), so the
+        // two casts below are both load-bearing for byte-parity on the amount.
         let mut amount_to_give = (amount as f64 * rate) as i64;
-        let chance_with_bonus = chance * rate;
+        let mut chance_with_bonus = chance * rate;
+        // `(npc != null) && Config.CHAMPION_ENABLE && npc.isChampion()`.
+        let (champ_chance, champ_amount) = self.champion_quest_drop_mods(item_id);
+        chance_with_bonus *= champ_chance;
+        amount_to_give = (amount_to_give as f64 * champ_amount) as i64;
         let random = self.world.roll_f64();
         if chance_with_bonus >= random && amount_to_give > 0 {
             if limit > 0 && current + amount_to_give > limit {

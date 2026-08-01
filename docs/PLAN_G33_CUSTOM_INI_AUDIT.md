@@ -111,6 +111,37 @@ Everything Java's `_champion` flag reaches, ported:
   `TEAM` component in `NpcInfo`, written between `MOVE_MODE` and `ENCHANT`.
 - **AI** — `ChampionPassive` stops the aggro scan seeding hate.
 
+### Follow-up pass — two gaps closed
+
+A re-audit against the full Java consumer list (`grep isChampion()` over
+`java/` **and** `dist/game/data/scripts/`) turned up two sites the first pass
+missed. Both are fixed on `fix/champion-parity`:
+
+- **`NpcInfo`'s TITLE gate was missing its champion arm.** Java reads
+  `isUsingServerSideTitle() || (isMonster() && (SHOW_NPC_LEVEL ||
+  SHOW_NPC_AGGRESSION)) || npc.isChampion() || npc.isTrap()`; the port had only
+  the first two clauses. `npc_title` already resolved the `Champion` prefix, so
+  the string was *computed and then never written* — latent on this dist only
+  because `ShowNpcLevel = True` keeps the component alive for other reasons.
+  Turn both `ShowNpc*` flags off and champions become visually
+  indistinguishable from ordinary mobs while still hitting 4× as hard.
+  The existing aura test had **encoded the bug**, asserting a champion's
+  `NpcInfo` was byte-identical to a plain mob with the aura off; it now asserts
+  the 18-byte `"Champion"` title survives independently of `ChampionAura`.
+- **`AbstractScript.giveItemRandomly` had no champion arm.** Quest items never
+  pass through `NpcTemplate.calculateDrops`, so Java repeats the whole
+  chance/amount multiply there — adena and ancient adena on the `ADENAS_` pair,
+  everything else on the plain one. Without it a champion was a pure penalty on
+  a collection quest: 10× the HP for the same payout. Java's double truncation
+  (`long *= double` is a narrowing compound assignment) is reproduced.
+
+The same pass confirmed the rest is wired end to end: the lottery runs inside
+`spawn_npc_entity`, which both `spawn_one` (boot/respawn) and `spawn_npc_at`
+(runtime/admin) share, and every damage path funnels through the single
+`npc_receive_damage` choke point that owns the divisor. `//kill` needs no
+champion arm — Java's `maxHp * CHAMPION_HP + 1` exists only to punch through
+`reduceCurrentHp`, and the port routes straight to `npc_do_die`.
+
 ### Java quirks kept deliberately
 
 - **`ChampionRewardLowerLvlItemChance` / `…HigherLvlItemChance` are inverted.**
@@ -128,7 +159,12 @@ Everything Java's `_champion` flag reaches, ported:
 
 ### Verification
 
-21 tests (4 config, 17 behavioural). Sabotage-verified one at a time: the
+22 tests (4 config, 18 behavioural) after the follow-up pass, which added a
+spawn-path regression test (every earlier test either called `roll_champion`
+directly or set the flag by hand, so none would have caught the live spawn
+dropping the roll — whose symptom is exactly "champions are on but none ever
+appear"), two quest-payout tests, and a title-without-aura test.
+Sabotage-verified one at a time: the
 damage divisor, the passive-AI gate, the reward-item tail, the team aura, and
 the stat multipliers each fail their test when broken.
 
