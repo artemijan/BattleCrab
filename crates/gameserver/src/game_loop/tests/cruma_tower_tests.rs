@@ -1,12 +1,13 @@
 //! Cruma Tower's floor chain (`data/teleporters/others/CrumaTower.xml`).
 //!
-//! Carsus (30483) at the tower entrance serves **only** the 2nd and 3rd
-//! basement floors — that is retail Classic Interlude, not a porting gap:
-//! his own page says the 1st floor is reached "through Ivory Tower Wizard Ian
-//! who you can find in a remote area of the 2nd basement floor", and Ian
-//! (30486) is the sole holder of the 1st-floor destination. These tests pin
-//! that route against the real dist data so the entrance list staying at two
-//! options can't be mistaken for a dropped destination again.
+//! In retail Classic Interlude — and in upstream Mobius — Carsus (30483) at
+//! the tower entrance serves **only** the 2nd and 3rd basement floors, with
+//! the 1st floor reachable solely from Ian (30486) at the far end of the 2nd
+//! floor. **This dist deviates deliberately**: Carsus carries a third,
+//! operator-added 1st-floor destination (appended last, so his retail 0/1
+//! indices stay put) and `html/teleporter/30483.htm` grew a button for it.
+//! Ian's route is untouched and still works. These tests pin both routes so
+//! the custom line can't be dropped by a dist re-sync without a red test.
 
 use super::*;
 
@@ -14,23 +15,77 @@ const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
 
 const CARSUS_ID: i32 = 30483;
 const IAN_ID: i32 = 30486;
+const CARSUS_OID: i32 = NPC_OID + 2;
 const IAN_OID: i32 = NPC_OID + 1;
 
-/// 1st basement floor — Ian's only destination.
+/// 1st basement floor — Ian's only destination, and Carsus' custom index 2.
 const FIRST_FLOOR: (i32, i32, i32) = (17616, 115436, -6584);
-/// Carsus' two entrance destinations.
+/// Carsus' two retail entrance destinations.
 const SECOND_FLOOR: (i32, i32, i32) = (17664, 108288, -9056);
 const THIRD_FLOOR: (i32, i32, i32) = (17726, 114838, -11696);
 
 /// `teleporter_world` + the real dist html root and teleport lists, with Ian
-/// spawned alongside the fixture gatekeeper.
+/// and Carsus spawned alongside the fixture gatekeeper.
 fn cruma_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<Vec<u8>>) {
     let (mut world, mut rx) = teleporter_world(adena);
     world.data.root = DIST.to_string();
     world.data.teleporters = crate::data::teleporter_data::TeleporterData::load_from(DIST);
     add_test_npc(&mut world, IAN_OID, IAN_ID, "Teleporter", 70, 100, 0, 0);
+    add_test_npc(
+        &mut world,
+        CARSUS_OID,
+        CARSUS_ID,
+        "Teleporter",
+        70,
+        100,
+        0,
+        0,
+    );
     drain(&mut rx);
     (world, rx)
+}
+
+/// The custom entrance route: Carsus' page offers the 1st basement floor and
+/// the button lands the player there, without disturbing the retail 2nd/3rd
+/// floor buttons that still sit at indices 0 and 1.
+#[test]
+fn carsus_entrance_offers_the_custom_first_floor_button() {
+    let (mut world, mut rx) = cruma_world(1_000);
+
+    handle_action(&mut world, 1, &action_body(CARSUS_OID, 0));
+    drain(&mut rx);
+    handle_action(&mut world, 1, &action_body(CARSUS_OID, 0));
+    let pkts = drain(&mut rx);
+    let html = pkts
+        .iter()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)
+        .expect("Carsus' chat window");
+    assert!(
+        contains_utf16(html, &format!("npc_{CARSUS_OID}_teleport OTHER 2")),
+        "the custom 1st-floor button"
+    );
+    assert!(
+        contains_utf16(html, &format!("npc_{CARSUS_OID}_teleport OTHER 0"))
+            && contains_utf16(html, &format!("npc_{CARSUS_OID}_teleport OTHER 1")),
+        "the retail 2nd/3rd floor buttons keep their indices"
+    );
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{CARSUS_OID}_teleport OTHER 2")),
+    );
+    drain(&mut rx);
+    let pos = world.objects.get_component::<Position>(&3001).unwrap();
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        (FIRST_FLOOR.0, FIRST_FLOOR.1, FIRST_FLOOR.2 + 5)
+    );
+    assert_eq!(
+        adena_of(&world, 3001),
+        1_000,
+        "the OTHER list charges no fee"
+    );
 }
 
 /// Talking to Ian serves his own page (not the "text is missing" stub) with a
@@ -87,10 +142,11 @@ fn ian_talk_and_teleport_reach_the_first_basement_floor() {
     );
 }
 
-/// The entrance list is the retail two floors: Carsus never offers the 1st
-/// floor, and Ian is the only NPC in the dist that does.
+/// The entrance list is the retail two floors *plus* the custom 1st floor,
+/// in that order — the retail lines must keep indices 0/1 or the shipped
+/// html buttons would send players to the wrong floor.
 #[test]
-fn the_entrance_list_is_the_retail_two_floors() {
+fn the_entrance_list_keeps_retail_indices_and_appends_the_first_floor() {
     let data = crate::data::teleporter_data::TeleporterData::load_from(DIST);
 
     let carsus = data.holder(CARSUS_ID, "OTHER").expect("Carsus OTHER list");
@@ -99,11 +155,7 @@ fn the_entrance_list_is_the_retail_two_floors() {
         .iter()
         .map(|l| (l.x, l.y, l.z))
         .collect::<Vec<_>>();
-    assert_eq!(dests, vec![SECOND_FLOOR, THIRD_FLOOR]);
-    assert!(
-        !dests.contains(&FIRST_FLOOR),
-        "the 1st floor is deliberately absent from the entrance"
-    );
+    assert_eq!(dests, vec![SECOND_FLOOR, THIRD_FLOOR, FIRST_FLOOR]);
 
     let ian = data.holder(IAN_ID, "OTHER").expect("Ian OTHER list");
     assert_eq!(

@@ -1,9 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
 	<npc id="30483"> <!-- Carsus -->
+		<!-- CUSTOM (deviates from retail / upstream Mobius Classic Interlude):
+		     retail gives Carsus only the 2nd and 3rd floors, with the 1st floor
+		     reachable solely from Ian (30486) at the far end of the 2nd floor.
+		     The 1st-floor line below is an operator addition — appended last so
+		     the existing 0/1 indices used by html/teleporter/30483.htm stay put.
+		     Do not drop it when re-syncing this file from the Java dist. -->
 		<teleport type="OTHER">
 			<location x="17664" y="108288" z="-9056" /> <!-- 2nd floor -->
 			<location x="17726" y="114838" z="-11696" /> <!-- 3rd floor -->
+			<location x="17616" y="115436" z="-6584" /> <!-- 1st floor (custom) -->
 		</teleport>
 	</npc>
 	<npc id="30484"> <!-- Janssen -->
