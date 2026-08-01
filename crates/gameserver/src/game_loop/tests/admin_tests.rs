@@ -856,6 +856,113 @@ fn admin_cursed_weapons_info_add_remove() {
     );
 }
 
+/// The `cwinfo.htm` panel draws its buttons from the weapon's live state —
+/// "Give to Target" while it is nowhere, "Remove"/"Go" once it is live. Java
+/// returns from `//cw_add` without touching the window, so the page kept
+/// offering "Give to Target" and could not remove the sword it had just handed
+/// out; the GM had to back out and re-enter `//cw_info_menu`. Both commands now
+/// redraw the panel from the state they just changed.
+#[test]
+fn cursed_weapon_panel_redraws_after_give_and_remove() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, _db_tx, _db_rx, _link) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
+    world.cursed_weapons = world
+        .data
+        .cursed_weapons
+        .weapons
+        .iter()
+        .cloned()
+        .map(|mut cw| {
+            cw.skill_max_level = (1..=100)
+                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+                .last()
+                .unwrap_or(1);
+            cw
+        })
+        .collect();
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 7003, 100);
+    drain(&mut rx);
+
+    // The panel as the GM first sees it: nothing in the world, so the only
+    // button on offer is "Give to Target".
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("cw_info_menu"),
+        ]
+        .concat(),
+    );
+    let first = last_admin_html(&drain(&mut rx)).expect("the panel opens");
+    assert!(
+        first.contains("admin_cw_add 8190") && !first.contains("admin_cw_remove 8190"),
+        "a weapon that is nowhere offers only Give to Target"
+    );
+
+    // "Give to Target" → confirm → the weapon is live on the GM.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("cw_add 8190"),
+        ]
+        .concat(),
+    );
+    drain(&mut rx);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    let after_add = last_admin_html(&drain(&mut rx))
+        .expect("the give redraws the panel instead of leaving it stale");
+    assert!(
+        after_add.contains("admin_cw_remove 8190"),
+        "the redrawn page can remove what it just gave out"
+    );
+    assert!(
+        after_add.contains("Weilder:"),
+        "and shows the wielder row rather than the not-in-world one"
+    );
+
+    // "Remove" → the row goes back to offering the weapon.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("cw_remove 8190"),
+        ]
+        .concat(),
+    );
+    let after_remove = last_admin_html(&drain(&mut rx)).expect("the remove redraws the panel too");
+    assert!(
+        after_remove.contains("admin_cw_add 8190")
+            && !after_remove.contains("admin_cw_remove 8190"),
+        "back to Give to Target once the weapon is gone"
+    );
+}
+
+/// The html body of the most recent `NpcHtmlMessage` in `packets`, if any.
+fn last_admin_html(packets: &[Vec<u8>]) -> Option<String> {
+    let pkt = packets
+        .iter()
+        .rev()
+        .find(|p| p[0] == server_packets::opcodes::NPC_HTML_MESSAGE)?;
+    let mut r = commons::network::PacketReader::new(&pkt[1..]);
+    r.read_i32()?; // object id (0 for admin pages)
+    r.read_string()
+}
+
 /// UserInfo's BASIC_INFO `isGM` byte is `player.isGM()` (Java `UserInfo` L147).
 /// This is what tells the client to enable the `//command` bar — with a
 /// hardcoded 0 the client never sends `SendBypassBuildCmd`, so no `//` command

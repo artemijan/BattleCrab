@@ -230,6 +230,7 @@ pub(super) fn admin_cw_remove(world: &mut World, client_id: u32, args: &[&str]) 
         return;
     };
     end_of_life(world, idx);
+    redraw_panel(world, client_id);
 }
 
 /// `//cw_add <id|name>` — give the weapon to the GM's target (or the GM) and
@@ -246,6 +247,10 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
     };
     if world.cursed_weapons[idx].is_active() {
         send_message(world, client_id, "This cursed weapon is already active.");
+        // The panel that offered a "Give to Target" button for a weapon that is
+        // already active is showing stale rows — this is exactly the case a
+        // redraw exists for.
+        redraw_panel(world, client_id);
         return;
     }
     // Target the selected player, else the GM (Java falls back to activeChar).
@@ -270,6 +275,26 @@ pub(crate) fn admin_cw_add(world: &mut World, client_id: u32, gm_object_id: i32,
     world.cursed_weapons[idx].end_time = now_millis() + duration * 60_000;
     save_data(world, idx);
     super::super::cursed_weapon::arm_expiry(world, idx);
+    redraw_panel(world, client_id);
+}
+
+/// Re-send `cwinfo.htm` after a command that changed a weapon's state.
+///
+/// **Deliberate deviation from Java**, which returns from `useAdminCommand`
+/// without touching the window: the panel's buttons are drawn from the state
+/// (`Give to Target` when the weapon is nowhere, `Remove`/`Go` once it is
+/// live), so after a give it still offers `Give to Target` and cannot remove
+/// what it just handed out — the GM has to leave the page and re-open
+/// `//cw_info_menu` to act on the weapon they are looking at. Rebuilding the
+/// page costs one packet and the html is generated from the live list, so the
+/// redraw cannot drift from the state it describes.
+///
+/// Sent for both the panel bypass and the typed `//cw_add`/`//cw_remove` — the
+/// dispatcher cannot tell them apart, and a GM who typed the command still
+/// wants to see the outcome. `//cw_goto` is left alone: it teleports and
+/// changes no weapon state.
+fn redraw_panel(world: &mut World, client_id: u32) {
+    admin_cw_info_menu(world, client_id);
 }
 
 /// Port of `CursedWeapon.activate` (via `addItem`) + the admin `setEndTime`/
