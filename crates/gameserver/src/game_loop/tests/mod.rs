@@ -147,6 +147,7 @@ mod valakas_tests;
 mod visibility_tests;
 mod vitality_tests;
 mod walker_tests;
+mod water_tests;
 mod wyvern_tests;
 mod zones_tests;
 

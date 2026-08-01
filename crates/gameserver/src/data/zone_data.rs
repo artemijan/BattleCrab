@@ -87,6 +87,13 @@ pub enum ZoneKind {
     /// everyone standing in it. Queried by geometry, never by membership mask
     /// — the u8 mask is full — so it claims no bit.
     ResidenceTeleport,
+    /// Java `CastleZone` → `ZoneId.CASTLE` (the 9 `CastleZone`s inside
+    /// `castle_hall.xml`): the castle grounds. Read by `Creature.moveToLocation`
+    /// as the *exception* to the water-movement branch — `isInWater` is
+    /// `WATER && !CASTLE`, so a castle moat does not disable geodata or clamp
+    /// the click distance the way open sea does. Queried by geometry, never by
+    /// membership mask — the u8 mask is full — so it claims no bit.
+    Castle,
 }
 
 impl ZoneKind {
@@ -122,6 +129,8 @@ impl ZoneKind {
             ZoneKind::Hq => 0,
             // Queried by geometry (`tax_castle_at`), no bit (mask full).
             ZoneKind::Tax => 0,
+            // Queried by geometry (`in_castle_zone`), no bit (mask full).
+            ZoneKind::Castle => 0,
         }
     }
 }
@@ -266,6 +275,11 @@ impl ZoneData {
             // (`fortress_hq.xml` and `territory_war_hq.xml` are the fort-siege
             // and territory-war siblings, neither of which exists here.)
             ("castle_hq.xml", ZoneKind::Hq),
+            // `castle_hall.xml` is uniformly `CastleZone` (9 of them, one per
+            // castle) — `ZoneId.CASTLE`, which `Creature.moveToLocation` reads
+            // as the exception to its water branch. Its `<spawn>` list is the
+            // owner/other restart points, which nothing consumes yet.
+            ("castle_hall.xml", ZoneKind::Castle),
         ] {
             let before = zones.len();
             parse_file(
@@ -422,6 +436,15 @@ impl ZoneData {
             .map(|zn| zn.clan_hall_id)
     }
 
+    /// Whether `(x, y, z)` is inside a `CastleZone` (Java
+    /// `isInsideZone(ZoneId.CASTLE)`). Read by the movement code as the
+    /// exception to the water branch: `isInWater = WATER && !CASTLE`, so a
+    /// castle's moat still slows you down (that's the plain WATER bit) but
+    /// keeps geodata and pathfinding on.
+    pub fn in_castle_zone(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z).any(|zn| zn.kind == ZoneKind::Castle)
+    }
+
     /// Whether `(x, y, z)` is inside a `JailZone` (Java `isInsideZone(ZoneId
     /// .JAIL)`) — the confinement check for jailed players (G31).
     pub fn in_jail_zone(&self, x: i32, y: i32, z: i32) -> bool {
@@ -481,6 +504,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "DerbyTrackZone" => ZoneKind::DerbyTrack,
         "JailZone" => ZoneKind::Jail,
         "ResidenceTeleportZone" => ZoneKind::ResidenceTeleport,
+        "CastleZone" => ZoneKind::Castle,
         "TaxZone" => ZoneKind::Tax,
         "HqZone" => ZoneKind::Hq,
         _ => return None,
@@ -763,8 +787,18 @@ mod tests {
         // purchases pay into `domainId`'s castle treasury.
         // 1234 → 1253: `castle_hq.xml`'s 19 `HqZone`s — the patches of each
         // battlefield where an attacker may plant its headquarters.
-        assert_eq!(data.zones.len(), 1253);
+        // 1253 → 1262: `castle_hall.xml`'s 9 `CastleZone`s — `ZoneId.CASTLE`,
+        // the exception to `moveToLocation`'s water branch.
+        assert_eq!(data.zones.len(), 1262);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(
+            count(ZoneKind::Castle),
+            9,
+            "castle_hall.xml — one per castle"
+        );
+        // Gludio's courtyard is inside its `CastleZone`; open sea is not.
+        assert!(data.in_castle_zone(-18000, 110000, -1800));
+        assert!(!data.in_castle_zone(-280000, 180000, -4000));
         assert_eq!(count(ZoneKind::Tax), 122, "tax.xml");
         // Every tax zone names a castle (1..=9) through `domainId`.
         assert!(
@@ -918,6 +952,7 @@ mod effect_zone_tests {
                         | ZoneKind::Jail
                         | ZoneKind::ResidenceTeleport
                         | ZoneKind::Tax
+                        | ZoneKind::Castle
                 ),
                 "zone {} has an unported kind",
                 z.name

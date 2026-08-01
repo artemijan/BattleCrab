@@ -1031,6 +1031,9 @@ impl Player {
             swim_walk_spd: t.base_swim_walk_spd as f64,
             move_multiplier: 1.0,
             base_run_spd: t.base_run_spd as f64,
+            base_walk_spd: t.base_walk_spd as f64,
+            base_swim_run_spd: t.base_swim_run_spd as f64,
+            base_swim_walk_spd: t.base_swim_walk_spd as f64,
             running: true,
             swimming: false,
             swamp_multiplier: 1.0,
@@ -1891,6 +1894,13 @@ pub(crate) fn npc_finalized_stats(
         swim_walk_spd: 0.0,
         move_multiplier: 1.0,
         base_run_spd: t.base_run_spd,
+        base_walk_spd: t.base_walk_spd,
+        // NPC templates on this dist declare no `<speed><…swim=…>`, so the
+        // swim bases are 0 — `client_move_multiplier` falls back to 1.0 for
+        // them, and nothing flips `swimming` on an NPC anyway (zone
+        // revalidation is player-only in the port).
+        base_swim_run_spd: 0.0,
+        base_swim_walk_spd: 0.0,
         running: false,
         swimming: false,
         swamp_multiplier: 1.0,

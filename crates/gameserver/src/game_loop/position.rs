@@ -187,6 +187,26 @@ pub(crate) fn handle_ex_send_selected_quest_zone_id(
     }
 }
 
+/// Java `Creature.moveToLocation`'s `isInWater` local:
+/// `isInsideZone(ZoneId.WATER) && !isInsideZone(ZoneId.CASTLE)`. **Not** the
+/// same predicate as [`Speeds::swimming`] — the speed branch has no castle
+/// exception, so a player in a castle moat swims at swim speed but still moves
+/// under geodata. Nor is it `Player.isInWater()`, which in Java means "the
+/// drowning task is running" (see [`super::water`]).
+pub(crate) fn is_in_water(world: &World, object_id: i32) -> bool {
+    if !world
+        .objects
+        .get_component::<Speeds>(&object_id)
+        .is_some_and(|s| s.swimming)
+    {
+        return false;
+    }
+    let Some(pos) = world.objects.get_component::<Position>(&object_id) else {
+        return false;
+    };
+    !world.data.zone_data.in_castle_zone(pos.x, pos.y, pos.z)
+}
+
 /// The movement pipeline behind the intention gates — geodata clamping,
 /// path-worker handoff, or a straight move (`Creature.moveToLocation`'s
 /// body). Entered from the move packet handler and from the queued-move
@@ -198,7 +218,7 @@ pub(crate) fn intention_move_to(
     cur: Position,
     target: (i32, i32, i32),
 ) {
-    let (mut target_x, mut target_y, target_z) = target;
+    let (mut target_x, mut target_y, mut target_z) = target;
     let mut dx = (target_x - cur.x) as f64;
     let mut dy = (target_y - cur.y) as f64;
     if dx * dx + dy * dy > 98_010_000.0 {
@@ -219,11 +239,24 @@ pub(crate) fn intention_move_to(
         .objects
         .get_component::<Player>(&object_id)
         .is_some_and(Player::is_flying);
-    let floating = is_flying
-        || world
-            .objects
-            .get_component::<Speeds>(&object_id)
-            .is_some_and(|s| s.swimming);
+    let in_water = is_in_water(world, object_id);
+    let floating = is_flying || in_water;
+
+    // "Make water move short and use no geodata checks for swimming chars
+    // distance in a click can easily be over 3000." A swim click is cut to the
+    // first 700 units of the ray (all three axes scaled), so a long-range click
+    // underwater becomes a series of short legs the client can keep up with
+    // instead of one unverified 3000-unit glide.
+    if in_water && distance > 700.0 {
+        let divider = 700.0 / distance;
+        let dz = (target_z - cur.z) as f64;
+        target_x = cur.x + (divider * dx) as i32;
+        target_y = cur.y + (divider * dy) as i32;
+        target_z = cur.z + (divider * dz) as i32;
+        dx = (target_x - cur.x) as f64;
+        dy = (target_y - cur.y) as f64;
+        distance = (dx * dx + dy * dy).sqrt();
+    }
 
     // GEODATA MOVEMENT CHECKS AND PATHFINDING (`Creature.moveToLocation`).
     let (original_x, original_y, original_z) = (target_x, target_y, target_z);
@@ -384,14 +417,13 @@ pub(crate) fn start_move(
     let mut distance = (dx * dx + dy * dy).sqrt();
     // Java: when floating (flying / swimming) the Z leg is real travel, so it
     // counts toward the move duration (`distance = Math.hypot(distance, dz)`).
+    // Same `_isFlying || isInWater` pair as the geodata gate — castle moats
+    // included, so a moat crossing is timed as flat ground like Java does.
     let floating = world
         .objects
         .get_component::<Player>(&object_id)
         .is_some_and(Player::is_flying)
-        || world
-            .objects
-            .get_component::<Speeds>(&object_id)
-            .is_some_and(|s| s.swimming);
+        || is_in_water(world, object_id);
     if floating {
         let dz = (target_z - cur.z) as f64;
         distance = (distance * distance + dz * dz).sqrt();

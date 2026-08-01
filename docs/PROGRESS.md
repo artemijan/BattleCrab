@@ -2119,8 +2119,29 @@ G14; admin commands are carved out as their own G13
   `resolve_cast_target`'s `Enemy`/`EnemyOnly` arm → SM 2167 after the LOS
   check, and `Self.java`'s bad-self-skill branch. Auto-attack needs no gate
   (player targets aren't attackable until PvP exists).
-- **Water**: `Speeds.swimming` flips on enter/exit (`getMoveSpeed`'s swim
-  branch) + `broadcastUserInfo`; breath/drowning deferred. NO_RESTART only
+- **Water** (completed 2026-08-01, `feat/water-parity`): `Speeds.swimming`
+  flips on enter/exit (`getMoveSpeed`'s swim branch) + `broadcastUserInfo`.
+  **The swim speeds now also reach the client**: `UserInfo`/`CharInfo` fill
+  their run/walk slots from Java's `getRunSpeed()`/`getWalkSpeed()`, which
+  return the *swim* stats while `isInsideZone(WATER)` — the port sent the land
+  speeds there, so the client kept predicting and animating at 120 while the
+  server swam at 50, and entering water felt like no slowdown at all.
+  `getMovementSpeedMultiplier` likewise picks its divisor among all four
+  template bases (`Speeds::base_{walk,swim_run,swim_walk}_spd` are new), so the
+  leg cadence matches the mode. **Drowning** is ported (`game_loop/water.rs`):
+  `checkWaterState` on every revalidate under the new `General.ini`
+  `AllowWater`, the 60 s cyan `SetupGauge` breath bar (`Stat.BREATH`'s default —
+  nothing on this dist declares the stat), then 1% of max HP a second with
+  SM 297, `directlyToHp` so CP does not soak it (new
+  `combat::player_receive_damage_ex`), cancelled on surfacing and in `doDie`.
+  **Movement**: `moveToLocation`'s `isInWater` (`WATER && !CASTLE`) is now a
+  real predicate — `castle_hall.xml`'s 9 `CastleZone`s load as
+  `ZoneKind::Castle` — and it drives the geodata exemption, the
+  dz-counts-as-travel timing, and the newly ported 700-unit swim-click clamp.
+  Also: `WaterZone.onEnter` cancels a transform whose template lacks `can_swim`
+  (157 of 174 on this dist, now parsed), `onExit` skips the broadcast
+  mid-teleport, and `dismount()`'s 1.5 s post-dismount-into-water `UserInfo`
+  resend is armed (`ScheduledTask::DismountWaterUserInfo`). NO_RESTART only
   tracks membership — nothing reads the flag in this Mobius version.
 
 **Doors** (`data/door_data.rs`, `geo/doors.rs`, `model/door.rs`,

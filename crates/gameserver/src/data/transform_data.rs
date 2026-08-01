@@ -45,6 +45,12 @@ pub struct Transform {
     /// dist: the horse/bike rides). `AllowRideMountsDuringSiege = False` makes
     /// a siege zone untransform them, the same way it dismounts a strider.
     pub riding: bool,
+    /// Java `Transform.canSwim()` — `can_swim="1"`. Entering a `WaterZone`
+    /// cancels any transform that lacks it (`WaterZone.onEnter`'s
+    /// `checkTransformed(transform -> !transform.canSwim())` →
+    /// `stopTransformation(true)`), which on this dist is 157 of the 174
+    /// templates: nearly every transform pops the moment you go under.
+    pub can_swim: bool,
     pub male: TransformTemplate,
     pub female: TransformTemplate,
 }
@@ -129,6 +135,7 @@ fn parse(content: &str) -> Option<Transform> {
     let mut id = None;
     let mut flying = false;
     let mut riding = false;
+    let mut can_swim = false;
     let mut male = TransformTemplate::default();
     let mut female = TransformTemplate::default();
     // 0 = male, 1 = female; which gender block we're inside.
@@ -172,6 +179,8 @@ fn parse(content: &str) -> Option<Transform> {
                     let kind = attr(&e, "type");
                     flying = kind.as_deref() == Some("FLYING");
                     riding = kind.as_deref() == Some("RIDING_MODE");
+                    // `set.getInt("can_swim", 0) == 1` — absent means "no".
+                    can_swim = attr(&e, "can_swim").as_deref() == Some("1");
                 }
                 b"Male" => {
                     gender = 0;
@@ -200,6 +209,7 @@ fn parse(content: &str) -> Option<Transform> {
         display_id: id,
         flying,
         riding,
+        can_swim,
         male,
         female,
     })

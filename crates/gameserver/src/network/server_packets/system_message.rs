@@ -209,6 +209,9 @@ pub mod sm_ids {
     pub const YOU_NEED_S2_MORE_S1_S: i16 = 854;
     pub const YOU_FAILED_AT_MIXING_THE_ITEM: i16 = 719;
     pub const S1_DISAPPEARED: i16 = 302;
+    /// "You have taken $s1 damage because you were unable to breathe." — the
+    /// drowning beat (`WaterTask`).
+    pub const YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE: i16 = 297;
     /// "Summoning your pet…" — the pet-manager evolve/restore flows (G29).
     pub const SUMMONING_YOUR_PET: i16 = 547;
     pub const S2_S1_S_DISAPPEARED: i16 = 301;

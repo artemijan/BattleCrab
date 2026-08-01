@@ -83,7 +83,41 @@ pub(crate) fn revalidate_zone(world: &mut World, object_id: i32, force: bool) {
         if let Some(speeds) = world.objects.get_component_mut::<Speeds>(&object_id) {
             speeds.swimming = swimming;
         }
-        super::party::broadcast_user_info(world, object_id);
+        if swimming {
+            // `onEnter`: a transform that can't swim is cancelled instead of
+            // being rebroadcast — `stopTransformation` sends its own UserInfo,
+            // which is why Java's `else` skips the broadcast on that branch.
+            let cant_swim = world
+                .objects
+                .get_component::<crate::model::Player>(&object_id)
+                .map(|p| p.transform_id)
+                .filter(|&id| id != 0)
+                .is_some_and(|id| world.data.transforms.get(id).is_some_and(|tf| !tf.can_swim));
+            if cant_swim {
+                super::admin::transforms::remove_transform(world, object_id);
+            } else {
+                super::party::broadcast_user_info(world, object_id);
+            }
+        } else {
+            // `onExit`: Java skips the broadcast mid-teleport (the arrival
+            // sends a full UserInfo anyway).
+            if !world
+                .objects
+                .get_component::<crate::model::Player>(&object_id)
+                .is_some_and(|p| p.teleporting)
+            {
+                super::party::broadcast_user_info(world, object_id);
+            }
+        }
+    }
+
+    // `Player.revalidateZone`'s tail: `if (Config.ALLOW_WATER) checkWaterState()`.
+    // Note this is *not* folded into the transition branch above — Java
+    // re-checks on every revalidate, so a player who enters the world already
+    // submerged (or is teleported in) starts drowning without ever crossing an
+    // edge.
+    if world.cfg.general.allow_water {
+        super::water::check_water_state(world, object_id);
     }
 
     // SwampZone.onEnter/onExit: refresh the cached move-speed multiplier and,

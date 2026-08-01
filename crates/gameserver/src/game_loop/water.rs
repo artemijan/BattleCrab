@@ -1,0 +1,144 @@
+//! Drowning (`Config.ALLOW_WATER`) — the port of `Player.checkWaterState` /
+//! `startWaterTask` / `stopWaterTask` and `actor/tasks/player/WaterTask`.
+//!
+//! Java hangs a `ScheduledFuture` off the player: `scheduleAtFixedRate(new
+//! WaterTask(this), breath, 1000)`. The initial delay is the breath gauge (the
+//! cyan `SetupGauge` bar the client draws), after which every second costs 1% of
+//! max HP. Leaving the water cancels the future and blanks the bar.
+//!
+//! The port keeps the same shape as a [`WaterTask`] component holding the tick
+//! of the next beat — "cancel the task" is removing the component, so the
+//! several Java call sites that null out `_taskWater` (death, teleport,
+//! `stopAllTimers` on logout) all map onto [`stop_water_task`].
+//!
+//! Note the two unrelated meanings of "in water" in Java: `Player.isInWater()`
+//! is *this* task being active, while `Creature.moveToLocation`'s `isInWater`
+//! local is the zone predicate (see [`super::position::is_in_water`]).
+
+use crate::data::zone_data::ZoneKind;
+use crate::model::Player;
+use crate::model::components::{Position, Vitals, WaterTask};
+use crate::network::server_packets::{self, SmParam, sm_ids};
+use crate::world::World;
+
+use super::helpers::client_for_player;
+
+/// `SetupGauge`'s cyan bar (`new SetupGauge(objectId, 2, …)`) — the breath
+/// meter. 0-blue, 1-red, 2-cyan, 3-green.
+const GAUGE_CYAN: i32 = 2;
+
+/// `getStat().getValue(Stat.BREATH, 60000)` — how long you can hold your breath.
+/// `Stat.BREATH` is a real Java stat, but **no skill or item on this dist
+/// declares it**, so the default is the only value that can ever be read; the
+/// stat itself is deliberately not added to `model::stats::Stat`. Should a
+/// breath-extending skill ever be datapacked, this becomes a stat lookup.
+pub(crate) const BREATH_MS: u64 = 60_000;
+
+/// The 1 s period of `scheduleAtFixedRate(…, timeinwater, 1000)`, in game ticks.
+const DAMAGE_PERIOD_TICKS: u64 = 10;
+
+/// Java `Player.isInWater()` — whether the drowning task is running. Distinct
+/// from standing in a water zone: the task is only started while
+/// `Config.ALLOW_WATER` is on and the player is alive.
+pub(crate) fn is_drowning_task_active(world: &World, object_id: i32) -> bool {
+    world.objects.has_component::<WaterTask>(&object_id)
+}
+
+/// Java `Player.checkWaterState()`, called from `revalidateZone` under
+/// `Config.ALLOW_WATER`: start the clock inside a water zone, stop it outside.
+pub(crate) fn check_water_state(world: &mut World, object_id: i32) {
+    let in_water_zone = world
+        .objects
+        .get_component::<Position>(&object_id)
+        .copied()
+        .is_some_and(|pos| {
+            world.data.zone_data.mask_at(pos.x, pos.y, pos.z) & ZoneKind::Water.bit() != 0
+        });
+    if in_water_zone {
+        start_water_task(world, object_id);
+    } else {
+        stop_water_task(world, object_id);
+    }
+}
+
+/// Java `Player.startWaterTask()`: idempotent (`_taskWater == null` guard) and
+/// refused outright while dead — a corpse on the seabed does not drown.
+pub(crate) fn start_water_task(world: &mut World, object_id: i32) {
+    if world.objects.has_component::<WaterTask>(&object_id) {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<Vitals>(&object_id)
+        .is_none_or(|v| v.dead)
+    {
+        return;
+    }
+    let next_damage_tick = world.tick + BREATH_MS / 100;
+    world
+        .objects
+        .add_components(&object_id, WaterTask { next_damage_tick });
+    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::setup_gauge(
+            object_id,
+            GAUGE_CYAN,
+            BREATH_MS as i32,
+        ));
+    }
+}
+
+/// Java `Player.stopWaterTask()`: cancel and blank the gauge. The zero-length
+/// `SetupGauge` is what makes the bar disappear, so it must go out on *every*
+/// stop path — surfacing, dying, teleporting, logging out.
+pub(crate) fn stop_water_task(world: &mut World, object_id: i32) {
+    if !world.objects.has_component::<WaterTask>(&object_id) {
+        return;
+    }
+    world.objects.remove_component::<WaterTask>(&object_id);
+    if let Some(cs) = client_for_player(world, object_id).and_then(|cid| world.clients.get(&cid)) {
+        cs.send(server_packets::setup_gauge(object_id, GAUGE_CYAN, 0));
+    }
+}
+
+/// `WaterTask.run()` for everyone whose breath has run out — 1% of max HP a
+/// second (floored at 1), straight to HP, plus the "unable to breathe" message.
+pub(crate) fn drown_tick(world: &mut World) {
+    let now = world.tick;
+    let mut due: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&Player, &mut WaterTask)>(|(p, mut task)| {
+            if task.next_damage_tick > now {
+                return;
+            }
+            // Fixed-rate, like `scheduleAtFixedRate`: the next beat is one
+            // period on from the one just due, not from now.
+            task.next_damage_tick += DAMAGE_PERIOD_TICKS;
+            due.push(p.object_id);
+        });
+
+    for oid in due {
+        let Some(max_hp) = world
+            .objects
+            .get_component::<Vitals>(&oid)
+            .filter(|v| !v.dead)
+            .map(|v| v.max_hp)
+        else {
+            continue;
+        };
+        // `double reduceHp = getMaxHp() / 100.0; if (reduceHp < 1) reduceHp = 1;`
+        let reduce_hp = (max_hp as f64 / 100.0).max(1.0);
+        // `reduceCurrentHp(reduceHp, _player, null, false, true, false, false)`
+        // — attacker is the drowning player themself and `directlyToHp` is
+        // **true**, so CP does not soak it. Routing this through the ordinary
+        // player-damage path would have let a full CP bar hold its breath
+        // indefinitely.
+        super::combat::player_receive_damage_ex(world, oid, oid, reduce_hp, true);
+        if let Some(cs) = client_for_player(world, oid).and_then(|cid| world.clients.get(&cid)) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOU_HAVE_TAKEN_S1_DAMAGE_BECAUSE_YOU_WERE_UNABLE_TO_BREATHE,
+                &[SmParam::Int(reduce_hp as i32)],
+            ));
+        }
+    }
+}

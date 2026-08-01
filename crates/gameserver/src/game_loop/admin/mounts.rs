@@ -14,7 +14,7 @@
 //! fields.
 
 use crate::model::Player;
-use crate::model::components::{Buffs, Collision, Position, Speeds};
+use crate::model::components::{Buffs, Collision, Position};
 use crate::model::inventory::{Inventory, PaperdollSlot};
 use crate::model::skill::OperateType;
 use crate::network::server_packets::{self, SmParam, sm_ids};
@@ -261,10 +261,11 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
         .zones_at(pos.x, pos.y, pos.z - 300)
         .any(|z| z.kind == crate::data::zone_data::ZoneKind::Water);
     if !water_below {
-        let swimming = world
-            .objects
-            .get_component::<Speeds>(&target)
-            .is_some_and(|s| s.swimming);
+        // Java's guard here is `isInWater()` — the *drowning task*, not the
+        // zone flag (`Player.isInWater()` returns `_taskWater != null`). They
+        // usually agree, but with `AllowWater = False` the task never starts,
+        // and Java then refuses a high-altitude dismount even in open sea.
+        let swimming = crate::game_loop::water::is_drowning_task_active(world, target);
         let client = super::helpers::client_for_player(world, target);
         if !swimming && pos.z > 10000 {
             if let Some(cid) = client {
@@ -282,6 +283,16 @@ pub(crate) fn dismount(world: &mut World, target: i32) {
             }
             return;
         }
+    } else {
+        // Dismounting *into* water: Java re-broadcasts `UserInfo` 1.5 s later
+        // if the rider is by then actually swimming. The immediate broadcast at
+        // the end of this function still carries the dismounted-but-dry speeds
+        // — the fall into the water finishes after it, so without the delayed
+        // resend the client keeps running speed while submerged.
+        world.scheduler.schedule(
+            world.tick + 15,
+            crate::scheduler::ScheduledTask::DismountWaterUserInfo { object_id: target },
+        );
     }
     if let Some(p) = world.objects.get_component_mut::<Player>(&target) {
         p.mount_type = 0;

@@ -2038,6 +2038,20 @@ pub(crate) fn player_receive_damage(
     attacker_oid: i32,
     damage: f64,
 ) {
+    player_receive_damage_ex(world, player_oid, attacker_oid, damage, false)
+}
+
+/// [`player_receive_damage`] with Java's `directlyToHp` flag exposed —
+/// `reduceCurrentHp`'s fifth argument, which `PlayerStatus.reduceHp` reads as
+/// "skip the CP pool entirely". Only environmental damage sets it (drowning is
+/// the one ported caller); ordinary hits go through the wrapper above.
+pub(crate) fn player_receive_damage_ex(
+    world: &mut World,
+    player_oid: i32,
+    attacker_oid: i32,
+    damage: f64,
+    directly_to_hp: bool,
+) {
     // A duel is consequence-free: the losing blow stops at 1 HP and ends the
     // duel instead of killing (Java caps it in the duel damage path, which is
     // why a duel loser stands back up rather than dying).
@@ -2086,7 +2100,7 @@ pub(crate) fn player_receive_damage(
             return;
         }
         let mut remaining = damage;
-        if attacker_is_playable {
+        if attacker_is_playable && !directly_to_hp {
             let cp_absorb = remaining.min(pvitals.cur_cp);
             pvitals.cur_cp -= cp_absorb;
             remaining -= cp_absorb;
