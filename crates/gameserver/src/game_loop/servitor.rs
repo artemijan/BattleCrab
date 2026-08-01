@@ -1768,7 +1768,14 @@ pub(crate) fn recalculate_pet_stats(world: &mut World, pet_oid: i32) {
         .cloned()
         .unwrap_or_default();
     let (mut combat, speeds, max_hp, max_mp) =
-        crate::model::npc_finalized_stats(&world.data, &petted, &buffs);
+        // A pet is a `Summon`, not an `Attackable`, so it can never be a
+        // champion — neutral mods.
+        crate::model::npc_finalized_stats(
+            &world.data,
+            &petted,
+            &buffs,
+            crate::model::ChampionStatMods::default(),
+        );
 
     // A pet's worn armour adds to its defences. Java runs pets through the same
     // finalizers as everyone else, which sum the paperdoll; the port's NPC

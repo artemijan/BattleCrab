@@ -1733,6 +1733,47 @@ fn npc_passive_mods(data: &GameData, t: &crate::data::npc_data::NpcTemplate) -> 
     mods
 }
 
+/// The champion multipliers that reach the NPC stat pipeline, resolved from
+/// `Custom/ChampionMonsters.ini` for one NPC. Neutral (all ×1) for an ordinary
+/// mob and whenever `ChampionEnable` is off, so a caller that has no champion
+/// state to offer can pass `Default` and change nothing.
+///
+/// This exists so the finalizers stay pure functions of (template, buffs,
+/// mods) — the config itself lives on `World`, which the stat layer has no
+/// access to.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub(crate) struct ChampionStatMods {
+    /// `ChampionAtk` — P.Atk and M.Atk.
+    pub atk: f64,
+    /// `ChampionSpdAtk` — P.Atk speed and M.Atk speed.
+    pub spd_atk: f64,
+}
+
+impl Default for ChampionStatMods {
+    fn default() -> Self {
+        Self {
+            atk: 1.0,
+            spd_atk: 1.0,
+        }
+    }
+}
+
+impl ChampionStatMods {
+    /// Java's `Config.CHAMPION_ENABLE && creature.isChampion()` guard, which
+    /// every champion finalizer repeats: the multipliers only bite when both
+    /// hold.
+    pub(crate) fn of(cfg: &crate::config::ChampionConfig, champion: bool) -> Self {
+        if cfg.enable && champion {
+            Self {
+                atk: cfg.atk,
+                spd_atk: cfg.spd_atk,
+            }
+        } else {
+            Self::default()
+        }
+    }
+}
+
 /// Finalize an NPC's `CombatStats`, `Speeds`, and max HP/MP from its template
 /// base → passive template skills → active buffs, through the same add/mul maps
 /// and `finalize*` the player uses. Max HP/MP fold in the CON/MEN bonus exactly
@@ -1743,10 +1784,21 @@ pub(crate) fn npc_finalized_stats(
     data: &GameData,
     t: &crate::data::npc_data::NpcTemplate,
     buffs: &Buffs,
+    champion: ChampionStatMods,
 ) -> (CombatStats, Speeds, f64, f64) {
     let sb = &data.stat_bonus;
     let caps = &data.combat_caps;
-    let base = npc::npc_combat_stats(t, sb);
+    let mut base = npc::npc_combat_stats(t, sb);
+    // `PAttackFinalizer`/`MAttackFinalizer`/`P|MAttackSpeedFinalizer`:
+    // `baseValue *= CHAMPION_ATK | CHAMPION_SPD_ATK` **before** the STR/DEX
+    // bonus and before the buff mul/add. Multiplication commutes with the
+    // bonus `npc_combat_stats` has already folded in, so scaling the base here
+    // lands on the same number Java's chain does, and the caps below still
+    // clamp last exactly like `validateValue`.
+    base.p_atk *= champion.atk;
+    base.m_atk *= champion.atk;
+    base.p_atk_spd = (base.p_atk_spd as f64 * champion.spd_atk) as i32;
+    base.m_atk_spd = (base.m_atk_spd as f64 * champion.spd_atk) as i32;
     // Template passive skills are the NPC's innate stat base; player-cast buffs
     // (buffs.0) stack on top through the same maps.
     let mut mods = npc_passive_mods(data, t);
@@ -1821,11 +1873,12 @@ pub(crate) fn recompute_npc_stats_from_buffs(
     data: &GameData,
     t: &crate::data::npc_data::NpcTemplate,
     buffs: &Buffs,
+    champion: ChampionStatMods,
     combat: &mut CombatStats,
     speeds: &mut Speeds,
     vitals: &mut Vitals,
 ) {
-    let (new_combat, new_speeds, max_hp, max_mp) = npc_finalized_stats(data, t, buffs);
+    let (new_combat, new_speeds, max_hp, max_mp) = npc_finalized_stats(data, t, buffs, champion);
     *combat = new_combat;
     // Preserve the live running/swimming state (a mid-chase mob is running);
     // only the speed magnitudes recompute.

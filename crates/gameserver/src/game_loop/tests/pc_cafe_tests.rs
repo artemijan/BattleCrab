@@ -539,6 +539,7 @@ fn a_party_kill_pays_each_member_from_their_own_share() {
         200_000.0,
         0.0,
         &t,
+        true, // not a champion kill → vitality/PA points apply as before
     );
 
     let a = pc_cafe::points_of(&world, PLAYER);

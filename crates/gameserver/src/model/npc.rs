@@ -108,6 +108,21 @@ pub struct Npc {
     /// otherwise takes the template's `weaponEnchant`. A respawn is a fresh
     /// instance, so it re-rolls — the same mob glows differently each life.
     pub enchant_effect: i32,
+    /// Java `Creature._team` — the blue/red aura the client draws (0 none,
+    /// 1 blue, 2 red). Set by `//setteam` and by an event that splits NPCs
+    /// between sides; carried in `NpcInfo`'s `TEAM` block.
+    pub team: u8,
+    /// Java `Npc._displayEffect` — the per-NPC visual state the client swaps
+    /// the model into (`ExChangeNpcState`, e.g. a lit/unlit brazier). Stored so
+    /// a client that meets the NPC *after* the change still sees it, which is
+    /// why Java carries it in `NpcInfo` rather than only in the event packet.
+    pub display_effect: i32,
+    /// Java `Attackable._champion` — this instance rolled the champion lottery
+    /// in `onRespawn` (see [`roll_champion`]). A fresh instance on respawn
+    /// re-rolls, like Java, so the same spawn point is a champion only
+    /// sometimes. Drives the title prefix, the red team aura, the incoming-
+    /// damage divisor, the stat multipliers and the reward multipliers.
+    pub champion: bool,
 }
 
 /// `AttackableAI`'s think state (G9), NPC-only.
@@ -334,6 +349,9 @@ impl Npc {
             seeded: false,
             harvest_item: None,
             enchant_effect: 0,
+            team: 0,
+            display_effect: 0,
+            champion: false,
         };
         let extra = (
             Position {
@@ -562,6 +580,44 @@ pub(crate) fn spawn_npc_at(
     spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0))
 }
 
+/// `Attackable.onRespawn`'s champion lottery — the whole of Java's guard chain
+/// plus the `Rnd.get(100) < CHAMPION_FREQUENCY` roll.
+///
+/// Excluded, in Java's own order: the master gate, non-monsters, quest
+/// monsters (title contains "Quest"), undying templates, raid bosses, raid
+/// minions, a zero frequency, the level window, and instanced spawns unless
+/// `ChampionEnableInInstances`.
+///
+/// **Raid minions are handled by the caller**, not here: Java sets
+/// `_isRaidMinion` on the minion *before* it spawns, and the port has no such
+/// template flag — `minions::clear_champion_for_raid_minion` unsets the roll
+/// right after the spawn instead, which is observationally the same because
+/// nothing has looked at the NPC in between.
+///
+/// Rolls on the global `rnd` stream (like the enchant glow beside it), not
+/// `World::roll`, so it cannot shift the forced-roll sequences combat tests
+/// depend on.
+pub(crate) fn roll_champion(
+    cfg: &crate::config::ChampionConfig,
+    t: &crate::data::npc_data::NpcTemplate,
+) -> bool {
+    if !cfg.enable
+        || !t.is_monster()
+        || t.is_quest_monster()
+        || t.undying
+        || t.is_raid()
+        || cfg.frequency <= 0
+        || t.level < cfg.min_level
+        || t.level > cfg.max_level
+    {
+        return false;
+    }
+    // `Config.CHAMPION_ENABLE_IN_INSTANCES || getInstanceId() == 0`. Every
+    // spawn path that exists today is world-instance 0, so the left arm never
+    // decides anything yet — kept so instanced spawns inherit the right gate.
+    rnd::get(100) < cfg.frequency
+}
+
 /// Assemble one NPC entity (components, region index, `onSpawn` hook). Shared
 /// by the data-driven [`spawn_one`] and the runtime [`spawn_npc_at`]. Does not
 /// broadcast `NpcInfo` — the caller introduces it (boot relies on the
@@ -592,6 +648,10 @@ fn spawn_npc_entity(
         heading
     };
 
+    // `Attackable.onRespawn`'s champion lottery. Rolled here, before the stats
+    // are finalized, because it multiplies them.
+    let champion = roll_champion(&world.cfg.champion, t);
+
     // Finalize combat/speed/vitals from template base + passive template skills
     // (Java's `Creature` ctor copies `template.getSkills()` — HP Increase, Strong
     // P.Atk, …). Spawns at full HP/MP. No player buffs yet, so pass empty.
@@ -599,6 +659,7 @@ fn spawn_npc_entity(
         &world.data,
         t,
         &crate::model::components::Buffs::default(),
+        crate::model::ChampionStatMods::of(&world.cfg.champion, champion),
     );
 
     let npc = Npc {
@@ -617,12 +678,15 @@ fn spawn_npc_entity(
         seeder_object_id: 0,
         seeded: false,
         harvest_item: None,
+        team: 0,
+        display_effect: 0,
         // Java `Npc` ctor: the visual weapon glow, rolled once per instance.
         enchant_effect: if world.cfg.npc.enable_random_enchant_effect {
             rnd::get_range(4, 21)
         } else {
             t.weapon_enchant
         },
+        champion,
     };
     let object_id = npc.object_id;
     let region = region_of(x, y);
@@ -801,6 +865,7 @@ mod tests {
             &data,
             t,
             &crate::model::components::Buffs::default(),
+            crate::model::ChampionStatMods::default(),
         );
         // HP: 4× (skill 4408) × (2632 base × 1.58 CON bonus).
         assert_eq!(max_hp as i32, 16635, "max HP");

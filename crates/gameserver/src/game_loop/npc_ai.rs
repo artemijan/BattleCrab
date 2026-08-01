@@ -482,9 +482,22 @@ fn think_active(world: &mut World, npc_oid: i32) {
         // Town guards *are* `isAggressive="true"` in the datapack (all 186 of
         // them), so without this check every guard seeds hate on every lawful
         // player inside its 450-unit aggroRange and murders them.
+        // `AttackableAI.autoAttackCondition`'s last gate before the
+        // auto-attackable/line-of-sight test: `if (me.isChampion() &&
+        // Config.CHAMPION_PASSIVE) return false`. With `ChampionPassive = True`
+        // on this dist, a champion never seeds hate from the scan — it stands
+        // where it spawned until something hits it, which is what stops a 10×-HP
+        // mob from ambushing a passer-by.
+        let champion_passive = world.cfg.champion.enable
+            && world.cfg.champion.passive
+            && world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .is_some_and(|n| n.champion);
         (
             t.map(|t| t.is_monster() && t.is_aggressive && t.aggro_range > 0)
-                .unwrap_or(false),
+                .unwrap_or(false)
+                && !champion_passive,
             t.map(|t| t.aggro_range).unwrap_or(0),
         )
     };

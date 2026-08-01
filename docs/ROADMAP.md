@@ -90,8 +90,15 @@ systems the original scope never ruled in or out. Decisions:
   movement, inert on Interlude maps) and the Mobius `config/Custom/*` features
   (offline trade/play, sell-buffs, scheme buffer, faction system, fake players,
   champion monsters, banking, class master, wedding, delevel manager, the
-  seasonal `scripts/events/*`) except any the operator explicitly enables —
-  G33 includes a one-time audit of `Custom/*.ini` enable flags to finalize this.
+  seasonal `scripts/events/*`) except any the operator explicitly enables.
+  **The promised audit has now run** — see
+  [PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md). It found **17
+  features enabled on this dist, live in Java, and missing from the port**, so
+  they are ruled back **in** scope by the operator-enabled clause. Champion
+  monsters are ported; the other 16 are listed there with a cost ordering.
+  `Custom/PcCafe.ini` was confirmed **dead in Java itself** (`Config.java`
+  never opens it), and 14 further files are genuinely disabled on this dist and
+  stay out.
 
 ---
 

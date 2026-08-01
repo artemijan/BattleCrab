@@ -1815,6 +1815,21 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         None => return,
     };
     let now = world.tick;
+    // Resolved before the component borrow below. `CHAMPION_HP == 0` disables
+    // the division in Java (the `!= 0` guard), so it maps to a ×1 divisor.
+    let champion_divisor = {
+        let cfg = &world.cfg.champion;
+        let is_champion = cfg.enable
+            && world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&npc_oid)
+                .is_some_and(|n| n.champion);
+        if is_champion && cfg.hp != 0 {
+            cfg.hp as f64
+        } else {
+            1.0
+        }
+    };
 
     let mut became_running = false;
     let mut died = false;
@@ -1842,7 +1857,14 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
         ai.intention = NpcIntention::Attack;
 
-        vitals.cur_hp -= damage;
+        // `Creature.reduceCurrentHp`'s champion arm: the hit is divided by
+        // `ChampionHp` — Java models a champion's bulk as damage reduction,
+        // **not** as a bigger HP pool, so the health bar still reads 100 % and
+        // the mob simply takes ten times as many swings to fall. Hate above is
+        // deliberately computed from the *undivided* damage, as in Java, where
+        // `Attackable.reduceCurrentHp` calls `addDamageHate` before delegating
+        // the HP cut to `super`.
+        vitals.cur_hp -= damage / champion_divisor;
         if vitals.cur_hp <= 0.0 {
             vitals.cur_hp = 0.0;
             died = true;
