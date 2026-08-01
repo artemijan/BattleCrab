@@ -162,8 +162,9 @@ fn advance(
             }
             // `conveyor` teleports rather than walks back; without NPC
             // teleport plumbing it behaves as `cycle` here.
-            // TODO(G21): teleport for `TeleportFirst` — no route on this dist
-            // uses it.
+            // `TeleportFirst` would teleport rather than walk back to node 0.
+            // Not a deferral: no route in `dist/game/data` declares that repeat
+            // style, so the branch has no way to be reached.
             RepeatStyle::GoFirst | RepeatStyle::TeleportFirst => node = 0,
             _ => return None,
         }

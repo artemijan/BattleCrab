@@ -718,8 +718,9 @@ fn reward(
     }
 
     super::items::add_inventory_item(world, customer, item_id, count as i64);
-    // TODO(G15.7): `Stat.CRAFTING_CRITICAL` double-output crit — no source
-    // grants the stat in the ported set, so it never fires.
+    // `Stat.CRAFTING_CRITICAL` (double output) is not modelled. Not a
+    // deferral: nothing in `dist/game/data/stats` grants the stat, so the roll
+    // would always be against zero.
 
     // Cross-player profit/receipt messages (manufacture only).
     if crafter != customer {

@@ -744,6 +744,9 @@ pub mod sm_ids {
     /// "Your skill was deactivated due to lack of MP." — a toggle's MP upkeep
     /// tick failing (`ManaDamOverTime`).
     pub const YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP: i16 = 140;
+    /// `THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED`
+    /// (`@ClientString(id = 175)`) — Relax switching itself off at full HP.
+    pub const THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED: i16 = 175;
     /// "Over-hit!" — the notice for a killing blow that overshot. Java's
     /// companion message 362 (the bonus *amount*) is defined but never sent in
     /// this build, so it is not ported.

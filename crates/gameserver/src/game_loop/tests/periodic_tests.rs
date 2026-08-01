@@ -383,3 +383,183 @@ fn cp_effect_restores_and_drains() {
         "CP never exceeds max ({capped} <= {max_cp})"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Relax (skill 226) — the seated MP-upkeep toggle
+// ---------------------------------------------------------------------------
+
+const RELAX: i32 = 9560;
+
+fn relax_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = cast_test_world();
+    world.data.skill_data.insert_for_test(periodic_skill(
+        RELAX,
+        vec![SkillEffect::Relax {
+            power: 1.0,
+            ticks: 3,
+        }],
+        true,
+    ));
+    (world, db, l)
+}
+
+/// Wound the caster so the "HP is full" stop condition does not fire first —
+/// without this every Relax test would end on the wrong branch.
+fn wound(world: &mut World, oid: i32) {
+    let v = world.objects.get_component_mut::<Vitals>(&oid).unwrap();
+    v.cur_hp = 10.0;
+}
+
+/// `Relax.onStart` seats its caster: Java calls `sitDown(false)`.
+#[test]
+fn relax_seats_its_caster() {
+    let (mut world, _db, _l) = relax_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    wound(&mut world, CASTER);
+    assert!(!crate::game_loop::sit_stand::is_sitting(&world, CASTER));
+
+    land(&mut world, RELAX, CASTER);
+
+    assert!(
+        crate::game_loop::sit_stand::is_sitting(&world, CASTER),
+        "casting Relax sits the player down"
+    );
+}
+
+/// While seated it drains MP each tick — the upkeep that pays for the HP regen.
+#[test]
+fn relax_drains_mp_while_seated() {
+    let (mut world, _db, _l) = relax_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    wound(&mut world, CASTER);
+
+    land(&mut world, RELAX, CASTER);
+    let before = mp(&world, CASTER);
+    advance_ticks(&mut world, ONE_TICK);
+
+    assert!(
+        mp(&world, CASTER) < before,
+        "MP upkeep is paid: {before} -> {}",
+        mp(&world, CASTER)
+    );
+    assert!(
+        has_buff(&world, CASTER, RELAX),
+        "and the toggle is still on"
+    );
+}
+
+/// Standing up ends it — Java `stopEffects(EffectFlag.RELAXING)` on `standUp`.
+///
+/// The tick's own "not sitting" gate would also catch this eventually, so the
+/// assertion is deliberately made **before** any tick could fire: the point is
+/// that standing stops the upkeep at once rather than up to an interval later.
+#[test]
+fn standing_up_ends_relax_immediately() {
+    let (mut world, _db, _l) = relax_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    wound(&mut world, CASTER);
+    land(&mut world, RELAX, CASTER);
+    assert!(has_buff(&world, CASTER, RELAX));
+
+    crate::game_loop::sit_stand::stand_up(&mut world, CASTER);
+
+    assert!(
+        !has_buff(&world, CASTER, RELAX),
+        "standing up ends the toggle without waiting for a tick"
+    );
+}
+
+/// Out of MP, the toggle switches itself off (SM 140), like the other upkeep
+/// effects.
+#[test]
+fn relax_switches_off_when_mp_runs_out() {
+    let (mut world, _db, _l) = relax_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    wound(&mut world, CASTER);
+    land(&mut world, RELAX, CASTER);
+    world
+        .objects
+        .get_component_mut::<Vitals>(&CASTER)
+        .unwrap()
+        .cur_mp = 0.0;
+    drain(&mut out);
+
+    advance_ticks(&mut world, ONE_TICK);
+
+    assert!(!has_buff(&world, CASTER, RELAX), "the toggle switched off");
+    assert!(
+        sm_ids_of(&drain(&mut out)).contains(
+            &crate::network::server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP
+        ),
+        "and said why"
+    );
+}
+
+/// At full HP it retires itself with its **own** message — the branch that
+/// distinguishes "job done" from "ran dry", and the one a naive port collapses
+/// into the MP check.
+#[test]
+fn relax_switches_off_at_full_hp_with_its_own_message() {
+    let (mut world, _db, _l) = relax_world();
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    wound(&mut world, CASTER);
+    land(&mut world, RELAX, CASTER);
+    // Heal to full *after* it started, so `onStart` still ran normally.
+    let max_hp = world
+        .objects
+        .get_component::<Vitals>(&CASTER)
+        .unwrap()
+        .max_hp as f64;
+    world
+        .objects
+        .get_component_mut::<Vitals>(&CASTER)
+        .unwrap()
+        .cur_hp = max_hp;
+    drain(&mut out);
+
+    advance_ticks(&mut world, ONE_TICK);
+
+    assert!(!has_buff(&world, CASTER, RELAX), "the toggle switched off");
+    let sms = sm_ids_of(&drain(&mut out));
+    assert!(
+        sms.contains(
+            &crate::network::server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED
+        ),
+        "with the full-HP message, not the out-of-MP one"
+    );
+    assert!(
+        !sms.contains(
+            &crate::network::server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP
+        ),
+        "and not both"
+    );
+}
+
+/// The real skill 226 parses its `Relax` effect. Pinned against the datapack
+/// because this whole feature was dormant behind a missing parser arm: the
+/// effect name was simply not matched, so a level-5 toggle every Human and Orc
+/// Fighter learns did nothing at all.
+#[test]
+fn the_real_relax_skill_parses_its_effect() {
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    let relax = skills.get(226, 1).expect("skill 226 Relax");
+    assert!(
+        relax
+            .effects
+            .iter()
+            .any(|e| matches!(e, SkillEffect::Relax { .. })),
+        "the <effect name=\"Relax\"> is parsed, not dropped"
+    );
+    assert_eq!(
+        relax.operate_type,
+        OperateType::Toggle,
+        "it is a toggle, which is what drives the self-deactivation"
+    );
+}

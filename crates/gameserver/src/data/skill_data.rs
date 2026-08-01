@@ -1362,6 +1362,19 @@ fn build_skill(
                                 _ => Vec::new(),
                             }
                         }
+                        // `Relax` — the seated MP-upkeep toggle (skill 226).
+                        "Relax" => {
+                            match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::Relax { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            }
+                        }
                         "ManaDamOverTime" => {
                             match (
                                 param("power"),

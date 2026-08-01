@@ -134,8 +134,12 @@ pub(crate) fn apply_skill_effects(
                     .get(*npc_id)
                     .is_some_and(|t| t.type_name == "EffectPoint");
                 if !is_effect_point {
-                    // TODO(G19): Java's Decoy and default-spawn branches
-                    // (`SummonNpc.java` `switch (npcTemplate.getType())`).
+                    // Java's Decoy and default-spawn branches
+                    // (`SummonNpc.java` `switch (npcTemplate.getType())`) are
+                    // not ported. Not a deferral: the only `Decoy` carrier is
+                    // skill 525, which appears in no skill tree, and every
+                    // reachable `SummonNpc` on this dist is an `EffectPoint`
+                    // symbol (454-460).
                     continue;
                 }
                 // GROUND skills spawn at the stored world position; everything
@@ -1075,8 +1079,9 @@ pub(crate) fn apply_skill_effects(
                 // nothing. The spec carries no per-type level, so every level
                 // of a listed abnormal type is a candidate.
                 //
-                // Java also skips `isIrreplacableBuff()` effects; no skill on
-                // this dist sets that flag, so it is not modelled. TODO(G19).
+                // Java also skips `isIrreplacableBuff()` effects. Not modelled
+                // and not a gap: the tag appears only in the 22800+/23200+/
+                // 27800+ skill files, all off-chronicle for Interlude.
                 //
                 // Note this path deliberately does *not* consult the target's
                 // `ResistDispelBuff`: Java reads that stat only in
@@ -1354,6 +1359,16 @@ pub(crate) fn apply_skill_effects(
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
             SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
+            // `Relax.onStart` — the toggle seats its holder. Java calls
+            // `sitDown(false)`: the un-toggleable form, so the player cannot
+            // stand straight back up while the effect is running.
+            SkillEffect::Relax { .. } => {
+                if world.objects.has_component::<crate::model::Player>(&target_oid)
+                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                {
+                    crate::game_loop::sit_stand::sit_down(world, target_oid);
+                }
+            }
             // `Cp.instant` — an immediate CP change, clamped so it never takes
             // the target past full CP (Java caps the *gain* at the recoverable
             // headroom; a negative amount is applied as-is and floored at 0).
@@ -1577,6 +1592,7 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::HealOverTime { .. }
                 | SkillEffect::ManaDamOverTime { .. }
                 | SkillEffect::MpConsumePerLevel { .. }
+                | SkillEffect::Relax { .. }
                 | SkillEffect::Fear { .. }
                 | SkillEffect::FakeDeath { .. }
         )
@@ -3751,6 +3767,7 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             | SkillEffect::HealOverTime { ticks, .. }
             | SkillEffect::ManaDamOverTime { ticks, .. }
             | SkillEffect::MpConsumePerLevel { ticks, .. }
+            | SkillEffect::Relax { ticks, .. }
             | SkillEffect::Fear { ticks }
             | SkillEffect::FakeDeath { ticks, .. }
                 if *ticks > 0 =>
@@ -3883,10 +3900,11 @@ pub(crate) fn handle_dam_over_time_tick(
             // formula for the latter is `power * getTicksMultiplier()` whenever
             // the skill has no `abnormalTime`, which is every instance in this
             // datapack (all 19 are toggles/`AU` skills), so the two are
-            // computed identically here. TODO(G19): split them out if a skill
-            // ever needs `MpConsumePerLevel`'s level-scaled `abnormalTime > 0`
-            // branch (`((level-1)/7.5) * base * abnormalTime`), unexercised
-            // today.
+            // computed identically here. Split them out if a skill ever pairs
+            // `MpConsumePerLevel` with an `abnormalTime` (the level-scaled
+            // `((level-1)/7.5) * base * abnormalTime` branch) — no skill in
+            // this datapack does, so that branch is unreachable rather than
+            // pending.
             // `Fear.onActionTime` — keep running. Java passes `null` for the
             // effector here (not the caster it had at `onStart`), so every
             // repeat steers by the victim's current heading: they keep going
@@ -3895,6 +3913,54 @@ pub(crate) fn handle_dam_over_time_tick(
             SkillEffect::Fear { ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks);
                 fear_action(world, None, target_oid);
+            }
+            // `Relax.onActionTime` — the MP upkeep above, plus the two extra
+            // stop conditions the plain upkeep effects do not have.
+            SkillEffect::Relax { power, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                // "the holder stood up" — Java returns `false` outright, which
+                // cancels the toggle. Standing is how a player turns Relax off.
+                if world.objects.has_component::<crate::model::Player>(&target_oid)
+                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                {
+                    deactivate_toggle |= is_toggle;
+                    continue;
+                }
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
+                    continue;
+                };
+                // Java's `(curHp + 1) > maxRecoverableHp`: the point of Relax is
+                // to regenerate, so it retires itself once there is nothing left
+                // to heal — with its own message, distinct from running dry.
+                if v.cur_hp + 1.0 > v.max_hp as f64 && is_toggle {
+                    if let Some(client_id) = client_for_player(world, target_oid)
+                        && let Some(cs) = world.clients.get(&client_id)
+                    {
+                        cs.send(server_packets::system_message_with(
+                            server_packets::sm_ids::THAT_SKILL_HAS_BEEN_DE_ACTIVATED_AS_HP_WAS_FULLY_RECOVERED,
+                            &[],
+                        ));
+                    }
+                    deactivate_toggle = true;
+                    continue;
+                }
+                let drain = dot_tick_damage(*power, *ticks);
+                if drain > v.cur_mp && is_toggle {
+                    if let Some(client_id) = client_for_player(world, target_oid)
+                        && let Some(cs) = world.clients.get(&client_id)
+                    {
+                        cs.send(server_packets::system_message_with(
+                            server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+                            &[],
+                        ));
+                    }
+                    deactivate_toggle = true;
+                    continue;
+                }
+                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
+                }
+                broadcast_vitals(world, target_oid);
             }
             SkillEffect::ManaDamOverTime { power, ticks }
             | SkillEffect::MpConsumePerLevel { power, ticks }
