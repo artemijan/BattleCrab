@@ -5243,3 +5243,149 @@ fn ave_menu_pager_is_the_numbered_default_handler() {
         "and pages back to the first"
     );
 }
+
+/// `//cw_add 8689` then `//cw_remove 8689` — the Akamanah passive (3629) has to
+/// be gone from the live book *and* from every list the next flush writes.
+///
+/// The live half always worked; the flush half did not. `PlayerSaveData` ships
+/// both the live `SkillBook` **and** `Player.skills_by_index`, a login-time
+/// snapshot that still carried an entry for the class being played, and
+/// `store_player` inserts both. So after a relog while cursed (which is what
+/// puts 3629 into `character_skills`, and therefore into the banked map at the
+/// next login), removing the weapon dropped the `MaxCp` pump live but the
+/// banked row put 3629 straight back on the next flush — the reported "max CP
+/// returns to the cursed value after a relog".
+#[test]
+fn cursed_weapon_skill_not_persisted_after_removal() {
+    const ROOT: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (mut world, _db_tx, mut db_rx, _link) = admin_world();
+    world.data.root = ROOT.to_string();
+    world.data.skill_data = crate::data::skill_data::SkillData::load_from(ROOT);
+    world.data.transforms = crate::data::TransformData::load_from(ROOT);
+    world.data.cursed_weapons = crate::data::CursedWeaponData::load_from(ROOT);
+    world.cursed_weapons = world
+        .data
+        .cursed_weapons
+        .weapons
+        .iter()
+        .cloned()
+        .map(|mut cw| {
+            cw.skill_max_level = (1..=100)
+                .take_while(|l| world.data.skill_data.get(cw.skill_id, *l).is_some())
+                .last()
+                .unwrap_or(1);
+            cw
+        })
+        .collect();
+    world.id_pool = 0x3000_0000..0x3000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 7009, 100);
+    drain(&mut rx);
+    drain_db(&mut db_rx);
+
+    let max_cp_before = world
+        .objects
+        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .unwrap()
+        .max_cp;
+
+    // //cw_add 8689 (+ confirm).
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("cw_add 8689"),
+        ]
+        .concat(),
+    );
+    drain(&mut rx);
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::DLG_ANSWER],
+            dlg_answer_body(server_packets::S1_3_MESSAGE_ID, 1, 0),
+        ]
+        .concat(),
+    );
+    drain(&mut rx);
+
+    let book_has = |w: &World| {
+        w.objects
+            .get_component::<crate::model::components::SkillBook>(&7009)
+            .unwrap()
+            .0
+            .contains_key(&3629)
+    };
+    assert!(book_has(&world), "cursed passive granted");
+    let max_cp_cursed = world
+        .objects
+        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .unwrap()
+        .max_cp;
+    assert!(
+        max_cp_cursed > max_cp_before,
+        "curse pumps MaxCp ({max_cp_before} -> {max_cp_cursed})"
+    );
+
+    // An autosave while cursed writes 3629 to `character_skills`.
+    let cursed_save = build_save_data(&world, 7009).expect("snapshot");
+    assert!(
+        cursed_save.skills.iter().any(|(id, _, _)| *id == 3629),
+        "while cursed, the flush carries 3629"
+    );
+
+    // A relog *while cursed* is the state that matters: the character loads
+    // with 3629 already in `character_skills`, so `Player.skills_by_index`
+    // banks it for the active class index. Seed exactly that.
+    {
+        let live: Vec<(i32, i32, i32)> = world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&7009)
+            .unwrap()
+            .0
+            .iter()
+            .map(|(id, lvl)| (*id, *lvl, 0))
+            .collect();
+        let p = world.objects.get_component_mut::<Player>(&7009).unwrap();
+        let ci = p.class_index;
+        p.skills_by_index.insert(ci, live);
+    }
+
+    // //cw_remove 8689.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SEND_BYPASS_BUILD_CMD],
+            build_cmd_body("cw_remove 8689"),
+        ]
+        .concat(),
+    );
+    drain(&mut rx);
+
+    assert!(!book_has(&world), "cursed passive dropped from the book");
+    let max_cp_after = world
+        .objects
+        .get_component::<crate::model::components::PlayerVitals>(&7009)
+        .unwrap()
+        .max_cp;
+    assert_eq!(max_cp_after, max_cp_before, "MaxCp back to normal live");
+
+    // The flush that follows must not carry it, or the relog reloads it.
+    let clean_save = build_save_data(&world, 7009).expect("snapshot");
+    let ids: Vec<i32> = clean_save.skills.iter().map(|(id, _, _)| *id).collect();
+    let by_index: Vec<(i32, Vec<i32>)> = clean_save
+        .skills_by_index
+        .iter()
+        .map(|(i, v)| (*i, v.iter().map(|(id, _, _)| *id).collect()))
+        .collect();
+    assert!(
+        !ids.contains(&3629),
+        "3629 still in the active flush list: {ids:?}"
+    );
+    assert!(
+        !by_index.iter().any(|(_, v)| v.contains(&3629)),
+        "3629 still in a banked per-index flush list: {by_index:?}"
+    );
+}
