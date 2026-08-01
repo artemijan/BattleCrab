@@ -375,6 +375,17 @@ pub(crate) fn handle_npc_respawn(
 /// (`DeleteObject` near the old region, `NpcInfo` near the new one), so a
 /// cross-region teleport (Antharas entering his lair) neither ghosts nor
 /// duplicates the NPC.
+///
+/// Java's `teleToLocation` runs `decayMe()` **before** the move, and
+/// `World.removeVisibleObject` there clears the target of every creature in
+/// the old 3×3 block that was holding this object (`setTarget(null)` →
+/// `TargetUnselected` for players) and sends them all a `DeleteObject` —
+/// unconditionally, not only when the region index changes. Both halves are
+/// load-bearing on this client: without the `TargetUnselected` the ground
+/// selection ring is left behind at the old spot (a leashed mob snapping home
+/// used to strand one there, same failure family as [`despawn_npc`] and
+/// `visibility.rs`), and without the delete/re-add pair the client can keep a
+/// ghost of a same-region teleport.
 pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i32, heading: i32) {
     let Some(old_region) = world
         .objects
@@ -384,6 +395,26 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         return;
     };
     let new_region = crate::world::region_of(x, y);
+    // `decayMe()`: release every holder's selection, then un-spawn the NPC for
+    // the players around its old position. NPCs hold no `TargetRef` here (an
+    // NPC's "target" is its aggro list), so only players need the packet.
+    let mut holders: Vec<i32> = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &crate::model::components::TargetRef)>(|(p, t)| {
+            if t.0 == Some(npc_oid) {
+                holders.push(p.object_id);
+            }
+        });
+    for holder_oid in holders {
+        super::target::drop_target_notify(world, holder_oid);
+    }
+    broadcast_near_region_in(
+        world,
+        old_region,
+        instance_of(world, npc_oid),
+        &server_packets::delete_object(npc_oid),
+    );
     if let Some(p) = world
         .objects
         .get_component_mut::<crate::model::components::Position>(&npc_oid)
@@ -405,12 +436,6 @@ pub(crate) fn relocate_npc(world: &mut World, npc_oid: i32, x: i32, y: i32, z: i
         if let Some(r) = world.objects.get_component_mut::<RegionCell>(&npc_oid) {
             r.0 = new_region;
         }
-        broadcast_near_region_in(
-            world,
-            old_region,
-            instance_of(world, npc_oid),
-            &server_packets::delete_object(npc_oid),
-        );
     }
     introduce_npc(world, npc_oid);
 }

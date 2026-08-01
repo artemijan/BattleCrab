@@ -267,6 +267,70 @@ fn the_leash_can_be_switched_off() {
     assert_eq!(hate_count(&world, MOB), 1, "keeps its hate");
 }
 
+/// The client side of the snap-back: Java's `teleToLocation` opens with
+/// `decayMe()`, and `World.removeVisibleObject` there clears the selection of
+/// every creature holding the teleporting object before sending the
+/// `DeleteObject`. Without the `TargetUnselected` half our client keeps the mob
+/// id locked and strands the ground selection ring at the drag spot (same
+/// failure as the corpse ring at decay); without the unconditional
+/// `DeleteObject` a same-region hop is announced by `NpcInfo` alone. A player
+/// who never selected the mob must get neither packet's target half.
+#[test]
+fn a_leashed_mob_clears_the_selection_ring_it_leaves_behind() {
+    let (mut world, _db_rx, _link_rx) = combat_test_world();
+    let mut rx = ingame_caster(&mut world, 1, PLAYER, 2000, 0);
+    // An onlooker standing next to the puller, with nothing selected.
+    let mut idle_rx = ingame_caster(&mut world, 2, PLAYER + 1, 2020, 0);
+    place_dragged_mob(&mut world, "Monster", (2000, 0), (0, 0, 0), 0);
+
+    handle_action(&mut world, 1, &action_body(MOB, 0));
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&PLAYER).unwrap().0,
+        Some(MOB),
+        "puller has the mob selected"
+    );
+    drain(&mut rx);
+    drain(&mut idle_rx);
+
+    npc_ai::npc_ai_tick(&mut world);
+
+    assert_eq!(pos_of(&world, MOB), (0, 0, 0), "leashed home");
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&PLAYER).unwrap().0,
+        None,
+        "server-side target released too"
+    );
+    let packets = drain(&mut rx);
+    let unselect = packets.iter().position(|p| {
+        p[0] == server_packets::opcodes::TARGET_UNSELECTED
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == PLAYER
+    });
+    let delete = packets.iter().position(|p| {
+        p[0] == server_packets::opcodes::DELETE_OBJECT
+            && i32::from_le_bytes(p[1..5].try_into().unwrap()) == MOB
+    });
+    let unselect = unselect.expect("TargetUnselected releases the ring");
+    let delete = delete.expect("DeleteObject un-spawns the mob at its old spot");
+    assert!(
+        unselect < delete,
+        "TargetUnselected first — Java's setTarget(null) runs before the DeleteObject"
+    );
+    assert!(
+        packets
+            .iter()
+            .skip(delete)
+            .any(|p| p[0] == server_packets::opcodes::NPC_INFO),
+        "and the mob is re-introduced on its spawn point"
+    );
+    assert!(
+        !drain(&mut idle_rx).iter().any(|p| {
+            p[0] == server_packets::opcodes::TARGET_UNSELECTED
+                && i32::from_le_bytes(p[1..5].try_into().unwrap()) == PLAYER + 1
+        }),
+        "the onlooker never selected it, so nothing to unselect"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // "Minions should return as well."
 // ---------------------------------------------------------------------------
