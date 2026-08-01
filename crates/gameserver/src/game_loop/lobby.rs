@@ -594,13 +594,15 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // Initial burst carries 0 charges/0/0; a fresh login never has Force built
     // up. `refresh_expertise_penalty` (after the player is registered below)
     // recomputes and resends if any gear is over-grade.
-    session.send(ew::etc_status_update(0, 0, 0, false));
+    session.send(ew::etc_status_update(0, 0, 0, 0, false));
     session.send(ew::ex_pledge_waiting_list_alarm());
     session.send(ew::ex_subjob_info(player));
+    let max_load = crate::game_loop::weight::max_load(world, player.object_id);
     session.send(ew::ex_user_info_inven_weight(
         player.object_id,
         &bundle.inventory,
         data,
+        max_load,
     ));
     session.send(ew::ex_adena_inven_count(&bundle.inventory));
     session.send(ew::ex_storage_max_count(
@@ -673,6 +675,7 @@ pub(crate) fn handle_enter_world(world: &mut World, client_id: u32) {
     // penalized. Runs now that the player is registered; resends
     // EtcStatusUpdate + UserInfo only when there's an actual penalty.
     super::expertise::refresh_expertise_penalty(world, object_id);
+    super::weight::refresh_weight_penalty(world, object_id);
     // Java `restoreCharData`/`addSkill` also pumps armor-conditioned passives
     // (Spellcraft/Magician's Movement) at enter-world: a robe-wearing mystic
     // logs in with the casting/attack-speed bonus already folded in.

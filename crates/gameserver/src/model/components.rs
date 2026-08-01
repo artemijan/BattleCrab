@@ -740,6 +740,17 @@ pub struct ManufactureStore {
 /// / `_expertiseArmorPenalty`, each 0-4). Cached so `refresh_expertise_penalty`
 /// can no-op when nothing changed, and read by `EtcStatusUpdate`. Player-only.
 #[derive(Component, Debug, Clone, Copy, Default)]
+pub struct WeightPenalty {
+    /// 0-4, the level of Java's `CommonSkill.WEIGHT_PENALTY` (4270) currently
+    /// applied. The client draws its icon from the `EtcStatusUpdate` byte.
+    pub level: i32,
+    /// `Player.isOverloaded()` — carrying more than `getMaxLoad()`. Distinct
+    /// from `level > 0`: the penalty ladder starts at 50% of the limit, so a
+    /// character can be penalised without being overloaded.
+    pub overloaded: bool,
+}
+
+#[derive(Component, Debug, Clone, Copy, Default)]
 pub struct ExpertisePenalty {
     pub weapon: i32,
     pub armor: i32,
@@ -1096,11 +1107,8 @@ pub struct AdminFlags {
     /// delivers nothing.
     pub silence: bool,
     /// `isInDietMode` — weight overload is ignored. Set by `GMStartupDietMode`
-    /// and `//diet`. Read by nothing, and cannot be: **this port models no
-    /// carried weight at all** — no inventory weight total, no slot limit, no
-    /// `getWeightPenalty()`. There is no overload to be immune to, so the flag
-    /// is stored and echoed to the GM only. Wire it up with the weight calc,
-    /// not before.
+    /// and `//diet`; read by [`crate::game_loop::weight`], which reports penalty
+    /// level 0 and "not overloaded" for a dieting GM no matter what they carry.
     pub diet: bool,
     /// `//para`'s `setBlockActions(true)` + `startParalyze()` — ORed into
     /// `abnormal::is_action_blocked`/`is_movement_disabled` beside the buff

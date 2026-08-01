@@ -152,6 +152,12 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
             .objects
             .get_component::<crate::model::components::AdminFlags>(&object_id)
             .is_some_and(|f| f.silence);
+        // The packet carries all three penalties at once, so the sibling's
+        // current value has to ride along or it would be cleared on the client.
+        let weight_penalty = world
+            .objects
+            .get_component::<crate::model::components::WeightPenalty>(&object_id)
+            .map_or(0, |w| w.level);
         let user_info = crate::network::user_info::user_info(
             &view,
             &world.data,
@@ -162,6 +168,7 @@ pub(crate) fn refresh_expertise_penalty(world: &mut World, object_id: i32) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(crate::network::enter_world::etc_status_update(
                 charges,
+                weight_penalty,
                 weapon_penalty,
                 armor_penalty,
                 silence,

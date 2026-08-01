@@ -20,13 +20,19 @@ pub(crate) fn client_for_player(world: &World, player_object_id: i32) -> Option<
 /// Ported paths that only sent the bare `InventoryUpdate` left the adena display
 /// stale (e.g. `//create_coin Adena`). `iu` is the already-built InventoryUpdate.
 pub(crate) fn send_inventory_update(world: &World, client_id: u32, object_id: i32, iu: Vec<u8>) {
+    let max_load = crate::game_loop::weight::max_load(world, object_id);
     let extras = world
         .objects
         .get_component::<crate::model::inventory::Inventory>(&object_id)
         .map(|inv| {
             (
                 crate::network::enter_world::ex_adena_inven_count(inv),
-                crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data),
+                crate::network::enter_world::ex_user_info_inven_weight(
+                    object_id,
+                    inv,
+                    &world.data,
+                    max_load,
+                ),
             )
         });
     if let Some(cs) = world.clients.get(&client_id) {
@@ -85,9 +91,13 @@ pub(crate) fn send_etc_status_update(world: &World, client_id: u32, object_id: i
         .objects
         .get_component::<crate::model::Player>(&object_id)
         .map_or(0, |p| p.charges);
+    let wp = world
+        .objects
+        .get_component::<crate::model::components::WeightPenalty>(&object_id)
+        .map_or(0, |w| w.level);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(crate::network::enter_world::etc_status_update(
-            charges, ep.weapon, ep.armor, silence,
+            charges, wp, ep.weapon, ep.armor, silence,
         ));
     }
 }

@@ -185,6 +185,11 @@ pub(crate) fn is_movement_disabled(world: &World, object_id: i32) -> bool {
         || world
             .objects
             .has_component::<crate::model::components::Immobilized>(&object_id)
+        // Java `Creature.isMovementDisabled()` ORs `_isOverloaded` in with the
+        // crowd-control flags: carrying past your limit roots you where you
+        // stand until you drop something. This is the enforcement half of the
+        // weight system — the 4270 passive only slows you down.
+        || crate::game_loop::weight::is_overloaded(world, object_id)
         || flags_of(world, object_id)
             & (effect_flag::BLOCK_ACTIONS | effect_flag::ROOTED | effect_flag::IMMOBILIZED)
             != 0

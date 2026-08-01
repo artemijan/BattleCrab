@@ -92,6 +92,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
         return;
     };
     let object_id = session.player_object_id();
+    let max_load = crate::game_loop::weight::max_load(world, object_id);
     let Some(inventory) = world.objects.get_component::<Inventory>(&object_id) else {
         return;
     };
@@ -105,6 +106,7 @@ pub(crate) fn handle_request_item_list(world: &mut World, client_id: u32) {
         object_id,
         inventory,
         &world.data,
+        max_load,
     ));
 }
 
@@ -609,6 +611,7 @@ pub(crate) fn finish_equip_change(
     // of `inventory` above is released; it sends its own EtcStatusUpdate +
     // UserInfo when the penalty actually changed.
     crate::game_loop::expertise::refresh_expertise_penalty(world, object_id);
+    crate::game_loop::weight::refresh_weight_penalty(world, object_id);
     // Java re-pumps passive skill effects on the same equip listeners: an
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.

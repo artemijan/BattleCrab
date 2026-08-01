@@ -996,9 +996,25 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         send_player_message(world, client_id, "You cannot register while on a siege.");
         return false;
     }
-    // TODO(G33): `isInventoryUnder80(false)` and `getWeightPenalty()` — neither
-    // an inventory slot limit nor a carried-weight calc exists anywhere in this
-    // port, so there is no state to read. The other Java gates are all above.
+    if !crate::game_loop::weight::is_inventory_under_80(world, player) {
+        send_player_message(
+            world,
+            client_id,
+            "There are too many items in your inventory.",
+        );
+        send_player_message(world, client_id, "Try removing some items.");
+        return false;
+    }
+    // `getWeightPenalty() != 0` — *any* penalty band, not just overloaded.
+    if crate::game_loop::weight::current_penalty(world, player) != 0 {
+        send_player_message(
+            world,
+            client_id,
+            "Your invetory weight has exceeded the normal limit.",
+        );
+        send_player_message(world, client_id, "Try removing some items.");
+        return false;
+    }
     true
 }
 

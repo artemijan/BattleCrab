@@ -527,11 +527,16 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
     }
     // Java's `destroyItem(…, sendMessage = true)` refreshes the client's bag;
     // the weight/adena footers ride along (see `helpers::send_inventory_update`).
+    let max_load = crate::game_loop::weight::max_load(world, object_id);
     if let Some(inv) = world.objects.get_component::<Inventory>(&object_id) {
         let list = crate::network::enter_world::item_list(inv, &world.data, false);
         let adena = crate::network::enter_world::ex_adena_inven_count(inv);
-        let weight =
-            crate::network::enter_world::ex_user_info_inven_weight(object_id, inv, &world.data);
+        let weight = crate::network::enter_world::ex_user_info_inven_weight(
+            object_id,
+            inv,
+            &world.data,
+            max_load,
+        );
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(list);
             cs.send(adena);
