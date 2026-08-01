@@ -182,6 +182,13 @@ pub struct World {
     /// installs a closed dummy channel (requests vanish — `NullRegion`-style
     /// no-op); boot and pathfinding tests replace it with a live worker's.
     pub path: crate::geo::worker::PathReqTx,
+    /// The same `GeoEngine.ini` pathfinding tuning the worker runs with, for
+    /// the one caller that searches on the game thread: `//path_find` (Java's
+    /// `AdminPathNode` calls `PathFinding.findPath` inline as well).
+    pub path_cfg: crate::geo::path::PathConfig,
+    /// `Config.GEOEDIT_PATH` (`GeoEngine.ini` `GeoEditPath`) — where
+    /// `//geosave`/`//geosaveall` export edited regions.
+    pub geoedit_path: String,
     /// Last issued path-request sequence number (`next_path_seq`) — replies
     /// carrying anything older than the requester's `PathWait` are stale.
     pub path_seq: u64,
@@ -481,6 +488,8 @@ impl World {
             geo: std::sync::Arc::new(GeoEngine::empty()),
             path_finding: 2,
             path: std::sync::mpsc::channel().0,
+            path_cfg: crate::geo::path::PathConfig::default(),
+            geoedit_path: "saves/".to_string(),
             path_seq: 0,
             debug_packets: false,
             shutdown_signal: None,

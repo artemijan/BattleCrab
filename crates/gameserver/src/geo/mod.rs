@@ -6,8 +6,11 @@
 //! Pathfinding (`CellPathFinding`) lives in [`path`] and runs on the
 //! dedicated [`worker`] thread. Door collision lives in [`doors`] — closed
 //! doors block LOS/movement via the segment checks Java runs at the head of
-//! these queries (G12). Not ported yet: fence checks (no fences exist on
-//! the Rust side) and runtime NSWE editing.
+//! these queries (G12). Runtime NSWE editing (the `//geoenable*`/
+//! `//geodisable*` admin commands) layers over the immutable regions through
+//! the override map, and [`GeoEngine::save_region`] writes those edits back
+//! out in the `.l2j` on-disk format. Not ported: fence checks (no fences
+//! exist on the Rust side).
 
 pub mod doors;
 pub mod line;
@@ -123,6 +126,41 @@ impl GeoEngine {
     /// Number of runtime NSWE edits currently applied (admin `//geosave`).
     pub fn override_count(&self) -> usize {
         self.nswe_overrides.read().unwrap().len()
+    }
+
+    /// The region-file tiles that carry geodata, in `x_y` order — Java's
+    /// `//geosaveall` sweep, which walks every tile and skips `NullRegion`s.
+    pub fn loaded_tiles(&self) -> Vec<(i32, i32)> {
+        (0..GEO_REGIONS_X)
+            .flat_map(|x| (0..GEO_REGIONS_Y).map(move |y| (x, y)))
+            .filter(|&(x, y)| self.regions[(x * GEO_REGIONS_Y + y) as usize].is_some())
+            .collect()
+    }
+
+    /// Java `Region.saveToFile` for one tile: write `{x}_{y}.l2j` into `dir`
+    /// with this tile's runtime NSWE edits folded into the cells they changed.
+    /// `None` when the tile has no geodata (Java's `NullRegion` branch —
+    /// "Could not find region"), else whether the write succeeded.
+    pub fn save_region(&self, tile_x: i32, tile_y: i32, dir: &Path) -> Option<bool> {
+        // Out-of-grid tiles read as "no region", like `region()` — a GM standing
+        // at an absurd coordinate must not index past the tile array.
+        if !(0..GEO_REGIONS_X).contains(&tile_x) || !(0..GEO_REGIONS_Y).contains(&tile_y) {
+            return None;
+        }
+        let region = self.regions[(tile_x * GEO_REGIONS_Y + tile_y) as usize].as_ref()?;
+        let (min_x, min_y) = (tile_x * REGION_CELLS_X, tile_y * REGION_CELLS_Y);
+        let edits: std::collections::HashMap<(i32, i32, i32), u8> = self
+            .nswe_overrides
+            .read()
+            .unwrap()
+            .iter()
+            .filter(|((gx, gy, _), _)| {
+                (min_x..min_x + REGION_CELLS_X).contains(gx)
+                    && (min_y..min_y + REGION_CELLS_Y).contains(gy)
+            })
+            .map(|(&k, &v)| (k, v))
+            .collect();
+        Some(region.save_to_file(&dir.join(format!("{tile_x}_{tile_y}.l2j")), &edits))
     }
 
     /// Admin `//geomap` — the geodata tile (region file) coords a world position
@@ -597,9 +635,7 @@ fn compute_nswe(last_x: i32, last_y: i32, x: i32, y: i32) -> u8 {
 /// comes from `f(geo_x_in_region, geo_y_in_region)`. Test/tooling helper —
 /// production regions come from `Region::load`.
 pub fn synthetic_region(f: impl Fn(i32, i32) -> (i16, u8)) -> Region {
-    fn encode_cell(height: i16, nswe: u8) -> i16 {
-        (((height as i32) << 1) as i16 & !0x000F) | nswe as i16
-    }
+    use region::encode_cell;
     let mut img =
         Vec::with_capacity(region::REGION_BLOCKS as usize * (1 + region::BLOCK_CELLS as usize * 2));
     for bx in 0..region::REGION_BLOCKS_X {

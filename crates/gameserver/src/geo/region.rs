@@ -6,11 +6,19 @@
 //! memory-mapped and answers queries straight from them; the only parsed
 //! state is a 64K-entry byte-offset index locating each block (blocks are
 //! variable-length because of multilayer cells). See PLAN_GAME_SERVER §risks:
-//! "mmap + read-only shared geodata". Runtime NSWE editing (`setNearestNswe`,
-//! doors/fences punching holes) is not ported yet — the data is read-only.
+//! "mmap + read-only shared geodata".
+//!
+//! Because the mapped bytes stay read-only, runtime NSWE edits
+//! (`setNearestNswe`/`unsetNearestNswe`) live in the engine's override map
+//! rather than in the blocks as Java's do. [`Region::write_to`] is where the
+//! two representations meet again: it re-emits the region in the on-disk
+//! format with the overrides folded into the cells they edit, reproducing what
+//! Java's mutated blocks would have serialized (`Region.saveToFile`).
 
+use std::collections::HashMap;
 use std::fs::File;
 use std::io;
+use std::io::Write;
 use std::path::Path;
 
 /// `IBlock`/`IRegion` geometry constants.
@@ -105,11 +113,15 @@ impl Region {
         i16::from_le_bytes([d[pos], d[pos + 1]])
     }
 
+    /// Java `Region.getBlock`'s index into `_blocks`.
+    fn block_index(geo_x: i32, geo_y: i32) -> usize {
+        ((((geo_x / BLOCK_CELLS_X) % REGION_BLOCKS_X) * REGION_BLOCKS_Y)
+            + ((geo_y / BLOCK_CELLS_Y) % REGION_BLOCKS_Y)) as usize
+    }
+
     /// Java `Region.getBlock` index → this region's byte offset of the block.
     fn block_offset(&self, geo_x: i32, geo_y: i32) -> usize {
-        let idx = (((geo_x / BLOCK_CELLS_X) % REGION_BLOCKS_X) * REGION_BLOCKS_Y)
-            + ((geo_y / BLOCK_CELLS_Y) % REGION_BLOCKS_Y);
-        self.block_offsets[idx as usize] as usize
+        self.block_offsets[Self::block_index(geo_x, geo_y)] as usize
     }
 
     /// Cell index inside a block (Java: `(geoX % 8) * 8 + geoY % 8`).
@@ -255,6 +267,159 @@ impl Region {
         let count = self.bytes.as_slice()[cell_offset] as usize;
         (0..count).map(move |i| self.i16_at(cell_offset + 1 + i * 2))
     }
+
+    // --- Serialization (`Region.saveToFile`) ---
+
+    /// Byte length of the block starting at `pos`, its type byte included.
+    fn block_len(&self, pos: usize) -> usize {
+        let data = self.bytes.as_slice();
+        match data[pos] {
+            TYPE_FLAT => 3,
+            TYPE_COMPLEX => 1 + BLOCK_CELLS as usize * 2,
+            _ => {
+                let mut cur = pos + 1;
+                for _ in 0..BLOCK_CELLS {
+                    cur += 1 + data[cur] as usize * 2;
+                }
+                cur - pos
+            }
+        }
+    }
+
+    /// Port of `Region.saveToFile`'s block loop: re-emit the region in the
+    /// on-disk `.l2j` layout with `edits` folded in — the engine's runtime
+    /// NSWE override map (`(geoX, geoY, nearestZ) → NSWE`) restricted to this
+    /// region.
+    ///
+    /// Java mutates its loaded blocks as the GM edits, so its save just dumps
+    /// them; here the mapped bytes are immutable, so only edited blocks are
+    /// rebuilt — including Java's flat→complex promotion
+    /// (`Region.convertFlatToComplex`, which a *disable* triggers because flat
+    /// cells are open in every direction and cannot express a cleared bit).
+    /// Untouched blocks are copied verbatim, so an unedited region round-trips
+    /// byte for byte.
+    pub fn write_to(
+        &self,
+        out: &mut impl Write,
+        edits: &HashMap<(i32, i32, i32), u8>,
+    ) -> io::Result<()> {
+        let mut by_block: HashMap<usize, Vec<((i32, i32, i32), u8)>> = HashMap::new();
+        for (&key, &nswe) in edits {
+            by_block
+                .entry(Self::block_index(key.0, key.1))
+                .or_default()
+                .push((key, nswe));
+        }
+        let data = self.bytes.as_slice();
+        for index in 0..REGION_BLOCKS as usize {
+            let pos = self.block_offsets[index] as usize;
+            match by_block.get(&index) {
+                None => out.write_all(&data[pos..pos + self.block_len(pos)])?,
+                Some(cells) => self.write_edited_block(out, pos, cells)?,
+            }
+        }
+        Ok(())
+    }
+
+    /// One block with at least one edited cell, in the block's own format.
+    fn write_edited_block(
+        &self,
+        out: &mut impl Write,
+        pos: usize,
+        cells: &[((i32, i32, i32), u8)],
+    ) -> io::Result<()> {
+        let data = self.bytes.as_slice();
+        // The edit (if any) that lands on cell `index` of this block.
+        let edit_at = |index: usize| {
+            cells
+                .iter()
+                .find(|((gx, gy, _), _)| Self::cell_index(*gx, *gy) == index)
+                .copied()
+        };
+        match data[pos] {
+            TYPE_FLAT => {
+                let height = self.i16_at(pos + 1);
+                // Java's `setNearestNswe` returns early on a flat block (its
+                // cells are open in every direction already), so an edit that
+                // leaves the cell fully open never promotes it to complex.
+                if cells.iter().all(|&(_, nswe)| nswe == super::NSWE_ALL) {
+                    return out.write_all(&data[pos..pos + 3]);
+                }
+                out.write_all(&[TYPE_COMPLEX])?;
+                for index in 0..BLOCK_CELLS as usize {
+                    let nswe = edit_at(index).map_or(super::NSWE_ALL, |(_, nswe)| nswe);
+                    out.write_all(&encode_cell(height, nswe).to_le_bytes())?;
+                }
+                Ok(())
+            }
+            TYPE_COMPLEX => {
+                out.write_all(&[TYPE_COMPLEX])?;
+                for index in 0..BLOCK_CELLS as usize {
+                    let mut cell = self.i16_at(pos + 1 + index * 2);
+                    if let Some((_, nswe)) = edit_at(index) {
+                        cell = with_nswe(cell, nswe);
+                    }
+                    out.write_all(&cell.to_le_bytes())?;
+                }
+                Ok(())
+            }
+            _ => {
+                out.write_all(&[TYPE_MULTILAYER])?;
+                let mut cur = pos + 1;
+                for index in 0..BLOCK_CELLS as usize {
+                    let count = data[cur] as usize;
+                    out.write_all(&[count as u8])?;
+                    let edit = edit_at(index);
+                    let mut patched = false;
+                    for i in 0..count {
+                        let mut layer = self.i16_at(cur + 1 + i * 2);
+                        // Java patches the single layer `getNearestLayer`
+                        // picked at edit time; the override key carries that
+                        // layer's z, so match on it (first one wins, as in
+                        // Java's nearest-layer scan).
+                        if let Some(((.., z), nswe)) = edit
+                            && !patched
+                            && cell_height(layer) == z
+                        {
+                            layer = with_nswe(layer, nswe);
+                            patched = true;
+                        }
+                        out.write_all(&layer.to_le_bytes())?;
+                    }
+                    cur += 1 + count * 2;
+                }
+                Ok(())
+            }
+        }
+    }
+
+    /// Java `Region.saveToFile`: delete any existing file, then write the
+    /// region (edits folded in). `false` on any I/O error, like Java's
+    /// swallowed `IOException`.
+    pub fn save_to_file(&self, path: &Path, edits: &HashMap<(i32, i32, i32), u8>) -> bool {
+        if path.exists() && std::fs::remove_file(path).is_err() {
+            return false;
+        }
+        let Ok(file) = File::create(path) else {
+            return false;
+        };
+        let mut out = io::BufWriter::new(file);
+        self.write_to(&mut out, edits).is_ok() && out.flush().is_ok()
+    }
+}
+
+/// Encode a complex/multilayer cell short the way the files store it: the
+/// height doubled into bits 4..15, NSWE in the low nibble (Java combines
+/// `height << 1` with the new NSWE the same way, low-nibble bits of the
+/// shifted height falling to the NSWE nibble — heights are multiples of 8).
+pub(crate) fn encode_cell(height: i16, nswe: u8) -> i16 {
+    (((height as i32) << 1) as i16 & !0x000F) | nswe as i16
+}
+
+/// Replace a cell/layer short's NSWE nibble, keeping its height bits — Java's
+/// `(height << 1) | newNswe` recombination in `ComplexBlock`/`MultilayerBlock`.
+fn with_nswe(cell: i16, nswe: u8) -> i16 {
+    (cell & !0x000F) | nswe as i16
 }
 
 /// Low 4 bits of a complex/multilayer cell short: NSWE mask.
@@ -272,12 +437,6 @@ fn cell_height(data: i16) -> i32 {
 mod tests {
     use super::*;
     use crate::geo::NSWE_ALL;
-
-    /// Encode a cell short the way the files store it: height doubled into
-    /// bits 4..15, NSWE in the low nibble.
-    pub(crate) fn encode_cell(height: i16, nswe: u8) -> i16 {
-        (((height as i32) << 1) as i16 & !0x000F) | nswe as i16
-    }
 
     /// The stored short keeps NSWE in the low nibble and `height << 1` above
     /// it (`(short) (data & 0x0fff0) >> 1` to decode), so representable
@@ -339,6 +498,135 @@ mod tests {
         // Equidistant tie (worldZ=500): the first layer seeds the search and
         // later layers need a strictly smaller |dz| — Java keeps layer 0.
         assert_eq!(region.nearest_z(0, 16, 500), 0);
+    }
+
+    /// The three-block image the save tests edit: block 0 flat at z=-100,
+    /// block 1 complex (all cells z=48, open), block 2 multilayer with a
+    /// two-layer cell 0 (z=0 and z=1000); the rest flat at z=0.
+    fn mixed_region_image() -> Vec<u8> {
+        let mut img = Vec::new();
+        img.push(TYPE_FLAT);
+        img.extend_from_slice(&(-100i16).to_le_bytes());
+        img.push(TYPE_COMPLEX);
+        for _ in 0..BLOCK_CELLS {
+            img.extend_from_slice(&encode_cell(48, NSWE_ALL).to_le_bytes());
+        }
+        img.push(TYPE_MULTILAYER);
+        img.push(2u8);
+        img.extend_from_slice(&encode_cell(0, NSWE_ALL).to_le_bytes());
+        img.extend_from_slice(&encode_cell(1000, NSWE_ALL).to_le_bytes());
+        for _ in 1..BLOCK_CELLS {
+            img.push(1u8);
+            img.extend_from_slice(&encode_cell(0, NSWE_ALL).to_le_bytes());
+        }
+        for _ in 3..REGION_BLOCKS {
+            img.push(TYPE_FLAT);
+            img.extend_from_slice(&0i16.to_le_bytes());
+        }
+        img
+    }
+
+    fn written(region: &Region, edits: &[((i32, i32, i32), u8)]) -> Vec<u8> {
+        let map: HashMap<(i32, i32, i32), u8> = edits.iter().copied().collect();
+        let mut out = Vec::new();
+        region.write_to(&mut out, &map).expect("write");
+        out
+    }
+
+    /// **A save with no edits is the file it loaded.** Java dumps its parsed
+    /// blocks; here untouched blocks are copied byte for byte, which is the
+    /// only way the two can agree on regions the GM never edited.
+    #[test]
+    fn unedited_region_round_trips_byte_for_byte() {
+        let img = mixed_region_image();
+        let region = Region::from_owned(img.clone()).unwrap();
+        assert_eq!(written(&region, &[]), img);
+    }
+
+    /// **A complex cell keeps its height and loses only the cleared bit** —
+    /// Java's `ComplexBlock.unsetNearestNswe` recombines `height << 1` with
+    /// the new nibble, so the height bits must survive the edit.
+    #[test]
+    fn complex_cell_edit_patches_only_the_nswe_nibble() {
+        let region = Region::from_owned(mixed_region_image()).unwrap();
+        // Block 1 = geo cells x 0..8, y 8..16; cell (3, 9) is index 3*8+1 = 25.
+        let edited = written(&region, &[((3, 9, 48), NSWE_ALL & !crate::geo::NSWE_NORTH)]);
+        let reloaded = Region::from_owned(edited.clone()).unwrap();
+        assert_eq!(reloaded.nearest_z(3, 9, 0), 48, "height preserved");
+        assert_eq!(
+            reloaded.nearest_nswe(3, 9, 0),
+            NSWE_ALL & !crate::geo::NSWE_NORTH
+        );
+        // Its neighbours in the same block are untouched.
+        assert_eq!(reloaded.nearest_nswe(3, 10, 0), NSWE_ALL);
+        assert_eq!(
+            edited.len(),
+            mixed_region_image().len(),
+            "same block layout"
+        );
+    }
+
+    /// **Disabling a direction on a flat block promotes it to complex.** Flat
+    /// cells are open in every direction and cannot express a cleared bit, so
+    /// Java's `convertFlatToComplex` rewrites the whole block at the flat
+    /// height before applying the edit — the save has to reproduce that.
+    #[test]
+    fn flat_block_is_promoted_to_complex_by_a_disable() {
+        let region = Region::from_owned(mixed_region_image()).unwrap();
+        let edited = written(
+            &region,
+            &[((2, 3, -100), NSWE_ALL & !crate::geo::NSWE_WEST)],
+        );
+        assert_eq!(edited[0], TYPE_COMPLEX, "block 0 promoted");
+        let reloaded = Region::from_owned(edited).unwrap();
+        assert_eq!(
+            reloaded.nearest_nswe(2, 3, 0),
+            NSWE_ALL & !crate::geo::NSWE_WEST
+        );
+        // A flat block stores its height raw, a complex cell stores it doubled
+        // above the NSWE nibble — so promoting a height that is not a multiple
+        // of 8 truncates it. Java's `convertFlatToComplex` does exactly this
+        // (`(currentHeight << 1) | NSWE_ALL`, decoded through `& 0x0fff0`), so
+        // -100 comes back as -104 there too; ported quirk and all.
+        assert_eq!(reloaded.nearest_z(2, 3, 0), -104);
+        // Every other cell of the promoted block stays open at that height.
+        assert_eq!(reloaded.nearest_nswe(0, 0, 0), NSWE_ALL);
+        assert_eq!(reloaded.nearest_z(0, 0, 0), -104);
+    }
+
+    /// **An edit that leaves the cell fully open keeps the block flat.** Java's
+    /// `setNearestNswe` returns early on a flat block, so enabling a direction
+    /// there changes nothing — including the file.
+    #[test]
+    fn flat_block_survives_an_enable_only_edit() {
+        let img = mixed_region_image();
+        let region = Region::from_owned(img.clone()).unwrap();
+        assert_eq!(written(&region, &[((2, 3, -100), NSWE_ALL)]), img);
+    }
+
+    /// **A multilayer edit hits the one layer it was made on.** The override
+    /// key carries the z `getNearestLayer` picked, so the other layer of the
+    /// same cell must come through untouched.
+    #[test]
+    fn multilayer_edit_patches_only_the_keyed_layer() {
+        let region = Region::from_owned(mixed_region_image()).unwrap();
+        // Block 2 = geo cells x 0..8, y 16..24; cell (0, 16) has both layers.
+        let edited = written(
+            &region,
+            &[((0, 16, 1000), NSWE_ALL & !crate::geo::NSWE_EAST)],
+        );
+        let reloaded = Region::from_owned(edited).unwrap();
+        assert_eq!(
+            reloaded.nearest_nswe(0, 16, 1000),
+            NSWE_ALL & !crate::geo::NSWE_EAST,
+            "the z=1000 layer lost its east exit"
+        );
+        assert_eq!(
+            reloaded.nearest_nswe(0, 16, 0),
+            NSWE_ALL,
+            "the z=0 layer is untouched"
+        );
+        assert_eq!(reloaded.nearest_z(0, 16, 900), 1000, "layer heights intact");
     }
 
     #[test]

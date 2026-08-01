@@ -269,6 +269,8 @@ async fn start_game(gs_login_addr: std::net::SocketAddr, db_url: String) -> std:
             path_tx,
             path_rx,
             path_finding: 2,
+            path_cfg: Default::default(),
+            geoedit_path: "saves/".to_string(),
             max_characters_per_account: 7,
             delete_days: 3,
             starting_adena: 100,

@@ -27,6 +27,7 @@ mod editchar;
 mod effects;
 mod events;
 mod flags;
+mod geo_editor;
 mod gm_util;
 mod grand_boss;
 pub(crate) mod hero;
@@ -606,42 +607,97 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_full_vitality" => admin_vitality(world, client_id, object_id, "full", &args),
         "admin_empty_vitality" => admin_vitality(world, client_id, object_id, "empty", &args),
         "admin_get_vitality" => admin_vitality(world, client_id, object_id, "get", &args),
-        // AdminGeodata read-only queries (geo-editor commands stay deferred).
+        // AdminGeodata read-only queries.
         "admin_geo_pos" => admin_geo_pos(world, client_id, object_id, false),
         "admin_geo_spawn_pos" => admin_geo_pos(world, client_id, object_id, true),
         "admin_geo_can_move" | "admin_geo_can_see" => {
             admin_geo_can_see(world, client_id, object_id)
         }
-        // AdminGeodata editor: tile/cell info, NSWE editing, save/mode stubs.
+        // AdminGeodata editor: tile/cell info, NSWE editing, the cell panels
+        // and the region export. The `//en`/`//dn`/… aliases are the panel's
+        // own buttons — they carry `<geoX> <geoY>` and re-open it on the edited
+        // cell, which is Java's `!actualCommand.contains("geo")` branch.
         "admin_geomap" => admin_geomap(world, client_id, object_id),
         "admin_geocell" => admin_geocell(world, client_id, object_id),
-        "admin_geoenablenorth" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, true)
-        }
-        "admin_geoenablesouth" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, true)
-        }
-        "admin_geoenableeast" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, true)
-        }
-        "admin_geoenablewest" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, true)
-        }
-        "admin_geodisablenorth" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_NORTH, false)
-        }
-        "admin_geodisablesouth" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_SOUTH, false)
-        }
-        "admin_geodisableeast" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_EAST, false)
-        }
-        "admin_geodisablewest" => {
-            admin_geo_nswe(world, client_id, object_id, crate::geo::NSWE_WEST, false)
-        }
-        "admin_geosave" | "admin_geosaveall" => admin_geosave(world, client_id),
+        "admin_geoenablenorth" | "admin_en" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_NORTH,
+            true,
+            &args,
+            command == "admin_en",
+        ),
+        "admin_geoenablesouth" | "admin_es" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_SOUTH,
+            true,
+            &args,
+            command == "admin_es",
+        ),
+        "admin_geoenableeast" | "admin_ee" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_EAST,
+            true,
+            &args,
+            command == "admin_ee",
+        ),
+        "admin_geoenablewest" | "admin_ew" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_WEST,
+            true,
+            &args,
+            command == "admin_ew",
+        ),
+        "admin_geodisablenorth" | "admin_dn" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_NORTH,
+            false,
+            &args,
+            command == "admin_dn",
+        ),
+        "admin_geodisablesouth" | "admin_ds" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_SOUTH,
+            false,
+            &args,
+            command == "admin_ds",
+        ),
+        "admin_geodisableeast" | "admin_de" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_EAST,
+            false,
+            &args,
+            command == "admin_de",
+        ),
+        "admin_geodisablewest" | "admin_dw" => geo_editor::admin_geo_nswe(
+            world,
+            client_id,
+            object_id,
+            crate::geo::NSWE_WEST,
+            false,
+            &args,
+            command == "admin_dw",
+        ),
+        "admin_geosave" => geo_editor::admin_geosave(world, client_id, object_id),
+        "admin_geosaveall" => geo_editor::admin_geosaveall(world, client_id),
         "admin_geogrid" => debug_draw::admin_geogrid(world, client_id, object_id, &args),
-        "admin_geoedit" => admin_geo_clientviz(world, client_id),
+        "admin_geoedit" => geo_editor::admin_geoedit(world, client_id, object_id),
+        "admin_ge" => geo_editor::admin_ge(world, client_id, object_id, &args),
+        // AdminPathNode.
+        "admin_path_find" => admin_path_find(world, client_id, object_id),
 
         // --- AdminMobGroup (B8) ---
         "admin_mobmenu" => admin_mobmenu(world, client_id),

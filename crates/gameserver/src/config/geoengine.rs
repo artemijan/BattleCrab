@@ -14,6 +14,10 @@ pub struct GeoEngineConfig {
     pub path_finding: i32,
     /// `GeoDataPath`: directory scanned for `{x}_{y}.l2j` region files.
     pub geodata_path: String,
+    /// `GeoEditPath`: where `//geosave`/`//geosaveall` write edited regions
+    /// (`Config.GEOEDIT_PATH`). Never read back — the server always loads from
+    /// `geodata_path`, so a save is an export for the GM to move over.
+    pub geoedit_path: String,
     /// The `CellPathFinding` tuning knobs (buffers, weights, postfilter),
     /// handed to the path worker.
     pub path: PathConfig,
@@ -32,6 +36,7 @@ impl GeoEngineConfig {
                 root,
                 &p.get_string("GeoDataPath", "./data/geodata/"),
             ),
+            geoedit_path: super::datapack_path(root, &p.get_string("GeoEditPath", "saves")),
             path: PathConfig {
                 buffer_sizes: parse_buffer_sizes(&p.get_string(
                     "PathFindBuffers",
