@@ -131,6 +131,10 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
             // twins of `//chatban`/`//unban_chat`. Java gates them on the very
             // same access-table entry as the `//` form, so a player typing them
             // gets nothing (the handler returns false and the line is dropped).
+            "apon" | "apoff" | "potionon" | "potionoff" if world.cfg.auto_potions.enabled => {
+                super::auto_potions::handle_voiced(world, client_id, sender_oid, command);
+                return;
+            }
             "sellbuff" | "sellbuffs" if world.cfg.sell_buffs.enabled => {
                 super::sell_buffs::handle_voiced_sellbuff(world, client_id, sender_oid);
                 return;

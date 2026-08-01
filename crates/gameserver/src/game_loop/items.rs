@@ -1260,6 +1260,16 @@ fn use_seed_item(world: &mut World, client_id: u32, object_id: i32, item_object_
     use_item_skills(world, client_id, object_id, item_object_id);
 }
 
+/// Drink/consume one carried item by object id, on the player's own behalf —
+/// the auto-potion loop's entry into the ordinary item-skill path, so the cast,
+/// the cooldown and the consumption are identical to using it by hand.
+pub(crate) fn use_item_by_object_id(world: &mut World, player_oid: i32, item_object_id: i32) {
+    let Some(client_id) = super::helpers::client_for_player(world, player_oid) else {
+        return;
+    };
+    use_item_skills(world, client_id, player_oid, item_object_id);
+}
+
 fn use_item_skills(world: &mut World, client_id: u32, object_id: i32, item_object_id: i32) {
     use crate::game_loop::skills::cast::{
         check_skill_reuse, resolve_cast_target, set_skill_reuse, start_casting,
