@@ -4852,3 +4852,161 @@ fn the_real_datapack_defaults_to_shared() {
         "Servitor Share must not be re-shared onto the summon it already shares to"
     );
 }
+
+// ---------------------------------------------------------------------------
+// The active pet's collar (Java `Item.isAvailable` / `ExBuySellList`)
+// ---------------------------------------------------------------------------
+
+/// The sell tab hides the collar of a pet that is currently out — Java's
+/// `(pet == null) || (item.getObjectId() != pet.getControlObjectId())`.
+///
+/// Keyed on the **object** id, so a second collar of the same kind sitting in
+/// the bag stays sellable. That distinction is the whole point of the guard and
+/// is what an item-id comparison would get wrong, so both are asserted.
+#[test]
+fn the_summoned_pets_collar_is_not_offered_for_sale() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    // `give_collar` registers the *pet* and NPC templates but not the collar's
+    // own `ItemTemplate`, without which the sell filter drops it for want of a
+    // template and the test below passes vacuously.
+    let mut tmpl = crate::data::item_data::ItemTemplate::default();
+    tmpl.item_id = WOLF_COLLAR;
+    tmpl.name = "Wolf Collar".into();
+    tmpl.is_sellable = true;
+    tmpl.price = 100;
+    world.data.item_data.insert_for_test(tmpl);
+
+    let collar = give_collar(&mut world);
+    // A *second* collar of the same kind. `give_collar` hard-codes one object
+    // id, so the spare is added by hand — the point of this test is that the
+    // guard compares object ids, which needs two of them.
+    let spare = collar + 1;
+    {
+        let World { data, objects, .. } = &mut world;
+        objects
+            .get_component_mut::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap()
+            .add_item(&data.item_data, spare, WOLF_COLLAR, 1);
+    }
+    assert_ne!(collar, spare, "two distinct collar instances");
+    park_collar(&mut world, collar);
+    summon_pet(&mut world, OWNER).expect("summoned");
+
+    // Build the **real** `ExBuySellList` and count its sell entries. An earlier
+    // draft re-implemented the filter inline here, which meant deleting the
+    // production filter changed nothing — the test only proved it agreed with
+    // itself. Sabotage caught it.
+    let sell_entry_count = |world: &World, active: Option<i32>| -> i16 {
+        let inv = world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&OWNER)
+            .unwrap();
+        let pkt =
+            crate::network::trade::ex_buy_sell_list_sell(inv, &[], &world.data, false, active);
+        // u8 opcode + i16 ex-opcode + i32 type + i32 slots, then the i16 count.
+        i16::from_le_bytes([pkt[11], pkt[12]])
+    };
+
+    let active = crate::game_loop::servitor::active_pet_collar(&world, OWNER);
+    assert_eq!(active, Some(collar), "the summoned pet's own collar");
+
+    // Baseline: unguarded, both collars are offered. Without it the assertion
+    // below would also pass on a list empty for an unrelated reason — and it
+    // nearly was: `give_collar` never registers the collar's own `ItemTemplate`,
+    // so before one was added above, *neither* collar appeared at all.
+    let unguarded = sell_entry_count(&world, None);
+    let guarded = sell_entry_count(&world, active);
+    assert!(
+        unguarded >= 2,
+        "baseline: both collars are offered when nothing is excluded (got {unguarded})"
+    );
+    assert_eq!(
+        guarded,
+        unguarded - 1,
+        "exactly one entry — the summoned pet's collar — is withheld, so a \
+         spare of the same item id stays sellable"
+    );
+}
+
+/// Unsummoning releases the collar: it is sellable again. Pinned because the
+/// guard reads through the live `SummonRef` link, so a despawn path that forgot
+/// to clear it would silently keep the item locked forever.
+#[test]
+fn unsummoning_releases_the_collar_for_sale() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+    assert_eq!(
+        crate::game_loop::servitor::active_pet_collar(&world, OWNER),
+        Some(collar)
+    );
+
+    // Takes the owner, not the summon — one path retires either kind.
+    let _ = pet;
+    unsummon_servitor(&mut world, OWNER);
+
+    assert_eq!(
+        crate::game_loop::servitor::active_pet_collar(&world, OWNER),
+        None,
+        "no pet out — nothing is locked"
+    );
+}
+
+/// `//fullfood` fills the targeted pet's bar. Java gates on `isPet()`, which a
+/// skill-summoned servitor fails: its `PetInfo` fed slot carries its remaining
+/// lifetime, not food, so filling it would be meaningless.
+#[test]
+fn fullfood_fills_a_pet_and_refuses_a_servitor() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+
+    // Drain the bar, then target the pet and fill it.
+    {
+        let p = world
+            .objects
+            .get_component_mut::<crate::model::components::PetOf>(&pet)
+            .unwrap();
+        p.fed = 1;
+    }
+    // `use_admin_command` returns silently for a non-GM (Java `if (!isGM())`),
+    // and `is_gm` resolves the level through `AdminData` — which the synthetic
+    // test world loads *empty*, so the real table is needed for level 70 to
+    // mean anything.
+    world.data.admin = crate::data::AdminData::load_from(DIST);
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&OWNER)
+        .unwrap()
+        // `AdminCommands.xml` puts `admin_fullfood` at accessLevel **100**
+        // ("Master"), not 70 — a level-70 GM is refused.
+        .access_level = 100;
+    world
+        .objects
+        .add_components(&OWNER, crate::model::components::TargetRef(Some(pet)));
+    crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
+
+    let p = world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet)
+        .unwrap();
+    assert_eq!(p.fed, p.max_fed, "the bar is filled to max");
+
+    // A servitor is not a pet: the command must not touch it.
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+    world
+        .objects
+        .add_components(&OWNER, crate::model::components::TargetRef(Some(servitor)));
+    crate::game_loop::admin::use_admin_command(&mut world, CID, "admin_fullfood", false);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&servitor),
+        "a servitor never grows a food bar from //fullfood"
+    );
+}

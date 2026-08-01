@@ -502,8 +502,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         "admin_setfame" => set_int_field(world, client_id, object_id, IntField::Fame, &args),
         "admin_setpk" => set_int_field(world, client_id, object_id, IntField::Pk, &args),
         "admin_setpvp" => set_int_field(world, client_id, object_id, IntField::Pvp, &args),
-        // Fill the targeted pet's food bar (pet-blocked stub — G29).
-        "admin_fullfood" => admin_fullfood(world, client_id),
+        // Fill the targeted pet's food bar.
+        "admin_fullfood" => admin_fullfood(world, client_id, object_id),
         "admin_settitle" => admin_set_title(world, client_id, object_id, &args),
         "admin_setcolor" => admin_set_color(world, client_id, object_id, &args, false),
         "admin_settcolor" => admin_set_color(world, client_id, object_id, &args, true),

@@ -802,6 +802,20 @@ pub(crate) fn on_owner_leave_world(world: &mut World, owner_oid: i32) {
 // Pets
 // ---------------------------------------------------------------------------
 
+/// The object id of the collar that summoned the player's currently-out pet.
+///
+/// Java reads this as `player.getPet().getControlObjectId()` at each use site;
+/// here it is one lookup so the sell/trade lists cannot drift apart. `None`
+/// when no pet is out — which is also the case for a *servitor* owner, since a
+/// skill-summoned servitor has no collar.
+pub(crate) fn active_pet_collar(world: &World, owner_oid: i32) -> Option<i32> {
+    let pet = pet_of(world, owner_oid)?;
+    world
+        .objects
+        .get_component::<crate::model::components::PetOf>(&pet)
+        .map(|p| p.collar_object_id)
+}
+
 /// Java `Player.getPet()` — a player has at most one.
 pub(crate) fn pet_of(world: &World, owner_oid: i32) -> Option<i32> {
     let oid = world

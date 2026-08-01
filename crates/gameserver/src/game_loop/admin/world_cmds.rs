@@ -122,6 +122,7 @@ pub(super) fn admin_buy(world: &mut World, client_id: u32, object_id: i32, args:
             &refund_items,
             &world.data,
             false,
+            crate::game_loop::servitor::active_pet_collar(world, object_id),
         ));
     }
 }
