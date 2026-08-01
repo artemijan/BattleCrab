@@ -374,6 +374,14 @@ pub struct World {
     pub command_channels: HashMap<u32, crate::model::command_channel::CommandChannel>,
     pub next_command_channel_id: u32,
     /// Running duels (Java `DuelManager._duels`), keyed by duel id.
+    /// Java `Creature.getSkillChannelized()` — per target, which channelers are
+    /// currently holding which `channelingSkillId` on them.
+    ///
+    /// Keyed target → channeled-skill-id → set of channeler object ids. The set
+    /// **size is the level** the channeled skill lands at, so this is not
+    /// bookkeeping: it is the mechanic. Entries are added every channeling tick
+    /// and dropped by `stop_channelizing` when a cast ends.
+    pub channelized: HashMap<i32, HashMap<i32, std::collections::HashSet<i32>>>,
     pub duels: HashMap<u32, crate::game_loop::duel::Duel>,
     pub next_duel_id: u32,
     /// GM mob groups (`MobGroupTable`), keyed by group id — `//mobgroup_*`.
@@ -512,6 +520,7 @@ impl World {
             next_party_id: 1,
             command_channels: HashMap::new(),
             next_command_channel_id: 1,
+            channelized: HashMap::new(),
             duels: HashMap::new(),
             next_duel_id: 1,
             mob_groups: HashMap::new(),

@@ -1668,6 +1668,16 @@ pub struct Skill {
     /// channeling skill without the tag still drains. Running dry aborts the
     /// cast with SM 140.
     pub mp_per_channeling: i32,
+    /// Java `Skill.getChannelingSkillId()` (`<channelingSkillId>`) — the skill a
+    /// channeler *applies to its targets* while the cast is held, as opposed to
+    /// `channeling_effects` which it applies directly.
+    ///
+    /// The distinction matters because the applied **level is the number of
+    /// distinct channelers** aimed at that target (capped at the channeled
+    /// skill's max level), which is the whole point of the mechanic: two
+    /// Warcryers holding Battle Stance 426 on the same ally stack it to Battle
+    /// Force 5104 level 2. `0` when the skill channels effects instead.
+    pub channeling_skill_id: i32,
     /// Java `channelingTickInterval` in ms (XML seconds × 1000; Java defaults
     /// the raw value to 2000 s — dead for non-channeling skills, and every
     /// channeler on this dist declares it).
@@ -1758,6 +1768,7 @@ impl Default for Skill {
             pvp_effects: Vec::new(),
             channeling_effects: Vec::new(),
             mp_per_channeling: 0,
+            channeling_skill_id: 0,
             channeling_tick_ms: 0,
             channeling_start_ms: 0,
             op_exist_npc: None,
