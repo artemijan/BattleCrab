@@ -488,8 +488,8 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // Apply a skill's effects (buff) to the target.
         "admin_buff" => admin_buff(world, client_id, object_id, &args),
         // List the target's active buffs.
-        "admin_getbuffs" => admin_getbuffs(world, client_id, object_id),
-        "admin_getbuffs_ps" => admin_getbuffs_ps(world, client_id, object_id),
+        "admin_getbuffs" => admin_getbuffs(world, client_id, object_id, &args),
+        "admin_getbuffs_ps" => admin_getbuffs_ps(world, client_id, object_id, &args),
         // Clear buffs in a radius / clear a player's skill reuse timers.
         "admin_areacancel" => admin_areacancel(world, client_id, object_id, &args),
         "admin_removereuse" => admin_removereuse(world, client_id, object_id, &args),
@@ -819,10 +819,13 @@ fn dispatch(world: &mut World, client_id: u32, object_id: i32, command: &str, fu
         // both CharInfo and UserInfo (`isTrueHero()`), and touches neither the
         // hero skill tree nor the `isHero()` glow byte.
         "admin_settruehero" => hero::admin_settruehero(world, client_id, object_id),
-        // Quest admin (`AdminShowQuests`).
-        "admin_charquestmenu" | "admin_show_quests" => {
-            editchar::admin_charquestmenu(world, client_id, object_id, &args)
-        }
+        // Quest admin. Two *different* Java handlers, aliased here until the
+        // shift-click NPC window's `Quests` button exposed the difference:
+        // `AdminShowQuests`' `//charquestmenu` edits a **player's** quest
+        // states, `AdminQuest`'s `//show_quests` lists the scripts registered
+        // on the current **target**.
+        "admin_charquestmenu" => editchar::admin_charquestmenu(world, client_id, object_id, &args),
+        "admin_show_quests" => gm_util::admin_show_quests(world, client_id, object_id),
         "admin_setcharquest" => editchar::admin_setcharquest(world, client_id, &args),
         // Tail polish: tradeoff / cond overrides / quest info / clan halls /
         // reload / gm-buff switch.
