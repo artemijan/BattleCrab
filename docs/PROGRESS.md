@@ -2942,6 +2942,25 @@ clanless mob titles as `"Lv 20 "`.
   to the funnel; regression asserted in `combat_tests::melee_kill_rewards_and_decay`.
   **When adding any new inventory mutation, send through the helper, not
   `cs.send(inventory_update…)`.**
+- **An NPC teleport is `decayMe()` first, and that releases every holder's
+  target (2026-08-01):** Java's `Creature.teleToLocation` un-spawns the object
+  before it moves it, and `World.removeVisibleObject` inside `decayMe()` walks
+  the old 3×3 block clearing the target of every creature that held it
+  (`setTarget(null)` → `TargetUnselected` for players) and sending each a
+  `DeleteObject` — **unconditionally**, not only when the region index changes.
+  The port's `death::relocate_npc` did neither: it sent `DeleteObject` only on a
+  cross-region hop and never touched anyone's `TargetRef`. Reported symptom: drag
+  a mob past its leash, it snaps back to spawn and the ground **selection ring
+  stays behind** at the drag spot — this client keeps a deleted/moved object id
+  locked as its selection until an explicit `TargetUnselected` arrives (the same
+  failure family as the corpse ring at decay and the visibility-drop ring).
+  `relocate_npc` now runs the `decayMe` order for real — `drop_target_notify`
+  for every player holding the NPC, then the `DeleteObject`, then the move and
+  `NpcInfo` — which fixes all four teleport callers at once (leash, attack
+  timeout, Antharas' lair entry, Dr. Chaos). Regression:
+  `mob_leash_tests::a_leashed_mob_clears_the_selection_ring_it_leaves_behind`,
+  sabotage-verified. **Any new server-side relocation of a live object owes the
+  client a `TargetUnselected` before its `DeleteObject`.**
 - **The client's own paperdoll rides `ExUserInfoEquipSlot`, not `UserInfo`
   (2026-08-01):** `UserInfo` carries only the right-hand *enchant level*; the
   equipped item ids live in `ExUserInfoEquipSlot` (Ex 0x156). Java sends it from
