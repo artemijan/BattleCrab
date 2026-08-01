@@ -134,6 +134,38 @@ the same fixture is the control, so the removal is proven to key off the tag
 rather than clearing crowd control wholesale. Detail in
 [PLAN_G19_ABNORMAL_STATES.md](PLAN_G19_ABNORMAL_STATES.md) §6b.
 
+## UserInfo: attack range, and two more false markers (2026-08-01)
+
+A targeted sweep of the packet writers, prompted by the previous slice's lesson
+that asserting a *message id* says nothing about its *contents*. Three `UserInfo`
+markers, and only one was a gap:
+
+| Block | Marker | Verdict |
+|-------|--------|---------|
+| STATS | `TODO(G7)`: "base values… full combat-stat calc" | **stale** — the values have been real for milestones. But its leading short was hard-coded, and that *was* a bug |
+| ELEMENTALS | `TODO(G6)`: attribute attack/defense | **false** — Java's own writer emits six literal zeros and never reads the attribute stats |
+| SLOTS | `TODO(G6)`: talisman/brooch slots | **moot** — nothing in the datapack grants `talismanSlots`/`broochJewels`; both are post-Interlude, so Java would send 0 here too |
+
+**The real find.** The STATS block leads with Java's `getActiveWeaponItem() !=
+null ? 40 : 20` — the character's physical attack range, which the client uses
+to decide how close to walk before swinging. The port sent a hard-coded **20**,
+the unarmed value, so every armed character told the client to close to
+bare-handed reach. Fourth hard-coded value found in a packet writer this sweep.
+
+**A test-shape note.** The first draft located the STATS block by searching for
+its length short (56) and matched a coincidental `[56, 0]` in an earlier field,
+reading 51. The test now **diffs the armed and unarmed packets** and isolates
+the one i16 that flips 20 → 40 — no offset arithmetic to get wrong. Byte-offset
+assertions into a masked, variable-length packet are worth avoiding when a
+differential assertion says the same thing.
+
+Also checked and left alone: `SiegeAttackerList`'s "signed time" zero (Java
+writes `0` there itself, commented "not storated by L2J") and the golden-bytes
+`user_info_packet` test, whose fixture is unarmed so its pinned `20` stays
+correct.
+
+**Verification:** 2706/2706 (+1 test). One mechanism sabotage-verified.
+
 ## Region names in system messages (2026-08-01)
 
 The last subsystem flagged as blocked, and the marker had the **mechanism**
@@ -2801,6 +2833,29 @@ command bodies (G13.B) are next.
   reload round-trip, `//path_find`) and **5 region-serializer units**
   (byte-for-byte round-trip, complex nibble patch, flat promotion, enable-only
   no-op, multilayer layer targeting). All sabotage-verified.
+- **GM shift-click NPC view** — ✅ **LANDED 2026-08-01**
+  (`admin/npc_info.rs`). Reported as "shift-click on an NPC should bring up the
+  admin view". `NpcActionShift` has **two** branches and only the non-GM one was
+  ported: every shift-click took the `AltGameViewNpc` player path (and with that
+  config off — the default — did nothing at all), because `npc_view.rs` was
+  written before `Player` carried an access level and its module doc still said
+  the GM branch "is not modeled". `handle_action` now tests `is_gm()` first,
+  exactly like Java's `Action` case 1, and serves `data/html/admin/npcinfo.htm`
+  through the existing `menu::show_admin_html_replace` channel
+  (`NpcHtmlMessage(0, 1)`, so the window survives its own bypass buttons):
+  identity/race/spawn line/respawn/chase range/distance, the combat + basic-stat
+  blocks, the clan-hall agent lookup, the patrol-route row, and the five `%ai*%`
+  rows (intention, AI, AIType, clan & range, ignore & range) that Java emits only
+  for an NPC with an AI. The spawn *name*/*group*/*AI* labels resolve through
+  `Npc.spawn_ref`, guarded by an npc-id match so a runtime spawn's placeholder
+  `(0, 0, 0)` reference cannot report an unrelated spawn line; `%spawnfile%`
+  stays Java's `--` (the loader keeps no per-template source path). 2 tests
+  (GM gets the admin window with **every** placeholder substituted and no
+  attack/interact intent; a non-GM with `AltGameViewNpc` on still gets the
+  player view), sabotage-verified. Still inert: the window's `Skills` and
+  `AggroList` buttons, which bypass to `NpcViewMod` verbs the port doesn't
+  handle — `TODO(G33)` in `npc_view.rs` (the aggro view needs no new data; the
+  skill view needs `Skill.getIcon()`, an unparsed `<icon>` element).
 - **Deferred**: nothing geo-related. Still blocked: clan-skill grants (no
   clan-skill system), `AdminFence` (no spawnable fence), the AdminEffects
   **abnormal-visual-effect / team / targetable** subset, `//setnoble`/`//rec`/

@@ -185,7 +185,18 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
                 &object_id,
                 crate::model::components::LastFolkNpc(pkt.object_id),
             );
-            if shift && world.cfg.npc.alt_game_view_npc {
+            // `Action` case 1 → `Npc.onActionShift` → `NpcActionShift`: a GM
+            // always gets the admin `npcinfo.htm` window (whatever
+            // `AltGameViewNpc` says), everyone else only the player-facing
+            // view, and only when that config is on.
+            let is_gm = world
+                .objects
+                .get_component::<crate::model::Player>(&object_id)
+                .is_some_and(|p| p.is_gm(&world.data));
+            if shift && is_gm {
+                set_target(world, client_id, object_id, Some(pkt.object_id));
+                super::admin::npc_info::send_npc_info(world, client_id, object_id, pkt.object_id);
+            } else if shift && world.cfg.npc.alt_game_view_npc {
                 // `NpcActionShift`: set the target, then open the info window.
                 set_target(world, client_id, object_id, Some(pkt.object_id));
                 super::npc_view::send_npc_view(world, client_id, pkt.object_id);

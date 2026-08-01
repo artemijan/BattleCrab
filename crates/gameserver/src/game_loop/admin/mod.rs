@@ -37,6 +37,7 @@ mod menu;
 mod mobgroup;
 pub(crate) mod moderation;
 pub(crate) mod mounts;
+pub(crate) mod npc_info;
 pub(crate) use world_cmds::server_shutdown_tick;
 /// `PlayerCondOverride.SEE_ALL_PLAYERS.ordinal()` — the visibility consumer.
 pub(crate) const SEE_ALL_PLAYERS_ORDINAL: u8 = 13;
