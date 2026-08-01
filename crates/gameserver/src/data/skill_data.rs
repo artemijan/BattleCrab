@@ -12,11 +12,12 @@
 //! milestone doesn't need are parsed (to keep the reader positioned
 //! correctly) and discarded.
 
-use std::collections::HashMap;
+use std::cell::RefCell;
+use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use quick_xml::Reader;
 use quick_xml::events::Event;
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::model::skill::{
     AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill,
@@ -106,6 +107,83 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     ("ResistDDMagic", Stat::MagicSuccessRes),
 ];
 
+/// One category of "the datapack said something this parser doesn't act on",
+/// as `xml name → the skill ids that declared it`.
+pub type GapMap = BTreeMap<String, BTreeSet<i32>>;
+
+/// **The G34 coverage harness** (PLAN_G34_SKILL_PARITY.md §S0).
+///
+/// The skill parser is *fail-open* by design: an `<effect name>` it doesn't
+/// recognise yields no [`SkillEffect`], an effect list that ends up empty is
+/// then dropped by `apply_skill_effects`' empty-effects guard, and a
+/// `<condition>` it doesn't recognise is simply not enforced. The skill still
+/// loads, still casts, still burns MP and reuse — and does nothing, or fires
+/// where Java would have refused it. Nothing on the Rust side says so.
+///
+/// This records what was dropped, per category, while parsing. Two consumers:
+/// [`SkillData::load_from`] logs a summary at boot, and
+/// `tests::datapack_skill_coverage_census` asserts the exact set so the gap can
+/// only ever shrink deliberately.
+///
+/// **This is a record of what the *parser* dropped, not of what the datapack
+/// contains.** A name that appears here is unhandled; a name that does *not*
+/// appear is only "recognised", which is not the same as "correctly ported" —
+/// an effect can resolve to a `SkillEffect` variant that nothing downstream
+/// consumes ([[l2r-skill-rate-stats]]). Absence from this list is not evidence.
+#[derive(Default, Debug)]
+pub struct SkillGaps {
+    /// `<effect name>`s that matched neither a handler arm nor
+    /// [`EFFECT_REGISTRY`], in a scope this port builds. Includes names that
+    /// are handled *conditionally* and fell through the condition — e.g.
+    /// `Escape` with a non-`TOWN` `escapeType` — which is correct: those are
+    /// genuinely unported.
+    pub effects: GapMap,
+    /// Effects declared in an `<*Effects>` block this port does not build at
+    /// all (`startEffects`/`endEffects` — Java's `START`/`END` scopes, which
+    /// hang off lifecycle hooks that don't exist here). Keyed by
+    /// `"<block>/<effect name>"`, since the *scope* is the reason it was
+    /// dropped, not the name.
+    pub effect_scopes: GapMap,
+    /// `<condition name>`s under `<conditions>`, `<targetConditions>` or
+    /// `<passiveConditions>`, keyed `"<block>/<name>"`. Everything except
+    /// `conditions/OpExistNpc` is unenforced today.
+    pub conditions: GapMap,
+    /// `<targetType>` values that fell to [`TargetType::Other`].
+    pub target_types: GapMap,
+    /// `<affectScope>` values that fell to [`AffectScope::Other`].
+    pub affect_scopes: GapMap,
+    /// `<affectObject>` values that fell to [`AffectObject::Other`].
+    pub affect_objects: GapMap,
+    /// `<operateType>` values that fell to [`OperateType::Other`].
+    pub operate_types: GapMap,
+}
+
+impl SkillGaps {
+    /// `map[name] += id`, without allocating a key when the name is already
+    /// known — this runs once per (skill, level, sub, effect) over the whole
+    /// datapack.
+    fn record(map: &mut GapMap, name: &str, skill_id: i32) {
+        if let Some(ids) = map.get_mut(name) {
+            ids.insert(skill_id);
+        } else {
+            map.insert(name.to_owned(), BTreeSet::from([skill_id]));
+        }
+    }
+
+    /// The seven categories as `(label, map)`, in report order.
+    pub fn categories(&self) -> [(&'static str, &GapMap); 7] {
+        [
+            ("effect", &self.effects),
+            ("effect-scope", &self.effect_scopes),
+            ("condition", &self.conditions),
+            ("targetType", &self.target_types),
+            ("affectScope", &self.affect_scopes),
+            ("affectObject", &self.affect_objects),
+            ("operateType", &self.operate_types),
+        ]
+    }
+}
+
 pub struct SkillData {
     skills: HashMap<(i32, i32), Skill>,
     /// The enchanted variants, keyed `(id, level, subLevel)` — Java pre-builds
@@ -115,14 +193,22 @@ pub struct SkillData {
     /// `EnchantSkillGroupsData`'s route map: which sub-level ranges each
     /// `(id, level)` can enchant into. Non-empty = `Skill.isEnchantable()`.
     routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
+    /// What the parse dropped — see [`SkillGaps`].
+    gaps: SkillGaps,
 }
 
-/// The three maps one parse pass fills (skills + enchanted variants + routes).
+/// The three maps one parse pass fills (skills + enchanted variants + routes),
+/// plus the coverage record of everything it had to drop.
 #[derive(Default)]
 pub(crate) struct ParsedSkills {
     pub(crate) skills: HashMap<(i32, i32), Skill>,
     pub(crate) enchanted: HashMap<(i32, i32, i32), Skill>,
     pub(crate) routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
+    /// `RefCell` because the recording sites sit inside `build_skill`'s
+    /// `build_scope` closure, which is called once per effect scope and would
+    /// otherwise have to become `FnMut` and fight the borrow checker for a
+    /// diagnostic that must not shape the parser's structure.
+    pub(crate) gaps: RefCell<SkillGaps>,
 }
 
 impl SkillData {
@@ -147,11 +233,19 @@ impl SkillData {
             out.enchanted.len(),
             out.routes.len()
         );
+        let gaps = out.gaps.into_inner();
+        log_gaps(&gaps);
         Self {
             skills: out.skills,
             enchanted: out.enchanted,
             routes: out.routes,
+            gaps,
         }
+    }
+
+    /// What the parse dropped — see [`SkillGaps`].
+    pub fn gaps(&self) -> &SkillGaps {
+        &self.gaps
     }
 
     pub fn get(&self, id: i32, level: i32) -> Option<&Skill> {
@@ -217,6 +311,7 @@ impl SkillData {
             skills: HashMap::new(),
             enchanted: HashMap::new(),
             routes: HashMap::new(),
+            gaps: SkillGaps::default(),
         }
     }
 
@@ -314,6 +409,31 @@ fn ranged_bounds(e: &quick_xml::events::BytesStart) -> Option<RangedRow> {
     })
 }
 
+/// Coverage record for one `<condition name>` (PLAN_G34 §S0), keyed
+/// `"<block>/<name>"`. `conditions/OpExistNpc` is the single enforced
+/// condition and is the only one skipped — everything else parses and is then
+/// ignored, so the skill fires where Java would refuse it.
+fn record_condition(gaps: &mut SkillGaps, block: &str, name: Option<&str>, skill_id: i32) {
+    let Some(name) = name else { return };
+    if block == "conditions" && name == "OpExistNpc" {
+        return;
+    }
+    SkillGaps::record(&mut gaps.conditions, &format!("{block}/{name}"), skill_id);
+}
+
+/// Coverage record for an effect declared in an `<*Effects>` block this port
+/// never builds (`startEffects`/`endEffects`). The name may well be handled
+/// elsewhere — it is the *scope* that drops it here, so this is its own
+/// category rather than a false entry in [`SkillGaps::effects`].
+fn record_dropped_scope(gaps: &mut SkillGaps, block: &str, name: Option<&str>, skill_id: i32) {
+    let Some(name) = name else { return };
+    SkillGaps::record(
+        &mut gaps.effect_scopes,
+        &format!("{block}/{name}"),
+        skill_id,
+    );
+}
+
 fn parse_str(content: &str, out: &mut ParsedSkills) {
     let mut reader = Reader::from_str(content);
 
@@ -335,6 +455,11 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
     let mut in_effects = false;
     let mut cur_scope = EffectScope::General;
     let mut in_conditions = false;
+    // Which `<*onditions>` block is open, for the coverage record: Java's three
+    // `SkillConditionScope`s (`conditions`/`targetConditions`/
+    // `passiveConditions`). `in_conditions` above stays GENERAL-only, since
+    // that is the only block `op_exist_npc` may be read from.
+    let mut cond_block: Option<String> = None;
     // The one parsed skill condition: `OpExistNpc` (see `Skill::op_exist_npc`).
     // Everything else under `<conditions>` is still skipped.
     let mut cur_cond_name: Option<String> = None;
@@ -375,6 +500,21 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
     loop {
         match reader.read_event() {
             Ok(Event::Empty(e)) => {
+                // A param-less `<condition name="X" />` — by far the common
+                // shape (`OpCanEscape`, `CanSummon`, `EquipShield`, …). No
+                // Start/End pair fires for an `Empty`, so the coverage record
+                // has to happen here as well or the census under-reports.
+                if path.len() == 2
+                    && e.name().as_ref() == b"condition"
+                    && let Some(block) = &cond_block
+                {
+                    record_condition(
+                        &mut out.gaps.borrow_mut(),
+                        block,
+                        attr_str(&e, b"name").as_deref(),
+                        skill_id,
+                    );
+                }
                 // Self-closing leaf (e.g. an attribute-only tag with no text).
                 // Not pushed onto `path` since no matching `End` event follows
                 // — the one shape this loader reads here is `RestorationRandom`'s
@@ -402,6 +542,14 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     // otherwise the effect is silently dropped and the skill
                     // becomes a no-op.
                     if let Some(effect_name) = attr_str(&e, b"name") {
+                        if cur_scope == EffectScope::Other {
+                            record_dropped_scope(
+                                &mut out.gaps.borrow_mut(),
+                                &cur_field,
+                                Some(&effect_name),
+                                skill_id,
+                            );
+                        }
                         let (from_level, to_level, from_sub_level, to_sub_level) =
                             effect_level_attrs(&e);
                         effects.push(ParsedEffect {
@@ -423,6 +571,22 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
             }
             Ok(Event::Start(e)) => {
                 let name = String::from_utf8_lossy(e.name().as_ref()).into_owned();
+
+                // Coverage record (PLAN_G34 §S0) — every `<condition>` in any
+                // of the three scopes, ported or not; `record_condition` drops
+                // the one that *is* enforced. Sits ahead of the branch chain
+                // because the chain only descends into the GENERAL block.
+                if path.len() == 2
+                    && name == "condition"
+                    && let Some(block) = &cond_block
+                {
+                    record_condition(
+                        &mut out.gaps.borrow_mut(),
+                        block,
+                        attr_str(&e, b"name").as_deref(),
+                        skill_id,
+                    );
+                }
 
                 if path.is_empty() {
                     if name != "skill" {
@@ -448,8 +612,9 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     if name.ends_with("ffects") {
                         in_effects = true;
                         cur_scope = EffectScope::from_xml(&name);
-                    } else if name == "conditions" {
-                        in_conditions = true;
+                    } else if name.ends_with("onditions") {
+                        cond_block = Some(name.clone());
+                        in_conditions = name == "conditions";
                     }
                 } else if path.len() == 2 && name == "value" && !in_effects && !in_conditions {
                     pending_level = attr_i32(&e, b"level").unwrap_or(0);
@@ -462,6 +627,14 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                 } else if path.len() == 3 && in_conditions {
                     cur_cond_field = name.clone();
                 } else if path.len() == 2 && in_effects && name == "effect" {
+                    if cur_scope == EffectScope::Other {
+                        record_dropped_scope(
+                            &mut out.gaps.borrow_mut(),
+                            &cur_field,
+                            attr_str(&e, b"name").as_deref(),
+                            skill_id,
+                        );
+                    }
                     cur_effect_name = attr_str(&e, b"name");
                     cur_effect_levels = effect_level_attrs(&e);
                     cur_effect_params = HashMap::new();
@@ -593,8 +766,9 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
                     skill_id = -1;
                 } else if closed.ends_with("ffects") {
                     in_effects = false;
-                } else if closed == "conditions" {
+                } else if closed.ends_with("onditions") {
                     in_conditions = false;
+                    cond_block = None;
                 } else if closed == "condition" && in_conditions {
                     if cur_cond_name.take().as_deref() == Some("OpExistNpc") {
                         op_exist_npc = Some(crate::model::skill::OpExistNpcCondition {
@@ -635,6 +809,49 @@ fn parse_str(content: &str, out: &mut ParsedSkills) {
             Err(_) => break,
             _ => {}
         }
+    }
+}
+
+/// Boot-time report of everything the skill parser dropped (PLAN_G34 §S0).
+///
+/// One `warn!` per category naming the worst offenders, so the log says out
+/// loud which parts of the datapack are inert instead of leaving it to be
+/// rediscovered one player report at a time. Counts are **raw skill ids**, not
+/// Interlude-reachable ones — deciding reachability needs the skill trees, NPC
+/// and item data, none of which are loaded yet at this point; the census test
+/// does that intersection.
+fn log_gaps(gaps: &SkillGaps) {
+    for (label, map) in gaps.categories() {
+        if map.is_empty() {
+            continue;
+        }
+        let skills: BTreeSet<i32> = map.values().flatten().copied().collect();
+        // Worst-first, so the line leads with what is worth porting next.
+        let mut top: Vec<(&str, usize)> = map
+            .iter()
+            .map(|(name, ids)| (name.as_str(), ids.len()))
+            .collect();
+        top.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+        let listed = top
+            .iter()
+            .take(12)
+            .map(|(name, n)| format!("{name}({n})"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let rest = top.len().saturating_sub(12);
+        warn!(
+            "SkillData: {} unhandled <{}> name(s) across {} skill(s) — these parse but are \
+             not acted on (PLAN_G34_SKILL_PARITY.md): {}{}",
+            map.len(),
+            label,
+            skills.len(),
+            listed,
+            if rest > 0 {
+                format!(", +{rest} more")
+            } else {
+                String::new()
+            }
+        );
     }
 }
 
@@ -744,7 +961,7 @@ fn finalize_skill(
         let effs = patched_effects(effects, level, 0);
         out.skills.insert(
             (id, level),
-            build_skill(id, name, level, 0, &vals, &effs, op_exist_npc),
+            build_skill(id, name, level, 0, &vals, &effs, op_exist_npc, &out.gaps),
         );
 
         // The enchanted variants — one instance per declared sub-level, like
@@ -760,7 +977,7 @@ fn finalize_skill(
                 let effs = patched_effects(effects, level, sub);
                 out.enchanted.insert(
                     (id, level, sub),
-                    build_skill(id, name, level, sub, &vals, &effs, op_exist_npc),
+                    build_skill(id, name, level, sub, &vals, &effs, op_exist_npc, &out.gaps),
                 );
             }
         }
@@ -932,6 +1149,7 @@ fn build_skill(
     values: &LeveledValues,
     effects: &[ParsedEffect],
     op_exist_npc: &Option<crate::model::skill::OpExistNpcCondition>,
+    gaps: &RefCell<SkillGaps>,
 ) -> Skill {
     {
         // Integer reads fall back through f64 truncation — an enchant-route
@@ -958,7 +1176,12 @@ fn build_skill(
             // `SkillOperateType.isChanneling()`: CA1. (CA5 doesn't occur on
             // this dist's reachable content — it stays `Other`.)
             Some("CA1") => OperateType::Channeling,
-            _ => OperateType::Other,
+            other => {
+                if let Some(raw) = other {
+                    SkillGaps::record(&mut gaps.borrow_mut().operate_types, raw, id);
+                }
+                OperateType::Other
+            }
         };
         // Java `SkillOperateType.isContinuous()` — the A2..A6/DA2..DA5 family.
         // `OperateType` above collapses A1 and A2 into `Active` (the cast
@@ -980,7 +1203,12 @@ fn build_skill(
             Some("PC_BODY") => TargetType::PcBody,
             Some("GROUND") => TargetType::Ground,
             Some("NONE") => TargetType::None_,
-            _ => TargetType::Other,
+            other => {
+                if let Some(raw) = other {
+                    SkillGaps::record(&mut gaps.borrow_mut().target_types, raw, id);
+                }
+                TargetType::Other
+            }
         };
         // `<abnormalVisualEffect>` is a `;`-separated list of enum names.
         let abnormal_visuals: Vec<i16> = value_at(values, "abnormalVisualEffect", level)
@@ -1022,7 +1250,12 @@ fn build_skill(
             Some("SQUARE_PB") => AffectScope::SquarePointBlank,
             Some("RING_RANGE") => AffectScope::RingRange,
             Some("SINGLE") | Some("NONE") | None => AffectScope::Single,
-            _ => AffectScope::Other,
+            other => {
+                if let Some(raw) = other {
+                    SkillGaps::record(&mut gaps.borrow_mut().affect_scopes, raw, id);
+                }
+                AffectScope::Other
+            }
         };
         // `affectObject` defaults to ALL. `*_PC` narrows Java's check to
         // players only; with no non-player creature able to be a "friend" in
@@ -1032,7 +1265,12 @@ fn build_skill(
             Some("FRIEND") | Some("FRIEND_PC") => AffectObject::Friend,
             Some("CLAN") => AffectObject::Clan,
             Some("ALL") | None => AffectObject::All,
-            _ => AffectObject::Other,
+            other => {
+                if let Some(raw) = other {
+                    SkillGaps::record(&mut gaps.borrow_mut().affect_objects, raw, id);
+                }
+                AffectObject::Other
+            }
         };
         let affect_range = get_i("affectRange", 0);
         // `<affectLimit>min-max</affectLimit>`; a bare value sets min only.
@@ -2102,7 +2340,13 @@ fn build_skill(
                                 .map(|amount| stat_mod(stat, amount))
                                 .into_iter()
                                 .collect(),
-                            None => Vec::new(),
+                            // Nothing recognised this name: the effect is
+                            // dropped and, if it was the skill's only one, so
+                            // is the whole buff. Recorded, not silent.
+                            None => {
+                                SkillGaps::record(&mut gaps.borrow_mut().effects, xml_name, id);
+                                Vec::new()
+                            }
                         },
                     }
                 })
@@ -3575,6 +3819,7 @@ mod tests {
             skills: out.skills,
             enchanted: out.enchanted,
             routes: out.routes,
+            gaps: out.gaps.into_inner(),
         };
 
         let list = HashMap::from([(1078, 7200), (9999, 7200)]);
@@ -3650,5 +3895,341 @@ mod tests {
         assert_eq!(abnormal_visual_client_id("AURA_BUFF"), Some(57));
         assert_eq!(abnormal_visual_client_id("CHANGE_HAIR_B"), Some(39));
         assert_eq!(abnormal_visual_client_id("ABSORB_SHIELD"), Some(152));
+    }
+}
+
+/// **The G34 coverage census** (PLAN_G34_SKILL_PARITY.md §S0).
+///
+/// [`SkillGaps`] records what the parser dropped; this module intersects that
+/// with what the rest of the datapack can actually *reach*, and asserts the
+/// result. The whole point is that the numbers are checked in: land a handler
+/// and the census fails until its name is struck off, so coverage can only move
+/// deliberately.
+///
+/// **Reachability is measured from the raw XML, not from the ported loaders.**
+/// A text scan answers "does the dist reference this skill id anywhere",
+/// which is the honest denominator; going through `SkillTreeData`/`NpcData`
+/// would measure the port's own coverage of *those* files instead and quietly
+/// shrink the gap it is supposed to expose.
+#[cfg(test)]
+mod coverage_census {
+    use super::*;
+    use std::collections::BTreeSet;
+
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+
+    /// Every `needle`-prefixed integer in the file (`skillId="123"` →  123).
+    fn ids_in(text: &str, needle: &str, out: &mut BTreeSet<i32>) {
+        let mut rest = text;
+        while let Some(at) = rest.find(needle) {
+            rest = &rest[at + needle.len()..];
+            let digits: String = rest.chars().take_while(char::is_ascii_digit).collect();
+            if let Ok(id) = digits.parse() {
+                out.insert(id);
+            }
+        }
+    }
+
+    fn scan(dir: &str, recursive: bool, needles: &[&str], out: &mut BTreeSet<i32>) {
+        let Ok(entries) = std::fs::read_dir(format!("{DIST}{dir}")) else {
+            panic!("coverage census: missing datapack dir {dir}");
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                if recursive {
+                    let sub = path.strip_prefix(DIST).unwrap().to_string_lossy();
+                    scan(&sub, true, needles, out);
+                }
+                continue;
+            }
+            if path.extension().and_then(|e| e.to_str()) != Some("xml") {
+                continue;
+            }
+            let text = std::fs::read_to_string(&path).unwrap_or_default();
+            for needle in needles {
+                ids_in(&text, needle, out);
+            }
+        }
+    }
+
+    /// Skill ids a player can learn — `data/skillTrees/**`. The denominator
+    /// that matters: rank by *learnable* usage, never by raw instance count
+    /// (`StatUp` is 465 skills and 9 learnable ones).
+    fn learnable() -> BTreeSet<i32> {
+        let mut out = BTreeSet::new();
+        scan("data/skillTrees", true, &[r#"skillId=""#], &mut out);
+        out
+    }
+
+    /// Everything the datapack can put in front of a player at all: learnable
+    /// + NPC/monster skill lists + item skills + pet skills.
+    fn reachable() -> BTreeSet<i32> {
+        let mut out = learnable();
+        scan("data/stats/npcs", false, &[r#"<skill id=""#], &mut out);
+        scan(
+            "data/stats/items",
+            false,
+            &[r#"<skill id=""#, r#"skillId=""#],
+            &mut out,
+        );
+        let pets =
+            std::fs::read_to_string(format!("{DIST}data/PetSkillData.xml")).unwrap_or_default();
+        ids_in(&pets, r#"skillId=""#, &mut out);
+        out
+    }
+
+    /// `name → how many of `scope`'s ids declared it`, worst first.
+    fn ranked(map: &GapMap, scope: &BTreeSet<i32>) -> Vec<(String, usize)> {
+        let mut rows: Vec<(String, usize)> = map
+            .iter()
+            .map(|(name, ids)| (name.clone(), ids.intersection(scope).count()))
+            .filter(|(_, n)| *n > 0)
+            .collect();
+        rows.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+        rows
+    }
+
+    /// Skills in `scope` that lost *something* to this category.
+    fn affected(map: &GapMap, scope: &BTreeSet<i32>) -> BTreeSet<i32> {
+        map.values()
+            .flatten()
+            .filter(|id| scope.contains(id))
+            .copied()
+            .collect()
+    }
+
+    /// `<effect>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 216 name(s), 77 learnable
+    /// skill(s) affected, 1902 reachable.
+    const EFFECTS: &[(&str, usize)] = &[
+        ("StatUp", 9),
+        ("WeightLimit", 3),
+        ("AreaDamage", 2),
+        ("Bluff", 2),
+        ("Breath", 2),
+        ("CounterPhysicalSkill", 2),
+        ("CpHealPercent", 2),
+        ("CriticalRatePositionBonus", 2),
+        ("HpByLevel", 2),
+        ("LimitCp", 2),
+        ("LimitHp", 2),
+        ("ManaHealOverTime", 2),
+        ("Passive", 2),
+        ("PhysicalShieldAngleAll", 2),
+        ("ReduceDropPenalty", 2),
+        ("ResurrectionSpecial", 2),
+        ("SkillEvasion", 2),
+        ("SkillMastery", 2),
+        ("TargetMe", 2),
+        ("WeightPenalty", 2),
+        ("Betray", 1),
+        ("BlockEscape", 1),
+        ("BlockResurrection", 1),
+        ("BuffBlock", 1),
+        ("CallParty", 1),
+        ("CallPc", 1),
+        ("ChameleonRest", 1),
+        ("CubicMastery", 1),
+        ("DeathLink", 1),
+        ("DispelBySlotMyself", 1),
+        ("EnlargeAbnormalSlot", 1),
+        ("HateAttack", 1),
+        ("ImmobilePetBuff", 1),
+        ("Lucky", 1),
+        ("MpVampiricAttack", 1),
+        ("NightStatModify", 1),
+        ("OpenChest", 1),
+        ("OpenDoor", 1),
+        ("PhysicalAttackHpLink", 1),
+        ("PhysicalSkillCriticalDamage", 1),
+        ("PhysicalSkillPower", 1),
+        ("PolearmSingleTarget", 1),
+        ("PvpMagicalSkillDamageBonus", 1),
+        ("PvpPhysicalAttackDamageBonus", 1),
+        ("PvpPhysicalSkillDamageBonus", 1),
+        ("RebalanceHP", 1),
+        ("SafeFallHeight", 1),
+        ("SkillMasteryRate", 1),
+        ("SkillTurning", 1),
+        ("TargetMeProbability", 1),
+        ("TransferDamageToSummon", 1),
+        ("TriggerSkillByDamage", 1),
+        ("TriggerSkillByMagicType", 1),
+        ("Unsummon", 1),
+    ];
+
+    /// `<effect-scope>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 5 name(s), 1 learnable
+    /// skill(s) affected, 10 reachable.
+    const EFFECT_SCOPES: &[(&str, usize)] = &[("endEffects/CallSkill", 1)];
+
+    /// `<condition>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 111 name(s), 215 learnable
+    /// skill(s) affected, 2934 reachable.
+    const CONDITIONS: &[(&str, usize)] = &[
+        ("conditions/EquipWeapon", 88),
+        ("conditions/CanTransform", 32),
+        ("conditions/CanSummon", 24),
+        ("conditions/CanSummonCubic", 12),
+        ("conditions/TargetMyParty", 11),
+        ("conditions/EnergySaved", 10),
+        ("conditions/TargetRace", 7),
+        ("conditions/EquipShield", 6),
+        ("conditions/ConsumeBody", 5),
+        ("conditions/OpEncumbered", 5),
+        ("conditions/RemainHpPer", 5),
+        ("conditions/CanSummonSiegeGolem", 3),
+        ("conditions/CanUseInBattlefield", 2),
+        ("conditions/OpCallPc", 2),
+        ("conditions/OpCanEscape", 2),
+        ("conditions/OpEnergyMax", 2),
+        ("conditions/OpResurrection", 2),
+        ("conditions/OpSocialClass", 2),
+        ("conditions/RemainCpPer", 2),
+        ("conditions/BuildCamp", 1),
+        ("conditions/NotInUnderwater", 1),
+        ("conditions/Op2hWeapon", 1),
+        ("conditions/OpSkillAcquire", 1),
+        ("conditions/OpStrider", 1),
+        ("conditions/OpSweeper", 1),
+        ("conditions/OpTargetPc", 1),
+        ("conditions/OpUnlock", 1),
+        ("conditions/OpWyvern", 1),
+        ("conditions/RemainMpPer", 1),
+        ("passiveConditions/EquipWeapon", 1),
+        ("passiveConditions/TargetMyParty", 1),
+        ("targetConditions/OpSiegeHammer", 1),
+    ];
+
+    /// `<targetType>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 11 name(s), 4 learnable
+    /// skill(s) affected, 532 reachable.
+    const TARGET_TYPES: &[(&str, usize)] = &[("OTHERS", 3), ("DOOR_TREASURE", 1)];
+
+    /// `<affectScope>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 7 name(s), 0 learnable
+    /// skill(s) affected, 3 reachable.
+    const AFFECT_SCOPES: &[(&str, usize)] = &[];
+
+    /// `<affectObject>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 5 name(s), 4 learnable
+    /// skill(s) affected, 6 reachable.
+    const AFFECT_OBJECTS: &[(&str, usize)] = &[("UNDEAD_REAL_ENEMY", 4)];
+
+    /// `<operateType>` names with at least one **learnable** skill behind them —
+    /// the work list, worst first. Category totals: 13 name(s), 7 learnable
+    /// skill(s) affected, 52 reachable.
+    const OPERATE_TYPES: &[(&str, usize)] = &[("A3", 5), ("CA5", 2)];
+
+    /// **The gate.** Every entry above is a skill that loads and then behaves
+    /// wrongly — an effect that does nothing, or a condition Java would have
+    /// refused the cast on. Landing a slice makes this fail; strike the ported
+    /// names off the tables and move the totals down, never up.
+    ///
+    /// A failing count is telling you *what changed*, not *what number to
+    /// write*: read which names appeared or vanished before touching a
+    /// constant. Adding a datapack file can enable unrelated content in it.
+    #[test]
+    fn datapack_skill_coverage_census() {
+        let sd = SkillData::load_from(DIST);
+        let gaps = sd.gaps();
+        let learn = learnable();
+        let reach = reachable();
+
+        // The denominators first — every number below is a fraction of these,
+        // so a change here explains changes everywhere else.
+        assert_eq!(
+            learn.len(),
+            758,
+            "learnable skill ids in data/skillTrees/** — the ranking denominator"
+        );
+        assert_eq!(
+            reach.len(),
+            10704,
+            "skill ids the datapack references at all (learnable + npc + item + pet)"
+        );
+
+        for (label, map, expected, names, learn_hit, reach_hit) in [
+            ("effect", &gaps.effects, EFFECTS, 216, 77, 1902),
+            ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
+            ("condition", &gaps.conditions, CONDITIONS, 111, 215, 2934),
+            ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
+            ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
+            (
+                "affectObject",
+                &gaps.affect_objects,
+                AFFECT_OBJECTS,
+                5,
+                4,
+                6,
+            ),
+            ("operateType", &gaps.operate_types, OPERATE_TYPES, 13, 7, 52),
+        ] {
+            assert_eq!(
+                ranked(map, &learn)
+                    .iter()
+                    .map(|(n, c)| (n.as_str(), *c))
+                    .collect::<Vec<_>>(),
+                expected.to_vec(),
+                "<{label}>: unhandled names with a learnable source (PLAN_G34_SKILL_PARITY.md)"
+            );
+            assert_eq!(map.len(), names, "<{label}>: total unhandled names");
+            assert_eq!(
+                affected(map, &learn).len(),
+                learn_hit,
+                "<{label}>: learnable skills that lose something to it"
+            );
+            assert_eq!(
+                affected(map, &reach).len(),
+                reach_hit,
+                "<{label}>: reachable skills that lose something to it"
+            );
+        }
+
+        // The epic's headline number, and its gate: a learnable skill is
+        // "wrong" if it drops an effect (silently does nothing) or ignores a
+        // condition (fires where Java refuses). G34 closes when this is 0 bar
+        // an explicitly recorded out-of-chronicle list.
+        let mut wrong: BTreeSet<i32> = BTreeSet::new();
+        wrong.extend(affected(&gaps.effects, &learn));
+        wrong.extend(affected(&gaps.effect_scopes, &learn));
+        wrong.extend(affected(&gaps.conditions, &learn));
+        assert_eq!(
+            wrong.len(),
+            275,
+            "learnable skills carrying an unhandled effect or an unenforced condition \
+             (36% of {}) — G34's headline gap",
+            learn.len()
+        );
+    }
+
+    #[test]
+    #[ignore = "reporting aid, not an assertion — run with --ignored --nocapture"]
+    fn print_coverage_report() {
+        let sd = SkillData::load_from(DIST);
+        let gaps = sd.gaps();
+        let learn = learnable();
+        let reach = reachable();
+        println!("learnable={} reachable={}", learn.len(), reach.len());
+        let mut union: BTreeSet<i32> = BTreeSet::new();
+        union.extend(affected(&gaps.effects, &learn));
+        union.extend(affected(&gaps.effect_scopes, &learn));
+        union.extend(affected(&gaps.conditions, &learn));
+        println!(
+            "union(effects|scopes|conditions) learnable-affected = {}",
+            union.len()
+        );
+        for (label, map) in gaps.categories() {
+            println!(
+                "\n// {label}: {} names, {} learnable-affected, {} reachable-affected",
+                map.len(),
+                affected(map, &learn).len(),
+                affected(map, &reach).len(),
+            );
+            for (name, n) in ranked(map, &learn) {
+                println!("    (\"{name}\", {n}),");
+            }
+        }
     }
 }

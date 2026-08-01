@@ -1348,6 +1348,37 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 landed**
+Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
+system slice-by-slice **on demand**, and the parser is fail-open: an unknown
+`<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
+empty-effects guard, and `<conditions>` is ignored entirely except `OpExistNpc`
+— so a skill can cast, animate, burn MP and reuse, and do nothing, or fire when
+Java would have refused it. Measured 2026-08-01 against the 758 learnable skill
+ids in `skillTrees/**`: **217 of 335** effect names used by the dist are
+unhandled (55 with a learnable source), **~137** skill conditions are unported,
+**23 of 38** `EffectFlag`s are missing, and **275 of 758 learnable skills
+(36 %)** are wrong in at least one of those two ways — all of it now asserted by
+a checked-in census (`datapack_skill_coverage_census`), so the gap can only move
+deliberately.
+
+Nine slices: a coverage-census test + fail-loud parse warnings (nothing else is
+measurable without it); the **skill-condition engine** (largest single hole and
+the only slice needing a new subsystem — `EquipWeapon` alone gates 89 learnable
+skills); `<basicProperty>` and the **`BasicPropertyResist` mesmerizing-debuff
+chain** (1.0/0.6/0.3/0 over a 15 s window — live for every NPC/pet/servitor
+here, off for players since `SIXTH_CLASS_GROUP` is empty, and currently absent
+behind a `formulas.rs` comment that justifies it on a false premise); the
+remaining `EffectFlag`s plus the buff-lifecycle tags (`removedOnDamage` landed
+separately at `e58c7f64`); the learnable-skill effect sweep (Aegis,
+Bluff, Betray, Erase, Anchor, Spell Turning, Balance Life, Salvation, Summon
+Friend, Skill Mastery, Unlock, Chameleon Rest, …); targeting breadth
+(`UNDEAD_REAL_ENEMY` is a live correctness bug; `TargetType::ITEM` covers 452
+items); the item/NPC effect tail (**every destination Scroll of Escape is inert
+today** — the `Teleport` effect is unparsed); and the skill-tag/formula
+residue. **Gate:** 0 learnable skills carry an unhandled effect or unported
+condition that is not on a recorded out-of-chronicle list.
+
 ---
 
 ## Suggested sequencing
