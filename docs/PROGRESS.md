@@ -2134,6 +2134,11 @@ G14; admin commands are carved out as their own G13
   nothing on this dist declares the stat), then 1% of max HP a second with
   SM 297, `directlyToHp` so CP does not soak it (new
   `combat::player_receive_damage_ex`), cancelled on surfacing and in `doDie`.
+  Damage you deal to yourself is **silent**: `PlayerStatus.reduceHp` wraps both
+  its CP absorb and the `C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2` line in
+  `attacker != getActiveChar()`, and every environmental source names the victim
+  as its own attacker — without that guard drowning printed a second, redundant
+  "Bob has received 4 damage from Bob" and lava let CP soak the tick.
   **Movement**: `moveToLocation`'s `isInWater` (`WATER && !CASTLE`) is now a
   real predicate — `castle_hall.xml`'s 9 `CastleZone`s load as
   `ZoneKind::Castle` — and it drives the geodata exemption, the

@@ -145,6 +145,14 @@ fn breath_runs_out_then_drowning_damage_ticks_every_second() {
             .count(),
         3
     );
+    // ...and *only* that line. `PlayerStatus.reduceHp`'s damage message sits
+    // inside `attacker != getActiveChar()`, and drowning names the victim as
+    // its own attacker — so "Bob has received 5 damage from Bob" must not
+    // appear alongside it.
+    assert!(
+        !msgs.contains(&server_packets::sm_ids::C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2),
+        "drowning is announced once, by its own message"
+    );
 
     // Surface: the clock stops and the bar is blanked.
     world

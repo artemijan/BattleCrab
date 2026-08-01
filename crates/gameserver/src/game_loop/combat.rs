@@ -2078,6 +2078,16 @@ pub(crate) fn player_receive_damage_ex(
         super::sit_stand::stand_up(world, player_oid);
     }
     let attacker_is_playable = !is_npc_oid(attacker_oid);
+    // `PlayerStatus.reduceHp` wraps its whole attacker-aware block — the CP
+    // absorb *and* the `C1_HAS_RECEIVED_S3_DAMAGE_FROM_C2` line — in
+    // `if ((attacker != null) && (attacker != getActiveChar()))`. Damage you
+    // deal to yourself is silent and bypasses CP.
+    //
+    // This is not a corner case: the environmental-damage paths all name the
+    // victim as their own attacker (Java's `WaterTask` passes `_player`), so
+    // without the guard drowning printed "Bob has received 4 damage from Bob"
+    // next to its own "unable to breathe" line, and lava let CP soak the tick.
+    let attacker_is_other = attacker_oid != player_oid;
     // GM `//invul`/`//undying` (Java `isInvul`/`isUndying`): invul ignores the
     // hit entirely; undying lets damage apply but floors HP at 1.
     let flags = world
@@ -2100,7 +2110,7 @@ pub(crate) fn player_receive_damage_ex(
             return;
         }
         let mut remaining = damage;
-        if attacker_is_playable && !directly_to_hp {
+        if attacker_is_other && attacker_is_playable && !directly_to_hp {
             let cp_absorb = remaining.min(pvitals.cur_cp);
             pvitals.cur_cp -= cp_absorb;
             remaining -= cp_absorb;
@@ -2117,8 +2127,10 @@ pub(crate) fn player_receive_damage_ex(
         (pvitals.cur_cp as i32, vitals.cur_hp as i32)
     };
 
-    // Victim-side damage message + stance.
-    if let Some(client_id) = client_for_player(world, player_oid) {
+    // Victim-side damage message + stance. Self-inflicted damage says nothing
+    // (see `attacker_is_other`) — the environmental sources send their own
+    // line instead, e.g. drowning's "you were unable to breathe".
+    if let Some(client_id) = client_for_player(world, player_oid).filter(|_| attacker_is_other) {
         let attacker_name = attacker_display_name(world, attacker_oid);
         let victim_name = world
             .objects
