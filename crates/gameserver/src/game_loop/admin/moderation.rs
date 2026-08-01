@@ -386,7 +386,7 @@ pub(super) fn admin_unban_char(world: &mut World, client_id: u32, args: &[&str])
 }
 
 /// `//ban_chat <name> [minutes]` (Java `admin_ban_chat`, CHARACTER/CHAT_BAN).
-pub(super) fn admin_ban_chat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+pub(crate) fn admin_ban_chat(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
     char_punish(
         world,
         client_id,
@@ -398,7 +398,7 @@ pub(super) fn admin_ban_chat(world: &mut World, client_id: u32, object_id: i32, 
 }
 
 /// `//unban_chat <name | id>`.
-pub(super) fn admin_unban_chat(world: &mut World, client_id: u32, args: &[&str]) {
+pub(crate) fn admin_unban_chat(world: &mut World, client_id: u32, args: &[&str]) {
     char_unpunish(world, client_id, args, PunishmentType::ChatBan, "chatunban");
 }
 

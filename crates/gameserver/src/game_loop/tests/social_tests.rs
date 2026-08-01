@@ -1372,3 +1372,192 @@ fn a_disallowed_race_cannot_be_created() {
     assert!(world.cfg.allowed_races.allows(0));
     assert!(!world.cfg.allowed_races.allows(2));
 }
+
+/// `Custom/PvpRewardItem.ini` — the killer is paid on a PvP kill (the victim
+/// was flagged) and, separately, on a PK. Both rewards share one guard: nothing
+/// is paid inside a PvP zone or an instance.
+#[test]
+fn a_pvp_kill_pays_the_killer() {
+    use crate::model::components::{PvpState, ZoneFlags};
+    use crate::model::inventory::Inventory;
+    const ADENA: i32 = 57;
+    const KILLER: i32 = 3001;
+    const VICTIM: i32 = 3002;
+
+    let (mut world, ..) = test_world();
+    world.id_pool = 0x8000_0000..0x8000_0100;
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = ADENA;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    world.cfg.pvp_reward.reward_pvp = true;
+    world.cfg.pvp_reward.pvp_item_id = ADENA;
+    world.cfg.pvp_reward.pvp_item_amount = 300_000;
+    world.cfg.pvp_reward.reward_pk = false;
+    let _a = ingame_player(&mut world, 1, KILLER, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, VICTIM, 50, 0, 0);
+    let paid = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&KILLER)
+            .map_or(0, |i| i.count_of(ADENA))
+    };
+
+    // Unflagged victim → this is a PK, and the PK arm ships off.
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 0, "no PK reward configured");
+
+    // Flag the victim: now it is a PvP kill and the reward lands.
+    world.objects.add_components(
+        &VICTIM,
+        PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 300_000, "the PvP reward");
+
+    // …but not inside a PvP zone. This guard is only reachable because the
+    // reward is a *sibling* of the reputation update rather than part of it —
+    // that block returns early in a PvP zone, which would have made
+    // `DisableRewardsInPvpZones` dead config.
+    world.cfg.pvp_reward.disable_in_pvp_zones = true;
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&VICTIM)
+        .unwrap()
+        .mask |= crate::data::zone_data::ZoneKind::Pvp.bit();
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 300_000, "no reward inside a PvP zone");
+
+    // With the guard off, the same kill pays again — proving the zone check is
+    // what stopped it, not the zone itself.
+    world.cfg.pvp_reward.disable_in_pvp_zones = false;
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(
+        paid(&world),
+        600_000,
+        "the guard, not the zone, was the block"
+    );
+}
+
+/// `Custom/PvpTitleColor.ini` — crossing a rung renames and recolours the
+/// player. Below the first rung nothing is touched, so an ordinary player keeps
+/// the title they chose.
+#[test]
+fn the_pvp_ladder_retitles_the_killer() {
+    let (mut world, ..) = test_world();
+    let _p = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.cfg.pvp_title_color = crate::config::PvpTitleColorConfig {
+        enabled: true,
+        ranks: vec![
+            crate::config::custom_pvp::PvpRank {
+                kills: 2,
+                color: 0x9C_9C_9C,
+                title: "Sergeant".into(),
+            },
+            crate::config::custom_pvp::PvpRank {
+                kills: 5,
+                color: 0x69_69_69,
+                title: "Lieutenant".into(),
+            },
+        ],
+    };
+    let set_title = |w: &mut World, t: &str| {
+        w.objects.get_component_mut::<Player>(&3001).unwrap().title = t.to_string();
+    };
+    let title_of = |w: &World| {
+        w.objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .title
+            .clone()
+    };
+
+    set_title(&mut world, "Mine");
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 1;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(title_of(&world), "Mine", "below the first rung, untouched");
+
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 2;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(title_of(&world), "® Sergeant ®");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .title_color,
+        0x9C_9C_9C
+    );
+
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 99;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(
+        title_of(&world),
+        "® Lieutenant ®",
+        "the top rung is open-ended"
+    );
+}
+
+/// `Custom/RandomSpawns.ini` — a monster's spawn point is jittered; a raid, a
+/// listed id and a quest monster keep their exact coordinates.
+#[test]
+fn random_spawns_jitter_only_ordinary_monsters() {
+    let (mut world, ..) = test_world();
+    world.cfg.random_spawns.enabled = true;
+    world.cfg.random_spawns.max_range = 100;
+    world.cfg.random_spawns.never_random.insert(20003);
+    for (id, ty, title) in [
+        (20001, "Monster", ""),
+        (20002, "Monster", "Quest Monster"),
+        (20003, "Monster", ""),
+        (25001, "RaidBoss", ""),
+    ] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = ty.into();
+        t.title = title.into();
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    // Exercised directly: only the *datapack* spawn path jitters. A script or
+    // admin spawn keeps its coordinates, because Java's `AbstractScript.addSpawn`
+    // explicitly restores them for a scripted monster.
+    let spawn_at = |world: &mut World, id: i32| -> (i32, i32) {
+        crate::model::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
+    };
+
+    // An ordinary monster moves (over many spawns, at least one lands off the
+    // exact point — a single roll can legitimately come up (0, 0)).
+    let moved = (0..40).any(|_| spawn_at(&mut world, 20001) != (1000, 1000));
+    assert!(moved, "an ordinary monster is jittered");
+
+    // The exclusions never move, however many times they spawn.
+    for id in [20002, 20003, 25001] {
+        assert!(
+            (0..40).all(|_| spawn_at(&mut world, id) == (1000, 1000)),
+            "npc {id} keeps its exact spawn point"
+        );
+    }
+
+    // And the master flag turns the whole thing off.
+    world.cfg.random_spawns.enabled = false;
+    assert!(
+        (0..40).all(|_| spawn_at(&mut world, 20001) == (1000, 1000)),
+        "disabled → nothing moves"
+    );
+}

@@ -109,6 +109,16 @@ pub(crate) fn handle_say2(world: &mut World, client_id: u32, body: &[u8]) {
                 handle_voiced_banking(world, client_id, sender_oid, command);
                 return;
             }
+            // `handlers/voicedcommandhandlers/ChatAdmin` — the `.`-prefixed
+            // twins of `//chatban`/`//unban_chat`. Java gates them on the very
+            // same access-table entry as the `//` form, so a player typing them
+            // gets nothing (the handler returns false and the line is dropped).
+            "banchat" | "chatban" | "unbanchat" | "chatunban"
+                if world.cfg.custom_npc.chat_admin =>
+            {
+                handle_voiced_chat_admin(world, client_id, sender_oid, command, rest);
+                return;
+            }
             _ => {}
         }
     }
@@ -443,5 +453,38 @@ fn handle_voiced_banking(world: &mut World, client_id: u32, player_oid: i32, com
             crate::game_loop::admin::send_message(world, client_id, &text);
         }
         _ => {}
+    }
+}
+
+/// `ChatAdmin.useVoicedCommand` — `.banchat` / `.unbanchat` and their aliases,
+/// routed into the same punishment code the `//` commands use. Java checks
+/// `AdminData.hasAccess(command, …)` first and simply returns on failure, so an
+/// ordinary player's `.banchat` does nothing at all — no message, no chat.
+fn handle_voiced_chat_admin(
+    world: &mut World,
+    client_id: u32,
+    sender_oid: i32,
+    command: &str,
+    rest: &str,
+) {
+    let access_level = world
+        .objects
+        .get_component::<Player>(&sender_oid)
+        .map_or(0, |p| p.access_level);
+    // The access table keys the `//` names; `.banchat` maps onto `admin_banchat`
+    // exactly as Java's shared `VOICED_COMMANDS` list does.
+    if !world
+        .data
+        .admin
+        .has_access(&format!("admin_{command}"), access_level)
+    {
+        return;
+    }
+    let args: Vec<&str> = rest.split_whitespace().skip(1).collect();
+    match command {
+        "banchat" | "chatban" => {
+            super::admin::moderation::admin_ban_chat(world, client_id, sender_oid, &args)
+        }
+        _ => super::admin::moderation::admin_unban_chat(world, client_id, &args),
     }
 }

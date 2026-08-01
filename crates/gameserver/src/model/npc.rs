@@ -538,6 +538,8 @@ pub(crate) fn spawn_one(
     let Some((x, y, z, heading)) = loc else {
         return None;
     };
+    // `Spawn.initializeNpc`'s `ENABLE_RANDOM_MONSTER_SPAWNS` jitter.
+    let (x, y) = randomize_spawn_point(world, npc_id, x, y, z, heading);
     let oid = spawn_npc_entity(
         world,
         npc_id,
@@ -795,6 +797,74 @@ fn random_point_2d(rng: &mut rand::rngs::StdRng, territory: &Territory) -> Optio
         tries += 1;
     }
     Some((x, y))
+}
+
+/// `Spawn.initializeNpc`'s `Custom/RandomSpawns.ini` offset: a monster's spawn
+/// point is nudged by up to ±`MaxSpawnMobRange` on each axis, so a camp is not
+/// pinned to identical coordinates every respawn.
+///
+/// Java's guard chain, in its own order: a heading of `-1` (already jittered
+/// once — the flag it sets to avoid re-rolling), non-monsters, quest monsters,
+/// NPCs a walking route targets, instanced spawns, undying templates, raids,
+/// raid minions, fliers, a spawn point in water, and the `MobsSpawnNotRandom`
+/// id list. The new point must also be **walkable and visible** from the old
+/// one, or the offset is discarded — otherwise a mob could land inside a wall.
+///
+/// The port has no `setHeading(-1)` latch (headings live on the spawned entity,
+/// not the definition), so the roll happens once per spawn rather than once per
+/// definition; observationally the same, since Java re-rolls on every respawn
+/// too — its latch only stops a *second* roll within one spawn.
+///
+/// **Only the datapack spawn path calls this.** A script or admin spawn goes
+/// through [`spawn_npc_at`], which does not jitter: Java's `AbstractScript.
+/// addSpawn` explicitly *undoes* the offset for a scripted monster ("retain
+/// monster original position if ENABLE_RANDOM_MONSTER_SPAWNS is enabled"),
+/// because a script that places a mob at a computed spot means that spot.
+pub(crate) fn randomize_spawn_point(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> (i32, i32) {
+    let cfg = &world.cfg.random_spawns;
+    if !cfg.enabled || cfg.max_range <= 0 || heading == -1 || cfg.never_random.contains(&npc_id) {
+        return (x, y);
+    }
+    let Some(t) = world.data.npc_data.get(npc_id) else {
+        return (x, y);
+    };
+    if !t.is_monster()
+        || t.is_quest_monster()
+        || t.undying
+        || t.is_raid()
+        || world.data.routes.route_for_npc(npc_id).is_some()
+    {
+        return (x, y);
+    }
+    // Java skips a spawn point standing in water (the offset could beach it).
+    if world
+        .data
+        .zone_data
+        .zones_at(x, y, z)
+        .any(|zn| zn.kind == crate::data::zone_data::ZoneKind::Water)
+    {
+        return (x, y);
+    }
+    let range = cfg.max_range;
+    let (rx, ry) = (
+        x + commons::util::rnd::get_range(-range, range),
+        y + commons::util::rnd::get_range(-range, range),
+    );
+    // `canMoveToTarget && canSeeTarget` — keep the mob out of geometry.
+    if world.geo.can_move_to_target(x, y, z, rx, ry, z)
+        && world.geo.can_see_target(x, y, z, rx, ry, z)
+    {
+        (rx, ry)
+    } else {
+        (x, y)
+    }
 }
 
 /// `Npc.onSpawn`'s custom boss announcement (`Custom/BossAnnouncements.ini`):
