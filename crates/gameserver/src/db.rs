@@ -548,6 +548,10 @@ pub enum DbCommand {
         castle_id: i32,
         siege_date: i64,
         time_registration_over: bool,
+        /// `castle.regTimeEnd` — only written when the hour-picking window is
+        /// (re)stamped at siege end; `None` leaves the stored value alone, the
+        /// way Java's `saveSiegeDate` touches only the columns it owns.
+        siege_time_registration_end: Option<i64>,
     },
     /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
     SaveSiegeClan {
@@ -2196,6 +2200,7 @@ async fn run(
                 castle_id,
                 siege_date,
                 time_registration_over,
+                siege_time_registration_end,
             } => {
                 // `regTimeOver` is an enum('true','false') stored as text.
                 let flag = if time_registration_over {
@@ -2203,10 +2208,14 @@ async fn run(
                 } else {
                     "false"
                 };
+                let mut update = castle::Entity::update_many()
+                    .col_expr(castle::Column::SiegeDate, siege_date.into())
+                    .col_expr(castle::Column::RegTimeOver, flag.into());
+                if let Some(end) = siege_time_registration_end {
+                    update = update.col_expr(castle::Column::RegTimeEnd, end.into());
+                }
                 warn_err(
-                    castle::Entity::update_many()
-                        .col_expr(castle::Column::SiegeDate, siege_date.into())
-                        .col_expr(castle::Column::RegTimeOver, flag.into())
+                    update
                         .filter(castle::Column::Id.eq(castle_id))
                         .exec(&db)
                         .await,
@@ -5017,6 +5026,7 @@ async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Cast
             first_mid_victory: false,
             // `regTimeOver` is an enum('true','false'); default (missing) is true.
             time_registration_over: r.reg_time_over != "false",
+            siege_time_registration_end: r.reg_time_end,
             siege_date: r.siege_date,
             treasury: r.treasury,
         })

@@ -132,6 +132,9 @@ pub mod sm_ids {
     /// `S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME` — the Interlude id for the
     /// owner's `RequestSetCastleSiegeTime` announcement.
     pub const S1_HAS_ANNOUNCED_THE_NEXT_CASTLE_SIEGE_TIME: i16 = 1104;
+    /// `THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED` (`@ClientString(id = 293)`) —
+    /// broadcast when the siege auto-task closes attacker/defender registration.
+    pub const THE_REGISTRATION_TERM_FOR_S1_HAS_ENDED: i16 = 293;
     pub const THE_S1_SIEGE_HAS_STARTED: i16 = 711;
     pub const THE_S1_SIEGE_HAS_FINISHED: i16 = 712;
     pub const CLAN_S1_IS_VICTORIOUS_OVER_S2_S_CASTLE_SIEGE: i16 = 291;

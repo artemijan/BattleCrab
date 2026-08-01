@@ -83,6 +83,7 @@ fn schedule_world() -> (
             ticket_buy_count: 0,
             first_mid_victory: false,
             time_registration_over: true,
+            siege_time_registration_end: 0,
             siege_date: 0,
             treasury: 0,
         },
@@ -93,6 +94,7 @@ fn schedule_world() -> (
             ticket_buy_count: 0,
             first_mid_victory: false,
             time_registration_over: true,
+            siege_time_registration_end: 0,
             siege_date: 0,
             treasury: 0,
         },
@@ -128,11 +130,15 @@ fn pending_siege_starts(world: &World) -> usize {
         .count()
 }
 
-/// Boot arms exactly one `SiegeStart` per *enabled* castle (the disabled one is
-/// skipped); firing it starts that castle's siege and re-arms next week's
-/// timer — the self-perpetuating weekly schedule.
+/// Boot arms exactly one auto-task per *enabled* castle (the disabled one is
+/// skipped), and a hop days out **re-arms rather than starting**.
+///
+/// This replaced an assertion that the first firing started the siege outright.
+/// That was the old one-shot design, and it is exactly what made the owner's
+/// chosen hour unreachable: a task armed against the fixed schedule could never
+/// notice a date set after it was armed.
 #[test]
-fn boot_arms_enabled_castles_and_the_start_re_arms_next_week() {
+fn boot_arms_enabled_castles_and_a_distant_hop_only_re_arms() {
     let (mut world, _db, _l) = schedule_world();
 
     crate::game_loop::siege::schedule_all_at_boot(&mut world);
@@ -142,16 +148,139 @@ fn boot_arms_enabled_castles_and_the_start_re_arms_next_week() {
         "only the enabled castle is armed"
     );
 
-    // Fire castle 1's start. (Calling the handler directly leaves the
-    // boot-armed task in the heap — production drains it first — so measure the
-    // *delta* the firing adds.)
+    // (Calling the handler directly leaves the boot-armed task in the heap —
+    // production drains it first — so measure the *delta* each firing adds.)
     assert!(!world.sieges[&1].in_progress);
     let before = pending_siege_starts(&world);
-    crate::game_loop::siege::handle_scheduled_siege_start(&mut world, 1);
-    assert!(world.sieges[&1].in_progress, "the scheduled siege began");
+    let now = commons::util::now_millis();
+    crate::game_loop::siege::run_auto_task(&mut world, 1, now);
+    assert!(
+        !world.sieges[&1].in_progress,
+        "a hop days out re-arms, it does not start the siege"
+    );
     assert_eq!(
         pending_siege_starts(&world) - before,
         1,
-        "firing re-arms exactly one next-week start"
+        "and it arms exactly one next hop"
+    );
+}
+
+/// The ladder walks down Java's rungs and only then starts. Driven with an
+/// explicit clock: each step sets "now" to the rung distance and checks the
+/// chain has not fired early.
+#[test]
+fn the_auto_task_ladder_starts_only_once_the_date_passes() {
+    let (mut world, _db, _l) = schedule_world();
+    let siege_at = crate::game_loop::siege::next_siege_millis(commons::util::now_millis(), 6, 16);
+
+    // Every rung above zero must re-arm without starting. 13_600_000 is Java's
+    // registration-close rung — its comment claims "1 hr" but the literal is
+    // 3 h 46 m 40 s, and the value is what retail runs on.
+    for remaining in [
+        2 * DAY_MS,
+        DAY_MS - 1,
+        13_600_000 - 1,
+        600_000 - 1,
+        300_000 - 1,
+        10_000 - 1,
+    ] {
+        let (mut w, _d, _l) = schedule_world();
+        w.sieges.insert(1, crate::model::siege::Siege::new(1));
+        // The stored date is what the chain reads; boot stamps it in
+        // production, and this test drives `run_auto_task` directly.
+        w.castles.iter_mut().find(|c| c.id == 1).unwrap().siege_date = siege_at;
+        crate::game_loop::siege::run_auto_task(&mut w, 1, siege_at - remaining);
+        assert!(
+            !w.sieges[&1].in_progress,
+            "{remaining} ms out: re-arm, never start"
+        );
+        assert_eq!(
+            pending_siege_starts(&w),
+            1,
+            "{remaining} ms out: exactly one next hop armed"
+        );
+    }
+
+    // Once the moment has passed, it starts.
+    world
+        .castles
+        .iter_mut()
+        .find(|c| c.id == 1)
+        .unwrap()
+        .siege_date = siege_at;
+    crate::game_loop::siege::run_auto_task(&mut world, 1, siege_at + 1);
+    assert!(
+        world.sieges[&1].in_progress,
+        "the siege begins once its date is behind us"
+    );
+}
+
+/// **The feature.** An hour chosen by the castle owner *after* the chain was
+/// armed is honored, because every hop re-reads the date.
+///
+/// Under the old one-shot timer the task was pinned to the `SiegeSchedule.xml`
+/// hour at arming time, so a later choice changed the SiegeInfo window and the
+/// registration cut-off but never the moment the siege actually began.
+#[test]
+fn an_hour_chosen_after_arming_is_honoured() {
+    let (mut world, _db, _l) = schedule_world();
+    let now = commons::util::now_millis();
+    let fixed = crate::game_loop::siege::next_siege_millis(now, 6, 16);
+
+    crate::game_loop::siege::schedule_all_at_boot(&mut world);
+
+    // The owner picks the *other* dist hour, 20:00 — four hours after the
+    // fixed slot the chain was armed against.
+    let chosen = crate::game_loop::siege::next_siege_millis(now, 6, 20);
+    assert!(chosen > fixed, "20:00 is later than 16:00 the same Sunday");
+    world
+        .castles
+        .iter_mut()
+        .find(|c| c.id == 1)
+        .unwrap()
+        .siege_date = chosen;
+
+    // At the old fixed moment the siege must NOT begin — the chain re-reads and
+    // sees the chosen date still ahead.
+    crate::game_loop::siege::run_auto_task(&mut world, 1, fixed + 1);
+    assert!(
+        !world.sieges[&1].in_progress,
+        "the fixed hour no longer starts the siege once an hour was chosen"
+    );
+
+    // At the chosen moment it does.
+    crate::game_loop::siege::run_auto_task(&mut world, 1, chosen + 1);
+    assert!(
+        world.sieges[&1].in_progress,
+        "the siege begins at the hour the owner chose"
+    );
+}
+
+/// A siege ending reopens the owner's hour-picking window for 24 h (Java
+/// `saveCastleSiege`). Without this half the window never opens on its own —
+/// `regTimeOver` defaults to `true` — and hour-picking stays dormant.
+#[test]
+fn ending_a_siege_reopens_the_hour_picking_window() {
+    let (mut world, _db, _l) = schedule_world();
+    world
+        .castles
+        .iter_mut()
+        .find(|c| c.id == 1)
+        .unwrap()
+        .time_registration_over = true;
+    world.sieges.get_mut(&1).unwrap().in_progress = true;
+
+    let before = commons::util::now_millis();
+    crate::game_loop::siege::end_siege(&mut world, 1);
+
+    let c = world.castles.iter().find(|c| c.id == 1).unwrap();
+    assert!(
+        !c.time_registration_over,
+        "the owner may pick the next siege's hour again"
+    );
+    let window = c.siege_time_registration_end - before;
+    assert!(
+        (DAY_MS - 5_000..=DAY_MS + 5_000).contains(&window),
+        "the window is 24 h (got {window} ms)"
     );
 }

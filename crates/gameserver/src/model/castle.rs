@@ -77,6 +77,11 @@ pub struct Castle {
     /// it defaults `true`, so the feature is dormant until an operator opens the
     /// window. Picking an hour closes it again.
     pub time_registration_over: bool,
+    /// Java `Castle._siegeTimeRegistrationEndDate` (`castle.regTimeEnd`): the
+    /// deadline for the owner to pick the siege hour, stamped `now + 1 day` when
+    /// the previous siege ended. Only consulted while `time_registration_over`
+    /// is false — that flag is the gate, this is the countdown behind it.
+    pub siege_time_registration_end: i64,
     /// Java `Castle._siegeDate` (`castle.siegeDate`): the owner-chosen siege
     /// time (epoch-millis), 0 when none has been set — then the fixed
     /// `SiegeSchedule.xml` slot is used.

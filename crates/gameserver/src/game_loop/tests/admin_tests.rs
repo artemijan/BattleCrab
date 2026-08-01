@@ -3102,6 +3102,7 @@ fn admin_castlemanage_ownership_and_side() {
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
+        siege_time_registration_end: 0,
         siege_date: 0,
         treasury: 0,
     }];
@@ -3277,6 +3278,7 @@ fn admin_castlemanage_siege_registration_and_state() {
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
+        siege_time_registration_end: 0,
         siege_date: 0,
         treasury: 0,
     }];
