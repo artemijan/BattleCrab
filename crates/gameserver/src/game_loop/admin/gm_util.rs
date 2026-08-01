@@ -710,6 +710,57 @@ pub(super) fn admin_set_exception(
     admin_exceptions(world, client_id, object_id);
 }
 
+/// `AdminQuest`'s `//show_quests` — the quest scripts registered on the
+/// **current target**, each a link into `//quest_info`. This is the `Quests`
+/// button on the shift-click admin `npcinfo.htm` (whose `%tmplid%` argument
+/// Java ignores: it reads `activeChar.getTarget()`).
+///
+/// Java walks every `EventType`'s listeners on the target creature and
+/// dedups by quest name through a `TreeSet` (hence alphabetical); the port
+/// asks its compiled-in registry which scripts name this npc id in any of
+/// their hook lists — the same question, one indirection earlier.
+///
+/// Not to be confused with `AdminShowQuests`' `//charquestmenu`, the *player*
+/// quest-state editor — the two were aliased here, so this button used to open
+/// the player menu and answer `INVALID_TARGET` on an NPC.
+pub(super) fn admin_show_quests(world: &mut World, client_id: u32, object_id: i32) {
+    let Some(target) = current_target(world, object_id) else {
+        send_message(world, client_id, "Get a target first.");
+        return;
+    };
+    // Java's gate is `isCreature()` — an NPC or a player, not a door/item.
+    let npc_id = world
+        .objects
+        .get_component::<Npc>(&target)
+        .map(|n| n.npc_id);
+    if npc_id.is_none() && !world.objects.has_component::<Player>(&target) {
+        send_message(world, client_id, "Invalid Target.");
+        return;
+    }
+    // A player target has no quest *listeners* in this port (quest state lives
+    // on the player, hooks live on NPCs), so the list is empty — as in Java,
+    // where a player carries listeners only in exotic cases.
+    let mut rows = String::new();
+    if let Some(npc_id) = npc_id {
+        for name in world.quests.clone().scripts_for_npc(npc_id) {
+            rows.push_str(&format!(
+                "<tr><td colspan=\"4\"><font color=\"LEVEL\">\
+                 <a action=\"bypass -h admin_quest_info {name}\">{name}</a></font></td></tr>"
+            ));
+        }
+    }
+    super::menu::show_admin_html_replace(
+        world,
+        client_id,
+        "npc-quests.htm",
+        &[
+            ("quests", rows),
+            ("objid", target.to_string()),
+            ("questName", String::new()),
+        ],
+    );
+}
+
 /// `//quest_info [name]` — the registered quest scripts (bare: list; with a
 /// name: its registration detail from the compiled-in registry).
 pub(super) fn admin_quest_info(world: &mut World, client_id: u32, args: &[&str]) {

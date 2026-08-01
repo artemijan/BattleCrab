@@ -19,6 +19,11 @@
 //! - Basic stats (`%str%`…) come off the template rather than a finalized stat
 //!   pipeline: NPCs carry no `BaseStats` component here, and no Interlude npc
 //!   skill touches the base stats, so the two agree.
+//!
+//! Every button on the window is live: `Kill`/`Delete`/`Recall`/`Buffs` reach
+//! their admin commands, `Quests` is `AdminQuest`'s `//show_quests` (the NPC
+//! script listing — *not* `//charquestmenu`), and `NpcView`/`Skills`/
+//! `AggroList` bypass into [`npc_view`](crate::game_loop::npc_view).
 
 use crate::data::npc_data::{AiType, NpcTemplate};
 use crate::model::components::{CombatStats, Position, Speeds, Vitals};

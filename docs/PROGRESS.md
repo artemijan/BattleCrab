@@ -2779,10 +2779,45 @@ command bodies (G13.B) are next.
   stays Java's `--` (the loader keeps no per-template source path). 2 tests
   (GM gets the admin window with **every** placeholder substituted and no
   attack/interact intent; a non-GM with `AltGameViewNpc` on still gets the
-  player view), sabotage-verified. Still inert: the window's `Skills` and
-  `AggroList` buttons, which bypass to `NpcViewMod` verbs the port doesn't
-  handle — `TODO(G33)` in `npc_view.rs` (the aggro view needs no new data; the
-  skill view needs `Skill.getIcon()`, an unparsed `<icon>` element).
+  player view), sabotage-verified.
+- **…and its sub-pages** — ✅ **LANDED 2026-08-01**, on the report that "there
+  are problems with sub pages". Opening the window exposed that the whole
+  `NpcViewMod` surface behind it was partial; a Java-line-by-line audit found
+  **five** defects, each its own bug with its own test:
+  1. **`Skills` / `AggroList` buttons were dead** — the two verbs were unrouted.
+     `sendNpcSkillView` (icon/name/id/level per template skill, `Skills.htm`)
+     and `sendAggroListView` (name/hate/damage per aggro entry, a vanished
+     attacker rendering as Java's literal `NULL`, `AggroList.htm`) are ported.
+     The skill rows needed `Skill.getIcon()`, so the skill parser now keeps
+     `<icon>` (`Skill.icon`, Java's `icon.skill0000` default) — the generic
+     per-level value reader already collected it, only the field was missing.
+  2. **The drop page went out on the wrong channel.** Java sends it through
+     `Util.sendCBHtml` — a chunked **community-board** page, which is what
+     `DropList.htm`'s two-column 332px layout and the 16000-char row budget are
+     built for; the port sent an `NpcHtmlMessage`, i.e. an NPC dialog with a far
+     smaller ceiling. Now `community_board::send_cb_html`, as in Java.
+  3. **Every drop row drew the question-mark icon** — the placeholder was
+     hard-coded instead of `ItemData::icon` (which already applies exactly
+     Java's `item.getIcon() == null` fallback).
+  4. **Chances were truncated to 2 decimals** (`{:.2}`) where Java uses
+     `DecimalFormat("0.00##")`: 2–4 decimals, trailing zeros trimmed no further
+     than the 2nd. A 0.0123% drop read `0.01%`.
+  5. **The `Quests` button opened the wrong page.** `//show_quests` and
+     `//charquestmenu` are two different Java handlers — `AdminQuest`'s NPC
+     script listing (`npc-quests.htm`) and `AdminShowQuests`' *player*
+     quest-state editor — and were aliased to the latter, so the button
+     answered `INVALID_TARGET` on an NPC. Split, with a new
+     `QuestRegistry::scripts_for_npc` (Java walks the NPC's event listeners and
+     dedups through a `TreeSet`; the port asks the compiled-in registry the same
+     question one indirection earlier).
+  Plus the `Buffs` button: `//getbuffs` resolved through `target_player`
+  (player target, else self), so a GM with a mob selected saw their **own**
+  buffs; Java's gate is `isCreature()`. It now follows an NPC target and takes
+  Java's `<playername>` argument. Also corrected: Info/Skills/AggroList use
+  Java's *no-arg* `new NpcHtmlMessage()`, i.e. npcObjId `0`, not the NPC's
+  object id. 6 tests, every one sabotage-verified. Remaining gap, marked
+  `TODO(G33)`: Java paginates the buff window 3-per-page via `PageBuilder`;
+  the port renders one page and leaves `%pages%` empty.
 - **Deferred**: nothing geo-related. Still blocked: clan-skill grants (no
   clan-skill system), `AdminFence` (no spawnable fence), the AdminEffects
   **abnormal-visual-effect / team / targetable** subset, `//setnoble`/`//rec`/

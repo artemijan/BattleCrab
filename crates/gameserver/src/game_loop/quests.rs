@@ -284,6 +284,29 @@ impl QuestRegistry {
         self.by_name.get(name).map(|&i| self.scripts[i].clone())
     }
 
+    /// The scripts that register any hook on `npc_id`, sorted and deduped —
+    /// `//show_quests`' listing for an NPC target. Java gets the same set by
+    /// walking every `EventType`'s listeners on the spawned NPC and collecting
+    /// their owning quests into a `TreeSet` (alphabetical, one entry per
+    /// quest however many hooks it registers).
+    pub fn scripts_for_npc(&self, npc_id: i32) -> Vec<&'static str> {
+        let mut v: Vec<&'static str> = self
+            .scripts
+            .iter()
+            .filter(|s| {
+                s.start_npcs().contains(&npc_id)
+                    || s.talk_npcs().contains(&npc_id)
+                    || s.first_talk_npcs().contains(&npc_id)
+                    || s.kill_npcs().contains(&npc_id)
+                    || s.attack_npcs().contains(&npc_id)
+            })
+            .map(|s| s.name())
+            .collect();
+        v.sort_unstable();
+        v.dedup();
+        v
+    }
+
     /// Every registered script's name, sorted — the `//quest_info` listing.
     pub fn names(&self) -> Vec<&'static str> {
         let mut v: Vec<&'static str> = self.scripts.iter().map(|s| s.name()).collect();

@@ -451,6 +451,206 @@ fn non_gm_shift_click_gets_player_view_not_admin_window() {
     );
 }
 
+/// The admin window's `Skills` button (`bypass NpcViewMod skills <objId>`) —
+/// Java `sendNpcSkillView`: one icon/name/id/level row per template skill,
+/// through `Skills.htm`. The verb was unrouted, so the button did nothing.
+#[test]
+fn npc_view_skills_page_lists_the_npcs_skills() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world
+        .data
+        .skill_data
+        .insert_for_test(crate::model::skill::Skill {
+            id: 4045,
+            level: 1,
+            name: "Resist Shock".into(),
+            icon: "icon.skill4045".into(),
+            ..Default::default()
+        });
+    let mut t = crate::data::npc_data::default_template(30001);
+    t.name = "Test Mob".into();
+    t.type_name = "Monster".into();
+    t.skill_list = vec![(4045, 1), (9999, 7)]; // the second id has no template
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("NpcViewMod skills {NPC_OID}")),
+    );
+
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("skill view sent");
+    assert!(html.contains("NPC Skill List"), "Skills.htm served");
+    assert!(html.contains("Test Mob"), "%npc_name% substituted");
+    assert!(
+        html.contains("icon.skill4045") && html.contains("Resist Shock"),
+        "the skill's real icon and name are rendered, got: {html}"
+    );
+    assert!(
+        !html.contains("9999"),
+        "an id with no skill template is skipped, like Java's null addSkill"
+    );
+}
+
+/// The admin window's `AggroList` button (`bypass NpcViewMod aggrolist
+/// <objId>`) — Java `sendAggroListView`: attacker name / hate / damage per
+/// aggro entry. Also unrouted before.
+#[test]
+fn npc_view_aggro_page_lists_hate_and_damage() {
+    use crate::model::npc::{AggroInfo, AggroList};
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+    let mut list = AggroList(std::collections::HashMap::new());
+    list.0.insert(
+        3001,
+        AggroInfo {
+            hate: 123.0,
+            damage: 456.0,
+        },
+    );
+    // A stale attacker id (logged out / despawned) is Java's "NULL" row.
+    list.0.insert(
+        999_999,
+        AggroInfo {
+            hate: 7.0,
+            damage: 0.0,
+        },
+    );
+    world.objects.add_components(&NPC_OID, list);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("NpcViewMod aggrolist {NPC_OID}")),
+    );
+
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("aggro view sent");
+    assert!(html.contains("NPC Aggro List"), "AggroList.htm served");
+    assert!(html.contains("P3001"), "the attacking player is named");
+    assert!(
+        html.contains("123") && html.contains("456"),
+        "hate + damage"
+    );
+    assert!(html.contains("NULL"), "a vanished attacker renders as NULL");
+    // The Refresh button re-issues the bypass against the object id.
+    assert!(
+        html.contains(&format!("NpcViewMod aggrolist {NPC_OID}")),
+        "%objid% is the object id, not the template id"
+    );
+}
+
+/// `view`/`skills`/`aggrolist` take an **optional** object id and fall back to
+/// the player's current target (Java's shared `st.hasMoreElements()` prologue);
+/// only `dropList` demands its arguments.
+#[test]
+fn npc_view_verbs_fall_back_to_the_current_target() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0)); // select it
+    drain(&mut rx);
+
+    handle_request_bypass_to_server(&mut world, 1, &bypass_body("NpcViewMod skills"));
+
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .filter_map(|p| decode_npc_html(p))
+            .any(|h| h.contains("NPC Skill List")),
+        "the argument-less form uses the current target"
+    );
+}
+
+/// The drop page is a **community-board** html (Java `Util.sendCBHtml`), each
+/// row carrying the item's own icon and a `DecimalFormat("0.00##")` chance.
+/// All three were wrong: it went out as an `NpcHtmlMessage`, every row used
+/// the question-mark placeholder icon, and chances were truncated to two
+/// decimals (so a 0.0123% drop read "0.01").
+#[test]
+fn npc_view_drop_page_uses_board_channel_real_icons_and_java_chance_format() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.cfg.rates.death_drop_chance_multiplier = 1.0;
+    world.cfg.rates.death_drop_amount_multiplier = 1.0;
+    // The real item catalogue, so the rows carry real `<set name="icon">`
+    // values (the synthetic test data has none).
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let mut t = crate::data::npc_data::default_template(30001);
+    t.name = "Test Mob".into();
+    t.type_name = "Monster".into();
+    // Adena (57) has a real `<set name="icon">` in the dist item data.
+    t.drop_list_death = vec![
+        crate::data::npc_data::DropHolder {
+            item_id: 57,
+            min: 1,
+            max: 1,
+            chance: 0.0123,
+        },
+        crate::data::npc_data::DropHolder {
+            item_id: 57,
+            min: 10,
+            max: 20,
+            chance: 1.5,
+        },
+    ];
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("NpcViewMod dropList DROP {NPC_OID}")),
+    );
+
+    let pkts = drain(&mut rx);
+    assert!(
+        pkts.iter().all(|p| decode_npc_html(p).is_none()),
+        "the drop list must not go out as an NPC dialog"
+    );
+    let board: Vec<_> = pkts
+        .iter()
+        .filter(|p| p[0] == server_packets::opcodes::SHOW_BOARD)
+        .collect();
+    assert_eq!(board.len(), 3, "sendCBHtml sends three ShowBoard chunks");
+    let html = {
+        let mut r = commons::network::PacketReader::new(&board[0][2..]);
+        for _ in 0..8 {
+            r.read_string().unwrap();
+        }
+        r.read_string().unwrap()
+    };
+    assert!(html.contains("Test Mob"), "%name% substituted");
+    let adena_icon = world.data.item_data.icon(57).to_string();
+    assert_ne!(adena_icon, "icon.etc_question_mark_i00", "dist has an icon");
+    assert!(
+        html.contains(&adena_icon),
+        "the item's own icon is used, got: {html}"
+    );
+    assert!(
+        html.contains("0.0123%"),
+        "4-decimal chance kept (0.00## ), got: {html}"
+    );
+    assert!(
+        html.contains("1.50%"),
+        "trailing zeros trimmed only to 2 decimals, got: {html}"
+    );
+}
+
 /// `Action` on a talkable NPC outside `INTERACTION_DISTANCE`: the second
 /// click can't open the dialog immediately (`Npc.canInteract` fails), so the
 /// player walks in first (`AI_INTENTION_INTERACT` / `Interact` intent) —

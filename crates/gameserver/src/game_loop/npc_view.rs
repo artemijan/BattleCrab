@@ -10,19 +10,18 @@
 //! the sibling [`admin::npc_info`](super::admin::npc_info); `handle_action`
 //! picks between the two exactly like Java's `isGM()` test.
 //!
-//! Scope vs. Java:
-//! - `skills` / `aggrolist` sub-views are only reachable from the admin
-//!   `npcinfo.htm` buttons, and the skill view needs the `<icon>` element that
-//!   the skill parser doesn't carry, so only `view` + `droplist` are handled;
-//!   the other two buttons are inert.
-// TODO(G33): port `NpcViewMod.sendNpcSkillView`/`sendAggroListView` (the
-// `Skills`/`AggroList` buttons on `data/html/admin/npcinfo.htm`). The aggro
-// view needs nothing new (`AggroList` carries hate/damage per attacker); the
-// skill view needs `Skill.getIcon()`, i.e. a `<icon>` child-element field on
-// the parsed skill.
-//! - Both the `DROP` and `SPOIL` scopes are handled: the info window offers a
-//!   "Show Drop" and/or "Show Spoil" button per whichever list the NPC carries
-//!   (`bypass NpcViewMod dropList <DROP|SPOIL> <objId> [page]`).
+//! All four verbs are handled: `view` (Info.htm), `skills` (Skills.htm),
+//! `aggrolist` (AggroList.htm) and `droplist` (DropList.htm) — the last three
+//! reached from the admin `npcinfo.htm` buttons and the info window's own
+//! "Show Drop"/"Show Spoil" pair. `dropList` covers both the `DROP` and
+//! `SPOIL` scopes.
+//!
+//! Two channel details that are easy to get wrong and were, until 2026-08-01:
+//! - Info/Skills/AggroList go out as `new NpcHtmlMessage()` — the **no-arg**
+//!   ctor, i.e. npcObjId `0`, not the NPC's object id.
+//! - The drop list is **not** an NPC dialog at all: Java sends it through
+//!   `Util.sendCBHtml`, the chunked community-board channel that `DropList.htm`
+//!   is laid out for and whose ceiling the 16000-char row budget assumes.
 
 use crate::network::server_packets;
 use crate::world::World;
@@ -107,45 +106,161 @@ pub(crate) fn send_npc_view(world: &World, client_id: u32, npc_object_id: i32) {
     set("%attributeholy%", "0");
     set("%dropListButtons%", &drop_list_buttons(t, npc_object_id));
 
+    // Java `new NpcHtmlMessage()` — the **no-arg** ctor, so the window carries
+    // npcObjId 0 and its bypasses are not bound to the NPC (Java's
+    // `HtmlActionCache` origin). All three NpcViewMod pages do this.
     if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
+        cs.send(server_packets::npc_html_message(0, &html));
     }
 }
 
-/// `bypass NpcViewMod <verb> …` router (the info window's buttons). Only the
-/// verbs reachable from `Info.htm` are handled; see the module doc.
+/// `bypass NpcViewMod <verb> …` router — the `Info.htm` buttons *and* the
+/// admin `npcinfo.htm` ones (`view`/`skills`/`aggrolist`). Java's `view`,
+/// `skills` and `aggrolist` all take an optional object id and fall back to
+/// the player's current target; `dropList` requires its two arguments.
 pub(crate) fn handle_npc_view_bypass(world: &World, client_id: u32, object_id: i32, command: &str) {
     let mut it = command.split_whitespace();
     it.next(); // "NpcViewMod"
     let Some(verb) = it.next() else { return };
-    match verb.to_ascii_lowercase().as_str() {
-        "view" => {
-            let target = it
-                .next()
-                .and_then(|s| s.parse::<i32>().ok())
-                .or_else(|| current_target(world, object_id));
-            if let Some(npc_object_id) =
-                target.filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
-            {
-                send_npc_view(world, client_id, npc_object_id);
-            }
+    let verb = verb.to_ascii_lowercase();
+    if verb == "droplist" {
+        // `dropList <DROP|SPOIL> <objId> [page]` — Java bails when fewer than
+        // two tokens follow.
+        let scope = it.next().unwrap_or("");
+        let Some(npc_object_id) = it.next().and_then(|s| s.parse::<i32>().ok()) else {
+            return;
+        };
+        let page = it.next().and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
+        if world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&npc_object_id)
+        {
+            send_npc_drop_list(world, client_id, npc_object_id, scope, page);
         }
-        "droplist" => {
-            // `dropList <DROP|SPOIL> <objId> [page]`.
-            let scope = it.next().unwrap_or("");
-            let Some(npc_object_id) = it.next().and_then(|s| s.parse::<i32>().ok()) else {
-                return;
-            };
-            let page = it.next().and_then(|s| s.parse::<usize>().ok()).unwrap_or(0);
-            if world
-                .objects
-                .has_component::<crate::model::npc::Npc>(&npc_object_id)
-            {
-                send_npc_drop_list(world, client_id, npc_object_id, scope, page);
-            }
-        }
+        return;
+    }
+    // The shared `target = <objId argument> else player.getTarget()` prologue.
+    // A non-NPC target (or a stale id) is Java's `npc == null` → drop.
+    let Some(npc_object_id) = it
+        .next()
+        .and_then(|s| s.parse::<i32>().ok())
+        .or_else(|| current_target(world, object_id))
+        .filter(|id| world.objects.has_component::<crate::model::npc::Npc>(id))
+    else {
+        return;
+    };
+    match verb.as_str() {
+        "view" => send_npc_view(world, client_id, npc_object_id),
+        "skills" => send_npc_skill_view(world, client_id, npc_object_id),
+        "aggrolist" => send_aggro_list_view(world, client_id, npc_object_id),
         _ => {}
     }
+}
+
+/// `NpcViewMod.sendNpcSkillView` — `data/html/mods/NpcView/Skills.htm`, one
+/// icon/name/id/level row per skill the NPC carries. Java reads
+/// `npc.getSkills()`, which the `Creature` ctor filled from the template's
+/// `<skillList>`, so the template list is the same set.
+fn send_npc_skill_view(world: &World, client_id: u32, npc_object_id: i32) {
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
+    let Some(t) = npc.template(world) else { return };
+
+    let mut rows = String::new();
+    for &(skill_id, level) in &t.skill_list {
+        // An id/level the skill parser didn't produce is simply absent from
+        // Java's map too (`addSkill` of a null skill is a no-op).
+        let Some(skill) = world.data.skill_data.get(skill_id, level) else {
+            continue;
+        };
+        rows.push_str(&format!(
+            "<table width=277 height=32 cellspacing=0 background=\"L2UI_CT1.Windows.Windows_DF_TooltipBG\">\
+             <tr><td width=32><img src=\"{}\" width=32 height=32></td>\
+             <td width=110>{}</td>\
+             <td width=45 align=center>{}</td>\
+             <td width=35 align=center>{}</td></tr></table>",
+            skill.icon, skill.name, skill.id, skill.level
+        ));
+    }
+
+    let html = read_view_htm(world, "Skills.htm")
+        .replace("%skills%", &rows)
+        .replace("%npc_name%", &t.name)
+        .replace("%npcId%", &t.id.to_string());
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::npc_html_message(0, &html));
+    }
+}
+
+/// `NpcViewMod.sendAggroListView` — `data/html/mods/NpcView/AggroList.htm`,
+/// one name/hate/damage row per aggro entry. Java guards on `isAttackable()`,
+/// so a non-Attackable NPC shows an empty list rather than no page.
+fn send_aggro_list_view(world: &World, client_id: u32, npc_object_id: i32) {
+    let Some(npc) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_object_id)
+    else {
+        return;
+    };
+    let Some(t) = npc.template(world) else { return };
+
+    let mut rows = String::new();
+    if t.is_attackable_class()
+        && let Some(aggro) = world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&npc_object_id)
+    {
+        for (attacker_oid, info) in &aggro.0 {
+            // Java prints "NULL" for an attacker reference that has gone away
+            // (`a.getAttacker() != null ? … : "NULL"`); ours is an object id,
+            // so a despawned/logged-out attacker is the same case.
+            let name = attacker_name(world, *attacker_oid).unwrap_or_else(|| "NULL".to_string());
+            rows.push_str(&format!(
+                "<table width=277 height=32 cellspacing=0 background=\"L2UI_CT1.Windows.Windows_DF_TooltipBG\">\
+                 <tr><td width=110>{name}</td>\
+                 <td width=60 align=center>{}</td>\
+                 <td width=60 align=center>{}</td></tr></table>",
+                info.hate as i64, info.damage as i64
+            ));
+        }
+    }
+
+    let html = read_view_htm(world, "AggroList.htm")
+        .replace("%aggrolist%", &rows)
+        .replace("%npc_name%", &t.name)
+        .replace("%npcId%", &t.id.to_string())
+        // The Refresh button re-issues the bypass, so this one *is* the
+        // object id, not the template id.
+        .replace("%objid%", &npc_object_id.to_string());
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(server_packets::npc_html_message(0, &html));
+    }
+}
+
+/// A player's name, else an NPC's template name — whatever holds the aggro.
+fn attacker_name(world: &World, object_id: i32) -> Option<String> {
+    if let Some(p) = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+    {
+        return Some(p.name.clone());
+    }
+    let npc = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&object_id)?;
+    Some(npc.template(world)?.name.clone())
+}
+
+/// One of the three `data/html/mods/NpcView/*` files. Java's `setFile` sends
+/// the packet even when the file is missing (logged, empty body); mirror the
+/// stub fallback the info window already used so a window always opens.
+fn read_view_htm(world: &World, file: &str) -> String {
+    crate::data::htm_cache::read_htm(format!("{}data/html/mods/NpcView/{file}", world.data.root))
+        .unwrap_or_else(|| format!("<html><body>{file}<br>%npc_name%</body></html>"))
 }
 
 fn current_target(world: &World, object_id: i32) -> Option<i32> {
@@ -327,12 +442,15 @@ fn send_npc_drop_list(
         } else {
             format!("{} - {}", format_amount(min), format_amount(max))
         };
-        let chance = format!("{:.2}", (d.chance * rate_chance).min(100.0));
+        let chance = format_chance((d.chance * rate_chance).min(100.0));
+        // Java `item.getIcon()`, with `icon.etc_question_mark_i00` only when the
+        // template declares none (`ItemData::icon` applies that same fallback).
+        let icon = world.data.item_data.icon(d.item_id);
 
         let row = format!(
             "<table width=332 cellpadding=2 cellspacing=0 background=\"L2UI_CT1.Windows.Windows_DF_TooltipBG\">\
              <tr><td width=32 valign=top>\
-             <button width=\"32\" height=\"32\" back=\"icon.etc_question_mark_i00\" fore=\"icon.etc_question_mark_i00\" itemtooltip=\"{}\"></td>\
+             <button width=\"32\" height=\"32\" back=\"{icon}\" fore=\"{icon}\" itemtooltip=\"{}\"></td>\
              <td fixwidth=300 align=center><font name=\"hs9\" color=\"CD9000\">{}</font></td></tr>\
              <tr><td width=32></td><td width=300><table width=295 cellpadding=0 cellspacing=0>\
              <tr><td width=48 align=right valign=top><font color=\"LEVEL\">Amount:</font></td>\
@@ -369,12 +487,23 @@ fn send_npc_drop_list(
         .replace("%dropListButtons%", &drop_list_buttons(t, npc_object_id))
         .replace("%pages%", &pages_sb)
         .replace("%items%", &body);
-    // Java routes this through `Util.sendCBHtml` (a community-board wide html).
-    // The window is opened here through the same `NpcHtmlMessage` path the
-    // rest of the NPC dialogs use.
-    if let Some(cs) = world.clients.get(&client_id) {
-        cs.send(server_packets::npc_html_message(npc_object_id, &html));
+    // Java `Util.sendCBHtml` — the drop list is a **community-board** page, not
+    // an NPC dialog: DropList.htm is laid out for the wide board window, and
+    // the 16000-char budget above is sized for the chunked `ShowBoard` channel
+    // rather than `NpcHtmlMessage`'s much smaller ceiling.
+    super::community_board::send_cb_html(world, client_id, &html);
+}
+
+/// Java `DecimalFormat("0.00##")` — at least 2 decimals, at most 4, with the
+/// 3rd/4th dropped when they are zero (`1.5` → `1.50`, `0.012345` → `0.0123`).
+fn format_chance(value: f64) -> String {
+    let mut s = format!("{value:.4}");
+    let dot = s.find('.').expect("{:.4} always writes a decimal point");
+    // Trim trailing zeros, but never below two decimals ("1.5000" → "1.50").
+    while s.ends_with('0') && (s.len() - dot - 1) > 2 {
+        s.pop();
     }
+    s
 }
 
 /// `DecimalFormat("#,###")` — thousands-grouped integer.

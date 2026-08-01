@@ -5,7 +5,7 @@ use crate::model::Player;
 use crate::model::components::{Buffs, SkillBook};
 use crate::world::World;
 
-use super::{current_target, send_message, target_player};
+use super::{current_target, send_message};
 
 /// `AdminSkill`'s `//add_skill <id> [level]` — grant a skill to the targeted
 /// player (or self) and refresh their skill list. Passive stat effects apply on
@@ -391,23 +391,58 @@ pub(super) fn admin_buff(world: &mut World, client_id: u32, object_id: i32, args
 
 /// `AdminBuffs`'s `//getbuffs` — the target's active buffs as the `getbuffs.htm`
 /// window (Java `showBuffs`), each row carrying an `X` cancel button.
-pub(super) fn admin_getbuffs(world: &mut World, client_id: u32, object_id: i32) {
-    show_buffs(world, client_id, object_id, false);
+pub(super) fn admin_getbuffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    show_buffs(world, client_id, object_id, args, false);
 }
 
 /// `AdminBuffs`'s `//getbuffs_ps` — the passive page of the same window.
-pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i32) {
-    show_buffs(world, client_id, object_id, true);
+pub(super) fn admin_getbuffs_ps(world: &mut World, client_id: u32, object_id: i32, args: &[&str]) {
+    show_buffs(world, client_id, object_id, args, true);
 }
 
 /// Render `getbuffs.htm` for the target (Java `showBuffs`): a table of the
 /// active (or passive) effects with per-row `admin_stopbuff` buttons.
-fn show_buffs(world: &mut World, client_id: u32, object_id: i32, passive: bool) {
-    let target = target_player(world, object_id);
+// TODO(G33): Java paginates this list 3-per-page through `PageBuilder` and
+// fills `%pages%` with the pager template; the port renders every effect on one
+// page and leaves `%pages%` empty.
+fn show_buffs(world: &mut World, client_id: u32, object_id: i32, args: &[&str], passive: bool) {
+    // Java: `//getbuffs <playername>` wins over the target; otherwise **any
+    // Creature** target is valid — which is what the `Buffs` button on the
+    // shift-click NPC window relies on. Resolving this as `target_player`
+    // (player target, else self) silently showed the *GM's own* buffs whenever
+    // an NPC was selected.
+    let target = match args.first() {
+        Some(name) => match super::find_online_player(world, name) {
+            Some(oid) => oid,
+            None => {
+                send_message(
+                    world,
+                    client_id,
+                    &format!("The player {name} is not online."),
+                );
+                return;
+            }
+        },
+        None => current_target(world, object_id)
+            .filter(|oid| {
+                world.objects.has_component::<Player>(oid)
+                    || world.objects.has_component::<crate::model::npc::Npc>(oid)
+            })
+            // Java answers THAT_IS_AN_INCORRECT_TARGET with nothing selected;
+            // this port's admin commands consistently fall back to self, as
+            // does the `//buff` that fills this window.
+            .unwrap_or(object_id),
+    };
     let name = world
         .objects
         .get_component::<Player>(&target)
         .map(|p| p.name.clone())
+        .or_else(|| {
+            let npc = world
+                .objects
+                .get_component::<crate::model::npc::Npc>(&target)?;
+            Some(npc.template(world)?.name.clone())
+        })
         .unwrap_or_default();
     let now = world.tick;
     let mut rows = String::new();
