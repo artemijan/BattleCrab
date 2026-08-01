@@ -875,9 +875,12 @@ pub(crate) fn destroy_clan(world: &mut World, clan_id: i32) {
                 if *oid == leader_id {
                     p.clan_create_expiry_time = leader_expiry;
                 }
-                // TODO(G25): Java clears the title only for non-nobles; the noble
-                // system is unported, so every ex-member loses their title here.
-                p.title.clear();
+                // Java `Clan.removeClanMember`: `if (!player.isNoble())
+                // player.setTitle("")`. A noble's title is their own standing,
+                // not the clan's, so it survives the clan dissolving.
+                if !p.is_noble {
+                    p.title.clear();
+                }
                 true
             } else {
                 false

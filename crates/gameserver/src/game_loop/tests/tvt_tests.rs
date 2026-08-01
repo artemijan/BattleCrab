@@ -856,3 +856,74 @@ fn a_zero_cap_means_unlimited() {
     tvt::on_manager_event(&mut world, 2, 101, "Participate");
     assert_eq!(world.events.tvt.player_list, vec![100, 101]);
 }
+
+/// The `canRegister` gates that only became expressible once their subsystems
+/// landed — duel, instance, siege zone, transformed, flying, and an olympiad
+/// bout already in progress.
+///
+/// Table-driven because the failure that matters is a *missing* clause, and one
+/// test per clause is how a missing one stays visible. Each case starts from an
+/// eligible player, so a case passing for the wrong reason (a fixture that
+/// could never register anyway) is ruled out by the baseline assertion first.
+#[test]
+fn can_register_honours_every_ported_busy_gate() {
+    type Setup = fn(&mut World);
+    let cases: &[(&str, Setup)] = &[
+        ("in a duel", |w| {
+            w.objects
+                .add_components(&100, crate::model::components::DuelRef(1));
+        }),
+        ("in an instance", |w| {
+            w.objects
+                .add_components(&100, crate::model::components::InstanceId(7));
+        }),
+        ("inside a siege zone", |w| {
+            w.objects
+                .get_component_mut::<crate::model::components::ZoneFlags>(&100)
+                .unwrap()
+                .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
+        }),
+        ("transformed", |w| {
+            w.objects
+                .get_component_mut::<Player>(&100)
+                .unwrap()
+                .transform_id = 111;
+        }),
+        ("flying", |w| {
+            w.objects
+                .get_component_mut::<Player>(&100)
+                .unwrap()
+                .mount_type = 2;
+        }),
+        ("fighting an olympiad bout", |w| {
+            w.olympiad.in_competition.insert(100);
+        }),
+    ];
+
+    for (label, setup) in cases {
+        let (mut world, _tx, _rx, _link) = test_world();
+        register_manager_template(&mut world);
+        tvt::event_start(&mut world);
+        eligible_player(&mut world, 1, 100);
+
+        // Baseline: this player *can* register before the gate is armed.
+        assert_eq!(
+            tvt::on_manager_event(&mut world, 1, 100, "Participate").as_deref(),
+            Some("registration-success.html"),
+            "baseline registration should succeed ({label})"
+        );
+        tvt::on_manager_event(&mut world, 1, 100, "CancelParticipation");
+
+        setup(&mut world);
+
+        assert_eq!(
+            tvt::on_manager_event(&mut world, 1, 100, "Participate").as_deref(),
+            Some("registration-failed.html"),
+            "a player {label} must not be able to register"
+        );
+        assert!(
+            world.events.tvt.player_list.is_empty(),
+            "and must not land in the participant list ({label})"
+        );
+    }
+}

@@ -851,3 +851,75 @@ fn heal_action_also_restores_the_pet() {
     );
     assert_eq!(pet.cur_mp, pet.max_mp as f64, "and its MP");
 }
+
+// ---------------------------------------------------------------------------
+// `HomeBoard.COMBAT_CHECK`
+// ---------------------------------------------------------------------------
+
+/// The gate is per-clause, so each one is worth its own assertion: an earlier
+/// version of this port only checked casting / pvp-flag / dead, which let a
+/// player heal for free mid-duel and mid-siege.
+#[test]
+fn the_combat_check_refuses_a_custom_action_in_a_duel() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7101, 0, 0, 0);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&7101).unwrap();
+        v.cur_hp = 1.0;
+    }
+    drain(&mut rx);
+
+    // Sanity: without the duel the heal lands, so the assertion below is about
+    // the duel and not about a fixture that never heals.
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7101).cur_hp,
+        pvit(&world, 7101).max_hp as f64,
+        "baseline: the heal works when not busy"
+    );
+
+    world
+        .objects
+        .get_component_mut::<Vitals>(&7101)
+        .unwrap()
+        .cur_hp = 1.0;
+    // `isInDuel()` is `DuelRef` presence — the same component the duel start
+    // path attaches.
+    world
+        .objects
+        .add_components(&7101, crate::model::components::DuelRef(1));
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7101).cur_hp,
+        1.0,
+        "a duelling player cannot heal from the board"
+    );
+}
+
+/// `isInsideZone(SIEGE)` — the zone, not "a siege is running". Standing on
+/// castle ground is enough.
+#[test]
+fn the_combat_check_refuses_a_custom_action_in_a_siege_zone() {
+    let (mut world, ..) = test_world();
+    enable_board(&mut world);
+    let mut rx = ingame_player(&mut world, 1, 7103, 0, 0, 0);
+    {
+        let v = world.objects.get_component_mut::<Vitals>(&7103).unwrap();
+        v.cur_hp = 1.0;
+    }
+    world
+        .objects
+        .get_component_mut::<crate::model::components::ZoneFlags>(&7103)
+        .unwrap()
+        .mask |= crate::data::zone_data::ZoneKind::Siege.bit();
+    drain(&mut rx);
+
+    handle_parse_command(&mut world, 1, "_bbsheal;");
+    assert_eq!(
+        pvit(&world, 7103).cur_hp,
+        1.0,
+        "no board actions inside a siege zone"
+    );
+}

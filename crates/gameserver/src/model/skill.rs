@@ -1617,6 +1617,14 @@ pub struct Skill {
     /// Java `Skill.isDebuff()` (`<isDebuff>`, default false). A debuff can't be
     /// self-dispelled via alt+click even when `can_be_dispelled` is set.
     pub is_debuff: bool,
+    /// Java `Skill.isSharedWithSummon()` (`<isSharedWithSummon>`, **default
+    /// true**) — a continuous, non-debuff buff landing on a player is re-applied
+    /// to each of their servitors (`Skill.applyEffects`'s "buff sharing"
+    /// branch). The default being `true` is the load-bearing part: only three
+    /// skills in the whole datapack declare the tag at all, so parsing this like
+    /// a normal `false`-default flag would silently stop sharing every buff in
+    /// the game.
+    pub shared_with_summon: bool,
     /// Java `Skill.isStayAfterDeath()` (`<stayAfterDeath>`, default false) — the
     /// buff survives its holder's death (`EffectList
     /// .stopAllEffectsExceptThoseThatLastThroughDeath`). Java ORs
@@ -1728,6 +1736,7 @@ impl Default for Skill {
             abnormal_type: "NONE".to_string(),
             can_be_dispelled: true,
             is_debuff: false,
+            shared_with_summon: true,
             stay_after_death: false,
             effects: Vec::new(),
             self_effects: Vec::new(),

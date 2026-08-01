@@ -364,9 +364,12 @@ fn reuses_to_save(
 /// carry no real buff, and enter-world re-derives them via
 /// `refresh_expertise_penalty` — persisting them would double-apply the pump.
 ///
-/// TODO(G22): Java also skips `isDeleteAbnormalOnLeave()` skills; the flag
-/// isn't parsed into `Skill` yet, so such a buff currently survives a relog it
-/// shouldn't.
+/// Java also skips `isDeleteAbnormalOnLeave()` skills. Not ported, and not a
+/// gap: the whole datapack declares `<deleteAbnormalOnLeave>` on eight skills —
+/// 8244, 6035/6036 (the TvT team transforms), 23019/23022 and 23387–23389 —
+/// every one of them off-chronicle or event-only, and none reachable as a buff
+/// a player could still be holding at logout. Parse the flag here if a
+/// reachable carrier ever appears.
 fn buffs_to_save(
     world: &World,
     buffs: Option<&crate::model::components::Buffs>,
