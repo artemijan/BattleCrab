@@ -13,7 +13,7 @@
 
 use crate::db::DbCommand;
 use crate::model::Player;
-use crate::model::components::{Position, SkillBook};
+use crate::model::components::Position;
 use crate::model::inventory::Inventory;
 use crate::network::server_packets::{self, SmParam, sm_ids};
 use crate::session::ClientSession;
@@ -401,11 +401,13 @@ pub(crate) fn end_of_life(world: &mut World, idx: usize) {
             p.pk_kills = saved_pk;
             p.cursed_weapon_equipped_id = 0;
         }
-        // removeSkill: drop the cursed-weapon skill + untransform.
+        // removeSkill: drop the cursed-weapon skill + untransform. The skill is
+        // a passive, so Java's `removeSkill` unmerges its stat pumps through
+        // `EffectList.stopSkillEffects` — take the book entry alone and the
+        // freed player keeps the curse's `MaxCp`/`PAtk`/defence bonuses (the
+        // reported "still MAX CP 3844 after losing Akamanah").
         let skill_id = world.cursed_weapons[idx].skill_id;
-        if let Some(book) = world.objects.get_component_mut::<SkillBook>(&player_id) {
-            book.0.remove(&skill_id);
-        }
+        crate::game_loop::skills::remove_player_skill(world, player_id, skill_id);
         super::transforms::remove_transform(world, player_id);
         super::skills::refresh_skill_list(world, player_id);
 

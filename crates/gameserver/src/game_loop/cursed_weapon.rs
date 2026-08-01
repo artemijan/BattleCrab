@@ -339,13 +339,10 @@ fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid:
         p.pk_kills = saved_pk;
         p.cursed_weapon_equipped_id = 0;
     }
-    // `removeSkill()` — drop the weapon skill and revert the transform.
-    if let Some(book) = world
-        .objects
-        .get_component_mut::<crate::model::components::SkillBook>(&victim_oid)
-    {
-        book.0.remove(&skill_id);
-    }
+    // `removeSkill()` — drop the weapon skill (with the passive stat pumps it
+    // landed: taking only the book entry leaves the wielder with the cursed CP
+    // bar) and revert the transform.
+    super::skills::remove_player_skill(world, victim_oid, skill_id);
     super::admin::transforms::remove_transform(world, victim_oid);
     super::admin::refresh_skill_list(world, victim_oid);
     if let Some(cid) = super::helpers::client_for_player(world, victim_oid) {
@@ -490,6 +487,13 @@ pub(crate) fn give_skill(world: &mut World, idx: usize, target: i32) {
     {
         book.0.insert(skill_id, level);
     }
+    // Java's `addSkill` runs the skill's effects through the `EffectList` as it
+    // is learned. Both cursed skills are passives whose pumps are most of what
+    // wearing the curse *is* (Akamanah 3629 L1: `MaxCp` ×11.5 +1300, ±PAtk/
+    // MAtk/defence), so without this the wielder gets the model and the sword
+    // and none of the power. `activate`'s full heal runs after this call, so
+    // the grown CP bar is the one that gets filled.
+    super::passive_skills::refresh_conditioned_passives(world, target);
     super::admin::refresh_skill_list(world, target);
 }
 
