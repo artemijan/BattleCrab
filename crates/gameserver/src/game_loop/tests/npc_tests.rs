@@ -375,6 +375,82 @@ fn shift_click_npc_without_alt_game_view_npc_only_selects() {
     );
 }
 
+/// A **GM**'s shift-click opens the admin `npcinfo.htm` window, not the player
+/// view and not a plain select: Java `Action` case 1 sends every GM to
+/// `Npc.onActionShift` → `NpcActionShift`'s `isGM()` branch, which is checked
+/// *before* `ALT_GAME_VIEWNPC` — so the config is irrelevant here (it is left
+/// at its default off to prove that).
+#[test]
+fn gm_shift_click_npc_opens_admin_npc_info_window() {
+    let (mut world, ..) = admin_world();
+    // The real npcinfo.htm, so the placeholder substitution is under test too.
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    assert!(!world.cfg.npc.alt_game_view_npc, "GM path needs no config");
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 70);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+
+    assert_eq!(
+        world.objects.get_component::<TargetRef>(&3001).unwrap().0,
+        Some(NPC_OID),
+        "NpcActionShift sets the target before sending the html"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&3001),
+        "the admin window must not start an attack/interact"
+    );
+    let pkts = drain(&mut rx);
+    let html = pkts
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("admin npc info window");
+    assert!(
+        html.contains("<title>NPC Info</title>"),
+        "npcinfo.htm served"
+    );
+    assert!(
+        html.contains(&format!("bypass admin_show_quests {}", 30001)),
+        "template id substituted into the Quests button"
+    );
+    assert!(html.contains(&NPC_OID.to_string()), "object id substituted");
+    // Every `%token%` is substituted — a leftover would show raw in the client.
+    // (`width="100%"` is a literal in the file, hence the "% followed by a
+    // letter" shape rather than a bare '%' scan.)
+    let leftover: Vec<&str> = html
+        .match_indices('%')
+        .filter(|(i, _)| html[i + 1..].starts_with(|c: char| c.is_ascii_alphabetic()))
+        .map(|(i, _)| &html[i..(i + 20).min(html.len())])
+        .collect();
+    assert!(
+        leftover.is_empty(),
+        "unsubstituted placeholders: {leftover:?}"
+    );
+}
+
+/// A non-GM never reaches the admin window even with `AltGameViewNpc` on —
+/// Java's `NpcActionShift` gates it on `isGM()` and falls through to the
+/// player-facing `NpcViewMod` view.
+#[test]
+fn non_gm_shift_click_gets_player_view_not_admin_window() {
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.cfg.npc.alt_game_view_npc = true;
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut rx = ingame_player_access(&mut world, 1, 3001, 0);
+
+    handle_action(&mut world, 1, &action_body(NPC_OID, 1));
+
+    let html = drain(&mut rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("player info window");
+    assert!(
+        !html.contains("<title>NPC Info</title>"),
+        "admin window is GM-only"
+    );
+}
+
 /// `Action` on a talkable NPC outside `INTERACTION_DISTANCE`: the second
 /// click can't open the dialog immediately (`Npc.canInteract` fails), so the
 /// player walks in first (`AI_INTENTION_INTERACT` / `Interact` intent) —

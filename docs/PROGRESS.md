@@ -2792,6 +2792,29 @@ command bodies (G13.B) are next.
   reload round-trip, `//path_find`) and **5 region-serializer units**
   (byte-for-byte round-trip, complex nibble patch, flat promotion, enable-only
   no-op, multilayer layer targeting). All sabotage-verified.
+- **GM shift-click NPC view** — ✅ **LANDED 2026-08-01**
+  (`admin/npc_info.rs`). Reported as "shift-click on an NPC should bring up the
+  admin view". `NpcActionShift` has **two** branches and only the non-GM one was
+  ported: every shift-click took the `AltGameViewNpc` player path (and with that
+  config off — the default — did nothing at all), because `npc_view.rs` was
+  written before `Player` carried an access level and its module doc still said
+  the GM branch "is not modeled". `handle_action` now tests `is_gm()` first,
+  exactly like Java's `Action` case 1, and serves `data/html/admin/npcinfo.htm`
+  through the existing `menu::show_admin_html_replace` channel
+  (`NpcHtmlMessage(0, 1)`, so the window survives its own bypass buttons):
+  identity/race/spawn line/respawn/chase range/distance, the combat + basic-stat
+  blocks, the clan-hall agent lookup, the patrol-route row, and the five `%ai*%`
+  rows (intention, AI, AIType, clan & range, ignore & range) that Java emits only
+  for an NPC with an AI. The spawn *name*/*group*/*AI* labels resolve through
+  `Npc.spawn_ref`, guarded by an npc-id match so a runtime spawn's placeholder
+  `(0, 0, 0)` reference cannot report an unrelated spawn line; `%spawnfile%`
+  stays Java's `--` (the loader keeps no per-template source path). 2 tests
+  (GM gets the admin window with **every** placeholder substituted and no
+  attack/interact intent; a non-GM with `AltGameViewNpc` on still gets the
+  player view), sabotage-verified. Still inert: the window's `Skills` and
+  `AggroList` buttons, which bypass to `NpcViewMod` verbs the port doesn't
+  handle — `TODO(G33)` in `npc_view.rs` (the aggro view needs no new data; the
+  skill view needs `Skill.getIcon()`, an unparsed `<icon>` element).
 - **Deferred**: nothing geo-related. Still blocked: clan-skill grants (no
   clan-skill system), `AdminFence` (no spawnable fence), the AdminEffects
   **abnormal-visual-effect / team / targetable** subset, `//setnoble`/`//rec`/

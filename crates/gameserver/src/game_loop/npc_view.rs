@@ -6,12 +6,20 @@
 //! DROP <objId> [page]`). Entry points: [`send_npc_view`] (the window) and
 //! [`handle_npc_view_bypass`] (the button router).
 //!
+//! The **GM** branch of `NpcActionShift` (the admin `npcinfo.htm` window) is
+//! the sibling [`admin::npc_info`](super::admin::npc_info); `handle_action`
+//! picks between the two exactly like Java's `isGM()` test.
+//!
 //! Scope vs. Java:
-//! - The **GM** branch (admin `npcinfo.htm`) is not modeled — the live `Player`
-//!   carries no access level yet, so every shift-click takes the player path.
-//! - `skills` / `aggrolist` sub-views aren't reachable from `Info.htm` (only
-//!   from the admin htmls) and rest on NPC data the port doesn't carry (NPC
-//!   skill lists), so only `view` + `droplist` are handled.
+//! - `skills` / `aggrolist` sub-views are only reachable from the admin
+//!   `npcinfo.htm` buttons, and the skill view needs the `<icon>` element that
+//!   the skill parser doesn't carry, so only `view` + `droplist` are handled;
+//!   the other two buttons are inert.
+// TODO(G33): port `NpcViewMod.sendNpcSkillView`/`sendAggroListView` (the
+// `Skills`/`AggroList` buttons on `data/html/admin/npcinfo.htm`). The aggro
+// view needs nothing new (`AggroList` carries hate/damage per attacker); the
+// skill view needs `Skill.getIcon()`, i.e. a `<icon>` child-element field on
+// the parsed skill.
 //! - Both the `DROP` and `SPOIL` scopes are handled: the info window offers a
 //!   "Show Drop" and/or "Show Spoil" button per whichever list the NPC carries
 //!   (`bypass NpcViewMod dropList <DROP|SPOIL> <objId> [page]`).
@@ -384,7 +392,7 @@ fn format_amount(value: i64) -> String {
 
 /// `Creature.getAttackType`: the equipped weapon's type, else `FIST`,
 /// formatted like Java `CommonUtil.capitalizeFirst(name.toLowerCase())`.
-fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
+pub(super) fn attack_type_name(world: &World, t: &NpcTemplate) -> String {
     use crate::data::item_data::WeaponType;
     let wt = if t.rhand != 0 {
         world.data.item_data.weapon_type(t.rhand)
