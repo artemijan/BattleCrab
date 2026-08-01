@@ -83,6 +83,8 @@ fn register_loot(world: &mut World, stacks: i32) {
 /// Minimal etc-item template shared by the fixtures.
 fn items_tests_template() -> crate::data::item_data::ItemTemplate {
     crate::data::item_data::ItemTemplate {
+        trade_flags: Default::default(),
+        time: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -262,6 +264,59 @@ fn adena_and_quest_items_never_drop() {
         "neither adena nor quest items fall"
     );
     assert_eq!(inventory_len(&world, VICTIM), 2);
+}
+
+/// Items the datapack marks `is_dropable="false"` — the bound reward boxes such
+/// as *Mage Class Equipment Set (10-day)* (15195) — survive a PK death, and so
+/// do time-limited items. Java filters both in `Player.onDieDropItem`.
+#[test]
+fn bound_and_time_limited_items_never_drop() {
+    let (mut world, _db, _l) = drop_world();
+    let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 0, 0);
+    let _k = ingame_caster(&mut world, KILLER_CID, KILLER, 50, 0);
+
+    // A bound reward box: untradable / undroppable / unsellable, a time-limited
+    // item, and a plain droppable item as the control.
+    let mut bound = items_tests_template();
+    bound.item_id = LOOT_ITEM;
+    bound.name = "Mage Class Equipment Set".into();
+    bound.trade_flags.dropable = false;
+    bound.trade_flags.tradable = false;
+    bound.is_sellable = false;
+    world.data.item_data.insert_for_test(bound);
+    let mut limited = items_tests_template();
+    limited.item_id = LOOT_ITEM + 1;
+    limited.name = "Time Limited".into();
+    limited.time = 14400;
+    world.data.item_data.insert_for_test(limited);
+    let mut plain = items_tests_template();
+    plain.item_id = LOOT_ITEM + 2;
+    plain.name = "Plain Loot".into();
+    world.data.item_data.insert_for_test(plain);
+
+    pk_victim(&mut world, 0);
+    give(&mut world, VICTIM, LOOT_ITEM, 1, 0x6200_0000);
+    give(&mut world, VICTIM, LOOT_ITEM + 1, 1, 0x6200_0001);
+    give(&mut world, VICTIM, LOOT_ITEM + 2, 1, 0x6200_0002);
+
+    kill_by_player(&mut world);
+
+    assert_eq!(
+        ground_item_count(&world),
+        1,
+        "only the ordinary item reaches the ground"
+    );
+    let kept: Vec<i32> = world
+        .objects
+        .get_component::<Inventory>(&VICTIM)
+        .unwrap()
+        .items()
+        .iter()
+        .map(|it| it.item_id)
+        .collect();
+    assert_eq!(kept.len(), 2, "the bound box and the timed item are kept");
+    assert!(kept.contains(&LOOT_ITEM), "the bound box stayed");
+    assert!(kept.contains(&(LOOT_ITEM + 1)), "the timed item stayed");
 }
 
 /// Arena deaths cost nothing when another player did the killing.

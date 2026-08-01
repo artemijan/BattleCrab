@@ -258,18 +258,22 @@ fn transfer(world: &mut World, player_oid: i32, obj_id: i32, count: i64, deposit
     let Some((item_id, held, enchant)) = src_facts else {
         return false;
     };
-    // Depositing: refuse equipped / quest items (Java `isDepositable`).
+    // Depositing: `Item.isDepositable(isPrivateWareHouse)` — never equipped,
+    // never a quest item, and `is_depositable="false"` items are refused
+    // outright. A **private** warehouse is the one place a bound (untradable)
+    // item may be stored; the clan warehouse and freight also demand
+    // tradability.
     if deposit {
         let equipped = world
             .objects
             .get_component::<Inventory>(&player_oid)
             .is_some_and(|inv| inv.paperdoll_slot_of(obj_id).is_some());
-        let quest = world
+        let depositable = world
             .data
             .item_data
             .get(item_id)
-            .is_some_and(|t| t.is_quest_item);
-        if equipped || quest {
+            .is_none_or(|t| !t.is_quest_item && t.is_depositable(tgt == WhTarget::Private));
+        if equipped || !depositable {
             return false;
         }
     }

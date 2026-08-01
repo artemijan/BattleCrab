@@ -318,11 +318,7 @@ pub(crate) fn handle_post_item_list(world: &mut World, client_id: u32) {
                 .iter()
                 .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
                 .filter_map(|it| world.data.item_data.get(it.item_id).map(|t| (it, t)))
-                // TODO(G30+): Java filters on `isTradeable()`, which is a
-                // per-item flag this port does not model; quest items are the
-                // only category it currently distinguishes (same proxy
-                // `game_loop::trade` uses).
-                .filter(|(_, t)| !t.is_quest_item)
+                .filter(|(_, t)| !t.is_quest_item && t.is_tradable())
                 .collect()
         })
         .unwrap_or_default();
@@ -530,11 +526,13 @@ pub(crate) fn handle_send_post(world: &mut World, client_id: u32, body: &[u8]) {
                         .is_some_and(|(item_id, have)| {
                             have >= *count
                                 && *count > 0
+                                // Java `RequestSendPost`: `!item.isTradeable()
+                                // || item.isEquipped()` refuses the whole mail.
                                 && world
                                     .data
                                     .item_data
                                     .get(item_id)
-                                    .is_some_and(|t| !t.is_quest_item)
+                                    .is_some_and(|t| !t.is_quest_item && t.is_tradable())
                         })
             });
         if !ok {

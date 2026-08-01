@@ -89,7 +89,9 @@ fn open_manage_kind(world: &mut World, client_id: u32, packaged: bool) {
         .filter(|it| inv.paperdoll_slot_of(it.object_id).is_none())
         .filter_map(|it| {
             let t = world.data.item_data.get(it.item_id)?;
-            (!t.is_quest_item && t.price > 0).then_some(StoreLine {
+            // Java `TradeList.addItem` (behind `PrivateStoreManageListSell`)
+            // refuses untradable items — bound items never reach the window.
+            (!t.is_quest_item && t.is_tradable() && t.price > 0).then_some(StoreLine {
                 item: *it,
                 template: t,
                 price: 0,
@@ -121,13 +123,13 @@ pub(crate) fn handle_set_list(world: &mut World, client_id: u32, body: &[u8]) {
         let Some(inst) = inv.items().iter().find(|it| it.object_id == obj_id) else {
             continue;
         };
-        // Can't sell equipped/quest items, or more than held.
+        // Can't sell equipped/quest/untradable items, or more than held.
         if inv.paperdoll_slot_of(obj_id).is_some()
             || world
                 .data
                 .item_data
                 .get(inst.item_id)
-                .is_some_and(|t| t.is_quest_item)
+                .is_some_and(|t| t.is_quest_item || !t.is_tradable())
         {
             continue;
         }
@@ -477,7 +479,10 @@ fn send_manage_buy_window(world: &mut World, client_id: u32) {
             .iter()
             .filter_map(|it| {
                 let t = world.data.item_data.get(it.item_id)?;
-                (!t.is_quest_item).then_some(StoreLine {
+                // Java `getUniqueItems(false, true)` → `isSellable() &&
+                // isAvailable(..., allowNonTradeable = false)`, i.e. untradable
+                // items are left out of the reference list too.
+                (!t.is_quest_item && t.is_tradable()).then_some(StoreLine {
                     item: *it,
                     template: t,
                     price: 0,
@@ -720,6 +725,17 @@ pub(crate) fn handle_store_sell(world: &mut World, client_id: u32, body: &[u8]) 
         else {
             continue;
         };
+        // Java `TradeList.privateStoreSell`: `if (!oldItem.isTradeable())
+        // return null` — an untradable item can't be sold into a buy store
+        // either, whatever the store advertises.
+        if world
+            .data
+            .item_data
+            .get(line.item_id)
+            .is_some_and(|t| !t.is_tradable())
+        {
+            continue;
+        }
         let held = world
             .objects
             .get_component::<Inventory>(&seller)

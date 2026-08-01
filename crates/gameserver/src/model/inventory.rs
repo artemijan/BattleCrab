@@ -799,6 +799,8 @@ mod tests {
 
     fn armor(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             item_id: id,
             name: format!("armor{id}"),
             kind: ItemKind::Armor,
@@ -835,6 +837,8 @@ mod tests {
 
     fn weapon(id: i32, body_part: i32) -> ItemTemplate {
         ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             item_id: id,
             name: format!("weapon{id}"),
             kind: ItemKind::Weapon,
@@ -979,6 +983,8 @@ mod tests {
     fn quest_items_are_excluded_from_the_ordinary_capacity_count() {
         let catalog = ItemData::from_templates(vec![
             ItemTemplate {
+                trade_flags: Default::default(),
+                time: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1012,6 +1018,8 @@ mod tests {
                 is_magic_weapon: false,
             },
             ItemTemplate {
+                trade_flags: Default::default(),
+                time: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1058,6 +1066,8 @@ mod tests {
     #[test]
     fn etc_items_are_never_equipped() {
         let catalog = ItemData::from_templates(vec![ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,

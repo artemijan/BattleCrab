@@ -552,6 +552,8 @@ mod tests {
     /// (item id, body part, type2, grade).
     fn template(item_id: i32, body_part: i32, type2: i32) -> ItemTemplate {
         ItemTemplate {
+            trade_flags: Default::default(),
+            time: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
