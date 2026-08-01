@@ -80,7 +80,7 @@ fn deliver(world: &mut World, row: &CustomMailRow) {
             .attachments
             .entry(message_id)
             .or_default()
-            .insert_instance(catalog, object_id, *item_id, *count, *enchant);
+            .insert_instance(catalog, object_id, *item_id, *count, *enchant, -1);
     }
     super::mail::persist_message(world, message_id);
     if !items.is_empty() {

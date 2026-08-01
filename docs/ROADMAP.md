@@ -281,8 +281,9 @@ line above); ~~refund/buyback (`RequestRefundItem`, `AllowRefund = True`)~~
 try-on (`RequestPreviewItem`, `AllowWear = True`); `RequestBuySellUIClose`;
 inventory-order persistence (`RequestSaveInventoryOrder`); and the item-
 maintenance task managers — `ItemLifeTimeTaskManager` (time-limited items),
-`ItemManaTaskManager` (shadow items), `ItemsAutoDestroyTaskManager` (ground-item
-cleanup breadth).
+~~`ItemManaTaskManager` (shadow items)~~ (landed 2026-08-01 with the Shadow
+Weapon Exchange Coupons — [PLAN_SHADOW_WEAPONS.md](PLAN_SHADOW_WEAPONS.md)),
+`ItemsAutoDestroyTaskManager` (ground-item cleanup breadth).
 
 ### G15.5 — Teleporters & user commands ✅ COMPLETE (gate verified 2026-07-31 — teleport bookmarks are **not portable**: null handler in this build)
 *(2026-07 audit addition.)* Two small, high-playability systems no milestone

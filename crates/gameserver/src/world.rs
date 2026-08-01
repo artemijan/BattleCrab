@@ -127,6 +127,11 @@ pub struct World {
     /// Per-effect-zone next-fire tick, keyed by index into
     /// `data.zone_data.zones` — see [`crate::game_loop::effect_zones`].
     pub effect_zone_next_tick: HashMap<usize, u64>,
+    /// Object ids of the shadow items with a mana beat already in flight —
+    /// Java's per-`Item` `_consumingMana` flag, which
+    /// `ItemManaTaskManager.add` consults so one item never queues twice.
+    /// See [`crate::game_loop::item_mana`].
+    pub item_mana_consuming: std::collections::HashSet<i32>,
     pub minions_placed: usize,
     /// Forge of the Gods: kills since the last 15 s `FogRefresh` reset — the
     /// escalation counter behind the Lavasaurus ambush tiers (Java's static
@@ -442,6 +447,7 @@ impl World {
             objects: EntityStore::new(),
             npc_regions: HashMap::new(),
             effect_zone_next_tick: HashMap::new(),
+            item_mana_consuming: std::collections::HashSet::new(),
             minions_placed: 0,
             fog_kill_count: 0,
             mammon_spawns: HashMap::new(),

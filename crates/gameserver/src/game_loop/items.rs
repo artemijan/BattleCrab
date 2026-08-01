@@ -391,7 +391,8 @@ const CRYSTALLIZE_SKILL_ID: i32 = 248;
 /// crystallizable item and yield its grade's crystals. Gated on the player's
 /// `Crystallize` (248) skill level vs the item grade (D→1 … S→5). With no
 /// `ItemCrystallizationData`, Java's fallback is `crystalCount` of the grade's
-/// crystal at 100% — that's what we award. Hero/shadow/augment guards skipped.
+/// crystal at 100% — that's what we award. Hero/augment guards skipped; the
+/// shadow-item one is enforced.
 pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestDestroyItem::read(body) else {
         return;
@@ -411,6 +412,11 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
             inv.items()
                 .iter()
                 .find(|it| it.object_id == pkt.object_id)
+                // Java's first guard: `itemToRemove.isShadowItem() ||
+                // isTimeLimitedItem()` → plain `ActionFailed`, no message.
+                // Without it a coupon-bought shadow weapon could be melted
+                // into free D-grade crystals the minute it was handed over.
+                .filter(|it| !super::item_mana::is_shadow_item(it.mana_left))
                 .map(|it| (it.item_id, it.count))
         })
         .map(|(id, cnt)| {
@@ -607,6 +613,21 @@ pub(crate) fn finish_equip_change(
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.
     crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
+    // Java `Player.useEquipableItem`, right after the "you have equipped"
+    // message: "Consume mana - will start a task if required; returns if item
+    // is not a shadow item". Only items that just *became* worn count — a
+    // shadow weapon burns its first point the moment it goes on, and that call
+    // is what arms the 60 s beat. Last, because at mana 1 it destroys the item
+    // and re-enters this function for the unequip.
+    for &item_oid in changed {
+        if world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some())
+        {
+            super::item_mana::on_item_equipped(world, object_id, item_oid);
+        }
+    }
 }
 
 /// The stat-and-paperdoll half of [`finish_equip_change`]: recompute the

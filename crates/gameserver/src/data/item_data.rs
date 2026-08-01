@@ -752,6 +752,16 @@ pub struct ItemTemplate {
     /// items and that guard is honoured.
     /// TODO(G33): actual expiry (`Item.scheduleLifeTimeTask`) is unported.
     pub time: i32,
+    /// `<set name="duration">` — a **shadow item**'s starting mana, in
+    /// minutes of wear (Java `ItemTemplate.getDuration()`, `-1`/absent =
+    /// not a shadow item). Every freshly created instance starts at this
+    /// value (Java's `Item` constructors: `_mana = _itemTemplate
+    /// .getDuration()`), and `Item.isShadowItem()` is simply `mana >= 0`.
+    /// 1353 items declare it on this dist, but inside the Interlude id range
+    /// they are the 238 `Shadow Item: …` weapons (8821+, 90 or 300 minutes)
+    /// plus the talismans; the rest are later-chronicle ids nothing here can
+    /// hand out. See [`crate::game_loop::item_mana`].
+    pub duration: i32,
     /// `<set name="price">` — the reference price (sell value = half of it;
     /// the `CorrectPrices` buylist floor uses it too). 0 when undeclared.
     pub price: i64,
@@ -1355,6 +1365,10 @@ fn make_template(
                     .unwrap_or(true),
         },
         time: attrs.get("time").and_then(|v| v.parse().ok()).unwrap_or(-1),
+        duration: attrs
+            .get("duration")
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(-1),
         price: attrs.get("price").and_then(|v| v.parse().ok()).unwrap_or(0),
         handler,
         capsuled_items,

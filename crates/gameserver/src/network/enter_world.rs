@@ -715,6 +715,7 @@ mod tests {
         ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,

@@ -258,7 +258,8 @@ fn on_auction_finished(world: &mut World, auction_id: i32) {
                 .objects
                 .get_component_mut::<crate::model::inventory::Warehouse>(&winner)
             {
-                wh.0.insert_instance(data, oid, item_id, count, enchant);
+                // `mana` -1: an auction prize is a freshly created item.
+                wh.0.insert_instance(data, oid, item_id, count, enchant, -1);
             }
         }
     } else if let Some(object_id) = world.alloc_object_id() {

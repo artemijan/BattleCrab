@@ -123,6 +123,7 @@ mod resurrection_tests;
 mod sailren_tests;
 mod sell_buffs_tests;
 mod servitor_tests;
+mod shadow_weapons_tests;
 mod shortcuts_tests;
 mod siege_registration_tests;
 mod siege_schedule_tests;
@@ -1030,6 +1031,7 @@ fn combat_test_world() -> (
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -1384,6 +1386,7 @@ fn quest_test_world() -> (
             .insert_for_test(crate::data::item_data::ItemTemplate {
                 trade_flags: Default::default(),
                 time: -1,
+                duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1769,6 +1772,7 @@ fn shop_world() -> (
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -1857,6 +1861,7 @@ fn add_quest_items(world: &mut World, ids: &[(i32, &str, bool)]) {
             .insert_for_test(crate::data::item_data::ItemTemplate {
                 trade_flags: Default::default(),
                 time: -1,
+                duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1907,6 +1912,7 @@ fn add_shot_item(
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action,
@@ -1966,6 +1972,7 @@ fn shot_template(
     crate::data::item_data::ItemTemplate {
         trade_flags: Default::default(),
         time: -1,
+        duration: -1,
         immediate_effect: false,
         ex_immediate_effect: false,
         default_action: crate::data::item_data::ActionType::Other,
@@ -2014,6 +2021,7 @@ fn shot_weapon(
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
@@ -2182,6 +2190,7 @@ fn teleporter_world(adena: i64) -> (World, tokio::sync::mpsc::UnboundedReceiver<
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,

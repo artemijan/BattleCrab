@@ -300,9 +300,22 @@ impl Inventory {
             existing.count += count;
             return existing.object_id;
         }
-        self.items
-            .push(ItemInstance::new(object_id, item_id, count));
+        let mut inst = ItemInstance::new(object_id, item_id, count);
+        // Java's `Item` constructors stamp `_mana = _itemTemplate.getDuration()`
+        // on every freshly created instance — that (and only that) is what makes
+        // an item a shadow item. `-1` for everything else.
+        inst.mana_left = catalog.get(item_id).map_or(-1, |t| t.duration);
+        self.items.push(inst);
         object_id
+    }
+
+    /// Write back a shadow item's remaining mana (Java `Item._mana` after
+    /// `decreaseMana`). No-op if the object id is gone. See
+    /// [`crate::game_loop::item_mana`].
+    pub fn set_mana_left(&mut self, object_id: i32, mana_left: i32) {
+        if let Some(it) = self.items.iter_mut().find(|i| i.object_id == object_id) {
+            it.mana_left = mana_left;
+        }
     }
 
     /// Stamp a just-created item's Lucky-Lottery fields (Java `Item
@@ -327,6 +340,15 @@ impl Inventory {
     /// transfers), stacking into an existing same-id stack when stackable. Unlike
     /// [`add_item`](Self::add_item) — which always starts enchant 0 — this keeps
     /// the moved instance's enchant.
+    ///
+    /// `mana` is the moved instance's remaining shadow-item mana. Java moves the
+    /// same `Item` object between containers, so its `_mana` rides along; here
+    /// the instance is rebuilt, so the caller has to carry it. Pass `-1` when
+    /// the item is genuinely new (server-generated adena, mail payouts) —
+    /// re-deriving it from the template instead would **refill** a worn shadow
+    /// weapon on every private-warehouse round trip, and the private warehouse
+    /// is the one container that accepts them (`Item.isDepositable`:
+    /// `isPrivateWareHouse || (isTradeable() && !isShadowItem())`).
     pub fn insert_instance(
         &mut self,
         catalog: &ItemData,
@@ -334,6 +356,7 @@ impl Inventory {
         item_id: i32,
         count: i64,
         enchant: i32,
+        mana: i32,
     ) {
         let stackable = catalog
             .get(item_id)
@@ -345,6 +368,7 @@ impl Inventory {
         }
         let mut inst = ItemInstance::new(object_id, item_id, count);
         inst.enchant_level = enchant;
+        inst.mana_left = mana;
         self.items.push(inst);
     }
 
@@ -801,6 +825,7 @@ mod tests {
         ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             item_id: id,
             name: format!("armor{id}"),
             kind: ItemKind::Armor,
@@ -839,6 +864,7 @@ mod tests {
         ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             item_id: id,
             name: format!("weapon{id}"),
             kind: ItemKind::Weapon,
@@ -985,6 +1011,7 @@ mod tests {
             ItemTemplate {
                 trade_flags: Default::default(),
                 time: -1,
+                duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1020,6 +1047,7 @@ mod tests {
             ItemTemplate {
                 trade_flags: Default::default(),
                 time: -1,
+                duration: -1,
                 immediate_effect: false,
                 ex_immediate_effect: false,
                 default_action: crate::data::item_data::ActionType::Other,
@@ -1068,6 +1096,7 @@ mod tests {
         let catalog = ItemData::from_templates(vec![ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,

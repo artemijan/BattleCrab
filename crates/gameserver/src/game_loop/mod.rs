@@ -56,6 +56,7 @@ pub(crate) mod helpers;
 mod henna;
 pub(crate) mod instances;
 pub(crate) mod item_auction;
+pub(crate) mod item_mana;
 mod items;
 mod lobby;
 pub(crate) mod lottery;
@@ -450,6 +451,12 @@ fn apply_due_tasks(world: &mut World) {
                 if elapsed {
                     handle_buff_expire(world, player_object_id, skill_id);
                 }
+            }
+            ScheduledTask::ItemManaTick {
+                player_object_id,
+                item_object_id,
+            } => {
+                item_mana::on_mana_tick(world, player_object_id, item_object_id);
             }
             ScheduledTask::ServitorLifeTick { servitor_oid } => {
                 servitor::handle_life_tick(world, servitor_oid);

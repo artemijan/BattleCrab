@@ -2499,6 +2499,7 @@ fn spoil_death_and_sweep_hands_loot_then_consumes_corpse() {
         .insert_for_test(crate::data::item_data::ItemTemplate {
             trade_flags: Default::default(),
             time: -1,
+            duration: -1,
             immediate_effect: false,
             ex_immediate_effect: false,
             default_action: crate::data::item_data::ActionType::Other,
