@@ -4654,3 +4654,201 @@ fn restore_reads_the_level_off_the_collar_enchant() {
         "at the level the collar's enchant recorded, not the minimum"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Buff sharing (`Skill.isSharedWithSummon`)
+// ---------------------------------------------------------------------------
+
+/// A buff the owner receives is re-applied to their servitor by
+/// `Skill.applyEffects`' sharing branch. Every clause below is Java's.
+const SHARED_BUFF: i32 = 9501;
+const PRIVATE_BUFF: i32 = 9502;
+const SHARED_DEBUFF: i32 = 9503;
+
+fn sharing_skill(id: i32, shared: bool, is_debuff: bool) -> crate::model::skill::Skill {
+    crate::model::skill::Skill {
+        id,
+        level: 1,
+        name: format!("Share {id}"),
+        is_continuous: true,
+        abnormal_time: 3600,
+        abnormal_level: 1,
+        abnormal_type: format!("SHARE_{id}"),
+        shared_with_summon: shared,
+        is_debuff,
+        // A stat pump so the buff is a real continuous entry, not a bare flag.
+        effects: vec![SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::PhysicalAttack,
+                mode: crate::model::stats::StatModifierType::Per,
+                amount: 8.0,
+                armor_condition: 0,
+                weapon_condition: 0,
+                qualifier: None,
+                two_handed: false,
+            },
+        )],
+        ..Default::default()
+    }
+}
+
+fn buff_ids(world: &World, oid: i32) -> Vec<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::Buffs>(&oid)
+        .map(|b| {
+            b.0.iter()
+                .filter(|x| !x.passive)
+                .map(|x| x.skill_id)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn sharing_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = servitor_world();
+    for (id, shared, debuff) in [
+        (SHARED_BUFF, true, false),
+        (PRIVATE_BUFF, false, false),
+        (SHARED_DEBUFF, true, true),
+    ] {
+        world
+            .data
+            .skill_data
+            .insert_for_test(sharing_skill(id, shared, debuff));
+    }
+    (world, db, l)
+}
+
+fn land_on(world: &mut World, skill_id: i32, target: i32) {
+    let skill = world.data.skill_data.get(skill_id, 1).cloned().unwrap();
+    crate::game_loop::skills::effects::apply_skill_effects(world, target, target, &skill);
+}
+
+/// The headline: buffing yourself also buffs your servitor. Without this every
+/// summoner's pet fought permanently unbuffed.
+#[test]
+fn a_buff_on_the_owner_is_shared_with_their_servitor() {
+    let (mut world, _db, _l) = sharing_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+
+    land_on(&mut world, SHARED_BUFF, OWNER);
+
+    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_BUFF], "owner keeps it");
+    assert_eq!(
+        buff_ids(&world, servitor),
+        vec![SHARED_BUFF],
+        "and the servitor receives the same buff"
+    );
+}
+
+/// `<isSharedWithSummon>false</isSharedWithSummon>` stops at the player. Only
+/// three skills in the datapack declare the tag, which is exactly why the
+/// parser's default must be `true` — see the sibling test below.
+#[test]
+fn a_non_shared_buff_stops_at_the_owner() {
+    let (mut world, _db, _l) = sharing_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+
+    land_on(&mut world, PRIVATE_BUFF, OWNER);
+
+    assert_eq!(buff_ids(&world, OWNER), vec![PRIVATE_BUFF]);
+    assert!(
+        buff_ids(&world, servitor).is_empty(),
+        "a non-shared buff must not reach the servitor"
+    );
+}
+
+/// Java's guard is `!_isDebuff`: sharing is a *favour*, so a debuff landing on
+/// the owner must not be copied onto their summon as a second victim.
+#[test]
+fn a_debuff_on_the_owner_is_never_shared() {
+    let (mut world, _db, _l) = sharing_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+
+    land_on(&mut world, SHARED_DEBUFF, OWNER);
+
+    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_DEBUFF]);
+    assert!(
+        buff_ids(&world, servitor).is_empty(),
+        "a debuff is not shared even when the skill is flagged shared"
+    );
+}
+
+/// **A pet is not a servitor.** Java shares through `getServitors()`, and `_pet`
+/// is a separate field, so a wolf receives nothing. Easy to get wrong here
+/// because this port hangs `ServitorOf` on pets too.
+#[test]
+fn a_pet_does_not_receive_shared_buffs() {
+    let (mut world, _db, _l) = sharing_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let collar = give_collar(&mut world);
+    park_collar(&mut world, collar);
+    let pet = summon_pet(&mut world, OWNER).expect("summoned");
+
+    land_on(&mut world, SHARED_BUFF, OWNER);
+
+    assert_eq!(buff_ids(&world, OWNER), vec![SHARED_BUFF]);
+    assert!(
+        buff_ids(&world, pet).is_empty(),
+        "Java reads getServitors(), which excludes the pet"
+    );
+}
+
+/// Sharing follows a buff that *landed*: the servitor is not a second roll of
+/// the dice, and the chain stops at one hop (the servitor is not a player, so
+/// it shares nothing onward).
+#[test]
+fn sharing_does_not_recurse_past_the_servitor() {
+    let (mut world, _db, _l) = sharing_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+
+    // Cast straight at the servitor: it is not a player, so nothing is shared
+    // back to the owner.
+    land_on(&mut world, SHARED_BUFF, servitor);
+
+    assert_eq!(buff_ids(&world, servitor), vec![SHARED_BUFF]);
+    assert!(
+        buff_ids(&world, OWNER).is_empty(),
+        "sharing runs owner → servitor only, never the reverse"
+    );
+}
+
+/// The parser default, against the **real datapack** rather than a fixture.
+///
+/// `isSharedWithSummon` defaults to `true` in Java and is declared on a handful
+/// of skills, so a `false`-defaulting parse would look perfectly healthy in a
+/// unit test while silently switching sharing off for every buff in the game.
+/// Prophecy of Might declares nothing and must come back shared.
+///
+/// Skill 1557 is the counter-case, and its identity is the point: **Servitor
+/// Share** is the skill that copies the owner's stats onto the summon itself,
+/// so re-sharing it would double-apply. Java's source carries that exact
+/// comment ("Avoiding Servitor Share since it's implementation already
+/// 'shares' the effect").
+#[test]
+fn the_real_datapack_defaults_to_shared() {
+    let skills = crate::data::skill_data::SkillData::load_from(DIST);
+
+    let prophecy = skills
+        .get(1352, 1)
+        .expect("Prophecy of Might is on this dist");
+    assert!(
+        prophecy.shared_with_summon,
+        "a skill that declares no <isSharedWithSummon> defaults to shared"
+    );
+
+    let servitor_share = skills.get(1557, 1).expect("Servitor Share");
+    assert!(
+        !servitor_share.shared_with_summon,
+        "Servitor Share must not be re-shared onto the summon it already shares to"
+    );
+}

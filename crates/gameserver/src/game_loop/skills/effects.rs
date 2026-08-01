@@ -1431,7 +1431,47 @@ pub(crate) fn apply_skill_effects(
 
     if apply_continuous_effects(world, caster_oid, target_oid, skill, None) {
         dam_over_time_crit_burst(world, caster_oid, target_oid, skill, mcrit);
+        share_with_servitor(world, caster_oid, target_oid, skill);
     }
+}
+
+/// Java `Skill.applyEffects`' **buff-sharing** branch: a continuous, non-debuff
+/// buff that lands on a player is re-applied to each of their servitors.
+///
+/// The guard is Java's, clause for clause: `_isSharedWithSummon && effected
+/// .isPlayer() && effected.hasServitors() && !isTransformation() &&
+/// addContinuousEffects && isContinuous() && !_isDebuff`. `addContinuousEffects`
+/// is the caller's `apply_continuous_effects` return — sharing only follows a
+/// buff that actually landed, so a resisted one is not shared either.
+///
+/// **A pet is not a servitor here.** Java reads `getServitors()`, and `_pet` is
+/// a separate field, so a wolf/hatchling receives nothing — only skill-summoned
+/// servitors do. This port carries `ServitorOf` on pets too (they share the
+/// owner/follow/AI relationship), which makes `servitor_of` — the `SummonRef
+/// .servitor` link, pet excluded — the correct query rather than a component
+/// scan that would sweep the pet in.
+///
+/// The recursion terminates: the servitor is an NPC, so the re-applied cast
+/// fails this function's `isPlayer()` clause and shares no further.
+fn share_with_servitor(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+    if !skill.shared_with_summon || skill.is_debuff || !skill.is_continuous {
+        return;
+    }
+    // Java `isTransformation()` — a transform is not shared onto the summon.
+    if skill.abnormal_type == "TRANSFORM" || skill.abnormal_type == "CHANGEBODY" {
+        return;
+    }
+    // `effected.isPlayer()`: only a buff landing on a *player* shares onward.
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
+    {
+        return;
+    }
+    let Some(servitor) = crate::game_loop::servitor::servitor_of(world, target_oid) else {
+        return;
+    };
+    apply_skill_effects(world, caster_oid, servitor, skill);
 }
 
 /// `DamOverTime.onStart` — a magic (non-toggle) DoT bursts for `power * 10` on

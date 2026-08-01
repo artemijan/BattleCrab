@@ -4637,3 +4637,38 @@ fn the_large_clan_crest_is_mirrored_onto_online_members() {
         "the member now carries the large crest"
     );
 }
+
+/// `Clan.removeClanMember`: `if (!player.isNoble()) player.setTitle("")`.
+///
+/// A noble's title is their own standing, not the clan's, so it outlives the
+/// clan. The single-member leave path already honoured this; the **dissolve**
+/// path stripped every ex-member's title unconditionally, which is what this
+/// pins — both directions in one test so a blanket "never clear" would fail too.
+#[test]
+fn dissolving_a_clan_spares_a_nobles_title() {
+    let (mut world, mut db_rx, _link_rx) = quest_test_world();
+    let _a_rx = ingame_player(&mut world, 1, 3101, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 3102, 0, 0, 0);
+    install_clan(&mut world, 5100, &[3101, 3102]);
+    drain_db(&mut db_rx);
+
+    for (oid, noble) in [(3101, true), (3102, false)] {
+        let p = world.objects.get_component_mut::<Player>(&oid).unwrap();
+        p.is_noble = noble;
+        p.title = "Titled".to_string();
+    }
+
+    world.clans.get_mut(&5100).unwrap().dissolving_expiry_time = 1;
+    clans::handle_clan_dissolve_task(&mut world, 5100);
+
+    assert_eq!(
+        world.objects.get_component::<Player>(&3101).unwrap().title,
+        "Titled",
+        "a noble keeps their title through the clan dissolving"
+    );
+    assert_eq!(
+        world.objects.get_component::<Player>(&3102).unwrap().title,
+        "",
+        "a non-noble still loses theirs"
+    );
+}

@@ -942,10 +942,63 @@ fn can_register(world: &mut World, client_id: u32, player: i32) -> bool {
         send_player_message(world, client_id, "You cannot register while fishing.");
         return false;
     }
-    // TODO(G28): remaining Java gates whose state isn't wired yet —
-    //   isFlyingMounted, isTransformed, isInventoryUnder80 + weightPenalty,
-    //   isInDuel, isInInstance, isInSiege/inside a SIEGE zone. Add each as its
-    //   subsystem exposes the query.
+    // `isInOlympiadMode()` — Java ORs this with the registration check above;
+    // a noble already *fighting* a bout is not in the waiting list.
+    if world.olympiad.in_competition.contains(&player) {
+        send_player_message(
+            world,
+            client_id,
+            "You cannot participate while registered on the Olympiad.",
+        );
+        return false;
+    }
+    let (flying, transformed) = world
+        .objects
+        .get_component::<crate::model::Player>(&player)
+        .map_or((false, false), |p| (p.is_flying(), p.transform_id != 0));
+    if flying {
+        send_player_message(
+            world,
+            client_id,
+            "You cannot register on the event while flying.",
+        );
+        return false;
+    }
+    if transformed {
+        send_player_message(
+            world,
+            client_id,
+            "You cannot register on the event while on a transformed state.",
+        );
+        return false;
+    }
+    if crate::game_loop::duel::is_in_duel(world, player) {
+        send_player_message(world, client_id, "You cannot register while on a duel.");
+        return false;
+    }
+    // `isInInstance()` — the overworld is instance 0.
+    if crate::game_loop::helpers::instance_of(world, player) != 0 {
+        send_player_message(
+            world,
+            client_id,
+            "You cannot register while in an instance.",
+        );
+        return false;
+    }
+    // `isInSiege() || isInsideZone(SIEGE)` — Java checks both, and they are not
+    // the same question: the first is "a siege I take part in is running", the
+    // second is "I am standing on castle ground" even in peacetime.
+    let in_siege_zone = world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&player)
+        .is_some_and(|f| f.contains(crate::data::zone_data::ZoneKind::Siege));
+    if crate::game_loop::pvp::is_in_siege(world, player) || in_siege_zone {
+        send_player_message(world, client_id, "You cannot register while on a siege.");
+        return false;
+    }
+    // TODO(G33): `isInventoryUnder80(false)` and `getWeightPenalty()` — neither
+    // an inventory slot limit nor a carried-weight calc exists anywhere in this
+    // port, so there is no state to read. The other Java gates are all above.
     true
 }
 
@@ -1035,7 +1088,7 @@ fn broadcast_screen(world: &World, instance_id: i32, text: &str, secs: i32) {
     instances::broadcast_to_instance(world, instance_id, &pkt);
 }
 
-fn is_on_event(world: &World, player: i32) -> bool {
+pub(crate) fn is_on_event(world: &World, player: i32) -> bool {
     world
         .objects
         .get_component::<Player>(&player)

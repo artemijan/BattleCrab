@@ -77,9 +77,7 @@ pub(crate) fn handle_parse_command(world: &mut World, client_id: u32, command: &
     }
 
     // `HomeBoard.COMBAT_CHECK`: the custom action commands are refused while the
-    // player is busy. The gate that exists here is a subset — casting / pvp flag
-    // / dead. TODO(G30): duel, olympiad, SIEGE/PVP zones and event state once
-    // those exist (Java also checks `isInDuel`/`isInOlympiadMode`/`isOnEvent`).
+    // player is busy — every clause of Java's predicate, see `is_busy`.
     if is_custom_action(command) && is_busy(world, object_id) {
         send_message(
             world,
@@ -288,12 +286,79 @@ fn do_buff(world: &mut World, client_id: u32, object_id: i32, command: &str) {
             warn!("CommunityBoard: buff skill {id}/{lvl} missing from skill data.");
             continue;
         };
-        // Self-cast, no MP/cast bar (Java `skill.applyEffects(player, player)`).
-        // TODO(G30): pet/servitor targets + the `CommunityCastAnimations`
-        // `MagicSkillUse` broadcast (summons land in G29).
-        crate::game_loop::skills::effects::apply_skill_effects(world, object_id, object_id, &skill);
+        // Java builds one target list — `[player, pet?, servitor…]` — and casts
+        // each buff at every member of it, gated on `isSharedWithSummon() ||
+        // target.isPlayer()`: a non-shared buff reaches only the player.
+        //
+        // The servitor is in this list *and* picks the same buff up again
+        // through `Skill.applyEffects`' own sharing branch. That double-apply is
+        // Java's too, and it refreshes rather than stacks, so the literal target
+        // list is kept rather than "optimised" into something that diverges.
+        for target in buff_targets(world, object_id) {
+            if !skill.shared_with_summon && target != object_id {
+                continue;
+            }
+            crate::game_loop::skills::effects::apply_skill_effects(
+                world, object_id, target, &skill,
+            );
+            // `CommunityCastAnimations`: Java sends this to the **caster only** —
+            // its own source carries a commented-out `broadcastPacket` with the
+            // note "not recommend broadcast", so onlookers see nothing.
+            if world.cfg.community_board.cast_animations {
+                cast_animation(world, client_id, object_id, target, &skill);
+            }
+        }
     }
     serve_page(world, client_id, object_id, page, "");
+}
+
+/// Java's `targets` list in `_bbsbuff`: the player, their pet if any, then
+/// their servitors. Order matters only for the animation packets.
+fn buff_targets(world: &World, object_id: i32) -> Vec<i32> {
+    let mut targets = vec![object_id];
+    targets.extend(crate::game_loop::servitor::pet_of(world, object_id));
+    targets.extend(crate::game_loop::servitor::servitor_of(world, object_id));
+    targets
+}
+
+/// The `CommunityCastAnimations` `MagicSkillUse`, sent to the buying player
+/// only. The caster is the player in every case — including the pet/servitor
+/// targets, which Java also credits to the owner rather than to the summon.
+fn cast_animation(
+    world: &World,
+    client_id: u32,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &crate::model::skill::Skill,
+) {
+    let Some(caster) = world.objects.get_component::<Player>(&caster_oid) else {
+        return;
+    };
+    let Some(caster_pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+    else {
+        return;
+    };
+    let Some(target_pos) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&target_oid)
+    else {
+        return;
+    };
+    let pkt = sp::magic_skill_use(
+        caster,
+        caster_pos,
+        (target_oid, target_pos.x, target_pos.y, target_pos.z),
+        skill.id,
+        skill.level,
+        skill.hit_time,
+        skill.reuse_delay_group,
+        skill.reuse_delay,
+    );
+    if let Some(cs) = world.clients.get(&client_id) {
+        cs.send(pkt);
+    }
 }
 
 /// `HomeBoard`'s `_bbspremium;<days>` branch: buy `<days>` (1–30) days of
@@ -1091,7 +1156,30 @@ fn is_busy(world: &World, object_id: i32) -> bool {
         .objects
         .get_component::<crate::model::components::Vitals>(&object_id)
         .is_some_and(|v| v.dead);
-    casting || pvp || dead
+    // `isInCombat()` — the 15 s attack stance, not merely mid-swing.
+    let in_combat = world
+        .objects
+        .get_component::<crate::model::components::AttackState>(&object_id)
+        .is_some_and(|a| a.stance_until_tick > world.tick);
+    let in_duel = crate::game_loop::duel::is_in_duel(world, object_id);
+    // `isInOlympiadMode()` — the set the match runner maintains.
+    let in_olympiad = world.olympiad.in_competition.contains(&object_id);
+    // `isInsideZone(SIEGE) || isInsideZone(PVP)` — the zones, which is wider
+    // than `is_in_siege` (that one asks whether a *siege* is running).
+    let in_pvp_zone = crate::game_loop::pvp::is_in_siege(world, object_id)
+        || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Siege)
+        || in_zone(world, object_id, crate::data::zone_data::ZoneKind::Pvp);
+    let on_event = crate::game_loop::events::tvt::is_on_event(world, object_id);
+    casting || pvp || dead || in_combat || in_duel || in_olympiad || in_pvp_zone || on_event
+}
+
+/// `player.isInsideZone(kind)` — read off the cached `ZoneFlags` the movement
+/// path maintains, not recomputed from the position.
+fn in_zone(world: &World, object_id: i32, kind: crate::data::zone_data::ZoneKind) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::components::ZoneFlags>(&object_id)
+        .is_some_and(|f| f.contains(kind))
 }
 
 fn reputation(world: &World, object_id: i32) -> i32 {
