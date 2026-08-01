@@ -189,7 +189,7 @@ fn spawn_one_minion(world: &mut World, master_oid: i32, minion_npc_id: i32) -> b
         master_pos.y - new_y + min_radius
     };
 
-    match crate::model::npc::spawn_npc_at(
+    match crate::model::npc::spawn_minion_npc_at(
         world,
         minion_npc_id,
         new_x,

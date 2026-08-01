@@ -138,13 +138,83 @@ to `Attack`, so the second tick ran the attack loop instead of the aggro scan
 and the assert held no matter what the champion gate did. Resetting the
 intention to `Active` makes it real — it now fails under sabotage.
 
+## Slice 2 — the six cheap features
+
+All six of tier 1, in one `config/custom_misc.rs` (none is more than a handful
+of keys):
+
+- **`.online`** (`EnableOnlineCommand`) — the population line, Java's
+  singular/plural split kept. Counts in-game sessions **plus standing offline
+  shops**, which is what `World.getPlayers()` returns in Java.
+- **Banking** (`BankingEnabled`) — `.bank` / `.deposit` / `.withdraw`, adena ↔
+  goldbar at 1 000 000 000 : 1 here. Java's `updateDatabase()` has no
+  equivalent: the port is memory-first and the inventory rides the autosave.
+- **L2Walker protection** — a **whisper** opening with one of the eight bot
+  verbs kicks the sender (`DefaultPunish = KICK`). Gated on `ChatType.WHISPER`
+  like Java, so the same text said aloud is ordinary chat.
+- **Boss announcements** — the spawn line, in chat **and** on screen, for a
+  raid or grand boss. Both defeat flags ship `false`, so only the spawn arm
+  exists; the name comes from `NpcData` rather than the instance's title, so a
+  champion prefix never leaks into it.
+- **Private store range** — the port had no `canOpenPrivateStore` gate at all.
+  Added, with the spacing rule as its first half: `ShopMinRangeFromNpc` from any
+  NPC, `ShopMinRangeFromPlayer` from another **seated** player only (Java's
+  `getMinShopDistance` returns 0 unless sitting, so the rule spaces shops apart
+  rather than blocking on a passer-by). `_isSellingBuffs` and the `NO_STORE`
+  zone are the two legs still absent — the former is this audit's sell-buffs
+  slice, the latter a zone kind the port does not load.
+- **Allowed player races** — the per-race `switch` in `CharacterCreate`. All
+  five are `True` here, so it is inert; it exists so an operator turning one off
+  is obeyed rather than ignored.
+
+**One design note.** Java announces a boss from `Npc.onSpawn`, and excludes
+minions with `!isMinion() && !isRaidMinion()`. The port cannot test that at the
+same point: `MinionOf` is attached *after* the entity exists, so a check inside
+the spawn would be dead code. Suppression therefore lives at the call site —
+minions spawn through a new `spawn_minion_npc_at`, which does not announce. The
+champion code two lines away has the same shape for the same reason.
+
+8 tests, 5 mechanisms sabotage-verified.
+
+## Slice 3 — the six moderate features
+
+- **PvP reward item** — 300 000 adena to the killer per PvP kill here; the PK
+  arm ships off. A shared guard skips both inside an instance or a PvP zone.
+- **PvP title colour** — the five-rung ladder (Sergeant → General), applied on
+  each kill and again at enter-world. Java only ever *raises* a player: there is
+  no arm that clears the title, so a player below the first rung keeps whatever
+  title they set.
+- **Random spawns** — ±100 units of jitter on a datapack monster spawn, with
+  Java's whole guard chain and its geodata check (the new point must be walkable
+  *and* visible from the old one).
+- **Chat moderation** — `.banchat` / `.chatban` / `.unbanchat` / `.chatunban`,
+  routed into the same punishment code as the `//` forms and gated on the same
+  access table, so a player typing them gets silence.
+- **Nobless master** — the NPC that grants nobless at level 80 plus the tiara.
+- **Dualbox check** — the `CharacterSelect` cap (2 per IP here), answering with
+  `html/mods/IPRestriction.htm`. The event cap and the `DualboxCheck.ini` parse
+  landed earlier with the TvT anti-feed slice.
+
+**Two findings worth recording.**
+
+1. **The Noblesse Master has no spawn.** Its npc template (1003000, "Kadmos")
+   ships in `stats/npcs/custom/`, but nothing in `data/spawns/**` places it — so
+   on an untouched dist he is reachable only via `//spawn 1003000`. Java is in
+   exactly the same position, so this is parity, not a gap; recorded because
+   "the ini is on and the script exists" would otherwise read as a working
+   feature.
+2. **The PvP reward nearly went in the wrong place.** It first hung off
+   `on_kill_update_pvp_reputation`, which returns early inside a PvP zone — so
+   `DisableRewardsInPvpZones` would have been unreachable and the key
+   meaningless. A sabotage run caught it: removing the zone guard did not fail
+   the test, because the guard was never reached. In Java the reward is a
+   *sibling* of the reputation block inside `doDie`, and it is now the same
+   here. The test asserts both directions (guard on → no pay, guard off → pay).
+
+7 tests, 5 mechanisms sabotage-verified.
+
 ## Remaining slices
 
-The 16 features above, still unported. Rough order by cost:
-
-1. **Cheap, self-contained:** private store range, boss announcements,
-   `.online`, banking, allowed player races, L2Walker protection.
-2. **Moderate:** PvP reward item, PvP title colour, dualbox check, random
-   spawns, chat moderation, nobless master.
-3. **Larger:** sell buffs (a new store type), custom mail manager (a DB poll
-   loop), auto-play + auto-potions (Classic auto-hunt, its own packet family).
+Four features, all in the **larger** tier: sell buffs (a new store type),
+custom mail manager (a DB poll loop), auto-play and auto-potions (Classic
+auto-hunt, its own packet family).

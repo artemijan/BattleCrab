@@ -143,6 +143,54 @@ summons (18), G21 NPC AI (16), then G16/G28/G33/G30 at 13–14 each. These are
 per-site behaviours rather than missing features; the G13.9 sweep is the
 precedent for closing them in milestone-scoped batches.
 
+**`Custom/*.ini` slice 3 — the six moderate features 2026-08-01.** PvP reward
+item (300 000 adena a kill here), the PvP title/colour ladder, random spawn
+jitter, the `.banchat` family, the Noblesse Master NPC, and the character-select
+dualbox cap. Details in
+[PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md); two things worth
+repeating here:
+
+- **A sabotage run caught a real bug in my own code.** The PvP reward first hung
+  off `on_kill_update_pvp_reputation` — which returns early inside a PvP zone,
+  so `DisableRewardsInPvpZones` could never be reached and the config key was
+  meaningless. Removing the guard *didn't* fail the test, which is what exposed
+  it: the assertion was passing for the wrong reason. Java puts the reward
+  beside the reputation block in `doDie`, not inside it; so does the port now,
+  and the test asserts both directions.
+- **The Noblesse Master has no spawn on this dist** — template present, no
+  spawn file places it, so `//spawn 1003000` is the only way to meet him. Java
+  is identical, so it is parity rather than a gap, but "flag on + script exists"
+  would otherwise read as a working feature.
+
+7 tests, 5 mechanisms sabotage-verified. **12 of the audit's 17 features are
+done**; the four left are the large tier (sell buffs, custom mail manager,
+auto-play, auto-potions).
+
+**`Custom/*.ini` slice 2 — the six cheap features 2026-08-01.** Working the
+audit's own queue ([PLAN_G33_CUSTOM_INI_AUDIT.md](PLAN_G33_CUSTOM_INI_AUDIT.md))
+rather than the TODO clusters. All of tier 1 in one `config/custom_misc.rs`:
+`.online`, banking (`.bank`/`.deposit`/`.withdraw`), L2Walker protection, the
+boss spawn announcements, the private-store spacing rule and the allowed-races
+gate. Two are worth noting beyond the list:
+
+- **The port had no `canOpenPrivateStore` gate at all** — every Java caller
+  runs one, and the port opened the manage window unconditionally. Added, with
+  the `Custom/PrivateStoreRange.ini` spacing as its first half and the state
+  checks (dead / mounted / olympiad / casting) as its second. The player half
+  of the spacing only counts **seated** players, because Java's
+  `getMinShopDistance` returns 0 while standing — it spaces shops apart, it
+  does not block on a passer-by. Getting that backwards would have made a
+  crowded town unshoppable.
+- **The boss announcement could not be placed where Java puts it.** Java
+  announces from `Npc.onSpawn` and excludes minions with `!isMinion()`; the
+  port attaches `MinionOf` *after* the entity exists, so the same check inside
+  the spawn would be dead code — the shape I keep finding in other people's
+  work, caught here in my own before it shipped. Suppression moved to the call
+  site (`spawn_minion_npc_at`), matching what the champion lottery beside it
+  already does.
+
+8 tests, 5 mechanisms sabotage-verified.
+
 **G19 affect-scope audit + NpcInfo's team/display blocks 2026-08-01.** Next
 cluster down (20 markers). The headline question was the **unported affect
 scopes**, which silently fall back to *single-target* — a skill that should hit

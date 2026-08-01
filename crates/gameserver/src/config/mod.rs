@@ -7,6 +7,8 @@
 pub mod champion;
 pub mod character;
 pub mod community_board;
+pub mod custom_misc;
+pub mod custom_pvp;
 pub mod dualbox;
 pub mod feature;
 pub mod general;
@@ -22,6 +24,10 @@ pub mod server;
 pub use champion::ChampionConfig;
 pub use character::CharacterConfig;
 pub use community_board::CommunityBoardConfig;
+pub use custom_misc::{
+    AllowedRacesConfig, BankingConfig, BossAnnouncementsConfig, CustomMiscConfig,
+};
+pub use custom_pvp::{CustomNpcConfig, PvpRewardConfig, PvpTitleColorConfig, RandomSpawnsConfig};
 pub use dualbox::DualboxConfig;
 pub use feature::FeatureConfig;
 pub use general::GeneralConfig;
@@ -63,6 +69,23 @@ pub struct CombatConfig {
     /// `Custom/ChampionMonsters.ini` — the champion-monster lottery and its
     /// stat / reward multipliers.
     pub champion: ChampionConfig,
+    /// `Custom/Banking.ini` — the adena ↔ goldbar voiced commands.
+    pub banking: BankingConfig,
+    /// `Custom/BossAnnouncements.ini` — the server-wide boss spawn lines.
+    pub boss_announcements: BossAnnouncementsConfig,
+    /// `Custom/OnlineInfo.ini` + `PrivateStoreRange.ini` + `WalkerBotProtection.ini`.
+    pub custom_misc: CustomMiscConfig,
+    /// `Custom/AllowedPlayerRaces.ini` — read by character creation, which runs
+    /// on the game thread like everything else.
+    pub allowed_races: AllowedRacesConfig,
+    /// `Custom/PvpRewardItem.ini` — the per-kill item payout.
+    pub pvp_reward: PvpRewardConfig,
+    /// `Custom/PvpTitleColor.ini` — the PvP-count title/colour ladder.
+    pub pvp_title_color: PvpTitleColorConfig,
+    /// `Custom/RandomSpawns.ini` — the monster spawn-point jitter.
+    pub random_spawns: RandomSpawnsConfig,
+    /// `Custom/ChatModeration.ini` + `Custom/NoblessMaster.ini`.
+    pub custom_npc: CustomNpcConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -82,6 +105,14 @@ pub struct Config {
     pub offline_trade: OfflineTradeConfig,
     pub dualbox: DualboxConfig,
     pub champion: ChampionConfig,
+    pub banking: BankingConfig,
+    pub boss_announcements: BossAnnouncementsConfig,
+    pub custom_misc: CustomMiscConfig,
+    pub allowed_races: AllowedRacesConfig,
+    pub pvp_reward: PvpRewardConfig,
+    pub pvp_title_color: PvpTitleColorConfig,
+    pub random_spawns: RandomSpawnsConfig,
+    pub custom_npc: CustomNpcConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -141,6 +172,14 @@ impl Config {
         let offline_trade = OfflineTradeConfig::load_from(root);
         let dualbox = DualboxConfig::load_from(root);
         let champion = ChampionConfig::load_from(root);
+        let banking = BankingConfig::load_from(root);
+        let boss_announcements = BossAnnouncementsConfig::load_from(root);
+        let custom_misc = CustomMiscConfig::load_from(root);
+        let allowed_races = AllowedRacesConfig::load_from(root);
+        let pvp_reward = PvpRewardConfig::load_from(root);
+        let pvp_title_color = PvpTitleColorConfig::load_from(root);
+        let random_spawns = RandomSpawnsConfig::load_from(root);
+        let custom_npc = CustomNpcConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -157,6 +196,14 @@ impl Config {
             offline_trade,
             dualbox,
             champion,
+            banking,
+            boss_announcements,
+            custom_misc,
+            allowed_races,
+            pvp_reward,
+            pvp_title_color,
+            random_spawns,
+            custom_npc,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -179,6 +226,14 @@ impl Config {
             offline_trade: self.offline_trade.clone(),
             dualbox: self.dualbox.clone(),
             champion: self.champion.clone(),
+            banking: self.banking.clone(),
+            boss_announcements: self.boss_announcements.clone(),
+            custom_misc: self.custom_misc.clone(),
+            allowed_races: self.allowed_races.clone(),
+            pvp_reward: self.pvp_reward.clone(),
+            pvp_title_color: self.pvp_title_color.clone(),
+            random_spawns: self.random_spawns.clone(),
+            custom_npc: self.custom_npc.clone(),
         }
     }
 }

@@ -1929,6 +1929,11 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
         .has_component::<crate::model::Player>(&killer_oid)
     {
         super::pvp::on_kill_update_pvp_reputation(world, killer_oid, player_oid);
+        // `Player.doDie`'s pvp/pk item reward (`Custom/PvpRewardItem.ini`),
+        // paid to the killer and chosen by whether the victim was flagged. Its
+        // own zone/instance guards live in the config, so it runs even where
+        // the reputation block above bails out.
+        super::pvp::pay_kill_reward(world, killer_oid, player_oid);
     }
 
     // Java `Player.doDie`: losing a cursed weapon on death is an if/else-if

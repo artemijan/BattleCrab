@@ -1081,3 +1081,483 @@ fn whisper_to_silenced_player_is_refused() {
         "silenced receiver got no whisper"
     );
 }
+
+// ---------------------------------------------------------------------------
+// `Custom/*.ini` voiced commands + gates (the G33 audit's cheap slice)
+// ---------------------------------------------------------------------------
+
+/// `.online` reports the in-game population, with Java's singular/plural split.
+/// Gated on `EnableOnlineCommand`: with the flag off the line is *said* instead,
+/// because Java's `MasterHandler` never registers the handler.
+#[test]
+fn the_online_command_counts_players() {
+    let (mut world, ..) = test_world();
+    world.cfg.custom_misc.online_command = true;
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    drain(&mut a_rx);
+
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".online", 0, None)].concat(),
+    );
+    let out = drain(&mut a_rx);
+    assert_eq!(
+        out.iter().filter_map(|p| sysmsg_text(p)).next().as_deref(),
+        Some("There is 1 player online!"),
+        "one player → singular"
+    );
+    assert!(
+        out.iter().all(|p| p[0] != server_packets::opcodes::SAY2),
+        "a voiced command is never broadcast as chat"
+    );
+
+    // A second player flips it to the plural form.
+    let mut b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
+    drain(&mut a_rx);
+    drain(&mut b_rx);
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".online", 0, None)].concat(),
+    );
+    assert_eq!(
+        drain(&mut a_rx)
+            .iter()
+            .filter_map(|p| sysmsg_text(p))
+            .next()
+            .as_deref(),
+        Some("There are 2 players online!")
+    );
+
+    // Flag off → not a command any more, so it goes out as ordinary chat.
+    world.cfg.custom_misc.online_command = false;
+    drain(&mut a_rx);
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".online", 0, None)].concat(),
+    );
+    assert!(
+        drain(&mut a_rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SAY2),
+        "an unregistered voiced command is just chat"
+    );
+}
+
+/// `.deposit` / `.withdraw` swap adena for goldbars at the configured rate, and
+/// say so when the player is short.
+#[test]
+fn banking_swaps_adena_for_goldbars() {
+    use crate::model::inventory::Inventory;
+    const ADENA: i32 = 57;
+    const GOLDBAR: i32 = 3470;
+
+    let (mut world, ..) = test_world();
+    world.id_pool = 0x7000_0000..0x7000_1000;
+    // Both currencies must be stackable, or a million adena becomes a million
+    // item instances.
+    for (id, name) in [(ADENA, "Adena"), (GOLDBAR, "Goldbar")] {
+        let mut t = crate::data::item_data::ItemTemplate::default();
+        t.item_id = id;
+        t.name = name.into();
+        t.is_stackable = true;
+        world.data.item_data.insert_for_test(t);
+    }
+    world.cfg.banking.enabled = true;
+    world.cfg.banking.adena = 1_000_000;
+    world.cfg.banking.goldbars = 1;
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let count = |w: &World, id: i32| {
+        w.objects
+            .get_component::<Inventory>(&3001)
+            .map_or(0, |i| i.count_of(id))
+    };
+
+    // Broke: the shortfall is explained, nothing moves.
+    drain(&mut rx);
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".deposit", 0, None)].concat(),
+    );
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .filter_map(|p| sysmsg_text(p))
+            .any(|t| t.contains("do not have enough Adena")),
+        "the shortfall is explained"
+    );
+    assert_eq!(count(&world, GOLDBAR), 0);
+
+    // With the adena: one goldbar out, the adena gone.
+    {
+        let World { objects, data, .. } = &mut world;
+        objects
+            .get_component_mut::<Inventory>(&3001)
+            .unwrap()
+            .add_item(&data.item_data, 0x7000_0500, ADENA, 1_000_000);
+    }
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".deposit", 0, None)].concat(),
+    );
+    assert_eq!(count(&world, GOLDBAR), 1, "a goldbar was minted");
+    assert_eq!(count(&world, ADENA), 0, "and the adena spent");
+
+    // …and back again.
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body(".withdraw", 0, None)].concat(),
+    );
+    assert_eq!(count(&world, GOLDBAR), 0);
+    assert_eq!(
+        count(&world, ADENA),
+        1_000_000,
+        "the round trip is lossless"
+    );
+}
+
+/// `Config.L2WALKER_PROTECTION`: a **whisper** opening with an L2Walker verb
+/// gets its sender kicked. Ordinary chat with the same text does not — Java
+/// gates the check on `ChatType.WHISPER`.
+#[test]
+fn a_walker_whisper_kicks_the_sender() {
+    let (mut world, ..) = test_world();
+    world.cfg.custom_misc.walker_protection = true;
+    let mut a_rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    let _b_rx = ingame_player(&mut world, 2, 3002, 100, 0, 0);
+    drain(&mut a_rx);
+
+    // General chat with a bot verb is left alone.
+    on_packet(
+        &mut world,
+        1,
+        [vec![cop::SAY2], say2_body("USESKILL 1177", 0, None)].concat(),
+    );
+    assert!(world.clients.contains_key(&1), "still connected");
+
+    // The same text whispered is an emulator giveaway.
+    on_packet(
+        &mut world,
+        1,
+        [
+            vec![cop::SAY2],
+            say2_body("USESKILL 1177", 2, Some("P3002")),
+        ]
+        .concat(),
+    );
+    assert!(!world.clients.contains_key(&1), "kicked");
+}
+
+/// `Custom/BossAnnouncements.ini` — a raid boss spawning is announced to
+/// everyone, in chat and on screen. An ordinary monster is not, and a boss
+/// spawned as somebody's **minion** is a reinforcement rather than an event.
+#[test]
+fn a_boss_spawn_is_announced_server_wide() {
+    let (mut world, ..) = test_world();
+    let mut rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    for (id, ty, name) in [
+        (25001, "RaidBoss", "Test Raid Boss"),
+        (20001, "Monster", "Plain Mob"),
+    ] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = ty.into();
+        t.name = name.into();
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+    world.cfg.boss_announcements.raidboss_spawn = true;
+    drain(&mut rx);
+
+    // An ordinary mob is silent.
+    crate::model::npc::spawn_npc_at(&mut world, 20001, 0, 0, 0, 0);
+    assert!(
+        drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
+        "no line for a plain monster"
+    );
+
+    // The raid boss announces itself twice: chat + on screen.
+    let boss = crate::model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    let out = drain(&mut rx);
+    assert!(
+        out.iter().any(|p| p[0] == server_packets::opcodes::SAY2),
+        "the chat line"
+    );
+    assert!(
+        out.iter().any(|p| p[0] == server_packets::opcodes::EX),
+        "and the on-screen one"
+    );
+
+    // A boss spawned **as a minion** stays quiet — suppression lives at the
+    // call site, because `MinionOf` can only be attached after the entity
+    // exists (see `spawn_minion_npc_at`).
+    let _ = boss;
+    drain(&mut rx);
+    crate::model::npc::spawn_minion_npc_at(&mut world, 25001, 0, 0, 0, 0).expect("spawned");
+    assert!(
+        drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
+        "a minion is a reinforcement, not an event"
+    );
+
+    world.cfg.boss_announcements.raidboss_spawn = false;
+    drain(&mut rx);
+    crate::model::npc::spawn_npc_at(&mut world, 25001, 0, 0, 0, 0);
+    assert!(
+        drain(&mut rx).iter().all(|p| sysmsg_text(p).is_none()),
+        "the flag gates it"
+    );
+}
+
+/// `Custom/PrivateStoreRange.ini` — a store may not open within
+/// `ShopMinRangeFromNpc` of an NPC, nor within `ShopMinRangeFromPlayer` of
+/// another **seated** player (Java's `getMinShopDistance` is zero unless
+/// sitting, so a passer-by never blocks).
+#[test]
+fn a_private_store_needs_room_around_it() {
+    use crate::game_loop::private_store::can_open_private_store;
+
+    let (mut world, ..) = test_world();
+    world.cfg.custom_misc.shop_min_range_from_npc = 100;
+    world.cfg.custom_misc.shop_min_range_from_player = 50;
+    let _rx = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+
+    assert!(can_open_private_store(&world, 1, 3001), "open ground");
+
+    // An NPC 60 units away is inside the 100-unit NPC spacing.
+    add_test_npc(&mut world, 4001, 20001, "Npc", 5, 60, 0, 0);
+    assert!(
+        !can_open_private_store(&world, 1, 3001),
+        "too close to an NPC"
+    );
+
+    // Move it out of range and the store is fine again.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&4001)
+        .unwrap()
+        .x = 500;
+    assert!(can_open_private_store(&world, 1, 3001), "NPC moved away");
+
+    // A standing player 30 units away does not block…
+    let _rx2 = ingame_player(&mut world, 2, 3002, 30, 0, 0);
+    assert!(
+        can_open_private_store(&world, 1, 3001),
+        "a passer-by is not a shop"
+    );
+    // …but a seated one (i.e. one with a store up) does.
+    world
+        .objects
+        .get_component_mut::<Player>(&3002)
+        .unwrap()
+        .sitting = true;
+    assert!(
+        !can_open_private_store(&world, 1, 3001),
+        "shops have to be spaced apart"
+    );
+}
+
+/// `Custom/AllowedPlayerRaces.ini` — every race is allowed on this dist, so the
+/// gate is inert; flipping one off refuses creation with
+/// `CharCreateFail.REASON_CREATION_FAILED`.
+#[test]
+fn a_disallowed_race_cannot_be_created() {
+    let (mut world, ..) = test_world();
+    // Dark elf (race 2) barred; humans (0) still fine.
+    world.cfg.allowed_races =
+        crate::config::AllowedRacesConfig::with_allowed_for_test([true, true, false, true, true]);
+    assert!(world.cfg.allowed_races.allows(0));
+    assert!(!world.cfg.allowed_races.allows(2));
+}
+
+/// `Custom/PvpRewardItem.ini` — the killer is paid on a PvP kill (the victim
+/// was flagged) and, separately, on a PK. Both rewards share one guard: nothing
+/// is paid inside a PvP zone or an instance.
+#[test]
+fn a_pvp_kill_pays_the_killer() {
+    use crate::model::components::{PvpState, ZoneFlags};
+    use crate::model::inventory::Inventory;
+    const ADENA: i32 = 57;
+    const KILLER: i32 = 3001;
+    const VICTIM: i32 = 3002;
+
+    let (mut world, ..) = test_world();
+    world.id_pool = 0x8000_0000..0x8000_0100;
+    let mut t = crate::data::item_data::ItemTemplate::default();
+    t.item_id = ADENA;
+    t.name = "Adena".into();
+    t.is_stackable = true;
+    world.data.item_data.insert_for_test(t);
+    world.cfg.pvp_reward.reward_pvp = true;
+    world.cfg.pvp_reward.pvp_item_id = ADENA;
+    world.cfg.pvp_reward.pvp_item_amount = 300_000;
+    world.cfg.pvp_reward.reward_pk = false;
+    let _a = ingame_player(&mut world, 1, KILLER, 0, 0, 0);
+    let _b = ingame_player(&mut world, 2, VICTIM, 50, 0, 0);
+    let paid = |w: &World| {
+        w.objects
+            .get_component::<Inventory>(&KILLER)
+            .map_or(0, |i| i.count_of(ADENA))
+    };
+
+    // Unflagged victim → this is a PK, and the PK arm ships off.
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 0, "no PK reward configured");
+
+    // Flag the victim: now it is a PvP kill and the reward lands.
+    world.objects.add_components(
+        &VICTIM,
+        PvpState {
+            flag: 1,
+            ..Default::default()
+        },
+    );
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 300_000, "the PvP reward");
+
+    // …but not inside a PvP zone. This guard is only reachable because the
+    // reward is a *sibling* of the reputation update rather than part of it —
+    // that block returns early in a PvP zone, which would have made
+    // `DisableRewardsInPvpZones` dead config.
+    world.cfg.pvp_reward.disable_in_pvp_zones = true;
+    world
+        .objects
+        .get_component_mut::<ZoneFlags>(&VICTIM)
+        .unwrap()
+        .mask |= crate::data::zone_data::ZoneKind::Pvp.bit();
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(paid(&world), 300_000, "no reward inside a PvP zone");
+
+    // With the guard off, the same kill pays again — proving the zone check is
+    // what stopped it, not the zone itself.
+    world.cfg.pvp_reward.disable_in_pvp_zones = false;
+    crate::game_loop::pvp::pay_kill_reward(&mut world, KILLER, VICTIM);
+    assert_eq!(
+        paid(&world),
+        600_000,
+        "the guard, not the zone, was the block"
+    );
+}
+
+/// `Custom/PvpTitleColor.ini` — crossing a rung renames and recolours the
+/// player. Below the first rung nothing is touched, so an ordinary player keeps
+/// the title they chose.
+#[test]
+fn the_pvp_ladder_retitles_the_killer() {
+    let (mut world, ..) = test_world();
+    let _p = ingame_player(&mut world, 1, 3001, 0, 0, 0);
+    world.cfg.pvp_title_color = crate::config::PvpTitleColorConfig {
+        enabled: true,
+        ranks: vec![
+            crate::config::custom_pvp::PvpRank {
+                kills: 2,
+                color: 0x9C_9C_9C,
+                title: "Sergeant".into(),
+            },
+            crate::config::custom_pvp::PvpRank {
+                kills: 5,
+                color: 0x69_69_69,
+                title: "Lieutenant".into(),
+            },
+        ],
+    };
+    let set_title = |w: &mut World, t: &str| {
+        w.objects.get_component_mut::<Player>(&3001).unwrap().title = t.to_string();
+    };
+    let title_of = |w: &World| {
+        w.objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .title
+            .clone()
+    };
+
+    set_title(&mut world, "Mine");
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 1;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(title_of(&world), "Mine", "below the first rung, untouched");
+
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 2;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(title_of(&world), "® Sergeant ®");
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Player>(&3001)
+            .unwrap()
+            .title_color,
+        0x9C_9C_9C
+    );
+
+    world
+        .objects
+        .get_component_mut::<Player>(&3001)
+        .unwrap()
+        .pvp_kills = 99;
+    crate::game_loop::pvp::update_pvp_title_and_color(&mut world, 3001, false);
+    assert_eq!(
+        title_of(&world),
+        "® Lieutenant ®",
+        "the top rung is open-ended"
+    );
+}
+
+/// `Custom/RandomSpawns.ini` — a monster's spawn point is jittered; a raid, a
+/// listed id and a quest monster keep their exact coordinates.
+#[test]
+fn random_spawns_jitter_only_ordinary_monsters() {
+    let (mut world, ..) = test_world();
+    world.cfg.random_spawns.enabled = true;
+    world.cfg.random_spawns.max_range = 100;
+    world.cfg.random_spawns.never_random.insert(20003);
+    for (id, ty, title) in [
+        (20001, "Monster", ""),
+        (20002, "Monster", "Quest Monster"),
+        (20003, "Monster", ""),
+        (25001, "RaidBoss", ""),
+    ] {
+        let mut t = crate::data::npc_data::default_template(id);
+        t.type_name = ty.into();
+        t.title = title.into();
+        t.base_hp_max = 100.0;
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    // Exercised directly: only the *datapack* spawn path jitters. A script or
+    // admin spawn keeps its coordinates, because Java's `AbstractScript.addSpawn`
+    // explicitly restores them for a scripted monster.
+    let spawn_at = |world: &mut World, id: i32| -> (i32, i32) {
+        crate::model::npc::randomize_spawn_point(world, id, 1000, 1000, 0, 0)
+    };
+
+    // An ordinary monster moves (over many spawns, at least one lands off the
+    // exact point — a single roll can legitimately come up (0, 0)).
+    let moved = (0..40).any(|_| spawn_at(&mut world, 20001) != (1000, 1000));
+    assert!(moved, "an ordinary monster is jittered");
+
+    // The exclusions never move, however many times they spawn.
+    for id in [20002, 20003, 25001] {
+        assert!(
+            (0..40).all(|_| spawn_at(&mut world, id) == (1000, 1000)),
+            "npc {id} keeps its exact spawn point"
+        );
+    }
+
+    // And the master flag turns the whole thing off.
+    world.cfg.random_spawns.enabled = false;
+    assert!(
+        (0..40).all(|_| spawn_at(&mut world, 20001) == (1000, 1000)),
+        "disabled → nothing moves"
+    );
+}

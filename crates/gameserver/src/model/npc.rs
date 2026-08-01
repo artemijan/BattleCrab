@@ -538,6 +538,8 @@ pub(crate) fn spawn_one(
     let Some((x, y, z, heading)) = loc else {
         return None;
     };
+    // `Spawn.initializeNpc`'s `ENABLE_RANDOM_MONSTER_SPAWNS` jitter.
+    let (x, y) = randomize_spawn_point(world, npc_id, x, y, z, heading);
     let oid = spawn_npc_entity(
         world,
         npc_id,
@@ -561,6 +563,7 @@ pub(crate) fn spawn_one(
     // The escort lands in `world.minions_placed` inside `spawn_minion_group`
     // (the script-chosen named groups count themselves the same way).
     crate::game_loop::minions::spawn_minions(world, oid);
+    announce_boss_spawn(world, oid);
     Some(oid)
 }
 
@@ -570,6 +573,27 @@ pub(crate) fn spawn_one(
 /// `respawn_secs == 0` (see `handle_npc_decay`). Returns the object id, or
 /// `None` if `npc_id` is unknown.
 pub(crate) fn spawn_npc_at(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> Option<i32> {
+    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0));
+    if let Some(oid) = oid {
+        announce_boss_spawn(world, oid);
+    }
+    oid
+}
+
+/// [`spawn_npc_at`] without the boss announcement — for a **minion**, which
+/// Java excludes from the spawn lines (`!isMinion() && !isRaidMinion()`).
+/// It needs its own entry point because `MinionOf` can only be attached once
+/// the entity exists, so an announcement inside the spawn itself would fire
+/// before anything could suppress it. Same reason `clear_champion_for_raid_
+/// minion` runs at the call site.
+pub(crate) fn spawn_minion_npc_at(
     world: &mut World,
     npc_id: i32,
     x: i32,
@@ -773,6 +797,137 @@ fn random_point_2d(rng: &mut rand::rngs::StdRng, territory: &Territory) -> Optio
         tries += 1;
     }
     Some((x, y))
+}
+
+/// `Spawn.initializeNpc`'s `Custom/RandomSpawns.ini` offset: a monster's spawn
+/// point is nudged by up to ±`MaxSpawnMobRange` on each axis, so a camp is not
+/// pinned to identical coordinates every respawn.
+///
+/// Java's guard chain, in its own order: a heading of `-1` (already jittered
+/// once — the flag it sets to avoid re-rolling), non-monsters, quest monsters,
+/// NPCs a walking route targets, instanced spawns, undying templates, raids,
+/// raid minions, fliers, a spawn point in water, and the `MobsSpawnNotRandom`
+/// id list. The new point must also be **walkable and visible** from the old
+/// one, or the offset is discarded — otherwise a mob could land inside a wall.
+///
+/// The port has no `setHeading(-1)` latch (headings live on the spawned entity,
+/// not the definition), so the roll happens once per spawn rather than once per
+/// definition; observationally the same, since Java re-rolls on every respawn
+/// too — its latch only stops a *second* roll within one spawn.
+///
+/// **Only the datapack spawn path calls this.** A script or admin spawn goes
+/// through [`spawn_npc_at`], which does not jitter: Java's `AbstractScript.
+/// addSpawn` explicitly *undoes* the offset for a scripted monster ("retain
+/// monster original position if ENABLE_RANDOM_MONSTER_SPAWNS is enabled"),
+/// because a script that places a mob at a computed spot means that spot.
+pub(crate) fn randomize_spawn_point(
+    world: &mut World,
+    npc_id: i32,
+    x: i32,
+    y: i32,
+    z: i32,
+    heading: i32,
+) -> (i32, i32) {
+    let cfg = &world.cfg.random_spawns;
+    if !cfg.enabled || cfg.max_range <= 0 || heading == -1 || cfg.never_random.contains(&npc_id) {
+        return (x, y);
+    }
+    let Some(t) = world.data.npc_data.get(npc_id) else {
+        return (x, y);
+    };
+    if !t.is_monster()
+        || t.is_quest_monster()
+        || t.undying
+        || t.is_raid()
+        || world.data.routes.route_for_npc(npc_id).is_some()
+    {
+        return (x, y);
+    }
+    // Java skips a spawn point standing in water (the offset could beach it).
+    if world
+        .data
+        .zone_data
+        .zones_at(x, y, z)
+        .any(|zn| zn.kind == crate::data::zone_data::ZoneKind::Water)
+    {
+        return (x, y);
+    }
+    let range = cfg.max_range;
+    let (rx, ry) = (
+        x + commons::util::rnd::get_range(-range, range),
+        y + commons::util::rnd::get_range(-range, range),
+    );
+    // `canMoveToTarget && canSeeTarget` — keep the mob out of geometry.
+    if world.geo.can_move_to_target(x, y, z, rx, ry, z)
+        && world.geo.can_see_target(x, y, z, rx, ry, z)
+    {
+        (rx, ry)
+    } else {
+        (x, y)
+    }
+}
+
+/// `Npc.onSpawn`'s custom boss announcement (`Custom/BossAnnouncements.ini`):
+/// a server-wide chat line **and** an on-screen one when a raid or grand boss
+/// appears. Minions and raid minions are excluded, and an instanced spawn only
+/// counts under the matching `…InstanceAnnouncements` flag.
+///
+/// Both defeat flags ship `false` here, so only the spawn arm exists. Java
+/// looks the name up through `NpcData` rather than using the instance's title,
+/// so a champion prefix or a script's `setTitle` never leaks into the line.
+fn announce_boss_spawn(world: &World, object_id: i32) {
+    let cfg = &world.cfg.boss_announcements;
+    if !cfg.raidboss_spawn && !cfg.grandboss_spawn {
+        return;
+    }
+    let Some(t) = world
+        .objects
+        .get_component::<Npc>(&object_id)
+        .and_then(|n| world.data.npc_data.get(n.npc_id))
+    else {
+        return;
+    };
+    let grand = t.type_name == "GrandBoss";
+    let (enabled, in_instance_ok) = if grand {
+        (cfg.grandboss_spawn, cfg.grandboss_instance)
+    } else if t.is_raid() {
+        (cfg.raidboss_spawn, cfg.raidboss_instance)
+    } else {
+        return;
+    };
+    if !enabled {
+        return;
+    }
+    // `!isInInstance() || …InstanceAnnouncements`.
+    let in_instance = world
+        .objects
+        .get_component::<crate::model::components::InstanceId>(&object_id)
+        .is_some_and(|i| i.0 != 0);
+    if in_instance && !in_instance_ok {
+        return;
+    }
+    // Java's `!isMinion() && !isRaidMinion()` is handled at the call site
+    // instead: minions spawn through [`spawn_minion_npc_at`], which does not
+    // announce. Checking `MinionOf` here would be dead code — the tag is
+    // attached after the entity exists.
+    if t.name.is_empty() {
+        return; // Java: `if (name != null)`.
+    }
+    let text = format!("{} has spawned!", t.name);
+    let say = crate::network::server_packets::creature_say(
+        0,
+        crate::enums::ChatType::Announcement,
+        "",
+        &text,
+        None,
+    );
+    let screen = crate::network::server_packets::ex_show_screen_message(&text, 2, 5000);
+    for cs in world.clients.values() {
+        if matches!(cs, crate::session::ClientSession::InGame(_)) {
+            cs.send(say.clone());
+            cs.send(screen.clone());
+        }
+    }
 }
 
 #[cfg(test)]

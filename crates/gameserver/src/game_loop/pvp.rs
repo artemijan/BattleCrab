@@ -630,7 +630,102 @@ pub(crate) fn on_kill_update_pvp_reputation(world: &mut World, killer_oid: i32, 
         }
     }
 
+    // `updatePvpTitleAndColor(true)` — the `Custom/PvpTitleColor.ini` ladder,
+    // applied right after the counter moves so a player crossing a threshold
+    // is renamed on the spot.
+    update_pvp_title_and_color(world, killer_oid, false);
+
     // `broadcastUserInfo(UserInfoType.SOCIAL)` — the name/title colour and the
     // karma flag other clients draw come from here.
     super::party::broadcast_user_info(world, killer_oid);
+}
+
+/// Java `Player.updatePvpTitleAndColor` — the five-rung ladder from
+/// `Custom/PvpTitleColor.ini`. Java wraps each title in `®` and only ever
+/// *raises* a player (there is no arm that clears the title back), so a
+/// demotion is impossible and a player below the first rung keeps whatever
+/// title they had.
+///
+/// `broadcast` mirrors Java's parameter: the kill path broadcasts through its
+/// own `broadcastUserInfo` a line later, the enter-world path does not.
+pub(crate) fn update_pvp_title_and_color(world: &mut World, player_oid: i32, broadcast: bool) {
+    let Some(kills) = world
+        .objects
+        .get_component::<Player>(&player_oid)
+        .map(|p| p.pvp_kills)
+    else {
+        return;
+    };
+    let Some(rank) = world.cfg.pvp_title_color.rank_for(kills) else {
+        return;
+    };
+    let (title, color) = (format!("® {} ®", rank.title), rank.color);
+    if let Some(p) = world.objects.get_component_mut::<Player>(&player_oid) {
+        p.title = title;
+        p.title_color = color;
+    }
+    if broadcast {
+        super::party::broadcast_user_info(world, player_oid);
+    }
+}
+
+/// Java `Player.doDie`'s reward block: on a PvP or PK kill the killer is paid a
+/// configured item. **A sibling of the reputation update, not part of it** —
+/// `on_kill_update_pvp_reputation` returns early inside a PvP zone, so hanging
+/// the reward off it would make `DisableRewardsInPvpZones` unreachable and the
+/// config key meaningless (which is exactly what a sabotage run caught). The victim's **flag** picks the arm — a flagged victim is a
+/// PvP kill, an unflagged one makes the killer a PK — and one shared guard
+/// covers both (`DisableRewardsInInstances` / `DisableRewardsInPvpZones`, both
+/// on here, tested against the **victim**).
+pub(crate) fn pay_kill_reward(world: &mut World, killer_oid: i32, victim_oid: i32) {
+    let cfg = world.cfg.pvp_reward.clone();
+    if !cfg.reward_pvp && !cfg.reward_pk {
+        return;
+    }
+    if cfg.disable_in_instances
+        && world
+            .objects
+            .get_component::<crate::model::components::InstanceId>(&victim_oid)
+            .is_some_and(|i| i.0 != 0)
+    {
+        return;
+    }
+    if cfg.disable_in_pvp_zones && in_pvp_zone(world, victim_oid) {
+        return;
+    }
+    let victim_flagged = world
+        .objects
+        .get_component::<crate::model::components::PvpState>(&victim_oid)
+        .is_some_and(|f| f.flag != 0);
+    let (enabled, item_id, amount, message) = if victim_flagged {
+        (
+            cfg.reward_pvp,
+            cfg.pvp_item_id,
+            cfg.pvp_item_amount,
+            cfg.pvp_message,
+        )
+    } else {
+        (
+            cfg.reward_pk,
+            cfg.pk_item_id,
+            cfg.pk_item_amount,
+            cfg.pk_message,
+        )
+    };
+    if !enabled || amount <= 0 {
+        return;
+    }
+    super::items::add_inventory_item(world, killer_oid, item_id, amount);
+    if message
+        && let Some(cid) = super::helpers::client_for_player(world, killer_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::server_packets::system_message_with(
+            crate::network::server_packets::sm_ids::YOU_HAVE_OBTAINED_S2_S1,
+            &[
+                crate::network::server_packets::SmParam::ItemName(item_id),
+                crate::network::server_packets::SmParam::Long(amount),
+            ],
+        ));
+    }
 }
