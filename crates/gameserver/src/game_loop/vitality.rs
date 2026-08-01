@@ -104,6 +104,13 @@ fn is_lucky(world: &World, object_id: i32) -> bool {
 /// `VITA_FAME` component; this port resends the whole packet — the same
 /// approach the rest of the port takes to component-scoped UserInfo updates),
 /// and finally the party window's vitality field.
+///
+/// **Deliberate deviation, at operator request:** the `YOUR_VITALITY_HAS_DECREASED`
+/// line is *not* sent. Every monster kill drains the pool, so Java's decrease
+/// notice fires on essentially every kill and reads as chat spam. The increase
+/// line and both edge lines (at-maximum / fully-exhausted) still fire — those
+/// are rare — and the gauge/UserInfo/party updates below are untouched, so the
+/// client still tracks the drain visually.
 pub(crate) fn set_vitality_points(
     world: &mut World,
     object_id: i32,
@@ -123,12 +130,11 @@ pub(crate) fn set_vitality_points(
     }
 
     if !quiet {
-        let sm = if points < current {
-            sm_ids::YOUR_VITALITY_HAS_DECREASED
-        } else {
-            sm_ids::YOUR_VITALITY_HAS_INCREASED
-        };
-        send_sm(world, object_id, sm);
+        // Java also sends `YOUR_VITALITY_HAS_DECREASED` on the `points < current`
+        // leg; suppressed here on purpose (see the doc comment above).
+        if points > current {
+            send_sm(world, object_id, sm_ids::YOUR_VITALITY_HAS_INCREASED);
+        }
         if points == MIN_VITALITY_POINTS {
             send_sm(world, object_id, sm_ids::YOUR_VITALITY_IS_FULLY_EXHAUSTED);
         } else if points == MAX_VITALITY_POINTS {
