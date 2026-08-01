@@ -56,6 +56,7 @@ mod confuse_tests;
 mod core_boss_tests;
 mod crafting_tests;
 mod crit_damage_tests;
+mod cruma_tower_tests;
 mod cubic_tests;
 mod cursed_weapon_tests;
 mod daily_tasks_tests;
