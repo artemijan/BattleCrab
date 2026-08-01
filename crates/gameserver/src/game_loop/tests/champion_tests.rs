@@ -335,7 +335,13 @@ fn the_champion_title_prefixes_when_decorated_and_replaces_when_not() {
 }
 
 /// `NpcInfo` must carry the red team byte, and only while the aura is on —
-/// this is the only thing that makes a champion recognisable before it hits.
+/// together with the title it is what makes a champion recognisable before it
+/// hits.
+///
+/// The test world leaves `ShowNpcLevel`/`ShowNpcAggression` off, which is
+/// exactly the configuration that isolates Java's `|| npc.isChampion()` arm of
+/// the TITLE gate: with both decorations off a plain mob carries no title
+/// component at all, so every byte of difference below is the champion's own.
 #[test]
 fn npc_info_carries_the_red_team_only_with_the_aura_on() {
     let (mut world, ..) = cast_test_world();
@@ -357,17 +363,64 @@ fn npc_info_carries_the_red_team_only_with_the_aura_on() {
     let champ = build(&world);
     assert_ne!(
         plain, champ,
-        "the champion's NpcInfo must differ — the TEAM component is added"
+        "the champion's NpcInfo must differ — TEAM and TITLE are both added"
     );
-    // The team byte is 2 (`Team.RED`); the packet grows by exactly that byte.
-    assert_eq!(champ.len(), plain.len() + 1, "TEAM is a single byte block");
-
-    world.cfg.champion.aura = false;
+    // TEAM is one byte (2 = `Team.RED`); TITLE is the UTF-16 `"Champion"` plus
+    // its terminator — 8 chars × 2 + 2 = 18.
     assert_eq!(
-        build(&world),
-        plain,
-        "ChampionAura = False → no team block, byte-identical to a plain mob"
+        champ.len(),
+        plain.len() + 1 + 18,
+        "TEAM (1 byte) + the \"Champion\" TITLE string (18 bytes)"
     );
+
+    // Turning the aura off drops only the team byte. The title must survive:
+    // an operator who runs champions without the red glow still needs the name
+    // to tell them apart, and Java's TITLE gate does not consult `ChampionAura`.
+    world.cfg.champion.aura = false;
+    let no_aura = build(&world);
+    assert_eq!(
+        no_aura.len(),
+        plain.len() + 18,
+        "ChampionAura = False drops the team byte but keeps the title"
+    );
+    assert!(
+        contains_utf16(&no_aura, "Champion"),
+        "the champion title must still reach the client without the aura"
+    );
+    assert!(
+        !contains_utf16(&plain, "Champion"),
+        "a plain mob must carry no champion title"
+    );
+}
+
+/// The champion arm must not *replace* the normal gate: with `ShowNpcLevel` on
+/// a champion still gets the decorated title, prefix and all.
+#[test]
+fn npc_info_title_survives_with_the_show_npc_decorations_on() {
+    let (mut world, ..) = cast_test_world();
+    world.cfg.champion = champion_on();
+    world.cfg.npc.show_npc_level = true;
+    add_test_npc(&mut world, MOB, 90_020, "Monster", 40, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Npc>(&MOB)
+        .unwrap()
+        .champion = true;
+
+    let v = crate::model::npc::NpcView::of(&world.objects, MOB).expect("a live mob");
+    let t = v.npc.template(&world).expect("its template");
+    let pkt =
+        crate::network::server_packets::npc_info(&v, t, &world.cfg.npc, &world.cfg.champion, &[]);
+    assert!(
+        contains_utf16(&pkt, "Champion Lv 40"),
+        "the decorated branch prefixes CHAMP_TITLE onto \"Lv 40\""
+    );
+}
+
+/// Needle search over the packet's little-endian UTF-16 string encoding.
+fn contains_utf16(haystack: &[u8], needle: &str) -> bool {
+    let encoded: Vec<u8> = needle.encode_utf16().flat_map(u16::to_le_bytes).collect();
+    haystack.windows(encoded.len()).any(|w| w == encoded)
 }
 
 // ---------------------------------------------------------------------------
@@ -514,5 +567,185 @@ fn a_champion_pays_multiplied_adena_plus_the_reward_item() {
     assert!(
         !plain.contains(&(6393, 1)),
         "…and only for a champion: {plain:?}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Quest drops (`AbstractScript.giveItemRandomly`)
+// ---------------------------------------------------------------------------
+
+/// Quest items never pass through `NpcTemplate.calculateDrops`, so Java repeats
+/// the champion arm inside `giveItemRandomly`. Without it a champion is a pure
+/// penalty on a collection quest — ten times the HP for the same payout.
+///
+/// Driven end to end through a real quest (`Q00358`, which asks for one snake
+/// scale per kill) rather than the helper in isolation, so the `self.npc`
+/// lookup that resolves the champion flag is exercised on the live kill path.
+#[test]
+fn a_champion_multiplies_the_quest_item_payout() {
+    const SNAKE_SCALE: i32 = 5868;
+    const SNAKE: i32 = 20672;
+    const PLAYER: i32 = 3001;
+    let quest = "Q00358_IllegitimateChildOfTheGoddess";
+
+    // One kill of a plain mob, then of a champion, from identical worlds.
+    let scales_from_one_kill = |champion: bool| -> i64 {
+        let (mut world, _db, _l) = quest_test_world();
+        add_quest_items(&mut world, &[(SNAKE_SCALE, "Snake Scale", true)]);
+        world.cfg.champion = champion_on();
+        // Pin the quest rate so the assertion reads the champion factor alone.
+        world.cfg.rates.rate_quest_drop = 1.0;
+
+        add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
+        let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
+        world
+            .objects
+            .get_component_mut::<Player>(&PLAYER)
+            .unwrap()
+            .level = 65;
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+        );
+        handle_request_bypass_to_server(
+            &mut world,
+            1,
+            &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} 30862-04.htm")),
+        );
+        assert_eq!(quest_cond(&world, PLAYER, quest), Some(1), "quest started");
+
+        let mob = NPC_OID + 1;
+        add_test_npc(&mut world, mob, SNAKE, "Monster", 65, 30, 0, 0);
+        world
+            .objects
+            .get_component_mut::<Npc>(&mob)
+            .unwrap()
+            .champion = champion;
+        world.forced_rolls.push_back(0); // give_item_randomly roll_f64 → hit
+        crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
+        item_count(&world, PLAYER, SNAKE_SCALE)
+    };
+
+    let plain = scales_from_one_kill(false);
+    let champ = scales_from_one_kill(true);
+    assert_eq!(plain, 1, "a plain kill pays the script's flat 1 scale");
+    assert_eq!(
+        champ, 5,
+        "a champion kill pays ChampionRewardsAmount (5.0) times as much"
+    );
+}
+
+/// The master gate is re-read at the consumer, as everywhere else: a mob still
+/// flagged from before `ChampionEnable` was turned off pays the plain amount.
+#[test]
+fn the_quest_item_multiplier_respects_the_master_gate() {
+    const SNAKE_SCALE: i32 = 5868;
+    const SNAKE: i32 = 20672;
+    const PLAYER: i32 = 3001;
+    let quest = "Q00358_IllegitimateChildOfTheGoddess";
+
+    let (mut world, _db, _l) = quest_test_world();
+    add_quest_items(&mut world, &[(SNAKE_SCALE, "Snake Scale", true)]);
+    world.cfg.champion = ChampionConfig {
+        enable: false,
+        ..champion_on()
+    };
+    world.cfg.rates.rate_quest_drop = 1.0;
+
+    add_test_npc(&mut world, NPC_OID, 30862, "Folk", 60, 100, 0, 0);
+    let _rx = ingame_player(&mut world, 1, PLAYER, 0, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Player>(&PLAYER)
+        .unwrap()
+        .level = 65;
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest}")),
+    );
+    handle_request_bypass_to_server(
+        &mut world,
+        1,
+        &bypass_body(&format!("npc_{NPC_OID}_Quest {quest} 30862-04.htm")),
+    );
+
+    let mob = NPC_OID + 1;
+    add_test_npc(&mut world, mob, SNAKE, "Monster", 65, 30, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Npc>(&mob)
+        .unwrap()
+        .champion = true;
+    world.forced_rolls.push_back(0);
+    crate::game_loop::death::npc_do_die(&mut world, mob, PLAYER);
+    assert_eq!(
+        item_count(&world, PLAYER, SNAKE_SCALE),
+        1,
+        "ChampionEnable = False → no multiplier, even on a flagged mob"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// The live spawn path
+// ---------------------------------------------------------------------------
+
+/// The lottery is only worth anything if the *real* spawn path runs it. Every
+/// other test here either calls `roll_champion` directly or sets the flag by
+/// hand, so none of them would notice `spawn_npc_entity` dropping the roll —
+/// and the symptom of that would be exactly "champions are configured on but
+/// no champion ever appears in the world".
+#[test]
+fn the_spawn_path_rolls_the_lottery_and_applies_the_multipliers() {
+    let (mut world, ..) = cast_test_world();
+    world.cfg.champion = champion_on(); // frequency = 100 → a certain roll
+
+    let mut t = monster(40);
+    t.id = 90_500;
+    t.base_p_atk = 100.0;
+    world.data.npc_data.insert_for_test(t.clone());
+
+    let oid =
+        crate::model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0).expect("the mob spawned");
+    assert!(
+        world
+            .objects
+            .get_component::<Npc>(&oid)
+            .expect("a live mob")
+            .champion,
+        "spawn_npc_entity must run Attackable.onRespawn's lottery"
+    );
+    let p_atk = world
+        .objects
+        .get_component::<CombatStats>(&oid)
+        .expect("its stats")
+        .p_atk;
+    let plain = crate::model::npc_finalized_stats(
+        &world.data,
+        &t,
+        &Buffs::default(),
+        crate::model::ChampionStatMods::default(),
+    )
+    .0
+    .p_atk;
+    assert!(
+        (p_atk - plain * 4.0).abs() < 0.001,
+        "the spawn finalized its stats *with* the champion multipliers \
+         ({p_atk} vs a plain {plain})"
+    );
+
+    // …and a zero frequency leaves the same spawn plain, so the assertion above
+    // is reading the roll rather than an unconditional flag.
+    world.cfg.champion.frequency = 0;
+    let plain_oid = crate::model::npc::spawn_npc_at(&mut world, 90_500, 0, 0, 0, 0)
+        .expect("the second mob spawned");
+    assert!(
+        !world
+            .objects
+            .get_component::<Npc>(&plain_oid)
+            .expect("a live mob")
+            .champion,
+        "ChampionFrequency = 0 → never a champion"
     );
 }
