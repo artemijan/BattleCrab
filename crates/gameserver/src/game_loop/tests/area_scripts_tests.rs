@@ -1342,3 +1342,46 @@ fn a_summons_kill_points_the_avenger_at_the_summon() {
         "…and after the player when the player struck"
     );
 }
+
+// ---------------------------------------------------------------------------
+// Four Sepulchers — the persisted re-entry gate
+// ---------------------------------------------------------------------------
+
+/// The 60-minute re-entry gate survives a restart.
+///
+/// Java keys each hall's stamp by **manager NPC id** (`"FourSepulchers" +
+/// npcId`), not by hall index — that mapping is part of the storage format, so
+/// it is asserted rather than assumed.
+#[test]
+fn the_sepulcher_entry_stamps_round_trip_through_global_variables() {
+    use crate::game_loop::four_sepulchers as fs;
+    use crate::game_loop::global_vars;
+
+    let (mut world, _db, _l) = quest_test_world();
+    let stamp = 1_700_000_000_000i64;
+    for (sepulcher, manager) in [
+        (1, fs::CONQUEROR_MANAGER),
+        (2, fs::EMPEROR_MANAGER),
+        (3, fs::GREAT_SAGES_MANAGER),
+        (4, fs::JUDGE_MANAGER),
+    ] {
+        global_vars::set(
+            &mut world,
+            &global_vars::four_sepulchers_key(manager),
+            stamp + sepulcher as i64,
+        );
+    }
+
+    // Fresh boot: the in-memory clock starts at zero, then rehydrates.
+    assert_eq!(
+        world.four_sepulchers.last_entry_ms, [0; 4],
+        "baseline: nothing loaded yet"
+    );
+    fs::restore_entry_times(&mut world);
+
+    assert_eq!(
+        world.four_sepulchers.last_entry_ms,
+        [stamp + 1, stamp + 2, stamp + 3, stamp + 4],
+        "each hall recovers its own stamp, in hall order"
+    );
+}

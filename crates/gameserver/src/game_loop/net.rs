@@ -757,6 +757,11 @@ pub(crate) fn drain_db(world: &mut World, db_rx: &DbEventRx) {
             DbEvent::IdBlock { start, end } => {
                 world.id_pool = start..end;
             }
+            DbEvent::GlobalVariablesLoaded { entries } => {
+                tracing::info!("GameLoop: loaded {} global variables.", entries.len());
+                world.global_vars = entries.into_iter().collect();
+                super::four_sepulchers::restore_entry_times(world);
+            }
             DbEvent::PremiumLoaded { entries } => {
                 tracing::info!("GameLoop: loaded {} premium accounts.", entries.len());
                 world.premium = entries.into_iter().collect();

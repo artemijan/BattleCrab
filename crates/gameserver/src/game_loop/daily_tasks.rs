@@ -40,6 +40,14 @@ pub(crate) fn handle_daily_reset(world: &mut World) {
 /// The sub-resets themselves, with the weekday decided by the caller — split
 /// out so a test can run either branch without moving the wall clock.
 pub(crate) fn run_reset(world: &mut World, weekly: bool) {
+    // Java `onReset`'s first line: stamp the reset. Nothing in this chronicle
+    // reads it back (see `schedule_initial_daily_reset`), but writing it keeps
+    // the stored state honest and is what a fixed catch-up would need.
+    super::global_vars::set(
+        world,
+        super::global_vars::DAILY_TASK_RESET,
+        commons::util::now_millis(),
+    );
     if weekly {
         clan_leader_apply(world);
     }
@@ -76,10 +84,18 @@ fn clan_leader_apply(world: &mut World) {
 /// Schedule the first `DailyReset` for the next 06:30 UTC (Java
 /// `DailyTaskManager`'s constructor). Called once at game-loop start.
 ///
-/// TODO(G33): no `GlobalVariablesManager.DAILY_TASK_RESET` catch-up yet — a
-/// reset missed while the server was down runs at the next 06:30 rather than
-/// immediately on boot. Needs a persisted last-reset stamp (no GlobalVariables
-/// table in the port).
+/// Java's boot "catch-up" is **not** ported, because as written it cannot fire.
+/// `DailyTaskManager`'s constructor computes `calendarTime` = the *next* 06:30
+/// (today's if still ahead, else tomorrow's) and then runs `onReset()` only
+/// when the stored `DAILY_TASK_RESET` stamp is **not** less than it. The stamp
+/// is always a past timestamp and `calendarTime` is always in the future, so
+/// the comparison is true and the catch-up branch is dead — despite the comment
+/// above it reading "Check if 24 hours have passed since the last daily reset",
+/// which would need a comparison against the *previous* occurrence.
+///
+/// So a reset missed while the server was down runs at the next 06:30 in Java
+/// too, which is what this port already did. The stamp itself **is** written
+/// (below) so the value is there if a later chronicle fixes the comparison.
 pub(crate) fn schedule_initial_daily_reset(world: &mut World) {
     let now = commons::util::now_millis();
     let ms_of_day = now.rem_euclid(MILLIS_PER_DAY);

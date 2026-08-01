@@ -251,3 +251,86 @@ fn core_says_its_death_lines() {
     crate::game_loop::core_boss::say_death_lines(&mut world, CORE_OID);
     assert_eq!(count_npc_say(&mut rx), 2, "both death lines");
 }
+
+// ---------------------------------------------------------------------------
+// `Core_Attacked` persistence (Java `Core.onSave` / spawn restore)
+// ---------------------------------------------------------------------------
+
+use crate::game_loop::global_vars;
+
+/// The first hit stamps `Core_Attacked`, and the value is written through to
+/// the DB rather than kept only in memory.
+#[test]
+fn the_first_attack_persists_core_attacked() {
+    let (mut world, mut db_rx, _l) = core_world();
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 0, 0, 0);
+    drain_db(&mut db_rx);
+
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+
+    assert!(
+        global_vars::get_bool(
+            &world,
+            crate::game_loop::core_boss::CORE_ATTACKED_VAR,
+            false
+        ),
+        "the flag is set in memory"
+    );
+    assert!(
+        drain_db(&mut db_rx).iter().any(|c| matches!(
+            c,
+            db::DbCommand::SaveGlobalVariable { var, value }
+                if var == crate::game_loop::core_boss::CORE_ATTACKED_VAR && value == "true"
+        )),
+        "and written through to global_variables"
+    );
+}
+
+/// Spawning restores it, so a restart between the intro and the kill does not
+/// replay the intro lines. This is the whole point of persisting the flag —
+/// without the restore the variable would be written and never read.
+#[test]
+fn spawning_restores_core_attacked_from_the_stored_variable() {
+    let (mut world, _db, _l) = core_world();
+    global_vars::set(
+        &mut world,
+        crate::game_loop::core_boss::CORE_ATTACKED_VAR,
+        true,
+    );
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 0, 0, 0);
+
+    crate::game_loop::core_boss::on_core_spawned(&mut world, CORE_OID);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::game_loop::core_boss::CoreState>(&CORE_OID)
+            .is_some_and(|s| s.first_attacked),
+        "a Core that was already provoked stays provoked across a restart"
+    );
+}
+
+/// Dying clears it — the intro plays again next life, and the *stored* value
+/// has to follow or the next Core would spawn permanently silent.
+#[test]
+fn dying_clears_the_stored_flag() {
+    let (mut world, _db, _l) = core_world();
+    add_test_npc(&mut world, CORE_OID, CORE, "GrandBoss", 50, 0, 0, 0);
+    crate::game_loop::core_boss::on_core_attacked(&mut world, CORE_OID);
+    assert!(global_vars::get_bool(
+        &world,
+        crate::game_loop::core_boss::CORE_ATTACKED_VAR,
+        false
+    ));
+
+    crate::game_loop::core_boss::on_core_killed(&mut world);
+
+    assert!(
+        !global_vars::get_bool(
+            &world,
+            crate::game_loop::core_boss::CORE_ATTACKED_VAR,
+            false
+        ),
+        "the stored flag is cleared, not just the in-memory one"
+    );
+}

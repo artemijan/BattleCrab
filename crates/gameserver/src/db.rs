@@ -13,10 +13,10 @@ use models::entity::{
     character_skills_save, character_subclasses, character_summon_skills_save, character_summons,
     character_variables, characters, clan_data, clan_privs, clan_skills, clan_subpledges,
     clan_wars, clanhall, clanhall_auctions_bidders, crests, cursed_weapons, custom_mail,
-    grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid, item_variations, items,
-    lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data, olympiad_nobles,
-    olympiad_nobles_eom, petition_feedback, pets, pledge_applicant, pledge_recruit,
-    pledge_waiting_list, punishments, residence_functions, siege_clans,
+    global_variables, grandboss_data, heroes, heroes_diary, item_auction, item_auction_bid,
+    item_variations, items, lottery, mdt_bets, mdt_history, messages, npc_respawns, olympiad_data,
+    olympiad_nobles, olympiad_nobles_eom, petition_feedback, pets, pledge_applicant,
+    pledge_recruit, pledge_waiting_list, punishments, residence_functions, siege_clans,
 };
 use models::sea_orm::ActiveValue::{NotSet, Set, Unchanged};
 use models::sea_orm::Condition;
@@ -553,6 +553,16 @@ pub enum DbCommand {
         /// way Java's `saveSiegeDate` touches only the columns it owns.
         siege_time_registration_end: Option<i64>,
     },
+    /// `GlobalVariablesManager.set` — upsert one `global_variables` row.
+    ///
+    /// Java batches the whole map on a 30-minute `onSave` timer plus shutdown;
+    /// this port writes each change through, matching how every other piece of
+    /// small global state here is persisted (and removing the "lost the last
+    /// 30 minutes on a crash" window).
+    SaveGlobalVariable {
+        var: String,
+        value: String,
+    },
     /// `Siege.saveSiegeClan` — register a clan for a castle's siege.
     SaveSiegeClan {
         castle_id: i32,
@@ -1088,6 +1098,8 @@ pub enum DbCommand {
 
 /// DB thread → game thread (drained in tick step 2).
 pub enum DbEvent {
+    /// `GlobalVariablesManager.restoreMe()` — the whole table, at boot.
+    GlobalVariablesLoaded { entries: Vec<(String, String)> },
     /// `send_list` = push a fresh `CharSelectionInfo` to the client (login,
     /// delete, restore). After character creation it is false — Java only caches
     /// the list (`setCharSelection`) and does not re-send it.
@@ -1502,6 +1514,12 @@ async fn run(
         end: next_id + ID_BLOCK_SIZE,
     });
     next_id += ID_BLOCK_SIZE;
+
+    // `GlobalVariablesManager.restoreMe()` — small, and read by boot code that
+    // runs before the world is up, so it goes first.
+    let _ = event_tx.send(DbEvent::GlobalVariablesLoaded {
+        entries: load_global_variables(&db).await,
+    });
 
     // Premium table cache, before clans so `ClansLoaded` stays the last boot
     // event (the game loop releases the login link on it).
@@ -2219,6 +2237,21 @@ async fn run(
                         .filter(castle::Column::Id.eq(castle_id))
                         .exec(&db)
                         .await,
+                );
+            }
+            DbCommand::SaveGlobalVariable { var, value } => {
+                warn_err(
+                    global_variables::Entity::insert(global_variables::ActiveModel {
+                        var: Set(var),
+                        value: Set(Some(value)),
+                    })
+                    .on_conflict(
+                        OnConflict::column(global_variables::Column::Var)
+                            .update_column(global_variables::Column::Value)
+                            .to_owned(),
+                    )
+                    .exec(&db)
+                    .await,
                 );
             }
             DbCommand::SaveSiegeClan {
@@ -5010,6 +5043,17 @@ async fn load_residence_functions(db: &DatabaseConnection) -> Vec<ResidenceFunct
 }
 
 /// `CastleManager.load`: every `castle` row (id/name/side).
+/// `GlobalVariablesManager.restoreMe` — the whole `global_variables` table.
+async fn load_global_variables(db: &DatabaseConnection) -> Vec<(String, String)> {
+    global_variables::Entity::find()
+        .all(db)
+        .await
+        .unwrap_or_default()
+        .into_iter()
+        .map(|r| (r.var, r.value.unwrap_or_default()))
+        .collect()
+}
+
 async fn load_castles(db: &DatabaseConnection) -> Vec<crate::model::castle::Castle> {
     castle::Entity::find()
         .order_by_asc(castle::Column::Id)
