@@ -65,6 +65,12 @@ pub struct Npc {
     /// Indices into `GameData.spawn_data` (spawn/group/npc) so death can
     /// schedule a respawn of the same spawn line.
     pub spawn_ref: (usize, usize, usize),
+    /// Java `Npc.getSpawn().getChaseRange()` — the spawn line's per-mob leash
+    /// override (`<npc chaseRange="5000">`), `0` when the line does not set one.
+    /// Copied onto the instance rather than read back through `spawn_ref`
+    /// because runtime spawns (minions, quest/admin spawns) carry a placeholder
+    /// `(0, 0, 0)` ref that would otherwise resolve to an unrelated spawn line.
+    pub chase_range: i32,
     /// Java `Npc._scriptValue` — per-instance scratch slot for scripts
     /// (fresh instance on respawn resets it, like Java).
     pub script_value: i32,
@@ -339,6 +345,7 @@ impl Npc {
             respawn_random_secs: 0,
             spawn_loc: (x, y, z),
             spawn_ref: (0, 0, 0),
+            chase_range: 0,
             script_value: 0,
             vars: std::collections::HashMap::new(),
             title_override: None,
@@ -523,7 +530,7 @@ pub(crate) fn spawn_one(
     group_idx: usize,
     npc_idx: usize,
 ) -> Option<i32> {
-    let (npc_id, loc, respawn_secs, respawn_random_secs) = {
+    let (npc_id, loc, respawn_secs, respawn_random_secs, chase_range) = {
         let template = world.data.spawn_data.spawns.get(spawn_idx)?;
         let def = template.groups.get(group_idx)?.npcs.get(npc_idx)?;
         let loc = resolve_location(
@@ -533,7 +540,13 @@ pub(crate) fn spawn_one(
             &template.groups[group_idx],
             def,
         );
-        (def.npc_id, loc, def.respawn_secs, def.respawn_random_secs)
+        (
+            def.npc_id,
+            loc,
+            def.respawn_secs,
+            def.respawn_random_secs,
+            def.chase_range,
+        )
     };
     let Some((x, y, z, heading)) = loc else {
         return None;
@@ -550,6 +563,7 @@ pub(crate) fn spawn_one(
         respawn_secs,
         respawn_random_secs,
         (spawn_idx, group_idx, npc_idx),
+        chase_range,
     )?;
     // `NpcSpawnTemplate.spawnNpc`: a leader brings its escort. Hooked here
     // rather than in `spawn_npc_entity` so a minion that itself declares
@@ -580,7 +594,7 @@ pub(crate) fn spawn_npc_at(
     z: i32,
     heading: i32,
 ) -> Option<i32> {
-    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0));
+    let oid = spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0), 0);
     if let Some(oid) = oid {
         announce_boss_spawn(world, oid);
     }
@@ -601,7 +615,7 @@ pub(crate) fn spawn_minion_npc_at(
     z: i32,
     heading: i32,
 ) -> Option<i32> {
-    spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0))
+    spawn_npc_entity(world, npc_id, x, y, z, heading, 0, 0, (0, 0, 0), 0)
 }
 
 /// `Attackable.onRespawn`'s champion lottery — the whole of Java's guard chain
@@ -656,6 +670,7 @@ fn spawn_npc_entity(
     respawn_secs: i32,
     respawn_random_secs: i32,
     spawn_ref: (usize, usize, usize),
+    chase_range: i32,
 ) -> Option<i32> {
     let t = world.data.npc_data.get(npc_id)?;
     // `initializeNpc`: monsters snap to the geodata surface unless it's more
@@ -693,6 +708,7 @@ fn spawn_npc_entity(
         respawn_random_secs,
         spawn_loc: (x, y, z),
         spawn_ref,
+        chase_range,
         script_value: 0,
         vars: std::collections::HashMap::new(),
         title_override: None,

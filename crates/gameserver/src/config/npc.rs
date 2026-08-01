@@ -42,14 +42,19 @@ pub struct NpcConfig {
     pub enable_random_enchant_effect: bool,
     /// `AggroDistanceCheckEnabled` — the chase leash (`AttackableAI.thinkAttack`):
     /// a monster dragged farther than the range below from its spawn drops
-    /// aggro and returns home. Disabled by default on this dist.
+    /// aggro and returns home. **True on this dist.**
     pub aggro_distance_check_enabled: bool,
-    /// `AggroDistanceCheckRange` — leash radius for a normal monster.
+    /// `AggroDistanceCheckRange` — leash radius for a normal monster. Overridden
+    /// per spawn line by `<npc chaseRange="…">` (see [`crate::model::npc::Npc`]).
     pub aggro_distance_check_range: i32,
     /// `AggroDistanceCheckRaids` — apply the leash to raid bosses too.
     pub aggro_distance_check_raids: bool,
     /// `AggroDistanceCheckRaidRange` — leash radius when the monster is a raid.
     pub aggro_distance_check_raid_range: i32,
+    /// `AggroDistanceCheckInstances` — apply the leash inside instances too.
+    /// False on this dist (and in Java's default): an instanced monster is
+    /// already boxed in by the instance itself, so it is never leashed.
+    pub aggro_distance_check_instances: bool,
     /// `AggroDistanceCheckRestoreLife` — heal to full HP/MP on returning home.
     pub aggro_distance_check_restore_life: bool,
     /// `VitalityConsumeByMob` / `VitalityConsumeByBoss` — the divisors in
@@ -121,6 +126,7 @@ impl Default for NpcConfig {
             aggro_distance_check_range: 1500,
             aggro_distance_check_raids: false,
             aggro_distance_check_raid_range: 3000,
+            aggro_distance_check_instances: false,
             aggro_distance_check_restore_life: true,
             vitality_consume_by_mob: 2250,
             raid_minion_respawn_time: 300_000,
@@ -175,6 +181,10 @@ impl NpcConfig {
             aggro_distance_check_raid_range: p.get_int(
                 "AggroDistanceCheckRaidRange",
                 d.aggro_distance_check_raid_range,
+            ),
+            aggro_distance_check_instances: p.get_bool(
+                "AggroDistanceCheckInstances",
+                d.aggro_distance_check_instances,
             ),
             aggro_distance_check_restore_life: p.get_bool(
                 "AggroDistanceCheckRestoreLife",
