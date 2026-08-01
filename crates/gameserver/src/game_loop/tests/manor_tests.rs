@@ -36,6 +36,7 @@ fn add_gludio(world: &mut World) {
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
+        siege_time_registration_end: 0,
         siege_date: 0,
         treasury: 0,
     }];
@@ -1367,6 +1368,7 @@ fn the_manor_admin_page_reports_the_period_and_the_costs() {
         ticket_buy_count: 0,
         first_mid_victory: false,
         time_registration_over: true,
+        siege_time_registration_end: 0,
         siege_date: 0,
         treasury: 0,
     };
