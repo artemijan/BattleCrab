@@ -903,6 +903,7 @@ pub(crate) fn on_ex_packet(world: &mut World, client_id: u32, body: &[u8]) {
                     -1,
                     world.max_characters_per_account,
                     &world.data.experience,
+                    &world.cursed_weapons,
                 );
                 session.send(body);
             }

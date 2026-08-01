@@ -1124,6 +1124,28 @@ pub(crate) fn register(world: &mut World, object_id: i32, kind: CompetitionType)
         return false;
     }
 
+    // Java `AbstractOlympiadGame.checkPlayer`: the owner of a cursed weapon is
+    // refused — "$c1 does not meet the participation requirements. The owner of
+    // $s2 cannot participate in the Olympiad."
+    let cursed_id = world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .map_or(0, |p| p.cursed_weapon_equipped_id);
+    if cursed_id != 0 {
+        if let Some(cid) = crate::game_loop::helpers::client_for_player(world, object_id)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(sp::system_message_with(
+                sm_ids::C1_DOES_NOT_MEET_THE_PARTICIPATION_REQUIREMENTS_THE_OWNER_OF_S2_CANNOT_PARTICIPATE_IN_THE_OLYMPIAD,
+                &[
+                    SmParam::PlayerName(info.name.clone()),
+                    SmParam::ItemName(cursed_id),
+                ],
+            ));
+        }
+        return false;
+    }
+
     // Registration closes 20 minutes before the window ends.
     let ms_to_end = world.olympiad.comp_end_tick.saturating_sub(world.tick) * 100;
     if ms_to_end < REG_CLOSE_BEFORE_END_MS {

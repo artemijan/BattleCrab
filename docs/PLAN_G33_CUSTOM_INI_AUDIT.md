@@ -247,7 +247,31 @@ And the title cap counts the `"BUFF SELL: "` prefix, so the message promising
 
 5 tests, 5 mechanisms sabotage-verified.
 
+## Slice 5 — auto potions
+
+`.apon` / `.apoff` and the one-second sweep that keeps a player topped up from
+their own potions. Three independent pools (HP 70 %, CP 70 %, MP 30 % here),
+each with an **ordered** id list that is a preference ranking: the loop takes
+the first potion the player actually carries. Drinking goes through the ordinary
+item-skill path, so the cast, the cooldown and the consumption are identical to
+using it by hand — which is also what makes the fixture realistic
+(`default_action = SKILL_REDUCE` + `immediate_effect`, exactly what the dist's
+potions carry; a fixture without them silently consumed nothing).
+
+**Java's "out of potions" message is noisier than it reads, and is kept
+verbatim.** Its `success` flag is set when a configured potion is merely
+*present* in the bag, not when one is drunk — so a player at full health with
+potions stays quiet, while one carrying none is told **every second, forever**.
+A test pins that, because "tidying" it would be a silent behaviour change an
+operator would notice.
+
+Java also *drops* rather than skips: dead, offline, or (with
+`AutoPotionsInOlympiad = false`) in a match removes the player from the loop
+entirely, so reviving does not resume it — `.apon` has to be typed again.
+
+6 tests, 5 mechanisms sabotage-verified.
+
 ## Remaining slices
 
-Three features, all in the **larger** tier: custom mail manager (a DB poll
-loop), auto-play and auto-potions (Classic auto-hunt, its own packet family).
+Two features: custom mail manager (a DB poll loop) and auto-play (Classic
+auto-hunt, its own packet family — the largest single item in the audit).

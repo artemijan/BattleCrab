@@ -502,6 +502,50 @@ impl ShotType {
 }
 
 impl Player {
+    /// Java `PlayerAppearance.getVisibleClanId()` and its crest/ally siblings:
+    /// while a cursed weapon is held the wielder shows **no pledge at all** —
+    /// clan id, both crests, ally id and ally crest all report 0. The demon is
+    /// deliberately untraceable to their clan for as long as they carry it.
+    pub fn visible_clan_id(&self) -> i32 {
+        if self.cursed_weapon_equipped_id != 0 {
+            0
+        } else {
+            self.clan_id
+        }
+    }
+
+    pub fn visible_clan_crest_id(&self) -> i32 {
+        if self.cursed_weapon_equipped_id != 0 {
+            0
+        } else {
+            self.clan_crest_id
+        }
+    }
+
+    pub fn visible_clan_crest_large_id(&self) -> i32 {
+        if self.cursed_weapon_equipped_id != 0 {
+            0
+        } else {
+            self.clan_crest_large_id
+        }
+    }
+
+    pub fn visible_ally_id(&self) -> i32 {
+        if self.cursed_weapon_equipped_id != 0 {
+            0
+        } else {
+            self.ally_id
+        }
+    }
+
+    pub fn visible_ally_crest_id(&self) -> i32 {
+        if self.cursed_weapon_equipped_id != 0 {
+            0
+        } else {
+            self.ally_crest_id
+        }
+    }
+
     /// Java `Player.isGM()` — `getAccessLevel().isGm()`.
     pub fn is_gm(&self, data: &GameData) -> bool {
         data.admin.is_gm(self.access_level)

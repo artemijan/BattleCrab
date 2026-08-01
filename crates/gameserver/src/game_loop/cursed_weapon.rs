@@ -169,22 +169,222 @@ pub(crate) fn try_pickup(
         .get_component::<Player>(&player_oid)
         .is_some_and(|p| p.cursed_weapon_equipped_id != 0);
     if already_cursed {
-        // Java erases the newly obtained weapon (and grants its existing one a
-        // stage bonus). The kill-count level-up is a later slice, so here the
-        // freshly grabbed weapon simply vanishes back to "not in world".
-        // TODO(G28): grant the wielded weapon `stageKills - 1` + increaseKills.
+        // `CursedWeaponsManager.activate`'s "cannot own 2 cursed swords" branch:
+        // the weapon already held gets a **full stage bonus** — Java sets its
+        // count to `stageKills - 1` and then calls `increaseKills`, so the very
+        // next increment trips the stage boundary and levels the skill — and
+        // the newly grabbed one is erased (`setPlayer` + `endOfLife`, which for
+        // a non-activated weapon just destroys the item and resets it).
+        let held_id = world
+            .objects
+            .get_component::<Player>(&player_oid)
+            .map_or(0, |p| p.cursed_weapon_equipped_id);
+        if let Some(held) = idx_by_item(world, held_id) {
+            world.cursed_weapons[held].nb_kills = world.cursed_weapons[held].stage_kills - 1;
+            increase_kills(world, held);
+        }
         world.cursed_weapons[idx].reset();
         let _ = client_id;
         return;
     }
 
-    // Curse the picker (equip + transform + skill + full heal + announce). The
-    // drop already armed the life task at the full-duration deadline; `activate`
-    // resets end_time to now + duration, so the picker restarts the clock.
-    // TODO(G28): Java preserves the drop's end_time (total on-ground + wielded
-    // life is one `duration`); the reset grants the ground-lying time back.
+    // Curse the picker (equip + transform + skill + full heal + announce).
+    // `activate` leaves `end_time` alone, so the picker inherits what is left of
+    // the deadline the drop armed — on-ground plus wielded time is one
+    // `duration`, as in Java.
     activate(world, idx, player_oid);
     arm_expiry(world, idx);
+}
+
+// ---------------------------------------------------------------------------
+// The wielder's own life: kills, and losing the weapon on death
+// ---------------------------------------------------------------------------
+
+/// `CursedWeaponsManager.increaseKills` → `CursedWeapon.increaseKills`: the
+/// wielder killed a player. Java bumps the kill count (which the client shows
+/// in the *PK counter* — `setPkKills(_nbKills)`, deliberately overwriting it),
+/// levels the weapon's skill on every `stageKills`-th kill up to the skill max,
+/// burns `durationLost` minutes off the remaining life, and persists.
+///
+/// The time penalty is the reason a cursed weapon punishes an active killer:
+/// each kill brings the expiry closer. Because this port arms a **one-shot**
+/// task at `end_time` (Java re-polls at a fixed rate), moving `end_time`
+/// earlier has to re-arm it — otherwise the shortened life is decorative and
+/// the weapon still runs to its original deadline.
+pub(crate) fn increase_kills(world: &mut World, idx: usize) {
+    let (player_id, stage_kills, skill_max_level, duration_lost) = {
+        let cw = &world.cursed_weapons[idx];
+        (
+            cw.player_id,
+            cw.stage_kills.max(1),
+            cw.skill_max_level.max(1),
+            cw.duration_lost,
+        )
+    };
+    world.cursed_weapons[idx].nb_kills += 1;
+    let nb_kills = world.cursed_weapons[idx].nb_kills;
+
+    if world.objects.has_component::<Player>(&player_id) {
+        // Java `setPkKills(_nbKills)`: the cursed kill tally *replaces* the PK
+        // count while the weapon is held (the pre-curse value was saved at
+        // `activate` and is put back at end-of-life).
+        if let Some(p) = world.objects.get_component_mut::<Player>(&player_id) {
+            p.pk_kills = nb_kills;
+        }
+        // Stage up: every `stageKills`-th kill, while a higher skill level
+        // exists. Java's `_nbKills <= _stageKills * (_skillMaxLevel - 1)` is the
+        // clamp — past it `giveSkill` would just re-grant the max level.
+        if nb_kills % stage_kills == 0 && nb_kills <= stage_kills * (skill_max_level - 1) {
+            give_skill(world, idx, player_id);
+        }
+        super::party::broadcast_user_info(world, player_id);
+    }
+
+    world.cursed_weapons[idx].end_time -= (duration_lost as i64) * MILLIS_PER_MINUTE;
+    super::admin::cursed_weapons::save_data(world, idx);
+    // `end_time` moved earlier — re-arm so the shortened life is real.
+    arm_expiry(world, idx);
+}
+
+/// The PvP-kill hook (Java `Player.onPlayerKill`, first branch): a wielder who
+/// kills a player scores the weapon and **skips normal PvP/PK reputation
+/// entirely** — Java `return`s before the olympiad, duel, siege and PVP-zone
+/// legs, so a cursed kill never awards pvp kills or karma and never counts as
+/// a PK. Returns `true` when it handled the kill, telling the caller to stop.
+pub(crate) fn on_player_kill(world: &mut World, killer_oid: i32, victim_oid: i32) -> bool {
+    let equipped = world
+        .objects
+        .get_component::<Player>(&killer_oid)
+        .map_or(0, |p| p.cursed_weapon_equipped_id);
+    // Java's `target.isPlayer()` — a slain *summon* does not score.
+    if equipped == 0 || !world.objects.has_component::<Player>(&victim_oid) {
+        return false;
+    }
+    let Some(idx) = idx_by_item(world, equipped) else {
+        return false;
+    };
+    increase_kills(world, idx);
+    true
+}
+
+/// `CursedWeaponsManager.drop` → `CursedWeapon.dropIt(killer)`: the wielder
+/// died. Java rolls `Rnd.get(100) <= disapearChance` — note the `<=`, so the
+/// configured 50 is really 51-in-100 — and on a hit the weapon leaves the world
+/// outright; otherwise it drops at the corpse for the next taker, keeping its
+/// remaining life and kill count (only `endOfLife` resets those).
+pub(crate) fn on_wielder_death(world: &mut World, victim_oid: i32, killer_oid: i32) {
+    let equipped = world
+        .objects
+        .get_component::<Player>(&victim_oid)
+        .map_or(0, |p| p.cursed_weapon_equipped_id);
+    if equipped == 0 {
+        return;
+    }
+    let Some(idx) = idx_by_item(world, equipped) else {
+        return;
+    };
+    if world.roll(100) <= world.cursed_weapons[idx].disappear_chance {
+        end_of_life(world, idx);
+        return;
+    }
+    drop_from_wielder(world, idx, victim_oid, killer_oid);
+}
+
+/// `CursedWeapon.dropIt(null, null, killer, false)` plus the restore tail of
+/// `dropIt(Creature)`: unequip and drop the weapon where the wielder fell, put
+/// their saved reputation/pk-kills back, lift the curse, and announce.
+fn drop_from_wielder(world: &mut World, idx: usize, victim_oid: i32, killer_oid: i32) {
+    let (item_id, skill_id, saved_rep, saved_pk) = {
+        let cw = &world.cursed_weapons[idx];
+        (
+            cw.item_id,
+            cw.skill_id,
+            cw.player_reputation,
+            cw.player_pk_kills,
+        )
+    };
+    let pos = world
+        .objects
+        .get_component::<Position>(&victim_oid)
+        .copied()
+        .or_else(|| {
+            world
+                .objects
+                .get_component::<Position>(&killer_oid)
+                .copied()
+        })
+        .unwrap_or(Position {
+            x: 0,
+            y: 0,
+            z: 0,
+            heading: 0,
+        });
+
+    // Take the weapon off the corpse: unequip, then remove from the bag.
+    if let Some(inv) = world.objects.get_component_mut::<Inventory>(&victim_oid) {
+        if let Some(item_oid) = inv
+            .items()
+            .iter()
+            .find(|i| i.item_id == item_id)
+            .map(|i| i.object_id)
+            && inv.paperdoll_slot_of(item_oid).is_some()
+        {
+            inv.unequip_item(item_oid);
+        }
+        inv.remove_item(item_id, 1);
+    }
+    // Reset the wielder (Java does this in both `dropIt` and its caller).
+    if let Some(p) = world.objects.get_component_mut::<Player>(&victim_oid) {
+        p.reputation = saved_rep;
+        p.pk_kills = saved_pk;
+        p.cursed_weapon_equipped_id = 0;
+    }
+    // `removeSkill()` — drop the weapon skill and revert the transform.
+    if let Some(book) = world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&victim_oid)
+    {
+        book.0.remove(&skill_id);
+    }
+    super::admin::transforms::remove_transform(world, victim_oid);
+    super::admin::refresh_skill_list(world, victim_oid);
+    if let Some(cid) = super::helpers::client_for_player(world, victim_oid)
+        && let Some(inv) = world.objects.get_component::<Inventory>(&victim_oid)
+    {
+        let list = crate::network::enter_world::item_list(inv, &world.data, false);
+        if let Some(cs) = world.clients.get(&cid) {
+            cs.send(list);
+        }
+    }
+    super::party::broadcast_user_info(world, victim_oid);
+
+    // On the ground it goes, at the corpse, exempt from auto-destroy.
+    let oid = spawn_ground_item(
+        world,
+        item_id,
+        1,
+        0,
+        pos.x,
+        pos.y,
+        pos.z,
+        0,
+        DropSource::CursedWeapon,
+    );
+    {
+        let cw = &mut world.cursed_weapons[idx];
+        cw.is_activated = false;
+        cw.is_dropped = true;
+        cw.dropped_item_oid = oid;
+        // `player_id`/`nb_kills`/`end_time` deliberately survive: Java only
+        // clears them in `endOfLife`, so the next taker inherits the tally.
+    }
+    super::admin::cursed_weapons::save_data(world, idx);
+
+    let announce = server_packets::system_message_with(
+        sm_ids::S2_WAS_DROPPED_IN_THE_S1_REGION,
+        &[SmParam::SysString(0), SmParam::ItemName(item_id)],
+    );
+    broadcast_to_all(world, &announce);
 }
 
 // ---------------------------------------------------------------------------
@@ -330,6 +530,32 @@ fn destroy_stray_cursed_items(world: &mut World, client_id: u32, object_id: i32)
         }
     }
     super::party::broadcast_user_info(world, object_id);
+}
+
+/// Java `isCursedWeaponEquipped()` — the curse bars trading, augmenting and
+/// anything else that would let the wielder launder the weapon or its profits.
+pub(crate) fn is_cursed(world: &World, object_id: i32) -> bool {
+    world
+        .objects
+        .get_component::<crate::model::Player>(&object_id)
+        .is_some_and(|p| p.cursed_weapon_equipped_id != 0)
+}
+
+/// `CursedWeaponsManager.isCursed(itemId)` — is this item id a cursed weapon
+/// at all (live or not)? Java gates item destruction on it.
+pub(crate) fn is_cursed_item(world: &World, item_id: i32) -> bool {
+    world.cursed_weapons.iter().any(|cw| cw.item_id == item_id)
+}
+
+/// `CursedWeaponsManager.saveData()` — persist every weapon that is in the
+/// world. Java's shutdown hook; the per-weapon row is otherwise only written
+/// when it changes hands or scores a kill.
+pub(crate) fn save_all(world: &World) {
+    for idx in 0..world.cursed_weapons.len() {
+        if world.cursed_weapons[idx].is_active() {
+            super::admin::cursed_weapons::save_data(world, idx);
+        }
+    }
 }
 
 /// Arm the expiry timer at the weapon's current `end_time` (the wielder's

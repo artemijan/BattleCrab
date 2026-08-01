@@ -4,6 +4,7 @@
 //! shared [`PropertiesParser`](commons::config::PropertiesParser). Ported
 //! incrementally: each milestone adds the ini files / keys its subsystem needs.
 
+pub mod auto_potions;
 pub mod champion;
 pub mod character;
 pub mod community_board;
@@ -22,6 +23,7 @@ pub mod rates;
 pub mod sell_buffs;
 pub mod server;
 
+pub use auto_potions::AutoPotionsConfig;
 pub use champion::ChampionConfig;
 pub use character::CharacterConfig;
 pub use community_board::CommunityBoardConfig;
@@ -90,6 +92,8 @@ pub struct CombatConfig {
     pub custom_npc: CustomNpcConfig,
     /// `Custom/SellBuffs.ini` — the player buff shop.
     pub sell_buffs: SellBuffsConfig,
+    /// `Custom/AutoPotions.ini` — the `.apon` self-healing loop.
+    pub auto_potions: AutoPotionsConfig,
 }
 
 /// Aggregate of every loaded config section, owned for the process lifetime
@@ -118,6 +122,7 @@ pub struct Config {
     pub random_spawns: RandomSpawnsConfig,
     pub custom_npc: CustomNpcConfig,
     pub sell_buffs: SellBuffsConfig,
+    pub auto_potions: AutoPotionsConfig,
 
     /// Network (subnet, host) pairs advertised to the login server.
     pub ip_config: IpConfig,
@@ -186,6 +191,7 @@ impl Config {
         let random_spawns = RandomSpawnsConfig::load_from(root);
         let custom_npc = CustomNpcConfig::load_from(root);
         let sell_buffs = SellBuffsConfig::load_from(root);
+        let auto_potions = AutoPotionsConfig::load_from(root);
         let ip_config = IpConfig::load_from(root);
         let hex = HexId::load_from(root, server.request_id);
         Self {
@@ -211,6 +217,7 @@ impl Config {
             random_spawns,
             custom_npc,
             sell_buffs,
+            auto_potions,
             ip_config,
             hex_id: hex.hex_id,
             server_id: hex.server_id,
@@ -242,6 +249,7 @@ impl Config {
             random_spawns: self.random_spawns.clone(),
             custom_npc: self.custom_npc.clone(),
             sell_buffs: self.sell_buffs.clone(),
+            auto_potions: self.auto_potions.clone(),
         }
     }
 }

@@ -132,6 +132,7 @@ pub fn char_selection_info(
     active_id: i32,
     max_characters: i32,
     exp: &crate::data::ExperienceData,
+    cursed_weapons: &[crate::model::cursed_weapon::CursedWeapon],
 ) -> Vec<u8> {
     let now = commons::util::now_millis();
     let mut w = PacketWriter::new();
@@ -207,7 +208,29 @@ pub fn char_selection_info(
         w.write_u8(inv.paperdoll_enchant_level(PaperdollSlot::RHand).min(127) as u8); // rhand weapon enchant (capped 127)
         w.write_i32(0); // augmentation option 1
         w.write_i32(0); // augmentation option 2
-        w.write_i32(0); // transform
+        // Transform id — the field the client uses to draw a polymorphed model
+        // on the selection screen.
+        //
+        // **Deliberate deviation from Java/retail.** L2J writes a hard 0 here,
+        // with the line it replaced left in as a comment:
+        //
+        //     // buffer.writeInt(charInfoPackage.getTransformId());
+        //     buffer.writeInt(0); // Currently on retail when you are on
+        //                         // character select you don't see your
+        //                         // transformation.
+        //
+        // We send it for **cursed weapons only**, so that someone who logged
+        // out holding Zariche/Akamanah sees the demon form at selection and
+        // knows the curse is still on that character before they enter the
+        // world. Ordinary transforms are not persisted per character anyway, so
+        // this is the one case where the id is knowable here — it comes from
+        // the `cursed_weapons` wielder rows, not from any character column.
+        let transform_id = cursed_weapons
+            .iter()
+            .find(|cw| cw.is_activated && cw.player_id == c.object_id)
+            .map(|cw| if cw.item_id == 8689 { 302 } else { 301 })
+            .unwrap_or(0);
+        w.write_i32(transform_id); // transform
         w.write_i32(0); // pet npc id
         w.write_i32(0); // pet level
         w.write_i32(0); // pet food

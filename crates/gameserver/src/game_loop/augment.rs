@@ -126,6 +126,12 @@ pub(crate) fn handle_refine(world: &mut World, client_id: u32, body: &[u8]) {
 
     let fail = |world: &mut World| send(world, client_id, sp::ex_variation_result(0, 0, false));
 
+    // Java `AbstractRefinePacket.isValid`: no augmenting while cursed.
+    if super::cursed_weapon::is_cursed(world, player) {
+        fail(world);
+        return;
+    }
+
     let (Some(mineral_id), Some(fee_item_id)) = (
         item_id_of(world, player, mineral_obj),
         item_id_of(world, player, fee_obj),

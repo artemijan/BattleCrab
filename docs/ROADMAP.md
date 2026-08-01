@@ -1145,8 +1145,30 @@ to another sword), and a fixed `S2_WAS_DROPPED_IN_THE_S1_REGION` id (1815, not
 `endOfLife` branch** the boot-armed timer makes reachable: a curse that runs
 out while its owner is away restores their reputation/pk-kills and deletes the
 weapon + the cursed/transform skills straight in the DB (the skill half is
-Rust-only — Java's `addSkill(…, false)` never persists them). Still deferred:
-kill-count level-up, hungry decay, drop-on-PK-death.
+Rust-only — Java's `addSkill(…, false)` never persists them).
+
+**Progress (2026-08-01, parity pass):** the rest of `CursedWeapon` /
+`CursedWeaponsManager` landed, so the system now matches Java end to end.
+**Lifecycle:** `increaseKills` (PvP kill scores the weapon, tally overwrites the
+PK counter, skill steps up on each `stageKills` boundary, `durationLost` burns
+off the life — and because this port arms a *one-shot* task rather than Java's
+fixed-rate poll, the shortened deadline re-arms or it would be decorative),
+hooked into `onPlayerKill` **ahead of** the olympiad/duel/siege/PVP-zone bails
+with Java's early return so a cursed kill awards no pvp kills and no karma;
+`dropIt(killer)` on wielder death (`Rnd.get(100) <= disapearChance` — note the
+`<=`, so 50 is 51-in-100) replacing the ordinary `onDieDropItem`; the "cannot
+own 2 cursed swords" stage bonus; the `EXPELLED` party removal; shutdown
+`saveData()`; and `end_time` inheritance — Java's `activate` never touches
+`_endTime`, so a ground pickup inherits the drop's remaining life while
+`//cw_add` starts a fresh one (which moved task-arming out of `activate` to its
+callers). **Gates:** Say2 trade/shout, private store buy + sell, augment,
+destroy-item, olympiad registration, the `PlayerAppearance.getVisible*` pledge
+blanking (clan id, both crests, ally id + crest all report 0), and the mutual
+level-21 attack protection. **Not ported, deliberately:** `MaxHpFinalizer`'s
+HP-limit lift and `PlayerStat`'s karma-recovery exemption — neither mechanism
+exists in this port yet (no `Config.MAX_HP` cap, no karma-on-XP-gain), so the
+exemption would be dead code. Still open: ground-item persistence across a
+restart, the region-name SysString, and `controlPlayers()`'s boot sweep.
 **Progress (2026-07-26):** the **events engine — slice 1** landed
 ([PLAN_G28_EVENTS_ENGINE.md](PLAN_G28_EVENTS_ENGINE.md)): the event lifecycle
 (`EventManager` on `World`, `//event_start`/`//event_stop` GM trigger — the dist

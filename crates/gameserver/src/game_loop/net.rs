@@ -99,6 +99,9 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     }
     // deleteMe → World.removeVisibleObject: DeleteObject to everyone watching.
     super::visibility::on_leave_world(world, player_object_id);
+    // `.apon` does not survive a logout — Java's task manager holds `Player`
+    // references and drops anyone offline on its next sweep.
+    super::auto_potions::remove(world, player_object_id);
     // A buff shop dies with its seller — the flag also gates `canOpenPrivateStore`,
     // so a stale one would follow the character into their next session.
     super::sell_buffs::clear(world, player_object_id);
@@ -1190,6 +1193,7 @@ pub(crate) fn on_characters_loaded(
             -1,
             world.max_characters_per_account,
             &world.data.experience,
+            &world.cursed_weapons,
         );
         s.send(body);
     }
