@@ -369,3 +369,64 @@ fn learned_crit_damage_passive_folds_into_stat_modifiers() {
         "a DIFF effect never touches the multiplier"
     );
 }
+
+/// G34 S4 sub-slice 2 — `Formulas.calcCritDamage` reads the **skill** crit
+/// stats when a skill is involved, not `CRITICAL_DAMAGE`. The port's physical
+/// branch was a flat `2.0`, i.e. both its stats pinned at identity, so Heroic
+/// Berserker (396) — the learnable `PhysicalSkillCriticalDamage` source — did
+/// nothing.
+///
+/// Both sides are asserted: Java multiplies the attacker's stat by the
+/// *target's* defence twin, so wiring only the attacker half looks right until
+/// someone equips the defence.
+#[test]
+fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+    let (mut world, ..) = test_world();
+    let attacker = 6301;
+    let target = 6302;
+    let _a = ingame_player_access(&mut world, 1, attacker, 0);
+    let _b = ingame_player_access(&mut world, 2, target, 0);
+
+    let base = crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false);
+    assert_eq!(base, 2.0, "Java's `2 * 1 * 1` with no stats");
+
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&attacker)
+        .cloned()
+        .expect("modifiers");
+    mods.mul.insert(Stat::PhysicalSkillCriticalDamage, 1.5);
+    // The autoattack stat must NOT be read on this path — set it to something
+    // conspicuous to prove the branch picks the skill stat.
+    mods.mul.insert(Stat::CriticalDamage, 9.0);
+    world.objects.add_components(&attacker, mods);
+    assert_eq!(
+        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false),
+        3.0,
+        "2 × 1.5 — the skill stat, not CRITICAL_DAMAGE"
+    );
+
+    let mut tmods = world
+        .objects
+        .get_component::<StatModifiers>(&target)
+        .cloned()
+        .expect("modifiers");
+    tmods
+        .mul
+        .insert(Stat::DefencePhysicalSkillCriticalDamage, 0.5);
+    world.objects.add_components(&target, tmods);
+    assert_eq!(
+        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, false),
+        1.5,
+        "…and the target's defence twin divides it back down"
+    );
+
+    // The magic branch is unchanged and still reads its own pair.
+    assert_eq!(
+        crate::game_loop::combat::crit_damage_skill(&world, attacker, target, true),
+        2.0,
+        "a magic skill is unaffected by the physical-skill stats"
+    );
+}

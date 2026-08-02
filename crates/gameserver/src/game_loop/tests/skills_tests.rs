@@ -5784,3 +5784,83 @@ fn a_trait_resistance_lowers_the_lethal_chance() {
         "a 50% SHOCK resistance halves the kill chance and the same roll misses"
     );
 }
+
+/// G34 S4 sub-slice 2 — `PHYSICAL_SKILL_POWER` / `MAGICAL_SKILL_POWER`, the
+/// last multiplier a skill's damage passes through. Focus Skill Mastery (334)
+/// is the learnable physical source; the magical one is item-only here.
+///
+/// Java applies the physical stat from each `PhysicalAttack`-family *effect
+/// handler* but the magical one from **inside `calcMagicDam`** — so every
+/// caller of that function gets it, HpDrain included, even though HpDrain's own
+/// handler never mentions the stat. Both damage paths are asserted for that
+/// reason.
+#[test]
+fn the_skill_power_stats_scale_finished_skill_damage() {
+    use crate::model::components::StatModifiers;
+    use crate::model::stats::Stat;
+
+    // Physical: Power Strike (3) against a mob, with and without the stat.
+    let damage_with = |stat: Option<(Stat, f64)>, skill_id: i32, caster: i32| -> f64 {
+        let (mut world, ..) = test_world();
+        world.data = crate::data::GameData::load_from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../dist/game/"
+        ));
+        let _rx = ingame_player_access(&mut world, 1, caster, 0);
+        let npc = crate::model::npc::FIRST_NPC_OBJECT_ID + 7801;
+        add_test_npc(&mut world, npc, 20001, "Monster", 20, 0, 0, 0);
+        // A deep HP pool: the point is the *multiplier*, and the fixture mob's
+        // default 100 HP clamps the boosted hit to "everything it had left",
+        // which reads as a passing test right up until it isn't.
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&npc) {
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+        }
+        if let Some((s, v)) = stat {
+            let mut mods = world
+                .objects
+                .get_component::<StatModifiers>(&caster)
+                .cloned()
+                .expect("modifiers");
+            mods.mul.insert(s, v);
+            world.objects.add_components(&caster, mods);
+        }
+        let before = pvit_npc_hp(&world, npc);
+        let skill = world
+            .data
+            .skill_data
+            .get(skill_id, 1)
+            .cloned()
+            .expect("skill");
+        world.forced_rolls.extend([50; 12]);
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, caster, npc, &skill);
+        before - pvit_npc_hp(&world, npc)
+    };
+
+    const POWER_STRIKE: i32 = 3;
+    let plain = damage_with(None, POWER_STRIKE, 6401);
+    let boosted = damage_with(Some((Stat::PhysicalSkillPower, 2.0)), POWER_STRIKE, 6401);
+    assert!(plain > 0.0, "the skill deals damage at all: {plain}");
+    assert!(
+        (boosted - plain * 2.0).abs() < 1.0,
+        "PHYSICAL_SKILL_POWER ×2 doubles it ({plain} → {boosted})"
+    );
+
+    // Magical: Wind Strike (1177), whose multiplier lives inside calcMagicDam.
+    const WIND_STRIKE: i32 = 1177;
+    let plain_m = damage_with(None, WIND_STRIKE, 6402);
+    let boosted_m = damage_with(Some((Stat::MagicalSkillPower, 2.0)), WIND_STRIKE, 6402);
+    assert!(plain_m > 0.0, "the nuke deals damage at all: {plain_m}");
+    assert!(
+        (boosted_m - plain_m * 2.0).abs() < 1.0,
+        "MAGICAL_SKILL_POWER ×2 doubles it ({plain_m} → {boosted_m})"
+    );
+}
+
+fn pvit_npc_hp(world: &World, oid: i32) -> f64 {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0)
+}
