@@ -2051,6 +2051,31 @@ fn build_skill(
                                 _ => Vec::new(),
                             }
                         }
+                        "ChameleonRest" => {
+                            match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::ChameleonRest { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            }
+                        }
+                        "ManaHealOverTime" => {
+                            match (
+                                param("power"),
+                                value_at(params, "ticks", level)
+                                    .and_then(|v| v.parse::<i32>().ok()),
+                            ) {
+                                (Some(power), Some(ticks)) if ticks > 0 => {
+                                    vec![SkillEffect::ManaHealOverTime { power, ticks }]
+                                }
+                                _ => Vec::new(),
+                            }
+                        }
+                        "RebalanceHP" => vec![SkillEffect::RebalanceHp],
                         "ManaDamOverTime" => {
                             match (
                                 param("power"),
@@ -4495,8 +4520,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 173 name(s), 28 learnable
-    /// skill(s) affected, 1695 reachable.
+    /// the work list, worst first. Category totals: 170 name(s), 24 learnable
+    /// skill(s) affected, 1684 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4533,14 +4558,16 @@ mod coverage_census {
     /// → 173 at sub-slice 10: `OpenDoor` and `OpenChest`, i.e. the whole of
     /// Unlock (27) — which also needed the `DOOR_TREASURE` target type, so
     /// the target axis loses its last learnable entry too.
+    /// → 170 at sub-slice 11: the sustain family — `ChameleonRest` (Relax
+    /// without its HP-full stop, plus `SILENT_MOVE`), `ManaHealOverTime` (the
+    /// mirror of the MP drain) and `RebalanceHP` (Balance Life, which is a
+    /// redistribution rather than a heal).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
-        ("ManaHealOverTime", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
         ("Betray", 1),
         ("CallParty", 1),
-        ("ChameleonRest", 1),
         ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
         ("PhysicalAttackHpLink", 1),
@@ -4548,7 +4575,6 @@ mod coverage_census {
         ("PvpMagicalSkillDamageBonus", 1),
         ("PvpPhysicalAttackDamageBonus", 1),
         ("PvpPhysicalSkillDamageBonus", 1),
-        ("RebalanceHP", 1),
         ("SafeFallHeight", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
@@ -4626,7 +4652,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 173, 28, 1695),
+            ("effect", &gaps.effects, EFFECTS, 170, 24, 1684),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4678,7 +4704,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            30,
+            26,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

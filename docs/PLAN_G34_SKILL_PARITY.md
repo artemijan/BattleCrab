@@ -857,6 +857,39 @@ declares no `<acquire>` at all, so there was no exp to withhold either. The
 test now loads a real table and gives the chest a reward, which turns the
 sabotage from "0 vs −1" into "0 vs 500".
 
+#### Sub-slice 11 ✅ — the sustain family
+
+- **`ChameleonRest`** (296) is `Relax` with two differences that matter. It
+  carries `SILENT_MOVE` on top of `RELAXING`, so resting under it hides you
+  from a monster's pre-emptive aggro — that *is* the skill, per its own
+  description. And it has **no HP-full stop**: Relax retires itself once there
+  is nothing left to heal, while this one runs until you stand or run dry. A
+  port that reused Relax's arm wholesale would switch the skill off exactly
+  when a healthy player wanted to hide.
+- **`ManaHealOverTime`** (Force Meditation 441, Invocation 1430, Soul Harmony
+  1480) — the mirror of `ManaDamOverTime`. Java's two early-outs are
+  asymmetric and both were kept: a *positive* power stops at full MP, a
+  *negative* one stops when the tick would reach zero, and the write floors at
+  **1** rather than 0, so a drain wearing this handler can never empty a pool.
+- **`RebalanceHP`** (Balance Life 1043) — pool every living party member's HP
+  (plus pets and servitors) in range, take the party's average *percentage*,
+  and set everyone to it. A **redistribution, not a heal**: the total is
+  conserved, so the caster at full HP comes out of it worse. Only a member
+  whose HP goes *up* is clamped by `MAX_RECOVERABLE_HP`; a member losing HP is
+  written unconditionally.
+
+Census: effect names **173 → 170**, learnable-affected **28 → 24**, headline
+**30 → 26**. All five new tests sabotage-verified.
+
+The test-trap streak continued, and this one is the sharpest of the three:
+`balance_life_without_a_party_does_nothing` originally used a **solo caster**,
+and a solo rebalance is arithmetically a no-op — the average of one member is
+that member's own percentage, so `new_hp == cur_hp` whether the `party != null`
+guard is there or not. Swapping the "party of one" fallback in left the test
+green. Giving the caster a **pet** makes the guard observable (under the
+fallback the pair rebalance against each other; under Java's guard neither
+moves), and the sabotage then reads 250 → 625.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
@@ -866,7 +899,8 @@ sabotage from "0 vs −1" into "0 vs 500".
   `PhysicalAttackHpLink`, `PolearmSingleTarget`, `RebalanceHP`,
   `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
   `Pvp*DamageBonus` trio (needs `calculatePvpPveBonus` built from scratch).
-  `OpenChest`/`OpenDoor` came off this list at sub-slice 10.
+  `OpenChest`/`OpenDoor` came off at sub-slice 10; `ChameleonRest`,
+  `ManaHealOverTime` and `RebalanceHP` at sub-slice 11.
   `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,
