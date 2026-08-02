@@ -91,7 +91,7 @@
 			<npc id="21564" x="54654" y="-56764" z="-3338" heading="51335" respawnTime="30sec" /> <!-- Skull Collector -->
 			<npc id="21564" x="55068" y="-55569" z="-3267" heading="10836" respawnTime="30sec" /> <!-- Skull Collector -->
 			<npc id="21564" x="55648" y="-57584" z="-3447" heading="45947" respawnTime="30sec" /> <!-- Skull Collector -->
-			<npc id="21564" x="54188" y="-55515" z="-3622" respawnTime="30sec" /> <!-- Skull Collector -->
+			<npc id="21564" x="54188" y="-55515" z="-3132" respawnTime="30sec" /> <!-- Skull Collector -->
 			<npc id="21564" x="55899" y="-56419" z="-3459" heading="8814" respawnTime="30sec" /> <!-- Skull Collector -->
 			<npc id="21568" x="55306" y="-57356" z="-3431" heading="60009" respawnTime="30sec" /> <!-- Devil Bat -->
 			<npc id="21568" x="53636" y="-55919" z="-3054" heading="56268" respawnTime="30sec" /> <!-- Devil Bat -->
@@ -464,7 +464,7 @@
 			<npc id="21594" x="49551" y="-35545" z="-1449" heading="33544" respawnTime="30sec" /> <!-- Vampire Warlord -->
 			<npc id="21594" x="50711" y="-37412" z="-2047" respawnTime="30sec" /> <!-- Vampire Warlord -->
 			<npc id="21594" x="49116" y="-37438" z="-1693" heading="62765" respawnTime="30sec" /> <!-- Vampire Warlord -->
-			<npc id="21588" x="49705" y="-37056" z="-2047" respawnTime="30sec" /> <!-- Vampire Wizard -->
+			<npc id="21588" x="49705" y="-37056" z="-1676" respawnTime="30sec" /> <!-- Vampire Wizard -->
 			<npc id="21588" x="49397" y="-36101" z="-1529" heading="39775" respawnTime="30sec" /> <!-- Vampire Wizard -->
 			<npc id="21588" x="48283" y="-36647" z="-1343" heading="2449" respawnTime="30sec" /> <!-- Vampire Wizard -->
 			<npc id="21589" x="48595" y="-37438" z="-1660" heading="39650" respawnTime="30sec" /> <!-- Vampire Wizard -->

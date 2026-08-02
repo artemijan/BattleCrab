@@ -10,7 +10,7 @@
 			<npc id="21650" x="193949" y="-60771" z="-2906" heading="7849" respawnTime="45sec" /> <!-- Swampland Watchman -->
 			<npc id="21646" x="188339" y="-63922" z="-3034" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
 			<npc id="21646" x="187926" y="-63620" z="-2903" heading="47093" respawnTime="45sec" /> <!-- Wandering Ghost of Abyss -->
-			<npc id="21647" x="188540" y="-63922" z="-3034" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
+			<npc id="21647" x="188540" y="-63922" z="-2780" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
 			<npc id="21647" x="190035" y="-63235" z="-2847" heading="62607" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
 			<npc id="21647" x="189144" y="-63566" z="-3034" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
 			<npc id="21647" x="189308" y="-62996" z="-2795" heading="44862" respawnTime="45sec" /> <!-- Wandering Evil Thoughts of Abyss -->
