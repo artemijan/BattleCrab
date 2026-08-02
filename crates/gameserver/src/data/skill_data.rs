@@ -128,6 +128,8 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // parses rather than losing its buff to the empty-effects guard; there is
     // deliberately no consumer, because Java has none either.
     ("CubicMastery", Stat::MaxCubic),
+    ("LimitHp", Stat::MaxRecoverableHp),
+    ("LimitCp", Stat::MaxRecoverableCp),
     ("AreaDamage", Stat::DamageZoneVuln),
     ("TransferDamageToSummon", Stat::TransferDamageSummonPercent),
     ("CounterPhysicalSkill", Stat::VengeanceSkillPhysicalDamage),
@@ -1834,6 +1836,18 @@ fn build_skill(
                         // lives in `Player.isLucky()`, which asks whether the
                         // *buff* is present, so all this has to do is land.
                         "Lucky" => vec![SkillEffect::Lucky],
+                        // `CpHealPercent` — a share of **max CP**, clamped by
+                        // `getMaxRecoverableCp()`. `power == 100` is the full
+                        // pool (Java special-cases it to the same number).
+                        "CpHealPercent" => param("power")
+                            .map(|power| vec![SkillEffect::CpHealPercent { power }])
+                            .unwrap_or_default(),
+                        // `HpByLevel` heals the **effector**, not the effected
+                        // — Life Scavenge (46) and Corpse Life Drain (1151) top
+                        // the *caster* up off a corpse.
+                        "HpByLevel" => param("power")
+                            .map(|power| vec![SkillEffect::HpByLevel { power }])
+                            .unwrap_or_default(),
                         // `MpVampiricAttack` pumps **two** values from one
                         // `<amount>`: the percentage (÷100) and a `sum`
                         // (`amount × chance`, default chance 30 — "Classic:
@@ -4461,8 +4475,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 182 name(s), 39 learnable
-    /// skill(s) affected, 1752 reachable.
+    /// the work list, worst first. Category totals: 178 name(s), 33 learnable
+    /// skill(s) affected, 1737 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4490,13 +4504,12 @@ mod coverage_census {
     /// is the mechanic).
     /// → 182 at sub-slice 7: `CriticalRatePositionBonus`, `MpVampiricAttack`
     /// and `CubicMastery` (whose `MAX_CUBIC` nothing in Java reads).
+    /// → 178 at sub-slice 8: the heal-ceiling family — `LimitHp`/`LimitCp`
+    /// (`MAX_RECOVERABLE_*`, which every heal clamp now honours),
+    /// `CpHealPercent` and `HpByLevel`.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("Bluff", 2),
-        ("CpHealPercent", 2),
-        ("HpByLevel", 2),
-        ("LimitCp", 2),
-        ("LimitHp", 2),
         ("ManaHealOverTime", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
@@ -4592,7 +4605,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 182, 39, 1752),
+            ("effect", &gaps.effects, EFFECTS, 178, 33, 1737),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4644,7 +4657,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            41,
+            35,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

@@ -157,6 +157,14 @@ pub enum Stat {
     /// `Config.ALLOWED_CUBIC_COUNT` instead. Registered so the effect parses
     /// and the skill's buff is not dropped whole, with no consumer — the same
     /// shape as `effect_flag::ABNORMAL_SHIELD`.
+    /// Java `Stat.MAX_RECOVERABLE_HP` / `_CP` — the ceiling a **heal** may
+    /// restore to, `getValue(stat, getMaxHp())` so identity is the full pool.
+    /// Noblesse Harmony (1326) and Symphony (1327) grant them **negative**
+    /// (`PER −30` / `−40`), so under those auras you can only be healed back to
+    /// 70 % HP / 60 % CP — the name is literal, and the learnable sources are
+    /// restrictions rather than bonuses.
+    MaxRecoverableHp,
+    MaxRecoverableCp,
     MaxCubic,
     MaxBuffSlots,
     DamageZoneVuln,

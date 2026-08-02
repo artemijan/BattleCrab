@@ -520,6 +520,18 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `CpHealPercent` — restore a share of the target's **max CP**, clamped
+    /// by `MAX_RECOVERABLE_CP` (Victories of Pa'agrio 1414, Pa'agrio's Fist
+    /// 1416).
+    CpHealPercent {
+        power: f64,
+    },
+    /// `HpByLevel` — a flat HP restore on the **effector**, i.e. the caster,
+    /// not the target (Life Scavenge 46, Corpse Life Drain 1151: you drain a
+    /// corpse to heal *yourself*). Reads `<power>`, not `<amount>`.
+    HpByLevel {
+        power: f64,
+    },
     /// `Lucky` (194) — an **empty effect**: Java's handler carries only a
     /// `canStart` player guard and no mechanic at all. `Player.isLucky()` is
     /// `level <= 9 && isAffectedBySkill(194)`, so the buff's *presence* is the

@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 153 | **182 unhandled** (1 752 reachable skills, **29 learnable names**) |
+| Effect handler names used by dist skills | **335** | 157 | **178 unhandled** (1 737 reachable skills, **25 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -751,6 +751,29 @@ Census: effect names **185 → 182**, learnable-affected **43 → 39**, headline
 **Not portable yet:** `SafeFallHeight` (Acrobatics 173) needs `Stat.FALL`, whose
 consumer is fall damage — **which this port does not implement at all**. Left
 out rather than registered, so the census keeps naming it.
+
+#### Sub-slice 8 ✅ — the heal ceiling
+
+Four interlocking effects: the cap and two heals that read it.
+
+- **`LimitHp` / `LimitCp` → `MAX_RECOVERABLE_HP` / `_CP`** — the ceiling a
+  **heal** may restore to (`getValue(stat, getMaxHp())`, identity the full
+  pool). The learnable sources are **restrictions**: Noblesse Harmony (1326)
+  and Symphony (1327) grant them `PER −30` / `−40`, so under those auras you
+  can only be healed back to 70 % HP and 60 % CP. The port clamped heals to the
+  raw pool, which is identical **until someone casts them** — the reason this
+  looked correct for so long.
+- **`CpHealPercent`** (Victories of Pa'agrio 1414) — a share of **max CP**,
+  clamped by `MAX_RECOVERABLE_CP`. Java's guards are dead / door / *HP*-blocked
+  — the last is not a typo, the CP heal reads `isHpBlocked`.
+- **`HpByLevel`** (Life Scavenge 46, Corpse Life Drain 1151) heals the
+  **effector**, not the effected: you drain a corpse to top *yourself* up.
+  Every other heal in the family reads `effected`, so pointing this one at the
+  target would heal the corpse. It also clamps to `getMaxHp()` rather than the
+  recoverable cap — the one heal here that ignores it, ported as written.
+
+Census: effect names **182 → 178**, learnable-affected **39 → 33**, headline
+**41 → 35**. Sabotage-verified both the cap and the heal direction.
 
 #### Remaining sub-slices ⏳
 

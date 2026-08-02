@@ -150,6 +150,27 @@ pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
     (world.roll(100) as f64) < chance
 }
 
+/// Java `CreatureStat.getMaxRecoverableHp()` / `getMaxRecoverableCp()` —
+/// `getValue(MAX_RECOVERABLE_*, getMaxHp()/getMaxCp())`, the ceiling a **heal**
+/// may restore to.
+///
+/// Identity is the full pool, so this only bites under Noblesse Harmony (1326)
+/// / Symphony (1327), which grant it `PER −30` / `−40`: you can be healed back
+/// to 70 % HP and 60 % CP and no further. Java uses it in every heal clamp, and
+/// also as the cap on HP/MP *absorbed* by vampiric attacks.
+pub(crate) fn max_recoverable(
+    world: &World,
+    object_id: i32,
+    stat: crate::model::stats::Stat,
+    base: f64,
+) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .map(|m| crate::model::finalize(m, stat, base))
+        .unwrap_or(base)
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -854,6 +875,81 @@ pub(crate) fn apply_skill_effects(
                 }
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
+            // `CpHealPercent.instant` — a share of the target's **max CP**,
+            // clamped by `getMaxRecoverableCp()`. Java bails on a dead target,
+            // a door and an HP-blocked one (the last is not a typo: the CP heal
+            // reads `isHpBlocked`).
+            SkillEffect::CpHealPercent { power } => {
+                use crate::model::components::PlayerVitals;
+                if world
+                    .objects
+                    .get_component::<Vitals>(&target_oid)
+                    .is_none_or(|v| v.dead)
+                    || world
+                        .objects
+                        .has_component::<crate::model::door::Door>(&target_oid)
+                    || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
+                {
+                    continue;
+                }
+                let Some(cp) = world
+                    .objects
+                    .get_component::<PlayerVitals>(&target_oid)
+                    .copied()
+                else {
+                    // NPCs have no CP pool at all.
+                    continue;
+                };
+                let max_cp = cp.max_cp as f64;
+                let amount = if *power == 100.0 {
+                    max_cp
+                } else {
+                    max_cp * *power / 100.0
+                };
+                let ceiling = max_recoverable(
+                    world,
+                    target_oid,
+                    crate::model::stats::Stat::MaxRecoverableCp,
+                    max_cp,
+                );
+                let amount = amount.min((ceiling - cp.cur_cp).max(0.0));
+                if amount > 0.0 {
+                    if let Some(v) = world
+                        .objects
+                        .get_component_mut::<PlayerVitals>(&target_oid)
+                    {
+                        v.cur_cp += amount;
+                    }
+                    broadcast_vitals(world, target_oid);
+                }
+            }
+            // `HpByLevel.instant` — heals the **effector**. Life Scavenge (46)
+            // and Corpse Life Drain (1151) drain a corpse to top the *caster*
+            // up, so the target is only the corpse being consumed.
+            SkillEffect::HpByLevel { power } => {
+                let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
+                    continue;
+                };
+                // Java clamps to `getMaxHp()` here, **not** to
+                // `getMaxRecoverableHp()` — the one heal in this family that
+                // ignores the recoverable cap. Ported as written.
+                let restored = ((v.cur_hp + *power).min(v.max_hp as f64) - v.cur_hp).trunc();
+                if restored <= 0.0 {
+                    continue;
+                }
+                if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
+                    v.cur_hp += restored;
+                }
+                if let Some(cid) = client_for_player(world, caster_oid)
+                    && let Some(cs) = world.clients.get(&cid)
+                {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::S1_HP_HAS_BEEN_RESTORED,
+                        &[SmParam::Int(restored as i32)],
+                    ));
+                }
+                broadcast_vitals(world, caster_oid);
+            }
             SkillEffect::Heal { power } => {
                 let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
@@ -901,10 +997,25 @@ pub(crate) fn apply_skill_effects(
                     }
                     continue;
                 }
+                // `Heal.java`: `min(amount, max(0, getMaxRecoverableHp() -
+                // getCurrentHp()))` — the ceiling is the *recoverable* cap, not
+                // the pool, which is what Noblesse Harmony/Symphony lower.
+                let ceiling = {
+                    let base = world
+                        .objects
+                        .get_component::<Vitals>(&target_oid)
+                        .map(|v| v.max_hp as f64)
+                        .unwrap_or(0.0);
+                    max_recoverable(
+                        world,
+                        target_oid,
+                        crate::model::stats::Stat::MaxRecoverableHp,
+                        base,
+                    )
+                };
                 let healed = {
                     let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                    // Overheal clamp (`Heal.java`).
-                    let amount = amount.min((vitals.max_hp as f64 - vitals.cur_hp).max(0.0));
+                    let amount = amount.min((ceiling - vitals.cur_hp).max(0.0));
                     vitals.cur_hp += amount;
                     amount
                 };

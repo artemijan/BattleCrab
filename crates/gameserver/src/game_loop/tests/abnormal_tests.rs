@@ -2039,3 +2039,128 @@ fn mp_vampiric_drains_on_skills_not_melee() {
         mp(&world)
     );
 }
+
+/// G34 S4 sub-slice 8 — `LimitHp`/`LimitCp` (`MAX_RECOVERABLE_HP`/`_CP`), the
+/// ceiling a **heal** may restore to.
+///
+/// The learnable sources are *restrictions*: Noblesse Harmony (1326) and
+/// Symphony (1327) grant them `PER −30` / `−40`, so under those auras you can
+/// only be healed back to 70 % HP and 60 % CP. A port that clamps heals to the
+/// raw pool — as this one did — behaves identically until someone casts them.
+#[test]
+fn limit_hp_caps_how_far_a_heal_can_restore() {
+    use crate::model::stats::Stat;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut heal = cc_skill(9391, SkillEffect::Heal { power: 10_000.0 }, "NONE");
+    heal.effect_point = 100;
+    heal.is_debuff = false;
+    world.data.skill_data.insert_for_test(heal);
+
+    let set_hp = |world: &mut World, cur: f64| {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+            v.max_hp = 1000;
+            v.cur_hp = cur;
+        }
+    };
+    let hp = |world: &World| {
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+
+    // Unlimited: a huge heal fills the pool.
+    set_hp(&mut world, 100.0);
+    land(&mut world, 9391, CASTER);
+    assert_eq!(hp(&world), 1000.0, "no cap → heal to full");
+
+    // Noblesse Harmony's `PER −30` → `mul` 0.7 on MAX_RECOVERABLE_HP.
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    mods.mul.insert(Stat::MaxRecoverableHp, 0.7);
+    world.objects.add_components(&CASTER, mods);
+    set_hp(&mut world, 100.0);
+    land(&mut world, 9391, CASTER);
+    assert_eq!(
+        hp(&world),
+        700.0,
+        "the same heal now stops at 70 % — the cap is the point of the skill"
+    );
+
+    // Already above the cap: the heal restores nothing rather than draining.
+    set_hp(&mut world, 900.0);
+    land(&mut world, 9391, CASTER);
+    assert_eq!(hp(&world), 900.0, "over the cap, a heal is a no-op");
+}
+
+/// `CpHealPercent` (Victories of Pa'agrio 1414 at 20 %) restores a share of
+/// **max CP** and honours `MAX_RECOVERABLE_CP`; `HpByLevel` (Life Scavenge 46,
+/// Corpse Life Drain 1151) heals the **effector** — the caster, not the target.
+///
+/// The `HpByLevel` direction is the trap: every other heal in the family reads
+/// `effected`, and pointing this one at the target would heal the corpse you
+/// are draining.
+#[test]
+fn cp_heal_percent_and_hp_by_level_hit_the_right_pools() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let victim = 5971;
+    let _v = ingame_player_access(&mut world, 2, victim, 0);
+
+    let mut cp_heal = cc_skill(9392, SkillEffect::CpHealPercent { power: 20.0 }, "NONE");
+    cp_heal.effect_point = 100;
+    cp_heal.is_debuff = false;
+    world.data.skill_data.insert_for_test(cp_heal);
+    let mut drain = cc_skill(9393, SkillEffect::HpByLevel { power: 260.0 }, "NONE");
+    drain.effect_point = 100;
+    drain.is_debuff = false;
+    world.data.skill_data.insert_for_test(drain);
+
+    // CP heal lands on the *target*.
+    if let Some(v) = world
+        .objects
+        .get_component_mut::<crate::model::components::PlayerVitals>(&victim)
+    {
+        v.max_cp = 1000;
+        v.cur_cp = 0.0;
+    }
+    land(&mut world, 9392, victim);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::PlayerVitals>(&victim)
+            .map(|v| v.cur_cp),
+        Some(200.0),
+        "20 % of max CP"
+    );
+
+    // `HpByLevel` lands on the *caster*, whatever the target is.
+    for oid in [CASTER, victim] {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+            v.max_hp = 10_000;
+            v.cur_hp = 1_000.0;
+        }
+    }
+    land(&mut world, 9393, victim);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_hp),
+        Some(1_260.0),
+        "the caster is healed"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&victim)
+            .map(|v| v.cur_hp),
+        Some(1_000.0),
+        "…and the target — the corpse being drained — is not"
+    );
+}
