@@ -68,6 +68,7 @@ pub(crate) mod minions;
 pub(crate) mod monster_race;
 pub(crate) mod multisell;
 mod net;
+pub(crate) mod night_stats;
 pub(crate) mod npc_ai;
 pub(crate) mod npc_cast;
 mod npc_view;

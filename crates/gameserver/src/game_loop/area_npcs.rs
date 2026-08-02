@@ -310,6 +310,9 @@ pub(crate) fn handle_day_night_check(world: &mut World, was_night: bool) {
         // groups swap, and Eilhalder von Hellmann comes or goes.
         crate::game_loop::spawn_scripts::on_day_night_change(world, night);
         eilhalder_on_day_night_change(world, night);
+        // `NightStatModify`'s global `OnDayNightChange` listener: re-pump every
+        // bearer's night-gated stat and message the Shadow Sense holders.
+        crate::game_loop::night_stats::on_day_night_change(world, night);
     }
     world.scheduler.schedule(
         world.tick + DAY_NIGHT_CHECK_TICKS,

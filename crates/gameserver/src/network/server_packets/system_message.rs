@@ -730,6 +730,9 @@ pub mod sm_ids {
     pub const THE_AUTOMATIC_USE_OF_S1_HAS_BEEN_DEACTIVATED: i16 = 1434;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_HAS_BEEN_DEACTIVATED: i16 = 1435;
     pub const DUE_TO_INSUFFICIENT_S1_THE_AUTOMATIC_USE_FUNCTION_CANNOT_BE_ACTIVATED: i16 = 1436;
+    // Shadow Sense (294) — `NightStatModify.onDayNightChange`
+    pub const IT_IS_NOW_MIDNIGHT_AND_THE_EFFECT_OF_S1_CAN_BE_FELT: i16 = 1131;
+    pub const IT_IS_DAWN_AND_THE_EFFECT_OF_S1_WILL_NOW_DISAPPEAR: i16 = 1132;
     // Betray (1380) — `Summon.isBetrayed()`
     pub const YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS: i16 = 1864;
     // Chant of Gate / Summon Friend (`CallPc.checkSummonTargetStatus`)

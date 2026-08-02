@@ -1052,6 +1052,41 @@ The `l2r-empty-fixture-tables-clamp` trap also recurred — `xp_lost` is empty i
 the fixture and the first draft set `exp` exactly on the level threshold, so
 the delevel clamp zeroed the loss and the test measured nothing.
 
+#### Sub-slice 17 ✅ — `NightStatModify`, and S4 closes
+
+**`NightStatModify`** (Shadow Sense 294) — "increases Accuracy by 3 **at
+night**". The stat is a property of the *clock*, not of the buff: it has to
+appear at dusk and vanish at dawn while the buff itself sits there unchanged,
+which is what a plain stat grant gets wrong in both directions.
+
+Java's `pump` returns early during the day, and a global `OnDayNightChange`
+listener re-pumps every bearer on the flip, tracked through a static
+`Set<Creature>`. This port arrives at the same behaviour from the other end:
+`stat_modifier_effects` (which has no clock) never emits the grant, and the new
+`game_loop::night_stats` rewrites the *landed buff's* stored modifiers whenever
+the answer changes — on each day/night flip, and at cast time so a skill used
+at night takes effect immediately rather than at the next dawn. The stat hot
+path stays clock-free. There is no bearer registry, so the flip sweeps the
+in-game players and asks each buff list — the same scan-instead-of-subscribe
+trade sub-slice 14's triggers make.
+
+The message on each flip is Java's, including its quirk: it only goes to
+characters who actually **know** Shadow Sense, so somebody carrying the effect
+from another source gets the stat and no message.
+
+Also removed the now-false `#[allow(dead_code, reason = "day/night query wired
+when the day/night scripts land")]` on `game_time::is_night_at` — it is wired.
+
+Census: effect names **146 → 145**, learnable-affected **11 → 10**, headline
+**13 → 12**. Sabotage-verified. The empty-effects guard bit a **tenth** time
+(the grant is written *after* the buff lands, so at guard time the skill looks
+modifier-less).
+
+**S4 is closed.** The two names still carrying a learnable source are both
+recorded out-of-scope decisions rather than unexamined gaps: `StatUp` (9
+learnable, all Territory War content) and `SafeFallHeight` (needs fall damage,
+which this port does not have).
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
@@ -1062,9 +1097,9 @@ the delevel clamp zeroed the loss and the test measured nothing.
   `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
   `Pvp*DamageBonus` trio came off at sub-slice 12, together with the whole
   fifteen-name PvP/PvE balance family.
-  **S4 is now down to three names**: `StatUp` (9 learnable, Territory War —
-  out of scope), `SafeFallHeight` (needs fall damage, which the port lacks) and
-  `NightStatModify` (Shadow Sense 294 — the last one with real work in it).
+  **S4 is closed at sub-slice 17.** The two names left with a learnable source
+  are both recorded out-of-scope decisions: `StatUp` (9 learnable, Territory
+  War) and `SafeFallHeight` (needs fall damage, which the port lacks).
   `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,

@@ -991,6 +991,25 @@ pub enum SkillEffect {
         mp_percent: i32,
         cp_percent: i32,
     },
+    /// `handlers/effecthandlers/NightStatModify.java` — Shadow Sense (294),
+    /// "increases Accuracy by 3 **at night**".
+    ///
+    /// Java's `pump` simply returns during the day, so the stat is granted or
+    /// not depending on the clock, and a global `OnDayNightChange` listener
+    /// re-pumps every bearer when it flips. This port does the same thing from
+    /// the other end: the grant is *not* emitted by `stat_modifier_effects`
+    /// (which has no clock), and `game_loop::night_stats` rewrites the landed
+    /// buff's stored modifiers on every day/night change and when the buff
+    /// lands. Same observable behaviour, and the stat hot path stays clean.
+    ///
+    /// Java also messages the bearer on each flip — but only if they *know*
+    /// Shadow Sense, which is its own quirk: a character carrying the effect
+    /// from some other source gets the stat and no message.
+    NightStatModify {
+        stat: Stat,
+        amount: f64,
+        mode: StatModifierType,
+    },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
