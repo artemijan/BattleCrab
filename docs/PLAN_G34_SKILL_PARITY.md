@@ -959,6 +959,39 @@ registry-line-without-a-consumer failure this epic keeps finding. So Focus
 Attack is tested twice: once that casting it grants the stat and expiry gives
 it back, once that the stat actually suppresses the sweep.
 
+#### Sub-slice 14 ✅ — the trigger pair
+
+The two remaining `TriggerSkillBy*` shapes, both listener-driven in Java.
+
+- **`TriggerSkillByDamage`** (Mirage 445) is the mirror of
+  `TriggerSkillByAttack`: it fires when the bearer **takes** a hit and casts
+  back at the attacker. Two gates separate it from the attack twin and both
+  are what a copy-the-other-one port would drop — `attackerType` (Mirage takes
+  `Playable` only, so a monster hitting you never sets it off) and `hpPercent`,
+  an *upper* bound that arms the trigger only once you are hurt enough.
+  Hooked at `apply_attack_damage`, the shared choke point, because Java fires
+  `OnCreatureDamageReceived` from `reduceCurrentHp` — so unlike the attack twin
+  it sees **skill damage too**.
+- **`TriggerSkillByMagicType`** (Dance of Shadows 366) fires when the bearer
+  *finishes casting* a skill whose `magicType` is listed — which is how the
+  dance's stealth ends the moment you act. Hooked at `handle_skill_finish`.
+
+Census: effect names **153 → 151**, learnable-affected **20 → 18**, headline
+**22 → 20**. Both tests sabotage-verified.
+
+Two things worth carrying forward:
+
+- **Carriers are buffs, not book entries.** The first cut scanned the bearer's
+  `SkillBook`, copying `fire_attack_triggers`. That is right *there* — its
+  carriers are weapon-mastery passives, folded into `StatModifiers` and absent
+  from the buff list — and wrong here: Java attaches the listener to the
+  **effect**, and Mirage is a timed buff, so knowing the skill is not the same
+  as being under it. Both new evaluators scan `Buffs`.
+- **The empty-effects guard bit again** — seventh and eighth times. A trigger
+  carries no stat modifier, no periodic tick and no `effect_flag`, so its buff
+  was dropped on landing and the trigger could never fire. Any new
+  modifier-less effect has to join one of that guard's three categories.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,

@@ -713,6 +713,55 @@ pub enum SkillEffect {
         /// `allowWeapons` as a `WeaponType` mask (0 = ALL).
         allow_weapons: u32,
     },
+    /// `handlers/effecthandlers/TriggerSkillByDamage.java` — the mirror of
+    /// [`SkillEffect::TriggerSkillByAttack`]: it fires when the bearer
+    /// **receives** a hit rather than lands one. Mirage (445) is the learnable
+    /// carrier — take a hit from a *Playable* and there is an 80 % chance to
+    /// cast Mirage (5144) back at the attacker.
+    ///
+    /// Two gates distinguish it from the attack-side twin and both are ported:
+    /// `attackerType` (Mirage restricts to `Playable`, so mobs never set it
+    /// off) and `hpPercent`, an *upper* bound — the trigger only arms once the
+    /// bearer is at or below that share of HP. Damage-over-time ticks are
+    /// excluded (`event.isDamageOverTime()`).
+    ///
+    /// `triggerSkills` (a multi-skill ladder), `skillLevelScaleTo` and the
+    /// attacker level window keep Java's defaults; no learnable carrier sets
+    /// them.
+    TriggerSkillByDamage {
+        min_damage: i32,
+        chance: i32,
+        skill_id: i32,
+        skill_level: i32,
+        /// `hpPercent` — an upper bound on the *bearer's* HP share (100 = no
+        /// gate). Java compares `currentHpPercent > hpPercent` and bails.
+        hp_percent: i32,
+        /// `attackerType` narrowed to the one distinction the dist draws:
+        /// `Playable` (Mirage) versus the default `Creature` (anything).
+        attacker_playable_only: bool,
+        /// `targetType`: `ENEMY` casts back at the attacker (Mirage), `SELF`
+        /// on the bearer. Those are the two the dist uses.
+        on_attacker: bool,
+    },
+    /// `handlers/effecthandlers/TriggerSkillByMagicType.java` — fires when the
+    /// bearer **finishes casting** a skill whose `magicType` is in the list.
+    /// Dance of Shadows (366) is the learnable carrier: any ordinary cast
+    /// (types 0-4 and 22) fires Cancel Shadow Move (7097) on the party, which
+    /// is how the dance's stealth ends the moment you act.
+    ///
+    /// Note the default `targetType` here is `TARGET`, not `SELF` as on the
+    /// damage twin — and the resolution runs against the *triggering cast's*
+    /// target, not the bearer.
+    TriggerSkillByMagicType {
+        /// `magicTypes`, a `;`-separated list. An empty list disables it.
+        magic_types: Vec<i32>,
+        chance: i32,
+        skill_id: i32,
+        skill_level: i32,
+        /// `targetType`: `MY_PARTY` (Dance of Shadows) versus the default
+        /// `TARGET`.
+        on_party: bool,
+    },
     /// `handlers/effecthandlers/Resurrection.java` — Resurrection 1016, Mass
     /// Resurrection 1254. Does not revive directly: it *proposes* a revive, and
     /// the dead player accepts through a `ConfirmDlg`. `power` is the percentage

@@ -2883,3 +2883,115 @@ fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
         "and `onExit` takes it back — otherwise the sweep is lost forever"
     );
 }
+
+/// **`TriggerSkillByDamage`** (Mirage 445) — the mirror of
+/// `TriggerSkillByAttack`: it fires when the bearer **takes** a hit, and casts
+/// back at the attacker rather than on itself.
+///
+/// Two gates separate it from the attack-side twin, and both are the half a
+/// "copy the attack trigger" port would drop: `attackerType` (Mirage takes
+/// `Playable` only, so a monster hitting you never sets it off) and the
+/// requirement that the carrier actually be *up* — Mirage is a timed buff,
+/// unlike the always-on weapon masteries the attack twin reads.
+#[test]
+fn mirage_fires_back_at_a_player_attacker_but_not_a_monster() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let attacker = CASTER + 1;
+    let _a = ingame_player(&mut world, CID + 1, attacker, 40, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 60, 0, 0);
+
+    // The trigger the carrier fires.
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(9416, SkillEffect::Root, "ROOT"));
+    // The carrier: Playable attackers only, always rolls, casts at the enemy.
+    let mut carrier = cc_skill(
+        9415,
+        SkillEffect::TriggerSkillByDamage {
+            min_damage: 1,
+            chance: 100,
+            skill_id: 9416,
+            skill_level: 1,
+            hp_percent: 100,
+            attacker_playable_only: true,
+            on_attacker: true,
+        },
+        "NONE",
+    );
+    carrier.target_type = crate::model::skill::TargetType::Self_;
+    world.data.skill_data.insert_for_test(carrier);
+
+    let has = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9416))
+    };
+
+    // Not cast yet: nothing to listen, so nothing triggers. (Java attaches the
+    // listener to the *buff*, which is why this is the meaningful negative —
+    // knowing Mirage and being under it are different things.)
+    crate::game_loop::combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    assert!(!has(&world, attacker), "no Mirage buff up, no counter-cast");
+
+    // Now put it up. A *monster* hitting us must still not set it off.
+    land(&mut world, 9415, CASTER);
+    crate::game_loop::combat::apply_attack_damage(&mut world, NPC_OID, CASTER, 50.0, false, None);
+    assert!(
+        !has(&world, NPC_OID),
+        "attackerType=Playable: a monster never triggers it"
+    );
+
+    // A player hitting us does.
+    crate::game_loop::combat::apply_attack_damage(&mut world, attacker, CASTER, 50.0, false, None);
+    assert!(
+        has(&world, attacker),
+        "a playable attacker takes the counter-cast"
+    );
+}
+
+/// **`TriggerSkillByMagicType`** (Dance of Shadows 366) — fires when the bearer
+/// *finishes casting* a skill whose `magicType` is listed. That is how the
+/// dance's stealth ends the moment you act: any ordinary cast fires Cancel
+/// Shadow Move on the party.
+#[test]
+fn dance_of_shadows_cancels_itself_on_a_listed_magic_type() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(9418, SkillEffect::Root, "ROOT"));
+    let mut carrier = cc_skill(
+        9417,
+        SkillEffect::TriggerSkillByMagicType {
+            magic_types: vec![1, 2],
+            chance: 100,
+            skill_id: 9418,
+            skill_level: 1,
+            on_party: true,
+        },
+        "NONE",
+    );
+    carrier.target_type = crate::model::skill::TargetType::Self_;
+    world.data.skill_data.insert_for_test(carrier);
+    land(&mut world, 9417, CASTER);
+
+    let has = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9418))
+    };
+
+    // A cast whose magicType is *not* listed changes nothing.
+    crate::game_loop::skills::effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 7);
+    assert!(!has(&world), "an unlisted magicType does not fire it");
+
+    // One that is listed does.
+    crate::game_loop::skills::effects::fire_magic_type_triggers(&mut world, CASTER, CASTER, 2);
+    assert!(has(&world), "a listed magicType fires the trigger");
+}

@@ -2193,6 +2193,31 @@ fn build_skill(
                             }]
                         }
                         "PolearmSingleTarget" => vec![SkillEffect::PolearmSingleTarget],
+                        "TriggerSkillByDamage" => vec![SkillEffect::TriggerSkillByDamage {
+                            min_damage: param("minDamage").unwrap_or(1.0) as i32,
+                            chance: param("chance").unwrap_or(100.0) as i32,
+                            skill_id: param("skillId").unwrap_or(0.0) as i32,
+                            skill_level: param("skillLevel").unwrap_or(1.0) as i32,
+                            hp_percent: param("hpPercent").unwrap_or(100.0) as i32,
+                            attacker_playable_only: value_at(params, "attackerType", level)
+                                == Some("Playable"),
+                            // Java's default is SELF; ENEMY is what casts the
+                            // trigger back at whoever hit you.
+                            on_attacker: value_at(params, "targetType", level) == Some("ENEMY"),
+                        }],
+                        "TriggerSkillByMagicType" => vec![SkillEffect::TriggerSkillByMagicType {
+                            magic_types: value_at(params, "magicTypes", level)
+                                .map(|v| {
+                                    v.split(';').filter_map(|t| t.trim().parse().ok()).collect()
+                                })
+                                .unwrap_or_default(),
+                            chance: param("chance").unwrap_or(100.0) as i32,
+                            skill_id: param("skillId").unwrap_or(0.0) as i32,
+                            // Java's default here is 0, which disables the
+                            // effect — unlike the damage twin's 1.
+                            skill_level: param("skillLevel").unwrap_or(0.0) as i32,
+                            on_party: value_at(params, "targetType", level) == Some("MY_PARTY"),
+                        }],
                         "PhysicalAttack" | "PhysicalSoulAttack" => {
                             vec![SkillEffect::PhysicalAttack {
                                 power: param("power").unwrap_or(0.0),
@@ -4577,8 +4602,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 153 name(s), 20 learnable
-    /// skill(s) affected, 1353 reachable.
+    /// the work list, worst first. Category totals: 151 name(s), 18 learnable
+    /// skill(s) affected, 1317 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4628,6 +4653,9 @@ mod coverage_census {
     /// `PhysicalAttackHpLink` (Fatal Counter's missing-HP scaling, sharing
     /// `PhysicalAttack`'s arm) and `PolearmSingleTarget` (Focus Attack's
     /// *cost*, which had been missing while both its bonuses landed).
+    /// → 151 at sub-slice 14: the trigger pair — `TriggerSkillByDamage`
+    /// (Mirage, fired on damage *received*) and `TriggerSkillByMagicType`
+    /// (Dance of Shadows, fired when the bearer finishes a cast).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("ReduceDropPenalty", 2),
@@ -4637,8 +4665,6 @@ mod coverage_census {
         ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
         ("SafeFallHeight", 1),
-        ("TriggerSkillByDamage", 1),
-        ("TriggerSkillByMagicType", 1),
     ];
 
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
@@ -4713,7 +4739,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 153, 20, 1353),
+            ("effect", &gaps.effects, EFFECTS, 151, 18, 1317),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4765,7 +4791,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            22,
+            20,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

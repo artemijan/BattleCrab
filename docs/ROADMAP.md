@@ -1355,7 +1355,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 in progress (13 sub-slices; headline 275 → 22)**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 in progress (14 sub-slices; headline 275 → 20)**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1395,9 +1395,10 @@ was the last learnable entry on the target axis — the sustain family
 PvP/PvE balance family behind `calculatePvpPveBonus`, a term in every damage
 formula the port had hard-coded to 1.0, and the physical-attack pair
 (`PhysicalAttackHpLink`, `PolearmSingleTarget` — Focus Attack's missing
-*cost*); effect names **216 → 153**, reachable **1353**, headline
-**275 → 22**; the residue is 10 names, `StatUp` and `SafeFallHeight` among them
-being deliberately out of scope); targeting breadth
+*cost*), and the trigger pair (`TriggerSkillByDamage`,
+`TriggerSkillByMagicType`); effect names **216 → 151**, reachable **1317**,
+headline **275 → 20**; the residue is 8 names, `StatUp` and `SafeFallHeight`
+among them being deliberately out of scope); targeting breadth
 (`UNDEAD_REAL_ENEMY` is a live correctness bug; `TargetType::ITEM` covers 452
 items); the item/NPC effect tail (**every destination Scroll of Escape is inert
 today** — the `Teleport` effect is unparsed); and the skill-tag/formula
