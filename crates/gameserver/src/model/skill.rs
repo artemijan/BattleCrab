@@ -956,6 +956,25 @@ pub enum SkillEffect {
     /// target to its map-region town respawn on landing. The CASTLE/CLANHALL/
     /// FORTRESS variants wait for their residence systems (G24).
     EscapeToTown,
+    /// `handlers/effecthandlers/CallPc.java` — drag the effected player to the
+    /// effector.
+    ///
+    /// The handler has two halves and only the **NPC** one is ported. When the
+    /// effector is a player it opens a Summon Friend `ConfirmDlg` (item cost,
+    /// the store/combat/olympiad refusals, a 30 s answer window); when it is
+    /// *not* a player — a monster — an `ENEMY`-targeted cast yanks the victim
+    /// to the caster outright: abort their cast, abort their attack, stop their
+    /// move, `FlyToLocation(DUMMY)`, `setLocation(effector)`.
+    ///
+    /// That NPC half is Porta's (20213) signature move: skill 4161 "Summon",
+    /// `castRange=600`, `ENEMY`/`SINGLE`, 20 s reuse. Without the effect the
+    /// skill still parsed, still bucketed into the AI's long-range list and
+    /// still cast on cooldown — two seconds of animation that did nothing, so
+    /// Porta read as an ordinary melee mob.
+    ///
+    /// TODO(G30): the player half is Summon Friend; it needs the
+    /// `SummonRequestHolder` + `ConfirmDlg` round trip.
+    CallPc,
     /// `handlers/effecthandlers/GiveRecommendation.java` — grant the target
     /// `amount` recommendations received (`rec_have`), capped at 255. Backs the
     /// "recommendation certificate" self-target skills.

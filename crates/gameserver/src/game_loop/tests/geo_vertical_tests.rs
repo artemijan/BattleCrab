@@ -448,3 +448,69 @@ fn a_timed_out_idle_monster_with_company_stays_put() {
     );
     assert_eq!(intention(&world, NPC_OID), NpcIntention::Active);
 }
+
+/// `thinkAttack`'s archer range override: `if (npc.getAiType() == AIType.ARCHER)
+/// range = 850 + combinedCollision`.
+///
+/// A bow mob engages from its flat bow range, not from the `<attack range>` on
+/// its template (40 on essentially all of them). Without the override all 220
+/// `ARCHER` templates on this dist walked into melee before loosing a shot,
+/// which is not how an archer mob fights.
+#[test]
+fn an_archer_mob_shoots_from_bow_range_instead_of_closing() {
+    let (mut world, _db, _l) = combat_test_world();
+    aggressive_template(&mut world, 300);
+    {
+        let mut t = world.data.npc_data.get(MOB_ID).unwrap().clone();
+        t.ai_type = crate::data::npc_data::AiType::Archer;
+        t.base_atk_range = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    // 400 units: far outside the 40-unit melee reach, well inside 850.
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 400, 0, 0);
+    add_test_npc(&mut world, NPC_OID, MOB_ID, "Monster", 20, 0, 0, 0);
+    force_attack(&mut world, NPC_OID, PLAYER);
+    drain(&mut rx);
+
+    advance_world(&mut world, 10); // one think
+
+    let packets = drain(&mut rx);
+    assert!(
+        attack_packets(&packets, NPC_OID) > 0,
+        "the archer should shoot from where it stands"
+    );
+    assert!(
+        world.objects.get_component::<Movement>(&NPC_OID).is_none(),
+        "and not walk into melee first"
+    );
+}
+
+/// The control: the same mob as a FIGHTER closes the distance instead.
+#[test]
+fn a_melee_mob_at_the_same_distance_closes_first() {
+    let (mut world, _db, _l) = combat_test_world();
+    aggressive_template(&mut world, 300);
+    {
+        let mut t = world.data.npc_data.get(MOB_ID).unwrap().clone();
+        t.ai_type = crate::data::npc_data::AiType::Fighter;
+        t.base_atk_range = 40;
+        world.data.npc_data.insert_for_test(t);
+    }
+    let mut rx = ingame_player(&mut world, CID, PLAYER, 400, 0, 0);
+    add_test_npc(&mut world, NPC_OID, MOB_ID, "Monster", 20, 0, 0, 0);
+    force_attack(&mut world, NPC_OID, PLAYER);
+    drain(&mut rx);
+
+    advance_world(&mut world, 10);
+
+    let packets = drain(&mut rx);
+    assert_eq!(
+        attack_packets(&packets, NPC_OID),
+        0,
+        "40-unit reach: nothing to swing at from 400 away"
+    );
+    assert!(
+        world.objects.get_component::<Movement>(&NPC_OID).is_some(),
+        "it walks in"
+    );
+}

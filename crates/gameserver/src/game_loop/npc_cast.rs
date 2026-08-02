@@ -85,8 +85,7 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     {
         let hp_pct = hp_percent(world, heal_target);
         let heal_chance = (100.0 - hp_pct) * 1.5;
-        if rnd::chance(heal_chance) && check_skill_target(world, npc_oid, heal_target, &skill) {
-            start_cast(world, npc_oid, heal_target, &skill);
+        if rnd::chance(heal_chance) && cast_at(world, npc_oid, heal_target, &skill) {
             return true;
         }
     }
@@ -95,9 +94,8 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     //    only itself. Java passes `insideCastRange = true` here.
     if let Some(skill) = pick(world, &ai_skills, AiSkillScope::Buff, npc_oid)
         && let Some(buff_target) = skill_target_reconsider(world, npc_oid, &skill, true)
-        && check_skill_target(world, npc_oid, buff_target, &skill)
+        && cast_at(world, npc_oid, buff_target, &skill)
     {
-        start_cast(world, npc_oid, buff_target, &skill);
         return true;
     }
 
@@ -107,18 +105,16 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
         .has_component::<crate::model::components::Movement>(&target_oid);
     if target_moving
         && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Immobilize, npc_oid)
-        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
     {
-        start_cast(world, npc_oid, target_oid, &skill);
         return true;
     }
 
     // 4. Mute a target that's mid-cast (Java's COT bucket).
     if world.objects.has_component::<Casting>(&target_oid)
         && let Some(skill) = pick(world, &ai_skills, AiSkillScope::Cot, npc_oid)
-        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
     {
-        start_cast(world, npc_oid, target_oid, &skill);
         return true;
     }
 
@@ -126,27 +122,54 @@ pub(crate) fn try_cast(world: &mut World, npc_oid: i32, target_oid: i32) -> bool
     let dist = distance_2d(world, npc_oid, target_oid).unwrap_or(f64::MAX);
     if dist <= SHORT_RANGE
         && let Some(skill) = pick(world, &ai_skills, AiSkillScope::ShortRange, npc_oid)
-        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
     {
-        start_cast(world, npc_oid, target_oid, &skill);
         return true;
     }
     if let Some(skill) = pick(world, &ai_skills, AiSkillScope::LongRange, npc_oid)
-        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
     {
-        start_cast(world, npc_oid, target_oid, &skill);
         return true;
     }
 
     // 7. Anything at all.
     if let Some(skill) = pick(world, &ai_skills, AiSkillScope::General, npc_oid)
-        && check_skill_target(world, npc_oid, target_oid, &skill)
+        && cast_at(world, npc_oid, target_oid, &skill)
     {
-        start_cast(world, npc_oid, target_oid, &skill);
         return true;
     }
 
     false
+}
+
+/// One rung of the ladder: Java's `checkSkillTarget(skill, selected)` gate
+/// followed by `npc.doCast(skill)`.
+///
+/// The two steps do **not** aim at the same object, and that is the whole point
+/// of this helper. The AI checks the skill against the creature it is *thinking
+/// about* — the most hated player, or the faction-mate `skillTargetReconsider`
+/// picked — but `doCast` goes through `SkillCaster.castSkill`, which re-runs
+/// `Skill.getTarget` and casts at whatever the **target-type handler** returns.
+/// For a `SELF` skill that is the caster itself, no matter who the AI was
+/// looking at.
+///
+/// Collapsing the two was a live parity bug: Catherok (21035) carries Stun
+/// (4072), which is `targetType=SELF` / `affectScope=POINT_BLANK` /
+/// `affectRange=150` — a self-centred shockwave. Casting it *at the player*
+/// made the player the primary affected target, so the stun landed at any
+/// distance; retail (and Java) sweep 150 units around the mob and hit nobody
+/// when the player is out of that ring. 1332 of this dist's NPC skill entries
+/// are `SELF`+`POINT_BLANK`, so this was every point-blank mob skill in the
+/// game, not one monster.
+fn cast_at(world: &mut World, npc_oid: i32, selected_oid: i32, skill: &Skill) -> bool {
+    if !check_skill_target(world, npc_oid, selected_oid, skill) {
+        return false;
+    }
+    let Some(cast_target) = resolve_npc_cast_target(world, npc_oid, selected_oid, skill) else {
+        return false;
+    };
+    start_cast(world, npc_oid, cast_target, skill);
+    true
 }
 
 /// `Npc.hasSkillChance()` — `Rnd.get(100) < Rnd.get(min, max)`.
@@ -230,6 +253,17 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
         return false;
     }
 
+    // Java's *first* line: `if (skill.getTarget(npc, target, false,
+    // npc.isMovementDisabled(), false) == null) return false`. Routing through
+    // the target-type handlers is what puts an NPC's casts under the same
+    // geodata rules as a player's — every non-self handler ends in
+    // `GeoEngine.canSeeTarget`, so a mob can no more nuke through a wall than
+    // you can. It also refuses the target types that simply don't resolve for
+    // an NPC (GROUND), and the friend/foe mismatches.
+    if resolve_npc_cast_target(world, npc_oid, target_oid, skill).is_none() {
+        return false;
+    }
+
     // Cast range (Java `Util.checkIfInRange(castRange, …, true)` — collision
     // radii included; `combatant` carries them).
     if skill.cast_range > 0 {
@@ -272,6 +306,188 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
     }
 
     true
+}
+
+/// `Skill.getTarget(npc, selected, forceUse = false, dontMove =
+/// npc.isMovementDisabled(), sendMessage = false)` — the
+/// `handlers/targethandlers/*.java` scripts from an NPC caster's side.
+///
+/// The player path lives in [`skills::cast::resolve_cast_target`] and takes a
+/// `&Player`; NPC casts never reached it, so until now an NPC cast simply used
+/// whatever creature the AI was thinking about. That skipped the handlers'
+/// closing `GeoEngine.canSeeTarget` — the "mobs follow the same geodata rules
+/// as players" half of this — and the `SELF` remap that decides where a
+/// point-blank AoE is actually centred.
+///
+/// `sendMessage` is false for every AI cast, so no arm has a message to send.
+///
+/// [`skills::cast::resolve_cast_target`]: super::skills::cast::resolve_cast_target
+pub(crate) fn resolve_npc_cast_target(
+    world: &World,
+    npc_oid: i32,
+    selected_oid: i32,
+    skill: &Skill,
+) -> Option<i32> {
+    use crate::model::skill::TargetType;
+
+    // Java passes `getActiveChar().isMovementDisabled()` as `dontMove`, which
+    // turns the TARGET/ENEMY handlers' "walk into cast range" into a refusal —
+    // a rooted mob can't close, so an out-of-range skill is dropped instead of
+    // being cast from where it stands.
+    let dont_move = super::abnormal::is_movement_disabled(world, npc_oid);
+
+    let resolved = match skill.target_type {
+        // `None.java`: the caster outright, with no peace-zone gate.
+        TargetType::None_ => return Some(npc_oid),
+        // `Self.java`: the caster; a *bad* self skill is refused in a peace
+        // zone. This is the arm that fixes point-blank mob AoEs — the cast
+        // lands on the mob, and `affectScope` sweeps outward from there.
+        TargetType::Self_ => {
+            if skill.is_bad() && in_peace_zone(world, npc_oid) {
+                return None;
+            }
+            return Some(npc_oid);
+        }
+        // `Ground.java` is gated on `creature.isPlayable()`; an NPC caster
+        // falls through to null there, so NPC GROUND skills are inert in Java
+        // too.
+        TargetType::Ground => return None,
+        // `Summon.java`: the caster's own servitor.
+        TargetType::Summon => super::servitor::servitor_of(world, npc_oid)?,
+        // `Target.java`: any creature, self included (self returns early and
+        // skips every gate — "you can always target yourself").
+        TargetType::Target => {
+            if selected_oid == npc_oid {
+                return Some(npc_oid);
+            }
+            if dont_move && !within_cast_range(world, npc_oid, selected_oid, skill) {
+                return None;
+            }
+            selected_oid
+        }
+        // `Enemy.java` / `EnemyOnly.java`: never self, never a corpse, and the
+        // target must be auto-attackable (`forceUse` is false for an AI cast,
+        // so there is no override). A monster attacker makes every player
+        // auto-attackable, which is what lets a mob nuke you at all.
+        TargetType::Enemy | TargetType::EnemyOnly => {
+            if selected_oid == npc_oid {
+                return None;
+            }
+            if is_dead(world, selected_oid) && !skill.stay_after_death {
+                return None;
+            }
+            if !super::target::is_auto_attackable(world, npc_oid, selected_oid) {
+                return None;
+            }
+            if dont_move && !within_cast_range(world, npc_oid, selected_oid, skill) {
+                return None;
+            }
+            selected_oid
+        }
+        // `EnemyNot.java`: the inverse gate — a hostile target is refused, self
+        // is always allowed, and the dead are not excluded (a heal may land on
+        // a fresh corpse ahead of a resurrection).
+        TargetType::EnemyNot => {
+            if selected_oid == npc_oid {
+                return Some(npc_oid);
+            }
+            if super::target::is_auto_attackable(world, npc_oid, selected_oid) {
+                return None;
+            }
+            selected_oid
+        }
+        // `NpcBody.java` / `PcBody.java`: a corpse of the matching kind.
+        TargetType::NpcBody => {
+            if !is_dead(world, selected_oid)
+                || !world
+                    .objects
+                    .has_component::<crate::model::npc::Npc>(&selected_oid)
+            {
+                return None;
+            }
+            selected_oid
+        }
+        TargetType::PcBody => {
+            if !is_dead(world, selected_oid)
+                || !world
+                    .objects
+                    .has_component::<crate::model::Player>(&selected_oid)
+            {
+                return None;
+            }
+            selected_oid
+        }
+        // TODO(G21): the handlers this port collapses into `Other`
+        // (`OTHERS`, `OWNER_PET`, `ARTILLERY`, `WYVERN_TARGET`,
+        // `ADVANCE_BASE`, …). Each has its own script; none is reachable from
+        // the wild-monster AI on this dist, and passing the selected target
+        // through keeps their current behaviour rather than silently
+        // disabling them.
+        TargetType::Other => selected_oid,
+    };
+
+    // "Geodata check when character is within range" — the closing gate of
+    // `Target.java`, `Enemy.java` and `EnemyOnly.java`. `canSeeTarget` short-
+    // circuits to true for a door (a closed gate occludes the ray to its own
+    // centre), matching `GeoEngine.canSeeTarget(asker, target)`.
+    let (Some(from), Some(to)) = (
+        world.objects.get_component::<Position>(&npc_oid).copied(),
+        world.objects.get_component::<Position>(&resolved).copied(),
+    ) else {
+        return None;
+    };
+    let target_is_door = world
+        .objects
+        .has_component::<crate::model::door::Door>(&resolved);
+    if !target_is_door
+        && !world
+            .geo
+            .can_see_target(from.x, from.y, from.z, to.x, to.y, to.z)
+    {
+        return None;
+    }
+
+    // `Enemy.java`/`EnemyOnly.java` close with the peace-zone refusal, after
+    // the LOS check. It is a playable-on-playable rule, so it never fires for
+    // a monster caster — ported for shape and for the servitor casts that do
+    // reach this path.
+    if matches!(skill.target_type, TargetType::Enemy | TargetType::EnemyOnly)
+        && super::zones::is_inside_peace_zone(world, npc_oid, resolved)
+    {
+        return None;
+    }
+
+    Some(resolved)
+}
+
+/// `Util.checkIfInRange(skill.getCastRange(), npc, target, false)` as the
+/// `dontMove` handlers use it — 2D centre distance, no collision radii (Java
+/// compares `calculateDistance2D(target) > skill.getCastRange()` directly).
+fn within_cast_range(world: &World, npc_oid: i32, target_oid: i32, skill: &Skill) -> bool {
+    distance_2d(world, npc_oid, target_oid).is_some_and(|d| d <= skill.cast_range as f64)
+}
+
+fn is_dead(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<Vitals>(&oid)
+        .is_some_and(|v| v.dead)
+}
+
+/// `creature.isInsideZone(ZoneId.PEACE)` for an NPC. NPCs carry no `ZoneFlags`
+/// component (only players are tracked by the zone sweep), so the zone grid is
+/// queried by position.
+fn in_peace_zone(world: &World, oid: i32) -> bool {
+    world
+        .objects
+        .get_component::<Position>(&oid)
+        .is_some_and(|p| {
+            world
+                .data
+                .zone_data
+                .zones_at(p.x, p.y, p.z)
+                .any(|z| z.kind == crate::data::zone_data::ZoneKind::Peace)
+        })
 }
 
 /// NPC-side `SkillCaster.startCasting`. Much shorter than the player path:

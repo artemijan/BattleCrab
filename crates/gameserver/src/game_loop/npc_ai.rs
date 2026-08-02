@@ -7,13 +7,21 @@
 //! `thinkAttack`'s line-of-sight gate (a mob that cannot see its target
 //! walks a geo-validated route instead of engaging), geodata-clamped
 //! chasing, `checkHate` aggro decay and the teleport-home attack timeout are
-//! ported. Not ported yet (see PROGRESS): minions' archer kite and raid
-//! target-chaos moves.
+//! ported.
+//!
+//! `thinkAttack` is now walked end to end, in Java's order: the anti-stacking
+//! shuffle, the `AIType.ARCHER` kite and its flat 850 bow range, the
+//! raid/minion target-chaos block, and the `checkTarget` → `targetReconsider`
+//! tail. The remaining narrowing is that faction calls and minion assists seed
+//! hate directly instead of firing Java's `EVT_AGGRESSION` script event
+//! (`TODO(G21)` at those sites) — they do, however, run the `setRunning()` that
+//! event carries, without which a recruited mob walks to the fight.
 
 use std::collections::HashSet;
 
 use commons::util::rnd;
 
+use crate::data::npc_data::AiType;
 use crate::model::components::{AttackState, Movement, Position, RegionCell, Speeds, Vitals};
 use crate::model::movement::{self, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
@@ -26,6 +34,10 @@ use super::helpers::{broadcast_near_region_in, instance_of};
 
 /// `AttackableThinkTaskManager.TASK_DELAY`: think once per second.
 pub(crate) const NPC_THINK_PERIOD: u64 = 10;
+
+/// `thinkAttack`: "Base bow range for NPCs" — the flat engagement range an
+/// `AIType.ARCHER` mob uses instead of its template `<attack range>`.
+const NPC_BOW_RANGE: i32 = 850;
 
 /// `AttackableAI.RANDOM_WALK_RATE`: an idle mob rolls a 1-in-30 chance each
 /// think (≈ once every 30 s) to wander to a new spot near its spawn.
@@ -888,6 +900,20 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     // block right after the geodata check, ahead of the cast ladder).
     faction_call(world, npc_oid, target_oid);
 
+    // The three movement blocks Java runs *between* the faction call and the
+    // cast ladder. Each one ends the think when it fires.
+    if shuffle_off_a_stacked_mob(world, npc_oid, target_oid) {
+        return;
+    }
+    if archer_backs_off(world, npc_oid, target_oid) {
+        return;
+    }
+    // Raid/minion target chaos can swap the target out from under the rest of
+    // this think, so it is re-read afterwards rather than reusing `target_oid`.
+    if raid_target_chaos(world, npc_oid) {
+        return;
+    }
+
     // Cast before closing distance — Java's "Cast skills" block sits between
     // the target checks and the range/move tail, so a caster that launched a
     // spell this think neither chases nor swings.
@@ -901,7 +927,17 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     let Some(victim) = combat::combatant(world, target_oid) else {
         return;
     };
-    let reach = attacker.atk_range as f64 + attacker.collision_radius + victim.collision_radius;
+    // `int range = npc.getPhysicalAttackRange() + combinedCollision; if
+    // (getAiType() == ARCHER) range = 850 + combinedCollision;` — an archer
+    // mob's *engagement* range is the flat bow range, not its template
+    // `<attack range>` (40 on most of them). Without the override all 220
+    // ARCHER templates on this dist walked into melee before shooting.
+    let combined_collision = attacker.collision_radius + victim.collision_radius;
+    let reach = if ai_type_of(world, npc_oid) == AiType::Archer {
+        NPC_BOW_RANGE as f64 + combined_collision
+    } else {
+        attacker.atk_range as f64 + combined_collision
+    };
     let dist = (((victim.x - attacker.x) as f64).powi(2)
         + ((victim.y - attacker.y) as f64).powi(2))
     .sqrt();
@@ -913,11 +949,25 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         .template(world)
         .map(|t| t.can_move)
         .unwrap_or(false);
+    // Out of range: close, or — when the target has become unreachable — pick
+    // another. `checkTarget` only fails for a dead target or an *immobilised*
+    // mob that can't close (Java gates its range/LOS test on
+    // `npc.isMovementDisabled()`), which is precisely the case that used to
+    // leave a rooted mob standing still forever instead of switching to
+    // whoever else was hitting it.
+    //
+    // Java then falls straight through to `doAutoAttack` with the new pick,
+    // without re-testing the range — so does this.
+    let mut target_oid = target_oid;
     if dist > reach {
-        if can_move {
+        if can_move && check_target(world, npc_oid, target_oid) {
             chase(world, npc_oid, target_oid, reach);
+            return;
         }
-        return;
+        match target_reconsider(world, npc_oid) {
+            Some(t) => target_oid = t,
+            None => return,
+        }
     }
 
     // In reach: stop and swing.
@@ -940,6 +990,408 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         );
     }
     combat::do_auto_attack(world, npc_oid, target_oid);
+}
+
+/// `npc.getAiType()`, defaulting to `FIGHTER` for a template we can't read.
+fn ai_type_of(world: &World, npc_oid: i32) -> AiType {
+    world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+        .map(|t| t.ai_type)
+        .unwrap_or(AiType::Fighter)
+}
+
+/// `Creature.isMovementDisabled()` for a monster: the abnormal states that pin
+/// it (root/stun/sleep/paralysis) *or* a template that cannot move at all.
+fn movement_disabled(world: &World, npc_oid: i32) -> bool {
+    super::abnormal::is_movement_disabled(world, npc_oid)
+        || !world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.can_move)
+}
+
+/// `thinkAttack`'s "In case many mobs are trying to hit from same place, move a
+/// bit, circling around the target" block.
+///
+/// A 3-in-100 roll per think, and only when another `Attackable` is standing
+/// inside this mob's own collision radius: step to a fresh spot roughly
+/// `combinedCollision + Rnd(40)` off the *target* on each axis, sign chosen at
+/// random, geo-validated. It is what stops a pack from stacking into one pixel
+/// while they all beat on the same player. Returns whether the think ends here
+/// — Java `return`s whenever it found a crowding neighbour, **even if the
+/// chosen spot was rejected**.
+fn shuffle_off_a_stacked_mob(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
+    if movement_disabled(world, npc_oid) || world.roll(100) > 3 {
+        return false;
+    }
+    let (Some(me), Some(target)) = (
+        combat::combatant(world, npc_oid),
+        combat::combatant(world, target_oid),
+    ) else {
+        return false;
+    };
+    let collision = me.collision_radius;
+    let combined = collision + target.collision_radius;
+
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return false;
+    };
+    let crowder = (-1..=1)
+        .flat_map(|dx| (-1..=1).map(move |dy| (dx, dy)))
+        .filter_map(|(dx, dy)| world.npc_regions.get(&(region.0 + dx, region.1 + dy)))
+        .flatten()
+        .copied()
+        .filter(|&other| other != npc_oid && other != target_oid)
+        .filter(|&other| {
+            world
+                .objects
+                .get_component::<Vitals>(&other)
+                .is_some_and(|v| !v.dead)
+        })
+        .find(|&other| {
+            world
+                .objects
+                .get_component::<Position>(&other)
+                .is_some_and(|p| {
+                    let (dx, dy) = ((p.x - me.x) as f64, (p.y - me.y) as f64);
+                    dx * dx + dy * dy <= collision * collision
+                })
+        });
+    if crowder.is_none() {
+        return false;
+    }
+
+    // `newX = combinedCollision + Rnd.get(40)`, then added to or subtracted
+    // from the *target's* coordinate on a coin flip — per axis, so the mob can
+    // end up on any of the four diagonals around whoever it is hitting.
+    let (dx_step, dy_step) = (
+        combined as i32 + world.roll(40),
+        combined as i32 + world.roll(40),
+    );
+    let (flip_x, flip_y) = (world.roll(2) == 0, world.roll(2) == 0);
+    let new_x = if flip_x {
+        target.x + dx_step
+    } else {
+        target.x - dx_step
+    };
+    let new_y = if flip_y {
+        target.y + dy_step
+    } else {
+        target.y - dy_step
+    };
+    // `if (!npc.isInsideRadius2D(newX, newY, 0, collision))` — don't bother
+    // shuffling onto the spot we already occupy.
+    let (dx, dy) = ((new_x - me.x) as f64, (new_y - me.y) as f64);
+    if dx * dx + dy * dy > collision * collision {
+        let new_z = me.z + 30;
+        let (vx, vy, vz) = world
+            .geo
+            .get_valid_location(me.x, me.y, me.z, new_x, new_y, new_z);
+        move_npc_to(world, npc_oid, vx, vy, vz);
+    }
+    true
+}
+
+/// `thinkAttack`'s "Calculate Archer movement" block: an `ARCHER` mob that has
+/// been closed to inside `60 + combinedCollision` backs off 300 units on each
+/// axis, away from its target, on a 15-in-100 roll — but only if the geodata
+/// says it can actually walk there (`canMoveToTarget`, not `canSeeTarget`).
+///
+/// This is the kiting that makes bow mobs feel different from melee ones.
+/// Returns whether the think ends here; Java returns as soon as the mob is
+/// inside the trigger distance, whether or not the retreat was walkable.
+fn archer_backs_off(world: &mut World, npc_oid: i32, target_oid: i32) -> bool {
+    if movement_disabled(world, npc_oid)
+        || ai_type_of(world, npc_oid) != AiType::Archer
+        || world.roll(100) >= 15
+    {
+        return false;
+    }
+    let (Some(me), Some(target)) = (
+        combat::combatant(world, npc_oid),
+        combat::combatant(world, target_oid),
+    ) else {
+        return false;
+    };
+    let combined = me.collision_radius + target.collision_radius;
+    let (dx, dy) = ((target.x - me.x) as f64, (target.y - me.y) as f64);
+    if (dx * dx + dy * dy).sqrt() > 60.0 + combined {
+        return false;
+    }
+
+    // Straight away from the target on each axis, 300 units.
+    let pos_x = if target.x < me.x {
+        me.x + 300
+    } else {
+        me.x - 300
+    };
+    let pos_y = if target.y < me.y {
+        me.y + 300
+    } else {
+        me.y - 300
+    };
+    let pos_z = me.z + 30;
+    if world
+        .geo
+        .can_move_to_target(me.x, me.y, me.z, pos_x, pos_y, pos_z)
+    {
+        move_npc_to(world, npc_oid, pos_x, pos_y, pos_z);
+    }
+    true
+}
+
+/// `thinkAttack`'s "BOSS/Raid Minion Target Reconsider" block — the chaos
+/// timer that makes a raid stop tunnelling its tank and lunge at someone else.
+///
+/// The chance climbs as the boss loses HP, on three different curves, and each
+/// tier only starts rolling once `chaostime` has ticked past its config gate
+/// (`RaidChaosTime`/`GrandChaosTime`/`MinionChaosTime`, all 10 on this dist —
+/// i.e. ten thinks, ten seconds). A successful swap resets the counter and ends
+/// the think. Returns whether the think ends here.
+fn raid_target_chaos(world: &mut World, npc_oid: i32) -> bool {
+    let Some(template) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+    else {
+        return false;
+    };
+    let (is_raid, is_grand) = (template.is_raid(), template.type_name == "GrandBoss");
+    let is_minion = world
+        .objects
+        .has_component::<super::minions::MinionOf>(&npc_oid);
+    if !is_raid && !is_grand && !is_minion {
+        return false;
+    }
+
+    let chaos_time = {
+        let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) else {
+            return false;
+        };
+        ai.chaos_time += 1;
+        ai.chaos_time
+    };
+    let hp_fraction = world
+        .objects
+        .get_component::<Vitals>(&npc_oid)
+        .filter(|v| v.max_hp > 0)
+        .map(|v| v.cur_hp / v.max_hp as f64)
+        .unwrap_or(1.0);
+
+    let cfg = &world.cfg.npc;
+    // Java's ladder: GrandBoss first only because `instanceof RaidBoss` is
+    // checked first and a GrandBoss is not a RaidBoss; the three arms are
+    // mutually exclusive.
+    let change = if is_grand && chaos_time > cfg.grand_chaos_time {
+        let chaos_rate = 100.0 - hp_fraction * 300.0;
+        (chaos_rate <= 10.0 && world.roll(100) <= 10)
+            || (chaos_rate > 10.0 && (world.roll(100) as f64) <= chaos_rate)
+    } else if is_raid && chaos_time > cfg.raid_chaos_time {
+        // `hasMinions() ? 200 : 100` — a boss with an escort shuffles sooner.
+        let multiplier = if world
+            .objects
+            .get_component::<super::minions::Minions>(&npc_oid)
+            .is_some_and(|m| !m.0.is_empty())
+        {
+            200.0
+        } else {
+            100.0
+        };
+        (world.roll(100) as f64) <= 100.0 - hp_fraction * multiplier
+    } else if is_minion && chaos_time > cfg.minion_chaos_time {
+        (world.roll(100) as f64) <= 100.0 - hp_fraction * 200.0
+    } else {
+        return false;
+    };
+    if !change {
+        return false;
+    }
+
+    // `targetReconsider(true)` — a *random* valid attacker rather than the
+    // most hated one. That randomness is the whole mechanic.
+    let Some(new_target) = target_reconsider_random(world, npc_oid) else {
+        return false;
+    };
+    // Java `setTarget(target); chaostime = 0; return;` — the swap is expressed
+    // here by making the new pick dominant in the aggro list, since an NPC's
+    // "target" in this port *is* its most-hated entry.
+    let top = world
+        .objects
+        .get_component::<AggroList>(&npc_oid)
+        .and_then(|a| {
+            a.0.values()
+                .map(|i| i.hate)
+                .fold(None, |m: Option<f64>, h| Some(m.map_or(h, |m| m.max(h))))
+        })
+        .unwrap_or(0.0);
+    if let Some(aggro) = world.objects.get_component_mut::<AggroList>(&npc_oid) {
+        aggro.0.entry(new_target).or_default().hate = top + 1.0;
+    }
+    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+        ai.chaos_time = 0;
+    }
+    true
+}
+
+/// `AttackableAI.checkTarget` — is this still something worth walking to?
+///
+/// Alive, and (for an **immobilised** mob only) inside physical attack reach
+/// with line of sight, and auto-attackable. The `isMovementDisabled()` gate is
+/// load-bearing: a mob that *can* move is allowed to chase a target it cannot
+/// currently see, which is what lets it walk around a corner after you.
+fn check_target(world: &World, npc_oid: i32, target_oid: i32) -> bool {
+    if world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .is_none_or(|v| v.dead)
+    {
+        return false;
+    }
+    if movement_disabled(world, npc_oid) {
+        let (Some(me), Some(target)) = (
+            combat::combatant(world, npc_oid),
+            combat::combatant(world, target_oid),
+        ) else {
+            return false;
+        };
+        let reach = me.atk_range as f64 + me.collision_radius + target.collision_radius;
+        let (dx, dy) = ((target.x - me.x) as f64, (target.y - me.y) as f64);
+        if dx * dx + dy * dy > reach * reach {
+            return false;
+        }
+        if !world
+            .geo
+            .can_see_target(me.x, me.y, me.z, target.x, target.y, target.z)
+        {
+            return false;
+        }
+    }
+    super::target::is_auto_attackable(world, npc_oid, target_oid)
+}
+
+/// `AttackableAI.targetReconsider(false)` — the most hated attacker that still
+/// passes [`check_target`], falling back to the first valid creature inside the
+/// aggro range when the mob is aggressive and its whole list has gone stale.
+fn target_reconsider(world: &mut World, npc_oid: i32) -> Option<i32> {
+    let candidates: Vec<(i32, f64)> = world
+        .objects
+        .get_component::<AggroList>(&npc_oid)
+        .map(|a| a.0.iter().map(|(&oid, i)| (oid, i.hate)).collect())
+        .unwrap_or_default();
+    let best = candidates
+        .iter()
+        .filter(|&&(oid, _)| check_target(world, npc_oid, oid))
+        .max_by(|a, b| a.1.total_cmp(&b.1))
+        .map(|&(oid, _)| oid);
+    if best.is_some() {
+        return best;
+    }
+    aggro_range_candidates(world, npc_oid)
+        .into_iter()
+        .find(|&oid| check_target(world, npc_oid, oid))
+}
+
+/// `AttackableAI.targetReconsider(true)` — any valid attacker at random, plus
+/// (for an aggressive mob) anyone standing inside the aggro range.
+fn target_reconsider_random(world: &mut World, npc_oid: i32) -> Option<i32> {
+    let mut valid: Vec<i32> = world
+        .objects
+        .get_component::<AggroList>(&npc_oid)
+        .map(|a| a.0.keys().copied().collect())
+        .unwrap_or_default();
+    valid.extend(aggro_range_candidates(world, npc_oid));
+    valid.retain(|&oid| check_target(world, npc_oid, oid));
+    if valid.is_empty() {
+        return None;
+    }
+    Some(valid[world.roll(valid.len() as i32) as usize])
+}
+
+/// The "if npc is aggressive, add characters within aggro range too" leg of
+/// both `targetReconsider` arms. Empty for a passive mob.
+fn aggro_range_candidates(world: &mut World, npc_oid: i32) -> Vec<i32> {
+    let Some(template) = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&npc_oid)
+        .and_then(|n| n.template(world))
+    else {
+        return Vec::new();
+    };
+    if !template.is_aggressive {
+        return Vec::new();
+    }
+    let range = template.aggro_range as f64;
+    let (Some(pos), Some(region)) = (
+        world.objects.get_component::<Position>(&npc_oid).copied(),
+        world
+            .objects
+            .get_component::<RegionCell>(&npc_oid)
+            .map(|r| r.0),
+    ) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    world
+        .objects
+        .for_each_mut::<(&crate::model::Player, &Position, &RegionCell)>(|(p, ppos, r)| {
+            if regions_adjacent(region, r.0) {
+                let (dx, dy, dz) = (
+                    (ppos.x - pos.x) as f64,
+                    (ppos.y - pos.y) as f64,
+                    (ppos.z - pos.z) as f64,
+                );
+                if (dx * dx + dy * dy + dz * dz).sqrt() <= range {
+                    out.push(p.object_id);
+                }
+            }
+        });
+    out
+}
+
+/// `Creature.setRunning()` for an NPC: flip the move type and tell everyone
+/// watching (`ChangeMoveType`). Idempotent — Java guards every call site with
+/// `if (!me.isRunning())` and so does this.
+///
+/// Every path that puts a monster into the attack loop has to come through
+/// here. [`think_active`] already did it inline when it promoted its own
+/// target, but the two paths that seed hate from *outside* the think — the
+/// faction call (`AttackableAI.onEvtAggression`, which calls `setRunning` in as
+/// many words) and the minion assist (whose recruits reach `setRunning` via
+/// their next `thinkActive`) — set the intention directly and skipped it. A
+/// recruit that never flips chases at its **walk** speed, which for most mobs
+/// is a fraction of its run speed: the pack answers the call for help and then
+/// trails in one at a time, far behind whoever pulled it.
+pub(crate) fn set_running(world: &mut World, npc_oid: i32) {
+    let flipped = match world.objects.get_component_mut::<Speeds>(&npc_oid) {
+        Some(speeds) if !speeds.running => {
+            speeds.running = true;
+            true
+        }
+        _ => false,
+    };
+    if !flipped {
+        return;
+    }
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return;
+    };
+    broadcast_near_region_in(
+        world,
+        region,
+        instance_of(world, npc_oid),
+        &server_packets::change_move_type(npc_oid, true),
+    );
 }
 
 /// Back to the scan loop: walking move type + Active intention (Java
@@ -1614,6 +2066,8 @@ fn recruit_to_attack(world: &mut World, recruit_oid: i32, target_oid: i32, hate:
         let entry = aggro.0.entry(target_oid).or_default();
         entry.hate += hate;
     }
+    // `onEvtAggression`: run **before** switching to the attack intention.
+    set_running(world, recruit_oid);
     if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&recruit_oid) {
         ai.intention = NpcIntention::Attack;
         ai.attack_timeout_tick = world.tick + ATTACK_TIMEOUT_TICKS;

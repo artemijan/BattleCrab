@@ -122,28 +122,59 @@ fn zero_affect_range_hits_only_the_target() {
     assert!(!hit.contains(&b));
 }
 
-/// POINT_BLANK measures from the **caster**, not the target — so a mob near the
-/// caster is caught even when the primary target is far away.
+/// POINT_BLANK rings the **target** — `PointBlank.java` is
+/// `forEachVisibleObjectInRange(target, …)`, the same reference object
+/// `Range.java` uses — and, unlike RANGE, the target itself is left out of its
+/// own blast. `Range.java` carries an explicit "Add object of origin since its
+/// skipped in the forEachVisibleObjectInRange method"; `PointBlank.java` has no
+/// such line.
+///
+/// This test used to assert a caster-centred ring, which is what the port
+/// believed. That reading is invisible for the 757 `SELF` point-blank skills
+/// (target *is* the caster) and wrong for the 19 that aren't.
 #[test]
-fn point_blank_sweeps_around_the_caster() {
+fn point_blank_rings_the_target_and_spares_it() {
     let (mut world, _db, _l) = cast_test_world();
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
-    // `near` hugs the caster; the primary target sits 400 units off, beyond the
-    // 200 sweep, so a target-centred scope would miss `near` entirely.
-    let (near, target) = (NPC_OID, NPC_OID + 1);
-    add_test_npc(&mut world, near, 20001, "Monster", 5, 50, 0, 0);
+    // The target sits 400 off; `beside` hugs *it*, `near_caster` hugs the
+    // caster instead. Only the first is inside a target-centred 200 ring.
+    let (near_caster, target, beside) = (NPC_OID, NPC_OID + 1, NPC_OID + 2);
+    add_test_npc(&mut world, near_caster, 20001, "Monster", 5, 50, 0, 0);
     add_test_npc(&mut world, target, 20001, "Monster", 5, 400, 0, 0);
+    add_test_npc(&mut world, beside, 20001, "Monster", 5, 450, 0, 0);
     let skill = aoe_skill(9004, AffectScope::PointBlank, AffectObject::NotFriend, 200);
 
     let hit = targets_affected(&mut world, CASTER, target, &skill);
+    assert!(hit.contains(&beside), "50 units from the target is inside");
     assert!(
-        hit.contains(&near),
-        "caster-centred sweep catches the near mob"
+        !hit.contains(&near_caster),
+        "350 units from the target is outside — the ring is not caster-centred"
     );
     assert!(
-        hit.contains(&target),
-        "the primary target is always included"
+        !hit.contains(&target),
+        "the object at the centre is spared: PointBlank.java never re-adds it"
     );
+}
+
+/// The `SELF` + `POINT_BLANK` shape — 757 of this dist's 786 point-blank
+/// skills, and the one Catherok's Stun (4072, `affectRange` 150) uses. Once
+/// `npc_cast` resolves `SELF` to the caster, the ring sits on the mob: whoever
+/// is standing on it is stunned and anyone beyond `affectRange` is not, no
+/// matter who the AI was aiming at.
+#[test]
+fn self_point_blank_rings_the_caster_only_within_range() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let (adjacent, distant) = (NPC_OID, NPC_OID + 1);
+    add_test_npc(&mut world, adjacent, 20001, "Monster", 5, 120, 0, 0);
+    add_test_npc(&mut world, distant, 20001, "Monster", 5, 400, 0, 0);
+    let skill = aoe_skill(9014, AffectScope::PointBlank, AffectObject::NotFriend, 200);
+
+    // `SELF` resolves target == caster.
+    let hit = targets_affected(&mut world, CASTER, CASTER, &skill);
+    assert!(hit.contains(&adjacent), "120 units is inside the 200 ring");
+    assert!(!hit.contains(&distant), "400 units is not");
+    assert!(!hit.contains(&CASTER), "the caster does not blast itself");
 }
 
 /// `affectLimit` caps how many extra targets a sweep may pick up. The primary

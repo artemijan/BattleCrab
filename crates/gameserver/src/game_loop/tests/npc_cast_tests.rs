@@ -428,6 +428,132 @@ fn a_mob_mid_cast_does_not_start_a_second_one() {
 }
 
 // ---------------------------------------------------------------------------
+// `Skill.getTarget` for an NPC caster (`checkSkillTarget`'s first line, and
+// the re-resolve inside `SkillCaster.castSkill`).
+
+/// The Catherok bug. Skill 4072 "Stun" is `targetType=SELF` /
+/// `affectScope=POINT_BLANK` / `affectRange=150`: a shockwave centred on the
+/// mob. The AI thinks about the hated player, but `doCast` resolves the target
+/// through `Self.java`, so the cast lands on the **mob** and the ring decides
+/// who is caught.
+///
+/// Casting it *at the player* instead made the player the primary affected
+/// target, and the stun connected from however far away the mob happened to be
+/// — which is how a monster standing on its spawn point stunned someone across
+/// the field.
+#[test]
+fn a_self_target_skill_is_cast_at_the_caster_not_the_hated_player() {
+    let mut stun = npc_skill(NUKE, "Stun", vec![]);
+    stun.target_type = TargetType::Self_;
+    stun.affect_scope = AffectScope::PointBlank;
+    stun.affect_range = 150;
+    stun.affect_object = AffectObject::NotFriend;
+    stun.is_continuous = true;
+    stun.is_debuff = true;
+    stun.abnormal_type = "STUN".into();
+    stun.abnormal_level = 1;
+    stun.cast_range = -1;
+    let (mut world, _db, _l) = mob_world(&[stun]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world); // mob at x=100, player at the origin
+
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, NPC_OID, PLAYER
+    ));
+
+    let cast = world
+        .objects
+        .get_component::<Casting>(&NPC_OID)
+        .expect("cast started");
+    assert_eq!(
+        cast.0.target_object_id, NPC_OID,
+        "SELF resolves to the caster; the hated player is only who the AI was \
+         thinking about"
+    );
+}
+
+/// The control: an `ENEMY` skill still goes where the AI aimed it. Without
+/// this, "resolve every NPC cast through the handlers" could silently turn
+/// every mob nuke into a self-cast and the test above would still pass.
+#[test]
+fn an_enemy_skill_is_still_cast_at_the_hated_player() {
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    )]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+
+    assert!(crate::game_loop::npc_cast::try_cast(
+        &mut world, NPC_OID, PLAYER
+    ));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Casting>(&NPC_OID)
+            .expect("cast started")
+            .0
+            .target_object_id,
+        PLAYER
+    );
+}
+
+/// `Enemy.java` refuses a target that isn't `isAutoAttackable` by the caster,
+/// and another monster is not. Before the handlers were consulted an NPC could
+/// aim an offensive skill at anything the AI handed it.
+#[test]
+fn an_enemy_skill_is_refused_against_a_fellow_monster() {
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    )]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    let bystander = NPC_OID + 7;
+    add_test_npc(&mut world, bystander, MAGE_NPC, "Monster", 5, 140, 0, 0);
+
+    assert!(
+        !crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, bystander),
+        "ENEMY is not auto-attackable between two monsters"
+    );
+}
+
+/// Porta's (20213) signature move, skill 4161 "Summon": `CallPc` on an `ENEMY`
+/// target from a **monster** caster drags the victim onto the caster —
+/// `stopMove`, `FlyToLocation(DUMMY)`, `setLocation(effector)`.
+///
+/// The effect had no handler, so the skill cast, animated for two seconds, and
+/// did nothing; Porta read as a plain melee mob.
+#[test]
+fn a_monsters_call_pc_drags_the_player_onto_it() {
+    let (mut world, _db, _l) = mob_world(&[npc_skill(NUKE, "Summon", vec![SkillEffect::CallPc])]);
+    let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world); // mob at x=100
+
+    advance_world(&mut world, 30);
+
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&PLAYER)
+        .unwrap();
+    assert_eq!(
+        (pos.x, pos.y),
+        (100, 0),
+        "the player is yanked onto the caster"
+    );
+    let packets = drain(&mut out);
+    assert!(
+        packets
+            .iter()
+            .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::FLY_TO_LOCATION)),
+        "FlyToLocation is what animates the drag; without it the client keeps \
+         drawing the player where they were"
+    );
+}
+
+// ---------------------------------------------------------------------------
 // Real datapack. Fixtures agree with whatever the code believes; the dist does
 // not — so the index is also asserted against the actual NPC/skill XML.
 

@@ -57,6 +57,13 @@ pub struct NpcConfig {
     pub aggro_distance_check_instances: bool,
     /// `AggroDistanceCheckRestoreLife` — heal to full HP/MP on returning home.
     pub aggro_distance_check_restore_life: bool,
+    /// `RaidChaosTime` / `GrandChaosTime` / `MinionChaosTime` — how many think
+    /// ticks a raid boss, grand boss or minion must spend in combat before
+    /// `thinkAttack`'s target-chaos block starts rolling to lunge at somebody
+    /// other than whoever it is currently on. 10 apiece on this dist.
+    pub raid_chaos_time: i32,
+    pub grand_chaos_time: i32,
+    pub minion_chaos_time: i32,
     /// `VitalityConsumeByMob` / `VitalityConsumeByBoss` — the divisors in
     /// `Attackable.getVitalityPoints` (2250 / 1125 on this dist). Only used at
     /// level 85+; below that Java hard-codes 1000, so on an Interlude server
@@ -128,6 +135,9 @@ impl Default for NpcConfig {
             aggro_distance_check_raid_range: 3000,
             aggro_distance_check_instances: false,
             aggro_distance_check_restore_life: true,
+            raid_chaos_time: 10,
+            grand_chaos_time: 10,
+            minion_chaos_time: 10,
             vitality_consume_by_mob: 2250,
             raid_minion_respawn_time: 300_000,
             custom_minions_respawn_time: std::collections::HashMap::new(),
@@ -190,6 +200,9 @@ impl NpcConfig {
                 "AggroDistanceCheckRestoreLife",
                 d.aggro_distance_check_restore_life,
             ),
+            raid_chaos_time: p.get_int("RaidChaosTime", d.raid_chaos_time),
+            grand_chaos_time: p.get_int("GrandChaosTime", d.grand_chaos_time),
+            minion_chaos_time: p.get_int("MinionChaosTime", d.minion_chaos_time),
             vitality_consume_by_mob: p.get_int("VitalityConsumeByMob", d.vitality_consume_by_mob),
             vitality_consume_by_boss: p
                 .get_int("VitalityConsumeByBoss", d.vitality_consume_by_boss),
