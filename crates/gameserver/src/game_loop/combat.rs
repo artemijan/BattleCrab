@@ -436,8 +436,17 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
 
     let _ = player;
     // `Creature.isAttackDisabled()` → `isDisabled()` → `hasBlockActions()`: a
-    // stunned/asleep/paralyzed attacker is refused outright.
-    if super::abnormal::is_blocked_from_actions(world, object_id) {
+    // stunned/asleep/paralyzed attacker is refused outright. Java's same
+    // predicate also ORs `isPhysicalAttackMuted()` — the auto-attack lock,
+    // distinct from `PHYSICAL_MUTED`'s skill lock (G34 S3).
+    // Java `AttackRequest`: `if ((!target.isTargetable() ||
+    // player.isTargetingDisabled()) && !canOverrideCond(TARGET_ALL))` — the
+    // force-attack path has the same targeting gate as `Action`.
+    if super::abnormal::is_blocked_from_actions(world, object_id)
+        || super::abnormal::is_physical_attack_muted(world, object_id)
+        || super::abnormal::is_targeting_disabled(world, object_id)
+        || super::abnormal::is_untargetable(world, pkt.object_id)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());
         }
@@ -1158,7 +1167,11 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
         };
         // Shield block (`calcShldUse`): a back attack (attacker outside the 120°
         // front arc) can't be blocked; melee only until bows land (G20).
-        let from_behind = matches!(position, crate::model::movement::Position::Back);
+        // Java's `degreeside` is 360 rather than 120 while the defender is
+        // affected by `PHYSICAL_SHIELD_ANGLE_ALL` (Aegis), which makes every
+        // angle a front angle — so the back-attack exemption simply drops.
+        let from_behind = matches!(position, crate::model::movement::Position::Back)
+            && !super::abnormal::shields_from_all_angles(world, target_oid);
         let shield = formulas::calc_shield_use(
             target.shield_rate,
             target.con_bonus,

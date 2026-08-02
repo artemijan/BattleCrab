@@ -127,6 +127,13 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
         .objects
         .get_component::<crate::model::components::AdminFlags>(&pkt.object_id)
         .is_some_and(|f| f.untargetable)
+        // Java `Action`: `if ((!obj.isTargetable() || player.isTargetingDisabled())
+        // && !canOverrideCond(TARGET_ALL))` — the two effect-driven halves of the
+        // same gate the `//settargetable` admin flag already stands in for
+        // (G34 S3). `UNTARGETABLE` is on the *clicked* object,
+        // `TARGETING_DISABLED` on the *clicker*.
+        || super::abnormal::is_untargetable(world, pkt.object_id)
+        || super::abnormal::is_targeting_disabled(world, object_id)
     {
         // `//settargetable` off — Java's `isTargetable()` gate in `canTarget`.
         if let Some(cs) = world.clients.get(&client_id) {

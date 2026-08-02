@@ -48,6 +48,45 @@ pub(crate) fn is_blocked_from_actions(world: &World, object_id: i32) -> bool {
         || flags_of(world, object_id) & effect_flag::BLOCK_ACTIONS != 0
 }
 
+/// Java `Creature.isBuffBlocked()` — read by `EffectList.add`:
+/// `if (isBuffBlocked() && !skill.isBad()) return;`. The exact mirror of
+/// [`is_debuff_blocked`], and note which way round it is: a **buff** is
+/// refused, a debuff still lands.
+pub(crate) fn is_buff_blocked(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::BUFF_BLOCK != 0
+}
+
+/// Java `Formulas.calcShldUse`'s `degreeside`: 360° instead of the usual 120°
+/// frontal arc, so a back attack can be shield-blocked too (Aegis).
+pub(crate) fn shields_from_all_angles(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::PHYSICAL_SHIELD_ANGLE_ALL != 0
+}
+
+/// Java `Monster.isAggressive()`'s second term — a pacified monster does not
+/// aggro, whatever its template says.
+pub(crate) fn is_pacified(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::PASSIVE != 0
+}
+
+/// Java `Creature.isTargetable()`'s effect term — the bearer cannot be
+/// selected by anyone.
+pub(crate) fn is_untargetable(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::UNTARGETABLE != 0
+}
+
+/// Java `Creature.isTargetingDisabled()` — the caster-side twin: the *bearer*
+/// cannot select anything.
+pub(crate) fn is_targeting_disabled(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::TARGETING_DISABLED != 0
+}
+
+/// Java `Creature.isPhysicalAttackMuted()`, folded into `isAttackDisabled()`.
+/// **Not** the same as [`is_physical_muted`]: this refuses the auto-attack,
+/// that one refuses non-magic *skills*.
+pub(crate) fn is_physical_attack_muted(world: &World, object_id: i32) -> bool {
+    flags_of(world, object_id) & effect_flag::PSYCHICAL_ATTACK_MUTED != 0
+}
+
 /// Java `Creature.cannotEscape()` — read by the `OpCanEscape` skill condition
 /// and the escape/teleport paths. See [`effect_flag::CANNOT_ESCAPE`] for why
 /// nothing raises it yet.
