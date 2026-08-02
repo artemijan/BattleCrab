@@ -1348,7 +1348,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0 + S1 + S2 landed**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 in progress**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1372,9 +1372,12 @@ skills); **S2 landed** `<basicProperty>` and the **`BasicPropertyResist`
 mesmerizing-debuff chain** (1.0/0.6/0.3/0 over a 15 s window, multiplied *after*
 the clamp so level 3 is a hard immunity — live for every NPC/pet/servitor, off
 for players since `SIXTH_CLASS_GROUP` is empty, and previously absent behind a
-`formulas.rs` comment that justified it on a false premise); the
-remaining `EffectFlag`s plus the buff-lifecycle tags (`removedOnDamage` landed
-separately at `e58c7f64`); the learnable-skill effect sweep (Aegis,
+`formulas.rs` comment that justified it on a false premise); **S3 landed** nine flag-only
+effects with their gates (`BuffBlock`, `PhysicalShieldAngleAll`, `Passive`,
+`Untargetable`, `DisableTargeting`, `PhysicalAttackMute`, `BlockResurrection`,
+`BlockEscape`, `AbnormalShield` — the last dead in Java too) plus the
+three-tag `isStayAfterDeath()` fold that had been stripping 30 learnable
+transform buffs on death; the learnable-skill effect sweep (Aegis,
 Bluff, Betray, Erase, Anchor, Spell Turning, Balance Life, Salvation, Summon
 Friend, Skill Mastery, Unlock, Chameleon Rest, …); targeting breadth
 (`UNDEAD_REAL_ENEMY` is a live correctness bug; `TargetType::ITEM` covers 452

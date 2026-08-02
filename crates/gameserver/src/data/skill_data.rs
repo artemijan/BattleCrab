@@ -111,6 +111,17 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // base landing chance (G34 S2, `game_loop::basic_property`). No learnable
     // source on this dist — 3 items each — but the consumer exists now, so the
     // registry entry is what makes those items real rather than inert.
+    // G34 S4 — `Breath` (Boost Breath 195, Eva's Kiss 1073 + 19 Doom-set item
+    // skills), consumed by `game_loop::water`'s breath gauge. Note the two
+    // modes read very differently against the 60 000 ms base: Eva's Kiss is
+    // `PER 400` (×5, five minutes), Boost Breath is `DIFF 180` (+0.18 s).
+    // The second looks like a datapack unit slip, but Java computes exactly
+    // that, so it is ported as written ([[l2r-port-behaviour-not-intent]]).
+    ("Breath", Stat::Breath),
+    // `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste 7029)
+    // and `WeightPenalty` (Decrease Weight 1257, Master's Blessing 7049).
+    ("WeightLimit", Stat::WeightLimit),
+    ("WeightPenalty", Stat::WeightPenalty),
     ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
     ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
 ];
@@ -1727,6 +1738,17 @@ fn build_skill(
                         "Mute" => vec![SkillEffect::Mute],
                         "PhysicalMute" => vec![SkillEffect::PhysicalMute],
                         "DebuffBlock" => vec![SkillEffect::DebuffBlock],
+                        // G34 S3 — flag-only effects. Each maps to one
+                        // `effect_flag` bit; see `Skill::effect_flags`.
+                        "BuffBlock" => vec![SkillEffect::BuffBlock],
+                        "PhysicalShieldAngleAll" => vec![SkillEffect::PhysicalShieldAngleAll],
+                        "Passive" => vec![SkillEffect::Passive],
+                        "Untargetable" => vec![SkillEffect::Untargetable],
+                        "DisableTargeting" => vec![SkillEffect::DisableTargeting],
+                        "PhysicalAttackMute" => vec![SkillEffect::PhysicalAttackMute],
+                        "BlockResurrection" => vec![SkillEffect::BlockResurrection],
+                        "BlockEscape" => vec![SkillEffect::BlockEscape],
+                        "AbnormalShield" => vec![SkillEffect::AbnormalShield],
                         "BlockControl" => vec![SkillEffect::BlockControl],
                         "TargetCancel" => {
                             let chance = value_at(params, "chance", level)
@@ -2677,8 +2699,17 @@ fn build_skill(
             // Java `set.getBoolean("stayAfterDeath", false)`. The dist writes
             // both `true` and `True` for this tag and `Boolean.parseBoolean`
             // is case-insensitive, so compare loosely.
-            stay_after_death: value_at(values, "stayAfterDeath", level)
-                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+            // Java `isStayAfterDeath()` is `_stayAfterDeath || _irreplacableBuff
+            // || _isNecessaryToggle` — one getter over three tags, so all three
+            // are folded here (G34 S3). `irreplacableBuff` alone is on 30
+            // learnable skills (the clan/pledge buffs and the noblesse line);
+            // reading only `<stayAfterDeath>` stripped every one of them on
+            // death.
+            stay_after_death: ["stayAfterDeath", "irreplacableBuff", "isNecessaryToggle"]
+                .iter()
+                .any(|tag| {
+                    value_at(values, tag, level).is_some_and(|v| v.eq_ignore_ascii_case("true"))
+                }),
             // Java `set.getBoolean("removedOnDamage", false)` — same loose
             // compare as above, the dist writes `true` and `True` both.
             removed_on_damage: value_at(values, "removedOnDamage", level)
@@ -4267,19 +4298,23 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 214 name(s), 77 learnable
-    /// skill(s) affected, 1900 reachable.
+    /// the work list, worst first. Category totals: 202 name(s), 63 learnable
+    /// skill(s) affected, 1821 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
     /// consumer. Neither has a learnable source, so the *learnable* count is
     /// unchanged — which is the shape to expect from the item-only tail.
+    /// 214 → 205 at G34 S3: the nine flag-only effects, five of them with a
+    /// learnable source (`BuffBlock`, `PhysicalShieldAngleAll`, `Passive`,
+    /// `BlockResurrection`, `BlockEscape`).
+    /// 205 → 202 at G34 S4's first sub-slice: `Breath`, `WeightLimit`,
+    /// `WeightPenalty` — each one a `Stat` **plus a consumer**, since a
+    /// registry line on its own only makes the census shrink.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
-        ("WeightLimit", 3),
         ("AreaDamage", 2),
         ("Bluff", 2),
-        ("Breath", 2),
         ("CounterPhysicalSkill", 2),
         ("CpHealPercent", 2),
         ("CriticalRatePositionBonus", 2),
@@ -4287,18 +4322,12 @@ mod coverage_census {
         ("LimitCp", 2),
         ("LimitHp", 2),
         ("ManaHealOverTime", 2),
-        ("Passive", 2),
-        ("PhysicalShieldAngleAll", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
         ("SkillEvasion", 2),
         ("SkillMastery", 2),
         ("TargetMe", 2),
-        ("WeightPenalty", 2),
         ("Betray", 1),
-        ("BlockEscape", 1),
-        ("BlockResurrection", 1),
-        ("BuffBlock", 1),
         ("CallParty", 1),
         ("ChameleonRest", 1),
         ("CubicMastery", 1),
@@ -4396,13 +4425,13 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            // 214 -> 213, 77 -> 76, 1900 -> 1894: `CallPc` gained a handler
-            // (Porta 20213 / skill 4161, plus 5 other reachable carriers).
-            // Caveat for whoever reads these numbers as "done": only the
-            // effect's **NPC** half is implemented. Its player half is Summon
-            // Friend and is still a TODO(G30) no-op, so the census now counts
-            // `CallPc` as handled while one of its two branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 213, 76, 1894),
+            // `CallPc` gained a handler (Porta 20213 / skill 4161) on top of
+            // G34 S4's sweep. Caveat for whoever reads these numbers as
+            // "done": only the effect's **NPC** half is implemented. Its
+            // player half is Summon Friend and is still a TODO(G30) no-op, so
+            // the census counts `CallPc` as handled while one of its two
+            // branches does nothing.
+            ("effect", &gaps.effects, EFFECTS, 201, 62, 1815),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4447,14 +4476,14 @@ mod coverage_census {
         wrong.extend(affected(&gaps.effect_scopes, &learn));
         wrong.extend(affected(&gaps.conditions, &learn));
         //
-        // 79 -> 78 is Summon Friend, and it is a **soft** win: `CallPc` was
-        // registered for the monster half (Porta's drag-you-in), so the census
-        // stops counting the effect as unhandled even though the player half of
-        // the same handler — the `ConfirmDlg` recall — is still a TODO(G30)
-        // no-op. Don't read this number as "Summon Friend works".
+        // Note on Summon Friend: `CallPc` is registered for the **monster**
+        // half (Porta's drag-you-in), so the census stops counting the effect
+        // as unhandled even though the player half of the same handler — the
+        // `ConfirmDlg` recall — is still a TODO(G30) no-op. Whatever this
+        // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            78,
+            64,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

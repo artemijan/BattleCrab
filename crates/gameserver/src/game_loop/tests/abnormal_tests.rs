@@ -1153,3 +1153,219 @@ fn a_dot_tick_wakes_a_slept_player_but_not_a_slept_mob() {
         "but a DoT tick alone does not rouse a mob"
     );
 }
+
+// ---------------------------------------------------------------------------
+// G34 S3 — the flag-only abnormal states. Each is one `effect_flag` bit plus
+// the single Java gate that reads it; `cc_skill`'s fixtures make each bit
+// landable on demand.
+// ---------------------------------------------------------------------------
+
+const BUFFBLOCK_ID: i32 = 9321;
+const PACIFY_ID: i32 = 9322;
+const ATKMUTE_ID: i32 = 9323;
+
+/// `BUFF_BLOCK` is the mirror of `DEBUFF_BLOCK`, and the asymmetry matters:
+/// Java's `EffectList.add` refuses on `isBuffBlocked() && !skill.isBad()`, so a
+/// **buff** is stopped and a **debuff** still lands. It also has **no
+/// self-cast exemption**, unlike the debuff-block gate — Dance of Medusa stops
+/// its victim buffing themselves, which is the whole point of it.
+#[test]
+fn buff_block_refuses_buffs_and_lets_debuffs_through() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        BUFFBLOCK_ID,
+        SkillEffect::BuffBlock,
+        "BUFF_BLOCK",
+    ));
+    // A plain good skill (effectPoint ≥ 0) to be refused, and a bad one to
+    // prove debuffs are unaffected.
+    let mut good = cc_skill(9324, SkillEffect::SilentMove, "SILENT_MOVE");
+    good.effect_point = 100;
+    good.is_debuff = false;
+    world.data.skill_data.insert_for_test(good);
+
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    land(&mut world, BUFFBLOCK_ID, CASTER);
+    assert!(
+        crate::game_loop::abnormal::is_buff_blocked(&world, CASTER),
+        "the flag is up"
+    );
+
+    land(&mut world, 9324, CASTER);
+    assert!(
+        !world
+            .objects
+            .get_component::<Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9324)),
+        "a buff cannot land on a buff-blocked target — not even their own"
+    );
+
+    // A debuff is explicitly *not* blocked by this flag.
+    land(&mut world, ROOT_ID, CASTER);
+    assert!(
+        world
+            .objects
+            .get_component::<Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == ROOT_ID)),
+        "a debuff still lands — `!skill.isBad()` is the gate, not `isDebuff()`"
+    );
+}
+
+/// `PASSIVE` — Java `Monster.isAggressive()` is
+/// `getTemplate().isAggressive() && !isAffected(EffectFlag.PASSIVE)`, so a
+/// pacified mob stops aggroing whatever its template says. Veil (106) and
+/// Requiem (1049) are the learnable sources.
+#[test]
+fn the_passive_flag_pacifies_an_aggressive_monster() {
+    let (mut world, _db, _l) = cc2_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(PACIFY_ID, SkillEffect::Passive, "PASSIVE"));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+
+    assert!(
+        !crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        "not pacified to begin with"
+    );
+    land(&mut world, PACIFY_ID, NPC_OID);
+    assert!(
+        crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        "the mob is pacified while the buff is up"
+    );
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, PACIFY_ID);
+    assert!(
+        !crate::game_loop::abnormal::is_pacified(&world, NPC_OID),
+        "and aggressive again when it drops"
+    );
+}
+
+/// `PSYCHICAL_ATTACK_MUTED` (Java's spelling) blocks the **auto-attack**, which
+/// is a different lock from `PHYSICAL_MUTED`'s non-magic *skill* refusal — Java
+/// folds the first into `isAttackDisabled()` and the second into
+/// `checkUseConditions`. Landing one must not imply the other.
+#[test]
+fn physical_attack_mute_blocks_attacking_not_casting() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        ATKMUTE_ID,
+        SkillEffect::PhysicalAttackMute,
+        "ATTACK_MUTE",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    land(&mut world, ATKMUTE_ID, CASTER);
+    assert!(
+        crate::game_loop::abnormal::is_physical_attack_muted(&world, CASTER),
+        "the auto-attack lock is up"
+    );
+    assert!(
+        !crate::game_loop::abnormal::is_physical_muted(&world, CASTER),
+        "…and it is NOT the skill lock — two distinct flags"
+    );
+    assert!(
+        !crate::game_loop::abnormal::is_muted(&world, CASTER),
+        "…nor the magic one"
+    );
+}
+
+/// `UNTARGETABLE` and `TARGETING_DISABLED` are the two halves of Java's one
+/// gate in `Action`/`AttackRequest`: `(!obj.isTargetable() ||
+/// player.isTargetingDisabled())`. The first sits on the *clicked* object, the
+/// second on the *clicker* — swapping them would look identical in a
+/// single-actor test, so both are asserted from both sides.
+#[test]
+fn untargetable_sits_on_the_target_and_targeting_disabled_on_the_clicker() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        9325,
+        SkillEffect::Untargetable,
+        "UNTARGETABLE",
+    ));
+    world.data.skill_data.insert_for_test(cc_skill(
+        9326,
+        SkillEffect::DisableTargeting,
+        "TARGETING_DISABLED",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+
+    land(&mut world, 9325, NPC_OID);
+    assert!(crate::game_loop::abnormal::is_untargetable(&world, NPC_OID));
+    assert!(
+        !crate::game_loop::abnormal::is_targeting_disabled(&world, NPC_OID),
+        "being unclickable does not stop you clicking"
+    );
+
+    land(&mut world, 9326, CASTER);
+    assert!(crate::game_loop::abnormal::is_targeting_disabled(
+        &world, CASTER
+    ));
+    assert!(
+        !crate::game_loop::abnormal::is_untargetable(&world, CASTER),
+        "being unable to click does not make you unclickable"
+    );
+}
+
+/// `PHYSICAL_SHIELD_ANGLE_ALL` (Aegis) widens Java's `degreeside` from 120° to
+/// 360°, which in practice means the back-attack exemption in `calcShldUse`
+/// simply stops applying — a shield can block a backstab.
+#[test]
+fn the_shield_angle_flag_lets_a_shield_block_from_behind() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        9327,
+        SkillEffect::PhysicalShieldAngleAll,
+        "SHIELD_ANGLE",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    assert!(!crate::game_loop::abnormal::shields_from_all_angles(
+        &world, CASTER
+    ));
+    land(&mut world, 9327, CASTER);
+    assert!(
+        crate::game_loop::abnormal::shields_from_all_angles(&world, CASTER),
+        "the 360° arc is up while the stance holds"
+    );
+
+    // The formula's own behaviour, which the flag feeds: a back attack is
+    // unblockable, and that is the *only* thing the flag changes.
+    use crate::model::formulas::{SHIELD_NONE, SHIELD_SUCCEED, calc_shield_use};
+    assert_eq!(
+        calc_shield_use(90.0, 1.0, false, true, 0, 99),
+        SHIELD_NONE,
+        "from behind, no block"
+    );
+    // `perfect_roll` 0 keeps it an ordinary block: the perfect-block test is
+    // `100 − 2×con_bonus < perfect_roll`, i.e. 98 < 0 here.
+    assert_eq!(
+        calc_shield_use(90.0, 1.0, false, false, 0, 0),
+        SHIELD_SUCCEED,
+        "from the front, the same roll blocks"
+    );
+}
+
+/// `isStayAfterDeath()` is **one getter over three tags** —
+/// `_stayAfterDeath || _irreplacableBuff || _isNecessaryToggle` — and the port
+/// read only the first. On this dist **30 learnable skills** declare
+/// `<irreplacableBuff>` with no `<stayAfterDeath>` of their own (the whole
+/// Transform Grail Apostle / Unicorn / Lilim Knight / Golem Guardian family),
+/// so every one of them was being stripped on death when Java keeps it.
+///
+/// Asserted against the real dist and against a skill where the *new* tag is
+/// the only source, so the assertion can only pass because of the fold.
+#[test]
+fn irreplacable_buffs_survive_death_like_stay_after_death_ones() {
+    const TRANSFORM_GRAIL_APOSTLE: i32 = 541;
+    let sd =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    assert!(
+        sd.get(TRANSFORM_GRAIL_APOSTLE, 1)
+            .expect("Transform Grail Apostle 1")
+            .stay_after_death,
+        "declares <irreplacableBuff> and no <stayAfterDeath>, so it survives \
+         death only if the getter's three tags are folded"
+    );
+}

@@ -1206,6 +1206,19 @@ pub(crate) fn apply_skill_effects(
             // Stealth: the whole mechanic is the `SILENT_MOVE` flag the aggro
             // scan reads (`npc_ai::notices_target`).
             | SkillEffect::SilentMove
+            // G34 S3 — flag-only effects, all the same shape as `SilentMove`:
+            // nothing happens at application time, the gate reads the flag off
+            // the landed buff. `AbnormalShield` has no gate at all, in Java
+            // either (see `effect_flag::ABNORMAL_SHIELD`).
+            | SkillEffect::BuffBlock
+            | SkillEffect::PhysicalShieldAngleAll
+            | SkillEffect::Passive
+            | SkillEffect::Untargetable
+            | SkillEffect::DisableTargeting
+            | SkillEffect::PhysicalAttackMute
+            | SkillEffect::BlockResurrection
+            | SkillEffect::BlockEscape
+            | SkillEffect::AbnormalShield
             // `BlockMove`: the whole mechanic is the `IMMOBILIZED` flag the
             // movement gate reads.
             | SkillEffect::BlockMove
@@ -1718,6 +1731,14 @@ pub(crate) fn apply_continuous_effects(
         && caster_oid != target_oid
         && crate::game_loop::abnormal::is_debuff_blocked(world, target_oid)
     {
+        return false;
+    }
+    // The mirror image, from `EffectList.add`:
+    // `if (info.getEffected().isBuffBlocked() && !skill.isBad()) return;`.
+    // Note it keys on `isBad()` (effectPoint < 0) rather than `isDebuff()`, and
+    // has **no self-cast exemption** — Dance of Medusa stops the victim
+    // buffing themselves too, which is the point of it (G34 S3).
+    if !skill.is_bad() && crate::game_loop::abnormal::is_buff_blocked(world, target_oid) {
         return false;
     }
 

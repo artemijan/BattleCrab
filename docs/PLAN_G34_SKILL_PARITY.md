@@ -1,7 +1,7 @@
 # PLAN_G34 — Skills, effects & abnormal-state parity (epic)
 
-**Status:** 🚧 **S0 + S1 + S2 landed** (S0/S1 merged to `main`; S2 on
-`feat/g34-basic-property`) · **Milestone:**
+**Status:** 🚧 **S0–S3 landed and merged; S4 in progress** (first sub-slice on
+`feat/g34-effect-sweep`) · **Milestone:**
 G34 (follows G33) · **Kind:** epic (9 slices, each a landable branch with its
 own gate + sabotage-verified regression test).
 
@@ -47,10 +47,10 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 121 | **214 unhandled** (1 900 reachable skills, **54 learnable names**) |
+| Effect handler names used by dist skills | **335** | 133 | **202 unhandled** (1 821 reachable skills, **46 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
-| `EffectFlag` states | **38** | 15 | **23 missing** |
+| `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
 | `TargetType` | 23 | 10 + catch-all | 11 unhandled (532 reachable skills; `OTHERS` 3 + `DOOR_TREASURE` 1 learnable) |
 | `AffectScope` | 21 | 13 + catch-all | 7 unhandled (3 reachable, **0 learnable** — deferral confirmed) |
 | `AffectObject` | 11 | 4 + catch-all | 5 unhandled (**`UNDEAD_REAL_ENEMY` is 4 learnable**) |
@@ -483,54 +483,122 @@ wrong port — fails the formula test.
 
 ---
 
-### S3 — Abnormal-state breadth: the remaining `EffectFlag`s + buff lifecycle
+### S3 — Abnormal-state breadth ✅ **DONE** (`feat/g34-effect-flags`)
 
-1. Audit all 23 missing flags against the dist for a reachable source (§2C
-   table). For each with a source: add the constant, stamp it in
-   `Skill::effect_flags()` (that is the *only* place needed — stamp-and-fold),
-   and port its one Java gate. For each without: port the gate anyway if it is
-   one line, and leave a `TODO(G34)` naming the unreachable source, matching the
-   existing `MP_BLOCK`/`FEAR`/`CONFUSED` precedent.
-2. Buff-lifecycle tags (`removedOnDamage` already landed —
-   `e58c7f64`): `removedOnAnyActionExceptMove`, `abnormalInstant`,
-   `irreplacableBuff`, `subordinationAbnormalType`, `abnormalResists`,
-   `blockActionUseSkill`.
+Audited all 23 missing `EffectFlag`s against the dist first. The result splits
+three ways, and writing the split down was most of the value:
 
-**Trap:** any new modifier-less effect must join one of the empty-effects
-guard's three categories (*periodic* / *icon-only* / *state flag*) or the buff
-is dropped whole and nothing happens — this has bitten four slices running.
+**Nine flag-only effects ported** — each is one bit plus the single Java gate
+that reads it, so the effect *is* the flag:
 
-**Gate:** Betray turns a servitor on its owner; Dance of Medusa blocks incoming
-buffs; Clan Escape Lock refuses an SoE; Aegis's shield angle covers all sides;
-a `PhysicalAttackMute` pet cannot auto-attack.
+| flag | source | Java gate |
+|---|---|---|
+| `BUFF_BLOCK` | `BuffBlock` — Dance of Medusa (367) + 7 NPC | `EffectList.add`: `isBuffBlocked() && !skill.isBad()` |
+| `PHYSICAL_SHIELD_ANGLE_ALL` | `PhysicalShieldAngleAll` — Aegis (316/318) | `calcShldUse`: `degreeside = … ? 360 : 120` |
+| `PASSIVE` | `Passive` — Veil (106), Requiem (1049) | `Monster.isAggressive()` |
+| `UNTARGETABLE` | `Untargetable` (2 items) | `Creature.isTargetable()` |
+| `TARGETING_DISABLED` | `DisableTargeting` (1 NPC) | `Action`/`AttackRequest` |
+| `PSYCHICAL_ATTACK_MUTED` | `PhysicalAttackMute` (1 pet) | `Creature.isAttackDisabled()` |
+| `BLOCK_RESURRECTION` | `BlockResurrection` — Clan Resurrection Lock (19114) | gate already existed (S1) |
+| `CANNOT_ESCAPE` | `BlockEscape` — Clan Escape Lock (19113) | gate already existed (S1) |
+| `ABNORMAL_SHIELD` | `AbnormalShield` (2 items) | **none — dead in Java too** |
+
+`ABNORMAL_SHIELD` is worth the line: the handler returns both the flag *and*
+`EffectType.ABNORMAL_SHIELD`, and **nothing in the entire Java tree reads
+either**. Its two item sources are inert on Java as well. Defined with no
+consumer, the same shape as `FEAR`/`CONFUSED`/`MP_BLOCK` — and the reason to
+grep for readers *before* writing a gate.
+
+**Five flags left to S4**, where their effect has real mechanics beyond the bit:
+`BETRAYED` (Betray 1380), `RELAXING` (Relax 226), `SILENT_MOVE` via
+`ChameleonRest` (296), `RESURRECTION_SPECIAL` (Salvation 1410, Soul of the
+Phoenix 438), `DISARMED` (4 NPC skills). The flags are defined and gated, so S4
+only has to stamp them.
+
+**Nine with no source at all on this dist** — `ATTACK_BEHIND`, `CHAT_BLOCK`,
+`CHEAPSHOT`, `DOUBLE_CAST`, `DUELIST_FURY`, `FACEOFF`, `HPCPHEAL_CRITICAL`,
+`IGNORE_DEATH`, `PROTECT_DEATH_PENALTY`, `PROTECTION_BLESSING`. Not ported;
+recorded here so the next audit doesn't re-derive it.
+
+**Buff lifecycle:** `isStayAfterDeath()` turned out to be **one getter over
+three tags** — `_stayAfterDeath || _irreplacableBuff || _isNecessaryToggle` —
+and the port read only the first. **30 learnable skills** declare
+`<irreplacableBuff>` with no `<stayAfterDeath>` (the whole Transform Grail
+Apostle / Unicorn / Lilim Knight / Golem Guardian family), so all 30 were being
+stripped on death where Java keeps them. Folded at parse; an existing `TODO`
+closed.
+
+⏳ **Deferred to S7** (the tag/formula tail, where they belong):
+`removedOnAnyActionExceptMove` (4 learnable), `subordinationAbnormalType` (10),
+`abnormalInstant`, `blockActionUseSkill`, `abnormalResists` (0 learnable each).
+None is a flag; all are lifecycle/stacking tags that want the same pass as
+`specialLevel` and `nextAction`.
+
+**Census:** effect names **214 → 205**, learnable-affected **77 → 70**, headline
+**79 → 72**.
+
+**Gate met:** a buff-blocked target refuses buffs and still takes debuffs; a
+pacified aggressive mob does not aggro; an attack-muted bearer cannot swing but
+can still cast; Aegis blocks from behind. Regressions in `abnormal_tests`,
+sabotage-verified — dropping the buff-block gate and mis-stamping
+`PhysicalAttackMute` as `PHYSICAL_MUTED` (the plausible confusion) each fail,
+as does reverting the three-tag fold.
 
 ---
 
-### S4 — The learnable-skill effect sweep (77 skills, 5 families)
+### S4 — The learnable-skill effect sweep 🚧 **in progress** (`feat/g34-effect-sweep`)
 
-- **S4a Defensive stances & counters** — `PhysicalShieldAngleAll`,
-  `CounterPhysicalSkill`, `SkillEvasion`, `SkillTurning`,
-  `TriggerSkillByDamage`, `TargetMeProbability`, `TransferDamageToSummon`,
-  `AreaDamage`.
-- **S4b Aggro & control** — `TargetMe`, `Bluff`, `Betray` (with S3's flag),
-  `Unsummon`, `CallSkill`, `DeathLink`, `HateAttack`, `BuffBlock`,
-  `TriggerSkillByMagicType`.
-- **S4c Noblesse / high-level utility** — `ResurrectionSpecial`, `LimitHp`,
-  `LimitCp`, `ReduceDropPenalty`, `EnlargeAbnormalSlot`, `RebalanceHP`,
-  `CallPc`, `CallParty`, `DispelBySlotMyself`, `BlockEscape`,
-  `BlockResurrection`.
-- **S4d Passives & masteries** — `SkillMastery`, `SkillMasteryRate`,
-  `PhysicalSkillPower`, `PhysicalSkillCriticalDamage`,
-  `CriticalRatePositionBonus`, `MpVampiricAttack`, `NightStatModify`,
-  `CubicMastery`, `SafeFallHeight`, `Lucky`, `Passive`, `PolearmSingleTarget`,
-  `PhysicalAttackHpLink`, the `Pvp*Bonus` pair.
-- **S4e Utility & sustain** — `OpenDoor`/`OpenChest`, `WeightLimit`/
-  `WeightPenalty`, `Breath`, `HpByLevel`, `CpHealPercent`, `ManaHealOverTime`,
-  `ChameleonRest`, `ImmobilePetBuff`.
+**The biggest remaining slice, and the one that cannot be done in bulk.** The
+49 effect names left with a learnable source split by Java superclass:
 
-**Method note:** several of these are "parsed but unconsumed stat" shapes — the
-stat exists, nothing reads it. Grep the consumer *before* declaring the effect
-done ([[l2r-skill-rate-stats]], [[l2r-regen-stat-pipeline]]).
+- **14 are plain `AbstractStat*Effect`** — one `Stat` and a mode, nothing else.
+- **35 are `AbstractEffect`** — real per-effect mechanics.
+
+The stat ones look like one registry line each. They are not: **none of their
+`Stat`s exists in this port**, so each needs a variant, a registry entry **and
+a consumer wired into the right formula**. Adding only the registry line makes
+the census shrink while the effect still does nothing — which is precisely what
+the harness warns against ("recognised ≠ correctly ported"). Every entry below
+therefore lands with its consumer, or not at all.
+
+#### Sub-slice 1 ✅ — `Breath`, `WeightLimit`, `WeightPenalty`
+
+Three stats whose consumers already existed in the port, so the work was
+wiring them and correcting what was there:
+
+- **`Breath`** (`Stat::Breath`, consumed by `water::breath_ms`). `water.rs`
+  hard-coded a 60 s gauge behind a comment stating that "no skill or item on
+  this dist declares" `Stat.BREATH`. **21 skills do** — Boost Breath (195) and
+  Eva's Kiss (1073) are learnable, plus 19 Doom-set item skills. Third
+  self-justifying deviation comment this epic has turned up.
+- **`WeightLimit`** (`weight::max_load`). The CON formula is the *base* Java's
+  `getValue(WEIGHT_LIMIT, …)` applies add/mul to; Weight Limit (150) is `PER
+  300`, i.e. ×4 capacity.
+- **`WeightPenalty`** (`weight::refresh_weight_penalty`). **The name lies** —
+  it reads like a penalty *band*, but every Java caller subtracts it from
+  `getCurrentLoad()`, and Decrease Weight (1257) grants 3000/6000/9000, which
+  are weight units. A first pass here implemented the band reading; the
+  datapack settled it.
+
+Census: effect names **205 → 202**, learnable-affected **70 → 63**, headline
+**72 → 65**. Regressions in `weight_tests`/`water_tests`, sabotage-verified —
+and the breath one needed a second assertion on `start_water_task`, because
+testing `breath_ms` alone left the call site free to keep reading the constant
+(the first draft survived its own sabotage).
+
+#### Remaining sub-slices ⏳
+
+- **Stat effects still needing a `Stat` + consumer:** `PhysicalSkillPower`,
+  `PhysicalSkillCriticalDamage`, `SkillMasteryRate`, `HateAttack`,
+  `CounterPhysicalSkill`, `TransferDamageToSummon`, `CubicMastery`,
+  `AreaDamage`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
+  `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's
+  vampiric-absorb cap — check that before wiring a heal clamp).
+- **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
+  stances & counters, aggro & control, noblesse utility, passives & masteries,
+  utility & sustain. Five of them also stamp flags S3 already defined and
+  gated — `Betray`, `Relax`, `ChameleonRest`, `ResurrectionSpecial`, `Disarm`.
+- `StatUp` (9 learnable) stays **out of scope** — Territory War content.
 
 ---
 
@@ -626,8 +694,8 @@ gap.
 | S0 harness ✅ | S | — |
 | S1 condition engine ✅ | XL | S0 |
 | S2 basicProperty / BasicPropertyResist ✅ | M | S0 |
-| S3 EffectFlag breadth + lifecycle tags | L | S0 |
-| S4 learnable effect sweep (a–e) | XL | S0, S3 (for flag-backed effects) |
+| S3 EffectFlag breadth + lifecycle tags ✅ | L | S0 |
+| S4 learnable effect sweep (a–e) 🚧 | XL | S0, S3 (for flag-backed effects) |
 | S5 targeting/scope breadth | M | S0 |
 | S6 item/NPC effects | M | S0 |
 | S7 tag & formula tail | S | S0 |

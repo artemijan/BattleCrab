@@ -520,6 +520,18 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// G34 S3 flag-only effects — each is a single [`effect_flag`] bit and
+    /// nothing else; the constants say what reads them. They survive
+    /// `apply_skill_effects`' empty-effects guard through `has_state_flag`.
+    BuffBlock,
+    PhysicalShieldAngleAll,
+    Passive,
+    Untargetable,
+    DisableTargeting,
+    PhysicalAttackMute,
+    BlockResurrection,
+    BlockEscape,
+    AbnormalShield,
     /// `handlers/effecthandlers/DebuffBlock.java` — incoming debuffs fail while
     /// this is up.
     DebuffBlock,
@@ -1304,8 +1316,43 @@ pub mod effect_flag {
     /// only source is the `BlockEscape` effect (Clan Escape Lock 19113), which
     /// is **not ported yet** — the gate is live and correct, nothing currently
     /// raises it.
-    /// TODO(G34): stamp this from `BlockEscape` when S4c lands.
+    /// Sourced by the `BlockEscape` effect (Clan Escape Lock 19113).
     pub const CANNOT_ESCAPE: u32 = 1 << 15;
+    /// `BUFF_BLOCK` — incoming **buffs** are refused; debuffs still land. Java
+    /// `EffectList.add`: `if (isBuffBlocked() && !skill.isBad()) return;`, the
+    /// exact mirror of [`DEBUFF_BLOCK`]. Source: `BuffBlock` (Dance of Medusa
+    /// 367, plus 7 NPC skills).
+    pub const BUFF_BLOCK: u32 = 1 << 16;
+    /// `PHYSICAL_SHIELD_ANGLE_ALL` — the shield covers all 360°, not the usual
+    /// 120° frontal arc, so a back attack can be blocked too. Java
+    /// `Formulas.calcShldUse`: `degreeside = isAffected(…) ? 360 : 120`.
+    /// Source: `PhysicalShieldAngleAll` (Aegis 316, Aegis Stance 318).
+    pub const PHYSICAL_SHIELD_ANGLE_ALL: u32 = 1 << 17;
+    /// `PASSIVE` — an aggressive monster stops being aggressive. Java
+    /// `Monster.isAggressive()`: `getTemplate().isAggressive() &&
+    /// !isAffected(EffectFlag.PASSIVE)`. Source: the `Passive` effect (Veil
+    /// 106, Requiem 1049) — the "pacify the mob" utility line.
+    pub const PASSIVE: u32 = 1 << 18;
+    /// `UNTARGETABLE` — the bearer cannot be selected at all
+    /// (`Creature.isTargetable()`). Source: `Untargetable` (2 items).
+    pub const UNTARGETABLE: u32 = 1 << 19;
+    /// `TARGETING_DISABLED` — the *bearer* cannot select anything, the
+    /// caster-side twin of [`UNTARGETABLE`] (`Creature.isTargetingDisabled()`,
+    /// read by `Action`/`AttackRequest`). Source: `DisableTargeting` (1 NPC).
+    pub const TARGETING_DISABLED: u32 = 1 << 20;
+    /// `PSYCHICAL_ATTACK_MUTED` (Java's spelling) — no **auto-attacking**,
+    /// distinct from [`PHYSICAL_MUTED`], which refuses non-magic *skills*.
+    /// Java folds it into `Creature.isAttackDisabled()` alongside
+    /// `hasBlockActions()`. Source: `PhysicalAttackMute` (1 pet skill).
+    pub const PSYCHICAL_ATTACK_MUTED: u32 = 1 << 21;
+    /// `ABNORMAL_SHIELD` — **dead in Java**. The `AbnormalShield` handler
+    /// returns both this flag and `EffectType.ABNORMAL_SHIELD`, and *nothing in
+    /// the entire tree reads either* (grepped `java/` and
+    /// `dist/game/data/scripts/`). Its 2 item sources are therefore inert on
+    /// Java too. Defined here for completeness with no consumer — the same
+    /// shape as [`FEAR`] and [`CONFUSED`], and the reason to grep for readers
+    /// before porting a gate rather than after.
+    pub const ABNORMAL_SHIELD: u32 = 1 << 22;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -1671,10 +1718,13 @@ pub struct Skill {
     pub shared_with_summon: bool,
     /// Java `Skill.isStayAfterDeath()` (`<stayAfterDeath>`, default false) — the
     /// buff survives its holder's death (`EffectList
-    /// .stopAllEffectsExceptThoseThatLastThroughDeath`). Java ORs
-    /// `irreplacableBuff` and `isNecessaryToggle` into the same getter; neither
-    /// tag is parsed here yet, so this is the plain `<stayAfterDeath>` value.
-    /// TODO: fold in `<irreplacableBuff>`/`<isNecessaryToggle>` when parsed.
+    /// .stopAllEffectsExceptThoseThatLastThroughDeath`).
+    ///
+    /// Java's getter is `_stayAfterDeath || _irreplacableBuff ||
+    /// _isNecessaryToggle` — **one getter over three tags** — and all three are
+    /// folded into this field at parse (G34 S3). `<irreplacableBuff>` alone is
+    /// on 30 learnable skills, so reading only `<stayAfterDeath>` stripped the
+    /// clan/pledge and noblesse buffs on every death.
     pub stay_after_death: bool,
     /// Java `Skill.isRemovedOnDamage()` (`<removedOnDamage>`, default false) —
     /// the buff drops the moment its holder takes damage
@@ -2174,6 +2224,18 @@ impl Skill {
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 SkillEffect::FakeDeath { .. } => effect_flag::FAKE_DEATH,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
+                // G34 S3 — flag-only effects: the whole mechanic is the bit,
+                // so `apply_skill_effects`' empty-effects guard keeps them
+                // alive via `has_state_flag` and nothing else is needed.
+                SkillEffect::BuffBlock => effect_flag::BUFF_BLOCK,
+                SkillEffect::PhysicalShieldAngleAll => effect_flag::PHYSICAL_SHIELD_ANGLE_ALL,
+                SkillEffect::Passive => effect_flag::PASSIVE,
+                SkillEffect::Untargetable => effect_flag::UNTARGETABLE,
+                SkillEffect::DisableTargeting => effect_flag::TARGETING_DISABLED,
+                SkillEffect::PhysicalAttackMute => effect_flag::PSYCHICAL_ATTACK_MUTED,
+                SkillEffect::BlockResurrection => effect_flag::BLOCK_RESURRECTION,
+                SkillEffect::BlockEscape => effect_flag::CANNOT_ESCAPE,
+                SkillEffect::AbnormalShield => effect_flag::ABNORMAL_SHIELD,
                 SkillEffect::DamageBlock { block_hp, block_mp } => {
                     (if *block_hp { effect_flag::HP_BLOCK } else { 0 })
                         | (if *block_mp { effect_flag::MP_BLOCK } else { 0 })
