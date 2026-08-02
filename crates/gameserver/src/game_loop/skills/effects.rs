@@ -1944,6 +1944,17 @@ pub(crate) fn apply_skill_effects(
                             ai.intention = crate::model::npc::NpcIntention::Attack;
                             ai.attack_timeout_tick = world.tick + crate::game_loop::combat::ATTACK_TIMEOUT_TICKS;
                         }
+                // No `Attackable.reduceHate` tail here (the −25 calm window +
+                // `clearAggroList`), deliberately: Java can't reach it through
+                // this handler. `AddHate.instant` passes `(int) -val` for a
+                // negative `val`, so a `power=-1240` skill calls
+                // `reduceHate(effector, +1240)` → `ai.addHate(+1240)` — the
+                // double negation makes Java's "negative AddHate" *raise* hate,
+                // which never leaves `getMostHated() == null` and so never
+                // arms the calm window. The only genuine `reduceHate` caller is
+                // `TransferHate` (skill 489 Shift Target, off-chronicle here).
+                // Porting the tail onto this branch's reduce semantics would
+                // invent a 25 s stand-down Java never produces.
             }
             // `DeleteHate.instant` — chance-rolled: wipe the *whole* aggro
             // list and disengage (Java `setWalking()` + `setIntention(ACTIVE)`).

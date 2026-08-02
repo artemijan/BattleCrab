@@ -355,9 +355,6 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
     // broadcasts `TargetUnselected` including the owner's own client — without
     // that packet our client keeps the object id selected and the ground ring
     // re-attaches when the same id re-enters via `NpcInfo`/`CharInfo`.
-    // TODO(G9): Java also fires `EVT_FORGET_OBJECT` at both sides' AI here so
-    // NPCs drop aggro/follow on objects leaving their block — wire up when NPC
-    // AI can hold references.
     if let Some(TargetRef(Some(target))) = world
         .objects
         .get_component::<TargetRef>(&object_id)
@@ -370,6 +367,27 @@ pub(crate) fn update_region(world: &mut World, object_id: i32) {
         if target_region.is_some_and(|r| !regions_adjacent(new, r)) {
             super::target::drop_target_notify(world, object_id);
         }
+    }
+
+    // Java also fires `EVT_FORGET_OBJECT` at the AI of everything that just
+    // dropped out of the mover's block. For an `Attackable` mid-fight that
+    // lands on `Attackable.setTarget(null)` — the mover's aggro entry is
+    // removed and, if it was the last one, the mob stands down for ~25 s
+    // instead of instantly re-aggroing whoever is still standing there.
+    // (Adjacency is symmetric: the NPCs the mover can no longer see are
+    // exactly the ones that can no longer see the mover.)
+    let departed: Vec<i32> = world
+        .npcs_visible_from(old)
+        .into_iter()
+        .filter(|npc_id| {
+            world
+                .objects
+                .get_component::<RegionCell>(npc_id)
+                .is_some_and(|r| !regions_adjacent(new, r.0))
+        })
+        .collect();
+    for npc_oid in departed {
+        super::npc_ai::on_forget_object(world, npc_oid, object_id);
     }
 
     // NPC deltas: NpcInfo for NPCs entering the 3×3 block, DeleteObject for
@@ -558,6 +576,12 @@ pub(crate) fn on_leave_world(world: &mut World, object_id: i32) {
         if let Some(cs) = world.clients.get(&cid) {
             cs.send(server_packets::delete_object(object_id));
         }
+    }
+
+    // `EVT_FORGET_OBJECT` at the surrounding NPCs' AI — logging out mid-fight
+    // is the other way a mob loses its target. See `npc_ai::on_forget_object`.
+    for npc_oid in world.npcs_visible_from(region) {
+        super::npc_ai::on_forget_object(world, npc_oid, object_id);
     }
 }
 

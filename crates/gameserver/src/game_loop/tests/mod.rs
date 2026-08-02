@@ -75,6 +75,7 @@ mod frintezza_tests;
 mod geo_editor_tests;
 mod geo_vertical_tests;
 mod geometric_scope_tests;
+mod global_aggro_tests;
 mod grand_boss_tests;
 mod ground_channeling_tests;
 mod guard_aggro_tests;
