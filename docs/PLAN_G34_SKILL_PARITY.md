@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 150 | **185 unhandled** (1 759 reachable skills, **32 learnable names**) |
+| Effect handler names used by dist skills | **335** | 153 | **182 unhandled** (1 752 reachable skills, **29 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -723,6 +723,34 @@ Census: effect names **190 → 188**, learnable-affected **49 → 47**, headline
 Census: effect names **188 → 185**, learnable-affected **47 → 43**, headline
 **49 → 45**. Sabotage-verified both, including a sabotage that swaps in Java's
 ordinal ordering.
+
+#### Sub-slice 7 ✅ — positional crit rate, MP vampirism, and a second dead stat
+
+- **`CriticalRatePositionBonus`** (Focus Chance 356) — the crit-*rate* twin of
+  `CriticalDamagePosition`. The port hard-coded `calcCriticalPositionBonus`'s
+  1.0/1.1/1.3, i.e. the positional `CRITICAL_RATE` stat pinned at identity, so
+  Focus Chance was inert. It is the one skill declaring **all three** positions
+  (−30 front, +30 side, +60 back), so it rewards circling and *punishes*
+  standing in front — dropping the front term would read as a pure buff.
+- **`MpVampiricAttack`** (Weapon Mastery 250) — the MP twin of the HP drain.
+  **The two config gates are shaped opposite ways**: HP asks
+  `skill == null || VAMPIRIC_ATTACK_WORKS_WITH_SKILLS` (melee by default), MP
+  asks `skill != null || MP_VAMPIRIC_ATTACK_WORKS_WITH_MELEE` (**skills** by
+  default). Both are off on this dist, so Weapon Mastery drains on skill hits
+  and nothing on a swing. Java's ranged-weapon exclusion wraps the HP block
+  only, so it is deliberately absent here. One `<amount>` pumps two values —
+  the percentage and a `sum` the chance finalizer divides back out.
+- **`CubicMastery` → `Stat.MAX_CUBIC` is dead in Java**, the second such find
+  after `ABNORMAL_SHIELD`: nothing in the tree reads it, and the cubic limit
+  comes from `Config.ALLOWED_CUBIC_COUNT`. Registered so the skill's buff is not
+  dropped by the empty-effects guard, with no consumer — because Java has none.
+
+Census: effect names **185 → 182**, learnable-affected **43 → 39**, headline
+**45 → 41**. Sabotage-verified.
+
+**Not portable yet:** `SafeFallHeight` (Acrobatics 173) needs `Stat.FALL`, whose
+consumer is fall damage — **which this port does not implement at all**. Left
+out rather than registered, so the census keeps naming it.
 
 #### Remaining sub-slices ⏳
 

@@ -644,6 +644,7 @@ pub(crate) fn apply_skill_effects(
                 let landed = formulas::calc_blow_success(
                     crit_rate / 10.0,
                     position,
+                    crate::game_loop::combat::crit_rate_position_mul(world, caster_oid, position),
                     a.z,
                     t.z,
                     *chance_boost,

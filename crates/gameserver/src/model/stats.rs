@@ -151,6 +151,13 @@ pub enum Stat {
     /// Java `Stat.SKILL_MASTERY_RATE` — the multiplier on that chance
     /// (Focus Skill Mastery 334).
     SkillMasteryRate,
+    /// Java `Stat.MAX_CUBIC` — **dead in Java**. `CubicMastery` (143) is the
+    /// only writer and *nothing in the entire tree reads it* (grepped `java/`
+    /// and `dist/game/data/scripts/`); the cubic limit comes from
+    /// `Config.ALLOWED_CUBIC_COUNT` instead. Registered so the effect parses
+    /// and the skill's buff is not dropped whole, with no consumer — the same
+    /// shape as `effect_flag::ABNORMAL_SHIELD`.
+    MaxCubic,
     MaxBuffSlots,
     DamageZoneVuln,
     /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming
@@ -250,6 +257,12 @@ pub enum Stat {
     /// `min(1, vampiricSum / (absorbPercent · 100) / 100)`, i.e. the
     /// absorb-weighted mean of the contributing buffs' own chances.
     VampiricSum,
+    /// Java `Stat.ABSORB_MANA_DAMAGE_PERCENT` + the `mpVampiricSum` accumulator
+    /// — the MP twin of [`Self::AbsorbDamagePercent`]/[`Self::VampiricSum`],
+    /// granted by `MpVampiricAttack` (Weapon Mastery 250). The chance is
+    /// `min(1, mpVampiricSum / (percent × 100) / 100)`, exactly as the HP one.
+    AbsorbManaDamagePercent,
+    MpVampiricSum,
     /// Java `Stat.MANA_CHARGE` ("manaCharge") — a flat bonus on the amount a
     /// *recharge* skill restores, granted by Higher Mana Gain 285 (`ManaCharge`,
     /// `mode=DIFF`, +22..81 by level). Read off the **recipient** by

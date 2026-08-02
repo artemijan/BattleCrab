@@ -123,6 +123,11 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // physical branch.
     // G34 S4 sub-slice 4 — the mitigation/counter family.
     ("SkillMasteryRate", Stat::SkillMasteryRate),
+    // `CubicMastery` → `Stat.MAX_CUBIC`, which **nothing in Java reads** (the
+    // cubic limit is `Config.ALLOWED_CUBIC_COUNT`). Registered so the skill
+    // parses rather than losing its buff to the empty-effects guard; there is
+    // deliberately no consumer, because Java has none either.
+    ("CubicMastery", Stat::MaxCubic),
     ("AreaDamage", Stat::DamageZoneVuln),
     ("TransferDamageToSummon", Stat::TransferDamageSummonPercent),
     ("CounterPhysicalSkill", Stat::VengeanceSkillPhysicalDamage),
@@ -1829,6 +1834,36 @@ fn build_skill(
                         // lives in `Player.isLucky()`, which asks whether the
                         // *buff* is present, so all this has to do is land.
                         "Lucky" => vec![SkillEffect::Lucky],
+                        // `MpVampiricAttack` pumps **two** values from one
+                        // `<amount>`: the percentage (÷100) and a `sum`
+                        // (`amount × chance`, default chance 30 — "Classic:
+                        // 30% chance" in Java's own comment) that the chance
+                        // finalizer divides back out.
+                        "MpVampiricAttack" => param("amount")
+                            .map(|amount| {
+                                let chance = param("chance").unwrap_or(30.0);
+                                vec![
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::AbsorbManaDamagePercent,
+                                        mode: StatModifierType::Diff,
+                                        amount: amount / 100.0,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: None,
+                                        two_handed: false,
+                                    }),
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::MpVampiricSum,
+                                        mode: StatModifierType::Diff,
+                                        amount: amount * chance,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: None,
+                                        two_handed: false,
+                                    }),
+                                ]
+                            })
+                            .unwrap_or_default(),
                         "TargetMe" => vec![SkillEffect::TargetMe],
                         "TargetMeProbability" => vec![SkillEffect::TargetMeProbability {
                             chance: param("chance").unwrap_or(100.0) as i32,
@@ -2559,6 +2594,33 @@ fn build_skill(
                         // identity from the move-type one, so the qualifier routes
                         // it accordingly. Read only by the *autoattack* branch of
                         // `calcCritDamage`, matching Java.
+                        // `CriticalRatePositionBonus` (Focus Chance 356) — the
+                        // crit-*rate* twin of `CriticalDamagePosition`, and the
+                        // only skill on this dist that declares all three
+                        // positions at once (−30 front, +30 side, +60 back).
+                        "CriticalRatePositionBonus" => {
+                            let position = match value_at(params, "position", level) {
+                                Some("BACK") => crate::model::movement::Position::Back,
+                                Some("SIDE") => crate::model::movement::Position::Side,
+                                _ => crate::model::movement::Position::Front,
+                            };
+                            param("amount")
+                                .map(|amount| {
+                                    SkillEffect::StatModifier(StatModifierEffect {
+                                        stat: Stat::CriticalRate,
+                                        mode: StatModifierType::Per,
+                                        amount,
+                                        armor_condition: *armor_condition,
+                                        weapon_condition: *weapon_condition,
+                                        qualifier: Some(
+                                            crate::model::stats::StatQualifier::Position(position),
+                                        ),
+                                        two_handed: false,
+                                    })
+                                })
+                                .into_iter()
+                                .collect()
+                        }
                         "CriticalDamagePosition" => {
                             let position = match value_at(params, "position", level) {
                                 // Java `params.getEnum("position", Position.class, Position.FRONT)`.
@@ -4399,8 +4461,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 185 name(s), 43 learnable
-    /// skill(s) affected, 1759 reachable.
+    /// the work list, worst first. Category totals: 182 name(s), 39 learnable
+    /// skill(s) affected, 1752 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4426,11 +4488,12 @@ mod coverage_census {
     /// → 185 at sub-slice 6: `SkillMastery` + `SkillMasteryRate` (the
     /// cooldown-collapse proc) and `Lucky` (empty in Java; the buff's presence
     /// is the mechanic).
+    /// → 182 at sub-slice 7: `CriticalRatePositionBonus`, `MpVampiricAttack`
+    /// and `CubicMastery` (whose `MAX_CUBIC` nothing in Java reads).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("Bluff", 2),
         ("CpHealPercent", 2),
-        ("CriticalRatePositionBonus", 2),
         ("HpByLevel", 2),
         ("LimitCp", 2),
         ("LimitHp", 2),
@@ -4440,10 +4503,8 @@ mod coverage_census {
         ("Betray", 1),
         ("CallParty", 1),
         ("ChameleonRest", 1),
-        ("CubicMastery", 1),
         ("DeathLink", 1),
         ("ImmobilePetBuff", 1),
-        ("MpVampiricAttack", 1),
         ("NightStatModify", 1),
         ("OpenChest", 1),
         ("OpenDoor", 1),
@@ -4531,7 +4592,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 185, 43, 1759),
+            ("effect", &gaps.effects, EFFECTS, 182, 39, 1752),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4583,7 +4644,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            45,
+            41,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

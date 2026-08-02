@@ -430,3 +430,33 @@ fn a_physical_skill_crit_reads_the_skill_crit_stats_not_the_autoattack_one() {
         "a magic skill is unaffected by the physical-skill stats"
     );
 }
+
+/// G34 S4 sub-slice 7 — `CriticalRatePositionBonus` (Focus Chance 356), the
+/// crit-*rate* twin of `CriticalDamagePosition`.
+///
+/// Focus Chance is the one skill on this dist that declares **all three**
+/// positions — −30 % front, +30 % side, +60 % back — so it rewards a rogue who
+/// circles and *punishes* one who stands in front. Dropping the front term
+/// would read as a pure buff and pass any back-attack-only test.
+#[test]
+fn focus_chance_scales_crit_rate_per_position_including_downwards() {
+    use crate::model::formulas::calc_critical_position_bonus;
+    use crate::model::movement::Position;
+
+    // Unbuffed: Java's flat 1.0 / 1.1 / 1.3.
+    assert_eq!(calc_critical_position_bonus(Position::Front, 1.0), 1.0);
+    assert!((calc_critical_position_bonus(Position::Side, 1.0) - 1.1).abs() < 1e-9);
+    assert!((calc_critical_position_bonus(Position::Back, 1.0) - 1.3).abs() < 1e-9);
+
+    // Focus Chance's own numbers, as `mergePositionTypeValue` stores them
+    // (`(amount / 100) + 1`).
+    let front = calc_critical_position_bonus(Position::Front, 0.7);
+    let side = calc_critical_position_bonus(Position::Side, 1.3);
+    let back = calc_critical_position_bonus(Position::Back, 1.6);
+    assert!(
+        (front - 0.7).abs() < 1e-9,
+        "−30 % front is a penalty, not a no-op: {front}"
+    );
+    assert!((side - 1.43).abs() < 1e-9, "1.1 × 1.3: {side}");
+    assert!((back - 2.08).abs() < 1e-9, "1.3 × 1.6: {back}");
+}

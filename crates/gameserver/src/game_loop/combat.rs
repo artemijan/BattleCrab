@@ -200,6 +200,25 @@ fn defence_crit_rate(world: &World, target_oid: i32) -> (f64, f64) {
 /// Frenzy 176, Dance of Fire 274 and the rest of the 18 learnable
 /// `CriticalDamage` skills finally land — every one was inert before, pumping
 /// a stat with no reader anywhere. The position term is
+/// `getPositionTypeValue(Stat.CRITICAL_RATE, position)` — Focus Chance 356's
+/// per-position crit-*rate* multiplier. Identity 1.0 for anyone without it,
+/// which is what `calcCriticalPositionBonus` hard-coded before G34 S4.
+pub(crate) fn crit_rate_position_mul(
+    world: &World,
+    object_id: i32,
+    position: crate::model::movement::Position,
+) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .and_then(|m| {
+            m.by_position
+                .get(&(crate::model::stats::Stat::CriticalRate, position))
+                .copied()
+        })
+        .unwrap_or(1.0)
+}
+
 /// `CriticalDamagePosition` (Focus Death 355, Focus Power 357), read *only*
 /// here, matching Java.
 fn crit_damage_auto(
@@ -1200,6 +1219,7 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
             def_crit_mul,
             def_crit_add,
             position,
+            crit_rate_position_mul(world, attacker_oid, position),
             attacker.z,
             target.z,
             crit_roll,
@@ -1658,6 +1678,7 @@ pub(crate) fn apply_attack_damage(
     skill_magic: Option<bool>,
 ) {
     absorb_damage_to_hp(world, attacker, target, damage, is_dot, skill_magic);
+    absorb_damage_to_mp(world, attacker, target, damage, is_dot, skill_magic);
     apply_physical_damage(
         world,
         attacker,
@@ -1740,6 +1761,74 @@ fn absorb_damage_to_hp(
     }
     if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
         v.cur_hp = (v.cur_hp + absorbed).min(v.max_hp as f64);
+    }
+    super::skills::effects::broadcast_vitals_for(world, attacker);
+}
+
+/// `Creature.reduceCurrentHp`'s "Absorb MP from the damage inflicted" block —
+/// `MpVampiricAttack` (Weapon Mastery 250), the MP twin of
+/// [`absorb_damage_to_hp`].
+///
+/// **The two gates are shaped opposite ways and that is not a typo.** HP
+/// vampirism asks `skill == null || VAMPIRIC_ATTACK_WORKS_WITH_SKILLS` — it
+/// works with *melee* and needs a config to reach skills. MP vampirism asks
+/// `skill != null || MP_VAMPIRIC_ATTACK_WORKS_WITH_MELEE` — it works with
+/// *skills* and needs a config to reach melee. Both configs are off on this
+/// dist, so Weapon Mastery drains MP on skill hits only.
+///
+/// Unlike the HP twin there is **no ranged-weapon exclusion**: Java's "Do not
+/// absorb if weapon is ranged" guard wraps only the HP block.
+fn absorb_damage_to_mp(
+    world: &mut World,
+    attacker: i32,
+    target: i32,
+    damage: f64,
+    is_dot: bool,
+    skill_magic: Option<bool>,
+) {
+    use crate::model::components::{StatModifiers, Vitals};
+    use crate::model::stats::Stat;
+    if is_dot || damage <= 0.0 {
+        return;
+    }
+    if skill_magic.is_none() && !world.cfg.character.mp_vampiric_attack_work_with_melee {
+        return;
+    }
+    let is_pvp = !is_npc_oid(attacker) && !is_npc_oid(target);
+    if is_pvp && !world.cfg.character.mp_vampiric_attack_affects_pvp {
+        return;
+    }
+    let Some(mods) = world.objects.get_component::<StatModifiers>(&attacker) else {
+        return;
+    };
+    let absorb_percent = crate::model::finalize(mods, Stat::AbsorbManaDamagePercent, 0.0);
+    if absorb_percent <= 0.0 {
+        return;
+    }
+    let vampiric_sum = crate::model::finalize(mods, Stat::MpVampiricSum, 0.0);
+    // `MpVampiricChanceFinalizer`: `min(1, sum / (percent·100) / 100)`.
+    let chance = (vampiric_sum / (absorb_percent * 100.0) / 100.0).min(1.0);
+    if world.roll_f64() >= chance {
+        return;
+    }
+    let Some(drainer) = world.objects.get_component::<Vitals>(&attacker) else {
+        return;
+    };
+    // Java caps at `getMaxRecoverableMp() - getCurrentMp()`; `MAX_RECOVERABLE_MP`
+    // has no source on this dist, so it is `getMaxMp()`.
+    let missing = drainer.max_mp as f64 - drainer.cur_mp;
+    let victim_mp = world
+        .objects
+        .get_component::<Vitals>(&target)
+        .map(|v| v.cur_mp)
+        .unwrap_or(0.0);
+    let mut absorbed = (absorb_percent * damage).min(missing).trunc();
+    absorbed = absorbed.min(victim_mp.trunc());
+    if absorbed <= 0.0 {
+        return;
+    }
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&attacker) {
+        v.cur_mp = (v.cur_mp + absorbed).min(v.max_mp as f64);
     }
     super::skills::effects::broadcast_vitals_for(world, attacker);
 }

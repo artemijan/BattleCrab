@@ -1968,3 +1968,74 @@ fn lucky_exempts_a_newbie_from_the_death_exp_penalty() {
         "…and the buff alone is not enough past level 9"
     );
 }
+
+/// `MpVampiricAttack` (Weapon Mastery 250) — the MP twin of the HP drain, and
+/// **its config gate is shaped the opposite way**, which is the whole point of
+/// this test. HP vampirism asks `skill == null || WORKS_WITH_SKILLS`: melee by
+/// default. MP vampirism asks `skill != null || WORKS_WITH_MELEE`: *skills* by
+/// default. Both configs are off on this dist, so Weapon Mastery drains MP on
+/// skill hits and nothing at all on a melee swing.
+#[test]
+fn mp_vampiric_drains_on_skills_not_melee() {
+    use crate::model::stats::Stat;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
+
+    // 10 % of damage, and a `sum` chosen to make the chance exactly 1.0 so the
+    // test is about the *gate*, not the roll: the finalizer is
+    // `min(1, sum / (percent × 100) / 100)`, so `sum = 0.1 × 100 × 100 = 1000`.
+    // (Weapon Mastery's own `amount 10` gives sum 300 → **0.3**, which is
+    // Java's own "Classic: 30% chance" comment — using it here made the first
+    // draft of this test fail 70 % of the time.)
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap_or_default();
+    mods.add.insert(Stat::AbsorbManaDamagePercent, 0.1);
+    mods.add.insert(Stat::MpVampiricSum, 1000.0);
+    world.objects.add_components(&CASTER, mods);
+    // Room to drain into, and something to drain from.
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+        v.max_mp = 10_000;
+        v.cur_mp = 0.0;
+    }
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&NPC_OID) {
+        v.max_mp = 10_000;
+        v.cur_mp = 10_000.0;
+        v.max_hp = 1_000_000;
+        v.cur_hp = 1_000_000.0;
+    }
+    let mp = |world: &World| {
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_mp)
+            .unwrap_or(0.0)
+    };
+
+    // A melee swing (`skill_magic == None`) drains nothing on this dist.
+    crate::game_loop::combat::apply_attack_damage(&mut world, CASTER, NPC_OID, 500.0, false, None);
+    assert_eq!(
+        mp(&world),
+        0.0,
+        "MpVampiricAttackWorkWithMelee is False here, so melee drains nothing"
+    );
+
+    // A skill hit does. `apply_physical_damage`'s `from_skill` is the same
+    // discriminator, so drive it through the skill-damage entry point.
+    crate::game_loop::combat::apply_attack_damage(
+        &mut world,
+        CASTER,
+        NPC_OID,
+        500.0,
+        false,
+        Some(false),
+    );
+    assert!(
+        mp(&world) > 0.0,
+        "a skill hit drains 10 % of the damage into MP: {}",
+        mp(&world)
+    );
+}
