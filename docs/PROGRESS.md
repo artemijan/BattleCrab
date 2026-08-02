@@ -1697,6 +1697,33 @@ when one component carries two lifetimes, removing it to end one ends both.*
 2 new tests (`movement_tests`), both sabotage-verified; **2479 gameserver
 tests green**, clippy clean.
 
+**Mobs cast while running (fix, 2026-08-02, reported from live play: "monsters
+run after me and cast at the same time; a mob can't cast and run at the
+same time").** Java enforces that with **four** interlocks and the NPC path had
+only one of them. The one that was ported is `AttackableAI.thinkAttack`'s ladder
+guard, `(!npc.isMoving() && npc.hasSkillChance()) || (aiType == MAGE)` — and
+that guard is exactly the one that *doesn't* stop a mage, because the MAGE arm
+deliberately bypasses the `isMoving()` test (its job is to skip the
+skill-chance roll). The three missing ones: (1) **`Creature.doCast`'s first
+statement**, `if (isAttackable() && isMoving()) return;` — the blanket refusal
+that catches the 402 MAGE templates on this dist *and* every boss/quest script
+that calls `doCast` directly. It lives in `npc_cast::start_cast` for the same
+reason it lives in `doCast` in Java: every NPC cast funnels through there.
+Note it is gated on `isAttackable()` — a servitor is `Playable`, not
+`Attackable`, and is not refused. (2) **`SkillCaster.startCasting`'s
+`clientStopMoving(null)`** — the player path (`skills/cast.rs`) had it, the NPC
+path never did, so nothing dropped the move data or broadcast `StopMove`;
+`npc_ai::stop_npc` is now shared for it. (3) **`thinkAttack`'s opening
+`if (npc.isCastingNow()) return;`** — and this is the one that produced the
+reported symptom on its own, for *any* caster, not just mages. `try_cast`
+correctly refuses a second concurrent cast and returns `false`, but `false`
+means "no cast this think", so the think fell straight through to the range
+tail and re-issued `chase()` every second for the whole duration of the cast.
+The mob ran at the player with its cast bar up. *A guard that reads "already
+busy → return false" is not the same as "already busy → stop thinking"; the
+caller decides which one it got.* 2 new tests (`npc_cast_tests`), each with its
+zero case in the same test so the assertion can't pass for an unrelated reason.
+
 **G19 sweep done 2026-07-31 (27 → 21).** Ranked by *learnable* carriers
 first — the lesson from the earlier effects work — which is what made the
 cluster tractable. Of the six unported affect scopes, **exactly one has a

@@ -22,7 +22,9 @@ use std::collections::HashSet;
 use commons::util::rnd;
 
 use crate::data::npc_data::AiType;
-use crate::model::components::{AttackState, Movement, Position, RegionCell, Speeds, Vitals};
+use crate::model::components::{
+    AttackState, Casting, Movement, Position, RegionCell, Speeds, Vitals,
+};
 use crate::model::movement::{self, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::network::server_packets;
@@ -391,8 +393,9 @@ fn distance_2d(world: &World, oid: i32, x: i32, y: i32) -> f64 {
         .unwrap_or(f64::MAX)
 }
 
-/// Stop a mob dead (remove its move, broadcast `StopMove`).
-fn stop_npc(world: &mut World, npc_oid: i32) {
+/// Stop a mob dead (remove its move, broadcast `StopMove`) — the NPC half of
+/// `AbstractAI.clientStopMoving(null)`.
+pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {
     if !world.objects.has_component::<Movement>(&npc_oid) {
         return;
     }
@@ -776,6 +779,16 @@ fn random_walk_move(world: &mut World, npc_oid: i32, cur: (i32, i32, i32), spawn
 /// swing.
 fn think_attack(world: &mut World, npc_oid: i32) {
     let now = world.tick;
+
+    // `thinkAttack`'s very first line: `if ((npc == null) || npc.isCastingNow())
+    // return;` — a mob with a cast in flight thinks about nothing at all until
+    // it lands. Without this the think walked straight past `try_cast` (which
+    // refuses a second, concurrent cast and so returns `false`) into the
+    // range/chase tail and re-issued `chase()` every second, which is what made
+    // casters sprint at their target while the cast bar was still playing.
+    if world.objects.has_component::<Casting>(&npc_oid) {
+        return;
+    }
 
     // Chase leash (`AttackableAI.thinkAttack` `AGGRO_DISTANCE_CHECK`): a monster
     // dragged farther than the configured range from its spawn drops all aggro,
