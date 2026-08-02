@@ -3411,3 +3411,130 @@ fn an_elixir_honours_the_recoverable_ceiling() {
         "clamped to the recoverable ceiling, not the raw pool"
     );
 }
+
+/// **`<nextAction>`** — `SkillCaster.finishSkill`'s "attack target after skill
+/// use" block, on **339** skills with `ATTACK` and 11 with `CAST`. Without it
+/// every offensive skill *ends* your combat: you fire Power Strike and stand
+/// there. Java gates it on a real target that is neither you nor
+/// un-attackable.
+#[test]
+fn a_next_action_attack_skill_leaves_the_caster_swinging() {
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    use crate::model::skill::NextAction;
+    // Power Strike (3) is the archetype; Wind Strike (1177-style nukes) too.
+    let ps = skills.get(3, 1).expect("Power Strike");
+    assert_eq!(
+        ps.next_action,
+        NextAction::Attack,
+        "Power Strike declares nextAction=ATTACK"
+    );
+    // And the tag is not universally set — a buff must not drag you into melee.
+    let wind_walk = skills.get(1204, 1).expect("Wind Walk");
+    assert_eq!(
+        wind_walk.next_action,
+        NextAction::None,
+        "a self-buff has no next action"
+    );
+}
+
+/// The behavioural half: a finished `ATTACK` cast has to leave a live attack
+/// intent behind. A parsed tag that never reaches the intent is the failure
+/// this epic keeps finding.
+#[test]
+fn finishing_a_next_action_cast_starts_the_attack_intent() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mob = NPC_OID;
+    add_test_npc(&mut world, mob, 20001, "Monster", 20, 60, 0, 0);
+
+    let mut strike = cc_skill(9450, SkillEffect::Root, "ROOT");
+    strike.next_action = crate::model::skill::NextAction::Attack;
+    world.data.skill_data.insert_for_test(strike.clone());
+
+    let intent_target = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::Intent>(&CASTER)
+            .and_then(|i| match i.0 {
+                crate::model::PlayerIntent::Attack { target_object_id } => Some(target_object_id),
+                _ => None,
+            })
+    };
+    assert_eq!(intent_target(&world), None, "not attacking to begin with");
+
+    crate::game_loop::skills::cast::resume_action_after_cast_for_test(
+        &mut world, CASTER, mob, 9450, 1,
+    );
+
+    assert_eq!(
+        intent_target(&world),
+        Some(mob),
+        "the cast leaves the caster swinging at its target"
+    );
+}
+
+/// **`<abnormalResists>`** — `calcEffectSuccess`'s first resist clause: a
+/// target part-way through a cast whose skill names this abnormal type shrugs
+/// the debuff off outright, before any roll. That is what makes the long-ritual
+/// skills uninterruptible; 176 skills on this dist declare a list.
+#[test]
+fn a_caster_shrugs_off_an_abnormal_its_own_cast_resists() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let victim = CASTER + 1;
+    let _v = ingame_player(&mut world, CID + 1, victim, 40, 0, 0);
+
+    // The ritual the victim is casting: immune to STUN while it runs.
+    let mut ritual = cc_skill(9451, SkillEffect::Root, "NONE");
+    ritual.abnormal_resists = vec!["STUN".into()];
+    world.data.skill_data.insert_for_test(ritual);
+    // The stun aimed at them.
+    let mut stun = cc_skill(
+        9452,
+        SkillEffect::BlockActions { conditional: false },
+        "STUN",
+    );
+    stun.is_debuff = true;
+    stun.activate_rate = 100;
+    world.data.skill_data.insert_for_test(stun.clone());
+
+    let stunned = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&victim)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 9452))
+    };
+
+    // Not casting: the stun lands.
+    world.forced_rolls.clear();
+    world.forced_rolls.extend([0; 8]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
+    assert!(stunned(&world), "an idle target takes the stun");
+
+    // Mid-ritual: shrugged off before any roll.
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9452);
+    world.objects.add_components(
+        &victim,
+        crate::model::components::Casting(crate::model::CastState {
+            skill_id: 9451,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: victim,
+            seq: 1,
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+    world.forced_rolls.clear();
+    world.forced_rolls.extend([0; 8]);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CASTER, victim, &stun);
+    assert!(
+        !stunned(&world),
+        "mid-ritual the same stun is resisted outright"
+    );
+}

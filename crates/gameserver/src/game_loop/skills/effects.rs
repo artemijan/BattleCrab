@@ -2444,6 +2444,17 @@ pub(crate) fn apply_continuous_effects(
     // through. `activateRate == -1` is filtered here so those consume no roll
     // (keeps the ordering of the remaining rolls stable). Both lines are
     // single-target only so an AoE debuff doesn't spam one line per target.
+    // `calcEffectSuccess`'s first resist clause, ahead of the roll: a target
+    // that is **casting** a skill whose `<abnormalResists>` names this skill's
+    // `abnormalType` shrugs it off outright. That is what makes the long-ritual
+    // skills uninterruptible — 176 skills declare a list, 146 of them the full
+    // crowd-control set.
+    if skill.is_debuff
+        && caster_oid != target_oid
+        && casting_resists_abnormal(world, target_oid, &skill.abnormal_type)
+    {
+        return false;
+    }
     if skill.is_bad() && caster_oid != target_oid && skill.activate_rate != -1 {
         let target_level = creature_level(world, target_oid);
         // Java: `skill.isDebuff() ? target.getStat().getValue(RESIST_ABNORMAL_DEBUFF, 1) : 1`.
@@ -3768,6 +3779,33 @@ fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Skill) {
         }
         broadcast_vitals(world, oid);
     }
+}
+
+/// `target.isCastingNow(s -> s.getSkill().getAbnormalResists().contains(
+/// skill.getAbnormalType()))` — is the target part-way through a cast that
+/// declares immunity to this abnormal type?
+///
+/// Empty `abnormal_type` never matches: Java compares against an
+/// `AbnormalType` enum whose `NONE` is not in any resist list.
+fn casting_resists_abnormal(world: &World, target_oid: i32, abnormal_type: &str) -> bool {
+    if abnormal_type.is_empty() {
+        return false;
+    }
+    let Some(casting) = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&target_oid)
+    else {
+        return false;
+    };
+    world
+        .data
+        .skill_data
+        .get(casting.0.skill_id, casting.0.skill_level)
+        .is_some_and(|s| {
+            s.abnormal_resists
+                .iter()
+                .any(|t| t.eq_ignore_ascii_case(abnormal_type))
+        })
 }
 
 /// Test hook for [`creature_level`], which is private to this module.

@@ -1986,7 +1986,18 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
         return;
     };
     let (skill_id, target) = (cast.skill_id, cast.target_object_id);
+    let skill_level = cast.skill_level;
     stop_casting(world, player_object_id);
+    // `SkillCaster.finishSkill`'s "Attack target after skill use" block, which
+    // is why a Power Strike leaves you swinging rather than standing still.
+    //
+    // Java gates it on the AI having no queued intention, a real target that
+    // is neither the caster nor un-attackable, and — for `ATTACK` only —
+    // shift not being held (the port has no shift-cast, so that clause is
+    // vacuous). The `CAST` branch re-queues the same skill; this port has no
+    // intention queue to push onto, so it is left as a `TODO(G34)` rather than
+    // faked with an immediate re-cast, which would loop.
+    resume_action_after_cast(world, player_object_id, target, skill_id, skill_level);
     // `EVT_FINISH_CASTING` → script `onSpellFinished`, for NPC casters a
     // script registered (the Primeval Isle Tyrannosaurus's berserk chains).
     let npc_id = world
@@ -2001,6 +2012,69 @@ pub(crate) fn handle_cast_end(world: &mut World, player_object_id: i32, cast_seq
             skill_id,
             target,
         );
+    }
+}
+
+/// Test hook for [`resume_action_after_cast`], private to this module.
+#[cfg(test)]
+pub(crate) fn resume_action_after_cast_for_test(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    resume_action_after_cast(world, caster_oid, target_oid, skill_id, skill_level);
+}
+
+/// `SkillCaster.finishSkill`'s next-action block — see the call site.
+fn resume_action_after_cast(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    skill_level: i32,
+) {
+    use crate::model::skill::NextAction;
+
+    let Some(next) = world
+        .data
+        .skill_data
+        .get(skill_id, skill_level)
+        .map(|s| s.next_action)
+    else {
+        return;
+    };
+    if next == NextAction::None {
+        return;
+    }
+    // Players only: an NPC's post-cast behaviour is its own AI's business
+    // (`npc_ai` re-thinks every tick), and Java routes NPCs through the same
+    // `setIntention` this port expresses as `Intent`.
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&caster_oid)
+    {
+        return;
+    }
+    // `(target != null) && (target != caster) && target.isAutoAttackable(caster)`.
+    if target_oid == caster_oid || target_oid == 0 {
+        return;
+    }
+    if target_state(world, target_oid).is_none() {
+        return;
+    }
+    if !crate::game_loop::target::is_auto_attackable(world, caster_oid, target_oid) {
+        return;
+    }
+    match next {
+        NextAction::Attack => {
+            crate::game_loop::combat::resume_attack_intent(world, caster_oid, target_oid);
+        }
+        // TODO(G34): Java re-queues the same skill through the AI intention
+        // queue, which this port does not have. Re-casting inline here would
+        // loop, so the branch is deliberately inert.
+        NextAction::Cast | NextAction::None => {}
     }
 }
 

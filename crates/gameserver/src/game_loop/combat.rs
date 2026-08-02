@@ -572,6 +572,19 @@ pub(crate) fn start_attack_intent(
     player_attack_think(world, object_id);
 }
 
+/// `setIntention(AI_INTENTION_ATTACK, target)` from a *finished cast* — the
+/// `nextAction` continuation. Distinct from [`start_attack_intent`], which is
+/// the click path and re-runs the click-time gates (peace zone, the refusal
+/// packets); by the time a cast has landed those have already been decided, so
+/// this only sets the intent and thinks once.
+pub(crate) fn resume_attack_intent(world: &mut World, object_id: i32, target_object_id: i32) {
+    world.objects.add_components(
+        &object_id,
+        Intent(PlayerIntent::Attack { target_object_id }),
+    );
+    player_attack_think(world, object_id);
+}
+
 /// A player's melee swing against a targeted siege door — the `DoorAction`
 /// attack path. Only castle doors during an active siege take damage; the swing
 /// lands immediately (per `AttackRequest`; the chase + auto-repeat loop and the

@@ -1670,6 +1670,15 @@ pub mod effect_flag {
     pub const BETRAYED: u32 = 1 << 23;
 }
 
+/// Java `NextActionType` — what `SkillCaster.finishSkill` queues after a cast.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum NextAction {
+    #[default]
+    None,
+    Attack,
+    Cast,
+}
+
 /// `ReduceDropType` — which of `ReduceDropPenalty`'s three stat pairs to grant.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ReduceDropKind {
@@ -1984,6 +1993,22 @@ pub struct Skill {
     /// Milliseconds from cast start to the skill "landing" (Java `hitTime`),
     /// before casting-speed scaling.
     pub hit_time: i32,
+    /// Java `<nextAction>` — what the caster does once the cast finishes.
+    /// `SkillCaster.finishSkill`: with `ATTACK` (339 skills on this dist) the
+    /// caster resumes attacking the target, with `CAST` (11) it repeats the
+    /// skill; `NONE` just fires `EVT_FINISH_CASTING`. Java gates both on the
+    /// AI having no queued intention, a real target that is not the caster and
+    /// is auto-attackable, and — for `ATTACK` only — shift not being held.
+    ///
+    /// This is why a Power Strike leaves you swinging rather than standing
+    /// still: without it every offensive skill ends combat.
+    pub next_action: NextAction,
+    /// Java `<abnormalResists>` — abnormal types this skill makes its caster
+    /// immune to **while it is casting** (`Formulas.calcEffectSuccess`:
+    /// `target.isCastingNow(s -> s.getSkill().getAbnormalResists().contains(
+    /// skill.getAbnormalType()))`). 176 skills declare one; the long list on
+    /// 146 of them is the "uninterruptible ritual" set.
+    pub abnormal_resists: Vec<String>,
     /// Java `hitCancelTime` (seconds) — the launch→finish phase length input;
     /// almost always 0, floored to 500 ms by `calc_skill_cancel_time`.
     pub hit_cancel_time: f64,
@@ -2369,6 +2394,8 @@ impl Default for Skill {
             cast_range: 0,
             effect_range: 0,
             hit_time: 0,
+            next_action: NextAction::None,
+            abnormal_resists: Vec::new(),
             hit_cancel_time: 0.0,
             cool_time: 0,
             reuse_delay: 0,
