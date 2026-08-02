@@ -150,6 +150,39 @@ pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
     (world.roll(100) as f64) < chance
 }
 
+/// Java `CreatureStat.getMaxRecoverableHp()` / `getMaxRecoverableCp()` —
+/// `getValue(MAX_RECOVERABLE_*, getMaxHp()/getMaxCp())`, the ceiling a **heal**
+/// may restore to.
+///
+/// Identity is the full pool, so this only bites under Noblesse Harmony (1326)
+/// / Symphony (1327), which grant it `PER −30` / `−40`: you can be healed back
+/// to 70 % HP and 60 % CP and no further. Java uses it in every heal clamp, and
+/// also as the cap on HP/MP *absorbed* by vampiric attacks.
+pub(crate) fn max_recoverable(
+    world: &World,
+    object_id: i32,
+    stat: crate::model::stats::Stat,
+    base: f64,
+) -> f64 {
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+        .map(|m| crate::model::finalize(m, stat, base))
+        .unwrap_or(base)
+}
+
+/// The inverse of `servitor::servitor_of` — given a servitor, who owns it.
+/// The owner link lives on the servitor as `ServitorOf`, which is also what
+/// makes Java's `canStart` (`effected.isSummon()`) expressible: no component,
+/// not a servitor, no unsummon.
+fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&servitor_oid)
+        .map(|s| s.owner_object_id)
+        .filter(|&owner| owner != 0)
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -644,6 +677,7 @@ pub(crate) fn apply_skill_effects(
                 let landed = formulas::calc_blow_success(
                     crit_rate / 10.0,
                     position,
+                    crate::game_loop::combat::crit_rate_position_mul(world, caster_oid, position),
                     a.z,
                     t.z,
                     *chance_boost,
@@ -853,6 +887,202 @@ pub(crate) fn apply_skill_effects(
                 }
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
+            // `CpHealPercent.instant` — a share of the target's **max CP**,
+            // clamped by `getMaxRecoverableCp()`. Java bails on a dead target,
+            // a door and an HP-blocked one (the last is not a typo: the CP heal
+            // reads `isHpBlocked`).
+            // `Bluff.instant` — spin the target to face the caster's heading.
+            // Raid bosses and their minions are immune (Java also names NPC
+            // 35062, a siege headquarters, explicitly); the pair of rotation
+            // packets is what the client animates, and the server-side heading
+            // change is what makes a subsequent Backstab land.
+            SkillEffect::Bluff { chance } => {
+                let is_raid = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    // Java also excludes `isRaidMinion()`; this port has no
+                    // separate minion type — a raid's minions carry ordinary
+                    // `Monster` templates and are tracked by the leader's
+                    // `MinionList` instead — so only the boss itself is immune.
+                    // TODO(G34): extend to minions if a minion predicate lands.
+                    .is_some_and(|t| t.is_raid());
+                if is_raid || !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
+                    continue;
+                }
+                let Some(caster_heading) = world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&caster_oid)
+                    .map(|p| p.heading)
+                else {
+                    continue;
+                };
+                let target_heading = world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&target_oid)
+                    .map(|p| p.heading)
+                    .unwrap_or(0);
+                if let Some(region) = world
+                    .objects
+                    .get_component::<RegionCell>(&target_oid)
+                    .map(|r| r.0)
+                {
+                    for pkt in [
+                        server_packets::start_rotation(target_oid, target_heading, 1, 65535),
+                        server_packets::stop_rotation(target_oid, caster_heading, 65535),
+                    ] {
+                        crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+                    }
+                }
+                if let Some(p) = world
+                    .objects
+                    .get_component_mut::<crate::model::components::Position>(&target_oid)
+                {
+                    p.heading = caster_heading;
+                }
+            }
+            // `Unsummon.instant` — Erase (1395). `canStart` requires the
+            // *effected* to be a summon, so the skill is aimed at the pet
+            // rather than its owner, and the chance defaults to **-1**
+            // ("always") rather than 100.
+            SkillEffect::Unsummon { chance } => {
+                // `canStart`: the *effected* must be a summon. The port keys
+                // ownership the other way (owner → `SummonRef`), so find the
+                // owner by asking the target's own back-reference.
+                let Some(owner) = servitor_owner_of(world, target_oid) else {
+                    // Not a servitor — Java's `canStart` refuses outright.
+                    continue;
+                };
+                // `calcSuccess`: a negative chance always lands; otherwise the
+                // magic-level gate `(effected.getLevel() - 9) <= magicLevel`
+                // has to pass first.
+                if *chance >= 0 {
+                    let target_level = creature_level(world, target_oid);
+                    if skill.magic_level > 0 && (target_level - 9) > skill.magic_level {
+                        continue;
+                    }
+                    let rate = *chance as f64
+                        * attribute_mod(world, caster_oid, target_oid, skill)
+                        * calc_general_trait_bonus(
+                            world,
+                            caster_oid,
+                            target_oid,
+                            skill.trait_type,
+                            false,
+                        );
+                    if rate < 100.0 && rate <= world.roll(100) as f64 {
+                        continue;
+                    }
+                }
+                crate::game_loop::servitor::unsummon_servitor(world, owner);
+            }
+            // `DeathLink.instant` — Curse Death Link (1159). The power scales
+            // with how close the **caster** is to death:
+            // `power × (2 − 2·curHp/maxHp)` — ×2 at 0 HP, ×0 at full, so
+            // casting it healthy does literally nothing.
+            SkillEffect::DeathLink { power } => {
+                let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
+                    continue;
+                };
+                if v.dead {
+                    continue;
+                }
+                let scaled = *power * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0);
+                let m_atk = world
+                    .objects
+                    .get_component::<CombatStats>(&caster_oid)
+                    .map(|c| c.m_atk)
+                    .unwrap_or(0.0);
+                let m_def = target_m_def(world, target_oid);
+                let caster_name = caster_display_name(world, caster_oid);
+                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+                let damage = formulas::calc_magic_dam(
+                    m_atk,
+                    m_def,
+                    scaled,
+                    mcrit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
+                    magic_shots_bonus,
+                    failure,
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
+                    * skill_power_mul(world, caster_oid, true);
+                apply_skill_damage(
+                    world, caster_oid, target_oid, damage, mcrit, true, &caster_name,
+                    skill.over_hit, false, skill.id,
+                );
+            }
+            SkillEffect::CpHealPercent { power } => {
+                use crate::model::components::PlayerVitals;
+                if world
+                    .objects
+                    .get_component::<Vitals>(&target_oid)
+                    .is_none_or(|v| v.dead)
+                    || world
+                        .objects
+                        .has_component::<crate::model::door::Door>(&target_oid)
+                    || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
+                {
+                    continue;
+                }
+                let Some(cp) = world
+                    .objects
+                    .get_component::<PlayerVitals>(&target_oid)
+                    .copied()
+                else {
+                    // NPCs have no CP pool at all.
+                    continue;
+                };
+                let max_cp = cp.max_cp as f64;
+                let amount = if *power == 100.0 {
+                    max_cp
+                } else {
+                    max_cp * *power / 100.0
+                };
+                let ceiling = max_recoverable(
+                    world,
+                    target_oid,
+                    crate::model::stats::Stat::MaxRecoverableCp,
+                    max_cp,
+                );
+                let amount = amount.min((ceiling - cp.cur_cp).max(0.0));
+                if amount > 0.0 {
+                    if let Some(v) = world
+                        .objects
+                        .get_component_mut::<PlayerVitals>(&target_oid)
+                    {
+                        v.cur_cp += amount;
+                    }
+                    broadcast_vitals(world, target_oid);
+                }
+            }
+            // `HpByLevel.instant` — heals the **effector**. Life Scavenge (46)
+            // and Corpse Life Drain (1151) drain a corpse to top the *caster*
+            // up, so the target is only the corpse being consumed.
+            SkillEffect::HpByLevel { power } => {
+                let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
+                    continue;
+                };
+                // Java clamps to `getMaxHp()` here, **not** to
+                // `getMaxRecoverableHp()` — the one heal in this family that
+                // ignores the recoverable cap. Ported as written.
+                let restored = ((v.cur_hp + *power).min(v.max_hp as f64) - v.cur_hp).trunc();
+                if restored <= 0.0 {
+                    continue;
+                }
+                if let Some(v) = world.objects.get_component_mut::<Vitals>(&caster_oid) {
+                    v.cur_hp += restored;
+                }
+                if let Some(cid) = client_for_player(world, caster_oid)
+                    && let Some(cs) = world.clients.get(&cid)
+                {
+                    cs.send(server_packets::system_message_with(
+                        sm_ids::S1_HP_HAS_BEEN_RESTORED,
+                        &[SmParam::Int(restored as i32)],
+                    ));
+                }
+                broadcast_vitals(world, caster_oid);
+            }
             SkillEffect::Heal { power } => {
                 let power = *power;
                 let m_atk = world.objects.get_component::<CombatStats>(&caster_oid).map(|c| c.m_atk).unwrap_or(0.0);
@@ -900,10 +1130,25 @@ pub(crate) fn apply_skill_effects(
                     }
                     continue;
                 }
+                // `Heal.java`: `min(amount, max(0, getMaxRecoverableHp() -
+                // getCurrentHp()))` — the ceiling is the *recoverable* cap, not
+                // the pool, which is what Noblesse Harmony/Symphony lower.
+                let ceiling = {
+                    let base = world
+                        .objects
+                        .get_component::<Vitals>(&target_oid)
+                        .map(|v| v.max_hp as f64)
+                        .unwrap_or(0.0);
+                    max_recoverable(
+                        world,
+                        target_oid,
+                        crate::model::stats::Stat::MaxRecoverableHp,
+                        base,
+                    )
+                };
                 let healed = {
                     let Some(vitals) = world.objects.get_component_mut::<Vitals>(&target_oid) else { continue };
-                    // Overheal clamp (`Heal.java`).
-                    let amount = amount.min((vitals.max_hp as f64 - vitals.cur_hp).max(0.0));
+                    let amount = amount.min((ceiling - vitals.cur_hp).max(0.0));
                     vitals.cur_hp += amount;
                     amount
                 };

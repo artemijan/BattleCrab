@@ -1355,7 +1355,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 in progress**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 in progress (9 sub-slices; headline 275 → 31)**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1384,9 +1384,13 @@ effects with their gates (`BuffBlock`, `PhysicalShieldAngleAll`, `Passive`,
 `Untargetable`, `DisableTargeting`, `PhysicalAttackMute`, `BlockResurrection`,
 `BlockEscape`, `AbnormalShield` — the last dead in Java too) plus the
 three-tag `isStayAfterDeath()` fold that had been stripping 30 learnable
-transform buffs on death; the learnable-skill effect sweep (Aegis,
-Bluff, Betray, Erase, Anchor, Spell Turning, Balance Life, Salvation, Summon
-Friend, Skill Mastery, Unlock, Chameleon Rest, …); targeting breadth
+transform buffs on death; **S4 is landing the learnable-skill effect sweep** in
+sub-slices (1–9 so far: the three weight/breath stats, the four skill-damage
+multipliers, the aggro family, the mitigation/counter family, buff slots and
+self-dispel, skill mastery and Lucky, positional crit rate and MP vampirism,
+the heal ceiling, and the bespoke `Bluff`/`Unsummon`/`DeathLink` — effect names
+**216 → 175**, headline **275 → 31**; the residue is 20 names, `StatUp` and
+`SafeFallHeight` among them being deliberately out of scope); targeting breadth
 (`UNDEAD_REAL_ENEMY` is a live correctness bug; `TargetType::ITEM` covers 452
 items); the item/NPC effect tail (**every destination Scroll of Escape is inert
 today** — the `Teleport` effect is unparsed); and the skill-tag/formula

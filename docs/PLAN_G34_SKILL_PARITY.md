@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 150 | **185 unhandled** (1 759 reachable skills, **32 learnable names**) |
+| Effect handler names used by dist skills | **335** | 157 | **178 unhandled** (1 737 reachable skills, **25 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -724,12 +724,98 @@ Census: effect names **188 → 185**, learnable-affected **47 → 43**, headline
 **49 → 45**. Sabotage-verified both, including a sabotage that swaps in Java's
 ordinal ordering.
 
+#### Sub-slice 7 ✅ — positional crit rate, MP vampirism, and a second dead stat
+
+- **`CriticalRatePositionBonus`** (Focus Chance 356) — the crit-*rate* twin of
+  `CriticalDamagePosition`. The port hard-coded `calcCriticalPositionBonus`'s
+  1.0/1.1/1.3, i.e. the positional `CRITICAL_RATE` stat pinned at identity, so
+  Focus Chance was inert. It is the one skill declaring **all three** positions
+  (−30 front, +30 side, +60 back), so it rewards circling and *punishes*
+  standing in front — dropping the front term would read as a pure buff.
+- **`MpVampiricAttack`** (Weapon Mastery 250) — the MP twin of the HP drain.
+  **The two config gates are shaped opposite ways**: HP asks
+  `skill == null || VAMPIRIC_ATTACK_WORKS_WITH_SKILLS` (melee by default), MP
+  asks `skill != null || MP_VAMPIRIC_ATTACK_WORKS_WITH_MELEE` (**skills** by
+  default). Both are off on this dist, so Weapon Mastery drains on skill hits
+  and nothing on a swing. Java's ranged-weapon exclusion wraps the HP block
+  only, so it is deliberately absent here. One `<amount>` pumps two values —
+  the percentage and a `sum` the chance finalizer divides back out.
+- **`CubicMastery` → `Stat.MAX_CUBIC` is dead in Java**, the second such find
+  after `ABNORMAL_SHIELD`: nothing in the tree reads it, and the cubic limit
+  comes from `Config.ALLOWED_CUBIC_COUNT`. Registered so the skill's buff is not
+  dropped by the empty-effects guard, with no consumer — because Java has none.
+
+Census: effect names **185 → 182**, learnable-affected **43 → 39**, headline
+**45 → 41**. Sabotage-verified.
+
+**Not portable yet:** `SafeFallHeight` (Acrobatics 173) needs `Stat.FALL`, whose
+consumer is fall damage — **which this port does not implement at all**. Left
+out rather than registered, so the census keeps naming it.
+
+#### Sub-slice 8 ✅ — the heal ceiling
+
+Four interlocking effects: the cap and two heals that read it.
+
+- **`LimitHp` / `LimitCp` → `MAX_RECOVERABLE_HP` / `_CP`** — the ceiling a
+  **heal** may restore to (`getValue(stat, getMaxHp())`, identity the full
+  pool). The learnable sources are **restrictions**: Noblesse Harmony (1326)
+  and Symphony (1327) grant them `PER −30` / `−40`, so under those auras you
+  can only be healed back to 70 % HP and 60 % CP. The port clamped heals to the
+  raw pool, which is identical **until someone casts them** — the reason this
+  looked correct for so long.
+- **`CpHealPercent`** (Victories of Pa'agrio 1414) — a share of **max CP**,
+  clamped by `MAX_RECOVERABLE_CP`. Java's guards are dead / door / *HP*-blocked
+  — the last is not a typo, the CP heal reads `isHpBlocked`.
+- **`HpByLevel`** (Life Scavenge 46, Corpse Life Drain 1151) heals the
+  **effector**, not the effected: you drain a corpse to top *yourself* up.
+  Every other heal in the family reads `effected`, so pointing this one at the
+  target would heal the corpse. It also clamps to `getMaxHp()` rather than the
+  recoverable cap — the one heal here that ignores it, ported as written.
+
+Census: effect names **182 → 178**, learnable-affected **39 → 33**, headline
+**41 → 35**. Sabotage-verified both the cap and the heal direction.
+
+#### Sub-slice 9 ✅ — the bespoke three
+
+Three effects with nothing in common but that each needs its own code path.
+
+- **`Bluff`** (Blinding Blow 321, Bluff 358) spins the target to face the
+  **caster's** heading — which is what sets up a Backstab, so "just set the
+  heading" is only half of it: the rotation must be *broadcast*, via two
+  packets the port did not have (`StartRotating` 0x7A, `StopRotating` 0x61).
+  Java bails on `isRaid()` (and `isRaidMinion()`, which this port has no
+  predicate for — a `TODO(G34)` marks the gap; raid minions here carry ordinary
+  `Monster` templates and are tracked through the leader's `MinionList`).
+- **`Unsummon`** — the servitor-removal half, distinct from the summon-side
+  unsummon already ported.
+- **`DeathLink`** (Death Link 1177) scales power by the caster's **missing**
+  HP: `power * (2 − 2·curHp/maxHp)`. At full health the multiplier is **0** —
+  the skill lands, costs MP, and does nothing. A port that dropped the scaling
+  would look plausible at every HP except the two ends.
+
+Census: effect names **178 → 175**, learnable-affected **33 → 29**, headline
+**35 → 31**. Both new tests sabotage-verified.
+
+Two test traps caught here, both worth remembering:
+- The `Bluff` test first gave the raid boss level 40 against a level-20 mob, so
+  the *land-rate* spared the boss and the raid exemption was never exercised —
+  the test passed with the exemption deleted. Equalising the levels made the
+  template the only difference.
+- The `DeathLink` test read 1 damage at full HP. Not a damage floor:
+  `calc_magic_dam` pins a **magic-failure** outcome at 1 regardless of power,
+  and the forced-roll sequence landed there. The test now disables
+  `magic_failures` so it measures the multiplier and not the failure roll.
+
 #### Remaining sub-slices ⏳
 
-- **Stat effects still needing a `Stat` + consumer:** `SkillMasteryRate`,
-  `CubicMastery`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
-  `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's
-  vampiric-absorb cap — check that before wiring a heal clamp).
+- **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
+  out of scope), `ManaHealOverTime`, `ReduceDropPenalty`, `ResurrectionSpecial`
+  (2 each), then one apiece — `Betray`, `CallParty`, `ChameleonRest`,
+  `ImmobilePetBuff`, `NightStatModify`, `OpenChest`, `OpenDoor`,
+  `PhysicalAttackHpLink`, `PolearmSingleTarget`, `RebalanceHP`,
+  `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
+  `Pvp*DamageBonus` trio (needs `calculatePvpPveBonus` built from scratch).
+  `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,
   utility & sustain. Five of them also stamp flags S3 already defined and

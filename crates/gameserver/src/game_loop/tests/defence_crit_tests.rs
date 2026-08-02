@@ -31,6 +31,7 @@ fn identity_defences_reproduce_the_old_formula() {
         1.0,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         48
@@ -40,6 +41,7 @@ fn identity_defences_reproduce_the_old_formula() {
         1.0,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         49
@@ -57,6 +59,7 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         0.85,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         41
@@ -66,6 +69,7 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         0.85,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         42
@@ -76,6 +80,7 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         0.70,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         33
@@ -85,6 +90,7 @@ fn the_defenders_multiplier_scales_the_attackers_rate() {
         0.70,
         0.0,
         Position::Front,
+        1.0,
         0,
         0,
         34
@@ -101,6 +107,7 @@ fn the_add_term_lands_before_the_divide() {
         1.0,
         100.0,
         Position::Front,
+        1.0,
         0,
         0,
         59
@@ -110,6 +117,7 @@ fn the_add_term_lands_before_the_divide() {
         1.0,
         100.0,
         Position::Front,
+        1.0,
         0,
         0,
         60
@@ -121,11 +129,11 @@ fn the_add_term_lands_before_the_divide() {
 #[test]
 fn the_clamp_still_bounds_a_heavily_defended_target() {
     assert!(
-        calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 2),
+        calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 2),
         "floored at 3, so roll 2 crits"
     );
     assert!(
-        !calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 0, 0, 3),
+        !calc_auto_attack_crit(440.0, 0.0, 0.0, Position::Front, 1.0, 0, 0, 3),
         "and roll 3 does not"
     );
 }

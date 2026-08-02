@@ -559,14 +559,24 @@ pub fn calc_hit_miss(accuracy: i32, evasion: i32, condition_bonus: f64, roll: i3
     chance < roll as f64
 }
 
-/// `Formulas.calcCriticalPositionBonus` with the positional `CRITICAL_RATE`
-/// stat values at their default 1.0: 10% from the side, 30% from the back.
-pub fn calc_critical_position_bonus(position: Position) -> f64 {
-    match position {
+/// `Formulas.calcCriticalPositionBonus`: 10 % from the side, 30 % from the
+/// back, **times the attacker's positional `CRITICAL_RATE`** —
+/// `getPositionTypeValue(Stat.CRITICAL_RATE, position)`, which
+/// `CriticalRatePositionBonus` (Focus Chance 356) pumps. `position_mul` is that
+/// value, identity 1.0 for anyone without the passive; it used to be hard-coded
+/// there, which made Focus Chance inert (G34 S4).
+///
+/// Note Focus Chance is the one skill that declares **all three** positions —
+/// −30 % front, +30 % side, +60 % back — so a rogue who circles is rewarded and
+/// one who stands in front is punished. Dropping the front term would look like
+/// a pure buff.
+pub fn calc_critical_position_bonus(position: Position, position_mul: f64) -> f64 {
+    let base = match position {
         Position::Side => 1.1,
         Position::Back => 1.3,
         Position::Front => 1.0,
-    }
+    };
+    base * position_mul
 }
 
 /// `Formulas.calcCriticalHeightBonus`: ±10% band from the z difference.
@@ -583,6 +593,9 @@ pub fn calc_auto_attack_crit(
     defence_mul: f64,
     defence_add: f64,
     position: Position,
+    // `getPositionTypeValue(CRITICAL_RATE, position)` — Focus Chance 356's
+    // per-position multiplier, identity 1.0 without it.
+    crit_position_mul: f64,
     from_z: i32,
     to_z: i32,
     roll: i32,
@@ -593,7 +606,7 @@ pub fn calc_auto_attack_crit(
     // multiplier scales the *attacker's* rate. Both default to identity
     // (1.0 / 0.0), which reproduces the plain `crit_stat / 10` this had before.
     let rate_mod = ((defence_mul * crit_stat) + defence_add) / 10.0;
-    let rate = calc_critical_position_bonus(position)
+    let rate = calc_critical_position_bonus(position, crit_position_mul)
         * rate_mod
         * calc_critical_height_bonus(from_z, to_z);
     rate.clamp(3.0, 97.0) > roll as f64
@@ -807,6 +820,7 @@ pub fn calc_blow_damage(
 pub fn calc_blow_success(
     crit_rate: f64,
     position: Position,
+    crit_position_mul: f64,
     from_z: i32,
     to_z: i32,
     chance_boost: f64,
@@ -814,7 +828,7 @@ pub fn calc_blow_success(
     limit: f64,
     roll: i32,
 ) -> bool {
-    let rate = calc_critical_position_bonus(position)
+    let rate = calc_critical_position_bonus(position, crit_position_mul)
         * calc_critical_height_bonus(from_z, to_z)
         * crit_rate
         * ((100.0 + chance_boost) / 100.0)
@@ -1144,6 +1158,7 @@ mod tests {
             1.0,
             0.0,
             Position::Front,
+            1.0,
             0,
             0,
             4
@@ -1153,6 +1168,7 @@ mod tests {
             1.0,
             0.0,
             Position::Front,
+            1.0,
             0,
             0,
             5
@@ -1163,6 +1179,7 @@ mod tests {
             1.0,
             0.0,
             Position::Front,
+            1.0,
             0,
             0,
             2
@@ -1173,6 +1190,7 @@ mod tests {
             1.0,
             0.0,
             Position::Back,
+            1.0,
             25,
             0,
             97
@@ -1387,6 +1405,7 @@ mod tests {
         assert!(calc_blow_success(
             10.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,
@@ -1397,6 +1416,7 @@ mod tests {
         assert!(!calc_blow_success(
             10.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,
@@ -1408,6 +1428,7 @@ mod tests {
         assert!(calc_blow_success(
             10.0,
             Position::Front,
+            1.0,
             0,
             0,
             100.0,
@@ -1419,6 +1440,7 @@ mod tests {
         assert!(calc_blow_success(
             10_000.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,
@@ -1429,6 +1451,7 @@ mod tests {
         assert!(!calc_blow_success(
             10_000.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,
@@ -1441,6 +1464,7 @@ mod tests {
         assert!(calc_blow_success(
             10.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,
@@ -1451,6 +1475,7 @@ mod tests {
         assert!(!calc_blow_success(
             10.0,
             Position::Front,
+            1.0,
             0,
             0,
             0.0,

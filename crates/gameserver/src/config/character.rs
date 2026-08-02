@@ -210,6 +210,15 @@ pub struct CharacterConfig {
     /// (**True** here). With it off, `isPlayable()` attacker + playable target
     /// absorbs nothing.
     pub vampiric_attack_affects_pvp: bool,
+    /// `MpVampiricAttackWorkWithMelee` (**False** on this dist) — the MP twin
+    /// of `VampiricAttackWorkWithSkills`, and note it is the *inverse* shape:
+    /// Java's gate is `(skill != null) || MP_VAMPIRIC_ATTACK_WORKS_WITH_MELEE`,
+    /// so MP vampirism works with **skills** by default and only reaches melee
+    /// when this is on.
+    pub mp_vampiric_attack_work_with_melee: bool,
+    /// `MpVampiricAttackAffectsPvP` (PvP.ini; **false** default, and unset on
+    /// this dist).
+    pub mp_vampiric_attack_affects_pvp: bool,
     /// `PlayerReflectPercentLimit` / `NonPlayerReflectPercentLimit` (**100**
     /// each) — the ceiling `Creature.doAttack` clamps
     /// `REFLECT_DAMAGE_PERCENT` to, chosen by whether the *reflecting* side is
@@ -356,6 +365,8 @@ impl Default for CharacterConfig {
             max_dance_count: 12,
             vampiric_attack_works_with_skills: true,
             vampiric_attack_affects_pvp: false,
+            mp_vampiric_attack_work_with_melee: false,
+            mp_vampiric_attack_affects_pvp: false,
             player_reflect_percent_limit: 100.0,
             non_player_reflect_percent_limit: 100.0,
             dance_consume_additional_mp: false,
@@ -501,6 +512,15 @@ impl CharacterConfig {
             // character block — same split `karma_pk_limit` already lives with.
             vampiric_attack_affects_pvp: PropertiesParser::load_rel(root, "config/PVP.ini")
                 .get_bool("VampiricAttackAffectsPvP", d.vampiric_attack_affects_pvp),
+            mp_vampiric_attack_work_with_melee: p.get_bool(
+                "MpVampiricAttackWorkWithMelee",
+                d.mp_vampiric_attack_work_with_melee,
+            ),
+            mp_vampiric_attack_affects_pvp: PropertiesParser::load_rel(root, "config/PVP.ini")
+                .get_bool(
+                    "MpVampiricAttackAffectsPvP",
+                    d.mp_vampiric_attack_affects_pvp,
+                ),
             player_reflect_percent_limit: p.get_float(
                 "PlayerReflectPercentLimit",
                 d.player_reflect_percent_limit as f32,

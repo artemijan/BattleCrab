@@ -520,6 +520,37 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `Bluff` (Blinding Blow 321, Bluff 358) — spin the target to face the
+    /// **caster's** heading, so a rogue behind you leaves you facing away.
+    /// Chance-rolled through `calcProbability`; raid bosses and their minions
+    /// are immune.
+    Bluff {
+        chance: i32,
+    },
+    /// `Unsummon` (Erase 1395) — dismiss the target's servitor. `canStart`
+    /// requires the *effected* to **be** a summon, so the skill is aimed at the
+    /// pet, not its owner.
+    Unsummon {
+        chance: i32,
+    },
+    /// `DeathLink` (Curse Death Link 1159) — magic damage scaled by how close
+    /// the **caster** is to death: `power × (2 − 2·curHp/maxHp)`, i.e. ×2 at
+    /// 0 HP and ×0 at full. Casting it healthy does nothing at all.
+    DeathLink {
+        power: f64,
+    },
+    /// `CpHealPercent` — restore a share of the target's **max CP**, clamped
+    /// by `MAX_RECOVERABLE_CP` (Victories of Pa'agrio 1414, Pa'agrio's Fist
+    /// 1416).
+    CpHealPercent {
+        power: f64,
+    },
+    /// `HpByLevel` — a flat HP restore on the **effector**, i.e. the caster,
+    /// not the target (Life Scavenge 46, Corpse Life Drain 1151: you drain a
+    /// corpse to heal *yourself*). Reads `<power>`, not `<amount>`.
+    HpByLevel {
+        power: f64,
+    },
     /// `Lucky` (194) — an **empty effect**: Java's handler carries only a
     /// `canStart` player guard and no mechanic at all. `Player.isLucky()` is
     /// `level <= 9 && isAffectedBySkill(194)`, so the buff's *presence* is the
