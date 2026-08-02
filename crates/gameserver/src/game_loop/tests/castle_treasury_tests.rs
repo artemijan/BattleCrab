@@ -92,6 +92,7 @@ fn insert_tax_zone(world: &mut World, castle_id: i32) {
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
 }
 

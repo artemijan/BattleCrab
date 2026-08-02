@@ -1653,6 +1653,7 @@ fn insert_zone(
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
 }
 
@@ -1672,6 +1673,7 @@ fn insert_siege_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i3
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
 }
 
@@ -1692,6 +1694,7 @@ fn insert_hq_zone(world: &mut World, castle_id: i32, x1: i32, x2: i32, y1: i32, 
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
 }
 

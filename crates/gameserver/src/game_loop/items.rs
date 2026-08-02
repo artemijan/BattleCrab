@@ -519,7 +519,7 @@ pub(crate) fn handle_request_crystallize_item(world: &mut World, client_id: u32,
 }
 
 /// Send a bare `$s1` system-message line to one client.
-fn send_item_message(world: &World, client_id: u32, text: &str) {
+pub(crate) fn send_item_message(world: &World, client_id: u32, text: &str) {
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(server_packets::system_message_with(
             sm_ids::S1_TEXT,

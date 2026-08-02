@@ -878,6 +878,7 @@ fn a_headquarters_needs_an_hq_zone() {
             effect: None,
             damage: None,
             swamp: None,
+            condition: None,
         }
     }
 

@@ -1038,6 +1038,7 @@ fn fs_world() -> (
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
     for id in [
         crate::game_loop::four_sepulchers::CONQUEROR_MANAGER,

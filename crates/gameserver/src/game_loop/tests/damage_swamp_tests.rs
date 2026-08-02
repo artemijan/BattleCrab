@@ -47,6 +47,7 @@ fn insert_damage_zone(world: &mut World, p: DamageZoneParams) {
         effect: None,
         damage: Some(p),
         swamp: None,
+        condition: None,
     });
 }
 
@@ -61,6 +62,7 @@ fn insert_swamp_zone(world: &mut World, p: SwampZoneParams) {
         effect: None,
         damage: None,
         swamp: Some(p),
+        condition: None,
     });
 }
 

@@ -82,6 +82,19 @@ pub mod sm_ids {
     // `is_destroyable`), the refusals Java's item handlers send.
     /// `That item cannot be discarded.` (Java `RequestDropItem`.)
     pub const THAT_ITEM_CANNOT_BE_DISCARDED: i16 = 729;
+    /// `You cannot discard something that far away from you.` — the drop
+    /// location the client asked for is outside `RequestDropItem`'s 150/50 box.
+    pub const YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU: i16 = 151;
+    /// `While operating a private store or workshop, you cannot discard,
+    /// destroy, or trade an item.`
+    pub const WHILE_OPERATING_A_PRIVATE_STORE_OR_WORKSHOP_YOU_CANNOT_DISCARD_DESTROY_OR_TRADE_AN_ITEM: i16 = 1065;
+    /// `You cannot do that while fishing.` (Java's `_2` variant.)
+    pub const YOU_CANNOT_DO_THAT_WHILE_FISHING_2: i16 = 1470;
+    /// `That item cannot be discarded or exchanged.` — the `TYPE2_QUEST` gate.
+    pub const THAT_ITEM_CANNOT_BE_DISCARDED_OR_EXCHANGED: i16 = 603;
+    /// `You cannot destroy or crystallize items while enchanting attributes.`
+    /// — Java's `hasItemRequest()` refusal (an open enchant window).
+    pub const YOU_CANNOT_DESTROY_OR_CRYSTALLIZE_ITEMS_WHILE_ENCHANTING_ATTRIBUTES: i16 = 4148;
     /// `This item cannot be traded or sold.` (Java's trade/store/mail refusal.)
     pub const THIS_ITEM_CANNOT_BE_TRADED_OR_SOLD: i16 = 99;
     /// `This item cannot be destroyed.` (Java `RequestDestroyItem`.)

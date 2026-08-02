@@ -94,6 +94,14 @@ pub enum ZoneKind {
     /// the click distance the way open sea does. Queried by geometry, never by
     /// membership mask — the u8 mask is full — so it claims no bit.
     Castle,
+    /// Java `ConditionZone` (`no_drop_item.xml`, `no_bookmark.xml`): a zone
+    /// whose whole behaviour is a pair of boolean `<stat>`s it latches onto the
+    /// players inside — `NoItemDrop` (`ZoneId.NO_ITEM_DROP`, read by
+    /// `RequestDropItem`) and `NoBookmark` (a later-chronicle feature with no
+    /// consumer here). The flags live in [`Zone::condition`]; queried by
+    /// geometry (`no_item_drop_at`), never by membership mask — the u8 mask is
+    /// full — so it claims no bit.
+    Condition,
 }
 
 impl ZoneKind {
@@ -131,6 +139,8 @@ impl ZoneKind {
             ZoneKind::Tax => 0,
             // Queried by geometry (`in_castle_zone`), no bit (mask full).
             ZoneKind::Castle => 0,
+            // Queried by geometry (`no_item_drop_at`), no bit (mask full).
+            ZoneKind::Condition => 0,
         }
     }
 }
@@ -153,6 +163,21 @@ pub struct Zone {
     pub damage: Option<DamageZoneParams>,
     /// `SwampZone` move-speed multiplier; `None` for every other kind.
     pub swamp: Option<SwampZoneParams>,
+    /// `ConditionZone` flags; `None` for every other kind.
+    pub condition: Option<ConditionZoneParams>,
+}
+
+/// Java `ConditionZone`'s two `<stat>`s. Both default to **false** (the Java
+/// field initialisers), so a `ConditionZone` that declares neither latches
+/// nothing — the file decides which flag the zone carries.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct ConditionZoneParams {
+    /// `NoItemDrop` → `ZoneId.NO_ITEM_DROP`: `RequestDropItem` refuses the
+    /// drop with `THAT_ITEM_CANNOT_BE_DISCARDED` while standing here.
+    pub no_item_drop: bool,
+    /// `NoBookmark` → `ZoneId.NO_BOOKMARK`. Parsed for completeness; My
+    /// Teleport bookmarks are a post-Interlude feature, so nothing reads it.
+    pub no_bookmark: bool,
 }
 
 /// Java `DamageZone`'s `<stat>` block. Defaults are the Java field
@@ -280,6 +305,12 @@ impl ZoneData {
             // as the exception to its water branch. Its `<spawn>` list is the
             // owner/other restart points, which nothing consumes yet.
             ("castle_hall.xml", ZoneKind::Castle),
+            // `no_drop_item.xml` is uniformly `ConditionZone` carrying
+            // `NoItemDrop` — the areas (bascule bridge, Underground Coliseum,
+            // …) where `RequestDropItem` must refuse. `no_bookmark.xml` is the
+            // sibling file; its flag has no consumer on Interlude, so it is
+            // deliberately not loaded.
+            ("no_drop_item.xml", ZoneKind::Condition),
         ] {
             let before = zones.len();
             parse_file(
@@ -481,6 +512,13 @@ impl ZoneData {
             .find(|zn| zn.kind == ZoneKind::Hq)
             .map(|zn| zn.castle_id)
     }
+
+    /// Java `isInsideZone(ZoneId.NO_ITEM_DROP)` — a `ConditionZone` declaring
+    /// `NoItemDrop` covers this point, so `RequestDropItem` must refuse.
+    pub fn no_item_drop_at(&self, x: i32, y: i32, z: i32) -> bool {
+        self.zones_at(x, y, z)
+            .any(|zn| zn.condition.is_some_and(|c| c.no_item_drop))
+    }
 }
 
 /// Map a `type="…"` attribute to a [`ZoneKind`]. `None` for kinds not ported
@@ -507,6 +545,7 @@ fn kind_from_type(ty: &str) -> Option<ZoneKind> {
         "CastleZone" => ZoneKind::Castle,
         "TaxZone" => ZoneKind::Tax,
         "HqZone" => ZoneKind::Hq,
+        "ConditionZone" => ZoneKind::Condition,
         _ => return None,
     })
 }
@@ -557,6 +596,8 @@ fn parse_file(
         dmg_mp: i32,
         move_bonus: f64,
         spawns: Vec<(i32, i32, i32)>,
+        no_item_drop: bool,
+        no_bookmark: bool,
     }
     let mut cur: Option<Pending> = None;
 
@@ -592,6 +633,11 @@ fn parse_file(
                         enabled: p.enabled,
                         castle_id: p.castle_id,
                     });
+                    let condition =
+                        (p.kind == ZoneKind::Condition).then_some(ConditionZoneParams {
+                            no_item_drop: p.no_item_drop,
+                            no_bookmark: p.no_bookmark,
+                        });
                     if p.kind == ZoneKind::ResidenceTeleport && p.castle_id > 0 {
                         spawns_out.insert(p.castle_id, p.spawns.clone());
                     }
@@ -609,6 +655,7 @@ fn parse_file(
                         effect,
                         damage,
                         swamp,
+                        condition,
                     });
                 }
                 continue;
@@ -646,6 +693,8 @@ fn parse_file(
                     dmg_mp: 0,
                     move_bonus: 0.5,
                     spawns: Vec::new(),
+                    no_item_drop: false,
+                    no_bookmark: false,
                 });
                 // A zone whose `type=` names a kind we don't port yet is
                 // skipped outright rather than mis-filed under the fallback.
@@ -717,6 +766,9 @@ fn parse_file(
                     "damageHPPerSec" => p.dmg_hp = val.parse().unwrap_or(p.dmg_hp),
                     "damageMPPerSec" => p.dmg_mp = val.parse().unwrap_or(p.dmg_mp),
                     "move_bonus" => p.move_bonus = val.parse().unwrap_or(p.move_bonus),
+                    // `ConditionZone.setParameter` compares case-insensitively.
+                    "NoItemDrop" => p.no_item_drop = val.eq_ignore_ascii_case("true"),
+                    "NoBookmark" => p.no_bookmark = val.eq_ignore_ascii_case("true"),
                     _ => {}
                 }
             }
@@ -789,8 +841,23 @@ mod tests {
         // battlefield where an attacker may plant its headquarters.
         // 1253 → 1262: `castle_hall.xml`'s 9 `CastleZone`s — `ZoneId.CASTLE`,
         // the exception to `moveToLocation`'s water branch.
-        assert_eq!(data.zones.len(), 1262);
+        // 1262 → 1269: `no_drop_item.xml`'s 7 `ConditionZone`s — where
+        // `RequestDropItem` refuses (`ZoneId.NO_ITEM_DROP`).
+        assert_eq!(data.zones.len(), 1269);
         let count = |k: ZoneKind| data.zones.iter().filter(|z| z.kind == k).count();
+        assert_eq!(count(ZoneKind::Condition), 7, "no_drop_item.xml");
+        // Every zone in that file declares the flag, and nothing else does.
+        assert!(
+            data.zones
+                .iter()
+                .filter(|z| z.kind == ZoneKind::Condition)
+                .all(|z| z.condition.is_some_and(|c| c.no_item_drop)),
+            "every ConditionZone loaded carries NoItemDrop"
+        );
+        // Steel Citadel's bascule bridge (the first zone in the file) refuses
+        // drops; the sea outside it does not.
+        assert!(data.no_item_drop_at(19000, 244100, 11400));
+        assert!(!data.no_item_drop_at(-280000, 180000, -4000));
         assert_eq!(
             count(ZoneKind::Castle),
             9,
@@ -878,6 +945,7 @@ mod tests {
             effect: None,
             damage: None,
             swamp: None,
+            condition: None,
         });
         assert_eq!(data.mask_at(500, 500, 0), ZoneKind::Peace.bit());
         assert_eq!(data.mask_at(1500, 500, 0), 0);
@@ -953,6 +1021,7 @@ mod effect_zone_tests {
                         | ZoneKind::ResidenceTeleport
                         | ZoneKind::Tax
                         | ZoneKind::Castle
+                        | ZoneKind::Condition
                 ),
                 "zone {} has an unported kind",
                 z.name

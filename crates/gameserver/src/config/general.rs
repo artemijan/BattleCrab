@@ -60,6 +60,11 @@ pub struct GeneralConfig {
     /// `ListOfProtectedItems`: item ids never auto-destroyed on the ground
     /// (dist ships `0`, a non-existent id ⇒ effectively empty).
     pub protected_items: Vec<i32>,
+    /// `JailDisableTransaction` (dist `False`): whether a jailed character is
+    /// barred from item transactions — `RequestDropItem` refuses while it is
+    /// on. Java's own default is `false` too, so nothing changes unless an
+    /// operator turns it on.
+    pub jail_disable_transaction: bool,
 
     /// `AllowWater` (dist `True`): whether swimming can drown you. Java gates
     /// only `Player.checkWaterState()` on it inside `revalidateZone` — the
@@ -172,6 +177,8 @@ impl GeneralConfig {
                 .split(',')
                 .filter_map(|s| s.trim().parse::<i32>().ok())
                 .collect(),
+            jail_disable_transaction: p
+                .get_bool("JailDisableTransaction", d.jail_disable_transaction),
             // Java's code default is `true` (not `d.allow_water`, which the
             // derived `Default` would make `false` — the opposite meaning).
             allow_water: p.get_bool("AllowWater", true),

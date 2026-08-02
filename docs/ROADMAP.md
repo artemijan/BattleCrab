@@ -120,7 +120,9 @@ unused in the ported set). **G14 done.**
 ### G15 — Economy & item actions ✅ COMPLETE (gate verified 2026-07-31)
 🚧 **In progress.** ✅ `RequestDestroyItem` (0x60). ✅ **Ground items** — a
 `GroundItem` world-object kind (`World.ground_item_regions`), `SpawnItem`/
-`DropItem`/`GetItem` packets, `RequestDropItem` (0x17), pickup via `Action`
+`DropItem`/`GetItem` packets, `RequestDropItem` (0x17 — the drop lands at the
+**requested** x/y/z, gated by Java's 150/50 box and `GeoEngine.getValidLocation`,
+and refused inside a `NoItemDrop` `ConditionZone`), pickup via `Action`
 (`AI_INTENTION_PICK_UP` — the click walks the character to the item and
 `thinkPickUp` lifts it on arrival, never at range),
 visibility on enter + region-change deltas, the **auto-loot=false** death path
@@ -970,7 +972,10 @@ never spawn. Raid-boss persistence landed (`PLAN_G21_BOSS_PERSISTENCE.md`) —
 is met**. Minions landed (`PLAN_G21_MINIONS.md`) — 460 leaders, 3289 escorts placed.
 EffectZones landed (`PLAN_G21_EFFECT_ZONES.md`) — 218 zones, plus per-zone
 `type=` parsing which recovered 20 zones that were missing entirely (605 → 843).
-Note `ConditionZone` (1080) is ~99% inert on Interlude (`NoBookmark`).
+Note `ConditionZone` (1080) was called ~99% inert on Interlude (`NoBookmark`) — that read
+only the `no_bookmark.xml` half. `no_drop_item.xml`'s 7 zones carry the *other* stat,
+`NoItemDrop`, and `RequestDropItem` reads it; both now load as `ZoneKind::Condition`
+(2026-08-02, with the drop-location fix below).
 NPC regen landed (`PLAN_G21_NPC_REGEN.md`) — 14855 templates' `hpRegen` was
 parsed but unused, so no NPC ever healed. Remaining breadth:
 `DamageZone`/`SwampZone` (only 15 live between them; the rest are siege-gated),

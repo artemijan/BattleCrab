@@ -2334,9 +2334,9 @@ fn drop_and_pickup_ground_item() {
     w.write_u8(cop::REQUEST_DROP_ITEM);
     w.write_i32(adena_oid);
     w.write_i64(400);
-    w.write_i32(100);
-    w.write_i32(200);
-    w.write_i32(-3000);
+    w.write_i32(DROP_AT.0);
+    w.write_i32(DROP_AT.1);
+    w.write_i32(DROP_AT.2);
     on_packet(&mut world, 1, w.into_bytes());
 
     assert_eq!(count_of(&world), 600, "400 left the inventory");
@@ -2361,6 +2361,9 @@ fn drop_and_pickup_ground_item() {
     a.write_i32(0);
     a.write_u8(0);
     on_packet(&mut world, 1, a.into_bytes());
+    // The stack landed where the drop asked (~90 units out), not underfoot, so
+    // the click only starts the approach — `thinkPickUp` lifts it on arrival.
+    advance_world(&mut world, 300);
 
     assert_eq!(count_of(&world), 1000, "adena back in the inventory");
     assert!(
@@ -2378,6 +2381,10 @@ fn drop_and_pickup_ground_item() {
         "ground item de-indexed"
     );
 }
+
+/// Where the drop tests aim: within `RequestDropItem`'s 150/50 box of the
+/// dummy character's `(1, 2, 3)`, the way a real client's cursor position is.
+const DROP_AT: (i32, i32, i32) = (61, 72, 13);
 
 /// Give `count` adena to `player_oid` and drop it via `RequestDropItem` at a
 /// fixed spot; returns the resulting ground-item object id.
@@ -2397,11 +2404,256 @@ fn drop_adena(world: &mut World, client_id: u32, player_oid: i32, count: i64) ->
     w.write_u8(cop::REQUEST_DROP_ITEM);
     w.write_i32(adena_oid);
     w.write_i64(count);
-    w.write_i32(100);
-    w.write_i32(200);
-    w.write_i32(-3000);
+    w.write_i32(DROP_AT.0);
+    w.write_i32(DROP_AT.1);
+    w.write_i32(DROP_AT.2);
     on_packet(world, client_id, w.into_bytes());
     item_oid
+}
+
+/// Build a `RequestDropItem` body for `item_oid` at an explicit location.
+fn drop_item_packet(item_oid: i32, count: i64, x: i32, y: i32, z: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(cop::REQUEST_DROP_ITEM);
+    w.write_i32(item_oid);
+    w.write_i64(count);
+    w.write_i32(x);
+    w.write_i32(y);
+    w.write_i32(z);
+    w.into_bytes()
+}
+
+/// Give the player adena and return its inventory object id.
+fn give_adena(world: &mut World, player_oid: i32, count: i64) -> i32 {
+    super::items::add_inventory_item(world, player_oid, 57, count).expect("adena");
+    world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&player_oid)
+        .unwrap()
+        .items()
+        .iter()
+        .find(|it| it.item_id == 57)
+        .unwrap()
+        .object_id
+}
+
+/// The dropped stack lands **where the client asked**, not at the player's
+/// feet: Java reads `_x/_y/_z` off the packet and hands them to
+/// `Player.dropItem` → `Item.dropMe`. Dropping at the character's own position
+/// is what the port used to do, and it made every discarded stack pile up
+/// under the character instead of scattering where it was dragged.
+#[test]
+fn dropped_item_lands_at_the_requested_location() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    let ground_oid = world.next_npc_object_id;
+
+    on_packet(
+        &mut world,
+        1,
+        drop_item_packet(adena_oid, 100, DROP_AT.0, DROP_AT.1, DROP_AT.2),
+    );
+
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&ground_oid)
+        .expect("the stack reached the ground");
+    assert_eq!(
+        (pos.x, pos.y, pos.z),
+        DROP_AT,
+        "the ground item sits at the requested drop point"
+    );
+    let player_pos = *world
+        .objects
+        .get_component::<crate::model::components::Position>(&9300)
+        .unwrap();
+    assert_ne!(
+        (pos.x, pos.y),
+        (player_pos.x, player_pos.y),
+        "sanity: the requested point is not the player's own position"
+    );
+}
+
+/// `!player.isInsideRadius2D(_x, _y, 0, 150)` — a drop aimed further than 150
+/// units away is refused with SM 151 and the stack stays in the inventory.
+/// Without this a client could post items across the map from where it stands.
+#[test]
+fn drop_beyond_150_units_is_refused() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    let ground_oid = world.next_npc_object_id;
+
+    // (1, 2, 3) → (401, 2, 3) is 400 units out.
+    on_packet(&mut world, 1, drop_item_packet(adena_oid, 100, 401, 2, 3));
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "nothing reached the ground"
+    );
+    assert_eq!(
+        item_count(&world, 9300, 57),
+        100,
+        "the adena stays in the inventory"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(
+            &crate::network::server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU
+        ),
+        "the client is told the spot is too far away"
+    );
+}
+
+/// The same guard's second half: `Math.abs(_z - player.getZ()) > 50`. The 2D
+/// distance is fine here — only the height differs — so a port that checked
+/// distance in 3D, or skipped z entirely, would let this through.
+#[test]
+fn drop_more_than_50_units_below_is_refused() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    let ground_oid = world.next_npc_object_id;
+
+    on_packet(
+        &mut world,
+        1,
+        drop_item_packet(adena_oid, 100, 11, 12, -300),
+    );
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "nothing reached the ground"
+    );
+    assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
+    assert!(
+        sm_ids_of(&drain(&mut rx)).contains(
+            &crate::network::server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU
+        ),
+        "the client is told the spot is too far away"
+    );
+    // …while the same request at the player's own height is accepted, so the
+    // refusal is the z test and not something else in the chain.
+    let ground_oid = world.next_npc_object_id;
+    on_packet(&mut world, 1, drop_item_packet(adena_oid, 100, 11, 12, 13));
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "the in-range drop goes through"
+    );
+}
+
+/// `player.isInsideZone(ZoneId.NO_ITEM_DROP)` — inside a `ConditionZone` that
+/// declares `NoItemDrop` (`no_drop_item.xml`: the bascule bridge, the
+/// Underground Coliseum floors) nothing may be discarded at all.
+#[test]
+fn drop_inside_a_no_item_drop_zone_is_refused() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    world.data.zone_data.insert(crate::data::zone_data::Zone {
+        id: 0,
+        name: "test_no_drop".into(),
+        kind: crate::data::zone_data::ZoneKind::Condition,
+        territory: crate::data::spawn_data::Territory {
+            form: crate::data::spawn_data::ZoneForm::Cuboid {
+                x1: -1000,
+                x2: 1000,
+                y1: -1000,
+                y2: 1000,
+            },
+            min_z: -1000,
+            max_z: 1000,
+        },
+        castle_id: 0,
+        clan_hall_id: 0,
+        effect: None,
+        damage: None,
+        swamp: None,
+        condition: Some(crate::data::zone_data::ConditionZoneParams {
+            no_item_drop: true,
+            no_bookmark: false,
+        }),
+    });
+    let ground_oid = world.next_npc_object_id;
+
+    on_packet(
+        &mut world,
+        1,
+        drop_item_packet(adena_oid, 100, DROP_AT.0, DROP_AT.1, DROP_AT.2),
+    );
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "nothing reached the ground inside the zone"
+    );
+    assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        "the client is told the item cannot be discarded"
+    );
+}
+
+/// `_count > item.getCount()` refuses outright (Java sends
+/// `THAT_ITEM_CANNOT_BE_DISCARDED`) rather than clamping — a forged count must
+/// not walk away with the whole stack under a partial-drop request.
+#[test]
+fn drop_of_more_than_is_held_is_refused() {
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    let ground_oid = world.next_npc_object_id;
+
+    on_packet(
+        &mut world,
+        1,
+        drop_item_packet(adena_oid, 500, DROP_AT.0, DROP_AT.1, DROP_AT.2),
+    );
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "nothing reached the ground"
+    );
+    assert_eq!(
+        item_count(&world, 9300, 57),
+        100,
+        "the whole stack is still held"
+    );
+    assert!(
+        sm_ids_of(&drain(&mut rx))
+            .contains(&crate::network::server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED),
+        "the client is told the item cannot be discarded"
+    );
 }
 
 /// Datapack parity: *Mage Class Equipment Set (10-day)* (15195) declares
@@ -2434,9 +2686,9 @@ fn bound_item_cannot_be_discarded() {
     w.write_u8(cop::REQUEST_DROP_ITEM);
     w.write_i32(box_oid);
     w.write_i64(1);
-    w.write_i32(100);
-    w.write_i32(200);
-    w.write_i32(-3000);
+    w.write_i32(DROP_AT.0);
+    w.write_i32(DROP_AT.1);
+    w.write_i32(DROP_AT.2);
     on_packet(&mut world, 1, w.into_bytes());
 
     assert!(
