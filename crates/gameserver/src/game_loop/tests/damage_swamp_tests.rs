@@ -317,3 +317,59 @@ fn a_castle_swamp_is_inert_outside_a_siege() {
         "18 of the 20 swamps are siege-gated castle traps"
     );
 }
+
+/// G34 S4 sub-slice 4 — `AreaDamage` → `Stat.DAMAGE_ZONE_VULN`, which Java's
+/// `DamageZone` folds in as `1 + (value / 100)`.
+///
+/// The stat's name is misleading and the datapack settles it: Iron Body (295)
+/// grants **−40** and Dance of Protection (311) **−30**, so both learnable
+/// sources are *mitigation*. Driven through the real zone tick rather than
+/// asserting the multiplier arithmetic in the test — the point is that the
+/// tick reads the stat at all.
+#[test]
+fn the_area_damage_stat_scales_zone_ticks() {
+    use crate::model::stats::Stat;
+
+    let burn_with = |vuln: Option<f64>| -> f64 {
+        let (mut world, _db, _l) = combat_test_world();
+        let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+        insert_damage_zone(&mut world, damage_params(0));
+        // A deep pool: the fixture's default HP is smaller than the burn, so
+        // every variant would floor at "everything they had" and read as
+        // identical — the same clamp that made an earlier damage-multiplier
+        // test pass under sabotage.
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&PLAYER) {
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+        }
+        if let Some(v) = vuln {
+            let mut mods = world
+                .objects
+                .get_component::<crate::model::components::StatModifiers>(&PLAYER)
+                .cloned()
+                .unwrap_or_default();
+            mods.add.insert(Stat::DamageZoneVuln, v);
+            world.objects.add_components(&PLAYER, mods);
+        }
+        let before = hp(&world);
+        sweep(&mut world, 20);
+        before - hp(&world)
+    };
+
+    let plain = burn_with(None);
+    assert!(plain > 0.0, "the zone burns at all: {plain}");
+
+    let mitigated = burn_with(Some(-40.0));
+    assert!(
+        (mitigated - plain * 0.6).abs() < 1.0,
+        "Iron Body's −40 cuts the burn to 60 % ({plain} → {mitigated})"
+    );
+
+    // Positive values really are vulnerability — the name is right, this
+    // dist's sources just happen to be negative.
+    let worsened = burn_with(Some(100.0));
+    assert!(
+        (worsened - plain * 2.0).abs() < 1.0,
+        "+100 doubles it ({plain} → {worsened})"
+    );
+}

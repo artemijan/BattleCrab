@@ -121,6 +121,10 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // where Java reads it: the two `*SkillPower`s multiply a skill's finished
     // damage, the crit pair replaces the flat 2.0 in `crit_damage_skill`'s
     // physical branch.
+    // G34 S4 sub-slice 4 — the mitigation/counter family.
+    ("AreaDamage", Stat::DamageZoneVuln),
+    ("TransferDamageToSummon", Stat::TransferDamageSummonPercent),
+    ("CounterPhysicalSkill", Stat::VengeanceSkillPhysicalDamage),
     ("HateAttack", Stat::HateAttack),
     ("PhysicalSkillPower", Stat::PhysicalSkillPower),
     ("MagicalSkillPower", Stat::MagicalSkillPower),
@@ -1755,6 +1759,20 @@ fn build_skill(
                         "DebuffBlock" => vec![SkillEffect::DebuffBlock],
                         // G34 S3 — flag-only effects. Each maps to one
                         // `effect_flag` bit; see `Skill::effect_flags`.
+                        // `SkillEvasion` is *not* a plain stat: Java keys it by
+                        // `magicType` in a separate map, so a skill-dodge buff
+                        // dodges only its own bucket (0 = physical skills).
+                        "SkillEvasion" => vec![SkillEffect::SkillEvasion {
+                            magic_type: value_at(params, "magicType", level)
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0),
+                            amount: param("amount").unwrap_or(0.0),
+                        }],
+                        "SkillTurning" => vec![SkillEffect::SkillTurning {
+                            chance: param("chance").unwrap_or(100.0) as i32,
+                            static_chance: value_at(params, "staticChance", level)
+                                .is_some_and(|v| v.eq_ignore_ascii_case("true")),
+                        }],
                         "TargetMe" => vec![SkillEffect::TargetMe],
                         "TargetMeProbability" => vec![SkillEffect::TargetMeProbability {
                             chance: param("chance").unwrap_or(100.0) as i32,
@@ -4325,8 +4343,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 195 name(s), 57 learnable
-    /// skill(s) affected, 1781 reachable.
+    /// the work list, worst first. Category totals: 190 name(s), 49 learnable
+    /// skill(s) affected, 1766 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4344,11 +4362,12 @@ mod coverage_census {
     /// → 195 at sub-slice 3: the aggro family — `HateAttack` (auto-attacks
     /// only, Java's `skill == null` branch), `TargetMe` and
     /// `TargetMeProbability` (playables only, Java's `isPlayable()` guard).
+    /// → 190 at sub-slice 4: the mitigation/counter family — `AreaDamage`,
+    /// `TransferDamageToSummon`, `CounterPhysicalSkill`, `SkillEvasion`,
+    /// `SkillTurning`.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
-        ("AreaDamage", 2),
         ("Bluff", 2),
-        ("CounterPhysicalSkill", 2),
         ("CpHealPercent", 2),
         ("CriticalRatePositionBonus", 2),
         ("HpByLevel", 2),
@@ -4357,7 +4376,6 @@ mod coverage_census {
         ("ManaHealOverTime", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
-        ("SkillEvasion", 2),
         ("SkillMastery", 2),
         ("Betray", 1),
         ("CallParty", 1),
@@ -4380,8 +4398,6 @@ mod coverage_census {
         ("RebalanceHP", 1),
         ("SafeFallHeight", 1),
         ("SkillMasteryRate", 1),
-        ("SkillTurning", 1),
-        ("TransferDamageToSummon", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
         ("Unsummon", 1),
@@ -4459,7 +4475,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 195, 57, 1781),
+            ("effect", &gaps.effects, EFFECTS, 190, 49, 1766),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4511,7 +4527,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            59,
+            51,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

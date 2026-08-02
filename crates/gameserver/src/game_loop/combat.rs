@@ -2120,6 +2120,65 @@ pub(crate) fn npc_wake_on_attacked(world: &mut World, npc_oid: i32, attacker_oid
 /// `PlayerStatus.reduceHp` for a physical hit: CP absorbs first only against
 /// playable attackers (mobs bite straight into HP), casts can break
 /// (`Formulas.calcAtkBreak`), 0 HP → `doDie`.
+/// `PlayerStatus.reduceHp`'s `TRANSFER_DAMAGE_SUMMON_PERCENT` block — returns
+/// the damage left for the owner after the servitor's share.
+///
+/// Java's three guards all matter: there must *be* a first servitor, it must be
+/// within 1000 units, and the transfer is clamped to `currentHp - 1` so Transfer
+/// Pain can never kill the pet it is protecting you with.
+fn transfer_damage_to_servitor(
+    world: &mut World,
+    player_oid: i32,
+    attacker_oid: i32,
+    damage: f64,
+) -> f64 {
+    let percent = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&player_oid)
+        .and_then(|m| {
+            m.add
+                .get(&crate::model::stats::Stat::TransferDamageSummonPercent)
+                .copied()
+        })
+        .unwrap_or(0.0);
+    if percent <= 0.0 {
+        return damage;
+    }
+    let Some(servitor) = super::servitor::servitor_of(world, player_oid) else {
+        return damage;
+    };
+    let in_range = match (
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&player_oid),
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&servitor),
+    ) {
+        (Some(a), Some(b)) => {
+            let (dx, dy, dz) = ((a.x - b.x) as f64, (a.y - b.y) as f64, (a.z - b.z) as f64);
+            dx * dx + dy * dy + dz * dz <= 1000.0 * 1000.0
+        }
+        _ => false,
+    };
+    if !in_range {
+        return damage;
+    }
+    // Java truncates to int on both sides before dividing.
+    let mut transferred = ((damage as i32) * (percent as i32)) as f64 / 100.0;
+    let servitor_hp = world
+        .objects
+        .get_component::<Vitals>(&servitor)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0);
+    transferred = transferred.min(servitor_hp - 1.0);
+    if transferred <= 0.0 {
+        return damage;
+    }
+    npc_receive_damage(world, servitor, attacker_oid, transferred, false);
+    damage - transferred
+}
+
 pub(crate) fn player_receive_damage(
     world: &mut World,
     player_oid: i32,
@@ -2196,6 +2255,12 @@ pub(crate) fn player_receive_damage_ex(
     if flags.invul {
         return;
     }
+    // `PlayerStatus.reduceHp`'s transfer block (Transfer Pain 1262), ahead of
+    // the CP pool exactly as Java has it: a share of the incoming damage is
+    // redirected to the first servitor **within 1000 units**, capped so it can
+    // never kill it (`min(summon.getCurrentHp() - 1, tDmg)`), and the
+    // player's damage is reduced by whatever actually landed there.
+    let damage = transfer_damage_to_servitor(world, player_oid, attacker_oid, damage);
     let mut died = false;
     let (cp_after, hp_after) = {
         let Some((mut vitals, mut pvitals)) = world

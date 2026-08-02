@@ -829,6 +829,12 @@ pub struct StatModifiers {
     /// returns this value verbatim, ignoring base/buffs. Persists across buff
     /// recomputes (not cleared with `add`/`mul`); cleared by `//unsetparam`.
     pub fixed: HashMap<crate::model::stats::Stat, f64>,
+    /// Java `CreatureStat._skillEvasionStat` — a flat % chance to dodge an
+    /// incoming skill, keyed by the skill's `magicType` (0 = physical skills,
+    /// which is the only bucket this dist's learnable sources use). A separate
+    /// map rather than a `Stat` because Java keeps it that way: a buff that
+    /// dodges physical skills must not dodge magic.
+    pub skill_evasion: HashMap<i32, f64>,
     /// Java `CreatureStat._moveTypeStats` (`mergeMoveTypeValue`): flat
     /// contributions that only count in a particular locomotion state, from
     /// `StatByMoveType`. **Additive**, identity `0.0`.

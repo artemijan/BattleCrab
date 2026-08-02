@@ -196,20 +196,47 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                 // Java's `DamageZone` calls the plain 3-arg `reduceCurrentHp`
                 // (`isDOT` defaults `false`) — a damage zone *is* blocked by
                 // `HP_BLOCK`, unlike an abnormal-effect DoT tick.
+                // `DamageZone`: `multiplier = 1 + (DAMAGE_ZONE_VULN / 100)`.
+                // Iron Body (295) and Dance of Protection (311) grant it
+                // *negative* (−40 / −30), so despite the stat's name the
+                // learnable sources are mitigation (G34 S4).
+                let vuln = 1.0
+                    + world
+                        .objects
+                        .get_component::<crate::model::components::StatModifiers>(&oid)
+                        .and_then(|m| {
+                            m.add
+                                .get(&crate::model::stats::Stat::DamageZoneVuln)
+                                .copied()
+                        })
+                        .unwrap_or(0.0)
+                        / 100.0;
                 super::combat::apply_physical_damage(
                     world,
                     oid,
                     oid,
-                    params.hp_per_tick as f64,
+                    params.hp_per_tick as f64 * vuln,
                     false,
                     // Java's zone damage passes a null skill.
                     false,
                 );
             }
-            if params.mp_per_tick > 0
-                && let Some(v) = world.objects.get_component_mut::<Vitals>(&oid)
-            {
-                v.cur_mp = (v.cur_mp - params.mp_per_tick as f64).max(0.0);
+            if params.mp_per_tick > 0 {
+                // Java applies the same multiplier to the MP tick.
+                let vuln = 1.0
+                    + world
+                        .objects
+                        .get_component::<crate::model::components::StatModifiers>(&oid)
+                        .and_then(|m| {
+                            m.add
+                                .get(&crate::model::stats::Stat::DamageZoneVuln)
+                                .copied()
+                        })
+                        .unwrap_or(0.0)
+                        / 100.0;
+                if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+                    v.cur_mp = (v.cur_mp - params.mp_per_tick as f64 * vuln).max(0.0);
+                }
             }
         }
     }
