@@ -76,7 +76,7 @@ sets, scheduled on the pools:
 | Task manager | Rate | Pool | Work |
 |---|---|---|---|
 | `MovementTaskManager` | 100 ms | high-prio | `updatePosition()` for pools of ≤1000 moving creatures |
-| `AttackableThinkTaskManager` | 100 ms | high-prio | AI `onEvtThink()` for active monsters |
+| `AttackableThinkTaskManager` | 1 s | high-prio | AI `onEvtThink()` for active monsters (`TASK_DELAY = 1000`) |
 | `CreatureAttackTaskManager` | 100 ms | high-prio | attack hit/abort timing |
 | `CreatureFollowTaskManager` | 500/1000 ms | high-prio | follow logic |
 | `AutoPlay/AutoUse/AutoPotion` | 100–1000 ms | high-prio | auto farm/consumables |
@@ -90,6 +90,16 @@ Each of these runnables iterates a `ConcurrentHashMap`-backed set while other
 threads mutate the same creatures. **In Rust these all collapse into systems
 called from the single game loop** — same rates, same order every tick, no
 sharding needed.
+
+**The rate is not the whole story: the slow managers are punctuated by events.**
+`AttackableThinkTaskManager` is only 1 s, but a monster does not actually wait a
+second to react, because `onEvtThink()` is *also* called directly off the fast
+paths — `CreatureAI.onEvtArrived` (i.e. `MovementTaskManager`, 100 ms) ends with
+it, and so do `onEvtArrivedRevalidate`/`onEvtReadyToAct`. Porting only the
+fixed-rate sweep and dropping those event edges is what makes a ported mob feel
+sluggish: it closes on its target and then visibly stands there for up to a
+second before its first swing. When a Rust system is the port of a slow Java task
+manager, check `CtrlEvent`/`notifyEvent` for the edges that re-enter it early.
 
 ### 1.4 One-shot scheduled tasks
 
