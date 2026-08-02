@@ -51,6 +51,11 @@ pub const MY_TARGET_SELECTED: u8 = 0xB9;
 pub const DIE: u8 = 0x00;
 pub const REVIVE: u8 = 0x01;
 pub const TELEPORT_TO_LOCATION: u8 = 0x22;
+/// `FlyToLocation` — the short-range yank used by charge/knockback and by the
+/// `CallPc` effect when a **monster** drags a player to itself. Unlike
+/// `TeleportToLocation` it does not fade the screen: the client slides the
+/// character from the origin to the destination in place.
+pub const FLY_TO_LOCATION: u8 = 0xD4;
 pub const RIDE: u8 = 0x8C;
 /// Ground items: an item already lying in view (`SpawnItem`), a fresh drop with
 /// the toss animation (`DropItem`), and the pickup animation (`GetItem`).

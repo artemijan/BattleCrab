@@ -223,6 +223,51 @@ fn attacked_mob_pulls_its_clan_mate_in() {
     );
 }
 
+/// `AttackableAI.onEvtAggression` sets the recruit **running** before it
+/// switches intention (`if (!me.isRunning()) me.setRunning();`).
+///
+/// The port seeded hate and set the intention directly, skipping the flip
+/// `thinkActive` does when it promotes a target of its own — so a mob that
+/// answered a call for help chased at walk speed. On the stock templates that
+/// is ~30 against a run speed of ~170: the pack "aggros" and then dawdles in
+/// one at a time, which is the opposite of what group aggro is for.
+#[test]
+fn a_recruited_clan_mate_runs_rather_than_walks() {
+    let (mut world, _db, _l) = guard_world();
+    let mut out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engaged_pair(&mut world, ORC_B_ID, 200, 100.0);
+    assert!(
+        !world
+            .objects
+            .get_component::<crate::model::components::Speeds>(&MATE_OID)
+            .unwrap()
+            .running,
+        "an idle mob starts out walking"
+    );
+    drain(&mut out);
+
+    advance_world(&mut world, 20);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Speeds>(&MATE_OID)
+            .unwrap()
+            .running,
+        "the recruit must be running"
+    );
+    // The flip only counts if the client hears about it: the move type rides
+    // its own packet, not the periodic position stream.
+    let packets = drain(&mut out);
+    assert!(
+        packets.iter().any(|p| {
+            p.first() == Some(&crate::network::server_packets::opcodes::CHANGE_MOVE_TYPE)
+                && p.get(1..5) == Some(&MATE_OID.to_le_bytes()[..])
+        }),
+        "ChangeMoveType must reach the client or the recruit still animates as walking"
+    );
+}
+
 #[test]
 fn a_different_faction_is_not_pulled_in() {
     let (mut world, _db, _l) = guard_world();

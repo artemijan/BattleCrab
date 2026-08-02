@@ -969,6 +969,9 @@ pub(crate) fn apply_skill_effects(
                     }
                 }
             }
+            SkillEffect::CallPc => {
+                call_pc(world, caster_oid, target_oid, skill);
+            }
             SkillEffect::GiveRecommendation { amount } => {
                 crate::game_loop::reco::apply_give_recommendation(world, caster_oid, target_oid, *amount);
             }
@@ -2671,6 +2674,111 @@ fn creature_name(world: &World, oid: i32) -> String {
             .get_component::<crate::model::Player>(&oid)
             .map(|p| p.name.clone())
             .unwrap_or_default()
+    }
+}
+
+/// `handlers/effecthandlers/CallPc.java`, the `player == null` branch — a
+/// **monster** dragging its victim to itself. This is Porta's (20213) "Summon"
+/// (4161), and Java's body is five lines:
+///
+/// ```text
+/// effected.abortCast();
+/// effected.abortAttack();
+/// effected.stopMove(null);
+/// effected.sendPacket(new FlyToLocation(effected, effector, FlyType.DUMMY, …));
+/// effected.setLocation(effector.getLocation());
+/// ```
+///
+/// Note `setLocation`, **not** `teleToLocation`: no fade, no decay/respawn, no
+/// `Appearing` round trip. The victim slides across on the client and the
+/// server just moves the point. The whole hop is bounded by the skill's
+/// `castRange` (600 for 4161), so it never crosses more than one world region
+/// and the ordinary visibility sweep picks up the new neighbourhood.
+///
+/// The `TargetType::Enemy` gate is Java's: `CallPc` on any other target type
+/// from a non-player effector falls to the `teleToLocation` branch, which is
+/// the *player* being recalled — not something a monster does.
+fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
+    // "if (effector == effected) return" — a mob can't summon itself.
+    if caster_oid == target_oid {
+        return;
+    }
+    // The ported half is the NPC one; a player effector wants the Summon
+    // Friend `ConfirmDlg` round trip, which isn't built (see
+    // `SkillEffect::CallPc`).
+    if world
+        .objects
+        .has_component::<crate::model::Player>(&caster_oid)
+    {
+        return;
+    }
+    if skill.target_type != crate::model::skill::TargetType::Enemy {
+        return;
+    }
+    // `effected.getActingPlayer()` — the branch is player-only; a servitor
+    // caught in the cast is left where it stands, as in Java.
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&target_oid)
+    {
+        return;
+    }
+    let Some(dest) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+        .copied()
+    else {
+        return;
+    };
+    let Some(from) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&target_oid)
+        .copied()
+    else {
+        return;
+    };
+
+    // `abortCast()` / `abortAttack()` / `stopMove(null)`.
+    super::cast::abort_cast(world, target_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::AttackState>(&target_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&target_oid);
+    world
+        .objects
+        .remove_component::<crate::model::components::Intent>(&target_oid);
+
+    // Java sends `FlyToLocation` to the effected player only; everyone else
+    // learns the new position from the movement/validate-position stream. The
+    // port broadcasts it so bystanders see the yank rather than a silent
+    // teleport — the packet is a pure animation and the client ignores it for
+    // objects it can't see.
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        target_oid,
+        &server_packets::fly_to_location(
+            target_oid,
+            (from.x, from.y, from.z),
+            (dest.x, dest.y, dest.z),
+            server_packets::FlyType::Dummy,
+        ),
+    );
+
+    if let Some(pos) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&target_oid)
+    {
+        pos.x = dest.x;
+        pos.y = dest.y;
+        pos.z = dest.z;
+    }
+    if let Some(region) = world
+        .objects
+        .get_component_mut::<crate::model::components::RegionCell>(&target_oid)
+    {
+        region.0 = crate::world::region_of(dest.x, dest.y);
     }
 }
 

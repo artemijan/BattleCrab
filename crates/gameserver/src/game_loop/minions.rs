@@ -413,11 +413,21 @@ pub(crate) fn add_hate(world: &mut World, npc_oid: i32, attacker_oid: i32, hate:
         });
         entry.hate += hate;
     }
-    if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid)
-        && ai.intention != NpcIntention::Attack
+    // Java's `MinionList.onAssist` only seeds hate; the minion's own
+    // `thinkActive` then promotes it to `AI_INTENTION_ATTACK` **and** calls
+    // `setRunning()` in the same breath. This helper short-circuits straight to
+    // the attack intention, so it has to do the run flip `thinkActive` would
+    // otherwise have done — without it an assisting minion walks to the fight.
+    if world
+        .objects
+        .get_component::<NpcAi>(&npc_oid)
+        .is_some_and(|ai| ai.intention != NpcIntention::Attack)
     {
-        ai.intention = NpcIntention::Attack;
-        ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;
+        super::npc_ai::set_running(world, npc_oid);
+        if let Some(ai) = world.objects.get_component_mut::<NpcAi>(&npc_oid) {
+            ai.intention = NpcIntention::Attack;
+            ai.attack_timeout_tick = world.tick + super::combat::ATTACK_TIMEOUT_TICKS;
+        }
     }
 }
 

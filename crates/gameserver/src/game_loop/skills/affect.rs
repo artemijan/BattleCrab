@@ -43,13 +43,18 @@ use crate::world::{World, regions_adjacent};
 
 /// Resolve the full set of creatures a cast lands on.
 ///
-/// Java `Skill.getTargetsAffected(creature, target)`. For the radius/group
-/// scopes the primary target is always first and always included, so callers
-/// that treat the first entry specially behave as they did before scopes
-/// existed. The **geometric scopes are different**: their geometry applies to
-/// the primary target too — a FAN cast at someone behind the caster misses
-/// them, and RING_RANGE *never* hits its epicenter target (the donut hole) —
-/// so the affected set can come back without the target, or empty.
+/// Java `Skill.getTargetsAffected(creature, target)`. For `Range` and the group
+/// scopes the primary target is first and always included, so callers that
+/// treat the first entry specially behave as they did before scopes existed.
+/// Three families are **not** like that and the affected set can come back
+/// without the target, or empty:
+///
+/// - the geometric scopes, whose geometry applies to the primary target too —
+///   a FAN cast at someone behind the caster misses them, and RING_RANGE
+///   *never* hits its epicenter target (the donut hole);
+/// - `PointBlank`, which sweeps the ring around the target and deliberately
+///   leaves the target itself out of it (see [`Centre`]);
+/// - `Ground`, which has no creature target at all.
 pub(crate) fn targets_affected(
     world: &mut World,
     caster_oid: i32,
@@ -73,9 +78,14 @@ pub(crate) fn targets_affected(
         AffectScope::PointBlank if skill.target_type == TargetType::Ground => {
             sweep_ground(world, caster_oid, skill, limit)
         }
-        AffectScope::PointBlank => {
-            sweep_radius(world, caster_oid, target_oid, skill, limit, Centre::Caster)
-        }
+        AffectScope::PointBlank => sweep_radius(
+            world,
+            caster_oid,
+            target_oid,
+            skill,
+            limit,
+            Centre::PointBlank,
+        ),
         AffectScope::Party => {
             sweep_group(world, caster_oid, target_oid, skill, limit, Group::Party)
         }
@@ -101,12 +111,28 @@ pub(crate) fn targets_affected(
     }
 }
 
-/// Which point a radius sweep is measured from — the difference between
-/// `Range` (the target) and `PointBlank` (the caster).
+/// Which of the two radius handlers a sweep is running as.
+///
+/// **Both centre on the target.** `PointBlank.java` is
+/// `forEachVisibleObjectInRange(target, Creature.class, affectRange, …)` —
+/// exactly the reference object `Range.java` uses. The name describes the
+/// *skills*, not the geometry: 757 of this dist's 786 `POINT_BLANK` skills are
+/// `targetType=SELF`, so "around the target" and "around the caster" are the
+/// same point for almost all of them, and the port reading it as caster-centred
+/// went unnoticed. It is wrong for the 19 that aren't (7 `ENEMY`, 8 `TARGET`,
+/// 3 `SUMMON`, 1 `ENEMY_ONLY`), where Java's ring sits on the victim.
+///
+/// What actually separates them is the **primary target**: `Range` re-adds it
+/// ("Add object of origin since its skipped in the forEachVisibleObjectInRange
+/// method") and exempts it from the affect-object filter; `PointBlank` has no
+/// such line, so the object at the centre of the ring is not affected by its
+/// own blast.
 #[derive(Clone, Copy, PartialEq)]
 enum Centre {
+    /// `Range.java`.
     Target,
-    Caster,
+    /// `PointBlank.java`.
+    PointBlank,
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -128,16 +154,31 @@ fn sweep_radius(
     limit: i32,
     centre: Centre,
 ) -> Vec<i32> {
-    let mut out = vec![target_oid];
+    // The two handlers differ on the **primary target**, and it is not a
+    // detail. `Range.java` explicitly re-adds it ("Add object of origin since
+    // its skipped in the forEachVisibleObjectInRange method"); `PointBlank.java`
+    // has no such line, so its sweep — `forEachVisibleObjectInRange(target, …)`,
+    // which never returns the reference object — leaves the target out
+    // altogether.
+    //
+    // For the overwhelmingly common `SELF` + `POINT_BLANK` mob skill the target
+    // *is* the caster, so seeding it meant a point-blank shockwave stunned the
+    // monster casting it, and (before the NPC target-type resolution landed in
+    // `npc_cast`) hit the far-away player it was aimed at. Java sweeps the ring
+    // and nothing else.
+    let seeds_target = centre == Centre::Target;
+    let mut out = if seeds_target {
+        vec![target_oid]
+    } else {
+        Vec::new()
+    };
     let range = skill.affect_range;
     if range <= 0 {
         // Java would sweep a 0-radius circle and find nothing but the target.
         return out;
     }
-    let centre_oid = match centre {
-        Centre::Target => target_oid,
-        Centre::Caster => caster_oid,
-    };
+    // Both handlers pass `target` as the reference object.
+    let centre_oid = target_oid;
     let Some(origin) = world
         .objects
         .get_component::<Position>(&centre_oid)
@@ -153,18 +194,22 @@ fn sweep_radius(
         .copied();
 
     // `affected` counts the primary target: Java's Range handler runs the
-    // filter over the origin object first and increments there.
-    let mut affected = 1;
+    // filter over the origin object first and increments there. PointBlank
+    // starts from zero because it never adds one.
+    let mut affected = i32::from(seeds_target);
     for candidate in candidates(world, centre_oid) {
+        // Already in `out` for Range; excluded by `forEachVisibleObjectInRange`
+        // for PointBlank, whose reference object is the target.
         if candidate == target_oid {
-            continue; // already in `out`
+            continue;
         }
         if limit > 0 && affected >= limit {
             break;
         }
         // "Range skills appear to not affect you unless you are the main
         // target" — the caster is swept up only when they *are* the target.
-        if candidate == caster_oid && target_oid != caster_oid {
+        // `PointBlank.java` carries no such rule.
+        if seeds_target && candidate == caster_oid && target_oid != caster_oid {
             continue;
         }
         if is_dead(world, candidate) && !corpse_skill(skill) {

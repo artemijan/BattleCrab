@@ -24,7 +24,9 @@ pub(crate) const INTERACTION_DISTANCE: f64 = 250.0;
 /// * **Door** → only a castle door during an active siege (`Door.isAuto
 ///   Attackable`; Interlude ships no always-`isAttackable` doors).
 /// * **NPC** → an auto-attackable template (monsters), or a siege
-///   control/flame tower, HQ flag, or stationed guard the attacker may engage.
+///   control/flame tower, HQ flag, or stationed guard the attacker may engage —
+///   *unless* the attacker is itself a wild monster, which sees other monsters
+///   as friendly.
 pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i32) -> bool {
     if world
         .objects
@@ -38,11 +40,37 @@ pub(crate) fn is_auto_attackable(world: &World, attacker_oid: i32, target_oid: i
     {
         return super::siege::attackable_door(world, target_oid);
     }
-    world
+    // `Monster.isAutoAttackable`: `if (attacker.isMonster()) return
+    // attacker.isFakePlayer();` — for a plain monster attacker that is `false`.
+    // Only ever consulted for an NPC attacker, so no player path changes.
+    //
+    // This became reachable when NPC casts started resolving through the
+    // target-type handlers (`npc_cast::resolve_npc_cast_target`): `Enemy.java`
+    // asks exactly this question, and without the rule a mob's offensive skill
+    // would happily accept a faction-mate the AI handed it. Siege towers, HQ
+    // flags and stationed guards keep their own relations below — Java gates
+    // those through `Npc.isAutoAttackable`'s clan checks, not through
+    // `Monster`.
+    let attacker_is_wild_monster = world
         .objects
-        .get_component::<crate::model::npc::Npc>(&target_oid)
+        .get_component::<crate::model::npc::Npc>(&attacker_oid)
         .and_then(|n| n.template(world))
-        .is_some_and(|t| t.is_auto_attackable())
+        .is_some_and(|t| t.is_monster())
+        // A summon/pet is an NPC here but `isSummon()` in Java, and Java's
+        // `Npc.isAutoAttackable` lets summons attack NPCs outright.
+        && !world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&attacker_oid)
+        && !world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&attacker_oid);
+
+    (!attacker_is_wild_monster
+        && world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&target_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_auto_attackable()))
         || super::siege::attackable_siege_tower(world, target_oid)
         || super::siege::attackable_siege_flag(world, target_oid)
         || super::siege::attackable_siege_guard(world, target_oid, attacker_oid)

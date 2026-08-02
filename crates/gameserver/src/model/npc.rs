@@ -153,6 +153,10 @@ pub struct NpcAi {
     /// launch/finish task carrying a stale seq is a cast that was aborted (or
     /// superseded) and no-ops. See [`crate::game_loop::skills::cast::live_cast`].
     pub cast_seq: u64,
+    /// `AttackableAI.chaostime`: thinks elapsed since the last raid/minion
+    /// target shuffle. Only raids, grand bosses and minions ever tick it — see
+    /// `thinkAttack`'s "BOSS/Raid Minion Target Reconsider" block.
+    pub chaos_time: i32,
 }
 
 impl Default for NpcAi {
@@ -165,6 +169,7 @@ impl Default for NpcAi {
             next_animation_tick: None,
             last_social_tick: 0,
             cast_seq: 0,
+            chaos_time: 0,
         }
     }
 }

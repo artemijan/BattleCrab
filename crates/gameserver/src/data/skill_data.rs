@@ -2123,6 +2123,10 @@ fn build_skill(
                         "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
                             vec![SkillEffect::EscapeToTown]
                         }
+                        // `CallPc.java`. Its `itemId`/`itemCount` params belong
+                        // to the player (Summon Friend) half, which is not
+                        // ported; the monster half reads neither.
+                        "CallPc" => vec![SkillEffect::CallPc],
                         // `Speed` pumps four move-speed stats at once (Java
                         // `Speed.pump`); the 1-name→1-stat `EFFECT_REGISTRY` can't
                         // express that, so expand it here. Without this, movement
@@ -4325,7 +4329,6 @@ mod coverage_census {
         ("TargetMe", 2),
         ("Betray", 1),
         ("CallParty", 1),
-        ("CallPc", 1),
         ("ChameleonRest", 1),
         ("CubicMastery", 1),
         ("DeathLink", 1),
@@ -4422,7 +4425,13 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            ("effect", &gaps.effects, EFFECTS, 202, 63, 1821),
+            // `CallPc` gained a handler (Porta 20213 / skill 4161) on top of
+            // G34 S4's sweep. Caveat for whoever reads these numbers as
+            // "done": only the effect's **NPC** half is implemented. Its
+            // player half is Summon Friend and is still a TODO(G30) no-op, so
+            // the census counts `CallPc` as handled while one of its two
+            // branches does nothing.
+            ("effect", &gaps.effects, EFFECTS, 201, 62, 1815),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4466,9 +4475,15 @@ mod coverage_census {
         wrong.extend(affected(&gaps.effects, &learn));
         wrong.extend(affected(&gaps.effect_scopes, &learn));
         wrong.extend(affected(&gaps.conditions, &learn));
+        //
+        // Note on Summon Friend: `CallPc` is registered for the **monster**
+        // half (Porta's drag-you-in), so the census stops counting the effect
+        // as unhandled even though the player half of the same handler — the
+        // `ConfirmDlg` recall — is still a TODO(G30) no-op. Whatever this
+        // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            65,
+            64,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",
