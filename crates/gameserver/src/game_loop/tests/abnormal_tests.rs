@@ -2499,3 +2499,109 @@ fn a_smashed_chest_and_an_unlocked_one_do_not_share_a_drop_table() {
         "and pays no exp — `setMustRewardExpSp(false)`"
     );
 }
+
+/// **`RebalanceHP`** (Balance Life 1043) — pool the party's HP and set everyone
+/// to the party average *percentage*. It is a redistribution, not a heal: the
+/// total is unchanged, so the healthy pay for the dying. That is the half a
+/// "heal the party" implementation would get wrong in the most visible way —
+/// the caster at full HP is supposed to come out of it *worse*.
+#[test]
+fn balance_life_averages_the_party_and_costs_the_healthy() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let ally = CASTER + 1;
+    let _ally_out = ingame_player(&mut world, CID + 1, ally, 50, 0, 0);
+    let mut skill = cc_skill(9406, SkillEffect::RebalanceHp, "NONE");
+    skill.affect_range = 900;
+    world.data.skill_data.insert_for_test(skill);
+    crate::game_loop::tests::make_party(
+        &mut world,
+        &[CASTER, ally],
+        crate::model::party::LootRule::Random,
+    );
+
+    // Same pool, wildly different fills: 100 % and 20 % → a 60 % average.
+    for (oid, cur) in [(CASTER, 1000.0), (ally, 200.0)] {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+            v.max_hp = 1000;
+            v.cur_hp = cur;
+        }
+    }
+    let total_before = 1000.0 + 200.0;
+
+    land(&mut world, 9406, CASTER);
+
+    let hp_of = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<Vitals>(&oid)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+    assert_eq!(hp_of(&world, ally), 600.0, "the dying ally is pulled up");
+    assert_eq!(
+        hp_of(&world, CASTER),
+        600.0,
+        "and the healthy caster is pulled *down* — this is not a heal"
+    );
+    assert_eq!(
+        hp_of(&world, CASTER) + hp_of(&world, ally),
+        total_before,
+        "the party's total HP is conserved"
+    );
+}
+
+/// Java guards the whole effect with `if (party != null)`, so an unpartied
+/// Balance Life is simply wasted — it does **not** fall back to the "party of
+/// one" reading every other party-scoped effect uses.
+///
+/// The caster alone cannot show this: with one member the average *is* their
+/// own percentage, so the maths is a no-op either way and the guard is
+/// invisible. A **pet** is what makes the difference observable — under the
+/// fallback the pair would rebalance against each other, under Java's guard
+/// neither of them moves.
+#[test]
+fn balance_life_without_a_party_does_nothing() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut skill = cc_skill(9407, SkillEffect::RebalanceHp, "NONE");
+    skill.affect_range = 900;
+    world.data.skill_data.insert_for_test(skill);
+
+    // A pet at a very different fill from its (unpartied) owner.
+    let pet = NPC_OID;
+    add_test_npc(&mut world, pet, 20001, "Monster", 20, 60, 0, 0);
+    world.objects.add_components(
+        &CASTER,
+        crate::model::components::SummonRef {
+            servitor: None,
+            pet: Some(pet),
+        },
+    );
+    for (oid, max, cur) in [(CASTER, 1000, 250.0), (pet, 1000, 1000.0)] {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+            v.max_hp = max;
+            v.cur_hp = cur;
+        }
+    }
+
+    land(&mut world, 9407, CASTER);
+
+    let hp_of = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<Vitals>(&oid)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+    assert_eq!(
+        hp_of(&world, CASTER),
+        250.0,
+        "solo, the caster is untouched"
+    );
+    assert_eq!(
+        hp_of(&world, pet),
+        1000.0,
+        "and so is their pet — no party, no rebalance"
+    );
+}

@@ -1972,16 +1972,27 @@ pub(crate) fn apply_skill_effects(
             }
             // Periodic effects do nothing on application; their work happens on
             // the tick chain armed by `schedule_dam_over_time`.
-            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
+            SkillEffect::HealOverTime { .. } | SkillEffect::ManaDamOverTime { .. } | SkillEffect::ManaHealOverTime { .. } | SkillEffect::MpConsumePerLevel { .. } => {}
             // `Relax.onStart` — the toggle seats its holder. Java calls
             // `sitDown(false)`: the un-toggleable form, so the player cannot
             // stand straight back up while the effect is running.
-            SkillEffect::Relax { .. } => {
+            // `Relax.onStart` / `ChameleonRest.onStart` — both sit the holder
+            // down. (Java's NPC branch sets `AI_INTENTION_REST`; no NPC on this
+            // dist carries either skill, so there is nothing to route there.)
+            SkillEffect::Relax { .. } | SkillEffect::ChameleonRest { .. } => {
                 if world.objects.has_component::<crate::model::Player>(&target_oid)
                     && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
                 {
                     crate::game_loop::sit_stand::sit_down(world, target_oid);
                 }
+            }
+            // `RebalanceHP.instant` — Balance Life (1043). Pool the HP of every
+            // living party member (and their pets/servitors) inside the skill's
+            // affect range, take the party's average HP *percentage*, and set
+            // everyone to it. A redistribution, not a heal: the total is
+            // unchanged, so it robs the healthy to save the dying.
+            SkillEffect::RebalanceHp => {
+                rebalance_party_hp(world, caster_oid, skill);
             }
             // `Cp.instant` — an immediate CP change, clamped so it never takes
             // the target past full CP (Java caps the *gain* at the recoverable
@@ -2205,8 +2216,10 @@ pub(crate) fn apply_continuous_effects(
             SkillEffect::DamOverTime { .. }
                 | SkillEffect::HealOverTime { .. }
                 | SkillEffect::ManaDamOverTime { .. }
+                | SkillEffect::ManaHealOverTime { .. }
                 | SkillEffect::MpConsumePerLevel { .. }
                 | SkillEffect::Relax { .. }
+                | SkillEffect::ChameleonRest { .. }
                 | SkillEffect::Fear { .. }
                 | SkillEffect::FakeDeath { .. }
         )
@@ -3262,6 +3275,119 @@ fn creature_level(world: &World, oid: i32) -> i32 {
             .get_component::<crate::model::Player>(&oid)
             .map(|p| p.level)
             .unwrap_or(1)
+    }
+}
+
+/// `RebalanceHP.instant` — Balance Life (1043).
+///
+/// Two passes over the same set: sum `maxHp` and `curHp` across every living
+/// party member in `affect_range` (plus their pet and servitors), then set each
+/// of them to `maxHp * (sumCur / sumMax)`. Java bails outright when the caster
+/// is not a player, and does nothing at all when there is no party — an
+/// unpartied cast is wasted, which is *not* the "party of one" reading every
+/// other party-scoped effect uses.
+///
+/// The heal direction matters: only a member whose HP goes **up** is clamped by
+/// `MAX_RECOVERABLE_HP` (and a member already above that ceiling keeps what
+/// they have rather than being pulled down to it). A member who loses HP is
+/// written unconditionally — the ceiling guards heals, not the redistribution.
+fn rebalance_party_hp(world: &mut World, caster_oid: i32, skill: &Skill) {
+    if !world
+        .objects
+        .has_component::<crate::model::Player>(&caster_oid)
+    {
+        return;
+    }
+    let Some(members) = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&caster_oid)
+        .and_then(|r| world.parties.get(&r.0))
+        .map(|p| p.members.clone())
+    else {
+        // No party: Java's `if (party != null)` guard skips the whole effect.
+        return;
+    };
+    let Some(origin) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+        .copied()
+    else {
+        return;
+    };
+    let range = skill.affect_range;
+    let in_range = |world: &World, oid: i32| -> bool {
+        // `Util.checkIfInRange(range, effector, target, true)` — 3D, and a
+        // range of 0 means "no distance filter" the same way the affect
+        // helpers read it.
+        if range <= 0 {
+            return true;
+        }
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&oid)
+            .is_some_and(|p| {
+                let (dx, dy, dz) = (
+                    (origin.x - p.x) as f64,
+                    (origin.y - p.y) as f64,
+                    (origin.z - p.z) as f64,
+                );
+                dx * dx + dy * dy + dz * dz <= (range as f64) * (range as f64)
+            })
+    };
+
+    // Every creature the effect touches: each member, then their pet and
+    // servitor. Java walks all three lists twice; collecting once keeps the
+    // two passes over exactly the same set.
+    let mut touched: Vec<i32> = Vec::new();
+    for member in &members {
+        for oid in std::iter::once(*member)
+            .chain(crate::game_loop::servitor::pet_of(world, *member))
+            .chain(crate::game_loop::servitor::servitor_of(world, *member))
+        {
+            let alive = world
+                .objects
+                .get_component::<Vitals>(&oid)
+                .is_some_and(|v| !v.dead);
+            if alive && in_range(world, oid) {
+                touched.push(oid);
+            }
+        }
+    }
+
+    let (mut full_hp, mut current_hp) = (0.0f64, 0.0f64);
+    for &oid in &touched {
+        if let Some(v) = world.objects.get_component::<Vitals>(&oid) {
+            full_hp += v.max_hp as f64;
+            current_hp += v.cur_hp;
+        }
+    }
+    if full_hp <= 0.0 {
+        return;
+    }
+    let percent = current_hp / full_hp;
+
+    for &oid in &touched {
+        let Some(v) = world.objects.get_component::<Vitals>(&oid).copied() else {
+            continue;
+        };
+        let mut new_hp = v.max_hp as f64 * percent;
+        if new_hp > v.cur_hp {
+            let ceiling = max_recoverable(
+                world,
+                oid,
+                crate::model::stats::Stat::MaxRecoverableHp,
+                v.max_hp as f64,
+            );
+            if v.cur_hp > ceiling {
+                new_hp = v.cur_hp;
+            } else if new_hp > ceiling {
+                new_hp = ceiling;
+            }
+        }
+        if let Some(vit) = world.objects.get_component_mut::<Vitals>(&oid) {
+            vit.cur_hp = new_hp.clamp(0.0, vit.max_hp as f64);
+        }
+        broadcast_vitals(world, oid);
     }
 }
 
@@ -4718,6 +4844,8 @@ fn schedule_dam_over_time(world: &mut World, caster_oid: i32, target_oid: i32, s
             | SkillEffect::ManaDamOverTime { ticks, .. }
             | SkillEffect::MpConsumePerLevel { ticks, .. }
             | SkillEffect::Relax { ticks, .. }
+            | SkillEffect::ChameleonRest { ticks, .. }
+            | SkillEffect::ManaHealOverTime { ticks, .. }
             | SkillEffect::Fear { ticks }
             | SkillEffect::FakeDeath { ticks, .. }
                 if *ticks > 0 =>
@@ -4863,6 +4991,75 @@ pub(crate) fn handle_dam_over_time_tick(
             SkillEffect::Fear { ticks } if *ticks > 0 => {
                 interval = dot_interval_ticks(*ticks);
                 fear_action(world, None, target_oid);
+            }
+            // `ChameleonRest.onActionTime` — Relax's stand-up and out-of-MP
+            // stops, **without** its HP-full stop: you are resting to hide,
+            // not to heal, so a full HP bar does not retire it.
+            SkillEffect::ChameleonRest { power, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                if world.objects.has_component::<crate::model::Player>(&target_oid)
+                    && !crate::game_loop::sit_stand::is_sitting(world, target_oid)
+                {
+                    deactivate_toggle |= is_toggle;
+                    continue;
+                }
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
+                    continue;
+                };
+                let drain = dot_tick_damage(*power, *ticks);
+                // Java compares before spending and bails on `>`, so a tick that
+                // costs exactly the remaining MP still runs.
+                if drain > v.cur_mp {
+                    if let Some(client_id) = client_for_player(world, target_oid)
+                        && let Some(cs) = world.clients.get(&client_id)
+                    {
+                        cs.send(server_packets::system_message_with(
+                            server_packets::sm_ids::YOUR_SKILL_WAS_DEACTIVATED_DUE_TO_LACK_OF_MP,
+                            &[],
+                        ));
+                    }
+                    deactivate_toggle = true;
+                    continue;
+                }
+                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    vit.cur_mp = (vit.cur_mp - drain).max(0.0);
+                }
+                broadcast_vitals(world, target_oid);
+            }
+            // `ManaHealOverTime.onActionTime` — the mirror of the drain arm
+            // below. Java's two early-outs are asymmetric: a **positive** power
+            // stops once MP is already full, a negative one stops when the tick
+            // would take MP to zero or below, and the write floors at 1 rather
+            // than 0 — a drain wearing this handler can never empty the pool.
+            SkillEffect::ManaHealOverTime { power, ticks } if *ticks > 0 => {
+                interval = dot_interval_ticks(*ticks);
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
+                    continue;
+                };
+                if v.dead {
+                    continue;
+                }
+                // `getMaxRecoverableMp()` — `MAX_RECOVERABLE_MP` over `maxMp`.
+                // No skill on this dist grants that stat (`LimitMp` exists but
+                // is used by nothing), so the ceiling is plain `maxMp`.
+                let ceiling = v.max_mp as f64;
+                if *power > 0.0 {
+                    if v.cur_mp >= ceiling {
+                        continue;
+                    }
+                } else if v.cur_mp - *power <= 0.0 {
+                    continue;
+                }
+                let delta = dot_tick_damage(*power, *ticks);
+                let restored = if *power > 0.0 {
+                    (v.cur_mp + delta).min(ceiling)
+                } else {
+                    (v.cur_mp + delta).max(1.0)
+                };
+                if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                    vit.cur_mp = restored;
+                }
+                broadcast_vitals(world, target_oid);
             }
             // `Relax.onActionTime` — the MP upkeep above, plus the two extra
             // stop conditions the plain upkeep effects do not have.

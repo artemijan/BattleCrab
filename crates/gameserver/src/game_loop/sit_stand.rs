@@ -219,7 +219,16 @@ fn stop_relaxing(world: &mut World, object_id: i32) {
                         .get(a.skill_id, a.skill_level)
                         .is_some_and(|s| {
                             s.effects.iter().any(|e| {
-                                matches!(e, crate::model::skill::SkillEffect::Relax { .. })
+                                // Java stops everything carrying
+                                // `EffectFlag.RELAXING`, which is `Relax` and
+                                // `ChameleonRest` — the latter also carries
+                                // SILENT_MOVE, but it is the RELAXING half that
+                                // standing up cancels.
+                                matches!(
+                                    e,
+                                    crate::model::skill::SkillEffect::Relax { .. }
+                                        | crate::model::skill::SkillEffect::ChameleonRest { .. }
+                                )
                             })
                         })
                 })

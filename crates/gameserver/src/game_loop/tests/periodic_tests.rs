@@ -563,3 +563,127 @@ fn the_real_relax_skill_parses_its_effect() {
         "it is a toggle, which is what drives the self-deactivation"
     );
 }
+
+// ---------------------------------------------------------------------------
+// G34 S4 sub-slice 11 — ChameleonRest and ManaHealOverTime
+// ---------------------------------------------------------------------------
+
+const CHAMELEON: i32 = 9561;
+const MANA_HOT: i32 = 9562;
+
+fn chameleon_world() -> (
+    World,
+    db::CmdRx,
+    tokio::sync::mpsc::UnboundedReceiver<LoginLinkCommand>,
+) {
+    let (mut world, db, l) = cast_test_world();
+    world.data.skill_data.insert_for_test(periodic_skill(
+        CHAMELEON,
+        vec![SkillEffect::ChameleonRest {
+            power: 2.0,
+            ticks: 5,
+        }],
+        true,
+    ));
+    (world, db, l)
+}
+
+/// **The difference from Relax.** Both sit you down and both drain MP, but
+/// Relax retires itself once HP is full — it exists to regenerate. Chameleon
+/// Rest exists to *hide*, so a full HP bar means nothing to it and it keeps
+/// running. A port that reused Relax's arm wholesale would switch this skill
+/// off exactly when a healthy player wanted to hide.
+#[test]
+fn chameleon_rest_keeps_running_at_full_hp_where_relax_would_stop() {
+    let (mut world, _db, _l) = chameleon_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    // Deliberately *not* wounded — this is the state that stops Relax.
+    assert_eq!(
+        hp(&world, CASTER),
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.max_hp as f64)
+            .unwrap(),
+        "the caster starts at full HP"
+    );
+
+    land(&mut world, CHAMELEON, CASTER);
+    assert!(
+        crate::game_loop::sit_stand::is_sitting(&world, CASTER),
+        "it seats its caster, like Relax"
+    );
+
+    let before = mp(&world, CASTER);
+    advance_ticks(&mut world, ONE_TICK);
+    assert!(
+        has_buff(&world, CASTER, CHAMELEON),
+        "full HP does not retire it — that stop belongs to Relax alone"
+    );
+    assert!(
+        mp(&world, CASTER) < before,
+        "and the upkeep is still being paid: {before} -> {}",
+        mp(&world, CASTER)
+    );
+}
+
+/// Standing up ends it, the same `EffectFlag.RELAXING` cancellation Relax gets
+/// — and it must not wait for the next tick to notice.
+#[test]
+fn standing_up_ends_chameleon_rest_immediately() {
+    let (mut world, _db, _l) = chameleon_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    land(&mut world, CHAMELEON, CASTER);
+    assert!(has_buff(&world, CASTER, CHAMELEON));
+
+    crate::game_loop::sit_stand::stand_up(&mut world, CASTER);
+
+    assert!(
+        !has_buff(&world, CASTER, CHAMELEON),
+        "standing up ends the toggle without waiting for a tick"
+    );
+}
+
+/// **`ManaHealOverTime`** (Force Meditation 441, Invocation 1430, Soul Harmony
+/// 1480) — the mirror of `ManaDamOverTime`: it *restores* MP per tick, clamped
+/// at the pool. Without it these three skills landed a buff icon and gave back
+/// nothing.
+#[test]
+fn mana_heal_over_time_restores_mp_and_stops_at_full() {
+    let (mut world, _db, _l) = cast_test_world();
+    world.data.skill_data.insert_for_test(periodic_skill(
+        MANA_HOT,
+        vec![SkillEffect::ManaHealOverTime {
+            power: 10.0,
+            ticks: 5,
+        }],
+        false,
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let max_mp = world
+        .objects
+        .get_component::<Vitals>(&CASTER)
+        .map(|v| v.max_mp as f64)
+        .unwrap();
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+        v.cur_mp = 1.0;
+    }
+
+    land(&mut world, MANA_HOT, CASTER);
+    advance_ticks(&mut world, ONE_TICK);
+    let after_one = mp(&world, CASTER);
+    assert!(
+        after_one > 1.0,
+        "a tick restores MP, it does not drain it: 1 -> {after_one}"
+    );
+
+    // Run it dry against the ceiling: MP never exceeds the pool.
+    for _ in 0..40 {
+        advance_ticks(&mut world, ONE_TICK);
+    }
+    assert!(
+        mp(&world, CASTER) <= max_mp,
+        "and it clamps at the pool: {} > {max_mp}",
+        mp(&world, CASTER)
+    );
+}

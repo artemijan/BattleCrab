@@ -1016,6 +1016,39 @@ pub enum SkillEffect {
         power: f64,
         ticks: i32,
     },
+    /// `handlers/effecthandlers/ChameleonRest.java` — Chameleon Rest (296),
+    /// which is [`SkillEffect::Relax`] with two differences that matter.
+    ///
+    /// It carries `SILENT_MOVE` **as well as** `RELAXING`, so resting under it
+    /// also hides you from a monster's pre-emptive aggro (that is the whole
+    /// point of the skill, per its own description). And it has *no* HP-full
+    /// stop: Relax retires itself once there is nothing left to heal, while
+    /// this one keeps running until you stand up or run out of MP — you are
+    /// not resting to heal, you are resting to hide.
+    ChameleonRest {
+        power: f64,
+        ticks: i32,
+    },
+    /// `handlers/effecthandlers/ManaHealOverTime.java` — the mirror of
+    /// [`SkillEffect::ManaDamOverTime`]: positive `power` **restores** MP each
+    /// tick, clamped to the recoverable ceiling. Force Meditation (441),
+    /// Invocation (1430) and Soul Harmony (1480) on this dist.
+    ///
+    /// Java's guard is asymmetric and worth keeping: a *positive* power stops
+    /// early when already at full MP, while a *negative* one (a drain wearing
+    /// this handler) stops when the tick would take MP to 0 or below, and
+    /// floors at 1 rather than 0 — a drain of this shape can never kill the MP
+    /// pool outright.
+    ManaHealOverTime {
+        power: f64,
+        ticks: i32,
+    },
+    /// `handlers/effecthandlers/RebalanceHP.java` — Balance Life (1043): pool
+    /// the HP of every living party member (plus pets and servitors) in range,
+    /// take the party's average HP **percentage**, and set everyone to it. It
+    /// is a redistribution, not a heal: the total does not change, so it robs
+    /// the healthy to save the dying.
+    RebalanceHp,
     /// `handlers/effecthandlers/MpConsumePerLevel.java` — periodic MP drain
     /// for fighter-class toggles (Accuracy 256, Guard Stance 288, Vicious
     /// Stance 312, Parry/Riposte Stance 339/340, War Frenzy 424, Super Haste
@@ -2310,6 +2343,13 @@ impl Skill {
                 SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
                 SkillEffect::BlockMove => effect_flag::IMMOBILIZED,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
+                // `ChameleonRest.getEffectFlags()` returns SILENT_MOVE **and**
+                // RELAXING. The stealth half is what the skill is for — resting
+                // under it hides you from a monster's pre-emptive aggro — and
+                // it is the half with a consumer here; `RELAXING` is read in
+                // Java only by `Player.standUp`, which this port expresses
+                // through `sit_stand::stop_relaxing` instead.
+                SkillEffect::ChameleonRest { .. } => effect_flag::SILENT_MOVE,
                 SkillEffect::FakeDeath { .. } => effect_flag::FAKE_DEATH,
                 SkillEffect::NoblesseBless => effect_flag::NOBLESS_BLESSING,
                 // G34 S3 — flag-only effects: the whole mechanic is the bit,
