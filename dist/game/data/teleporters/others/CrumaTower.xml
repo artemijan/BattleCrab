@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <list xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../xsd/teleporterData.xsd">
 	<npc id="30483"> <!-- Carsus -->
+		<!-- CUSTOM (deviates from retail / upstream Mobius Classic Interlude):
+		     retail gives Carsus both the 2nd and the 3rd basement floor. By
+		     operator decision the entrance only drops players on the 3rd floor;
+		     the 2nd floor is reached onward from there via Rombel (30487).
+		     The 3rd floor is therefore index 0 in this list, which is what the
+		     single button in html/teleporter/30483.htm addresses — restoring the
+		     2nd-floor line above it would send that button to the wrong floor.
+		     Do not re-add it when re-syncing this file from the Java dist. -->
 		<teleport type="OTHER">
-			<location x="17664" y="108288" z="-9056" /> <!-- 2nd floor -->
 			<location x="17726" y="114838" z="-11696" /> <!-- 3rd floor -->
 		</teleport>
 	</npc>
