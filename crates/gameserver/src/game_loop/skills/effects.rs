@@ -1537,6 +1537,63 @@ pub(crate) fn apply_skill_effects(
                     }
                 }
             }
+            // `Teleport.instant` — `teleToLocation(loc, true, null)`. The
+            // destination Scrolls of Escape; players only, since nothing else
+            // carries the effect.
+            SkillEffect::Teleport { x, y, z } => {
+                if world
+                    .objects
+                    .has_component::<crate::model::Player>(&target_oid)
+                {
+                    crate::game_loop::death::teleport_player(world, target_oid, *x, *y, *z);
+                }
+            }
+            // `Hp.instant` — a raw HP change. Java's guards are dead / door /
+            // `isHpBlocked` / **isRaid**, the last of which the `Heal` family
+            // does not have; the gain is clamped to the recoverable headroom
+            // (`MAX_RECOVERABLE_HP`, so a Noblesse Harmony aura caps it), and a
+            // `PER` amount is a share of **max** HP.
+            //
+            // Java also folds in `ADDITIONAL_POTION_HP` when the effect came
+            // from a potion or elixir item; no skill on this dist grants that
+            // stat, so the term is 1:1 with 0 and is not modelled.
+            SkillEffect::Hp { amount, percent } => {
+                let Some(v) = world.objects.get_component::<Vitals>(&target_oid).copied() else {
+                    continue;
+                };
+                let is_raid = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    .is_some_and(|t| t.is_raid());
+                if v.dead
+                    || is_raid
+                    || world
+                        .objects
+                        .has_component::<crate::model::door::Door>(&target_oid)
+                    || crate::game_loop::abnormal::is_hp_blocked(world, target_oid)
+                {
+                    continue;
+                }
+                let basic = if *percent {
+                    v.max_hp as f64 * *amount / 100.0
+                } else {
+                    *amount
+                };
+                let ceiling = max_recoverable(
+                    world,
+                    target_oid,
+                    crate::model::stats::Stat::MaxRecoverableHp,
+                    v.max_hp as f64,
+                );
+                let gain = basic.min((ceiling - v.cur_hp).max(0.0));
+                if gain > 0.0 {
+                    if let Some(vit) = world.objects.get_component_mut::<Vitals>(&target_oid) {
+                        vit.cur_hp = (vit.cur_hp + gain).min(vit.max_hp as f64);
+                    }
+                    broadcast_vitals(world, target_oid);
+                }
+            }
             SkillEffect::CallPc => {
                 call_pc(world, caster_oid, target_oid, skill);
             }

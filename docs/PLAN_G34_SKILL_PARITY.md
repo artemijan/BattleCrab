@@ -1146,18 +1146,38 @@ Census: target types **10 → 9** (learnable **3 → 0**), affect objects
 is not the caster. Not ported because `ActiveBuff` records no effector, so the
 rule has nothing to test; display-only, effects unaffected.
 
-### S6 — Item- & NPC-reachable effects
+### S6 — the item/NPC effect tail 🚧 (first pass landed)
 
-1. **Destination Scrolls of Escape first** — the `Teleport` effect (107 items)
-   and `Escape` `CASTLE`/`CLANHALL`/`FORTRESS` (9 items). Most visible gap in
-   this whole epic for a normal player.
-2. NPC/boss control: `KnockBack`, `PullBack`, `FlyAway`, `Grow`, `Disarm`,
-   `BlockSkill`, `GetDamageLimit`, `TriggerSkillByKill`, `Blink`, `AirBind`.
-3. Consumables: the `AdditionalPotion*` family, `Hp`, `CpHeal`, `HpCpHeal`,
-   `InstantKillResist`, `DamageShieldResist`, `AttackAttributeAdd`,
-   `RealDamage`.
+The plan's headline item, closed: **every destination Scroll of Escape was
+inert**. `Teleport` was an unparsed effect name, so all **107** reachable
+skills carrying it loaded with an empty effect list — the scroll was consumed,
+the cast animated, and the player did not move. The destination is keyed on the
+skill *level* (skill 2213 alone carries 22 towns, one per level), so the
+coordinates are ordinary per-level values rather than constants.
 
----
+Alongside it, **`Hp`** — the raw instant HP change behind Elixir of Life (2287)
+and the food/snack items, which parsed to nothing at all. It is deliberately
+*not* a `Heal`: no `calcHeal` pipeline, no healing-stat scaling, no overheal
+message. Java's guard list is dead / door / HP-blocked / **raid**, that last
+clause being one the `Heal` family does not have, and the gain is clamped to
+the recoverable ceiling so a Noblesse Harmony aura caps an elixir too.
+
+Census: effect names **145 → 143**, reachable **1303 → 1167** — 136 skills off
+the list. Four tests, all sabotage-verified.
+
+The reporting aid (`print_coverage_report`) now also ranks each axis by
+**reachable** count. Past S4 the learnable ranking is nearly empty, and the
+remaining work is exactly the item- and NPC-triggered tail that ranking cannot
+see — without it there was no way to pick S6's targets by leverage.
+
+**Still open in S6**, ranked by reachable and filtered to Interlude: nothing
+else clears the bar cleanly. The next names down — `StatUp` (268),
+`SummonAgathion` (162), `SetSkill` (144), `ExpModify` (99),
+`VitalityPointsRate` (58), `ResetInstanceEntry` (40), `TalismanSlot` (35),
+`ChangeHairStyle` (14), `CrystalGradeModify` (10) — are Territory War,
+Gracia+ or Freya+ content. They inflate the reachable count without being
+reachable *on this chronicle*, and porting them would be scope creep rather
+than parity. Recorded here so the number is understood rather than chased.
 
 ### S7 — Skill-tag & formula tail
 

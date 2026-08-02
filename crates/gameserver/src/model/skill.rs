@@ -1025,6 +1025,29 @@ pub enum SkillEffect {
         amount: f64,
         mode: StatModifierType,
     },
+    /// `handlers/effecthandlers/Teleport.java` — a jump to fixed coordinates:
+    /// `teleToLocation(new Location(x, y, z), true, null)`.
+    ///
+    /// This is what every **destination** Scroll of Escape is: 107 reachable
+    /// skills on this dist, and until G34 S6 the effect was unparsed, so every
+    /// one of them loaded with an empty effect list and did nothing at all.
+    /// The SoE scrolls key their destination off the skill **level** (skill
+    /// 2213 alone carries 22 towns), which is why the coordinates are ordinary
+    /// per-level values rather than constants.
+    Teleport {
+        x: i32,
+        y: i32,
+        z: i32,
+    },
+    /// `handlers/effecthandlers/Hp.java` — an instant HP change, `DIFF` (a flat
+    /// amount) or `PER` (a share of **max** HP). Distinct from `Heal`: no
+    /// `calcHeal` pipeline, no healing-stat scaling, no overheal message — it
+    /// is the raw item effect behind Elixir of Life (2287) and the food/snack
+    /// items, which parsed to *nothing* before this.
+    Hp {
+        amount: f64,
+        percent: bool,
+    },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
