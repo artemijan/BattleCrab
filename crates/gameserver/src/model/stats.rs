@@ -184,6 +184,37 @@ pub enum Stat {
     /// Berserker (396) is the learnable source.
     PhysicalSkillCriticalDamage,
     DefencePhysicalSkillCriticalDamage,
+    /// Java's PvP/PvE damage balance stats, read by one function each —
+    /// `Formulas.calculatePvpPveBonus`, which is a term in *every* damage
+    /// formula. All of them are `AbstractStatPercentEffect`s, so they merge as
+    /// **muls** (`amount 5` → ×1.05) and the bonus is
+    /// `max(0.05, 1 + (attackerMul − targetMul))` — a difference of
+    /// multipliers added to 1, not a product.
+    ///
+    /// The branch is picked by *who* is fighting and *how*: playable-vs-playable
+    /// takes the PVP triple, anything involving an `Attackable` takes the PVE
+    /// one, and inside each, a magic skill / a physical skill / an auto-attack
+    /// (Java's `skill == null`) read a different pair.
+    PvpPhysicalAttackDamage,
+    PvpPhysicalAttackDefence,
+    PvpPhysicalSkillDamage,
+    PvpPhysicalSkillDefence,
+    PvpMagicalSkillDamage,
+    PvpMagicalSkillDefence,
+    PvePhysicalAttackDamage,
+    PvePhysicalAttackDefence,
+    PvePhysicalSkillDamage,
+    PvePhysicalSkillDefence,
+    PveMagicalSkillDamage,
+    PveMagicalSkillDefence,
+    /// The raid trio. Java reads all three off the **attacker** — including the
+    /// `*_DEFENCE` half, which is almost certainly an upstream slip (every
+    /// other defence term reads the target) but is ported as written, and is
+    /// inert here regardless: the only carriers are three item skills, and
+    /// they are only consulted when the attacker `isRaid()`.
+    PveRaidPhysicalAttackDefence,
+    PveRaidPhysicalSkillDefence,
+    PveRaidMagicalSkillDefence,
     Breath,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and

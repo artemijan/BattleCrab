@@ -110,6 +110,19 @@ pub struct NpcConfig {
     /// term for -3 … -6 level differences, indexed by
     /// `targetLevel - casterLevel - 2` and clamped to the last entry.
     pub skill_chance_penalty_for_lvl_differences: Vec<f64>,
+    /// `MinNPCLevelForDmgPenalty` / `SkillDmgPenaltyForLvLDifferences` — the
+    /// **damage** counterpart, read by `Formulas.calculatePvpPveBonus`'s PvE
+    /// branch: hitting a non-raid NPC of at least this level that is 2+ levels
+    /// above you multiplies the damage by the table entry at
+    /// `levelDiff - 1` (clamped to the last).
+    ///
+    /// This dist ships an eight-entry table running down to **×0.25**, much
+    /// steeper than Mobius' four-entry default. Its two siblings —
+    /// `DmgPenaltyForLvLDifferences` and `CritDmgPenaltyForLvLDifferences` —
+    /// are parsed by Java's `Config` and then read by nothing at all, so they
+    /// are deliberately not modelled here.
+    pub min_npc_level_for_dmg_penalty: i32,
+    pub skill_dmg_penalty_for_lvl_differences: Vec<f64>,
     /// `AnnounceMammonSpawn` — shout a server-wide line naming the nearest
     /// castle each time one of the three Mammon merchants relocates
     /// (`ai/others/Mammons/*`). **True** on this dist; Java defaults it false.
@@ -155,6 +168,8 @@ impl Default for NpcConfig {
             // which `parseConfigLine` turns into an empty array; this dist sets
             // it explicitly, so mirror the dist value as the default.
             skill_chance_penalty_for_lvl_differences: vec![2.5, 3.0, 3.25, 3.5],
+            min_npc_level_for_dmg_penalty: 78,
+            skill_dmg_penalty_for_lvl_differences: vec![0.8, 0.7, 0.65, 0.62],
             announce_mammon_spawn: false,
         }
     }
@@ -226,6 +241,12 @@ impl NpcConfig {
             skill_chance_penalty_for_lvl_differences: parse_config_line(
                 &p.get_string("SkillChancePenaltyForLvLDifferences", ""),
                 d.skill_chance_penalty_for_lvl_differences,
+            ),
+            min_npc_level_for_dmg_penalty: p
+                .get_int("MinNPCLevelForDmgPenalty", d.min_npc_level_for_dmg_penalty),
+            skill_dmg_penalty_for_lvl_differences: parse_config_line(
+                &p.get_string("SkillDmgPenaltyForLvLDifferences", ""),
+                d.skill_dmg_penalty_for_lvl_differences,
             ),
             announce_mammon_spawn: p.get_bool("AnnounceMammonSpawn", d.announce_mammon_spawn),
         }
