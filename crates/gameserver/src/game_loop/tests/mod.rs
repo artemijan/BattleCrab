@@ -99,6 +99,7 @@ mod monster_race_tests;
 mod move_type_tests;
 mod movement_tests;
 mod noble_tests;
+mod npc_arrival_tests;
 mod npc_cast_tests;
 mod npc_path_tests;
 mod npc_regen_tests;
