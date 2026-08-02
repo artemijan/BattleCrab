@@ -397,6 +397,28 @@ impl CharacterConfig {
         }
     }
 
+    /// The whole config half of `Player.getInventoryLimit()` — Java tests
+    /// `isGM()` *before* the race, so a GM gets `MaximumSlotsForGMPlayer`
+    /// regardless of race:
+    ///
+    /// ```java
+    /// if (isGM()) ivlim = Config.INVENTORY_MAXIMUM_GM;
+    /// else if (getRace() == Race.DWARF) ivlim = Config.INVENTORY_MAXIMUM_DWARF;
+    /// else ivlim = Config.INVENTORY_MAXIMUM_NO_DWARF;
+    /// ```
+    ///
+    /// Every place that *reports* or *enforces* the bag size goes through this
+    /// so raising a `MaximumSlotsFor…` key in `Character.ini` moves all of them
+    /// together; the `Stat::InventoryNormal` bonus (`EnlargeSlot`) is added on
+    /// top by the caller, as Java does with `getValue(Stat.INVENTORY_NORMAL, 0)`.
+    pub fn inventory_limit_for(&self, race: i32, is_gm: bool) -> i32 {
+        if is_gm {
+            self.inventory_max_gm
+        } else {
+            self.inventory_limit(race)
+        }
+    }
+
     pub fn load() -> Self {
         Self::load_from("")
     }

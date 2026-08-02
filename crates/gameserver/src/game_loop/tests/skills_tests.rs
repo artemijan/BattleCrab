@@ -5176,6 +5176,91 @@ fn enlarge_slot_expand_inventory_raises_reported_cap() {
     );
 }
 
+/// `ExStorageMaxCount`'s field order. The protocol-110 client reads the
+/// quest-tab capacity from the **9th** int and the belt/`EnlargeSlot` bonus
+/// from the 10th; stock L2J Mobius writes those two the other way round, so
+/// the client picked up the always-zero belt field and the inventory's Quest
+/// Items tab reported "N/0" while the real limit landed in a field it ignores.
+/// The Java reference tree carries the same swap.
+///
+/// Also pins the three capacity numbers that `Character.ini` owns —
+/// `MaximumSlotsForNoDwarf`, `MaximumSlotsForGMPlayer`, and
+/// `MaximumSlotsForQuestItems` — so raising a key in the ini moves what the
+/// client is told.
+#[test]
+fn ex_storage_max_count_reports_the_configured_capacities() {
+    const DIST: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/");
+    let (link_tx, _link_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (db_tx, _db_rx) = tokio::sync::mpsc::unbounded_channel();
+    let mut data = GameData::for_test();
+    data.player_templates = crate::data::player_template::PlayerTemplateData::load_from(DIST);
+    data.stat_bonus = crate::data::stat_bonus::StatBonus::load_from(DIST);
+    data.item_data = crate::data::item_data::ItemData::load_from(DIST);
+    data.skill_data = crate::data::skill_data::SkillData::load_from(DIST);
+    let world = World::new(link_tx, 7, 3, 0, data, db_tx);
+    let cfg = world.cfg.character.clone();
+
+    // `ex(0x2F)` = one opcode byte + the two-byte ex id, then 12 ints.
+    let fields = |bytes: &[u8]| -> Vec<i32> {
+        bytes[3..]
+            .chunks_exact(4)
+            .map(|c| i32::from_le_bytes([c[0], c[1], c[2], c[3]]))
+            .collect()
+    };
+
+    let mut bare = dummy_char(5303, "Bare");
+    bare.race = 0; // human, not a dwarf
+    let bare_bundle = Player::from_char(&world.data, &bare);
+    let f = fields(&crate::network::enter_world::ex_storage_max_count(
+        0,
+        false,
+        &cfg,
+        bare_bundle.view().mods,
+    ));
+    assert_eq!(f.len(), 12, "12 ints, as Java writes");
+    assert_eq!(f[0], cfg.inventory_limit(0), "inventory slots");
+    assert_eq!(
+        f[8], cfg.inventory_max_quest_items,
+        "quest-items capacity is the 9th int, not the 10th — a 0 here is the \
+         Quest Items tab showing N/0"
+    );
+    assert_eq!(f[9], 0, "no belt, no Expand Inventory: no extra slots");
+
+    // A GM gets `MaximumSlotsForGMPlayer` instead of the race base, exactly as
+    // `Player.getInventoryLimit()` orders its branches.
+    let gm = fields(&crate::network::enter_world::ex_storage_max_count(
+        0,
+        true,
+        &cfg,
+        bare_bundle.view().mods,
+    ));
+    assert_eq!(gm[0], cfg.inventory_max_gm, "GM bag");
+    assert_ne!(cfg.inventory_max_gm, cfg.inventory_limit(0));
+
+    // Expand Inventory lvl3 (+18): the total grows *and* the bonus is reported
+    // on its own, which is what Java's `_inventoryExtraSlots` carries.
+    let mut expanded = dummy_char(5304, "Expanded");
+    expanded.race = 0;
+    expanded.skills = vec![(1372, 3, 0)];
+    let expanded_bundle = Player::from_char(&world.data, &expanded);
+    let e = fields(&crate::network::enter_world::ex_storage_max_count(
+        0,
+        false,
+        &cfg,
+        expanded_bundle.view().mods,
+    ));
+    assert_eq!(
+        e[0],
+        cfg.inventory_limit(0) + 18,
+        "total includes the bonus"
+    );
+    assert_eq!(e[9], 18, "and the bonus is reported separately");
+    assert_eq!(
+        e[8], cfg.inventory_max_quest_items,
+        "quest tab is untouched"
+    );
+}
+
 /// G19 `HealPercent` effect: "Revival" (181, real dist data — a self-target,
 /// 100%-power heal) restores HP on cast. Before this slice every
 /// `HealPercent` skill — including the priest staples Miracle, Benediction,

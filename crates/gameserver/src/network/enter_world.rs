@@ -657,8 +657,17 @@ pub fn ex_user_info_inven_weight(
 /// warehouse deposit and private-store listing aren't capacity-checked
 /// anywhere in this port yet (`TODO(G29+)`: `Warehouse.java`'s over-limit
 /// reject on deposit, `PrivateStore`'s slot-count reject on `handle_set_list`).
+///
+/// **Field order deviates from stock L2J Mobius**: upstream writes
+/// `_inventoryExtraSlots` *before* `_inventoryQuestItems`, which puts the belt
+/// bonus (0 for every character in this chronicle — no belt items exist) where
+/// the protocol-110 client reads the quest-tab capacity, so the Quest Items tab
+/// reported "N/0" and the real quest limit landed in the ignored belt field.
+/// The two are swapped here and in the Java reference tree
+/// (`ExStorageMaxCount.java`), which is the ground truth this port follows.
 pub fn ex_storage_max_count(
     race: i32,
+    is_gm: bool,
     cfg: &crate::config::CharacterConfig,
     mods: &crate::model::components::StatModifiers,
 ) -> Vec<u8> {
@@ -666,7 +675,10 @@ pub fn ex_storage_max_count(
     let is_dwarf = race == crate::enums::Race::Dwarf as i32;
     let f = |stat: Stat, base: i32| crate::model::finalize(mods, stat, base as f64) as i32;
     let mut w = ex(0x2F);
-    w.write_i32(f(Stat::InventoryNormal, cfg.inventory_limit(race)));
+    w.write_i32(f(
+        Stat::InventoryNormal,
+        cfg.inventory_limit_for(race, is_gm),
+    ));
     w.write_i32(f(Stat::StoragePrivate, if is_dwarf { 120 } else { 100 })); // warehouse (Java defaults)
     w.write_i32(200); // freight (unimplemented; Java default)
     w.write_i32(150); // clan warehouse (unimplemented; Java default)
@@ -674,8 +686,12 @@ pub fn ex_storage_max_count(
     w.write_i32(f(Stat::TradeBuy, if is_dwarf { 5 } else { 4 })); // private buy (Java defaults)
     w.write_i32(f(Stat::RecipeDwarven, cfg.dwarf_recipe_limit)); // dwarf recipe book
     w.write_i32(f(Stat::RecipeCommon, cfg.common_recipe_limit)); // common recipe book
-    w.write_i32(0); // belt-granted extra inventory slots (no belt items on this port)
-    w.write_i32(cfg.inventory_max_quest_items);
+    w.write_i32(cfg.inventory_max_quest_items); // quest-items tab capacity
+    // Java `getStat().getValue(Stat.INVENTORY_NORMAL, 0)` — the *bonus alone*
+    // (the field above already includes it in the total). Belts don't exist in
+    // this chronicle, so the only contributor is the `EnlargeSlot` passive
+    // Expand Inventory (1372); it stays 0 until that skill is learned.
+    w.write_i32(f(Stat::InventoryNormal, 0));
     w.write_i32(40);
     w.write_i32(40);
     w.into_bytes()

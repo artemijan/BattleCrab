@@ -307,7 +307,7 @@ pub fn user_info(
     w.write_i16(crate::model::finalize(
         v.mods,
         crate::model::stats::Stat::InventoryNormal,
-        cfg.inventory_limit(p.race) as f64,
+        cfg.inventory_limit_for(p.race, p.is_gm(data)) as f64,
     ) as i16);
     // Java: `isCursedWeaponEquipped() ? getLevel(cursedWeaponEquippedId) : 0` —
     // the wielder's stage, which is what colours the name in the client.
