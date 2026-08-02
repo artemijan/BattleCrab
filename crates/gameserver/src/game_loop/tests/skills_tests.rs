@@ -4449,8 +4449,36 @@ fn queued_skill_on_far_retarget_walks_into_range_after_cast() {
         "MoveToPawn broadcast for the walk"
     );
 
+    // The nuked monster has 5000 HP, so it survived and has been meleeing the
+    // caster since the nuke landed — and now that a mob swings the instant it
+    // closes (`EVT_ARRIVED` → `onEvtThink`) that is enough damage to kill the
+    // 100 HP test caster during the walk below. This test is about the
+    // queued-skill replay, not about retaliation: call the monster off and
+    // top the caster back up so the walk-to-cast is what is being measured.
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::AggroList>(&near)
+        .unwrap()
+        .0
+        .clear();
+    world
+        .objects
+        .get_component_mut::<crate::model::npc::NpcAi>(&near)
+        .unwrap()
+        .intention = crate::model::npc::NpcIntention::Active;
+    {
+        let v = world
+            .objects
+            .get_component_mut::<crate::model::components::Vitals>(&3001)
+            .unwrap();
+        v.cur_hp = v.max_hp as f64;
+    }
+
     // ~300 units at run speed ⇒ in range, then the cast starts on the far mob.
-    advance_world(&mut world, 40);
+    // 40 ticks is the bare arrival time, with no slack for a tick lost to the
+    // walk's start, so allow a couple more — the cast has 40 ticks of its own
+    // to run, which leaves plenty of window to observe it.
+    advance_world(&mut world, 45);
     let cast = world
         .objects
         .get_component::<Casting>(&3001)

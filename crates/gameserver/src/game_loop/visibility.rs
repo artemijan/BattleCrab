@@ -655,8 +655,19 @@ pub(crate) fn movement_tick(world: &mut World) {
     // `CreatureAI.onEvtArrived`: "if the Intention was AI_INTENTION_MOVE_TO,
     // set the Intention to AI_INTENTION_ACTIVE" — a mob that finishes its flee
     // leg starts thinking again (and re-acquires a target if the fear has since
-    // worn off; if it hasn't, the next fear tick shoves it onward).
+    // worn off; if it hasn't, the next fear tick shoves it onward) — and then
+    // `onEvtThink()`, right here on the 100 ms movement tick rather than at the
+    // next 1 s AI period. That trailing think is what lets a mob that just
+    // closed on its target swing immediately: the chase destination is already
+    // shortened to attack range, so arrival means "in range".
     for id in &outcome.arrived {
+        if world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(id)
+            .is_none()
+        {
+            continue; // players run their own AI, not `AttackableAI`
+        }
         if let Some(ai) = world
             .objects
             .get_component_mut::<crate::model::npc::NpcAi>(id)
@@ -664,6 +675,7 @@ pub(crate) fn movement_tick(world: &mut World) {
         {
             ai.intention = crate::model::npc::NpcIntention::Active;
         }
+        super::npc_ai::on_npc_arrived(world, *id);
     }
     // Route advances need a `MoveToLocation` for the new segment — unlike
     // plain moves, the client only knows the previous segment's endpoint

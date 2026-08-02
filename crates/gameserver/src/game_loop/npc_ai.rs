@@ -1,6 +1,14 @@
 //! `AttackableAI` (G9 slice): the 1 s think tick over monsters in active
 //! regions — aggro-range scans, chasing, swinging back, drift-return.
 //!
+//! The 1 s period ([`NPC_THINK_PERIOD`], Java's
+//! `AttackableThinkTaskManager.TASK_DELAY`) is the *idle* cadence only. Java
+//! also re-enters `onEvtThink()` off the 100 ms fast paths, and so does this
+//! module: [`on_npc_attack_ready`] (`EVT_READY_TO_ACT`, the swing period
+//! elapsing) and [`on_npc_arrived`] (`EVT_ARRIVED`, the chase closing). The
+//! second one is what makes a mob swing the instant it reaches its target
+//! instead of standing in range for up to a second.
+//!
 //! Idle random walk and random social animations
 //! (`RandomAnimationTaskManager`), NPC skill casting (see
 //! [`super::npc_cast`]), town-guard PK aggro, clan/faction help calls,
@@ -195,6 +203,59 @@ fn animation_delay_ticks(_world: &mut World, min_s: i32, max_s: i32) -> u64 {
 /// at its weapon rate instead of stalling until the next 1 s AI tick.
 pub(crate) fn on_npc_attack_ready(world: &mut World, npc_oid: i32) {
     think(world, npc_oid);
+}
+
+/// `CtrlEvent.EVT_ARRIVED` → `CreatureAI.onEvtArrived` — an NPC reached its
+/// destination this movement tick (100 ms), so it thinks *immediately* instead
+/// of waiting out the rest of the 1 s AI period.
+///
+/// This is what makes a mob swing the moment it closes: `moveToPawn` shortens
+/// the chase destination to `range - 5` (`Creature.moveToLocation`'s offset
+/// branch), so arrival *is* "in attack range", and Java's `onEvtArrived` ends
+/// with `onEvtThink()` → `thinkAttack()` → `doAutoAttack(target)`. Without this
+/// hook the mob stands in range for up to a full second before its first hit.
+///
+/// The caller has already applied the `AI_INTENTION_MOVE_TO` → `ACTIVE` reset
+/// that `onEvtArrived` does ahead of the think.
+pub(crate) fn on_npc_arrived(world: &mut World, npc_oid: i32) {
+    // `AbstractAI.notifyEvent`: "happens e.g. from stopmove but we don't
+    // process it if we're casting" — a mob that arrived mid-cast defers to the
+    // cast finishing.
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&npc_oid)
+    {
+        return;
+    }
+    // `AttackableAI.onEvtThink` bails unless the actor's region and its
+    // neighbors are active; the 1 s tick pre-filters on that, so an
+    // out-of-band think has to test it itself.
+    if !region_active(world, npc_oid) {
+        return;
+    }
+    think(world, npc_oid);
+}
+
+/// `WorldRegion.areNeighborsActive()`: a region is active exactly while some
+/// player's 3×3 block covers it, which is the same test `npc_ai_tick` builds
+/// its active set from.
+fn region_active(world: &World, npc_oid: i32) -> bool {
+    let Some(region) = world
+        .objects
+        .get_component::<RegionCell>(&npc_oid)
+        .map(|r| r.0)
+    else {
+        return false;
+    };
+    world.clients.values().any(|cs| {
+        let ClientSession::InGame(s) = cs else {
+            return false;
+        };
+        world
+            .objects
+            .get_component::<RegionCell>(&s.player_object_id())
+            .is_some_and(|r| regions_adjacent(region, r.0))
+    })
 }
 
 fn think(world: &mut World, npc_oid: i32) {
