@@ -48,6 +48,7 @@ fn is_damage_effect(effect: &SkillEffect) -> bool {
         effect,
         SkillEffect::MagicalAttack { .. }
             | SkillEffect::PhysicalAttack { .. }
+            | SkillEffect::PhysicalAttackHpLink { .. }
             | SkillEffect::Blow { .. }
             | SkillEffect::EnergyAttack { .. }
             | SkillEffect::HpDrain { .. }
@@ -581,7 +582,11 @@ pub(crate) fn apply_skill_effects(
                     }
                 broadcast_vitals(world, target_oid);
             }
-            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
+            SkillEffect::PhysicalAttack { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence }
+            // `PhysicalAttackHpLink` is the same formula with one extra
+            // multiplier at the end, so it shares this arm rather than
+            // duplicating forty lines of damage assembly.
+            | SkillEffect::PhysicalAttackHpLink { power, p_atk_mod, p_def_mod, critical_chance, ignore_shield_defence } => {
                 // `PhysicalAttack.instant()`: crit is rolled here (per-effect in
                 // Java), not the once-per-cast magic roll above.
                 let (p_atk, level, str_bonus, random_dmg, caster_name) = {
@@ -630,8 +635,28 @@ pub(crate) fn apply_skill_effects(
                             * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
                     }
                 };
+                // `PhysicalAttackHpLink`'s tail: the same shape as `DeathLink`,
+                // keyed on the **caster's** missing HP. At full health the
+                // multiplier is 0 — Fatal Counter fired by a healthy archer
+                // does nothing at all.
+                let damage = if matches!(effect, SkillEffect::PhysicalAttackHpLink { .. }) {
+                    let v = world.objects.get_component::<Vitals>(&caster_oid).copied();
+                    match v {
+                        Some(v) if v.max_hp > 0 => {
+                            damage * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0)
+                        }
+                        _ => damage,
+                    }
+                } else {
+                    damage
+                };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
             }
+            // `PolearmSingleTarget` is a pure stat toggle: `onStart` sets
+            // `PHYSICAL_POLEARM_TARGET_SINGLE` as a **fixed** 1 and `onExit`
+            // removes it. Both halves ride the buff lifecycle in
+            // `apply_continuous_effects`, so the instant pass does nothing.
+            SkillEffect::PolearmSingleTarget => {}
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
                 use crate::model::components::Position as PosComp;
                 // Attacker position relative to the target's facing (for the

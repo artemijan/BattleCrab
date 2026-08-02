@@ -1581,8 +1581,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
 /// attacker's heading (120° for both — a weapon that declares no
 /// `damage_range` falls back to angle 0, which selects nothing).
 ///
-/// Java also skips the sweep when `PHYSICAL_POLEARM_TARGET_SINGLE > 0`; no
-/// ported effect sets that stat, so the check is omitted. TODO(G20).
+/// Java also skips the sweep when `PHYSICAL_POLEARM_TARGET_SINGLE > 0` — Focus
+/// Attack (317), a toggle that trades the sweep for accuracy and crit damage.
+/// Its two stat halves landed long before the sweep gate did, so until G34 S4
+/// the toggle was a pure bonus with no cost.
 fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: i32) -> Vec<i32> {
     let max_targets = world
         .objects
@@ -1595,6 +1597,22 @@ fn sweep_targets(world: &World, attacker_oid: i32, main_target: i32, weapon_id: 
         .unwrap_or(0.0) as i32
         + 1; // the base 1 target
     if max_targets <= 1 {
+        return Vec::new();
+    }
+    // Focus Attack: give up the sweep entirely.
+    if world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
+        .map(|m| {
+            crate::model::finalize(
+                m,
+                crate::model::stats::Stat::PhysicalPolearmTargetSingle,
+                0.0,
+            )
+        })
+        .unwrap_or(0.0)
+        > 0.0
+    {
         return Vec::new();
     }
     let Some(template) = world.data.item_data.get(weapon_id) else {

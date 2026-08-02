@@ -865,6 +865,35 @@ pub enum SkillEffect {
         critical_chance: f64,
         ignore_shield_defence: bool,
     },
+    /// `handlers/effecthandlers/PhysicalAttackHpLink.java` — Fatal Counter
+    /// (314) and Fatal Arrow (10905). Structurally identical to
+    /// [`SkillEffect::PhysicalAttack`] — same fields, same formula, so the two
+    /// share one arm — with one extra multiplier at the end:
+    /// `−(curHp·2 / maxHp) + 2`, keyed on the **caster's** missing HP. At full
+    /// health that is 0 and the shot does nothing; the skill's own description
+    /// says "the power of the attack increases as your HP decreases".
+    ///
+    /// Two defaults differ from `PhysicalAttack` and both matter: Java's
+    /// `criticalChance` default here is **0**, not 10 (and Fatal Counter
+    /// declares none, so it never crits), and there is no
+    /// `ignoreShieldDefence` param at all, so `calcShldUse` always runs.
+    PhysicalAttackHpLink {
+        power: f64,
+        p_atk_mod: f64,
+        p_def_mod: f64,
+        critical_chance: f64,
+        ignore_shield_defence: bool,
+    },
+    /// `handlers/effecthandlers/PolearmSingleTarget.java` — Focus Attack (317),
+    /// a toggle that trades the polearm **sweep** for accuracy and crit damage.
+    /// Java sets `PHYSICAL_POLEARM_TARGET_SINGLE` as a *fixed* value of 1 on
+    /// start and removes it on exit; `generateAttackTargetData` skips the whole
+    /// `ATTACK_COUNT_MAX` loop while it is above 0.
+    ///
+    /// Its two stat halves already landed through the registry, so without this
+    /// one Focus Attack was a **pure bonus with no cost** — the trade it exists
+    /// to offer was missing entirely.
+    PolearmSingleTarget,
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
@@ -2404,6 +2433,15 @@ impl Skill {
                 // is a `flat_map`: the absorb percentage (Java stores
                 // `amount / 100`) and the `amount · chance` term the chance
                 // finalizer divides back out.
+                // `PolearmSingleTarget.onStart` is `addFixedValue(stat, 1.0)`
+                // and `onExit` removes it. Expressed as an ordinary additive 1
+                // so it rides the buff lifecycle that already merges and
+                // unmerges every other stat grant — nothing else on this dist
+                // touches the stat, so `fixed` and `add` are indistinguishable
+                // at the one read site (`> 0`).
+                SkillEffect::PolearmSingleTarget => {
+                    vec![one(Stat::PhysicalPolearmTargetSingle, 1.0)]
+                }
                 SkillEffect::VampiricAttack { amount, chance } => vec![
                     one(Stat::AbsorbDamagePercent, amount / 100.0),
                     one(Stat::VampiricSum, amount * chance),
