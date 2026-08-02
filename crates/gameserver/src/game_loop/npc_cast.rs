@@ -355,6 +355,14 @@ pub(crate) fn resolve_npc_cast_target(
         // falls through to null there, so NPC GROUND skills are inert in Java
         // too.
         TargetType::Ground => return None,
+        // `Others.java`: the NPC's own selection, never itself. No NPC on this
+        // dist casts an `OTHERS` skill, so this is inert in practice.
+        TargetType::Others => {
+            if selected_oid == npc_oid {
+                return None;
+            }
+            selected_oid
+        }
         // `DoorTreasure.java` reads `creature.getTarget()` and accepts only a
         // door or a chest. No NPC on this dist casts Unlock, and an NPC has no
         // reason to pick a lock, so this is inert on both sides.

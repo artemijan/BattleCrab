@@ -69,6 +69,11 @@ pub enum TargetType {
     /// Player-only: Java returns null for NPC casters, so NPC GROUND skills
     /// are inert on both sides.
     Ground,
+    /// `OTHERS` (`targethandlers/Others.java`): the current selection, with
+    /// one rule — it may not be **you**, and Java says so with its own message
+    /// rather than the generic invalid-target one. Battle Stance (426), Spell
+    /// Stance (427) and Summon Friend (1403) on this dist.
+    Others,
     /// `DOOR_TREASURE` (`targethandlers/DoorTreasure.java`): whatever is
     /// currently selected, **if** it is a door or a chest — nothing else.
     /// Unlike every other type this runs no range, LOS, peace-zone or
@@ -398,9 +403,19 @@ pub enum AffectObject {
     Friend,
     /// `CLAN`: clan mates only.
     Clan,
-    /// Unported filters (`INVISIBLE`, `UNDEAD_REAL_ENEMY`, `HIDDEN_PLACE`,
-    /// `WYVERN_OBJECT`, `OBJECT_DEAD_NPC_BODY`) — no filtering, like Java's
-    /// null-handler path.
+    /// `UNDEAD_REAL_ENEMY` — the priest anti-undead auras (Sanctuary 97, Holy
+    /// Aura 107, Repose 1034, Requiem 1049). Java: not yourself, `isUndead()`
+    /// (an NPC whose template race is `UNDEAD` — a player never is), and
+    /// `isAutoAttackable(caster)`.
+    ///
+    /// These are `SELF` + `POINT_BLANK` skills, so without the filter they
+    /// sweep **everything** in range: friendly players and every non-undead
+    /// mob alike. That made this the one live correctness bug on the affect
+    /// axis rather than a missing nicety.
+    UndeadRealEnemy,
+    /// Unported filters (`INVISIBLE`, `HIDDEN_PLACE`, `WYVERN_OBJECT`,
+    /// `OBJECT_DEAD_NPC_BODY`) — no filtering, like Java's null-handler path.
+    /// None has a learnable source on this dist.
     Other,
 }
 

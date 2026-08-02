@@ -3157,3 +3157,99 @@ fn shadow_sense_grants_its_accuracy_only_at_night() {
     crate::game_loop::night_stats::refresh_one(&mut world, CASTER, false);
     assert_eq!(accuracy(&world), 0.0, "and dawn takes it back again");
 }
+
+/// **The `operateType` fail-closed bug.** `use_magic_on` returns outright for
+/// anything that is neither `Active` nor `Channeling`, and the parser dropped
+/// every unmapped `operateType` to `Other` — so **A3** (Blinding Blow 321,
+/// Vengeance 368, Evade Shot 369, Critical Blow 409, Aura Flare 1231) and
+/// **CA5** (Battle Stance 426, Spell Stance 427) were seven learnable skills
+/// that could not be cast at all.
+///
+/// Unlike the rest of this epic's gaps, this one fails *closed*: the skill did
+/// nothing because the cast never started, not because an effect was missing.
+#[test]
+fn a3_and_ca5_skills_parse_as_castable_operate_types() {
+    use crate::model::skill::OperateType;
+
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    for (id, name, expected) in [
+        (321, "Blinding Blow", OperateType::Active),
+        (409, "Critical Blow", OperateType::Active),
+        (1231, "Aura Flare", OperateType::Active),
+        (426, "Battle Stance", OperateType::Channeling),
+        (427, "Spell Stance", OperateType::Channeling),
+    ] {
+        let s = skills.get(id, 1).unwrap_or_else(|| panic!("{name} ({id})"));
+        assert_eq!(
+            s.operate_type, expected,
+            "{name} ({id}) must be castable — `Other` makes `use_magic_on` bail"
+        );
+    }
+    // A3 is continuous, which is read off the string and not this enum.
+    assert!(
+        skills.get(321, 1).unwrap().is_continuous,
+        "A3 is one of Java's continuous types"
+    );
+}
+
+/// **`UNDEAD_REAL_ENEMY`** — the priest anti-undead auras (Sanctuary 97, Holy
+/// Aura 107, Repose 1034, Requiem 1049) are `SELF` + `POINT_BLANK`, so without
+/// this filter they sweep *everything* nearby: friendly players and every
+/// non-undead mob alike. That is what made it the one live correctness bug on
+/// the affect axis rather than a missing nicety.
+#[test]
+fn an_undead_aura_spares_the_living_and_the_caster() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let ally = CASTER + 1;
+    let _a = ingame_player(&mut world, CID + 1, ally, 40, 0, 0);
+
+    let undead = NPC_OID;
+    let living = NPC_OID + 1;
+    add_test_npc(&mut world, undead, 90201, "Monster", 20, 60, 0, 0);
+    add_test_npc(&mut world, living, 90202, "Monster", 20, 80, 0, 0);
+    {
+        let mut t = world.data.npc_data.get(90201).cloned().unwrap();
+        t.race = Some(crate::enums::Race::Undead.ordinal());
+        world.data.npc_data.insert_for_test(t);
+    }
+
+    let passes = |world: &World, oid: i32| {
+        crate::game_loop::skills::affect::passes_affect_object(
+            world,
+            CASTER,
+            oid,
+            crate::model::skill::AffectObject::UndeadRealEnemy,
+        )
+    };
+
+    assert!(
+        passes(&world, undead),
+        "an undead mob is the intended target"
+    );
+    assert!(!passes(&world, living), "a living mob is not");
+    assert!(!passes(&world, ally), "and neither is a friendly player");
+    assert!(
+        !passes(&world, CASTER),
+        "\"you are not an enemy of yourself\""
+    );
+}
+
+/// **`OTHERS`** (Battle Stance 426, Spell Stance 427, Summon Friend 1403) — the
+/// current selection, with exactly one rule: it may not be you, and Java
+/// refuses with its own message rather than the generic invalid-target one.
+#[test]
+fn the_others_target_type_refuses_the_caster_with_its_own_message() {
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    assert_eq!(
+        skills.get(426, 1).unwrap().target_type,
+        crate::model::skill::TargetType::Others,
+        "Battle Stance is an OTHERS skill, not an unparsed fallback"
+    );
+}

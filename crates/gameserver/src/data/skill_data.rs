@@ -1515,12 +1515,31 @@ fn build_skill(
                 .unwrap_or(default)
         };
         let operate_type = match value_at(values, "operateType", level) {
-            Some("A1") | Some("A2") => OperateType::Active,
+            // `SkillOperateType.isActive()` minus the channeling and fly
+            // families. A1..A6 differ in continuity, which is read off the
+            // `operateType` string into `is_continuous` rather than from this
+            // enum, so they collapse here.
+            //
+            // TODO(G34): A3 additionally sets `isSelfContinuous()`, whose only
+            // consumer is `BuffInfo.isDisplayedForEffected` — an A3 skill that
+            // has `<selfEffects>` hides its buff **icon** on a target that is
+            // not the caster (Blinding Blow 321, Vengeance 368, Critical Blow
+            // 409 all qualify). Not ported: `ActiveBuff` records no effector,
+            // so the rule has nothing to test. Display-only; the effects
+            // themselves are unaffected.
+            //
+            // Falling to `Other` is not a cosmetic gap: `use_magic_on` bails
+            // outright on anything that is neither `Active` nor `Channeling`,
+            // so an unmapped active operate type means the skill **cannot be
+            // cast at all**. A3 (Blinding Blow 321, Vengeance 368, Evade Shot
+            // 369, Critical Blow 409, Aura Flare 1231) and CA5 (Battle Stance
+            // 426, Spell Stance 427) were seven learnable skills in exactly
+            // that state.
+            Some("A1" | "A2" | "A3" | "A4" | "A5" | "A6") => OperateType::Active,
             Some("P") => OperateType::Passive,
             Some("T") => OperateType::Toggle,
-            // `SkillOperateType.isChanneling()`: CA1. (CA5 doesn't occur on
-            // this dist's reachable content — it stays `Other`.)
-            Some("CA1") => OperateType::Channeling,
+            // `SkillOperateType.isChanneling()`: CA1, CA2, CA5.
+            Some("CA1" | "CA2" | "CA5") => OperateType::Channeling,
             other => {
                 if let Some(raw) = other {
                     SkillGaps::record(&mut gaps.borrow_mut().operate_types, raw, id);
@@ -1545,6 +1564,7 @@ fn build_skill(
             Some("ENEMY_NOT") => TargetType::EnemyNot,
             Some("NPC_BODY") => TargetType::NpcBody,
             Some("DOOR_TREASURE") => TargetType::DoorTreasure,
+            Some("OTHERS") => TargetType::Others,
             Some("SUMMON") => TargetType::Summon,
             Some("PC_BODY") => TargetType::PcBody,
             Some("GROUND") => TargetType::Ground,
@@ -1610,6 +1630,7 @@ fn build_skill(
             Some("NOT_FRIEND") | Some("NOT_FRIEND_PC") => AffectObject::NotFriend,
             Some("FRIEND") | Some("FRIEND_PC") => AffectObject::Friend,
             Some("CLAN") => AffectObject::Clan,
+            Some("UNDEAD_REAL_ENEMY") => AffectObject::UndeadRealEnemy,
             Some("ALL") | None => AffectObject::All,
             other => {
                 if let Some(raw) = other {
@@ -4789,9 +4810,9 @@ mod coverage_census {
     const CONDITIONS: &[(&str, usize)] = &[("conditions/OpSweeper", 1)];
 
     /// `<targetType>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 11 name(s), 4 learnable
-    /// skill(s) affected, 532 reachable.
-    const TARGET_TYPES: &[(&str, usize)] = &[("OTHERS", 3)];
+    /// the work list, worst first. Category totals: 9 name(s), 0 learnable
+    /// skill(s) affected, 476 reachable.
+    const TARGET_TYPES: &[(&str, usize)] = &[];
 
     /// `<affectScope>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 7 name(s), 0 learnable
@@ -4799,14 +4820,14 @@ mod coverage_census {
     const AFFECT_SCOPES: &[(&str, usize)] = &[];
 
     /// `<affectObject>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 5 name(s), 4 learnable
-    /// skill(s) affected, 6 reachable.
-    const AFFECT_OBJECTS: &[(&str, usize)] = &[("UNDEAD_REAL_ENEMY", 4)];
+    /// the work list, worst first. Category totals: 4 name(s), 0 learnable
+    /// skill(s) affected, 2 reachable.
+    const AFFECT_OBJECTS: &[(&str, usize)] = &[];
 
     /// `<operateType>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 13 name(s), 7 learnable
-    /// skill(s) affected, 52 reachable.
-    const OPERATE_TYPES: &[(&str, usize)] = &[("A3", 5), ("CA5", 2)];
+    /// the work list, worst first. Category totals: 7 name(s), 0 learnable
+    /// skill(s) affected, 27 reachable.
+    const OPERATE_TYPES: &[(&str, usize)] = &[];
 
     /// **The gate.** Every entry above is a skill that loads and then behaves
     /// wrongly — an effect that does nothing, or a condition Java would have
@@ -4846,17 +4867,17 @@ mod coverage_census {
             ("effect", &gaps.effects, EFFECTS, 145, 10, 1303),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
-            ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
+            ("targetType", &gaps.target_types, TARGET_TYPES, 9, 0, 476),
             ("affectScope", &gaps.affect_scopes, AFFECT_SCOPES, 7, 0, 3),
             (
                 "affectObject",
                 &gaps.affect_objects,
                 AFFECT_OBJECTS,
-                5,
                 4,
-                6,
+                0,
+                2,
             ),
-            ("operateType", &gaps.operate_types, OPERATE_TYPES, 13, 7, 52),
+            ("operateType", &gaps.operate_types, OPERATE_TYPES, 7, 0, 27),
         ] {
             assert_eq!(
                 ranked(map, &learn)
