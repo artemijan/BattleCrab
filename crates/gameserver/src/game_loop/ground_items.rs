@@ -13,6 +13,17 @@ use crate::scheduler::ScheduledTask;
 use crate::session::ClientSession;
 use crate::world::{World, region_of};
 
+/// `ItemTemplate.TYPE2_QUEST` — the `type2` value quest-typed templates carry.
+const TYPE2_QUEST: i32 = 3;
+
+/// `RequestDropItem`'s `isInsideRadius2D(_x, _y, 0, 150)` — how far from the
+/// player the client may ask for the item to land, in 2D.
+const DROP_RADIUS: i64 = 150;
+
+/// `RequestDropItem`'s `Math.abs(_z - player.getZ()) > 50` — the vertical
+/// tolerance on that same request, so a drop can't be aimed off a ledge.
+const DROP_MAX_Z_DIFF: i32 = 50;
+
 /// Who dropped a ground item — Java gates auto-destroy differently for the two
 /// (`Player.dropItem` vs `Npc.dropItem`).
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -275,11 +286,19 @@ pub(crate) fn pickup_ground_item(
     super::quests::notify_item_pickup(world, client_id, player_oid, g.item_id);
 }
 
-/// Port of `clientpackets/RequestDropItem.runImpl` (narrowed): drop `count` of
-/// an inventory item onto the ground at the player's feet. Quest items and
-/// items the datapack marks `is_dropable="false"` are protected; a worn item is
-/// unequipped first. Java's precise drop-location / distance / weight guards
-/// are simplified (drop at the player's position).
+/// Port of `clientpackets/RequestDropItem.runImpl`: drop `count` of an
+/// inventory item onto the ground **at the requested location**. Quest items
+/// and items the datapack marks `is_dropable="false"` are protected; a worn
+/// item is unequipped first.
+///
+/// The client sends where it wants the item to land (the cursor position when
+/// the stack is dragged out of the inventory), and Java validates it twice:
+/// here, the request must be within 150 units in 2D and 50 in z of the player
+/// (else SM 151, "You cannot discard something that far away from you"), and
+/// again in `Item.dropMe`, which runs the surviving point through
+/// `GeoEngine.getValidLocation` so an item can never be thrown through a wall
+/// or a closed door onto ground the player couldn't walk to. Standing inside a
+/// `ConditionZone` with `NoItemDrop` (`no_drop_item.xml`) refuses outright.
 pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: &[u8]) {
     let Some(pkt) = cp::RequestDropItem::read(body) else {
         return;
@@ -288,6 +307,16 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
         return;
     };
     let player_oid = session.player_object_id();
+    // `(player == null) || player.isDead()`.
+    if world
+        .objects
+        .get_component::<crate::model::components::Vitals>(&player_oid)
+        .is_none_or(|v| v.dead)
+    {
+        return;
+    }
+    // Java's `_count < 0` branch is a `handleIllegalPlayerAction`; `_count == 0`
+    // falls into the big refusal below. Neither may reach the inventory.
     if pkt.count <= 0 {
         return;
     }
@@ -314,9 +343,32 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     else {
         return;
     };
-    // Java refuses `!item.isDropable()` with `THAT_ITEM_CANNOT_BE_DISCARDED`;
-    // bound reward boxes (`is_dropable="false"`) never reach the ground.
-    if !dropable {
+    let Some(ppos) = world
+        .objects
+        .get_component::<Position>(&player_oid)
+        .copied()
+    else {
+        return;
+    };
+    // `(item.getItemType() == EtcItemType.PET_COLLAR) && player.havePetInvItems()`
+    // — a collar whose pet is still carrying things may not be thrown away;
+    // the pet inventory would be stranded with no collar to reach it through.
+    let loaded_collar = world.data.pet_data.is_pet_collar(item_id)
+        && world
+            .objects
+            .get_component::<crate::model::inventory::PetInventory>(&player_oid)
+            .is_some_and(|inv| !inv.0.items().is_empty());
+    // Java's first (big OR) refusal: `!item.isDropable()` — bound reward boxes
+    // (`is_dropable="false"`) never reach the ground — a loaded pet collar, or
+    // standing inside `ZoneId.NO_ITEM_DROP`. All answer
+    // `THAT_ITEM_CANNOT_BE_DISCARDED`. `_count > item.getCount()` refuses with
+    // the same message rather than clamping, so a forged count cannot drop
+    // more than is held.
+    if !dropable
+        || loaded_collar
+        || pkt.count > held
+        || world.data.zone_data.no_item_drop_at(ppos.x, ppos.y, ppos.z)
+    {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::system_message_with(
                 server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED,
@@ -328,14 +380,126 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     if is_quest || (!is_stackable && pkt.count > 1) {
         return;
     }
-    let count = pkt.count.min(held);
-    let Some(ppos) = world
-        .objects
-        .get_component::<Position>(&player_oid)
-        .copied()
-    else {
+    // `Config.JAIL_DISABLE_TRANSACTION && player.isJailed()`.
+    if world.cfg.general.jail_disable_transaction
+        && world
+            .objects
+            .get_component::<crate::model::Player>(&player_oid)
+            .is_some_and(|p| p.jailed)
+    {
+        super::items::send_item_message(world, client_id, "You cannot drop items in Jail.");
         return;
-    };
+    }
+    // `player.getPrivateStoreType() != PrivateStoreType.NONE` — a shop owner
+    // may not discard out from under an in-flight sale.
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.store_type != 0)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::WHILE_OPERATING_A_PRIVATE_STORE_OR_WORKSHOP_YOU_CANNOT_DISCARD_DESTROY_OR_TRADE_AN_ITEM,
+                &[],
+            ));
+        }
+        return;
+    }
+    // `player.isFishing()` — "You cannot do that while fishing."
+    if world
+        .objects
+        .get_component::<crate::model::components::FishingSession>(&player_oid)
+        .is_some_and(|f| f.is_fishing)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOU_CANNOT_DO_THAT_WHILE_FISHING_2,
+                &[],
+            ));
+        }
+        return;
+    }
+    // `player.isFlying()` — a silent return in Java (no message on a wyvern).
+    if world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.is_flying())
+    {
+        return;
+    }
+    // `player.hasItemRequest()` — an enchant window is open, so the inventory
+    // is pinned until it resolves.
+    if world
+        .objects
+        .has_component::<crate::model::components::EnchantRequest>(&player_oid)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOU_CANNOT_DESTROY_OR_CRYSTALLIZE_ITEMS_WHILE_ENCHANTING_ATTRIBUTES,
+                &[],
+            ));
+        }
+        return;
+    }
+    // `ItemTemplate.TYPE2_QUEST == item.getTemplate().getType2()` — a second,
+    // wider quest gate than the `isQuestItem()` flag above: it catches the
+    // quest-typed items whose template never sets that flag.
+    if world
+        .data
+        .item_data
+        .get(item_id)
+        .is_some_and(|t| t.type2 == TYPE2_QUEST)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::THAT_ITEM_CANNOT_BE_DISCARDED_OR_EXCHANGED,
+                &[],
+            ));
+        }
+        return;
+    }
+    // `!player.isInsideRadius2D(_x, _y, 0, 150) || (Math.abs(_z - player.getZ()) > 50)`.
+    // Note Java's radius test is 2D and *inclusive* (`distance <= radius`),
+    // while the z test is a strict `>`.
+    let dx = (pkt.x - ppos.x) as i64;
+    let dy = (pkt.y - ppos.y) as i64;
+    if ((dx * dx) + (dy * dy)) > (DROP_RADIUS * DROP_RADIUS)
+        || (pkt.z - ppos.z).abs() > DROP_MAX_Z_DIFF
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::YOU_CANNOT_DISCARD_SOMETHING_THAT_FAR_AWAY_FROM_YOU,
+                &[],
+            ));
+        }
+        return;
+    }
+    // "Do not drop items when casting known skills to avoid exploits." Java
+    // walks the player's `SkillCaster`s and refuses if any of them is a skill
+    // the character actually knows, then repeats the test for the *queued*
+    // skill. The port holds one cast at a time, so one lookup covers both.
+    // The message quotes the skill by name, as Java's does:
+    // `"You cannot drop an item while casting " + skill.getName() + "."`.
+    if let Some(casting) = world
+        .objects
+        .get_component::<crate::model::components::Casting>(&player_oid)
+        && world
+            .objects
+            .get_component::<crate::model::components::SkillBook>(&player_oid)
+            .is_some_and(|book| book.0.contains_key(&casting.0.skill_id))
+    {
+        // The fallback covers the 15 dist skills that declare `name=""` (and
+        // an id that never parsed at all). Java would print its empty
+        // `getName()` straight through — "…while casting ." — so this is a
+        // deliberate cosmetic deviation, not a missing lookup.
+        let text = match world.data.skill_data.name(casting.0.skill_id) {
+            Some(name) => format!("You cannot drop an item while casting {name}."),
+            None => "You cannot drop an item while casting.".to_string(),
+        };
+        super::items::send_item_message(world, client_id, &text);
+        return;
+    }
+    let count = pkt.count;
 
     // Unequip first if worn (Java unequips before the drop, with its own update).
     if world
@@ -360,14 +524,21 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     };
     let packet = crate::network::enter_world::inventory_update_changes(&world.data, &[change]);
     super::helpers::send_inventory_update(world, client_id, player_oid, packet);
+    // `Item.dropMe` → `GeoEngine.getValidLocation(dropper, x, y, z)`: walk the
+    // cell line from the dropper to the requested point and stop at the last
+    // walkable cell, so the item lands short of a wall/closed door rather than
+    // on the far side of it.
+    let (dx, dy, dz) = world
+        .geo
+        .get_valid_location(ppos.x, ppos.y, ppos.z, pkt.x, pkt.y, pkt.z);
     spawn_ground_item(
         world,
         item_id,
         count,
         enchant,
-        ppos.x,
-        ppos.y,
-        ppos.z,
+        dx,
+        dy,
+        dz,
         player_oid,
         DropSource::Player,
     );

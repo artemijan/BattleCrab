@@ -668,6 +668,7 @@ fn register_hq_zones(world: &mut World) {
             effect: None,
             damage: None,
             swamp: None,
+            condition: None,
         });
     }
 }

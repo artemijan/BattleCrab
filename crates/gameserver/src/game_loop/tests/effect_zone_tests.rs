@@ -94,6 +94,7 @@ fn insert_effect_zone(world: &mut World, p: EffectZoneParams) {
         effect: Some(p),
         damage: None,
         swamp: None,
+        condition: None,
     });
 }
 

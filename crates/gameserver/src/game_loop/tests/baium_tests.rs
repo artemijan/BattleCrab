@@ -724,6 +724,7 @@ fn an_archangel_ignores_a_player_on_the_floor_below_the_zone() {
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
     add_test_npc(
         &mut world,
@@ -791,6 +792,7 @@ fn an_archangel_abandons_a_target_that_left_the_zone() {
         effect: None,
         damage: None,
         swamp: None,
+        condition: None,
     });
     add_test_npc(
         &mut world,
