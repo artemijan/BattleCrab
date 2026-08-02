@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 147 | **188 unhandled** (1 763 reachable skills, **35 learnable names**) |
+| Effect handler names used by dist skills | **335** | 150 | **185 unhandled** (1 759 reachable skills, **32 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -697,6 +697,32 @@ Two effects, both with an existing consumer to hook into:
 
 Census: effect names **190 → 188**, learnable-affected **49 → 47**, headline
 **51 → 49**. Sabotage-verified both.
+
+#### Sub-slice 6 ✅ — skill mastery and Lucky
+
+- **`SkillMastery` + `SkillMasteryRate`** (Skill Mastery 330 STR / 331 INT,
+  Focus Skill Mastery 334) — the cooldown-collapse proc: on a successful roll a
+  cast's reuse drops to 100 ms and the caster is told. **`Stat.SKILL_MASTERY`
+  is not a magnitude** — it stores the *ordinal of the `BaseStat`* that drives
+  the chance, and Java's enum order (`STR, INT, DEX, WIT, CON, MEN`) differs
+  from this port's (`Str, Dex, Con, Int, Wit, Men`), so copying the number
+  across would make Skill Mastery 331 read DEX instead of INT. Parsed by
+  **name** into this port's discriminant instead.
+  Java's three exclusions come with it: static skills, item-cast skills
+  (`getReferenceItemId() != 0`) and anything not `operateType A1` never proc —
+  which `OperateType::Active && !is_continuous` expresses exactly, since
+  `Active` collapses A1/A2 and `is_continuous` is the A2..A6/DA2..DA5 family.
+  `Config.SKILL_MASTERY_CHANCE_MULTIPLIERS` is left out: per-class, default
+  `1f`, unset on this dist.
+- **`Lucky`** (194) is an **empty effect** in Java — its handler carries only a
+  `canStart` guard. `Player.isLucky()` is `level <= 9 && isAffectedBySkill(194)`,
+  so the buff's *presence* is the whole implementation; it exempts a newbie
+  from the death exp penalty. Java's second reader, the vitality-consumption
+  branch, has no counterpart in this port yet — `TODO(G34)` at the site.
+
+Census: effect names **188 → 185**, learnable-affected **47 → 43**, headline
+**49 → 45**. Sabotage-verified both, including a sabotage that swaps in Java's
+ordinal ordering.
 
 #### Remaining sub-slices ⏳
 

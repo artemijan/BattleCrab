@@ -103,9 +103,37 @@ pub(crate) fn set_skill_reuse(world: &mut World, object_id: i32, skill: &Skill) 
     // Java gates on the **computed** delay (`getReuseTime`), not the raw one,
     // so a −99 % Super Haste can take a skill under the 10 ms floor and out of
     // the cooldown map entirely.
-    let reuse_delay = super::effects::reuse_time_for(world, object_id, skill);
+    let mut reuse_delay = super::effects::reuse_time_for(world, object_id, skill);
     if reuse_delay <= 10 {
         return;
+    }
+    // `Formulas.calcSkillMastery` — Skill Mastery (330 STR / 331 INT) and
+    // Focus Skill Mastery (334, the rate multiplier). On a proc the cooldown
+    // collapses to 100 ms and the caster is told (G34 S4).
+    //
+    // Java's three exclusions all sit here and all matter: a **static** skill,
+    // one cast from an **item** (`getReferenceItemId() != 0`) and anything that
+    // is not `operateType A1` are never mastered — so it fires on ordinary
+    // active skills only, not on toggles, buffs (A2) or potions.
+    if reuse_delay > 10
+        && skill.magic_type != 2
+        && skill.item_consume_id == 0
+        // `OperateType::Active` collapses A1 and A2, and `is_continuous` is
+        // exactly the A2..A6/DA2..DA5 family — so `Active && !is_continuous`
+        // is A1, which is what Java's `getOperateType() == A1` demands.
+        && skill.operate_type == OperateType::Active
+        && !skill.is_continuous
+        && super::effects::calc_skill_mastery(world, object_id)
+    {
+        reuse_delay = 100;
+        if let Some(cid) = client_for_player(world, object_id)
+            && let Some(cs) = world.clients.get(&cid)
+        {
+            cs.send(server_packets::system_message_with(
+                server_packets::sm_ids::A_SKILL_IS_READY_TO_BE_USED_AGAIN,
+                &[],
+            ));
+        }
     }
     let until_tick = world.tick + ms_to_ticks(reuse_delay);
     // Players are given `Reuses` at load; **NPCs were not**, so this write was

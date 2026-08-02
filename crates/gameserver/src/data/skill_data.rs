@@ -122,6 +122,7 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // damage, the crit pair replaces the flat 2.0 in `crit_damage_skill`'s
     // physical branch.
     // G34 S4 sub-slice 4 — the mitigation/counter family.
+    ("SkillMasteryRate", Stat::SkillMasteryRate),
     ("AreaDamage", Stat::DamageZoneVuln),
     ("TransferDamageToSummon", Stat::TransferDamageSummonPercent),
     ("CounterPhysicalSkill", Stat::VengeanceSkillPhysicalDamage),
@@ -1804,6 +1805,30 @@ fn build_skill(
                                 }]
                             })
                             .unwrap_or_default(),
+                        // `SkillMastery` stores the **BaseStat ordinal**, not a
+                        // magnitude — `calcSkillMastery` reads it back through
+                        // `BaseStat.values()[val]` to pick which stat's bonus
+                        // drives the proc chance.
+                        "SkillMastery" => vec![SkillEffect::StatModifier(StatModifierEffect {
+                            stat: Stat::SkillMastery,
+                            mode: StatModifierType::Diff,
+                            // The **Rust** discriminant, parsed by name — see
+                            // `BaseStat::from_name` for why the Java ordinal
+                            // must not be copied across.
+                            amount: value_at(params, "stat", level)
+                                .and_then(crate::model::stats::BaseStat::from_name)
+                                .unwrap_or(crate::model::stats::BaseStat::Str)
+                                as i32 as f64,
+                            armor_condition: 0,
+                            weapon_condition: 0,
+                            qualifier: None,
+                            two_handed: false,
+                        })],
+                        // `Lucky` (194) is an **empty effect** in Java — its
+                        // handler has only a `canStart` guard. The mechanic
+                        // lives in `Player.isLucky()`, which asks whether the
+                        // *buff* is present, so all this has to do is land.
+                        "Lucky" => vec![SkillEffect::Lucky],
                         "TargetMe" => vec![SkillEffect::TargetMe],
                         "TargetMeProbability" => vec![SkillEffect::TargetMeProbability {
                             chance: param("chance").unwrap_or(100.0) as i32,
@@ -4374,8 +4399,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 188 name(s), 47 learnable
-    /// skill(s) affected, 1763 reachable.
+    /// the work list, worst first. Category totals: 185 name(s), 43 learnable
+    /// skill(s) affected, 1759 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4398,6 +4423,9 @@ mod coverage_census {
     /// `SkillTurning`.
     /// → 188 at sub-slice 5: `EnlargeAbnormalSlot` (the buff-slot cap) and
     /// `DispelBySlotMyself` (which spares an `irreplacableBuff`).
+    /// → 185 at sub-slice 6: `SkillMastery` + `SkillMasteryRate` (the
+    /// cooldown-collapse proc) and `Lucky` (empty in Java; the buff's presence
+    /// is the mechanic).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("Bluff", 2),
@@ -4409,14 +4437,12 @@ mod coverage_census {
         ("ManaHealOverTime", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
-        ("SkillMastery", 2),
         ("Betray", 1),
         ("CallParty", 1),
         ("ChameleonRest", 1),
         ("CubicMastery", 1),
         ("DeathLink", 1),
         ("ImmobilePetBuff", 1),
-        ("Lucky", 1),
         ("MpVampiricAttack", 1),
         ("NightStatModify", 1),
         ("OpenChest", 1),
@@ -4428,7 +4454,6 @@ mod coverage_census {
         ("PvpPhysicalSkillDamageBonus", 1),
         ("RebalanceHP", 1),
         ("SafeFallHeight", 1),
-        ("SkillMasteryRate", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
         ("Unsummon", 1),
@@ -4506,7 +4531,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 188, 47, 1763),
+            ("effect", &gaps.effects, EFFECTS, 185, 43, 1759),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4558,7 +4583,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            49,
+            45,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

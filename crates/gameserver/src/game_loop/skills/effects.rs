@@ -96,6 +96,60 @@ fn skill_evasion_dodges(
     true
 }
 
+/// `Formulas.calcSkillMastery` — the proc that collapses a skill's cooldown to
+/// 100 ms (Skill Mastery 330 / 331, Focus Skill Mastery 334).
+///
+/// `Stat.SKILL_MASTERY` holds the **ordinal of the `BaseStat`** that drives the
+/// chance, not a magnitude, and absent (`-1`) means no mastery. The chance is
+/// that stat's bonus times `SKILL_MASTERY_RATE`; Java then multiplies by a
+/// per-class `Config.SKILL_MASTERY_CHANCE_MULTIPLIERS` table that defaults to
+/// `1f` and which this dist does not populate, so it is left out.
+pub(crate) fn calc_skill_mastery(world: &mut World, caster_oid: i32) -> bool {
+    use crate::model::stats::{BaseStat, Stat};
+    let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&caster_oid)
+    else {
+        return false;
+    };
+    let Some(ordinal) = mods.add.get(&Stat::SkillMastery).copied() else {
+        return false;
+    };
+    let rate = mods
+        .mul
+        .get(&Stat::SkillMasteryRate)
+        .copied()
+        .unwrap_or(1.0);
+    // The stored value is *this* enum's discriminant (see `BaseStat::from_name`
+    // — Java's ordinal ordering differs and must not be copied across).
+    let base_stat = match ordinal as i32 {
+        0 => BaseStat::Str,
+        1 => BaseStat::Dex,
+        2 => BaseStat::Con,
+        3 => BaseStat::Int,
+        4 => BaseStat::Wit,
+        5 => BaseStat::Men,
+        _ => return false,
+    };
+    let Some(base) =
+        world
+            .objects
+            .get_component::<BaseStats>(&caster_oid)
+            .map(|b| match base_stat {
+                BaseStat::Str => b.str_,
+                BaseStat::Dex => b.dex,
+                BaseStat::Con => b.con,
+                BaseStat::Int => b.int_,
+                BaseStat::Wit => b.wit,
+                BaseStat::Men => b.men,
+            })
+    else {
+        return false;
+    };
+    let chance = world.data.stat_bonus.bonus(base_stat, base) * rate;
+    (world.roll(100) as f64) < chance
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -1331,6 +1385,9 @@ pub(crate) fn apply_skill_effects(
             // Stealth: the whole mechanic is the `SILENT_MOVE` flag the aggro
             // scan reads (`npc_ai::notices_target`).
             | SkillEffect::SilentMove
+            // `Lucky` (194): nothing to do at application time — Java's
+            // handler is empty and `isLucky()` reads the buff's presence.
+            | SkillEffect::Lucky
             // G34 S3 — flag-only effects, all the same shape as `SilentMove`:
             // nothing happens at application time, the gate reads the flag off
             // the landed buff. `AbnormalShield` has no gate at all, in Java
@@ -1856,6 +1913,9 @@ pub(crate) fn apply_continuous_effects(
                 // per-magicType map that only `handle_buff_expire` unmerges,
                 // so a dropped buff makes the dodge chance permanent.
                 | SkillEffect::SkillEvasion { .. }
+            // `Lucky` is an empty effect in Java too — `Player.isLucky()` asks
+            // whether the buff is *present*, so landing is the whole job.
+            | SkillEffect::Lucky
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {

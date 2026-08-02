@@ -520,6 +520,12 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `Lucky` (194) — an **empty effect**: Java's handler carries only a
+    /// `canStart` player guard and no mechanic at all. `Player.isLucky()` is
+    /// `level <= 9 && isAffectedBySkill(194)`, so the buff's *presence* is the
+    /// whole implementation; it exempts a newbie from the death exp penalty
+    /// and from vitality consumption.
+    Lucky,
     /// `DispelBySlotMyself` — strip the bearer's own buffs of the listed
     /// abnormal types (Flames of Invincibility 1427 clears `MAGICAL_STANCE`
     /// before it lands). Two differences from `DispelBySlot`: the list carries
