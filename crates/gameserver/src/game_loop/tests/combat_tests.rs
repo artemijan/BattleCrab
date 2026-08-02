@@ -1005,7 +1005,7 @@ fn player_death_penalty_and_revive_to_village() {
     );
     world.objects.add_components(&npc_oid, cs);
     // Wake the monster by damage (as if the player had hit it).
-    combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, npc_oid, 3001, 10.0, false);
     drain(&mut a_rx);
 
     // Its swing kills the 1-HP player: force a clean hit.
@@ -1131,7 +1131,7 @@ fn dead_monster_decays_and_respawns() {
 
     // Kill it outright (drop level-gap roll forced to fail: no loot noise).
     world.forced_rolls.push_back(999_999);
-    combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0);
+    combat::npc_receive_damage(&mut world, npc_oid, 3001, 1_000_000.0, false);
     assert!(nvit(&world, npc_oid).dead);
 
     // Decay at +2 s: corpse gone, DeleteObject seen, dangling target dropped,

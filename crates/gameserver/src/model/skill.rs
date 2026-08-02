@@ -520,6 +520,14 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `TargetMe` — force the effected **playable** to target the caster and
+    /// **lock** it there for the buff's duration (Aggression 28, Aggression
+    /// Aura 18). `TargetMeProbability` is the instant, chance-rolled variant
+    /// with no lock (Vengeance 368).
+    TargetMe,
+    TargetMeProbability {
+        chance: i32,
+    },
     /// G34 S3 flag-only effects — each is a single [`effect_flag`] bit and
     /// nothing else; the constants say what reads them. They survive
     /// `apply_skill_effects`' empty-effects guard through `has_state_flag`.

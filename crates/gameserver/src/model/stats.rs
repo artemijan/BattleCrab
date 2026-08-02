@@ -105,6 +105,12 @@ pub enum Stat {
     /// (`damage *= getValue(PHYSICAL_SKILL_POWER, 1)`) and the magical one
     /// inside `calcMagicDam`. Focus Skill Mastery (334) is the learnable
     /// source of the first; the second is item-only here.
+    /// Java `Stat.HATE_ATTACK` — multiplies the hate an **auto-attack**
+    /// generates on an `Attackable` (`reduceCurrentHp`'s `if (skill == null)`
+    /// branch). Sword/Blunt Weapon Mastery (217) is the learnable source, and
+    /// the skill-exclusion is the point: it helps a tank hold aggro through
+    /// ordinary swings, not through taunts.
+    HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,
     /// Java `Stat.PHYSICAL_SKILL_CRITICAL_DAMAGE` and its defence twin — the

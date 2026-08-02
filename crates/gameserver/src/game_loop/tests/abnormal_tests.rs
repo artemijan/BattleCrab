@@ -1079,7 +1079,7 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
         "the sleep landed"
     );
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false);
+    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),
         "one hit wakes the sleeper"
@@ -1097,7 +1097,7 @@ fn a_hit_wakes_a_slept_player_but_leaves_a_stun_alone() {
     let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
     let _v = ingame_caster(&mut world, VICTIM_CID, VICTIM, 50, 0);
     land(&mut world, STUN_ID, VICTIM);
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false);
+    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 10.0, false, false);
     assert!(
         abnormal::is_blocked_from_actions(&world, VICTIM),
         "a stun is not `removedOnDamage` — hitting a stunned target does not \
@@ -1120,7 +1120,7 @@ fn a_hit_wakes_a_slept_monster() {
         "the mob is asleep"
     );
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 5.0, false);
+    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 5.0, false, false);
     assert!(
         !abnormal::is_blocked_from_actions(&world, NPC_OID),
         "and it wakes on the first blow"
@@ -1141,8 +1141,8 @@ fn a_dot_tick_wakes_a_slept_player_but_not_a_slept_mob() {
     land(&mut world, SLEEP_ID, VICTIM);
     land(&mut world, SLEEP_ID, NPC_OID);
 
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 3.0, true);
-    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 3.0, true);
+    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, VICTIM, 3.0, true, false);
+    crate::game_loop::combat::apply_physical_damage(&mut world, CASTER, NPC_OID, 3.0, true, false);
 
     assert!(
         !abnormal::is_blocked_from_actions(&world, VICTIM),
@@ -1367,5 +1367,163 @@ fn irreplacable_buffs_survive_death_like_stay_after_death_ones() {
             .stay_after_death,
         "declares <irreplacableBuff> and no <stayAfterDeath>, so it survives \
          death only if the getter's three tags are folded"
+    );
+}
+
+/// G34 S4 sub-slice 3 — `TargetMe` (Aggression 28, Aggression Aura 18) and
+/// `TargetMeProbability` (Vengeance 368).
+///
+/// **Both are `if (effected.isPlayable())` in Java**, so taunting a *monster*
+/// through them does nothing — a mob's aggro comes from the `AddHate`/`GetAgro`
+/// effects the same skills carry. That is why Aggression declares both, and
+/// why this asserts the monster case explicitly: implementing `TargetMe` as
+/// "force any target" would look right in every player-vs-player test.
+#[test]
+fn target_me_locks_a_playable_and_ignores_a_monster() {
+    let (mut world, _db, _l) = cc2_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(9331, SkillEffect::TargetMe, "TARGET_ME"));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+    let victim = 5951;
+    let _v = ingame_player_access(&mut world, 2, victim, 0);
+
+    // A monster: nothing happens, no lock.
+    land(&mut world, 9331, NPC_OID);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::LockedTarget>(&NPC_OID),
+        "Java's isPlayable() guard means a mob is never locked by TargetMe"
+    );
+
+    // A player: target forced to the caster and locked there.
+    land(&mut world, 9331, victim);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&victim)
+            .and_then(|t| t.0),
+        Some(CASTER),
+        "the victim's selection is dragged onto the taunter"
+    );
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::LockedTarget>(&victim)
+            .map(|l| l.0),
+        Some(CASTER),
+        "…and locked"
+    );
+
+    // `TargetMe.onExit` — the lock goes with the buff.
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, victim, 9331);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::LockedTarget>(&victim),
+        "the lock must not outlive the taunt"
+    );
+}
+
+/// The lock's whole purpose: `Npc.canTarget` refuses a *different NPC* while it
+/// holds ("Failed to change enmity"). It is an NPC-side gate only — the victim
+/// can still click players and items, which is what stops it from reading as a
+/// blanket targeting freeze.
+#[test]
+fn a_locked_target_cannot_click_a_different_npc() {
+    let (mut world, _db, _l) = cc2_world();
+    world
+        .data
+        .skill_data
+        .insert_for_test(cc_skill(9332, SkillEffect::TargetMe, "TARGET_ME"));
+    let mut out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+    let other_npc = NPC_OID + 1;
+    add_test_npc(&mut world, other_npc, 20001, "Monster", 5, 120, 0, 0);
+
+    // Lock the caster onto the first mob, then try to click the second.
+    world
+        .objects
+        .add_components(&CASTER, crate::model::components::LockedTarget(NPC_OID));
+    drain(&mut out);
+    crate::game_loop::target::handle_action(&mut world, CID, &action_body(other_npc, 0));
+    let pkts = drain(&mut out);
+    assert!(
+        has_system_message(&pkts, server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY),
+        "the refusal is explained, not silent"
+    );
+    assert_ne!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&CASTER)
+            .and_then(|t| t.0),
+        Some(other_npc),
+        "and the selection did not move"
+    );
+
+    // The locked NPC itself is still clickable.
+    crate::game_loop::target::handle_action(&mut world, CID, &action_body(NPC_OID, 0));
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::TargetRef>(&CASTER)
+            .and_then(|t| t.0),
+        Some(NPC_OID),
+        "the taunter is exactly who you are allowed to click"
+    );
+}
+
+/// `HATE_ATTACK` (Sword/Blunt Weapon Mastery 217) multiplies the hate an
+/// **auto-attack** generates — Java scales it inside
+/// `Attackable.reduceCurrentHp`'s `if (skill == null)` branch only. The
+/// skill-exclusion is the point: the mastery helps a tank hold aggro through
+/// ordinary swings and does nothing for their taunts, so both cases are
+/// asserted.
+#[test]
+fn hate_attack_scales_auto_attack_hate_only() {
+    use crate::model::stats::Stat;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+
+    let hate_of = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&NPC_OID)
+            .and_then(|a| a.0.get(&CASTER).map(|i| i.hate))
+            .unwrap_or(0.0)
+    };
+
+    // Unbuffed auto-attack: the plain `damage·100 / (level + 7)`.
+    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    let plain = hate_of(&world);
+    assert!(plain > 0.0, "baseline hate: {plain}");
+
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&CASTER)
+        .cloned()
+        .expect("modifiers");
+    mods.mul.insert(Stat::HateAttack, 3.0);
+    world.objects.add_components(&CASTER, mods);
+
+    // Same damage, now tripled…
+    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, true);
+    let after_auto = hate_of(&world) - plain;
+    assert!(
+        (after_auto - plain * 3.0).abs() < 1e-6,
+        "an auto-attack's hate is tripled ({plain} → {after_auto})"
+    );
+
+    // …but a *skill*'s hate is untouched, which is Java's `skill == null` gate.
+    let before = hate_of(&world);
+    crate::game_loop::combat::npc_receive_damage(&mut world, NPC_OID, CASTER, 10.0, false);
+    let after_skill = hate_of(&world) - before;
+    assert!(
+        (after_skill - plain).abs() < 1e-6,
+        "skill damage generates unmultiplied hate ({plain} vs {after_skill})"
     );
 }

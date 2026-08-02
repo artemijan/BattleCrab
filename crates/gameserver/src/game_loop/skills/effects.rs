@@ -1341,6 +1341,46 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::skills::cast::stop_casting(world, target_oid);
                 }
             }
+            // `TargetMe` / `TargetMeProbability` — the *playable*-side taunt.
+            // Java wraps both in `if (effected.isPlayable())`, so taunting a
+            // **monster** through these does nothing at all; a mob's aggro
+            // comes from the `AddHate`/`GetAgro` effects the same skills carry.
+            // The pair differ in exactly two ways: `TargetMe` is a continuous
+            // effect that also **locks** the target (cleared on expiry), while
+            // `TargetMeProbability` is instant, chance-rolled and lock-free.
+            SkillEffect::TargetMe | SkillEffect::TargetMeProbability { .. } => {
+                if !world.objects.has_component::<crate::model::Player>(&target_oid) {
+                    continue;
+                }
+                if let SkillEffect::TargetMeProbability { chance } = effect
+                    && !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance)
+                {
+                    continue;
+                }
+                // `if (effected.getTarget() != effector) effected.setTarget(effector)`
+                // — through the client-notifying setter so the selection ring
+                // actually moves.
+                let already = world
+                    .objects
+                    .get_component::<crate::model::components::TargetRef>(&target_oid)
+                    .and_then(|t| t.0);
+                if already != Some(caster_oid)
+                    && let Some(client_id) = client_for_player(world, target_oid)
+                {
+                    crate::game_loop::target::set_target(
+                        world,
+                        client_id,
+                        target_oid,
+                        Some(caster_oid),
+                    );
+                }
+                if matches!(effect, SkillEffect::TargetMe) {
+                    world.objects.add_components(
+                        &target_oid,
+                        crate::model::components::LockedTarget(caster_oid),
+                    );
+                }
+            }
             // `GetAgro.instant` — the ported AI derives its attack target
             // fresh from `AggroList::most_hated` every think tick (no cached
             // "current target" field to force directly, unlike Java's AI
@@ -1668,6 +1708,14 @@ pub(crate) fn apply_continuous_effects(
                 | SkillEffect::DamageShield { .. }
                 | SkillEffect::Transform { .. }
                 | SkillEffect::AttackTrait { .. }
+                // `TargetMe` carries no stat modifier and stamps no
+                // `effect_flag` — its whole mechanic is the `LockedTarget`
+                // component, which `handle_buff_expire` clears. Without this
+                // the buff is dropped by the guard, the expiry hook never
+                // runs, and the taunt lock becomes **permanent**. Fifth slice
+                // caught by this guard; any new modifier-less effect must join
+                // one of its three categories.
+                | SkillEffect::TargetMe
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
@@ -4302,6 +4350,19 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
     if !still_active {
         return;
+    }
+    // `TargetMe.onExit` — `setLockedTarget(null)`. The lock is what stops the
+    // victim clicking a different NPC ("Failed to change enmity"), so it must
+    // go the moment the taunt does (G34 S4).
+    if world
+        .data
+        .skill_data
+        .get(skill_id, 1)
+        .is_some_and(|s| s.effects.iter().any(|e| matches!(e, SkillEffect::TargetMe)))
+    {
+        world
+            .objects
+            .remove_component::<crate::model::components::LockedTarget>(&player_object_id);
     }
     // `DefenceTrait.onExit` — unmerge before the buff row goes, while the skill
     // is still resolvable. Covers the NPC branch below as well as the player

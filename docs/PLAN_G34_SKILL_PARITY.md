@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 136 | **199 unhandled** (1 809 reachable skills, **45 learnable names**) |
+| Effect handler names used by dist skills | **335** | 140 | **195 unhandled** (1 781 reachable skills, **42 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -612,10 +612,39 @@ fixture mob's 100 HP, so the doubled hit was clamped to "everything it had
 left" and read as ×1.1. Damage-multiplier tests need a pool deeper than the
 biggest hit under test.
 
+#### Sub-slice 3 ✅ — the aggro family
+
+`HateAttack` (Sword/Blunt Weapon Mastery 217), `TargetMe` (Aggression 28,
+Aggression Aura 18) and `TargetMeProbability` (Vengeance 368). Each carries a
+Java guard that is easy to miss and invisible in a naive test:
+
+- **`HATE_ATTACK` scales auto-attack hate only.** Java applies it inside
+  `Attackable.reduceCurrentHp`'s `if (skill == null)` branch, so the mastery
+  helps a tank hold aggro through ordinary swings and does nothing for their
+  taunts. `apply_physical_damage` grew a `from_skill` flag to carry the
+  distinction (Java's `skill != null` at the `reduceCurrentHp` call); reflect
+  and zone damage pass `false`, matching Java's null skill on both paths.
+- **`TargetMe`/`TargetMeProbability` are `if (effected.isPlayable())`.**
+  Taunting a *monster* through them does nothing — which is exactly why
+  Aggression declares `GetAgro` **as well**: one skill needs both effects to
+  taunt both kinds of target. Implementing "force any target" would look
+  correct in every player-vs-player test.
+- **`TargetMe` also *locks*** (`setLockedTarget`), and the lock is the point:
+  `Npc.canTarget` then refuses any *other* NPC with "Failed to change enmity".
+  NPC-side only — the victim can still click players and items.
+
+**The empty-effects guard caught a fifth slice here.** `TargetMe` carries no
+stat modifier and stamps no `effect_flag`, so its buff was dropped, the expiry
+hook never ran, and the taunt lock became **permanent**. It now joins the
+guard's icon-only category. Any new modifier-less effect must join one of the
+three.
+
+Census: effect names **198 → 195**, learnable-affected **61 → 57**, headline
+**63 → 59**. Sabotage-verified both new gates.
+
 #### Remaining sub-slices ⏳
 
 - **Stat effects still needing a `Stat` + consumer:** `SkillMasteryRate`,
-  `HateAttack`,
   `CounterPhysicalSkill`, `TransferDamageToSummon`, `CubicMastery`,
   `AreaDamage`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
   `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's

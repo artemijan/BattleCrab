@@ -202,6 +202,8 @@ pub(crate) fn damage_zone_tick(world: &mut World) {
                     oid,
                     params.hp_per_tick as f64,
                     false,
+                    // Java's zone damage passes a null skill.
+                    false,
                 );
             }
             if params.mp_per_tick > 0

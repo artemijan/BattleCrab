@@ -1658,7 +1658,14 @@ pub(crate) fn apply_attack_damage(
     skill_magic: Option<bool>,
 ) {
     absorb_damage_to_hp(world, attacker, target, damage, is_dot, skill_magic);
-    apply_physical_damage(world, attacker, target, damage, is_dot);
+    apply_physical_damage(
+        world,
+        attacker,
+        target,
+        damage,
+        is_dot,
+        skill_magic.is_some(),
+    );
     reflect_damage(world, attacker, target, damage, is_dot, skill_magic);
 }
 
@@ -1806,15 +1813,20 @@ fn reflect_damage(
     }
     // `target.doAttack(reflectedDamage, this, …, reflect = true)` — the
     // `reflect` flag is what stops this from bouncing back again.
-    apply_physical_damage(world, target, attacker, reflected, false);
+    apply_physical_damage(world, target, attacker, reflected, false, false);
 }
 
+/// `from_skill` is Java's `skill != null` at the `reduceCurrentHp` call — the
+/// discriminator `Attackable.reduceCurrentHp` uses to decide whether the
+/// attacker's `HATE_ATTACK` scales the hate generated. Reflect and zone damage
+/// pass `false`: Java hands `null` for the skill on both paths.
 pub(crate) fn apply_physical_damage(
     world: &mut World,
     attacker: i32,
     target: i32,
     damage: f64,
     is_dot: bool,
+    from_skill: bool,
 ) {
     if !is_dot && super::abnormal::is_hp_blocked(world, target) {
         return;
@@ -1832,7 +1844,10 @@ pub(crate) fn apply_physical_damage(
         if !is_dot {
             super::skills::effects::stop_effects_on_damage(world, target);
         }
-        npc_receive_damage(world, target, attacker, damage);
+        // `skill_magic.is_none()` is Java's `skill == null` — the *auto-attack*
+        // discriminator `Attackable.reduceCurrentHp` uses to decide whether
+        // `HATE_ATTACK` applies (G34 S4).
+        npc_receive_damage(world, target, attacker, damage, !from_skill);
     } else {
         // `Creature.reduceCurrentHp`: `if (isPlayer() && isFakeDeath() &&
         // Config.FAKE_DEATH_DAMAGE_STAND && amount > 0) stopFakeDeath(true)`.
@@ -1848,7 +1863,13 @@ pub(crate) fn apply_physical_damage(
 
 /// `Attackable.reduceCurrentHp` → `addDamage`/`addDamageHate` + the
 /// `onEvtAttacked` AI reaction, then the HP cut and `doDie`.
-pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: i32, damage: f64) {
+pub(crate) fn npc_receive_damage(
+    world: &mut World,
+    npc_oid: i32,
+    attacker_oid: i32,
+    damage: f64,
+    auto_attack: bool,
+) {
     if world
         .objects
         .get_component::<Vitals>(&npc_oid)
@@ -1883,6 +1904,15 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         }
     };
 
+    let hate_attack_mul = if auto_attack {
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&attacker_oid)
+            .and_then(|m| m.mul.get(&crate::model::stats::Stat::HateAttack).copied())
+            .unwrap_or(1.0)
+    } else {
+        1.0
+    };
     let mut became_running = false;
     let mut died = false;
     let (cur_hp, max_hp) = {
@@ -1895,7 +1925,13 @@ pub(crate) fn npc_receive_damage(world: &mut World, npc_oid: i32, attacker_oid: 
         };
         // `addDamage`: hate = damage·100 / (level + 7); `onEvtAttacked`:
         // reset the calm-after-spawn counter, arm the attack timeout, run.
-        let hate = damage * 100.0 / (level + 7) as f64;
+        //
+        // `Attackable.reduceCurrentHp` then scales it by the attacker's
+        // `HATE_ATTACK` — but **only when `skill == null`**, i.e. for an
+        // auto-attack. A skill's hate is deliberately not amplified, which is
+        // why Sword/Blunt Weapon Mastery (217) helps a tank hold aggro through
+        // ordinary swings and does nothing for their taunts.
+        let hate = damage * 100.0 / (level + 7) as f64 * hate_attack_mul;
         let entry = aggro.0.entry(attacker_oid).or_default();
         entry.damage += damage;
         entry.hate += hate;

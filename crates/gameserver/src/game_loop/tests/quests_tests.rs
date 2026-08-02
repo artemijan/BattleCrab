@@ -940,7 +940,7 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
     // First hit on Varool: exactly one NpcSay; further hits stay quiet.
     let varool = NPC_OID + 1;
     add_test_npc(&mut world, varool, 27020, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, false);
     let pkts = drain(&mut rx);
     let says: Vec<_> = pkts
         .iter()
@@ -952,7 +952,7 @@ fn quest_q00316_on_attack_say_and_limited_fang() {
         31603,
         "WHY_DO_YOU_OPPRESS_US_SO"
     );
-    combat::npc_receive_damage(&mut world, varool, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, varool, 3001, 10.0, false);
     assert!(
         !drain(&mut rx)
             .iter()
@@ -3451,7 +3451,7 @@ fn quest_q00407_only_the_tagging_player_gets_the_letter() {
     // Attack first, then kill.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 20053, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, false);
     death::npc_do_die(&mut world, tagged, 3001);
     assert_eq!(
         item_count(&world, 3001, 1208),
@@ -3611,7 +3611,7 @@ fn quest_q00401_spider_legs_require_the_quest_sword() {
 
         let spider = NPC_OID + 1;
         add_test_npc(&mut world, spider, 20038, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, spider, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, spider, 3001, 10.0, false);
         death::npc_do_die(&mut world, spider, 3001);
 
         assert_eq!(
@@ -3721,7 +3721,7 @@ fn quest_q00403_bone_chance_is_out_of_ten_not_a_hundred() {
     for i in 0..40 {
         let mob = NPC_OID + 100 + i;
         add_test_npc(&mut world, mob, 20054, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, mob, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, false);
         death::npc_do_die(&mut world, mob, 3001);
     }
 
@@ -3788,7 +3788,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
 
     let bandit = NPC_OID + 1;
     add_test_npc(&mut world, bandit, 27038, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, false);
     let says: Vec<_> = drain(&mut rx)
         .into_iter()
         .filter(|p| p[0] == server_packets::opcodes::NPC_SAY)
@@ -3801,7 +3801,7 @@ fn quest_q00403_cats_eye_bandit_taunts_then_drops_loot() {
     );
 
     // A second hit must not re-taunt (script value is no longer 0).
-    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, bandit, 3001, 10.0, false);
     assert!(
         !drain(&mut rx)
             .iter()
@@ -4762,7 +4762,7 @@ fn quest_q00409_ambush_pays_only_the_first_attacker() {
     // Attacked first (bare-handed) then killed: qualifies.
     let tagged = NPC_OID + 101;
     add_test_npc(&mut world, tagged, 27033, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, tagged, 3001, 10.0, false);
     death::npc_do_die(&mut world, tagged, 3001);
     assert_eq!(
         item_count(&world, 3001, 1234),
@@ -6018,7 +6018,7 @@ fn quest_q00415_weapon_gate_wants_bare_hands_or_fists() {
 
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
         death::npc_do_die(&mut world, bear, 3001);
         assert_eq!(
             item_count(&world, 3001, 1600),
@@ -6043,7 +6043,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     for i in 1..=4 {
         let bear = NPC_OID + 100 + i;
         add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
         death::npc_do_die(&mut world, bear, 3001);
         assert_eq!(item_count(&world, 3001, 1600), i as i64, "claw {i}");
         assert_eq!(item_count(&world, 3001, 1597), 0, "pouch not full yet");
@@ -6051,7 +6051,7 @@ fn quest_q00415_pouch_takes_five_kills_not_four() {
     // The fifth kill converts and consumes the four claws.
     let bear = NPC_OID + 200;
     add_test_npc(&mut world, bear, 20479, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
     death::npc_do_die(&mut world, bear, 3001);
     assert_eq!(
         item_count(&world, 3001, 1597),
@@ -6085,7 +6085,7 @@ fn quest_q00415_fourth_pouch_converts_on_the_twelfth_kill() {
         for _ in 0..3 {
             oid += 1;
             add_test_npc(&mut world, oid, mob, "Monster", 20, 30, 0, 0);
-            combat::npc_receive_damage(&mut world, oid, 3001, 10.0);
+            combat::npc_receive_damage(&mut world, oid, 3001, 10.0, false);
             death::npc_do_die(&mut world, oid, 3001);
             killed += 1;
             if killed < 12 {
@@ -6714,7 +6714,7 @@ fn quest_q00417_payout_requires_a_spoiled_corpse() {
         super::items::add_inventory_item(&mut world, 3001, 1653, 1); // bear picture
         let bear = NPC_OID + 100;
         add_test_npc(&mut world, bear, 27058, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, bear, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, bear, 3001, 10.0, false);
         if spoil {
             // Spoiled by someone else, so the attack-time disqualifier
             // (spoiler == attacker) does not fire.
@@ -6740,7 +6740,7 @@ fn quest_q00417_drop_chance_fifty_means_always() {
     for i in 0..6 {
         let mob = NPC_OID + 200 + i;
         add_test_npc(&mut world, mob, 20403, "Monster", 20, 30, 0, 0);
-        combat::npc_receive_damage(&mut world, mob, 3001, 10.0);
+        combat::npc_receive_damage(&mut world, mob, 3001, 10.0, false);
         mark_spoiled(&mut world, mob, 9999);
         death::npc_do_die(&mut world, mob, 3001);
     }
@@ -6761,7 +6761,7 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     // First kill: flag is 0, so no roll happens at all — it just rises.
     let b1 = NPC_OID + 300;
     add_test_npc(&mut world, b1, 20777, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, b1, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, b1, 3001, 10.0, false);
     death::npc_do_die(&mut world, b1, 3001);
     assert!(
         npcs_of(&mut world, 27058).is_empty(),
@@ -6771,7 +6771,7 @@ fn quest_q00417_honey_bear_summon_meter_escalates() {
     // Second kill with the roll inside `20 * 1`: the bear appears.
     let b2 = NPC_OID + 301;
     add_test_npc(&mut world, b2, 20777, "Monster", 20, 30, 0, 0);
-    combat::npc_receive_damage(&mut world, b2, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, b2, 3001, 10.0, false);
     world.forced_rolls.push_back(5); // 5 < 20
     death::npc_do_die(&mut world, b2, 3001);
     assert_eq!(
@@ -11937,7 +11937,7 @@ fn quest_q00223_test_of_the_champion() {
     // onAttack ambush: first hit on an elite (ring held, heads<10, roll 0) conjures a second elite.
     add_test_npc(&mut world, NPC_OID + 20, 20780, "Monster", 40, 40, 0, 0);
     world.forced_rolls.push_back(0); // roll(2) == 0 → spawn
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
     assert_eq!(
         npcs_of(&mut world, 20780).len(),
         2,
@@ -12278,7 +12278,7 @@ fn quest_q00225_test_of_the_searcher() {
     assert_eq!(quest_cond(&world, 3001, q), Some(3));
     // onAttack: first hit on a Delu Shaman (1st Order held) conjures a Neer Bodyguard.
     add_test_npc(&mut world, NPC_OID + 20, 20781, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
     assert_eq!(
         npcs_of(&mut world, 27092).len(),
         1,
@@ -14215,7 +14215,7 @@ fn quest_q00229_test_of_witchcraft() {
     assert_eq!(quest_cond(&world, 3001, q), Some(4));
     // Driving Zeruel off (attack while holding the brimstone) → cond 5.
     add_test_npc(&mut world, NPC_OID + 20, 27101, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 20, 3001, 10.0, false);
     assert_eq!(
         quest_cond(&world, 3001, q),
         Some(5),
@@ -14830,7 +14830,7 @@ fn quest_q00227_test_of_the_reformer() {
     // A skill hit: stash the skill id the way the damage path does, then strike.
     let skill_hit = |w: &mut World, npc_oid: i32, skill_id: i32| {
         w.quest_attack_skill = Some(skill_id);
-        combat::npc_receive_damage(w, npc_oid, 3001, 10.0);
+        combat::npc_receive_damage(w, npc_oid, 3001, 10.0, false);
         w.quest_attack_skill = None;
     };
     talk(&mut world, pupina);
@@ -14878,7 +14878,7 @@ fn quest_q00227_test_of_the_reformer() {
     assert_eq!(quest_cond(&world, 3001, q), Some(12));
     // --- Crimson Werewolf: flees from melee, credited only to a mage attack. ---
     add_test_npc(&mut world, NPC_OID + 21, 27131, "Monster", 40, 40, 0, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 21, 3001, 10.0); // melee → flees
+    combat::npc_receive_damage(&mut world, NPC_OID + 21, 3001, 10.0, false); // melee → flees
     assert!(
         npcs_of(&mut world, 27131)
             .iter()
@@ -15047,7 +15047,7 @@ fn servitor_arcana_duel_round_trip() {
     add_test_npc(&mut world, opponent, OPPONENT, "Monster", 40, 120, 200, 0);
 
     // The servitor lands the first blow: reaches on_attack marked is_summon.
-    combat::npc_receive_damage(&mut world, opponent, servitor, 10.0);
+    combat::npc_receive_damage(&mut world, opponent, servitor, 10.0, false);
     assert_eq!(
         item_count(&world, 3001, STARTING),
         0,
@@ -15076,8 +15076,8 @@ fn servitor_arcana_duel_round_trip() {
         200,
         0,
     );
-    combat::npc_receive_damage(&mut world, NPC_OID + 6, servitor, 1.0); // servitor engages it
-    combat::npc_receive_damage(&mut world, NPC_OID + 6, 3001, 1.0); // the OWNER interferes
+    combat::npc_receive_damage(&mut world, NPC_OID + 6, servitor, 1.0, false); // servitor engages it
+    combat::npc_receive_damage(&mut world, NPC_OID + 6, 3001, 1.0, false); // the OWNER interferes
     assert!(
         world
             .objects
@@ -15358,7 +15358,7 @@ fn quest_q00230_test_of_the_summoner() {
     // --- Foul path: servitor engages, then the *player* interferes. ---
     let pako1 = NPC_OID + 60;
     add_test_npc(&mut world, pako1, PAKO, "Monster", 40, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, pako1, servitor, 10.0); // servitor engages
+    combat::npc_receive_damage(&mut world, pako1, servitor, 10.0, false); // servitor engages
     assert_eq!(
         item_count(&world, 3001, INPROGRESS_1ST),
         1,
@@ -15369,7 +15369,7 @@ fn quest_q00230_test_of_the_summoner() {
         0,
         "Starting consumed on engage"
     );
-    combat::npc_receive_damage(&mut world, pako1, 3001, 10.0); // the OWNER fouls it
+    combat::npc_receive_damage(&mut world, pako1, 3001, 10.0, false); // the OWNER fouls it
     assert_eq!(
         item_count(&world, 3001, FOUL_1ST),
         1,
@@ -15391,7 +15391,7 @@ fn quest_q00230_test_of_the_summoner() {
     assert_eq!(item_count(&world, 3001, STARTING_1ST), 1);
     let pako2 = NPC_OID + 61;
     add_test_npc(&mut world, pako2, PAKO, "Monster", 40, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, pako2, servitor, 10.0); // engage
+    combat::npc_receive_damage(&mut world, pako2, servitor, 10.0, false); // engage
     assert_eq!(item_count(&world, 3001, INPROGRESS_1ST), 1);
     death::npc_do_die(&mut world, pako2, servitor); // servitor kill → owner-credited
     assert_eq!(
@@ -15663,7 +15663,7 @@ fn quest_q00234_fates_whisper() {
     // --- Baium: striking with the Pipette Knife equipped fills it (Red). ---
     equip_weapon_row(&mut world, 3001, PIPETTE_KNIFE); // RHand = Pipette Knife
     add_test_npc(&mut world, NPC_OID + 51, BAIUM, "Monster", 80, 120, 200, 0);
-    combat::npc_receive_damage(&mut world, NPC_OID + 51, 3001, 10.0);
+    combat::npc_receive_damage(&mut world, NPC_OID + 51, 3001, 10.0, false);
     assert_eq!(
         item_count(&world, 3001, RED_PIPETTE_KNIFE),
         1,
@@ -17193,7 +17193,7 @@ fn quest_q00420_little_wing() {
     }
     inject(&mut w2, 3001, 0x0420_9000, DELUXE_FAIRY_STONE, 1);
     w2.forced_rolls.push_back(0); // onAttack roll(100)==0 < 30 → shatter
-    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0);
+    combat::npc_receive_damage(&mut w2, NPC_OID, 3001, 1.0, false);
     assert_eq!(
         item_count(&w2, 3001, DELUXE_FAIRY_STONE),
         0,
@@ -18198,13 +18198,13 @@ fn saga_finale_boss_retreats_after_15_hits() {
     // 14 hits leave the boss standing (Quest0 counts from 1); the 15th drives
     // it off.
     for _ in 0..14 {
-        combat::npc_receive_damage(&mut world, boss, 3001, 1.0);
+        combat::npc_receive_damage(&mut world, boss, 3001, 1.0, false);
     }
     assert!(
         !npcs_of(&mut world, BOSS).is_empty(),
         "boss still fighting after 14 hits"
     );
-    combat::npc_receive_damage(&mut world, boss, 3001, 1.0);
+    combat::npc_receive_damage(&mut world, boss, 3001, 1.0, false);
     assert!(
         npcs_of(&mut world, BOSS).is_empty(),
         "boss retreats on the 15th hit"
@@ -18641,7 +18641,7 @@ fn quest_q00421_guardian_ambush_despawns() {
     // standalone `FairyTrees` script swarms the same trees with 20 more (Java
     // registers both scripts on this kill), so 40 appear; theirs last 30 s,
     // this quest's 5 minutes.
-    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0);
+    combat::npc_receive_damage(&mut world, tree, 3001, 10_000.0, false);
     assert_eq!(
         npcs_of(&mut world, GUARDIAN).len(),
         40,
