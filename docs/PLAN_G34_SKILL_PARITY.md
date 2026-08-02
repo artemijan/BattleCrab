@@ -1109,16 +1109,42 @@ which this port does not have).
 
 ---
 
-### S5 — Targeting, scope & operate-type breadth
+### S5 — Targeting, scope & operate-type breadth ✅
 
-`AffectObject::UNDEAD_REAL_ENEMY` first (it is a live correctness bug), then
-`FRIEND_PC`/`NOT_FRIEND_PC`, `TargetType::ITEM` (452 items),
-`OTHERS`/`OWNER_PET`/`DOOR_TREASURE`/`MY_PARTY`, the four missing affect
-scopes, and `operateType` A3 (+ `isSelfContinuous`). `DA1`/`DA2` charge/rush
-(`handleSkillFly`) is a judgement call — gate it on whether any reachable skill
-uses it after the S0 census reports.
+Every learnable entry on the three non-effect axes, and the biggest finding of
+the epic so far is that one of them fails **closed** rather than open.
 
----
+- **`operateType` A3 and CA5 — seven learnable skills that could not be cast at
+  all.** `use_magic_on` returns outright for anything that is neither `Active`
+  nor `Channeling`, and the parser dropped every unmapped `operateType` to
+  `Other`. So Blinding Blow (321), Vengeance (368), Evade Shot (369), Critical
+  Blow (409), Aura Flare (1231), Battle Stance (426) and Spell Stance (427) did
+  nothing — not because an effect was missing, but because the cast never
+  started. Java's `isActive()` is A1-A6 (+ the fly family) and `isChanneling()`
+  is CA1/CA2/CA5; both are now mapped as written.
+  The parser even carried a comment asserting "CA5 doesn't occur on this dist's
+  reachable content" — it is on two learnable skills. Another
+  deviation-comment-resting-on-a-false-premise.
+- **`UNDEAD_REAL_ENEMY`** — the priest anti-undead auras (Sanctuary 97, Holy
+  Aura 107, Repose 1034, Requiem 1049) are `SELF` + `POINT_BLANK`, so with the
+  filter falling through to "no filtering" they swept **everything** in range:
+  friendly players and every non-undead mob alike. Java's rule is not yourself,
+  `isUndead()` (an NPC whose template race is `UNDEAD` — a player never is) and
+  `isAutoAttackable(caster)`.
+- **`TargetType::OTHERS`** (Battle Stance 426, Spell Stance 427, Summon Friend
+  1403) — the current selection, with one rule: not you, and Java refuses with
+  its own message rather than the generic invalid-target one.
+
+Census: target types **10 → 9** (learnable **3 → 0**), affect objects
+**5 → 4** (learnable **4 → 0**), operate types **13 → 7** (learnable
+**7 → 0**). All three sabotage-verified. The headline number is unchanged at
+**12** by construction — it counts the effect and condition axes only.
+
+`TODO(G34)` left at the operate-type parser: A3 also sets Java's
+`isSelfContinuous()`, whose only consumer is `BuffInfo.isDisplayedForEffected`
+— an A3 skill carrying `<selfEffects>` hides its buff *icon* on a target that
+is not the caster. Not ported because `ActiveBuff` records no effector, so the
+rule has nothing to test; display-only, effects unaffected.
 
 ### S6 — Item- & NPC-reachable effects
 

@@ -373,6 +373,16 @@ pub(crate) fn resolve_cast_target(
         // `INVALID_TARGET` before this arm existed.
         TargetType::Summon => super::super::servitor::servitor_of(world, caster.object_id)
             .ok_or(sm_ids::INVALID_TARGET)?,
+        // `targethandlers/Others.java` — the selection, with one rule: it may
+        // not be the caster, and Java refuses with its own message rather than
+        // the generic invalid-target one.
+        TargetType::Others => {
+            let t = caster_target.ok_or(sm_ids::THAT_IS_AN_INCORRECT_TARGET)?;
+            if t == caster.object_id {
+                return Err(sm_ids::YOU_CANNOT_USE_THIS_ON_YOURSELF);
+            }
+            t
+        }
         // `targethandlers/DoorTreasure.java` — the selection itself is the
         // whole validation: a door or a chest passes, anything else (including
         // no selection) is `THAT_IS_AN_INCORRECT_TARGET`. Unlock is the only

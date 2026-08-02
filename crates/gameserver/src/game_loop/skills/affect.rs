@@ -831,6 +831,19 @@ pub(crate) fn passes_affect_object(
         }
         AffectObject::Friend => is_friend(world, caster_oid, candidate),
         AffectObject::Clan => same_clan(world, caster_oid, candidate),
+        // `UndeadRealEnemy.checkAffectedObject` — "you are not an enemy of
+        // yourself", then `isUndead() && isAutoAttackable(creature)`.
+        // `isUndead()` is `Creature`-false and `Npc`-true-when-race-UNDEAD, so
+        // a player is never caught by this even standing in the middle of it.
+        AffectObject::UndeadRealEnemy => {
+            caster_oid != candidate
+                && world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&candidate)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    .is_some_and(|t| t.race == Some(crate::enums::Race::Undead.ordinal()))
+                && crate::game_loop::target::is_auto_attackable(world, caster_oid, candidate)
+        }
     }
 }
 
