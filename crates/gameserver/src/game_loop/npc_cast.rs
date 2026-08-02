@@ -494,6 +494,46 @@ fn in_peace_zone(world: &World, oid: i32) -> bool {
 /// no shots, no queued action, no cast bar or `YOU_USE_S1` (nobody to send
 /// them to), no MP-initial-consume message — just face, broadcast, schedule.
 pub(crate) fn start_cast(world: &mut World, npc_oid: i32, target_oid: i32, skill: &Skill) {
+    // `Creature.doCast`'s first statement: "Attackables cannot cast while
+    // moving." — `if (isAttackable() && isMoving()) return;`. Every entry into
+    // an NPC cast funnels through `doCast` in Java, boss and quest scripts
+    // included, so the refusal is here rather than in `try_cast`.
+    //
+    // This is the gate that matters for `AiType::Mage`. `thinkAttack`'s own
+    // ladder guard is `(!npc.isMoving() && npc.hasSkillChance()) || (aiType ==
+    // MAGE)` — the mage arm deliberately bypasses the `isMoving()` test (it is
+    // there to skip the skill-chance roll), and `doCast` is the only thing that
+    // then stops a running mage from casting. Without it all 402 MAGE templates
+    // on this dist cast mid-sprint.
+    //
+    // Java's `thinkAttack` `return`s whether or not `doCast` actually cast, so
+    // `cast_at` reporting `true` on a refusal is correct: the think ends, the
+    // move already in flight carries the mob on, and the next think — by which
+    // time it has arrived and dropped `Movement` — casts for real.
+    if world
+        .objects
+        .has_component::<crate::model::components::Movement>(&npc_oid)
+        && world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&npc_oid)
+            .and_then(|n| n.template(world))
+            .is_some_and(|t| t.is_attackable_class())
+    {
+        return;
+    }
+
+    // `SkillCaster.startCasting`: "Stop movement when casting. Except instant
+    // cast." → `caster.getAI().clientStopMoving(null)`, which drops the move
+    // data and broadcasts `StopMove` so every observer pins the caster in
+    // place. Attackables never reach this with move data (the `doCast` refusal
+    // above already sent them away), but a servitor or pet does — `Summon` is
+    // `Playable`, not `Attackable`, so only this half applies to it.
+    //
+    // TODO(G34): Java skips the stop for an instant cast (`SIMULTANEOUS`
+    // casting type, `abnormalInstant`, or `withoutAction`). No NPC path issues
+    // one of those yet, so the unconditional stop is exact for today's callers.
+    super::npc_ai::stop_npc(world, npc_oid);
+
     // Java `Summon.doCast` → `rechargeShots(false, true, false)`: a summon
     // charges its magic shot before casting, the mirror of the soulshot charge
     // the attack loop does before swinging. No-op for a plain monster.

@@ -985,6 +985,11 @@ Vertical aggro/chase parity landed post-G23 (PROGRESS "Vertical aggro/chase
 geodata parity"): 3D aggro spheres, `thinkAttack`'s LOS gate, geodata-clamped
 `chase()`, `checkHate` aggro decay, teleport-home attack timeout — mobs no
 longer engage or glide between tower floors.
+Move/cast interlock fixed 2026-08-02 (PROGRESS "Mobs cast while running",
+reported from live play): `Creature.doCast`'s "Attackables cannot cast while
+moving", `SkillCaster.startCasting`'s `clientStopMoving` on the NPC path, and
+`thinkAttack`'s opening `isCastingNow()` return — without the last one every
+caster kept re-issuing its chase for the whole duration of its own cast.
 
 ---
 

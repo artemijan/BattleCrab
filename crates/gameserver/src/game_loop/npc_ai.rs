@@ -30,7 +30,9 @@ use std::collections::HashSet;
 use commons::util::rnd;
 
 use crate::data::npc_data::AiType;
-use crate::model::components::{AttackState, Movement, Position, RegionCell, Speeds, Vitals};
+use crate::model::components::{
+    AttackState, Casting, Movement, Position, RegionCell, Speeds, Vitals,
+};
 use crate::model::movement::{self, MoveData};
 use crate::model::npc::{AggroList, NpcAi, NpcIntention};
 use crate::network::server_packets;
@@ -452,8 +454,9 @@ fn distance_2d(world: &World, oid: i32, x: i32, y: i32) -> f64 {
         .unwrap_or(f64::MAX)
 }
 
-/// Stop a mob dead (remove its move, broadcast `StopMove`).
-fn stop_npc(world: &mut World, npc_oid: i32) {
+/// Stop a mob dead (remove its move, broadcast `StopMove`) — the NPC half of
+/// `AbstractAI.clientStopMoving(null)`.
+pub(crate) fn stop_npc(world: &mut World, npc_oid: i32) {
     if !world.objects.has_component::<Movement>(&npc_oid) {
         return;
     }
@@ -840,13 +843,15 @@ fn think_attack(world: &mut World, npc_oid: i32) {
 
     // `thinkAttack`'s very first line: `if ((npc == null) || npc.isCastingNow())
     // return;`. A mob mid-cast does nothing else — no faction call, no chase,
-    // no swing — until the cast resolves. Without it the 1 s think that lands
-    // inside a 2 s cast fell through to the swing tail and the mob attacked
-    // while casting.
-    if world
-        .objects
-        .has_component::<crate::model::components::Casting>(&npc_oid)
-    {
+    // no swing — until the cast resolves. It went missing twice over, and each
+    // time a different tail of the think ran anyway: the 1 s think landing
+    // inside a 2 s cast fell through to the **swing** tail and the mob attacked
+    // while casting, and it fell through to the **range** tail and re-issued
+    // `chase()` every second, so the mob sprinted at its target with the cast
+    // bar still up. Note `try_cast` above does refuse a second concurrent cast,
+    // but it reports that as `false` = "no cast this think", which is exactly
+    // what lets the caller carry on into both tails.
+    if world.objects.has_component::<Casting>(&npc_oid) {
         return;
     }
 

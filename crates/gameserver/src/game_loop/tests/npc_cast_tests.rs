@@ -308,6 +308,128 @@ fn fighter_mob_without_the_roll_does_not_cast_while_moving() {
     assert!(!cast_started, "a moving non-mage must not cast");
 }
 
+/// A running MAGE must not cast either. The ladder guard in `try_cast` is
+/// `(!npc.isMoving() && npc.hasSkillChance()) || (aiType == MAGE)` — the mage
+/// arm deliberately skips the `isMoving()` test (its job is to skip the
+/// skill-chance roll), so the thing that actually stops a running mage is
+/// `Creature.doCast`'s first statement, "Attackables cannot cast while
+/// moving". Without it every one of this dist's 402 MAGE templates nuked
+/// mid-sprint.
+#[test]
+fn mage_mob_does_not_cast_while_running() {
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+    )]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    world.objects.add_components(
+        &NPC_OID,
+        crate::model::components::Movement(crate::model::movement::MoveData {
+            start_x: 100,
+            start_y: 0,
+            start_z: 0,
+            dest_x: 900,
+            dest_y: 0,
+            dest_z: 0,
+            start_tick: world.tick,
+            total_ticks: 100,
+            geo_path: None,
+        }),
+    );
+
+    crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+
+    assert!(
+        !world.objects.has_component::<Casting>(&NPC_OID),
+        "a mage with move data in flight must not have started a cast"
+    );
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        "and the refusal must leave the chase alone — Java's doCast just returns"
+    );
+
+    // The zero case, so the assertion above is not passing for some unrelated
+    // reason (no MP, target out of range, bucket empty): the same mob standing
+    // still casts on the very next call.
+    world
+        .objects
+        .remove_component::<crate::model::components::Movement>(&NPC_OID);
+
+    crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER);
+
+    assert!(
+        world.objects.has_component::<Casting>(&NPC_OID),
+        "standing still, the same mage casts the same nuke at the same target"
+    );
+}
+
+/// `thinkAttack`'s very first line is `if (npc.isCastingNow()) return;`. Before
+/// that guard the think fell straight past `try_cast` — which refuses a
+/// *second*, concurrent cast and so reports `false` — into the range tail and
+/// re-issued `chase()` every second. That is the reported bug: mobs sprinting
+/// at the player with the cast bar still up.
+#[test]
+fn a_mob_with_a_cast_in_flight_does_not_chase() {
+    let (mut world, _db, _l) = mob_world(&[npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 200.0 }],
+    )]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    // Well outside the 40-unit attack range, so the range tail would order a
+    // chase — but still inside the leash from its (100, 0) spawn.
+    if let Some(p) = world
+        .objects
+        .get_component_mut::<crate::model::components::Position>(&NPC_OID)
+    {
+        p.x = 1000;
+    }
+
+    // A cast in flight, exactly as `start_cast` leaves it.
+    world.objects.add_components(
+        &NPC_OID,
+        Casting(crate::model::CastState {
+            skill_id: NUKE,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: PLAYER,
+            seq: 1,
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+
+    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        "a mob mid-cast must not have been given a chase to run"
+    );
+
+    // The zero case: drop the cast and the identical think does order the
+    // chase, so the assertion above is testing the guard and not a mob that
+    // was never going to move.
+    world.objects.remove_component::<Casting>(&NPC_OID);
+
+    crate::game_loop::npc_ai::npc_ai_tick(&mut world);
+
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::Movement>(&NPC_OID),
+        "with no cast in flight the same setup chases"
+    );
+}
+
 #[test]
 fn mob_does_not_recast_a_buff_it_already_has() {
     let mut buff = npc_skill(SELF_BUFF, "Might", vec![]);
