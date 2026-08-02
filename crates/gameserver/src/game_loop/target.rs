@@ -144,6 +144,29 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
     let object_id = session.player_object_id();
     let shift = pkt.action_id == 1;
 
+    // `Npc.canTarget`: `if (player.isLockedTarget() && getLockedTarget() != this)`
+    // — a taunted playable may not click *away* from the taunter onto another
+    // NPC. Java refuses with "Failed to change enmity" and an ActionFailed,
+    // and the check is NPC-side only, so the victim can still click players
+    // and items (G34 S4).
+    if let Some(locked) = world
+        .objects
+        .get_component::<crate::model::components::LockedTarget>(&object_id)
+        .map(|l| l.0)
+        && locked != pkt.object_id
+        && world
+            .objects
+            .has_component::<crate::model::npc::Npc>(&pkt.object_id)
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(crate::network::server_packets::system_message_with(
+                crate::network::server_packets::sm_ids::FAILED_TO_CHANGE_ENMITY,
+                &[],
+            ));
+            cs.send(crate::network::server_packets::action_failed());
+        }
+        return;
+    }
     if world
         .objects
         .has_component::<crate::model::components::GroundItem>(&pkt.object_id)

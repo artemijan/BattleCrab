@@ -186,7 +186,7 @@ fn a_real_hit_curses_and_still_deals_its_damage() {
     set_level(&mut world, PLAYER, 40);
 
     let before = world.objects.get_component::<Vitals>(&BOSS).unwrap().cur_hp;
-    crate::game_loop::combat::apply_physical_damage(&mut world, PLAYER, BOSS, 500.0, false);
+    crate::game_loop::combat::apply_physical_damage(&mut world, PLAYER, BOSS, 500.0, false, false);
 
     assert!(
         has_buff(&world, PLAYER, RAID_CURSE2),

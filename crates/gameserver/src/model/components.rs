@@ -226,6 +226,19 @@ impl Vitals {
     }
 }
 
+/// Java `Playable._lockedTarget` — set by the `TargetMe` effect (Aggression
+/// 28, Aggression Aura 18) and cleared when it expires. While it is present,
+/// `Npc.onAction` refuses to let the bearer select **any other NPC**
+/// ("Failed to change enmity"), which is what makes a taunt stick on a player
+/// or summon rather than merely nudging their current target.
+///
+/// **Playables only.** Java's `TargetMe.onStart` is wrapped in
+/// `if (effected.isPlayable())`, so taunting a *monster* does nothing here —
+/// a monster's aggro comes from `AddHate`/`GetAgro` instead, which is why
+/// Aggression carries those effects too.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct LockedTarget(pub i32);
+
 /// Java `Creature._basicPropertyResists` — the mesmerizing-debuff resistance
 /// chain, one slot per [`BasicProperty`] (`PHYSICAL`, `MAGIC`), each holding
 /// `(level, tick the 15 s window ends)`.

@@ -785,6 +785,8 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    /// "Failed to change enmity." — a locked target refusing a new selection.
+    pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
     /// "You cannot use summoning or teleporting in this area."
     pub const YOU_CANNOT_USE_SUMMONING_OR_TELEPORTING_IN_THIS_AREA: i16 = 1899;
     /// "A user participating in the Olympiad cannot use summoning or teleporting."
