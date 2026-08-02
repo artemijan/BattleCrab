@@ -113,6 +113,12 @@ pub(crate) fn store_and_remove_player(world: &mut World, player_object_id: i32) 
     // a teleport still in flight dies with the session rather than firing at a
     // despawned (or re-used) object id.
     world.teleport_watchdog_due.remove(&player_object_id);
+    // Shadow-item `_consumingMana` is a field on Java's `Item`, and the logout
+    // throws every one of those away; ours is keyed by an object id the next
+    // login reads straight back out of the `items` table, so it has to be
+    // dropped by hand or the weapon's 60 s beat never re-arms again. Runs
+    // before the despawn below — it reads the inventory.
+    super::item_mana::on_player_leave_world(world, player_object_id);
     // Gather everything persistence needs before despawn — components drop
     // with the entity (PLAN_ECS_STAGE2 §7 risk 3).
     if let Some(save) = build_save_data(world, player_object_id) {

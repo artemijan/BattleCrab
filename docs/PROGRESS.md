@@ -3288,6 +3288,36 @@ shadow coupons" — every class transfer paid out 15 Shadow Item Exchange Coupon
   crystallize case was already refused by an unrelated branch — the subject is
   now a crystallizable Bastard Sword with a `duration` stamped on.
 
+#### Follow-up — the mana clock burned points Java never charges (2026-08-02)
+
+Reported as "equipping a shadow item takes mana unconditionally, so
+equip/unequip cycles wear it out early". The per-equip point is genuine Java
+(`Player.useEquipableItem` calls `decreaseMana(false)` inside its
+`if (item.isEquipped())` branch, and nothing at all on the unequip side), and
+that is now pinned by its own test. Two things around it were **not** Java:
+
+- **The burn hung off `finish_equip_change`, the shared paperdoll-change tail**,
+  and fired for every still-worn item it was handed. That helper stands in for
+  much more than the equip click — an enchant refreshing a worn item's glow, an
+  augment re-applying its options, `//mount` stripping a weapon — so a shadow
+  weapon lost mana to events Java never charges for. Moved to the
+  `use_equipable_item` equip branch, for the clicked item alone, which is
+  exactly where Java's single call site sits.
+- **`_consumingMana` outlived the session.** Java's flag is a field on the
+  `Item`, thrown away at logout, so the next `EnterWorld` sweep re-arms the 60 s
+  beat; ours is a `World` map keyed by an object id that the next login reads
+  straight back out of the `items` table. A logout taken mid-beat therefore left
+  the flag set for good and the weapon **never ticked again** — after that it
+  only lost the one point per equip, which is what made the equip charge look
+  like the whole story. Cleared in `store_and_remove_player` now. The map also
+  gained the tick each beat is *due*, so the beat the old session left in flight
+  is dropped instead of racing the new one (Java drops it for free: the orphaned
+  entry's `Item` has no acting player). Without that guard the relog would have
+  doubled the drain rather than stopped it.
+- 3 tests, each sabotage-verified against the bug it guards: one point per
+  equip and none per removal, a paperdoll refresh spends nothing, and a relog
+  inside the beat window leaves exactly one beat running.
+
 ---
 
 ## Deferred TODOs (by system)

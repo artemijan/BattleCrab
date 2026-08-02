@@ -238,12 +238,30 @@ pub(crate) fn use_equipable_item(
     // body part, which is a combined bitmask for rings/earrings and would
     // silently no-op. `unequip_item` clears the exact slot we already know
     // the object id is in, sidestepping that resolution entirely.
-    let changed = if inventory.paperdoll_slot_of(item_object_id).is_some() {
+    let was_equipped = inventory.paperdoll_slot_of(item_object_id).is_some();
+    let changed = if was_equipped {
         inventory.unequip_item(item_object_id)
     } else {
         inventory.equip_item(catalog, item_object_id)
     };
     finish_equip_change(world, client_id, object_id, &changed);
+    // Java `Player.useEquipableItem`, right after the "you have equipped"
+    // message: "Consume mana - will start a task if required; returns if item
+    // is not a shadow item". It is the *clicked* item that pays, and only on
+    // the equip half of the branch — Java's `if (item.isEquipped())` after
+    // `equipItemAndRecord`, which is why a swap's displaced items never pay
+    // and taking something off never does either. A shadow weapon therefore
+    // burns its first point the moment it goes on, and that call is what arms
+    // the 60 s beat. Last, because at mana 1 it destroys the item and
+    // re-enters `finish_equip_change` for the unequip.
+    if !was_equipped
+        && world
+            .objects
+            .get_component::<crate::model::inventory::Inventory>(&object_id)
+            .is_some_and(|inv| inv.paperdoll_slot_of(item_object_id).is_some())
+    {
+        super::item_mana::on_item_equipped(world, object_id, item_object_id);
+    }
 }
 
 /// Port of `clientpackets/RequestUnEquipItem.runImpl` (the mid-attack /
@@ -616,21 +634,14 @@ pub(crate) fn finish_equip_change(
     // armor-conditioned passive (Spellcraft/Magician's Movement) flips as a
     // robe is worn or removed. Resends its own UserInfo when the set changed.
     crate::game_loop::passive_skills::refresh_conditioned_passives(world, object_id);
-    // Java `Player.useEquipableItem`, right after the "you have equipped"
-    // message: "Consume mana - will start a task if required; returns if item
-    // is not a shadow item". Only items that just *became* worn count — a
-    // shadow weapon burns its first point the moment it goes on, and that call
-    // is what arms the 60 s beat. Last, because at mana 1 it destroys the item
-    // and re-enters this function for the unequip.
-    for &item_oid in changed {
-        if world
-            .objects
-            .get_component::<crate::model::inventory::Inventory>(&object_id)
-            .is_some_and(|inv| inv.paperdoll_slot_of(item_oid).is_some())
-        {
-            super::item_mana::on_item_equipped(world, object_id, item_oid);
-        }
-    }
+    // NB: no shadow-item mana is spent here. Java burns a point in
+    // `Player.useEquipableItem` alone — for the one item the player clicked —
+    // and this helper stands in for a good deal more than that click: an
+    // enchant refreshing a worn item's glow, an augment re-applying its
+    // options, `//mount` stripping a weapon. Charging mana from here made a
+    // shadow weapon die early for reasons Java never charges for; the call
+    // lives at the `use_equipable_item` equip branch instead. See
+    // [`super::item_mana`].
 }
 
 /// The stat-and-paperdoll half of [`finish_equip_change`]: recompute the

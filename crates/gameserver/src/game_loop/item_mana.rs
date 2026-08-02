@@ -27,6 +27,42 @@
 //! goes quiet. That is upstream behaviour, not a porting slip; it is reproduced
 //! here deliberately so a shadow weapon lasts exactly as long as it does on the
 //! Java server.
+//!
+//! ## Who spends a point
+//!
+//! Exactly three callers, all of them Java's:
+//!
+//! * the 60 s beat above (`ItemManaTaskManager.run`),
+//! * `Player.useEquipableItem`, for the **one item the player just clicked**
+//!   and only when it actually went on ([`on_item_equipped`]),
+//! * `EnterWorld`'s inventory sweep, one point per worn shadow item at login
+//!   ([`on_enter_world`]).
+//!
+//! Nothing else. In particular this must **not** hang off the shared
+//! [`super::items::finish_equip_change`] helper: that one is also how an
+//! enchant refreshes a worn item's glow, how augmenting re-applies its options
+//! and how `//mount` takes a weapon off — none of which touch mana in Java,
+//! but every one of which would have burned a point had the call lived there,
+//! so a shadow weapon that got enchanted died sooner than the Java one.
+//!
+//! ## The flag is session-scoped
+//!
+//! Java's `_consumingMana` is a field on the `Item` instance, and a logout
+//! throws every one of the player's `Item`s away: the next login rebuilds them
+//! with the flag false, so `EnterWorld`'s `decreaseMana` re-arms the beat.
+//! Ours is a `World` map keyed by object id — and those ids come straight back
+//! out of the `items` table on the next login — so it has to be cleared by
+//! hand when a player leaves ([`on_player_leave_world`]). Without that, a
+//! logout taken while a beat was in flight left the flag set for good and the
+//! weapon never ticked again: it then only ever lost the one point per equip,
+//! which is precisely the "mana only moves when I re-equip it" symptom.
+//!
+//! The beat that was in flight when they left is dropped rather than honoured:
+//! the map records the tick each beat is *due*, and [`on_mana_tick`] ignores
+//! any firing that does not match the armed one. Java gets this for free — its
+//! orphaned map entry points at the discarded `Item`, whose `getActingPlayer()`
+//! is null, so `run` throws it away — and without it a relog inside the beat
+//! window would leave two beats racing on one item, draining it twice as fast.
 
 use tracing::warn;
 
@@ -48,11 +84,13 @@ pub fn is_shadow_item(mana_left: i32) -> bool {
 /// `Item.scheduleConsumeManaTask()`: arm the 60 s beat unless this item
 /// already has one in flight.
 pub(crate) fn schedule_consume_mana_task(world: &mut World, player_oid: i32, item_oid: i32) {
-    if !world.item_mana_consuming.insert(item_oid) {
+    if world.item_mana_consuming.contains_key(&item_oid) {
         return; // `if (_consumingMana) return;`
     }
+    let due = world.tick + MANA_CONSUMPTION_TICKS;
+    world.item_mana_consuming.insert(item_oid, due);
     world.scheduler.schedule(
-        world.tick + MANA_CONSUMPTION_TICKS,
+        due,
         ScheduledTask::ItemManaTick {
             player_object_id: player_oid,
             item_object_id: item_oid,
@@ -60,11 +98,36 @@ pub(crate) fn schedule_consume_mana_task(world: &mut World, player_oid: i32, ite
     );
 }
 
+/// Java's `_consumingMana` lives on the `Item` instance and dies with it when
+/// the player logs out; ours is keyed by an object id that survives into the
+/// next session, so the flags for everything this player owns are dropped
+/// here. Any beat still in flight is orphaned by the same stroke — its due
+/// tick no longer matches the (now absent) entry, so [`on_mana_tick`] discards
+/// it, exactly as Java's `run` discards an entry whose `Item` has no acting
+/// player.
+pub(crate) fn on_player_leave_world(world: &mut World, player_oid: i32) {
+    let owned: Vec<i32> = world
+        .objects
+        .get_component::<Inventory>(&player_oid)
+        .map(|inv| inv.items().iter().map(|it| it.object_id).collect())
+        .unwrap_or_default();
+    for oid in owned {
+        world.item_mana_consuming.remove(&oid);
+    }
+}
+
 /// `ItemManaTaskManager.run`'s per-entry body. The map entry is consumed
 /// either way (Java's `iterator.remove()`), but the `_consumingMana` flag is
 /// only cleared by `decrease_mana` when the item is still worn — see the
 /// module note.
 pub(crate) fn on_mana_tick(world: &mut World, player_oid: i32, item_oid: i32) {
+    // A beat left over from a previous session (the player logged out and back
+    // in inside the 60 s window) is not this session's beat — see the module
+    // note. Java drops it because its `Item` has no acting player; here the
+    // armed due tick is what tells the two apart.
+    if world.item_mana_consuming.get(&item_oid) != Some(&world.tick) {
+        return;
+    }
     // "if ((player == null) || player.isInOfflineMode()) continue" — an
     // offline shop's wares don't burn down while their owner is away.
     let offline = world.offline_traders.contains_key(&player_oid);
@@ -135,7 +198,7 @@ pub(crate) fn decrease_mana(
 
     if left > 0 {
         // "Reschedule if still equipped".
-        if !world.item_mana_consuming.contains(&item_oid)
+        if !world.item_mana_consuming.contains_key(&item_oid)
             && is_equipped(world, player_oid, item_oid)
         {
             schedule_consume_mana_task(world, player_oid, item_oid);

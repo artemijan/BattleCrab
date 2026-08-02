@@ -244,7 +244,7 @@ fn a_worn_shadow_weapon_burns_one_mana_per_minute() {
         "one point spent the moment it goes on"
     );
     assert!(
-        world.item_mana_consuming.contains(&item_oid),
+        world.item_mana_consuming.contains_key(&item_oid),
         "the beat is armed (Java `_consumingMana`)"
     );
 
@@ -335,7 +335,7 @@ fn at_zero_mana_the_shadow_weapon_unequips_and_disappears() {
         "the disappearance message is sent"
     );
     assert!(
-        !world.item_mana_consuming.contains(&item_oid),
+        !world.item_mana_consuming.contains_key(&item_oid),
         "the beat is dropped with the item"
     );
 }
@@ -421,5 +421,127 @@ fn a_shadow_weapon_cannot_be_crystallized() {
         item_count(&world, PLAYER_OID, CRYSTAL_D),
         0,
         "no D-grade crystals were minted"
+    );
+}
+
+/// Java `Player.useEquipableItem` spends one point **per equip** and none at
+/// all when the item comes off — `decreaseMana(false)` sits inside the
+/// `if (item.isEquipped())` half of the branch. Toggling a shadow weapon
+/// therefore does cost mana on the way on, and that is upstream behaviour, but
+/// it must cost exactly one point and only in that direction.
+#[test]
+fn each_equip_spends_one_point_and_taking_it_off_spends_none() {
+    let (mut world, _db_rx) = shadow_test_world();
+    let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
+    drain(&mut rx);
+    let item_oid = equip_shadow_weapon(&mut world, &mut rx);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(89),
+        "the first equip spent one point"
+    );
+
+    // Off again — Java's unequip branch never reaches `decreaseMana`.
+    super::items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
+    drain(&mut rx);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(89),
+        "taking it off is free"
+    );
+
+    // …and back on: one more point, not two.
+    super::items::use_equipable_item(&mut world, 1, PLAYER_OID, item_oid);
+    drain(&mut rx);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(88),
+        "the second equip spent exactly one more"
+    );
+}
+
+/// `finish_equip_change` is the shared tail of far more than the equip click —
+/// an enchant refreshing a worn item's glow, an augment re-applying its
+/// options, `//mount` stripping a weapon all end there. Java charges mana in
+/// `useEquipableItem` alone, so none of those may cost the wearer a point.
+#[test]
+fn refreshing_a_worn_shadow_weapon_spends_no_mana() {
+    let (mut world, _db_rx) = shadow_test_world();
+    let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
+    drain(&mut rx);
+    let item_oid = equip_shadow_weapon(&mut world, &mut rx);
+    let after_equip = mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD);
+
+    // Exactly what `enchant::apply_success` does to a worn item.
+    for _ in 0..3 {
+        super::items::finish_equip_change(&mut world, 1, PLAYER_OID, &[item_oid]);
+    }
+    drain(&mut rx);
+
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        after_equip,
+        "a paperdoll refresh is not an equip"
+    );
+}
+
+/// Java's `_consumingMana` is a field on the `Item`, so a logout throws it away
+/// and the next `EnterWorld` re-arms the beat. Ours is keyed by an object id
+/// that comes straight back out of the `items` table, so the flag has to be
+/// cleared by hand — and the beat the old session left in flight has to be
+/// dropped, or the weapon ends up ticking twice a minute.
+#[test]
+fn a_relog_inside_the_beat_window_leaves_exactly_one_beat_running() {
+    let (mut world, _db_rx) = shadow_test_world();
+    let mut rx = ingame_player(&mut world, 1, PLAYER_OID, 0, 0, 0);
+    drain(&mut rx);
+    let item_oid = equip_shadow_weapon(&mut world, &mut rx);
+    let armed_at = crate::game_loop::item_mana::MANA_CONSUMPTION_TICKS;
+    assert_eq!(
+        world.item_mana_consuming.get(&item_oid),
+        Some(&armed_at),
+        "the first beat is due 60 s out"
+    );
+
+    // Half a minute in, the player logs out and straight back in.
+    advance_world(&mut world, armed_at / 2);
+    crate::game_loop::item_mana::on_player_leave_world(&mut world, PLAYER_OID);
+    assert!(
+        !world.item_mana_consuming.contains_key(&item_oid),
+        "the flag does not outlive the session (Java's `Item` is discarded)"
+    );
+    crate::game_loop::item_mana::on_enter_world(&mut world, PLAYER_OID);
+    drain(&mut rx);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(88),
+        "`EnterWorld`'s sweep spends its point"
+    );
+    assert_eq!(
+        world.item_mana_consuming.get(&item_oid),
+        Some(&(world.tick + armed_at)),
+        "and re-arms the beat — the whole point of clearing the flag"
+    );
+
+    // The old session's beat comes due first and must be ignored.
+    advance_world(&mut world, armed_at / 2);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(88),
+        "the orphaned beat spends nothing"
+    );
+
+    // The new one lands on schedule, and re-arms itself once, not twice.
+    advance_world(&mut world, armed_at / 2);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(87),
+        "the surviving beat burns a point"
+    );
+    advance_world(&mut world, armed_at);
+    assert_eq!(
+        mana_of(&world, PLAYER_OID, SHADOW_TWO_HANDED_SWORD),
+        Some(86),
+        "one point per minute, not two"
     );
 }
