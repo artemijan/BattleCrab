@@ -39,8 +39,8 @@ pub const NSWE_ALL: u8 = NSWE_EAST | NSWE_WEST | NSWE_SOUTH | NSWE_NORTH;
 /// `World.WORLD_X/Y_MIN` — the geo grid is anchored at map tile (0,0)
 /// (world tile numbering has tile 20 at world x=0), so a region file's
 /// `x_y` filename equals `geoX / REGION_CELLS_X` directly.
-const WORLD_MIN_X: i32 = -655360;
-const WORLD_MIN_Y: i32 = -589824;
+pub const WORLD_MIN_X: i32 = -655360;
+pub const WORLD_MIN_Y: i32 = -589824;
 
 /// `GeoData.GEO_REGIONS_X/Y`.
 const GEO_REGIONS_X: i32 = 32;
@@ -49,10 +49,10 @@ const GEO_REGIONS: usize = (GEO_REGIONS_X * GEO_REGIONS_Y) as usize;
 
 /// `World.TILE_X_MIN..TILE_X_MAX` / `TILE_Y_MIN..TILE_Y_MAX` — the region
 /// filename ranges scanned at load.
-const TILE_X_MIN: i32 = 11;
-const TILE_X_MAX: i32 = 28;
-const TILE_Y_MIN: i32 = 10;
-const TILE_Y_MAX: i32 = 26;
+pub const TILE_X_MIN: i32 = 11;
+pub const TILE_X_MAX: i32 = 28;
+pub const TILE_Y_MIN: i32 = 10;
+pub const TILE_Y_MAX: i32 = 26;
 
 /// `GeoEngine`'s LOS tuning constants.
 const ELEVATED_SEE_OVER_DISTANCE: i32 = 2;

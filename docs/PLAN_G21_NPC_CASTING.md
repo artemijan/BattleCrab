@@ -111,3 +111,34 @@ The remaining gate clauses and breadth, roughly in value order:
 - **NPC pathfinding** (the G7.85 worker for NPCs) and NPC regen.
 - **The other ~33 zone types**, fences (`FenceData`), `HtmCache`, walker
   routes, `CreatureSeeTaskManager`.
+
+## Follow-up (2026-08-02): the ladder was starved of rolls
+
+The hook described above — "*hooked into `think_attack` before the chase/swing
+tail*" — sat **below** a `Busy swinging` early return that this slice
+inherited:
+
+```rust
+if attack_state.attack_end_tick > now { return; }   // ← not in Java
+```
+
+Java's `thinkAttack` has no mid-swing gate. The refusal lives in
+`Creature.doAutoAttack`, behind `isAttackDisabled()` = `isAttackingNow() ||
+isDisabled()`, so a mob whose swing is winding down keeps thinking: faction
+call, movement, and the cast ladder all still run; only the next swing is
+dropped.
+
+With the gate on top, the only think that ever reached the ladder was the one
+`ScheduledTask::NpcAttackReady` fires at the swing's end — one
+`hasSkillChance()` roll per swing instead of one per second. The visible
+casualty was Porta (20213): rolls ~18 s apart against a 6 s Stun (4073) reuse
+meant the `SHORT_RANGE` rung always had Stun available, so the `GENERAL` rung
+holding its signature Summon (4161) was never reached. 3000 s of simulated
+melee: 131 stuns / 8 summons before, 264 / 44 after.
+
+`thinkAttack`'s actual first line was missing too — `if ((npc == null) ||
+npc.isCastingNow()) return;`. Without it the 1 s think landing inside a 2 s
+cast fell through to the swing tail and the mob attacked mid-cast.
+
+Both are now `think_attack`'s: an `isCastingNow` return at the top, and a
+`mid_swing` flag that gates **only** the `do_auto_attack` call at the tail.

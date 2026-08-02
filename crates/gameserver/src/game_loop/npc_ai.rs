@@ -781,11 +781,15 @@ fn think_attack(world: &mut World, npc_oid: i32) {
     let now = world.tick;
 
     // `thinkAttack`'s very first line: `if ((npc == null) || npc.isCastingNow())
-    // return;` — a mob with a cast in flight thinks about nothing at all until
-    // it lands. Without this the think walked straight past `try_cast` (which
-    // refuses a second, concurrent cast and so returns `false`) into the
-    // range/chase tail and re-issued `chase()` every second, which is what made
-    // casters sprint at their target while the cast bar was still playing.
+    // return;`. A mob mid-cast does nothing else — no faction call, no chase,
+    // no swing — until the cast resolves. It went missing twice over, and each
+    // time a different tail of the think ran anyway: the 1 s think landing
+    // inside a 2 s cast fell through to the **swing** tail and the mob attacked
+    // while casting, and it fell through to the **range** tail and re-issued
+    // `chase()` every second, so the mob sprinted at its target with the cast
+    // bar still up. Note `try_cast` above does refuse a second concurrent cast,
+    // but it reports that as `false` = "no cast this think", which is exactly
+    // what lets the caller carry on into both tails.
     if world.objects.has_component::<Casting>(&npc_oid) {
         return;
     }
@@ -871,14 +875,26 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         return;
     }
 
-    // Busy swinging.
-    if world
+    // Mid-swing. In Java this is **not** a `thinkAttack` gate: the guard lives
+    // in `Creature.doAutoAttack` (`isAttackDisabled()` = `isAttackingNow() ||
+    // isDisabled()`), so a mob whose swing is still winding down keeps
+    // thinking — it calls its faction, walks, and above all *casts*; only the
+    // next swing is refused.
+    //
+    // Returning here instead cost the cast ladder most of its rolls. The AI
+    // thinks once a second, plus once at each swing's end
+    // (`ScheduledTask::NpcAttackReady`), but with this gate on top every
+    // periodic think inside the swing window died before the ladder — leaving
+    // exactly one `hasSkillChance()` roll per swing. At Porta's (20213) 253
+    // atk. spd. that is one roll per ~2 s against Java's one per second, and
+    // since the roll is only ~11 %, opportunities came ~18 s apart while its
+    // Stun (4073) cooled down in 6 — so the SHORT_RANGE rung always had Stun
+    // ready and the GENERAL rung that holds Summon (4161) was never reached.
+    // Measured over 300 s of melee: 11 stuns, 0 summons.
+    let mid_swing = world
         .objects
         .get_component::<AttackState>(&npc_oid)
-        .is_some_and(|st| st.attack_end_tick > now)
-    {
-        return;
-    }
+        .is_some_and(|st| st.attack_end_tick > now);
 
     // "Actor should be able to see target" (`thinkAttack`'s geodata gate): a
     // sight line cut by a wall or a tower floor means no faction call, no
@@ -985,6 +1001,12 @@ fn think_attack(world: &mut World, npc_oid: i32) {
             Some(t) => target_oid = t,
             None => return,
         }
+    }
+
+    // `Creature.doAutoAttack`'s `isAttackDisabled()` refusal — the swing that
+    // is still running blocks the next one, and nothing else.
+    if mid_swing {
+        return;
     }
 
     // In reach: stop and swing.

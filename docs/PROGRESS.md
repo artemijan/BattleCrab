@@ -270,6 +270,57 @@ Census: effect names **214 → 205**, learnable-affected **77 → 70**, headline
 (drop the buff-block gate; mis-stamp `PhysicalAttackMute` as `PHYSICAL_MUTED`;
 revert the three-tag fold).
 
+## Mobs cast half as often as Java — Porta never summoned (2026-08-02)
+
+**Reported from the live server: Porta (20213) never used its skills, above
+all the "Summon" (4161) that yanks the player onto it.** The skill, the
+`CallPc` effect and the AI buckets were all correct — `npc_ai_skills` puts
+4073 Stun in `SHORT_RANGE`+`GENERAL` and 4161 in `GENERAL`. What was missing
+was the *rate*. Branch `fix/porta-npc-skills`, plan notes in
+[PLAN_G21_NPC_CASTING.md](PLAN_G21_NPC_CASTING.md).
+
+`think_attack` opened with a "Busy swinging" early return whenever
+`AttackState.attack_end_tick > now`. **Java has no such gate in
+`thinkAttack`** — the mid-swing refusal lives one level down, in
+`Creature.doAutoAttack`'s `isAttackDisabled()` (`isAttackingNow() ||
+isDisabled()`). In Java a mob whose swing is winding down still calls its
+faction, still walks, and above all still runs the cast ladder; only the *next
+swing* is refused.
+
+Because the port returned early instead, every periodic 1 s think that landed
+inside a swing window died before the ladder, leaving exactly **one
+`hasSkillChance()` roll per swing** (the one `ScheduledTask::NpcAttackReady`
+fires at the swing's end). At Porta's 253 atk. spd. that is a roll per ~2 s
+against Java's per second — and since the roll is only ~11 %, opportunities
+came ~18 s apart while Stun's reuse is 6 s. The `SHORT_RANGE` rung therefore
+*always* had Stun ready, and the `GENERAL` rung that holds Summon was never
+reached.
+
+Second, smaller divergence found alongside it: `thinkAttack`'s literal first
+line is `if ((npc == null) || npc.isCastingNow()) return;`, which the port
+never had. The 1 s think landing inside a 2 s cast fell through to the swing
+tail, so a casting mob also punched.
+
+Measured in a 3000 s melee simulation against a Porta-shaped fighter (253 atk.
+spd., Stun 6 s reuse / Summon 20 s):
+
+| | stuns | summons |
+|---|---|---|
+| before | 131 | **8** (one per ~6 min — never within one fight) |
+| after | 264 | **44** (one per ~68 s) |
+
+Three regression tests in `npc_cast_tests.rs`, all sabotage-verified (two fail
+with the fix stashed): a mid-swing mob still casts; a mid-swing mob does *not*
+start a second swing (the `doAutoAttack` half must survive); a casting mob does
+not swing.
+
+**Not fixed, noted here:** `npc_cast::check_skill_target`'s good-skill refusal
+reads `!(skill.is_debuff || skill.is_bad())` where Java has `(!skill.isDebuff()
+|| !skill.isBad())` — Java refuses a continuous skill on an auto-attackable
+target unless it is *both* a debuff and bad; the port refuses only when it is
+neither. Tightening it would make mobs cast *fewer* skills, so it is left for a
+deliberate slice rather than bundled into a fix that is about casting more.
+
 ## G34 S2 — chain-stunning a mob now stops working (2026-08-02)
 
 **Retail's PvE stun-lock resistance was missing, behind a comment that said it
