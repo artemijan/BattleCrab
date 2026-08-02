@@ -226,6 +226,41 @@ impl Vitals {
     }
 }
 
+/// Java `Creature._basicPropertyResists` — the mesmerizing-debuff resistance
+/// chain, one slot per [`BasicProperty`] (`PHYSICAL`, `MAGIC`), each holding
+/// `(level, tick the 15 s window ends)`.
+///
+/// A fixed pair rather than a map: Java's `EnumMap` has exactly these two live
+/// keys (`NONE` never accrues), and the component is `Copy` so the read-modify
+/// -write in `basic_property::increase_resist_level` stays a single ECS write.
+/// Expiry is evaluated on read — there is no sweep, matching Java's
+/// `isExpired()` check inside `getResistLevel`.
+#[derive(Component, Debug, Clone, Copy, Default)]
+pub struct BasicPropertyResists {
+    physical: (i32, u64),
+    magic: (i32, u64),
+}
+
+impl BasicPropertyResists {
+    /// `(level, end tick)` for one property. `NONE` never accrues and reads as
+    /// a permanently-expired zero.
+    pub fn get(&self, property: crate::model::skill::BasicProperty) -> (i32, u64) {
+        match property {
+            crate::model::skill::BasicProperty::Physical => self.physical,
+            crate::model::skill::BasicProperty::Magic => self.magic,
+            crate::model::skill::BasicProperty::None => (0, 0),
+        }
+    }
+
+    pub fn set(&mut self, property: crate::model::skill::BasicProperty, level: i32, end: u64) {
+        match property {
+            crate::model::skill::BasicProperty::Physical => self.physical = (level, end),
+            crate::model::skill::BasicProperty::Magic => self.magic = (level, end),
+            crate::model::skill::BasicProperty::None => {}
+        }
+    }
+}
+
 /// CP (`PcStatus`) — the player-only vitals extension, so NPC damage code
 /// never sees a CP field it must ignore.
 #[derive(Component, Debug, Clone, Copy)]

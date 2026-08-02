@@ -20,8 +20,8 @@ use quick_xml::events::Event;
 use tracing::{info, warn};
 
 use crate::model::skill::{
-    AffectObject, AffectScope, DispelSlot, OperateType, RestorationGroup, RestorationItem, Skill,
-    SkillCondition, SkillEffect, StatModifierEffect, TargetType,
+    AffectObject, AffectScope, BasicProperty, DispelSlot, OperateType, RestorationGroup,
+    RestorationItem, Skill, SkillCondition, SkillEffect, StatModifierEffect, TargetType,
 };
 use crate::model::stats::{Stat, StatModifierType};
 
@@ -105,6 +105,14 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // `PER` and the generic registry wiring (which honours the effect's own
     // `<mode>`, `PER` here) is all it needs.
     ("ResistDDMagic", Stat::MagicSuccessRes),
+    // `PhysicalAbnormalResist` / `MagicalAbnormalResist` — both plain
+    // `AbstractStatAddEffect`s over `Stat.ABNORMAL_RESIST_{PHYSICAL,MAGICAL}`,
+    // which `Formulas.getAbnormalResist` subtracts from a mesmerizing debuff's
+    // base landing chance (G34 S2, `game_loop::basic_property`). No learnable
+    // source on this dist — 3 items each — but the consumer exists now, so the
+    // registry entry is what makes those items real rather than inert.
+    ("PhysicalAbnormalResist", Stat::AbnormalResistPhysical),
+    ("MagicalAbnormalResist", Stat::AbnormalResistMagical),
 ];
 
 /// One category of "the datapack said something this parser doesn't act on",
@@ -2676,6 +2684,9 @@ fn build_skill(
             pve_effects,
             pvp_effects,
             channeling_effects,
+            basic_property: value_at(values, "basicProperty", level)
+                .map(BasicProperty::from_xml)
+                .unwrap_or_default(),
             conditions: cond_scope(CondScope::General),
             target_conditions: cond_scope(CondScope::Target),
             passive_conditions: cond_scope(CondScope::Passive),
@@ -4252,8 +4263,13 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 216 name(s), 77 learnable
-    /// skill(s) affected, 1902 reachable.
+    /// the work list, worst first. Category totals: 214 name(s), 77 learnable
+    /// skill(s) affected, 1900 reachable.
+    ///
+    /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
+    /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
+    /// consumer. Neither has a learnable source, so the *learnable* count is
+    /// unchanged — which is the shape to expect from the item-only tail.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("WeightLimit", 3),
@@ -4377,7 +4393,7 @@ mod coverage_census {
         );
 
         for (label, map, expected, names, learn_hit, reach_hit) in [
-            ("effect", &gaps.effects, EFFECTS, 216, 77, 1902),
+            ("effect", &gaps.effects, EFFECTS, 214, 77, 1900),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),

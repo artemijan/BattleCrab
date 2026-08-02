@@ -1663,6 +1663,15 @@ pub(crate) fn apply_continuous_effects(
             // more easily on a target weak to its element.
             attribute_mod(world, caster_oid, target_oid, skill),
             calc_general_trait_bonus(world, caster_oid, target_oid, skill.trait_type, false),
+            // The two `<basicProperty>` terms — a stat subtracted inside
+            // `baseMod`, and the mesmerizing-debuff chain multiplied after the
+            // clamp (G34 S2, `game_loop::basic_property`).
+            crate::game_loop::basic_property::abnormal_resist(
+                world,
+                target_oid,
+                skill.basic_property,
+            ),
+            crate::game_loop::basic_property::resist_bonus(world, target_oid, skill.basic_property),
         );
         // Java: resisted when `finalRate <= Rnd.get(100)` (0-99). Roll before the
         // message so the outcome line reflects it and the roll order stays stable.
@@ -1752,6 +1761,25 @@ pub(crate) fn apply_continuous_effects(
         abnormal_visuals: skill.abnormal_visuals.clone(),
         effects: buff_effects,
     };
+
+    // Java `Skill.applyEffects`, inside the `if (addContinuousEffects)` branch
+    // and immediately after `EffectList.add(info)`: "Check for mesmerizing
+    // debuffs and increase resist level." Position matters — it is on the
+    // *landed* path, past the resist roll, so a debuff that keeps failing never
+    // builds the resistance that would lock it out (G34 S2).
+    //
+    // `addContinuousEffects` is `isToggle() || (isContinuous() && …)`, so an
+    // instant-only debuff does not accrue; `increase_resist_level` filters the
+    // `NONE` property and the can't-accrue targets (every player on this dist).
+    if skill.is_debuff
+        && (skill.is_continuous || skill.operate_type == crate::model::skill::OperateType::Toggle)
+    {
+        crate::game_loop::basic_property::increase_resist_level(
+            world,
+            target_oid,
+            skill.basic_property,
+        );
+    }
 
     // Arm the poison/bleed damage-over-time ticks (Java `BuffInfo.
     // scheduleEffects` → `scheduleAtFixedRate`). The recurring `DamOverTimeTick`

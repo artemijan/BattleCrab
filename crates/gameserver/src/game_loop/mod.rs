@@ -16,6 +16,7 @@ pub(crate) mod auto_play;
 pub(crate) mod auto_potions;
 pub(crate) mod auto_use;
 pub(crate) mod baium;
+mod basic_property;
 pub(crate) mod boats;
 mod boss_respawn;
 mod boss_threat;

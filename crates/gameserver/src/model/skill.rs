@@ -1726,9 +1726,44 @@ pub struct Skill {
     /// — it is recorded by `SkillGaps` instead and the skill behaves as if it
     /// weren't declared, which is what the port did for every condition before
     /// G34 S1. See PLAN_G34_SKILL_PARITY.md §S1.
+    /// Java `<basicProperty>` (390 learnable skills declare one). See
+    /// [`BasicProperty`] — this is what ties a debuff into the stun-lock
+    /// resistance chain.
+    pub basic_property: BasicProperty,
     pub conditions: Vec<SkillCondition>,
     pub target_conditions: Vec<SkillCondition>,
     pub passive_conditions: Vec<SkillCondition>,
+}
+
+/// Java `BasicProperty` — the "mesmerizing debuff" family a skill belongs to.
+///
+/// Quoting Java's own enum docs (from Juji): **PHYSICAL** is Stun, Paralyze,
+/// Knockback, Knock Down, Hold, Disarm, Petrify; **MAGIC** is Sleep, Mutate,
+/// Fear, Aerial Yoke, Silence. Everything else is `NONE`.
+///
+/// Two independent mechanics read it, and conflating them is how the port
+/// missed both (see [`crate::game_loop::basic_property`]):
+///
+/// 1. `Formulas.getAbnormalResist` — a *stat* lookup
+///    (`ABNORMAL_RESIST_PHYSICAL` / `_MAGICAL`), subtracted inside `baseMod`.
+/// 2. `Formulas.getBasicPropertyResistBonus` — the **accrual chain**, a
+///    multiplier applied *after* the min/max clamp.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BasicProperty {
+    #[default]
+    None,
+    Physical,
+    Magic,
+}
+
+impl BasicProperty {
+    pub fn from_xml(name: &str) -> Self {
+        match name {
+            "PHYSICAL" => Self::Physical,
+            "MAGIC" => Self::Magic,
+            _ => Self::None,
+        }
+    }
 }
 
 /// Java `SkillConditionPercentType` — the comparison a `Remain*Per` condition
@@ -1969,6 +2004,7 @@ impl Default for Skill {
             channeling_skill_id: 0,
             channeling_tick_ms: 0,
             channeling_start_ms: 0,
+            basic_property: BasicProperty::default(),
             conditions: Vec::new(),
             target_conditions: Vec::new(),
             passive_conditions: Vec::new(),

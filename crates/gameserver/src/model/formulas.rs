@@ -84,10 +84,8 @@ pub fn calc_magic_dam(
 /// being true when the attribute and trait tables landed, so they are passed in
 /// now rather than assumed.
 ///
-/// `getAbnormalResist(basicProperty, target)` stays 0: `BasicPropertyResist` is
-/// granted by no skill on this dist (see `calc_effect_land_rate`'s note), so it
-/// can never leave its identity. Java's `Double.isNaN(baseChance)` branch is
-/// unreachable here — the parser defaults a missing `<chance>` to 100.
+/// Java's `Double.isNaN(baseChance)` branch is unreachable here — the parser
+/// defaults a missing `<chance>` to 100.
 pub fn calc_probability(
     magic_level: i32,
     base_chance: i32,
@@ -318,6 +316,15 @@ pub fn calc_effect_land_rate(
     // target resists this debuff's trait, `> 1` when the trait is a
     // *vulnerability*, and **0** when they are invulnerable to it.
     trait_mod: f64,
+    // `getAbnormalResist(skill.getBasicProperty(), target)` — the target's
+    // `ABNORMAL_RESIST_PHYSICAL`/`_MAGICAL` **stat**, *subtracted* inside
+    // `baseMod`. 0 with no such stat.
+    target_basic_property: f64,
+    // `getBasicPropertyResistBonus(skill.getBasicProperty(), target)` — the
+    // mesmerizing-debuff accrual chain (1.0 / 0.6 / 0.3 / 0), multiplied
+    // **after** the clamp, which is why level 3 is a hard immunity rather than
+    // a rate the 10 floor rescues. See `game_loop::basic_property`.
+    basic_property_resist: f64,
 ) -> f64 {
     if activate_rate == -1 {
         return 100.0;
@@ -327,7 +334,8 @@ pub fn calc_effect_land_rate(
     } else {
         magic_level
     };
-    let base_mod = (magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30;
+    let base_mod = ((magic_level - target_level + 3) * lvl_bonus_rate + activate_rate + 30) as f64
+        - target_basic_property;
     // Invulnerability is *not* clamped: Java's
     // `finalRate = traitMod > 0 ? constrain(rate, min, max) : 0` short-circuits
     // past the 10 floor, so an immune target refuses the debuff outright rather
@@ -338,8 +346,11 @@ pub fn calc_effect_land_rate(
     // Otherwise Java multiplies the raw rate by the mods and clamps *after*
     // (`constrain(baseMod * elementMod * … * buffDebuffMod, minChance,
     // maxChance)`), so heavy resistance can pull an otherwise-capped debuff
-    // below the 90 ceiling but never under the 10 floor.
-    (base_mod as f64 * element_mod * debuff_resist_mod * trait_mod).clamp(10.0, 90.0)
+    // below the 90 ceiling but never under the 10 floor — **except** through
+    // `basicPropertyResist`, which Java multiplies in after the clamp and which
+    // therefore *can* reach 0.
+    (base_mod * element_mod * debuff_resist_mod * trait_mod).clamp(10.0, 90.0)
+        * basic_property_resist
 }
 
 /// `Formulas.calcAttributeBonus`'s arithmetic tail (PLAN_G19_ATTRIBUTES.md):
@@ -1011,14 +1022,22 @@ mod tests {
     #[test]
     fn effect_land_rate_clamps_and_special_cases() {
         // (35 - 5 + 3)·30 + 80 + 30 = 1100 → clamp to 90.
-        assert!((calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0, 1.0) - 90.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(35, 80, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0) - 90.0).abs() < 1e-9
+        );
         // (35 - 80 + 3)·30 + 80 + 30 = -1150 → clamp to 10.
-        assert!((calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0, 1.0) - 10.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(35, 80, 30, 80, 1.0, 1.0, 1.0, 0.0, 1.0) - 10.0).abs() < 1e-9
+        );
         // activateRate -1 → guaranteed.
-        assert!((calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0) - 100.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(35, -1, 30, 5, 1.0, 1.0, 1.0, 0.0, 1.0) - 100.0).abs() < 1e-9
+        );
         // magicLevel <= -1 falls back to targetLevel + 3, so the level term is
         // (23 - 20 + 3) = 6: 6·5 + 10 + 30 = 70.
-        assert!((calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0, 1.0) - 70.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(-1, 10, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0) - 70.0).abs() < 1e-9
+        );
     }
 
     /// The trait multiplier is folded in **before** the clamp, alongside the
@@ -1031,19 +1050,31 @@ mod tests {
     #[test]
     fn effect_land_rate_folds_the_trait_bonus_in_before_clamping() {
         // (20 - 20 + 3)·5 + 5 + 30 = 50 unresisted.
-        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.0) - 50.0).abs() < 1e-9);
+        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.0, 0.0, 1.0) - 50.0).abs() < 1e-9);
         // 30 % trait resistance → 0.70 → 35.
-        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.70) - 35.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.70, 0.0, 1.0) - 35.0).abs() < 1e-9
+        );
         // Invulnerable → 0, not the 10 floor.
-        assert_eq!(calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.0), 0.0);
+        assert_eq!(
+            calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0),
+            0.0
+        );
         // A vulnerability (defence -15 → 1.15) raises it: 50 · 1.15 = 57.5.
-        assert!((calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.15) - 57.5).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(20, 5, 5, 20, 1.0, 1.0, 1.15, 0.0, 1.0) - 57.5).abs() < 1e-9
+        );
         // It composes with the other two mods rather than replacing them.
-        assert!((calc_effect_land_rate(20, 5, 5, 20, 0.8, 1.25, 0.70) - 35.0).abs() < 1e-9);
+        assert!(
+            (calc_effect_land_rate(20, 5, 5, 20, 0.8, 1.25, 0.70, 0.0, 1.0) - 35.0).abs() < 1e-9
+        );
         // The always-lands escape hatch is checked first, so even immunity
         // cannot stop an `activateRate == -1` debuff (Java returns true before
         // computing any mod).
-        assert_eq!(calc_effect_land_rate(20, -1, 5, 20, 1.0, 1.0, 0.0), 100.0);
+        assert_eq!(
+            calc_effect_land_rate(20, -1, 5, 20, 1.0, 1.0, 0.0, 0.0, 1.0),
+            100.0
+        );
     }
 
     /// Good skills cap the per-mille rate at 320, bad skills at 200; the
