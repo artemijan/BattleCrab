@@ -14,8 +14,8 @@
 use crate::game_loop::common::maybe_distance_too_far;
 use crate::model::PlayerIntent;
 use crate::model::components::{
-    AttackState, Casting, Collision, CombatStats, Following, Intent, Movement, PlayerVitals,
-    Position, RegionCell, Speeds, Vitals,
+    AttackState, Casting, Collision, CombatStats, Following, Intent, MoveToPawnState, Movement,
+    PlayerVitals, Position, RegionCell, Speeds, Vitals,
 };
 use crate::model::formulas;
 use crate::model::movement::{self, MoveData, get_position};
@@ -98,7 +98,7 @@ pub(crate) fn combatant(world: &World, object_id: i32) -> Option<Combatant> {
     // A siege door is a valid attack *target* but carries no
     // Vitals/Collision/CombatStats — synthesize a stationary combatant from
     // its Position + template pDef so the shared chase/reach geometry
-    // (`distance_2d`/`attack_reach`/`pawn_destination`) works uniformly.
+    // (`distance_2d`/`maybe_move_to_pawn`/`pawn_destination`) works uniformly.
     // `dead` = breached (0 HP); the combat-stat fields are unused for a door
     // target (`do_door_swing` reads the template directly).
     if let Some(door) = world
@@ -345,12 +345,6 @@ fn distance_2d(a: &Combatant, b: &Combatant) -> f64 {
     (((b.x - a.x) as f64).powi(2) + ((b.y - a.y) as f64).powi(2)).sqrt()
 }
 
-/// Melee reach: attack range + both collision radii (Java adds collision
-/// radii via `Util.checkIfInRange(range, a, b, true)` in the AI range gates).
-fn attack_reach(a: &Combatant, b: &Combatant) -> f64 {
-    a.atk_range as f64 + a.collision_radius + b.collision_radius
-}
-
 // ---------------------------------------------------------------------------
 // Combat stance (`AttackStanceTaskManager`)
 // ---------------------------------------------------------------------------
@@ -480,21 +474,28 @@ pub(crate) fn handle_attack_request(world: &mut World, client_id: u32, body: &[u
         super::target::set_target(world, client_id, object_id, Some(pkt.object_id));
     }
 
-    start_attack_intent(world, client_id, object_id, pkt.object_id, pkt.shift);
+    // `pkt.shift` is deliberately dropped — Java's `AttackRequest._attackId`
+    // ("0 for simple click 1 for shift-click") is read and never used.
+    start_attack_intent(world, client_id, object_id, pkt.object_id);
 }
 
 /// Shared entry for "the player wants to auto-attack this target" (from
 /// `AttackRequest` or the second `Action` click): monsters, siege
 /// towers/flags/guards and siege gates, plus flagged players. Clean players
 /// need Ctrl (enforced client-side) and plain folk aren't attackable without
-/// the karma system. Out of reach, a non-shift click starts a chase
-/// (`player_attack_think` → `chase_target`); shift-click (`dontMove`) refuses.
+/// the karma system. Out of reach the click starts a chase
+/// (`player_attack_think` → `maybe_move_to_pawn`).
+///
+/// There is **no `dontMove` for melee**: `AttackRequest` reads the shift byte
+/// into a field Java marks `@SuppressWarnings("unused")` and never looks at
+/// again, so a shift-click walks the target down exactly like a plain one.
+/// (`Action` case 1 doesn't reach here at all — it routes to `onActionShift`.)
+/// The cast path's `dontMove` is real and lives in the target handlers.
 pub(crate) fn start_attack_intent(
     world: &mut World,
     client_id: u32,
     object_id: i32,
     target_object_id: i32,
-    shift: bool,
 ) {
     // `PlayableAI.onIntentionAttack`'s very first line: `if
     // (getActingPlayer().isSitting()) return;`. A seated player never engages,
@@ -543,26 +544,6 @@ pub(crate) fn start_attack_intent(
             }
             return;
         }
-    }
-    // Shift-click is Java's `dontMove`: refuse to walk into reach. If the
-    // target is beyond melee reach, fail with "out of range" instead of
-    // starting a chase (Java discards the flag; we honour it). The player is
-    // stationary here — a chase leg or manual move ends before this — so the
-    // current position is the right thing to range-check.
-    if shift
-        && let (Some(attacker), Some(target)) = (
-            combatant(world, object_id),
-            combatant(world, target_object_id),
-        )
-        && distance_2d(&attacker, &target) > attack_reach(&attacker, &target)
-    {
-        super::helpers::send_sm_and_action_failed(
-            world,
-            client_id,
-            server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE,
-            &[],
-        );
-        return;
     }
     world.objects.add_components(
         &object_id,
@@ -841,6 +822,25 @@ const FOLLOW_MOVING_OFFSET: i32 = 100;
 /// `maybeMoveToPawn`'s `if (offset < 5) offset = 5` floor.
 const FOLLOW_MIN_OFFSET: i32 = 5;
 
+/// `AbstractAI.moveToPawn`'s own, higher floor: `if (offset < 10) offset = 10`.
+const MOVE_TO_PAWN_MIN_OFFSET: i32 = 10;
+
+/// `_moveToPawnTimeout += 1000 / GameTimeTaskManager.MILLIS_IN_TICK` — the 1 s
+/// window during which `moveToPawn` refuses to re-path toward the same pawn at
+/// the same offset. Java's game tick is 100 ms, and so is ours.
+const MOVE_TO_PAWN_TIMEOUT_TICKS: u64 = 10;
+
+/// `else if (_actor.isOnGeodataPath() && (gameTicks < (_moveToPawnTimeout +
+/// 10)))` — a *changed* offset still waits a second longer while the current
+/// path came out of the pathfinder ("minimum time to calculate new route is 2
+/// seconds").
+const GEODATA_REPATH_EXTRA_TICKS: u64 = 10;
+
+/// `CreatureFollowTaskManager.follow`: past this the follow gives up entirely
+/// ("if the target is too far — maybe also teleported") and the intention goes
+/// idle, rather than starting a cross-map walk.
+const FOLLOW_ABANDON_DISTANCE: f64 = 3000.0;
+
 /// `AbstractAI.stopFollow()` — drop the actor out of the follow registry.
 fn stop_follow(world: &mut World, object_id: i32) {
     world.objects.remove_component::<Following>(&object_id);
@@ -902,10 +902,7 @@ fn maybe_move_to_pawn(
         .filter(|f| f.target_object_id == target_object_id);
     if followable && let Some(follow) = following {
         if distance > reach + FOLLOW_ENGAGE_SLACK {
-            // `CreatureFollowAttackTask` keeps the path fresh every 500 ms at
-            // the range recorded when the follow started (`chase_pawn` carries
-            // that same 5-tick throttle).
-            chase_pawn(world, object_id, target_object_id, target, follow.offset);
+            follow_step(world, object_id, target_object_id, target, follow.offset);
             return true;
         }
         stop_follow(world, object_id);
@@ -950,11 +947,49 @@ fn maybe_move_to_pawn(
                 offset,
             },
         );
+        // `addAttackFollow` runs `follow()` once immediately, so the walk
+        // starts on this think rather than waiting for the next task period.
+        follow_step(world, object_id, target_object_id, target, offset);
     } else {
         stop_follow(world, object_id);
+        chase_pawn(world, object_id, target_object_id, target, offset);
     }
-    chase_pawn(world, object_id, target_object_id, target, offset);
     true
+}
+
+/// One pass of `CreatureFollowTaskManager.follow(creature, range)` — the 500 ms
+/// task that does the actual walking for a registered follow, while
+/// `maybeMoveToPawn` only decides whether to engage.
+///
+/// Its range test is deliberately unlike the engage gate's: **3D**, and
+/// **centre to centre** with no collision radii. Past
+/// [`FOLLOW_ABANDON_DISTANCE`] it gives the intention up rather than start a
+/// cross-map walk — Java's "if the target is too far (maybe also teleported)".
+fn follow_step(
+    world: &mut World,
+    object_id: i32,
+    target_object_id: i32,
+    target: &Combatant,
+    follow_range: i32,
+) {
+    let Some(actor) = combatant(world, object_id) else {
+        return;
+    };
+    let (dx, dy, dz) = (
+        (target.x - actor.x) as f64,
+        (target.y - actor.y) as f64,
+        (target.z - actor.z) as f64,
+    );
+    let distance_3d = (dx * dx + dy * dy + dz * dz).sqrt();
+    if distance_3d <= follow_range as f64 {
+        return; // already inside the follow range: the task does nothing
+    }
+    if distance_3d > FOLLOW_ABANDON_DISTANCE {
+        world.objects.remove_component::<Intent>(&object_id);
+        stop_follow(world, object_id);
+        return;
+    }
+    chase_pawn(world, object_id, target_object_id, target, follow_range);
 }
 
 /// [`maybe_move_to_pawn`] with the pawn resolved from the store — the shape
@@ -971,35 +1006,54 @@ fn maybe_move_to_pawn_oid(
     maybe_move_to_pawn(world, object_id, target_object_id, &target, offset_value)
 }
 
-/// `AbstractAI.moveToPawn(pawn, offset)` + the `CreatureFollowAttackTask` that
-/// repeats it: walk to `range` + collision radii of the pawn, re-pathed every
-/// 5 ticks (Java's 500 ms attack-follow cadence). Only ever called through
-/// [`maybe_move_to_pawn`], which owns the range gate and the follow latch.
+/// `AbstractAI.moveToPawn(pawn, offsetValue)` — walk to `offset_value` of the
+/// pawn's **centre** (collision radii belong to the range *test*, not to the
+/// destination) and broadcast `MoveToPawn` carrying that same raw offset.
 ///
-/// TODO(G33): Java's walk destination is `offset − 5` from the pawn's *centre*
-/// — `moveToPawn` hands `moveToLocation` the raw offset, and the collision
-/// radii belong to the range *test* only. This aims at `offset + radii − 5`
-/// instead, and sends that same inflated value as `MoveToPawn`'s distance
-/// field (Java sends the raw offset). Harmless while the gate stops the chase
-/// first, but it is a real divergence.
+/// The NPC chase (`AttackableAI.thinkAttack`) reaches `moveToLocation` through
+/// its own call and deliberately *does* pass a radii-inclusive range, so the
+/// radii question lives at the call sites, not here.
 fn chase_pawn(
     world: &mut World,
     object_id: i32,
     target_object_id: i32,
     target: &Combatant,
-    range: i32,
+    offset_value: i32,
 ) {
-    if !world.tick.is_multiple_of(5) {
-        // Keep walking on the current path between re-paths.
-        if world.objects.has_component::<Movement>(&object_id) {
+    // `if (offset < 10) offset = 10;` — `moveToPawn`'s own floor, one notch
+    // above `maybeMoveToPawn`'s 5.
+    let offset = offset_value.max(MOVE_TO_PAWN_MIN_OFFSET);
+
+    // "prevent possible extra calls to this function, also don't send
+    // movetopawn packets too often": while already walking toward this same
+    // pawn, a re-path at an unchanged offset waits out the 1 s timeout, and a
+    // *changed* offset still waits 2 s if the current path came from geodata.
+    if world.objects.has_component::<Movement>(&object_id)
+        && let Some(state) = world
+            .objects
+            .get_component::<MoveToPawnState>(&object_id)
+            .copied()
+        && state.target_object_id == target_object_id
+    {
+        let on_geodata_path = world
+            .objects
+            .get_component::<Movement>(&object_id)
+            .is_some_and(|Movement(m)| m.geo_path.is_some());
+        if state.offset == offset {
+            if world.tick < state.timeout_tick {
+                return;
+            }
+        } else if on_geodata_path && world.tick < state.timeout_tick + GEODATA_REPATH_EXTRA_TICKS {
             return;
         }
     }
+
     let Some(attacker) = combatant(world, object_id) else {
         return;
     };
-    let reach = range as f64 + attacker.collision_radius + target.collision_radius;
-    let Some((dest_x, dest_y, dest_z, heading)) = pawn_destination(&attacker, target, reach) else {
+    let Some((dest_x, dest_y, dest_z, heading)) =
+        pawn_destination(&attacker, target, offset as f64)
+    else {
         return;
     };
 
@@ -1043,10 +1097,21 @@ fn chase_pawn(
             geo_path: None,
         }),
     );
+    // `_moveToPawnTimeout = gameTicks + 1000 / MILLIS_IN_TICK` — Java's game
+    // tick is 100 ms, the same as ours, so the 1 s window is 10 ticks either
+    // way.
+    world.objects.add_components(
+        &object_id,
+        MoveToPawnState {
+            target_object_id,
+            offset,
+            timeout_tick: world.tick + MOVE_TO_PAWN_TIMEOUT_TICKS,
+        },
+    );
     let pkt = server_packets::move_to_pawn(
         object_id,
         target_object_id,
-        reach as i32,
+        offset,
         start.0,
         start.1,
         start.2,
@@ -1057,25 +1122,35 @@ fn chase_pawn(
     broadcast_including_self(world, object_id, &pkt);
 }
 
-/// The point at `reach` distance from the target on the mover→target line
-/// (`Creature.moveToLocation`'s `offset` handling), plus the facing heading.
-/// `None` when already inside reach.
+/// `Creature.moveToLocation`'s offset handling: the point `offset_value − 5`
+/// from the target on the mover→target line, plus the facing heading. `None`
+/// when the walk is already over — Java notifies `EVT_ARRIVED` and returns
+/// without moving whenever `distance − offset <= 0`.
+///
+/// `offset_value` is a distance from the target's **centre**; whether collision
+/// radii were folded into it is the caller's business (`maybeMoveToPawn` keeps
+/// them out, `AttackableAI.thinkAttack` puts them in).
 pub(crate) fn pawn_destination(
     mover: &Combatant,
     target: &Combatant,
-    reach: f64,
+    offset_value: f64,
 ) -> Option<(i32, i32, i32, i32)> {
     let dx = (target.x - mover.x) as f64;
     let dy = (target.y - mover.y) as f64;
+    let dz = (target.z - mover.z) as f64;
     let distance = (dx * dx + dy * dy).sqrt();
-    if distance <= reach {
+    // "approximation for moving closer when z coordinates are different" — a
+    // target up a slope is walked to more tightly, since part of the offset is
+    // spent on the height difference the 2D geometry can't see.
+    let offset = (offset_value - dz.abs()).max(5.0);
+    if distance < 1.0 || distance - offset <= 0.0 {
         return None;
     }
-    // Land 5 units inside reach (Java `moveToLocation`: "due to rounding
-    // error, we have to move a bit closer to be in range") — aiming at the
-    // exact boundary can round to a point just outside it, wedging the
-    // chase in an arrive/re-path loop that never satisfies the range gate.
-    let frac = (distance - (reach - 5.0).max(0.0)) / distance;
+    // Land 5 units inside the offset (Java: "due to rounding error, we have to
+    // move a bit closer to be in range") — aiming at the exact boundary can
+    // round to a point just outside it, wedging the chase in an arrive/re-path
+    // loop that never satisfies the range gate.
+    let frac = (distance - (offset - 5.0)) / distance;
     let dest_x = mover.x + (dx * frac).round() as i32;
     let dest_y = mover.y + (dy * frac).round() as i32;
     let heading = movement::calculate_heading(dx, dy);
@@ -1232,7 +1307,7 @@ fn player_interact_think(world: &mut World, object_id: i32) {
     // Re-entry after walking into interaction range: only the chat/interact
     // branch reaches here (attackable targets chase via the attack loop, not
     // this walk-to-interact path), so the dontMove flag is moot.
-    super::target::interact_with_npc(world, client_id, object_id, target_object_id, false);
+    super::target::interact_with_npc(world, client_id, object_id, target_object_id);
 }
 
 /// `maybeMoveToPawn`'s offset for the pick-up/interact think loops — Java

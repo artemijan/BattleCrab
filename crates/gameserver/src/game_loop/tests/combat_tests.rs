@@ -539,13 +539,13 @@ fn ctrl_click_opcode_0x01_switches_target_and_attacks() {
     );
 }
 
-/// Shift-click is `dontMove`: an out-of-reach shift-attack refuses to chase and
-/// fails with "your target is out of range" (SM 22) + `ActionFailed`, leaving no
-/// attack intent and no movement. A plain (non-shift) attack on the same mob
-/// chases instead — the contrast the shift flag controls. (Java discards the
-/// byte; this is a deliberate enhancement.)
+/// **There is no `dontMove` for melee.** `AttackRequest` reads its trailing
+/// byte ("0 for simple click 1 for shift-click") into `_attackId`, a field Java
+/// marks `@SuppressWarnings("unused")` and never reads again — so a shift-click
+/// walks the target down exactly like a plain click does. The port used to
+/// refuse with SM 22 instead, which is a behaviour retail does not have.
 #[test]
-fn shift_attack_out_of_reach_fails_instead_of_chasing() {
+fn shift_attack_request_chases_because_java_discards_the_flag() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 33;
@@ -563,7 +563,7 @@ fn shift_attack_out_of_reach_fails_instead_of_chasing() {
     );
     world.objects.add_components(&npc_oid, cs);
 
-    // Shift-attack the far mob: selects it, but refuses to move.
+    // Shift-attack the far mob: selects it AND engages, same as a plain click.
     on_packet(
         &mut world,
         1,
@@ -572,32 +572,31 @@ fn shift_attack_out_of_reach_fails_instead_of_chasing() {
     assert_eq!(
         world.objects.get_component::<TargetRef>(&3001).unwrap().0,
         Some(npc_oid),
-        "shift-attack still selects the target"
+        "shift-attack selects the target"
     );
     assert!(
-        !world.objects.has_component::<Intent>(&3001),
-        "no attack intent — dontMove"
-    );
-    assert!(
-        !world.objects.has_component::<Movement>(&3001),
-        "no chase — dontMove"
+        matches!(
+            world.objects.get_component::<Intent>(&3001),
+            Some(Intent(crate::model::PlayerIntent::Attack { .. }))
+        ),
+        "and engages it — the shift byte changes nothing"
     );
     let packets = drain(&mut a_rx);
     assert!(
         packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-                && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
-        "out-of-range system message"
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        "the chase starts"
     );
     assert!(
-        packets
+        !packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
-        "ActionFailed"
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
+                && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
+        "and no out-of-range refusal — Java has no melee dontMove to refuse with"
     );
 
-    // Contrast: a plain (non-shift) attack on the same mob DOES chase.
+    // A plain (non-shift) attack behaves identically.
     on_packet(
         &mut world,
         1,
@@ -608,7 +607,7 @@ fn shift_attack_out_of_reach_fails_instead_of_chasing() {
             world.objects.get_component::<Intent>(&3001),
             Some(Intent(crate::model::PlayerIntent::Attack { .. }))
         ),
-        "a non-shift attack engages (and will chase)"
+        "a non-shift attack engages too"
     );
 }
 
@@ -2070,7 +2069,7 @@ fn siege_artifact_capture_seizes_the_castle_for_the_attacker() {
         .clan_id = 700;
 
     // Touch the artifact → the attacker seizes the castle.
-    interact_with_npc(&mut world, 1, 8003, NPC_OID + 20, false);
+    interact_with_npc(&mut world, 1, 8003, NPC_OID + 20);
     assert_eq!(world.clans[&700].castle_id, 3, "attacker seized the castle");
     assert_eq!(
         world.sieges[&3]
@@ -2427,7 +2426,7 @@ fn siege_guard_attackable_by_attacker_not_defender() {
 
     // Clicking the already-targeted guard attacks it (not a menu).
     set_target(&mut world, 1, 3001, Some(guard));
-    interact_with_npc(&mut world, 1, 3001, guard, false);
+    interact_with_npc(&mut world, 1, 3001, guard);
     assert!(
         matches!(
             world.objects.get_component::<Intent>(&3001),

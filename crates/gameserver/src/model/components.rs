@@ -517,6 +517,20 @@ pub struct Following {
     pub offset: i32,
 }
 
+/// `AbstractAI._target` / `_clientMovingToPawnOffset` / `_moveToPawnTimeout` —
+/// the throttle `moveToPawn` keeps so it neither re-paths nor re-broadcasts
+/// `MoveToPawn` more than once a second toward the same pawn at the same
+/// offset ("prevent possible extra calls to this function, also don't send
+/// movetopawn packets too often"). `_clientMoving` is the `Movement` component
+/// itself, so it is not duplicated here.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct MoveToPawnState {
+    pub target_object_id: i32,
+    pub offset: i32,
+    /// Tick at which a re-path at the *same* offset is allowed again.
+    pub timeout_tick: u64,
+}
+
 /// Java `Player._currentSkillWorldPosition` — the ground point stored by
 /// `RequestExMagicSkillUseGround` (ex 0x41) that a `targetType GROUND` cast
 /// aims at. **Never cleared, only overwritten** by the next ground cast

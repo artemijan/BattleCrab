@@ -937,9 +937,32 @@ pub(crate) fn use_magic_on(
         }
     }
 
+    // Shift-click is Java's `dontMove`, and the target handlers test it with a
+    // *different* metric from the walk gate below: `if (dontMove &&
+    // (creature.calculateDistance2D(target) > skill.getCastRange()))` — raw
+    // centre-to-centre 2D, **no collision radii**. So the refusal is strictly
+    // tighter than the range that would have been walked into, and a shift-cast
+    // that survives it never wants to move.
+    if shift
+        && skill.cast_range > 0
+        && target_oid != object_id
+        && let Some((tx, ty, _, _)) = target_state(world, target_oid)
+    {
+        let (dx, dy) = ((tx - caster_pos.x) as f64, (ty - caster_pos.y) as f64);
+        if dx * dx + dy * dy > (skill.cast_range as f64).powi(2) {
+            send_sm_and_action_failed(
+                world,
+                client_id,
+                sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED,
+                &[],
+            );
+            return;
+        }
+    }
+
     // Cast-range gate (`SkillCaster.castSkill` returning null → the AI walks
-    // into range via `thinkCast`/`maybeMoveToPawn`). Shift-click is Java's
-    // `dontMove`: the target handlers reject with SM 748 instead of moving.
+    // into range via `thinkCast`/`maybeMoveToPawn`). This one *does* carry the
+    // collision radii — `Util.checkIfInRange` adds both.
     let out_of_range = skill.cast_range > 0
         && target_oid != object_id
         && !in_cast_range(
@@ -950,15 +973,6 @@ pub(crate) fn use_magic_on(
             skill.cast_range,
             false,
         );
-    if out_of_range && shift {
-        send_sm_and_action_failed(
-            world,
-            client_id,
-            sm_ids::DISTANCE_TOO_FAR_CASTING_CANCELLED,
-            &[],
-        );
-        return;
-    }
 
     // Past every reject: this click is now the player's order — a walk-to-cast
     // still in flight is superseded (Java: each accepted `useMagic` sets a

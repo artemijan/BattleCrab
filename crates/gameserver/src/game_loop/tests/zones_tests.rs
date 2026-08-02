@@ -20,7 +20,7 @@ fn melee_player_in_peace_zone_is_refused() {
         .unwrap()
         .mask = crate::data::zone_data::ZoneKind::Peace.bit();
     // Select first, then the attack-click.
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
 
     assert!(
         !world.objects.has_component::<Intent>(&5001),
@@ -46,7 +46,7 @@ fn melee_player_outside_peace_zone_starts_attack() {
     let _a = ingame_player(&mut world, 1, 5001, 0, 0, 0);
     let _b = ingame_player(&mut world, 2, 5002, 30, 0, 0);
 
-    super::combat::start_attack_intent(&mut world, 1, 5001, 5002, false);
+    super::combat::start_attack_intent(&mut world, 1, 5001, 5002);
 
     assert!(
         matches!(
