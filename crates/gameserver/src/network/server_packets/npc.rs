@@ -413,6 +413,9 @@ pub fn summon_info(
     owner_name: &str,
     relation: i32,
     summoned: bool,
+    // `Summon.isBetrayed()` — Betray (1380) sets status bit `0x01`, which is
+    // what makes a servitor auto-attackable by its own owner.
+    betrayed: bool,
 ) -> Vec<u8> {
     use NpcInfoType as T;
 
@@ -469,8 +472,12 @@ pub fn summon_info(
         add(&mut mask_bytes, T::Enchant);
     }
     add(&mut mask_bytes, T::PetEvolutionId);
-    // 0x01 in combat, 0x02 dead, 0x04 targetable, 0x08 always.
+    // 0x01 auto-attackable (Java `isBetrayed()`), 0x02 dead, 0x04 targetable,
+    // 0x08 always.
     let mut status_mask = 0x08u8;
+    if betrayed {
+        status_mask |= 0x01;
+    }
     if vitals.dead {
         status_mask |= 0x02;
     }

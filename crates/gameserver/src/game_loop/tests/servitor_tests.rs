@@ -5010,3 +5010,129 @@ fn fullfood_fills_a_pet_and_refuses_a_servitor() {
         "a servitor never grows a food bar from //fullfood"
     );
 }
+
+// ---------------------------------------------------------------------------
+// G34 S4 sub-slice 15 — Betray
+// ---------------------------------------------------------------------------
+
+fn action_use_body(action_id: i32) -> Vec<u8> {
+    let mut w = commons::network::PacketWriter::new();
+    w.write_i32(action_id);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_i32(0);
+    w.write_u8(0);
+    w.into_bytes()
+}
+
+/// **Betray (1380)** turns somebody's servitor against them. Three things have
+/// to happen and a port that only did the first would look plausible: the AI
+/// points at the **owner**, the servitor stops taking orders ("your servitor is
+/// unresponsive"), and `SummonInfo`'s status bit `0x01` marks it
+/// auto-attackable so the owner can kill their own pet.
+#[test]
+fn betray_turns_a_servitor_against_its_owner_and_it_stops_obeying() {
+    let (mut world, _db, _l) = servitor_world();
+    let mut out = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+    add_test_npc(&mut world, FOE, 20001, "Monster", 20, 80, 0, 0);
+
+    // Before: the servitor obeys an attack order.
+    assert!(
+        crate::game_loop::servitor::servitor_attack(&mut world, OWNER, FOE),
+        "an unbetrayed servitor takes orders"
+    );
+
+    let caster = OWNER + 1;
+    let _c = ingame_player(&mut world, CID + 1, caster, 30, 0, 0);
+    let betray = crate::model::skill::Skill {
+        id: 9420,
+        level: 1,
+        target_type: crate::model::skill::TargetType::EnemyOnly,
+        abnormal_time: 1200,
+        abnormal_type: "BETRAY".into(),
+        effects: vec![SkillEffect::Betray],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(betray.clone());
+    drain(&mut out);
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, caster, servitor, &betray);
+
+    // 1. The flag is up.
+    assert_ne!(
+        crate::game_loop::abnormal::flags_of(&world, servitor)
+            & crate::model::skill::effect_flag::BETRAYED,
+        0,
+        "the BETRAYED flag lands"
+    );
+    // 2. It is attacking its owner.
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::npc::NpcAi>(&servitor)
+            .map(|ai| ai.intention),
+        Some(crate::model::npc::NpcIntention::Attack),
+        "and it has turned on someone"
+    );
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::npc::AggroList>(&servitor)
+            .and_then(|a| a.0.get(&OWNER).map(|i| i.hate))
+            .unwrap_or(0.0)
+            > 0.0,
+        "specifically its own owner"
+    );
+    // 3. It no longer obeys.
+    drain(&mut out);
+    crate::game_loop::servitor::handle_request_action_use(
+        &mut world,
+        CID,
+        &action_use_body(crate::game_loop::servitor::action::SERVITOR_STOP),
+    );
+    let pkts = drain(&mut out);
+    assert!(
+        has_system_message(
+            &pkts,
+            server_packets::sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS
+        ),
+        "a betrayed servitor refuses its owner's commands"
+    );
+}
+
+/// **`ImmobilePetBuff`** (Servitor Empowerment 1299) roots the servitor for the
+/// duration — the trade for whatever else the buff grants. The root is the
+/// `IMMOBILIZED` flag, the same one `BlockMove` uses, and it has to come *back
+/// off* when the buff ends or the servitor is stuck for good.
+#[test]
+fn servitor_empowerment_roots_the_servitor_until_it_expires() {
+    let (mut world, _db, _l) = servitor_world();
+    let _rx = ingame_caster(&mut world, CID, OWNER, 0, 0);
+    let servitor = summon_servitor(&mut world, OWNER, PANTHER, 283, 1200, 0, 0).unwrap();
+
+    let immobile = |world: &World| {
+        crate::game_loop::abnormal::flags_of(world, servitor)
+            & crate::model::skill::effect_flag::IMMOBILIZED
+            != 0
+    };
+    assert!(!immobile(&world), "free to move before the buff");
+
+    let empower = crate::model::skill::Skill {
+        id: 9422,
+        level: 1,
+        target_type: crate::model::skill::TargetType::Summon,
+        abnormal_time: 1200,
+        abnormal_type: "EMPOWER".into(),
+        effects: vec![SkillEffect::ImmobilePetBuff],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(empower.clone());
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, OWNER, servitor, &empower);
+    assert!(immobile(&world), "the buff roots it");
+
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, servitor, 9422);
+    assert!(
+        !immobile(&world),
+        "and expiry frees it — otherwise the servitor is stuck for good"
+    );
+}
