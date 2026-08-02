@@ -890,6 +890,48 @@ green. Giving the caster a **pet** makes the guard observable (under the
 fallback the pair rebalance against each other; under Java's guard neither
 moves), and the sabotage then reads 250 → 625.
 
+#### Sub-slice 12 ✅ — the PvP/PvE balance family
+
+**Fifteen effect names in one slice**, and the right way round: the consumer
+first, the registry lines after. All fifteen feed one function —
+`Formulas.calculatePvpPveBonus` — which is a term in *every* damage formula and
+which this port hard-coded to 1.0 in three separate places, each behind a
+comment stating that the pvp/pve mods were 1.0. That was true only while
+nothing granted the stats. The dist has **~1300 effects that do**.
+
+- **The shape** is a difference of multipliers, not a product. Each side merges
+  as a `mul` (`amount 5` → ×1.05) and the result is
+  `max(0.05, 1 + (attackMul − defenceMul))`, so +50 % attack against +50 %
+  defence cancels to exactly 1.0 where a product would read 2.25.
+- **The branch** is picked by pairing *and* delivery: playable-vs-playable
+  takes the `PVP_*` triple, anything involving an `Attackable` takes `PVE_*`,
+  and within each an auto-attack (Java's `skill == null`), a magic skill and a
+  physical skill read three different stat pairs.
+- **The PvE level penalty** came with it: `SkillDmgPenaltyForLvLDifferences`,
+  which this dist tunes to an eight-entry table bottoming out at **×0.25** and
+  which the port never parsed. It bites only on a non-raid NPC at or above
+  `MinNPCLevelForDmgPenalty` (78) that is 2+ levels above the attacker.
+
+Wired into all five Java call sites: `calcBlowDamage`, `calcMagicDam`,
+`calcManaDam`, `calcAutoAttackDamage` and the physical-skill handlers.
+
+Census: effect names **170 → 155**, learnable-affected **24 → 22**, headline
+**26 → 24** — and *reachable* **1684 → 1355**, the largest single drop of the
+epic. All four new tests sabotage-verified, including an end-to-end one, since
+a helper that computes the right number and is never multiplied in is precisely
+the failure this epic keeps turning up.
+
+Three findings recorded rather than smoothed over:
+- `DmgPenaltyForLvLDifferences` and `CritDmgPenaltyForLvLDifferences` are
+  parsed by Java's `Config` and read by **nothing**. Dead config on both sides;
+  deliberately not modelled.
+- Java binds `targetPlayer = attacker.getActingPlayer()` — the attacker again.
+  It is used only to index class-balance config arrays, and
+  `Custom/ClassBalance.ini` ships every multiplier blank on this dist, so the
+  slip is unobservable. Ported as written.
+- The raid `*_DEFENCE` terms are likewise read off the **attacker**. Same
+  treatment.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
@@ -898,7 +940,8 @@ moves), and the sabotage then reads 250 → 625.
   `ImmobilePetBuff`, `NightStatModify`, `OpenChest`, `OpenDoor`,
   `PhysicalAttackHpLink`, `PolearmSingleTarget`, `RebalanceHP`,
   `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
-  `Pvp*DamageBonus` trio (needs `calculatePvpPveBonus` built from scratch).
+  `Pvp*DamageBonus` trio came off at sub-slice 12, together with the whole
+  fifteen-name PvP/PvE balance family.
   `OpenChest`/`OpenDoor` came off at sub-slice 10; `ChameleonRest`,
   `ManaHealOverTime` and `RebalanceHP` at sub-slice 11.
   `SafeFallHeight` stays unported until the server has fall damage at all.

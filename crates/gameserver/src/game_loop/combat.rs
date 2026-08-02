@@ -1400,6 +1400,10 @@ pub(crate) fn do_auto_attack(world: &mut World, attacker_oid: i32, target_oid: i
                 crit_damage_auto(world, attacker_oid, target_oid, position),
                 ss,
             ) * super::skills::effects::calc_attack_trait_bonus(world, attacker_oid, target_oid)
+                // `calcAutoAttackDamage`'s own `pvpPveMod`, passed a **null
+                // skill** — so an auto-attack reads the PHYSICAL_ATTACK pair,
+                // never either skill pair.
+                * super::skills::effects::pvp_pve_bonus(world, attacker_oid, target_oid, None)
         };
         (crit, dmg as i32, ss, shield)
     };

@@ -369,7 +369,8 @@ pub(crate) fn apply_skill_effects(
                     * skill_trait_mod(world, caster_oid, target_oid, skill, false)
                     // `calcMagicDam`'s own tail:
                     // `damage *= getValue(Stat.MAGICAL_SKILL_POWER, 1)`.
-                    * skill_power_mul(world, caster_oid, true);
+                    * skill_power_mul(world, caster_oid, true)
+                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
                 apply_skill_damage(world, caster_oid, target_oid, damage, mcrit, true, &caster_name, skill.over_hit, false, skill.id);
             }
             // The MP-restore family (`ManaHeal`, `ManaHealByLevel`,
@@ -542,7 +543,7 @@ pub(crate) fn apply_skill_effects(
                         failure,
                         drain_crit,
                         *critical_limit,
-                    )
+                    ) * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
                 };
 
                 // `mp = Math.min(effected.getCurrentMp(), damage)` — you cannot
@@ -626,6 +627,7 @@ pub(crate) fn apply_skill_effects(
                         ) * attribute_mod(world, caster_oid, target_oid, skill)
                             * skill_trait_mod(world, caster_oid, target_oid, skill, true)
                             * skill_power_mul(world, caster_oid, false)
+                            * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
                     }
                 };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
@@ -714,6 +716,7 @@ pub(crate) fn apply_skill_effects(
                         // `calcBlowDamage`'s `attributeMod` + trait terms.
                         d *= attribute_mod(world, caster_oid, target_oid, skill);
                         d *= skill_trait_mod(world, caster_oid, target_oid, skill, true);
+                        d *= pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
                         d
                     }
                 };
@@ -849,7 +852,8 @@ pub(crate) fn apply_skill_effects(
                     // `MAGICAL_SKILL_POWER` lives *inside* Java's `calcMagicDam`,
                     // so every caller gets it — HpDrain included, even though
                     // its own handler never mentions the stat.
-                    * skill_power_mul(world, caster_oid, true);
+                    * skill_power_mul(world, caster_oid, true)
+                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
 
                 // `HpDrain.instant()`: the drained HP is what's actually removed
                 // — CP absorbs first (player targets only; NPCs have no CP),
@@ -1095,7 +1099,8 @@ pub(crate) fn apply_skill_effects(
                     failure,
                 ) * attribute_mod(world, caster_oid, target_oid, skill)
                     * skill_trait_mod(world, caster_oid, target_oid, skill, false)
-                    * skill_power_mul(world, caster_oid, true);
+                    * skill_power_mul(world, caster_oid, true)
+                    * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill));
                 apply_skill_damage(
                     world, caster_oid, target_oid, damage, mcrit, true, &caster_name,
                     skill.over_hit, false, skill.id,
@@ -1418,6 +1423,7 @@ pub(crate) fn apply_skill_effects(
                             // `EnergyAttack.instant`'s `attributeMod` + trait terms.
                             * attribute_mod(world, caster_oid, target_oid, skill)
                             * skill_trait_mod(world, caster_oid, target_oid, skill, true)
+                            * pvp_pve_bonus(world, caster_oid, target_oid, Some(skill))
                     }
                 };
                 apply_skill_damage(world, caster_oid, target_oid, damage, crit, false, &caster_name, skill.over_hit, false, skill.id);
@@ -5604,6 +5610,132 @@ pub(crate) fn calc_weakness_bonus(
 
 /// `Formulas.calcAttackTraitBonus` — the auto-attack's whole trait term: the
 /// weapon bonus times every group-2 weakness, floored at 0.05.
+/// Test hook for [`pvp_pve_bonus`], which is private to this module.
+#[cfg(test)]
+pub(crate) fn pvp_pve_bonus_for_test(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    skill: Option<&Skill>,
+) -> f64 {
+    pvp_pve_bonus(world, attacker_oid, target_oid, skill)
+}
+
+/// `Formulas.calculatePvpPveBonus`, resolved against world state.
+///
+/// `skill = None` is Java's auto-attack branch (its `skill == null`), which
+/// reads the `*_PHYSICAL_ATTACK_*` pair rather than either skill pair.
+///
+/// Returns 1.0 for any pairing that is neither playable-vs-playable nor
+/// involves an `Attackable` — two non-attackable NPCs, or a door.
+pub(crate) fn pvp_pve_bonus(
+    world: &World,
+    attacker_oid: i32,
+    target_oid: i32,
+    skill: Option<&Skill>,
+) -> f64 {
+    use crate::model::stats::Stat;
+
+    let mul = |oid: i32, stat: Stat| -> f64 {
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&oid)
+            .map(|m| crate::model::finalize(m, stat, 1.0))
+            .unwrap_or(1.0)
+    };
+
+    // `isPlayable()` — a player or their summon (Java's `Playable` subtree).
+    let is_playable = |oid: i32| {
+        world.objects.has_component::<crate::model::Player>(&oid)
+            || world
+                .objects
+                .has_component::<crate::model::components::PetOf>(&oid)
+            || world
+                .objects
+                .has_component::<crate::model::components::ServitorOf>(&oid)
+    };
+    let template = |oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::npc::Npc>(&oid)
+            .and_then(|n| world.data.npc_data.get(n.npc_id))
+    };
+    let is_attackable = |oid: i32| template(oid).is_some_and(|t| t.is_attackable_class());
+
+    // PvP: both sides playable.
+    if is_playable(attacker_oid) && is_playable(target_oid) {
+        let (atk_stat, def_stat) = match skill {
+            None => (
+                Stat::PvpPhysicalAttackDamage,
+                Stat::PvpPhysicalAttackDefence,
+            ),
+            // `Skill.isMagic()` — `magicType == 1`.
+            Some(s) if s.magic_type == 1 => {
+                (Stat::PvpMagicalSkillDamage, Stat::PvpMagicalSkillDefence)
+            }
+            Some(_) => (Stat::PvpPhysicalSkillDamage, Stat::PvpPhysicalSkillDefence),
+        };
+        // Java folds in the class-balance config multipliers and a dragon
+        // weapon's `DRAGON_WEAPON_DEFENCE` here; the former are blank on this
+        // dist (every class 1.0) and dragon weapons post-date Interlude.
+        return formulas::calculate_pvp_pve_bonus(
+            mul(attacker_oid, atk_stat),
+            mul(target_oid, def_stat),
+            1.0,
+            1.0,
+            1.0,
+        )
+        .max(0.05);
+    }
+
+    // PvE: either side is an `Attackable`.
+    if is_attackable(target_oid) || is_attackable(attacker_oid) {
+        let (atk_stat, def_stat, raid_def_stat) = match skill {
+            None => (
+                Stat::PvePhysicalAttackDamage,
+                Stat::PvePhysicalAttackDefence,
+                Stat::PveRaidPhysicalAttackDefence,
+            ),
+            Some(s) if s.magic_type == 1 => (
+                Stat::PveMagicalSkillDamage,
+                Stat::PveMagicalSkillDefence,
+                Stat::PveRaidMagicalSkillDefence,
+            ),
+            Some(_) => (
+                Stat::PvePhysicalSkillDamage,
+                Stat::PvePhysicalSkillDefence,
+                Stat::PveRaidPhysicalSkillDefence,
+            ),
+        };
+        // Java reads the raid pair off the **attacker** for both halves; there
+        // is no `PVE_RAID_*_DAMAGE` source on this dist, so only the defence
+        // half can ever move, and only while the attacker is a raid.
+        let attacker_is_raid = template(attacker_oid).is_some_and(|t| t.is_raid());
+        let raid_defence = if attacker_is_raid {
+            mul(attacker_oid, raid_def_stat)
+        } else {
+            1.0
+        };
+        let penalty = formulas::npc_level_damage_penalty(
+            &world.cfg.npc.skill_dmg_penalty_for_lvl_differences,
+            creature_level(world, target_oid),
+            creature_level(world, attacker_oid),
+            template(target_oid).is_some_and(|t| t.is_raid()),
+            world.cfg.npc.min_npc_level_for_dmg_penalty,
+        );
+        return formulas::calculate_pvp_pve_bonus(
+            mul(attacker_oid, atk_stat),
+            mul(target_oid, def_stat),
+            1.0,
+            raid_defence,
+            penalty,
+        )
+        .max(0.05);
+    }
+
+    1.0
+}
+
 pub(crate) fn calc_attack_trait_bonus(world: &World, attacker_oid: i32, target_oid: i32) -> f64 {
     let weapon = calc_weapon_trait_bonus(world, attacker_oid, target_oid);
     if weapon == 0.0 {

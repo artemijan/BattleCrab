@@ -129,6 +129,50 @@ const EFFECT_REGISTRY: &[(&str, Stat)] = &[
     // deliberately no consumer, because Java has none either.
     ("CubicMastery", Stat::MaxCubic),
     ("LimitHp", Stat::MaxRecoverableHp),
+    // The PvP/PvE balance family — every one an `AbstractStatPercentEffect`,
+    // all consumed by `formulas::calculate_pvp_pve_bonus`.
+    (
+        "PvpPhysicalAttackDamageBonus",
+        Stat::PvpPhysicalAttackDamage,
+    ),
+    (
+        "PvpPhysicalAttackDefenceBonus",
+        Stat::PvpPhysicalAttackDefence,
+    ),
+    ("PvpPhysicalSkillDamageBonus", Stat::PvpPhysicalSkillDamage),
+    (
+        "PvpPhysicalSkillDefenceBonus",
+        Stat::PvpPhysicalSkillDefence,
+    ),
+    ("PvpMagicalSkillDamageBonus", Stat::PvpMagicalSkillDamage),
+    ("PvpMagicalSkillDefenceBonus", Stat::PvpMagicalSkillDefence),
+    (
+        "PvePhysicalAttackDamageBonus",
+        Stat::PvePhysicalAttackDamage,
+    ),
+    (
+        "PvePhysicalAttackDefenceBonus",
+        Stat::PvePhysicalAttackDefence,
+    ),
+    ("PvePhysicalSkillDamageBonus", Stat::PvePhysicalSkillDamage),
+    (
+        "PvePhysicalSkillDefenceBonus",
+        Stat::PvePhysicalSkillDefence,
+    ),
+    ("PveMagicalSkillDamageBonus", Stat::PveMagicalSkillDamage),
+    ("PveMagicalSkillDefenceBonus", Stat::PveMagicalSkillDefence),
+    (
+        "PveRaidPhysicalAttackDefenceBonus",
+        Stat::PveRaidPhysicalAttackDefence,
+    ),
+    (
+        "PveRaidPhysicalSkillDefenceBonus",
+        Stat::PveRaidPhysicalSkillDefence,
+    ),
+    (
+        "PveRaidMagicalSkillDefenceBonus",
+        Stat::PveRaidMagicalSkillDefence,
+    ),
     ("LimitCp", Stat::MaxRecoverableCp),
     ("AreaDamage", Stat::DamageZoneVuln),
     ("TransferDamageToSummon", Stat::TransferDamageSummonPercent),
@@ -4520,8 +4564,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 170 name(s), 24 learnable
-    /// skill(s) affected, 1684 reachable.
+    /// the work list, worst first. Category totals: 155 name(s), 22 learnable
+    /// skill(s) affected, 1355 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4562,6 +4606,11 @@ mod coverage_census {
     /// without its HP-full stop, plus `SILENT_MOVE`), `ManaHealOverTime` (the
     /// mirror of the MP drain) and `RebalanceHP` (Balance Life, which is a
     /// redistribution rather than a heal).
+    /// → 155 at sub-slice 12: the whole PvP/PvE balance family — fifteen names
+    /// in one go, because they share one consumer
+    /// (`formulas::calculate_pvp_pve_bonus`) that had to be written first. The
+    /// biggest single drop in *reachable* terms this epic has seen: 1684 →
+    /// 1355.
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("ReduceDropPenalty", 2),
@@ -4572,9 +4621,6 @@ mod coverage_census {
         ("NightStatModify", 1),
         ("PhysicalAttackHpLink", 1),
         ("PolearmSingleTarget", 1),
-        ("PvpMagicalSkillDamageBonus", 1),
-        ("PvpPhysicalAttackDamageBonus", 1),
-        ("PvpPhysicalSkillDamageBonus", 1),
         ("SafeFallHeight", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
@@ -4652,7 +4698,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 170, 24, 1684),
+            ("effect", &gaps.effects, EFFECTS, 155, 22, 1355),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4704,7 +4750,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            26,
+            24,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",
