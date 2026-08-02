@@ -1765,15 +1765,25 @@ Note it is gated on `isAttackable()` — a servitor is `Playable`, not
 `clientStopMoving(null)`** — the player path (`skills/cast.rs`) had it, the NPC
 path never did, so nothing dropped the move data or broadcast `StopMove`;
 `npc_ai::stop_npc` is now shared for it. (3) **`thinkAttack`'s opening
-`if (npc.isCastingNow()) return;`** — and this is the one that produced the
-reported symptom on its own, for *any* caster, not just mages. `try_cast`
-correctly refuses a second concurrent cast and returns `false`, but `false`
-means "no cast this think", so the think fell straight through to the range
-tail and re-issued `chase()` every second for the whole duration of the cast.
-The mob ran at the player with its cast bar up. *A guard that reads "already
-busy → return false" is not the same as "already busy → stop thinking"; the
-caller decides which one it got.* 2 new tests (`npc_cast_tests`), each with its
-zero case in the same test so the assertion can't pass for an unrelated reason.
+`if (npc.isCastingNow()) return;`** — which produced the reported symptom on its
+own, for *any* caster and not just mages. `try_cast` correctly refuses a second
+concurrent cast and returns `false`, but `false` means "no cast this think", so
+the think fell straight through to the range tail and re-issued `chase()` every
+second for the whole duration of the cast. The mob ran at the player with its
+cast bar up. *A guard that reads "already busy → return false" is not the same
+as "already busy → stop thinking"; the caller decides which one it got.*
+
+**Guard (3) was found twice, independently and on the same day** — the Porta
+fix above ("Mobs cast half as often as Java") landed it first, having hit the
+*other* tail it lets through: the mob **swings** mid-cast. Same missing line,
+two different symptoms, and neither investigation would have found the other's.
+The branches were reconciled at merge (one guard, one comment naming both
+tails). Guards (1) and (2) are this fix's own, and (1) is what the live report
+was actually about — with (3) alone a mage still nukes mid-sprint, because the
+refusal it needs is in `doCast`, not in the think.
+
+2 new tests (`npc_cast_tests`), each with its zero case in the same test so the
+assertion can't pass for an unrelated reason; both sabotage-verified.
 
 **G19 sweep done 2026-07-31 (27 → 21).** Ranked by *learnable* carriers
 first — the lesson from the earlier effects work — which is what made the
