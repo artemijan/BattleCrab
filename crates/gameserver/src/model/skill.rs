@@ -1279,6 +1279,14 @@ pub mod effect_flag {
     /// nothing reachable trips it — the recurring "declared, unreachable here"
     /// shape.
     pub const BLOCK_RESURRECTION: u32 = 1 << 14;
+    /// `CANNOT_ESCAPE` — Java `Creature.cannotEscape()`, read by the
+    /// `OpCanEscape` skill condition (161 skills, 2 learnable: the two
+    /// `/unstuck` escapes) and by the escape effects themselves. The flag's
+    /// only source is the `BlockEscape` effect (Clan Escape Lock 19113), which
+    /// is **not ported yet** — the gate is live and correct, nothing currently
+    /// raises it.
+    /// TODO(G34): stamp this from `BlockEscape` when S4c lands.
+    pub const CANNOT_ESCAPE: u32 = 1 << 15;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -1695,12 +1703,6 @@ pub struct Skill {
     pub channeling_tick_ms: i32,
     /// Java `channelingStart` in ms — delay before the first tick.
     pub channeling_start_ms: i32,
-    /// The `OpExistNpc` skill condition (`skillconditionhandlers/
-    /// OpExistNpcSkillCondition.java`) — the first entry of a condition
-    /// layer: the cast is allowed only if NPCs from `npc_ids` within `range`
-    /// of the **caster** exist (`is_around`) / don't exist (`!is_around`).
-    /// The symbol skills use it to stop you re-casting next to a live seal.
-    pub op_exist_npc: Option<OpExistNpcCondition>,
     /// Java `<attributeType>`/`<attributeValue>` — the skill's element and its
     /// flat attack contribution (Volcano is FIRE 20). Feeds
     /// `Formulas.calcAttributeBonus`'s attack side; `None` = no element, and
@@ -1710,9 +1712,191 @@ pub struct Skill {
     /// The enchant sub-level this instance was built for (0 = unenchanted;
     /// 1001–3020 = an enchant-route step — PLAN_G19_SKILL_ENCHANT.md).
     pub sub_level: i32,
+    /// Java `Skill._conditionLists` — the parsed `<conditions>` /
+    /// `<targetConditions>` / `<passiveConditions>` blocks
+    /// (`SkillConditionScope.GENERAL` / `TARGET` / `PASSIVE`).
+    ///
+    /// **GENERAL and TARGET are both checked at cast**, in that order, by
+    /// `Skill.checkCondition` — the split exists for the datapack's benefit,
+    /// not the engine's, and Java evaluates them back to back. PASSIVE is read
+    /// by `Player.isSkillActive`-style gating instead: a passive skill whose
+    /// conditions fail contributes no stat modifiers.
+    ///
+    /// A condition name this port doesn't implement is **not** in these lists
+    /// — it is recorded by `SkillGaps` instead and the skill behaves as if it
+    /// weren't declared, which is what the port did for every condition before
+    /// G34 S1. See PLAN_G34_SKILL_PARITY.md §S1.
+    pub conditions: Vec<SkillCondition>,
+    pub target_conditions: Vec<SkillCondition>,
+    pub passive_conditions: Vec<SkillCondition>,
 }
 
-/// See [`Skill::op_exist_npc`].
+/// Java `SkillConditionPercentType` — the comparison a `Remain*Per` condition
+/// makes. `MORE` is `current >= amount`, `LESS` is `current <= amount`; both
+/// are inclusive, which matters for the skills that gate on exactly 100 %.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PercentType {
+    More,
+    Less,
+}
+
+impl PercentType {
+    pub fn test(self, current: i32, amount: i32) -> bool {
+        match self {
+            Self::More => current >= amount,
+            Self::Less => current <= amount,
+        }
+    }
+
+    pub fn from_xml(name: &str) -> Self {
+        match name {
+            "LESS" => Self::Less,
+            _ => Self::More,
+        }
+    }
+}
+
+/// Java `SkillConditionAffectType` — whose state a condition reads. Java's
+/// `BOTH` is declared but **no handler branches on it**: every `switch` in the
+/// condition handlers covers `CASTER` and `TARGET` and falls through to
+/// `return false` otherwise, so a `BOTH` condition refuses the cast outright.
+/// Ported as written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum AffectType {
+    Both,
+    #[default]
+    Caster,
+    Target,
+}
+
+impl AffectType {
+    pub fn from_xml(name: &str) -> Self {
+        match name {
+            "TARGET" => Self::Target,
+            "BOTH" => Self::Both,
+            _ => Self::Caster,
+        }
+    }
+}
+
+/// Which vital a `Remain*Per` condition reads.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Vital {
+    Hp,
+    Mp,
+    Cp,
+}
+
+/// Java `MountType`, as far as the mount conditions need it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MountKind {
+    Strider,
+    Wyvern,
+}
+
+/// One parsed `<condition name="…">` — Java's `ISkillCondition` implementations
+/// (`handlers/skillconditionhandlers/*`), as a closed enum rather than 121
+/// one-method classes.
+///
+/// Only the conditions with a source on this dist are here. The evaluator lives
+/// in `game_loop::skills::conditions`; a variant added here without a match arm
+/// there will not compile, which is the point.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SkillCondition {
+    /// `EquipWeapon` — the *equipped* weapon's type must be in the mask.
+    /// Java tests `weapon.getItemMask() & mask`, so a skill listing several
+    /// types accepts any of them.
+    EquipWeapon { mask: u32 },
+    /// `EquipShield` — the secondary slot holds an `ArmorType.SHIELD`.
+    EquipShield,
+    /// `Op1hWeapon` / `Op2hWeapon` — the equipped weapon is of a listed type
+    /// **and** its body part is (or is not) `SLOT_LR_HAND`. Java returns on the
+    /// first type match rather than continuing, so a weapon of a listed type
+    /// held in the wrong number of hands fails rather than falling through.
+    HandedWeapon { mask: u32, two_handed: bool },
+    /// `OpEncumbered` — *free* inventory slots and weight, each as a
+    /// percentage, must both be at least the declared amount. Java's
+    /// `calcPercent` is `100 - current*100/max`, i.e. the headroom, and it uses
+    /// the **non-quest** inventory size.
+    Encumbered {
+        weight_percent: i32,
+        slots_percent: i32,
+    },
+    /// `RemainHpPer` / `RemainMpPer` / `RemainCpPer`.
+    RemainVital {
+        vital: Vital,
+        amount: i32,
+        percent: PercentType,
+        affect: AffectType,
+    },
+    /// `EnergySaved` — the caster holds at least `amount` force charges.
+    EnergySaved { amount: i32 },
+    /// `OpEnergyMax` — the *inverse*: refuses once the caster is **at** the
+    /// cap, with its own "force has reached maximum capacity" message. This is
+    /// what stops a charge skill from being cast at full charges.
+    EnergyMax { amount: i32 },
+    /// `TargetRace` — `Creature.getRace()`, so it reads the NPC template's race
+    /// for a monster and the character race for a player.
+    TargetRace { race: crate::enums::Race },
+    /// `TargetMyParty` — target is a player in the caster's party. With no
+    /// party, only `includeMe` self-targeting passes; with one, `includeMe`
+    /// decides whether the caster may pick themselves.
+    TargetMyParty { include_me: bool },
+    /// `ConsumeBody` — a *spawned dead* monster or summon corpse.
+    ConsumeBody,
+    /// `OpCanEscape` — `!caster.cannotEscape()` (the `CANNOT_ESCAPE` flag).
+    CanEscape,
+    /// `OpResurrection` — the target is a dead, un-blocked, not-already-asked
+    /// player (or the caster themselves, which always passes).
+    Resurrection,
+    /// `OpUnlock` — the target is a door or a chest.
+    Unlock,
+    /// `OpTargetPc` — the target is a player.
+    TargetPc,
+    /// `OpCallPc` — Summon Friend's caster-side gate.
+    CallPc,
+    /// `CanTransform` — the transform scroll family's gate. Replaces the
+    /// ad-hoc block that used to sit inline in `cast.rs`.
+    CanTransform,
+    /// `CanSummon` — servitor summoning.
+    CanSummon,
+    /// `CanSummonCubic`.
+    CanSummonCubic,
+    /// `CanSummonSiegeGolem`.
+    CanSummonSiegeGolem,
+    /// `CanUseInBattlefield` **and** `OpSiegeHammer` — two Java classes with
+    /// one body: the caster is inside a `SIEGE` zone.
+    InsideSiegeZone,
+    /// `OpSocialClass` — clan leader always passes; otherwise the pledge type
+    /// must be at least `social_class`. `-1` means "leader only".
+    SocialClass { social_class: i32 },
+    /// `BuildCamp` — the outpost/headquarters gate.
+    BuildCamp,
+    /// `OpSkillAcquire` — the *target* has (or hasn't) learned a skill.
+    SkillAcquire { skill_id: i32, has_learned: bool },
+    /// `OpStrider` / `OpWyvern` — the caster is riding that mount.
+    Mounted { kind: MountKind },
+    /// `NotInUnderwater` — the caster is not in a `WATER` zone.
+    NotInUnderwater,
+    /// `CheckLevel` — a level band, on caster or target.
+    CheckLevel {
+        min: i32,
+        max: i32,
+        affect: AffectType,
+    },
+    /// `CheckSex`.
+    CheckSex { is_female: bool },
+    /// `OpExistNpc` — the symbol/totem family's "is one of these already
+    /// nearby" gate. Folded in from the inline block that used to sit in
+    /// `cast.rs` ahead of target resolution; Java runs it here with the rest.
+    ExistNpc(OpExistNpcCondition),
+}
+
+/// `OpExistNpcSkillCondition`'s parsed form — see
+/// [`SkillCondition::ExistNpc`]. The cast is allowed only if NPCs from
+/// `npc_ids` within `range` of the **caster** exist (`is_around`) / don't
+/// exist (`!is_around`); the symbol skills use it to stop a re-cast next to a
+/// live seal.
 #[derive(Debug, Clone, PartialEq)]
 pub struct OpExistNpcCondition {
     pub npc_ids: Vec<i32>,
@@ -1785,7 +1969,9 @@ impl Default for Skill {
             channeling_skill_id: 0,
             channeling_tick_ms: 0,
             channeling_start_ms: 0,
-            op_exist_npc: None,
+            conditions: Vec::new(),
+            target_conditions: Vec::new(),
+            passive_conditions: Vec::new(),
             attribute_type: None,
             attribute_value: 0,
             sub_level: 0,

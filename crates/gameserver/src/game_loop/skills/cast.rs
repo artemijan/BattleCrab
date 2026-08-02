@@ -480,7 +480,7 @@ pub(crate) fn handle_request_magic_skill_use(world: &mut World, client_id: u32, 
 
 /// `World.getVisibleObjectsInRange(caster, Npc.class, range)` filtered to the
 /// condition's id list — the sweep half of `OpExistNpcSkillCondition`.
-fn op_exist_npc_around(
+pub(super) fn op_exist_npc_around(
     world: &World,
     caster_oid: i32,
     cond: &crate::model::skill::OpExistNpcCondition,
@@ -777,26 +777,6 @@ pub(crate) fn use_magic_on(
         }
         return;
     }
-    // `OpExistNpcSkillCondition.canUse`: sweep NPCs within `range` of the
-    // **caster** (not the aimed point); finding a listed id returns
-    // `is_around`, finding none returns `!is_around`. The symbol skills use
-    // `is_around = false` to refuse a re-cast next to a live seal. Refusal is
-    // a bare ActionFailed, like every unmet skill condition in Java.
-    if let Some(cond) = &skill.op_exist_npc {
-        let found = op_exist_npc_around(world, object_id, cond);
-        let can_use = if found {
-            cond.is_around
-        } else {
-            !cond.is_around
-        };
-        if !can_use {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
-            return;
-        }
-    }
-
     // `SkillCaster.checkDoCastConditions`' mute checks: a magic skill is
     // refused while silenced, a non-magic one while physically muted. Static
     // skills (`magic_type == 2`) bypass both, as in Java's `!skill.isStatic()`
@@ -809,96 +789,6 @@ pub(crate) fn use_magic_on(
         };
         if muted {
             if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
-            return;
-        }
-    }
-
-    // `ConditionPlayerCanTransform` — the cast-time gate on a `Transformation`
-    // skill (the "Transform <Monster>" scroll family). Every leg is ported now,
-    // in Java's own order: cursed-weapon-equipped (silent, sharing the
-    // `isAlikeDead` branch), **sitting** (the `SitStand` state landed after this
-    // gate was written, so the leg is live rather than vacuous), already
-    // transformed, in water, mounted (a strider/wyvern rider sets `mount_type`,
-    // not `transform_id` — that leg is separate from the transform one, even
-    // though horse/bike admin rides are transforms here), and **registered on an
-    // event** (the TvT roster, since G28 landed).
-    if skill
-        .effects
-        .iter()
-        .any(|e| matches!(e, SkillEffect::Transform { .. }))
-    {
-        use server_packets::sm_ids;
-        let (transform_id, mounted, cursed_weapon, sitting) = world
-            .objects
-            .get_component::<Player>(&object_id)
-            .map_or((0, false, 0, false), |p| {
-                (
-                    p.transform_id,
-                    p.is_mounted(),
-                    p.cursed_weapon_equipped_id,
-                    p.sitting,
-                )
-            });
-        let in_water = world
-            .objects
-            .get_component::<crate::model::components::Speeds>(&object_id)
-            .is_some_and(|s| s.swimming);
-        // The cursed-weapon leg shares Java's first branch with `isAlikeDead`
-        // and sends **no** packet — the cast just silently fails.
-        if cursed_weapon != 0 {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::action_failed());
-            }
-            return;
-        }
-        if sitting {
-            send_sm_and_action_failed(
-                world,
-                client_id,
-                sm_ids::YOU_CANNOT_TRANSFORM_WHILE_SITTING,
-                &[],
-            );
-            return;
-        }
-        if transform_id != 0 {
-            send_sm_and_action_failed(
-                world,
-                client_id,
-                sm_ids::YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN,
-                &[],
-            );
-            return;
-        }
-        if in_water {
-            send_sm_and_action_failed(
-                world,
-                client_id,
-                sm_ids::YOU_CANNOT_POLYMORPH_INTO_THE_DESIRED_FORM_IN_WATER,
-                &[],
-            );
-            return;
-        }
-        if mounted {
-            send_sm_and_action_failed(
-                world,
-                client_id,
-                sm_ids::YOU_CANNOT_TRANSFORM_WHILE_RIDING_A_PET,
-                &[],
-            );
-            return;
-        }
-        // `isRegisteredOnEvent()` — Java sends a plain text line here, not a
-        // SystemMessage, and this leg sits *after* the mount one.
-        if world.events.tvt.player_list.contains(&object_id) {
-            if let Some(cs) = world.clients.get(&client_id) {
-                cs.send(server_packets::system_message_with(
-                    sm_ids::S1_TEXT,
-                    &[server_packets::SmParam::Text(
-                        "You cannot transform while registered on an event.".into(),
-                    )],
-                ));
                 cs.send(server_packets::action_failed());
             }
             return;
@@ -948,6 +838,16 @@ pub(crate) fn use_magic_on(
             return;
         }
     };
+
+    // `Player.useMagic`: `skill.checkCondition(this, target)` — every
+    // `<conditions>`/`<targetConditions>` entry, evaluated here because the
+    // target-scoped ones need the *resolved* target (G34 S1). The inline
+    // `OpExistNpc` and transform gates that used to sit further up are now two
+    // of these; the ordering change is Java's own.
+    if let Err(refusal) = super::conditions::check_cast(world, object_id, &skill, target_oid) {
+        super::conditions::send_refusal(world, client_id, object_id, &skill, target_oid, &refusal);
+        return;
+    }
 
     // Busy — mid-cast or mid-swing (`useMagic`'s `isAttackingNow() ||
     // isCastingNow()` branch): park the click in the queue slot instead of

@@ -2037,6 +2037,15 @@ pub(crate) fn conditioned_passive_buffs(
         if skill.operate_type != OperateType::Passive {
             continue;
         }
+        // Java `checkConditions(PASSIVE, …)` — a passive whose own
+        // `<passiveConditions>` don't hold contributes nothing (G34 S1).
+        if !crate::game_loop::skills::conditions::passive_stat_gate(
+            skill,
+            inventory,
+            &data.item_data,
+        ) {
+            continue;
+        }
         let applicable: Vec<StatModifierEffect> = skill
             .effects
             .iter()

@@ -1,5 +1,25 @@
 use super::*;
 
+/// Arm a test player with `item_id` in the right hand.
+///
+/// **G34 S1 made this necessary.** Every warrior/dagger skill in the dist
+/// carries an `<condition name="EquipWeapon">`, which Java enforces and this
+/// port ignored until the condition engine landed — so these fixtures used to
+/// cast Sonic Blaster and Lethal Blow bare-handed. Java refuses that, and now
+/// so do we; the fixture has to hold the weapon the skill demands.
+fn arm(world: &mut World, object_id: i32, item_id: i32) {
+    // `world.data` is borrowed immutably while the inventory is borrowed
+    // mutably, so the catalog has to come out of the ECS first.
+    let mut inv = world
+        .objects
+        .get_component::<crate::model::inventory::Inventory>(&object_id)
+        .expect("test player has an inventory")
+        .clone();
+    let oid = inv.add_item(&world.data.item_data, 0x5000_0001, item_id, 1);
+    inv.equip_item(&world.data.item_data, oid);
+    world.objects.add_components(&object_id, inv);
+}
+
 /// G6 cast-pipeline gate: learn a class skill (SP spend + level gate),
 /// cast it, watch the buff land (P.Def +8%) and the right packet sequence
 /// go out, then fast-forward the scheduler past `abnormalTime` and watch
@@ -52,6 +72,9 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         },
     );
     data.skill_data.insert_for_test(Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         icon: String::from("icon.skill0000"),
         trait_type: crate::model::skill::TraitType::None,
@@ -90,7 +113,6 @@ fn learn_and_cast_buff_skill_applies_and_expires() {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -3154,6 +3176,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
     // values: Poison 129 (abnormalType POISON, abnormalLevel 3 @ lvl 1 / 7 @
     // lvl 4, a DamOverTime debuff) and Cure Poison 1012 (DispelBySlot POISON,3).
     let poison = |level: i32, abnormal_level: i32| Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         icon: String::from("icon.skill0000"),
         trait_type: crate::model::skill::TraitType::None,
@@ -3192,7 +3217,6 @@ fn cure_poison_dispels_matching_poison_debuff() {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -3218,6 +3242,9 @@ fn cure_poison_dispels_matching_poison_debuff() {
     world.data.skill_data.insert_for_test(poison(1, 3));
     world.data.skill_data.insert_for_test(poison(4, 7));
     world.data.skill_data.insert_for_test(Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         icon: String::from("icon.skill0000"),
         trait_type: crate::model::skill::TraitType::None,
@@ -3256,7 +3283,6 @@ fn cure_poison_dispels_matching_poison_debuff() {
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -3341,6 +3367,9 @@ mod dispel_by_category {
     /// `can_be_dispelled`/`is_debuff`/`effects` per case.
     fn base_skill(id: i32, name: &str) -> Skill {
         Skill {
+            conditions: Vec::new(),
+            target_conditions: Vec::new(),
+            passive_conditions: Vec::new(),
             without_action: false,
             icon: String::from("icon.skill0000"),
             trait_type: crate::model::skill::TraitType::None,
@@ -3379,7 +3408,6 @@ mod dispel_by_category {
             affect_range: 0,
             affect_limit: (0, 0),
             fan_range: [0; 4],
-            op_exist_npc: None,
             attribute_type: None,
             sub_level: 0,
             attribute_value: 0,
@@ -4014,6 +4042,9 @@ fn synthetic_buff(
     use crate::model::skill::{Skill, SkillEffect, StatModifierEffect};
     use crate::model::stats::{Stat, StatModifierType};
     Skill {
+        conditions: Vec::new(),
+        target_conditions: Vec::new(),
+        passive_conditions: Vec::new(),
         without_action: false,
         icon: String::from("icon.skill0000"),
         trait_type: crate::model::skill::TraitType::None,
@@ -4052,7 +4083,6 @@ fn synthetic_buff(
         affect_range: 0,
         affect_limit: (0, 0),
         fan_range: [0; 4],
-        op_exist_npc: None,
         attribute_type: None,
         sub_level: 0,
         attribute_value: 0,
@@ -4612,6 +4642,17 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
         .unwrap()
         .0
         .insert(618, 1);
+    // A second, independent transform skill: Doom Wraith's own 4 h reuse means
+    // re-clicking *it* is refused by the reuse gate long before any condition
+    // runs (Java checks `isSkillDisabled` at `useMagic`'s top, well ahead of
+    // `checkCondition`), so the already-polymorphed refusal below has to come
+    // from a skill that is not on cooldown.
+    world
+        .objects
+        .get_component_mut::<SkillBook>(&5001)
+        .unwrap()
+        .0
+        .insert(617, 1);
     let base_run = world
         .objects
         .get_component::<Speeds>(&5001)
@@ -4653,9 +4694,13 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
         "lands as one TRANSFORM buff (drives the expiry-based revert)"
     );
 
-    // Re-casting while transformed is refused (Java's polymorph SystemMessage).
+    // Transforming *again* while transformed is refused by the `CanTransform`
+    // skill condition (G34 S1 — it used to be an inline block in `cast.rs`).
+    // Java's `Skill.checkCondition` sends the handler's own message **and** the
+    // generic "cannot be used due to unsuitable terms"; the inline version sent
+    // only the first, which is the behaviour change this assertion pins.
     drain(&mut rx);
-    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(618, false));
+    handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(617, false));
     let refused = drain(&mut rx);
     assert!(
         has_system_message(
@@ -4663,6 +4708,13 @@ fn transformation_skill_polymorphs_and_reverts_on_expiry() {
             server_packets::sm_ids::YOU_ALREADY_POLYMORPHED_AND_CANNOT_POLYMORPH_AGAIN
         ),
         "already-polymorphed refusal sent"
+    );
+    assert!(
+        has_system_message(
+            &refused,
+            server_packets::sm_ids::S1_CANNOT_BE_USED_DUE_TO_UNSUITABLE_TERMS
+        ),
+        "…followed by the generic condition refusal, as Java sends both"
     );
     assert!(
         !world.objects.has_component::<Casting>(&5001),
@@ -5115,7 +5167,11 @@ fn heal_percent_restores_a_share_of_max_hp() {
         .insert(181, 1);
 
     let max_hp = pvit(&world, 5301).max_hp as f64;
-    let low = max_hp * 0.2;
+    // Revival's own `<condition name="RemainHpPer">` is `LESS 10` on the
+    // caster — it is the emergency self-heal, and Java refuses it above 10 %.
+    // The fixture used to sit at 20 % and cast anyway, because no condition
+    // was enforced (G34 S1).
+    let low = max_hp * 0.05;
     world
         .objects
         .get_component_mut::<Vitals>(&5301)
@@ -5283,6 +5339,8 @@ fn focus_momentum_builds_force_and_refuses_past_the_cap() {
         .unwrap()
         .0
         .insert(8, 1);
+    // `EquipWeapon` DUAL/DUALBLUNT/SWORD/BLUNT — Long Sword satisfies it.
+    arm(&mut world, 5501, 2);
 
     handle_request_magic_skill_use(&mut world, 1, &magic_skill_use_body(8, false));
     advance_world(&mut world, 20); // hitTime 900 ms
@@ -5346,6 +5404,9 @@ fn energy_attack_spends_charges_for_bonus_damage() {
         .get_component_mut::<Player>(&5511)
         .unwrap()
         .charges = 5;
+    // `EquipWeapon` DUAL/SWORD/BLUNT/DUALBLUNT (the `EnergySaved` 2 is already
+    // satisfied by the 5 charges above).
+    arm(&mut world, 5511, 2);
 
     let npc_oid = NPC_OID + 2;
     let (npc, extra) = crate::model::npc::Npc::for_test(npc_oid, 20001, 50, 0, 0, 100_000, 30);
@@ -5428,6 +5489,8 @@ fn lethal_half_kill_sets_player_cp_to_1() {
         .unwrap()
         .0
         .insert(344, 1);
+    // `EquipWeapon` DAGGER/DUALDAGGER — Bone Dagger satisfies it.
+    arm(&mut world, 5601, 11);
     world
         .objects
         .get_component_mut::<Vitals>(&5601)
@@ -5488,6 +5551,8 @@ fn lethal_spares_a_raid_boss() {
         .unwrap()
         .0
         .insert(344, 1);
+    // `EquipWeapon` DAGGER/DUALDAGGER — Bone Dagger satisfies it.
+    arm(&mut world, 5611, 11);
     world
         .objects
         .get_component_mut::<Vitals>(&5611)
