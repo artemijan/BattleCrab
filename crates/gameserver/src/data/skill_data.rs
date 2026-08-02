@@ -2193,6 +2193,24 @@ fn build_skill(
                             }]
                         }
                         "PolearmSingleTarget" => vec![SkillEffect::PolearmSingleTarget],
+                        "ReduceDropPenalty" => {
+                            use crate::model::skill::ReduceDropKind;
+                            vec![SkillEffect::ReduceDropPenalty {
+                                // Java `mergeMul(stat, amount/100 + 1)`.
+                                exp_mul: param("exp").unwrap_or(0.0) / 100.0 + 1.0,
+                                kind: match value_at(params, "type", level) {
+                                    Some("PK") => ReduceDropKind::Pk,
+                                    Some("RAID") => ReduceDropKind::Raid,
+                                    _ => ReduceDropKind::Mob,
+                                },
+                            }]
+                        }
+                        "ResurrectionSpecial" => vec![SkillEffect::ResurrectionSpecial {
+                            power: param("power").unwrap_or(0.0) as i32,
+                            hp_percent: param("hpPercent").unwrap_or(0.0) as i32,
+                            mp_percent: param("mpPercent").unwrap_or(0.0) as i32,
+                            cp_percent: param("cpPercent").unwrap_or(0.0) as i32,
+                        }],
                         "Betray" => vec![SkillEffect::Betray],
                         "ImmobilePetBuff" => vec![SkillEffect::ImmobilePetBuff],
                         "CallParty" => vec![SkillEffect::CallParty],
@@ -4605,8 +4623,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 148 name(s), 15 learnable
-    /// skill(s) affected, 1314 reachable.
+    /// the work list, worst first. Category totals: 146 name(s), 11 learnable
+    /// skill(s) affected, 1304 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4663,13 +4681,11 @@ mod coverage_census {
     /// turns on its owner, stops obeying and becomes auto-attackable),
     /// `ImmobilePetBuff` and `CallParty` (Chant of Gate, a recall with no
     /// `ConfirmDlg`).
-    const EFFECTS: &[(&str, usize)] = &[
-        ("StatUp", 9),
-        ("ReduceDropPenalty", 2),
-        ("ResurrectionSpecial", 2),
-        ("NightStatModify", 1),
-        ("SafeFallHeight", 1),
-    ];
+    /// → 146 at sub-slice 16: the death pair — `ReduceDropPenalty` (the
+    /// exp-loss reduction, keyed on what killed you) and `ResurrectionSpecial`
+    /// (the auto-resurrect, which fires from `onExit`).
+    const EFFECTS: &[(&str, usize)] =
+        &[("StatUp", 9), ("NightStatModify", 1), ("SafeFallHeight", 1)];
 
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 5 name(s), 1 learnable
@@ -4743,7 +4759,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 148, 15, 1314),
+            ("effect", &gaps.effects, EFFECTS, 146, 11, 1304),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4795,7 +4811,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            17,
+            13,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

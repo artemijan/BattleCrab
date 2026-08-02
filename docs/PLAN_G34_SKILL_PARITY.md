@@ -1021,6 +1021,37 @@ Two things worth carrying forward:
 Census: effect names **151 → 148**, learnable-affected **18 → 15**, headline
 **20 → 17**. All three tests sabotage-verified.
 
+#### Sub-slice 16 ✅ — the death pair
+
+- **`ReduceDropPenalty`** (Residence Death Fortune 610, Noblesse Fortune 1325)
+  scales the exp you lose on death by **what killed you** — a raid, an ordinary
+  monster or a playable each read a different stat, and Java's `if/else if`
+  order is raid → monster → playable with a `null` killer skipping all three.
+  Threading the killer through `apply_death_exp_penalty_ex` was the work.
+  **Fourth dead stat of the epic:** the handler also merges
+  `REDUCE_DEATH_PENALTY_BY_MOB`/`_PVP`/`_RAID`, which **nothing in Java reads**
+  — so Noblesse Fortune, whose only param is `deathPenalty -100`, does nothing
+  whatever on this dist. Ported as written; the dead twin is not modelled.
+- **`ResurrectionSpecial`** (Salvation 1410, Soul of the Phoenix 438) is the
+  auto-resurrect, and its mechanic sits in the hook nobody would guess: the
+  buff does nothing at all while it is up and fires its revive proposal from
+  **`onExit`** — which is what death does to it. Wiring it to `onStart` would
+  propose a revive to a living player and then do nothing when they died.
+  Its `RESURRECTION_SPECIAL` flag also has a second, separate job in
+  `Playable.doDie`: like Noblesse Blessing, the holder loses **only that
+  effect** and keeps every other buff through death — without which the
+  auto-resurrect would revive you stripped.
+
+Census: effect names **148 → 146**, learnable-affected **15 → 11**, headline
+**17 → 13**. Three tests, all sabotage-verified.
+
+The empty-effects guard bit a **ninth** time here, and the fix was the faithful
+one rather than a guard-list entry: Java stamps `EffectFlag.RESURRECTION_SPECIAL`,
+so stamping it too both keeps the buff alive and lands the `doDie` behaviour.
+The `l2r-empty-fixture-tables-clamp` trap also recurred — `xp_lost` is empty in
+the fixture and the first draft set `exp` exactly on the level threshold, so
+the delevel clamp zeroed the loss and the test measured nothing.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
@@ -1031,8 +1062,9 @@ Census: effect names **151 → 148**, learnable-affected **18 → 15**, headline
   `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
   `Pvp*DamageBonus` trio came off at sub-slice 12, together with the whole
   fifteen-name PvP/PvE balance family.
-  `OpenChest`/`OpenDoor` came off at sub-slice 10; `ChameleonRest`,
-  `ManaHealOverTime` and `RebalanceHP` at sub-slice 11.
+  **S4 is now down to three names**: `StatUp` (9 learnable, Territory War —
+  out of scope), `SafeFallHeight` (needs fall damage, which the port lacks) and
+  `NightStatModify` (Shadow Sense 294 — the last one with real work in it).
   `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,

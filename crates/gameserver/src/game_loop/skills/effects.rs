@@ -657,6 +657,11 @@ pub(crate) fn apply_skill_effects(
             // removes it. Both halves ride the buff lifecycle in
             // `apply_continuous_effects`, so the instant pass does nothing.
             SkillEffect::PolearmSingleTarget => {}
+            // `ReduceDropPenalty` is a pure stat grant (`pump`), merged when
+            // the buff lands. `ResurrectionSpecial` does nothing while it is
+            // *up*: its whole mechanic is `onExit`, which death fires — see
+            // `handle_buff_expire`.
+            SkillEffect::ReduceDropPenalty { .. } | SkillEffect::ResurrectionSpecial { .. } => {}
             // `Betray.onStart` — the servitor turns on its owner. `canStart`
             // requires a player effector and a summon effected, so this is
             // aimed at somebody *else's* pet. The `BETRAYED` flag (which stops
@@ -5589,6 +5594,37 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
     if !still_active {
         return;
+    }
+    // `ResurrectionSpecial.onExit` — the auto-resurrect. The buff does nothing
+    // while it is up; what fires it is being *stripped*, which is what death
+    // does. Java refuses in olympiad and outside the effect's `instanceId`
+    // list; neither is modelled for this path (no carrier on this dist
+    // declares `instanceId`). TODO(G34): add the olympiad gate.
+    if let Some(res) = world.data.skill_data.get(skill_id, 1).and_then(|s| {
+        s.effects.iter().find_map(|e| match e {
+            SkillEffect::ResurrectionSpecial {
+                power,
+                hp_percent,
+                mp_percent,
+                cp_percent,
+            } => Some((*power, *hp_percent, *mp_percent, *cp_percent)),
+            _ => None,
+        })
+    }) {
+        let (power, hp, mp, cp) = res;
+        // Java's effector is the caster; these are self-buffs, so the bearer
+        // proposes their own revive.
+        crate::game_loop::death::revive_request(
+            world,
+            player_object_id,
+            player_object_id,
+            power,
+            hp,
+            mp,
+            cp,
+            skill_id,
+            0, // no affectRange bypass — this is a self-revive, not a mass one
+        );
     }
     // `SkillEvasion.onExit` — `removeSkillEvasionTypeValue(magicType, amount)`.
     // Merged onto a per-bucket map rather than a `Stat`, so it needs its own
