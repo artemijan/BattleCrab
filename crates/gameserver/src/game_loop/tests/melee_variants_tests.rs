@@ -291,3 +291,43 @@ fn sweep_respects_the_attack_angle() {
         "a mob 180° behind is outside the 120° arc: {targets:?}"
     );
 }
+
+/// **Focus Attack (317)** is a *trade*: accuracy and crit damage in exchange
+/// for giving up the sweep. Its two stat halves landed through the effect
+/// registry long before the sweep gate did, so until G34 S4 the toggle was a
+/// pure bonus with no cost at all — the thing it exists to trade away was
+/// still happening.
+#[test]
+fn focus_attack_gives_up_the_polearm_sweep() {
+    let (mut world, _db, _l) = melee_world();
+    let mut out = ingame_caster(&mut world, CID, ATTACKER, 0, 0);
+    equip(&mut world, POLE_ID);
+    grant_hit_number(&mut world, 4.0);
+
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 40, 0, 0);
+    add_test_npc(&mut world, NPC_OID + 1, 20001, "Monster", 5, 55, 0, 0);
+    world
+        .objects
+        .get_component_mut::<Position>(&ATTACKER)
+        .unwrap()
+        .heading = 0;
+
+    // Focus Attack up: `PHYSICAL_POLEARM_TARGET_SINGLE` above 0.
+    world
+        .objects
+        .get_component_mut::<StatModifiers>(&ATTACKER)
+        .expect("stat modifiers")
+        .add
+        .insert(Stat::PhysicalPolearmTargetSingle, 1.0);
+    drain(&mut out);
+
+    crate::game_loop::combat::do_auto_attack(&mut world, ATTACKER, NPC_OID);
+    let hits = attack_hits(&drain(&mut out));
+    let targets: Vec<i32> = hits.iter().map(|(t, _)| *t).collect();
+
+    assert!(targets.contains(&NPC_OID), "the main target is still hit");
+    assert!(
+        !targets.contains(&(NPC_OID + 1)),
+        "but the neighbour is not swept — that is the whole cost: {targets:?}"
+    );
+}

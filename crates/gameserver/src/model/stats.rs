@@ -215,6 +215,12 @@ pub enum Stat {
     PveRaidPhysicalAttackDefence,
     PveRaidPhysicalSkillDefence,
     PveRaidMagicalSkillDefence,
+    /// Java `Stat.PHYSICAL_POLEARM_TARGET_SINGLE` — read in exactly one place,
+    /// `Creature.generateAttackTargetData`, which skips the whole polearm
+    /// sweep while `getValue(stat, 0) > 0`. Focus Attack (317) is the only
+    /// source on this dist; Java grants it as an `addFixedValue` of 1, which
+    /// is an additive 1 here since nothing else touches the stat.
+    PhysicalPolearmTargetSingle,
     Breath,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and

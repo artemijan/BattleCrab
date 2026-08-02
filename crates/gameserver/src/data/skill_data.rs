@@ -2180,6 +2180,19 @@ fn build_skill(
                         // `calcBlowDamage` formula and are intentionally left to fall
                         // through until that formula is ported.
                         // TODO(G20): honor charged souls on PhysicalSoulAttack.
+                        // Java's `criticalChance` default here is **0**, not
+                        // `PhysicalAttack`'s 10, and it has no
+                        // `ignoreShieldDefence` param at all.
+                        "PhysicalAttackHpLink" => {
+                            vec![SkillEffect::PhysicalAttackHpLink {
+                                power: param("power").unwrap_or(0.0),
+                                p_atk_mod: 1.0,
+                                p_def_mod: 1.0,
+                                critical_chance: param("criticalChance").unwrap_or(0.0),
+                                ignore_shield_defence: false,
+                            }]
+                        }
+                        "PolearmSingleTarget" => vec![SkillEffect::PolearmSingleTarget],
                         "PhysicalAttack" | "PhysicalSoulAttack" => {
                             vec![SkillEffect::PhysicalAttack {
                                 power: param("power").unwrap_or(0.0),
@@ -4564,8 +4577,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 155 name(s), 22 learnable
-    /// skill(s) affected, 1355 reachable.
+    /// the work list, worst first. Category totals: 153 name(s), 20 learnable
+    /// skill(s) affected, 1353 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4611,6 +4624,10 @@ mod coverage_census {
     /// (`formulas::calculate_pvp_pve_bonus`) that had to be written first. The
     /// biggest single drop in *reachable* terms this epic has seen: 1684 →
     /// 1355.
+    /// → 153 at sub-slice 13: the physical-attack pair —
+    /// `PhysicalAttackHpLink` (Fatal Counter's missing-HP scaling, sharing
+    /// `PhysicalAttack`'s arm) and `PolearmSingleTarget` (Focus Attack's
+    /// *cost*, which had been missing while both its bonuses landed).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("ReduceDropPenalty", 2),
@@ -4619,8 +4636,6 @@ mod coverage_census {
         ("CallParty", 1),
         ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
-        ("PhysicalAttackHpLink", 1),
-        ("PolearmSingleTarget", 1),
         ("SafeFallHeight", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
@@ -4698,7 +4713,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 155, 22, 1355),
+            ("effect", &gaps.effects, EFFECTS, 153, 20, 1353),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4750,7 +4765,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            24,
+            22,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

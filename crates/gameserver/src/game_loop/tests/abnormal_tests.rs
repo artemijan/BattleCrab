@@ -2788,3 +2788,98 @@ fn the_pvp_bonus_actually_reaches_a_nukes_damage() {
         "and by exactly the 1 + (atk - def) factor: {plain} -> {defended}"
     );
 }
+
+/// **`PhysicalAttackHpLink`** (Fatal Counter 314, Fatal Arrow 10905) — the
+/// physical twin of `DeathLink`: the same `−(curHp·2 / maxHp) + 2` multiplier
+/// on the **caster's** missing HP, so a healthy archer's Fatal Counter does
+/// nothing and a dying one's hits for double. The skill's own description says
+/// as much ("the power of the attack increases as your HP decreases"), and a
+/// port that shared `PhysicalAttack`'s arm without the tail would look right at
+/// every HP except the two ends.
+#[test]
+fn fatal_counter_scales_with_the_archers_missing_hp() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
+    world.data.skill_data.insert_for_test(cc_skill(
+        9413,
+        SkillEffect::PhysicalAttackHpLink {
+            power: 500.0,
+            p_atk_mod: 1.0,
+            p_def_mod: 1.0,
+            critical_chance: 0.0,
+            ignore_shield_defence: false,
+        },
+        "NONE",
+    ));
+
+    let damage_at = |world: &mut World, hp_fraction: f64| -> f64 {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+            v.max_hp = 1000;
+            v.cur_hp = 1000.0 * hp_fraction;
+        }
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&NPC_OID) {
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+            v.dead = false;
+        }
+        world.forced_rolls.clear();
+        world.forced_rolls.extend([50; 12]);
+        land(world, 9413, NPC_OID);
+        1_000_000.0
+            - world
+                .objects
+                .get_component::<Vitals>(&NPC_OID)
+                .map(|v| v.cur_hp)
+                .unwrap_or(0.0)
+    };
+
+    let at_full = damage_at(&mut world, 1.0);
+    let at_half = damage_at(&mut world, 0.5);
+    let at_death = damage_at(&mut world, 0.01);
+
+    assert_eq!(at_full, 0.0, "at full HP the multiplier is 0 — no damage");
+    assert!(at_half > 0.0, "half HP: {at_half}");
+    assert!(
+        at_death > at_half * 1.5,
+        "the closer to death the harder it hits ({at_half} -> {at_death})"
+    );
+}
+
+/// The other half of Focus Attack: the buff has to actually *grant* the stat.
+/// Testing the sweep gate against a hand-inserted modifier proves the consumer
+/// and nothing about the grant — which is the same registry-line-without-a-
+/// consumer trap this epic keeps hitting, just pointing the other way.
+#[test]
+fn focus_attack_grants_the_single_target_stat_and_gives_it_back() {
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut focus = cc_skill(9414, SkillEffect::PolearmSingleTarget, "NONE");
+    focus.target_type = crate::model::skill::TargetType::Self_;
+    world.data.skill_data.insert_for_test(focus);
+
+    let stat = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&CASTER)
+            .map(|m| crate::model::finalize(m, Stat::PhysicalPolearmTargetSingle, 0.0))
+            .unwrap_or(0.0)
+    };
+    assert_eq!(stat(&world), 0.0, "nothing before the toggle");
+
+    land(&mut world, 9414, CASTER);
+    assert!(
+        stat(&world) > 0.0,
+        "the toggle grants it, got {}",
+        stat(&world)
+    );
+
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CASTER, 9414);
+    assert_eq!(
+        stat(&world),
+        0.0,
+        "and `onExit` takes it back — otherwise the sweep is lost forever"
+    );
+}

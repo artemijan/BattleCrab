@@ -932,6 +932,33 @@ Three findings recorded rather than smoothed over:
 - The raid `*_DEFENCE` terms are likewise read off the **attacker**. Same
   treatment.
 
+#### Sub-slice 13 ✅ — the physical-attack pair
+
+- **`PhysicalAttackHpLink`** (Fatal Counter 314, Fatal Arrow 10905) is
+  structurally `PhysicalAttack` — same fields, same formula, so the two share
+  one match arm — plus `DeathLink`'s multiplier keyed on the **caster's**
+  missing HP: `−(curHp·2 / maxHp) + 2`. A healthy archer's Fatal Counter does
+  literally nothing; a dying one's hits for double, which is what the skill's
+  own description promises. Two Java defaults differ from `PhysicalAttack` and
+  both matter: `criticalChance` defaults to **0** here rather than 10 (and
+  Fatal Counter declares none, so it never crits), and there is no
+  `ignoreShieldDefence` param at all.
+- **`PolearmSingleTarget`** (Focus Attack 317) is the *cost* half of a toggle
+  whose two bonuses — accuracy and crit damage — had already landed through the
+  effect registry. Until now the skill was a **pure bonus with nothing given
+  up**: the polearm sweep it exists to trade away kept happening. `sweep_targets`
+  even carried a `TODO(G20)` saying "no ported effect sets that stat".
+
+Census: effect names **155 → 153**, learnable-affected **22 → 20**, headline
+**24 → 22**. Three tests, all sabotage-verified.
+
+The third test exists because of a trap pointing the *other* way from the usual
+one. Testing the sweep gate against a hand-inserted stat modifier proves the
+**consumer** and says nothing about the **grant** — the mirror image of the
+registry-line-without-a-consumer failure this epic keeps finding. So Focus
+Attack is tested twice: once that casting it grants the stat and expiry gives
+it back, once that the stat actually suppresses the sweep.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
