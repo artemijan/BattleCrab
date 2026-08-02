@@ -283,17 +283,24 @@ pub struct SkillData {
     /// `EnchantSkillGroupsData`'s route map: which sub-level ranges each
     /// `(id, level)` can enchant into. Non-empty = `Skill.isEnchantable()`.
     routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
+    /// `Skill.getName()` — `<skill name="…">`, keyed by **id alone**: the name
+    /// sits on the `<skill>` element, so every level and enchant sub-level of
+    /// that skill shares it. Java hangs a copy off each `Skill` instance;
+    /// one entry per id is the same data for a fraction of the strings. Read
+    /// by the packets that name a skill back to the player.
+    names: HashMap<i32, String>,
     /// What the parse dropped — see [`SkillGaps`].
     gaps: SkillGaps,
 }
 
-/// The three maps one parse pass fills (skills + enchanted variants + routes),
-/// plus the coverage record of everything it had to drop.
+/// The maps one parse pass fills (skills + enchanted variants + routes + the
+/// per-id names), plus the coverage record of everything it had to drop.
 #[derive(Default)]
 pub(crate) struct ParsedSkills {
     pub(crate) skills: HashMap<(i32, i32), Skill>,
     pub(crate) enchanted: HashMap<(i32, i32, i32), Skill>,
     pub(crate) routes: HashMap<(i32, i32), Vec<(i32, i32)>>,
+    pub(crate) names: HashMap<i32, String>,
     /// `RefCell` because the recording sites sit inside `build_skill`'s
     /// `build_scope` closure, which is called once per effect scope and would
     /// otherwise have to become `FnMut` and fight the borrow checker for a
@@ -329,8 +336,16 @@ impl SkillData {
             skills: out.skills,
             enchanted: out.enchanted,
             routes: out.routes,
+            names: out.names,
             gaps,
         }
+    }
+
+    /// Java `Skill.getName()` — the datapack name of a skill id ("Wind
+    /// Strike"), for the messages that quote it back to the player. `None`
+    /// for an id that never parsed.
+    pub fn name(&self, id: i32) -> Option<&str> {
+        self.names.get(&id).map(String::as_str)
     }
 
     /// What the parse dropped — see [`SkillGaps`].
@@ -401,6 +416,7 @@ impl SkillData {
             skills: HashMap::new(),
             enchanted: HashMap::new(),
             routes: HashMap::new(),
+            names: HashMap::new(),
             gaps: SkillGaps::default(),
         }
     }
@@ -408,6 +424,11 @@ impl SkillData {
     #[doc(hidden)]
     pub fn insert_for_test(&mut self, skill: Skill) {
         self.skills.insert((skill.id, skill.level), skill);
+    }
+
+    #[doc(hidden)]
+    pub fn insert_name_for_test(&mut self, id: i32, name: &str) {
+        self.names.insert(id, name.to_string());
     }
 
     #[doc(hidden)]
@@ -1113,6 +1134,9 @@ fn finalize_skill(
 ) {
     if id < 0 {
         return;
+    }
+    if !name.is_empty() {
+        out.names.insert(id, name.to_string());
     }
     for level in 1..=to_level {
         // The plain (sub 0) skill: ranged level rows resolved, sub rows inert.
@@ -3061,6 +3085,43 @@ fn attr_f64(e: &quick_xml::events::BytesStart, key: &[u8]) -> Option<f64> {
 mod tests {
     use super::*;
 
+    /// `Skill.getName()` — `<skill name="…">` is parsed and kept per id, for
+    /// the messages that quote a skill back to the player. The name lives on
+    /// the `<skill>` element, so it must answer for every level of the skill,
+    /// not just level 1.
+    #[test]
+    fn skill_names_load_from_the_dist() {
+        let sd = SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+        assert_eq!(sd.name(1177), Some("Wind Strike"));
+        assert_eq!(sd.name(1), Some("Triple Slash"));
+        // A level above 1 resolves through the same per-id entry (Wind Strike
+        // is `toLevel="5"`).
+        assert!(sd.get(1177, 5).is_some(), "sanity: Wind Strike 5 parses");
+        assert!(sd.get(1177, 6).is_none(), "sanity: and 6 does not");
+        assert_eq!(sd.name(1177), Some("Wind Strike"));
+
+        // **The dist ships 15 skills declaring `name=""`.** They are stored as
+        // "no name" rather than as an empty string, so a caller can choose its
+        // own fallback instead of printing Java's literal "…casting ." Pinned
+        // as a census: if this moves, the datapack changed, not the parser.
+        let mut nameless: Vec<i32> = sd
+            .skills
+            .keys()
+            .map(|(id, _)| *id)
+            .filter(|id| sd.name(*id).is_none())
+            .collect();
+        nameless.sort_unstable();
+        nameless.dedup();
+        assert_eq!(
+            nameless,
+            vec![
+                392, 393, 394, 397, 398, 399, 1377, 1378, 1379, 4217, 5103, 14579, 15241, 23401,
+                23483
+            ],
+            "the dist's blank-named skills"
+        );
+    }
+
     /// Skill-enchant sub-levels against the real dist (PLAN_G19_SKILL_ENCHANT.md).
     /// Sonic Storm 7 at level 40 declares all three routes: route 1 enchants
     /// the `EnergyAttack` power (`{base + base/100*subIndex}` off base 20732),
@@ -4421,6 +4482,7 @@ mod tests {
             skills: out.skills,
             enchanted: out.enchanted,
             routes: out.routes,
+            names: out.names,
             gaps: out.gaps.into_inner(),
         };
 

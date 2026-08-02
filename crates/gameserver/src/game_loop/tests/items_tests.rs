@@ -2618,6 +2618,73 @@ fn drop_inside_a_no_item_drop_zone_is_refused() {
     );
 }
 
+/// "Do not drop items when casting known skills to avoid exploits." Java
+/// refuses mid-cast with `"You cannot drop an item while casting " +
+/// skill.getName() + "."` — the **named** skill, so the player can tell which
+/// cast is holding their inventory. `SkillData` now keeps `<skill name="…">`
+/// per id to say it.
+#[test]
+fn drop_while_casting_a_known_skill_is_refused_by_name() {
+    const WIND_STRIKE: i32 = 1177;
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    world
+        .data
+        .skill_data
+        .insert_name_for_test(WIND_STRIKE, "Wind Strike");
+    let mut rx = ingame_player_access(&mut world, 1, 9300, 0);
+    drain(&mut rx);
+    let adena_oid = give_adena(&mut world, 9300, 100);
+    // The character knows the skill *and* is casting it.
+    world
+        .objects
+        .get_component_mut::<crate::model::components::SkillBook>(&9300)
+        .unwrap()
+        .0
+        .insert(WIND_STRIKE, 1);
+    world.objects.add_components(
+        &9300,
+        crate::model::components::Casting(crate::model::CastState {
+            skill_id: WIND_STRIKE,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: 0,
+            seq: 0,
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+    let ground_oid = world.next_npc_object_id;
+
+    on_packet(
+        &mut world,
+        1,
+        drop_item_packet(adena_oid, 100, DROP_AT.0, DROP_AT.1, DROP_AT.2),
+    );
+
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&ground_oid),
+        "nothing reached the ground mid-cast"
+    );
+    assert_eq!(item_count(&world, 9300, 57), 100, "adena kept");
+    let pkts = drain(&mut rx);
+    let needle: Vec<u8> = "You cannot drop an item while casting Wind Strike."
+        .encode_utf16()
+        .flat_map(u16::to_le_bytes)
+        .collect();
+    assert!(
+        pkts.iter()
+            .any(|p| p.windows(needle.len()).any(|w| w == needle)),
+        "the refusal names the skill being cast"
+    );
+}
+
 /// `_count > item.getCount()` refuses outright (Java sends
 /// `THAT_ITEM_CANNOT_BE_DISCARDED`) rather than clamping — a forged count must
 /// not walk away with the whole stack under a partial-drop request.

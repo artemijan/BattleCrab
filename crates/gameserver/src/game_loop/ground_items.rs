@@ -478,9 +478,8 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
     // walks the player's `SkillCaster`s and refuses if any of them is a skill
     // the character actually knows, then repeats the test for the *queued*
     // skill. The port holds one cast at a time, so one lookup covers both.
-    // TODO(G34): Java names the skill in the message
-    // ("…while casting Wind Strike."); the port's `SkillData` keeps no skill
-    // names, so the text is the nameless variant.
+    // The message quotes the skill by name, as Java's does:
+    // `"You cannot drop an item while casting " + skill.getName() + "."`.
     if let Some(casting) = world
         .objects
         .get_component::<crate::model::components::Casting>(&player_oid)
@@ -489,7 +488,15 @@ pub(crate) fn handle_request_drop_item(world: &mut World, client_id: u32, body: 
             .get_component::<crate::model::components::SkillBook>(&player_oid)
             .is_some_and(|book| book.0.contains_key(&casting.0.skill_id))
     {
-        super::items::send_item_message(world, client_id, "You cannot drop an item while casting.");
+        // The fallback covers the 15 dist skills that declare `name=""` (and
+        // an id that never parsed at all). Java would print its empty
+        // `getName()` straight through — "…while casting ." — so this is a
+        // deliberate cosmetic deviation, not a missing lookup.
+        let text = match world.data.skill_data.name(casting.0.skill_id) {
+            Some(name) => format!("You cannot drop an item while casting {name}."),
+            None => "You cannot drop an item while casting.".to_string(),
+        };
+        super::items::send_item_message(world, client_id, &text);
         return;
     }
     let count = pkt.count;
