@@ -3911,22 +3911,10 @@ fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     {
         region.0 = crate::world::region_of(dest.x, dest.y);
     }
-
-    // DEVIATION from Java, same shape as the fix that stopped `/unstuck`'s
-    // escape FX: `MagicSkillCanceled` is the only packet that ends a cast
-    // animation client-side, and a normal cast completion never sends one — the
-    // client runs the FX for the skill's own (skillgrp) duration instead, which
-    // for 4161 outlives the 2 s cast by a long way, so the summoning circle
-    // stays lit on the Porta after the drag has already landed. Java has the
-    // same hole; it is only visible here because the effect is the whole point
-    // of the mob. Cancel from the *caster* — the animation is keyed to the
-    // caster's object id, not the victim's — after the effect has landed, so
-    // nothing but the leftover visual is affected.
-    crate::game_loop::helpers::broadcast_including_self(
-        world,
-        caster_oid,
-        &server_packets::magic_skill_canceld(caster_oid),
-    );
+    // Java sends nothing else here — in particular no `MagicSkillCanceled` for
+    // the caster. A cancel would end the summoning FX the client keeps drawing
+    // for the skill's own (skillgrp) duration, past the 2 s cast; Java has that
+    // leftover too, so the port keeps it rather than inventing a packet.
 }
 
 /// `handlers/effecthandlers/Restoration.java` — instant single-item grant.

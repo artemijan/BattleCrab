@@ -681,8 +681,11 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
             .any(|p| p.first() == Some(&crate::network::server_packets::opcodes::STOP_MOVE)),
         "the drag must broadcast StopMove for the victim"
     );
-    // The leftover the report is about: the summoning FX is keyed to the
-    // *caster*, and only `MagicSkillCanceled` ends it early.
+    // Java sends no `MagicSkillCanceled` for the caster: its cast completes
+    // normally and the client is left to end the summoning FX on its own
+    // (skillgrp) timing. Cancelling from the caster would cut that leftover
+    // short, but it is a packet Java never sends — pinned here so the
+    // deviation is not reintroduced without a decision.
     let cancels: Vec<i32> = packets
         .iter()
         .filter(|p| {
@@ -690,13 +693,9 @@ fn a_monsters_call_pc_drags_the_player_onto_it() {
         })
         .map(|p| i32::from_le_bytes([p[1], p[2], p[3], p[4]]))
         .collect();
-    // (The fixture's zero cast/reuse time lets the mob drag more than once in
-    // 30 ticks, so it is one cancel *per drag* — what matters is that every one
-    // of them carries the caster's object id, not the victim's.)
     assert!(
-        !cancels.is_empty() && cancels.iter().all(|&oid| oid == NPC_OID),
-        "each drag cancels the caster's cast animation once it has landed; got \
-         {cancels:?}, expected only {NPC_OID}"
+        !cancels.contains(&NPC_OID),
+        "the drag must not cancel the caster's own cast; got {cancels:?}"
     );
 }
 
