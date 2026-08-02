@@ -54,7 +54,52 @@ pub(crate) fn max_load(world: &World, object_id: i32) -> i32 {
         return 0;
     };
     let bonus = world.data.stat_bonus.con_bonus(base.con);
-    (bonus * BASE_LOAD_PER_CON_BONUS * world.cfg.character.alt_weight_limit).floor() as i32
+    // Java: `getValue(Stat.WEIGHT_LIMIT, floor(CON bonus × 69000 × config))` —
+    // the CON formula is the *base* the stat's add/mul apply to, and Java
+    // floors it before the stat pass (G34 S4: Weight Limit 150, Quiver of
+    // Holding 418, Super Haste 7029 all pump it as `PER`).
+    let base_load =
+        (bonus * BASE_LOAD_PER_CON_BONUS * world.cfg.character.alt_weight_limit).floor();
+    stat_value(
+        world,
+        object_id,
+        crate::model::stats::Stat::WeightLimit,
+        base_load,
+    ) as i32
+}
+
+/// Java `CreatureStat.getValue(stat, base)` for the two stats this module
+/// reads: `(base + add) × mul`, identity when the creature carries neither.
+fn stat_value(world: &World, object_id: i32, stat: crate::model::stats::Stat, base: f64) -> f64 {
+    let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+    else {
+        return base;
+    };
+    (base + mods.add.get(&stat).copied().unwrap_or(0.0))
+        * mods.mul.get(&stat).copied().unwrap_or(1.0)
+}
+
+/// Java `Creature.getBonusWeightPenalty()` — `getValue(WEIGHT_PENALTY, 1)`.
+///
+/// **The name lies.** It reads like a penalty *band*, but every caller
+/// subtracts it from the **carried weight**:
+/// `weightproc = (getCurrentLoad() - getBonusWeightPenalty()) * 1000 / getMaxLoad()`
+/// (`Player.refreshOverloaded`, `Pet`, and the two weight conditions). The
+/// datapack settles it — Decrease Weight (1257) grants 3000/6000/9000, which
+/// are weight units, not bands. Ported as the code behaves, not as the name
+/// reads ([[l2r-port-behaviour-not-intent]]).
+///
+/// Base 1, so a character with no such skill still has 1 subtracted — Java's,
+/// kept.
+pub(crate) fn bonus_weight_penalty(world: &World, object_id: i32) -> i64 {
+    stat_value(
+        world,
+        object_id,
+        crate::model::stats::Stat::WeightPenalty,
+        1.0,
+    ) as i64
 }
 
 /// Java's band table in `refreshOverloaded`, extracted so it can be tested
@@ -98,11 +143,14 @@ pub(crate) fn refresh_weight_penalty(world: &mut World, object_id: i32) {
         .objects
         .get_component::<crate::model::components::AdminFlags>(&object_id)
         .is_some_and(|f| f.diet);
-    let level = penalty_level(load, max, diet);
+    // `refreshOverloaded` weighs `getCurrentLoad() - getBonusWeightPenalty()`,
+    // so the bonus comes off the load *before* the band lookup.
+    let effective_load = (load - bonus_weight_penalty(world, object_id)).max(0);
+    let level = penalty_level(effective_load, max, diet);
     // Java sets `overloaded` only on the penalised branch, and clears it
     // otherwise — so a diet-mode GM is never overloaded however much they
     // carry, which is the point of the flag.
-    let overloaded = level > 0 && !diet && load > max as i64;
+    let overloaded = level > 0 && !diet && effective_load > max as i64;
 
     let current = world
         .objects

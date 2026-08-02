@@ -273,3 +273,52 @@ fn being_overloaded_disables_movement() {
         "over the limit, movement is disabled"
     );
 }
+
+/// G34 S4 — `WeightLimit` (Weight Limit 150, Quiver of Holding 418, Super Haste
+/// 7029) multiplies the CON-derived cap, and `WeightPenalty` (Decrease Weight
+/// 1257, Master's Blessing 7049) comes off the **carried weight**.
+///
+/// The second is the one to get right: the effect is *named* for the penalty
+/// band, but every Java caller subtracts it from `getCurrentLoad()` —
+/// `weightproc = (getCurrentLoad() - getBonusWeightPenalty()) * 1000 / getMaxLoad()`
+/// — and the datapack settles it, since Decrease Weight grants 3000/6000/9000,
+/// which are weight units. Ported as the code behaves, not as the name reads.
+#[test]
+fn the_weight_stats_scale_the_cap_and_discount_the_load() {
+    use crate::model::stats::Stat;
+    let (mut world, ..) = test_world();
+    let oid = 6101;
+    let _rx = ingame_player_access(&mut world, 1, oid, 0);
+
+    let base_max = crate::game_loop::weight::max_load(&world, oid);
+    assert!(base_max > 0, "a CON-derived cap to scale");
+
+    // `WeightLimit` is `PER` on every source: Weight Limit 3 is +300 %, i.e. ×4.
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&oid)
+        .cloned()
+        .expect("stat modifiers");
+    mods.mul.insert(Stat::WeightLimit, 4.0);
+    world.objects.add_components(&oid, mods.clone());
+    assert_eq!(
+        crate::game_loop::weight::max_load(&world, oid),
+        base_max * 4,
+        "the cap scales with the stat"
+    );
+
+    // `WeightPenalty` is `DIFF`, and it discounts weight — base 1 with no
+    // skill, so the unbuffed discount is 1.
+    assert_eq!(
+        crate::game_loop::weight::bonus_weight_penalty(&world, oid),
+        1,
+        "Java's base is 1, not 0"
+    );
+    mods.add.insert(Stat::WeightPenalty, 9000.0);
+    world.objects.add_components(&oid, mods);
+    assert_eq!(
+        crate::game_loop::weight::bonus_weight_penalty(&world, oid),
+        9001,
+        "Decrease Weight 3 discounts 9000 units of carried weight"
+    );
+}

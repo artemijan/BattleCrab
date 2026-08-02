@@ -27,12 +27,37 @@ use super::helpers::client_for_player;
 /// meter. 0-blue, 1-red, 2-cyan, 3-green.
 const GAUGE_CYAN: i32 = 2;
 
-/// `getStat().getValue(Stat.BREATH, 60000)` — how long you can hold your breath.
-/// `Stat.BREATH` is a real Java stat, but **no skill or item on this dist
-/// declares it**, so the default is the only value that can ever be read; the
-/// stat itself is deliberately not added to `model::stats::Stat`. Should a
-/// breath-extending skill ever be datapacked, this becomes a stat lookup.
-pub(crate) const BREATH_MS: u64 = 60_000;
+/// `getStat().getValue(Stat.BREATH, 60000)`'s **base** — the unmodified breath
+/// gauge in ms. See [`breath_ms`] for the value actually used.
+///
+/// **Correction (G34 S4).** This constant used to be the whole story, behind a
+/// comment stating that "no skill or item on this dist declares" `Stat.BREATH`.
+/// That is wrong: **21 skills** carry a `Breath` effect — Boost Breath (195)
+/// and Eva's Kiss (1073) are *learnable*, and the Doom armour set adds 19 item
+/// skills. Third self-justifying deviation comment this epic has turned up
+/// ([[l2r-deviation-comments-self-justify]]); the lesson is the same each time,
+/// so check the claim before trusting the note.
+pub(crate) const BREATH_BASE_MS: u64 = 60_000;
+
+/// Java `getStat().getValue(Stat.BREATH, 60000)` — `(60000 + add) × mul`.
+///
+/// The two modes read very differently against that base: Eva's Kiss is
+/// `PER 400` (×5 — five minutes underwater), while Boost Breath is `DIFF 180`,
+/// which adds 0.18 s. The second looks like a datapack unit slip, but Java
+/// computes exactly that, so it is ported as written
+/// ([[l2r-port-behaviour-not-intent]]) rather than "corrected" into seconds.
+pub(crate) fn breath_ms(world: &World, object_id: i32) -> u64 {
+    use crate::model::stats::Stat;
+    let Some(mods) = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&object_id)
+    else {
+        return BREATH_BASE_MS;
+    };
+    let value = (BREATH_BASE_MS as f64 + mods.add.get(&Stat::Breath).copied().unwrap_or(0.0))
+        * mods.mul.get(&Stat::Breath).copied().unwrap_or(1.0);
+    value.max(0.0) as u64
+}
 
 /// The 1 s period of `scheduleAtFixedRate(…, timeinwater, 1000)`, in game ticks.
 const DAMAGE_PERIOD_TICKS: u64 = 10;
@@ -74,7 +99,8 @@ pub(crate) fn start_water_task(world: &mut World, object_id: i32) {
     {
         return;
     }
-    let next_damage_tick = world.tick + BREATH_MS / 100;
+    let breath = breath_ms(world, object_id);
+    let next_damage_tick = world.tick + breath / 100;
     world
         .objects
         .add_components(&object_id, WaterTask { next_damage_tick });
@@ -82,7 +108,7 @@ pub(crate) fn start_water_task(world: &mut World, object_id: i32) {
         cs.send(server_packets::setup_gauge(
             object_id,
             GAUGE_CYAN,
-            BREATH_MS as i32,
+            breath as i32,
         ));
     }
 }
