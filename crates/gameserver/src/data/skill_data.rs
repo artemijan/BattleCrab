@@ -2193,6 +2193,9 @@ fn build_skill(
                             }]
                         }
                         "PolearmSingleTarget" => vec![SkillEffect::PolearmSingleTarget],
+                        "Betray" => vec![SkillEffect::Betray],
+                        "ImmobilePetBuff" => vec![SkillEffect::ImmobilePetBuff],
+                        "CallParty" => vec![SkillEffect::CallParty],
                         "TriggerSkillByDamage" => vec![SkillEffect::TriggerSkillByDamage {
                             min_damage: param("minDamage").unwrap_or(1.0) as i32,
                             chance: param("chance").unwrap_or(100.0) as i32,
@@ -4602,8 +4605,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 151 name(s), 18 learnable
-    /// skill(s) affected, 1317 reachable.
+    /// the work list, worst first. Category totals: 148 name(s), 15 learnable
+    /// skill(s) affected, 1314 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4656,13 +4659,14 @@ mod coverage_census {
     /// → 151 at sub-slice 14: the trigger pair — `TriggerSkillByDamage`
     /// (Mirage, fired on damage *received*) and `TriggerSkillByMagicType`
     /// (Dance of Shadows, fired when the bearer finishes a cast).
+    /// → 148 at sub-slice 15: servitors and recall — `Betray` (the servitor
+    /// turns on its owner, stops obeying and becomes auto-attackable),
+    /// `ImmobilePetBuff` and `CallParty` (Chant of Gate, a recall with no
+    /// `ConfirmDlg`).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
-        ("Betray", 1),
-        ("CallParty", 1),
-        ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
         ("SafeFallHeight", 1),
     ];
@@ -4739,7 +4743,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 151, 18, 1317),
+            ("effect", &gaps.effects, EFFECTS, 148, 15, 1314),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4791,7 +4795,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            20,
+            17,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

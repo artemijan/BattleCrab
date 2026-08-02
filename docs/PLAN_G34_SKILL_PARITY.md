@@ -992,6 +992,35 @@ Two things worth carrying forward:
   was dropped on landing and the trigger could never fire. Any new
   modifier-less effect has to join one of that guard's three categories.
 
+#### Sub-slice 15 ✅ — servitors and recall
+
+- **`Betray`** (1380) turns somebody's servitor against them, and it takes
+  three things — a port that did only the first would look plausible. The AI
+  points at the **owner** (routed through the ordinary attack order, so the
+  servitor stops following and takes the attack timeout); the servitor stops
+  taking commands, with Java's own "your servitor is unresponsive and will not
+  obey any orders"; and `SummonInfo` status bit `0x01` goes up, which is what
+  makes it **auto-attackable** so the owner can put down their own pet. The
+  `BETRAYED` flag itself was one of the five S3 held back for S4.
+- **`ImmobilePetBuff`** (Servitor Empowerment 1299) roots the servitor for the
+  duration — the same `IMMOBILIZED` flag `BlockMove` uses, and it has to come
+  back off at expiry or the servitor is stuck for good. Java's
+  `effector == effected || owner == effector` gate is satisfied by construction
+  here: the skill is `targetType SUMMON`, which resolves to the caster's *own*
+  servitor, so there is no way to aim it at someone else's pet. `TODO(G34)` at
+  the site in case a carrier ever uses a wider target type.
+- **`CallParty`** (Chant of Gate 1429) recalls every *other* party member to the
+  caster. It is **not** Summon Friend: Java calls `teleToLocation` outright, so
+  there is no `ConfirmDlg` and the members get no say. Each is gated by CallPc's
+  shared `checkSummonTargetStatus`, whose refusals are messaged to the
+  **caster**, not the member left behind — the ported subset is dead, private
+  store, and in combat, with a `TODO(G34)` listing the states this port does not
+  model yet (rooted, olympiad, observer, flying mount, combat flag, the
+  `NO_SUMMON_FRIEND`/`JAIL` zones, instance permissions).
+
+Census: effect names **151 → 148**, learnable-affected **18 → 15**, headline
+**20 → 17**. All three tests sabotage-verified.
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,

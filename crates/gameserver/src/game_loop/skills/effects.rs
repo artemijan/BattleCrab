@@ -657,6 +657,45 @@ pub(crate) fn apply_skill_effects(
             // removes it. Both halves ride the buff lifecycle in
             // `apply_continuous_effects`, so the instant pass does nothing.
             SkillEffect::PolearmSingleTarget => {}
+            // `Betray.onStart` — the servitor turns on its owner. `canStart`
+            // requires a player effector and a summon effected, so this is
+            // aimed at somebody *else's* pet. The `BETRAYED` flag (which stops
+            // it obeying and makes it auto-attackable) rides the landed buff;
+            // what happens here is the AI flip.
+            SkillEffect::Betray => {
+                let Some(owner) = servitor_owner_of(world, target_oid) else {
+                    continue; // not a summon — Java's `canStart` refuses
+                };
+                if !world
+                    .objects
+                    .has_component::<crate::model::Player>(&caster_oid)
+                {
+                    continue;
+                }
+                // `getAI().setIntention(ATTACK, getActingPlayer())` — the
+                // servitor's own owner becomes its target. Routed through the
+                // ordinary attack order so it stops following, takes the top
+                // hate slot and arms the attack timeout exactly like a
+                // commanded attack would.
+                crate::game_loop::servitor::servitor_attack(world, owner, owner);
+            }
+            // `ImmobilePetBuff.onStart` — root the effected summon. The root
+            // itself is the `IMMOBILIZED` flag the landed buff carries, so
+            // there is nothing to do at instant time.
+            //
+            // Java's `effector == effected || owner == effector` gate is
+            // satisfied by construction here: Servitor Empowerment (1299) is
+            // `targetType SUMMON`, which resolves to the caster's *own*
+            // servitor, so there is no way to aim it at somebody else's pet.
+            // TODO(G34): re-check if any carrier ever uses a wider target type.
+            SkillEffect::ImmobilePetBuff => {}
+            // `CallParty.instant` — Chant of Gate (1429). Every *other* party
+            // member is pulled to the caster, each gated by CallPc's shared
+            // `checkSummonTargetStatus`. Note there is no `ConfirmDlg` here:
+            // unlike Summon Friend, Java teleports them outright.
+            SkillEffect::CallParty => {
+                call_party(world, caster_oid);
+            }
             SkillEffect::Blow { power, chance_boost, critical_chance, backstab } => {
                 use crate::model::components::Position as PosComp;
                 // Attacker position relative to the target's facing (for the
@@ -3680,6 +3719,76 @@ fn creature_name(world: &World, oid: i32) -> String {
             .get_component::<crate::model::Player>(&oid)
             .map(|p| p.name.clone())
             .unwrap_or_default()
+    }
+}
+
+/// `CallParty.instant` — Chant of Gate (1429).
+///
+/// Every *other* party member is pulled to the caster. There is deliberately no
+/// `ConfirmDlg` here: unlike Summon Friend, Java calls `teleToLocation`
+/// outright, so a party member gets no say in it.
+///
+/// Each member is gated by `CallPc.checkSummonTargetStatus`, whose refusals are
+/// **messaged to the caster**, not the member — the ported subset is dead, in a
+/// private store, and in combat (Java also checks rooted, olympiad, observer,
+/// flying mount, combat flag, the `NO_SUMMON_FRIEND`/`JAIL` zones and instance
+/// permissions; none of those states are modelled for this path yet).
+/// TODO(G34): extend the gate list as those states land.
+fn call_party(world: &mut World, caster_oid: i32) {
+    use server_packets::{SmParam, sm_ids};
+
+    let Some(members) = world
+        .objects
+        .get_component::<crate::model::components::PartyRef>(&caster_oid)
+        .and_then(|r| world.parties.get(&r.0))
+        .map(|p| p.members.clone())
+    else {
+        // `if (party == null) return` — solo, the cast is simply wasted.
+        return;
+    };
+    let Some(dest) = world
+        .objects
+        .get_component::<crate::model::components::Position>(&caster_oid)
+        .copied()
+    else {
+        return;
+    };
+
+    for member in members {
+        // `effector != partyMember` — the caster is not recalled to itself.
+        if member == caster_oid {
+            continue;
+        }
+        let name = world
+            .objects
+            .get_component::<crate::model::Player>(&member)
+            .map(|p| p.name.clone())
+            .unwrap_or_default();
+        let refusal = if world
+            .objects
+            .get_component::<Vitals>(&member)
+            .is_none_or(|v| v.dead)
+        {
+            Some(sm_ids::C1_IS_DEAD_AT_THE_MOMENT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED)
+        } else if world
+            .objects
+            .get_component::<crate::model::Player>(&member)
+            .is_some_and(|p| p.store_type != 0)
+        {
+            Some(
+                sm_ids::C1_IS_CURRENTLY_TRADING_OR_OPERATING_A_PRIVATE_STORE_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED,
+            )
+        } else if crate::game_loop::combat::has_attack_stance(world, member) {
+            // `isInCombat()` — the attack stance is exactly Java's flag.
+            Some(sm_ids::C1_IS_ENGAGED_IN_COMBAT_AND_CANNOT_BE_SUMMONED_OR_TELEPORTED)
+        } else {
+            None
+        };
+        if let Some(sm) = refusal {
+            send_sm_with(world, caster_oid, sm, &[SmParam::PlayerName(name)]);
+            continue;
+        }
+        crate::game_loop::death::teleport_player(world, member, dest.x, dest.y, dest.z);
     }
 }
 

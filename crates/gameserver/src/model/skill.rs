@@ -943,6 +943,24 @@ pub enum SkillEffect {
     /// one Focus Attack was a **pure bonus with no cost** — the trade it exists
     /// to offer was missing entirely.
     PolearmSingleTarget,
+    /// `handlers/effecthandlers/Betray.java` — Betray (1380). `canStart`
+    /// requires a **player** effector and a **summon** effected, so the skill
+    /// is aimed at somebody else's servitor. It stamps `EffectFlag.BETRAYED`
+    /// (the servitor stops obeying and becomes auto-attackable) and points its
+    /// AI at its own owner; `onExit` returns it to idle.
+    Betray,
+    /// `handlers/effecthandlers/ImmobilePetBuff.java` — Servitor Empowerment
+    /// (1299). `setImmobilized(true)` on the effected **summon**, but only when
+    /// the effector is the summon itself or its owner, so you cannot root
+    /// somebody else's pet with it. The port already has the flag
+    /// (`IMMOBILIZED`); what is new is the ownership gate.
+    ImmobilePetBuff,
+    /// `handlers/effecthandlers/CallParty.java` — Chant of Gate (1429). Recall
+    /// every *other* party member to the caster, each gated by CallPc's shared
+    /// `checkSummonTargetStatus`. Unlike Summon Friend there is **no
+    /// `ConfirmDlg`**: Java calls `teleToLocation` directly, so the members
+    /// have no say in it.
+    CallParty,
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
@@ -1552,6 +1570,12 @@ pub mod effect_flag {
     /// shape as [`FEAR`] and [`CONFUSED`], and the reason to grep for readers
     /// before porting a gate rather than after.
     pub const ABNORMAL_SHIELD: u32 = 1 << 22;
+    /// `BETRAYED` — Java `Summon.isBetrayed()`, with two consumers: the
+    /// servitor **refuses its owner's commands** ("your servitor is
+    /// unresponsive and will not obey any orders") and `PetSummonInfo` sets
+    /// status bit `0x01`, which makes it auto-attackable — you have to kill
+    /// your own summon. Set by Betray (1380).
+    pub const BETRAYED: u32 = 1 << 23;
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -2419,7 +2443,8 @@ impl Skill {
                 SkillEffect::BlockControl => effect_flag::BLOCK_CONTROL,
                 SkillEffect::Fear { .. } => effect_flag::FEAR,
                 SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
-                SkillEffect::BlockMove => effect_flag::IMMOBILIZED,
+                SkillEffect::BlockMove | SkillEffect::ImmobilePetBuff => effect_flag::IMMOBILIZED,
+                SkillEffect::Betray => effect_flag::BETRAYED,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 // `ChameleonRest.getEffectFlags()` returns SILENT_MOVE **and**
                 // RELAXING. The stealth half is what the skill is for — resting

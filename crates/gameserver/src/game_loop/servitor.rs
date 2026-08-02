@@ -561,6 +561,22 @@ pub(crate) fn handle_request_action_use(world: &mut World, client_id: u32, body:
         }
         return;
     }
+    // `Summon.canAttack`'s `isBetrayed()` gate — a servitor under Betray
+    // (1380) obeys nothing at all, and says so.
+    if let Some(servitor) = servitor_of(world, owner_oid)
+        && crate::game_loop::abnormal::flags_of(world, servitor)
+            & crate::model::skill::effect_flag::BETRAYED
+            != 0
+    {
+        if let Some(cs) = world.clients.get(&client_id) {
+            cs.send(server_packets::system_message_with(
+                sm_ids::YOUR_SERVITOR_IS_UNRESPONSIVE_AND_WILL_NOT_OBEY_ANY_ORDERS,
+                &[],
+            ));
+            cs.send(server_packets::action_failed());
+        }
+        return;
+    }
     if let Some(skill_id) = servitor_skill {
         use_servitor_skill(world, owner_oid, skill_id);
         return;
@@ -624,6 +640,11 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
         .get_component::<crate::model::Player>(&link.owner_object_id)
         .map(|p| p.name.clone())
         .unwrap_or_default();
+    // `Summon.isBetrayed()` — read before the borrow, since the packet build
+    // holds references into `world.objects`.
+    let betrayed = crate::game_loop::abnormal::flags_of(world, servitor_oid)
+        & crate::model::skill::effect_flag::BETRAYED
+        != 0;
     let pkt = server_packets::summon_info(
         servitor_oid,
         t,
@@ -634,6 +655,7 @@ pub(crate) fn broadcast_summon_info(world: &mut World, servitor_oid: i32, summon
         &owner_name,
         0,
         summoned,
+        betrayed,
     );
     for cs in world.clients.values() {
         let crate::session::ClientSession::InGame(session) = cs else {

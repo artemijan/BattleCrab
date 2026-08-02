@@ -177,6 +177,9 @@ fn send_summon_info(
         &owner_name,
         0, // relation — the per-viewer PvP relation isn't resolved here yet
         false,
+        crate::game_loop::abnormal::flags_of(world, servitor_oid)
+            & crate::model::skill::effect_flag::BETRAYED
+            != 0,
     ));
     true
 }
