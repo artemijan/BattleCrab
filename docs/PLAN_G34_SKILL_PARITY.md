@@ -806,6 +806,57 @@ Two test traps caught here, both worth remembering:
   and the forced-roll sequence landed there. The test now disables
   `magic_failures` so it measures the multiplier and not the failure roll.
 
+#### Sub-slice 10 ✅ — Unlock, end to end
+
+The whole of skill 27, which needed three pieces and closes a **target-type**
+gap as well as two effect names.
+
+- **`TargetType::DOOR_TREASURE`** — the selection *is* the validation: a door
+  or a chest passes, anything else is `THAT_IS_AN_INCORRECT_TARGET`. No range,
+  LOS, peace-zone or alive/dead gate of its own, which is what lets one skill
+  target a closed door (not attackable) and a chest (attackable) through the
+  same path. It was the last learnable entry on the target axis.
+- **`OpenDoor`** — chance per level (30/50/75, then 100 from level 4), and
+  *two different refusals*: a door that is not `openMethod="BY_SKILL"` cannot
+  be picked at all ("this door cannot be unlocked"), while a `BY_SKILL` door
+  that misses its roll gets the softer "you have failed to unlock the door".
+  Java also refuses fort doors; this port has no forts, and for the skill path
+  that gate is vacuous on this dist (none of the 34 `BY_SKILL` doors is a fort
+  door — they are Cruma, Devil's Isle, the Water Garden, Rune ToH and the Four
+  Sepulchers), but it is **not** vacuous for an item-cast unlock, so a
+  `TODO(G34)` marks it.
+- **`OpenChest`** — a *level band*, not a roll: within 6 levels (5 above 77)
+  the box opens; outside it, it turns on you. Opening it kills the chest with
+  `setSpecialDrop()` + `setMustRewardExpSp(false)`, and both of those are
+  observable on the **death** side, which is where the other half of this
+  effect had to land: an unlocked box pays no exp/sp, and a box that was
+  merely smashed rolls a *different npc id's* drop list.
+
+Two dist findings recorded rather than papered over:
+
+- **No `type="Chest"` NPC is spawned anywhere on this datapack.** All 48 chest
+  templates exist; not one appears in `spawns/`, and the Four Sepulchers boxes
+  (31467/31468) are `type="Folk"`, so `OpenChest` is reachable today only via
+  `//spawn`. Ported anyway — a datapack with chest spawns is a data change.
+- **The smashed-chest drop remap points at ids that do not exist here.**
+  18265-18286 shift by +3536 into 21801-21822, and the six fixed pairs map onto
+  21671/21694/21717/21740/21763/21786; none of those is an NPC template on this
+  dist, and the chest templates carry no `<drops>` of their own either. Java
+  hands that null straight to `calculateDrops` and throws. The port implements
+  the swap and falls back to the chest's own list when the target is missing —
+  the only non-crashing reading of the same code.
+
+Census: effect names **175 → 173**, learnable-affected **29 → 28**, target
+types **11 → 10** (learnable 4 → 3), headline **31 → 30**. All three fixes
+sabotage-verified.
+
+A third test trap, same family as sub-slice 9's two: the exp-gate assertion
+first passed for the wrong reason. `cc2_world` ships an *empty* experience
+table, so the level cap is −1 and **every** award clamps to −1 — and 18265
+declares no `<acquire>` at all, so there was no exp to withhold either. The
+test now loads a real table and gives the chest a reward, which turns the
+sabotage from "0 vs −1" into "0 vs 500".
+
 #### Remaining sub-slices ⏳
 
 - **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
@@ -815,6 +866,7 @@ Two test traps caught here, both worth remembering:
   `PhysicalAttackHpLink`, `PolearmSingleTarget`, `RebalanceHP`,
   `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
   `Pvp*DamageBonus` trio (needs `calculatePvpPveBonus` built from scratch).
+  `OpenChest`/`OpenDoor` came off this list at sub-slice 10.
   `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,

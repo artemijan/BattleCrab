@@ -891,6 +891,95 @@ pub(crate) fn apply_skill_effects(
             // clamped by `getMaxRecoverableCp()`. Java bails on a dead target,
             // a door and an HP-blocked one (the last is not a typo: the CP heal
             // reads `isHpBlocked`).
+            // `OpenDoor.instant` — the lock-picking half of Unlock (27).
+            SkillEffect::OpenDoor { chance, is_item } => {
+                let Some(door_id) = world
+                    .objects
+                    .get_component::<crate::model::door::Door>(&target_oid)
+                    .map(|d| d.door_id)
+                else {
+                    continue;
+                };
+                if crate::game_loop::helpers::instance_of(world, caster_oid)
+                    != crate::game_loop::helpers::instance_of(world, target_oid)
+                {
+                    continue;
+                }
+                let openable_by_skill = world.data.door_data.get(door_id).is_some_and(|t| {
+                    t.open_method == crate::data::door_data::DoorOpenMethod::BySkill
+                });
+                // Java also refuses when `door.getFort() != null`. This port
+                // has no fort system, so that half cannot be evaluated — and
+                // for the *skill* path it is vacuous on this dist anyway: none
+                // of the 34 `BY_SKILL` doors is a fort door (they are Cruma,
+                // Devil's Isle, the Water Garden, Rune ToH and the Four
+                // Sepulchers). It is **not** vacuous for an item-cast unlock,
+                // which skips the `BY_SKILL` gate entirely.
+                // TODO(G34): add the fort gate once forts exist.
+                if !openable_by_skill && !*is_item {
+                    send_sm(world, caster_oid, sm_ids::THIS_DOOR_CANNOT_BE_UNLOCKED);
+                    continue;
+                }
+                let already_open = world.geo.doors.is_open(door_id);
+                if world.roll(100) < *chance && !already_open {
+                    crate::game_loop::doors::open_door(world, target_oid);
+                } else {
+                    send_sm(world, caster_oid, sm_ids::YOU_HAVE_FAILED_TO_UNLOCK_THE_DOOR);
+                }
+            }
+            // `OpenChest.instant` — the treasure-box half of Unlock (27), and a
+            // *level* check rather than a chance roll: within 6 levels (5 above
+            // 77) the box opens, otherwise it turns on you. Opening it kills the
+            // chest with `setSpecialDrop()` + `setMustRewardExpSp(false)`, so it
+            // rolls its own drop list and pays no exp.
+            SkillEffect::OpenChest => {
+                let is_chest = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    .is_some_and(|t| t.type_name == "Chest");
+                let dead = world
+                    .objects
+                    .get_component::<Vitals>(&target_oid)
+                    .is_some_and(|v| v.dead);
+                if !is_chest
+                    || dead
+                    || crate::game_loop::helpers::instance_of(world, caster_oid)
+                        != crate::game_loop::helpers::instance_of(world, target_oid)
+                {
+                    continue;
+                }
+                let player_level = creature_level(world, caster_oid);
+                let chest_level = creature_level(world, target_oid);
+                let band = if player_level <= 77 { 6 } else { 5 };
+                if (chest_level - player_level).abs() <= band {
+                    broadcast_social_action(world, caster_oid, 3);
+                    if let Some(n) = world
+                        .objects
+                        .get_component_mut::<crate::model::npc::Npc>(&target_oid)
+                    {
+                        n.special_drop = true;
+                        n.must_reward_exp_sp = false;
+                    }
+                    let max_hp = world
+                        .objects
+                        .get_component::<Vitals>(&target_oid)
+                        .map(|v| v.max_hp as f64)
+                        .unwrap_or(0.0);
+                    crate::game_loop::combat::npc_receive_damage(
+                        world,
+                        target_oid,
+                        caster_oid,
+                        max_hp,
+                        false,
+                    );
+                } else {
+                    // Out of band the box is a mimic: Java gives it a single
+                    // point of hate and points its AI at the caster.
+                    broadcast_social_action(world, caster_oid, 13);
+                    crate::game_loop::minions::add_hate(world, target_oid, caster_oid, 1.0);
+                }
+            }
             // `Bluff.instant` — spin the target to face the caster's heading.
             // Raid bosses and their minions are immune (Java also names NPC
             // 35062, a siege headquarters, explicitly); the pair of rotation
@@ -3490,6 +3579,17 @@ fn send_sm(world: &World, player_oid: i32, sm_id: i16) {
     {
         cs.send(server_packets::system_message_with(sm_id, &[]));
     }
+}
+
+/// `Creature.broadcastSocialAction` — a playable's emote goes to everyone in
+/// range *including* itself (`broadcastPacket`), unlike the quest engine's
+/// self-only `sendPacket` variant.
+fn broadcast_social_action(world: &mut World, oid: i32, action_id: i32) {
+    let Some(region) = world.objects.get_component::<RegionCell>(&oid).map(|r| r.0) else {
+        return;
+    };
+    let pkt = server_packets::social_action(oid, action_id);
+    crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
 }
 
 /// Send a system message with parameters to `player_oid`, if online.

@@ -86,6 +86,16 @@ pub struct Npc {
     /// this way, which is how a bystander tells whose symbol it is.
     /// `None` = use the template.
     pub title_override: Option<String>,
+    /// `Chest._specialDrop` — set by a successful `OpenChest` (the Unlock
+    /// skill). It selects **which drop table the corpse rolls**: a chest that
+    /// was merely beaten to death rolls a *different* npc id's list (Java
+    /// `Chest.doItemDrop` remaps 18265-18298 to the 21xxx band), so smashing
+    /// a box and unlocking it are not the same loot. Reset on respawn, like
+    /// Java's `onSpawn`.
+    pub special_drop: bool,
+    /// `Attackable._mustRewardExpSp` — cleared by a successful `OpenChest`, so
+    /// an unlocked box hands out loot but no exp/sp.
+    pub must_reward_exp_sp: bool,
     /// `Attackable._spoilerObjectId` — object id of the player who landed the
     /// Spoil skill on this mob (0 = not spoiled). Set by the `Spoil` effect,
     /// checked on death to roll the sweep list. A fresh instance on respawn
@@ -354,6 +364,8 @@ impl Npc {
             script_value: 0,
             vars: std::collections::HashMap::new(),
             title_override: None,
+            special_drop: false,
+            must_reward_exp_sp: true,
             spoiler_object_id: 0,
             sweep_items: None,
             seed_id: 0,
@@ -720,6 +732,8 @@ fn spawn_npc_entity(
         script_value: 0,
         vars: std::collections::HashMap::new(),
         title_override: None,
+        special_drop: false,
+        must_reward_exp_sp: true,
         spoiler_object_id: 0,
         sweep_items: None,
         seed_id: 0,
