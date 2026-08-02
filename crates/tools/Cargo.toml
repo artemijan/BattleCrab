@@ -1,0 +1,24 @@
+[package]
+name = "tools"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Offline datapack/geodata tools (l2r-tools CLI)"
+
+[lib]
+name = "tools"
+path = "src/lib.rs"
+
+[[bin]]
+name = "l2r-tools"
+path = "src/main.rs"
+
+[dependencies]
+# The whole point of these tools is to answer questions with the *server's*
+# geo code rather than a reimplementation of it, so they link the game server
+# and call `GeoEngine` directly.
+gameserver = { path = "../gameserver" }
+clap = { version = "4", features = ["derive"] }
+
+[lints]
+workspace = true

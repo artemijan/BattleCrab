@@ -8,6 +8,7 @@ members = [
     "crates/gameserver",
     "crates/launcher",
     "crates/dashboard_api",
+    "crates/tools",
 ]
 
 [workspace.package]

@@ -31,6 +31,27 @@ as dense, cache-friendly linear scans instead of pointer-chasing a map. See
 - `crates/gameserver` — the game server binary
 - `crates/models` — SeaORM entities for every table, plus the shared repositories
 - `crates/migration` — the schema as migrations, and the `l2r-migrate` binary
+- `crates/tools` — offline datapack/geodata tools, and the `l2r-tools` binary
+
+## Datapack tools
+
+`l2r-tools` answers questions about the datapack by running the *server's* geo
+code over it, so a verdict from it is a verdict in game.
+
+```sh
+cargo build --release -p tools
+./target/release/l2r-tools spawn-pockets --region 20_21    # one geo region
+./target/release/l2r-tools spawn-pockets --all-regions     # the whole world
+```
+
+`spawn-pockets` finds spawn rows that `getNearestZ` snapped onto a geodata
+layer *under* the floor players walk on, where the mob is invisible and
+unhittable until its AI walks it out. It flood fills the walkable surface from
+the coordinates teleporters drop players on, then asks whether a walker can
+reach the mob's layer and whether the floor can see it. `--csv` prints the raw
+metrics behind every verdict, which is how its thresholds were calibrated.
+Read the module docs in `crates/tools/src/spawn_pockets.rs` before changing
+them — two simpler detectors look right and are not.
 
 ## Database
 
