@@ -3070,6 +3070,23 @@ fn build_skill(
             cast_range: get_i("castRange", 0),
             effect_range: get_i("effectRange", 0),
             hit_time: get_i("hitTime", 0),
+            next_action: match value_at(values, "nextAction", level) {
+                Some("ATTACK") => crate::model::skill::NextAction::Attack,
+                Some("CAST") => crate::model::skill::NextAction::Cast,
+                _ => crate::model::skill::NextAction::None,
+            },
+            // `;`-separated abnormal type names, kept as strings because that
+            // is how `abnormal_type` itself is stored — the comparison is a
+            // name match, not an enum one.
+            abnormal_resists: value_at(values, "abnormalResists", level)
+                .map(|v| {
+                    v.split(';')
+                        .map(str::trim)
+                        .filter(|t| !t.is_empty())
+                        .map(str::to_owned)
+                        .collect()
+                })
+                .unwrap_or_default(),
             hit_cancel_time: get_f("hitCancelTime", 0.0),
             cool_time: get_i("coolTime", 0),
             reuse_delay: get_i("reuseDelay", 0),

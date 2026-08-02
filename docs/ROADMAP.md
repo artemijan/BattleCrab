@@ -1360,7 +1360,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S6 landed (headline 275 → 12; reachable 1167); S7–S8 remain**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S7 landed (headline 275 → 12; reachable 1167); S8 close-out remains**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1417,8 +1417,12 @@ destination Scroll of Escape was inert: 107 reachable skills loaded with an
 empty effect list) and `Hp` (Elixir of Life and the food items), taking
 reachable from 1303 to 1167; what remains on that axis is Territory
 War/Gracia+/Freya+ content, recorded as out of chronicle rather than chased;
-and the skill-tag/formula
-residue. **Gate:** 0 learnable skills carry an unhandled effect or unported
+and **S7 landed** the skill-tag tail: `<nextAction>` (339 skills — without it
+every offensive skill *ended* your combat instead of leaving you swinging) and
+`<abnormalResists>` (the cast-time immunity that makes long rituals
+uninterruptible), plus the finding that `magicCriticalRate` is **dead data** —
+Java's `calcCrit` overwrites the per-skill value with the creature stat on its
+first line, so this port was right all along. **Gate:** 0 learnable skills carry an unhandled effect or unported
 condition that is not on a recorded out-of-chronicle list.
 
 ---

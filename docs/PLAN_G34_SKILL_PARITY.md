@@ -1179,14 +1179,44 @@ Gracia+ or Freya+ content. They inflate the reachable count without being
 reachable *on this chronicle*, and porting them would be scope creep rather
 than parity. Recorded here so the number is understood rather than chased.
 
-### S7 — Skill-tag & formula tail
+### S7 — Skill-tag & formula tail ✅
 
-`magicCriticalRate` per-skill (756 learnable skills — first *confirm* the port
-isn't already using a global; if it is, that is the finding), `specialLevel`,
-`nextAction` (39), `isTriggeredSkill`, `soulMaxConsumeCount`, `hitCancelTime`
-verification, `abnormalResists`.
+Two tags with real consumers, and three findings where the answer was "the data
+is dead".
 
----
+- **`<nextAction>`** — `SkillCaster.finishSkill`'s "attack target after skill
+  use" block, on **339** skills declaring `ATTACK` and 11 declaring `CAST`.
+  Without it every offensive skill *ends* your combat: you fire Power Strike and
+  stand there. Java gates it on the AI having no queued intention, a real target
+  that is neither the caster nor un-attackable, and (for `ATTACK`) shift not
+  held — the port has no shift-cast, so that clause is vacuous. The `CAST`
+  branch re-queues the same skill through an intention queue this port does not
+  have; re-casting inline would loop, so it is a deliberate `TODO(G34)` rather
+  than a fake.
+- **`<abnormalResists>`** — `calcEffectSuccess`'s *first* resist clause, ahead
+  of any roll: a target part-way through a cast whose skill names this abnormal
+  type shrugs the debuff off outright. 176 skills declare a list, 146 of them
+  the full crowd-control set — this is what makes the long rituals
+  uninterruptible.
+
+**`magicCriticalRate` is dead data — the finding the plan predicted.** Every
+magic damage handler passes `skill.getMagicCriticalRate()` into
+`Formulas.calcCrit`, and the magic branch's *first line* overwrites it with
+`creature.getStat().getValue(MAGIC_CRITICAL_RATE)`. So the per-skill value on
+756 learnable skills is read and discarded, and this port using the creature
+stat was right all along. Recorded rather than "fixed".
+
+`soulMaxConsumeCount` (49 skills) and `specialLevel` (1622) are parsed by Java's
+`Skill` and read by **nothing** — two more dead tags. Not modelled.
+
+Remaining divergence in `calc_magic_crit`, recorded not closed: Java's level-78
+branch adds `sqrt(casterLevel) + (levelDiff / 25)` and raises the cap from 200
+to 320 when *both* sides are 78+. `DEFENCE_MAGIC_CRITICAL_RATE` has no
+reachable source on this dist (all nine carriers are High Five+), so that term
+is identity here. `TODO(G34)` at the formula.
+
+Census: unchanged — these are skill *tags*, not effect names, so no axis
+counts them. Three tests, all sabotage-verified.
 
 ### S8 — Epic gate & close-out
 
