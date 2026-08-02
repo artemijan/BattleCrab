@@ -2462,6 +2462,141 @@ fn bound_item_cannot_be_discarded() {
     );
 }
 
+/// Java never lifts a ground item on the click itself: `ItemAction` only sets
+/// `AI_INTENTION_PICK_UP`, `CreatureAI.onIntentionPickUp` fires `moveToPawn`,
+/// and `Player.doPickupItem` runs later from `PlayerAI.thinkPickUp` — once
+/// `maybeMoveToPawn(target, 36)` reports the walk has arrived. So clicking loot
+/// across the field must walk the character over, not teleport the item into
+/// the bag.
+#[test]
+fn distant_ground_item_is_walked_to_before_pickup() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9400, 0);
+    let start = *world.objects.get_component::<Position>(&9400).unwrap();
+    drain(&mut rx);
+
+    // 500 units away — far outside `maybeMoveToPawn`'s 36 + collision radius.
+    let item_oid = spawn_ground_item(
+        &mut world,
+        57,
+        400,
+        0,
+        start.x + 500,
+        start.y,
+        start.z,
+        0,
+        DropSource::Npc,
+    );
+    let held = |w: &World| {
+        w.objects
+            .get_component::<crate::model::inventory::Inventory>(&9400)
+            .unwrap()
+            .count_of(57)
+    };
+    assert_eq!(held(&world), 0, "sanity: no adena to start with");
+    drain(&mut rx);
+
+    // The click starts the approach and nothing else.
+    handle_action(&mut world, 1, &action_body(item_oid, 0));
+    assert_eq!(held(&world), 0, "the click alone must not pick it up");
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&item_oid),
+        "the item is still on the ground"
+    );
+    assert!(
+        matches!(
+            world.objects.get_component::<Intent>(&9400).copied(),
+            Some(Intent(crate::model::PlayerIntent::PickUp { item_object_id })) if item_object_id == item_oid
+        ),
+        "AI_INTENTION_PICK_UP is set"
+    );
+    assert!(
+        world.objects.has_component::<Movement>(&9400),
+        "and the character is walking to it (moveToPawn)"
+    );
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::MOVE_TO_PAWN),
+        "MoveToPawn broadcast"
+    );
+
+    // Walk it out: `thinkPickUp` lifts the item on the tick it arrives.
+    advance_world(&mut world, 300);
+    assert_eq!(held(&world), 400, "picked up on arrival");
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&item_oid),
+        "ground item removed"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&9400),
+        "thinkPickUp's setIntention(AI_INTENTION_IDLE) clears the intention"
+    );
+    let end = *world.objects.get_component::<Position>(&9400).unwrap();
+    assert!(
+        ((end.x - start.x) as f64).hypot((end.y - start.y) as f64) > 400.0,
+        "the character actually travelled to the loot"
+    );
+}
+
+/// `CreatureAI.onIntentionPickUp`'s REST branch: a seated player's click on
+/// loot is refused outright with a bare `ActionFailed` — no walk is started
+/// and the item stays put.
+#[test]
+fn seated_player_cannot_pick_up() {
+    use crate::game_loop::ground_items::{DropSource, spawn_ground_item};
+    let (mut world, ..) = admin_world();
+    world.data.item_data =
+        crate::data::ItemData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.id_pool = 0x4000_0000..0x4000_0100;
+    let mut rx = ingame_player_access(&mut world, 1, 9401, 0);
+    let start = *world.objects.get_component::<Position>(&9401).unwrap();
+    world
+        .objects
+        .get_component_mut::<crate::model::Player>(&9401)
+        .unwrap()
+        .sitting = true;
+    // At the player's feet, so only the REST gate can refuse it.
+    let item_oid = spawn_ground_item(
+        &mut world,
+        57,
+        400,
+        0,
+        start.x,
+        start.y,
+        start.z,
+        0,
+        DropSource::Npc,
+    );
+    drain(&mut rx);
+
+    handle_action(&mut world, 1, &action_body(item_oid, 0));
+    assert!(
+        world
+            .objects
+            .has_component::<crate::model::components::GroundItem>(&item_oid),
+        "loot stays on the floor while seated"
+    );
+    assert!(
+        !world.objects.has_component::<Intent>(&9401),
+        "no pick-up intention is started"
+    );
+    assert!(
+        drain(&mut rx)
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "clientActionFailed"
+    );
+}
+
 /// A ground item left un-picked-up auto-destroys after its lifetime
 /// (`ItemsOnGroundManager` cleanup) — when General.ini enables it.
 #[test]

@@ -199,9 +199,11 @@ pub(crate) fn pickup_ground_item(
     player_oid: i32,
     item_oid: i32,
 ) {
-    // `CreatureAI.onIntentionPickUp`'s REST branch — Java routes every click on
-    // a ground item through `AI_INTENTION_PICK_UP`, which refuses outright
-    // while the player is resting. Loot stays on the floor until they stand.
+    // `CreatureAI.onIntentionPickUp`'s REST branch. The click path enforces it
+    // up front in `combat::start_pickup_intent` (where Java has it); repeating
+    // it here covers the callers that reach `doPickupItem` without an
+    // intention — auto-play looting — and the case where the player sits down
+    // mid-walk. Loot stays on the floor until they stand.
     if super::sit_stand::is_resting(world, player_oid) {
         if let Some(cs) = world.clients.get(&client_id) {
             cs.send(server_packets::action_failed());

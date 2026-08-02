@@ -99,9 +99,11 @@ pub struct CastState {
 /// `Cast` walks into cast range of the snapshotted target and then casts —
 /// `PlayerAI.thinkCast` → `maybeMoveToPawn`. `Interact` walks into an NPC's
 /// talk range and then re-runs the interact click — `PlayerAI.thinkInteract`
-/// → `maybeMoveToPawn` → `Player.doInteract` re-dispatching `onAction`. All
-/// three are driven from the combat tick system and cleared by the same
-/// cancel paths.
+/// → `maybeMoveToPawn` → `Player.doInteract` re-dispatching `onAction`.
+/// `PickUp` walks to a ground item and lifts it once inside reach —
+/// `PlayerAI.thinkPickUp` → `maybeMoveToPawn(target, 36)` →
+/// `Player.doPickupItem`. All four are driven from the combat tick system and
+/// cleared by the same cancel paths.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PlayerIntent {
     Attack {
@@ -115,6 +117,13 @@ pub enum PlayerIntent {
     },
     Interact {
         target_object_id: i32,
+    },
+    /// Java `AI_INTENTION_PICK_UP`. The object id is the ground item's, held
+    /// the same way `AbstractAI.setTarget` holds it — an AI-local field, not
+    /// the player's real target (that `setTarget` is the AI's, which only
+    /// assigns `_target` and sends no packet).
+    PickUp {
+        item_object_id: i32,
     },
 }
 
