@@ -224,7 +224,7 @@ fn quest_q00258_accept_collect_turn_in() {
         );
     }
 
-    // First wolf kill: one pelt, earned-SM, quest-tab refresh, itemget sound.
+    // First wolf kill: one pelt, earned-SM, `InventoryUpdate`, itemget sound.
     let wolf = NPC_OID + 1;
     add_test_npc(&mut world, wolf, 20120, "Monster", 5, 30, 0, 0);
     death::npc_do_die(&mut world, wolf, 3001);
@@ -241,10 +241,32 @@ fn quest_q00258_accept_collect_turn_in() {
         sm_ids_of(&pkts).contains(&server_packets::sm_ids::YOU_HAVE_EARNED_S1),
         "earned SM"
     );
+    // Java refreshes the client purely through `InventoryUpdate`, and a
+    // first-time item is change type 1 (add) — `PlayerInventory.addItem`'s
+    // `addNewItem` arm. A brand-new stack announced as 2 (modify) names an
+    // object id the client has no slot for.
+    let iu = pkts
+        .iter()
+        .find(|p| p[0] == 0x21)
+        .expect("InventoryUpdate for the first pelt");
+    assert_eq!(
+        i16::from_le_bytes(iu[1..3].try_into().unwrap()),
+        1,
+        "one entry"
+    );
+    assert_eq!(
+        i16::from_le_bytes(iu[3..5].try_into().unwrap()),
+        1,
+        "change type 1 (add) for a newly created stack"
+    );
+    // No bare `ExQuestItemList`: Java only sends it behind a full `ItemList`
+    // (`EnterWorld` / `sendItemList`). Sent alone it appends the whole quest tab
+    // again, which is the duplicate-row-per-gain bug that clears on relog.
     assert!(
-        pkts.iter()
+        !pkts
+            .iter()
             .any(|p| is_ex(p, server_packets::opcodes::EX_QUEST_ITEM_LIST)),
-        "quest tab refresh"
+        "no standalone ExQuestItemList on a quest item gain"
     );
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_itemget".to_string()));
 
@@ -269,6 +291,17 @@ fn quest_q00258_accept_collect_turn_in() {
     assert_eq!(i32::from_le_bytes(mark[3..7].try_into().unwrap()), 258);
     assert_eq!(i32::from_le_bytes(mark[7..11].try_into().unwrap()), 2);
     assert!(sound_names(&pkts).contains(&"ItemSound.quest_middle".to_string()));
+    // The mirror of the first kill: this pelt merged into a stack the client
+    // already has, so change type 2 (modify) — Java's `addModifiedItem` arm.
+    let iu = pkts
+        .iter()
+        .find(|p| p[0] == 0x21)
+        .expect("InventoryUpdate for the 40th pelt");
+    assert_eq!(
+        i16::from_le_bytes(iu[3..5].try_into().unwrap()),
+        2,
+        "change type 2 (modify) when the stack already existed"
+    );
 
     // Turn-in: roll 0 → Cloth Cap; pelts destroyed; repeatable exit.
     drain_db(&mut db_rx);
@@ -280,6 +313,14 @@ fn quest_q00258_accept_collect_turn_in() {
     );
     let pkts = drain(&mut rx);
     assert_eq!(inv_count(&world), 0, "pelts destroyed on exit");
+    // `takeItems` retires the row with a change-type-3 `InventoryUpdate` entry;
+    // no standalone quest-list refresh there either (Java `destroyItemByItemId`).
+    assert!(
+        !pkts
+            .iter()
+            .any(|p| is_ex(p, server_packets::opcodes::EX_QUEST_ITEM_LIST)),
+        "no standalone ExQuestItemList on takeItems"
+    );
     assert_eq!(
         world
             .objects

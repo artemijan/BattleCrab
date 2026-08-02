@@ -32,6 +32,29 @@ pub(crate) fn add_inventory_item(
     item_id: i32,
     count: i64,
 ) -> Option<Vec<i32>> {
+    add_inventory_item_tracked(world, player_oid, item_id, count)
+        .map(|added| added.into_iter().map(|(oid, _)| oid).collect())
+}
+
+/// [`add_inventory_item`] with the flag every `InventoryUpdate` builder needs:
+/// whether each returned object id is a **freshly created** instance or an
+/// existing stack that merely grew. Java decides the same thing inline in
+/// `PlayerInventory.addItem`:
+///
+/// ```java
+/// if (item.isStackable() && (item.getCount() > count)) playerIU.addModifiedItem(item);
+/// else                                                 playerIU.addNewItem(item);
+/// ```
+///
+/// and the distinction is load-bearing — change type 1 (add) tells the client
+/// to create the inventory slot, change type 2 (modify) only refreshes one it
+/// already has. See [`crate::network::enter_world::inventory_update_added`].
+pub(crate) fn add_inventory_item_tracked(
+    world: &mut World,
+    player_oid: i32,
+    item_id: i32,
+    count: i64,
+) -> Option<Vec<(i32, bool)>> {
     let stackable = world
         .data
         .item_data
@@ -57,14 +80,14 @@ pub(crate) fn add_inventory_item(
                 .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)
                 .expect("checked");
             inv.add_item(&world.data.item_data, stack_oid, item_id, count);
-            return Some(vec![stack_oid]);
+            return Some(vec![(stack_oid, false)]);
         }
         let new_oid = world.alloc_object_id()?;
         let inv = world
             .objects
             .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, count);
-        return Some(vec![new_oid]);
+        return Some(vec![(new_oid, true)]);
     }
 
     let mut created = Vec::with_capacity(count.max(1) as usize);
@@ -74,7 +97,7 @@ pub(crate) fn add_inventory_item(
             .objects
             .get_component_mut::<crate::model::inventory::Inventory>(&player_oid)?;
         inv.add_item(&world.data.item_data, new_oid, item_id, 1);
-        created.push(new_oid);
+        created.push((new_oid, true));
     }
     Some(created)
 }
