@@ -39,6 +39,63 @@ fn skill_power_mul(world: &World, caster_oid: i32, magic: bool) -> f64 {
         .unwrap_or(1.0)
 }
 
+/// The effects whose Java handler gates on `Formulas.calcSkillEvasion` in its
+/// `calcSuccess` — i.e. the damage-dealing family. Kept as an explicit list
+/// rather than "anything with a power" so adding a damage effect has to make a
+/// deliberate choice about dodging.
+fn is_damage_effect(effect: &SkillEffect) -> bool {
+    matches!(
+        effect,
+        SkillEffect::MagicalAttack { .. }
+            | SkillEffect::PhysicalAttack { .. }
+            | SkillEffect::Blow { .. }
+            | SkillEffect::EnergyAttack { .. }
+            | SkillEffect::HpDrain { .. }
+    )
+}
+
+/// `Formulas.calcSkillEvasion` — a flat per-`magicType` dodge chance
+/// (`Rnd.get(100) < getSkillEvasionTypeValue(skill.getMagicType())`), granted
+/// by `SkillEvasion` (Ultimate Evasion 111, Evasion 446 — both bucket 0, the
+/// physical-skill one). Both sides get a message, which is what makes a dodge
+/// legible rather than a silent miss.
+fn skill_evasion_dodges(
+    world: &mut World,
+    caster_oid: i32,
+    target_oid: i32,
+    skill: &Skill,
+) -> bool {
+    let chance = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+        .and_then(|m| m.skill_evasion.get(&skill.magic_type).copied())
+        .unwrap_or(0.0);
+    if chance <= 0.0 || (world.roll(100) as f64) >= chance {
+        return false;
+    }
+    let (caster_name, target_name) = (
+        creature_name(world, caster_oid),
+        creature_name(world, target_oid),
+    );
+    if let Some(cid) = client_for_player(world, caster_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::server_packets::system_message_with(
+            crate::network::server_packets::sm_ids::C1_DODGED_THE_ATTACK,
+            &[crate::network::server_packets::SmParam::Text(target_name)],
+        ));
+    }
+    if let Some(cid) = client_for_player(world, target_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(crate::network::server_packets::system_message_with(
+            crate::network::server_packets::sm_ids::YOU_HAVE_DODGED_C1_S_ATTACK,
+            &[crate::network::server_packets::SmParam::Text(caster_name)],
+        ));
+    }
+    true
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -109,6 +166,15 @@ pub(crate) fn apply_skill_effects(
             .is_some_and(|p| p.is_charged_shot(crate::model::ShotType::Soulshots));
 
     for effect in &skill.effects {
+        // `Formulas.calcSkillEvasion`, which Java calls from the `calcSuccess`
+        // of every *damage* effect handler (Backstab, DeathLink, EnergyAttack,
+        // FatalBlow, HpDrain, MagicalAttack, PhysicalAttack, …) rather than
+        // once per skill. Checking it per damage effect here keeps that shape:
+        // a skill carrying a nuke *and* a debuff can have its nuke dodged
+        // while the debuff still rolls its own landing chance (G34 S4).
+        if is_damage_effect(effect) && skill_evasion_dodges(world, caster_oid, target_oid, skill) {
+            continue;
+        }
         match effect {
             // Pet food. Java branches on the *effected*: a pet's own bar is
             // filled through `servitor::apply_food_skill` (which targets the
@@ -1341,6 +1407,48 @@ pub(crate) fn apply_skill_effects(
                     crate::game_loop::skills::cast::stop_casting(world, target_oid);
                 }
             }
+            // `SkillEvasion.onStart` — `addSkillEvasionTypeValue(magicType,
+            // amount)`. A per-bucket dodge chance, merged onto the *effected*
+            // and unmerged by `handle_buff_expire`.
+            SkillEffect::SkillEvasion { magic_type, amount } => {
+                // A plain `if let … get_component_mut` would **silently
+                // no-op** on a target that has no `StatModifiers` yet — NPCs
+                // do not all carry one ([[l2r-conditional-writes-fail-open]]).
+                // Insert-then-merge instead.
+                let mut mods = world
+                    .objects
+                    .get_component::<crate::model::components::StatModifiers>(&target_oid)
+                    .cloned()
+                    .unwrap_or_default();
+                *mods.skill_evasion.entry(*magic_type).or_insert(0.0) += *amount;
+                world.objects.add_components(&target_oid, mods);
+            }
+            // `SkillTurning.instant` — Spell Turning (1412). Offensive despite
+            // the name: it breaks the *target's* cast. Java bails on a
+            // self-cast and on raid bosses, and rolls `Rnd.get(100) < chance`
+            // unless `staticChance`, which routes through `calcProbability`
+            // (level-aware) instead. No dist skill sets `staticChance`.
+            SkillEffect::SkillTurning {
+                chance,
+                static_chance,
+            } => {
+                let is_raid = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    .is_some_and(|t| t.is_raid());
+                if caster_oid == target_oid || is_raid {
+                    continue;
+                }
+                let passes = if *static_chance {
+                    confuse_chance_passes(world, caster_oid, target_oid, skill, *chance)
+                } else {
+                    world.roll(100) < *chance
+                };
+                if passes {
+                    crate::game_loop::skills::cast::break_cast(world, target_oid);
+                }
+            }
             // `TargetMe` / `TargetMeProbability` — the *playable*-side taunt.
             // Java wraps both in `if (effected.isPlayable())`, so taunting a
             // **monster** through these does nothing at all; a mob's aggro
@@ -1716,6 +1824,10 @@ pub(crate) fn apply_continuous_effects(
                 // caught by this guard; any new modifier-less effect must join
                 // one of its three categories.
                 | SkillEffect::TargetMe
+                // `SkillEvasion` likewise: its contribution lives in a
+                // per-magicType map that only `handle_buff_expire` unmerges,
+                // so a dropped buff makes the dodge chance permanent.
+                | SkillEffect::SkillEvasion { .. }
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
@@ -3197,7 +3309,7 @@ fn roll_magic_failure(
             } else {
                 sm_ids::YOU_RESISTED_C1_S_MAGIC
             },
-            &[SmParam::Text(caster_name)],
+            &[crate::network::server_packets::SmParam::Text(caster_name)],
         );
     }
 
@@ -3726,6 +3838,102 @@ fn crit_message(is_magic: bool, caster_name: &str) -> Vec<u8> {
 /// path in `combat::apply_physical_damage`'s per-kind receivers. `is_magic`
 /// picks the crit line (`Player.sendDamageMessage`: `M_CRITICAL` for magic,
 /// `C1_LANDED_A_CRITICAL_HIT` for physical skills).
+/// `Formulas.calcCounterAttack` — Shield of Revenge (439) and Counterattack
+/// (447), whose `CounterPhysicalSkill` effect grants a **chance** (20 % / 90 %),
+/// not a multiplier.
+///
+/// Two guards decide whether it can fire at all, and both are easy to drop:
+/// **only melee skills are counterable** (`skill.isMagic() ||
+/// skill.getCastRange() > 40` bails), and the counter is skipped for a dead
+/// target and for DoT ticks. The counter damage itself is
+/// `target.pAtk * 873 / attacker.pDef`, scaled by the weapon/general trait and
+/// attribute bonuses.
+fn calc_counter_attack(
+    world: &mut World,
+    attacker_oid: i32,
+    target_oid: i32,
+    skill_id: i32,
+    is_dot: bool,
+) {
+    /// Java `Formulas.MELEE_ATTACK_RANGE`.
+    const MELEE_ATTACK_RANGE: i32 = 40;
+    if is_dot {
+        return;
+    }
+    let Some(skill) = world.data.skill_data.get(skill_id, 1).cloned() else {
+        return;
+    };
+    if skill.magic_type == 1 || skill.cast_range > MELEE_ATTACK_RANGE {
+        return;
+    }
+    if world
+        .objects
+        .get_component::<Vitals>(&target_oid)
+        .is_none_or(|v| v.dead)
+    {
+        return;
+    }
+    let chance = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&target_oid)
+        .and_then(|m| {
+            m.add
+                .get(&crate::model::stats::Stat::VengeanceSkillPhysicalDamage)
+                .copied()
+        })
+        .unwrap_or(0.0);
+    if chance <= 0.0 || (world.roll(100) as f64) >= chance {
+        return;
+    }
+    let (target_p_atk, attacker_p_def) = (
+        world
+            .objects
+            .get_component::<CombatStats>(&target_oid)
+            .map(|c| c.p_atk)
+            .unwrap_or(0.0),
+        world
+            .objects
+            .get_component::<CombatStats>(&attacker_oid)
+            .map(|c| c.p_def)
+            .unwrap_or(0.0)
+            .max(1.0),
+    );
+    let counter = (target_p_atk * 873.0 / attacker_p_def)
+        * skill_trait_mod(world, target_oid, attacker_oid, &skill, true)
+        * attribute_mod(world, target_oid, attacker_oid, &skill);
+    if counter <= 0.0 {
+        return;
+    }
+    let (attacker_name, target_name) = (
+        creature_name(world, attacker_oid),
+        creature_name(world, target_oid),
+    );
+    if let Some(cid) = client_for_player(world, target_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(server_packets::system_message_with(
+            server_packets::sm_ids::YOU_COUNTERED_C1_S_ATTACK,
+            &[server_packets::SmParam::Text(attacker_name)],
+        ));
+    }
+    if let Some(cid) = client_for_player(world, attacker_oid)
+        && let Some(cs) = world.clients.get(&cid)
+    {
+        cs.send(server_packets::system_message_with(
+            server_packets::sm_ids::C1_IS_PERFORMING_A_COUNTERATTACK,
+            &[server_packets::SmParam::Text(target_name)],
+        ));
+    }
+    crate::game_loop::combat::apply_physical_damage(
+        world,
+        target_oid,
+        attacker_oid,
+        counter,
+        false,
+        true,
+    );
+}
+
 pub(crate) fn apply_skill_damage(
     world: &mut World,
     caster_oid: i32,
@@ -3749,6 +3957,11 @@ pub(crate) fn apply_skill_damage(
 ) {
     record_overhit(world, caster_oid, target_oid, damage, over_hit);
     use server_packets::{SmParam, sm_ids};
+
+    // `Formulas.calcCounterAttack`, which Java runs from `reduceCurrentHp`
+    // *before* the damage lands ("Counterattacks happen before damage
+    // received") whenever a skill is involved (G34 S4).
+    calc_counter_attack(world, caster_oid, target_oid, skill_id, is_dot);
 
     // A siege door: route the hit straight to the gate's HP (no CP/hate/AI
     // receivers) and refresh its HP bar, then report the damage to the caster.
@@ -4350,6 +4563,27 @@ pub(crate) fn handle_buff_expire(world: &mut World, player_object_id: i32, skill
         .is_some_and(|b| b.0.iter().any(|b| b.skill_id == skill_id));
     if !still_active {
         return;
+    }
+    // `SkillEvasion.onExit` — `removeSkillEvasionTypeValue(magicType, amount)`.
+    // Merged onto a per-bucket map rather than a `Stat`, so it needs its own
+    // unmerge; without it Ultimate Evasion's 40 % dodge would be permanent.
+    if let Some(evasions) = world.data.skill_data.get(skill_id, 1).map(|s| {
+        s.effects
+            .iter()
+            .filter_map(|e| match e {
+                SkillEffect::SkillEvasion { magic_type, amount } => Some((*magic_type, *amount)),
+                _ => None,
+            })
+            .collect::<Vec<_>>()
+    }) && !evasions.is_empty()
+        && let Some(mods) = world
+            .objects
+            .get_component_mut::<crate::model::components::StatModifiers>(&player_object_id)
+    {
+        for (magic_type, amount) in evasions {
+            let entry = mods.skill_evasion.entry(magic_type).or_insert(0.0);
+            *entry = (*entry - amount).max(0.0);
+        }
     }
     // `TargetMe.onExit` — `setLockedTarget(null)`. The lock is what stops the
     // victim clicking a different NPC ("Failed to change enmity"), so it must

@@ -520,6 +520,21 @@ pub enum SkillEffect {
     /// `handlers/effecthandlers/PhysicalMute.java` — the physical twin,
     /// refusing non-magic skills.
     PhysicalMute,
+    /// `SkillEvasion` — a flat % chance to dodge an incoming skill of a given
+    /// `magicType` (Ultimate Evasion 111, Evasion 446; both `magicType 0`, the
+    /// physical-skill bucket). Java keeps a **per-magicType map**, not a single
+    /// stat, so a buff that dodges physical skills does nothing against magic.
+    SkillEvasion {
+        magic_type: i32,
+        amount: f64,
+    },
+    /// `SkillTurning` — Spell Turning (1412), despite the name an offensive
+    /// `ENEMY_ONLY` instant that **breaks the target's cast** on a chance roll.
+    /// Never fires on the caster themselves, and raid bosses are immune.
+    SkillTurning {
+        chance: i32,
+        static_chance: bool,
+    },
     /// `TargetMe` — force the effected **playable** to target the caster and
     /// **lock** it there for the buff's duration (Aggression 28, Aggression
     /// Aura 18). `TargetMeProbability` is the instant, chance-rolled variant

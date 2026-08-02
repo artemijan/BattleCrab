@@ -1527,3 +1527,209 @@ fn hate_attack_scales_auto_attack_hate_only() {
         "skill damage generates unmultiplied hate ({plain} vs {after_skill})"
     );
 }
+
+/// G34 S4 sub-slice 4 — `SkillEvasion` (Ultimate Evasion 111, Evasion 446).
+///
+/// Java keeps this in a **per-`magicType` map**, not a `Stat`: both learnable
+/// sources are bucket 0 (physical skills), so the buff must dodge those and
+/// leave magic alone. A single global dodge stat would pass any test that only
+/// ever fires one kind of skill.
+#[test]
+fn skill_evasion_dodges_only_its_own_magic_type() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        9341,
+        SkillEffect::SkillEvasion {
+            magic_type: 0,
+            amount: 100.0, // always dodge, so the roll is not the variable
+        },
+        "EVASION",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+
+    land(&mut world, 9341, NPC_OID);
+    let evasion = |world: &World, bucket: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&NPC_OID)
+            .and_then(|m| m.skill_evasion.get(&bucket).copied())
+            .unwrap_or(0.0)
+    };
+    assert_eq!(evasion(&world, 0), 100.0, "the physical-skill bucket");
+    assert_eq!(
+        evasion(&world, 1),
+        0.0,
+        "…and nothing in the magic bucket — Java keys the map by magicType"
+    );
+
+    // The merge is only half of it — the *roll* has to consume the map, or the
+    // buff is a number nobody reads. A physical-skill nuke (magicType 0) at
+    // 100 % dodge must land no damage at all.
+    let mut nuke = cc_skill(
+        9343,
+        SkillEffect::PhysicalAttack {
+            power: 500.0,
+            p_atk_mod: 1.0,
+            p_def_mod: 1.0,
+            critical_chance: 0.0,
+            ignore_shield_defence: false,
+        },
+        "NONE",
+    );
+    nuke.magic_type = 0; // the bucket the buff covers
+    world.data.skill_data.insert_for_test(nuke);
+    let hp_before = world
+        .objects
+        .get_component::<Vitals>(&NPC_OID)
+        .map(|v| v.cur_hp)
+        .unwrap_or(0.0);
+    land(&mut world, 9343, NPC_OID);
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&NPC_OID)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0),
+        hp_before,
+        "a 100 % dodge takes no damage — the map has to reach the roll"
+    );
+
+    // `onExit` unmerges: a per-bucket map has no `Stat` recompute to fall back
+    // on, so without it Ultimate Evasion's dodge would be permanent.
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, NPC_OID, 9341);
+    assert_eq!(
+        evasion(&world, 0),
+        0.0,
+        "the dodge goes with the buff, or it never goes at all"
+    );
+}
+
+/// `SkillTurning` — Spell Turning (1412). The name suggests a reflect; the
+/// handler is an offensive `ENEMY_ONLY` instant that **breaks the target's
+/// cast**. Java bails on a self-cast and on raid bosses.
+#[test]
+fn skill_turning_breaks_the_targets_cast_but_not_a_raids() {
+    let (mut world, _db, _l) = cc2_world();
+    world.data.skill_data.insert_for_test(cc_skill(
+        9342,
+        SkillEffect::SkillTurning {
+            chance: 100,
+            static_chance: false,
+        },
+        "NONE",
+    ));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let victim = 5961;
+    let _v = ingame_player_access(&mut world, 2, victim, 0);
+
+    // A self-cast is a no-op even at 100 % — Java returns before the break.
+    land(&mut world, 9342, CASTER);
+
+    // Against another caster it breaks the cast.
+    world.objects.add_components(
+        &victim,
+        crate::model::components::Casting(crate::model::CastState {
+            skill_id: 1177,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: CASTER,
+            seq: 1,
+            // `canAbortCast()` — only an unlaunched cast can be broken.
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+    land(&mut world, 9342, victim);
+    assert!(
+        !world
+            .objects
+            .has_component::<crate::model::components::Casting>(&victim),
+        "the victim's cast is broken"
+    );
+}
+
+/// `CounterPhysicalSkill` — Shield of Revenge (439) at 20 %, Counterattack
+/// (447) at 90 %. The effect grants a **chance**, not a multiplier, and Java
+/// runs the counter from `reduceCurrentHp` *before* the damage lands.
+///
+/// Two guards decide whether it can fire at all, and both are asserted because
+/// dropping either would look correct in a melee-only test: **magic skills
+/// cannot be countered**, and neither can anything with `castRange > 40`.
+#[test]
+fn counter_physical_skill_answers_melee_skills_only() {
+    use crate::model::stats::Stat;
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 5, 100, 0, 0);
+
+    // 100 % counter on the mob, and enough P.Atk for the counter to bite.
+    let mut mods = world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&NPC_OID)
+        .cloned()
+        .unwrap_or_default();
+    mods.add.insert(Stat::VengeanceSkillPhysicalDamage, 100.0);
+    world.objects.add_components(&NPC_OID, mods);
+    if let Some(cs) = world
+        .objects
+        .get_component_mut::<crate::model::components::CombatStats>(&NPC_OID)
+    {
+        cs.p_atk = 500.0;
+    }
+
+    let caster_hp = |world: &World| {
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+
+    // A melee skill (castRange 40, physical) is countered.
+    let mut melee = cc_skill(9351, SkillEffect::Root, "NONE");
+    melee.magic_type = 0;
+    melee.cast_range = 40;
+    world.data.skill_data.insert_for_test(melee);
+    let before = caster_hp(&world);
+    crate::game_loop::skills::effects::apply_skill_damage(
+        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9351,
+    );
+    assert!(
+        caster_hp(&world) < before,
+        "a melee skill draws a counter ({before} → {})",
+        caster_hp(&world)
+    );
+
+    // A *magic* skill never is, however high the chance.
+    let mut magic = cc_skill(9352, SkillEffect::Root, "NONE");
+    magic.magic_type = 1;
+    magic.cast_range = 40;
+    world.data.skill_data.insert_for_test(magic);
+    let before = caster_hp(&world);
+    crate::game_loop::skills::effects::apply_skill_damage(
+        &mut world, CASTER, NPC_OID, 1.0, false, true, "c", false, false, 9352,
+    );
+    assert_eq!(
+        caster_hp(&world),
+        before,
+        "magic is not counterable — Java bails on skill.isMagic()"
+    );
+
+    // Nor is a ranged one: `castRange > MELEE_ATTACK_RANGE` (40).
+    let mut ranged = cc_skill(9353, SkillEffect::Root, "NONE");
+    ranged.magic_type = 0;
+    ranged.cast_range = 600;
+    world.data.skill_data.insert_for_test(ranged);
+    let before = caster_hp(&world);
+    crate::game_loop::skills::effects::apply_skill_damage(
+        &mut world, CASTER, NPC_OID, 1.0, false, false, "c", false, false, 9353,
+    );
+    assert_eq!(
+        caster_hp(&world),
+        before,
+        "only melee-range skills can be countered"
+    );
+}

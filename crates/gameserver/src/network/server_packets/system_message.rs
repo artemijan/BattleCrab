@@ -785,6 +785,14 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    /// "$c1 is performing a counterattack." / "You countered $c1's attack." —
+    /// the `CounterPhysicalSkill` pair (`Formulas.calcCounterAttack`).
+    pub const C1_IS_PERFORMING_A_COUNTERATTACK: i16 = 1997;
+    pub const YOU_COUNTERED_C1_S_ATTACK: i16 = 1998;
+    /// "$c1 dodged the attack." / "You have dodged $c1's attack." — the
+    /// `SkillEvasion` pair (`Formulas.calcSkillEvasion`).
+    pub const C1_DODGED_THE_ATTACK: i16 = 1999;
+    pub const YOU_HAVE_DODGED_C1_S_ATTACK: i16 = 2000;
     /// "Failed to change enmity." — a locked target refusing a new selection.
     pub const FAILED_TO_CHANGE_ENMITY: i16 = 564;
     /// "You cannot use summoning or teleporting in this area."
