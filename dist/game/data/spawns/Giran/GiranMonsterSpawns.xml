@@ -42,13 +42,13 @@
 			<npc id="20237" x="87259" y="119928" z="-3058" heading="36903" respawnTime="36sec" />
 			<npc id="20238" x="84492" y="120877" z="-3035" heading="23922" respawnTime="36sec" />
 			<npc id="20238" x="86401" y="118802" z="-3108" heading="0" respawnTime="36sec" />
-			<npc id="20239" x="86804" y="119158" z="-3108" heading="0" respawnTime="36sec" />
+			<npc id="20239" x="86804" y="119158" z="-2388" heading="0" respawnTime="36sec" />
 			<npc id="20239" x="86703" y="118980" z="-3108" heading="0" respawnTime="36sec" />
 			<npc id="20236" x="89278" y="117772" z="-3184" heading="0" respawnTime="36sec" />
 			<npc id="20236" x="91300" y="118201" z="-3058" heading="57344" respawnTime="36sec" />
 			<npc id="20237" x="90483" y="119338" z="-3058" heading="22608" respawnTime="36sec" />
 			<npc id="20237" x="89379" y="117950" z="-3184" heading="0" respawnTime="36sec" />
-			<npc id="20238" x="89781" y="117950" z="-3184" heading="0" respawnTime="36sec" />
+			<npc id="20238" x="89781" y="117950" z="-2428" heading="0" respawnTime="36sec" />
 			<npc id="20238" x="89580" y="117594" z="-3184" heading="0" respawnTime="36sec" />
 			<npc id="20239" x="89430" y="120290" z="-3034" heading="24798" respawnTime="36sec" />
 			<npc id="20239" x="92464" y="119149" z="-2965" heading="24568" respawnTime="36sec" />
@@ -74,7 +74,7 @@
 			<npc id="20240" x="89479" y="111952" z="-3288" heading="0" respawnTime="36sec" />
 			<npc id="20146" x="85897" y="112111" z="-3061" heading="0" respawnTime="36sec" />
 			<npc id="20240" x="88354" y="112354" z="-3279" heading="1653" respawnTime="36sec" />
-			<npc id="20240" x="87149" y="112006" z="-3408" heading="0" respawnTime="36sec" />
+			<npc id="20240" x="87149" y="112006" z="-3292" heading="0" respawnTime="36sec" />
 			<npc id="20239" x="85734" y="111472" z="-3432" heading="0" respawnTime="36sec" />
 			<npc id="20239" x="84033" y="112626" z="-3053" heading="27541" respawnTime="36sec" />
 			<npc id="20240" x="85633" y="111650" z="-3432" heading="0" respawnTime="36sec" />
@@ -102,7 +102,7 @@
 			<npc id="20239" x="84201" y="110961" z="-3668" heading="28930" respawnTime="36sec" />
 			<npc id="20239" x="87475" y="110801" z="-3791" heading="908" respawnTime="36sec" />
 			<npc id="20239" x="86826" y="110370" z="-3735" heading="34677" respawnTime="36sec" />
-			<npc id="20239" x="85157" y="109380" z="-3852" heading="0" respawnTime="36sec" />
+			<npc id="20239" x="85157" y="109380" z="-3220" heading="0" respawnTime="36sec" />
 			<npc id="20238" x="88565" y="110798" z="-3739" heading="39920" respawnTime="36sec" />
 			<npc id="20238" x="87618" y="110322" z="-3756" heading="39079" respawnTime="36sec" />
 			<npc id="20239" x="88640" y="111082" z="-3757" heading="30717" respawnTime="36sec" />
