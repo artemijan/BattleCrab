@@ -135,6 +135,41 @@ pub fn inventory_update(
     w.into_bytes()
 }
 
+/// `InventoryUpdate` (0x21) for an item *gain*, where each entry carries
+/// whether the instance was newly created. Java picks the change type per
+/// entry in `PlayerInventory.addItem`:
+///
+/// ```java
+/// if (item.isStackable() && (item.getCount() > count)) playerIU.addModifiedItem(item);
+/// else                                                 playerIU.addNewItem(item);
+/// ```
+///
+/// `addNewItem` writes change type **1**, `addModifiedItem` **2**. The plain
+/// [`inventory_update`] above hard-codes 2, which is right for equip/unequip
+/// (the instance already exists client-side) but wrong for a first-time gain:
+/// a modify names an object id the client has no slot for.
+pub fn inventory_update_added(
+    inventory: &crate::model::inventory::Inventory,
+    data: &GameData,
+    added: &[(i32, bool)],
+) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(0x21);
+    w.write_i16(added.len() as i16);
+    for &(object_id, is_new) in added {
+        let Some(item) = inventory.items().iter().find(|i| i.object_id == object_id) else {
+            continue;
+        };
+        let Some(template) = data.item_data.get(item.item_id) else {
+            continue;
+        };
+        let equipped = inventory.paperdoll_slot_of(object_id).is_some();
+        w.write_i16(if is_new { 1 } else { 2 });
+        write_item_entry(&mut w, item, template, equipped);
+    }
+    w.into_bytes()
+}
+
 /// `InventoryUpdate` (0x21) from explicit [`ItemChange`]s — the shape quest
 /// `takeItems` needs: modified stacks write their new count, removed
 /// instances write change type 3 from the final snapshot (`remove_item`

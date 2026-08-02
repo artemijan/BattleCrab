@@ -4022,6 +4022,41 @@ that is now pinned by its own test. Two things around it were **not** Java:
   equip and none per removal, a paperdoll refresh spends nothing, and a relog
   inside the beat window leaves exactly one beat running.
 
+### Post-G33 — quest items duplicated in the inventory until relog ✅ (2026-08-02)
+
+Reported against Q00217 *Testimony of Trust*: the quest tab showed several
+"Scroll of Elf Trust" / "Basilisk Plasma" rows for items handed out once, and a
+relog collapsed them back to one. Server state was never wrong — the inventory
+merges stacks correctly and the DB held a single row, which is exactly why the
+relog "fixed" it. Both causes were in the two packets a quest gain sends.
+
+- **`ExQuestItemList` was fired bare on every quest `giveItems`/`takeItems`.**
+  Java sends that packet from exactly two places — `EnterWorld` and
+  `Player.sendItemList`, which always puts a full `ItemList` in front of it —
+  so the client treats it as a list to append to the inventory it was just
+  handed, not as a standalone refresh. Sent alone it re-appends the whole quest
+  tab, one visible duplicate row per gain, until the next `ItemList` rebuilds
+  the window. Java's quest paths (`PlayerInventory.addItem`,
+  `destroyItemByItemId`) refresh the client through `InventoryUpdate` alone;
+  both bare sends are gone.
+- **Every `InventoryUpdate` entry claimed change type 2 (modify)**, including
+  brand-new stacks. Java picks per entry in `PlayerInventory.addItem`:
+  `isStackable() && getCount() > count` → `addModifiedItem` (2), else
+  `addNewItem` (1) — a modify names an object id the client has no slot for.
+  New `items::add_inventory_item_tracked` reports new-vs-merged per object id
+  and `enter_world::inventory_update_added` writes the matching type; the plain
+  `inventory_update` keeps its hard-coded 2, which is right for its
+  equip/unequip callers (the instance already exists client-side). Fixing this
+  is what lets the `ExQuestItemList` crutch be removed safely.
+- The quest script itself was faithful: Q00217's Guardian Basilisk arm gives 1
+  Blood per kill and swaps 5 Blood → 1 Plasma behind `!hasQuestItems(PLASMA)`,
+  matching Java line for line. Blood appearing "alongside" the Plasma was the
+  same stale client rows — `takeItems`' change-type-3 entry retires one row, not
+  the phantom copies of it.
+- 4 assertions on the existing Q00258 collect/turn-in test, each
+  sabotage-verified: change type 1 on the first pelt, 2 on a merge, and no bare
+  `ExQuestItemList` on either the gain or the take.
+
 ---
 
 ## Deferred TODOs (by system)

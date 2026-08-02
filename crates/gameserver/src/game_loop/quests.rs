@@ -1849,8 +1849,16 @@ impl<'w> QuestCtx<'w> {
 // ---------------------------------------------------------------------------
 
 /// `Player.addItem("Quest", …)` + `sendItemGetMessage`: SM 52/53/54 ("You
-/// have earned …") + `InventoryUpdate`, and an `ExQuestItemList` refresh
-/// when the item lives in the quest tab.
+/// have earned …") + `InventoryUpdate`.
+///
+/// Deliberately **no** `ExQuestItemList` here, matching Java: that packet is
+/// only ever sent by `EnterWorld` and by `Player.sendItemList`, which always
+/// puts a full `ItemList` in front of it. The client treats it as a list to
+/// append to the inventory it was just handed, not as a standalone refresh, so
+/// firing it bare on every quest item gain appends the whole quest tab again —
+/// one visible duplicate row per gain, surviving until the next relog rebuilds
+/// the inventory from `ItemList`. The `InventoryUpdate` below is the entire
+/// client-side refresh Java performs (`PlayerInventory.addItem`).
 pub(crate) fn give_item_with_earned_message(
     world: &mut World,
     client_id: u32,
@@ -1858,15 +1866,11 @@ pub(crate) fn give_item_with_earned_message(
     item_id: i32,
     count: i64,
 ) {
-    let Some(changed_oids) = super::items::add_inventory_item(world, player, item_id, count) else {
+    let Some(added) = super::items::add_inventory_item_tracked(world, player, item_id, count)
+    else {
         warn!("quest give_items: object-id pool exhausted, dropping {item_id}×{count}");
         return;
     };
-    let is_quest_item = world
-        .data
-        .item_data
-        .get(item_id)
-        .is_some_and(|t| t.is_quest_item);
     let Some(inventory) = world.objects.get_component::<Inventory>(&player) else {
         return;
     };
@@ -1886,19 +1890,13 @@ pub(crate) fn give_item_with_earned_message(
             &[SmParam::ItemName(item_id)],
         )
     };
-    let iu = ew::inventory_update(inventory, &world.data, &changed_oids);
-    let quest_list = is_quest_item.then(|| ew::ex_quest_item_list(inventory, &world.data));
+    let iu = ew::inventory_update_added(inventory, &world.data, &added);
     if let Some(cs) = world.clients.get(&client_id) {
         cs.send(sm);
     }
     // `InventoryUpdate` + adena counter + weight bar (Java `sendInventoryUpdate`),
     // so the status-bar adena count refreshes on adena gains (`//create_coin`).
     super::helpers::send_inventory_update(world, client_id, player, iu);
-    if let Some(q) = quest_list
-        && let Some(cs) = world.clients.get(&client_id)
-    {
-        cs.send(q);
-    }
 }
 
 /// The game-loop half of `takeItems`: `Inventory::remove_item` + DB deletes/
@@ -1922,19 +1920,12 @@ pub(crate) fn take_items(
     }
     // Memory-first: the count decrements / removals already applied to the
     // `Inventory` component; they persist on the next flush.
-    let is_quest_item = world
-        .data
-        .item_data
-        .get(item_id)
-        .is_some_and(|t| t.is_quest_item);
+    //
+    // As in `give_item_with_earned_message`, no bare `ExQuestItemList` — Java's
+    // `takeItems` → `destroyItemByItemId` sends only the `InventoryUpdate`, and
+    // the change-type-3 entries below are what retire the client's rows.
     let iu = ew::inventory_update_changes(&world.data, &changes);
     super::helpers::send_inventory_update(world, client_id, player, iu);
-    if is_quest_item
-        && let Some(cs) = world.clients.get(&client_id)
-        && let Some(inventory) = world.objects.get_component::<Inventory>(&player)
-    {
-        cs.send(ew::ex_quest_item_list(inventory, &world.data));
-    }
     true
 }
 
