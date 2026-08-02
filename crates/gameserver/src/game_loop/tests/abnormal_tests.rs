@@ -3046,3 +3046,64 @@ fn chant_of_gate_recalls_the_party_but_not_someone_in_combat() {
         "and the caster does not recall themselves"
     );
 }
+
+/// **`ReduceDropPenalty`** (Residence Death Fortune 610) — the exp you lose on
+/// death is scaled by *what killed you*: a raid, an ordinary monster, or a
+/// playable each read a different stat. Residence Death Fortune grants the
+/// **mob** one at `-12` (×0.88), so dying to a monster costs less while it is
+/// up and dying to a player costs exactly as much as before.
+#[test]
+fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    // A wide level band so the 12 % reduction is unmistakable, and exp set
+    // *above* the level threshold — sitting exactly on it makes the delevel
+    // clamp zero the loss and the test measure nothing.
+    world.data.experience =
+        crate::data::ExperienceData::from_table(vec![0, 0, 1000, 2000, 3000, 103_000], 5);
+    let mob = NPC_OID;
+    let killer_player = CASTER + 1;
+    add_test_npc(&mut world, mob, 90101, "Monster", 5, 100, 0, 0);
+    let _k = ingame_player(&mut world, CID + 1, killer_player, 50, 0, 0);
+
+    let lost_against = |world: &mut World, killer: i32| -> i64 {
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&CASTER)
+        {
+            p.level = 4;
+            p.exp = 50_000;
+        }
+        crate::game_loop::death::apply_death_exp_penalty_ex(world, CASTER, false, Some(killer));
+        50_000
+            - world
+                .objects
+                .get_component::<crate::model::Player>(&CASTER)
+                .map(|p| p.exp)
+                .unwrap_or(0)
+    };
+
+    let plain_mob = lost_against(&mut world, mob);
+    let plain_pvp = lost_against(&mut world, killer_player);
+    assert!(plain_mob > 0, "a mob death costs exp to begin with");
+
+    // Grant the *mob* reduction only.
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+    {
+        *m.mul.entry(Stat::ReduceExpLostByMob).or_insert(1.0) *= 0.88;
+    }
+
+    assert!(
+        lost_against(&mut world, mob) < plain_mob,
+        "dying to a monster now costs less"
+    );
+    assert_eq!(
+        lost_against(&mut world, killer_player),
+        plain_pvp,
+        "but dying to a player is untouched — the stat is keyed on the killer"
+    );
+}

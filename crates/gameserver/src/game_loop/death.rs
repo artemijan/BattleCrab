@@ -2096,7 +2096,7 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
                 .unwrap_or(0);
             super::clans::at_war_between(world, kc, vc)
         };
-        apply_death_exp_penalty_ex(world, player_oid, at_war);
+        apply_death_exp_penalty_ex(world, player_oid, at_war, Some(killer_oid));
     }
 
     let opts = die_options(world, player_oid);
@@ -2124,16 +2124,25 @@ pub(crate) fn player_do_die(world: &mut World, player_oid: i32, killer_oid: i32)
 /// `stopAllEffectsExceptThoseThatLastThroughDeath`, which strips every active
 /// buff whose skill isn't `<stayAfterDeath>`.
 ///
-/// `RESURRECTION_SPECIAL` has no ported source yet (the self-res effect is
-/// TODO(G22)), so only the blessing can spare the buff list here.
+/// Both flags spare the buff list as of G34 S4: `ResurrectionSpecial`
+/// (Salvation 1410, Soul of the Phoenix 438) landed the second source, and
+/// being stripped here is exactly what fires its revive proposal.
 ///
 /// Passive entries are skipped: Java's sweep runs over `EffectList._actives`
 /// only, while this port parks the grade-penalty passives in the same `Buffs`
 /// vec — dropping those would silently unwind a passive's stat pump on death.
+#[cfg(test)]
+pub(crate) fn stop_effects_on_death_for_test(world: &mut World, player_oid: i32) {
+    stop_effects_on_death(world, player_oid);
+}
+
 fn stop_effects_on_death(world: &mut World, player_oid: i32) {
     use crate::model::skill::effect_flag;
 
-    let blessed = super::abnormal::flags_of(world, player_oid) & effect_flag::NOBLESS_BLESSING != 0;
+    // Java tests the two flags separately but does the same thing for each:
+    // stop that one effect, keep the rest.
+    let sparing = effect_flag::NOBLESS_BLESSING | effect_flag::RESURRECTION_SPECIAL;
+    let blessed = super::abnormal::flags_of(world, player_oid) & sparing != 0;
     let Some(buffs) = world.objects.get_component::<Buffs>(&player_oid) else {
         return;
     };
@@ -2143,9 +2152,10 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
         .filter(|b| !b.passive)
         .filter(|b| {
             if blessed {
-                // `stopEffects(EffectFlag.NOBLESS_BLESSING)` — the blessing and
-                // nothing else.
-                b.effect_flags & effect_flag::NOBLESS_BLESSING != 0
+                // `stopEffects(EffectFlag.NOBLESS_BLESSING)` /
+                // `stopEffects(EffectFlag.RESURRECTION_SPECIAL)` — that effect
+                // and nothing else.
+                b.effect_flags & sparing != 0
             } else {
                 !world
                     .data
@@ -2184,8 +2194,43 @@ pub(crate) fn is_lucky(world: &World, player_oid: i32) -> bool {
 
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the
 /// `Delevel`/`DelevelMinimum` clamping) + the SM 539 notice.
+/// `calculateDeathExpPenalty`'s killer branch — which of the three
+/// `REDUCE_EXP_LOST_BY_*` stats scales the loss. Java's `if/else if` order is
+/// raid → monster → playable, and a `null` killer skips all three.
+fn reduce_exp_lost_mul(world: &World, player_oid: i32, killer_oid: Option<i32>) -> f64 {
+    use crate::model::stats::Stat;
+    let Some(killer) = killer_oid else {
+        return 1.0;
+    };
+    let template = world
+        .objects
+        .get_component::<crate::model::npc::Npc>(&killer)
+        .and_then(|n| world.data.npc_data.get(n.npc_id));
+    let stat = if template.is_some_and(|t| t.is_raid()) {
+        Stat::ReduceExpLostByRaid
+    } else if template.is_some_and(|t| t.is_monster()) {
+        Stat::ReduceExpLostByMob
+    } else if world.objects.has_component::<crate::model::Player>(&killer)
+        || world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&killer)
+        || world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&killer)
+    {
+        Stat::ReduceExpLostByPvp
+    } else {
+        return 1.0;
+    };
+    world
+        .objects
+        .get_component::<crate::model::components::StatModifiers>(&player_oid)
+        .map(|m| crate::model::finalize(m, stat, 1.0))
+        .unwrap_or(1.0)
+}
+
 pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
-    apply_death_exp_penalty_ex(world, player_oid, false);
+    apply_death_exp_penalty_ex(world, player_oid, false, None);
 }
 
 /// The killer-aware variant: `at_war_with_killer` quarters the loss (Java's
@@ -2194,6 +2239,10 @@ pub(crate) fn apply_death_exp_penalty_ex(
     world: &mut World,
     player_oid: i32,
     at_war_with_killer: bool,
+    // Java `calculateDeathExpPenalty(killer)` — the killer picks which of the
+    // three `REDUCE_EXP_LOST_BY_*` stats applies. `None` is Java's
+    // `killer == null`, which skips the whole branch.
+    killer_oid: Option<i32>,
 ) {
     // `Player.doDie`: "Should not penalize player when lucky, in a PvP zone or
     // event" — `isLucky()` is `getLevel() <= 9 && isAffectedBySkill(LUCKY)`,
@@ -2224,6 +2273,10 @@ pub(crate) fn apply_death_exp_penalty_ex(
             world.data.experience.exp_for_level(max_level),
         )
     };
+    // `calculateDeathExpPenalty`'s killer branch: a raid, an ordinary monster
+    // or a playable each scale the lost *percentage* by their own stat
+    // (`Residence Death Fortune` 610 grants the mob one at ×0.88).
+    let percent = percent * reduce_exp_lost_mul(world, player_oid, killer_oid);
     let mut lost = (((hi - lo) as f64) * percent / 100.0).round() as i64;
     if at_war_with_killer {
         lost /= 4;

@@ -458,3 +458,119 @@ fn a_resurrection_outside_a_running_siege_is_untouched() {
     revive_request(&mut world, REVIVER, CORPSE, 40, 70, 70, 0, 1016, 0);
     assert!(proposed(&world), "the block is the *zone*, not the siege");
 }
+
+// ---------------------------------------------------------------------------
+// G34 S4 sub-slice 16 — ResurrectionSpecial (the auto-resurrect)
+// ---------------------------------------------------------------------------
+
+/// **`ResurrectionSpecial`** (Salvation 1410, Soul of the Phoenix 438) is an
+/// auto-resurrect, and the whole mechanic is in the *wrong* lifecycle hook for
+/// anyone porting it by eye: the buff does nothing at all while it is up, and
+/// fires its revive proposal from **`onExit`** — which is what death does to
+/// it. A port that wired it to `onStart` would propose a revive to a living
+/// player and then do nothing when they actually died.
+#[test]
+fn salvation_proposes_its_revive_when_death_strips_the_buff() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
+
+    let salvation = crate::model::skill::Skill {
+        id: 1410,
+        level: 1,
+        target_type: TargetType::Self_,
+        abnormal_time: 1200,
+        abnormal_type: "SALVATION".into(),
+        effects: vec![SkillEffect::ResurrectionSpecial {
+            power: 100,
+            hp_percent: 0,
+            mp_percent: 0,
+            cp_percent: 0,
+        }],
+        ..Default::default()
+    };
+    world.data.skill_data.insert_for_test(salvation.clone());
+    crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, &salvation);
+
+    let pending = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::Player>(&CORPSE)
+            .unwrap()
+            .revive_request
+    };
+    assert!(
+        pending(&world).is_none(),
+        "while the buff is up it does nothing at all"
+    );
+
+    // Now die. Death strips the buff, which is what fires `onExit`.
+    kill(&mut world, CORPSE, 10_000);
+    crate::game_loop::skills::effects::handle_buff_expire(&mut world, CORPSE, 1410);
+
+    assert!(
+        pending(&world).is_some(),
+        "losing the buff is what proposes the revive"
+    );
+}
+
+/// The other half of the flag: like Noblesse Blessing, a `RESURRECTION_SPECIAL`
+/// holder loses **only that effect** on death and keeps the rest of its buffs.
+/// Without this the auto-resurrect would revive you stripped, which is the
+/// opposite of what the buff is for.
+#[test]
+fn salvation_spares_the_rest_of_the_buffs_through_death() {
+    let (mut world, _db, _l) = cast_test_world();
+    let _c = ingame_caster(&mut world, CID, CORPSE, 0, 0);
+
+    let salvation = crate::model::skill::Skill {
+        id: 1410,
+        level: 1,
+        target_type: TargetType::Self_,
+        abnormal_time: 1200,
+        abnormal_type: "SALVATION".into(),
+        effects: vec![SkillEffect::ResurrectionSpecial {
+            power: 100,
+            hp_percent: 0,
+            mp_percent: 0,
+            cp_percent: 0,
+        }],
+        ..Default::default()
+    };
+    // An ordinary buff that does *not* survive death on its own.
+    let haste = crate::model::skill::Skill {
+        id: 9430,
+        level: 1,
+        target_type: TargetType::Self_,
+        abnormal_time: 1200,
+        abnormal_type: "HASTE".into(),
+        effects: vec![SkillEffect::StatModifier(
+            crate::model::skill::StatModifierEffect {
+                stat: crate::model::stats::Stat::RunSpeed,
+                mode: crate::model::stats::StatModifierType::Diff,
+                amount: 30.0,
+                ..Default::default()
+            },
+        )],
+        ..Default::default()
+    };
+    for s in [&salvation, &haste] {
+        world.data.skill_data.insert_for_test((*s).clone());
+        crate::game_loop::skills::effects::apply_skill_effects(&mut world, CORPSE, CORPSE, s);
+    }
+
+    let has = |world: &World, id: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&CORPSE)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == id))
+    };
+    assert!(has(&world, 1410) && has(&world, 9430), "both are up");
+
+    crate::game_loop::death::stop_effects_on_death_for_test(&mut world, CORPSE);
+
+    assert!(!has(&world, 1410), "Salvation itself is consumed");
+    assert!(
+        has(&world, 9430),
+        "but everything else survives — that is what the flag buys"
+    );
+}

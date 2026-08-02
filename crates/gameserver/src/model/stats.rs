@@ -221,6 +221,17 @@ pub enum Stat {
     /// source on this dist; Java grants it as an `addFixedValue` of 1, which
     /// is an additive 1 here since nothing else touches the stat.
     PhysicalPolearmTargetSingle,
+    /// Java's death-penalty reduction stats, granted by `ReduceDropPenalty`
+    /// and keyed on **what killed you**: a raid, an ordinary monster, or a
+    /// playable. `calculateDeathExpPenalty` multiplies the lost-exp percentage
+    /// by whichever one matches (`getValue(stat, 1)`, so identity is 1.0).
+    ///
+    /// The `REDUCE_DEATH_PENALTY_BY_*` twins that the same handler grants are
+    /// **read by nothing in Java** — the third dead stat this epic has turned
+    /// up. Not modelled here; see the note on `SkillEffect::ReduceDropPenalty`.
+    ReduceExpLostByMob,
+    ReduceExpLostByPvp,
+    ReduceExpLostByRaid,
     Breath,
     /// Java `Stat.WEIGHT_LIMIT` / `WEIGHT_PENALTY` — `Creature.getMaxLoad()`
     /// (`getValue(WEIGHT_LIMIT, CON bonus × 69000 × config)`) and

@@ -961,6 +961,36 @@ pub enum SkillEffect {
     /// `ConfirmDlg`**: Java calls `teleToLocation` directly, so the members
     /// have no say in it.
     CallParty,
+    /// `handlers/effecthandlers/ReduceDropPenalty.java` — Residence Death
+    /// Fortune (610) and Noblesse Fortune (1325). Grants **two** stats per
+    /// `type`: the exp-loss reduction and a death-penalty twin.
+    ///
+    /// Only the exp half has a consumer. `REDUCE_DEATH_PENALTY_BY_MOB`/`_PVP`/
+    /// `_RAID` are merged by this handler and then read by **nothing in Java at
+    /// all** — so Noblesse Fortune, whose only param is `deathPenalty -100`
+    /// with `type RAID`, does *nothing whatever* on this dist. Ported as
+    /// written: the exp stat is granted and consumed, the dead twin is not
+    /// modelled, and the census stops counting the name.
+    ///
+    /// `type` selects which trio: `MOB` (the default), `PK` → the PvP stats,
+    /// `RAID`.
+    ReduceDropPenalty {
+        /// The exp-loss multiplier as Java merges it: `amount/100 + 1`, so
+        /// `-12` becomes ×0.88.
+        exp_mul: f64,
+        kind: ReduceDropKind,
+    },
+    /// `handlers/effecthandlers/ResurrectionSpecial.java` — Salvation (1410),
+    /// Soul of the Phoenix (438). The auto-resurrect: a self-buff that does
+    /// nothing while it is up and proposes a revive on **`onExit`**, which is
+    /// what fires when death strips it. `power` is the share of lost XP the
+    /// revive restores, as with the ordinary `Resurrection`.
+    ResurrectionSpecial {
+        power: i32,
+        hp_percent: i32,
+        mp_percent: i32,
+        cp_percent: i32,
+    },
     /// `handlers/effecthandlers/Heal.java` — instant HP restore.
     Heal {
         power: f64,
@@ -1570,12 +1600,26 @@ pub mod effect_flag {
     /// shape as [`FEAR`] and [`CONFUSED`], and the reason to grep for readers
     /// before porting a gate rather than after.
     pub const ABNORMAL_SHIELD: u32 = 1 << 22;
+    /// `RESURRECTION_SPECIAL` — Java `Playable.isResurrectSpecialAffected()`,
+    /// read in exactly one place, `Playable.doDie`: the holder stops *only*
+    /// this effect and keeps every other buff through death, the same deal
+    /// `NOBLESS_BLESSING` gets. Losing it is what fires the revive proposal.
+    pub const RESURRECTION_SPECIAL: u32 = 1 << 24;
     /// `BETRAYED` — Java `Summon.isBetrayed()`, with two consumers: the
     /// servitor **refuses its owner's commands** ("your servitor is
     /// unresponsive and will not obey any orders") and `PetSummonInfo` sets
     /// status bit `0x01`, which makes it auto-attackable — you have to kill
     /// your own summon. Set by Betray (1380).
     pub const BETRAYED: u32 = 1 << 23;
+}
+
+/// `ReduceDropType` — which of `ReduceDropPenalty`'s three stat pairs to grant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ReduceDropKind {
+    #[default]
+    Mob,
+    Pk,
+    Raid,
 }
 
 /// Java `AbnormalVisualEffect` — the client-side *look* of an abnormal (the
@@ -2445,6 +2489,7 @@ impl Skill {
                 SkillEffect::Confuse { .. } => effect_flag::CONFUSED,
                 SkillEffect::BlockMove | SkillEffect::ImmobilePetBuff => effect_flag::IMMOBILIZED,
                 SkillEffect::Betray => effect_flag::BETRAYED,
+                SkillEffect::ResurrectionSpecial { .. } => effect_flag::RESURRECTION_SPECIAL,
                 SkillEffect::SilentMove => effect_flag::SILENT_MOVE,
                 // `ChameleonRest.getEffectFlags()` returns SILENT_MOVE **and**
                 // RELAXING. The stealth half is what the skill is for — resting
@@ -2516,6 +2561,18 @@ impl Skill {
                 SkillEffect::PolearmSingleTarget => {
                     vec![one(Stat::PhysicalPolearmTargetSingle, 1.0)]
                 }
+                // `ReduceDropPenalty.pump` merges a **mul**, not a diff — the
+                // parser has already turned `amount` into `amount/100 + 1`.
+                SkillEffect::ReduceDropPenalty { exp_mul, kind } => vec![StatModifierEffect {
+                    stat: match kind {
+                        ReduceDropKind::Mob => Stat::ReduceExpLostByMob,
+                        ReduceDropKind::Pk => Stat::ReduceExpLostByPvp,
+                        ReduceDropKind::Raid => Stat::ReduceExpLostByRaid,
+                    },
+                    mode: StatModifierType::Per,
+                    amount: (exp_mul - 1.0) * 100.0,
+                    ..Default::default()
+                }],
                 SkillEffect::VampiricAttack { amount, chance } => vec![
                     one(Stat::AbsorbDamagePercent, amount / 100.0),
                     one(Stat::VampiricSum, amount * chance),
