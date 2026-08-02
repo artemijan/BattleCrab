@@ -1986,20 +1986,24 @@ pub(crate) fn abort_cast(world: &mut World, object_id: i32) {
     stop_casting(world, object_id);
 }
 
-/// The `abortCast()` inside `Creature.teleToLocation`, which resolves its
+/// `Creature.abortCast()` with Java's *real* gate: `abortCast` resolves its
 /// caster through `SkillCaster.canAbortCast` — and that is *not* the phase
 /// check its comment claims. It is literally
-/// `getCaster().getTarget() == null` (`SkillCaster.java:940`), so a teleport
-/// cancels the cast exactly while the caster has nothing selected.
+/// `getCaster().getTarget() == null` (`SkillCaster.java:940`), so the cast is
+/// cancelled exactly while the creature has nothing selected.
 ///
 /// [`abort_cast`]'s `!launched` guard models the other abort paths and is
-/// deliberately not reused: a teleport effect (`Escape`, `Recall`) fires from
-/// the *finish* phase, when `launched` is already true, so that guard would
-/// swallow the `MagicSkillCanceled`. That packet is the only thing that stops
-/// the cast animation client-side — without it the escape FX keeps playing at
-/// the destination until the client's own skill duration elapses (5 minutes
-/// for skill 2099), long after `/unstuck` already teleported the player.
-pub(crate) fn abort_cast_on_teleport(world: &mut World, object_id: i32) {
+/// deliberately not reused: the effects that call this fire from the *finish*
+/// phase, when `launched` is already true, so that guard would swallow the
+/// `MagicSkillCanceled`. That packet is the only thing that stops the cast
+/// animation client-side — without it the escape FX keeps playing at the
+/// destination until the client's own skill duration elapses (5 minutes for
+/// skill 2099), long after `/unstuck` already teleported the player.
+///
+/// Call sites: `Creature.teleToLocation`'s prologue (`Escape`, `Recall`) and
+/// `CallPc`'s ENEMY branch, where a monster drags its victim (Porta 20213 /
+/// skill 4161) — both are `abortCast()` in Java, so both take this gate.
+pub(crate) fn abort_cast_when_untargeted(world: &mut World, object_id: i32) {
     if !world.objects.has_component::<Casting>(&object_id) {
         return;
     }

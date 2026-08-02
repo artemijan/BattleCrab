@@ -3018,7 +3018,13 @@ fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     };
 
     // `abortCast()` / `abortAttack()` / `stopMove(null)`.
-    super::cast::abort_cast(world, target_oid);
+    //
+    // `abortCast()` is `SkillCaster.canAbortCast`-gated — a *target* check, not
+    // the phase check its Java comment claims — so it takes the same helper the
+    // teleport prologue uses, not [`super::cast::abort_cast`], whose `!launched`
+    // guard would swallow the `MagicSkillCanceled` that stops the victim's own
+    // cast animation client-side.
+    super::cast::abort_cast_when_untargeted(world, target_oid);
     world
         .objects
         .remove_component::<crate::model::components::AttackState>(&target_oid);
@@ -3028,6 +3034,16 @@ fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     world
         .objects
         .remove_component::<crate::model::components::Intent>(&target_oid);
+    // Java's `stopMove(null)` ends with `broadcastPacket(new StopMove(this))`.
+    // Dropping the `Movement` component only stops the *server* walking the
+    // victim; without the packet every client keeps animating the run toward
+    // the old destination, so the drag leaves the character sliding. Java
+    // broadcasts it before `setLocation`, i.e. at the old point.
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        target_oid,
+        &server_packets::stop_move(target_oid, from.x, from.y, from.z, from.heading),
+    );
 
     // Java sends `FlyToLocation` to the effected player only; everyone else
     // learns the new position from the movement/validate-position stream. The
@@ -3059,6 +3075,22 @@ fn call_pc(world: &mut World, caster_oid: i32, target_oid: i32, skill: &Skill) {
     {
         region.0 = crate::world::region_of(dest.x, dest.y);
     }
+
+    // DEVIATION from Java, same shape as the fix that stopped `/unstuck`'s
+    // escape FX: `MagicSkillCanceled` is the only packet that ends a cast
+    // animation client-side, and a normal cast completion never sends one — the
+    // client runs the FX for the skill's own (skillgrp) duration instead, which
+    // for 4161 outlives the 2 s cast by a long way, so the summoning circle
+    // stays lit on the Porta after the drag has already landed. Java has the
+    // same hole; it is only visible here because the effect is the whole point
+    // of the mob. Cancel from the *caster* — the animation is keyed to the
+    // caster's object id, not the victim's — after the effect has landed, so
+    // nothing but the leftover visual is affected.
+    crate::game_loop::helpers::broadcast_including_self(
+        world,
+        caster_oid,
+        &server_packets::magic_skill_canceld(caster_oid),
+    );
 }
 
 /// `handlers/effecthandlers/Restoration.java` — instant single-item grant.
