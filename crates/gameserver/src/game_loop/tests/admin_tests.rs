@@ -4769,6 +4769,143 @@ fn setcharquest_and_menu_roundtrip() {
     );
 }
 
+/// **`//getbuffs` follows an NPC target** (Java's gate is `isCreature()`, and
+/// the `Buffs` button on the shift-click NPC window is the reason it exists).
+/// Resolving through `target_player` — player target, else self — meant a GM
+/// with a mob selected got their *own* buff list. The `<playername>` argument
+/// form lands with it.
+#[test]
+fn getbuffs_follows_an_npc_target_and_a_name_argument() {
+    let (mut world, ..) = admin_world();
+    world.data.skill_data =
+        crate::data::SkillData::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    let mut t = crate::data::npc_data::default_template(30001);
+    t.name = "Buffed Mob".into();
+    t.type_name = "Monster".into();
+    world.data.npc_data.insert_for_test(t);
+    add_test_npc(&mut world, NPC_OID, 30001, "Monster", 5, 100, 0, 0);
+    let mut gm_rx = ingame_player_access(&mut world, 1, 8410, 100);
+    // A buff on the GM (so a self-resolution would be visibly wrong) and one
+    // on the mob.
+    on_packet(&mut world, 1, build_admin("buff 1068 1")); // Might, on self
+    world.objects.add_components(
+        &NPC_OID,
+        crate::model::components::Buffs(vec![crate::model::skill::ActiveBuff {
+            skill_id: 1204, // Wind Walk
+            skill_level: 1,
+            abnormal_type_client_id: 0,
+            abnormal_type: "WIND_WALK".into(),
+            abnormal_level: 1,
+            slot: crate::model::skill::BuffSlot::Buff,
+            expires_at_tick: world.tick + 1000,
+            passive: false,
+            effect_flags: 0,
+            abnormal_visuals: Vec::new(),
+            blocked_abnormals: Vec::new(),
+            effects: Vec::new(),
+        }]),
+    );
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0)); // target the mob
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("getbuffs"));
+
+    let html = drain(&mut gm_rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("getbuffs html");
+    assert!(
+        html.contains("Buffed Mob"),
+        "the window names the NPC target, got: {html}"
+    );
+    assert!(
+        html.contains(&format!("admin_stopbuff {NPC_OID} 1204")),
+        "the NPC's buff is listed with its cancel button, got: {html}"
+    );
+    assert!(
+        !html.contains("admin_stopbuff 8410 1068"),
+        "the GM's own buffs must not be what an NPC target shows"
+    );
+
+    // `//getbuffs <playername>` wins over the target (Java's first branch).
+    let gm_name = world
+        .objects
+        .get_component::<Player>(&8410)
+        .unwrap()
+        .name
+        .clone();
+    on_packet(&mut world, 1, build_admin(&format!("getbuffs {gm_name}")));
+    let html = drain(&mut gm_rx)
+        .iter()
+        .find_map(|p| decode_npc_html(p))
+        .expect("getbuffs by name");
+    assert!(
+        html.contains("admin_stopbuff 8410 1068"),
+        "the named player's buffs, not the target's, got: {html}"
+    );
+}
+
+/// **`//show_quests` is `AdminQuest`'s NPC listing, not `//charquestmenu`.**
+/// The two were aliased to the player quest-state editor, so the `Quests`
+/// button on the shift-click admin NPC window answered `INVALID_TARGET`
+/// instead of listing the scripts registered on the target NPC.
+#[test]
+fn show_quests_lists_the_target_npcs_scripts() {
+    use crate::game_loop::quests;
+
+    struct NpcQuestScript;
+    impl quests::QuestScript for NpcQuestScript {
+        fn id(&self) -> i32 {
+            -42
+        }
+        fn name(&self) -> &'static str {
+            "TestNpcQuest"
+        }
+        fn html_dir(&self) -> &'static str {
+            ""
+        }
+        fn start_npcs(&self) -> &[i32] {
+            &[30001]
+        }
+        fn talk_npcs(&self) -> &[i32] {
+            &[30001]
+        }
+        fn on_talk(&self, _ctx: &mut quests::QuestCtx) -> Option<String> {
+            None
+        }
+    }
+
+    let (mut world, ..) = admin_world();
+    world.data.root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/").to_string();
+    world.quests = std::sync::Arc::new(quests::QuestRegistry::new(vec![std::sync::Arc::new(
+        NpcQuestScript,
+    )]));
+    add_test_npc(&mut world, NPC_OID, 30001, "Folk", 5, 100, 0, 0);
+    let mut gm_rx = ingame_player_access(&mut world, 1, 7830, 100);
+    // Select the NPC — Java reads `activeChar.getTarget()`, ignoring the
+    // template id the html passes as an argument.
+    handle_action(&mut world, 1, &action_body(NPC_OID, 0));
+    drain(&mut gm_rx);
+
+    on_packet(&mut world, 1, build_admin("show_quests 30001"));
+
+    let html = drain(&mut gm_rx)
+        .iter()
+        .filter_map(|p| decode_npc_html(p))
+        .next()
+        .expect("npc-quests.htm served");
+    assert!(
+        html.contains("TestNpcQuest") && html.contains("admin_quest_info TestNpcQuest"),
+        "the NPC's script is listed and links into //quest_info, got: {html}"
+    );
+    // The player-menu columns must NOT be what this button opens.
+    assert!(
+        !html.contains("CREATED") && !html.contains("STARTED"),
+        "this is the NPC listing, not the player quest-state editor"
+    );
+}
+
 // ---------------------------------------------------------------------------
 // Tail polish: tradeoff, cond overrides, reload
 // ---------------------------------------------------------------------------

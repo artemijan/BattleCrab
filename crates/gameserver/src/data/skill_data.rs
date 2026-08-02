@@ -2615,6 +2615,10 @@ fn build_skill(
             level,
             sub_level: sub,
             name: name.to_string(),
+            // Java `set.getString("icon", "icon.skill0000")`.
+            icon: value_at(values, "icon", level)
+                .unwrap_or("icon.skill0000")
+                .to_string(),
             operate_type,
             is_continuous,
             target_type,

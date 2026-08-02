@@ -1529,6 +1529,9 @@ pub struct Skill {
     pub id: i32,
     pub level: i32,
     pub name: String,
+    /// `<icon>` — the client-side icon path (Java `Skill.getIcon()`, default
+    /// `icon.skill0000`). Cosmetic: read by the shift-click NPC skill view.
+    pub icon: String,
     pub operate_type: OperateType,
     /// Java `Skill.isContinuous()` — an effect that sits on the target for
     /// `abnormal_time` rather than resolving instantly. Drives the NPC AI's
@@ -1915,6 +1918,8 @@ impl Default for Skill {
             id: 0,
             level: 1,
             name: String::new(),
+            // Java's own `getString("icon", …)` default.
+            icon: String::from("icon.skill0000"),
             operate_type: OperateType::Active,
             is_continuous: false,
             target_type: TargetType::Self_,
