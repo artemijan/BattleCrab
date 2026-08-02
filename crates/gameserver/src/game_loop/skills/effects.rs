@@ -657,6 +657,14 @@ pub(crate) fn apply_skill_effects(
             // removes it. Both halves ride the buff lifecycle in
             // `apply_continuous_effects`, so the instant pass does nothing.
             SkillEffect::PolearmSingleTarget => {}
+            // `NightStatModify` grants nothing at instant time; the buff's
+            // stored modifiers are (re)written by `night_stats::refresh_one`,
+            // which runs here so a cast made *at* night takes effect at once
+            // rather than at the next dawn.
+            SkillEffect::NightStatModify { .. } => {
+                let night = crate::game_loop::game_time::is_night_at(commons::util::now_millis());
+                crate::game_loop::night_stats::refresh_one(world, target_oid, night);
+            }
             // `ReduceDropPenalty` is a pure stat grant (`pump`), merged when
             // the buff lands. `ResurrectionSpecial` does nothing while it is
             // *up*: its whole mechanic is `onExit`, which death fires — see
@@ -2354,6 +2362,9 @@ pub(crate) fn apply_continuous_effects(
             // `Lucky` is an empty effect in Java too — `Player.isLucky()` asks
             // whether the buff is *present*, so landing is the whole job.
             | SkillEffect::Lucky
+            // Its grant is written *after* the buff lands (by `night_stats`),
+            // so at guard time it looks modifier-less. Tenth slice caught here.
+            | SkillEffect::NightStatModify { .. }
             // The two listener-shaped triggers: Java attaches their listener to
             // the **buff**, and this port finds them by scanning the bearer's
             // buff list, so a dropped buff means the trigger never fires at

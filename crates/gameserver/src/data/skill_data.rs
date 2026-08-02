@@ -2211,6 +2211,24 @@ fn build_skill(
                             mp_percent: param("mpPercent").unwrap_or(0.0) as i32,
                             cp_percent: param("cpPercent").unwrap_or(0.0) as i32,
                         }],
+                        // Unlike every other stat effect, this one names its
+                        // target with Java's **`Stat` enum name** in a `<stat>`
+                        // child rather than through the effect name, so it
+                        // needs its own lookup. `ACCURACY_COMBAT` is the only
+                        // one on this dist (Shadow Sense 294); an unknown name
+                        // yields no effect and is recorded as a gap.
+                        //
+                        // The grant is night-gated and lands through
+                        // `game_loop::night_stats`, not the ordinary stat
+                        // pipeline — see the variant's docs.
+                        "NightStatModify" => match value_at(params, "stat", level) {
+                            Some("ACCURACY_COMBAT") => vec![SkillEffect::NightStatModify {
+                                stat: Stat::AccuracyCombat,
+                                amount: param("amount").unwrap_or(0.0),
+                                mode: modifier_mode,
+                            }],
+                            _ => Vec::new(),
+                        },
                         "Betray" => vec![SkillEffect::Betray],
                         "ImmobilePetBuff" => vec![SkillEffect::ImmobilePetBuff],
                         "CallParty" => vec![SkillEffect::CallParty],
@@ -4623,8 +4641,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 146 name(s), 11 learnable
-    /// skill(s) affected, 1304 reachable.
+    /// the work list, worst first. Category totals: 145 name(s), 10 learnable
+    /// skill(s) affected, 1303 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4684,8 +4702,12 @@ mod coverage_census {
     /// → 146 at sub-slice 16: the death pair — `ReduceDropPenalty` (the
     /// exp-loss reduction, keyed on what killed you) and `ResurrectionSpecial`
     /// (the auto-resurrect, which fires from `onExit`).
-    const EFFECTS: &[(&str, usize)] =
-        &[("StatUp", 9), ("NightStatModify", 1), ("SafeFallHeight", 1)];
+    /// → 145 at sub-slice 17: `NightStatModify` (Shadow Sense 294 — the stat
+    /// belongs to the *clock*, not the buff). **This closes S4**: the two
+    /// names left with a learnable source, `StatUp` (Territory War) and
+    /// `SafeFallHeight` (needs fall damage), are both deliberately out of
+    /// scope, so the residue is now entirely recorded rather than unexamined.
+    const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
 
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
     /// the work list, worst first. Category totals: 5 name(s), 1 learnable
@@ -4759,7 +4781,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 146, 11, 1304),
+            ("effect", &gaps.effects, EFFECTS, 145, 10, 1303),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 10, 3, 498),
@@ -4811,7 +4833,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            13,
+            12,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

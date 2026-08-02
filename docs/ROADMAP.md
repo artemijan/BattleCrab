@@ -1355,7 +1355,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S3 landed, S4 nearly closed (16 sub-slices; headline 275 → 13)**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S4 landed (17 sub-slices; headline 275 → 12); S5–S8 remain**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1398,10 +1398,10 @@ formula the port had hard-coded to 1.0, and the physical-attack pair
 *cost*), and the trigger pair (`TriggerSkillByDamage`,
 `TriggerSkillByMagicType`), and servitors/recall (`Betray`,
 `ImmobilePetBuff`, `CallParty`), and the death pair (`ReduceDropPenalty`,
-`ResurrectionSpecial`); effect names **216 → 146**, reachable **1304**,
-headline **275 → 13**; the residue is **3 names** — `StatUp` and
-`SafeFallHeight` deliberately out of scope, leaving only `NightStatModify`);
-targeting breadth
+`ResurrectionSpecial`) and `NightStatModify`, which **closed S4**; effect
+names **216 → 145**, reachable **1303**, headline **275 → 12**, and the
+residue is **2 names**, `StatUp` and `SafeFallHeight`, both recorded
+out-of-scope decisions); targeting breadth
 (`UNDEAD_REAL_ENEMY` is a live correctness bug; `TargetType::ITEM` covers 452
 items); the item/NPC effect tail (**every destination Scroll of Escape is inert
 today** — the `Teleport` effect is unparsed); and the skill-tag/formula

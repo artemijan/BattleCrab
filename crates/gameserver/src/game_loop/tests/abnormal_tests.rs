@@ -3107,3 +3107,53 @@ fn residence_death_fortune_softens_a_mob_death_but_not_a_pvp_one() {
         "but dying to a player is untouched — the stat is keyed on the killer"
     );
 }
+
+/// **`NightStatModify`** (Shadow Sense 294) — "increases Accuracy by 3 **at
+/// night**". The stat is not a property of the buff but of the *clock*: it has
+/// to appear at dusk and vanish at dawn while the buff sits there unchanged,
+/// which is the half a plain stat grant would get wrong in both directions.
+#[test]
+fn shadow_sense_grants_its_accuracy_only_at_night() {
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    let mut sense = cc_skill(
+        294,
+        SkillEffect::NightStatModify {
+            stat: Stat::AccuracyCombat,
+            amount: 3.0,
+            mode: crate::model::stats::StatModifierType::Diff,
+        },
+        "SHADOW_SENSE",
+    );
+    sense.target_type = crate::model::skill::TargetType::Self_;
+    world.data.skill_data.insert_for_test(sense);
+
+    let accuracy = |world: &World| {
+        world
+            .objects
+            .get_component::<crate::model::components::StatModifiers>(&CASTER)
+            .and_then(|m| m.add.get(&Stat::AccuracyCombat).copied())
+            .unwrap_or(0.0)
+    };
+
+    land(&mut world, 294, CASTER);
+    // The buff is up either way; only the clock decides.
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&CASTER)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == 294)),
+        "the buff lands regardless of the hour"
+    );
+
+    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, false);
+    assert_eq!(accuracy(&world), 0.0, "by day it grants nothing");
+
+    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, true);
+    assert_eq!(accuracy(&world), 3.0, "at night the accuracy appears");
+
+    crate::game_loop::night_stats::refresh_one(&mut world, CASTER, false);
+    assert_eq!(accuracy(&world), 0.0, "and dawn takes it back again");
+}

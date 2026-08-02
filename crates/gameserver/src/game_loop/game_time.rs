@@ -32,12 +32,8 @@ pub(crate) fn game_time_minutes() -> i32 {
 }
 
 /// Whether it is currently night in-game (Java `isNight` — hour < 6). The
-/// day/night state the spawn/effect scripts (`DayNightSpawns`, `NightStatModify`)
-/// will read once ported.
-#[allow(
-    dead_code,
-    reason = "day/night query wired when the day/night scripts land"
-)]
+/// day/night state the spawn/effect scripts read: `DayNightSpawns` and, since
+/// G34 S4, `NightStatModify` (Shadow Sense 294).
 pub(crate) fn is_night_at(now_millis: i64) -> bool {
     game_time_minutes_at(now_millis) / 60 < NIGHT_UNTIL_HOUR
 }
