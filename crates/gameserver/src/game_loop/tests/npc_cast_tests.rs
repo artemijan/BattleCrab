@@ -597,3 +597,117 @@ fn real_dist_index_buckets_a_known_caster() {
     }
     assert!(checked > 0, "expected some bucketed active skills");
 }
+
+// ---------------------------------------------------------------------------
+// `thinkAttack`'s swing/cast interleave. Java gates the *swing* on
+// `isAttackDisabled()` inside `Creature.doAutoAttack`, and gates the whole
+// think on `npc.isCastingNow()` — two separate rules that the port had
+// collapsed into one "busy swinging, come back later" return at the top of
+// `think_attack`.
+
+/// A mob whose swing is still winding down keeps thinking, and keeps casting.
+///
+/// This is what made Porta (20213) look like a plain melee mob. The AI thinks
+/// once a second plus once at each swing's end, but the mid-swing return meant
+/// only the swing-end think ever reached the cast ladder — one
+/// `hasSkillChance()` roll per swing instead of one per second. At Porta's 253
+/// atk. spd. that is half the rolls, and since its Stun (4073) cools down in
+/// 6 s while rolls came ~18 s apart, the SHORT_RANGE rung always had Stun ready
+/// and the GENERAL rung holding Summon (4161) was never reached: 300 s of
+/// melee produced 11 stuns and 0 summons.
+#[test]
+fn a_mob_mid_swing_still_casts() {
+    let mut nuke = npc_skill(
+        NUKE,
+        "Nuke",
+        vec![SkillEffect::MagicalAttack { power: 50.0 }],
+    );
+    // A reuse delay is what the cast leaves behind to assert on.
+    nuke.reuse_delay = 5000;
+    let (mut world, _db, _l) = mob_world(&[nuke]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    // Swing in flight, ending well past the next think.
+    world.objects.add_components(
+        &NPC_OID,
+        crate::model::components::AttackState {
+            attack_end_tick: world.tick + 100,
+            stance_until_tick: world.tick + 200,
+        },
+    );
+
+    advance_world(&mut world, 30);
+
+    assert!(
+        world
+            .objects
+            .get_component::<crate::model::components::Reuses>(&NPC_OID)
+            .is_some_and(|r| !r.0.is_empty()),
+        "the cast ladder must run while the swing winds down — Java's only \
+         mid-swing refusal is `doAutoAttack`'s"
+    );
+}
+
+/// The other half: the swing itself is still refused while one is in flight,
+/// so lifting the gate off the ladder must not let a mob double-swing.
+#[test]
+fn a_mob_mid_swing_does_not_start_a_second_swing() {
+    let (mut world, _db, _l) = mob_world(&[]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    let end = world.tick + 100;
+    world.objects.add_components(
+        &NPC_OID,
+        crate::model::components::AttackState {
+            attack_end_tick: end,
+            stance_until_tick: world.tick + 200,
+        },
+    );
+
+    advance_world(&mut world, 30);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::AttackState>(&NPC_OID)
+            .map(|st| st.attack_end_tick),
+        Some(end),
+        "`doAutoAttack` refuses while `isAttackingNow()`, so the in-flight \
+         swing's end tick must not be pushed out by a fresh one"
+    );
+}
+
+/// `thinkAttack`'s first line — `if ((npc == null) || npc.isCastingNow())
+/// return;`. A 1 s think landing inside a 2 s cast used to fall through to the
+/// swing tail, so a casting mob also punched.
+#[test]
+fn a_casting_mob_does_not_swing() {
+    let (mut world, _db, _l) = mob_world(&[]);
+    let _out = ingame_caster(&mut world, CID, PLAYER, 0, 0);
+    engage(&mut world);
+    world.objects.add_components(
+        &NPC_OID,
+        crate::model::components::Casting(crate::model::CastState {
+            skill_id: NUKE,
+            skill_level: 1,
+            skill_sub_level: 0,
+            target_object_id: PLAYER,
+            seq: 1,
+            launched: false,
+            cancel_ms: 0,
+            cool_ms: 0,
+            trigger_item_object_id: 0,
+        }),
+    );
+
+    advance_world(&mut world, 30);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<crate::model::components::AttackState>(&NPC_OID)
+            .map(|st| st.attack_end_tick),
+        Some(0),
+        "a mob mid-cast neither swings nor moves until the cast resolves"
+    );
+}

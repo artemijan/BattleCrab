@@ -777,6 +777,18 @@ fn random_walk_move(world: &mut World, npc_oid: i32, cur: (i32, i32, i32), spawn
 fn think_attack(world: &mut World, npc_oid: i32) {
     let now = world.tick;
 
+    // `thinkAttack`'s very first line: `if ((npc == null) || npc.isCastingNow())
+    // return;`. A mob mid-cast does nothing else — no faction call, no chase,
+    // no swing — until the cast resolves. Without it the 1 s think that lands
+    // inside a 2 s cast fell through to the swing tail and the mob attacked
+    // while casting.
+    if world
+        .objects
+        .has_component::<crate::model::components::Casting>(&npc_oid)
+    {
+        return;
+    }
+
     // Chase leash (`AttackableAI.thinkAttack` `AGGRO_DISTANCE_CHECK`): a monster
     // dragged farther than the configured range from its spawn drops all aggro,
     // heals to full and teleports home with its escort. On (2000/4000 units) on
@@ -858,14 +870,26 @@ fn think_attack(world: &mut World, npc_oid: i32) {
         return;
     }
 
-    // Busy swinging.
-    if world
+    // Mid-swing. In Java this is **not** a `thinkAttack` gate: the guard lives
+    // in `Creature.doAutoAttack` (`isAttackDisabled()` = `isAttackingNow() ||
+    // isDisabled()`), so a mob whose swing is still winding down keeps
+    // thinking — it calls its faction, walks, and above all *casts*; only the
+    // next swing is refused.
+    //
+    // Returning here instead cost the cast ladder most of its rolls. The AI
+    // thinks once a second, plus once at each swing's end
+    // (`ScheduledTask::NpcAttackReady`), but with this gate on top every
+    // periodic think inside the swing window died before the ladder — leaving
+    // exactly one `hasSkillChance()` roll per swing. At Porta's (20213) 253
+    // atk. spd. that is one roll per ~2 s against Java's one per second, and
+    // since the roll is only ~11 %, opportunities came ~18 s apart while its
+    // Stun (4073) cooled down in 6 — so the SHORT_RANGE rung always had Stun
+    // ready and the GENERAL rung that holds Summon (4161) was never reached.
+    // Measured over 300 s of melee: 11 stuns, 0 summons.
+    let mid_swing = world
         .objects
         .get_component::<AttackState>(&npc_oid)
-        .is_some_and(|st| st.attack_end_tick > now)
-    {
-        return;
-    }
+        .is_some_and(|st| st.attack_end_tick > now);
 
     // "Actor should be able to see target" (`thinkAttack`'s geodata gate): a
     // sight line cut by a wall or a tower floor means no faction call, no
@@ -972,6 +996,12 @@ fn think_attack(world: &mut World, npc_oid: i32) {
             Some(t) => target_oid = t,
             None => return,
         }
+    }
+
+    // `Creature.doAutoAttack`'s `isAttackDisabled()` refusal — the swing that
+    // is still running blocks the next one, and nothing else.
+    if mid_swing {
+        return;
     }
 
     // In reach: stop and swing.
