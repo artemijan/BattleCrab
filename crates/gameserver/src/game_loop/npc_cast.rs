@@ -264,13 +264,16 @@ fn check_skill_target(world: &World, npc_oid: i32, target_oid: i32, skill: &Skil
         return false;
     }
 
-    // Cast range (Java `Util.checkIfInRange(castRange, …, true)` — collision
-    // radii included; `combatant` carries them).
+    // Cast range — `AttackableAI.checkSkillTarget`'s
+    // `Util.checkIfInRange(skill.getCastRange(), npc, target, true)`. Collision
+    // radii included, and the `true` is `includeZAxis`: unlike the player's
+    // `SkillCaster.castSkill` gate (2D), a mob measures in **3D**, so it won't
+    // start a spell at something far above or below it on a cliff or a tower.
     if skill.cast_range > 0 {
         let reach = skill.cast_range as f64
             + collision_radius(world, npc_oid)
             + collision_radius(world, target_oid);
-        if distance_2d(world, npc_oid, target_oid).is_none_or(|d| d > reach) {
+        if distance_3d(world, npc_oid, target_oid).is_none_or(|d| d > reach) {
             return false;
         }
     }
@@ -666,6 +669,17 @@ fn distance_2d(world: &World, a: i32, b: i32) -> Option<f64> {
     let (ax, ay, _) = position_of(world, a)?;
     let (bx, by, _) = position_of(world, b)?;
     Some((((bx - ax) as f64).powi(2) + ((by - ay) as f64).powi(2)).sqrt())
+}
+
+/// `Util.calculateDistance(…, includeZAxis = true)` — what an NPC's cast-range
+/// gate measures.
+fn distance_3d(world: &World, a: i32, b: i32) -> Option<f64> {
+    let (ax, ay, az) = position_of(world, a)?;
+    let (bx, by, bz) = position_of(world, b)?;
+    Some(
+        (((bx - ax) as f64).powi(2) + ((by - ay) as f64).powi(2) + ((bz - az) as f64).powi(2))
+            .sqrt(),
+    )
 }
 
 fn hp_percent(world: &World, oid: i32) -> f64 {

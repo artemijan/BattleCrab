@@ -2976,6 +2976,89 @@ consciously stayed out.
   dropped), `Spawn.decreaseCount` schedules the respawn (min/max random
   spread) and the spawn line re-runs — fresh transient object id, a
   documented deviation from Java's id-reusing `respawnNpc`.
+- **Fix (2026-08-02) — `maybeMoveToPawn` was never actually ported.** Java runs
+  *one* helper for `thinkAttack`, `thinkCast`, `thinkInteract` and `thinkPickUp`
+  alike (`CreatureAI.maybeMoveToPawn(target, offsetValue)`); only the offset
+  differs — `getPhysicalAttackRange()`, `getMagicalAttackRange(skill)` (= the
+  skill's `castRange`), or the flat 36 of the two interaction paths. That is
+  exactly why a bow's 500 and a dagger's 40, and an attack and a cast, cannot
+  drift apart: they are the same code with a different number. The port had
+  instead grown an independent `chase_target`/`chase_pawn` pair — consistent
+  between attack and cast, but missing three of the helper's behaviours:
+  1. the **100-unit engage hysteresis** granted while a follow is running
+     (`if (isFollowing()) { if (!isInsideRadius2D(target, offsetWithCollision +
+     100)) return true; stopFollow(); return false; }`). Java re-checks its
+     follow once per second; the port re-checked the strict gate 10× a second,
+     so a chase after anything that kept walking re-pathed forever and never
+     got to swing or cast — worst for archers, whose 500-unit reach makes that
+     band the easiest to sit in;
+  2. the **100-unit deeper aim at a moving pawn** (`if (target.isMoving())
+     offset -= 100`, floored at 5), which is what makes the walk converge on a
+     runner instead of trailing it at exactly reach; and
+  3. the **`isMovementDisabled()` branch** — and with it a real bug: neither
+     the chase leg nor `model::movement::tick` consulted it, so a *rooted*
+     player who clicked a distant target walked anyway (only `position.rs`'s
+     client-move handler ever refused). Java is deliberately asymmetric here —
+     an ATTACK intention gives up (`setIntention(AI_INTENTION_IDLE)`), every
+     other intention stands still and keeps waiting.
+  Ported as `combat::maybe_move_to_pawn`, now the single gate all four think
+  loops call, plus a `Following` component standing in for the actor's row in
+  `CreatureFollowTaskManager.ATTACK_FOLLOW_CREATURES` (same payload — the
+  follow range recorded at `startFollow`, already shrunk for a moving target,
+  never refreshed while the follow lives). `startFollow` is for
+  creature-and-not-door pawns only, so a siege gate or a ground item takes the
+  plain `moveToPawn` branch and earns neither the slack nor the −100, matching
+  `isFollowing()`'s own `_target.isCreature()` test. The latch is released by
+  the engage path and swept once per tick against the intent that started it
+  (Java's `changeIntention` → `stopFollow()`).
+
+  The same audit's remaining six landed in a follow-up pass:
+  4. **The walk destination no longer carries the collision radii.**
+     `maybeMoveToPawn` hands `moveToPawn`/`startFollow` the *raw* offset —
+     radii are part of `offsetWithCollision`, i.e. the range **test**, and of
+     nothing else — so the walk ends `offset − 5` from the pawn's centre and
+     the `MoveToPawn` packet carries that same raw offset for the client to
+     stop at. (`AttackableAI.thinkAttack` genuinely *does* pass a
+     radii-inclusive range to its own `moveToPawn`, so `pawn_destination` keeps
+     taking a plain distance-from-centre and the question stays at the call
+     sites.) `moveToPawn`'s own `max(offset, 10)` floor came with it.
+  5. **Re-path cadence.** `moveToPawn` refuses to re-path — and to re-broadcast
+     — toward the same pawn at the same offset inside `_moveToPawnTimeout`
+     (1 s; 2 s more while the live path came from the pathfinder and the offset
+     *changed*). Java's follow task fires at 500 ms but lands on this throttle,
+     so the real cadence is 1 s; the port's 5-tick gate was the follow period
+     mistaken for the whole story, at twice the packet rate. Kept as a
+     `MoveToPawnState` component — Java's `_target`/`_clientMovingToPawnOffset`/
+     `_moveToPawnTimeout` triple, with `Movement` standing in for
+     `_clientMoving`.
+  6. **The follow task's own gates**, in `follow_step`: its range test is 3D and
+     centre-to-centre (*not* the engage gate's 2D-plus-radii), and past 3000
+     units it gives the intention up outright rather than start a cross-map
+     walk — "if the target is too far (maybe also teleported)".
+  7. **`moveToLocation`'s z compensation**, `offset -= Math.abs(dz)` floored at
+     5: a pawn up a slope is walked to that much more tightly, since the 2D
+     geometry can't see the height the offset is really being spent on.
+  8. **Shift is not a melee `dontMove`.** `AttackRequest` reads its trailing
+     byte into `_attackId`, which Java marks `@SuppressWarnings("unused")` —
+     so a shift-attack chases exactly like a plain click, and the port's SM 22
+     refusal was a behaviour retail does not have. `Action` case 1 is a
+     separate story with the same conclusion: non-GM, `AltGameViewNpc` off, it
+     falls back to `obj.onAction(player, false)`, which selects and skips the
+     entire `else if (interact)` arm where attacking and talking live. The
+     `shift` parameter is gone from `start_attack_intent` and
+     `interact_with_npc` accordingly. Conversely the *cast* `dontMove` is real,
+     and its metric is not the walk gate's: the target handlers test
+     `calculateDistance2D(target) > skill.getCastRange()` with **no collision
+     radii**, strictly tighter than the `castRange + radii` the AI would have
+     walked into, so the two now measure separately.
+  9. **An NPC measures its cast range in 3D.** `AttackableAI.checkSkillTarget`
+     passes `includeZAxis = true` to `Util.checkIfInRange`, unlike the player's
+     2D `SkillCaster.castSkill` gate — a mob won't open fire on something far
+     above or below it. `npc_cast` measured 2D.
+
+  13 tests across `chase_parity_tests`, `combat_tests`, `npc_tests` and
+  `npc_cast_tests`; every one of the nine fixes is sabotage-verified
+  individually. No `TODO` left behind from this audit.
 - **Buffs and death** (`death.rs::stop_effects_on_death`): `Playable.doDie`'s
   effect block, which the port had been missing entirely — **a dead player kept
   every buff through death and revive**. Now death runs

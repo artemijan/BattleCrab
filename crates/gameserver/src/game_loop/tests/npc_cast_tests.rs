@@ -858,3 +858,44 @@ fn a_casting_mob_does_not_swing() {
         "a mob mid-cast neither swings nor moves until the cast resolves"
     );
 }
+
+/// `AttackableAI.checkSkillTarget` gates the cast on
+/// `Util.checkIfInRange(skill.getCastRange(), npc, target, true)` — and that
+/// trailing `true` is `includeZAxis`. A mob measures its cast range in **3D**,
+/// unlike the player's `SkillCaster.castSkill` gate (2D), so it will not open
+/// fire on something far above or below it even when the flat map distance
+/// looks fine. The port measured 2D here and would have nuked up a cliff.
+///
+/// `engage` puts the mob at x=100 (radius 8); the player sits at x=500
+/// (radius 9). Reach is `castRange 600 + 8 + 9 = 617` against a flat distance
+/// of 400 — comfortably inside. Lift the player 700 units and the 3D distance
+/// is `hypot(400, 700) ≈ 806`, well outside, while the 2D distance never moves.
+#[test]
+fn a_mob_measures_its_cast_range_in_3d() {
+    fn casts_at_height(target_z: i32) -> bool {
+        let nuke = npc_skill(
+            NUKE,
+            "Nuke",
+            vec![SkillEffect::MagicalAttack { power: 50.0 }],
+        );
+        let (mut world, _db, _l) = mob_world(&[nuke]);
+        let _out = ingame_caster(&mut world, CID, PLAYER, 500, 0);
+        if let Some(pos) = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&PLAYER)
+        {
+            pos.z = target_z;
+        }
+        engage(&mut world);
+        crate::game_loop::npc_cast::try_cast(&mut world, NPC_OID, PLAYER)
+    }
+
+    assert!(
+        casts_at_height(0),
+        "flat 400 units is inside the 617-unit reach"
+    );
+    assert!(
+        !casts_at_height(700),
+        "same 400 units on the map, but 806 in 3D — out of cast range"
+    );
+}

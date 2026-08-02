@@ -497,6 +497,40 @@ pub struct Casting(pub crate::model::CastState);
 #[derive(Component, Debug, Clone, Copy)]
 pub struct Intent(pub crate::model::PlayerIntent);
 
+/// `AbstractAI.isFollowing()` — an attack-follow toward `target_object_id` is
+/// registered (Java: the actor sits in `CreatureFollowTaskManager`'s
+/// `ATTACK_FOLLOW_CREATURES` map, put there by `startFollow`, taken out by
+/// `stopFollow`). Present only while the chase leg of an intent is running.
+///
+/// It carries the same payload Java's map value does — the follow range
+/// recorded **at the moment the follow started**, already shrunk by 100 for a
+/// target that was moving then. Java never refreshes it while the follow lives
+/// (`maybeMoveToPawn` returns early before reaching `startFollow` again), so
+/// neither does this.
+///
+/// The latch is what makes the 100-unit engage hysteresis in
+/// `combat::maybe_move_to_pawn` possible: Java widens the range gate by 100
+/// *only while following*.
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Following {
+    pub target_object_id: i32,
+    pub offset: i32,
+}
+
+/// `AbstractAI._target` / `_clientMovingToPawnOffset` / `_moveToPawnTimeout` —
+/// the throttle `moveToPawn` keeps so it neither re-paths nor re-broadcasts
+/// `MoveToPawn` more than once a second toward the same pawn at the same
+/// offset ("prevent possible extra calls to this function, also don't send
+/// movetopawn packets too often"). `_clientMoving` is the `Movement` component
+/// itself, so it is not duplicated here.
+#[derive(Component, Debug, Clone, Copy)]
+pub struct MoveToPawnState {
+    pub target_object_id: i32,
+    pub offset: i32,
+    /// Tick at which a re-path at the *same* offset is allowed again.
+    pub timeout_tick: u64,
+}
+
 /// Java `Player._currentSkillWorldPosition` — the ground point stored by
 /// `RequestExMagicSkillUseGround` (ex 0x41) that a `targetType GROUND` cast
 /// aims at. **Never cleared, only overwritten** by the next ground cast

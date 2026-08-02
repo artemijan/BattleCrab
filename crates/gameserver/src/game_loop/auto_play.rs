@@ -486,7 +486,7 @@ fn clear_target(world: &mut World, player_oid: i32) {
 
 fn attack(world: &mut World, player_oid: i32, target: i32) {
     if let Some(cid) = client_for_player(world, player_oid) {
-        super::combat::start_attack_intent(world, cid, player_oid, target, false);
+        super::combat::start_attack_intent(world, cid, player_oid, target);
     }
 }
 

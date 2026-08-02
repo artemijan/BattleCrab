@@ -106,14 +106,17 @@ pub(crate) fn can_interact(world: &World, player_object_id: i32, npc_object_id: 
 /// (`Player.setTarget`); a second click on an NPC target interacts
 /// (`NpcAction` — attack for monsters (G9), chat window for the rest).
 ///
-/// `action_id == 1` is a **shift-click**. Java's `Action` case 1 routes it to
-/// `onActionShift` (info) only for a GM, or for a real NPC when
-/// `ALT_GAME_VIEWNPC` is set; otherwise it degrades to a plain select
-/// (`onAction(player, false)` — target, no interact). We have no GM state on
-/// the live player yet, so we take the `ALT_GAME_VIEWNPC` branch: shift-click
-/// an NPC → the `NpcViewMod` info window (`npc_view::send_npc_view`), else a
-/// plain select. Always terminates with `ActionFailed`, matching
-/// `WorldObject.onAction`.
+/// `action_id == 1` is a **shift-click**. Java's dispatch is
+/// `if (!player.isGM() && (!(obj.isNpc() && ALT_GAME_VIEWNPC) || obj.isFakePlayer()))
+/// obj.onAction(player, false); else obj.onActionShift(player);` — so a GM gets
+/// the admin `npcinfo.htm` window, `ALT_GAME_VIEWNPC` gets the `NpcViewMod`
+/// player view, and everyone else falls back to `onAction` with **interact
+/// false**: a plain select. Note what that fallback skips — the entire
+/// `else if (interact)` arm, which is where attacking and talking live. A
+/// shift-click is therefore never an attack, let alone "an attack that refuses
+/// to move" (there is no melee `dontMove` anywhere in Java). Always terminates
+/// with `ActionFailed`, matching `WorldObject.onAction`.
+///
 /// Java `PlayerAction`'s `CURSED_WEAPON_VICTIM_MIN_LEVEL` pair: an attack is
 /// refused when either side wields a cursed weapon and the *other* is below
 /// level 21. Only applies player-vs-player; a monster has no such protection.
@@ -280,10 +283,17 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
                     .unwrap_or_default()
                     .0
                     == Some(pkt.object_id);
-                if already_targeted {
-                    interact_with_npc(world, client_id, object_id, pkt.object_id, shift);
-                } else {
+                // `NpcAction.action(player, target, interact)`: an unselected
+                // NPC is selected, and only an **interact** click goes on to
+                // attack or talk (`else if (interact)`). A shift-click that
+                // misses both `onActionShift` branches lands here through
+                // `Action`'s own `obj.onAction(player, false)` — select only,
+                // never an attack. So shift is not "an attack that refuses to
+                // move"; it is not an attack at all.
+                if !already_targeted {
                     set_target(world, client_id, object_id, Some(pkt.object_id));
+                } else if !shift {
+                    interact_with_npc(world, client_id, object_id, pkt.object_id);
                 }
             }
         }
@@ -317,13 +327,7 @@ pub(crate) fn handle_action(world: &mut World, client_id: u32, body: &[u8]) {
             // ActionFailed (sent unconditionally at the end of this handler),
             // so the click is simply swallowed.
             if !cursed_weapon_blocks_attack(world, object_id, pkt.object_id) {
-                super::combat::start_attack_intent(
-                    world,
-                    client_id,
-                    object_id,
-                    pkt.object_id,
-                    false,
-                );
+                super::combat::start_attack_intent(world, client_id, object_id, pkt.object_id);
             }
         } else {
             set_target(world, client_id, object_id, Some(pkt.object_id));
@@ -606,7 +610,6 @@ pub(crate) fn interact_with_npc(
     client_id: u32,
     object_id: i32,
     npc_object_id: i32,
-    shift: bool,
 ) {
     if world
         .objects
@@ -632,8 +635,10 @@ pub(crate) fn interact_with_npc(
             .get_component::<Vitals>(&object_id)
             .is_some_and(|v| v.dead);
         if !dead {
-            // Shift-click carries the dontMove modifier into the attack.
-            super::combat::start_attack_intent(world, client_id, object_id, npc_object_id, shift);
+            // No dontMove for melee: Java's `onAction` path has no shift
+            // to carry (case 1 goes to `onActionShift`), and `AttackRequest`
+            // reads its shift byte only to discard it.
+            super::combat::start_attack_intent(world, client_id, object_id, npc_object_id);
         }
         return;
     }

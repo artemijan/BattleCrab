@@ -929,14 +929,14 @@ fn region_crossing_exchanges_delete_object_and_char_info() {
     assert_eq!(to_mover[1][0], server_packets::opcodes::RELATION_CHANGED);
 }
 
-/// dontMove is independent of the force modifier: a shift-click arrives on the
-/// `Action` packet (`action_id == 1`), not `AttackRequest`, so the shift flag
-/// has to be honoured there too. An out-of-reach shift-click on the current
-/// monster target refuses to chase (SM 22 + no intent/movement); a plain click
-/// on the same target chases. Regression for "dontMove only worked with
-/// ctrl+shift" — ctrl routes to `AttackRequest`, shift alone routes to `Action`.
+/// A shift-click is not an attack. `Action` case 1 sends a plain player to
+/// `obj.onAction(player, false)` — `NpcAction` with **interact false**, which
+/// selects an unselected NPC and skips the whole `else if (interact)` arm where
+/// attacking and talking live. On an *already selected* monster that leaves
+/// nothing to do at all, so only the handler's trailing `ActionFailed` comes
+/// back. (There is no melee `dontMove` in Java to refuse with, either.)
 #[test]
-fn shift_click_via_action_packet_does_not_move() {
+fn shift_click_via_action_packet_is_not_an_attack_at_all() {
     let (mut world, _db_rx, _link_rx) = combat_test_world();
     let mut a_rx = ingame_caster(&mut world, 1, 3001, 0, 0);
     let npc_oid = NPC_OID + 34;
@@ -957,25 +957,32 @@ fn shift_click_via_action_packet_does_not_move() {
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     drain(&mut a_rx);
 
-    // Shift-click it (Action, action_id = 1) — dontMove: no chase, "out of range".
+    // Shift-click it (Action, action_id = 1): swallowed whole.
     handle_action(&mut world, 1, &action_body(npc_oid, 1));
     assert!(
         !world.objects.has_component::<Intent>(&3001),
-        "no attack intent — dontMove"
+        "onActionShift never sets an attack intention"
     );
     assert!(
         !world.objects.has_component::<Movement>(&3001),
-        "no chase — dontMove"
+        "and never walks"
+    );
+    let packets = drain(&mut a_rx);
+    assert!(
+        !packets
+            .iter()
+            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE),
+        "no system message either — there is no refusal to report, the click \
+         simply does not reach the attack handler"
     );
     assert!(
-        drain(&mut a_rx)
+        packets
             .iter()
-            .any(|p| p[0] == server_packets::opcodes::SYSTEM_MESSAGE
-                && sm_id(p) == server_packets::sm_ids::YOUR_TARGET_IS_OUT_OF_RANGE),
-        "out-of-range system message"
+            .any(|p| p[0] == server_packets::opcodes::ACTION_FAIL),
+        "just the handler's trailing ActionFailed"
     );
 
-    // A plain click on the same target chases instead.
+    // A plain click on the already-selected target does engage and chase.
     handle_action(&mut world, 1, &action_body(npc_oid, 0));
     assert!(
         matches!(
