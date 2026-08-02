@@ -1718,6 +1718,9 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
     // TODO(soul-crystal): widen to an in-range broadcast if a quest ever needs a
     // non-targeted witness.
     let skill_see_witnesses = affected.clone();
+    // Kept for `OnCreatureSkillFinishCast` below, which resolves its trigger
+    // against the cast's own target.
+    let first_affected = affected.first().copied();
 
     for target_oid in affected {
         // Each target is re-checked: an AoE's effects on an early target can
@@ -1781,6 +1784,17 @@ pub(crate) fn handle_skill_finish(world: &mut World, player_object_id: i32, cast
         };
         apply_skill_effects(world, player_object_id, player_object_id, &self_skill);
     }
+
+    // Java `OnCreatureSkillFinishCast` — the event `TriggerSkillByMagicType`
+    // listens on. Fired once per cast, after the effects have landed, and
+    // resolved against the cast's own target (Dance of Shadows' Cancel Shadow
+    // Move is what ends the dance's stealth the moment you act).
+    super::effects::fire_magic_type_triggers(
+        world,
+        player_object_id,
+        first_affected.unwrap_or(cast.target_object_id),
+        skill.magic_type,
+    );
 
     // Attack stance is caster-scoped, so it fires once per cast rather than
     // per affected target.

@@ -2092,6 +2092,17 @@ pub(crate) fn apply_attack_damage(
         skill_magic.is_some(),
     );
     reflect_damage(world, attacker, target, damage, is_dot, skill_magic);
+    // Java `OnCreatureDamageReceived`, fired from `reduceCurrentHp` alongside
+    // `OnCreatureDamageDealt` — so unlike the attack-side twin (which the
+    // autoattack path fires, since `allowSkillAttack` defaults false) this one
+    // sees **skill damage too**. `TriggerSkillByDamage` listens on it.
+    super::skills::effects::fire_damage_received_triggers(
+        world,
+        target,
+        attacker,
+        damage as i32,
+        is_dot,
+    );
 }
 
 /// `Creature.doAttack`'s "Absorb HP from the damage inflicted" block.

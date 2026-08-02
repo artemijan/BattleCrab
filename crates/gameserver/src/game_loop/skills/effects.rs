@@ -1776,6 +1776,11 @@ pub(crate) fn apply_skill_effects(
             // applied; the attack path reads it off the attacker's skill book
             // (`fire_attack_triggers`).
             | SkillEffect::TriggerSkillByAttack { .. }
+            // Same for the two other trigger shapes: the damage path
+            // (`fire_damage_received_triggers`) and the cast path
+            // (`fire_magic_type_triggers`) read them off the bearer's book.
+            | SkillEffect::TriggerSkillByDamage { .. }
+            | SkillEffect::TriggerSkillByMagicType { .. }
             // Noblesse Blessing: nothing at application time either — the death
             // path reads its `NOBLESS_BLESSING` flag off the landed buff.
             | SkillEffect::NoblesseBless
@@ -2305,6 +2310,12 @@ pub(crate) fn apply_continuous_effects(
             // `Lucky` is an empty effect in Java too — `Player.isLucky()` asks
             // whether the buff is *present*, so landing is the whole job.
             | SkillEffect::Lucky
+            // The two listener-shaped triggers: Java attaches their listener to
+            // the **buff**, and this port finds them by scanning the bearer's
+            // buff list, so a dropped buff means the trigger never fires at
+            // all. Seventh and eighth slices caught by this guard.
+            | SkillEffect::TriggerSkillByDamage { .. }
+            | SkillEffect::TriggerSkillByMagicType { .. }
         )
     });
     if buff_effects.is_empty() && !has_periodic && !has_iconless_buff && !has_state_flag {
@@ -2697,6 +2708,220 @@ pub(crate) fn stop_fake_death(world: &mut World, object_id: i32) {
     broadcast_change_wait_type(world, object_id, server_packets::wait_type::STOP_FAKEDEATH);
     let pkt = server_packets::revive(object_id);
     crate::game_loop::helpers::broadcast_including_self(world, object_id, &pkt);
+}
+
+/// `TriggerSkillByDamage`'s `onDamageReceivedEvent` — the mirror of
+/// [`fire_attack_triggers`], evaluated for every hit the **bearer takes**.
+///
+/// Same subscription-versus-scan trade as the attack side: Java attaches a
+/// listener when the carrying buff starts, this port scans the victim's skill
+/// book at damage time.
+///
+/// Java's gates in order: not a DoT tick, no self-hits, the attacker level
+/// window, the damage floor, the chance roll, the `hpPercent` **upper** bound
+/// on the bearer's HP share, and the `attackerType` narrowing (Mirage takes
+/// `Playable`, so a mob hitting you never sets it off).
+pub(crate) fn fire_damage_received_triggers(
+    world: &mut World,
+    victim_oid: i32,
+    attacker_oid: i32,
+    damage: i32,
+    is_dot: bool,
+) {
+    // `event.isDamageOverTime()` and `attacker == target` both bail.
+    if is_dot || victim_oid == attacker_oid {
+        return;
+    }
+    // Java attaches the listener to the **buff**, so the carriers here are the
+    // bearer's live effects — not their skill book. That is the opposite of
+    // `fire_attack_triggers`, whose carriers are passives folded into
+    // `StatModifiers` and therefore absent from the buff list; knowing Mirage
+    // and being under it are different things.
+    let Some(buffs) = world.objects.get_component::<Buffs>(&victim_oid) else {
+        return;
+    };
+    let known: Vec<(i32, i32)> = buffs
+        .0
+        .iter()
+        .filter(|a| !a.passive)
+        .map(|a| (a.skill_id, a.skill_level))
+        .collect();
+
+    let attacker_is_playable = world
+        .objects
+        .has_component::<crate::model::Player>(&attacker_oid)
+        || world
+            .objects
+            .has_component::<crate::model::components::PetOf>(&attacker_oid)
+        || world
+            .objects
+            .has_component::<crate::model::components::ServitorOf>(&attacker_oid);
+
+    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
+    for (skill_id, skill_level) in known {
+        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
+        for effect in &carrier.effects {
+            let SkillEffect::TriggerSkillByDamage {
+                min_damage,
+                chance,
+                skill_id: trigger_id,
+                skill_level: trigger_level,
+                hp_percent,
+                attacker_playable_only,
+                on_attacker,
+            } = effect
+            else {
+                continue;
+            };
+            if *chance == 0 || *trigger_id == 0 || *trigger_level == 0 {
+                continue;
+            }
+            if damage < *min_damage {
+                continue;
+            }
+            if *attacker_playable_only && !attacker_is_playable {
+                continue;
+            }
+            // `hpPercent` is an *upper* bound: Java bails when the bearer is
+            // healthier than it. 100 (the default) can never bail.
+            if *hp_percent < 100 {
+                let share = world
+                    .objects
+                    .get_component::<Vitals>(&victim_oid)
+                    .filter(|v| v.max_hp > 0)
+                    .map(|v| v.cur_hp * 100.0 / v.max_hp as f64)
+                    .unwrap_or(100.0);
+                if share > *hp_percent as f64 {
+                    continue;
+                }
+            }
+            // `Rnd.get(100) > _chance` bails — `chance` itself passes.
+            if *chance < 100 && world.roll(100) > *chance {
+                continue;
+            }
+            fired.push((*trigger_id, *trigger_level, *on_attacker));
+        }
+    }
+
+    for (trigger_id, trigger_level, on_attacker) in fired {
+        let Some(trigger) = world
+            .data
+            .skill_data
+            .get(trigger_id, trigger_level)
+            .cloned()
+        else {
+            continue;
+        };
+        // `targetType`: ENEMY casts back at whoever hit you, SELF on yourself.
+        let target = if on_attacker {
+            attacker_oid
+        } else {
+            victim_oid
+        };
+        let already = world
+            .objects
+            .get_component::<Buffs>(&target)
+            .is_some_and(|b| {
+                b.0.iter()
+                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
+            });
+        if already {
+            continue;
+        }
+        // Java's `triggerCast(event.getAttacker(), target, skill)` — note the
+        // *attacker* is the caster of the counter-trigger, not the bearer.
+        apply_skill_effects(world, attacker_oid, target, &trigger);
+    }
+}
+
+/// `TriggerSkillByMagicType`'s `onSkillUseEvent` — fires when the bearer
+/// finishes casting a skill whose `magicType` is in the list.
+///
+/// Dance of Shadows (366) is the learnable carrier: any ordinary cast fires
+/// Cancel Shadow Move (7097) on the party, which is how the dance's stealth
+/// ends the moment you do something.
+pub(crate) fn fire_magic_type_triggers(
+    world: &mut World,
+    caster_oid: i32,
+    cast_target_oid: i32,
+    cast_magic_type: i32,
+) {
+    // Carriers are live buffs, not book entries — see the note on
+    // `fire_damage_received_triggers`.
+    let Some(buffs) = world.objects.get_component::<Buffs>(&caster_oid) else {
+        return;
+    };
+    let known: Vec<(i32, i32)> = buffs
+        .0
+        .iter()
+        .filter(|a| !a.passive)
+        .map(|a| (a.skill_id, a.skill_level))
+        .collect();
+
+    let mut fired: Vec<(i32, i32, bool)> = Vec::new();
+    for (skill_id, skill_level) in known {
+        let Some(carrier) = world.data.skill_data.get(skill_id, skill_level).cloned() else {
+            continue;
+        };
+        for effect in &carrier.effects {
+            let SkillEffect::TriggerSkillByMagicType {
+                magic_types,
+                chance,
+                skill_id: trigger_id,
+                skill_level: trigger_level,
+                on_party,
+            } = effect
+            else {
+                continue;
+            };
+            if *chance == 0 || *trigger_id == 0 || *trigger_level == 0 || magic_types.is_empty() {
+                continue;
+            }
+            if !magic_types.contains(&cast_magic_type) {
+                continue;
+            }
+            if *chance < 100 && world.roll(100) > *chance {
+                continue;
+            }
+            fired.push((*trigger_id, *trigger_level, *on_party));
+        }
+    }
+
+    for (trigger_id, trigger_level, on_party) in fired {
+        let Some(trigger) = world
+            .data
+            .skill_data
+            .get(trigger_id, trigger_level)
+            .cloned()
+        else {
+            continue;
+        };
+        // Java resolves the trigger's own `targetType` against the *triggering
+        // cast's* target, not the bearer — so the default `TARGET` lands on
+        // whoever was just hit, and `MY_PARTY` on the caster's party.
+        let targets = if on_party {
+            world
+                .objects
+                .get_component::<crate::model::components::PartyRef>(&caster_oid)
+                .and_then(|r| world.parties.get(&r.0))
+                .map(|p| p.members.clone())
+                .unwrap_or_else(|| vec![caster_oid])
+        } else {
+            vec![cast_target_oid]
+        };
+        for t in targets {
+            let already = world.objects.get_component::<Buffs>(&t).is_some_and(|b| {
+                b.0.iter()
+                    .any(|x| x.skill_id == trigger_id && x.skill_level >= trigger_level)
+            });
+            if already {
+                continue;
+            }
+            apply_skill_effects(world, caster_oid, t, &trigger);
+        }
+    }
 }
 
 /// `TriggerSkillByAttack`'s `onAttackEvent`, evaluated for every hit the
