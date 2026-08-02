@@ -47,7 +47,7 @@ War content outside Interlude's reach.
 
 | Axis | Java | Ported | Gap |
 |---|---|---|---|
-| Effect handler names used by dist skills | **335** | 140 | **195 unhandled** (1 781 reachable skills, **42 learnable names**) |
+| Effect handler names used by dist skills | **335** | 145 | **190 unhandled** (1 766 reachable skills, **37 learnable names**) |
 | Effects in an unbuilt `<*Effects>` scope | `START`/`END` | — | **5** `block/name` pairs (10 reachable skills) |
 | Skill conditions (`<conditions>` etc.) | **121 handlers** | **28 kinds** (S1) | ~~111~~ **69 `block/name` pairs**, ~~215~~ **1 learnable skill** |
 | `EffectFlag` states | **38** | 24 | ~~23~~ **14 missing** (5 held for S4, 9 with no source here) |
@@ -642,11 +642,45 @@ three.
 Census: effect names **198 → 195**, learnable-affected **61 → 57**, headline
 **63 → 59**. Sabotage-verified both new gates.
 
+#### Sub-slice 4 ✅ — the mitigation / counter family
+
+`AreaDamage`, `TransferDamageToSummon`, `CounterPhysicalSkill`, `SkillEvasion`
+and `SkillTurning` — five names, eight learnable skills, five distinct
+consumers.
+
+- **`AreaDamage` → `DAMAGE_ZONE_VULN`**, folded into the damage-zone tick as
+  `1 + (value / 100)`. The stat's name is misleading: Iron Body (295) grants
+  **−40** and Dance of Protection (311) **−30**, so both learnable sources are
+  *mitigation*.
+- **`TransferDamageToSummon`** — redirects a share of incoming player damage to
+  the first servitor **within 1000 units**, clamped to `currentHp − 1` so
+  Transfer Pain can never kill the pet it is protecting you with, ahead of the
+  CP pool exactly as `PlayerStatus.reduceHp` has it.
+- **`CounterPhysicalSkill`** grants a **chance** (20 % / 90 %), not a
+  multiplier, and Java runs the counter *before* the damage lands. Two guards
+  matter and both would look right in a melee-only test: **magic is never
+  counterable**, and neither is anything with `castRange > 40`.
+- **`SkillEvasion`** lives in a **per-`magicType` map**, not a `Stat` — both
+  learnable sources are bucket 0, so the buff dodges physical skills and leaves
+  magic alone.
+- **`SkillTurning`** — Spell Turning (1412) is, despite the name, an offensive
+  `ENEMY_ONLY` instant that breaks the target's cast; self-casts and raid
+  bosses are exempt.
+
+Census: effect names **195 → 190**, learnable-affected **57 → 49**, headline
+**59 → 51**.
+
+**Two process notes.** `CounterPhysicalSkill` was briefly in `EFFECT_REGISTRY`
+with **no consumer** — the census shrank while the effect did nothing, which is
+the exact anti-pattern this slice's own preamble warns about. Caught before
+commit; the counter is now implemented. And the empty-effects guard claimed a
+**sixth** victim: `SkillEvasion`'s per-bucket merge is unmerged only by
+`handle_buff_expire`, so a dropped buff made the dodge permanent.
+
 #### Remaining sub-slices ⏳
 
 - **Stat effects still needing a `Stat` + consumer:** `SkillMasteryRate`,
-  `CounterPhysicalSkill`, `TransferDamageToSummon`, `CubicMastery`,
-  `AreaDamage`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
+  `CubicMastery`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
   `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's
   vampiric-absorb cap — check that before wiring a heal clamp).
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive

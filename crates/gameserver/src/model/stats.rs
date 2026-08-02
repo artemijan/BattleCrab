@@ -110,6 +110,18 @@ pub enum Stat {
     /// branch). Sword/Blunt Weapon Mastery (217) is the learnable source, and
     /// the skill-exclusion is the point: it helps a tank hold aggro through
     /// ordinary swings, not through taunts.
+    /// Java `Stat.DAMAGE_ZONE_VULN` — a **vulnerability** percentage on
+    /// damage-zone ticks: `multiplier = 1 + (value / 100)`. Iron Body (295)
+    /// and Dance of Protection (311) grant it *negative* (−40 / −30), so the
+    /// stat's name notwithstanding, the learnable sources are mitigation.
+    DamageZoneVuln,
+    /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming
+    /// player damage redirected to a nearby servitor (Transfer Pain 1262).
+    TransferDamageSummonPercent,
+    /// Java `Stat.VENGEANCE_SKILL_PHYSICAL_DAMAGE` — the *chance* (not a
+    /// multiplier) that a **melee physical skill** hitting its bearer is
+    /// countered (Shield of Revenge 439 at 20 %, Counterattack 447 at 90 %).
+    VengeanceSkillPhysicalDamage,
     HateAttack,
     PhysicalSkillPower,
     MagicalSkillPower,
