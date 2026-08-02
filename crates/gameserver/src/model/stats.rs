@@ -17,6 +17,28 @@ pub enum BaseStat {
 }
 
 impl BaseStat {
+    /// Parse the `<stat>` name a `SkillMastery` effect declares.
+    ///
+    /// **Deliberately by name, never by ordinal.** Java's `BaseStat` is
+    /// `STR, INT, DEX, WIT, CON, MEN, CHA, LUC`; this enum is
+    /// `Str, Dex, Con, Int, Wit, Men`. `SkillMastery` stores the *ordinal* and
+    /// `calcSkillMastery` reads it back with `BaseStat.values()[val]`, so
+    /// copying Java's number across would silently select the wrong stat —
+    /// Skill Mastery 331 (INT) would come out as DEX.
+    pub fn from_name(name: &str) -> Option<Self> {
+        Some(match name {
+            "STR" => Self::Str,
+            "DEX" => Self::Dex,
+            "CON" => Self::Con,
+            "INT" => Self::Int,
+            "WIT" => Self::Wit,
+            "MEN" => Self::Men,
+            // CHA and LUC exist in Java's enum but have no `statBonus` table
+            // here and no skill on this dist names them.
+            _ => return None,
+        })
+    }
+
     /// The `<TAG>` block name in `data/stats/statBonus.xml`.
     pub fn xml_tag(self) -> &'static str {
         match self {
@@ -121,6 +143,14 @@ pub enum Stat {
     /// accumulated and cannot drift the way an add/subtract pair can when a
     /// buff is dropped by some other path. Divine Inspiration (1405) is the
     /// learnable source (+1..+6 slots).
+    /// Java `Stat.SKILL_MASTERY` — **not a magnitude**: `SkillMastery` stores
+    /// the *ordinal of the `BaseStat`* that drives the proc chance (STR for
+    /// Skill Mastery 330, INT for 331), and `calcSkillMastery` reads it back
+    /// with `BaseStat.values()[val]`. `-1` (absent) means no mastery at all.
+    SkillMastery,
+    /// Java `Stat.SKILL_MASTERY_RATE` — the multiplier on that chance
+    /// (Focus Skill Mastery 334).
+    SkillMasteryRate,
     MaxBuffSlots,
     DamageZoneVuln,
     /// Java `Stat.TRANSFER_DAMAGE_SUMMON_PERCENT` — the share of incoming

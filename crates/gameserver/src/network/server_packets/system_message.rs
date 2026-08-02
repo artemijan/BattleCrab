@@ -785,6 +785,8 @@ pub mod sm_ids {
     // Force/charges (G19): `FocusMomentum`/`GetMomentum`.
     pub const YOUR_FORCE_HAS_INCREASED_TO_LEVEL_S1: i16 = 323;
     pub const YOUR_FORCE_HAS_REACHED_MAXIMUM_CAPACITY: i16 = 324;
+    /// "A skill is ready to be used again." — the Skill Mastery proc.
+    pub const A_SKILL_IS_READY_TO_BE_USED_AGAIN: i16 = 2015;
     /// "$c1 is performing a counterattack." / "You countered $c1's attack." —
     /// the `CounterPhysicalSkill` pair (`Formulas.calcCounterAttack`).
     pub const C1_IS_PERFORMING_A_COUNTERATTACK: i16 = 1997;

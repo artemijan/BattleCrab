@@ -2104,6 +2104,27 @@ fn stop_effects_on_death(world: &mut World, player_oid: i32) {
     }
 }
 
+/// Java `Player.isLucky()` — `getLevel() <= 9 && isAffectedBySkill(194)`.
+///
+/// The `Lucky` effect itself is empty in Java (its handler carries only a
+/// `canStart` guard), so the buff's **presence** is the whole mechanic: it
+/// exempts a newbie from the death exp penalty. Java reads it in one more
+/// place, `PlayerStat.addExpAndSp`'s vitality branch, which this port's
+/// vitality path does not have yet.
+/// TODO(G34): the vitality-consumption exemption, once that branch exists.
+pub(crate) fn is_lucky(world: &World, player_oid: i32) -> bool {
+    /// `CommonSkill.LUCKY`.
+    const LUCKY_SKILL_ID: i32 = 194;
+    world
+        .objects
+        .get_component::<crate::model::Player>(&player_oid)
+        .is_some_and(|p| p.level <= 9)
+        && world
+            .objects
+            .get_component::<crate::model::components::Buffs>(&player_oid)
+            .is_some_and(|b| b.0.iter().any(|x| x.skill_id == LUCKY_SKILL_ID))
+}
+
 /// `Player.calculateDeathExpPenalty` + `PlayableStat.removeExp` (with the
 /// `Delevel`/`DelevelMinimum` clamping) + the SM 539 notice.
 pub(crate) fn apply_death_exp_penalty(world: &mut World, player_oid: i32) {
@@ -2117,6 +2138,13 @@ pub(crate) fn apply_death_exp_penalty_ex(
     player_oid: i32,
     at_war_with_killer: bool,
 ) {
+    // `Player.doDie`: "Should not penalize player when lucky, in a PvP zone or
+    // event" — `isLucky()` is `getLevel() <= 9 && isAffectedBySkill(LUCKY)`,
+    // i.e. the newbie Lucky (194) buff. Ported here rather than at the call
+    // site because every caller of this function is a death penalty (G34 S4).
+    if is_lucky(world, player_oid) {
+        return;
+    }
     let (level, exp) = {
         let Some(p) = world
             .objects

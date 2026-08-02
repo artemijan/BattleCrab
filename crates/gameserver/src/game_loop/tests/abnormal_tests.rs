@@ -1846,3 +1846,125 @@ fn dispel_by_slot_myself_spares_irreplacable_buffs() {
         "…but an irreplacable one of the same type stays"
     );
 }
+
+/// G34 S4 sub-slice 6 — `SkillMastery` (330 STR / 331 INT) + `SkillMasteryRate`
+/// (Focus Skill Mastery 334): a chance for a cast's cooldown to collapse to
+/// 100 ms, announced with "A skill is ready to be used again".
+///
+/// The stat stores the **`BaseStat` ordinal**, not a magnitude, and Java's enum
+/// order (`STR, INT, DEX, …`) differs from this port's (`Str, Dex, Con, Int, …`)
+/// — copying Java's number across would make Skill Mastery 331 read DEX instead
+/// of INT. Asserted by driving both stats.
+#[test]
+fn skill_mastery_collapses_the_cooldown_and_reads_the_right_base_stat() {
+    use crate::model::components::{BaseStats, StatModifiers};
+    use crate::model::stats::{BaseStat, Stat};
+    let (mut world, _db, _l) = cc2_world();
+    // The **real** `statBonus` table: `GameData::for_test`'s stub returns 1.0
+    // for every stat, which makes "which BaseStat was selected" unobservable —
+    // exactly the property under test. One dist load, reused for all four
+    // measurements below.
+    world.data.stat_bonus =
+        crate::data::StatBonus::load_from(concat!(env!("CARGO_MANIFEST_DIR"), "/../../dist/game/"));
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    // A lopsided stat spread, so "which BaseStat" is observable: huge INT,
+    // minimal DEX.
+    if let Some(b) = world.objects.get_component_mut::<BaseStats>(&CASTER) {
+        b.int_ = 99;
+        b.dex = 1;
+    }
+
+    // Derive the discriminating roll from the real bonus table rather than
+    // guessing a threshold: pick one strictly between the two chances, so the
+    // assertion can only pass if the *stat selection* is right.
+    const RATE: f64 = 10.0;
+    let int_chance = world.data.stat_bonus.bonus(BaseStat::Int, 99) * RATE;
+    let dex_chance = world.data.stat_bonus.bonus(BaseStat::Dex, 1) * RATE;
+    assert!(
+        int_chance > dex_chance + 2.0,
+        "the fixture has to separate the two stats: INT {int_chance}, DEX {dex_chance}"
+    );
+    let roll = ((int_chance + dex_chance) / 2.0) as i32;
+
+    let mastery_fires = |world: &mut World, stat: BaseStat| {
+        let mut mods = world
+            .objects
+            .get_component::<StatModifiers>(&CASTER)
+            .cloned()
+            .unwrap_or_default();
+        mods.add.insert(Stat::SkillMastery, stat as i32 as f64);
+        mods.mul.insert(Stat::SkillMasteryRate, RATE);
+        world.objects.add_components(&CASTER, mods);
+        world.forced_rolls.clear();
+        world.forced_rolls.push_back(roll);
+        crate::game_loop::skills::effects::calc_skill_mastery(world, CASTER)
+    };
+
+    assert!(
+        mastery_fires(&mut world, BaseStat::Int),
+        "INT 99 clears a roll of {roll}"
+    );
+    assert!(
+        !mastery_fires(&mut world, BaseStat::Dex),
+        "DEX 1 does not — so the ordinal really selects the stat"
+    );
+
+    // With no `SKILL_MASTERY` at all there is no proc, whatever the rate.
+    let mut mods = world
+        .objects
+        .get_component::<StatModifiers>(&CASTER)
+        .cloned()
+        .unwrap();
+    mods.add.remove(&Stat::SkillMastery);
+    world.objects.add_components(&CASTER, mods);
+    world.forced_rolls.clear();
+    world.forced_rolls.push_back(0);
+    assert!(
+        !crate::game_loop::skills::effects::calc_skill_mastery(&mut world, CASTER),
+        "Java's `getAdd(SKILL_MASTERY, -1) == -1` bail"
+    );
+}
+
+/// `Lucky` (194) is an **empty effect** in Java — its handler has only a
+/// `canStart` guard, and `Player.isLucky()` (`level <= 9 && affected by 194`)
+/// is the entire mechanic. It exempts a newbie from the death exp penalty.
+///
+/// Both halves of the predicate are asserted: the buff alone is not enough
+/// above level 9, which is what stops a twink from carrying it up.
+#[test]
+fn lucky_exempts_a_newbie_from_the_death_exp_penalty() {
+    const LUCKY: i32 = 194;
+    let (mut world, _db, _l) = cc2_world();
+    let mut lucky = cc_skill(LUCKY, SkillEffect::Lucky, "LUCKY");
+    lucky.effect_point = 100;
+    lucky.is_debuff = false;
+    world.data.skill_data.insert_for_test(lucky);
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+
+    let set_level = |world: &mut World, level: i32| {
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::Player>(&CASTER)
+        {
+            p.level = level;
+        }
+    };
+
+    set_level(&mut world, 5);
+    assert!(
+        !crate::game_loop::death::is_lucky(&world, CASTER),
+        "level alone is not enough — the buff has to be up"
+    );
+    land(&mut world, LUCKY, CASTER);
+    assert!(
+        crate::game_loop::death::is_lucky(&world, CASTER),
+        "a level-5 character holding Lucky is exempt"
+    );
+
+    set_level(&mut world, 10);
+    assert!(
+        !crate::game_loop::death::is_lucky(&world, CASTER),
+        "…and the buff alone is not enough past level 9"
+    );
+}
