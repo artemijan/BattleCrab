@@ -14765,6 +14765,13 @@ fn quest_q00214_trial_of_the_scholar() {
     ev(&mut world, triff, "30611-04.html"); // Triff's Ring, cond 26
     assert_eq!(item_count(&world, 3001, 2705), 1, "Triff's Ring");
     assert_eq!(quest_cond(&world, 3001, q), Some(26));
+    // Casian turns the player away while chapters 2 and 3 are missing, and that
+    // refusal is itself the journal step: cond 27 is what names the places the
+    // missing chapters come from (Valkon in Giran, Grandis in Death Pass).
+    talk(&mut world, poitan); // Poitan's Notes
+    assert_eq!(item_count(&world, 3001, 2711), 1, "Poitan's Notes");
+    talk(&mut world, casian); // 30612-01 — only chapter 1 in hand
+    assert_eq!(quest_cond(&world, 3001, q), Some(27));
     // Chapter 2 (Valkon/Maria)
     ev(&mut world, valkon, "30103-04.html"); // Valkon's Request
     talk(&mut world, maria); // → Crystal of Purity 2

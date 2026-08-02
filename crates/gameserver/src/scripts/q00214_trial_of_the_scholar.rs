@@ -869,6 +869,17 @@ fn casian_talk(ctx: &mut QuestCtx) -> String {
             {
                 "30612-02.html".to_string()
             } else {
+                // Casian's refusal *is* the journal step: cond 27 ("Elder Casian
+                // regrets that he cannot understand the contents from only one
+                // chapter") is what points the player at the chapters they still
+                // owe — Valkon in Giran for chapter 2, Grandis in Death Pass for
+                // chapter 3. The Mobius Classic-Interlude script this quest was
+                // ported from drops the `setCond(27)` that `L2J_Mobius_CT_0_Interlude`
+                // fires here, leaving the journal stuck on cond 26 with no guidance
+                // (cond 27 is the only step in 1..=31 the script never sets).
+                if ctx.is_cond(26) {
+                    ctx.set_cond(27, true);
+                }
                 "30612-01.html".to_string()
             }
         } else if ctx.quest_items_count(GHOULS_SKIN)
