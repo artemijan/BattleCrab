@@ -24,6 +24,10 @@ pub const MOVE_TO_LOCATION: u8 = 0x2F;
 pub const CHAR_INFO: u8 = 0x31;
 pub const STOP_MOVE: u8 = 0x47;
 pub const VALIDATE_LOCATION: u8 = 0x79;
+/// `ServerPackets.FINISH_ROTATING` — the settle half of the `Bluff` spin.
+pub const FINISH_ROTATING: u8 = 0x61;
+/// `ServerPackets.START_ROTATING` — the first half of the `Bluff` spin.
+pub const START_ROTATING: u8 = 0x7A;
 pub const STATUS_UPDATE: u8 = 0x18;
 pub const MAGIC_SKILL_USE: u8 = 0x48;
 pub const MAGIC_SKILL_CANCELED: u8 = 0x49;

@@ -171,6 +171,18 @@ pub(crate) fn max_recoverable(
         .unwrap_or(base)
 }
 
+/// The inverse of `servitor::servitor_of` — given a servitor, who owns it.
+/// The owner link lives on the servitor as `ServitorOf`, which is also what
+/// makes Java's `canStart` (`effected.isSummon()`) expressible: no component,
+/// not a servitor, no unsummon.
+fn servitor_owner_of(world: &World, servitor_oid: i32) -> Option<i32> {
+    world
+        .objects
+        .get_component::<crate::model::components::ServitorOf>(&servitor_oid)
+        .map(|s| s.owner_object_id)
+        .filter(|&owner| owner != 0)
+}
+
 pub(crate) fn apply_skill_effects(
     world: &mut World,
     caster_oid: i32,
@@ -879,6 +891,127 @@ pub(crate) fn apply_skill_effects(
             // clamped by `getMaxRecoverableCp()`. Java bails on a dead target,
             // a door and an HP-blocked one (the last is not a typo: the CP heal
             // reads `isHpBlocked`).
+            // `Bluff.instant` — spin the target to face the caster's heading.
+            // Raid bosses and their minions are immune (Java also names NPC
+            // 35062, a siege headquarters, explicitly); the pair of rotation
+            // packets is what the client animates, and the server-side heading
+            // change is what makes a subsequent Backstab land.
+            SkillEffect::Bluff { chance } => {
+                let is_raid = world
+                    .objects
+                    .get_component::<crate::model::npc::Npc>(&target_oid)
+                    .and_then(|n| world.data.npc_data.get(n.npc_id))
+                    // Java also excludes `isRaidMinion()`; this port has no
+                    // separate minion type — a raid's minions carry ordinary
+                    // `Monster` templates and are tracked by the leader's
+                    // `MinionList` instead — so only the boss itself is immune.
+                    // TODO(G34): extend to minions if a minion predicate lands.
+                    .is_some_and(|t| t.is_raid());
+                if is_raid || !confuse_chance_passes(world, caster_oid, target_oid, skill, *chance) {
+                    continue;
+                }
+                let Some(caster_heading) = world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&caster_oid)
+                    .map(|p| p.heading)
+                else {
+                    continue;
+                };
+                let target_heading = world
+                    .objects
+                    .get_component::<crate::model::components::Position>(&target_oid)
+                    .map(|p| p.heading)
+                    .unwrap_or(0);
+                if let Some(region) = world
+                    .objects
+                    .get_component::<RegionCell>(&target_oid)
+                    .map(|r| r.0)
+                {
+                    for pkt in [
+                        server_packets::start_rotation(target_oid, target_heading, 1, 65535),
+                        server_packets::stop_rotation(target_oid, caster_heading, 65535),
+                    ] {
+                        crate::game_loop::helpers::broadcast_near_region(world, region, &pkt);
+                    }
+                }
+                if let Some(p) = world
+                    .objects
+                    .get_component_mut::<crate::model::components::Position>(&target_oid)
+                {
+                    p.heading = caster_heading;
+                }
+            }
+            // `Unsummon.instant` — Erase (1395). `canStart` requires the
+            // *effected* to be a summon, so the skill is aimed at the pet
+            // rather than its owner, and the chance defaults to **-1**
+            // ("always") rather than 100.
+            SkillEffect::Unsummon { chance } => {
+                // `canStart`: the *effected* must be a summon. The port keys
+                // ownership the other way (owner → `SummonRef`), so find the
+                // owner by asking the target's own back-reference.
+                let Some(owner) = servitor_owner_of(world, target_oid) else {
+                    // Not a servitor — Java's `canStart` refuses outright.
+                    continue;
+                };
+                // `calcSuccess`: a negative chance always lands; otherwise the
+                // magic-level gate `(effected.getLevel() - 9) <= magicLevel`
+                // has to pass first.
+                if *chance >= 0 {
+                    let target_level = creature_level(world, target_oid);
+                    if skill.magic_level > 0 && (target_level - 9) > skill.magic_level {
+                        continue;
+                    }
+                    let rate = *chance as f64
+                        * attribute_mod(world, caster_oid, target_oid, skill)
+                        * calc_general_trait_bonus(
+                            world,
+                            caster_oid,
+                            target_oid,
+                            skill.trait_type,
+                            false,
+                        );
+                    if rate < 100.0 && rate <= world.roll(100) as f64 {
+                        continue;
+                    }
+                }
+                crate::game_loop::servitor::unsummon_servitor(world, owner);
+            }
+            // `DeathLink.instant` — Curse Death Link (1159). The power scales
+            // with how close the **caster** is to death:
+            // `power × (2 − 2·curHp/maxHp)` — ×2 at 0 HP, ×0 at full, so
+            // casting it healthy does literally nothing.
+            SkillEffect::DeathLink { power } => {
+                let Some(v) = world.objects.get_component::<Vitals>(&caster_oid).copied() else {
+                    continue;
+                };
+                if v.dead {
+                    continue;
+                }
+                let scaled = *power * (-((v.cur_hp * 2.0) / v.max_hp as f64) + 2.0);
+                let m_atk = world
+                    .objects
+                    .get_component::<CombatStats>(&caster_oid)
+                    .map(|c| c.m_atk)
+                    .unwrap_or(0.0);
+                let m_def = target_m_def(world, target_oid);
+                let caster_name = caster_display_name(world, caster_oid);
+                let failure = roll_magic_failure(world, caster_oid, target_oid, skill, false);
+                let damage = formulas::calc_magic_dam(
+                    m_atk,
+                    m_def,
+                    scaled,
+                    mcrit,
+                    crate::game_loop::combat::crit_damage_skill(world, caster_oid, target_oid, true),
+                    magic_shots_bonus,
+                    failure,
+                ) * attribute_mod(world, caster_oid, target_oid, skill)
+                    * skill_trait_mod(world, caster_oid, target_oid, skill, false)
+                    * skill_power_mul(world, caster_oid, true);
+                apply_skill_damage(
+                    world, caster_oid, target_oid, damage, mcrit, true, &caster_name,
+                    skill.over_hit, false, skill.id,
+                );
+            }
             SkillEffect::CpHealPercent { power } => {
                 use crate::model::components::PlayerVitals;
                 if world

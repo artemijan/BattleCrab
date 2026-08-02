@@ -247,3 +247,28 @@ pub fn ex_server_primitive(
     }
     w.into_bytes()
 }
+
+/// Port of `serverpackets/StartRotation` — the client-side spin `Bluff`
+/// (Blinding Blow 321, Bluff 358) plays before the target snaps to its new
+/// heading. `side` is 1 (clockwise) in every ported caller, `speed` 65535.
+pub fn start_rotation(object_id: i32, degree: i32, side: i32, speed: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::START_ROTATING);
+    w.write_i32(object_id);
+    w.write_i32(degree);
+    w.write_i32(side);
+    w.write_i32(speed);
+    w.into_bytes()
+}
+
+/// Port of `serverpackets/StopRotation` — the settle half of the pair above.
+/// The trailing int is Java's own unexplained `writeInt(0)`.
+pub fn stop_rotation(object_id: i32, degree: i32, speed: i32) -> Vec<u8> {
+    let mut w = PacketWriter::new();
+    w.write_u8(opcodes::FINISH_ROTATING);
+    w.write_i32(object_id);
+    w.write_i32(degree);
+    w.write_i32(speed);
+    w.write_i32(0);
+    w.into_bytes()
+}

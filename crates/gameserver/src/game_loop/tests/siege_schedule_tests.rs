@@ -230,9 +230,11 @@ fn an_hour_chosen_after_arming_is_honoured() {
     crate::game_loop::siege::schedule_all_at_boot(&mut world);
 
     // The owner picks the *other* dist hour, 20:00 — four hours after the
-    // fixed slot the chain was armed against.
-    let chosen = crate::game_loop::siege::next_siege_millis(now, 6, 20);
-    assert!(chosen > fixed, "20:00 is later than 16:00 the same Sunday");
+    // fixed slot the chain was armed against. Derived from `fixed` rather than
+    // from a second `next_siege_millis(now, 6, 20)`: between 16:00 and 20:00 on
+    // a Sunday that call returns *today* 20:00 while `fixed` has already rolled
+    // to next week, so the "later hour" the test needs would be earlier.
+    let chosen = fixed + 4 * 60 * 60 * 1000;
     world
         .castles
         .iter_mut()

@@ -775,12 +775,47 @@ Four interlocking effects: the cap and two heals that read it.
 Census: effect names **182 → 178**, learnable-affected **39 → 33**, headline
 **41 → 35**. Sabotage-verified both the cap and the heal direction.
 
+#### Sub-slice 9 ✅ — the bespoke three
+
+Three effects with nothing in common but that each needs its own code path.
+
+- **`Bluff`** (Blinding Blow 321, Bluff 358) spins the target to face the
+  **caster's** heading — which is what sets up a Backstab, so "just set the
+  heading" is only half of it: the rotation must be *broadcast*, via two
+  packets the port did not have (`StartRotating` 0x7A, `StopRotating` 0x61).
+  Java bails on `isRaid()` (and `isRaidMinion()`, which this port has no
+  predicate for — a `TODO(G34)` marks the gap; raid minions here carry ordinary
+  `Monster` templates and are tracked through the leader's `MinionList`).
+- **`Unsummon`** — the servitor-removal half, distinct from the summon-side
+  unsummon already ported.
+- **`DeathLink`** (Death Link 1177) scales power by the caster's **missing**
+  HP: `power * (2 − 2·curHp/maxHp)`. At full health the multiplier is **0** —
+  the skill lands, costs MP, and does nothing. A port that dropped the scaling
+  would look plausible at every HP except the two ends.
+
+Census: effect names **178 → 175**, learnable-affected **33 → 29**, headline
+**35 → 31**. Both new tests sabotage-verified.
+
+Two test traps caught here, both worth remembering:
+- The `Bluff` test first gave the raid boss level 40 against a level-20 mob, so
+  the *land-rate* spared the boss and the raid exemption was never exercised —
+  the test passed with the exemption deleted. Equalising the levels made the
+  template the only difference.
+- The `DeathLink` test read 1 damage at full HP. Not a damage floor:
+  `calc_magic_dam` pins a **magic-failure** outcome at 1 regardless of power,
+  and the forced-roll sequence landed there. The test now disables
+  `magic_failures` so it measures the multiplier and not the failure roll.
+
 #### Remaining sub-slices ⏳
 
-- **Stat effects still needing a `Stat` + consumer:** `SkillMasteryRate`,
-  `CubicMastery`, `SafeFallHeight`, the three `Pvp*DamageBonus`, and
-  `LimitHp`/`LimitCp` (whose `MAX_RECOVERABLE_*` is read only by Java's
-  vampiric-absorb cap — check that before wiring a heal clamp).
+- **Still open (the S4 tail, 20 names / 29 learnable skills):** `StatUp` (9,
+  out of scope), `ManaHealOverTime`, `ReduceDropPenalty`, `ResurrectionSpecial`
+  (2 each), then one apiece — `Betray`, `CallParty`, `ChameleonRest`,
+  `ImmobilePetBuff`, `NightStatModify`, `OpenChest`, `OpenDoor`,
+  `PhysicalAttackHpLink`, `PolearmSingleTarget`, `RebalanceHP`,
+  `SafeFallHeight`, `TriggerSkillByDamage`, `TriggerSkillByMagicType`, and the
+  `Pvp*DamageBonus` trio (needs `calculatePvpPveBonus` built from scratch).
+  `SafeFallHeight` stays unported until the server has fall damage at all.
 - **`AbstractEffect` families** (the original S4a–S4e grouping): defensive
   stances & counters, aggro & control, noblesse utility, passives & masteries,
   utility & sustain. Five of them also stamp flags S3 already defined and

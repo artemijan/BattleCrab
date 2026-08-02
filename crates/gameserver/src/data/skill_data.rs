@@ -1836,6 +1836,17 @@ fn build_skill(
                         // lives in `Player.isLucky()`, which asks whether the
                         // *buff* is present, so all this has to do is land.
                         "Lucky" => vec![SkillEffect::Lucky],
+                        "Bluff" => vec![SkillEffect::Bluff {
+                            chance: param("chance").unwrap_or(100.0) as i32,
+                        }],
+                        // Java's default here is **-1**, not 100: a negative
+                        // chance means "always", which is what Erase relies on.
+                        "Unsummon" => vec![SkillEffect::Unsummon {
+                            chance: param("chance").unwrap_or(-1.0) as i32,
+                        }],
+                        "DeathLink" => param("power")
+                            .map(|power| vec![SkillEffect::DeathLink { power }])
+                            .unwrap_or_default(),
                         // `CpHealPercent` — a share of **max CP**, clamped by
                         // `getMaxRecoverableCp()`. `power == 100` is the full
                         // pool (Java special-cases it to the same number).
@@ -4475,8 +4486,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 178 name(s), 33 learnable
-    /// skill(s) affected, 1737 reachable.
+    /// the work list, worst first. Category totals: 175 name(s), 29 learnable
+    /// skill(s) affected, 1727 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4507,16 +4518,17 @@ mod coverage_census {
     /// → 178 at sub-slice 8: the heal-ceiling family — `LimitHp`/`LimitCp`
     /// (`MAX_RECOVERABLE_*`, which every heal clamp now honours),
     /// `CpHealPercent` and `HpByLevel`.
+    /// → 175 at sub-slice 9: `Bluff` (the Backstab set-up spin, with Java's
+    /// raid exemption), `Unsummon` and `DeathLink` (power scaled by the
+    /// caster's *missing* HP — it does nothing at full health).
     const EFFECTS: &[(&str, usize)] = &[
         ("StatUp", 9),
-        ("Bluff", 2),
         ("ManaHealOverTime", 2),
         ("ReduceDropPenalty", 2),
         ("ResurrectionSpecial", 2),
         ("Betray", 1),
         ("CallParty", 1),
         ("ChameleonRest", 1),
-        ("DeathLink", 1),
         ("ImmobilePetBuff", 1),
         ("NightStatModify", 1),
         ("OpenChest", 1),
@@ -4530,7 +4542,6 @@ mod coverage_census {
         ("SafeFallHeight", 1),
         ("TriggerSkillByDamage", 1),
         ("TriggerSkillByMagicType", 1),
-        ("Unsummon", 1),
     ];
 
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
@@ -4605,7 +4616,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 178, 33, 1737),
+            ("effect", &gaps.effects, EFFECTS, 175, 29, 1727),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 11, 4, 532),
@@ -4657,7 +4668,7 @@ mod coverage_census {
         // number is, it does not mean "Summon Friend works".
         assert_eq!(
             wrong.len(),
-            35,
+            31,
             "learnable skills carrying an unhandled effect or an unenforced condition \
              (was 275/758 before G34 S1 landed the condition engine; the residue is \
              now almost entirely unhandled *effects*, out of {}) — G34's headline gap",

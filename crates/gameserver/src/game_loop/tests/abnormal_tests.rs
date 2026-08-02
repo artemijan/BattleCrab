@@ -2164,3 +2164,108 @@ fn cp_heal_percent_and_hp_by_level_hit_the_right_pools() {
         "…and the target — the corpse being drained — is not"
     );
 }
+
+/// G34 S4 sub-slice 9 — `DeathLink` (Curse Death Link 1159). The power scales
+/// with how close the **caster** is to death: `power × (2 − 2·curHp/maxHp)`,
+/// so it is ×2 at 0 HP and **×0 at full**. Casting it healthy does literally
+/// nothing, which is the opposite of how every other nuke behaves and the
+/// reason to assert the full-HP case explicitly.
+#[test]
+fn death_link_scales_with_the_casters_missing_hp() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
+    let mut link = cc_skill(9401, SkillEffect::DeathLink { power: 100.0 }, "NONE");
+    link.magic_type = 1;
+    // The magic-failure roll floors a failed cast at 1 damage regardless of
+    // power, which would swamp the multiplier we are measuring here.
+    world.cfg.character.magic_failures = false;
+    world.data.skill_data.insert_for_test(link);
+
+    let damage_at = |world: &mut World, hp_fraction: f64| -> f64 {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+            v.max_hp = 1000;
+            v.cur_hp = 1000.0 * hp_fraction;
+        }
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&NPC_OID) {
+            v.max_hp = 1_000_000;
+            v.cur_hp = 1_000_000.0;
+        }
+        world.forced_rolls.clear();
+        world.forced_rolls.extend([50; 12]);
+        land(world, 9401, NPC_OID);
+        1_000_000.0
+            - world
+                .objects
+                .get_component::<Vitals>(&NPC_OID)
+                .map(|v| v.cur_hp)
+                .unwrap_or(0.0)
+    };
+
+    let at_full = damage_at(&mut world, 1.0);
+    let at_half = damage_at(&mut world, 0.5);
+    let at_death = damage_at(&mut world, 0.01);
+
+    // At full HP the multiplier is 0, so the nuke does nothing at all.
+    assert_eq!(at_full, 0.0, "at full HP the multiplier is 0 — no damage");
+    assert!(at_half > 0.0, "half HP: {at_half}");
+    assert!(
+        at_death > at_half * 1.5,
+        "the closer to death the harder it hits ({at_half} → {at_death})"
+    );
+}
+
+/// `Bluff` (Blinding Blow 321, Bluff 358) spins the target to face the
+/// **caster's** heading — which is what sets up a Backstab. Raid bosses are
+/// immune, and that exemption is the half a "just set the heading"
+/// implementation would drop.
+#[test]
+fn bluff_turns_the_target_but_not_a_raid_boss() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.data.skill_data.insert_for_test(cc_skill(
+        9402,
+        SkillEffect::Bluff { chance: 100 },
+        "NONE",
+    ));
+    add_test_npc(&mut world, NPC_OID, 20001, "Monster", 20, 100, 0, 0);
+    let boss_oid = NPC_OID + 5;
+    // Same level and stats as the ordinary mob — the *only* difference is the
+    // raid template, so a heading that does not move can only be the exemption.
+    add_test_npc(&mut world, boss_oid, 29001, "RaidBoss", 20, 100, 0, 0);
+
+    let heading_of = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<crate::model::components::Position>(&oid)
+            .map(|p| p.heading)
+            .unwrap_or(0)
+    };
+    // Give the caster a distinctive heading and the targets another.
+    for (oid, h) in [(CASTER, 12_000), (NPC_OID, 0), (boss_oid, 0)] {
+        if let Some(p) = world
+            .objects
+            .get_component_mut::<crate::model::components::Position>(&oid)
+        {
+            p.heading = h;
+        }
+    }
+
+    // Pin the land roll — otherwise the chance gate makes this a coin flip.
+    world.forced_rolls.extend([0; 8]);
+    land(&mut world, 9402, NPC_OID);
+    assert_eq!(
+        heading_of(&world, NPC_OID),
+        12_000,
+        "the mob is spun to face the caster's heading"
+    );
+
+    world.forced_rolls.clear();
+    world.forced_rolls.extend([0; 8]);
+    land(&mut world, 9402, boss_oid);
+    assert_eq!(
+        heading_of(&world, boss_oid),
+        0,
+        "a raid boss is immune — Java bails before the rotation"
+    );
+}
