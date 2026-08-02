@@ -1360,7 +1360,7 @@ every milestone surfaces here, and the one-time `Custom/*.ini` enable-flag
 audit from the scope gate (2026-07 audit backstop). **Gate:** parity checklist
 complete.
 
-### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S5 landed (headline 275 → 12); S6–S8 remain**
+### G34 — Skills, effects & abnormal-state parity (epic) 🚧 **S0–S6 landed (headline 275 → 12; reachable 1167); S7–S8 remain**
 Plan: [PLAN_G34_SKILL_PARITY.md](PLAN_G34_SKILL_PARITY.md). G19 grew the effect
 system slice-by-slice **on demand**, and the parser is fail-open: an unknown
 `<effect name>` yields no `SkillEffect`, an empty effect list is dropped by the
@@ -1412,8 +1412,12 @@ friendly players), `TargetType::OTHERS`, and the `operateType` A3/CA5 mapping,
 which had left **seven learnable skills uncastable** because `use_magic_on`
 bails on anything that is neither Active nor Channeling — the one gap in this
 epic that fails *closed*; the remaining targeting work is
-`TargetType::ITEM` (452 items); the item/NPC effect tail (**every destination Scroll of Escape is inert
-today** — the `Teleport` effect is unparsed); and the skill-tag/formula
+`TargetType::ITEM` (452 items); **S6 landed** the item tail's two biggest names — `Teleport` (every
+destination Scroll of Escape was inert: 107 reachable skills loaded with an
+empty effect list) and `Hp` (Elixir of Life and the food items), taking
+reachable from 1303 to 1167; what remains on that axis is Territory
+War/Gracia+/Freya+ content, recorded as out of chronicle rather than chased;
+and the skill-tag/formula
 residue. **Gate:** 0 learnable skills carry an unhandled effect or unported
 condition that is not on a recorded out-of-chronicle list.
 

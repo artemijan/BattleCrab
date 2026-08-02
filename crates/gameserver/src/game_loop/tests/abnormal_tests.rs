@@ -3253,3 +3253,161 @@ fn the_others_target_type_refuses_the_caster_with_its_own_message() {
         "Battle Stance is an OTHERS skill, not an unparsed fallback"
     );
 }
+
+/// **`Teleport`** — the destination Scrolls of Escape. 107 reachable skills
+/// carried this effect and the parser did not know the name, so every one of
+/// them loaded with an **empty effect list**: the scroll was consumed, the cast
+/// animated, and nothing happened. Note the destination is per skill *level* —
+/// skill 2213 alone carries 22 towns, one per level.
+#[test]
+fn every_destination_escape_scroll_now_carries_a_teleport() {
+    use crate::model::skill::SkillEffect as E;
+
+    let skills = crate::data::skill_data::SkillData::load_from(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../../dist/game/"
+    ));
+    // Two levels of the same scroll must give two *different* destinations.
+    let lv1 = skills.get(2213, 1).expect("SoE lv1");
+    let lv2 = skills.get(2213, 2).expect("SoE lv2");
+    let coords = |s: &crate::model::skill::Skill| {
+        s.effects.iter().find_map(|e| match e {
+            E::Teleport { x, y, z } => Some((*x, *y, *z)),
+            _ => None,
+        })
+    };
+    let (a, b) = (coords(lv1), coords(lv2));
+    assert!(a.is_some(), "the scroll carries a Teleport at all");
+    assert_ne!(
+        a, b,
+        "and the destination is keyed on the skill level, not shared"
+    );
+    assert_eq!(
+        a,
+        Some((-114558, 253605, -1536)),
+        "Talking Island, straight out of the datapack"
+    );
+}
+
+/// And it has to actually move the player — an effect that parses and is never
+/// applied is the failure this epic keeps finding.
+#[test]
+fn a_scroll_of_escape_moves_the_caster() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.data.skill_data.insert_for_test(cc_skill(
+        9440,
+        SkillEffect::Teleport {
+            x: 12_345,
+            y: -6_789,
+            z: -1_000,
+        },
+        "NONE",
+    ));
+
+    land(&mut world, 9440, CASTER);
+
+    let pos = world
+        .objects
+        .get_component::<crate::model::components::Position>(&CASTER)
+        .map(|p| (p.x, p.y, p.z))
+        .unwrap();
+    assert_eq!(
+        (pos.0, pos.1),
+        (12_345, -6_789),
+        "the scroll actually moves you"
+    );
+    // `teleport_player` settles z onto the ground, so the destination z is a
+    // request rather than a literal — assert the neighbourhood, not the value.
+    assert!(
+        (pos.2 - (-1_000)).abs() <= 64,
+        "and lands near the requested height, got {}",
+        pos.2
+    );
+}
+
+/// **`Hp`** — the raw instant HP change behind Elixir of Life (2287) and the
+/// food items, which parsed to *nothing* before. It is not a `Heal`: no
+/// `calcHeal`, no healing-stat scaling. Java's guard list is dead / door /
+/// HP-blocked / **raid**, that last one being the clause the `Heal` family
+/// does not have.
+#[test]
+fn an_elixir_restores_hp_but_never_a_raid_bosss() {
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.data.skill_data.insert_for_test(cc_skill(
+        9441,
+        SkillEffect::Hp {
+            amount: 250.0,
+            percent: false,
+        },
+        "NONE",
+    ));
+    let boss = NPC_OID;
+    add_test_npc(&mut world, boss, 90301, "RaidBoss", 40, 100, 0, 0);
+
+    for (oid, cur, max) in [(CASTER, 100.0, 1000), (boss, 100.0, 1000)] {
+        if let Some(v) = world.objects.get_component_mut::<Vitals>(&oid) {
+            v.max_hp = max;
+            v.cur_hp = cur;
+        }
+    }
+
+    land(&mut world, 9441, CASTER);
+    land(&mut world, 9441, boss);
+
+    let hp = |world: &World, oid: i32| {
+        world
+            .objects
+            .get_component::<Vitals>(&oid)
+            .map(|v| v.cur_hp)
+            .unwrap_or(0.0)
+    };
+    assert_eq!(hp(&world, CASTER), 350.0, "a flat 250 restored");
+    assert_eq!(
+        hp(&world, boss),
+        100.0,
+        "a raid boss is exempt — the clause `Heal` does not have"
+    );
+}
+
+/// The gain is clamped to the **recoverable** headroom, so an aura that caps
+/// how far you can be healed caps an elixir too.
+#[test]
+fn an_elixir_honours_the_recoverable_ceiling() {
+    use crate::model::stats::Stat;
+
+    let (mut world, _db, _l) = cc2_world();
+    let _out = ingame_caster(&mut world, CID, CASTER, 0, 0);
+    world.data.skill_data.insert_for_test(cc_skill(
+        9442,
+        SkillEffect::Hp {
+            amount: 900.0,
+            percent: false,
+        },
+        "NONE",
+    ));
+    if let Some(v) = world.objects.get_component_mut::<Vitals>(&CASTER) {
+        v.max_hp = 1000;
+        v.cur_hp = 100.0;
+    }
+    // Noblesse Harmony's shape: heals may only reach 70 % of the pool.
+    if let Some(m) = world
+        .objects
+        .get_component_mut::<crate::model::components::StatModifiers>(&CASTER)
+    {
+        *m.mul.entry(Stat::MaxRecoverableHp).or_insert(1.0) *= 0.7;
+    }
+
+    land(&mut world, 9442, CASTER);
+
+    assert_eq!(
+        world
+            .objects
+            .get_component::<Vitals>(&CASTER)
+            .map(|v| v.cur_hp)
+            .unwrap(),
+        700.0,
+        "clamped to the recoverable ceiling, not the raw pool"
+    );
+}

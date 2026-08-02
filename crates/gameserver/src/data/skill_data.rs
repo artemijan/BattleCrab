@@ -2473,6 +2473,22 @@ fn build_skill(
                         },
                         // Only the TOWN escape is portable (see `SkillEffect::EscapeToTown`);
                         // CASTLE/CLANHALL/FORTRESS variants drop like unregistered names.
+                        // Fixed-destination teleports — the Scrolls of Escape.
+                        // Coordinates are per *level*: skill 2213 alone carries
+                        // 22 towns, one per level.
+                        "Teleport" => vec![SkillEffect::Teleport {
+                            x: param("x").unwrap_or(0.0) as i32,
+                            y: param("y").unwrap_or(0.0) as i32,
+                            z: param("z").unwrap_or(0.0) as i32,
+                        }],
+                        // `Hp.java` — a raw instant HP change, not a `Heal`:
+                        // no `calcHeal`, no healing-stat scaling, no overheal
+                        // message. `DIFF` is a flat amount, `PER` a share of
+                        // **max** HP.
+                        "Hp" => vec![SkillEffect::Hp {
+                            amount: param("amount").unwrap_or(0.0),
+                            percent: mode == "PER",
+                        }],
                         "Escape" if value_at(params, "escapeType", level) == Some("TOWN") => {
                             vec![SkillEffect::EscapeToTown]
                         }
@@ -4724,8 +4740,8 @@ mod coverage_census {
     }
 
     /// `<effect>` names with at least one **learnable** skill behind them —
-    /// the work list, worst first. Category totals: 145 name(s), 10 learnable
-    /// skill(s) affected, 1303 reachable.
+    /// the work list, worst first. Category totals: 143 name(s), 10 learnable
+    /// skill(s) affected, 1167 reachable.
     ///
     /// 216 → 214 at G34 S2: `PhysicalAbnormalResist`/`MagicalAbnormalResist`
     /// joined `EFFECT_REGISTRY` once `Formulas.getAbnormalResist` had a
@@ -4790,6 +4806,9 @@ mod coverage_census {
     /// names left with a learnable source, `StatUp` (Territory War) and
     /// `SafeFallHeight` (needs fall damage), are both deliberately out of
     /// scope, so the residue is now entirely recorded rather than unexamined.
+    /// → 143 at S6: the item tail's two biggest names — `Teleport` (every
+    /// destination Scroll of Escape, 107 reachable, all previously inert) and
+    /// `Hp` (Elixir of Life and the food items). Reachable 1303 → 1167.
     const EFFECTS: &[(&str, usize)] = &[("StatUp", 9), ("SafeFallHeight", 1)];
 
     /// `<effect-scope>` names with at least one **learnable** skill behind them —
@@ -4864,7 +4883,7 @@ mod coverage_census {
             // player half is Summon Friend and is still a TODO(G30) no-op, so
             // the census counts `CallPc` as handled while one of its two
             // branches does nothing.
-            ("effect", &gaps.effects, EFFECTS, 145, 10, 1303),
+            ("effect", &gaps.effects, EFFECTS, 143, 10, 1167),
             ("effect-scope", &gaps.effect_scopes, EFFECT_SCOPES, 5, 1, 10),
             ("condition", &gaps.conditions, CONDITIONS, 69, 1, 916),
             ("targetType", &gaps.target_types, TARGET_TYPES, 9, 0, 476),
@@ -4949,6 +4968,17 @@ mod coverage_census {
             );
             for (name, n) in ranked(map, &learn) {
                 println!("    (\"{name}\", {n}),");
+            }
+            // The **reachable** ranking too: past S4 the learnable list is
+            // essentially empty, and the remaining work (S6's item/NPC tail) is
+            // ranked by what item- and NPC-triggered skills lose, which the
+            // learnable ranking cannot see at all.
+            let by_reach = ranked(map, &reach);
+            if !by_reach.is_empty() {
+                println!("    // by reachable:");
+                for (name, n) in by_reach.iter().take(25) {
+                    println!("    //   (\"{name}\", {n}),");
+                }
             }
         }
     }
